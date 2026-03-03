@@ -60,7 +60,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
      * ## 동작/계약
      * - `batchSize <= 0`, 수동 `limit`, 수동 `orderBy`가 있으면 [IllegalArgumentException]이 발생합니다.
      * - 첫 번째 컬럼 타입이 Int/Long/EntityID(Int|Long)가 아니면 [IllegalArgumentException]이 발생합니다.
-     * - 내부에서 `limit`/`orderBy`를 임시 변경했다가 `finally`에서 원복합니다.
+     * - `limit`/`orderBy` 변이는 flow 수집 시점에만 발생하며, 수집 완료 또는 취소 시 `finally`에서 원복합니다.
      * - 각 배치는 새 `List<ResultRow>`로 방출됩니다.
      *
      * ```kotlin
@@ -76,24 +76,21 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
             "A manual `ORDER BY` clause should not be set. By default, the auto-incrementing column will be used."
         }
 
-        val comparatedColumn = try {
-            set.source.columns.first()  //  { it.columnType.isAutoInc } // snowflakeId 같은 Global Unique ID 도 지원하기 위해
+        // snowflakeId 같은 Global Unique ID 도 지원하기 위해 첫 번째 컬럼을 커서로 사용
+        val cursorColumn = try {
+            set.source.columns.first()
         } catch (_: NoSuchElementException) {
             throw UnsupportedOperationException("Batched select only works on tables with an auto-incrementing column")
         }
-        val columnType = comparatedColumn.columnType
+        val columnType = cursorColumn.columnType
         require(
             columnType is IntegerColumnType ||
                     columnType is LongColumnType ||
                     columnType is EntityIDColumnType<*>
         ) {
-            "Batched select only supports Int/Long id columns. (column=${comparatedColumn.name})"
+            "Batched select only supports Int/Long id columns. (column=${cursorColumn.name})"
         }
 
-        val originalLimit = limit
-        val originalOrderBy = orderByExpressions.toList()
-        limit = batchSize
-        (orderByExpressions as MutableList).add(comparatedColumn to sortOrder)
         val whereOp = where ?: Op.TRUE
         val fetchInAscendingOrder =
             sortOrder in listOf(SortOrder.ASC, SortOrder.ASC_NULLS_FIRST, SortOrder.ASC_NULLS_LAST)
@@ -108,32 +105,38 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
         }
 
         return flow {
+            // limit/orderBy 변이를 flow 수집 시점으로 지연시켜
+            // fetchBatchResultFlow() 호출 시점에는 원본 Query를 변경하지 않습니다.
+            val originalLimit = this@SuspendedQuery.limit
+            val originalOrderBy = this@SuspendedQuery.orderByExpressions.toList()
             try {
+                this@SuspendedQuery.limit = batchSize
+                (this@SuspendedQuery.orderByExpressions as MutableList).add(cursorColumn to sortOrder)
                 var lastOffset = if (fetchInAscendingOrder) 0L else null
                 while (true) {
                     val query = this@SuspendedQuery.copy().adjustWhere {
                         lastOffset?.let { lastOffset ->
                             whereOp and if (fetchInAscendingOrder) {
-                                when (comparatedColumn.columnType) {
+                                when (cursorColumn.columnType) {
                                     is EntityIDColumnType<*> -> {
-                                        (comparatedColumn as? Column<EntityID<Long>>)?.let {
+                                        (cursorColumn as? Column<EntityID<Long>>)?.let {
                                             (it greater lastOffset)
-                                        } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
+                                        } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
                                             (it greater lastOffset.toInt())
-                                        } ?: (comparatedColumn greater lastOffset)
+                                        } ?: (cursorColumn greater lastOffset)
                                     }
-                                    else                     -> (comparatedColumn greater lastOffset)
+                                    else                     -> (cursorColumn greater lastOffset)
                                 }
                             } else {
-                                when (comparatedColumn.columnType) {
+                                when (cursorColumn.columnType) {
                                     is EntityIDColumnType<*> -> {
-                                        (comparatedColumn as? Column<EntityID<Long>>)?.let {
+                                        (cursorColumn as? Column<EntityID<Long>>)?.let {
                                             (it less lastOffset)
-                                        } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
+                                        } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
                                             (it less lastOffset.toInt())
-                                        } ?: (comparatedColumn less lastOffset)
+                                        } ?: (cursorColumn less lastOffset)
                                     }
-                                    else                     -> (comparatedColumn less lastOffset)
+                                    else                     -> (cursorColumn less lastOffset)
                                 }
                             }
                         } ?: whereOp
@@ -144,11 +147,11 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
                     }
                     if (results.size < batchSize) break
 
-                    lastOffset = toLong(results.last()[comparatedColumn]!!)
+                    lastOffset = toLong(results.last()[cursorColumn]!!)
                 }
             } finally {
-                limit = originalLimit
-                (orderByExpressions as MutableList).apply {
+                this@SuspendedQuery.limit = originalLimit
+                (this@SuspendedQuery.orderByExpressions as MutableList).apply {
                     clear()
                     addAll(originalOrderBy)
                 }

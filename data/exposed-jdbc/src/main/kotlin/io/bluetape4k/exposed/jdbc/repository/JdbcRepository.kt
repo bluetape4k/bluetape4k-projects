@@ -258,7 +258,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.
      * @param offset 시작 위치
      * @param predicate 조건
-     * @return 엔티티 [T] 또는 null
+     * @return 엔티티 [E] 또는 null
      */
     fun findFirstOrNull(
         offset: Long? = null,
@@ -277,7 +277,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * 조건에 맞는 마지막 엔티티를 조회합니다.
      * @param offset 시작 위치
      * @param predicate 조건
-     * @return 엔티티 [T] 또는 null
+     * @return 엔티티 [E] 또는 null
      */
     fun findLastOrNull(
         offset: Long? = null,
@@ -308,7 +308,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * 특정 컬럼 값으로 첫 번째 엔티티를 조회합니다. 없으면 null을 반환합니다.
      * @param field 컬럼
      * @param value 값
-     * @return 엔티티 [T] 또는 null
+     * @return 엔티티 [E] 또는 null
      */
     fun <V> findByFieldOrNull(field: Column<V>, value: V): E? =
         table.selectAll()
@@ -318,6 +318,10 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
 
     /**
      * 여러 ID로 엔티티를 일괄 조회합니다.
+     *
+     * **주의**: `ids` 개수가 많을 경우 DB별 `IN` 절 크기 제한을 초과할 수 있습니다.
+     * 대용량 ID 목록은 청크 단위로 나눠 호출하세요.
+     *
      * @param ids 조회할 ID 컬렉션
      * @return 엔티티 목록
      */
@@ -364,6 +368,10 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
 
     /**
      * 여러 ID로 엔티티를 일괄 삭제합니다.
+     *
+     * **주의**: `ids` 개수가 많을 경우 DB별 `IN` 절 크기 제한을 초과할 수 있습니다.
+     * 대용량 ID 목록은 청크 단위로 나눠 호출하세요.
+     *
      * @param ids 삭제할 ID 컬렉션
      * @return 삭제된 행 수
      */
@@ -445,14 +453,12 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
      *
      * @param entities Upsert 할 엔티티 컬렉션
-     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
-     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
-     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
-     *  To specify manually that the insert value should be used when updating a column, for example within an expression
-     *  or function, invoke `insertValue()` with the desired column as the function argument.
-     *  If left null, all columns will be updated with the values provided for the insert.
-     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
-     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @param keys (선택) 유니크 제약 매칭에 사용할 컬럼 목록. 미지정 시 기본키를 사용하며, 기본키가 없을 경우 첫 번째 유니크 인덱스를 사용합니다.
+     * @param onUpdate [UpdateStatement]를 인자로 받는 람다. UPDATE 절에 할당할 값을 지정합니다.
+     *  컬럼에 INSERT 값을 그대로 사용하려면 `insertValue()`를 호출하세요.
+     *  null 이면 INSERT 값으로 모든 컬럼을 업데이트합니다.
+     * @param onUpdateExclude UPDATE에서 제외할 컬럼 목록. null 이면 INSERT 값으로 모든 컬럼을 업데이트합니다.
+     * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
     fun <D: Any> batchUpsert(
@@ -481,14 +487,12 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
      *
      * @param entities Upsert 할 엔티티 시퀀스
-     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
-     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
-     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
-     *  To specify manually that the insert value should be used when updating a column, for example within an expression
-     *  or function, invoke `insertValue()` with the desired column as the function argument.
-     *  If left null, all columns will be updated with the values provided for the insert.
-     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
-     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @param keys (선택) 유니크 제약 매칭에 사용할 컬럼 목록. 미지정 시 기본키를 사용하며, 기본키가 없을 경우 첫 번째 유니크 인덱스를 사용합니다.
+     * @param onUpdate [UpdateStatement]를 인자로 받는 람다. UPDATE 절에 할당할 값을 지정합니다.
+     *  컬럼에 INSERT 값을 그대로 사용하려면 `insertValue()`를 호출하세요.
+     *  null 이면 INSERT 값으로 모든 컬럼을 업데이트합니다.
+     * @param onUpdateExclude UPDATE에서 제외할 컬럼 목록. null 이면 INSERT 값으로 모든 컬럼을 업데이트합니다.
+     * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
     fun <D: Any> batchUpsert(
@@ -514,8 +518,12 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     /**
      * 페이징하여 엔티티를 조회합니다.
      *
-     * @param pageNumber 페이지 번호 (0부터 시작)
-     * @param pageSize 페이지 크기
+     * **주의**: `totalCount`와 `content`는 별도 쿼리로 조회되므로 원자적으로 일관성이 보장되지 않습니다.
+     * 두 쿼리 사이에 다른 트랜잭션이 행을 삽입/삭제하면 값이 불일치할 수 있습니다.
+     * 엄격한 일관성이 필요한 경우 `SERIALIZABLE` 격리 수준을 사용하세요.
+     *
+     * @param pageNumber 페이지 번호 (0 이상)
+     * @param pageSize 페이지 크기 (1 이상)
      * @param sortOrder 정렬 순서 (기본값: [SortOrder.ASC])
      * @param predicate 조건 (기본값: `Op.TRUE` - 전체 조회)
      * @return 페이징 결과 [ExposedPage] (content, totalCount, pageNumber, pageSize, totalPages 포함)
@@ -543,6 +551,8 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): ExposedPage<E> {
+        require(pageNumber >= 0) { "pageNumber는 0 이상이어야 합니다. (pageNumber=$pageNumber)" }
+        require(pageSize > 0) { "pageSize는 1 이상이어야 합니다. (pageSize=$pageSize)" }
         val totalCount = countBy(predicate)
         val content = findAll(
             limit = pageSize,
@@ -588,9 +598,6 @@ interface IntJdbcRepository<T: IntIdTable, E: Any>: JdbcRepository<Int, T, E>
  *     )
  * }
  * ```
- */
-/**
- * Long PK 테이블을 위한 [JdbcRepository] 타입 별칭 인터페이스입니다.
  */
 interface LongJdbcRepository<T: LongIdTable, E: Any>: JdbcRepository<Long, T, E>
 

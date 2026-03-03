@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.core
 
 import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.warn
+import io.bluetape4k.logging.error
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
@@ -33,21 +33,15 @@ fun JdbcTransaction.execCreateMissingTablesAndColumns(vararg tables: Table) {
         }
         SchemaUtils.create(*missingTables.toTypedArray())
     }.onFailure { ex ->
-        log.warn(ex) { "누락 테이블 생성 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
+        log.error(ex) { "누락 테이블 생성 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
     }
     runCatching {
-        MigrationUtils.statementsRequiredForDatabaseMigration(*tables).apply {
-            if (isNotEmpty()) {
-                self.exec(joinToString(";"))
-            }
-        }
+        MigrationUtils.statementsRequiredForDatabaseMigration(*tables)
+            .forEach { sql -> self.exec(sql) }
     }.onFailure { ex ->
-        log.warn(ex) { "마이그레이션 SQL 생성/실행 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
+        log.error(ex) { "마이그레이션 SQL 생성/실행 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
     }
 
-    SchemaUtils.addMissingColumnsStatements(*tables).apply {
-        if (isNotEmpty()) {
-            self.exec(joinToString(";"))
-        }
-    }
+    SchemaUtils.addMissingColumnsStatements(*tables)
+        .forEach { sql -> self.exec(sql) }
 }
