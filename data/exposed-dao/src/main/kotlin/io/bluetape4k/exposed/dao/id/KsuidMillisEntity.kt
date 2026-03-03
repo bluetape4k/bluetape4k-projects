@@ -5,11 +5,13 @@ import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 
+/** 밀리초 기반 KSUID 문자열 기반 `EntityID` 별칭입니다. */
+typealias KsuidMillisEntityID = EntityID<String>
 
 /**
  * 밀리초 기반 KSUID 문자열 PK를 사용하는 DAO 엔티티입니다.
  */
-open class KsuidMillisEntity(id: EntityID<String>): StringEntity(id)
+open class KsuidMillisEntity(id: KsuidMillisEntityID): StringEntity(id)
 
 /**
  * [KsuidMillisTable] 기반 엔티티를 관리하는 DAO `EntityClass`입니다.
@@ -21,7 +23,7 @@ open class KsuidMillisEntity(id: EntityID<String>): StringEntity(id)
  *
  * ```kotlin
  * object T1: KsuidMillisTable() { val name = varchar("name", 255) }
- * class E1(id: EntityID<String>): KsuidMillisEntity(id) {
+ * class E1(id: KsuidMillisEntityID): KsuidMillisEntity(id) {
  *     companion object: KsuidMillisEntityClass<E1>(T1)
  * }
  * // E1.new { name = "debop" }.id.value.length == 27
@@ -30,5 +32,5 @@ open class KsuidMillisEntity(id: EntityID<String>): StringEntity(id)
 open class KsuidMillisEntityClass<out E: KsuidMillisEntity>(
     table: KsuidMillisTable,
     entityType: Class<E>? = null,
-    entityCtor: ((EntityID<String>) -> E)? = null,
+    entityCtor: ((KsuidMillisEntityID) -> E)? = null,
 ): StringEntityClass<E>(table, entityType, entityCtor)

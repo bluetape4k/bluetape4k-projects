@@ -1,6 +1,5 @@
-package io.bluetape4k.exposed.dao.id
+package io.bluetape4k.exposed.core.dao.id
 
-import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables

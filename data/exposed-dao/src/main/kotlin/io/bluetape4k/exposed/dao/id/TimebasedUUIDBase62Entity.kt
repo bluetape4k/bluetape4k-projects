@@ -40,7 +40,7 @@ open class TimebasedUUIDBase62EntityClass<out E: TimebasedUUIDBase62Entity>(
 /**
  * MySQL용 Base62 UUID 테이블을 사용하는 DAO 엔티티입니다.
  */
-open class TimebasedUUIDBase62EntityMySql(id: EntityID<String>): StringEntity(id)
+open class TimebasedUUIDBase62EntityMySql(id: TimebasedUUIDBase62EntityID): StringEntity(id)
 
 /**
  * [TimebasedUUIDBase62TableMySql] 기반 엔티티를 관리하는 DAO `EntityClass`입니다.
@@ -52,7 +52,7 @@ open class TimebasedUUIDBase62EntityMySql(id: EntityID<String>): StringEntity(id
  *
  * ```kotlin
  * object T1: TimebasedUUIDBase62TableMySql()
- * class E1(id: EntityID<String>): TimebasedUUIDBase62EntityMySql(id) {
+ * class E1(id: TimebasedUUIDBase62EntityID): TimebasedUUIDBase62EntityMySql(id) {
  *     companion object: TimebasedUUIDBase62EntityClassMySql<E1>(T1)
  * }
  * // E1.new { }.id.value.isNotBlank()
@@ -61,5 +61,5 @@ open class TimebasedUUIDBase62EntityMySql(id: EntityID<String>): StringEntity(id
 open class TimebasedUUIDBase62EntityClassMySql<out E: TimebasedUUIDBase62EntityMySql>(
     table: TimebasedUUIDBase62TableMySql,
     entityType: Class<E>? = null,
-    entityCtor: ((EntityID<String>) -> E)? = null,
+    entityCtor: ((TimebasedUUIDBase62EntityID) -> E)? = null,
 ): StringEntityClass<E>(table, entityType, entityCtor)

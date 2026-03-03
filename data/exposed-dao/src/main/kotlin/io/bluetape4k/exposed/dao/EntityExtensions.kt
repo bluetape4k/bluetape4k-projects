@@ -15,14 +15,16 @@ import org.jetbrains.exposed.v1.dao.Entity
  * // rawId != null
  * ```
  */
-inline val <ID: Any> Entity<ID>.idValue: Any? get() = id._value
+@Suppress("UNCHECKED_CAST")
+inline val <ID: Any> Entity<ID>.idValue: ID? get() = id._value as? ID
 
 /**
  * 두 Exposed 엔티티를 클래스 호환성과 식별자 값으로 비교합니다.
  *
  * ## 동작/계약
  * - `other == null`이면 `false`, 동일 참조(`===`)면 `true`를 반환합니다.
- * - `other`가 `Entity`일 때 `javaClass.isAssignableFrom`과 `idValue` 동등성을 함께 확인합니다.
+ * - `other`가 `Entity`일 때 클래스 계층 호환성(양방향)과 `idValue` 동등성을 함께 확인합니다.
+ * - 양방향 `isAssignableFrom` 체크로 `equals` 대칭성 계약을 준수합니다.
  * - 상태를 변경하지 않으며 비교 결과만 반환합니다.
  *
  * ```kotlin
@@ -34,14 +36,18 @@ fun Entity<*>.idEquals(other: Any?): Boolean = when {
     other == null      -> false
     this === other     -> true
     // NOTE: one-to-one 관계의 id.table 값은 다를 수 있습니다. (backReferencedOn 인 경우 - BlogSchema의 Post.detail 와 PostDetail)
-    other is Entity<*> -> this.javaClass.isAssignableFrom(other.javaClass) && idValue == other.idValue
+    // 양방향 isAssignableFrom 으로 equals 대칭성 계약을 준수합니다.
+    other is Entity<*> -> (this.javaClass.isAssignableFrom(other.javaClass)
+        || other.javaClass.isAssignableFrom(this.javaClass)) && idValue == other.idValue
     else               -> false
 }
 
 /**
  * 식별자 값 기반 hash code를 반환합니다.
+ *
+ * ID가 아직 할당되지 않은 경우(null) `0`을 반환합니다.
  */
-fun <ID: Any> Entity<ID>.idHashCode(): Int = idValue.hashCode()
+fun <ID: Any> Entity<ID>.idHashCode(): Int = idValue?.hashCode() ?: 0
 
 /**
  * `entityToStringBuilder()`의 이전 이름입니다.

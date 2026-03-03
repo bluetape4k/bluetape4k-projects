@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDBase62Table
+import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
@@ -54,7 +55,7 @@ class TimebasedUUIDBase62EntityTest: AbstractCustomIdTableTest() {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = entityToStringBuilder()
             .add("name", name)
             .add("age", age)
             .toString()
