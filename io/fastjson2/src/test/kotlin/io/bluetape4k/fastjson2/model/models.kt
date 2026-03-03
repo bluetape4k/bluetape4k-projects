@@ -16,7 +16,6 @@ internal fun newUser(): User = User(
     name = faker.name().fullName()
 )
 
-
 data class Movie(
     val name: String,
     val studio: String,
@@ -34,7 +33,7 @@ enum class Generation {
     TEENAGE,
     TWENTY,
     THIRTY,
-    FOURTY
+    FOURTH
 }
 
 data class Address(

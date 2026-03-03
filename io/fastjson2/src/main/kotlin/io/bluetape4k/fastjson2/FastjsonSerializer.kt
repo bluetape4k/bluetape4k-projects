@@ -8,6 +8,7 @@ import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.support.isNullOrEmpty
 
 /**
  * Fastjson2 기반으로 JSON 문자열/JSONB 바이트 직렬화를 제공하는 [JsonSerializer] 구현체입니다.
@@ -84,11 +85,11 @@ class FastjsonSerializer: JsonSerializer {
      * // restored == listOf(1, 2, 3)
      * ```
      *
-     * @param bytes JSONB 바이트 배열입니다. `null`이면 `null`을 반환합니다.
+     * @param bytes JSONB 바이트 배열입니다. `null`이거나 빈 배열이면 `null`을 반환합니다.
      * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
-        if (bytes == null) {
+        if(bytes.isNullOrEmpty()) {
             return null
         }
         return try {
@@ -169,10 +170,10 @@ class FastjsonSerializer: JsonSerializer {
      * // parsed == listOf(1, 2, 3)
      * ```
      *
-     * @param bytes JSONB 바이트 배열입니다. `null`이면 `null`을 반환합니다.
+     * @param bytes JSONB 바이트 배열입니다. `null`이거나 빈 배열이면 `null`을 반환합니다.
      */
     inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
-        bytes?.let {
+        bytes?.takeIf { it.isNotEmpty() }?.let {
             try {
                 val clazz = T::class.java
                 if (clazz.typeParameters.isEmpty()) {

@@ -38,6 +38,20 @@ class FastjsonSerializerTest: AbstractJsonSerializerTest() {
     }
 
     @Test
+    fun `빈 바이트 배열 역직렬화 시 null 반환`() {
+        val result = serializer.deserialize<User>(byteArrayOf())
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `null 직렬화 후 역직렬화 시 null 반환`() {
+        val bytes = serializer.serialize(null)
+        bytes.shouldBeEmpty()
+        val result = serializer.deserialize(bytes, User::class.java)
+        result.shouldBeNull()
+    }
+
+    @Test
     fun `null 문자열 역직렬화 시 null 반환`() {
         val result = serializer.deserializeFromString<User>(null)
         result.shouldBeNull()

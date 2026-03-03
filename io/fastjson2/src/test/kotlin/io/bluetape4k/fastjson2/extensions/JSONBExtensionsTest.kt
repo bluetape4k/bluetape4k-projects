@@ -37,7 +37,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
     fun `list convert as input stream with JSONB`() {
         val users = List(2) { newUser() }
 
-        users.toJsonBytes()!!.toInputStream().use { inputStream ->
+        users.toJsonBytes().toInputStream().use { inputStream ->
             val parsed = inputStream.readBytesOrNull<List<User>>()
             parsed.shouldNotBeNull() shouldBeEqualTo users
         }

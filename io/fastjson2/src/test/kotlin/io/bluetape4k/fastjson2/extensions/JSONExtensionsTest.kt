@@ -20,7 +20,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `json into 01`() {
+    fun `JSON 문자열을 User 객체로 역직렬화`() {
         val user = newUser()
         val jsonString = user.toJSONString()
 
@@ -29,7 +29,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `json into 02`() {
+    fun `JSON 문자열에서 User가 포함된 Map 역직렬화`() {
         val user = newUser()
         val json = user.toJSONString()
         log.debug { "json: $json" }
@@ -43,7 +43,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `stream into 01`() {
+    fun `JSON 스트림에서 User 객체 역직렬화`() {
         val user = newUser()
         val jsonString = user.toJSONString()
         val input = jsonString.byteInputStream()
@@ -53,7 +53,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse object 01`() {
+    fun `JSON 문자열 파싱 후 재직렬화 결과 동일`() {
         val user = newUser()
         val jsonString = user.toJSONString()
 
@@ -63,7 +63,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse object 02`() {
+    fun `parseObject 확장 함수로 User 역직렬화`() {
         val user = newUser()
         val jsonString = user.toJSONString()
 
@@ -73,7 +73,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse object 03`() {
+    fun `parseObject 로 JSONObject 파싱`() {
         val user = newUser()
         val jsonString = user.toJSONString()
 
@@ -90,7 +90,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
      * Sequence 와 유사
      */
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse object 04`() = runTest {
+    fun `InputStream 에서 스트리밍 방식으로 User 파싱`() = runTest {
         val users = List(5) { newUser() }
         val inputStream = users.toJSONString().byteInputStream()
 
@@ -121,7 +121,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse array 01`() {
+    fun `JSON 배열 문자열을 JSONArray 로 파싱`() {
         // JSONArray
         val list = listOf<Any>(
             faker.random().nextInt(),
@@ -138,7 +138,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse array 02`() {
+    fun `JSON 배열 문자열을 User 리스트로 역직렬화`() {
         // JSONArray
         val user = newUser()
         val list = listOf(user)
@@ -149,7 +149,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse default marker`() {
+    fun `기본값이 있는 Meta 객체 JSON 역직렬화`() {
         val m0 = """{}""".readValueOrNull<Meta>()
         m0 shouldBeEqualTo Meta()
 
