@@ -20,8 +20,7 @@ dependencies {
     api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-crypto"))
-    // TODO: Google Tink 사용 시
-    // compileOnly(project(":bluetape4k-tink"))
+    compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
     testImplementation(Libs.jsonpath)

@@ -122,19 +122,61 @@ data class User(
 )
 ```
 
-### 6. 필드 암호화 (@JsonEncrypt)
+### 6. 필드 암호화 (@JsonEncrypt / @JsonTinkEncrypt)
+
+#### Jasypt 기반 (`@JsonEncrypt`) — Deprecated
 
 ```kotlin
 import io.bluetape4k.jackson3.crypto.JsonEncrypt
+import io.bluetape4k.jackson3.crypto.JsonEncryptModule
 
 data class User(
     val username: String,
-    @field:JsonEncrypt          // AES 기본 암호화
+    @get:JsonEncrypt          // AES 기본 암호화 (Jasypt)
     val password: String,
 )
+
+// JsonEncryptModule 등록 필요
+val mapper = Jackson.createDefaultJsonMapper().rebuild()
+    .addModule(JsonEncryptModule())
+    .build()
 ```
 
-Jackson 3.x에서는 `JsonEncryptModule`을 통해 `JsonEncryptAnnotationInterospector`가 자동 등록됩니다.
+#### Google Tink 기반 (`@JsonTinkEncrypt`) — 권장
+
+`bluetape4k-tink` 의존성이 필요하며, `JsonTinkEncryptModule`을 매퍼에 등록해야 합니다.
+
+```kotlin
+import io.bluetape4k.jackson3.crypto.JsonTinkEncrypt
+import io.bluetape4k.jackson3.crypto.JsonTinkEncryptModule
+import io.bluetape4k.jackson3.crypto.TinkEncryptAlgorithm
+
+data class User(
+    val username: String,
+    @get:JsonTinkEncrypt                                               // AES256-GCM (기본값)
+    val password: String,
+    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // DB 검색 가능한 결정적 암호화
+    val mobile: String,
+)
+
+// JsonTinkEncryptModule 등록 필요
+val mapper = Jackson.createDefaultJsonMapper().rebuild()
+    .addModule(JsonTinkEncryptModule())
+    .build()
+
+// 직렬화: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
+// 역직렬화 시 자동 복호화
+```
+
+지원 알고리즘:
+
+| `TinkEncryptAlgorithm` | 설명 |
+|------------------------|------|
+| `AES256_GCM` | AES256-GCM 비결정적 암호화 — 범용, 기본값 |
+| `AES128_GCM` | AES128-GCM 비결정적 암호화 — 성능 우선 |
+| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — HW AES 가속 없는 환경 |
+| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — 큰 nonce(192bit) |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능 |
 
 ### 7. 필드 마스킹 (@JsonMasker)
 
@@ -169,7 +211,8 @@ dependencies {
     implementation(project(":bluetape4k-jackson3"))
 
     // 선택적 의존성
-    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt 사용 시
+    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
+    implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
 }
 ```
 
@@ -185,13 +228,19 @@ io.bluetape4k.jackson3
 ├── async/                        # 비동기 JSON 파싱
 │   ├── AsyncJsonParser.kt        # 콜백 기반 비동기 파서
 │   └── SuspendJsonParser.kt      # 코루틴 기반 파서
-├── crypto/                       # 필드 암호화
-│   ├── JsonEncrypt.kt            # @JsonEncrypt 어노테이션
-│   ├── JsonEncryptModule.kt      # Jackson 3.x Module 등록
-│   ├── JsonEncryptAnnotationInterospector.kt
-│   ├── JsonEncryptSerializer.kt  # 암호화 직렬화기
-│   ├── JsonEncryptDeserializer.kt # 복호화 역직렬화기
-│   └── JsonEncryptors.kt         # Encryptor 캐시 관리
+├── crypto/                                       # 필드 암호화
+│   ├── JsonEncrypt.kt                            # @JsonEncrypt 어노테이션 (Jasypt, Deprecated)
+│   ├── JsonEncryptModule.kt                      # Jasypt Module 등록
+│   ├── JsonEncryptAnnotationInterospector.kt     # Jasypt Introspector
+│   ├── JsonEncryptSerializer.kt                  # Jasypt 암호화 직렬화기
+│   ├── JsonEncryptDeserializer.kt                # Jasypt 복호화 역직렬화기
+│   ├── JsonEncryptors.kt                         # Encryptor 캐시 관리
+│   ├── TinkEncryptAlgorithm.kt                   # Tink 알고리즘 enum
+│   ├── JsonTinkEncrypt.kt                        # @JsonTinkEncrypt 어노테이션 (Google Tink)
+│   ├── JsonTinkEncryptModule.kt                  # Tink Module 등록
+│   ├── JsonTinkEncryptAnnotationIntrospector.kt  # Tink Introspector
+│   ├── JsonTinkEncryptSerializer.kt              # Tink 암호화 직렬화기
+│   └── JsonTinkEncryptDeserializer.kt            # Tink 복호화 역직렬화기
 ├── mask/                         # 필드 마스킹
 │   ├── JsonMasker.kt             # @JsonMasker 어노테이션
 │   ├── JsonMaskerModule.kt       # Jackson 3.x Module 등록

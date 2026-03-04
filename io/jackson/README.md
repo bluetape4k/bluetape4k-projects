@@ -124,22 +124,54 @@ data class User(
 // { "userId": "6gVuscij1cec8CelrpHU5h", "plainId": "413684f2-..." }
 ```
 
-### 6. 필드 암호화 (@JsonEncrypt)
+### 6. 필드 암호화 (@JsonEncrypt / @JsonTinkEncrypt)
 
 민감한 데이터를 JSON 직렬화 시 자동으로 암호화/복호화합니다.
+
+#### Jasypt 기반 (`@JsonEncrypt`) — Deprecated
 
 ```kotlin
 import io.bluetape4k.jackson.crypto.JsonEncrypt
 
 data class User(
     val username: String,
-    @field:JsonEncrypt          // AES 기본 암호화
+    @field:JsonEncrypt          // AES 기본 암호화 (Jasypt)
     val password: String,
 )
 
 // 직렬화: { "username": "debop", "password": "N1E79rV_n0d0eaZ..." }
 // 역직렬화 시 자동 복호화
 ```
+
+#### Google Tink 기반 (`@JsonTinkEncrypt`) — 권장
+
+`bluetape4k-tink` 의존성이 필요합니다. 별도 모듈 등록 없이 어노테이션만으로 사용합니다.
+
+```kotlin
+import io.bluetape4k.jackson.crypto.JsonTinkEncrypt
+import io.bluetape4k.jackson.crypto.TinkEncryptAlgorithm
+
+data class User(
+    val username: String,
+    @get:JsonTinkEncrypt                                               // AES256-GCM (기본값)
+    val password: String,
+    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // DB 검색 가능한 결정적 암호화
+    val mobile: String,
+)
+
+// 직렬화: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
+// 역직렬화 시 자동 복호화
+```
+
+지원 알고리즘:
+
+| `TinkEncryptAlgorithm` | 설명 |
+|------------------------|------|
+| `AES256_GCM` | AES256-GCM 비결정적 암호화 — 범용, 기본값 |
+| `AES128_GCM` | AES128-GCM 비결정적 암호화 — 성능 우선 |
+| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — HW AES 가속 없는 환경 |
+| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — 큰 nonce(192bit) |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능 |
 
 ### 7. 필드 마스킹 (@JsonMasker)
 
@@ -179,7 +211,8 @@ dependencies {
 
     // 선택적 의존성
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")  // YAML
-    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt 사용 시
+    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
+    implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
 }
 ```
 
@@ -195,11 +228,15 @@ io.bluetape4k.jackson
 ├── async/                        # 비동기 JSON 파싱
 │   ├── AsyncJsonParser.kt        # 콜백 기반 비동기 파서
 │   └── SuspendJsonParser.kt      # 코루틴 기반 파서
-├── crypto/                       # 필드 암호화
-│   ├── JsonEncrypt.kt            # @JsonEncrypt 어노테이션
-│   ├── JsonEncryptSerializer.kt  # 암호화 직렬화기
-│   ├── JsonEncryptDeserializer.kt # 복호화 역직렬화기
-│   └── JsonEncryptors.kt         # Encryptor 캐시 관리
+├── crypto/                           # 필드 암호화
+│   ├── JsonEncrypt.kt                # @JsonEncrypt 어노테이션 (Jasypt, Deprecated)
+│   ├── JsonEncryptSerializer.kt      # 암호화 직렬화기
+│   ├── JsonEncryptDeserializer.kt    # 복호화 역직렬화기
+│   ├── JsonEncryptors.kt             # Encryptor 캐시 관리
+│   ├── TinkEncryptAlgorithm.kt       # Tink 알고리즘 enum
+│   ├── JsonTinkEncrypt.kt            # @JsonTinkEncrypt 어노테이션 (Google Tink)
+│   ├── JsonTinkEncryptSerializer.kt  # Tink 암호화 직렬화기
+│   └── JsonTinkEncryptDeserializer.kt # Tink 복호화 역직렬화기
 ├── mask/                         # 필드 마스킹
 │   ├── JsonMasker.kt             # @JsonMasker 어노테이션
 │   └── JsonMaskerSerializer.kt   # 마스킹 직렬화기
