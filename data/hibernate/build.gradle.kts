@@ -90,6 +90,8 @@ dependencies {
     // Converter
     compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-jackson"))
+    // TODO: Tink 용 Converter 제작
+    // compileOnly(project(":bluetape4k-tink"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 

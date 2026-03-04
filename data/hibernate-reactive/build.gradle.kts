@@ -73,8 +73,10 @@ dependencies {
     // bluetape4k-data-hibernate 의 테스트용 엔티티를 사용하기 위해 추가합니다
     testImplementation(project(path = ":bluetape4k-hibernate", configuration = "testJar"))
 
-    // Converter 때문에
+    // Converter 사용 시
     compileOnly(project(":bluetape4k-crypto"))
+    // TODO: Tink 용 Converter 사용
+    // compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.kryo)

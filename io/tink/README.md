@@ -2,8 +2,7 @@
 
 Google [Tink](https://github.com/google/tink) 암호화 라이브러리를 Kotlin 관용적으로 래핑한 모듈입니다.
 
-기존 `bluetape4k-crypto`(Jasypt 기반 PBE)와 독립적으로 동작하며,
-현대적 인증 암호화(AEAD) 알고리즘을 안전한 API로 제공합니다.
+기존 `bluetape4k-crypto`(Jasypt 기반 PBE)와 독립적으로 동작하며, 현대적 인증 암호화(AEAD) 알고리즘을 안전한 API로 제공합니다.
 
 ## 특징
 
@@ -54,12 +53,12 @@ val aead = TinkAeads.AES256_GCM
 
 // String 확장 함수
 val encrypted = "민감한 정보".tinkEncrypt(aead)
-val original  = encrypted.tinkDecrypt(aead)
+val original = encrypted.tinkDecrypt(aead)
 
 // ByteArray 확장 함수
-val data      = "Hello".toByteArray()
+val data = "Hello".toByteArray()
 val cipherBytes = data.tinkEncrypt(aead)
-val plainBytes  = cipherBytes.tinkDecrypt(aead)
+val plainBytes = cipherBytes.tinkDecrypt(aead)
 ```
 
 ### AEAD — 커스텀 키 생성
@@ -118,18 +117,18 @@ val isTampered: Boolean = mac.verifyMac(tag, "변조된 데이터") // false
 
 // 확장 함수
 val tag2 = "중요한 데이터".computeTinkMac(mac)
-val ok   = "중요한 데이터".verifyTinkMac(tag2, mac)  // true
+val ok = "중요한 데이터".verifyTinkMac(tag2, mac)  // true
 ```
 
 ## 알고리즘 선택 가이드
 
-| 사용 목적 | 권장 알고리즘 | 클래스 |
-|-----------|--------------|--------|
-| 범용 암호화 | AES-256-GCM | `TinkAeads.AES256_GCM` |
-| 하드웨어 AES 없는 환경 | XChaCha20-Poly1305 | `TinkAeads.XCHACHA20_POLY1305` |
-| DB 컬럼 검색 가능 암호화 | AES-256-SIV | `TinkDaeads.AES256_SIV` |
-| 데이터 무결성 검증 | HMAC-SHA256 | `TinkMacs.HMAC_SHA256` |
-| 고보안 무결성 검증 | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG` |
+| 사용 목적           | 권장 알고리즘                | 클래스                              |
+|-----------------|------------------------|----------------------------------|
+| 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM`           |
+| 하드웨어 AES 없는 환경  | XChaCha20-Poly1305     | `TinkAeads.XCHACHA20_POLY1305`   |
+| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV`          |
+| 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`           |
+| 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG` |
 
 ## 주의 사항
 
@@ -140,8 +139,8 @@ val ok   = "중요한 데이터".verifyTinkMac(tag2, mac)  // true
 
 ### 키 관리
 
-`TinkAeads`, `TinkDaeads`, `TinkMacs`의 싱글턴 인스턴스는 **애플리케이션 수명 동안 메모리에 보관되는 임시 키**를 사용합니다.
-재시작 후에도 복호화가 필요한 경우 키를 안전하게 직렬화하여 보관해야 합니다.
+`TinkAeads`, `TinkDaeads`, `TinkMacs`의 싱글턴 인스턴스는 **애플리케이션 수명 동안 메모리에 보관되는 임시 키
+**를 사용합니다. 재시작 후에도 복호화가 필요한 경우 키를 안전하게 직렬화하여 보관해야 합니다.
 
 ```kotlin
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -163,11 +162,11 @@ val keysetJson = outputStream.toString()
 
 ## bluetape4k-crypto 와의 차이
 
-| 항목 | `bluetape4k-crypto` | `bluetape4k-tink` |
-|------|--------------------|--------------------|
-| 기반 라이브러리 | Jasypt + BouncyCastle | Google Tink |
-| 암호화 방식 | PBE (Password-Based) | AEAD (인증 암호화) |
-| 인증 | 없음 (AES-CBC) | 내장 (GCM/Poly1305/SIV) |
-| 결정적 암호화 | 불가 | AES-SIV로 지원 |
-| MAC | 별도 | HMAC-SHA256/512 내장 |
-| 의존성 | 상호 독립 | 상호 독립 |
+| 항목       | `bluetape4k-crypto`   | `bluetape4k-tink`     |
+|----------|-----------------------|-----------------------|
+| 기반 라이브러리 | Jasypt + BouncyCastle | Google Tink           |
+| 암호화 방식   | PBE (Password-Based)  | AEAD (인증 암호화)         |
+| 인증       | 없음 (AES-CBC)          | 내장 (GCM/Poly1305/SIV) |
+| 결정적 암호화  | 불가                    | AES-SIV로 지원           |
+| MAC      | 별도                    | HMAC-SHA256/512 내장    |
+| 의존성      | 상호 독립                 | 상호 독립                 |

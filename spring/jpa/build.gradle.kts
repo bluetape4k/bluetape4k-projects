@@ -68,6 +68,8 @@ dependencies {
 
     // Converter
     compileOnly(project(":bluetape4k-crypto"))
+    // TODO: Google Tink 사용 시
+    // compileOnly(project(":bluetape4k-tink"))
     compileOnly(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.fory_kotlin)  // new Apache Fory
