@@ -1,23 +1,19 @@
 package io.bluetape4k.redis.lettuce.codec
 
-import io.bluetape4k.io.compressor.Compressor
-import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
-import io.bluetape4k.io.serializer.CompressableBinarySerializer
-import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 
+/**
+ * 다양한 Serializer/Compressor 조합의 [LettuceBinaryCodec] 팩토리 모음.
+ *
+ * Protobuf 기반 Codec은 [LettuceProtobufCodecs]를 사용하세요.
+ */
 object LettuceBinaryCodecs {
 
     val Default: LettuceBinaryCodec<Any> by lazy { lz4Fory() }
 
     fun <V: Any> codec(serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
-
-    fun <V: Any> compressedCodec(compressor: Compressor, serializer: BinarySerializer): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, compressor))
-
-    private val protobufSerializer: BinarySerializer by lazy { ProtobufSerializer() }
 
     /**
      * Jdk Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -28,11 +24,6 @@ object LettuceBinaryCodecs {
      * Kryo Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> kryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.Kryo)
-
-    /**
-     * Protobuf Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> protobuf(): LettuceBinaryCodec<V> = codec(protobufSerializer)
 
     /**
      * Fory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -51,11 +42,6 @@ object LettuceBinaryCodecs {
     fun <V: Any> gzipKryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.GZipKryo)
 
     /**
-     * Protobuf Serializer와 Gzip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> gzipProtobuf(): LettuceBinaryCodec<V> = compressedCodec(Compressors.GZip, protobufSerializer)
-
-    /**
      * Fory Serializer와 Gzip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> gzipFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.GZipFory)
@@ -70,11 +56,6 @@ object LettuceBinaryCodecs {
      * Kryo Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> deflateKryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateKryo)
-
-    /**
-     * Protobuf Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> deflateProtobuf(): LettuceBinaryCodec<V> = compressedCodec(Compressors.Deflate, protobufSerializer)
 
     /**
      * Fory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -92,12 +73,7 @@ object LettuceBinaryCodecs {
     fun <V: Any> lz4Kryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.LZ4Kryo)
 
     /**
-     * Protobuf Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> lz4Protobuf(): LettuceBinaryCodec<V> = compressedCodec(Compressors.LZ4, protobufSerializer)
-
-    /**
-     * Fury Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     * Fory Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> lz4Fory(): LettuceBinaryCodec<V> = codec(BinarySerializers.LZ4Fory)
 
@@ -110,11 +86,6 @@ object LettuceBinaryCodecs {
      * Kryo Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> snappyKryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.SnappyKryo)
-
-    /**
-     * Protobuf Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> snappyProtobuf(): LettuceBinaryCodec<V> = compressedCodec(Compressors.Snappy, protobufSerializer)
 
     /**
      * Fory Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -131,11 +102,6 @@ object LettuceBinaryCodecs {
      * Kryo Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> zstdKryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.ZstdKryo)
-
-    /**
-     * Protobuf Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
-     */
-    fun <V: Any> zstdProtobuf(): LettuceBinaryCodec<V> = compressedCodec(Compressors.Zstd, protobufSerializer)
 
     /**
      * Fory Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
