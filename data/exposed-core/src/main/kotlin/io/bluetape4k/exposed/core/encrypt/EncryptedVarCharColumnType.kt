@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  * // secret.columnType.sqlType().contains("VARCHAR")
  * ```
  */
+@Deprecated("use io.bluetape4k.exposed.core.tink.tinkDaeadVarChar in bluetape4k-exposed-tink")
 fun Table.encryptedVarChar(
     name: String,
     colLength: Int = 255,

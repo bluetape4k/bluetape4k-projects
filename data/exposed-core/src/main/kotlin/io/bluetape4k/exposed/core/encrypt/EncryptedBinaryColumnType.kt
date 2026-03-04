@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.core.Table
  * // secret.columnType.sqlType().contains("VARBINARY")
  * ```
  */
+@Deprecated("use io.bluetape4k.exposed.core.tink.tinkDaeadBinary in bluetape4k-exposed-tink")
 fun Table.encryptedBinary(
     name: String,
     length: Int = 255,

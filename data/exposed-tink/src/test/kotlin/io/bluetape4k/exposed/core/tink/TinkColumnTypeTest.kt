@@ -28,15 +28,18 @@ class TinkColumnTypeTest: AbstractExposedTest() {
         val secretTable = object: IntIdTable("tink_aead_table") {
             val secret = tinkAeadVarChar("secret", 512, TinkAeads.AES256_GCM).nullable()
             val data = tinkAeadBinary("data", 512, TinkAeads.AES256_GCM).nullable()
+            val blob = tinkAeadBlob("blob", TinkAeads.AES256_GCM).nullable()
         }
 
         withTables(testDB, secretTable) {
             val insertedSecret = faker.lorem().sentence()
             val insertedData = faker.lorem().sentence()
+            val insertedBlob = faker.lorem().sentence()
 
             val id = secretTable.insertAndGetId {
                 it[secret] = insertedSecret
                 it[data] = insertedData.toUtf8Bytes()
+                it[blob] = insertedBlob.toUtf8Bytes()
             }
 
             secretTable.selectAll().count() shouldBeEqualTo 1L
@@ -45,6 +48,7 @@ class TinkColumnTypeTest: AbstractExposedTest() {
 
             row[secretTable.secret] shouldBeEqualTo insertedSecret
             row[secretTable.data]!!.toUtf8String() shouldBeEqualTo insertedData
+            row[secretTable.blob]!!.toUtf8String() shouldBeEqualTo insertedBlob
         }
     }
 
@@ -54,15 +58,18 @@ class TinkColumnTypeTest: AbstractExposedTest() {
         val searchableTable = object: IntIdTable("tink_daead_table") {
             val email = tinkDaeadVarChar("email", 512, TinkDaeads.AES256_SIV).nullable().index()
             val fingerprint = tinkDaeadBinary("fingerprint", 256, TinkDaeads.AES256_SIV).nullable()
+            val blob = tinkDaeadBlob("blob", TinkDaeads.AES256_SIV).nullable()
         }
 
         withTables(testDB, searchableTable) {
             val insertedEmail = faker.internet().emailAddress()
             val insertedFingerprint = faker.lorem().word()
+            val insertedBlob = faker.lorem().sentence()
 
             val id = searchableTable.insertAndGetId {
                 it[email] = insertedEmail
                 it[fingerprint] = insertedFingerprint.toUtf8Bytes()
+                it[blob] = insertedBlob.toUtf8Bytes()
             }
 
             searchableTable.selectAll().count() shouldBeEqualTo 1L
@@ -71,6 +78,8 @@ class TinkColumnTypeTest: AbstractExposedTest() {
 
             row[searchableTable.email] shouldBeEqualTo insertedEmail
             row[searchableTable.fingerprint]!!.toUtf8String() shouldBeEqualTo insertedFingerprint
+            row[searchableTable.blob]!!.toUtf8String() shouldBeEqualTo insertedBlob
+
 
             /**
              * DAEAD(결정적 암호화)는 WHERE 절로 검색이 가능합니다.
@@ -85,6 +94,10 @@ class TinkColumnTypeTest: AbstractExposedTest() {
             searchableTable.selectAll()
                 .where { searchableTable.fingerprint eq row[searchableTable.fingerprint] }
                 .count() shouldBeEqualTo 1L
+
+            searchableTable.selectAll()
+                .where { searchableTable.blob eq row[searchableTable.blob] }
+                .count() shouldBeEqualTo 1L
         }
     }
 
@@ -94,32 +107,40 @@ class TinkColumnTypeTest: AbstractExposedTest() {
         val secretTable = object: IntIdTable("tink_aead_update_table") {
             val secret = tinkAeadVarChar("secret", 512, TinkAeads.AES256_GCM)
             val data = tinkAeadBinary("data", 512, TinkAeads.AES256_GCM).nullable()
+            val blob = tinkAeadBlob("blob", TinkAeads.AES256_GCM).nullable()
         }
 
         withTables(testDB, secretTable) {
             val insertedSecret = faker.lorem().sentence()
             val insertedData = faker.lorem().word()
+            val insertedBlob = faker.lorem().word()
 
             val id = secretTable.insertAndGetId {
                 it[secret] = insertedSecret
                 it[data] = insertedData.toUtf8Bytes()
+                it[blob] = insertedBlob.toUtf8Bytes()
             }
 
             val insertedRow = secretTable.selectAll().where { secretTable.id eq id }.single()
             insertedRow[secretTable.secret] shouldBeEqualTo insertedSecret
             insertedRow[secretTable.data]!!.toUtf8String() shouldBeEqualTo insertedData
+            insertedRow[secretTable.blob]!!.toUtf8String() shouldBeEqualTo insertedBlob
+
 
             val updatedSecret = faker.lorem().sentence()
             val updatedData = faker.lorem().word()
+            val updatedBlob = faker.lorem().word()
 
             secretTable.update({ secretTable.id eq id }) {
                 it[secret] = updatedSecret
                 it[data] = updatedData.toUtf8Bytes()
+                it[blob] = updatedBlob.toUtf8Bytes()
             }
 
             val updatedRow = secretTable.selectAll().where { secretTable.id eq id }.single()
             updatedRow[secretTable.secret] shouldBeEqualTo updatedSecret
             updatedRow[secretTable.data]!!.toUtf8String() shouldBeEqualTo updatedData
+            updatedRow[secretTable.blob]!!.toUtf8String() shouldBeEqualTo updatedBlob
         }
     }
 
@@ -131,6 +152,8 @@ class TinkColumnTypeTest: AbstractExposedTest() {
             val daeadSecret = tinkDaeadVarChar("daead_secret", 512).nullable()
             val aeadData = tinkAeadBinary("aead_data", 512).nullable()
             val daeadData = tinkDaeadBinary("daead_data", 512).nullable()
+            val aeadBlob = tinkAeadBlob("aead_blob").nullable()
+            val daeadBlob = tinkDaeadBlob("daead_blob").nullable()
         }
 
         withTables(testDB, nullableTable) {
@@ -139,6 +162,8 @@ class TinkColumnTypeTest: AbstractExposedTest() {
                 it[daeadSecret] = null
                 it[aeadData] = null
                 it[daeadData] = null
+                it[aeadBlob] = null
+                it[daeadBlob] = null
             }
 
             val row = nullableTable.selectAll().where { nullableTable.id eq id }.single()
@@ -146,6 +171,8 @@ class TinkColumnTypeTest: AbstractExposedTest() {
             row[nullableTable.daeadSecret] shouldBeEqualTo null
             row[nullableTable.aeadData] shouldBeEqualTo null
             row[nullableTable.daeadData] shouldBeEqualTo null
+            row[nullableTable.aeadBlob] shouldBeEqualTo null
+            row[nullableTable.daeadBlob] shouldBeEqualTo null
         }
     }
 

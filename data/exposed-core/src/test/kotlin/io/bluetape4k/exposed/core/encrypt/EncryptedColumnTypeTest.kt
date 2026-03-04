@@ -25,11 +25,11 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
     private object T1: IntIdTable() {
         val name = varchar("name", 255)
-        val aesVarChar = encryptedVarChar("aes_password", 255, Encryptors.AES).nullable()
-        val rc4VarChar = encryptedVarChar("rc4_password", 255, Encryptors.RC4).nullable()
+        val aesVarChar = encryptedVarChar("aes_password", 255, Encryptors.DeterministicAES).nullable()
+        val rc4VarChar = encryptedVarChar("rc4_password", 255, Encryptors.DeterministicRC4).nullable()
 
-        val aesBinary = encryptedBinary("aes_binary", 1024, Encryptors.AES).nullable()
-        val rc4Binary = encryptedBinary("rc4_binary", 1024, Encryptors.RC4).nullable()
+        val aesBinary = encryptedBinary("aes_binary", 1024, Encryptors.DeterministicAES).nullable()
+        val rc4Binary = encryptedBinary("rc4_binary", 1024, Encryptors.DeterministicRC4).nullable()
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {

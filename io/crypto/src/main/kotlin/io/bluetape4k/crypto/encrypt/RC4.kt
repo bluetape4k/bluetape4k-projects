@@ -2,7 +2,9 @@ package io.bluetape4k.crypto.encrypt
 
 import io.bluetape4k.logging.KLogging
 import org.jasypt.iv.IvGenerator
+import org.jasypt.iv.StringFixedIvGenerator
 import org.jasypt.salt.SaltGenerator
+import org.jasypt.salt.ZeroSaltGenerator
 
 /**
  * RC4-128 대칭형 스트림 암호화 알고리즘을 이용한 [Encryptor] 구현체입니다.
@@ -38,5 +40,10 @@ class RC4(
 
     companion object: KLogging() {
         const val ALGORITHM = "PBEWITHSHA1ANDRC4_128"
+
+        val DeterministicRC4 = RC4(
+            saltGenerator = ZeroSaltGenerator(),
+            ivGenerator = StringFixedIvGenerator(DEFAULT_PASSWORD),
+        )
     }
 }

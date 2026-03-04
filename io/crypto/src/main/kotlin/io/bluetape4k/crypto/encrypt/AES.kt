@@ -2,7 +2,9 @@ package io.bluetape4k.crypto.encrypt
 
 import io.bluetape4k.logging.KLogging
 import org.jasypt.iv.IvGenerator
+import org.jasypt.iv.StringFixedIvGenerator
 import org.jasypt.salt.SaltGenerator
+import org.jasypt.salt.ZeroSaltGenerator
 
 /**
  * AES-256 대칭형 암호화 알고리즘을 이용한 [Encryptor] 구현체입니다.
@@ -29,5 +31,10 @@ class AES(
 
     companion object: KLogging() {
         const val ALGORITHM = "PBEWITHHMACSHA512ANDAES_256"
+
+        val DeterministicAES = AES(
+            saltGenerator = ZeroSaltGenerator(),
+            ivGenerator = StringFixedIvGenerator(DEFAULT_PASSWORD),
+        )
     }
 }

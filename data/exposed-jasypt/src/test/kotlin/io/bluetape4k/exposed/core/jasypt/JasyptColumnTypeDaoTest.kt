@@ -27,8 +27,8 @@ class JasyptColumnTypeDaoTest: AbstractExposedTest() {
     companion object: KLogging()
 
     object T1: IntIdTable() {
-        val varchar = jasyptVarChar("varchar", 255, Encryptors.AES).index()
-        val binary = jasyptBinary("binary", 255, Encryptors.RC4)
+        val varchar = jasyptVarChar("varchar", 255, Encryptors.DeterministicAES).index()
+        val binary = jasyptBinary("binary", 255, Encryptors.DeterministicRC4)
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {

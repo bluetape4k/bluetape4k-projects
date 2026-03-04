@@ -84,6 +84,15 @@ fun Table.tinkAeadBinary(
         )
     )
 
+fun Table.tinkAeadBlob(
+    name: String,
+    encryptor: TinkAead = TinkAeads.AES256_GCM,
+): Column<ByteArray> =
+    registerColumn(
+        name.requireNotBlank("name"),
+        TinkAeadBlobColumnType(encryptor = encryptor)
+    )
+
 /**
  * Google Tink Deterministic AEAD(결정적 암호화)로 암호화된 문자열을 저장하기 위해 [name]의 `VARCHAR` 컬럼을 생성합니다.
  *
@@ -157,4 +166,13 @@ fun Table.tinkDaeadBinary(
             encryptor = encryptor,
             length = cipherByteLength.requirePositiveNumber("cipherByteLength")
         )
+    )
+
+fun Table.tinkDaeadBlob(
+    name: String,
+    encryptor: TinkDeterministicAead = TinkDaeads.AES256_SIV,
+): Column<ByteArray> =
+    registerColumn(
+        name.requireNotBlank("name"),
+        TinkDaeadBlobColumnType(encryptor = encryptor),
     )

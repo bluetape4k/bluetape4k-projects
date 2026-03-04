@@ -7,6 +7,7 @@ import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -25,8 +26,8 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `문자열에 대해 암호화,복호화 하기`(testDB: TestDB) {
         val stringTable = object: IntIdTable("string_table") {
-            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable().index()
-            val city = jasyptVarChar("city", 255, Encryptors.RC4).nullable().index()
+            val name = jasyptVarChar("name", 255, Encryptors.DeterministicAES).nullable().index()
+            val city = jasyptVarChar("city", 255, Encryptors.DeterministicRC4).nullable().index()
             val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
             val age = jasyptVarChar("age", 255, Encryptors.RC2).nullable()
         }
@@ -60,7 +61,7 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
              * ```
              */
             stringTable.selectAll()
-                .where { stringTable.name eq row[stringTable.name] }
+                .where { stringTable.name eq insertedName }
                 .count() shouldBeEqualTo 1L
 
             /**
@@ -72,13 +73,15 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
                 .where { stringTable.city eq row[stringTable.city] }
                 .count() shouldBeEqualTo 1L
 
+            // NOTE: 비결정적으로 암호화되어서 매번 바뀌는 것으로 검색이 안된다.
             stringTable.selectAll()
                 .where { stringTable.address eq row[stringTable.address] }
-                .count() shouldBeEqualTo 1L
+                .shouldBeEmpty()
 
+            // NOTE: 비결정적으로 암호화되어서 매번 바뀌는 것으로 검색이 안된다.
             stringTable.selectAll()
                 .where { stringTable.age eq row[stringTable.age] }
-                .count() shouldBeEqualTo 1L
+                .shouldBeEmpty()
         }
     }
 
@@ -86,8 +89,8 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `암호화된 컬럼을 Update 하기`(testDB: TestDB) {
         val stringTable = object: IntIdTable("string_table") {
-            val name = jasyptVarChar("name", 255, Encryptors.AES).index()
-            val city = jasyptVarChar("city", 255, Encryptors.RC4).index()
+            val name = jasyptVarChar("name", 255, Encryptors.DeterministicAES).index()
+            val city = jasyptVarChar("city", 255, Encryptors.DeterministicRC4).index()
             val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
         }
 
@@ -128,7 +131,7 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `nullable 암호화 컬럼은 null 값을 저장하고 조회할 수 있다`(testDB: TestDB) {
         val stringTable = object: IntIdTable("nullable_string_table") {
-            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable()
+            val name = jasyptVarChar("name", 255, Encryptors.DeterministicAES).nullable()
             val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
         }
 

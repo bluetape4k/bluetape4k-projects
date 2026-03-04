@@ -21,6 +21,7 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
  * // payload.columnType.sqlType().contains("BLOB")
  * ```
  */
+@Deprecated("use io.bluetape4k.exposed.core.tink.tinkDaeadBlob in bluetape4k-exposed-tink")
 fun Table.encryptedBlob(
     name: String,
     encryptor: Encryptor,

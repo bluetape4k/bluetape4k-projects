@@ -34,6 +34,7 @@ import org.jetbrains.exposed.v1.core.Table
  * @param cipherTextLength 암호문을 저장할 컬럼 길이입니다. 0보다 커야 합니다.
  * @param encryptor 사용할 암/복호화기입니다.
  */
+@Deprecated("use io.bluetape4k.exposed.core.tink.daeadVarChar in bluetape4k-exposed-tink.")
 fun Table.jasyptVarChar(
     name: String,
     cipherTextLength: Int,
@@ -76,6 +77,7 @@ fun Table.jasyptVarChar(
  * @param cipherByteLength 암호문 바이트를 저장할 컬럼 길이입니다. 0보다 커야 합니다.
  * @param encryptor 사용할 암/복호화기입니다.
  */
+@Deprecated("use io.bluetape4k.exposed.core.tink.daeadBinary in bluetape4k-exposed-tink.")
 fun Table.jasyptBinary(
     name: String,
     cipherByteLength: Int,
@@ -87,4 +89,15 @@ fun Table.jasyptBinary(
             encryptor = encryptor,
             length = cipherByteLength.requirePositiveNumber("cipherByteLength")
         )
+    )
+
+
+@Deprecated("use io.bluetape4k.exposed.core.tink.daeadBlob in bluetape4k-exposed-tink.")
+fun Table.jasyptBlob(
+    name: String,
+    encryptor: io.bluetape4k.crypto.encrypt.Encryptor = Encryptors.AES,
+): Column<ByteArray> =
+    registerColumn(
+        name.requireNotBlank("name"),
+        JasyptBlobColumnType(encryptor)
     )

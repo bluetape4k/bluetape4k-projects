@@ -29,11 +29,17 @@ object Encryptors: KLogging() {
     /** AES-256 알고리즘 (PBEWITHHMACSHA256ANDAES_256)을 이용한 대칭형 암호기. 보안 용도로 권장됩니다. */
     val AES by publicLazy { AES() }
 
+    /** 결정적 암호화 기법을 사용하는 AES-256 알고리즘 (PBEWITHHMACSHA256ANDAES_256)을 이용한 대칭형 암호기. -> 보안상 추천하지 않습니다. */
+    val DeterministicAES = io.bluetape4k.crypto.encrypt.AES.DeterministicAES
+
     /** RC2-128 알고리즘 (PBEWITHSHA1ANDRC2_128)을 이용한 대칭형 암호기. 레거시 호환용으로만 사용하세요. */
     val RC2 by publicLazy { RC2() }
 
     /** RC4-128 알고리즘 (PBEWITHSHA1ANDRC4_128)을 이용한 대칭형 암호기. 레거시 호환용으로만 사용하세요. */
     val RC4 by publicLazy { RC4() }
+
+    val DeterministicRC4 = io.bluetape4k.crypto.encrypt.RC4.DeterministicRC4
+
 
     /** DES 알고리즘 (PBEWITHMD5ANDDES)을 이용한 대칭형 암호기. 레거시 호환용으로만 사용하세요. */
     val DES by publicLazy { DES() }
