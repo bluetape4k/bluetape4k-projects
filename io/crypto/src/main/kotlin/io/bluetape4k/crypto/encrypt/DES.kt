@@ -27,8 +27,8 @@ import org.jasypt.salt.SaltGenerator
  * @see AES
  */
 @Deprecated(
-    message = "DES는 56비트 키 길이로 인해 brute-force 공격에 취약합니다. AES를 사용하세요.",
-    replaceWith = ReplaceWith("AES()")
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptors.AES256_GCM를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptors.AES256_GCM", "io.bluetape4k.tink.encrypt.TinkEncryptors")
 )
 class DES(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,

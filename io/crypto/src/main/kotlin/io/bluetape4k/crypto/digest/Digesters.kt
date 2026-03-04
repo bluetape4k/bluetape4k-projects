@@ -18,6 +18,10 @@ import org.jasypt.registry.AlgorithmRegistry
  * // ok == true
  * ```
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesters를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigesters", "io.bluetape4k.tink.digest.TinkDigesters"),
+)
 object Digesters: KLogging() {
 
     init {

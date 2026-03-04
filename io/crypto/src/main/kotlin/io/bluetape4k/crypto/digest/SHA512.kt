@@ -19,6 +19,10 @@ import org.jasypt.salt.SaltGenerator
  * @param saltGenerator Salt 값 생성기 (기본: [zeroSaltGenerator])
  * @see Digesters.SHA512
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesters.SHA512를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigesters.SHA512", "io.bluetape4k.tink.digest.TinkDigesters"),
+)
 class SHA512(
     saltGenerator: SaltGenerator = zeroSaltGenerator,
 ): AbstractDigester(ALGORITHM, saltGenerator) {

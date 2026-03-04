@@ -21,6 +21,10 @@ import org.jasypt.salt.SaltGenerator
  * // plain == "hello"
  * ```
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptor를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptor", "io.bluetape4k.tink.encrypt.TinkEncryptor"),
+)
 interface Encryptor {
 
     /** 대칭형 암호화를 위한 알고리즘 이름입니다. */

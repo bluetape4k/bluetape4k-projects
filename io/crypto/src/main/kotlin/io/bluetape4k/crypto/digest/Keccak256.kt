@@ -20,6 +20,7 @@ import org.jasypt.salt.SaltGenerator
  * @param saltGenerator Salt 값 생성기 (기본: [zeroSaltGenerator])
  * @see Digesters.KECCAK256
  */
+@Deprecated(message = "BouncyCastle 전용. 대체 없음.")
 class Keccak256(
     saltGenerator: SaltGenerator = zeroSaltGenerator,
 ): AbstractDigester(ALGORITHM, saltGenerator) {

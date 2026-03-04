@@ -20,6 +20,10 @@ import org.jasypt.registry.AlgorithmRegistry
  * // decrypted == "Hello, World!"
  * ```
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptors를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptors", "io.bluetape4k.tink.encrypt.TinkEncryptors"),
+)
 object Encryptors: KLogging() {
 
     init {

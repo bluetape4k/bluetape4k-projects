@@ -1,5 +1,17 @@
 # Module bluetape4k-crypto
 
+> **⚠️ Deprecated**: 이 모듈은 deprecated 되었습니다. 신규 개발에서는 [`bluetape4k-tink`](../tink/README.md)를 사용하세요.
+>
+> | `bluetape4k-crypto` | `bluetape4k-tink` 대체 |
+> |-----|------|
+> | `Digesters.SHA256` | `TinkDigesters.SHA256` |
+> | `Encryptors.AES` | `TinkEncryptors.AES256_GCM` |
+> | `Encryptors.DeterministicAES` | `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
+> | `"data".digest(Digesters.SHA256)` | `"data".tinkDigest(TinkDigesters.SHA256)` |
+> | `"data".encrypt(Encryptors.AES)` | `"data".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
+> | `CipherBuilder` | `TinkAead` 또는 JCA `Cipher` 직접 사용 |
+> | `Keccak256/384/512` | 대체 없음 (BouncyCastle 전용) |
+
 ## 개요
 
 `bluetape4k-crypto`는 [Jasypt](http://www.jasypt.org/) 와 [BouncyCastle](https://www.bouncycastle.org/) 라이브러리를 Kotlin 환경에서 편리하게 사용할 수 있도록 래핑한 암호화 모듈입니다.

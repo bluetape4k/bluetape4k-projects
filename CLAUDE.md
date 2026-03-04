@@ -118,8 +118,8 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **http**: HTTP 유틸리티
 - **netty**: Netty 통합
 - **grpc**: gRPC 지원
-- **crypto**: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle)
-- **tink**: Google Tink 기반 현대적 AEAD 암호화 (AES-GCM, ChaCha20-Poly1305, AES-SIV, HMAC)
+- ~~**crypto**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
+- **tink**: Google Tink 기반 현대적 암호화 — AEAD (AES-GCM, ChaCha20-Poly1305), Deterministic AEAD (AES-SIV), MAC (HMAC), Digest (SHA-256 등), 통합 Encryptor (`TinkEncryptor`)
 
 #### AWS Modules (`aws/`, `aws-kotlin/`)
 

@@ -29,8 +29,8 @@ import org.jasypt.salt.ZeroSaltGenerator
  * @see AES
  */
 @Deprecated(
-    message = "RC4는 다수의 알려진 취약점으로 TLS 등에서 사용이 금지되었습니다. AES를 사용하세요.",
-    replaceWith = ReplaceWith("AES()")
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptors.AES256_GCM를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptors.AES256_GCM", "io.bluetape4k.tink.encrypt.TinkEncryptors")
 )
 class RC4(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,

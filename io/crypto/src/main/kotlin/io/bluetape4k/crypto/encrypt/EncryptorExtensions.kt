@@ -13,6 +13,10 @@ package io.bluetape4k.crypto.encrypt
  * ```
  * @param encryptor 사용할 암호화기
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptorExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkEncrypt(encryptor)", "io.bluetape4k.tink.encrypt.tinkEncrypt"),
+)
 fun String.encrypt(encryptor: Encryptor): String =
     encryptor.encrypt(this)
 
@@ -30,6 +34,10 @@ fun String.encrypt(encryptor: Encryptor): String =
  * ```
  * @param encryptor 사용할 암호화기
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptorExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkDecrypt(encryptor)", "io.bluetape4k.tink.encrypt.tinkDecrypt"),
+)
 fun String.decrypt(encryptor: Encryptor): String =
     encryptor.decrypt(this)
 
@@ -46,6 +54,10 @@ fun String.decrypt(encryptor: Encryptor): String =
  * ```
  * @param encryptor 사용할 암호화기
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptorExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkEncrypt(encryptor)", "io.bluetape4k.tink.encrypt.tinkEncrypt"),
+)
 fun ByteArray.encrypt(encryptor: Encryptor): ByteArray =
     encryptor.encrypt(this)
 
@@ -63,5 +75,9 @@ fun ByteArray.encrypt(encryptor: Encryptor): ByteArray =
  * ```
  * @param encryptor 사용할 암호화기
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptorExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkDecrypt(encryptor)", "io.bluetape4k.tink.encrypt.tinkDecrypt"),
+)
 fun ByteArray.decrypt(encryptor: Encryptor): ByteArray =
     encryptor.decrypt(this)

@@ -9,6 +9,8 @@ Google [Tink](https://github.com/google/tink) 암호화 라이브러리를 Kotli
 - **AEAD (인증 암호화)** — AES-256-GCM, AES-128-GCM, ChaCha20-Poly1305, XChaCha20-Poly1305
 - **Deterministic AEAD** — AES-256-SIV (검색 가능한 암호화, DB 인덱스 필드 등)
 - **MAC (메시지 인증 코드)** — HMAC-SHA256, HMAC-SHA512
+- **Digest (해시)** — MD5, SHA-1, SHA-256, SHA-384, SHA-512 (JDK `MessageDigest` 기반, BouncyCastle 불필요)
+- **Encrypt (통합 암호화 인터페이스)** — `TinkEncryptor`로 AEAD/DAEAD를 통합 사용
 - Kotlin Extension 함수로 간결한 사용
 - Thread-safe 1회 초기화 (`registerTink()`)
 - `ByteArray` / `String` 입출력 모두 지원 (String 암호문은 Base64 인코딩)
@@ -120,15 +122,62 @@ val tag2 = "중요한 데이터".computeTinkMac(mac)
 val ok = "중요한 데이터".verifyTinkMac(tag2, mac)  // true
 ```
 
+### Digest — 해시 다이제스트
+
+BouncyCastle 없이 JDK `MessageDigest`만으로 해시 알고리즘을 사용합니다.
+`bluetape4k-crypto`의 `Digesters`를 대체합니다.
+
+```kotlin
+import io.bluetape4k.tink.digest.TinkDigesters
+import io.bluetape4k.tink.digest.tinkDigest
+import io.bluetape4k.tink.digest.matchesTinkDigest
+
+// 싱글턴 인스턴스 사용
+val hash = TinkDigesters.SHA256.digest("Hello, World!")
+val matches = TinkDigesters.SHA256.matches("Hello, World!", hash) // true
+
+// 확장 함수
+val hash2 = "Hello, World!".tinkDigest(TinkDigesters.SHA256)
+"Hello, World!".matchesTinkDigest(hash2, TinkDigesters.SHA256) // true
+
+// 사용 가능 알고리즘: MD5, SHA1, SHA256, SHA384, SHA512
+```
+
+### Encrypt — 통합 암호화 인터페이스
+
+`TinkEncryptor` 인터페이스로 AEAD(비결정적)와 DAEAD(결정적) 암호화를 통합합니다.
+`bluetape4k-crypto`의 `Encryptors`를 대체합니다.
+
+```kotlin
+import io.bluetape4k.tink.encrypt.TinkEncryptors
+import io.bluetape4k.tink.encrypt.tinkEncrypt
+import io.bluetape4k.tink.encrypt.tinkDecrypt
+
+// 비결정적 암호화 (범용)
+val encrypted = TinkEncryptors.AES256_GCM.encrypt("비밀 메시지")
+val decrypted = TinkEncryptors.AES256_GCM.decrypt(encrypted)
+
+// 결정적 암호화 (DB 검색용)
+val ct = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("검색 가능한 필드")
+val ct2 = TinkEncryptors.DETERMINISTIC_AES256_SIV.encrypt("검색 가능한 필드")
+// ct == ct2 (결정적)
+
+// 확장 함수
+val enc = "Hello".tinkEncrypt(TinkEncryptors.CHACHA20_POLY1305)
+val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
+```
+
 ## 알고리즘 선택 가이드
 
-| 사용 목적           | 권장 알고리즘                | 클래스                              |
-|-----------------|------------------------|----------------------------------|
-| 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM`           |
-| 하드웨어 AES 없는 환경  | XChaCha20-Poly1305     | `TinkAeads.XCHACHA20_POLY1305`   |
-| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV`          |
-| 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`           |
-| 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG` |
+| 사용 목적           | 권장 알고리즘                | 클래스                                         |
+|-----------------|------------------------|--------------------------------------------|
+| 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM` |
+| 하드웨어 AES 없는 환경  | XChaCha20-Poly1305     | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
+| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
+| 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`                      |
+| 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG`            |
+| 범용 해시          | SHA-256                | `TinkDigesters.SHA256`                      |
+| 최고 수준 해시        | SHA-512                | `TinkDigesters.SHA512`                      |
 
 ## 주의 사항
 
@@ -160,13 +209,57 @@ val keysetJson = outputStream.toString()
 `encrypt(String)` 반환값은 **Base64(표준)** 인코딩된 암호문입니다.
 `decrypt(String)` 입력도 동일한 Base64 형식이어야 합니다.
 
+## 모듈 구조
+
+```
+io.bluetape4k.tink
+├── TinkSupport.kt                          # 초기화, 헬퍼 함수, 상수
+├── aead/                                   # AEAD (인증 암호화)
+│   ├── TinkAead.kt                         # AEAD 래퍼 클래스
+│   ├── TinkAeads.kt                        # 팩토리 싱글턴
+│   └── TinkAeadExtensions.kt              # 확장 함수
+├── daead/                                  # Deterministic AEAD (결정적 암호화)
+│   ├── TinkDeterministicAead.kt            # DAEAD 래퍼 클래스
+│   └── TinkDaeads.kt                       # 팩토리 싱글턴
+├── mac/                                    # MAC (메시지 인증 코드)
+│   ├── TinkMac.kt                          # MAC 래퍼 클래스
+│   ├── TinkMacs.kt                         # 팩토리 싱글턴
+│   └── TinkMacExtensions.kt               # 확장 함수
+├── digest/                                 # Digest (해시) — NEW
+│   ├── TinkDigester.kt                     # JDK MessageDigest 래퍼 클래스
+│   ├── TinkDigesters.kt                    # 팩토리 싱글턴 (MD5, SHA1, SHA256, SHA384, SHA512)
+│   └── TinkDigesterExtensions.kt           # 확장 함수
+└── encrypt/                                # Encrypt (통합 인터페이스) — NEW
+    ├── TinkEncryptor.kt                    # 통합 암복호화 인터페이스
+    ├── TinkAeadEncryptor.kt                # AEAD 기반 비결정적 구현체
+    ├── TinkDaeadEncryptor.kt               # DAEAD 기반 결정적 구현체
+    ├── TinkEncryptors.kt                   # 팩토리 싱글턴
+    └── TinkEncryptorExtensions.kt          # 확장 함수
+```
+
 ## bluetape4k-crypto 와의 차이
 
-| 항목       | `bluetape4k-crypto`   | `bluetape4k-tink`     |
-|----------|-----------------------|-----------------------|
-| 기반 라이브러리 | Jasypt + BouncyCastle | Google Tink           |
-| 암호화 방식   | PBE (Password-Based)  | AEAD (인증 암호화)         |
-| 인증       | 없음 (AES-CBC)          | 내장 (GCM/Poly1305/SIV) |
-| 결정적 암호화  | 불가                    | AES-SIV로 지원           |
-| MAC      | 별도                    | HMAC-SHA256/512 내장    |
-| 의존성      | 상호 독립                 | 상호 독립                 |
+> **`bluetape4k-crypto`는 @Deprecated 되었습니다.** 신규 개발에서는 `bluetape4k-tink`를 사용하세요.
+
+| 항목       | `bluetape4k-crypto` (Deprecated) | `bluetape4k-tink`              |
+|----------|----------------------------------|--------------------------------|
+| 기반 라이브러리 | Jasypt + BouncyCastle            | Google Tink + JDK              |
+| 암호화 방식   | PBE (Password-Based)             | AEAD (인증 암호화)                  |
+| 인증       | 없음 (AES-CBC)                     | 내장 (GCM/Poly1305/SIV)          |
+| 결정적 암호화  | 불가                               | AES-SIV로 지원                    |
+| MAC      | 별도                               | HMAC-SHA256/512 내장              |
+| 해시       | BouncyCastle 필요                  | JDK MessageDigest (추가 의존성 없음)  |
+| 통합 인터페이스 | 없음                               | `TinkEncryptor` (AEAD/DAEAD 통합) |
+| 의존성      | Jasypt + BouncyCastle            | Google Tink만                   |
+
+### 마이그레이션 가이드
+
+| `bluetape4k-crypto` | `bluetape4k-tink` |
+|-----|------|
+| `Digesters.SHA256.digest(data)` | `TinkDigesters.SHA256.digest(data)` |
+| `Digesters.SHA256.matches(data, hash)` | `TinkDigesters.SHA256.matches(data, hash)` |
+| `"hello".digest(Digesters.SHA256)` | `"hello".tinkDigest(TinkDigesters.SHA256)` |
+| `Encryptors.AES.encrypt(data)` | `TinkEncryptors.AES256_GCM.encrypt(data)` |
+| `Encryptors.AES.decrypt(data)` | `TinkEncryptors.AES256_GCM.decrypt(data)` |
+| `"hello".encrypt(Encryptors.AES)` | `"hello".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
+| `Encryptors.DeterministicAES` | `TinkEncryptors.DETERMINISTIC_AES256_SIV` |

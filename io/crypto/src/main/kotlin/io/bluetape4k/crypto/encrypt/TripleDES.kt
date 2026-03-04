@@ -23,6 +23,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Encryptors.TripleDES
  * @see AES
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptors.AES256_GCM를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptors.AES256_GCM", "io.bluetape4k.tink.encrypt.TinkEncryptors"),
+)
 class TripleDES(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,

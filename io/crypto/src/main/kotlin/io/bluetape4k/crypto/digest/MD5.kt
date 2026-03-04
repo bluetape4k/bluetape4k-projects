@@ -23,6 +23,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Digesters.MD5
  * @see SHA256
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesters.MD5를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigesters.MD5", "io.bluetape4k.tink.digest.TinkDigesters"),
+)
 class MD5(
     saltGenerator: SaltGenerator = zeroSaltGenerator,
 ): AbstractDigester(ALGORITHM, saltGenerator) {

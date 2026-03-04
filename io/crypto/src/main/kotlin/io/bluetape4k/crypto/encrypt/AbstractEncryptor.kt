@@ -30,6 +30,10 @@ import org.jasypt.salt.SaltGenerator
  * @param password 암호화/복호화에 사용할 비밀번호 (기본값: [DEFAULT_PASSWORD])
  * @param ivGenerator IV(초기화 벡터) 생성기 (기본값: [DefaultIvGenerator])
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptor를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptor", "io.bluetape4k.tink.encrypt.TinkEncryptor"),
+)
 abstract class AbstractEncryptor protected constructor(
     override val algorithm: String,
     override val saltGenerator: SaltGenerator = DefaultSaltGenerator,

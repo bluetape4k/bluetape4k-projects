@@ -45,6 +45,7 @@ internal val secureRandom: SecureRandom = SecureRandom.getInstance(randomNumberG
  *
  * @param size 생성할 바이트 배열 길이. 0 이하이면 빈 배열을 반환합니다.
  */
+@Deprecated(message = "java.security.SecureRandom을 직접 사용하세요.")
 fun randomBytes(size: Int): ByteArray {
     if (size <= 0) {
         return emptyByteArray

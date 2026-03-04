@@ -19,6 +19,10 @@ import org.jasypt.salt.SaltGenerator
  * // ok == true
  * ```
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigester를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigester", "io.bluetape4k.tink.digest.TinkDigester"),
+)
 interface Digester {
 
     /** 다이제스트 알고리즘 이름입니다. */

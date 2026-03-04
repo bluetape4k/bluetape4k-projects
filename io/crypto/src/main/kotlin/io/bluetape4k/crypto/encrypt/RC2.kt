@@ -25,8 +25,8 @@ import org.jasypt.salt.SaltGenerator
  * @see AES
  */
 @Deprecated(
-    message = "RC2는 현대 보안 표준에 적합하지 않습니다. AES를 사용하세요.",
-    replaceWith = ReplaceWith("AES()")
+    message = "io.bluetape4k.tink.encrypt.TinkEncryptors.AES256_GCM를 사용하세요.",
+    replaceWith = ReplaceWith("TinkEncryptors.AES256_GCM", "io.bluetape4k.tink.encrypt.TinkEncryptors")
 )
 class RC2(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,

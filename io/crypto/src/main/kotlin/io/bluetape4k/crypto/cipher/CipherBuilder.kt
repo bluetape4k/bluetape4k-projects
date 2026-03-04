@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec
  * // cipher.algorithm.contains("AES") == true
  * ```
  */
+@Deprecated(message = "io.bluetape4k.tink.aead.TinkAead 또는 JCA Cipher를 직접 사용하세요.")
 class CipherBuilder {
 
     companion object: KLogging() {

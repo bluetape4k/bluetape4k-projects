@@ -13,6 +13,10 @@ package io.bluetape4k.crypto.digest
  * ```
  * @param digester 사용할 다이제스터
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkDigest(digester)", "io.bluetape4k.tink.digest.tinkDigest"),
+)
 fun String.digest(digester: Digester): String =
     digester.digest(this)
 
@@ -29,6 +33,10 @@ fun String.digest(digester: Digester): String =
  * ```
  * @param digester 사용할 다이제스터
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.tinkDigest(digester)", "io.bluetape4k.tink.digest.tinkDigest"),
+)
 fun ByteArray.digest(digester: Digester): ByteArray =
     digester.digest(this)
 
@@ -47,6 +55,10 @@ fun ByteArray.digest(digester: Digester): ByteArray =
  * @param digest 비교할 다이제스트 문자열
  * @param digester 사용할 다이제스터
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.matchesTinkDigest(digest, digester)", "io.bluetape4k.tink.digest.matchesTinkDigest"),
+)
 fun String.matchesDigest(digest: String, digester: Digester): Boolean =
     digester.matches(this, digest)
 
@@ -66,5 +78,9 @@ fun String.matchesDigest(digest: String, digester: Digester): Boolean =
  * @param digest 비교할 다이제스트 바이트 배열
  * @param digester 사용할 다이제스터
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
+    replaceWith = ReplaceWith("this.matchesTinkDigest(digest, digester)", "io.bluetape4k.tink.digest.matchesTinkDigest"),
+)
 fun ByteArray.matchesDigest(digest: ByteArray, digester: Digester): Boolean =
     digester.matches(this, digest)

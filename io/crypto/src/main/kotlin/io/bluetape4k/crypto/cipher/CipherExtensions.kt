@@ -23,6 +23,7 @@ import javax.crypto.Cipher
  * @param offset 시작 위치
  * @param length 처리 길이
  */
+@Deprecated(message = "io.bluetape4k.tink.aead.TinkAead 또는 JCA Cipher를 직접 사용하세요.")
 fun Cipher.encrypt(plain: ByteArray?, offset: Int = 0, length: Int = plain?.size ?: 0): ByteArray {
     if (plain.isNullOrEmpty()) {
         return emptyByteArray
@@ -51,6 +52,7 @@ fun Cipher.encrypt(plain: ByteArray?, offset: Int = 0, length: Int = plain?.size
  * @param offset 시작 위치
  * @param length 처리 길이
  */
+@Deprecated(message = "io.bluetape4k.tink.aead.TinkAead 또는 JCA Cipher를 직접 사용하세요.")
 fun Cipher.decrypt(encrypted: ByteArray?, offset: Int = 0, length: Int = encrypted?.size ?: 0): ByteArray {
     if (encrypted.isNullOrEmpty()) {
         return emptyByteArray

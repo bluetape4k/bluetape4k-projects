@@ -21,6 +21,10 @@ import org.jasypt.salt.SaltGenerator
  * @param algorithm Digest 암호화를 위한 알고리즘 명 (예: "SHA-256", "MD5")
  * @param saltGenerator 암호화 시에 사용하는 Salt 값 생성기 (기본: [zeroSaltGenerator])
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigester를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigester", "io.bluetape4k.tink.digest.TinkDigester"),
+)
 abstract class AbstractDigester protected constructor(
     override val algorithm: String,
     override val saltGenerator: SaltGenerator = zeroSaltGenerator,

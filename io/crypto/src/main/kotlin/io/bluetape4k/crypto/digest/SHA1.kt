@@ -22,6 +22,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Digesters.SHA1
  * @see SHA256
  */
+@Deprecated(
+    message = "io.bluetape4k.tink.digest.TinkDigesters.SHA1를 사용하세요.",
+    replaceWith = ReplaceWith("TinkDigesters.SHA1", "io.bluetape4k.tink.digest.TinkDigesters"),
+)
 class SHA1(
     saltGenerator: SaltGenerator = zeroSaltGenerator,
 ): AbstractDigester(ALGORITHM, saltGenerator) {
