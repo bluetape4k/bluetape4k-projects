@@ -175,6 +175,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
 - **exposed-fastjson2**: Exposed JSON 컬럼 지원 (Fastjson2)
 - **exposed-jasypt**: Exposed 암호화 컬럼 (Jasypt)
+- **exposed-tink**: Exposed 암호화 컬럼 (Google Tink AEAD/Deterministic AEAD)
 - **exposed-measured**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
 - **exposed-jdbc-tests**: JDBC 기반 테스트 공통 인프라
 - **exposed-r2dbc-tests**: R2DBC 기반 테스트 공통 인프라
