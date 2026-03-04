@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.nearcache
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.options.name
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMapCache

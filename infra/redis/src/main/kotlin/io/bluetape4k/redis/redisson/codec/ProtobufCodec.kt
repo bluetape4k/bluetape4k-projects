@@ -4,7 +4,6 @@ import com.google.protobuf.Message
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.netty.buffer.getBytes
-import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec

@@ -1,11 +1,6 @@
-package io.bluetape4k.redis.redisson
+package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.codec.ForyCodec
-import io.bluetape4k.redis.redisson.codec.GzipCodec
-import io.bluetape4k.redis.redisson.codec.Lz4Codec
-import io.bluetape4k.redis.redisson.codec.ProtobufCodec
-import io.bluetape4k.redis.redisson.codec.ZstdCodec
 import org.redisson.client.codec.Codec
 import org.redisson.client.codec.DoubleCodec
 import org.redisson.client.codec.IntegerCodec

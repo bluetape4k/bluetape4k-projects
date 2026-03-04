@@ -8,7 +8,7 @@ import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo

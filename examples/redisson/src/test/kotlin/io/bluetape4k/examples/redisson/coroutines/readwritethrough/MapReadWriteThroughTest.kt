@@ -9,7 +9,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo

@@ -3,7 +3,6 @@ package io.bluetape4k.redis.redisson.codec
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
-import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled

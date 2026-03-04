@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.cache
 
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapOptions

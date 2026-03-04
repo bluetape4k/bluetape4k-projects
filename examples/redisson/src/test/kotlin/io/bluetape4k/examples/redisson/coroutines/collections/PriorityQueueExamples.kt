@@ -3,7 +3,7 @@ package io.bluetape4k.examples.redisson.coroutines.collections
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test

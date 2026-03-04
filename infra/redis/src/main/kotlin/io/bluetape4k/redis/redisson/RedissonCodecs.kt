@@ -20,6 +20,11 @@ import org.redisson.codec.SnappyCodecV2
  * Redisson 용 Codec.
  * Redisson에서 제공하는 Codec 보다 성능을 빠르게 하는 것들을 포함하고 있습니다.
  */
+@Deprecated(
+    message = "use io.bluetape4k.redis.redisson.codec.RedissonCodecs instead",
+    replaceWith = ReplaceWith("io.bluetape4k.redis.redisson.codec.RedissonCodecs"),
+    level = DeprecationLevel.WARNING
+)
 object RedissonCodecs: KLogging() {
 
     /**

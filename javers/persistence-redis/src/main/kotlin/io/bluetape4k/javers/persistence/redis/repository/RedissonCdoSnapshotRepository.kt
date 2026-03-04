@@ -6,7 +6,7 @@ import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
 import org.redisson.api.RListMultimap

@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.testcontainers.storage.RedisServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -12,7 +12,6 @@ import io.bluetape4k.redis.messages.copy
 import io.bluetape4k.redis.messages.nestedMessage
 import io.bluetape4k.redis.messages.simpleMessage
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
-import io.bluetape4k.redis.redisson.RedissonCodecs
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
@@ -22,7 +21,7 @@ import org.redisson.client.handler.State
 import java.time.Instant
 import kotlin.random.Random
 
-class RedissonCodecTest: AbstractRedissonTest() {
+class RedissonCodecsTest: AbstractRedissonTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 10
