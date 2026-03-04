@@ -4,14 +4,26 @@ import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryExpiredListener
 import javax.cache.event.CacheEntryRemovedListener
 import javax.cache.event.CacheEntryUpdatedListener
 
+/**
+ * Back Cache의 엔트리 이벤트(생성/수정/삭제/만료)를 수신하여 Front Cache([targetCache])에 반영하는 리스너입니다.
+ *
+ * JCache 이벤트 콜백은 동기식으로 호출되므로, `runBlocking` 대신 전용 [CoroutineScope]에서
+ * `launch`를 사용하여 스레드 풀 고갈과 데드락을 방지합니다.
+ *
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @property targetCache 이벤트를 반영할 Front Cache
+ */
 class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
     private val targetCache: SuspendCache<K, V>,
 ): CacheEntryCreatedListener<K, V>,
@@ -20,6 +32,9 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
    CacheEntryExpiredListener<K, V> {
 
     companion object: KLoggingChannel()
+
+    // JCache 이벤트 스레드를 블로킹하지 않기 위해 전용 코루틴 스코프 사용
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
      * Called after one or more entries have been created.
@@ -30,7 +45,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
     override fun onCreated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         log.trace { "BackCache cache entry created. events=${events.joinToString { it.asText() }}" }
         if (!targetCache.isClosed()) {
-            runBlocking(Dispatchers.IO) {
+            scope.launch {
                 runCatching {
                     targetCache.putAll(events.associate { it.key to it.value })
                 }.onFailure { e ->
@@ -49,7 +64,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
     override fun onUpdated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         log.trace { "BackCache cache entry updated. events=${events.joinToString { it.asText() }}" }
         if (!targetCache.isClosed()) {
-            runBlocking(Dispatchers.IO) {
+            scope.launch {
                 runCatching {
                     targetCache.putAll(events.associate { it.key to it.value })
                 }.onFailure { e ->
@@ -69,7 +84,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         log.trace { "BackCache cache entry removed. events=${events.joinToString { it.asText() }}" }
         if (!targetCache.isClosed()) {
-            runBlocking(Dispatchers.IO) {
+            scope.launch {
                 runCatching {
                     targetCache.removeAll(events.map { it.key }.toSet())
                 }.onFailure { e ->
@@ -89,7 +104,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         log.trace { "BackCache cache entry expired. events=${events.joinToString { it.asText() }}" }
         if (!targetCache.isClosed()) {
-            runBlocking(Dispatchers.IO) {
+            scope.launch {
                 runCatching {
                     targetCache.removeAll(events.map { it.key }.toSet())
                 }.onFailure { e ->

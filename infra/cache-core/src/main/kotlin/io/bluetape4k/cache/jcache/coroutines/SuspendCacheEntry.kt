@@ -22,6 +22,11 @@ data class SuspendCacheEntry<K: Any, V: Any>(
     private val entryValue: V,
 ): Cache.Entry<K, V>, Serializable {
 
+    companion object {
+        @Suppress("ConstPropertyName")
+        private const val serialVersionUID: Long = 1L
+    }
+
     override fun getKey(): K = entryKey
     override fun getValue(): V = entryValue
 

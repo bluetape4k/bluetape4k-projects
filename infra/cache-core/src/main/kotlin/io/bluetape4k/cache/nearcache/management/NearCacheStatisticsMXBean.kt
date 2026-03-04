@@ -172,7 +172,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      */
     override fun getCacheRemovals(): Long = removals.value
 
-    open fun addEvitions(value: Long) {
+    open fun addEvictions(value: Long) {
         evictions.addAndGet(value)
     }
 

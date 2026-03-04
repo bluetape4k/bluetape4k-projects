@@ -131,7 +131,7 @@ class NearCache<K: Any, V: Any> private constructor(
                 }
                 log.debug { "backCache epiration 검사를 종료합니다" }
             } catch (e: InterruptedException) {
-                // ignote InterruptedException
+                // ignore InterruptedException
                 log.debug { "backCache expiration 검사가 중단되었습니다." }
             }
         }

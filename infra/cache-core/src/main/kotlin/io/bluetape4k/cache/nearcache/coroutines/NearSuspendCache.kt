@@ -6,11 +6,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
-import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import kotlin.system.measureTimeMillis
@@ -44,8 +43,10 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
     private val frontCache: SuspendCache<K, V>,
     private val backCache: SuspendCache<K, V>,
     private val checkExpiryPeriod: Long,
-): SuspendCache<K, V> by backCache,
-   CoroutineScope by CoroutineScope(CoroutineName("nearCoCache") + Dispatchers.IO) {
+): SuspendCache<K, V> by backCache {
+
+    // SupervisorJob 으로 close() 시 자식 코루틴(만료 검사 등)을 일괄 취소
+    private val scope = CoroutineScope(SupervisorJob() + CoroutineName("nearCoCache") + Dispatchers.IO)
 
     companion object: KLoggingChannel() {
         const val DEFAULT_EXPIRY_CHECK_PERIOD = 30_000L
@@ -73,15 +74,13 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
 
     init {
         if (checkExpiryPeriod in 1000..Int.MAX_VALUE) {
-            runBlocking(Dispatchers.IO) {
-                checkBackCacheExpiration()
-            }
+            checkBackCacheExpiration()
         }
     }
 
+    // NOTE: 향후 제거 예정 (checkBackCacheExpiration)
     private fun checkBackCacheExpiration() {
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        val job = scope.launch {
+        scope.launch {
             val entrySizer = AtomicInteger(0)
 
             while (!isClosed() && isActive) {
@@ -114,10 +113,6 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
                 }
             }
         }
-
-        Runtimex.addShutdownHook {
-            runCatching { job.cancel() }
-        }
     }
 
     override fun entries(): Flow<SuspendCacheEntry<K, V>> = frontCache.entries()
@@ -134,13 +129,13 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
         }
         val frontClearJob = launch { frontCache.clear() }
         val backClearJob = launch { backCache.clear() }
-
-        frontClearJob.join()
-        backClearJob.join()
+        joinAll(frontClearJob, backClearJob)
     }
 
     override suspend fun close() {
         log.info { "Near Cache 의 Front Cache를 Close 합니다." }
+        // scope 취소로 자식 코루틴(만료 검사 등) 일괄 정리
+        scope.cancel()
         runCatching { frontCache.close() }
     }
 

@@ -36,6 +36,9 @@ open class NearCacheConfig<K: Any, V: Any>(
     val syncRemoteTimeout: Long = NearCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,
 ): Serializable {
     companion object {
+        @Suppress("ConstPropertyName")
+        private const val serialVersionUID: Long = 1L
+
         /** 최소 만료 검사 주기 (1초) */
         const val MIN_EXPIRY_CHECK_PERIOD = 1000L
 
@@ -73,7 +76,8 @@ open class NearCacheConfig<K: Any, V: Any>(
                 frontCacheName == other.frontCacheName &&
                 frontCacheConfiguration == other.frontCacheConfiguration &&
                 isSynchronous == other.isSynchronous &&
-                checkExpiryPeriod == other.checkExpiryPeriod
+                checkExpiryPeriod == other.checkExpiryPeriod &&
+                syncRemoteTimeout == other.syncRemoteTimeout
     }
 
     override fun hashCode(): Int =
@@ -83,5 +87,6 @@ open class NearCacheConfig<K: Any, V: Any>(
             frontCacheConfiguration,
             isSynchronous,
             checkExpiryPeriod,
+            syncRemoteTimeout,
         )
 }

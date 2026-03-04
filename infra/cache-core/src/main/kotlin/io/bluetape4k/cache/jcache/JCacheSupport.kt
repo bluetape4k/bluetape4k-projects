@@ -225,10 +225,12 @@ inline fun <K, V> javax.cache.Cache<K, V>.getOrPut(
     key: K,
     valueSupplier: () -> V,
 ): V {
-    if (!containsKey(key)) {
-        put(key, valueSupplier())
-    }
-    return get(key)
+    // 먼저 이미 캐시된 값이 있으면 빠르게 반환
+    get(key)?.let { return it }
+    // putIfAbsent 로 중복 저장 방지 (동시 호출 시 평가자가 두 번 실행될 수 있으나, 반환값은 항상 일관됨)
+    val newValue = valueSupplier()
+    putIfAbsent(key, newValue)
+    return get(key) ?: newValue
 }
 
 /**
