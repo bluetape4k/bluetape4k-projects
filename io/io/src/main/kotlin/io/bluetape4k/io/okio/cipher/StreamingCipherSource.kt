@@ -12,6 +12,14 @@ import javax.crypto.Cipher
 /**
  * 암호화된 [Source]를 스트리밍으로 읽어 복호화하는 [Source] 구현입니다.
  */
+@Deprecated(
+    message = "javax.crypto.Cipher 기반 스트리밍 복호화는 deprecated 되었습니다. Google Tink 기반 TinkDecryptSource 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "TinkDecryptSource(delegate, encryptor)",
+        "io.bluetape4k.io.okio.tink.TinkDecryptSource"
+    ),
+    level = DeprecationLevel.WARNING
+)
 open class StreamingCipherSource(
     delegate: Source,
     private val cipher: Cipher,
@@ -101,5 +109,14 @@ open class StreamingCipherSource(
 /**
  * [Source]를 [StreamingCipherSource]로 변환합니다.
  */
+@Deprecated(
+    message = "javax.crypto.Cipher 기반 복호화는 deprecated 되었습니다. Google Tink 기반 asTinkDecryptSource 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "asTinkDecryptSource(encryptor)",
+        "io.bluetape4k.io.okio.tink.asTinkDecryptSource"
+    ),
+    level = DeprecationLevel.WARNING
+)
+@Suppress("DEPRECATION")
 fun Source.asStreamingCipherSource(cipher: Cipher): StreamingCipherSource =
     StreamingCipherSource(this, cipher)

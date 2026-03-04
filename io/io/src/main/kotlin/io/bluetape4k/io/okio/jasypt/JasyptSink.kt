@@ -2,6 +2,7 @@ package io.bluetape4k.io.okio.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
+import io.bluetape4k.io.okio.tink.TinkEncryptSink
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireInRange
 import okio.Buffer
@@ -13,6 +14,14 @@ import okio.Sink
  *
  * @see DecryptSource
  */
+@Deprecated(
+    message = "Jasypt 기반 암호화는 deprecated 되었습니다. Google Tink 기반 TinkEncryptSink 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "TinkEncryptSink(delegate, encryptor)",
+        "io.bluetape4k.io.okio.tink.TinkEncryptSink"
+    ),
+    level = DeprecationLevel.WARNING
+)
 open class EncryptSink(
     delegate: Sink,
     private val encryptor: Encryptor,
@@ -40,5 +49,14 @@ open class EncryptSink(
 /**
  * Okio I/O 타입 변환을 위한 `asEncryptSink` 함수를 제공합니다.
  */
+@Deprecated(
+    message = "Jasypt 기반 암호화는 deprecated 되었습니다. Google Tink 기반 asTinkEncryptSink 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "asTinkEncryptSink(encryptor)",
+        "io.bluetape4k.io.okio.tink.asTinkEncryptSink"
+    ),
+    level = DeprecationLevel.WARNING
+)
+@Suppress("DEPRECATION")
 fun Sink.asEncryptSink(encryptor: Encryptor): EncryptSink =
     EncryptSink(this, encryptor)

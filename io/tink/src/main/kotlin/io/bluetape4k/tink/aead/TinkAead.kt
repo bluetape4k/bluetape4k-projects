@@ -2,9 +2,10 @@ package io.bluetape4k.tink.aead
 
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeysetHandle
+import com.google.crypto.tink.RegistryConfiguration
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.aeadKeysetHandle
-import java.util.Base64
+import java.util.*
 
 /**
  * Google Tink [Aead] 프리미티브를 Kotlin 관용적으로 래핑한 AEAD 암호화 클래스입니다.
@@ -23,7 +24,7 @@ import java.util.Base64
 class TinkAead(keysetHandle: KeysetHandle = aeadKeysetHandle()) {
 
     private val aead: Aead by lazy {
-        keysetHandle.getPrimitive(Aead::class.java)
+        keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
     }
 
     /**

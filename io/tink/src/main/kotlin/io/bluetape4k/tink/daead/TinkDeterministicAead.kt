@@ -2,9 +2,10 @@ package io.bluetape4k.tink.daead
 
 import com.google.crypto.tink.DeterministicAead
 import com.google.crypto.tink.KeysetHandle
+import com.google.crypto.tink.RegistryConfiguration
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.daeadKeysetHandle
-import java.util.Base64
+import java.util.*
 
 /**
  * Google Tink [DeterministicAead] 프리미티브를 Kotlin 관용적으로 래핑한 결정적 AEAD 암호화 클래스입니다.
@@ -28,7 +29,7 @@ import java.util.Base64
 class TinkDeterministicAead(keysetHandle: KeysetHandle = daeadKeysetHandle()) {
 
     private val daead: DeterministicAead by lazy {
-        keysetHandle.getPrimitive(DeterministicAead::class.java)
+        keysetHandle.getPrimitive(RegistryConfiguration.get(), DeterministicAead::class.java)
     }
 
     /**

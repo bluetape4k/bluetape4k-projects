@@ -24,8 +24,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-crypto"))
-    // TODO: Google Tink 사용 시
-    // compileOnly(project(":bluetape4k-tink"))
+    compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons

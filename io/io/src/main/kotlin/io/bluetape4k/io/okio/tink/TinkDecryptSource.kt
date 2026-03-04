@@ -1,9 +1,8 @@
-package io.bluetape4k.io.okio.jasypt
+package io.bluetape4k.io.okio.tink
 
-import io.bluetape4k.crypto.encrypt.Encryptor
-import io.bluetape4k.io.okio.tink.TinkDecryptSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireZeroOrPositiveNumber
+import io.bluetape4k.tink.encrypt.TinkEncryptor
 import okio.Buffer
 import okio.ForwardingSource
 import okio.Source
@@ -12,19 +11,15 @@ import java.io.IOException
 /**
  * 데이터를 복호화하여 [Source]로 읽는 [Source] 구현체.
  *
- * @see EncryptSink
+ * [TinkEncryptor]를 사용하여 위임 [Source]의 모든 암호화 데이터를 읽은 후
+ * 한 번에 복호화합니다. Tink는 스트림 복호화를 제공하지 않으므로 전체 암호문을
+ * 먼저 읽은 뒤 복호화합니다.
+ *
+ * @see TinkEncryptSink
  */
-@Deprecated(
-    message = "Jasypt 기반 복호화는 deprecated 되었습니다. Google Tink 기반 TinkDecryptSource 사용을 권장합니다.",
-    replaceWith = ReplaceWith(
-        "TinkDecryptSource(delegate, encryptor)",
-        "io.bluetape4k.io.okio.tink.TinkDecryptSource"
-    ),
-    level = DeprecationLevel.WARNING
-)
-open class DecryptSource(
+open class TinkDecryptSource(
     delegate: Source,
-    private val encryptor: Encryptor,
+    private val encryptor: TinkEncryptor,
 ): ForwardingSource(delegate) {
 
     companion object: KLogging()
@@ -33,7 +28,11 @@ open class DecryptSource(
     private var decryptedReady = false
 
     /**
-     * Okio I/O에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     * 복호화된 데이터를 [sink]에 최대 [byteCount] 바이트 읽어옵니다.
+     *
+     * @param sink 읽은 데이터를 쓸 버퍼
+     * @param byteCount 요청할 최대 바이트 수 (음수이면 예외, 0이면 0 반환)
+     * @return 실제 읽은 바이트 수 또는 EOF 시 -1
      */
     override fun read(sink: Buffer, byteCount: Long): Long {
         byteCount.requireZeroOrPositiveNumber("byteCount")
@@ -81,7 +80,7 @@ open class DecryptSource(
     }
 
     /**
-     * Okio I/O 리소스를 정리하고 닫습니다.
+     * 내부 복호화 버퍼와 위임 [Source]를 닫습니다.
      */
     override fun close() {
         super.close()
@@ -90,16 +89,10 @@ open class DecryptSource(
 }
 
 /**
- * Okio I/O 타입 변환을 위한 `asDecryptSource` 함수를 제공합니다.
+ * 현재 [Source]를 [TinkEncryptor]로 복호화하는 [TinkDecryptSource]로 변환합니다.
+ *
+ * @param encryptor 복호화에 사용할 [TinkEncryptor]
+ * @return 복호화 [TinkDecryptSource] 인스턴스
  */
-@Deprecated(
-    message = "Jasypt 기반 복호화는 deprecated 되었습니다. Google Tink 기반 asTinkDecryptSource 사용을 권장합니다.",
-    replaceWith = ReplaceWith(
-        "asTinkDecryptSource(encryptor)",
-        "io.bluetape4k.io.okio.tink.asTinkDecryptSource"
-    ),
-    level = DeprecationLevel.WARNING
-)
-@Suppress("DEPRECATION")
-fun Source.asDecryptSource(encryptor: Encryptor): DecryptSource =
-    DecryptSource(this, encryptor)
+fun Source.asTinkDecryptSource(encryptor: TinkEncryptor): TinkDecryptSource =
+    TinkDecryptSource(this, encryptor)

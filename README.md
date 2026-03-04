@@ -67,7 +67,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### I/O 모듈 (`io/`)
 
-- **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합
+- **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
 - **[jackson](./io/jackson/README.md)/[jackson3](./io/jackson3/README.md)
   **: Jackson 2.x/3.x 통합 및 [바이너리](./io/jackson-binary/README.md)/[텍스트](./io/jackson-text/README.md) 포맷 지원
 - **[json](./io/json/README.md)**: JSON 처리
@@ -76,7 +76,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP 클라이언트 (Coroutines 지원)
 - **[grpc](./io/grpc/README.md)**: gRPC 지원
 - ~~**[crypto](./io/crypto/README.md)**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
-- **[tink](./io/tink/README.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor
+- **[tink](./io/tink/README.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor (`TinkEncryptor`), Okio `TinkEncryptSink`/`TinkDecryptSource`
 - **[http](./io/http/README.md)**: HTTP 유틸리티
 - **[netty](./io/netty/README.md)**: Netty 통합
 - **[avro](./io/avro/README.md)**: Apache Avro

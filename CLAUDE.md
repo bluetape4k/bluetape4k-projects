@@ -106,7 +106,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 #### I/O Modules (`io/`)
 
-- **io**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합
+- **io**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 — Tink 기반 `TinkEncryptSink`/`TinkDecryptSource` (Jasypt `EncryptSink`/`DecryptSource`, `FinalizingCipherSink`/`StreamingCipherSource` Deprecated)
 - **json**: JSON 처리
 - **jackson**: Jackson 2.x 통합
 - **jackson3**: Jackson 3.x 통합
@@ -119,7 +119,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **netty**: Netty 통합
 - **grpc**: gRPC 지원
 - ~~**crypto**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
-- **tink**: Google Tink 기반 현대적 암호화 — AEAD (AES-GCM, ChaCha20-Poly1305), Deterministic AEAD (AES-SIV), MAC (HMAC), Digest (SHA-256 등), 통합 Encryptor (`TinkEncryptor`)
+- **tink**: Google Tink 기반 현대적 암호화 — AEAD (AES-GCM, ChaCha20-Poly1305), Deterministic AEAD (AES-SIV), MAC (HMAC), Digest (SHA-256 등), 통합 Encryptor (`TinkEncryptor`); Okio 암호화 Sink/Source (`TinkEncryptSink`/`TinkDecryptSource`)는 `io/io` 모듈에 위치
 
 #### AWS Modules (`aws/`, `aws-kotlin/`)
 

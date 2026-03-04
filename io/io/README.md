@@ -161,13 +161,36 @@ CompressableSink(sink, Compressors.Zstd).use { compressedSink ->
     compressedSink.write(buffer, buffer.size)
 }
 
-// 암호화 스트림
-import io.bluetape4k.io.okio.cipher.*
-import javax.crypto.Cipher
+// Tink 기반 암호화 스트림 (권장)
+import io.bluetape4k.io.okio.tink.*
+import io.bluetape4k.tink.encrypt.TinkEncryptors
 
-val cipher = /* Cipher 초기화 */
-val encryptedSink = FinalizingCipherSink(sink, cipher)
-encryptedSink.write(buffer)
+val encryptSink = sink.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
+encryptSink.write(buffer, buffer.size)
+
+// 복호화
+val decryptSource = encryptedBuffer.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
+val result = Buffer()
+decryptSource.readAllTo(result)
+```
+
+**압축 + 암호화 조합:**
+
+```kotlin
+import io.bluetape4k.io.okio.tink.*
+import io.bluetape4k.io.okio.compress.*
+import io.bluetape4k.tink.encrypt.TinkEncryptors
+import io.bluetape4k.io.compressor.Compressors
+
+// 압축 → 암호화
+val sink = Buffer()
+sink.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
+    .asCompressSink(Compressors.Zstd)
+    .use { it.write(buffer, buffer.size) }
+
+// 복호화 → 압축 해제
+val source = sink.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
+    .asDecompressSource(Compressors.Zstd)
 ```
 
 압축 Sink 사용 정책:
@@ -175,11 +198,18 @@ encryptedSink.write(buffer)
 - `CompressableSink`는 `close()` 시점에 압축 결과를 확정하므로 반드시 `close()` 또는 `use {}`를 사용해야 합니다.
 - `asCompressSink(StreamingCompressor)`도 footer/finalize 기록을 위해 `close()` 또는 `use {}`가 필요합니다.
 
-암호화 클래스 명칭 변경:
+암호화 Sink/Source 현황:
 
-- `FinalizingCipherSink`: write 스트리밍 + close 시 finalize
-- `StreamingCipherSource`: 스트리밍 복호화
-- 기존 `CipherSink`, `CipherSource`는 하위 호환용이며 deprecated 입니다.
+| 클래스 | 상태 | 대체 |
+|--------|------|------|
+| `TinkEncryptSink` | **권장** | — |
+| `TinkDecryptSource` | **권장** | — |
+| `EncryptSink` (jasypt) | Deprecated | `TinkEncryptSink` |
+| `DecryptSource` (jasypt) | Deprecated | `TinkDecryptSource` |
+| `FinalizingCipherSink` | Deprecated | `TinkEncryptSink` |
+| `StreamingCipherSource` | Deprecated | `TinkDecryptSource` |
+| `CipherSink` | Deprecated | `TinkEncryptSink` |
+| `CipherSource` | Deprecated | `TinkDecryptSource` |
 
 ### 4. 파일 유틸리티 (FileSupport)
 
@@ -367,11 +397,14 @@ io.bluetape4k.io
 ├── okio/               # Okio 통합
 │   ├── coroutines/     # Suspended I/O
 │   ├── channels/       # Channel 지원
-│   ├── cipher/         # 암호화
+│   ├── tink/           # Tink 기반 암호화 (권장)
+│   │   ├── TinkEncryptSink.kt
+│   │   └── TinkDecryptSource.kt
+│   ├── cipher/         # javax.crypto.Cipher 기반 (Deprecated)
 │   │   ├── FinalizingCipherSink.kt
 │   │   └── StreamingCipherSource.kt
 │   ├── compress/       # 압축 스트림
-│   └── jasypt/         # Jasypt 암호화
+│   └── jasypt/         # Jasypt 암호화 (Deprecated)
 ├── FileSupport.kt      # 파일 유틸리티
 ├── PathSupport.kt      # Path 유틸리티
 └── [기타 확장 함수들]

@@ -13,6 +13,14 @@ import javax.crypto.Cipher
 /**
  * [Cipher.update]로 스트리밍 암호화를 수행하고, close 시점에 [Cipher.doFinal]로 마무리하는 [Sink] 구현입니다.
  */
+@Deprecated(
+    message = "javax.crypto.Cipher 기반 스트리밍 암호화는 deprecated 되었습니다. Google Tink 기반 TinkEncryptSink 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "TinkEncryptSink(delegate, encryptor)",
+        "io.bluetape4k.io.okio.tink.TinkEncryptSink"
+    ),
+    level = DeprecationLevel.WARNING
+)
 open class FinalizingCipherSink(
     delegate: Sink,
     private val cipher: Cipher,
@@ -77,5 +85,14 @@ open class FinalizingCipherSink(
 /**
  * [Sink]를 [FinalizingCipherSink]로 변환합니다.
  */
+@Deprecated(
+    message = "javax.crypto.Cipher 기반 암호화는 deprecated 되었습니다. Google Tink 기반 asTinkEncryptSink 사용을 권장합니다.",
+    replaceWith = ReplaceWith(
+        "asTinkEncryptSink(encryptor)",
+        "io.bluetape4k.io.okio.tink.asTinkEncryptSink"
+    ),
+    level = DeprecationLevel.WARNING
+)
+@Suppress("DEPRECATION")
 fun Sink.asFinalizingCipherSink(cipher: Cipher): FinalizingCipherSink =
     FinalizingCipherSink(this, cipher)

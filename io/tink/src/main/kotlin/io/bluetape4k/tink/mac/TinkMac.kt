@@ -2,6 +2,7 @@ package io.bluetape4k.tink.mac
 
 import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.Mac
+import com.google.crypto.tink.RegistryConfiguration
 import io.bluetape4k.tink.macKeysetHandle
 
 /**
@@ -22,7 +23,7 @@ import io.bluetape4k.tink.macKeysetHandle
 class TinkMac(keysetHandle: KeysetHandle = macKeysetHandle()) {
 
     private val mac: Mac by lazy {
-        keysetHandle.getPrimitive(Mac::class.java)
+        keysetHandle.getPrimitive(RegistryConfiguration.get(), Mac::class.java)
     }
 
     /**
