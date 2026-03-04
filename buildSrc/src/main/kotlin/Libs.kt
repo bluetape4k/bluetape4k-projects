@@ -23,12 +23,12 @@ object Plugins {
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.14.9.8"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.15.0"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
         const val graalvm_native = "0.11.4" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
         const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
-        const val nmcp = "1.4.4" // https://plugins.gradle.org/plugin/com.gradleup.nmcp
+        const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -59,15 +59,15 @@ object Plugins {
     const val graalvm_native = "org.graalvm.buildtools.native"
 
     const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
-    const val nmcp = "com.gradleup.nmcp"
-    const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"
+    const val nmcp = "com.gradleup.nmcp"  // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
+    const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"  // https://mvnrepository.com/artifact/com.gradleup.nmcp.aggregation/com.gradleup.nmcp.aggregation.gradle.plugin
 }
 
 object Versions {
 
     const val kotlin = "2.3.10"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    const val kotlinx_serialization = "1.10.0"   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
+    const val kotlinx_serialization = "1.10.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
     const val kotlinx_atomicfu = "0.31.0"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
@@ -186,7 +186,7 @@ object Versions {
 
     const val junit_jupiter = "6.0.3"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     const val junit_platform = "6.0.3"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
-    const val assertj_core = "3.27.6"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    const val assertj_core = "3.27.7"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
     const val mockk = "1.14.9"              // https://mvnrepository.com/artifact/io.mockk/mockk
     const val springmockk = "5.0.1"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
@@ -195,20 +195,19 @@ object Versions {
     const val testcontainers = "1.21.4"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.18.1"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.4.1"            // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
-    const val rest_assured = "5.5.7"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    const val rest_assured = "6.0.0"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
 
     const val datafaker = "2.5.4"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
-    const val snakeyaml = "2.5"            // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    const val snakeyaml = "2.6"            // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     const val random_beans = "3.9.0"
 
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
+    const val sentry_logback = "8.33.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
-    const val sentry_logback = "8.32.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
-
-    const val scrimage = "4.3.6"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
+    const val scrimage = "4.3.8"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
     // Gatling
-    const val gatling = "3.14.9" // https://mvnrepository.com/artifact/io.gatling/gatling-core
+    const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
 }
 
 object Libs {
