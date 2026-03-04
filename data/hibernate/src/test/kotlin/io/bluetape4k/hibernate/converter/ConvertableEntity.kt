@@ -2,10 +2,10 @@ package io.bluetape4k.hibernate.converter
 
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.crypto.randomBytes
+import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
 import io.bluetape4k.hibernate.converters.DurationAsTimestampConverter
 import io.bluetape4k.hibernate.converters.LZ4KryoObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.LocaleAsStringConverter
-import io.bluetape4k.hibernate.converters.RC2StringConverter
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import jakarta.persistence.Access
 import jakarta.persistence.AccessType
@@ -32,7 +32,7 @@ class ConvertableEntity(
     @Convert(converter = DurationAsTimestampConverter::class)
     var duration: Duration? = null
 
-    @Convert(converter = RC2StringConverter::class)
+    @Convert(converter = DeterministicAESStringConverter::class)
     var password: String? = null
 
     @Convert(converter = LZ4KryoObjectAsByteArrayConverter::class)

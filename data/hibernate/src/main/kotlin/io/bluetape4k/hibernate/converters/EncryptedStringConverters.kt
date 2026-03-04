@@ -40,6 +40,12 @@ abstract class EncryptedStringConverter(
 class AESStringConverter: EncryptedStringConverter(Encryptors.AES)
 
 /**
+ * 문자열을 결정적 AES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
+ */
+@Converter
+class DeterministicAESStringConverter: EncryptedStringConverter(Encryptors.DeterministicAES)
+
+/**
  * 문자열을 DES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
  */
 @Converter
@@ -56,6 +62,12 @@ class RC2StringConverter: EncryptedStringConverter(Encryptors.RC2)
  */
 @Converter
 class RC4StringConverter: EncryptedStringConverter(Encryptors.RC4)
+
+/**
+ * 문자열을 결정적 RC4 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
+ */
+@Converter
+class DeterministicRC4StringConverter: EncryptedStringConverter(Encryptors.DeterministicRC4)
 
 /**
  * 문자열을 TripleDES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
