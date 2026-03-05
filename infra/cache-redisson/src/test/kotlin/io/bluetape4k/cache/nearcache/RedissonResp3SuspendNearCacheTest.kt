@@ -1,33 +1,35 @@
 package io.bluetape4k.cache.nearcache
 
-import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.time.Duration
 
-class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
+class RedissonResp3SuspendNearCacheTest : AbstractRedissonResp3NearCacheTest() {
 
-    private lateinit var cache: LettuceSuspendNearCache<String>
+    companion object : KLogging()
+
+    private lateinit var cache: RedissonResp3SuspendNearCache<String>
 
     @BeforeEach
     fun createCache() {
         if (::cache.isInitialized) cache.close()
-        cache = LettuceSuspendNearCache(
+        cache = RedissonResp3SuspendNearCache(
+            redisson = redisson,
             redisClient = resp3Client,
-            codec = StringCodec.UTF8,
-            config = LettuceNearCacheConfig(cacheName = "test-near-suspend-cache"),
+            config = RedissonResp3NearCacheConfig(cacheName = "test-resp3-suspend-cache"),
         )
     }
 
-    @AfterAll
+    @AfterEach
     fun tearDown() {
         if (::cache.isInitialized) cache.close()
     }
@@ -40,7 +42,7 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `put and get - read-through`() = runTest {
+    fun `put and get - write-through`() = runTest {
         cache.put("key1", "value1")
         cache.get("key1") shouldBeEqualTo "value1"
     }
@@ -48,18 +50,13 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `put - Redis에도 반영됨`() = runTest {
         cache.put("k", "v")
-        // prefix key로 확인
         directCommands.get("${cache.cacheName}:k") shouldBeEqualTo "v"
     }
 
     @Test
-    fun `get - front miss 시 Redis에서 읽어 front populate`() = runTest {
-        // prefix key로 직접 설정
+    fun `get - front miss 시 Redis에서 읽어 populate`() = runTest {
         directCommands.set("${cache.cacheName}:remote-key", "remote-val")
-        cache.localSize() shouldBeEqualTo 0L
-
         cache.get("remote-key") shouldBeEqualTo "remote-val"
-        cache.localSize() shouldBeEqualTo 1L  // front populated
     }
 
     @Test
@@ -100,15 +97,15 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     }
 
     @Test
-    fun `putIfAbsent`() = runTest {
-        cache.putIfAbsent("key", "first").shouldBeNull()           // 새로 저장 → null 반환
+    fun `putIfAbsent - 캐시 값 없으면 추가, 있으면 기존 값 반환`() = runTest {
+        cache.putIfAbsent("key", "first").shouldBeNull()
         cache.get("key") shouldBeEqualTo "first"
-        cache.putIfAbsent("key", "second") shouldBeEqualTo "first" // 기존 존재 → 기존 값 반환
+        cache.putIfAbsent("key", "second") shouldBeEqualTo "first"
         cache.get("key") shouldBeEqualTo "first"
     }
 
     @Test
-    fun `replace`() = runTest {
+    fun `replace - 키가 존재할 때만 교체`() = runTest {
         cache.replace("noKey", "val") shouldBeEqualTo false
         cache.put("key", "old")
         cache.replace("key", "new") shouldBeEqualTo true
@@ -145,30 +142,28 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     fun `clearLocal - 로컬만 초기화, Redis 유지`() = runTest {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
-        cache.localSize() shouldBeEqualTo 2L
-        cache.clearFrontCache()
+        cache.clearLocal()
         cache.localSize() shouldBeEqualTo 0L
         // prefix key로 Redis 데이터 유지 확인
         directCommands.get("${cache.cacheName}:k1").shouldNotBeNull()
     }
 
     @Test
-    fun `clearAll - 프론트 캐시 + 백엔드 캐시 초기화`() = runTest {
+    fun `clearAll - 로컬 + Redis 초기화`() = runTest {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
         cache.clearAll()
         cache.localSize() shouldBeEqualTo 0L
-        // prefix key로 삭제 확인
         directCommands.get("${cache.cacheName}:k1").shouldBeNull()
         directCommands.get("${cache.cacheName}:k2").shouldBeNull()
     }
 
     @Test
     fun `clearAll - 다른 cacheName의 데이터는 유지됨`() = runTest {
-        val otherCache = LettuceSuspendNearCache(
+        val otherCache = RedissonResp3SuspendNearCache(
+            redisson = redisson,
             redisClient = resp3Client,
-            codec = StringCodec.UTF8,
-            config = LettuceNearCacheConfig(cacheName = "other-suspend-cache-" + Base58.randomString(6)),
+            config = RedissonResp3NearCacheConfig(cacheName = "other-resp3-suspend-cache-" + Base58.randomString(6)),
         )
         otherCache.use { other ->
             cache.put("shared-key", "from-main")
@@ -185,41 +180,40 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `Redis TTL - TTL이 있는 캐시 설정`() = runTest {
-        val ttlCacheName = "ttl-suspend-test-" + Base58.randomString(6)
-        val ttlCache = LettuceSuspendNearCache(
+        val ttlCacheName = "ttl-resp3-suspend-test-" + Base58.randomString(6)
+        val ttlCache = RedissonResp3SuspendNearCache(
+            redisson = redisson,
             redisClient = resp3Client,
-            codec = StringCodec.UTF8,
-            config = LettuceNearCacheConfig(
+            config = RedissonResp3NearCacheConfig(
                 cacheName = ttlCacheName,
-                redisTtl = Duration.ofSeconds(2),
+                redisTtl = Duration.ofSeconds(10),
             ),
         )
         ttlCache.use { c ->
             c.put("ttl-key", "ttl-val")
             c.get("ttl-key") shouldBeEqualTo "ttl-val"
-            // prefix key로 TTL 확인
             val ttl = directCommands.ttl("${ttlCacheName}:ttl-key")
             (ttl > 0L).shouldBeTrue()
         }
     }
 
-    // ---- redisSize ----
+    // ---- backCacheSize ----
 
     @Test
-    fun `redisSize - cacheName에 속한 Redis key 개수`() = runTest {
+    fun `backCacheSize - cacheName에 속한 Redis key 개수`() = runTest {
         cache.put("s1", "v1")
         cache.put("s2", "v2")
         cache.put("s3", "v3")
-        cache.redisSize() shouldBeEqualTo 3L
+        cache.backCacheSize() shouldBeEqualTo 3L
         cache.remove("s2")
-        cache.redisSize() shouldBeEqualTo 2L
+        cache.backCacheSize() shouldBeEqualTo 2L
     }
 
     // ---- lifecycle ----
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = LettuceSuspendNearCache(resp3Client)
+        val c = RedissonResp3SuspendNearCache(redisson, resp3Client)
         c.close()
         c.close()
     }

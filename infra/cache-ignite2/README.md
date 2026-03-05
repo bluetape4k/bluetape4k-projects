@@ -1,23 +1,23 @@
-# Module bluetape4k-cache-ignite
+# Module bluetape4k-cache-ignite2
 
-`bluetape4k-cache-ignite`는 Apache Ignite 2.x 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Ignite 2-Tier Near Cache**를 제공합니다.
+`bluetape4k-cache-ignite2`는 Apache Ignite 2.x 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Ignite 2-Tier Near Cache**를 제공합니다.
 
 > 기존 `bluetape4k-cache-ignite-near` 모듈이 이 모듈에 통합되었습니다.
 
 ## 제공 기능
 
-- **Ignite JCache Provider** (`IgniteJCachingProvider`)
+- **Ignite JCache Provider** (`IgniteJCaching`)
 - **Ignite Near Cache Provider** (`IgniteNearCachingProvider`)
-- **`Ignite2SuspendCache`**: JCache 기반 코루틴 캐시
-- **`Ignite2ClientSuspendCache`**: Thin Client 기반 코루틴 캐시
+- **`IgniteSuspendCache`**: Embedded Ignite 기반 코루틴 캐시
+- **`IgniteClientSuspendCache`**: Thin Client 기반 코루틴 캐시
 - **`IgniteNearCache`**: Caffeine(로컬) + Ignite(분산) 2-Tier Near Cache
-- **`IgniteNearSuspendCache`**: Near Cache 코루틴 래퍼
+- **`IgniteSuspendNearCache`**: Near Cache 코루틴 팩토리
 
 ## 설치
 
 ```kotlin
 dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-cache-ignite:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-ignite2:${bluetape4kVersion}")
 }
 ```
 
@@ -31,53 +31,48 @@ dependencies {
 
 ## 사용 예시
 
-### 1. Ignite2SuspendCache (JCache 기반)
+### 1. IgniteSuspendCache (Embedded Ignite 기반)
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.Ignite2SuspendCache
+import io.bluetape4k.cache.jcache.IgniteSuspendCache
 
-val suspendCache = Ignite2SuspendCache<String, Any>("ignite-cache")
+val suspendCache = IgniteSuspendCache<String, Any>("ignite-cache")
 suspendCache.put("key", "value")
 val value = suspendCache.get("key")
 ```
 
-### 2. Ignite2ClientSuspendCache (Thin Client 기반)
+### 2. IgniteClientSuspendCache (Thin Client 기반)
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.Ignite2ClientSuspendCache
+import io.bluetape4k.cache.jcache.IgniteClientSuspendCache
 
-val suspendCache = Ignite2ClientSuspendCache(clientCache)
+val suspendCache = IgniteClientSuspendCache(
+    igniteClient.getOrCreateCache("my-cache")
+)
 suspendCache.put("key", "value")
 val value = suspendCache.get("key")
 ```
 
-### 3. Ignite Near Cache (2-Tier)
+### 3. Ignite Near Cache (2-Tier, Thin Client 권장)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.ignite.IgniteNearCache
-import io.bluetape4k.cache.nearcache.NearCacheConfig
+import io.bluetape4k.cache.jcache.CaffeineSuspendCache
+import io.bluetape4k.cache.jcache.IgniteClientSuspendCache
+import io.bluetape4k.cache.nearcache.IgniteSuspendNearCache
 
-val nearConfig = NearCacheConfig<String, Any>()
-val nearCache = IgniteNearCache<String, Any>("ignite-near", igniteInstance, nearConfig)
+val nearCache = IgniteSuspendNearCache<String, Any>(
+    frontSuspendCache = CaffeineSuspendCache { maximumSize(10_000) },
+    backSuspendCache = IgniteClientSuspendCache(igniteClient.getOrCreateCache("my-near-cache")),
+)
 
 nearCache.put("key", "value")
 val value = nearCache.get("key")  // 로컬 Caffeine에서 우선 조회
 ```
 
-### 4. IgniteNearSuspendCache (코루틴)
-
-```kotlin
-import io.bluetape4k.cache.nearcache.ignite.coroutines.IgniteNearSuspendCache
-
-val nearSuspend = IgniteNearSuspendCache<String, Any>("ignite-near-suspend", igniteInstance)
-nearSuspend.put("key", "value")
-val value = nearSuspend.get("key")
-```
-
-### 5. Spring Boot 설정 (Near Cache Provider 사용)
+### 4. Spring Boot 설정 (Near Cache Provider 사용)
 
 ```properties
-spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.ignite.IgniteNearCachingProvider
+spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.IgniteNearCachingProvider
 ```
 
 ## CachingProvider 등록 목록
@@ -86,11 +81,11 @@ spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.ignite.IgniteNearCach
 
 ```
 org.apache.ignite.cache.CachingProvider
-io.bluetape4k.cache.nearcache.ignite.IgniteNearCachingProvider
+io.bluetape4k.cache.nearcache.IgniteNearCachingProvider
 ```
 
 클래스패스에 여러 Provider가 공존할 때는 명시적으로 지정하세요:
 
 ```kotlin
-val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.ignite.IgniteNearCachingProvider")
+val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.IgniteNearCachingProvider")
 ```

@@ -51,7 +51,7 @@ import kotlinx.atomicfu.atomic
 class LettuceNearCache<V: Any>(
     private val redisClient: RedisClient,
     private val codec: RedisCodec<String, V>,
-    private val config: NearCacheConfig<String, V> = NearCacheConfig(),
+    private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
     companion object: KLogging() {
@@ -60,7 +60,7 @@ class LettuceNearCache<V: Any>(
          */
         operator fun invoke(
             redisClient: RedisClient,
-            config: NearCacheConfig<String, String> = NearCacheConfig(),
+            config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
         ): LettuceNearCache<String> =
             LettuceNearCache(redisClient, StringCodec.UTF8, config)
     }
@@ -288,7 +288,7 @@ class LettuceNearCache<V: Any>(
     }
 
     /**
-     * 로컬 캐시(Caffeine) 통계. [NearCacheConfig.recordStats]가 true일 때만 유효한 값을 반환한다.
+     * 로컬 캐시(Caffeine) 통계. [LettuceNearCacheConfig.recordStats]가 true일 때만 유효한 값을 반환한다.
      */
     fun localStats(): CacheStats? = frontCache.stats()
 

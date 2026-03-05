@@ -42,7 +42,7 @@ val cache: Cache<String, Any> = caffeine {
 ### 2. CaffeineSuspendCache
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
+import io.bluetape4k.cache.jcache.CaffeineSuspendCache
 
 val suspendCache = CaffeineSuspendCache<String, Any>("local-cache")
 suspendCache.put("key", "value")
@@ -92,3 +92,48 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 | Ignite 분산 캐시 + Near Cache | `bluetape4k-cache-ignite` |
 | Redisson 분산 캐시 + Near Cache | `bluetape4k-cache-redisson` |
 | 전체 Provider 일괄 사용 | `bluetape4k-cache` (umbrella) |
+
+## testFixtures 활용 가이드
+
+`bluetape4k-cache-core`는 분산 캐시 Provider 구현을 위한 **6개의 추상 테스트 클래스**를 `testFixtures`로 제공합니다.
+
+### 추상 테스트 클래스 목록
+
+| 클래스 | 패키지 | 설명 |
+|--------|--------|------|
+| `AbstractSuspendCacheTest` | `jcache` | `SuspendCache` 기본 CRUD + 동시성 검증 |
+| `AbstractNearCacheTest` | `nearcache` | `NearCache` write-through/event 전파 검증 |
+| `AbstractSuspendNearCacheTest` | `nearcache` | `SuspendNearCache` coroutines 검증 |
+| `AbstractMemorizerTest` | `memorizer` | `Memorizer` 단일 계산 보장 |
+| `AbstractAsyncMemorizerTest` | `memorizer` | `AsyncMemorizer` CompletableFuture 검증 |
+| `AbstractSuspendMemorizerTest` | `memorizer` | `SuspendMemorizer` suspend 검증 |
+
+### Provider별 호환성 매트릭스
+
+| testFixtures | Hazelcast | Ignite2 | Redisson | Lettuce |
+|---|:---:|:---:|:---:|:---:|
+| `AbstractSuspendCacheTest` | ✅ | ✅ | ✅ | ✅ |
+| `AbstractNearCacheTest` | ✅ | ✅ | ✅ | N/A(아키텍처 상이) |
+| `AbstractSuspendNearCacheTest` | ✅ | ✅ | ✅ | N/A(아키텍처 상이) |
+| `AbstractMemorizerTest` 3종 | N/A | N/A | N/A | N/A |
+
+> Memorizer는 로컬 캐시 전용 패턴으로 분산 캐시 모듈에는 해당 없음
+
+### 새 Provider에서 testFixtures 사용하기
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    testImplementation(testFixtures(project(":bluetape4k-cache-core")))
+}
+```
+
+```kotlin
+// 새 Provider NearCache 테스트 예시
+class MyProviderNearCacheTest : AbstractNearCacheTest() {
+
+    override val backCache: JCache<String, Any> by lazy {
+        MyProviderJCaching.getOrCreate("my-back-cache-" + UUID.randomUUID().encodeBase62())
+    }
+}
+```

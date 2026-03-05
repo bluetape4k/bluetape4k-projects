@@ -1,61 +1,183 @@
 package io.bluetape4k.cache.nearcache
 
-import com.hazelcast.cache.HazelcastCachingProvider
-import io.bluetape4k.cache.HazelcastServerProvider
-import io.bluetape4k.cache.jcache.CaffeineSuspendCache
-import io.bluetape4k.cache.jcache.HazelcastSuspendCache
-import io.bluetape4k.cache.jcache.SuspendCache
-import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeInstanceOf
-import org.junit.jupiter.api.Disabled
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.time.Duration
-import java.util.*
-import javax.cache.configuration.MutableConfiguration
+import org.testcontainers.utility.Base58
 
-@Disabled("Hazelcast Client JCache listener는 non-serializable front cache를 캡처한 listener factory 등록을 허용하지 않습니다.")
-class HazelcastSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
+/**
+ * Hazelcast IMap 기반 NearCache Coroutine(Suspend) 구현 테스트.
+ *
+ * JCache 기반 테스트와 달리 리스너 직렬화 문제가 없다.
+ */
+class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
 
-    companion object: KLogging()
+    companion object : KLogging()
 
-    override val backSuspendCache: SuspendCache<String, Any> by lazy {
-        val provider = HazelcastCachingProvider()
-        val properties = HazelcastCachingProvider.propertiesByInstanceItself(HazelcastServerProvider.hazelcastClient)
-        val manager = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader, properties)
+    private lateinit var cache: HazelcastSuspendNearCache<String>
 
-        val cacheName = "hazelcast-back-cocache-" + UUID.randomUUID().encodeBase62()
-        val config = MutableConfiguration<String, Any>().apply {
-            setTypes(String::class.java, Any::class.java)
-        }
-        val jcache = manager.getCache(cacheName, String::class.java, Any::class.java)
-            ?: manager.createCache(cacheName, config)
-
-        HazelcastSuspendCache(jcache)
+    @BeforeEach
+    fun createCache() {
+        if (::cache.isInitialized) cache.close()
+        cache = HazelcastSuspendNearCache(
+            hazelcastInstance = hazelcastClient,
+            config = HazelcastNearCacheConfig(cacheName = "test-suspend-cache-" + Base58.randomString(6)),
+        )
     }
 
-    override fun createFrontSuspendCache(expireAfterAccess: Duration): SuspendCache<String, Any> =
-        CaffeineSuspendCache {
-            this.expireAfterAccess(expireAfterAccess)
-            this.maximumSize(10_000)
+    @AfterEach
+    fun tearDown() = runTest {
+        if (::cache.isInitialized) {
+            runCatching { cache.clearAll() }
+            runCatching { cache.close() }
         }
+    }
 
     @Test
-    fun `Hazelcast 전용 NearSuspendCache를 생성하고 동작해야 한다`() = runSuspendIO {
-        val cacheName = "hazelcast-near-suspend-" + UUID.randomUUID().encodeBase62()
-        val cache = HazelcastSuspendNearCache<String, Any>(cacheName)
-        cache shouldBeInstanceOf SuspendNearCache::class
+    fun `get - 존재하지 않는 키는 null 반환`() = runTest {
+        cache.get("missing-key").shouldBeNull()
+    }
 
-        val key = getKey()
-        val value = getValue()
-        cache.put(key, value)
-        cache.get(key) shouldBeEqualTo value
+    @RepeatedTest(REPEAT_SIZE)
+    fun `put and get - write-through`() = runTest {
+        cache.put("key1", "value1")
+        cache.get("key1") shouldBeEqualTo "value1"
+    }
 
+    @Test
+    fun `put - IMap에도 반영됨`() = runTest {
+        cache.put("k", "v")
+        cache.backCacheSize() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `get - front miss 시 IMap에서 읽어 front populate`() = runTest {
+        val imap = hazelcastClient.getMap<String, String>(cache.cacheName)
+        imap["remote-key"] = "remote-val"
+        cache.get("remote-key") shouldBeEqualTo "remote-val"
+    }
+
+    @Test
+    fun `putAll and getAll`() = runTest {
+        val data = mapOf("a" to "1", "b" to "2", "c" to "3")
+        cache.putAll(data)
+        val result = cache.getAll(setOf("a", "b", "c", "x"))
+        result["a"] shouldBeEqualTo "1"
+        result["b"] shouldBeEqualTo "2"
+        result["c"] shouldBeEqualTo "3"
+        result["x"].shouldBeNull()
+    }
+
+    @Test
+    fun `remove - front + IMap 삭제`() = runTest {
+        cache.put("key1", "value1")
+        cache.get("key1").shouldNotBeNull()
+        cache.remove("key1")
+        cache.get("key1").shouldBeNull()
+    }
+
+    @Test
+    fun `removeAll - 여러 키 삭제`() = runTest {
+        cache.putAll(mapOf("a" to "1", "b" to "2", "c" to "3"))
+        cache.removeAll(setOf("a", "b"))
+        cache.get("a").shouldBeNull()
+        cache.get("b").shouldBeNull()
+        cache.get("c") shouldBeEqualTo "3"
+    }
+
+    @Test
+    fun `containsKey`() = runTest {
+        cache.put("keyX", "valX")
+        cache.containsKey("keyX") shouldBeEqualTo true
+        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.remove("keyX")
+        cache.containsKey("keyX") shouldBeEqualTo false
+    }
+
+    @Test
+    fun `putIfAbsent - 캐시 값 없으면 추가, 있으면 기존 값 반환`() = runTest {
+        cache.putIfAbsent("key", "first").shouldBeNull()
+        cache.get("key") shouldBeEqualTo "first"
+        cache.putIfAbsent("key", "second") shouldBeEqualTo "first"
+        cache.get("key") shouldBeEqualTo "first"
+    }
+
+    @Test
+    fun `replace - 키가 존재할 때만 교체`() = runTest {
+        cache.replace("noKey", "val") shouldBeEqualTo false
+        cache.put("key", "old")
+        cache.replace("key", "new") shouldBeEqualTo true
+        cache.get("key") shouldBeEqualTo "new"
+    }
+
+    @Test
+    fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() = runTest {
+        cache.put("k", "old")
+        cache.replace("k", "wrong", "new") shouldBeEqualTo false
+        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.get("k") shouldBeEqualTo "new"
+    }
+
+    @Test
+    fun `getAndRemove`() = runTest {
+        cache.put("key", "value")
+        cache.getAndRemove("key") shouldBeEqualTo "value"
+        cache.get("key").shouldBeNull()
+        cache.getAndRemove("key").shouldBeNull()
+    }
+
+    @Test
+    fun `getAndReplace`() = runTest {
+        cache.getAndReplace("missing", "val").shouldBeNull()
+        cache.put("key", "old")
+        cache.getAndReplace("key", "new") shouldBeEqualTo "old"
+        cache.get("key") shouldBeEqualTo "new"
+    }
+
+    @Test
+    fun `clearLocal - 로컬만 초기화, IMap 유지`() = runTest {
+        cache.put("k1", "v1")
+        cache.put("k2", "v2")
+        cache.clearLocal()
+        cache.localSize() shouldBeEqualTo 0L
+        cache.containsKey("k1") shouldBeEqualTo true
+    }
+
+    @Test
+    fun `clearAll - 로컬 + IMap 초기화`() = runTest {
+        cache.put("k1", "v1")
+        cache.put("k2", "v2")
         cache.clearAll()
-        cache.containsKey(key).shouldBeFalse()
-        cache.close()
+        cache.localSize() shouldBeEqualTo 0L
+        cache.get("k1").shouldBeNull()
+        cache.get("k2").shouldBeNull()
+    }
+
+    @Test
+    fun `backCacheSize - IMap의 key 개수`() = runTest {
+        cache.put("s1", "v1")
+        cache.put("s2", "v2")
+        cache.put("s3", "v3")
+        cache.backCacheSize() shouldBeEqualTo 3
+        cache.remove("s2")
+        cache.backCacheSize() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `close - 중복 close 시 예외 없음`() {
+        val c = HazelcastSuspendNearCache<String>(
+            hazelcastInstance = hazelcastClient,
+            config = HazelcastNearCacheConfig(cacheName = "test-suspend-close-" + Base58.randomString(6)),
+        )
+        c.close()
+        c.close()
+        c.isClosed.shouldBeTrue()
     }
 }

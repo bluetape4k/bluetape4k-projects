@@ -49,7 +49,6 @@ abstract class AbstractNearCacheTest {
     @BeforeEach
     fun setup() {
         nearCache1.clear()
-        nearCache1.clear()
         nearCache2.clear()
         backCache.clear()
     }

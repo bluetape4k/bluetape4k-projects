@@ -7,7 +7,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
 /**
  * Caffeine 기반 [LocalCache] 구현.
  */
-class CaffeineLocalCache<K : Any, V : Any>(private val config: NearCacheConfig<K, V>) : LocalCache<K, V> {
+class CaffeineLocalCache<K : Any, V : Any>(private val config: LettuceNearCacheConfig<K, V>) : LocalCache<K, V> {
 
     private val cache: Cache<K, V> = Caffeine.newBuilder()
         .maximumSize(config.maxLocalSize)

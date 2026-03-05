@@ -35,13 +35,13 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
 
     @BeforeEach
     fun createCaches() {
-        cacheA = LettuceNearCache(resp3Client, StringCodec.UTF8, NearCacheConfig(cacheName = "isolation-a"))
-        cacheB = LettuceNearCache(resp3Client, StringCodec.UTF8, NearCacheConfig(cacheName = "isolation-b"))
-        cacheC = LettuceNearCache(resp3Client, StringCodec.UTF8, NearCacheConfig(cacheName = "isolation-c"))
+        cacheA = LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "isolation-a"))
+        cacheB = LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "isolation-b"))
+        cacheC = LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "isolation-c"))
         suspendCacheX =
-            LettuceSuspendNearCache(resp3Client, StringCodec.UTF8, NearCacheConfig(cacheName = "isolation-x"))
+            LettuceSuspendNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "isolation-x"))
         suspendCacheY =
-            LettuceSuspendNearCache(resp3Client, StringCodec.UTF8, NearCacheConfig(cacheName = "isolation-y"))
+            LettuceSuspendNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "isolation-y"))
     }
 
     @AfterEach

@@ -6,7 +6,7 @@ import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.testcontainers.storage.HazelcastServer
 import io.bluetape4k.utils.ShutdownQueue
 
-object HazelcastServerProvider {
+object HazelcastServers {
 
     val hazelcastServer: HazelcastServer by lazy { HazelcastServer.Launcher.hazelcast }
 

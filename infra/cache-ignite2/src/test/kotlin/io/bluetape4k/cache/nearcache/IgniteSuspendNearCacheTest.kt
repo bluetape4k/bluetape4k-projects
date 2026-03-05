@@ -1,34 +1,22 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.IgniteServers.igniteClient
 import io.bluetape4k.cache.jcache.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.IgniteClientSuspendCache
 import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.testcontainers.storage.Ignite2Server
-import io.bluetape4k.utils.ShutdownQueue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
-import org.apache.ignite.Ignition
-import org.apache.ignite.client.IgniteClient
-import org.apache.ignite.configuration.ClientConfiguration
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.*
 
-class Ignite2SuspendNearCacheTest: AbstractSuspendNearCacheTest() {
+class IgniteSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
 
-    companion object {
-        private val ignite2Server by lazy { Ignite2Server.Launcher.ignite2 }
-        private val igniteClient: IgniteClient by lazy {
-            Ignition.startClient(
-                ClientConfiguration().apply {
-                    setAddresses(ignite2Server.url)
-                }
-            ).also { ShutdownQueue.register { it.close() } }
-        }
-    }
+    companion object: KLoggingChannel()
 
     override val backSuspendCache: SuspendCache<String, Any> by lazy {
         IgniteClientSuspendCache(
@@ -45,7 +33,10 @@ class Ignite2SuspendNearCacheTest: AbstractSuspendNearCacheTest() {
     @Test
     fun `Ignite 전용 NearSuspendCache를 생성하고 동작해야 한다`() = runSuspendIO {
         val cacheName = "ignite2-near-suspend-" + UUID.randomUUID().encodeBase62()
-        val cache = IgniteSuspendNearCache<String, Any>(cacheName)
+        val cache = IgniteSuspendNearCache<String, Any>(
+            frontSuspendCache = CaffeineSuspendCache { maximumSize(10_000) },
+            backSuspendCache = IgniteClientSuspendCache(igniteClient.getOrCreateCache(cacheName)),
+        )
         cache shouldBeInstanceOf SuspendNearCache::class
 
         val key = getKey()

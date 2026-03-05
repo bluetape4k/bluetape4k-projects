@@ -9,6 +9,11 @@ dependencies {
     // Redisson JCache provider
     api(Libs.redisson)
 
+    // RESP3 CLIENT TRACKING invalidation 전용 (데이터 연산은 Redisson 사용)
+    implementation(Libs.lettuce_core)
+    // Lettuce coroutines API가 내부적으로 사용
+    implementation(Libs.kotlinx_coroutines_reactive)
+
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)

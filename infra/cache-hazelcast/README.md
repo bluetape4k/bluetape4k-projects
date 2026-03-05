@@ -1,16 +1,19 @@
 # Module bluetape4k-cache-hazelcast
 
-`bluetape4k-cache-hazelcast`는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Hazelcast 2-Tier Near Cache**를 제공합니다.
+`bluetape4k-cache-hazelcast`는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Hazelcast IMap 2-Tier Near Cache**를 제공합니다.
 
 > 기존 `bluetape4k-cache-hazelcast-near` 모듈이 이 모듈에 통합되었습니다.
 
 ## 제공 기능
 
 - **Hazelcast JCache Provider** (`HazelcastJCaching`)
-- **Hazelcast Near Cache Provider** (`HazelcastNearCachingProvider`)
 - **`HazelcastSuspendCache`**: JCache 기반 코루틴 캐시
-- **`HazelcastNearCache`**: Caffeine(로컬) + Hazelcast(분산) 2-Tier Near Cache
-- **`HazelcastNearSuspendCache`**: Near Cache 코루틴 래퍼
+- **`HazelcastNearCache`**: Caffeine(로컬) + Hazelcast IMap(분산) 2-Tier Near Cache (동기)
+- **`HazelcastSuspendNearCache`**: Near Cache 코루틴 구현
+- **`HazelcastNearCacheConfig`**: Near Cache 설정 data class + DSL 빌더
+- **`HazelcastLocalCache`**: front cache 추상 인터페이스
+- **`CaffeineHazelcastLocalCache`**: Caffeine 기반 LocalCache 구현
+- **`HazelcastEntryEventListener`**: IMap EntryListener 기반 invalidation 리스너
 
 ## 설치
 
@@ -20,46 +23,99 @@ dependencies {
 }
 ```
 
+## NearCache 아키텍처
+
+```
+Application
+    |
+[HazelcastNearCache / HazelcastSuspendNearCache]
+    |
++--------+--------+-----------+
+|        |        |           |
+Front   Back    Listener
+Caffeine  IMap   EntryListener
+(local) (remote)  (invalidation)
+```
+
+- **Read**: front hit → 즉시 반환 / front miss → IMap GET → front populate → 반환
+- **Write**: front put + IMap PUT (write-through)
+- **Invalidation**: IMap EntryListener → 로컬 캐시 자동 무효화
+
+> JCache `registerCacheEntryListener`는 리스너 factory를 서버로 직렬화해 전송하므로
+> non-serializable 리스너가 실패한다. `IMap.addEntryListener`는 클라이언트 JVM에서 리스너를
+> 실행하므로 직렬화가 불필요하다.
+
 ## 사용 예시
 
 ### 1. HazelcastSuspendCache
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.HazelcastSuspendCache
+import io.bluetape4k.cache.jcache.HazelcastSuspendCache
 
 val suspendCache = HazelcastSuspendCache<String, Any>("hazelcast-cache")
 suspendCache.put("key", "value")
 val value = suspendCache.get("key")
 ```
 
-### 2. Hazelcast Near Cache (2-Tier)
+### 2. HazelcastNearCacheConfig DSL
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.hazelcast.HazelcastNearCache
-import io.bluetape4k.cache.nearcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
 
-val nearConfig = NearCacheConfig<String, Any>()
-val nearCache = HazelcastNearCache<String, Any>("hz-near", hazelcastInstance, nearConfig)
-
-nearCache.put("key", "value")
-val value = nearCache.get("key")  // 로컬 Caffeine에서 우선 조회
+val config = hazelcastNearCacheConfig {
+    cacheName = "my-near-cache"
+    maxLocalSize = 10_000
+    frontExpireAfterWrite = Duration.ofMinutes(30)
+    frontExpireAfterAccess = null
+    recordStats = false
+}
 ```
 
-### 3. HazelcastNearSuspendCache (코루틴)
+### 3. HazelcastNearCache (동기)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.hazelcast.coroutines.HazelcastNearSuspendCache
+import io.bluetape4k.cache.nearcache.HazelcastNearCache
+import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 
-val nearSuspend = HazelcastNearSuspendCache<String, Any>("hz-near-suspend", hazelcastInstance)
-nearSuspend.put("key", "value")
-val value = nearSuspend.get("key")
+val cache = HazelcastNearCache<String>(
+    hazelcastInstance = hazelcastClient,
+    config = HazelcastNearCacheConfig(cacheName = "orders"),
+)
+
+cache.use { c ->
+    c.put("order-1", "data")
+    val value = c.get("order-1")  // 로컬 Caffeine에서 우선 조회
+    c.remove("order-1")
+}
 ```
 
-### 4. Spring Boot 설정 (Near Cache Provider 사용)
+### 4. HazelcastSuspendNearCache (코루틴)
 
-```properties
-spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.hazelcast.HazelcastNearCachingProvider
+```kotlin
+import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
+import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
+
+val cache = HazelcastSuspendNearCache<String>(
+    hazelcastInstance = hazelcastClient,
+    config = HazelcastNearCacheConfig(cacheName = "sessions"),
+)
+
+cache.use { c ->
+    c.put("session-1", "token-abc")
+    val token = c.get("session-1")  // suspend fun
+    c.clearAll()
+}
 ```
+
+## HazelcastNearCacheConfig 옵션
+
+| 옵션                       | 기본값                      | 설명                                |
+|--------------------------|--------------------------|-----------------------------------|
+| `cacheName`              | `"hazelcast-near-cache"` | 캐시(IMap) 이름                       |
+| `maxLocalSize`           | `10_000`                 | Caffeine 최대 항목 수                   |
+| `frontExpireAfterWrite`  | `30분`                    | 로컬 캐시 write 후 만료 시간               |
+| `frontExpireAfterAccess` | `null`                   | 로컬 캐시 access 후 만료 시간 (null이면 비활성) |
+| `recordStats`            | `false`                  | Caffeine 통계 수집 여부                  |
 
 ## CachingProvider 등록 목록
 
@@ -67,11 +123,10 @@ spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.hazelcast.HazelcastNe
 
 ```
 com.hazelcast.cache.HazelcastCachingProvider
-io.bluetape4k.cache.nearcache.hazelcast.HazelcastNearCachingProvider
 ```
 
 클래스패스에 여러 Provider가 공존할 때는 명시적으로 지정하세요:
 
 ```kotlin
-val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.hazelcast.HazelcastNearCachingProvider")
+val provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")
 ```

@@ -51,7 +51,7 @@ import kotlinx.coroutines.flow.collect
 class LettuceSuspendNearCache<V: Any>(
     private val redisClient: RedisClient,
     private val codec: RedisCodec<String, V>,
-    private val config: NearCacheConfig<String, V> = NearCacheConfig(),
+    private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
     companion object: KLogging() {
@@ -60,7 +60,7 @@ class LettuceSuspendNearCache<V: Any>(
          */
         operator fun invoke(
             redisClient: RedisClient,
-            config: NearCacheConfig<String, String> = NearCacheConfig(),
+            config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
         ): LettuceSuspendNearCache<String> =
             LettuceSuspendNearCache(redisClient, StringCodec.UTF8, config)
     }

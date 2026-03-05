@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
-import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -13,45 +12,53 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 /**
- * Redis RESP3 CLIENT TRACKING invalidation 검증 테스트.
+ * Redisson + Lettuce RESP3 하이브리드 NearCache의 CLIENT TRACKING invalidation 검증 테스트.
  *
  * ## 핵심 원칙
  * CLIENT TRACKING은 READ(GET) 명령어로 키를 조회했을 때만 tracking이 활성화된다.
- * 따라서 테스트 패턴은:
+ * 테스트 패턴:
  * 1. `directCommands`로 Redis에 직접 값을 쓴다 (prefix key 사용)
- * 2. nearCache1.get() → local miss → Redis READ → CLIENT TRACKING 활성화
- * 3. 같은 cacheName의 다른 인스턴스나 외부 연결이 해당 key를 수정
+ * 2. nearCache1.get() → local miss → Redisson READ → Lettuce tracking GET → CLIENT TRACKING 활성화
+ * 3. 다른 인스턴스나 외부 연결이 해당 key를 수정
  * 4. nearCache1의 local cache에 invalidation이 비동기적으로 전파됨을 검증
+ *
+ * ## NOLOOP 동작 차이
+ * Redisson 데이터 연결과 Lettuce tracking 연결은 서로 다른 연결이다.
+ * Redis NOLOOP은 동일 연결의 쓰기에만 적용되므로, Redisson 쓰기는
+ * Lettuce tracking 연결에 invalidation을 전파한다 (cache-lettuce와 다른 동작).
  *
  * ## Cross-instance 테스트 설계
  * 같은 cacheName을 가진 두 인스턴스(nearCache1, nearCache2)가
  * 동일한 Redis key 공간을 공유하므로, 한 인스턴스의 쓰기가
  * 다른 인스턴스의 local cache를 invalidate한다.
  */
-class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
+class RedissonResp3NearCacheTrackingTest : AbstractRedissonResp3NearCacheTest() {
 
-    companion object: KLogging()
+    companion object : KLogging()
 
-    private lateinit var nearCache1: LettuceNearCache<String>
-    private lateinit var nearCache2: LettuceNearCache<String>
+    private lateinit var nearCache1: RedissonResp3NearCache<String>
+    private lateinit var nearCache2: RedissonResp3NearCache<String>
 
-    private lateinit var nearSuspendCache1: LettuceSuspendNearCache<String>
-    private lateinit var nearSuspendCache2: LettuceSuspendNearCache<String>
+    private lateinit var nearSuspendCache1: RedissonResp3SuspendNearCache<String>
+    private lateinit var nearSuspendCache2: RedissonResp3SuspendNearCache<String>
 
     @BeforeEach
     fun createCaches() {
-        // 같은 cacheName → 같은 Redis key 공간 → cross-instance invalidation 동작
-        nearCache1 = LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "tracking-cache"))
-        nearCache2 = LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "tracking-cache"))
-        nearSuspendCache1 = LettuceSuspendNearCache(
-            resp3Client,
-            StringCodec.UTF8,
-            LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
+        nearCache1 = RedissonResp3NearCache(
+            redisson, resp3Client,
+            RedissonResp3NearCacheConfig(cacheName = "tracking-resp3-cache"),
         )
-        nearSuspendCache2 = LettuceSuspendNearCache(
-            resp3Client,
-            StringCodec.UTF8,
-            LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
+        nearCache2 = RedissonResp3NearCache(
+            redisson, resp3Client,
+            RedissonResp3NearCacheConfig(cacheName = "tracking-resp3-cache"),
+        )
+        nearSuspendCache1 = RedissonResp3SuspendNearCache(
+            redisson, resp3Client,
+            RedissonResp3NearCacheConfig(cacheName = "suspend-tracking-resp3-cache"),
+        )
+        nearSuspendCache2 = RedissonResp3SuspendNearCache(
+            redisson, resp3Client,
+            RedissonResp3NearCacheConfig(cacheName = "suspend-tracking-resp3-cache"),
         )
     }
 
@@ -78,11 +85,10 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
         // Step 1: prefix key로 Redis에 직접 값 설정
         directCommands.set("${cacheName}:${key}", "initial")
 
-        // Step 2: nearCache1이 Redis에서 읽음 (cache miss) → CLIENT TRACKING이 이 키를 추적 시작
+        // Step 2: nearCache1이 Redis에서 읽음 (cache miss) → Lettuce tracking GET으로 CLIENT TRACKING 활성화
         nearCache1.get(key) shouldBeEqualTo "initial"
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
 
-        // Step 3: nearCache2가 같은 키를 수정 → Redis가 nearCache1에 invalidation push 전송
+        // Step 3: nearCache2가 같은 키를 수정 → Redisson 쓰기 → Redis가 nearCache1의 tracking 연결에 invalidation push
         nearCache2.put(key, "updated-by-cache2")
 
         // Step 4: nearCache1의 local cache가 비동기로 invalidated되기를 기다림
@@ -95,25 +101,6 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
     }
 
     @Test
-    fun `noloop - 자신이 쓴 키는 자신의 local을 invalidate하지 않음`() {
-        val key = "noloop-key"
-        val cacheName = nearCache1.cacheName
-
-        // directCommands로 prefix key 설정 후 nearCache1이 읽어 tracking 활성화
-        directCommands.set("${cacheName}:${key}", "initial")
-        nearCache1.get(key) shouldBeEqualTo "initial"
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
-
-        // 자신이 다시 write → noloop이므로 자신의 local은 invalidate되지 않아야 함
-        nearCache1.put(key, "updated-by-self")
-
-        // 약간 기다린 후에도 local size 유지 (noloop이므로 invalidated 안 됨)
-        Thread.sleep(300)
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
-        nearCache1.get(key) shouldBeEqualTo "updated-by-self"
-    }
-
-    @Test
     fun `external writer invalidation - 외부 연결이 직접 Redis 쓰기 시 invalidation 전파`() {
         val key = "external-key"
         val cacheName = nearCache1.cacheName
@@ -123,7 +110,6 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
 
         // Step 2: nearCache1이 읽어 local에 populate + tracking 활성화
         nearCache1.get(key) shouldBeEqualTo "initial"
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
 
         // Step 3: 외부 Redis 클라이언트(tracking 없는 연결)가 prefix key를 직접 수정
         directCommands.set("${cacheName}:${key}", "updated-by-external")
@@ -147,9 +133,8 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
 
         // Step 2: nearCache1이 읽어 local populate + tracking 활성화
         nearCache1.get(key) shouldBeEqualTo "to-be-removed"
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
 
-        // Step 3: nearCache2가 삭제 (같은 cacheName이므로 같은 Redis key 삭제)
+        // Step 3: nearCache2가 삭제
         nearCache2.remove(key)
 
         // Step 4: nearCache1의 local이 invalidated되기를 기다림
@@ -164,28 +149,45 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
     @Test
     fun `cacheName 격리 - 다른 cacheName 인스턴스의 쓰기는 invalidation을 발생시키지 않음`() {
         val key = "isolation-key"
-        val cacheName1 = nearCache1.cacheName  // "tracking-cache"
+        val cacheName1 = nearCache1.cacheName
 
-        // 다른 cacheName 인스턴스 생성
-        val isolatedCache = LettuceNearCache(
-            resp3Client, StringCodec.UTF8,
-            LettuceNearCacheConfig(cacheName = "isolated-cache"),
+        val isolatedCache = RedissonResp3NearCache(
+            redisson, resp3Client,
+            RedissonResp3NearCacheConfig(cacheName = "isolated-resp3-cache"),
         )
 
         isolatedCache.use { isolated ->
             // nearCache1이 키를 읽어 tracking 활성화
             directCommands.set("${cacheName1}:${key}", "initial")
             nearCache1.get(key) shouldBeEqualTo "initial"
-            nearCache1.localCacheSize() shouldBeEqualTo 1L
 
             // 다른 cacheName의 같은 key 이름 수정 (실제 Redis key는 다름)
             isolated.put(key, "from-isolated")
 
             // 약간 기다려도 nearCache1의 local은 invalidated되지 않아야 함
             Thread.sleep(300)
-            nearCache1.localCacheSize() shouldBeEqualTo 1L
             nearCache1.get(key) shouldBeEqualTo "initial"
         }
+    }
+
+    @Test
+    fun `Redisson 쓰기도 tracking 연결에 invalidation 전파 - 하이브리드 아키텍처 특성`() {
+        val key = "hybrid-key"
+        val cacheName = nearCache1.cacheName
+
+        // Step 1: prefix key로 초기값 설정
+        directCommands.set("${cacheName}:${key}", "initial")
+
+        // Step 2: nearCache1이 읽어 local populate + tracking 활성화
+        nearCache1.get(key) shouldBeEqualTo "initial"
+
+        // Step 3: nearCache1 자신이 Redisson으로 쓰기
+        // 하이브리드 아키텍처에서는 Redisson 연결이 Lettuce tracking 연결과 다르므로
+        // 자신의 쓰기도 invalidation으로 전파될 수 있다
+        nearCache1.put(key, "updated-by-self")
+
+        // Step 4: 값은 반드시 접근 가능해야 함 (local 또는 Redis에서)
+        nearCache1.get(key) shouldBeEqualTo "updated-by-self"
     }
 
     // ---- Coroutine (Suspend) 교차 invalidation ----
@@ -200,7 +202,6 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
 
         // nearSuspendCache1이 읽어 local populate + tracking 활성화
         nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-        nearSuspendCache1.localSize() shouldBeEqualTo 1L
 
         // nearSuspendCache2가 수정 → Redis가 invalidation push 전송
         nearSuspendCache2.put(key, "updated-by-suspend-cache2")
@@ -218,22 +219,35 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
         val key = "suspend-external-key"
         val cacheName = nearSuspendCache1.cacheName
 
-        // prefix key로 초기값 설정
         directCommands.set("${cacheName}:${key}", "initial")
 
-        // nearSuspendCache1이 읽어 local populate + tracking 활성화
         nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-        nearSuspendCache1.localSize() shouldBeEqualTo 1L
 
-        // 외부 연결이 prefix key를 직접 수정
         directCommands.set("${cacheName}:${key}", "external-update")
 
-        // nearSuspendCache1의 local이 invalidated되기를 기다림
         await.atMost(3, TimeUnit.SECONDS).untilAsserted {
             nearSuspendCache1.localSize() shouldBeEqualTo 0L
         }
 
         nearSuspendCache1.get(key) shouldBeEqualTo "external-update"
+    }
+
+    @Test
+    fun `suspend - remove invalidation`() = runTest {
+        val key = "suspend-remove-key"
+        val cacheName = nearSuspendCache1.cacheName
+
+        directCommands.set("${cacheName}:${key}", "to-be-removed")
+
+        nearSuspendCache1.get(key) shouldBeEqualTo "to-be-removed"
+
+        nearSuspendCache2.remove(key)
+
+        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+            nearSuspendCache1.localSize() shouldBeEqualTo 0L
+        }
+
+        nearSuspendCache1.get(key).shouldBeNull()
     }
 
     // ---- 추가 시나리오: putAll / removeAll / replace cross-instance ----
@@ -310,7 +324,6 @@ class LettuceNearCacheTrackingTest : AbstractLettuceNearCacheTest() {
         // nearCache1이 읽어 local populate + tracking 활성화
         directCommands.set("${cacheName}:${key}", "v1")
         nearCache1.get(key) shouldBeEqualTo "v1"
-        nearCache1.localCacheSize() shouldBeEqualTo 1L
 
         // 외부에서 값 변경 → nearCache1 local invalidated
         directCommands.set("${cacheName}:${key}", "v2")

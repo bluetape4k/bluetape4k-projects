@@ -10,6 +10,10 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 - Rate Limit 이 다가오면 Memory.md 에 현재까지의 Context 를 저장해서 토큰을 절약할 것
 - 작업 시 Python 코드 제작은 자제하고, Read/Edit 방식으로 작업할 것
+- Think Before Coding — 모르면 추측하지 말고 물어봐
+- Simplicity First — 요청한 것만 만들어. 200줄이 50줄로 되면 다시 써
+- Surgical Changes — 옆 코드 "개선"하지 마. 변경된 모든 줄이 요청으로 추적 가능해야 함
+- Goal-Driven Execution — "버그 고쳐" 대신 "버그 재현 테스트 쓰고 통과시켜"
 
 ## Development Guidelines
 
@@ -215,7 +219,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **cache-hazelcast**: Hazelcast 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-hazelcast-near 병합)
 - **cache-ignite**: Apache Ignite 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-ignite-near 병합)
 - **cache-redisson**: Redisson 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-redisson-near 병합)
-- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시
+- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig` (구 `NearCacheConfig`), `lettuceNearCacheConfig {}` DSL, Hazelcast NearCache 테스트는 embedded 모드 시도 중
 
 #### Spring Modules (`spring/`)
 

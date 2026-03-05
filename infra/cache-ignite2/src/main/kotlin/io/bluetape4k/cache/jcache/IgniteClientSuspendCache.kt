@@ -7,9 +7,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.joinAll
+import org.apache.ignite.cache.query.ContinuousQuery
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.client.ClientCache
+import java.util.concurrent.ConcurrentHashMap
 import javax.cache.configuration.CacheEntryListenerConfiguration
+import javax.cache.event.CacheEntryCreatedListener
+import javax.cache.event.CacheEntryExpiredListener
+import javax.cache.event.CacheEntryRemovedListener
+import javax.cache.event.CacheEntryUpdatedListener
+import javax.cache.event.EventType
 
 /**
  * Ignite 2.x thin client [org.apache.ignite.client.ClientCache]를 코루틴용 [SuspendCache]로 감싼 구현체입니다.
@@ -29,6 +36,9 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
 class IgniteClientSuspendCache<K: Any, V: Any>(
     private val cache: ClientCache<K, V>,
 ): SuspendCache<K, V> {
+
+    /** ContinuousQuery 기반 리스너 등록 시 반환된 커서 맵. deregister 시 닫기 위해 보관. */
+    private val queryCursors = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, AutoCloseable>()
 
     override fun entries(): Flow<SuspendCacheEntry<K, V>> = flow {
         val cursor = cache.query(ScanQuery<K, V>())
@@ -106,11 +116,42 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     override suspend fun replace(key: K, value: V): Boolean =
         cache.replaceAsync(key, value).awaitSuspending()
 
+    /**
+     * ContinuousQuery의 localListener를 사용해 캐시 이벤트 리스너를 등록합니다.
+     *
+     * JCache 표준 `registerCacheEntryListener`는 리스너 factory를 서버로 직렬화해 전송하므로
+     * non-serializable 리스너(Caffeine front cache 등을 캡처한 람다)에서 실패합니다.
+     * ContinuousQuery의 `setLocalListener`는 클라이언트 JVM에서 실행되어 직렬화가 불필요합니다.
+     */
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {
-        cache.registerCacheEntryListener(configuration)
+        val listener = configuration.cacheEntryListenerFactory.create()
+
+        val cq = ContinuousQuery<K, V>()
+        cq.setLocalListener { events ->
+            val created = events.filter { it.eventType == EventType.CREATED }
+            val updated = events.filter { it.eventType == EventType.UPDATED }
+            val removed = events.filter { it.eventType == EventType.REMOVED }
+            val expired = events.filter { it.eventType == EventType.EXPIRED }
+
+            @Suppress("UNCHECKED_CAST")
+            if (listener is CacheEntryCreatedListener<*, *> && created.isNotEmpty())
+                (listener as CacheEntryCreatedListener<K, V>).onCreated(created)
+            @Suppress("UNCHECKED_CAST")
+            if (listener is CacheEntryUpdatedListener<*, *> && updated.isNotEmpty())
+                (listener as CacheEntryUpdatedListener<K, V>).onUpdated(updated)
+            @Suppress("UNCHECKED_CAST")
+            if (listener is CacheEntryRemovedListener<*, *> && removed.isNotEmpty())
+                (listener as CacheEntryRemovedListener<K, V>).onRemoved(removed)
+            @Suppress("UNCHECKED_CAST")
+            if (listener is CacheEntryExpiredListener<*, *> && expired.isNotEmpty())
+                (listener as CacheEntryExpiredListener<K, V>).onExpired(expired)
+        }
+
+        val cursor = cache.query(cq)
+        queryCursors[configuration] = cursor
     }
 
     override fun deregisterCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {
-        cache.deregisterCacheEntryListener(configuration)
+        queryCursors.remove(configuration)?.close()
     }
 }

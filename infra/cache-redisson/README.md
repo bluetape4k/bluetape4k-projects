@@ -25,7 +25,7 @@ dependencies {
 ### 1. RedissonSuspendCache
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.RedissonSuspendCache
+import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 
 val config = jcacheConfiguration<String, Any> { }
@@ -38,8 +38,8 @@ val value = suspendCache.get("key")
 ### 2. Redisson Near Cache (2-Tier)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.redis.RedissonNearCache
-import io.bluetape4k.cache.nearcache.redis.RedisNearCacheConfig
+import io.bluetape4k.cache.nearcache.RedissonNearCache
+import io.bluetape4k.cache.nearcache.RedisNearCacheConfig
 
 val nearConfig = RedisNearCacheConfig<String, Any>()
 val nearCache = RedissonNearCache<String, Any>("redis-near", redissonClient, nearConfig)
@@ -48,12 +48,12 @@ nearCache.put("key", "value")
 val value = nearCache.get("key")  // 로컬 Caffeine에서 우선 조회
 ```
 
-### 3. RedissonNearSuspendCache (코루틴)
+### 3. RedissonSuspendNearCache (코루틴)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.redis.coroutines.RedissonNearSuspendCache
+import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
 
-val nearSuspend = RedissonNearSuspendCache<String, Any>("redis-near-suspend", redissonClient)
+val nearSuspend = RedissonSuspendNearCache<String, Any>("redis-near-suspend", redissonClient)
 nearSuspend.put("key", "value")
 val value = nearSuspend.get("key")
 ```
@@ -75,7 +75,7 @@ class CacheConfig {
 또는 `application.properties`:
 
 ```properties
-spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider
+spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.RedissonNearCachingProvider
 ```
 
 ### 5. Spring `@Cacheable`과 함께 사용
@@ -88,17 +88,100 @@ class UserService {
 }
 ```
 
+### 6. RESP3 NearCache (Redisson + Lettuce RESP3 하이브리드)
+
+기존 JCache 기반 Near Cache의 bulk 연산 이벤트 미발행 버그를 해결한 하이브리드 구현입니다.
+데이터 연산은 Redisson `RBucket`을 사용하고, invalidation은 Lettuce RESP3 CLIENT TRACKING push를 사용합니다.
+
+```kotlin
+import io.bluetape4k.cache.nearcache.RedissonResp3NearCache
+import io.bluetape4k.cache.nearcache.RedissonResp3NearCacheConfig
+import io.lettuce.core.RedisClient
+
+val config = RedissonResp3NearCacheConfig(
+    cacheName = "my-cache",
+    maxLocalSize = 10_000,
+    frontExpireAfterWrite = Duration.ofMinutes(30),
+    redisTtl = null,               // Redis TTL (null = 만료 없음)
+    useRespProtocol3 = true,       // RESP3 CLIENT TRACKING 활성화
+)
+val nearCache = RedissonResp3NearCache(
+    redisson = redissonClient,
+    redisClient = resp3LettuceClient, // RESP3 활성화된 Lettuce RedisClient
+    config = config,
+)
+
+nearCache.put("key", "value")
+nearCache.get("key")      // 로컬 Caffeine에서 우선 조회
+nearCache.clearLocal()    // 로컬 캐시만 초기화 (Redis 유지)
+nearCache.clearAll()      // 로컬 + Redis 모두 초기화
+nearCache.close()
+```
+
+#### Suspend (코루틴) 버전
+
+```kotlin
+import io.bluetape4k.cache.nearcache.RedissonResp3SuspendNearCache
+
+val suspendCache = RedissonResp3SuspendNearCache(
+    redisson = redissonClient,
+    redisClient = resp3LettuceClient,
+    config = config,
+)
+
+suspendCache.put("key", "value")
+val value = suspendCache.get("key")
+```
+
+#### RESP3 RedisClient 설정 예시
+
+```kotlin
+import io.lettuce.core.ClientOptions
+import io.lettuce.core.RedisClient
+import io.lettuce.core.protocol.ProtocolVersion
+
+val resp3Client = RedisClient.create("redis://localhost:6379").also { client ->
+    client.options = ClientOptions.builder()
+        .protocolVersion(ProtocolVersion.RESP3)
+        .build()
+}
+```
+
+#### 아키텍처
+
+```
+Application
+    |
+[RedissonResp3NearCache]
+    |
++--------+--------+------------+
+|        |        |            |
+Front   Back    Tracking
+Caffeine Redisson  Lettuce RESP3
+(local) (RBucket)  (CLIENT TRACKING push)
+```
+
+- **Read**: front hit → return / front miss → Redisson GET + Lettuce tracking GET → populate → return
+- **Write**: front put + Redisson SET (write-through)
+- **Invalidation**: RESP3 CLIENT TRACKING push → 로컬 캐시 무효화
+
+#### NOLOOP 동작 주의사항
+
+Redisson 데이터 연결과 Lettuce tracking 연결은 서로 다른 연결이므로,
+자신이 Redisson으로 쓴 키도 Lettuce tracking 연결에 invalidation이 전파될 수 있습니다.
+이는 cache-lettuce의 단일 연결 방식과 다른 동작입니다.
+
 ## CachingProvider 등록 목록
 
 `META-INF/services/javax.cache.spi.CachingProvider`에 등록된 Provider:
 
 ```
 org.redisson.jcache.JCachingProvider
-io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider
+io.bluetape4k.cache.nearcache.RedissonNearCachingProvider
 ```
 
 클래스패스에 여러 Provider가 공존할 때는 명시적으로 지정하세요:
 
 ```kotlin
-val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider")
+val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.RedissonNearCachingProvider")
 ```

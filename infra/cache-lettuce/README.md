@@ -17,7 +17,7 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 |-----------------------------------|----------------------------------|
 | `LettuceNearCache<V>`             | 동기(Blocking) 2-Tier 캐시           |
 | `LettuceNearSuspendCache<V>`      | Coroutines(suspend) 2-Tier 캐시    |
-| `NearCacheConfig<K, V>`           | NearCache 설정 data class + DSL 빌더 |
+| `LettuceNearCacheConfig<K, V>`    | NearCache 설정 data class + DSL 빌더 |
 | `LocalCache<K, V>`                | front cache 추상 인터페이스             |
 | `CaffeineLocalCache<K, V>`        | Caffeine 기반 LocalCache 구현        |
 | `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너   |
@@ -51,12 +51,12 @@ dependencies {
 
 ## 사용 예시
 
-### NearCacheConfig DSL
+### LettuceNearCacheConfig DSL
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.lettuce.nearCacheConfig
+import io.bluetape4k.cache.nearcache.lettuceNearCacheConfig
 
-val config = nearCacheConfig<String, String> {
+val config = lettuceNearCacheConfig<String, String> {
     cacheName = "my-cache"
     maxLocalSize = 10_000
     frontExpireAfterWrite = Duration.ofMinutes(30)
@@ -68,8 +68,8 @@ val config = nearCacheConfig<String, String> {
 ### 동기 NearCache
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.lettuce.LettuceNearCache
-import io.bluetape4k.cache.nearcache.lettuce.NearCacheConfig
+import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.protocol.ProtocolVersion
@@ -83,7 +83,7 @@ val redisClient = RedisClient.create("redis://localhost:6379").also {
 
 val cache = LettuceNearCache(
     redisClient = redisClient,
-    config = NearCacheConfig(cacheName = "orders"),
+    config = LettuceNearCacheConfig(cacheName = "orders"),
 )
 
 cache.use { c ->
@@ -96,12 +96,12 @@ cache.use { c ->
 ### Coroutines NearCache
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.lettuce.LettuceNearSuspendCache
-import io.bluetape4k.cache.nearcache.lettuce.NearCacheConfig
+import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 
-val cache = LettuceNearSuspendCache(
+val cache = LettuceSuspendNearCache(
     redisClient = redisClient,
-    config = NearCacheConfig(cacheName = "sessions"),
+    config = LettuceNearCacheConfig(cacheName = "sessions"),
 )
 
 cache.use { c ->
@@ -111,7 +111,7 @@ cache.use { c ->
 }
 ```
 
-## NearCacheConfig 옵션
+## LettuceNearCacheConfig 옵션
 
 | 옵션                       | 기본값                    | 설명                               |
 |--------------------------|------------------------|----------------------------------|
