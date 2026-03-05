@@ -21,12 +21,7 @@ dependencies {
     compileOnly(Libs.ehcache)
     compileOnly(Libs.ehcache_clustered)
     compileOnly(Libs.ehcache_transactions)
-
-    // Distributed cache providers
-    compileOnly(Libs.redisson)
-    compileOnly(Libs.hazelcast)
-    compileOnly(Libs.ignite_core)
-
+    
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
 
