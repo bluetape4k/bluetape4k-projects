@@ -35,9 +35,9 @@ class ZooKeeperServerTest: AbstractContainerTest() {
         fun `create zookeeper with docker port`() {
             ZooKeeperServer.Launcher.zookeeper.use { zks ->
                 zks.isRunning.shouldBeTrue()
+
                 verifyZookeeper(zks)
             }
-
         }
     }
 
