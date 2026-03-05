@@ -10,6 +10,9 @@ dependencies {
     // Lettuce JCache provider
     api(Libs.lettuce_core)
 
+    // NearCache front tier (Caffeine)
+    api(Libs.caffeine)
+
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
     implementation(Libs.kotlinx_coroutines_reactive)
@@ -21,6 +24,8 @@ dependencies {
 
     implementation(project(":bluetape4k-grpc"))
     implementation(project(":bluetape4k-io"))
+
+    testImplementation(Libs.awaitility_kotlin)
 
     testRuntimeOnly(Libs.fory_kotlin)
     testRuntimeOnly(Libs.kryo5)
