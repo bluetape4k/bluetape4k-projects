@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.core.tink
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.aead.TinkAeads
 import org.jetbrains.exposed.v1.core.BinaryColumnType
@@ -60,8 +58,6 @@ class ByteArrayTinkAeadEncryptionTransformer(
     private val encryptor: TinkAead = TinkAeads.AES256_GCM,
 ): ColumnTransformer<ByteArray, ByteArray> {
 
-    companion object: KLogging()
-
     /**
      * 평문 바이트 배열을 Tink AEAD로 암호화합니다.
      *
@@ -72,10 +68,7 @@ class ByteArrayTinkAeadEncryptionTransformer(
      * @param value 암호화할 평문 바이트 배열입니다.
      */
     override fun unwrap(value: ByteArray): ByteArray {
-        log.debug { "AEAD 바이너리 암호화 중: size=${value.size}" }
-        return encryptor.encrypt(value, ByteArray(0)).apply {
-            log.debug { "AEAD 바이너리 암호화 완료: size=${this.size}" }
-        }
+        return encryptor.encrypt(value)
     }
 
     /**
@@ -88,9 +81,6 @@ class ByteArrayTinkAeadEncryptionTransformer(
      * @param value 복호화할 암호문 바이트 배열입니다.
      */
     override fun wrap(value: ByteArray): ByteArray {
-        log.debug { "AEAD 바이너리 복호화 중: size=${value.size}" }
-        return encryptor.decrypt(value, ByteArray(0)).apply {
-            log.debug { "AEAD 바이너리 복호화 완료: size=${this.size}" }
-        }
+        return encryptor.decrypt(value)
     }
 }

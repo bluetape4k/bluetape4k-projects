@@ -36,7 +36,7 @@ import org.jetbrains.exposed.v1.core.Table
  */
 fun Table.tinkAeadVarChar(
     name: String,
-    cipherTextLength: Int,
+    cipherTextLength: Int = 255,
     encryptor: TinkAead = TinkAeads.AES256_GCM,
 ): Column<String> =
     registerColumn(
@@ -119,7 +119,7 @@ fun Table.tinkAeadBlob(
  */
 fun Table.tinkDaeadVarChar(
     name: String,
-    cipherTextLength: Int,
+    cipherTextLength: Int = 255,
     encryptor: TinkDeterministicAead = TinkDaeads.AES256_SIV,
 ): Column<String> =
     registerColumn(

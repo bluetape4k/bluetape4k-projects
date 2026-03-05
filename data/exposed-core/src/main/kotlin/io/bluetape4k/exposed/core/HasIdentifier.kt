@@ -14,5 +14,5 @@ package io.bluetape4k.exposed.core
  */
 interface HasIdentifier<ID: Any>: java.io.Serializable {
     /** 엔티티의 고유 식별자입니다. */
-    val id: ID
+    val id: ID // TODO: nullable 로 해야 한다. DTO의 경우 create 요청 정보에는 null 일 수 있다.
 }

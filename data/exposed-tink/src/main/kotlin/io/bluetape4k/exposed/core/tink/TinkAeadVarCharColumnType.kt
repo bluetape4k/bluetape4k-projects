@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.tink
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.aead.TinkAeads
 import org.jetbrains.exposed.v1.core.ColumnTransformer
@@ -78,10 +77,7 @@ class StringTinkAeadEncryptionTransformer(
      * @param value 암호화할 평문 문자열입니다.
      */
     override fun unwrap(value: String): String {
-        log.debug { "AEAD 암호화 중: value=$value" }
-        return encryptor.encrypt(value, ByteArray(0)).apply {
-            log.debug { "AEAD 암호화 완료: encrypted=$this" }
-        }
+        return encryptor.encrypt(value)
     }
 
     /**
@@ -101,9 +97,6 @@ class StringTinkAeadEncryptionTransformer(
      * @param value 복호화할 Base64 인코딩 암호문 문자열입니다.
      */
     override fun wrap(value: String): String {
-        log.debug { "AEAD 복호화 중: value=$value" }
-        return encryptor.decrypt(value, ByteArray(0)).apply {
-            log.debug { "AEAD 복호화 완료: decrypted=$this" }
-        }
+        return encryptor.decrypt(value)
     }
 }

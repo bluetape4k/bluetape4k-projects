@@ -2,7 +2,6 @@ package io.bluetape4k.exposed.core.tink
 
 import io.bluetape4k.exposed.core.statements.api.toExposedBlob
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import org.jetbrains.exposed.v1.core.BlobColumnType
 import org.jetbrains.exposed.v1.core.ColumnTransformer
@@ -21,17 +20,11 @@ class TinkDaeadBlobTransformer(private val encryptor: TinkDeterministicAead):
 
     /** 엔티티 바이트를 암호화 blob으로 변환합니다. */
     override fun unwrap(value: ByteArray): ExposedBlob {
-        log.debug { "DAEAD 바이너리 암호화 중: size=${value.size}" }
-        return encryptor.encryptDeterministically(value, ByteArray(0)).apply {
-            log.debug { "DAEAD 바이너리 암호화 완료: size=${this.size}" }
-        }.toExposedBlob()
+        return encryptor.encryptDeterministically(value).toExposedBlob()
     }
 
     /** DB blob을 복호화해 엔티티 바이트 배열로 변환합니다. */
     override fun wrap(value: ExposedBlob): ByteArray {
-        log.debug { "DAEAD 바이너리 복호화 중: size=${value.bytes.size}" }
-        return encryptor.decryptDeterministically(value.bytes, ByteArray(0)).apply {
-            log.debug { "DAEAD 바이너리 복호화 완료: size=${this.size}" }
-        }
+        return encryptor.decryptDeterministically(value.bytes)
     }
 }

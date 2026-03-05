@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.core.tink
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.tink.daead.TinkDaeads
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import org.jetbrains.exposed.v1.core.BinaryColumnType
 import org.jetbrains.exposed.v1.core.ColumnTransformer
@@ -32,8 +30,8 @@ import org.jetbrains.exposed.v1.core.ColumnWithTransform
  * @param length 암호문 바이트를 저장할 컬럼 길이입니다.
  */
 class TinkDaeadBinaryColumnType(
-    private val encryptor: TinkDeterministicAead,
     length: Int,
+    private val encryptor: TinkDeterministicAead,
 ): ColumnWithTransform<ByteArray, ByteArray>(
     BinaryColumnType(length),
     ByteArrayTinkDaeadEncryptionTransformer(encryptor)
@@ -61,7 +59,7 @@ class TinkDaeadBinaryColumnType(
  * @param encryptor Tink Deterministic AEAD 암/복호화 인스턴스입니다.
  */
 class ByteArrayTinkDaeadEncryptionTransformer(
-    private val encryptor: TinkDeterministicAead = TinkDaeads.AES256_SIV,
+    private val encryptor: TinkDeterministicAead,
 ): ColumnTransformer<ByteArray, ByteArray> {
 
     companion object: KLogging()
@@ -76,10 +74,7 @@ class ByteArrayTinkDaeadEncryptionTransformer(
      * @param value 암호화할 평문 바이트 배열입니다.
      */
     override fun unwrap(value: ByteArray): ByteArray {
-        log.debug { "DAEAD 바이너리 암호화 중: size=${value.size}" }
-        return encryptor.encryptDeterministically(value, ByteArray(0)).apply {
-            log.debug { "DAEAD 바이너리 암호화 완료: size=${this.size}" }
-        }
+        return encryptor.encryptDeterministically(value)
     }
 
     /**
@@ -92,9 +87,6 @@ class ByteArrayTinkDaeadEncryptionTransformer(
      * @param value 복호화할 암호문 바이트 배열입니다.
      */
     override fun wrap(value: ByteArray): ByteArray {
-        log.debug { "DAEAD 바이너리 복호화 중: size=${value.size}" }
-        return encryptor.decryptDeterministically(value, ByteArray(0)).apply {
-            log.debug { "DAEAD 바이너리 복호화 완료: size=${this.size}" }
-        }
+        return encryptor.decryptDeterministically(value)
     }
 }

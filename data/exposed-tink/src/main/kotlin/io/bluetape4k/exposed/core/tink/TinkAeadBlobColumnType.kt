@@ -2,7 +2,6 @@ package io.bluetape4k.exposed.core.tink
 
 import io.bluetape4k.exposed.core.statements.api.toExposedBlob
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.tink.aead.TinkAead
 import org.jetbrains.exposed.v1.core.BlobColumnType
 import org.jetbrains.exposed.v1.core.ColumnTransformer
@@ -21,17 +20,11 @@ class TinkAeadBlobTransformer(private val encryptor: TinkAead):
 
     /** 엔티티 바이트를 암호화 blob으로 변환합니다. */
     override fun unwrap(value: ByteArray): ExposedBlob {
-        log.debug { "AEAD 바이너리 암호화 중: size=${value.size}" }
-        return encryptor.encrypt(value, ByteArray(0)).apply {
-            log.debug { "AEAD 바이너리 암호화 완료: size=${this.size}" }
-        }.toExposedBlob()
+        return encryptor.encrypt(value).toExposedBlob()
     }
 
     /** DB blob을 복호화해 엔티티 바이트 배열로 변환합니다. */
     override fun wrap(value: ExposedBlob): ByteArray {
-        log.debug { "AEAD 바이너리 복호화 중: size=${value.bytes.size}" }
-        return encryptor.decrypt(value.bytes, ByteArray(0)).apply {
-            log.debug { "AEAD 바이너리 복호화 완료: size=${this.size}" }
-        }
+        return encryptor.decrypt(value.bytes)
     }
 }
