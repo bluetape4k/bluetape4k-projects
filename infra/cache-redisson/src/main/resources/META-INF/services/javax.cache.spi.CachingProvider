@@ -1,1 +1,3 @@
 org.redisson.jcache.JCachingProvider
+
+io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider

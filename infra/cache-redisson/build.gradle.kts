@@ -16,6 +16,12 @@ dependencies {
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(Libs.springBootStarter("cache"))
+    testImplementation(Libs.springBootStarter("test")) {
+        exclude("org.junit.vintage", "junit-vintage-engine")
+        exclude("junit", "junit")
+        exclude(group = "org.mockito", module = "mockito-core")
+    }
 
     testRuntimeOnly(Libs.fory_kotlin)
     testRuntimeOnly(Libs.kryo5)
