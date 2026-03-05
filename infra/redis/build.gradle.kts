@@ -41,7 +41,7 @@ dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
-    compileOnly(project(":bluetape4k-cache-local"))
+    compileOnly(project(":bluetape4k-cache-core"))
     compileOnly(project(":bluetape4k-grpc"))
     compileOnly(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-leader"))

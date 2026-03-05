@@ -100,7 +100,7 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
 
     // Caching 테스트
-    testImplementation(project(":bluetape4k-cache-local"))
+    testImplementation(project(":bluetape4k-cache-core"))
     testImplementation(Libs.springBootStarter("cache"))
     testImplementation(Libs.caffeine)
     testImplementation(Libs.caffeine_jcache)

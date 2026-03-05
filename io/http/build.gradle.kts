@@ -29,7 +29,7 @@ dependencies {
     api(Libs.httpclient5_fluent)
     testImplementation(Libs.httpclient5_testing)
 
-    compileOnly(project(":bluetape4k-cache-local"))
+    compileOnly(project(":bluetape4k-cache-core"))
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)
 
