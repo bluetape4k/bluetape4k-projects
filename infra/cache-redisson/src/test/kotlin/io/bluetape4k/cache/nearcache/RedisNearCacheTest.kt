@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.jcache.JCaching
+import io.bluetape4k.cache.jcache.JRedissonCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -50,7 +50,7 @@ class RedisNearCacheTest: AbstractNearCacheTest() {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MILLISECONDS, 3_000)))
         }
 
-        JCaching.Redisson.getOrCreate<String, Any>(
+        JRedissonCaching.getOrCreate<String, Any>(
             "back-cache-" + randomKey(),
             redisson,
             jcacheConfiguration
