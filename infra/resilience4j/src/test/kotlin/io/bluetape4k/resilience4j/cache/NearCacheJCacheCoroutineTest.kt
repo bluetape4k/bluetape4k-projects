@@ -1,6 +1,6 @@
 package io.bluetape4k.resilience4j.cache
 
-import io.bluetape4k.cache.jcache.JRedissonCaching
+import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.NearCacheConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -19,7 +19,7 @@ class NearCacheJCacheCoroutineTest: AbstractJCacheCoroutinesTest() {
 
     override val jcache: NearCache<String, String> by lazy {
         val nearCacheCfg = NearCacheConfig<String, String>()
-        val backCache = JRedissonCaching.getOrCreate<String, String>("back-coroutines", redisson)
+        val backCache = RedissonJCaching.getOrCreate<String, String>("back-coroutines", redisson)
         NearCache(nearCacheCfg, backCache)
     }
 

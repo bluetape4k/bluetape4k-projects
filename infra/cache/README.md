@@ -6,13 +6,13 @@
 
 ## 모듈 구성
 
-| 모듈 | 제공 기능 |
-|------|-----------|
-| `bluetape4k-cache-core` | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer |
-| `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합) |
-| `bluetape4k-cache-ignite` | Apache Ignite 분산 캐시 + Near Cache (구 `cache-ignite-near` 통합) |
-| `bluetape4k-cache-redisson` | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합) |
-| `bluetape4k-cache-lettuce` | Lettuce(Redis) 분산 캐시 |
+| 모듈                           | 제공 기능                                                       |
+|------------------------------|-------------------------------------------------------------|
+| `bluetape4k-cache-core`      | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer     |
+| `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합)  |
+| `bluetape4k-cache-ignite`    | Apache Ignite 분산 캐시 + Near Cache (구 `cache-ignite-near` 통합) |
+| `bluetape4k-cache-redisson`  | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합)    |
+| `bluetape4k-cache-lettuce`   | Lettuce(Redis) 분산 캐시 + Near Cache                           |
 
 ## 설치
 
@@ -93,18 +93,17 @@ val value = near.get("key")
 
 ## CachingProvider 자동 로딩 주의
 
-여러 모듈이 `META-INF/services/javax.cache.spi.CachingProvider`를 등록합니다.
-Umbrella 모듈 사용 시 Provider를 명시적으로 지정하세요:
+여러 모듈이 `META-INF/services/javax.cache.spi.CachingProvider`를 등록합니다. Umbrella 모듈 사용 시 Provider를 명시적으로 지정하세요:
 
 ```kotlin
 import javax.cache.Caching
 
-val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider")
+val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider")
 val manager = provider.cacheManager
 ```
 
 Spring Boot에서는 `application.properties`로 지정:
 
 ```properties
-spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider
+spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider
 ```

@@ -8,10 +8,8 @@ import javax.cache.expiry.EternalExpiryPolicy
 
 class Cache2kNearCacheTest: AbstractNearCacheTest() {
 
-    companion object: KLogging() {
-        private const val TEST_SIZE = 10
-    }
-
+    companion object: KLogging()
+    
     override val backCache: JCache<String, Any> = JCaching.Cache2k.getOrCreate(
         name = "back-cache-" + randomKey(),
         configuration = jcacheConfiguration {

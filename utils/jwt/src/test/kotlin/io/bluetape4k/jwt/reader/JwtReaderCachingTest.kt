@@ -2,7 +2,7 @@ package io.bluetape4k.jwt.reader
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.cache.jcache.JCaching
-import io.bluetape4k.cache.jcache.JRedissonCaching
+import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.NearCacheConfig
 import io.bluetape4k.jwt.AbstractJwtTest
@@ -43,7 +43,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         }
 
         private val backCache: Cache<String, JwtReaderDto> by lazy {
-            JRedissonCaching.getOrCreate("jwt-back-cache-reader", redissonConfig)
+            RedissonJCaching.getOrCreate("jwt-back-cache-reader", redissonConfig)
         }
     }
 

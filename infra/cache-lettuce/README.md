@@ -7,20 +7,20 @@
 ### JCache (JSR-107)
 
 - Lettuce 기반 `javax.cache.spi.CachingProvider` 구현
-- `JLettuceCaching` — Lettuce JCache 설정 및 CachingProvider 초기화 헬퍼
+- `LettuceJCaching` — Lettuce JCache 설정 및 CachingProvider 초기화 헬퍼
 
 ### NearCache (2-Tier Cache)
 
 Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통한 자동 invalidation을 지원합니다.
 
-| 클래스 | 설명 |
-|--------|------|
-| `LettuceNearCache<V>` | 동기(Blocking) 2-Tier 캐시 |
-| `LettuceNearSuspendCache<V>` | Coroutines(suspend) 2-Tier 캐시 |
-| `NearCacheConfig<K, V>` | NearCache 설정 data class + DSL 빌더 |
-| `LocalCache<K, V>` | front cache 추상 인터페이스 |
-| `CaffeineLocalCache<K, V>` | Caffeine 기반 LocalCache 구현 |
-| `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너 |
+| 클래스                               | 설명                               |
+|-----------------------------------|----------------------------------|
+| `LettuceNearCache<V>`             | 동기(Blocking) 2-Tier 캐시           |
+| `LettuceNearSuspendCache<V>`      | Coroutines(suspend) 2-Tier 캐시    |
+| `NearCacheConfig<K, V>`           | NearCache 설정 data class + DSL 빌더 |
+| `LocalCache<K, V>`                | front cache 추상 인터페이스             |
+| `CaffeineLocalCache<K, V>`        | Caffeine 기반 LocalCache 구현        |
+| `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너   |
 
 ### NearCache 아키텍처
 
@@ -113,15 +113,15 @@ cache.use { c ->
 
 ## NearCacheConfig 옵션
 
-| 옵션 | 기본값 | 설명 |
-|------|--------|------|
-| `cacheName` | `"lettuce-near-cache"` | 캐시 이름 (Redis key prefix, `:` 금지) |
-| `maxLocalSize` | `10_000` | Caffeine 최대 항목 수 |
-| `frontExpireAfterWrite` | `30분` | 로컬 캐시 write 후 만료 시간 |
-| `frontExpireAfterAccess` | `null` | 로컬 캐시 access 후 만료 시간 |
-| `redisTtl` | `null` | Redis TTL (null이면 영구 보존) |
-| `useRespProtocol3` | `true` | RESP3 CLIENT TRACKING 활성화 여부 |
-| `recordStats` | `false` | Caffeine 통계 수집 여부 |
+| 옵션                       | 기본값                    | 설명                               |
+|--------------------------|------------------------|----------------------------------|
+| `cacheName`              | `"lettuce-near-cache"` | 캐시 이름 (Redis key prefix, `:` 금지) |
+| `maxLocalSize`           | `10_000`               | Caffeine 최대 항목 수                 |
+| `frontExpireAfterWrite`  | `30분`                  | 로컬 캐시 write 후 만료 시간              |
+| `frontExpireAfterAccess` | `null`                 | 로컬 캐시 access 후 만료 시간             |
+| `redisTtl`               | `null`                 | Redis TTL (null이면 영구 보존)         |
+| `useRespProtocol3`       | `true`                 | RESP3 CLIENT TRACKING 활성화 여부     |
+| `recordStats`            | `false`                | Caffeine 통계 수집 여부                |
 
 ## Key 격리 전략
 

@@ -7,7 +7,7 @@
 ## 제공 기능
 
 - **Redisson JCache Provider** (`org.redisson.jcache.JCachingProvider`)
-- **Redisson Near Cache Provider** (`RedisNearCachingProvider`)
+- **Redisson Near Cache Provider** (`RedissonNearCachingProvider`)
 - **`RedissonSuspendCache`**: JCache 기반 코루틴 캐시
 - **`RedissonNearCache`**: Caffeine(로컬) + Redisson(분산) 2-Tier Near Cache
 - **`RedissonNearSuspendCache`**: Near Cache 코루틴 래퍼
@@ -75,7 +75,7 @@ class CacheConfig {
 또는 `application.properties`:
 
 ```properties
-spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider
+spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider
 ```
 
 ### 5. Spring `@Cacheable`과 함께 사용
@@ -94,11 +94,11 @@ class UserService {
 
 ```
 org.redisson.jcache.JCachingProvider
-io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider
+io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider
 ```
 
 클래스패스에 여러 Provider가 공존할 때는 명시적으로 지정하세요:
 
 ```kotlin
-val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider")
+val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider")
 ```

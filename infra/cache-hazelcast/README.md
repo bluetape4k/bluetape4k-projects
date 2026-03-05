@@ -6,7 +6,7 @@
 
 ## 제공 기능
 
-- **Hazelcast JCache Provider** (`com.hazelcast.cache.HazelcastCachingProvider`)
+- **Hazelcast JCache Provider** (`HazelcastJCaching`)
 - **Hazelcast Near Cache Provider** (`HazelcastNearCachingProvider`)
 - **`HazelcastSuspendCache`**: JCache 기반 코루틴 캐시
 - **`HazelcastNearCache`**: Caffeine(로컬) + Hazelcast(분산) 2-Tier Near Cache

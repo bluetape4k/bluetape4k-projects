@@ -1,9 +1,9 @@
 package io.bluetape4k.cache.nearcache.spring
 
 import io.bluetape4k.cache.jcache.jcachingProvider
-import io.bluetape4k.cache.nearcache.redis.RedisNearCacheConfig
-import io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider
-import io.bluetape4k.cache.nearcache.redis.redisNearCacheConfigurationOf
+import io.bluetape4k.cache.nearcache.RedisNearCacheConfig
+import io.bluetape4k.cache.nearcache.RedissonNearCachingProvider
+import io.bluetape4k.cache.nearcache.redisNearCacheConfigurationOf
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -26,9 +26,9 @@ import javax.cache.expiry.EternalExpiryPolicy
 @SpringBootTest(
     properties = [
         /**
-         * Spring cache 에서 사용할 jcache provider 를 RedisNearCachingProvider 로 지정합니다.
+         * Spring cache 에서 사용할 jcache provider 를 RedissonNearCachingProvider 로 지정합니다.
          */
-        "spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider"
+        "spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.RedissonNearCachingProvider"
     ]
 )
 class SpringCacheUsingNearCacheTest {
@@ -71,7 +71,7 @@ class SpringCacheUsingNearCacheTest {
             /**
              * RedisNearCacheConfig 을 이용해 cache 를 생성합니다.
              */
-            return jcachingProvider<RedisNearCachingProvider>().cacheManager.createCache(
+            return jcachingProvider<RedissonNearCachingProvider>().cacheManager.createCache(
                 "test-cache", redisNearCacheConfig
             )
         }
@@ -89,7 +89,7 @@ class SpringCacheUsingNearCacheTest {
     /**
      * NearCache 를 통해 Spring Cache를 사용하는 SpringBootApplication 입니다.
      *
-     * ** `spring.cache.jcache.provider` 프로퍼티가 [RedisNearCachingProvider] 로 설정되어야 합니다.**
+     * ** `spring.cache.jcache.provider` 프로퍼티가 [RedissonNearCachingProvider] 로 설정되어야 합니다.**
      *
      * (이 테스트에서의 @SpringBootTest 어노테이션에서 정의해 두었습니다)
      */

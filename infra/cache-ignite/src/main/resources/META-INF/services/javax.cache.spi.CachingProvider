@@ -1,3 +1,0 @@
-org.apache.ignite.cache.CachingProvider
-
-io.bluetape4k.cache.nearcache.ignite.IgniteNearCachingProvider
