@@ -210,16 +210,12 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **cache**: 캐시 추상화 umbrella 모듈
-- **cache-core**: 공통 인터페이스 — `AsyncCache`, `SuspendCache`, `AsyncNearCache`, `SuspendNearCache`
-- **cache-local**: Caffeine 기반 로컬 캐시
+- **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + ignite + redisson + lettuce)
+- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 cache-local 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체
+- **cache-hazelcast**: Hazelcast 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-hazelcast-near 병합)
+- **cache-ignite**: Apache Ignite 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-ignite-near 병합)
+- **cache-redisson**: Redisson 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-redisson-near 병합)
 - **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시
-- **cache-redisson**: Redisson 기반 분산 캐시
-- **cache-redisson-near**: Redisson + Caffeine 2-Tier Near Cache
-- **cache-hazelcast**: Hazelcast 기반 분산 캐시
-- **cache-hazelcast-near**: Hazelcast + Caffeine 2-Tier Near Cache
-- **cache-ignite**: Apache Ignite 기반 분산 캐시
-- **cache-ignite-near**: Ignite + Caffeine 2-Tier Near Cache
 
 #### Spring Modules (`spring/`)
 
