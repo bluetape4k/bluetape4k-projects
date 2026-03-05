@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotContain
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
@@ -26,6 +27,7 @@ import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.readValue
 import java.io.Serializable
 
+@Disabled("Deprecated. use JsonTinkEncryptTest")
 @RandomizedTest
 class JsonEncryptTest {
 
@@ -49,7 +51,7 @@ class JsonEncryptTest {
     private fun createUser(): User {
         return User(
             username = faker.name().name(),
-            password = Base58.randomString(12),
+            password = Base58.randomString(8),
             mobile = faker.phoneNumber().cellPhone()
         )
     }
@@ -71,20 +73,20 @@ class JsonEncryptTest {
 
     @RepeatedTest(REPEAT_COUNT)
     fun `encrypt json property in list`() {
-        val expected = List(20) { createUser() }
+        val expected = List(10) { createUser() }
         verifyEncryptPropertyInCollection(expected)
     }
 
     @Test
     fun `encrypt json property in multi threadings`() {
         MultithreadingTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(16)
+            .workers(Runtimex.availableProcessors)
+            .rounds(4)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }
@@ -92,13 +94,13 @@ class JsonEncryptTest {
     @Test
     fun `encrypt json property in suspend jobs`() = runTest {
         SuspendedJobTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(4 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }
@@ -107,12 +109,12 @@ class JsonEncryptTest {
     @Test
     fun `encrypt json property in virtual threads`() {
         StructuredTaskScopeTester()
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .rounds(4 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }

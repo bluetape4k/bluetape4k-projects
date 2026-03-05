@@ -65,4 +65,4 @@ atlassian-ide-plugin.xml
 **/money/.resourceCache/
 
 # Apache Ignite embedded mode runtime data
-**/cache-ignite-near/ignite/
+**/cache-ignite/ignite/

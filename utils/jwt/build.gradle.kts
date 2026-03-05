@@ -30,7 +30,7 @@ dependencies {
     compileOnly(Libs.zstd_jni)
 
     // Caching
-    compileOnly(project(":bluetape4k-cache-core"))
+    compileOnly(project(":bluetape4k-cache-redisson"))
     testImplementation(Libs.caffeine_jcache)
     testImplementation(Libs.ehcache)
 

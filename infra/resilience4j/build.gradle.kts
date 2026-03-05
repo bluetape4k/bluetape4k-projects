@@ -5,7 +5,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(project(":bluetape4k-cache-core"))
+    compileOnly(project(":bluetape4k-cache-redisson"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 

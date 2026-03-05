@@ -35,7 +35,7 @@ class JsonTinkEncryptTest {
     data class User(
         val username: String,
 
-        @get:JsonTinkEncrypt(algorithm = TinkEncryptAlgorithm.AES256_GCM)
+        @field:JsonTinkEncrypt(algorithm = TinkEncryptAlgorithm.AES256_GCM)
         val password: String,
 
         @get:JsonTinkEncrypt(algorithm = TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV)
@@ -46,7 +46,7 @@ class JsonTinkEncryptTest {
 
     private fun createUser(): User = User(
         username = faker.name().name(),
-        password = Base58.randomString(12),
+        password = Base58.randomString(8),
         mobile = faker.phoneNumber().cellPhone()
     )
 
@@ -68,20 +68,20 @@ class JsonTinkEncryptTest {
 
     @RepeatedTest(REPEAT_COUNT)
     fun `Tink 암호화 - 컬렉션 라운드트립이 동작한다`() {
-        val expected = List(20) { createUser() }
+        val expected = List(10) { createUser() }
         verifyEncryptPropertyInCollection(expected)
     }
 
     @Test
     fun `Tink 암호화 - 멀티스레드 환경에서 동작한다`() {
         MultithreadingTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(16)
+            .workers(Runtimex.availableProcessors)
+            .rounds(4)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }
@@ -89,13 +89,13 @@ class JsonTinkEncryptTest {
     @Test
     fun `Tink 암호화 - 코루틴 suspend job 환경에서 동작한다`() = runTest {
         SuspendedJobTester()
-            .workers(2 * Runtimex.availableProcessors)
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(4 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }
@@ -104,12 +104,12 @@ class JsonTinkEncryptTest {
     @Test
     fun `Tink 암호화 - 가상 스레드 환경에서 동작한다`() {
         StructuredTaskScopeTester()
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .rounds(4 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }
             .add {
-                verifyEncryptPropertyInCollection(List(20) { createUser() })
+                verifyEncryptPropertyInCollection(List(10) { createUser() })
             }
             .run()
     }

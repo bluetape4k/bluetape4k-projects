@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate.converters
 
-import io.bluetape4k.crypto.encrypt.Encryptor
-import io.bluetape4k.crypto.encrypt.Encryptors
+import io.bluetape4k.tink.encrypt.TinkEncryptor
+import io.bluetape4k.tink.encrypt.TinkEncryptors
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
@@ -21,7 +21,7 @@ import jakarta.persistence.Converter
  */
 @Converter
 abstract class EncryptedStringConverter(
-    private val encryptor: Encryptor,
+    private val encryptor: TinkEncryptor = TinkEncryptors.DETERMINISTIC_AES256_SIV,
 ): AttributeConverter<String?, String?> {
 
     override fun convertToDatabaseColumn(attribute: String?): String? {
@@ -37,40 +37,10 @@ abstract class EncryptedStringConverter(
  * 문자열을 AES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
  */
 @Converter
-class AESStringConverter: EncryptedStringConverter(Encryptors.AES)
+class AESStringConverter: EncryptedStringConverter(TinkEncryptors.AES256_GCM)
 
 /**
  * 문자열을 결정적 AES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
  */
 @Converter
-class DeterministicAESStringConverter: EncryptedStringConverter(Encryptors.DeterministicAES)
-
-/**
- * 문자열을 DES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
- */
-@Converter
-class DESStringConverter: EncryptedStringConverter(Encryptors.DES)
-
-/**
- * 문자열을 RC2 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
- */
-@Converter
-class RC2StringConverter: EncryptedStringConverter(Encryptors.RC2)
-
-/**
- * 문자열을 RC4 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
- */
-@Converter
-class RC4StringConverter: EncryptedStringConverter(Encryptors.RC4)
-
-/**
- * 문자열을 결정적 RC4 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
- */
-@Converter
-class DeterministicRC4StringConverter: EncryptedStringConverter(Encryptors.DeterministicRC4)
-
-/**
- * 문자열을 TripleDES 알고리즘으로 암호화해서 저장하는 JPA Converter 입니다.
- */
-@Converter
-class TripleDESStringConverter: EncryptedStringConverter(Encryptors.TripleDES)
+class DeterministicAESStringConverter: EncryptedStringConverter(TinkEncryptors.DETERMINISTIC_AES256_SIV)

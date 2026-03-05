@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate.mapping.embeddable
 
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.hibernate.converters.RC4StringConverter
+import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.support.hashOf
 import io.bluetape4k.support.requireNotBlank
@@ -35,7 +35,7 @@ class EmbeddablePerson private constructor(
     var userId: String,
 
     @field:NotBlank
-    @Convert(converter = RC4StringConverter::class)
+    @Convert(converter = DeterministicAESStringConverter::class)
     var password: String,
 ): IntJpaEntity() {
 

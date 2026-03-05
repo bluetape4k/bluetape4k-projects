@@ -74,9 +74,8 @@ dependencies {
     testImplementation(project(path = ":bluetape4k-hibernate", configuration = "testJar"))
 
     // Converter 사용 시
-    compileOnly(project(":bluetape4k-crypto"))
-    // TODO: Tink 용 Converter 사용
-    // compileOnly(project(":bluetape4k-tink"))
+    // compileOnly(project(":bluetape4k-crypto"))
+    compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.kryo)

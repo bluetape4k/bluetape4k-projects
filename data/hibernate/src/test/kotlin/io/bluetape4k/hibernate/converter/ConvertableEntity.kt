@@ -1,12 +1,12 @@
 package io.bluetape4k.hibernate.converter
 
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.crypto.randomBytes
 import io.bluetape4k.hibernate.converters.DeterministicAESStringConverter
 import io.bluetape4k.hibernate.converters.DurationAsTimestampConverter
 import io.bluetape4k.hibernate.converters.LZ4KryoObjectAsByteArrayConverter
 import io.bluetape4k.hibernate.converters.LocaleAsStringConverter
 import io.bluetape4k.hibernate.model.IntJpaEntity
+import io.bluetape4k.tink.randomBytes
 import jakarta.persistence.Access
 import jakarta.persistence.AccessType
 import jakarta.persistence.Basic
