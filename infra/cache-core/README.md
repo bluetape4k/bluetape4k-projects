@@ -1,20 +1,19 @@
 # Module bluetape4k-cache-core
 
-`bluetape4k-cache-core`는 캐시 기능의 공통 API와 핵심 추상화를 제공하는 모듈입니다.
+`bluetape4k-cache-core`는 캐시 기능의 공통 API, 핵심 추상화, 그리고 **로컬 캐시 구현체**를 제공하는 모듈입니다.
 
-이 모듈은 다음을 담당합니다.
-- JCache 공통 유틸리티 (`JCaching`, `jcacheManager`, `jcacheConfiguration` 등)
-- Coroutines 캐시 추상화 (`SuspendCache`, `SuspendCacheEntry`)
-- Near Cache 공통 구현 (`NearCache`, `NearSuspendCache`, `NearCacheConfig`)
-- Memorizer 공통 추상화 (`Memorizer`, `AsyncMemorizer`, `SuspendMemorizer`)
+> 기존 `bluetape4k-cache-local` 모듈이 이 모듈에 통합되었습니다.
 
-## 무엇이 core에 있고, 무엇이 없는가
+## 제공 기능
 
-`cache-core`는 공통 코드 중심 모듈입니다.
-- 포함: API/공통 구현
-- 미포함: 각 Provider별 구현체(예: Redisson/Hazelcast/Ignite의 전용 구현)
-
-Provider별 기능은 별도 모듈(`bluetape4k-cache-local`, `bluetape4k-cache-redisson` 등)을 함께 사용해야 합니다.
+- **JCache 공통 유틸리티**: `JCaching`, `jcacheManager`, `jcacheConfiguration` 등
+- **Coroutines 캐시 추상화**: `SuspendCache`, `SuspendCacheEntry`
+- **Near Cache 공통 구현**: `NearCache`, `NearSuspendCache`, `NearCacheConfig`
+- **Memorizer 추상화**: `Memorizer`, `AsyncMemorizer`, `SuspendMemorizer`
+- **로컬 캐시 Provider** (구 `cache-local` 통합):
+  - **Caffeine**: `CaffeineSupport`, `CaffeineSuspendCache`, `CaffeineMemorizer`
+  - **Cache2k**: `Cache2kSupport`, `Cache2kMemorizer`
+  - **Ehcache**: `EhcacheSupport`, `EhCacheMemorizer`
 
 ## 설치
 
@@ -24,11 +23,33 @@ dependencies {
 }
 ```
 
-일반적으로는 provider 모듈을 함께 의존합니다.
+분산 캐시가 필요하면 해당 Provider 모듈을 추가합니다.
 
 ## 기본 사용 예시
 
-### 1. JCache 유틸리티
+### 1. Caffeine 로컬 캐시
+
+```kotlin
+import io.bluetape4k.cache.caffeine.caffeine
+import com.github.benmanes.caffeine.cache.Cache
+
+val cache: Cache<String, Any> = caffeine {
+    maximumSize(1_000)
+    expireAfterWrite(10, TimeUnit.MINUTES)
+}.build()
+```
+
+### 2. CaffeineSuspendCache
+
+```kotlin
+import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
+
+val suspendCache = CaffeineSuspendCache<String, Any>("local-cache")
+suspendCache.put("key", "value")
+val value = suspendCache.get("key")
+```
+
+### 3. JCache 유틸리티
 
 ```kotlin
 import io.bluetape4k.cache.jcache.jcacheConfiguration
@@ -39,7 +60,7 @@ val config = jcacheConfiguration<String, String> {
 }
 ```
 
-### 2. NearCache 공통 구성
+### 4. NearCache 공통 구성
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.NearCacheConfig
@@ -50,19 +71,24 @@ val nearConfig = NearCacheConfig<String, Any>(
 )
 ```
 
-### 3. SuspendCache 공통 인터페이스
+### 5. Caffeine Memorizer
 
 ```kotlin
-import io.bluetape4k.cache.jcache.coroutines.SuspendCache
+import io.bluetape4k.cache.memorizer.caffeine.CaffeineMemorizer
 
-suspend fun <K: Any, V: Any> putAndGet(cache: SuspendCache<K, V>, key: K, value: V): V? {
-    cache.put(key, value)
-    return cache.get(key)
+val factorial = CaffeineMemorizer<Int, Long> { n ->
+    (1..n).fold(1L) { acc, i -> acc * i }
 }
+
+val result = factorial[10]  // 캐싱되어 반복 계산 방지
 ```
 
 ## 권장 사용 방식
 
-- 단일 Provider만 쓸 경우: 해당 Provider 모듈 + `cache-core` 조합 사용
-- 여러 Provider를 한 번에 쓸 경우: Umbrella 모듈(`bluetape4k-cache`) 사용
-- Near 전용 조합이 필요할 경우: `*-near` 모듈 사용
+| 사용 목적 | 권장 모듈 |
+|-----------|-----------|
+| 로컬 캐시(Caffeine/Cache2k/Ehcache) | `bluetape4k-cache-core` |
+| Hazelcast 분산 캐시 + Near Cache | `bluetape4k-cache-hazelcast` |
+| Ignite 분산 캐시 + Near Cache | `bluetape4k-cache-ignite` |
+| Redisson 분산 캐시 + Near Cache | `bluetape4k-cache-redisson` |
+| 전체 Provider 일괄 사용 | `bluetape4k-cache` (umbrella) |
