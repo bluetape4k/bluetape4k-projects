@@ -25,6 +25,44 @@ dependencies {
 
 분산 캐시가 필요하면 해당 Provider 모듈을 추가합니다.
 
+## 제공 기능 (상세)
+
+### Resilient NearCache (write-behind + retry + graceful degradation)
+
+`ResilientNearCache` / `ResilientSuspendNearCache` 는 JCache(sync) 또는 SuspendCache(coroutine) 기반 back cache에 대해
+**write-behind + Resilience4j retry + GetFailureStrategy** 패턴을 제공하는 2-Tier Near Cache입니다.
+
+| 클래스 | 설명 |
+|---|---|
+| `BackCacheCommand<K,V>` | Put / PutAll / Remove / RemoveAll / ClearBack 커맨드 sealed interface |
+| `GetFailureStrategy` | back cache GET 실패 시 동작 전략 enum (RETURN_FRONT_OR_NULL / PROPAGATE_EXCEPTION) |
+| `ResilientNearCacheConfig<K,V>` | write-behind 큐 용량, retry 설정, GetFailureStrategy 포함 config |
+| `ResilientNearCache<K,V>` | 동기(Blocking) Resilient NearCache. LinkedBlockingQueue + virtualThread consumer |
+| `ResilientSuspendNearCache<K,V>` | 코루틴 Resilient NearCache. Channel + scope.launch consumer |
+
+**아키텍처**:
+```
+Application
+    |
+[ResilientNearCache / ResilientSuspendNearCache]
+    |
++---+----------+
+|              |
+Front          Write Queue (LinkedBlockingQueue / Channel)
+Caffeine           |
+(즉시 반영)    Consumer (virtualThread / coroutine)
+               (retry { backCache.put/remove })
+```
+
+**주요 특성**:
+- **write-behind**: put/remove는 front cache에 즉시 반영, back cache 쓰기는 비동기 큐/채널로 처리
+- **tombstones**: remove 후 write-behind 완료 전 stale read 방지용 tombstone 집합
+- **clearPending**: clearAll 호출 후 ClearBack이 처리될 때까지 back cache read 차단
+- **retry**: Resilience4j Retry로 back cache 쓰기 실패 시 재시도 (지수 백오프 옵션)
+- **GetFailureStrategy**: back cache GET 실패 시 null 반환(RETURN_FRONT_OR_NULL) 또는 예외 전파(PROPAGATE_EXCEPTION)
+
+---
+
 ## 기본 사용 예시
 
 ### 1. Caffeine 로컬 캐시
@@ -71,7 +109,50 @@ val nearConfig = NearCacheConfig<String, Any>(
 )
 ```
 
-### 5. Caffeine Memorizer
+### 5. ResilientNearCache (write-behind + retry)
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientNearCache
+import io.bluetape4k.cache.nearcache.ResilientNearCacheConfig
+import io.bluetape4k.cache.jcache.JCaching
+import java.time.Duration
+
+val backCache = JCaching.Caffeine.getOrCreate<String, String>("back-cache")
+
+val cache = ResilientNearCache(
+    backCache = backCache,
+    config = ResilientNearCacheConfig(
+        retryMaxAttempts = 3,
+        retryWaitDuration = Duration.ofMillis(200),
+        retryExponentialBackoff = true,
+        writeQueueCapacity = 1024,
+    ),
+)
+
+cache.put("key", "value")          // front 즉시 반영, back는 write-behind
+cache.get("key")                   // front hit → 즉시 반환
+cache.remove("key")                // front 즉시 삭제, back는 write-behind
+cache.clearAll()                   // front 즉시 초기화, back는 write-behind
+cache.close()
+```
+
+### 6. ResilientSuspendNearCache (코루틴)
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientSuspendNearCache
+import io.bluetape4k.cache.jcache.CaffeineSuspendCache
+
+val backCache = CaffeineSuspendCache<String, String> { maximumSize(10_000) }
+
+val cache = ResilientSuspendNearCache(backCache = backCache)
+
+// suspend 함수로 사용
+cache.put("key", "value")
+val value = cache.get("key")
+cache.close()
+```
+
+### 7. Caffeine Memorizer
 
 ```kotlin
 import io.bluetape4k.cache.memorizer.caffeine.CaffeineMemorizer
