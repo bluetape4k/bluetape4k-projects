@@ -7,30 +7,28 @@ import java.util.concurrent.Executor
 /**
  * Semaphore 기반 복수 리더 비동기 선출 계약을 정의합니다.
  *
- * ## [LeaderGroupElection] 과의 차이
- * - [LeaderGroupElection]은 `action`이 `() -> T` 동기 람다입니다.
- * - [AsyncLeaderGroupElection]은 `action`이 `() -> CompletableFuture<T>` 비동기 람다로,
- *   [CompletableFuture]를 반환합니다.
+ * ## [LeaderGroupElection] 과의 관계
+ * - [LeaderGroupElection]은 [AsyncLeaderGroupElection]을 상속하며, 동기 [LeaderGroupElection.runIfLeader]를 추가합니다.
+ * - [AsyncLeaderGroupElection]은 비동기 실행([runAsyncIfLeader])만 정의합니다.
  *
  * ## [AsyncLeaderElection] 과의 차이
  * - [AsyncLeaderElection]은 `lockName`당 리더를 1개로 제한합니다.
  * - [AsyncLeaderGroupElection]은 [maxLeaders]개까지 동시에 리더를 허용합니다.
- * - 내부적으로 `Semaphore(maxLeaders)`를 이용하여 동시 실행 수를 제한합니다.
  *
  * ## 동작/계약
  * - 구현체는 `lockName` 기준으로 최대 [maxLeaders]개의 `action`을 동시에 실행합니다.
  * - 슬롯이 가득 찬 경우, 빈 슬롯이 생길 때까지 [Executor] 스레드가 블로킹됩니다.
  * - `action` 예외 발생 시에도 슬롯이 반드시 반환됩니다.
- * - 상태 조회 메서드([state], [activeCount], [availableSlots])는 근사값을 반환할 수 있습니다.
+ * - 상태 조회 메서드([state], [activeCount], [availableSlots])는 [LeaderGroupElectionState]에서 상속합니다.
  *
  * ```kotlin
- * val election = LocalAsyncLeaderGroupElection(maxLeaders = 3)
+ * val election: AsyncLeaderGroupElection = LocalAsyncLeaderGroupElection(maxLeaders = 3)
  * val result = election.runAsyncIfLeader("batch-job") {
  *     CompletableFuture.completedFuture(processChunk())
  * }.join()
  * ```
  */
-interface AsyncLeaderGroupElection : LeaderGroupElection {
+interface AsyncLeaderGroupElection : LeaderGroupElectionState {
 
     /**
      * 슬롯을 획득하여 리더로 선출되면 비동기 [action]을 실행합니다.
@@ -45,7 +43,6 @@ interface AsyncLeaderGroupElection : LeaderGroupElection {
      * val result = election.runAsyncIfLeader("job-lock") {
      *     CompletableFuture.completedFuture(42)
      * }.join()
-     * // result == 42
      * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름

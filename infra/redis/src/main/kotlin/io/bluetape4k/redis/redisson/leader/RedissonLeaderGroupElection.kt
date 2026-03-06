@@ -10,6 +10,8 @@ import org.redisson.api.RSemaphore
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
 /**
  * Redisson 분산 [RSemaphore]를 이용한 복수 리더 선출 구현체입니다.
@@ -30,6 +32,9 @@ import java.time.Duration
  *
  * // 최대 3개 스레드/프로세스가 동시에 실행
  * val result = election.runIfLeader("batch-job") { processChunk() }
+ *
+ * // 비동기 실행
+ * val future = election.runAsyncIfLeader("batch-job") { CompletableFuture.completedFuture(42) }
  *
  * // 상태 조회
  * println(election.state("batch-job"))
@@ -99,9 +104,6 @@ class RedissonLeaderGroupElection private constructor(
     /**
      * [lockName]의 분산 [RSemaphore] 슬롯을 획득하고 [action]을 실행합니다.
      *
-     * - 슬롯이 가득 찬 경우 [waitTimeMillis] 내 슬롯을 획득하지 못하면 [RedisException]을 던집니다.
-     * - [action] 예외 발생 시에도 슬롯은 반드시 반환됩니다.
-     *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param action 슬롯 획득 성공 시 실행할 동기 작업
      * @return [action] 실행 결과
@@ -133,4 +135,47 @@ class RedissonLeaderGroupElection private constructor(
             log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
         }
     }
+
+    /**
+     * [lockName]의 분산 [RSemaphore] 슬롯을 [executor]에서 획득하고 비동기 [action]을 실행합니다.
+     *
+     * @param lockName 리더 그룹 선출에 사용할 락 이름
+     * @param executor 비동기 실행에 사용할 [Executor]
+     * @param action 슬롯 획득 성공 시 실행할 비동기 작업
+     * @return [action] 실행 결과를 담은 [CompletableFuture]
+     * @throws RedisException 슬롯 획득 실패 또는 인터럽트 발생 시
+     */
+    override fun <T> runAsyncIfLeader(
+        lockName: String,
+        executor: Executor,
+        action: () -> CompletableFuture<T>,
+    ): CompletableFuture<T> =
+        CompletableFuture.supplyAsync(
+            {
+                lockName.requireNotBlank("lockName")
+                val semaphore = getSemaphore(lockName)
+                log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
+
+                val acquired = try {
+                    semaphore.tryAcquire(waitTime)
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
+                    throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
+                }
+
+                if (!acquired) {
+                    throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
+                }
+
+                log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
+                try {
+                    action().join()
+                } finally {
+                    semaphore.release()
+                    log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+                }
+            },
+            executor
+        )
 }

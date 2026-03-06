@@ -73,21 +73,6 @@ class LocalAsyncLeaderGroupElectionTest {
         result shouldBeEqualTo 99
     }
 
-    @Test
-    fun `runIfLeader - 동기 action 을 실행하고 결과를 반환한다`() {
-        val result = election.runIfLeader(randomLockName()) { "sync-ok" }
-        result shouldBeEqualTo "sync-ok"
-    }
-
-    @Test
-    fun `runIfLeader - action 예외 발생 후에도 슬롯이 반환되어 다음 호출이 성공한다`() {
-        val lockName = randomLockName()
-        runCatching { election.runIfLeader(lockName) { throw RuntimeException("실패") } }
-
-        val result = election.runIfLeader(lockName) { "복구 성공" }
-        result shouldBeEqualTo "복구 성공"
-    }
-
     // ── 동시 실행 제한 ────────────────────────────────────────────────────
 
     @Test
