@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SimpleExamples {
 
     companion object: KLoggingChannel() {
-        private const val port: Int = 8080
+        private const val port: Int = 9191
     }
 
     class SimpleServer: AbstractVerticle() {

@@ -21,6 +21,9 @@ import io.vertx.sqlclient.Tuple
 class MovieRatingVerticle: CoroutineVerticle() {
 
     companion object: KLoggingChannel() {
+
+        const val VERTICLE_PORT = 19191
+
         private val statements = listOf(
             "CREATE TABLE MOVIE (ID VARCHAR(16) PRIMARY KEY, TITLE VARCHAR(256) NOT NULL)",
             "CREATE TABLE RATING (ID INT AUTO_INCREMENT PRIMARY KEY, RATE_VALUE INT, MOVIE_ID VARCHAR(16))",
@@ -56,16 +59,16 @@ class MovieRatingVerticle: CoroutineVerticle() {
         val router = Router.router(vertx)
         router.route().handler(BodyHandler.create())
 
-        // ex: http://localhost:8080/movie/starwars
+        // ex: http://localhost:VERTICLE_PORT/movie/starwars
         router.get("/movie/:id").suspendHandler { getMovie(it) }
         router.post("/rateMovie/:id").suspendHandler { rateMovie(it) }
         router.get("/getRating/:id").suspendHandler { getRating(it) }
 
         // HTTP 서버 시작
-        log.debug { "Start HTTP Server. http://localhost:${config.getInteger("http.port", 8080)}" }
+        log.debug { "Start HTTP Server. http://localhost:${config.getInteger("http.port", VERTICLE_PORT)}" }
         vertx.createHttpServer()
             .requestHandler(router)
-            .listen(config.getInteger("http.port", 8080))
+            .listen(config.getInteger("http.port", VERTICLE_PORT))
             .coAwait()
     }
 
