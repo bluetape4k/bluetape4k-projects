@@ -7,33 +7,29 @@ import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
 
-    companion object: KLogging() {
-        private val redis by lazy { RedisServer.Launcher.redis }
-
-        private val redisson by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
-    }
+    companion object: KLogging()
 
     override val backSuspendCache: SuspendCache<String, Any> by lazy {
         val configuration = jcacheConfiguration<String, Any> {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MILLISECONDS, 1000L)))
         }
-        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.Epoch.nextIdAsString(), redisson, configuration)
+        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.Epoch.nextIdAsString(), RedisServers.redisson, configuration)
     }
 
     override fun createFrontSuspendCache(expireAfterAccess: java.time.Duration): SuspendCache<String, Any> =
@@ -43,9 +39,9 @@ class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
         }
 
     @Test
-    fun `Redisson 전용 NearSuspendCache를 생성하고 동작해야 한다`() = runSuspendIO {
+    fun `Redisson 전용 SuspendNearCache를 생성하고 동작해야 한다`() = runSuspendIO {
         val cacheName = "redis-near-suspend-" + TimebasedUuid.Epoch.nextIdAsString()
-        val cache = RedissonSuspendNearCache<String, Any>(cacheName, redisson)
+        val cache = RedissonSuspendNearCache<String, Any>(cacheName, RedisServers.redisson)
         cache shouldBeInstanceOf SuspendNearCache::class
 
         val key = getKey()
@@ -54,7 +50,7 @@ class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
         cache.get(key) shouldBeEqualTo value
 
         cache.clearAll()
-        await untilSuspending { !cache.containsKey(key) }
+        await atMost 30.seconds untilSuspending { !cache.containsKey(key) }
         cache.close()
     }
 

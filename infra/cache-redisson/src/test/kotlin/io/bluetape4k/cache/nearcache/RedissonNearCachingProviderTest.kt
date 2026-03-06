@@ -5,9 +5,9 @@ import io.bluetape4k.cache.jcache.getOrCreate
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.jcache.jcachingProvider
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
@@ -25,11 +25,7 @@ import javax.cache.expiry.Duration
 @Execution(ExecutionMode.SAME_THREAD)
 class RedissonNearCachingProviderTest {
 
-    companion object: KLogging() {
-        private val redisson by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
-    }
+    companion object: KLogging()
 
     @Test
     fun `CachingProvider 를 이용하여 NearCache 생성하기`() {
@@ -43,7 +39,7 @@ class RedissonNearCachingProviderTest {
         val configuration = jcacheConfiguration<Any, Any> {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))
         }
-        val redissonCfg = RedissonConfiguration.fromInstance(redisson, configuration) as RedissonConfiguration<Any, Any>
+        val redissonCfg = RedissonConfiguration.fromInstance(RedisServers.redisson, configuration) as RedissonConfiguration<Any, Any>
         val redisNearCacheCfg =
             RedisNearCacheConfig(
                 redissonConfig = redissonCfg,
@@ -73,7 +69,7 @@ class RedissonNearCachingProviderTest {
 
         // Redis 용 NearCache 를 생성하기 위해
         val configuration = jcacheConfiguration<Any, Any> { }
-        val redissonCfg = RedissonConfiguration.fromInstance(redisson, configuration)
+        val redissonCfg = RedissonConfiguration.fromInstance(RedisServers.redisson, configuration)
         val redisNearCacheCfg =
             RedisNearCacheConfig(
                 redissonConfig = redissonCfg as? RedissonConfiguration<Any, Any>,
@@ -88,6 +84,6 @@ class RedissonNearCachingProviderTest {
         provider.close()
 
         manager.isClosed.shouldBeTrue()
-        redisson.isShutdown.shouldBeFalse() // Manager 내에서 관리하는 객체가 아니고, NearCache에서 관리하는 것이다
+        RedisServers.redisson.isShutdown.shouldBeFalse() // Manager 내에서 관리하는 객체가 아니고, NearCache에서 관리하는 것이다
     }
 }

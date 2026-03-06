@@ -1,8 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.storage.RedisServer
-import io.bluetape4k.utils.ShutdownQueue
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
@@ -11,8 +10,12 @@ import io.lettuce.core.protocol.ProtocolVersion
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeEach
 import org.redisson.api.RedissonClient
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [RedissonResp3NearCache] / [RedissonResp3SuspendNearCache] 공통 테스트 베이스.
@@ -28,24 +31,18 @@ abstract class AbstractRedissonResp3NearCacheTest {
             .build()
 
         /** Redisson 클라이언트 */
-        val redisson: RedissonClient by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
+        val redisson: RedissonClient by lazy { RedisServers.redisson }
 
         /** RESP3 활성화된 RedisClient (Lettuce, tracking 전용) */
         val resp3Client: RedisClient by lazy {
-            val redis = RedisServer.Launcher.redis
-            RedisClient.create(
-                RedisServer.Launcher.LettuceLib.getRedisURI(redis.host, redis.port)
-            ).also { client ->
+            RedisServers.redisClient.also { client ->
                 client.options = clientRESP3Protocol
-                ShutdownQueue.register { client.shutdown() }
             }
         }
 
         /** 검증용 직접 Redis 명령 (tracking 없음) */
         val directCommands: RedisCommands<String, String> by lazy {
-            RedisServer.Launcher.LettuceLib.getRedisClient().connect(StringCodec.UTF8).sync()
+            RedisServers.redisClient.connect(StringCodec.UTF8).sync()
         }
     }
 
@@ -170,6 +167,9 @@ abstract class AbstractRedissonResp3NearCacheTest {
         // Redis에 데이터가 있음을 확인하는 것으로 대체
         clearLocal()
         localSize() shouldBeEqualTo 0L
+
+        await atMost 3.seconds until { getFromRedis("k1") != null }
+        
         // Redis에 데이터 유지 확인 (prefix key로)
         getFromRedis("k1").shouldNotBeNull()
     }
