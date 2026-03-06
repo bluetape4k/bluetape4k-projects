@@ -31,10 +31,20 @@ open class EntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
 
     companion object: KLogging()
 
+    /**
+     * 캐시 변경 사항을 DB에 Write-Through/Write-Behind 방식으로 반영합니다.
+     *
+     * @param map 캐시에 쓰여진 ID → 엔티티 맵 전체
+     */
     override fun write(map: Map<ID, E>) = transaction {
         writeToDB(map)
     }
 
+    /**
+     * 캐시에서 제거된 키 목록을 DB에 반영합니다.
+     *
+     * @param keys 캐시에서 제거된 ID 컬렉션
+     */
     override fun delete(keys: Collection<ID>) = transaction {
         deleteFromDB(keys)
     }

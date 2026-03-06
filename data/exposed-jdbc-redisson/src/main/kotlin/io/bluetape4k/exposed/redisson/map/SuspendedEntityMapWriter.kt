@@ -31,6 +31,12 @@ open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         protected val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Writer")
     }
 
+    /**
+     * 캐시 변경 사항을 코루틴 트랜잭션으로 DB에 비동기 반영합니다.
+     *
+     * @param map 캐시에 쓰여진 ID → 엔티티 맵 전체
+     * @return DB 반영 완료를 알리는 [CompletionStage]
+     */
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
         suspendedTransactionAsync(context = scope.coroutineContext) {
             try {
@@ -43,6 +49,12 @@ open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         null
     }.asCompletableFuture()
 
+    /**
+     * 캐시에서 제거된 키 목록을 코루틴 트랜잭션으로 DB에 비동기 반영합니다.
+     *
+     * @param ids 캐시에서 제거된 ID 컬렉션
+     * @return DB 반영 완료를 알리는 [CompletionStage]
+     */
     override fun delete(ids: Collection<ID>): CompletionStage<Void> = scope.async {
         suspendedTransactionAsync(context = scope.coroutineContext) {
             try {

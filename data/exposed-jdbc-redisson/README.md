@@ -135,23 +135,74 @@ repo.invalidateByPattern("user:*")              // 패턴으로 무효화 (suspe
 
 ```kotlin
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import org.redisson.api.map.WriteMode
 
-// Read-Through Only (기본)
+// Read-Through Only (기본) — 캐시 미스 시 DB에서 자동 로드
 val readOnlyConfig = RedisCacheConfig.readOnly(
     ttl = Duration.ofMinutes(30),
 )
 
-// Read-Through + Write-Through
-val readWriteConfig = RedisCacheConfig.readWrite(
+// Read-Through + Write-Through — 캐시 저장 즉시 DB에도 동기 반영
+val writeThroughConfig = RedisCacheConfig.readWrite(
     ttl = Duration.ofMinutes(30),
     writeMode = WriteMode.WRITE_THROUGH,
 )
 
-// Near Cache 활성화 (Local + Redis 2-Tier)
+// Read-Through + Write-Behind — 캐시 저장 후 비동기로 DB에 반영
+val writeBehindConfig = RedisCacheConfig.readWrite(
+    ttl = Duration.ofMinutes(30),
+    writeMode = WriteMode.WRITE_BEHIND,
+)
+
+// Near Cache 활성화 (Local + Redis 2-Tier) — 로컬 캐시 + Redis 2단계 캐시
 val nearCacheConfig = RedisCacheConfig.readOnly(
     ttl = Duration.ofMinutes(30),
     nearCacheEnabled = true,
 )
+```
+
+### 4. Write-Through / Write-Behind Repository 구현
+
+Write-Through/Write-Behind 모드에서는 `doUpdateEntity`와 `doInsertEntity`를 추가로 구현합니다.
+
+```kotlin
+class UserWriteThroughRepository(
+    redissonClient: RedissonClient,
+): AbstractJdbcRedissonRepository<Long, UserTable, UserRecord>(
+    redissonClient = redissonClient,
+    cacheName = "users:write-through",
+    config = RedisCacheConfig.readWrite(writeMode = WriteMode.WRITE_THROUGH),
+) {
+    override val entityTable = UserTable
+
+    override fun ResultRow.toEntity() = UserRecord(
+        id    = this[UserTable.id].value,
+        name  = this[UserTable.name],
+        email = this[UserTable.email],
+    )
+
+    // 기존 레코드 UPDATE 시 호출
+    override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
+        statement[UserTable.name]  = entity.name
+        statement[UserTable.email] = entity.email
+    }
+
+    // 신규 레코드 INSERT 시 호출 (client-side ID인 경우)
+    override fun doInsertEntity(statement: BatchInsertStatement, entity: UserRecord) {
+        statement[UserTable.id]    = EntityID(entity.id, UserTable)
+        statement[UserTable.name]  = entity.name
+        statement[UserTable.email] = entity.email
+    }
+}
+
+// Write-Through 사용 예
+val repo = UserWriteThroughRepository(redissonClient)
+transaction {
+    val user = UserRecord(id = 0, name = "홍길동", email = "hong@example.com")
+    repo.put(user)                   // 캐시 저장 + DB 동기 반영
+    repo.putAll(listOf(user))        // 일괄 캐시 저장 + DB 동기 반영
+    repo.invalidate(user.id)         // 캐시 제거 (deleteFromDBOnInvalidate=true 면 DB도 삭제)
+}
 ```
 
 ## 캐시 패턴
