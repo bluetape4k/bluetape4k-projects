@@ -46,6 +46,8 @@ dependencies {
 
 미리 정의된 추상 클래스를 상속받아 엔티티를 쉽게 정의할 수 있습니다.
 
+![JPA 엔티티 베이스 클래스](./doc/jpa-entity-diagram.png)
+
 ```kotlin
 import io.bluetape4k.hibernate.model.LongJpaEntity
 import jakarta.persistence.Entity

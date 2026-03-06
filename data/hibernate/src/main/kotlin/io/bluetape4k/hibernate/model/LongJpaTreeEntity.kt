@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany
 /**
  * Long 수형의 Identifier를 가지는 [JpaTreeEntity]의 추상 클래스입니다.
  *
- * NOTE: [AbstractJpaTreeEntity]는 `@MappedSuperclass`를 붙이지 않으므로
+ * NOTE: [AbstractJpaTreeEntity]는 QueryDSL 한계로 `@MappedSuperclass`를 붙이지 않으므로
  * Hibernate가 부모 클래스의 JPA 어노테이션을 인식하지 못합니다.
  * 따라서 [parent]와 [children] 필드의 JPA 어노테이션을 이 클래스에 재선언합니다.
  */

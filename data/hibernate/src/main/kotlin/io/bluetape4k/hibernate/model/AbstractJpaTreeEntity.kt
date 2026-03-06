@@ -11,10 +11,10 @@ import java.io.Serializable
 /**
  * Self reference 를 가지는 Tree 구조의 엔티티인 [JpaTreeEntity]의 추상 클래스입니다.
  *
+ * **NOTE**: QueryDSL 한계 때문에 이 클래스에는 `@MappedSuperclass` 어노테이션이 붙이지 마시고, 실제 상속해서 쓰는 `IntJpaTreeEntity`와 `LongJpaTreeEntity` 클래스에만 붙이세요.
+ *
  * @param T  entity type
  * @param ID identifier type
- *
- * NOTE: 이 클래스에는 `@MappedSuperclass` 어노테이션이 붙이지 마시고, `IntJpaTreeEntity`와 `LongJpaTreeEntity` 클래스에만 붙이세요.
  */
 abstract class AbstractJpaTreeEntity<T, ID: Serializable>
     : AbstractJpaEntity<ID>(), JpaTreeEntity<T> where T: JpaTreeEntity<T> {
