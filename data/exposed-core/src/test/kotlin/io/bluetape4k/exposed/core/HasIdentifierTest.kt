@@ -3,6 +3,8 @@ package io.bluetape4k.exposed.core
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
@@ -11,8 +13,9 @@ import java.io.Serializable
  */
 class HasIdentifierTest {
 
-    private data class LongEntity(override val id: Long): HasIdentifier<Long>
-    private data class StringEntity(override val id: String): HasIdentifier<String>
+    private data class LongEntity(override val id: Long?): HasIdentifier<Long>
+    private data class StringEntity(override val id: String?): HasIdentifier<String>
+    private data class NullableIdEntity(override val id: Int?): HasIdentifier<Int>
 
     @Test
     fun `HasIdentifier는 Long 타입 id를 반환한다`() {
@@ -44,5 +47,26 @@ class HasIdentifierTest {
         val a = LongEntity(1L)
         val b = LongEntity(2L)
         (a == b).shouldBeFalse()
+    }
+
+    @Test
+    fun `HasIdentifier id는 null 일 수 있다`() {
+        val entity = LongEntity(null)
+        entity.id.shouldBeNull()
+    }
+
+    @Test
+    fun `HasIdentifier id가 null이 아닌 경우 값을 반환한다`() {
+        val entity = LongEntity(42L)
+        entity.id.shouldNotBeNull()
+        entity.id shouldBeEqualTo 42L
+    }
+
+    @Test
+    fun `Int nullable id를 가진 엔티티를 생성할 수 있다`() {
+        val withId = NullableIdEntity(10)
+        val withoutId = NullableIdEntity(null)
+        withId.id.shouldNotBeNull()
+        withoutId.id.shouldBeNull()
     }
 }
