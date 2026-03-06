@@ -4,8 +4,8 @@ import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.jcache.jcachingProvider
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
@@ -21,16 +21,12 @@ import javax.cache.expiry.Duration
 @Execution(ExecutionMode.SAME_THREAD)
 class RedissonNearCacheManagerTest {
 
-    companion object: KLogging() {
-        private val redisson by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
-    }
+    companion object: KLogging()
 
     // Redis 용 NearCache 를 생성하기 위해
     private val redissonCfg by lazy {
         val configuration = jcacheConfiguration<Any, Any> { }
-        RedissonConfiguration.fromInstance(redisson, configuration)
+        RedissonConfiguration.fromInstance(RedisServers.redisson, configuration)
     }
     private val redisNearCacheCfg by lazy {
         RedisNearCacheConfig(
@@ -71,7 +67,7 @@ class RedissonNearCacheManagerTest {
         val nearCacheConfig = RedisNearCacheConfig(
             frontCacheConfiguration = frontCacheConfiguration,
             redissonConfig = RedissonConfiguration.fromInstance(
-                redisson,
+                RedisServers.redisson,
                 backCacheConfiguration
             ) as RedissonConfiguration,
             kType = String::class.java,
