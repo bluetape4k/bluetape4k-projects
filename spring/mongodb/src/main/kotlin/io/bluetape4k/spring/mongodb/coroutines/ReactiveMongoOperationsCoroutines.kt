@@ -8,10 +8,25 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.CollectionOptions
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
+import org.springframework.data.mongodb.core.aggregate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation
+import org.springframework.data.mongodb.core.count
+import org.springframework.data.mongodb.core.createCollection
+import org.springframework.data.mongodb.core.dropCollection
+import org.springframework.data.mongodb.core.exists
+import org.springframework.data.mongodb.core.find
+import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.findAndRemove
+import org.springframework.data.mongodb.core.findById
+import org.springframework.data.mongodb.core.findOne
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.UpdateDefinition
+import org.springframework.data.mongodb.core.remove
+import org.springframework.data.mongodb.core.tail
+import org.springframework.data.mongodb.core.updateFirst
+import org.springframework.data.mongodb.core.updateMulti
+import org.springframework.data.mongodb.core.upsert
 
 // ====================================================
 // 조회 - Flow (다건)
@@ -30,7 +45,7 @@ import org.springframework.data.mongodb.core.query.UpdateDefinition
  * ```
  */
 inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(query: Query): Flow<T> =
-    find(query, T::class.java).asFlow()
+    find<T>(query).asFlow()
 
 /**
  * [Query] 조건에 맞는 문서를 지정한 컬렉션에서 [Flow]로 반환합니다.
@@ -45,7 +60,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(query: Query): F
 inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(
     query: Query,
     collectionName: String,
-): Flow<T> = find(query, T::class.java, collectionName).asFlow()
+): Flow<T> = find<T>(query, collectionName).asFlow()
 
 /**
  * 컬렉션의 모든 문서를 [Flow]로 반환합니다.
@@ -58,7 +73,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(
  * ```
  */
 inline fun <reified T : Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> =
-    findAll(T::class.java).asFlow()
+    findAll<T>().asFlow()
 
 // ====================================================
 // 조회 - Suspend (단건)
@@ -75,7 +90,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> =
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneOrNullSuspending(query: Query): T? =
-    findOne(query, T::class.java).awaitSingleOrNull()
+    findOne<T>(query).awaitSingleOrNull()
 
 /**
  * [Query] 조건에 맞는 첫 번째 문서를 반환합니다.
@@ -88,7 +103,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneOrNullSuspen
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneSuspending(query: Query): T =
-    findOne(query, T::class.java).awaitSingle()
+    findOne<T>(query).awaitSingle()
 
 /**
  * ID로 문서를 조회합니다.
@@ -101,7 +116,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneSuspending(q
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdOrNullSuspending(id: Any): T? =
-    findById(id, T::class.java).awaitSingleOrNull()
+    findById<T>(id).awaitSingleOrNull()
 
 /**
  * ID로 문서를 조회합니다.
@@ -114,7 +129,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdOrNullSuspe
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdSuspending(id: Any): T =
-    findById(id, T::class.java).awaitSingle()
+    findById<T>(id).awaitSingle()
 
 // ====================================================
 // 집계 함수
@@ -131,7 +146,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdSuspending(
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.countSuspending(query: Query = Query()): Long =
-    count(query, T::class.java).awaitSingle()
+    count<T>(query).awaitSingle()
 
 /**
  * [Query] 조건에 맞는 문서가 존재하는지 확인합니다.
@@ -144,7 +159,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.countSuspending(que
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.existsSuspending(query: Query): Boolean =
-    exists(query, T::class.java).awaitSingle()
+    exists<T>(query).awaitSingle()
 
 // ====================================================
 // 쓰기 - Insert/Save
@@ -210,7 +225,7 @@ suspend fun <T : Any> ReactiveMongoOperations.saveSuspending(entity: T): T =
 suspend inline fun <reified T : Any> ReactiveMongoOperations.updateFirstSuspending(
     query: Query,
     update: UpdateDefinition,
-): UpdateResult = updateFirst(query, update, T::class.java).awaitSingle()
+): UpdateResult = updateFirst<T>(query, update).awaitSingle()
 
 /**
  * [Query] 조건에 맞는 모든 문서를 업데이트합니다.
@@ -228,7 +243,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.updateFirstSuspendi
 suspend inline fun <reified T : Any> ReactiveMongoOperations.updateMultiSuspending(
     query: Query,
     update: UpdateDefinition,
-): UpdateResult = updateMulti(query, update, T::class.java).awaitSingle()
+): UpdateResult = updateMulti<T>(query, update).awaitSingle()
 
 /**
  * [Query] 조건에 맞는 문서를 업데이트하거나, 없으면 삽입합니다.
@@ -247,7 +262,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.updateMultiSuspendi
 suspend inline fun <reified T : Any> ReactiveMongoOperations.upsertSuspending(
     query: Query,
     update: UpdateDefinition,
-): UpdateResult = upsert(query, update, T::class.java).awaitSingle()
+): UpdateResult = upsert<T>(query, update).awaitSingle()
 
 // ====================================================
 // 쓰기 - Remove
@@ -266,7 +281,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.upsertSuspending(
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.removeSuspending(query: Query): DeleteResult =
-    remove(query, T::class.java).awaitSingle()
+    remove<T>(query).awaitSingle()
 
 /**
  * 엔티티를 삭제합니다.
@@ -317,7 +332,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndModifySuspen
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndRemoveSuspending(query: Query): T? =
-    findAndRemove(query, T::class.java).awaitSingleOrNull()
+    findAndRemove<T>(query).awaitSingleOrNull()
 
 // ====================================================
 // Distinct 조회
@@ -378,7 +393,7 @@ inline fun <reified I : Any, reified O : Any> ReactiveMongoOperations.aggregateA
  */
 inline fun <reified O : Any> ReactiveMongoOperations.aggregateAsFlow(
     aggregation: TypedAggregation<*>,
-): Flow<O> = aggregate(aggregation, O::class.java).asFlow()
+): Flow<O> = aggregate<O>(aggregation).asFlow()
 
 // ====================================================
 // Tailable Cursor
@@ -398,7 +413,7 @@ inline fun <reified O : Any> ReactiveMongoOperations.aggregateAsFlow(
  * ```
  */
 inline fun <reified T : Any> ReactiveMongoOperations.tailAsFlow(query: Query): Flow<T> =
-    tail(query, T::class.java).asFlow()
+    tail<T>(query).asFlow()
 
 // ====================================================
 // 컬렉션 관리
@@ -429,7 +444,7 @@ suspend fun ReactiveMongoOperations.collectionExistsSuspending(collectionName: S
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.dropCollectionSuspending() {
-    dropCollection(T::class.java).awaitSingleOrNull()
+    dropCollection<T>().awaitSingleOrNull()
 }
 
 /**
@@ -458,7 +473,7 @@ suspend fun ReactiveMongoOperations.dropCollectionSuspending(collectionName: Str
  * ```
  */
 suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSuspending() {
-    createCollection(T::class.java).awaitSingleOrNull()
+    createCollection<T>().awaitSingleOrNull()
 }
 
 /**
@@ -477,5 +492,5 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSus
 suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSuspending(
     options: CollectionOptions,
 ) {
-    createCollection(T::class.java, options).awaitSingleOrNull()
+    createCollection<T>(options).awaitSingleOrNull()
 }

@@ -139,7 +139,7 @@ infix fun Criteria.regex(pattern: Regex): Criteria = regex(pattern.toPattern())
  * val criteria = Criteria.where("deletedAt").isNull()
  * ```
  */
-fun Criteria.isNull(): Criteria = `is`(null)
+val Criteria.isNull: Criteria get() = isNullValue()
 
 /**
  * 필드가 존재하는 조건을 추가합니다.
@@ -242,7 +242,7 @@ fun Criteria.norOperatorWith(vararg criteria: Criteria): Criteria = norOperator(
 fun String.criteria(): Criteria = Criteria.where(this)
 
 /**
- * 여러 [CriteriaDefinition]을 AND로 결합한 [Criteria]를 생성합니다.
+ * 여러 [Criteria]을 AND로 결합한 [Criteria]를 생성합니다.
  *
  * ```kotlin
  * val criteria = criteriaOf(

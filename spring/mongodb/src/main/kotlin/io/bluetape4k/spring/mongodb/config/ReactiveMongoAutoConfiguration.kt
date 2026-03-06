@@ -47,5 +47,6 @@ class ReactiveMongoAutoConfiguration {
     fun reactiveMongoTemplate(
         databaseFactory: ReactiveMongoDatabaseFactory,
         mongoConverter: MongoConverter,
-    ): ReactiveMongoTemplate = ReactiveMongoTemplate(databaseFactory, mongoConverter)
+    ): ReactiveMongoTemplate =
+        ReactiveMongoTemplate(databaseFactory, mongoConverter)
 }
