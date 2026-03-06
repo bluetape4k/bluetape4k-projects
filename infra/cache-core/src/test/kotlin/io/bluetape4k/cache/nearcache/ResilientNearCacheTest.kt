@@ -7,14 +7,15 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
 import javax.cache.expiry.EternalExpiryPolicy
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [ResilientNearCache] (JCache 기반 back cache) 동기(Blocking) 구현 테스트.
@@ -24,10 +25,10 @@ import javax.cache.expiry.EternalExpiryPolicy
  */
 class ResilientNearCacheTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
 
-        private fun randomKey(): String = TimebasedUuid.Reordered.nextIdAsString()
+        private fun randomKey(): String = TimebasedUuid.Epoch.nextIdAsString()
     }
 
     private val backCache = JCaching.Caffeine.getOrCreate<String, String>(
@@ -72,9 +73,7 @@ class ResilientNearCacheTest {
         // front cache 즉시 확인
         cache.get("wb-key") shouldBeEqualTo "wb-val"
         // back cache는 write-behind로 비동기 반영 → awaitility 폴링
-        await.atMost(5, TimeUnit.SECONDS).until {
-            backCache.get("wb-key") != null
-        }
+        await atMost 5.seconds until { backCache.get("wb-key") != null }
         backCache.get("wb-key") shouldBeEqualTo "wb-val"
     }
 
@@ -104,9 +103,7 @@ class ResilientNearCacheTest {
         cache.get("rm-key").shouldBeNull()
 
         // back cache에서도 삭제되길 대기
-        await.atMost(5, TimeUnit.SECONDS).until {
-            backCache.get("rm-key") == null
-        }
+        await atMost 5.seconds until { backCache.get("rm-key") == null }
     }
 
     @Test
@@ -139,8 +136,10 @@ class ResilientNearCacheTest {
     fun `replace - 키가 존재할 때만 교체`() {
         cache.replace("noKey", "val") shouldBeEqualTo false
         cache.put("key", "old")
+
         // write-behind 완료 대기 (replace는 back cache 직접 호출)
-        await.atMost(5, TimeUnit.SECONDS).until { backCache.get("key") != null }
+        await atMost 5.seconds until { backCache.get("key") != null }
+
         cache.replace("key", "new") shouldBeEqualTo true
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -148,7 +147,8 @@ class ResilientNearCacheTest {
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() {
         cache.put("k", "old")
-        await.atMost(5, TimeUnit.SECONDS).until { backCache.get("k") != null }
+        await atMost 5.seconds until { backCache.get("k") != null }
+
         cache.replace("k", "wrong", "new") shouldBeEqualTo false
         cache.replace("k", "old", "new") shouldBeEqualTo true
         cache.get("k") shouldBeEqualTo "new"
@@ -166,7 +166,9 @@ class ResilientNearCacheTest {
     fun `getAndReplace - 캐시 값 조회 및 교체`() {
         cache.getAndReplace("missing", "val").shouldBeNull()
         cache.put("key", "old")
-        await.atMost(5, TimeUnit.SECONDS).until { backCache.get("key") != null }
+
+        await atMost 5.seconds until { backCache.get("key") != null }
+
         cache.getAndReplace("key", "new") shouldBeEqualTo "old"
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -177,6 +179,9 @@ class ResilientNearCacheTest {
         cache.put("k2", "v2")
         cache.clearLocal()
         cache.localCacheSize() shouldBeEqualTo 0L
+
+        await atMost 3.seconds until { backCache.get("k1") != null }
+
         // back cache에서 읽어와서 front에 populate
         cache.containsKey("k1") shouldBeEqualTo true
     }
@@ -185,12 +190,13 @@ class ResilientNearCacheTest {
     fun `clearAll - write-behind - 잠시 후 back cache도 초기화`() {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
-        await.atMost(5, TimeUnit.SECONDS).until { backCache.get("k1") != null }
+
+        await atMost 5.seconds until { backCache.get("k1") != null }
 
         cache.clearAll()
         cache.localCacheSize() shouldBeEqualTo 0L
 
-        await.atMost(5, TimeUnit.SECONDS).until { backCache.get("k1") == null }
+        await atMost 5.seconds until { backCache.get("k1") == null }
     }
 
     @Test

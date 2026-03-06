@@ -2,17 +2,20 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.CaffeineSuspendCache
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [ResilientSuspendNearCache] (SuspendCache 기반 back cache) Coroutine(Suspend) 구현 테스트.
@@ -22,11 +25,9 @@ import java.time.Duration
  */
 class ResilientSuspendNearCacheTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
-        private const val WRITE_BEHIND_WAIT_MS = 500L
-
-        private fun randomKey(): String = TimebasedUuid.Reordered.nextIdAsString()
+        private fun randomKey(): String = TimebasedUuid.Epoch.nextIdAsString()
     }
 
     private val backCache = CaffeineSuspendCache<String, String> {
@@ -67,7 +68,8 @@ class ResilientSuspendNearCacheTest {
     fun `put - write-behind - 잠시 후 back cache에도 반영됨`() = runSuspendIO {
         cache.put("wb-key", "wb-val")
         cache.get("wb-key") shouldBeEqualTo "wb-val"
-        delay(WRITE_BEHIND_WAIT_MS)
+
+        await atMost 5.seconds untilSuspending { backCache.get("wb-key") == "wb-val" }
         backCache.get("wb-key") shouldBeEqualTo "wb-val"
     }
 
@@ -96,7 +98,7 @@ class ResilientSuspendNearCacheTest {
         cache.remove("rm-key")
         cache.get("rm-key").shouldBeNull()
 
-        delay(WRITE_BEHIND_WAIT_MS)
+        await atMost 5.seconds untilSuspending { backCache.get("rm-key") == null }
         backCache.get("rm-key").shouldBeNull()
     }
 
@@ -110,7 +112,7 @@ class ResilientSuspendNearCacheTest {
     }
 
     @Test
-    fun `containsKey`() = runSuspendIO {
+    fun `containsKey - 키 존재 여부 확인`() = runSuspendIO {
         cache.put("keyX", "valX")
         cache.containsKey("keyX") shouldBeEqualTo true
         cache.containsKey("nonexistent") shouldBeEqualTo false
@@ -130,8 +132,10 @@ class ResilientSuspendNearCacheTest {
     fun `replace - 키가 존재할 때만 교체`() = runSuspendIO {
         cache.replace("noKey", "val") shouldBeEqualTo false
         cache.put("key", "old")
+
         // replace는 back cache를 직접 호출 → write-behind 완료 대기
-        delay(WRITE_BEHIND_WAIT_MS)
+        await atMost 5.seconds untilSuspending { backCache.get("key") == "old" }
+
         cache.replace("key", "new") shouldBeEqualTo true
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -139,14 +143,15 @@ class ResilientSuspendNearCacheTest {
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() = runSuspendIO {
         cache.put("k", "old")
-        delay(WRITE_BEHIND_WAIT_MS)
+        await atMost 5.seconds untilSuspending { backCache.get("k") == "old" }
+
         cache.replace("k", "wrong", "new") shouldBeEqualTo false
         cache.replace("k", "old", "new") shouldBeEqualTo true
         cache.get("k") shouldBeEqualTo "new"
     }
 
     @Test
-    fun `getAndRemove`() = runSuspendIO {
+    fun `getAndRemove - 캐시 값 조회 및 삭제`() = runSuspendIO {
         cache.put("key", "value")
         cache.getAndRemove("key") shouldBeEqualTo "value"
         cache.get("key").shouldBeNull()
@@ -154,10 +159,12 @@ class ResilientSuspendNearCacheTest {
     }
 
     @Test
-    fun `getAndReplace`() = runSuspendIO {
+    fun `getAndReplace - 캐시 값 조회 및 교체`() = runSuspendIO {
         cache.getAndReplace("missing", "val").shouldBeNull()
+
         cache.put("key", "old")
-        delay(WRITE_BEHIND_WAIT_MS)
+        await atMost 5.seconds untilSuspending { backCache.get("key") == "old" }
+
         cache.getAndReplace("key", "new") shouldBeEqualTo "old"
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -174,13 +181,14 @@ class ResilientSuspendNearCacheTest {
     fun `clearAll - write-behind - 잠시 후 back cache도 초기화`() = runSuspendIO {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
-        delay(WRITE_BEHIND_WAIT_MS)
+
+        await atMost 5.seconds untilSuspending { backCache.get("k1") == "v1" }
         backCache.get("k1") shouldBeEqualTo "v1"
 
         cache.clearAll()
         cache.localCacheSize() shouldBeEqualTo 0L
 
-        delay(WRITE_BEHIND_WAIT_MS)
+        await atMost 5.seconds untilSuspending { backCache.get("k1") == null }
         backCache.get("k1").shouldBeNull()
     }
 
