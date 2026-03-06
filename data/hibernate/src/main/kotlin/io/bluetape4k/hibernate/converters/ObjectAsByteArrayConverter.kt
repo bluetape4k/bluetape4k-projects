@@ -86,14 +86,26 @@ class SnappyKryoObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(B
 @Converter
 class ZstdKryoObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.ZstdKryo)
 
+/**
+ * 객체를 Apache Fory 직렬화하여 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
+ */
 @Converter
 class ForyObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.Fory)
 
+/**
+ * 객체를 Apache Fory 직렬화, LZ4로 압축 한 후 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
+ */
 @Converter
 class LZ4ForyObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.LZ4Fory)
 
+/**
+ * 객체를 Apache Fory 직렬화, Snappy로 압축 한 후 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
+ */
 @Converter
 class SnappyForyObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.SnappyFory)
 
+/**
+ * 객체를 Apache Fory 직렬화, Zstd로 압축 한 후 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
+ */
 @Converter
 class ZstdForyObjectAsByteArrayConverter: AbstractObjectAsByteArrayConverter(BinarySerializers.ZstdFory)

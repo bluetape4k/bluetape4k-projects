@@ -1,17 +1,17 @@
 package io.bluetape4k.hibernate.model
 
 /**
- * Self reference 를 가지는 Tree 구조의 엔티니를 표현합니다.
+ * Self reference 를 가지는 Tree 구조의 엔티티를 표현합니다.
  */
 interface JpaTreeEntity<T>: PersistenceObject where T: JpaTreeEntity<T> {
 
     /**
-     * Parent 엔티티를 나타냅니다. null 이라면 현 엔티티가 root 노드임을 의미합니다.
+     * 부모 엔티티를 나타냅니다. null 이라면 현 엔티티가 root 노드임을 의미합니다.
      */
     var parent: T?
 
     /**
-     * children entities
+     * 자식 엔티티 목록입니다.
      */
     val children: MutableSet<T>
 
@@ -19,7 +19,11 @@ interface JpaTreeEntity<T>: PersistenceObject where T: JpaTreeEntity<T> {
     // val nodePosition: TreeNodePosition
 
     /**
-     * add children entities
+     * 자식 엔티티를 추가합니다.
+     *
+     * 추가된 자식 엔티티의 [parent]를 현재 엔티티로 설정합니다.
+     *
+     * @param childs 추가할 자식 엔티티들
      */
     @Suppress("UNCHECKED_CAST")
     fun addChildren(vararg childs: T) {
@@ -31,7 +35,11 @@ interface JpaTreeEntity<T>: PersistenceObject where T: JpaTreeEntity<T> {
     }
 
     /**
-     * remove children entities
+     * 자식 엔티티를 제거합니다.
+     *
+     * 제거된 자식 엔티티의 [parent]를 null 로 설정합니다.
+     *
+     * @param childs 제거할 자식 엔티티들
      */
     fun removeChildren(vararg childs: T) {
         childs.forEach {

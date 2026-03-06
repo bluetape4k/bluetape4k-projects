@@ -3,7 +3,7 @@ package io.bluetape4k.hibernate.model
 import java.io.Serializable
 
 /**
- * Hibernate Persistece Object 를 나타내는 interface 입니다.
+ * Hibernate Persistence Object 를 나타내는 interface 입니다.
  */
 interface PersistenceObject: Serializable {
 
