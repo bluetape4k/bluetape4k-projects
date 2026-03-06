@@ -12,6 +12,8 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.jetbrains.exposed.v1.dao.entityCache
 import org.jetbrains.exposed.v1.dao.flushCache
@@ -98,6 +100,56 @@ class EntityExtensionsTest: AbstractExposedTest() {
 
             post.entityToStringBuilder().toString() shouldContain "id="
             post.toStringBuilder().toString() shouldContain "id="
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - null 비교는 false를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "post" }
+            post.idEquals(null).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - 같은 참조는 true를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "post" }
+            post.idEquals(post).shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - 비 Entity 타입 비교는 false를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "post" }
+            post.idEquals("not an entity").shouldBeFalse()
+            post.idEquals(42).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - 다른 id를 가진 같은 타입 엔티티는 false를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post1 = Post.new { title = "post1" }
+            val post2 = Post.new { title = "post2" }
+            flushCache()  // auto-increment id가 DB에 저장된 후에야 idValue가 확정됨
+            post1.idEquals(post2).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - 동일한 id를 가진 엔티티 비교는 true를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "same post" }
+            flushCache()
+            val reloaded = Post.findById(post.id)!!
+            post.idEquals(reloaded).shouldBeTrue()
         }
     }
 }
