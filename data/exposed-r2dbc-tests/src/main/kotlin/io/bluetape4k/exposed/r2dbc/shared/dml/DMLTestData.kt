@@ -112,13 +112,25 @@ object DMLTestData {
     }
 
 
+    /** [ResultRow] 이터러블에서 도시명 목록을 추출합니다. */
     fun Iterable<ResultRow>.toCityNameList(): List<String> =
         map { it[Cities.name] }
 
+    /** [ResultRow] Flow에서 도시명 목록을 suspend 방식으로 추출합니다. */
     suspend fun Flow<ResultRow>.toCityNameList(): List<String> =
         map { it[Cities.name] }.toList()
 
-
+    /**
+     * Cities, Users, UserData 테이블을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행합니다.
+     *
+     * 초기 데이터:
+     * - Cities: St. Petersburg, Munich, Prague
+     * - Users: andrey(St.P.), sergey(Munich), eugene(Munich), alex(null), smth(null)
+     * - UserData: smth×2, eugene×1, sergey×1
+     *
+     * @param testDB 테스트 대상 DB
+     * @param statement 테이블과 초기 데이터가 준비된 뒤 실행할 블록
+     */
     @Suppress("UnusedReceiverParameter")
     suspend fun AbstractExposedR2dbcTest.withCitiesAndUsers(
         testDB: TestDB,
@@ -208,6 +220,17 @@ object DMLTestData {
         }
     }
 
+    /**
+     * Sales 테이블을 생성하고 7개의 초기 판매 데이터를 삽입한 뒤 [statement]를 실행합니다.
+     *
+     * 삽입되는 데이터 (year, month, product, amount):
+     * - (2018, 11, "tea", 550.10), (2018, 12, "coffee", 1500.25), (2018, 12, "tea", 900.30)
+     * - (2019, 1, "coffee", 1620.10), (2019, 1, "tea", 650.70), (2019, 2, "coffee", 1870.90)
+     * - (2019, 2, null, 10.20)
+     *
+     * @param dialect 테스트 대상 DB
+     * @param statement Sales 테이블과 초기 데이터가 준비된 뒤 실행할 블록
+     */
     @Suppress("UnusedReceiverParameter")
     suspend fun AbstractExposedR2dbcTest.withSales(
         dialect: TestDB,
@@ -238,6 +261,14 @@ object DMLTestData {
         }
     }
 
+    /**
+     * SomeAmounts 테이블을 생성하고 3개의 초기 금액 데이터를 삽입한 뒤 [statement]를 실행합니다.
+     *
+     * 삽입되는 amount 값: 650.70, 1500.25, 1000.00
+     *
+     * @param testDB 테스트 대상 DB
+     * @param statement SomeAmounts 테이블과 초기 데이터가 준비된 뒤 실행할 블록
+     */
     @Suppress("UnusedReceiverParameter")
     suspend fun AbstractExposedR2dbcTest.withSomeAmounts(
         testDB: TestDB,
@@ -260,6 +291,17 @@ object DMLTestData {
         }
     }
 
+    /**
+     * Sales와 SomeAmounts 테이블을 함께 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행합니다.
+     *
+     * Sales 데이터 (7건): [withSales]와 동일한 데이터를 삽입합니다.
+     * SomeAmounts 데이터 (3건): amount = 650.70, 1500.25, 1000.00
+     *
+     * `inTable`, `anyFrom(table)`, `allFrom(table)` 같은 테이블 기반 연산자 테스트에 사용합니다.
+     *
+     * @param testDB 테스트 대상 DB
+     * @param statement 두 테이블과 초기 데이터가 준비된 뒤 실행할 블록
+     */
     @Suppress("UnusedReceiverParameter")
     suspend fun AbstractExposedR2dbcTest.withSalesAndSomeAmounts(
         testDB: TestDB,
