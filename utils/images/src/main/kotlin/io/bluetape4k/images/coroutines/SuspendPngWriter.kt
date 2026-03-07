@@ -21,14 +21,22 @@ class SuspendPngWriter(
 ): PngWriter(compressionLevel), SuspendImageWriter {
 
     companion object: KLoggingChannel() {
+        /** 최대 압축(level=9) [SuspendPngWriter] 인스턴스 */
         @JvmStatic
         val MaxCompression = SuspendPngWriter(9)
 
+        /** 최소 압축(level=1) [SuspendPngWriter] 인스턴스 */
         @JvmStatic
         val MinCompression = SuspendPngWriter(1)
 
+        /** 무압축(level=0) [SuspendPngWriter] 인스턴스 */
         @JvmStatic
-        val NoComppression = SuspendPngWriter(0)
+        val NoCompression = SuspendPngWriter(0)
+
+        /** @suppress 오타 호환용. [NoCompression]을 사용하세요. */
+        @Deprecated("오타 수정: NoCompression을 사용하세요", replaceWith = ReplaceWith("NoCompression"))
+        @JvmStatic
+        val NoComppression = NoCompression
     }
 
     /**

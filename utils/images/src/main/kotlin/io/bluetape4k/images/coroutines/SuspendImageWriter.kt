@@ -10,6 +10,15 @@ import java.io.OutputStream
 
 /**
  * Coroutines 방식으로 이미지를 생성하는 [ImageWriter] 입니다.
+ *
+ * ## 동작/계약
+ * - [ImageWriter]를 확장하여 `suspend` 함수 기반의 비동기 쓰기를 지원합니다.
+ * - 내부적으로 [Dispatchers.IO] 컨텍스트에서 blocking I/O를 수행합니다.
+ *
+ * @see SuspendJpegWriter
+ * @see SuspendPngWriter
+ * @see SuspendGifWriter
+ * @see SuspendWebpWriter
  */
 interface SuspendImageWriter: ImageWriter {
 
