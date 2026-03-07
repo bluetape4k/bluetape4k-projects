@@ -37,102 +37,185 @@ inline fun <reified T: Any> Readable.getAs(index: Int): T =
 inline fun <reified T: Any> Readable.getAs(name: String): T =
     get(name, T::class.java) ?: error("Column[$name] is null. Expected type=${T::class.java.simpleName}.")
 
+/**
+ * 지정한 [index] 컬럼 값을 [T]로 조회합니다. 값이 `null`이면 `null`을 반환합니다.
+ */
 inline fun <reified T: Any> Readable.getAsOrNull(index: Int): T? = get(index, T::class.java)
+
+/**
+ * 지정한 [name] 컬럼 값을 [T]로 조회합니다. 값이 `null`이면 `null`을 반환합니다.
+ */
 inline fun <reified T: Any> Readable.getAsOrNull(name: String): T? = get(name, T::class.java)
 
+/** [index] 컬럼의 [String] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getString(index: Int): String = getAs<String>(index)
+/** [label] 컬럼의 [String] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getString(label: String): String = getAs<String>(label)
+/** [index] 컬럼의 [String] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getStringOrNull(index: Int): String? = getAsOrNull<String>(index)
+/** [label] 컬럼의 [String] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getStringOrNull(label: String): String? = getAsOrNull<String>(label)
 
+/** [index] 컬럼의 [Boolean] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getBoolean(index: Int): Boolean = getAs<Boolean>(index)
+/** [label] 컬럼의 [Boolean] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getBoolean(label: String): Boolean = getAs<Boolean>(label)
+/** [index] 컬럼의 [Boolean] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getBooleanOrNull(index: Int): Boolean? = getAsOrNull<Boolean>(index)
+/** [label] 컬럼의 [Boolean] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getBooleanOrNull(label: String): Boolean? = getAsOrNull<Boolean>(label)
 
+/** [index] 컬럼의 [Char] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getChar(index: Int): Char = getAs<Char>(index)
+/** [label] 컬럼의 [Char] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getChar(label: String): Char = getAs<Char>(label)
+/** [index] 컬럼의 [Char] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getCharOrNull(index: Int): Char? = getAsOrNull<Char>(index)
+/** [label] 컬럼의 [Char] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getCharOrNull(label: String): Char? = getAsOrNull<Char>(label)
 
+/** [index] 컬럼의 [Byte] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getByte(index: Int): Byte = getAs<Byte>(index)
+/** [label] 컬럼의 [Byte] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getByte(label: String): Byte = getAs<Byte>(label)
+/** [index] 컬럼의 [Byte] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getByteOrNull(index: Int): Byte? = getAsOrNull<Byte>(index)
+/** [label] 컬럼의 [Byte] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getByteOrNull(label: String): Byte? = getAsOrNull<Byte>(label)
 
+/** [index] 컬럼의 [Short] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getShort(index: Int): Short = getAs<Short>(index)
+/** [label] 컬럼의 [Short] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getShort(label: String): Short = getAs<Short>(label)
+/** [index] 컬럼의 [Short] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getShortOrNull(index: Int): Short? = getAsOrNull<Short>(index)
+/** [label] 컬럼의 [Short] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getShortOrNull(label: String): Short? = getAsOrNull<Short>(label)
 
+/** [index] 컬럼의 [Int] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getInt(index: Int): Int = getAs<Int>(index)
+/** [label] 컬럼의 [Int] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getInt(label: String): Int = getAs<Int>(label)
+/** [index] 컬럼의 [Int] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getIntOrNull(index: Int): Int? = getAsOrNull<Int>(index)
+/** [label] 컬럼의 [Int] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getIntOrNull(label: String): Int? = getAsOrNull<Int>(label)
 
+/** [index] 컬럼의 [Long] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLong(index: Int): Long = getAs<Long>(index)
+/** [label] 컬럼의 [Long] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLong(label: String): Long = getAs<Long>(label)
+/** [index] 컬럼의 [Long] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLongOrNull(index: Int): Long? = getAsOrNull<Long>(index)
+/** [label] 컬럼의 [Long] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLongOrNull(label: String): Long? = getAsOrNull<Long>(label)
 
+/** [index] 컬럼의 [Float] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getFloat(index: Int): Float = getAs<Float>(index)
+/** [label] 컬럼의 [Float] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getFloat(label: String): Float = getAs<Float>(label)
+/** [index] 컬럼의 [Float] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getFloatOrNull(index: Int): Float? = getAsOrNull<Float>(index)
+/** [label] 컬럼의 [Float] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getFloatOrNull(label: String): Float? = getAsOrNull<Float>(label)
 
+/** [index] 컬럼의 [Double] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getDouble(index: Int): Double = getAs<Double>(index)
+/** [label] 컬럼의 [Double] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getDouble(label: String): Double = getAs<Double>(label)
+/** [index] 컬럼의 [Double] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getDoubleOrNull(index: Int): Double? = getAsOrNull<Double>(index)
+/** [label] 컬럼의 [Double] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getDoubleOrNull(label: String): Double? = getAsOrNull<Double>(label)
 
+/** [index] 컬럼의 [BigDecimal] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getBigDecimal(index: Int): BigDecimal = getAs<BigDecimal>(index)
+/** [label] 컬럼의 [BigDecimal] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getBigDecimal(label: String): BigDecimal = getAs<BigDecimal>(label)
+/** [index] 컬럼의 [BigDecimal] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getBigDecimalOrNull(index: Int): BigDecimal? = getAsOrNull<BigDecimal>(index)
+/** [label] 컬럼의 [BigDecimal] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getBigDecimalOrNull(label: String): BigDecimal? = getAsOrNull<BigDecimal>(label)
 
+/** [index] 컬럼의 [ByteArray] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getByteArray(index: Int): ByteArray = getAs<ByteArray>(index)
+/** [label] 컬럼의 [ByteArray] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getByteArray(label: String): ByteArray = getAs<ByteArray>(label)
+/** [index] 컬럼의 [ByteArray] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getByteArrayOrNull(index: Int): ByteArray? = getAsOrNull<ByteArray>(index)
+/** [label] 컬럼의 [ByteArray] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getByteArrayOrNull(label: String): ByteArray? = getAsOrNull<ByteArray>(label)
 
+/** [index] 컬럼의 [java.util.Date] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getDate(index: Int): Date = getAs<Date>(index)
+/** [label] 컬럼의 [java.util.Date] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getDate(label: String): Date = getAs<Date>(label)
+/** [index] 컬럼의 [java.util.Date] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getDateOrNull(index: Int): Date? = getAsOrNull<Date>(index)
+/** [label] 컬럼의 [java.util.Date] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getDateOrNull(label: String): Date? = getAsOrNull<Date>(label)
 
+/** [index] 컬럼의 [java.sql.Timestamp] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getTimestamp(index: Int): Timestamp = getAs<Timestamp>(index)
+/** [label] 컬럼의 [java.sql.Timestamp] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getTimestamp(label: String): Timestamp = getAs<Timestamp>(label)
+/** [index] 컬럼의 [java.sql.Timestamp] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getTimestampOrNull(index: Int): Timestamp? = getAsOrNull<Timestamp>(index)
+/** [label] 컬럼의 [java.sql.Timestamp] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getTimestampOrNull(label: String): Timestamp? = getAsOrNull<Timestamp>(label)
 
+/** [index] 컬럼의 [Instant] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getInstant(index: Int): Instant = getAs<Instant>(index)
+/** [label] 컬럼의 [Instant] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getInstant(label: String): Instant = getAs<Instant>(label)
+/** [index] 컬럼의 [Instant] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getInstantOrNull(index: Int): Instant? = getAsOrNull<Instant>(index)
+/** [label] 컬럼의 [Instant] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getInstantOrNull(label: String): Instant? = getAsOrNull<Instant>(label)
 
+/** [index] 컬럼의 [LocalDate] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalDate(index: Int): LocalDate = getAs<LocalDate>(index)
+/** [label] 컬럼의 [LocalDate] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalDate(label: String): LocalDate = getAs<LocalDate>(label)
+/** [index] 컬럼의 [LocalDate] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalDateOrNull(index: Int): LocalDate? = getAsOrNull<LocalDate>(index)
+/** [label] 컬럼의 [LocalDate] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalDateOrNull(label: String): LocalDate? = getAsOrNull<LocalDate>(label)
 
+/** [index] 컬럼의 [LocalTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalTime(index: Int): LocalTime = getAs<LocalTime>(index)
+/** [label] 컬럼의 [LocalTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalTime(label: String): LocalTime = getAs<LocalTime>(label)
+/** [index] 컬럼의 [LocalTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalTimeOrNull(index: Int): LocalTime? = getAsOrNull<LocalTime>(index)
+/** [label] 컬럼의 [LocalTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalTimeOrNull(label: String): LocalTime? = getAsOrNull<LocalTime>(label)
 
+/** [index] 컬럼의 [LocalDateTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalDateTime(index: Int): LocalDateTime = getAs<LocalDateTime>(index)
+/** [label] 컬럼의 [LocalDateTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getLocalDateTime(label: String): LocalDateTime = getAs<LocalDateTime>(label)
+/** [index] 컬럼의 [LocalDateTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalDateTimeOrNull(index: Int): LocalDateTime? = getAsOrNull<LocalDateTime>(index)
+/** [label] 컬럼의 [LocalDateTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getLocalDateTimeOrNull(label: String): LocalDateTime? = getAsOrNull<LocalDateTime>(label)
 
+/** [index] 컬럼의 [OffsetDateTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getOffsetDateTime(index: Int): OffsetDateTime = getAs<OffsetDateTime>(index)
+/** [label] 컬럼의 [OffsetDateTime] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getOffsetDateTime(label: String): OffsetDateTime = getAs<OffsetDateTime>(label)
+/** [index] 컬럼의 [OffsetDateTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getOffsetDateTimeOrNull(index: Int): OffsetDateTime? = getAsOrNull<OffsetDateTime>(index)
+/** [label] 컬럼의 [OffsetDateTime] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getOffsetDateTimeOrNull(label: String): OffsetDateTime? = getAsOrNull<OffsetDateTime>(label)
 
+/** [index] 컬럼의 [java.util.UUID] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getUuid(index: Int): UUID = getAs<UUID>(index)
+/** [label] 컬럼의 [java.util.UUID] 값을 조회합니다. null이면 예외를 발생시킵니다. */
 inline fun Readable.getUuid(label: String): UUID = getAs<UUID>(label)
+/** [index] 컬럼의 [java.util.UUID] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getUuidOrNull(index: Int): UUID? = getAsOrNull<UUID>(index)
+/** [label] 컬럼의 [java.util.UUID] 값을 조회합니다. null이면 null을 반환합니다. */
 inline fun Readable.getUuidOrNull(label: String): UUID? = getAsOrNull<UUID>(label)
 
 /**

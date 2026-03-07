@@ -62,6 +62,7 @@ interface SoftDeletedR2dbcRepository<ID: Any, T: SoftDeletedIdTable<ID>, E: Any>
 
     /**
      * 해당 id 의 엔티티를 soft delete 합니다.
+     * @param id 삭제할 엔티티의 ID
      */
     suspend fun softDeleteById(id: ID) {
         table.update({ table.id eq id }) {
@@ -71,6 +72,7 @@ interface SoftDeletedR2dbcRepository<ID: Any, T: SoftDeletedIdTable<ID>, E: Any>
 
     /**
      * 해당 id 의 엔티티를 soft delete 에서 복원합니다.
+     * @param id 복원할 엔티티의 ID
      */
     suspend fun restoreById(id: ID) {
         table.update({ table.id eq id }) {
@@ -95,7 +97,12 @@ interface SoftDeletedR2dbcRepository<ID: Any, T: SoftDeletedIdTable<ID>, E: Any>
         table.selectAll().where { (table.isDeleted eq true).and(predicate) }.count()
 
     /**
-     * 해당 id 의 엔티티의 `isDeleted` 속성이 false 인 엔티티만 조회합니다.
+     * 활성 상태(`isDeleted = false`)인 엔티티만 조회합니다.
+     * @param limit 최대 개수
+     * @param offset 시작 위치
+     * @param sortOrder 정렬 순서
+     * @param predicate 추가 조건
+     * @return 활성 엔티티 Flow
      */
     fun findActive(
         limit: Int? = null,
