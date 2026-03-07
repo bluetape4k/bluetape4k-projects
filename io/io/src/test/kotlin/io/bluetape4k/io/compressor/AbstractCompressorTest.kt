@@ -12,6 +12,9 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.xerial.snappy.Snappy
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 @RandomizedTest
 abstract class AbstractCompressorTest {
@@ -67,6 +70,40 @@ abstract class AbstractCompressorTest {
         val decompressed: ByteArray = compressor.decompress(compressed)
 
         printCompressResult(compressed.size, expected.size)
+        decompressed shouldBeEqualTo expected
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `compress ByteBuffer`() {
+        val expected = getRandomString().toUtf8Bytes()
+        val plainBuffer = ByteBuffer.wrap(expected)
+
+        val compressedBuffer: ByteBuffer = compressor.compress(plainBuffer)
+        val decompressedBuffer: ByteBuffer = compressor.decompress(compressedBuffer)
+
+        val decompressed = ByteArray(decompressedBuffer.remaining())
+        decompressedBuffer.get(decompressed)
+        decompressed shouldBeEqualTo expected
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `compress InputStream`() {
+        val expected = getRandomString().toUtf8Bytes()
+        val plainStream = ByteArrayInputStream(expected)
+
+        val compressedStream = compressor.compress(plainStream)
+        val compressedBytes = (compressedStream as? ByteArrayInputStream)?.readBytes()
+            ?: run {
+                val out = ByteArrayOutputStream()
+                compressedStream.copyTo(out)
+                out.toByteArray()
+            }
+
+        val decompressedStream = compressor.decompress(ByteArrayInputStream(compressedBytes))
+        val decompressed = ByteArrayOutputStream().also { out ->
+            decompressedStream.copyTo(out)
+        }.toByteArray()
+
         decompressed shouldBeEqualTo expected
     }
 

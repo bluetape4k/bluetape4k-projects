@@ -140,7 +140,7 @@ data class UserRecord(
 ### 7. ExposedPage (페이징 결과)
 
 ```kotlin
-import io.bluetape4k.exposed.repository.ExposedPage
+import io.bluetape4k.exposed.core.ExposedPage
 
 // 페이징 결과 래퍼
 val page: ExposedPage<UserRecord> = ExposedPage(
@@ -171,7 +171,13 @@ println("마지막 페이지: ${page.isLast}")
 | `encrypt/EncryptedBlobColumnType.kt`               | 암호화 Blob 컬럼 타입         |
 | `serializable/BinarySerializedBinaryColumnType.kt` | 직렬화 Binary 컬럼 타입       |
 | `serializable/BinarySerializedBlobColumnType.kt`   | 직렬화 Blob 컬럼 타입         |
-| `repository/ExposedPage.kt`                        | 페이징 결과 데이터 클래스         |
+| `ExposedPage.kt`                                   | 페이징 결과 데이터 클래스         |
+| `dao/id/KsuidTable.kt`                             | KSUID 기본키 테이블             |
+| `dao/id/KsuidMillisTable.kt`                       | KsuidMillis 기본키 테이블       |
+| `dao/id/SnowflakeIdTable.kt`                       | Snowflake Long 기본키 테이블    |
+| `dao/id/TimebasedUUIDTable.kt`                     | UUIDv7 기본키 테이블            |
+| `dao/id/TimebasedUUIDBase62Table.kt`               | UUIDv7 Base62 기본키 테이블     |
+| `dao/id/SoftDeletedIdTable.kt`                     | 소프트 삭제 기본키 테이블          |
 
 ## 테스트
 

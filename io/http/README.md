@@ -57,13 +57,12 @@ val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/
 import io.bluetape4k.http.hc5.cache.*
 
 // In-Memory 캐시를 사용하는 HttpClient
-val cachingClient = cachingHttpClient {
-    setCacheStorage(InMemoryHttpCacheStorage())
-}
+val cacheStorage = InMemoryHttpCacheStorage.createObjectCache()
+val cachingClient = cachingHttpClient(cacheStorage)
 
-// Async 캐싱 클라이언트
+// Async 캐싱 클라이언트 (JCache 기반)
 val asyncCachingClient = cachingHttpAsyncClient {
-    setCacheStorage(JavaCacheHttpCacheStorage(jcache))
+    setHttpCacheStorage(JavaCacheHttpCacheStorage.createObjectCache(jcache))
 }
 ```
 
@@ -81,11 +80,14 @@ Square의 OkHttp3 클라이언트를 Kotlin DSL로 간편하게 생성하고 사
 
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
+import io.bluetape4k.logging.KotlinLogging
+
+private val log = KotlinLogging.logger {}
 
 // Virtual Thread 기반 OkHttpClient 생성
 val client = okhttp3Client {
-    addInterceptor(LoggingInterceptor())
-    addInterceptor(CachingResponseInterceptor())
+    addInterceptor(LoggingInterceptor(log))
+    addNetworkInterceptor(CachingResponseInterceptor())
 }
 
 // Request DSL
@@ -104,11 +106,13 @@ Eclipse Vert.x의 비동기 HttpClient를 Kotlin Coroutines와 통합합니다.
 
 ```kotlin
 import io.bluetape4k.http.vertx.*
+import io.vertx.kotlin.core.http.httpClientOptionsOf
 
-val vertxClient = vertxHttpClient {
-    setMaxPoolSize(20)
-    setKeepAlive(true)
-}
+val options = httpClientOptionsOf(
+    maxPoolSize = 20,
+    keepAlive = true,
+)
+val vertxClient = vertxHttpClientOf(options)
 ```
 
 ### 4. AsyncHttpClient (AHC)
@@ -118,15 +122,13 @@ Netty 기반의 AsyncHttpClient를 Kotlin Coroutines로 래핑합니다.
 ```kotlin
 import io.bluetape4k.http.ahc.*
 
-val client = asyncHttpClient {
+val client = asyncHttpClientOf {
     setMaxConnections(100)
     setMaxConnectionsPerHost(10)
 }
 
 // Coroutines 환경에서 비동기 요청
-val response = client.executeSuspending {
-    prepareGet("https://httpbin.org/get")
-}
+val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 ```
 
 ## HTTP 클라이언트 비교

@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.dao.entityCache
@@ -42,6 +43,56 @@ class StringEntityTest: AbstractExposedTest() {
             loaded.idValue shouldBeEqualTo "user-001"
             loaded.name shouldBeEqualTo "Alice"
             loaded shouldBeEqualTo user
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity 는 문자열 ID로 업데이트가 가능하다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            StringUser.new("user-002") { name = "Bob" }
+            entityCache.clear()
+
+            val user = StringUser.findById("user-002")!!
+            user.name = "Robert"
+            entityCache.clear()
+
+            StringUser.findById("user-002")!!.name shouldBeEqualTo "Robert"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity 는 문자열 ID로 삭제가 가능하다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            StringUser.new("user-003") { name = "Carol" }
+            entityCache.clear()
+
+            StringUser.findById("user-003")!!.delete()
+            entityCache.clear()
+
+            StringUser.findById("user-003").shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity 는 존재하지 않는 ID 조회 시 null을 반환한다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            StringUser.findById("non-existent-id").shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity 는 전체 목록 조회가 가능하다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            StringUser.new("a") { name = "Alice" }
+            StringUser.new("b") { name = "Bob" }
+            StringUser.new("c") { name = "Carol" }
+            entityCache.clear()
+
+            StringUser.all().count() shouldBeEqualTo 3L
         }
     }
 }

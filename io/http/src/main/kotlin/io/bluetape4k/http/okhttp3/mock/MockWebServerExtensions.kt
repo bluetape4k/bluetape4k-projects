@@ -11,6 +11,12 @@ import java.util.concurrent.TimeUnit
 /** [MockWebServer]의 기본 URL 문자열을 반환합니다. */
 val MockWebServer.baseUrl: String get() = url("/").toString()
 
+/**
+ * 문자열 바디와 DSL로 설정한 응답을 enqueue 합니다.
+ *
+ * @param body 응답 바디 문자열
+ * @param builder [MockResponse] 설정 블록
+ */
 inline fun MockWebServer.enqueueBody(
     body: String,
     @BuilderInference builder: MockResponse.() -> Unit,
@@ -22,6 +28,12 @@ inline fun MockWebServer.enqueueBody(
     enqueue(response)
 }
 
+/**
+ * [Buffer] 바디와 DSL로 설정한 응답을 enqueue 합니다.
+ *
+ * @param bodyBuffer 응답 바디 [Buffer]
+ * @param builder [MockResponse] 설정 블록
+ */
 inline fun MockWebServer.enqueueBody(
     bodyBuffer: Buffer,
     @BuilderInference builder: MockResponse.() -> Unit,

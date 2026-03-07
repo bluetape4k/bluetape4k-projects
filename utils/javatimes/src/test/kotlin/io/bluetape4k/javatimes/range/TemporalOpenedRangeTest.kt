@@ -56,6 +56,16 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
     }
 
     @Test
+    fun `empty range keeps equals and hashCode contract`() {
+        val empty1 = start until start
+        val empty2 = endExclusive until endExclusive
+
+        empty1 shouldBeEqualTo empty2
+        empty1.hashCode() shouldBeEqualTo empty2.hashCode()
+        setOf(empty1, empty2).size shouldBeEqualTo 1
+    }
+
+    @Test
     fun `create by until`() {
         val range1 = range
         val range2 = start until endExclusive

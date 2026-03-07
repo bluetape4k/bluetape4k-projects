@@ -57,6 +57,14 @@ fun JdbcTransaction.assertFailAndRollback(message: String, block: () -> Unit) {
 }
 
 /**
+ * 현재 dialect 정보를 포함한 실패 메시지로 비동등성 검증을 수행합니다.
+ *
+ * [exp]와 [act]가 같으면 assertion 실패로 처리됩니다.
+ */
+fun <T> Transaction.assertNotEquals(exp: T, act: T) =
+    kotlin.test.assertNotEquals(exp, act, "Failed on $failedOn")
+
+/**
  * 지정한 예외 타입 발생을 검증합니다.
  *
  * ## 동작/계약

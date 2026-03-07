@@ -67,9 +67,9 @@ interval.windowedMonths(6, 1)   // 6개월 단위, 1개월씩 이동
 interval.windowedDays(7, 1)     // 7일 단위, 1일씩 이동
 
 // Chunked 연산 (구간 분할)
-interval.chunkedYears(1)        // 1년 단위로 분할
-interval.chunkedMonths(3)       // 3개월(분기) 단위로 분할
-interval.chunkedDays(1)         // 1일 단위로 분할
+interval.chunkYears(1)          // 1년 단위로 분할
+interval.chunkMonths(3)         // 3개월(분기) 단위로 분할
+interval.chunkDays(1)           // 1일 단위로 분할
 ```
 
 ### Period Framework (period/)
@@ -100,22 +100,14 @@ val relation = block.relationWith(otherBlock)
 주말이나 공휴일을 제외한 영업일 계산을 지원합니다.
 
 ```kotlin
-val dateAdd = DateAdd(start)
+val dateAdd = DateAdd().apply {
+    excludePeriods += TimeRange(start.startOfDay(), (start + 2.days()).startOfDay())
+    excludePeriods += TimeRange(holiday.startOfDay(), (holiday + 1.days()).startOfDay())
+}
 
-// 제외 기간 추가 (주말)
-dateAdd.addExcludePeriod(WeekPeriod(start, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY))
-
-// 또는 간단히
-dateAdd.excludeWeekends()
-
-// 공휴일 제외
-dateAdd.addExcludePeriod(TimeBlock(holiday, 1.days()))
-
-// 영업일 기준 5일 후
-dateAdd.add(5.days())
-
-// 영업일 기준 3일 전
-dateAdd.subtract(3.days())
+// 제외 기간을 고려해 영업일 기준 계산
+dateAdd.add(start, 5.days())
+dateAdd.subtract(start, 3.days())
 ```
 
 #### DateDiff - 기간 차이 계산
@@ -130,6 +122,69 @@ dateDiff.hours         // 시간 차이
 dateDiff.minutes       // 분 차이
 dateDiff.seconds       // 초 차이
 ```
+
+#### TimeCalendar / TimeCalendarConfig
+
+`TimeCalendar`은 기간의 시작/종료 매핑과 주 시작 요일 같은 "달력 규칙"을 캡슐화합니다.
+현재 `TimeCalendarConfig`가 직접 제공하는 값은 다음 네 가지입니다.
+
+- `startOffset`: 기간 시작 시각을 매핑할 때 적용할 오프셋
+- `endOffset`: 기간 종료 시각을 매핑할 때 적용할 오프셋
+- `firstDayOfWeek`: 주간 계산 시 사용할 시작 요일
+- `baseMonth`: 연도 계산의 기준 월. 회계연도처럼 4월 시작 연도를 표현할 때 사용
+
+기본 설정은 시작 시각에 `0ns`, 종료 시각에 `-1ns`를 적용해 `[start, end)` 형태를 표현합니다.
+양 끝을 모두 포함해야 하면 `TimeCalendarConfig.EmptyOffset` 또는 `TimeCalendar.EmptyOffset`을 사용할 수 있습니다.
+
+```kotlin
+import java.time.DayOfWeek
+import java.time.Duration
+
+val calendar = TimeCalendar(
+    TimeCalendarConfig(
+        startOffset = Duration.ofHours(1),
+        endOffset = Duration.ofHours(-1),
+        firstDayOfWeek = DayOfWeek.SUNDAY,
+        baseMonth = 4,
+    )
+)
+
+val range = CalendarTimeRange(
+    TimeRange(
+        zonedDateTimeOf(2024, 4, 1, 9, 0),
+        zonedDateTimeOf(2024, 4, 1, 18, 0),
+    ),
+    calendar,
+)
+
+range.start         // 2024-04-01T10:00...
+range.end           // 2024-04-01T17:59:59.999999999...
+range.unmappedStart // 2024-04-01T09:00...
+range.unmappedEnd   // 2024-04-01T18:00...
+
+calendar.baseMonth  // 4
+yearOf(2024, 3, calendar)            // 2023
+zonedDateTimeOf(2024, 3, 1).yearOf(calendar)  // 2023
+```
+
+회계연도처럼 "연도의 시작 월"을 바꾸고 싶다면 `baseMonth`를 설정한 `TimeCalendarConfig`를 사용하면 됩니다.
+필요하다면 `ITimeCalendar`를 직접 구현해 더 복잡한 규칙을 정의할 수도 있지만, 대부분은 설정만으로 충분합니다.
+
+```kotlin
+val fiscalCalendar = TimeCalendar(
+    TimeCalendarConfig(
+        firstDayOfWeek = DayOfWeek.MONDAY,
+        baseMonth = 4,
+    )
+)
+
+yearOf(2024, 3, fiscalCalendar)  // 2023
+yearOf(2024, 4, fiscalCalendar)  // 2024
+zonedDateTimeOf(2024, 3, 1).yearOf(fiscalCalendar)  // 2023
+```
+
+실무에서는 "주 시작 요일"과 "회계연도 시작 월"을 함께 맞춘 달력을 하나 정의해 두고,
+`CalendarTimeRange`, `YearRange`, 각종 period helper에 일관되게 재사용하는 방식이 가장 안전합니다.
 
 ### Calendar Ranges (period/ranges/)
 
@@ -191,6 +246,9 @@ flowOfMinuteRange(startTime, 60)   // 60분치 분 범위
 
 Kotlin Range 스타일의 Temporal 범위를 제공합니다.
 
+> 참고: 현재 generic temporal range 계열은 `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, `Timestamp`
+> 처럼 epoch-millis 기반 순회가 가능한 타입을 중심으로 지원합니다. `LocalDate`, `LocalTime`, `OffsetTime`은 지원하지 않습니다.
+
 ```kotlin
 // 범위 생성
 val start = zonedDateTimeOf(2024, 1, 1)
@@ -217,9 +275,9 @@ range.chunkedMonths(3)         // 3개월(분기) 단위로 분할
 range.chunkedDays(7)           // 7일(주) 단위로 분할
 
 // ZipWithNext - 인접 쌍
-range.zipWithNextYears()       // (2024, 2025), (2025, 2026), ...
-range.zipWithNextMonths()      // 월 단위 인접 쌍
-range.zipWithNextDays()        // 일 단위 인접 쌍
+range.zipWithNextYear()        // (2024, 2025), (2025, 2026), ...
+range.zipWithNextMonth()       // 월 단위 인접 쌍
+range.zipWithNextDay()         // 일 단위 인접 쌍
 ```
 
 #### Coroutines 지원 (range/coroutines/)
@@ -307,10 +365,7 @@ io.bluetape4k.javatimes/
 
 ```kotlin
 val today = todayZonedDateTime()
-val dateAdd = DateAdd(today)
-
-// 주말 제외
-dateAdd.excludeWeekends()
+val dateAdd = DateAdd()
 
 // 공휴일 제외
 val holidays = listOf(
@@ -319,11 +374,11 @@ val holidays = listOf(
     zonedDateTimeOf(2024, 3, 1),   // 삼일절
 )
 holidays.forEach { holiday ->
-    dateAdd.addExcludePeriod(TimeBlock(holiday, 1.days()))
+    dateAdd.excludePeriods += TimeRange(holiday.startOfDay(), (holiday + 1.days()).startOfDay())
 }
 
 // 영업일 기준 10일 후
-val after10BusinessDays = dateAdd.add(10.days())
+val after10BusinessDays = dateAdd.add(today, 10.days())
 ```
 
 ### 월별 통계 집계

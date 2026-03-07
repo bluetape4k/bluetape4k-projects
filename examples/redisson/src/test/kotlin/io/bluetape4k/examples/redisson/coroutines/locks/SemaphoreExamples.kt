@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -8,6 +7,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-
 
 /**
  * Semaphore examples
@@ -35,10 +34,10 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
         val semaphore = redisson.getSemaphore(semaphoreName)
 
         // 5개 확보
-        semaphore.trySetPermitsAsync(5).awaitSuspending().shouldBeTrue()
+        semaphore.trySetPermitsAsync(5).await().shouldBeTrue()
 
         // 3개 획득
-        semaphore.acquireAsync(3).awaitSuspending()
+        semaphore.acquireAsync(3).await()
 
         val redisson2 = newRedisson()
 
@@ -46,7 +45,7 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
             val s2 = redisson2.getSemaphore(semaphoreName)
             yield()
             // 2개 반납 (4개 남음)
-            s2.releaseAsync(2).awaitSuspending()
+            s2.releaseAsync(2).await()
             yield()
         }
 
@@ -55,7 +54,7 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
             val s3 = redisson3.getSemaphore(semaphoreName)
             yield()
             // 4개 확보
-            s3.tryAcquireAsync(4, 5.seconds.toJavaDuration()).awaitSuspending().shouldBeTrue()
+            s3.tryAcquireAsync(4, 5.seconds.toJavaDuration()).await().shouldBeTrue()
             yield()
         }
         yield()
@@ -63,17 +62,17 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
         job.join()
         job2.join()
 
-        semaphore.availablePermitsAsync().awaitSuspending() shouldBeEqualTo 0
+        semaphore.availablePermitsAsync().await() shouldBeEqualTo 0
 
         // 4개 반납
-        semaphore.releaseAsync(4).awaitSuspending()
-        semaphore.availablePermitsAsync().awaitSuspending() shouldBeEqualTo 4
+        semaphore.releaseAsync(4).await()
+        semaphore.availablePermitsAsync().await() shouldBeEqualTo 4
 
         // 여유분을 모두 획득합니다.
-        semaphore.drainPermitsAsync().awaitSuspending() shouldBeEqualTo 4
-        semaphore.availablePermitsAsync().awaitSuspending() shouldBeEqualTo 0
+        semaphore.drainPermitsAsync().await() shouldBeEqualTo 4
+        semaphore.availablePermitsAsync().await() shouldBeEqualTo 0
 
-        semaphore.deleteAsync().awaitSuspending()
+        semaphore.deleteAsync().await()
 
         redisson2.shutdown()
         redisson3.shutdown()

@@ -32,7 +32,11 @@ class LoggingInterceptor private constructor(
     }
 
     /**
-     * HTTP 처리에서 `intercept` 함수를 제공합니다.
+     * HTTP 요청 전송 전 URL·연결 정보·헤더를 DEBUG 로그로 출력하고,
+     * 응답 수신 후 URL·소요 시간·헤더를 DEBUG 로그로 출력합니다.
+     *
+     * @param chain [Interceptor.Chain] 인스턴스
+     * @return [Response]
      */
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()

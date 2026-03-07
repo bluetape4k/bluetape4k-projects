@@ -7,6 +7,7 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeNull
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -45,6 +46,34 @@ interface R2dbcWriteBehindScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>
             // DB에서 조회한 값
             val dbCount = getAllCountFromDB()
             dbCount shouldBeGreaterThan entities.size.toLong()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `put 단건 캐시 저장 후 Write-Behind로 DB에 비동기 반영된다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            val entity = createNewEntity()
+            repository.put(entity)
+
+            // Write-Behind는 비동기이므로 잠시 대기 후 DB에서 확인
+            await
+                .atMost(Duration.ofSeconds(10))
+                .withPollInterval(Duration.ofMillis(500))
+                .untilSuspending { getAllCountFromDB() >= 1L }
+
+            val dbCount = getAllCountFromDB()
+            dbCount shouldBeGreaterThan 0L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `get - 존재하지 않는 ID는 null을 반환한다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            val nonExistentId = getNonExistentId()
+            val result = repository.get(nonExistentId)
+            result.shouldBeNull()
         }
     }
 }

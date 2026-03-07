@@ -3,8 +3,6 @@ package io.bluetape4k.leader.local
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.leader.VirtualThreadLeaderElection
-import io.bluetape4k.support.requireNotBlank
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -29,14 +27,7 @@ import kotlin.concurrent.withLock
  * // result == "done"
  * ```
  */
-class LocalVirtualThreadLeaderElection : VirtualThreadLeaderElection {
-
-    private val locks = ConcurrentHashMap<String, ReentrantLock>()
-
-    private fun getLock(lockName: String): ReentrantLock {
-        lockName.requireNotBlank("lockName")
-        return locks.computeIfAbsent(lockName) { ReentrantLock() }
-    }
+class LocalVirtualThreadLeaderElection : AbstractLocalLeaderElection(), VirtualThreadLeaderElection {
 
     /**
      * [lockName]에 대한 [ReentrantLock]을 Virtual Thread에서 획득하고 [action]을 실행합니다.

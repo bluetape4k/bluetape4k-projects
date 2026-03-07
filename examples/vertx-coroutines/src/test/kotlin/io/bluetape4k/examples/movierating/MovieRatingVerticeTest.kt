@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.movierating
 
+import io.bluetape4k.examples.movierating.MovieRatingVerticle.Companion.VERTICLE_PORT
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -43,7 +44,7 @@ class MovieRatingVerticeTest {
             val movieId = "starwars"
             log.debug { "Send movie request for id=$movieId" }
             val response = client
-                .get(8080, "localhost", "/movie/$movieId")
+                .get(VERTICLE_PORT, "localhost", "/movie/$movieId")
                 .`as`(BodyCodec.jsonObject())
                 .send()
                 .coAwait()
@@ -65,7 +66,7 @@ class MovieRatingVerticeTest {
             val movieId = "starwars"
             log.debug { "Send movie request for id=$movieId" }
             val response = client
-                .get(8080, "localhost", "/getRating/$movieId")
+                .get(VERTICLE_PORT, "localhost", "/getRating/$movieId")
                 .`as`(BodyCodec.jsonObject())
                 .send()
                 .coAwait()
@@ -86,7 +87,7 @@ class MovieRatingVerticeTest {
 
             val movieId = "starwars"
             val response = client
-                .post(8080, "localhost", "/rateMovie/$movieId")
+                .post(VERTICLE_PORT, "localhost", "/rateMovie/$movieId")
                 .`as`(BodyCodec.string())
                 .addQueryParam("getRating", "9")
                 .send()

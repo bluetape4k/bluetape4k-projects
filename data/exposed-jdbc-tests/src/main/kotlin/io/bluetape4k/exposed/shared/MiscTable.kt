@@ -75,6 +75,29 @@ open class MiscTable: Table() {
 }
 
 
+/**
+ * [MiscTable]에서 조회한 [ResultRow]의 모든 컬럼 값을 기대값과 비교하여 검증합니다.
+ *
+ * @param row 검증할 [ResultRow]
+ * @param by byte 컬럼 기대값
+ * @param byn nullable byte 컬럼 기대값
+ * @param sm short 컬럼 기대값
+ * @param smn nullable short 컬럼 기대값
+ * @param n integer 컬럼 기대값
+ * @param nn nullable integer 컬럼 기대값
+ * @param e enum 컬럼 기대값
+ * @param en nullable enum 컬럼 기대값
+ * @param es enum-by-name 컬럼 기대값
+ * @param esn nullable enum-by-name 컬럼 기대값
+ * @param c varchar(4) 컬럼 기대값
+ * @param cn nullable varchar(4) 컬럼 기대값
+ * @param s varchar(100) 컬럼 기대값
+ * @param sn nullable varchar(100) 컬럼 기대값
+ * @param dc decimal 컬럼 기대값
+ * @param dcn nullable decimal 컬럼 기대값
+ * @param fcn nullable float 컬럼 기대값
+ * @param dblcn nullable double 컬럼 기대값
+ */
 @Suppress("LongParameterList")
 fun MiscTable.checkRow(
     row: ResultRow,
@@ -117,6 +140,30 @@ fun MiscTable.checkRow(
     row[this.dblcn] shouldBeEqualTo dblcn
 }
 
+/**
+ * [MiscTable]의 [InsertStatement] 결과의 모든 컬럼 값을 기대값과 비교하여 검증합니다.
+ *
+ * [checkRow]와 달리 varchar(4) 컬럼(`c`, `cn`)은 포함하지 않으며,
+ * Insert 직후 반환된 [InsertStatement] 결과 검증에 사용합니다.
+ *
+ * @param row 검증할 [InsertStatement] 결과
+ * @param by byte 컬럼 기대값
+ * @param byn nullable byte 컬럼 기대값
+ * @param sm short 컬럼 기대값
+ * @param smn nullable short 컬럼 기대값
+ * @param n integer 컬럼 기대값
+ * @param nn nullable integer 컬럼 기대값
+ * @param e enum 컬럼 기대값
+ * @param en nullable enum 컬럼 기대값
+ * @param es enum-by-name 컬럼 기대값
+ * @param esn nullable enum-by-name 컬럼 기대값
+ * @param s varchar(100) 컬럼 기대값
+ * @param sn nullable varchar(100) 컬럼 기대값
+ * @param dc decimal 컬럼 기대값
+ * @param dcn nullable decimal 컬럼 기대값
+ * @param fcn nullable float 컬럼 기대값
+ * @param dblcn nullable double 컬럼 기대값
+ */
 @Suppress("LongParameterList")
 fun MiscTable.checkInsert(
     row: InsertStatement<Number>,

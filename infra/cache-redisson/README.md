@@ -6,11 +6,19 @@
 
 ## 제공 기능
 
-- **Redisson JCache Provider** (`org.redisson.jcache.JCachingProvider`)
-- **Redisson Near Cache Provider** (`RedissonNearCachingProvider`)
-- **`RedissonSuspendCache`**: JCache 기반 코루틴 캐시
-- **`RedissonNearCache`**: Caffeine(로컬) + Redisson(분산) 2-Tier Near Cache
-- **`RedissonNearSuspendCache`**: Near Cache 코루틴 래퍼
+| 클래스 | 설명 |
+|---|---|
+| `org.redisson.jcache.JCachingProvider` | Redisson JCache Provider |
+| `RedissonNearCachingProvider` | Redisson Near Cache JCache Provider |
+| `RedissonSuspendCache` | JCache 기반 코루틴 캐시 |
+| `RedissonNearCache` | Caffeine(front) + Redisson(back) 2-Tier Near Cache |
+| `RedissonNearSuspendCache` | Near Cache 코루틴 래퍼 |
+| `RedissonResp3NearCache<V>` | Redisson(데이터) + Lettuce RESP3(invalidation) 하이브리드 NearCache (write-through) |
+| `RedissonResp3SuspendNearCache<V>` | RESP3 하이브리드 NearCache 코루틴 구현 (write-through) |
+| `ResilientRedissonResp3NearCache<V>` | RESP3 하이브리드 + write-behind + retry (동기) |
+| `ResilientRedissonResp3SuspendNearCache<V>` | RESP3 하이브리드 + write-behind + retry (코루틴) |
+| `RedissonResp3NearCacheConfig` | RESP3 NearCache 설정 |
+| `ResilientRedissonResp3NearCacheConfig` | Resilient RESP3 NearCache 추가 설정 |
 
 ## 설치
 
@@ -170,6 +178,87 @@ Caffeine Redisson  Lettuce RESP3
 Redisson 데이터 연결과 Lettuce tracking 연결은 서로 다른 연결이므로,
 자신이 Redisson으로 쓴 키도 Lettuce tracking 연결에 invalidation이 전파될 수 있습니다.
 이는 cache-lettuce의 단일 연결 방식과 다른 동작입니다.
+
+### 7. ResilientRedissonResp3NearCache (write-behind + retry)
+
+RESP3 하이브리드 NearCache에 write-behind + Resilience4j retry + graceful degradation 패턴을 추가한 구현입니다.
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientRedissonResp3NearCache
+import io.bluetape4k.cache.nearcache.ResilientRedissonResp3NearCacheConfig
+import io.bluetape4k.cache.nearcache.RedissonResp3NearCacheConfig
+import java.time.Duration
+
+val cache = ResilientRedissonResp3NearCache<String>(
+    redisson = redissonClient,
+    redisClient = resp3LettuceClient,
+    config = ResilientRedissonResp3NearCacheConfig(
+        base = RedissonResp3NearCacheConfig(cacheName = "orders"),
+        retryMaxAttempts = 3,
+        retryWaitDuration = Duration.ofMillis(200),
+        writeQueueCapacity = 1024,
+    ),
+)
+
+cache.put("key", "value")       // front 즉시 반영, Redis는 write-behind
+cache.get("key")                // front hit → 즉시 반환
+cache.localCacheSize()          // 로컬 Caffeine 크기
+cache.backCacheSize()           // Redis 키 개수
+cache.clearAll()                // front 즉시 초기화, Redis는 write-behind
+cache.close()
+```
+
+### 8. ResilientRedissonResp3SuspendNearCache (코루틴)
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientRedissonResp3SuspendNearCache
+
+val cache = ResilientRedissonResp3SuspendNearCache<String>(
+    redisson = redissonClient,
+    redisClient = resp3LettuceClient,
+    config = ResilientRedissonResp3NearCacheConfig(
+        base = RedissonResp3NearCacheConfig(cacheName = "sessions"),
+    ),
+)
+
+// suspend 함수로 사용
+cache.put("session-1", "token-abc")
+val token = cache.get("session-1")
+cache.close()
+```
+
+#### Resilient RESP3 아키텍처
+
+```
+Application
+    |
+[ResilientRedissonResp3NearCache]
+    |
++---+----------+------------------+
+|              |                  |
+Front          Write Queue        Tracking
+Caffeine       (LinkedBlocking    Lettuce RESP3
+(즉시 반영)    Queue / Channel)   (CLIENT TRACKING push)
+               |
+               Consumer (virtualThread / coroutine)
+               (retry { redisson.bucket.set/delete })
+```
+
+- **write-behind**: put/remove → front 즉시, Redis는 비동기 큐로 처리
+- **tombstones + clearPending**: stale read 방지
+- **retry**: Resilience4j Retry로 Redis 쓰기 실패 시 재시도
+- **invalidation**: Lettuce RESP3 CLIENT TRACKING push → 로컬 캐시 무효화
+
+#### ResilientRedissonResp3NearCacheConfig 옵션
+
+| 옵션 | 기본값 | 설명 |
+|---|---|---|
+| `base` | `RedissonResp3NearCacheConfig()` | 기본 RESP3 NearCache 설정 |
+| `writeQueueCapacity` | `1024` | write-behind 큐 최대 용량 |
+| `retryMaxAttempts` | `3` | Redis 쓰기 최대 재시도 횟수 |
+| `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
+| `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
+| `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | Redis GET 실패 시 동작 전략 |
 
 ## CachingProvider 등록 목록
 

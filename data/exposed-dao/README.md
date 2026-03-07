@@ -61,9 +61,12 @@ class UserEntity(id: EntityID<Long>): LongEntity(id) {
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
-object TagTable: StringIdTable("tags") {
+object TagTable: IdTable<String>("tags") {
+    override val id = varchar("id", 64).entityId()
     val description = text("description").nullable()
+    override val primaryKey = PrimaryKey(id)
 }
 
 class TagEntity(id: EntityID<String>): StringEntity(id) {
@@ -72,28 +75,28 @@ class TagEntity(id: EntityID<String>): StringEntity(id) {
     var description by TagTable.description
 }
 
-// 사용
+// 사용: id를 직접 지정해서 생성
 val tag = TagEntity.new("kotlin") {
     description = "Kotlin 관련 태그"
 }
 ```
 
-### 3. KSUID 기반 IdTable
+### 3. KSUID 기반 DAO 엔티티
 
 ```kotlin
-import io.bluetape4k.exposed.dao.id.KsuidTable
-import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.dao.Entity
-import org.jetbrains.exposed.v1.dao.EntityClass
+import io.bluetape4k.exposed.core.dao.id.KsuidTable
+import io.bluetape4k.exposed.dao.id.KsuidEntity
+import io.bluetape4k.exposed.dao.id.KsuidEntityClass
+import io.bluetape4k.exposed.dao.id.KsuidEntityID
 
-// KSUID를 PK로 사용하는 테이블 (시간 순서 보장)
+// KSUID를 PK로 사용하는 테이블 (client-side 자동 생성, 시간 정렬 보장)
 object OrderTable: KsuidTable("orders") {
     val amount = decimal("amount", 10, 2)
     val status = varchar("status", 20)
 }
 
-class OrderEntity(id: EntityID<String>): Entity<String>(id) {
-    companion object: EntityClass<String, OrderEntity>(OrderTable)
+class OrderEntity(id: KsuidEntityID): KsuidEntity(id) {
+    companion object: KsuidEntityClass<OrderEntity>(OrderTable)
 
     var amount by OrderTable.amount
     var status by OrderTable.status
@@ -104,50 +107,79 @@ val order = OrderEntity.new {
     amount = 15000.toBigDecimal()
     status = "PENDING"
 }
-println(order.id.value) // "2Dgh3kZ..." (KSUID)
+println(order.id.value) // "2Dgh3kZ..." (27자 KSUID)
 ```
 
-### 4. Snowflake ID 기반 IdTable
+### 4. Snowflake ID 기반 DAO 엔티티
 
 ```kotlin
-import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.core.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.dao.id.SnowflakeIdEntity
+import io.bluetape4k.exposed.dao.id.SnowflakeIdEntityClass
+import io.bluetape4k.exposed.dao.id.SnowflakeIdEntityID
 
-// Snowflake ID(Long)를 PK로 사용
+// Snowflake ID(Long)를 PK로 사용하는 테이블
 object EventTable: SnowflakeIdTable("events") {
     val type = varchar("type", 50)
     val payload = text("payload")
 }
+
+class EventEntity(id: SnowflakeIdEntityID): SnowflakeIdEntity(id) {
+    companion object: SnowflakeIdEntityClass<EventEntity>(EventTable)
+
+    var type by EventTable.type
+    var payload by EventTable.payload
+}
 ```
 
-### 5. Timebased UUID 기반 IdTable
+### 5. Timebased UUID 기반 DAO 엔티티
 
 ```kotlin
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
+import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
+import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDBase62Table
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntityClass
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Entity
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62EntityClass
 
-// UUID v1 (시간 기반) PK
+// UUID v7 (시간 기반) PK
 object SessionTable: TimebasedUUIDTable("sessions") {
     val userId = long("user_id")
     val expiresAt = long("expires_at")
 }
 
-// Base62 인코딩된 UUID PK (URL-safe, 22자)
+class SessionEntity(id: TimebasedUUIDEntityID): TimebasedUUIDEntity(id) {
+    companion object: TimebasedUUIDEntityClass<SessionEntity>(SessionTable)
+
+    var userId by SessionTable.userId
+}
+
+// Base62 인코딩된 UUID PK (URL-safe)
 object TokenTable: TimebasedUUIDBase62Table("tokens") {
     val userId = long("user_id")
     val scope = varchar("scope", 100)
+}
+
+class TokenEntity(id: TimebasedUUIDBase62EntityID): TimebasedUUIDBase62Entity(id) {
+    companion object: TimebasedUUIDBase62EntityClass<TokenEntity>(TokenTable)
+
+    var userId by TokenTable.userId
 }
 ```
 
 ### 6. Soft Delete 지원 IdTable
 
 ```kotlin
-import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
-import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 
 // isDeleted 컬럼이 자동으로 추가되는 테이블
-object PostTable: SoftDeletedIdTable<Long>("posts", LongIdTable("posts")) {
+object PostTable: SoftDeletedIdTable<Long>("posts") {
+    override val id: Column<EntityID<Long>> = long("id").autoIncrement().entityId()
     val title = varchar("title", 255)
     val content = text("content")
+    override val primaryKey = PrimaryKey(id)
 }
 
 // soft delete

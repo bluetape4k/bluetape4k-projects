@@ -123,30 +123,41 @@ transaction {
 }
 ```
 
-### 3. Coroutines 기반 쿼리 (SuspendedQuery)
+### 3. Coroutines 기반 배치 조회 (SuspendedQuery)
 
 ```kotlin
-import io.bluetape4k.exposed.jdbc.query.suspendedQuery
-import kotlinx.coroutines.Dispatchers
+import io.bluetape4k.exposed.core.fetchBatchedResultFlow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 
-// IO Dispatcher에서 JDBC 쿼리를 suspend 함수로 실행
-val users = suspendedQuery(Dispatchers.IO) {
-    UserTable.selectAll()
-        .where { UserTable.name like "%홍%" }
-        .map { it.toEntity() }
-}
+// 10개씩 배치로 읽어오는 Flow 기반 쿼리
+val allIds = UserTable
+    .select(UserTable.id)
+    .fetchBatchedResultFlow(batchSize = 10)
+    .flatMapConcat { rows -> rows.asFlow() }
+    .toList()
 ```
 
 ### 4. Virtual Thread 트랜잭션
 
 ```kotlin
-import io.bluetape4k.exposed.jdbc.transactions.virtualThreadTransaction
+import io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadJdbcTransaction
+import io.bluetape4k.exposed.jdbc.transactions.virtualThreadJdbcTransactionAsync
 
-// JDK 21+ Virtual Thread에서 트랜잭션 실행
-virtualThreadTransaction {
-    val users = UserTable.selectAll().map { it.toEntity() }
-    println("사용자 수: ${users.size}")
+// JDK 21+ Virtual Thread에서 동기 트랜잭션 실행
+val count = newVirtualThreadJdbcTransaction {
+    UserTable.selectAll().count()
 }
+
+// 여러 트랜잭션을 비동기 병렬 실행 후 대기
+val futures = List(10) { index ->
+    virtualThreadJdbcTransactionAsync {
+        UserTable.insert { it[name] = "user-$index" }
+        index
+    }
+}
+val results = futures.awaitAll()
 ```
 
 ### 5. ExposedPage — 페이징 결과
@@ -247,16 +258,17 @@ transaction {
 
 ## 주요 파일/클래스 목록
 
-| 파일                                              | 설명                             |
-|-------------------------------------------------|--------------------------------|
-| `repository/JdbcRepository.kt`                  | JDBC Repository 기본 인터페이스      |
-| `repository/SoftDeletedJdbcRepository.kt`       | Soft Delete 지원 Repository      |
-| `repository/ExposedRepository.kt`               | (Deprecated) 구 Repository 인터페이스 |
-| `query/SuspendedQuery.kt`                       | suspend 함수로 JDBC 쿼리 실행         |
-| `transactions/VirtualThreadTransaction.kt`      | Virtual Thread 기반 트랜잭션         |
-| `ImplicitSelectAll.kt`                          | 여러 테이블 묵시적 전체 조회              |
-| `TableExtensions.kt`                            | 테이블 확장 함수                     |
-| `SchemaUtilsExtensions.kt`                      | SchemaUtils 확장 함수              |
+| 파일                                                           | 설명                                |
+|--------------------------------------------------------------|-----------------------------------|
+| `jdbc/repository/JdbcRepository.kt`                          | JDBC Repository 기본 인터페이스         |
+| `jdbc/repository/SoftDeletedJdbcRepository.kt`               | Soft Delete 지원 Repository         |
+| `repository/ExposedRepository.kt`                            | (Deprecated) 구 Repository 인터페이스  |
+| `core/SuspendedQuery.kt`                                     | 커서 기반 배치 Flow 쿼리                 |
+| `jdbc/transactions/VirtualThreadJdbcTransaction.kt`          | Virtual Thread 기반 JDBC 트랜잭션       |
+| `core/transactions/VirtualThreadTransaction.kt`              | (Deprecated) 구 Virtual Thread 트랜잭션 |
+| `core/ImplicitSelectAll.kt`                                  | `SELECT *` 형태의 묵시적 전체 조회         |
+| `core/TableExtensions.kt`                                    | 테이블 메타데이터 확장 함수                  |
+| `core/SchemaUtilsExtensions.kt`                              | SchemaUtils 확장 함수                 |
 
 ## 테스트
 

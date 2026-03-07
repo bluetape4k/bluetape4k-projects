@@ -14,6 +14,27 @@ import java.io.OutputStream
  *
  * 기존 [Compressor]는 바이트 배열 기반(one-shot) 계약을 유지하고,
  * 이 인터페이스는 대용량 데이터 처리에 적합한 스트리밍 계약을 제공합니다.
+ *
+ * ## 사용 예시
+ * ```kotlin
+ * val compressor = Compressors.Streaming.Zstd
+ *
+ * // 스트림 기반 압축
+ * val compressedOut = ByteArrayOutputStream()
+ * compressor.compress(ByteArrayInputStream(plain), compressedOut)
+ *
+ * // 바이트 배열 기반 압축
+ * val compressed = compressor.compress(plain)
+ * val restored = compressor.decompress(compressed)
+ * ```
+ *
+ * ## 주의 사항
+ * - `compressing(output)` 으로 반환된 스트림은 반드시 `close()` 또는 `use {}`로 닫아야 합니다.
+ *   close() 시점에 압축 푸터/패딩 마무리 작업이 수행됩니다.
+ *
+ * @see Compressor
+ * @see Compressors.Streaming
+ * @see StreamingCompressors
  */
 interface StreamingCompressor {
 

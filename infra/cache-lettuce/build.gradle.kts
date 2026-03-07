@@ -14,6 +14,7 @@ dependencies {
     api(Libs.caffeine)
 
     implementation(project(":bluetape4k-coroutines"))
+    implementation(project(":bluetape4k-resilience4j"))
     implementation(Libs.kotlinx_coroutines_core)
     implementation(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)

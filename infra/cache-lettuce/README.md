@@ -13,21 +13,26 @@
 
 Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통한 자동 invalidation을 지원합니다.
 
-| 클래스                               | 설명                               |
-|-----------------------------------|----------------------------------|
-| `LettuceNearCache<V>`             | 동기(Blocking) 2-Tier 캐시           |
-| `LettuceNearSuspendCache<V>`      | Coroutines(suspend) 2-Tier 캐시    |
-| `LettuceNearCacheConfig<K, V>`    | NearCache 설정 data class + DSL 빌더 |
-| `LocalCache<K, V>`                | front cache 추상 인터페이스             |
-| `CaffeineLocalCache<K, V>`        | Caffeine 기반 LocalCache 구현        |
-| `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너   |
+| 클래스 | 설명 |
+|---|---|
+| `LettuceNearCache<V>` | 동기(Blocking) 2-Tier 캐시 (write-through) |
+| `LettuceSuspendNearCache<V>` | Coroutines(suspend) 2-Tier 캐시 (write-through) |
+| `ResilientLettuceNearCache<V>` | write-behind + retry + graceful degradation 동기 구현 |
+| `ResilientLettuceSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현 |
+| `LettuceNearCacheConfig<K, V>` | NearCache 설정 data class + DSL 빌더 |
+| `ResilientLettuceNearCacheConfig<K, V>` | Resilient NearCache 추가 설정 (retry, queue 등) |
+| `LocalCache<K, V>` | front cache 추상 인터페이스 |
+| `CaffeineLocalCache<K, V>` | Caffeine 기반 LocalCache 구현 |
+| `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너 |
 
 ### NearCache 아키텍처
+
+#### Write-through (기본)
 
 ```
 Application
     |
-[LettuceNearCache / LettuceNearSuspendCache]
+[LettuceNearCache / LettuceSuspendNearCache]
     |
 +---+---+
 |       |
@@ -38,8 +43,29 @@ Invalidation: Redis CLIENT TRACKING → server push → local invalidate
 ```
 
 - **Read**: front hit → 즉시 반환 / front miss → Redis GET → front populate → 반환
-- **Write**: front put + Redis SET (write-through)
+- **Write**: front put + Redis SET (write-through, 동기)
 - **Invalidation**: RESP3 CLIENT TRACKING push → 로컬 캐시 자동 무효화
+
+#### Write-behind (Resilient)
+
+```
+Application
+    |
+[ResilientLettuceNearCache / ResilientLettuceSuspendNearCache]
+    |
++---+----------+
+|              |
+Front          Write Queue (LinkedBlockingQueue / Channel)
+Caffeine           |
+(즉시 반영)    Consumer (virtualThread / coroutine)
+               (retry { syncCommands.set/del })
+```
+
+- **write-behind**: put/remove → front 즉시, Redis 쓰기는 비동기 큐로 처리
+- **tombstones**: remove 후 write-behind 완료 전 stale read 방지
+- **clearPending**: clearAll 호출 후 Redis read 차단
+- **retry**: Resilience4j Retry로 Redis 쓰기 실패 시 재시도 (지수 백오프 옵션)
+- **GetFailureStrategy**: Redis GET 실패 시 null 반환(RETURN_FRONT_OR_NULL) 또는 예외 전파(PROPAGATE_EXCEPTION)
 
 ## 설치
 
@@ -110,6 +136,62 @@ cache.use { c ->
     c.clearAll()
 }
 ```
+
+### ResilientLettuceNearCache (write-behind + retry)
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientLettuceNearCache
+import io.bluetape4k.cache.nearcache.ResilientLettuceNearCacheConfig
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
+import java.time.Duration
+
+val cache = ResilientLettuceNearCache<String, String>(
+    redisClient = redisClient,
+    config = ResilientLettuceNearCacheConfig(
+        base = LettuceNearCacheConfig(cacheName = "orders"),
+        writeQueueCapacity = 1024,
+        retryMaxAttempts = 3,
+        retryWaitDuration = Duration.ofMillis(200),
+        retryExponentialBackoff = true,
+    ),
+)
+
+cache.put("key", "value")       // front 즉시 반영, Redis는 write-behind
+cache.get("key")                // front hit → 즉시 반환
+cache.localCacheSize()          // 로컬 Caffeine 크기
+cache.backCacheSize()           // Redis 키 개수
+cache.clearAll()                // front 즉시 초기화, Redis는 write-behind
+cache.close()
+```
+
+### ResilientLettuceSuspendNearCache (코루틴)
+
+```kotlin
+import io.bluetape4k.cache.nearcache.ResilientLettuceSuspendNearCache
+
+val cache = ResilientLettuceSuspendNearCache<String, String>(
+    redisClient = redisClient,
+    config = ResilientLettuceNearCacheConfig(
+        base = LettuceNearCacheConfig(cacheName = "sessions"),
+    ),
+)
+
+// suspend 함수로 사용
+cache.put("session-1", "token-abc")
+val token = cache.get("session-1")
+cache.close()
+```
+
+## ResilientLettuceNearCacheConfig 옵션
+
+| 옵션 | 기본값 | 설명 |
+|---|---|---|
+| `base` | `LettuceNearCacheConfig()` | 기본 NearCache 설정 |
+| `writeQueueCapacity` | `1024` | write-behind 큐 최대 용량 |
+| `retryMaxAttempts` | `3` | Redis 쓰기 최대 재시도 횟수 |
+| `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
+| `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
+| `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | Redis GET 실패 시 동작 전략 |
 
 ## LettuceNearCacheConfig 옵션
 

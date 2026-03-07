@@ -21,7 +21,7 @@ import java.util.*
  * - 해시 오프셋은 [Hasher.murmurHashOffset]으로 계산합니다.
  *
  * ```
- * val bloomFilter = InMemoryCoBloomFilter<String>()
+ * val bloomFilter = InMemorySuspendBloomFilter<String>()
  *
  * val values = List(ITEM_COUNT) { Fakers.fixedString(256) }
  *             .onEach { bloomFilter.add(it) }
@@ -37,7 +37,7 @@ import java.util.*
  * @property m BloomFilter 크기
  * @property k Hash 함수 개수
  */
-class InMemorySuspendBloomFilter<T: Any>(
+class InMemorySuspendBloomFilter<T: Any> private constructor(
     override val m: Int,
     override val k: Int,
 ): SuspendBloomFilter<T> {
@@ -69,7 +69,7 @@ class InMemorySuspendBloomFilter<T: Any>(
             val k = optimalK(maxNum, m).assertPositiveNumber("k")
 
             return InMemorySuspendBloomFilter<T>(m, k).apply {
-                log.info { "Create InMemoryBloomFilter. m=$m, k=$k" }
+                log.info { "Create InMemorySuspendBloomFilter. m=$m, k=$k" }
             }
         }
     }

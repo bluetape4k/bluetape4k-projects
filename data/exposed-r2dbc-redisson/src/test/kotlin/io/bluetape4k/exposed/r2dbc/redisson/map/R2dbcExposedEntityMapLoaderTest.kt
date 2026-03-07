@@ -29,6 +29,7 @@ class R2dbcExposedEntityMapLoaderTest: AbstractExposedR2dbcTest() {
             name = this[LoaderTable.name],
         )
 
+    @Test
     fun `batch loader는 배치 경계를 넘어 모든 id를 로드한다`() = runSuspendIO {
         withTables(TestDB.H2, LoaderTable) {
             repeat(3) { index ->

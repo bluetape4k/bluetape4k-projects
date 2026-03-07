@@ -14,9 +14,14 @@ dependencies {
     // Lettuce coroutines API가 내부적으로 사용
     implementation(Libs.kotlinx_coroutines_reactive)
 
+    // bluetape4k-resilience4j는 compileOnly(cache-redisson) 의존으로 순환 의존성 발생 → 직접 라이브러리 사용
+    implementation(Libs.resilience4j_retry)
+    implementation(Libs.resilience4j_kotlin)
+
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(Libs.awaitility_kotlin)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))

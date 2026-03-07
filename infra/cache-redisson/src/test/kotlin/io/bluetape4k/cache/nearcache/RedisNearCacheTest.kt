@@ -4,16 +4,15 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
-import org.redisson.api.RedissonClient
 import java.io.Serializable
 import java.util.concurrent.TimeUnit
 import javax.cache.configuration.CompleteConfiguration
@@ -26,12 +25,6 @@ import kotlin.time.toJavaDuration
 class RedisNearCacheTest: AbstractNearCacheTest() {
 
     companion object: KLogging() {
-        private val redis: RedisServer by lazy { RedisServer.Launcher.redis }
-
-        private val redisson: RedissonClient by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
-
         fun randomHashMap(): HashMap<String, Any?> {
             return HashMap<String, Any?>().apply {
                 put("key", randomKey())
@@ -52,7 +45,7 @@ class RedisNearCacheTest: AbstractNearCacheTest() {
 
         RedissonJCaching.getOrCreate<String, Any>(
             "back-cache-" + randomKey(),
-            redisson,
+            RedisServers.redisson,
             jcacheConfiguration
         )
     }

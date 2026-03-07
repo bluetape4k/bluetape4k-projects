@@ -22,13 +22,28 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
 /**
- * SuspendedExposedMapLoader는 Exposed를 사용하여 DB에서 데이터를 비동기적으로 로드하는 [MapLoaderAsync]입니다.
+ * Exposed를 사용하여 DB에서 데이터를 비동기적으로 로드하는 Redisson [MapLoaderAsync] 구현입니다.
+ *
+ * ## 동작/계약
+ * - [load]는 `newSuspendedTransaction`으로 [loadByIdFromDB]를 실행해 단건 엔티티를 읽고 [CompletionStage]로 반환합니다.
+ * - [loadAllKeys]는 [Channel]을 통해 [loadAllIdsFromDB]가 생산하는 ID를 [AsyncIterator]로 스트리밍합니다.
+ * - 채널 내부에서 `queryTimeout = DEFAULT_QUERY_TIMEOUT`, `withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT)` 보호막을 사용합니다.
+ * - DB 오류나 채널 실패는 로깅 후 예외를 그대로 전파합니다.
+ *
+ * ```kotlin
+ * val loader = SuspendedEntityMapLoader<Long, UserRecord>(
+ *     loadByIdFromDB = { id -> repo.findByIdFromDb(id) },
+ *     loadAllIdsFromDB = { channel ->
+ *         repo.findAllIds().forEach { channel.trySend(it) }
+ *     }
+ * )
+ * ```
  *
  * @param ID ID 타입
  * @param E 엔티티 타입
- * @param loadByIdFromDB ID로 엔티티를 로드하는 함수
- * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
- * @param scope CoroutineScope
+ * @param loadByIdFromDB ID로 엔티티를 로드하는 suspend 함수
+ * @param loadAllIdsFromDB 모든 ID를 [Channel]에 전송하는 suspend 함수
+ * @param scope DB 조회 및 채널 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
 @Suppress("DEPRECATION")
 open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(

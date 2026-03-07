@@ -197,8 +197,8 @@ import io.bluetape4k.exposed.tests.TestDBConfig
 // Testcontainers 사용 여부
 TestDBConfig.useTestcontainers = true  // 기본값
 
-// 빠른 테스트를 위해 H2만 사용
-TestDBConfig.useFastDB = true  // 기본값: false
+// 빠른 테스트를 위해 H2만 사용 (기본값: true)
+TestDBConfig.useFastDB = true
 ```
 
 ## 테스트용 스키마/데이터
@@ -252,18 +252,22 @@ Containers.Postgres
 
 ## 주요 기능 상세
 
-| 파일                       | 설명                     |
-|--------------------------|------------------------|
-| `AbstractExposedTest.kt` | 테스트 기본 클래스             |
-| `TestDB.kt`              | 지원 DB 정의 및 연결 정보       |
-| `TestDBConfig.kt`        | 테스트 환경 설정              |
-| `Containers.kt`          | Testcontainers 컨테이너 관리 |
-| `WithDB.kt`              | DB 연결 테스트 유틸           |
-| `WithTables.kt`          | 테이블 생성/삭제 테스트 유틸       |
-| `WithSuspendedDB.kt`     | Coroutine DB 연결 유틸     |
-| `WithSuspendedTables.kt` | Coroutine 테이블 유틸       |
-| `Assertions.kt`          | 테스트 어설션 유틸             |
-| `TestSupports.kt`        | 테스트 보조 유틸              |
+| 파일                          | 설명                                     |
+|-----------------------------|----------------------------------------|
+| `AbstractExposedTest.kt`    | 테스트 기본 클래스                             |
+| `TestDB.kt`                 | 지원 DB 정의 및 연결 정보                       |
+| `TestDBConfig.kt`           | 테스트 환경 설정 (useTestcontainers, useFastDB) |
+| `Containers.kt`             | Testcontainers 컨테이너 관리                 |
+| `WithDB.kt`                 | DB 연결 유틸                               |
+| `WithTables.kt`             | 테이블 생성/삭제 유틸                           |
+| `WithSchemas.kt`            | Schema 유틸                              |
+| `WithAutoCommit.kt`         | AutoCommit 모드 유틸                       |
+| `WithDBSuspending.kt`       | Coroutine DB 연결 유틸                     |
+| `WithTablesSuspending.kt`   | Coroutine 테이블 유틸                       |
+| `WithSchemasSuspending.kt`  | Coroutine Schema 유틸                    |
+| `WithAutoCommitSuspending.kt` | Coroutine AutoCommit 유틸              |
+| `Assertions.kt`             | 테스트 어설션 유틸 (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
+| `TestSupports.kt`           | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest` 등) |
 
 ## 테스트 실행 옵션
 

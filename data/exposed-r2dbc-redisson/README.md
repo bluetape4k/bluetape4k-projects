@@ -149,16 +149,30 @@ val nearCacheConfig = RedisCacheConfig.readOnly(
 
 | 메서드                                    | 설명                    |
 |----------------------------------------|----------------------|
-| `get(id)`                              | 캐시에서 엔티티 조회 (suspend)  |
-| `getAll(ids, batchSize)`               | 캐시에서 여러 엔티티 일괄 조회 (suspend) |
-| `findByIdFromDb(id)`                   | DB에서 직접 조회 (suspend)   |
+| `exists(id)`                           | 캐시에 해당 ID 존재 여부 확인 (suspend) |
+| `get(id)`                              | 캐시에서 엔티티 조회, 미스 시 DB 로드 (suspend) |
+| `getAll(ids, batchSize)`               | 캐시에서 여러 엔티티 배치 조회 (suspend) |
+| `findByIdFromDb(id)`                   | DB에서 직접 조회, 캐시 우회 (suspend) |
 | `findAllFromDb(ids)`                   | DB에서 여러 엔티티 직접 조회 (suspend) |
-| `findAll(limit, offset, sortBy, where)`| DB 조회 후 캐시 저장 (suspend) |
+| `findAll(limit, offset, sortBy, where)`| DB 조회 후 캐시 동기화 (suspend) |
 | `put(entity)`                          | 캐시에 저장 (suspend)      |
 | `putAll(entities, batchSize)`          | 캐시에 일괄 저장 (suspend)   |
-| `invalidate(ids)`                      | 캐시에서 제거 (suspend)     |
+| `invalidate(vararg ids)`               | 캐시에서 제거 (suspend)     |
 | `invalidateAll()`                      | 캐시 전체 비우기 (suspend)   |
 | `invalidateByPattern(pattern, count)`  | 패턴에 맞는 키 캐시 제거 (suspend) |
+
+## 캐시 설정 상수 (`RedisCacheConfig`)
+
+자주 사용하는 캐시 모드 설정값이 상수로 제공됩니다.
+
+| 상수                                             | 설명                          |
+|------------------------------------------------|------------------------------|
+| `RedisCacheConfig.READ_ONLY`                   | Read-Through 전용 (원격 캐시)     |
+| `RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE`   | Read-Through + Near Cache    |
+| `RedisCacheConfig.READ_WRITE_THROUGH`          | Read-Through + Write-Through  |
+| `RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE` | Read-Write-Through + Near Cache |
+| `RedisCacheConfig.WRITE_BEHIND`                | Write-Behind (원격 캐시)         |
+| `RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE`| Write-Behind + Near Cache    |
 
 ## 주요 파일/클래스 목록
 
@@ -175,10 +189,11 @@ val nearCacheConfig = RedisCacheConfig.readOnly(
 
 | 파일                                    | 설명                          |
 |---------------------------------------|------------------------------|
-| `R2dbcEntityMapLoader.kt`             | R2DBC 비동기 MapLoader 인터페이스   |
-| `R2dbcEntityMapWriter.kt`             | R2DBC 비동기 MapWriter 인터페이스   |
-| `R2dbcExposedEntityMapLoader.kt`      | R2DBC MapLoader 구현체          |
-| `R2dbcExposedEntityMapWriter.kt`      | R2DBC MapWriter 구현체          |
+| `R2dbcEntityMapLoader.kt`             | R2DBC 비동기 MapLoader 기본 구현 (`MapLoaderAsync`) |
+| `R2dbcEntityMapWriter.kt`             | R2DBC 비동기 MapWriter 기본 구현 (`MapWriterAsync`) |
+| `R2dbcExposedEntityMapLoader.kt`      | Exposed IdTable 기반 MapLoader 구현체 |
+| `R2dbcExposedEntityMapWriter.kt`      | Exposed IdTable 기반 MapWriter 구현체 (Write-Through/Write-Behind) |
+| `AsyncIteratorSupport.kt`             | Redisson `AsyncIterator`를 `List`로 수집하는 확장 함수 |
 
 ## 테스트
 

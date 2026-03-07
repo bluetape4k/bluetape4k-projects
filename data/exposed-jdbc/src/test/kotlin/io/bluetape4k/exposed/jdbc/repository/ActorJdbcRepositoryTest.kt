@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
@@ -440,6 +441,100 @@ class ActorJdbcRepositoryTest: AbstractExposedTest() {
             val updatedActor = repository.findById(savedActor.id)
             updatedActor.firstName shouldBeEqualTo "Updated"
             updatedActor.lastName shouldBeEqualTo "Updated"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findAllByIds 는 여러 ID로 일괄 조회한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor1 = repository.save(newActorRecord())
+            val actor2 = repository.save(newActorRecord())
+            val actor3 = repository.save(newActorRecord())
+
+            val found = repository.findAllByIds(listOf(actor1.id, actor3.id))
+            found shouldHaveSize 2
+            found.map { it.id }.shouldContainAll(listOf(actor1.id, actor3.id))
+
+            // 존재하지 않는 ID 포함 시 해당 항목만 빠짐
+            val partial = repository.findAllByIds(listOf(actor2.id, Long.MAX_VALUE))
+            partial shouldHaveSize 1
+            partial.single().id shouldBeEqualTo actor2.id
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `deleteAllByIds 는 여러 ID로 일괄 삭제한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor1 = repository.save(newActorRecord())
+            val actor2 = repository.save(newActorRecord())
+            val actor3 = repository.save(newActorRecord())
+
+            val deleted = repository.deleteAllByIds(listOf(actor1.id, actor2.id))
+            deleted shouldBeEqualTo 2
+
+            repository.findByIdOrNull(actor1.id).shouldBeNull()
+            repository.findByIdOrNull(actor2.id).shouldBeNull()
+            repository.findByIdOrNull(actor3.id).shouldNotBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `updateAll 은 조건에 맞는 모든 레코드를 수정한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val before = repository.findAll { repository.table.firstName eq "Johnny" }
+            before.shouldNotBeEmpty()
+
+            val updatedCount = repository.updateAll({ repository.table.firstName eq "Johnny" }) {
+                it[repository.table.firstName] = "John"
+            }
+            updatedCount shouldBeEqualTo before.size
+
+            val after = repository.findAll { repository.table.firstName eq "John" }
+            after shouldHaveSize before.size
+            after.all { it.firstName == "John" }.shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `existsBy 는 조건에 맞는 엔티티가 있을 때 true를 반환한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            repository.existsBy { repository.table.firstName eq "Johnny" }.shouldBeTrue()
+            repository.existsBy { repository.table.firstName eq "Not-Exists" }.shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findByFieldOrNull 은 없으면 null을 반환한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val found = repository.findByFieldOrNull(repository.table.firstName, "Johnny")
+            found.shouldNotBeNull()
+            found.lastName shouldBeEqualTo "Depp"
+
+            val notFound = repository.findByFieldOrNull(repository.table.firstName, "Not-Exists")
+            notFound.shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 는 페이징하여 엔티티를 반환한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val totalCount = repository.count()
+
+            val page0 = repository.findPage(pageNumber = 0, pageSize = 2)
+            page0.content shouldHaveSize 2
+            page0.pageNumber shouldBeEqualTo 0
+            page0.pageSize shouldBeEqualTo 2
+            page0.totalCount shouldBeEqualTo totalCount
+
+            val page1 = repository.findPage(pageNumber = 1, pageSize = 2)
+            page1.content.isNotEmpty().shouldBeTrue()
+            page1.pageNumber shouldBeEqualTo 1
         }
     }
 }

@@ -113,7 +113,7 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.concatMap(
  *
  * ## 동작/계약
  * - `args.requireNotEmpty("args")`로 빈 입력을 허용하지 않습니다.
- * - `select`로 가장 먼저 완료된 `Deferred`의 값을 즉시 반환합니다.
+ * - 값/실패/취소를 포함해 가장 먼저 종료된 `Deferred`의 결과를 그대로 재현합니다.
  * - 나머지 `Deferred`는 취소하지 않고 그대로 둡니다.
  *
  * ```kotlin
@@ -133,7 +133,7 @@ suspend fun <T> awaitAny(vararg args: Deferred<T>): T {
  * ## 동작/계약
  * - `requireNotEmpty("deferreds")`로 빈 컬렉션 입력을 허용하지 않습니다.
  * - 원소가 1개면 바로 `await()`하여 반환합니다.
- * - 원소가 여러 개면 `select`로 가장 먼저 완료된 값을 반환합니다.
+ * - 원소가 여러 개면 값/실패/취소를 포함해 가장 먼저 종료된 결과를 그대로 재현합니다.
  *
  * ```kotlin
  * val winner = deferreds.awaitAny()
@@ -154,7 +154,8 @@ suspend fun <T> Collection<Deferred<T>>.awaitAny(): T {
  * ## 동작/계약
  * - `requireNotEmpty("deferreds")`로 빈 컬렉션 입력을 허용하지 않습니다.
  * - 원소가 1개면 취소 없이 바로 `await()` 값을 반환합니다.
- * - 원소가 여러 개면 첫 완료 값을 반환하고, 나머지에는 `cancel()`을 시도합니다.
+ * - 원소가 여러 개면 값/실패/취소를 포함해 가장 먼저 종료된 `Deferred`를 winner로 간주합니다.
+ * - winner 결과를 반환하거나 다시 던지기 전에 나머지 `Deferred`에는 `cancel()`을 시도합니다.
  *
  * ```kotlin
  * val winner = deferreds.awaitAnyAndCancelOthers()
@@ -166,15 +167,25 @@ suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {
     if (size == 1) {
         return first().await()
     }
-    val firstAwaited = select {
-        forEachIndexed { index, deferred ->
-            deferred.onAwait { IndexedValue(index, it) }
+    val deferreds = toList()
+    val firstFinished = coroutineScope {
+        val signals = deferreds.mapIndexed { index, deferred ->
+            async(start = CoroutineStart.UNDISPATCHED) {
+                IndexedValue(index, runCatching { deferred.await() })
+            }
+        }
+        val winner = signals.awaitAny()
+        signals.forEachIndexed { index, signal ->
+            if (index != winner.index) {
+                signal.cancel()
+            }
+        }
+        winner
+    }
+    deferreds.forEachIndexed { index, deferred ->
+        if (index != firstFinished.index) {
+            runCatching { deferred.cancel() }
         }
     }
-    val firstAwaitedIndex = firstAwaited.index
-    forEachIndexed { index, deferred ->
-        if (index != firstAwaitedIndex)
-            runCatching { deferred.cancel() }
-    }
-    return firstAwaited.value
+    return firstFinished.value.getOrThrow()
 }

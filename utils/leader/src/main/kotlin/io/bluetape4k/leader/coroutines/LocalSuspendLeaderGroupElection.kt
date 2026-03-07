@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap
 class LocalSuspendLeaderGroupElection private constructor(override val maxLeaders: Int = 2):
     SuspendLeaderGroupElection {
 
-    companion object: KLogging() {
+    companion object : KLogging() {
         operator fun invoke(maxLeaders: Int = 2): LocalSuspendLeaderGroupElection {
             require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
             return LocalSuspendLeaderGroupElection(maxLeaders)

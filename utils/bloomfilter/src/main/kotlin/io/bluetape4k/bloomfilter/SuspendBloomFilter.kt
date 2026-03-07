@@ -26,8 +26,18 @@ interface SuspendBloomFilter<T: Any> {
     /** 해시 함수 개수입니다. */
     val k: Int
 
+    /** 필터에 어떤 원소도 추가되지 않은 초기 상태인지 여부입니다. */
     val isEmpty: Boolean
 
+    /**
+     * 원소를 추가합니다.
+     *
+     * ## 동작/계약
+     * - 입력 원소로 계산한 해시 오프셋 비트를 설정합니다.
+     * - 수신 필터 상태를 변경합니다.
+     *
+     * @param value 추가할 원소
+     */
     suspend fun add(value: T)
 
     /**
@@ -41,11 +51,20 @@ interface SuspendBloomFilter<T: Any> {
      * filter.add("alpha")
      * // filter.contains("alpha") == true
      * ```
+     *
+     * @param value 검사할 원소
+     * @return 포함 가능성이 있으면 `true`, 미포함이 확정이면 `false`
      */
     suspend fun contains(value: T): Boolean
 
+    /**
+     * 구현체 기준 원소 수 또는 내부 비트 길이를 반환합니다.
+     */
     suspend fun count(): Long
 
+    /**
+     * 필터 상태를 초기화합니다.
+     */
     suspend fun clear()
 
     /**

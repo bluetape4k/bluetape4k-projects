@@ -17,6 +17,11 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 
+    /** 테스트용 단일 컬럼 테이블 (uniqueIndex로 중복 방지) */
+    private val tester = object: Table("tester") {
+        val id = varchar("id", 10).uniqueIndex()
+    }
+
     /**
      * Batch Insert with ON CONFLICT DO NOTHING - [batchInsert] 시, 예외가 발생하면 해당 예외를 무시하고, 다음 작업을 수행합니다.
      *
@@ -35,10 +40,6 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
     fun `batch insert number of inserted rows`(testDB: TestDB) = runSuspendIO {
         Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
 
-        val tester = object: Table("tester") {
-            val id = varchar("id", 10).uniqueIndex()
-        }
-
         withTables(testDB, tester) {
             tester.insert { it[id] = "foo" }
 
@@ -55,6 +56,62 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
                 execute(this@withTables)
             }
             numInserted shouldBeEqualTo 1
+        }
+    }
+
+    /**
+     * 배치의 모든 레코드가 중복인 경우 삽입 건수가 0이어야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch insert all duplicates returns 0`(testDB: TestDB) = runSuspendIO {
+        Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
+
+        withTables(testDB, tester) {
+            tester.insert { it[id] = "foo" }
+            tester.insert { it[id] = "bar" }
+
+            val statement = BatchInsertOnConflictDoNothing(tester)
+            val executable = BatchInsertOnConflictDoNothingExecutable(statement)
+
+            val numInserted = executable.run {
+                statement.addBatch()
+                statement[tester.id] = "foo"        // 중복
+
+                statement.addBatch()
+                statement[tester.id] = "bar"        // 중복
+
+                execute(this@withTables)
+            }
+            numInserted shouldBeEqualTo 0
+        }
+    }
+
+    /**
+     * 배치의 모든 레코드가 신규인 경우 전부 삽입되어야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch insert all new rows returns full count`(testDB: TestDB) = runSuspendIO {
+        Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
+
+        withTables(testDB, tester) {
+            val statement = BatchInsertOnConflictDoNothing(tester)
+            val executable = BatchInsertOnConflictDoNothingExecutable(statement)
+
+            val numInserted = executable.run {
+                statement.addBatch()
+                statement[tester.id] = "alpha"
+
+                statement.addBatch()
+                statement[tester.id] = "beta"
+
+                statement.addBatch()
+                statement[tester.id] = "gamma"
+
+                execute(this@withTables)
+            }
+            numInserted shouldBeEqualTo 3
         }
     }
 }

@@ -20,7 +20,11 @@ class JavaCacheHttpCacheStorage<T>(
 
     companion object: KLogging() {
         /**
-         * HTTP 처리에서 `createObjectCache` 함수를 제공합니다.
+         * [HttpCacheStorageEntry]를 직렬화 없이 그대로 저장하는 JCache 기반 캐시를 생성합니다.
+         *
+         * @param cache JCache [Cache] 인스턴스
+         * @param config 캐시 설정 ([CacheConfig])
+         * @return [JavaCacheHttpCacheStorage] 인스턴스
          */
         @JvmStatic
         fun createObjectCache(
@@ -31,7 +35,12 @@ class JavaCacheHttpCacheStorage<T>(
         }
 
         /**
-         * HTTP 처리에서 `createSerializedCache` 함수를 제공합니다.
+         * [HttpCacheStorageEntry]를 [ByteArray]로 직렬화해 저장하는 JCache 기반 캐시를 생성합니다.
+         *
+         * @param cache JCache [Cache] 인스턴스
+         * @param config 캐시 설정 ([CacheConfig])
+         * @param serializer HTTP 캐시 엔트리 직렬화기
+         * @return [JavaCacheHttpCacheStorage] 인스턴스
          */
         @JvmStatic
         fun createSerializedCache(
@@ -44,12 +53,18 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `digestToStorageKey` 함수를 제공합니다.
+     * 스토리지 키를 그대로 반환합니다 (별도 변환 없음).
+     *
+     * @param key 원본 캐시 키
+     * @return 스토리지 키 (key 동일)
      */
     override fun digestToStorageKey(key: String): String = key
 
     /**
-     * HTTP 처리에서 `restore` 함수를 제공합니다.
+     * 지정한 키에 해당하는 캐시 엔트리를 조회합니다.
+     *
+     * @param storageKey 조회할 캐시 키
+     * @return 캐시 엔트리, 없으면 null
      */
     override fun restore(storageKey: String): T? {
         log.debug { "retrieve cache. storageKey=$storageKey" }
@@ -57,7 +72,10 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `getForUpdateCAS` 함수를 제공합니다.
+     * CAS(Compare-And-Swap) 업데이트를 위해 현재 캐시 엔트리를 조회합니다.
+     *
+     * @param storageKey 조회할 캐시 키
+     * @return 현재 캐시 엔트리, 없으면 null
      */
     override fun getForUpdateCAS(storageKey: String): T? {
         log.debug { "get for update cas. storageKey=$storageKey" }
@@ -65,7 +83,9 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `delete` 함수를 제공합니다.
+     * 지정한 키의 캐시 엔트리를 삭제합니다.
+     *
+     * @param storageKey 삭제할 캐시 키
      */
     override fun delete(storageKey: String) {
         log.debug { "delete cache. storageKey=$storageKey" }
@@ -73,7 +93,10 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `bulkRestore` 함수를 제공합니다.
+     * 여러 키에 해당하는 캐시 엔트리를 한 번에 조회합니다.
+     *
+     * @param storageKeys 조회할 캐시 키 컬렉션
+     * @return 키 → 캐시 엔트리 맵 (존재하는 항목만 포함)
      */
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
         log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
@@ -88,7 +111,13 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `updateCAS` 함수를 제공합니다.
+     * CAS(Compare-And-Swap) 방식으로 캐시 엔트리를 업데이트합니다.
+     * JCache의 [Cache.replace]를 사용해 원자적으로 교체합니다.
+     *
+     * @param storageKey 업데이트할 캐시 키
+     * @param cas 비교할 기존 값
+     * @param storageObject 교체할 새 값
+     * @return 업데이트 성공 여부
      */
     override fun updateCAS(storageKey: String, cas: T, storageObject: T): Boolean {
         log.debug { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
@@ -96,12 +125,18 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     /**
-     * HTTP 처리에서 `getStorageObject` 함수를 제공합니다.
+     * CAS 값을 스토리지 객체로 그대로 반환합니다.
+     *
+     * @param cas CAS 값
+     * @return 스토리지 객체 (cas 동일)
      */
     override fun getStorageObject(cas: T): T = cas
 
     /**
-     * HTTP 처리에서 `store` 함수를 제공합니다.
+     * 지정한 키에 캐시 엔트리를 저장합니다.
+     *
+     * @param storageKey 저장할 캐시 키
+     * @param storageObject 저장할 캐시 엔트리
      */
     override fun store(storageKey: String, storageObject: T) {
         log.debug { "store cache. storageKey=$storageKey, storageObject=$storageObject" }

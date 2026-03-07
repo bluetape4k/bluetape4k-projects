@@ -4,7 +4,10 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -49,6 +52,49 @@ class ExposedEntityMapLoaderTest: AbstractExposedTest() {
     }
 
     @Test
+    fun `load - 단건 조회 성공`() {
+        withTables(TestDB.H2, LoaderTable) {
+            val insertedId = LoaderTable.insert {
+                it[name] = "alice"
+            } get LoaderTable.id
+
+            val loader = ExposedEntityMapLoader(
+                entityTable = LoaderTable,
+                toEntity = { toLoaderEntity() },
+            )
+
+            val entity = loader.load(insertedId.value)
+            entity.shouldNotBeNull()
+            entity.name shouldBeEqualTo "alice"
+        }
+    }
+
+    @Test
+    fun `load - 존재하지 않는 ID는 null을 반환한다`() {
+        withTables(TestDB.H2, LoaderTable) {
+            val loader = ExposedEntityMapLoader(
+                entityTable = LoaderTable,
+                toEntity = { toLoaderEntity() },
+            )
+
+            loader.load(Long.MIN_VALUE).shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `loadAllKeys - 빈 테이블은 빈 컬렉션을 반환한다`() {
+        withTables(TestDB.H2, LoaderTable) {
+            val loader = ExposedEntityMapLoader(
+                entityTable = LoaderTable,
+                toEntity = { toLoaderEntity() },
+            )
+
+            val ids = loader.loadAllKeys()!!.toList()
+            ids.shouldBeEmpty()
+        }
+    }
+
+    @Test
     fun `batchSize 는 0보다 커야 한다`() {
         withTables(TestDB.H2, LoaderTable) {
             assertFailsWith<IllegalArgumentException> {
@@ -68,4 +114,5 @@ class ExposedEntityMapLoaderTest: AbstractExposedTest() {
             }
         }
     }
+
 }

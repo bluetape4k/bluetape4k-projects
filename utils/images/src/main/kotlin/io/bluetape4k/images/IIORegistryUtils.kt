@@ -1,5 +1,6 @@
 package io.bluetape4k.images
 
+import io.bluetape4k.collections.toList
 import javax.imageio.spi.IIORegistry
 import javax.imageio.spi.ImageReaderSpi
 import javax.imageio.spi.ImageWriterSpi
@@ -21,8 +22,8 @@ object IIORegistryUtils {
      */
     val imageWriterFormatNames: Set<String> by lazy { getWriteImageFormatNames() }
 
-    private inline fun <reified T> getServiceProviders(): Sequence<T> {
-        return registry.getServiceProviders(T::class.java, false).asSequence()
+    private inline fun <reified T> getServiceProviders(): List<T> {
+        return registry.getServiceProviders(T::class.java, false).toList()
     }
 
     /**

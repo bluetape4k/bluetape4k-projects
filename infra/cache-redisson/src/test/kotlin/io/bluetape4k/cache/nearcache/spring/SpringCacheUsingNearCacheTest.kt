@@ -5,8 +5,8 @@ import io.bluetape4k.cache.nearcache.RedisNearCacheConfig
 import io.bluetape4k.cache.nearcache.RedissonNearCachingProvider
 import io.bluetape4k.cache.nearcache.redisNearCacheConfigurationOf
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -57,7 +57,7 @@ class SpringCacheUsingNearCacheTest {
                 this.setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
             }
 
-            val redissonConfig = RedissonConfiguration.fromInstance(redisson, backCacheConfiguration)
+            val redissonConfig = RedissonConfiguration.fromInstance(RedisServers.redisson, backCacheConfiguration)
 
             /**
              * BackCache 용 redisson jcache 설정인 [RedissonConfiguration] 과
@@ -101,13 +101,7 @@ class SpringCacheUsingNearCacheTest {
     /**
      * 이하의 코드는 Spring cache + NearCache 가 제대로 동작하는지 테스트하기 위한 테스트 코드입니다.
      */
-    companion object: KLogging() {
-        private val redis by lazy { RedisServer.Launcher.redis }
-
-        private val redisson by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson()
-        }
-    }
+    companion object: KLogging()
 
 
     @Autowired

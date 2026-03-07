@@ -31,6 +31,14 @@ fun <T> Transaction.assertEquals(exp: T, act: Collection<T>) =
     kotlin.test.assertEquals(exp, act.single(), "Failed on $failedOn")
 
 /**
+ * 현재 테스트 방언 정보를 포함한 실패 메시지로 비동등성 검증을 수행합니다.
+ *
+ * [exp]와 [act]가 같으면 assertion 실패로 처리됩니다.
+ */
+fun <T> Transaction.assertNotEquals(exp: T, act: T) =
+    kotlin.test.assertNotEquals(exp, act, "Failed on $failedOn")
+
+/**
  * [block]이 실패하는지 확인하고, 실행 후 현재 트랜잭션을 롤백합니다.
  *
  * ## 동작/계약
