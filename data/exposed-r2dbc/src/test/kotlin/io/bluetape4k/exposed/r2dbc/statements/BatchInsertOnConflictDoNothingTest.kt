@@ -17,6 +17,11 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 
+    /** 테스트용 단일 컬럼 테이블 (uniqueIndex로 중복 방지) */
+    private val tester = object: Table("tester") {
+        val id = varchar("id", 10).uniqueIndex()
+    }
+
     /**
      * Batch Insert with ON CONFLICT DO NOTHING - [batchInsert] 시, 예외가 발생하면 해당 예외를 무시하고, 다음 작업을 수행합니다.
      *
@@ -34,10 +39,6 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `batch insert number of inserted rows`(testDB: TestDB) = runSuspendIO {
         Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
-
-        val tester = object: Table("tester") {
-            val id = varchar("id", 10).uniqueIndex()
-        }
 
         withTables(testDB, tester) {
             tester.insert { it[id] = "foo" }
@@ -66,10 +67,6 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
     fun `batch insert all duplicates returns 0`(testDB: TestDB) = runSuspendIO {
         Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
 
-        val tester = object: Table("tester") {
-            val id = varchar("id", 10).uniqueIndex()
-        }
-
         withTables(testDB, tester) {
             tester.insert { it[id] = "foo" }
             tester.insert { it[id] = "bar" }
@@ -97,10 +94,6 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `batch insert all new rows returns full count`(testDB: TestDB) = runSuspendIO {
         Assumptions.assumeTrue { testDB in (TestDB.ALL_MYSQL + TestDB.ALL_POSTGRES_LIKE) }
-
-        val tester = object: Table("tester") {
-            val id = varchar("id", 10).uniqueIndex()
-        }
 
         withTables(testDB, tester) {
             val statement = BatchInsertOnConflictDoNothing(tester)
