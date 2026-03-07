@@ -68,28 +68,131 @@ fun Number.toMonetaryAmount(currencyCode: String): MonetaryAmount =
 //
 // MonetaryAmount Arithmetic Operators
 //
+
+/**
+ * 통화 금액의 부호를 반전합니다.
+ *
+ * ```kotlin
+ * val usd = 10.toMoney(USD)
+ * val negated = -usd  // USD -10
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.unaryMinus(): T = this.negate() as T
 
+/**
+ * 두 통화 금액을 더합니다. 같은 통화 단위여야 합니다.
+ *
+ * ```kotlin
+ * val a = 10.toMoney(USD)
+ * val b = 20.toMoney(USD)
+ * val sum = a + b  // USD 30
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.plus(other: MonetaryAmount): T = this.add(other) as T
+
+/**
+ * 통화 금액에 숫자를 더합니다.
+ *
+ * ```kotlin
+ * val a = 10.toMoney(USD)
+ * val result = a + 5  // USD 15
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.plus(scalar: Number): T = this.add(scalar.toMonetaryAmount(currency)) as T
+
+/**
+ * 두 통화 금액을 뺍니다. 같은 통화 단위여야 합니다.
+ *
+ * ```kotlin
+ * val a = 20.toMoney(USD)
+ * val b = 10.toMoney(USD)
+ * val diff = a - b  // USD 10
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.minus(other: MonetaryAmount): T = this.subtract(other) as T
+
+/**
+ * 통화 금액에서 숫자를 뺍니다.
+ *
+ * ```kotlin
+ * val a = 20.toMoney(USD)
+ * val result = a - 5  // USD 15
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.minus(scalar: Number): T = this.subtract(scalar.toMonetaryAmount(currency)) as T
 
+/**
+ * 통화 금액에 스칼라 값을 곱합니다.
+ *
+ * ```kotlin
+ * val a = 10.toMoney(USD)
+ * val result = a * 3  // USD 30
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.times(scalar: Number): T = this.multiply(scalar) as T
+
+/**
+ * 숫자에 통화 금액을 곱합니다. (교환법칙 지원)
+ *
+ * ```kotlin
+ * val a = 10.toMoney(USD)
+ * val result = 3 * a  // USD 30
+ * ```
+ */
 operator fun <T: MonetaryAmount> Number.times(amount: T): T = amount.multiply(this) as T
 
+/**
+ * 통화 금액을 스칼라 값으로 나눕니다.
+ *
+ * ```kotlin
+ * val a = 30.toMoney(USD)
+ * val result = a / 3  // USD 10
+ * ```
+ */
 operator fun <T: MonetaryAmount> T.div(scalar: Number): T = this.divide(scalar) as T
 
 /**
- * [MonetaryAmount]에서 금액을 원하는 수형으로 가져온다
+ * [MonetaryAmount]에서 금액을 원하는 수형으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(12.5, USD)
+ * val bd: BigDecimal = m.numberValue()
+ * val d: Double = m.numberValue()
+ * ```
+ *
+ * @param T 변환할 수형 ([Int], [Long], [Double], [BigDecimal] 등)
+ * @return 해당 수형의 금액 값
  */
 inline fun <reified T: Number> MonetaryAmount.numberValue(): T = number.numberValue(T::class.java)
 
+/**
+ * 금액을 [Int] 값으로 가져옵니다.
+ */
 val MonetaryAmount.intValue: Int get() = numberValue()
+
+/**
+ * 금액을 [Long] 값으로 가져옵니다.
+ */
 val MonetaryAmount.longValue: Long get() = numberValue()
+
+/**
+ * 금액을 [Float] 값으로 가져옵니다.
+ */
 val MonetaryAmount.floatValue: Float get() = numberValue()
+
+/**
+ * 금액을 [Double] 값으로 가져옵니다.
+ */
 val MonetaryAmount.doubleValue: Double get() = numberValue()
+
+/**
+ * 금액을 [BigDecimal] 값으로 가져옵니다.
+ */
 val MonetaryAmount.bigDecimalValue: BigDecimal get() = numberValue()
+
+/**
+ * 금액을 [BigInteger] 값으로 가져옵니다.
+ */
 val MonetaryAmount.bigIntValue: BigInteger get() = numberValue()
 
 /**
@@ -111,7 +214,7 @@ fun <T: MonetaryAmount> T.defaultRound(): T = this.with(Monetary.getDefaultRound
  * EU의 오늘자 환율 정보를 이용하여 @receiver 의 금액을 대상 금액으로 환전합니다
  *
  * ```
- * 1.05L.inUSD().convertTo("KRW")        // USD 1.05 를 원화로 환젼
+ * 1.05L.inUSD().convertTo("KRW")        // USD 1.05 를 원화로 환전
  * ```
  *
  * @param T
@@ -125,7 +228,7 @@ fun <T: MonetaryAmount> T.convertTo(currencyCode: String): T =
  * 오늘자 환율 정보를 이용하여 [T]의 금액을 대상 금액으로 환전합니다
  *
  * ```
- * 1.05L.inUSD().convertTo(currencyOf("KRW"))        // USD 1.05 를 원화로 환젼
+ * 1.05L.inUSD().convertTo(currencyOf("KRW"))        // USD 1.05 를 원화로 환전
  * ```
  *
  * @param T 통화량 수형
@@ -144,9 +247,9 @@ fun <T: MonetaryAmount> T.convertTo(
 /**
  * 금액을 합산합니다
  *
- * ```
- * listOf(1.05L.inUSD(), 2.05L.inUSD()).sum(CurrencyUnit.USD)        // USD 3.10
- * listOf(100L.inKRW(), 200L.inKRW()).sum(CurrencyUnit.USD)          // USD 0.30
+ * ```kotlin
+ * listOf(1.05.inUSD(), 2.05.inUSD()).sum(USD)        // USD 3.10
+ * listOf(100L.inKRW(), 200L.inKRW()).sum(KRW)        // KRW 300
  * ```
  *
  * @param currencyUnit 환전할 통화 단위 (Default: [DefaultCurrencyUnit])
