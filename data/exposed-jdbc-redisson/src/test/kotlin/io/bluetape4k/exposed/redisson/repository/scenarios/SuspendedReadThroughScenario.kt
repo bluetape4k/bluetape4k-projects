@@ -9,6 +9,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
@@ -21,6 +22,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 interface SuspendedReadThroughScenario<ID: Any,T: IdTable<ID>,  E: HasIdentifier<ID>>: SuspendedCacheTestScenario<ID, T, E> {
 
@@ -126,6 +128,24 @@ interface SuspendedReadThroughScenario<ID: Any,T: IdTable<ID>,  E: HasIdentifier
         }
     }
 
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAll - 빈 목록은 빈 결과를 반환한다`(testDB: TestDB) = runSuspendIO {
+        withSuspendedEntityTable(testDB) {
+            repository.getAll(emptyList()).shouldBeEmpty()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAll - batchSize 는 0보다 커야 한다`(testDB: TestDB) = runSuspendIO {
+        withSuspendedEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.getAll(getExistingIds(), batchSize = 0)
+            }
+        }
+    }
+
     /**
      * 단 설정한 코덱이 Map Key 에 대해서는 StringCodec 을 사용해야 합니다.
      */
@@ -144,6 +164,24 @@ interface SuspendedReadThroughScenario<ID: Any,T: IdTable<ID>,  E: HasIdentifier
                     ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
             invalidated shouldBeGreaterThan 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - count 는 0보다 커야 한다`(testDB: TestDB) = runSuspendIO {
+        withSuspendedEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.invalidateByPattern("*", count = 0)
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - 매칭되는 키가 없으면 0을 반환한다`(testDB: TestDB) = runSuspendIO {
+        withSuspendedEntityTable(testDB) {
+            repository.invalidateByPattern("not-exists-*") shouldBeEqualTo 0L
         }
     }
 }

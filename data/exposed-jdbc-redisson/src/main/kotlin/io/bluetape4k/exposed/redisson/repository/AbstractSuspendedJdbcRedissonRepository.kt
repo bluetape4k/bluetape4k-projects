@@ -35,14 +35,39 @@ import org.redisson.api.RedissonClient
 import java.time.Duration
 
 /**
- * AbstractSuspendedExposedCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * Exposed JDBC와 Redisson을 결합한 코루틴 기반 비동기 캐시 Repository의 추상 기반 클래스입니다.
  *
- * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
- * @param ID Entity ID Type
+ * ## 사용 방법
+ * 이 클래스를 상속하고 [entityTable], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
+ * Read-Only 모드에서는 [doUpdateEntity]/[doInsertEntity] 구현이 불필요합니다.
  *
- * @param redissonClient Redisson Client
- * @param cacheName Redis Cache Name
- * @param config ExposedRedisCacheConfig
+ * ## 동작/계약
+ * - [config]의 `cacheMode`가 [RedisCacheConfig.CacheMode.READ_ONLY]이면 suspendedMapWriter를 생성하지 않습니다.
+ * - [config]의 `isNearCacheEnabled`가 true이면 `RLocalCachedMap`, 그렇지 않으면 `RMapCache`를 사용합니다.
+ * - [doUpdateEntity]와 [doInsertEntity]는 Write-Through/Write-Behind 모드에서만 호출되며, Read-Only 모드에서 호출 시 오류가 발생합니다.
+ * - DB 조회 및 캐시 저장은 [scope]의 코루틴 컨텍스트에서 실행됩니다.
+ *
+ * ```kotlin
+ * class SuspendedUserCacheRepository(
+ *     redissonClient: RedissonClient,
+ *     cacheName: String,
+ *     config: RedisCacheConfig,
+ * ): AbstractSuspendedJdbcRedissonRepository<Long, UserTable, UserRecord>(redissonClient, cacheName, config) {
+ *     override val entityTable = UserTable
+ *     override fun ResultRow.toEntity() = toUserRecord()
+ *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
+ *         statement[UserTable.email] = entity.email
+ *     }
+ * }
+ * ```
+ *
+ * @param ID 엔티티 ID 타입
+ * @param T 엔티티 테이블 타입 ([IdTable] 하위 타입)
+ * @param E 엔티티 타입. Redis 저장 시 직렬화 문제로 인해 반드시 Serializable data class를 사용해야 합니다.
+ * @param redissonClient Redisson 클라이언트
+ * @param cacheName Redis 캐시 이름
+ * @param config 캐시 설정 ([RedisCacheConfig])
+ * @param scope DB 조회 및 캐시 비동기 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
 abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
     val redissonClient: RedissonClient,
@@ -106,6 +131,10 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
         }
     }
 
+    /**
+     * Near Cache(로컬 캐시)가 활성화된 [RLocalCachedMap]을 생성합니다.
+     * Read-Only 모드에서는 loaderAsync만, Read-Write 모드에서는 loaderAsync + writerAsync를 설정합니다.
+     */
     protected fun createLocalCacheMap(): RLocalCachedMap<ID, E?> =
         localCachedMap(cacheName, redissonClient) {
             log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
@@ -129,6 +158,11 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
             }
         }
 
+    /**
+     * 원격 캐시 [RMapCache]를 생성합니다.
+     * Read-Only 모드에서는 loaderAsync만, Read-Write 모드에서는 loaderAsync + writerAsync를 설정합니다.
+     * [RedisCacheConfig.nearCacheMaxSize]가 0보다 크면 LRU 방식으로 최대 크기를 제한합니다.
+     */
     protected fun createMapCache(): RMapCache<ID, E?> =
         mapCache(cacheName, redissonClient) {
             if (config.isReadOnly) {

@@ -20,12 +20,29 @@ import org.redisson.api.map.WriteMode
 
 
 /**
- * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedEntityMapWriter] 기본 구현체입니다.
+ * `id`를 가진 엔티티를 DB에 비동기로 Write 하기 위한 [SuspendedEntityMapWriter] 기본 구현체입니다.
+ *
+ * ## 동작/계약
+ * - [WriteMode.WRITE_THROUGH]: DB에 이미 존재하는 ID는 UPDATE, 존재하지 않고 자동증가 ID가 아닌 경우 batchInsert를 수행합니다.
+ * - [WriteMode.WRITE_BEHIND]: 자동증가 ID 여부에 관계없이 항상 batchInsert를 수행합니다.
+ * - [deleteFromDBOnInvalidate]가 true이면 캐시 무효화 시 DB에서도 삭제하므로 프로덕션 환경에서 신중히 사용하세요.
+ *
+ * ```kotlin
+ * val writer = SuspendedExposedEntityMapWriter(
+ *     entityTable = UserTable,
+ *     updateBody = { stmt, user -> stmt[UserTable.email] = user.email },
+ *     batchInsertBody = { user -> this[UserTable.email] = user.email },
+ *     deleteFromDBOnInvalidate = false,
+ *     writeMode = WriteMode.WRITE_THROUGH,
+ * )
+ * ```
  *
  * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
+ * @param scope DB 쓰기 작업에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
  * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
- * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
+ * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다. 기본값은 false입니다.
+ * @param writeMode 캐시 쓰기 모드 ([WriteMode.WRITE_THROUGH] 또는 [WriteMode.WRITE_BEHIND]). 기본값은 [WriteMode.WRITE_THROUGH]입니다.
  */
 open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,

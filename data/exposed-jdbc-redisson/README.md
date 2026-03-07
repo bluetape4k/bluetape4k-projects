@@ -76,20 +76,27 @@ class UserRedissonRepository(
 }
 
 // 사용 (Read-Through)
-val repo = UserRedissonRepository(redissonClient, RedisCacheConfig.readOnly())
+val repo = UserRedissonRepository(redissonClient, RedisCacheConfig.READ_ONLY)
 
 // 캐시에서 조회 (미스 시 DB에서 자동 로드)
 val user = repo[1L]
 
-// DB에서 직접 조회 (캐시 무시)
+// ID 존재 여부 확인 (캐시 미스 시 DB Read-Through)
+val exists = repo.exists(1L)
+
+// DB에서 직접 조회 (캐시 우회)
 val freshUser = repo.findByIdFromDb(1L)
 
 // 여러 엔티티 일괄 조회
 val users = repo.getAll(listOf(1L, 2L, 3L))
 
+// DB 조회 후 캐시에 저장
+val allUsers = repo.findAll(limit = 100)
+
 // 캐시 무효화
 repo.invalidate(1L)
 repo.invalidateAll()
+repo.invalidateByPattern("*홍*")  // 패턴으로 무효화
 ```
 
 ### 2. SuspendedJdbcRedissonRepository (코루틴) 구현
@@ -119,16 +126,18 @@ class SuspendedUserRedissonRepository(
 }
 
 // 사용 (suspend 함수)
-val repo = SuspendedUserRedissonRepository(redissonClient, RedisCacheConfig.readOnly())
+val repo = SuspendedUserRedissonRepository(redissonClient, RedisCacheConfig.READ_ONLY)
 
-val user = repo.get(1L)                          // 캐시 조회 (suspend)
-val fresh = repo.findByIdFromDb(1L)              // DB 직접 조회 (suspend)
-val all = repo.findAll(limit = 100)              // DB 조회 후 캐시 저장 (suspend)
-repo.put(user)                                    // 캐시 저장 (suspend)
-repo.putAll(users)                               // 일괄 캐시 저장 (suspend)
-repo.invalidate(1L)                              // 캐시 무효화 (suspend)
-repo.invalidateAll()                             // 전체 캐시 무효화 (suspend)
-repo.invalidateByPattern("user:*")              // 패턴으로 무효화 (suspend)
+val user = repo.get(1L)                          // 캐시 조회 (미스 시 DB Read-Through)
+val exists = repo.exists(1L)                     // 존재 여부 확인
+val fresh = repo.findByIdFromDb(1L)              // DB 직접 조회 (캐시 우회)
+val all = repo.findAll(limit = 100)              // DB 조회 후 캐시 저장
+val batch = repo.getAll(listOf(1L, 2L, 3L))     // 여러 엔티티 일괄 조회
+repo.put(user!!)                                 // 캐시 저장
+repo.putAll(batch)                               // 일괄 캐시 저장
+repo.invalidate(1L)                              // 캐시 무효화
+repo.invalidateAll()                             // 전체 캐시 무효화 (Boolean 반환)
+repo.invalidateByPattern("user:*")               // 패턴으로 무효화
 ```
 
 ### 3. 캐시 패턴 설정
@@ -138,26 +147,27 @@ import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.redisson.api.map.WriteMode
 
 // Read-Through Only (기본) — 캐시 미스 시 DB에서 자동 로드
-val readOnlyConfig = RedisCacheConfig.readOnly(
-    ttl = Duration.ofMinutes(30),
-)
+val readOnlyConfig = RedisCacheConfig.READ_ONLY
+
+// Read-Through + Near Cache — 로컬 캐시 + Redis 2단계 캐시
+val readOnlyNearCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
 // Read-Through + Write-Through — 캐시 저장 즉시 DB에도 동기 반영
-val writeThroughConfig = RedisCacheConfig.readWrite(
-    ttl = Duration.ofMinutes(30),
-    writeMode = WriteMode.WRITE_THROUGH,
-)
+val writeThroughConfig = RedisCacheConfig.READ_WRITE_THROUGH
+
+// Read-Through + Write-Through + Near Cache
+val writeThroughNearCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
 // Read-Through + Write-Behind — 캐시 저장 후 비동기로 DB에 반영
-val writeBehindConfig = RedisCacheConfig.readWrite(
-    ttl = Duration.ofMinutes(30),
-    writeMode = WriteMode.WRITE_BEHIND,
-)
+val writeBehindConfig = RedisCacheConfig.WRITE_BEHIND
 
-// Near Cache 활성화 (Local + Redis 2-Tier) — 로컬 캐시 + Redis 2단계 캐시
-val nearCacheConfig = RedisCacheConfig.readOnly(
-    ttl = Duration.ofMinutes(30),
-    nearCacheEnabled = true,
+// Read-Through + Write-Behind + Near Cache
+val writeBehindNearCacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+
+// invalidate 시 DB에서도 삭제하는 설정 (deleteFromDBOnInvalidate=true)
+// ⚠️ 주의: 프로덕션 환경에서 신중하게 사용하세요.
+val deleteFromDbConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
+    deleteFromDBOnInvalidate = true,
 )
 ```
 
@@ -171,7 +181,7 @@ class UserWriteThroughRepository(
 ): AbstractJdbcRedissonRepository<Long, UserTable, UserRecord>(
     redissonClient = redissonClient,
     cacheName = "users:write-through",
-    config = RedisCacheConfig.readWrite(writeMode = WriteMode.WRITE_THROUGH),
+    config = RedisCacheConfig.READ_WRITE_THROUGH,
 ) {
     override val entityTable = UserTable
 
@@ -227,20 +237,25 @@ transaction {
                       → (비동기) DB 저장
 ```
 
-## JdbcRedissonRepository 주요 메서드
+## JdbcRedissonRepository / SuspendedJdbcRedissonRepository 주요 메서드
 
-| 메서드                                    | 설명                    |
-|----------------------------------------|----------------------|
-| `get(id)`                              | 캐시에서 엔티티 조회           |
-| `getAll(ids, batchSize)`               | 캐시에서 여러 엔티티 일괄 조회     |
-| `findByIdFromDb(id)`                   | DB에서 직접 조회            |
-| `findAllFromDb(ids)`                   | DB에서 여러 엔티티 직접 조회     |
-| `findAll(limit, offset, sortBy, where)`| DB 조회 후 캐시 저장         |
-| `put(entity)`                          | 캐시에 저장               |
-| `putAll(entities, batchSize)`          | 캐시에 일괄 저장            |
-| `invalidate(ids)`                      | 캐시에서 제거              |
-| `invalidateAll()`                      | 캐시 전체 비우기            |
-| `invalidateByPattern(pattern, count)`  | 패턴에 맞는 키 캐시 제거       |
+`JdbcRedissonRepository`는 동기 방식, `SuspendedJdbcRedissonRepository`는 동일 API를 `suspend` 함수로 제공합니다.
+
+| 메서드                                    | 설명                               |
+|----------------------------------------|----------------------------------|
+| `exists(id)`                           | 캐시에 해당 ID 존재 여부 확인 (미스 시 DB Read-Through) |
+| `get(id)` / `cache[id]`               | 캐시에서 엔티티 조회 (Read-Through)       |
+| `getAll(ids, batchSize)`               | 캐시에서 여러 엔티티 일괄 조회               |
+| `findByIdFromDb(id)`                   | DB에서 직접 조회 (캐시 우회)               |
+| `findAllFromDb(ids)`                   | DB에서 여러 엔티티 직접 조회 (캐시 우회)       |
+| `findAll(limit, offset, sortBy, where)`| DB 조회 후 결과를 캐시에 저장하여 반환          |
+| `put(entity)`                          | 캐시에 저장 (Write-Through/Behind 모드 시 DB에도 반영) |
+| `putAll(entities, batchSize)`          | 캐시에 일괄 저장                       |
+| `invalidate(ids)`                      | 캐시에서 제거 (`deleteFromDBOnInvalidate=true` 시 DB도 삭제) |
+| `invalidateAll()`                      | 캐시 전체 비우기                       |
+| `invalidateByPattern(pattern, count)`  | 패턴에 맞는 키 캐시 제거                  |
+
+> **참고**: `SuspendedJdbcRedissonRepository`의 `invalidateAll()`은 `Boolean`을 반환합니다.
 
 ## 주요 파일/클래스 목록
 

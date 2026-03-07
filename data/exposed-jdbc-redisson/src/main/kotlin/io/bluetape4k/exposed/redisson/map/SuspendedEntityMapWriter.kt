@@ -15,10 +15,24 @@ import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
 /**
- * Redisson의 Write-through [MapWriterAsync] 를 Exposed와 코루틴를 사용하여 구현한 최상위 클래스입니다.
+ * Redisson의 Write-through [MapWriterAsync] 를 Exposed와 코루틴을 사용하여 구현한 최상위 클래스입니다.
  *
- * @param writeToDb DB에 데이터를 쓰는 함수입니다.
- * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
+ * ## 동작/계약
+ * - [write]는 `suspendedTransactionAsync`로 [writeToDb]를 실행해 캐시 변경을 DB에 비동기 반영합니다.
+ * - [delete]는 `suspendedTransactionAsync`로 [deleteFromDb]를 실행해 캐시 삭제를 DB에 비동기 반영합니다.
+ * - 각 메서드는 [CompletionStage]<Void>를 반환하므로 Redisson의 MapWriterAsync 계약을 준수합니다.
+ * - DB 오류는 로깅 후 예외를 그대로 전파합니다.
+ *
+ * ```kotlin
+ * val writer = SuspendedEntityMapWriter<Long, UserRecord>(
+ *     writeToDb = { map -> repo.saveAll(map.values) },
+ *     deleteFromDb = { ids -> repo.deleteAllByIds(ids) },
+ * )
+ * ```
+ *
+ * @param writeToDb DB에 데이터를 쓰는 suspend 함수입니다.
+ * @param deleteFromDb DB에서 데이터를 삭제하는 suspend 함수입니다.
+ * @param scope DB 쓰기 작업에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
 @Suppress("DEPRECATION")
 open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
