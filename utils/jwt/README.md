@@ -3,7 +3,7 @@
 ## 개요
 
 [JSON Web Token (JWT)](https://jwt.io/)을 생성하고 파싱하는 라이브러리입니다.
-[jjwt](https://github.com/jwtk/jjwt) 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다.
+[jjwt 0.13.x](https://github.com/jwtk/jjwt) 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다.
 
 ## 의존성 추가
 
@@ -19,16 +19,16 @@ dependencies {
 - **JWT 파싱**: 검증된 토큰에서 클레임 추출
 - **KeyChain 관리**: RSA 키 페어 자동 생성 및 회전(Rotation)
 - **분산 환경 지원**: Redis/MongoDB를 통한 KeyChain 공유
-- **압축 지원**: Gzip, LZ4, Snappy, Zstd 등 다양한 압축 코덱
+- **압축 지원**: jjwt 내장 DEF(Deflate), GZIP 압축 알고리즘
 
 ## 사용 예시
 
 ### 기본 JWT 생성 및 파싱
 
 ```kotlin
-import io.bluetape4k.jwt.provider.JwtProvider
+import io.bluetape4k.jwt.provider.JwtProviderFactory
 
-val jwtProvider = JwtProvider.default()
+val jwtProvider = JwtProviderFactory.default()
 
 // JWT 생성
 val jwt: String = jwtProvider.composer()
@@ -78,9 +78,9 @@ val jwt: String = composeJwt(keyChain) {
 ### JWT Reader 사용
 
 ```kotlin
-import io.bluetape4k.jwt.provider.JwtProvider
+import io.bluetape4k.jwt.provider.JwtProviderFactory
 
-val jwtProvider = JwtProvider.default()
+val jwtProvider = JwtProviderFactory.default()
 val jwt = jwtProvider.composer()
     .claim("userId", 12345L)
     .claim("email", "user@example.com")
@@ -113,65 +113,60 @@ val header = reader.header<String>("x-custom")
 보안을 위해 주기적으로 키를 회전시켜야 합니다.
 
 ```kotlin
-import io.bluetape4k.jwt.provider.JwtProvider
+import io.bluetape4k.jwt.provider.JwtProviderFactory
 
-val jwtProvider = JwtProvider.default(
-    keyRotationQueueSize = 5,    // 보관할 이전 KeyChain 수
-    keyRotationMinutes = 60      // 회전 주기 (분)
-)
+val jwtProvider = JwtProviderFactory.default()
 
 // 새 JWT 생성 (현재 KeyChain 사용)
 val jwt1 = jwtProvider.composer().claim("user", "user1").compose()
 
 // 강제 회전
-jwtProvider.rotate()
+jwtProvider.forcedRotate()
 
 // 새 JWT 생성 (새로운 KeyChain 사용)
 val jwt2 = jwtProvider.composer().claim("user", "user2").compose()
 
-// 이전 JWT도 여전히 검증 가능 (Queue 내에 있으면)
-val reader1 = jwtProvider.parse(jwt1)  // OK
-
-// Queue에서 벗어난 이전 KeyChain으로 서명된 JWT는 검증 실패
-jwtProvider.rotate()
-jwtProvider.rotate()
-jwtProvider.rotate()
-jwtProvider.rotate()
-
-// 검증 실패 - SecurityException 발생
-jwtProvider.parse(jwt1)  // throws SecurityException
+// 이전 JWT도 저장소에 KeyChain이 남아있으면 검증 가능
+val reader1 = jwtProvider.parse(jwt1)  // OK (저장소에 이전 KeyChain이 있는 경우)
 ```
 
-### 압축 코덱 사용
+### 압축 사용
 
-큰 클레임 데이터가 있는 경우 압축을 사용할 수 있습니다.
+큰 클레임 데이터가 있는 경우 jjwt 내장 압축 알고리즘을 사용할 수 있습니다.
 
 ```kotlin
 import io.bluetape4k.jwt.codec.JwtCodecs
-import io.bluetape4k.jwt.provider.JwtProvider
+import io.bluetape4k.jwt.provider.JwtProviderFactory
 
-val jwtProvider = JwtProvider.default()
+val jwtProvider = JwtProviderFactory.default()
 
-// Gzip 압축
+// Deflate 압축 (jjwt 내장)
+val jwtDeflate = jwtProvider.composer()
+    .claim("largeData", largeJsonObject)
+    .setCompressionAlgorithm(JwtCodecs.Deflate)
+    .compose()
+
+// GZIP 압축 (jjwt 내장)
 val jwtGzip = jwtProvider.composer()
     .claim("largeData", largeJsonObject)
-    .setCompressionCodec(JwtCodecs.Gzip)
-    .compose()
-
-// LZ4 압축
-val jwtLz4 = jwtProvider.composer()
-    .claim("largeData", largeJsonObject)
-    .setCompressionCodec(JwtCodecs.Lz4)
-    .compose()
-
-// Zstd 압축
-val jwtZstd = jwtProvider.composer()
-    .claim("largeData", largeJsonObject)
-    .setCompressionCodec(JwtCodecs.Zstd)
+    .setCompressionAlgorithm(JwtCodecs.Gzip)
     .compose()
 
 // 압축된 JWT도 일반 파싱으로 처리
-val reader = jwtProvider.parse(jwtGzip)
+val reader = jwtProvider.parse(jwtDeflate)
+```
+
+### DSL에서 압축 사용
+
+```kotlin
+import io.bluetape4k.jwt.codec.JwtCodecs
+import io.bluetape4k.jwt.composer.composeJwt
+
+val jwt = composeJwt(keyChain) {
+    claim("largeData", largeJsonObject)
+    compressionAlgorithm = JwtCodecs.Deflate
+    expirationAfterMinutes = 60L
+}
 ```
 
 ## 분산 환경에서의 사용
@@ -189,7 +184,7 @@ import org.redisson.api.RedissonClient
 val repository = RedisKeyChainRepository(redissonClient)
 
 // Provider 생성 (자동으로 Redis에서 KeyChain 로드)
-val jwtProvider = JwtProviderFactory.default(repository)
+val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 
 // 특정 서버에서 KeyChain 회전
 // 다른 서버들은 1분마다 자동으로 새 KeyChain을 로드
@@ -204,7 +199,7 @@ import io.bluetape4k.jwt.provider.JwtProviderFactory
 
 // 단일 서버용 In-Memory 저장소
 val repository = InMemoryKeyChainRepository()
-val jwtProvider = JwtProviderFactory.default(repository)
+val jwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 ```
 
 ### 커스텀 KeyChain 저장소 구현
@@ -237,12 +232,11 @@ class CustomKeyChainRepository: KeyChainRepository {
 
 ```kotlin
 import io.bluetape4k.jwt.provider.JwtProviderFactory
-import io.jsonwebtoken.SignatureAlgorithm
+import io.bluetape4k.jwt.JwtConsts
+import io.jsonwebtoken.Jwts
 
 val jwtProvider = JwtProviderFactory.default(
-    signatureAlgorithm = SignatureAlgorithm.RS256,  // RSA 256
-    keyRotationQueueSize = 10,                       // 보관할 KeyChain 수
-    keyRotationMinutes = 30                          // 자동 회전 주기
+    signatureAlgorithm = Jwts.SIG.RS256,  // RSA 256 (기본값)
 )
 ```
 
@@ -256,6 +250,13 @@ val jwtProvider = JwtProviderFactory.default(
 | PS256 | RSASSA-PSS with SHA-256 |
 | PS384 | RSASSA-PSS with SHA-384 |
 | PS512 | RSASSA-PSS with SHA-512 |
+
+### 지원 압축 알고리즘
+
+| 알고리즘           | 설명                            |
+|----------------|-------------------------------|
+| `JwtCodecs.Deflate` | Deflate 압축 (`Jwts.ZIP.DEF`)   |
+| `JwtCodecs.Gzip`    | GZIP 압축 (`Jwts.ZIP.GZIP`)     |
 
 ## JWT 구조
 
@@ -272,23 +273,24 @@ header.            payload.                 signature
 ## KeyChain 구조
 
 ```kotlin
-data class KeyChain(
-    val algorithm: SignatureAlgorithm,  // 서명 알고리즘
+class KeyChain(
+    val algorithm: SignatureAlgorithm,  // 서명 알고리즘 (jjwt 0.13.x SignatureAlgorithm)
     val keyPair: KeyPair,               // RSA 키 페어
     val id: String,                     // KeyChain 고유 ID (kid)
-    val createdAt: Long,                // 생성 시각
-    val expiredTtl: Long               // 만료 TTL
+    val createdAt: Long,                // 생성 시각 (epoch millis)
+    val expiredTtl: Long,              // 만료 TTL (millis)
 ) {
     val isExpired: Boolean              // 만료 여부
-    val expiredAt: Long                 // 만료 시각
+    val expiredAt: Long                 // 만료 시각 (epoch millis)
 }
 ```
 
-## 주요 기능 상세
+## 주요 파일 구조
 
 | 파일                                                           | 설명                   |
 |--------------------------------------------------------------|----------------------|
 | `provider/JwtProvider.kt`                                    | JWT Provider 인터페이스   |
+| `provider/AbstractJwtProvider.kt`                            | 추상 기반 구현             |
 | `provider/DefaultJwtProvider.kt`                             | 기본 JWT Provider 구현   |
 | `provider/FixedJwtProvider.kt`                               | 고정 KeyChain Provider |
 | `provider/JwtProviderFactory.kt`                             | Provider 팩토리         |
@@ -298,17 +300,27 @@ data class KeyChain(
 | `composer/JwtComposer.kt`                                    | JWT 빌더               |
 | `composer/JwtComposerDsl.kt`                                 | Kotlin DSL 빌더        |
 | `reader/JwtReader.kt`                                        | JWT 리더               |
+| `reader/JwtReaderDto.kt`                                     | 리더 직렬화 DTO           |
 | `reader/JwtReaderSupport.kt`                                 | 리더 유틸리티              |
 | `keychain/KeyChain.kt`                                       | KeyChain 모델          |
+| `keychain/KeyChainDto.kt`                                    | KeyChain 직렬화 DTO     |
 | `keychain/repository/KeyChainRepository.kt`                  | 저장소 인터페이스            |
 | `keychain/repository/inmemory/InMemoryKeyChainRepository.kt` | In-Memory 저장소        |
 | `keychain/repository/redis/RedisKeyChainRepository.kt`       | Redis 저장소            |
-| `codec/JwtCodecs.kt`                                         | 압축 코덱 팩토리            |
-| `codec/GzipCodec.kt`                                         | Gzip 압축              |
-| `codec/DeflateCodec.kt`                                      | Deflate 압축           |
-| `codec/Lz4Codec.kt`                                          | LZ4 압축               |
-| `codec/SnappyCodec.kt`                                       | Snappy 압축            |
-| `codec/ZstdCodec.kt`                                         | Zstd 압축              |
+| `codec/JwtCodecs.kt`                                         | 압축 알고리즘 팩토리          |
+
+## jjwt 0.13.x API 변경사항
+
+jjwt 0.11.x에서 0.13.x로 업그레이드 시 주요 변경사항:
+
+| 구버전 (0.11.x)                  | 신버전 (0.13.x)                        |
+|-------------------------------|--------------------------------------|
+| `SignatureAlgorithm.RS256`    | `Jwts.SIG.RS256`                     |
+| `CompressionCodec`            | `CompressionAlgorithm`               |
+| `compressionCodec(codec)`     | `compressWith(algorithm)`            |
+| `parseClaimsJws(token)`       | `parseSignedClaims(token)`           |
+| `Jws.getBody()`               | `Jws.getPayload()`                   |
+| `JwtCodecs.Lz4` / `Snappy` / `Zstd` | 제거됨 (jjwt 내장 DEF/GZIP만 지원) |
 
 ## 보안 권장사항
 
@@ -322,5 +334,4 @@ data class KeyChain(
 
 - [JWT.io](https://jwt.io/)
 - [jjwt GitHub](https://github.com/jwtk/jjwt)
-- [JWT Refresh Token 적용기](https://velog.io/@jkijki12/Jwt-Refresh-Token-%EC%A0%81%EC%9A%A9%EA%B8%B0)
 - [RFC 7519 - JSON Web Token](https://tools.ietf.org/html/rfc7519)

@@ -1,7 +1,8 @@
 package io.bluetape4k.jwt
 
 import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.security.SignatureAlgorithm
 import java.time.Duration
 
 /**
@@ -10,13 +11,13 @@ import java.time.Duration
  * ## 동작/계약
  * - 헤더 키 상수는 JWT 표준 필드명(`typ`, `kid`, `alg`)을 그대로 사용합니다.
  * - 기본 키체인 저장소는 [InMemoryKeyChainRepository]를 lazy로 1회 생성해 재사용합니다.
- * - 기본 서명 알고리즘은 [SignatureAlgorithm.RS256]입니다.
+ * - 기본 서명 알고리즘은 [Jwts.SIG.RS256]입니다.
  *
  * ```kotlin
  * val typ = JwtConsts.HEADER_TYPE_VALUE
  * val alg = JwtConsts.DefaultSignatureAlgorithm
  * // typ == "JWT"
- * // alg == SignatureAlgorithm.RS256
+ * // alg.id == "RS256"
  * ```
  */
 object JwtConsts {
@@ -36,5 +37,25 @@ object JwtConsts {
     /** 기본 인메모리 키체인 저장소입니다. */
     val DefaultKeyChainRepository by lazy { InMemoryKeyChainRepository() }
     /** 기본 JWT 서명 알고리즘입니다. */
-    val DefaultSignatureAlgorithm = SignatureAlgorithm.RS256
+    val DefaultSignatureAlgorithm: SignatureAlgorithm = Jwts.SIG.RS256
+
+    /** RSA 계열 서명 알고리즘 ID 목록입니다. */
+    val RSA_ALGORITHM_IDS: Set<String> = setOf("RS256", "RS384", "RS512", "PS256", "PS384", "PS512")
+
+    /**
+     * 알고리즘 ID로 [SignatureAlgorithm]을 조회합니다.
+     *
+     * @param algorithmId 알고리즘 식별자 (예: "RS256")
+     * @return 해당하는 [SignatureAlgorithm] 인스턴스
+     * @throws IllegalArgumentException 지원하지 않는 알고리즘인 경우
+     */
+    fun signatureAlgorithmForId(algorithmId: String): SignatureAlgorithm = when (algorithmId) {
+        "RS256" -> Jwts.SIG.RS256
+        "RS384" -> Jwts.SIG.RS384
+        "RS512" -> Jwts.SIG.RS512
+        "PS256" -> Jwts.SIG.PS256
+        "PS384" -> Jwts.SIG.PS384
+        "PS512" -> Jwts.SIG.PS512
+        else -> throw IllegalArgumentException("Unsupported signature algorithm: $algorithmId")
+    }
 }

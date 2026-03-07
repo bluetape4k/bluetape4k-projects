@@ -9,7 +9,7 @@ import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.replicate
-import io.jsonwebtoken.CompressionCodec
+import io.jsonwebtoken.io.CompressionAlgorithm
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeEmpty
@@ -25,9 +25,6 @@ class JwtComposerDslTest: AbstractJwtTest() {
     private fun getCodecs() = listOf(
         JwtCodecs.Deflate,
         JwtCodecs.Gzip,
-        JwtCodecs.Lz4,
-        JwtCodecs.Snappy,
-        JwtCodecs.Zstd,
     )
 
     private val keyChain = KeyChain()
@@ -71,7 +68,7 @@ class JwtComposerDslTest: AbstractJwtTest() {
 
     @ParameterizedTest
     @MethodSource("getCodecs")
-    fun `claim에 저장할 데이터가 크다면 Compression을 이용하여 압축합니다`(codec: CompressionCodec) {
+    fun `claim에 저장할 데이터가 크다면 Compression을 이용하여 압축합니다`(codec: CompressionAlgorithm) {
         val provider = JwtProviderFactory.fixed(kid = "test")
         val compressedJwt = provider.compose {
             header("x-author", "debop")
@@ -82,7 +79,7 @@ class JwtComposerDslTest: AbstractJwtTest() {
             claim("long-claim", randomString(4096).replicate(4))
             claim("long-data", randomString(4096).replicate(4))
             expirationAfterMinutes = 60L
-            this.compressionCodec = codec
+            this.compressionAlgorithm = codec
         }
 
         val reader = provider.parse(compressedJwt)

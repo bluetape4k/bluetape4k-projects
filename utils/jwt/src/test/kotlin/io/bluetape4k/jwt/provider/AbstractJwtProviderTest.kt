@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.jwt.AbstractJwtTest
-import io.bluetape4k.jwt.codec.Lz4Codec
+import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
 import io.bluetape4k.jwt.utils.dateOfEpochSeconds
 import io.bluetape4k.jwt.utils.epochSeconds
@@ -37,7 +37,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
-        private val compressCodec = Lz4Codec()
+        private val compressCodec = JwtCodecs.Deflate
     }
 
     abstract val repository: KeyChainRepository
@@ -95,7 +95,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
             issuer = LibraryName
             issuedAt = now
             claim("custom-data", randomString(1024))
-            compressionCodec = compressCodec
+            compressionAlgorithm = compressCodec
         }
 
         val reader = provider.parse(jwt)
@@ -120,7 +120,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
                     issuer = LibraryName
                     issuedAt = now
                     claim("custom-data", customData)
-                    compressionCodec = compressCodec
+                    compressionAlgorithm = compressCodec
                 }
                 log.trace { "created jwt=$jwt" }
                 jwts.add(jwt)
@@ -153,7 +153,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
                     issuer = LibraryName
                     issuedAt = now
                     claim("custom-data", customData)
-                    compressionCodec = compressCodec
+                    compressionAlgorithm = compressCodec
                 }
                 log.trace { "created jwt=$jwt" }
                 jwts.add(jwt)
@@ -187,7 +187,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
                         issuer = LibraryName
                         issuedAt = now
                         claim("custom-data", customData)
-                        compressionCodec = compressCodec
+                        compressionAlgorithm = compressCodec
                     }
                     log.trace { "created jwt=$jwt" }
                     jwts.add(jwt)

@@ -5,10 +5,8 @@ import io.bluetape4k.jwt.composer.JwtComposerDsl
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.reader.JwtReader
 import io.bluetape4k.logging.KLogging
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.SignatureAlgorithm
 
 /**
  * JWT 키 관리와 생성/파싱을 제공하는 공급자 계약입니다.
@@ -84,7 +82,7 @@ interface JwtProvider {
      * ```
      */
     fun tryParse(jwtString: String): JwtReader? = runCatching {
-        val jws: Jws<Claims> = this.currentJwtParser().parseClaimsJws(jwtString)
+        val jws = this.currentJwtParser().parseSignedClaims(jwtString)
         JwtReader(jws)
     }.getOrNull()
 }

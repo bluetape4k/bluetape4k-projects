@@ -12,9 +12,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireNotBlank
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.CompressionCodec
 import io.jsonwebtoken.JwtBuilder
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.io.CompressionAlgorithm
 import java.util.*
 
 /**
@@ -45,17 +45,19 @@ class JwtComposer(
         val RESERVED_HEADER_NAMES: List<String> = listOf(HEADER_KEY_ID, HEADER_ALGORITHM)
     }
 
-    private var compressionCodec: CompressionCodec? = null
+    private var compressionAlgorithm: CompressionAlgorithm? = null
 
     /**
-     * JWT 압축 코덱을 설정합니다.
+     * JWT 압축 알고리즘을 설정합니다.
      *
      * ## 동작/계약
-     * - 설정된 코덱은 [compose] 시 `zip` 헤더와 함께 적용됩니다.
-     * - 코덱이 없으면 비압축 JWT를 생성합니다.
+     * - 설정된 알고리즘은 [compose] 시 `zip` 헤더와 함께 적용됩니다.
+     * - 알고리즘이 없으면 비압축 JWT를 생성합니다.
+     *
+     * @param algorithm JWT payload 압축에 사용할 [CompressionAlgorithm]
      */
-    fun setCompressionCodec(codec: CompressionCodec) {
-        compressionCodec = codec
+    fun setCompressionAlgorithm(algorithm: CompressionAlgorithm) {
+        compressionAlgorithm = algorithm
     }
 
     /**
@@ -100,30 +102,42 @@ class JwtComposer(
         claims[name] = value
     }
 
+    /** JWT ID(`jti`) 클레임을 설정합니다. */
     fun id(jti: String) = claim(Claims.ID, jti)
+    /** 발급자(`iss`) 클레임을 설정합니다. */
     fun issuer(iss: String) = claim(Claims.ISSUER, iss)
+    /** 주체(`sub`) 클레임을 설정합니다. */
     fun subject(sub: String) = claim(Claims.SUBJECT, sub)
+    /** 수신자(`aud`) 클레임을 설정합니다. */
     fun audience(aud: String) = claim(Claims.AUDIENCE, aud)
 
+    /** `nbf` 클레임을 [Date]로 설정합니다. */
     fun notBefore(nbfDate: Date) =
         claim(Claims.NOT_BEFORE, nbfDate.epochSeconds, false)
 
+    /** `nbf` 클레임을 밀리초 타임스탬프로 설정합니다. */
     fun notBefore(nbfTimestamp: Long) =
         claim(Claims.NOT_BEFORE, nbfTimestamp.millisToSeconds(), false)
 
+    /** 만료(`exp`) 클레임을 [Date]로 설정합니다. */
     fun expiration(exp: Date) =
         claim(Claims.EXPIRATION, exp.epochSeconds, false)
 
+    /** 현재 시각 기준 [seconds]초 뒤 만료되도록 설정합니다. */
     fun expirationAfterSeconds(seconds: Long) =
         claim(Claims.EXPIRATION, Date().epochSeconds + seconds, false)
 
+    /** 현재 시각 기준 [minutes]분 뒤 만료되도록 설정합니다. */
     fun expirationAfterMinutes(minutes: Long) =
         expirationAfterSeconds(minutes * 60)
 
+    /** 현재 시각 기준 [days]일 뒤 만료되도록 설정합니다. */
     fun expirationAfterDays(days: Long) =
         expirationAfterSeconds(days * 24 * 60 * 60)
 
+    /** 발급 시각(`iat`) 클레임을 설정합니다. */
     fun issuedAt(iat: Date) = claim(Claims.ISSUED_AT, iat.epochSeconds, false)
+    /** 발급 시각(`iat`)을 현재 시각으로 설정합니다. */
     fun issuedAtNow() = issuedAt(Date())
 
     /**
@@ -139,26 +153,26 @@ class JwtComposer(
      * ```
      */
     fun compose(): String {
-        log.debug { "Compose JWT. keyChain id=${keyChain.id}, algorithm=${keyChain.algorithm.name}" }
+        log.debug { "Compose JWT. keyChain id=${keyChain.id}, algorithm=${keyChain.algorithm.id}" }
 
         return jwt {
-            setHeaderParam(HEADER_KEY_ID, keyChain.id)
-            setHeaderParam(HEADER_TYPE_KEY, HEADER_TYPE_VALUE)
+            header().add(HEADER_KEY_ID, keyChain.id)
+            header().add(HEADER_TYPE_KEY, HEADER_TYPE_VALUE)
             signWith(keyChain.keyPair.private, keyChain.algorithm)
 
             headers.forEach { (key, value) ->
                 if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
                     log.trace { "set jwt header. key=$key, value=$value" }
-                    setHeaderParam(key, value)
+                    header().add(key, value)
                 }
             }
             claims.forEach { (name, value) ->
                 log.trace { "set claim. name=$name, value=$value" }
                 claim(name, value)
             }
-            if (claims[Claims.ISSUED_AT] == null) issuedAtNow()
+            if (claims[Claims.ISSUED_AT] == null) issuedAt(Date())
 
-            compressionCodec?.let { compressWith(it) }
+            compressionAlgorithm?.let { compressWith(it) }
         }
     }
 

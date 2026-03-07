@@ -9,7 +9,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.replicate
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.CompressionCodec
+import io.jsonwebtoken.io.CompressionAlgorithm
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
@@ -28,9 +28,6 @@ class JwtComposerTest: AbstractJwtTest() {
     private fun getCodecs() = listOf(
         JwtCodecs.Deflate,
         JwtCodecs.Gzip,
-        JwtCodecs.Lz4,
-        JwtCodecs.Snappy,
-        JwtCodecs.Zstd,
     )
 
     private val composer = JwtComposer(KeyChain())
@@ -82,7 +79,7 @@ class JwtComposerTest: AbstractJwtTest() {
 
     @ParameterizedTest(name = "compression codec={0}")
     @MethodSource("getCodecs")
-    fun `claim 정보가 큰 경우 압축을 사용합니다`(codec: CompressionCodec) {
+    fun `claim 정보가 큰 경우 압축을 사용합니다`(codec: CompressionAlgorithm) {
         repeat(3) {
             val provider = JwtProviderFactory.fixed(kid = "fixed")
             val composer = provider.composer()
@@ -100,14 +97,14 @@ class JwtComposerTest: AbstractJwtTest() {
             val plainJwt = composer.compose()
             plainJwt.shouldNotBeEmpty()
 
-            composer.setCompressionCodec(codec)
+            composer.setCompressionAlgorithm(codec)
             val compressedJwt = composer.compose()
             compressedJwt.shouldNotBeEmpty()
 
             compressedJwt.length shouldBeLessThan plainJwt.length
 
             log.debug {
-                "${codec.algorithmName}, compression ratio=${compressedJwt.length / plainJwt.length.toDouble()}"
+                "${codec.id}, compression ratio=${compressedJwt.length / plainJwt.length.toDouble()}"
             }
 
 
