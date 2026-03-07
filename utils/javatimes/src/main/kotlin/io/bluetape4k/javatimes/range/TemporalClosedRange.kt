@@ -7,7 +7,12 @@ import java.time.LocalDate
 import java.time.temporal.Temporal
 
 /**
- * A range of [Temporal] instance
+ * [Temporal] 기반의 closed range 입니다.
+ *
+ * ## 지원 타입
+ * - 현재는 epoch-millis 기반 순회가 가능한 시간 타입을 대상으로 설계되어 있습니다.
+ * - `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, `Timestamp` 계열 사용을 권장합니다.
+ * - `LocalDate`는 지원하지 않습니다.
  */
 class TemporalClosedRange<T>(
     start: T,

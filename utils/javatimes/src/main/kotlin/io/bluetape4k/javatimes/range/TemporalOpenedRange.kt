@@ -10,6 +10,11 @@ import java.time.temporal.Temporal
  * 마지막 요소를 제외한 [Temporal]의 범위를 나타내는 Open Range 를 표현합니다.
  * `start <= x < endExclusive` 입니다.
  *
+ * ## 지원 타입
+ * - 현재는 epoch-millis 기반 순회가 가능한 시간 타입을 대상으로 설계되어 있습니다.
+ * - `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, `Timestamp` 계열 사용을 권장합니다.
+ * - `LocalDate`는 지원하지 않습니다.
+ *
  * @param T
  * @constructor
  *

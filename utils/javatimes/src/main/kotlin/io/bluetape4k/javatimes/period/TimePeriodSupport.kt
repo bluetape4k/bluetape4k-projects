@@ -91,16 +91,30 @@ fun ZonedDateTime.toTimeRange(end: ZonedDateTime): ITimeRange = TimeRange(this, 
 
 /**
  * [calendar]의 기준 월을 기준으로 [year]와 [monthOfYear]를 이용하여 연도를 계산합니다.
- * 회계 년도 같은 경우 2월이 기준월이므로, 1월이 기준월인 경우에는 [year]-1 을 반환합니다.
+ * 회계연도처럼 기준 월이 1월이 아닌 경우, 기준 월보다 앞선 달은 이전 연도로 계산합니다.
+ *
+ * ```kotlin
+ * val fiscalCalendar = TimeCalendar(TimeCalendarConfig(baseMonth = 4))
+ *
+ * yearOf(2025, 3, fiscalCalendar) == 2024
+ * yearOf(2025, 4, fiscalCalendar) == 2025
+ * ```
  */
 fun yearOf(year: Int, monthOfYear: Int, calendar: ITimeCalendar = TimeCalendar.Default): Int = when {
-    monthOfYear in 1..12             -> year
+    monthOfYear !in 1..12            -> throw IllegalArgumentException("Invalid monthOfYear[$monthOfYear]")
     monthOfYear < calendar.baseMonth -> year - 1
-    monthOfYear > 12                 -> year + 1
-    else                             -> throw IllegalArgumentException("Invalid monthOfYear[$monthOfYear]")
+    else                             -> year
 }
 
-fun ZonedDateTime.yearOf(): Int = yearOf(year, monthValue)
+/**
+ * 현재 시각의 월과 기본 달력의 기준 월을 이용해 기준 연도를 계산합니다.
+ */
+fun ZonedDateTime.yearOf(): Int = yearOf(TimeCalendar.Default)
+
+/**
+ * 현재 시각의 월과 [calendar]의 기준 월을 이용해 기준 연도를 계산합니다.
+ */
+fun ZonedDateTime.yearOf(calendar: ITimeCalendar): Int = yearOf(year, monthValue, calendar)
 
 /**
  * [year] 부터 [yearCount] 만큼의 기간을 가진 [ITimeRange]를 생성합니다.

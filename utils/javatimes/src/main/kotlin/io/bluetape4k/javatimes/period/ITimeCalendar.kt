@@ -15,10 +15,20 @@ import java.time.temporal.TemporalAccessor
  */
 interface ITimeCalendar: ITimePeriodMapper {
 
+    /** 기간 시작을 매핑할 때 적용할 offset */
     val startOffset: Duration
+
+    /** 기간 종료를 매핑할 때 적용할 offset */
     val endOffset: Duration
 
+    /** 주 계산의 시작 요일 */
     val firstDayOfWeek: DayOfWeek
+
+    /**
+     * 연도 계산의 기준 월입니다.
+     *
+     * 기본값은 1월이며, 회계연도처럼 4월 시작 연도를 사용하려면 4를 반환하도록 구현합니다.
+     */
     val baseMonth: Int get() = 1
 
     fun year(moment: ZonedDateTime): Int = moment.year

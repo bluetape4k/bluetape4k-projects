@@ -50,6 +50,13 @@ fun <T> TemporalClosedRange<T>.windowedFlow(
     }
 }
 
+/**
+ * [TemporalClosedRange]를 년/월/주/일/시/분/초/밀리초 단위 window [Flow]로 노출하는 convenience 함수들입니다.
+ *
+ * ## 동작/계약
+ * - 종료 시점은 closed range 이므로 `endInclusive`까지 포함해 평가합니다.
+ * - 실제 구현은 [windowedFlow]를 호출하며, 지원 단위도 동일하게 YEARS..MILLIS 입니다.
+ */
 fun <T> TemporalClosedRange<T>.windowedFlowYears(
     size: Int,
     step: Int = 1,
@@ -104,6 +111,13 @@ fun <T> TemporalClosedRange<T>.chunkedFlow(
 ): Flow<List<T>> where T: Temporal, T: Comparable<T> =
     windowedFlow(size, size, unit)
 
+/**
+ * [TemporalClosedRange]를 지정 단위 chunk [Flow]로 분할하는 convenience 함수들입니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 [chunkedFlow] / [windowedFlow]를 사용합니다.
+ * - 종료 시점은 closed range 이므로 마지막 chunk도 `endInclusive`를 포함할 수 있습니다.
+ */
 fun <T> TemporalClosedRange<T>.chunkedFlowYears(size: Int): Flow<List<T>> where T: Temporal, T: Comparable<T> =
     chunkedFlow(size, ChronoUnit.YEARS)
 
@@ -153,6 +167,13 @@ fun <T> TemporalClosedRange<T>.zipWithNextFlow(unit: ChronoUnit): Flow<Pair<T, T
     }
 }
 
+/**
+ * [TemporalClosedRange]를 인접한 두 시점의 pair [Flow]로 노출하는 convenience 함수들입니다.
+ *
+ * ## 동작/계약
+ * - 실제 구현은 [zipWithNextFlow]를 사용합니다.
+ * - 종료 시점은 closed range 이므로 마지막 pair의 second가 `endInclusive`가 될 수 있습니다.
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextFlowYears(): Flow<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNextFlow(ChronoUnit.YEARS)
 

@@ -77,5 +77,5 @@ open class TemporalOpenedProgression<T> protected constructor(
         else                            -> false
     }
 
-    override fun hashCode(): Int = hashOf(first, last, step)
+    override fun hashCode(): Int = if (isEmpty()) -1 else hashOf(first, last, step)
 }

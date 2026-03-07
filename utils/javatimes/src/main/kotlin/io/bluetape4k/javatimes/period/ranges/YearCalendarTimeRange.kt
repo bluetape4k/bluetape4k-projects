@@ -4,6 +4,7 @@ import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.ITimePeriod
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.period.TimePeriod
+import io.bluetape4k.javatimes.period.yearOf
 
 /**
  * 연(Year) 범위를 나타내는 클래스
@@ -16,7 +17,8 @@ open class YearCalendarTimeRange(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): CalendarTimeRange(period, calendar) {
 
-    private val baseMonth: Int = 1
-
-    val baseYear: Int get() = startYear
+    /**
+     * [calendar]의 기준 월을 적용했을 때의 기준 연도입니다.
+     */
+    val baseYear: Int get() = yearOf(startYear, startMonthOfYear, calendar)
 }
