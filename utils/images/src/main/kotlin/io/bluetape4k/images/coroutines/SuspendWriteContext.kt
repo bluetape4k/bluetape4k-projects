@@ -67,14 +67,10 @@ class SuspendWriteContext(
     /**
      * 이미지를 인코딩하여 [file]에 저장합니다.
      *
-     * - [file]이 존재하지 않으면 예외가 발생합니다.
-     *
      * @param file 저장할 대상 [File]
      * @return 저장된 [File]
      */
     suspend fun write(file: File): File {
-        require(file.exists()) { "File not found: ${file.absolutePath}" }
-
         write(file.toPath())
         return file
     }

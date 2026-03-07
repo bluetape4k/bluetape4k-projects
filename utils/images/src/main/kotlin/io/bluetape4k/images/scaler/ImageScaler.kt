@@ -59,7 +59,7 @@ fun BufferedImage.scale(ratio: Double): BufferedImage {
  * ```
  *
  * @param xScale x 축에 대한 scaling 비율
- * @param yScale y 축에 대한 scaling 비���
+ * @param yScale y 축에 대한 scaling 비율
  * @return scaled [BufferedImage]
  */
 fun BufferedImage.scale(xScale: Double, yScale: Double): BufferedImage {

@@ -130,16 +130,6 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
         }
     }
 
-    private fun getHeightWithIndex(height: Int, sourceHeight: Int): Flow<Pair<Int, Int>> = flow {
-        var index = 0
-        var y = 0
-        while (y < sourceHeight) {
-            emit(index to y)
-            index++
-            y += height
-        }
-    }
-
     private fun getHeights(height: Int, maxHeight: Int): Flow<Int> = flow {
         var y = 0
         while (y < maxHeight) {

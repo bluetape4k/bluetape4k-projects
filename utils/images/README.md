@@ -29,7 +29,7 @@ dependencies {
 
 ## 사용 예시
 
-### 이미지 로드
+### ImmutableImage 로드
 
 ```kotlin
 import io.bluetape4k.images.*
@@ -49,6 +49,27 @@ val image = immutableImageOf(Paths.get("image.jpg"))
 // Coroutines 환경에서 비동기 로드
 val image = suspendImmutableImageOf(File("image.jpg"))
 val image = suspendLoadImage(Paths.get("image.jpg"))
+```
+
+### BufferedImage 로드/저장
+
+```kotlin
+import io.bluetape4k.images.*
+
+// 다양한 소스에서 로드
+val image = bufferedImageOf(inputStream)
+val image = bufferedImageOf(File("image.jpg"))
+val image = bufferedImageOf(byteArray)
+
+// 새 이미지 생성
+val image = bufferedImageOf(200, 100)
+
+// 저장
+image.write(ImageFormat.JPG, File("output.jpg"))
+image.write(ImageFormat.PNG, outputStream)
+
+// ByteArray 변환
+val bytes = image.toByteArray("png")
 ```
 
 ### 이미지 저장 (Coroutines)
@@ -179,6 +200,18 @@ val captioned = image.filter(
 )
 ```
 
+### 패딩 추가
+
+```kotlin
+import io.bluetape4k.images.filters.*
+
+// 상하좌우 동일 패딩
+val padding = paddingOf(20)
+
+// 개별 패딩 지정
+val padding = paddingOf(top = 10, right = 20, bottom = 10, left = 20)
+```
+
 ### 그래픽 작업
 
 ```kotlin
@@ -247,7 +280,7 @@ SuspendPngWriter.MaxCompression  // level 9
 SuspendPngWriter.MinCompression  // level 1
 
 // 압축 없음 (가장 빠름)
-SuspendPngWriter.NoComppression  // level 0
+SuspendPngWriter.NoCompression  // level 0
 ```
 
 ### SuspendWebpWriter

@@ -8,13 +8,16 @@ import java.awt.Color
 import java.awt.Font
 
 /**
- * [CaptionFilter] 생성자
+ * 이미지에 캡션을 추가하는 [CaptionFilter]를 생성합니다.
  *
- * ```
- * val filter = CaptionFilter(
- *    text = "Power by bluetape4k",
+ * ```kotlin
+ * val filter = captionFilterOf(
+ *    text = "Powered by bluetape4k",
  *    position = Position.BottomLeft,
+ *    textAlpha = 0.8,
+ *    color = Color.WHITE
  * )
+ * val captioned = image.filter(filter)
  * ```
  *
  * @param text        캡션 텍스트
