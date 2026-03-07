@@ -7,6 +7,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import net.openhft.hashing.LongHashFunction
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
@@ -16,6 +17,26 @@ class HasherTest: AbstractBloomFilterTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `murmur3 hash offset with int type`() {
+        val value = Fakers.random.nextInt(1, Int.MAX_VALUE)
+
+        val offsets = Hasher.murmurHashOffset(value, 3, Int.MAX_VALUE)
+        log.trace { "value=$value, offsets=${offsets.contentToString()}" }
+        offsets shouldHaveSize 3
+        offsets.all { it >= 0 }.shouldBeTrue()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `murmur3 hash offset with byte array type`() {
+        val value = Fakers.randomString(32, 128).toByteArray()
+
+        val offsets = Hasher.murmurHashOffset(value, 4, Int.MAX_VALUE)
+        log.trace { "value size=${value.size}, offsets=${offsets.contentToString()}" }
+        offsets shouldHaveSize 4
+        offsets.all { it >= 0 }.shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)

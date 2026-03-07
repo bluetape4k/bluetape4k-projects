@@ -38,6 +38,7 @@ interface BloomFilter<T: Any> {
     /** 해시 함수 개수입니다. */
     val k: Int
 
+    /** 필터에 어떤 원소도 추가되지 않은 초기 상태인지 여부입니다. */
     val isEmpty: Boolean
 
     /**

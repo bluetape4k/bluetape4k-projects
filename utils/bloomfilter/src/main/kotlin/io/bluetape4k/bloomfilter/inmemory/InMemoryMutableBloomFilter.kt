@@ -91,7 +91,6 @@ class InMemoryMutableBloomFilter private constructor(
     }
 
     private val buckets: LongArray = LongArray(buckets2words(m))
-    private val hashLocks: Array<ReentrantLock> = Array(HASH_LOCK_SIZE) { ReentrantLock() }
     private val hashBooleans = Array(HASH_LOCK_SIZE) { AtomicBoolean(false) }
     private val lock = ReentrantLock()
 
@@ -186,12 +185,6 @@ class InMemoryMutableBloomFilter private constructor(
         }
     }
 
-    /**
-     * 하나의 key가 얼마나 추가되었는지 추정한다
-     *
-     * @param value
-     * @return
-     */
     override fun approximateCount(value: String): Int {
         value.requireNotBlank("value")
 
@@ -213,7 +206,6 @@ class InMemoryMutableBloomFilter private constructor(
     override fun clear() {
         lock.withLock {
             buckets.setAll { 0L }
-            hashLocks.filter { it.isLocked }.forEach { it.unlock() }
             hashBooleans.forEach { it.set(false) }
         }
     }
@@ -224,7 +216,7 @@ class InMemoryMutableBloomFilter private constructor(
                 append(" ")
             }
             val (wordNum, bucketShift, bucketMask) = calcBucketInfo(i)
-            val bucketValue = (buckets[wordNum] ushr bucketShift) and bucketMask
+            val bucketValue = (buckets[wordNum] and bucketMask) ushr bucketShift
             append(bucketValue)
         }
     }
