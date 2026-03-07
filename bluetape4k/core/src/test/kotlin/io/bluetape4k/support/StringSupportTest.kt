@@ -272,6 +272,20 @@ class StringSupportTest: AbstractCoreTest() {
     }
 
     @Test
+    fun `get first line when separator starts at first character`() {
+        val lines = LINE_SEPARATOR + "second line"
+
+        lines.firstLine() shouldBeEqualTo EMPTY_STRING
+    }
+
+    @Test
+    fun `get first line from normalized newline text`() {
+        val lines = "title\nbody"
+
+        lines.firstLine() shouldBeEqualTo "title"
+    }
+
+    @Test
     fun `between string`() {
         val origin = "debop is developer and architect"
 
@@ -289,6 +303,8 @@ class StringSupportTest: AbstractCoreTest() {
 
         // start == end 이면, EMPTY_STRING을 반환한다.
         origin.between("developer", "developer") shouldBeEqualTo EMPTY_STRING
+        origin.between("missing", "architect") shouldBeEqualTo EMPTY_STRING
+        origin.between("developer", "missing") shouldBeEqualTo EMPTY_STRING
     }
 
     @Test

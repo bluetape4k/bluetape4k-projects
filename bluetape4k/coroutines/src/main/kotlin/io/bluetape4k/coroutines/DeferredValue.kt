@@ -105,7 +105,7 @@ class DeferredValue<T: Any>(
      *
      * ## 동작/계약
      * - 취소 완료된 경우에만 `true`를 반환합니다.
- * - 조회 전용 프로퍼티이며 상태를 변경하지 않습니다.
+     * - 조회 전용 프로퍼티이며 상태를 변경하지 않습니다.
      *
      * ```kotlin
      * val deferred = deferredValueOf { 42 }

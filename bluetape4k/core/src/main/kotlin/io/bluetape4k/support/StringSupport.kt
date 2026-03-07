@@ -639,31 +639,42 @@ fun CharSequence?.wordCount(word: String): Int {
  *
  * ## 동작/계약
  * - null 또는 blank면 빈 문자열을 반환합니다.
+ * - 기본 구분자를 사용할 때는 시스템 line separator 와 `\n` 형식을 모두 인식합니다.
  * - lineSeparator가 없으면 전체 문자열을 반환합니다.
+ * - lineSeparator가 첫 글자부터 시작하면 빈 문자열을 반환합니다.
  * - 예외는 발생하지 않습니다.
  *
  * ```kotlin
  * "a\nb\nc".firstLine() // "a"
+ * "\nbody".firstLine() // ""
  * ```
  */
 fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
     if (this.isNullOrBlank()) return EMPTY_STRING
     if (lineSeparator.isEmpty()) return this.toString()
 
-    val index = this.indexOf(lineSeparator)
-    return if (index > 0) substring(0, index) else this.toString()
+    val index = when {
+        lineSeparator == LINE_SEPARATOR -> listOf(
+            this.indexOf(lineSeparator),
+            this.indexOf('\n'),
+        ).filter { it >= 0 }.minOrNull() ?: -1
+
+        else -> this.indexOf(lineSeparator)
+    }
+    return if (index >= 0) substring(0, index) else this.toString()
 }
 
 /**
  * 문자열에서 [start]와 [end] 사이의 문자열을 추출합니다(두 경계는 제외).
  *
  * ## 동작/계약
- * - null, empty, start==end, start/end가 없으면 빈 문자열 반환
+ * - null, empty, start==end, start 또는 end가 없으면 빈 문자열 반환
  * - 첫 번째 start 이후부터 end 이전까지 추출합니다.
  * - 예외는 발생하지 않습니다.
  *
  * ```kotlin
  * "abc[hello]def".between("[", "]") // "hello"
+ * "abc[hello".between("[", "]") // ""
  * ```
  */
 fun CharSequence?.between(start: String, end: String): String {
@@ -676,21 +687,18 @@ fun CharSequence?.between(start: String, end: String): String {
     if (start == end)
         return EMPTY_STRING
 
-    var startIndex = 0
-    if (start.isNotEmpty()) {
-        val index = this.indexOf(start)
-        if (index >= 0)
-            startIndex = index + start.length
+    val startIndex = this.indexOf(start)
+    if (startIndex < 0) {
+        return EMPTY_STRING
     }
 
-    var endIndex = this.length
-    if (end.isNotEmpty()) {
-        val index = this.indexOf(end, startIndex)
-        if (index >= 0)
-            endIndex = index
+    val contentStartIndex = startIndex + start.length
+    val endIndex = this.indexOf(end, contentStartIndex)
+    if (endIndex < 0) {
+        return EMPTY_STRING
     }
 
-    return if (endIndex >= startIndex) this.substring(startIndex, endIndex) else EMPTY_STRING
+    return if (endIndex >= contentStartIndex) this.substring(contentStartIndex, endIndex) else EMPTY_STRING
 }
 
 /**

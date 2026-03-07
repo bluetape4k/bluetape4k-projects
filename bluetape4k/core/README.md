@@ -219,14 +219,19 @@ val bounded = value.coerceIn(0, 100)  // 100
 #### String Extensions
 
 ```kotlin
-import io.bluetape4k.support.isWhiteSpace
-import io.bluetape4k.support.replaceFirst
-import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.between
+import io.bluetape4k.support.firstLine
+import io.bluetape4k.support.isWhitespace
+import io.bluetape4k.support.prefixIfAbsent
+import io.bluetape4k.support.trimWhitespace
 
 val text = "  Hello  "
-text.isWhiteSpace()  // false
+text.isWhitespace()  // false
 
-val trimmed = text.trim()
+val trimmed = text.trimWhitespace()  // "Hello"
+val heading = "title\nbody".firstLine()  // "title"
+val token = "Bearer abc.def".between("Bearer ", ".")  // "abc"
+val namespaced = "version".prefixIfAbsent("bluetape4k.")  // "bluetape4k.version"
 ```
 
 #### Array Extensions

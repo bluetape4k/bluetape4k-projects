@@ -4,10 +4,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CancellationException
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -41,6 +43,22 @@ class DeferredSupportTest {
     }
 
     @Test
+    fun `awaitAny는 첫 완료가 실패면 예외를 전파하고 나머지는 취소하지 않는다`() = runTest {
+        val failure = IllegalStateException("boom")
+        val first = CompletableDeferred<Int>()
+        val second = CompletableDeferred<Int>()
+
+        launch { first.completeExceptionally(failure) }
+
+        val thrown = assertFailsWith<IllegalStateException> {
+            listOf(first, second).awaitAny()
+        }
+
+        thrown.message shouldBeEqualTo failure.message
+        second.isCancelled shouldBeEqualTo false
+    }
+
+    @Test
     fun `awaitAny는 단일 deferred인 경우 바로 await 한다`() = runTest {
         val only = async { 7 }
 
@@ -67,5 +85,39 @@ class DeferredSupportTest {
         second.isCancelled.shouldBeTrue()
         third.isCancelled.shouldBeTrue()
         assertTrue(first.isCompleted)
+    }
+
+    @Test
+    fun `awaitAnyAndCancelOthers는 첫 완료가 실패여도 나머지를 취소한다`() = runTest {
+        val failure = IllegalStateException("boom")
+        val first = CompletableDeferred<Int>()
+        val second = CompletableDeferred<Int>()
+        val third = CompletableDeferred<Int>()
+
+        launch { first.completeExceptionally(failure) }
+
+        val thrown = assertFailsWith<IllegalStateException> {
+            listOf(first, second, third).awaitAnyAndCancelOthers()
+        }
+
+        thrown.message shouldBeEqualTo failure.message
+        second.isCancelled.shouldBeTrue()
+        third.isCancelled.shouldBeTrue()
+    }
+
+    @Test
+    fun `awaitAnyAndCancelOthers는 첫 완료가 취소여도 나머지를 취소한다`() = runTest {
+        val first = CompletableDeferred<Int>()
+        val second = CompletableDeferred<Int>()
+        val third = CompletableDeferred<Int>()
+
+        launch { first.cancel(CancellationException("cancelled")) }
+
+        assertFailsWith<CancellationException> {
+            listOf(first, second, third).awaitAnyAndCancelOthers()
+        }
+
+        second.isCancelled.shouldBeTrue()
+        third.isCancelled.shouldBeTrue()
     }
 }

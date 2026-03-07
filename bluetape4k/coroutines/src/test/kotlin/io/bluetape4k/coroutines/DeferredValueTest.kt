@@ -16,6 +16,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
+import kotlin.test.assertFailsWith
 
 @RandomizedTest
 class DeferredValueTest {
@@ -120,5 +121,14 @@ class DeferredValueTest {
         dv2.isCompleted.shouldBeFalse()
 
         gate.complete(Unit)
+    }
+
+    @Test
+    fun `await와 value는 계산 실패를 그대로 전파한다`() = runTest {
+        val failure = IllegalStateException("boom")
+        val deferred = deferredValueOf<Int> { throw failure }
+
+        assertFailsWith<IllegalStateException> { deferred.await() }.message shouldBeEqualTo failure.message
+        assertFailsWith<IllegalStateException> { deferred.value }.message shouldBeEqualTo failure.message
     }
 }
