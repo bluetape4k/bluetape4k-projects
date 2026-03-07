@@ -33,6 +33,9 @@ SuspendBloomFilter<T>       코루틴 API (suspend add, contains, clear)
 | `InMemorySuspendBloomFilter<T>` | `BitSet` (JVM 메모리) | X | O |
 | `RedissonBloomFilter<T>` | Redis `BitSet` (Redisson) | X | X |
 | `RedissonSuspendBloomFilter<T>` | Redis `BitSet` (비동기 Redisson) | X | O |
+| `LettuceBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce, Lua Script) | X | X |
+| `LettuceAsyncBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | X | X |
+| `LettuceSuspendBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | X | O |
 
 ### 해싱 전략
 
@@ -157,6 +160,65 @@ runBlocking {
 }
 ```
 
+### LettuceBloomFilter
+
+Lettuce를 사용하는 분산 환경용 Bloom Filter입니다. Lua Script로 배치 비트 연산을 원자적으로 수행합니다.
+
+```kotlin
+import io.bluetape4k.bloomfilter.redis.LettuceBloomFilter
+import io.lettuce.core.RedisClient
+
+val client = RedisClient.create("redis://localhost")
+val connection = client.connect()
+val bloomFilter = LettuceBloomFilter<String>(
+    connection = connection,
+    bloomName = "my-lettuce-bloom-filter"
+)
+
+// 사용법은 InMemoryBloomFilter와 동일
+bloomFilter.add("lettuce-item")
+bloomFilter.contains("lettuce-item")  // true
+```
+
+### LettuceAsyncBloomFilter
+
+Lettuce 비동기 API를 사용하는 Bloom Filter입니다. 모든 연산이 `RedisFuture`를 반환합니다.
+
+```kotlin
+import io.bluetape4k.bloomfilter.redis.LettuceAsyncBloomFilter
+
+val bloomFilter = LettuceAsyncBloomFilter<String>(
+    connection = connection,
+    bloomName = "my-async-bloom-filter"
+)
+
+// 비동기 추가
+val addFuture = bloomFilter.addAsync("async-item")
+addFuture.get()  // 완료 대기
+
+// 비동기 포함 여부 검사
+val containsFuture = bloomFilter.containsAsync("async-item")
+val exists = containsFuture.get() == 1L  // true
+```
+
+### LettuceSuspendBloomFilter
+
+Lettuce를 사용하는 Coroutines 지원 Bloom Filter입니다.
+
+```kotlin
+import io.bluetape4k.bloomfilter.redis.LettuceSuspendBloomFilter
+
+val bloomFilter = LettuceSuspendBloomFilter<String>(
+    connection = connection,
+    bloomName = "my-suspend-lettuce-bloom-filter"
+)
+
+runBlocking {
+    bloomFilter.add("suspend-lettuce-item")
+    bloomFilter.contains("suspend-lettuce-item")  // true
+}
+```
+
 ## 고급 설정
 
 ### 최대 요소 수와 오류율 설정
@@ -204,3 +266,4 @@ val bitsPerElement = bloomFilter.getBitsPerElement(n = 1000)
 - [Bloom Filter (Wikipedia)](https://ko.wikipedia.org/wiki/%EB%B8%94%EB%A3%B8_%ED%95%84%ED%84%B0)
 - [Bloom Filter (English Wikipedia)](https://en.wikipedia.org/wiki/Bloom_filter)
 - [Redisson](https://github.com/redisson/redisson)
+- [Lettuce](https://github.com/redis/lettuce)
