@@ -106,7 +106,7 @@ class SuspendDecoratorsTest {
                 .withCircuitBreaker(circuitBreaker)
                 .withRetry(retry)
                 .withRateLimit(rateLimiter)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -122,7 +122,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofRunnable(service::run)
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -141,7 +141,7 @@ class SuspendDecoratorsTest {
                 .ofRunnable(service::run)
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -164,7 +164,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -182,7 +182,7 @@ class SuspendDecoratorsTest {
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -200,7 +200,7 @@ class SuspendDecoratorsTest {
                 .ofSupplier { service.supply() }
                 .withFallback({ it == expected }, { "fallback" })
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -217,7 +217,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -235,7 +235,7 @@ class SuspendDecoratorsTest {
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -258,7 +258,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -275,7 +275,7 @@ class SuspendDecoratorsTest {
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -291,7 +291,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -309,7 +309,7 @@ class SuspendDecoratorsTest {
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated() }
 
@@ -333,7 +333,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input) }
 
@@ -351,7 +351,7 @@ class SuspendDecoratorsTest {
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input) }
 
@@ -368,7 +368,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input) }
 
@@ -386,7 +386,7 @@ class SuspendDecoratorsTest {
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input) }
 
@@ -407,7 +407,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withSuspendCache(coroutinesCache)
-                .decoreate()
+                .decorate()
 
 
             val result = runCatching { decorated.invoke(input) }
@@ -443,7 +443,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input1, input2) }
 
@@ -461,7 +461,7 @@ class SuspendDecoratorsTest {
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input1, input2) }
 
@@ -478,7 +478,7 @@ class SuspendDecoratorsTest {
             val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input1, input2) }
 
@@ -496,7 +496,7 @@ class SuspendDecoratorsTest {
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
-                .decoreate()
+                .decorate()
 
             val result = runCatching { decorated(input1, input2) }
 

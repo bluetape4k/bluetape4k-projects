@@ -2,23 +2,24 @@ package io.bluetape4k.resilience4j.cache
 
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Resilience4j [Cache] 를 사용하여 캐시된 값을 반환합니다.
  *
- * ```
+ * 캐시에 값이 없을 경우 [loader]를 실행하여 값을 로드하고 캐시에 저장합니다.
+ *
+ * ```kotlin
  * val cache = Cache.of(jcache)
- * val result = withCache(cache, key) { ... }
+ * val result = withCache(cache, "key") { key -> loadFromDatabase(key) }
  * ```
  *
- * @param cache 캐시 객체
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @param cache Resilience4j 캐시 객체
  * @param key 캐시 키
- * @param loader 캐시에 없을 시에 호출할 로더
+ * @param loader 캐시 미스 시 호출할 로더
+ * @return 캐시된 값 또는 로드된 값
  */
 suspend inline fun <K, V> withCache(
     cache: Cache<K, V>,
@@ -29,17 +30,21 @@ suspend inline fun <K, V> withCache(
 }
 
 /**
- * [Cache]를 Coroutine 환경에서 값을 [loader]로 로딩합니다.
+ * [Cache]를 Coroutine 환경에서 사용할 수 있도록 데코레이터 함수를 생성합니다.
  *
- * ```
+ * 반환된 함수는 캐시 미스 시에만 원본 [loader]를 실행합니다.
+ *
+ * ```kotlin
  * val cache = Cache.of(jcache)
- * val loader: suspend (K) -> V = { key: K -> ... }
- * val cachedLoader = cache.decorateSuspendedFunction(loader)
- * val result = cachedLoader(key)
+ * val loader: suspend (String) -> User = { key -> loadFromDatabase(key) }
+ * val cachedLoader = cache.decorateSuspendFunction(loader)
+ * val user = cachedLoader("user:1")
  * ```
  *
- * @param loader 캐시에 저장할 로더
- * @return 캐시된 값을 반환하는 함수
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @param loader 캐시 미스 시 실행할 key 기반 suspend 함수
+ * @return 캐시가 적용된 suspend 함수
  * @see executeSuspendFunction
  */
 inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
@@ -49,37 +54,46 @@ inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
 }
 
 /**
- * [Cache]를 Coroutine 환경에서 값을 [loader]를 실행하여 로딩합니다.
+ * [Cache]를 사용하여 지정된 키로 값을 로드합니다.
  *
- * ```
+ * JCache 접근은 블로킹 I/O이므로 [Dispatchers.IO]에서 실행합니다.
+ * 캐시 히트 시 [loader]를 호출하지 않고 캐시된 값을 반환합니다.
+ * 캐시 미스 시 [loader]를 실행하고 결과를 캐시에 저장합니다.
+ *
+ * ```kotlin
  * val cache = Cache.of(jcache)
- * val loader: suspend (K) -> V = { key: K -> ... }
- * val cachedLoader = cache.decorateSuspendedFunction(loader)
- * val result = cachedLoader(key)
+ * val user = cache.executeSuspendFunction("user:1") { key ->
+ *     loadFromDatabase(key)
+ * }
  * ```
  *
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
  * @param key 캐시 키
- * @param loader 캐시에 저장할 로더
- * @return 캐시된 값
+ * @param loader 캐시 미스 시 실행할 key 기반 suspend 함수
+ * @return 캐시된 값 또는 로드된 값
  */
 suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
     key: K,
     crossinline loader: suspend (K) -> V,
-): V = suspendCancellableCoroutine { cont ->
-
-    val cachedValue = runCatching { computeIfAbsent(key!!) { null } }.getOrNull()
+): V {
+    // JCache 접근은 블로킹 I/O - Dispatchers.IO로 offload
+    val cachedValue = withContext(Dispatchers.IO) {
+        runCatching { computeIfAbsent(key!!) { null } }.getOrNull()
+    }
     if (cachedValue != null) {
-        cont.resume(cachedValue)
-    } else {
-        // Load cache value
-        val result = runCatching { runBlocking { withContext(Dispatchers.IO) { loader(key) } } }
-        if (result.isSuccess) {
-            if (result.getOrNull() != null) {
-                this.computeIfAbsent(key!!) { result.getOrNull() }
-            }
-            cont.resumeWith(result)
-        } else {
-            cont.resumeWithException(result.exceptionOrNull()!!)
+        return cachedValue
+    }
+
+    // 캐시 미스: loader 실행
+    val value = loader(key)
+
+    // 로드된 값을 캐시에 저장 (null이 아닌 경우만)
+    if (value != null) {
+        withContext(Dispatchers.IO) {
+            runCatching { computeIfAbsent(key!!) { value } }
         }
     }
+
+    return value
 }

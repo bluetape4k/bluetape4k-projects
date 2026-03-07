@@ -211,7 +211,7 @@ val decorated = SuspendDecorators.ofFunction1 { id: String ->
     .withCircuitBreaker(circuitBreaker)
     .withRetry(retry)
     .withCache(cache)  // JCache
-    .decoreate()
+    .decorate()
 
 val user = decorated("user-123")
 

@@ -154,7 +154,7 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
         override fun getNumberOfCacheHits(): Long = cacheHits.value
 
         /**
-         * Retruns the current number of cache misses
+         * Returns the current number of cache misses
          */
         override fun getNumberOfCacheMisses(): Long = cacheMisses.value
     }
