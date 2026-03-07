@@ -8,7 +8,11 @@ import java.io.IOException
 private val log by lazy { KotlinLogging.logger { } }
 
 /**
- * Flush the [Flushable] quietly.
+ * [Flushable]를 조용히 flush합니다. IOException이 발생해도 예외를 전파하지 않고 로그만 남깁니다.
+ *
+ * ```
+ * outputStream.flushQuietly()
+ * ```
  */
 fun Flushable.flushQuietly() {
     try {

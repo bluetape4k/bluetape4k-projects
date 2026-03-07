@@ -6,7 +6,26 @@ import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
 
 /**
- * [BinarySerializer]의 최상위 추상화 클래스
+ * [BinarySerializer]의 최상위 추상화 클래스입니다.
+ *
+ * ## Null/Empty 처리 정책
+ * - `serialize(null)`: 빈 [ByteArray]를 반환합니다.
+ * - `deserialize(null)` 또는 `deserialize(emptyByteArray)`: `null`을 반환합니다.
+ * - 직렬화/역직렬화 실패 시: [BinarySerializationException]을 던집니다.
+ *
+ * ## 구현 방법
+ * [doSerialize]와 [doDeserialize]를 구현하면 됩니다.
+ * null/empty 체크와 예외 처리는 이 클래스에서 담당합니다.
+ *
+ * ```kotlin
+ * class MySerializer: AbstractBinarySerializer() {
+ *     override fun doSerialize(graph: Any): ByteArray = /* 직렬화 구현 */
+ *     override fun <T: Any> doDeserialize(bytes: ByteArray): T? = /* 역직렬화 구현 */
+ * }
+ * ```
+ *
+ * @see BinarySerializer
+ * @see BinarySerializers
  */
 abstract class AbstractBinarySerializer: BinarySerializer {
 

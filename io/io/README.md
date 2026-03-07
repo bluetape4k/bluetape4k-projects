@@ -259,6 +259,76 @@ val tempDir = createTempDirectory(deleteAtExit = true)
 File("temp").deleteDirectoryRecursively()
 ```
 
+### 5. Result 패턴 파일 유틸리티 (FileSupportResult)
+
+예외 대신 `Result<T>`를 반환하는 안전한 파일 처리 API를 제공합니다. `tryXXXX` 패턴으로 명명되어 있습니다.
+
+```kotlin
+import io.bluetape4k.io.*
+import java.io.File
+import java.nio.file.Paths
+
+// 디렉토리 생성 (Result 반환)
+tryCreateDirectory("/tmp/mydir").fold(
+    onSuccess = { dir -> println("Created: ${dir.absolutePath}") },
+    onFailure = { error -> logger.error("Failed", error) }
+)
+
+// 파일 생성 (Result 반환)
+val result = tryCreateFile("/tmp/mydir/file.txt")
+if (result.isSuccess) {
+    println("File created: ${result.getOrThrow().absolutePath}")
+}
+
+// 파일 읽기 (Result 반환)
+val path = Paths.get("data.bin")
+path.tryReadAllBytes().onSuccess { bytes ->
+    println("Read ${bytes.size} bytes")
+}
+
+// 파일 쓰기 (Result 반환)
+path.tryWriteBytes("Hello".toByteArray()).onSuccess { size ->
+    println("Wrote $size bytes")
+}
+
+// 비동기 복사 (CompletableFuture<Result<File>>)
+val source = File("source.txt")
+source.tryCopyToAsync(File("target.txt")).thenAccept { result ->
+    result.onSuccess { copied -> println("Copied: ${copied.name}") }
+    result.onFailure { error -> println("Failed: ${error.message}") }
+}
+
+// 비동기 이동 (CompletableFuture<Result<File>>)
+source.tryMoveAsync(File("target.txt")).thenAccept { result ->
+    result.fold(
+        onSuccess = { println("Moved successfully") },
+        onFailure = { println("Move failed: ${it.message}") }
+    )
+}
+
+// 비동기 읽기 (CompletableFuture<Result<ByteArray>>)
+path.tryReadAllBytesAsync().thenAccept { result ->
+    result.onSuccess { bytes -> println("Read ${bytes.size} bytes") }
+}
+```
+
+**Result 패턴 API 목록:**
+
+| 함수 | 반환 타입 | 설명 |
+|------|----------|------|
+| `tryCreateDirectory(path)` | `Result<File>` | 디렉토리 생성 |
+| `tryCreateFile(path)` | `Result<File>` | 파일 생성 |
+| `File.tryDeleteRecursively()` | `Result<Boolean>` | 재귀 삭제 |
+| `File.tryDeleteIfExists()` | `Result<Boolean>` | 파일 삭제 |
+| `Path.tryReadAllBytes()` | `Result<ByteArray>` | 바이트 읽기 |
+| `Path.tryWriteBytes(bytes)` | `Result<Long>` | 바이트 쓰기 |
+| `Path.tryReadAllLines()` | `Result<List<String>>` | 라인 읽기 |
+| `Path.tryWriteLines(lines)` | `Result<Long>` | 라인 쓰기 |
+| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>` | 비동기 복사 |
+| `File.tryMoveAsync(target)` | `CompletableFuture<Result<File>>` | 비동기 이동 |
+| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | 비동기 읽기 |
+| `Path.tryWriteAsync(bytes)` | `CompletableFuture<Result<Long>>` | 비동기 쓰기 |
+
 ## 의존성 추가
 
 ### Gradle (Kotlin DSL)
@@ -405,8 +475,10 @@ io.bluetape4k.io
 │   │   └── StreamingCipherSource.kt
 │   ├── compress/       # 압축 스트림
 │   └── jasypt/         # Jasypt 암호화 (Deprecated)
-├── FileSupport.kt      # 파일 유틸리티
-├── PathSupport.kt      # Path 유틸리티
+├── FileSupport.kt          # 파일 유틸리티 (비동기 복사/이동/읽기/쓰기)
+├── FileSupportResult.kt    # Result 패턴 파일 유틸리티 (tryXXXX API)
+├── FileCoroutineSupport.kt # Coroutine 기반 파일 I/O (readAllBytesSuspending 등)
+├── PathSupport.kt          # Path 유틸리티
 └── [기타 확장 함수들]
 ```
 

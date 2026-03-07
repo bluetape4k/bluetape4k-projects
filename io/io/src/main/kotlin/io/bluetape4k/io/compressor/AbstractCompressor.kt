@@ -8,6 +8,25 @@ import io.bluetape4k.support.isNullOrEmpty
 
 /**
  * [Compressor]의 최상위 추상화 클래스입니다.
+ *
+ * ## Null/Empty 처리 정책
+ * - `compress(null)` 또는 `compress(emptyByteArray)`: 빈 [ByteArray]를 반환합니다.
+ * - `decompress(null)` 또는 `decompress(emptyByteArray)`: 빈 [ByteArray]를 반환합니다.
+ * - 압축/해제 실패 시 예외를 전파하지 않고 빈 [ByteArray]를 반환합니다.
+ *
+ * ## 구현 방법
+ * [doCompress]와 [doDecompress]를 구현하면 됩니다.
+ * null/empty 체크와 예외 처리는 이 클래스에서 담당합니다.
+ *
+ * ```kotlin
+ * class MyCompressor: AbstractCompressor() {
+ *     override fun doCompress(plain: ByteArray): ByteArray = /* 압축 구현 */
+ *     override fun doDecompress(compressed: ByteArray): ByteArray = /* 해제 구현 */
+ * }
+ * ```
+ *
+ * @see Compressor
+ * @see Compressors
  */
 abstract class AbstractCompressor: Compressor {
 
