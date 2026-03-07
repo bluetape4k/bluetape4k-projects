@@ -94,7 +94,9 @@ fun ZonedDateTime.toTimeRange(end: ZonedDateTime): ITimeRange = TimeRange(this, 
  * 회계연도처럼 기준 월이 1월이 아닌 경우, 기준 월보다 앞선 달은 이전 연도로 계산합니다.
  *
  * ```kotlin
- * val fiscalCalendar = TimeCalendar(TimeCalendarConfig(baseMonth = 4))
+ * val fiscalCalendar = object : TimeCalendar() {
+ *     override val baseMonth: Int = 4
+ * }
  *
  * yearOf(2025, 3, fiscalCalendar) == 2024
  * yearOf(2025, 4, fiscalCalendar) == 2025

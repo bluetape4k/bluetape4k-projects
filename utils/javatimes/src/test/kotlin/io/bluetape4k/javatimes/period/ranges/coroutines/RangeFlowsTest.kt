@@ -24,7 +24,6 @@ class RangeFlowsTest {
     private val calendar = TimeCalendar(
         TimeCalendarConfig(
             firstDayOfWeek = DayOfWeek.SUNDAY,
-            baseMonth = 4,
         )
     )
 
@@ -47,12 +46,12 @@ class RangeFlowsTest {
     }
 
     @Test
-    fun `flowOfWeekRange emits aligned ranges with calendar`() = runTest {
-        assertRangeFlow(
-            count = 5,
-            factory = ::flowOfWeekRange,
-            expectedFirst = { time, cal -> WeekRange(time, cal) },
-        )
+    fun `flowOfWeekRange honors calendar firstDayOfWeek`() = runTest {
+        val items = flowOfWeekRange(start, 5, calendar).toList()
+
+        items.size shouldBeEqualTo 5
+        items.first().unmappedStart shouldBeEqualTo zonedDateTimeOf(2025, 3, 9, zoneId = start.zone)
+        items.first().calendar shouldBeEqualTo calendar
     }
 
     @Test

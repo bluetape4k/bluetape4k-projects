@@ -126,12 +126,11 @@ dateDiff.seconds       // 초 차이
 #### TimeCalendar / TimeCalendarConfig
 
 `TimeCalendar`은 기간의 시작/종료 매핑과 주 시작 요일 같은 "달력 규칙"을 캡슐화합니다.
-현재 `TimeCalendarConfig`가 직접 제공하는 값은 다음 네 가지입니다.
+현재 `TimeCalendarConfig`가 직접 제공하는 값은 다음 세 가지입니다.
 
 - `startOffset`: 기간 시작 시각을 매핑할 때 적용할 오프셋
 - `endOffset`: 기간 종료 시각을 매핑할 때 적용할 오프셋
 - `firstDayOfWeek`: 주간 계산 시 사용할 시작 요일
-- `baseMonth`: 연도 계산의 기준 월. 회계연도처럼 4월 시작 연도를 표현할 때 사용
 
 기본 설정은 시작 시각에 `0ns`, 종료 시각에 `-1ns`를 적용해 `[start, end)` 형태를 표현합니다.
 양 끝을 모두 포함해야 하면 `TimeCalendarConfig.EmptyOffset` 또는 `TimeCalendar.EmptyOffset`을 사용할 수 있습니다.
@@ -145,7 +144,6 @@ val calendar = TimeCalendar(
         startOffset = Duration.ofHours(1),
         endOffset = Duration.ofHours(-1),
         firstDayOfWeek = DayOfWeek.SUNDAY,
-        baseMonth = 4,
     )
 )
 
@@ -161,30 +159,23 @@ range.start         // 2024-04-01T10:00...
 range.end           // 2024-04-01T17:59:59.999999999...
 range.unmappedStart // 2024-04-01T09:00...
 range.unmappedEnd   // 2024-04-01T18:00...
-
-calendar.baseMonth  // 4
-yearOf(2024, 3, calendar)            // 2023
-zonedDateTimeOf(2024, 3, 1).yearOf(calendar)  // 2023
 ```
 
-회계연도처럼 "연도의 시작 월"을 바꾸고 싶다면 `baseMonth`를 설정한 `TimeCalendarConfig`를 사용하면 됩니다.
-필요하다면 `ITimeCalendar`를 직접 구현해 더 복잡한 규칙을 정의할 수도 있지만, 대부분은 설정만으로 충분합니다.
+회계연도처럼 helper 성 연도 판정(`yearOf(...)`, `ZonedDateTime.yearOf(calendar)`, `YearCalendarTimeRange.baseYear`)에
+기준 월을 반영하고 싶다면 `baseMonth`를 재정의한 custom calendar를 사용하면 됩니다.
 
 ```kotlin
-val fiscalCalendar = TimeCalendar(
-    TimeCalendarConfig(
-        firstDayOfWeek = DayOfWeek.MONDAY,
-        baseMonth = 4,
-    )
-)
+val fiscalCalendar = object : TimeCalendar(TimeCalendarConfig()) {
+    override val baseMonth: Int = 4
+}
 
 yearOf(2024, 3, fiscalCalendar)  // 2023
 yearOf(2024, 4, fiscalCalendar)  // 2024
 zonedDateTimeOf(2024, 3, 1).yearOf(fiscalCalendar)  // 2023
 ```
 
-실무에서는 "주 시작 요일"과 "회계연도 시작 월"을 함께 맞춘 달력을 하나 정의해 두고,
-`CalendarTimeRange`, `YearRange`, 각종 period helper에 일관되게 재사용하는 방식이 가장 안전합니다.
+실무에서는 `TimeCalendarConfig`로 start/end offset, `firstDayOfWeek`를 설정하고, 필요할 때만
+`baseMonth`를 custom calendar에서 재정의해 helper 성 계산에 쓰는 방식이 가장 안전합니다.
 
 ### Calendar Ranges (period/ranges/)
 

@@ -5,10 +5,12 @@ import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeCalendar
+import io.bluetape4k.javatimes.period.TimeCalendarConfig
 import io.bluetape4k.javatimes.startOfWeek
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.weekOfWeekyear
 import io.bluetape4k.javatimes.weekPeriod
+import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.time.DayOfWeek
 
 class WeekRangeTest: AbstractPeriodTest() {
 
@@ -84,5 +87,16 @@ class WeekRangeTest: AbstractPeriodTest() {
             }
             tasks.awaitAll()
         }
+    }
+
+    @Test
+    fun `custom firstDayOfWeek shifts week boundary`() {
+        val calendar = TimeCalendar(TimeCalendarConfig(firstDayOfWeek = DayOfWeek.SUNDAY))
+        val saturday = zonedDateTimeOf(2025, 3, 15, 10, 30)
+
+        val weekRange = WeekRange(saturday, calendar)
+
+        weekRange.unmappedStart shouldBeEqualTo zonedDateTimeOf(2025, 3, 9)
+        weekRange.unmappedEnd shouldBeEqualTo zonedDateTimeOf(2025, 3, 16)
     }
 }

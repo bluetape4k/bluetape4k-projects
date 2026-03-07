@@ -4,11 +4,13 @@ import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.Year
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAccessor
+import java.time.temporal.TemporalAdjusters
+import java.time.temporal.WeekFields
 
 /**
  * 시간 단위의 달력을 나타내는 인터페이스
@@ -27,21 +29,30 @@ interface ITimeCalendar: ITimePeriodMapper {
     /**
      * 연도 계산의 기준 월입니다.
      *
-     * 기본값은 1월이며, 회계연도처럼 4월 시작 연도를 사용하려면 4를 반환하도록 구현합니다.
+     * 기본값은 1월입니다. `yearOf(...)`, `ZonedDateTime.yearOf(calendar)`, `YearCalendarTimeRange.baseYear`
+     * 같은 helper 성 API에서 사용됩니다.
      */
     val baseMonth: Int get() = 1
 
     fun year(moment: ZonedDateTime): Int = moment.year
     fun monthOfYear(moment: ZonedDateTime): Int = moment.monthValue
+    fun weekFields(): WeekFields = WeekFields.of(firstDayOfWeek, 4)
 
-    fun weekOfyear(moment: TemporalAccessor): WeekyearWeek = WeekyearWeek(moment)
+    fun weekOfyear(moment: TemporalAccessor): WeekyearWeek = WeekyearWeek(moment, weekFields())
+
+    fun startOfWeek(moment: ZonedDateTime): ZonedDateTime =
+        moment.truncatedTo(ChronoUnit.DAYS).with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
 
     fun startOfYearWeek(moment: ZonedDateTime): ZonedDateTime =
         weekOfyear(moment).run { startOfYearWeek(weekyear, weekOfWeekyear, moment.zone) }
 
     fun startOfYearWeek(weekyear: Int, weekOfWeekyear: Int, zoneId: ZoneId = ZoneId.systemDefault()): ZonedDateTime {
-        val localDate = LocalDate.ofYearDay(Year.of(weekyear).value, weekOfWeekyear * 7)
-        return ZonedDateTime.of(localDate, LocalTime.ofSecondOfDay(0L), zoneId)
+        val weekFields = weekFields()
+        val localDate = LocalDate.of(weekyear, 1, 4)
+            .with(weekFields.weekBasedYear(), weekyear.toLong())
+            .with(weekFields.weekOfWeekBasedYear(), weekOfWeekyear.toLong())
+            .with(weekFields.dayOfWeek(), 1L)
+        return ZonedDateTime.of(localDate, LocalTime.MIDNIGHT, zoneId)
     }
 
     fun dayOfMonth(moment: ZonedDateTime): Int = moment.dayOfMonth

@@ -2,7 +2,6 @@ package io.bluetape4k.javatimes.period.ranges
 
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
-import io.bluetape4k.javatimes.startOfWeekOfWeekyear
 import java.time.ZonedDateTime
 
 /**
@@ -19,7 +18,7 @@ open class WeekRangeCollection(
         weekOfWeekyear: Int,
         weekCount: Int = 1,
         calendar: ITimeCalendar = TimeCalendar.Default,
-    ): this(startOfWeekOfWeekyear(weekyear, weekOfWeekyear), weekCount, calendar)
+    ): this(calendar.startOfYearWeek(weekyear, weekOfWeekyear), weekCount, calendar)
 
     fun weekSequence(): Sequence<WeekRange> = weekRanges(start, weekCount, calendar)
 

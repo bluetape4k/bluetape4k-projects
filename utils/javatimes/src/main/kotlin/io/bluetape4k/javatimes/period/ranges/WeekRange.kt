@@ -2,7 +2,6 @@ package io.bluetape4k.javatimes.period.ranges
 
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
-import io.bluetape4k.javatimes.startOfWeekOfWeekyear
 import java.time.ZonedDateTime
 
 /**
@@ -17,7 +16,7 @@ open class WeekRange(
         weekyear: Int,
         weekOfWeekyear: Int,
         calendar: ITimeCalendar = TimeCalendar.Default,
-    ): this(startOfWeekOfWeekyear(weekyear, weekOfWeekyear), calendar)
+    ): this(calendar.startOfYearWeek(weekyear, weekOfWeekyear), calendar)
 
     val firstDayOfWeek: ZonedDateTime get() = start
     val lastDayOfWeek: ZonedDateTime get() = end

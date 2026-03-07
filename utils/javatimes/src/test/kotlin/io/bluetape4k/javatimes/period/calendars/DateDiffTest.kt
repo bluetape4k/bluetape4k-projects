@@ -12,6 +12,8 @@ import io.bluetape4k.javatimes.minutes
 import io.bluetape4k.javatimes.monthPeriod
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
+import io.bluetape4k.javatimes.period.TimeCalendar
+import io.bluetape4k.javatimes.period.TimeCalendarConfig
 import io.bluetape4k.javatimes.quarterPeriod
 import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.javatimes.weekPeriod
@@ -21,6 +23,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.time.DayOfWeek
 import java.time.Duration
 
 class DateDiffTest: AbstractPeriodTest() {
@@ -241,6 +244,15 @@ class DateDiffTest: AbstractPeriodTest() {
         dateDiff13.hours shouldBeEqualTo days13 * HoursPerDay
         dateDiff13.minutes shouldBeEqualTo days13 * HoursPerDay * MinutesPerHour
         dateDiff13.seconds shouldBeEqualTo days13 * HoursPerDay * MinutesPerHour * SecondsPerMinute
+    }
+
+    @Test
+    fun `datediff weeks honors custom firstDayOfWeek`() {
+        val calendar = TimeCalendar(TimeCalendarConfig(firstDayOfWeek = DayOfWeek.SUNDAY))
+        val saturday = zonedDateTimeOf(2025, 3, 15, 10, 0)
+        val sunday = zonedDateTimeOf(2025, 3, 16, 10, 0)
+
+        DateDiff(saturday, sunday, calendar).weeks shouldBeEqualTo 1
     }
 
     @Test

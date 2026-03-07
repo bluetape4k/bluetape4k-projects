@@ -16,19 +16,13 @@ import java.util.*
  * @param startOffset 기간의 시작점을 설정합니다. 기본값은 0 나노초입니다. (startInclusive 를 구현하기 위해)
  * @param endOffset 기간의 종료점을 설정합니다. 기본값은 -1 나노초입니다. (endExclusive 를 구현하기 위해)
  * @param firstDayOfWeek 주의 첫 요일을 설정합니다. 기본값은 ISO 8601 표준에 따라 [DayOfWeek.MONDAY] 입니다.
- * @param baseMonth 연도 계산의 기준이 되는 월입니다. 회계연도 달력이라면 1보다 큰 값을 지정할 수 있습니다.
  */
 data class TimeCalendarConfig(
     val locale: Locale = Locale.getDefault(),
     val startOffset: Duration = DefaultStartOffset,
     val endOffset: Duration = DefaultEndOffset,
     val firstDayOfWeek: DayOfWeek = FirstDayOfWeek,
-    val baseMonth: Int = 1,
 ): Serializable {
-
-    init {
-        require(baseMonth in 1..12) { "baseMonth 는 1..12 범위여야 합니다. baseMonth=$baseMonth" }
-    }
 
     companion object {
         /**

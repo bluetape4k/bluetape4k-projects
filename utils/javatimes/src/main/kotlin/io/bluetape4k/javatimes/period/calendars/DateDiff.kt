@@ -69,10 +69,10 @@ open class DateDiff private constructor(
     val isEmpty: Boolean = difference.isZero
 
     /** 시작 시각의 연도 */
-    val startYear: Int get() = calendar.year(start)
+    val startYear: Int get() = start.year
 
     /** 종료 시각의 연도 */
-    val endYear: Int get() = calendar.year(end)
+    val endYear: Int get() = end.year
 
     /** 시작 시각의 월(1-12) */
     val startMonthOfYear: Int get() = calendar.monthOfYear(start)
@@ -229,8 +229,8 @@ open class DateDiff private constructor(
     private fun calcWeeks(): Long {
         log.trace { "Calc difference by week ... " }
 
-        val w1 = start.startOfWeek()
-        val w2 = end.startOfWeek()
+        val w1 = calendar.startOfWeek(start)
+        val w2 = calendar.startOfWeek(end)
 
         val diff = if (w1 == w2) 0L else Duration.between(w1, w2).toDays() / DaysPerWeek
 

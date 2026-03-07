@@ -28,8 +28,13 @@ data class WeekyearWeek(
          */
         @JvmStatic
         operator fun invoke(moment: TemporalAccessor): WeekyearWeek {
-            val weekyear = moment[WeekFields.ISO.weekBasedYear()]
-            val weekOfWeekyear = moment[WeekFields.ISO.weekOfWeekBasedYear()]
+            return invoke(moment, WeekFields.ISO)
+        }
+
+        @JvmStatic
+        operator fun invoke(moment: TemporalAccessor, weekFields: WeekFields): WeekyearWeek {
+            val weekyear = moment[weekFields.weekBasedYear()]
+            val weekOfWeekyear = moment[weekFields.weekOfWeekBasedYear()]
             return WeekyearWeek(weekyear, weekOfWeekyear)
         }
     }

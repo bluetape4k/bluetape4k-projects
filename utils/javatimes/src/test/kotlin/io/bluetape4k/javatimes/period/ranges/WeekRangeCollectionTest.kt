@@ -2,6 +2,8 @@ package io.bluetape4k.javatimes.period.ranges
 
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
+import io.bluetape4k.javatimes.period.TimeCalendar
+import io.bluetape4k.javatimes.period.TimeCalendarConfig
 import io.bluetape4k.javatimes.startOfWeek
 import io.bluetape4k.javatimes.startOfWeekOfWeekyear
 import io.bluetape4k.javatimes.todayZonedDateTime
@@ -19,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.time.DayOfWeek
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -144,5 +147,17 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
                 }
             }
             .run()
+    }
+
+    @Test
+    fun `week range collection honors custom firstDayOfWeek`() {
+        val calendar = TimeCalendar(TimeCalendarConfig(firstDayOfWeek = DayOfWeek.SUNDAY))
+        val start = zonedDateTimeOf(2025, 3, 15, 10, 30)
+
+        val wrs = WeekRangeCollection(start, 2, calendar)
+
+        wrs.unmappedStart shouldBeEqualTo zonedDateTimeOf(2025, 3, 9)
+        wrs.unmappedEnd shouldBeEqualTo zonedDateTimeOf(2025, 3, 23)
+        wrs.startWeekOfWeekyear shouldBeEqualTo calendar.weekOfyear(wrs.start).weekOfWeekyear
     }
 }

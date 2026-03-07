@@ -38,7 +38,6 @@ open class TimeCalendar(
     override val startOffset: Duration get() = config.startOffset
     override val endOffset: Duration get() = config.endOffset
     override val firstDayOfWeek: DayOfWeek get() = config.firstDayOfWeek
-    override val baseMonth: Int get() = config.baseMonth
 
     override fun mapStart(moment: ZonedDateTime): ZonedDateTime = when {
         moment > MinPeriodTime -> moment + startOffset
@@ -64,16 +63,14 @@ open class TimeCalendar(
         return other is ITimeCalendar &&
                 startOffset == other.startOffset &&
                 endOffset == other.endOffset &&
-                firstDayOfWeek == other.firstDayOfWeek &&
-                baseMonth == other.baseMonth
+                firstDayOfWeek == other.firstDayOfWeek
     }
 
-    override fun hashCode(): Int = hashOf(startOffset, endOffset, firstDayOfWeek, baseMonth)
+    override fun hashCode(): Int = hashOf(startOffset, endOffset, firstDayOfWeek)
 
     override fun buildStringHelper(): ToStringBuilder =
         super.buildStringHelper()
             .add("startOffset", startOffset)
             .add("endOffset", endOffset)
             .add("firstDayOfWeek", firstDayOfWeek)
-            .add("baseMonth", baseMonth)
 }
