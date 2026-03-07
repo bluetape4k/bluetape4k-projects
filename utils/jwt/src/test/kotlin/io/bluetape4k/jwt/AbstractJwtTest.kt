@@ -2,7 +2,8 @@ package io.bluetape4k.jwt
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.security.SignatureAlgorithm
 
 abstract class AbstractJwtTest {
 
@@ -18,6 +19,13 @@ abstract class AbstractJwtTest {
         }
     }
 
-    protected val rsaAlgorithm: List<SignatureAlgorithm> = SignatureAlgorithm.entries.filter { it.isRsa }
+    protected val rsaAlgorithm: List<SignatureAlgorithm> = listOf(
+        Jwts.SIG.RS256,
+        Jwts.SIG.RS384,
+        Jwts.SIG.RS512,
+        Jwts.SIG.PS256,
+        Jwts.SIG.PS384,
+        Jwts.SIG.PS512,
+    )
 
 }

@@ -6,7 +6,7 @@ import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.NearCacheConfig
 import io.bluetape4k.jwt.AbstractJwtTest
-import io.bluetape4k.jwt.codec.Lz4Codec
+import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -56,7 +56,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         issuer = LibraryName
         claim("service", LibraryName)
 
-        compressionCodec = Lz4Codec()
+        compressionAlgorithm = JwtCodecs.Deflate
     }
 
     private val jwt2: String = jwtProvider.compose {
@@ -65,7 +65,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         issuer = LibraryName
         claim("service", LibraryName + "-2")
 
-        compressionCodec = Lz4Codec()
+        compressionAlgorithm = JwtCodecs.Deflate
     }
 
     private val reader = jwtProvider.parse(jwt)

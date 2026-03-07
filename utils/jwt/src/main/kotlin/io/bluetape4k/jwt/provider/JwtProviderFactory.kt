@@ -8,12 +8,20 @@ import io.bluetape4k.jwt.provider.cache.RedissonJwtProvider
 import io.bluetape4k.jwt.provider.cache.RedissonJwtProvider.Companion.DEFAULT_TTL
 import io.bluetape4k.jwt.reader.JwtReaderDto
 import io.bluetape4k.logging.KLogging
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureAlgorithm
 import org.redisson.api.RMapCache
 import java.security.KeyPair
 import javax.cache.Cache
 
+/**
+ * [JwtProvider] 구현체를 생성하는 팩토리입니다.
+ *
+ * ## 동작/계약
+ * - [default]: 키체인 로테이션을 지원하는 [DefaultJwtProvider]를 생성합니다.
+ * - [fixed]: 고정 키를 사용하는 [FixedJwtProvider]를 생성합니다.
+ * - [jcached]: JCache 기반 파싱 결과 캐싱 [JCacheJwtProvider]를 생성합니다.
+ * - [redissonCached]: Redisson 기반 파싱 결과 캐싱 [RedissonJwtProvider]를 생성합니다.
+ */
 object JwtProviderFactory: KLogging() {
 
     /**
@@ -42,7 +50,7 @@ object JwtProviderFactory: KLogging() {
     fun fixed(
         kid: String,
         signatureAlgorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
-        keyPair: KeyPair = Keys.keyPairFor(signatureAlgorithm),
+        keyPair: KeyPair = signatureAlgorithm.keyPair().build(),
     ): JwtProvider {
         return FixedJwtProvider(signatureAlgorithm, keyPair, kid)
     }
@@ -61,6 +69,13 @@ object JwtProviderFactory: KLogging() {
         return JCacheJwtProvider(delegate, cache)
     }
 
+    /**
+     * JWT 의 파싱된 정보를 Redisson RMapCache에 캐싱하는 [RedissonJwtProvider] 인스턴스를 생성합니다.
+     *
+     * @param delegate [JwtProvider] 인스턴스
+     * @param cache Redisson [RMapCache] 인스턴스
+     * @param ttl 캐시 엔트리의 유효기간 (밀리초, 기본: 3일)
+     */
     fun redissonCached(
         delegate: JwtProvider,
         cache: RMapCache<String, JwtReaderDto>,

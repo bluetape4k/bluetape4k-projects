@@ -4,7 +4,7 @@ import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.jwt.AbstractJwtTest
-import io.bluetape4k.jwt.codec.Lz4Codec
+import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.utils.dateOfEpochSeconds
 import io.bluetape4k.jwt.utils.epochSeconds
 import io.bluetape4k.logging.KLogging
@@ -21,7 +21,7 @@ class FixedJwtProviderTest: AbstractJwtTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
-        private val compressCodec = Lz4Codec()
+        private val compressCodec = JwtCodecs.Deflate
     }
 
     private val provider = JwtProviderFactory.fixed(UUID.randomUUID().encodeBase62())
@@ -64,7 +64,7 @@ class FixedJwtProviderTest: AbstractJwtTest() {
                     issuer = LibraryName
                     issuedAt = now
                     claim("custom-data", customData)
-                    compressionCodec = compressCodec
+                    compressionAlgorithm = compressCodec
                 }
 
                 jwts.add(jwt)

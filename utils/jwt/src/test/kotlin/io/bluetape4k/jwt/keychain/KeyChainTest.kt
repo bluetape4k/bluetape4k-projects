@@ -3,7 +3,6 @@ package io.bluetape4k.jwt.keychain
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.jsonwebtoken.security.Keys
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
@@ -18,8 +17,8 @@ class KeyChainTest: AbstractJwtTest() {
             .forEach { algorithm ->
                 log.debug { "algorithm=$algorithm" }
 
-                val keyPair1 = Keys.keyPairFor(algorithm)
-                val keyPair2 = Keys.keyPairFor(algorithm)
+                val keyPair1 = algorithm.keyPair().build()
+                val keyPair2 = algorithm.keyPair().build()
 
                 keyPair2.public shouldNotBeEqualTo keyPair1.public
                 keyPair2.private shouldNotBeEqualTo keyPair1.private

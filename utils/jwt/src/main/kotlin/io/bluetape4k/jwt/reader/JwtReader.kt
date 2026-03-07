@@ -21,7 +21,7 @@ import java.io.Serializable
  */
 class JwtReader(
     internal val jws: Jws<Claims>,
-): Claims by jws.body, Serializable {
+): Claims by jws.payload, Serializable {
 
     /** JWT header의 `kid` 값입니다. */
     val kid: String?
@@ -82,7 +82,7 @@ class JwtReader(
     @JvmName("getClaim")
     fun claim(name: String): Any? {
         name.assertNotBlank("name")
-        return jws.body[name]
+        return jws.payload[name]
     }
 
     /**

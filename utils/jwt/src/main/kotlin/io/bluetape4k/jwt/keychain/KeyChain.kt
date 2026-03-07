@@ -5,9 +5,9 @@ import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.jwt.JwtConsts.DEFAULT_KEY_ROTATION_TTL_MILLIS
 import io.bluetape4k.jwt.JwtConsts.DefaultSignatureAlgorithm
+import io.bluetape4k.jwt.JwtConsts.RSA_ALGORITHM_IDS
 import io.bluetape4k.support.hashOf
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureAlgorithm
 import java.security.KeyPair
 import java.time.Duration
 
@@ -21,7 +21,7 @@ import java.time.Duration
  *
  * ```kotlin
  * val keyChain = KeyChain()
- * // keyChain.algorithm.isRsa == true
+ * // keyChain.algorithm.id in JwtConsts.RSA_ALGORITHM_IDS
  * // keyChain.id.isNotBlank() == true
  * ```
  */
@@ -53,12 +53,12 @@ class KeyChain private constructor(
         @JvmStatic
         operator fun invoke(
             algorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
-            keyPair: KeyPair = Keys.keyPairFor(algorithm),
+            keyPair: KeyPair = algorithm.keyPair().build(),
             id: String = TimebasedUuid.Epoch.nextIdAsString(),
             createdAt: Long = System.currentTimeMillis(),
             expiredTtl: Duration = Duration.ofMillis(DEFAULT_KEY_ROTATION_TTL_MILLIS),
         ): KeyChain {
-            require(algorithm.isRsa) { "Algorithm must be RSA signature algorithm." }
+            require(algorithm.id in RSA_ALGORITHM_IDS) { "Algorithm must be RSA signature algorithm. got=${algorithm.id}" }
             return KeyChain(algorithm, keyPair, id, createdAt, expiredTtl.toMillis())
         }
     }
@@ -86,7 +86,7 @@ class KeyChain private constructor(
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
             .add("id", id)
-            .add("algorithm", algorithm)
+            .add("algorithm", algorithm.id)
             .add("createdAt", createdAt)
     }
 }

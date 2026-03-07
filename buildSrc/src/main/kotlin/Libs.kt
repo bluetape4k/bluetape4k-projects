@@ -122,7 +122,7 @@ object Versions {
     const val jackson = "2.21.1"    // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
     const val jackson3 = "3.1.0"    // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
     const val fastjson2 = "2.0.61"  // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
-    const val jjwt = "0.11.5"       // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+    const val jjwt = "0.13.0"       // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 
     const val mapstruct = "1.6.3" // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
     const val reflectasm = "1.11.9"     // https://mvnrepository.com/artifact/com.esotericsoftware/reflectasm
