@@ -103,6 +103,9 @@ val consumerExists = management.consumerExists("my-stream", "my-consumer")
 management.forcedDeleteConsumer("my-stream", "my-consumer")
 ```
 
+`forcedDelete*`, `forcedPurgeStream`, `tryDelete` 계열은 "대상이 이미 없는 경우"만 정상 흐름으로 처리하고,
+그 외 JetStream 예외는 그대로 전파합니다. 운영 중 권한 문제나 서버 오류를 실수로 숨기지 않도록 설계되어 있습니다.
+
 ### 4. Subscription 확장
 
 ```kotlin
@@ -196,6 +199,15 @@ val value = kv.get("key")
 kv.delete("key")
 ```
 
+기존 버킷이 있으면 설정을 갱신하고, 없으면 생성하려면 다음과 같이 사용할 수 있습니다.
+
+```kotlin
+val config = keyValueConfiguration("my-bucket") {
+    maxHistoryPerKey(10)
+}
+kvManagement.createOrUpdate(config)
+```
+
 ### 9. Object Store
 
 ```kotlin
@@ -242,6 +254,9 @@ class MyNatsTest: AbstractNatsTest() {
     }
 }
 ```
+
+빠른 회귀 검증이 필요할 때는 MockK 기반의 단위 테스트로 확장 함수를 직접 검증할 수도 있습니다.
+이번 모듈은 관리 API의 not-found 허용/예외 전파/idempotent subject update 계약을 단위 테스트로 보강하고 있습니다.
 
 ## 예제
 
