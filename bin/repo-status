@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: repo-status [--top N]
+
+Summarize repository status with compact counts and a short changed-path list.
+EOF
+}
+
+top_n="${TOP_N:-20}"
+
+while (($# > 0)); do
+    case "$1" in
+        --top)
+            if (($# < 2)); then
+                echo "error: --top requires a value" >&2
+                exit 1
+            fi
+            top_n="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "error: unknown argument: $1" >&2
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+
+if [[ ! "$top_n" =~ ^[0-9]+$ ]] || ((top_n <= 0)); then
+    echo "error: --top must be a positive integer" >&2
+    exit 1
+fi
+
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "error: not inside a git repository" >&2
+    exit 1
+fi
+
+cd "$git_root"
+
+branch_name="$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "(unknown)")"
+upstream_name="$(git rev-parse --abbrev-ref --symbolic-full-name "@{upstream}" 2>/dev/null || true)"
+ahead=0
+behind=0
+if [[ -n "$upstream_name" ]]; then
+    while read -r left right; do
+        ahead="$left"
+        behind="$right"
+    done < <(git rev-list --left-right --count HEAD..."$upstream_name")
+fi
+
+staged_count="$(git diff --cached --name-only | awk 'NF { count++ } END { print count + 0 }')"
+unstaged_count="$(git diff --name-only | awk 'NF { count++ } END { print count + 0 }')"
+untracked_count="$(git ls-files --others --exclude-standard | awk 'NF { count++ } END { print count + 0 }')"
+conflicted_count="$(git diff --name-only --diff-filter=U | awk 'NF { count++ } END { print count + 0 }')"
+
+status_lines="$(git status --short --untracked-files=all)"
+changed_count="$(printf '%s\n' "$status_lines" | awk 'NF { count++ } END { print count + 0 }')"
+
+echo "Repository: $git_root"
+echo "Branch: $branch_name"
+if [[ -n "$upstream_name" ]]; then
+    echo "Upstream: $upstream_name (ahead $ahead, behind $behind)"
+else
+    echo "Upstream: none"
+fi
+echo "Counts: staged=$staged_count unstaged=$unstaged_count untracked=$untracked_count conflicted=$conflicted_count total_paths=$changed_count"
+
+if ((changed_count == 0)); then
+    echo
+    echo "Working tree is clean."
+    exit 0
+fi
+
+echo
+echo "Changed paths (top $top_n of $changed_count):"
+printf '%s\n' "$status_lines" | sed '/^$/d' | head -n "$top_n"

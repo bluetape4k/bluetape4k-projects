@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: repo-diff [--head|--cached|--unstaged] [--top N] [--] [path...]
+
+Show a compact diff summary with per-file churn instead of a full patch.
+EOF
+}
+
+mode="head"
+top_n="${TOP_N:-20}"
+paths=()
+
+while (($# > 0)); do
+    case "$1" in
+        --head)
+            mode="head"
+            shift
+            ;;
+        --cached|--staged)
+            mode="cached"
+            shift
+            ;;
+        --unstaged)
+            mode="unstaged"
+            shift
+            ;;
+        --top)
+            if (($# < 2)); then
+                echo "error: --top requires a value" >&2
+                exit 1
+            fi
+            top_n="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --)
+            shift
+            while (($# > 0)); do
+                paths+=("$1")
+                shift
+            done
+            ;;
+        *)
+            paths+=("$1")
+            shift
+            ;;
+    esac
+done
+
+if [[ ! "$top_n" =~ ^[0-9]+$ ]] || ((top_n <= 0)); then
+    echo "error: --top must be a positive integer" >&2
+    exit 1
+fi
+
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "error: not inside a git repository" >&2
+    exit 1
+fi
+
+cd "$git_root"
+
+diff_args=()
+label=""
+case "$mode" in
+    head)
+        if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+            echo "error: HEAD does not exist yet; use --cached or --unstaged" >&2
+            exit 1
+        fi
+        diff_args=(HEAD)
+        label="working tree + index vs HEAD"
+        ;;
+    cached)
+        diff_args=(--cached)
+        label="index vs HEAD"
+        ;;
+    unstaged)
+        label="working tree vs index"
+        ;;
+esac
+
+if ((${#paths[@]} > 0)); then
+    diff_args+=("--" "${paths[@]}")
+fi
+
+numstat_output="$(git diff --numstat "${diff_args[@]}")"
+shortstat_output="$(git diff --shortstat "${diff_args[@]}")"
+file_count="$(printf '%s\n' "$numstat_output" | awk 'NF { count++ } END { print count + 0 }')"
+
+echo "Repository: $git_root"
+echo "Mode: $label"
+if ((${#paths[@]} > 0)); then
+    echo "Scope: ${paths[*]}"
+else
+    echo "Scope: all tracked paths"
+fi
+
+if ((file_count == 0)); then
+    echo
+    echo "No changes in this scope."
+    exit 0
+fi
+
+echo "Files changed: $file_count"
+echo "Summary: ${shortstat_output:-no textual summary available}"
+echo
+echo "Top files by churn:"
+printf '%s\n' "$numstat_output" \
+    | awk -F '\t' '
+        NF >= 3 {
+            insertions = ($1 == "-" ? "bin" : $1)
+            deletions = ($2 == "-" ? "bin" : $2)
+            total = (($1 == "-" || $2 == "-") ? 0 : $1 + $2)
+            printf "%08d\t%s\t%s\t%s\n", total, insertions, deletions, $3
+        }
+    ' \
+    | sort -r \
+    | head -n "$top_n" \
+    | awk -F '\t' '{ printf "  +%-6s -%-6s %s\n", $2, $3, $4 }'
+
+if ((file_count > top_n)); then
+    echo "  ... $(($file_count - $top_n)) more file(s) omitted"
+fi

@@ -46,6 +46,19 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 ## Build Commands
 
+### Git
+
+```bash
+# 저장소 상태 요약
+./bin/repo-status
+
+# diff 요약
+./bin/repo-diff
+
+# 테스트/Gradle 출력 요약
+./bin/repo-test-summary -- ./gradlew :bluetape4k-coroutines:test
+```
+
 ### Basic Build
 
 ```bash
@@ -94,6 +107,13 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 # Publish RELEASE (remove snapshot version)
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
 ```
+
+## Token-Efficient Workflow
+
+- 세션 컨텍스트 절약을 위해 `git status` 대신 `./bin/repo-status`를 우선 사용합니다.
+- 전체 patch가 필요하기 전에는 `git diff` 대신 `./bin/repo-diff`로 파일별 변경량만 먼저 확인합니다.
+- Gradle 테스트/빌드 로그는 `./bin/repo-test-summary -- ./gradlew ...` 형태로 요약해서 확인합니다.
+- 기본 흐름은 "요약 먼저, 원본 출력은 필요한 파일이나 태스크에 한해 2차로 확인"입니다.
 
 ## Architecture
 

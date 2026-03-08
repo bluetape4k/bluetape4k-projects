@@ -303,3 +303,20 @@ signingPassword=YOUR_KEY_PASSPHRASE
 - `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 직접 실행 대신 루트 집계 task(
   `publishAggregationToCentralSnapshots`) 사용을 권장합니다.
 - RELEASE 버전(`1.2.1` 등)은 동일 버전 재배포가 불가능하므로 실패 시 `baseVersion`을 증가시켜야 합니다.
+
+### 토큰 절약형 요약 명령
+
+AI 에이전트나 긴 터미널 세션에서 원시 `git`/Gradle 출력을 바로 열기 전에, 아래 요약 명령을 먼저 사용하는 것을 권장합니다.
+
+```bash
+# 저장소 상태 요약
+./bin/repo-status
+
+# 파일별 diff 변경량 요약
+./bin/repo-diff
+
+# Gradle 테스트/빌드 로그 요약
+./bin/repo-test-summary -- ./gradlew :05-exposed-dml:01-dml:test
+```
+
+기본 흐름은 "요약 먼저, 필요한 파일이나 태스크만 원본 출력 확인"입니다.

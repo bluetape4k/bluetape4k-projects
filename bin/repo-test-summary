@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: repo-test-summary [--raw-log PATH] -- <command> [args...]
+   or: repo-test-summary <command> [args...]
+
+Run a test command and print a compact summary of the result.
+EOF
+}
+
+raw_log_path=""
+
+while (($# > 0)); do
+    case "$1" in
+        --raw-log)
+            if (($# < 2)); then
+                echo "error: --raw-log requires a path" >&2
+                exit 1
+            fi
+            raw_log_path="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if (($# == 0)); then
+    echo "error: missing command" >&2
+    usage >&2
+    exit 1
+fi
+
+log_file="$(mktemp "${TMPDIR:-/tmp}/repo-test-summary.XXXXXX")"
+cleanup() {
+    if [[ -z "$raw_log_path" ]]; then
+        rm -f "$log_file"
+    fi
+}
+trap cleanup EXIT
+
+set +e
+"$@" >"$log_file" 2>&1
+exit_code=$?
+set -e
+
+if [[ -n "$raw_log_path" ]]; then
+    cp "$log_file" "$raw_log_path"
+fi
+
+echo "Command: $*"
+echo "Exit code: $exit_code"
+echo
+
+task_lines="$(grep -E '^> Task ' "$log_file" | tail -n 12 || true)"
+test_summary_lines="$(grep -E '^[0-9]+ tests completed(, [0-9]+ failed)?' "$log_file" | tail -n 10 || true)"
+failure_lines="$(grep -E 'FAILURE:|Execution failed for task|There were failing tests|BUILD FAILED|BUILD SUCCESSFUL|See the report at:|Caused by:' "$log_file" | tail -n 20 || true)"
+tail_lines="$(tail -n 20 "$log_file" || true)"
+
+if [[ -n "$task_lines" ]]; then
+    echo "Recent tasks:"
+    printf '%s\n' "$task_lines"
+    echo
+fi
+
+if [[ -n "$test_summary_lines" ]]; then
+    echo "Test summaries:"
+    printf '%s\n' "$test_summary_lines"
+    echo
+fi
+
+if [[ -n "$failure_lines" ]]; then
+    echo "Outcome highlights:"
+    printf '%s\n' "$failure_lines"
+    echo
+fi
+
+echo "Tail:"
+printf '%s\n' "$tail_lines"
+
+exit "$exit_code"
