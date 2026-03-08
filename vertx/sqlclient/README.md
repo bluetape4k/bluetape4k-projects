@@ -7,6 +7,15 @@
 
 또한 `bluetape4k-vertx-core` 를 이용하여, Kotlin Coroutines 환경에서도 손쉽게 `Async/Non-Blocking` 을 지원할 수 있도록 해줍니다.
 
+## 최근 업데이트 (2026-03)
+
+- `Pool.withSuspendTransaction`, `Pool.withSuspendRollback`:
+  코루틴 취소 시 `CancellationException`을 `SQLException`으로 감싸지 않고 그대로 전파하도록 개선했습니다.
+- `templates.tupleMapperOfRecord`, `List<T>.toParameters`:
+  레코드 타입별 리플렉션 메타데이터를 캐시하여 대량 배치 처리 시 반복 반사 비용을 줄였습니다.
+- 회귀 테스트 추가:
+  취소 전파/예외 래핑 동작과 `toParameters` 키 생성 규칙을 테스트로 고정했습니다.
+
 ## Use Case
 
 `bluetape4k-vertx-sqlclient` 는 다음과 같은 분야에 적용할 수 있습니다.
