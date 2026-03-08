@@ -177,6 +177,14 @@ class CharArraySetTest {
     }
 
     @Test
+    fun `remove returns false when target does not exist`() {
+        val set = CharArraySet(16)
+
+        set.remove("missing").shouldBeFalse()
+        set.remove(123).shouldBeFalse()
+    }
+
+    @Test
     fun `collision handling`() {
         val set = CharArraySet(16)
 
@@ -241,6 +249,16 @@ class CharArraySetTest {
         set.contains("19禁").shouldBeFalse()
         set.contains("29禁").shouldBeFalse()
         set.size shouldBeEqualTo 200
+    }
+
+    @Test
+    fun `removeAll returns true only when set changed`() {
+        val set = CharArraySet(8)
+        set.addAll(listOf("a", "b", "c"))
+
+        set.removeAll(listOf("a", "missing")).shouldBeTrue()
+        set.removeAll(listOf("not-found-1", "not-found-2")).shouldBeFalse()
+        set.removeAll(emptyList()).shouldBeFalse()
     }
 
     @Test

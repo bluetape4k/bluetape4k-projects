@@ -24,6 +24,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 
 class KoreanTokenizerTest: TestBase() {
@@ -215,6 +216,20 @@ class KoreanTokenizerTest: TestBase() {
             KoreanToken("쵸쵸쵸쵸쵸쵸쵸쵸", Noun, 1, 8, unknown = true),
             KoreanToken("춏", Noun, 9, 1, unknown = true)
         )
+    }
+
+    @Test
+    fun `tokenizeTopN should reject non positive topN`() {
+        assertFailsWith<IllegalArgumentException> {
+            KoreanTokenizer.tokenizeTopN("테스트", topN = 0)
+        }
+    }
+
+    @Test
+    fun `unknown fallback token should keep original offset`() {
+        val token = tokenize(".쿛툐캬").first { it.text == "쿛툐캬" }
+        token.offset shouldBeEqualTo 1
+        token.unknown.shouldBeTrue()
     }
 
     @Test

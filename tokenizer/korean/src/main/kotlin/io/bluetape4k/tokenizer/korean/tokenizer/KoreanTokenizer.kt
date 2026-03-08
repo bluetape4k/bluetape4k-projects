@@ -18,8 +18,6 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Unknown
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Verb
 import io.bluetape4k.tokenizer.korean.utils.KoreanPosx
 import io.bluetape4k.tokenizer.korean.utils.KoreanSubstantive
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.eclipse.collections.api.multimap.MutableMultimap
 
 /**
@@ -114,6 +112,7 @@ object KoreanTokenizer: KLogging() {
      *
      * ## 동작/계약
      * - 반환 타입은 `List<청크, List<후보, List<KoreanToken>>>` 구조다.
+     * - `topN`은 1 이상이어야 하며, 0 이하를 전달하면 `IllegalArgumentException`을 던진다.
      * - 파싱 중 예외가 발생하면 `TokenizerException("Error tokenizing a chunk: $text", cause)`로 감싸서 던진다.
      * - `KoreanTokenizerTest`에서 사용자 사전 추가 전/후 결과가 달라지는 경로는 이 함수의 후보 생성 결과를 따른다.
      *
@@ -127,17 +126,17 @@ object KoreanTokenizer: KLogging() {
         topN: Int = 1,
         profile: TokenizerProfile = TokenizerProfile.DefaultProfile,
     ): List<List<List<KoreanToken>>> {
+        require(topN >= 1) { "topN must be greater than or equal to 1. topN=$topN" }
+
         try {
             return KoreanChunker.chunk(text).map {
                 when (it.pos) {
                     Korean -> {
                         // Get the best parse of each chunk
-                        runBlocking(Dispatchers.IO) {
-                            val parsed = parseKoreanChunk(it, profile, topN)
+                        val parsed = parseKoreanChunk(it, profile, topN)
 
-                            // Collapse sequence of one-char nouns into one unknown noun: (가Noun 회Noun -> 가회Noun*)
-                            parsed.map(KoreanSubstantive::collapseNouns)
-                        }
+                        // Collapse sequence of one-char nouns into one unknown noun: (가Noun 회Noun -> 가회Noun*)
+                        parsed.map(KoreanSubstantive::collapseNouns)
                     }
 
                     else -> listOf(listOf(it))
@@ -169,6 +168,7 @@ object KoreanTokenizer: KLogging() {
         profile: TokenizerProfile,
     ): List<List<KoreanToken>> {
         val directMatch = findDirectMatch(chunk)
+        val nounDictionary = koreanDictionary[Noun]
 
         // Buffer for solution
         val candidateParse = CandidateParse(
@@ -205,12 +205,12 @@ object KoreanTokenizer: KLogging() {
                     possiblePoses
                         .filter {
                             it.curTrie.curPos == Noun ||
-                                    (koreanDictionary[it.curTrie.curPos]?.contains(word.toCharArray()) == true)
+                                    (koreanDictionary[it.curTrie.curPos]?.contains(word) == true)
                         }
                         .map { t: PossibleTrie ->
                             // log.trace { "word=$word, trie=${t.curTrie}, pos=${t.curTrie.curPos}" }
                             val candidateToAdd =
-                                if (t.curTrie.curPos == Noun && koreanDictionary[Noun]?.contains(word.toCharArray()) == false) {
+                                if (t.curTrie.curPos == Noun && nounDictionary?.contains(word) == false) {
                                     val isWordName: Boolean = KoreanSubstantive.isName(word)
                                     val isKoreanNumber = KoreanSubstantive.isKoreanNumber(word)
                                     val isWordKoreanNameVariation = KoreanSubstantive.isKoreanNameVariation(word)
@@ -250,7 +250,7 @@ object KoreanTokenizer: KLogging() {
 
         val topCandidates =
             if (solutions[chunk.length]!!.isEmpty()) {
-                val token = KoreanToken(chunk.text, Noun, 0, chunk.length, unknown = true)
+                val token = KoreanToken(chunk.text, Noun, chunk.offset, chunk.length, unknown = true)
                 listOf(listOf(token))
             } else {
                 solutions[chunk.length]!!.sortedBy { it.parse.score }.map { it.parse.posNodes }

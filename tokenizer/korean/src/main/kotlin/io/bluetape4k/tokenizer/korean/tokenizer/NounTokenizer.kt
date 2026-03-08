@@ -120,6 +120,7 @@ object NounTokenizer: KLogging() {
      *
      * ## 동작/계약
      * - 반환 구조는 `List<청크, List<후보, List<KoreanToken>>>`이며 각 후보는 점수순으로 정렬된다.
+     * - `topN`은 1 이상이어야 하며, 0 이하를 전달하면 `IllegalArgumentException`을 던진다.
      * - 후보가 비어 있으면 `unknown=true`인 `Noun` 단일 토큰 후보를 생성한다.
      * - 분석 중 예외는 `TokenizerException("Error tokenizing a chunk: $text", cause)`로 변환된다.
      *
@@ -133,6 +134,8 @@ object NounTokenizer: KLogging() {
         topN: Int = 1,
         profile: TokenizerProfile = TokenizerProfile.DefaultProfile,
     ): List<List<List<KoreanToken>>> {
+        require(topN >= 1) { "topN must be greater than or equal to 1. topN=$topN" }
+
         try {
             return KoreanChunker.chunk(text)
                 .map {
@@ -171,6 +174,7 @@ object NounTokenizer: KLogging() {
 
     private fun findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): List<List<KoreanToken>> {
         val directMatch: List<List<KoreanToken>> = findDirectMatch(chunk)
+        val nounDictionary = koreanDictionary[Noun]
 
         // Buffer for solution
         val solutions = listMultimapOf<Int, CandidateParse>()
@@ -197,12 +201,12 @@ object NounTokenizer: KLogging() {
                     possiblePoses
                         .filter {
                             it.curTrie.curPos == Noun ||
-                                    (koreanDictionary[it.curTrie.curPos]?.contains(word.toCharArray()) ?: false)
+                                    (koreanDictionary[it.curTrie.curPos]?.contains(word) ?: false)
                         }
                         .map { t: PossibleTrie ->
                             val candidateToAdd =
                                 if (t.curTrie.curPos == Noun &&
-                                    !koreanDictionary[Noun]!!.contains(word.toCharArray())
+                                    nounDictionary?.contains(word) == false
                                 ) {
                                     val isWordName: Boolean = KoreanSubstantive.isName(word)
                                     val isKoreanNumber = KoreanSubstantive.isKoreanNumber(word)
@@ -247,7 +251,7 @@ object NounTokenizer: KLogging() {
         }
 
         val topCandidates = if (solutions[chunk.length]!!.isEmpty()) {
-            listOf(listOf(KoreanToken(chunk.text, Noun, 0, chunk.length, unknown = true)))
+            listOf(listOf(KoreanToken(chunk.text, Noun, chunk.offset, chunk.length, unknown = true)))
         } else {
             solutions[chunk.length]!!
                 .sortedBy { it.parse.score }

@@ -7,7 +7,9 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Verb
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class NounTokenizerTest: TestBase() {
 
@@ -173,6 +175,20 @@ class NounTokenizerTest: TestBase() {
             KoreanToken("춏", Noun, 9, 1, unknown = true)
         )
         actual shouldContainSame expected
+    }
+
+    @Test
+    fun `tokenizeTopN should reject non positive topN`() {
+        assertFailsWith<IllegalArgumentException> {
+            NounTokenizer.tokenizeTopN("테스트", topN = 0)
+        }
+    }
+
+    @Test
+    fun `unknown fallback token should keep original offset`() {
+        val token = NounTokenizer.tokenize(".쿛툐캬").first { it.text == "쿛툐캬" }
+        token.offset shouldBeEqualTo 1
+        token.unknown.shouldBeTrue()
     }
 
     //  @Test
