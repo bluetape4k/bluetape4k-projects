@@ -109,25 +109,29 @@ object KoreanBlockwordProcessor: KLogging() {
             val punctuationRemoved = punctuationProcessor.removePunctuation(request.text)
             val tokens = KoreanTokenizer.tokenize(punctuationRemoved)
 
-            var result = punctuationRemoved
             val maskStr = request.options.mask
             val blockWords = mutableListOf<String>()
 
-            tokens
+            val tokensToMask = tokens
                 .filter { !it.unknown && it.length > 1 }
                 .onEach { log.trace { "try to mask block word... token=$it" } }
-                .forEach { token ->
-                    if (canMask(token, request.options.severity)) {
+                .filter { canMask(it, request.options.severity) }
+
+            val result = StringBuilder(punctuationRemoved).apply {
+                // 멀티 문자 마스크에서도 토큰 offset이 틀어지지 않도록 뒤에서부터 치환한다.
+                tokensToMask
+                    .sortedByDescending { it.offset }
+                    .forEach { token ->
                         log.trace { "mask token=$token" }
-                        result = result.replaceRange(
+                        replace(
                             token.offset,
                             token.offset + token.length,
                             maskStr.repeat(token.length)
                         )
                         blockWords.add(token.text)
                     }
-                }
-            return blockwordResponseOf(request, result, blockWords)
+            }
+            return blockwordResponseOf(request, result.toString(), blockWords)
         } catch (e: Throwable) {
             log.error(e) { "Fail to mask block word. request=$request" }
             throw TokenizerException("Fail to mask block word. request=$request", e)

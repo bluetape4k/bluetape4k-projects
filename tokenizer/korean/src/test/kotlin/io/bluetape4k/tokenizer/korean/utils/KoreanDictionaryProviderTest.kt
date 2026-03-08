@@ -4,6 +4,10 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.TestBase
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Noun
 import io.bluetape4k.tokenizer.utils.CharArraySet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
@@ -35,5 +39,21 @@ class KoreanDictionaryProviderTest: TestBase() {
     @Test
     fun `load frequency`() {
         KoreanDictionaryProvider.koreanEntityFreq.shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `동시 추가에서도 사전 일관성을 유지한다`() = runBlocking {
+        val words = (1..50).map { "동시추가명사_$it" }
+
+        words.chunked(10)
+            .map { chunk ->
+                async(Dispatchers.Default) {
+                    KoreanDictionaryProvider.addWordsToDictionary(Noun, chunk)
+                }
+            }
+            .awaitAll()
+
+        val nouns = KoreanDictionaryProvider.koreanDictionary[Noun]!!
+        words.forEach { nouns.contains(it).shouldBeTrue() }
     }
 }

@@ -38,6 +38,8 @@ import kotlinx.coroutines.runBlocking
  */
 object KoreanDictionaryProvider: KLogging() {
 
+    private val dictionaryMutationLock = Any()
+
     /**
      * 한국어 사전 리소스의 루트 경로입니다.
      *
@@ -107,6 +109,7 @@ object KoreanDictionaryProvider: KLogging() {
      *
      * ## 동작/계약
      * - 대상 품사 사전이 존재할 때만 단어를 추가한다.
+     * - 쓰기 경로는 내부 lock으로 직렬화해 동시성 환경에서 구조 손상을 방지한다.
      * - 사전이 없으면 아무 동작도 하지 않는다.
      * - `KoreanDictionaryProviderTest`에서 추가 후 포함 여부가 `true`로 바뀐다.
      *
@@ -116,7 +119,9 @@ object KoreanDictionaryProvider: KLogging() {
      * ```
      */
     fun addWordsToDictionary(pos: KoreanPos, words: Collection<String>) {
-        koreanDictionary[pos]?.addAll(words)
+        synchronized(dictionaryMutationLock) {
+            koreanDictionary[pos]?.addAll(words)
+        }
     }
 
     /**
@@ -124,6 +129,7 @@ object KoreanDictionaryProvider: KLogging() {
      *
      * ## 동작/계약
      * - 인자가 비어 있지 않을 때만 추가를 시도한다.
+     * - 쓰기 경로는 내부 lock으로 직렬화해 동시성 환경에서 구조 손상을 방지한다.
      * - 대상 품사 사전이 없으면 추가하지 않는다.
      *
      * ```kotlin
@@ -133,7 +139,9 @@ object KoreanDictionaryProvider: KLogging() {
      */
     fun addWordsToDictionary(pos: KoreanPos, vararg words: String) {
         if (words.isNotEmpty()) {
-            koreanDictionary[pos]?.addAll(words)
+            synchronized(dictionaryMutationLock) {
+                koreanDictionary[pos]?.addAll(words)
+            }
         }
     }
 
