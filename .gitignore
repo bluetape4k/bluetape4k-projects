@@ -27,8 +27,7 @@ hs_err_pid*
 
 .ai/
 .claude/
-!.claude/settings.json
-!.claude/settings.local.json
+.codex-worktrees/
 .omc/
 .omx/
 .kotlin/
