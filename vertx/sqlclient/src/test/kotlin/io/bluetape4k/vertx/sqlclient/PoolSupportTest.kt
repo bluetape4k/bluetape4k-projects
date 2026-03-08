@@ -4,11 +4,10 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import kotlinx.coroutines.CancellationException
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 
 class PoolSupportTest: AbstractVertxSqlClientTest() {
 
@@ -20,10 +19,13 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
         testContext: VertxTestContext,
     ) = runSuspendIO {
         try {
-            val error = assertFailsWith<CancellationException> {
+            val result = runCatching {
                 pool.withSuspendTransaction { throw CancellationException("cancel requested") }
             }
-            assertEquals("cancel requested", error.message)
+            result.isFailure shouldBeEqualTo true
+            val error = result.exceptionOrNull().shouldNotBeNull()
+            error::class shouldBeEqualTo CancellationException::class
+            error.message shouldBeEqualTo "cancel requested"
             testContext.completeNow()
         } catch (t: Throwable) {
             testContext.failNow(t)
@@ -36,10 +38,13 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
         testContext: VertxTestContext,
     ) = runSuspendIO {
         try {
-            val error = assertFailsWith<CancellationException> {
+            val result = runCatching {
                 pool.withSuspendRollback { throw CancellationException("cancel requested") }
             }
-            assertEquals("cancel requested", error.message)
+            result.isFailure shouldBeEqualTo true
+            val error = result.exceptionOrNull().shouldNotBeNull()
+            error::class shouldBeEqualTo CancellationException::class
+            error.message shouldBeEqualTo "cancel requested"
             testContext.completeNow()
         } catch (t: Throwable) {
             testContext.failNow(t)
@@ -52,10 +57,13 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
         testContext: VertxTestContext,
     ) = runSuspendIO {
         try {
-            val error = assertFailsWith<SQLException> {
+            val result = runCatching {
                 pool.withSuspendTransaction { throw IllegalStateException("boom") }
             }
-            assertIs<IllegalStateException>(error.cause)
+            result.isFailure shouldBeEqualTo true
+            val error = result.exceptionOrNull().shouldNotBeNull()
+            error::class shouldBeEqualTo SQLException::class
+            error.cause.shouldNotBeNull()::class shouldBeEqualTo IllegalStateException::class
             testContext.completeNow()
         } catch (t: Throwable) {
             testContext.failNow(t)

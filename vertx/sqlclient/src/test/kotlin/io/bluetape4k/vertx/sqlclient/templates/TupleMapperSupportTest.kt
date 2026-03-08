@@ -1,8 +1,9 @@
 package io.bluetape4k.vertx.sqlclient.templates
 
+import org.amshove.kluent.shouldBeEmpty
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 
 class TupleMapperSupportTest {
 
@@ -21,18 +22,18 @@ class TupleMapperSupportTest {
 
         val params = users.toParameters()
 
-        assertEquals(1L, params["id0"])
-        assertEquals("alice", params["name0"])
-        assertEquals(true, params["enabled0"])
+        params["id0"] shouldBeEqualTo 1L
+        params["name0"] shouldBeEqualTo "alice"
+        params["enabled0"] shouldBeEqualTo true
 
-        assertEquals(2L, params["id1"])
-        assertEquals(null, params["name1"])
-        assertEquals(false, params["enabled1"])
+        params["id1"] shouldBeEqualTo 2L
+        params["name1"].shouldBeNull()
+        params["enabled1"] shouldBeEqualTo false
     }
 
     @Test
     fun `toParameters는 빈 목록에서 빈 맵을 반환한다`() {
         val params = emptyList<UserRecord>().toParameters()
-        assertTrue(params.isEmpty())
+        params.shouldBeEmpty()
     }
 }
