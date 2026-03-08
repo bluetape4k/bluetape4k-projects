@@ -8,7 +8,12 @@ import io.github.bucket4j.MathType
 import io.github.bucket4j.TimeMeter
 
 /**
- * Custom key 기준(예: userId) 으로 Coroutines 환경에서 사용할 [SuspendLocalBucket]을 제공하는 Provider 입니다.
+ * Coroutines 환경에서 사용할 [SuspendLocalBucket]을 key별로 제공하는 provider 입니다.
+ *
+ * ## 동작/계약
+ * - 같은 key를 재조회하면 동일한 로컬 버킷 상태를 공유합니다.
+ * - 기본 구현은 millisecond time meter와 64-bit math를 사용합니다.
+ * - 소비 대기 자체는 [SuspendLocalBucket]이 `delay`로 처리하므로 호출 스레드를 블로킹하지 않습니다.
  *
  * ```
  * val bucketProvider = LocalSuspendBucketProvider(bucketConfiguration)
@@ -38,7 +43,7 @@ open class LocalSuspendBucketProvider(
     /**
      * Coroutines용 [SuspendLocalBucket]을 생성합니다.
      *
-     * @return [SuspendLocalBucket] 인스턴스
+     * 기본 수학/시간 설정은 `INTEGER_64_BITS`, `SYSTEM_MILLISECONDS` 입니다.
      */
     override fun createBucket(): SuspendLocalBucket {
         log.debug { "Create SuspendLocalBucket ..." }

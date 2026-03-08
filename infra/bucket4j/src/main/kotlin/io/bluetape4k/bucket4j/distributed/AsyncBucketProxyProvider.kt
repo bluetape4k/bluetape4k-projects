@@ -11,15 +11,19 @@ import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.proxy.AsyncProxyManager
 
 /**
- * Bucket4j Bucket을 Redis 서버에 저장하고, 특정 Key 기반의 Rate-limit을 수행하는 Bucket 을 제공합니다.
- * 보통은 IP Address 기반이지만, User 기반으로 Rate-limit을 적용할 수 있습니다.
+ * 비동기 원격 저장소 기반 [AsyncBucketProxy]를 key별로 조회하는 provider 입니다.
+ *
+ * ## 동작/계약
+ * - [resolveBucket]은 blank key를 허용하지 않습니다.
+ * - 실제 원격 bucket key는 [keyPrefix] + `key`를 UTF-8 바이트 배열로 직렬화해 구성합니다.
+ * - resolve 시점에는 proxy 생성/조회만 수행하고, 잔여 토큰 조회 같은 추가 비동기 호출은 하지 않습니다.
  *
  * ```
  * class UserBasedAsyncBucketProvider(
  *    asyncProxyManager: AsyncProxyManager<ByteArray>,
  *    bucketConfiguration: BucketConfiguration,
  *    tokenPrefix: String
- * ): BucketProxyProvider(proxyManager, bucketConfiguration, tokenPrefix) {
+ * ): AsyncBucketProxyProvider(asyncProxyManager, bucketConfiguration, tokenPrefix) {
  *
  *     companion object: KLogging()
  *
@@ -29,9 +33,9 @@ import io.github.bucket4j.distributed.proxy.AsyncProxyManager
  * }
  * ```
  *
- * @property asyncProxyManager Bucket4j [AsyncProxyManager] 인스턴스 (@see Bucket4jConfig)
+ * @property asyncProxyManager Bucket4j [AsyncProxyManager] 인스턴스
  * @property bucketConfiguration Bucket Configuration
- * @property keyPrefix Bucket Key Prefix
+ * @property keyPrefix Bucket Key Prefix. Redis namespace 충돌 방지를 위해 기본 prefix가 적용됩니다.
  */
 open class AsyncBucketProxyProvider(
     protected val asyncProxyManager: AsyncProxyManager<ByteArray>,
@@ -44,7 +48,12 @@ open class AsyncBucketProxyProvider(
     }
 
     /**
-     * Key 기반의 [AsyncBucketProxy]를 [AsyncProxyManager]로 부터 가져온다
+     * [key]에 해당하는 [AsyncBucketProxy]를 반환합니다.
+     *
+     * ## 동작/계약
+     * - [key]는 blank일 수 없습니다.
+     * - 반환값은 같은 key에 대해 동일한 원격 상태를 바라봅니다.
+     * - future completion과 토큰 잔량 조회는 호출자가 명시적으로 수행해야 합니다.
      *
      * @param key Bucket 소유자 (Rate Limit 적용 대상) Key
      * @return [Bucket] 인스턴스
@@ -58,10 +67,15 @@ open class AsyncBucketProxyProvider(
         return asyncProxyManager.builder()
             .build(bucketKey) { completableFutureOf(bucketConfiguration) }
             .apply {
-                log.debug { "Resolved bucket for key[$key]: avaiableTokens=${this.availableTokens.get()}" }
+                log.debug { "Resolved async bucket for key[$key] with prefix[$keyPrefix]" }
             }
     }
 
+    /**
+     * 실제 원격 저장소에 사용할 async bucket key를 생성합니다.
+     *
+     * 기본 구현은 [keyPrefix]를 붙인 뒤 UTF-8 바이트 배열로 변환합니다.
+     */
     protected open fun getBucketKey(key: String): ByteArray {
         return "$keyPrefix$key".toUtf8Bytes()
     }

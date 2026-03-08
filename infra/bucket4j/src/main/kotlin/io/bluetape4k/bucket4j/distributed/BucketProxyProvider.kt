@@ -10,8 +10,12 @@ import io.github.bucket4j.distributed.BucketProxy
 import io.github.bucket4j.distributed.proxy.ProxyManager
 
 /**
- * Bucket4j Bucket을 Redis 서버에 저장하고, 특정 Key 기반의 Rate-limit을 수행하는 Bucket 을 제공합니다.
- * 보통은 IP Address 기반이지만, User 기반으로 Rate-limit을 적용할 수 있습니다.
+ * 원격 저장소 기반 [BucketProxy]를 key별로 조회하는 provider 입니다.
+ *
+ * ## 동작/계약
+ * - [resolveBucket]은 blank key를 허용하지 않습니다.
+ * - 실제 원격 bucket key는 [keyPrefix] + `key`를 UTF-8 바이트 배열로 직렬화해 구성합니다.
+ * - resolve 시점에는 bucket 생성/조회만 수행하고, 잔여 토큰 조회 같은 추가 원격 호출은 하지 않습니다.
  *
  * ```
  * class UserBasedBucketProvider(
@@ -28,9 +32,9 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
  * }
  * ```
  *
- * @property proxyManager Bucket4j [ProxyManager] 인스턴스 (@see Bucket4jConfig)
+ * @property proxyManager Bucket4j [ProxyManager] 인스턴스
  * @property bucketConfiguration Bucket Configuration
- * @property keyPrefix Bucket Key Prefix
+ * @property keyPrefix Bucket Key Prefix. Redis namespace 충돌 방지를 위해 기본 prefix가 적용됩니다.
  */
 open class BucketProxyProvider(
     protected val proxyManager: ProxyManager<ByteArray>,
@@ -43,7 +47,12 @@ open class BucketProxyProvider(
     }
 
     /**
-     * Key 기반의 Bucket을 [ProxyManager]로 부터 가져온다
+     * [key]에 해당하는 [BucketProxy]를 반환합니다.
+     *
+     * ## 동작/계약
+     * - [key]는 blank일 수 없습니다.
+     * - 반환값은 같은 key에 대해 동일한 원격 상태를 바라봅니다.
+     * - 토큰 잔량 조회는 호출자가 명시적으로 수행해야 하며, 이 메서드는 resolve만 담당합니다.
      *
      * @param key Bucket 소유자 (Rate Limit 적용 대상) Key
      * @return [Bucket] 인스턴스
@@ -57,10 +66,15 @@ open class BucketProxyProvider(
         return proxyManager.builder()
             .build(bucketKey) { bucketConfiguration }
             .apply {
-                log.debug { "Resolved bucket for key[$key]: avaiableTokens=${this.availableTokens}" }
+                log.debug { "Resolved bucket for key[$key] with prefix[$keyPrefix]" }
             }
     }
 
+    /**
+     * 실제 원격 저장소에 사용할 bucket key를 생성합니다.
+     *
+     * 기본 구현은 [keyPrefix]를 붙인 뒤 UTF-8 바이트 배열로 변환합니다.
+     */
     protected open fun getBucketKey(key: String): ByteArray {
         return "$keyPrefix$key".toUtf8Bytes()
     }

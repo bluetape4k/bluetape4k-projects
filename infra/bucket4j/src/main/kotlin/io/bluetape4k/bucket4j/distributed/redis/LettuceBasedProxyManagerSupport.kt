@@ -6,7 +6,12 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.cluster.RedisClusterClient
 
 /**
- * Lettuce 기반의 ProxyManager 를 생성합니다.
+ * Lettuce 단일 노드 클라이언트로 Bucket4j CAS 기반 proxy manager를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 호출마다 새 [LettuceBasedProxyManager]를 생성합니다.
+ * - [builder]에서 client-side config, expiration strategy, execution strategy를 설정할 수 있습니다.
+ * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
  * ```
  * val redisClient = RedisClient.create("redis://localhost:6379")
@@ -25,8 +30,7 @@ import io.lettuce.core.cluster.RedisClusterClient
  *
  * @param redisClient Lettuce의 [io.lettuce.core.RedisClient] 인스턴스
  * @param builder ProxyManager 를 초기화하는 람다 함수
- * @receiver
- * @return
+ * @return [LettuceBasedProxyManager] 인스턴스
  */
 inline fun lettuceBasedProxyManagerOf(
     redisClient: RedisClient,
@@ -39,7 +43,12 @@ inline fun lettuceBasedProxyManagerOf(
 }
 
 /**
- * Lettuce 기반의 ProxyManager 를 생성합니다.
+ * Lettuce cluster client로 Bucket4j CAS 기반 proxy manager를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 호출마다 새 [LettuceBasedProxyManager]를 생성합니다.
+ * - [builder]에서 client-side config, expiration strategy, execution strategy를 설정할 수 있습니다.
+ * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
  * ```
  * val redisClusterClient = RedisClusterClient.create("redis://localhost:6379")
@@ -58,8 +67,7 @@ inline fun lettuceBasedProxyManagerOf(
  *
  * @param redisClusterClient Lettuce의 [io.lettuce.core.cluster.RedisClusterClient] 인스턴스
  * @param builder ProxyManager 를 초기화하는 람다 함수
- * @receiver
- * @return
+ * @return [LettuceBasedProxyManager] 인스턴스
  */
 inline fun lettuceBasedProxyManagerOf(
     redisClusterClient: RedisClusterClient,
