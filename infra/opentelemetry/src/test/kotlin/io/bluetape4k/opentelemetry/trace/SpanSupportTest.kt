@@ -6,10 +6,12 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CancellationException
 
 /**
  * NOTE: 테스트 시에 java agent 를 사용하면서 SdkTraceProvider 를 통해 tracer 를 얻으면 충돌이 납니다.
@@ -54,18 +56,17 @@ class SpanSupportTest: AbstractOtelTest() {
         spanExporter.reset()
 
         val span = tracer.spanBuilder("error-span").startSpan()
+        val failure = IllegalStateException("boom")
 
         val ex = kotlin.runCatching {
-            // ✅ SpanSupport.kt 에 보통 제공하는 패턴:
-            // - Span.use { ... } 내부에서 예외 발생 시 recordException + setStatus(ERROR) 처리
-            // - 또는 별도 확장(예: useCatching / useWithErrorStatus)이 있을 수 있음
             span.use {
                 it.setAttribute(AttributeKey.stringKey("before"), "true")
-                error("boom")
+                throw failure
             }
         }.exceptionOrNull()
 
         ex.shouldNotBeNull()
+        (ex === failure).shouldBeTrue()
 
         flush()
 
@@ -73,15 +74,32 @@ class SpanSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
         val s = finished[0]
         s.name shouldBeEqualTo "error-span"
+        s.status.statusCode shouldBeEqualTo StatusCode.ERROR
+        s.events.any { it.name == "exception" }.shouldBeTrue()
+    }
 
-        // 아래 2개는 SpanSupport 구현에 따라 달라질 수 있어.
-        // - "use"가 예외를 삼키지 않으면 status가 UNSET일 수 있음
-        // - SpanSupport에서 예외 처리를 넣어뒀다면 ERROR로 떨어짐
-        // 운영 관점에서는 ERROR로 남기는 게 더 유용하니, 구현이 그렇다면 이 assert를 유지하면 됨.
-        // 필요 시: s.status.statusCode shouldBeEqualTo StatusCode.ERROR
-        if (s.status.statusCode == StatusCode.ERROR) {
-            s.status.statusCode shouldBeEqualTo StatusCode.ERROR
-        }
+    @Test
+    fun `Span use should propagate cancellation without converting it to error`() = runSuspendIO {
+        spanExporter.reset()
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("cancel-span").startSpan().use {
+                throw CancellationException("cancelled")
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is CancellationException).shouldBeTrue()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.name shouldBeEqualTo "cancel-span"
+        span.status.statusCode shouldBeEqualTo StatusCode.UNSET
+        span.events.any { it.name == "exception" } shouldBeEqualTo false
     }
 
     @Test

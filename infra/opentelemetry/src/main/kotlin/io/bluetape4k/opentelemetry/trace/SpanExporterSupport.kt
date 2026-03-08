@@ -17,8 +17,18 @@ fun loggingSpanExporterOf(): LoggingSpanExporter = LoggingSpanExporter.create()
  * [io.opentelemetry.sdk.trace.export.BatchSpanProcessor]와 같은 동일한
  * [io.opentelemetry.sdk.trace.SpanProcessor]를 사용하여 여러 백엔드로 내보내는 데 사용할 수 있습니다.
  */
-fun spanExportOf(vararg exporters: SpanExporter): SpanExporter =
+fun spanExporterOf(vararg exporters: SpanExporter): SpanExporter =
     SpanExporter.composite(*exporters)
+
+/**
+ * [spanExporterOf]의 이전 이름입니다.
+ */
+@Deprecated(
+    message = "use spanExporterOf instead.",
+    replaceWith = ReplaceWith("spanExporterOf(*exporters)")
+)
+fun spanExportOf(vararg exporters: SpanExporter): SpanExporter =
+    spanExporterOf(*exporters)
 
 /**
  * 지정된 [SpanData]들을 내보냅니다.

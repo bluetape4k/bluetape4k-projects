@@ -8,7 +8,7 @@ import io.bluetape4k.opentelemetry.trace.export
 import io.bluetape4k.opentelemetry.trace.loggingSpanExporterOf
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
-import io.bluetape4k.opentelemetry.trace.spanExportOf
+import io.bluetape4k.opentelemetry.trace.spanExporterOf
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.context.Context
@@ -23,6 +23,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CancellationException
 
 /**
  * NOTE: 테스트 시에 java agent 를 사용하면서 SdkTraceProvider 를 통해 tracer 를 얻으면 충돌이 납니다.
@@ -99,15 +100,18 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
     @Test
     fun `useSuspending should end span and set ERROR status on exception`() = runSuspendIO {
         spanExporter.reset()
+        val failure = IllegalArgumentException("boom")
 
         val ex = kotlin.runCatching {
             tracer.spanBuilder("error-span").startSpan().useSuspending {
                 it.setAttribute(AttributeKey.stringKey("before"), "true")
-                error("boom")
+                throw failure
             }
         }.exceptionOrNull()
 
         ex.shouldNotBeNull()
+        (ex is IllegalArgumentException).shouldBeTrue()
+        ex.message shouldBeEqualTo failure.message
 
         flush()
 
@@ -116,8 +120,56 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
 
         val span = finished[0]
         span.name shouldBeEqualTo "error-span"
-        // StatusCode enum name: "ERROR" (SpanData.status.statusCode.name)
         span.status.statusCode.name shouldBeEqualTo "ERROR"
+        span.events.any { it.name == "exception" }.shouldBeTrue()
+    }
+
+    @Test
+    fun `useSuspending should propagate cancellation without converting it to error`() = runSuspendIO {
+        spanExporter.reset()
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("cancelled-span").startSpan().useSuspending {
+                throw CancellationException("cancelled")
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is CancellationException).shouldBeTrue()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.name shouldBeEqualTo "cancelled-span"
+        span.status.statusCode.name shouldBeEqualTo "UNSET"
+        span.events.any { it.name == "exception" } shouldBeEqualTo false
+    }
+
+    @Test
+    fun `deprecated useSuspendSpan should preserve original exception type`() = runSuspendIO {
+        spanExporter.reset()
+        val failure = IllegalStateException("deprecated")
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("deprecated-error-span").useSuspendSpan {
+                throw failure
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is IllegalStateException).shouldBeTrue()
+        ex.message shouldBeEqualTo failure.message
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+        finished[0].name shouldBeEqualTo "deprecated-error-span"
+        finished[0].status.statusCode.name shouldBeEqualTo "ERROR"
+        finished[0].events.any { it.name == "exception" }.shouldBeTrue()
     }
 
     private class RecordingSpanExporter: SpanExporter {
@@ -143,12 +195,12 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
     }
 
     @Test
-    fun `spanExportOf should delegate export to all exporters`() = runSuspendIO {
+    fun `spanExporterOf should delegate export to all exporters`() = runSuspendIO {
         spanExporter.reset()
 
         val exporter1 = RecordingSpanExporter()
         val exporter2 = RecordingSpanExporter()
-        val composite = spanExportOf(exporter1, exporter2)
+        val composite = spanExporterOf(exporter1, exporter2)
 
         tracer.spanBuilder("export-parent").useSpanSuspending {
             tracer.spanBuilder("export-child").useSpanSuspending { child ->
