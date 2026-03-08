@@ -36,7 +36,7 @@ class LettuceCache<K: Any, V: Any>(
     private val cacheName: String,
     private val commands: RedisCommands<String, ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
-    private val serializer: BinarySerializer = BinarySerializers.Fory,
+    private val serializer: BinarySerializer = BinarySerializers.Fory,     // TODO: Lettuce Codec 을 지정하는게 낫지 않나?
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
     private val configuration: Configuration<K, V>,

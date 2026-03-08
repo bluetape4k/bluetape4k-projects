@@ -6,6 +6,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
+import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
@@ -49,8 +50,8 @@ import kotlinx.coroutines.flow.collect
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendNearCache<V: Any>(
-    private val redisClient: RedisClient,
-    private val codec: RedisCodec<String, V>,
+    redisClient: RedisClient,
+    codec: RedisCodec<String, V>,
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
@@ -136,11 +137,23 @@ class LettuceSuspendNearCache<V: Any>(
      */
     suspend fun putAll(map: Map<String, V>) {
         frontCache.putAll(map)
-        map.forEach { (key, value) ->
-            setRedis(key, value)
+
+        val rMap = map.map { config.redisKey(it.key) to it.value }.toMap()
+        val ttlArgs = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
+
+        // HINT: mget이 CLIENT TRACKING 활성화가 된다면, mset, mget 으로
+        if (ttlArgs != null) {
+            commands.msetex(rMap, ttlArgs)
+        } else {
+            commands.mset(rMap)
         }
-        val keys = map.map { config.redisKey(it.key) }.toTypedArray()
-        commands.mget(*keys).collect()  // CLIENT TRACKING 활성화
+        commands.mget(*rMap.keys.toTypedArray()).collect()  // CLIENT TRACKING 활성화
+
+//        map.forEach { (key, value) ->
+//            setRedis(key, value)
+//        }
+//        val keys = map.map { config.redisKey(it.key) }.toTypedArray()
+//        commands.mget(*keys).collect()  // CLIENT TRACKING 활성화
     }
 
     /**
@@ -302,11 +315,15 @@ class LettuceSuspendNearCache<V: Any>(
         }
     }
 
+    private val redisTtlArgs: SetArgs? by lazy {
+        config.redisTtl?.let { SetArgs.Builder.ex(it) }
+    }
+
     private suspend inline fun setRedis(key: String, value: V) {
         val rKey = config.redisKey(key)
-        val ttl = config.redisTtl
-        if (ttl != null) {
-            commands.set(rKey, value, SetArgs.Builder.ex(ttl.seconds))
+
+        if (redisTtlArgs != null) {
+            commands.set(rKey, value, redisTtlArgs!!)
         } else {
             commands.set(rKey, value)
         }

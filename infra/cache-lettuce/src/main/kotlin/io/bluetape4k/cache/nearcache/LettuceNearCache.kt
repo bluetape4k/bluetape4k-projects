@@ -7,6 +7,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.lettuce.core.KeyScanCursor
+import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.ScanArgs
@@ -49,8 +50,8 @@ import kotlinx.atomicfu.atomic
  * @param V 값 타입 (키는 항상 String)
  */
 class LettuceNearCache<V: Any>(
-    private val redisClient: RedisClient,
-    private val codec: RedisCodec<String, V>,
+    redisClient: RedisClient,
+    codec: RedisCodec<String, V>,
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
@@ -145,10 +146,21 @@ class LettuceNearCache<V: Any>(
     fun putAll(map: Map<out String, V>) {
         frontCache.putAll(map)
         val async = connection.async()
-        map.forEach { (key, value) ->
-            setRedis(key, value)
-            async.get(config.redisKey(key))  // CLIENT TRACKING 활성화
+
+        // HINT: mget이 CLIENT TRACKING 활성화가 된다면, mset, mget 으로
+        val redisMap = map.map { config.redisKey(it.key) to it.value }.toMap()
+        val ttl = config.redisTtl?.let { MSetExArgs.Builder.ex(config.redisTtl) }
+
+        if (ttl != null) {
+            async.msetex(redisMap, ttl)
+        } else {
+            async.mset(redisMap)
         }
+        async.mget(*redisMap.keys.toTypedArray()) // CLIENT TRACKING 활성화
+//        map.forEach { (key, value) ->
+//            setRedis(key, value)
+//            async.get(config.redisKey(key))  // CLIENT TRACKING 활성화
+//        }
     }
 
     /**
@@ -304,11 +316,15 @@ class LettuceNearCache<V: Any>(
         }
     }
 
+    private val redisTtlArgs: SetArgs? by lazy {
+        config.redisTtl?.let { SetArgs.Builder.ex(it) }
+    }
+
     private fun setRedis(key: String, value: V) {
         val rKey = config.redisKey(key)
-        val ttl = config.redisTtl
-        if (ttl != null) {
-            commands.set(rKey, value, SetArgs.Builder.ex(ttl.seconds))
+
+        if (redisTtlArgs != null) {
+            commands.set(rKey, value, redisTtlArgs)
         } else {
             commands.set(rKey, value)
         }

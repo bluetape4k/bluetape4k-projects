@@ -11,6 +11,7 @@ import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
+import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
@@ -22,12 +23,12 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Resilient Lettuce Suspend Near Cache (2-tier: Caffeine front + Redis back).
@@ -143,7 +144,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
 
     private suspend fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put -> setRedis(cmd.key, cmd.value)
+            is BackCacheCommand.Put    -> setRedis(cmd.key, cmd.value)
             is BackCacheCommand.PutAll -> cmd.entries.forEach { (k, v) -> setRedis(k, v) }
             is BackCacheCommand.Remove -> {
                 commands.del(config.redisKey(cmd.key))
@@ -422,13 +423,31 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         log.debug { "Redis back cache cleared for cacheName=${config.cacheName}" }
     }
 
+    private val redisTtlArgs: SetArgs? by lazy {
+        config.redisTtl?.let { SetArgs.Builder.ex(it) }
+    }
+
     private suspend fun setRedis(key: String, value: V) {
         val rKey = config.redisKey(key)
-        val ttl = config.redisTtl
-        if (ttl != null) {
-            commands.set(rKey, value, SetArgs.Builder.ex(ttl.seconds))
+
+        if (redisTtlArgs != null) {
+            commands.set(rKey, value, redisTtlArgs!!)
         } else {
             commands.set(rKey, value)
+        }
+    }
+
+    private val redisTtlExArgs: MSetExArgs? by lazy {
+        config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
+    }
+
+    private suspend fun msetRedis(map: Map<String, V>) {
+        val rMap = map.map { config.redisKey(it.key) to it.value }.toMap()
+
+        if (redisTtlExArgs != null) {
+            commands.msetex(rMap, redisTtlExArgs!!)
+        } else {
+            commands.mset(rMap)
         }
     }
 }

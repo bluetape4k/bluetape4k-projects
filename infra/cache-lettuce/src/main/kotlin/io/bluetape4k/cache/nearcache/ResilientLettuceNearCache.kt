@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
+import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -10,6 +11,7 @@ import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import io.lettuce.core.KeyScanCursor
+import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.ScanArgs
@@ -20,7 +22,6 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
-import io.bluetape4k.concurrent.virtualthread.virtualThread
 import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
@@ -139,8 +140,8 @@ class ResilientLettuceNearCache<V: Any>(
 
     private fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put -> setRedis(cmd.key, cmd.value)
-            is BackCacheCommand.PutAll -> cmd.entries.forEach { (k, v) -> setRedis(k, v) }
+            is BackCacheCommand.Put    -> setRedis(cmd.key, cmd.value)
+            is BackCacheCommand.PutAll -> msetRedis(cmd.entries)
             is BackCacheCommand.Remove -> {
                 syncCommands.del(config.redisKey(cmd.key))
                 tombstones.remove(cmd.key)
@@ -408,13 +409,31 @@ class ResilientLettuceNearCache<V: Any>(
         log.debug { "Redis back cache cleared for cacheName=${config.cacheName}" }
     }
 
+    private val redisTtlArgs: SetArgs? by lazy {
+        config.redisTtl?.let { SetArgs.Builder.ex(it) }
+    }
+
     private fun setRedis(key: String, value: V) {
         val rKey = config.redisKey(key)
-        val ttl = config.redisTtl
-        if (ttl != null) {
-            syncCommands.set(rKey, value, SetArgs.Builder.ex(ttl.seconds))
+
+        if (redisTtlArgs != null) {
+            syncCommands.set(rKey, value, redisTtlArgs)
         } else {
             syncCommands.set(rKey, value)
+        }
+    }
+
+    private val redisTtlExArgs: MSetExArgs? by lazy {
+        config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
+    }
+
+    private fun msetRedis(map: Map<String, V>) {
+        val rMap = map.map { config.redisKey(it.key) to it.value }.toMap()
+
+        if (redisTtlExArgs != null) {
+            syncCommands.msetex(rMap, redisTtlExArgs)
+        } else {
+            syncCommands.mset(rMap)
         }
     }
 }
