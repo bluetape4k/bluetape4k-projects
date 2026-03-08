@@ -258,29 +258,51 @@ data class LeaderGroupState(
 
 ```kotlin
 import io.bluetape4k.redis.redisson.memorizer.*
+import org.redisson.client.codec.IntegerCodec
+
+val map = redisson.getMap<Int, Int>("cache-map", IntegerCodec())
 
 // 결과를 Redis에 캐싱하는 함수 래퍼
-val memorizer = RedissonMemorizer(redisson, "cache-map", ttlMinutes = 10)
-
-val result = memorizer.memoize("cache-key") {
-    // 비용이 큰 작업
-    expensiveOperation()
+val memorizer = map.memorizer { key ->
+    expensiveOperation(key)
 }
+val result = memorizer(10)
 
 // 비동기
-val asyncMemorizer = AsyncRedissonMemorizer(redisson, "async-cache")
-val future = asyncMemorizer.memoize("key") {
-    asyncOperation()
+val asyncMemorizer = map.asyncMemorizer { key ->
+    asyncOperation(key)
 }
+val future = asyncMemorizer(10)
 
 // Coroutines
-val suspendMemorizer = RedissonSuspendMemorizer(redisson, "suspend-cache")
-val result = suspendMemorizer.memoize("key") {
-    suspendOperation()
+val suspendMemorizer = map.suspendMemorizer { key ->
+    suspendOperation(key)
 }
+val suspendResult = suspendMemorizer(10)
 ```
 
-### 8. Spring Data Redis Serializer
+`AsyncRedissonMemorizer`는 동일 키에 대한 동시 호출을 하나의 in-flight 계산으로 합쳐 중복 계산을 줄입니다.
+또한 `clear()`는 Redis 엔트리와 로컬 in-flight 상태를 함께 비워 다음 호출이 새 계산으로 시작되도록 보장합니다.
+
+### 8. RedisCacheConfig 사용 시 주의사항
+
+```kotlin
+import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import org.redisson.api.map.WriteMode
+
+val config = RedisCacheConfig(
+    writeMode = WriteMode.WRITE_BEHIND,
+    nearCacheEnabled = true,
+)
+
+val options = config.toLocalCachedMapOptions<String, String>("users")
+```
+
+- `codec`, write-through/write-behind, retry, near-cache TTL/max-idle/sync-strategy는 옵션 객체에 반영됩니다.
+- `ttl`, `maxSize`, `deleteFromDBOnInvalidate`는 Redisson의 `MapOptions`/`LocalCachedMapOptions`가 직접 지원하지 않으므로 변환 시 fail-fast 예외를 발생시킵니다.
+- 전역 TTL이 필요하면 per-entry expiration 또는 별도의 map cache API를 사용하세요.
+
+### 9. Spring Data Redis Serializer
 
 ```kotlin
 import io.bluetape4k.redis.spring.serializer.*
@@ -300,7 +322,7 @@ val context = redisSerializationContext<String, String> {
 }
 ```
 
-### 9. Redis Streams (Redisson)
+### 10. Redis Streams (Redisson)
 
 ```kotlin
 import io.bluetape4k.redis.redisson.*

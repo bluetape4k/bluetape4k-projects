@@ -93,6 +93,7 @@ class AsyncRedissonMemorizer<T: Any, R: Any>(
 
     override fun clear() {
         log.debug { "Clear all memorized values. map=${map.name}" }
+        inFlight.clear()
         map.clear()
     }
 }

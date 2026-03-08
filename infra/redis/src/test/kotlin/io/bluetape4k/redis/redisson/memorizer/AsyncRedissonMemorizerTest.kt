@@ -4,6 +4,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertTimeout
 import org.redisson.api.RMap
@@ -11,9 +13,12 @@ import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
 
@@ -87,6 +92,79 @@ class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
             val futures = List(16) { memorizer(7) }
             futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `cached value bypasses evaluator`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply {
+            clear()
+            put(9, 81)
+        }
+        val evaluateCount = AtomicInteger(0)
+        val memorizer = map.asyncMemorizer { key ->
+            evaluateCount.incrementAndGet()
+            CompletableFuture.completedFuture(key * key)
+        }
+
+        try {
+            memorizer(9).get(2, TimeUnit.SECONDS) shouldBeEqualTo 81
+            evaluateCount.get() shouldBeEqualTo 0
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `failed evaluation is removed from in-flight and next call re-evaluates`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memorizer = map.asyncMemorizer { key ->
+            when (evaluateCount.incrementAndGet()) {
+                1 -> CompletableFuture.failedFuture(IllegalStateException("boom"))
+                else -> CompletableFuture.completedFuture(key * key)
+            }
+        }
+
+        try {
+            org.junit.jupiter.api.assertThrows<ExecutionException> {
+                memorizer(5).get(2, TimeUnit.SECONDS)
+            }
+
+            memorizer(5).get(2, TimeUnit.SECONDS) shouldBeEqualTo 25
+            evaluateCount.get() shouldBeEqualTo 2
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `clear removes redis entries and resets local in-flight state`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val firstEvaluation = CompletableFuture<Int>()
+        val secondEvaluation = CompletableFuture<Int>()
+        val memorizer = map.asyncMemorizer { _ ->
+            when (evaluateCount.incrementAndGet()) {
+                1 -> firstEvaluation
+                else -> secondEvaluation
+            }
+        }
+
+        try {
+            val first = memorizer(3)
+            memorizer.clear()
+            val second = memorizer(3)
+
+            await.atMost(2.seconds.toJavaDuration()).until { evaluateCount.get() == 2 }
+
+            firstEvaluation.complete(9)
+            secondEvaluation.complete(9)
+
+            first.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
+            second.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
         } finally {
             map.delete()
         }

@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.concurrent.sequence
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -20,7 +21,7 @@ import java.util.concurrent.Executor
  * ```
  */
 fun <V> Iterable<RFuture<out V>>.sequence(
-    executor: Executor = Dispatchers.IO.asExecutor(),
+    executor: Executor = VirtualThreadExecutor,
 ): CompletableFuture<List<V>> = map { it.toCompletableFuture() }.sequence(executor)
 
 
@@ -34,6 +35,10 @@ fun <V> Iterable<RFuture<out V>>.sequence(
  * }
  */
 suspend fun <V> Collection<RFuture<out V>>.awaitAll(): List<V> {
+    if (isEmpty()) {
+        return emptyList()
+    }
+
     val executor = currentCoroutineContext()[CoroutineDispatcher]?.asExecutor()
         ?: Dispatchers.Default.asExecutor()
 
