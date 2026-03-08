@@ -39,6 +39,13 @@ enum class Outcome(
          */
         @JvmStatic
         fun fromHttpStatus(statusCode: Int): Outcome =
-            Outcome.entries.firstOrNull { it.code == (statusCode / 100) } ?: UNKNOWN
+            when (statusCode / 100) {
+                INFORMATION.code -> INFORMATION
+                SUCCESS.code -> SUCCESS
+                REDIRECTION.code -> REDIRECTION
+                CLIENT_ERROR.code -> CLIENT_ERROR
+                SERVER_ERROR.code -> SERVER_ERROR
+                else -> UNKNOWN
+            }
     }
 }

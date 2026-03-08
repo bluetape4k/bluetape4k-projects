@@ -39,4 +39,11 @@ class KeyValueSupportTest {
             "second" to "2",
         )
     }
+
+    @Test
+    fun `keyValuesOf pair array should validate keys consistently`() {
+        assertFailsWith<IllegalArgumentException> {
+            keyValuesOf("" to "1")
+        }
+    }
 }

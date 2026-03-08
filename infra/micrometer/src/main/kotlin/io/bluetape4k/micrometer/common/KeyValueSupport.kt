@@ -92,7 +92,7 @@ fun keyValuesOf(vararg keyValues: KeyValue): KeyValues = KeyValues.of(*keyValues
  * @return 생성된 [KeyValues] 인스턴스
  */
 fun keyValuesOf(vararg keyValues: Pair<String, String>): KeyValues =
-    keyValueOf(keyValues.associate { it.first to it.second })
+    KeyValues.of(keyValues.map { (key, value) -> keyValueOf(key, value) })
 
 /**
  * Map으로 [KeyValues]를 생성합니다.
