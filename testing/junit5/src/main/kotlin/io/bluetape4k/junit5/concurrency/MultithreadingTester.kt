@@ -12,9 +12,12 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 등록한 블록을 고정 스레드 풀에서 반복 실행해 멀티스레드 안정성을 검증합니다.
@@ -23,7 +26,8 @@ import java.util.concurrent.Future
  * - `workers`는 `1..2000`, `rounds`는 `1..1_000_000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
  * - `run` 호출 시 블록이 하나도 없거나 worker 수가 블록 수보다 작으면 [IllegalStateException]이 발생합니다.
  * - 테스트 블록 내부 예외는 [MultiException]에 수집되며 실행 종료 시 재던집니다.
- * - 수신 객체 설정(`workers`, `rounds`, `add*`)은 내부 상태를 변경하며, 실행 시 `workers * rounds` 개의 task를 할당합니다.
+ * - 수신 객체 설정(`workers`, `rounds`, `add*`)은 내부 상태를 변경하며, 실행 시 worker 고정 개수로
+ *   `workers * rounds` 실행 단위를 순차 할당합니다(대량 라운드에서도 상수 크기 worker 유지).
  *
  * ```kotlin
  * val counter = java.util.concurrent.atomic.AtomicInteger()
@@ -218,8 +222,7 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
         val me = MultiException()
         try {
             startWorkerThreads(me)
-            Thread.yield()
-            runCatching { joinWorkerThreads() }
+            joinWorkerThreads()
         } finally {
             shutdownExecutor()
             me.throwIfNotEmpty()
@@ -233,13 +236,22 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
         val pool = Executors.newFixedThreadPool(workers, factory)
         executor = pool
 
-        val tasks = List(workers * roundsPerWorker) {
-            val runnable = runnables[it % runnables.size]
+        val totalRuns = workers * roundsPerWorker
+        val index = AtomicInteger(0)
+        val tasks = List(workers) {
             pool.submit {
-                try {
-                    runnable.invoke()
-                } catch (t: Throwable) {
-                    me.add(t)
+                while (true) {
+                    val taskIndex = index.getAndIncrement()
+                    if (taskIndex >= totalRuns) {
+                        break
+                    }
+
+                    val runnable = runnables[taskIndex % runnables.size]
+                    try {
+                        runnable.invoke()
+                    } catch (t: Throwable) {
+                        me.add(t)
+                    }
                 }
             }
         }
@@ -250,23 +262,31 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     private fun joinWorkerThreads() {
         log.debug { "Join worker threads ..." }
 
-        do {
-            var foundAliveFuture = false
-            futures.forEach { future ->
-                if (!future.isDone) {
-                    foundAliveFuture = true
-                    try {
-                        future.get()
-                    } catch (e: Exception) {
-                        log.error(e) { "Error occurred while joining worker threads" }
-                        throw RuntimeException("Get exception.", e)
-                    }
-                }
+        futures.forEach { future ->
+            try {
+                future.get()
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                log.error(e) { "Interrupted while joining worker threads" }
+                throw RuntimeException("Interrupted while waiting worker completion.", e)
+            } catch (e: ExecutionException) {
+                log.error(e) { "Error occurred while joining worker threads" }
+                throw RuntimeException("Get exception.", e.cause ?: e)
             }
-        } while (foundAliveFuture)
+        }
     }
 
     private fun shutdownExecutor() {
-        runCatching { executor?.shutdownNow() }
+        executor?.let { pool ->
+            pool.shutdown()
+            try {
+                if (!pool.awaitTermination(3, TimeUnit.SECONDS)) {
+                    pool.shutdownNow()
+                }
+            } catch (e: InterruptedException) {
+                pool.shutdownNow()
+                Thread.currentThread().interrupt()
+            }
+        }
     }
 }

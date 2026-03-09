@@ -18,6 +18,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.yield
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * 코루틴 블록을 다수의 Job으로 병렬 실행해 비동기 코드의 경쟁 조건을 검증합니다.
@@ -35,7 +36,7 @@ import kotlinx.coroutines.yield
  *      .rounds(3)
  *      .add { counter.incrementAndGet() }
  *      .run()
- * // counter.get() == 6
+ * // counter.get() == 3
  * ```
  */
 class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
@@ -121,11 +122,11 @@ class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
      *
      * ## 동작/계약
      * - 값이 `1..1_000_000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
-     * - 실행량은 `workers * rounds * 등록 블록 수`에 비례합니다.
+     * - 총 실행량은 `rounds * 등록 블록 수`이며, `workers`는 동시 실행 worker 수를 제어합니다.
      *
      * ```kotlin
      * val tester = SuspendedJobTester().rounds(5)
-     * // run() 시 각 worker 라운드 5회 반복
+     * // 등록한 suspend 블록 1개 기준 총 5회 실행
      * ```
      */
     override fun rounds(value: Int) = apply {
@@ -186,13 +187,13 @@ class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
      *
      * ## 동작/계약
      * - 블록 미등록 상태면 [IllegalStateException]이 발생합니다.
-     * - 고정 스레드 dispatcher 위에서 모든 Job을 생성하고 `joinAll`로 완료까지 대기합니다.
+     * - 고정 스레드 dispatcher 위에서 `workers` 수만큼 worker Job을 생성하고 `joinAll`로 완료까지 대기합니다.
      * - 수집된 예외가 있으면 [MultiException.throwIfNotEmpty]가 예외를 던집니다.
      *
      * ```kotlin
      * val counter = java.util.concurrent.atomic.AtomicInteger()
      * SuspendedJobTester().workers(2).rounds(2).add { counter.incrementAndGet() }.run()
-     * // counter.get() == 4
+     * // counter.get() == 2
      * ```
      */
     suspend fun run() {
@@ -213,9 +214,17 @@ class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
     ): List<Job> = coroutineScope {
         log.trace { "Start multi job testing ..." }
 
-        List(roundPerWorker) {
-            suspendBlocks.map { block ->
-                launch(dispatcher) {
+        val blockCount = suspendBlocks.size
+        val totalUnits = roundPerWorker.toLong() * blockCount
+        val workIndex = AtomicLong(0L)
+
+        List(numWorkers) {
+            launch(dispatcher) {
+                while (true) {
+                    val current = workIndex.getAndIncrement()
+                    if (current >= totalUnits) break
+
+                    val block = suspendBlocks[(current % blockCount).toInt()]
                     try {
                         block.invoke()
                     } catch (e: CancellationException) {
@@ -226,6 +235,6 @@ class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
                     }
                 }
             }
-        }.flatten()
+        }
     }
 }

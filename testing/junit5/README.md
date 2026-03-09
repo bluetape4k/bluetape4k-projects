@@ -463,6 +463,12 @@ fun `대기 설정 예제`() = runSuspendTest {
 
 멀티스레드/가상스레드/코루틴 환경에서 스트레스 테스트를 수행합니다.
 
+#### 실행 모델 요약
+
+- `MultithreadingTester`: `workers * rounds` 실행 단위를 worker 고정 개수로 분배합니다.
+- `SuspendedJobTester`: `rounds * 등록된 suspend 블록 수` 실행 단위를 worker 고정 개수로 분배합니다.
+- 두 구현 모두 라운드 수가 커져도 worker 수만큼만 실행자(스레드/코루틴)를 유지해 메모리 사용량을 안정적으로 유지합니다.
+
 #### MultithreadingTester (플랫폼 스레드)
 
 ```kotlin
@@ -519,7 +525,8 @@ fun `코루틴 스트레스 테스트`() = runSuspendTest {
             }
             .run()
 
-        results.size shouldBe 1600
+        // 단일 블록은 rounds 횟수만큼 실행된다.
+        results.size shouldBe 100
     }
 ```
 
