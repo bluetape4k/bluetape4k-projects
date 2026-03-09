@@ -15,7 +15,7 @@ import java.time.Duration
  * HTTP/2(h2c) 지원 `httpbin` API를 로컬 Docker 컨테이너로 실행하는 테스트 서버입니다.
  *
  * ## 동작/계약
- * - HTTP 체크 대신 리스닝 포트 준비 상태를 기준으로(최대 2분) 시작을 기다립니다.
+ * - HTTP 체크 대신 리스닝 포트 준비 상태를 기준으로(최대 30초) 시작을 기다립니다.
  *   h2c 환경에서 HTTP/1.x 헬스체크가 502를 반환하는 경우를 피하기 위한 선택입니다.
  * - `useDefaultPort=true`이면 `8000` 포트를 호스트에 고정 바인딩하려고 시도하고, 아니면 동적 포트를 사용합니다.
  * - 인스턴스 생성만으로는 컨테이너가 시작되지 않으며, `start()` 호출이 필요합니다.
@@ -106,7 +106,7 @@ class HttpbinHttp2Server private constructor(
         withReuse(reuse)
         waitingFor(
             Wait.forListeningPort()
-                .withStartupTimeout(Duration.ofMinutes(2))
+                .withStartupTimeout(Duration.ofSeconds(30))
         )
 
         if (useDefaultPort) {
