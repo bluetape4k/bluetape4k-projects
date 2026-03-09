@@ -1,11 +1,11 @@
 package io.bluetape4k.redis.redisson.memorizer
 
 import io.bluetape4k.cache.memorizer.SuspendMemorizer
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.future.await
 import org.redisson.api.RMap
 import java.util.concurrent.ConcurrentHashMap
 
@@ -87,7 +87,7 @@ class RedissonSuspendMemorizer<T: Any, R: Any>(
             }
 
             val evaluated = evaluator(key)
-            val winner = map.putIfAbsentAsync(key, evaluated).awaitSuspending() ?: evaluated
+            val winner = map.putIfAbsentAsync(key, evaluated).await() ?: evaluated
             deferred.complete(winner)
             return winner
         } catch (e: Throwable) {
@@ -100,6 +100,6 @@ class RedissonSuspendMemorizer<T: Any, R: Any>(
 
     override suspend fun clear() {
         log.debug { "Clear all memorized values. map=${map.name}" }
-        map.clearAsync().awaitSuspending()
+        map.clearAsync().await()
     }
 }
