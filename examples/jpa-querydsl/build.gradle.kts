@@ -16,6 +16,7 @@ allOpen {
 }
 
 kapt {
+    includeCompileClasspath = true
     correctErrorTypes = true
     showProcessorStats = true
 
