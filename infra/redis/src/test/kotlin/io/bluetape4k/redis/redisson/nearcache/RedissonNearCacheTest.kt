@@ -77,6 +77,40 @@ class RedissonNearCacheTest {
     inner class Sync {
 
         @RepeatedTest(REPEAT_SIZE)
+        fun `destroy 는 로컬 near cache 만 종료하고 원격 cache 데이터는 유지한다`() {
+            val isolatedCacheName = randomName()
+            val isolatedOptions = LocalCachedMapOptions.name<String, Any>(isolatedCacheName)
+                .cacheSize(1_000)
+                .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                .timeToLive(5.seconds.toJavaDuration())
+                .maxIdle(5.seconds.toJavaDuration())
+                .syncStrategy(LocalCachedMapOptions.SyncStrategy.UPDATE)
+                .codec(RedissonCodecs.LZ4Fory)
+            val isolatedNearCache1 = RedissonNearCache(redisson1, isolatedOptions)
+            val isolatedNearCache2 = RedissonNearCache(redisson2, isolatedOptions)
+            val isolatedBackCache = redisson.getMapCache<String, Any>(isolatedCacheName, RedissonCodecs.LZ4Fory)
+            val key = randomName()
+            val value = randomValue()
+
+            try {
+                isolatedNearCache1.fastPut(key, value).shouldBeTrue()
+
+                await atMost 1.seconds.toJavaDuration() until {
+                    isolatedNearCache2.containsKey(key)
+                }
+
+                isolatedNearCache1.destroy()
+
+                isolatedBackCache.containsKey(key).shouldBeTrue()
+                isolatedBackCache[key] shouldBeEqualTo value
+                isolatedNearCache2[key] shouldBeEqualTo value
+            } finally {
+                isolatedNearCache2.destroy()
+                isolatedBackCache.delete()
+            }
+        }
+
+        @RepeatedTest(REPEAT_SIZE)
         fun `nearCache1 에 cache item을 추가하면 nearCache2에 추가됩니다`() {
             val keyToAdd = randomName()
             val valueToAdd = randomName()

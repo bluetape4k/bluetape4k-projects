@@ -2,6 +2,7 @@ package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.redisson.api.map.WriteMode
+import org.redisson.api.options.ExMapOptions
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapOptions
 import org.redisson.client.codec.Codec
@@ -12,10 +13,10 @@ import java.time.Duration
  *
  * @property cacheMode 캐시 모드 (읽기 전용, 쓰기 전용, 읽기/쓰기 모두 등)
  * @property writeMode 쓰기 모드 (WRITE_THROUGH, WRITE_BEHIND)
- * @property deleteFromDBOnInvalidate 캐시 무효화 시 DB에서도 삭제할지 여부
- * @property ttl 캐시 항목의 기본 만료 시간
- * @property maxSize 캐시의 최대 크기 (0이면 무제한)
- * @property codec 캐시 항목의 직렬화 및 역직렬화에 사용할 Codec (기본은 [RedissonCodecs.LZ4Fury])
+ * @property deleteFromDBOnInvalidate 캐시 무효화 시 DB에서도 삭제할지 여부. 옵션 변환 단계에서는 적용되지 않고 애플리케이션 계층에서 처리해야 합니다.
+ * @property ttl 캐시 항목의 기본 만료 시간. `toMapOptions`/`toLocalCachedMapOptions`에서는 직접 지원되지 않으므로 fail-fast 검증에 사용됩니다.
+ * @property maxSize 캐시의 최대 크기 (0이면 무제한). `toMapOptions`/`toLocalCachedMapOptions`에서는 직접 지원되지 않으므로 fail-fast 검증에 사용됩니다.
+ * @property codec 캐시 항목의 직렬화 및 역직렬화에 사용할 Codec (기본은 [RedissonCodecs.LZ4ForyComposite])
  *
  * @property nearCacheMaxIdleTime 로컬 캐시 항목의 최대 유휴 시간
  * @property nearCacheEnabled 로컬(Near) 캐시 사용 여부
@@ -48,6 +49,18 @@ data class RedisCacheConfig(
     val writeRetryAttempts: Int = 3,
     val writeRetryInterval: Duration = Duration.ofMillis(100),
 ) {
+
+    init {
+        require(maxSize >= 0) { "maxSize must be greater than or equal to 0. maxSize=$maxSize" }
+        require(nearCacheMaxSize >= 0) { "nearCacheMaxSize must be greater than or equal to 0. nearCacheMaxSize=$nearCacheMaxSize" }
+        require(writeBehindBatchSize > 0) { "writeBehindBatchSize must be greater than 0. writeBehindBatchSize=$writeBehindBatchSize" }
+        require(writeBehindDelay >= 0) { "writeBehindDelay must be greater than or equal to 0. writeBehindDelay=$writeBehindDelay" }
+        require(writeRetryAttempts >= 0) { "writeRetryAttempts must be greater than or equal to 0. writeRetryAttempts=$writeRetryAttempts" }
+        require(!writeRetryInterval.isNegative) { "writeRetryInterval must be greater than or equal to 0. writeRetryInterval=$writeRetryInterval" }
+        require(!ttl.isNegative) { "ttl must be greater than or equal to 0. ttl=$ttl" }
+        require(!nearCacheTtl.isNegative) { "nearCacheTtl must be greater than or equal to 0. nearCacheTtl=$nearCacheTtl" }
+        require(!nearCacheMaxIdleTime.isNegative) { "nearCacheMaxIdleTime must be greater than or equal to 0. nearCacheMaxIdleTime=$nearCacheMaxIdleTime" }
+    }
 
     val isReadOnly: Boolean
         get() = cacheMode == CacheMode.READ_ONLY
@@ -142,63 +155,70 @@ data class RedisCacheConfig(
 
     /**
      * 이 설정으로 기본 MapOptions 객체를 생성합니다.
+     *
+     * `ttl`, `maxSize`, `deleteFromDBOnInvalidate`는 `MapOptions`가 직접 지원하지 않으므로
+     * 이 메서드에서는 사용할 수 없습니다. 해당 설정이 필요하면 호출 전에 별도 처리해야 합니다.
      */
     fun <K: Any, V> toMapOptions(name: String): MapOptions<K, V> {
-        return MapOptions.name<K, V>(name).apply {
-            if (cacheMode == CacheMode.READ_WRITE) {
-                writeMode(writeMode)
+        validateUnsupportedMapSettings()
 
-                if (writeMode == WriteMode.WRITE_BEHIND) {
-                    writeBehindBatchSize(writeBehindBatchSize)
-                    writeBehindDelay(writeBehindDelay)
-                }
-
-                writeRetryAttempts(writeRetryAttempts)
-                writeRetryInterval(writeRetryInterval)
-            }
-        }
+        return MapOptions.name<K, V>(name)
+            .codec(codec)
+            .applyWriteOptions()
     }
 
     /**
      * 이 설정으로 LocalCachedMapOptions 객체를 생성합니다.
+     *
+     * `ttl`, `maxSize`, `deleteFromDBOnInvalidate`는 `LocalCachedMapOptions`가 직접 지원하지 않으므로
+     * 이 메서드에서는 사용할 수 없습니다. 해당 설정이 필요하면 호출 전에 별도 처리해야 합니다.
      */
     fun <K: Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
-        return if (nearCacheEnabled) {
-            LocalCachedMapOptions.name<K, V>(name).apply {
-                if (cacheMode == CacheMode.READ_WRITE) {
-                    writeMode(writeMode)
+        validateUnsupportedMapSettings()
 
-                    if (writeMode == WriteMode.WRITE_BEHIND) {
-                        writeBehindBatchSize(writeBehindBatchSize)
-                        writeBehindDelay(writeBehindDelay)
-                    }
+        return LocalCachedMapOptions.name<K, V>(name)
+            .codec(codec)
+            .applyWriteOptions()
+            .applyNearCacheOptions()
+    }
 
-                    writeRetryAttempts(writeRetryAttempts)
-                    writeRetryInterval(writeRetryInterval)
-                }
+    private fun validateUnsupportedMapSettings() {
+        require(ttl.isZero) {
+            "ttl is not applied by Redisson MapOptions/LocalCachedMapOptions. Use per-entry expiration or map cache APIs instead. ttl=$ttl"
+        }
+        require(maxSize == 0) {
+            "maxSize is not applied by Redisson MapOptions/LocalCachedMapOptions. Use a bounded local cache or custom eviction policy instead. maxSize=$maxSize"
+        }
+        require(!deleteFromDBOnInvalidate) {
+            "deleteFromDBOnInvalidate is an application-level invalidation policy and is not applied by Redisson MapOptions/LocalCachedMapOptions."
+        }
+    }
 
-                evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
-                cacheSize(nearCacheMaxSize)
-                timeToLive(nearCacheTtl)
-                syncStrategy(nearCacheSyncStrategy)
+    private fun <K: Any, V, T: ExMapOptions<T, K, V>> T.applyWriteOptions(): T = apply {
+        if (cacheMode == CacheMode.READ_WRITE) {
+            writeMode(writeMode)
+
+            if (writeMode == WriteMode.WRITE_BEHIND) {
+                writeBehindBatchSize(writeBehindBatchSize)
+                writeBehindDelay(writeBehindDelay)
             }
+
+            writeRetryAttempts(writeRetryAttempts)
+            writeRetryInterval(writeRetryInterval)
+        }
+    }
+
+    private fun <K: Any, V> LocalCachedMapOptions<K, V>.applyNearCacheOptions(): LocalCachedMapOptions<K, V> = apply {
+        if (nearCacheEnabled) {
+            evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+            cacheSize(nearCacheMaxSize)
+            timeToLive(nearCacheTtl)
+            maxIdle(nearCacheMaxIdleTime)
+            syncStrategy(nearCacheSyncStrategy)
         } else {
-            LocalCachedMapOptions.name<K, V>(name).apply {
-                if (cacheMode == CacheMode.READ_WRITE) {
-                    writeMode(writeMode)
-
-                    if (writeMode == WriteMode.WRITE_BEHIND) {
-                        writeBehindBatchSize(writeBehindBatchSize)
-                        writeBehindDelay(writeBehindDelay)
-                    }
-
-                    writeRetryAttempts(writeRetryAttempts)
-                    writeRetryInterval(writeRetryInterval)
-                }
-
-                // NearCache 비활성화 - 기본 설정 사용
-                cacheSize(0)
-            }
+            cacheSize(0)
+            timeToLive(Duration.ZERO)
+            maxIdle(Duration.ZERO)
         }
     }
 }

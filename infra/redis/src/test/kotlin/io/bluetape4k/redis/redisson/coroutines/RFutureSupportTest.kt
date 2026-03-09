@@ -9,6 +9,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.redisson.api.RFuture
 
 class RFutureSupportTest: AbstractRedissonCoroutineTest() {
@@ -16,6 +17,11 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_COUNT = 100
+    }
+
+    @Test
+    fun `awaitAll returns empty list for empty futures`() = runSuspendIO {
+        emptyList<RFuture<Int>>().awaitAll() shouldBeEqualTo emptyList()
     }
 
     @RepeatedTest(REPEAT_SIZE)
