@@ -4,6 +4,7 @@ import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
 import io.vertx.sqlclient.TransactionRollbackException
+import kotlinx.coroutines.CancellationException
 import java.sql.SQLException
 
 /**
@@ -21,6 +22,8 @@ import java.sql.SQLException
  * @param action Transaction 하에서 수행할 작업
  * @receiver [Pool] 인스턴스
  * @return DB 작업 결과
+ *
+ * [kotlinx.coroutines.CancellationException]은 래핑하지 않고 그대로 전파합니다.
  */
 suspend inline fun <T> Pool.withSuspendTransaction(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
@@ -34,6 +37,9 @@ suspend inline fun <T> Pool.withSuspendTransaction(
         result
     } catch (e: TransactionRollbackException) {
         throw (e)
+    } catch (e: CancellationException) {
+        runCatching { tx.rollback().coAwait() }
+        throw e
     } catch (e: Throwable) {
         runCatching { tx.rollback().coAwait() }
         throw SQLException(e)
@@ -57,6 +63,8 @@ suspend inline fun <T> Pool.withSuspendTransaction(
  * @param T
  * @param action Transaction 하에서 수행할 작업
  * @return 작업 결과
+ *
+ * [kotlinx.coroutines.CancellationException]은 래핑하지 않고 그대로 전파합니다.
  */
 suspend inline fun <T> Pool.withSuspendRollback(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
@@ -69,6 +77,9 @@ suspend inline fun <T> Pool.withSuspendRollback(
         result
     } catch (e: TransactionRollbackException) {
         throw (e)
+    } catch (e: CancellationException) {
+        runCatching { tx.rollback().coAwait() }
+        throw e
     } catch (e: Throwable) {
         runCatching { tx.rollback().coAwait() }
         throw SQLException(e)
