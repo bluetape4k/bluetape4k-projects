@@ -8,6 +8,7 @@ dependencies {
 
     // Redisson JCache provider
     api(Libs.redisson)
+    api(project(":bluetape4k-redis"))
 
     // RESP3 CLIENT TRACKING invalidation 전용 (데이터 연산은 Redisson 사용)
     implementation(Libs.lettuce_core)

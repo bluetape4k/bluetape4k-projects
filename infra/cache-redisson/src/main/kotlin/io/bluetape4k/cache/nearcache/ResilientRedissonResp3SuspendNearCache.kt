@@ -6,8 +6,8 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
-import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.core.IntervalFunction
+import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
@@ -29,7 +29,6 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
-import org.redisson.client.codec.StringCodec as RedissonStringCodec
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -63,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap
 class ResilientRedissonResp3SuspendNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
-    private val redissonCodec: Codec,
+    private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
     private val config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
         RedissonResp3NearCacheConfig()
     ),
@@ -80,7 +79,12 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
                 RedissonResp3NearCacheConfig()
             ),
         ): ResilientRedissonResp3SuspendNearCache<String> =
-            ResilientRedissonResp3SuspendNearCache(redisson, redisClient, RedissonStringCodec.INSTANCE, config)
+            ResilientRedissonResp3SuspendNearCache(
+                redisson,
+                redisClient,
+                RedissonNearCache.defaultNearCacheCodec,
+                config
+            )
     }
 
     val cacheName: String get() = config.cacheName
@@ -151,7 +155,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
 
     private suspend fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put -> {
+            is BackCacheCommand.Put    -> {
                 setRedis(cmd.key, cmd.value)
                 trackingCommands.get(config.redisKey(cmd.key))
             }

@@ -2,10 +2,10 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
-import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.ProtocolVersion
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 abstract class AbstractRedissonResp3NearCacheTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
 
         val clientRESP3Protocol: ClientOptions = ClientOptions.builder()
@@ -42,7 +42,7 @@ abstract class AbstractRedissonResp3NearCacheTest {
 
         /** 검증용 직접 Redis 명령 (tracking 없음) */
         val directCommands: RedisCommands<String, String> by lazy {
-            RedisServers.redisClient.connect(StringCodec.UTF8).sync()
+            RedisServers.redisClient.connect<String, String>(LettuceBinaryCodecs.lz4Fory()).sync()
         }
     }
 
@@ -169,7 +169,7 @@ abstract class AbstractRedissonResp3NearCacheTest {
         localSize() shouldBeEqualTo 0L
 
         await atMost 3.seconds until { getFromRedis("k1") != null }
-        
+
         // Redis에 데이터 유지 확인 (prefix key로)
         getFromRedis("k1").shouldNotBeNull()
     }

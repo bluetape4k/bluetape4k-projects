@@ -4,9 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
 import org.awaitility.kotlin.untilNotNull
 import org.awaitility.kotlin.untilNull
 import org.junit.jupiter.api.AfterEach
@@ -22,9 +20,9 @@ import java.util.concurrent.TimeUnit
  * write-behind + retry + graceful degradation 패턴을 검증한다.
  * Redis 반영은 비동기이므로 awaitility로 폴링한다.
  */
-class ResilientRedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
+class ResilientRedissonResp3NearCacheTest: AbstractRedissonResp3NearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var cache: ResilientRedissonResp3NearCache<String>
 
@@ -190,7 +188,7 @@ class ResilientRedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest()
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = ResilientRedissonResp3NearCache(
+        val c = ResilientRedissonResp3NearCache<String>(
             redisson = redisson,
             redisClient = resp3Client,
         )

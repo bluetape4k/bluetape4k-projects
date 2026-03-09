@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.jcacheManager
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
@@ -25,6 +26,11 @@ import javax.cache.configuration.MutableConfiguration
  * ```
  */
 object RedissonNearCache {
+
+    /**
+     * 기본 Codec: [RedissonCodecs.LZ4Fory]
+     */
+    val defaultNearCacheCodec = RedissonCodecs.LZ4Fory
 
     /**
      * 기존 Back Cache 인스턴스로 [NearCache]를 생성합니다.

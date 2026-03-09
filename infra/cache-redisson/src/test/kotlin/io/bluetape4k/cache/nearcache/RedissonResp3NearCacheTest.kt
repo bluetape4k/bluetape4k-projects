@@ -166,7 +166,7 @@ class RedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
 
     @Test
     fun `clearAll - 다른 cacheName의 데이터는 유지됨`() {
-        val otherCache = RedissonResp3NearCache(
+        val otherCache = RedissonResp3NearCache<String>(
             redisson = redisson,
             redisClient = resp3Client,
             config = RedissonResp3NearCacheConfig(cacheName = "other-resp3-cache-" + Base58.randomString(6)),
@@ -190,7 +190,7 @@ class RedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
     @Test
     fun `Redis TTL - TTL이 있는 캐시 설정`() {
         val ttlCacheName = "ttl-resp3-test-" + Base58.randomString(6)
-        val ttlCache = RedissonResp3NearCache(
+        val ttlCache = RedissonResp3NearCache<String>(
             redisson = redisson,
             redisClient = resp3Client,
             config = RedissonResp3NearCacheConfig(
@@ -222,7 +222,7 @@ class RedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = RedissonResp3NearCache(redisson, resp3Client)
+        val c = RedissonResp3NearCache<String>(redisson, resp3Client)
         c.close()
         c.close()
     }

@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.cache.jcache.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.SuspendCache
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RedissonClient
 import javax.cache.configuration.Configuration
@@ -23,6 +24,12 @@ import javax.cache.configuration.MutableConfiguration
  * ```
  */
 object RedissonSuspendNearCache {
+
+    /**
+     * 기본 Codec: [RedissonCodecs.LZ4Fory]
+     */
+    val defaultNearCacheCodec = RedissonCodecs.LZ4Fory
+
 
     /**
      * Front/Back SuspendCache를 직접 지정해 [SuspendNearCache]를 생성합니다.

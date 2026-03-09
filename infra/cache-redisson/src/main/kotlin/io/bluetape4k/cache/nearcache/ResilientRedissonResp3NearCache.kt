@@ -20,7 +20,6 @@ import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
-import org.redisson.client.codec.StringCodec as RedissonStringCodec
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -54,7 +53,7 @@ import java.util.concurrent.LinkedBlockingQueue
 class ResilientRedissonResp3NearCache<V: Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
-    private val redissonCodec: Codec,
+    private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
     private val config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
         RedissonResp3NearCacheConfig()
     ),
@@ -71,7 +70,7 @@ class ResilientRedissonResp3NearCache<V: Any>(
                 RedissonResp3NearCacheConfig()
             ),
         ): ResilientRedissonResp3NearCache<String> =
-            ResilientRedissonResp3NearCache(redisson, redisClient, RedissonStringCodec.INSTANCE, config)
+            ResilientRedissonResp3NearCache(redisson, redisClient, RedissonNearCache.defaultNearCacheCodec, config)
     }
 
     val cacheName: String get() = config.cacheName

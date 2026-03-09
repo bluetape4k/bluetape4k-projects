@@ -6,7 +6,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
 import org.awaitility.kotlin.untilNotNull
 import org.awaitility.kotlin.untilNull
 import org.junit.jupiter.api.AfterEach
@@ -23,9 +22,9 @@ import kotlin.time.Duration.Companion.seconds
  * write-behind + retry + graceful degradation 패턴을 검증한다.
  * Redis 반영은 비동기이므로 awaitility로 폴링한다.
  */
-class ResilientRedissonResp3SuspendNearCacheTest : AbstractRedissonResp3NearCacheTest() {
+class ResilientRedissonResp3SuspendNearCacheTest: AbstractRedissonResp3NearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var cache: ResilientRedissonResp3SuspendNearCache<String>
 
@@ -186,7 +185,7 @@ class ResilientRedissonResp3SuspendNearCacheTest : AbstractRedissonResp3NearCach
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = ResilientRedissonResp3SuspendNearCache(
+        val c = ResilientRedissonResp3SuspendNearCache<String>(
             redisson = redisson,
             redisClient = resp3Client,
         )

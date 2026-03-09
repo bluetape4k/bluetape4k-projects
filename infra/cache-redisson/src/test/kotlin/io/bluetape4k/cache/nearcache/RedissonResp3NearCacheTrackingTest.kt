@@ -32,9 +32,9 @@ import java.util.concurrent.TimeUnit
  * 동일한 Redis key 공간을 공유하므로, 한 인스턴스의 쓰기가
  * 다른 인스턴스의 local cache를 invalidate한다.
  */
-class RedissonResp3NearCacheTrackingTest : AbstractRedissonResp3NearCacheTest() {
+class RedissonResp3NearCacheTrackingTest: AbstractRedissonResp3NearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var nearCache1: RedissonResp3NearCache<String>
     private lateinit var nearCache2: RedissonResp3NearCache<String>
@@ -45,19 +45,23 @@ class RedissonResp3NearCacheTrackingTest : AbstractRedissonResp3NearCacheTest() 
     @BeforeEach
     fun createCaches() {
         nearCache1 = RedissonResp3NearCache(
-            redisson, resp3Client,
+            redisson,
+            resp3Client,
             RedissonResp3NearCacheConfig(cacheName = "tracking-resp3-cache"),
         )
         nearCache2 = RedissonResp3NearCache(
-            redisson, resp3Client,
+            redisson,
+            resp3Client,
             RedissonResp3NearCacheConfig(cacheName = "tracking-resp3-cache"),
         )
         nearSuspendCache1 = RedissonResp3SuspendNearCache(
-            redisson, resp3Client,
+            redisson,
+            resp3Client,
             RedissonResp3NearCacheConfig(cacheName = "suspend-tracking-resp3-cache"),
         )
         nearSuspendCache2 = RedissonResp3SuspendNearCache(
-            redisson, resp3Client,
+            redisson,
+            resp3Client,
             RedissonResp3NearCacheConfig(cacheName = "suspend-tracking-resp3-cache"),
         )
     }

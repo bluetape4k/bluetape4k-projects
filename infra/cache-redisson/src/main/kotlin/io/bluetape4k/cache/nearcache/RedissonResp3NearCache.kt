@@ -15,7 +15,7 @@ import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
-import org.redisson.client.codec.StringCodec as RedissonStringCodec
+
 
 /**
  * Redisson + Lettuce RESP3 하이브리드 Near Cache (2-tier cache) - 동기(Blocking) 구현.
@@ -45,14 +45,14 @@ import org.redisson.client.codec.StringCodec as RedissonStringCodec
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class RedissonResp3NearCache<V : Any>(
+class RedissonResp3NearCache<V: Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
-    private val redissonCodec: Codec,
+    private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
     private val config: RedissonResp3NearCacheConfig = RedissonResp3NearCacheConfig(),
-) : AutoCloseable {
+): AutoCloseable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /**
          * String 키/값 타입의 Near Cache를 생성한다.
          */
@@ -61,7 +61,7 @@ class RedissonResp3NearCache<V : Any>(
             redisClient: RedisClient,
             config: RedissonResp3NearCacheConfig = RedissonResp3NearCacheConfig(),
         ): RedissonResp3NearCache<String> =
-            RedissonResp3NearCache(redisson, redisClient, RedissonStringCodec.INSTANCE, config)
+            RedissonResp3NearCache(redisson, redisClient, RedissonNearCache.defaultNearCacheCodec, config)
     }
 
     val cacheName: String get() = config.cacheName
