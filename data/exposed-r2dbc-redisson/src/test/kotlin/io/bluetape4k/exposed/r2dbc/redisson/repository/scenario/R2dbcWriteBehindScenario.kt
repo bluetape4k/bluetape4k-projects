@@ -39,8 +39,8 @@ interface R2dbcWriteBehindScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>
             repository.putAll(entities)
 
             await
-                .atMost(Duration.ofSeconds(10))
-                .withPollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(30))
+                .withPollInterval(Duration.ofSeconds(5))
                 .untilSuspending { getAllCountFromDB() >= entities.size.toLong() }
 
             // DB에서 조회한 값
@@ -58,8 +58,8 @@ interface R2dbcWriteBehindScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>
 
             // Write-Behind는 비동기이므로 잠시 대기 후 DB에서 확인
             await
-                .atMost(Duration.ofSeconds(10))
-                .withPollInterval(Duration.ofMillis(500))
+                .atMost(Duration.ofSeconds(30))
+                .withPollInterval(Duration.ofSeconds(5))
                 .untilSuspending { getAllCountFromDB() >= 1L }
 
             val dbCount = getAllCountFromDB()

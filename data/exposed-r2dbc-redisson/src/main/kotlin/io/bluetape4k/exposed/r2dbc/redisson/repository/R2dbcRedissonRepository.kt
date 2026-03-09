@@ -39,7 +39,7 @@ import org.redisson.api.RMap
 interface R2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
 
     companion object: KLoggingChannel() {
-        const val DEFAULT_BATCH_SIZE = 100
+        const val DEFAULT_BATCH_SIZE = 500
     }
 
     /**

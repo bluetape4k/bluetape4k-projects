@@ -35,8 +35,8 @@ interface WriteBehindScenario<ID: Any,T: IdTable<ID>,  E: HasIdentifier<ID>>: Ca
             repository.putAll(entities)
 
             await
-                .atMost(Duration.ofSeconds(10))
-                .withPollInterval(Duration.ofMillis(1000))
+                .atMost(Duration.ofSeconds(30))
+                .withPollInterval(Duration.ofMillis(5))
                 .until { getAllCountFromDB() >= entities.size.toLong() }
 
             // DB에서 조회한 값

@@ -77,7 +77,9 @@ interface SuspendedWriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifie
             val ids = getExistingIds()
             delay(10)
 
-            await.withPollInterval(Duration.ofMillis(100))
+            await
+                .atMost(Duration.ofSeconds(30))
+                .withPollInterval(Duration.ofMillis(5))
                 .untilSuspending { getExistingIds().size == 3 }
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다

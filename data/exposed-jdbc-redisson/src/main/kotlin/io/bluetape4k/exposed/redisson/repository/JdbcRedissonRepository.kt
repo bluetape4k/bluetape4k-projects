@@ -35,7 +35,7 @@ import org.redisson.api.RMap
  */
 interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
     companion object {
-        const val DEFAULT_BATCH_SIZE = 100
+        const val DEFAULT_BATCH_SIZE = 500
     }
 
     /**
