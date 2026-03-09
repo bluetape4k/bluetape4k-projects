@@ -30,6 +30,14 @@ idea {
 kapt {
     correctErrorTypes = true
     showProcessorStats = true
+
+    arguments {
+        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
+        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+    }
+    javacOptions {
+        option("--add-modules", "java.base")
+    }
 }
 
 configurations {
