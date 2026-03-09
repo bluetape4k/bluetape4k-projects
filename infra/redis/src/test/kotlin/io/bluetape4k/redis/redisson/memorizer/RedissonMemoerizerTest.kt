@@ -9,6 +9,10 @@ import org.junit.jupiter.api.assertTimeout
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class RedissonMemoerizerTest: AbstractRedissonTest() {
@@ -61,6 +65,35 @@ class RedissonMemoerizerTest: AbstractRedissonTest() {
         assertTimeout(Duration.ofMillis(1000)) {
             fibonacci.calc(100)
         } shouldBeEqualTo x1
+    }
+
+    @Test
+    fun `memorizer should evaluate once for same key in concurrent calls`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memorizer = map.memorizer { key ->
+            evaluateCount.incrementAndGet()
+            Thread.sleep(100)
+            key * key
+        }
+        val pool = Executors.newFixedThreadPool(16)
+        val startLatch = CountDownLatch(1)
+
+        try {
+            val tasks = List(16) {
+                pool.submit<Int> {
+                    startLatch.await(1, TimeUnit.SECONDS)
+                    memorizer(7)
+                }
+            }
+
+            startLatch.countDown()
+            tasks.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            pool.shutdownNow()
+            map.delete()
+        }
     }
 
     interface FactorialProvider {

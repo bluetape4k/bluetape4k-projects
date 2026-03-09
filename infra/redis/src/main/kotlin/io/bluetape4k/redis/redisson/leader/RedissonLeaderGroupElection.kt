@@ -20,11 +20,11 @@ import java.util.concurrent.Executor
  * - `lockName`별로 Redis 분산 `RSemaphore(maxLeaders)`를 생성하여 동시 실행 수를 제한합니다.
  * - 슬롯이 가득 찬 경우 [RedissonLeaderElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
  *   [RedisException]을 던집니다.
- * - 슬롯 획득 성공 시 [action]을 실행하고, 완료(또는 예외) 후 반드시 슬롯을 반납합니다.
+ * - 슬롯 획득 성공 시 `action`을 실행하고, 완료(또는 예외) 후 반드시 슬롯을 반납합니다.
  * - 여러 JVM 프로세스에 걸친 분산 동시 실행 제한에 적합합니다.
  *
- * ## [LocalLeaderGroupElection] 과의 차이
- * - [LocalLeaderGroupElection]은 단일 JVM 내 `java.util.concurrent.Semaphore`를 사용합니다.
+ * ## [io.bluetape4k.leader.local.LocalLeaderGroupElection] 과의 차이
+ * - [io.bluetape4k.leader.local.LocalLeaderGroupElection]은 단일 JVM 내 `java.util.concurrent.Semaphore`를 사용합니다.
  * - 이 구현체는 Redis 기반 `RSemaphore`를 사용하므로 여러 프로세스에서 동작합니다.
  *
  * ```kotlin
@@ -48,9 +48,9 @@ class RedissonLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
     override val maxLeaders: Int,
     options: RedissonLeaderElectionOptions,
-) : LeaderGroupElection {
+): LeaderGroupElection {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /**
          * [RedissonLeaderGroupElection] 인스턴스를 생성합니다.
          *
@@ -138,6 +138,9 @@ class RedissonLeaderGroupElection private constructor(
 
     /**
      * [lockName]의 분산 [RSemaphore] 슬롯을 [executor]에서 획득하고 비동기 [action]을 실행합니다.
+     *
+     * - 슬롯이 가득 찬 경우 [waitTime] 내 슬롯을 획득하지 못하면 [RedisException]을 던집니다.
+     * - [action] 예외 발생 시에도 슬롯은 반드시 반환됩니다.
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param executor 비동기 실행에 사용할 [Executor]

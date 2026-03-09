@@ -1,6 +1,5 @@
 package io.bluetape4k.redis.redisson.leader.coroutines
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.leader.coroutines.SuspendLeaderGroupElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -8,6 +7,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.future.await
 import org.redisson.api.RSemaphore
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -21,12 +21,12 @@ import java.time.Duration
  * - 슬롯이 가득 찬 경우 [RedissonLeaderElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
  *   [RedisException]을 던집니다.
  * - `tryAcquireAsync`/`releaseAsync`를 사용하여 호출 코루틴을 블로킹하지 않습니다.
- * - [action] 예외 발생 시에도 슬롯은 반드시 반환됩니다.
+ * - `action` 예외 발생 시에도 슬롯은 반드시 반환됩니다.
  * - 여러 JVM 프로세스에 걸친 분산 동시 실행 제한에 적합합니다.
  *
- * ## [RedissonLeaderGroupElection] 과의 차이
- * - [RedissonLeaderGroupElection]은 스레드를 블로킹합니다.
- * - 이 구현체는 `awaitSuspending()`으로 코루틴을 suspend합니다.
+ * ## [io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection] 과의 차이
+ * - [io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection]은 스레드를 블로킹합니다.
+ * - 이 구현체는 `awit()`으로 코루틴을 suspend합니다.
  *
  * ```kotlin
  * val election = RedissonSuspendLeaderGroupElection(redissonClient, maxLeaders = 3)
@@ -46,9 +46,9 @@ class RedissonSuspendLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
     override val maxLeaders: Int,
     options: RedissonLeaderElectionOptions,
-) : SuspendLeaderGroupElection {
+): SuspendLeaderGroupElection {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         /**
          * [RedissonSuspendLeaderGroupElection] 인스턴스를 생성합니다.
          *
@@ -81,7 +81,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
     private suspend fun getInitializedSemaphoreAsync(lockName: String): RSemaphore {
         lockName.requireNotBlank("lockName")
         val semaphore = redissonClient.getSemaphore(lockName)
-        semaphore.trySetPermitsAsync(maxLeaders).awaitSuspending()
+        semaphore.trySetPermitsAsync(maxLeaders).await()
         return semaphore
     }
 
@@ -108,7 +108,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
     /**
      * [lockName]의 분산 [RSemaphore] 슬롯을 비동기로 획득하고 suspend [action]을 실행합니다.
      *
-     * - 슬롯이 가득 찬 경우 [waitTimeMillis] 내 슬롯을 획득하지 못하면 [RedisException]을 던집니다.
+     * - 슬롯이 가득 찬 경우 [waitTime] 내 슬롯을 획득하지 못하면 [RedisException]을 던집니다.
      * - [action] 예외 발생 시에도 슬롯은 반드시 반환됩니다.
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
@@ -123,7 +123,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
         log.debug { "리더 그룹 슬롯 획득을 요청합니다. lockName=$lockName, maxLeaders=$maxLeaders" }
 
         val acquired = try {
-            semaphore.tryAcquireAsync(waitTime).awaitSuspending()
+            semaphore.tryAcquireAsync(waitTime).await()
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
             log.warn(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
@@ -138,7 +138,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
         try {
             return action()
         } finally {
-            semaphore.releaseAsync().awaitSuspending()
+            semaphore.releaseAsync().await()
             log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
         }
     }

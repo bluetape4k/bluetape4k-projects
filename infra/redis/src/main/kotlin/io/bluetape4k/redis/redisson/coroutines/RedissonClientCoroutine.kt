@@ -1,8 +1,8 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.LibraryName
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.future.await
 import org.redisson.api.BatchOptions
 import org.redisson.api.BatchResult
 import org.redisson.api.RBatch
@@ -17,7 +17,7 @@ suspend inline fun RedissonClient.withSuspendedBatch(
     options: BatchOptions = BatchOptions.defaults(),
     action: RBatch.() -> Unit,
 ): BatchResult<*> =
-    createBatch(options).apply(action).executeAsync().awaitSuspending()
+    createBatch(options).apply(action).executeAsync().await()
 
 /**
  * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
@@ -29,9 +29,9 @@ suspend inline fun RedissonClient.withSuspendedTransaction(
     val tx: RTransaction = createTransaction(options)
     try {
         action(tx)
-        tx.commitAsync().awaitSuspending()
+        tx.commitAsync().await()
     } catch (e: Throwable) {
-        runCatching { tx.rollbackAsync().awaitSuspending() }
+        runCatching { tx.rollbackAsync().await() }
         throw e
     }
 }

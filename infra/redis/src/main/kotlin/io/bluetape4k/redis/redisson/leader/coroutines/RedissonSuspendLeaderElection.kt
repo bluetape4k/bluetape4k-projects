@@ -8,6 +8,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.future.await
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -80,7 +81,7 @@ class RedissonSuspendLeaderElection private constructor(
                     return action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        lock.unlockAsync(lockId).awaitSuspending()
+                        lock.unlockAsync(lockId).await()
                         log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }
