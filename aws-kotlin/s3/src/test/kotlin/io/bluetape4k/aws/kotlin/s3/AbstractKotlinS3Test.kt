@@ -10,9 +10,9 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
+import io.bluetape4k.testcontainers.aws.LocalStackServer
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
-import org.testcontainers.containers.localstack.LocalStackContainer
 
 abstract class AbstractKotlinS3Test {
 
@@ -35,8 +35,8 @@ abstract class AbstractKotlinS3Test {
         }
 
         @JvmStatic
-        val s3Server: LocalStackContainer by lazy {
-            getLocalStackServer(LocalStackContainer.Service.S3)
+        val s3Server: LocalStackServer by lazy {
+            getLocalStackServer("s3")
         }
 
         @JvmStatic

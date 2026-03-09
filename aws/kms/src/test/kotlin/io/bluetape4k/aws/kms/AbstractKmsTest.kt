@@ -6,7 +6,6 @@ import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
@@ -18,12 +17,12 @@ abstract class AbstractKmsTest {
     companion object: KLogging() {
         @JvmStatic
         private val kmsServer: LocalStackServer by lazy {
-            LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.KMS)
+            LocalStackServer.Launcher.localStack.withServices("kms")
         }
 
         @JvmStatic
         protected val endpointOverride: URI by lazy {
-            kmsServer.getEndpointOverride(LocalStackContainer.Service.KMS)
+            kmsServer.endpoint
         }
 
         @JvmStatic

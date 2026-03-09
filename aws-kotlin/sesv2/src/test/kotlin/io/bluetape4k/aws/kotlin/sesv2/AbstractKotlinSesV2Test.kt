@@ -6,14 +6,14 @@ import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.testcontainers.containers.localstack.LocalStackContainer
+import io.bluetape4k.testcontainers.aws.LocalStackServer
 
 abstract class AbstractKotlinSesV2Test {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val snsServer: LocalStackContainer by lazy {
-            getLocalStackServer(LocalStackContainer.Service.SES)
+        val snsServer: LocalStackServer by lazy {
+            getLocalStackServer("ses")
         }
 
         @JvmStatic

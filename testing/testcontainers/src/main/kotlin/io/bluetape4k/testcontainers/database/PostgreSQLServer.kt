@@ -5,8 +5,8 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -26,7 +26,7 @@ class PostgreSQLServer private constructor(
     reuse: Boolean,
     username: String,
     password: String,
-): PostgreSQLContainer<PostgreSQLServer>(imageName), JdbcServer {
+): PostgreSQLContainer(imageName), JdbcServer {
 
     companion object: KLogging() {
         const val IMAGE = "postgres"

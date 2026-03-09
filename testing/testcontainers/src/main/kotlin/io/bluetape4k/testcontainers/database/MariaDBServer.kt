@@ -5,8 +5,8 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.MariaDBContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.mariadb.MariaDBContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -28,7 +28,7 @@ class MariaDBServer private constructor(
     username: String,
     password: String,
     configuration: String,
-): MariaDBContainer<MariaDBServer>(imageName), JdbcServer {
+): MariaDBContainer(imageName), JdbcServer {
 
     companion object: KLogging() {
         const val IMAGE = "mariadb"

@@ -9,7 +9,7 @@ import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.apache.pulsar.client.api.ClientBuilder
 import org.apache.pulsar.client.api.PulsarClient
-import org.testcontainers.containers.PulsarContainer
+import org.testcontainers.pulsar.PulsarContainer
 import org.testcontainers.utility.DockerImageName
 
 /**

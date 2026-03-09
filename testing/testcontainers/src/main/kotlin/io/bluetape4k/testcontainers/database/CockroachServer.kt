@@ -5,7 +5,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.CockroachContainer
+import org.testcontainers.cockroachdb.CockroachContainer
 import org.testcontainers.utility.DockerImageName
 
 /**

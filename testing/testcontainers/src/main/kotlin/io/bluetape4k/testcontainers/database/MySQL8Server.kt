@@ -5,8 +5,8 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -28,7 +28,7 @@ class MySQL8Server private constructor(
     username: String,
     password: String,
     configuration: String,
-): MySQLContainer<MySQL8Server>(imageName), JdbcServer {
+): MySQLContainer(imageName), JdbcServer {
 
     companion object: KLogging() {
         const val IMAGE = "mysql"

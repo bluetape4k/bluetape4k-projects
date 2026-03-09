@@ -12,7 +12,6 @@ import io.bluetape4k.testcontainers.aws.LocalStackServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.junit.jupiter.api.BeforeAll
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
@@ -28,12 +27,12 @@ abstract class AbstractS3Test {
 
         @JvmStatic
         private val AwsS3: LocalStackServer by lazy {
-            LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.S3)
+            LocalStackServer.Launcher.localStack.withServices("s3")
         }
 
         @JvmStatic
         private val endpointOverride: URI by lazy {
-            AwsS3.getEndpointOverride(LocalStackContainer.Service.S3)
+            AwsS3.endpoint
         }
 
         @JvmStatic

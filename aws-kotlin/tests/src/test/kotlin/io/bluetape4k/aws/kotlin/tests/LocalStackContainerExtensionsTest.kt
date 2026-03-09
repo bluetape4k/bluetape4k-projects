@@ -5,8 +5,6 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.localstack.LocalStackContainer.Service.S3
-import org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS
 
 class LocalStackContainerExtensionsTest {
 
@@ -16,12 +14,12 @@ class LocalStackContainerExtensionsTest {
     fun `AWS S3, SQS 서비스를 제공하는 LocalStackServer를 실행합니다`() {
         log.debug { "LocalStackServer with S3, SQS Services" }
 
-        getLocalStackServer(S3, SQS).use { server ->
-            val s3EndpointUri = server.getServiceEndpoint(S3)
+        getLocalStackServer("s3", "sqs").use { server ->
+            val s3EndpointUri = server.endpoint
             log.debug { "S3 Endpoint URI: $s3EndpointUri" }
             s3EndpointUri.shouldNotBeNull()
 
-            val sqsEndpointUri = server.getServiceEndpoint(SQS)
+            val sqsEndpointUri = server.endpoint
             log.debug { "SQS Endpoint URI: $sqsEndpointUri" }
             sqsEndpointUri.shouldNotBeNull()
 

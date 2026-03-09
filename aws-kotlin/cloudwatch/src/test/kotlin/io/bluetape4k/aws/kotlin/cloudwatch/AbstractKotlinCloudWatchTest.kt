@@ -7,7 +7,7 @@ import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.testcontainers.containers.localstack.LocalStackContainer
+import io.bluetape4k.testcontainers.aws.LocalStackServer
 
 /**
  * AWS Kotlin SDK CloudWatch 테스트를 위한 추상 기반 클래스.
@@ -29,11 +29,9 @@ abstract class AbstractKotlinCloudWatchTest {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val cloudWatchServer: LocalStackContainer by lazy {
-            getLocalStackServer(
-                LocalStackContainer.Service.CLOUDWATCH,
-                LocalStackContainer.Service.CLOUDWATCHLOGS
-            )
+        val cloudWatchServer: LocalStackServer by lazy {
+            getLocalStackServer("cloudwatch", "cloudwatchlogs")
+
         }
 
         @JvmStatic

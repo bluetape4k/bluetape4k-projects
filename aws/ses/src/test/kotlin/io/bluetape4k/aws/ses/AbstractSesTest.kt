@@ -6,7 +6,6 @@ import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ses.SesAsyncClient
@@ -19,12 +18,12 @@ abstract class AbstractSesTest {
 
         @JvmStatic
         protected val awsSES: LocalStackServer by lazy {
-            LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.SES)
+            LocalStackServer.Launcher.localStack.withServices("ses")
         }
 
         @JvmStatic
         protected val endpointOverride: URI by lazy {
-            awsSES.getEndpointOverride(LocalStackContainer.Service.SES)
+            awsSES.endpoint
         }
 
         @JvmStatic
@@ -35,7 +34,6 @@ abstract class AbstractSesTest {
         @JvmStatic
         protected val region: Region
             get() = Region.of(awsSES.region)
-
 
 
         @JvmStatic

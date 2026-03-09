@@ -6,7 +6,6 @@ import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
@@ -24,19 +23,19 @@ abstract class AbstractCloudWatchTest {
 
     companion object: KLogging() {
         @JvmStatic
-        private val AwsCloudWatch: LocalStackContainer by lazy {
+        private val AwsCloudWatch: LocalStackServer by lazy {
             LocalStackServer.Launcher.localStack
-                .withServices(LocalStackContainer.Service.CLOUDWATCH, LocalStackContainer.Service.CLOUDWATCHLOGS)
+                .withServices("cloudwatch", "cloudwatchlogs")
         }
 
         @JvmStatic
         protected val cloudWatchEndpoint: URI by lazy {
-            AwsCloudWatch.getEndpointOverride(LocalStackContainer.Service.CLOUDWATCH)
+            AwsCloudWatch.endpoint
         }
 
         @JvmStatic
         protected val cloudWatchLogsEndpoint: URI by lazy {
-            AwsCloudWatch.getEndpointOverride(LocalStackContainer.Service.CLOUDWATCHLOGS)
+            AwsCloudWatch.endpoint
         }
 
         @JvmStatic

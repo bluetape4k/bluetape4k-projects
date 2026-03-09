@@ -6,7 +6,6 @@ import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
@@ -24,13 +23,13 @@ abstract class AbstractKinesisTest {
 
     companion object: KLogging() {
         @JvmStatic
-        private val AwsKinesis: LocalStackContainer by lazy {
-            LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.KINESIS)
+        private val AwsKinesis: LocalStackServer by lazy {
+            LocalStackServer.Launcher.localStack.withServices("kinesis")
         }
 
         @JvmStatic
         protected val endpointOverride: URI by lazy {
-            AwsKinesis.getEndpointOverride(LocalStackContainer.Service.KINESIS)
+            AwsKinesis.endpoint
         }
 
         @JvmStatic

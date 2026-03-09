@@ -6,7 +6,7 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.NginxContainer
+import org.testcontainers.nginx.NginxContainer
 import org.testcontainers.utility.DockerImageName
 import org.testcontainers.utility.MountableFile
 
@@ -17,7 +17,7 @@ import org.testcontainers.utility.MountableFile
  */
 class NginxServer private constructor(
     imageName: DockerImageName, useDefaultPort: Boolean, reuse: Boolean,
-): NginxContainer<NginxServer>(imageName), GenericServer {
+): NginxContainer(imageName), GenericServer {
 
     companion object: KLogging() {
         const val IMAGE = "nginx"
@@ -100,11 +100,11 @@ inline fun createNginxServer(
     useDefaultPort: Boolean = true,
     block: NginxServer.() -> Unit,
 ): NginxServer {
-    val nginx = NginxServer(useDefaultPort = useDefaultPort)
+    val nginx: NginxServer = NginxServer(useDefaultPort = useDefaultPort)
         .withCopyFileToContainer(MountableFile.forHostPath(contentPath), NginxServer.NGINX_PATH)
         .apply {
             ShutdownQueue.register(this)
-        }
-    block(nginx)
+        } as NginxServer
+    nginx.block()
     return nginx
 }

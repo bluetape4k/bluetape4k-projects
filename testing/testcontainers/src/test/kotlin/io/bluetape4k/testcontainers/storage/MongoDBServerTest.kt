@@ -71,7 +71,7 @@ class MongoDBServerTest: AbstractContainerTest() {
     }
 
     private fun crudWithTransaction(mongo: MongoDBServer) {
-        MongoClients.create(mongo.replicaSetUrl).use { client ->
+        MongoClients.create(mongo.url).use { client ->
             client.getDatabase("mydb1")
                 .getCollection("foo")
                 .withWriteConcern(WriteConcern.MAJORITY)

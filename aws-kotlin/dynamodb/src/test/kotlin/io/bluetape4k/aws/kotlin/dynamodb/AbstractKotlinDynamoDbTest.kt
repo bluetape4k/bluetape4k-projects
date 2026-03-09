@@ -7,14 +7,14 @@ import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.testcontainers.containers.localstack.LocalStackContainer
+import io.bluetape4k.testcontainers.aws.LocalStackServer
 
 abstract class AbstractKotlinDynamoDbTest {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val dynamoDb: LocalStackContainer by lazy {
-            getLocalStackServer(LocalStackContainer.Service.DYNAMODB)
+        val dynamoDb: LocalStackServer by lazy {
+            getLocalStackServer("dynamodb")
         }
 
         @JvmStatic

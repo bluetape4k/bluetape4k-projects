@@ -9,7 +9,7 @@ import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.storage.MongoDBServer.Launcher.getClient
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.mongodb.MongoDBContainer
 import org.testcontainers.utility.DockerImageName
 import com.mongodb.kotlin.client.coroutine.MongoClient as CoroutineMongoClient
 
@@ -108,6 +108,7 @@ class MongoDBServer private constructor(
      *
      * ## 동작/계약
      * - `databaseName`을 경로에 포함한 replica-set URL을 반환합니다.
+     * - 단일 노드 테스트 환경 호환을 위해 `retryWrites=false` 옵션을 항상 포함합니다.
      * - 호출 시마다 문자열을 새로 계산해 반환하며 컨테이너 상태는 변경하지 않습니다.
      *
      * ```kotlin
@@ -115,9 +116,19 @@ class MongoDBServer private constructor(
      * // url.startsWith("mongodb://") == true
      * ```
      */
-    override val url: String get() = this.getReplicaSetUrl(databaseName)
+    override val url: String
+        get() {
+            val replicaSetUrl = this.getReplicaSetUrl(databaseName)
+            return if (replicaSetUrl.contains("retryWrites=")) {
+                replicaSetUrl
+            } else {
+                val separator = if (replicaSetUrl.contains('?')) '&' else '?'
+                "$replicaSetUrl${separator}retryWrites=false"
+            }
+        }
 
     init {
+        withReplicaSet()
         addExposedPorts(PORT)
         withReuse(reuse)
 
