@@ -22,7 +22,9 @@ import aws.sdk.kotlin.services.sqs.model.DeleteQueueResponse
 import aws.sdk.kotlin.services.sqs.model.GetQueueUrlRequest
 import aws.sdk.kotlin.services.sqs.model.ListQueuesRequest
 import aws.sdk.kotlin.services.sqs.model.ListQueuesResponse
+import aws.sdk.kotlin.services.sqs.model.QueueDoesNotExist
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageResponse
+import aws.sdk.kotlin.services.sqs.model.ResourceNotFoundException
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchResponse
 import aws.sdk.kotlin.services.sqs.model.SendMessageRequest
@@ -30,8 +32,10 @@ import aws.sdk.kotlin.services.sqs.model.SendMessageResponse
 import aws.sdk.kotlin.services.sqs.receiveMessage
 import aws.sdk.kotlin.services.sqs.sendMessage
 import aws.sdk.kotlin.services.sqs.sendMessageBatch
+import aws.smithy.kotlin.runtime.ServiceException
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
+import aws.smithy.kotlin.runtime.http.response.statusCode
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.logging.KotlinLogging
@@ -143,6 +147,9 @@ suspend inline fun SqsClient.ensureQueue(
 /**
  * [queueName]에 해당하는 큐가 존재하는지 확인합니다.
  *
+ * 존재하지 않는 큐(`QueueDoesNotExist`/`ResourceNotFoundException`/HTTP `404`)만 `false`로 정규화하고,
+ * 인증 실패/네트워크 오류 등 다른 예외는 그대로 전파합니다.
+ *
  * ```
  * val exists = sqsClient.existsQueue("my-queue")
  * ```
@@ -152,7 +159,9 @@ suspend inline fun SqsClient.ensureQueue(
  */
 suspend inline fun SqsClient.existsQueue(queueName: String): Boolean = runCatching {
     getQueueUrl(queueName)?.isNotBlank() ?: false
-}.getOrDefault(false)
+}.recover { error ->
+    if (error.isMissingQueueError()) false else throw error
+}.getOrThrow()
 
 /**
  * [queueNamePrefix]를 접두사로 가지는 큐 목록을 반환합니다.
@@ -542,4 +551,20 @@ suspend inline fun SqsClient.deleteMessageBatch(
         this.queueUrl = queueUrl
         this.entries = entries.toList()
     }
+}
+
+@PublishedApi
+internal fun Throwable.isMissingQueueError(): Boolean = when (this) {
+    is QueueDoesNotExist, is ResourceNotFoundException -> true
+    is ServiceException                                -> {
+        val errorCode = sdkErrorMetadata.errorCode
+        val statusCode = sdkErrorMetadata.protocolResponse.statusCode()?.value
+        errorCode in setOf(
+            "QueueDoesNotExist",
+            "AWS.SimpleQueueService.NonExistentQueue",
+            "ResourceNotFoundException",
+            "NotFound",
+        ) || statusCode == 404
+    }
+    else                                               -> false
 }

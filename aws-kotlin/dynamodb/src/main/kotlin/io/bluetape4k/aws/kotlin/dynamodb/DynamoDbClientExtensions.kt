@@ -15,7 +15,9 @@ import aws.sdk.kotlin.services.dynamodb.model.PutItemResponse
 import aws.sdk.kotlin.services.dynamodb.model.ScanRequest
 import aws.sdk.kotlin.services.dynamodb.model.ScanResponse
 import aws.sdk.kotlin.services.dynamodb.model.TableStatus
+import aws.sdk.kotlin.services.dynamodb.paginators.listTablesPaginated
 import aws.sdk.kotlin.services.dynamodb.paginators.scanPaginated
+import aws.sdk.kotlin.services.dynamodb.paginators.tableNames
 import aws.sdk.kotlin.services.dynamodb.putItem
 import aws.smithy.kotlin.runtime.ServiceException
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
@@ -30,6 +32,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -117,7 +120,7 @@ suspend fun DynamoDbClient.createTable(
  * [name] 이름의 DynamoDB 테이블이 존재하는지 확인합니다.
  *
  * ## 동작/계약
- * - `listTables`를 호출해 테이블 이름 목록에서 [name] 포함 여부를 반환한다.
+ * - `listTablesPaginated`를 통해 모든 페이지를 순회하며 [name] 포함 여부를 반환한다.
  * - [name]이 blank이면 `IllegalArgumentException`을 던진다.
  *
  * ```kotlin
@@ -129,7 +132,9 @@ suspend fun DynamoDbClient.createTable(
  */
 suspend fun DynamoDbClient.existsTable(name: String): Boolean {
     name.requireNotBlank("name")
-    return this.listTables { }.tableNames?.contains(name) ?: false
+    return listTablesPaginated()
+        .tableNames()
+        .any { it == name }
 }
 
 /**
