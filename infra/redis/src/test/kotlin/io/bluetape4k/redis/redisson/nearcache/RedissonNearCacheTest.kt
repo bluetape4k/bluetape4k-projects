@@ -21,7 +21,7 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
-import org.redisson.api.RMapCache
+import org.redisson.api.RMap
 import org.redisson.api.options.LocalCachedMapOptions
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -50,6 +50,7 @@ class RedissonNearCacheTest {
     }
 
     private val cacheName = randomName()
+    private val cacheCodec = RedissonCodecs.LZ4Fory
     private val options by lazy {
         LocalCachedMapOptions.name<String, Any>(cacheName)
             .cacheSize(100_000)
@@ -59,18 +60,18 @@ class RedissonNearCacheTest {
             .maxIdle(2.seconds.toJavaDuration())
             .reconnectionStrategy(LocalCachedMapOptions.ReconnectionStrategy.CLEAR)
             .syncStrategy(LocalCachedMapOptions.SyncStrategy.INVALIDATE)
-            .codec(RedissonCodecs.LZ4Fory)                                    // Codec 적용
+            .codec(cacheCodec)                                    // Codec 적용
     }
 
     private lateinit var nearCache1: RedissonNearCache<String, Any>
     private lateinit var nearCache2: RedissonNearCache<String, Any>
-    private lateinit var backCache: RMapCache<String, Any>
+    private lateinit var backCache: RMap<String, Any>
 
     @BeforeAll
     fun beforeAll() {
         nearCache1 = RedissonNearCache(redisson1, options)
         nearCache2 = RedissonNearCache(redisson2, options)
-        backCache = redisson.getMapCache(cacheName, RedissonCodecs.LZ4Fory)  // Codec 적용
+        backCache = redisson.getMap(cacheName, cacheCodec)       // Codec 적용
     }
 
     @Nested
@@ -85,10 +86,11 @@ class RedissonNearCacheTest {
                 .timeToLive(5.seconds.toJavaDuration())
                 .maxIdle(5.seconds.toJavaDuration())
                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.UPDATE)
-                .codec(RedissonCodecs.LZ4Fory)
+                .codec(cacheCodec)
+
             val isolatedNearCache1 = RedissonNearCache(redisson1, isolatedOptions)
             val isolatedNearCache2 = RedissonNearCache(redisson2, isolatedOptions)
-            val isolatedBackCache = redisson.getMapCache<String, Any>(isolatedCacheName, RedissonCodecs.LZ4Fory)
+            val isolatedBackCache = redisson.getMap<String, Any>(isolatedCacheName, cacheCodec)
             val key = randomName()
             val value = randomValue()
 

@@ -5,7 +5,7 @@ import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.options.codec
 import io.bluetape4k.redis.redisson.options.name
 import org.redisson.api.RLocalCachedMap
-import org.redisson.api.RMapCache
+import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
 import org.redisson.api.options.LocalCachedMapOptions
 import kotlin.time.Duration.Companion.seconds
@@ -21,7 +21,7 @@ import kotlin.time.toJavaDuration
  */
 class RedissonNearCache<K: Any, V: Any> private constructor(
     internal val frontCache: RLocalCachedMap<K, V>,
-    internal val backCache: RMapCache<K, V>,
+    internal val backCache: RMap<K, V>,
 ): RLocalCachedMap<K, V> by frontCache {
 
     companion object: KLogging() {
@@ -58,7 +58,7 @@ class RedissonNearCache<K: Any, V: Any> private constructor(
                 "LocalCachedMapOptions.name must not be null when creating RedissonNearCache."
             }
             val codec = options.codec ?: DefaultCodec
-            val backCache = redisson.getMapCache<K, V>(cacheName, codec)
+            val backCache = redisson.getMap<K, V>(cacheName, codec)
 
             //            frontCache.expire(options.timeToLiveInMillis.milliseconds.toJavaDuration())
             //            backCache.expire(options.timeToLiveInMillis.milliseconds.toJavaDuration())
