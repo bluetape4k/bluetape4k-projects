@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-http"))
+    api(project(":bluetape4k-okio"))
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

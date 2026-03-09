@@ -1,7 +1,7 @@
 package io.bluetape4k.retrofit2.clients.hc5
 
 import io.bluetape4k.http.hc5.async.httpAsyncClientSystemOf
-import io.bluetape4k.io.okio.toTimeout
+import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
