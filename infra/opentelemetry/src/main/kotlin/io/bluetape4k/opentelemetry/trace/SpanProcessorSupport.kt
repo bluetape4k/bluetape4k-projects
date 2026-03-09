@@ -23,9 +23,22 @@ fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
  * @param builder [BatchSpanProcessorBuilder]를 설정하는 람다
  * @return [BatchSpanProcessor] 인스턴스
  */
-inline fun batchSpanProcess(
+inline fun batchSpanProcessorOf(
     exporter: SpanExporter,
     @BuilderInference builder: BatchSpanProcessorBuilder.() -> Unit,
 ): BatchSpanProcessor {
     return BatchSpanProcessor.builder(exporter).apply(builder).build()
 }
+
+/**
+ * [batchSpanProcessorOf]의 이전 이름입니다.
+ */
+@Deprecated(
+    message = "use batchSpanProcessorOf instead.",
+    replaceWith = ReplaceWith("batchSpanProcessorOf(exporter, builder)")
+)
+inline fun batchSpanProcess(
+    exporter: SpanExporter,
+    @BuilderInference builder: BatchSpanProcessorBuilder.() -> Unit,
+): BatchSpanProcessor =
+    batchSpanProcessorOf(exporter, builder)

@@ -74,7 +74,16 @@ tracer.spanBuilder("my-operation").useSpan { span ->
   doWork()
 }
 
-// 타임아웃 지정
+// 일반 예외는 span에 기록한 뒤 원본 예외 타입을 유지한 채 다시 던짐
+tracer.spanBuilder("failing-operation").useSpan { span ->
+  runCatching { doWork() }
+    .onFailure {
+      span.recordException(it)
+      throw it
+    }
+}
+
+// 하위 호환용 인자이며, 현재 구현은 span 종료 시각을 인위적으로 미루지 않음
 span.use(waitTimeout = 5000) { /* 작업 */ }
 span.use(Duration.ofSeconds(5)) { /* 작업 */ }
 ```
@@ -112,6 +121,11 @@ suspend fun withExplicitContext() {
     // Span Context가 설정된 상태에서 실행
     doWork()
   }
+}
+
+// deprecated 된 useSuspendSpan 대신 useSpanSuspending 사용 권장
+tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
+  doAsyncWork()
 }
 ```
 
@@ -173,18 +187,22 @@ val spanOrNull = currentContext.getSpanOrNull()
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.sdk.resources.Resource
+import io.opentelemetry.semconv.ServiceAttributes
 import io.opentelemetry.exporter.logging.LoggingSpanExporter
 
 // SdkTracerProvider 생성
 val tracerProvider = sdkTracerProvider {
-  addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanProcessor()))
-  setResource(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, "my-service")))
+  addSpanProcessor(simpleSpanProcessorOf(LoggingSpanExporter.create()))
+  setResource(Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, "my-service")))
 }
 
 // SpanProcessor 생성
-val simpleProcessor = simpleSpanProcessorOf(LoggingSpanExporter())
-val batchProcessor = batchSpanProcessorOf(LoggingSpanExporter())
+val simpleProcessor = simpleSpanProcessorOf(LoggingSpanExporter.create())
+val batchProcessor = batchSpanProcessorOf(LoggingSpanExporter.create()) {
+  setScheduleDelay(java.time.Duration.ofMillis(250))
+}
 ```
 
 ### 7. Metrics 지원
@@ -192,6 +210,7 @@ val batchProcessor = batchSpanProcessorOf(LoggingSpanExporter())
 ```kotlin
 import io.bluetape4k.opentelemetry.*
 import io.bluetape4k.opentelemetry.metrics.*
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader
 
 // Meter 생성
 val meter = openTelemetry.meter("my-service") {
@@ -200,25 +219,29 @@ val meter = openTelemetry.meter("my-service") {
 
 // SdkMeterProvider 생성
 val meterProvider = sdkMeterProvider {
-  registerMetricReader(InMemoryMetricReader())
+  registerMetricReader(InMemoryMetricReader.create())
 }
 
 // MetricReader/Exporter
-val inMemoryReader = inMemoryMetricReader()
-val loggingReader = periodicMetricReaderOf(loggingMetricExporter())
+val inMemoryReader = inMemoryMetricReaderOf()
+val loggingReader = periodicMetricReader(loggingMetricExporterOf()) {
+  setInterval(java.time.Duration.ofSeconds(5))
+}
 ```
 
 ### 8. SpanExporter 설정
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
+import io.opentelemetry.exporter.logging.LoggingSpanExporter
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 
 // Logging SpanExporter
-val loggingExporter = loggingSpanExporter()
+val loggingExporter = loggingSpanExporterOf()
 
 // 여러 Exporter 조합
 val compositeExporter = spanExporterOf(
-  LoggingSpanExporter(),
+  LoggingSpanExporter.create(),
   OtlpGrpcSpanExporter.builder().build()
 )
 ```
