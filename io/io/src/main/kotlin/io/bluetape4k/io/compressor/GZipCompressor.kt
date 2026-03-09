@@ -1,7 +1,7 @@
 package io.bluetape4k.io.compressor
 
-import okio.Buffer
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -29,12 +29,12 @@ class GZipCompressor(
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
-        val output = Buffer()
-        GZIPOutputStream(output.outputStream(), bufferSize).use { gzip ->
+        val output = ByteArrayOutputStream(plain.size)
+        GZIPOutputStream(output, bufferSize).use { gzip ->
             gzip.write(plain)
             gzip.finish()
         }
-        return output.readByteArray()
+        return output.toByteArray()
     }
 
     /**
@@ -43,7 +43,7 @@ class GZipCompressor(
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             GZIPInputStream(input, bufferSize).use { gzip ->
-                Buffer().readFrom(gzip).readByteArray()
+                gzip.readBytes()
             }
         }
     }

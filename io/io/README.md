@@ -115,101 +115,16 @@ val foryBytes = forySerializer.serialize(user)
 - **성능 우선**: Kryo, Fory (3-10배 빠름)
 - **저장 공간 절약**: LZ4Kryo, ZstdFory (압축 포함)
 
-### 3. Okio 통합 (비동기 I/O)
+### 3. Okio 통합
 
-Square의 Okio 라이브러리를 Kotlin Coroutines와 통합하여 비동기 I/O를 제공합니다.
-
-**주요 기능:**
-
-- Suspended Source/Sink (Coroutine 기반)
-- File/Socket Channel 지원
-- 암호화/복호화 스트림
-- Base64 인코딩/디코딩
-- 압축 스트림
+Okio 기반 I/O 기능(Source/Sink, 압축 스트림, 암호화 스트림, Coroutines 비동기 I/O 등)은
+별도의 [`bluetape4k-okio`](../okio/README.md) 모듈로 분리되어 있습니다.
 
 ```kotlin
-import io.bluetape4k.io.okio.coroutines.*
-import okio.Buffer
-import java.nio.file.Paths
-
-// Suspended 파일 읽기
-suspend fun readFileAsync(path: String): ByteArray {
-    val source = SuspendedFileChannelSource(Paths.get(path))
-    val buffer = Buffer()
-    source.use {
-        it.readAll(buffer)
-    }
-    return buffer.readByteArray()
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-okio:${version}")
 }
-
-// Suspended 파일 쓰기
-suspend fun writeFileAsync(path: String, data: ByteArray) {
-    val sink = SuspendedFileChannelSink(Paths.get(path))
-    val buffer = Buffer().write(data)
-    sink.use {
-        it.write(buffer)
-        it.flush()
-    }
-}
-
-// 압축 스트림
-import io.bluetape4k.io.okio.compress.*
-import io.bluetape4k.io.compressor.Compressors
-
-val sink = /* ... */
-CompressableSink(sink, Compressors.Zstd).use { compressedSink ->
-    compressedSink.write(buffer, buffer.size)
-}
-
-// Tink 기반 암호화 스트림 (권장)
-import io.bluetape4k.io.okio.tink.*
-import io.bluetape4k.tink.encrypt.TinkEncryptors
-
-val encryptSink = sink.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
-encryptSink.write(buffer, buffer.size)
-
-// 복호화
-val decryptSource = encryptedBuffer.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
-val result = Buffer()
-decryptSource.readAllTo(result)
 ```
-
-**압축 + 암호화 조합:**
-
-```kotlin
-import io.bluetape4k.io.okio.tink.*
-import io.bluetape4k.io.okio.compress.*
-import io.bluetape4k.tink.encrypt.TinkEncryptors
-import io.bluetape4k.io.compressor.Compressors
-
-// 압축 → 암호화
-val sink = Buffer()
-sink.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
-    .asCompressSink(Compressors.Zstd)
-    .use { it.write(buffer, buffer.size) }
-
-// 복호화 → 압축 해제
-val source = sink.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
-    .asDecompressSource(Compressors.Zstd)
-```
-
-압축 Sink 사용 정책:
-
-- `CompressableSink`는 `close()` 시점에 압축 결과를 확정하므로 반드시 `close()` 또는 `use {}`를 사용해야 합니다.
-- `asCompressSink(StreamingCompressor)`도 footer/finalize 기록을 위해 `close()` 또는 `use {}`가 필요합니다.
-
-암호화 Sink/Source 현황:
-
-| 클래스 | 상태 | 대체 |
-|--------|------|------|
-| `TinkEncryptSink` | **권장** | — |
-| `TinkDecryptSource` | **권장** | — |
-| `EncryptSink` (jasypt) | Deprecated | `TinkEncryptSink` |
-| `DecryptSource` (jasypt) | Deprecated | `TinkDecryptSource` |
-| `FinalizingCipherSink` | Deprecated | `TinkEncryptSink` |
-| `StreamingCipherSource` | Deprecated | `TinkDecryptSource` |
-| `CipherSink` | Deprecated | `TinkEncryptSink` |
-| `CipherSource` | Deprecated | `TinkDecryptSource` |
 
 ### 4. 파일 유틸리티 (FileSupport)
 
@@ -369,54 +284,58 @@ dependencies {
 </dependency>
 ```
 
-## 성능 특성
+## 벤치마크 결과
 
-### 압축 알고리즘 비교 (1MB 텍스트 기준)
+### 직렬화 성능 비교
 
-| 알고리즘   | 압축 속도    | 해제 속도    | 압축률    | 용도      |
-|--------|----------|----------|--------|---------|
-| LZ4    | ~500MB/s | ~2GB/s   | 50-60% | 실시간 처리  |
-| Snappy | ~400MB/s | ~1.5GB/s | 50-60% | 범용      |
-| Zstd   | ~200MB/s | ~800MB/s | 65-75% | 균형 (추천) |
-| GZip   | ~50MB/s  | ~200MB/s | 65-75% | 호환성     |
-| BZip2  | ~10MB/s  | ~30MB/s  | 75-85% | 최대 압축   |
+`SimpleData` 객체 20개 컬렉션의 직렬화/역직렬화 처리량입니다.
 
-### 직렬화 방식 비교
+**Byte Array 속성이 없는 경우:**
 
-| 방식   | 속도    | 크기   | 호환성   | 특징      |
-|------|-------|------|-------|---------|
-| Jdk  | 1x    | 100% | ⭐⭐⭐⭐⭐ | Java 표준 |
-| Kryo | 3-5x  | 50%  | ⭐⭐⭐   | 빠르고 작음  |
-| Fory | 5-10x | 40%  | ⭐⭐    | 최고 성능   |
+| 라이브러리 | ops/s   | 비고 |
+|---------|---------|------|
+| Fory    | 305,821 | 최고 성능 |
+| Kryo    | 81,823  | 범용 추천 |
+| Jackson | 39,510  | JSON 기반 |
+| Jdk     | 22,249  | Java 표준 |
 
-## Coroutines 지원
+**Byte Array (4096 bytes) 포함 시:**
 
-모든 비동기 I/O 작업은 Kotlin Coroutines를 완벽하게 지원합니다.
+| 라이브러리 | ops/s  | 비고 |
+|---------|--------|------|
+| Fory    | 59,192 | 최고 성능 |
+| Kryo    | 29,329 | 범용 추천 |
+| Jdk     | 8,431  | Java 표준 |
+| Jackson | 4,323  | 바이너리 데이터에 불리 |
 
-```kotlin
-import kotlinx.coroutines.*
-import io.bluetape4k.io.okio.coroutines.*
+> Fory는 Kryo 대비 약 3배 이상 빠릅니다.
+> ByteArray가 포함된 경우, Jackson이 가장 느립니다.
 
-suspend fun processLargeFile(path: String) = coroutineScope {
-    val source = SuspendedFileChannelSource(Paths.get(path))
-    val buffer = Buffer()
+### 압축 성능 비교
 
-    source.use {
-        // Non-blocking 읽기
-        val bytesRead = it.read(buffer, 8192)
-        processData(buffer.readByteArray())
-    }
-}
+40KB UTF-8 텍스트 파일(`Utf8Samples.txt`) 기준 압축/복원 처리량입니다.
 
-// 병렬 파일 처리
-suspend fun processMultipleFiles(files: List<String>) = coroutineScope {
-    files.map { path ->
-        async(Dispatchers.IO) {
-            processLargeFile(path)
-        }
-    }.awaitAll()
-}
-```
+| 알고리즘 | ops/s | 특성 |
+|---------|-------|------|
+| Snappy  | 8,073 | 최고 속도 |
+| LZ4     | 6,769 | 실시간 처리 적합 |
+| Zstd    | 5,103 | 속도 + 압축률 균형 (추천) |
+| GZip    | 1,195 | 호환성 우수 |
+| Deflate | 1,084 | GZip 기반 |
+
+**직렬화 선택 가이드:**
+
+| 방식 | 속도 | 크기 | 호환성 | 추천 용도 |
+|------|------|------|-------|----------|
+| Fory | 5-10x | 40% | 보통 | 최고 성능이 필요한 내부 시스템 |
+| Kryo | 3-5x | 50% | 좋음 | 범용 (가장 추천) |
+| Jdk | 1x | 100% | 최고 | 외부 호환이 필요한 경우 |
+
+**압축 선택 가이드:**
+
+- **실시간 처리**: LZ4, Snappy (압축률 < 속도)
+- **네트워크 전송**: Zstd, GZip (속도 + 압축률 균형)
+- **저장 공간 최적화**: BZip2, Zstd (압축률 > 속도)
 
 ## Virtual Threads 지원 (Java 21+)
 
@@ -464,17 +383,6 @@ io.bluetape4k.io
 │   ├── BinarySerializer.kt
 │   ├── BinarySerializers.kt
 │   └── [각종 구현체]
-├── okio/               # Okio 통합
-│   ├── coroutines/     # Suspended I/O
-│   ├── channels/       # Channel 지원
-│   ├── tink/           # Tink 기반 암호화 (권장)
-│   │   ├── TinkEncryptSink.kt
-│   │   └── TinkDecryptSource.kt
-│   ├── cipher/         # javax.crypto.Cipher 기반 (Deprecated)
-│   │   ├── FinalizingCipherSink.kt
-│   │   └── StreamingCipherSource.kt
-│   ├── compress/       # 압축 스트림
-│   └── jasypt/         # Jasypt 암호화 (Deprecated)
 ├── FileSupport.kt          # 파일 유틸리티 (비동기 복사/이동/읽기/쓰기)
 ├── FileSupportResult.kt    # Result 패턴 파일 유틸리티 (tryXXXX API)
 ├── FileCoroutineSupport.kt # Coroutine 기반 파일 I/O (readAllBytesSuspending 등)
@@ -488,7 +396,7 @@ Apache License 2.0
 
 ## 참고
 
-- [Okio Documentation](https://square.github.io/okio/)
+- [bluetape4k-okio](../okio/README.md) (Okio 기반 I/O 모듈)
 - [Kryo Documentation](https://github.com/EsotericSoftware/kryo)
 - [Apache Fory](https://fory.apache.org/)
 - [LZ4 for Java](https://github.com/lz4/lz4-java)

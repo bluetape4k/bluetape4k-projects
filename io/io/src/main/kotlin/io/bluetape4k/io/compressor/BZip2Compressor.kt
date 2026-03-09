@@ -1,10 +1,10 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
-import okio.Buffer
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
 /**
  * BZip2 알고리즘을 사용한 Compressor
@@ -28,12 +28,12 @@ class BZip2Compressor(
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
-        val output = Buffer()
-        BZip2CompressorOutputStream(output.outputStream()).use { bzip2 ->
+        val output = ByteArrayOutputStream(plain.size)
+        BZip2CompressorOutputStream(output).use { bzip2 ->
             bzip2.write(plain)
             bzip2.flush()
         }
-        return output.readByteArray()
+        return output.toByteArray()
     }
 
     /**
@@ -42,7 +42,7 @@ class BZip2Compressor(
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             BZip2CompressorInputStream(input).use { bzip2 ->
-                Buffer().readFrom(bzip2).readByteArray()
+                bzip2.readBytes()
             }
         }
     }
