@@ -155,24 +155,29 @@ class KafkaServer private constructor(
             }
         }
 
-        private val stringSerializer by lazy { StringSerializer() }
-        private val stringDeserializer by lazy { StringDeserializer() }
-
         /**
          * [KafkaProducer] 를 생성하기 위한 properties 를 반환합니다.
+         *
+         * ## 동작/계약
+         * - 매 호출마다 새로운 [MutableMap] 인스턴스를 생성합니다.
+         * - `CLIENT_ID_CONFIG`는 호출 단위로 고유한 값이 생성됩니다.
          */
         fun getProducerProperties(kafkaServer: KafkaServer = kafka): MutableMap<String, Any?> {
             return mutableMapOf(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaServer.bootstrapServers,
                 ProducerConfig.CLIENT_ID_CONFIG to UUID.randomUUID().encodeBase62(),
                 ProducerConfig.COMPRESSION_TYPE_CONFIG to "lz4",
-                ProducerConfig.LINGER_MS_CONFIG to "0",
-                ProducerConfig.BATCH_SIZE_CONFIG to "1"
+                ProducerConfig.LINGER_MS_CONFIG to 0,
+                ProducerConfig.BATCH_SIZE_CONFIG to 1
             )
         }
 
         /**
          * [KafkaConsumer] 를 생성하기 위한 properties 를 반환합니다.
+         *
+         * ## 동작/계약
+         * - 매 호출마다 새로운 [MutableMap] 인스턴스를 생성합니다.
+         * - `GROUP_ID_CONFIG`, `CLIENT_ID_CONFIG`는 호출 단위로 고유한 값이 생성됩니다.
          */
         fun getConsumerProperties(kafkaServer: KafkaServer = kafka): MutableMap<String, Any?> {
             return mutableMapOf(
@@ -185,22 +190,41 @@ class KafkaServer private constructor(
             )
         }
 
+        /**
+         * 문자열 key/value 전용 [KafkaProducer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 호출마다 새로운 producer/serializer 인스턴스를 생성합니다.
+         * - 직렬화기 인스턴스를 공유하지 않아 `close()` 이후 재사용 문제를 방지합니다.
+         */
         fun createStringProducer(kafkaServer: KafkaServer = kafka): KafkaProducer<String, String> {
             val props = getProducerProperties(kafkaServer)
-            return KafkaProducer(props, stringSerializer, stringSerializer)
+            return KafkaProducer(props, StringSerializer(), StringSerializer())
         }
 
+        /**
+         * 문자열 key/value 전용 [KafkaConsumer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 호출마다 새로운 consumer/deserializer 인스턴스를 생성합니다.
+         * - 역직렬화기 인스턴스를 공유하지 않아 `close()` 이후 재사용 문제를 방지합니다.
+         */
         fun createStringConsumer(kafkaServer: KafkaServer = kafka): KafkaConsumer<String, String> {
             val props = getConsumerProperties(kafkaServer)
-            return KafkaConsumer(props, stringDeserializer, stringDeserializer)
+            return KafkaConsumer(props, StringDeserializer(), StringDeserializer())
         }
 
-
+        /**
+         * 바이너리 key/value 전용 [KafkaProducer] 인스턴스를 생성합니다.
+         */
         fun createBinaryProducer(kafkaServer: KafkaServer = kafka): KafkaProducer<ByteArray?, ByteArray?> {
             val props = getProducerProperties(kafkaServer)
             return KafkaProducer(props, ByteArraySerializer(), ByteArraySerializer())
         }
 
+        /**
+         * 바이너리 key/value 전용 [KafkaConsumer] 인스턴스를 생성합니다.
+         */
         fun createBinaryConsumer(kafkaServer: KafkaServer = kafka): KafkaConsumer<ByteArray?, ByteArray?> {
             val props = getConsumerProperties(kafkaServer)
             return KafkaConsumer(props, ByteArrayDeserializer(), ByteArrayDeserializer())

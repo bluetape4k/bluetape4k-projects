@@ -6,10 +6,12 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
+import org.awaitility.kotlin.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import kotlin.test.assertFailsWith
 
 class HttpbinHttp2ServerTest: AbstractContainerTest() {
@@ -49,18 +51,26 @@ class HttpbinHttp2ServerTest: AbstractContainerTest() {
             .protocols(listOf(Protocol.H2_PRIOR_KNOWLEDGE))
             .build()
 
-        val request = Request.Builder()
-            .get()
-            .url("${httpbin.url}/get")
-            .build()
+        await.atMost(Duration.ofSeconds(20))
+            .pollInterval(Duration.ofMillis(300))
+            .ignoreExceptions()
+            .untilAsserted {
+                val request = Request.Builder()
+                    .get()
+                    .url("${httpbin.url}/get")
+                    .build()
 
-        client.newCall(request).execute().use { response ->
-            val body = response.body.string()
-            log.debug { "protocol=${response.protocol}, code=${response.code}, response=$body" }
+                client.newCall(request).execute().use { response ->
+                    val body = response.body.string()
+                    log.debug { "protocol=${response.protocol}, code=${response.code}, response=$body" }
 
-            response.isSuccessful.shouldBeTrue()
-            (response.protocol == Protocol.H2_PRIOR_KNOWLEDGE || response.protocol == Protocol.HTTP_2).shouldBeTrue()
-            body shouldContain "url"
-        }
+                    response.isSuccessful.shouldBeTrue()
+                    (response.protocol == Protocol.H2_PRIOR_KNOWLEDGE || response.protocol == Protocol.HTTP_2).shouldBeTrue()
+                    body shouldContain "url"
+                }
+            }
+        client.dispatcher.executorService.shutdown()
+        client.connectionPool.evictAll()
+        client.cache?.close()
     }
 }

@@ -6,6 +6,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
 import kotlin.test.assertFailsWith
 
@@ -40,6 +41,7 @@ class ElasticsearchServerTest: AbstractContainerTest() {
     }
 
     @Nested
+    @ResourceLock("elasticsearch-default-port")
     inner class UseDefaultPort {
         @Test
         fun `launch elasticsearch with default port`() {
