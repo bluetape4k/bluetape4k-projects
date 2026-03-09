@@ -41,6 +41,11 @@ import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.utils.ShutdownQueue
 
 val log by lazy { KotlinLogging.logger { } }
+@PublishedApi
+internal const val MIN_RECEIVE_MESSAGES = 1
+
+@PublishedApi
+internal const val MAX_RECEIVE_MESSAGES = 10
 
 /**
  * [SqsClient] 인스턴스를 생성합니다.
@@ -238,7 +243,7 @@ suspend inline fun SqsClient.deleteQueue(
  * }
  *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
- * @param messageBody 전송할 메시지의 본문입니다.
+ * @param messageBody 전송할 메시지의 본문입니다. blank이면 [IllegalArgumentException]을 던집니다.
  * @param delaySeconds 메시지를 보내기 전 대기할 시간(초)입니다. 기본값은 null입니다.
  * @param builder SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return SendMessageResponse 인스턴스를 반환합니다.
@@ -250,6 +255,7 @@ suspend inline fun SqsClient.sendMessage(
     @BuilderInference crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
+    messageBody.requireNotBlank("messageBody")
 
     return sendMessage {
         this.queueUrl = queueUrl
@@ -328,13 +334,18 @@ suspend inline fun SqsClient.sendMessageBatch(
  * ```
  *
  * @param queueUrl 메시지를 수신할 Amazon SQS 큐의 URL입니다.
- * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 null입니다.
+ * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 null이며, 지정 시 1..10 범위여야 합니다.
  */
 suspend inline fun SqsClient.receiveMessage(
     queueUrl: String,
     maxNumberOfMessages: Int? = null,
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
+    maxNumberOfMessages?.let {
+        require(it in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {
+            "maxNumberOfMessages must be in the range $MIN_RECEIVE_MESSAGES..$MAX_RECEIVE_MESSAGES."
+        }
+    }
 
     return receiveMessage {
         this.queueUrl = queueUrl

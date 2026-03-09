@@ -17,6 +17,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import kotlin.test.assertFailsWith
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
@@ -137,5 +138,28 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
         log.debug { "Delete queue response=$response" }
 
         sqsClient.existsQueue(QUEUE_NAME).shouldBeFalse()
+    }
+
+    @Test
+    @Order(9)
+    fun `receiveMessage는 maxNumberOfMessages 범위를 검증한다`() = runSuspendIO {
+        val queueUrl = "https://example.com/queue/demo"
+
+        assertFailsWith<IllegalArgumentException> {
+            sqsClient.receiveMessage(queueUrl, maxNumberOfMessages = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            sqsClient.receiveMessage(queueUrl, maxNumberOfMessages = 11)
+        }
+    }
+
+    @Test
+    @Order(10)
+    fun `sendMessage는 blank messageBody를 허용하지 않는다`() = runSuspendIO {
+        val queueUrl = "https://example.com/queue/demo"
+
+        assertFailsWith<IllegalArgumentException> {
+            sqsClient.sendMessage(queueUrl, "   ")
+        }
     }
 }

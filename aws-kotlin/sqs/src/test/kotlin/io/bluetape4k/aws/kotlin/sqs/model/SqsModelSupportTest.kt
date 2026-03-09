@@ -45,6 +45,16 @@ class SqsModelSupportTest {
     }
 
     @Test
+    fun `receiveMessageRequestOf 기본값은 유효한 waitTimeSeconds 20을 사용한다`() {
+        val request = receiveMessageRequestOf(
+            queueUrl = "https://localhost:4566/000000000000/test-queue",
+        )
+
+        request.maxNumberOfMessages shouldBeEqualTo 3
+        request.waitTimeSeconds shouldBeEqualTo 20
+    }
+
+    @Test
     fun `changeMessageVisibilityBatchRequestOf는 엔트리를 설정한다`() {
         val entry = changeMessageVisibilityBatchRequestEntryOf(
             id = "id-1",
@@ -118,6 +128,16 @@ class SqsModelSupportTest {
             sendMessageBatchRequestOf(
                 queueUrl = "https://localhost:4566/000000000000/test-queue",
                 entries = emptyList(),
+            )
+        }
+    }
+
+    @Test
+    fun `sendMessageRequestOf는 blank messageBody를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            sendMessageRequestOf(
+                queueUrl = "https://localhost:4566/000000000000/test-queue",
+                messageBody = "   ",
             )
         }
     }
