@@ -105,7 +105,8 @@ inline fun S3TransferManager.downloadAsByteArrayAsync(
  * @param bucket bucket name
  * @param key key
  * @param destination 저장할 파일 경로
- * @param builder [DownloadFileRequest.Builder] 를 구성하는 람다 함수
+ * @param builder [DownloadFileRequest.Builder] 를 구성하는 람다 함수.
+ * 기본 요청(`bucket`, `key`, `destination`) 적용 후 추가 설정을 덮어쓸 수 있습니다.
  * @return 다운로드한 S3 Object
  *
  * 예제:
@@ -124,7 +125,7 @@ inline fun S3TransferManager.downloadFileAsync(
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    val request = downloadFileRequestOf(bucket, key, destination)
+    val request = downloadFileRequestOf(bucket, key, destination, builder)
     return downloadFile(request)
 }
 

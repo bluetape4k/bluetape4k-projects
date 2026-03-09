@@ -22,15 +22,20 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectResponse
 import software.amazon.awssdk.services.s3.model.S3Object
+import software.amazon.awssdk.services.s3.model.S3Exception
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
+import java.util.concurrent.ExecutionException
 
 private val log = KotlinLogging.logger { }
 
 /**
  * [bucketName]의 Bucket 이 존재하는지 알아봅니다.
+ *
+ * 내부적으로 `headBucket`의 예외를 unwrap 하여, 버킷 미존재(404)를 `false`로 정규화합니다.
  *
  * @param bucketName 존재를 파악할 Bucket name
  * @return 존재 여부
@@ -46,12 +51,30 @@ fun S3AsyncClient.existsBucketAsync(bucketName: String): CompletableFuture<Boole
 
     return headBucket { it.bucket(bucketName) }
         .handle { _, error ->
-            when (error) {
-                is NoSuchBucketException -> false
-                null                     -> true
-                else                     -> throw error
+            when {
+                error == null                -> true
+                error.isMissingBucketError() -> false
+                else                         -> throw error
             }
         }
+}
+
+private fun Throwable.isMissingBucketError(): Boolean {
+    val cause = unwrapKnownWrapper()
+    return when (cause) {
+        is NoSuchBucketException -> true
+        is S3Exception           -> cause.statusCode() == 404 ||
+                cause.awsErrorDetails()?.errorCode() in setOf("NoSuchBucket", "NotFound")
+        else                     -> false
+    }
+}
+
+private fun Throwable.unwrapKnownWrapper(): Throwable {
+    var cause = this
+    while (cause is CompletionException || cause is ExecutionException) {
+        cause = cause.cause ?: return cause
+    }
+    return cause
 }
 
 /**
