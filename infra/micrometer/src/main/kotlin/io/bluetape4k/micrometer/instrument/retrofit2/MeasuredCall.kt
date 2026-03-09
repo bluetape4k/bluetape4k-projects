@@ -15,7 +15,7 @@ import retrofit2.Response
  * 동기([execute]) 및 비동기([enqueue]) 실행 모두를 지원합니다.
  *
  * @param T 응답 본문의 타입
- * @param wrappedClient 원본 Retrofit Call
+ * @param wrappedCall 원본 Retrofit Call
  * @param metrics 메트릭 수집기
  */
 class MeasuredCall<T: Any> internal constructor(
@@ -54,6 +54,11 @@ class MeasuredCall<T: Any> internal constructor(
         log.debug { "Enqueue call ... wrappedCall=$wrappedCall" }
         wrappedCall.enqueue(measuredCallback(wrappedCall.request(), callback))
     }
+
+    /**
+     * Retrofit 재시도/재사용 시에도 계측 래퍼가 유지되도록 clone 결과를 다시 감쌉니다.
+     */
+    override fun clone(): Call<T> = MeasuredCall(wrappedCall.clone(), metrics)
 
     private fun measuredCallback(
         request: Request,

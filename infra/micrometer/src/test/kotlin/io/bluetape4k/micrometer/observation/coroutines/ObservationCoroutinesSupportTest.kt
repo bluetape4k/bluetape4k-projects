@@ -7,12 +7,14 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.micrometer.observation.AbstractObservationTest
 import io.bluetape4k.micrometer.observation.start
+import io.micrometer.observation.Observation
 import io.micrometer.observation.tck.ObservationRegistryAssert
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class ObservationCoroutinesSupportTest: AbstractObservationTest() {
@@ -116,7 +118,6 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(100.milliseconds)
             log.debug { "observation1=$observation1" }
         }
-        observation1.stop()
         yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)
@@ -133,7 +134,39 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(150.milliseconds)
             log.debug { "observation2=$observation2" }
         }
-        observation2.stop()
+        yield()
+
+        ObservationRegistryAssert.assertThat(observationRegistry)
+            .doesNotHaveAnyRemainingCurrentObservation()
+    }
+
+    @Test
+    fun `withObservationContextSuspending - 시작하지 않은 observation 도 자동으로 시작하고 정리한다`() = runSuspendIO {
+        val observation = Observation.createNotStarted("observer.not.started.${Base58.randomString(8)}", observationRegistry)
+
+        val result =
+            observation.withObservationContextSuspending { context ->
+                currentObservationInContext().shouldNotBeNull()
+                context.name
+            }
+
+        result shouldBeEqualTo observation.context.name
+        yield()
+
+        ObservationRegistryAssert.assertThat(observationRegistry)
+            .doesNotHaveAnyRemainingCurrentObservation()
+    }
+
+    @Test
+    fun `withObservationContextSuspending - 예외가 발생해도 current observation 을 정리한다`() = runSuspendIO {
+        val name = "observer.error." + Base58.randomString(8)
+
+        assertFailsWith<IllegalStateException> {
+            withObservationContextSuspending(name, observationRegistry) {
+                currentObservationInContext().shouldNotBeNull()
+                throw IllegalStateException("boom")
+            }
+        }
         yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)

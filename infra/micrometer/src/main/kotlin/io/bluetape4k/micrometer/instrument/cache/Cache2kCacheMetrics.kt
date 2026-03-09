@@ -34,6 +34,11 @@ class Cache2kCacheMetrics(
     tags: Iterable<Tag> = emptyList(),
 ): CacheMeterBinder<Any>(cache, cache.name, tags) {
     companion object: KLogging() {
+        /**
+         * [cache] 를 [registry] 에 등록하고 동일 인스턴스를 반환합니다.
+         *
+         * 간단한 호출 편의를 위해 태그를 가변 인자로 받습니다.
+         */
         @JvmStatic
         fun <K, V> monitor(
             registry: MeterRegistry,
@@ -41,6 +46,13 @@ class Cache2kCacheMetrics(
             vararg tags: Tag,
         ): Cache<K, V> = monitor(registry, cache, Tags.of(*tags))
 
+        /**
+         * [cache] 를 [registry] 에 등록하고 동일 인스턴스를 반환합니다.
+         *
+         * ## 동작/계약
+         * - meter 는 `cache.name` 태그를 포함한 상태로 등록됩니다.
+         * - registry 에 동일 meter 가 있으면 Micrometer 규칙에 따라 재사용됩니다.
+         */
         @JvmStatic
         fun <K, V> monitor(
             registry: MeterRegistry,

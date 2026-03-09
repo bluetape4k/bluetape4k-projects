@@ -55,6 +55,8 @@ val flow = flow {
     }
 ```
 
+`withTimer`는 수집 단위로 시간을 재므로, 같은 Flow를 여러 번 수집하거나 예외로 종료되는 경우에도 collect 1회당 1개의 측정값만 남깁니다.
+
 ### 2. Observation 확장
 
 #### 기본 Observation 사용
@@ -97,6 +99,8 @@ withObservationContext("async.operation", registry) {
     performAsyncWork()
 }
 ```
+
+`withObservationContextSuspending` 와 `observeSuspending` 계열 확장 함수는 suspend 블록이 끝날 때 Observation scope 를 정리하고 `stop()` 까지 호출합니다. 시작되지 않은 `Observation` 을 직접 넘겨도 내부에서 `start()` 후 실행하며, 예외가 발생해도 현재 Observation 이 남지 않도록 정리됩니다.
 
 #### ObservationRegistry 생성
 
@@ -152,10 +156,16 @@ val users = apiService.getUsers().execute()
 | `status_code` | HTTP 상태 코드 | 200, 404, 500                       |
 | `outcome`     | 결과 분류      | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
 | `coroutines`  | 코루틴 사용 여부  | true, false                         |
+| `exception`   | 전송/디코딩 예외  | IOException, SocketTimeoutException |
 
 #### 퍼센타일
 
 다음 퍼센타일이 자동으로 수집됩니다: 50%, 70%, 90%, 95%, 97%, 99%
+
+#### 예외 및 재시도 동작
+
+- HTTP 응답이 없는 전송 예외는 `outcome=UNKNOWN`, `status_code=IO_ERROR`, `exception=<예외 타입>` 태그로 기록됩니다.
+- `Call.clone()` 으로 생성한 재시도 호출도 계측 래퍼를 유지하므로 동일한 메트릭 정책이 적용됩니다.
 
 ### 4. Cache2k 메트릭
 
@@ -247,10 +257,13 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ```bash
 # 모든 테스트 실행
-./gradlew :infra:micrometer:test
+./gradlew :bluetape4k-micrometer:test
 
 # 특정 테스트 클래스 실행
-./gradlew :infra:micrometer:test --tests "io.bluetape4k.micrometer.instrument.TimerExtensionsTest"
+./gradlew :bluetape4k-micrometer:test --tests "io.bluetape4k.micrometer.instrument.TimerExtensionsTest"
+
+# Retrofit 계측 지원 테스트 실행
+./gradlew :bluetape4k-micrometer:test --tests "io.bluetape4k.micrometer.instrument.retrofit2.RetrofitMetricsSupportTest"
 ```
 
 ## 참고사항
