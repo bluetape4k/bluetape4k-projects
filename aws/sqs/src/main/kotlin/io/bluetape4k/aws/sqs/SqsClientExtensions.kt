@@ -25,6 +25,9 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchResponse
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse
 import java.net.URI
 
+private const val MIN_RECEIVE_MESSAGES = 1
+private const val MAX_RECEIVE_MESSAGES = 10
+
 inline fun sqsClient(
     @BuilderInference builder: SqsClientBuilder.() -> Unit,
 ): SqsClient =
@@ -74,34 +77,53 @@ fun SqsClient.send(queueUrl: String, messageBody: String): SendMessageResponse {
     return sendMessage(sendMessageRequestOf(queueUrl, messageBody))
 }
 
+/**
+ * 메시지를 배치로 전송합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.sendBatch(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return sendMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 메시지를 배치로 전송합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.sendBatch(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return sendMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
     }
 }
 
+/**
+ * 큐에서 메시지를 조회합니다.
+ *
+ * [maxResults]를 지정하면 SQS 제약(1..10)을 선검증해 네트워크 호출 전에 실패합니다.
+ */
 fun SqsClient.receiveMessages(
     queueUrl: String,
     maxResults: Int? = null,
     @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
+    maxResults?.let { validateReceiveMessageCount(it) }
+
     return receiveMessage {
         it.queueUrl(queueUrl)
         maxResults?.run { it.maxNumberOfMessages(this) }
@@ -122,22 +144,34 @@ fun SqsClient.changeMessageVisibility(
     }
 }
 
+/**
+ * 수신된 메시지들의 가시성 타임아웃을 일괄 변경합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.changeMessageVisibilityBatch(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return changeMessageVisibilityBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 수신된 메시지들의 가시성 타임아웃을 일괄 변경합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.changeMessageVisibilityBatch(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return changeMessageVisibilityBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
@@ -155,22 +189,34 @@ fun SqsClient.deleteMessage(
     }
 }
 
+/**
+ * 여러 메시지를 일괄 삭제합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return deleteMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 여러 메시지를 일괄 삭제합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return deleteMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
@@ -182,5 +228,11 @@ fun SqsClient.deleteQueue(queueUrl: String): DeleteQueueResponse {
 
     return deleteQueue {
         it.queueUrl(queueUrl)
+    }
+}
+
+private fun validateReceiveMessageCount(maxResults: Int) {
+    require(maxResults in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {
+        "maxResults must be in $MIN_RECEIVE_MESSAGES..$MAX_RECEIVE_MESSAGES, but was $maxResults"
     }
 }
