@@ -231,7 +231,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = LettuceNearCache(resp3Client)
+        val c = LettuceNearCache<String>(resp3Client)
         c.close()
         c.close() // 두 번 호출해도 예외 없어야 함
     }

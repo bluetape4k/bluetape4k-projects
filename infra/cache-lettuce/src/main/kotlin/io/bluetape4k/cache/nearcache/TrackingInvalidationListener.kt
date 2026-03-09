@@ -14,7 +14,7 @@ import java.nio.ByteBuffer
  * Redis RESP3 CLIENT TRACKING 기반 local cache invalidation 리스너.
  *
  * Redis 서버에서 키가 변경될 때 CLIENT TRACKING이 invalidation push 메시지를 보내고,
- * 수신 즉시 [LocalCache.invalidate]를 호출해 로컬 캐시 항목을 무효화한다.
+ * 수신 즉시 [LettuceLocalCache.invalidate]를 호출해 로컬 캐시 항목을 무효화한다.
  *
  * ## Prefix Key 처리
  * Redis key는 `{cacheName}:{originalKey}` 형태로 저장된다.
@@ -28,7 +28,7 @@ import java.nio.ByteBuffer
  * @param V 값 타입
  */
 class TrackingInvalidationListener<V: Any>(
-    private val frontCache: LocalCache<String, V>,
+    private val frontCache: LettuceLocalCache<String, V>,
     private val connection: StatefulRedisConnection<String, V>,
     private val cacheName: String,
 ): AutoCloseable {

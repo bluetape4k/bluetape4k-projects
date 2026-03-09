@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.retry.Retry
@@ -21,7 +22,6 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
@@ -54,7 +54,7 @@ import java.util.concurrent.LinkedBlockingQueue
  */
 class ResilientLettuceNearCache<V: Any>(
     private val redisClient: RedisClient,
-    private val codec: RedisCodec<String, V>,
+    private val codec: RedisCodec<String, V> = LettuceBinaryCodecs.lz4Fory(),
     private val config: ResilientLettuceNearCacheConfig<String, V> = ResilientLettuceNearCacheConfig(
         LettuceNearCacheConfig()
     ),
@@ -70,7 +70,7 @@ class ResilientLettuceNearCache<V: Any>(
                 LettuceNearCacheConfig()
             ),
         ): ResilientLettuceNearCache<String> =
-            ResilientLettuceNearCache(redisClient, StringCodec.UTF8, config)
+            ResilientLettuceNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
     }
 
     val cacheName: String get() = config.cacheName
@@ -78,7 +78,7 @@ class ResilientLettuceNearCache<V: Any>(
     private val closed = atomic(false)
     val isClosed by closed
 
-    private val frontCache: LocalCache<String, V> = CaffeineLocalCache(config.base)
+    private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config.base)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val syncCommands: RedisCommands<String, V> = connection.sync()
     private val trackingListener: TrackingInvalidationListener<V> =

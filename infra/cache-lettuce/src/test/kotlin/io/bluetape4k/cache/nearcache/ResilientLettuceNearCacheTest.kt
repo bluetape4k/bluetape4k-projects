@@ -259,7 +259,7 @@ class ResilientLettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = ResilientLettuceNearCache(resp3Client)
+        val c = ResilientLettuceNearCache<String>(resp3Client)
         c.close()
         c.close()
         c.isClosed.shouldBeTrue()

@@ -6,7 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
  * 로컬(인메모리) 캐시 추상화.
  * Near Cache의 front tier로 사용된다.
  */
-interface LocalCache<K : Any, V : Any> : AutoCloseable {
+interface LettuceLocalCache<K: Any, V: Any>: AutoCloseable {
 
     fun get(key: K): V?
 

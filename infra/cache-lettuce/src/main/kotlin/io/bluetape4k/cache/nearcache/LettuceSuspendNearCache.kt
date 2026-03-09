@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
@@ -15,7 +16,6 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.collect
 
@@ -44,14 +44,14 @@ import kotlinx.coroutines.flow.collect
  *
  * - Read: front hit → return / front miss → Redis GET → front populate → return
  * - Write: front put + Redis SET (write-through)
- * - Invalidation: RESP3 CLIENT TRACKING push → [CaffeineLocalCache.invalidate]
+ * - Invalidation: RESP3 CLIENT TRACKING push → [LettuceCaffeineLocalCache.invalidate]
  *
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendNearCache<V: Any>(
     redisClient: RedisClient,
-    codec: RedisCodec<String, V>,
+    codec: RedisCodec<String, V> = LettuceBinaryCodecs.lz4Fory(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
@@ -63,7 +63,7 @@ class LettuceSuspendNearCache<V: Any>(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
         ): LettuceSuspendNearCache<String> =
-            LettuceSuspendNearCache(redisClient, StringCodec.UTF8, config)
+            LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
     }
 
     val cacheName: String get() = config.cacheName
@@ -71,7 +71,7 @@ class LettuceSuspendNearCache<V: Any>(
     private val closed = atomic(false)
     val isClosed by closed
 
-    private val frontCache: LocalCache<String, V> = CaffeineLocalCache(config)
+    private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val commands: RedisCoroutinesCommands<String, V> = connection.coroutines()
     private val trackingListener: TrackingInvalidationListener<V> =

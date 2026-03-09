@@ -219,7 +219,7 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `close - 중복 close 시 예외 없음`() {
-        val c = LettuceSuspendNearCache(resp3Client)
+        val c = LettuceSuspendNearCache<String>(resp3Client)
         c.close()
         c.close()
     }

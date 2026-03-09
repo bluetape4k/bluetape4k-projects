@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.lettuceDefaultCodec
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -20,7 +21,6 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class ResilientLettuceSuspendNearCache<V: Any>(
     private val redisClient: RedisClient,
-    private val codec: RedisCodec<String, V>,
+    private val codec: RedisCodec<String, V> = lettuceDefaultCodec(),
     private val config: ResilientLettuceNearCacheConfig<String, V> = ResilientLettuceNearCacheConfig(
         LettuceNearCacheConfig()
     ),
@@ -75,7 +75,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
                 LettuceNearCacheConfig()
             ),
         ): ResilientLettuceSuspendNearCache<String> =
-            ResilientLettuceSuspendNearCache(redisClient, StringCodec.UTF8, config)
+            ResilientLettuceSuspendNearCache(redisClient, lettuceDefaultCodec(), config)
     }
 
     val cacheName: String get() = config.cacheName
@@ -83,7 +83,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     private val closed = atomic(false)
     val isClosed by closed
 
-    private val frontCache: LocalCache<String, V> = CaffeineLocalCache(config.base)
+    private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config.base)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val commands: RedisCoroutinesCommands<String, V> = connection.coroutines()
     private val trackingListener: TrackingInvalidationListener<V> =

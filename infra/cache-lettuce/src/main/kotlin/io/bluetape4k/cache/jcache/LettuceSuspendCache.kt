@@ -9,6 +9,7 @@ import io.lettuce.core.HSetExArgs
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -51,7 +52,7 @@ class LettuceSuspendCache<V: Any>(
         }
     }
 
-    override fun entries(): Flow<SuspendCacheEntry<String, V>> = flow {
+    override fun entries(): Flow<SuspendCacheEntry<String, V>> = channelFlow {
         commands
             .hkeys(cacheName)
             .chunked(100)
@@ -59,7 +60,7 @@ class LettuceSuspendCache<V: Any>(
                 commands
                     .hmget(cacheName, *keys.toTypedArray())
                     .collect {
-                        emit(SuspendCacheEntry(it.key, it.value))
+                        send(SuspendCacheEntry(it.key, it.value))
                     }
             }
     }

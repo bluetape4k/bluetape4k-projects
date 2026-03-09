@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
+import io.bluetape4k.cache.lettuceDefaultCodec
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -17,7 +18,6 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
 
 /**
@@ -45,13 +45,13 @@ import kotlinx.atomicfu.atomic
  *
  * - Read: front hit → return / front miss → Redis GET → front populate → return
  * - Write: front put + Redis SET (write-through)
- * - Invalidation: RESP3 CLIENT TRACKING push → [CaffeineLocalCache.invalidate]
+ * - Invalidation: RESP3 CLIENT TRACKING push → [LettuceCaffeineLocalCache.invalidate]
  *
  * @param V 값 타입 (키는 항상 String)
  */
 class LettuceNearCache<V: Any>(
     redisClient: RedisClient,
-    codec: RedisCodec<String, V>,
+    codec: RedisCodec<String, V> = lettuceDefaultCodec(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): AutoCloseable {
 
@@ -63,7 +63,7 @@ class LettuceNearCache<V: Any>(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
         ): LettuceNearCache<String> =
-            LettuceNearCache(redisClient, StringCodec.UTF8, config)
+            LettuceNearCache(redisClient, lettuceDefaultCodec(), config)
     }
 
     val cacheName: String get() = config.cacheName
@@ -71,7 +71,7 @@ class LettuceNearCache<V: Any>(
     private val closed = atomic(false)
     val isClosed by closed
 
-    private val frontCache: LocalCache<String, V> = CaffeineLocalCache(config)
+    private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val commands: RedisCommands<String, V> = connection.sync()
     private val trackingListener: TrackingInvalidationListener<V> =
