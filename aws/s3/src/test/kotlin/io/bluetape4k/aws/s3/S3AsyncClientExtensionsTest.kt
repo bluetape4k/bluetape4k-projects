@@ -10,6 +10,7 @@ import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeFalse
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -28,6 +29,13 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
 
     @TempDir
     lateinit var tempDir: File
+
+    @Test
+    fun `exists bucket async returns false for missing bucket`() = runSuspendIO {
+        val missingBucket = "missing-${randomKey()}"
+
+        s3AsyncClient.existsBucketAsync(missingBucket).await().shouldBeFalse()
+    }
 
     @Test
     fun `put and get s3 object`() = runSuspendIO {

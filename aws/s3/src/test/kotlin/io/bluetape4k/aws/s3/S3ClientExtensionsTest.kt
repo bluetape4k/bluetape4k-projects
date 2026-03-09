@@ -8,6 +8,7 @@ import io.bluetape4k.utils.Resourcex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeFalse
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -26,6 +27,14 @@ class S3ClientExtensionsTest: AbstractS3Test() {
 
     @TempDir
     lateinit var tempDir: File
+
+    @Test
+    fun `exists bucket returns false for missing bucket`() {
+        val missingBucket = "missing-${randomKey()}"
+
+        val result = s3Client.existsBucket(missingBucket)
+        result.getOrThrow().shouldBeFalse()
+    }
 
     @Test
     fun `put and get s3 object`() {

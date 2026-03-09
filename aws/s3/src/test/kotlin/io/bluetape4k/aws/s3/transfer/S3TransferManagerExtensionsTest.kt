@@ -45,6 +45,29 @@ class S3TransferManagerExtensionsTest: AbstractS3Test() {
         downloadContent shouldBeEqualTo content
     }
 
+    @Test
+    fun `downloadFileAsync applies builder overrides`() = runSuspendIO {
+        val key = randomKey()
+        val content = "abcdefghijk"
+        s3TransferManager
+            .uploadByteArrayAsync(BUCKET_NAME, key, content.toUtf8Bytes())
+            .completionFuture()
+            .await()
+
+        val downloadFile = tempDir.resolve("range-part.txt")
+
+        s3TransferManager
+            .downloadFileAsync(BUCKET_NAME, key, downloadFile.toPath()) {
+                getObjectRequest { it.bucket(BUCKET_NAME).key(key).range("bytes=0-2") }
+            }
+            .completionFuture()
+            .await()
+
+        val downloaded = downloadFile.readText()
+        downloaded.length shouldBeEqualTo 3
+        downloaded shouldBeEqualTo content.take(3)
+    }
+
     @ParameterizedTest(name = "file: {0}")
     @MethodSource("getImageNames")
     fun `updown file by transfer manager`(filename: String) = runSuspendIO {
