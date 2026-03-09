@@ -125,4 +125,12 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         serializer.serializeAsString(schema, null).shouldBeNull()
         serializer.deserializeFromString(schema, null).shouldBeNull()
     }
+
+    @Test
+    fun `잘못된 Base64 문자열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroGenericRecordSerializer()
+        val schema = Employee.getClassSchema()
+
+        serializer.deserializeFromString(schema, "{not-base64").shouldBeNull()
+    }
 }

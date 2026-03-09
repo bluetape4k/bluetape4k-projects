@@ -24,6 +24,8 @@ class CodecFactorySupportTest: AbstractAvroTest() {
         NULL_CODEC_FACTORY.shouldNotBeNull()
         DEFLATE_CODEC_FACTORY.shouldNotBeNull()
         SNAPPY_CODEC_FACTORY.shouldNotBeNull()
+        BZIP2_CODEC_FACTORY.shouldNotBeNull()
+        XZ_CODEC_FACTORY.shouldNotBeNull()
     }
 
     @Test
@@ -31,6 +33,10 @@ class CodecFactorySupportTest: AbstractAvroTest() {
         val first = DEFAULT_CODEC_FACTORY
         val second = DEFAULT_CODEC_FACTORY
         (first === second).shouldBeTrue()
+
+        val bzip2First = BZIP2_CODEC_FACTORY
+        val bzip2Second = BZIP2_CODEC_FACTORY
+        (bzip2First === bzip2Second).shouldBeTrue()
     }
 
     @ParameterizedTest(name = "codecFactoryOf({0})")

@@ -99,6 +99,28 @@ val SNAPPY_CODEC_FACTORY: CodecFactory by lazy {
 }
 
 /**
+ * BZip2 코덱 팩토리 인스턴스입니다.
+ *
+ * ## 동작/계약
+ * - 느리지만 높은 압축률이 필요한 경로에 적합합니다.
+ * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ */
+val BZIP2_CODEC_FACTORY: CodecFactory by lazy {
+    CodecFactory.bzip2Codec()
+}
+
+/**
+ * XZ(레벨 6) 코덱 팩토리 인스턴스입니다.
+ *
+ * ## 동작/계약
+ * - 높은 압축률이 필요한 아카이브 경로에서 사용할 수 있습니다.
+ * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ */
+val XZ_CODEC_FACTORY: CodecFactory by lazy {
+    CodecFactory.xzCodec(6)
+}
+
+/**
  * 코덱 이름 문자열을 [CodecFactory] 인스턴스로 변환합니다.
  *
  * ## 동작/계약
@@ -120,8 +142,8 @@ fun codecFactoryOf(name: String): CodecFactory {
         "snappy"            -> SNAPPY_CODEC_FACTORY
         "zstd", "zstandard" -> DEFAULT_CODEC_FACTORY
         "zstd-fast"         -> FAST_CODEC_FACTORY
-        "bzip2"             -> CodecFactory.bzip2Codec()
-        "xz"                -> CodecFactory.xzCodec(6)
+        "bzip2"             -> BZIP2_CODEC_FACTORY
+        "xz"                -> XZ_CODEC_FACTORY
         else                -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
     }
 }
