@@ -188,6 +188,8 @@ candidates.forEachIndexed { index, candidate ->
 // 후보 3: 대(Verb), 학(Noun)
 ```
 
+`tokenizeTopN`의 후보 개수(`n`)는 1 이상이어야 하며, 0 이하를 전달하면 `IllegalArgumentException`이 발생합니다.
+
 ## 지원 품사 (Part-of-Speech)
 
 | 품사          | 설명     | 예시                  |

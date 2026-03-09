@@ -95,12 +95,15 @@ val set = CharArraySet(1000)
 // 추가
 set.add("word")
 set.add(charArrayOf('w', 'o', 'r', 'd'))
-set.add(text, offset, length)
 
 // 조회
 if (set.contains("word")) {
     // ...
 }
+
+// 삭제 (실제로 제거된 경우에만 true)
+set.remove("word")
+set.removeAll(listOf("a", "b"))
 
 // 수정 불가능한 Set
 val unmodifiable = CharArraySet.unmodifiableSet(set)
@@ -116,12 +119,12 @@ val map = CharArrayMap<String>(1000)
 // 추가
 map["key"] = "value"
 map[charArrayOf('k', 'e', 'y')] = "value"
-map.put(text, offset, length, "value")
 
 // 조회
 val value = map["key"]
 val value = map[charArrayOf('k', 'e', 'y')]
-val value = map.get(text, offset, length)
+val value = map.get("key")
+val value2 = map.get(charArrayOf('k', 'e', 'y'), 0, 3)
 
 // 수정 불가능한 Map
 val unmodifiable = CharArrayMap.unmodifiableMap(map)

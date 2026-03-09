@@ -235,25 +235,22 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
      * 일반 키 객체를 제거한다.
      *
      * ## 동작/계약
-     * - 내부 맵에서 키를 제거한 뒤 재조회 결과를 반환한다.
-     * - 키가 존재하지 않아도 예외를 던지지 않는다.
+     * - 내부 맵에서 키를 제거하고 실제로 제거된 경우에만 `true`를 반환한다.
+     * - 키가 존재하지 않으면 `false`를 반환하며 예외를 던지지 않는다.
      *
      * ```kotlin
      * val set = CharArraySet(2).apply { add("a") }
      * // set.remove("a") == true
      * ```
      */
-    override fun remove(element: Any): Boolean {
-        map.remove(element)
-        return !map.containsKey(element)
-    }
+    override fun remove(element: Any): Boolean = map.remove(element) != null
 
     /**
      * 문자열 키를 집합에서 제거한다.
      *
      * ## 동작/계약
-     * - 내부 맵에서 키를 제거한 뒤 재조회 결과를 기반으로 성공 여부를 반환한다.
-     * - 키가 없던 경우에도 예외 없이 `true`를 반환할 수 있다.
+     * - 내부 맵에서 키를 제거하고 실제로 제거된 경우에만 `true`를 반환한다.
+     * - 키가 없던 경우 `false`를 반환한다.
      *
      * ```kotlin
      * val set = CharArraySet(2).apply { add("x") }
@@ -261,17 +258,14 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
      * // set.contains("x") == false
      * ```
      */
-    fun remove(text: String): Boolean {
-        map.remove(text)
-        return !map.containsKey(text)
-    }
+    fun remove(text: String): Boolean = map.remove(text) != null
 
     /**
      * 컬렉션 원소를 모두 제거한다.
      *
      * ## 동작/계약
      * - 각 원소에 대해 `remove`를 호출한다.
-     * - 모든 제거 호출이 `true`일 때만 `true`를 반환한다.
+     * - 하나라도 실제 제거가 발생하면 `true`를 반환한다.
      *
      * ```kotlin
      * val set = CharArraySet(2).apply { addAll(listOf("a", "b")) }
@@ -279,7 +273,11 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
      * ```
      */
     override fun removeAll(elements: Collection<Any>): Boolean {
-        return elements.all { remove(it) }
+        var modified = false
+        elements.forEach {
+            if (remove(it)) modified = true
+        }
+        return modified
     }
 
     /**
@@ -287,7 +285,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
      *
      * ## 동작/계약
      * - 각 문자열에 `remove(String)`을 적용한다.
-     * - 모두 제거 성공 시 `true`를 반환한다.
+     * - 하나라도 실제 제거가 발생하면 `true`를 반환한다.
      *
      * ```kotlin
      * val set = CharArraySet(2).apply { addAll(listOf("x", "y")) }
@@ -295,7 +293,11 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
      * ```
      */
     fun removeAll(words: List<String>): Boolean {
-        return words.all { remove(it) }
+        var modified = false
+        words.forEach {
+            if (remove(it)) modified = true
+        }
+        return modified
     }
 
     /**

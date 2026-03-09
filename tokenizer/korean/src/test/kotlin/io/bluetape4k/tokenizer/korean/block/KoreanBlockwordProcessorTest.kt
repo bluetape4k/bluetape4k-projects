@@ -168,4 +168,21 @@ class KoreanBlockwordProcessorTest {
         blockwords shouldHaveSize 3
         blockwords.map { it.text } shouldBeEqualTo listOf("빠라", "빠라", "좆만한쉐이")
     }
+
+    @Test
+    fun `멀티 문자 마스크도 offset 을 유지하며 치환한다`() = runTest {
+        io.bluetape4k.tokenizer.korean.KoreanProcessor.addBlockwords(
+            listOf("걸레"),
+            Severity.LOW
+        )
+
+        val request = BlockwordRequest(
+            text = "걸.레 그리고 걸.레",
+            options = BlockwordOptions(mask = "##", severity = Severity.LOW)
+        )
+        val response = KoreanBlockwordProcessor.maskBlockwords(request)
+
+        response.maskedText shouldBeEqualTo "#### 그리고 ####"
+        response.blockWords shouldBeEqualTo listOf("걸레", "걸레")
+    }
 }
