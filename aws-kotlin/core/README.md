@@ -40,8 +40,11 @@ val localProvider = LocalCredentialsProvider
 import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 
-// CRT 기반 HTTP 엔진 생성 (권장)
+// CRT 기반 기본 HTTP 엔진 singleton (권장)
 val httpEngine = HttpClientEngineProvider.defaultHttpEngine
+
+// 필요 시 OkHttp 엔진 singleton 사용
+val okHttpEngine = HttpClientEngineProvider.OkHttp.httpEngine
 
 // 클라이언트 생성 시 사용
 val s3Client = S3Client {

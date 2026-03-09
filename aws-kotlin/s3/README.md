@@ -47,6 +47,7 @@ s3Client.getAsOutputStream("my-bucket", "path/to/file.txt", outputStream)
 
 // 병렬 다운로드
 val responses = s3Client.getAll(
+    concurrency = 8,
     getObjectRequestOf("bucket", "key1"),
     getObjectRequestOf("bucket", "key2"),
     getObjectRequestOf("bucket", "key3")
@@ -123,7 +124,7 @@ val presignedRequest = s3Client.presignGetObject(
     key = "path/to/file.txt",
     duration = 5.minutes
 )
-println("Presigned URL: ${presignedRequest.url}")
+println("Presigned URL generated (expires in 5 minutes)")
 ```
 
 ### 버킷 관리
@@ -143,6 +144,13 @@ s3Client.deleteBucket("my-bucket")
 // 버킷 정책 조회
 val policy = s3Client.tryGetBucketPolicy("my-bucket")
 ```
+
+## 동작 계약
+
+- `existsBucket`, `existsObject`는 `NoSuchBucket`/`NoSuchKey`/`NotFound` 및 HTTP `404` 응답을
+  "리소스 미존재"로 해석해 `false`를 반환합니다.
+- 인증 실패, 권한 오류, 네트워크 장애 등 미존재 외 예외는 그대로 전파합니다.
+- `putAll`, `getAll`은 `concurrency`를 적용해 요청을 병렬 처리하며, Flow 수집 시 실제 전송/조회가 수행됩니다.
 
 ## 주요 기능 상세
 

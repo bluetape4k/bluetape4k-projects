@@ -8,6 +8,8 @@ import aws.sdk.kotlin.services.s3.model.CreateBucketResponse
 import aws.sdk.kotlin.services.s3.model.DeleteBucketRequest
 import aws.sdk.kotlin.services.s3.model.DeleteBucketResponse
 import aws.sdk.kotlin.services.s3.model.HeadBucketRequest
+import aws.smithy.kotlin.runtime.ServiceException
+import aws.smithy.kotlin.runtime.http.response.statusCode
 import io.bluetape4k.aws.kotlin.s3.model.deleteBucketRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.headBucketRequestOf
 import io.bluetape4k.logging.debug
@@ -15,6 +17,9 @@ import io.bluetape4k.support.requireNotBlank
 
 /**
  * [bucket]의 버킷이 존재하는지 확인합니다.
+ *
+ * 존재하지 않는 버킷(`NoSuchBucket`/`NotFound`/HTTP `404`)만 `false`로 정규화하고,
+ * 인증 실패/네트워크 오류 등 다른 예외는 그대로 전파합니다.
  *
  * ```
  * val exists = s3Client.existsBucket("bucket-name")
@@ -28,7 +33,12 @@ suspend inline fun S3Client.existsBucket(
     @BuilderInference crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
 ): Boolean {
     val headBucketRequest = headBucketRequestOf(bucket, builder = builder)
-    return runCatching { headBucket(headBucketRequest) }.isSuccess
+    return runCatching {
+        headBucket(headBucketRequest)
+        true
+    }.recover { error ->
+        if (error.isMissingBucketError()) false else throw error
+    }.getOrThrow()
 }
 
 /**
@@ -91,7 +101,7 @@ suspend inline fun S3Client.forceDeleteBucket(
     bucket: String,
     @BuilderInference crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketResponse {
-    bucket.requireNotBlank("bucketName")
+    bucket.requireNotBlank("bucket")
 
     // 버킷 내 모든 Object 삭제 (listObjectsV2는 최대 1000개만 반환하므로, 모든 Object를 삭제하기 위해 반복)
     log.debug { "버킷의 모든 Object를 삭제합니다. bucket=$bucket" }
@@ -106,4 +116,12 @@ suspend inline fun S3Client.forceDeleteBucket(
     // 버킷 삭제
     log.debug { "버킷을 삭제합니다. bucket=$bucket" }
     return deleteBucket(deleteBucketRequestOf(bucket, builder = builder))
+}
+
+@PublishedApi
+internal fun Throwable.isMissingBucketError(): Boolean {
+    val serviceError = this as? ServiceException ?: return false
+    val errorCode = serviceError.sdkErrorMetadata.errorCode
+    val statusCode = serviceError.sdkErrorMetadata.protocolResponse.statusCode()?.value
+    return errorCode in setOf("NoSuchBucket", "NotFound") || statusCode == 404
 }
