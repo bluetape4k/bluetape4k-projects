@@ -66,7 +66,8 @@ val deserialized = serializer.deserialize<Employee>(bytes)
 
 | 상수                      | 알고리즘              | 특성                        |
 |-------------------------|-------------------|---------------------------|
-| `DEFAULT_CODEC_FACTORY` | Zstandard (레벨 3)  | 속도와 압축률의 균형 (기본값)         |
+| `DEFAULT_CODEC_FACTORY` | Deflate (Avro 기본 레벨) | Avro 기본값과 동일한 범용 압축       |
+| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨) | Zstd 균형형 압축               |
 | `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1) | LZ4/Snappy 수준의 빠른 속도      |
 | `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)  | 최대 압축률, 장기 보관용            |
 | `NULL_CODEC_FACTORY`    | 없음                | 압축 없이 최대 속도               |
@@ -85,7 +86,8 @@ val serializer = DefaultAvroSpecificRecordSerializer(codec)
 ## 성능/안정성 운영 가이드
 
 - 고성능 온라인 처리: `FAST_CODEC_FACTORY` 또는 `SNAPPY_CODEC_FACTORY`
-- 균형형 기본값: `DEFAULT_CODEC_FACTORY`
+- Avro 기본값 호환: `DEFAULT_CODEC_FACTORY`
+- 균형형 Zstd: `ZSTD_CODEC_FACTORY`
 - 저장 공간 최적화: `ARCHIVE_CODEC_FACTORY`, `BZIP2_CODEC_FACTORY`, `XZ_CODEC_FACTORY`
 - 실패 허용 정책: 본 모듈의 serializer 기본 구현은 역직렬화 실패 시 `null` 또는 `emptyList()`로 안전 실패합니다.
 - 대규모 트래픽 경로에서는 `SpecificRecord`를 우선 사용하고, `Reflect`는 유연성이 필요한 구간에 제한적으로 적용하는 것을 권장합니다.

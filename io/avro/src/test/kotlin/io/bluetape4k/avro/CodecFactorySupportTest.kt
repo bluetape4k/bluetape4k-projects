@@ -19,6 +19,7 @@ class CodecFactorySupportTest: AbstractAvroTest() {
     @Test
     fun `기본 코덱 팩토리 인스턴스가 정상 생성된다`() {
         DEFAULT_CODEC_FACTORY.shouldNotBeNull()
+        ZSTD_CODEC_FACTORY.shouldNotBeNull()
         FAST_CODEC_FACTORY.shouldNotBeNull()
         ARCHIVE_CODEC_FACTORY.shouldNotBeNull()
         NULL_CODEC_FACTORY.shouldNotBeNull()
