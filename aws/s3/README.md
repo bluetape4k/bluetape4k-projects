@@ -84,23 +84,22 @@ download.completionFuture().join()
 
 ## 주요 소스 파일
 
-| 파일 | 설명 |
-|---|---|
-| `S3ClientExtensions.kt` | 동기 `S3Client` 확장 함수 |
-| `S3AsyncClientExtensions.kt` | `CompletableFuture` 기반 비동기 확장 함수 |
-| `S3AsyncClientCoroutinesExtensions.kt` | `suspend` 브릿지 확장 함수 |
-| `S3ClientFactory.kt` | `S3Client` / `S3AsyncClient` / `S3TransferManager` 팩토리 |
-| `transfer/S3TransferManagerExtensions.kt` | TransferManager 비동기 확장 함수 |
-| `transfer/S3TransferManagerCoroutinesExtensions.kt` | TransferManager 코루틴 확장 함수 |
-| `transfer/UploadRequest.kt` | 업로드 요청 빌더 유틸 |
-| `transfer/DownloadRequest.kt` | 다운로드 요청 빌더 유틸 |
-| `model/PutObjectRequest.kt` | PutObject 요청 유틸 |
-| `model/GetObjectRequest.kt` | GetObject 요청 유틸 |
-| `model/DeleteObjectRequest.kt` | DeleteObject/DeleteObjects 요청 유틸 |
-| `model/ListObjectsRequest.kt` | ListObjects 요청 유틸 |
-| `model/ListBucketsRequest.kt` | ListBuckets 요청 유틸 |
-| `model/RequestBody.kt` | 동기 `RequestBody` 유틸 |
-| `model/AsyncRequestBody.kt` | 비동기 `AsyncRequestBody` 유틸 |
-| `model/ObjectIdentifier.kt` | `ObjectIdentifier` 생성 유틸 |
-| `model/MoveObjectResult.kt` | 이동 작업 결과 모델 |
-
+| 파일                                                  | 설명                                                     |
+|-----------------------------------------------------|--------------------------------------------------------|
+| `S3ClientExtensions.kt`                             | 동기 `S3Client` 확장 함수                                    |
+| `S3AsyncClientExtensions.kt`                        | `CompletableFuture` 기반 비동기 확장 함수                       |
+| `S3AsyncClientCoroutinesExtensions.kt`              | `suspend` 브릿지 확장 함수                                    |
+| `S3ClientFactory.kt`                                | `S3Client` / `S3AsyncClient` / `S3TransferManager` 팩토리 |
+| `transfer/S3TransferManagerExtensions.kt`           | TransferManager 비동기 확장 함수                              |
+| `transfer/S3TransferManagerCoroutinesExtensions.kt` | TransferManager 코루틴 확장 함수                              |
+| `transfer/UploadRequest.kt`                         | 업로드 요청 빌더 유틸                                           |
+| `transfer/DownloadRequest.kt`                       | 다운로드 요청 빌더 유틸                                          |
+| `model/PutObjectRequest.kt`                         | PutObject 요청 유틸                                        |
+| `model/GetObjectRequest.kt`                         | GetObject 요청 유틸                                        |
+| `model/DeleteObjectRequest.kt`                      | DeleteObject/DeleteObjects 요청 유틸                       |
+| `model/ListObjectsRequest.kt`                       | ListObjects 요청 유틸                                      |
+| `model/ListBucketsRequest.kt`                       | ListBuckets 요청 유틸                                      |
+| `model/RequestBody.kt`                              | 동기 `RequestBody` 유틸                                    |
+| `model/AsyncRequestBody.kt`                         | 비동기 `AsyncRequestBody` 유틸                              |
+| `model/ObjectIdentifier.kt`                         | `ObjectIdentifier` 생성 유틸                               |
+| `model/MoveObjectResult.kt`                         | 이동 작업 결과 모델                                            |
