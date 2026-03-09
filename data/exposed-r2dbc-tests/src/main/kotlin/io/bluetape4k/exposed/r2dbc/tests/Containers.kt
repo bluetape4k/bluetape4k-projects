@@ -36,7 +36,7 @@ object Containers: KLogging() {
             .apply {
                 start()
                 ShutdownQueue.register(this)
-            }
+            } as MariaDBServer
     }
 
     /**
@@ -56,7 +56,7 @@ object Containers: KLogging() {
             .apply {
                 start()
                 ShutdownQueue.register(this)
-            }
+            } as MySQL5Server
     }
 
     /**
@@ -74,7 +74,7 @@ object Containers: KLogging() {
             .apply {
                 start()
                 ShutdownQueue.register(this)
-            }
+            } as MySQL8Server
     }
 
     /**
