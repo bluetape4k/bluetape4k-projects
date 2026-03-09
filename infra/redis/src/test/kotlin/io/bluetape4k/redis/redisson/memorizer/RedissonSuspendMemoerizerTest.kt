@@ -4,6 +4,9 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -11,6 +14,7 @@ import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.seconds
+import java.util.concurrent.atomic.AtomicInteger
 
 class RedissonSuspendMemoerizerTest: AbstractRedissonTest() {
 
@@ -64,6 +68,25 @@ class RedissonSuspendMemoerizerTest: AbstractRedissonTest() {
             fibonacci.calc(100)
         }
         result shouldBeEqualTo x1
+    }
+
+    @Test
+    fun `suspend memorizer should evaluate once for same key in concurrent calls`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memorizer = map.suspendMemorizer { key ->
+            evaluateCount.incrementAndGet()
+            delay(100)
+            key * key
+        }
+
+        try {
+            val results = List(16) { async { memorizer(7) } }.awaitAll()
+            results.forEach { it shouldBeEqualTo 49 }
+            evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.delete()
+        }
     }
 
     interface SuspendFactorialProvider {

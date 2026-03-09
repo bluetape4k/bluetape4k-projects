@@ -12,6 +12,7 @@ Kotlin Coroutines 환경에서의 사용을 위한 확장 함수와 유틸리티
 - **Coroutines 통합**: `suspend` 함수 및 Flow 지원
 - **코덱 지원**: LZ4, GZip, Zstd, Fory, Protobuf 등 다양한 압축/직렬화 코덱
 - **Spring 통합**: Spring Data Redis Serializer 지원
+- **메모라이저 안정성 강화**: 동일 키 동시 요청 시 in-flight 연산 공유로 중복 계산 완화
 
 ## 의존성
 
@@ -163,6 +164,23 @@ val nearCache = RedissonNearCache(redisson, "near-cache") {
 }
 ```
 
+### 5-1. Redisson Memorizer 동시성 보장
+
+`RedissonMemorizer` / `RedissonSuspendMemorizer` / `AsyncRedissonMemorizer`는
+같은 JVM에서 동일 키가 동시에 요청될 때 in-flight 연산을 공유합니다.
+이를 통해 고비용 evaluator의 중복 실행을 줄여 성능과 안정성을 높입니다.
+
+```kotlin
+val map = redisson.getMap<Int, Int>("memo")
+val memo = map.memorizer { key ->
+    Thread.sleep(100) // 비용이 큰 연산
+    key * key
+}
+
+// 동시에 같은 key=7 요청이 들어와도 evaluator는 1회만 실행
+val result = memo(7) // 49
+```
+
 ### 6. Redisson 리더 선출 (Leader Election)
 
 #### 단일 리더 선출 — 동시에 1개만 실행
@@ -218,6 +236,14 @@ val result = groupElection.runIfLeader("batch-job") {
 }
 
 // 상태 조회
+
+## 테스트
+
+모듈 단위 회귀 테스트는 아래처럼 실행할 수 있습니다.
+
+```bash
+./gradlew :infra:redis:test
+```
 val state = groupElection.state("batch-job")
 println("활성 리더: ${state.activeCount} / ${state.maxLeaders}")
 println("남은 슬롯: ${state.availableSlots}, 가득 참: ${state.isFull}")
