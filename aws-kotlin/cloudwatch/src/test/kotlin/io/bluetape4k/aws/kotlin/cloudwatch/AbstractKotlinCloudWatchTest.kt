@@ -30,7 +30,7 @@ abstract class AbstractKotlinCloudWatchTest {
     companion object: KLoggingChannel() {
         @JvmStatic
         val cloudWatchServer: LocalStackServer by lazy {
-            getLocalStackServer("cloudwatch", "cloudwatchlogs")
+            getLocalStackServer("cloudwatch", "logs")
 
         }
 

@@ -25,7 +25,7 @@ abstract class AbstractCloudWatchTest {
         @JvmStatic
         private val AwsCloudWatch: LocalStackServer by lazy {
             LocalStackServer.Launcher.localStack
-                .withServices("cloudwatch", "cloudwatchlogs")
+                .withServices("cloudwatch", "logs")
         }
 
         @JvmStatic
