@@ -1,7 +1,7 @@
 package io.bluetape4k.io.compressor
 
-import okio.Buffer
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.InflaterInputStream
 
@@ -23,12 +23,12 @@ class DeflateCompressor: AbstractCompressor() {
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
-        val output = Buffer()
-        DeflaterOutputStream(output.outputStream()).use { deflate ->
+        val output = ByteArrayOutputStream(plain.size)
+        DeflaterOutputStream(output).use { deflate ->
             deflate.write(plain)
             deflate.finish()
         }
-        return output.readByteArray()
+        return output.toByteArray()
     }
 
     /**
@@ -37,7 +37,7 @@ class DeflateCompressor: AbstractCompressor() {
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             InflaterInputStream(input).use { inflate ->
-                Buffer().readFrom(inflate).readByteArray()
+                inflate.readBytes()
             }
         }
     }

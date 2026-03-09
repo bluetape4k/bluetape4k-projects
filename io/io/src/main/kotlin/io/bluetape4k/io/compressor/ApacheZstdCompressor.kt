@@ -3,11 +3,11 @@ package io.bluetape4k.io.compressor
 import com.github.luben.zstd.Zstd
 import io.bluetape4k.io.compressor.ApacheZstdCompressor.Companion.DEFAULT_LEVEL
 import io.bluetape4k.logging.KLogging
-import okio.Buffer
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdUtils
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
 /**
  * Apache Compress 라이브러리의 Zstd 알고리즘을 사용한 Compressor (내부적으로 zstd-jni 라이브러리 사용)
@@ -45,17 +45,17 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
-        val output = Buffer()
+        val output = ByteArrayOutputStream(plain.size)
         ZstdCompressorOutputStream(
             ZstdCompressorOutputStream.builder()
-                .setOutputStream(output.outputStream())
+                .setOutputStream(output)
                 .setLevel(level)
                 .outputStream
         ).use { zstd ->
             zstd.write(plain)
             zstd.flush()
         }
-        return output.readByteArray()
+        return output.toByteArray()
     }
 
     /**
@@ -64,7 +64,7 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             ZstdCompressorInputStream(input).use { zstd ->
-                Buffer().readFrom(zstd).readByteArray()
+                zstd.readBytes()
             }
         }
     }
