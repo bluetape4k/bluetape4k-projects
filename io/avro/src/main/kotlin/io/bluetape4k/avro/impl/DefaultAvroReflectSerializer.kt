@@ -8,15 +8,19 @@ import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.DataFileReader
 import org.apache.avro.file.DataFileWriter
 import org.apache.avro.file.SeekableByteArrayInput
+import org.apache.avro.reflect.ReflectData
+import org.apache.avro.reflect.ReflectDatumReader
 import org.apache.avro.reflect.ReflectDatumWriter
-import org.apache.avro.specific.SpecificDatumReader
 import java.io.ByteArrayOutputStream
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * [AvroReflectSerializer]의 기본 구현체입니다.
  *
  * ## 동작/계약
  * - `ReflectDatumWriter`로 writer schema를 만들고 DataFile 형식으로 기록합니다.
+ * - 클래스별 스키마를 캐시해 반복 직렬화 시 Reflection 스키마 계산 오버헤드를 줄입니다.
+ * - 역직렬화는 `ReflectDatumReader`를 사용해 Reflection 경로의 타입 매핑 안정성을 유지합니다.
  * - [serialize]/[deserialize] 입력이 `null`이면 `null`을 반환합니다.
  * - 직렬화/역직렬화 실패는 로그를 남기고 `null`을 반환합니다.
  *
@@ -31,6 +35,12 @@ class DefaultAvroReflectSerializer private constructor(
 ): AvroReflectSerializer {
 
     companion object: KLogging() {
+        private val schemaCache = ConcurrentHashMap<Class<*>, org.apache.avro.Schema>()
+
+        private fun schemaOf(clazz: Class<*>): org.apache.avro.Schema {
+            return schemaCache.computeIfAbsent(clazz) { ReflectData.get().getSchema(it) }
+        }
+
         /**
          * 코덱 설정을 지정해 [DefaultAvroReflectSerializer] 인스턴스를 생성합니다.
          *
@@ -71,10 +81,11 @@ class DefaultAvroReflectSerializer private constructor(
         }
 
         return try {
-            val rdw = ReflectDatumWriter(graph.javaClass)
+            val schema = schemaOf(graph.javaClass)
+            val rdw = ReflectDatumWriter<T>(schema)
             DataFileWriter(rdw).setCodec(codecFactory).use { dfw ->
                 ByteArrayOutputStream().use { bos ->
-                    dfw.create(rdw.specificData.getSchema(graph.javaClass), bos)
+                    dfw.create(schema, bos)
                     dfw.append(graph)
                     dfw.flush()
 
@@ -82,7 +93,7 @@ class DefaultAvroReflectSerializer private constructor(
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "Reflect 기반 직렬화에 실패했습니다. graph=$graph" }
+            log.error(e) { "Reflect 기반 직렬화에 실패했습니다. clazz=${graph.javaClass.name}" }
             null
         }
     }
@@ -110,14 +121,15 @@ class DefaultAvroReflectSerializer private constructor(
 
         return try {
             SeekableByteArrayInput(avroBytes).use { sin ->
-                val sdr = SpecificDatumReader(clazz)
+                val schema = schemaOf(clazz)
+                val sdr = ReflectDatumReader<T>(schema, schema)
                 DataFileReader(sin, sdr).use { dfr ->
                     if (dfr.hasNext()) dfr.next()
                     else null
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "Reflect 기반 역직렬화에 실패했습니다. clazz=${clazz.name}" }
+            log.error(e) { "Reflect 기반 역직렬화에 실패했습니다. clazz=${clazz.name}, size=${avroBytes.size}" }
             null
         }
     }

@@ -3,19 +3,25 @@ package io.bluetape4k.avro
 import org.apache.avro.file.CodecFactory
 
 /**
- * 균형형 Zstandard(레벨 3) 코덱 팩토리 인스턴스입니다.
+ * Avro 기본 Deflate 코덱 팩토리 인스턴스입니다.
  *
  * ## 동작/계약
+ * - [CodecFactory.DEFAULT_DEFLATE_LEVEL]을 사용해 Avro 기본값과 동일한 압축 수준으로 생성합니다.
  * - 최초 접근 시 1회 생성되고 이후 동일 인스턴스를 재사용합니다.
- * - 압축률과 속도의 균형이 필요한 기본 경로에 적합합니다.
- *
- * ```kotlin
- * val same = DEFAULT_CODEC_FACTORY === DEFAULT_CODEC_FACTORY
- * // same == true
- * ```
  */
 val DEFAULT_CODEC_FACTORY: CodecFactory by lazy {
-    CodecFactory.zstandardCodec(3, true, true)
+    CodecFactory.deflateCodec(CodecFactory.DEFAULT_DEFLATE_LEVEL)
+}
+
+/**
+ * 균형형 Zstandard(Avro 기본 레벨) 코덱 팩토리 인스턴스입니다.
+ *
+ * ## 동작/계약
+ * - [CodecFactory.DEFAULT_ZSTANDARD_LEVEL]을 사용합니다.
+ * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ */
+val ZSTD_CODEC_FACTORY: CodecFactory by lazy {
+    CodecFactory.zstandardCodec(CodecFactory.DEFAULT_ZSTANDARD_LEVEL)
 }
 
 /**
@@ -99,6 +105,28 @@ val SNAPPY_CODEC_FACTORY: CodecFactory by lazy {
 }
 
 /**
+ * BZip2 코덱 팩토리 인스턴스입니다.
+ *
+ * ## 동작/계약
+ * - 느리지만 높은 압축률이 필요한 경로에 적합합니다.
+ * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ */
+val BZIP2_CODEC_FACTORY: CodecFactory by lazy {
+    CodecFactory.bzip2Codec()
+}
+
+/**
+ * XZ(레벨 6) 코덱 팩토리 인스턴스입니다.
+ *
+ * ## 동작/계약
+ * - 높은 압축률이 필요한 아카이브 경로에서 사용할 수 있습니다.
+ * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ */
+val XZ_CODEC_FACTORY: CodecFactory by lazy {
+    CodecFactory.xzCodec(6)
+}
+
+/**
  * 코덱 이름 문자열을 [CodecFactory] 인스턴스로 변환합니다.
  *
  * ## 동작/계약
@@ -118,10 +146,10 @@ fun codecFactoryOf(name: String): CodecFactory {
         "null", "none"      -> NULL_CODEC_FACTORY
         "deflate"           -> DEFLATE_CODEC_FACTORY
         "snappy"            -> SNAPPY_CODEC_FACTORY
-        "zstd", "zstandard" -> DEFAULT_CODEC_FACTORY
+        "zstd", "zstandard" -> ZSTD_CODEC_FACTORY
         "zstd-fast"         -> FAST_CODEC_FACTORY
-        "bzip2"             -> CodecFactory.bzip2Codec()
-        "xz"                -> CodecFactory.xzCodec(6)
+        "bzip2"             -> BZIP2_CODEC_FACTORY
+        "xz"                -> XZ_CODEC_FACTORY
         else                -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
     }
 }

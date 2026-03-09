@@ -87,6 +87,7 @@ interface AvroGenericRecordSerializer {
      * ## 동작/계약
      * - [avroText]가 `null`이면 `null`을 반환합니다.
      * - Base64 디코딩 후 [deserialize]에 위임합니다.
+     * - Base64 형식이 잘못되면 `null`을 반환합니다.
      *
      * ```kotlin
      * val schema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL)
@@ -98,6 +99,6 @@ interface AvroGenericRecordSerializer {
      * @param avroText Base64 Avro 문자열입니다.
      */
     fun deserializeFromString(schema: Schema, avroText: String?): GenericData.Record? {
-        return avroText?.run { deserialize(schema, this.decodeBase64ByteArray()) }
+        return avroText?.runCatching { deserialize(schema, this.decodeBase64ByteArray()) }?.getOrNull()
     }
 }

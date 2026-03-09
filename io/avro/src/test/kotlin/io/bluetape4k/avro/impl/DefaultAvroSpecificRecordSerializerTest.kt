@@ -179,4 +179,11 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         serializer.deserializeList(null, Employee::class.java).shouldBeEmpty()
         serializer.deserializeList(byteArrayOf(), Employee::class.java).shouldBeEmpty()
     }
+
+    @Test
+    fun `잘못된 Base64 문자열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroSpecificRecordSerializer()
+
+        serializer.deserializeFromString<Employee>("{not-base64").shouldBeNull()
+    }
 }

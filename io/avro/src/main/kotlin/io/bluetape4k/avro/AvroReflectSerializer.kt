@@ -81,7 +81,7 @@ interface AvroReflectSerializer {
      * ## 동작/계약
      * - [avroText]가 `null`이면 `null`을 반환합니다.
      * - Base64 디코딩 후 [deserialize]에 위임합니다.
-     * - Base64 형식이 잘못되면 디코딩 단계에서 예외가 발생할 수 있습니다.
+     * - Base64 형식이 잘못되면 `null`을 반환합니다.
      *
      * ```kotlin
      * val serializer = DefaultAvroReflectSerializer()
@@ -93,7 +93,7 @@ interface AvroReflectSerializer {
      * @param clazz 역직렬화 대상 타입 정보입니다.
      */
     fun <T> deserializeFromString(avroText: String?, clazz: Class<T>): T? {
-        return avroText?.run { deserialize(this.decodeBase64ByteArray(), clazz) }
+        return avroText?.runCatching { deserialize(this.decodeBase64ByteArray(), clazz) }?.getOrNull()
     }
 }
 

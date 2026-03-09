@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.util.Base64
 import io.bluetape4k.avro.message.examples.v1.VersionedItem as ItemV1
 import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
 
@@ -33,6 +34,19 @@ import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
 class DefaultAvroReflectSerializerTest: AbstractAvroTest() {
 
     companion object: KLogging()
+
+    data class ReflectAddress(
+        var city: String = "",
+        var zipCode: String = "",
+    )
+
+    data class ReflectEmployee(
+        var id: Long = 0L,
+        var name: String = "",
+        var active: Boolean = false,
+        var tags: List<String> = emptyList(),
+        var address: ReflectAddress = ReflectAddress(),
+    )
 
     private fun serializers(): List<Arguments> = listOf(
         "default" to DefaultAvroReflectSerializer(),
@@ -146,5 +160,45 @@ class DefaultAvroReflectSerializerTest: AbstractAvroTest() {
 
         serializer.serializeAsString(null as Employee?).shouldBeNull()
         serializer.deserializeFromString(null, Employee::class.java).shouldBeNull()
+    }
+
+    @Test
+    fun `손상된 Avro 바이트 배열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroReflectSerializer()
+        val corruptedBytes = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+
+        serializer.deserialize(corruptedBytes, Employee::class.java).shouldBeNull()
+    }
+
+    @Test
+    fun `손상된 Base64 Avro 문자열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroReflectSerializer()
+        val corruptedAvroText = Base64.getEncoder().encodeToString(byteArrayOf(0x10, 0x11, 0x12, 0x13))
+
+        serializer.deserializeFromString<Employee>(corruptedAvroText).shouldBeNull()
+    }
+
+    @Test
+    fun `잘못된 Base64 문자열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroReflectSerializer()
+
+        serializer.deserializeFromString<Employee>("{not-base64").shouldBeNull()
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `POJO Reflection 객체를 직렬화 후 역직렬화한다`(name: String, serializer: AvroReflectSerializer) {
+        val pojo = ReflectEmployee(
+            id = 1001L,
+            name = "reflect-user",
+            active = true,
+            tags = listOf("kotlin", "avro"),
+            address = ReflectAddress(
+                city = "Seoul",
+                zipCode = "04524",
+            ),
+        )
+
+        serializer.verifySerialization(pojo)
     }
 }
