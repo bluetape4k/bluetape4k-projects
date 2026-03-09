@@ -1,5 +1,9 @@
 package io.bluetape4k.aws.kotlin.s3
 
+import aws.smithy.kotlin.runtime.content.ByteStream
+import aws.smithy.kotlin.runtime.content.decodeToString
+import io.bluetape4k.aws.kotlin.s3.model.getObjectRequestOf
+import io.bluetape4k.aws.kotlin.s3.model.putObjectRequestOf
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -13,9 +17,12 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 
 @TempFolderTest
 class S3ClientExtensionsTest: AbstractKotlinS3Test() {
@@ -36,6 +43,54 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
 
         val downloadedContent = s3Client.getAsString(BUCKET_NAME, key)
         downloadedContent.shouldNotBeNull() shouldBeEqualTo content
+    }
+
+    @Test
+    fun `existsBucket는 없는 버킷에 대해 false를 반환한다`() = runSuspendIO {
+        val missingBucket = "missing-${randomKey()}"
+        s3Client.existsBucket(missingBucket) shouldBeEqualTo false
+    }
+
+    @Test
+    fun `existsObject는 없는 객체에 대해 false를 반환한다`() = runSuspendIO {
+        val missingKey = "missing-${randomKey()}"
+        s3Client.existsObject(BUCKET_NAME, missingKey) shouldBeEqualTo false
+    }
+
+    @Test
+    fun `putAll은 모든 요청을 실행하고 업로드 결과를 반환한다`() = runSuspendIO {
+        val prefix = "bulk-put-${randomKey()}"
+        val requests = arrayOf(
+            putObjectRequestOf(BUCKET_NAME, "$prefix-1", body = ByteStream.fromString("alpha")),
+            putObjectRequestOf(BUCKET_NAME, "$prefix-2", body = ByteStream.fromString("beta")),
+            putObjectRequestOf(BUCKET_NAME, "$prefix-3", body = ByteStream.fromString("gamma")),
+        )
+
+        val responses = s3Client.putAll(concurrency = 2, *requests).toList()
+        responses.size shouldBeEqualTo requests.size
+        s3Client.existsObject(BUCKET_NAME, "$prefix-1").shouldBeTrue()
+        s3Client.existsObject(BUCKET_NAME, "$prefix-2").shouldBeTrue()
+        s3Client.existsObject(BUCKET_NAME, "$prefix-3").shouldBeTrue()
+    }
+
+    @Test
+    fun `getAll은 모든 요청을 실행하고 객체 본문을 반환한다`() = runSuspendIO {
+        val prefix = "bulk-get-${randomKey()}"
+        val samples = listOf("one", "two", "three")
+        samples.forEachIndexed { index, value ->
+            s3Client.putFromString(BUCKET_NAME, "$prefix-$index", value)
+        }
+
+        val requests = samples.indices.map { index ->
+            getObjectRequestOf(BUCKET_NAME, "$prefix-$index")
+        }.toTypedArray()
+
+        val contents = s3Client.getAll(concurrency = 2, *requests)
+            .map { it.body?.decodeToString() }
+            .toList()
+
+        contents.size shouldBeEqualTo samples.size
+        contents shouldBeEqualTo samples
     }
 
     @RepeatedTest(REPEAT_SIZE)

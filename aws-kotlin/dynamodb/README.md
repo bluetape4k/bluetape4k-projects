@@ -65,6 +65,13 @@ client.waitForTableReady("Users", timeout = 60.seconds)
 client.deleteTableIfExists("Users")
 ```
 
+## 동작 계약(안정성)
+
+- `existsTable`은 `listTablesPaginated`를 사용해 모든 페이지를 순회하므로,
+  테이블 수가 많은 환경에서도 첫 페이지 누락으로 인한 오탐을 줄입니다.
+- `waitForTableReady`는 지정한 `timeout` 내에서 `CREATING` 상태 해제를 폴링하며,
+  타임아웃 초과 시 예외를 전파합니다.
+
 ### 아이템 조작
 
 ```kotlin

@@ -20,6 +20,12 @@ Kotlin 스타일의 DSL 팩토리 함수와 유틸리티를 제공합니다.
 - **세션 토큰 발급**: `getSessionToken()` - MFA 기반 임시 자격 증명 발급
 - **요청 모델 빌더**: `assumeRoleRequestOf()` DSL - 역할 임시 맡기 요청 구성
 
+## durationSeconds 계약
+
+- `assumeRole`: `900..43200`
+- `getSessionToken`: `900..129600`
+- 범위를 벗어나면 원격 호출 전에 `IllegalArgumentException`으로 실패합니다.
+
 ## 의존성 추가
 
 ```kotlin
@@ -86,7 +92,7 @@ val response = client.assumeRole(
 val response = client.assumeRole(
     roleArn = "arn:aws:iam::123456789012:role/MyRole",
     sessionName = "my-session",
-    durationSeconds = 900
+    durationSeconds = 900 // 900..43200
 )
 
 // 임시 자격 증명 사용
@@ -136,6 +142,10 @@ println("accessKeyId=${credentials?.accessKeyId}")
 println("secretAccessKey=${credentials?.secretAccessKey}")
 println("sessionToken=${credentials?.sessionToken}")
 println("expiration=${credentials?.expiration}")
+
+// fail-fast 검증 예시
+runCatching { client.getSessionToken(durationSeconds = 899) }
+    .onFailure { println(it.message) }
 ```
 
 ## 주요 파일

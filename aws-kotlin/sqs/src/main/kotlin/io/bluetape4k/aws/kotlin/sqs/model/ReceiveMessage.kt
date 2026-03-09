@@ -3,12 +3,24 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageRequest
 import io.bluetape4k.support.requireNotBlank
 
+@PublishedApi
+internal const val MIN_RECEIVE_MESSAGES = 1
+
+@PublishedApi
+internal const val MAX_RECEIVE_MESSAGES = 10
+
+@PublishedApi
+internal const val MIN_WAIT_TIME_SECONDS = 0
+
+@PublishedApi
+internal const val MAX_WAIT_TIME_SECONDS = 20
+
 /**
  * queueUrl, maxNumber, waitTimeSeconds, attributeNames를 사용하여 ReceiveMessageRequest를 생성합니다.
  *
  * @param queueUrl 메시지를 수신할 Amazon SQS 큐의 URL입니다.
- * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 3입니다.
- * @param waitTimeSeconds 메시지가 없을 경우 대기할 시간(초)입니다. 기본값은 30초입니다.
+ * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 3입니다. 허용 범위는 1..10 입니다.
+ * @param waitTimeSeconds 메시지가 없을 경우 대기할 시간(초)입니다. 기본값은 20초입니다. 허용 범위는 0..20 입니다.
  * @param visibilityTimeout 메시지를 처리하는 동안 숨겨진 시간(초)입니다. 기본값은 null입니다.
  * @param attributeNames 수신할 메시지의 속성 이름 컬렉션입니다. 기본값은 null입니다.
  * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
@@ -17,14 +29,18 @@ import io.bluetape4k.support.requireNotBlank
 inline fun receiveMessageRequestOf(
     queueUrl: String,
     maxNumberOfMessages: Int = 3,
-    waitTimeSeconds: Int = 30,
+    waitTimeSeconds: Int = 20,
     visibilityTimeout: Int? = null,
     attributeNames: Collection<String>? = null,
     @BuilderInference crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
-    require(maxNumberOfMessages in 1..10) { "maxNumberOfMessages must be in the range 1..10." }
-    require(waitTimeSeconds in 0..20) { "waitTimeSeconds must be in the range 0..20." }
+    require(maxNumberOfMessages in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {
+        "maxNumberOfMessages must be in the range $MIN_RECEIVE_MESSAGES..$MAX_RECEIVE_MESSAGES."
+    }
+    require(waitTimeSeconds in MIN_WAIT_TIME_SECONDS..MAX_WAIT_TIME_SECONDS) {
+        "waitTimeSeconds must be in the range $MIN_WAIT_TIME_SECONDS..$MAX_WAIT_TIME_SECONDS."
+    }
 
     return ReceiveMessageRequest {
         this.queueUrl = queueUrl

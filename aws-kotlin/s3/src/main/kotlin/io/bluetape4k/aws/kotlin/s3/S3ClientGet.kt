@@ -11,6 +11,8 @@ import aws.sdk.kotlin.services.s3.model.GetObjectRetentionRequest
 import aws.sdk.kotlin.services.s3.model.GetObjectRetentionResponse
 import aws.sdk.kotlin.services.s3.model.HeadObjectRequest
 import aws.sdk.kotlin.services.s3.presigners.presignGetObject
+import aws.smithy.kotlin.runtime.ServiceException
+import aws.smithy.kotlin.runtime.http.response.statusCode
 import aws.smithy.kotlin.runtime.content.decodeToString
 import aws.smithy.kotlin.runtime.content.toByteArray
 import aws.smithy.kotlin.runtime.content.writeToFile
@@ -21,12 +23,13 @@ import io.bluetape4k.aws.kotlin.s3.model.getObjectRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.getObjectRetentionRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.headObjectRequestOf
 import io.bluetape4k.coroutines.flow.async
+import io.bluetape4k.coroutines.flow.collect as collectAsync
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import java.io.OutputStream
 import java.nio.file.Path
 import kotlin.time.Duration
@@ -34,6 +37,9 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * [bucket]의 [key]에 해당하는 객체가 존재하는지 확인합니다.
+ *
+ * 존재하지 않는 객체(`NoSuchKey`/`NotFound`/HTTP `404`)만 `false`로 정규화하고,
+ * 인증 실패/네트워크 오류 등 다른 예외는 그대로 전파합니다.
  *
  * ```
  * val exists = s3Client.existsObject("bucket-name", "key")
@@ -45,7 +51,12 @@ suspend inline fun S3Client.existsObject(
     @BuilderInference crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
 ): Boolean {
     val request = headObjectRequestOf(bucket, key, builder = builder)
-    return runCatching { headObject(request); true }.isSuccess
+    return runCatching {
+        headObject(request)
+        true
+    }.recover { error ->
+        if (error.isMissingObjectError()) false else throw error
+    }.getOrThrow()
 }
 
 /**
@@ -226,13 +237,14 @@ suspend inline fun S3Client.getAsOutputStream(
 fun S3Client.getAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg getObjectRequests: GetObjectRequest,
-): Flow<GetObjectResponse> = callbackFlow {
-    getObjectRequests
+): Flow<GetObjectResponse> = flow {
+    val asyncFlow = getObjectRequests
         .asFlow()
         .async { request ->
-            val response = getObject(request) { it }
-            send(response)
+            getObject(request) { it }
         }
+
+    asyncFlow.collectAsync(concurrency) { response -> emit(response) }
 }
 
 /**
@@ -343,4 +355,12 @@ suspend inline fun S3Client.tryGetBucketPolicy(
             builder()
         }.policy
     }.getOrNull()
+}
+
+@PublishedApi
+internal fun Throwable.isMissingObjectError(): Boolean {
+    val serviceError = this as? ServiceException ?: return false
+    val errorCode = serviceError.sdkErrorMetadata.errorCode
+    val statusCode = serviceError.sdkErrorMetadata.protocolResponse.statusCode()?.value
+    return errorCode in setOf("NoSuchKey", "NotFound") || statusCode == 404
 }

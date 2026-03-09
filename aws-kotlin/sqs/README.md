@@ -92,6 +92,15 @@ receiveResponse.messages?.forEach { message ->
 }
 ```
 
+## 입력 검증(안정성)
+
+- `existsQueue`는 `QueueDoesNotExist`/`ResourceNotFoundException`/HTTP `404`를 큐 미존재로 해석해 `false`를 반환하고,
+  그 외 예외(권한/네트워크 등)는 그대로 전파합니다.
+- `receiveMessageRequestOf`의 `waitTimeSeconds` 기본값은 `20`초이며 허용 범위는 `0..20`입니다.
+- `receiveMessage`의 `maxNumberOfMessages`는 지정 시 `1..10` 범위를 강제합니다.
+- `sendMessage`는 blank `messageBody`를 허용하지 않습니다.
+- 배치 API(`sendMessageBatch`, `changeMessageVisibilityBatch`, `deleteMessageBatch`)는 빈 엔트리를 허용하지 않습니다.
+
 ### 배치 작업
 
 ```kotlin

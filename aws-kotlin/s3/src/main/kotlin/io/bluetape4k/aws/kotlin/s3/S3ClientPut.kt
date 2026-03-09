@@ -8,11 +8,12 @@ import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
 import io.bluetape4k.aws.kotlin.s3.model.putObjectRequestOf
 import io.bluetape4k.coroutines.flow.async
+import io.bluetape4k.coroutines.flow.collect as collectAsync
 import io.bluetape4k.io.exists
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.nio.file.Path
 
@@ -169,11 +170,12 @@ suspend inline fun S3Client.putFromPath(
 fun S3Client.putAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg putRequests: PutObjectRequest,
-): Flow<PutObjectResponse> = callbackFlow {
-    putRequests
+): Flow<PutObjectResponse> = flow {
+    val asyncFlow = putRequests
         .asFlow()
-        .async {
-            val putResponse = putObject(it)
-            send(putResponse)
+        .async { request ->
+            putObject(request)
         }
+
+    asyncFlow.collectAsync(concurrency) { putResponse -> emit(putResponse) }
 }

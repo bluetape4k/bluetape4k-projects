@@ -9,6 +9,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import kotlin.test.assertFailsWith
 
 /**
  * AWS Kotlin SDK [aws.sdk.kotlin.services.sts.StsClient] 확장 함수 테스트.
@@ -67,5 +68,25 @@ class StsClientTest: AbstractKotlinStsTest() {
         response.credentials!!.accessKeyId.shouldNotBeNull().shouldNotBeBlank()
         response.credentials!!.secretAccessKey.shouldNotBeNull().shouldNotBeBlank()
         response.credentials!!.sessionToken.shouldNotBeNull().shouldNotBeBlank()
+    }
+
+    @Test
+    @Order(5)
+    fun `AssumeRole durationSeconds 범위 검증`() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            client.assumeRole(
+                roleArn = "arn:aws:iam::000000000000:role/TestRole",
+                sessionName = "invalid-session",
+                durationSeconds = 899,
+            )
+        }
+    }
+
+    @Test
+    @Order(6)
+    fun `GetSessionToken durationSeconds 범위 검증`() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            client.getSessionToken(durationSeconds = 899)
+        }
     }
 }
