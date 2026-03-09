@@ -10,6 +10,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 
@@ -64,5 +65,25 @@ class StsAsyncClientCoroutinesExtensionsTest: AbstractStsTest() {
         response.credentials().accessKeyId().shouldNotBeBlank()
         response.credentials().secretAccessKey().shouldNotBeBlank()
         response.credentials().sessionToken().shouldNotBeBlank()
+    }
+
+    @Test
+    @Order(4)
+    fun `코루틴 AssumeRole durationSeconds 범위 검증`() = runTest {
+        assertThrows<IllegalArgumentException> {
+            asyncClient.assumeRole(
+                roleArn = "arn:aws:iam::000000000000:role/TestRole",
+                sessionName = "invalid-coroutine-session",
+                durationSeconds = 899,
+            )
+        }
+    }
+
+    @Test
+    @Order(5)
+    fun `코루틴 GetSessionToken durationSeconds 범위 검증`() = runTest {
+        assertThrows<IllegalArgumentException> {
+            asyncClient.getSessionToken(durationSeconds = 899)
+        }
     }
 }

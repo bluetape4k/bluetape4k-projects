@@ -8,6 +8,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 
@@ -63,5 +64,25 @@ class StsClientTest: AbstractStsTest() {
         response.credentials().accessKeyId().shouldNotBeBlank()
         response.credentials().secretAccessKey().shouldNotBeBlank()
         response.credentials().sessionToken().shouldNotBeBlank()
+    }
+
+    @Test
+    @Order(4)
+    fun `AssumeRole durationSeconds 범위 검증`() {
+        assertThrows<IllegalArgumentException> {
+            client.assumeRole(
+                roleArn = "arn:aws:iam::000000000000:role/TestRole",
+                sessionName = "invalid-session",
+                durationSeconds = 899,
+            )
+        }
+    }
+
+    @Test
+    @Order(5)
+    fun `GetSessionToken durationSeconds 범위 검증`() {
+        assertThrows<IllegalArgumentException> {
+            client.getSessionToken(durationSeconds = 899)
+        }
     }
 }

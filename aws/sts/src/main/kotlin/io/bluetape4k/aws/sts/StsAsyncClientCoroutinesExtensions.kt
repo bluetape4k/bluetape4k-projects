@@ -25,6 +25,7 @@ suspend fun StsAsyncClient.getDefaultCallerIdentity(): GetCallerIdentityResponse
  *
  * ## 동작/계약
  * - 내부적으로 [assumeRoleAsync]를 호출한 뒤 `await()`로 완료를 기다린다.
+ * - [durationSeconds]는 900~43200 범위를 만족해야 하며, 검증 실패 시 [IllegalArgumentException]을 던진다.
  *
  * ```kotlin
  * val response = stsAsyncClient.assumeRole(
@@ -46,6 +47,7 @@ suspend fun StsAsyncClient.assumeRole(
  *
  * ## 동작/계약
  * - 내부적으로 [getSessionTokenAsync]를 호출한 뒤 `await()`로 완료를 기다린다.
+ * - [durationSeconds]는 900~129600 범위를 만족해야 하며, 검증 실패 시 [IllegalArgumentException]을 던진다.
  *
  * ```kotlin
  * val response = stsAsyncClient.getSessionToken()

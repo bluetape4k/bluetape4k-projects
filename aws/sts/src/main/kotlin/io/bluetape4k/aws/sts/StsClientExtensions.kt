@@ -30,7 +30,8 @@ fun StsClient.getDefaultCallerIdentity(): GetCallerIdentityResponse {
  * ## 동작/계약
  * - [roleArn]은 맡을 IAM 역할의 ARN이다.
  * - [sessionName]은 세션 이름으로, 감사 로그에 기록된다.
- * - [durationSeconds]는 임시 자격 증명의 유효 시간(초)이다. 기본값은 3600초(1시간)이다.
+ * - [durationSeconds]는 임시 자격 증명의 유효 시간(초)이다.
+ * - [durationSeconds]는 900~43200 범위여야 하며, 범위를 벗어나면 [IllegalArgumentException]을 던진다.
  *
  * ```kotlin
  * val response = stsClient.assumeRole(
@@ -45,6 +46,8 @@ fun StsClient.assumeRole(
     sessionName: String,
     durationSeconds: Int = 3600,
 ): AssumeRoleResponse {
+    requireValidAssumeRoleDuration(durationSeconds)
+
     val request = assumeRoleRequestOf(roleArn, sessionName) {
         durationSeconds(durationSeconds)
     }
@@ -55,7 +58,8 @@ fun StsClient.assumeRole(
  * MFA 인증 기반의 임시 세션 자격 증명을 반환합니다.
  *
  * ## 동작/계약
- * - [durationSeconds]는 임시 자격 증명의 유효 시간(초)이다. 기본값은 3600초(1시간)이다.
+ * - [durationSeconds]는 임시 자격 증명의 유효 시간(초)이다.
+ * - [durationSeconds]는 900~129600 범위여야 하며, 범위를 벗어나면 [IllegalArgumentException]을 던진다.
  *
  * ```kotlin
  * val response = stsClient.getSessionToken()
@@ -65,6 +69,8 @@ fun StsClient.assumeRole(
 fun StsClient.getSessionToken(
     durationSeconds: Int = 3600,
 ): GetSessionTokenResponse {
+    requireValidSessionTokenDuration(durationSeconds)
+
     val request = getSessionTokenRequest {
         durationSeconds(durationSeconds)
     }

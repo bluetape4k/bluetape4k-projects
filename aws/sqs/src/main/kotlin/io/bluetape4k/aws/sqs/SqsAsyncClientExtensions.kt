@@ -26,6 +26,9 @@ import software.amazon.awssdk.services.sqs.model.SendMessageResponse
 import java.net.URI
 import java.util.concurrent.CompletableFuture
 
+private const val MIN_RECEIVE_MESSAGES = 1
+private const val MAX_RECEIVE_MESSAGES = 10
+
 /**
  * Create [SqsAsyncClient] instance
  * 사용 후에는 꼭 `close()`를 호출하거나 , `use` 를 사용해서 cleanup 해주어야 합니다.
@@ -92,34 +95,52 @@ fun SqsAsyncClient.sendAsync(
     return sendMessage(sendMessageRequestOf(queueUrl, messageBody, delaySeconds))
 }
 
+/**
+ * 메시지를 배치로 비동기 전송합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.sendBatchAsync(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
 ): CompletableFuture<SendMessageBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return sendMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 메시지를 배치로 비동기 전송합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.sendBatchAsync(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
 ): CompletableFuture<SendMessageBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return sendMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
     }
 }
 
+/**
+ * 큐에서 메시지를 비동기로 조회합니다.
+ *
+ * [maxResults]를 지정하면 SQS 제약(1..10)을 선검증해 네트워크 호출 전에 실패합니다.
+ */
 fun SqsAsyncClient.receiveMessagesAsync(
     queueUrl: String,
     maxResults: Int? = null,
     @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): CompletableFuture<ReceiveMessageResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    maxResults?.let { validateReceiveMessageCount(it) }
     return receiveMessage {
         it.queueUrl(queueUrl)
         maxResults?.run { it.maxNumberOfMessages(this) }
@@ -140,22 +161,34 @@ fun SqsAsyncClient.changeMessageVisibilityAsync(
     }
 }
 
+/**
+ * 메시지 가시성 타임아웃을 배치로 비동기 변경합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.changeMessageVisibilityBatchAsync(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
 ): CompletableFuture<ChangeMessageVisibilityBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return changeMessageVisibilityBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 메시지 가시성 타임아웃을 배치로 비동기 변경합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.changeMessageVisibilityBatchAsync(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
 ): CompletableFuture<ChangeMessageVisibilityBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return changeMessageVisibilityBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
@@ -173,22 +206,34 @@ fun SqsAsyncClient.deleteMessageAsync(
     }
 }
 
+/**
+ * 메시지를 배치로 비동기 삭제합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.deleteMessageBatchAsync(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
 ): CompletableFuture<DeleteMessageBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return deleteMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(*entries)
     }
 }
 
+/**
+ * 메시지를 배치로 비동기 삭제합니다.
+ *
+ * [entries]가 비어 있으면 네트워크 호출 전에 [IllegalArgumentException]을 던집니다.
+ */
 fun SqsAsyncClient.deleteMessageBatchAsync(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
 ): CompletableFuture<DeleteMessageBatchResponse> {
     queueUrl.requireNotBlank("queueUrl")
+    require(entries.isNotEmpty()) { "entries must not be empty" }
     return deleteMessageBatch {
         it.queueUrl(queueUrl)
         it.entries(entries)
@@ -199,5 +244,11 @@ fun SqsAsyncClient.deleteQueueAsync(queueUrl: String): CompletableFuture<DeleteQ
     queueUrl.requireNotBlank("queueUrl")
     return deleteQueue {
         it.queueUrl(queueUrl)
+    }
+}
+
+private fun validateReceiveMessageCount(maxResults: Int) {
+    require(maxResults in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {
+        "maxResults must be in $MIN_RECEIVE_MESSAGES..$MAX_RECEIVE_MESSAGES, but was $maxResults"
     }
 }
