@@ -17,7 +17,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kinesis.KinesisClient
@@ -35,9 +34,9 @@ class KinesisTest: AbstractContainerTest() {
     }
 
     private val kinesisServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.KINESIS)
+        LocalStackServer.Launcher.localStack.withServices("kinesis")
     }
-    private val endpoint: URI get() = kinesisServer.getEndpointOverride(LocalStackContainer.Service.KINESIS)
+    private val endpoint: URI get() = kinesisServer.endpoint
 
     private val kinesisClient: KinesisClient by lazy {
         KinesisClient.builder()

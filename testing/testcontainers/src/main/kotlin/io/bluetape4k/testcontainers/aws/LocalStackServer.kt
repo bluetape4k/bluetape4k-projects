@@ -6,8 +6,8 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
@@ -17,34 +17,17 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
  *
  * ```
  * // Run S3 Server
- * val s3Server = LocalStackServer().withServices(Service.S3).start()
+ * val s3Server = LocalStackServer().start()
  * ```
  *
  * ```
  * val server = LocalStackServer()
  *    .withNetwork(network)
  *    .withNetworkAliases("notthis", "localstack")
- *    .withServices(Service.S3, Service.SQS, Service.CLOUDWATCHLOGS)
  *    .start()
  * ```
  *
  * [Locakstack docker image](https://hub.docker.com/r/localstack/localstack/tags)
- *
- * ## NOTE: colima 를 사용 시 다음과 같이 설정해주세요.
- *
- * .zshrc 파일에 다음과 같이 docker.sock 을 설정해주세요.
- * ```bash
- * # Colima
- * export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
- * export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="$HOME/.colima/docker.sock"
- * export TESTCONTAINERS_RYUK_DISABLED=true
- * ```
- *
- * 다음으로, `~/.colima` 디랙토리에 `docker.sock` 파일이 있다면 삭제해주세요. `LocalStackServer`를 사용할 때 새로 생성합니다.
- *
- * ```bash
- * rm -rf ~/.colima/docker.sock
- * ```
  */
 class LocalStackServer private constructor(
     imageName: DockerImageName,
@@ -111,13 +94,14 @@ class LocalStackServer private constructor(
         }
     }
 
+    override fun withServices(vararg services: String): LocalStackServer {
+        super.withServices(*services.map { it.lowercase() }.toTypedArray())
+        return this
+    }
+
     override fun start() {
         super.start()
         writeToSystemProperties(NAME)
-    }
-
-    override fun withServices(vararg services: Service): LocalStackServer = apply {
-        super.withServices(*services)
     }
 
     /**

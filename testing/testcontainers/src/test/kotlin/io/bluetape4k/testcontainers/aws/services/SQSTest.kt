@@ -11,7 +11,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
@@ -25,9 +24,9 @@ class SQSTest: AbstractContainerTest() {
     }
 
     private val sqsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.SQS)
+        LocalStackServer.Launcher.localStack.withServices("sqs")
     }
-    private val endpoint: URI get() = sqsServer.getEndpointOverride(LocalStackContainer.Service.SQS)
+    private val endpoint: URI get() = sqsServer.endpoint
     private val region get() = Region.of(sqsServer.region)
 
     private val sqsClient: SqsClient by lazy {

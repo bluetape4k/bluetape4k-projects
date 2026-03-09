@@ -12,7 +12,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sts.StsClient
 import java.net.URI
@@ -23,9 +22,9 @@ class STSTest: AbstractContainerTest() {
     companion object: KLogging()
 
     private val stsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.STS)
+        LocalStackServer.Launcher.localStack.withServices("sts")
     }
-    private val endpoint: URI get() = stsServer.getEndpointOverride(LocalStackContainer.Service.STS)
+    private val endpoint: URI get() = stsServer.endpoint
 
     private val stsClient: StsClient by lazy {
         StsClient.builder()

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -33,9 +32,9 @@ class S3Test: AbstractContainerTest() {
     }
 
     private val s3Server: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.S3)
+        LocalStackServer.Launcher.localStack.withServices("s3")
     }
-    private val endpoint: URI get() = s3Server.getEndpointOverride(LocalStackContainer.Service.S3)
+    private val endpoint: URI get() = s3Server.endpoint
 
     private val s3Client by lazy {
         S3Client.builder()

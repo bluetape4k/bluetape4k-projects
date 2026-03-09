@@ -16,7 +16,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
@@ -37,9 +36,9 @@ class KMSTest: AbstractContainerTest() {
     companion object: KLogging()
 
     private val kmsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.KMS)
+        LocalStackServer.Launcher.localStack.withServices("kms")
     }
-    private val endpoint: URI get() = kmsServer.getEndpointOverride(LocalStackContainer.Service.KMS)
+    private val endpoint: URI get() = kmsServer.endpoint
 
     private val kmsClient: KmsClient by lazy {
         KmsClient.builder()

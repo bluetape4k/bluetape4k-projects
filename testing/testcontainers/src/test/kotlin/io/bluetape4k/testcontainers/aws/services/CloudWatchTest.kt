@@ -14,7 +14,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.http.apache.ApacheHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient
@@ -36,17 +35,14 @@ class CloudWatchTest: AbstractContainerTest() {
 
     private val cloudWatch: LocalStackServer by lazy {
         LocalStackServer.Launcher.localStack
-            .withServices(
-                LocalStackContainer.Service.CLOUDWATCH,
-                LocalStackContainer.Service.CLOUDWATCHLOGS
-            )
+            .withServices("clowdwatch", "cloudwatchlogs")
     }
 
     private val cloudWatchEndpoint: URI
-        get() = cloudWatch.getEndpointOverride(LocalStackContainer.Service.CLOUDWATCH)
+        get() = cloudWatch.endpoint
 
     private val cloudWatchLogsEndpoint: URI
-        get() = cloudWatch.getEndpointOverride(LocalStackContainer.Service.CLOUDWATCHLOGS)
+        get() = cloudWatch.endpoint
 
     private val cloudWatchClient by lazy {
         CloudWatchClient.builder()

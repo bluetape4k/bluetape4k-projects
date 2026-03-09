@@ -13,7 +13,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sns.SnsClient
 import java.net.URI
@@ -26,9 +25,9 @@ class SNSTest: AbstractContainerTest() {
     }
 
     private val snsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.SNS)
+        LocalStackServer.Launcher.localStack.withServices("sns")
     }
-    private val endpoint: URI get() = snsServer.getEndpointOverride(LocalStackContainer.Service.SNS)
+    private val endpoint: URI get() = snsServer.endpoint
 
     private val snsClient: SnsClient by lazy {
         SnsClient.builder()

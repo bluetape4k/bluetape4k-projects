@@ -10,7 +10,6 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.Network
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -36,14 +35,14 @@ class LocalStackServerTest: AbstractContainerTest() {
 
     @Test
     fun `run S3 Service`() {
-        LocalStackServer().withServices(LocalStackContainer.Service.S3).use { server ->
+        LocalStackServer().withServices("S3").use { server ->
             server.start()
 
             // AWS SDK V2 사용
             val credentialProvider = server.getCredentialProvider()
 
             val s3Client = S3Client.builder()
-                .endpointOverride(server.getEndpointOverride(LocalStackContainer.Service.S3))
+                .endpointOverride(server.endpoint)
                 .region(Region.of(server.region))
                 .credentialsProvider(credentialProvider)
                 .build()
@@ -83,7 +82,6 @@ class LocalStackServerTest: AbstractContainerTest() {
             LocalStackServer()
                 .withNetwork(network)
                 .withNetworkAliases("notthis", "localstack")
-                .withServices(LocalStackContainer.Service.CLOUDWATCH, LocalStackContainer.Service.CLOUDWATCHLOGS)
                 .use { server ->
                     server.start()
                     server.isRunning.shouldBeTrue()

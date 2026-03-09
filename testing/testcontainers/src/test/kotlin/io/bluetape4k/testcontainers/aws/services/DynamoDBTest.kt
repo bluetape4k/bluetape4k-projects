@@ -15,7 +15,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 import software.amazon.awssdk.enhanced.dynamodb.internal.client.ExtensionResolver
 import software.amazon.awssdk.regions.Region
@@ -42,9 +41,9 @@ class DynamoDBTest: AbstractContainerTest() {
     }
 
     private val dynamodb: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.DYNAMODB)
+        LocalStackServer.Launcher.localStack.withServices("dynamodb")
     }
-    private val endpoint: URI get() = dynamodb.getEndpointOverride(LocalStackContainer.Service.DYNAMODB)
+    private val endpoint: URI get() = dynamodb.endpoint
 
     private val client by lazy {
         DynamoDbClient.builder()
