@@ -130,7 +130,8 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 #### I/O Modules (`io/`)
 
-- **io**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 — Tink 기반 `TinkEncryptSink`/`TinkDecryptSource` (Jasypt `EncryptSink`/`DecryptSource`, `FinalizingCipherSink`/`StreamingCipherSource` Deprecated)
+- **io**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory)
+- **okio**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines(Suspended I/O), Jasypt/Tink 암호화 Sink/Source
 - **json**: JSON 처리
 - **jackson**: Jackson 2.x 통합
 - **jackson3**: Jackson 3.x 통합

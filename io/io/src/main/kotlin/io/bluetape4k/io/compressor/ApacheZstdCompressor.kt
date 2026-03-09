@@ -2,7 +2,6 @@ package io.bluetape4k.io.compressor
 
 import com.github.luben.zstd.Zstd
 import io.bluetape4k.io.compressor.ApacheZstdCompressor.Companion.DEFAULT_LEVEL
-import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream
@@ -65,7 +64,7 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             ZstdCompressorInputStream(input).use { zstd ->
-                bufferOf(zstd).readByteArray()
+                Buffer().readFrom(zstd).readByteArray()
             }
         }
     }
