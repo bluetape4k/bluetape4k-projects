@@ -12,7 +12,12 @@ import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CancellationException
 
 /**
- * 로컬 환경에서 Rate Limiter 를 적용하는 Coroutine Rate Limiter 구현체
+ * 로컬 메모리 버킷에 대해 즉시 소비 시도를 수행하는 coroutine rate limiter 구현체입니다.
+ *
+ * ## 동작/계약
+ * - [consume]은 대기 없이 즉시 소비 가능 여부를 판정합니다.
+ * - 내부적으로 `tryConsumeAndReturnRemaining`을 사용해 소비 결과와 잔여 토큰을 한 번에 계산합니다.
+ * - `CancellationException`은 그대로 전파하고, 그 외 런타임 오류는 [RateLimitResult.error]로 변환합니다.
  *
  * ```
  * val rateLimiter = LocalSuspendRateLimiter(bucketProvider)
@@ -55,11 +60,7 @@ class LocalSuspendRateLimiter(
 
         return try {
             val bucketProxy: SuspendLocalBucket = bucketProvider.resolveBucket(key)
-            toRateLimitResult(
-                bucketProxy.tryConsume(numToken),
-                numToken,
-                bucketProxy.availableTokens
-            )
+            toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken), numToken)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

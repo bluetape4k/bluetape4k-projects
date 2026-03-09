@@ -7,7 +7,12 @@ import io.github.bucket4j.local.LocalBucket
 import io.github.bucket4j.local.SynchronizationStrategy
 
 /**
- * Custom Key 기반 (예: userId) 으로 [LocalBucket]을 제공합니다.
+ * Custom key 기반(예: `userId`, `tenantId`)으로 [LocalBucket]을 제공하는 provider 입니다.
+ *
+ * ## 동작/계약
+ * - in-memory bucket을 key별 캐시에 보관합니다.
+ * - 기본 구현은 lock-free synchronization 전략과 millisecond precision을 사용합니다.
+ * - 같은 key를 재조회하면 동일한 로컬 버킷 상태를 공유합니다.
  *
  * ```
  * val bucketProvider = LocalBucketProvider(bucketConfiguration)
@@ -32,9 +37,9 @@ open class LocalBucketProvider(
     companion object: KLogging()
 
     /**
-     * Local에서 사용하는 [LocalBucket] 을 생성합니다.
+     * Local에서 사용하는 [LocalBucket]을 생성합니다.
      *
-     * @return [LocalBucket]을 반환합니다.
+     * lock-free synchronization 전략을 사용해 단일 JVM 내 높은 처리량을 우선합니다.
      */
     override fun createBucket(): LocalBucket {
         val builder = Bucket.builder()

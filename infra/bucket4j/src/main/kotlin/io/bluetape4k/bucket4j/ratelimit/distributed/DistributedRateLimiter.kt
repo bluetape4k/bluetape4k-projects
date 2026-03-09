@@ -10,7 +10,12 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 
 /**
- * 분산 환경에서 Rate Limiter 를 적용하는 Rate Limiter 구현체
+ * 분산 버킷에 대해 즉시 소비 시도를 수행하는 동기 rate limiter 구현체입니다.
+ *
+ * ## 동작/계약
+ * - Redis 등 분산 저장소를 사용하는 [BucketProxyProvider] 기반 버킷에서 토큰을 소비합니다.
+ * - 내부적으로 `tryConsumeAndReturnRemaining`을 사용해 소비 결과와 잔여 토큰을 한 번에 계산합니다.
+ * - 입력 검증 실패는 예외로 처리하고, 분산 저장소 장애는 [RateLimitResult.error]로 변환합니다.
  *
  * ```
  * val rateLimiter = DistributedRateLimiter(bucketProxyProvider)
@@ -51,7 +56,7 @@ class DistributedRateLimiter(
 
         return try {
             val bucketProxy = bucketProxyProvider.resolveBucket(key)
-            toRateLimitResult(bucketProxy.tryConsume(numToken), numToken, bucketProxy.availableTokens)
+            toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken), numToken)
         } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
             RateLimitResult.error(e)

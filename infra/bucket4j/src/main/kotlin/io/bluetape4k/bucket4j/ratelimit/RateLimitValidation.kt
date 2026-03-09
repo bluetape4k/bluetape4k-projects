@@ -2,6 +2,7 @@
 
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.github.bucket4j.ConsumptionProbe
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireNotBlank
 
@@ -26,5 +27,16 @@ internal inline fun toRateLimitResult(
         RateLimitResult.consumed(requestedTokens, availableTokens)
     } else {
         RateLimitResult.rejected(availableTokens)
+    }
+}
+
+internal inline fun toRateLimitResult(
+    probe: ConsumptionProbe,
+    requestedTokens: Long,
+): RateLimitResult {
+    return if (probe.isConsumed) {
+        RateLimitResult.consumed(requestedTokens, probe.remainingTokens)
+    } else {
+        RateLimitResult.rejected(probe.remainingTokens)
     }
 }
