@@ -13,7 +13,7 @@ import kotlin.system.measureTimeMillis
 class MultithreadingTesterTest {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 5
+        private const val LARGE_ROUNDS = 2_000
     }
 
     @Test
@@ -113,6 +113,21 @@ class MultithreadingTesterTest {
                 .add(CountingTask())
                 .run()
         }
+    }
+
+    @Test
+    fun `큰 rounds 값에서도 모든 실행 단위를 누락 없이 처리한다`() {
+        val block1 = CountingTask()
+        val block2 = CountingTask()
+
+        MultithreadingTester()
+            .workers(4)
+            .rounds(LARGE_ROUNDS)
+            .addAll(block1, block2)
+            .run()
+
+        val total = block1.count + block2.count
+        total shouldBeEqualTo 4 * LARGE_ROUNDS
     }
 
     private class CountingTask: () -> Unit {

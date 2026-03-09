@@ -1,5 +1,6 @@
 package io.bluetape4k.junit5.coroutines
 
+import io.bluetape4k.junit5.utils.MultiException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
@@ -7,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
@@ -79,6 +81,30 @@ class SuspendedJobTesterTest {
 
         block1.count shouldBeEqualTo 4
         block2.count shouldBeEqualTo 4
+    }
+
+    @Test
+    fun `라운드가 커도 실행 횟수 계약을 유지한다`() = runTest {
+        val count = AtomicInteger(0)
+
+        SuspendedJobTester()
+            .workers(7)
+            .rounds(50_000)
+            .add { count.incrementAndGet() }
+            .run()
+
+        count.get() shouldBeEqualTo 50_000
+    }
+
+    @Test
+    fun `복수 라운드에서 발생한 예외는 MultiException으로 수집된다`() = runTest {
+        assertFailsWith<MultiException> {
+            SuspendedJobTester()
+                .workers(4)
+                .rounds(3)
+                .add { throw IllegalStateException("boom") }
+                .run()
+        }
     }
 
     @Test
