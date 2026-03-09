@@ -36,6 +36,7 @@ internal const val SERVER_PREFIX = "testcontainers"
  * - `name`이 blank이면 [IllegalArgumentException]이 발생합니다.
  * - `${testcontainers.$name.host|port|url}` 기본 속성을 항상 기록합니다.
  * - `extraProps`의 null 값은 무시하고 non-null 값만 문자열로 기록합니다.
+ * - 속성은 계산된 스냅샷을 기준으로 순서 있게 일괄 적용됩니다.
  * - JVM 전역 System Property를 변경하므로 테스트 종료 후 정리가 필요할 수 있습니다.
  *
  * ```kotlin
@@ -47,28 +48,23 @@ fun <T: GenericServer> T.writeToSystemProperties(name: String, extraProps: Map<S
     require(name.isNotBlank()) { "Server name must not be blank." }
     log.info { "Setup Server properties ..." }
 
-    System.setProperty("$SERVER_PREFIX.$name.host", this.host)
-    System.setProperty("$SERVER_PREFIX.$name.port", this.port.toString())
-    System.setProperty("$SERVER_PREFIX.$name.url", this.url)
-
+    val baseKey = "$SERVER_PREFIX.$name"
+    val properties = linkedMapOf(
+        "$baseKey.host" to host,
+        "$baseKey.port" to port.toString(),
+        "$baseKey.url" to url,
+    )
     extraProps.forEach { (key, value) ->
-        value?.run {
-            System.setProperty("$SERVER_PREFIX.$name.$key", this.toString())
-        }
+        value?.let { properties["$baseKey.$key"] = it.toString() }
     }
+    properties.forEach { (key, value) -> System.setProperty(key, value) }
 
     log.info {
         buildString {
             appendLine()
             appendLine("Start $name Server:")
-            appendLine("\t$SERVER_PREFIX.$name.host=$host")
-            appendLine("\t$SERVER_PREFIX.$name.port=$port")
-            appendLine("\t$SERVER_PREFIX.$name.url=$url")
-
-            extraProps.forEach { (key, value) ->
-                value?.let {
-                    appendLine("\t$SERVER_PREFIX.$name.$key=$it")
-                }
+            properties.forEach { (key, value) ->
+                appendLine("\t$key=$value")
             }
         }
     }

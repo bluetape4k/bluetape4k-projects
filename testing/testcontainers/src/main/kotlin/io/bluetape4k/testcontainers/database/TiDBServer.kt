@@ -12,9 +12,17 @@ import org.testcontainers.utility.DockerImageName
  * 분산형 RDBMS인 PingCAP 의 [TiDB](https://www.pingcap.com/tidb/) 테스트용으로 사용할 수 있는 컨테이너를 제공한다.
  * MySQL과 호환됩니다.
  *
+ * @deprecated Testcontainers 2.x에서 TiDB 모듈이 제공되지 않아 유지보수 대상에서 제외되었습니다.
+ * 대체가 필요하면 `GenericContainer`로 직접 구성하거나, MySQL 호환 테스트는 [MySQL8Server] 사용을 권장합니다.
+ *
  * - 참고: [TiDB](https://www.pingcap.com/tidb/)
  * - 참고: [TiDB Docker](https://hub.docker.com/r/pingcap/tidb)
  */
+@Deprecated(
+    message = "Testcontainers 2.x에서 TiDB 모듈이 제공되지 않아 deprecated 되었습니다. GenericContainer 또는 MySQL8Server 사용을 권장합니다.",
+    replaceWith = ReplaceWith("MySQL8Server(useDefaultPort, reuse)"),
+    level = DeprecationLevel.WARNING
+)
 class TiDBServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,

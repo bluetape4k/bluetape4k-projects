@@ -1,15 +1,22 @@
 # Module bluetape4k-testcontainers
 
-Testcontainers 기반 통합 테스트를 빠르게 구성하기 위한 서버 래퍼/유틸 라이브러리입니다.
+Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 서버 래퍼/유틸 라이브러리입니다.
 
 ## 주요 기능
 
-- **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, Cockroach, ClickHouse, TiDB
+- **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, Cockroach, ClickHouse, TiDB(Deprecated)
 - **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elastic/OpenSearch, MinIO
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper
 - **AWS LocalStack 지원**: S3, DynamoDB 등 로컬 테스트 환경 구성
 - **Container 유틸**: 공통 GenericServer/GenericContainer 확장
+
+## 최근 안정성 개선
+
+- `GenericContainer.exposeCustomPorts(...)`가 `hostConfig`가 비어 있는 경우에도 포트 바인딩을 생성하도록 보강되었습니다.
+- `GenericServer.writeToSystemProperties(...)`는 기본/추가 속성을 일관된 순서로 구성하여 일괄 등록합니다.
+- `KafkaServer.Launcher`의 문자열 producer/consumer 생성 시 serializer/deserializer 인스턴스를 호출마다 새로 생성해 `close()` 이후 재사용 이슈를 방지합니다.
+- `TiDBServer`는 Testcontainers 2.x 미지원으로 deprecated 처리되었으며, 신규 테스트에서는 `GenericContainer` 또는 `MySQL8Server` 사용을 권장합니다.
 
 ## 직접 Testcontainers 사용 대비 추가 기능
 
