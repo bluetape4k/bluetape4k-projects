@@ -74,7 +74,8 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[csv](./io/csv/README.md)**: CSV 처리
 - **[feign](./io/feign/README.md)**: Feign HTTP 클라이언트 (Coroutines 지원)
 - **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP 클라이언트 (Coroutines 지원)
-- **[grpc](./io/grpc/README.md)**: gRPC 지원
+- **[protobuf](./io/protobuf/README.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
+- **[grpc](./io/grpc/README.md)**: gRPC 서버/클라이언트 추상화 (`bluetape4k-protobuf` 포함)
 - ~~**[crypto](./io/crypto/README.md)**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
 - **[tink](./io/tink/README.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor (`TinkEncryptor`), Okio `TinkEncryptSink`/`TinkDecryptSource`
 - **[http](./io/http/README.md)**: HTTP 유틸리티

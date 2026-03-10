@@ -7,7 +7,7 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | 기능                              | 설명                                                               |
 |---------------------------------|------------------------------------------------------------------|
 | `RedissonClientSupport`         | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리           |
-| `RedissonCodecs`                | 직렬화(Kryo5/Fory/Jdk/Protobuf) × 압축(GZip/LZ4/Snappy/Zstd) Codec 목록 |
+| `RedissonCodecs`                | 직렬화(Kryo5/Fory/Jdk/Protobuf) × 압축(GZip/LZ4/Snappy/Zstd) Codec 목록 (`bluetape4k-protobuf` 필요) |
 | `RFutureSupport`                | `RFuture` → `awaitSuspending()` Coroutines 어댑터                   |
 | `RedissonMemorizer`             | Redis `RMap` 기반 함수 결과 메모이제이션 (sync)                              |
 | `AsyncRedissonMemorizer`        | `RFuture` 기반 비동기 메모이제이션                                          |
