@@ -53,7 +53,7 @@ fun configFromYamlOf(url: URL, codec: Codec = RedissonCodecs.Default): Config {
  * - 호출마다 새 클라이언트 인스턴스를 생성합니다.
  *
  * ```kotlin
- * val client = redissonClient { useSingleServer().address = RedisConst.DEFAULT_URL }
+ * val client = redissonClient { useSingleServer().address = RedissonConst.DEFAULT_URL }
  * // client != null
  * ```
  */
@@ -74,7 +74,7 @@ fun redissonClientOf(config: Config): RedissonClient {
  * - 내부적으로 [redissonReactiveClientOf]에 위임합니다.
  *
  * ```kotlin
- * val reactive = redissonReactiveClient { useSingleServer().address = RedisConst.DEFAULT_URL }
+ * val reactive = redissonReactiveClient { useSingleServer().address = RedissonConst.DEFAULT_URL }
  * // reactive != null
  * ```
  */

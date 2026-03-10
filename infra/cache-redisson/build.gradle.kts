@@ -8,7 +8,8 @@ dependencies {
 
     // Redisson JCache provider
     api(Libs.redisson)
-    api(project(":bluetape4k-redis"))
+    api(project(":bluetape4k-redisson"))
+    api(project(":bluetape4k-lettuce"))   // RESP3 NearCache에서 Lettuce 사용
 
     // RESP3 CLIENT TRACKING invalidation 전용 (데이터 연산은 Redisson 사용)
     implementation(Libs.lettuce_core)

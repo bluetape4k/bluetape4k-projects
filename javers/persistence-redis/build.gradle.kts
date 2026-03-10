@@ -21,9 +21,8 @@ dependencies {
     testImplementation(project(path = ":bluetape4k-javers-core", configuration = "testJar"))
 
     // Redis
-    api(project(":bluetape4k-redis"))
-    compileOnly(Libs.lettuce_core)
-    compileOnly(Libs.redisson)
+    compileOnly(project(":bluetape4k-lettuce"))
+    compileOnly(project(":bluetape4k-redisson"))
 
     // Codec
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
