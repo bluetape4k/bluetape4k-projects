@@ -1,6 +1,7 @@
 package io.bluetape4k.leader.local
 
 import io.bluetape4k.leader.AsyncLeaderElection
+import io.bluetape4k.leader.LeaderElectionOptions
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
@@ -24,7 +25,9 @@ import kotlin.concurrent.withLock
  * // result == "done"
  * ```
  */
-class LocalAsyncLeaderElection : AbstractLocalLeaderElection(), AsyncLeaderElection {
+class LocalAsyncLeaderElection(
+    options: LeaderElectionOptions = LeaderElectionOptions.Default,
+): AbstractLocalLeaderElection(options), AsyncLeaderElection {
 
     /**
      * [lockName]에 대한 [ReentrantLock]을 획득하고 [action]을 [executor]에서 비동기로 실행합니다.

@@ -1,8 +1,10 @@
 package io.bluetape4k.leader.coroutines
 
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import java.util.concurrent.ConcurrentHashMap
@@ -32,13 +34,16 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
  */
-class LocalSuspendLeaderGroupElection private constructor(override val maxLeaders: Int = 2):
-    SuspendLeaderGroupElection {
+class LocalSuspendLeaderGroupElection private constructor(
+    options: LeaderGroupElectionOptions,
+): SuspendLeaderGroupElection {
 
-    companion object : KLogging() {
-        operator fun invoke(maxLeaders: Int = 2): LocalSuspendLeaderGroupElection {
-            require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
-            return LocalSuspendLeaderGroupElection(maxLeaders)
+    companion object: KLogging() {
+        operator fun invoke(
+            options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+        ): LocalSuspendLeaderGroupElection {
+            options.maxLeaders.requirePositiveNumber("maxLeaders")
+            return LocalSuspendLeaderGroupElection(options)
         }
     }
 
@@ -48,6 +53,8 @@ class LocalSuspendLeaderGroupElection private constructor(override val maxLeader
         lockName.requireNotBlank("lockName")
         return semaphores.computeIfAbsent(lockName) { Semaphore(maxLeaders) }
     }
+
+    override val maxLeaders: Int = options.maxLeaders
 
     /**
      * [lockName]에 대해 현재 활성(실행 중인) 리더 수를 반환합니다.

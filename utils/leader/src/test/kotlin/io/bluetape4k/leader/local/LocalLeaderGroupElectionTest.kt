@@ -1,6 +1,7 @@
 package io.bluetape4k.leader.local
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -22,7 +23,8 @@ class LocalLeaderGroupElectionTest {
     companion object : KLogging()
 
     private val maxLeaders = 3
-    private val election = LocalLeaderGroupElection(maxLeaders)
+    private val options = LeaderGroupElectionOptions(maxLeaders)
+    private val election = LocalLeaderGroupElection(options)
 
     private fun randomLockName() = "lock-${UUID.randomUUID()}"
 
@@ -61,7 +63,7 @@ class LocalLeaderGroupElectionTest {
 
     @Test
     fun `maxLeaders=1 이면 LeaderElection 과 동일하게 직렬 실행된다`() {
-        val singleElection = LocalLeaderGroupElection(maxLeaders = 1)
+        val singleElection = LocalLeaderGroupElection(LeaderGroupElectionOptions(1))
         val lockName = randomLockName()
         val counter = AtomicInteger(0)
         val numThreads = 6

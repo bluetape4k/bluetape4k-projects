@@ -1,8 +1,10 @@
 package io.bluetape4k.leader.local
 
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.LeaderGroupElectionState
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Semaphore
 
@@ -22,12 +24,14 @@ import java.util.concurrent.Semaphore
  * @param maxLeaders 허용하는 최대 동시 리더 수
  */
 abstract class AbstractLocalLeaderGroupElection(
-    override val maxLeaders: Int,
-) : LeaderGroupElectionState {
+    private val options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+): LeaderGroupElectionState {
 
     init {
-        require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
+        options.maxLeaders.requirePositiveNumber("maxLeaders")
     }
+
+    override val maxLeaders: Int = options.maxLeaders
 
     private val semaphores = ConcurrentHashMap<String, Semaphore>()
 

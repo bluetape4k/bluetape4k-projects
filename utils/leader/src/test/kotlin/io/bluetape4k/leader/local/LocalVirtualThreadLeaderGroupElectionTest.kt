@@ -1,6 +1,7 @@
 package io.bluetape4k.leader.local
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -21,7 +22,8 @@ class LocalVirtualThreadLeaderGroupElectionTest {
     companion object : KLogging()
 
     private val maxLeaders = 3
-    private val election = LocalVirtualThreadLeaderGroupElection(maxLeaders)
+    private val options = LeaderGroupElectionOptions(maxLeaders)
+    private val election = LocalVirtualThreadLeaderGroupElection(options)
 
     private fun randomLockName() = "lock-${UUID.randomUUID()}"
 

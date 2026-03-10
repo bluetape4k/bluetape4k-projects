@@ -2,7 +2,9 @@ package io.bluetape4k.leader.local
 
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.leader.LeaderGroupElection
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
@@ -26,13 +28,15 @@ import java.util.concurrent.Executor
  *
  * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
  */
-class LocalLeaderGroupElection private constructor(maxLeaders: Int) :
-    AbstractLocalLeaderGroupElection(maxLeaders), LeaderGroupElection {
+class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionOptions):
+    AbstractLocalLeaderGroupElection(options), LeaderGroupElection {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
-        operator fun invoke(maxLeaders: Int = 2): LeaderGroupElection =
-            LocalLeaderGroupElection(maxLeaders)
+        operator fun invoke(options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default): LeaderGroupElection {
+            options.maxLeaders.requirePositiveNumber("maxLeaders")
+            return LocalLeaderGroupElection(options)
+        }
     }
 
     /**

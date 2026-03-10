@@ -1,5 +1,6 @@
 package io.bluetape4k.leader.coroutines
 
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -24,7 +25,9 @@ import java.util.concurrent.ConcurrentHashMap
  * // result == "done"
  * ```
  */
-class LocalSuspendLeaderElection : SuspendLeaderElection {
+class LocalSuspendLeaderElection(
+    private val options: LeaderElectionOptions = LeaderElectionOptions.Default,
+): SuspendLeaderElection {
 
     private val mutexes = ConcurrentHashMap<String, Mutex>()
 

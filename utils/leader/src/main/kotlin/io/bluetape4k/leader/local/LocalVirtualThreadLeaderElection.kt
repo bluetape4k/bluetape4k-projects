@@ -2,6 +2,7 @@ package io.bluetape4k.leader.local
 
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.leader.VirtualThreadLeaderElection
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -27,7 +28,9 @@ import kotlin.concurrent.withLock
  * // result == "done"
  * ```
  */
-class LocalVirtualThreadLeaderElection : AbstractLocalLeaderElection(), VirtualThreadLeaderElection {
+class LocalVirtualThreadLeaderElection(
+    options: LeaderElectionOptions = LeaderElectionOptions.Default,
+): AbstractLocalLeaderElection(options), VirtualThreadLeaderElection {
 
     /**
      * [lockName]에 대한 [ReentrantLock]을 Virtual Thread에서 획득하고 [action]을 실행합니다.

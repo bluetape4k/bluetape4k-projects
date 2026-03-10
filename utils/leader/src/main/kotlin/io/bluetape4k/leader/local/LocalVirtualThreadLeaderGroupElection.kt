@@ -2,8 +2,10 @@ package io.bluetape4k.leader.local
 
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.VirtualThreadLeaderGroupElection
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * [AbstractLocalLeaderGroupElection]을 상속한 로컬(단일 JVM) 복수 리더 Virtual Thread 비동기 선출 구현체입니다.
@@ -27,13 +29,18 @@ import io.bluetape4k.logging.KLogging
  *
  * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
  */
-class LocalVirtualThreadLeaderGroupElection private constructor(maxLeaders: Int) :
-    AbstractLocalLeaderGroupElection(maxLeaders), VirtualThreadLeaderGroupElection {
+class LocalVirtualThreadLeaderGroupElection private constructor(
+    options: LeaderGroupElectionOptions,
+): AbstractLocalLeaderGroupElection(options), VirtualThreadLeaderGroupElection {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
-        operator fun invoke(maxLeaders: Int = 2): VirtualThreadLeaderGroupElection =
-            LocalVirtualThreadLeaderGroupElection(maxLeaders)
+        operator fun invoke(
+            options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+        ): VirtualThreadLeaderGroupElection {
+            options.maxLeaders.requirePositiveNumber("maxLeaders")
+            return LocalVirtualThreadLeaderGroupElection(options)
+        }
     }
 
     /**

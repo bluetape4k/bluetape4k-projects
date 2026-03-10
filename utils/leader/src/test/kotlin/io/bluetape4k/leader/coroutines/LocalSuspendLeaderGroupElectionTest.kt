@@ -2,6 +2,7 @@ package io.bluetape4k.leader.coroutines
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.async
@@ -20,10 +21,11 @@ import kotlin.random.Random
 
 class LocalSuspendLeaderGroupElectionTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val maxLeaders = 3
-    private val election = LocalSuspendLeaderGroupElection(maxLeaders)
+    private val options = LeaderGroupElectionOptions(maxLeaders)
+    private val election = LocalSuspendLeaderGroupElection(options)
 
     private fun randomLockName() = "lock-${UUID.randomUUID()}"
 
@@ -63,7 +65,7 @@ class LocalSuspendLeaderGroupElectionTest {
 
     @Test
     fun `maxLeaders=1 이면 SuspendLeaderElection 과 동일하게 직렬 실행된다`() = runSuspendIO {
-        val singleElection = LocalSuspendLeaderGroupElection(maxLeaders = 1)
+        val singleElection = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 1))
         val lockName = randomLockName()
         val counter = AtomicInteger(0)
         val numWorkers = 6

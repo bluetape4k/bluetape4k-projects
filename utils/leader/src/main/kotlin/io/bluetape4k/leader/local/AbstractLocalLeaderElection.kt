@@ -1,5 +1,6 @@
 package io.bluetape4k.leader.local
 
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
@@ -16,7 +17,9 @@ import java.util.concurrent.locks.ReentrantLock
  * - [LocalAsyncLeaderElection]: 비동기([java.util.concurrent.CompletableFuture]) 실행만
  * - [LocalVirtualThreadLeaderElection]: [io.bluetape4k.concurrent.virtualthread.VirtualFuture] 실행
  */
-abstract class AbstractLocalLeaderElection {
+abstract class AbstractLocalLeaderElection(
+    protected val options: LeaderElectionOptions = LeaderElectionOptions.Default,
+) {
 
     private val locks = ConcurrentHashMap<String, ReentrantLock>()
 
