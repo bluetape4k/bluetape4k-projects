@@ -16,6 +16,12 @@ dependencies {
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
+    // Leader Election
+    compileOnly(project(":bluetape4k-leader"))
+
+    // Cache / Memorizer
+    compileOnly(project(":bluetape4k-cache-core"))
+
     // Serializer
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)
