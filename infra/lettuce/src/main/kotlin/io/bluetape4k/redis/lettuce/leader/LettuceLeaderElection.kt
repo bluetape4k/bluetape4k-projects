@@ -1,18 +1,35 @@
 package io.bluetape4k.redis.lettuce.leader
 
-import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.leader.LeaderElection
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.lock.LettuceLock
+import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.api.StatefulRedisConnection
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
 /**
+ * [StatefulRedisConnection]에서 [LettuceLeaderElection] 인스턴스를 생성합니다.
+ *
+ * ```kotlin
+ * val election = connection.leaderElection()
+ * val result = election.runIfLeader("daily-job") { "done" }
+ * ```
+ *
+ * @param options 리더 선출 옵션 (기본값: [LeaderElectionOptions.Default])
+ * @return [LettuceLeaderElection] 인스턴스
+ */
+fun StatefulRedisConnection<String, String>.leaderElection(
+    options: LeaderElectionOptions = LeaderElectionOptions.Default,
+): LettuceLeaderElection = LettuceLeaderElection(this, options)
+
+
+/**
  * Lettuce Redis 클라이언트를 이용한 리더 선출 구현체입니다.
  *
- * [RedisLock]을 사용하여 분산 환경에서 단일 리더를 선출합니다.
+ * [LettuceLock]을 사용하여 분산 환경에서 단일 리더를 선출합니다.
  * 동기([runIfLeader])와 비동기([runAsyncIfLeader]) 방식을 모두 지원합니다.
  *
  * ```kotlin
@@ -25,13 +42,14 @@ import java.util.concurrent.Executor
  */
 class LettuceLeaderElection(
     private val connection: StatefulRedisConnection<String, String>,
-    private val options: LettuceLeaderElectionOptions = LettuceLeaderElectionOptions(),
-) : LeaderElection {
+    private val options: LeaderElectionOptions = LeaderElectionOptions.Default,
+): LeaderElection {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun <T> runIfLeader(lockName: String, action: () -> T): T {
-        require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
+        lockName.requireNotBlank("lockName")
+
         val lock = LettuceLock(connection, lockName, options.leaseTime)
         val acquired = lock.tryLock(options.waitTime, options.leaseTime)
         if (!acquired) {
@@ -52,7 +70,8 @@ class LettuceLeaderElection(
         executor: Executor,
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> {
-        require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
+        lockName.requireNotBlank("lockName")
+
         val lock = LettuceLock(connection, lockName, options.leaseTime)
         return CompletableFuture.supplyAsync({
             val acquired = lock.tryLock(options.waitTime, options.leaseTime)

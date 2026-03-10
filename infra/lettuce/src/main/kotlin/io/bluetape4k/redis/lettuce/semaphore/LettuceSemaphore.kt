@@ -2,15 +2,15 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 세마포어(Distributed Semaphore) 구현체입니다.
@@ -112,7 +112,8 @@ return v"""
      * @return 획득 성공 여부
      */
     fun tryAcquire(permits: Int = 1): Boolean {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         val result = syncCommands.eval<Long>(
             ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString()
@@ -129,14 +130,15 @@ return v"""
      * @param waitTime 최대 대기 시간 (기본값: 30초)
      * @throws IllegalStateException 지정된 시간 내에 허가를 획득하지 못한 경우
      */
-    fun acquire(permits: Int = 1, waitTime: Duration = 30.seconds) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val deadline = System.currentTimeMillis() + waitTime.inWholeMilliseconds
+    fun acquire(permits: Int = 1, waitTime: Duration = Duration.ofSeconds(30)) {
+        permits.requirePositiveNumber("permits")
+
+        val deadline = System.currentTimeMillis() + waitTime.toMillis()
         while (System.currentTimeMillis() < deadline) {
             if (tryAcquire(permits)) return
             Thread.sleep(RETRY_DELAY_MS)
         }
-        throw IllegalStateException("세마포어 획득 시간 초과: semaphoreKey=$semaphoreKey, permits=$permits")
+        throw IllegalStateException("세마포어 획득 시간 초과: semaphoreKey=$semaphoreKey, permits=${permits}")
     }
 
     /**
@@ -145,7 +147,8 @@ return v"""
      * @param permits 반납할 허가 수 (기본값: 1)
      */
     fun release(permits: Int = 1) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         val remaining = syncCommands.eval<Long>(
             RELEASE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
@@ -164,7 +167,8 @@ return v"""
      * @return 획득 성공 여부를 담은 CompletableFuture
      */
     fun tryAcquireAsync(permits: Int = 1): CompletableFuture<Boolean> {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         return asyncCommands.eval<Long>(
             ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString()
@@ -182,9 +186,9 @@ return v"""
      * @param waitTime 최대 대기 시간 (기본값: 30초)
      * @return 완료를 나타내는 CompletableFuture
      */
-    fun acquireAsync(permits: Int = 1, waitTime: Duration = 30.seconds): CompletableFuture<Unit> {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val deadline = System.currentTimeMillis() + waitTime.inWholeMilliseconds
+    fun acquireAsync(permits: Int = 1, waitTime: Duration = Duration.ofSeconds(30)): CompletableFuture<Unit> {
+        permits.requirePositiveNumber("permits")
+        val deadline = System.currentTimeMillis() + waitTime.toMillis()
 
         fun attempt(): CompletableFuture<Unit> =
             tryAcquireAsync(permits).thenCompose { acquired ->
@@ -211,7 +215,8 @@ return v"""
      * @return 완료를 나타내는 CompletableFuture
      */
     fun releaseAsync(permits: Int = 1): CompletableFuture<Unit> {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         return asyncCommands.eval<Long>(
             RELEASE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()

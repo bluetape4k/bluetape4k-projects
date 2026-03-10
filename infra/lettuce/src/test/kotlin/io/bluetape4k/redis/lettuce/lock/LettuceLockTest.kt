@@ -8,18 +8,17 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceLockTest: AbstractLettuceTest() {
@@ -31,7 +30,7 @@ class LettuceLockTest: AbstractLettuceTest() {
     @BeforeEach
     fun setup() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
-        lock = LettuceLock(connection, randomName(), defaultLeaseTime = 10.seconds)
+        lock = LettuceLock(connection, randomName(), defaultLeaseTime = Duration.ofSeconds(10))
     }
 
     // =========================================================================
@@ -68,7 +67,7 @@ class LettuceLockTest: AbstractLettuceTest() {
     @Test
     fun `lock and unlock - 순차 실행`() {
         repeat(3) {
-            lock.lock(leaseTime = 5.seconds)
+            lock.lock(leaseTime = Duration.ofSeconds(5))
             lock.isHeldByCurrentInstance().shouldBeTrue()
             lock.unlock()
             lock.isHeldByCurrentInstance().shouldBeFalse()
@@ -85,8 +84,8 @@ class LettuceLockTest: AbstractLettuceTest() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
         repeat(threadCount) {
             executor.submit {
-                val threadLock = LettuceLock(connection, lock.lockKey, 5.seconds)
-                if (threadLock.tryLock(waitTime = 100.milliseconds)) {
+                val threadLock = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(5))
+                if (threadLock.tryLock(waitTime = Duration.ofMillis(100))) {
                     acquiredCount.incrementAndGet()
                     Thread.sleep(100)
                     threadLock.unlock()
@@ -140,7 +139,7 @@ class LettuceLockTest: AbstractLettuceTest() {
     @Test
     fun `lock and unlock (suspend)`() = runSuspendIO {
         val suspendLock = LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
-        suspendLock.lock(leaseTime = 5.seconds)
+        suspendLock.lock(leaseTime = Duration.ofSeconds(5))
         suspendLock.isHeldByCurrentInstance().shouldBeTrue()
         suspendLock.unlock()
         suspendLock.isHeldByCurrentInstance().shouldBeFalse()
@@ -153,8 +152,8 @@ class LettuceLockTest: AbstractLettuceTest() {
 
         val jobs = List(5) {
             async {
-                val coLock = LettuceSuspendLock(connection, lock.lockKey, 5.seconds)
-                if (coLock.tryLock(waitTime = 100.milliseconds)) {
+                val coLock = LettuceSuspendLock(connection, lock.lockKey, Duration.ofSeconds(5))
+                if (coLock.tryLock(waitTime = Duration.ofMillis(100))) {
                     acquiredCount.incrementAndGet()
                     kotlinx.coroutines.delay(100)
                     coLock.unlock()

@@ -3,14 +3,14 @@ package io.bluetape4k.redis.lettuce.semaphore
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.awaitSuspending
+import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.coroutines.delay
-import kotlin.time.Duration
+import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 세마포어의 코루틴(suspend) 구현체입니다.
@@ -106,7 +106,8 @@ return v"""
      * @return 획득 성공 여부
      */
     suspend fun tryAcquire(permits: Int = 1): Boolean {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         val result = asyncCommands.eval<Long>(
             ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString()
@@ -123,9 +124,10 @@ return v"""
      * @param waitTime 최대 대기 시간 (기본값: 30초)
      * @throws IllegalStateException 지정된 시간 내에 허가를 획득하지 못한 경우
      */
-    suspend fun acquire(permits: Int = 1, waitTime: Duration = 30.seconds) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val deadline = System.currentTimeMillis() + waitTime.inWholeMilliseconds
+    suspend fun acquire(permits: Int = 1, waitTime: Duration = Duration.ofSeconds(30)) {
+        permits.requirePositiveNumber("permits")
+
+        val deadline = System.currentTimeMillis() + waitTime.toMillis()
         while (System.currentTimeMillis() < deadline) {
             if (tryAcquire(permits)) return
             delay(RETRY_DELAY_MS.milliseconds)
@@ -139,7 +141,8 @@ return v"""
      * @param permits 반납할 허가 수 (기본값: 1)
      */
     suspend fun release(permits: Int = 1) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
+        permits.requirePositiveNumber("permits")
+
         val remaining = asyncCommands.eval<Long>(
             RELEASE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
