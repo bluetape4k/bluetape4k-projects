@@ -225,7 +225,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 #### Infrastructure Modules (`infra/`)
 
 - **redis** *(umbrella)*: `lettuce` + `redisson` + `spring-data-redis`를 묶는 하위 호환 모듈
-- **lettuce**: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터
+- **lettuce**: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memorizer) — sync/async/suspend 3-tier API
 - **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memorizer, NearCache, Coroutines
 - **kafka**: Kafka 클라이언트
 - **resilience4j**: Resilience4j + Coroutines, Coroutines Cache
