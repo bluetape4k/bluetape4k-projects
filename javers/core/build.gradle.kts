@@ -20,7 +20,7 @@ dependencies {
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-jackson"))
     implementation(project(":bluetape4k-cache-core"))
-    implementation(project(":bluetape4k-grpc"))
+    implementation(project(":bluetape4k-protobuf"))
     implementation(project(":bluetape4k-hibernate"))
     implementation(project(":bluetape4k-idgenerators"))
     implementation(project(":bluetape4k-redis"))

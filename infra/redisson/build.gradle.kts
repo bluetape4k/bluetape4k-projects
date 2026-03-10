@@ -62,8 +62,6 @@ dependencies {
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)
 
-    // Protobuf (bluetape4k-protobuf 에서 전이적으로 제공)
-
     // Jackson
     compileOnly(project(":bluetape4k-jackson"))
     compileOnly(Libs.jackson_module_kotlin)

@@ -73,7 +73,6 @@ dependencies {
     // grpc-kotlin
     // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
     api(Libs.grpc_kotlin_stub)
-    api(Libs.protobuf_kotlin)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
