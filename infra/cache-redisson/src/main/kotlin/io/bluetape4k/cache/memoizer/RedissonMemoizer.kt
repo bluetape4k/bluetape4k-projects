@@ -1,6 +1,5 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.Memoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.redisson.api.RMap

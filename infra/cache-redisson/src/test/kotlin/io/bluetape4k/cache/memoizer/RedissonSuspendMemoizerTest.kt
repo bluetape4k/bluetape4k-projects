@@ -1,11 +1,8 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
-import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
-import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
+import io.bluetape4k.cache.RedisServers.randomName
+import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
-import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay

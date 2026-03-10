@@ -42,7 +42,6 @@ dependencies {
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)
 
-    testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 

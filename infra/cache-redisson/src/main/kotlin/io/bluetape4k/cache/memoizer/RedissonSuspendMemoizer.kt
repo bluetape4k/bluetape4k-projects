@@ -1,6 +1,5 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred

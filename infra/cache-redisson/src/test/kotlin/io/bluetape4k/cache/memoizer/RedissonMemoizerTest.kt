@@ -1,10 +1,7 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.AbstractMemoizerTest
-import io.bluetape4k.cache.memoizer.FactorialProvider
-import io.bluetape4k.cache.memoizer.FibonacciProvider
-import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
-import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
+import io.bluetape4k.cache.RedisServers.randomName
+import io.bluetape4k.cache.RedisServers.redisson
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.IntegerCodec

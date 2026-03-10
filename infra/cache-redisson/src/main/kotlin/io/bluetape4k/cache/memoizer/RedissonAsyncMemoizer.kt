@@ -1,6 +1,5 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.concurrent.flatMap
 import io.bluetape4k.concurrent.map

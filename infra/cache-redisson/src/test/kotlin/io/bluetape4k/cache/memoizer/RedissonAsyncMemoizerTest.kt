@@ -1,14 +1,12 @@
-package io.bluetape4k.redis.redisson.memoizer
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.AbstractAsyncMemoizerTest
-import io.bluetape4k.cache.memoizer.AsyncFactorialProvider
-import io.bluetape4k.cache.memoizer.AsyncFibonacciProvider
+import io.bluetape4k.cache.RedisServers.randomName
+import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
-import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
 import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.redisson.api.RMap
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
@@ -99,7 +97,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         try {
-            org.junit.jupiter.api.assertThrows<ExecutionException> {
+            assertThrows<ExecutionException> {
                 memoizer(5).get(2, TimeUnit.SECONDS)
             }
 
