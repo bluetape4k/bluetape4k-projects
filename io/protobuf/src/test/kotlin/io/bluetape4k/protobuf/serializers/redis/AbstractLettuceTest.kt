@@ -1,10 +1,10 @@
-package io.bluetape4k.redis.lettuce
+package io.bluetape4k.protobuf.serializers.redis
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
+import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
@@ -45,10 +45,9 @@ abstract class AbstractLettuceTest {
     open fun beforeAll() {
         client = LettuceClients.clientOf(redis.host, redis.port)
 
-        commands = LettuceClients.commands(client, LettuceBinaryCodecs.lz4Fory())
-        asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.lz4Fory())
-        coroutinesCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fory())
-
+        commands = LettuceClients.commands(client, LettuceProtobufCodecs.lz4Protobuf())
+        asyncCommands = LettuceClients.asyncCommands(client, LettuceProtobufCodecs.lz4Protobuf())
+        coroutinesCommands = LettuceClients.coroutinesCommands(client, LettuceProtobufCodecs.lz4Protobuf())
     }
 
     @AfterAll

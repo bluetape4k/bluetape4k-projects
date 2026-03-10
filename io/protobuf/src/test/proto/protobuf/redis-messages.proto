@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package io.bluetape4k.redis.messages;
+package io.bluetape4k.protobuf.redis.messages;
 
 option java_generic_services = true;
 option java_outer_classname = "MessageProtos";
@@ -9,15 +9,15 @@ option java_multiple_files = true;
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
-message NestedMessage {
+message RedisNestedMessage {
     int64 id = 1;
     string name = 2;
     DayOfTheWeek day_of_the_week = 3;
-    optional SimpleMessage optionalMessage = 4;
-    repeated SimpleMessage nestedMessages = 5;
+    optional RedisSimpleMessage optionalMessage = 4;
+    repeated RedisSimpleMessage nestedMessages = 5;
 }
 
-message SimpleMessage {
+message RedisSimpleMessage {
     int64 id = 1;
     string name = 2;
     optional string description = 3;

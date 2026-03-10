@@ -37,17 +37,30 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-core"))
-    api(project(":bluetape4k-io"))
-
     // Protobuf
     api(Libs.protobuf_java)
     api(Libs.protobuf_java_util)
     api(Libs.protobuf_kotlin)
     api(Libs.proto_google_common_protos)
 
+    api(project(":bluetape4k-io"))
+
+    // Redis
+    compileOnly(project(":bluetape4k-lettuce"))
+    compileOnly(project(":bluetape4k-redisson"))
+
+    // Redis Codecs
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.zstd_jni)
+
+    // Fallback codec
+    // compileOnly(Libs.fory_kotlin)
+    
     // Money (MoneySupport.kt)
     compileOnly(project(":bluetape4k-money"))
 
+
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-testcontainers"))
 }

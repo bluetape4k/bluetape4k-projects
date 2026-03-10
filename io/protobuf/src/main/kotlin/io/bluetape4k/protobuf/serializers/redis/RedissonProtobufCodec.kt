@@ -1,9 +1,10 @@
-package io.bluetape4k.redis.redisson.codec
+package io.bluetape4k.protobuf.serializers.redis
 
 import com.google.protobuf.Message
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.netty.buffer.getBytes
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
@@ -21,14 +22,14 @@ typealias AnyMessage = com.google.protobuf.Any
  *
  * @property fallbackCodec 내부 코덱
  */
-class ProtobufCodec(
-    private val fallbackCodec: Codec = RedissonCodecs.Default,
+class RedissonProtobufCodec(
+    private val fallbackCodec: Codec = RedissonCodecs.Jdk,
 ): BaseCodec() {
 
     // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
     @Suppress("UNUSED_PARAMETER")
     constructor(classLoader: ClassLoader): this()
-    constructor(classLoader: ClassLoader, codec: ProtobufCodec): this(copy(classLoader, codec.fallbackCodec))
+    constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec): this(copy(classLoader, codec.fallbackCodec))
 
     companion object: KLogging() {
         private val classCache = ConcurrentHashMap<String, Class<Message>>()

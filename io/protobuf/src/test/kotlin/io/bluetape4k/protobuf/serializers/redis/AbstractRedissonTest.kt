@@ -1,9 +1,10 @@
-package io.bluetape4k.redis.redisson
+package io.bluetape4k.protobuf.serializers.redis
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.testcontainers.storage.RedisServer
 import org.redisson.api.RedissonClient
 

@@ -6,7 +6,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
 /**
  * 다양한 Serializer/Compressor 조합의 [LettuceBinaryCodec] 팩토리 모음.
  *
- * Protobuf 기반 Codec은 [LettuceProtobufCodecs]를 사용하세요.
+ * Protobuf 기반 Codec은 [io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs]를 사용하세요.
  */
 object LettuceBinaryCodecs {
 

@@ -1,38 +1,3 @@
-import com.google.protobuf.gradle.id
-
-plugins {
-    idea
-    id(Plugins.protobuf) version Plugins.Versions.protobuf
-    kotlin("plugin.spring")
-}
-
-idea {
-    module {
-        sourceDirs.plus(file("${layout.buildDirectory.asFile.get()}/generated/source/proto/main"))
-        testSources.plus(file("${layout.buildDirectory.asFile.get()}/generated/source/proto/test"))
-    }
-}
-// Protobuf Message를 Redisson에 저장하는 예제를 위해
-// 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
-protobuf {
-    protoc {
-        artifact = Libs.protobuf_protoc
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            // DynamicMessage 사용을 위해
-            task.generateDescriptorSet = true
-            task.descriptorSetOptions.includeSourceInfo = true
-            task.descriptorSetOptions.includeImports = true
-
-            task.builtins {
-                // Kotlin DSL 생성
-                id("kotlin")
-            }
-        }
-    }
-}
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -48,7 +13,6 @@ dependencies {
 
     // Dependencies
     compileOnly(project(":bluetape4k-cache-core"))
-    compileOnly(project(":bluetape4k-protobuf"))
     compileOnly(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-leader"))
 
@@ -62,17 +26,17 @@ dependencies {
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)
 
-    // Jackson
-    compileOnly(project(":bluetape4k-jackson"))
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
-    compileOnly(Libs.jackson_dataformat_protobuf)
-
     // Compressor
     compileOnly(Libs.commons_compress)
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.zstd_jni)
+
+    // Jackson
+    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(Libs.jackson_module_kotlin)
+    compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(Libs.jackson_dataformat_protobuf)
 
     // Cache
     compileOnly(Libs.caffeine)

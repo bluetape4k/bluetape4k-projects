@@ -1,13 +1,11 @@
-package io.bluetape4k.redis.redisson.codec
+package io.bluetape4k.protobuf.serializers.redis
 
 import com.google.protobuf.timestamp
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.messages.DayOfTheWeek
-import io.bluetape4k.redis.messages.copy
-import io.bluetape4k.redis.messages.nestedMessage
-import io.bluetape4k.redis.messages.simpleMessage
-import io.bluetape4k.redis.redisson.AbstractRedissonTest
+import io.bluetape4k.protobuf.redis.messages.copy
+import io.bluetape4k.protobuf.redis.messages.redisNestedMessage
+import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -17,22 +15,22 @@ import org.redisson.client.handler.State
 import java.io.Serializable
 import java.time.Instant
 
-class ProtobufCodecTest: AbstractRedissonTest() {
+class RedissonProtobufCodecTest: AbstractRedissonTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 10
     }
 
     private fun getTestCodecs() = listOf(
-        Arguments.of(RedissonCodecs.Protobuf),
-        Arguments.of(RedissonCodecs.GzipProtobuf),
-        Arguments.of(RedissonCodecs.GzipProtobufComposite),
-        Arguments.of(RedissonCodecs.LZ4Protobuf),
-        Arguments.of(RedissonCodecs.LZ4ProtobufComposite),
-        Arguments.of(RedissonCodecs.SnappyProtobuf),
-        Arguments.of(RedissonCodecs.SnappyProtobufComposite),
-        Arguments.of(RedissonCodecs.ZstdProtobuf),
-        Arguments.of(RedissonCodecs.ZstdProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.Protobuf),
+        Arguments.of(RedissonProtobufCodecs.GzipProtobuf),
+        Arguments.of(RedissonProtobufCodecs.GzipProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.LZ4Protobuf),
+        Arguments.of(RedissonProtobufCodecs.LZ4ProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.SnappyProtobuf),
+        Arguments.of(RedissonProtobufCodecs.SnappyProtobufComposite),
+        Arguments.of(RedissonProtobufCodecs.ZstdProtobuf),
+        Arguments.of(RedissonProtobufCodecs.ZstdProtobufComposite),
     )
 
     data class CustomData(
@@ -48,17 +46,17 @@ class ProtobufCodecTest: AbstractRedissonTest() {
         }
     }
 
-    private fun newSimpleMessage() = simpleMessage {
+    private fun newSimpleMessage() = redisSimpleMessage {
         id = faker.random().nextLong()
         name = faker.name().fullName()
         description = Fakers.randomString(1024, 4096)
         timestamp = Instant.now().toProtobufTimestamp()
     }
 
-    private fun newNestedMessage() = nestedMessage {
+    private fun newNestedMessage() = redisNestedMessage {
         id = faker.random().nextLong()
         name = faker.name().fullName()
-        dayOfTheWeek = DayOfTheWeek.FRIDAY
+        dayOfTheWeek = io.bluetape4k.protobuf.redis.messages.DayOfTheWeek.FRIDAY
         optionalMessage = newSimpleMessage()
         nestedMessages.add(newSimpleMessage().copy { id = faker.random().nextLong() })
     }
