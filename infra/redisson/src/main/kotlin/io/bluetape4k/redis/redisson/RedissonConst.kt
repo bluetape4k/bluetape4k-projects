@@ -1,7 +1,7 @@
-package io.bluetape4k.redis
+package io.bluetape4k.redis.redisson
 
-import io.bluetape4k.redis.RedissonConst.DEFAULT_HOST
-import io.bluetape4k.redis.RedissonConst.DEFAULT_PORT
+import io.bluetape4k.redis.redisson.RedissonConst.DEFAULT_HOST
+import io.bluetape4k.redis.redisson.RedissonConst.DEFAULT_PORT
 
 
 /**

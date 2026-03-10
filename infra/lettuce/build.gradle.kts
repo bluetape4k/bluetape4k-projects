@@ -51,9 +51,14 @@ dependencies {
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
-    // Codecs
+    // Serializer
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)
+
+    // Compressor
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.zstd_jni)
 
     // Protobuf
     compileOnly(project(":bluetape4k-grpc"))

@@ -1,7 +1,7 @@
-package io.bluetape4k.redis
+package io.bluetape4k.redis.lettuce
 
-import io.bluetape4k.redis.LettuceConst.DEFAULT_HOST
-import io.bluetape4k.redis.LettuceConst.DEFAULT_PORT
+import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_HOST
+import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_PORT
 
 
 /**

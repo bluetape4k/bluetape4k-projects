@@ -137,7 +137,11 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### 인프라 모듈 (`infra/`)
 
-- **[redis](./infra/redis/README.md)**: Lettuce/Redisson 통합, 고성능 Codec, Near Cache
+- **[redis](./infra/redis/README.md)**: Lettuce/Redisson umbrella 모듈 (하위 호환)
+    - **[lettuce](./infra/lettuce/README.md)**: Lettuce 클라이언트, 고성능 Codec (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd),
+      `RedisFuture` → Coroutines 어댑터
+    - **[redisson](./infra/redisson/README.md)**: Redisson 클라이언트, Codec, Memorizer, NearCache (
+      `RLocalCachedMap`), Leader Election (Coroutines 지원)
 - **[kafka](./infra/kafka/README.md)**: Kafka 클라이언트
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines Cache
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
@@ -159,6 +163,8 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 ### Spring 모듈 (`spring/`)
 
 - **[core](./spring/core/README.md)**: Spring Boot 공통 기능
+- **[data-redis](./spring/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
+  `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[cassandra](./spring/cassandra/README.md)**: Spring Data Cassandra
 - **[mongodb](./spring/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring/r2dbc/README.md)**: Spring Data R2DBC

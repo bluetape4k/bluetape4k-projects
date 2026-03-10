@@ -1,7 +1,6 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.LettuceConst
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
