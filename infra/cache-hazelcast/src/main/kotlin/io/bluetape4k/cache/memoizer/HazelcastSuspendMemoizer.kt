@@ -1,7 +1,6 @@
-package io.bluetape4k.cache.memoizer.hazelcast
+package io.bluetape4k.cache.memoizer
 
 import com.hazelcast.map.IMap
-import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred

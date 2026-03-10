@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
-import com.hazelcast.core.HazelcastInstance
-import io.bluetape4k.cache.HazelcastServers
+import io.bluetape4k.cache.AbstractHazelcastTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -12,12 +11,10 @@ import org.junit.jupiter.api.BeforeEach
  * [HazelcastNearCache] / [HazelcastSuspendNearCache] 공통 테스트 베이스.
  * Testcontainers Hazelcast를 사용하며, IMap 기반 NearCache 기능을 검증한다.
  */
-abstract class AbstractHazelcastNearCacheTest {
+abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
-
-        val hazelcastClient: HazelcastInstance by lazy { HazelcastServers.hazelcastClient }
     }
 
     @BeforeEach

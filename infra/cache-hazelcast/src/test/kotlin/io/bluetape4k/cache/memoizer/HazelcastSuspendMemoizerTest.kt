@@ -1,11 +1,9 @@
 package io.bluetape4k.cache.memoizer
 
 import com.hazelcast.map.IMap
-import io.bluetape4k.cache.HazelcastServers
-import io.bluetape4k.cache.memoizer.hazelcast.suspendMemoizer
+import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -17,28 +15,26 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.seconds
 
-class SuspendHazelcastMemoizerTest {
+class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     companion object: KLogging() {
-        private val hazelcastClient by lazy { HazelcastServers.hazelcastClient }
-
         private fun <K: Any, V: Any> newMap(name: String = Base58.randomString(8)): IMap<K, V> =
             hazelcastClient.getMap<K, V>("suspend:memoizer:$name").apply { clear() }
     }
 
     private val heavyMap: IMap<Int, Int> = newMap("heavy")
 
-    val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
+    override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
         delay(100)
         x * x
     }
 
-    private val factorial = object: SuspendFactorialProvider {
+    override val factorial = object: SuspendFactorialProvider {
         override val cachedCalc: suspend (Long) -> Long = newMap<Long, Long>("factorial")
             .suspendMemoizer { calc(it) }
     }
 
-    private val fibonacci = object: SuspendFibonacciProvider {
+    override val fibonacci = object: SuspendFibonacciProvider {
         override val cachedCalc: suspend (Long) -> Long = newMap<Long, Long>("fibonacci")
             .suspendMemoizer { calc(it) }
     }
@@ -91,35 +87,6 @@ class SuspendHazelcastMemoizerTest {
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             map.destroy()
-        }
-    }
-
-    interface SuspendFactorialProvider {
-        companion object: KLogging()
-
-        val cachedCalc: suspend (Long) -> Long
-
-        suspend fun calc(n: Long): Long {
-            log.trace { "factorial($n)" }
-            return when {
-                n <= 1L -> 1L
-                else -> n * cachedCalc(n - 1)
-            }
-        }
-    }
-
-    interface SuspendFibonacciProvider {
-        companion object: KLogging()
-
-        val cachedCalc: suspend (Long) -> Long
-
-        suspend fun calc(n: Long): Long {
-            log.trace { "fibonacci($n)" }
-            return when {
-                n <= 0L -> 0L
-                n <= 2L -> 1L
-                else -> cachedCalc(n - 1) + cachedCalc(n - 2)
-            }
         }
     }
 }
