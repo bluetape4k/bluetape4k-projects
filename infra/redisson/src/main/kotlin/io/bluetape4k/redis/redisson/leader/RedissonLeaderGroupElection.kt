@@ -1,11 +1,13 @@
 package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.leader.LeaderGroupElection
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 import org.redisson.api.RSemaphore
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -14,11 +16,38 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
 /**
+ * Redisson 분산 Semaphore를 이용하여 복수 리더 선출을 통한 작업을 수행합니다.
+ *
+ * ```kotlin
+ * val client: RedissonClient = ...
+ * val options = RedissonLeaderGroupElectionOptions(maxLeaders = 3)
+ * val result: Int = client.runIfLeaderGroup("batch-job", options) {
+ *     // 최대 3개 프로세스가 동시에 실행
+ *     42
+ * }
+ * ```
+ *
+ * @param lockName 락 이름
+ * @param options 리더 선출 옵션
+ * @param action 리더 그룹 슬롯 획득 시 수행할 작업
+ * @return 작업 결과
+ */
+inline fun <T> RedissonClient.runIfLeaderGroup(
+    lockName: String,
+    options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+    crossinline action: () -> T,
+): T {
+    lockName.requireNotBlank("lockName")
+    return RedissonLeaderGroupElection(this, options).runIfLeader(lockName) { action() }
+}
+
+
+/**
  * Redisson 분산 [RSemaphore]를 이용한 복수 리더 선출 구현체입니다.
  *
  * ## 동작
  * - `lockName`별로 Redis 분산 `RSemaphore(maxLeaders)`를 생성하여 동시 실행 수를 제한합니다.
- * - 슬롯이 가득 찬 경우 [RedissonLeaderElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
+ * - 슬롯이 가득 찬 경우 [LeaderGroupElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
  *   [RedisException]을 던집니다.
  * - 슬롯 획득 성공 시 `action`을 실행하고, 완료(또는 예외) 후 반드시 슬롯을 반납합니다.
  * - 여러 JVM 프로세스에 걸친 분산 동시 실행 제한에 적합합니다.
@@ -28,7 +57,8 @@ import java.util.concurrent.Executor
  * - 이 구현체는 Redis 기반 `RSemaphore`를 사용하므로 여러 프로세스에서 동작합니다.
  *
  * ```kotlin
- * val election = RedissonLeaderGroupElection(redissonClient, maxLeaders = 3)
+ * val options = RedissonLeaderGroupElectionOptions(maxLeaders = 3)
+ * val election = RedissonLeaderGroupElection(redissonClient, options)
  *
  * // 최대 3개 스레드/프로세스가 동시에 실행
  * val result = election.runIfLeader("batch-job") { processChunk() }
@@ -46,8 +76,7 @@ import java.util.concurrent.Executor
  */
 class RedissonLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
-    override val maxLeaders: Int,
-    options: RedissonLeaderElectionOptions,
+    options: LeaderGroupElectionOptions,
 ): LeaderGroupElection {
 
     companion object: KLogging() {
@@ -61,16 +90,14 @@ class RedissonLeaderGroupElection private constructor(
         @JvmStatic
         operator fun invoke(
             redissonClient: RedissonClient,
-            maxLeaders: Int = 2,
-            options: RedissonLeaderElectionOptions = RedissonLeaderElectionOptions.Default,
+            options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): RedissonLeaderGroupElection {
-            return RedissonLeaderGroupElection(redissonClient, maxLeaders, options)
+            options.maxLeaders.requirePositiveNumber("maxLeaderse")
+            return RedissonLeaderGroupElection(redissonClient, options)
         }
     }
 
-    init {
-        require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
-    }
+    override val maxLeaders: Int = options.maxLeaders
 
     private val waitTime: Duration = options.waitTime
 
@@ -86,14 +113,12 @@ class RedissonLeaderGroupElection private constructor(
      *
      * `maxLeaders - availablePermits()`로 계산하므로 근사값입니다.
      */
-    override fun activeCount(lockName: String): Int =
-        maxLeaders - getSemaphore(lockName).availablePermits()
+    override fun activeCount(lockName: String): Int = maxLeaders - getSemaphore(lockName).availablePermits()
 
     /**
      * [lockName]에 대해 새 리더를 수용할 수 있는 남은 슬롯 수를 반환합니다.
      */
-    override fun availableSlots(lockName: String): Int =
-        getSemaphore(lockName).availablePermits()
+    override fun availableSlots(lockName: String): Int = getSemaphore(lockName).availablePermits()
 
     /**
      * [lockName]에 대한 현재 [LeaderGroupState] 스냅샷을 반환합니다.
@@ -152,33 +177,31 @@ class RedissonLeaderGroupElection private constructor(
         lockName: String,
         executor: Executor,
         action: () -> CompletableFuture<T>,
-    ): CompletableFuture<T> =
-        CompletableFuture.supplyAsync(
-            {
-                lockName.requireNotBlank("lockName")
-                val semaphore = getSemaphore(lockName)
-                log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
+    ): CompletableFuture<T> = CompletableFuture.supplyAsync(
+        {
+            lockName.requireNotBlank("lockName")
+            val semaphore = getSemaphore(lockName)
+            log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
 
-                val acquired = try {
-                    semaphore.tryAcquire(waitTime)
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                    log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
-                    throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
-                }
+            val acquired = try {
+                semaphore.tryAcquire(waitTime)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
+                throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
+            }
 
-                if (!acquired) {
-                    throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
-                }
+            if (!acquired) {
+                throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
+            }
 
-                log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
-                try {
-                    action().join()
-                } finally {
-                    semaphore.release()
-                    log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
-                }
-            },
-            executor
-        )
+            log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
+            try {
+                action().join()
+            } finally {
+                semaphore.release()
+                log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+            }
+        }, executor
+    )
 }

@@ -1,11 +1,12 @@
-package io.bluetape4k.redis.redisson.leader.coroutines
+package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -25,11 +26,12 @@ class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
     companion object: KLoggingChannel()
 
     private val maxLeaders = 3
-    private val options = RedissonLeaderElectionOptions(
+    private val options = LeaderGroupElectionOptions(
+        maxLeaders = maxLeaders,
         waitTime = Duration.ofSeconds(30),
         leaseTime = Duration.ofSeconds(60),
     )
-    private val election by lazy { RedissonSuspendLeaderGroupElection(redissonClient, maxLeaders, options) }
+    private val election by lazy { RedissonSuspendLeaderGroupElection(redissonClient, options) }
 
     // ── 기본 동작 ──────────────────────────────────────────────────────────
 
@@ -96,7 +98,7 @@ class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
         val lockName = randomName()
 
         coroutineScope {
-            val holdSignal = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val holdSignal = CompletableDeferred<Unit>()
             val startedCount = AtomicInteger(0)
 
             val jobs = (1..maxLeaders).map {

@@ -5,7 +5,6 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertTimeout
 import org.redisson.api.RMap

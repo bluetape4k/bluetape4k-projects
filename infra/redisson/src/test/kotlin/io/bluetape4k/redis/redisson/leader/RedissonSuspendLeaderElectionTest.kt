@@ -1,12 +1,12 @@
-package io.bluetape4k.redis.redisson.leader.coroutines
+package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -85,7 +85,7 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
     @Test
     fun `run action should throw when lock is not acquired`() = runSuspendIO {
         val lockName = randomName()
-        val options = RedissonLeaderElectionOptions(
+        val options = LeaderElectionOptions(
             waitTime = Duration.ofMillis(100),
             leaseTime = Duration.ofSeconds(5),
         )

@@ -1,12 +1,12 @@
-package io.bluetape4k.redis.redisson.leader.coroutines
+package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.coroutines.support.awaitSuspending
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.getLockId
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.future.await
 import org.redisson.api.RLock
@@ -15,12 +15,27 @@ import org.redisson.client.RedisException
 import java.util.concurrent.TimeUnit
 
 /**
+ * Redisson 분산 락을 이용하여 리더 선출을 통한 작업을 Coroutine 환경에서 사용할 수 있도록 지원합니다.
+ */
+suspend inline fun <T> RedissonClient.suspendRunIfLeader(
+    jobName: String,
+    options: LeaderElectionOptions = LeaderElectionOptions.Default,
+    crossinline action: suspend () -> T,
+): T {
+    jobName.requireNotBlank("jobName")
+
+    val leaderElection = RedissonSuspendLeaderElection(this, options)
+    return leaderElection.runIfLeader(jobName) { action() }
+}
+
+
+/**
  * 여러 Process, Thread에서 같은 작업이 동시, 무작위로 실행되는 것을 방지하기 위해
  * Redisson Lock을 이용하여 Leader를 선출되면 독점적으로 작업할 수 있도록 합니다.
  */
 class RedissonSuspendLeaderElection private constructor(
     private val redissonClient: RedissonClient,
-    options: RedissonLeaderElectionOptions,
+    options: LeaderElectionOptions,
 ): SuspendLeaderElection {
 
     companion object: KLoggingChannel() {
@@ -32,7 +47,7 @@ class RedissonSuspendLeaderElection private constructor(
          */
         operator fun invoke(
             redissonClient: RedissonClient,
-            options: RedissonLeaderElectionOptions = RedissonLeaderElectionOptions.Default,
+            options: LeaderElectionOptions = LeaderElectionOptions.Default,
         ): RedissonSuspendLeaderElection {
             return RedissonSuspendLeaderElection(redissonClient, options)
         }

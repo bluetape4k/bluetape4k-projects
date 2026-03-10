@@ -1,12 +1,13 @@
-package io.bluetape4k.redis.redisson.leader.coroutines
+package io.bluetape4k.redis.redisson.leader
 
+import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.leader.coroutines.SuspendLeaderGroupElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.future.await
 import org.redisson.api.RSemaphore
 import org.redisson.api.RedissonClient
@@ -14,22 +15,52 @@ import org.redisson.client.RedisException
 import java.time.Duration
 
 /**
+ * Redisson 분산 Semaphore를 이용하여 복수 리더 선출을 통한 suspend 작업을 수행합니다.
+ *
+ * ```kotlin
+ * val client: RedissonClient = ...
+ * val options = RedissonLeaderGroupElectionOptions(maxLeaders = 3)
+ * val result: Int = client.runSuspendIfLeaderGroup("batch-job", options) {
+ *     // 최대 3개 프로세스가 동시에 실행
+ *     delay(100)
+ *     42
+ * }
+ * ```
+ *
+ * @param lockName 락 이름
+ * @param options 리더 선출 옵션
+ * @param action 리더 그룹 슬롯 획득 시 수행할 suspend 작업
+ * @return 작업 결과
+ */
+suspend fun <T> RedissonClient.runSuspendIfLeaderGroup(
+    lockName: String,
+    options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+    action: suspend () -> T,
+): T {
+    lockName.requireNotBlank("lockName")
+    options.maxLeaders.requirePositiveNumber("maxLeaders")
+    return RedissonSuspendLeaderGroupElection(this, options).runIfLeader(lockName, action)
+}
+
+
+/**
  * Redisson 분산 [RSemaphore]를 이용한 코루틴 기반 복수 리더 선출 구현체입니다.
  *
  * ## 동작
  * - `lockName`별로 Redis 분산 `RSemaphore(maxLeaders)`를 생성하여 동시 실행 수를 제한합니다.
- * - 슬롯이 가득 찬 경우 [RedissonLeaderElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
+ * - 슬롯이 가득 찬 경우 [LeaderGroupElectionOptions.waitTime] 내에 슬롯을 획득하지 못하면
  *   [RedisException]을 던집니다.
  * - `tryAcquireAsync`/`releaseAsync`를 사용하여 호출 코루틴을 블로킹하지 않습니다.
  * - `action` 예외 발생 시에도 슬롯은 반드시 반환됩니다.
  * - 여러 JVM 프로세스에 걸친 분산 동시 실행 제한에 적합합니다.
  *
- * ## [io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection] 과의 차이
- * - [io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection]은 스레드를 블로킹합니다.
+ * ## [RedissonLeaderGroupElection] 과의 차이
+ * - [RedissonLeaderGroupElection]은 스레드를 블로킹합니다.
  * - 이 구현체는 `awit()`으로 코루틴을 suspend합니다.
  *
  * ```kotlin
- * val election = RedissonSuspendLeaderGroupElection(redissonClient, maxLeaders = 3)
+ * val options = RedissonLeaderGroupElectionOptions(maxLeaders = 3)
+ * val election = RedissonSuspendLeaderGroupElection(redissonClient, options)
  *
  * // 최대 3개 코루틴/프로세스가 동시에 실행
  * val result = election.runIfLeader("batch-job") { processChunkSuspend() }
@@ -39,13 +70,11 @@ import java.time.Duration
  * ```
  *
  * @param redissonClient Redisson 클라이언트
- * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
- * @param options 리더 선출 옵션 (waitTime 사용)
+ * @param options 리더 선출 옵션 (maxLeader, waitTime, leaseTime)
  */
 class RedissonSuspendLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
-    override val maxLeaders: Int,
-    options: RedissonLeaderElectionOptions,
+    options: LeaderGroupElectionOptions,
 ): SuspendLeaderGroupElection {
 
     companion object: KLoggingChannel() {
@@ -53,22 +82,18 @@ class RedissonSuspendLeaderGroupElection private constructor(
          * [RedissonSuspendLeaderGroupElection] 인스턴스를 생성합니다.
          *
          * @param redissonClient Redisson 클라이언트
-         * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
-         * @param options 리더 선출 옵션
+         * @param options 리더 선출 옵션 (maxLeader, waitTime, leaseTime)
          */
         operator fun invoke(
             redissonClient: RedissonClient,
-            maxLeaders: Int = 2,
-            options: RedissonLeaderElectionOptions = RedissonLeaderElectionOptions.Default,
+            options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): RedissonSuspendLeaderGroupElection {
-            return RedissonSuspendLeaderGroupElection(redissonClient, maxLeaders, options)
+            options.maxLeaders.requirePositiveNumber("maxLeaders")
+            return RedissonSuspendLeaderGroupElection(redissonClient, options)
         }
     }
 
-    init {
-        require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
-    }
-
+    override val maxLeaders: Int = options.maxLeaders
     private val waitTime: Duration = options.waitTime
 
     private fun getInitializedSemaphore(lockName: String): RSemaphore {

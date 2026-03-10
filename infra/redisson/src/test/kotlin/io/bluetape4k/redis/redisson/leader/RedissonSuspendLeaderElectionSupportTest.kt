@@ -1,4 +1,4 @@
-package io.bluetape4k.redis.redisson.leader.coroutines
+package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.runSuspendIO

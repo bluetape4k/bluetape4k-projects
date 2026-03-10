@@ -4,6 +4,7 @@ import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
@@ -95,7 +96,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
     @Test
     fun `run async action should release lock even when action fails`() {
         val lockName = randomName()
-        val options = RedissonLeaderElectionOptions(
+        val options = LeaderElectionOptions(
             waitTime = Duration.ofSeconds(1),
             leaseTime = Duration.ofSeconds(30),
         )
@@ -117,7 +118,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
     @Test
     fun `run action should throw when lock is not acquired`() {
         val lockName = randomName()
-        val options = RedissonLeaderElectionOptions(
+        val options = LeaderElectionOptions(
             waitTime = Duration.ofMillis(100),
             leaseTime = Duration.ofSeconds(5),
         )
@@ -302,4 +303,6 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
     private fun randomSleep(from: Long = 5L, until: Long = 10L) {
         Thread.sleep(Random.nextLong(from, until))
     }
+
+
 }
