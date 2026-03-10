@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memorizer
 import io.bluetape4k.cache.memorizer.Memorizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
     replaceWith = ReplaceWith("memoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.memoizer"),
     level = DeprecationLevel.WARNING
 )
-fun RedisMap.memorizer(evaluator: (String) -> String): LettuceMemorizer =
+fun LettuceMap<String>.memorizer(evaluator: (String) -> String): LettuceMemorizer =
     LettuceMemorizer(this, evaluator)
 
 /**
@@ -45,7 +45,7 @@ fun RedisMap.memorizer(evaluator: (String) -> String): LettuceMemorizer =
     replaceWith = ReplaceWith("memoizer(map)", "io.bluetape4k.redis.lettuce.memoizer.memoizer"),
     level = DeprecationLevel.WARNING
 )
-fun ((String) -> String).memorizer(map: RedisMap): LettuceMemorizer =
+fun ((String) -> String).memorizer(map: LettuceMap<String>): LettuceMemorizer =
     LettuceMemorizer(map, this)
 
 /**
@@ -68,7 +68,7 @@ fun ((String) -> String).memorizer(map: RedisMap): LettuceMemorizer =
     level = DeprecationLevel.WARNING
 )
 class LettuceMemorizer(
-    val map: RedisMap,
+    val map: LettuceMap<String>,
     val evaluator: (String) -> String,
 ) : Memorizer<String, String> {
 

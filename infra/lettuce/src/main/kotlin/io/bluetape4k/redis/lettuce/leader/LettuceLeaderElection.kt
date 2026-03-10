@@ -4,7 +4,7 @@ import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.leader.LeaderElection
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.lock.RedisLock
+import io.bluetape4k.redis.lettuce.lock.LettuceLock
 import io.lettuce.core.api.StatefulRedisConnection
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
@@ -32,7 +32,7 @@ class LettuceLeaderElection(
 
     override fun <T> runIfLeader(lockName: String, action: () -> T): T {
         require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
-        val lock = RedisLock(connection, lockName, options.leaseTime)
+        val lock = LettuceLock(connection, lockName, options.leaseTime)
         val acquired = lock.tryLock(options.waitTime, options.leaseTime)
         if (!acquired) {
             throw IllegalStateException("리더 선출 실패: lockName=$lockName")
@@ -53,7 +53,7 @@ class LettuceLeaderElection(
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> {
         require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
-        val lock = RedisLock(connection, lockName, options.leaseTime)
+        val lock = LettuceLock(connection, lockName, options.leaseTime)
         return CompletableFuture.supplyAsync({
             val acquired = lock.tryLock(options.waitTime, options.leaseTime)
             if (!acquired) {

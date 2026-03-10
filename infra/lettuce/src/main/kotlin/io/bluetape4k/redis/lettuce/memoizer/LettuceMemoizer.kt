@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memoizer
 import io.bluetape4k.cache.memoizer.Memoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  * val result2 = memoizer("key1")  // 캐시된 값 반환
  * ```
  */
-fun RedisMap.memoizer(evaluator: (String) -> String): LettuceMemoizer =
+fun LettuceMap<String>.memoizer(evaluator: (String) -> String): LettuceMemoizer =
     LettuceMemoizer(this, evaluator)
 
 /**
@@ -27,7 +27,7 @@ fun RedisMap.memoizer(evaluator: (String) -> String): LettuceMemoizer =
  * val result = memoizer("key1")
  * ```
  */
-fun ((String) -> String).memoizer(map: RedisMap): LettuceMemoizer =
+fun ((String) -> String).memoizer(map: LettuceMap<String>): LettuceMemoizer =
     LettuceMemoizer(map, this)
 
 /**
@@ -42,7 +42,7 @@ fun ((String) -> String).memoizer(map: RedisMap): LettuceMemoizer =
  * ```
  */
 class LettuceMemoizer(
-    val map: RedisMap,
+    val map: LettuceMap<String>,
     val evaluator: (String) -> String,
 ) : Memoizer<String, String> {
 

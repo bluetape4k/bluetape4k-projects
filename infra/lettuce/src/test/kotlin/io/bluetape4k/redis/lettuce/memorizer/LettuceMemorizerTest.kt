@@ -3,7 +3,8 @@ package io.bluetape4k.redis.lettuce.memorizer
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceMap
+import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -18,7 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LettuceMemorizerTest : AbstractLettuceTest() {
 
-    private lateinit var redisMap: RedisMap
+    private lateinit var redisMap: LettuceMap<String>
+    private lateinit var redisSuspendMap: LettuceSuspendMap<String>
     private lateinit var memorizer: LettuceMemorizer
     private lateinit var asyncMemorizer: LettuceAsyncMemorizer
     private lateinit var suspendMemorizer: LettuceSuspendMemorizer
@@ -29,7 +31,8 @@ class LettuceMemorizerTest : AbstractLettuceTest() {
     fun setup() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val mapKey = randomName()
-        redisMap = RedisMap(connection, mapKey)
+        redisMap = LettuceMap(connection, mapKey)
+        redisSuspendMap = LettuceSuspendMap(connection, mapKey)
         evaluateCount.set(0)
 
         memorizer = redisMap.memorizer { key ->
@@ -40,7 +43,7 @@ class LettuceMemorizerTest : AbstractLettuceTest() {
             evaluateCount.incrementAndGet()
             "async-value-$key"
         }
-        suspendMemorizer = redisMap.suspendMemorizer { key ->
+        suspendMemorizer = redisSuspendMap.suspendMemorizer { key ->
             evaluateCount.incrementAndGet()
             "suspend-value-$key"
         }

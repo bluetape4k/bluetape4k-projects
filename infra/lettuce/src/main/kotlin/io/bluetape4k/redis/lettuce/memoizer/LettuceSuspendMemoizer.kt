@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memoizer
 import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import kotlinx.coroutines.CompletableDeferred
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,14 +15,14 @@ import java.util.concurrent.ConcurrentHashMap
  * val result = memoizer("key1")
  * ```
  */
-fun RedisMap.suspendMemoizer(evaluator: suspend (String) -> String): LettuceSuspendMemoizer =
+fun LettuceSuspendMap<String>.suspendMemoizer(evaluator: suspend (String) -> String): LettuceSuspendMemoizer =
     LettuceSuspendMemoizer(this, evaluator)
 
 /**
- * [RedisMap]을 사용하여 함수 실행 결과를 코루틴 기반으로 메모이제이션하는 구현체입니다.
+ * [RedisSuspendMap]을 사용하여 함수 실행 결과를 코루틴 기반으로 메모이제이션하는 구현체입니다.
  */
 class LettuceSuspendMemoizer(
-    val map: RedisMap,
+    val map: LettuceSuspendMap<String>,
     val evaluator: suspend (String) -> String,
 ) : SuspendMemoizer<String, String> {
 
@@ -38,15 +38,15 @@ class LettuceSuspendMemoizer(
         if (existing != null) return existing.await()
 
         try {
-            val cached = map.getSuspending(key)
+            val cached = map.get(key)
             if (cached != null) {
                 deferred.complete(cached)
                 return cached
             }
 
             val evaluated = evaluator(key)
-            val isNew = map.putIfAbsentSuspending(key, evaluated)
-            val winner = if (isNew) evaluated else (map.getSuspending(key) ?: evaluated)
+            val isNew = map.putIfAbsent(key, evaluated)
+            val winner = if (isNew) evaluated else (map.get(key) ?: evaluated)
             deferred.complete(winner)
             return winner
         } catch (e: Throwable) {
@@ -59,6 +59,6 @@ class LettuceSuspendMemoizer(
 
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: mapKey=${map.mapKey}" }
-        map.clearSuspending()
+        map.clear()
     }
 }

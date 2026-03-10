@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memoizer
 import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
  * val result = memoizer("key1").join()
  * ```
  */
-fun RedisMap.asyncMemoizer(evaluator: (String) -> String): LettuceAsyncMemoizer =
+fun LettuceMap<String>.asyncMemoizer(evaluator: (String) -> String): LettuceAsyncMemoizer =
     LettuceAsyncMemoizer(this, evaluator)
 
 /**
@@ -26,14 +26,14 @@ fun RedisMap.asyncMemoizer(evaluator: (String) -> String): LettuceAsyncMemoizer 
  * val result = memoizer("key1").join()
  * ```
  */
-fun ((String) -> String).asyncMemoizer(map: RedisMap): LettuceAsyncMemoizer =
+fun ((String) -> String).asyncMemoizer(map: LettuceMap<String>): LettuceAsyncMemoizer =
     LettuceAsyncMemoizer(map, this)
 
 /**
  * [RedisMap]을 사용하여 함수 실행 결과를 [CompletableFuture] 기반으로 메모이제이션하는 구현체입니다.
  */
 class LettuceAsyncMemoizer(
-    val map: RedisMap,
+    val map: LettuceMap<String>,
     val evaluator: (String) -> String,
 ) : AsyncMemoizer<String, String> {
 

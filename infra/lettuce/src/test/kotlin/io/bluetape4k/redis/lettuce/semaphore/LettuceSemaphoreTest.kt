@@ -22,18 +22,18 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedisSemaphoreTest: AbstractLettuceTest() {
+class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
         private const val TOTAL_PERMITS = 3
     }
 
-    private lateinit var semaphore: RedisSemaphore
+    private lateinit var semaphore: LettuceSemaphore
 
     @BeforeEach
     fun setup() {
         val connection = LettuceClients.connect(client)
-        semaphore = RedisSemaphore(connection, randomName(), totalPermits = TOTAL_PERMITS)
+        semaphore = LettuceSemaphore(connection, randomName(), totalPermits = TOTAL_PERMITS)
         semaphore.initialize()
     }
 
@@ -94,7 +94,7 @@ class RedisSemaphoreTest: AbstractLettuceTest() {
 
         repeat(10) {
             executor.submit {
-                val s = RedisSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+                val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
                     val current = concurrent.incrementAndGet()
                     maxConcurrent.updateAndGet { max -> maxOf(max, current) }
@@ -135,32 +135,33 @@ class RedisSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `tryAcquireSuspending - 허가 획득 성공`() = runSuspendIO {
-        semaphore.tryAcquireSuspending().shouldBeTrue()
+        val suspendSemaphore = LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+        suspendSemaphore.tryAcquire().shouldBeTrue()
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS - 1
-        semaphore.releaseSuspending()
+        suspendSemaphore.release()
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
     }
 
     @Test
     fun `acquireSuspending and releaseSuspending`() = runSuspendIO {
-        semaphore.acquireSuspending(1, waitTime = 2.seconds)
+        val suspendSemaphore = LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+        suspendSemaphore.acquire(1, waitTime = 2.seconds)
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS - 1
-        semaphore.releaseSuspending()
+        suspendSemaphore.release()
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS
     }
 
     @Test
     fun `코루틴 동시성 - 최대 TOTAL_PERMITS개만 허가`() = runSuspendIO {
         val acquired = AtomicInteger(0)
-        val connection = LettuceClients.connect(client)
 
         val jobs = List(10) {
             async {
-                val s = RedisSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
-                if (s.tryAcquireSuspending()) {
+                val s = LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+                if (s.tryAcquire()) {
                     acquired.incrementAndGet()
                     kotlinx.coroutines.delay(50)
-                    s.releaseSuspending()
+                    s.release()
                 }
             }
         }

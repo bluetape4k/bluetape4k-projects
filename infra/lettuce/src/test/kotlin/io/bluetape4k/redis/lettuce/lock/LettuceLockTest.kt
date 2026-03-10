@@ -22,16 +22,16 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedisLockTest: AbstractLettuceTest() {
+class LettuceLockTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel()
 
-    private lateinit var lock: RedisLock
+    private lateinit var lock: LettuceLock
 
     @BeforeEach
     fun setup() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
-        lock = RedisLock(connection, randomName(), defaultLeaseTime = 10.seconds)
+        lock = LettuceLock(connection, randomName(), defaultLeaseTime = 10.seconds)
     }
 
     // =========================================================================
@@ -51,7 +51,7 @@ class RedisLockTest: AbstractLettuceTest() {
         lock.tryLock().shouldBeTrue()
         try {
             // 같은 키를 가진 다른 락 인스턴스는 획득 실패
-            val lock2 = RedisLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+            val lock2 = LettuceLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
             lock2.tryLock().shouldBeFalse()
         } finally {
             lock.unlock()
@@ -85,7 +85,7 @@ class RedisLockTest: AbstractLettuceTest() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
         repeat(threadCount) {
             executor.submit {
-                val threadLock = RedisLock(connection, lock.lockKey, 5.seconds)
+                val threadLock = LettuceLock(connection, lock.lockKey, 5.seconds)
                 if (threadLock.tryLock(waitTime = 100.milliseconds)) {
                     acquiredCount.incrementAndGet()
                     Thread.sleep(100)
@@ -117,7 +117,7 @@ class RedisLockTest: AbstractLettuceTest() {
     fun `tryLockAsync - 이미 잠긴 경우 false`() {
         lock.tryLockAsync().get().shouldBeTrue()
         try {
-            val lock2 = RedisLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+            val lock2 = LettuceLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
             lock2.tryLockAsync().get().shouldBeFalse()
         } finally {
             lock.unlockAsync().get()
@@ -129,19 +129,21 @@ class RedisLockTest: AbstractLettuceTest() {
     // =========================================================================
 
     @Test
-    fun `tryLockSuspending - 락 획득 성공`() = runSuspendIO {
-        lock.tryLockSuspending().shouldBeTrue()
-        lock.isHeldByCurrentInstance().shouldBeTrue()
-        lock.unlockSuspending()
-        lock.isHeldByCurrentInstance().shouldBeFalse()
+    fun `tryLock (suspend) - 락 획득 성공`() = runSuspendIO {
+        val suspendLock = LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+        suspendLock.tryLock().shouldBeTrue()
+        suspendLock.isHeldByCurrentInstance().shouldBeTrue()
+        suspendLock.unlock()
+        suspendLock.isHeldByCurrentInstance().shouldBeFalse()
     }
 
     @Test
-    fun `lockSuspending and unlockSuspending`() = runSuspendIO {
-        lock.lockSuspending(leaseTime = 5.seconds)
-        lock.isHeldByCurrentInstance().shouldBeTrue()
-        lock.unlockSuspending()
-        lock.isHeldByCurrentInstance().shouldBeFalse()
+    fun `lock and unlock (suspend)`() = runSuspendIO {
+        val suspendLock = LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+        suspendLock.lock(leaseTime = 5.seconds)
+        suspendLock.isHeldByCurrentInstance().shouldBeTrue()
+        suspendLock.unlock()
+        suspendLock.isHeldByCurrentInstance().shouldBeFalse()
     }
 
     @Test
@@ -151,11 +153,11 @@ class RedisLockTest: AbstractLettuceTest() {
 
         val jobs = List(5) {
             async {
-                val coLock = RedisLock(connection, lock.lockKey, 5.seconds)
-                if (coLock.tryLockSuspending(waitTime = 100.milliseconds)) {
+                val coLock = LettuceSuspendLock(connection, lock.lockKey, 5.seconds)
+                if (coLock.tryLock(waitTime = 100.milliseconds)) {
                     acquiredCount.incrementAndGet()
                     kotlinx.coroutines.delay(100)
-                    coLock.unlockSuspending()
+                    coLock.unlock()
                 }
             }
         }

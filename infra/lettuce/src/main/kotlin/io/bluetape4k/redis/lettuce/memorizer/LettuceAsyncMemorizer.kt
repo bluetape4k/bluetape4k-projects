@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memorizer
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
     replaceWith = ReplaceWith("asyncMemoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.asyncMemoizer"),
     level = DeprecationLevel.WARNING
 )
-fun RedisMap.asyncMemorizer(evaluator: (String) -> String): LettuceAsyncMemorizer =
+fun LettuceMap<String>.asyncMemorizer(evaluator: (String) -> String): LettuceAsyncMemorizer =
     LettuceAsyncMemorizer(this, evaluator)
 
 /**
@@ -44,7 +44,7 @@ fun RedisMap.asyncMemorizer(evaluator: (String) -> String): LettuceAsyncMemorize
     replaceWith = ReplaceWith("asyncMemoizer(map)", "io.bluetape4k.redis.lettuce.memoizer.asyncMemoizer"),
     level = DeprecationLevel.WARNING
 )
-fun ((String) -> String).asyncMemorizer(map: RedisMap): LettuceAsyncMemorizer =
+fun ((String) -> String).asyncMemorizer(map: LettuceMap<String>): LettuceAsyncMemorizer =
     LettuceAsyncMemorizer(map, this)
 
 /**
@@ -67,7 +67,7 @@ fun ((String) -> String).asyncMemorizer(map: RedisMap): LettuceAsyncMemorizer =
     level = DeprecationLevel.WARNING
 )
 class LettuceAsyncMemorizer(
-    val map: RedisMap,
+    val map: LettuceMap<String>,
     val evaluator: (String) -> String,
 ) : AsyncMemorizer<String, String> {
 

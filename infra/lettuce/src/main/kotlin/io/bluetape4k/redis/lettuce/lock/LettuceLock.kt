@@ -2,20 +2,17 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
-import kotlinx.coroutines.delay
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -25,19 +22,15 @@ import kotlin.time.Duration.Companion.seconds
  * Redisson의 RLock을 참고하여 Lettuce 기반으로 구현한 비재진입(non-reentrant) 분산 뮤텍스입니다.
  * 락 토큰으로 UUID를 사용하여 스레드/코루틴에 독립적으로 동작합니다.
  *
- * 동기, 비동기(CompletableFuture), 코루틴(suspend) 3가지 방식을 모두 지원합니다.
+ * 동기, 비동기(CompletableFuture) 2가지 방식을 지원합니다.
+ * 코루틴(suspend) 방식은 [LettuceSuspendLock]을 사용하세요.
  *
  * ```kotlin
- * val lock = RedisLock(connection, "my-lock")
+ * val lock = LettuceLock(connection, "my-lock")
  *
  * // 동기 방식
  * if (lock.tryLock()) {
  *     try { doWork() } finally { lock.unlock() }
- * }
- *
- * // 코루틴 방식
- * if (lock.tryLockSuspending()) {
- *     try { doWork() } finally { lock.unlockSuspending() }
  * }
  * ```
  *
@@ -45,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param lockKey Redis에 저장될 락 키
  * @param defaultLeaseTime 락 유지 시간 기본값 (기본 30초)
  */
-class RedisLock(
+class LettuceLock(
     private val connection: StatefulRedisConnection<String, String>,
     val lockKey: String,
     val defaultLeaseTime: Duration = 30.seconds,
@@ -250,78 +243,4 @@ class RedisLock(
             }
     }
 
-    // =========================================================================
-    // 코루틴 API (suspend)
-    // =========================================================================
-
-    /**
-     * 지정된 대기 시간 내에 락 획득을 코루틴으로 시도합니다.
-     *
-     * @param waitTime 락 획득 대기 시간 (기본값: 즉시 시도)
-     * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
-     * @return 락 획득 성공 여부
-     */
-    suspend fun tryLockSuspending(
-        waitTime: Duration = ZERO,
-        leaseTime: Duration = defaultLeaseTime,
-    ): Boolean {
-        val token = UUID.randomUUID().toString()
-        val leaseMs = leaseTime.inWholeMilliseconds
-        val deadline = System.currentTimeMillis() + waitTime.inWholeMilliseconds
-
-        do {
-            val args = SetArgs().nx().px(leaseMs)
-            val result = asyncCommands.set(lockKey, token, args).awaitSuspending()
-            if (result != null) {
-                tokenRef.set(token)
-                log.debug { "Lock 획득 성공 (suspend): lockKey=$lockKey" }
-                return true
-            }
-            if (System.currentTimeMillis() < deadline) {
-                delay(RETRY_DELAY_MS.milliseconds)
-            }
-        } while (System.currentTimeMillis() < deadline)
-
-        log.debug { "Lock 획득 실패 (timeout, suspend): lockKey=$lockKey" }
-        return false
-    }
-
-    /**
-     * 락을 획득할 때까지 코루틴으로 대기합니다.
-     *
-     * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
-     */
-    suspend fun lockSuspending(leaseTime: Duration = defaultLeaseTime) {
-        val token = UUID.randomUUID().toString()
-        val leaseMs = leaseTime.inWholeMilliseconds
-
-        while (true) {
-            val args = SetArgs().nx().px(leaseMs)
-            val result = asyncCommands.set(lockKey, token, args).awaitSuspending()
-            if (result != null) {
-                tokenRef.set(token)
-                log.debug { "Lock 획득 성공 (suspend): lockKey=$lockKey" }
-                return
-            }
-            delay(RETRY_DELAY_MS.milliseconds)
-        }
-    }
-
-    /**
-     * 보유 중인 락을 코루틴으로 해제합니다.
-     *
-     * @throws IllegalStateException 락을 보유하지 않은 경우
-     */
-    suspend fun unlockSuspending() {
-        val token = tokenRef.getAndSet(null)
-            ?: throw IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
-
-        val released = asyncCommands.eval<Long>(UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token)
-            .awaitSuspending()
-
-        if (released == 0L) {
-            throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")
-        }
-        log.debug { "Lock 해제 성공 (suspend): lockKey=$lockKey" }
-    }
 }

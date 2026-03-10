@@ -1,33 +1,29 @@
 package io.bluetape4k.redis.lettuce.map
 
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.codec.StringCodec
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class RedisMapTest: AbstractLettuceTest() {
+class LettuceMapTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel()
 
-    private lateinit var map: RedisMap
+    private lateinit var map: LettuceMap<String>
 
     @BeforeEach
     fun setup() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
-        map = RedisMap(connection, randomName())
+        map = LettuceMap(connection, randomName())
     }
 
     @AfterEach
@@ -210,85 +206,5 @@ class RedisMapTest: AbstractLettuceTest() {
         map.putAllAsync(mapOf("f1" to "v1", "f2" to "v2")).get()
         map.clearAsync().get() shouldBeEqualTo 1L
         map.isEmptyAsync().get().shouldBeTrue()
-    }
-
-    // =========================================================================
-    // 코루틴 테스트
-    // =========================================================================
-
-    @Test
-    fun `putSuspending and getSuspending`() = runSuspendIO {
-        map.putSuspending("field1", "value1").shouldBeTrue()
-        map.getSuspending("field1") shouldBeEqualTo "value1"
-        map.getSuspending("nonexistent").shouldBeNull()
-    }
-
-    @Test
-    fun `putIfAbsentSuspending`() = runSuspendIO {
-        map.putIfAbsentSuspending("field1", "first").shouldBeTrue()
-        map.putIfAbsentSuspending("field1", "second").shouldBeFalse()
-        map.getSuspending("field1") shouldBeEqualTo "first"
-    }
-
-    @Test
-    fun `removeSuspending and containsKeySuspending`() = runSuspendIO {
-        map.putSuspending("field1", "value1")
-        map.containsKeySuspending("field1").shouldBeTrue()
-        map.removeSuspending("field1") shouldBeEqualTo 1L
-        map.containsKeySuspending("field1").shouldBeFalse()
-    }
-
-    @Test
-    fun `sizeSuspending and isEmptySuspending`() = runSuspendIO {
-        map.isEmptySuspending().shouldBeTrue()
-        map.putSuspending("f1", "v1")
-        map.putSuspending("f2", "v2")
-        map.sizeSuspending() shouldBeEqualTo 2L
-        map.isEmptySuspending().shouldBeFalse()
-    }
-
-    @Test
-    fun `entriesSuspending, keySetSuspending, valuesSuspending`() = runSuspendIO {
-        map.putAllSuspending(mapOf("f1" to "v1", "f2" to "v2", "f3" to "v3"))
-
-        map.keySetSuspending() shouldContainAll listOf("f1", "f2", "f3")
-        map.valuesSuspending() shouldContainAll listOf("v1", "v2", "v3")
-
-        val entries = map.entriesSuspending()
-        entries.shouldHaveSize(3)
-        entries["f1"] shouldBeEqualTo "v1"
-    }
-
-    @Test
-    fun `getAllSuspending`() = runSuspendIO {
-        map.putSuspending("f1", "v1")
-        map.putSuspending("f2", "v2")
-
-        val result = map.getAllSuspending(listOf("f1", "f2", "missing"))
-        result["f1"] shouldBeEqualTo "v1"
-        result["f2"] shouldBeEqualTo "v2"
-        result["missing"].shouldBeNull()
-    }
-
-    @Test
-    fun `clearSuspending`() = runSuspendIO {
-        map.putAllSuspending(mapOf("f1" to "v1", "f2" to "v2"))
-        map.isEmptySuspending().shouldBeFalse()
-        map.clearSuspending() shouldBeEqualTo 1L
-        map.isEmptySuspending().shouldBeTrue()
-    }
-
-    @Test
-    fun `코루틴 동시성 - 여러 코루틴에서 동시 put`() = runSuspendIO {
-        val itemCount = 100
-
-        val jobs = List(itemCount) { index ->
-            async {
-                map.putSuspending("field-$index", "value-$index")
-            }
-        }
-        jobs.awaitAll()
-
-        map.sizeSuspending() shouldBeEqualTo itemCount.toLong()
     }
 }

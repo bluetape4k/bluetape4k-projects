@@ -2,17 +2,14 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
-import kotlinx.coroutines.delay
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -21,20 +18,16 @@ import kotlin.time.Duration.Companion.seconds
  * Redis의 카운터(잔여 허가 수)를 사용하여 세마포어를 구현합니다.
  * Lua 스크립트를 통해 acquire/release를 원자적으로 처리합니다.
  *
- * 동기, 비동기(CompletableFuture), 코루틴(suspend) 3가지 방식을 모두 지원합니다.
+ * 동기, 비동기(CompletableFuture) 2가지 방식을 지원합니다.
+ * 코루틴(suspend) 방식은 [LettuceSuspendSemaphore]를 사용하세요.
  *
  * ```kotlin
- * val semaphore = RedisSemaphore(connection, "my-semaphore", totalPermits = 3)
+ * val semaphore = LettuceSemaphore(connection, "my-semaphore", totalPermits = 3)
  * semaphore.initialize() // 또는 trySetPermits(3)
  *
  * // 동기 방식
  * if (semaphore.tryAcquire()) {
  *     try { doWork() } finally { semaphore.release() }
- * }
- *
- * // 코루틴 방식
- * if (semaphore.tryAcquireSuspending()) {
- *     try { doWork() } finally { semaphore.releaseSuspending() }
  * }
  * ```
  *
@@ -42,7 +35,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param semaphoreKey Redis에 저장될 세마포어 키
  * @param totalPermits 전체 허가 수
  */
-class RedisSemaphore(
+class LettuceSemaphore(
     private val connection: StatefulRedisConnection<String, String>,
     val semaphoreKey: String,
     val totalPermits: Int,
@@ -225,57 +218,5 @@ return v"""
         ).toCompletableFuture().thenApply { remaining ->
             log.debug { "Semaphore releaseAsync: key=$semaphoreKey, permits=$permits, remaining=$remaining" }
         }
-    }
-
-    // =========================================================================
-    // 코루틴 API (suspend)
-    // =========================================================================
-
-    /**
-     * 즉시 허가 획득을 코루틴으로 시도합니다.
-     *
-     * @param permits 획득할 허가 수 (기본값: 1)
-     * @return 획득 성공 여부
-     */
-    suspend fun tryAcquireSuspending(permits: Int = 1): Boolean {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val result = asyncCommands.eval<Long>(
-            ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(semaphoreKey), permits.toString()
-        ).awaitSuspending()
-        val acquired = result >= 0
-        log.debug { "Semaphore tryAcquireSuspending: key=$semaphoreKey, permits=$permits, acquired=$acquired" }
-        return acquired
-    }
-
-    /**
-     * 허가를 획득할 때까지 코루틴으로 대기합니다.
-     *
-     * @param permits 획득할 허가 수 (기본값: 1)
-     * @param waitTime 최대 대기 시간 (기본값: 30초)
-     * @throws IllegalStateException 지정된 시간 내에 허가를 획득하지 못한 경우
-     */
-    suspend fun acquireSuspending(permits: Int = 1, waitTime: Duration = 30.seconds) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val deadline = System.currentTimeMillis() + waitTime.inWholeMilliseconds
-        while (System.currentTimeMillis() < deadline) {
-            if (tryAcquireSuspending(permits)) return
-            delay(RETRY_DELAY_MS.milliseconds)
-        }
-        throw IllegalStateException("세마포어 획득 시간 초과 (suspend): semaphoreKey=$semaphoreKey, permits=$permits")
-    }
-
-    /**
-     * 허가를 코루틴으로 반납합니다.
-     *
-     * @param permits 반납할 허가 수 (기본값: 1)
-     */
-    suspend fun releaseSuspending(permits: Int = 1) {
-        require(permits > 0) { "permits는 양수여야 합니다: $permits" }
-        val remaining = asyncCommands.eval<Long>(
-            RELEASE_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
-        ).awaitSuspending()
-        log.debug { "Semaphore releaseSuspending: key=$semaphoreKey, permits=$permits, remaining=$remaining" }
     }
 }

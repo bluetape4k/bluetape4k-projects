@@ -4,13 +4,13 @@ import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.leader.LettuceLeaderElectionOptions
-import io.bluetape4k.redis.lettuce.lock.RedisLock
+import io.bluetape4k.redis.lettuce.lock.LettuceSuspendLock
 import io.lettuce.core.api.StatefulRedisConnection
 
 /**
  * Lettuce Redis 클라이언트를 이용한 코루틴 기반 리더 선출 구현체입니다.
  *
- * [RedisLock]의 suspend 메서드를 사용하여 비동기적으로 리더를 선출합니다.
+ * [RedisSuspendLock]을 사용하여 비동기적으로 리더를 선출합니다.
  *
  * ```kotlin
  * val election = LettuceSuspendLeaderElection(connection)
@@ -29,8 +29,8 @@ class LettuceSuspendLeaderElection(
 
     override suspend fun <T> runIfLeader(lockName: String, action: suspend () -> T): T {
         require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
-        val lock = RedisLock(connection, lockName, options.leaseTime)
-        val acquired = lock.tryLockSuspending(options.waitTime, options.leaseTime)
+        val lock = LettuceSuspendLock(connection, lockName, options.leaseTime)
+        val acquired = lock.tryLock(options.waitTime, options.leaseTime)
         if (!acquired) {
             throw IllegalStateException("리더 선출 실패 (suspend): lockName=$lockName")
         }
@@ -39,7 +39,7 @@ class LettuceSuspendLeaderElection(
             return action()
         } finally {
             if (lock.isHeldByCurrentInstance()) {
-                runCatching { lock.unlockSuspending() }
+                runCatching { lock.unlock() }
             }
         }
     }

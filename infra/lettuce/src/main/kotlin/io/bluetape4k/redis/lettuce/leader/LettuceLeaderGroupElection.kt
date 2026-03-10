@@ -5,7 +5,7 @@ import io.bluetape4k.leader.LeaderGroupElection
 import io.bluetape4k.leader.LeaderGroupState
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.semaphore.RedisSemaphore
+import io.bluetape4k.redis.lettuce.semaphore.LettuceSemaphore
 import io.lettuce.core.api.StatefulRedisConnection
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
@@ -34,8 +34,8 @@ class LettuceLeaderGroupElection(
 
     companion object : KLogging()
 
-    private fun getSemaphore(lockName: String): RedisSemaphore {
-        val semaphore = RedisSemaphore(connection, lockName, maxLeaders)
+    private fun getSemaphore(lockName: String): LettuceSemaphore {
+        val semaphore = LettuceSemaphore(connection, lockName, maxLeaders)
         semaphore.initialize()
         return semaphore
     }

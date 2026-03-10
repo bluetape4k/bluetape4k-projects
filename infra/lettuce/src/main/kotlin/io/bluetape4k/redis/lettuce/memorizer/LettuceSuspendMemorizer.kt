@@ -3,7 +3,7 @@ package io.bluetape4k.redis.lettuce.memorizer
 import io.bluetape4k.cache.memorizer.SuspendMemorizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.map.RedisMap
+import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import kotlinx.coroutines.CompletableDeferred
 import java.util.concurrent.ConcurrentHashMap
 
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
     replaceWith = ReplaceWith("suspendMemoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.suspendMemoizer"),
     level = DeprecationLevel.WARNING
 )
-fun RedisMap.suspendMemorizer(evaluator: suspend (String) -> String): LettuceSuspendMemorizer =
+fun LettuceSuspendMap<String>.suspendMemorizer(evaluator: suspend (String) -> String): LettuceSuspendMemorizer =
     LettuceSuspendMemorizer(this, evaluator)
 
 /**
@@ -47,7 +47,7 @@ fun RedisMap.suspendMemorizer(evaluator: suspend (String) -> String): LettuceSus
     level = DeprecationLevel.WARNING
 )
 class LettuceSuspendMemorizer(
-    val map: RedisMap,
+    val map: LettuceSuspendMap<String>,
     val evaluator: suspend (String) -> String,
 ) : SuspendMemorizer<String, String> {
 
@@ -63,15 +63,15 @@ class LettuceSuspendMemorizer(
         if (existing != null) return existing.await()
 
         try {
-            val cached = map.getSuspending(key)
+            val cached = map.get(key)
             if (cached != null) {
                 deferred.complete(cached)
                 return cached
             }
 
             val evaluated = evaluator(key)
-            val isNew = map.putIfAbsentSuspending(key, evaluated)
-            val winner = if (isNew) evaluated else (map.getSuspending(key) ?: evaluated)
+            val isNew = map.putIfAbsent(key, evaluated)
+            val winner = if (isNew) evaluated else (map.get(key) ?: evaluated)
             deferred.complete(winner)
             return winner
         } catch (e: Throwable) {
@@ -84,6 +84,6 @@ class LettuceSuspendMemorizer(
 
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: mapKey=${map.mapKey}" }
-        map.clearSuspending()
+        map.clear()
     }
 }

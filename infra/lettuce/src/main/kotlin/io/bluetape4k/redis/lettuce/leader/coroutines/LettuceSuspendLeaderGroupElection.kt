@@ -5,8 +5,9 @@ import io.bluetape4k.leader.coroutines.SuspendLeaderGroupElection
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.leader.LettuceLeaderElectionOptions
-import io.bluetape4k.redis.lettuce.semaphore.RedisSemaphore
+import io.bluetape4k.redis.lettuce.semaphore.LettuceSemaphore
 import io.lettuce.core.api.StatefulRedisConnection
+import kotlinx.coroutines.future.await
 
 /**
  * Lettuce Redis 클라이언트를 이용한 코루틴 기반 복수 리더 선출 구현체입니다.
@@ -31,8 +32,8 @@ class LettuceSuspendLeaderGroupElection(
 
     companion object : KLogging()
 
-    private fun getSemaphore(lockName: String): RedisSemaphore {
-        val semaphore = RedisSemaphore(connection, lockName, maxLeaders)
+    private fun getSemaphore(lockName: String): LettuceSemaphore {
+        val semaphore = LettuceSemaphore(connection, lockName, maxLeaders)
         semaphore.initialize()
         return semaphore
     }
@@ -55,12 +56,12 @@ class LettuceSuspendLeaderGroupElection(
     override suspend fun <T> runIfLeader(lockName: String, action: suspend () -> T): T {
         require(lockName.isNotBlank()) { "lockName은 공백이 아니어야 합니다." }
         val semaphore = getSemaphore(lockName)
-        semaphore.acquireSuspending(waitTime = options.waitTime)
+        semaphore.acquireAsync(waitTime = options.waitTime).await()
         log.debug { "리더 선출 성공 (suspend): lockName=$lockName" }
         try {
             return action()
         } finally {
-            runCatching { semaphore.releaseSuspending() }
+            runCatching { semaphore.releaseAsync().await() }
         }
     }
 }

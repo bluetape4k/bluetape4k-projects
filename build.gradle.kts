@@ -182,23 +182,14 @@ subprojects {
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs(
                 "-Xshare:off",
-                "-Xms2G",
-                "-Xmx4G",
-                "-XX:+UseZGC",
+                "-Xms512M",
+                "-Xmx2G",
+                "-XX:+UseG1GC",
                 "-XX:+UnlockExperimentalVMOptions",
                 "-XX:+EnableDynamicAgentLoading",
+                "--enable-preview",
                 "-Didea.io.use.nio2=true"
             )
-
-            if (project.name.contains("quarkus")) {
-                // [Quarkus Logging](https://quarkus.io/guides/logging)
-                systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
-            }
-
-            if (project.name.contains("quarkus")) {
-                // [Quarkus Logging](https://quarkus.io/guides/logging)
-                systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
-            }
 
             testLogging {
                 showExceptions = true

@@ -2,7 +2,6 @@ package io.bluetape4k.redis.lettuce.atomic
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
@@ -17,24 +16,22 @@ import java.util.concurrent.CompletableFuture
  * Redis String 타입에 Long 값을 저장하고, INCR/DECR/INCRBY 명령과 Lua 스크립트를 통해
  * 원자적인 연산을 제공합니다.
  *
- * 동기, 비동기(CompletableFuture), 코루틴(suspend) 3가지 방식을 모두 지원합니다.
+ * 동기, 비동기(CompletableFuture) 2가지 방식을 지원합니다.
+ * 코루틴(suspend) 방식은 [LettuceSuspendAtomicLong]을 사용하세요.
  *
  * ```kotlin
- * val counter = RedisAtomicLong(connection, "my-counter", initialValue = 0L)
+ * val counter = LettuceAtomicLong(connection, "my-counter", initialValue = 0L)
  *
  * // 동기 방식
  * counter.incrementAndGet()  // 1
  * counter.addAndGet(5)       // 6
- *
- * // 코루틴 방식
- * counter.incrementAndGetSuspending()
  * ```
  *
  * @param connection Lettuce StatefulRedisConnection (StringCodec 기반)
  * @param key Redis에 저장될 키
  * @param initialValue 초기값 (키가 없을 경우에만 설정)
  */
-class RedisAtomicLong(
+class LettuceAtomicLong(
     private val connection: StatefulRedisConnection<String, String>,
     val key: String,
     val initialValue: Long = 0L,
@@ -101,7 +98,7 @@ end"""
      */
     fun set(value: Long) {
         syncCommands.set(key, value.toString())
-        log.debug { "RedisAtomicLong set: key=$key, value=$value" }
+        log.debug { "LettuceAtomicLong set: key=$key, value=$value" }
     }
 
     /**
@@ -207,7 +204,7 @@ end"""
     /** 값을 비동기로 설정합니다. */
     fun setAsync(value: Long): CompletableFuture<Unit> =
         asyncCommands.set(key, value.toString()).toCompletableFuture()
-            .thenApply { log.debug { "RedisAtomicLong setAsync: key=$key, value=$value" } }
+            .thenApply { log.debug { "LettuceAtomicLong setAsync: key=$key, value=$value" } }
 
     /** 현재 값을 반환하고 새 값으로 설정합니다 (비동기). */
     fun getAndSetAsync(value: Long): CompletableFuture<Long> =
@@ -259,64 +256,4 @@ end"""
             arrayOf(key), expect.toString(), update.toString()
         ).toCompletableFuture().thenApply { it == 1L }
 
-    // =========================================================================
-    // 코루틴 API (suspend)
-    // =========================================================================
-
-    /** 현재 값을 코루틴으로 반환합니다. */
-    suspend fun getSuspending(): Long =
-        asyncCommands.get(key).awaitSuspending()?.toLongOrNull() ?: initialValue
-
-    /** 값을 코루틴으로 설정합니다. */
-    suspend fun setSuspending(value: Long) {
-        asyncCommands.set(key, value.toString()).awaitSuspending()
-        log.debug { "RedisAtomicLong setSuspending: key=$key, value=$value" }
-    }
-
-    /** 현재 값을 반환하고 새 값으로 설정합니다 (코루틴). */
-    suspend fun getAndSetSuspending(value: Long): Long =
-        asyncCommands.eval<String>(
-            GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), value.toString()
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
-
-    /** 값을 1 증가시키고 증가된 값을 반환합니다 (코루틴). */
-    suspend fun incrementAndGetSuspending(): Long =
-        asyncCommands.incr(key).awaitSuspending() ?: 1L
-
-    /** 값을 1 감소시키고 감소된 값을 반환합니다 (코루틴). */
-    suspend fun decrementAndGetSuspending(): Long =
-        asyncCommands.decr(key).awaitSuspending() ?: -1L
-
-    /** 값에 delta를 더하고 더해진 값을 반환합니다 (코루틴). */
-    suspend fun addAndGetSuspending(delta: Long): Long =
-        asyncCommands.incrby(key, delta).awaitSuspending() ?: delta
-
-    /** 현재 값을 반환하고 1 증가시킵니다 (코루틴). */
-    suspend fun getAndIncrementSuspending(): Long =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), "1"
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
-
-    /** 현재 값을 반환하고 1 감소시킵니다 (코루틴). */
-    suspend fun getAndDecrementSuspending(): Long =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), "-1"
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
-
-    /** 현재 값을 반환하고 delta를 더합니다 (코루틴). */
-    suspend fun getAndAddSuspending(delta: Long): Long =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
-            arrayOf(key), delta.toString()
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
-
-    /** 현재 값이 expect와 같으면 update로 변경합니다 (코루틴). */
-    suspend fun compareAndSetSuspending(expect: Long, update: Long): Boolean =
-        asyncCommands.eval<Long>(
-            COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
-            arrayOf(key), expect.toString(), update.toString()
-        ).awaitSuspending() == 1L
 }
