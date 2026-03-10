@@ -17,6 +17,11 @@ import java.util.concurrent.CompletableFuture
  * // size == 4
  * ```
  */
+@Deprecated(
+    message = "AsyncMemorizer는 AsyncMemoizer로 이름이 변경되었습니다. io.bluetape4k.cache.memoizer.AsyncMemoizer를 사용하세요.",
+    replaceWith = ReplaceWith("AsyncMemoizer", "io.bluetape4k.cache.memoizer.AsyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 interface AsyncMemorizer<in T: Any, R: Any>: (T) -> CompletableFuture<R> {
     /** 저장된 모든 캐시 엔트리를 제거합니다. */
     fun clear()

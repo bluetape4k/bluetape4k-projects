@@ -6,11 +6,21 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+@Deprecated(
+    message = "suspendMemorizer()는 suspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("suspendMemoizer(evaluator)", "io.bluetape4k.cache.memoizer.jcache.suspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> javax.cache.Cache<T, R>.suspendMemorizer(
     evaluator: suspend (T) -> R,
 ): SuspendJCacheMemorizer<T, R> =
     SuspendJCacheMemorizer(this, evaluator)
 
+@Deprecated(
+    message = "withSuspendMemorizer()는 withSuspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withSuspendMemoizer(jcache)", "io.bluetape4k.cache.memoizer.jcache.withSuspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(
     jcache: javax.cache.Cache<T, R>,
 ): SuspendJCacheMemorizer<T, R> =
@@ -22,6 +32,11 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(
  * @param jcache [javax.cache.Cache] 인스턴스
  * @param evaluator 계산 함수
  */
+@Deprecated(
+    message = "SuspendJCacheMemorizer는 SuspendJCacheMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("SuspendJCacheMemoizer", "io.bluetape4k.cache.memoizer.jcache.SuspendJCacheMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class SuspendJCacheMemorizer<T: Any, R: Any>(
     private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: suspend (T) -> R,

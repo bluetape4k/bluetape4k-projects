@@ -7,6 +7,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
+@Deprecated(
+    message = "SuspendInMemoryMemorizer는 SuspendInMemoryMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("SuspendInMemoryMemoizer", "io.bluetape4k.cache.memoizer.inmemory.SuspendInMemoryMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class SuspendInMemoryMemorizer<in T: Any, out R: Any>(
     @BuilderInference private val evaluator: suspend (T) -> R,
 ): SuspendMemorizer<T, R> {

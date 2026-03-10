@@ -20,6 +20,11 @@ import java.util.concurrent.ConcurrentHashMap
  * @param evaluator 키를 받아 값을 계산하는 함수
  * @return [LettuceMemorizer] 인스턴스
  */
+@Deprecated(
+    message = "memorizer()는 memoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("memoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.memoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun RedisMap.memorizer(evaluator: (String) -> String): LettuceMemorizer =
     LettuceMemorizer(this, evaluator)
 
@@ -35,6 +40,11 @@ fun RedisMap.memorizer(evaluator: (String) -> String): LettuceMemorizer =
  * @param map [RedisMap] 인스턴스
  * @return [LettuceMemorizer] 인스턴스
  */
+@Deprecated(
+    message = "memorizer()는 memoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("memoizer(map)", "io.bluetape4k.redis.lettuce.memoizer.memoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun ((String) -> String).memorizer(map: RedisMap): LettuceMemorizer =
     LettuceMemorizer(map, this)
 
@@ -52,6 +62,11 @@ fun ((String) -> String).memorizer(map: RedisMap): LettuceMemorizer =
  * @property map       [RedisMap] 인스턴스
  * @property evaluator 키를 받아 값을 계산하는 함수
  */
+@Deprecated(
+    message = "LettuceMemorizer는 LettuceMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("LettuceMemoizer", "io.bluetape4k.redis.lettuce.memoizer.LettuceMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class LettuceMemorizer(
     val map: RedisMap,
     val evaluator: (String) -> String,

@@ -14,11 +14,21 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
+@Deprecated(
+    message = "asyncMemorizer()는 asyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("asyncMemoizer(evaluator)", "io.bluetape4k.cache.memoizer.ehcache.asyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> Cache<T, R>.asyncMemorizer(
     @BuilderInference evaluator: (T) -> CompletableFuture<R>,
 ): AsyncEhCacheMemorizer<T, R> =
     AsyncEhCacheMemorizer(this, evaluator)
 
+@Deprecated(
+    message = "withAsyncMemorizer()는 withAsyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withAsyncMemoizer(cache)", "io.bluetape4k.cache.memoizer.ehcache.withAsyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemorizer(
     cache: Cache<T, R>,
 ): AsyncEhCacheMemorizer<T, R> =
@@ -30,6 +40,11 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemorizer(
  * @property cache 실행한 값을 저장할 Cache
  * @property evaluator 캐시 값을 생성하는 메소드
  */
+@Deprecated(
+    message = "AsyncEhCacheMemorizer는 AsyncEhCacheMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("AsyncEhCacheMemoizer", "io.bluetape4k.cache.memoizer.ehcache.AsyncEhCacheMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class AsyncEhCacheMemorizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
     @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,

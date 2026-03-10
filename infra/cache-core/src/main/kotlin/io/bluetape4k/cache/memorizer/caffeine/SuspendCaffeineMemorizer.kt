@@ -21,6 +21,11 @@ import kotlinx.coroutines.sync.withLock
  * // size == 4
  * ```
  */
+@Deprecated(
+    message = "suspendMemorizer()는 suspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("suspendMemoizer(evaluator)", "io.bluetape4k.cache.memoizer.caffeine.suspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> Cache<T, R>.suspendMemorizer(
     @BuilderInference evaluator: suspend (T) -> R,
 ): SuspendCaffeineMemorizer<T, R> =
@@ -39,6 +44,11 @@ fun <T: Any, R: Any> Cache<T, R>.suspendMemorizer(
  * // memo("abc") == 3
  * ```
  */
+@Deprecated(
+    message = "withSuspendMemorizer()는 withSuspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withSuspendMemoizer(cache)", "io.bluetape4k.cache.memoizer.caffeine.withSuspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(cache: Cache<T, R>): SuspendCaffeineMemorizer<T, R> =
     SuspendCaffeineMemorizer(cache, this)
 
@@ -55,6 +65,11 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(cache: Cache<T, R>)
  * // memo("abcd") == 4
  * ```
  */
+@Deprecated(
+    message = "SuspendCaffeineMemorizer는 SuspendCaffeineMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("SuspendCaffeineMemoizer", "io.bluetape4k.cache.memoizer.caffeine.SuspendCaffeineMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class SuspendCaffeineMemorizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
     @BuilderInference private val evaluator: suspend (T) -> R,

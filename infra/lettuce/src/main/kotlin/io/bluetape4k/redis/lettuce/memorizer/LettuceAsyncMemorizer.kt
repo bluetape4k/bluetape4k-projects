@@ -19,6 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
  * @param evaluator 키를 받아 값을 계산하는 함수
  * @return [LettuceAsyncMemorizer] 인스턴스
  */
+@Deprecated(
+    message = "asyncMemorizer()는 asyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("asyncMemoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.asyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun RedisMap.asyncMemorizer(evaluator: (String) -> String): LettuceAsyncMemorizer =
     LettuceAsyncMemorizer(this, evaluator)
 
@@ -34,6 +39,11 @@ fun RedisMap.asyncMemorizer(evaluator: (String) -> String): LettuceAsyncMemorize
  * @param map [RedisMap] 인스턴스
  * @return [LettuceAsyncMemorizer] 인스턴스
  */
+@Deprecated(
+    message = "asyncMemorizer()는 asyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("asyncMemoizer(map)", "io.bluetape4k.redis.lettuce.memoizer.asyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun ((String) -> String).asyncMemorizer(map: RedisMap): LettuceAsyncMemorizer =
     LettuceAsyncMemorizer(map, this)
 
@@ -51,6 +61,11 @@ fun ((String) -> String).asyncMemorizer(map: RedisMap): LettuceAsyncMemorizer =
  * @property map       [RedisMap] 인스턴스
  * @property evaluator 키를 받아 값을 계산하는 함수
  */
+@Deprecated(
+    message = "LettuceAsyncMemorizer는 LettuceAsyncMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("LettuceAsyncMemoizer", "io.bluetape4k.redis.lettuce.memoizer.LettuceAsyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class LettuceAsyncMemorizer(
     val map: RedisMap,
     val evaluator: (String) -> String,

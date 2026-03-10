@@ -13,6 +13,11 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
+@Deprecated(
+    message = "asyncMemorizer()는 asyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("asyncMemoizer(evaluator)", "io.bluetape4k.cache.memoizer.jcache.asyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemorizer(
     evaluator: (T) -> CompletableFuture<R>,
 ): AsyncJCacheMemorizer<T, R> =
@@ -24,6 +29,11 @@ fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemorizer(
  * @property jcache 실행한 값을 저장할 Cache
  * @property evaluator 캐시 값을 생성하는 메소드
  */
+@Deprecated(
+    message = "AsyncJCacheMemorizer는 AsyncJCacheMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("AsyncJCacheMemoizer", "io.bluetape4k.cache.memoizer.jcache.AsyncJCacheMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class AsyncJCacheMemorizer<in T: Any, R: Any>(
     private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: (T) -> CompletableFuture<R>,

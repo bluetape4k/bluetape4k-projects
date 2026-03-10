@@ -98,6 +98,25 @@ val results = listOf(
 | `snappyFory()`      | Fory | Snappy |
 | `gzipFory()`        | Fory | GZip   |
 
+### Memoizer — 함수 결과 Redis 캐싱
+
+```kotlin
+import io.bluetape4k.redis.lettuce.memoizer.memoizer
+
+// 동기 메모이저
+val memoizer = redisMap.memoizer { key -> expensiveCompute(key) }
+val result1 = memoizer("key1")   // 계산 후 Redis에 저장
+val result2 = memoizer("key1")   // Redis에서 반환
+
+// 비동기 메모이저
+val asyncMemoizer = redisMap.asyncMemoizer { key -> expensiveCompute(key) }
+val asyncResult = asyncMemoizer("key1").join()
+
+// 코루틴 메모이저
+val suspendMemoizer = redisMap.suspendMemoizer { key -> expensiveComputeSuspend(key) }
+val suspendResult = suspendMemoizer("key1")
+```
+
 ## 빌드 및 테스트
 
 테스트 실행 시 Redis 서버(기본값: `localhost:6379`)가 필요합니다.

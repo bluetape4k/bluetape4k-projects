@@ -14,6 +14,11 @@ package io.bluetape4k.cache.memorizer
  * // size == 4
  * ```
  */
+@Deprecated(
+    message = "SuspendMemorizer는 SuspendMemoizer로 이름이 변경되었습니다. io.bluetape4k.cache.memoizer.SuspendMemoizer를 사용하세요.",
+    replaceWith = ReplaceWith("SuspendMemoizer", "io.bluetape4k.cache.memoizer.SuspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 interface SuspendMemorizer<in T: Any, out R: Any>: suspend (T) -> R {
     /** 저장된 모든 캐시 엔트리를 제거합니다. */
     suspend fun clear()

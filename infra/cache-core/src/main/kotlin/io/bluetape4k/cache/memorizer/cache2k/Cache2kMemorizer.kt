@@ -12,6 +12,11 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
+@Deprecated(
+    message = "memorizer()는 memoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("memoizer(evaluator)", "io.bluetape4k.cache.memoizer.cache2k.memoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> Cache<T, R>.memorizer(
     @BuilderInference evaluator: (T) -> R,
 ): Memorizer<T, R> =
@@ -24,6 +29,11 @@ fun <T: Any, R: Any> Cache<T, R>.memorizer(
  * @param R cache value type
  * @param cache 함수 실행 결과를 캐싱하는 캐시
  */
+@Deprecated(
+    message = "withMemorizer()는 withMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withMemoizer(cache)", "io.bluetape4k.cache.memoizer.cache2k.withMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): Memorizer<T, R> =
     Cache2kMemorizer(cache, this)
 
@@ -35,6 +45,11 @@ fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): Memorizer<T, 
  *
 
  */
+@Deprecated(
+    message = "Cache2kMemorizer는 Cache2kMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("Cache2kMemoizer", "io.bluetape4k.cache.memoizer.cache2k.Cache2kMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class Cache2kMemorizer<in T: Any, out R: Any>(
     private val cache: Cache<T, R>,
     @BuilderInference private val evaluator: (T) -> R,

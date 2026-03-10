@@ -19,6 +19,9 @@
 | `HazelcastLocalCache<V>` | front cache 추상 인터페이스 |
 | `CaffeineHazelcastLocalCache<V>` | Caffeine 기반 LocalCache 구현 |
 | `HazelcastEntryEventListener` | IMap EntryListener 기반 invalidation 리스너 |
+| `HazelcastMemoizer<K,V>` | IMap 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스) |
+| `AsyncHazelcastMemoizer<K,V>` | IMap.getAsync() 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스) |
+| `SuspendHazelcastMemoizer<K,V>` | IMap.getAsync().await() 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스) |
 
 ## 설치
 
@@ -200,6 +203,29 @@ cache.close()
 | `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
 | `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
 | `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | IMap GET 실패 시 동작 전략 |
+
+### 7. HazelcastMemoizer — 함수 결과 Hazelcast 캐싱
+
+```kotlin
+import io.bluetape4k.cache.memoizer.hazelcast.memoizer
+import io.bluetape4k.cache.memoizer.hazelcast.asyncMemoizer
+import io.bluetape4k.cache.memoizer.hazelcast.suspendMemoizer
+
+val imap: IMap<Int, Int> = hazelcastClient.getMap("squares")
+
+// 동기 메모이저
+val memoizer = imap.memoizer { key -> key * key }
+val result1 = memoizer(5)   // 25 — 계산 후 IMap에 저장
+val result2 = memoizer(5)   // 25 — IMap에서 반환
+
+// 비동기 메모이저 (IMap.getAsync 활용)
+val asyncMemoizer = imap.asyncMemoizer { key -> key * key }
+val asyncResult = asyncMemoizer(5).get()
+
+// 코루틴 메모이저
+val suspendMemoizer = imap.suspendMemoizer { key -> computeExpensive(key) }
+val suspendResult = suspendMemoizer(5)
+```
 
 ## CachingProvider 등록 목록
 

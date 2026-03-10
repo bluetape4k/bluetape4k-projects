@@ -13,6 +13,11 @@ import kotlin.concurrent.withLock
  * @param T cache key type
  * @param R cache value type
  */
+@Deprecated(
+    message = "asyncMemorizer()는 asyncMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("asyncMemoizer()", "io.bluetape4k.cache.memoizer.inmemory.asyncMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemorizer(): AsyncInMemoryMemorizer<T, R> =
     AsyncInMemoryMemorizer(this)
 
@@ -21,6 +26,11 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemorizer(): AsyncInMemo
  *
  * @property evaluator 캐시 값을 생성하는 메소드
  */
+@Deprecated(
+    message = "AsyncInMemoryMemorizer는 AsyncInMemoryMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("AsyncInMemoryMemoizer", "io.bluetape4k.cache.memoizer.inmemory.AsyncInMemoryMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class AsyncInMemoryMemorizer<in T: Any, R: Any>(
     @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {

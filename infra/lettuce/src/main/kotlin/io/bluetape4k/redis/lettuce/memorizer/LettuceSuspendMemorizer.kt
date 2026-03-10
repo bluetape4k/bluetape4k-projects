@@ -19,6 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
  * @param evaluator 키를 받아 값을 계산하는 suspend 함수
  * @return [LettuceSuspendMemorizer] 인스턴스
  */
+@Deprecated(
+    message = "suspendMemorizer()는 suspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("suspendMemoizer(evaluator)", "io.bluetape4k.redis.lettuce.memoizer.suspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun RedisMap.suspendMemorizer(evaluator: suspend (String) -> String): LettuceSuspendMemorizer =
     LettuceSuspendMemorizer(this, evaluator)
 
@@ -36,6 +41,11 @@ fun RedisMap.suspendMemorizer(evaluator: suspend (String) -> String): LettuceSus
  * @property map       [RedisMap] 인스턴스
  * @property evaluator 키를 받아 값을 계산하는 suspend 함수
  */
+@Deprecated(
+    message = "LettuceSuspendMemorizer는 LettuceSuspendMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("LettuceSuspendMemoizer", "io.bluetape4k.redis.lettuce.memoizer.LettuceSuspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class LettuceSuspendMemorizer(
     val map: RedisMap,
     val evaluator: suspend (String) -> String,

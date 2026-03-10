@@ -9,9 +9,12 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | `RedissonClientSupport`         | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리           |
 | `RedissonCodecs`                | 직렬화(Kryo5/Fory/Jdk/Protobuf) × 압축(GZip/LZ4/Snappy/Zstd) Codec 목록 (`bluetape4k-protobuf` 필요) |
 | `RFutureSupport`                | `RFuture` → `awaitSuspending()` Coroutines 어댑터                   |
-| `RedissonMemorizer`             | Redis `RMap` 기반 함수 결과 메모이제이션 (sync)                              |
-| `AsyncRedissonMemorizer`        | `RFuture` 기반 비동기 메모이제이션                                          |
-| `RedissonSuspendMemorizer`      | suspend 함수 기반 메모이제이션                                             |
+| `RedissonMemorizer`             | Redis `RMap` 기반 함수 결과 메모이제이션 (sync, `Memorizer` 인터페이스)           |
+| `AsyncRedissonMemorizer`        | `RFuture` 기반 비동기 메모이제이션 (`AsyncMemorizer` 인터페이스)                 |
+| `RedissonSuspendMemorizer`      | suspend 함수 기반 메모이제이션 (`SuspendMemorizer` 인터페이스)                  |
+| `RedissonMemoizer`              | Redis `RMap` 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스)            |
+| `AsyncRedissonMemoizer`         | `RFuture` 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스)                  |
+| `RedissonSuspendMemoizer`       | suspend 함수 기반 메모이제이션 (`SuspendMemoizer` 인터페이스)                   |
 | `RedissonNearCache`             | `RLocalCachedMap` 기반 2-tier Near Cache                           |
 | `RedissonLeaderElection`        | Redisson `RLock` 기반 단일 리더 선출                                     |
 | `RedissonLeaderGroupElection`   | 그룹 리더 선출                                                         |
@@ -73,7 +76,7 @@ val value = bucket.getAsync().awaitSuspending()
 bucket.setAsync("new-value").awaitSuspending()
 ```
 
-### Memorizer — 함수 결과 Redis 캐싱
+### Memorizer — 함수 결과 Redis 캐싱 (`Memorizer` 인터페이스)
 
 ```kotlin
 import io.bluetape4k.redis.redisson.memorizer.memorizer
@@ -89,6 +92,28 @@ val result2 = memorizer(5)  // 25 — Redis에서 조회
 // suspend 버전
 val suspendMemorizer = map.suspendMemorizer { key -> computeExpensive(key) }
 val result = suspendMemorizer(key)
+```
+
+### Memoizer — 함수 결과 Redis 캐싱 (`Memoizer` 인터페이스)
+
+```kotlin
+import io.bluetape4k.redis.redisson.memoizer.memoizer
+
+val map = client.getMap<Int, Int>("squares")
+
+// RMap 확장 함수로 생성
+val memoizer = map.memoizer { key -> key * key }
+
+val result1 = memoizer(5)  // 25 — 계산 후 저장
+val result2 = memoizer(5)  // 25 — Redis에서 조회
+
+// 비동기 버전
+val asyncMemoizer = map.asyncMemoizer { key -> CompletableFuture.supplyAsync { key * key } }
+val asyncResult = asyncMemoizer(5).get()
+
+// suspend 버전
+val suspendMemoizer = map.suspendMemoizer { key -> computeExpensive(key) }
+val suspendResult = suspendMemoizer(key)
 ```
 
 ### NearCache — 2-tier 로컬+분산 캐시

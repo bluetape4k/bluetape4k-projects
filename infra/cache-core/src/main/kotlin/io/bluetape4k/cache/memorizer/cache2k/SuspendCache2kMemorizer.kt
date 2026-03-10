@@ -18,6 +18,11 @@ import kotlinx.coroutines.sync.withLock
  * // memo("abcd") == 4
  * ```
  */
+@Deprecated(
+    message = "suspendMemorizer()는 suspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("suspendMemoizer(evaluator)", "io.bluetape4k.cache.memoizer.cache2k.suspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> org.cache2k.Cache<T, R>.suspendMemorizer(
     @BuilderInference evaluator: suspend (T) -> R,
 ): SuspendMemorizer<T, R> =
@@ -36,6 +41,11 @@ fun <T: Any, R: Any> org.cache2k.Cache<T, R>.suspendMemorizer(
  * // memo("abc") == 3
  * ```
  */
+@Deprecated(
+    message = "withSuspendMemorizer()는 withSuspendMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withSuspendMemoizer(cache)", "io.bluetape4k.cache.memoizer.cache2k.withSuspendMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(
     cache: org.cache2k.Cache<T, R>,
 ): SuspendMemorizer<T, R> =
@@ -54,6 +64,11 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(
  * // memo("abcd") == 4
  * ```
  */
+@Deprecated(
+    message = "SuspendCache2kMemorizer는 SuspendCache2kMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("SuspendCache2kMemoizer", "io.bluetape4k.cache.memoizer.cache2k.SuspendCache2kMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class SuspendCache2kMemorizer<in T: Any, out R: Any>(
     private val cache: org.cache2k.Cache<T, R>,
     @BuilderInference private val evaluator: suspend (T) -> R,

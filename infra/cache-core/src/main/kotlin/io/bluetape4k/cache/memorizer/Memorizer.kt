@@ -16,6 +16,11 @@ package io.bluetape4k.cache.memorizer
  * // b == 9
  * ```
  */
+@Deprecated(
+    message = "Memorizer는 Memoizer로 이름이 변경되었습니다. io.bluetape4k.cache.memoizer.Memoizer를 사용하세요.",
+    replaceWith = ReplaceWith("Memoizer", "io.bluetape4k.cache.memoizer.Memoizer"),
+    level = DeprecationLevel.WARNING
+)
 interface Memorizer<in T: Any, out R: Any>: (T) -> R {
     /** 저장된 모든 캐시 엔트리를 제거합니다. */
     fun clear()

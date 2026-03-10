@@ -14,9 +14,19 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
+@Deprecated(
+    message = "memorizer()는 memoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("memoizer(evaluator)", "io.bluetape4k.cache.memoizer.jcache.memoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> Cache<T, R>.memorizer(evaluator: (T) -> R): JCacheMemorizer<T, R> =
     JCacheMemorizer(this, evaluator)
 
+@Deprecated(
+    message = "withMemorizer()는 withMemoizer()로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("withMemoizer(cache)", "io.bluetape4k.cache.memoizer.jcache.withMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: javax.cache.Cache<T, R>): JCacheMemorizer<T, R> =
     JCacheMemorizer(cache, this)
 
@@ -26,6 +36,11 @@ fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: javax.cache.Cache<T, R>): J
  * @property jcache 실행한 값을 저장할 Cache
  * @property evaluator 캐시 값을 생성하는 메소드
  */
+@Deprecated(
+    message = "JCacheMemorizer는 JCacheMemoizer로 이름이 변경되었습니다.",
+    replaceWith = ReplaceWith("JCacheMemoizer", "io.bluetape4k.cache.memoizer.jcache.JCacheMemoizer"),
+    level = DeprecationLevel.WARNING
+)
 class JCacheMemorizer<in T: Any, out R: Any>(
     private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: (T) -> R,

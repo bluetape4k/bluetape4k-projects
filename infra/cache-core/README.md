@@ -9,7 +9,8 @@
 - **JCache 공통 유틸리티**: `JCaching`, `jcacheManager`, `jcacheConfiguration` 등
 - **Coroutines 캐시 추상화**: `SuspendCache`, `SuspendCacheEntry`
 - **Near Cache 공통 구현**: `NearCache`, `NearSuspendCache`, `NearCacheConfig`
-- **Memorizer 추상화**: `Memorizer`, `AsyncMemorizer`, `SuspendMemorizer`
+- **Memorizer 추상화**: `Memorizer`, `AsyncMemorizer`, `SuspendMemorizer` (구 인터페이스)
+- **Memoizer 추상화**: `Memoizer`, `AsyncMemoizer`, `SuspendMemoizer` (신 인터페이스)
 - **로컬 캐시 Provider** (구 `cache-local` 통합):
   - **Caffeine**: `CaffeineSupport`, `CaffeineSuspendCache`, `CaffeineMemorizer`
   - **Cache2k**: `Cache2kSupport`, `Cache2kMemorizer`

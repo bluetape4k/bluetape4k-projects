@@ -12,6 +12,9 @@
 - **`IgniteClientSuspendCache`**: Thin Client 기반 코루틴 캐시
 - **`IgniteNearCache`**: Caffeine(로컬) + Ignite(분산) 2-Tier Near Cache
 - **`IgniteSuspendNearCache`**: Near Cache 코루틴 팩토리
+- **`IgniteMemoizer<K,V>`**: `ClientCache` 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스)
+- **`AsyncIgniteMemoizer<K,V>`**: `CompletableFuture` 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스)
+- **`SuspendIgniteMemoizer<K,V>`**: `Dispatchers.IO` 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스)
 
 ## 설치
 
@@ -73,6 +76,29 @@ val value = nearCache.get("key")  // 로컬 Caffeine에서 우선 조회
 
 ```properties
 spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.IgniteNearCachingProvider
+```
+
+### 5. IgniteMemoizer — 함수 결과 Ignite 캐싱
+
+```kotlin
+import io.bluetape4k.cache.memoizer.ignite.memoizer
+import io.bluetape4k.cache.memoizer.ignite.asyncMemoizer
+import io.bluetape4k.cache.memoizer.ignite.suspendMemoizer
+
+val cache: ClientCache<Int, Int> = igniteClient.getOrCreateCache("squares")
+
+// 동기 메모이저
+val memoizer = cache.memoizer { key -> key * key }
+val result1 = memoizer(5)   // 25 — 계산 후 Ignite에 저장
+val result2 = memoizer(5)   // 25 — Ignite에서 반환
+
+// 비동기 메모이저 (IO 스레드 풀 사용)
+val asyncMemoizer = cache.asyncMemoizer { key -> key * key }
+val asyncResult = asyncMemoizer(5).get()
+
+// 코루틴 메모이저 (Dispatchers.IO 사용)
+val suspendMemoizer = cache.suspendMemoizer { key -> computeExpensive(key) }
+val suspendResult = suspendMemoizer(5)
 ```
 
 ## CachingProvider 등록 목록
