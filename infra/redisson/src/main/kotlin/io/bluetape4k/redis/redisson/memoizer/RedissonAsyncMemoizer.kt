@@ -21,10 +21,10 @@ import java.util.concurrent.ConcurrentHashMap
  * ```
  *
  * @param evaluator 수행할 비동기 함수
- * @return [AsyncRedissonMemoizer] 인스턴스
+ * @return [RedissonAsyncMemoizer] 인스턴스
  */
-fun <T: Any, R: Any> RMap<T, R>.asyncMemoizer(evaluator: (T) -> CompletionStage<R>): AsyncRedissonMemoizer<T, R> =
-    AsyncRedissonMemoizer(this, evaluator)
+fun <T: Any, R: Any> RMap<T, R>.asyncMemoizer(evaluator: (T) -> CompletionStage<R>): RedissonAsyncMemoizer<T, R> =
+    RedissonAsyncMemoizer(this, evaluator)
 
 /**
  * [RMap]을 사용하는 비동기 메모이저 확장 함수입니다.
@@ -36,10 +36,10 @@ fun <T: Any, R: Any> RMap<T, R>.asyncMemoizer(evaluator: (T) -> CompletionStage<
  *
  * @receiver 실행할 비동기 함수
  * @param map 수행결과를 저장할 Redisson [RMap] 인스턴스
- * @return [AsyncRedissonMemoizer] 인스턴스
+ * @return [RedissonAsyncMemoizer] 인스턴스
  */
-fun <T: Any, R: Any> ((T) -> CompletionStage<R>).asyncMemoizer(map: RMap<T, R>): AsyncRedissonMemoizer<T, R> =
-    AsyncRedissonMemoizer(map, this)
+fun <T: Any, R: Any> ((T) -> CompletionStage<R>).asyncMemoizer(map: RMap<T, R>): RedissonAsyncMemoizer<T, R> =
+    RedissonAsyncMemoizer(map, this)
 
 /**
  * 비동기 [evaluator] 결과를 Redis에 저장하는 메모이저입니다.
@@ -54,7 +54,7 @@ fun <T: Any, R: Any> ((T) -> CompletionStage<R>).asyncMemoizer(map: RMap<T, R>):
  * @property map 수행결과를 저장할 Redisson [RMap] 인스턴스
  * @property evaluator 수행할 비동기 함수
  */
-class AsyncRedissonMemoizer<T: Any, R: Any>(
+class RedissonAsyncMemoizer<T: Any, R: Any>(
     val map: RMap<T, R>,
     val evaluator: (T) -> CompletionStage<R>,
 ): AsyncMemoizer<T, R> {
