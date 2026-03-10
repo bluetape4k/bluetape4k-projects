@@ -5,7 +5,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-cache-core"))
-    api(project(":bluetape4k-redis"))
+    api(project(":bluetape4k-lettuce"))
 
     // Lettuce JCache provider
     api(Libs.lettuce_core)

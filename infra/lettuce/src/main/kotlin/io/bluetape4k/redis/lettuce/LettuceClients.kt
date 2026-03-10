@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.RedisConst
+import io.bluetape4k.redis.LettuceConst
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
@@ -33,9 +33,9 @@ object LettuceClients: KLogging() {
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
 
     fun getRedisURI(
-        host: String = RedisConst.DEFAULT_HOST,
-        port: Int = RedisConst.DEFAULT_PORT,
-        timeoutInMillis: Long = RedisConst.DEFAULT_TIMEOUT_MILLIS,
+        host: String = LettuceConst.DEFAULT_HOST,
+        port: Int = LettuceConst.DEFAULT_PORT,
+        timeoutInMillis: Long = LettuceConst.DEFAULT_TIMEOUT_MILLIS,
     ): RedisURI =
         RedisURI.builder()
             .withHost(host)
@@ -92,9 +92,9 @@ object LettuceClients: KLogging() {
      * @return [RedisClient] instance
      */
     fun clientOf(
-        host: String = RedisConst.DEFAULT_HOST,
-        port: Int = RedisConst.DEFAULT_PORT,
-        timeoutInMillis: Long = RedisConst.DEFAULT_TIMEOUT_MILLIS,
+        host: String = LettuceConst.DEFAULT_HOST,
+        port: Int = LettuceConst.DEFAULT_PORT,
+        timeoutInMillis: Long = LettuceConst.DEFAULT_TIMEOUT_MILLIS,
     ): RedisClient = clientOf(getRedisURI(host, port, timeoutInMillis))
 
     /**
@@ -107,7 +107,7 @@ object LettuceClients: KLogging() {
     fun connect(client: RedisClient): StatefulRedisConnection<String, String> = defaultConnection(client)
 
     /**
-     * [client]와 [codec]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
+     * [client]와 [codec]를 이용하여 [StatefulRedisConnection]을 생성합니다.
      *
      * ```
      * val connection = LettuceClients.connect(client, StringCodec.UTF8)
@@ -186,8 +186,8 @@ object LettuceClients: KLogging() {
         codecConnections
             .filterKeys { it.client == client }
             .forEach { (key, connection) ->
-                codecConnections.remove(key)
                 connection.close()
+                codecConnections.remove(key)
             }
         client.shutdown()
     }

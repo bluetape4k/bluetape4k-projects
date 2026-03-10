@@ -223,7 +223,9 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 #### Infrastructure Modules (`infra/`)
 
-- **redis**: Lettuce/Redisson, 고성능 Codec, Near Cache
+- **redis** *(umbrella)*: `lettuce` + `redisson` + `spring-data-redis`를 묶는 하위 호환 모듈
+- **lettuce**: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터
+- **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memorizer, NearCache, Coroutines
 - **kafka**: Kafka 클라이언트
 - **resilience4j**: Resilience4j + Coroutines, Coroutines Cache
 - **bucket4j**: Rate limiting
@@ -247,6 +249,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **core**: Spring 공통 기능
 - **cassandra**: Spring Data Cassandra
 - **mongodb**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장 (`findAsFlow`, `insertSuspending` 등), Criteria/Query/Update infix DSL
+- **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
 - **retrofit2**: Spring + Retrofit2 통합
 - **tests**: Spring 테스트 유틸리티
