@@ -8,10 +8,10 @@ import io.bluetape4k.bloomfilter.optimalK
 import io.bluetape4k.bloomfilter.optimalM
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
+import kotlinx.coroutines.future.await
 
 /**
  * Lettuce 를 사용하는 Coroutines 방식의 Bloom Filter
@@ -94,8 +94,13 @@ class LettuceSuspendBloomFilter<T: Any> private constructor(
 
     override suspend fun add(value: T) {
         val offsets = getOffsets(value)
-        asyncCommands.eval<Long>(LettuceBloomFilterScripts.ADD_SCRIPT, ScriptOutputType.INTEGER, arrayOf(bloomName), *offsets)
-            .awaitSuspending()
+        asyncCommands.eval<Long>(
+            LettuceBloomFilterScripts.ADD_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(bloomName),
+            *offsets
+        )
+            .await()
     }
 
     /**
@@ -112,17 +117,22 @@ class LettuceSuspendBloomFilter<T: Any> private constructor(
      */
     override suspend fun contains(value: T): Boolean {
         val offsets = getOffsets(value)
-        val result = asyncCommands.eval<Long>(LettuceBloomFilterScripts.CONTAINS_SCRIPT, ScriptOutputType.INTEGER, arrayOf(bloomName), *offsets)
-            .awaitSuspending()
+        val result = asyncCommands.eval<Long>(
+            LettuceBloomFilterScripts.CONTAINS_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(bloomName),
+            *offsets
+        )
+            .await()
         return result == 1L
     }
 
     override suspend fun count(): Long {
-        return asyncCommands.bitcount(bloomName).awaitSuspending()
+        return asyncCommands.bitcount(bloomName).await()
     }
 
     override suspend fun clear() {
-        asyncCommands.del(bloomName).awaitSuspending()
+        asyncCommands.del(bloomName).await()
     }
 
     private fun getOffsets(value: T): Array<String> =

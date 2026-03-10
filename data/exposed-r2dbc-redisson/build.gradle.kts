@@ -16,7 +16,7 @@ dependencies {
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
     // Redisson
-    api(project(":bluetape4k-redis"))
+    api(project(":bluetape4k-redisson"))
     api(Libs.redisson)
 
     // Codecs

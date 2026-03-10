@@ -6,10 +6,10 @@ import io.bluetape4k.bloomfilter.Hasher
 import io.bluetape4k.bloomfilter.SuspendBloomFilter
 import io.bluetape4k.bloomfilter.optimalK
 import io.bluetape4k.bloomfilter.optimalM
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.future.await
 import org.redisson.api.RedissonClient
 
 /**
@@ -90,7 +90,7 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
 
     override suspend fun add(value: T) {
         val offsets = getOffsets(value)
-        bitSet.setAsync(offsets, true).awaitSuspending()
+        bitSet.setAsync(offsets, true).await()
     }
 
     /**
@@ -107,16 +107,16 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
      */
     override suspend fun contains(value: T): Boolean {
         val offsets = getOffsets(value)
-        val result = bitSet.getAsync(*offsets).awaitSuspending()
+        val result = bitSet.getAsync(*offsets).await()
         return result.all { it }
     }
 
     override suspend fun count(): Long {
-        return bitSet.lengthAsync().awaitSuspending()
+        return bitSet.lengthAsync().await()
     }
 
     override suspend fun clear() {
-        bitSet.clearAsync().awaitSuspending()
+        bitSet.clearAsync().await()
     }
 
     private fun getOffsets(value: T): LongArray =

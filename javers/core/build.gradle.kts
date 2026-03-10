@@ -23,7 +23,7 @@ dependencies {
     implementation(project(":bluetape4k-protobuf"))
     implementation(project(":bluetape4k-hibernate"))
     implementation(project(":bluetape4k-idgenerators"))
-    implementation(project(":bluetape4k-redis"))
+    implementation(project(":bluetape4k-redisson"))
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

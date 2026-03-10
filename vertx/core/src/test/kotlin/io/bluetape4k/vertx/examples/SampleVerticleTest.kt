@@ -14,7 +14,6 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
@@ -88,7 +87,7 @@ class SampleVerticleTest: AbstractVertxTest() {
             log.debug { "Deply SampleVerticle" }
             vertx.deployVerticle(SampleVerticle()).coAwait()
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
-            yield()
+
             val webClient = WebClient.create(vertx)
 
             val jobs = List(REPEAT_SIZE) { requestIndex ->

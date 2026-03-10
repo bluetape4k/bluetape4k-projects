@@ -9,7 +9,7 @@ configurations {
 
 dependencies {
     // Redisson
-    testImplementation(project(":bluetape4k-redis"))
+    testImplementation(project(":bluetape4k-redisson"))
     testImplementation(Libs.redisson)
     testImplementation(Libs.redisson_spring_boot_starter)
 

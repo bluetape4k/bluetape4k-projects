@@ -28,7 +28,6 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
         val result = observation.observeSuspending { ctx ->
             log.info { "observation ctx: ${ctx.name}" }
-            yield()
             ctx.name shouldBeEqualTo name
             ctx.name
         }
@@ -42,7 +41,6 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
         val result = observation.tryObserveSuspending { ctx ->
             log.info { "observation ctx: ${ctx.name}" }
-            yield()
             ctx.name shouldBeEqualTo name
             ctx.name
         }
@@ -84,7 +82,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(100.milliseconds)
             log.debug { "observation=$observation" }
         }
-        yield()
+        delay(10.milliseconds)
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
@@ -99,7 +97,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(150.milliseconds)
             log.debug { "observation=$observation" }
         }
-        yield()
+        delay(10.milliseconds)
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
@@ -118,7 +116,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(100.milliseconds)
             log.debug { "observation1=$observation1" }
         }
-        yield()
+        delay(10.milliseconds)
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
@@ -134,7 +132,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(150.milliseconds)
             log.debug { "observation2=$observation2" }
         }
-        yield()
+        delay(10.milliseconds)
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()

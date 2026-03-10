@@ -10,7 +10,8 @@ dependencies {
     api(Libs.zero_allocation_hashing)
 
     // Redis Drivers
-    compileOnly(project(":bluetape4k-redis"))
+    compileOnly(project(":bluetape4k-lettuce"))
+    compileOnly(project(":bluetape4k-redisson"))
     compileOnly(Libs.lettuce_core)
     compileOnly(Libs.redisson)
 
