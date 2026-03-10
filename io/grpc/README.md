@@ -4,7 +4,7 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ## 개요
 
-`bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. 또한 Protobuf 메시지 처리를 위한 유틸리티도 포함되어 있습니다.
+`bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. Protobuf 유틸리티는 [`bluetape4k-protobuf`](../protobuf/README.md) 모듈로 분리되었습니다.
 
 ### 주요 기능
 
@@ -12,19 +12,13 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 - **gRPC 클라이언트 추상화**: 채널 관리 및 호출
 - **In-process 서버/클라이언트**: 테스트용 인메모리 통신
 - **인터셉터 지원**: 서버 인터셉터 보조
-- **Protobuf 유틸리티**: Timestamp, Duration, Money 등 변환
-- **Protobuf 직렬화**: Protobuf 기반 직렬화기
 
 ## 의존성 추가
 
 ```kotlin
 dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
-
-    // gRPC
-    implementation("io.grpc:grpc-netty-shaded:1.68.0")
-    implementation("io.grpc:grpc-protobuf:1.68.0")
-    implementation("io.grpc:grpc-stub:1.68.0")
+    implementation("io.bluetape4k:bluetape4k-grpc:${version}")
+    // bluetape4k-protobuf가 전이적으로 포함됩니다
 }
 ```
 
@@ -117,27 +111,6 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 }
 ```
 
-### 4. Protobuf 유틸리티
-
-```kotlin
-import io.bluetape4k.protobuf.*
-
-// Timestamp 변환
-val timestamp = now().toTimestamp()
-val instant = timestamp.toInstant()
-
-// Duration 변환
-val duration = 5.minutes().toDuration()
-val kotlinDuration = duration.toKotlinDuration()
-
-// Money 변환 (Google Money 프로토콜)
-val money = Money.newBuilder()
-    .setCurrencyCode("KRW")
-    .setUnits(10000)
-    .build()
-val decimal = money.toBigDecimal()
-```
-
 ## 주요 파일/클래스 목록
 
 ### gRPC Core
@@ -163,16 +136,9 @@ val decimal = money.toBigDecimal()
 |-------------------------------|------------|
 | `ServerInterceptorSupport.kt` | 서버 인터셉터 확장 |
 
-### Protobuf (protobuf/)
+## 관련 모듈
 
-| 파일                                  | 설명            |
-|-------------------------------------|---------------|
-| `TimestampSupport.kt`               | Timestamp 변환  |
-| `DurationSupport.kt`                | Duration 변환   |
-| `DateTimeSupport.kt`                | 날짜/시간 변환      |
-| `MoneySupport.kt`                   | Money 변환      |
-| `MessageSupport.kt`                 | 메시지 유틸리티      |
-| `serializers/ProtobufSerializer.kt` | Protobuf 직렬화기 |
+- **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
 
 ## 테스트
 

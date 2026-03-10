@@ -5,7 +5,7 @@ configurations {
 dependencies {
 
     api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-grpc"))
+    api(project(":bluetape4k-protobuf"))
     api(project(":bluetape4k-jackson"))
     api(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-hibernate"))

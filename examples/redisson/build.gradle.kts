@@ -23,9 +23,7 @@ dependencies {
     testImplementation(Libs.zstd_jni)
 
     // Protobuf
-    testImplementation(Libs.protobuf_java)
-    testImplementation(Libs.protobuf_java_util)
-    testImplementation(Libs.protobuf_kotlin)
+    testImplementation(project(":bluetape4k-protobuf"))
 
     // Cache
     testImplementation(project(":bluetape4k-cache-redisson"))
@@ -37,9 +35,6 @@ dependencies {
     testImplementation(Libs.jackson_module_kotlin)
     testImplementation(Libs.jackson_module_blackbird)
     testImplementation(Libs.jackson_dataformat_protobuf)
-
-    // Grpc
-    testImplementation(project(":bluetape4k-grpc"))
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))

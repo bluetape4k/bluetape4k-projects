@@ -1,6 +1,7 @@
 import com.google.protobuf.gradle.id
 
 plugins {
+    `java-library`
     idea
     id(Plugins.protobuf) version Plugins.Versions.protobuf
 }
@@ -12,8 +13,6 @@ idea {
     }
 }
 
-// Protobuf Message를 Lettuce Redis에 저장하는 예제를 위해
-// 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
 protobuf {
     protoc {
         artifact = Libs.protobuf_protoc
@@ -40,33 +39,15 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-netty"))
-
-    // Lettuce
-    api(Libs.lettuce_core)
-
-    // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
-
-    // Serializer
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
-
-    // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
 
     // Protobuf
-    compileOnly(project(":bluetape4k-protobuf"))
+    api(Libs.protobuf_java)
+    api(Libs.protobuf_java_util)
+    api(Libs.protobuf_kotlin)
+    api(Libs.proto_google_common_protos)
 
-    // Jackson
-    compileOnly(project(":bluetape4k-jackson"))
-    compileOnly(Libs.jackson_dataformat_protobuf)
+    // Money (MoneySupport.kt)
+    compileOnly(project(":bluetape4k-money"))
 
     testImplementation(project(":bluetape4k-junit5"))
-    testImplementation(project(":bluetape4k-testcontainers"))
 }

@@ -48,7 +48,7 @@ dependencies {
 
     // Dependencies
     compileOnly(project(":bluetape4k-cache-core"))
-    compileOnly(project(":bluetape4k-grpc"))
+    compileOnly(project(":bluetape4k-protobuf"))
     compileOnly(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-leader"))
 
@@ -61,11 +61,6 @@ dependencies {
     // Codecs
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)
-
-    // Protobuf
-    compileOnly(Libs.protobuf_java)
-    compileOnly(Libs.protobuf_java_util)
-    compileOnly(Libs.protobuf_kotlin)
 
     // Jackson
     compileOnly(project(":bluetape4k-jackson"))
