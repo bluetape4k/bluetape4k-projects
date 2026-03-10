@@ -1,22 +1,18 @@
 package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.IgniteServers
-import io.bluetape4k.cache.memoizer.ignite.asyncMemoizer
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertTimeout
 import org.testcontainers.utility.Base58
-import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.system.measureTimeMillis
+import kotlin.test.assertFailsWith
 
-class AsyncIgniteMemoizerTest {
+class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
@@ -27,48 +23,19 @@ class AsyncIgniteMemoizerTest {
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
 
-    val heavyFunc: (Int) -> CompletableFuture<Int> = heavyCache.asyncMemoizer { x ->
+    override val heavyFunc: (Int) -> CompletableFuture<Int> = heavyCache.asyncMemoizer { x ->
         Thread.sleep(100)
         x * x
     }
 
-    private val factorial = object: AsyncFactorialProvider {
+    override val factorial = object: AsyncFactorialProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> = newCache<Long, Long>("factorial")
             .asyncMemoizer { calc(it).join() }
     }
 
-    private val fibonacci = object: AsyncFibonacciProvider {
+    override val fibonacci = object: AsyncFibonacciProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> = newCache<Long, Long>("fibonacci")
             .asyncMemoizer { calc(it).join() }
-    }
-
-    @Test
-    fun `run heavy function`() {
-        measureTimeMillis {
-            heavyFunc(10).get() shouldBeEqualTo 100
-        }
-
-        assertTimeout(Duration.ofMillis(1000)) {
-            heavyFunc(10).get() shouldBeEqualTo 100
-        }
-    }
-
-    @Test
-    fun `run factorial`() {
-        val x1 = factorial.calc(100).get()
-
-        assertTimeout(Duration.ofMillis(1000)) {
-            factorial.calc(100).get()
-        } shouldBeEqualTo x1
-    }
-
-    @Test
-    fun `run fibonacci`() {
-        val x1 = fibonacci.calc(100).get()
-
-        assertTimeout(Duration.ofMillis(1000)) {
-            fibonacci.calc(100).get()
-        } shouldBeEqualTo x1
     }
 
     @Test
@@ -114,50 +81,19 @@ class AsyncIgniteMemoizerTest {
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.asyncMemoizer { key ->
             when (evaluateCount.incrementAndGet()) {
-                1 -> throw IllegalStateException("boom")
+                1 -> error("boom")
                 else -> key * key
             }
         }
 
         try {
-            org.junit.jupiter.api.assertThrows<ExecutionException> {
+            assertFailsWith<ExecutionException> {
                 memoizer(5).get(2, TimeUnit.SECONDS)
             }
             memoizer(5).get(2, TimeUnit.SECONDS) shouldBeEqualTo 25
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             cache.clear()
-        }
-    }
-
-    interface AsyncFactorialProvider {
-        companion object: KLogging()
-
-        val cachedCalc: (Long) -> CompletableFuture<Long>
-
-        fun calc(x: Long): CompletableFuture<Long> {
-            log.trace { "factorial($x)" }
-            return when {
-                x <= 1L -> CompletableFuture.completedFuture(1L)
-                else -> cachedCalc(x - 1).thenApplyAsync { x * it }
-            }
-        }
-    }
-
-    interface AsyncFibonacciProvider {
-        companion object: KLogging()
-
-        val cachedCalc: (Long) -> CompletableFuture<Long>
-
-        fun calc(x: Long): CompletableFuture<Long> {
-            log.trace { "fibonacci($x)" }
-            return when {
-                x <= 0L -> CompletableFuture.completedFuture(0L)
-                x <= 2L -> CompletableFuture.completedFuture(1L)
-                else -> cachedCalc(x - 1).thenComposeAsync { x1 ->
-                    cachedCalc(x - 2).thenApplyAsync { x2 -> x1 + x2 }
-                }
-            }
         }
     }
 }

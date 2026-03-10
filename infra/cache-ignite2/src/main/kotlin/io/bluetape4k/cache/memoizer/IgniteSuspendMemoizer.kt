@@ -1,6 +1,5 @@
-package io.bluetape4k.cache.memoizer.ignite
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.SuspendMemoizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred
@@ -23,10 +22,10 @@ import java.util.concurrent.ConcurrentHashMap
  * @param V  value type
  * @receiver Ignite [ClientCache] 인스턴스
  * @param evaluator 실행할 suspend 함수
- * @return [SuspendIgniteMemoizer] instance
+ * @return [IgniteSuspendMemoizer] instance
  */
-fun <K: Any, V: Any> ClientCache<K, V>.suspendMemoizer(evaluator: suspend (K) -> V): SuspendIgniteMemoizer<K, V> =
-    SuspendIgniteMemoizer(this, evaluator)
+fun <K: Any, V: Any> ClientCache<K, V>.suspendMemoizer(evaluator: suspend (K) -> V): IgniteSuspendMemoizer<K, V> =
+    IgniteSuspendMemoizer(this, evaluator)
 
 /**
  * [ClientCache]를 사용하는 코루틴 메모이저 확장 함수입니다.
@@ -41,10 +40,10 @@ fun <K: Any, V: Any> ClientCache<K, V>.suspendMemoizer(evaluator: suspend (K) ->
  * @param V value type
  * @receiver 실행할 suspend 함수
  * @param cache Ignite [ClientCache] 인스턴스
- * @return [SuspendIgniteMemoizer] instance
+ * @return [IgniteSuspendMemoizer] instance
  */
-fun <K: Any, V: Any> (suspend (K) -> V).memoizer(cache: ClientCache<K, V>): SuspendIgniteMemoizer<K, V> =
-    SuspendIgniteMemoizer(cache, this)
+fun <K: Any, V: Any> (suspend (K) -> V).memoizer(cache: ClientCache<K, V>): IgniteSuspendMemoizer<K, V> =
+    IgniteSuspendMemoizer(cache, this)
 
 /**
  * [evaluator]가 실행한 결과를 [cache]에 저장하고, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
@@ -61,7 +60,7 @@ fun <K: Any, V: Any> (suspend (K) -> V).memoizer(cache: ClientCache<K, V>): Susp
  * @property cache     Ignite [ClientCache] 인스턴스
  * @property evaluator 실행할 suspend 함수
  */
-class SuspendIgniteMemoizer<K: Any, V: Any>(
+class IgniteSuspendMemoizer<K: Any, V: Any>(
     val cache: ClientCache<K, V>,
     val evaluator: suspend (K) -> V,
 ): SuspendMemoizer<K, V> {

@@ -1,6 +1,6 @@
-package io.bluetape4k.cache.memoizer.ignite
+package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.AsyncMemoizer
+import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.apache.ignite.client.ClientCache
@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap
  * ```
  *
  * @param evaluator 수행할 함수
- * @return [AsyncIgniteMemoizer] 인스턴스
+ * @return [IgniteAsyncMemoizer] 인스턴스
  */
-fun <K: Any, V: Any> ClientCache<K, V>.asyncMemoizer(evaluator: (K) -> V): AsyncIgniteMemoizer<K, V> =
-    AsyncIgniteMemoizer(this, evaluator)
+fun <K: Any, V: Any> ClientCache<K, V>.asyncMemoizer(evaluator: (K) -> V): IgniteAsyncMemoizer<K, V> =
+    IgniteAsyncMemoizer(this, evaluator)
 
 /**
  * [ClientCache]를 사용하는 비동기 메모이저 확장 함수입니다.
@@ -32,10 +32,10 @@ fun <K: Any, V: Any> ClientCache<K, V>.asyncMemoizer(evaluator: (K) -> V): Async
  *
  * @receiver 실행할 함수
  * @param cache Ignite [ClientCache] 인스턴스
- * @return [AsyncIgniteMemoizer] 인스턴스
+ * @return [IgniteAsyncMemoizer] 인스턴스
  */
-fun <K: Any, V: Any> ((K) -> V).asyncMemoizer(cache: ClientCache<K, V>): AsyncIgniteMemoizer<K, V> =
-    AsyncIgniteMemoizer(cache, this)
+fun <K: Any, V: Any> ((K) -> V).asyncMemoizer(cache: ClientCache<K, V>): IgniteAsyncMemoizer<K, V> =
+    IgniteAsyncMemoizer(cache, this)
 
 /**
  * [evaluator] 결과를 Ignite [ClientCache]에 저장하는 비동기 메모이저입니다.
@@ -51,7 +51,7 @@ fun <K: Any, V: Any> ((K) -> V).asyncMemoizer(cache: ClientCache<K, V>): AsyncIg
  * @property cache     Ignite [ClientCache] 인스턴스
  * @property evaluator 실행할 함수
  */
-class AsyncIgniteMemoizer<K: Any, V: Any>(
+class IgniteAsyncMemoizer<K: Any, V: Any>(
     val cache: ClientCache<K, V>,
     val evaluator: (K) -> V,
 ): AsyncMemoizer<K, V> {
@@ -62,16 +62,16 @@ class AsyncIgniteMemoizer<K: Any, V: Any>(
 
     override fun invoke(key: K): CompletableFuture<V> {
         return inFlight.computeIfAbsent(key) {
-            val promise = CompletableFuture.supplyAsync {
+            val promise: CompletableFuture<V> = virtualFuture {
                 val cached = cache.get(key)
                 if (cached != null) {
                     cached
                 } else {
-                    val value = evaluator(key)
+                    val value: V = evaluator(key)
                     val isNew = cache.putIfAbsent(key, value)
                     if (isNew) value else (cache.get(key) ?: value)
                 }
-            }
+            }.toCompletableFuture()
 
             promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
             promise

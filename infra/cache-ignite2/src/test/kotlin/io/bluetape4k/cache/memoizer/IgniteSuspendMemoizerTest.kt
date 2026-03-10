@@ -1,10 +1,8 @@
 package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.IgniteServers
-import io.bluetape4k.cache.memoizer.ignite.suspendMemoizer
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -17,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.seconds
 
-class SuspendIgniteMemoizerTest {
+class IgniteSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
@@ -28,17 +26,17 @@ class SuspendIgniteMemoizerTest {
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
 
-    val heavyFunc: suspend (Int) -> Int = heavyCache.suspendMemoizer { x ->
+    override val heavyFunc: suspend (Int) -> Int = heavyCache.suspendMemoizer { x ->
         delay(100)
         x * x
     }
 
-    private val factorial = object: SuspendFactorialProvider {
+    override val factorial = object: SuspendFactorialProvider {
         override val cachedCalc: suspend (Long) -> Long = newCache<Long, Long>("factorial")
             .suspendMemoizer { calc(it) }
     }
 
-    private val fibonacci = object: SuspendFibonacciProvider {
+    override val fibonacci = object: SuspendFibonacciProvider {
         override val cachedCalc: suspend (Long) -> Long = newCache<Long, Long>("fibonacci")
             .suspendMemoizer { calc(it) }
     }
@@ -91,35 +89,6 @@ class SuspendIgniteMemoizerTest {
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             cache.clear()
-        }
-    }
-
-    interface SuspendFactorialProvider {
-        companion object: KLogging()
-
-        val cachedCalc: suspend (Long) -> Long
-
-        suspend fun calc(n: Long): Long {
-            log.trace { "factorial($n)" }
-            return when {
-                n <= 1L -> 1L
-                else -> n * cachedCalc(n - 1)
-            }
-        }
-    }
-
-    interface SuspendFibonacciProvider {
-        companion object: KLogging()
-
-        val cachedCalc: suspend (Long) -> Long
-
-        suspend fun calc(n: Long): Long {
-            log.trace { "fibonacci($n)" }
-            return when {
-                n <= 0L -> 0L
-                n <= 2L -> 1L
-                else -> cachedCalc(n - 1) + cachedCalc(n - 2)
-            }
         }
     }
 }
