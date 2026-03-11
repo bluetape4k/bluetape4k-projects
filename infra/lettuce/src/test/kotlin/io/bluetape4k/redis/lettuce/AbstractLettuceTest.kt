@@ -4,23 +4,12 @@ import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import io.lettuce.core.RedisClient
-import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
-import io.lettuce.core.api.sync.RedisCommands
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 abstract class AbstractLettuceTest {
 
     companion object: KLogging() {
-
-        @JvmStatic
-        val redis: RedisServer by lazy { RedisServer.Launcher.redis }
 
         @JvmStatic
         val faker = Fakers.faker
@@ -35,26 +24,6 @@ abstract class AbstractLettuceTest {
 
     }
 
-    protected lateinit var client: RedisClient
+    protected val client = LettuceTestUtils.client
 
-    protected lateinit var commands: RedisCommands<String, Any>
-    protected lateinit var asyncCommands: RedisAsyncCommands<String, Any>
-    protected lateinit var coroutinesCommands: RedisCoroutinesCommands<String, Any>
-
-    @BeforeAll
-    open fun beforeAll() {
-        client = LettuceClients.clientOf(redis.host, redis.port)
-
-        commands = LettuceClients.commands(client, LettuceBinaryCodecs.lz4Fory())
-        asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.lz4Fory())
-        coroutinesCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fory())
-
-    }
-
-    @AfterAll
-    open fun afterAll() {
-        runCatching {
-            LettuceClients.shutdown(client)
-        }
-    }
 }

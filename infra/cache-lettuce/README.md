@@ -4,6 +4,47 @@
 
 ## 제공 기능
 
+### Memoizer (함수 결과 Redis 캐싱)
+
+| 클래스 | 설명 |
+|---|---|
+| `LettuceMemoizer<K, V>` | `LettuceMap<V>` 기반 동기 메모이제이션 (`Memoizer<K,V>` 인터페이스) |
+| `LettuceAsyncMemoizer<K, V>` | `LettuceMap<V>` 기반 비동기 메모이제이션 (`AsyncMemoizer<K,V>` 인터페이스) |
+| `LettuceSuspendMemoizer<K, V>` | `LettuceMap<V>` 기반 suspend 메모이제이션 (`SuspendMemoizer<K,V>` 인터페이스) |
+
+```kotlin
+import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
+import io.bluetape4k.redis.lettuce.map.LettuceMap
+import io.bluetape4k.cache.memoizer.memoizer
+import io.bluetape4k.cache.memoizer.asyncMemoizer
+import io.bluetape4k.cache.memoizer.suspendMemoizer
+
+// Long→Long 메모이저 (LettuceLongCodec 사용)
+val longConnection = redisClient.connect(LettuceLongCodec)
+val longMap = LettuceMap<Long>(longConnection, "memoizer:factorial")
+
+val factorial = longMap.memoizer { n: Long -> computeFactorial(n) }
+val result = factorial(10L)   // 계산 후 Redis에 저장
+val cached = factorial(10L)   // Redis에서 반환
+
+// Int→Int 비동기 메모이저 (LettuceIntCodec 사용)
+val intConnection = redisClient.connect(LettuceIntCodec)
+val intMap = LettuceMap<Int>(intConnection, "memoizer:squares")
+
+val asyncSquare = intMap.asyncMemoizer { n: Int ->
+    CompletableFuture.supplyAsync { n * n }
+}
+val squareResult = asyncSquare(7).join()  // 49
+
+// suspend 메모이저
+val suspendMemoizer = longMap.suspendMemoizer { n: Long ->
+    delay(10)
+    computeFactorial(n)
+}
+val suspendResult = suspendMemoizer(5L)  // 120L
+```
+
 ### JCache (JSR-107)
 
 - Lettuce 기반 `javax.cache.spi.CachingProvider` 구현

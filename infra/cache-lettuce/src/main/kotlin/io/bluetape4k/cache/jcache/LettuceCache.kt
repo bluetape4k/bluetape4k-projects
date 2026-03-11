@@ -4,9 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.lettuce.core.HSetExArgs
-import io.lettuce.core.api.sync.RedisCommands
-import java.time.Duration
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
 import javax.cache.CacheManager
@@ -27,16 +25,15 @@ import javax.cache.processor.EntryProcessorResult
  * Lettuce Redis hash를 기반으로 동작하는 JCache [javax.cache.Cache] 구현체입니다.
  *
  * ## 동작/계약
- * - 캐시 항목은 Redis hash(`cacheName`)에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
+ * - 캐시 항목은 [LettuceMap]을 통해 Redis hash에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
  * - [ttlSeconds]가 지정되면 `hsetex`를 사용해 항목 갱신 시 TTL을 함께 설정합니다.
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
  * - 직렬화는 [serializer]로 처리하며, 기본값은 Fory 기반 직렬화입니다.
  */
 class LettuceCache<K: Any, V: Any>(
-    private val cacheName: String,
-    private val commands: RedisCommands<String, ByteArray>,
+    private val map: LettuceMap<ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
-    private val serializer: BinarySerializer = BinarySerializers.Fory,     // TODO: Lettuce Codec 을 지정하는게 낫지 않나?
+    private val serializer: BinarySerializer = BinarySerializers.Fory,
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
     private val configuration: Configuration<K, V>,
@@ -44,12 +41,14 @@ class LettuceCache<K: Any, V: Any>(
 
     companion object: KLogging()
 
+    private val cacheName: String get() = map.mapKey
+
     private var closed = false
 
     private val listeners = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, CacheEntryListener<K, V>>()
 
-    private val hsetExArgs: HSetExArgs? by lazy {
-        ttlSeconds?.let { HSetExArgs.Builder.ex(Duration.ofSeconds(it)) }
+    private val hsetExArgs by lazy {
+        ttlSeconds?.let { io.lettuce.core.HSetExArgs.Builder.ex(java.time.Duration.ofSeconds(it)) }
     }
 
     private fun checkNotClosed() {
@@ -75,7 +74,7 @@ class LettuceCache<K: Any, V: Any>(
     override fun get(key: K): V? {
         checkNotClosed()
         log.debug { "get: cacheName=$cacheName, key=$key" }
-        val bytes = commands.hget(cacheName, encodeKey(key)) ?: return null
+        val bytes = map.get(encodeKey(key)) ?: return null
         return decodeValue(bytes)
     }
 
@@ -83,14 +82,11 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         val result = mutableMapOf<K, V>()
         keys.chunked(100).forEach { chunk ->
-            val fields = chunk.map { encodeKey(it) }.toTypedArray()
-            commands.hmget(cacheName, *fields).forEach { kv ->
-                if (!kv.isEmpty) {
-                    val originalKey = chunk.firstOrNull { encodeKey(it) == kv.key }
-                    if (originalKey != null) {
-                        result[originalKey] = decodeValue(kv.value)
-                    }
-                }
+            val fields = chunk.map { encodeKey(it) }
+            val fetched = map.getAll(fields)
+            chunk.forEach { k ->
+                val bytes = fetched[encodeKey(k)]
+                if (bytes != null) result[k] = decodeValue(bytes)
             }
         }
         return result
@@ -98,7 +94,7 @@ class LettuceCache<K: Any, V: Any>(
 
     override fun containsKey(key: K): Boolean {
         checkNotClosed()
-        return commands.hexists(cacheName, encodeKey(key)) ?: false
+        return map.containsKey(encodeKey(key))
     }
 
     override fun put(key: K, value: V) {
@@ -106,13 +102,9 @@ class LettuceCache<K: Any, V: Any>(
         log.debug { "put: cacheName=$cacheName, key=$key" }
         val field = encodeKey(key)
         val bytes = encodeValue(value)
-        val existed = commands.hexists(cacheName, field) ?: false
+        val existed = map.containsKey(field)
 
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(field to bytes))
-        } else {
-            commands.hset(cacheName, field, bytes)
-        }
+        map.putTtl(field, bytes, hsetExArgs)
 
         val eventType = if (existed) EventType.UPDATED else EventType.CREATED
         dispatchEvent(eventType, key, value)
@@ -121,15 +113,11 @@ class LettuceCache<K: Any, V: Any>(
     override fun getAndPut(key: K, value: V): V? {
         checkNotClosed()
         val field = encodeKey(key)
-        val oldBytes = commands.hget(cacheName, field)
+        val oldBytes = map.get(field)
         val existed = oldBytes != null
         val bytes = encodeValue(value)
 
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(field to bytes))
-        } else {
-            commands.hset(cacheName, field, bytes)
-        }
+        map.putTtl(field, bytes, hsetExArgs)
 
         val eventType = if (existed) EventType.UPDATED else EventType.CREATED
         dispatchEvent(eventType, key, value)
@@ -141,11 +129,7 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, encodedMap)
-        } else {
-            commands.hmset(cacheName, encodedMap)
-        }
+        this.map.putAllTtl(encodedMap, hsetExArgs)
         map.forEach { (k, v) -> dispatchEvent(EventType.CREATED, k, v) }
     }
 
@@ -153,7 +137,7 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         val field = encodeKey(key)
         val bytes = encodeValue(value)
-        val added = commands.hsetnx(cacheName, field, bytes) ?: false
+        val added = map.putIfAbsent(field, bytes)
         if (added) {
             dispatchEvent(EventType.CREATED, key, value)
         }
@@ -163,7 +147,7 @@ class LettuceCache<K: Any, V: Any>(
     override fun remove(key: K): Boolean {
         checkNotClosed()
         val field = encodeKey(key)
-        val removed = (commands.hdel(cacheName, field) ?: 0L) > 0L
+        val removed = map.remove(field) > 0L
         if (removed) {
             dispatchEvent(EventType.REMOVED, key, null)
         }
@@ -173,10 +157,10 @@ class LettuceCache<K: Any, V: Any>(
     override fun remove(key: K, oldValue: V): Boolean {
         checkNotClosed()
         val field = encodeKey(key)
-        val currentBytes = commands.hget(cacheName, field) ?: return false
+        val currentBytes = map.get(field) ?: return false
         val currentValue = decodeValue(currentBytes)
         return if (currentValue == oldValue) {
-            val removed = (commands.hdel(cacheName, field) ?: 0L) > 0L
+            val removed = map.remove(field) > 0L
             if (removed) dispatchEvent(EventType.REMOVED, key, null)
             removed
         } else {
@@ -187,8 +171,8 @@ class LettuceCache<K: Any, V: Any>(
     override fun getAndRemove(key: K): V? {
         checkNotClosed()
         val field = encodeKey(key)
-        val bytes = commands.hget(cacheName, field) ?: return null
-        commands.hdel(cacheName, field)
+        val bytes = map.get(field) ?: return null
+        map.remove(field)
         dispatchEvent(EventType.REMOVED, key, null)
         return decodeValue(bytes)
     }
@@ -196,15 +180,11 @@ class LettuceCache<K: Any, V: Any>(
     override fun replace(key: K, oldValue: V, newValue: V): Boolean {
         checkNotClosed()
         val field = encodeKey(key)
-        val currentBytes = commands.hget(cacheName, field) ?: return false
+        val currentBytes = map.get(field) ?: return false
         val currentValue = decodeValue(currentBytes)
         return if (currentValue == oldValue) {
             val bytes = encodeValue(newValue)
-            if (hsetExArgs != null) {
-                commands.hsetex(cacheName, hsetExArgs!!, mapOf(field to bytes))
-            } else {
-                commands.hset(cacheName, field, bytes)
-            }
+            map.putTtl(field, bytes, hsetExArgs)
             dispatchEvent(EventType.UPDATED, key, newValue)
             true
         } else {
@@ -217,11 +197,7 @@ class LettuceCache<K: Any, V: Any>(
         if (!containsKey(key)) return false
         val field = encodeKey(key)
         val bytes = encodeValue(value)
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(field to bytes))
-        } else {
-            commands.hset(cacheName, field, bytes)
-        }
+        map.putTtl(field, bytes, hsetExArgs)
         dispatchEvent(EventType.UPDATED, key, value)
         return true
     }
@@ -229,13 +205,9 @@ class LettuceCache<K: Any, V: Any>(
     override fun getAndReplace(key: K, value: V): V? {
         checkNotClosed()
         val field = encodeKey(key)
-        val oldBytes = commands.hget(cacheName, field) ?: return null
+        val oldBytes = map.get(field) ?: return null
         val bytes = encodeValue(value)
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(field to bytes))
-        } else {
-            commands.hset(cacheName, field, bytes)
-        }
+        map.putTtl(field, bytes, hsetExArgs)
         dispatchEvent(EventType.UPDATED, key, value)
         return decodeValue(oldBytes)
     }
@@ -243,39 +215,35 @@ class LettuceCache<K: Any, V: Any>(
     override fun removeAll(keys: MutableSet<out K>) {
         checkNotClosed()
         if (keys.isEmpty()) return
-        val fields = keys.map { encodeKey(it) }.toTypedArray()
-        commands.hdel(cacheName, *fields)
-        keys.forEach { dispatchEvent(EventType.REMOVED, it, null) }
+        keys.forEach { key ->
+            map.remove(encodeKey(key))
+            dispatchEvent(EventType.REMOVED, key, null)
+        }
     }
 
     override fun removeAll() {
         checkNotClosed()
-        commands.del(cacheName)
+        map.clear()
     }
 
     override fun clear() {
         checkNotClosed()
-        commands.del(cacheName)
+        map.clear()
     }
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> {
         checkNotClosed()
-        val allFields = commands.hkeys(cacheName) ?: emptyList()
+        val allEntries = map.entries()
         val entries = mutableListOf<Cache.Entry<K, V>>()
-        allFields.chunked(100).forEach { chunk ->
-            val fields = chunk.toTypedArray()
-            commands.hmget(cacheName, *fields).forEach { kv ->
-                if (!kv.isEmpty) {
-                    @Suppress("UNCHECKED_CAST")
-                    val key = kv.key as K
-                    val value = decodeValue(kv.value)
-                    entries.add(object: Cache.Entry<K, V> {
-                        override fun getKey(): K = key
-                        override fun getValue(): V = value
-                        override fun <T: Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
-                    })
-                }
-            }
+        allEntries.forEach { (field, bytes) ->
+            @Suppress("UNCHECKED_CAST")
+            val key = field as K
+            val value = decodeValue(bytes)
+            entries.add(object: Cache.Entry<K, V> {
+                override fun getKey(): K = key
+                override fun getValue(): V = value
+                override fun <T: Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
+            })
         }
         return entries.iterator()
     }
@@ -327,7 +295,7 @@ class LettuceCache<K: Any, V: Any>(
     override fun close() {
         if (closed) return
         closed = true
-        runCatching { commands.del(cacheName) }
+        runCatching { map.clear() }
         cacheManager.closeCache(this)
     }
 

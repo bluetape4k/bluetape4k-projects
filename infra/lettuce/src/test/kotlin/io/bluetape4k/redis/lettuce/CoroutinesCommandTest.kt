@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.LettuceTestUtils.coroutinesCommands
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

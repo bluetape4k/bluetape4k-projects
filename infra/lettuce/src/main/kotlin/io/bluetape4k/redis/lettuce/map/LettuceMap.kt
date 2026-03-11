@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireNotBlank
+import io.lettuce.core.HSetExArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
@@ -32,17 +34,17 @@ import java.util.concurrent.CompletableFuture
  * @param connection Lettuce StatefulRedisConnection (LettuceBinaryCodec<V> 기반)
  * @param mapKey Redis에 저장될 Hash 키
  */
-class LettuceMap<V: Any>(
+open class LettuceMap<V: Any>(
     private val connection: StatefulRedisConnection<String, V>,
     val mapKey: String,
 ) {
     companion object: KLogging()
 
     init {
-        require(mapKey.isNotBlank()) { "mapKey는 공백이 아니어야 합니다." }
+        mapKey.requireNotBlank("mapKey")
     }
 
-    private val syncCommands: RedisCommands<String, V> get() = connection.sync()
+    protected val syncCommands: RedisCommands<String, V> get() = connection.sync()
     private val asyncCommands: RedisAsyncCommands<String, V> get() = connection.async()
 
     // =========================================================================
@@ -177,6 +179,37 @@ class LettuceMap<V: Any>(
         val count = syncCommands.del(mapKey)
         log.debug { "LettuceMap clear: mapKey=$mapKey" }
         return count
+    }
+
+    /**
+     * 필드에 값을 TTL과 함께 설정합니다. TTL이 null이면 일반 put과 동일합니다.
+     *
+     * @param field 설정할 필드명
+     * @param value 설정할 값
+     * @param ttlArgs TTL 설정 (null이면 TTL 없음)
+     * @return 저장 성공 여부
+     */
+    fun putTtl(field: String, value: V, ttlArgs: HSetExArgs?): Boolean {
+        if (ttlArgs == null) return put(field, value)
+        syncCommands.hsetex(mapKey, ttlArgs, mapOf(field to value))
+        log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field" }
+        return true
+    }
+
+    /**
+     * 여러 필드-값 쌍을 TTL과 함께 설정합니다.
+     *
+     * @param entries 설정할 필드-값 쌍
+     * @param ttlArgs TTL 설정 (null이면 TTL 없음)
+     */
+    fun putAllTtl(entries: Map<String, V>, ttlArgs: HSetExArgs?) {
+        if (entries.isEmpty()) return
+        if (ttlArgs == null) {
+            putAll(entries)
+            return
+        }
+        syncCommands.hsetex(mapKey, ttlArgs, entries)
+        log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}" }
     }
 
     // =========================================================================

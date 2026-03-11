@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.LettuceTestUtils.asyncCommands
 import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize

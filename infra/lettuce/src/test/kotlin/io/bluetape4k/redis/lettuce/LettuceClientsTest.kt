@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.LettuceTestUtils.commands
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo

@@ -26,7 +26,7 @@ import io.lettuce.core.api.async.RedisAsyncCommands
  * @param connection Lettuce StatefulRedisConnection (LettuceBinaryCodec<V> 기반)
  * @param mapKey Redis에 저장될 Hash 키
  */
-class LettuceSuspendMap<V: Any>(
+open class LettuceSuspendMap<V: Any>(
     private val connection: StatefulRedisConnection<String, V>,
     val mapKey: String,
 ) {

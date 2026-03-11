@@ -4,6 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.redis.lettuce.map.LettuceMap
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.ByteArrayCodec
@@ -83,11 +84,10 @@ class LettuceCacheManager(
 
         log.debug { "RedisClient 연결 생성. cacheName=$cacheName" }
         val connection = redisClient.connect(STRING_BYTES_CODEC)
-        val commands = connection.sync()
+        val map = LettuceMap<ByteArray>(connection, cacheName)
 
         val cache = LettuceCache(
-            cacheName = cacheName,
-            commands = commands,
+            map = map,
             keyCodec = keyCodec,
             serializer = serializer,
             ttlSeconds = ttlSeconds,
