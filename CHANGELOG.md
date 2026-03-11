@@ -4,7 +4,7 @@
 
 ---
 
-## [1.3.1-SNAPSHOT] - Unreleased
+## [1.4.0-SNAPSHOT] - Unreleased
 
 ### Added
 
