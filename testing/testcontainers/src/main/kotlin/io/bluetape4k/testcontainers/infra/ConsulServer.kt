@@ -12,7 +12,7 @@ import org.testcontainers.utility.DockerImageName
 /**
  * [Consul](https://www.consul.io/) server 를 testcontainers 를 이용하여 실행합니다.
  *
- * 참고: [Consul docker image](https://hub.docker.com/_/consul)
+ * 참고: [Consul docker image](https://hub.docker.com/r/hashicorp/consul)
  *
  */
 class ConsulServer private constructor(
@@ -22,8 +22,8 @@ class ConsulServer private constructor(
 ): GenericContainer<ConsulServer>(imageName), GenericServer {
 
     companion object: KLogging() {
-        const val IMAGE = "consul"
-        const val TAG = "1.7"
+        const val IMAGE = "hashicorp/consul"
+        const val TAG = "1.20"
         const val NAME = "consul"
 
         const val DNS_PORT = 8600
