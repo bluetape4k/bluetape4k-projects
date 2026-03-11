@@ -1,15 +1,21 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.coroutines.support.awaitSuspending
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withTimeout
 import org.apache.ignite.cache.query.ContinuousQuery
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.client.ClientCache
+import java.util.concurrent.Future
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.ConcurrentHashMap
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.event.CacheEntryCreatedListener
@@ -37,6 +43,10 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     private val cache: ClientCache<K, V>,
 ): SuspendCache<K, V> {
 
+    companion object: KLogging() {
+        private const val CLIENT_OP_TIMEOUT_MS = 10_000L
+    }
+
     /** ContinuousQuery 기반 리스너 등록 시 반환된 커서 맵. deregister 시 닫기 위해 보관. */
     private val queryCursors = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, AutoCloseable>()
 
@@ -46,7 +56,7 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     }
 
     override suspend fun clear() {
-        cache.clearAsync().awaitSuspending()
+        awaitClientAsync("clear") { cache.clearAsync() }
     }
 
     override suspend fun close() {
@@ -56,34 +66,34 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     override fun isClosed(): Boolean = false
 
     override suspend fun containsKey(key: K): Boolean =
-        cache.containsKeyAsync(key).awaitSuspending()
+        awaitClientAsync("containsKey", key) { cache.containsKeyAsync(key) }
 
     override suspend fun get(key: K): V? =
-        cache.getAsync(key).awaitSuspending()
+        awaitClientAsync("get", key) { cache.getAsync(key) }
 
     override fun getAll(): Flow<SuspendCacheEntry<K, V>> = entries()
 
     override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
-        cache.getAllAsync(keys).awaitSuspending().forEach { (key, value) ->
+        awaitClientAsync("getAll(keys=${keys.size})") { cache.getAllAsync(keys) }.forEach { (key, value) ->
             emit(SuspendCacheEntry(key, value))
         }
     }
 
     override suspend fun getAndPut(key: K, value: V): V? =
-        cache.getAndPutAsync(key, value).awaitSuspending()
+        awaitClientAsync("getAndPut", key) { cache.getAndPutAsync(key, value) }
 
     override suspend fun getAndRemove(key: K): V? =
-        cache.getAndRemoveAsync(key).awaitSuspending()
+        awaitClientAsync("getAndRemove", key) { cache.getAndRemoveAsync(key) }
 
     override suspend fun getAndReplace(key: K, value: V): V? =
-        cache.getAndReplaceAsync(key, value).awaitSuspending()
+        awaitClientAsync("getAndReplace", key) { cache.getAndReplaceAsync(key, value) }
 
     override suspend fun put(key: K, value: V) {
-        cache.putAsync(key, value).awaitSuspending()
+        awaitClientAsync("put", key) { cache.putAsync(key, value) }
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        cache.putAllAsync(map).awaitSuspending()
+        awaitClientAsync("putAll(size=${map.size})") { cache.putAllAsync(map) }
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
@@ -94,27 +104,27 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     }
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean =
-        cache.putIfAbsentAsync(key, value).awaitSuspending()
+        awaitClientAsync("putIfAbsent", key) { cache.putIfAbsentAsync(key, value) }
 
     override suspend fun remove(key: K): Boolean =
-        cache.removeAsync(key).awaitSuspending()
+        awaitClientAsync("remove", key) { cache.removeAsync(key) }
 
     override suspend fun remove(key: K, oldValue: V): Boolean =
-        cache.removeAsync(key, oldValue).awaitSuspending()
+        awaitClientAsync("remove(oldValue)", key) { cache.removeAsync(key, oldValue) }
 
     override suspend fun removeAll() {
-        cache.removeAllAsync().awaitSuspending()
+        awaitClientAsync("removeAll") { cache.removeAllAsync() }
     }
 
     override suspend fun removeAll(keys: Set<K>) {
-        cache.removeAllAsync(keys).awaitSuspending()
+        awaitClientAsync("removeAll(keys=${keys.size})") { cache.removeAllAsync(keys) }
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean =
-        cache.replaceAsync(key, oldValue, newValue).awaitSuspending()
+        awaitClientAsync("replace(oldValue)", key) { cache.replaceAsync(key, oldValue, newValue) }
 
     override suspend fun replace(key: K, value: V): Boolean =
-        cache.replaceAsync(key, value).awaitSuspending()
+        awaitClientAsync("replace", key) { cache.replaceAsync(key, value) }
 
     /**
      * ContinuousQuery의 localListener를 사용해 캐시 이벤트 리스너를 등록합니다.
@@ -153,5 +163,21 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
 
     override fun deregisterCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {
         queryCursors.remove(configuration)?.close()
+    }
+
+    private suspend fun <T> awaitClientAsync(
+        operation: String,
+        key: K? = null,
+        futureProvider: () -> Future<T>,
+    ): T {
+        return try {
+            withTimeout(CLIENT_OP_TIMEOUT_MS) {
+                futureProvider().awaitSuspending()
+            }
+        } catch (e: TimeoutCancellationException) {
+            val timeout = TimeoutException("Ignite thin client timeout: op=$operation, cache=${cache.name}, key=$key")
+            log.warn(timeout) { "Ignite thin client 연산 타임아웃. op=$operation, cache=${cache.name}, key=$key" }
+            throw timeout
+        }
     }
 }
