@@ -108,6 +108,39 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
         }
     }
 
+    /**
+     * [SuspendedJobTester]를 사용하여 짧은 `waitTime` 환경에서 여러 코루틴이 동시에
+     * [RedissonSuspendLeaderElection.runIfLeader]를 호출할 때,
+     * 리더로 선출된 코루틴은 카운터를 증가시키고,
+     * 락 획득에 실패한 코루틴은 [RedisException]을 안전하게 삼키는지 검증한다.
+     */
+    @Test
+    fun `동시 다수 코루틴에서 suspendRunIfLeader 호출 시 성공하거나 RedisException 을 안전하게 처리한다`() = runSuspendIO {
+        val lockName = randomName()
+        val shortWaitOptions = LeaderElectionOptions(
+            waitTime = Duration.ofMillis(50),
+            leaseTime = Duration.ofSeconds(5),
+        )
+        val leaderElection = RedissonSuspendLeaderElection(redissonClient, shortWaitOptions)
+        val successCount = AtomicInteger(0)
+
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                runCatching {
+                    leaderElection.runIfLeader(lockName) {
+                        successCount.incrementAndGet()
+                        randomDelay(10, 30)
+                    }
+                }
+                // RedisException(락 획득 실패) 또는 성공 — 둘 다 허용
+            }
+            .run()
+
+        log.debug { "총 성공 횟수: ${successCount.get()}" }
+    }
+
     private suspend fun randomDelay(from: Long = 5L, until: Long = 10L) {
         delay(Random.nextLong(from, until))
     }

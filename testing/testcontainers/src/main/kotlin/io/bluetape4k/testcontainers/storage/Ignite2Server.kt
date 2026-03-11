@@ -41,6 +41,12 @@ class Ignite2Server private constructor(
         /** 기본 태그 (안정 버전) */
         const val TAG = "2.17.0"
 
+        /**
+         * 현재 아키텍처에 맞는 기본 태그.
+         * arm64(Apple Silicon 등)에서는 에뮬레이션 없이 실행하기 위해 `2.17.0-arm64` 태그를 사용합니다.
+         */
+        val DEFAULT_TAG: String = if (System.getProperty("os.arch") == "aarch64") "$TAG-arm64" else TAG
+
         /** 시스템 프로퍼티 등록 시 사용하는 서버 이름 */
         const val NAME = "ignite2"
 
@@ -63,7 +69,7 @@ class Ignite2Server private constructor(
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
-            tag: String = TAG,
+            tag: String = DEFAULT_TAG,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
         ): Ignite2Server {

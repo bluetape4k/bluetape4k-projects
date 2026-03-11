@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.concurrent.virtualthread.virtualFuture
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.apache.ignite.client.ClientCache
@@ -61,8 +61,14 @@ class IgniteAsyncMemoizer<K: Any, V: Any>(
     private val inFlight = ConcurrentHashMap<K, CompletableFuture<V>>()
 
     override fun invoke(key: K): CompletableFuture<V> {
-        return inFlight.computeIfAbsent(key) {
-            val promise: CompletableFuture<V> = virtualFuture {
+        // 1. in-flight 확인 또는 신규 등록 (Virtual Thread-safe)
+        val promise = CompletableFuture<V>()
+        val existing = inFlight.putIfAbsent(key, promise)
+        if (existing != null) return existing
+
+        // 2. Ignite에서 캐시 조회 후, miss 시 evaluator 실행 (Virtual Thread에서 블로킹 I/O 실행)
+        CompletableFuture.supplyAsync(
+            {
                 val cached = cache.get(key)
                 if (cached != null) {
                     cached
@@ -71,11 +77,15 @@ class IgniteAsyncMemoizer<K: Any, V: Any>(
                     val isNew = cache.putIfAbsent(key, value)
                     if (isNew) value else (cache.get(key) ?: value)
                 }
-            }.toCompletableFuture()
-
-            promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
-            promise
+            },
+            VirtualThreadExecutor
+        ).whenComplete { result, error ->
+            inFlight.remove(key)
+            if (error != null) promise.completeExceptionally(error)
+            else promise.complete(result)
         }
+
+        return promise
     }
 
     override fun clear() {

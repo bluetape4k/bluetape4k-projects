@@ -6,8 +6,11 @@ import io.bluetape4k.cache.nearcache.RedissonNearCachingProvider
 import io.bluetape4k.cache.nearcache.redisNearCacheConfigurationOf
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.cache.RedisServers
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.redisson.jcache.configuration.RedissonConfiguration
@@ -137,5 +140,52 @@ class SpringCacheUsingNearCacheTest {
         cache.get(arg) shouldBeEqualTo null
         val second = someCacheable.someCacheableFunc(arg)
         second shouldBeEqualTo first
+    }
+
+    /**
+     * [MultithreadingTester]를 사용하여 여러 스레드에서 동시에 [@Cacheable] 메서드를 호출할 때
+     * Spring 캐시 추상화가 동시성 환경에서 올바르게 동작하는지 검증하는 테스트입니다.
+     */
+    @Test
+    fun `multithreading - cacheable method should return consistent results under concurrent access`() {
+        val arg = Base58.randomString(16)
+        // 최초 호출로 캐시에 값을 등록
+        val expected = someCacheable.someCacheableFunc(arg)
+        expected shouldBeEqualTo arg
+
+        MultithreadingTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                val result = someCacheable.someCacheableFunc(arg)
+                result shouldBeEqualTo expected
+            }
+            .run()
+
+        // 동시 호출 후에도 캐시에 값이 올바르게 유지되어야 함
+        cache.get(arg).shouldNotBeNull() shouldBeEqualTo arg
+    }
+
+    /**
+     * [StructuredTaskScopeTester]를 사용하여 Virtual Thread 기반으로 [@Cacheable] 메서드를 동시에 호출하고
+     * 캐시 조회와 쓰기가 동시성 환경에서 올바르게 동작하는지 검증하는 테스트입니다.
+     */
+    @Test
+    fun `structured task scope - cacheable method should return consistent results under concurrent access`() {
+        val arg = Base58.randomString(16)
+        // 최초 호출로 캐시에 값을 등록
+        val expected = someCacheable.someCacheableFunc(arg)
+        expected shouldBeEqualTo arg
+
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val result = someCacheable.someCacheableFunc(arg)
+                result shouldBeEqualTo expected
+            }
+            .run()
+
+        // 동시 호출 후에도 캐시에 값이 올바르게 유지되어야 함
+        cache.get(arg).shouldNotBeNull() shouldBeEqualTo arg
     }
 }

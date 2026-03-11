@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -195,5 +197,46 @@ class ResilientRedissonResp3NearCacheTest: AbstractRedissonResp3NearCacheTest() 
         c.close()
         c.close()
         c.isClosed.shouldBeTrue()
+    }
+
+    /**
+     * 여러 스레드에서 동시에 put/get을 호출해도 예외 없이 처리되는지 검증한다.
+     * write-behind 특성상 Redis 즉시 반영은 기대하지 않으며, front cache의 동시성 안전성만 검증한다.
+     */
+    @Test
+    fun `멀티스레드 동시 put-get - 충돌 없이 처리됨`() {
+        MultithreadingTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                val key = "mt-key-${Thread.currentThread().threadId() % 8}"
+                val value = "mt-val-${Thread.currentThread().threadId()}"
+                cache.put(key, value)
+                cache.get(key) // null 또는 다른 스레드 값일 수 있으므로 결과 무시
+            }
+            .run()
+    }
+
+    /**
+     * Virtual Thread 기반 StructuredTaskScope 환경에서 put/get/remove를 혼합하여
+     * 동시에 호출해도 예외 없이 처리되는지 검증한다.
+     */
+    @Test
+    fun `StructuredTaskScope 동시 put-get-remove - 충돌 없이 처리됨`() {
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val key = "stc-key-${(Math.random() * 8).toInt()}"
+                cache.put(key, "stc-val")
+            }
+            .add {
+                val key = "stc-key-${(Math.random() * 8).toInt()}"
+                cache.get(key) // null 허용
+            }
+            .add {
+                val key = "stc-key-${(Math.random() * 8).toInt()}"
+                cache.remove(key)
+            }
+            .run()
     }
 }

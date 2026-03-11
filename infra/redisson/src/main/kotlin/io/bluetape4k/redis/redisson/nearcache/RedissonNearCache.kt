@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.options.codec
 import io.bluetape4k.redis.redisson.options.name
+import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
@@ -12,9 +13,25 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * Redisson의 [RLocalCachedMap] 을 이용하여 NearCache를 구현합니다.
+ * Redisson의 [RLocalCachedMap]을 이용하여 2-Tier NearCache를 구현합니다.
  *
- * @see [RLocalCachedMap]
+ * ## 구조
+ * - **frontCache** ([RLocalCachedMap]): JVM 프로세스 내 로컬 캐시. 빠른 읽기 속도를 제공합니다.
+ * - **backCache** ([RMap]): Redis 원격 캐시. 여러 노드 간 데이터를 공유합니다.
+ *
+ * ## 동작 방식
+ * - 읽기: frontCache(로컬)에서 우선 조회하고, 없으면 backCache(Redis)에서 가져옵니다.
+ * - 쓰기: frontCache와 backCache 모두에 동기화됩니다.
+ * - 무효화: [LocalCachedMapOptions.SyncStrategy]에 따라 다른 노드의 로컬 캐시를 무효화합니다.
+ *
+ * ## 주의사항
+ * - [destroy]를 호출하면 로컬 캐시 인스턴스만 종료되며, Redis의 원격 데이터는 유지됩니다.
+ * - 여러 노드에서 같은 캐시 이름을 공유할 경우, 동기화 전략([LocalCachedMapOptions.SyncStrategy])을 적절히 설정해야 합니다.
+ *
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @see RLocalCachedMap
+ * @see LocalCachedMapOptions
  *
  * 참고:
  * - [Redisson Local Cache](https://github.com/redisson/redisson/wiki/7.-distributed-collections#local-cache)
@@ -54,9 +71,7 @@ class RedissonNearCache<K: Any, V: Any> private constructor(
         ): RedissonNearCache<K, V> {
             // RLocalCachedMap 은 Reference Object가 저장된다
             val frontCache = redisson.getLocalCachedMap(options)
-            val cacheName = requireNotNull(options.name) {
-                "LocalCachedMapOptions.name must not be null when creating RedissonNearCache."
-            }
+            val cacheName = options.name.requireNotBlank("name")
             val codec = options.codec ?: DefaultCodec
             val backCache = redisson.getMap<K, V>(cacheName, codec)
 

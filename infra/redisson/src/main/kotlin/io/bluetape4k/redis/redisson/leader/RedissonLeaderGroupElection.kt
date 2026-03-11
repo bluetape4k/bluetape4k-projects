@@ -101,6 +101,14 @@ class RedissonLeaderGroupElection private constructor(
 
     private val waitTime: Duration = options.waitTime
 
+    /**
+     * [lockName]에 해당하는 Redis [RSemaphore]를 가져오고, 허용 가능한 최대 슬롯 수를 [maxLeaders]로 초기화합니다.
+     *
+     * `trySetPermits`는 세마포어가 이미 초기화된 경우 아무 동작도 하지 않으므로 멱등적으로 호출할 수 있습니다.
+     *
+     * @param lockName 세마포어 키 이름
+     * @return [maxLeaders] permits로 초기화된 [RSemaphore]
+     */
     private fun getSemaphore(lockName: String): RSemaphore {
         lockName.requireNotBlank("lockName")
         val semaphore = redissonClient.getSemaphore(lockName)

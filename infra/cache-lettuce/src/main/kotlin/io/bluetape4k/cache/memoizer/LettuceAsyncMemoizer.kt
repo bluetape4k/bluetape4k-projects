@@ -62,30 +62,39 @@ class LettuceAsyncMemoizer<K: Any, V: Any>(
     private val inFlight = ConcurrentHashMap<K, CompletableFuture<V>>()
 
     override fun invoke(key: K): CompletableFuture<V> {
-        return inFlight.computeIfAbsent(key) {
-            val promise = map.getAsync(key.toString())
-                .thenCompose { cached ->
-                    if (cached != null) {
-                        CompletableFuture.completedFuture(cached)
-                    } else {
-                        evaluator(key).toCompletableFuture()
-                            .thenCompose { value ->
-                                map.putIfAbsentAsync(key.toString(), value)
-                                    .thenCompose { isNew ->
-                                        if (isNew) CompletableFuture.completedFuture(value)
-                                        else map.getAsync(key.toString()).thenApply { it ?: value }
-                                    }
-                            }
-                    }
-                }
+        // 1. in-flight 확인 또는 신규 등록 (Virtual Thread-safe)
+        val promise = CompletableFuture<V>()
+        val existing = inFlight.putIfAbsent(key, promise)
+        if (existing != null) return existing
 
-            promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
-            promise
-        }
+        // 2. Redis에서 캐시 조회 후, miss 시 evaluator 실행
+        map.getAsync(key.toString())
+            .thenCompose { cached ->
+                if (cached != null) {
+                    CompletableFuture.completedFuture(cached)
+                } else {
+                    evaluator(key).toCompletableFuture()
+                        .thenCompose { value ->
+                            map.putIfAbsentAsync(key.toString(), value)
+                                .thenCompose { isNew ->
+                                    if (isNew) CompletableFuture.completedFuture(value)
+                                    else map.getAsync(key.toString()).thenApply { it ?: value }
+                                }
+                        }
+                }
+            }
+            .whenComplete { result, error ->
+                inFlight.remove(key)
+                if (error != null) promise.completeExceptionally(error)
+                else promise.complete(result)
+            }
+
+        return promise
     }
 
     override fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: mapKey=${map.mapKey}" }
+        inFlight.clear()
         map.clear()
     }
 }

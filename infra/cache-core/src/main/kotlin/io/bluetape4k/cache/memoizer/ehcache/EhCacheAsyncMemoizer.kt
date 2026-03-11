@@ -4,8 +4,7 @@ import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.ehcache.Cache
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Ehcache를 이용하는 [EhCacheAsyncMemoizer]를 생성합니다.
@@ -21,7 +20,11 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
     EhCacheAsyncMemoizer(cache, this)
 
 /**
- * Ehcache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응닫할 수 있도록 합니다.
+ * Ehcache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ *
+ * ## Virtual Thread 안전성
+ * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이
+ * Virtual Thread 환경에서도 안전하게 동작합니다.
  */
 class EhCacheAsyncMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
@@ -30,32 +33,41 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
 
     companion object: KLoggingChannel()
 
-    private val lock = ReentrantLock()
+    private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
 
     override fun invoke(key: T): CompletableFuture<R> {
-        val promise = CompletableFuture<R>()
+        cache.get(key)?.let { return CompletableFuture.completedFuture(it) }
 
-        val value = cache.get(key)
-        if (value != null) {
-            promise.complete(value)
-        } else {
-            evaluator(key)
-                .whenComplete { result, error ->
-                    if (error != null)
-                        promise.completeExceptionally(error)
-                    else {
-                        cache.put(key, result)
-                        promise.complete(result)
-                    }
-                }
+        val promise = CompletableFuture<R>()
+        val existing = inFlight.putIfAbsent(key, promise)
+        if (existing != null) return existing
+
+        fun completeExceptionally(error: Throwable) {
+            inFlight.remove(key)
+            promise.completeExceptionally(error)
         }
+
+        runCatching { evaluator(key) }
+            .fold(
+                onSuccess = { future ->
+                    future.whenComplete { result, error ->
+                        if (error != null) {
+                            completeExceptionally(error)
+                        } else {
+                            inFlight.remove(key)
+                            cache.put(key, result)
+                            promise.complete(result)
+                        }
+                    }
+                },
+                onFailure = ::completeExceptionally
+            )
 
         return promise
     }
 
     override fun clear() {
-        lock.withLock {
-            cache.clear()
-        }
+        inFlight.clear()
+        cache.clear()
     }
 }

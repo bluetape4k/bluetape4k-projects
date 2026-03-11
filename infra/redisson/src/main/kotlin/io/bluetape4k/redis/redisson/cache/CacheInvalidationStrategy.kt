@@ -3,21 +3,46 @@ package io.bluetape4k.redis.redisson.cache
 import org.redisson.api.RMap
 
 /**
- * 캐시 무효화 전략 계약입니다.
+ * 캐시 무효화 전략 인터페이스입니다.
  *
- * ## 동작/계약
- * - 선택 키 무효화([invalidate]), 전체 무효화([invalidateAll]), 패턴 기반 무효화([invalidateByPattern])를 제공합니다.
- * - 무효화 대상 키 형식은 제네릭 [ID] 타입에 따릅니다.
- * - 예외 처리 정책은 구현체에 위임됩니다.
+ * ## 제공 기능
+ * - [invalidate]: 지정한 키 목록을 캐시에서 제거합니다.
+ * - [invalidateAll]: 캐시 전체를 비웁니다.
+ * - [invalidateByPattern]: glob 패턴과 일치하는 키를 모두 제거합니다.
  *
+ * ## 주의사항
+ * - 무효화 대상 키 타입은 제네릭 [ID]로 지정합니다.
+ * - 예외 처리 정책은 구현체에 따라 다릅니다.
+ *
+ * ## 사용 예
  * ```kotlin
  * strategy.invalidate("u:1", "u:2")
  * // 지정 키가 캐시에서 제거됨
+ *
+ * strategy.invalidateByPattern("user:*")
+ * // user:로 시작하는 모든 키가 제거됨
  * ```
+ *
+ * @param ID 캐시 키 타입
  */
 interface CacheInvalidationStrategy<ID: Any> {
+    /**
+     * 지정한 키들을 캐시에서 제거합니다.
+     *
+     * @param ids 제거할 캐시 키 목록
+     */
     fun invalidate(vararg ids: ID)
+
+    /**
+     * 캐시의 모든 항목을 제거합니다.
+     */
     fun invalidateAll()
+
+    /**
+     * 지정한 glob 패턴과 일치하는 모든 키를 캐시에서 제거합니다.
+     *
+     * @param pattern 키 매칭에 사용할 glob 패턴 (예: `"user:*"`)
+     */
     fun invalidateByPattern(pattern: String)
 }
 

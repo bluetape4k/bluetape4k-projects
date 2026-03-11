@@ -13,6 +13,7 @@ import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
+import org.redisson.api.BatchOptions
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
 
@@ -77,7 +78,7 @@ class RedissonResp3NearCache<V: Any>(
     private val trackingSync: RedisCommands<String, String> = trackingConnection.sync()
 
     private val trackingListener: RedissonTrackingInvalidationListener<V> =
-        RedissonTrackingInvalidationListener(frontCache, trackingConnection, config.cacheName)
+        RedissonTrackingInvalidationListener(frontCache, trackingConnection, config.cacheName, redisClient)
 
     init {
         if (config.useRespProtocol3) {
@@ -108,14 +109,27 @@ class RedissonResp3NearCache<V: Any>(
 
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
+     *
+     * Redisson Batch API를 사용해 missedKeys를 병렬로 조회하므로,
+     * 순차 조회 대비 네트워크 왕복(RTT)을 1회로 줄인다.
      */
     fun getAll(keys: Set<String>): Map<String, V> {
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = keys - result.keys
 
-        missedKeys.forEach { key ->
+        if (missedKeys.isEmpty()) return result
+
+        val batch = redisson.createBatch(BatchOptions.defaults())
+        val futures = missedKeys.map { key ->
             @Suppress("UNCHECKED_CAST")
-            redisson.getBucket<V>(config.redisKey(key), redissonCodec).get()?.let { value ->
+            key to batch.getBucket<V>(config.redisKey(key), redissonCodec).getAsync()
+        }
+        batch.execute()
+
+        // batch.execute() 완료 이후에는 future가 이미 완료 상태이므로 get()은 즉시 반환
+        futures.forEach { (key, future) ->
+            @Suppress("UNCHECKED_CAST")
+            (future.get() as? V)?.let { value ->
                 result[key] = value
                 frontCache.put(key, value)
                 trackingSync.get(config.redisKey(key))
@@ -142,12 +156,32 @@ class RedissonResp3NearCache<V: Any>(
 
     /**
      * 여러 key-value를 한 번에 저장한다.
+     *
+     * Redisson Batch API를 사용해 모든 SET 명령을 한 번의 배치로 실행하므로
+     * 순차 쓰기 대비 네트워크 왕복(RTT)을 1회로 줄인다.
      */
     fun putAll(map: Map<out String, V>) {
         frontCache.putAll(map)
+
+        val batch = redisson.createBatch(BatchOptions.defaults())
         map.forEach { (key, value) ->
-            setRedis(key, value)
+            @Suppress("UNCHECKED_CAST")
+            val bucket = batch.getBucket<V>(config.redisKey(key), redissonCodec)
+            val ttl = config.redisTtl
+            if (ttl != null) {
+                bucket.setAsync(value, ttl)
+            } else {
+                bucket.setAsync(value)
+            }
+        }
+        batch.execute()
+
+        map.keys.forEach { key ->
             trackingConnection.async().get(config.redisKey(key))
+                .exceptionally { e ->
+                    log.warn(e) { "CLIENT TRACKING 활성화 실패. key=$key, cacheName=${config.cacheName}" }
+                    null
+                }
         }
     }
 
@@ -267,6 +301,7 @@ class RedissonResp3NearCache<V: Any>(
     fun clearAll() {
         clearLocal()
         runCatching { clearBack() }
+            .onFailure { e -> log.warn(e) { "Redis 백 캐시 삭제 중 오류 발생. cacheName=${config.cacheName}" } }
     }
 
     /**

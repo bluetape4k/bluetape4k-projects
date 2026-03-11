@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -192,5 +193,23 @@ class ResilientRedissonResp3SuspendNearCacheTest: AbstractRedissonResp3NearCache
         c.close()
         c.close()
         c.isClosed.shouldBeTrue()
+    }
+
+    /**
+     * 여러 코루틴에서 동시에 put/get을 호출해도 예외 없이 처리되는지 검증한다.
+     * write-behind 특성상 Redis 즉시 반영은 기대하지 않으며, front cache의 코루틴 동시성 안전성만 검증한다.
+     */
+    @Test
+    fun `코루틴 동시 put-get - 충돌 없이 처리됨`() = runTest {
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                val key = "sj-key-${(Math.random() * 8).toInt()}"
+                val value = "sj-val-$key"
+                cache.put(key, value)
+                cache.get(key) // null 또는 다른 코루틴 값일 수 있으므로 결과 무시
+            }
+            .run()
     }
 }

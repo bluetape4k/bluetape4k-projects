@@ -2,6 +2,7 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -84,6 +85,32 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
             val results = List(16) { async { memoizer(7) } }.awaitAll()
             results.forEach { it shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.delete()
+        }
+    }
+
+    /**
+     * SuspendedJobTester를 사용하여 여러 코루틴에서 동시에 suspendMemoizer를 호출할 때
+     * 결과가 일관되고 중복 계산이 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `SuspendedJobTester - 여러 코루틴에서 동시에 suspendMemoizer 호출 시 일관된 결과 반환`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val memoizer = map.suspendMemoizer { key ->
+            delay(10)
+            key * key
+        }
+        try {
+            SuspendedJobTester()
+                .workers(16)
+                .rounds(4)
+                .add {
+                    memoizer(5) shouldBeEqualTo 25
+                    memoizer(7) shouldBeEqualTo 49
+                    memoizer(9) shouldBeEqualTo 81
+                }
+                .run()
         } finally {
             map.delete()
         }

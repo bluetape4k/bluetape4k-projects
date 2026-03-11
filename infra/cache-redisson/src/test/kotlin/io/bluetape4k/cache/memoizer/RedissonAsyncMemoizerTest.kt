@@ -2,8 +2,11 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeLessThan
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -133,6 +136,69 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
             first.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
             second.get(2, TimeUnit.SECONDS) shouldBeEqualTo 9
+        } finally {
+            map.delete()
+        }
+    }
+
+    /**
+     * [MultithreadingTester]를 사용하여 여러 스레드에서 동시에 memoizer를 호출할 때
+     * 중복 평가 없이 올바른 결과를 반환하는지 검증하는 동시성 테스트입니다.
+     */
+    @Test
+    fun `multithreading - memoizer should not evaluate duplicately under concurrent access`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.asyncMemoizer { key ->
+            CompletableFuture.supplyAsync {
+                evaluateCount.incrementAndGet()
+                Thread.sleep(50)
+                key * key
+            }
+        }
+
+        try {
+            MultithreadingTester()
+                .workers(16)
+                .rounds(4)
+                .add {
+                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 49
+                }
+                .run()
+
+            // 16 스레드 * 4 라운드 = 64번 호출하더라도 평가 횟수는 훨씬 적어야 함
+            evaluateCount.get() shouldBeLessThan 64
+        } finally {
+            map.delete()
+        }
+    }
+
+    /**
+     * [StructuredTaskScopeTester]를 사용하여 Virtual Thread 기반으로 memoizer를 동시에 호출할 때
+     * 중복 평가 없이 올바른 결과를 반환하는지 검증하는 동시성 테스트입니다.
+     */
+    @Test
+    fun `structured task scope - memoizer should not evaluate duplicately under concurrent access`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.asyncMemoizer { key ->
+            CompletableFuture.supplyAsync {
+                evaluateCount.incrementAndGet()
+                Thread.sleep(50)
+                key * key
+            }
+        }
+
+        try {
+            StructuredTaskScopeTester()
+                .rounds(32)
+                .add {
+                    memoizer(7).get(5, TimeUnit.SECONDS) shouldBeEqualTo 49
+                }
+                .run()
+
+            // 32번 호출하더라도 평가 횟수는 훨씬 적어야 함
+            evaluateCount.get() shouldBeLessThan 32
         } finally {
             map.delete()
         }

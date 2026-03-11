@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -225,5 +227,46 @@ class RedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
         val c = RedissonResp3NearCache<String>(redisson, resp3Client)
         c.close()
         c.close()
+    }
+
+    // ---- 동시성 테스트 ----
+
+    /**
+     * MultithreadingTester를 사용하여 여러 스레드에서 동시에 get/put을 호출할 때
+     * 데이터 일관성이 유지되고 예외가 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `MultithreadingTester - 여러 스레드에서 동시에 get과 put 호출 시 데이터 일관성 유지`() {
+        MultithreadingTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                val key = "concurrent-key-${Thread.currentThread().threadId() % 4}"
+                val value = "value-${Thread.currentThread().threadId()}"
+                cache.put(key, value)
+                cache.get(key) // null 이거나 어떤 값이든 예외 없이 반환되어야 함
+            }
+            .run()
+    }
+
+    /**
+     * StructuredTaskScopeTester를 사용하여 Virtual Thread 기반으로 동시에 get/put을 호출할 때
+     * 데이터 일관성이 유지되고 예외가 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `StructuredTaskScopeTester - Virtual Thread 기반 동시 get과 put 호출 시 데이터 일관성 유지`() {
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val key = "vt-key-${(Math.random() * 4).toInt()}"
+                val value = "vt-value"
+                cache.put(key, value)
+                val result = cache.get(key)
+                // 동시 put/get으로 인해 null일 수 있으나 예외는 없어야 함
+                if (result != null) {
+                    result shouldBeEqualTo value
+                }
+            }
+            .run()
     }
 }

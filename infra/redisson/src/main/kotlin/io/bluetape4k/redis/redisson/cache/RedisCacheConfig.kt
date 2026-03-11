@@ -154,10 +154,17 @@ data class RedisCacheConfig(
     }
 
     /**
-     * 이 설정으로 기본 MapOptions 객체를 생성합니다.
+     * 이 설정을 기반으로 [MapOptions] 객체를 생성합니다.
      *
-     * `ttl`, `maxSize`, `deleteFromDBOnInvalidate`는 `MapOptions`가 직접 지원하지 않으므로
-     * 이 메서드에서는 사용할 수 없습니다. 해당 설정이 필요하면 호출 전에 별도 처리해야 합니다.
+     * ## 주의사항
+     * - [ttl], [maxSize], [deleteFromDBOnInvalidate]는 Redisson [MapOptions]에서 직접 지원되지 않습니다.
+     *   이 값들이 기본값이 아닌 경우 [IllegalArgumentException]이 발생합니다.
+     * - [ttl]이 필요한 경우 엔트리별 만료 API(`RMap.put(key, value, ttl, unit)`)를 사용하세요.
+     * - [maxSize]가 필요한 경우 로컬 캐시 크기 제한([nearCacheMaxSize])이나 별도 정책을 적용하세요.
+     *
+     * @param name Redis 맵 이름
+     * @return 설정이 적용된 [MapOptions] 인스턴스
+     * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
     fun <K: Any, V> toMapOptions(name: String): MapOptions<K, V> {
         validateUnsupportedMapSettings()
@@ -168,10 +175,18 @@ data class RedisCacheConfig(
     }
 
     /**
-     * 이 설정으로 LocalCachedMapOptions 객체를 생성합니다.
+     * 이 설정을 기반으로 [LocalCachedMapOptions] 객체를 생성합니다.
      *
-     * `ttl`, `maxSize`, `deleteFromDBOnInvalidate`는 `LocalCachedMapOptions`가 직접 지원하지 않으므로
-     * 이 메서드에서는 사용할 수 없습니다. 해당 설정이 필요하면 호출 전에 별도 처리해야 합니다.
+     * ## 주의사항
+     * - [ttl], [maxSize], [deleteFromDBOnInvalidate]는 Redisson [LocalCachedMapOptions]에서 직접 지원되지 않습니다.
+     *   이 값들이 기본값이 아닌 경우 [IllegalArgumentException]이 발생합니다.
+     * - 로컬 캐시 만료는 [nearCacheTtl], [nearCacheMaxIdleTime]으로 제어하세요.
+     * - 로컬 캐시 크기는 [nearCacheMaxSize]로 제어하세요.
+     * - [nearCacheEnabled]가 `false`인 경우 로컬 캐시 크기가 0으로 설정되어 로컬 캐싱이 비활성화됩니다.
+     *
+     * @param name Redis 맵 이름
+     * @return 설정이 적용된 [LocalCachedMapOptions] 인스턴스
+     * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
     fun <K: Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
         validateUnsupportedMapSettings()

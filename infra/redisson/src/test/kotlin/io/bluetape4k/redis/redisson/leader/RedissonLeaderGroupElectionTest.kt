@@ -401,6 +401,44 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
         peakConcurrent.get() shouldBeLessOrEqualTo options.maxLeaders
     }
 
+    /**
+     * [MultithreadingTester]를 사용하여 짧은 `waitTime` + `maxLeaders=3` 환경에서
+     * 동시 다수 스레드가 [RedissonLeaderGroupElection.runIfLeader]를 호출할 때,
+     * 항상 `maxLeaders` 이하의 동시 실행자만 존재하는지 검증한다.
+     * 락 획득 실패(RedisException)는 [runCatching]으로 안전하게 처리한다.
+     */
+    @Test
+    fun `MultithreadingTester - maxLeaders 슬롯 제한이 동시성 환경에서 올바르게 동작한다`() {
+        val lockName = randomName()
+        val shortWaitOptions = LeaderGroupElectionOptions(
+            maxLeaders = 3,
+            waitTime = Duration.ofMillis(50),
+            leaseTime = Duration.ofSeconds(5),
+        )
+        val limitedElection = RedissonLeaderGroupElection(redissonClient, shortWaitOptions)
+        val currentConcurrent = AtomicInteger(0)
+        val peakConcurrent = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(shortWaitOptions.maxLeaders * 4)
+            .rounds(2)
+            .add {
+                runCatching {
+                    limitedElection.runIfLeader(lockName) {
+                        val current = currentConcurrent.incrementAndGet()
+                        peakConcurrent.updateAndGet { max(it, current) }
+                        Thread.sleep(Random.nextLong(10, 30))
+                        currentConcurrent.decrementAndGet()
+                    }
+                }
+                // RedisException(슬롯 초과) 또는 성공 — 둘 다 허용
+            }
+            .run()
+
+        log.debug { "최대 동시 실행 수: ${peakConcurrent.get()} / maxLeaders=${shortWaitOptions.maxLeaders}" }
+        peakConcurrent.get() shouldBeLessOrEqualTo shortWaitOptions.maxLeaders
+    }
+
     @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `멀티스레드 스트레스 - runAsyncIfLeader Virtual Thread 에서 모든 실행이 완료되고 카운터가 정확하다`() {

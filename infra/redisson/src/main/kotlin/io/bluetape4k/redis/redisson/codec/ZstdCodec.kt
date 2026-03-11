@@ -12,7 +12,25 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Zstd 알고리즘으로 압축을 수행하는 Codec
+ * Zstd(Zstandard) 알고리즘으로 값을 압축/복원하는 래퍼 Codec입니다.
+ *
+ * ## 동작 방식
+ * - 인코딩: [innerCodec]으로 직렬화한 바이트를 Zstd 알고리즘으로 압축하여 Redis에 저장합니다.
+ * - 디코딩: Redis에서 읽은 Zstd 압축 데이터를 해제한 후 [innerCodec]으로 역직렬화합니다.
+ *
+ * ## 특징
+ * - Zstd는 LZ4보다 높은 압축률을 제공하면서도 Gzip보다 빠른 속도를 제공합니다.
+ * - 압축률과 속도의 균형이 뛰어나 대용량 데이터 캐싱에 적합합니다.
+ * - Facebook이 개발한 오픈소스 압축 알고리즘으로, 다양한 압축 레벨을 지원합니다.
+ *
+ * ## 사용 예
+ * ```kotlin
+ * val codec = ZstdCodec(RedissonCodecs.Fory) // Fory 직렬화 + Zstd 압축
+ * val config = Config()
+ * config.codec = codec
+ * ```
+ *
+ * @property innerCodec 직렬화/역직렬화에 사용할 내부 Codec (기본값: [RedissonCodecs.Default])
  */
 class ZstdCodec(
     private val innerCodec: Codec = RedissonCodecs.Default,

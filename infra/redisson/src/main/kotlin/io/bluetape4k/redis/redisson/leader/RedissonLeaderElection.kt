@@ -16,8 +16,24 @@ import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
 
 /**
- * 여러 Process, Thread에서 같은 작업이 동시, 무작위로 실행되는 것을 방지하기 위해
- * Redisson Lock을 이용하여 Leader를 선출되면 독점적으로 작업할 수 있도록 합니다.
+ * Redisson 분산 락을 이용하여 여러 프로세스/스레드 중 단 하나만 작업을 수행하도록 리더를 선출합니다.
+ *
+ * ## 동작
+ * - [runIfLeader]: 동기 방식으로 락을 획득한 뒤 [LeaderElection.runIfLeader]를 실행하고, 완료 후 락을 해제합니다.
+ * - [runAsyncIfLeader]: `tryLockAsync`로 비동기 락을 획득하고, `CompletableFuture` 완료 시 [RLock.unlockAsync]로 락을 해제합니다.
+ * - 락 획득 실패 시 [org.redisson.client.RedisException]을 던집니다.
+ *
+ * ```kotlin
+ * val election = RedissonLeaderElection(redissonClient)
+ * val result = election.runIfLeader("my-job") {
+ *     // 리더로 선출된 경우에만 실행
+ *     processData()
+ * }
+ * ```
+ *
+ * @param redissonClient Redisson 클라이언트
+ * @param options 리더 선출 옵션 (waitTime, leaseTime)
+ * @see RedissonSuspendLeaderElection Coroutine 환경에서 사용할 suspend 버전
  */
 class RedissonLeaderElection private constructor(
     private val redissonClient: RedissonClient,
@@ -113,6 +129,22 @@ class RedissonLeaderElection private constructor(
         }
     }
 
+    /**
+     * 락을 보유한 상태에서 비동기 [action]을 실행하고, 완료(성공/실패) 후 락을 해제합니다.
+     *
+     * ## 동작 상세
+     * - [action] 호출 자체가 예외를 던지면 즉시 실패한 [CompletableFuture]를 반환합니다.
+     * - [action]이 반환한 [CompletableFuture] 완료 시 `whenCompleteAsync`에서 락을 비동기 해제합니다.
+     * - 락 해제는 [currentThreadId]로 식별합니다. 이는 Redisson이 락을 스레드 단위로 관리하기 때문이며,
+     *   비동기 컨텍스트에서 락 획득 시 사용한 스레드 ID와 동일한 값으로 해제해야 합니다.
+     * - 락 해제 실패 시 예외를 로그에만 기록하고 [action] 결과에는 영향을 주지 않습니다.
+     *
+     * @param lock 해제 대상 [RLock]
+     * @param currentThreadId 락 획득 시 사용한 스레드 ID ([Thread.currentThread.threadId] 기준)
+     * @param executor 완료 콜백을 실행할 [Executor]
+     * @param action 실행할 비동기 작업
+     * @return [action] 실행 결과를 담은 [CompletableFuture]
+     */
     private inline fun <T> executeActionAsync(
         lock: RLock,
         currentThreadId: Long,

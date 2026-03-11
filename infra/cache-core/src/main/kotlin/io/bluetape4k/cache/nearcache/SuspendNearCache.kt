@@ -66,7 +66,7 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
             log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
             backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
 
-            log.info { "Create CoNearCache instance." }
+            log.info { "Create SuspendNearCache instance." }
             return SuspendNearCache(frontCache, backCache, checkExpiryPeriod)
         }
     }
@@ -117,7 +117,7 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
     override fun entries(): Flow<SuspendCacheEntry<K, V>> = frontCache.entries()
 
     override suspend fun clear() {
-        log.info { "NearCoCache의 Front cache를 Clear합니다." }
+        log.info { "SuspendNearCache의 Front cache를 Clear합니다." }
         runCatching { frontCache.clear() }
     }
 

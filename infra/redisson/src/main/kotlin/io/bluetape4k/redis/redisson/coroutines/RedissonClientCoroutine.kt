@@ -11,7 +11,22 @@ import org.redisson.api.RedissonClient
 import org.redisson.api.TransactionOptions
 
 /**
- * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
+ * Redisson 작업을 코루틴 환경에서 Batch 모드로 실행합니다.
+ *
+ * [action] 블록 내에서 [RBatch]를 통해 여러 Redis 커맨드를 하나의 배치로 묶어 실행합니다.
+ * 배치 실행은 네트워크 왕복을 줄여 성능을 크게 향상시킵니다.
+ *
+ * ## 사용 예
+ * ```kotlin
+ * val result = redisson.withSuspendedBatch {
+ *     mapAsync.putAsync("key1", "value1")
+ *     mapAsync.putAsync("key2", "value2")
+ * }
+ * ```
+ *
+ * @param options 배치 실행 옵션 (기본값: [BatchOptions.defaults])
+ * @param action [RBatch] 수신 객체로 Redis 커맨드를 등록하는 블록
+ * @return 배치 실행 결과 ([BatchResult])
  */
 suspend inline fun RedissonClient.withSuspendedBatch(
     options: BatchOptions = BatchOptions.defaults(),
@@ -20,7 +35,26 @@ suspend inline fun RedissonClient.withSuspendedBatch(
     createBatch(options).apply(action).executeAsync().await()
 
 /**
- * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
+ * Redisson 작업을 코루틴 환경에서 트랜잭션 모드로 실행합니다.
+ *
+ * [action] 블록이 정상적으로 완료되면 트랜잭션을 커밋하고,
+ * 예외가 발생하면 롤백을 시도한 후 원래 예외를 다시 던집니다.
+ *
+ * ## 주의사항
+ * - 롤백 실패 시 롤백 예외는 무시되고 원래 예외만 전파됩니다 ([runCatching] 처리).
+ * - Redisson 트랜잭션은 낙관적 잠금 방식이므로 충돌 시 재시도 로직이 필요할 수 있습니다.
+ *
+ * ## 사용 예
+ * ```kotlin
+ * redisson.withSuspendedTransaction {
+ *     val map = getMap<String, String>("myMap")
+ *     map.putAsync("key", "value")
+ * }
+ * ```
+ *
+ * @param options 트랜잭션 옵션 (기본값: [TransactionOptions.defaults])
+ * @param action [RTransaction] 수신 객체로 Redis 커맨드를 등록하는 블록
+ * @throws Throwable [action] 블록에서 발생한 예외
  */
 suspend inline fun RedissonClient.withSuspendedTransaction(
     options: TransactionOptions = TransactionOptions.defaults(),

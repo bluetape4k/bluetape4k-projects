@@ -60,8 +60,14 @@ class AsyncHazelcastMemoizer<K: Any, V: Any>(
     private val inFlight = ConcurrentHashMap<K, CompletableFuture<V>>()
 
     override fun invoke(key: K): CompletableFuture<V> {
-        return inFlight.computeIfAbsent(key) {
-            val promise = imap.getAsync(key).thenCompose { cached ->
+        // 1. in-flight 확인 또는 신규 등록 (Virtual Thread-safe)
+        val promise = CompletableFuture<V>()
+        val existing = inFlight.putIfAbsent(key, promise)
+        if (existing != null) return existing
+
+        // 2. Hazelcast에서 캐시 조회 후, miss 시 evaluator 실행
+        imap.getAsync(key)
+            .thenCompose { cached ->
                 if (cached != null) {
                     CompletableFuture.completedFuture(cached)
                 } else {
@@ -70,11 +76,14 @@ class AsyncHazelcastMemoizer<K: Any, V: Any>(
                         imap.putIfAbsent(key, value) ?: value
                     }
                 }
-            }.toCompletableFuture()
+            }
+            .whenComplete { result, error ->
+                inFlight.remove(key)
+                if (error != null) promise.completeExceptionally(error)
+                else promise.complete(result)
+            }
 
-            promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
-            promise
-        }
+        return promise
     }
 
     override fun clear() {

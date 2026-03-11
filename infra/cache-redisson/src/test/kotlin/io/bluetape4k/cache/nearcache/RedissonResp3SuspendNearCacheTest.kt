@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -216,5 +217,29 @@ class RedissonResp3SuspendNearCacheTest: AbstractRedissonResp3NearCacheTest() {
         val c = RedissonResp3SuspendNearCache<String>(redisson, resp3Client)
         c.close()
         c.close()
+    }
+
+    // ---- 동시성 테스트 ----
+
+    /**
+     * SuspendedJobTester를 사용하여 여러 코루틴에서 동시에 get/put을 호출할 때
+     * 데이터 일관성이 유지되고 예외가 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `SuspendedJobTester - 여러 코루틴에서 동시에 get과 put 호출 시 데이터 일관성 유지`() = runTest {
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                val key = "suspend-concurrent-key-${(Math.random() * 4).toInt()}"
+                val value = "suspend-value"
+                cache.put(key, value)
+                val result = cache.get(key)
+                // 동시 put/get으로 인해 null일 수 있으나 예외는 없어야 함
+                if (result != null) {
+                    result shouldBeEqualTo value
+                }
+            }
+            .run()
     }
 }

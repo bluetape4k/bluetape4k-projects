@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.withTimeoutOrNull
@@ -47,5 +48,39 @@ abstract class AbstractSuspendMemoizerTest {
             fibonacci.calc(500)
         }
         result shouldBeEqualTo x1
+    }
+
+    /**
+     * 코루틴 환경에서 suspend factorial memoizer가 동일한 결과를 반환하는지 검증합니다.
+     * [SuspendedJobTester]를 사용하여 동시 코루틴 호출 시 결과 일관성을 확인합니다.
+     */
+    @Test
+    fun `suspend factorial memoizer는 코루틴 동시 환경에서 동일한 결과를 반환해야 한다`() = runSuspendDefault {
+        val expected = factorial.calc(100)
+
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                factorial.calc(100) shouldBeEqualTo expected
+            }
+            .run()
+    }
+
+    /**
+     * 코루틴 환경에서 suspend fibonacci memoizer가 동일한 결과를 반환하는지 검증합니다.
+     * [SuspendedJobTester]를 사용하여 동시 코루틴 호출 시 결과 일관성을 확인합니다.
+     */
+    @Test
+    fun `suspend fibonacci memoizer는 코루틴 동시 환경에서 동일한 결과를 반환해야 한다`() = runSuspendDefault {
+        val expected = fibonacci.calc(100)
+
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(4)
+            .add {
+                fibonacci.calc(100) shouldBeEqualTo expected
+            }
+            .run()
     }
 }

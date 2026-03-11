@@ -10,10 +10,14 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.*
 
+// Order(1): IgniteCachingProvider 로 embedded Ignite 노드를 시작하는 IgniteNearCacheTest 보다
+// 먼저 실행되어야 thin client 의 backSuspendCache 가 간섭 없이 동작합니다.
+@Order(1)
 class IgniteSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
 
     companion object: KLoggingChannel()

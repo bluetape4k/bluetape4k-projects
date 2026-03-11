@@ -15,6 +15,9 @@ import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
@@ -80,7 +83,7 @@ class RedissonResp3SuspendNearCache<V: Any>(
         trackingConnection.coroutines()
 
     private val trackingListener: RedissonTrackingInvalidationListener<V> =
-        RedissonTrackingInvalidationListener(frontCache, trackingConnection, config.cacheName)
+        RedissonTrackingInvalidationListener(frontCache, trackingConnection, config.cacheName, redisClient)
 
     init {
         if (config.useRespProtocol3) {
@@ -113,20 +116,29 @@ class RedissonResp3SuspendNearCache<V: Any>(
 
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
+     *
+     * front cache miss된 키들을 [coroutineScope] 내에서 병렬 [async]로 조회하므로
+     * 순차 await 대비 전체 응답 시간을 단축한다.
      */
     suspend fun getAll(keys: Set<String>): Map<String, V> {
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = keys - result.keys
 
-        missedKeys.forEach { key ->
-            @Suppress("UNCHECKED_CAST")
-            redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-                .getAsync().await()
-                ?.let { value ->
-                    result[key] = value
-                    frontCache.put(key, value)
-                    trackingCommands.get(config.redisKey(key))
+        if (missedKeys.isEmpty()) return result
+
+        coroutineScope {
+            missedKeys.map { key ->
+                async {
+                    @Suppress("UNCHECKED_CAST")
+                    redisson.getBucket<V>(config.redisKey(key), redissonCodec)
+                        .getAsync().await()
+                        ?.let { value -> key to value }
                 }
+            }.awaitAll().filterNotNull().forEach { (key, value) ->
+                result[key] = value
+                frontCache.put(key, value)
+                trackingCommands.get(config.redisKey(key))
+            }
         }
 
         return result
@@ -148,14 +160,19 @@ class RedissonResp3SuspendNearCache<V: Any>(
 
     /**
      * 여러 key-value를 한 번에 저장한다.
+     *
+     * Redis 쓰기([setRedis])와 tracking 활성화([trackingCommands.get])를 각 키별로
+     * 하나의 [async] 블록에서 처리하여 순차 쓰기 대비 전체 응답 시간을 단축한다.
      */
     suspend fun putAll(map: Map<String, V>) {
         frontCache.putAll(map)
-        map.forEach { (key, value) ->
-            setRedis(key, value)
-        }
-        map.keys.forEach { key ->
-            trackingCommands.get(config.redisKey(key))
+        coroutineScope {
+            map.map { (key, value) ->
+                async {
+                    setRedis(key, value)
+                    trackingCommands.get(config.redisKey(key))
+                }
+            }.awaitAll()
         }
     }
 

@@ -2,6 +2,8 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.IntegerCodec
@@ -59,6 +61,57 @@ class RedissonMemoizerTest: AbstractMemoizerTest() {
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             pool.shutdownNow()
+            map.delete()
+        }
+    }
+
+    /**
+     * MultithreadingTester를 사용하여 여러 스레드에서 동시에 memoizer를 호출할 때
+     * 결과가 일관되고 중복 계산이 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `MultithreadingTester - 여러 스레드에서 동시에 memoizer 호출 시 일관된 결과 반환`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val memoizer = map.memoizer { key ->
+            Thread.sleep(10)
+            key * key
+        }
+        try {
+            MultithreadingTester()
+                .workers(16)
+                .rounds(4)
+                .add {
+                    memoizer(5) shouldBeEqualTo 25
+                    memoizer(7) shouldBeEqualTo 49
+                    memoizer(9) shouldBeEqualTo 81
+                }
+                .run()
+        } finally {
+            map.delete()
+        }
+    }
+
+    /**
+     * StructuredTaskScopeTester를 사용하여 Virtual Thread 기반으로 동시에 memoizer를 호출할 때
+     * 결과가 일관되고 예외가 발생하지 않는지 검증합니다.
+     */
+    @Test
+    fun `StructuredTaskScopeTester - Virtual Thread 기반 동시 memoizer 호출 시 일관된 결과 반환`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val memoizer = map.memoizer { key ->
+            Thread.sleep(10)
+            key * key
+        }
+        try {
+            StructuredTaskScopeTester()
+                .rounds(32)
+                .add {
+                    memoizer(3) shouldBeEqualTo 9
+                    memoizer(6) shouldBeEqualTo 36
+                    memoizer(8) shouldBeEqualTo 64
+                }
+                .run()
+        } finally {
             map.delete()
         }
     }

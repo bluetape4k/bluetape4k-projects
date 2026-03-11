@@ -30,5 +30,8 @@ tasks.test {
         "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED",
         "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
         "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
+        // Ignite 2.x thin client 가 synchronized 블록을 사용하여 VirtualThread가 carrier thread에
+        // pin될 수 있으므로, VirtualThread 스케줄러 parallelism 을 늘려 carrier thread 고갈을 방지합니다.
+        "-Djdk.virtualThreadScheduler.parallelism=64",
     )
 }
