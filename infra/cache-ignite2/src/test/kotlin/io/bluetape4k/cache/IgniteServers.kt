@@ -14,6 +14,7 @@ object IgniteServers {
         Ignition.startClient(
             ClientConfiguration().apply {
                 setAddresses(ignite2Server.url)
+                setTimeout(60_000)  // 60초 소켓 타임아웃 (arm64 느린 초기화 대비)
             }
         ).also { ShutdownQueue.register { it.close() } }
     }

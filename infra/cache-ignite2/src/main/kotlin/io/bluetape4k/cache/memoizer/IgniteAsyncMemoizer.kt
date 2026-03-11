@@ -66,24 +66,29 @@ class IgniteAsyncMemoizer<K: Any, V: Any>(
         val existing = inFlight.putIfAbsent(key, promise)
         if (existing != null) return existing
 
-        // 2. Ignite에서 캐시 조회 후, miss 시 evaluator 실행 (Virtual Thread에서 블로킹 I/O 실행)
-        CompletableFuture.supplyAsync(
-            {
-                val cached = cache.get(key)
+        // 2. Ignite 비동기 API로 캐시 조회 → miss 시 evaluator 실행 (VirtualThread) → 결과 캐싱
+        cache.getAsync(key).toCompletableFuture()
+            .thenCompose { cached ->
                 if (cached != null) {
-                    cached
+                    CompletableFuture.completedFuture(cached)
                 } else {
-                    val value: V = evaluator(key)
-                    val isNew = cache.putIfAbsent(key, value)
-                    if (isNew) value else (cache.get(key) ?: value)
+                    // evaluator는 사용자 코드(blocking 가능)이므로 VirtualThread에서 실행
+                    CompletableFuture.supplyAsync({ evaluator(key) }, VirtualThreadExecutor)
+                        .thenCompose { value ->
+                            cache.putIfAbsentAsync(key, value).toCompletableFuture()
+                                .thenCompose { isNew ->
+                                    if (isNew) CompletableFuture.completedFuture(value)
+                                    else cache.getAsync(key).toCompletableFuture()
+                                        .thenApply { it ?: value }
+                                }
+                        }
                 }
-            },
-            VirtualThreadExecutor
-        ).whenComplete { result, error ->
-            inFlight.remove(key)
-            if (error != null) promise.completeExceptionally(error)
-            else promise.complete(result)
-        }
+            }
+            .whenComplete { result, error ->
+                inFlight.remove(key)
+                if (error != null) promise.completeExceptionally(error)
+                else promise.complete(result)
+            }
 
         return promise
     }
