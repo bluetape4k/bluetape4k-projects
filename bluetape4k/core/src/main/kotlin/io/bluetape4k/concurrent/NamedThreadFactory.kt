@@ -20,9 +20,8 @@ class NamedThreadFactory private constructor(
         const val DEFAULT_PREFIX = "thread"
 
         @JvmStatic
-        operator fun invoke(prefix: String? = DEFAULT_PREFIX, isDaemon: Boolean = false): ThreadFactory {
-            return NamedThreadFactory(prefix ?: DEFAULT_PREFIX, isDaemon)
-        }
+        operator fun invoke(prefix: String? = DEFAULT_PREFIX, isDaemon: Boolean = false): ThreadFactory =
+            NamedThreadFactory(prefix ?: DEFAULT_PREFIX, isDaemon)
     }
 
     val name: String = prefix
@@ -37,9 +36,7 @@ class NamedThreadFactory private constructor(
      * @param body 스레드 실행할 람다
      * @return 새로은 스레드 객체
      */
-    fun newThread(body: () -> Unit): Thread {
-        return newThread(Runnable { body() })
-    }
+    fun newThread(body: () -> Unit): Thread = newThread(Runnable(body))
 
     /**
      * Create a new thread
@@ -48,7 +45,7 @@ class NamedThreadFactory private constructor(
      * @return The new thread
      */
     override fun newThread(runnable: Runnable): Thread {
-        val threadName = name + "-" + threadNumber.getAndIncrement()
+        val threadName = "$name-${threadNumber.getAndIncrement()}"
         return Thread(group, runnable, threadName)
             .also {
                 it.isDaemon = isDaemon

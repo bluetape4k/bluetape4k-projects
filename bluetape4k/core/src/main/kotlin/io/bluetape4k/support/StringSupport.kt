@@ -653,14 +653,19 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
     if (this.isNullOrBlank()) return EMPTY_STRING
     if (lineSeparator.isEmpty()) return this.toString()
 
-    val index = when {
-        lineSeparator == LINE_SEPARATOR -> listOf(
-            this.indexOf(lineSeparator),
-            this.indexOf('\n'),
-        ).filter { it >= 0 }.minOrNull() ?: -1
+    val index = if (lineSeparator == LINE_SEPARATOR) {
+        val systemLineSeparatorIndex = indexOf(lineSeparator)
+        val newlineIndex = indexOf('\n')
 
-        else -> this.indexOf(lineSeparator)
+        when {
+            systemLineSeparatorIndex < 0 -> newlineIndex
+            newlineIndex < 0 -> systemLineSeparatorIndex
+            else -> minOf(systemLineSeparatorIndex, newlineIndex)
+        }
+    } else {
+        indexOf(lineSeparator)
     }
+
     return if (index >= 0) substring(0, index) else this.toString()
 }
 
@@ -678,27 +683,16 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
  * ```
  */
 fun CharSequence?.between(start: String, end: String): String {
-    if (this.isNullOrEmpty())
-        return EMPTY_STRING
-
-    if (start.isEmpty() || end.isEmpty())
-        return EMPTY_STRING
-
-    if (start == end)
-        return EMPTY_STRING
+    if (this.isNullOrEmpty() || start.isEmpty() || end.isEmpty() || start == end) return EMPTY_STRING
 
     val startIndex = this.indexOf(start)
-    if (startIndex < 0) {
-        return EMPTY_STRING
-    }
+    if (startIndex < 0) return EMPTY_STRING
 
     val contentStartIndex = startIndex + start.length
     val endIndex = this.indexOf(end, contentStartIndex)
-    if (endIndex < 0) {
-        return EMPTY_STRING
-    }
+    if (endIndex < 0) return EMPTY_STRING
 
-    return if (endIndex >= contentStartIndex) this.substring(contentStartIndex, endIndex) else EMPTY_STRING
+    return this.substring(contentStartIndex, endIndex)
 }
 
 /**

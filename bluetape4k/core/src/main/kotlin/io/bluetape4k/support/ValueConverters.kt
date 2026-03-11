@@ -768,13 +768,13 @@ fun Any?.asUUIDOrNull(): UUID? = runCatching {
 }.getOrNull()
 
 @OptIn(ExperimentalUuidApi::class)
-fun Any?.asKotlinUuidOrNull(): kotlin.uuid.Uuid? = runCatching {
-    when(this) {
+fun Any?.asKotlinUuidOrNull(): Uuid? = runCatching {
+    when (this) {
         null      -> null
         is Uuid   -> this
-        is UUID   -> Uuid.parse(this.toString())
+        is UUID   -> toKotlinUuid()
         is Number -> asBigIntOrNull()?.toUuid()?.toKotlinUuid()
-        else      -> Uuid.parse(this.toString())
+        else      -> Uuid.parse(toString())
     }
 }.getOrNull()
 
@@ -815,6 +815,36 @@ fun Any?.asByteArrayOrNull(charset: Charset = Charsets.UTF_8): ByteArray? = runC
     }
 }.getOrNull()
 
+private inline fun Any?.convertFloatOrNull(
+    decimalCount: Int,
+    transform: (value: Float, decimal: Float) -> Float,
+): Float? = this?.run {
+    runCatching {
+        if (decimalCount == 0) {
+            return@runCatching asLong().toFloat()
+        }
+
+        val value = asFloatOrNull() ?: return@runCatching null
+        val decimal = 10.0.pow(decimalCount).toFloat()
+        transform(value, decimal)
+    }.getOrNull()
+}
+
+private inline fun Any?.convertDoubleOrNull(
+    decimalCount: Int,
+    transform: (value: Double, decimal: Double) -> Double,
+): Double? = this?.run {
+    runCatching {
+        if (decimalCount == 0) {
+            return@runCatching asLong().toDouble()
+        }
+
+        val value = asDoubleOrNull() ?: return@runCatching null
+        val decimal = 10.0.pow(decimalCount)
+        transform(value, decimal)
+    }.getOrNull()
+}
+
 //
 // 특정 소숫점을 위한 Floor, Round 함수
 //
@@ -848,18 +878,8 @@ fun Any?.asFloatFloor(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float 
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Float 변환 결과
  */
-fun Any?.asFloatFloorOrNull(decimalCount: Int = 0): Float? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return@runCatching this.asLong().toFloat()
-        }
-
-        val value = asFloatOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount).toFloat()
-        floor(value * decimal) / decimal
-    }.getOrNull()
-}
+fun Any?.asFloatFloorOrNull(decimalCount: Int = 0): Float? =
+    convertFloatOrNull(decimalCount) { value, decimal -> floor(value * decimal) / decimal }
 
 /**
  * 객체를 [Float]로 변환하면서 [decimalCount] 자릿수에서 반올림을 수행합니다.
@@ -891,17 +911,8 @@ fun Any?.asFloatRound(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float 
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Float 변환 결과
  */
-fun Any?.asFloatRoundOrNull(decimalCount: Int = 0): Float? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return@runCatching this.asLong().toFloat()
-        }
-        val value = asFloatOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount).toFloat()
-        (value * decimal).roundToLong() / decimal
-    }.getOrNull()
-}
+fun Any?.asFloatRoundOrNull(decimalCount: Int = 0): Float? =
+    convertFloatOrNull(decimalCount) { value, decimal -> (value * decimal).roundToLong() / decimal }
 
 /**
  * 객체를 [Float]로 변환하면서 [decimalCount] 자릿수에서 올림을 수행합니다.
@@ -933,17 +944,8 @@ fun Any?.asFloatCeil(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float =
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Float 변환 결과
  */
-fun Any?.asFloatCeilOrNull(decimalCount: Int = 0): Float? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return@runCatching this.asLong().toFloat()
-        }
-        val value = asFloatOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount).toFloat()
-        ceil(value * decimal) / decimal
-    }.getOrNull()
-}
+fun Any?.asFloatCeilOrNull(decimalCount: Int = 0): Float? =
+    convertFloatOrNull(decimalCount) { value, decimal -> ceil(value * decimal) / decimal }
 
 /**
  * 객체를 [Double]로 변환하면서 [decimalCount] 자릿수에서 내림을 수행합니다.
@@ -974,18 +976,8 @@ fun Any?.asDoubleFloor(decimalCount: Int = 0, defaultValue: Double = 0.0): Doubl
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Double 변환 결과
  */
-fun Any?.asDoubleFloorOrNull(decimalCount: Int = 0): Double? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return@runCatching this.asLong().toDouble()
-        }
-
-        val value = asDoubleOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount)
-        floor(value * decimal) / decimal
-    }.getOrNull()
-}
+fun Any?.asDoubleFloorOrNull(decimalCount: Int = 0): Double? =
+    convertDoubleOrNull(decimalCount) { value, decimal -> floor(value * decimal) / decimal }
 
 /**
  * 객체를 [Double]로 변환하면서 [decimalCount] 자릿수에서 반올림을 수행합니다. 반환 실패 시 [defaultValue]로 대체합니다.
@@ -1016,17 +1008,8 @@ fun Any?.asDoubleRound(decimalCount: Int = 0, defaultValue: Double = 0.0): Doubl
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Double 변환 결과
  */
-fun Any?.asDoubleRoundOrNull(decimalCount: Int = 0): Double? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return this.asLong().toDouble()
-        }
-        val value = asDoubleOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount)
-        (value * decimal).roundToLong() / decimal
-    }.getOrNull()
-}
+fun Any?.asDoubleRoundOrNull(decimalCount: Int = 0): Double? =
+    convertDoubleOrNull(decimalCount) { value, decimal -> (value * decimal).roundToLong() / decimal }
 
 /**
  * 객체를 [Double]로 변환하면서 [decimalCount] 자릿수에서 올림을 수행합니다. 반환 실패 시 [defaultValue]로 대체합니다.
@@ -1058,14 +1041,5 @@ fun Any?.asDoubleCeil(decimalCount: Int = 0, defaultValue: Double = 0.0): Double
  * @param decimalCount 자릿 수 (기본값: 0)
  * @return Double 변환 결과
  */
-fun Any?.asDoubleCeilOrNull(decimalCount: Int = 0): Double? = this?.run {
-    runCatching {
-        if (decimalCount == 0) {
-            return this.asLong().toDouble()
-        }
-        val value = asDoubleOrNull() ?: return@runCatching null
-
-        val decimal = 10.0.pow(decimalCount)
-        ceil(value * decimal) / decimal
-    }.getOrNull()
-}
+fun Any?.asDoubleCeilOrNull(decimalCount: Int = 0): Double? =
+    convertDoubleOrNull(decimalCount) { value, decimal -> ceil(value * decimal) / decimal }

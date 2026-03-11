@@ -82,9 +82,10 @@ class ConcurrentReducer<T> internal constructor(
     private fun pump() {
         do {
             val job = grabJob()
-            if (job != null) {
-                if (job.promise.isCancelled) limit.release()
-                else run(job)
+            if (job?.promise?.isCancelled == true) {
+                limit.release()
+            } else if (job != null) {
+                run(job)
             }
         } while (job != null)
     }
@@ -113,18 +114,21 @@ class ConcurrentReducer<T> internal constructor(
     }
 
     private fun run(job: Job<T>) {
+        fun completeExceptionally(error: Throwable) {
+            limit.release()
+            job.promise.completeExceptionally(error)
+        }
+
         val future: CompletionStage<T>?
         try {
             future = job.task.invoke()
             if (future == null) {
                 log.debug { "task result is null." }
-                limit.release()
-                job.promise.completeExceptionally(NullPointerException("task result is null."))
+                completeExceptionally(NullPointerException("task result is null."))
                 return
             }
         } catch (e: Throwable) {
-            limit.release()
-            job.promise.completeExceptionally(e)
+            completeExceptionally(e)
             log.warn(e) { "task failed. job=$job" }
             return
         }
@@ -161,6 +165,6 @@ class ConcurrentReducer<T> internal constructor(
         constructor(): super()
         constructor(message: String): super(message)
         constructor(message: String, cause: Throwable): super(message, cause)
-        constructor(cause: Throwable): super(cause)
+        constructor(cause: Throwable?): super(cause = cause)
     }
 }

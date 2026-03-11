@@ -42,9 +42,7 @@ inline fun AutoCloseable.closeTimeout(
 inline fun AutoCloseable.closeTimeout(
     timeout: Duration = 3.seconds,
     crossinline errorHandler: (error: Throwable) -> Unit = {},
-) {
-    closeTimeout(timeout.inWholeMilliseconds, errorHandler)
-}
+) = closeTimeout(timeout.inWholeMilliseconds, errorHandler)
 
 /**
  * [AutoCloseable]을 사용하는 함수를 수행합니다.

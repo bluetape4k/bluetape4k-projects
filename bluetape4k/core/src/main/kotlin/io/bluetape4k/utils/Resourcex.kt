@@ -33,12 +33,12 @@ object Resourcex: KLogging() {
         path.requireNotBlank("path")
         log.debug { "Load resource file... path=[$path]" }
 
-        val url = path.removePrefix("/")
-        return classLoader.getResourceAsStream(url).apply {
-            if (this == null) {
-                log.warn { "Resource not found. path=[$path]" }
-            }
+        val resourcePath = path.removePrefix("/")
+        val inputStream = classLoader.getResourceAsStream(resourcePath)
+        if (inputStream == null) {
+            log.warn { "Resource not found. path=[$path]" }
         }
+        return inputStream
     }
 
     /**
@@ -57,11 +57,10 @@ object Resourcex: KLogging() {
         path: String,
         charset: Charset = Charsets.UTF_8,
         classLoader: ClassLoader = currentClassLoader,
-    ): String {
-        return getInputStream(path, classLoader)?.use {
+    ): String =
+        getInputStream(path, classLoader)?.use {
             it.readAllBytes().toString(charset)
         }.orEmpty()
-    }
 
     /**
      * 리소스 파일을 읽어 [ByteArray]로 반환합니다. 파일이 없으면 [emptyByteArray] 을 반환합니다.
@@ -74,9 +73,8 @@ object Resourcex: KLogging() {
      * @param classLoader  Class Loader
      * @return 파일 내용을 가진 [ByteArray], 파일이 없으면 [emptyByteArray] 을 반환
      */
-    fun getBytes(path: String, classLoader: ClassLoader = currentClassLoader): ByteArray {
-        return getInputStream(path, classLoader)?.use {
+    fun getBytes(path: String, classLoader: ClassLoader = currentClassLoader): ByteArray =
+        getInputStream(path, classLoader)?.use {
             it.readAllBytes()
         } ?: emptyByteArray
-    }
 }

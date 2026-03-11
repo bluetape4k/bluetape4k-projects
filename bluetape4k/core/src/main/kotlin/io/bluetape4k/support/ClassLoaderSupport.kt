@@ -35,6 +35,5 @@ fun getContextClassLoader(): ClassLoader = resolveClassLoader { Thread.currentTh
  */
 fun getSystemClassLoader(): ClassLoader = resolveClassLoader { ClassLoader.getSystemClassLoader() }
 
-private inline fun resolveClassLoader(crossinline loader: () -> ClassLoader?): ClassLoader {
-    return runCatching { loader() }.getOrNull() ?: ClassLoader.getSystemClassLoader()
-}
+private inline fun resolveClassLoader(crossinline loader: () -> ClassLoader?): ClassLoader =
+    runCatching { loader() }.getOrNull() ?: ClassLoader.getSystemClassLoader()

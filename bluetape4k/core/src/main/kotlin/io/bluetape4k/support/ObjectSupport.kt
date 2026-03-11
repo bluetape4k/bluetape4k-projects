@@ -37,8 +37,10 @@ fun <T: Any> Sequence<T>.modeOrNull(): T? = asIterable().modeOrNull()
 fun <T: Any> Iterable<T>.modeOrNull(): T? {
     val counts = groupingBy { it }.eachCount()
     val maxCount = counts.values.maxOrNull() ?: return null
-    val maxEntries = counts.entries.filter { it.value == maxCount }
-    return if (maxEntries.size == 1) maxEntries.first().key else null
+    return counts.entries
+        .filter { it.value == maxCount }
+        .singleOrNull()
+        ?.key
 }
 
 /**

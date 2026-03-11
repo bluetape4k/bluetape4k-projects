@@ -21,9 +21,8 @@ fun getSystemThreadGroup(): ThreadGroup {
  * @param predicate the predicate
  * @return An unmodifiable {@link Collection} of active thread groups matching the given predicate
  */
-fun findThreadGroups(predicate: (ThreadGroup) -> Boolean): List<ThreadGroup> {
-    return findThreadGroups(getSystemThreadGroup(), true, predicate)
-}
+fun findThreadGroups(predicate: (ThreadGroup) -> Boolean): List<ThreadGroup> =
+    findThreadGroups(getSystemThreadGroup(), true, predicate)
 
 
 /**
@@ -99,12 +98,11 @@ fun findThreads(
  * @return The threads which belongs to a thread group with the specified group name and the thread's name match the specified name,
  * An empty collection is returned if no such thread exists. The collection returned is always unmodifiable.
  */
-fun findThreadByName(threadName: String, threadGroupName: String): List<Thread> {
-    return findThreadGroups { it.name == threadGroupName }
+fun findThreadByName(threadName: String, threadGroupName: String): List<Thread> =
+    findThreadGroups { it.name == threadGroupName }
         .flatMap { group ->
             findThreads(group, false) { it.name == threadName }
         }
-}
 
 /**
  * Finds active threads with the specified name.
@@ -125,24 +123,19 @@ fun findThreadByName(threadName: String, threadGroup: ThreadGroup = getSystemThr
  * @return The thread which belongs to a specified thread group and the thread's id match the specified id.
  * `null` is returned if no such thread exists
  */
-fun findThreadByThreadId(threadId: Long, threadGroup: ThreadGroup = getSystemThreadGroup()): Thread? {
-    return findThreads(threadGroup) { it.threadId() == threadId }.firstOrNull()
-}
+fun findThreadByThreadId(threadId: Long, threadGroup: ThreadGroup = getSystemThreadGroup()): Thread? =
+    findThreads(threadGroup) { it.threadId() == threadId }.firstOrNull()
 
 /**
  * Gets all active thread groups excluding the system thread group (A thread group is active if it has been not destroyed).
  *
  * @return all thread groups excluding the system thread group. The collection returned is always unmodifiable.
  */
-fun getAllThreadGroups(): List<ThreadGroup> {
-    return findThreadGroups { true }
-}
+fun getAllThreadGroups(): List<ThreadGroup> = findThreadGroups { true }
 
 /**
  * Gets all active threads (A thread is active if it has been started and has not yet died).
  *
  * @return all active threads. The collection returned is always unmodifiable.
  */
-fun getAllThreads(): List<Thread> {
-    return findThreads { true }
-}
+fun getAllThreads(): List<Thread> = findThreads { true }

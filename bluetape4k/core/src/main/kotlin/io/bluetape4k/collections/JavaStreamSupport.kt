@@ -210,10 +210,9 @@ fun DoubleArray.toDoubleStream(): DoubleStream = Arrays.stream(this)
 /**
  * [FloatArray]를 [DoubleStream]으로 변환합니다.
  */
-fun FloatArray.toDoubleStream(): DoubleStream {
-    return DoubleStream.builder()
+fun FloatArray.toDoubleStream(): DoubleStream =
+    DoubleStream.builder()
         .also { builder ->
             forEach { builder.add(it.toDouble()) }
         }
         .build()
-}

@@ -49,9 +49,6 @@ inline fun <T> withLatch(count: Int = 1, timeout: Duration, crossinline operatio
     val latch = CountDownLatch(count)
     val result = futureOf { operation(latch) }
 
-    return if (latch.await(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)) {
-        result.get()
-    } else {
-        throw TimeoutException("operation is timeout")
-    }
+    return if (latch.await(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)) result.get()
+    else throw TimeoutException("operation is timeout")
 }

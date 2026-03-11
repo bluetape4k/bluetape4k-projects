@@ -27,6 +27,8 @@ object Systemx {
     const val FILE_ENCODING = "file.encoding"
     const val SUN_BOOT_CLASS_PATH = "sun.boot.class.path"
 
+    private fun systemProperty(name: String): String? = System.getProperty(name)
+
     /** Runtime package */
     val runtimePackage: Package by lazy { Runtime::class.java.`package` }
 
@@ -37,11 +39,11 @@ object Systemx {
     val processCount: Int by lazy { Runtime.getRuntime().availableProcessors() }
 
     /** JVM Compipler 정보 */
-    val javaCompiler: String? by lazy { System.getProperty("java.compiler") }
+    val javaCompiler: String? by lazy { systemProperty("java.compiler") }
 
     /** JVM 버전 */
     val javaVersion: String? by lazy {
-        System.getProperty(JAVA_SPECIFICATION_VERSION) ?: runtimePackage.specificationVersion
+        systemProperty(JAVA_SPECIFICATION_VERSION) ?: runtimePackage.specificationVersion
     }
 
     /** JVM 구현 버전 */
@@ -51,28 +53,28 @@ object Systemx {
     val javaVendor: String? by lazy { runtimePackage.specificationVendor }
 
     /** JVM 벤더 URL */
-    val javaVendorUrl: String? by lazy { System.getProperty("java.vendor.url") }
+    val javaVendorUrl: String? by lazy { systemProperty("java.vendor.url") }
 
     /** JVM 구현 벤더  */
     val javaImplementationVendor: String? by lazy { runtimePackage.implementationVendor }
 
     /** JVM 구현 벤더 URL */
-    val javaClassVersion: String? by lazy { System.getProperty(JAVA_CLASS_VERION) }
+    val javaClassVersion: String? by lazy { systemProperty(JAVA_CLASS_VERION) }
 
     /** JVM 라이브러리 경로 */
-    val javaLibraryPath: String? by lazy { System.getProperty("java.library.path") }
+    val javaLibraryPath: String? by lazy { systemProperty("java.library.path") }
 
     /** JVM 런타임 명 */
-    val javaRuntimeName: String? by lazy { System.getProperty("java.runtime.name") }
+    val javaRuntimeName: String? by lazy { systemProperty("java.runtime.name") }
 
     /** JVM 런타임 버전 */
-    val javaRuntimeVersion: String? by lazy { System.getProperty("java.runtime.version") }
+    val javaRuntimeVersion: String? by lazy { systemProperty("java.runtime.version") }
 
     /** JVM 사양 이름 */
-    val javaSpecificationName: String? by lazy { System.getProperty("java.specification.name") }
+    val javaSpecificationName: String? by lazy { systemProperty("java.specification.name") }
 
     /** JVM 사양 벤더 명 */
-    val javaSpecificationVendor: String? by lazy { System.getProperty("java.specification.vendor") }
+    val javaSpecificationVendor: String? by lazy { systemProperty("java.specification.vendor") }
 
     private val JavaFeatureVersion: Int? by lazy {
         val raw = javaVersion ?: return@lazy null
@@ -120,7 +122,7 @@ object Systemx {
     val isJava25: Boolean by lazy { JavaFeatureVersion == 25 }
 
     /** JVM home directory */
-    val javaHome: String? by lazy { System.getProperty("java.home") }
+    val javaHome: String? by lazy { systemProperty(JAVA_HOME) }
 
     val lineSeparator: String by lazy { System.lineSeparator() }
 
@@ -133,30 +135,30 @@ object Systemx {
     }
 
     /** 사용자 정보 */
-    val userName: String? by lazy { System.getProperty(USER_NAME) }
+    val userName: String? by lazy { systemProperty(USER_NAME) }
 
     /** 사용자 홈 디렉토리 */
-    val userHome: String? by lazy { System.getProperty(USER_HOME) }
+    val userHome: String? by lazy { systemProperty(USER_HOME) }
 
     /** 사용자 현재 디렉토리 */
-    val userDir: String? by lazy { System.getProperty(USER_DIR) }
+    val userDir: String? by lazy { systemProperty(USER_DIR) }
 
     /** 사용자 언어 */
     val userCountry: String? by lazy {
-        System.getProperty("user.country") ?: System.getProperty("user.region")
+        systemProperty("user.country") ?: systemProperty("user.region")
     }
 
     /** 임시 디렉토리 */
-    val tempDir: String? by lazy { System.getProperty(TEMP_DIR) }
+    val tempDir: String? by lazy { systemProperty(TEMP_DIR) }
 
     /** 임시 디렉토리 */
-    val javaIoTmpDir: String? by lazy { System.getProperty(TEMP_DIR) }
+    val javaIoTmpDir: String? by lazy { systemProperty(TEMP_DIR) }
 
     /** OS 이름 */
-    val osName: String? by lazy { System.getProperty(OS_NAME) }
+    val osName: String? by lazy { systemProperty(OS_NAME) }
 
     /** OS 버전 */
-    val osVersion: String? by lazy { System.getProperty(OS_VERSION) }
+    val osVersion: String? by lazy { systemProperty(OS_VERSION) }
 
     private val normalizedOsName: String by lazy { osName?.lowercase(Locale.ROOT).orEmpty() }
 
@@ -183,7 +185,7 @@ object Systemx {
      * @param name 시스템 속성 key
      * @return 시스템 속성 값
      */
-    fun getProp(name: String): String? = System.getProperty(name)
+    fun getProp(name: String): String? = systemProperty(name)
 
     /**
      * 환경설정 키[name]에 해당하는 값을 가져옵니다. 없다면 null 을 반환합니다.

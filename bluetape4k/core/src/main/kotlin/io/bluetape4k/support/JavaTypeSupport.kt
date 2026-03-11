@@ -9,16 +9,14 @@ import java.lang.reflect.Type
  * @throws IllegalArgumentException 파라미터화된 Iterator 타입이 아닌 경우
  */
 fun Type.actualIteratorTypeArgument(): Type {
-    val self = this
-
     return when {
-        self !is ParameterizedType ->
-            throw IllegalArgumentException("Not a parameterized type. type=$self")
+        this !is ParameterizedType ->
+            throw IllegalArgumentException("Not a parameterized type. type=$this")
 
-        (self.rawType as? Class<*>)?.let { Iterator::class.java.isAssignableFrom(it) } != true ->
-            throw IllegalArgumentException("Not an iterator type. rawType=${self.rawType}")
+        (rawType as? Class<*>)?.let { Iterator::class.java.isAssignableFrom(it) } != true ->
+            throw IllegalArgumentException("Not an iterator type. rawType=$rawType")
 
         else ->
-            self.actualTypeArguments[0]
+            actualTypeArguments[0]
     }
 }

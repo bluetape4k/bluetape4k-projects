@@ -30,23 +30,25 @@ object ShutdownQueue: KLogging() {
     private val registered = ConcurrentHashMap.newKeySet<AutoCloseable>()
 
     init {
-        Runtimex.addShutdownHook {
-            while (true) {
-                val closeable = closeables.pollLast() ?: break
-                log.debug { "Closing AutoCloseable instance ... $closeable" }
-                closeable.closeSafe()
-                log.debug { "Success to close AutoCloseable instance ... $closeable" }
-            }
-        }
+        Runtimex.addShutdownHook(::drainCloseables)
     }
 
     /**
      * JVM 종료 시 자동으로 정리할 객체를 등록합니다.
      */
     fun register(closeable: AutoCloseable) {
-        if (registered.add(closeable)) {
-            log.debug { "JVM Shutdown 시 자동 정리할 객체를 등록합니다. $closeable" }
-            closeables.addLast(closeable)
+        if (!registered.add(closeable)) return
+
+        log.debug { "JVM Shutdown 시 자동 정리할 객체를 등록합니다. $closeable" }
+        closeables.addLast(closeable)
+    }
+
+    private fun drainCloseables() {
+        while (true) {
+            val closeable = closeables.pollLast() ?: break
+            log.debug { "Closing AutoCloseable instance ... $closeable" }
+            closeable.closeSafe()
+            log.debug { "Success to close AutoCloseable instance ... $closeable" }
         }
     }
 }

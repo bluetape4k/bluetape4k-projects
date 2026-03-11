@@ -79,14 +79,14 @@ fun <T> MutableList<T>.append(vararg elements: T): MutableList<T> = apply {
  * ```
  */
 fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
-    if (index1 != index2) {
-        index1.assertInRange(0, this.size - 1, "index1")
-        index2.assertInRange(0, this.size - 1, "index2")
+    if (index1 == index2) return
 
-        val tmp = this[index1]
-        this[index1] = this[index2]
-        this[index2] = tmp
-    }
+    index1.assertInRange(0, this.size - 1, "index1")
+    index2.assertInRange(0, this.size - 1, "index2")
+
+    val tmp = this[index1]
+    this[index1] = this[index2]
+    this[index2] = tmp
 }
 
 /**

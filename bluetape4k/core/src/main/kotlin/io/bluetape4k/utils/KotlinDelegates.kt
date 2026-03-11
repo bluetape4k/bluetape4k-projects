@@ -48,11 +48,11 @@ object KotlinDelegates: KLogging() {
     fun <T: Any> findPrimaryConstructor(clazz: Class<T>): Constructor<T>? {
         return try {
             val primaryCtor = clazz.kotlin.primaryConstructor ?: return null
-            primaryCtor.javaConstructor.also {
-                if (it == null) {
-                    log.error { "Fail to find Java constructor for Kotlin primary constructor: ${clazz.name}" }
-                }
+            val javaConstructor = primaryCtor.javaConstructor
+            if (javaConstructor == null) {
+                log.error { "Fail to find Java constructor for Kotlin primary constructor: ${clazz.name}" }
             }
+            javaConstructor
         } catch (e: UnsupportedOperationException) {
             log.error(e) { "Fail to find primary constructor of Kotlin class [${clazz.name}]" }
             null

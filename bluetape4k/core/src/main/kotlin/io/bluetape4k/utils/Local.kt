@@ -21,9 +21,7 @@ object Local: KLogging() {
 
     private val threadLocal: ThreadLocal<java.util.HashMap<Any, Any?>> by lazy {
         object: ThreadLocal<java.util.HashMap<Any, Any?>>() {
-            override fun initialValue(): java.util.HashMap<Any, Any?> {
-                return HashMap()
-            }
+            override fun initialValue(): java.util.HashMap<Any, Any?> = HashMap()
         }
     }
 
@@ -61,16 +59,13 @@ object Local: KLogging() {
     /**
      * 키가 없으면 [defaultValue] 결과를 저장하고 반환합니다.
      */
-    fun <T: Any> getOrPut(key: Any, defaultValue: () -> T?): T? {
-        return storage.getOrPut(key, defaultValue) as? T
-    }
+    fun <T: Any> getOrPut(key: Any, defaultValue: () -> T?): T? =
+        storage.getOrPut(key, defaultValue) as? T
 
     /**
      * 키를 제거하고 기존 값을 반환합니다.
      */
-    fun <T: Any> remove(key: Any): T? {
-        return storage.remove(key) as? T
-    }
+    fun <T: Any> remove(key: Any): T? = storage.remove(key) as? T
 }
 
 /**
@@ -82,15 +77,11 @@ internal class LocalStorage<T: Any>: Serializable {
 
     fun get(): T? = Local.get<T>(key)
 
-    fun set(value: T?) {
-        Local[key] = value
-    }
+    fun set(value: T?) { Local[key] = value }
 
     fun update(value: T?) {
         set(value)
     }
 
-    fun clear(): T? {
-        return Local.remove(key)
-    }
+    fun clear(): T? = Local.remove(key)
 }

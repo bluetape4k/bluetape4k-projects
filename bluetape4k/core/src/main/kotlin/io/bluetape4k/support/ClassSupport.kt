@@ -38,10 +38,7 @@ val KClass<*>.packageName: String get() = this.java.packageName
  * ```
  */
 val KFunction<*>.qualifiedName: String
-    get() {
-        val className = this.javaMethod?.declaringClass?.name ?: return name
-        return "$className.$name"
-    }
+    get() = javaMethod?.declaringClass?.name?.let { "$it.$name" } ?: name
 
 /**
  * 객체를 지정한 수형으로 casting 합니다.
@@ -101,7 +98,7 @@ fun <T: Any> newInstanceOrNull(
 
     return runCatching {
         val clazz = (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) as? Class<T>
-        clazz?.run { newInstanceOrNull() }
+        clazz?.newInstanceOrNull()
     }.getOrNull()
 }
 
@@ -117,12 +114,10 @@ fun <T: Any> newInstanceOrNull(
 fun classIsPresent(
     qualifiedName: String,
     classLoader: ClassLoader? = getContextClassLoader(),
-): Boolean {
-    return try {
-        (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) != null
-    } catch (ignored: Throwable) {
-        false
-    }
+): Boolean = try {
+    (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) != null
+} catch (ignored: Throwable) {
+    false
 }
 
 /**

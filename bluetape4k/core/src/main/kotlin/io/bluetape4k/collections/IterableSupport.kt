@@ -136,9 +136,8 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  * @return [Result] 리스트
  * @see mapCatching
  */
-inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> {
-    return map { runCatching { mapper(it) } }
-}
+inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> =
+    map { runCatching { mapper(it) } }
 
 /**
  * [mapper] 실행의 [Result] 를 반환합니다.
@@ -157,9 +156,8 @@ inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> {
  * @return [Result] 리스트
  * @see tryMap
  */
-inline fun <T, R> Iterable<T>.mapCatching(mapper: (T) -> R): List<Result<R>> {
-    return map { runCatching { mapper(it) } }
-}
+inline fun <T, R> Iterable<T>.mapCatching(mapper: (T) -> R): List<Result<R>> =
+    map { runCatching { mapper(it) } }
 
 /**
  * forEach 구문 실행 시 `runCatching` 구문으로 [action] 실행합니다. 예외를 무시합니다.
@@ -193,9 +191,8 @@ inline fun <T> Iterable<T>.tryForEach(action: (T) -> Unit) {
  *
  * @see tryForEach
  */
-inline fun <T> Iterable<T>.forEachCatching(action: (T) -> Unit): List<Result<Unit>> {
-    return map { runCatching { action(it) } }
-}
+inline fun <T> Iterable<T>.forEachCatching(action: (T) -> Unit): List<Result<Unit>> =
+    map { runCatching { action(it) } }
 
 /**
  * [mapper] 실행이 성공한 결과만 추출합니다.

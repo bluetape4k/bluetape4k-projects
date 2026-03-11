@@ -44,7 +44,7 @@ fun <T> StringBuilder.appendItems(iterable: Iterable<T>, separator: String = ", 
  * @see joinToString
  */
 fun <T> StringBuilder.appendItems(sequence: Sequence<T>, separator: String = ", ") {
-    return appendItems(sequence.asIterable(), separator)
+    appendItems(sequence.asIterable(), separator)
 }
 
 /**
@@ -95,5 +95,5 @@ fun <T> Iterable<T>.appendItems(builder: StringBuilder, separator: String = ", "
  * @param separator 요소 사이에 삽입할 구분자
  */
 fun <T> Sequence<T>.appendItems(builder: StringBuilder, separator: String = ", ") {
-    return asIterable().appendItems(builder, separator)
+    asIterable().appendItems(builder, separator)
 }

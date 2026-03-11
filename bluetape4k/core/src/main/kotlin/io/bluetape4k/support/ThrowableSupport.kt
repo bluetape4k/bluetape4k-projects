@@ -13,9 +13,8 @@ package io.bluetape4k.support
  * @return the full exception message
  */
 fun Throwable?.buildMessage(message: String?): String? {
-    if (this == null) {
-        return message
-    }
+    if (this == null) return message
+
     return buildString {
         message?.let { append(it).append("; ") }
         append("nested exception is ").append(cause ?: "not exists")

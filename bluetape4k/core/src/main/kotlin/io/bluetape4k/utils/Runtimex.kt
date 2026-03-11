@@ -174,9 +174,7 @@ object Runtimex: KLogging() {
         fun waitFor() {
             try {
                 lock.withLock {
-                    if (!end) {
-                        condition.await()
-                    }
+                    if (!end) condition.await()
                 }
             } catch (ignored: InterruptedException) {
                 // Ignore exception.

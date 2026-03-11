@@ -17,9 +17,7 @@ typealias Decorator<T> = (() -> T) -> T // (T) -> T
  * @return 데코레이터가 적용된 함수의 결과
  * @see Decorator
  */
-fun <T> decorateWith(vararg decorators: Decorator<T>, action: () -> T): T {
-    val decorated = decorators.fold(action) { acc, decorator ->
+fun <T> decorateWith(vararg decorators: Decorator<T>, action: () -> T): T =
+    decorators.fold(action) { acc, decorator ->
         { decorator(acc) }
-    }
-    return decorated()
-}
+    }()

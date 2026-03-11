@@ -23,12 +23,10 @@ interface GetterOperator<in K, out V> {
  * // result == 3
  * ```
  */
-fun <K, V> getterOperator(func: (K) -> V): GetterOperator<K, V> {
-    return object: GetterOperator<K, V> {
-        override val getter: (K) -> V
-            get() = func
+fun <K, V> getterOperator(func: (K) -> V): GetterOperator<K, V> =
+    object: GetterOperator<K, V> {
+        override val getter: (K) -> V = func
     }
-}
 
 /**
  * `(K, V) -> Unit` 으로 Setter 를 표현하는 interface 입니다.
@@ -58,12 +56,10 @@ interface SetterOperator<in K, in V> {
  * // values["a"] == 1
  * ```
  */
-fun <K, V> setterOperator(func: (K, V) -> Unit): SetterOperator<K, V> {
-    return object: SetterOperator<K, V> {
-        override val setter: (K, V) -> Unit
-            get() = func
+fun <K, V> setterOperator(func: (K, V) -> Unit): SetterOperator<K, V> =
+    object: SetterOperator<K, V> {
+        override val setter: (K, V) -> Unit = func
     }
-}
 
 /**
  * Getter, Setter 작업을 Kotlin 스타일로 표현할 수 있도록 했습니다

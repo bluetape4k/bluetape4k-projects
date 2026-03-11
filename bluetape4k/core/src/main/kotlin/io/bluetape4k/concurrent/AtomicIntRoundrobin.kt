@@ -25,10 +25,10 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
         private const val DEFAULT_MAXIMUM = 16
 
         @JvmStatic
-        operator fun invoke(maximum: Int = DEFAULT_MAXIMUM): AtomicIntRoundrobin {
-            maximum.requirePositiveNumber("maximum")
-            return AtomicIntRoundrobin(maximum)
-        }
+        operator fun invoke(maximum: Int = DEFAULT_MAXIMUM): AtomicIntRoundrobin =
+            maximum
+                .also { it.requirePositiveNumber("maximum") }
+                .let(::AtomicIntRoundrobin)
     }
 
     private var currentValue: Int = 0

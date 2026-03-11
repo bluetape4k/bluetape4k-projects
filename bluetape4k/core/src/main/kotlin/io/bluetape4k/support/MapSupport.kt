@@ -9,9 +9,8 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.util.*
 
-private fun Map<String, Any?>.requireValue(name: String): Any {
-    return requireNotNull(this[name]) { "Map[$name] is missing or null." }
-}
+private fun Map<String, Any?>.requireValue(name: String): Any =
+    requireNotNull(this[name]) { "Map[$name] is missing or null." }
 
 /**
  * 맵에서 [name] 키 값을 `Boolean`으로 변환해 반환합니다.

@@ -56,9 +56,8 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
             }
     }
 
-    private inline fun schedule(crossinline action: () -> Unit) {
+    private inline fun schedule(crossinline action: () -> Unit) =
         scheduler.schedule({ action() }, 100, TimeUnit.NANOSECONDS)
-    }
 
     private fun tryToComplete() {
         try {

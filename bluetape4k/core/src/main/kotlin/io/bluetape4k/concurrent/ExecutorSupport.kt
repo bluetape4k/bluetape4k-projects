@@ -43,9 +43,7 @@ object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTa
  * Direct executor
  */
 object DirectExecutor: Executor {
-    override fun execute(command: Runnable) {
-        command.run()
-    }
+    override fun execute(command: Runnable) = command.run()
 }
 
 private val log by lazy { KotlinLogging.logger {} }

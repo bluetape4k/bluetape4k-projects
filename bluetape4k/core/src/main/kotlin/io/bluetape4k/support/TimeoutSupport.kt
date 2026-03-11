@@ -71,9 +71,8 @@ inline fun <T> asyncRunWithTimeout(
  * @param action 비동기로 실행할 코드 블럭
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면 [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
  */
-inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> T): CompletableFuture<T> {
-    return asyncRunWithTimeout(timeout.inWholeMilliseconds, action = action)
-}
+inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> T): CompletableFuture<T> =
+    asyncRunWithTimeout(timeout.inWholeMilliseconds, action = action)
 
 /**
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeoutMillis] 시간 내에 종료되지 않으면 null 을 반환합니다.
@@ -100,11 +99,10 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeoutMillis] 시간 내에 종료되지 않으면 null
  */
-inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? {
-    return runCatching {
+inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? =
+    runCatching {
         asyncRunWithTimeout(timeoutMillis, action = action).get()
     }.getOrNull()
-}
 
 /**
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeout] 시간 내에 종료되지 않으면 null 을 반환합니다.
@@ -131,6 +129,5 @@ inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: (
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeout] 시간 내에 종료되지 않으면 null
  */
-inline fun <T: Any> withTimeoutOrNull(timeout: Duration, crossinline action: () -> T): T? {
-    return withTimeoutOrNull(timeout.inWholeMilliseconds, action)
-}
+inline fun <T: Any> withTimeoutOrNull(timeout: Duration, crossinline action: () -> T): T? =
+    withTimeoutOrNull(timeout.inWholeMilliseconds, action)

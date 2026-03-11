@@ -4,6 +4,9 @@ import io.bluetape4k.support.assertPositiveNumber
 import java.util.stream.IntStream
 import java.util.stream.LongStream
 
+private fun calculatePartitionCount(size: Int, chunkSize: Int): Int =
+    size / chunkSize + if (size % chunkSize > 0) 1 else 0
+
 /**
  * 시작 문자([start]) ~ 종료 문자([endInclusive]) 에 해당하는 [CharProgression]을 빌드합니다.
  *
@@ -43,11 +46,10 @@ fun intProgressionOf(start: Int, endInclusive: Int, step: Int = 1): IntProgressi
  * stream.count() shouldBeEqualTo 3
  * ```
  */
-fun IntProgression.asStream(): IntStream {
-    val builder = IntStream.builder()
-    forEach { builder.add(it) }
-    return builder.build()
-}
+fun IntProgression.asStream(): IntStream =
+    IntStream.builder()
+        .also { builder -> forEach { builder.add(it) } }
+        .build()
 
 /**
  * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -56,14 +58,8 @@ fun IntProgression.asStream(): IntStream {
  * @return 그룹된 [IntProgression]의 [Sequence]
  */
 @Deprecated("Use chunked instead", ReplaceWith("chunked(groupSize)"))
-fun IntProgression.grouped(groupSize: Int): Sequence<IntProgression> {
-    groupSize.assertPositiveNumber("groupSize")
-
-    val size = count()
-    val partitionCount = size / groupSize + (if (size % groupSize > 0) 1 else 0)
-
-    return partitioning(partitionCount)
-}
+fun IntProgression.grouped(groupSize: Int): Sequence<IntProgression> =
+    partitioning(partitionCount = calculatePartitionCount(count(), groupSize.also { it.assertPositiveNumber("groupSize") }))
 
 /**
  * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -78,14 +74,8 @@ fun IntProgression.grouped(groupSize: Int): Sequence<IntProgression> {
  * @param chunk chunk size
  * @return chunk된 [IntProgression]의 [Sequence]
  */
-fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> {
-    chunk.assertPositiveNumber("chunk")
-
-    val size = count()
-    val partitionCount = size / chunk + (if (size % chunk > 0) 1 else 0)
-
-    return partitioning(partitionCount)
-}
+fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> =
+    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.assertPositiveNumber("chunk") }))
 
 /**
  * [IntProgression]을 partitioning 하여 [Sequence]로 반환합니다.
@@ -168,11 +158,10 @@ fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongPro
  * // result == [1, 2, 3]
  * ```
  */
-fun LongProgression.asStream(): LongStream {
-    return LongStream.builder().also { builder ->
-        forEach { builder.add(it) }
-    }.build()
-}
+fun LongProgression.asStream(): LongStream =
+    LongStream.builder()
+        .also { builder -> forEach { builder.add(it) } }
+        .build()
 
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -181,14 +170,8 @@ fun LongProgression.asStream(): LongStream {
  * @return 그룹된 [IntProgression]의 [Sequence]
  */
 @Deprecated("Use chunked instead", ReplaceWith("chunked(groupSize)"))
-fun LongProgression.grouped(groupSize: Int): Sequence<LongProgression> {
-    groupSize.assertPositiveNumber("groupSize")
-
-    val size = count()
-    val partitionCount = size / groupSize + (if (size % groupSize > 0) 1 else 0)
-
-    return partitioning(partitionCount)
-}
+fun LongProgression.grouped(groupSize: Int): Sequence<LongProgression> =
+    partitioning(partitionCount = calculatePartitionCount(count(), groupSize.also { it.assertPositiveNumber("groupSize") }))
 
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -203,14 +186,8 @@ fun LongProgression.grouped(groupSize: Int): Sequence<LongProgression> {
  * @param chunk chunk size
  * @return chunk된 [IntProgression]의 [Sequence]
  */
-fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> {
-    chunk.assertPositiveNumber("chunk")
-
-    val size = count()
-    val partitionCount = size / chunk + (if (size % chunk > 0) 1 else 0)
-
-    return partitioning(partitionCount)
-}
+fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> =
+    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.assertPositiveNumber("chunk") }))
 
 /**
  * [LongProgression]을 [partitionCount] 갯수로 분할합니다.
