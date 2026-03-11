@@ -4,7 +4,6 @@ import io.bluetape4k.cache.IgniteServers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.CompletableFuture
@@ -18,17 +17,12 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
 
+        /**
+         * 새 캐시 생성 후, arm64 Ignite에서 서버 측 초기화가 느릴 수 있으므로
+         * `size()` 호출로 캐시 파티션 초기화를 강제 수행합니다.
+         */
         private fun <K: Any, V: Any> newCache(name: String = Base58.randomString(8)): ClientCache<K, V> =
-            igniteClient.getOrCreateCache("async:memoizer:$name")
-
-        @BeforeAll
-        @JvmStatic
-        fun warmUp() {
-            // arm64 Ignite 에서 첫 번째 연결 초기화가 느릴 수 있으므로 테스트 전에 warm-up 수행
-            val warmUpCache = newCache<Int, Int>("warmup")
-            warmUpCache.put(0, 0)
-            warmUpCache.getAsync(0).get(60, TimeUnit.SECONDS)
-        }
+            igniteClient.getOrCreateCache<K, V>("async:memoizer:$name").also { it.size() }
     }
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
@@ -60,7 +54,7 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             val futures = List(16) { memoizer(7) }
-            futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            futures.forEach { it.get(30, TimeUnit.SECONDS) shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             runCatching { cache.clear() }
@@ -78,7 +72,7 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         try {
-            memoizer(9).get(2, TimeUnit.SECONDS) shouldBeEqualTo 81
+            memoizer(9).get(30, TimeUnit.SECONDS) shouldBeEqualTo 81
             evaluateCount.get() shouldBeEqualTo 0
         } finally {
             runCatching { cache.clear() }
