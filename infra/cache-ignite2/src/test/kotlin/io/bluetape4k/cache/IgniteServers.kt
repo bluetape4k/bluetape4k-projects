@@ -9,8 +9,15 @@ import org.apache.ignite.Ignition
 import org.apache.ignite.client.ClientCache
 import org.apache.ignite.client.IgniteClient
 import org.apache.ignite.configuration.ClientConfiguration
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 object IgniteServers: KLogging() {
+
+    private const val CACHE_READY_TIMEOUT_MS = 10_000L
+    private val cacheProbeExecutor = Executors.newVirtualThreadPerTaskExecutor()
 
     /**
      * 테스트에서 사용하는 알려진 캐시 이름 목록.
@@ -72,8 +79,10 @@ object IgniteServers: KLogging() {
     private fun waitForCacheReady(cache: ClientCache<*, *>, cacheName: String) {
         repeat(60) { attempt ->
             try {
-                cache.size()
+                waitForCacheOperation(cache) { size() }
                 return
+            } catch (e: TimeoutException) {
+                log.warn(e) { "캐시 초기화 확인 타임아웃... (attempt=${attempt + 1}, cache=$cacheName)" }
             } catch (e: Exception) {
                 log.warn(e) { "캐시 초기화 대기 중... (attempt=${attempt + 1}, cache=$cacheName)" }
                 Thread.sleep(500)
@@ -93,13 +102,22 @@ object IgniteServers: KLogging() {
         // 동적 캐시: 짧은 재시도
         repeat(20) { attempt ->
             try {
-                cache.size()
+                waitForCacheOperation(cache) { size() }
                 return cache
+            } catch (e: TimeoutException) {
+                log.warn(e) { "캐시 초기화 확인 타임아웃... (attempt=${attempt + 1}, cache=$name)" }
             } catch (e: Exception) {
                 log.warn(e) { "캐시 초기화 대기 중... (attempt=${attempt + 1}, cache=$name)" }
                 Thread.sleep(200)
             }
         }
         return cache
+    }
+
+    private fun <K: Any, V: Any, T> waitForCacheOperation(cache: ClientCache<K, V>, block: ClientCache<K, V>.() -> T): T {
+        return CompletableFuture.supplyAsync(
+            { cache.block() },
+            cacheProbeExecutor
+        ).get(CACHE_READY_TIMEOUT_MS, TimeUnit.MILLISECONDS)
     }
 }
