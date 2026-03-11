@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
  * - [Semaphore.withPermit]으로 슬롯을 관리하며, 예외 시에도 반드시 반환됩니다.
  * - 분산 환경이 아닌 단일 JVM 프로세스 내 코루틴 동시 실행 제한에 적합합니다.
  *
- * ## [LocalLeaderGroupElection] 과의 차이
- * - [LocalLeaderGroupElection]은 `java.util.concurrent.Semaphore`(스레드 블로킹)를 사용합니다.
+ * ## [io.bluetape4k.leader.local.LocalLeaderGroupElection] 과의 차이
+ * - [io.bluetape4k.leader.local.LocalLeaderGroupElection]은 `java.util.concurrent.Semaphore`(스레드 블로킹)를 사용합니다.
  * - 이 구현체는 `kotlinx.coroutines.sync.Semaphore`(코루틴 suspend)를 사용합니다.
  *
  * ```kotlin
@@ -41,10 +41,10 @@ class LocalSuspendLeaderGroupElection private constructor(
     companion object: KLogging() {
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
-        ): LocalSuspendLeaderGroupElection {
-            options.maxLeaders.requirePositiveNumber("maxLeaders")
-            return LocalSuspendLeaderGroupElection(options)
-        }
+        ): LocalSuspendLeaderGroupElection =
+            options
+                .also { it.maxLeaders.requirePositiveNumber("maxLeaders") }
+                .let(::LocalSuspendLeaderGroupElection)
     }
 
     private val semaphores = ConcurrentHashMap<String, Semaphore>()

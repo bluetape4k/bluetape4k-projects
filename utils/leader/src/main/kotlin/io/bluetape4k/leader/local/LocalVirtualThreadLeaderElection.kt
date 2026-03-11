@@ -5,7 +5,6 @@ import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.leader.VirtualThreadLeaderElection
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * [ReentrantLock]과 Virtual Thread를 이용한 로컬(단일 JVM) 리더 선출 구현체입니다.
@@ -45,6 +44,6 @@ class LocalVirtualThreadLeaderElection(
      */
     override fun <T> runAsyncIfLeader(lockName: String, action: () -> T): VirtualFuture<T> =
         virtualFuture {
-            getLock(lockName).withLock { action() }
+            withLeaderLock(lockName, action)
         }
 }

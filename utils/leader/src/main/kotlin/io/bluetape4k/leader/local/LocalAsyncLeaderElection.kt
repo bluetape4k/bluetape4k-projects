@@ -5,7 +5,6 @@ import io.bluetape4k.leader.LeaderElectionOptions
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * [ReentrantLock]을 이용한 로컬(단일 JVM) 비동기 리더 선출 구현체입니다.
@@ -13,7 +12,7 @@ import kotlin.concurrent.withLock
  * ## 동작
  * - [AsyncLeaderElection]만 구현하며, 동기 [runIfLeader]가 불필요한 경우 사용합니다.
  * - 동일 [lockName]에 대해 [CompletableFuture] 기반 비동기 작업을 직렬로 실행합니다.
- * - 락을 획득한 [Executor] 스레드가 [action]의 [CompletableFuture]가 완료될 때까지 락을 보유합니다.
+ * - 락을 획득한 [Executor] 스레드가 [action]이 반환한 [CompletableFuture]가 완료될 때까지 락을 보유합니다.
  * - [action] 실행 중 예외 또는 future 실패가 발생해도 락은 반드시 해제됩니다.
  * - 분산 환경이 아닌 단일 JVM 프로세스 내 비동기 실행 직렬화에 적합합니다.
  *
@@ -47,7 +46,7 @@ class LocalAsyncLeaderElection(
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> =
         CompletableFuture.supplyAsync(
-            { getLock(lockName).withLock { action().join() } },
+            { withLeaderLock(lockName) { action().join() } },
             executor
         )
 }

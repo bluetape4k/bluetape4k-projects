@@ -5,15 +5,14 @@ import io.bluetape4k.leader.LeaderElectionOptions
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * [ReentrantLock]을 이용한 로컬(단일 JVM) 리더 선출 구현체입니다.
  *
  * ## 동작
- * - 동일 [lockName]에 대해 스레드 간 상호 배제(mutual exclusion)로 직렬 실행을 보장합니다.
- * - 락을 획득한 스레드가 리더로서 [action]을 실행하며, 다른 스레드는 락이 해제될 때까지 블로킹됩니다.
- * - [ReentrantLock] 특성상 동일 스레드에서 동일 [lockName]으로 중첩 호출(재진입)이 가능합니다.
+ * - 동일 `lockName`에 대해 스레드 간 상호 배제(mutual exclusion)로 직렬 실행을 보장합니다.
+ * - 락을 획득한 스레드가 리더로서 `action`을 실행하며, 다른 스레드는 락이 해제될 때까지 블로킹됩니다.
+ * - [ReentrantLock] 특성상 동일 스레드에서 동일 `lockName`으로 중첩 호출(재진입)이 가능합니다.
  * - 분산 환경이 아닌 단일 JVM 프로세스 내 동시 실행 직렬화에 적합합니다.
  *
  * ```kotlin
@@ -37,7 +36,7 @@ class LocalLeaderElection(
      * @return [action] 실행 결과
      */
     override fun <T> runIfLeader(lockName: String, action: () -> T): T =
-        getLock(lockName).withLock(action)
+        withLeaderLock(lockName, action)
 
     /**
      * [lockName]에 대한 [ReentrantLock]을 획득하고 [action]을 [executor]에서 비동기로 실행합니다.
@@ -56,7 +55,7 @@ class LocalLeaderElection(
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> =
         CompletableFuture.supplyAsync(
-            { getLock(lockName).withLock { action().join() } },
+            { withLeaderLock(lockName) { action().join() } },
             executor
         )
 }

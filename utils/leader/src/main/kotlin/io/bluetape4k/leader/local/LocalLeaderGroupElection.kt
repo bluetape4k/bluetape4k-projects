@@ -33,10 +33,10 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
 
     companion object: KLogging() {
 
-        operator fun invoke(options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default): LeaderGroupElection {
-            options.maxLeaders.requirePositiveNumber("maxLeaders")
-            return LocalLeaderGroupElection(options)
-        }
+        operator fun invoke(options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default): LeaderGroupElection =
+            options
+                .also { it.maxLeaders.requirePositiveNumber("maxLeaders") }
+                .let(::LocalLeaderGroupElection)
     }
 
     /**
@@ -47,13 +47,7 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
      * @return [action] 실행 결과
      */
     override fun <T> runIfLeader(lockName: String, action: () -> T): T {
-        val semaphore = getSemaphore(lockName)
-        semaphore.acquire()
-        try {
-            return action()
-        } finally {
-            semaphore.release()
-        }
+        return withPermit(lockName, action)
     }
 
     /**
@@ -70,15 +64,7 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> =
         CompletableFuture.supplyAsync(
-            {
-                val semaphore = getSemaphore(lockName)
-                semaphore.acquire()
-                try {
-                    action().join()
-                } finally {
-                    semaphore.release()
-                }
-            },
+            { withPermit(lockName) { action().join() } },
             executor
         )
 }

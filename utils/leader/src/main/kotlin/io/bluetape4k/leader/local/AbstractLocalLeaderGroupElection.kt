@@ -24,7 +24,7 @@ import java.util.concurrent.Semaphore
  * @param maxLeaders 허용하는 최대 동시 리더 수
  */
 abstract class AbstractLocalLeaderGroupElection(
-    private val options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
+    options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
 ): LeaderGroupElectionState {
 
     init {
@@ -41,6 +41,19 @@ abstract class AbstractLocalLeaderGroupElection(
     protected fun getSemaphore(lockName: String): Semaphore {
         lockName.requireNotBlank("lockName")
         return semaphores.computeIfAbsent(lockName) { Semaphore(maxLeaders, true) }
+    }
+
+    /**
+     * [lockName]의 슬롯을 획득한 상태에서 [action]을 실행하고, 완료 시 슬롯을 반환합니다.
+     */
+    protected inline fun <T> withPermit(lockName: String, action: () -> T): T {
+        val semaphore = getSemaphore(lockName)
+        semaphore.acquire()
+        try {
+            return action()
+        } finally {
+            semaphore.release()
+        }
     }
 
     /**

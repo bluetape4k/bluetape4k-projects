@@ -4,6 +4,7 @@ import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * 로컬(단일 JVM) 리더 선출 구현체들의 공통 락 관리를 제공하는 추상 클래스입니다.
@@ -30,4 +31,10 @@ abstract class AbstractLocalLeaderElection(
         lockName.requireNotBlank("lockName")
         return locks.computeIfAbsent(lockName) { ReentrantLock() }
     }
+
+    /**
+     * [lockName]의 락을 획득한 상태에서 [action]을 실행합니다.
+     */
+    protected inline fun <T> withLeaderLock(lockName: String, action: () -> T): T =
+        getLock(lockName).withLock(action)
 }

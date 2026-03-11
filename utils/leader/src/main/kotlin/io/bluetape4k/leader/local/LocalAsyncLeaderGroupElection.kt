@@ -35,10 +35,10 @@ class LocalAsyncLeaderGroupElection private constructor(
     companion object: KLogging() {
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
-        ): AsyncLeaderGroupElection {
-            options.maxLeaders.requirePositiveNumber("maxLeaders")
-            return LocalAsyncLeaderGroupElection(options)
-        }
+        ): AsyncLeaderGroupElection =
+            options
+                .also { it.maxLeaders.requirePositiveNumber("maxLeaders") }
+                .let(::LocalAsyncLeaderGroupElection)
     }
 
     /**
@@ -55,15 +55,7 @@ class LocalAsyncLeaderGroupElection private constructor(
         action: () -> CompletableFuture<T>,
     ): CompletableFuture<T> =
         CompletableFuture.supplyAsync(
-            {
-                val semaphore = getSemaphore(lockName)
-                semaphore.acquire()
-                try {
-                    action().join()
-                } finally {
-                    semaphore.release()
-                }
-            },
+            { withPermit(lockName) { action().join() } },
             executor
         )
 }

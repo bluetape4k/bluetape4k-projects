@@ -37,10 +37,10 @@ class LocalVirtualThreadLeaderGroupElection private constructor(
 
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
-        ): VirtualThreadLeaderGroupElection {
-            options.maxLeaders.requirePositiveNumber("maxLeaders")
-            return LocalVirtualThreadLeaderGroupElection(options)
-        }
+        ): VirtualThreadLeaderGroupElection =
+            options
+                .also { it.maxLeaders.requirePositiveNumber("maxLeaders") }
+                .let(::LocalVirtualThreadLeaderGroupElection)
     }
 
     /**
@@ -52,12 +52,6 @@ class LocalVirtualThreadLeaderGroupElection private constructor(
      */
     override fun <T> runAsyncIfLeader(lockName: String, action: () -> T): VirtualFuture<T> =
         virtualFuture {
-            val semaphore = getSemaphore(lockName)
-            semaphore.acquire()
-            try {
-                action()
-            } finally {
-                semaphore.release()
-            }
+            withPermit(lockName, action)
         }
 }
