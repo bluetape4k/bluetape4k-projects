@@ -4,6 +4,18 @@
 
 ---
 
+## [1.5.0-SNAPSHOT] - Unreleased
+
+### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
+---
+
 ## [1.4.0] - 2026-03-12
 
 > **Full diff**: [`1.3.0...1.4.0`](https://github.com/bluetape4k/bluetape4k-projects/compare/1.3.0...1.4.0)
