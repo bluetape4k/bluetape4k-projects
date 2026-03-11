@@ -46,10 +46,11 @@ object LettuceCaches : KLogging() {
      * @param serializer 직렬화 방식 (기본값: Fory)
      */
     inline fun <reified K : Any, reified V : Any> jcache(
+        redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
         serializer: BinarySerializer = BinarySerializers.Fory,
-    ): JCache<K, V> = LettuceJCaching.getOrCreate(cacheName, ttlSeconds, serializer)
+    ): JCache<K, V> = LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, serializer)
 
     // -------------------------------------------------------------------------
     // NearCache (동기)

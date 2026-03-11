@@ -19,7 +19,7 @@ class LettuceCachesTest {
     @Test
     fun `jcache - JCache 인스턴스를 반환한다`() {
         val name = "lettuce-caches-test-jcache-" + Base58.randomString(6)
-        val cache = LettuceCaches.jcache<String, String>(name)
+        val cache = LettuceCaches.jcache<String, String>(redisClient, name)
         try {
             cache.shouldBeInstanceOf<JCache<*, *>>()
         } finally {
