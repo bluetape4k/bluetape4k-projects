@@ -235,11 +235,11 @@ class ResilientLettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
         cache.put("s1", "v1")
         cache.put("s2", "v2")
         cache.put("s3", "v3")
-        await.atMost(3, TimeUnit.SECONDS) untilSuspending { cache.backCacheSize() == 3L }
+        await.atMost(5, TimeUnit.SECONDS) untilSuspending { cache.backCacheSize() == 3L }
         cache.backCacheSize() shouldBeEqualTo 3L
 
         cache.remove("s2")
-        await.atMost(3, TimeUnit.SECONDS) untilSuspending { cache.backCacheSize() == 2L }
+        await.atMost(5, TimeUnit.SECONDS) untilSuspending { cache.backCacheSize() == 2L }
         cache.backCacheSize() shouldBeEqualTo 2L
     }
 

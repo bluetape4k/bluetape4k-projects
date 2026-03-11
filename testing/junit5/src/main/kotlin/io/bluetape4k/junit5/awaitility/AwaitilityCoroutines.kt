@@ -1,10 +1,12 @@
 package io.bluetape4k.junit5.awaitility
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.withContext
 import org.awaitility.Durations
 import org.awaitility.constraint.WaitConstraint
 import org.awaitility.core.ConditionFactory
@@ -13,6 +15,7 @@ import org.awaitility.core.ExceptionIgnorer
 import org.awaitility.pollinterval.FixedPollInterval
 import org.awaitility.pollinterval.PollInterval
 import java.time.Duration
+import kotlin.to
 
 private val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
 private val DEFAULT_TIMEOUT: Duration = Durations.TEN_SECONDS
@@ -70,7 +73,7 @@ suspend infix fun ConditionFactory.awaitSuspending(
  */
 suspend infix fun ConditionFactory.untilSuspending(
     block: suspend () -> Boolean,
-) = coroutineScope {
+) = withContext(Dispatchers.IO) {
     val timeout = timeoutConstraintOrDefault().maxWaitTime
     val pollInterval = pollIntervalOrDefault()
     val initialPollDelay = pollDelayOrDefault(pollInterval)
@@ -112,6 +115,7 @@ suspend infix fun ConditionFactory.untilSuspending(
                 throw conditionTimeoutException(timeout, lastThrowable)
             }
 
+            @Suppress("UNCHECKED_CAST")
             (pollResult as Result<Boolean>).getOrThrow().also {
                 lastThrowable = null
             }
@@ -127,7 +131,7 @@ suspend infix fun ConditionFactory.untilSuspending(
             }
         }
 
-        if (satisfied) return@coroutineScope
+        if (satisfied) return@withContext
 
         val nextInterval = pollInterval.next(pollCount++, lastInterval)
         lastInterval = nextInterval
@@ -141,15 +145,18 @@ suspend infix fun ConditionFactory.untilSuspending(
 
 
 private fun ConditionFactory.timeoutConstraintOrDefault(): WaitConstraint =
-    readPrivateField("timeoutConstraint") ?: object: WaitConstraint {
-        override fun getMaxWaitTime(): Duration = DEFAULT_TIMEOUT
-        override fun getMinWaitTime(): Duration = Duration.ZERO
-        override fun getHoldPredicateTime(): Duration = Duration.ZERO
+    // Awaitility 4.2+ 에서 필드명이 waitConstraint 로 변경됨 (구: timeoutConstraint)
+    readPrivateField("waitConstraint")
+        ?: readPrivateField("timeoutConstraint")
+        ?: object: WaitConstraint {
+            override fun getMaxWaitTime(): Duration = DEFAULT_TIMEOUT
+            override fun getMinWaitTime(): Duration = Duration.ZERO
+            override fun getHoldPredicateTime(): Duration = Duration.ZERO
 
-        override fun withMinWaitTime(minWaitTime: Duration): WaitConstraint = this
-        override fun withMaxWaitTime(maxWaitTime: Duration): WaitConstraint = this
-        override fun withHoldPredicateTime(holdConditionTime: Duration): WaitConstraint = this
-    }
+            override fun withMinWaitTime(minWaitTime: Duration): WaitConstraint = this
+            override fun withMaxWaitTime(maxWaitTime: Duration): WaitConstraint = this
+            override fun withHoldPredicateTime(holdConditionTime: Duration): WaitConstraint = this
+        }
 
 private fun ConditionFactory.pollIntervalOrDefault(): PollInterval =
     readPrivateField<PollInterval>("pollInterval")

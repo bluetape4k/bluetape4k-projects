@@ -24,10 +24,12 @@ import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -93,6 +95,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     private val writeChannel = Channel<BackCacheCommand<String, V>>(capacity = config.writeQueueCapacity)
 
     private val retry: Retry = buildRetry()
+    private lateinit var consumerJob: Job
 
     /**
      * write-behind로 삭제 요청된 키 집합 (tombstone).
@@ -131,7 +134,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     }
 
     private fun launchWriteConsumer() {
-        scope.launch {
+        consumerJob = scope.launch {
             for (cmd in writeChannel) {
                 try {
                     withRetry<Unit>(retry) { applyCommand(cmd) }
@@ -396,9 +399,11 @@ class ResilientLettuceSuspendNearCache<V: Any>(
      * 모든 리소스를 정리하고 연결을 닫는다.
      */
     override fun close() {
-        if (closed.compareAndSet(false, true)) {
-            runCatching { scope.cancel() }
+        if (closed.compareAndSet(expect = false, update = true)) {
+            // 채널을 먼저 닫아 consumer가 남은 커맨드를 모두 처리한 후 종료되도록 한다.
             runCatching { writeChannel.close() }
+            runCatching { runBlocking { consumerJob.join() } }
+            runCatching { scope.cancel() }
             runCatching { trackingListener.close() }
             runCatching { connection.close() }
             runCatching { frontCache.close() }

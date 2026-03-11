@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.Network
 import software.amazon.awssdk.core.sync.RequestBody
@@ -75,7 +76,10 @@ class LocalStackServerTest: AbstractContainerTest() {
         }
     }
 
-    // @Disabled("custom network 을 쓰게 되면 다른 테스트에서 예외가 발생한다")
+    // NOTE: custom network 사용 시 Ryuk(Testcontainers 리소스 정리 컨테이너)가 Network.newNetwork() 에서
+    //       최초 Docker 작업으로 기동될 때 Docker Desktop macOS 레이스 컨디션으로 NotFoundException 이 발생한다.
+    //       또한 custom network 사용 후 다른 테스트에서도 예외가 발생하는 부작용이 있어 비활성화한다.
+    @Disabled("custom network 은 Ryuk 레이스 컨디션으로 Gradle 테스트 시 실패한다 (Docker Desktop macOS 이슈)")
     @Test
     fun `run multiple services with custom network`() {
         Network.newNetwork().use { network ->

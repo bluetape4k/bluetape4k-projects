@@ -1,6 +1,5 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +7,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
@@ -23,7 +23,7 @@ import javax.cache.configuration.MutableConfiguration
  * Redisson JCache를 코루틴 기반 [SuspendCache]로 감싼 구현체입니다.
  *
  * ## 동작/계약
- * - 조회/갱신 연산은 Redisson `*Async()` API를 호출한 뒤 `awaitSuspending()`으로 대기합니다.
+ * - 조회/갱신 연산은 Redisson `*Async()` API를 호출한 뒤 `await()`으로 대기합니다.
  * - `putAllFlow`는 각 put 비동기 작업을 모아 `joinAll()`로 완료를 보장합니다.
  * - 캐시 데이터 저장소는 외부 [cache] 인스턴스를 그대로 사용합니다.
  *
@@ -100,7 +100,7 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun clear() {
-        cache.clearAsync().awaitSuspending()
+        cache.clearAsync().await()
     }
 
     override suspend fun close() {
@@ -110,11 +110,11 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     override fun isClosed(): Boolean = cache.isClosed
 
     override suspend fun containsKey(key: K): Boolean {
-        return cache.containsKeyAsync(key).awaitSuspending()
+        return cache.containsKeyAsync(key).await()
     }
 
     override suspend fun get(key: K): V? {
-        return cache.getAsync(key).awaitSuspending()
+        return cache.getAsync(key).await()
     }
 
     override fun getAll(): Flow<SuspendCacheEntry<K, V>> {
@@ -122,7 +122,7 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
-        cache.getAllAsync(keys).awaitSuspending().forEach { (key, value) ->
+        cache.getAllAsync(keys).await().forEach { (key, value) ->
             emit(SuspendCacheEntry(key, value))
         }
     }
@@ -132,19 +132,19 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun getAndRemove(key: K): V? {
-        return cache.getAndRemoveAsync(key).awaitSuspending()
+        return cache.getAndRemoveAsync(key).await()
     }
 
     override suspend fun getAndReplace(key: K, value: V): V? {
-        return cache.getAndReplaceAsync(key, value).awaitSuspending()
+        return cache.getAndReplaceAsync(key, value).await()
     }
 
     override suspend fun put(key: K, value: V) {
-        cache.putAsync(key, value).awaitSuspending()
+        cache.putAsync(key, value).await()
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        cache.putAllAsync(map).awaitSuspending()
+        cache.putAllAsync(map).await()
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
@@ -155,15 +155,15 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean {
-        return cache.putIfAbsentAsync(key, value).awaitSuspending()
+        return cache.putIfAbsentAsync(key, value).await()
     }
 
     override suspend fun remove(key: K): Boolean {
-        return cache.removeAsync(key).awaitSuspending()
+        return cache.removeAsync(key).await()
     }
 
     override suspend fun remove(key: K, oldValue: V): Boolean {
-        return cache.removeAsync(key, oldValue).awaitSuspending()
+        return cache.removeAsync(key, oldValue).await()
     }
 
     override suspend fun removeAll() {
@@ -171,15 +171,15 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun removeAll(keys: Set<K>) {
-        cache.removeAllAsync(keys).awaitSuspending()
+        cache.removeAllAsync(keys).await()
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
-        return cache.replaceAsync(key, oldValue, newValue).awaitSuspending()
+        return cache.replaceAsync(key, oldValue, newValue).await()
     }
 
     override suspend fun replace(key: K, value: V): Boolean {
-        return cache.replaceAsync(key, value).awaitSuspending()
+        return cache.replaceAsync(key, value).await()
     }
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {

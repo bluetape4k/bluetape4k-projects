@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.cache.jcache.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.SuspendCache
@@ -7,7 +8,6 @@ import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -29,7 +29,11 @@ class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
         val configuration = jcacheConfiguration<String, Any> {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MILLISECONDS, 1000L)))
         }
-        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.Epoch.nextIdAsString(), RedisServers.redisson, configuration)
+        RedissonSuspendCache(
+            "redis-back-cocache" + TimebasedUuid.Epoch.nextIdAsString(),
+            RedisServers.redisson,
+            configuration
+        )
     }
 
     override fun createFrontSuspendCache(expireAfterAccess: java.time.Duration): SuspendCache<String, Any> =
@@ -50,7 +54,11 @@ class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
         cache.get(key) shouldBeEqualTo value
 
         cache.clearAll()
-        await atMost 30.seconds untilSuspending { !cache.containsKey(key) }
+
+        // NOTE: Redisson 의 DEFAULT_EXPIRY_CHECK_PERIOD = 30_000ms 이다.
+        await atMost 40.seconds untilSuspending {
+            !cache.containsKey(key)
+        }
         cache.close()
     }
 
@@ -67,8 +75,8 @@ class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
 
         // NOTE: backCache 에서 cache expire 가 수행될 때까지 대기한다 (backCache.entries 에 접근하면 expired event 가 발생한다)
         // NearCache 내에서 Expire 검사 Thread로 동작해야 합니다.
-        await untilSuspending { !suspendNearCache2.containsKey(key) }
-        await untilSuspending { !suspendNearCache1.containsKey(key) }
+        await atMost 10.seconds untilSuspending { !suspendNearCache2.containsKey(key) }
+        await atMost 10.seconds untilSuspending { !suspendNearCache1.containsKey(key) }
 
         backSuspendCache.containsKey(key).shouldBeFalse()
         suspendNearCache1.containsKey(key).shouldBeFalse()

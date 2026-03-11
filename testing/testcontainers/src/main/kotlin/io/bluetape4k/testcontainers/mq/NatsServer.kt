@@ -35,7 +35,7 @@ class NatsServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "nats"
-        const val TAG = "2.10"
+        const val TAG = "2.12"
         const val NAME = "nats"
 
         const val NATS_PORT = 4222

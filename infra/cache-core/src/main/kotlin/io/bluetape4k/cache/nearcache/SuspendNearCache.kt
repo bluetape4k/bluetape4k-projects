@@ -129,6 +129,8 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         val frontClearJob = launch { frontCache.clear() }
         val backClearJob = launch { backCache.clear() }
         joinAll(frontClearJob, backClearJob)
+
+        log.info { "front cache, back cache 모두 clear 완료." }
     }
 
     override suspend fun close() {
