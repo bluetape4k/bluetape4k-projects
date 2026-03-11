@@ -44,11 +44,12 @@ object HazelcastCaches : KLogging() {
      * @return [JCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> jcache(
+        hazelcastInstance: HazelcastInstance,
         cacheName: String,
         configuration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
             setTypes(K::class.java, V::class.java)
         },
-    ): JCache<K, V> = HazelcastJCaching.getOrCreate(cacheName, configuration)
+    ): JCache<K, V> = HazelcastJCaching.getOrCreate(hazelcastInstance, cacheName, configuration)
 
     // ─────────────────────────────────────────────
     // SuspendCache
@@ -63,22 +64,25 @@ object HazelcastCaches : KLogging() {
      * @return [HazelcastSuspendCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> suspendCache(
+        hazelcastInstance: HazelcastInstance,
         cacheName: String,
-    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(cacheName)
+    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(hazelcastInstance, cacheName)
 
     /**
      * 이름과 설정으로 Hazelcast [SuspendCache]를 생성하거나 재사용합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
+     * @param hazelcastInstance 연결된 Hazelcast 인스턴스
      * @param cacheName 캐시 이름
      * @param configuration JCache 설정
      * @return [HazelcastSuspendCache] 인스턴스
      */
     fun <K : Any, V : Any> suspendCache(
+        hazelcastInstance: HazelcastInstance,
         cacheName: String,
         configuration: Configuration<K, V>,
-    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(cacheName, configuration)
+    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(hazelcastInstance, cacheName, configuration)
 
     // ─────────────────────────────────────────────
     // NearCache

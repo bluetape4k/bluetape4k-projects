@@ -28,7 +28,7 @@ class HazelcastCachesTest {
 
     @Test
     fun `jcache - JCache 인스턴스 반환`() {
-        val cache = HazelcastCaches.jcache<String, String>(randomName())
+        val cache = HazelcastCaches.jcache<String, String>(hazelcastClient, randomName())
         try {
             cache.shouldBeInstanceOf<JCache<*, *>>()
         } finally {
@@ -38,7 +38,7 @@ class HazelcastCachesTest {
 
     @Test
     fun `suspendCache - HazelcastSuspendCache 인스턴스 반환`() = runTest {
-        val cache = HazelcastCaches.suspendCache<String, String>(randomName())
+        val cache = HazelcastCaches.suspendCache<String, String>(hazelcastClient, randomName())
         try {
             cache.shouldBeInstanceOf<HazelcastSuspendCache<*, *>>()
         } finally {

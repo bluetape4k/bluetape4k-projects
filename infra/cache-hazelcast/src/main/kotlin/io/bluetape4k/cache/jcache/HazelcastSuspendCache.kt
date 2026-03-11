@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.jcache
 
 import com.hazelcast.cache.ICache
+import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +50,12 @@ class HazelcastSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
          */
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(
+            hazelcastInstance: HazelcastInstance,
             cacheName: String,
             configuration: Configuration<K, V> = MutableConfiguration(),
         ): HazelcastSuspendCache<K, V> {
             cacheName.requireNotBlank("cacheName")
-            val manager = HazelcastJCaching.cacheManager
+            val manager = HazelcastJCaching.cacheManagerOf(hazelcastInstance)
             val jcache = manager.getCache(cacheName, configuration.keyType, configuration.valueType)
                 ?: manager.createCache(cacheName, configuration)
             return HazelcastSuspendCache(jcache)
@@ -68,17 +70,18 @@ class HazelcastSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
          * - 기존 캐시가 있으면 재사용, 없으면 타입 정보가 포함된 설정으로 생성합니다.
          *
          * ```kotlin
-         * val cache = HazelcastSuspendCache<String, Int>("scores")
+         * val cache = HazelcastSuspendCache<String, Int>(hazelcastInstance, "scores")
          * cache.put("u1", 10)
          * // cache.get("u1") == 10
          * ```
          */
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
+            hazelcastInstance: HazelcastInstance,
             cacheName: String,
         ): HazelcastSuspendCache<K, V> {
             cacheName.requireNotBlank("cacheName")
-            val manager = HazelcastJCaching.cacheManager
+            val manager = HazelcastJCaching.cacheManagerOf(hazelcastInstance)
             val config = MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
             }
