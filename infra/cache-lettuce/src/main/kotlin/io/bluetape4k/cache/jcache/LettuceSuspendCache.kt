@@ -3,10 +3,8 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.exceptions.NotSupportedException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.asLong
-import io.bluetape4k.support.ifTrue
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.HSetExArgs
-import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +23,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  *
  * ## 동작/계약
  * - 캐시 항목은 Redis hash(`cacheName`)에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
- * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
+ * - [ttlSeconds]가 지정되면 [supportsHSetEx] 여부에 따라 `HSETEX + EXPIRE`(Redis 8+) 또는 `HSET/HMSET + EXPIRE`(Redis 7 이하)로 동작합니다. 분기는 초기화 시점에 1회 결정됩니다.
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
  * - CacheEntryListener 등록 API는 지원하지 않으며 호출 시 [NotSupportedException]을 발생시킵니다.
  *
@@ -41,6 +39,7 @@ class LettuceSuspendCache<V: Any>(
     val commands: RedisCoroutinesCommands<String, V>,
     val ttlSeconds: Long? = null,
     val cacheManager: LettuceSuspendCacheManager,
+    val supportsHSetEx: Boolean = false,
     private val closeResource: () -> Unit = {},
 ): SuspendCache<String, V> {
 
@@ -58,7 +57,7 @@ class LettuceSuspendCache<V: Any>(
                 commands
                     .hmget(cacheName, *keys.toTypedArray())
                     .collect {
-                        send(SuspendCacheEntry(it.key, it.value))
+                        if (it.hasValue()) send(SuspendCacheEntry(it.key, it.value))
                     }
             }
     }
@@ -112,10 +111,8 @@ class LettuceSuspendCache<V: Any>(
     }
 
     override suspend fun getAndReplace(key: String, value: V): V? {
-        val cachedValue = commands.hget(cacheName, key)
-        if (containsKey(key)) {
-            writeEntry(key, value)
-        }
+        val cachedValue = commands.hget(cacheName, key) ?: return null
+        writeEntry(key, value)
         return cachedValue
     }
 
@@ -177,11 +174,9 @@ class LettuceSuspendCache<V: Any>(
     }
 
     override suspend fun replace(key: String, value: V): Boolean {
-        return containsKey(key).ifTrue {
-            runCatching {
-                writeEntry(key, value)
-            }.isSuccess
-        } ?: false
+        if (!containsKey(key)) return false
+        writeEntry(key, value)
+        return true
     }
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<String, V>) {
@@ -199,18 +194,12 @@ class LettuceSuspendCache<V: Any>(
             return
         }
 
-        val ttlArgs = HSetExArgs.Builder.ex(ttl)
-        runCatching {
-            commands.hsetex(cacheName, ttlArgs, mapOf(key to value))
-            commands.expire(cacheName, ttl.seconds)
-        }.recoverCatching { error ->
-            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
-                commands.hset(cacheName, key, value)
-                commands.expire(cacheName, ttl.seconds)
-            } else {
-                throw error
-            }
-        }.getOrThrow()
+        if (supportsHSetEx) {
+            commands.hsetex(cacheName, HSetExArgs.Builder.ex(ttl), mapOf(key to value))
+        } else {
+            commands.hset(cacheName, key, value)
+        }
+        commands.expire(cacheName, ttl.seconds)
     }
 
     private suspend fun writeEntries(map: Map<String, V>) {
@@ -220,18 +209,12 @@ class LettuceSuspendCache<V: Any>(
             return
         }
 
-        val ttlArgs = HSetExArgs.Builder.ex(ttl)
-        runCatching {
-            commands.hsetex(cacheName, ttlArgs, map)
-            commands.expire(cacheName, ttl.seconds)
-        }.recoverCatching { error ->
-            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
-                commands.hmset(cacheName, map)
-                commands.expire(cacheName, ttl.seconds)
-            } else {
-                throw error
-            }
-        }.getOrThrow()
+        if (supportsHSetEx) {
+            commands.hsetex(cacheName, HSetExArgs.Builder.ex(ttl), map)
+        } else {
+            commands.hmset(cacheName, map)
+        }
+        commands.expire(cacheName, ttl.seconds)
     }
 
 }

@@ -46,34 +46,33 @@ class LettuceCachingProvider: CachingProvider {
 
         log.debug { "Get LettuceCacheManager. uri=$cacheUri, classLoader=$cacheClassLoader" }
 
-        val uri2manager = managers.computeIfAbsent(cacheClassLoader) { ConcurrentHashMap() }
-        uri2manager[cacheUri]?.let { return it }
+        // 동시 RedisClient 생성을 방지하기 위해 lock으로 조회 및 생성 로직 전체를 보호
+        return lock.withLock {
+            val uri2manager = managers.computeIfAbsent(cacheClassLoader) { ConcurrentHashMap() }
+            uri2manager[cacheUri]?.let { return@withLock it }
 
-        val redisUri = if (cacheUri == defaultUri) {
-            DEFAULT_REDIS_URI
-        } else {
-            cacheUri.toString()
+            val redisUri = if (cacheUri == defaultUri) {
+                DEFAULT_REDIS_URI
+            } else {
+                cacheUri.toString()
+            }
+
+            log.debug { "Create RedisClient. redisUri=$redisUri" }
+            val redisClient = RedisClient.create(RedisURI.create(redisUri))
+
+            val manager = LettuceCacheManager(
+                redisClient = redisClient,
+                classLoader = cacheClassLoader,
+                cacheProvider = this,
+                properties = properties,
+                uri = cacheUri,
+                closeResource = { redisClient.shutdown() },
+            )
+
+            uri2manager[cacheUri] = manager
+            log.info { "Created LettuceCacheManager. uri=$cacheUri" }
+            manager
         }
-
-        log.debug { "Create RedisClient. redisUri=$redisUri" }
-        val redisClient = RedisClient.create(RedisURI.create(redisUri))
-
-        val manager = LettuceCacheManager(
-            redisClient = redisClient,
-            classLoader = cacheClassLoader,
-            cacheProvider = this,
-            properties = properties,
-            uri = cacheUri,
-            closeResource = { redisClient.shutdown() },
-        )
-
-        uri2manager.putIfAbsent(cacheUri, manager)?.let { existingManager ->
-            redisClient.shutdown()
-            return existingManager
-        }
-
-        log.info { "Created LettuceCacheManager. uri=$cacheUri" }
-        return manager
     }
 
     override fun getCacheManager(uri: URI?, classLoader: ClassLoader?): CacheManager {

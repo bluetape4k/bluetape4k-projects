@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.HSetExArgs
-import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
@@ -39,6 +38,7 @@ import java.util.concurrent.CompletableFuture
 open class LettuceMap<V: Any>(
     private val connection: StatefulRedisConnection<String, V>,
     val mapKey: String,
+    val supportsHSetEx: Boolean = false,
 ) {
     companion object: KLogging()
 
@@ -212,22 +212,15 @@ open class LettuceMap<V: Any>(
      */
     fun putTtl(field: String, value: V, ttl: Duration?): Boolean {
         if (ttl != null) {
-            val ttlArgs = HSetExArgs.Builder.ex(ttl)
-            val hsetex = runCatching {
-                syncCommands.hsetex(mapKey, ttlArgs, mapOf(field to value))
-                syncCommands.expire(mapKey, ttl)
+            val added = if (supportsHSetEx) {
+                syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), mapOf(field to value))
                 true
-            }.recoverCatching { error ->
-                if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
-                    val added = put(field, value)
-                    syncCommands.expire(mapKey, ttl)
-                    added
-                } else {
-                    throw error
-                }
-            }.getOrThrow()
+            } else {
+                put(field, value)
+            }
+            syncCommands.expire(mapKey, ttl)
             log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
-            return hsetex
+            return added
         }
         val added = put(field, value)
         log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
@@ -246,18 +239,12 @@ open class LettuceMap<V: Any>(
             putAll(entries)
             return
         }
-        val ttlArgs = HSetExArgs.Builder.ex(ttl)
-        runCatching {
-            syncCommands.hsetex(mapKey, ttlArgs, entries)
-            syncCommands.expire(mapKey, ttl)
-        }.recoverCatching { error ->
-            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
-                syncCommands.hset(mapKey, entries)
-                syncCommands.expire(mapKey, ttl)
-            } else {
-                throw error
-            }
-        }.getOrThrow()
+        if (supportsHSetEx) {
+            syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), entries)
+        } else {
+            syncCommands.hset(mapKey, entries)
+        }
+        syncCommands.expire(mapKey, ttl)
         log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}, ttl=$ttl" }
     }
 

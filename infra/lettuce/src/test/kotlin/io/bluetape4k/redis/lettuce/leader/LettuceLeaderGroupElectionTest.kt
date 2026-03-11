@@ -1,11 +1,15 @@
 package io.bluetape4k.redis.lettuce.leader
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -125,5 +129,87 @@ class LettuceLeaderGroupElectionTest: AbstractLettuceTest() {
         }
         CompletableFuture.allOf(*futures.toTypedArray()).get()
         counter.get() shouldBeEqualTo maxLeaders
+    }
+
+    // =========================================================================
+    // MultithreadingTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `MultithreadingTester - 동시 리더 그룹 선출 maxLeaders 제한 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderGroupElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(maxLeaders * 2)
+            .rounds(3)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(20)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        // 동시 실행 수는 maxLeaders 이하여야 함
+        maxConcurrent.get() shouldBeInRange 1..maxLeaders
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `MultithreadingTester - 동시 비동기 리더 그룹 선출 안정성`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderGroupElection(connection, options)
+        val executed = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(maxLeaders * 2)
+            .rounds(3)
+            .add {
+                el.runAsyncIfLeader(lockName) {
+                    CompletableFuture.supplyAsync {
+                        Thread.sleep(10)
+                        executed.incrementAndGet()
+                    }
+                }.get()
+            }
+            .run()
+
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    // =========================================================================
+    // StructuredTaskScopeTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `StructuredTaskScopeTester - 동시 리더 그룹 선출 maxLeaders 제한 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderGroupElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .rounds(maxLeaders * 4)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(20)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeInRange 1..maxLeaders
+        executed.get() shouldBeGreaterOrEqualTo 1
     }
 }

@@ -48,6 +48,7 @@ class LettuceCache<K: Any, V: Any>(
 
     private val cacheName: String get() = map.mapKey
 
+    @Volatile
     private var closed = false
 
     private val listeners = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, CacheEntryListener<K, V>>()
@@ -143,8 +144,15 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
+        // 리스너가 있을 때만 저장 전에 존재 여부를 사전 수집하여 CREATED/UPDATED 이벤트를 구분
+        val existingKeys = if (listeners.isNotEmpty()) map.keys.filter { containsKey(it) }.toSet() else emptySet()
         this.map.putAllTtl(encodedMap, ttlDuration)
-        map.forEach { (k, v) -> dispatchEvent(EventType.CREATED, k, v) }
+        if (listeners.isNotEmpty()) {
+            map.forEach { (k, v) ->
+                val eventType = if (k in existingKeys) EventType.UPDATED else EventType.CREATED
+                dispatchEvent(eventType, k, v)
+            }
+        }
     }
 
     override fun putIfAbsent(key: K, value: V): Boolean {

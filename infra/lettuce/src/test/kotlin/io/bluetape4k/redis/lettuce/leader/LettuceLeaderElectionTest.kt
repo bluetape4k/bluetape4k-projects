@@ -1,15 +1,19 @@
 package io.bluetape4k.redis.lettuce.leader
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LettuceLeaderElectionTest: AbstractLettuceTest() {
@@ -90,5 +94,86 @@ class LettuceLeaderElectionTest: AbstractLettuceTest() {
         }.get()
         r1 shouldBeEqualTo 1
         r2 shouldBeEqualTo 2
+    }
+
+    // =========================================================================
+    // MultithreadingTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `MultithreadingTester - 동시 리더 선출 상호 배제 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(5)
+            .rounds(3)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(10)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        // 리더 선출은 상호 배제이므로 동시에 1개만 실행되어야 함
+        maxConcurrent.get() shouldBeEqualTo 1
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `MultithreadingTester - 동시 비동기 리더 선출 안정성`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderElection(connection, options)
+        val executed = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(4)
+            .rounds(3)
+            .add {
+                el.runAsyncIfLeader(lockName) {
+                    java.util.concurrent.CompletableFuture.supplyAsync {
+                        executed.incrementAndGet()
+                    }
+                }.get()
+            }
+            .run()
+
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    // =========================================================================
+    // StructuredTaskScopeTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `StructuredTaskScopeTester - 동시 리더 선출 상호 배제 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceLeaderElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .rounds(10)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(10)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeEqualTo 1
+        executed.get() shouldBeGreaterOrEqualTo 1
     }
 }

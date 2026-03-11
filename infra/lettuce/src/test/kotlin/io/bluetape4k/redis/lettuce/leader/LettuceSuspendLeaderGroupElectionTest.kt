@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce.leader
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
@@ -8,7 +9,10 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -89,4 +93,57 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
         val result = el.runIfLeader(lockName) { "ext-suspend" }
         result shouldBeEqualTo "ext-suspend"
     }
+
+    // =========================================================================
+    // SuspendedJobTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `SuspendedJobTester - 코루틴 동시 리더 그룹 선출 maxLeaders 제한 검증`() = runSuspendIO {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceSuspendLeaderGroupElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        SuspendedJobTester()
+            .workers(maxLeaders * 2)
+            .rounds(maxLeaders * 3)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    delay(20)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        // 동시 실행 수는 maxLeaders 이하여야 함
+        maxConcurrent.get() shouldBeInRange 1..maxLeaders
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `SuspendedJobTester - 코루틴 리더 그룹 총 실행 횟수 검증`() = runSuspendIO {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceSuspendLeaderGroupElection(connection, options)
+        val executed = AtomicInteger(0)
+        val rounds = 10
+
+        SuspendedJobTester()
+            .workers(maxLeaders)
+            .rounds(rounds)
+            .add {
+                el.runIfLeader(lockName) {
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        // SuspendedJobTester: 총 실행 횟수 = rounds (workers는 병렬도만 제어)
+        executed.get() shouldBeEqualTo rounds
+    }
+
 }

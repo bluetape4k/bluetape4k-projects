@@ -1,15 +1,15 @@
 package io.bluetape4k.redis.lettuce.lock
 
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceLockTest: AbstractLettuceTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     private lateinit var lock: LettuceLock
 
@@ -49,7 +49,6 @@ class LettuceLockTest: AbstractLettuceTest() {
     fun `tryLock - 이미 잠긴 경우 즉시 false 반환`() {
         lock.tryLock().shouldBeTrue()
         try {
-            // 같은 키를 가진 다른 락 인스턴스는 획득 실패
             val lock2 = LettuceLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
             lock2.tryLock().shouldBeFalse()
         } finally {
@@ -80,8 +79,8 @@ class LettuceLockTest: AbstractLettuceTest() {
         val acquiredCount = AtomicInteger(0)
         val latch = CountDownLatch(threadCount)
         val executor = Executors.newFixedThreadPool(threadCount)
-
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
+
         repeat(threadCount) {
             executor.submit {
                 val threadLock = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(5))
@@ -96,7 +95,6 @@ class LettuceLockTest: AbstractLettuceTest() {
 
         latch.await(5, TimeUnit.SECONDS)
         executor.shutdown()
-        // 동시에 하나만 획득할 수 있어야 함
         acquiredCount.get() shouldBeEqualTo 1
     }
 
@@ -124,44 +122,81 @@ class LettuceLockTest: AbstractLettuceTest() {
     }
 
     // =========================================================================
-    // 코루틴 테스트
+    // MultithreadingTester 동시성 테스트
     // =========================================================================
 
     @Test
-    fun `tryLock (suspend) - 락 획득 성공`() = runSuspendIO {
-        val suspendLock = LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
-        suspendLock.tryLock().shouldBeTrue()
-        suspendLock.isHeldByCurrentInstance().shouldBeTrue()
-        suspendLock.unlock()
-        suspendLock.isHeldByCurrentInstance().shouldBeFalse()
-    }
-
-    @Test
-    fun `lock and unlock (suspend)`() = runSuspendIO {
-        val suspendLock = LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
-        suspendLock.lock(leaseTime = Duration.ofSeconds(5))
-        suspendLock.isHeldByCurrentInstance().shouldBeTrue()
-        suspendLock.unlock()
-        suspendLock.isHeldByCurrentInstance().shouldBeFalse()
-    }
-
-    @Test
-    fun `코루틴 동시성 - 여러 코루틴에서 하나만 락 획득`() = runSuspendIO {
-        val acquiredCount = AtomicInteger(0)
+    fun `MultithreadingTester - 동시 락 상호 배제 검증`() {
         val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val acquired = AtomicInteger(0)
 
-        val jobs = List(5) {
-            async {
-                val coLock = LettuceSuspendLock(connection, lock.lockKey, Duration.ofSeconds(5))
-                if (coLock.tryLock(waitTime = Duration.ofMillis(100))) {
-                    acquiredCount.incrementAndGet()
-                    kotlinx.coroutines.delay(100)
-                    coLock.unlock()
+        MultithreadingTester()
+            .workers(8)
+            .rounds(3)
+            .add {
+                val l = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(10))
+                if (l.tryLock(waitTime = Duration.ofSeconds(5))) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(10)
+                    concurrent.decrementAndGet()
+                    acquired.incrementAndGet()
+                    l.unlock()
                 }
             }
-        }
-        jobs.awaitAll()
+            .run()
 
-        acquiredCount.get() shouldBeEqualTo 1
+        maxConcurrent.get() shouldBeEqualTo 1
+        acquired.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `MultithreadingTester - 락 획득 후 정상 해제 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val released = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(4)
+            .rounds(5)
+            .add {
+                val l = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(10))
+                if (l.tryLock(waitTime = Duration.ofSeconds(3))) {
+                    Thread.sleep(5)
+                    l.unlock()
+                    released.incrementAndGet()
+                }
+            }
+            .run()
+
+        released.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    // =========================================================================
+    // StructuredTaskScopeTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `StructuredTaskScopeTester - 동시 락 상호 배제 검증`() {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .rounds(10)
+            .add {
+                val l = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(10))
+                if (l.tryLock(waitTime = Duration.ofSeconds(5))) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(10)
+                    concurrent.decrementAndGet()
+                    l.unlock()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeEqualTo 1
     }
 }

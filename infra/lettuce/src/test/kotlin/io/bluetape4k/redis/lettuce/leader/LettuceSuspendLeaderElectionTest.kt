@@ -1,16 +1,20 @@
 package io.bluetape4k.redis.lettuce.leader
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
 class LettuceSuspendLeaderElectionTest: AbstractLettuceTest() {
 
@@ -72,5 +76,54 @@ class LettuceSuspendLeaderElectionTest: AbstractLettuceTest() {
         el.shouldNotBeNull()
         val result = el.runIfLeader(lockName) { "ext-suspend" }
         result shouldBeEqualTo "ext-suspend"
+    }
+
+    // =========================================================================
+    // SuspendedJobTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `SuspendedJobTester - 코루틴 동시 리더 선출 상호 배제 검증`() = runSuspendIO {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceSuspendLeaderElection(connection, options)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+        val executed = AtomicInteger(0)
+
+        SuspendedJobTester()
+            .workers(5)
+            .rounds(3)
+            .add {
+                el.runIfLeader(lockName) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    delay(10)
+                    concurrent.decrementAndGet()
+                    executed.incrementAndGet()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeEqualTo 1
+        executed.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `SuspendedJobTester - 코루틴 리더 선출 결과 정합성`() = runSuspendIO {
+        val connection = LettuceClients.connect(client, StringCodec.UTF8)
+        val el = LettuceSuspendLeaderElection(connection, options)
+        val counter = AtomicInteger(0)
+
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(3)
+            .add {
+                el.runIfLeader(lockName) {
+                    counter.incrementAndGet()
+                }
+            }
+            .run()
+
+        counter.get() shouldBeGreaterOrEqualTo 1
     }
 }

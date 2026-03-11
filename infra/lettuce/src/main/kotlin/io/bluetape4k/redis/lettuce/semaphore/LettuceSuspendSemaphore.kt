@@ -84,9 +84,11 @@ return v"""
     /**
      * 허가 수를 강제로 설정합니다.
      *
-     * @param permits 설정할 허가 수
+     * @param permits 설정할 허가 수 (양수여야 합니다)
+     * @throws IllegalArgumentException permits가 0 이하인 경우
      */
     suspend fun trySetPermits(permits: Int) {
+        permits.requirePositiveNumber("permits")
         asyncCommands.set(semaphoreKey, permits.toString()).awaitSuspending()
         log.debug { "세마포어 허가 수 설정: semaphoreKey=$semaphoreKey, permits=$permits" }
     }

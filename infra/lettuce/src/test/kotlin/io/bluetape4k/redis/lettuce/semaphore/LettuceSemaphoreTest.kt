@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.semaphore
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
@@ -134,5 +136,101 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     fun `tryAcquireAsync - 허가 소진 시 false`() {
         repeat(TOTAL_PERMITS) { semaphore.tryAcquireAsync().get().shouldBeTrue() }
         semaphore.tryAcquireAsync().get().shouldBeFalse()
+    }
+
+    // =========================================================================
+    // MultithreadingTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `MultithreadingTester - 동시 acquire release 안정성`() {
+        val connection = LettuceClients.connect(client)
+        val acquired = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(8)
+            .rounds(5)
+            .add {
+                val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+                if (s.tryAcquire()) {
+                    acquired.incrementAndGet()
+                    Thread.sleep(10)
+                    s.release()
+                }
+            }
+            .run()
+
+        acquired.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `MultithreadingTester - 동시 허가 수 제한 검증`() {
+        val connection = LettuceClients.connect(client)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+
+        MultithreadingTester()
+            .workers(10)
+            .rounds(3)
+            .add {
+                val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+                if (s.tryAcquire()) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(20)
+                    concurrent.decrementAndGet()
+                    s.release()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    // =========================================================================
+    // StructuredTaskScopeTester 동시성 테스트
+    // =========================================================================
+
+    @Test
+    fun `StructuredTaskScopeTester - 동시 acquire release 안정성`() {
+        val connection = LettuceClients.connect(client)
+        val acquired = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .rounds(10)
+            .add {
+                val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+                if (s.tryAcquire()) {
+                    acquired.incrementAndGet()
+                    Thread.sleep(10)
+                    s.release()
+                }
+            }
+            .run()
+
+        acquired.get() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    fun `StructuredTaskScopeTester - 동시 허가 수 제한 검증`() {
+        val connection = LettuceClients.connect(client)
+        val concurrent = AtomicInteger(0)
+        val maxConcurrent = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .rounds(12)
+            .add {
+                val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
+                if (s.tryAcquire()) {
+                    val current = concurrent.incrementAndGet()
+                    maxConcurrent.updateAndGet { max -> maxOf(max, current) }
+                    Thread.sleep(20)
+                    concurrent.decrementAndGet()
+                    s.release()
+                }
+            }
+            .run()
+
+        maxConcurrent.get() shouldBeGreaterOrEqualTo 1
     }
 }

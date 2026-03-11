@@ -4,6 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.redis.lettuce.RedisCommandSupports
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.RedisClient
@@ -51,6 +52,10 @@ class LettuceCacheManager(
     private val closed = AtomicBoolean(false)
     private val lock = ReentrantLock()
 
+    private val supportsHSetEx: Boolean by lazy {
+        RedisCommandSupports.supportsHSetEx(redisClient)
+    }
+
     private fun checkNotClosed() {
         check(!closed.get()) { "LettuceCacheManager가 닫혀 있습니다." }
     }
@@ -86,7 +91,7 @@ class LettuceCacheManager(
 
         log.debug { "RedisClient 연결 생성. cacheName=$cacheName" }
         val connection = redisClient.connect(STRING_BYTES_CODEC)
-        val map = LettuceMap<ByteArray>(connection, cacheName)
+        val map = LettuceMap<ByteArray>(connection, cacheName, supportsHSetEx = supportsHSetEx)
 
         val cache = LettuceCache(
             map = map,
@@ -154,6 +159,8 @@ class LettuceCacheManager(
         if (closed.get()) return
         lock.withLock {
             if (!closed.get()) {
+                // 재귀 진입 방지를 위해 closed를 먼저 true로 설정
+                closed.set(true)
                 log.info { "Close LettuceCacheManager." }
                 if (uri != null) {
                     runCatching { cacheProvider.close(uri, classLoader) }
@@ -162,7 +169,6 @@ class LettuceCacheManager(
                     runCatching { cache.close() }
                 }
                 runCatching { closeResource() }
-                closed.set(true)
             }
         }
     }

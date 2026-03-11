@@ -2,6 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import io.bluetape4k.redis.lettuce.RedisCommandSupports
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
@@ -42,6 +43,10 @@ class LettuceSuspendCacheManager(
     private val caches = ConcurrentHashMap<String, LettuceSuspendCache<out Any>>()
 
     private val closed = atomic(false)
+
+    private val supportsHSetEx: Boolean by lazy {
+        RedisCommandSupports.supportsHSetEx(redisClient)
+    }
 
     private fun checkNotClosed() {
         if (isClosed) {
@@ -85,6 +90,7 @@ class LettuceSuspendCacheManager(
                 commands,
                 ttlSeconds ?: this@LettuceSuspendCacheManager.ttlSeconds,
                 this@LettuceSuspendCacheManager,
+                supportsHSetEx = supportsHSetEx,
                 closeResource = { conn.close() },
             )
         } as LettuceSuspendCache<V>
