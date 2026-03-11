@@ -5,15 +5,15 @@ import io.bluetape4k.cache.jcache.IgniteClientSuspendCache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCache
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 
 class IgniteCachesTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
     }
 
@@ -29,7 +29,7 @@ class IgniteCachesTest {
     }
 
     @Test
-    fun `clientSuspendCache - IgniteClientSuspendCache 인스턴스를 반환한다`() {
+    fun `clientSuspendCache - IgniteClientSuspendCache 인스턴스를 반환한다`() = runSuspendIO {
         val name = "ignite-caches-test-client-suspend-" + Base58.randomString(6)
         val clientCache = igniteClient.getOrCreateCache<String, String>(name)
         val cache = IgniteCaches.clientSuspendCache<String, String>(clientCache)
@@ -53,7 +53,7 @@ class IgniteCachesTest {
     }
 
     @Test
-    fun `suspendNearCache - SuspendNearCache 인스턴스를 반환한다`() {
+    fun `suspendNearCache - SuspendNearCache 인스턴스를 반환한다`() = runSuspendIO {
         val backCacheName = "ignite-caches-test-suspend-near-" + Base58.randomString(6)
         val frontCache = CaffeineSuspendCache<String, String>()
         val backCache = IgniteCaches.suspendCache<String, String>(backCacheName)
@@ -61,7 +61,7 @@ class IgniteCachesTest {
         try {
             cache.shouldBeInstanceOf<SuspendNearCache<*, *>>()
         } finally {
-            runCatching { runBlocking { cache.close() } }
+            runCatching { cache.close() }
         }
     }
 }

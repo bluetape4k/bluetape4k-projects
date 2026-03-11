@@ -8,6 +8,7 @@ import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
 import io.bluetape4k.cache.nearcache.ResilientHazelcastNearCache
 import io.bluetape4k.cache.nearcache.ResilientHazelcastSuspendNearCache
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
@@ -19,7 +20,7 @@ import org.testcontainers.utility.Base58
  */
 class HazelcastCachesTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val hazelcastClient get() = HazelcastServers.hazelcastClient
 
@@ -36,7 +37,7 @@ class HazelcastCachesTest {
     }
 
     @Test
-    fun `suspendCache - HazelcastSuspendCache 인스턴스 반환`() {
+    fun `suspendCache - HazelcastSuspendCache 인스턴스 반환`() = runTest {
         val cache = HazelcastCaches.suspendCache<String, String>(randomName())
         try {
             cache.shouldBeInstanceOf<HazelcastSuspendCache<*, *>>()
