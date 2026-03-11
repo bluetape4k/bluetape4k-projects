@@ -1,15 +1,12 @@
 package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.cache.IgniteServers
+import io.bluetape4k.concurrent.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.testcontainers.utility.Base58
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -17,7 +14,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     companion object: KLogging() {
@@ -29,12 +25,14 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         @BeforeAll
         @JvmStatic
         fun warmUp() {
-            // arm64 Ignite 에서 ForkJoinPool thread 의 첫 번째 연결 초기화가 느릴 수 있으므로
-            // 테스트 시작 전에 async warm-up 을 수행합니다.
+            // arm64 Ignite 에서 ForkJoinPool / VirtualThread 기반 첫 번째 연결 초기화가 느릴 수 있으므로
+            // 테스트 시작 전에 두 스레드 풀 모두 warm-up 을 수행합니다.
             val warmUpCache = newCache<Int, Int>("warmup")
             warmUpCache.put(0, 0)
-            // ForkJoinPool thread 가 사용하는 Ignite 연결도 warm-up
+            // ForkJoinPool thread 가 사용하는 Ignite 연결 warm-up
             CompletableFuture.supplyAsync { warmUpCache.get(0) }.get(60, TimeUnit.SECONDS)
+            // VirtualThread 가 사용하는 Ignite 연결 warm-up (arm64 첫 연결 초기화 지연 방지)
+            CompletableFuture.supplyAsync({ warmUpCache.get(0) }, VirtualThreadExecutor).get(60, TimeUnit.SECONDS)
         }
     }
 
@@ -93,12 +91,6 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     }
 
     @Test
-    @Order(1)
-    @DisabledIfSystemProperty(
-        named = "os.arch",
-        matches = "aarch64",
-        disabledReason = "arm64 Ignite thin client 에서 VirtualThread 기반 첫 번째 비동기 GET 이 10초 이상 걸려 타임아웃 발생"
-    )
     fun `failed evaluation is removed from in-flight and next call re-evaluates`() {
         val cache: ClientCache<Int, Int> = newCache()
         val evaluateCount = AtomicInteger(0)

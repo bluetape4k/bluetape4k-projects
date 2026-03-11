@@ -330,6 +330,40 @@ cache.close()
 
 ---
 
+## Factory (RedissonCaches)
+
+`RedissonCaches` 오브젝트를 사용하면 모든 캐시 타입을 한 곳에서 생성할 수 있습니다.
+
+```kotlin
+import io.bluetape4k.cache.RedissonCaches
+
+// JCache
+val jcache = RedissonCaches.jcache<String, String>("my-cache", redisson)
+
+// SuspendCache
+val sc = RedissonCaches.suspendCache<String, String>("my-cache", redisson)
+
+// NearCache
+val near = RedissonCaches.nearCache<String, String>("my-near", redisson)
+
+// SuspendNearCache
+val suspendNear = RedissonCaches.suspendNearCache<String, String>("my-near", redisson)
+
+// RESP3 NearCache (Redisson + Lettuce tracking)
+val resp3 = RedissonCaches.resp3NearCache<String>(redisson, redisClient)
+
+// RESP3 SuspendNearCache
+val resp3Suspend = RedissonCaches.resp3SuspendNearCache<String>(redisson, redisClient)
+
+// Resilient RESP3 NearCache
+val resilient = RedissonCaches.resilientResp3NearCache<String>(redisson, redisClient)
+
+// Resilient RESP3 SuspendNearCache
+val resilientSuspend = RedissonCaches.resilientResp3SuspendNearCache<String>(redisson, redisClient)
+```
+
+---
+
 ## CachingProvider 등록 목록
 
 `META-INF/services/javax.cache.spi.CachingProvider`에 등록된 Provider:

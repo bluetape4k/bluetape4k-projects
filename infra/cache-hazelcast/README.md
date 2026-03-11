@@ -31,6 +31,27 @@ dependencies {
 }
 ```
 
+## Factory (HazelcastCaches)
+
+`HazelcastCaches` 오브젝트를 통해 모든 캐시 타입을 편리하게 생성할 수 있습니다.
+
+```kotlin
+// JCache
+val jcache = HazelcastCaches.jcache<String, String>("my-cache")
+
+// SuspendCache
+val sc = HazelcastCaches.suspendCache<String, String>("my-cache")
+
+// NearCache (config 또는 DSL)
+val near = HazelcastCaches.nearCache<String>(hazelcastInstance) { cacheName = "my-near" }
+
+// SuspendNearCache
+val suspendNear = HazelcastCaches.suspendNearCache<String>(hazelcastInstance) { cacheName = "my-near" }
+
+// Resilient NearCache
+val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, nearCacheConfig)
+```
+
 ## NearCache 아키텍처
 
 ### Write-through (기본)

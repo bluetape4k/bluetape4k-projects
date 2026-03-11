@@ -1,1 +1,1 @@
-com.hazelcast.cache.HazelcastCachingProvider
+# Hazelcast CachingProvider는 HazelcastJCaching 에서 명시적으로 지정하므로 SPI 자동 탐색 불필요

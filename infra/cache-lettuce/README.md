@@ -137,6 +137,27 @@ sessions.put("token:1", "value")
 sessions.putIfAbsent("token:2", "value2")
 ```
 
+## Factory (LettuceCaches)
+
+`LettuceCaches` object를 사용하면 JCache, NearCache, SuspendNearCache, ResilientNearCache를 간편하게 생성할 수 있습니다.
+
+```kotlin
+// JCache 생성
+val jcache = LettuceCaches.jcache<String, String>("my-cache")
+
+// NearCache (동기)
+val near = LettuceCaches.nearCache<String>(redisClient) { cacheName = "my-near" }
+
+// SuspendNearCache (코루틴)
+val suspendNear = LettuceCaches.suspendNearCache<String>(redisClient) { cacheName = "my-near" }
+
+// ResilientNearCache (write-behind + retry)
+val resilient = LettuceCaches.resilientNearCache<String>(redisClient)
+
+// ResilientSuspendNearCache (코루틴 + write-behind + retry)
+val resilientSuspend = LettuceCaches.resilientSuspendNearCache<String>(redisClient)
+```
+
 ## 사용 예시
 
 ### LettuceNearCacheConfig DSL

@@ -101,6 +101,26 @@ val suspendMemoizer = cache.suspendMemoizer { key -> computeExpensive(key) }
 val suspendResult = suspendMemoizer(5)
 ```
 
+## Factory (IgniteCaches)
+
+`IgniteCaches` object를 사용하면 JCache, SuspendCache, NearCache, SuspendNearCache를 간편하게 생성할 수 있습니다.
+
+```kotlin
+// JCache 생성
+val jcache = IgniteCaches.jcache<String, String>("my-cache")
+
+// Thin Client 기반 SuspendCache
+val clientCache = igniteClient.getOrCreateCache<String, String>("my-cache")
+val suspendCache = IgniteCaches.clientSuspendCache(clientCache)
+
+// Caffeine(front) + Ignite(back) NearCache
+val backCache = IgniteCaches.jcache<String, String>("my-back-cache")
+val near = IgniteCaches.nearCache<String, String>(backCache)
+
+// SuspendNearCache (Back Cache 이름으로 생성)
+val suspendNear = IgniteCaches.suspendNearCache<String, String>("my-back-cache", igniteClient)
+```
+
 ## CachingProvider 등록 목록
 
 `META-INF/services/javax.cache.spi.CachingProvider`에 등록된 Provider:
