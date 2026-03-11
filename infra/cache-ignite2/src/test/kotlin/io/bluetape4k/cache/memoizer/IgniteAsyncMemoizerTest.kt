@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
 import org.junit.jupiter.api.Test
-import org.testcontainers.utility.Base58
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -15,14 +14,8 @@ import kotlin.test.assertFailsWith
 class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     companion object: KLogging() {
-        private val igniteClient by lazy { IgniteServers.igniteClient }
-
-        /**
-         * 새 캐시 생성 후, arm64 Ignite에서 서버 측 초기화가 느릴 수 있으므로
-         * `size()` 호출로 캐시 파티션 초기화를 강제 수행합니다.
-         */
-        private fun <K: Any, V: Any> newCache(name: String = Base58.randomString(8)): ClientCache<K, V> =
-            igniteClient.getOrCreateCache<K, V>("async:memoizer:$name").also { it.size() }
+        private fun <K: Any, V: Any> newCache(name: String): ClientCache<K, V> =
+            IgniteServers.getOrCreateCache("async:memoizer:$name")
     }
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
@@ -44,7 +37,7 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     @Test
     fun `async memoizer should evaluate once for same key in concurrent calls`() {
-        val cache: ClientCache<Int, Int> = newCache()
+        val cache: ClientCache<Int, Int> = newCache("concurrent")
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.asyncMemoizer { key ->
             evaluateCount.incrementAndGet()
@@ -63,7 +56,7 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     @Test
     fun `cached value bypasses evaluator`() {
-        val cache: ClientCache<Int, Int> = newCache()
+        val cache: ClientCache<Int, Int> = newCache("bypass")
         cache.put(9, 81)
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.asyncMemoizer { key ->
@@ -81,7 +74,7 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     @Test
     fun `failed evaluation is removed from in-flight and next call re-evaluates`() {
-        val cache: ClientCache<Int, Int> = newCache()
+        val cache: ClientCache<Int, Int> = newCache("fail-retry")
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.asyncMemoizer { key ->
             when (evaluateCount.incrementAndGet()) {
@@ -92,9 +85,9 @@ class IgniteAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
         try {
             assertFailsWith<ExecutionException> {
-                memoizer(5).get(30, TimeUnit.SECONDS)
+                memoizer(5).get(60, TimeUnit.SECONDS)
             }
-            memoizer(5).get(30, TimeUnit.SECONDS) shouldBeEqualTo 25
+            memoizer(5).get(60, TimeUnit.SECONDS) shouldBeEqualTo 25
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             runCatching { cache.clear() }

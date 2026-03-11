@@ -13,9 +13,7 @@ import org.testcontainers.utility.Base58
 
 class IgniteCachesTest {
 
-    companion object: KLogging() {
-        private val igniteClient by lazy { IgniteServers.igniteClient }
-    }
+    companion object: KLogging()
 
     @Test
     fun `jcache - JCache 인스턴스를 반환한다`() {
@@ -30,8 +28,7 @@ class IgniteCachesTest {
 
     @Test
     fun `clientSuspendCache - IgniteClientSuspendCache 인스턴스를 반환한다`() = runSuspendIO {
-        val name = "ignite-caches-test-client-suspend-" + Base58.randomString(6)
-        val clientCache = igniteClient.getOrCreateCache<String, String>(name)
+        val clientCache = IgniteServers.getOrCreateCache<String, String>("ignite-caches-test-client-suspend")
         val cache = IgniteCaches.clientSuspendCache<String, String>(clientCache)
         try {
             cache.shouldBeInstanceOf<IgniteClientSuspendCache<*, *>>()

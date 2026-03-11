@@ -10,7 +10,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
 import org.junit.jupiter.api.Test
-import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.seconds
@@ -20,8 +19,8 @@ class IgniteSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
 
-        private fun <K: Any, V: Any> newCache(name: String = Base58.randomString(8)): ClientCache<K, V> =
-            igniteClient.getOrCreateCache<K, V>("suspend:memoizer:$name").apply { clear() }
+        private fun <K: Any, V: Any> newCache(name: String): ClientCache<K, V> =
+            IgniteServers.getOrCreateCache("suspend:memoizer:$name")
     }
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
@@ -75,7 +74,7 @@ class IgniteSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     @Test
     fun `suspend memoizer should evaluate once for same key in concurrent calls`() = runSuspendIO {
-        val cache: ClientCache<Int, Int> = newCache()
+        val cache: ClientCache<Int, Int> = newCache("concurrent")
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()

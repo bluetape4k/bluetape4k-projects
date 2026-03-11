@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.client.ClientCache
 import org.junit.jupiter.api.Test
-import org.testcontainers.utility.Base58
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -16,8 +15,8 @@ class IgniteMemoizerTest: AbstractMemoizerTest() {
     companion object: KLogging() {
         private val igniteClient by lazy { IgniteServers.igniteClient }
 
-        private fun <K: Any, V: Any> newCache(name: String = Base58.randomString(8)): ClientCache<K, V> =
-            igniteClient.getOrCreateCache<K, V>("memoizer:$name").apply { clear() }
+        private fun <K: Any, V: Any> newCache(name: String): ClientCache<K, V> =
+            IgniteServers.getOrCreateCache("memoizer:$name")
     }
 
     private val heavyCache: ClientCache<Int, Int> = newCache("heavy")
@@ -39,7 +38,7 @@ class IgniteMemoizerTest: AbstractMemoizerTest() {
 
     @Test
     fun `memoizer should evaluate once for same key in concurrent calls`() {
-        val cache: ClientCache<Int, Int> = newCache()
+        val cache: ClientCache<Int, Int> = newCache("concurrent")
         val evaluateCount = AtomicInteger(0)
         val memoizer = cache.memoizer { key ->
             evaluateCount.incrementAndGet()
@@ -57,7 +56,7 @@ class IgniteMemoizerTest: AbstractMemoizerTest() {
                 }
             }
             startLatch.countDown()
-            tasks.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            tasks.forEach { it.get(30, TimeUnit.SECONDS) shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             pool.shutdownNow()
