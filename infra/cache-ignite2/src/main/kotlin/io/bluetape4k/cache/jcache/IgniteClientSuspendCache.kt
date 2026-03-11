@@ -4,6 +4,8 @@ import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -14,9 +16,11 @@ import kotlinx.coroutines.withTimeout
 import org.apache.ignite.cache.query.ContinuousQuery
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.client.ClientCache
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryExpiredListener
@@ -44,7 +48,10 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
 ): SuspendCache<K, V> {
 
     companion object: KLogging() {
-        private const val CLIENT_OP_TIMEOUT_MS = 10_000L
+        private const val CLIENT_OP_TIMEOUT_MS = 15_000L
+        private const val CLIENT_OP_MAX_ATTEMPTS = 3
+        private const val CLIENT_OP_RETRY_DELAY_MS = 500L
+        private val blockingExecutor = Executors.newVirtualThreadPerTaskExecutor()
     }
 
     /** ContinuousQuery 기반 리스너 등록 시 반환된 커서 맵. deregister 시 닫기 위해 보관. */
@@ -56,7 +63,7 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     }
 
     override suspend fun clear() {
-        awaitClientAsync("clear") { cache.clearAsync() }
+        awaitClientBlocking("clear") { cache.clear() }
     }
 
     override suspend fun close() {
@@ -170,14 +177,46 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
         key: K? = null,
         futureProvider: () -> Future<T>,
     ): T {
-        return try {
-            withTimeout(CLIENT_OP_TIMEOUT_MS) {
-                futureProvider().awaitSuspending()
+        repeat(CLIENT_OP_MAX_ATTEMPTS) { attempt ->
+            try {
+                return withTimeout(CLIENT_OP_TIMEOUT_MS) {
+                    futureProvider().awaitSuspending()
+                }
+            } catch (e: TimeoutCancellationException) {
+                val timeout = TimeoutException("Ignite thin client timeout: op=$operation, cache=${cache.name}, key=$key, attempt=${attempt + 1}")
+                log.warn(timeout) {
+                    "Ignite thin client 연산 타임아웃. op=$operation, cache=${cache.name}, key=$key, attempt=${attempt + 1}"
+                }
+                if (attempt == CLIENT_OP_MAX_ATTEMPTS - 1) {
+                    throw timeout
+                }
+                delay(CLIENT_OP_RETRY_DELAY_MS)
             }
-        } catch (e: TimeoutCancellationException) {
-            val timeout = TimeoutException("Ignite thin client timeout: op=$operation, cache=${cache.name}, key=$key")
-            log.warn(timeout) { "Ignite thin client 연산 타임아웃. op=$operation, cache=${cache.name}, key=$key" }
-            throw timeout
+        }
+        error("unreachable")
+    }
+
+    private suspend fun awaitClientBlocking(
+        operation: String,
+        key: K? = null,
+        block: () -> Unit,
+    ) {
+        repeat(CLIENT_OP_MAX_ATTEMPTS) { attempt ->
+            try {
+                withTimeout(CLIENT_OP_TIMEOUT_MS) {
+                    CompletableFuture.runAsync(block, blockingExecutor).await()
+                }
+                return
+            } catch (e: TimeoutCancellationException) {
+                val timeout = TimeoutException("Ignite thin client timeout: op=$operation, cache=${cache.name}, key=$key, attempt=${attempt + 1}")
+                log.warn(timeout) {
+                    "Ignite thin client blocking 연산 타임아웃. op=$operation, cache=${cache.name}, key=$key, attempt=${attempt + 1}"
+                }
+                if (attempt == CLIENT_OP_MAX_ATTEMPTS - 1) {
+                    throw timeout
+                }
+                delay(CLIENT_OP_RETRY_DELAY_MS)
+            }
         }
     }
 }
