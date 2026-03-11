@@ -76,8 +76,10 @@ fun TemporalAccessor.toIsoString(): String = when (this) {
 /**
  * [toIsoString]의 nullable 안전 버전입니다.
  */
-fun TemporalAccessor.toIsoStringOrNull(): String? =
-    formatOrNull(DateTimeFormatter.ISO_DATE_TIME)
+fun TemporalAccessor.toIsoStringOrNull(): String? = when (this) {
+    is Instant -> runCatching { DefaultIsoInstantFormatter.format(this) }.getOrNull()
+    else       -> formatOrNull(DateTimeFormatter.ISO_DATE_TIME)
+}
 
 /**
  * 일자를 ISO 형식([DateTimeFormatter.ISO_DATE])의 문자열로 만듭니다.

@@ -32,6 +32,8 @@ class TemporalAccessorSupportTest {
         instant.toString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
         instant.toIsoInstantString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
         instant.toIsoString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
+        instant.toIsoInstantStringOrNull() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
+        instant.toIsoStringOrNull() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
     }
 
     @Test

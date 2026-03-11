@@ -114,7 +114,7 @@ fun Int.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount =
  * [chronoUnit]의 숫자를 [TemporalAmount]로 변환합니다.
  *
  * ```
- * 1L.temporalAmount(ChronoUnit.DAYS) // Period.ofDays(1)
+ * 1L.temporalAmount(ChronoUnit.DAYS) // Duration.ofDays(1)
  * 2L.temporalAmount(ChronoUnit.HOURS) // Duration.ofHours(2)
  * ```
  */
