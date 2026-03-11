@@ -4,7 +4,7 @@
 
 ---
 
-## [1.4.0-SNAPSHOT] - Unreleased
+## [1.4.0] - 2026-03-12
 
 ### Added
 
