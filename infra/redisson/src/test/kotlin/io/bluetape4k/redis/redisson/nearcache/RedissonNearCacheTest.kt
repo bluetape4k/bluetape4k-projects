@@ -2,6 +2,7 @@ package io.bluetape4k.redis.redisson.nearcache
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.support.awaitSuspending
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -10,7 +11,6 @@ import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.testcontainers.storage.RedisServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -204,7 +204,7 @@ class RedissonNearCacheTest {
     inner class Async {
 
         @RepeatedTest(REPEAT_SIZE)
-        fun `nearCache1 에 cache item을 추가하면 nearCache2에 추가됩니다`() = runTest {
+        fun `nearCache1 에 cache item을 추가하면 nearCache2에 추가됩니다`() = runSuspendIO {
             val keyToAdd = randomName()
             val valueToAdd = randomName()
 
@@ -219,7 +219,7 @@ class RedissonNearCacheTest {
         }
 
         @RepeatedTest(REPEAT_SIZE)
-        fun `nearCache1 에 cache item을 삭제하면 nearCache2에 삭제됩니다`() = runTest {
+        fun `nearCache1 에 cache item을 삭제하면 nearCache2에 삭제됩니다`() = runSuspendIO {
             val keyToRemove = randomName()
             val valueToRemove = randomName()
 
@@ -240,7 +240,7 @@ class RedissonNearCacheTest {
         }
 
         @RepeatedTest(REPEAT_SIZE)
-        fun `backCache 에 캐시를 추가하면, near cache 들에게 반영된다`() = runTest {
+        fun `backCache 에 캐시를 추가하면, near cache 들에게 반영된다`() = runSuspendIO {
             val key = randomName()
             val value = randomValue()
 
@@ -273,7 +273,7 @@ class RedissonNearCacheTest {
         }
 
         @RepeatedTest(REPEAT_SIZE)
-        fun `frontCache에 expiration을 설정하면, 해당 시간이 지나면 자동으로 삭제된다`() = runTest {
+        fun `frontCache에 expiration을 설정하면, 해당 시간이 지나면 자동으로 삭제된다`() = runSuspendIO {
             val key1 = randomName()
             val value1 = randomValue()
 

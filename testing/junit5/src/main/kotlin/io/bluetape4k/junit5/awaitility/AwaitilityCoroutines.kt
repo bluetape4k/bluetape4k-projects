@@ -1,8 +1,10 @@
 package io.bluetape4k.junit5.awaitility
 
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import org.awaitility.Durations
 import org.awaitility.constraint.WaitConstraint
 import org.awaitility.core.ConditionFactory
@@ -53,6 +55,7 @@ suspend infix fun ConditionFactory.awaitSuspending(
  *
  * ## 동작/계약
  * - 초기 지연과 poll interval을 반영해 반복 호출하며, 호출 스레드를 block 하지 않습니다.
+ * - 개별 poll을 별도 timeout으로 취소하지 않고, 전체 await timeout 안에서 suspend block을 실행합니다.
  * - 예외 무시 설정이 있으면 해당 예외는 마지막 원인으로 저장하고 계속 재시도합니다.
  * - 타임아웃 초과 시 [ConditionTimeoutException]을 던집니다.
  * - 수신 [ConditionFactory]는 변경하지 않고, 내부 루프 상태만 지역 변수로 관리합니다.
@@ -67,36 +70,55 @@ suspend infix fun ConditionFactory.awaitSuspending(
  */
 suspend infix fun ConditionFactory.untilSuspending(
     block: suspend () -> Boolean,
-) {
+) = coroutineScope {
     val timeout = timeoutConstraintOrDefault().maxWaitTime
     val pollInterval = pollIntervalOrDefault()
     val initialPollDelay = pollDelayOrDefault(pollInterval)
     val exceptionIgnorer = exceptionIgnorerOrNull()
 
-    val startNanos = System.nanoTime()
-    val timeoutNanos = timeout.toNanosSafely()
-
-    if (!initialPollDelay.isZero && !initialPollDelay.isNegative) {
-        delay(initialPollDelay.toMillisCeil())
-    }
-
     var pollCount = 1
     var lastInterval: Duration = initialPollDelay
     var lastThrowable: Throwable? = null
 
-    // 개별 poll 호출의 최대 대기 시간 (block()이 suspend 상태로 hang되는 것을 방지)
-    val perPollTimeoutMs = maxOf(timeout.toMillis() / 2, 5_000L)
+    val startNanos = System.nanoTime()
+    val timeoutNanos = timeout.toNanosSafely()
+
+    if (!initialPollDelay.isZero && !initialPollDelay.isNegative) {
+        val initialDelayNanos = minOf(initialPollDelay.toNanosSafely(), timeoutNanos)
+        if (initialDelayNanos > 0) {
+            delay(nanosToMillisCeil(initialDelayNanos))
+        }
+    }
 
     while (true) {
+        val remainingNanos = timeoutNanos - (System.nanoTime() - startNanos)
+        if (remainingNanos <= 0L) {
+            throw conditionTimeoutException(timeout, lastThrowable)
+        }
+
         val satisfied = try {
-            val result = withTimeout(perPollTimeoutMs) { block() }
-            lastThrowable = null
-            result
-        } catch (e: TimeoutCancellationException) {
-            // block() 자체가 hang된 경우 — false로 처리하고 다음 폴링에서 재시도
-            lastThrowable = e
-            false
+            val pollDeferred = async { runCatching { block() } }
+            val pollResult = select<Any?> {
+                pollDeferred.onAwait { result ->
+                    result
+                }
+                onTimeout(nanosToMillisCeil(remainingNanos)) {
+                    pollDeferred.cancel()
+                    PollTimedOut
+                }
+            }
+
+            if (pollResult === PollTimedOut) {
+                throw conditionTimeoutException(timeout, lastThrowable)
+            }
+
+            (pollResult as Result<Boolean>).getOrThrow().also {
+                lastThrowable = null
+            }
         } catch (e: Throwable) {
+            if (e is ConditionTimeoutException) {
+                throw e
+            }
             if (exceptionIgnorer?.shouldIgnoreException(e) == true) {
                 lastThrowable = e
                 false
@@ -105,26 +127,14 @@ suspend infix fun ConditionFactory.untilSuspending(
             }
         }
 
-        if (satisfied) return
-
-        val elapsedNanos = System.nanoTime() - startNanos
-        if (elapsedNanos >= timeoutNanos) {
-            val message = "Condition was not fulfilled within $timeout."
-            throw if (lastThrowable != null) {
-                ConditionTimeoutException(message, lastThrowable)
-            } else {
-                ConditionTimeoutException(message)
-            }
-        }
+        if (satisfied) return@coroutineScope
 
         val nextInterval = pollInterval.next(pollCount++, lastInterval)
         lastInterval = nextInterval
 
-        val remainingNanos = timeoutNanos - (System.nanoTime() - startNanos)
-        val sleepNanos = minOf(nextInterval.toNanosSafely(), remainingNanos)
-
+        val sleepNanos = minOf(nextInterval.toNanosSafely(), timeoutNanos - (System.nanoTime() - startNanos))
         if (sleepNanos > 0) {
-            delay(sleepNanos / 1_000_000L)
+            delay(nanosToMillisCeil(sleepNanos))
         }
     }
 }
@@ -157,7 +167,23 @@ private fun Duration.toNanosSafely(): Long = runCatching { toNanos() }.getOrElse
 
 private fun Duration.toMillisCeil(): Long {
     val nanos = toNanosSafely()
-    return if (nanos <= 0L) 0L else (nanos + 999_999L) / 1_000_000L
+    return nanosToMillisCeil(nanos)
+}
+
+private fun nanosToMillisCeil(nanos: Long): Long =
+    if (nanos <= 0L) 0L else (nanos + 999_999L) / 1_000_000L
+
+private fun conditionTimeoutException(timeout: Duration, cause: Throwable?): ConditionTimeoutException {
+    val message = "Condition was not fulfilled within $timeout."
+    val rootCause = cause.unwrapConditionTimeout()
+    return if (rootCause != null) ConditionTimeoutException(message, rootCause) else ConditionTimeoutException(message)
+}
+
+private object PollTimedOut
+
+private tailrec fun Throwable?.unwrapConditionTimeout(): Throwable? = when (this) {
+    is ConditionTimeoutException -> cause.unwrapConditionTimeout()
+    else                        -> this
 }
 
 @Suppress("UNCHECKED_CAST")
