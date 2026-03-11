@@ -4,12 +4,17 @@ import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.awaitility.kotlin.await
+import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.test.assertIs
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.TimeoutCancellationException
 
 class AwaitilityCoroutinesTest {
 
@@ -90,4 +95,66 @@ class AwaitilityCoroutinesTest {
                 }
         }
     }
+
+    @Test
+    fun `untilSuspending - 조건이 계속 false 이면 timeout 예외가 발생한다`() = runSuspendTest {
+        assertFailsWith<ConditionTimeoutException> {
+            await
+                .atMost(Duration.ofMillis(150))
+                .pollDelay(Duration.ZERO)
+                .pollInterval(Duration.ofMillis(10))
+                .untilSuspending { false }
+        }
+    }
+
+    @Test
+    fun `untilSuspending - 무시된 예외로 timeout 되면 마지막 원인을 유지한다`() = runSuspendTest {
+        val exception = assertFailsWith<ConditionTimeoutException> {
+            await
+                .atMost(Duration.ofMillis(150))
+                .pollDelay(Duration.ZERO)
+                .pollInterval(Duration.ofMillis(10))
+                .ignoreExceptions()
+                .untilSuspending {
+                    throw IllegalStateException("poll timed out")
+                }
+        }
+
+        assertIs<IllegalStateException>(exception.findRootCause())
+    }
+
+    @Test
+    fun `untilSuspending - atMost 보다 긴 poll block 도 전체 timeout 내에서 중단한다`() = runSuspendTest {
+        val start = System.currentTimeMillis()
+
+        assertFailsWith<ConditionTimeoutException> {
+            await
+                .atMost(Duration.ofMillis(150))
+                .pollDelay(Duration.ZERO)
+                .untilSuspending {
+                    delay(500)
+                    false
+                }
+        }
+
+        val elapsed = System.currentTimeMillis() - start
+        elapsed shouldBeLessOrEqualTo 400
+    }
+
+    @Test
+    fun `untilSuspending - block 내부 timeout 은 그대로 전파한다`() = runSuspendTest {
+        assertFailsWith<TimeoutCancellationException> {
+            await
+                .atMost(Duration.ofSeconds(1))
+                .pollDelay(Duration.ZERO)
+                .untilSuspending {
+                    withTimeout(50) {
+                        delay(500)
+                        true
+                    }
+                }
+        }
+    }
+
+    private tailrec fun Throwable.findRootCause(): Throwable = cause?.findRootCause() ?: this
 }

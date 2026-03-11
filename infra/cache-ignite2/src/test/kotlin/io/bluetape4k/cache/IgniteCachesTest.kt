@@ -7,9 +7,13 @@ import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCache
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.withTimeoutOrNull
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
+import kotlin.time.Duration.Companion.seconds
 
 class IgniteCachesTest {
 
@@ -33,6 +37,27 @@ class IgniteCachesTest {
         try {
             cache.shouldBeInstanceOf<IgniteClientSuspendCache<*, *>>()
         } finally {
+            runCatching { cache.close() }
+        }
+    }
+
+    @RepeatedTest(3)
+    fun `clientSuspendCache - 동적 cache 생성 직후에도 hang 없이 접근할 수 있다`() = runSuspendIO {
+        val cacheName = "ignite-caches-test-dynamic-" + Base58.randomString(6)
+        val key = "key-" + Base58.randomString(6)
+        val value = "value-" + Base58.randomString(12)
+        val clientCache = IgniteServers.getOrCreateCache<String, String>(cacheName)
+        val cache = IgniteCaches.clientSuspendCache<String, String>(clientCache)
+
+        try {
+            val result = withTimeoutOrNull(10.seconds) {
+                cache.put(key, value)
+                cache.get(key)
+            }
+
+            result shouldBeEqualTo value
+        } finally {
+            runCatching { clientCache.clear() }
             runCatching { cache.close() }
         }
     }
