@@ -3,14 +3,13 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.lang.IgniteFuture
 import java.util.concurrent.CompletableFuture
@@ -37,6 +36,13 @@ import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 class IgniteSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
+        /**
+         * Ignite 연산 최대 대기 시간 (ms).
+         *
+         * ARM64 환경에서 [IgniteFuture.listen] 콜백이 발화하지 않아 무한 대기하는 현상 방지.
+         */
+        const val OPERATION_TIMEOUT_MS = 30_000L
+
         /**
          * 캐시 이름과 구성으로 [IgniteSuspendCache]를 생성합니다.
          *
@@ -149,11 +155,11 @@ class IgniteSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Suspe
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
         if (igniteCache != null) {
-            entries
-                .map { igniteCache.putAsync(it.first, it.second).toCompletableFuture() }
-                .toList()
-                .map { it.asDeferred() }
-                .joinAll()
+            coroutineScope {
+                entries.collect { (key, value) ->
+                    launch { igniteCache.putAsync(key, value).awaitIgnite() }
+                }
+            }
             return
         }
         entries.collect { put(it.first, it.second) }
@@ -210,4 +216,9 @@ private fun <T> IgniteFuture<T>.toCompletableFuture(): CompletableFuture<T> {
     return cf
 }
 
-private suspend fun <T> IgniteFuture<T>.awaitIgnite(): T = toCompletableFuture().await()
+/**
+ * ARM64에서 [IgniteFuture.listen] 콜백이 발화하지 않아 무한 대기하는 현상 방지를 위해
+ * [IgniteSuspendCache.OPERATION_TIMEOUT_MS] 상한을 적용합니다.
+ */
+private suspend fun <T> IgniteFuture<T>.awaitIgnite(): T =
+    withTimeout(IgniteSuspendCache.OPERATION_TIMEOUT_MS) { toCompletableFuture().await() }

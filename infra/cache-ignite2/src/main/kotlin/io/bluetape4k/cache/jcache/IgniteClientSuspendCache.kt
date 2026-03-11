@@ -1,16 +1,16 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.coroutines.support.awaitSuspending
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.future.asDeferred
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.apache.ignite.cache.query.ContinuousQuery
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.client.ClientCache
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Future
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryExpiredListener
@@ -37,6 +37,17 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     private val cache: ClientCache<K, V>,
 ): SuspendCache<K, V> {
 
+    companion object {
+        /**
+         * Ignite 연산 최대 대기 시간 (ms).
+         *
+         * ARM64 환경에서 IgniteClientFuture가 완료되지 않아 무한 대기하는 현상 방지.
+         * [awaitSuspending]이 내부적으로 폴링 기반 [FutureToCompletableFutureWrapper]를 사용하므로
+         * Future가 완료되지 않으면 영구 hang 가능 → 30초 상한으로 보호합니다.
+         */
+        const val OPERATION_TIMEOUT_MS = 30_000L
+    }
+
     /** ContinuousQuery 기반 리스너 등록 시 반환된 커서 맵. deregister 시 닫기 위해 보관. */
     private val queryCursors = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, AutoCloseable>()
 
@@ -46,7 +57,7 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     }
 
     override suspend fun clear() {
-        cache.clearAsync().awaitSuspending()
+        cache.clearAsync().awaitOrTimeout()
     }
 
     override suspend fun close() {
@@ -56,65 +67,66 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     override fun isClosed(): Boolean = false
 
     override suspend fun containsKey(key: K): Boolean =
-        cache.containsKeyAsync(key).awaitSuspending()
+        cache.containsKeyAsync(key).awaitOrTimeout()
 
     override suspend fun get(key: K): V? =
-        cache.getAsync(key).awaitSuspending()
+        cache.getAsync(key).awaitOrTimeout()
 
     override fun getAll(): Flow<SuspendCacheEntry<K, V>> = entries()
 
     override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
-        cache.getAllAsync(keys).awaitSuspending().forEach { (key, value) ->
+        cache.getAllAsync(keys).awaitOrTimeout().forEach { (key, value) ->
             emit(SuspendCacheEntry(key, value))
         }
     }
 
     override suspend fun getAndPut(key: K, value: V): V? =
-        cache.getAndPutAsync(key, value).awaitSuspending()
+        cache.getAndPutAsync(key, value).awaitOrTimeout()
 
     override suspend fun getAndRemove(key: K): V? =
-        cache.getAndRemoveAsync(key).awaitSuspending()
+        cache.getAndRemoveAsync(key).awaitOrTimeout()
 
     override suspend fun getAndReplace(key: K, value: V): V? =
-        cache.getAndReplaceAsync(key, value).awaitSuspending()
+        cache.getAndReplaceAsync(key, value).awaitOrTimeout()
 
     override suspend fun put(key: K, value: V) {
-        cache.putAsync(key, value).awaitSuspending()
+        cache.putAsync(key, value).awaitOrTimeout()
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        cache.putAllAsync(map).awaitSuspending()
+        cache.putAllAsync(map).awaitOrTimeout()
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
-        entries
-            .map { cache.putAsync(it.first, it.second).asDeferred() }
-            .toList()
-            .joinAll()
+        coroutineScope {
+            entries.collect { (key, value) ->
+                launch { cache.putAsync(key, value).awaitOrTimeout() }
+            }
+        }
     }
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean =
-        cache.putIfAbsentAsync(key, value).awaitSuspending()
+        cache.putIfAbsentAsync(key, value).awaitOrTimeout()
 
     override suspend fun remove(key: K): Boolean =
-        cache.removeAsync(key).awaitSuspending()
+        cache.removeAsync(key).awaitOrTimeout()
 
     override suspend fun remove(key: K, oldValue: V): Boolean =
-        cache.removeAsync(key, oldValue).awaitSuspending()
+        cache.removeAsync(key, oldValue).awaitOrTimeout()
 
     override suspend fun removeAll() {
-        cache.removeAllAsync().awaitSuspending()
+        cache.removeAllAsync().awaitOrTimeout()
     }
 
     override suspend fun removeAll(keys: Set<K>) {
-        cache.removeAllAsync(keys).awaitSuspending()
+        cache.removeAllAsync(keys).awaitOrTimeout()
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean =
-        cache.replaceAsync(key, oldValue, newValue).awaitSuspending()
+        cache.replaceAsync(key, oldValue, newValue).awaitOrTimeout()
 
     override suspend fun replace(key: K, value: V): Boolean =
-        cache.replaceAsync(key, value).awaitSuspending()
+        cache.replaceAsync(key, value).awaitOrTimeout()
 
     /**
      * ContinuousQuery의 localListener를 사용해 캐시 이벤트 리스너를 등록합니다.
@@ -154,4 +166,11 @@ class IgniteClientSuspendCache<K: Any, V: Any>(
     override fun deregisterCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {
         queryCursors.remove(configuration)?.close()
     }
+
+    /**
+     * ARM64에서 [IgniteClientFuture]가 완료되지 않아 무한 대기하는 현상 방지를 위해
+     * [awaitSuspending] 호출에 [OPERATION_TIMEOUT_MS] 상한을 적용합니다.
+     */
+    private suspend fun <T> Future<T>.awaitOrTimeout(): T =
+        withTimeout(OPERATION_TIMEOUT_MS) { awaitSuspending() }
 }
