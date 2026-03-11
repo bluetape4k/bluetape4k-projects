@@ -2,6 +2,8 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
+import io.lettuce.core.codec.StringCodec
+import org.awaitility.kotlin.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -11,8 +13,13 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import java.net.URI
+import java.util.concurrent.TimeUnit
 import java.util.*
+import javax.cache.CacheException
+import javax.cache.processor.EntryProcessor
+import javax.cache.processor.MutableEntry
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LettuceCacheTest {
@@ -82,6 +89,27 @@ class LettuceCacheTest {
         cache.putIfAbsent("key1", "value1").shouldBeTrue()
         cache.putIfAbsent("key1", "value2").shouldBeFalse()
         cache.get("key1") shouldBeEqualTo "value1"
+    }
+
+    @Test
+    fun `putIfAbsent applies ttl when configured`() {
+        val ttlCache = manager.createCache(
+            "ttl-cache-" + UUID.randomUUID().toString().take(8),
+            lettuceCacheConfigOf<String, String>(ttlSeconds = 1)
+        ) as LettuceCache<String, String>
+
+        try {
+            ttlCache.putIfAbsent("key1", "value1").shouldBeTrue()
+            ttlCache.get("key1") shouldBeEqualTo "value1"
+
+            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+                RedisServers.redisClient.connect(StringCodec.UTF8).use { connection ->
+                    (connection.sync().ttl(ttlCache.name) > 0L).shouldBeTrue()
+                }
+            }
+        } finally {
+            runCatching { ttlCache.close() }
+        }
     }
 
     @Test
@@ -163,5 +191,75 @@ class LettuceCacheTest {
         cache.isClosed.shouldBeFalse()
         cache.close()
         cache.isClosed.shouldBeTrue()
+    }
+
+    @Test
+    fun `invoke updates entry through EntryProcessor`() {
+        cache.put("key1", "value1")
+
+        val result = cache.invoke("key1", EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+            val next = entry.value + "-updated"
+            entry.setValue(next)
+            next
+        })
+
+        result shouldBeEqualTo "value1-updated"
+        cache.get("key1") shouldBeEqualTo "value1-updated"
+    }
+
+    @Test
+    fun `invokeAll returns result per key`() {
+        cache.put("k1", "v1")
+        cache.put("k2", "v2")
+
+        val results = cache.invokeAll(
+            mutableSetOf("k1", "k2"),
+            EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+                val next = entry.value + "-x"
+                entry.setValue(next)
+                next
+            }
+        )
+
+        results["k1"]?.get() shouldBeEqualTo "v1-x"
+        results["k2"]?.get() shouldBeEqualTo "v2-x"
+        cache.get("k1") shouldBeEqualTo "v1-x"
+        cache.get("k2") shouldBeEqualTo "v2-x"
+    }
+
+    @Test
+    fun `iterator and entry traversal support non String key cache with keyDecoder`() {
+        val intKeyCache = manager.createCache(
+            "int-key-cache-" + UUID.randomUUID().toString().take(8),
+            lettuceCacheConfigOf<Int, String>(
+                keyDecoder = String::toInt
+            )
+        ) as LettuceCache<Int, String>
+
+        try {
+            intKeyCache.put(1, "one")
+            val entry = intKeyCache.iterator().next()
+            entry.key shouldBeEqualTo 1
+            entry.value shouldBeEqualTo "one"
+        } finally {
+            runCatching { intKeyCache.close() }
+        }
+    }
+
+    @Test
+    fun `iterator throws CacheException for non String key cache without keyDecoder`() {
+        val intKeyCache = manager.createCache(
+            "int-key-cache-" + UUID.randomUUID().toString().take(8),
+            lettuceCacheConfigOf<Int, String>()
+        ) as LettuceCache<Int, String>
+
+        try {
+            intKeyCache.put(1, "one")
+            assertThrows<CacheException> {
+                intKeyCache.iterator()
+            }
+        } finally {
+            runCatching { intKeyCache.close() }
+        }
     }
 }

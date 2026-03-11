@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache
 
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.time.Duration
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class ResilientLettuceNearCacheTest: AbstractLettuceNearCacheTest() {
@@ -264,4 +266,48 @@ class ResilientLettuceNearCacheTest: AbstractLettuceNearCacheTest() {
         c.close()
         c.isClosed.shouldBeTrue()
     }
+
+    @Test
+    fun `queue full rollback keeps remove and clearAll readable`() {
+        val limited = ResilientLettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config = resilientLettuceNearCacheConfig {
+                cacheName = "resilient-queue-full-" + Base58.randomString(6)
+                writeQueueCapacity = 1
+            },
+        )
+
+        try {
+            val c = limited
+            val consumerThreadField = c.findField("consumerThread")
+            val queueField = c.findField("queue")
+
+            @Suppress("UNCHECKED_CAST")
+            val queue = queueField.get(c) as LinkedBlockingQueue<BackCacheCommand<String, String>>
+            val consumerThread = consumerThreadField.get(c) as Thread
+
+            consumerThread.interrupt()
+            consumerThread.join(500)
+            queue.clear()
+            queue.offer(BackCacheCommand.Put("occupied", "value")).shouldBeTrue()
+            (queue.remainingCapacity() == 0).shouldBeTrue()
+
+            directCommands.set("${c.cacheName}:blocked", "value")
+            c.remove("blocked")
+            c.containsKey("blocked").shouldBeTrue()
+            c.get("blocked") shouldBeEqualTo "value"
+
+            directCommands.set("${c.cacheName}:clear-key", "clear-value")
+            c.clearAll()
+            c.get("clear-key") shouldBeEqualTo "clear-value"
+        } finally {
+            limited.close()
+        }
+    }
+
+    private fun Any.findField(name: String) =
+        javaClass.declaredFields.firstOrNull { it.name == name || it.name.startsWith(name) }
+            ?.apply { isAccessible = true }
+            ?: error("Field not found: $name in ${javaClass.name}")
 }

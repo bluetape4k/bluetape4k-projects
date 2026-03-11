@@ -4,9 +4,11 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.HSetExArgs
+import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -84,6 +86,25 @@ open class LettuceMap<V: Any>(
         val result = syncCommands.hsetnx(mapKey, field, value)
         log.debug { "LettuceMap putIfAbsent: mapKey=$mapKey, field=$field, result=$result" }
         return result
+    }
+
+    /**
+     * 필드가 존재하지 않을 때만 값을 설정하고, 성공한 경우 Hash key TTL을 함께 갱신합니다.
+     *
+     * Redis Hash field 단위의 조건부 TTL 설정 명령이 없어 `HSETNX` 성공 후 `EXPIRE`를 적용합니다.
+     * 이 모듈의 TTL 계약은 field가 아닌 Hash key([mapKey]) 전체의 만료를 갱신하는 방식입니다.
+     *
+     * @param field 설정할 필드명
+     * @param value 설정할 값
+     * @param ttl 적용할 Hash key TTL, null이면 일반 [putIfAbsent]와 동일하게 동작
+     * @return 설정 성공 여부 (이미 존재하면 false)
+     */
+    fun putIfAbsentTtl(field: String, value: V, ttl: Duration?): Boolean {
+        val added = putIfAbsent(field, value)
+        if (added && ttl != null) {
+            syncCommands.expire(mapKey, ttl)
+        }
+        return added
     }
 
     /**
@@ -186,30 +207,58 @@ open class LettuceMap<V: Any>(
      *
      * @param field 설정할 필드명
      * @param value 설정할 값
-     * @param ttlArgs TTL 설정 (null이면 TTL 없음)
+     * @param ttl Hash key TTL 설정 (null이면 TTL 없음)
      * @return 저장 성공 여부
      */
-    fun putTtl(field: String, value: V, ttlArgs: HSetExArgs?): Boolean {
-        if (ttlArgs == null) return put(field, value)
-        syncCommands.hsetex(mapKey, ttlArgs, mapOf(field to value))
-        log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field" }
-        return true
+    fun putTtl(field: String, value: V, ttl: Duration?): Boolean {
+        if (ttl != null) {
+            val ttlArgs = HSetExArgs.Builder.ex(ttl)
+            val hsetex = runCatching {
+                syncCommands.hsetex(mapKey, ttlArgs, mapOf(field to value))
+                syncCommands.expire(mapKey, ttl)
+                true
+            }.recoverCatching { error ->
+                if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
+                    val added = put(field, value)
+                    syncCommands.expire(mapKey, ttl)
+                    added
+                } else {
+                    throw error
+                }
+            }.getOrThrow()
+            log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
+            return hsetex
+        }
+        val added = put(field, value)
+        log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
+        return added
     }
 
     /**
      * 여러 필드-값 쌍을 TTL과 함께 설정합니다.
      *
      * @param entries 설정할 필드-값 쌍
-     * @param ttlArgs TTL 설정 (null이면 TTL 없음)
+     * @param ttl Hash key TTL 설정 (null이면 TTL 없음)
      */
-    fun putAllTtl(entries: Map<String, V>, ttlArgs: HSetExArgs?) {
+    fun putAllTtl(entries: Map<String, V>, ttl: Duration?) {
         if (entries.isEmpty()) return
-        if (ttlArgs == null) {
+        if (ttl == null) {
             putAll(entries)
             return
         }
-        syncCommands.hsetex(mapKey, ttlArgs, entries)
-        log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}" }
+        val ttlArgs = HSetExArgs.Builder.ex(ttl)
+        runCatching {
+            syncCommands.hsetex(mapKey, ttlArgs, entries)
+            syncCommands.expire(mapKey, ttl)
+        }.recoverCatching { error ->
+            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
+                syncCommands.hset(mapKey, entries)
+                syncCommands.expire(mapKey, ttl)
+            } else {
+                throw error
+            }
+        }.getOrThrow()
+        log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}, ttl=$ttl" }
     }
 
     // =========================================================================

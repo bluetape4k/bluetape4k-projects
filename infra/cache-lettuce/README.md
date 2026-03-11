@@ -2,6 +2,14 @@
 
 `bluetape4k-cache-lettuce`는 Lettuce(Redis) 기반 JCache Provider와 NearCache 구현을 제공합니다.
 
+## 설치
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-cache-lettuce:${bluetape4kVersion}")
+}
+```
+
 ## 제공 기능
 
 ### Memoizer (함수 결과 Redis 캐싱)
@@ -108,12 +116,25 @@ Caffeine           |
 - **retry**: Resilience4j Retry로 Redis 쓰기 실패 시 재시도 (지수 백오프 옵션)
 - **GetFailureStrategy**: Redis GET 실패 시 null 반환(RETURN_FRONT_OR_NULL) 또는 예외 전파(PROPAGATE_EXCEPTION)
 
-## 설치
+### JCache TTL 계약
+
+- `LettuceCacheConfig.ttlSeconds`는 Redis hash field가 아니라 캐시 hash key 전체 TTL입니다.
+- `put`, `putAll`, `putIfAbsent`, `replace` 계열 쓰기 API는 성공 시 동일한 TTL을 다시 적용합니다.
+- Redis 8 이상에서는 `HSETEX`를 우선 사용하고 hash key `EXPIRE`도 함께 갱신합니다.
+- Redis 7 이하 서버에서는 자동으로 `HSET/HMSET + EXPIRE` 경로로 fallback 합니다.
+- TTL이 지나면 해당 cacheName에 속한 항목이 함께 만료됩니다.
+- 현재 JCache의 `EntryProcessor` 기반 `invoke` / `invokeAll`은 지원하지 않으며 호출 시 `CacheException`을 반환합니다.
 
 ```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-cache-lettuce:${bluetape4kVersion}")
-}
+import io.bluetape4k.cache.jcache.LettuceJCaching
+
+val sessions = LettuceJCaching.getOrCreate<String, String>(
+    cacheName = "sessions",
+    ttlSeconds = 60,
+)
+
+sessions.put("token:1", "value")
+sessions.putIfAbsent("token:2", "value2")
 ```
 
 ## 사용 예시

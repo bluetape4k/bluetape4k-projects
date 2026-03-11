@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -27,6 +28,17 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
         val connection = LettuceClients.connect(client)
         semaphore = LettuceSemaphore(connection, randomName(), totalPermits = TOTAL_PERMITS)
         semaphore.initialize()
+    }
+
+    @Test
+    fun `constructor rejects non positive totalPermits`() {
+        val connection = LettuceClients.connect(client)
+        assertThrows<IllegalArgumentException> {
+            LettuceSuspendSemaphore(connection, randomName(), totalPermits = 0)
+        }
+        assertThrows<IllegalArgumentException> {
+            LettuceSuspendSemaphore(connection, randomName(), totalPermits = -1)
+        }
     }
 
     @Test

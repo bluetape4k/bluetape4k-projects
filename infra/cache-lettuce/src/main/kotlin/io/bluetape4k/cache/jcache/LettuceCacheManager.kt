@@ -36,6 +36,7 @@ class LettuceCacheManager(
     val cacheProvider: CachingProvider,
     private val properties: Properties?,
     private val uri: URI?,
+    private val closeResource: () -> Unit = {},
 ): CacheManager {
 
     companion object: KLogging() {
@@ -80,6 +81,7 @@ class LettuceCacheManager(
 
         val ttlSeconds = lettuceCfg?.ttlSeconds
         val keyCodec = lettuceCfg?.keyCodec ?: { k: K -> k.toString() }
+        val keyDecoder = lettuceCfg?.keyDecoder
         val serializer = lettuceCfg?.serializer ?: BinarySerializers.Fory
 
         log.debug { "RedisClient 연결 생성. cacheName=$cacheName" }
@@ -89,10 +91,12 @@ class LettuceCacheManager(
         val cache = LettuceCache(
             map = map,
             keyCodec = keyCodec,
+            keyDecoder = keyDecoder,
             serializer = serializer,
             ttlSeconds = ttlSeconds,
             cacheManager = this,
             configuration = configuration,
+            closeResource = { connection.close() },
         )
 
         val oldCache = caches.putIfAbsent(cacheName, cache)
@@ -157,6 +161,7 @@ class LettuceCacheManager(
                 caches.values.forEach { cache ->
                     runCatching { cache.close() }
                 }
+                runCatching { closeResource() }
                 closed.set(true)
             }
         }

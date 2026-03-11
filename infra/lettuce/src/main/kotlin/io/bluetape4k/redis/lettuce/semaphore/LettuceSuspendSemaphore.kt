@@ -68,6 +68,10 @@ return v"""
 
     private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
 
+    init {
+        totalPermits.requirePositiveNumber("totalPermits")
+    }
+
     /**
      * 세마포어를 초기화합니다. (이미 존재하면 무시)
      * `SET semaphoreKey totalPermits NX` 명령을 사용합니다.

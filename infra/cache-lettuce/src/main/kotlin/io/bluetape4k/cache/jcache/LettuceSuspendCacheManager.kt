@@ -29,8 +29,11 @@ import java.util.concurrent.ConcurrentHashMap
  * ```
  */
 class LettuceSuspendCacheManager(
+    /** 캐시 생성에 사용할 Redis 클라이언트입니다. */
     val redisClient: RedisClient,
+    /** 기본 TTL(초). `getOrCreate`에 개별 TTL이 없을 때 사용됩니다. */
     val ttlSeconds: Long? = null,
+    /** 기본 바이너리 codec. `null`이면 Lettuce 기본 codec을 사용합니다. */
     val codec: LettuceBinaryCodec<Any>? = null,
 ) {
 
@@ -81,7 +84,8 @@ class LettuceSuspendCacheManager(
                 name,
                 commands,
                 ttlSeconds ?: this@LettuceSuspendCacheManager.ttlSeconds,
-                this@LettuceSuspendCacheManager
+                this@LettuceSuspendCacheManager,
+                closeResource = { conn.close() },
             )
         } as LettuceSuspendCache<V>
     }

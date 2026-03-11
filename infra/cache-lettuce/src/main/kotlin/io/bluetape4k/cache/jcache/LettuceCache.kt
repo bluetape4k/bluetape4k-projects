@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.util.concurrent.ConcurrentHashMap
+import java.time.Duration
 import javax.cache.Cache
 import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
@@ -19,24 +20,28 @@ import javax.cache.event.CacheEntryUpdatedListener
 import javax.cache.event.EventType
 import javax.cache.integration.CompletionListener
 import javax.cache.processor.EntryProcessor
+import javax.cache.processor.EntryProcessorException
 import javax.cache.processor.EntryProcessorResult
+import javax.cache.processor.MutableEntry
 
 /**
  * Lettuce Redis hash를 기반으로 동작하는 JCache [javax.cache.Cache] 구현체입니다.
  *
  * ## 동작/계약
  * - 캐시 항목은 [LettuceMap]을 통해 Redis hash에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
- * - [ttlSeconds]가 지정되면 `hsetex`를 사용해 항목 갱신 시 TTL을 함께 설정합니다.
+ * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
  * - 직렬화는 [serializer]로 처리하며, 기본값은 Fory 기반 직렬화입니다.
  */
 class LettuceCache<K: Any, V: Any>(
     private val map: LettuceMap<ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
+    private val keyDecoder: ((String) -> K)? = null,
     private val serializer: BinarySerializer = BinarySerializers.Fory,
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
     private val configuration: Configuration<K, V>,
+    private val closeResource: () -> Unit = {},
 ): Cache<K, V> {
 
     companion object: KLogging()
@@ -47,15 +52,24 @@ class LettuceCache<K: Any, V: Any>(
 
     private val listeners = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, CacheEntryListener<K, V>>()
 
-    private val hsetExArgs by lazy {
-        ttlSeconds?.let { io.lettuce.core.HSetExArgs.Builder.ex(java.time.Duration.ofSeconds(it)) }
-    }
+    private val ttlDuration: Duration? by lazy { ttlSeconds?.let(Duration::ofSeconds) }
 
     private fun checkNotClosed() {
         check(!closed) { "LettuceCache[$cacheName]가 이미 닫혀 있습니다." }
     }
 
     private fun encodeKey(key: K): String = keyCodec(key)
+
+    private fun decodeKey(field: String): K {
+        keyDecoder?.let { return it(field) }
+        if (configuration.keyType == String::class.java) {
+            @Suppress("UNCHECKED_CAST")
+            return field as K
+        }
+        throw javax.cache.CacheException(
+            "LettuceCache는 non-String key iterator/entry 탐색을 위해 keyDecoder가 필요합니다. keyType=${configuration.keyType.name}"
+        )
+    }
 
     private fun encodeValue(value: V): ByteArray = serializer.serialize(value)
 
@@ -104,7 +118,7 @@ class LettuceCache<K: Any, V: Any>(
         val bytes = encodeValue(value)
         val existed = map.containsKey(field)
 
-        map.putTtl(field, bytes, hsetExArgs)
+        map.putTtl(field, bytes, ttlDuration)
 
         val eventType = if (existed) EventType.UPDATED else EventType.CREATED
         dispatchEvent(eventType, key, value)
@@ -117,7 +131,7 @@ class LettuceCache<K: Any, V: Any>(
         val existed = oldBytes != null
         val bytes = encodeValue(value)
 
-        map.putTtl(field, bytes, hsetExArgs)
+        map.putTtl(field, bytes, ttlDuration)
 
         val eventType = if (existed) EventType.UPDATED else EventType.CREATED
         dispatchEvent(eventType, key, value)
@@ -129,7 +143,7 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
-        this.map.putAllTtl(encodedMap, hsetExArgs)
+        this.map.putAllTtl(encodedMap, ttlDuration)
         map.forEach { (k, v) -> dispatchEvent(EventType.CREATED, k, v) }
     }
 
@@ -137,7 +151,7 @@ class LettuceCache<K: Any, V: Any>(
         checkNotClosed()
         val field = encodeKey(key)
         val bytes = encodeValue(value)
-        val added = map.putIfAbsent(field, bytes)
+        val added = map.putIfAbsentTtl(field, bytes, ttlDuration)
         if (added) {
             dispatchEvent(EventType.CREATED, key, value)
         }
@@ -184,7 +198,7 @@ class LettuceCache<K: Any, V: Any>(
         val currentValue = decodeValue(currentBytes)
         return if (currentValue == oldValue) {
             val bytes = encodeValue(newValue)
-            map.putTtl(field, bytes, hsetExArgs)
+            map.putTtl(field, bytes, ttlDuration)
             dispatchEvent(EventType.UPDATED, key, newValue)
             true
         } else {
@@ -197,7 +211,7 @@ class LettuceCache<K: Any, V: Any>(
         if (!containsKey(key)) return false
         val field = encodeKey(key)
         val bytes = encodeValue(value)
-        map.putTtl(field, bytes, hsetExArgs)
+        map.putTtl(field, bytes, ttlDuration)
         dispatchEvent(EventType.UPDATED, key, value)
         return true
     }
@@ -207,7 +221,7 @@ class LettuceCache<K: Any, V: Any>(
         val field = encodeKey(key)
         val oldBytes = map.get(field) ?: return null
         val bytes = encodeValue(value)
-        map.putTtl(field, bytes, hsetExArgs)
+        map.putTtl(field, bytes, ttlDuration)
         dispatchEvent(EventType.UPDATED, key, value)
         return decodeValue(oldBytes)
     }
@@ -236,8 +250,7 @@ class LettuceCache<K: Any, V: Any>(
         val allEntries = map.entries()
         val entries = mutableListOf<Cache.Entry<K, V>>()
         allEntries.forEach { (field, bytes) ->
-            @Suppress("UNCHECKED_CAST")
-            val key = field as K
+            val key = decodeKey(field)
             val value = decodeValue(bytes)
             entries.add(object: Cache.Entry<K, V> {
                 override fun getKey(): K = key
@@ -274,7 +287,16 @@ class LettuceCache<K: Any, V: Any>(
         entryProcessor: EntryProcessor<K, V, T>,
         vararg arguments: Any?,
     ): T {
-        throw UnsupportedOperationException("invoke는 지원하지 않습니다.")
+        checkNotClosed()
+        val field = encodeKey(key)
+        val entry = MutableEntryImpl(key, field)
+        val result = try {
+            entryProcessor.process(entry, *arguments)
+        } catch (e: Exception) {
+            throw EntryProcessorException(e)
+        }
+        entry.commit()
+        return result
     }
 
     override fun <T: Any> invokeAll(
@@ -282,7 +304,17 @@ class LettuceCache<K: Any, V: Any>(
         entryProcessor: EntryProcessor<K, V, T>,
         vararg arguments: Any?,
     ): MutableMap<K, EntryProcessorResult<T>> {
-        throw UnsupportedOperationException("invokeAll은 지원하지 않습니다.")
+        checkNotClosed()
+        val results = linkedMapOf<K, EntryProcessorResult<T>>()
+        keys.forEach { key ->
+            try {
+                val value = invoke(key, entryProcessor, *arguments)
+                results[key] = EntryProcessorResult { value }
+            } catch (e: Exception) {
+                results[key] = EntryProcessorResult { throw EntryProcessorException(e) }
+            }
+        }
+        return results
     }
 
     override fun <T: Any?> unwrap(clazz: Class<T>): T {
@@ -297,6 +329,7 @@ class LettuceCache<K: Any, V: Any>(
         closed = true
         runCatching { map.clear() }
         cacheManager.closeCache(this)
+        runCatching { closeResource() }
     }
 
     private fun dispatchEvent(eventType: EventType, key: K, value: V?) {
@@ -319,6 +352,65 @@ class LettuceCache<K: Any, V: Any>(
                     EventType.REMOVED -> (listener as? CacheEntryRemovedListener<K, V>)?.onRemoved(listOf(event))
                     else              -> {}
                 }
+            }
+        }
+    }
+
+    private inner class MutableEntryImpl(
+        private val key: K,
+        private val field: String,
+    ): MutableEntry<K, V> {
+        private var originalLoaded = false
+        private var originalValue: V? = null
+        private var exists = false
+        private var updatedValue: V? = null
+        private var removeRequested = false
+
+        override fun getKey(): K = key
+
+        override fun getValue(): V? {
+            ensureLoaded()
+            return when {
+                removeRequested -> null
+                updatedValue != null -> updatedValue
+                else -> originalValue
+            }
+        }
+
+        override fun exists(): Boolean {
+            ensureLoaded()
+            return !removeRequested && (updatedValue != null || exists)
+        }
+
+        override fun remove() {
+            ensureLoaded()
+            updatedValue = null
+            removeRequested = true
+        }
+
+        override fun setValue(value: V) {
+            ensureLoaded()
+            updatedValue = value
+            removeRequested = false
+        }
+
+        override fun <T : Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
+
+        fun commit() {
+            ensureLoaded()
+            when {
+                removeRequested && exists -> this@LettuceCache.remove(key)
+                removeRequested -> Unit
+                updatedValue != null -> this@LettuceCache.put(key, updatedValue!!)
+            }
+        }
+
+        private fun ensureLoaded() {
+            if (!originalLoaded) {
+                val bytes = map.get(field)
+                originalValue = bytes?.let(::decodeValue)
+                exists = bytes != null
+                originalLoaded = true
             }
         }
     }

@@ -2,6 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ class LettuceCachingProviderTest {
     fun `getCacheManager returns same instance for same URI and classLoader`() {
         val manager1 = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader)
         val manager2 = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader)
-        (manager1 == manager2).shouldNotBeNull()
+        assertSame(manager1, manager2)
     }
 
     @Test

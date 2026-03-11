@@ -322,6 +322,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         tombstones.add(key)
         writeChannel.trySend(BackCacheCommand.Remove(key)).also { result ->
             if (result.isFailure) {
+                tombstones.remove(key)
                 log.warn { "Write channel full, dropping Remove for key=$key" }
             }
         }
@@ -335,6 +336,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         tombstones.addAll(keys)
         writeChannel.trySend(BackCacheCommand.RemoveAll(keys)).also { result ->
             if (result.isFailure) {
+                tombstones.removeAll(keys)
                 log.warn { "Write channel full, dropping RemoveAll for ${keys.size} keys" }
             }
         }
@@ -357,6 +359,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         clearPending.value = true
         writeChannel.trySend(BackCacheCommand.ClearBack()).also { result ->
             if (result.isFailure) {
+                clearPending.value = false
                 log.warn { "Write channel full, dropping ClearBack for cacheName=${config.cacheName}" }
             }
         }

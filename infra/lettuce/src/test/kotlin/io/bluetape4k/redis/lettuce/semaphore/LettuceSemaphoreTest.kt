@@ -33,6 +33,17 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         semaphore.initialize()
     }
 
+    @Test
+    fun `constructor rejects non positive totalPermits`() {
+        val connection = LettuceClients.connect(client)
+        assertThrows<IllegalArgumentException> {
+            LettuceSemaphore(connection, randomName(), totalPermits = 0)
+        }
+        assertThrows<IllegalArgumentException> {
+            LettuceSemaphore(connection, randomName(), totalPermits = -1)
+        }
+    }
+
     // =========================================================================
     // 동기 테스트
     // =========================================================================

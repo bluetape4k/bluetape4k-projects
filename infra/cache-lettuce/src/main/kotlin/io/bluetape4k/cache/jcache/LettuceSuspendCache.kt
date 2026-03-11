@@ -6,6 +6,7 @@ import io.bluetape4k.support.asLong
 import io.bluetape4k.support.ifTrue
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.HSetExArgs
+import io.lettuce.core.RedisCommandExecutionException
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +25,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  *
  * ## 동작/계약
  * - 캐시 항목은 Redis hash(`cacheName`)에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
- * - [ttlSeconds]가 지정되면 `hsetex`를 사용해 항목 갱신 시 TTL을 함께 설정합니다.
+ * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
  * - CacheEntryListener 등록 API는 지원하지 않으며 호출 시 [NotSupportedException]을 발생시킵니다.
  *
@@ -40,17 +41,14 @@ class LettuceSuspendCache<V: Any>(
     val commands: RedisCoroutinesCommands<String, V>,
     val ttlSeconds: Long? = null,
     val cacheManager: LettuceSuspendCacheManager,
+    private val closeResource: () -> Unit = {},
 ): SuspendCache<String, V> {
 
     companion object: KLoggingChannel()
 
     private val closed = atomic(false)
 
-    private val hsetExArgs: HSetExArgs? by lazy {
-        ttlSeconds?.let {
-            HSetExArgs.Builder.ex(Duration.ofSeconds(it))
-        }
-    }
+    private val ttlDuration: Duration? by lazy { ttlSeconds?.let(Duration::ofSeconds) }
 
     override fun entries(): Flow<SuspendCacheEntry<String, V>> = channelFlow {
         commands
@@ -76,6 +74,7 @@ class LettuceSuspendCache<V: Any>(
 
         if (closed.compareAndSet(expect = false, update = true)) {
             clear()
+            runCatching { closeResource() }
         }
     }
 
@@ -102,11 +101,7 @@ class LettuceSuspendCache<V: Any>(
     override suspend fun getAndPut(key: String, value: V): V? {
         val cachedValue = commands.hget(cacheName, key)
 
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(key to value))
-        } else {
-            commands.hset(cacheName, key, value)
-        }
+        writeEntry(key, value)
         return cachedValue
     }
 
@@ -119,25 +114,18 @@ class LettuceSuspendCache<V: Any>(
     override suspend fun getAndReplace(key: String, value: V): V? {
         val cachedValue = commands.hget(cacheName, key)
         if (containsKey(key)) {
-            if (hsetExArgs != null) {
-                commands.hsetex(cacheName, hsetExArgs!!, mapOf(key to value))
-            } else {
-                commands.hset(cacheName, key, value)
-            }
+            writeEntry(key, value)
         }
         return cachedValue
     }
 
     override suspend fun put(key: String, value: V) {
-        if (hsetExArgs != null) {
-            commands.hsetex(cacheName, hsetExArgs!!, mapOf(key to value))
-        } else {
-            commands.hset(cacheName, key, value)
-        }
+        writeEntry(key, value)
     }
 
     override suspend fun putAll(map: Map<String, V>) {
-        commands.hmset(cacheName, map)
+        if (map.isEmpty()) return
+        writeEntries(map)
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<String, V>>) {
@@ -145,7 +133,11 @@ class LettuceSuspendCache<V: Any>(
     }
 
     override suspend fun putIfAbsent(key: String, value: V): Boolean {
-        return commands.hsetnx(cacheName, key, value) ?: false
+        val added = commands.hsetnx(cacheName, key, value) ?: false
+        if (added && ttlSeconds != null) {
+            commands.expire(cacheName, ttlSeconds)
+        }
+        return added
     }
 
     override suspend fun remove(key: String): Boolean {
@@ -177,7 +169,7 @@ class LettuceSuspendCache<V: Any>(
         val cacheValue = commands.hget(cacheName, key)
         return if (containsKey(key) && cacheValue == oldValue) {
             runCatching {
-                commands.hset(cacheName, key, newValue)
+                writeEntry(key, newValue)
             }.isSuccess
         } else {
             false
@@ -186,7 +178,9 @@ class LettuceSuspendCache<V: Any>(
 
     override suspend fun replace(key: String, value: V): Boolean {
         return containsKey(key).ifTrue {
-            runCatching { commands.hset(cacheName, key, value) }.isSuccess
+            runCatching {
+                writeEntry(key, value)
+            }.isSuccess
         } ?: false
     }
 
@@ -196,6 +190,48 @@ class LettuceSuspendCache<V: Any>(
 
     override fun deregisterCacheEntryListener(configuration: CacheEntryListenerConfiguration<String, V>) {
         throw NotSupportedException("Lettuce 에서는 CacheEntryListener 를 등록할 수 없습니다.")
+    }
+
+    private suspend fun writeEntry(key: String, value: V) {
+        val ttl = ttlDuration
+        if (ttl == null) {
+            commands.hset(cacheName, key, value)
+            return
+        }
+
+        val ttlArgs = HSetExArgs.Builder.ex(ttl)
+        runCatching {
+            commands.hsetex(cacheName, ttlArgs, mapOf(key to value))
+            commands.expire(cacheName, ttl.seconds)
+        }.recoverCatching { error ->
+            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
+                commands.hset(cacheName, key, value)
+                commands.expire(cacheName, ttl.seconds)
+            } else {
+                throw error
+            }
+        }.getOrThrow()
+    }
+
+    private suspend fun writeEntries(map: Map<String, V>) {
+        val ttl = ttlDuration
+        if (ttl == null) {
+            commands.hmset(cacheName, map)
+            return
+        }
+
+        val ttlArgs = HSetExArgs.Builder.ex(ttl)
+        runCatching {
+            commands.hsetex(cacheName, ttlArgs, map)
+            commands.expire(cacheName, ttl.seconds)
+        }.recoverCatching { error ->
+            if (error is RedisCommandExecutionException && error.message?.contains("unknown command", ignoreCase = true) == true) {
+                commands.hmset(cacheName, map)
+                commands.expire(cacheName, ttl.seconds)
+            } else {
+                throw error
+            }
+        }.getOrThrow()
     }
 
 }

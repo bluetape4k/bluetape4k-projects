@@ -320,6 +320,7 @@ class ResilientLettuceNearCache<V: Any>(
         frontCache.remove(key)
         tombstones.add(key)
         if (!queue.offer(BackCacheCommand.Remove(key))) {
+            tombstones.remove(key)
             log.warn { "Write queue full, dropping Remove for key=$key" }
         }
     }
@@ -331,6 +332,7 @@ class ResilientLettuceNearCache<V: Any>(
         frontCache.removeAll(keys)
         tombstones.addAll(keys)
         if (!queue.offer(BackCacheCommand.RemoveAll(keys))) {
+            tombstones.removeAll(keys)
             log.warn { "Write queue full, dropping RemoveAll for ${keys.size} keys" }
         }
     }
@@ -351,6 +353,7 @@ class ResilientLettuceNearCache<V: Any>(
         clearLocal()
         clearPending.value = true
         if (!queue.offer(BackCacheCommand.ClearBack())) {
+            clearPending.value = false
             log.warn { "Write queue full, dropping ClearBack for cacheName=${config.cacheName}" }
         }
     }

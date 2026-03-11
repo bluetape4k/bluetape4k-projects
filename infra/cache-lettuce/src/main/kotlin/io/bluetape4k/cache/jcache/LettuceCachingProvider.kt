@@ -64,6 +64,7 @@ class LettuceCachingProvider: CachingProvider {
             cacheProvider = this,
             properties = properties,
             uri = cacheUri,
+            closeResource = { redisClient.shutdown() },
         )
 
         uri2manager.putIfAbsent(cacheUri, manager)?.let { existingManager ->
