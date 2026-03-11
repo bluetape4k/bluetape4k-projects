@@ -1,8 +1,6 @@
 package io.bluetape4k.junit5.awaitility
 
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
 import org.awaitility.Durations
 import org.awaitility.constraint.WaitConstraint
 import org.awaitility.core.ConditionFactory
@@ -84,18 +82,11 @@ suspend infix fun ConditionFactory.untilSuspending(
     var lastInterval: Duration = initialPollDelay
     var lastThrowable: Throwable? = null
 
-    // 개별 poll 호출의 최대 대기 시간 (block()이 suspend 상태로 hang되는 것을 방지)
-    val perPollTimeoutMs = maxOf(timeout.toMillis() / 2, 5_000L)
-
     while (true) {
         val satisfied = try {
-            val result = withTimeout(perPollTimeoutMs) { block() }
+            val result = block()
             lastThrowable = null
             result
-        } catch (e: TimeoutCancellationException) {
-            // block() 자체가 hang된 경우 — false로 처리하고 다음 폴링에서 재시도
-            lastThrowable = e
-            false
         } catch (e: Throwable) {
             if (exceptionIgnorer?.shouldIgnoreException(e) == true) {
                 lastThrowable = e
