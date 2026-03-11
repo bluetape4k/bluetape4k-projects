@@ -1,6 +1,6 @@
 package io.bluetape4k.math.special
 
-import io.bluetape4k.cache.memorizer.inmemory.InMemoryMemorizer
+import io.bluetape4k.cache.memoizer.inmemory.InMemoryMemoizer
 import io.bluetape4k.support.assertZeroOrPositiveNumber
 import org.apache.commons.math3.special.Gamma.logGamma
 import java.util.concurrent.ConcurrentHashMap
@@ -14,7 +14,7 @@ class FactorialProvider {
 
     private val factorialCache = ConcurrentHashMap<Int, Double>()
 
-    val cachedCalc: (Int) -> Double = InMemoryMemorizer { calc(it) }
+    val cachedCalc: (Int) -> Double = InMemoryMemoizer { calc(it) }
 
     fun calc(n: Int): Double = when (n) {
         0, 1 -> 1.0
