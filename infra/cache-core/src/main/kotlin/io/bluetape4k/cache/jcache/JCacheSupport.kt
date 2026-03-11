@@ -3,6 +3,7 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.utils.ShutdownQueue
 import org.slf4j.Logger
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
@@ -108,6 +109,9 @@ inline fun <reified K, reified V> getDefaultJCacheConfiguration(): CompleteConfi
  */
 inline fun <reified P: CachingProvider> jcachingProvider(): CachingProvider =
     Caching.getCachingProvider(P::class.qualifiedName)
+        .apply {
+            ShutdownQueue.register(this)
+        }
 
 /**
  * 지정한 [qualifiedName]에 해당하는 [CachingProvider]를 로드합니다.
@@ -118,6 +122,9 @@ inline fun <reified P: CachingProvider> jcachingProvider(): CachingProvider =
 fun jcachingProviderOf(qualifiedName: String): CachingProvider {
     qualifiedName.requireNotBlank("qualifiedName")
     return Caching.getCachingProvider(qualifiedName)
+        .apply {
+            ShutdownQueue.register(this)
+        }
 }
 
 /**

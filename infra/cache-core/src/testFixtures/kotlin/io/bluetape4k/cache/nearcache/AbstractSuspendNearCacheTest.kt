@@ -152,7 +152,7 @@ abstract class AbstractSuspendNearCacheTest
         suspendNearCache2.get(key) shouldBeEqualTo value
 
         // nearCoCache1 에 cache entry를 update하면, nearCoCache2 에도 비동기적으로 update 된다.
-        this@AbstractSuspendNearCacheTest.suspendNearCache1.replace(key, value, value2).shouldBeTrue()
+        suspendNearCache1.replace(key, value, value2).shouldBeTrue()
         await untilSuspending { suspendNearCache2.get(key) == value2 }
 
         backSuspendCache.get(key) shouldBeEqualTo value2

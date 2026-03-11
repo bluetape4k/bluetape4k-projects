@@ -92,7 +92,7 @@ class Ignite2Server private constructor(
         // Ignite 2.x 노드가 완전히 초기화될 때까지 로그 메시지로 대기
         waitingFor(
             Wait.forLogMessage(".*Ignite node started OK.*", 1)
-                .withStartupTimeout(Duration.ofMinutes(2))
+                .withStartupTimeout(Duration.ofMinutes(5))
         )
 
         if (useDefaultPort) {

@@ -1,6 +1,7 @@
 package io.bluetape4k.cache
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.testcontainers.storage.Ignite2Server
 import io.bluetape4k.utils.ShutdownQueue
@@ -32,19 +33,36 @@ object IgniteServers: KLogging() {
     val ignite2Server by lazy { Ignite2Server.Launcher.ignite2 }
 
     val igniteClient: IgniteClient by lazy {
-        Ignition.startClient(
-            ClientConfiguration().apply {
-                setAddresses(ignite2Server.url)
-                setTimeout(60_000)  // 60초 소켓 타임아웃 (arm64 느린 초기화 대비)
-            }
-        ).also { client ->
+        connectWithRetry().also { client ->
             ShutdownQueue.register { client.close() }
             // 알려진 캐시를 일괄 생성 후 각각 readiness 대기
             KNOWN_CACHES.forEach { name ->
+                log.debug { "Ignite Cache 를 미리 생성합니다... (name=$name)" }
                 val cache = client.getOrCreateCache<Any, Any>(name)
                 waitForCacheReady(cache, name)
             }
         }
+    }
+
+    /**
+     * Ignite 서버가 thin client 요청을 처리할 준비가 될 때까지 연결을 재시도합니다.
+     * 컨테이너 로그에 "started OK"가 출력되어도 실제 포트가 준비되지 않은 경우를 대비합니다.
+     */
+    private fun connectWithRetry(): IgniteClient {
+        val config = ClientConfiguration().apply {
+            setAddresses(ignite2Server.url)
+            setTimeout(60_000)
+        }
+        repeat(30) { attempt ->
+            try {
+                return Ignition.startClient(config)
+            } catch (e: Exception) {
+                log.warn(e) { "Ignite 클라이언트 연결 실패, 재시도 중... (attempt=${attempt + 1})" }
+                Thread.sleep(2_000)
+            }
+        }
+        // 마지막 시도 (실패 시 예외 전파)
+        return Ignition.startClient(config)
     }
 
     /**
