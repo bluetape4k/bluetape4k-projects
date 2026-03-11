@@ -154,10 +154,9 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **[cache](./infra/cache/README.md)**: umbrella 모듈 (cache-core + hazelcast + ignite + redisson + lettuce)
+- **[cache](./infra/cache/README.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
 - **[cache-core](./infra/cache-core/README.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
 - **[cache-hazelcast](./infra/cache-hazelcast/README.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
-- **[cache-ignite](./infra/cache-ignite2/README.md)**: Apache Ignite 2.x 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-ignite-near` 병합)
 - **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
 - **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
 
