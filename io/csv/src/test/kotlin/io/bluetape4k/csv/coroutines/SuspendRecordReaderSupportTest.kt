@@ -25,7 +25,7 @@ class SuspendRecordReaderSupportTest {
     @TempDir
     lateinit var tempDir: File
 
-    private val productTypeMapper = suspend { record: Record ->
+    private val productTypeMapper: suspend (Record) -> ProductType = { record: Record ->
         ProductType(
             tagFamily = record.getValue(0, "").trim(),
             representative = record.getValue(1, "").trim(),
