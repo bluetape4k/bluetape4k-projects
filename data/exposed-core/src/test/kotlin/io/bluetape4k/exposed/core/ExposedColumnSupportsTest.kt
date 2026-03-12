@@ -7,10 +7,11 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.junit.jupiter.api.Test
 import java.util.*
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
+// import kotlin.uuid.ExperimentalUuidApi  // Kotlin 2.3+ Uuid API (비활성화)
+// import kotlin.uuid.Uuid                  // Kotlin 2.3+ Uuid API (비활성화)
+
+// @OptIn(ExperimentalUuidApi::class)  // Kotlin 2.3+ Uuid API (비활성화)
 class ExposedColumnSupportsTest {
 
     private object TypedTable: Table("typed_table_for_supports") {
@@ -28,8 +29,9 @@ class ExposedColumnSupportsTest {
         val uuid = UUID.randomUUID()
         convertToLanguageType(uuid, UUID::class) shouldBeEqualTo uuid
 
-        val kotlinUuid = Uuid.generateV7()
-        convertToLanguageType(kotlinUuid, Uuid::class) shouldBeEqualTo kotlinUuid
+        // Kotlin 2.3+ Uuid API (비활성화)
+        // val kotlinUuid = Uuid.generateV7()
+        // convertToLanguageType(kotlinUuid, Uuid::class) shouldBeEqualTo kotlinUuid
 
         val bytes = randomBytes(16)
         convertToLanguageType(bytes, ByteArray::class) shouldBeEqualTo bytes

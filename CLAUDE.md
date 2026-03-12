@@ -15,6 +15,20 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - Surgical Changes — 옆 코드 "개선"하지 마. 변경된 모든 줄이 요청으로 추적 가능해야 함
 - Goal-Driven Execution — "버그 고쳐" 대신 "버그 재현 테스트 쓰고 통과시켜"
 
+### CLI 도구 사용 규칙 (Rust 기반 현대 도구 우선)
+
+- **파일 탐색**: `find` 대신 `fd` 사용 (예: `fd -e kt -t f`)
+- **텍스트 검색**: `grep` 대신 `rg` (ripgrep) 사용 (예: `rg "패턴" --type kotlin`)
+- **파일 내용 확인**: `cat` 대신 `bat` 사용 (예: `bat src/Foo.kt`)
+- **디렉토리 목록**: `ls` 대신 `eza` 사용 (예: `eza -la --git`)
+- **코드 구조 검색/리팩토링**: `ast-grep` 적극 활용 (예: `ast-grep -p 'fun $NAME($$$)' -l kotlin`)
+- **JSON 파싱**: `jq` 사용 (예: `curl ... | jq '.data[]'`)
+- **YAML 파싱**: `yq` 사용 (예: `yq '.dependencies' build.gradle.yaml`)
+- **GitHub 작업**: `gh` CLI를 비대화형 모드로 사용 (예: `gh pr list --json number,title`,
+  `gh issue create --title "..." --body "..."`)
+- **Python 린팅/포매팅**: `ruff` 사용 (예: `ruff check .`, `ruff format .`)
+- **모든 외부 CLI 명령**: 비대화형 플래그(`--yes`, `--quiet`, `--no-input`) 및 JSON 출력(`--format json`, `--json`) 강제 적용
+
 ## Development Guidelines
 
 ### Language and Documentation

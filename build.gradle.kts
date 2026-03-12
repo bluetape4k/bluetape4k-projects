@@ -109,8 +109,8 @@ subprojects {
     kotlin {
         jvmToolchain(21)
         compilerOptions {
-            languageVersion.set(KotlinVersion.KOTLIN_2_3)
-            apiVersion.set(KotlinVersion.KOTLIN_2_3)
+            languageVersion.set(KotlinVersion.KOTLIN_2_2)
+            apiVersion.set(KotlinVersion.KOTLIN_2_2)
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
                 "-jvm-default=enable",
