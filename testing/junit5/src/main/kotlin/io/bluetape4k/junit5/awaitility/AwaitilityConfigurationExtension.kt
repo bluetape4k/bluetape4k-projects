@@ -5,7 +5,6 @@ import io.bluetape4k.logging.trace
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.time.Duration
 
 /**
  * Awaitility 전역 기본값을 테스트 시작 전에 설정하는 JUnit5 확장입니다.
@@ -35,9 +34,9 @@ class AwaitilityConfigurationExtension: BeforeAllCallback {
     override fun beforeAll(context: ExtensionContext) {
         log.trace { "Setup Awaitility configuration ..." }
         Awaitility.catchUncaughtExceptions()
-        Awaitility.waitAtMost(Duration.ofSeconds(5))
-        Awaitility.setDefaultPollInterval(Duration.ofMillis(10))
-        Awaitility.setDefaultPollDelay(Duration.ofMillis(10))
+        Awaitility.waitAtMost(DEFAULT_TIMEOUT)
+        Awaitility.setDefaultPollInterval(DEFAULT_POLL_INTERVAL)
+        Awaitility.setDefaultPollDelay(DEFAULT_POLL_INTERVAL)
         // Awaitility.pollInSameThread()
     }
 }

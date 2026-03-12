@@ -3,7 +3,6 @@ package io.bluetape4k.junit5.awaitility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
@@ -15,12 +14,11 @@ import org.awaitility.core.ExceptionIgnorer
 import org.awaitility.pollinterval.FixedPollInterval
 import org.awaitility.pollinterval.PollInterval
 import java.time.Duration
-import kotlin.to
 
-private val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
-private val DEFAULT_TIMEOUT: Duration = Durations.TEN_SECONDS
+internal val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
+internal val DEFAULT_TIMEOUT: Duration = Durations.TEN_SECONDS
 
-@Deprecated("use awaitSuspending", ReplaceWith("awaitSuspending"))
+@Deprecated("use untilSuspending", ReplaceWith("untilSuspending"))
 suspend infix fun ConditionFactory.suspendAwait(block: suspend () -> Unit) =
     awaitSuspending(block)
 
@@ -190,7 +188,7 @@ private object PollTimedOut
 
 private tailrec fun Throwable?.unwrapConditionTimeout(): Throwable? = when (this) {
     is ConditionTimeoutException -> cause.unwrapConditionTimeout()
-    else                        -> this
+    else                         -> this
 }
 
 @Suppress("UNCHECKED_CAST")

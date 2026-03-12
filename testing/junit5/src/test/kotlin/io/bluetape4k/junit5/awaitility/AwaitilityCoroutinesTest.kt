@@ -1,27 +1,27 @@
 package io.bluetape4k.junit5.awaitility
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessOrEqualTo
-import org.awaitility.kotlin.await
 import org.awaitility.core.ConditionTimeoutException
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertIs
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlin.test.assertIs
 
 class AwaitilityCoroutinesTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
-    fun `awaitSuspending - awaiting suspend function`() = runSuspendTest {
+    fun `awaitSuspending - awaiting suspend function`() = runSuspendIO {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -36,7 +36,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - until suspend function`() = runSuspendTest {
+    fun `untilSuspending - until suspend function`() = runSuspendIO {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -51,7 +51,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `awaitSuspending - awaiting suspend function with poll interval`() = runSuspendTest {
+    fun `awaitSuspending - awaiting suspend function with poll interval`() = runSuspendIO {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -68,7 +68,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - until suspend function with poll interval`() = runSuspendTest {
+    fun `untilSuspending - until suspend function with poll interval`() = runSuspendIO {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -86,7 +86,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `suspendUntil - block 예외는 전파된다`() = runSuspendTest {
+    fun `untilSuspending - block 예외는 전파된다`() = runSuspendIO {
         assertFailsWith<IllegalStateException> {
             await
                 .pollDelay(Duration.ofMillis(10))
@@ -97,7 +97,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - 조건이 계속 false 이면 timeout 예외가 발생한다`() = runSuspendTest {
+    fun `untilSuspending - 조건이 계속 false 이면 timeout 예외가 발생한다`() = runSuspendIO {
         assertFailsWith<ConditionTimeoutException> {
             await
                 .atMost(Duration.ofMillis(150))
@@ -108,7 +108,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - 무시된 예외로 timeout 되면 마지막 원인을 유지한다`() = runSuspendTest {
+    fun `untilSuspending - 무시된 예외로 timeout 되면 마지막 원인을 유지한다`() = runSuspendIO {
         val exception = assertFailsWith<ConditionTimeoutException> {
             await
                 .atMost(Duration.ofMillis(150))
@@ -124,7 +124,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - atMost 보다 긴 poll block 도 전체 timeout 내에서 중단한다`() = runSuspendTest {
+    fun `untilSuspending - atMost 보다 긴 poll block 도 전체 timeout 내에서 중단한다`() = runSuspendIO {
         val start = System.currentTimeMillis()
 
         assertFailsWith<ConditionTimeoutException> {
@@ -142,7 +142,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `untilSuspending - block 내부 timeout 은 그대로 전파한다`() = runSuspendTest {
+    fun `untilSuspending - block 내부 timeout 은 그대로 전파한다`() = runSuspendIO {
         assertFailsWith<TimeoutCancellationException> {
             await
                 .atMost(Duration.ofSeconds(1))
