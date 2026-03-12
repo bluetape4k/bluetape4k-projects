@@ -278,8 +278,22 @@ snapshotVersion=-SNAPSHOT
 ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache
 ```
 
-- 내부적으로 각 모듈의 `publish*ToCentralSnapshotsRepository` (`maven-publish`) task를 실행합니다.
-- Snapshot 배포는 `https://central.sonatype.com/repository/maven-snapshots/` 로 업로드됩니다.
+### Maven Central SNAPSHOT 배포
+
+```bash
+# 기본 병렬도(centralSnapshotsParallelism=8)로 SNAPSHOT 배포
+./gradlew publishAggregationToCentralSnapshots
+
+# 병렬도를 낮춰 서버 부담을 줄이고 싶을 때
+./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots
+```
+
+- 루트 집계 task는 `publishAggregationToCentralSnapshots` 입니다.
+- SNAPSHOT 배포는 release 와 달리 ZIP 1회 업로드가 아니라 file-by-file 업로드를 수행합니다.
+- 따라서 모듈 수가 많을수록 `PUT` 요청이 많이 발생하는 것이 정상입니다.
+- 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
+- Snapshot 저장소는 `https://central.sonatype.com/repository/maven-snapshots/` 입니다.
+- 병렬도는 `centralSnapshotsParallelism` property 로 조절할 수 있습니다. 기본값은 `8` 입니다.
 
 ### Maven Central RELEASE 배포
 
@@ -287,6 +301,12 @@ snapshotVersion=-SNAPSHOT
 # snapshotVersion을 제거하고 RELEASE 배포
 ./gradlew publishAggregationToCentralPortal -PsnapshotVersion= --no-daemon --no-configuration-cache
 ```
+
+- 루트 집계 task는 `publishAggregationToCentralPortal` 입니다.
+- RELEASE 배포는 NMCP aggregation ZIP 을 만들어 Central Portal Publisher API 로 업로드합니다.
+- SNAPSHOT과 달리 artifact 파일들을 개별 `PUT` 하지 않으므로 요청 수가 훨씬 적습니다.
+- 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
+- 동일 RELEASE 버전은 재배포할 수 없으므로 실패 시 `baseVersion`을 올려야 합니다.
 
 ### 필수 설정 (`~/.gradle/gradle.properties`)
 
@@ -300,15 +320,18 @@ signingUseGpgCmd=false
 signingKeyId=YOUR_KEY_ID
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
+
+# Maven Central Snapshots 업로드 병렬도 (기본값: 8)
+centralSnapshotsParallelism=8
 ```
 
 ### 참고
 
 - 기존 `publishAggregationToCentralPortalSnapshots` 는 deprecated alias 이며,
   `publishAggregationToCentralSnapshots` 사용을 권장합니다.
-- `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 직접 실행 대신 루트 집계 task(
-  `publishAggregationToCentralSnapshots`) 사용을 권장합니다.
-- RELEASE 버전(`1.2.1` 등)은 동일 버전 재배포가 불가능하므로 실패 시 `baseVersion`을 증가시켜야 합니다.
+- `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 같은 개별 task 직접 실행 대신 루트 집계 task 사용을 권장합니다.
+- SNAPSHOT이 느리거나 요청이 과도해 보이면 `centralSnapshotsParallelism` 값을 `4`, `8`, `12` 정도 범위에서 조절해 보세요.
+- RELEASE는 aggregation ZIP 업로드 경로를 사용하므로 SNAPSHOT과 동작 방식이 다릅니다.
 
 ### 토큰 절약형 요약 명령
 

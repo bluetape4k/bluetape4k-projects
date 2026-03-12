@@ -11,7 +11,11 @@ plugins {
 dependencies {
     constraints {
         rootProject.subprojects {
-            if (name != "bluetape4k-bom") {
+            if (name != "bluetape4k-bom" &&
+                !path.contains("workshop") &&
+                !path.contains("examples") &&
+                !path.contains("-demo")
+            ) {
                 api(this)
             }
         }

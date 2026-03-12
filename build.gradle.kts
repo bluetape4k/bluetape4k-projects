@@ -2,8 +2,10 @@ import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
+import io.bluetape4k.gradle.resolvePublishingSigningConfig
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.report.ReportMergeTask
+import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -35,12 +37,18 @@ plugins {
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
     id(Plugins.kosogor) version Plugins.Versions.kosogor
+    id(Plugins.nmcp_aggregation) version Plugins.Versions.nmcp
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
 }
 
 val centralPublishing = resolveCentralPublishingConfig()
 val centralUser: String = centralPublishing.username
 val centralPassword: String = centralPublishing.password
+val centralSnapshotsParallelism: Int = providers
+    .gradleProperty("centralSnapshotsParallelism")
+    .map(String::toInt)
+    .orElse(8)
+    .get()
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -76,6 +84,7 @@ subprojects {
                 username.set(centralUser)
                 password.set(centralPassword)
                 publishingType.set("AUTOMATIC")
+                uploadSnapshotsParallelism.set(centralSnapshotsParallelism)
             }
         }
     }
@@ -86,14 +95,18 @@ subprojects {
         return@subprojects
     }
 
+    val usesDedicatedKotlinPlugin = path == ":bluetape4k-virtualthread-jdk25"
+
     apply {
         plugin<JavaLibraryPlugin>()
 
-        // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
-        plugin("org.jetbrains.kotlin.jvm")
+        if (!usesDedicatedKotlinPlugin) {
+            // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
+            plugin("org.jetbrains.kotlin.jvm")
 
-        // Atomicfu
-        plugin("org.jetbrains.kotlinx.atomicfu")
+            // Atomicfu
+            plugin("org.jetbrains.kotlinx.atomicfu")
+        }
 
         // plugin("jacoco")
         plugin("maven-publish")
@@ -106,46 +119,54 @@ subprojects {
         plugin(Plugins.kosogor)
     }
 
-    kotlin {
-        jvmToolchain(21)
-        compilerOptions {
-            languageVersion.set(KotlinVersion.KOTLIN_2_2)
-            apiVersion.set(KotlinVersion.KOTLIN_2_2)
-            freeCompilerArgs = listOf(
-                "-Xjsr305=strict",
-                "-jvm-default=enable",
-                "-Xinline-classes",
-                "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                "-Xcontext-parameters",           // since Kotlin 1.6
-                "-Xannotation-default-target=param-property"
-            )
-            val experimentalAnnotations = listOf(
-                "kotlin.RequiresOptIn",
-                "kotlin.ExperimentalStdlibApi",
-                "kotlin.contracts.ExperimentalContracts",
-                "kotlin.experimental.ExperimentalTypeInference",
-                "kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "kotlinx.coroutines.InternalCoroutinesApi",
-                "kotlinx.coroutines.FlowPreview",
-                "kotlinx.coroutines.DelicateCoroutinesApi",
-            )
-            freeCompilerArgs.addAll(experimentalAnnotations.map { "-opt-in=$it" })
+    pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+        kotlin {
+            jvmToolchain(21)
+            compilerOptions {
+                languageVersion.set(KotlinVersion.KOTLIN_2_2)
+                apiVersion.set(KotlinVersion.KOTLIN_2_2)
+                freeCompilerArgs = listOf(
+                    "-Xjsr305=strict",
+                    "-jvm-default=enable",
+                    "-Xinline-classes",
+                    "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
+                    "-Xcontext-parameters",           // since Kotlin 1.6
+                    "-Xannotation-default-target=param-property"
+                )
+                val experimentalAnnotations = listOf(
+                    "kotlin.RequiresOptIn",
+                    "kotlin.ExperimentalStdlibApi",
+                    "kotlin.contracts.ExperimentalContracts",
+                    "kotlin.experimental.ExperimentalTypeInference",
+                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "kotlinx.coroutines.InternalCoroutinesApi",
+                    "kotlinx.coroutines.FlowPreview",
+                    "kotlinx.coroutines.DelicateCoroutinesApi",
+                )
+                freeCompilerArgs.addAll(experimentalAnnotations.map { "-opt-in=$it" })
+            }
         }
     }
 
-    atomicfu {
-        transformJvm = true
-        jvmVariant = "VH"     //  FU, VH, BOTH
+    pluginManager.withPlugin("org.jetbrains.kotlinx.atomicfu") {
+        atomicfu {
+            transformJvm = true
+            jvmVariant = "VH"     //  FU, VH, BOTH
+        }
     }
 
     tasks {
+        val signingUsesGpgCmd = resolvePublishingSigningConfig().useGpgCmd
+
         compileJava {
             options.isIncremental = true
         }
 
-        compileKotlin {
-            compilerOptions {
-                incremental = true
+        if (!usesDedicatedKotlinPlugin) {
+            compileKotlin {
+                compilerOptions {
+                    incremental = true
+                }
             }
         }
 
@@ -201,7 +222,9 @@ subprojects {
         }
 
         withType<Sign>().configureEach {
-            usesService(signingMutex)
+            if (signingUsesGpgCmd) {
+                usesService(signingMutex)
+            }
         }
         configureEach {
             if (name.startsWith("nmcpPublishAllPublicationsToCentral")) {
@@ -556,7 +579,6 @@ subprojects {
 
     dependencies {
         val api by configurations
-        val testApi by configurations
         val implementation by configurations
         val testImplementation by configurations
 
@@ -677,30 +699,19 @@ val publishableProjects = subprojects.filterNot { project ->
     project.path.contains("workshop") || project.path.contains("examples") || project.path.contains("-demo")
 }
 
-tasks.register("publishAggregationToCentralPortal") {
-    group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Publishes all publishable modules to the Central Releases repository."
-    dependsOn(publishableProjects.map { "${it.path}:publishAllPublicationsToCentralPortal" })
-}
-
-tasks.register("publishAggregationToCentralSnapshots") {
-    group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Publishes all publishable modules to the Central Snapshots repository via Maven Publish."
-    val snapshotPublishTasks = publishableProjects.flatMap { subproject ->
-        subproject.tasks.names
-            .filter { name ->
-                name == "publishAllPublicationsToCentralSnapshotsRepository" ||
-                        (name.startsWith("publish") && name.endsWith("PublicationToCentralSnapshotsRepository"))
-            }
-            .map { taskName -> "${subproject.path}:$taskName" }
+extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
+    centralPortal {
+        username.set(centralUser)
+        password.set(centralPassword)
+        publishingType.set("AUTOMATIC")
+        uploadSnapshotsParallelism.set(centralSnapshotsParallelism)
     }
-    dependsOn(snapshotPublishTasks)
 }
 
-tasks.register("publishAggregationToCentralPortalSnapshots") {
-    group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Deprecated alias. Publishes all publishable modules to the Central Snapshots repository."
-    dependsOn("publishAggregationToCentralSnapshots")
+dependencies {
+    publishableProjects.forEach { publishableProject ->
+        add("nmcpAggregation", project(publishableProject.path))
+    }
 }
 
 tasks.register("testDataExposedModules") {
