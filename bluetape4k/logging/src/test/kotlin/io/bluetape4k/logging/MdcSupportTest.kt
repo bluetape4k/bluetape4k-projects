@@ -15,8 +15,7 @@ import kotlin.test.assertFailsWith
  * ```
  */
 class MdcSupportTest {
-
-    companion object: KLogging()
+    companion object : KLogging()
 
     @AfterEach
     fun cleanupMdc() {
@@ -88,6 +87,44 @@ class MdcSupportTest {
             MDC.get("traceId") shouldBeEqualTo "inner"
         }
 
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `null 값을 가진 pair는 MDC를 건드리지 않는다`() {
+        withLoggingContext("traceId" to null) {
+            MDC.get("traceId").shouldBeNullOrEmpty()
+        }
+    }
+
+    @Test
+    fun `null 값이 포함된 vararg pairs는 null 항목을 제외하고 적용한다`() {
+        withLoggingContext("traceId" to "100", "spanId" to null) {
+            MDC.get("traceId") shouldBeEqualTo "100"
+            MDC.get("spanId").shouldBeNullOrEmpty()
+        }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `빈 map이면 MDC를 변경하지 않고 블록을 실행한다`() {
+        MDC.put("traceId", "origin")
+        var executed = false
+        withLoggingContext(emptyMap<String, Any?>()) {
+            executed = true
+            MDC.get("traceId") shouldBeEqualTo "origin"
+        }
+        executed shouldBeEqualTo true
+        MDC.get("traceId") shouldBeEqualTo "origin"
+    }
+
+    @Test
+    fun `withLoggingContext map 오버로드는 블록 반환값을 전달한다`() {
+        val result =
+            withLoggingContext(mapOf("traceId" to "42")) {
+                MDC.get("traceId")
+            }
+        result shouldBeEqualTo "42"
         MDC.get("traceId").shouldBeNullOrEmpty()
     }
 }

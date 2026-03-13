@@ -1,5 +1,6 @@
 package io.bluetape4k.logging
 
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNullOrEmpty
 import org.junit.jupiter.api.Test
 import org.slf4j.MDC
@@ -12,8 +13,7 @@ import org.slf4j.MDC
  * ```
  */
 class Slf4jMdcExtensionsTest {
-
-    companion object: KLogging()
+    companion object : KLogging()
 
     @Test
     fun `debug logging with mdc`() {
@@ -62,5 +62,67 @@ class Slf4jMdcExtensionsTest {
         MDC.get("traceId").shouldBeNullOrEmpty()
 
         log.debug { "After operation - no traceId" }
+    }
+
+    @Test
+    fun `trace logging with mdc`() {
+        val mdc = mapOf("traceId" to "t-trace", "spanId" to "s-trace")
+        log.traceMdc({ mdc }) { "trace with mdc" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `trace logging with mdc and cause`() {
+        val mdc = mapOf("traceId" to "t-trace")
+        val cause = RuntimeException("trace-cause")
+        log.traceMdc({ mdc }, cause) { "trace with mdc and cause" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `debug logging with mdc and cause`() {
+        val mdc = mapOf("traceId" to "t-debug")
+        val cause = RuntimeException("debug-cause")
+        log.debugMdc({ mdc }, cause) { "debug with mdc and cause" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `info logging with mdc and cause`() {
+        val mdc = mapOf("traceId" to "t-info")
+        val cause = RuntimeException("info-cause")
+        log.infoMdc({ mdc }, cause) { "info with mdc and cause" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `warn logging with mdc`() {
+        val mdc = mapOf("traceId" to "t-warn")
+        log.warnMdc({ mdc }) { "warn with mdc" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `warn logging with mdc and cause`() {
+        val mdc = mapOf("traceId" to "t-warn")
+        val cause = RuntimeException("warn-cause")
+        log.warnMdc({ mdc }, cause) { "warn with mdc and cause" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `error logging with mdc without cause`() {
+        val mdc = mapOf("traceId" to "t-error")
+        log.errorMdc({ mdc }) { "error with mdc only" }
+        MDC.get("traceId").shouldBeNullOrEmpty()
+    }
+
+    @Test
+    fun `mdc는 블록 실행 후 정리된다`() {
+        log.infoMdc({ mapOf("traceId" to "cleanup-test") }) {
+            MDC.get("traceId") shouldBeEqualTo "cleanup-test"
+            "inside block"
+        }
+        MDC.get("traceId").shouldBeNullOrEmpty()
     }
 }
