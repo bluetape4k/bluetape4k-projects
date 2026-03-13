@@ -11,8 +11,7 @@ import java.nio.channels.FileChannel
 /**
  * Okio 채널 I/O 타입 변환을 위한 `asSource` 함수를 제공합니다.
  */
-fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) =
-    FileChannelSource(this, timeout)
+fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) = FileChannelSource(this, timeout)
 
 /**
  * Okio 채널 I/O에서 사용하는 `FileChannelSource` 타입입니다.
@@ -20,13 +19,16 @@ fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) =
 class FileChannelSource(
     private val channel: FileChannel,
     private val timeout: Timeout = Timeout.NONE,
-): Source {
-    companion object: KLogging()
+) : Source {
+    companion object : KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 읽어오는 `read` 함수를 제공합니다.
      */
-    override fun read(sink: Buffer, byteCount: Long): Long {
+    override fun read(
+        sink: Buffer,
+        byteCount: Long,
+    ): Long {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         if (byteCount == 0L) return 0L
         if (!channel.isOpen) error("Channel[$channel] is closed")
@@ -62,6 +64,6 @@ class FileChannelSource(
      * Okio 채널 I/O 리소스를 정리하고 닫습니다.
      */
     override fun close() {
-        channel.close()
+        runCatching { channel.close() }.onFailure { log.debug(it) { "파일 채널 닫기 실패: $channel" } }
     }
 }

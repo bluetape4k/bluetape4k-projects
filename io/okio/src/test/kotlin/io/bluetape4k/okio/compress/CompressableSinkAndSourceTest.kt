@@ -3,10 +3,10 @@ package io.bluetape4k.okio.compress
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.okio.byteStringOf
-import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
@@ -15,27 +15,28 @@ import java.io.IOException
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 
-class CompressableSinkAndSourceTest: AbstractOkioTest() {
+class CompressableSinkAndSourceTest : AbstractOkioTest() {
+    companion object : KLogging()
 
-    companion object: KLogging()
+    private fun compressors(): List<Compressor> =
+        listOf(
+            Compressors.BZip2,
+            Compressors.Deflate,
+            Compressors.GZip,
+            Compressors.LZ4,
+            Compressors.Snappy,
+            Compressors.Zstd,
+        )
 
-    private fun compressors(): List<Compressor> = listOf(
-        Compressors.BZip2,
-        Compressors.Deflate,
-        Compressors.GZip,
-        Compressors.LZ4,
-        Compressors.Snappy,
-        Compressors.Zstd
-    )
-
-    private fun streamingCompressors(): List<StreamingCompressor> = listOf(
-        Compressors.Streaming.BZip2,
-        Compressors.Streaming.Deflate,
-        Compressors.Streaming.GZip,
-        Compressors.Streaming.LZ4,
-        Compressors.Streaming.Snappy,
-        Compressors.Streaming.Zstd
-    )
+    private fun streamingCompressors(): List<StreamingCompressor> =
+        listOf(
+            Compressors.Streaming.BZip2,
+            Compressors.Streaming.Deflate,
+            Compressors.Streaming.GZip,
+            Compressors.Streaming.LZ4,
+            Compressors.Streaming.Snappy,
+            Compressors.Streaming.Zstd,
+        )
 
     @ParameterizedTest(name = "compressor={0}")
     @MethodSource("compressors")
@@ -166,11 +167,17 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
     @ParameterizedTest(name = "compressor={0}")
     @MethodSource("compressors")
     fun `decompressable source throws when delegate repeatedly makes no progress`(compressor: Compressor) {
-        val noProgressSource = object: okio.Source {
-            override fun read(sink: Buffer, byteCount: Long): Long = 0L
-            override fun timeout() = okio.Timeout.NONE
-            override fun close() {}
-        }
+        val noProgressSource =
+            object : okio.Source {
+                override fun read(
+                    sink: Buffer,
+                    byteCount: Long,
+                ): Long = 0L
+
+                override fun timeout() = okio.Timeout.NONE
+
+                override fun close() {}
+            }
         val source = DecompressableSource(noProgressSource, compressor)
 
         assertFailsWith<IOException> {
@@ -191,6 +198,60 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
         val decompressed = bufferOf(compressed.asDecompressSource(compressor))
         decompressed.readUtf8() shouldBeEqualTo original
+    }
+
+    @ParameterizedTest(name = "compressor={0}")
+    @MethodSource("compressors")
+    fun `compressable sink close 는 멱등성을 보장한다`(compressor: Compressor) {
+        val compressed = Buffer()
+        val sink = Compressable.Sinks.compressableSink(compressed, compressor)
+        sink.write(bufferOf("hello"), 5L)
+
+        sink.close()
+        sink.close() // 두 번 닫아도 예외 없이 동작해야 합니다.
+    }
+
+    @ParameterizedTest(name = "compressor={0}")
+    @MethodSource("compressors")
+    fun `빈 데이터를 압축하면 빈 값이 해제된다`(compressor: Compressor) {
+        val compressed = Buffer()
+        Compressable.Sinks.compressableSink(compressed, compressor).use { sink ->
+            // 아무것도 쓰지 않음
+        }
+
+        val source = Compressable.Sources.decompressableSource(compressed, compressor)
+        val output = Buffer()
+        source.read(output, 1024L)
+        output.size shouldBeEqualTo 0L
+    }
+
+    @ParameterizedTest(name = "compressor={0}")
+    @MethodSource("compressors")
+    fun `decompressable source read 0 byteCount returns 0`(compressor: Compressor) {
+        val original = "hello"
+        val compressed = Buffer()
+        Compressable.Sinks.compressableSink(compressed, compressor).use { sink ->
+            sink.write(bufferOf(original), original.length.toLong())
+        }
+
+        val source = Compressable.Sources.decompressableSource(compressed, compressor)
+        val output = Buffer()
+        source.read(output, 0L) shouldBeEqualTo 0L
+        output.size shouldBeEqualTo 0L
+    }
+
+    @ParameterizedTest(name = "compressor={0}")
+    @MethodSource("compressors")
+    fun `decompressable source 에 음수 byteCount 를 전달하면 예외가 발생한다`(compressor: Compressor) {
+        val compressed = Buffer()
+        Compressable.Sinks.compressableSink(compressed, compressor).use { sink ->
+            sink.write(bufferOf("hello"), 5L)
+        }
+
+        val source = Compressable.Sources.decompressableSource(compressed, compressor)
+        assertFailsWith<IllegalArgumentException> {
+            source.read(Buffer(), -1L)
+        }
     }
 
     @ParameterizedTest(name = "streamingCompressor={0}")

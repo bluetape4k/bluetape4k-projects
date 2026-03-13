@@ -13,8 +13,7 @@ import java.nio.channels.WritableByteChannel
 /**
  * Okio 채널 I/O 타입 변환을 위한 `asSink` 함수를 제공합니다.
  */
-fun WritableByteChannel.asSink(timeout: Timeout = Timeout.NONE): ByteChannelSink =
-    ByteChannelSink(this, timeout)
+fun WritableByteChannel.asSink(timeout: Timeout = Timeout.NONE): ByteChannelSink = ByteChannelSink(this, timeout)
 
 /**
  * Okio 채널 I/O에서 사용하는 `ByteChannelSink` 타입입니다.
@@ -22,14 +21,16 @@ fun WritableByteChannel.asSink(timeout: Timeout = Timeout.NONE): ByteChannelSink
 class ByteChannelSink(
     private val channel: WritableByteChannel,
     private val timeout: Timeout = Timeout.NONE,
-): Sink {
-
-    companion object: KLogging()
+) : Sink {
+    companion object : KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 기록하는 `write` 함수를 제공합니다.
      */
-    override fun write(source: Buffer, byteCount: Long) {
+    override fun write(
+        source: Buffer,
+        byteCount: Long,
+    ) {
         if (byteCount <= 0L) return
         byteCount.requireInRange(0, source.size, "byteCount")
         if (!channel.isOpen) error("Channel[$channel] is closed")
@@ -71,6 +72,6 @@ class ByteChannelSink(
      * Okio 채널 I/O 리소스를 정리하고 닫습니다.
      */
     override fun close() {
-        channel.close()
+        runCatching { channel.close() }.onFailure { log.debug(it) { "채널 닫기 실패: $channel" } }
     }
 }

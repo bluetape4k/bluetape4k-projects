@@ -12,8 +12,7 @@ import java.nio.channels.FileChannel
 /**
  * Okio 채널 I/O 타입 변환을 위한 `asSink` 함수를 제공합니다.
  */
-fun FileChannel.asSink(timeout: Timeout = Timeout.NONE) =
-    FileChannelSink(this, timeout)
+fun FileChannel.asSink(timeout: Timeout = Timeout.NONE) = FileChannelSink(this, timeout)
 
 /**
  * Okio 채널 I/O에서 사용하는 `FileChannelSink` 타입입니다.
@@ -21,14 +20,16 @@ fun FileChannel.asSink(timeout: Timeout = Timeout.NONE) =
 class FileChannelSink(
     private val channel: FileChannel,
     private val timeout: Timeout = Timeout.NONE,
-): Sink {
-
-    companion object: KLogging()
+) : Sink {
+    companion object : KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 기록하는 `write` 함수를 제공합니다.
      */
-    override fun write(source: Buffer, byteCount: Long) {
+    override fun write(
+        source: Buffer,
+        byteCount: Long,
+    ) {
         if (byteCount <= 0L) return
         byteCount.requireInRange(0, source.size, "byteCount")
         if (!channel.isOpen) error("Channel[$channel] is closed")
@@ -51,7 +52,7 @@ class FileChannelSink(
      * Okio 채널 I/O 버퍼의 데이터를 실제 출력 대상으로 반영합니다.
      */
     override fun flush() {
-        // Cannot alter meta data through this sink 
+        // Cannot alter meta data through this sink
         channel.force(false)
     }
 
@@ -64,6 +65,6 @@ class FileChannelSink(
      * Okio 채널 I/O 리소스를 정리하고 닫습니다.
      */
     override fun close() {
-        channel.close()
+        runCatching { channel.close() }.onFailure { log.debug(it) { "파일 채널 닫기 실패: $channel" } }
     }
 }

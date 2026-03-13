@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.cipher
 
-import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.support.requireInRange
 import okio.Buffer
 import okio.ForwardingSink
@@ -15,34 +15,36 @@ import javax.crypto.Cipher
  */
 @Deprecated(
     message = "javax.crypto.Cipher 기반 스트리밍 암호화는 deprecated 되었습니다. Google Tink 기반 TinkEncryptSink 사용을 권장합니다.",
-    replaceWith = ReplaceWith(
-        "TinkEncryptSink(delegate, encryptor)",
-        "io.bluetape4k.okio.tink.TinkEncryptSink"
-    ),
-    level = DeprecationLevel.WARNING
+    replaceWith =
+        ReplaceWith(
+            "TinkEncryptSink(delegate, encryptor)",
+            "io.bluetape4k.okio.tink.TinkEncryptSink",
+        ),
+    level = DeprecationLevel.WARNING,
 )
 open class FinalizingCipherSink(
     delegate: Sink,
     private val cipher: Cipher,
-): ForwardingSink(delegate) {
-
-    companion object: KLogging()
+) : ForwardingSink(delegate) {
+    companion object : KLogging()
 
     private var closed = false
 
     /**
      * [source]의 [byteCount] 바이트를 읽어 암호화한 뒤 delegate로 전달합니다.
      */
-    override fun write(source: Buffer, byteCount: Long) {
+    override fun write(
+        source: Buffer,
+        byteCount: Long,
+    ) {
         if (closed) {
             throw IllegalStateException("Cannot write to closed CipherSink")
         }
 
         if (byteCount == 0L) {
-            return  // 0 바이트는 유효하지만 처리할 필요 없음
+            return // 0 바이트는 유효하지만 처리할 필요 없음
         }
 
-        require(byteCount > 0) { "byteCount must be positive: $byteCount" }
         byteCount.requireInRange(1, source.size, "byteCount")
 
         if (log.isTraceEnabled) {
@@ -87,12 +89,12 @@ open class FinalizingCipherSink(
  */
 @Deprecated(
     message = "javax.crypto.Cipher 기반 암호화는 deprecated 되었습니다. Google Tink 기반 asTinkEncryptSink 사용을 권장합니다.",
-    replaceWith = ReplaceWith(
-        "asTinkEncryptSink(encryptor)",
-        "io.bluetape4k.okio.tink.asTinkEncryptSink"
-    ),
-    level = DeprecationLevel.WARNING
+    replaceWith =
+        ReplaceWith(
+            "asTinkEncryptSink(encryptor)",
+            "io.bluetape4k.okio.tink.asTinkEncryptSink",
+        ),
+    level = DeprecationLevel.WARNING,
 )
 @Suppress("DEPRECATION")
-fun Sink.asFinalizingCipherSink(cipher: Cipher): FinalizingCipherSink =
-    FinalizingCipherSink(this, cipher)
+fun Sink.asFinalizingCipherSink(cipher: Cipher): FinalizingCipherSink = FinalizingCipherSink(this, cipher)

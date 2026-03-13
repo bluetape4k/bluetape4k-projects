@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.channels
 
-import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
 import okio.Timeout
 import okio.buffer
@@ -20,17 +20,18 @@ import java.util.*
 import kotlin.test.assertFailsWith
 
 @TempFolderTest
-class OkioChannelsTest: AbstractOkioTest() {
-
-    companion object: KLogging() {
-        private const val QUOTE: String = ("John, the kind of control you're attempting simply is... it's not "
-                + "possible. If there is one thing the history of evolution has "
-                + "taught us it's that life will not be contained. Life breaks "
-                + "free, it expands to new territories and crashes through "
-                + "barriers, painfully, maybe even dangerously, but, uh... well, "
-                + "there it is."
-                + "동해물과 백두산이 마르고 닳도록"
-                + "하느님이 보우하사 우리나라 만세")
+class OkioChannelsTest : AbstractOkioTest() {
+    companion object : KLogging() {
+        private const val QUOTE: String = (
+            "John, the kind of control you're attempting simply is... it's not " +
+                "possible. If there is one thing the history of evolution has " +
+                "taught us it's that life will not be contained. Life breaks " +
+                "free, it expands to new territories and crashes through " +
+                "barriers, painfully, maybe even dangerously, but, uh... well, " +
+                "there it is." +
+                "동해물과 백두산이 마르고 닳도록" +
+                "하느님이 보우하사 우리나라 만세"
+        )
 
         private val r = EnumSet.of(StandardOpenOption.READ)
         private val w = EnumSet.of(StandardOpenOption.WRITE)
@@ -169,6 +170,69 @@ class OkioChannelsTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `readAll from ByteChannelSource reads all bytes`() {
+        val channel: ReadableByteChannel = Buffer().writeUtf8(QUOTE)
+        val source = ByteChannelSource(channel, Timeout.NONE)
+        val sink = Buffer()
+
+        val totalRead = source.readAll(sink)
+
+        totalRead shouldBeEqualTo QUOTE.toByteArray(Charsets.UTF_8).size.toLong()
+        sink.readUtf8() shouldBeEqualTo QUOTE
+    }
+
+    @Test
+    fun `readAll from FileChannelSource reads all bytes`() {
+        val path = tempFolder.createFile().toPath()
+        Files.writeString(path, QUOTE)
+
+        FileChannel.open(path, r).asSource().use { source ->
+            val sink = Buffer()
+            val totalRead = source.readAll(sink)
+
+            totalRead shouldBeEqualTo Files.size(path)
+            sink.readUtf8() shouldBeEqualTo QUOTE
+        }
+    }
+
+    @Test
+    fun `ByteChannelSource close is idempotent`() {
+        val channel: ReadableByteChannel = Buffer().writeUtf8(QUOTE)
+        val source = ByteChannelSource(channel, Timeout.NONE)
+
+        source.close()
+        source.close() // 두 번 닫아도 예외 없이 동작해야 합니다.
+    }
+
+    @Test
+    fun `ByteChannelSink close is idempotent`() {
+        val channel = Buffer()
+        val sink = ByteChannelSink(channel, Timeout.NONE)
+
+        sink.close()
+        sink.close() // 두 번 닫아도 예외 없이 동작해야 합니다.
+    }
+
+    @Test
+    fun `FileChannelSource close is idempotent`() {
+        val path = tempFolder.createFile().toPath()
+        Files.writeString(path, QUOTE)
+        val source = FileChannel.open(path, r).asSource()
+
+        source.close()
+        source.close() // 두 번 닫아도 예외 없이 동작해야 합니다.
+    }
+
+    @Test
+    fun `FileChannelSink close is idempotent`() {
+        val path = tempFolder.createFile().toPath()
+        val sink = FileChannel.open(path, w).asSink()
+
+        sink.close()
+        sink.close() // 두 번 닫아도 예외 없이 동작해야 합니다.
+    }
+
+    @Test
     fun `append to file`() {
         val path = tempFolder.createFile().toPath()
 
@@ -191,7 +255,7 @@ class OkioChannelsTest: AbstractOkioTest() {
             // sink.flush()
         }
         Files.exists(path).shouldBeTrue()
-        Files.size(path) shouldBeGreaterOrEqualTo QUOTE.length.toLong()     // 한글이 들어가서 바이트 수는 더 늘어납니다.
+        Files.size(path) shouldBeGreaterOrEqualTo QUOTE.length.toLong() // 한글이 들어가서 바이트 수는 더 늘어납니다.
 
         FileChannel.open(path, r).asSource().buffer().use { source ->
             source.readUtf8() shouldBeEqualTo QUOTE
