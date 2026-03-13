@@ -61,8 +61,8 @@ class GlobalSequencer: Sequencer {
             sequencer.incrementAndGet()
             if (sequence >= MAX_SEQUENCE) {
                 machineIdSequencer.incrementAndGet()
-                // sequence 가 MAX_SEQUENCE 값보다 크거나 같다면, 다음 milliseconds까지 기다립니다.
-                if (sequence >= MAX_SEQUENCE) {
+                // machineId 가 MAX_MACHINE_ID 값보다 크거나 같다면, 다음 milliseconds까지 기다립니다.
+                if (machineId >= MAX_MACHINE_ID) {
                     while (currentTimestamp == lastTimestamp) {
                         currentTimestamp = System.currentTimeMillis()
                     }
