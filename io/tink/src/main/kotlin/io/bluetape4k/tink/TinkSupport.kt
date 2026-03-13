@@ -8,12 +8,12 @@ import com.google.crypto.tink.daead.AesSivKeyManager
 import com.google.crypto.tink.daead.DeterministicAeadConfig
 import com.google.crypto.tink.mac.HmacKeyManager
 import com.google.crypto.tink.mac.MacConfig
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 
 /** 빈 바이트 배열 상수 — associatedData 기본값으로 사용됩니다. */
 internal val EMPTY_BYTES = ByteArray(0)
 
-private val tinkRegistered = AtomicBoolean(false)
+private val tinkRegistered = atomic(false)
 
 /**
  * Google Tink 암호화 라이브러리를 초기화합니다.
@@ -40,9 +40,7 @@ fun registerTink() {
  * @param keyTemplate 사용할 키 템플릿 (기본값: AES256-GCM)
  * @return 생성된 [KeysetHandle]
  */
-fun aeadKeysetHandle(
-    keyTemplate: KeyTemplate = AesGcmKeyManager.aes256GcmTemplate(),
-): KeysetHandle {
+fun aeadKeysetHandle(keyTemplate: KeyTemplate = AesGcmKeyManager.aes256GcmTemplate()): KeysetHandle {
     registerTink()
     return KeysetHandle.generateNew(keyTemplate)
 }
@@ -53,9 +51,7 @@ fun aeadKeysetHandle(
  * @param keyTemplate 사용할 키 템플릿 (기본값: AES256-SIV)
  * @return 생성된 [KeysetHandle]
  */
-fun daeadKeysetHandle(
-    keyTemplate: KeyTemplate = AesSivKeyManager.aes256SivTemplate(),
-): KeysetHandle {
+fun daeadKeysetHandle(keyTemplate: KeyTemplate = AesSivKeyManager.aes256SivTemplate()): KeysetHandle {
     registerTink()
     return KeysetHandle.generateNew(keyTemplate)
 }
@@ -66,9 +62,7 @@ fun daeadKeysetHandle(
  * @param keyTemplate 사용할 키 템플릿 (기본값: HMAC-SHA256 256비트 태그)
  * @return 생성된 [KeysetHandle]
  */
-fun macKeysetHandle(
-    keyTemplate: KeyTemplate = HmacKeyManager.hmacSha256Template(),
-): KeysetHandle {
+fun macKeysetHandle(keyTemplate: KeyTemplate = HmacKeyManager.hmacSha256Template()): KeysetHandle {
     registerTink()
     return KeysetHandle.generateNew(keyTemplate)
 }

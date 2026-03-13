@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
 class TinkAeadTest {
-
     companion object : KLogging()
 
     private val aead = TinkAead(aeadKeysetHandle())
@@ -83,5 +82,42 @@ class TinkAeadTest {
         val encrypted = aead.encrypt(plaintext)
         val decrypted = aead.decrypt(encrypted)
         decrypted shouldBeEqualTo plaintext
+    }
+
+    @Test
+    fun `다른 키로 decrypt시 예외 발생`() {
+        val aead2 = TinkAead(aeadKeysetHandle())
+        val plaintext = "비밀 데이터".toByteArray()
+        val ciphertext = aead.encrypt(plaintext)
+
+        assertThrows<GeneralSecurityException> {
+            aead2.decrypt(ciphertext)
+        }
+    }
+
+    @Test
+    fun `변조된 암호문으로 decrypt시 예외 발생`() {
+        val plaintext = "변조 테스트".toByteArray()
+        val ciphertext = aead.encrypt(plaintext)
+        val tampered = ciphertext.copyOf().apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+
+        assertThrows<GeneralSecurityException> {
+            aead.decrypt(tampered)
+        }
+    }
+
+    @Test
+    fun `빈 바이트 배열 encrypt decrypt 라운드트립`() {
+        val plaintext = ByteArray(0)
+        val ciphertext = aead.encrypt(plaintext)
+        aead.decrypt(ciphertext) shouldBeEqualTo plaintext
+    }
+
+    @Test
+    fun `AES128_GCM encrypt decrypt 라운드트립`() {
+        val aead128 = TinkAeads.AES128_GCM
+        val plaintext = "AES128 테스트"
+        val encrypted = aead128.encrypt(plaintext)
+        aead128.decrypt(encrypted) shouldBeEqualTo plaintext
     }
 }

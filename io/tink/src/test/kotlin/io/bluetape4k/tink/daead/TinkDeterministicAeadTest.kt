@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
 class TinkDeterministicAeadTest {
-
     companion object : KLogging()
 
     private val daead = TinkDeterministicAead(daeadKeysetHandle())
@@ -87,5 +86,34 @@ class TinkDeterministicAeadTest {
     fun `다양한 문자열 결정적 encrypt decrypt 라운드트립`(plaintext: String) {
         val ct = daead.encryptDeterministically(plaintext)
         daead.decryptDeterministically(ct) shouldBeEqualTo plaintext
+    }
+
+    @Test
+    fun `다른 키로 decryptDeterministically시 예외 발생`() {
+        val daead2 = TinkDeterministicAead(daeadKeysetHandle())
+        val plaintext = "비밀 필드".toByteArray()
+        val ciphertext = daead.encryptDeterministically(plaintext)
+
+        assertThrows<GeneralSecurityException> {
+            daead2.decryptDeterministically(ciphertext)
+        }
+    }
+
+    @Test
+    fun `변조된 암호문으로 decryptDeterministically시 예외 발생`() {
+        val plaintext = "변조 테스트".toByteArray()
+        val ciphertext = daead.encryptDeterministically(plaintext)
+        val tampered = ciphertext.copyOf().apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+
+        assertThrows<GeneralSecurityException> {
+            daead.decryptDeterministically(tampered)
+        }
+    }
+
+    @Test
+    fun `빈 바이트 배열 결정적 encrypt decrypt 라운드트립`() {
+        val plaintext = ByteArray(0)
+        val ciphertext = daead.encryptDeterministically(plaintext)
+        daead.decryptDeterministically(ciphertext) shouldBeEqualTo plaintext
     }
 }
