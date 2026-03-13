@@ -1,6 +1,5 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import java.io.ByteArrayInputStream
@@ -18,10 +17,7 @@ import java.io.ByteArrayOutputStream
  * @see [GzipCompressorOutputStream]
  * @see [GzipCompressorInputStream]
  */
-class ApacheGZipCompressor: AbstractCompressor() {
-
-    companion object: KLogging()
-
+class ApacheGZipCompressor : AbstractCompressor() {
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
@@ -37,11 +33,10 @@ class ApacheGZipCompressor: AbstractCompressor() {
     /**
      * I/O 압축에서 `doDecompress` 함수를 제공합니다.
      */
-    override fun doDecompress(compressed: ByteArray): ByteArray {
-        return ByteArrayInputStream(compressed).use { input ->
+    override fun doDecompress(compressed: ByteArray): ByteArray =
+        ByteArrayInputStream(compressed).use { input ->
             GzipCompressorInputStream(input).use { gzip ->
                 gzip.readBytes()
             }
         }
-    }
 }

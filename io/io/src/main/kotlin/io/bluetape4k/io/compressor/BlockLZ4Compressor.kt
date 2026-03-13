@@ -1,6 +1,5 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
 import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStream
 import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStream
 import java.io.ByteArrayInputStream
@@ -18,10 +17,7 @@ import java.io.ByteArrayOutputStream
  * @see [BlockLZ4CompressorInputStream]
  * @see [BlockLZ4CompressorOutputStream]
  */
-class BlockLZ4Compressor: AbstractCompressor() {
-
-    companion object: KLogging()
-
+class BlockLZ4Compressor : AbstractCompressor() {
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
@@ -37,11 +33,10 @@ class BlockLZ4Compressor: AbstractCompressor() {
     /**
      * I/O 압축에서 `doDecompress` 함수를 제공합니다.
      */
-    override fun doDecompress(compressed: ByteArray): ByteArray {
-        return ByteArrayInputStream(compressed).use { input ->
+    override fun doDecompress(compressed: ByteArray): ByteArray =
+        ByteArrayInputStream(compressed).use { input ->
             BlockLZ4CompressorInputStream(input).use { lz4 ->
                 lz4.readBytes()
             }
         }
-    }
 }
