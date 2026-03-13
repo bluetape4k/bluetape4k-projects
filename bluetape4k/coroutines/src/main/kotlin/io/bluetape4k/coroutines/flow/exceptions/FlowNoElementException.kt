@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines.flow.exceptions
 
+import java.io.Serializable
+
 /**
  * Flow에서 기대한 요소가 없을 때 사용하는 예외입니다.
  *
@@ -13,26 +15,33 @@ package io.bluetape4k.coroutines.flow.exceptions
  * // ex.message == "no element"
  * ```
  */
-open class FlowNoElementException: FlowOperationException {
+open class FlowNoElementException :
+    FlowOperationException,
+    Serializable {
+    companion object {
+        @JvmStatic
+        private val serialVersionUID: Long = 1L
+    }
+
     /** 기본 메시지 없이 예외를 생성합니다. */
-    constructor(): super()
+    constructor() : super()
 
     /**
      * 메시지만 지정해 예외를 생성합니다.
      * @param message 예외 설명 메시지입니다.
      */
-    constructor(message: String): super(message)
+    constructor(message: String) : super(message)
 
     /**
      * 메시지와 원인 예외를 함께 지정해 예외를 생성합니다.
      * @param message 예외 설명 메시지입니다.
      * @param cause 원인 예외입니다.
      */
-    constructor(message: String, cause: Throwable?): super(message, cause)
+    constructor(message: String, cause: Throwable?) : super(message, cause)
 
     /**
      * 원인 예외만 지정해 예외를 생성합니다.
      * @param cause 원인 예외입니다.
      */
-    constructor(cause: Throwable?): super(cause)
+    constructor(cause: Throwable?) : super(cause)
 }

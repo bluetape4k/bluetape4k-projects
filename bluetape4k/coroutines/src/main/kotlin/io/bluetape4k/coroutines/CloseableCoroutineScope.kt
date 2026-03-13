@@ -2,12 +2,12 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import java.io.Closeable
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 닫기(close) 시 코루틴 작업을 함께 정리하는 [CoroutineScope] 기반 추상 클래스입니다.
@@ -26,12 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * // scope.scopeClosed == true
  * ```
  */
-abstract class CloseableCoroutineScope: CoroutineScope, Closeable {
+abstract class CloseableCoroutineScope :
+    CoroutineScope,
+    Closeable {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
-
-    protected val closed = AtomicBoolean(false)
-    protected val cancelled = AtomicBoolean(false)
+    private val _closed = atomic(false)
+    private val _cancelled = atomic(false)
 
     /**
      * 스코프가 `close()` 호출로 닫혔는지 반환합니다.
@@ -45,7 +46,7 @@ abstract class CloseableCoroutineScope: CoroutineScope, Closeable {
      * // closed == false || true
      * ```
      */
-    val scopeClosed: Boolean get() = closed.get()
+    val scopeClosed: Boolean get() = _closed.value
 
     /**
      * 작업 취소 정리가 수행되었는지 반환합니다.
@@ -59,7 +60,7 @@ abstract class CloseableCoroutineScope: CoroutineScope, Closeable {
      * // cancelled == false || true
      * ```
      */
-    val scopeCancelled: Boolean get() = cancelled.get()
+    val scopeCancelled: Boolean get() = _cancelled.value
 
     /**
      * 스코프와 자식 코루틴을 취소합니다.
@@ -76,7 +77,7 @@ abstract class CloseableCoroutineScope: CoroutineScope, Closeable {
      * @param cause 취소 원인으로 전달할 예외입니다.
      */
     fun clearJobs(cause: CancellationException? = null) {
-        if (cancelled.compareAndSet(false, true)) {
+        if (_cancelled.compareAndSet(false, true)) {
             log.debug { "clearJobs: cause=$cause" }
             coroutineContext.cancelChildren(cause)
             coroutineContext.cancel(cause)
@@ -97,7 +98,7 @@ abstract class CloseableCoroutineScope: CoroutineScope, Closeable {
      * ```
      */
     override fun close() {
-        if (closed.compareAndSet(false, true)) {
+        if (_closed.compareAndSet(false, true)) {
             clearJobs()
         }
     }

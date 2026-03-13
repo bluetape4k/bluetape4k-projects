@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.exceptions
 
 import io.bluetape4k.exceptions.BluetapeException
+import java.io.Serializable
 
 /**
  * Flow 연산 단계에서 발생한 오류를 표현하는 기본 예외입니다.
@@ -15,26 +16,33 @@ import io.bluetape4k.exceptions.BluetapeException
  * // ex.message == "throttle failed"
  * ```
  */
-open class FlowOperationException: BluetapeException {
+open class FlowOperationException :
+    BluetapeException,
+    Serializable {
+    companion object {
+        @JvmStatic
+        private val serialVersionUID: Long = 1L
+    }
+
     /** 기본 메시지 없이 예외를 생성합니다. */
-    constructor(): super()
+    constructor() : super()
 
     /**
      * 메시지만 지정해 예외를 생성합니다.
      * @param message 예외 설명 메시지입니다.
      */
-    constructor(message: String): super(message)
+    constructor(message: String) : super(message)
 
     /**
      * 메시지와 원인 예외를 함께 지정해 예외를 생성합니다.
      * @param message 예외 설명 메시지입니다.
      * @param cause 원인 예외입니다.
      */
-    constructor(message: String, cause: Throwable?): super(message, cause)
+    constructor(message: String, cause: Throwable?) : super(message, cause)
 
     /**
      * 원인 예외만 지정해 예외를 생성합니다.
      * @param cause 원인 예외입니다.
      */
-    constructor(cause: Throwable?): super(cause)
+    constructor(cause: Throwable?) : super(cause)
 }
