@@ -43,16 +43,26 @@ class SuspendJsonParser(
     private val jsonFactory: JsonFactory = JsonFactory(),
     private val onNodeDone: suspend (root: JsonNode) -> Unit,
 ) {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
+    private class Stack : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
 
-    private class Stack: Serializable {
         private val nodes = LinkedList<StackFrame>()
 
-        fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))
+        fun push(
+            node: JsonNode,
+            fieldName: String? = null,
+        ) = nodes.add(StackFrame(node, fieldName))
+
         fun pop(): StackFrame = nodes.removeLast()
+
         fun top(): StackFrame = nodes.last()
+
         fun topOrNull(): StackFrame? = nodes.lastOrNull()
+
         val isEmpty: Boolean get() = nodes.isEmpty()
         val isNotEmpty: Boolean get() = !nodes.isEmpty()
     }
@@ -60,7 +70,11 @@ class SuspendJsonParser(
     private data class StackFrame(
         val node: JsonNode,
         val fieldName: String? = null,
-    ): Serializable
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val parser: NonBlockingByteArrayJsonParser by lazy {
         jsonFactory.createNonBlockingByteArrayParser(ObjectReadContext.empty()) as NonBlockingByteArrayJsonParser
@@ -75,7 +89,7 @@ class SuspendJsonParser(
      */
     private fun getCurrentFieldName(): String? {
         val result = currentFieldName
-        currentFieldName = null                 // 사용 후 초기화하여 재사용 방지
+        currentFieldName = null // 사용 후 초기화하여 재사용 방지
         return result
     }
 
@@ -125,7 +139,7 @@ class SuspendJsonParser(
                     val fieldName = getCurrentFieldName()
                     stack.push(
                         stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
-                        fieldName
+                        fieldName,
                     )
                     return null
                 }
@@ -134,7 +148,7 @@ class SuspendJsonParser(
                     val fieldName = getCurrentFieldName()
                     stack.push(
                         stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
-                        fieldName
+                        fieldName,
                     )
                     return null
                 }
@@ -181,7 +195,9 @@ class SuspendJsonParser(
                     return null
                 }
 
-                else -> error("Unknown json token $token")
+                else -> {
+                    error("Unknown json token $token")
+                }
             }
         } catch (e: Exception) {
             log.error(e) { "JSON 파싱 오류: ${e.message}" }

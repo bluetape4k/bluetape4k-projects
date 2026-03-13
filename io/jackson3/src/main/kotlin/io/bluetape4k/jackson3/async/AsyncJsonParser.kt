@@ -42,16 +42,26 @@ class AsyncJsonParser(
     private val jsonFactory: JsonFactory = JsonFactory(),
     private val onNodeDone: (root: JsonNode) -> Unit,
 ) {
+    companion object : KLogging()
 
-    companion object: KLogging()
+    private class Stack : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
 
-    private class Stack: Serializable {
         private val nodes = LinkedList<StackFrame>()
 
-        fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))
+        fun push(
+            node: JsonNode,
+            fieldName: String? = null,
+        ) = nodes.add(StackFrame(node, fieldName))
+
         fun pop(): StackFrame = nodes.removeLast()
+
         fun top(): StackFrame = nodes.last()
+
         fun topOrNull(): StackFrame? = nodes.lastOrNull()
+
         val isEmpty: Boolean get() = nodes.isEmpty()
         val isNotEmpty: Boolean get() = !nodes.isEmpty()
     }
@@ -59,7 +69,11 @@ class AsyncJsonParser(
     private data class StackFrame(
         val node: JsonNode,
         val fieldName: String? = null,
-    ): Serializable
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val parser: NonBlockingByteArrayJsonParser by lazy {
         jsonFactory.createNonBlockingByteArrayParser(ObjectReadContext.empty()) as NonBlockingByteArrayJsonParser
@@ -74,7 +88,7 @@ class AsyncJsonParser(
      */
     private fun getCurrentFieldName(): String? {
         val result = currentFieldName
-        currentFieldName = null                 // 사용 후 초기화하여 재사용 방지
+        currentFieldName = null // 사용 후 초기화하여 재사용 방지
         return result
     }
 
@@ -85,7 +99,10 @@ class AsyncJsonParser(
      * - [length]만큼 입력을 공급합니다.
      * - 루트 노드가 완성되면 [onNodeDone]을 호출합니다.
      */
-    fun consume(bytes: ByteArray, length: Int = bytes.size) {
+    fun consume(
+        bytes: ByteArray,
+        length: Int = bytes.size,
+    ) {
         val feeder = parser.nonBlockingInputFeeder()
 
         // 입력이 필요한 경우에만 데이터 제공
@@ -117,75 +134,78 @@ class AsyncJsonParser(
         }
     }
 
-    private fun parseJsonToken(token: JsonToken): JsonNode? = when (token) {
-        JsonToken.PROPERTY_NAME -> {
-            requireNotEmptyStack()
-            currentFieldName = parser.currentName()
-            null
-        }
+    private fun parseJsonToken(token: JsonToken): JsonNode? =
+        when (token) {
+            JsonToken.PROPERTY_NAME -> {
+                requireNotEmptyStack()
+                currentFieldName = parser.currentName()
+                null
+            }
 
-        JsonToken.START_OBJECT -> {
-            val fieldName = getCurrentFieldName()
-            stack.push(
-                stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
-                fieldName
-            )
-            null
-        }
+            JsonToken.START_OBJECT -> {
+                val fieldName = getCurrentFieldName()
+                stack.push(
+                    stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
+                    fieldName,
+                )
+                null
+            }
 
-        JsonToken.START_ARRAY -> {
-            val fieldName = getCurrentFieldName()
-            stack.push(
-                stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
-                fieldName
-            )
-            null
-        }
+            JsonToken.START_ARRAY -> {
+                val fieldName = getCurrentFieldName()
+                stack.push(
+                    stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
+                    fieldName,
+                )
+                null
+            }
 
-        JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
-            requireNotEmptyStack()
-            val current = stack.pop().node
-            if (stack.isEmpty) current else null
-        }
+            JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
+                requireNotEmptyStack()
+                val current = stack.pop().node
+                if (stack.isEmpty) current else null
+            }
 
-        JsonToken.VALUE_NUMBER_INT -> {
-            requireNotEmptyStack()
-            stack.top().node.addLong(parser.longValue, getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_NUMBER_INT -> {
+                requireNotEmptyStack()
+                stack.top().node.addLong(parser.longValue, getCurrentFieldName())
+                null
+            }
 
-        JsonToken.VALUE_STRING -> {
-            requireNotEmptyStack()
-            stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_STRING -> {
+                requireNotEmptyStack()
+                stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
+                null
+            }
 
-        JsonToken.VALUE_NUMBER_FLOAT -> {
-            requireNotEmptyStack()
-            stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_NUMBER_FLOAT -> {
+                requireNotEmptyStack()
+                stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
+                null
+            }
 
-        JsonToken.VALUE_NULL -> {
-            requireNotEmptyStack()
-            stack.top().node.addNull(getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_NULL -> {
+                requireNotEmptyStack()
+                stack.top().node.addNull(getCurrentFieldName())
+                null
+            }
 
-        JsonToken.VALUE_TRUE -> {
-            requireNotEmptyStack()
-            stack.top().node.addBoolean(true, getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_TRUE -> {
+                requireNotEmptyStack()
+                stack.top().node.addBoolean(true, getCurrentFieldName())
+                null
+            }
 
-        JsonToken.VALUE_FALSE -> {
-            requireNotEmptyStack()
-            stack.top().node.addBoolean(false, getCurrentFieldName())
-            null
-        }
+            JsonToken.VALUE_FALSE -> {
+                requireNotEmptyStack()
+                stack.top().node.addBoolean(false, getCurrentFieldName())
+                null
+            }
 
-        else -> error("Unknown json token $token")
-    }
+            else -> {
+                error("Unknown json token $token")
+            }
+        }
 
     private fun requireNotEmptyStack() {
         if (stack.isEmpty) {
