@@ -10,7 +10,6 @@ import java.util.*
 import java.util.regex.Pattern
 import kotlin.contracts.ExperimentalContracts
 
-
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 private typealias JChar = java.lang.Character
 
@@ -35,7 +34,7 @@ const val NULL_STRING = "<null>"
 const val NULL_STRING_SQL = "null"
 
 /**
- * 콤마(,) 구분자 문자열입니다.
+ * 콤마(, ) 구분자 문자열입니다.
  */
 const val COMMA = ","
 
@@ -145,8 +144,7 @@ inline fun CharSequence?.noLength(): Boolean = isNullOrEmpty()
  * "".hasText() // false
  * ```
  */
-inline fun CharSequence?.hasText(): Boolean =
-    hasLength() && this.isNotWhitespace()
+inline fun CharSequence?.hasText(): Boolean = hasLength() && this.isNotWhitespace()
 
 /**
  * 문자열이 null이거나 blank(공백, 탭 등)이면 true를 반환합니다.
@@ -162,8 +160,7 @@ inline fun CharSequence?.hasText(): Boolean =
  * "abc".noText() // false
  * ```
  */
-inline fun CharSequence?.noText(): Boolean =
-    noLength() || isWhitespace()
+inline fun CharSequence?.noText(): Boolean = noLength() || isWhitespace()
 
 /**
  * 문자열이 null이거나 empty(길이 0)이면 null을 반환합니다.
@@ -267,8 +264,7 @@ fun ByteBuffer.toUtf8String(): String = UTF_8.decode(this).toString()
  * ```
  */
 @Deprecated("use ifNullOrEmpty instead", replaceWith = ReplaceWith("ifNullOrEmpty"))
-inline fun String?.ifEmpty(fallback: () -> String): String =
-    if (isNullOrEmpty()) fallback() else this
+inline fun String?.ifEmpty(fallback: () -> String): String = if (isNullOrEmpty()) fallback() else this
 
 /**
  * 문자열이 null이거나 empty(길이 0)이면 [fallback] 결과를 반환합니다.
@@ -283,8 +279,7 @@ inline fun String?.ifEmpty(fallback: () -> String): String =
  * name.ifNullOrEmpty { "debop" } // "debop"
  * ```
  */
-inline fun String?.ifNullOrEmpty(fallback: () -> String): String =
-    if (isNullOrEmpty()) fallback() else this
+inline fun String?.ifNullOrEmpty(fallback: () -> String): String = if (isNullOrEmpty()) fallback() else this
 
 /**
  * 문자열이 null이거나 blank(공백, 탭 등)이면 [fallback] 결과를 반환합니다.
@@ -299,9 +294,7 @@ inline fun String?.ifNullOrEmpty(fallback: () -> String): String =
  * name.ifNullOrBlank { "debop" } // "debop"
  * ```
  */
-inline fun String?.ifNullOrBlank(fallback: () -> String): String =
-    if (isNullOrBlank()) fallback() else this
-
+inline fun String?.ifNullOrBlank(fallback: () -> String): String = if (isNullOrBlank()) fallback() else this
 
 /**
  * 문자열의 앞뒤에 있는 모든 공백 문자를 제거합니다.
@@ -316,8 +309,9 @@ inline fun String?.ifNullOrBlank(fallback: () -> String): String =
  * ```
  */
 fun String.trimWhitespace(): String {
-    if (isEmpty())
+    if (isEmpty()) {
         return this
+    }
 
     val sb = StringBuilder(this.trim())
     while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
@@ -342,8 +336,9 @@ fun String.trimWhitespace(): String {
  * ```
  */
 fun String.trimStartWhitespace(): String {
-    if (isEmpty())
+    if (isEmpty()) {
         return this
+    }
 
     val sb = StringBuilder(this.trimStart())
     while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
@@ -411,11 +406,15 @@ fun String.trimAllWhitespace(): String {
  * ```
  */
 inline fun String?.quoted(): String {
-    if (this == null)
+    if (this == null) {
         return NULL_STRING_SQL
+    }
 
-    return if (isEmpty()) "''"
-    else "'" + replace("\'", "\'\'") + "'"
+    return if (isEmpty()) {
+        "''"
+    } else {
+        "'" + replace("\'", "\'\'") + "'"
+    }
 }
 
 /**
@@ -431,7 +430,7 @@ inline fun String?.quoted(): String {
  * ```
  */
 inline fun randomString(size: Int = 10): String {
-    size.assertZeroOrPositiveNumber("size")
+    size.requireZeroOrPositiveNumber("size")
     return Base58.randomString(size)
 }
 
@@ -465,13 +464,15 @@ inline fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
  * "debop.bae@gmail.com".ellipsisEnd(6) // "deb..."
  * ```
  */
-fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
-    return this?.let { str ->
-        if (str.needEllipsis(maxLength))
-            str.substring(0, maxLength - TRIMMING.length) + TRIMMING
-        else str
-    }.orEmpty()
-}
+fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String =
+    this
+        ?.let { str ->
+            if (str.needEllipsis(maxLength)) {
+                str.substring(0, maxLength - TRIMMING.length) + TRIMMING
+            } else {
+                str
+            }
+        }.orEmpty()
 
 /**
  * 문자열이 [maxLength]보다 길면 중간을 [TRIMMING]으로 축약합니다.
@@ -488,8 +489,9 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
 fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
     if (this.isNullOrEmpty()) return EMPTY_STRING
 
-    if (!needEllipsis(maxLength))
+    if (!needEllipsis(maxLength)) {
         return this
+    }
 
     val length = maxLength / 2
     val sb = StringBuilder()
@@ -515,14 +517,15 @@ fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
  * "debop.bae@gmail.com".ellipsisStart(6) // "...com"
  * ```
  */
-fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
-    return this?.let { str ->
-        if (str.needEllipsis(maxLength))
-            TRIMMING + str.substring(str.length - maxLength + TRIMMING.length)
-        else
-            str
-    }.orEmpty()
-}
+fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String =
+    this
+        ?.let { str ->
+            if (str.needEllipsis(maxLength)) {
+                TRIMMING + str.substring(str.length - maxLength + TRIMMING.length)
+            } else {
+                str
+            }
+        }.orEmpty()
 
 /**
  * 문자열에서 지정한 문자들을 모두 제거합니다.
@@ -536,11 +539,12 @@ fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
  * "debop".deleteChars('d', 'o') // "ebp"
  * ```
  */
-fun CharSequence?.deleteChars(vararg chars: Char): String = when {
-    isNullOrEmpty() -> EMPTY_STRING
-    chars.isEmpty() -> this.toString()
-    else            -> this.filterNot { chars.contains(it) }.toString()
-}
+fun CharSequence?.deleteChars(vararg chars: Char): String =
+    when {
+        isNullOrEmpty() -> EMPTY_STRING
+        chars.isEmpty() -> this.toString()
+        else -> this.filterNot { chars.contains(it) }.toString()
+    }
 
 /**
  * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
@@ -555,8 +559,7 @@ fun CharSequence?.deleteChars(vararg chars: Char): String = when {
  * ```
  */
 @Deprecated("use mapAsString", replaceWith = ReplaceWith("mapAsString(defaultValue)"))
-fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
-    map { it.asString(defaultValue) }
+fun <T : Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> = map { it.asString(defaultValue) }
 
 /**
  * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
@@ -570,8 +573,7 @@ fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List
  * listOf(1, 2, 3).mapAsString() // listOf("1", "2", "3")
  * ```
  */
-fun <T: Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> =
-    map { it.asString(defaultValue) }
+fun <T : Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> = map { it.asString(defaultValue) }
 
 /**
  * 시퀀스의 각 요소를 문자열로 변환하여 시퀀스로 반환합니다.
@@ -585,9 +587,7 @@ fun <T: Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<
  * sequenceOf(1, 2, 3).mapAsString().toList() // listOf("1", "2", "3")
  * ```
  */
-fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> =
-    map { it.asString(defaultValue) }
-
+fun <T : Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> = map { it.asString(defaultValue) }
 
 /**
  * 문자열을 [n]번 반복한 새로운 문자열을 반환합니다.
@@ -601,8 +601,7 @@ fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Seque
  * "debop".replicate(3) // "debopdebopdebop"
  * ```
  */
-inline fun CharSequence?.replicate(n: Int): String =
-    this?.repeat(n).orEmpty()
+inline fun CharSequence?.replicate(n: Int): String = this?.repeat(n).orEmpty()
 
 /**
  * 문자열에서 주어진 단어가 몇 번 등장하는지 반환합니다.
@@ -653,18 +652,19 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
     if (this.isNullOrBlank()) return EMPTY_STRING
     if (lineSeparator.isEmpty()) return this.toString()
 
-    val index = if (lineSeparator == LINE_SEPARATOR) {
-        val systemLineSeparatorIndex = indexOf(lineSeparator)
-        val newlineIndex = indexOf('\n')
+    val index =
+        if (lineSeparator == LINE_SEPARATOR) {
+            val systemLineSeparatorIndex = indexOf(lineSeparator)
+            val newlineIndex = indexOf('\n')
 
-        when {
-            systemLineSeparatorIndex < 0 -> newlineIndex
-            newlineIndex < 0 -> systemLineSeparatorIndex
-            else -> minOf(systemLineSeparatorIndex, newlineIndex)
+            when {
+                systemLineSeparatorIndex < 0 -> newlineIndex
+                newlineIndex < 0 -> systemLineSeparatorIndex
+                else -> minOf(systemLineSeparatorIndex, newlineIndex)
+            }
+        } else {
+            indexOf(lineSeparator)
         }
-    } else {
-        indexOf(lineSeparator)
-    }
 
     return if (index >= 0) substring(0, index) else this.toString()
 }
@@ -682,7 +682,10 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
  * "abc[hello".between("[", "]") // ""
  * ```
  */
-fun CharSequence?.between(start: String, end: String): String {
+fun CharSequence?.between(
+    start: String,
+    end: String,
+): String {
     if (this.isNullOrEmpty() || start.isEmpty() || end.isEmpty() || start == end) return EMPTY_STRING
 
     val startIndex = this.indexOf(start)
@@ -712,7 +715,6 @@ inline fun String.dropFirst(count: Int = 1): String {
 
     return if (count < length) this.substring(count) else EMPTY_STRING
 }
-
 
 /**
  * 문자열에서 뒤에서 [count]만큼 문자를 제거한 나머지 문자열을 반환합니다.
@@ -780,8 +782,10 @@ fun String.takeLast(count: Int = 1): String {
  * "debop".prefixIfAbsent("Mr.") // "Mr.debop"
  * ```
  */
-fun String.prefixIfAbsent(prefix: String, ignoreCase: Boolean = false): String =
-    if (this.startsWith(prefix, ignoreCase)) this else prefix + this
+fun String.prefixIfAbsent(
+    prefix: String,
+    ignoreCase: Boolean = false,
+): String = if (this.startsWith(prefix, ignoreCase)) this else prefix + this
 
 /**
  * 문자열이 지정한 접미사로 끝나지 않으면 접미사를 추가합니다.
@@ -795,8 +799,10 @@ fun String.prefixIfAbsent(prefix: String, ignoreCase: Boolean = false): String =
  * "/path".suffixIfAbsent("/") // "/path/"
  * ```
  */
-fun String.suffixIfAbsent(suffix: String, ignoreCase: Boolean = false): String =
-    if (this.endsWith(suffix, ignoreCase)) this else this + suffix
+fun String.suffixIfAbsent(
+    suffix: String,
+    ignoreCase: Boolean = false,
+): String = if (this.endsWith(suffix, ignoreCase)) this else this + suffix
 
 /**
  * 문자열에서 중복되지 않는 문자만 남긴 새로운 문자열을 반환합니다.
@@ -810,13 +816,14 @@ fun String.suffixIfAbsent(suffix: String, ignoreCase: Boolean = false): String =
  * "abcabc".uniqueChars() // "abc"
  * ```
  */
-fun CharSequence.uniqueChars(): String = buildString {
-    this@uniqueChars.forEach { char ->
-        if (char != ' ' && !contains(char)) {
-            append(char)
+fun CharSequence.uniqueChars(): String =
+    buildString {
+        this@uniqueChars.forEach { char ->
+            if (char != ' ' && !contains(char)) {
+                append(char)
+            }
         }
     }
-}
 
 /**
  * 문자열을 [size] 크기의 윈도우로 이동하며 부분 문자열 시퀀스를 반환합니다.
@@ -900,9 +907,11 @@ fun String.redact(maskChar: Char = '*'): String = mask(maskChar)
  * ```
  */
 fun String.mask(maskChar: Char = '*'): String =
-    if (isEmpty()) EMPTY_STRING
-    else maskChar.toString().repeat(this@mask.length)
-
+    if (isEmpty()) {
+        EMPTY_STRING
+    } else {
+        maskChar.toString().repeat(this@mask.length)
+    }
 
 /**
  * delimiter(기본은 '-')로 구분된 문자열을 camel case로 변환합니다.
@@ -925,14 +934,18 @@ fun String.toCamelcase(delimiter: String = "-"): String {
         val elements = this.split(delimiter)
         if (elements.isNotEmpty()) {
             val head = elements.first().lowercase(Locale.getDefault())
-            val tail = elements
-                .drop(1)
-                .joinToString(separator = "") {
-                    it.replaceFirstChar { ch: Char ->
-                        if (ch.isLowerCase()) ch.titlecaseChar().toString() // ch.titlecase(Locale.getDefault())
-                        else ch.toString()
+            val tail =
+                elements
+                    .drop(1)
+                    .joinToString(separator = "") {
+                        it.replaceFirstChar { ch: Char ->
+                            if (ch.isLowerCase()) {
+                                ch.titlecaseChar().toString() // ch.titlecase(Locale.getDefault())
+                            } else {
+                                ch.toString()
+                            }
+                        }
                     }
-                }
             head + tail
         } else {
             this
@@ -954,15 +967,16 @@ fun String.toCamelcase(delimiter: String = "-"): String {
  * "serverHostName".toDashedString() // "server-host-name"
  * ```
  */
-fun String.toDashedString(delimiter: String = "-"): String = buildString {
-    this@toDashedString.forEachIndexed { index, char ->
-        when {
-            index == 0 -> append(char.lowercaseChar())
-            char.isUpperCase() -> append(delimiter).append(char.lowercaseChar())
-            else       -> append(char)
+fun String.toDashedString(delimiter: String = "-"): String =
+    buildString {
+        this@toDashedString.forEachIndexed { index, char ->
+            when {
+                index == 0 -> append(char.lowercaseChar())
+                char.isUpperCase() -> append(delimiter).append(char.lowercaseChar())
+                else -> append(char)
+            }
         }
     }
-}
 
 /**
  * 최소 [minLength] 길이가 되도록 문자열 앞을 [padChar]로 채워 반환합니다.
@@ -976,7 +990,10 @@ fun String.toDashedString(delimiter: String = "-"): String = buildString {
  * "7".padStart(3, '0') // "007"
  * ```
  */
-fun String.padStart(minLength: Int, padChar: Char): String {
+fun String.padStart(
+    minLength: Int,
+    padChar: Char,
+): String {
     if (length >= minLength) return this
 
     return buildString(minLength) {
@@ -999,7 +1016,10 @@ fun String.padStart(minLength: Int, padChar: Char): String {
  * "4.".padEnd(5, '0') // "4.000"
  * ```
  */
-fun String.padEnd(minLength: Int, padChar: Char): String {
+fun String.padEnd(
+    minLength: Int,
+    padChar: Char,
+): String {
     if (length >= minLength) return this
 
     return buildString {
@@ -1024,7 +1044,10 @@ fun String.padEnd(minLength: Int, padChar: Char): String {
  * ```
  */
 @JvmName("commonPrefixString")
-fun commonPrefix(a: CharSequence, b: CharSequence): String {
+fun commonPrefix(
+    a: CharSequence,
+    b: CharSequence,
+): String {
     if (a.isEmpty() || b.isEmpty()) return EMPTY_STRING
     if (a == b) return a.toString()
 
@@ -1067,7 +1090,10 @@ inline fun CharSequence.commonPrefix(other: CharSequence): String = commonPrefix
  * ```
  */
 @JvmName("commonSuffixString")
-fun commonSuffix(a: CharSequence, b: CharSequence): String {
+fun commonSuffix(
+    a: CharSequence,
+    b: CharSequence,
+): String {
     if (a.isEmpty() || b.isEmpty()) return EMPTY_STRING
     if (a == b) return a.toString()
 
@@ -1097,12 +1123,10 @@ fun commonSuffix(a: CharSequence, b: CharSequence): String {
 @JvmName("commonSuffixStringExtension")
 inline fun CharSequence.commonSuffix(other: CharSequence): String = commonSuffix(this, other)
 
-internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean {
-    return index >= 0 && index <= (length - 2) &&
-            Character.isHighSurrogate(this[index]) &&
-            Character.isLowSurrogate(this[index + 1])
-}
-
+internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean =
+    index >= 0 && index <= (length - 2) &&
+        Character.isHighSurrogate(this[index]) &&
+        Character.isLowSurrogate(this[index + 1])
 
 /**
  * 두 문자열을 대소문자 구분 없이 비교합니다.

@@ -1,5 +1,6 @@
 package io.bluetape4k
 
+import io.bluetape4k.support.requireNotBlank
 import java.io.Serializable
 
 /**
@@ -15,18 +16,20 @@ import java.io.Serializable
  *
  * @see AbstractValueObject
  */
-class ToStringBuilder private constructor(private val className: String): Serializable {
+class ToStringBuilder private constructor(
+    private val className: String,
+) : Serializable {
     companion object {
+        private const val serialVersionUID: Long = 1L
+
         @JvmStatic
         operator fun invoke(className: String): ToStringBuilder {
-            require(className.isNotBlank()) { "className[$className] must not be blank" }
+            className.requireNotBlank("className")
             return ToStringBuilder(className)
         }
 
         @JvmStatic
-        operator fun invoke(obj: Any): ToStringBuilder {
-            return ToStringBuilder(obj.javaClass.simpleName)
-        }
+        operator fun invoke(obj: Any): ToStringBuilder = ToStringBuilder(obj.javaClass.simpleName)
     }
 
     private val props = LinkedHashMap<String, String>()
@@ -45,7 +48,10 @@ class ToStringBuilder private constructor(private val className: String): Serial
 
     private fun Any?.asString(): String = this?.toString() ?: "<null>"
 
-    fun add(name: String, value: Any?) = apply {
+    fun add(
+        name: String,
+        value: Any?,
+    ) = apply {
         props[name] = value.asString()
         cachedToString = null
     }

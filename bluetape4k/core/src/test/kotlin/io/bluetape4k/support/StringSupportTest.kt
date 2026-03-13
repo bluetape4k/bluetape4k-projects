@@ -18,13 +18,13 @@ import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.text.dropLast
 import kotlin.text.takeLast
 
 @RandomizedTest
-class StringSupportTest: AbstractCoreTest() {
-
-    companion object: KLogging() {
+class StringSupportTest : AbstractCoreTest() {
+    companion object : KLogging() {
         private const val REPEAT_SIZE = 5
     }
 
@@ -396,19 +396,21 @@ class StringSupportTest: AbstractCoreTest() {
     fun `mask string for security`() {
         val str = Fakers.randomString(16, 32)
 
-        val expected = buildString {
-            repeat(str.length) {
-                append("*")
+        val expected =
+            buildString {
+                repeat(str.length) {
+                    append("*")
+                }
             }
-        }
 
         str.mask() shouldBeEqualTo expected
 
-        str.mask('#') shouldBeEqualTo buildString {
-            repeat(str.length) {
-                append("#")
+        str.mask('#') shouldBeEqualTo
+            buildString {
+                repeat(str.length) {
+                    append("#")
+                }
             }
-        }
     }
 
     @Test
@@ -455,6 +457,24 @@ class StringSupportTest: AbstractCoreTest() {
         someValue.commonPrefix(someValue) shouldBeEqualTo someValue
         "debop".commonPrefix("de") shouldBeEqualTo "de"
         "debop".commonPrefix("bluetape4k") shouldBeEqualTo EMPTY_STRING
+    }
+
+    @Test
+    fun `randomString with zero size returns empty string`() {
+        randomString(0).shouldBeEmpty()
+    }
+
+    @Test
+    fun `randomString with positive size returns string of that length`() {
+        val result = randomString(10)
+        result.length shouldBeEqualTo 10
+    }
+
+    @Test
+    fun `randomString with negative size throws IllegalArgumentException`() {
+        assertThrows<IllegalArgumentException> {
+            randomString(-1)
+        }
     }
 
     @Test

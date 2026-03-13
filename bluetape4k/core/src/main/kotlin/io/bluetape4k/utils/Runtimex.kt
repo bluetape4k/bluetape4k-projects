@@ -16,8 +16,7 @@ import kotlin.concurrent.withLock
 /**
  * [Runtime]이 제공하는 다양한 정보를 조회할 수 있는 유틸리티 클래스
  */
-object Runtimex: KLogging() {
-
+object Runtimex : KLogging() {
     private val runtime by lazy { Runtime.getRuntime() }
 
     /**
@@ -89,8 +88,7 @@ object Runtimex: KLogging() {
     /**
      * [clazz]의 위치를 조회합니다.
      */
-    fun classLocation(clazz: Class<*>): URL =
-        clazz.protectionDomain.codeSource.location
+    fun classLocation(clazz: Class<*>): URL = clazz.protectionDomain.codeSource.location
 
     /**
      * JVM 종료 시에 실행될 Cleanup code 를 추가합니다.
@@ -109,25 +107,33 @@ object Runtimex: KLogging() {
     }
 
     /** Process 실행 결과를 담은 Value Object */
-    data class ProcessResult(val exitCode: Int, val out: String): Serializable
+    data class ProcessResult(
+        val exitCode: Int,
+        val out: String,
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     /**
      * Process 실행 시 결과를 [ProcessResult] 정보에 담아 반환합니다.
      */
-    fun run(process: Process): ProcessResult = ByteArrayOutputStream().use { bos ->
-        val outputCapture = StreamGobbler(process.inputStream, bos, "out>")
-        val errorCapture = StreamGobbler(process.errorStream, bos, "err>")
+    fun run(process: Process): ProcessResult =
+        ByteArrayOutputStream().use { bos ->
+            val outputCapture = StreamGobbler(process.inputStream, bos, "out>")
+            val errorCapture = StreamGobbler(process.errorStream, bos, "err>")
 
-        outputCapture.start()
-        errorCapture.start()
+            outputCapture.start()
+            errorCapture.start()
 
-        val result = process.waitFor()
+            val result = process.waitFor()
 
-        outputCapture.waitFor()
-        errorCapture.waitFor()
+            outputCapture.waitFor()
+            errorCapture.waitFor()
 
-        ProcessResult(result, bos.toString(Charsets.UTF_8.name()))
-    }
+            ProcessResult(result, bos.toString(Charsets.UTF_8.name()))
+        }
 
     /**
      * Consumes a stream
@@ -136,8 +142,7 @@ object Runtimex: KLogging() {
         private val input: InputStream,
         private val output: OutputStream? = null,
         private val prefix: String? = null,
-    ): Thread() {
-
+    ) : Thread() {
         private val lock = ReentrantLock()
         private val condition = lock.newCondition()
 
