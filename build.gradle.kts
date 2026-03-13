@@ -95,18 +95,14 @@ subprojects {
         return@subprojects
     }
 
-    val usesDedicatedKotlinPlugin = path == ":bluetape4k-virtualthread-jdk25"
-
     apply {
         plugin<JavaLibraryPlugin>()
 
-        if (!usesDedicatedKotlinPlugin) {
-            // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
-            plugin("org.jetbrains.kotlin.jvm")
+        // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
+        plugin("org.jetbrains.kotlin.jvm")
 
-            // Atomicfu
-            plugin("org.jetbrains.kotlinx.atomicfu")
-        }
+        // Atomicfu
+        plugin("org.jetbrains.kotlinx.atomicfu")
 
         // plugin("jacoco")
         plugin("maven-publish")
@@ -123,8 +119,8 @@ subprojects {
         kotlin {
             jvmToolchain(21)
             compilerOptions {
-                languageVersion.set(KotlinVersion.KOTLIN_2_2)
-                apiVersion.set(KotlinVersion.KOTLIN_2_2)
+                languageVersion.set(KotlinVersion.KOTLIN_2_3)
+                apiVersion.set(KotlinVersion.KOTLIN_2_3)
                 freeCompilerArgs = listOf(
                     "-Xjsr305=strict",
                     "-jvm-default=enable",
@@ -162,11 +158,9 @@ subprojects {
             options.isIncremental = true
         }
 
-        if (!usesDedicatedKotlinPlugin) {
-            compileKotlin {
-                compilerOptions {
-                    incremental = true
-                }
+        compileKotlin {
+            compilerOptions {
+                incremental = true
             }
         }
 
