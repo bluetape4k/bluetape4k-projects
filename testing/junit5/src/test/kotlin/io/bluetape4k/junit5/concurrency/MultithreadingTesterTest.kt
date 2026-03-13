@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test
 import kotlin.system.measureTimeMillis
 
 class MultithreadingTesterTest {
-
-    companion object: KLogging() {
+    companion object : KLogging() {
         private const val LARGE_ROUNDS = 2_000
     }
 
@@ -31,18 +30,17 @@ class MultithreadingTesterTest {
 
     @Test
     fun `thread 수가 복수이면 실행시간은 테스트 코드의 실행 시간의 총합보다 작아야 한다`() {
-        val time = measureTimeMillis {
-            MultithreadingTester()
-                .workers(2)
-                .rounds(1)
-                .add {
-                    Thread.sleep(100)
-                }
-                .add {
-                    Thread.sleep(100)
-                }
-                .run()
-        }
+        val time =
+            measureTimeMillis {
+                MultithreadingTester()
+                    .workers(2)
+                    .rounds(1)
+                    .add {
+                        Thread.sleep(100)
+                    }.add {
+                        Thread.sleep(100)
+                    }.run()
+            }
         time shouldBeLessOrEqualTo 200
     }
 
@@ -130,7 +128,43 @@ class MultithreadingTesterTest {
         total shouldBeEqualTo 4 * LARGE_ROUNDS
     }
 
-    private class CountingTask: () -> Unit {
+    @Test
+    fun `workers 범위 미만값 0 을 설정하면 예외가 발생한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            MultithreadingTester().workers(0)
+        }
+    }
+
+    @Test
+    fun `workers 범위 초과값 2001 을 설정하면 예외가 발생한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            MultithreadingTester().workers(2001)
+        }
+    }
+
+    @Test
+    fun `rounds 범위 미만값 0 을 설정하면 예외가 발생한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            MultithreadingTester().rounds(0)
+        }
+    }
+
+    @Test
+    fun `addAll 컬렉션으로 블럭을 추가할 수 있다`() {
+        val block1 = CountingTask()
+        val block2 = CountingTask()
+
+        MultithreadingTester()
+            .workers(2)
+            .rounds(3)
+            .addAll(listOf(block1, block2))
+            .run()
+
+        block1.count shouldBeEqualTo 2 * 3
+        block2.count shouldBeEqualTo 2 * 3
+    }
+
+    private class CountingTask : () -> Unit {
         private val counter = atomic(0)
         val count: Int by counter
 
