@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asByteArrayOrNull
 import io.bluetape4k.support.asIntOrNull
-// import io.bluetape4k.support.asKotlinUuidOrNull  // Kotlin 2.3+ Uuid API (비활성화)
+import io.bluetape4k.support.asKotlinUuidOrNull
 import io.bluetape4k.support.asLongOrNull
 import io.bluetape4k.support.asShortOrNull
 import io.bluetape4k.support.asStringOrNull
@@ -12,6 +12,7 @@ import io.bluetape4k.support.asUUIDOrNull
 import org.jetbrains.exposed.v1.core.Column
 import org.slf4j.Logger
 import kotlin.reflect.KClass
+import kotlin.uuid.ExperimentalUuidApi
 
 // import kotlin.uuid.ExperimentalUuidApi  // Kotlin 2.3+ Uuid API (비활성화)
 
@@ -48,7 +49,7 @@ fun <K: Any> Iterable<K>.mapToLanguageType(column: Column<*>): List<Any> {
  * // value == 42
  * ```
  */
-// @OptIn(ExperimentalUuidApi::class)  // Kotlin 2.3+ Uuid API (비활성화)
+@OptIn(ExperimentalUuidApi::class)  // Kotlin 2.3+ Uuid API (비활성화)
 fun <K: Any> convertToLanguageType(id: K, langType: KClass<*>): Any? {
     return when (langType) {
         Short::class            -> id.asShortOrNull()
@@ -56,7 +57,7 @@ fun <K: Any> convertToLanguageType(id: K, langType: KClass<*>): Any? {
         Long::class             -> id.asLongOrNull()
         String::class           -> id.asStringOrNull()
         java.util.UUID::class   -> id.asUUIDOrNull()
-        // kotlin.uuid.Uuid::class -> id.asKotlinUuidOrNull()  // Kotlin 2.3+ Uuid API (비활성화)
+        kotlin.uuid.Uuid::class -> id.asKotlinUuidOrNull()  // Kotlin 2.3+ Uuid API (비활성화)
         ByteArray::class        -> id.asByteArrayOrNull()
         else                    -> {
             log.warn { "지원하지 않는 ID 타입입니다. id=$id, langType=$langType" }
