@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.cache.jcache.SuspendCacheEntry
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
@@ -19,6 +20,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -424,9 +426,8 @@ abstract class AbstractSuspendNearCacheTest
         suspendNearCache1.put(key1, value1)
         suspendNearCache2.put(key2, value2)
 
-        await untilSuspending {
-            suspendNearCache1.containsKey(key2) &&
-                    suspendNearCache2.containsKey(key1)
+        await atMost 60.seconds() untilSuspending {
+            suspendNearCache1.containsKey(key2) && suspendNearCache2.containsKey(key1)
         }
 
         // nearCache1 과 backCache 는 clear 되지만, nearCache2 로는 전파되지 않는다

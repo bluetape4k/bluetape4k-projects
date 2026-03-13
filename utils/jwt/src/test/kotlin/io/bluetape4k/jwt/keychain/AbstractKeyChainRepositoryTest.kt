@@ -8,12 +8,9 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.Duration
 import kotlin.test.assertTrue
 
-@Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractKeyChainRepositoryTest {
 
     companion object: KLogging()

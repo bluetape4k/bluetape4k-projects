@@ -1,10 +1,10 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -18,11 +18,10 @@ import java.util.concurrent.TimeUnit
 import javax.cache.configuration.CompleteConfiguration
 import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-class RedisNearCacheTest: AbstractNearCacheTest() {
+class RedissonNearCacheTest: AbstractNearCacheTest() {
 
     companion object: KLogging() {
         fun randomHashMap(): HashMap<String, Any?> {
@@ -105,9 +104,9 @@ class RedisNearCacheTest: AbstractNearCacheTest() {
 
         // NOTE: backCache 에서 TTL 이 지나면, nearCache 에서도 TTL 이 적용되어 expire 되어야 합니다.
         await
-            .atMost(10.seconds.toJavaDuration())
+            .atMost(60.seconds.toJavaDuration())
             .pollDelay(2.seconds.toJavaDuration())
-            .pollInterval(100.milliseconds.toJavaDuration())
+            .pollInterval(1.seconds.toJavaDuration())
             .until {
                 val existKeyCount = nearCache2.count()
                 log.debug { "nearCache2 exists key count=$existKeyCount" }

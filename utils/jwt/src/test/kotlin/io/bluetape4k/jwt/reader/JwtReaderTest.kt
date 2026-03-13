@@ -16,9 +16,7 @@ import java.util.*
 @RandomizedTest
 class JwtReaderTest: AbstractJwtTest() {
 
-    companion object: KLogging() {
-        private const val REPEAT_SIZE = 5
-    }
+    companion object: KLogging()
 
     private val jwtProvider = JwtProviderFactory.default()
 

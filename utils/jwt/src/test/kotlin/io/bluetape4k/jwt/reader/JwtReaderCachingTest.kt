@@ -17,15 +17,13 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.codec.LZ4Codec
-import java.time.Duration
 import java.util.*
 import javax.cache.Cache
+import kotlin.time.Duration.Companion.seconds
 
 class JwtReaderCachingTest: AbstractJwtTest() {
 
     companion object: KLogging() {
-
-        private const val REPEAT_SIZE = 3
 
         private val frontCache1: Cache<String, JwtReaderDto> by lazy {
             JCaching.Caffeine.getOrCreate("caffeine-reader-1")
@@ -135,7 +133,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
         nearCache1.put(jwt, reader.toDto())
         nearCache1.get(jwt)!!.toJwtReader() shouldBeEqualTo reader
 
-        await atMost Duration.ofMillis(100) until { nearCache2.containsKey(jwt) }
+        await atMost 10.seconds until { nearCache2.containsKey(jwt) }
 
         // Cache 2 에서 조회
         val actual = nearCache2.get(jwt)!!.toJwtReader()

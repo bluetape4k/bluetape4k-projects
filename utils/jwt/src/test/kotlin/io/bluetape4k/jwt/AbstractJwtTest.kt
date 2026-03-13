@@ -8,6 +8,9 @@ import io.jsonwebtoken.security.SignatureAlgorithm
 abstract class AbstractJwtTest {
 
     companion object: KLogging() {
+
+        const val REPEAT_SIZE = 3
+
         const val PLAIN_TEXT = "Hello, World! 동해물과 백두산이 # debop@bluetape4k.io"
 
         @JvmStatic

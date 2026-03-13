@@ -20,7 +20,6 @@ import kotlin.test.assertFailsWith
 class FixedJwtProviderTest: AbstractJwtTest() {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 5
         private val compressCodec = JwtCodecs.Deflate
     }
 

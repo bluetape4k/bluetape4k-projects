@@ -21,7 +21,7 @@ import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class RedisSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
+class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheTest() {
 
     companion object: KLogging()
 
