@@ -2,12 +2,13 @@ package io.bluetape4k.testcontainers
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.support.requireNotBlank
 import org.testcontainers.containers.ContainerState
 
 /**
  * Testcontainers를 사용하는 Server의 기본 정보를 제공합니다.
  */
-interface GenericServer: ContainerState {
+interface GenericServer : ContainerState {
     /**
      * Server의 기본 포트를 제공합니다.
      */
@@ -44,16 +45,20 @@ internal const val SERVER_PREFIX = "testcontainers"
  * // testcontainers.redis.host/port/url/ssl 속성이 등록됨
  * ```
  */
-fun <T: GenericServer> T.writeToSystemProperties(name: String, extraProps: Map<String, Any?> = emptyMap()) {
-    require(name.isNotBlank()) { "Server name must not be blank." }
+fun <T : GenericServer> T.writeToSystemProperties(
+    name: String,
+    extraProps: Map<String, Any?> = emptyMap(),
+) {
+    name.requireNotBlank("name")
     log.info { "Setup Server properties ..." }
 
     val baseKey = "$SERVER_PREFIX.$name"
-    val properties = linkedMapOf(
-        "$baseKey.host" to host,
-        "$baseKey.port" to port.toString(),
-        "$baseKey.url" to url,
-    )
+    val properties =
+        linkedMapOf(
+            "$baseKey.host" to host,
+            "$baseKey.port" to port.toString(),
+            "$baseKey.url" to url,
+        )
     extraProps.forEach { (key, value) ->
         value?.let { properties["$baseKey.$key"] = it.toString() }
     }
