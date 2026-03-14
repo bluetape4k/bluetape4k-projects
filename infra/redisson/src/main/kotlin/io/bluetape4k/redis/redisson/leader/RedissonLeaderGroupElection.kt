@@ -41,7 +41,6 @@ inline fun <T> RedissonClient.runIfLeaderGroup(
     return RedissonLeaderGroupElection(this, options).runIfLeader(lockName) { action() }
 }
 
-
 /**
  * Redisson 분산 [RSemaphore]를 이용한 복수 리더 선출 구현체입니다.
  *
@@ -77,9 +76,8 @@ inline fun <T> RedissonClient.runIfLeaderGroup(
 class RedissonLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
     options: LeaderGroupElectionOptions,
-): LeaderGroupElection {
-
-    companion object: KLogging() {
+) : LeaderGroupElection {
+    companion object : KLogging() {
         /**
          * [RedissonLeaderGroupElection] 인스턴스를 생성합니다.
          *
@@ -92,7 +90,7 @@ class RedissonLeaderGroupElection private constructor(
             redissonClient: RedissonClient,
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): RedissonLeaderGroupElection {
-            options.maxLeaders.requirePositiveNumber("maxLeaderse")
+            options.maxLeaders.requirePositiveNumber("maxLeaders")
             return RedissonLeaderGroupElection(redissonClient, options)
         }
     }
@@ -142,19 +140,23 @@ class RedissonLeaderGroupElection private constructor(
      * @return [action] 실행 결과
      * @throws RedisException 슬롯 획득 실패 또는 인터럽트 발생 시
      */
-    override fun <T> runIfLeader(lockName: String, action: () -> T): T {
+    override fun <T> runIfLeader(
+        lockName: String,
+        action: () -> T,
+    ): T {
         lockName.requireNotBlank("lockName")
 
         val semaphore = getSemaphore(lockName)
         log.debug { "리더 그룹 슬롯 획득을 요청합니다. lockName=$lockName, maxLeaders=$maxLeaders" }
 
-        val acquired = try {
-            semaphore.tryAcquire(waitTime)
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-            log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
-            throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
-        }
+        val acquired =
+            try {
+                semaphore.tryAcquire(waitTime)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
+                throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
+            }
 
         if (!acquired) {
             throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
@@ -185,31 +187,34 @@ class RedissonLeaderGroupElection private constructor(
         lockName: String,
         executor: Executor,
         action: () -> CompletableFuture<T>,
-    ): CompletableFuture<T> = CompletableFuture.supplyAsync(
-        {
-            lockName.requireNotBlank("lockName")
-            val semaphore = getSemaphore(lockName)
-            log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
+    ): CompletableFuture<T> =
+        CompletableFuture.supplyAsync(
+            {
+                lockName.requireNotBlank("lockName")
+                val semaphore = getSemaphore(lockName)
+                log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
 
-            val acquired = try {
-                semaphore.tryAcquire(waitTime)
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-                log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
-                throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
-            }
+                val acquired =
+                    try {
+                        semaphore.tryAcquire(waitTime)
+                    } catch (e: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
+                        throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
+                    }
 
-            if (!acquired) {
-                throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
-            }
+                if (!acquired) {
+                    throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
+                }
 
-            log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
-            try {
-                action().join()
-            } finally {
-                semaphore.release()
-                log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
-            }
-        }, executor
-    )
+                log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
+                try {
+                    action().join()
+                } finally {
+                    semaphore.release()
+                    log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+                }
+            },
+            executor
+        )
 }

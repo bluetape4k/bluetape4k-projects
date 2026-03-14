@@ -18,9 +18,8 @@ import kotlin.time.toJavaDuration
 /**
  * Lettuce 의 [RedisClient] 등을 생성해주는 유틸리티 클래스입니다.
  */
-object LettuceClients: KLogging() {
-
-    private data class CodecConnectionKey<V: Any>(
+object LettuceClients : KLogging() {
+    private data class CodecConnectionKey<V : Any>(
         val client: RedisClient,
         val codec: RedisCodec<String, V>,
     )
@@ -36,7 +35,8 @@ object LettuceClients: KLogging() {
         port: Int = LettuceConst.DEFAULT_PORT,
         timeoutInMillis: Long = LettuceConst.DEFAULT_TIMEOUT_MILLIS,
     ): RedisURI =
-        RedisURI.builder()
+        RedisURI
+            .builder()
             .withHost(host)
             .withPort(port)
             .withTimeout(timeoutInMillis.milliseconds.toJavaDuration())
@@ -112,8 +112,10 @@ object LettuceClients: KLogging() {
      * val connection = LettuceClients.connect(client, StringCodec.UTF8)
      * ```
      */
-    fun <V: Any> connect(client: RedisClient, codec: RedisCodec<String, V>): StatefulRedisConnection<String, V> =
-        connection(client, codec)
+    fun <V : Any> connect(
+        client: RedisClient,
+        codec: RedisCodec<String, V>,
+    ): StatefulRedisConnection<String, V> = connection(client, codec)
 
     /**
      * [client]를 이용하여 [RedisCommands]`<String, String>` 를 생성합니다.
@@ -131,8 +133,10 @@ object LettuceClients: KLogging() {
      * val commands = LettuceClients.commands(client, StringCodec.UTF8)
      * ```
      */
-    fun <V: Any> commands(client: RedisClient, codec: RedisCodec<String, V>): RedisCommands<String, V> =
-        connect(client, codec).sync()
+    fun <V : Any> commands(
+        client: RedisClient,
+        codec: RedisCodec<String, V>,
+    ): RedisCommands<String, V> = connect(client, codec).sync()
 
     /**
      * [client]를 이용하여 [RedisAsyncCommands]`<String, String>` 를 생성합니다.
@@ -150,14 +154,16 @@ object LettuceClients: KLogging() {
      * val asyncCommands = LettuceClients.asyncCommands(client, StringCodec.UTF8)
      * ```
      */
-    fun <V: Any> asyncCommands(client: RedisClient, codec: RedisCodec<String, V>): RedisAsyncCommands<String, V> =
-        connect(client, codec).async()
+    fun <V : Any> asyncCommands(
+        client: RedisClient,
+        codec: RedisCodec<String, V>,
+    ): RedisAsyncCommands<String, V> = connect(client, codec).async()
 
     /**
-     * [client]를 이용하여 [RedisAsyncCommands]`<String, String>` 를 생성합니다.
+     * [client]를 이용하여 [RedisCoroutinesCommands]`<String, String>` 를 생성합니다.
      *
      * ```
-     * val asyncCommands = LettuceClients.asyncCommands(client)
+     * val coroutinesCommands = LettuceClients.coroutinesCommands(client)
      * ```
      */
     @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -165,14 +171,14 @@ object LettuceClients: KLogging() {
         defaultConnection(client).coroutines()
 
     /**
-     * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
+     * [client]와 [codec]를 이용하여 [RedisCoroutinesCommands]`<String, V>` 를 생성합니다.
      *
      * ```
-     * val asyncCommands = LettuceClients.asyncCommands(client, StringCodec.UTF8)
+     * val coroutinesCommands = LettuceClients.coroutinesCommands(client, StringCodec.UTF8)
      * ```
      */
     @OptIn(ExperimentalLettuceCoroutinesApi::class)
-    fun <V: Any> coroutinesCommands(
+    fun <V : Any> coroutinesCommands(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): RedisCoroutinesCommands<String, V> = connect(client, codec).coroutines()
@@ -197,7 +203,7 @@ object LettuceClients: KLogging() {
         }!!
 
     @Suppress("UNCHECKED_CAST")
-    private fun <V: Any> connection(
+    private fun <V : Any> connection(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): StatefulRedisConnection<String, V> {

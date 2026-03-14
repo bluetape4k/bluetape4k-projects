@@ -3,7 +3,6 @@ package io.bluetape4k.redis.lettuce
 import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_HOST
 import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_PORT
 
-
 /**
  * Lettuce Redis 연결 및 키 네이밍에 사용하는 공통 상수 모음입니다.
  *
@@ -30,5 +29,11 @@ object LettuceConst {
 
     const val DEFAULT_CHARSET = "UTF-8"
     const val DEFAULT_LOGBACK_CHANNEL = "channel:logback:logs"
-    const val DEFAULT_DELIMETER = ":"
+    const val DEFAULT_DELIMITER = ":"
+
+    @Deprecated(
+        "오타 수정: DEFAULT_DELIMETER → DEFAULT_DELIMITER",
+        replaceWith = ReplaceWith("DEFAULT_DELIMITER")
+    )
+    const val DEFAULT_DELIMETER = DEFAULT_DELIMITER
 }

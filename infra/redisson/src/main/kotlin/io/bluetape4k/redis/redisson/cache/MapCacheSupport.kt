@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.cache
 
+import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
 import org.redisson.api.options.MapCacheOptions
@@ -11,11 +12,12 @@ import org.redisson.api.options.MapCacheOptions
  * @param redissonClient RedissonClient
  * @param builder MapCacheOptions 설정
  */
-inline fun <reified K: Any, reified V: Any> mapCache(
+inline fun <reified K : Any, reified V : Any> mapCache(
     name: String,
     redissonClient: RedissonClient,
     @BuilderInference builder: MapCacheOptions<K, V>.() -> Unit = {},
 ): RMapCache<K, V> {
+    name.requireNotBlank("name")
     val options = MapCacheOptions.name<K, V>(name).apply(builder)
     return redissonClient.getMapCache(options)
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.cache
 
+import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RMap
 
 /**
@@ -25,7 +26,7 @@ import org.redisson.api.RMap
  *
  * @param ID 캐시 키 타입
  */
-interface CacheInvalidationStrategy<ID: Any> {
+interface CacheInvalidationStrategy<ID : Any> {
     /**
      * 지정한 키들을 캐시에서 제거합니다.
      *
@@ -60,10 +61,9 @@ interface CacheInvalidationStrategy<ID: Any> {
  * // user:* 패턴 키가 제거됨
  * ```
  */
-class RedisCacheInvalidationStrategy<ID: Any>(
+class RedisCacheInvalidationStrategy<ID : Any>(
     private val cache: RMap<ID, *>,
-): CacheInvalidationStrategy<ID> {
-
+) : CacheInvalidationStrategy<ID> {
     override fun invalidate(vararg ids: ID) {
         cache.fastRemove(*ids)
     }
@@ -73,6 +73,7 @@ class RedisCacheInvalidationStrategy<ID: Any>(
     }
 
     override fun invalidateByPattern(pattern: String) {
+        pattern.requireNotBlank("pattern")
         val keys = cache.keySet(pattern)
         cache.fastRemove(*keys.toTypedArray())
     }

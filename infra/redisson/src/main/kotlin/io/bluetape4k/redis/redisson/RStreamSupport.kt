@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson
 
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import org.redisson.api.RStream
 import org.redisson.api.stream.StreamAddArgs
@@ -20,16 +21,16 @@ import java.util.concurrent.TimeUnit
  * // args != null
  * ```
  */
-fun <K, V> streamAddArgsOf(key: K, value: V): StreamAddArgs<K, V> =
-    StreamAddArgs.entry(key, value)
+fun <K, V> streamAddArgsOf(
+    key: K,
+    value: V,
+): StreamAddArgs<K, V> = StreamAddArgs.entry(key, value)
 
 /** Pair vararg로 [StreamAddArgs]를 생성합니다. */
-fun <K, V> streamAddArgsOf(vararg args: Pair<K, V>): StreamAddArgs<K, V> =
-    StreamAddArgs.entries(args.toMap())
+fun <K, V> streamAddArgsOf(vararg args: Pair<K, V>): StreamAddArgs<K, V> = StreamAddArgs.entries(args.toMap())
 
 /** Map으로 [StreamAddArgs]를 생성합니다. */
-fun <K, V> streamAddArgsOf(args: Map<K, V>): StreamAddArgs<K, V> =
-    StreamAddArgs.entries(args)
+fun <K, V> streamAddArgsOf(args: Map<K, V>): StreamAddArgs<K, V> = StreamAddArgs.entries(args)
 
 /**
  * 주어진 메시지 ID들을 소비자 그룹에서 모두 ACK 처리합니다.
@@ -48,6 +49,7 @@ fun <K, V> RStream<K, V>.ackAllAsync(
     groupName: String,
     ids: Collection<StreamMessageId>,
 ): CompletableFuture<Long> {
+    groupName.requireNotBlank("groupName")
     ids.requireNotEmpty("ids")
     return this.ackAsync(groupName, *ids.toTypedArray()).toCompletableFuture()
 }
@@ -70,14 +72,18 @@ fun <K, V> RStream<K, V>.claimAllAsync(
     consumerName: String,
     idleTime: Duration = Duration.ZERO,
     ids: Collection<StreamMessageId>,
-): CompletableFuture<Map<StreamMessageId, Map<K, V>>> =
-    claimAsync(
+): CompletableFuture<Map<StreamMessageId, Map<K, V>>> {
+    groupName.requireNotBlank("groupName")
+    consumerName.requireNotBlank("consumerName")
+    ids.requireNotEmpty("ids")
+    return claimAsync(
         groupName,
         consumerName,
         idleTime.toMillis(),
         TimeUnit.MILLISECONDS,
-        *ids.toTypedArray(),
+        *ids.toTypedArray()
     ).toCompletableFuture()
+}
 
 /**
  * 지정한 메시지 ID들을 빠른 claim(fastClaim)으로 처리합니다.
@@ -97,11 +103,15 @@ fun <K, V> RStream<K, V>.fastClaimAllAsync(
     consumerName: String,
     idleTime: Duration = Duration.ZERO,
     ids: Collection<StreamMessageId>,
-): CompletableFuture<List<StreamMessageId>> =
-    fastClaimAsync(
+): CompletableFuture<List<StreamMessageId>> {
+    groupName.requireNotBlank("groupName")
+    consumerName.requireNotBlank("consumerName")
+    ids.requireNotEmpty("ids")
+    return fastClaimAsync(
         groupName,
         consumerName,
         idleTime.toMillis(),
         TimeUnit.MILLISECONDS,
-        *ids.toTypedArray(),
+        *ids.toTypedArray()
     ).toCompletableFuture()
+}
