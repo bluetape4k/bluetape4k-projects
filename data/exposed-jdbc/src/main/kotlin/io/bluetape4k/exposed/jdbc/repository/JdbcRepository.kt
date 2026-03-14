@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.jdbc.repository
 
 import io.bluetape4k.exposed.core.ExposedPage
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
@@ -87,7 +89,7 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
+interface JdbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
     /**
      * Exposed의 IdTable을 반환합니다.
      * @return 엔티티에 해당하는 IdTable
@@ -101,7 +103,6 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      */
     fun ResultRow.toEntity(): E
 
-
     /**
      * 전체 엔티티 개수를 반환합니다.
      * @return 엔티티 개수
@@ -113,23 +114,20 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param predicate 조건
      * @return 개수
      */
-    fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
-        table.selectAll().where(predicate).count()
+    fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long = table.selectAll().where(predicate).count()
 
     /**
      * 조건에 맞는 엔티티 개수를 반환합니다.
      * @param op 조건
      * @return 개수
      */
-    fun countBy(op: Op<Boolean>): Long =
-        table.selectAll().where(op).count()
+    fun countBy(op: Op<Boolean>): Long = table.selectAll().where(op).count()
 
     /**
      * 테이블이 비어있는지 확인합니다.
      * @return 비어있으면 true
      */
-    fun isEmpty(): Boolean =
-        table.selectAll().empty()
+    fun isEmpty(): Boolean = table.selectAll().empty()
 
     /**
      * 테이블이 비어있지 않은지 확인합니다.
@@ -143,7 +141,9 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @return 존재하면 true
      */
     fun exists(query: AbstractQuery<*>): Boolean {
-        val exists = org.jetbrains.exposed.v1.core.exists(query)
+        val exists =
+            org.jetbrains.exposed.v1.core
+                .exists(query)
         return table.select(exists).firstOrNull()?.getOrNull(exists) ?: false
     }
 
@@ -152,16 +152,14 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param id 엔티티 ID
      * @return 존재하면 true
      */
-    fun existsById(id: ID): Boolean =
-        !table.selectAll().where { table.id eq id }.empty()
+    fun existsById(id: ID): Boolean = !table.selectAll().where { table.id eq id }.empty()
 
     /**
      * 조건에 맞는 엔티티가 존재하는지 확인합니다.
      * @param predicate 조건
      * @return 존재하면 true
      */
-    fun existsBy(predicate: () -> Op<Boolean>): Boolean =
-        !table.selectAll().where(predicate).empty()
+    fun existsBy(predicate: () -> Op<Boolean>): Boolean = !table.selectAll().where(predicate).empty()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 예외를 발생시킵니다.
@@ -181,7 +179,11 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * ```
      */
     fun findById(id: ID): E =
-        table.selectAll().where { table.id eq id }.single().toEntity()
+        table
+            .selectAll()
+            .where { table.id eq id }
+            .single()
+            .toEntity()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 null을 반환합니다.
@@ -189,7 +191,11 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @return 엔티티 [E] 또는 null
      */
     fun findByIdOrNull(id: ID): E? =
-        table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
+        table
+            .selectAll()
+            .where { table.id eq id }
+            .singleOrNull()
+            ?.toEntity()
 
     /**
      * 조건에 맞는 모든 엔티티를 조회합니다.
@@ -205,13 +211,13 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): List<E> =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .apply {
                 limit?.run { limit(limit) }
                 offset?.run { offset(offset) }
-            }
-            .orderBy(table.id, sortOrder)
+            }.orderBy(table.id, sortOrder)
             .map { it.toEntity() }
 
     /**
@@ -228,9 +234,10 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
     ): List<E> {
-        val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
-            acc.and(filter.invoke())
-        }
+        val condition: Op<Boolean> =
+            filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
+                acc.and(filter.invoke())
+            }
         return findAll(limit, offset, sortOrder) { condition }
     }
 
@@ -247,12 +254,13 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-    ): List<E> = findWithFilters(
-        *filters,
-        limit = limit,
-        offset = offset,
-        sortOrder = sortOrder,
-    )
+    ): List<E> =
+        findWithFilters(
+            *filters,
+            limit = limit,
+            offset = offset,
+            sortOrder = sortOrder
+        )
 
     /**
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.
@@ -264,13 +272,13 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): E? =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .limit(1)
             .apply {
                 offset?.run { offset(offset) }
-            }
-            .firstOrNull()
+            }.firstOrNull()
             ?.toEntity()
 
     /**
@@ -283,14 +291,14 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): E? =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .orderBy(table.id, SortOrder.DESC)
             .limit(1)
             .apply {
                 offset?.run { offset(offset) }
-            }
-            .firstOrNull()
+            }.firstOrNull()
             ?.toEntity()
 
     /**
@@ -299,8 +307,12 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param value 값
      * @return 엔티티 목록
      */
-    fun <V> findByField(field: Column<V>, value: V): List<E> =
-        table.selectAll()
+    fun <V> findByField(
+        field: Column<V>,
+        value: V,
+    ): List<E> =
+        table
+            .selectAll()
             .where { field eq value }
             .map { it.toEntity() }
 
@@ -310,8 +322,12 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param value 값
      * @return 엔티티 [E] 또는 null
      */
-    fun <V> findByFieldOrNull(field: Column<V>, value: V): E? =
-        table.selectAll()
+    fun <V> findByFieldOrNull(
+        field: Column<V>,
+        value: V,
+    ): E? =
+        table
+            .selectAll()
             .where { field eq value }
             .firstOrNull()
             ?.toEntity()
@@ -326,7 +342,8 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @return 엔티티 목록
      */
     fun findAllByIds(ids: Iterable<ID>): List<E> =
-        table.selectAll()
+        table
+            .selectAll()
             .where { table.id inList ids }
             .map { it.toEntity() }
 
@@ -343,8 +360,10 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param op 조건
      * @return 삭제된 행 수
      */
-    fun deleteAll(limit: Int? = null, op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE }): Int =
-        table.deleteWhere(limit = limit, op = op)
+    fun deleteAll(
+        limit: Int? = null,
+        op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
+    ): Int = table.deleteWhere(limit = limit, op = op)
 
     /**
      * 해당 id를 가진 레코드를 삭제합니다. 예외는 무시합니다.
@@ -375,8 +394,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param ids 삭제할 ID 컬렉션
      * @return 삭제된 행 수
      */
-    fun deleteAllByIds(ids: Iterable<ID>): Int =
-        table.deleteWhere { table.id inList ids }
+    fun deleteAllByIds(ids: Iterable<ID>): Int = table.deleteWhere { table.id inList ids }
 
     /**
      * ID로 엔티티를 수정합니다.
@@ -385,8 +403,11 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param updateStatement 수정 내용
      * @return 수정된 행 수
      */
-    fun updateById(id: ID, limit: Int? = null, updateStatement: IdTable<ID>.(UpdateStatement) -> Unit): Int =
-        table.update(where = { table.id eq id }, limit = limit, body = updateStatement)
+    fun updateById(
+        id: ID,
+        limit: Int? = null,
+        updateStatement: IdTable<ID>.(UpdateStatement) -> Unit,
+    ): Int = table.update(where = { table.id eq id }, limit = limit, body = updateStatement)
 
     /**
      * 조건에 맞는 모든 엔티티를 수정합니다.
@@ -421,8 +442,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 ignore = ignore,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
                 body = insertStatement
-            )
-            .map { it.toEntity() }
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 삽입합니다.
@@ -444,8 +464,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 ignore = ignore,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
                 body = insertStatement
-            )
-            .map { it.toEntity() }
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -461,7 +480,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
-    fun <D: Any> batchUpsert(
+    fun <D : Any> batchUpsert(
         entities: Iterable<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -469,17 +488,17 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
         body: BatchUpsertStatement.(D) -> Unit,
-    ): List<E> = table
-        .batchUpsert(
-            data = entities,
-            keys = keys,
-            onUpdate = onUpdate,
-            onUpdateExclude = onUpdateExclude,
-            where = where,
-            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
-            body = body
-        )
-        .map { it.toEntity() }
+    ): List<E> =
+        table
+            .batchUpsert(
+                data = entities,
+                keys = keys,
+                onUpdate = onUpdate,
+                onUpdateExclude = onUpdateExclude,
+                where = where,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = body
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -495,7 +514,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
-    fun <D: Any> batchUpsert(
+    fun <D : Any> batchUpsert(
         entities: Sequence<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -503,17 +522,17 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
         body: BatchUpsertStatement.(D) -> Unit,
-    ): List<E> = table
-        .batchUpsert(
-            data = entities,
-            keys = keys,
-            onUpdate = onUpdate,
-            onUpdateExclude = onUpdateExclude,
-            where = where,
-            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
-            body = body
-        )
-        .map { it.toEntity() }
+    ): List<E> =
+        table
+            .batchUpsert(
+                data = entities,
+                keys = keys,
+                onUpdate = onUpdate,
+                onUpdateExclude = onUpdateExclude,
+                where = where,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = body
+            ).map { it.toEntity() }
 
     /**
      * 페이징하여 엔티티를 조회합니다.
@@ -554,17 +573,18 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         require(pageNumber >= 0) { "pageNumber는 0 이상이어야 합니다. (pageNumber=$pageNumber)" }
         require(pageSize > 0) { "pageSize는 1 이상이어야 합니다. (pageSize=$pageSize)" }
         val totalCount = countBy(predicate)
-        val content = findAll(
-            limit = pageSize,
-            offset = (pageNumber.toLong() * pageSize),
-            sortOrder = sortOrder,
-            predicate = predicate,
-        )
+        val content =
+            findAll(
+                limit = pageSize,
+                offset = (pageNumber.toLong() * pageSize),
+                sortOrder = sortOrder,
+                predicate = predicate
+            )
         return ExposedPage(
             content = content,
             totalCount = totalCount,
             pageNumber = pageNumber,
-            pageSize = pageSize,
+            pageSize = pageSize
         )
     }
 }
@@ -575,7 +595,7 @@ interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
  * @param T [IntIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface IntJdbcRepository<T: IntIdTable, E: Any>: JdbcRepository<Int, T, E>
+interface IntJdbcRepository<T : IntIdTable, E : Any> : JdbcRepository<Int, T, E>
 
 /**
  * [Long] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -599,7 +619,7 @@ interface IntJdbcRepository<T: IntIdTable, E: Any>: JdbcRepository<Int, T, E>
  * }
  * ```
  */
-interface LongJdbcRepository<T: LongIdTable, E: Any>: JdbcRepository<Long, T, E>
+interface LongJdbcRepository<T : LongIdTable, E : Any> : JdbcRepository<Long, T, E>
 
 /**
  * Kotlin [Uuid] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -608,7 +628,7 @@ interface LongJdbcRepository<T: LongIdTable, E: Any>: JdbcRepository<Long, T, E>
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidJdbcRepository<T: UuidTable, E: Any>: JdbcRepository<Uuid, T, E>
+interface UuidJdbcRepository<T : UuidTable, E : Any> : JdbcRepository<Uuid, T, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -616,7 +636,7 @@ interface UuidJdbcRepository<T: UuidTable, E: Any>: JdbcRepository<Uuid, T, E>
  * @param T [UUIDTable] 구현체
  * @param E 엔티티 타입
  */
-interface UUIDJdbcRepository<T: UUIDTable, E: Any>: JdbcRepository<UUID, T, E>
+interface UUIDJdbcRepository<T : UUIDTable, E : Any> : JdbcRepository<UUID, T, E>
 
 /**
  * [String] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -624,4 +644,4 @@ interface UUIDJdbcRepository<T: UUIDTable, E: Any>: JdbcRepository<UUID, T, E>
  * @param T [IdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringJdbcRepository<T: IdTable<String>, E: Any>: JdbcRepository<String, T, E>
+interface StringJdbcRepository<T : IdTable<String>, E : Any> : JdbcRepository<String, T, E>

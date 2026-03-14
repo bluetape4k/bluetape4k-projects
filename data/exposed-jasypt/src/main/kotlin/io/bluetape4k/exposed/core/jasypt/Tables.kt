@@ -48,7 +48,6 @@ fun Table.jasyptVarChar(
         )
     )
 
-
 /**
  * 암호화된 `ByteArray`를 저장하기 위해 [name]의 `Binary` 컬럼을 생성합니다.
  *
@@ -91,7 +90,27 @@ fun Table.jasyptBinary(
         )
     )
 
-
+/**
+ * 암호화된 `ByteArray`를 저장하기 위해 [name]의 `BLOB` 컬럼을 생성합니다.
+ *
+ * `BLOB` 컬럼은 길이 제한이 없으므로 대용량 바이너리 데이터 암호화에 적합합니다.
+ *
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [JasyptBlobColumnType]이며 DB 저장 시 암호문 BLOB, 조회 시 복호화된 바이트를 제공합니다.
+ * - [name]이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * object T1: IntIdTable("blob_table") {
+ *     val data = jasyptBlob("data", Encryptors.DeterministicAES).nullable()
+ * }
+ * val id = T1.insertAndGetId { it[data] = "hello".toUtf8Bytes() }
+ * val restored = T1.selectAll().where { T1.id eq id }.single()[T1.data]!!
+ * // restored.toUtf8String() == "hello"
+ * ```
+ *
+ * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
+ * @param encryptor 사용할 암/복호화기입니다.
+ */
 @Deprecated("use io.bluetape4k.exposed.core.tink.daeadBlob in bluetape4k-exposed-tink.")
 fun Table.jasyptBlob(
     name: String,
