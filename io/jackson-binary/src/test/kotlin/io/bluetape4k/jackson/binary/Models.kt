@@ -11,26 +11,56 @@ import java.time.Instant
 import java.util.*
 import kotlin.random.Random
 
-data class Box(val x: Int, val y: Int): Serializable
+data class Box(
+    val x: Int,
+    val y: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Container(val boxes: List<Box>): Serializable
+data class Container(
+    val boxes: List<Box>,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 @JsonPropertyOrder(value = ["x", "y"])
-data class Point(val x: Int, val y: Int): Serializable
+data class Point(
+    val x: Int,
+    val y: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Points(val p: List<Point>): Serializable {
-    constructor(vararg points: Point): this(points.toList())
+data class Points(
+    val p: List<Point>,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
+    constructor(vararg points: Point) : this(points.toList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])
 data class Rectangle(
     val topLeft: Point,
     val bottomRight: Point,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 enum class Gender {
     MALE,
-    FEMALE;
+    FEMALE,
 }
 
 data class FiveMinuteUser(
@@ -39,7 +69,10 @@ data class FiveMinuteUser(
     var verified: Boolean,
     var gender: Gender,
     var userImage: ByteArray,
-): Serializable {
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other === this) {
@@ -62,13 +95,40 @@ data class FiveMinuteUser(
 }
 
 @JsonPropertyOrder(value = ["id", "desc"])
-data class IdDesc(var id: String, val desc: String): Serializable
+data class IdDesc(
+    var id: String,
+    val desc: String,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Outer(val name: Name, val age: Int): Serializable
+data class Outer(
+    val name: Name,
+    val age: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Name(val first: String, val last: String): Serializable
+data class Name(
+    val first: String,
+    val last: String,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Database(val dataSource: DataSource): Serializable
+data class Database(
+    val dataSource: DataSource,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class DataSource(
     val driverClass: String,
@@ -76,14 +136,17 @@ data class DataSource(
     val username: String,
     val password: String,
     val properties: Set<String>,
-): Serializable
-
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 enum class Generation {
     TEENAGE,
     TWENTY,
     THIRTY,
-    FOURTY
+    FOURTY,
 }
 
 // DefaultObjectMapper를 사용해도 @JsonTypeInfo 를 지정하면 JSON에 class 정보를 포함시켜줍니다.
@@ -92,10 +155,14 @@ data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: List<String> = emptyList(),
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-interface Person: Serializable {
+interface Person : Serializable {
     val name: String
     val age: Int
 }
@@ -104,37 +171,40 @@ data class Professor(
     override val name: String,
     override val age: Int,
     val spec: String? = null,
-): Person
+) : Person
 
 data class Student(
     override val name: String,
     override val age: Int,
     val degree: String? = null,
-): Person
+) : Person
 
 data class OptionalData(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-): Person
-
+) : Person
 
 data class OptionalCollection(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
     val options: List<Optional<String>> = emptyList(),
-): Person
+) : Person
 
 internal data class CollectionItem(
     val id: Int,
     val name: String,
-): Serializable
-
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-open class User: AbstractValueObject(), Comparable<User> {
-
+open class User :
+    AbstractValueObject(),
+    Comparable<User> {
     lateinit var firstname: String
     lateinit var lastname: String
     var addressStr: String? = null
@@ -165,15 +235,16 @@ open class User: AbstractValueObject(), Comparable<User> {
 
     override fun equalProperties(other: Any): Boolean =
         other is User &&
-                firstname == other.firstname &&
-                lastname == other.lastname
+            firstname == other.firstname &&
+            lastname == other.lastname
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 
     override fun hashCode(): Int = hashOf(firstname, lastname)
 
     override fun buildStringHelper(): ToStringBuilder =
-        super.buildStringHelper()
+        super
+            .buildStringHelper()
             .add("firstname", firstname)
             .add("lastname", lastname)
             .add("addressStr", addressStr)
@@ -181,8 +252,8 @@ open class User: AbstractValueObject(), Comparable<User> {
 
 private val faker = Faker(Locale.getDefault())
 
-fun createSampleUser(favoriteMovieSize: Int = 100): User {
-    return User().apply {
+fun createSampleUser(favoriteMovieSize: Int = 100): User =
+    User().apply {
         firstname = faker.name().firstName()
         lastname = faker.name().lastName()
         addressStr = faker.address().secondaryAddress()
@@ -191,18 +262,19 @@ fun createSampleUser(favoriteMovieSize: Int = 100): User {
         email = faker.internet().emailAddress()
         username = faker.credentials().username()
 
-        homeAddr = Address(
-            faker.address().fullAddress(),
-            faker.phoneNumber().phoneNumber(),
-            listOf("home")
-        )
-        officeAddr = Address(
-            faker.address().fullAddress(),
-            faker.phoneNumber().phoneNumber(),
-            listOf("office")
-        )
+        homeAddr =
+            Address(
+                faker.address().fullAddress(),
+                faker.phoneNumber().phoneNumber(),
+                listOf("home")
+            )
+        officeAddr =
+            Address(
+                faker.address().fullAddress(),
+                faker.phoneNumber().phoneNumber(),
+                listOf("office")
+            )
         repeat(favoriteMovieSize) {
             favoriteMovies.add("Favorite Movie number-$it")
         }
     }
-}
