@@ -10,14 +10,16 @@ import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.io.Serializable
 
-class JSONExtensionsTest: AbstractFastjson2Test() {
-
-    companion object: KLogging()
+class JSONExtensionsTest : AbstractFastjson2Test() {
+    companion object : KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `JSON 문자열을 User 객체로 역직렬화`() {
@@ -79,10 +81,11 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
 
         // JSONObject
         val parsed = jsonString.parseObject()
-        parsed shouldBeEqualTo mapOf(
-            "id" to user.id,
-            "name" to user.name,
-        )
+        parsed shouldBeEqualTo
+            mapOf(
+                "id" to user.id,
+                "name" to user.name
+            )
     }
 
     /**
@@ -90,45 +93,47 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
      * Sequence 와 유사
      */
     @RepeatedTest(REPEAT_SIZE)
-    fun `InputStream 에서 스트리밍 방식으로 User 파싱`() = runTest {
-        val users = List(5) { newUser() }
-        val inputStream = users.toJSONString().byteInputStream()
+    fun `InputStream 에서 스트리밍 방식으로 User 파싱`() =
+        runTest {
+            val users = List(5) { newUser() }
+            val inputStream = users.toJSONString().byteInputStream()
 
-        inputStream.parseObject<User> {
-            when (it.id) {
-                users[0].id -> it.name shouldBeEqualTo users[0].name
-                users[1].id -> it.name shouldBeEqualTo users[1].name
+            inputStream.parseObject<User> {
+                when (it.id) {
+                    users[0].id -> it.name shouldBeEqualTo users[0].name
+                    users[1].id -> it.name shouldBeEqualTo users[1].name
+                }
+            }
+
+            inputStream.reset()
+
+            inputStream.parseObject<User>(Charsets.UTF_8) {
+                when (it.id) {
+                    users[0].id -> it.name shouldBeEqualTo users[0].name
+                    users[1].id -> it.name shouldBeEqualTo users[1].name
+                }
+            }
+
+            inputStream.reset()
+
+            inputStream.parseObject<User>(Charsets.UTF_8, delimiter = '\n') {
+                when (it.id) {
+                    users[0].id -> it.name shouldBeEqualTo users[0].name
+                    users[1].id -> it.name shouldBeEqualTo users[1].name
+                }
             }
         }
-
-        inputStream.reset()
-
-        inputStream.parseObject<User>(Charsets.UTF_8) {
-            when (it.id) {
-                users[0].id -> it.name shouldBeEqualTo users[0].name
-                users[1].id -> it.name shouldBeEqualTo users[1].name
-            }
-        }
-
-        inputStream.reset()
-
-        inputStream.parseObject<User>(Charsets.UTF_8, delimiter = '\n') {
-            when (it.id) {
-                users[0].id -> it.name shouldBeEqualTo users[0].name
-                users[1].id -> it.name shouldBeEqualTo users[1].name
-            }
-        }
-    }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `JSON 배열 문자열을 JSONArray 로 파싱`() {
         // JSONArray
-        val list = listOf<Any>(
-            faker.random().nextInt(),
-            faker.random().nextDouble().toString(),    // dobule 은 string 으로 변환해야 비교가 된다.
-            faker.random().nextBoolean(),
-            faker.random().nextLong()
-        )
+        val list =
+            listOf<Any>(
+                faker.random().nextInt(),
+                faker.random().nextDouble().toString(), // dobule 은 string 으로 변환해야 비교가 된다.
+                faker.random().nextBoolean(),
+                faker.random().nextLong()
+            )
         val json = list.toJSONString()
         val data: JSONArray = json.parseArray()
 
@@ -163,9 +168,43 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
         m3 shouldBeEqualTo Meta(id = 3, tag = "json")
     }
 
+    @Test
+    fun `null 문자열 readValueOrNull 시 null 반환`() {
+        val result = (null as String?).readValueOrNull<User>()
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `null 문자열 readValueAsList 시 빈 리스트 반환`() {
+        val result = (null as String?).readValueAsList<User>()
+        result.shouldBeEmpty()
+    }
+
+    @Test
+    fun `빈 문자열 readValueAsList 시 빈 리스트 반환`() {
+        val result = "".readValueAsList<User>()
+        result.shouldBeEmpty()
+    }
+
+    @Test
+    fun `toJsonString null 수신자 시 null 문자열 반환`() {
+        // fastjson2는 null 객체를 "null" 문자열로 직렬화함
+        val result = (null as Any?).toJsonString()
+        result shouldBeEqualTo "null"
+    }
+
+    @Test
+    fun `InputStream readValueOrNull null 시 null 반환`() {
+        val result = (null as java.io.InputStream?).readValueOrNull<User>()
+        result.shouldBeNull()
+    }
+
     data class Meta(
         val id: Int = 1,
         val tag: String = "json",
-    ): Serializable
-
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 }
