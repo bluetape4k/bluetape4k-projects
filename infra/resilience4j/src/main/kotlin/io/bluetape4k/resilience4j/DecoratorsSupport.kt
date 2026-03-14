@@ -29,14 +29,12 @@ import java.util.concurrent.ScheduledExecutorService
  *  val future:CompletableFuture<String> = decorated.invoke("world")
  * ```
  *
- * @param func function to decorate with resilience4j
+ * @param func resilience4j로 데코레이트할 함수
  * @return DecorateCompletableFutureFunction<T, R>
  */
 fun <T, R> decorateCompletableFutureFunction(
     func: (T) -> CompletableFuture<R>,
-): DecorateCompletableFutureFunction<T, R> {
-    return DecorateCompletableFutureFunction(func)
-}
+): DecorateCompletableFutureFunction<T, R> = DecorateCompletableFutureFunction(func)
 
 /**
  * `Funciton1<T, CompletableFuture<R>>` 함수를 bulkhead, circuit breaker, rate limiter, retry, time limiter
@@ -56,30 +54,35 @@ fun <T, R> decorateCompletableFutureFunction(
  *  val future:CompletableFuture<String> = decorated.invoke("world")
  * ```
  *
- * @param T input type
- * @param R return type
- * @property func function to decorate with resilience4j components
+ * @param T 입력 타입
+ * @param R 반환 타입
+ * @property func resilience4j 컴포넌트로 데코레이트할 함수
  */
-class DecorateCompletableFutureFunction<T, R>(private var func: (T) -> CompletableFuture<R>) {
+class DecorateCompletableFutureFunction<T, R>(
+    private var func: (T) -> CompletableFuture<R>,
+) {
+    fun withBulkhead(bulkhead: Bulkhead): DecorateCompletableFutureFunction<T, R> =
+        apply {
+            func = bulkhead.completableFuture(func)
+        }
 
-    fun withBulkhead(bulkhead: Bulkhead): DecorateCompletableFutureFunction<T, R> = apply {
-        func = bulkhead.completableFuture(func)
-    }
+    fun withCircuitBreaker(circuitBreaker: CircuitBreaker): DecorateCompletableFutureFunction<T, R> =
+        apply {
+            func = circuitBreaker.completableFuture(func)
+        }
 
-    fun withCircuitBreaker(circuitBreaker: CircuitBreaker): DecorateCompletableFutureFunction<T, R> = apply {
-        func = circuitBreaker.completableFuture(func)
-    }
-
-    fun withRateLimiter(rateLimiter: RateLimiter): DecorateCompletableFutureFunction<T, R> = apply {
-        func = rateLimiter.completableFuture(func)
-    }
+    fun withRateLimiter(rateLimiter: RateLimiter): DecorateCompletableFutureFunction<T, R> =
+        apply {
+            func = rateLimiter.completableFuture(func)
+        }
 
     fun withRetry(
         retry: Retry,
         scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
-    ): DecorateCompletableFutureFunction<T, R> = apply {
-        func = retry.completableFuture(scheduler, func)
-    }
+    ): DecorateCompletableFutureFunction<T, R> =
+        apply {
+            func = retry.completableFuture(scheduler, func)
+        }
 
     /**
      * [func] 함수를 decorate 합니다.

@@ -20,7 +20,6 @@ import javax.cache.Cache
  * ```
  */
 interface SuspendCache<K, V> {
-
     companion object {
         /**
          * JCache 인스턴스를 [SuspendCache] 구현으로 감쌉니다.
@@ -35,9 +34,7 @@ interface SuspendCache<K, V> {
          * ```
          */
         @JvmStatic
-        fun <K, V> of(jcache: Cache<K, V>): SuspendCache<K, V> {
-            return SuspendCacheImpl(jcache)
-        }
+        fun <K, V> of(jcache: Cache<K, V>): SuspendCache<K, V> = SuspendCacheImpl(jcache)
 
         /**
          * keyless suspend supplier를 키 기반 함수로 감쌉니다.
@@ -55,9 +52,7 @@ interface SuspendCache<K, V> {
         fun <K, V> decorateSuspendedSupplier(
             cache: SuspendCache<K, V>,
             loader: suspend () -> V,
-        ): suspend (K) -> V {
-            return cache.decorateSuspendSupplier(loader)
-        }
+        ): suspend (K) -> V = cache.decorateSuspendSupplier(loader)
 
         /**
          * key 기반 suspend loader를 캐시 데코레이터로 감쌉니다.
@@ -75,29 +70,19 @@ interface SuspendCache<K, V> {
         fun <K, V> decorateSuspendedFunction(
             cache: SuspendCache<K, V>,
             loader: suspend (K) -> V,
-        ): suspend (K) -> V {
-            return cache.decorateSuspendFunction(loader)
-        }
+        ): suspend (K) -> V = cache.decorateSuspendFunction(loader)
     }
 
-    /**
-     * the cache name
-     */
+    /** 캐시 이름 */
     val name: String
 
-    /**
-     * Jcache
-     */
+    /** 내부 JCache 인스턴스 */
     val jcache: Cache<K, V>
 
-    /**
-     * Returns the Metrics of this Cache.
-     */
+    /** 이 캐시의 히트/미스 메트릭을 반환합니다. */
     val metrics: Metrics
 
-    /**
-     * Returns an EventPublisher which can be used to register event consumers.
-     */
+    /** 캐시 이벤트(히트, 미스, 에러) 소비자를 등록할 수 있는 EventPublisher를 반환합니다. */
     val eventPublisher: EventPublisher
 
     /**
@@ -107,7 +92,10 @@ interface SuspendCache<K, V> {
      * @param loader    Value loader
      * @return cached value
      */
-    suspend fun computeIfAbsent(cacheKey: K, @BuilderInference loader: suspend () -> V): V
+    suspend fun computeIfAbsent(
+        cacheKey: K,
+        @BuilderInference loader: suspend () -> V,
+    ): V
 
     /**
      * 해당 키의 캐시 정보가 존재하는지 여부
@@ -118,27 +106,28 @@ interface SuspendCache<K, V> {
     fun containsKey(cacheKey: K): Boolean
 
     interface Metrics {
-
         /**
-         * Returns the current number of cache hits
+         * 현재까지의 캐시 히트 횟수를 반환합니다.
          */
         fun getNumberOfCacheHits(): Long
 
         /**
-         * Retruns the current number of cache misses
+         * 현재까지의 캐시 미스 횟수를 반환합니다.
          */
         fun getNumberOfCacheMisses(): Long
     }
 
     /**
-     * An EventPublisher which can be used to register event consumers.
+     * 캐시 이벤트 소비자를 등록할 수 있는 EventPublisher입니다.
      */
-    interface EventPublisher: io.github.resilience4j.core.EventPublisher<CacheEvent> {
-
+    interface EventPublisher : io.github.resilience4j.core.EventPublisher<CacheEvent> {
+        /** 캐시 히트 이벤트 소비자를 등록합니다. */
         fun onCacheHit(eventConsumer: EventConsumer<CacheEvent>): EventPublisher
 
+        /** 캐시 미스 이벤트 소비자를 등록합니다. */
         fun onCacheMiss(eventConsumer: EventConsumer<CacheEvent>): EventPublisher
 
+        /** 캐시 에러 이벤트 소비자를 등록합니다. */
         fun onError(eventConsumer: EventConsumer<CacheEvent>): EventPublisher
     }
 }
