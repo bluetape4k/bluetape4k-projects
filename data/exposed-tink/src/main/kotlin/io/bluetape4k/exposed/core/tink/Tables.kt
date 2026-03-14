@@ -84,6 +84,20 @@ fun Table.tinkAeadBinary(
         )
     )
 
+/**
+ * Google Tink AEAD(비결정적 암호화)로 암호화된 바이트 배열을 저장하기 위해 [name]의 `BLOB` 컬럼을 생성합니다.
+ *
+ * `BLOB` 컬럼은 길이 제한이 없으므로 대용량 바이너리 데이터 암호화에 적합합니다.
+ * AEAD는 매번 다른 nonce를 사용하므로 같은 평문이라도 암호화 결과가 달라집니다.
+ * 인덱스/조건 검색이 필요한 경우에는 [tinkDaeadBlob]을 사용하세요.
+ *
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [TinkAeadBlobColumnType]이며 DB에는 암호문 BLOB이 저장되고 조회 시 복호화된 바이트를 제공합니다.
+ * - [name]이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
+ * @param encryptor 사용할 Tink AEAD 암/복호화 인스턴스입니다.
+ */
 fun Table.tinkAeadBlob(
     name: String,
     encryptor: TinkAead = TinkAeads.AES256_GCM,
@@ -168,11 +182,25 @@ fun Table.tinkDaeadBinary(
         )
     )
 
+/**
+ * Google Tink Deterministic AEAD(결정적 암호화)로 암호화된 바이트 배열을 저장하기 위해 [name]의 `BLOB` 컬럼을 생성합니다.
+ *
+ * `BLOB` 컬럼은 길이 제한이 없으므로 대용량 바이너리 데이터 암호화에 적합합니다.
+ * Deterministic AEAD(AES256-SIV)는 동일한 평문에 대해 항상 동일한 암호문을 생성하므로
+ * 인덱스 및 조건절(`WHERE col = value`)로 검색이 가능합니다.
+ *
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [TinkDaeadBlobColumnType]이며 DB에는 암호문 BLOB이 저장되고 조회 시 복호화된 바이트를 제공합니다.
+ * - [name]이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
+ * @param encryptor 사용할 Tink Deterministic AEAD 암/복호화 인스턴스입니다.
+ */
 fun Table.tinkDaeadBlob(
     name: String,
     encryptor: TinkDeterministicAead = TinkDaeads.AES256_SIV,
 ): Column<ByteArray> =
     registerColumn(
         name.requireNotBlank("name"),
-        TinkDaeadBlobColumnType(encryptor = encryptor),
+        TinkDaeadBlobColumnType(encryptor = encryptor)
     )
