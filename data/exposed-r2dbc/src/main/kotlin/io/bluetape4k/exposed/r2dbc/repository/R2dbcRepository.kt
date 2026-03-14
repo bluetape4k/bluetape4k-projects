@@ -92,7 +92,7 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
+interface R2dbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
@@ -112,21 +112,18 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * 조건에 맞는 엔티티의 개수를 반환합니다.
      * @param predicate 조건을 반환하는 함수
      */
-    suspend fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
-        table.selectAll().where(predicate).count()
+    suspend fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long = table.selectAll().where(predicate).count()
 
     /**
      * Op 조건에 맞는 엔티티의 개수를 반환합니다.
      * @param op 조건
      */
-    suspend fun countBy(op: Op<Boolean>): Long =
-        table.selectAll().where(op).count()
+    suspend fun countBy(op: Op<Boolean>): Long = table.selectAll().where(op).count()
 
     /**
      * 테이블이 비어있는지 여부를 반환합니다.
      */
-    suspend fun isEmpty(): Boolean =
-        table.selectAll().empty()
+    suspend fun isEmpty(): Boolean = table.selectAll().empty()
 
     /**
      * 테이블이 비어있지 않은지 여부를 반환합니다.
@@ -138,7 +135,9 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param query AbstractQuery
      */
     suspend fun exists(query: AbstractQuery<*>): Boolean {
-        val exists = org.jetbrains.exposed.v1.core.exists(query)
+        val exists =
+            org.jetbrains.exposed.v1.core
+                .exists(query)
         return table.select(exists).firstOrNull()?.getOrNull(exists) ?: false
     }
 
@@ -146,29 +145,35 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * ID로 엔티티가 존재하는지 확인합니다.
      * @param id 엔티티의 ID
      */
-    suspend fun existsById(id: ID): Boolean =
-        !table.selectAll().where { table.id eq id }.empty()
+    suspend fun existsById(id: ID): Boolean = !table.selectAll().where { table.id eq id }.empty()
 
     /**
      * 조건에 맞는 엔티티가 존재하는지 확인합니다.
      * @param predicate 조건
      */
-    suspend fun existsBy(predicate: () -> Op<Boolean>): Boolean =
-        !table.selectAll().where(predicate).empty()
+    suspend fun existsBy(predicate: () -> Op<Boolean>): Boolean = !table.selectAll().where(predicate).empty()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 예외를 발생시킵니다.
      * @param id 엔티티의 ID
      */
     suspend fun findById(id: ID): E =
-        table.selectAll().where { table.id eq id }.single().toEntity()
+        table
+            .selectAll()
+            .where { table.id eq id }
+            .single()
+            .toEntity()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 null을 반환합니다.
      * @param id 엔티티의 ID
      */
     suspend fun findByIdOrNull(id: ID): E? =
-        table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
+        table
+            .selectAll()
+            .where { table.id eq id }
+            .singleOrNull()
+            ?.toEntity()
 
     /**
      * 조건에 맞는 모든 엔티티를 조회합니다.
@@ -183,13 +188,13 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): Flow<E> =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .apply {
                 limit?.run { limit(limit) }
                 offset?.run { offset(offset) }
-            }
-            .orderBy(table.id, sortOrder)
+            }.orderBy(table.id, sortOrder)
             .map { it.toEntity() }
 
     /**
@@ -205,9 +210,10 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
     ): Flow<E> {
-        val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
-            acc.and(filter.invoke())
-        }
+        val condition: Op<Boolean> =
+            filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
+                acc.and(filter.invoke())
+            }
         return findAll(limit, offset, sortOrder) { condition }
     }
 
@@ -223,12 +229,13 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-    ): Flow<E> = findWithFilters(
-        *filters,
-        limit = limit,
-        offset = offset,
-        sortOrder = sortOrder,
-    )
+    ): Flow<E> =
+        findWithFilters(
+            *filters,
+            limit = limit,
+            offset = offset,
+            sortOrder = sortOrder
+        )
 
     /**
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.
@@ -239,13 +246,13 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): E? =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .limit(1)
             .apply {
                 offset?.run { offset(offset) }
-            }
-            .firstOrNull()
+            }.firstOrNull()
             ?.toEntity()
 
     /**
@@ -257,14 +264,14 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): E? =
-        table.selectAll()
+        table
+            .selectAll()
             .where(predicate)
             .orderBy(table.id, SortOrder.DESC)
             .limit(1)
             .apply {
                 offset?.run { offset(offset) }
-            }
-            .firstOrNull()
+            }.firstOrNull()
             ?.toEntity()
 
     /**
@@ -272,8 +279,12 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param field 컬럼
      * @param value 값
      */
-    fun <V> findByField(field: Column<V>, value: V): Flow<E> =
-        table.selectAll()
+    fun <V> findByField(
+        field: Column<V>,
+        value: V,
+    ): Flow<E> =
+        table
+            .selectAll()
             .where { field eq value }
             .map { it.toEntity() }
 
@@ -282,8 +293,12 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param field 컬럼
      * @param value 값
      */
-    suspend fun <V> findByFieldOrNull(field: Column<V>, value: V): E? =
-        table.selectAll()
+    suspend fun <V> findByFieldOrNull(
+        field: Column<V>,
+        value: V,
+    ): E? =
+        table
+            .selectAll()
             .where { field eq value }
             .firstOrNull()
             ?.toEntity()
@@ -293,7 +308,8 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param ids 조회할 ID 컬렉션
      */
     fun findAllByIds(ids: Iterable<ID>): Flow<E> =
-        table.selectAll()
+        table
+            .selectAll()
             .where { table.id inList ids }
             .map { it.toEntity() }
 
@@ -301,8 +317,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * ID로 엔티티를 삭제합니다.
      * @param id 삭제할 엔티티의 ID
      */
-    suspend fun deleteById(id: ID): Int =
-        table.deleteWhere { table.id eq id }
+    suspend fun deleteById(id: ID): Int = table.deleteWhere { table.id eq id }
 
     /**
      * 조건에 맞는 모든 엔티티를 삭제합니다.
@@ -312,15 +327,13 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     suspend fun deleteAll(
         limit: Int? = null,
         op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
-    ): Int =
-        table.deleteWhere(limit = limit, op = op)
+    ): Int = table.deleteWhere(limit = limit, op = op)
 
     /**
      * ID로 엔티티를 무시하고 삭제합니다.
      * @param id 삭제할 엔티티의 ID
      */
-    suspend fun deleteByIdIgnore(id: ID): Int =
-        table.deleteIgnoreWhere { table.id eq id }
+    suspend fun deleteByIdIgnore(id: ID): Int = table.deleteIgnoreWhere { table.id eq id }
 
     /**
      * 조건에 맞는 모든 엔티티를 무시하고 삭제합니다.
@@ -330,15 +343,13 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     suspend fun deleteAllIgnore(
         limit: Int? = null,
         op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
-    ): Int =
-        table.deleteIgnoreWhere(limit, op = op)
+    ): Int = table.deleteIgnoreWhere(limit, op = op)
 
     /**
      * 여러 ID로 엔티티를 일괄 삭제합니다.
      * @param ids 삭제할 ID 컬렉션
      */
-    suspend fun deleteAllByIds(ids: Iterable<ID>): Int =
-        table.deleteWhere { table.id inList ids }
+    suspend fun deleteAllByIds(ids: Iterable<ID>): Int = table.deleteWhere { table.id inList ids }
 
     /**
      * ID로 엔티티를 수정합니다.
@@ -367,8 +378,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         predicate: () -> Op<Boolean> = { Op.TRUE },
         limit: Int? = null,
         updateStatement: IdTable<ID>.(UpdateStatement) -> Unit,
-    ): Int =
-        table.update(where = predicate, limit = limit, body = updateStatement)
+    ): Int = table.update(where = predicate, limit = limit, body = updateStatement)
 
     /**
      * 여러 엔티티를 일괄로 삽입합니다.
@@ -389,8 +399,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 ignore = ignore,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
                 body = insertStatement
-            )
-            .map { it.toEntity() }
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄로 삽입합니다.
@@ -411,8 +420,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 ignore = ignore,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
                 body = insertStatement
-            )
-            .map { it.toEntity() }
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -430,7 +438,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <D: Any> batchUpsert(
+    suspend fun <D : Any> batchUpsert(
         entities: Iterable<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -447,9 +455,8 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 onUpdateExclude = onUpdateExclude,
                 where = where,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
-                body = body,
-            )
-            .map { it.toEntity() }
+                body = body
+            ).map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -467,7 +474,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <D: Any> batchUpsert(
+    suspend fun <D : Any> batchUpsert(
         entities: Sequence<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -484,9 +491,8 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
                 onUpdateExclude = onUpdateExclude,
                 where = where,
                 shouldReturnGeneratedValues = shouldReturnGeneratedValues,
-                body = body,
-            )
-            .map { it.toEntity() }
+                body = body
+            ).map { it.toEntity() }
 
     /**
      * 페이징하여 엔티티를 조회합니다.
@@ -502,22 +508,24 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): ExposedPage<E> {
+        require(pageNumber >= 0) { "pageNumber는 0 이상이어야 합니다. (pageNumber=$pageNumber)" }
+        require(pageSize > 0) { "pageSize는 1 이상이어야 합니다. (pageSize=$pageSize)" }
         val totalCount = countBy(predicate)
-        val content = findAll(
-            limit = pageSize,
-            offset = (pageNumber.toLong() * pageSize),
-            sortOrder = sortOrder,
-            predicate = predicate,
-        ).toList()
+        val content =
+            findAll(
+                limit = pageSize,
+                offset = (pageNumber.toLong() * pageSize),
+                sortOrder = sortOrder,
+                predicate = predicate
+            ).toList()
         return ExposedPage(
             content = content,
             totalCount = totalCount,
             pageNumber = pageNumber,
-            pageSize = pageSize,
+            pageSize = pageSize
         )
     }
 }
-
 
 /**
  * [Int] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -525,7 +533,7 @@ interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
  * @param T [IntIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface IntR2dbcRepository<T: IntIdTable, E: Any>: R2dbcRepository<Int, T, E>
+interface IntR2dbcRepository<T : IntIdTable, E : Any> : R2dbcRepository<Int, T, E>
 
 /**
  * [Long] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -533,7 +541,7 @@ interface IntR2dbcRepository<T: IntIdTable, E: Any>: R2dbcRepository<Int, T, E>
  * @param T [LongIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface LongR2dbcRepository<T: LongIdTable, E: Any>: R2dbcRepository<Long, T, E>
+interface LongR2dbcRepository<T : LongIdTable, E : Any> : R2dbcRepository<Long, T, E>
 
 /**
  * Kotlin [kotlin.uuid.Uuid] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -542,7 +550,7 @@ interface LongR2dbcRepository<T: LongIdTable, E: Any>: R2dbcRepository<Long, T, 
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidR2dbcRepository<T: UuidTable, E: Any>: R2dbcRepository<Uuid, T, E>
+interface UuidR2dbcRepository<T : UuidTable, E : Any> : R2dbcRepository<Uuid, T, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -550,7 +558,7 @@ interface UuidR2dbcRepository<T: UuidTable, E: Any>: R2dbcRepository<Uuid, T, E>
  * @param T [UUIDTable] 구현체
  * @param E 엔티티 타입
  */
-interface UUIDR2dbcRepository<T: UUIDTable, E: Any>: R2dbcRepository<UUID, T, E>
+interface UUIDR2dbcRepository<T : UUIDTable, E : Any> : R2dbcRepository<UUID, T, E>
 
 /**
  * [String] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -558,4 +566,4 @@ interface UUIDR2dbcRepository<T: UUIDTable, E: Any>: R2dbcRepository<UUID, T, E>
  * @param T [IdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringR2dbcRepository<T: IdTable<String>, E: Any>: R2dbcRepository<String, T, E>
+interface StringR2dbcRepository<T : IdTable<String>, E : Any> : R2dbcRepository<String, T, E>
