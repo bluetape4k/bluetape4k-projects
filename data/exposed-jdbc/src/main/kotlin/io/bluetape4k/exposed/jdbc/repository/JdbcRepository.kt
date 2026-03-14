@@ -570,8 +570,8 @@ interface JdbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): ExposedPage<E> {
-        require(pageNumber >= 0) { "pageNumber는 0 이상이어야 합니다. (pageNumber=$pageNumber)" }
-        require(pageSize > 0) { "pageSize는 1 이상이어야 합니다. (pageSize=$pageSize)" }
+        pageNumber.requireGe(0, "pageNumber")
+        pageSize.requirePositiveNumber("pageSize")
         val totalCount = countBy(predicate)
         val content =
             findAll(

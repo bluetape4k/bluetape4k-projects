@@ -25,23 +25,25 @@ private val log = KotlinLogging.logger { }
  * ```
  */
 fun JdbcTransaction.execCreateMissingTablesAndColumns(vararg tables: Table) {
-    val self = this
     runCatching {
         val existingTables = SchemaUtils.listTables()
-        val missingTables = tables.filterNot { table ->
-            existingTables.any { it.equals(table.tableName, ignoreCase = true) }
-        }
+        val missingTables =
+            tables.filterNot { table ->
+                existingTables.any { it.equals(table.tableName, ignoreCase = true) }
+            }
         SchemaUtils.create(*missingTables.toTypedArray())
     }.onFailure { ex ->
         log.error(ex) { "누락 테이블 생성 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
     }
     runCatching {
-        MigrationUtils.statementsRequiredForDatabaseMigration(*tables)
-            .forEach { sql -> self.exec(sql) }
+        MigrationUtils
+            .statementsRequiredForDatabaseMigration(*tables)
+            .forEach { sql -> exec(sql) }
     }.onFailure { ex ->
         log.error(ex) { "마이그레이션 SQL 생성/실행 중 예외가 발생했습니다. tables=${tables.joinToString { it.tableName }}" }
     }
 
-    SchemaUtils.addMissingColumnsStatements(*tables)
-        .forEach { sql -> self.exec(sql) }
+    SchemaUtils
+        .addMissingColumnsStatements(*tables)
+        .forEach { sql -> exec(sql) }
 }
