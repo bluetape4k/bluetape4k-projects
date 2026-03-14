@@ -10,4 +10,8 @@ data class ProductType(
     val priority: Int? = null,
     val parentRepresentativeValue: String? = null,
     val level: Int = 0,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
