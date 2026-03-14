@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.map
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.awaitSuspending
+import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 
@@ -26,14 +27,14 @@ import io.lettuce.core.api.async.RedisAsyncCommands
  * @param connection Lettuce StatefulRedisConnection (LettuceBinaryCodec<V> 기반)
  * @param mapKey Redis에 저장될 Hash 키
  */
-open class LettuceSuspendMap<V: Any>(
+open class LettuceSuspendMap<V : Any>(
     private val connection: StatefulRedisConnection<String, V>,
     val mapKey: String,
 ) {
-    companion object: KLogging()
+    companion object : KLogging()
 
     init {
-        require(mapKey.isNotBlank()) { "mapKey는 공백이 아니어야 합니다." }
+        mapKey.requireNotBlank("mapKey")
     }
 
     private val asyncCommands: RedisAsyncCommands<String, V> get() = connection.async()
@@ -44,8 +45,7 @@ open class LettuceSuspendMap<V: Any>(
      * @param field 조회할 필드명
      * @return 필드 값 (존재하지 않으면 null)
      */
-    suspend fun get(field: String): V? =
-        asyncCommands.hget(mapKey, field).awaitSuspending()
+    suspend fun get(field: String): V? = asyncCommands.hget(mapKey, field).awaitSuspending()
 
     /**
      * 필드에 값을 코루틴으로 설정합니다.
@@ -54,7 +54,10 @@ open class LettuceSuspendMap<V: Any>(
      * @param value 설정할 값
      * @return 새 필드가 추가됐으면 true, 기존 필드가 업데이트됐으면 false
      */
-    suspend fun put(field: String, value: V): Boolean {
+    suspend fun put(
+        field: String,
+        value: V,
+    ): Boolean {
         val result = asyncCommands.hset(mapKey, field, value).awaitSuspending()
         log.debug { "LettuceSuspendMap put: mapKey=$mapKey, field=$field, isNew=$result" }
         return result
@@ -67,8 +70,10 @@ open class LettuceSuspendMap<V: Any>(
      * @param value 설정할 값
      * @return 설정 성공 여부 (이미 존재하면 false)
      */
-    suspend fun putIfAbsent(field: String, value: V): Boolean =
-        asyncCommands.hsetnx(mapKey, field, value).awaitSuspending()
+    suspend fun putIfAbsent(
+        field: String,
+        value: V,
+    ): Boolean = asyncCommands.hsetnx(mapKey, field, value).awaitSuspending()
 
     /**
      * 지정한 필드를 코루틴으로 삭제합니다.
@@ -76,8 +81,7 @@ open class LettuceSuspendMap<V: Any>(
      * @param field 삭제할 필드명
      * @return 삭제된 필드 수
      */
-    suspend fun remove(field: String): Long =
-        asyncCommands.hdel(mapKey, field).awaitSuspending()
+    suspend fun remove(field: String): Long = asyncCommands.hdel(mapKey, field).awaitSuspending()
 
     /**
      * 지정한 필드가 존재하는지 코루틴으로 확인합니다.
@@ -85,16 +89,14 @@ open class LettuceSuspendMap<V: Any>(
      * @param field 확인할 필드명
      * @return 존재하면 true
      */
-    suspend fun containsKey(field: String): Boolean =
-        asyncCommands.hexists(mapKey, field).awaitSuspending()
+    suspend fun containsKey(field: String): Boolean = asyncCommands.hexists(mapKey, field).awaitSuspending()
 
     /**
      * Map의 필드 수를 코루틴으로 반환합니다.
      *
      * @return 필드 수
      */
-    suspend fun size(): Long =
-        asyncCommands.hlen(mapKey).awaitSuspending()
+    suspend fun size(): Long = asyncCommands.hlen(mapKey).awaitSuspending()
 
     /**
      * Map이 비어있는지 코루틴으로 확인합니다.
@@ -108,24 +110,21 @@ open class LettuceSuspendMap<V: Any>(
      *
      * @return 필드명 목록
      */
-    suspend fun keySet(): List<String> =
-        asyncCommands.hkeys(mapKey).awaitSuspending()
+    suspend fun keySet(): List<String> = asyncCommands.hkeys(mapKey).awaitSuspending()
 
     /**
      * 모든 값을 코루틴으로 반환합니다.
      *
      * @return 값 목록
      */
-    suspend fun values(): List<V> =
-        asyncCommands.hvals(mapKey).awaitSuspending()
+    suspend fun values(): List<V> = asyncCommands.hvals(mapKey).awaitSuspending()
 
     /**
      * 모든 필드-값 쌍을 코루틴으로 반환합니다.
      *
      * @return 필드-값 Map
      */
-    suspend fun entries(): Map<String, V> =
-        asyncCommands.hgetall(mapKey).awaitSuspending()
+    suspend fun entries(): Map<String, V> = asyncCommands.hgetall(mapKey).awaitSuspending()
 
     /**
      * 여러 필드-값 쌍을 코루틴으로 설정합니다.

@@ -1,6 +1,8 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.ExMapOptions
 import org.redisson.api.options.LocalCachedMapOptions
@@ -34,32 +36,43 @@ data class RedisCacheConfig(
     val deleteFromDBOnInvalidate: Boolean = false,
     val ttl: Duration = Duration.ZERO,
     val maxSize: Int = 0,
-    val codec: Codec = RedissonCodecs.LZ4ForyComposite,  // mapKey Codec은 String, mapValue Codec은 LZ4Fury
-
+    val codec: Codec = RedissonCodecs.LZ4ForyComposite, // mapKey Codec은 String, mapValue Codec은 LZ4Fury
     // NearCache 관련 설정
     val nearCacheMaxIdleTime: Duration = Duration.ZERO,
     val nearCacheEnabled: Boolean = false,
     val nearCacheMaxSize: Int = 1000,
     val nearCacheTtl: Duration = Duration.ofMinutes(10),
     val nearCacheSyncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.UPDATE,
-
     // Write Behind 관련 설정
     val writeBehindBatchSize: Int = 50,
     val writeBehindDelay: Int = 1000,
     val writeRetryAttempts: Int = 3,
     val writeRetryInterval: Duration = Duration.ofMillis(100),
 ) {
-
     init {
         require(maxSize >= 0) { "maxSize must be greater than or equal to 0. maxSize=$maxSize" }
-        require(nearCacheMaxSize >= 0) { "nearCacheMaxSize must be greater than or equal to 0. nearCacheMaxSize=$nearCacheMaxSize" }
-        require(writeBehindBatchSize > 0) { "writeBehindBatchSize must be greater than 0. writeBehindBatchSize=$writeBehindBatchSize" }
-        require(writeBehindDelay >= 0) { "writeBehindDelay must be greater than or equal to 0. writeBehindDelay=$writeBehindDelay" }
-        require(writeRetryAttempts >= 0) { "writeRetryAttempts must be greater than or equal to 0. writeRetryAttempts=$writeRetryAttempts" }
-        require(!writeRetryInterval.isNegative) { "writeRetryInterval must be greater than or equal to 0. writeRetryInterval=$writeRetryInterval" }
+        require(nearCacheMaxSize >= 0) {
+            "nearCacheMaxSize must be greater than or equal to 0. nearCacheMaxSize=$nearCacheMaxSize"
+        }
+        require(writeBehindBatchSize > 0) {
+            "writeBehindBatchSize must be greater than 0. writeBehindBatchSize=$writeBehindBatchSize"
+        }
+        require(writeBehindDelay >= 0) {
+            "writeBehindDelay must be greater than or equal to 0. writeBehindDelay=$writeBehindDelay"
+        }
+        require(writeRetryAttempts >= 0) {
+            "writeRetryAttempts must be greater than or equal to 0. writeRetryAttempts=$writeRetryAttempts"
+        }
+        require(!writeRetryInterval.isNegative) {
+            "writeRetryInterval must be greater than or equal to 0. writeRetryInterval=$writeRetryInterval"
+        }
         require(!ttl.isNegative) { "ttl must be greater than or equal to 0. ttl=$ttl" }
-        require(!nearCacheTtl.isNegative) { "nearCacheTtl must be greater than or equal to 0. nearCacheTtl=$nearCacheTtl" }
-        require(!nearCacheMaxIdleTime.isNegative) { "nearCacheMaxIdleTime must be greater than or equal to 0. nearCacheMaxIdleTime=$nearCacheMaxIdleTime" }
+        require(
+            !nearCacheTtl.isNegative
+        ) { "nearCacheTtl must be greater than or equal to 0. nearCacheTtl=$nearCacheTtl" }
+        require(!nearCacheMaxIdleTime.isNegative) {
+            "nearCacheMaxIdleTime must be greater than or equal to 0. nearCacheMaxIdleTime=$nearCacheMaxIdleTime"
+        }
     }
 
     val isReadOnly: Boolean
@@ -79,61 +92,67 @@ data class RedisCacheConfig(
          * 읽기 전용 캐시 설정입니다.
          * DB에서 데이터를 로드하지만, 캐시에 변경사항을 저장하지 않습니다.
          */
-        val READ_ONLY = RedisCacheConfig(
-            cacheMode = CacheMode.READ_ONLY,
-            nearCacheEnabled = false
-        )
+        val READ_ONLY =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_ONLY,
+                nearCacheEnabled = false
+            )
 
         /**
          * 읽기 전용 캐시 설정으로, 로컬 캐시를 사용합니다.
          * 자주 조회되는 데이터에 대해 성능을 향상시킵니다.
          */
-        val READ_ONLY_WITH_NEAR_CACHE = RedisCacheConfig(
-            cacheMode = CacheMode.READ_ONLY,
-            nearCacheEnabled = true
-        )
+        val READ_ONLY_WITH_NEAR_CACHE =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_ONLY,
+                nearCacheEnabled = true
+            )
 
         /**
          * 읽기-쓰기 통과(Read-Write Through) 캐시 설정입니다.
          * 캐시와 DB 간의 데이터 일관성을 보장합니다.
          */
-        val READ_WRITE_THROUGH = RedisCacheConfig(
-            cacheMode = CacheMode.READ_WRITE,
-            writeMode = WriteMode.WRITE_THROUGH,
-            nearCacheEnabled = false
-        )
+        val READ_WRITE_THROUGH =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_WRITE,
+                writeMode = WriteMode.WRITE_THROUGH,
+                nearCacheEnabled = false
+            )
 
         /**
          * 읽기-쓰기 통과 캐시 설정으로, 로컬 캐시를 사용합니다.
          */
-        val READ_WRITE_THROUGH_WITH_NEAR_CACHE = RedisCacheConfig(
-            cacheMode = CacheMode.READ_WRITE,
-            writeMode = WriteMode.WRITE_THROUGH,
-            nearCacheEnabled = true
-        )
+        val READ_WRITE_THROUGH_WITH_NEAR_CACHE =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_WRITE,
+                writeMode = WriteMode.WRITE_THROUGH,
+                nearCacheEnabled = true
+            )
 
         /**
          * 쓰기 지연(Write Behind) 캐시 설정입니다.
          * 높은 쓰기 처리량이 필요한 경우 적합합니다.
          */
-        val WRITE_BEHIND = RedisCacheConfig(
-            cacheMode = CacheMode.READ_WRITE,
-            writeMode = WriteMode.WRITE_BEHIND,
-            nearCacheEnabled = false,
-            writeBehindBatchSize = 50,
-            writeBehindDelay = 1000
-        )
+        val WRITE_BEHIND =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_WRITE,
+                writeMode = WriteMode.WRITE_BEHIND,
+                nearCacheEnabled = false,
+                writeBehindBatchSize = 50,
+                writeBehindDelay = 1000
+            )
 
         /**
          * 쓰기 지연 캐시 설정으로, 로컬 캐시를 사용합니다.
          */
-        val WRITE_BEHIND_WITH_NEAR_CACHE = RedisCacheConfig(
-            cacheMode = CacheMode.READ_WRITE,
-            writeMode = WriteMode.WRITE_BEHIND,
-            nearCacheEnabled = true,
-            writeBehindBatchSize = 50,
-            writeBehindDelay = 1000
-        )
+        val WRITE_BEHIND_WITH_NEAR_CACHE =
+            RedisCacheConfig(
+                cacheMode = CacheMode.READ_WRITE,
+                writeMode = WriteMode.WRITE_BEHIND,
+                nearCacheEnabled = true,
+                writeBehindBatchSize = 50,
+                writeBehindDelay = 1000
+            )
     }
 
     /**
@@ -150,7 +169,7 @@ data class RedisCacheConfig(
          * 읽기 및 쓰기 모드입니다.
          * 캐시 수정이 DB에 반영되며, 설정에 따라 WRITE_THROUGH 또는 WRITE_BEHIND 모드로 작동합니다.
          */
-        READ_WRITE
+        READ_WRITE,
     }
 
     /**
@@ -166,10 +185,11 @@ data class RedisCacheConfig(
      * @return 설정이 적용된 [MapOptions] 인스턴스
      * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
-    fun <K: Any, V> toMapOptions(name: String): MapOptions<K, V> {
+    fun <K : Any, V> toMapOptions(name: String): MapOptions<K, V> {
         validateUnsupportedMapSettings()
 
-        return MapOptions.name<K, V>(name)
+        return MapOptions
+            .name<K, V>(name)
             .codec(codec)
             .applyWriteOptions()
     }
@@ -188,10 +208,11 @@ data class RedisCacheConfig(
      * @return 설정이 적용된 [LocalCachedMapOptions] 인스턴스
      * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
-    fun <K: Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
+    fun <K : Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
         validateUnsupportedMapSettings()
 
-        return LocalCachedMapOptions.name<K, V>(name)
+        return LocalCachedMapOptions
+            .name<K, V>(name)
             .codec(codec)
             .applyWriteOptions()
             .applyNearCacheOptions()
@@ -209,31 +230,33 @@ data class RedisCacheConfig(
         }
     }
 
-    private fun <K: Any, V, T: ExMapOptions<T, K, V>> T.applyWriteOptions(): T = apply {
-        if (cacheMode == CacheMode.READ_WRITE) {
-            writeMode(writeMode)
+    private fun <K : Any, V, T : ExMapOptions<T, K, V>> T.applyWriteOptions(): T =
+        apply {
+            if (cacheMode == CacheMode.READ_WRITE) {
+                writeMode(writeMode)
 
-            if (writeMode == WriteMode.WRITE_BEHIND) {
-                writeBehindBatchSize(writeBehindBatchSize)
-                writeBehindDelay(writeBehindDelay)
+                if (writeMode == WriteMode.WRITE_BEHIND) {
+                    writeBehindBatchSize(writeBehindBatchSize)
+                    writeBehindDelay(writeBehindDelay)
+                }
+
+                writeRetryAttempts(writeRetryAttempts)
+                writeRetryInterval(writeRetryInterval)
             }
-
-            writeRetryAttempts(writeRetryAttempts)
-            writeRetryInterval(writeRetryInterval)
         }
-    }
 
-    private fun <K: Any, V> LocalCachedMapOptions<K, V>.applyNearCacheOptions(): LocalCachedMapOptions<K, V> = apply {
-        if (nearCacheEnabled) {
-            evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
-            cacheSize(nearCacheMaxSize)
-            timeToLive(nearCacheTtl)
-            maxIdle(nearCacheMaxIdleTime)
-            syncStrategy(nearCacheSyncStrategy)
-        } else {
-            cacheSize(0)
-            timeToLive(Duration.ZERO)
-            maxIdle(Duration.ZERO)
+    private fun <K : Any, V> LocalCachedMapOptions<K, V>.applyNearCacheOptions(): LocalCachedMapOptions<K, V> =
+        apply {
+            if (nearCacheEnabled) {
+                evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                cacheSize(nearCacheMaxSize)
+                timeToLive(nearCacheTtl)
+                maxIdle(nearCacheMaxIdleTime)
+                syncStrategy(nearCacheSyncStrategy)
+            } else {
+                cacheSize(0)
+                timeToLive(Duration.ZERO)
+                maxIdle(Duration.ZERO)
+            }
         }
-    }
 }

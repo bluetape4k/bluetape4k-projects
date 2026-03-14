@@ -5,26 +5,29 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.dao.entityCache
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class StringEntityTest: AbstractExposedTest() {
-
-    object StringEntityTable: IdTable<String>("string_entity_table") {
+class StringEntityTest : AbstractExposedTest() {
+    object StringEntityTable : IdTable<String>("string_entity_table") {
         override val id = varchar("id", 64).entityId()
         val name = varchar("name", 100)
         override val primaryKey = PrimaryKey(id)
     }
 
-    class StringUser(id: EntityID<String>): StringEntity(id) {
-        companion object: StringEntityClass<StringUser>(StringEntityTable)
+    class StringUser(
+        id: EntityID<String>,
+    ) : StringEntity(id) {
+        companion object : StringEntityClass<StringUser>(StringEntityTable)
 
         var name by StringEntityTable.name
 
         override fun equals(other: Any?): Boolean = idEquals(other)
+
         override fun hashCode(): Int = idHashCode()
     }
 
@@ -32,9 +35,10 @@ class StringEntityTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `StringEntity 는 문자열 ID로 저장 조회가 가능하다`(testDB: TestDB) {
         withTables(testDB, StringEntityTable) {
-            val user = StringUser.new("user-001") {
-                name = "Alice"
-            }
+            val user =
+                StringUser.new("user-001") {
+                    name = "Alice"
+                }
             entityCache.clear()
 
             val loaded = StringUser.findById("user-001")!!
@@ -93,6 +97,32 @@ class StringEntityTest: AbstractExposedTest() {
             entityCache.clear()
 
             StringUser.all().count() shouldBeEqualTo 3L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity 는 빈 문자열 ID로도 저장 조회가 가능하다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            StringUser.new("") { name = "EmptyId" }
+            entityCache.clear()
+
+            val loaded = StringUser.findById("")!!
+            loaded.name shouldBeEqualTo "EmptyId"
+            loaded.idValue shouldBeEqualTo ""
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `StringEntity equals와 hashCode는 idEquals와 idHashCode를 따른다`(testDB: TestDB) {
+        withTables(testDB, StringEntityTable) {
+            val user1 = StringUser.new("eq-test") { name = "User1" }
+            entityCache.clear()
+
+            val user2 = StringUser.findById("eq-test")!!
+            (user1 == user2).shouldBeTrue()
+            user1.hashCode() shouldBeEqualTo user2.hashCode()
         }
     }
 }

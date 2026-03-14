@@ -21,24 +21,23 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.LocalDate
 
-class EntityExtensionsTest: AbstractExposedTest() {
-
+class EntityExtensionsTest : AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAO 방식으로 Post 생성하기`(testDB: TestDB) {
         withTables(testDB, *blogTables) {
-
-            val post = Post.new {
-                title = "Post 1"
-
-            }
+            val post =
+                Post.new {
+                    title = "Post 1"
+                }
             log.debug { "Post=$post" }
 
             // one-to-one 관계에서 ownership 을 가진 Post의 id 값을 지정합니다.
-            val postDetail = PostDetail.new(post.id.value) {
-                createdOn = LocalDate.now()
-                createdBy = "admin"
-            }
+            val postDetail =
+                PostDetail.new(post.id.value) {
+                    createdOn = LocalDate.now()
+                    createdBy = "admin"
+                }
             log.debug { "PostDetail=$postDetail" }
 
             flushCache()
@@ -48,8 +47,8 @@ class EntityExtensionsTest: AbstractExposedTest() {
 
             loadedPost shouldBeEqualTo post
 
-            log.debug { "postDetails id table=${postDetail.id.table.tableName}" }     // post_details
-            log.debug { "loadedPost.details id table=${loadedPost.detail.id.table.tableName}" }  // posts
+            log.debug { "postDetails id table=${postDetail.id.table.tableName}" } // post_details
+            log.debug { "loadedPost.details id table=${loadedPost.detail.id.table.tableName}" } // posts
 
             loadedPost.detail shouldBeEqualTo postDetail
         }
@@ -59,10 +58,10 @@ class EntityExtensionsTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `flush 없이 Child 추가`(testDB: TestDB) {
         withTables(testDB, Boards, Posts, Categories) {
-
-            val parent = BoardSchema.Post.new {
-                this.category = BoardSchema.Category.new { title = "title" }
-            }
+            val parent =
+                BoardSchema.Post.new {
+                    this.category = BoardSchema.Category.new { title = "title" }
+                }
             BoardSchema.Post.new { this.parent = parent }
 
             BoardSchema.Post.all().count() shouldBeEqualTo 2L
@@ -91,9 +90,10 @@ class EntityExtensionsTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `id 관련 확장 함수는 일관된 값을 제공한다`(testDB: TestDB) {
         withTables(testDB, *blogTables) {
-            val post = Post.new {
-                title = "Post with extensions"
-            }
+            val post =
+                Post.new {
+                    title = "Post with extensions"
+                }
 
             post.idValue shouldBeEqualTo post.id._value
             post.idHashCode() shouldBeEqualTo post.idValue.hashCode()
@@ -137,7 +137,7 @@ class EntityExtensionsTest: AbstractExposedTest() {
         withTables(testDB, *blogTables) {
             val post1 = Post.new { title = "post1" }
             val post2 = Post.new { title = "post2" }
-            flushCache()  // auto-increment id가 DB에 저장된 후에야 idValue가 확정됨
+            flushCache() // auto-increment id가 DB에 저장된 후에야 idValue가 확정됨
             post1.idEquals(post2).shouldBeFalse()
         }
     }
@@ -150,6 +150,64 @@ class EntityExtensionsTest: AbstractExposedTest() {
             flushCache()
             val reloaded = Post.findById(post.id)!!
             post.idEquals(reloaded).shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idHashCode - 동일 id를 가진 엔티티는 같은 hashCode를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "hash test" }
+            flushCache()
+            val reloaded = Post.findById(post.id)!!
+            post.idHashCode() shouldBeEqualTo reloaded.idHashCode()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idHashCode - 서로 다른 id를 가진 엔티티는 다른 hashCode를 반환한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post1 = Post.new { title = "post1" }
+            val post2 = Post.new { title = "post2" }
+            flushCache()
+
+            // hashCode 충돌이 이론적으로 가능하지만 auto-increment 연속 값에서는 다르다
+            (post1.idHashCode() != post2.idHashCode()).shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `entityToStringBuilder - id 필드와 클래스명이 포함된다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "toString test" }
+            flushCache()
+
+            val str = post.entityToStringBuilder().toString()
+            str shouldContain "id="
+            str shouldContain "Post"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `idEquals - one-to-one backReferencedOn 관계 엔티티도 비교 가능하다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new { title = "backRef test" }
+            val postDetail =
+                PostDetail.new(post.id.value) {
+                    createdOn = LocalDate.now()
+                    createdBy = "tester"
+                }
+            flushCache()
+            entityCache.clear()
+
+            val loadedPost = Post.findById(post.id)!!
+            // Post와 PostDetail은 서로 다른 타입이므로 idEquals는 false
+            loadedPost.idEquals(postDetail).shouldBeFalse()
+            // 같은 타입 엔티티 재조회 비교
+            loadedPost.idEquals(post).shouldBeTrue()
         }
     }
 }
