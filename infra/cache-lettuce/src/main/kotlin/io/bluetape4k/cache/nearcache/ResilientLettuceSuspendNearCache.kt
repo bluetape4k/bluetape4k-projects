@@ -59,23 +59,24 @@ import java.util.concurrent.ConcurrentHashMap
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class ResilientLettuceSuspendNearCache<V: Any>(
+class ResilientLettuceSuspendNearCache<V : Any>(
     private val redisClient: RedisClient,
     private val codec: RedisCodec<String, V> = lettuceDefaultCodec(),
-    private val config: ResilientLettuceNearCacheConfig<String, V> = ResilientLettuceNearCacheConfig(
-        LettuceNearCacheConfig()
-    ),
-): AutoCloseable {
-
-    companion object: KLogging() {
+    private val config: ResilientLettuceNearCacheConfig<String, V> =
+        ResilientLettuceNearCacheConfig(
+            LettuceNearCacheConfig()
+        ),
+) : AutoCloseable {
+    companion object : KLogging() {
         /**
          * String 키/값 타입의 Resilient Near Suspend Cache를 생성한다.
          */
         operator fun invoke(
             redisClient: RedisClient,
-            config: ResilientLettuceNearCacheConfig<String, String> = ResilientLettuceNearCacheConfig(
-                LettuceNearCacheConfig()
-            ),
+            config: ResilientLettuceNearCacheConfig<String, String> =
+                ResilientLettuceNearCacheConfig(
+                    LettuceNearCacheConfig()
+                ),
         ): ResilientLettuceSuspendNearCache<String> =
             ResilientLettuceSuspendNearCache(redisClient, lettuceDefaultCodec(), config)
     }
@@ -121,34 +122,44 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     }
 
     private fun buildRetry(): Retry {
-        val intervalFn = if (config.retryExponentialBackoff) {
-            IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
-        } else {
-            IntervalFunction.of(config.retryWaitDuration)
-        }
-        val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(config.retryMaxAttempts)
-            .intervalFunction(intervalFn)
-            .build()
+        val intervalFn =
+            if (config.retryExponentialBackoff) {
+                IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
+            } else {
+                IntervalFunction.of(config.retryWaitDuration)
+            }
+        val retryConfig =
+            RetryConfig
+                .custom<Any>()
+                .maxAttempts(config.retryMaxAttempts)
+                .intervalFunction(intervalFn)
+                .build()
         return Retry.of("${config.cacheName}-write-retry", retryConfig)
     }
 
     private fun launchWriteConsumer() {
-        consumerJob = scope.launch {
-            for (cmd in writeChannel) {
-                try {
-                    withRetry<Unit>(retry) { applyCommand(cmd) }
-                } catch (e: Exception) {
-                    log.error(e) { "Redis write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+        consumerJob =
+            scope.launch {
+                for (cmd in writeChannel) {
+                    try {
+                        withRetry<Unit>(retry) { applyCommand(cmd) }
+                    } catch (e: Exception) {
+                        log.error(
+                            e
+                        ) { "Redis write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                    }
                 }
             }
-        }
     }
 
     private suspend fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put    -> setRedis(cmd.key, cmd.value)
-            is BackCacheCommand.PutAll -> cmd.entries.forEach { (k, v) -> setRedis(k, v) }
+            is BackCacheCommand.Put -> {
+                setRedis(cmd.key, cmd.value)
+            }
+            is BackCacheCommand.PutAll -> {
+                cmd.entries.forEach { (k, v) -> setRedis(k, v) }
+            }
             is BackCacheCommand.Remove -> {
                 commands.del(config.redisKey(cmd.key))
                 tombstones.remove(cmd.key)
@@ -179,16 +190,17 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         frontCache.get(key)?.let { return it }
 
         return when (config.getFailureStrategy) {
-            GetFailureStrategy.RETURN_FRONT_OR_NULL ->
+            GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
                 runCatching { commands.get(config.redisKey(key)) }
                     .onFailure { e -> log.warn(e) { "Redis GET failed for key=$key, returning null" } }
                     .getOrNull()
                     ?.also { value -> frontCache.put(key, value) }
-
-            GetFailureStrategy.PROPAGATE_EXCEPTION ->
+            }
+            GetFailureStrategy.PROPAGATE_EXCEPTION -> {
                 commands.get(config.redisKey(key))?.also { value ->
                     frontCache.put(key, value)
                 }
+            }
         }
     }
 
@@ -201,9 +213,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         val missedKeys = (keys - result.keys).filter { !tombstones.contains(it) }
 
         missedKeys.forEach { key ->
-            val value = runCatching { commands.get(config.redisKey(key)) }
-                .onFailure { e -> log.warn(e) { "Redis GET failed for key=$key during getAll" } }
-                .getOrNull()
+            val value =
+                runCatching { commands.get(config.redisKey(key)) }
+                    .onFailure { e -> log.warn(e) { "Redis GET failed for key=$key during getAll" } }
+                    .getOrNull()
             if (value != null) {
                 result[key] = value
                 frontCache.put(key, value)
@@ -217,7 +230,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
      * - front cache 즉시 반영
      * - Redis write는 channel로 큐잉 (write-behind)
      */
-    suspend fun put(key: String, value: V) {
+    suspend fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
         tombstones.remove(key)
         frontCache.put(key, value)
@@ -245,7 +261,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
      * 키-값이 없을 때만 저장한다. Redis setnx를 사용하여 원자적으로 처리한다.
      * @return 이미 존재하는 값이 있으면 기존 값, 새로 저장하면 null
      */
-    suspend fun putIfAbsent(key: String, value: V): V? {
+    suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key)
         if (existing != null) return existing
 
@@ -264,7 +283,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    suspend fun replace(key: String, value: V): Boolean {
+    suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
@@ -281,7 +303,11 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -299,7 +325,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    suspend fun getAndReplace(key: String, value: V): V? {
+    suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -383,7 +412,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 count += result.keys.size
                 finished = result.isFinished
@@ -417,7 +446,7 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 if (result.keys.isNotEmpty()) {
                     commands.del(*result.keys.toTypedArray())
@@ -435,7 +464,10 @@ class ResilientLettuceSuspendNearCache<V: Any>(
         config.redisTtl?.let { SetArgs.Builder.ex(it) }
     }
 
-    private suspend fun setRedis(key: String, value: V) {
+    private suspend fun setRedis(
+        key: String,
+        value: V,
+    ) {
         val rKey = config.redisKey(key)
 
         if (redisTtlArgs != null) {

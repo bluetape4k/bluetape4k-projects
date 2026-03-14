@@ -49,21 +49,19 @@ import kotlinx.coroutines.flow.collect
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class LettuceSuspendNearCache<V: Any>(
+class LettuceSuspendNearCache<V : Any>(
     redisClient: RedisClient,
     codec: RedisCodec<String, V> = LettuceBinaryCodecs.lz4Fory(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-): AutoCloseable {
-
-    companion object: KLogging() {
+) : AutoCloseable {
+    companion object : KLogging() {
         /**
          * String 키/값 타입의 Near Suspend Cache를 생성한다.
          */
         operator fun invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
-        ): LettuceSuspendNearCache<String> =
-            LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
+        ): LettuceSuspendNearCache<String> = LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
     }
 
     val cacheName: String get() = config.cacheName
@@ -125,7 +123,10 @@ class LettuceSuspendNearCache<V: Any>(
      *
      * write-through 후 async Redis GET을 fire-and-forget으로 실행해 CLIENT TRACKING을 활성화한다.
      */
-    suspend fun put(key: String, value: V) {
+    suspend fun put(
+        key: String,
+        value: V,
+    ) {
         frontCache.put(key, value)
         setRedis(key, value)
         // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
@@ -147,7 +148,7 @@ class LettuceSuspendNearCache<V: Any>(
         } else {
             commands.mset(rMap)
         }
-        commands.mget(*rMap.keys.toTypedArray()).collect()  // CLIENT TRACKING 활성화
+        commands.mget(*rMap.keys.toTypedArray()).collect() // CLIENT TRACKING 활성화
 
 //        map.forEach { (key, value) ->
 //            setRedis(key, value)
@@ -160,7 +161,10 @@ class LettuceSuspendNearCache<V: Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    suspend fun putIfAbsent(key: String, value: V): V? {
+    suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key)
         if (existing != null) return existing
 
@@ -198,7 +202,10 @@ class LettuceSuspendNearCache<V: Any>(
      * 기존 값을 새 값으로 교체한다.
      * @return 교체 성공 여부
      */
-    suspend fun replace(key: String, value: V): Boolean {
+    suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         val ok = commands.set(config.redisKey(key), value, SetArgs.Builder.xx()) != null
         if (ok) {
             frontCache.put(key, value)
@@ -209,7 +216,11 @@ class LettuceSuspendNearCache<V: Any>(
     /**
      * 기존 값이 oldValue와 같을 때만 newValue로 교체한다.
      */
-    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -229,7 +240,10 @@ class LettuceSuspendNearCache<V: Any>(
     /**
      * 조회 후 교체한다.
      */
-    suspend fun getAndReplace(key: String, value: V): V? {
+    suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -255,7 +269,11 @@ class LettuceSuspendNearCache<V: Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         var finished = false
         while (!finished) {
-            val result: KeyScanCursor<String>? = commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+            val result: KeyScanCursor<String>? =
+                commands.scan(
+                    cursor,
+                    ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE)
+                )
             if (result != null) {
                 if (result.keys.isNotEmpty()) {
                     commands.del(*result.keys.toTypedArray())
@@ -291,7 +309,11 @@ class LettuceSuspendNearCache<V: Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         var finished = false
         while (!finished) {
-            val result: KeyScanCursor<String>? = commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+            val result: KeyScanCursor<String>? =
+                commands.scan(
+                    cursor,
+                    ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE)
+                )
             if (result != null) {
                 count += result.keys.size
                 finished = result.isFinished
@@ -319,7 +341,10 @@ class LettuceSuspendNearCache<V: Any>(
         config.redisTtl?.let { SetArgs.Builder.ex(it) }
     }
 
-    private suspend inline fun setRedis(key: String, value: V) {
+    private suspend inline fun setRedis(
+        key: String,
+        value: V,
+    ) {
         val rKey = config.redisKey(key)
 
         if (redisTtlArgs != null) {
