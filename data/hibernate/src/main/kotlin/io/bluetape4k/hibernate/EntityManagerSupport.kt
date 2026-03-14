@@ -51,14 +51,23 @@ fun EntityManager.asSessionImpl(): SessionImpl = unwrap(SessionImpl::class.java)
  */
 fun EntityManager.sessionFactory(): SessionFactory = currentSession().sessionFactory
 
-
+/** 엔티티 전체 삭제를 위한 JPQL 템플릿입니다. `%s`에 엔티티명이 대입됩니다. */
 const val QUERY_DELETE_ALL = "delete from %s x"
+
+/** 엔티티 전체 개수 조회를 위한 JPQL 템플릿입니다. `%s`에 엔티티명이 대입됩니다. */
 const val QUERY_COUNT = "select count(*) from %s x"
+
+/** count 쿼리에서 사용하는 placeholder 문자열입니다. */
 const val QUERY_COUNT_HOLDER = "*"
 
-
+/**
+ * JPQL 템플릿 [template]에 [entityName]을 대입하여 쿼리 문자열을 생성합니다.
+ */
 @PublishedApi
-internal fun queryString(template: String, entityName: String): String = template.format(entityName)
+internal fun queryString(
+    template: String,
+    entityName: String,
+): String = template.format(entityName)
 
 /**
  * 새로운 [TypedQuery]`<T>` 를 생성합니다.
@@ -89,21 +98,21 @@ fun <T> EntityManager.newQuery(resultClass: Class<T>): TypedQuery<T> {
  * ## 동작/계약
  * - [newQuery]의 reified 오버로드입니다.
  */
-inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> =
-    newQuery(T::class.java)
+inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> = newQuery(T::class.java)
 
 /**
  * JPQL 문자열과 결과 수형을 받아 [TypedQuery]를 생성합니다.
  */
-fun <T: Any> EntityManager.createQueryAs(queryString: String, resultClass: KClass<T>): TypedQuery<T> =
-    createQuery(queryString, resultClass.java)
+fun <T : Any> EntityManager.createQueryAs(
+    queryString: String,
+    resultClass: KClass<T>,
+): TypedQuery<T> = createQuery(queryString, resultClass.java)
 
 /**
  * JPQL 문자열과 reified 타입으로 [TypedQuery]를 생성합니다.
  */
 inline fun <reified T> EntityManager.createQueryAs(queryString: String): TypedQuery<T> =
     createQuery(queryString, T::class.java)
-
 
 /**
  * [TypedQuery] 에 Paging 정보를 설정합니다.
@@ -117,10 +126,14 @@ inline fun <reified T> EntityManager.createQueryAs(queryString: String): TypedQu
  * // page === query
  * ```
  */
-fun <X> TypedQuery<X>.setPaging(firstResult: Int, maxResults: Int): TypedQuery<X> = apply {
-    setFirstResult(firstResult)
-    setMaxResults(maxResults)
-}
+fun <X> TypedQuery<X>.setPaging(
+    firstResult: Int,
+    maxResults: Int,
+): TypedQuery<X> =
+    apply {
+        setFirstResult(firstResult)
+        setMaxResults(maxResults)
+    }
 
 /**
  * [entity]가 Load 된 Persistence Object 인지 판단합니다.
@@ -138,9 +151,10 @@ fun EntityManager.isLoaded(entity: Any?): Boolean =
  * @param property entity manager 에 load 된 객체인지 검사할 속성
  * @return proxy 가 아니라면 true
  */
-fun EntityManager.isLoaded(entity: Any?, property: String): Boolean =
-    entity?.run { entityManagerFactory.persistenceUnitUtil.isLoaded(this, property) } ?: false
-
+fun EntityManager.isLoaded(
+    entity: Any?,
+    property: String,
+): Boolean = entity?.run { entityManagerFactory.persistenceUnitUtil.isLoaded(this, property) } ?: false
 
 /**
  * [entity]를 상황에 따라 `merge` 하거나 `persist` 합니다.
@@ -149,14 +163,13 @@ fun EntityManager.isLoaded(entity: Any?, property: String): Boolean =
  * - `isPersisted && !contains(entity)`이면 `merge`, 그 외에는 `persist`를 수행합니다.
  * - 반환값은 병합 결과 또는 입력 엔티티입니다.
  */
-fun <T: JpaEntity<*>> EntityManager.save(entity: T): T {
-    return if (entity.isPersisted && !contains(entity)) {
+fun <T : JpaEntity<*>> EntityManager.save(entity: T): T =
+    if (entity.isPersisted && !contains(entity)) {
         merge(entity)
     } else {
         persist(entity)
         entity
     }
-}
 
 /**
  * [entity]를 삭제합니다.
@@ -165,7 +178,7 @@ fun <T: JpaEntity<*>> EntityManager.save(entity: T): T {
  * - 영속 상태가 아니면 `merge` 후 삭제합니다.
  * - `isPersisted == false`이면 아무 작업도 하지 않습니다.
  */
-fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
+fun <T : JpaEntity<*>> EntityManager.delete(entity: T) {
     if (entity.isPersisted) {
         if (!contains(entity)) {
             remove(merge(entity))
@@ -185,9 +198,22 @@ inline fun <reified T> EntityManager.deleteById(id: Serializable) {
     tryGetReference<T>(id).getOrNull()?.let { remove(it) }
 }
 
-inline fun <reified T> EntityManager.getReference(id: Serializable): T =
-    getReference(T::class.java, id)
+/**
+ * reified 타입 [T]와 식별자 [id]로 엔티티 레퍼런스(프록시)를 가져옵니다.
+ *
+ * ## 동작/계약
+ * - `getReference(T::class.java, id)`로 위임합니다.
+ * - 프록시 초기화 시점에 엔티티가 존재하지 않으면 예외가 발생할 수 있습니다.
+ */
+inline fun <reified T> EntityManager.getReference(id: Serializable): T = getReference(T::class.java, id)
 
+/**
+ * reified 타입 [T]와 식별자 [id]로 엔티티 레퍼런스(프록시) 조회를 시도하고, 결과를 [Result]로 감싸 반환합니다.
+ *
+ * ## 동작/계약
+ * - `getReference` 호출을 `runCatching`으로 감싸 예외 발생 시 `Result.failure`를 반환합니다.
+ * - 성공 시 `Result.success(entity)`를 반환합니다.
+ */
 inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T> =
     runCatching { getReference(T::class.java, id) }
 
@@ -213,8 +239,7 @@ inline fun <reified T> EntityManager.findOne(id: Serializable): T? = find(T::cla
  * ## 동작/계약
  * - [findOne] 결과가 `null`인지로 존재 여부를 판단합니다.
  */
-inline fun <reified T> EntityManager.exists(id: Serializable): Boolean =
-    findOne<T>(id) != null
+inline fun <reified T> EntityManager.exists(id: Serializable): Boolean = findOne<T>(id) != null
 
 /**
  * [clazz] 수형의 모든 엔티티를 조회합니다.
@@ -222,9 +247,7 @@ inline fun <reified T> EntityManager.exists(id: Serializable): Boolean =
  * ## 동작/계약
  * - 조건 없는 criteria 기반 전체 조회를 수행합니다.
  */
-fun <T> EntityManager.findAll(clazz: Class<T>): List<T> {
-    return newQuery(clazz).resultList
-}
+fun <T> EntityManager.findAll(clazz: Class<T>): List<T> = newQuery(clazz).resultList
 
 /**
  * [T] 수형의 엔티티 전체 개수를 반환합니다.
@@ -257,9 +280,8 @@ inline fun <reified T> EntityManager.deleteAll(): Int {
  * ## 동작/계약
  * - Hibernate 내부 API(`SessionImpl -> jdbcCoordinator`)를 통해 물리 커넥션을 조회합니다.
  */
-fun EntityManager.currentConnection(): Connection {
-    return currentSessionImpl()
+fun EntityManager.currentConnection(): Connection =
+    currentSessionImpl()
         .jdbcCoordinator
         .logicalConnection
         .physicalConnection
-}
