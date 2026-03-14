@@ -18,22 +18,32 @@ import okhttp3.Response
  */
 class CachingResponseInterceptor private constructor(
     private val cacheControl: CacheControl,
-): Interceptor {
+) : Interceptor {
     private val cacheControlHeader: String = cacheControl.toString()
 
-    companion object: KLogging() {
+    companion object : KLogging() {
         /**
-         * HTTP 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [CacheControl] 인스턴스를 받아 [CachingResponseInterceptor]를 생성합니다.
+         *
+         * @param cacheControl 적용할 [CacheControl]
+         * @return [CachingResponseInterceptor] 인스턴스
          */
         @JvmStatic
-        operator fun invoke(
-            cacheControl: CacheControl = okhttp3CacheControlOf(),
-        ): CachingResponseInterceptor {
-            return CachingResponseInterceptor(cacheControl)
-        }
+        operator fun invoke(cacheControl: CacheControl = okhttp3CacheControlOf()): CachingResponseInterceptor =
+            CachingResponseInterceptor(cacheControl)
 
         /**
-         * HTTP 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * 캐시 제어 파라미터를 직접 지정해 [CachingResponseInterceptor]를 생성합니다.
+         *
+         * @param maxAgeInSeconds 캐시 최대 유효 시간 (초)
+         * @param maxStaleInSeconds 만료된 캐시를 허용하는 최대 시간 (초)
+         * @param minFreshInSeconds 최소 신선도 유지 시간 (초)
+         * @param onlyIfCached 캐시에 있을 때만 응답 허용
+         * @param noCache 캐시 사용 금지
+         * @param noStore 캐시 저장 금지
+         * @param noTransform 캐시 변환 금지
+         * @param immutable 캐시 불변 처리
+         * @return [CachingResponseInterceptor] 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -46,22 +56,27 @@ class CachingResponseInterceptor private constructor(
             noTransform: Boolean = false,
             immutable: Boolean = false,
         ): CachingResponseInterceptor {
-            val cacheControl = okhttp3CacheControlOf(
-                maxAgeInSeconds = maxAgeInSeconds,
-                maxStaleInSeconds = maxStaleInSeconds,
-                minFreshInSeconds = minFreshInSeconds,
-                onlyIfCached = onlyIfCached,
-                noCache = noCache,
-                noStore = noStore,
-                noTransform = noTransform,
-                immutable = immutable
-            )
+            val cacheControl =
+                okhttp3CacheControlOf(
+                    maxAgeInSeconds = maxAgeInSeconds,
+                    maxStaleInSeconds = maxStaleInSeconds,
+                    minFreshInSeconds = minFreshInSeconds,
+                    onlyIfCached = onlyIfCached,
+                    noCache = noCache,
+                    noStore = noStore,
+                    noTransform = noTransform,
+                    immutable = immutable
+                )
             return CachingResponseInterceptor(cacheControl)
         }
     }
 
     /**
-     * HTTP 처리에서 `intercept` 함수를 제공합니다.
+     * 응답에 Cache-Control 헤더가 없을 때만 [cacheControl]을 추가합니다.
+     * 이미 Cache-Control 헤더가 있는 응답은 그대로 반환합니다.
+     *
+     * @param chain [Interceptor.Chain] 인스턴스
+     * @return Cache-Control 헤더가 포함된 [Response]
      */
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
@@ -70,7 +85,8 @@ class CachingResponseInterceptor private constructor(
             return response
         }
 
-        return response.newBuilder()
+        return response
+            .newBuilder()
             .header("Cache-Control", cacheControlHeader)
             .build()
     }
