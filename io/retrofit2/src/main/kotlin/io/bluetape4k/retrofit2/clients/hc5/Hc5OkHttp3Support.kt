@@ -30,16 +30,17 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
 
     val method = Method.normalizedValueOf(self.method)
 
-    val simpleRequest = simpleHttpRequest(method) {
-        setHttpHost(HttpHost(self.url.scheme, self.url.host, self.url.port))
-        val encodedQuery = self.url.encodedQuery
-        if (encodedQuery != null) {
-            setPath(self.url.encodedPath + "?" + encodedQuery)
-        } else {
-            setPath(self.url.encodedPath)
+    val simpleRequest =
+        simpleHttpRequest(method) {
+            setHttpHost(HttpHost(self.url.scheme, self.url.host, self.url.port))
+            val encodedQuery = self.url.encodedQuery
+            if (encodedQuery != null) {
+                setPath(self.url.encodedPath + "?" + encodedQuery)
+            } else {
+                setPath(self.url.encodedPath)
+            }
+            setVersion(HttpVersion.HTTP_1_1)
         }
-        setVersion(HttpVersion.HTTP_1_1)
-    }
 
     // Add Headers
     simpleRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip,deflate")
@@ -51,9 +52,11 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
 
     self.body?.let { body: okhttp3.RequestBody ->
         if (body.contentLength() != 0L) {
-            val contentType = body.contentType()
-                ?.let { ContentType.create(it.toTypeString(), it.charset(Charsets.UTF_8)) }
-                ?: ContentType.APPLICATION_JSON
+            val contentType =
+                body
+                    .contentType()
+                    ?.let { ContentType.create(it.toTypeString(), it.charset(Charsets.UTF_8)) }
+                    ?: ContentType.APPLICATION_JSON
 
             val buffer = okio.Buffer()
             body.writeTo(buffer)
@@ -67,9 +70,7 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
 /**
  * Retrofit2 연동 타입 변환을 위한 `toOkHttp3Response` 함수를 제공합니다.
  */
-internal fun SimpleHttpResponse.toOkHttp3Response(
-    okRequest: okhttp3.Request,
-): okhttp3.Response {
+internal fun SimpleHttpResponse.toOkHttp3Response(okRequest: okhttp3.Request): okhttp3.Response {
     log.trace { "Convert HC5 SimpleHttpResponse to okhttp3.Response." }
     val self: SimpleHttpResponse = this@toOkHttp3Response
 
@@ -105,31 +106,39 @@ internal fun SimpleHttpResponse.bodyPlainBytes(): ByteArray {
     val self: SimpleHttpResponse = this@bodyPlainBytes
 
     // Content가 압축되어 있을 경우 압축을 해제합니다. (다른 놈들은 기본 제공하는 기능인데 ...)
-    val encodings = self.getHeader(HttpHeaders.CONTENT_ENCODING)
-        ?.value
-        .orEmpty()
-        .split(',')
-        .map { it.trim().lowercase() }
-        .filter { it.isNotBlank() }
-        .toSet()
+    val encodings =
+        self
+            .getHeader(HttpHeaders.CONTENT_ENCODING)
+            ?.value
+            .orEmpty()
+            .split(',')
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() }
+            .toSet()
 
     val rawBytes = self.bodyBytes ?: return emptyByteArray
     return when {
-        "gzip" in encodings || "x-gzip" in encodings -> runCatching {
-            log.trace { "Decompress gzip bytes." }
-            Compressors.GZip.decompress(rawBytes)
-        }.getOrElse {
-            log.warn(it) { "Fail to decompress gzip response. fallback to raw bytes." }
+        "gzip" in encodings || "x-gzip" in encodings -> {
+            runCatching {
+                log.trace { "Decompress gzip bytes." }
+                Compressors.GZip.decompress(rawBytes)
+            }.getOrElse {
+                log.warn(it) { "Fail to decompress gzip response. fallback to raw bytes." }
+                rawBytes.copyOf()
+            }
+        }
+        "deflate" in encodings -> {
+            runCatching {
+                log.trace { "Decompress deflate bytes." }
+                Compressors.Deflate.decompress(rawBytes)
+            }.getOrElse {
+                log.warn(it) { "Fail to decompress deflate response. fallback to raw bytes." }
+                rawBytes.copyOf()
+            }
+        }
+        else -> {
             rawBytes.copyOf()
         }
-        "deflate" in encodings                       -> runCatching {
-            log.trace { "Decompress deflate bytes." }
-            Compressors.Deflate.decompress(rawBytes)
-        }.getOrElse {
-            log.warn(it) { "Fail to decompress deflate response. fallback to raw bytes." }
-            rawBytes.copyOf()
-        }
-        else                                         -> rawBytes.copyOf()
     }
 }
 
