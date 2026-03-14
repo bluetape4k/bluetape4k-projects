@@ -2,9 +2,6 @@ package io.bluetape4k.cassandra
 
 import com.datastax.oss.driver.internal.core.util.Strings
 
-private const val DOUBLE_SINGLE_QUOTE = "''"
-private const val SINGLE_QUOTE = "'"
-
 /**
  * 값을 CQL single quote 문자열로 이스케이프/감싸기 처리합니다.
  *

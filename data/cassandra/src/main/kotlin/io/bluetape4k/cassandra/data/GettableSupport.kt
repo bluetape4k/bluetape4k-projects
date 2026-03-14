@@ -21,64 +21,204 @@ import java.time.LocalTime
 import java.util.*
 import kotlin.reflect.KClass
 
+/**
+ * [CqlIdentifier]와 [KClass]를 사용하여 [GettableById]에서 값을 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @param kclass 값의 타입 클래스
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+fun <V : Any> GettableById.getValue(
+    id: CqlIdentifier,
+    kclass: KClass<V>,
+): V? = get(id, kclass.java)
 
-fun <V: Any> GettableById.getValue(id: CqlIdentifier, kclass: KClass<V>): V? = get(id, kclass.java)
-inline fun <reified V: Any> GettableById.getValue(id: CqlIdentifier): V? = get(id, V::class.java)
-inline fun <reified V: Any> GettableById.getList(id: CqlIdentifier): MutableList<V>? = getList(id, V::class.java)
-inline fun <reified V: Any> GettableById.getSet(id: CqlIdentifier): MutableSet<V>? = getSet(id, V::class.java)
+/**
+ * [CqlIdentifier]를 사용하여 [GettableById]에서 reified 타입으로 값을 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableById.getValue(id: CqlIdentifier): V? = get(id, V::class.java)
+
+/**
+ * [CqlIdentifier]를 사용하여 [GettableById]에서 리스트 값을 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @return 해당 컬럼의 리스트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableById.getList(id: CqlIdentifier): MutableList<V>? = getList(id, V::class.java)
+
+/**
+ * [CqlIdentifier]를 사용하여 [GettableById]에서 세트 값을 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @return 해당 컬럼의 세트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableById.getSet(id: CqlIdentifier): MutableSet<V>? = getSet(id, V::class.java)
+
+/**
+ * [CqlIdentifier]를 사용하여 [GettableById]에서 맵 값을 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @return 해당 컬럼의 맵 값 또는 `null`
+ */
 inline fun <reified K, reified V> GettableById.getMap(id: CqlIdentifier): MutableMap<K, V>? =
     getMap(id, K::class.java, V::class.java)
 
-fun GettableById.getObject(id: CqlIdentifier, requireType: KClass<*>): Any? =
-    getObject(firstIndexOf(id), requireType)
+/**
+ * [CqlIdentifier]를 사용하여 [GettableById]에서 지정 타입의 객체를 가져옵니다.
+ *
+ * @param id 컬럼 식별자
+ * @param requireType 기대하는 타입의 [KClass]
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+fun GettableById.getObject(
+    id: CqlIdentifier,
+    requireType: KClass<*>,
+): Any? = getObject(firstIndexOf(id), requireType)
 
+/**
+ * 인덱스와 [KClass]를 사용하여 [GettableByIndex]에서 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스
+ * @param kclass 값의 타입 클래스
+ * @return 해당 인덱스의 값 또는 `null`
+ */
+fun <V : Any> GettableByIndex.getValue(
+    index: Int,
+    kclass: KClass<V>,
+): V? = get(index, kclass.java)
 
-fun <V: Any> GettableByIndex.getValue(index: Int, kclass: KClass<V>): V? = get(index, kclass.java)
-inline fun <reified V: Any> GettableByIndex.getValue(index: Int): V? = get(index, V::class.java)
-inline fun <reified V: Any> GettableByIndex.getList(index: Int): MutableList<V>? = getList(index, V::class.java)
-inline fun <reified V: Any> GettableByIndex.getSet(index: Int): MutableSet<V>? = getSet(index, V::class.java)
+/**
+ * 인덱스를 사용하여 [GettableByIndex]에서 reified 타입으로 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스
+ * @return 해당 인덱스의 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByIndex.getValue(index: Int): V? = get(index, V::class.java)
+
+/**
+ * 인덱스를 사용하여 [GettableByIndex]에서 리스트 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스
+ * @return 해당 인덱스의 리스트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByIndex.getList(index: Int): MutableList<V>? = getList(index, V::class.java)
+
+/**
+ * 인덱스를 사용하여 [GettableByIndex]에서 세트 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스
+ * @return 해당 인덱스의 세트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByIndex.getSet(index: Int): MutableSet<V>? = getSet(index, V::class.java)
+
+/**
+ * 인덱스를 사용하여 [GettableByIndex]에서 맵 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스
+ * @return 해당 인덱스의 맵 값 또는 `null`
+ */
 inline fun <reified K, reified V> GettableByIndex.getMap(index: Int): MutableMap<K, V>? =
     getMap(index, K::class.java, V::class.java)
 
-fun GettableByIndex.getObject(index: Int, requireType: KClass<*>): Any? {
+/**
+ * 인덱스와 요구 타입을 사용하여 [GettableByIndex]에서 타입별로 적절한 getter를 호출하여 값을 가져옵니다.
+ *
+ * @param index 컬럼 인덱스 (0 이상이어야 함)
+ * @param requireType 기대하는 타입의 [KClass]
+ * @return 해당 인덱스의 값 또는 `null`
+ */
+fun GettableByIndex.getObject(
+    index: Int,
+    requireType: KClass<*>,
+): Any? {
     index.requireZeroOrPositiveNumber("index")
     if (isNull(index)) {
         return null
     }
     return when (requireType) {
-        String::class     -> getString(index)
-        Boolean::class    -> getBoolean(index)
-        Byte::class       -> getByte(index)
-        Short::class      -> getShort(index)
-        Int::class        -> getInt(index)
-        Long::class       -> getLong(index)
-        Float::class      -> getFloat(index)
-        Double::class     -> getDouble(index)
+        String::class -> getString(index)
+        Boolean::class -> getBoolean(index)
+        Byte::class -> getByte(index)
+        Short::class -> getShort(index)
+        Int::class -> getInt(index)
+        Long::class -> getLong(index)
+        Float::class -> getFloat(index)
+        Double::class -> getDouble(index)
         BigDecimal::class -> getBigDecimal(index)
         BigInteger::class -> getBigInteger(index)
-        LocalDate::class  -> getLocalDate(index)
-        LocalTime::class  -> getLocalTime(index)
-        Date::class       -> Date.from(getInstant(index))
-        Timestamp::class  -> Timestamp(getInstant(index)!!.toEpochMilli())
-        Instant::class    -> getInstant(index)
+        LocalDate::class -> getLocalDate(index)
+        LocalTime::class -> getLocalTime(index)
+        Date::class -> Date.from(getInstant(index))
+        Timestamp::class -> Timestamp(getInstant(index)!!.toEpochMilli())
+        Instant::class -> getInstant(index)
         ByteBuffer::class -> getByteBuffer(index)
-        ByteArray::class  -> getByteBuffer(index)?.getBytes()
+        ByteArray::class -> getByteBuffer(index)?.getBytes()
         InetAddress::class -> getInetAddress(index)
         CqlDuration::class -> getCqlDuration(index)
-        Token::class      -> getToken(index)
+        Token::class -> getToken(index)
         TupleValue::class -> getTupleValue(index)
-        UdtValue::class   -> getUdtValue(index)
-        UUID::class       -> getUuid(index)
-        else              -> get(index, requireType.java)
+        UdtValue::class -> getUdtValue(index)
+        UUID::class -> getUuid(index)
+        else -> get(index, requireType.java)
     }
 }
 
-fun <V: Any> GettableByName.getValue(name: String, kclass: KClass<V>): V? = get(name, kclass.java)
-inline fun <reified V: Any> GettableByName.getValue(name: String): V? = get(name, V::class.java)
-inline fun <reified V: Any> GettableByName.getList(name: String): MutableList<V>? = getList(name, V::class.java)
-inline fun <reified V: Any> GettableByName.getSet(name: String): MutableSet<V>? = getSet(name, V::class.java)
+/**
+ * 컬럼 이름과 [KClass]를 사용하여 [GettableByName]에서 값을 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @param kclass 값의 타입 클래스
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+fun <V : Any> GettableByName.getValue(
+    name: String,
+    kclass: KClass<V>,
+): V? = get(name, kclass.java)
+
+/**
+ * 컬럼 이름을 사용하여 [GettableByName]에서 reified 타입으로 값을 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByName.getValue(name: String): V? = get(name, V::class.java)
+
+/**
+ * 컬럼 이름을 사용하여 [GettableByName]에서 리스트 값을 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @return 해당 컬럼의 리스트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByName.getList(name: String): MutableList<V>? = getList(name, V::class.java)
+
+/**
+ * 컬럼 이름을 사용하여 [GettableByName]에서 세트 값을 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @return 해당 컬럼의 세트 값 또는 `null`
+ */
+inline fun <reified V : Any> GettableByName.getSet(name: String): MutableSet<V>? = getSet(name, V::class.java)
+
+/**
+ * 컬럼 이름을 사용하여 [GettableByName]에서 맵 값을 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @return 해당 컬럼의 맵 값 또는 `null`
+ */
 inline fun <reified K, reified V> GettableByName.getMap(name: String): MutableMap<K, V>? =
     getMap(name, K::class.java, V::class.java)
 
-fun GettableByName.getObject(name: String, requireType: KClass<*>): Any? =
-    getObject(firstIndexOf(name), requireType)
+/**
+ * 컬럼 이름과 요구 타입을 사용하여 [GettableByName]에서 지정 타입의 객체를 가져옵니다.
+ *
+ * @param name 컬럼 이름
+ * @param requireType 기대하는 타입의 [KClass]
+ * @return 해당 컬럼의 값 또는 `null`
+ */
+fun GettableByName.getObject(
+    name: String,
+    requireType: KClass<*>,
+): Any? = getObject(firstIndexOf(name), requireType)

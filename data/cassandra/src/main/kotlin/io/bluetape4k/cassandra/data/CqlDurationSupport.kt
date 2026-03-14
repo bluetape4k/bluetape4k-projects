@@ -7,7 +7,7 @@ import java.time.Duration
  * Java [Duration]을 Cassandra [CqlDuration]으로 변환합니다.
  *
  * ## 동작/계약
- * - 월(month)은 `0`으로 두고, 일/나노초를 각각 `toDays()`/`toNanos()`로 변환합니다.
+ * - 월(month)은 `0`으로 두고, 일과 일 이하 나노초를 분리하여 변환합니다.
  * - 음수 duration도 드라이버가 허용하는 범위 내에서 그대로 전달됩니다.
  * - 변환 결과는 새 [CqlDuration] 인스턴스입니다.
  *
@@ -17,7 +17,9 @@ import java.time.Duration
  * ```
  */
 fun Duration.toCqlDuration(): CqlDuration {
-    return cqlDurationOf(0, toDays().toInt(), toNanos())
+    val days = toDays()
+    val remainingNanos = minus(Duration.ofDays(days)).toNanos()
+    return cqlDurationOf(0, days.toInt(), remainingNanos)
 }
 
 /**
@@ -33,16 +35,18 @@ fun Duration.toCqlDuration(): CqlDuration {
  * // cql.months == 1
  * ```
  */
-fun cqlDurationOf(month: Int, days: Int, nanos: Long = 0L): CqlDuration {
-    return CqlDuration.newInstance(month, days, nanos)
-}
+fun cqlDurationOf(
+    month: Int,
+    days: Int,
+    nanos: Long = 0L,
+): CqlDuration = CqlDuration.newInstance(month, days, nanos)
 
 /**
  * Kotlin [kotlin.time.Duration]을 Cassandra [CqlDuration]으로 변환합니다.
  *
  * ## 동작/계약
- * - 월(month)은 `0`, 일/나노초는 `inWholeDays`/`inWholeNanoseconds`를 사용합니다.
- * - 단위 변환에서 소수 부분은 각 `inWhole*` 규칙대로 버려집니다.
+ * - 월(month)은 `0`으로 두고, 일과 일 이하 나노초를 분리하여 변환합니다.
+ * - 일 수는 `inWholeDays`로, 나머지 나노초는 전체 나노초에서 일 나노초를 뺀 값입니다.
  * - 새 [CqlDuration]을 생성해 반환합니다.
  *
  * ```kotlin
@@ -50,5 +54,9 @@ fun cqlDurationOf(month: Int, days: Int, nanos: Long = 0L): CqlDuration {
  * // cql.days == 3
  * ```
  */
-fun kotlin.time.Duration.toCqlDuration(): CqlDuration =
-    cqlDurationOf(0, inWholeDays.toInt(), inWholeNanoseconds)
+fun kotlin.time.Duration.toCqlDuration(): CqlDuration {
+    val days = inWholeDays
+    val nanosPerDay = 24L * 60 * 60 * 1_000_000_000
+    val remainingNanos = inWholeNanoseconds - days * nanosPerDay
+    return cqlDurationOf(0, days.toInt(), remainingNanos)
+}
