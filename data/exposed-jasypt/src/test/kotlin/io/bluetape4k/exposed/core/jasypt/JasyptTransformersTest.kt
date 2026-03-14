@@ -6,7 +6,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class JasyptTransformersTest {
-
     @Test
     fun `문자열 transformer 는 암복호화 round-trip 을 보장한다`() {
         val transformer = StringJasyptEncryptionTransformer(Encryptors.DeterministicAES)
@@ -33,6 +32,28 @@ class JasyptTransformersTest {
     fun `동일 입력에 대해 문자열 transformer 는 동일한 암호문을 생성한다`() {
         val transformer = StringJasyptEncryptionTransformer(Encryptors.DeterministicAES)
         val source = "deterministic-source"
+
+        val encrypted1 = transformer.unwrap(source)
+        val encrypted2 = transformer.unwrap(source)
+
+        encrypted1 shouldBeEqualTo encrypted2
+    }
+
+    @Test
+    fun `Blob transformer 는 암복호화 round-trip 을 보장한다`() {
+        val transformer = JasyptBlobTransformer(Encryptors.DeterministicAES)
+        val source = "jasypt-blob-source".toUtf8Bytes()
+
+        val encryptedBlob = transformer.unwrap(source)
+        val restored = transformer.wrap(encryptedBlob)
+
+        restored shouldBeEqualTo source
+    }
+
+    @Test
+    fun `동일 입력에 대해 바이너리 transformer 는 동일한 암호문을 생성한다`() {
+        val transformer = ByteArrayJasyptEncryptionTransformer(Encryptors.DeterministicRC4)
+        val source = "deterministic-binary-source".toUtf8Bytes()
 
         val encrypted1 = transformer.unwrap(source)
         val encrypted2 = transformer.unwrap(source)
