@@ -131,7 +131,7 @@ fun DatabaseClient.execute(
  * @param value 바인딩할 값 (null 가능)
  * @return 파라미터가 바인딩된 [DatabaseClient.GenericExecuteSpec]
  */
-inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
+inline fun <reified V : Any> DatabaseClient.GenericExecuteSpec.bindNullable(
     index: Int,
     value: V? = null,
 ) = apply {
@@ -154,7 +154,7 @@ inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
  * @param value 바인딩할 값 (null 가능)
  * @return 파라미터가 바인딩된 [DatabaseClient.GenericExecuteSpec]
  */
-inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(
+inline fun <reified V : Any> DatabaseClient.GenericExecuteSpec.bindNullable(
     name: String,
     value: V? = null,
 ) = apply {

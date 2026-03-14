@@ -20,7 +20,11 @@ import java.io.Serializable
 data class Query(
     val sqlBuffer: StringBuilder,
     val parameters: Map<String, Any?>,
-): Serializable {
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
     /**
      * 트림된 SQL 문자열을 지연 계산해 반환합니다.
      *
