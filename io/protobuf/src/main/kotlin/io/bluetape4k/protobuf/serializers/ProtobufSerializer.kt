@@ -3,7 +3,7 @@ package io.bluetape4k.protobuf.serializers
 import io.bluetape4k.io.serializer.AbstractBinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
-import io.bluetape4k.logging.warn
+import io.bluetape4k.logging.debug
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.ProtoMessage
 import io.bluetape4k.support.isNullOrEmpty
@@ -25,19 +25,20 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class ProtobufSerializer(
     private val fallback: BinarySerializer = BinarySerializers.Jdk,
-): AbstractBinarySerializer() {
-
+) : AbstractBinarySerializer() {
     companion object {
         private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
     }
 
-    override fun doSerialize(graph: Any): ByteArray {
-        return if (graph is ProtoMessage) ProtoAny.pack(graph).toByteArray()
-        else fallback.serialize(graph)
-    }
+    override fun doSerialize(graph: Any): ByteArray =
+        if (graph is ProtoMessage) {
+            ProtoAny.pack(graph).toByteArray()
+        } else {
+            fallback.serialize(graph)
+        }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
+    override fun <T : Any> doDeserialize(bytes: ByteArray): T? {
         if (bytes.isNullOrEmpty()) {
             return null
         }
@@ -45,12 +46,13 @@ class ProtobufSerializer(
         return try {
             val protoAny = ProtoAny.parseFrom(bytes)
             val className = protoAny.typeUrl.substringAfterLast("/")
-            val clazz = messageTypes.getOrPut(className) {
-                Class.forName(className) as Class<ProtoMessage>
-            }
+            val clazz =
+                messageTypes.getOrPut(className) {
+                    Class.forName(className) as Class<ProtoMessage>
+                }
             protoAny.unpack(clazz) as? T
         } catch (e: Throwable) {
-            log.warn(e) { "Can't deserialize by protobuf. use fallback serializer." }
+            log.debug(e) { "Protobuf 역직렬화 실패, fallback serializer로 대체합니다." }
             fallback.deserialize(bytes)
         }
     }

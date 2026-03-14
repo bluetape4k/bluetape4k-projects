@@ -31,12 +31,11 @@ import kotlin.concurrent.withLock
 abstract class AbstractGrpcServer(
     protected val builder: ServerBuilder<*>,
     protected val services: List<BindableService>,
-): GrpcServer {
+) : GrpcServer {
+    constructor(port: Int, vararg services: BindableService) :
+        this(ServerBuilder.forPort(port), services.toList())
 
-    constructor(port: Int, vararg services: BindableService)
-            : this(ServerBuilder.forPort(port), services.toList())
-
-    companion object: KLogging()
+    companion object : KLogging()
 
     protected val server: Server by lazy { createServer() }
 
@@ -75,11 +74,9 @@ abstract class AbstractGrpcServer(
         lock.withLock {
             if (!isShutdown) {
                 log.debug { "Shutdown gRPC server..." }
-                runCatching {
-                    running.value = false
-                    server.shutdown()
-                    server.awaitTermination(5, TimeUnit.SECONDS)
-                }
+                running.value = false
+                runCatching { server.shutdown() }
+                runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }
                     .isFailure
                     .ifTrue {
                         log.warn { "Timed out waiting for server shutdown" }

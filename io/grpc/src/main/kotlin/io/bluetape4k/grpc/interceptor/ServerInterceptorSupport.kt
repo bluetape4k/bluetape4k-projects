@@ -22,20 +22,23 @@ import io.grpc.Status
 fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerInterceptor {
     val keySet = keys.toSet()
 
-    return object: ServerInterceptor {
+    return object : ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                object : ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
                     override fun sendHeaders(responseHeaders: Metadata) {
                         responseHeaders.merge(requestHeaders, keySet)
                         super.sendHeaders(responseHeaders)
                     }
 
-                    override fun close(status: Status?, trailers: Metadata) {
+                    override fun close(
+                        status: Status,
+                        trailers: Metadata,
+                    ) {
                         trailers.merge(requestHeaders, keySet)
                         super.close(status, trailers)
                     }
@@ -59,16 +62,16 @@ fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerIntercept
  */
 fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerInterceptor {
     val keySet = keys.toSet()
-    return object: ServerInterceptor {
+    return object : ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-                    override fun sendHeaders(responseHeaders: Metadata?) {
-                        responseHeaders?.merge(requestHeaders, keySet)
+                object : ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    override fun sendHeaders(responseHeaders: Metadata) {
+                        responseHeaders.merge(requestHeaders, keySet)
                         super.sendHeaders(responseHeaders)
                     }
                 },
@@ -91,15 +94,18 @@ fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerIntercepto
  */
 fun echoRequestMetadataInTrailers(vararg keys: Metadata.Key<*>): ServerInterceptor {
     val keySet = keys.toSet()
-    return object: ServerInterceptor {
+    return object : ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-                    override fun close(status: Status, trailers: Metadata) {
+                object : ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    override fun close(
+                        status: Status,
+                        trailers: Metadata,
+                    ) {
                         trailers.merge(requestHeaders, keySet)
                         super.close(status, trailers)
                     }
