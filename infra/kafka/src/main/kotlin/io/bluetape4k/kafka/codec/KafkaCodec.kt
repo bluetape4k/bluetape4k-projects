@@ -17,70 +17,97 @@ import java.io.Closeable
  *
  * @param T 메시지 Value 의 수형
  */
-interface KafkaCodec<T>: Serializer<T>, Deserializer<T>, Closeable {
-
-    override fun configure(configs: MutableMap<String, *>?, isKey: Boolean) {
+interface KafkaCodec<T> :
+    Serializer<T>,
+    Deserializer<T>,
+    Closeable {
+    override fun configure(
+        configs: MutableMap<String, *>?,
+        isKey: Boolean,
+    ) {
         // Nothing to do
     }
 
-    override fun serialize(topic: String?, data: T?): ByteArray {
-        return serialize(topic, null, data)
-    }
+    override fun serialize(
+        topic: String?,
+        data: T?,
+    ): ByteArray = serialize(topic, null, data)
 
-    override fun deserialize(topic: String?, data: ByteArray?): T? {
-        return deserialize(topic, null, data)
-    }
+    override fun deserialize(
+        topic: String?,
+        data: ByteArray?,
+    ): T? = deserialize(topic, null, data)
 
     override fun close() {
-        // Nothing to do 
+        // Nothing to do
     }
 }
 
-abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
-
-    companion object: KLogging() {
+abstract class AbstractKafkaCodec<T> : KafkaCodec<T> {
+    companion object : KLogging() {
         const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"
 
         @JvmStatic
         fun defaultCodec(): KafkaCodec<Any?> = JacksonKafkaCodec()
     }
 
-    protected abstract fun doSerialize(topic: String?, headers: Headers?, graph: T): ByteArray
-    protected abstract fun doDeserialize(topic: String?, headers: Headers?, bytes: ByteArray): T?
+    protected abstract fun doSerialize(
+        topic: String?,
+        headers: Headers?,
+        graph: T,
+    ): ByteArray
 
-    override fun serialize(topic: String?, headers: Headers?, data: T?): ByteArray? {
-        return data?.run {
+    protected abstract fun doDeserialize(
+        topic: String?,
+        headers: Headers?,
+        bytes: ByteArray,
+    ): T?
+
+    override fun serialize(
+        topic: String?,
+        headers: Headers?,
+        data: T?,
+    ): ByteArray? =
+        data?.run {
             setValueType(headers, data.javaClass)
             doSerialize(topic, headers, this)
         }
-    }
 
-    override fun deserialize(topic: String?, headers: Headers?, data: ByteArray?): T? {
-        return try {
+    override fun deserialize(
+        topic: String?,
+        headers: Headers?,
+        data: ByteArray?,
+    ): T? =
+        try {
             data?.run { doDeserialize(topic, headers, this) }
         } catch (e: Throwable) {
             log.warn(e) { "Fail to deserialize data. topic=$topic, headers=$headers, data=$data" }
             null
         }
-    }
 
-    protected fun setValueType(headers: Headers?, valueType: Class<T & Any>) {
+    protected fun setValueType(
+        headers: Headers?,
+        valueType: Class<T & Any>,
+    ) {
         headers?.add(VALUE_TYPE_KEY, valueType.name.toUtf8Bytes())
     }
 
     protected fun getValueType(headers: Headers?): Class<*> {
-        val clazzName = headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
-            ?: return Any::class.java
+        val clazzName =
+            headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
+                ?: return Any::class.java
 
         return try {
             when {
-                classIsPresent(clazzName) ->
+                classIsPresent(clazzName) -> {
                     Class.forName(clazzName, true, Thread.currentThread().contextClassLoader)
-
-                else                      -> Any::class.java
+                }
+                else -> {
+                    Any::class.java
+                }
             }
         } catch (e: Exception) {
-            log.error(e) { " Fail to load value type. clazzName=$clazzName" }
+            log.error(e) { "Fail to load value type. clazzName=$clazzName" }
             Any::class.java
         }
     }

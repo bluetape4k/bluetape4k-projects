@@ -11,8 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource
 /**
  * [StringKafkaCodec]에 대한 테스트 클래스입니다.
  */
-class StringKafkaCodecTest: AbstractKafkaTest() {
-    companion object: KLoggingChannel()
+class StringKafkaCodecTest : AbstractKafkaTest() {
+    companion object : KLoggingChannel()
 
     private val codec = StringKafkaCodec()
 
@@ -98,5 +98,73 @@ class StringKafkaCodecTest: AbstractKafkaTest() {
         val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
 
         deserialized shouldBeEqualTo utf8String
+    }
+
+    @Test
+    fun `deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
+        val codec = StringKafkaCodec()
+        val configs =
+            mutableMapOf<String, Any?>(
+                "deserializer.encoding" to "UTF-16",
+                "serializer.encoding" to "UTF-16"
+            )
+        codec.configure(configs, false)
+
+        val original = "Hello, Kafka!"
+        val bytes = codec.serialize(TEST_TOPIC_NAME, original)
+        val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
+
+        deserialized shouldBeEqualTo original
+    }
+
+    @Test
+    fun `key용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
+        val codec = StringKafkaCodec()
+        val configs =
+            mutableMapOf<String, Any?>(
+                "key.deserializer.encoding" to "UTF-16",
+                "key.serializer.encoding" to "UTF-16"
+            )
+        codec.configure(configs, true)
+
+        val original = "Key Value"
+        val bytes = codec.serialize(TEST_TOPIC_NAME, original)
+        val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
+
+        deserialized shouldBeEqualTo original
+    }
+
+    @Test
+    fun `value용 deserializer 인코딩 설정이 올바르게 적용되는지 검증`() {
+        val codec = StringKafkaCodec()
+        val configs =
+            mutableMapOf<String, Any?>(
+                "value.deserializer.encoding" to "UTF-16",
+                "value.serializer.encoding" to "UTF-16"
+            )
+        codec.configure(configs, false)
+
+        val original = "Value Data"
+        val bytes = codec.serialize(TEST_TOPIC_NAME, original)
+        val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
+
+        deserialized shouldBeEqualTo original
+    }
+
+    @Test
+    fun `잘못된 인코딩 이름은 기본 인코딩으로 폴백`() {
+        val codec = StringKafkaCodec()
+        val configs =
+            mutableMapOf<String, Any?>(
+                "serializer.encoding" to "INVALID-ENCODING",
+                "deserializer.encoding" to "INVALID-ENCODING"
+            )
+        codec.configure(configs, false)
+
+        val original = "Fallback Test"
+        val bytes = codec.serialize(TEST_TOPIC_NAME, original)
+        val deserialized = codec.deserialize(TEST_TOPIC_NAME, bytes)
+
+        deserialized shouldBeEqualTo original
     }
 }

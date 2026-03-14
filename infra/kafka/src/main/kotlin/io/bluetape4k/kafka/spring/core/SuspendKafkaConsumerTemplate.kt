@@ -58,31 +58,20 @@ import reactor.kafka.sender.TransactionManager
  */
 class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private val receiver: KafkaReceiver<K, V>,
-): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
-
-    companion object: KLoggingChannel() {
+) : CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+    companion object : KLoggingChannel() {
         @JvmStatic
-        operator fun <K, V> invoke(
-            receiverOptions: ReceiverOptions<K, V>,
-        ): SuspendKafkaConsumerTemplate<K, V> {
-            return SuspendKafkaConsumerTemplate(KafkaReceiver.create(receiverOptions))
-        }
+        operator fun <K, V> invoke(receiverOptions: ReceiverOptions<K, V>): SuspendKafkaConsumerTemplate<K, V> =
+            SuspendKafkaConsumerTemplate(KafkaReceiver.create(receiverOptions))
 
         @JvmStatic
-        operator fun <K, V> invoke(
-            receiver: KafkaReceiver<K, V>,
-        ): SuspendKafkaConsumerTemplate<K, V> {
-            return SuspendKafkaConsumerTemplate(receiver)
-        }
+        operator fun <K, V> invoke(receiver: KafkaReceiver<K, V>): SuspendKafkaConsumerTemplate<K, V> =
+            SuspendKafkaConsumerTemplate(receiver)
     }
 
-    fun receive(): Flow<ReceiverRecord<K, V>> {
-        return receiver.receive().asFlow()
-    }
+    fun receive(): Flow<ReceiverRecord<K, V>> = receiver.receive().asFlow()
 
-    fun receiveAutoAck(): Flow<ConsumerRecord<K, V>> {
-        return receiver.receiveAutoAck().concatMap { it }.asFlow()
-    }
+    fun receiveAutoAck(): Flow<ConsumerRecord<K, V>> = receiver.receiveAutoAck().concatMap { it }.asFlow()
 
     /**
      * Returns a {@link Flux} of consumer record batches that may be used for exactly once
@@ -114,31 +103,27 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
      *        inner Flux and commit offsets within that transaction
      * @return Flux of consumer record batches processed within a transaction
      */
-    fun receiveExactlyOnce(transactionManager: TransactionManager): Flow<Flow<ConsumerRecord<K, V>>> {
-        return receiver.receiveExactlyOnce(transactionManager).map { it.asFlow() }.asFlow()
-    }
+    fun receiveExactlyOnce(transactionManager: TransactionManager): Flow<Flow<ConsumerRecord<K, V>>> =
+        receiver.receiveExactlyOnce(transactionManager).map { it.asFlow() }.asFlow()
 
     private suspend inline fun <T> doOnConsumer(
         @BuilderInference crossinline function: (Consumer<K, V>) -> T,
-    ): T {
-        return receiver.doOnConsumer { function(it) }.awaitSingle()
-    }
+    ): T = receiver.doOnConsumer { function(it) }.awaitSingle()
 
-    suspend fun assignment(): Set<TopicPartition> {
-        return doOnConsumer { it.assignment() }
-    }
+    suspend fun assignment(): Set<TopicPartition> = doOnConsumer { it.assignment() }
 
-    suspend fun subscroption(): Set<String> {
-        return doOnConsumer { it.subscription() }
-    }
+    suspend fun subscription(): Set<String> = doOnConsumer { it.subscription() }
 
-    suspend fun seek(partition: TopicPartition, offset: Long) {
+    suspend fun seek(
+        partition: TopicPartition,
+        offset: Long,
+    ) {
         doOnConsumer { consumer ->
             consumer.seek(partition, offset)
         }
     }
 
-    suspend fun seekToBegining(vararg partitions: TopicPartition) {
+    suspend fun seekToBeginning(vararg partitions: TopicPartition) {
         doOnConsumer { consumer ->
             consumer.seekToBeginning(partitions.asList())
         }
@@ -150,21 +135,16 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         }
     }
 
-    suspend fun partition(partition: TopicPartition): Long {
-        return doOnConsumer { it.position(partition) }
-    }
+    suspend fun partition(partition: TopicPartition): Long = doOnConsumer { it.position(partition) }
 
-    suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata> {
-        return doOnConsumer { it.committed(partitions) }
-    }
+    suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata> =
+        doOnConsumer {
+            it.committed(partitions)
+        }
 
-    suspend fun partitionsFromConsumerFor(topic: String): List<PartitionInfo> {
-        return doOnConsumer { it.partitionsFor(topic) }
-    }
+    suspend fun partitionsFromConsumerFor(topic: String): List<PartitionInfo> = doOnConsumer { it.partitionsFor(topic) }
 
-    suspend fun paused(): Set<TopicPartition> {
-        return doOnConsumer { it.paused() }
-    }
+    suspend fun paused(): Set<TopicPartition> = doOnConsumer { it.paused() }
 
     suspend fun pause(vararg partitions: TopicPartition) {
         doOnConsumer { it.pause(partitions.asList()) }
@@ -174,23 +154,24 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         doOnConsumer { it.resume(partitions.asList()) }
     }
 
-    suspend fun metricsFromConsumer(): Map<MetricName, Metric> {
-        return doOnConsumer { it.metrics() }
-    }
+    suspend fun metricsFromConsumer(): Map<MetricName, Metric> = doOnConsumer { it.metrics() }
 
-    suspend fun listTopics(): Map<String, List<PartitionInfo>> {
-        return doOnConsumer { it.listTopics() }
-    }
+    suspend fun listTopics(): Map<String, List<PartitionInfo>> = doOnConsumer { it.listTopics() }
 
-    suspend fun offsetsForTimes(timestampsToSearch: Map<TopicPartition, Long>): Map<TopicPartition, OffsetAndTimestamp> {
-        return doOnConsumer { it.offsetsForTimes(timestampsToSearch) }
-    }
+    suspend fun offsetsForTimes(
+        timestampsToSearch: Map<TopicPartition, Long>,
+    ): Map<TopicPartition, OffsetAndTimestamp> =
+        doOnConsumer {
+            it.offsetsForTimes(timestampsToSearch)
+        }
 
-    suspend fun beginningOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> {
-        return doOnConsumer { it.beginningOffsets(partitions.asList()) }
-    }
+    suspend fun beginningOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> =
+        doOnConsumer {
+            it.beginningOffsets(partitions.asList())
+        }
 
-    suspend fun endOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> {
-        return doOnConsumer { it.endOffsets(partitions.asList()) }
-    }
+    suspend fun endOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> =
+        doOnConsumer {
+            it.endOffsets(partitions.asList())
+        }
 }

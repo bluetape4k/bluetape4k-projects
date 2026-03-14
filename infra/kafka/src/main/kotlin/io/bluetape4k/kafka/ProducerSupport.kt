@@ -30,9 +30,7 @@ fun <K, V> producerOf(
     configs: Map<String, Any?>,
     keySerializer: Serializer<K>? = null,
     valueSerializer: Serializer<V>? = null,
-): Producer<K, V> {
-    return KafkaProducer(configs, keySerializer, valueSerializer)
-}
+): Producer<K, V> = KafkaProducer(configs, keySerializer, valueSerializer)
 
 /**
  * [KafkaProducer]를 생성합니다.
@@ -58,9 +56,7 @@ fun <K, V> producerOf(
     props: Properties,
     keySerializer: Serializer<K>? = null,
     valueSerializer: Serializer<V>? = null,
-): Producer<K, V> {
-    return KafkaProducer(props, keySerializer, valueSerializer)
-}
+): Producer<K, V> = KafkaProducer(props, keySerializer, valueSerializer)
 
 /**
  * Producer 의 metrics 측정 값을 조회합니다.
@@ -68,7 +64,7 @@ fun <K, V> producerOf(
  * ```
  * val sendCount = producer.getMetricValue("record-send-total")
  * ```
- * @param metricName metric name to revrieve
+ * @param metricName metric name to retrieve
  * @return metric 값
  */
 fun <K, V> Producer<K, V>.getMetricValue(metricName: String): Double =
@@ -80,8 +76,12 @@ fun <K, V> Producer<K, V>.getMetricValue(metricName: String): Double =
  * ```
  * val sendCount = producer.getMetricValue("record-send-total")
  * ```
- * @param metricName metric name to revrieve
+ * @param metricName metric name to retrieve
  * @return metric 값
  */
 fun <K, V> Producer<K, V>.getMetricValueOrNull(metricName: String): Any? =
-    metrics().entries.find { it.key.name() == metricName }?.value?.metricValue()
+    metrics()
+        .entries
+        .find { it.key.name() == metricName }
+        ?.value
+        ?.metricValue()

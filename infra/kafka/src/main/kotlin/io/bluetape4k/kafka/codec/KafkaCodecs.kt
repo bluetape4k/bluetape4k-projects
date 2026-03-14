@@ -4,7 +4,7 @@ package io.bluetape4k.kafka.codec
  * 다양한 Kafka Codec 인스턴스를 제공하는 Object입니다.
  *
  * 문자열, 바이트 배열, JSON 직렬화 및 다양한 바이너리 직렬화(JDK, Kryo, FST)와
-n * 압축 알고리즘(LZ4, Snappy, Zstd)을 조합한 Codec을 제공합니다.
+ * 압축 알고리즘(LZ4, Snappy, Zstd)을 조합한 Codec을 제공합니다.
  *
  * 사용 예시:
  * ```kotlin
