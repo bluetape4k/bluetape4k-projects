@@ -14,14 +14,13 @@ import io.nats.client.api.KeyValueStatus
 import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.io.IOException
-import kotlin.test.assertNull
-import kotlin.test.assertSame
 
 class JetStreamManagementExtensionsTest {
-
     private val jetStreamManagement = mockk<JetStreamManagement>()
 
     @Test
@@ -39,11 +38,12 @@ class JetStreamManagementExtensionsTest {
         val unexpected = mockJetStreamException(99999)
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
-        val thrown = assertThrows(JetStreamApiException::class.java) {
-            jetStreamManagement.forcedDeleteStream("orders")
-        }
+        val thrown =
+            assertThrows(JetStreamApiException::class.java) {
+                jetStreamManagement.forcedDeleteStream("orders")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -51,11 +51,12 @@ class JetStreamManagementExtensionsTest {
         val unexpected = IOException("network down")
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            jetStreamManagement.forcedDeleteStream("orders")
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                jetStreamManagement.forcedDeleteStream("orders")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -73,11 +74,12 @@ class JetStreamManagementExtensionsTest {
         val unexpected = IOException("socket closed")
         every { jetStreamManagement.deleteConsumer("orders", "consumer-a") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -87,7 +89,7 @@ class JetStreamManagementExtensionsTest {
 
         val purged = jetStreamManagement.forcedPurgeStream("orders")
 
-        assertNull(purged)
+        purged.shouldBeNull()
     }
 
     @Test
@@ -95,11 +97,12 @@ class JetStreamManagementExtensionsTest {
         val unexpected = IOException("io timeout")
         every { jetStreamManagement.purgeStream("orders") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            jetStreamManagement.forcedPurgeStream("orders")
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                jetStreamManagement.forcedPurgeStream("orders")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -107,11 +110,12 @@ class JetStreamManagementExtensionsTest {
         val unexpected = mockJetStreamException(99999)
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
-        val thrown = assertThrows(JetStreamApiException::class.java) {
-            jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
-        }
+        val thrown =
+            assertThrows(JetStreamApiException::class.java) {
+                jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -119,26 +123,28 @@ class JetStreamManagementExtensionsTest {
         val unexpected = IOException("broken pipe")
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
     fun `tryPurgeStream creates stream when purge reports missing stream`() {
         val notFound = mockJetStreamException(JET_STREAM_NOT_FOUND)
         val created = mockk<StreamInfo>()
-        val createdConfig = streamConfiguration("orders") {
-            subjects("orders.created")
-        }
+        val createdConfig =
+            streamConfiguration("orders") {
+                subjects("orders.created")
+            }
         every { jetStreamManagement.purgeStream("orders") } throws notFound
         every { jetStreamManagement.addStream(createdConfig) } returns created
 
         val result = jetStreamManagement.tryPurgeStream("orders") { createdConfig }
 
-        assertNull(result)
+        result.shouldBeNull()
         verify(exactly = 1) { jetStreamManagement.addStream(createdConfig) }
     }
 
@@ -147,20 +153,22 @@ class JetStreamManagementExtensionsTest {
         val info = mockk<StreamInfo>()
         val updated = mockk<StreamInfo>()
         val streamConfigSlot = slot<StreamConfiguration>()
-        val existingConfig = streamConfiguration("orders") {
-            subjects("orders.created", "orders.updated")
-        }
+        val existingConfig =
+            streamConfiguration("orders") {
+                subjects("orders.created", "orders.updated")
+            }
 
         every { jetStreamManagement.getStreamInfo("orders") } returns info
         every { info.configuration } returns existingConfig
         every { jetStreamManagement.updateStream(capture(streamConfigSlot)) } returns updated
 
-        val result = jetStreamManagement.createStreamOrUpdateSubjects(
-            "orders",
-            subjects = arrayOf("orders.updated", "orders.shipped", "orders.created"),
-        )
+        val result =
+            jetStreamManagement.createStreamOrUpdateSubjects(
+                "orders",
+                subjects = arrayOf("orders.updated", "orders.shipped", "orders.created")
+            )
 
-        assertSame(updated, result)
+        result shouldBeSameInstanceAs updated
         streamConfigSlot.captured.subjects shouldBeEqualTo
             listOf("orders.created", "orders.updated", "orders.shipped")
     }
@@ -168,25 +176,26 @@ class JetStreamManagementExtensionsTest {
     @Test
     fun `createStreamOrUpdateSubjects skips update when all subjects already exist`() {
         val info = mockk<StreamInfo>()
-        val existingConfig = streamConfiguration("orders") {
-            subjects("orders.created", "orders.updated")
-        }
+        val existingConfig =
+            streamConfiguration("orders") {
+                subjects("orders.created", "orders.updated")
+            }
 
         every { jetStreamManagement.getStreamInfo("orders") } returns info
         every { info.configuration } returns existingConfig
 
-        val result = jetStreamManagement.createStreamOrUpdateSubjects(
-            "orders",
-            subjects = arrayOf("orders.updated"),
-        )
+        val result =
+            jetStreamManagement.createStreamOrUpdateSubjects(
+                "orders",
+                subjects = arrayOf("orders.updated")
+            )
 
-        assertSame(info, result)
+        result shouldBeSameInstanceAs info
         verify(exactly = 0) { jetStreamManagement.updateStream(any()) }
     }
 }
 
 class KeyValueManagementExtensionsTest {
-
     private val keyValueManagement = mockk<KeyValueManagement>()
 
     @Test
@@ -197,7 +206,7 @@ class KeyValueManagementExtensionsTest {
 
         val result = keyValueManagement.createOrUpdate(config)
 
-        assertSame(status, result)
+        result shouldBeSameInstanceAs status
         verify(exactly = 0) { keyValueManagement.create(config) }
     }
 
@@ -211,7 +220,7 @@ class KeyValueManagementExtensionsTest {
 
         val result = keyValueManagement.createOrUpdate(config)
 
-        assertSame(created, result)
+        result shouldBeSameInstanceAs created
     }
 
     @Test
@@ -219,11 +228,12 @@ class KeyValueManagementExtensionsTest {
         val unexpected = mockJetStreamException(99999)
         every { keyValueManagement.delete("events") } throws unexpected
 
-        val thrown = assertThrows(JetStreamApiException::class.java) {
-            keyValueManagement.forcedDelete("events")
-        }
+        val thrown =
+            assertThrows(JetStreamApiException::class.java) {
+                keyValueManagement.forcedDelete("events")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -231,11 +241,12 @@ class KeyValueManagementExtensionsTest {
         val unexpected = IOException("io failure")
         every { keyValueManagement.delete("events") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            keyValueManagement.forcedDelete("events")
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                keyValueManagement.forcedDelete("events")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -245,12 +256,11 @@ class KeyValueManagementExtensionsTest {
 
         val result = keyValueManagement.getStatusOrNull("events")
 
-        assertNull(result)
+        result.shouldBeNull()
     }
 }
 
 class ObjectStreamManagementExtensionsTest {
-
     private val objectStoreManagement = mockk<ObjectStoreManagement>()
 
     @Test
@@ -266,11 +276,12 @@ class ObjectStreamManagementExtensionsTest {
         val unexpected = mockJetStreamException(99999)
         every { objectStoreManagement.delete("artifacts") } throws unexpected
 
-        val thrown = assertThrows(JetStreamApiException::class.java) {
-            objectStoreManagement.tryDelete("artifacts")
-        }
+        val thrown =
+            assertThrows(JetStreamApiException::class.java) {
+                objectStoreManagement.tryDelete("artifacts")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 
     @Test
@@ -278,11 +289,12 @@ class ObjectStreamManagementExtensionsTest {
         val unexpected = IOException("connection reset")
         every { objectStoreManagement.delete("artifacts") } throws unexpected
 
-        val thrown = assertThrows(IOException::class.java) {
-            objectStoreManagement.tryDelete("artifacts")
-        }
+        val thrown =
+            assertThrows(IOException::class.java) {
+                objectStoreManagement.tryDelete("artifacts")
+            }
 
-        assertSame(unexpected, thrown)
+        thrown shouldBeSameInstanceAs unexpected
     }
 }
 

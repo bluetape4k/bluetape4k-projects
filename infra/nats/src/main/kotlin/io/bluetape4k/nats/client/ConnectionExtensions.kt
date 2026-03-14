@@ -14,13 +14,32 @@ import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
-fun Connection.publish(subject: String, body: String, headers: Headers? = null) {
+/**
+ * 문자열 payload를 UTF-8로 변환해 NATS 메시지를 발행합니다.
+ *
+ * @param subject 발행 대상 subject
+ * @param body 메시지 본문 (UTF-8 변환)
+ * @param headers 메시지 헤더 (선택)
+ */
+fun Connection.publish(
+    subject: String,
+    body: String,
+    headers: Headers? = null,
+) {
     subject.requireNotBlank("subject")
     body.requireNotEmpty("body")
 
     publish(subject, headers, body.toUtf8Bytes())
 }
 
+/**
+ * 문자열 payload를 UTF-8로 변환해 reply-to 주소 포함 NATS 메시지를 발행합니다.
+ *
+ * @param subject 발행 대상 subject
+ * @param replyTo 응답 수신 subject
+ * @param body 메시지 본문 (UTF-8 변환)
+ * @param headers 메시지 헤더 (선택)
+ */
 fun Connection.publish(
     subject: String,
     replyTo: String,
@@ -34,6 +53,15 @@ fun Connection.publish(
     publish(subject, replyTo, headers, body.toUtf8Bytes())
 }
 
+/**
+ * 문자열 payload로 동기 request를 전송합니다.
+ *
+ * @param subject 요청 대상 subject
+ * @param body 요청 본문 (null 가능)
+ * @param headers 메시지 헤더 (선택)
+ * @param timeout 요청 타임아웃 (null이면 기본값)
+ * @return 응답 [Message] 또는 null
+ */
 fun Connection.request(
     subject: String,
     body: String?,
@@ -44,13 +72,27 @@ fun Connection.request(
     return request(subject, headers, body?.toUtf8Bytes(), timeout?.toJavaDuration())
 }
 
+/**
+ * [Message] 객체로 동기 request를 전송합니다.
+ *
+ * @param message 요청 메시지
+ * @param timeout 요청 타임아웃 (null이면 기본값)
+ * @return 응답 [Message] 또는 null
+ */
 fun Connection.request(
     message: Message,
     timeout: Duration? = null,
-): Message? {
-    return request(message, timeout?.toJavaDuration())
-}
+): Message? = request(message, timeout?.toJavaDuration())
 
+/**
+ * 문자열 payload로 비동기 request를 전송합니다.
+ *
+ * @param subject 요청 대상 subject
+ * @param body 요청 본문 (null 가능)
+ * @param headers 메시지 헤더 (선택)
+ * @param timeout 요청 타임아웃 (null이면 기본값)
+ * @return 응답 [Message]를 담은 [CompletableFuture]
+ */
 fun Connection.requestAsync(
     subject: String,
     body: String?,
@@ -59,17 +101,33 @@ fun Connection.requestAsync(
 ): CompletableFuture<Message> {
     subject.requireNotBlank("subject")
 
-    return if (timeout == null) request(subject, headers, body?.toUtf8Bytes())
-    else requestWithTimeout(subject, headers, body?.toUtf8Bytes(), timeout.toJavaDuration())
+    return if (timeout == null) {
+        request(subject, headers, body?.toUtf8Bytes())
+    } else {
+        requestWithTimeout(subject, headers, body?.toUtf8Bytes(), timeout.toJavaDuration())
+    }
 }
 
+/**
+ * [Message] 객체로 비동기 request를 전송합니다.
+ *
+ * @param message 요청 메시지
+ * @param timeout 요청 타임아웃 (null이면 기본값)
+ * @return 응답 [Message]를 담은 [CompletableFuture]
+ */
 fun Connection.requestAsync(
     message: Message,
     timeout: Duration? = null,
-): CompletableFuture<Message> {
-    return if (timeout == null) request(message) else requestWithTimeout(message, timeout.toJavaDuration())
-}
+): CompletableFuture<Message> =
+    if (timeout == null) request(message) else requestWithTimeout(message, timeout.toJavaDuration())
 
+/**
+ * [Message] 객체로 request를 suspend 함수로 전송합니다.
+ *
+ * @param message 요청 메시지
+ * @param timeout 요청 타임아웃 (null이면 기본값)
+ * @return 응답 [Message]
+ */
 suspend fun Connection.requestSuspending(
     message: Message,
     timeout: Duration? = null,
@@ -82,6 +140,14 @@ suspend fun Connection.requestSuspending(
     }
 }
 
+/**
+ * 바이트 배열 payload로 request를 suspend 함수로 전송합니다.
+ *
+ * @param subject 요청 대상 subject
+ * @param body 요청 본문 바이트 배열
+ * @param headers 메시지 헤더 (선택)
+ * @return 응답 [Message]
+ */
 suspend fun Connection.requestSuspending(
     subject: String,
     body: ByteArray,
@@ -91,7 +157,15 @@ suspend fun Connection.requestSuspending(
     return request(subject, headers, body).await()
 }
 
-
+/**
+ * 타임아웃 지정 request를 suspend 함수로 전송합니다.
+ *
+ * @param subject 요청 대상 subject
+ * @param body 요청 본문 바이트 배열
+ * @param headers 메시지 헤더 (선택)
+ * @param timeout 요청 타임아웃 (null이면 타임아웃 없이 전송)
+ * @return 응답 [Message]
+ */
 suspend fun Connection.requestWithTimeoutSuspending(
     subject: String,
     body: ByteArray,
@@ -107,15 +181,34 @@ suspend fun Connection.requestWithTimeoutSuspending(
     }
 }
 
+/**
+ * Kotlin [Duration] 기반으로 Connection drain을 suspend 함수로 실행합니다.
+ *
+ * @param timeout drain 타임아웃 (0 이상)
+ * @return drain 성공 여부
+ */
 suspend fun Connection.drainSuspending(timeout: kotlin.time.Duration): Boolean {
     timeout.requireGe(kotlin.time.Duration.ZERO, "timeout")
     return drain(timeout.toJavaDuration()).await()
 }
 
+/**
+ * Kotlin [Duration] 기반으로 Connection flush를 실행합니다.
+ *
+ * @param timeout flush 타임아웃
+ */
 fun Connection.flush(timeout: Duration) {
     flush(timeout.toJavaDuration())
 }
 
+/**
+ * Connection을 통해 새 JetStream 스트림을 생성합니다.
+ *
+ * @param streamName 스트림 이름
+ * @param storageType 저장소 유형 (기본값: Memory)
+ * @param subjects 스트림에 포함할 subject 목록
+ * @return 생성된 [StreamInfo]
+ */
 fun Connection.createStream(
     streamName: String,
     storageType: StorageType = StorageType.Memory,
@@ -125,11 +218,26 @@ fun Connection.createStream(
     return jetStreamManagement().createStream(streamName, storageType, *subjects)
 }
 
+/**
+ * 단일 subject로 스트림을 교체 생성합니다.
+ *
+ * @param streamName 스트림 이름
+ * @param subject subject 이름
+ * @return 생성된 [StreamInfo]
+ */
 fun Connection.createOrReplaceStream(
     streamName: String,
     subject: String,
 ): StreamInfo = createOrReplaceStream(streamName, subjects = arrayOf(subject))
 
+/**
+ * 기존 스트림을 제거한 뒤 새 설정으로 다시 생성합니다.
+ *
+ * @param streamName 스트림 이름
+ * @param storageType 저장소 유형 (기본값: Memory)
+ * @param subjects 스트림에 포함할 subject 목록
+ * @return 생성된 [StreamInfo]
+ */
 fun Connection.createOrReplaceStream(
     streamName: String,
     storageType: StorageType = StorageType.Memory,
@@ -139,6 +247,14 @@ fun Connection.createOrReplaceStream(
     return jetStreamManagement().createOrReplaceStream(streamName, storageType, *subjects)
 }
 
+/**
+ * 스트림이 없으면 생성하고, 있으면 subject 집합을 업데이트합니다.
+ *
+ * @param streamName 스트림 이름
+ * @param storageType 저장소 유형 (기본값: Memory)
+ * @param subjects 스트림에 포함할 subject 목록
+ * @return 생성 또는 업데이트된 [StreamInfo]
+ */
 fun Connection.createStreamOrUpdateSubjects(
     streamName: String,
     storageType: StorageType = StorageType.Memory,

@@ -4,14 +4,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.nats.client.Message
 import io.nats.client.Subscription
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertNull
-import kotlin.test.assertSame
 import kotlin.time.Duration.Companion.seconds
 
 class SubscriptionExtensionsTest {
-
     private val subscription = mockk<Subscription>()
 
     @Test
@@ -20,7 +19,7 @@ class SubscriptionExtensionsTest {
 
         val message = subscription.nextMessage(1.seconds)
 
-        assertNull(message)
+        message.shouldBeNull()
     }
 
     @Test
@@ -30,6 +29,15 @@ class SubscriptionExtensionsTest {
 
         val message = subscription.nextMessage(1.seconds)
 
-        assertSame(received, message)
+        message shouldBeSameInstanceAs received
+    }
+
+    @Test
+    fun `nextMessage with zero timeout`() {
+        every { subscription.nextMessage(Duration.ofSeconds(0)) } returns null
+
+        val message = subscription.nextMessage(kotlin.time.Duration.ZERO)
+
+        message.shouldBeNull()
     }
 }
