@@ -12,7 +12,6 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.local.LocalBucket
 import java.time.Duration
 
-
 /**
  * Custom Key 기반 (예: userId) 의 Local Bucket을 제공합니다.
  *
@@ -21,12 +20,19 @@ import java.time.Duration
  * @property bucketConfiguration [BucketConfiguration] 인스턴스
  * @property keyPrefix Bucket Key Prefix
  */
-abstract class AbstractLocalBucketProvider<T: LocalBucket>(
+abstract class AbstractLocalBucketProvider<T : LocalBucket>(
     protected val bucketConfiguration: BucketConfiguration,
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
-    companion object: KLogging() {
+    companion object : KLogging() {
         const val DEFAULT_KEY_PREFIX = "bluetape4k.rate-limit.key."
+
+        /** 버킷 캐시의 최대 엔트리 수 */
+        const val DEFAULT_CACHE_MAX_SIZE = 100_000L
+
+        /** 버킷 캐시의 접근 후 만료 시간 */
+        @JvmStatic
+        val DEFAULT_CACHE_EXPIRE_AFTER_ACCESS: Duration = Duration.ofHours(6)
     }
 
     /**
@@ -35,8 +41,8 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     protected open val cache: LoadingCache<String, T> by lazy {
         caffeine {
             executor(VirtualThreadExecutor)
-            maximumSize(100000)
-            expireAfterAccess(Duration.ofHours(6))
+            maximumSize(DEFAULT_CACHE_MAX_SIZE)
+            expireAfterAccess(DEFAULT_CACHE_EXPIRE_AFTER_ACCESS)
         }.loadingCache {
             createBucket()
         }
@@ -63,7 +69,8 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
         log.debug { "Loading local bucket. key=$key" }
         val bucketKey = getBucketKey(key)
 
-        return cache.get(bucketKey)
+        return cache
+            .get(bucketKey)
             .apply {
                 log.debug { "Resolved bucket for key[$bucketKey]: $this" }
             }
