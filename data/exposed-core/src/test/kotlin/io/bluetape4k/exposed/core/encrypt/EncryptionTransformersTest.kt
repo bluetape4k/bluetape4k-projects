@@ -5,10 +5,10 @@ import io.bluetape4k.exposed.core.statements.api.toExposedBlob
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.junit.jupiter.api.Test
 
 class EncryptionTransformersTest {
-
     @Test
     fun `ByteArray 암호화 transformer 는 원본을 복원한다`() {
         val source = "encrypt-binary-source".toUtf8Bytes()
@@ -51,5 +51,47 @@ class EncryptionTransformersTest {
         val restored = transformer.wrap(encrypted)
 
         restored shouldBeEqualTo source
+    }
+
+    @Test
+    fun `ByteArray 암호화 transformer 는 빈 바이트 배열을 암복호화할 수 있다`() {
+        val source = ByteArray(0)
+        val transformer = ByteArrayEncryptionTransformer(Encryptors.AES)
+
+        val encrypted = transformer.unwrap(source)
+        val restored = transformer.wrap(encrypted)
+
+        restored shouldBeEqualTo source
+    }
+
+    @Test
+    fun `String 암호화 transformer 는 빈 문자열을 암복호화할 수 있다`() {
+        val source = ""
+        val transformer = StringEncryptionTransformer(Encryptors.AES)
+
+        val encrypted = transformer.unwrap(source)
+        val restored = transformer.wrap(encrypted)
+
+        restored shouldBeEqualTo source
+    }
+
+    @Test
+    fun `ByteArray 암호화 transformer 는 암호화된 값이 원본과 다르다`() {
+        val source = "sensitive-data".toUtf8Bytes()
+        val transformer = ByteArrayEncryptionTransformer(Encryptors.AES)
+
+        val encrypted = transformer.unwrap(source)
+
+        (encrypted.toList() == source.toList()).shouldBeFalse()
+    }
+
+    @Test
+    fun `String 암호화 transformer 는 암호화된 값이 원본과 다르다`() {
+        val source = "sensitive-string"
+        val transformer = StringEncryptionTransformer(Encryptors.AES)
+
+        val encrypted = transformer.unwrap(source)
+
+        (encrypted == source).shouldBeFalse()
     }
 }

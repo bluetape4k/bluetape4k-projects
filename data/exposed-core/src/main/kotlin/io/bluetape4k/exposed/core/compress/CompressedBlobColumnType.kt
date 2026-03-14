@@ -25,19 +25,30 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 fun Table.compressedBlob(
     name: String,
     compressor: Compressor = Compressors.LZ4,
-): Column<ByteArray> =
-    registerColumn(name, CompressedBlobColumnType(compressor))
+): Column<ByteArray> = registerColumn(name, CompressedBlobColumnType(compressor))
 
 /** `BLOB` + 압축 변환기를 결합한 컬럼 타입입니다. */
 class CompressedBlobColumnType(
     compressor: Compressor,
-): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
+) : ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
 
 /** `ByteArray` <-> `ExposedBlob` 압축/복원 변환기입니다. */
-class CompressedBlobTransformer(private val compressor: Compressor): ColumnTransformer<ExposedBlob, ByteArray> {
+class CompressedBlobTransformer(
+    private val compressor: Compressor,
+) : ColumnTransformer<ExposedBlob, ByteArray> {
     /** 엔티티 값을 압축 blob으로 변환합니다. */
-    override fun unwrap(value: ByteArray): ExposedBlob = compressor.compress(value).toExposedBlob()
+    override fun unwrap(value: ByteArray): ExposedBlob =
+        try {
+            compressor.compress(value).toExposedBlob()
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to compress data to blob (size: ${value.size} bytes)", e)
+        }
 
     /** DB blob을 원본 바이트 배열로 복원합니다. */
-    override fun wrap(value: ExposedBlob): ByteArray = compressor.decompress(value.bytes)
+    override fun wrap(value: ExposedBlob): ByteArray =
+        try {
+            compressor.decompress(value.bytes)
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to decompress blob data (size: ${value.bytes.size} bytes)", e)
+        }
 }

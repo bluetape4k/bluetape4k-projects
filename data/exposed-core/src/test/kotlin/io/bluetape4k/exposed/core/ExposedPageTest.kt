@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
  * [ExposedPage] 단위 테스트입니다.
  */
 class ExposedPageTest {
-
     @Test
     fun `totalPages는 totalCount와 pageSize로 올림 나눗셈을 계산한다`() {
         ExposedPage(listOf(1, 2), totalCount = 10L, pageNumber = 0, pageSize = 2).totalPages shouldBeEqualTo 5
@@ -65,5 +64,24 @@ class ExposedPageTest {
         val data = listOf("a", "b", "c")
         val page = ExposedPage(data, totalCount = 3L, pageNumber = 0, pageSize = 10)
         page.content shouldBeEqualTo data
+    }
+
+    @Test
+    fun `totalCount가 0이고 pageNumber가 0이면 isFirst와 isLast 모두 true다`() {
+        val page = ExposedPage(emptyList<Int>(), totalCount = 0L, pageNumber = 0, pageSize = 10)
+        page.isFirst.shouldBeTrue()
+        page.isLast.shouldBeTrue()
+        page.hasNext.shouldBeFalse()
+        page.hasPrevious.shouldBeFalse()
+    }
+
+    @Test
+    fun `pageSize가 1이면 totalPages는 totalCount와 같다`() {
+        ExposedPage(listOf(1), totalCount = 5L, pageNumber = 0, pageSize = 1).totalPages shouldBeEqualTo 5
+    }
+
+    @Test
+    fun `totalCount가 pageSize의 정확한 배수이면 나머지 없이 계산된다`() {
+        ExposedPage(listOf(1), totalCount = 6L, pageNumber = 0, pageSize = 3).totalPages shouldBeEqualTo 2
     }
 }
