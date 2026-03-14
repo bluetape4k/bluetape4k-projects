@@ -50,25 +50,26 @@ import java.util.concurrent.LinkedBlockingQueue
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class ResilientRedissonResp3NearCache<V: Any>(
+class ResilientRedissonResp3NearCache<V : Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
     private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
-    private val config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
-        RedissonResp3NearCacheConfig()
-    ),
-): AutoCloseable {
-
-    companion object: KLogging() {
+    private val config: ResilientRedissonResp3NearCacheConfig =
+        ResilientRedissonResp3NearCacheConfig(
+            RedissonResp3NearCacheConfig()
+        ),
+) : AutoCloseable {
+    companion object : KLogging() {
         /**
          * String 키/값 타입의 Resilient Redisson RESP3 Near Cache를 생성한다.
          */
         operator fun invoke(
             redisson: RedissonClient,
             redisClient: RedisClient,
-            config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
-                RedissonResp3NearCacheConfig()
-            ),
+            config: ResilientRedissonResp3NearCacheConfig =
+                ResilientRedissonResp3NearCacheConfig(
+                    RedissonResp3NearCacheConfig()
+                ),
         ): ResilientRedissonResp3NearCache<String> =
             ResilientRedissonResp3NearCache(redisson, redisClient, RedissonNearCache.defaultNearCacheCodec, config)
     }
@@ -101,23 +102,26 @@ class ResilientRedissonResp3NearCache<V: Any>(
      */
     private val clearPending = atomic(false)
 
-    private val consumerThread: Thread = virtualThread(
-        name = "resilient-redisson-writer-${config.cacheName}",
-    ) {
-        while (!closed.value) {
-            try {
-                val cmd = queue.take()
+    private val consumerThread: Thread =
+        virtualThread(
+            name = "resilient-redisson-writer-${config.cacheName}"
+        ) {
+            while (!closed.value) {
                 try {
-                    retry.executeRunnable { applyCommand(cmd) }
-                } catch (e: Exception) {
-                    log.error(e) { "Redisson write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                    val cmd = queue.take()
+                    try {
+                        retry.executeRunnable { applyCommand(cmd) }
+                    } catch (e: Exception) {
+                        log.error(
+                            e
+                        ) { "Redisson write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                    }
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    break
                 }
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-                break
             }
         }
-    }
 
     init {
         if (config.useRespProtocol3) {
@@ -129,15 +133,18 @@ class ResilientRedissonResp3NearCache<V: Any>(
     }
 
     private fun buildRetry(): Retry {
-        val intervalFn = if (config.retryExponentialBackoff) {
-            IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
-        } else {
-            IntervalFunction.of(config.retryWaitDuration)
-        }
-        val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(config.retryMaxAttempts)
-            .intervalFunction(intervalFn)
-            .build()
+        val intervalFn =
+            if (config.retryExponentialBackoff) {
+                IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
+            } else {
+                IntervalFunction.of(config.retryWaitDuration)
+            }
+        val retryConfig =
+            RetryConfig
+                .custom<Any>()
+                .maxAttempts(config.retryMaxAttempts)
+                .intervalFunction(intervalFn)
+                .build()
         return Retry.of("${config.cacheName}-write-retry", retryConfig)
     }
 
@@ -184,18 +191,17 @@ class ResilientRedissonResp3NearCache<V: Any>(
         frontCache.get(key)?.let { return it }
 
         return when (config.getFailureStrategy) {
-            GetFailureStrategy.RETURN_FRONT_OR_NULL ->
+            GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
                 runCatching {
                     @Suppress("UNCHECKED_CAST")
                     redisson.getBucket<V>(config.redisKey(key), redissonCodec).get()
-                }
-                    .onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key, returning null" } }
+                }.onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key, returning null" } }
                     .getOrNull()
                     ?.also { value ->
                         frontCache.put(key, value)
                         trackingSync.get(config.redisKey(key))
                     }
-
+            }
             GetFailureStrategy.PROPAGATE_EXCEPTION -> {
                 @Suppress("UNCHECKED_CAST")
                 redisson.getBucket<V>(config.redisKey(key), redissonCodec).get()?.also { value ->
@@ -218,8 +224,7 @@ class ResilientRedissonResp3NearCache<V: Any>(
             runCatching {
                 @Suppress("UNCHECKED_CAST")
                 redisson.getBucket<V>(config.redisKey(key), redissonCodec).get()
-            }
-                .onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key during getAll" } }
+            }.onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key during getAll" } }
                 .getOrNull()
                 ?.let { value ->
                     result[key] = value
@@ -235,7 +240,10 @@ class ResilientRedissonResp3NearCache<V: Any>(
      * - front cache 즉시 반영
      * - Redisson write는 queue로 큐잉 (write-behind)
      */
-    fun put(key: String, value: V) {
+    fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
         tombstones.remove(key)
         frontCache.put(key, value)
@@ -259,7 +267,10 @@ class ResilientRedissonResp3NearCache<V: Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    fun putIfAbsent(key: String, value: V): V? {
+    fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         key.requireNotBlank("key")
 
         val existing = get(key)
@@ -267,11 +278,12 @@ class ResilientRedissonResp3NearCache<V: Any>(
 
         @Suppress("UNCHECKED_CAST")
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-        val setted = if (config.redisTtl != null) {
-            bucket.setIfAbsent(value, config.redisTtl)
-        } else {
-            bucket.setIfAbsent(value)
-        }
+        val setted =
+            if (config.redisTtl != null) {
+                bucket.setIfAbsent(value, config.redisTtl)
+            } else {
+                bucket.setIfAbsent(value)
+            }
         return if (setted) {
             frontCache.put(key, value)
             null
@@ -285,7 +297,10 @@ class ResilientRedissonResp3NearCache<V: Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    fun replace(key: String, value: V): Boolean {
+    fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
@@ -304,7 +319,11 @@ class ResilientRedissonResp3NearCache<V: Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -322,7 +341,10 @@ class ResilientRedissonResp3NearCache<V: Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    fun getAndReplace(key: String, value: V): V? {
+    fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -336,8 +358,7 @@ class ResilientRedissonResp3NearCache<V: Any>(
         if (frontCache.containsKey(key)) return true
         return runCatching {
             redisson.getBucket<V>(config.redisKey(key), redissonCodec).isExists
-        }
-            .onFailure { e -> log.warn(e) { "Redisson isExists failed for key=$key" } }
+        }.onFailure { e -> log.warn(e) { "Redisson isExists failed for key=$key" } }
             .getOrDefault(false)
     }
 
@@ -399,7 +420,7 @@ class ResilientRedissonResp3NearCache<V: Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                trackingSync.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingSync.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             count += result.keys.size
             cursor = result
         } while (!result.isFinished)
@@ -430,7 +451,7 @@ class ResilientRedissonResp3NearCache<V: Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                trackingSync.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingSync.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result.keys.isNotEmpty()) {
                 trackingSync.del(*result.keys.toTypedArray())
             }
@@ -439,7 +460,10 @@ class ResilientRedissonResp3NearCache<V: Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun setRedis(key: String, value: V) {
+    private fun setRedis(
+        key: String,
+        value: V,
+    ) {
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
         val ttl = config.redisTtl
         if (ttl != null) {

@@ -4,17 +4,17 @@ import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationHandler
 import io.micrometer.observation.ObservationRegistry
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class ObservationExtensionsTest {
-
     private fun registry(handler: ObservationHandler<Observation.Context>): ObservationRegistry =
         ObservationRegistry.create().apply {
             observationConfig().observationHandler(handler)
         }
 
-    private class RecordingObservationHandler: ObservationHandler<Observation.Context> {
+    private class RecordingObservationHandler : ObservationHandler<Observation.Context> {
         var started = 0
         var stopped = 0
         var errors = 0
@@ -38,9 +38,10 @@ class ObservationExtensionsTest {
     fun `withObservation should start and stop observation`() {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
-        val result = withObservation("record", registry) {
-            "ok"
-        }
+        val result =
+            withObservation("record", registry) {
+                "ok"
+            }
 
         result shouldBeEqualTo "ok"
         handler.started shouldBeEqualTo 1
@@ -59,6 +60,53 @@ class ObservationExtensionsTest {
         }
 
         handler.errors shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `tryObserve should return success result on normal execution`() {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
+        val observation = Observation.createNotStarted("try.ok", registry)
+
+        val result = observation.tryObserve { "value" }
+
+        result.isSuccess.shouldBeTrue()
+        result.getOrNull() shouldBeEqualTo "value"
+        handler.started shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `tryObserve should return failure result on exception`() {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
+        val observation = Observation.createNotStarted("try.fail", registry)
+
+        val result =
+            observation.tryObserve<String> {
+                throw IllegalStateException("boom")
+            }
+
+        result.isFailure.shouldBeTrue()
+        handler.errors shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `withObservationContext should pass context to block`() {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
+        val observation = Observation.createNotStarted("ctx.test", registry)
+
+        val result =
+            observation.withObservationContext { ctx ->
+                ctx.put("key", "value")
+                "done"
+            }
+
+        result shouldBeEqualTo "done"
+        handler.started shouldBeEqualTo 1
         handler.stopped shouldBeEqualTo 1
     }
 }

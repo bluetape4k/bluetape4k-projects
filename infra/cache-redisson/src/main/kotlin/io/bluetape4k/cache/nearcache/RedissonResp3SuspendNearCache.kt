@@ -50,14 +50,13 @@ import org.redisson.client.codec.Codec
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedissonResp3SuspendNearCache<V: Any>(
+class RedissonResp3SuspendNearCache<V : Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
     private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
     private val config: RedissonResp3NearCacheConfig = RedissonResp3NearCacheConfig(),
-): AutoCloseable {
-
-    companion object: KLogging() {
+) : AutoCloseable {
+    companion object : KLogging() {
         /**
          * String 키/값 타입의 Near Suspend Cache를 생성한다.
          */
@@ -105,8 +104,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
         frontCache.get(key)?.let { return it }
 
         @Suppress("UNCHECKED_CAST")
-        return redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-            .getAsync().await()
+        return redisson
+            .getBucket<V>(config.redisKey(key), redissonCodec)
+            .getAsync()
+            .await()
             ?.also { value ->
                 frontCache.put(key, value)
                 // CLIENT TRACKING 활성화
@@ -127,18 +128,23 @@ class RedissonResp3SuspendNearCache<V: Any>(
         if (missedKeys.isEmpty()) return result
 
         coroutineScope {
-            missedKeys.map { key ->
-                async {
-                    @Suppress("UNCHECKED_CAST")
-                    redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-                        .getAsync().await()
-                        ?.let { value -> key to value }
+            missedKeys
+                .map { key ->
+                    async {
+                        @Suppress("UNCHECKED_CAST")
+                        redisson
+                            .getBucket<V>(config.redisKey(key), redissonCodec)
+                            .getAsync()
+                            .await()
+                            ?.let { value -> key to value }
+                    }
+                }.awaitAll()
+                .filterNotNull()
+                .forEach { (key, value) ->
+                    result[key] = value
+                    frontCache.put(key, value)
+                    trackingCommands.get(config.redisKey(key))
                 }
-            }.awaitAll().filterNotNull().forEach { (key, value) ->
-                result[key] = value
-                frontCache.put(key, value)
-                trackingCommands.get(config.redisKey(key))
-            }
         }
 
         return result
@@ -150,7 +156,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
      *
      * write-through 후 Lettuce coroutines GET을 실행해 CLIENT TRACKING을 활성화한다.
      */
-    suspend fun put(key: String, value: V) {
+    suspend fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
 
         frontCache.put(key, value)
@@ -167,12 +176,13 @@ class RedissonResp3SuspendNearCache<V: Any>(
     suspend fun putAll(map: Map<String, V>) {
         frontCache.putAll(map)
         coroutineScope {
-            map.map { (key, value) ->
-                async {
-                    setRedis(key, value)
-                    trackingCommands.get(config.redisKey(key))
-                }
-            }.awaitAll()
+            map
+                .map { (key, value) ->
+                    async {
+                        setRedis(key, value)
+                        trackingCommands.get(config.redisKey(key))
+                    }
+                }.awaitAll()
         }
     }
 
@@ -180,7 +190,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    suspend fun putIfAbsent(key: String, value: V): V? {
+    suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         key.requireNotBlank("key")
 
         val existing = get(key)
@@ -188,11 +201,12 @@ class RedissonResp3SuspendNearCache<V: Any>(
 
         @Suppress("UNCHECKED_CAST")
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-        val setted = if (config.redisTtl != null) {
-            bucket.setIfAbsentAsync(value, config.redisTtl).await()
-        } else {
-            bucket.setIfAbsentAsync(value).await()
-        }
+        val setted =
+            if (config.redisTtl != null) {
+                bucket.setIfAbsentAsync(value, config.redisTtl).await()
+            } else {
+                bucket.setIfAbsentAsync(value).await()
+            }
 
         return if (setted == true) {
             frontCache.put(key, value)
@@ -229,7 +243,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
      * 키가 존재하는 경우에만 교체한다.
      * @return 교체 성공 여부
      */
-    suspend fun replace(key: String, value: V): Boolean {
+    suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
 
         @Suppress("UNCHECKED_CAST")
@@ -244,7 +261,11 @@ class RedissonResp3SuspendNearCache<V: Any>(
     /**
      * 기존 값이 oldValue와 같을 때만 newValue로 교체한다.
      */
-    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -264,7 +285,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
     /**
      * 조회 후 교체한다.
      */
-    suspend fun getAndReplace(key: String, value: V): V? {
+    suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -309,7 +333,7 @@ class RedissonResp3SuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 count += result.keys.size
                 finished = result.isFinished
@@ -344,7 +368,7 @@ class RedissonResp3SuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 if (result.keys.isNotEmpty()) {
                     trackingCommands.del(*result.keys.toTypedArray())
@@ -358,7 +382,10 @@ class RedissonResp3SuspendNearCache<V: Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private suspend fun setRedis(key: String, value: V) {
+    private suspend fun setRedis(
+        key: String,
+        value: V,
+    ) {
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
         val ttl = config.redisTtl
         if (ttl != null) {

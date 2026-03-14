@@ -59,25 +59,26 @@ import java.util.concurrent.ConcurrentHashMap
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class ResilientRedissonResp3SuspendNearCache<V: Any>(
+class ResilientRedissonResp3SuspendNearCache<V : Any>(
     private val redisson: RedissonClient,
     private val redisClient: RedisClient,
     private val redissonCodec: Codec = RedissonNearCache.defaultNearCacheCodec,
-    private val config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
-        RedissonResp3NearCacheConfig()
-    ),
-): AutoCloseable {
-
-    companion object: KLogging() {
+    private val config: ResilientRedissonResp3NearCacheConfig =
+        ResilientRedissonResp3NearCacheConfig(
+            RedissonResp3NearCacheConfig()
+        ),
+) : AutoCloseable {
+    companion object : KLogging() {
         /**
          * String 키/값 타입의 Resilient Redisson RESP3 Suspend Near Cache를 생성한다.
          */
         operator fun invoke(
             redisson: RedissonClient,
             redisClient: RedisClient,
-            config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(
-                RedissonResp3NearCacheConfig()
-            ),
+            config: ResilientRedissonResp3NearCacheConfig =
+                ResilientRedissonResp3NearCacheConfig(
+                    RedissonResp3NearCacheConfig()
+                ),
         ): ResilientRedissonResp3SuspendNearCache<String> =
             ResilientRedissonResp3SuspendNearCache(
                 redisson,
@@ -129,15 +130,18 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
     }
 
     private fun buildRetry(): Retry {
-        val intervalFn = if (config.retryExponentialBackoff) {
-            IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
-        } else {
-            IntervalFunction.of(config.retryWaitDuration)
-        }
-        val retryConfig = RetryConfig.custom<Any>()
-            .maxAttempts(config.retryMaxAttempts)
-            .intervalFunction(intervalFn)
-            .build()
+        val intervalFn =
+            if (config.retryExponentialBackoff) {
+                IntervalFunction.ofExponentialBackoff(config.retryWaitDuration, 2.0)
+            } else {
+                IntervalFunction.of(config.retryWaitDuration)
+            }
+        val retryConfig =
+            RetryConfig
+                .custom<Any>()
+                .maxAttempts(config.retryMaxAttempts)
+                .intervalFunction(intervalFn)
+                .build()
         return Retry.of("${config.cacheName}-write-retry", retryConfig)
     }
 
@@ -147,7 +151,9 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
                 try {
                     retry.executeSuspendFunction { applyCommand(cmd) }
                 } catch (e: Exception) {
-                    log.error(e) { "Redisson write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                    log.error(
+                        e
+                    ) { "Redisson write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
                 }
             }
         }
@@ -155,7 +161,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
 
     private suspend fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put    -> {
+            is BackCacheCommand.Put -> {
                 setRedis(cmd.key, cmd.value)
                 trackingCommands.get(config.redisKey(cmd.key))
             }
@@ -197,21 +203,23 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
         frontCache.get(key)?.let { return it }
 
         return when (config.getFailureStrategy) {
-            GetFailureStrategy.RETURN_FRONT_OR_NULL ->
+            GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
                 runCatching {
                     @Suppress("UNCHECKED_CAST")
                     redisson.getBucket<V>(config.redisKey(key), redissonCodec).getAsync().await()
-                }
-                    .onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key, returning null" } }
+                }.onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key, returning null" } }
                     .getOrNull()
                     ?.also { value ->
                         frontCache.put(key, value)
                         trackingCommands.get(config.redisKey(key))
                     }
-
+            }
             GetFailureStrategy.PROPAGATE_EXCEPTION -> {
                 @Suppress("UNCHECKED_CAST")
-                redisson.getBucket<V>(config.redisKey(key), redissonCodec).getAsync().await()
+                redisson
+                    .getBucket<V>(config.redisKey(key), redissonCodec)
+                    .getAsync()
+                    .await()
                     ?.also { value ->
                         frontCache.put(key, value)
                         trackingCommands.get(config.redisKey(key))
@@ -232,8 +240,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
             runCatching {
                 @Suppress("UNCHECKED_CAST")
                 redisson.getBucket<V>(config.redisKey(key), redissonCodec).getAsync().await()
-            }
-                .onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key during getAll" } }
+            }.onFailure { e -> log.warn(e) { "Redisson GET failed for key=$key during getAll" } }
                 .getOrNull()
                 ?.let { value ->
                     result[key] = value
@@ -249,7 +256,10 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
      * - front cache 즉시 반영
      * - Redisson write는 channel로 큐잉 (write-behind)
      */
-    suspend fun put(key: String, value: V) {
+    suspend fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
         tombstones.remove(key)
         frontCache.put(key, value)
@@ -273,7 +283,10 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    suspend fun putIfAbsent(key: String, value: V): V? {
+    suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         key.requireNotBlank("key")
 
         val existing = get(key)
@@ -281,11 +294,12 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
 
         @Suppress("UNCHECKED_CAST")
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
-        val setted = if (config.redisTtl != null) {
-            bucket.setIfAbsentAsync(value, config.redisTtl).await()
-        } else {
-            bucket.setIfAbsentAsync(value).await()
-        }
+        val setted =
+            if (config.redisTtl != null) {
+                bucket.setIfAbsentAsync(value, config.redisTtl).await()
+            } else {
+                bucket.setIfAbsentAsync(value).await()
+            }
         return if (setted == true) {
             frontCache.put(key, value)
             null
@@ -299,7 +313,10 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    suspend fun replace(key: String, value: V): Boolean {
+    suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
@@ -318,7 +335,11 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -336,7 +357,10 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    suspend fun getAndReplace(key: String, value: V): V? {
+    suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -350,8 +374,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
         if (frontCache.containsKey(key)) return true
         return runCatching {
             redisson.getBucket<V>(config.redisKey(key), redissonCodec).isExistsAsync().await() == true
-        }
-            .onFailure { e -> log.warn(e) { "Redisson isExists failed for key=$key" } }
+        }.onFailure { e -> log.warn(e) { "Redisson isExists failed for key=$key" } }
             .getOrDefault(false)
     }
 
@@ -395,7 +418,11 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
         clearLocal()
         clearPending.value = true
         writeChannel.trySend(BackCacheCommand.ClearBack()).also { result ->
-            if (result.isFailure) log.warn { "Write channel full, dropping ClearBack for cacheName=${config.cacheName}" }
+            if (result.isFailure) {
+                log.warn {
+                    "Write channel full, dropping ClearBack for cacheName=${config.cacheName}"
+                }
+            }
         }
     }
 
@@ -414,7 +441,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 count += result.keys.size
                 finished = result.isFinished
@@ -451,7 +478,7 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
         var finished = false
         while (!finished) {
             val result: KeyScanCursor<String>? =
-                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
+                trackingCommands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result != null) {
                 if (result.keys.isNotEmpty()) {
                     trackingCommands.del(*result.keys.toTypedArray())
@@ -465,7 +492,10 @@ class ResilientRedissonResp3SuspendNearCache<V: Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private suspend fun setRedis(key: String, value: V) {
+    private suspend fun setRedis(
+        key: String,
+        value: V,
+    ) {
         val bucket = redisson.getBucket<V>(config.redisKey(key), redissonCodec)
         val ttl = config.redisTtl
         if (ttl != null) {
