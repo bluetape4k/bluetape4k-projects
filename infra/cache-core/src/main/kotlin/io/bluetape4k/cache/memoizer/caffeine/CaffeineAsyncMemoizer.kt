@@ -13,11 +13,14 @@ import java.util.concurrent.ConcurrentHashMap
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
-fun <T: Any, R: Any> Cache<T, R>.asyncMemoizer(
+fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
     @BuilderInference evaluator: (T) -> CompletableFuture<R>,
 ): CaffeineAsyncMemoizer<T, R> = CaffeineAsyncMemoizer(this, evaluator)
 
-fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
+/**
+ * 비동기 함수를 Caffeine Cache 기반 [CaffeineAsyncMemoizer]로 감쌉니다.
+ */
+fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
     cache: Cache<T, R>,
 ): CaffeineAsyncMemoizer<T, R> = CaffeineAsyncMemoizer(cache, this)
 
@@ -31,12 +34,11 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
  * @property cache 실행한 값을 저장할 Cache
  * @property evaluator 캐시 값을 생성하는 메소드
  */
-class CaffeineAsyncMemoizer<T: Any, R: Any>(
+class CaffeineAsyncMemoizer<T : Any, R : Any>(
     private val cache: Cache<T, R>,
     @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
-): AsyncMemoizer<T, R> {
-
-    companion object: KLoggingChannel()
+) : AsyncMemoizer<T, R> {
+    companion object : KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
 

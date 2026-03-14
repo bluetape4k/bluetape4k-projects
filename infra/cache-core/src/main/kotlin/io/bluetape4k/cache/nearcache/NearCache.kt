@@ -45,12 +45,15 @@ import kotlin.concurrent.withLock
  * @see NearCacheConfig
  * @see CacheEntryEventListener
  */
-class NearCache<K: Any, V: Any> private constructor(
+class NearCache<K : Any, V : Any> private constructor(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearCacheConfig<K, V>,
-): JCache<K, V> by backCache {
-    companion object: KLogging() {
+) : JCache<K, V> by backCache {
+    companion object : KLogging() {
+        /** Redis SCAN 명령의 배치 크기 */
+        const val SCAN_BATCH_SIZE = 100L
+
         /** 기본 원격 캐시 동기화 타임아웃 (500ms) */
         val DEFAULT_SYNC_REMOTE_TIMEOUT: Duration = Duration.ofMillis(500)
 
@@ -63,7 +66,7 @@ class NearCache<K: Any, V: Any> private constructor(
          * @param backCache 분산 환경에서 사용할 원격 캐시 인스턴스
          * @return [NearCache] 인스턴스
          */
-        operator fun <K: Any, V: Any> invoke(
+        operator fun <K : Any, V : Any> invoke(
             nearCacheCfg: NearCacheConfig<K, V>,
             backCache: JCache<K, V>,
         ): NearCache<K, V> {
@@ -80,7 +83,7 @@ class NearCache<K: Any, V: Any> private constructor(
                     { CacheEntryEventListener(frontCache) },
                     null,
                     false,
-                    nearCacheCfg.isSynchronous,
+                    nearCacheCfg.isSynchronous
                 )
             log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
             backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
@@ -145,7 +148,8 @@ class NearCache<K: Any, V: Any> private constructor(
 
     fun clearAllCache() {
         log.debug {
-            "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " + "전파를 위해서는 removeAll을 사용하세요"
+            "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
+                "전파를 위해서는 removeAll을 사용하세요"
         }
         runCatching { frontCache.clear() }
         runCatching { backCache.clear() }
@@ -181,12 +185,11 @@ class NearCache<K: Any, V: Any> private constructor(
      * @param key 조회할 캐시 키
      * @return 조회된 값, 없으면 `null`
      */
-    fun getDeeply(key: K): V? {
-        return frontCache.get(key)
+    fun getDeeply(key: K): V? =
+        frontCache.get(key)
             ?: backCache.get(key)?.also { value ->
                 runCatching { frontCache.put(key, value) }
             }
-    }
 
     fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
 
@@ -217,11 +220,17 @@ class NearCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    operator fun set(key: K, value: V) {
+    operator fun set(
+        key: K,
+        value: V,
+    ) {
         put(key, value)
     }
 
-    override fun put(key: K, value: V) {
+    override fun put(
+        key: K,
+        value: V,
+    ) {
         frontCache.put(key, value).apply {
             syncBackCache {
                 backCache.put(key, value)
@@ -331,7 +340,7 @@ class NearCache<K: Any, V: Any> private constructor(
             }
         }
 
-    override fun <T: Any> unwrap(clazz: Class<T>): T? {
+    override fun <T : Any> unwrap(clazz: Class<T>): T? {
         if (clazz.isAssignableFrom(javaClass)) {
             return clazz.cast(this)
         }
