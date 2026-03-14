@@ -33,26 +33,24 @@ import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
  * 다양한 시나리오를 다양한 [CodecFactory]로 테스트합니다.
  */
 @RandomizedTest
-class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
+class DefaultAvroSpecificRecordSerializerTest : AbstractAvroTest() {
+    companion object : KLogging()
 
-    companion object: KLogging()
+    private fun serializers(): List<Arguments> =
+        listOf(
+            "default" to DefaultAvroSpecificRecordSerializer(),
+            "deflate" to DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
+            "zstd-3" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),
+            "zstd-3-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true)),
+            "zstd-3-true-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
+            "snappy" to DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec()),
+            "xz" to DefaultAvroSpecificRecordSerializer(CodecFactory.xzCodec(DEFAULT_COMPRESSION)),
+            "bzip" to DefaultAvroSpecificRecordSerializer(CodecFactory.bzip2Codec())
+        ).map {
+            Arguments.of(it.first, it.second)
+        }
 
-    private fun serializers(): List<Arguments> = listOf(
-        "default" to DefaultAvroSpecificRecordSerializer(),
-        "deflate" to DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
-        "zstd-3" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),
-        "zstd-3-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true)),
-        "zstd-3-true-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
-        "snappy" to DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec()),
-        "xz" to DefaultAvroSpecificRecordSerializer(CodecFactory.xzCodec(DEFAULT_COMPRESSION)),
-        "bzip" to DefaultAvroSpecificRecordSerializer(CodecFactory.bzip2Codec()),
-    ).map {
-        Arguments.of(it.first, it.second)
-    }
-
-    private inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.verifySerialization(
-        avroObject: T,
-    ) {
+    private inline fun <reified T : SpecificRecord> AvroSpecificRecordSerializer.verifySerialization(avroObject: T) {
         val bytes = serialize(avroObject)!!
         bytes.shouldNotBeEmpty()
 
@@ -63,24 +61,32 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `serialize single avro object`(name: String, serializer: AvroSpecificRecordSerializer) {
+    fun `serialize single avro object`(
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
+    ) {
         val employee = TestMessageProvider.createEmployee()
         serializer.verifySerialization(employee)
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `serialize nested avro object`(name: String, serializer: AvroSpecificRecordSerializer) {
-        val productRoot = TestMessageProvider.createProductRoot().apply {
-            productProperties = List(20) { TestMessageProvider.createProductProperty() }
-        }
+    fun `serialize nested avro object`(
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
+    ) {
+        val productRoot =
+            TestMessageProvider.createProductRoot().apply {
+                productProperties = List(20) { TestMessageProvider.createProductProperty() }
+            }
         serializer.verifySerialization(productRoot)
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
     fun `serialize versioned item v1`(
-        name: String, serializer: AvroSpecificRecordSerializer,
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV1,
     ) {
         serializer.verifySerialization(item)
@@ -89,7 +95,8 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
     fun `serialize versioned item v2`(
-        name: String, serializer: AvroSpecificRecordSerializer,
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV2,
     ) {
         serializer.verifySerialization(item)
@@ -98,7 +105,8 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
     fun `serialize v1 and deserialize as v2`(
-        name: String, serializer: AvroSpecificRecordSerializer,
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV1,
     ) {
         val bytes = serializer.serialize(item)!!
@@ -108,13 +116,14 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         convertedAsV2.id shouldBeEqualTo item.id
         convertedAsV2.key shouldBeEqualTo item.key
         convertedAsV2.description.shouldBeNull()
-        convertedAsV2.action shouldBeEqualTo "action"  // default value
+        convertedAsV2.action shouldBeEqualTo "action" // default value
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
     fun `serialize V2 and deserialize as V1`(
-        name: String, serializer: AvroSpecificRecordSerializer,
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV2,
     ) {
         val bytes = serializer.serialize(item)
@@ -135,7 +144,10 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `Base64 문자열로 직렬화 및 역직렬화`(name: String, serializer: AvroSpecificRecordSerializer) {
+    fun `Base64 문자열로 직렬화 및 역직렬화`(
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
+    ) {
         val employee = TestMessageProvider.createEmployee()
 
         val text = serializer.serializeAsString(employee)
@@ -150,7 +162,10 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `리스트 직렬화 및 역직렬화`(name: String, serializer: AvroSpecificRecordSerializer) {
+    fun `리스트 직렬화 및 역직렬화`(
+        name: String,
+        serializer: AvroSpecificRecordSerializer,
+    ) {
         val employees = List(50) { TestMessageProvider.createEmployee() }
 
         val bytes = serializer.serializeList(employees)
@@ -185,5 +200,29 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         val serializer = DefaultAvroSpecificRecordSerializer()
 
         serializer.deserializeFromString<Employee>("{not-base64").shouldBeNull()
+    }
+
+    @Test
+    fun `Base64 null 입력 시 null을 반환한다`() {
+        val serializer = DefaultAvroSpecificRecordSerializer()
+
+        serializer.serializeAsString(null as Employee?).shouldBeNull()
+        serializer.deserializeFromString(null, Employee::class.java).shouldBeNull()
+    }
+
+    @Test
+    fun `손상된 Avro 바이트 배열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroSpecificRecordSerializer()
+        val corruptedBytes = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+
+        serializer.deserialize(corruptedBytes, Employee::class.java).shouldBeNull()
+    }
+
+    @Test
+    fun `손상된 Avro 바이트 배열 리스트 역직렬화 시 빈 리스트를 반환한다`() {
+        val serializer = DefaultAvroSpecificRecordSerializer()
+        val corruptedBytes = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+
+        serializer.deserializeList(corruptedBytes, Employee::class.java).shouldBeEmpty()
     }
 }

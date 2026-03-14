@@ -27,26 +27,29 @@ import org.junit.jupiter.params.provider.MethodSource
  * 다양한 [CodecFactory]를 사용한 파라미터화 테스트를 통해
  * 모든 코덱에서 정상 동작하는지 확인합니다.
  */
-class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
+class DefaultAvroGenericRecordSerializerTest : AbstractAvroTest() {
+    companion object : KLogging()
 
-    companion object: KLogging()
-
-    private fun serializers(): List<Arguments> = listOf(
-        "default" to DefaultAvroGenericRecordSerializer(),
-        "deflate" to DefaultAvroGenericRecordSerializer(CodecFactory.deflateCodec(6)),
-        "zstd-3" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3)),
-        "zstd-3-true" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true)),
-        "zstd-3-true-true" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
-        "snappy" to DefaultAvroGenericRecordSerializer(CodecFactory.snappyCodec()),
-        "xz" to DefaultAvroGenericRecordSerializer(CodecFactory.xzCodec(DEFAULT_COMPRESSION)),
-        "bzip" to DefaultAvroGenericRecordSerializer(CodecFactory.bzip2Codec()),
-    ).map {
-        Arguments.of(it.first, it.second)
-    }
+    private fun serializers(): List<Arguments> =
+        listOf(
+            "default" to DefaultAvroGenericRecordSerializer(),
+            "deflate" to DefaultAvroGenericRecordSerializer(CodecFactory.deflateCodec(6)),
+            "zstd-3" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3)),
+            "zstd-3-true" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true)),
+            "zstd-3-true-true" to DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
+            "snappy" to DefaultAvroGenericRecordSerializer(CodecFactory.snappyCodec()),
+            "xz" to DefaultAvroGenericRecordSerializer(CodecFactory.xzCodec(DEFAULT_COMPRESSION)),
+            "bzip" to DefaultAvroGenericRecordSerializer(CodecFactory.bzip2Codec())
+        ).map {
+            Arguments.of(it.first, it.second)
+        }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `serialize employee`(name: String, serializer: AvroGenericRecordSerializer) {
+    fun `serialize employee`(
+        name: String,
+        serializer: AvroGenericRecordSerializer,
+    ) {
         val emp = TestMessageProvider.createEmployee()
         val schema = Employee.getClassSchema()
 
@@ -60,8 +63,10 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `serialize collections`(name: String, serializer: AvroGenericRecordSerializer) {
-
+    fun `serialize collections`(
+        name: String,
+        serializer: AvroGenericRecordSerializer,
+    ) {
         val emps = List(20) { TestMessageProvider.createEmployee() }
         val empList = EmployeeList.newBuilder().setEmps(emps).build()
         val schema = EmployeeList.getClassSchema()
@@ -79,8 +84,10 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
     @Disabled("map<string> 에 대해 key를 long type으로 해석합니다. SpecificRecord를 사용하세요")
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `serialize nested entity`(name: String, serializer: AvroGenericRecordSerializer) {
-
+    fun `serialize nested entity`(
+        name: String,
+        serializer: AvroGenericRecordSerializer,
+    ) {
         val producct = TestMessageProvider.createProductProperty()
         val schema = ProductRoot.getClassSchema()
 
@@ -103,7 +110,10 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("serializers")
-    fun `Base64 문자열로 직렬화 및 역직렬화`(name: String, serializer: AvroGenericRecordSerializer) {
+    fun `Base64 문자열로 직렬화 및 역직렬화`(
+        name: String,
+        serializer: AvroGenericRecordSerializer,
+    ) {
         val emp = TestMessageProvider.createEmployee()
         val schema = Employee.getClassSchema()
 
@@ -132,5 +142,14 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         val schema = Employee.getClassSchema()
 
         serializer.deserializeFromString(schema, "{not-base64").shouldBeNull()
+    }
+
+    @Test
+    fun `손상된 Avro 바이트 배열 역직렬화 시 null을 반환한다`() {
+        val serializer = DefaultAvroGenericRecordSerializer()
+        val schema = Employee.getClassSchema()
+        val corruptedBytes = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+
+        serializer.deserialize(schema, corruptedBytes).shouldBeNull()
     }
 }

@@ -131,7 +131,8 @@ val XZ_CODEC_FACTORY: CodecFactory by lazy {
  *
  * ## 동작/계약
  * - [name]은 `lowercase().trim()` 기준으로 비교하므로 대소문자/앞뒤 공백을 무시합니다.
- * - `"null"`, `"none"`, `"deflate"`, `"snappy"`, `"zstd"`, `"zstandard"`, `"zstd-fast"`, `"bzip2"`, `"xz"`를 지원합니다.
+ * - 지원 이름: `"null"`, `"none"`, `"deflate"`, `"snappy"`, `"zstd"`, `"zstandard"`,
+ *   `"zstd-fast"`, `"zstd-archive"`, `"archive"`, `"bzip2"`, `"xz"`
  * - 지원하지 않는 이름은 [IllegalArgumentException]을 던집니다.
  *
  * ```kotlin
@@ -141,15 +142,15 @@ val XZ_CODEC_FACTORY: CodecFactory by lazy {
  *
  * @param name 코덱 이름입니다. 지원 목록 외 값이면 [IllegalArgumentException]이 발생합니다.
  */
-fun codecFactoryOf(name: String): CodecFactory {
-    return when (name.lowercase().trim()) {
-        "null", "none"      -> NULL_CODEC_FACTORY
-        "deflate"           -> DEFLATE_CODEC_FACTORY
-        "snappy"            -> SNAPPY_CODEC_FACTORY
+fun codecFactoryOf(name: String): CodecFactory =
+    when (name.lowercase().trim()) {
+        "null", "none" -> NULL_CODEC_FACTORY
+        "deflate" -> DEFLATE_CODEC_FACTORY
+        "snappy" -> SNAPPY_CODEC_FACTORY
         "zstd", "zstandard" -> ZSTD_CODEC_FACTORY
-        "zstd-fast"         -> FAST_CODEC_FACTORY
-        "bzip2"             -> BZIP2_CODEC_FACTORY
-        "xz"                -> XZ_CODEC_FACTORY
-        else                -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
+        "zstd-fast" -> FAST_CODEC_FACTORY
+        "zstd-archive", "archive" -> ARCHIVE_CODEC_FACTORY
+        "bzip2" -> BZIP2_CODEC_FACTORY
+        "xz" -> XZ_CODEC_FACTORY
+        else -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
     }
-}

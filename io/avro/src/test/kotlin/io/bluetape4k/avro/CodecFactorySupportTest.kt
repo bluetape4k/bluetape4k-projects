@@ -12,9 +12,8 @@ import org.junit.jupiter.params.provider.ValueSource
 /**
  * [CodecFactorySupport]에 정의된 코덱 팩토리 상수 및 [codecFactoryOf] 함수를 검증합니다.
  */
-class CodecFactorySupportTest: AbstractAvroTest() {
-
-    companion object: KLogging()
+class CodecFactorySupportTest : AbstractAvroTest() {
+    companion object : KLogging()
 
     @Test
     fun `기본 코덱 팩토리 인스턴스가 정상 생성된다`() {
@@ -41,7 +40,9 @@ class CodecFactorySupportTest: AbstractAvroTest() {
     }
 
     @ParameterizedTest(name = "codecFactoryOf({0})")
-    @ValueSource(strings = ["null", "none", "deflate", "snappy", "zstd", "zstandard", "zstd-fast", "bzip2", "xz"])
+    @ValueSource(
+        strings = ["null", "none", "deflate", "snappy", "zstd", "zstandard", "zstd-fast", "zstd-archive", "archive", "bzip2", "xz"]
+    )
     fun `codecFactoryOf 로 지원하는 코덱을 문자열로 생성할 수 있다`(codecName: String) {
         val codec = codecFactoryOf(codecName)
         codec.shouldNotBeNull()
