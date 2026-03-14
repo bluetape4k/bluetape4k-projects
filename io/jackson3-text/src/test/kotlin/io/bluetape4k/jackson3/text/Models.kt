@@ -4,24 +4,56 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import java.io.Serializable
 import java.util.*
 
+data class Box(
+    val x: Int,
+    val y: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
-data class Box(val x: Int, val y: Int): Serializable
-
-data class Container(val boxes: List<Box>): Serializable
+data class Container(
+    val boxes: List<Box>,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
 @JsonPropertyOrder(value = ["x", "y"])
-data class Point(val x: Int, val y: Int): Serializable
+data class Point(
+    val x: Int,
+    val y: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
-data class Points(val p: List<Point>): Serializable {
-    constructor(vararg points: Point): this(points.toList())
+data class Points(
+    val p: List<Point>,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
+    constructor(vararg points: Point) : this(points.toList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])
-data class Rectangle(val topLeft: Point, val bottomRight: Point): Serializable
+data class Rectangle(
+    val topLeft: Point,
+    val bottomRight: Point,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
 enum class Gender {
     MALE,
-    FEMALE;
+    FEMALE,
 }
 
 data class FiveMinuteUser(
@@ -30,7 +62,10 @@ data class FiveMinuteUser(
     var verified: Boolean,
     var gender: Gender,
     var userImage: ByteArray,
-): Serializable {
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other === this) {
@@ -53,13 +88,40 @@ data class FiveMinuteUser(
 }
 
 @JsonPropertyOrder(value = ["id", "desc"])
-data class IdDesc(var id: String, val desc: String): Serializable
+data class IdDesc(
+    var id: String,
+    val desc: String,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
-data class Outer(val name: Name, val age: Int): Serializable
+data class Outer(
+    val name: Name,
+    val age: Int,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
-data class Name(val first: String, val last: String): Serializable
+data class Name(
+    val first: String,
+    val last: String,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
-data class Database(val dataSource: DataSource): Serializable
+data class Database(
+    val dataSource: DataSource,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
 
 data class DataSource(
     val driverClass: String,
@@ -67,4 +129,8 @@ data class DataSource(
     val username: String,
     val password: String,
     val properties: Set<String>,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
