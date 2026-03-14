@@ -8,7 +8,11 @@ data class HttpbinGetResponse(
     val headers: Map<String, String>,
     val origin: String,
     val url: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 /** `httpbin.org/post` 와 유사하게 본문/폼/파일 정보를 함께 받는 응답 구조입니다. */
 data class HttpbinPostResponse(
@@ -20,7 +24,11 @@ data class HttpbinPostResponse(
     val json: Map<String, Any>?,
     val origin: String,
     val url: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 /** `/anything`, `/put`, `/patch` 처럼 메소드와 본문 정보를 포함하는 범용 응답입니다. */
 data class HttpbinAnythingResponse(
@@ -33,14 +41,26 @@ data class HttpbinAnythingResponse(
     val method: String,
     val origin: String,
     val url: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 /** `/cookies` 계열 엔드포인트가 반환하는 쿠키 맵입니다. */
 data class HttpBinCookiesResponse(
     val cookies: Map<String, String>,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 /** `/uuid`와 같이 단일 식별자를 받는 응답입니다. */
 data class HttpbinUuidResponse(
     val uuid: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}

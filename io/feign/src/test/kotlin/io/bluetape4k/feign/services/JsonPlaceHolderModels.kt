@@ -7,7 +7,11 @@ data class Post(
     val id: Int,
     val title: String?,
     val body: String?,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class Comment(
     val postId: Int,
@@ -15,7 +19,11 @@ data class Comment(
     val name: String,
     val email: String,
     val body: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class User(
     val id: Int,
@@ -26,7 +34,11 @@ data class User(
     val phone: String,
     val website: String,
     val company: Company,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class Address(
     val street: String,
@@ -34,24 +46,51 @@ data class Address(
     val city: String,
     val zipcode: String,
     val geo: Geo,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Geo(val lat: Double, val lng: Double): Serializable
+data class Geo(
+    val lat: Double,
+    val lng: Double,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
-data class Company(val name: String, val catchPhrase: String, val bs: String): Serializable
+data class Company(
+    val name: String,
+    val catchPhrase: String,
+    val bs: String,
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class Todo(
     val userId: Int,
     val id: Int,
     val title: String,
     val completed: Boolean,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class Album(
     val userId: Int,
     val id: Int,
     val title: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 data class Photo(
     val albumId: Int,
@@ -59,4 +98,8 @@ data class Photo(
     val title: String,
     val url: String,
     val thumbnailUrl: String,
-): Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
