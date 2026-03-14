@@ -25,8 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 class MeasuredColumnTypesTest {
-
-    private object MeasureTable: IntIdTable("measured_column_type_test") {
+    private object MeasureTable : IntIdTable("measured_column_type_test") {
         val length = measure("length", Length.meters)
         val area = measure("area", Area.meters2)
         val energy = measure("energy", Energy.joules)
@@ -36,23 +35,26 @@ class MeasuredColumnTypesTest {
     }
 
     @Nested
-    inner class Jdbc: AbstractExposedTest() {
+    inner class Jdbc : AbstractExposedTest() {
         @ParameterizedTest
         @MethodSource(ENABLE_DIALECTS_METHOD)
         fun `Measure, Temperature 컬럼은 모든 DB에서 round-trip 된다`(testDB: TestDB) {
             withTables(testDB, MeasureTable) {
-                val insertedId = MeasureTable.insertAndGetId {
-                    it[MeasureTable.length] = 150.centimeters()
-                    it[MeasureTable.area] = 2.5.kilometers2()
-                    it[MeasureTable.energy] = 1.kiloWattHours()
-                    it[MeasureTable.power] = 250.watts()
-                    it[MeasureTable.temperature] = 25.celsius()
-                    it[MeasureTable.temperatureDelta] = 10.celsiusDelta()
-                }
+                val insertedId =
+                    MeasureTable.insertAndGetId {
+                        it[MeasureTable.length] = 150.centimeters()
+                        it[MeasureTable.area] = 2.5.kilometers2()
+                        it[MeasureTable.energy] = 1.kiloWattHours()
+                        it[MeasureTable.power] = 250.watts()
+                        it[MeasureTable.temperature] = 25.celsius()
+                        it[MeasureTable.temperatureDelta] = 10.celsiusDelta()
+                    }
 
-                val row = MeasureTable.selectAll()
-                    .where { MeasureTable.id eq insertedId }
-                    .single()
+                val row =
+                    MeasureTable
+                        .selectAll()
+                        .where { MeasureTable.id eq insertedId }
+                        .single()
 
                 (row[MeasureTable.length] `in` Length.meters).shouldBeNear(1.5, 1e-10)
                 (row[MeasureTable.area] `in` Area.meters2).shouldBeNear(2_500_000.0, 1e-4)
@@ -86,5 +88,15 @@ class MeasuredColumnTypesTest {
 
         val decoded = columnType.valueFromDB(encoded)!!
         decoded.inCelsius().shouldBeNear(25.0, 1e-10)
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `TemperatureDeltaColumnType 는 Kelvin delta 기준으로 변환한다`() {
+        val columnType = TemperatureDeltaColumnType()
+        val encoded = columnType.notNullValueToDB(10.celsiusDelta()) as Double
+        encoded.shouldBeNear(10.0, 1e-10)
+
+        val decoded = columnType.valueFromDB(encoded)!!
+        decoded.inCelsius().shouldBeNear(10.0, 1e-10)
     }
 }
