@@ -1,6 +1,7 @@
 package io.bluetape4k.cassandra.data
 
 import com.datastax.oss.driver.api.core.data.CqlDuration
+import io.bluetape4k.javatimes.nanosLong
 import java.time.Duration
 
 /**
@@ -18,7 +19,7 @@ import java.time.Duration
  */
 fun Duration.toCqlDuration(): CqlDuration {
     val days = toDays()
-    val remainingNanos = minus(Duration.ofDays(days)).toNanos()
+    val remainingNanos = nanosLong
     return cqlDurationOf(0, days.toInt(), remainingNanos)
 }
 

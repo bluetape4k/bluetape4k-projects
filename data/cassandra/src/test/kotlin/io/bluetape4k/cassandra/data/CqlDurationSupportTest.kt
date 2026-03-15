@@ -1,7 +1,9 @@
 package io.bluetape4k.cassandra.data
 
+import io.bluetape4k.javatimes.nanosLong
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.nanosOfMillis
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -23,7 +25,7 @@ class CqlDurationSupportTest {
 
         cqlDuration.months shouldBeEqualTo 0
         cqlDuration.days shouldBeEqualTo duration.toDays().toInt()
-        cqlDuration.nanoseconds shouldBeEqualTo duration.toNanos()
+        cqlDuration.nanoseconds shouldBeEqualTo duration.nanosLong
 
         assertFailsWith<UnsupportedTemporalTypeException> {
             cqlDuration[ChronoUnit.SECONDS] shouldBeEqualTo 0L
@@ -39,7 +41,7 @@ class CqlDurationSupportTest {
 
         cqlDuration.months shouldBeEqualTo 0
         cqlDuration.days shouldBeEqualTo duration.toDays().toInt()
-        cqlDuration.nanoseconds shouldBeEqualTo duration.toNanos()
+        cqlDuration.nanoseconds shouldBeEqualTo duration.nanosLong
     }
 
 
@@ -52,7 +54,7 @@ class CqlDurationSupportTest {
 
         cqlDuration.months shouldBeEqualTo 0
         cqlDuration.days shouldBeEqualTo duration.inWholeDays.toInt()
-        cqlDuration.nanoseconds shouldBeEqualTo duration.inWholeNanoseconds
+        cqlDuration.nanoseconds shouldBeEqualTo duration.nanosOfMillis.toLong()
 
         assertFailsWith<UnsupportedTemporalTypeException> {
             cqlDuration[ChronoUnit.SECONDS] shouldBeEqualTo 0L
@@ -68,7 +70,7 @@ class CqlDurationSupportTest {
 
         cqlDuration.months shouldBeEqualTo 0
         cqlDuration.days shouldBeEqualTo duration.inWholeDays.toInt()
-        cqlDuration.nanoseconds shouldBeEqualTo duration.inWholeNanoseconds
+        cqlDuration.nanoseconds shouldBeEqualTo duration.nanosOfMillis.toLong()
     }
 
     @Test
