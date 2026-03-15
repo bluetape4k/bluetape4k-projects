@@ -2,17 +2,21 @@ package io.bluetape4k.examples.redisson.coroutines
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.redisson.Redisson
 import org.redisson.api.RedissonClient
+import org.redisson.config.Config
+import java.time.Duration
 
 abstract class AbstractRedissonCoroutineTest {
 
@@ -40,17 +44,29 @@ abstract class AbstractRedissonCoroutineTest {
 
         @JvmStatic
         protected fun newRedisson(): RedissonClient {
-            val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
-                connectionPoolSize = 128,
-                minimumIdleSize = 4,
-                threads = 16,
-                nettyThreads = 64,
-            )
-            config.setTcpUserTimeout(5_000)
-            return redissonClientOf(config)
-//                .apply {
-//                    ShutdownQueue.register { shutdown() }
-//                }
+            val config = Config().apply {
+                useSingleServer()
+                    .setAddress(redis.url)
+                    .setConnectionPoolSize(128)
+                    .setConnectionMinimumIdleSize(32) // 최소 연결을 충분히 확보하여 Latency 방지
+                    .setIdleConnectionTimeout(100_000)  // 연결 유지를 넉넉히 (100초)
+                    .setTimeout(5000)
+                    .setRetryAttempts(3)
+                    .setRetryDelay { attempt -> Duration.ofMillis((attempt + 1) * 100L) }
+
+                    .setDnsMonitoringInterval(5000)  // DNS 변경 감지 (Cloud 환경 필수)
+
+                executor = VirtualThreadExecutor
+                threads = 256
+                nettyThreads = 128
+                codec = RedissonCodecs.LZ4ForyComposite
+                setTcpNoDelay(true)
+                setTcpUserTimeout(5000)
+            }
+
+            return Redisson.create(config).apply {
+                ShutdownQueue.register { shutdown() }
+            } as Redisson
         }
     }
 
