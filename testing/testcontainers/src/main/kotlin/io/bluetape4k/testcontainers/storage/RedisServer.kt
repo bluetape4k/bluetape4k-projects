@@ -1,5 +1,6 @@
 package io.bluetape4k.testcontainers.storage
 
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
@@ -166,21 +167,26 @@ class RedisServer private constructor(
                 address: String = redis.url,
                 connectionPoolSize: Int = 256,
                 minimumIdleSize: Int = 24,
-                threads: Int = 32,
+                threads: Int = 256,
                 nettyThreads: Int = 128,
             ): Config {
                 return Config().apply {
-                    this.threads = threads
-                    this.nettyThreads = nettyThreads
-                    this.codec = this.codec ?: TEST_REDISSON_CODEC
-
                     with(useSingleServer()) {
                         this.address = address
                         this.connectionPoolSize = connectionPoolSize       // default: 64
                         this.connectionMinimumIdleSize = minimumIdleSize  // default: 24
+                        this.idleConnectionTimeout = 100_000  // 연결 유지를 넉넉히 (100초)
+                        this.timeout = 5000
                         this.retryAttempts = 3
-                        this.setRetryDelay { Duration.ofMillis(it * 10L + 10L) }
+                        this.setRetryDelay { Duration.ofMillis(it * 100L + 100L) }
                     }
+
+                    this.executor = VirtualThreadExecutor
+                    this.threads = threads
+                    this.nettyThreads = nettyThreads
+                    this.codec = this.codec ?: TEST_REDISSON_CODEC
+                    setTcpNoDelay(true)
+                    setTcpUserTimeout(5000)
                 }
             }
 

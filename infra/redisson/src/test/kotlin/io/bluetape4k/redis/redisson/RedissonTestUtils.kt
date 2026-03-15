@@ -23,11 +23,7 @@ object RedissonTestUtils {
     internal val redisson: RedissonClient get() = redissonClient
 
     internal fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
-            redisServer.url,
-            256,
-            24
-        )
+        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(redisServer.url)
         return redissonClientOf(config)
     }
 
