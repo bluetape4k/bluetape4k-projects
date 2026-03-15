@@ -3,6 +3,7 @@ package io.bluetape4k.feign
 import feign.Request
 import feign.Request.HttpMethod
 import io.bluetape4k.logging.KLogging
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
