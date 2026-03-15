@@ -431,6 +431,7 @@ inline fun String?.quoted(): String {
  */
 inline fun randomString(size: Int = 10): String {
     size.requireZeroOrPositiveNumber("size")
+    if (size == 0) return EMPTY_STRING
     return Base58.randomString(size)
 }
 
