@@ -15,7 +15,7 @@ dependencies {
     compileOnly(Libs.hikaricp)
     compileOnly(Libs.tomcat_jdbc)
 
-    compileOnly(Libs.agroal_pool)
+    // compileOnly(Libs.agroal_pool)
     compileOnly(Libs.agroal_spring_boot_starter)
 
     compileOnly(Libs.springBootStarter("jdbc"))

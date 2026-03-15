@@ -27,10 +27,12 @@ import javax.sql.DataSource
  * @return 작업 결과
  * @throws IllegalStateException Connection을 획득할 수 없을 경우
  */
-inline fun <T> DataSource.withConnect(crossinline block: (Connection) -> T): T =
-    connection?.use { conn ->
+inline fun <T> DataSource.withConnect(block: (Connection) -> T): T {
+    val connection = this.connection ?: error("Failed to obtain connection from DataSource[$this]")
+    return connection.use { conn ->
         block(conn)
-    } ?: error("Failed to obtain connection from DataSource[$this]")
+    }
+}
 
 /**
  * DataSource에서 Statement를 생성하여 작업을 수행합니다.
@@ -45,7 +47,7 @@ inline fun <T> DataSource.withConnect(crossinline block: (Connection) -> T): T =
  * @param block Statement를 수행하는 코드 블록
  * @return 작업 결과
  */
-inline fun <T> DataSource.withStatement(crossinline block: (Statement) -> T): T =
+inline fun <T> DataSource.withStatement(block: (Statement) -> T): T =
     withConnect { conn ->
         conn.withStatement(block)
     }
@@ -67,7 +69,7 @@ inline fun <T> DataSource.withStatement(crossinline block: (Statement) -> T): T 
  */
 inline fun <T> DataSource.runQuery(
     sql: String,
-    crossinline mapper: (ResultSet) -> T,
+    mapper: (ResultSet) -> T,
 ): T {
     sql.requireNotBlank("sql")
     return withConnect { conn ->
@@ -131,13 +133,13 @@ fun DataSource.executeUpdate(
  * @param columnIndexes 생성된 키를 가져올 컬럼 인덱스들
  * @return columnIndexes 옵션에 따른 결과
  */
-fun DataSource.executeUpdate(
+fun DataSource.executeUpdateWithIndedexes(
     sql: String,
     vararg columnIndexes: Int,
 ): Int {
     sql.requireNotBlank("sql")
     return withConnect { conn ->
-        conn.executeUpdate(sql, *columnIndexes)
+        conn.executeUpdateWithIndedexes(sql, *columnIndexes)
     }
 }
 
@@ -155,13 +157,13 @@ fun DataSource.executeUpdate(
  * @param columnLabels 생성된 키를 가져올 컬럼 레이블들
  * @return columnLabels 옵션에 따른 결과
  */
-fun DataSource.executeUpdate(
+fun DataSource.executeUpdateWithLabels(
     sql: String,
     vararg columnLabels: String,
 ): Int {
     sql.requireNotBlank("sql")
     return withConnect { conn ->
-        conn.executeUpdate(sql, *columnLabels)
+        conn.executeUpdateWithLabels(sql, *columnLabels)
     }
 }
 
@@ -183,7 +185,7 @@ fun DataSource.executeUpdate(
  */
 inline fun <T> DataSource.executeInsert(
     sql: String,
-    crossinline keyMapper: (ResultSet) -> T,
+    keyMapper: (ResultSet) -> T,
 ): T? {
     sql.requireNotBlank("sql")
     return withConnect { conn ->

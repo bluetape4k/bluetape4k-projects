@@ -6,13 +6,12 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
-class ResultSetExtensionsTest : AbstractJdbcSqlTest() {
+class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     // ─── iterator ────────────────────────────────────────────────────────────
 
     @Test
@@ -55,7 +54,7 @@ class ResultSetExtensionsTest : AbstractJdbcSqlTest() {
     fun `map - 모든 행을 리스트로 변환한다`() {
         val firstnames =
             dataSource.runQuery("SELECT firstname FROM Actors ORDER BY id") { rs ->
-                rs.map { it.getString("firstname") }
+                rs.map { getString("firstname") }
             }
 
         firstnames.shouldNotBeEmpty()

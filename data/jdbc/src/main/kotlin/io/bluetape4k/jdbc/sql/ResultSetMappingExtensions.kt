@@ -32,7 +32,8 @@ fun interface ResultSetMapper<T> {
  * @param mapper ResultSet을 객체로 매핑하는 함수
  * @return 매핑된 객체 또는 null
  */
-inline fun <T> ResultSet.mapFirst(crossinline mapper: (ResultSet) -> T): T? = if (this.next()) mapper(this) else null
+inline fun <T> ResultSet.mapFirst(mapper: (ResultSet) -> T): T? =
+    if (this.next()) mapper(this) else null
 
 /**
  * ResultSet의 첫 번째 행을 객체로 매핑하여 반환합니다.
@@ -49,7 +50,7 @@ inline fun <T> ResultSet.mapFirst(crossinline mapper: (ResultSet) -> T): T? = if
  * @return 매핑된 객체
  * @throws NoSuchElementException 결과가 없을 경우
  */
-inline fun <T> ResultSet.mapFirstOrThrow(crossinline mapper: (ResultSet) -> T): T =
+inline fun <T> ResultSet.mapFirstOrThrow(mapper: (ResultSet) -> T): T =
     mapFirst(mapper) ?: throw NoSuchElementException("ResultSet is empty")
 
 /**
@@ -415,7 +416,7 @@ fun ResultSet.isEmpty(): Boolean = !this.next()
  *
  * @return ResultSet에 행이 있으면 true, 그렇지 않으면 false
  */
-fun ResultSet.isNotEmpty(): Boolean = this.next().also { if (it) this.previous() }
+fun ResultSet.isNotEmpty(): Boolean = !isEmpty() // this.next().also { if (it) this.previous() }
 
 /**
  * ResultSet의 커서를 이전 위치로 되돌립니다.

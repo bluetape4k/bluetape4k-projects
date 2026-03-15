@@ -3,6 +3,7 @@ package io.bluetape4k.jdbc.sql
 import io.bluetape4k.jdbc.model.Actor
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.assertThrows
  *
  * DataSource 트랜잭션 및 파라미터 바인딩 관련 확장 함수들의 테스트를 제공합니다.
  */
-class DataSourceTransactionExtensionsTest : AbstractJdbcSqlTest() {
+class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
     // ─── withTransaction ──────────────────────────────────────────────────────
 
     @Test

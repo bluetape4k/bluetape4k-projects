@@ -2,9 +2,9 @@ package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.jdbc.model.Actor
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainKey
-import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -15,7 +15,8 @@ import org.junit.jupiter.api.assertThrows
  *
  * ResultSet 객체 매핑 관련 확장 함수들의 테스트를 제공합니다.
  */
-class ResultSetMappingExtensionsTest : AbstractJdbcSqlTest() {
+class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
+
     private fun actorMapper(rs: java.sql.ResultSet) =
         Actor(
             id = rs.getInt("id"),
@@ -43,7 +44,7 @@ class ResultSetMappingExtensionsTest : AbstractJdbcSqlTest() {
                 rs.mapFirst { actorMapper(it) }
             }
 
-        actor shouldBeEqualTo null
+        actor.shouldBeNull()
     }
 
     // ─── mapFirstOrThrow ──────────────────────────────────────────────────────
@@ -161,7 +162,7 @@ class ResultSetMappingExtensionsTest : AbstractJdbcSqlTest() {
             }
 
         actorMap.shouldNotBeEmpty()
-        actorMap shouldContainKey 1
+        actorMap.keys shouldContain 1
         actorMap[1] shouldBeEqualTo "Sunghyouk"
     }
 

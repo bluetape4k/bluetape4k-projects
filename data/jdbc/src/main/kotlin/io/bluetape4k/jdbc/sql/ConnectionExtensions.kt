@@ -47,7 +47,7 @@ inline fun <T> Connection.withStatement(block: (Statement) -> T): T =
  */
 inline fun <T> Connection.runQuery(
     sqlString: String,
-    crossinline mapper: (ResultSet) -> T,
+    mapper: (ResultSet) -> T,
 ): T {
     sqlString.requireNotBlank("sqlString")
 
@@ -113,7 +113,7 @@ fun Connection.executeUpdate(
  * @param columnIndexes 생성된 키를 가져올 컬럼 인덱스들
  * @return 영향받은 행 수
  */
-fun Connection.executeUpdate(
+fun Connection.executeUpdateWithIndedexes(
     sqlString: String,
     vararg columnIndexes: Int,
 ): Int {
@@ -138,7 +138,7 @@ fun Connection.executeUpdate(
  * @param columnLabels 생성된 키를 가져올 컬럼 레이블들
  * @return 영향받은 행 수
  */
-fun Connection.executeUpdate(
+fun Connection.executeUpdateWithLabels(
     sqlString: String,
     vararg columnLabels: String,
 ): Int {
@@ -167,7 +167,7 @@ fun Connection.executeUpdate(
  */
 inline fun <T> Connection.executeInsert(
     sqlString: String,
-    crossinline keyMapper: (ResultSet) -> T,
+    keyMapper: (ResultSet) -> T,
 ): T? {
     sqlString.requireNotBlank("sqlString")
 

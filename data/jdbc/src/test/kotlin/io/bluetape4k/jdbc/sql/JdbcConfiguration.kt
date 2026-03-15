@@ -10,12 +10,13 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
+import javax.sql.DataSource
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class JdbcConfiguration {
 
     @Bean
-    fun dataSource() =
+    fun dataSource(): DataSource =
         EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .generateUniqueName(true)
@@ -26,19 +27,20 @@ class JdbcConfiguration {
             .build()
 
     @Bean
-    fun jdbcTemplate(): JdbcTemplate = JdbcTemplate(dataSource())
+    fun jdbcTemplate(dataSource: DataSource): JdbcTemplate =
+        JdbcTemplate(dataSource)
 
     @Bean
-    fun namedParameterJdbcTemplate(): NamedParameterJdbcTemplate =
-        NamedParameterJdbcTemplate(dataSource())
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun transactionManager(): PlatformTransactionManager =
-        DataSourceTransactionManager(dataSource())
+    fun namedParameterJdbcTemplate(dataSource: DataSource): NamedParameterJdbcTemplate =
+        NamedParameterJdbcTemplate(dataSource)
 
     @Bean
     @ConditionalOnMissingBean
-    fun transactionTemplate(): TransactionTemplate =
-        TransactionTemplate(transactionManager())
+    fun transactionManager(dataSource: DataSource): PlatformTransactionManager =
+        DataSourceTransactionManager(dataSource)
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun transactionTemplate(transactionManager: PlatformTransactionManager): TransactionTemplate =
+        TransactionTemplate(transactionManager)
 }
