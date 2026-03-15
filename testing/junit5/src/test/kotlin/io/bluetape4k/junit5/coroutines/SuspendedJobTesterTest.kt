@@ -8,11 +8,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 class SuspendedJobTesterTest {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
     }
 
@@ -89,7 +90,7 @@ class SuspendedJobTesterTest {
     @Test
     fun `라운드가 커도 실행 횟수 계약을 유지한다`() =
         runTest {
-            val count = atomic(0)
+            val count = AtomicInteger(0)
 
             SuspendedJobTester()
                 .workers(7)
@@ -97,7 +98,7 @@ class SuspendedJobTesterTest {
                 .add { count.incrementAndGet() }
                 .run()
 
-            count.value shouldBeEqualTo 50_000
+            count.get() shouldBeEqualTo 50_000
         }
 
     @Test
@@ -165,7 +166,7 @@ class SuspendedJobTesterTest {
             block2.count shouldBeEqualTo 3
         }
 
-    private class CountingJob : suspend () -> Unit {
+    private class CountingJob: suspend () -> Unit {
         private val counter = atomic(0)
         val count: Int by counter
 
