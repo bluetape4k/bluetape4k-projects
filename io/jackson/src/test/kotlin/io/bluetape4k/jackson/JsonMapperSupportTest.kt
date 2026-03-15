@@ -12,17 +12,17 @@ import java.io.Serializable
 import java.io.StringReader
 
 /**
- * [JsonMapperSupport] 확장 함수에 대한 테스트입니다.
+ * [JsonMapper] 확장 함수에 대한 테스트입니다.
  */
 class JsonMapperSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     data class Item(
         val id: Int,
         val name: String,
-    ) : Serializable
+    ): Serializable
 
     private val sampleItem = Item(1, "hello")
     private val sampleJson = """{"id":1,"name":"hello"}"""
@@ -204,5 +204,3 @@ class JsonMapperSupportTest {
         result.shouldNotBeNull() shouldBeEqualTo sampleItem
     }
 }
-
-private fun Boolean.shouldBeTrue() = org.amshove.kluent.shouldBeTrue(this)
