@@ -307,4 +307,3 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 - 다른 분산 캐시 백엔드가 필요한 경우:
   - Redisson 기반: `bluetape4k-cache-redisson`
   - Hazelcast 기반: `bluetape4k-cache-hazelcast`
-  - Apache Ignite 기반: `bluetape4k-cache-ignite`

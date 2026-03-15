@@ -20,7 +20,7 @@ Google [Tink](https://github.com/google/tink) 암호화 라이브러리를 Kotli
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-tink:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-tink:$bluetape4kVersion")
 }
 ```
 

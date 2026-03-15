@@ -35,7 +35,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 - 주석과 설명은 KDoc 형식으로 **한국어**로 작성
 - 커밋 메시지는 **한국어**로 작성하며, 머릿말(feat, fix, docs, style, refactor, perf, test, chore) 사용
-- Kotlin 2.1.20 이상 사용
+- Kotlin 2.3 이상 사용
 - 최대한 Kotlin extensions와 DSL 활용
 
 ### Technology Stack
@@ -149,7 +149,9 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **json**: JSON 처리
 - **jackson**: Jackson 2.x 통합
 - **jackson3**: Jackson 3.x 통합
-- **jackson-binary/jackson-text**: Jackson 바이너리/텍스트 포맷
+- **jackson-binary/jackson-text**: Jackson 2.x 바이너리/텍스트 포맷
+- **jackson3-binary/jackson3-text**: Jackson 3.x 바이너리/텍스트 포맷
+- **fastjson2**: FastJSON2
 - **csv**: CSV 처리
 - **avro**: Apache Avro
 - **feign**: Feign HTTP 클라이언트 (Coroutines 지원)
@@ -252,10 +254,9 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + ignite + redisson + lettuce)
+- **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
 - **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 cache-local 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체
 - **cache-hazelcast**: Hazelcast 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-hazelcast-near 병합)
-- **cache-ignite**: Apache Ignite 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-ignite-near 병합)
 - **cache-redisson**: Redisson 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-redisson-near 병합)
 - **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig` (구 `NearCacheConfig`), `lettuceNearCacheConfig {}` DSL, Hazelcast NearCache 테스트는 embedded 모드 시도 중
 
@@ -266,6 +267,8 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **mongodb**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장 (`findAsFlow`, `insertSuspending` 등), Criteria/Query/Update infix DSL
 - **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
+- **jpa**: Spring Data JPA
+- **webflux**: Spring WebFlux
 - **retrofit2**: Spring + Retrofit2 통합
 - **tests**: Spring 테스트 유틸리티
 
@@ -299,6 +302,12 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 - **junit5**: JUnit 5 확장 및 유틸리티
 - **testcontainers**: Testcontainers 지원
+
+#### Virtual Thread Modules (`virtualthread/`)
+
+- **api**: Virtual Thread API 및 ServiceLoader 기반 런타임 선택
+- **jdk21**: Java 21 Virtual Thread 구현체
+- **jdk25**: Java 25 Virtual Thread 구현체
 
 #### Other Modules
 
@@ -448,8 +457,8 @@ suspend fun <T> blockingOperation(): T = withContext(Dispatchers.IO) {
 프로젝트 버전은 `gradle.properties`에서 관리:
 
 ```properties
-projectGroup=io.bluetape4k
-baseVersion=1.1.0
+projectGroup=io.github.bluetape4k
+baseVersion=1.5.0
 snapshotVersion=-SNAPSHOT
 ```
 
@@ -477,7 +486,7 @@ snapshotVersion=-SNAPSHOT
 
 ### Detekt
 
-- `exposed-tests` 모듈은 Detekt disabled
+- `exposed-jdbc-tests` 모듈은 Detekt disabled
 
 ### Jacoco (Currently Commented Out)
 

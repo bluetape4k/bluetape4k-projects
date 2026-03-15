@@ -10,7 +10,6 @@
 |------------------------------|-------------------------------------------------------------|
 | `bluetape4k-cache-core`      | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer     |
 | `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합)  |
-| `bluetape4k-cache-ignite`    | Apache Ignite 분산 캐시 + Near Cache (구 `cache-ignite-near` 통합) |
 | `bluetape4k-cache-redisson`  | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합)    |
 | `bluetape4k-cache-lettuce`   | Lettuce(Redis) 분산 캐시 + Near Cache                           |
 
@@ -71,17 +70,7 @@ near.put("key", "value")
 val value = near.get("key")
 ```
 
-### 3. Ignite Near Cache (코루틴)
-
-```kotlin
-import io.bluetape4k.cache.nearcache.ignite.coroutines.IgniteNearSuspendCache
-
-val near = IgniteNearSuspendCache<String, Any>("ignite-users-near", igniteInstance)
-near.put("key", "value")
-val value = near.get("key")
-```
-
-### 4. Redisson Near Cache (코루틴)
+### 3. Redisson Near Cache (코루틴)
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.redis.coroutines.RedissonNearSuspendCache

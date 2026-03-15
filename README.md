@@ -68,8 +68,9 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 ### I/O 모듈 (`io/`)
 
 - **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
+- **[okio](./io/okio/README.md)**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
 - **[jackson](./io/jackson/README.md)/[jackson3](./io/jackson3/README.md)
-  **: Jackson 2.x/3.x 통합 및 [바이너리](./io/jackson-binary/README.md)/[텍스트](./io/jackson-text/README.md) 포맷 지원
+  **: Jackson 2.x/3.x 통합 및 [바이너리](./io/jackson-binary/README.md)/[텍스트](./io/jackson-text/README.md) 포맷 지원 ([3.x 바이너리](./io/jackson3-binary/README.md)/[3.x 텍스트](./io/jackson3-text/README.md) 포함)
 - **[json](./io/json/README.md)**: JSON 처리
 - **[csv](./io/csv/README.md)**: CSV 처리
 - **[feign](./io/feign/README.md)**: Feign HTTP 클라이언트 (Coroutines 지원)
@@ -124,6 +125,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[exposed-jackson](./data/exposed-jackson/README.md)/[jackson3](./data/exposed-jackson3/README.md)**: Exposed JSON 컬럼 지원 (Jackson 2.x/3.x)
 - **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: Exposed FastJSON2 JSON 컬럼 지원
 - **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Exposed Jasypt 암호화 컬럼
+- **[exposed-tink](./data/exposed-tink/README.md)**: Exposed 암호화 컬럼 (Google Tink AEAD/Deterministic AEAD)
 - **[exposed-measured](./data/exposed-measured/README.md)**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
 - **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: JDBC 기반 테스트 공통 인프라
 - **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: R2DBC 기반 테스트 공통 인프라
@@ -267,8 +269,8 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 버전 확인은 `gradle.properties` 파일에서 확인
 
 ```properties
-projectGroup=io.bluetape4k
-baseVersion=1.2.2
+projectGroup=io.github.bluetape4k
+baseVersion=1.5.0
 snapshotVersion=-SNAPSHOT
 ```
 

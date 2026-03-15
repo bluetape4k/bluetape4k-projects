@@ -171,7 +171,6 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 |-----------|-----------|
 | 로컬 캐시(Caffeine/Cache2k/Ehcache) | `bluetape4k-cache-core` |
 | Hazelcast 분산 캐시 + Near Cache | `bluetape4k-cache-hazelcast` |
-| Ignite 분산 캐시 + Near Cache | `bluetape4k-cache-ignite` |
 | Redisson 분산 캐시 + Near Cache | `bluetape4k-cache-redisson` |
 | 전체 Provider 일괄 사용 | `bluetape4k-cache` (umbrella) |
 

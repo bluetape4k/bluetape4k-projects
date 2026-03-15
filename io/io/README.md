@@ -271,7 +271,7 @@ dependencies {
 ```xml
 
 <dependency>
-    <groupId>io.bluetape4k</groupId>
+    <groupId>io.github.bluetape4k</groupId>
     <artifactId>bluetape4k-io</artifactId>
     <version>${bluetape4k.version}</version>
 </dependency>

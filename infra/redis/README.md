@@ -18,7 +18,7 @@ Spring Data Redis 직렬화가 필요하면 `spring/data-redis` 모듈을 별도
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-redis:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-redis:$bluetape4kVersion")
 }
 ```
 
@@ -27,13 +27,13 @@ dependencies {
 ```kotlin
 dependencies {
     // Lettuce만 사용
-    implementation("io.bluetape4k:bluetape4k-lettuce:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-lettuce:$bluetape4kVersion")
 
     // Redisson만 사용
-    implementation("io.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
     // Spring Data Redis Serializer
-    implementation("io.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
 }
 ```
 

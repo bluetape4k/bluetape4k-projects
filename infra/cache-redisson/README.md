@@ -26,7 +26,7 @@
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-redisson:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-cache-redisson:$bluetape4kVersion")
 
     // RESP3 NearCache 사용 시 — Redis 6.0+ 필요
     // (lettuce-core는 bluetape4k-cache-redisson에 포함됨)

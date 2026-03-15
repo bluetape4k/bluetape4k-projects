@@ -21,7 +21,7 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
     // Codec 선택적 의존성 (사용하는 항목만 추가)
     runtimeOnly("org.apache.fury:fury-kotlin")        // Fory 직렬화

@@ -30,7 +30,7 @@ dependencies {
 ```xml
 
 <dependency>
-    <groupId>io.bluetape4k</groupId>
+    <groupId>io.github.bluetape4k</groupId>
     <artifactId>bluetape4k-tokenizer-korean</artifactId>
     <version>${bluetape4kVersion}</version>
 </dependency>

@@ -18,7 +18,7 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
 }
 ```
 
