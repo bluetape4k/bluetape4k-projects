@@ -21,8 +21,8 @@ import retrofit2.HttpException
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-class ResultCallTest : AbstractRetrofitTest() {
-    companion object : KLoggingChannel()
+class ResultCallTest: AbstractRetrofitTest() {
+    companion object: KLoggingChannel()
 
     /**
      * [Json Place Holder](https://jsonplaceholder.typicode.com/) 에서 제공하는 API 로서 Json 데이터 통신에 대한 테스트를 손쉽게 할 수 있습니다.
@@ -93,6 +93,12 @@ class ResultCallTest : AbstractRetrofitTest() {
             (ex as HttpException).code() shouldBeEqualTo 403
         }
 
+
+    interface RawApi {
+        @GET("/anything/posts")
+        fun posts(): retrofit2.Call<HttpbinAnythingResponse>
+    }
+
     @Test
     fun `executeAsync 비동기 호출은 성공 응답을 반환한다`() =
         runSuspendIO {
@@ -101,11 +107,6 @@ class ResultCallTest : AbstractRetrofitTest() {
                     .callFactory(vertxCallFactoryOf())
                     .addConverterFactory(defaultJsonConverterFactory)
                     .build()
-
-            interface RawApi {
-                @GET("/anything/posts")
-                fun posts(): retrofit2.Call<HttpbinAnythingResponse>
-            }
 
             val rawApi = rawRetrofit.service<RawApi>()
             val response = rawApi.posts().executeAsync().await()
@@ -121,15 +122,10 @@ class ResultCallTest : AbstractRetrofitTest() {
                 .addConverterFactory(defaultJsonConverterFactory)
                 .build()
 
-        interface RawApi {
-            @GET("/anything/posts")
-            fun posts(): retrofit2.Call<HttpbinAnythingResponse>
-        }
-
         val rawApi = rawRetrofit.service<RawApi>()
         val call = rawApi.posts()
         call.cancel()
-        call.isCanceled().shouldBeTrue()
+        call.isCanceled.shouldBeTrue()
         runCatching { ResultCall(call) }.isFailure.shouldBeTrue()
     }
 

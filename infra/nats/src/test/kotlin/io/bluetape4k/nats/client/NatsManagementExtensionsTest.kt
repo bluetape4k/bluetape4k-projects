@@ -15,7 +15,6 @@ import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.io.IOException
@@ -43,7 +42,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.forcedDeleteStream("orders")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -56,7 +55,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.forcedDeleteStream("orders")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -79,7 +78,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -102,7 +101,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.forcedPurgeStream("orders")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -115,7 +114,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -128,7 +127,7 @@ class JetStreamManagementExtensionsTest {
                 jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -168,9 +167,9 @@ class JetStreamManagementExtensionsTest {
                 subjects = arrayOf("orders.updated", "orders.shipped", "orders.created")
             )
 
-        result shouldBeSameInstanceAs updated
+        result shouldBeEqualTo updated
         streamConfigSlot.captured.subjects shouldBeEqualTo
-            listOf("orders.created", "orders.updated", "orders.shipped")
+                listOf("orders.created", "orders.updated", "orders.shipped")
     }
 
     @Test
@@ -190,7 +189,7 @@ class JetStreamManagementExtensionsTest {
                 subjects = arrayOf("orders.updated")
             )
 
-        result shouldBeSameInstanceAs info
+        result shouldBeEqualTo info
         verify(exactly = 0) { jetStreamManagement.updateStream(any()) }
     }
 }
@@ -206,7 +205,7 @@ class KeyValueManagementExtensionsTest {
 
         val result = keyValueManagement.createOrUpdate(config)
 
-        result shouldBeSameInstanceAs status
+        result shouldBeEqualTo status
         verify(exactly = 0) { keyValueManagement.create(config) }
     }
 
@@ -220,7 +219,7 @@ class KeyValueManagementExtensionsTest {
 
         val result = keyValueManagement.createOrUpdate(config)
 
-        result shouldBeSameInstanceAs created
+        result shouldBeEqualTo created
     }
 
     @Test
@@ -233,7 +232,7 @@ class KeyValueManagementExtensionsTest {
                 keyValueManagement.forcedDelete("events")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -246,7 +245,7 @@ class KeyValueManagementExtensionsTest {
                 keyValueManagement.forcedDelete("events")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -281,7 +280,7 @@ class ObjectStreamManagementExtensionsTest {
                 objectStoreManagement.tryDelete("artifacts")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 
     @Test
@@ -294,7 +293,7 @@ class ObjectStreamManagementExtensionsTest {
                 objectStoreManagement.tryDelete("artifacts")
             }
 
-        thrown shouldBeSameInstanceAs unexpected
+        thrown shouldBeEqualTo unexpected
     }
 }
 

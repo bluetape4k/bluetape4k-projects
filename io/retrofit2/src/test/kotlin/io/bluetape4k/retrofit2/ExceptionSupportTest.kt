@@ -3,7 +3,6 @@ package io.bluetape4k.retrofit2
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeSameInstanceAs
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.IOException
@@ -19,7 +18,7 @@ class ExceptionSupportTest {
     fun `IOException은 그대로 반환된다`() {
         val original = IOException("original")
         val result = original.toIOException()
-        result shouldBeSameInstanceAs original
+        result shouldBeEqualTo original
     }
 
     @Test
@@ -28,7 +27,7 @@ class ExceptionSupportTest {
         val result = cause.toIOException()
 
         result shouldBeInstanceOf IOException::class
-        result.cause shouldBeSameInstanceAs cause
+        result.cause shouldBeEqualTo cause
         result.message shouldBeEqualTo "boom"
     }
 
@@ -42,7 +41,7 @@ class ExceptionSupportTest {
 
         result shouldBeInstanceOf IOException::class
         result.message shouldBeEqualTo "custom-toString"
-        result.cause shouldBeSameInstanceAs cause
+        result.cause shouldBeEqualTo cause
     }
 
     @Test
@@ -51,7 +50,7 @@ class ExceptionSupportTest {
         val result = cause.toIOException()
 
         result shouldBeInstanceOf IOException::class
-        result.cause shouldNotBeNull()
+        result.cause.shouldNotBeNull()
         result.cause shouldBeInstanceOf NullPointerException::class
     }
 }

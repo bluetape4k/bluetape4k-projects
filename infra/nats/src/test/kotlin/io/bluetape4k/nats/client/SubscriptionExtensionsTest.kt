@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.nats.client.Message
 import io.nats.client.Subscription
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -29,7 +29,7 @@ class SubscriptionExtensionsTest {
 
         val message = subscription.nextMessage(1.seconds)
 
-        message shouldBeSameInstanceAs received
+        message shouldBeEqualTo received
     }
 
     @Test
