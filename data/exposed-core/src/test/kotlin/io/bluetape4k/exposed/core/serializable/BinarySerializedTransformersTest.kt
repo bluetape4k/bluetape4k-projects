@@ -137,7 +137,7 @@ class BinarySerializedTransformersTest {
                 transformer.wrap(corruptedBytes)
             }
         // 예외가 발생하면 충분함 — IllegalStateException 또는 직렬화 오류
-        ex.message shouldContain ex.message!!
+        ex.message!! shouldContain ex.message!!
     }
 
     @Test
