@@ -62,8 +62,8 @@ class TinkDigesterTest {
     @Test
     fun `문자열 잘못된 해시로 matches 실패`() {
         val data = "Hello, World!"
-        val hash = digester.digest(data)
-        val wrongHash = hash.reversed()
+        val wrong = "World, Hello!"
+        val wrongHash = digester.digest(wrong)
 
         digester.matches(data, wrongHash).shouldBeFalse()
     }
