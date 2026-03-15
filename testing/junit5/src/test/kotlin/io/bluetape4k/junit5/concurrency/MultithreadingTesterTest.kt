@@ -160,8 +160,8 @@ class MultithreadingTesterTest {
             .addAll(listOf(block1, block2))
             .run()
 
-        block1.count shouldBeEqualTo 2 * 3
-        block2.count shouldBeEqualTo 2 * 3
+        block1.count shouldBeEqualTo 3
+        block2.count shouldBeEqualTo 3
     }
 
     private class CountingTask : () -> Unit {

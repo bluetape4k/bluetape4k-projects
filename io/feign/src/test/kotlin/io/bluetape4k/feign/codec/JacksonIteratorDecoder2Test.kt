@@ -2,6 +2,7 @@ package io.bluetape4k.feign.codec
 
 import feign.Request
 import feign.Request.HttpMethod
+import feign.Util
 import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.feignResponse
 import io.bluetape4k.logging.KLogging
@@ -74,7 +75,7 @@ class JacksonIteratorDecoder2Test : AbstractFeignTest() {
 
         // 204 응답은 Util.emptyValueOf 반환
         val result = decoder.decode(response, iteratorType)
-        result.shouldBeNull()
+        result shouldBeEqualTo Util.emptyValueOf(iteratorType)
     }
 
     @Test
