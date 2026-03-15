@@ -34,12 +34,12 @@ fun ProtoMoney.toJavaMoney(): JavaMoney {
  * ```
  */
 fun JavaMoney.toProtoMoney(): ProtoMoney {
-    val units = this.number.longValueExact()
+    val units = this.number.doubleValueExact()
     val nanos = ((this.number.doubleValueExact() - units) * 1.0e9).toInt()
 
     return ProtoMoney.newBuilder()
         .setCurrencyCode(currency.currencyCode)
-        .setUnits(units)
+        .setUnits(units.toLong())
         .setNanos(nanos)
         .build()
 }
