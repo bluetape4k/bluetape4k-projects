@@ -1,11 +1,9 @@
 package io.bluetape4k.http.okhttp3.mock
 
 import io.bluetape4k.http.okhttp3.okhttp3Client
-import io.bluetape4k.http.okhttp3.okhttp3Request
 import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -17,7 +15,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class MockWebServerExtensionsTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private lateinit var client: OkHttpClient
@@ -170,8 +168,7 @@ class MockWebServerExtensionsTest {
                 setResponseCode(202)
                 addHeader("X-Test", "yes")
             }
-
-        response.body.shouldNotBeNull()
-        response.getHeader("X-Test") shouldBeEqualTo "yes"
+        response.getBody().shouldNotBeNull()
+        response.headers["X-Test"] shouldBeEqualTo "yes"
     }
 }
