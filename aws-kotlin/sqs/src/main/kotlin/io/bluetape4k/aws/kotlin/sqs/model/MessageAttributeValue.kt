@@ -2,6 +2,13 @@ package io.bluetape4k.aws.kotlin.sqs.model
 
 import aws.sdk.kotlin.services.sqs.model.MessageAttributeValue
 
+/**
+ * 문자열 값으로 SQS [MessageAttributeValue]를 생성합니다.
+ *
+ * @param value 문자열 값 (null 허용)
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
+ * @return [MessageAttributeValue] 인스턴스
+ */
 @JvmName("messageAttributeValueOfNullableString")
 inline fun messageAttributeValueOf(
     value: String?,
@@ -12,6 +19,13 @@ inline fun messageAttributeValueOf(
         builder()
     }
 
+/**
+ * 문자열 목록으로 SQS [MessageAttributeValue]를 생성합니다.
+ *
+ * @param values 문자열 목록 (null 허용)
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
+ * @return [MessageAttributeValue] 인스턴스
+ */
 @JvmName("messageAttributeValueOfNullableStringList")
 inline fun messageAttributeValueOf(
     values: List<String>?,
@@ -23,6 +37,13 @@ inline fun messageAttributeValueOf(
         builder()
     }
 
+/**
+ * 바이너리 값으로 SQS [MessageAttributeValue]를 생성합니다.
+ *
+ * @param value 바이너리 값 (null 허용)
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
+ * @return [MessageAttributeValue] 인스턴스
+ */
 @JvmName("messageAttributeValueOfNullableByteArray")
 inline fun messageAttributeValueOf(
     value: ByteArray?,
@@ -34,6 +55,13 @@ inline fun messageAttributeValueOf(
         builder()
     }
 
+/**
+ * 바이너리 목록으로 SQS [MessageAttributeValue]를 생성합니다.
+ *
+ * @param values 바이너리 목록 (null 허용)
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
+ * @return [MessageAttributeValue] 인스턴스
+ */
 @JvmName("messageAttributeValueOfNullableByteArrayList")
 inline fun messageAttributeValueOf(
     values: List<ByteArray>?,

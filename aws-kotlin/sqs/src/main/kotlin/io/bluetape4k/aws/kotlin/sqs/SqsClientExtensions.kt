@@ -44,7 +44,9 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.utils.ShutdownQueue
 
-val log by lazy { KotlinLogging.logger { } }
+@PublishedApi
+internal val log = KotlinLogging.logger {}
+
 @PublishedApi
 internal const val MIN_RECEIVE_MESSAGES = 1
 
@@ -157,11 +159,12 @@ suspend inline fun SqsClient.ensureQueue(
  * @param queueName Amazon SQS 큐의 이름입니다.
  * @return 큐가 존재하면 true, 그렇지 않으면 false를 반환합니다.
  */
-suspend inline fun SqsClient.existsQueue(queueName: String): Boolean = runCatching {
-    getQueueUrl(queueName)?.isNotBlank() ?: false
-}.recover { error ->
-    if (error.isMissingQueueError()) false else throw error
-}.getOrThrow()
+suspend inline fun SqsClient.existsQueue(queueName: String): Boolean =
+    runCatching {
+        getQueueUrl(queueName)?.isNotBlank() ?: false
+    }.recover { error ->
+        if (error.isMissingQueueError()) false else throw error
+    }.getOrThrow()
 
 /**
  * [queueNamePrefix]를 접두사로 가지는 큐 목록을 반환합니다.
@@ -237,7 +240,6 @@ suspend inline fun SqsClient.deleteQueue(
         builder()
     }
 }
-
 
 /**
  * AWS SQS 에 메시지를 보냅니다.
@@ -362,7 +364,6 @@ suspend inline fun SqsClient.receiveMessage(
     }
 }
 
-
 /**
  * [queueUrl]의 [receiptHandle]을 가진 메시지에 대해 Visibility를 변경합니다.
  *
@@ -466,7 +467,6 @@ suspend inline fun SqsClient.changeMessageVisibilityBatch(
     }
 }
 
-
 /**
  * 제공된 queueUrl과 receiptHandle을 사용하여 메시지를 삭제합니다.
  *
@@ -554,17 +554,23 @@ suspend inline fun SqsClient.deleteMessageBatch(
 }
 
 @PublishedApi
-internal fun Throwable.isMissingQueueError(): Boolean = when (this) {
-    is QueueDoesNotExist, is ResourceNotFoundException -> true
-    is ServiceException                                -> {
-        val errorCode = sdkErrorMetadata.errorCode
-        val statusCode = sdkErrorMetadata.protocolResponse.statusCode()?.value
-        errorCode in setOf(
-            "QueueDoesNotExist",
-            "AWS.SimpleQueueService.NonExistentQueue",
-            "ResourceNotFoundException",
-            "NotFound",
-        ) || statusCode == 404
+internal fun Throwable.isMissingQueueError(): Boolean =
+    when (this) {
+        is QueueDoesNotExist, is ResourceNotFoundException -> {
+            true
+        }
+        is ServiceException -> {
+            val errorCode = sdkErrorMetadata.errorCode
+            val statusCode = sdkErrorMetadata.protocolResponse.statusCode()?.value
+            errorCode in
+                setOf(
+                    "QueueDoesNotExist",
+                    "AWS.SimpleQueueService.NonExistentQueue",
+                    "ResourceNotFoundException",
+                    "NotFound"
+                ) || statusCode == 404
+        }
+        else -> {
+            false
+        }
     }
-    else                                               -> false
-}
