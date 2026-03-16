@@ -149,8 +149,8 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **json**: JSON 처리
 - **jackson**: Jackson 2.x 통합
 - **jackson3**: Jackson 3.x 통합
-- **jackson-binary/jackson-text**: Jackson 2.x 바이너리/텍스트 포맷
-- **jackson3-binary/jackson3-text**: Jackson 3.x 바이너리/텍스트 포맷
+- ~~**jackson-binary/jackson-text**~~: **`bluetape4k-jackson`에 통합됨** (CBOR, Ion, Smile, CSV, YAML, TOML 등 모든 포맷 포함)
+- ~~**jackson3-binary/jackson3-text**~~: **`bluetape4k-jackson3`에 통합됨**
 - **fastjson2**: FastJSON2
 - **csv**: CSV 처리
 - **avro**: Apache Avro
@@ -167,41 +167,26 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 각 서비스마다 **3단계 API** 패턴을 제공합니다: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-##### Java SDK v2 기반 (`aws/`)
+##### Java SDK v2 기반 (`bluetape4k-aws`)
 
-- **aws/core**: AWS Java SDK v2 공통 기능 (credentials, http client, 공통 유틸)
-- **aws/dynamodb**: DynamoDB (Java SDK, async/non-blocking)
-- **aws/s3**: S3 (TransferManager, 대용량 파일 전송 최적화)
-- **aws/ses**: SES 이메일 발송
-- **aws/sns**: SNS 토픽 발행/구독, SMS, 모바일 푸시
-- **aws/sqs**: SQS 메시지 큐
-- **aws/kms**: KMS 암호화 키 관리 (키 생성/암복호화/Alias/Grant)
-- **aws/cloudwatch**: CloudWatch 메트릭 발행/조회, CloudWatch Logs 로그 그룹/스트림/이벤트
-- **aws/kinesis**: Kinesis 스트림 생성/삭제/조회, 레코드 전송(단일/배치), 샤드 이터레이터/레코드 조회
-- **aws/sts**: STS 호출자 신원 조회(GetCallerIdentity), IAM 역할 임시 맡기(AssumeRole), 세션 토큰 발급
+단일 통합 모듈. AWS 핵심 기능은 `api()`로 제공하고, 각 서비스 SDK는 `compileOnly()`로 선언하여 사용자가 필요한 서비스만 런타임에 추가합니다.
 
-##### AWS Kotlin SDK 기반 (`aws-kotlin/`)
+- DynamoDB, S3(TransferManager), SES, SNS, SQS, KMS, CloudWatch/CloudWatchLogs, Kinesis, STS
+- 각 서비스별 coroutines 확장: `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑)
 
-네이티브 `suspend` 함수를 기본 제공하며, `.await()` 변환 없이 코루틴에서 직접 사용 가능합니다.
+##### AWS Kotlin SDK 기반 (`bluetape4k-aws-kotlin`)
 
-- **aws-kotlin/core**: AWS Kotlin SDK 공통 기능 (HttpClientEngine, credentials)
-- **aws-kotlin/dynamodb**: DynamoDB Kotlin SDK 확장
-- **aws-kotlin/s3**: S3 Kotlin SDK 확장
-- **aws-kotlin/ses, aws-kotlin/sesv2**: SES 이메일 발송
-- **aws-kotlin/sns**: SNS Kotlin SDK 확장
-- **aws-kotlin/sqs**: SQS Kotlin SDK 확장
-- **aws-kotlin/kms**: KMS Kotlin SDK 확장
-- **aws-kotlin/cloudwatch**: CloudWatch/CloudWatchLogs Kotlin SDK 확장 (`metricDatum`, `inputLogEvent` DSL)
-- **aws-kotlin/kinesis**: Kinesis Kotlin SDK 확장 (`putRecordRequestOf`, `putRecordsRequestEntryOf` DSL)
-- **aws-kotlin/sts**: STS Kotlin SDK 확장 (`stsClientOf`, `assumeRoleRequestOf` DSL)
-- **aws-kotlin/tests**: LocalStack 기반 통합 테스트 공통 인프라
+네이티브 `suspend` 함수를 기본 제공하는 단일 통합 모듈. `.await()` 변환 없이 코루틴에서 직접 사용 가능합니다.
+
+- DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/CloudWatchLogs, Kinesis, STS
+- DSL 지원: `metricDatum {}`, `inputLogEvent {}`, `putRecordRequestOf {}`, `stsClientOf {}` 등
 
 ##### AWS 모듈 패턴
 
-| SDK | Client 종류 | Coroutines |
-|-----|------------|------------|
-| Java SDK v2 (`aws/`) | `XxxClient` (sync) + `XxxAsyncClient` (CompletableFuture) | `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑) |
-| Kotlin SDK (`aws-kotlin/`) | `XxxClient` (suspend 네이티브) | 기본 제공 (별도 래핑 불필요) |
+| SDK | 모듈 | Coroutines |
+|-----|------|------------|
+| Java SDK v2 | `bluetape4k-aws` | `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑) |
+| Kotlin SDK | `bluetape4k-aws-kotlin` | 기본 제공 (별도 래핑 불필요) |
 
 #### Data Modules (`data/`)
 
@@ -262,28 +247,30 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 #### Spring Modules (`spring/`)
 
-- **core**: Spring 공통 기능
+- **bluetape4k-spring-boot3** *(통합 모듈)*: Spring Boot 3 기반 공통 기능 통합
+  - Spring core 유틸리티 (BeanFactory 확장, ToStringCreator 지원 등)
+  - Spring WebFlux + Coroutines 지원 (WebTestClient 확장 포함)
+  - Spring + Retrofit2 통합 (OkHttp3, Apache HttpClient5 포함)
+  - Spring 테스트 유틸리티 (WebTestClient, Testcontainers 통합)
+  - ~~spring/core, spring/webflux, spring/retrofit2, spring/tests 통합됨~~
+- **spring/jpa** → `data/hibernate`로 이동: JPA 관련 Spring 통합은 `bluetape4k-hibernate` 모듈에 위치
 - **cassandra**: Spring Data Cassandra
 - **mongodb**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장 (`findAsFlow`, `insertSuspending` 등), Criteria/Query/Update infix DSL
 - **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
-- **jpa**: Spring Data JPA
-- **webflux**: Spring WebFlux
-- **retrofit2**: Spring + Retrofit2 통합
-- **tests**: Spring 테스트 유틸리티
 
 #### Vert.x Modules (`vertx/`)
 
-- **core**: Vert.x 핵심 기능
-- **sqlclient**: Vert.x SQL 클라이언트
-- **resilience4j**: Vert.x + Resilience4j
+- **bluetape4k-vertx** *(통합 모듈)*: Vert.x 핵심 기능 + SQL 클라이언트 + Resilience4j 통합
+  - ~~vertx/core, vertx/sqlclient, vertx/resilience4j 통합됨~~
 
 #### Utilities (`utils/`)
 
 - **ahocorasick**: 문자열 검색 (Aho-Corasick 알고리즘)
 - **bloomfilter**: Bloom Filter
 - **captcha**: CAPTCHA 생성
-- **geocode, geohash, geoip2**: 지리 정보 처리
+- **bluetape4k-geo** *(통합 모듈)*: 지리 정보 처리 — geocode(Bing/Google), geohash, geoip2(MaxMind) 통합
+  - ~~utils/geocode, utils/geohash, utils/geoip2 통합됨~~
 - **idgenerators**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
 - **images**: 이미지 처리
 - **javatimes**: 날짜/시간 유틸리티
