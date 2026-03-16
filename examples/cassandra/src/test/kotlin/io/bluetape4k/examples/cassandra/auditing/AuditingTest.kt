@@ -17,47 +17,52 @@ import java.time.Instant
 @SpringBootTest(classes = [AuditingTestConfiguration::class])
 class AuditingTest(
     @param:Autowired private val repository: AuditedPersonRepository,
-): AbstractCassandraCoroutineTest("auditing") {
-
-    companion object: KLoggingChannel() {
+) : AbstractCassandraCoroutineTest("auditing") {
+    companion object : KLoggingChannel() {
         const val ACTOR = AuditingTestConfiguration.ACTOR
     }
 
     @BeforeEach
-    fun setup() = runSuspendTest {
-        repository.deleteAll()
-    }
+    fun setup() =
+        runSuspendTest {
+            repository.deleteAll()
+        }
 
     @Test
-    fun `insert audited person should set createdAt`() = runSuspendIO {
-        val person = AuditedPerson(faker.random().nextLong(1, Long.MAX_VALUE))
-        val saved = repository.save(person)
+    fun `insert audited person should set createdAt`() =
+        runSuspendIO {
+            val person = AuditedPerson(faker.random().nextLong(1, Long.MAX_VALUE))
+            val saved = repository.save(person)
 
-        saved.createdBy shouldBeEqualTo ACTOR
-        saved.lastModifiedBy shouldBeEqualTo ACTOR
+            saved.createdBy shouldBeEqualTo ACTOR
+            saved.lastModifiedBy shouldBeEqualTo ACTOR
 
-        val range = Instant.now().let {
-            it.minusSeconds(60)..it.plusSeconds(60)
+            val range =
+                Instant.now().let {
+                    it.minusSeconds(60)..it.plusSeconds(60)
+                }
+            saved.createdAt.shouldNotBeNull() shouldBeInRange range
+            saved.lastModifiedAt.shouldNotBeNull() shouldBeInRange range
         }
-        saved.createdAt.shouldNotBeNull() shouldBeInRange range
-        saved.lastModifiedAt.shouldNotBeNull() shouldBeInRange range
-    }
 
     @Test
-    fun `update audited person should set lastModifiedAt`() = runSuspendIO {
-        val person = AuditedPerson(faker.random().nextLong(1, Long.MAX_VALUE))
-        val saved = repository.save(person)
+    fun `update audited person should set lastModifiedAt`() =
+        runSuspendIO {
+            val person = AuditedPerson(faker.random().nextLong(1, Long.MAX_VALUE))
+            val saved = repository.save(person)
 
-        val modified = repository.save(saved)
+            val modified = repository.save(saved)
 
-        modified.createdBy shouldBeEqualTo ACTOR
-        modified.lastModifiedBy shouldBeEqualTo ACTOR
+            modified.createdBy shouldBeEqualTo ACTOR
+            modified.lastModifiedBy shouldBeEqualTo ACTOR
 
-        val range = Instant.now().let {
-            it.minusSeconds(60)..it.plusSeconds(60)
+            val range =
+                Instant.now().let {
+                    it.minusSeconds(60)..it.plusSeconds(60)
+                }
+            modified.createdAt.shouldNotBeNull() shouldBeInRange range
+            modified.lastModifiedAt.shouldNotBeNull() shouldBeInRange range
+            modified.lastModifiedAt.shouldNotBeNull() shouldBeAfter
+                requireNotNull(modified.createdAt) { "createdAt이 null입니다." }
         }
-        modified.createdAt.shouldNotBeNull() shouldBeInRange range
-        modified.lastModifiedAt.shouldNotBeNull() shouldBeInRange range
-        modified.lastModifiedAt.shouldNotBeNull() shouldBeAfter modified.createdAt!!
-    }
 }

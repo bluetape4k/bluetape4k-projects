@@ -25,101 +25,115 @@ import org.springframework.data.cassandra.core.query.Criteria
 import kotlin.test.assertFailsWith
 
 @SpringBootTest(classes = [OptimisticLockTestConfiguration::class])
-class OptimisticLockTest @Autowired constructor(
-    private val operations: CassandraOperations,
-    private val reactiveOps: ReactiveCassandraOperations,
-    private val repository: OptimisticPersonRepository,
-): AbstractCassandraCoroutineTest("optimistic-locking") {
+class OptimisticLockTest
+    @Autowired
+    constructor(
+        private val operations: CassandraOperations,
+        private val reactiveOps: ReactiveCassandraOperations,
+        private val repository: OptimisticPersonRepository,
+    ) : AbstractCassandraCoroutineTest("optimistic-locking") {
+        companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
+        @BeforeEach
+        fun setup() =
+            runSuspendTest {
+                reactiveOps.truncateSuspending<SimplePerson>()
+                repository.deleteAll()
+            }
 
-    @BeforeEach
-    fun setup() = runSuspendTest {
-        reactiveOps.truncateSuspending<SimplePerson>()
-        repository.deleteAll()
-    }
+        @Test
+        fun `insert should increment version`() =
+            runSuspendIO {
+                val person = OptimisticPerson(42L, "bart")
+                person.version shouldBeEqualTo 0L
 
-    @Test
-    fun `insert should increment version`() = runSuspendIO {
-        val person = OptimisticPerson(42L, "bart")
-        person.version shouldBeEqualTo 0L
+                // 저장 후 다시 Load 한다
+                val saved = repository.save(person)
 
-        // 저장 후 다시 Load 한다
-        val saved = repository.save(person)
+                person.version shouldBeEqualTo 0L
+                saved.version shouldBeGreaterThan 0L
+                saved shouldNotBeEqualTo person
+            }
 
-        person.version shouldBeEqualTo 0L
-        saved.version shouldBeGreaterThan 0L
-        saved shouldNotBeEqualTo person
-    }
+        @Test
+        fun `update should detect change entity`() =
+            runSuspendIO {
+                val person = OptimisticPerson(42L, "bart")
 
-    @Test
-    fun `update should detect change entity`() = runSuspendIO {
-        val person = OptimisticPerson(42L, "bart")
+                // 저장 후 다시 Load 한다
+                val saved = repository.save(person)
 
-        // 저장 후 다시 Load 한다
-        val saved = repository.save(person)
+                // 새롭게 로드한 후 복사해서 저장한다 (Id 가 같으므로 Version이 증가한다)
+                val anotherPerson =
+                    requireNotNull(repository.findById(person.id)) {
+                        "OptimisticPerson(${person.id})를 찾을 수 없습니다."
+                    }.withName("homer")
+                repository.save(anotherPerson)
 
-        // 새롭게 로드한 후 복사해서 저장한다 (Id 가 같으므로 Version이 증가한다)
-        val anotherPerson = repository.findById(person.id)!!.withName("homer")
-        repository.save(anotherPerson)
+                // 이미 새로운 값이 저장되어 있으므로, `ourSaved` 는 stale 된 정보이다
+                val ourSaved = saved.withName("lisa")
+                assertFailsWith<OptimisticLockingFailureException> {
+                    repository.save(ourSaved)
+                }
+            }
 
-        // 이미 새로운 값이 저장되어 있으므로, `ourSaved` 는 stale 된 정보이다
-        val ourSaved = saved.withName("lisa")
-        assertFailsWith<OptimisticLockingFailureException> {
-            repository.save(ourSaved)
+        @Test
+        fun `update using lightweight transactions`() {
+            val person = SimplePerson(42L, "bart")
+
+            operations.insert(person)
+
+            val success =
+                operations.update(
+                    person,
+                    updateOptions {
+                        ifCondition(Criteria.where("name").eq("bart")).build()
+                    }
+                )
+
+            success.wasApplied().shouldBeTrue()
+
+            // person 으로 Update 하려는데, id=42L 이고 name="homer" 인 row 는 없다
+            val failed =
+                operations.update(
+                    person,
+                    updateOptions {
+                        ifCondition(Criteria.where("name").eq("homer")).build()
+                    }
+                )
+            // Update가 되지 않았음
+            failed.wasApplied().shouldBeFalse()
         }
+
+        @Test
+        fun `update using lightweight transactions in coroutines`() =
+            runSuspendIO {
+                val person = SimplePerson(42L, "bart")
+
+                reactiveOps.insertSuspending(person)
+
+                val success =
+                    reactiveOps
+                        .update(
+                            person,
+                            updateOptions {
+                                ifCondition(Criteria.where("name").eq("bart")).build()
+                            }
+                        ).awaitSingle()
+
+                success.wasApplied().shouldBeTrue()
+
+                // person 으로 Update 하려는데, id=42L 이고 name="homer" 인 row 는 없다
+                val failed =
+                    reactiveOps
+                        .update(
+                            person,
+                            updateOptions {
+                                ifCondition(Criteria.where("name").eq("homer")).build()
+                            }
+                        ).awaitSingle()
+
+                // Update가 되지 않았음
+                failed.wasApplied().shouldBeFalse()
+            }
     }
-
-    @Test
-    fun `update using lightweight transactions`() {
-        val person = SimplePerson(42L, "bart")
-
-        operations.insert(person)
-
-        val success = operations.update(
-            person,
-            updateOptions {
-                ifCondition(Criteria.where("name").eq("bart")).build()
-            }
-        )
-
-        success.wasApplied().shouldBeTrue()
-
-        // person 으로 Update 하려는데, id=42L 이고 name="homer" 인 row 는 없다
-        val failed = operations.update(
-            person,
-            updateOptions {
-                ifCondition(Criteria.where("name").eq("homer")).build()
-            }
-        )
-        // Update가 되지 않았음
-        failed.wasApplied().shouldBeFalse()
-    }
-
-    @Test
-    fun `update using lightweight transactions in coroutines`() = runSuspendIO {
-        val person = SimplePerson(42L, "bart")
-
-        reactiveOps.insertSuspending(person)
-
-        val success = reactiveOps.update(
-            person,
-            updateOptions {
-                ifCondition(Criteria.where("name").eq("bart")).build()
-            }
-        ).awaitSingle()
-
-        success.wasApplied().shouldBeTrue()
-
-        // person 으로 Update 하려는데, id=42L 이고 name="homer" 인 row 는 없다
-        val failed = reactiveOps.update(
-            person,
-            updateOptions {
-                ifCondition(Criteria.where("name").eq("homer")).build()
-            }
-        ).awaitSingle()
-
-        // Update가 되지 않았음
-        failed.wasApplied().shouldBeFalse()
-    }
-}

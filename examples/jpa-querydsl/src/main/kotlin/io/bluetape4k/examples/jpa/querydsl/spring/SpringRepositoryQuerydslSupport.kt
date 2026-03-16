@@ -17,9 +17,10 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 
 @Repository
-class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
-
-    companion object: KLogging()
+class SpringRepositoryQuerydslSupport(
+    private val entityClass: Class<*>,
+) {
+    companion object : KLogging()
 
     private var entityManager: EntityManager? = null
     private var querydsl: Querydsl? = null
@@ -44,12 +45,17 @@ class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
         queryFactory.assertNotNull("queryFactory")
     }
 
-    protected fun getEntityManager(): EntityManager = entityManager!!
-    protected fun getQuerydsl(): Querydsl = querydsl!!
-    protected fun getQueryFactory(): JPAQueryFactory = queryFactory!!
+    protected fun getEntityManager(): EntityManager = requireNotNull(entityManager) { "EntityManager가 초기화되지 않았습니다." }
+
+    protected fun getQuerydsl(): Querydsl = requireNotNull(querydsl) { "Querydsl이 초기화되지 않았습니다." }
+
+    protected fun getQueryFactory(): JPAQueryFactory = requireNotNull(queryFactory) { "JPAQueryFactory가 초기화되지 않았습니다." }
 
     @Suppress("DEPRECATION")
-    protected fun <T> withPaging(pageable: Pageable, queryAction: (JPAQueryFactory) -> JPAQuery<T>): Page<T> {
+    protected fun <T> withPaging(
+        pageable: Pageable,
+        queryAction: (JPAQueryFactory) -> JPAQuery<T>,
+    ): Page<T> {
         val contentQuery = queryAction(getQueryFactory())
         val content = getQuerydsl().applyPagination(pageable, contentQuery).fetch()
 

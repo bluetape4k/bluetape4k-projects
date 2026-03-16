@@ -21,65 +21,81 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest(classes = [PersonConfiguration::class])
 class CoroutinePersonRepositoryTest(
     @param:Autowired private val repository: CoroutinePersonRepository,
-): AbstractCassandraCoroutineTest("person") {
-
-    companion object: KLoggingChannel()
+) : AbstractCassandraCoroutineTest("person") {
+    companion object : KLoggingChannel()
 
     @BeforeEach
-    fun setup() = runSuspendTest {
-        repository.deleteAll()
-        repository.saveAll(
-            flowOf(
-                Person("Bart", "Simpson", 9),
-                Person("Homer", "Simpson", 44),
-                Person("Debop", "Bae", 53),
-                Person("Lisa", "Simpson", 8),
-            )
-        ).collect()
-    }
+    fun setup() =
+        runSuspendTest {
+            repository.deleteAll()
+            repository
+                .saveAll(
+                    flowOf(
+                        Person("Bart", "Simpson", 9),
+                        Person("Homer", "Simpson", 44),
+                        Person("Debop", "Bae", 53),
+                        Person("Lisa", "Simpson", 8)
+                    )
+                ).collect()
+        }
 
     @Test
-    fun `insert and count in coroutines`() = runSuspendIO {
-        repository.count().also { println("already exists count=$it") }
+    fun `insert and count in coroutines`() =
+        runSuspendIO {
+            repository.count().also { println("already exists count=$it") }
 
-        repository.saveAll(
-            flowOf(
-                Person("Iron", "Man", 45),
-                Person("Tonny", "Stark", 45)
-            )
-        )
-            .flowOn(Dispatchers.IO)
-            .last()
+            repository
+                .saveAll(
+                    flowOf(
+                        Person("Iron", "Man", 45),
+                        Person("Tonny", "Stark", 45)
+                    )
+                ).flowOn(Dispatchers.IO)
+                .last()
 
-
-        repository.count().also { println("after two user inserted=$it") } shouldBeEqualTo 6L
-    }
-
-    @Test
-    fun `find by lastname`() = runSuspendIO {
-        val simpsons = repository.findByLastname("Simpson").toList()
-        simpsons.size shouldBeEqualTo 3
-    }
+            repository.count().also { println("after two user inserted=$it") } shouldBeEqualTo 6L
+        }
 
     @Test
-    fun `find by mono lastname`() = runSuspendIO {
-        val simpsons = repository
-            .findByLastname(mono { delay(10); "Simpson" })
-            .toList()
-        simpsons.size shouldBeEqualTo 3
-    }
+    fun `find by lastname`() =
+        runSuspendIO {
+            val simpsons = repository.findByLastname("Simpson").toList()
+            simpsons.size shouldBeEqualTo 3
+        }
 
     @Test
-    fun `find by firstname and lastname`() = runSuspendIO {
-        val debop = Person("Debop", "Bae", 53)
-        val loaded = repository.findByFirstnameAndLastname("Debop", "Bae")!!
-        loaded shouldBeEqualTo debop
-    }
+    fun `find by mono lastname`() =
+        runSuspendIO {
+            val simpsons =
+                repository
+                    .findByLastname(
+                        mono {
+                            delay(10)
+                            "Simpson"
+                        }
+                    ).toList()
+            simpsons.size shouldBeEqualTo 3
+        }
 
     @Test
-    fun `find by mono firstname and lastname`() = runSuspendIO {
-        val debop = Person("Debop", "Bae", 53)
-        val loaded = repository.findByFirstnameAndLastname(mono { "Debop" }, "Bae")!!
-        loaded shouldBeEqualTo debop
-    }
+    fun `find by firstname and lastname`() =
+        runSuspendIO {
+            val debop = Person("Debop", "Bae", 53)
+            val loaded =
+                requireNotNull(
+                    repository.findByFirstnameAndLastname("Debop", "Bae")
+                ) { "Person(Debop, Bae)를 찾을 수 없습니다." }
+            loaded shouldBeEqualTo debop
+        }
+
+    @Test
+    fun `find by mono firstname and lastname`() =
+        runSuspendIO {
+            val debop = Person("Debop", "Bae", 53)
+            val loaded =
+                requireNotNull(
+                    repository.findByFirstnameAndLastname(mono { "Debop" }, "Bae")
+                ) { "Person(Debop, Bae)를 찾을 수 없습니다." }
+            loaded shouldBeEqualTo debop
+        }
 }

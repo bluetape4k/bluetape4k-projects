@@ -24,12 +24,10 @@ import java.util.*
 @SpringBootTest(classes = [ConversionTestConfiguration::class])
 class ConversionTest(
     @param:Autowired private val operations: ReactiveCassandraOperations,
-): AbstractCassandraCoroutineTest("conversion") {
+) : AbstractCassandraCoroutineTest("conversion") {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
-
-    private fun newContact(): Contact =
-        Contact(faker.name().firstName(), faker.name().lastName())
+    private fun newContact(): Contact = Contact(faker.name().firstName(), faker.name().lastName())
 
     private fun newAddressbook(): Addressbook =
         Addressbook(
@@ -39,9 +37,10 @@ class ConversionTest(
         )
 
     @BeforeEach
-    fun setup() = runSuspendTest {
-        operations.truncateSuspending<Addressbook>()
-    }
+    fun setup() =
+        runSuspendTest {
+            operations.truncateSuspending<Addressbook>()
+        }
 
     @Test
     fun `context loading`() {
@@ -49,56 +48,63 @@ class ConversionTest(
     }
 
     @Test
-    fun `write Addressbook`() = runSuspendIO {
-        val addressbook = Addressbook(
-            id = "private",
-            me = Contact("Debop", "Bae"),
-            friends = mutableListOf(newContact(), newContact())
-        )
-        operations.insertSuspending(addressbook)
+    fun `write Addressbook`() =
+        runSuspendIO {
+            val addressbook =
+                Addressbook(
+                    id = "private",
+                    me = Contact("Debop", "Bae"),
+                    friends = mutableListOf(newContact(), newContact())
+                )
+            operations.insertSuspending(addressbook)
 
-        val row = operations.selectOneSuspending<Row>(selectFrom("addressbook").all().build())
+            val row = operations.selectOneSuspending<Row>(selectFrom("addressbook").all().build())
 
-        row.getString("id") shouldBeEqualTo "private"
-        row.getString("me")!! shouldContain """"firstname":"Debop""""
-        row.getList<String>("friends")!!.size shouldBeEqualTo 2
-    }
-
-    @Test
-    fun `read Addressbook`() = runSuspendIO {
-        val addressbook = Addressbook(
-            id = "private",
-            me = Contact("Debop", "Bae"),
-            friends = mutableListOf(newContact(), newContact())
-        )
-        operations.insert(addressbook).awaitSingle()
-
-        val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
-
-        loaded.me shouldBeEqualTo addressbook.me
-        loaded.friends shouldBeEqualTo addressbook.friends
-    }
+            row.getString("id") shouldBeEqualTo "private"
+            requireNotNull(row.getString("me")) { "me 컬럼이 null입니다." } shouldContain """"firstname":"Debop""""
+            requireNotNull(row.getList<String>("friends")) { "friends 컬럼이 null입니다." }.size shouldBeEqualTo 2
+        }
 
     @Test
-    fun `write converted maps and user defined type`() = runSuspendIO {
-        val addressbook = Addressbook(
-            id = "private",
-            me = Contact("Debop", "Bae"),
-            friends = mutableListOf(newContact(), newContact()),
-            address = Address("165 Misa", "Hanam", "12914"),
-            preferredCurrencies = mutableMapOf(
-                1 to Currency.getInstance("USD"),
-                2 to Currency.getInstance("KRW")
-            )
-        )
+    fun `read Addressbook`() =
+        runSuspendIO {
+            val addressbook =
+                Addressbook(
+                    id = "private",
+                    me = Contact("Debop", "Bae"),
+                    friends = mutableListOf(newContact(), newContact())
+                )
+            operations.insert(addressbook).awaitSingle()
 
-        operations.insert(addressbook).awaitSingle()
+            val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
 
-        val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
+            loaded.me shouldBeEqualTo addressbook.me
+            loaded.friends shouldBeEqualTo addressbook.friends
+        }
 
-        loaded.me shouldBeEqualTo addressbook.me
-        loaded.friends shouldBeEqualTo addressbook.friends
-        loaded.address shouldBeEqualTo addressbook.address
-        loaded.preferredCurrencies.toMap() shouldBeEqualTo addressbook.preferredCurrencies.toMap()
-    }
+    @Test
+    fun `write converted maps and user defined type`() =
+        runSuspendIO {
+            val addressbook =
+                Addressbook(
+                    id = "private",
+                    me = Contact("Debop", "Bae"),
+                    friends = mutableListOf(newContact(), newContact()),
+                    address = Address("165 Misa", "Hanam", "12914"),
+                    preferredCurrencies =
+                        mutableMapOf(
+                            1 to Currency.getInstance("USD"),
+                            2 to Currency.getInstance("KRW")
+                        )
+                )
+
+            operations.insert(addressbook).awaitSingle()
+
+            val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
+
+            loaded.me shouldBeEqualTo addressbook.me
+            loaded.friends shouldBeEqualTo addressbook.friends
+            loaded.address shouldBeEqualTo addressbook.address
+            loaded.preferredCurrencies.toMap() shouldBeEqualTo addressbook.preferredCurrencies.toMap()
+        }
 }

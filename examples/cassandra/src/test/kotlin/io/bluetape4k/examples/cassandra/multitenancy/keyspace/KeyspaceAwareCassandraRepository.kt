@@ -11,26 +11,29 @@ import org.springframework.data.cassandra.repository.support.SimpleCassandraRepo
 import java.io.Serializable
 import java.util.*
 
-class KeyspaceAwareCassandraRepository<T: Any, ID: Serializable>(
+class KeyspaceAwareCassandraRepository<T : Any, ID : Serializable>(
     private val metadata: CassandraEntityInformation<T, ID>,
     private val operations: CassandraOperations,
-): SimpleCassandraRepository<T, ID>(metadata, operations) {
-
+) : SimpleCassandraRepository<T, ID>(metadata, operations) {
     @Autowired
     private lateinit var tenantId: TenantId
 
     override fun findById(id: ID): Optional<T> {
-        val primaryKey = operations.converter
-            .mappingContext
-            .getPersistentEntity(metadata.javaClass)
-            ?.idProperty
-            ?.columnName!!
+        val primaryKey =
+            operations.converter
+                .mappingContext
+                .getPersistentEntity(metadata.javaClass)
+                ?.idProperty
+                ?.columnName
+                ?: error("엔티티 ${metadata.javaType.simpleName}의 ID 컬럼명을 찾을 수 없습니다.")
 
-        val select = QueryBuilder
-            .selectFrom(tenantId.get(), metadata.tableName.asCql(true))
-            .all()
-            .whereColumn(primaryKey.asCql(true)).eq(id.literal())
-            .build()
+        val select =
+            QueryBuilder
+                .selectFrom(tenantId.get(), metadata.tableName.asCql(true))
+                .all()
+                .whereColumn(primaryKey.asCql(true))
+                .eq(id.literal())
+                .build()
 
         return operations.selectOne(select, metadata.javaType).toOptional()
     }

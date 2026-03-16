@@ -25,9 +25,8 @@ import org.springframework.data.cassandra.core.selectOneById
 @SpringBootTest(classes = [BasicConfiguration::class])
 class CassandraOperationsTest(
     @param:Autowired private val operations: CassandraOperations,
-): AbstractCassandraTest() {
-
-    companion object: KLoggingChannel() {
+) : AbstractCassandraTest() {
+    companion object : KLoggingChannel() {
         private const val USER_TABLE = "basic_users"
     }
 
@@ -45,16 +44,17 @@ class CassandraOperationsTest(
 
     @Test
     fun `insert and select`() {
-        val insert = insertInto(USER_TABLE)
-            .value("user_id", 42L.literal())
-            .value("uname", "heisenberg".literal())
-            .value("fname", "Walter".literal())
-            .value("lname", "White".literal())
-            .ifNotExists()
+        val insert =
+            insertInto(USER_TABLE)
+                .value("user_id", 42L.literal())
+                .value("uname", "heisenberg".literal())
+                .value("fname", "Walter".literal())
+                .value("lname", "White".literal())
+                .ifNotExists()
 
         operations.cqlOperations.execute(insert.asCql())
 
-        val user = operations.selectOneById<BasicUser>(42L)!!
+        val user = requireNotNull(operations.selectOneById<BasicUser>(42L)) { "BasicUser(42L)를 찾을 수 없습니다." }
         user.username shouldBeEqualTo "heisenberg"
 
         val users = operations.select<BasicUser>(selectFrom(USER_TABLE).all().asCql())
@@ -70,22 +70,24 @@ class CassandraOperationsTest(
         val updated = user.copy(firstname = faker.name().firstName())
         operations.update(updated)
 
-        val loaded = operations.selectOneById<BasicUser>(user.id)!!
+        val loaded =
+            requireNotNull(operations.selectOneById<BasicUser>(user.id)) { "BasicUser(${user.id})를 찾을 수 없습니다." }
         loaded shouldBeEqualTo updated
         loaded.firstname shouldBeEqualTo updated.firstname
     }
 
     @Test
-    fun `insert asynchronously`() = runSuspendIO {
-        val user = BasicUser(42L, faker.credentials().username(), faker.name().firstName(), faker.name().lastName())
+    fun `insert asynchronously`() =
+        runSuspendIO {
+            val user = BasicUser(42L, faker.credentials().username(), faker.name().firstName(), faker.name().lastName())
 
-        val asyncTemplate = AsyncCassandraTemplate(session)
+            val asyncTemplate = AsyncCassandraTemplate(session)
 
-        asyncTemplate.insertSuspending(user)
+            asyncTemplate.insertSuspending(user)
 
-        val loaded = operations.selectOneById<BasicUser>(user.id)
-        loaded shouldBeEqualTo user
-    }
+            val loaded = operations.selectOneById<BasicUser>(user.id)
+            loaded shouldBeEqualTo user
+        }
 
     @Test
     fun `select projections`() {

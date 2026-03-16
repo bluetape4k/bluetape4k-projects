@@ -32,9 +32,8 @@ import org.springframework.data.cassandra.core.AsyncCassandraTemplate
 @SpringBootTest(classes = [BasicConfiguration::class])
 class CoroutineCassandraOperationsTest(
     @param:Autowired private val cqlSession: CqlSession,
-): AbstractCassandraCoroutineTest("basic-user-ops") {
-
-    companion object: KLoggingChannel() {
+) : AbstractCassandraCoroutineTest("basic-user-ops") {
+    companion object : KLoggingChannel() {
         private const val USER_TABLE = "basic_users"
     }
 
@@ -49,75 +48,86 @@ class CoroutineCassandraOperationsTest(
     }
 
     @Test
-    fun `insert and select in coroutines`() = runSuspendIO {
-        val insertStmt = insertInto(USER_TABLE)
-            .value("user_id", 42L.literal())
-            .value("uname", "debop".literal())
-            .value("fname", "Debop".literal())
-            .value("lname", "Bae".literal())
-            .ifNotExists()
-            .build()
+    fun `insert and select in coroutines`() =
+        runSuspendIO {
+            val insertStmt =
+                insertInto(USER_TABLE)
+                    .value("user_id", 42L.literal())
+                    .value("uname", "debop".literal())
+                    .value("fname", "Debop".literal())
+                    .value("lname", "Bae".literal())
+                    .ifNotExists()
+                    .build()
 
-        operations.executeSuspending(insertStmt)
+            operations.executeSuspending(insertStmt)
 
-        val user = operations.selectOneByIdSuspending<BasicUser>(42L)!!
-        user.username shouldBeEqualTo "debop"
+            val user =
+                requireNotNull(operations.selectOneByIdSuspending<BasicUser>(42L)) { "BasicUser(42L)를 찾을 수 없습니다." }
+            user.username shouldBeEqualTo "debop"
 
-        val users = operations.selectSuspending<BasicUser>(selectFrom(USER_TABLE).all().build())
-        users shouldBeEqualTo listOf(user)
-    }
-
-    @Test
-    fun `insert and update`() = runSuspendIO {
-        val user = newBasicUser()
-        operations.insertSuspending(user)
-
-        val updated = user.copy(firstname = faker.name().firstName())
-        operations.updateSuspending(updated)
-
-        val loaded = operations.selectOneByIdSuspending<BasicUser>(user.id)!!
-        loaded shouldBeEqualTo updated
-    }
-
-    @Test
-    fun `insert in coroutines`() = runSuspendIO {
-        val users = List(100) {
-            BasicUser(
-                it.toLong(),
-                "uname-$it",
-                "firstname-$it",
-                "lastname-$it"
-            )
+            val users = operations.selectSuspending<BasicUser>(selectFrom(USER_TABLE).all().build())
+            users shouldBeEqualTo listOf(user)
         }
 
-        val tasks = users.map {
-            async(Dispatchers.IO) {
-                operations.insertSuspending(it)
-            }
+    @Test
+    fun `insert and update`() =
+        runSuspendIO {
+            val user = newBasicUser()
+            operations.insertSuspending(user)
+
+            val updated = user.copy(firstname = faker.name().firstName())
+            operations.updateSuspending(updated)
+
+            val loaded =
+                requireNotNull(
+                    operations.selectOneByIdSuspending<BasicUser>(user.id)
+                ) { "BasicUser(${user.id})를 찾을 수 없습니다." }
+            loaded shouldBeEqualTo updated
         }
-        tasks.awaitAll()
-    }
 
     @Test
-    fun `select async projections`() = runSuspendIO {
-        val user = newBasicUser()
-        operations.insertSuspending(user)
+    fun `insert in coroutines`() =
+        runSuspendIO {
+            val users =
+                List(100) {
+                    BasicUser(
+                        it.toLong(),
+                        "uname-$it",
+                        "firstname-$it",
+                        "lastname-$it"
+                    )
+                }
 
-        val id = operations.selectSuspending<Long>(selectFrom(USER_TABLE).column("user_id").build())
-        id.shouldNotBeNull() shouldHaveSize 1 shouldContain user.id
+            val tasks =
+                users.map {
+                    async(Dispatchers.IO) {
+                        operations.insertSuspending(it)
+                    }
+                }
+            tasks.awaitAll()
+        }
 
-        val row = operations.selectOneOrNullSuspending<Row>(selectFrom(USER_TABLE).column("user_id").asCql())
-        row.shouldNotBeNull()
-        row.getLong(0) shouldBeEqualTo user.id
+    @Test
+    fun `select async projections`() =
+        runSuspendIO {
+            val user = newBasicUser()
+            operations.insertSuspending(user)
 
-        val map = operations.selectOneOrNullSuspending<Map<*, *>>(selectFrom(USER_TABLE).all().limit(1).asCql())
+            val id = operations.selectSuspending<Long>(selectFrom(USER_TABLE).column("user_id").build())
+            id.shouldNotBeNull() shouldHaveSize 1 shouldContain user.id
 
-        map.shouldNotBeNull()
-        map["user_id"] shouldBeEqualTo user.id
-        map["uname"] shouldBeEqualTo user.username
-        map["fname"] shouldBeEqualTo user.firstname
-        map["lname"] shouldBeEqualTo user.lastname
-    }
+            val row = operations.selectOneOrNullSuspending<Row>(selectFrom(USER_TABLE).column("user_id").asCql())
+            row.shouldNotBeNull()
+            row.getLong(0) shouldBeEqualTo user.id
+
+            val map = operations.selectOneOrNullSuspending<Map<*, *>>(selectFrom(USER_TABLE).all().limit(1).asCql())
+
+            map.shouldNotBeNull()
+            map["user_id"] shouldBeEqualTo user.id
+            map["uname"] shouldBeEqualTo user.username
+            map["fname"] shouldBeEqualTo user.firstname
+            map["lname"] shouldBeEqualTo user.lastname
+        }
 
     private fun newBasicUser(id: Long = 42L): BasicUser =
         BasicUser(

@@ -23,79 +23,81 @@ import java.time.Instant
 class AuditingTest(
     @param:Autowired private val repository: OrderRepository,
     @param:Autowired private val customRepo: CustomAuditingRepository,
-): AbstractCassandraCoroutineTest("auditing") {
-
-    companion object: KLoggingChannel()
+) : AbstractCassandraCoroutineTest("auditing") {
+    companion object : KLoggingChannel()
 
     @BeforeEach
-    fun setup() = runSuspendTest {
-        repository.deleteAll()
-    }
+    fun setup() =
+        runSuspendTest {
+            repository.deleteAll()
+        }
 
     @Test
-    fun `should update auditor`() = runSuspendIO {
-        val order = Order("4711")
-        order.createdAt.shouldBeNull()
-        order.isNew.shouldBeTrue()
+    fun `should update auditor`() =
+        runSuspendIO {
+            val order = Order("4711")
+            order.createdAt.shouldBeNull()
+            order.isNew.shouldBeTrue()
 
-        val instantRange = Instant.now().minusSeconds(60)..Instant.now().plusSeconds(60)
+            val instantRange = Instant.now().minusSeconds(60)..Instant.now().plusSeconds(60)
 
-        val actual = repository.save(order)
-        log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
-
-        actual.createdBy shouldBeEqualTo "the-current-user"
-        actual.createdAt.shouldNotBeNull().`should be in range`(instantRange)
-
-        actual.lastModifiedBy shouldBeEqualTo "the-current-user"
-        actual.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
-
-        delay(100)
-
-        val loaded = repository.findById("4711")!!
-        log.debug { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.lastModifiedAt}" }
-        loaded.isNew.shouldBeFalse()
-
-        val ssaved = repository.save(loaded)
-        log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
-
-        ssaved.createdBy shouldBeEqualTo "the-current-user"
-        ssaved.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
-
-        ssaved.lastModifiedBy shouldBeEqualTo "the-current-user"
-        ssaved.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
-    }
-
-    @Test
-    fun `should update auditor for custom auditable order`() = runSuspendIO {
-        val order = CustomAuditableOrder("4242")
-        order.createdAt.shouldBeNull()
-        order.isNew.shouldBeTrue()
-
-        val instantRange = Instant.now().minusSeconds(60)..Instant.now().plusSeconds(60)
-        customRepo.save(order).let { actual ->
-            log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
+            val actual = repository.save(order)
+            log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
 
             actual.createdBy shouldBeEqualTo "the-current-user"
             actual.createdAt.shouldNotBeNull().`should be in range`(instantRange)
 
-            actual.modifiedBy shouldBeEqualTo "the-current-user"
-            actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            actual.lastModifiedBy shouldBeEqualTo "the-current-user"
+            actual.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+
+            delay(100)
+
+            val loaded = requireNotNull(repository.findById("4711")) { "Order(4711)를 찾을 수 없습니다." }
+            log.debug { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.lastModifiedAt}" }
+            loaded.isNew.shouldBeFalse()
+
+            val ssaved = repository.save(loaded)
+            log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
+
+            ssaved.createdBy shouldBeEqualTo "the-current-user"
+            ssaved.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
+
+            ssaved.lastModifiedBy shouldBeEqualTo "the-current-user"
+            ssaved.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
         }
 
-        delay(100)
+    @Test
+    fun `should update auditor for custom auditable order`() =
+        runSuspendIO {
+            val order = CustomAuditableOrder("4242")
+            order.createdAt.shouldBeNull()
+            order.isNew.shouldBeTrue()
 
-        val loaded = customRepo.findById("4242")!!
-        log.info { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.modifiedAt}" }
-        loaded.isNew.shouldBeFalse()
+            val instantRange = Instant.now().minusSeconds(60)..Instant.now().plusSeconds(60)
+            customRepo.save(order).let { actual ->
+                log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
 
-        customRepo.save(loaded).let { actual ->
-            log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
+                actual.createdBy shouldBeEqualTo "the-current-user"
+                actual.createdAt.shouldNotBeNull().`should be in range`(instantRange)
 
-            actual.createdBy shouldBeEqualTo "the-current-user"
-            actual.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
+                actual.modifiedBy shouldBeEqualTo "the-current-user"
+                actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            }
 
-            actual.modifiedBy shouldBeEqualTo "the-current-user"
-            actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            delay(100)
+
+            val loaded = requireNotNull(customRepo.findById("4242")) { "CustomAuditableOrder(4242)를 찾을 수 없습니다." }
+            log.info { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.modifiedAt}" }
+            loaded.isNew.shouldBeFalse()
+
+            customRepo.save(loaded).let { actual ->
+                log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
+
+                actual.createdBy shouldBeEqualTo "the-current-user"
+                actual.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
+
+                actual.modifiedBy shouldBeEqualTo "the-current-user"
+                actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            }
         }
-    }
 }

@@ -26,9 +26,8 @@ import org.springframework.data.cassandra.core.truncate
 @SpringBootTest(classes = [PersonTestConfiguration::class])
 class TemplateTest(
     @param:Autowired private val operations: CassandraOperations,
-): AbstractCassandraTest() {
-
-    companion object: KLogging() {
+) : AbstractCassandraTest() {
+    companion object : KLogging() {
         private const val PERSON_TABLE = "kotlin_people"
     }
 
@@ -36,11 +35,11 @@ class TemplateTest(
         val firstname: String
     }
 
-    private fun newPerson(): Person = Person(
-        faker.name().firstName(),
-        faker.name().lastName()
-    )
-
+    private fun newPerson(): Person =
+        Person(
+            faker.name().firstName(),
+            faker.name().lastName()
+        )
 
     @BeforeEach
     fun beforeEach() {
@@ -57,10 +56,11 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val people = operations
-            .query<Person>()
-            .matching(query(where("firstname").isEqualTo(person.firstname)))
-            .all()
+        val people =
+            operations
+                .query<Person>()
+                .matching(query(where("firstname").isEqualTo(person.firstname)))
+                .all()
 
         people shouldBeEqualTo listOf(person)
     }
@@ -70,11 +70,12 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val firstnameOnly = operations
-            .query<Person>()
-            .asType<FirstnameOnly>()
-            .matching(query(where("firstname").isEqualTo(person.firstname)))
-            .oneValue()
+        val firstnameOnly =
+            operations
+                .query<Person>()
+                .asType<FirstnameOnly>()
+                .matching(query(where("firstname").isEqualTo(person.firstname)))
+                .oneValue()
 
         firstnameOnly?.firstname shouldBeEqualTo person.firstname
     }
@@ -84,10 +85,11 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val count = operations
-            .query<Person>()
-            .matching(query(where("firstname").isEqualTo(person.firstname)))
-            .count()
+        val count =
+            operations
+                .query<Person>()
+                .matching(query(where("firstname").isEqualTo(person.firstname)))
+                .count()
 
         count shouldBeEqualTo 1
     }
@@ -97,10 +99,11 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val people = operations
-            .select<Person>(
-                query(where("firstname").isEqualTo(person.firstname))
-            )
+        val people =
+            operations
+                .select<Person>(
+                    query(where("firstname").isEqualTo(person.firstname))
+                )
 
         people shouldBeEqualTo listOf(person)
     }
@@ -118,17 +121,21 @@ class TemplateTest(
             )
 
         // RowMapper를 data class 로 mapping 할 때 속성에 기본값이 있다면 그 값을 씁니다.
-        val loaded = operations
-            .query<Person>()
-            .matching(query(where("firstname").isEqualTo(person.firstname)))
-            .firstValue()!!
+        val loaded =
+            requireNotNull(
+                operations
+                    .query<Person>()
+                    .matching(query(where("firstname").isEqualTo(person.firstname)))
+                    .firstValue()
+            ) { "Person(${person.firstname})를 찾을 수 없습니다." }
 
         loaded.firstname shouldBeEqualTo person.firstname
 
         // Spring의 SelectOperations 를 사용하는 것을 추천합니다.
-        val resultSet = operations.cqlOperations
-            .queryForResultSet("SELECT * FROM $PERSON_TABLE WHERE firstname=${person.firstname.quote()}")
-        val row = resultSet.one()!!
+        val resultSet =
+            operations.cqlOperations
+                .queryForResultSet("SELECT * FROM $PERSON_TABLE WHERE firstname=${person.firstname.quote()}")
+        val row = requireNotNull(resultSet.one()) { "ResultSet에서 Row를 찾을 수 없습니다." }
 
         row.getString("firstname") shouldBeEqualTo person.firstname
         row.getString("lastname").shouldBeNull()

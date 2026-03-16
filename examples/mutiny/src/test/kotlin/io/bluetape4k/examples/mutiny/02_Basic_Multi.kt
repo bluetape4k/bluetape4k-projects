@@ -27,70 +27,80 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 class MultiBasicExamples {
-
-    companion object: KLoggingChannel()
+    companion object : KLoggingChannel()
 
     @Test
     fun `01 Multi Basic`() {
         // Just item
         multiOf(1, 2, 3)
-            .subscribe().with(
+            .subscribe()
+            .with(
                 { subscription ->
                     println("Subscription: $subscription")
                     subscription.request(10)
                 }, // onSubscriptoin
-                { item -> log.debug { "Item:$item" } },  // onItem
-                { failure -> log.debug { "Failure: ${failure.message}" } },  // onFailure
+                { item -> log.debug { "Item:$item" } }, // onItem
+                { failure -> log.debug { "Failure: ${failure.message}" } }, // onFailure
                 { log.debug { "Completed" } } // onComplete
             )
 
         // Range (10 <= x < 15)
-        val list = multiRangeOf(10, 15)
-            .onEach { log.debug { "range: $it" } }
-            .collect()
-            .asList()
-            .await()
-            .indefinitely()
+        val list =
+            multiRangeOf(10, 15)
+                .onEach { log.debug { "range: $it" } }
+                .collect()
+                .asList()
+                .await()
+                .indefinitely()
 
         list shouldBeEqualTo listOf(10, 11, 12, 13, 14)
 
         // from Iterable
         val randomNumbers = generateSequence { Random.nextInt() }.take(5).toList()
-        val randoms = Multi.createFrom().iterable(randomNumbers)
-            .onItem().invoke { item -> log.debug { "range: $item" } }
-            .collect()
-            .asList()
-            .await()
-            .indefinitely()
+        val randoms =
+            Multi
+                .createFrom()
+                .iterable(randomNumbers)
+                .onItem()
+                .invoke { item -> log.debug { "range: $item" } }
+                .collect()
+                .asList()
+                .await()
+                .indefinitely()
 
         randoms shouldBeEqualTo randomNumbers
     }
 
     @Test
     fun `02 Multi with reactivestreams subscriber`() {
-        Multi.createFrom().items(1, 2, 3)
+        Multi
+            .createFrom()
+            .items(1, 2, 3)
             .subscribe()
-            .withSubscriber(object: MultiSubscriber<Int> {
-                private var subscription: Flow.Subscription? = null
-                override fun onSubscribe(s: Flow.Subscription) {
-                    log.debug { "onSubscribe()" }
-                    this.subscription = s
-                    this.subscription!!.request(1)
-                }
+            .withSubscriber(
+                object : MultiSubscriber<Int> {
+                    private lateinit var subscription: Flow.Subscription
 
-                override fun onFailure(failure: Throwable?) {
-                    println("onError: $failure")
-                }
+                    override fun onSubscribe(s: Flow.Subscription) {
+                        log.debug { "onSubscribe()" }
+                        this.subscription = s
+                        this.subscription.request(1)
+                    }
 
-                override fun onCompletion() {
-                    println("onComplete")
-                }
+                    override fun onFailure(failure: Throwable?) {
+                        println("onError: $failure")
+                    }
 
-                override fun onItem(item: Int?) {
-                    log.debug { "onNext: $item" }
-                    this.subscription!!.request(1)
+                    override fun onCompletion() {
+                        println("onComplete")
+                    }
+
+                    override fun onItem(item: Int?) {
+                        log.debug { "onNext: $item" }
+                        this.subscription.request(1)
+                    }
                 }
-            })
+            )
     }
 
     @Test
@@ -102,33 +112,35 @@ class MultiBasicExamples {
         val captures = CopyOnWriteArrayList<String>()
 
         try {
-
             withLatch(1, 5.seconds) {
-                Multi.createFrom()
+                Multi
+                    .createFrom()
                     .emitter { emitter ->
-                        val scheduledFuture = executor.scheduleAtFixedRate(
-                            {
-                                emitter.emit("tick")
-                                log.debug { "Emit: tick" }
-                                if (counter.incrementAndGet() == 5) {
-                                    ref.get()?.cancel(true)
-                                    emitter.complete()
-                                    countDown()
-                                }
-                            },
-                            0,
-                            500,
-                            TimeUnit.MILLISECONDS
-                        )
+                        val scheduledFuture =
+                            executor.scheduleAtFixedRate(
+                                {
+                                    emitter.emit("tick")
+                                    log.debug { "Emit: tick" }
+                                    if (counter.incrementAndGet() == 5) {
+                                        ref.get()?.cancel(true)
+                                        emitter.complete()
+                                        countDown()
+                                    }
+                                },
+                                0,
+                                500,
+                                TimeUnit.MILLISECONDS
+                            )
                         ref.set(scheduledFuture)
-                    }
-                    .subscribe()
+                    }.subscribe()
                     .with(
-                        { item -> captures.add(item); println(item) },
+                        { item ->
+                            captures.add(item)
+                            println(item)
+                        },
                         Throwable::printStackTrace,
                         { println("Done!") }
                     )
-
             }
         } finally {
             executor.shutdown()
@@ -140,11 +152,13 @@ class MultiBasicExamples {
 
     @Test
     fun `04 Multi control subscription`() {
-        Multi.createFrom()
-            .ticks().every(Duration.ofSeconds(1))
+        Multi
+            .createFrom()
+            .ticks()
+            .every(Duration.ofSeconds(1))
             .subscribe()
             .withSubscriber(
-                object: MultiSubscriber<Long> {
+                object : MultiSubscriber<Long> {
                     private lateinit var subscription: Flow.Subscription
                     private var counter = AtomicInteger()
 
@@ -175,7 +189,9 @@ class MultiBasicExamples {
 
     object Service {
         fun fetchValue(): Long = Random.nextLong(1_011_000L)
+
         fun queryDb(): CompletionStage<Long> = CompletableFuture.supplyAsync { fetchValue() }
+
         fun asyncFetchValue(): Uni<Long> = Uni.createFrom().completionStage { queryDb() }
     }
 
@@ -184,23 +200,31 @@ class MultiBasicExamples {
         println("⚡️ Multi by repeating")
 
         // repeat from supplier
-        Multi.createBy()
-            .repeating().supplier { Service.fetchValue() }.until { n -> n > 1_000_000L }
-            .subscribe().with { log.debug { it } }
+        Multi
+            .createBy()
+            .repeating()
+            .supplier { Service.fetchValue() }
+            .until { n -> n > 1_000_000L }
+            .subscribe()
+            .with { log.debug { it } }
 
         println("\n----------\n")
 
         withLatch(1, 5.seconds) {
             // repeat from Uni
-            Multi.createBy()
-                .repeating().deferUni { Service.asyncFetchValue() }.atMost(10)
+            Multi
+                .createBy()
+                .repeating()
+                .deferUni { Service.asyncFetchValue() }
+                .atMost(10)
                 .subscribe()
                 .with({ log.debug { it } }, Throwable::printStackTrace, { this.countDown() })
         }
         println("\n----------\n")
 
         // supplier from completionStage
-        Multi.createBy()
+        Multi
+            .createBy()
             .repeating()
             .completionStage(Service::queryDb)
             .whilst { it < 1_000_000L }
@@ -221,7 +245,8 @@ class MultiBasicExamples {
 
     @Test
     fun `06 Multi from Resource`() {
-        Multi.createFrom()
+        Multi
+            .createFrom()
             .resource(MultiBasicExamples::MyResource, MyResource::stream)
             .withFinalizer(MyResource::close)
             .subscribe()
