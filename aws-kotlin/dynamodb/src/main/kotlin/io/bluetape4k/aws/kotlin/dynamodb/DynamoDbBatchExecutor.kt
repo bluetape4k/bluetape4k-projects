@@ -32,13 +32,12 @@ import kotlinx.coroutines.flow.buffer
  * @param retry Resilience4j [Retry] 정책 (기본: "dynamo-batch" 기본 설정)
  * @param maxUnprocessedRetry 미처리 항목 재시도 최대 횟수 (기본: 10)
  */
-class DynamoDbBatchExecutor<T: Any>(
+class DynamoDbBatchExecutor<T : Any>(
     private val client: DynamoDbClient,
     private val retry: Retry = Retry.ofDefaults("dynamo-batch"),
     private val maxUnprocessedRetry: Int = 10,
-): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
-
-    companion object: KLoggingChannel()
+) : CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+    companion object : KLoggingChannel()
 
     /**
      * 테이블 이름과 [WriteRequest]를 묶는 배치 작업 단위입니다.
@@ -46,7 +45,10 @@ class DynamoDbBatchExecutor<T: Any>(
      * @property tableName DynamoDB 테이블 이름
      * @property writeRequest 실행할 쓰기 요청
      */
-    data class TableItemTuple(val tableName: String, val writeRequest: WriteRequest)
+    data class TableItemTuple(
+        val tableName: String,
+        val writeRequest: WriteRequest,
+    )
 
     /**
      * 미처리 항목과 현재 시도 횟수를 보관하는 데이터 클래스입니다.
@@ -54,7 +56,10 @@ class DynamoDbBatchExecutor<T: Any>(
      * @property attempt 현재 시도 횟수 (1부터 시작)
      * @property items 재시도할 [TableItemTuple] 목록
      */
-    data class RetryablePut(val attempt: Int, val items: List<TableItemTuple>)
+    data class RetryablePut(
+        val attempt: Int,
+        val items: List<TableItemTuple>,
+    )
 
     /**
      * 속성 맵 목록을 [tableName] 테이블에 Batch Put으로 저장합니다.
@@ -71,15 +76,20 @@ class DynamoDbBatchExecutor<T: Any>(
      * @param tableName 저장할 DynamoDB 테이블 이름
      * @param items 저장할 DynamoDB 속성 맵 목록
      */
-    suspend fun putAll(tableName: String, items: List<Map<String, AttributeValue>>) {
-        val writeRequests = items.map {
-            val request = WriteRequest {
-                putRequest {
-                    this.item = it
-                }
+    suspend fun putAll(
+        tableName: String,
+        items: List<Map<String, AttributeValue>>,
+    ) {
+        val writeRequests =
+            items.map {
+                val request =
+                    WriteRequest {
+                        putRequest {
+                            this.item = it
+                        }
+                    }
+                TableItemTuple(tableName, request)
             }
-            TableItemTuple(tableName, request)
-        }
         persist(writeRequests)
     }
 
@@ -98,15 +108,21 @@ class DynamoDbBatchExecutor<T: Any>(
      * @param items 저장할 엔티티 목록
      * @param mapper 엔티티를 DynamoDB 속성 맵으로 변환하는 [DynamoItemMapper]
      */
-    suspend fun putAll(tableName: String, items: List<T>, mapper: DynamoItemMapper<T>) {
-        val writeRequests = items.map {
-            val request = WriteRequest {
-                putRequest {
-                    this.item = mapper.mapToDynamoItem(it)
-                }
+    suspend fun putAll(
+        tableName: String,
+        items: List<T>,
+        mapper: DynamoItemMapper<T>,
+    ) {
+        val writeRequests =
+            items.map {
+                val request =
+                    WriteRequest {
+                        putRequest {
+                            this.item = mapper.mapToDynamoItem(it)
+                        }
+                    }
+                TableItemTuple(tableName, request)
             }
-            TableItemTuple(tableName, request)
-        }
         persist(writeRequests)
     }
 
@@ -130,14 +146,16 @@ class DynamoDbBatchExecutor<T: Any>(
         items: List<T>,
         primaryKeySelector: (T) -> Map<String, AttributeValue>,
     ) {
-        val writeRequests = items.map { item ->
-            val request = WriteRequest {
-                deleteRequest {
-                    key = primaryKeySelector(item)
-                }
+        val writeRequests =
+            items.map { item ->
+                val request =
+                    WriteRequest {
+                        deleteRequest {
+                            key = primaryKeySelector(item)
+                        }
+                    }
+                TableItemTuple(tableName, request)
             }
-            TableItemTuple(tableName, request)
-        }
         persist(writeRequests)
     }
 
@@ -161,19 +179,22 @@ class DynamoDbBatchExecutor<T: Any>(
         items: List<T>,
         primaryKeyMapper: DynamoItemMapper<T>,
     ) {
-        val writeRequests = items.map {
-            val request = WriteRequest {
-                deleteRequest {
-                    key = primaryKeyMapper.mapToDynamoItem(it)
-                }
+        val writeRequests =
+            items.map {
+                val request =
+                    WriteRequest {
+                        deleteRequest {
+                            key = primaryKeyMapper.mapToDynamoItem(it)
+                        }
+                    }
+                TableItemTuple(tableName, request)
             }
-            TableItemTuple(tableName, request)
-        }
         persist(writeRequests)
     }
 
     private suspend fun persist(items: List<TableItemTuple>) {
-        items.chunked(MAX_BATCH_ITEM_SIZE)
+        items
+            .chunked(MAX_BATCH_ITEM_SIZE)
             .asFlow()
             .buffer()
             .collect { chunked ->
@@ -181,21 +202,26 @@ class DynamoDbBatchExecutor<T: Any>(
             }
     }
 
-    private tailrec suspend fun persistAll(items: List<TableItemTuple>, attempt: Int = 1) {
+    private tailrec suspend fun persistAll(
+        items: List<TableItemTuple>,
+        attempt: Int = 1,
+    ) {
         val requestItems = items.groupBy({ it.tableName }, { it.writeRequest })
 
-        val result = client.batchWriteItem {
-            this.requestItems = requestItems
-        }
+        val result =
+            client.batchWriteItem {
+                this.requestItems = requestItems
+            }
 
         if (result.unprocessedItems?.isNotEmpty() == true) {
             check(attempt < maxUnprocessedRetry) {
                 "Failed to process batch write after $attempt attempts; unprocessed items remained."
             }
 
-            val unprocessedItems = result.unprocessedItems!!.entries.flatMap { entry ->
-                entry.value.map { TableItemTuple(entry.key, it) }
-            }
+            val unprocessedItems =
+                requireNotNull(result.unprocessedItems).entries.flatMap { entry ->
+                    entry.value.map { TableItemTuple(entry.key, it) }
+                }
             persistAll(unprocessedItems, attempt + 1)
         }
     }

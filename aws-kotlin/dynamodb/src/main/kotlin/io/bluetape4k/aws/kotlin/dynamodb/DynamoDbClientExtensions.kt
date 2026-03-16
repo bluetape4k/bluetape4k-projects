@@ -37,7 +37,7 @@ import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-val log by lazy { KotlinLogging.logger { } }
+private val log = KotlinLogging.logger {}
 
 /**
  * [DynamoDbClient]를 생성합니다.
@@ -149,14 +149,13 @@ suspend fun DynamoDbClient.existsTable(name: String): Boolean {
  * // response != null → 삭제됨, null → 테이블 없음
  * ```
  */
-suspend fun DynamoDbClient.deleteTableIfExists(name: String): DeleteTableResponse? {
-    return if (existsTable(name)) {
+suspend fun DynamoDbClient.deleteTableIfExists(name: String): DeleteTableResponse? =
+    if (existsTable(name)) {
         log.debug { "DynamoDB 테이블[$name]을 삭제합니다." }
         deleteTable { this.tableName = name }
     } else {
         null
     }
-}
 
 /**
  * [name] 이름의 DynamoDB 테이블 상태를 반환합니다.
@@ -171,15 +170,14 @@ suspend fun DynamoDbClient.deleteTableIfExists(name: String): DeleteTableRespons
  * // status == TableStatus.Active or null
  * ```
  */
-suspend fun DynamoDbClient.getTableStatus(name: String): TableStatus? {
-    return try {
+suspend fun DynamoDbClient.getTableStatus(name: String): TableStatus? =
+    try {
         val req = DescribeTableRequest { tableName = name }
         describeTable(req).table?.tableStatus
     } catch (ex: ServiceException) {
         if (!ex.sdkErrorMetadata.isRetryable) throw ex
         null
     }
-}
 
 /**
  * [name] 이름의 DynamoDB 테이블이 `CREATING` 상태를 벗어날 때까지 대기합니다.
@@ -196,7 +194,10 @@ suspend fun DynamoDbClient.getTableStatus(name: String): TableStatus? {
  * @param timeout 최대 대기 시간 (기본: 60초)
  * @throws kotlinx.coroutines.TimeoutCancellationException 타임아웃 초과 시
  */
-suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 60.seconds) {
+suspend fun DynamoDbClient.waitForTableReady(
+    name: String,
+    timeout: Duration = 60.seconds,
+) {
     log.debug { "DynamoDb 테이블[$name]이 준비될 때까지 [timeout] 만큼 대기합니다 ... " }
 
     withTimeout(timeout) {
@@ -209,7 +210,6 @@ suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 6
         }
     }
 }
-
 
 /**
  * `Map<String, Any?>` 형태의 [item]을 [tableName] 테이블에 저장합니다.
