@@ -1,10 +1,7 @@
 package io.bluetape4k.spring.util
 
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
-import io.bluetape4k.logging.KotlinLogging
 import org.springframework.util.StopWatch
-
-private val log by lazy { KotlinLogging.logger { } }
 
 /**
  * 지정한 body를 실행할 때, [StopWatch]를 이용하여 실행시간을 측정합니다.
@@ -28,14 +25,15 @@ private val log by lazy { KotlinLogging.logger { } }
 inline fun withStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
     @BuilderInference body: () -> Unit,
-): StopWatch = StopWatch(id).apply {
-    start()
-    try {
-        body()
-    } finally {
-        stop()
+): StopWatch =
+    StopWatch(id).apply {
+        start()
+        try {
+            body()
+        } finally {
+            stop()
+        }
     }
-}
 
 /**
  * 지정한 body를 실행할 때, [StopWatch]를 이용하여 실행시간을 측정합니다.
@@ -59,15 +57,15 @@ inline fun withStopWatch(
 suspend inline fun withSuspendStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
     @BuilderInference body: suspend () -> Unit,
-): StopWatch = StopWatch(id).apply {
-    start()
-    try {
-        body()
-    } finally {
-        stop()
+): StopWatch =
+    StopWatch(id).apply {
+        start()
+        try {
+            body()
+        } finally {
+            stop()
+        }
     }
-}
-
 
 /**
  * [StopWatch]를 이용하여 [body]의 실행 시간을 측정합니다.

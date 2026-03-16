@@ -21,7 +21,7 @@ private val log by lazy { KotlinLogging.logger {} }
  * // service != null
  * ```
  */
-inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
+inline fun <reified T : Any> BeanFactory.get(): T = getBean<T>()
 
 /**
  * 이름으로 빈을 조회하고 타입 캐스팅에 실패하면 `null`을 반환합니다.
@@ -36,7 +36,7 @@ inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-operator fun <T: Any> BeanFactory.get(name: String): T? = getBean(name) as? T
+operator fun <T : Any> BeanFactory.get(name: String): T? = getBean(name) as? T
 
 /**
  * [KClass]로 지정한 타입의 빈을 조회합니다.
@@ -50,7 +50,7 @@ operator fun <T: Any> BeanFactory.get(name: String): T? = getBean(name) as? T
  * // service != null
  * ```
  */
-operator fun <T: Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requiredType.java)
+operator fun <T : Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requiredType.java)
 
 /**
  * [Class]로 지정한 타입의 빈을 조회합니다.
@@ -64,7 +64,7 @@ operator fun <T: Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requ
  * // service != null
  * ```
  */
-operator fun <T: Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requiredType)
+operator fun <T : Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requiredType)
 
 /**
  * 이름과 타입으로 빈을 조회합니다.
@@ -78,7 +78,10 @@ operator fun <T: Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requi
  * // service != null
  * ```
  */
-operator fun <T: Any> BeanFactory.get(name: String, requiredType: Class<T>): T = getBean(name, requiredType)
+operator fun <T : Any> BeanFactory.get(
+    name: String,
+    requiredType: Class<T>,
+): T = getBean(name, requiredType)
 
 /**
  * 이름과 생성자 인자로 빈을 조회합니다.
@@ -92,10 +95,14 @@ operator fun <T: Any> BeanFactory.get(name: String, requiredType: Class<T>): T =
  * // bean != null
  * ```
  */
-operator fun BeanFactory.get(name: String, vararg args: Any?): Any? = when {
-    args.isEmpty() -> get(name) as? Any
-    else           -> getBean(name, *args)
-}
+operator fun BeanFactory.get(
+    name: String,
+    vararg args: Any?,
+): Any? =
+    when {
+        args.isEmpty() -> get(name) as? Any
+        else -> getBean(name, *args)
+    }
 
 /**
  * 타입으로 빈을 조회하고 없으면 `null`을 반환합니다.
@@ -109,8 +116,7 @@ operator fun BeanFactory.get(name: String, vararg args: Any?): Any? = when {
  * // service == null || service is MyService
  * ```
  */
-fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? =
-    findBean(requiredType.java)
+fun <T : Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requiredType.java)
 
 /**
  * 타입으로 빈을 조회하고 실패하면 경고 로그 후 `null`을 반환합니다.
@@ -124,14 +130,12 @@ fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? =
  * // service == null || service is MyService
  * ```
  */
-fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? {
-    return try {
-        get(requiredType)
-    } catch (e: BeansException) {
-        log.warn(e) { "Fail to find bean. requiredType=$requiredType, return null." }
-        null
-    }
-}
+fun <T : Any> BeanFactory.findBean(requiredType: Class<T>): T? =
+    runCatching { get(requiredType) }
+        .getOrElse { e ->
+            log.warn(e) { "Fail to find bean. requiredType=$requiredType, return null." }
+            null
+        }
 
 /**
  * 이름과 타입으로 빈을 조회하고 실패하면 `null`을 반환합니다.
@@ -145,14 +149,15 @@ fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? {
  * // service == null || service is MyService
  * ```
  */
-fun <T: Any> BeanFactory.findBean(name: String, requiredType: Class<T>): T? {
-    return try {
-        get(name, requiredType)
-    } catch (e: BeansException) {
-        log.warn(e) { "Fail to find bean. name=$name, requiredType=$requiredType, return null." }
-        null
-    }
-}
+fun <T : Any> BeanFactory.findBean(
+    name: String,
+    requiredType: Class<T>,
+): T? =
+    runCatching { get(name, requiredType) }
+        .getOrElse { e ->
+            log.warn(e) { "Fail to find bean. name=$name, requiredType=$requiredType, return null." }
+            null
+        }
 
 /**
  * 이름과 생성자 인자로 빈을 조회하고 실패하면 `null`을 반환합니다.
@@ -166,11 +171,12 @@ fun <T: Any> BeanFactory.findBean(name: String, requiredType: Class<T>): T? {
  * // bean == null || bean != null
  * ```
  */
-fun <T: Any> BeanFactory.findBean(name: String, vararg args: Any?): Any? {
-    return try {
-        get(name, *args)
-    } catch (e: BeansException) {
-        log.warn(e) { "Fail to find bean. name=$name, args=$args, return null." }
-        null
-    }
-}
+fun <T : Any> BeanFactory.findBean(
+    name: String,
+    vararg args: Any?,
+): Any? =
+    runCatching { get(name, *args) }
+        .getOrElse { e ->
+            log.warn(e) { "Fail to find bean. name=$name, args=$args, return null." }
+            null
+        }

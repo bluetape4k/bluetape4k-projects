@@ -29,52 +29,54 @@ import java.util.*
  */
 inline fun jackson2ObjectMapperBuilderCustomizer(
     @BuilderInference crossinline builder: Jackson2ObjectMapperBuilder.() -> Unit,
-): Jackson2ObjectMapperBuilderCustomizer = Jackson2ObjectMapperBuilderCustomizer { builder ->
+): Jackson2ObjectMapperBuilderCustomizer =
+    Jackson2ObjectMapperBuilderCustomizer { builder ->
 
-    // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
-    builder.findModulesViaServiceLoader(true)
+        // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
+        builder.findModulesViaServiceLoader(true)
 
-    ZoneOffset.getAvailableZoneIds()
-    builder.timeZone(TimeZone.getTimeZone(ZoneId.of("Seoul/Asia")))
+        ZoneOffset.getAvailableZoneIds()
+        builder.timeZone(TimeZone.getTimeZone(ZoneId.of("Asia/Seoul")))
 
-    builder.modules(
-        KotlinModule.Builder()
-            .withReflectionCacheSize(512)
-            .configure(KotlinFeature.NullToEmptyCollection, false)
-            .configure(KotlinFeature.NullToEmptyMap, false)
-            .configure(KotlinFeature.NullIsSameAsDefault, false)
-            .configure(KotlinFeature.SingletonSupport, true)
-            .configure(KotlinFeature.StrictNullChecks, false)
-            .build(),
-    )
+        builder.modules(
+            KotlinModule
+                .Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.SingletonSupport, true)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
 
-    // 내부의 Module은 직접 등록합니다.
-    builder.modules(JsonUuidModule())
+        // 내부의 Module은 직접 등록합니다.
+        builder.modules(JsonUuidModule())
 
-    // Serialization feature
-    builder.serializationInclusion(JsonInclude.Include.NON_NULL)
-    builder.featuresToEnable(
-        JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT,
-        JsonGenerator.Feature.IGNORE_UNKNOWN,
-        JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN,
-    )
+        // Serialization feature
+        builder.serializationInclusion(JsonInclude.Include.NON_NULL)
+        builder.featuresToEnable(
+            JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT,
+            JsonGenerator.Feature.IGNORE_UNKNOWN,
+            JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN
+        )
 
-    // Serialization feature
-    builder.featuresToDisable(
-        SerializationFeature.FAIL_ON_EMPTY_BEANS
-    )
+        // Serialization feature
+        builder.featuresToDisable(
+            SerializationFeature.FAIL_ON_EMPTY_BEANS
+        )
 
-    // Deserialization feature
-    builder.featuresToEnable(
-        DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-        DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-        DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-        DeserializationFeature.READ_ENUMS_USING_TO_STRING,
-    )
-    builder.featuresToDisable(
-        DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-    )
+        // Deserialization feature
+        builder.featuresToEnable(
+            DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+            DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
+            DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
+            DeserializationFeature.READ_ENUMS_USING_TO_STRING
+        )
+        builder.featuresToDisable(
+            DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+        )
 
-    builder.builder()
-}
+        builder.builder()
+    }
