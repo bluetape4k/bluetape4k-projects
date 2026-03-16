@@ -8,7 +8,7 @@ import io.nats.service.ServiceEndpoint
  * NATS [ServiceEndpoint]를 코틀린 DSL로 생성합니다.
  */
 inline fun serviceEndpoint(
-    @BuilderInference builder: ServiceEndpoint.Builder.() -> Unit,
+    builder: ServiceEndpoint.Builder.() -> Unit,
 ): ServiceEndpoint =
     ServiceEndpoint.builder().apply(builder).build()
 
@@ -22,7 +22,7 @@ inline fun serviceEndpoint(
 fun serviceEndpointOf(
     group: Group? = null,
     endpoint: Endpoint? = null,
-    @BuilderInference builder: ServiceEndpoint.Builder.() -> Unit = {},
+    builder: ServiceEndpoint.Builder.() -> Unit = {},
 ): ServiceEndpoint = serviceEndpoint {
     group?.let { group(it) }
     endpoint?.let { endpoint(it) }

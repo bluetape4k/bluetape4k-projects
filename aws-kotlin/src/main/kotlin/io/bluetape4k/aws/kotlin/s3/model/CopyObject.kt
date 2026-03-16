@@ -14,7 +14,7 @@ inline fun copyObjectRequestOf(
     destBucket: String,
     destKey: String,
     acl: ObjectCannedAcl? = null,
-    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectRequest {
     srcBucket.requireNotBlank("srcBucket")
     srcKey.requireNotBlank("srcKey")
@@ -39,7 +39,7 @@ inline fun copyObjectRequestOf(
     destBucket: String,
     destKey: String,
     acl: ObjectCannedAcl? = null,
-    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectRequest {
     copySource.requireNotBlank("copySource")
     destBucket.requireNotBlank("destBucket")

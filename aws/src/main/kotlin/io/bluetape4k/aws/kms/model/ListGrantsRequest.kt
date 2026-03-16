@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.kms.model.ListGrantsRequest
  * ```
  */
 inline fun listGrantsRequest(
-    @BuilderInference builder: ListGrantsRequest.Builder.() -> Unit,
+    builder: ListGrantsRequest.Builder.() -> Unit,
 ): ListGrantsRequest =
     ListGrantsRequest.builder().apply(builder).build()
 
@@ -43,7 +43,7 @@ fun listGrantsRequestOf(
     grantId: String? = null,
     marker: String? = null,
     limit: Int? = null,
-    @BuilderInference builder: ListGrantsRequest.Builder.() -> Unit = {},
+    builder: ListGrantsRequest.Builder.() -> Unit = {},
 ): ListGrantsRequest {
     keyId.requireNotBlank("keyId")
 

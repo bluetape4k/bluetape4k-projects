@@ -100,7 +100,7 @@ fun Iterable<Any>.asCharArrayList(): CharArrayList = when (this) {
  */
 inline fun charArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Char,
+    builder: (index: Int) -> Char,
 ): CharArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return CharArrayList(initialCapacity).apply {

@@ -105,7 +105,7 @@ fun Iterable<Number>.asShortArrayList() = when (this) {
  */
 inline fun shortArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Short,
+    builder: (index: Int) -> Short,
 ): ShortArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return ShortArrayList(initialCapacity).apply {

@@ -51,7 +51,7 @@ fun <K: Comparable<K>, V> emptyMutableSortedMap(): MutableSortedMap<K, V> = Sort
  */
 inline fun <K: Comparable<K>, V> mutableSortedMap(
     size: Int,
-    @BuilderInference builder: (Int) -> Pair<K, V>,
+    builder: (Int) -> Pair<K, V>,
 ): MutableSortedMap<K, V> =
     SortedMaps.mutable.of<K, V>().apply {
         repeat(size) { index ->

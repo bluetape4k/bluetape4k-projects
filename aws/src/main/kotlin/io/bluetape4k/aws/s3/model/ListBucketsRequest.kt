@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.model.ListBucketsRequest
  * ```
  */
 inline fun listBucketsRequest(
-    @BuilderInference builder: ListBucketsRequest.Builder.() -> Unit = {},
+    builder: ListBucketsRequest.Builder.() -> Unit = {},
 ): ListBucketsRequest =
     ListBucketsRequest.builder().apply(builder).build()
 
@@ -29,7 +29,7 @@ inline fun listBucketsRequest(
  * ```
  */
 fun listBucketsRequestOf(
-    @BuilderInference configrationBuilder: AwsRequestOverrideConfiguration.Builder.() -> Unit = {},
+    configrationBuilder: AwsRequestOverrideConfiguration.Builder.() -> Unit = {},
 ): ListBucketsRequest =
     listBucketsRequest {
         overrideConfiguration(configrationBuilder)

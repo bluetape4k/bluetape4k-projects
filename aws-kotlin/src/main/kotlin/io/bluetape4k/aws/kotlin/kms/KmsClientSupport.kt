@@ -34,7 +34,7 @@ inline fun kmsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: KmsClient.Config.Builder.() -> Unit = {},
+    crossinline builder: KmsClient.Config.Builder.() -> Unit = {},
 ): KmsClient = KmsClient {
     endpointUrl?.let { this.endpointUrl = it }
     region?.let { this.region = it }

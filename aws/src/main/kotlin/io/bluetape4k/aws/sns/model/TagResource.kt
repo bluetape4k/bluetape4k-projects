@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.sns.model.TagResourceRequest
  * ```
  */
 inline fun tagResourceRequest(
-    @BuilderInference builder: TagResourceRequest.Builder.() -> Unit,
+    builder: TagResourceRequest.Builder.() -> Unit,
 ): TagResourceRequest =
     TagResourceRequest.builder().apply(builder).build()
 
@@ -42,7 +42,7 @@ inline fun tagResourceRequestOf(
     resourceArn: String,
     tags: Collection<Tag>,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: TagResourceRequest.Builder.() -> Unit = {},
+    builder: TagResourceRequest.Builder.() -> Unit = {},
 ): TagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

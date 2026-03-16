@@ -105,7 +105,7 @@ fun Iterable<Number>.asDoubleArrayList() = when (this) {
  */
 inline fun doubleArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Double,
+    builder: (index: Int) -> Double,
 ): DoubleArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return DoubleArrayList(initialCapacity).apply {

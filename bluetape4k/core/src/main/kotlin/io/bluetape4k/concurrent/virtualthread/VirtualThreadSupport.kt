@@ -20,7 +20,7 @@ fun virtualThreadRuntimeName(): String = VirtualThreads.runtimeName()
  * @param builder [Thread.Builder.OfVirtual]의 초기화 블록
  */
 inline fun virtualThreadBuilder(
-    @BuilderInference builder: Thread.Builder.OfVirtual.() -> Unit,
+    builder: Thread.Builder.OfVirtual.() -> Unit,
 ): Thread.Builder.OfVirtual {
     return Thread.ofVirtual().apply(builder)
 }
@@ -38,7 +38,7 @@ inline fun virtualThreadBuilder(
  * @param builder [Thread.Builder.OfVirtual]의 초기화 블록
  */
 inline fun virtualThreadFactory(
-    @BuilderInference builder: Thread.Builder.OfVirtual.() -> Unit,
+    builder: Thread.Builder.OfVirtual.() -> Unit,
 ): ThreadFactory {
     return virtualThreadBuilder(builder).factory()
 }

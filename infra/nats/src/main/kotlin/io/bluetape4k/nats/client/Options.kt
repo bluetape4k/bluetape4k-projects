@@ -17,7 +17,7 @@ import java.util.*
  * ```
  */
 inline fun natsOptions(
-    @BuilderInference builder: Options.Builder.() -> Unit,
+    builder: Options.Builder.() -> Unit,
 ): Options {
     return Options.builder().apply(builder).build()
 }
@@ -37,7 +37,7 @@ inline fun natsOptions(
  */
 inline fun natsOptions(
     properties: Properties,
-    @BuilderInference builder: Options.Builder.() -> Unit = {},
+    builder: Options.Builder.() -> Unit = {},
 ): Options {
     return Options.Builder(properties).apply(builder).build()
 }

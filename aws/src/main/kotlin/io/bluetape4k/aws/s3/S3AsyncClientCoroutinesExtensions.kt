@@ -46,7 +46,7 @@ suspend inline fun S3AsyncClient.existsBucket(bucketName: String): Boolean =
  */
 suspend fun S3AsyncClient.createBucket(
     bucketName: String,
-    @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
+    builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CreateBucketResponse =
     createBucketAsync(bucketName, builder).await()
 
@@ -67,7 +67,7 @@ suspend fun S3AsyncClient.createBucket(
 suspend inline fun S3AsyncClient.getAsByteArray(
     bucket: String,
     key: String,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray =
     getAsByteArrayAsync(bucket, key, builder).await()
 
@@ -88,7 +88,7 @@ suspend inline fun S3AsyncClient.getAsByteArray(
 suspend inline fun S3AsyncClient.getAsString(
     bucket: String,
     key: String,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): String =
     getAsStringAsync(bucket, key, builder).await()
 
@@ -112,7 +112,7 @@ suspend inline fun S3AsyncClient.getAsFile(
     bucket: String,
     key: String,
     destinationPath: Path,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse =
     getAsFileAsync(bucket, key, destinationPath, builder).await()
 
@@ -135,7 +135,7 @@ suspend inline fun S3AsyncClient.put(
     bucket: String,
     key: String,
     body: AsyncRequestBody,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     putAsync(bucket, key, body, builder).await()
 
@@ -158,7 +158,7 @@ suspend inline fun S3AsyncClient.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     putAsByteArrayAsync(bucket, key, bytes, builder).await()
 
@@ -182,7 +182,7 @@ suspend inline fun S3AsyncClient.putAsString(
     key: String,
     contents: String,
     charset: Charset = Charsets.UTF_8,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     putAsStringAsync(bucket, key, contents, charset, builder).await()
 
@@ -206,7 +206,7 @@ suspend inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     putAsFileAsync(bucket, key, file, builder).await()
 
@@ -230,7 +230,7 @@ suspend inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     putAsFileAsync(bucket, key, path, builder).await()
 
@@ -286,8 +286,8 @@ suspend fun S3AsyncClient.moveObject(
  * ```
  */
 suspend fun S3AsyncClient.moveObject(
-    @BuilderInference copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
-    @BuilderInference deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
+    copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
+    deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
 ): MoveObjectResult =
     moveObjectAsync(copyObjectRequest, deleteObjectRequest).await()
 

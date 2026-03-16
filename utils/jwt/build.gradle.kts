@@ -16,7 +16,7 @@ dependencies {
     api(Libs.jjwt_jackson)
 
     // Jackson
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_module_kotlin)
     api(Libs.jackson_module_blackbird)
 

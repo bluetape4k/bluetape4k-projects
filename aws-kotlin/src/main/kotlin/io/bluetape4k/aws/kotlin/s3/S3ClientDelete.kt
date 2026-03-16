@@ -24,7 +24,7 @@ import io.bluetape4k.support.requireNotEmpty
 suspend inline fun S3Client.deleteAll(
     bucket: String,
     vararg keys: String,
-    @BuilderInference crossinline builder: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 
@@ -48,7 +48,7 @@ suspend inline fun S3Client.deleteAll(
 suspend inline fun S3Client.deleteAll(
     bucket: String,
     keys: Collection<String>,
-    @BuilderInference crossinline bulider: Delete.Builder.() -> Unit = {},
+    crossinline bulider: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
     keys.requireNotEmpty("keys")
@@ -79,7 +79,7 @@ suspend inline fun S3Client.deleteAll(
  */
 suspend inline fun S3Client.deleteAll(
     bucket: String,
-    @BuilderInference crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 

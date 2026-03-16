@@ -19,7 +19,7 @@ val MockWebServer.baseUrl: String get() = url("/").toString()
  */
 inline fun MockWebServer.enqueueBody(
     body: String,
-    @BuilderInference builder: MockResponse.() -> Unit,
+    builder: MockResponse.() -> Unit,
 ) {
     val response = mockResponse {
         setBody(body)
@@ -36,7 +36,7 @@ inline fun MockWebServer.enqueueBody(
  */
 inline fun MockWebServer.enqueueBody(
     bodyBuffer: Buffer,
-    @BuilderInference builder: MockResponse.() -> Unit,
+    builder: MockResponse.() -> Unit,
 ) {
     val response = mockResponse {
         setBody(bodyBuffer)

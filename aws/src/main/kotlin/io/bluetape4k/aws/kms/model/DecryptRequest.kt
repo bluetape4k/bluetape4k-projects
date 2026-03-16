@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.kms.model.RecipientInfo
  * ```
  */
 inline fun decryptRequest(
-    @BuilderInference builder: DecryptRequest.Builder.() -> Unit,
+    builder: DecryptRequest.Builder.() -> Unit,
 ): DecryptRequest =
     DecryptRequest.builder().apply(builder).build()
 
@@ -47,7 +47,7 @@ inline fun decryptRequestOf(
     recipient: RecipientInfo? = null,
     dryRun: Boolean? = null,
     dryRunModifiers: Collection<DryRunModifierType>? = null,
-    @BuilderInference builder: DecryptRequest.Builder.() -> Unit = {},
+    builder: DecryptRequest.Builder.() -> Unit = {},
 ): DecryptRequest = decryptRequest {
 
     ciphertextBlob?.let { ciphertextBlob(it) }

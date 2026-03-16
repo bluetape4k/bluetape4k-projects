@@ -29,7 +29,7 @@ inline fun getOf(
     key: Map<String, AttributeValue>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    @BuilderInference crossinline builder: Get.Builder.() -> Unit = {},
+    crossinline builder: Get.Builder.() -> Unit = {},
 ): Get {
     tableName.requireNotBlank("tableName")
 
@@ -67,7 +67,7 @@ inline fun getOf(
     key: Map<String, Any?>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    @BuilderInference crossinline builder: Get.Builder.() -> Unit = {},
+    crossinline builder: Get.Builder.() -> Unit = {},
 ): Get = getOf(
     tableName,
     key?.toAttributeValueMap(),

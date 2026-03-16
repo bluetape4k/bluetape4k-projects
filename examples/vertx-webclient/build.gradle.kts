@@ -17,7 +17,7 @@ dependencies {
     testImplementation(Libs.vertx_junit5)
 
     // Vetx SqlClient Templates 에서 Jackson Databind 를 이용한 매핑을 사용한다
-    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-jackson2"))
     implementation(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
 

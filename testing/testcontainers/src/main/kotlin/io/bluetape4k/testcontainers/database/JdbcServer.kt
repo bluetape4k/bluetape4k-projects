@@ -62,7 +62,7 @@ private fun JdbcServer.newHikariConfig(builder: HikariConfig.() -> Unit): Hikari
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
  */
 fun <T: JdbcServer> T.getDataSource(
-    @BuilderInference builder: HikariConfig.() -> Unit = {},
+    builder: HikariConfig.() -> Unit = {},
 ): HikariDataSource {
     return HikariDataSource(newHikariConfig(builder))
 }
@@ -72,7 +72,7 @@ fun <T: JdbcServer> T.getDataSource(
  * [getDataSource]의 별칭입니다.
  */
 fun <T: JdbcServer> T.getHikariDataSource(
-    @BuilderInference builder: HikariConfig.() -> Unit = {},
+    builder: HikariConfig.() -> Unit = {},
 ): HikariDataSource {
     return getDataSource(builder)
 }

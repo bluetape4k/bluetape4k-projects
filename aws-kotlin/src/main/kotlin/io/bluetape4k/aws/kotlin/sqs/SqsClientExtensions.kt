@@ -82,7 +82,7 @@ inline fun sqsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
+    crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
     endpointUrl?.hostAndPort.requireNotBlank("endpointUrl")
 
@@ -111,7 +111,7 @@ inline fun sqsClientOf(
  */
 suspend inline fun SqsClient.createQueue(
     queueName: String,
-    @BuilderInference crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
 ): CreateQueueResponse {
     queueName.requireNotBlank("queueName")
 
@@ -136,7 +136,7 @@ suspend inline fun SqsClient.createQueue(
  */
 suspend inline fun SqsClient.ensureQueue(
     queueName: String,
-    @BuilderInference crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
 ): String? {
     queueName.requireNotBlank("queueName")
 
@@ -183,7 +183,7 @@ suspend inline fun SqsClient.listQueues(
     queueNamePrefix: String,
     nextToken: String? = null,
     maxResults: Int? = null,
-    @BuilderInference crossinline builder: ListQueuesRequest.Builder.() -> Unit = {},
+    crossinline builder: ListQueuesRequest.Builder.() -> Unit = {},
 ): ListQueuesResponse {
     queueNamePrefix.requireNotBlank("queueNamePrefix")
 
@@ -209,7 +209,7 @@ suspend inline fun SqsClient.listQueues(
  */
 suspend inline fun SqsClient.getQueueUrl(
     queueName: String,
-    @BuilderInference crossinline builder: GetQueueUrlRequest.Builder.() -> Unit = {},
+    crossinline builder: GetQueueUrlRequest.Builder.() -> Unit = {},
 ): String? {
     queueName.requireNotBlank("queueName")
 
@@ -231,7 +231,7 @@ suspend inline fun SqsClient.getQueueUrl(
  */
 suspend inline fun SqsClient.deleteQueue(
     queueUrl: String,
-    @BuilderInference crossinline builder: DeleteQueueRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteQueueRequest.Builder.() -> Unit = {},
 ): DeleteQueueResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -263,7 +263,7 @@ suspend inline fun SqsClient.sendMessage(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    @BuilderInference crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
     messageBody.requireNotBlank("messageBody")

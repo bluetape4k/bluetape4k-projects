@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.kinesis.model.ShardIteratorType
  * ```
  */
 inline fun getShardIteratorRequest(
-    @BuilderInference builder: GetShardIteratorRequest.Builder.() -> Unit,
+    builder: GetShardIteratorRequest.Builder.() -> Unit,
 ): GetShardIteratorRequest =
     GetShardIteratorRequest.builder().apply(builder).build()
 
@@ -39,7 +39,7 @@ inline fun getShardIteratorRequestOf(
     streamName: String,
     shardId: String,
     type: ShardIteratorType = ShardIteratorType.TRIM_HORIZON,
-    @BuilderInference builder: GetShardIteratorRequest.Builder.() -> Unit = {},
+    builder: GetShardIteratorRequest.Builder.() -> Unit = {},
 ): GetShardIteratorRequest {
     streamName.requireNotBlank("streamName")
     shardId.requireNotBlank("shardId")

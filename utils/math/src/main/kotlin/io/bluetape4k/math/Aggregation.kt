@@ -2,20 +2,20 @@ package io.bluetape4k.math
 
 inline fun <T: Any, K: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
-    @BuilderInference aggregator: (elements: Iterable<T>) -> R,
+    aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
 inline fun <T: Any, K: Any, R> Iterable<T>.aggregateBy(
     keySelector: (T) -> K,
-    @BuilderInference aggregator: (elements: Iterable<T>) -> R,
+    aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
 inline fun <T: Any, K: Any, V: Any, R> Iterable<T>.aggregateBy(
     keySelector: (T) -> K,
     valueTransform: (T) -> V,
-    @BuilderInference aggregator: (values: Iterable<V>) -> R,
+    aggregator: (values: Iterable<V>) -> R,
 ): Map<K, R> =
     asSequence().aggregateBy(keySelector, valueTransform, aggregator)
 
@@ -40,7 +40,7 @@ inline fun <T: Any, K: Any, V: Any, R> Iterable<T>.aggregateBy(
 inline fun <T: Any, K: Any, V: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
     valueTransform: (T) -> V,
-    @BuilderInference aggregator: (values: Iterable<V>) -> R,
+    aggregator: (values: Iterable<V>) -> R,
 ): Map<K, R> {
     return groupBy(keySelector, valueTransform)
         .map { it.key to aggregator(it.value) }

@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.kinesis.model.DescribeStreamRequest
  * ```
  */
 inline fun describeStreamRequest(
-    @BuilderInference builder: DescribeStreamRequest.Builder.() -> Unit,
+    builder: DescribeStreamRequest.Builder.() -> Unit,
 ): DescribeStreamRequest =
     DescribeStreamRequest.builder().apply(builder).build()
 
@@ -29,7 +29,7 @@ inline fun describeStreamRequest(
  */
 inline fun describeStreamRequestOf(
     streamName: String,
-    @BuilderInference builder: DescribeStreamRequest.Builder.() -> Unit = {},
+    builder: DescribeStreamRequest.Builder.() -> Unit = {},
 ): DescribeStreamRequest {
     streamName.requireNotBlank("streamName")
     return describeStreamRequest {

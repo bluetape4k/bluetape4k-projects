@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
  * ```
  */
 inline fun putMetricDataRequest(
-    @BuilderInference builder: PutMetricDataRequest.Builder.() -> Unit,
+    builder: PutMetricDataRequest.Builder.() -> Unit,
 ): PutMetricDataRequest =
     PutMetricDataRequest.builder().apply(builder).build()
 
@@ -32,7 +32,7 @@ inline fun putMetricDataRequest(
 inline fun putMetricDataRequestOf(
     namespace: String,
     metricData: List<MetricDatum>,
-    @BuilderInference builder: PutMetricDataRequest.Builder.() -> Unit = {},
+    builder: PutMetricDataRequest.Builder.() -> Unit = {},
 ): PutMetricDataRequest = putMetricDataRequest {
     namespace(namespace)
     metricData(metricData)
@@ -51,7 +51,7 @@ inline fun putMetricDataRequestOf(
  * ```
  */
 inline fun metricDatum(
-    @BuilderInference builder: MetricDatum.Builder.() -> Unit,
+    builder: MetricDatum.Builder.() -> Unit,
 ): MetricDatum =
     MetricDatum.builder().apply(builder).build()
 
@@ -70,7 +70,7 @@ inline fun metricDatumOf(
     metricName: String,
     value: Double,
     unit: StandardUnit = StandardUnit.NONE,
-    @BuilderInference builder: MetricDatum.Builder.() -> Unit = {},
+    builder: MetricDatum.Builder.() -> Unit = {},
 ): MetricDatum = metricDatum {
     metricName(metricName)
     value(value)

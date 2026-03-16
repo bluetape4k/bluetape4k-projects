@@ -14,7 +14,7 @@ import kotlin.concurrent.withLock
  * @param evaluator cache value를 반환하는 메소드
  */
 fun <T : Any, R : Any> Cache<T, R>.memoizer(
-    @BuilderInference evaluator: (T) -> R,
+    evaluator: (T) -> R,
 ): CaffeineMemoizer<T, R> = CaffeineMemoizer(this, evaluator)
 
 /**

@@ -10,7 +10,7 @@ package io.bluetape4k.math
  */
 inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingAggregate(
     crossinline keySelector: (T) -> K,
-    @BuilderInference aggregator: (key: K, accumulator: R?, eleemnt: T, first: Boolean) -> R,
+    aggregator: (key: K, accumulator: R?, eleemnt: T, first: Boolean) -> R,
 ): Map<K, R> {
     val map = mutableMapOf<K, R>()
     groupingBy(keySelector).aggregateTo(map, aggregator)
@@ -27,7 +27,7 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingAggregate(
  */
 inline fun <T: Any, K: Any, R: Any> Iterable<T>.groupingAggregate(
     crossinline keySelector: (T) -> K,
-    @BuilderInference aggregator: (key: K, accumulator: R?, eleemnt: T, first: Boolean) -> R,
+    aggregator: (key: K, accumulator: R?, eleemnt: T, first: Boolean) -> R,
 ): Map<K, R> {
     return asSequence().groupingAggregate(keySelector, aggregator)
 }

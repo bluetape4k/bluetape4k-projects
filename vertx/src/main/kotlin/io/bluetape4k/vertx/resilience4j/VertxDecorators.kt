@@ -33,7 +33,7 @@ object VertxDecorators: KLoggingChannel() {
      * @param supplier Resilience4j Component 들로 decorate 할 Vert.x [Future]를 생성하는 함수
      * @param [supplier] 를 decorate 한 함수
      */
-    fun <T> ofSupplier(@BuilderInference supplier: () -> Future<T>): SuspendVertxDecorateSupplier<T> {
+    fun <T> ofSupplier(supplier: () -> Future<T>): SuspendVertxDecorateSupplier<T> {
         return SuspendVertxDecorateSupplier(supplier)
     }
 
@@ -66,34 +66,34 @@ object VertxDecorators: KLoggingChannel() {
         }
 
         fun withFallback(
-            @BuilderInference handler: (T?, Throwable?) -> T,
+            handler: (T?, Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(handler)
         }
 
         fun withFallback(
-            @BuilderInference exceptionHandler: (Throwable?) -> T,
+            exceptionHandler: (Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(exceptionHandler)
         }
 
         fun withFallback(
             resultPredicate: (T) -> Boolean,
-            @BuilderInference resultHandler: (T) -> T,
+            resultHandler: (T) -> T,
         ) = apply {
             supplier = supplier.recover(resultPredicate, resultHandler)
         }
 
         fun withFallback(
             exceptionType: Class<out Throwable>,
-            @BuilderInference exceptionHandler: (Throwable?) -> T,
+            exceptionHandler: (Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(exceptionType, exceptionHandler)
         }
 
         fun withFallback(
             exceptionTypes: Iterable<Class<out Throwable>>,
-            @BuilderInference exceptionHandler: (Throwable?) -> T,
+            exceptionHandler: (Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(exceptionTypes, exceptionHandler)
         }

@@ -16,7 +16,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun deleteMessageRequestOf(
     queueUrl: String,
     receiptHandle: String? = null,
-    @BuilderInference crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -38,7 +38,7 @@ inline fun deleteMessageRequestOf(
 inline fun deleteMessageBatchRequestEntryOf(
     id: String,
     receiptHandle: String? = null,
-    @BuilderInference crossinline builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
 
@@ -60,7 +60,7 @@ inline fun deleteMessageBatchRequestEntryOf(
 inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
-    @BuilderInference crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")
@@ -83,7 +83,7 @@ inline fun deleteMessageBatchRequestOf(
 inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
-    @BuilderInference crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")

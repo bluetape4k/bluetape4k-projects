@@ -314,7 +314,7 @@ class RootFilterBuilder: FilterQueryBuilder {
  */
 inline fun RootFilterBuilder.attribute(
     value: String,
-    @BuilderInference builder: ConcreteFilterBuilder.() -> Unit = {},
+    builder: ConcreteFilterBuilder.() -> Unit = {},
 ): RootFilterBuilder = apply {
     val concreteFilter = ConcreteFilterBuilder().apply(builder)
     concreteFilter.dynamoFunction = Attribute(value)

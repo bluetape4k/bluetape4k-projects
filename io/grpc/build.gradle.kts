@@ -52,7 +52,7 @@ dependencies {
     api(project(":bluetape4k-protobuf"))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
 

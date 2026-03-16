@@ -24,7 +24,7 @@ import java.net.URI
  * ```
  */
 inline fun kmsClient(
-    @BuilderInference builder: KmsClientBuilder.() -> Unit,
+    builder: KmsClientBuilder.() -> Unit,
 ): KmsClient =
     KmsClient.builder().apply(builder).build()
         .apply {
@@ -53,7 +53,7 @@ inline fun kmsClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: KmsClientBuilder.() -> Unit = {},
+    builder: KmsClientBuilder.() -> Unit = {},
 ): KmsClient = kmsClient {
     endpointOverride?.let { endpointOverride(it) }
     region?.let { region(it) }

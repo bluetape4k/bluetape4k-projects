@@ -25,7 +25,7 @@ object SnsFactory {
     object Sync {
 
         inline fun create(
-            @BuilderInference builder: SnsClientBuilder.() -> Unit,
+            builder: SnsClientBuilder.() -> Unit,
         ): SnsClient =
             snsClient(builder)
 
@@ -34,7 +34,7 @@ object SnsFactory {
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
+            builder: SnsClientBuilder.() -> Unit = {},
         ): SnsClient =
             snsClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -45,7 +45,7 @@ object SnsFactory {
     object Async {
 
         inline fun create(
-            @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit,
+            builder: SnsAsyncClientBuilder.() -> Unit,
         ): SnsAsyncClient =
             snsAsyncClient(builder)
 
@@ -54,7 +54,7 @@ object SnsFactory {
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
+            builder: SnsAsyncClientBuilder.() -> Unit = {},
         ): SnsAsyncClient =
             snsAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }

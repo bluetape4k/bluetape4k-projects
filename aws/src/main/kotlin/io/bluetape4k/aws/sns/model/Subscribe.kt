@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.sns.model.SubscribeRequest
  * ```
  */
 inline fun subscribeRequest(
-    @BuilderInference builder: SubscribeRequest.Builder.() -> Unit,
+    builder: SubscribeRequest.Builder.() -> Unit,
 ): SubscribeRequest =
     SubscribeRequest.builder().apply(builder).build()
 
@@ -45,7 +45,7 @@ inline fun subscribeRequestOf(
     protocol: String,
     endpoint: String,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: SubscribeRequest.Builder.() -> Unit = {},
+    builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeRequest {
     topicArn.requireNotBlank("topicArn")
     protocol.requireNotBlank("protocol")

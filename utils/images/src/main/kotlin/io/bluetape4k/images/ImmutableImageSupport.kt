@@ -227,7 +227,7 @@ fun ImmutableImage.forSuspendWriter(writer: SuspendImageWriter): SuspendWriteCon
  * @param action 그래픽 작업
  */
 inline fun ImmutableImage.useGraphics(
-    @BuilderInference action: (graphics: Graphics2D) -> Unit,
+    action: (graphics: Graphics2D) -> Unit,
 ) {
     val graphics: Graphics2D = this.awt().createGraphics()
     try {

@@ -25,7 +25,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun untagResourceRequestOf(
     resourceArn: String,
     tagKeys: List<String>,
-    @BuilderInference crossinline builder: UntagResourceRequest.Builder.() -> Unit = {},
+    crossinline builder: UntagResourceRequest.Builder.() -> Unit = {},
 ): UntagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

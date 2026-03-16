@@ -113,7 +113,7 @@ inline fun <V> futureWithTimeout(
  */
 inline fun <V, R> CompletableFuture<V>.map(
     executor: Executor = ForkJoinExecutor,
-    @BuilderInference crossinline mapper: (value: V) -> R,
+    crossinline mapper: (value: V) -> R,
 ): CompletableFuture<R> =
     thenApplyAsync({ mapper(it) }, executor)
 

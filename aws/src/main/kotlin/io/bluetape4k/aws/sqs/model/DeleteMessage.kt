@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest
  * @return DeleteMessageRequest 인스턴스를 반환합니다.
  */
 inline fun deleteMessageRequest(
-    @BuilderInference builder: DeleteMessageRequest.Builder.() -> Unit,
+    builder: DeleteMessageRequest.Builder.() -> Unit,
 ): DeleteMessageRequest {
     return DeleteMessageRequest.builder().apply(builder).build()
 }
@@ -44,7 +44,7 @@ fun deleteMessageRequestOf(
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
 inline fun deleteMessageBatchRequest(
-    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit,
+    builder: DeleteMessageBatchRequest.Builder.() -> Unit,
 ): DeleteMessageBatchRequest {
     return DeleteMessageBatchRequest.builder().apply(builder).build()
 }
@@ -75,7 +75,7 @@ fun deleteMessageBatchRequestOf(
  * @return DeleteMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
 inline fun deleteMessageBatchRequestEntry(
-    @BuilderInference builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit,
+    builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit,
 ): DeleteMessageBatchRequestEntry {
     return DeleteMessageBatchRequestEntry.builder().apply(builder).build()
 }

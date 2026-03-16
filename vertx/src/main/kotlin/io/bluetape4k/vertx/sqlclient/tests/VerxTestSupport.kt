@@ -28,7 +28,7 @@ import io.vertx.sqlclient.SqlConnection
 suspend inline fun Vertx.testWithSuspendTransaction(
     testContext: VertxTestContext,
     pool: Pool,
-    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
+    block: suspend (conn: SqlConnection) -> Unit,
 ) {
     try {
         pool.withSuspendTransaction(block)
@@ -60,7 +60,7 @@ suspend inline fun Vertx.testWithSuspendTransaction(
 suspend inline fun Vertx.testWithSuspendRollback(
     testContext: VertxTestContext,
     pool: Pool,
-    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
+    block: suspend (conn: SqlConnection) -> Unit,
 ) {
     try {
         pool.withSuspendRollback(block)

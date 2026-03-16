@@ -62,7 +62,7 @@ object RedissonSuspendNearCache {
             setTypes(K::class.java, V::class.java)
         },
         checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-        @BuilderInference noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
+        noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
     ): SuspendNearCache<K, V> {
         backCacheName.requireNotBlank("backCacheName")
 

@@ -17,7 +17,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun listTopicsRequestOf(
     nextToken: String,
-    @BuilderInference crossinline builder: ListTopicsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListTopicsRequest.Builder.() -> Unit = {},
 ): ListTopicsRequest {
     nextToken.requireNotBlank("nextToken")
 

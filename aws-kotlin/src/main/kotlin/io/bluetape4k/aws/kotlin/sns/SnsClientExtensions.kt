@@ -57,7 +57,7 @@ inline fun snsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
+    crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
 ): SnsClient =
     SnsClient {
         endpointUrl?.let { this.endpointUrl = it }
@@ -87,7 +87,7 @@ inline fun snsClientOf(
 suspend inline fun SnsClient.createPlatformEndpoint(
     token: String,
     platformApplicationArn: String,
-    @BuilderInference crossinline builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    crossinline builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointResponse {
     token.requireNotBlank("token")
     platformApplicationArn.requireNotBlank("platformApplicationArn")
@@ -116,7 +116,7 @@ suspend inline fun SnsClient.createPlatformEndpoint(
 suspend inline fun SnsClient.createTopic(
     topicName: String,
     attributes: Map<String, String>? = null,
-    @BuilderInference crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
 
@@ -144,7 +144,7 @@ suspend inline fun SnsClient.createTopic(
 suspend inline fun SnsClient.createFifoTopic(
     topicName: String,
     attributes: MutableMap<String, String> = mutableMapOf(),
-    @BuilderInference crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
     require(topicName.endsWithIgnoreCase(".fifo")) { "FIFO topic name must end with .fifo" }
@@ -180,7 +180,7 @@ suspend inline fun SnsClient.subscribe(
     endpoint: String,
     protocol: String = "sms",
     returnSubscriptionArn: Boolean = true,
-    @BuilderInference crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeResponse {
     topicArn.requireNotBlank("topicArn")
     endpoint.requireNotBlank("endpoint")
@@ -208,7 +208,7 @@ suspend inline fun SnsClient.subscribe(
  */
 suspend inline fun SnsClient.checkIfPhoneNumberIsOptedOut(
     phoneNumber: String,
-    @BuilderInference crossinline builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
+    crossinline builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
 ): CheckIfPhoneNumberIsOptedOutResponse {
     phoneNumber.requireNotBlank("phoneNumber")
 
@@ -238,7 +238,7 @@ suspend inline fun SnsClient.publish(
     topicArn: String,
     message: String,
     subject: String? = null,
-    @BuilderInference crossinline builder: PublishRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishResponse {
     topicArn.requireNotBlank("topicArn")
     message.requireNotBlank("message")
@@ -283,7 +283,7 @@ suspend inline fun SnsClient.publish(
 suspend inline fun SnsClient.publishBatch(
     topicArn: String,
     entries: List<PublishBatchRequestEntry>,
-    @BuilderInference crossinline builder: PublishBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishBatchRequest.Builder.() -> Unit = {},
 ): PublishBatchResponse {
     topicArn.requireNotBlank("topicArn")
 
@@ -308,7 +308,7 @@ suspend inline fun SnsClient.publishBatch(
  */
 suspend inline fun SnsClient.unsubscribe(
     subscriptionArn: String,
-    @BuilderInference crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeResponse {
     subscriptionArn.requireNotBlank("subscriptionArn")
 
@@ -331,7 +331,7 @@ suspend inline fun SnsClient.unsubscribe(
  */
 suspend inline fun SnsClient.deleteTopic(
     topicArn: String,
-    @BuilderInference crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicResponse {
     topicArn.requireNotBlank("topicArn")
 

@@ -3,16 +3,18 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.cache.RedisServers.redisClient
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.awaitility.untilSuspending
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import org.awaitility.kotlin.await
+import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendCacheTest: AbstractSuspendCacheTest() {
 
     companion object: KLoggingChannel()
@@ -23,6 +25,7 @@ class LettuceSuspendCacheTest: AbstractSuspendCacheTest() {
 
     override val suspendCache: SuspendCache<String, Any> =
         manager.getOrCreate("lettuce-suspend-cache-" + UUID.randomUUID().encodeBase62())
+
 
     @Test
     fun `ttl is refreshed for putAll putIfAbsent and replace paths`() = runSuspendIO {

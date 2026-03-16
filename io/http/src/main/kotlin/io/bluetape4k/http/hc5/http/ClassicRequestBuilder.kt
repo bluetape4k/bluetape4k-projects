@@ -19,7 +19,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder
  */
 inline fun classicRequest(
     methodName: String,
-    @BuilderInference builder: ClassicRequestBuilder.() -> Unit,
+    builder: ClassicRequestBuilder.() -> Unit,
 ): ClassicHttpRequest =
     ClassicRequestBuilder.create(methodName).apply(builder).build()
 
@@ -38,6 +38,6 @@ inline fun classicRequest(
  */
 inline fun classicRequest(
     method: Method,
-    @BuilderInference builder: ClassicRequestBuilder.() -> Unit,
+    builder: ClassicRequestBuilder.() -> Unit,
 ): ClassicHttpRequest =
     ClassicRequestBuilder.create(method.name).apply(builder).build()

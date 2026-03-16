@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 inline fun <T, F : Future<T>> TimeLimiter.executeVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
-    @BuilderInference crossinline supplier: () -> F,
+    crossinline supplier: () -> F,
 ): Future<T> = decorateVertxFuture(scheduler, supplier).invoke()
 
 /**
@@ -38,7 +38,7 @@ inline fun <T, F : Future<T>> TimeLimiter.executeVertxFuture(
  */
 inline fun <T, F : Future<T>> TimeLimiter.decorateVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
-    @BuilderInference crossinline supplier: () -> F,
+    crossinline supplier: () -> F,
 ): () -> Future<T> =
     {
         val promise = Promise.promise<T>()

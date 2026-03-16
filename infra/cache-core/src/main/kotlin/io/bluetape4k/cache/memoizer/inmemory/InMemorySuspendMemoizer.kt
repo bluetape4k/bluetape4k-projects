@@ -17,7 +17,7 @@ fun <T: Any, R: Any> (suspend (T) -> R).suspendMemoizer(): InMemorySuspendMemoiz
  * 로컬 메모리에 suspend evaluator 실행 결과를 저장합니다.
  */
 class InMemorySuspendMemoizer<in T: Any, out R: Any>(
-    @BuilderInference private val evaluator: suspend (T) -> R,
+    private val evaluator: suspend (T) -> R,
 ): SuspendMemoizer<T, R> {
 
     companion object: KLogging()

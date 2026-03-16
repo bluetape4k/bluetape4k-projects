@@ -24,7 +24,7 @@ import org.springframework.util.StopWatch
  */
 inline fun withStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
-    @BuilderInference body: () -> Unit,
+    body: () -> Unit,
 ): StopWatch =
     StopWatch(id).apply {
         start()
@@ -56,7 +56,7 @@ inline fun withStopWatch(
  */
 suspend inline fun withSuspendStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
-    @BuilderInference body: suspend () -> Unit,
+    body: suspend () -> Unit,
 ): StopWatch =
     StopWatch(id).apply {
         start()
@@ -92,7 +92,7 @@ suspend inline fun withSuspendStopWatch(
  */
 inline fun <T> StopWatch.task(
     taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
-    @BuilderInference body: () -> T,
+    body: () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }
     return try {
@@ -128,7 +128,7 @@ inline fun <T> StopWatch.task(
  */
 suspend inline fun <T> StopWatch.suspendTask(
     taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
-    @BuilderInference body: suspend () -> T,
+    body: suspend () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }
     return try {

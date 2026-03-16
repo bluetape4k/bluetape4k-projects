@@ -78,7 +78,7 @@ fun Sequence<Boolean>.toBooleanArrayList(): BooleanArrayList = asIterable().toBo
  */
 inline fun booleanArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Boolean,
+    builder: (index: Int) -> Boolean,
 ): BooleanArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return BooleanArrayList(initialCapacity).apply {

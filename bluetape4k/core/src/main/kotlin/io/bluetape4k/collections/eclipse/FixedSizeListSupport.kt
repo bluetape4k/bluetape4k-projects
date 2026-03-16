@@ -36,7 +36,7 @@ fun <T> emptyFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.empty<T>()
  */
 inline fun <T> fixedSizeList(
     size: Int = 16,
-    @BuilderInference builder: (index: Int) -> T,
+    builder: (index: Int) -> T,
 ): FixedSizeList<T> =
     fastList(size, builder).toFixedSizeList()
 

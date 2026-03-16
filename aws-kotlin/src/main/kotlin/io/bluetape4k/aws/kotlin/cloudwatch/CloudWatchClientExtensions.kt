@@ -39,7 +39,7 @@ inline fun cloudWatchClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: CloudWatchClient.Config.Builder.() -> Unit = {},
+    crossinline builder: CloudWatchClient.Config.Builder.() -> Unit = {},
 ): CloudWatchClient =
     CloudWatchClient {
         endpointUrl?.let { this.endpointUrl = it }
@@ -70,7 +70,7 @@ inline fun cloudWatchClientOf(
 suspend inline fun CloudWatchClient.putMetricData(
     namespace: String,
     metricData: List<MetricDatum>,
-    @BuilderInference crossinline builder: PutMetricDataRequest.Builder.() -> Unit = {},
+    crossinline builder: PutMetricDataRequest.Builder.() -> Unit = {},
 ): PutMetricDataResponse {
     namespace.requireNotBlank("namespace")
     return putMetricData {
@@ -98,7 +98,7 @@ suspend inline fun CloudWatchClient.putMetricData(
 suspend inline fun CloudWatchClient.putMetricData(
     namespace: String,
     metricDatum: MetricDatum,
-    @BuilderInference crossinline builder: PutMetricDataRequest.Builder.() -> Unit = {},
+    crossinline builder: PutMetricDataRequest.Builder.() -> Unit = {},
 ): PutMetricDataResponse {
     namespace.requireNotBlank("namespace")
     return putMetricData(namespace, listOf(metricDatum), builder)
@@ -122,7 +122,7 @@ suspend inline fun CloudWatchClient.listMetrics(
     namespace: String? = null,
     metricName: String? = null,
     dimensions: List<DimensionFilter>? = null,
-    @BuilderInference crossinline builder: ListMetricsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListMetricsRequest.Builder.() -> Unit = {},
 ): ListMetricsResponse =
     listMetrics {
         namespace?.let { this.namespace = it }

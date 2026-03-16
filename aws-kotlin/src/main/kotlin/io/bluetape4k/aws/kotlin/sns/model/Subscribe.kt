@@ -26,7 +26,7 @@ inline fun subscribeRequestOf(
     topicArn: String,
     endpoint: String,
     protocol: String = "sms",
-    @BuilderInference crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeRequest {
     topicArn.requireNotBlank("topicArn")
     protocol.requireNotBlank("protocol")
@@ -55,7 +55,7 @@ inline fun subscribeRequestOf(
  */
 inline fun unsubscribeRequestOf(
     subscriptionArn: String,
-    @BuilderInference crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeRequest {
     subscriptionArn.requireNotBlank("subscriptionArn")
 

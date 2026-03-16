@@ -21,7 +21,7 @@ internal const val MAX_WAIT_TIME_SECONDS = 20
  * @param builder [ReceiveMessageRequest.Builder]를 이용하여 [ReceiveMessageRequest]를 초기화하는 람다입니다.
  */
 inline fun receiveMessageRequest(
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit,
+    builder: ReceiveMessageRequest.Builder.() -> Unit,
 ): ReceiveMessageRequest {
     return ReceiveMessageRequest.builder().apply(builder).build()
 }
@@ -41,7 +41,7 @@ inline fun receiveMessageRequestOf(
     maxNumber: Int = 3,
     waitTimeSeconds: Int = 20,
     attributeNames: Collection<String>? = null,
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     require(maxNumber in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {

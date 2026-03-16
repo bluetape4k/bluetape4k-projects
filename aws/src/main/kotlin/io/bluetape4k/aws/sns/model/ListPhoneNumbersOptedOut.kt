@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.sns.model.ListPhoneNumbersOptedOutRequest
  * ```
  */
 inline fun listPhoneNumbersOptedOutRequest(
-    @BuilderInference builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit,
+    builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit,
 ): ListPhoneNumbersOptedOutRequest =
     ListPhoneNumbersOptedOutRequest.builder().apply(builder).build()
 
@@ -34,7 +34,7 @@ inline fun listPhoneNumbersOptedOutRequest(
 inline fun listPhoneNumbersOptedOutRequestOf(
     nextToken: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit = {},
+    builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit = {},
 ): ListPhoneNumbersOptedOutRequest =
     listPhoneNumbersOptedOutRequest {
         nextToken?.let {

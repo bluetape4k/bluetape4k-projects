@@ -15,7 +15,7 @@ import org.redisson.api.options.MapCacheOptions
 inline fun <reified K : Any, reified V : Any> mapCache(
     name: String,
     redissonClient: RedissonClient,
-    @BuilderInference builder: MapCacheOptions<K, V>.() -> Unit = {},
+    builder: MapCacheOptions<K, V>.() -> Unit = {},
 ): RMapCache<K, V> {
     name.requireNotBlank("name")
     val options = MapCacheOptions.name<K, V>(name).apply(builder)

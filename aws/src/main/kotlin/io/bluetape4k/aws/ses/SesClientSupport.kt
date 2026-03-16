@@ -23,7 +23,7 @@ import software.amazon.awssdk.services.ses.endpoints.SesEndpointProvider
  * ```
  */
 inline fun sesClient(
-    @BuilderInference builder: SesClientBuilder.() -> Unit,
+    builder: SesClientBuilder.() -> Unit,
 ): SesClient {
     return SesClient.builder().apply(builder).build()
         .apply {
@@ -48,7 +48,7 @@ inline fun sesClientOf(
     endpointProvider: SesEndpointProvider? = null,
     region: Region? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SesClientBuilder.() -> Unit = {},
+    builder: SesClientBuilder.() -> Unit = {},
 ): SesClient = sesClient {
 
     endpointProvider?.let { endpointProvider(it) }

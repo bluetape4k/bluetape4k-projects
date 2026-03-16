@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Cache2k Cache를 이용하여 [AsyncMemoizer]를 생성합니다.
  */
 fun <T: Any, R: Any> Cache<T, R>.asyncMemoizer(
-    @BuilderInference asyncEvaluator: (T) -> CompletableFuture<R>,
+    asyncEvaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemoizer<T, R> =
     Cache2kAsyncMemoizer(this, asyncEvaluator)
 
@@ -32,7 +32,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withMemoizer(cache: Cache<T, 
  */
 class Cache2kAsyncMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
-    @BuilderInference private val asyncEvaluator: (T) -> CompletableFuture<R>,
+    private val asyncEvaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemoizer<T, R> {
 
     companion object: KLoggingChannel()

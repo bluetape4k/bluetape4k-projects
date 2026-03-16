@@ -19,7 +19,7 @@ import feign.codec.Encoder
  * ```
  */
 inline fun feignBuilder(
-    @BuilderInference builder: Feign.Builder.() -> Unit,
+    builder: Feign.Builder.() -> Unit,
 ): Feign.Builder {
     return Feign.Builder()
         .encoder(Encoder.Default())

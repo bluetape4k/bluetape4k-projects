@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun headBucketRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    @BuilderInference crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
 ): HeadBucketRequest {
     bucket.requireNotBlank("bucket")
 

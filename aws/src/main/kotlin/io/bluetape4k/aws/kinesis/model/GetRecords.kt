@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.kinesis.model.GetRecordsRequest
  * ```
  */
 inline fun getRecordsRequest(
-    @BuilderInference builder: GetRecordsRequest.Builder.() -> Unit,
+    builder: GetRecordsRequest.Builder.() -> Unit,
 ): GetRecordsRequest =
     GetRecordsRequest.builder().apply(builder).build()
 
@@ -31,7 +31,7 @@ inline fun getRecordsRequest(
 inline fun getRecordsRequestOf(
     shardIterator: String,
     limit: Int = 100,
-    @BuilderInference builder: GetRecordsRequest.Builder.() -> Unit = {},
+    builder: GetRecordsRequest.Builder.() -> Unit = {},
 ): GetRecordsRequest {
     shardIterator.requireNotBlank("shardIterator")
     return getRecordsRequest {

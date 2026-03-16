@@ -17,7 +17,7 @@ import java.net.URI
  * ```
  */
 inline fun kinesisAsyncClient(
-    @BuilderInference builder: KinesisAsyncClientBuilder.() -> Unit,
+    builder: KinesisAsyncClientBuilder.() -> Unit,
 ): KinesisAsyncClient =
     KinesisAsyncClient.builder().apply(builder).build()
         .apply {
@@ -38,7 +38,7 @@ inline fun kinesisAsyncClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: KinesisAsyncClientBuilder.() -> Unit = {},
+    builder: KinesisAsyncClientBuilder.() -> Unit = {},
 ): KinesisAsyncClient = kinesisAsyncClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

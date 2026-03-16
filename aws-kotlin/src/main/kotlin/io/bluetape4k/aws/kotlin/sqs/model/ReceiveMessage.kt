@@ -32,7 +32,7 @@ inline fun receiveMessageRequestOf(
     waitTimeSeconds: Int = 20,
     visibilityTimeout: Int? = null,
     attributeNames: Collection<String>? = null,
-    @BuilderInference crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     require(maxNumberOfMessages in MIN_RECEIVE_MESSAGES..MAX_RECEIVE_MESSAGES) {

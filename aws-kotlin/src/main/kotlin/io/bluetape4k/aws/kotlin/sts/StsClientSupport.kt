@@ -40,7 +40,7 @@ inline fun stsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: StsClient.Config.Builder.() -> Unit = {},
+    crossinline builder: StsClient.Config.Builder.() -> Unit = {},
 ): StsClient = StsClient {
     endpointUrl?.let { this.endpointUrl = it }
     region?.let { this.region = it }

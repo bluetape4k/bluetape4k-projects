@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
  * @return [DynamoDbEnhancedAsyncClient] instance
  */
 inline fun dynamoDbEnhancedAsyncClient(
-    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
+    builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
 ): DynamoDbEnhancedAsyncClient {
     return DynamoDbEnhancedAsyncClient.builder().apply(builder).build()
 }
@@ -38,7 +38,7 @@ inline fun dynamoDbEnhancedAsyncClient(
  */
 inline fun dynamoDbEnhancedAsyncClientOf(
     client: DynamoDbAsyncClient,
-    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit =
+    builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit =
         { extensions(ExtensionResolver.defaultExtensions()) },
 ): DynamoDbEnhancedAsyncClient =
     dynamoDbEnhancedAsyncClient {

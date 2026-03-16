@@ -23,7 +23,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun listTagsOfResourceRequestOf(
     resourceArn: String,
     nextToken: String? = null,
-    @BuilderInference crossinline builder: ListTagsOfResourceRequest.Builder.() -> Unit = {},
+    crossinline builder: ListTagsOfResourceRequest.Builder.() -> Unit = {},
 ): ListTagsOfResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

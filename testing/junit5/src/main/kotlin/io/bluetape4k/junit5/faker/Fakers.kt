@@ -36,7 +36,7 @@ object Fakers: KLogging() {
     }
 
     private inline fun <reified T> unsafeLazy(
-        @BuilderInference noinline initializer: () -> T,
+        noinline initializer: () -> T,
     ): Lazy<T> =
         lazy(LazyThreadSafetyMode.PUBLICATION, initializer)
 

@@ -48,7 +48,7 @@ import kotlin.time.Duration.Companion.seconds
 suspend inline fun S3Client.existsObject(
     bucket: String,
     key: String,
-    @BuilderInference crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
 ): Boolean {
     val request = headObjectRequestOf(bucket, key, builder = builder)
     return runCatching {
@@ -73,7 +73,7 @@ suspend inline fun S3Client.existsObject(
 suspend inline fun S3Client.get(
     bucketName: String,
     key: String,
-    @BuilderInference crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequestOf(bucketName, key, builder = builder)
     return getObject(request) { it }
@@ -95,8 +95,8 @@ suspend inline fun S3Client.get(
 suspend inline fun <T> S3Client.getAs(
     bucketName: String,
     key: String,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
-    @BuilderInference noinline responseTransform: suspend (GetObjectResponse) -> T,
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    noinline responseTransform: suspend (GetObjectResponse) -> T,
 ): T {
     val request = getObjectRequestOf(bucketName, key, builder = requestBuilder)
     return getObject(request, responseTransform)
@@ -117,7 +117,7 @@ suspend inline fun <T> S3Client.getAs(
 suspend inline fun S3Client.getAsByteArray(
     bucketName: String,
     key: String,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray? {
     return getAs(bucketName, key, requestBuilder) {
         it.body?.toByteArray()
@@ -139,7 +139,7 @@ suspend inline fun S3Client.getAsByteArray(
 suspend inline fun S3Client.getAsString(
     bucketName: String,
     key: String,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): String? {
     return getAs(bucketName, key, requestBuilder) {
         it.body?.decodeToString()
@@ -164,7 +164,7 @@ suspend inline fun S3Client.getAsFile(
     bucketName: String,
     key: String,
     file: java.io.File,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): Long {
     return getAs(bucketName, key, requestBuilder) {
         it.body?.writeToFile(file) ?: -1L
@@ -189,7 +189,7 @@ suspend inline fun S3Client.getAsFile(
     bucketName: String,
     key: String,
     filePath: Path,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): Long {
     return getAs(bucketName, key, requestBuilder) {
         it.body?.writeToFile(filePath) ?: -1L
@@ -216,7 +216,7 @@ suspend inline fun S3Client.getAsOutputStream(
     bucketName: String,
     key: String,
     outputStream: OutputStream,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ) {
     getAs(bucketName, key, requestBuilder) {
         it.body?.writeToOutputStream(outputStream)
@@ -263,7 +263,7 @@ suspend inline fun S3Client.presignGetObject(
     bucketName: String,
     key: String,
     duration: Duration = 5.seconds,
-    @BuilderInference crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): HttpRequest {
     val request = getObjectRequestOf(bucketName, key, builder = requestBuilder)
     return presignGetObject(request, duration)
@@ -283,7 +283,7 @@ suspend inline fun S3Client.getObjectAcl(
     bucketName: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline requestBuilder: GetObjectAclRequest.Builder.() -> Unit = {},
+    crossinline requestBuilder: GetObjectAclRequest.Builder.() -> Unit = {},
 ): GetObjectAclResponse {
     bucketName.requireNotBlank("bucketName")
     key.requireNotBlank("key")
@@ -327,7 +327,7 @@ suspend inline fun S3Client.getObjectRetention(
     bucketName: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
 ): GetObjectRetentionResponse {
     val request = getObjectRetentionRequestOf(bucketName, key, versionId, builder)
     return getObjectRetention(request)
@@ -346,7 +346,7 @@ suspend inline fun S3Client.getObjectRetention(
 suspend inline fun S3Client.tryGetBucketPolicy(
     bucketName: String,
     expectedBucketOwner: String? = null,
-    @BuilderInference crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
+    crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
 ): String? {
     return runCatching {
         getBucketPolicy {

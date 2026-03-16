@@ -10,7 +10,7 @@ import io.nats.client.PullSubscribeOptions
  * @return [PullSubscribeOptions] 인스턴스
  */
 inline fun pullSubscriptionOptions(
-    @BuilderInference builder: PullSubscribeOptions.Builder.() -> Unit,
+    builder: PullSubscribeOptions.Builder.() -> Unit,
 ): PullSubscribeOptions =
     PullSubscribeOptions
         .builder()

@@ -27,7 +27,7 @@ import org.redisson.api.options.LocalCachedMapOptions
 inline fun <reified K : Any, reified V : Any> localCachedMap(
     name: String,
     redissonClient: RedissonClient,
-    @BuilderInference builder: LocalCachedMapOptions<K, V>.() -> Unit = {},
+    builder: LocalCachedMapOptions<K, V>.() -> Unit = {},
 ): RLocalCachedMap<K, V> {
     name.requireNotBlank("name")
     val options = LocalCachedMapOptions.name<K, V>(name).apply(builder)

@@ -37,7 +37,7 @@ fun sesV2ClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference builder: SesV2Client.Config.Builder.() -> Unit = {},
+    builder: SesV2Client.Config.Builder.() -> Unit = {},
 ): SesV2Client = SesV2Client {
     endpointUrl?.let { this.endpointUrl = it }
     region?.let { this.region = it }

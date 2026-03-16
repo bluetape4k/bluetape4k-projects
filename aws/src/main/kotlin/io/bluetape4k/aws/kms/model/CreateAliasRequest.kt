@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.kms.model.CreateAliasRequest
  * ```
  */
 inline fun createAliasRequest(
-    @BuilderInference builder: CreateAliasRequest.Builder.() -> Unit,
+    builder: CreateAliasRequest.Builder.() -> Unit,
 ): CreateAliasRequest =
     CreateAliasRequest.builder().apply(builder).build()
 
@@ -40,7 +40,7 @@ inline fun createAliasRequest(
 fun createAliasRequestOf(
     aliasName: String,
     targetKeyId: String,
-    @BuilderInference builder: CreateAliasRequest.Builder.() -> Unit = {},
+    builder: CreateAliasRequest.Builder.() -> Unit = {},
 ): CreateAliasRequest {
     aliasName.requireNotBlank("aliasName")
     targetKeyId.requireNotBlank("targetKeyId")

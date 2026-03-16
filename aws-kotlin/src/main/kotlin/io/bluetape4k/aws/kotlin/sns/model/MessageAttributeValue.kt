@@ -16,7 +16,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun messageAttributeValueOf(
     stringValue: String,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue {
     stringValue.requireNotBlank("stringValue")
 
@@ -40,7 +40,7 @@ inline fun messageAttributeValueOf(
  */
 inline fun messageAttributeValueOf(
     binaryValue: ByteArray,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue {
     require(binaryValue.isNotEmpty()) { "binaryValue must not be empty." }
 
@@ -64,7 +64,7 @@ inline fun messageAttributeValueOf(
  */
 inline fun <T: Number> messageAttributeValueOf(
     numberValue: T,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         this.stringValue = numberValue.toString()

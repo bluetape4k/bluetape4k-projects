@@ -9,7 +9,7 @@ import kotlin.concurrent.withLock
  * Cache2k Cache를 이용하여 [Memoizer]를 생성합니다.
  */
 fun <T : Any, R : Any> Cache<T, R>.memoizer(
-    @BuilderInference evaluator: (T) -> R,
+    evaluator: (T) -> R,
 ): Memoizer<T, R> = Cache2kMemoizer(this, evaluator)
 
 /**
@@ -22,7 +22,7 @@ fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): Memoizer<T, 
  */
 class Cache2kMemoizer<in T : Any, out R : Any>(
     private val cache: Cache<T, R>,
-    @BuilderInference private val evaluator: (T) -> R,
+    private val evaluator: (T) -> R,
 ) : Memoizer<T, R> {
     private val lock = ReentrantLock()
 

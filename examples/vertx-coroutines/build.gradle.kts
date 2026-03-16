@@ -25,7 +25,7 @@ dependencies {
     implementation(Libs.vertx_web_client)
 
     // Json
-    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-jackson2"))
     implementation(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
 

@@ -6,7 +6,7 @@ import io.nats.client.FetchConsumeOptions
  * [FetchConsumeOptions]를 DSL로 생성합니다.
  */
 inline fun fetchConsumeOptions(
-    @BuilderInference builder: FetchConsumeOptions.Builder.() -> Unit,
+    builder: FetchConsumeOptions.Builder.() -> Unit,
 ): FetchConsumeOptions = FetchConsumeOptions.builder().apply(builder).build()
 
 /** 기본 최대 메시지 수 */

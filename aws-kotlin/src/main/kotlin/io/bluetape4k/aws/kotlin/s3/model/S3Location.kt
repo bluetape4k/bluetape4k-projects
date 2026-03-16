@@ -5,7 +5,7 @@ import io.bluetape4k.support.requireNotBlank
 
 inline fun s3LocationOf(
     bucket: String,
-    @BuilderInference crossinline builder: S3Location.Builder.() -> Unit = {},
+    crossinline builder: S3Location.Builder.() -> Unit = {},
 ): S3Location {
     bucket.requireNotBlank("bucket")
 

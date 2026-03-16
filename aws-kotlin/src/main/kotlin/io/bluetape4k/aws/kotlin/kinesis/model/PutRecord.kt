@@ -22,7 +22,7 @@ inline fun putRecordRequestOf(
     streamName: String,
     partitionKey: String,
     data: ByteArray,
-    @BuilderInference crossinline builder: PutRecordRequest.Builder.() -> Unit = {},
+    crossinline builder: PutRecordRequest.Builder.() -> Unit = {},
 ): PutRecordRequest {
     streamName.requireNotBlank("streamName")
     partitionKey.requireNotBlank("partitionKey")

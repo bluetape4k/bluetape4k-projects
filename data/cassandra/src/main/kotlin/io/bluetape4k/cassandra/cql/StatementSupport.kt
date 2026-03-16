@@ -42,7 +42,7 @@ fun SimpleStatement.toPrepareRequest(): PrepareRequest = DefaultPrepareRequest(t
  */
 inline fun simpleStatementOf(
     query: String,
-    @BuilderInference builder: SimpleStatementBuilder.() -> Unit,
+    builder: SimpleStatementBuilder.() -> Unit,
 ): SimpleStatement {
     query.requireNotBlank("query")
     return SimpleStatement.builder(query).apply(builder).build()
@@ -54,7 +54,7 @@ inline fun simpleStatementOf(
 )
 inline fun simpleStatement(
     query: String,
-    @BuilderInference builder: SimpleStatementBuilder.() -> Unit,
+    builder: SimpleStatementBuilder.() -> Unit,
 ): SimpleStatement = simpleStatementOf(query, builder)
 
 /**
@@ -126,7 +126,7 @@ fun statementOf(cql: String, nameValues: Map<String, Any?>): SimpleStatement {
  */
 inline fun boundStatementOf(
     boundStatement: BoundStatement,
-    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
+    builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement {
     return BoundStatementBuilder(boundStatement).apply(builder).build()
 }
@@ -137,7 +137,7 @@ inline fun boundStatementOf(
 )
 inline fun boundStatement(
     boundStatement: BoundStatement,
-    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
+    builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement = boundStatementOf(boundStatement, builder)
 
 /**
@@ -206,7 +206,7 @@ fun batchStatementOf(batchType: BatchType, statements: Iterable<BatchableStateme
  */
 inline fun batchStatementOf(
     batchType: BatchType,
-    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
     return BatchStatementBuilder(batchType).apply(builder).build()
 }
@@ -226,7 +226,7 @@ inline fun batchStatementOf(
  */
 inline fun batchStatementOf(
     template: BatchStatement,
-    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
     return BatchStatementBuilder(template).apply(builder).build()
 }
@@ -237,7 +237,7 @@ inline fun batchStatementOf(
 )
 inline fun batchStatement(
     batchType: BatchType,
-    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement = batchStatementOf(batchType, builder)
 
 @Deprecated(
@@ -246,5 +246,5 @@ inline fun batchStatement(
 )
 inline fun batchStatement(
     template: BatchStatement,
-    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement = batchStatementOf(template, builder)

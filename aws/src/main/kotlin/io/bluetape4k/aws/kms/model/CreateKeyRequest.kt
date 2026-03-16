@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.kms.model.Tag
  * ```
  */
 inline fun createKeyRequest(
-    @BuilderInference builder: CreateKeyRequest.Builder.() -> Unit,
+    builder: CreateKeyRequest.Builder.() -> Unit,
 ): CreateKeyRequest =
     CreateKeyRequest.builder().apply(builder).build()
 
@@ -50,7 +50,7 @@ inline fun createKeyRequestOf(
     tags: List<Tag>? = null,
     multiRegion: Boolean? = null,
     xksKeyId: String? = null,
-    @BuilderInference builder: CreateKeyRequest.Builder.() -> Unit = {},
+    builder: CreateKeyRequest.Builder.() -> Unit = {},
 ): CreateKeyRequest = createKeyRequest {
 
     policy?.let { policy(it) }

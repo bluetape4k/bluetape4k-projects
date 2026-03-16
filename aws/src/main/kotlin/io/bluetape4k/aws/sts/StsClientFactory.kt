@@ -26,7 +26,7 @@ object StsClientFactory {
          * DSL 블록으로 [StsClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: StsClientBuilder.() -> Unit,
+            builder: StsClientBuilder.() -> Unit,
         ): StsClient =
             stsClient(builder)
 
@@ -38,7 +38,7 @@ object StsClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: StsClientBuilder.() -> Unit = {},
+            builder: StsClientBuilder.() -> Unit = {},
         ): StsClient =
             stsClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -52,7 +52,7 @@ object StsClientFactory {
          * DSL 블록으로 [StsAsyncClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: StsAsyncClientBuilder.() -> Unit,
+            builder: StsAsyncClientBuilder.() -> Unit,
         ): StsAsyncClient =
             stsAsyncClient(builder)
 
@@ -64,7 +64,7 @@ object StsClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: StsAsyncClientBuilder.() -> Unit = {},
+            builder: StsAsyncClientBuilder.() -> Unit = {},
         ): StsAsyncClient =
             stsAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }

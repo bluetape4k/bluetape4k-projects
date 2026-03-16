@@ -57,7 +57,7 @@ object CqlSessionProvider: KLogging() {
     fun getOrCreateSession(
         keyspace: String = DEFAULT_KEYSPACE,
         builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
-        @BuilderInference builder: CqlSessionBuilder.() -> Unit,
+        builder: CqlSessionBuilder.() -> Unit,
     ): CqlSession {
         keyspace.requireNotBlank("keyspace")
 

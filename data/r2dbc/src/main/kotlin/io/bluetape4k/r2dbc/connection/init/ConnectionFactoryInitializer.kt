@@ -21,7 +21,7 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer
  */
 inline fun connectionFactoryInitializer(
     connectionFactory: ConnectionFactory,
-    @BuilderInference builder: ConnectionFactoryInitializer.() -> Unit = {},
+    builder: ConnectionFactoryInitializer.() -> Unit = {},
 ): ConnectionFactoryInitializer =
     ConnectionFactoryInitializer()
         .apply {

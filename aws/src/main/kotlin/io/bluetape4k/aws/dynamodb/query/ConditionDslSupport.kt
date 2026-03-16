@@ -37,7 +37,7 @@ interface ComparableBuilder
  * check(condition.comparisonOperator() == ComparisonOperator.EQ)
  * ```
  */
-inline fun Condition(@BuilderInference builder: Condition.Builder.() -> Unit): Condition {
+inline fun Condition(builder: Condition.Builder.() -> Unit): Condition {
     return Condition.builder().apply(builder).build()
 }
 

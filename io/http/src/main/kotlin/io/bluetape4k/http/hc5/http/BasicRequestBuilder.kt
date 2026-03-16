@@ -22,7 +22,7 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder
  */
 inline fun basicHttpRequest(
     method: String,
-    @BuilderInference builder: BasicRequestBuilder.() -> Unit,
+    builder: BasicRequestBuilder.() -> Unit,
 ): BasicHttpRequest =
     BasicRequestBuilder.create(method).apply(builder).build()
 
@@ -42,7 +42,7 @@ inline fun basicHttpRequest(
  */
 inline fun basicHttpRequest(
     method: Method,
-    @BuilderInference builder: BasicRequestBuilder.() -> Unit,
+    builder: BasicRequestBuilder.() -> Unit,
 ): BasicHttpRequest =
     basicHttpRequest(method.name, builder)
 
@@ -69,7 +69,7 @@ inline fun basicHttpRequestOf(
     host: HttpHost,
     path: String,
     headers: Iterable<Header>? = null,
-    @BuilderInference builder: BasicRequestBuilder.() -> Unit = {},
+    builder: BasicRequestBuilder.() -> Unit = {},
 ): BasicHttpRequest =
     basicHttpRequest(method) {
         setHttpHost(host)
@@ -102,7 +102,7 @@ inline fun basicHttpRequestOf(
     host: HttpHost,
     path: String,
     headers: Iterable<Header>? = null,
-    @BuilderInference builder: BasicRequestBuilder.() -> Unit = {},
+    builder: BasicRequestBuilder.() -> Unit = {},
 ): BasicHttpRequest =
     basicHttpRequest(method) {
         setHttpHost(host)

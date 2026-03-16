@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.kms.model.DisableKeyRequest
  * ```
  */
 inline fun disableKeyRequest(
-    @BuilderInference builder: DisableKeyRequest.Builder.() -> Unit,
+    builder: DisableKeyRequest.Builder.() -> Unit,
 ): DisableKeyRequest =
     DisableKeyRequest.builder().apply(builder).build()
 

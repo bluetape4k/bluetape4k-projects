@@ -22,7 +22,7 @@ import java.nio.charset.Charset
  * @return [HttpEntity]
  */
 inline fun multipartEntity(
-    @BuilderInference builder: MultipartEntityBuilder.() -> Unit,
+    builder: MultipartEntityBuilder.() -> Unit,
 ): HttpEntity =
     MultipartEntityBuilder.create().apply(builder).build()
 
@@ -62,7 +62,7 @@ inline fun multipartEntity(
     subType: String? = null,
     contentType: ContentType? = null,
     parameters: Collection<BasicNameValuePair> = emptyList(),
-    @BuilderInference builder: MultipartEntityBuilder.() -> Unit = {},
+    builder: MultipartEntityBuilder.() -> Unit = {},
 ): HttpEntity =
     multipartEntity {
         setMode(mode)

@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun deleteBucketRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    @BuilderInference crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketRequest {
     bucket.requireNotBlank("bucket")
 

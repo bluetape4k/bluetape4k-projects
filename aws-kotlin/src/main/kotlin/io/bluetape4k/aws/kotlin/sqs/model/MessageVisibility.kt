@@ -18,7 +18,7 @@ inline fun changeMessageVisibilityRequestOf(
     queueUrl: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
-    @BuilderInference crossinline builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
+    crossinline builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityRequest {
     queueUrl.requireNotBlank("queueUrl")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -44,7 +44,7 @@ inline fun changeMessageVisibilityBatchRequestEntryOf(
     id: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
-    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: ChangeMessageVisibilityBatchRequestEntry.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequestEntry {
     id.requireNotBlank("id")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -69,7 +69,7 @@ inline fun changeMessageVisibilityBatchRequestEntryOf(
 inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
-    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")
@@ -94,7 +94,7 @@ inline fun changeMessageVisibilityBatchRequestOf(
 inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
-    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")

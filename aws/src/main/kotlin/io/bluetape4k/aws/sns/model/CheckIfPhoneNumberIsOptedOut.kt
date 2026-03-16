@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.sns.model.CheckIfPhoneNumberIsOptedOutReq
  * ```
  */
 inline fun checkIfPhoneNumberIsOptedOutRequest(
-    @BuilderInference builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit,
+    builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit,
 ): CheckIfPhoneNumberIsOptedOutRequest =
     CheckIfPhoneNumberIsOptedOutRequest.builder().apply(builder).build()
 
@@ -33,7 +33,7 @@ inline fun checkIfPhoneNumberIsOptedOutRequest(
  */
 inline fun checkIfPhoneNumberIsOptedOutRequestOf(
     phoneNumber: String,
-    @BuilderInference bulider: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
+    bulider: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
 ): CheckIfPhoneNumberIsOptedOutRequest {
     phoneNumber.requireNotBlank("phoneNumber")
 

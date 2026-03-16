@@ -30,7 +30,7 @@ inline fun executeTransactionRequestOf(
     transactionStatements: List<ParameterizedStatement>,
     clientRequestToken: String? = null,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    @BuilderInference crossinline builder: ExecuteTransactionRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteTransactionRequest.Builder.() -> Unit = {},
 ): ExecuteTransactionRequest {
     transactionStatements.requireNotEmpty("transactionStatements")
 

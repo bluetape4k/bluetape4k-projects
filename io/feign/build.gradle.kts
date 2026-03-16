@@ -59,7 +59,7 @@ dependencies {
     compileOnly(Libs.vertx_lang_kotlin_coroutines)
 
     // Jackson (2.14 와 2.13 이 혼용되어서 jackson-core, jackson-databind 를 모두 지정해주어야 한다)
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_core)
     api(Libs.jackson_databind)
     api(Libs.jackson_module_kotlin)

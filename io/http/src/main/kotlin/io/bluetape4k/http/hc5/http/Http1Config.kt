@@ -21,7 +21,7 @@ fun http1ConfigOf(): Http1Config = Http1Config.DEFAULT
  * @return [Http1Config] 인스턴스
  */
 inline fun http1Config(
-    @BuilderInference builder: Http1Config.Builder.() -> Unit,
+    builder: Http1Config.Builder.() -> Unit,
 ): Http1Config {
     return Http1Config.custom().apply(builder).build()
 }
@@ -43,6 +43,6 @@ inline fun http1Config(
  */
 inline fun http1Config(
     source: Http1Config,
-    @BuilderInference builder: Http1Config.Builder.() -> Unit = {},
+    builder: Http1Config.Builder.() -> Unit = {},
 ): Http1Config =
     Http1Config.copy(source).apply(builder).build()

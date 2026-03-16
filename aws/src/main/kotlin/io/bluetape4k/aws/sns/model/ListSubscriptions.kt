@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.sns.model.ListSubscriptionsRequest
  * ```
  */
 inline fun listSubscriptionsRequest(
-    @BuilderInference builder: ListSubscriptionsRequest.Builder.() -> Unit,
+    builder: ListSubscriptionsRequest.Builder.() -> Unit,
 ): ListSubscriptionsRequest =
     ListSubscriptionsRequest.builder().apply(builder).build()
 
@@ -34,7 +34,7 @@ inline fun listSubscriptionsRequest(
 inline fun listSubscriptionsRequestOf(
     nextToken: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
+    builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
 ): ListSubscriptionsRequest =
     listSubscriptionsRequest {
         nextToken?.let {

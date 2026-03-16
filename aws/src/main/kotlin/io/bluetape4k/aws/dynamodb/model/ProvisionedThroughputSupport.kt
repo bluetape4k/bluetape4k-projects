@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
  * @return [ProvisionedThroughput] 인스턴스
  */
 inline fun ProvisionedThroughput(
-    @BuilderInference builder: ProvisionedThroughput.Builder.() -> Unit,
+    builder: ProvisionedThroughput.Builder.() -> Unit,
 ): ProvisionedThroughput {
     return ProvisionedThroughput.builder().apply(builder).build()
 }

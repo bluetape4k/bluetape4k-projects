@@ -25,7 +25,7 @@ suspend inline fun S3Client.move(
     srcKey: String,
     destBucket: String,
     destKey: String,
-    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectResponse {
     val response = copy(srcBucket, srcKey, destBucket, destKey, builder)
 
@@ -59,8 +59,8 @@ suspend inline fun S3Client.move(
  * @return [CopyObjectResponse] 인스턴스
  */
 suspend inline fun S3Client.move(
-    @BuilderInference crossinline copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
-    @BuilderInference crossinline deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
+    crossinline copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
+    crossinline deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
 ): CopyObjectResponse {
     val response = copyObject(copyRequestBuilder)
 

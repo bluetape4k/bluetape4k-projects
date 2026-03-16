@@ -8,7 +8,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // geocode: Google Maps Services
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(project(":bluetape4k-resilience4j"))
     compileOnly(project(":bluetape4k-feign"))
     compileOnly(Libs.feign_core)

@@ -57,7 +57,7 @@ object KmsClientFactory: KLogging() {
          * ```
          */
         inline fun create(
-            @BuilderInference builder: KmsClientBuilder.() -> Unit,
+            builder: KmsClientBuilder.() -> Unit,
         ): KmsClient = kmsClient(builder)
 
         /**
@@ -80,7 +80,7 @@ object KmsClientFactory: KLogging() {
             region: Region,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: KmsClientBuilder.() -> Unit = {},
+            builder: KmsClientBuilder.() -> Unit = {},
         ): KmsClient =
             kmsClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -113,7 +113,7 @@ object KmsClientFactory: KLogging() {
          * ```
          */
         inline fun create(
-            @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit,
+            builder: KmsAsyncClientBuilder.() -> Unit,
         ): KmsAsyncClient = kmsAsyncClient(builder)
 
         /**
@@ -136,7 +136,7 @@ object KmsClientFactory: KLogging() {
             region: Region,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit = {},
+            builder: KmsAsyncClientBuilder.() -> Unit = {},
         ): KmsAsyncClient =
             kmsAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }

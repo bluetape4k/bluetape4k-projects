@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest
 inline fun getObjectRequest(
     bucket: String,
     key: String,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

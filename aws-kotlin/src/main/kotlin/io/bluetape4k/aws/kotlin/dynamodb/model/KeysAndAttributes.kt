@@ -23,7 +23,7 @@ import io.bluetape4k.support.requireNotEmpty
 @JvmName("keysAndAttributesOfAttributeValue")
 inline fun keysAndAttributesOf(
     keys: List<Map<String, AttributeValue>>,
-    @BuilderInference crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
+    crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
 ): KeysAndAttributes {
     keys.requireNotEmpty("keys")
 
@@ -52,7 +52,7 @@ inline fun keysAndAttributesOf(
 @JvmName("keysAndAttributesOfAny")
 inline fun keysAndAttributesOf(
     keys: List<Map<String, Any?>>,
-    @BuilderInference crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
+    crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
 ): KeysAndAttributes {
     keys.requireNotEmpty("keys")
 

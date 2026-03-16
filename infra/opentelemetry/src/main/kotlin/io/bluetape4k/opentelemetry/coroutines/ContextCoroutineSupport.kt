@@ -32,7 +32,7 @@ suspend inline fun <T> withOtelContext(
  * @return [block]의 실행 결과입니다.
  */
 suspend inline fun <T> Context.withOtelContext(
-    @BuilderInference crossinline block: suspend CoroutineScope.() -> T,
+    crossinline block: suspend CoroutineScope.() -> T,
 ): T = withContext(this@withOtelContext.asContextElement()) {
     block()
 }

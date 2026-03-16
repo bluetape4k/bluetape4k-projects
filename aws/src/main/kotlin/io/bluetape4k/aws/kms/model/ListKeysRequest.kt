@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.kms.model.ListKeysRequest
  * ```
  */
 inline fun listKeysRequest(
-    @BuilderInference builder: ListKeysRequest.Builder.() -> Unit,
+    builder: ListKeysRequest.Builder.() -> Unit,
 ): ListKeysRequest =
     ListKeysRequest.builder().apply(builder).build()
 
@@ -35,7 +35,7 @@ inline fun listKeysRequest(
 fun listKeysRequestOf(
     limit: Int? = null,
     marker: String? = null,
-    @BuilderInference builder: ListKeysRequest.Builder.() -> Unit = {},
+    builder: ListKeysRequest.Builder.() -> Unit = {},
 ): ListKeysRequest {
 
     return listKeysRequest {

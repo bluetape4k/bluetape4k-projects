@@ -30,7 +30,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 suspend inline fun S3Client.existsBucket(
     bucket: String,
-    @BuilderInference crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
 ): Boolean {
     val headBucketRequest = headBucketRequestOf(bucket, builder = builder)
     return runCatching {
@@ -60,7 +60,7 @@ suspend inline fun S3Client.existsBucket(
  */
 suspend inline fun S3Client.createBucket(
     bucketName: String,
-    @BuilderInference crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
 
@@ -81,7 +81,7 @@ suspend inline fun S3Client.createBucket(
  */
 suspend inline fun S3Client.ensureBucketExists(
     bucketName: String,
-    @BuilderInference crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
 ) {
     bucketName.requireNotBlank("bucketName")
 
@@ -99,7 +99,7 @@ suspend inline fun S3Client.ensureBucketExists(
  */
 suspend inline fun S3Client.forceDeleteBucket(
     bucket: String,
-    @BuilderInference crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketResponse {
     bucket.requireNotBlank("bucket")
 

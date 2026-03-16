@@ -91,7 +91,7 @@ fun jacksonConverterFactoryOf(
  * ```
  */
 inline fun retrofitBuilder(
-    @BuilderInference builder: Retrofit.Builder.() -> Unit,
+    builder: Retrofit.Builder.() -> Unit,
 ): Retrofit.Builder =
     Retrofit.Builder().apply(builder)
 
@@ -114,7 +114,7 @@ inline fun retrofitBuilder(
 inline fun retrofitBuilderOf(
     baseUrl: String = "",
     converterFactory: Converter.Factory = defaultScalarsConverterFactory,
-    @BuilderInference builder: Retrofit.Builder.() -> Unit = {},
+    builder: Retrofit.Builder.() -> Unit = {},
 ): Retrofit.Builder =
     retrofitBuilder {
         if (baseUrl.isNotBlank()) {
@@ -143,7 +143,7 @@ inline fun retrofitBuilderOf(
 inline fun retrofit(
     baseUrl: String = "",
     converterFactory: Converter.Factory = defaultScalarsConverterFactory,
-    @BuilderInference builder: Retrofit.Builder.() -> Unit,
+    builder: Retrofit.Builder.() -> Unit,
 ): Retrofit {
     return retrofitBuilderOf(baseUrl, converterFactory, builder).build()
 }

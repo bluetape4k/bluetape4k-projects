@@ -33,7 +33,7 @@ inline fun scanRequestOf(
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
     indexName: String? = null,
-    @BuilderInference crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 
@@ -74,7 +74,7 @@ inline fun scanRequestOf(
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
     indexName: String? = null,
-    @BuilderInference crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 

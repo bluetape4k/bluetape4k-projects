@@ -22,7 +22,7 @@ fun h2ConfigOf(): H2Config = H2Config.DEFAULT
  * @return [H2Config] 인스턴스
  */
 inline fun h2Config(
-    @BuilderInference builder: H2Config.Builder.() -> Unit,
+    builder: H2Config.Builder.() -> Unit,
 ): H2Config {
     return H2Config.custom().apply(builder).build()
 }
@@ -45,7 +45,7 @@ inline fun h2Config(
  */
 inline fun h2Config(
     source: H2Config,
-    @BuilderInference builder: H2Config.Builder.() -> Unit = {},
+    builder: H2Config.Builder.() -> Unit = {},
 ): H2Config =
     H2Config.copy(source).apply(builder).build()
 
@@ -74,7 +74,7 @@ inline fun h2Config(
     headerTableSize: Int = H2Config.DEFAULT.headerTableSize,
     initialWindowSize: Int = H2Config.DEFAULT.initialWindowSize,
     compressionEnabled: Boolean = H2Config.DEFAULT.isCompressionEnabled,
-    @BuilderInference builder: H2Config.Builder.() -> Unit = {},
+    builder: H2Config.Builder.() -> Unit = {},
 ): H2Config =
     h2Config {
         setPushEnabled(pushEnabled)

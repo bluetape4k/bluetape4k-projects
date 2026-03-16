@@ -13,7 +13,7 @@ import io.nats.service.ServiceEndpoint
  * - [builder] 내부 예외는 그대로 전파합니다.
  */
 inline fun natsService(
-    @BuilderInference builder: ServiceBuilder.() -> Unit,
+    builder: ServiceBuilder.() -> Unit,
 ): Service =
     ServiceBuilder().apply(builder).build()
 
@@ -29,7 +29,7 @@ inline fun natsServiceOf(
     name: String,
     version: String,
     vararg serviceEndpoints: ServiceEndpoint,
-    @BuilderInference builder: ServiceBuilder.() -> Unit = {},
+    builder: ServiceBuilder.() -> Unit = {},
 ): Service = natsService {
     connection(nc)
     name(name)

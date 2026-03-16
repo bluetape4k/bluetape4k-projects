@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest
  * ```
  */
 inline fun putLogEventsRequest(
-    @BuilderInference builder: PutLogEventsRequest.Builder.() -> Unit,
+    builder: PutLogEventsRequest.Builder.() -> Unit,
 ): PutLogEventsRequest =
     PutLogEventsRequest.builder().apply(builder).build()
 
@@ -39,7 +39,7 @@ inline fun putLogEventsRequestOf(
     logGroupName: String,
     logStreamName: String,
     logEvents: List<InputLogEvent>,
-    @BuilderInference builder: PutLogEventsRequest.Builder.() -> Unit = {},
+    builder: PutLogEventsRequest.Builder.() -> Unit = {},
 ): PutLogEventsRequest {
     logGroupName.requireNotBlank("logGroupName")
     logStreamName.requireNotBlank("logStreamName")
@@ -62,7 +62,7 @@ inline fun putLogEventsRequestOf(
  * ```
  */
 inline fun inputLogEvent(
-    @BuilderInference builder: InputLogEvent.Builder.() -> Unit,
+    builder: InputLogEvent.Builder.() -> Unit,
 ): InputLogEvent =
     InputLogEvent.builder().apply(builder).build()
 
@@ -79,7 +79,7 @@ inline fun inputLogEvent(
 inline fun inputLogEventOf(
     timestamp: Long,
     message: String,
-    @BuilderInference builder: InputLogEvent.Builder.() -> Unit = {},
+    builder: InputLogEvent.Builder.() -> Unit = {},
 ): InputLogEvent = inputLogEvent {
     timestamp(timestamp)
     message(message)

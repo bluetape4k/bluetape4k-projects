@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.dynamodb.model.Projection
  * @return [EnhancedGlobalSecondaryIndex] 인스턴스
  */
 inline fun EnhancedGlobalSecondaryIndex(
-    @BuilderInference builder: EnhancedGlobalSecondaryIndex.Builder.() -> Unit,
+    builder: EnhancedGlobalSecondaryIndex.Builder.() -> Unit,
 ): EnhancedGlobalSecondaryIndex {
     return EnhancedGlobalSecondaryIndex.builder().apply(builder).build()
 }
@@ -56,7 +56,7 @@ fun enhancedGlobalSecondaryIndexOf(
  * @return [EnhancedLocalSecondaryIndex] 인스턴스
  */
 inline fun EnhancedLocalSecondaryIndex(
-    @BuilderInference builder: EnhancedLocalSecondaryIndex.Builder.() -> Unit,
+    builder: EnhancedLocalSecondaryIndex.Builder.() -> Unit,
 ): EnhancedLocalSecondaryIndex {
     return EnhancedLocalSecondaryIndex.builder().apply(builder).build()
 }

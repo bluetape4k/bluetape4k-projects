@@ -25,7 +25,7 @@ fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
  */
 inline fun batchSpanProcessorOf(
     exporter: SpanExporter,
-    @BuilderInference builder: BatchSpanProcessorBuilder.() -> Unit,
+    builder: BatchSpanProcessorBuilder.() -> Unit,
 ): BatchSpanProcessor {
     return BatchSpanProcessor.builder(exporter).apply(builder).build()
 }
@@ -39,6 +39,6 @@ inline fun batchSpanProcessorOf(
 )
 inline fun batchSpanProcess(
     exporter: SpanExporter,
-    @BuilderInference builder: BatchSpanProcessorBuilder.() -> Unit,
+    builder: BatchSpanProcessorBuilder.() -> Unit,
 ): BatchSpanProcessor =
     batchSpanProcessorOf(exporter, builder)

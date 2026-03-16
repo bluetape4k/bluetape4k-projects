@@ -30,7 +30,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
  */
 inline fun <K: Any, V: Any> redisSerializationContext(
     defaultSerializer: RedisSerializer<*>? = null,
-    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit,
+    builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit,
 ): RedisSerializationContext<K, V> {
     val context = defaultSerializer?.let {
         RedisSerializationContext.newSerializationContext(it)
@@ -65,7 +65,7 @@ inline fun <K: Any, V: Any> redisSerializationContextOf(
     keySerializer: RedisSerializer<K>,
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
-    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit = {},
+    builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit = {},
 ): RedisSerializationContext<K, V> =
     redisSerializationContext(defaultSerializer) {
         key(keySerializer)
@@ -98,7 +98,7 @@ inline fun <K: Any, V: Any> redisSerializationContextOf(
 inline fun <V: Any> redisSerializationContextOf(
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
-    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<String, V>.() -> Unit = {},
+    builder: RedisSerializationContext.RedisSerializationContextBuilder<String, V>.() -> Unit = {},
 ): RedisSerializationContext<String, V> =
     redisSerializationContext(defaultSerializer) {
         key(StringRedisSerializer.UTF_8)

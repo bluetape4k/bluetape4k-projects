@@ -149,7 +149,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **json**: JSON 처리
 - **jackson**: Jackson 2.x 통합
 - **jackson3**: Jackson 3.x 통합
-- ~~**jackson-binary/jackson-text**~~: **`bluetape4k-jackson`에 통합됨** (CBOR, Ion, Smile, CSV, YAML, TOML 등 모든 포맷 포함)
+- ~~**jackson-binary/jackson-text**~~: **`bluetape4k-jackson2`에 통합됨** (CBOR, Ion, Smile, CSV, YAML, TOML 등 모든 포맷 포함)
 - ~~**jackson3-binary/jackson3-text**~~: **`bluetape4k-jackson3`에 통합됨**
 - **fastjson2**: FastJSON2
 - **csv**: CSV 처리

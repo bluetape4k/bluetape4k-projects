@@ -23,7 +23,7 @@ suspend inline fun S3Client.copy(
     srcKey: String,
     destBucket: String,
     destKey: String,
-    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectResponse {
     val request = copyObjectRequestOf(srcBucket, srcKey, destBucket, destKey, builder = builder)
     return copyObject(request)

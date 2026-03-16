@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.sns.model.CreateTopicRequest
  * ```
  */
 inline fun createTopicRequest(
-    @BuilderInference builder: CreateTopicRequest.Builder.() -> Unit,
+    builder: CreateTopicRequest.Builder.() -> Unit,
 ): CreateTopicRequest =
     CreateTopicRequest.builder().apply(builder).build()
 
@@ -33,7 +33,7 @@ inline fun createTopicRequest(
 inline fun createTopicRequestOf(
     name: String,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: CreateTopicRequest.Builder.() -> Unit = {},
+    builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicRequest {
     name.requireNotBlank("name")
 

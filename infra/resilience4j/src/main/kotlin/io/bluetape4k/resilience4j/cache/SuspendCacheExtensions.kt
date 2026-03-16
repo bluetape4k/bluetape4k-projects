@@ -23,7 +23,7 @@ package io.bluetape4k.resilience4j.cache
 suspend fun <K, V> withSuspendCache(
     cache: SuspendCache<K, V>,
     cacheKey: K,
-    @BuilderInference loader: suspend () -> V,
+    loader: suspend () -> V,
 ): V {
     return cache.computeIfAbsent(cacheKey, loader)
 }
@@ -46,7 +46,7 @@ suspend fun <K, V> withSuspendCache(
  * @return 캐시가 적용된 suspend 함수
  */
 inline fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
-    @BuilderInference crossinline loader: suspend () -> V,
+    crossinline loader: suspend () -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey, loader)
 }
@@ -69,7 +69,7 @@ inline fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
  * @return 캐시가 적용된 suspend 함수
  */
 inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
-    @BuilderInference crossinline loader: suspend (K) -> V,
+    crossinline loader: suspend (K) -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey) { loader(cacheKey) }
 }
@@ -94,7 +94,7 @@ inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
  */
 suspend inline fun <K, V> SuspendCache<K, V>.executeSuspendFunction(
     cacheKey: K,
-    @BuilderInference crossinline loader: suspend () -> V,
+    crossinline loader: suspend () -> V,
 ): V {
     return computeIfAbsent(cacheKey) { loader() }
 }

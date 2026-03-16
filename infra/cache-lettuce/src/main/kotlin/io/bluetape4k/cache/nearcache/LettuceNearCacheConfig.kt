@@ -42,7 +42,7 @@ data class LettuceNearCacheConfig<K: Any, V: Any>(
  * [LettuceNearCacheConfig] DSL 빌더.
  */
 inline fun <K: Any, V: Any> lettuceNearCacheConfig(
-    @BuilderInference block: LettuceNearCacheConfigBuilder<K, V>.() -> Unit,
+    block: LettuceNearCacheConfigBuilder<K, V>.() -> Unit,
 ): LettuceNearCacheConfig<K, V> =
     LettuceNearCacheConfigBuilder<K, V>().apply(block).build()
 

@@ -107,7 +107,7 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         receiver.receiveExactlyOnce(transactionManager).map { it.asFlow() }.asFlow()
 
     private suspend inline fun <T> doOnConsumer(
-        @BuilderInference crossinline function: (Consumer<K, V>) -> T,
+        crossinline function: (Consumer<K, V>) -> T,
     ): T = receiver.doOnConsumer { function(it) }.awaitSingle()
 
     suspend fun assignment(): Set<TopicPartition> = doOnConsumer { it.assignment() }

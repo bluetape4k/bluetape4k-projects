@@ -7,7 +7,7 @@ import io.nats.client.api.StreamConfiguration
  * [StreamConfiguration]을 DSL로 생성합니다.
  */
 inline fun streamConfiguration(
-    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
+    builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
     return StreamConfiguration.builder().apply(builder).build()
 }
@@ -17,7 +17,7 @@ inline fun streamConfiguration(
  */
 inline fun streamConfiguration(
     streamName: String,
-    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
+    builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
     streamName.requireNotBlank("streamName")
     return streamConfiguration {
@@ -31,7 +31,7 @@ inline fun streamConfiguration(
  */
 inline fun streamConfiguration(
     sc: StreamConfiguration,
-    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
+    builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
     return StreamConfiguration.builder(sc).apply(builder).build()
 }

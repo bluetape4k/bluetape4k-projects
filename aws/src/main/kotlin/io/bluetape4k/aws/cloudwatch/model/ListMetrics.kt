@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.cloudwatch.model.ListMetricsRequest
  * ```
  */
 inline fun listMetricsRequest(
-    @BuilderInference builder: ListMetricsRequest.Builder.() -> Unit,
+    builder: ListMetricsRequest.Builder.() -> Unit,
 ): ListMetricsRequest =
     ListMetricsRequest.builder().apply(builder).build()
 
@@ -31,7 +31,7 @@ inline fun listMetricsRequestOf(
     namespace: String? = null,
     metricName: String? = null,
     dimensions: List<DimensionFilter>? = null,
-    @BuilderInference builder: ListMetricsRequest.Builder.() -> Unit = {},
+    builder: ListMetricsRequest.Builder.() -> Unit = {},
 ): ListMetricsRequest = listMetricsRequest {
     namespace?.let { namespace(it) }
     metricName?.let { metricName(it) }

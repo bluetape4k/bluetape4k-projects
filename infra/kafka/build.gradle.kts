@@ -29,7 +29,7 @@ dependencies {
     implementation(Libs.springData("commons"))
 
     // Jackson
-    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-jackson2"))
     implementation(Libs.jackson_databind)
     implementation(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)

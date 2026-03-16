@@ -17,7 +17,7 @@ import java.nio.ByteBuffer
  * @param builder [AttributeValue.Builder]를 초기화하는 람다 함수입니다.
  */
 inline fun attributeValue(
-    @BuilderInference builder: AttributeValue.Builder.() -> Unit,
+    builder: AttributeValue.Builder.() -> Unit,
 ): AttributeValue {
     return AttributeValue.builder().apply(builder).build()
 }

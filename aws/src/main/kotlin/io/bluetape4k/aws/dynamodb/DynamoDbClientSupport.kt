@@ -25,7 +25,7 @@ import java.net.URI
  * @return [dynamoDbClient] 인스턴스
  */
 inline fun dynamoDbClient(
-    @BuilderInference builder: DynamoDbClientBuilder.() -> Unit,
+    builder: DynamoDbClientBuilder.() -> Unit,
 ): DynamoDbClient {
     return DynamoDbClient.builder().apply(builder).build()
         .apply {
@@ -54,7 +54,7 @@ inline fun dynamoDbClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
+    builder: DynamoDbClientBuilder.() -> Unit = {},
 ): DynamoDbClient = dynamoDbClient {
     endpointOverride?.let { endpointOverride(it) }
     region?.let { region(it) }

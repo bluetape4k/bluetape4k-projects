@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.kms.model.GrantOperation
  * ```
  */
 inline fun createGrantRequest(
-    @BuilderInference builder: CreateGrantRequest.Builder.() -> Unit,
+    builder: CreateGrantRequest.Builder.() -> Unit,
 ): CreateGrantRequest =
     CreateGrantRequest.builder().apply(builder).build()
 
@@ -44,7 +44,7 @@ fun createGrantRequestOf(
     keyId: String,
     granteePrincipal: String,
     vararg operations: GrantOperation,
-    @BuilderInference builder: CreateGrantRequest.Builder.() -> Unit = {},
+    builder: CreateGrantRequest.Builder.() -> Unit = {},
 ): CreateGrantRequest {
     keyId.requireNotBlank("keyId")
 

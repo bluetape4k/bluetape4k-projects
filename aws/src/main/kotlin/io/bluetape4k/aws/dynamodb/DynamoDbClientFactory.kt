@@ -39,7 +39,7 @@ object DynamoDbClientFactory {
          * ```
          */
         inline fun create(
-            @BuilderInference builder: DynamoDbClientBuilder.() -> Unit,
+            builder: DynamoDbClientBuilder.() -> Unit,
         ): DynamoDbClient =
             dynamoDbClient(builder)
 
@@ -59,7 +59,7 @@ object DynamoDbClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
+            builder: DynamoDbClientBuilder.() -> Unit = {},
         ): DynamoDbClient =
             dynamoDbClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -81,7 +81,7 @@ object DynamoDbClientFactory {
          * ```
          */
         inline fun create(
-            @BuilderInference builder: DynamoDbAsyncClientBuilder.() -> Unit,
+            builder: DynamoDbAsyncClientBuilder.() -> Unit,
         ): DynamoDbAsyncClient =
             dynamoDbAsyncClient(builder)
 
@@ -101,7 +101,7 @@ object DynamoDbClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: DynamoDbAsyncClientBuilder.() -> Unit = {},
+            builder: DynamoDbAsyncClientBuilder.() -> Unit = {},
         ): DynamoDbAsyncClient =
             dynamoDbAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -123,7 +123,7 @@ object DynamoDbClientFactory {
          * ```
          */
         inline fun create(
-            @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
+            builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
         ): DynamoDbEnhancedAsyncClient =
             dynamoDbEnhancedAsyncClient(builder)
 
@@ -139,7 +139,7 @@ object DynamoDbClientFactory {
          */
         inline fun create(
             asyncClient: DynamoDbAsyncClient,
-            @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = {},
+            builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = {},
         ): DynamoDbEnhancedAsyncClient {
             return dynamoDbEnhancedAsyncClientOf(asyncClient, builder)
         }
@@ -160,7 +160,7 @@ object DynamoDbClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = {},
+            builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = {},
         ): DynamoDbEnhancedAsyncClient {
             val asyncClient = Async.create(endpointOverride, region, credentialsProvider, httpClient)
             return dynamoDbEnhancedAsyncClientOf(asyncClient, builder)

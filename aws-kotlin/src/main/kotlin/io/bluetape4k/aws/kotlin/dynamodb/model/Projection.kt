@@ -23,7 +23,7 @@ import aws.sdk.kotlin.services.dynamodb.model.ProjectionType
 inline fun projectionOf(
     projectionType: ProjectionType = ProjectionType.All,
     nonKeyAttributes: List<String>? = null,
-    @BuilderInference crossinline builder: Projection.Builder.() -> Unit = {},
+    crossinline builder: Projection.Builder.() -> Unit = {},
 ): Projection = Projection {
     this.projectionType = projectionType
     this.nonKeyAttributes = nonKeyAttributes

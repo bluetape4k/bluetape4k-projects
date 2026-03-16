@@ -8,11 +8,67 @@
 
 ### Added
 
+#### README 최신화
+
+- 통합 모듈별 README.md 신규 작성: `spring/boot3`, `vertx`, `aws`, `aws-kotlin`, `utils/geo`
+- `io/jackson2`, `io/jackson3` — 바이너리(CBOR, Ion, Smile, Avro, Protobuf) 및 텍스트(YAML, CSV, TOML, Properties) 포맷 지원 섹션 추가
+
 ### Changed
+
+#### 모듈 리네이밍
+
+- **`bluetape4k-jackson` → `bluetape4k-jackson2`** (디렉토리: `io/jackson` → `io/jackson2`)
+  — `bluetape4k-jackson3`과의 버전 대칭을 위한 명시적 리네이밍
+- **`bluetape4k-exposed-jackson` → `bluetape4k-exposed-jackson2`** (디렉토리: `data/exposed-jackson` → `data/exposed-jackson2`)
+
+#### 모듈 통합 — io
+
+- **`bluetape4k-jackson2`**: 구 `bluetape4k-jackson-binary`(CBOR, Ion, Smile, Avro, Protobuf) + `bluetape4k-jackson-text`(YAML, CSV, TOML, Properties) 통합 ([`9ca9b975`](https://github.com/bluetape4k/bluetape4k-projects/commit/9ca9b975), [`35d32eb0`](https://github.com/bluetape4k/bluetape4k-projects/commit/35d32eb0))
+- **`bluetape4k-jackson3`**: 구 `bluetape4k-jackson3-binary` + `bluetape4k-jackson3-text` 통합 ([`b3415a0f`](https://github.com/bluetape4k/bluetape4k-projects/commit/b3415a0f))
+
+#### 모듈 통합 — utils
+
+- **`bluetape4k-geo`**: 구 `bluetape4k-geocode`(Bing/Google) + `bluetape4k-geohash` + `bluetape4k-geoip2`(MaxMind) 통합 ([`84553efe`](https://github.com/bluetape4k/bluetape4k-projects/commit/84553efe))
+
+#### 모듈 통합 — spring
+
+- **`bluetape4k-spring-boot3`** (`spring/boot3`): 구 `spring/core` + `spring/webflux` + `spring/retrofit2` + `spring/tests` + `spring/jpa` 통합 ([`9f0b5fa2`](https://github.com/bluetape4k/bluetape4k-projects/commit/9f0b5fa2))
+
+#### 모듈 통합 — vertx
+
+- **`bluetape4k-vertx`**: 구 `vertx/core` + `vertx/sqlclient` + `vertx/resilience4j` 통합 ([`a0ba94ad`](https://github.com/bluetape4k/bluetape4k-projects/commit/a0ba94ad))
+
+#### 모듈 통합 — aws
+
+- **`bluetape4k-aws`**: 구 `aws/core`, `aws/dynamodb`, `aws/s3`, `aws/ses`, `aws/sns`, `aws/sqs`, `aws/kms`, `aws/cloudwatch`, `aws/kinesis`, `aws/sts` 통합 (22개 → 2개) ([`f2c36d53`](https://github.com/bluetape4k/bluetape4k-projects/commit/f2c36d53))
+- **`bluetape4k-aws-kotlin`**: 구 `aws-kotlin/core`, `aws-kotlin/dynamodb`, `aws-kotlin/s3`, `aws-kotlin/ses`, `aws-kotlin/sesv2`, `aws-kotlin/sns`, `aws-kotlin/sqs`, `aws-kotlin/kms`, `aws-kotlin/cloudwatch`, `aws-kotlin/kinesis`, `aws-kotlin/sts` 통합 ([`f2c36d53`](https://github.com/bluetape4k/bluetape4k-projects/commit/f2c36d53))
 
 ### Removed
 
+- 구 서브모듈 소스 파일 정리 (`jackson-binary/text`, `jackson3-binary/text`, `geocode`, `geohash`, `geoip2`, `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`, aws 개별 서브모듈) ([`c7fb930c`](https://github.com/bluetape4k/bluetape4k-projects/commit/c7fb930c))
+
 ### Fixed
+
+#### utils/javatimes
+
+- `MinPeriodTime` / `MaxPeriodTime` import 누락 수정 ([`1962525d`](https://github.com/bluetape4k/bluetape4k-projects/commit/1962525d))
+
+#### infra/kafka
+
+- `StringKafkaCodec` deserializer 인코딩 키 버그 수정 ([`ec7d0d99`](https://github.com/bluetape4k/bluetape4k-projects/commit/ec7d0d99))
+
+#### data/cassandra
+
+- `CqlDuration` nano 파트 변환 버그 수정 ([`e13d043e`](https://github.com/bluetape4k/bluetape4k-projects/commit/e13d043e))
+
+#### utils/geo
+
+- `bluetape4k-geo` 소스 디렉토리 경로 수정 ([`873e64e3`](https://github.com/bluetape4k/bluetape4k-projects/commit/873e64e3))
+
+### Chores
+
+- 전 모듈 코드 리뷰: KDoc 보강, `!!` 남용 패턴 개선, `requireNotNull` 중복 제거 (javatimes, geoip2, geohash, logback-kafka, math, naivebayes, vertx, spring-core, aws-kotlin 등)
+- CLAUDE.md 모듈 구조 섹션 업데이트 (모듈 통합 반영) ([`4d111851`](https://github.com/bluetape4k/bluetape4k-projects/commit/4d111851))
 
 ---
 

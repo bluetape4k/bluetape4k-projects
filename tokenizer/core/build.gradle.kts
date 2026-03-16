@@ -7,7 +7,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Jackson
-    testImplementation(project(":bluetape4k-jackson"))
+    testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(Libs.jackson_module_kotlin)
     testImplementation(Libs.jackson_module_blackbird)
 

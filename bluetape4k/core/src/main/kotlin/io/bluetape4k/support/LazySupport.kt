@@ -16,7 +16,7 @@ package io.bluetape4k.support
  * @param initializer 값을 제공하는 함수
  * @return [Lazy] 인스턴스
  */
-fun <T> unsafeLazy(@BuilderInference initializer: () -> T): Lazy<T> =
+fun <T> unsafeLazy(initializer: () -> T): Lazy<T> =
     lazy(LazyThreadSafetyMode.NONE, initializer)
 
 /**
@@ -33,5 +33,5 @@ fun <T> unsafeLazy(@BuilderInference initializer: () -> T): Lazy<T> =
  * @param initializer 값을 제공하는 함수
  * @return [Lazy] 인스턴스
  */
-fun <T> publicLazy(@BuilderInference initializer: () -> T): Lazy<T> =
+fun <T> publicLazy(initializer: () -> T): Lazy<T> =
     lazy(LazyThreadSafetyMode.PUBLICATION, initializer)

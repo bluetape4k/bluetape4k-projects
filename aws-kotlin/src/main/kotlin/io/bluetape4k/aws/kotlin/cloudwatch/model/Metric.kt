@@ -15,7 +15,7 @@ import aws.sdk.kotlin.services.cloudwatch.model.StandardUnit
  * ```
  */
 inline fun metricDatum(
-    @BuilderInference crossinline builder: MetricDatum.Builder.() -> Unit,
+    crossinline builder: MetricDatum.Builder.() -> Unit,
 ): MetricDatum =
     MetricDatum { builder() }
 
@@ -40,7 +40,7 @@ inline fun metricDatumOf(
     metricName: String,
     value: Double,
     unit: StandardUnit = StandardUnit.None,
-    @BuilderInference crossinline builder: MetricDatum.Builder.() -> Unit = {},
+    crossinline builder: MetricDatum.Builder.() -> Unit = {},
 ): MetricDatum = metricDatum {
     this.metricName = metricName
     this.value = value

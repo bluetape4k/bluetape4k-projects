@@ -2,7 +2,7 @@
 
 ## 개요
 
-`bluetape4k-jackson`은 [Jackson 2.x](https://github.com/FasterXML/jackson) 라이브러리를 Kotlin DSL과 확장 함수로 래핑하여 제공하는 모듈입니다.
+`bluetape4k-jackson2`은 [Jackson 2.x](https://github.com/FasterXML/jackson) 라이브러리를 Kotlin DSL과 확장 함수로 래핑하여 제공하는 모듈입니다.
 
 기본 JsonMapper 구성, ObjectMapper 확장 함수, 비동기 JSON 파싱, UUID Base62 인코딩, 필드 암호화, 필드 마스킹 등 Jackson 생태계를 Kotlin 환경에서 편리하게 사용할 수 있는 기능을 제공합니다.
 
@@ -203,14 +203,62 @@ objectNode.addBoolean(true, "active")
 objectNode.addNull("description")
 ```
 
+## 바이너리 / 텍스트 포맷 지원
+
+> 구 `bluetape4k-jackson-binary`, `bluetape4k-jackson-text` 모듈이 이 모듈에 통합되었습니다.
+
+바이너리 및 텍스트 포맷은 `compileOnly`로 선언되어 있으므로 사용할 포맷의 의존성을 런타임에 추가해야 합니다.
+
+| 포맷 | 종류 | 런타임 의존성 |
+|------|------|--------------|
+| CBOR | 바이너리 | `jackson-dataformat-cbor` |
+| Ion | 바이너리 | `jackson-dataformat-ion` |
+| Smile | 바이너리 | `jackson-dataformat-smile` |
+| Avro | 바이너리 | `jackson-dataformat-avro` |
+| Protobuf | 바이너리 | `jackson-dataformat-protobuf` |
+| YAML | 텍스트 | `jackson-dataformat-yaml` |
+| CSV | 텍스트 | `jackson-dataformat-csv` |
+| TOML | 텍스트 | `jackson-dataformat-toml` |
+| Properties | 텍스트 | `jackson-dataformat-properties` |
+
+### CBOR 직렬화 예시
+
+```kotlin
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory
+import com.fasterxml.jackson.databind.ObjectMapper
+
+val cborMapper = ObjectMapper(CBORFactory())
+val bytes = cborMapper.writeValueAsBytes(user)      // 바이너리 직렬화
+val restored = cborMapper.readValue<User>(bytes)    // 역직렬화
+```
+
+### YAML 직렬화 예시
+
+```kotlin
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.databind.ObjectMapper
+
+val yamlMapper = ObjectMapper(YAMLFactory())
+val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
+val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
+```
+
 ## 의존성
 
 ```kotlin
 dependencies {
-    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-jackson2"))
 
-    // 선택적 의존성
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")  // YAML
+    // 바이너리 포맷 (필요한 것만 추가)
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile")
+
+    // 텍스트 포맷 (필요한 것만 추가)
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-toml")
+
+    // 암호화 (선택적)
     implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
     implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
 }
@@ -252,7 +300,7 @@ io.bluetape4k.jackson
 ## 테스트
 
 ```bash
-./gradlew :bluetape4k-jackson:test
+./gradlew :bluetape4k-jackson2:test
 ```
 
 ## 참고

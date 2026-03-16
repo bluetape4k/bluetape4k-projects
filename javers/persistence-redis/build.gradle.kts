@@ -6,7 +6,7 @@ dependencies {
 
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-protobuf"))
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-hibernate"))
     compileOnly(project(":bluetape4k-cache-core"))

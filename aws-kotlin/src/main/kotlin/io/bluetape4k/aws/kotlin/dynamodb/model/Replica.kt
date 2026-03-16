@@ -26,7 +26,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun replicaOf(
     regionName: String,
-    @BuilderInference crossinline builder: Replica.Builder.() -> Unit = {},
+    crossinline builder: Replica.Builder.() -> Unit = {},
 ): Replica {
     regionName.requireNotBlank("regionName")
 
@@ -56,7 +56,7 @@ inline fun replicaOf(
 inline fun replicaUpdateOf(
     create: CreateReplicaAction? = null,
     delete: DeleteReplicaAction? = null,
-    @BuilderInference crossinline builder: ReplicaUpdate.Builder.() -> Unit = {},
+    crossinline builder: ReplicaUpdate.Builder.() -> Unit = {},
 ): ReplicaUpdate = ReplicaUpdate {
     this.create = create
     this.delete = delete
@@ -93,7 +93,7 @@ inline fun replicaSettingsUpdateOf(
     replicaProvisionedReadCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
     replicaProvisionedReadCapacityUnits: Long? = null,
     replicaTableClass: TableClass? = null,
-    @BuilderInference crossinline builder: ReplicaSettingsUpdate.Builder.() -> Unit = {},
+    crossinline builder: ReplicaSettingsUpdate.Builder.() -> Unit = {},
 ): ReplicaSettingsUpdate {
     regionName.requireNotBlank("regionName")
 

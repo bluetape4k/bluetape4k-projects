@@ -25,7 +25,7 @@ import org.apache.hc.core5.util.TimeValue
  * ```
  */
 inline fun poolingHttpClientConnectionManager(
-    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
+    builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
 ): PoolingHttpClientConnectionManager =
     PoolingHttpClientConnectionManagerBuilder.create().apply(builder).build()
 
@@ -89,7 +89,7 @@ inline fun poolingHttpClientConnectionManagerOf(
     connectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT,
     socketConfig: SocketConfig = SocketConfig.DEFAULT,
     socketConfigResolver: Resolver<HttpRoute, SocketConfig>? = null,
-    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit = {},
+    builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit = {},
 ): PoolingHttpClientConnectionManager =
     poolingHttpClientConnectionManager {
 //        setSSLSocketFactory(sslSocketFactory)

@@ -17,14 +17,14 @@ inline fun <T> ImageOutputStream.using(block: (ImageOutputStream) -> T): T =
  * @param block 출력 스트림을 사용하는 블록
  */
 suspend inline fun <T> ImageOutputStream.useSuspending(
-    @BuilderInference crossinline block: suspend (ImageOutputStream) -> T,
+    crossinline block: suspend (ImageOutputStream) -> T,
 ): T = use {
     block(this@useSuspending)
 }
 
 @Deprecated("use useSuspending instead.", replaceWith = ReplaceWith("useSuspending(block)"))
 suspend inline fun <T> ImageOutputStream.usingSuspend(
-    @BuilderInference crossinline block: suspend (ImageOutputStream) -> T,
+    crossinline block: suspend (ImageOutputStream) -> T,
 ): T = use {
     block(this@usingSuspend)
 }

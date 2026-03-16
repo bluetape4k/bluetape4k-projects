@@ -10,7 +10,7 @@ import java.util.*
  * @return [PublishOptions] 인스턴스
  */
 inline fun publishOptions(
-    @BuilderInference builder: PublishOptions.Builder.() -> Unit,
+    builder: PublishOptions.Builder.() -> Unit,
 ): PublishOptions = PublishOptions.builder().apply(builder).build()
 
 /**
@@ -22,5 +22,5 @@ inline fun publishOptions(
  */
 inline fun publishOptionsOf(
     properties: Properties,
-    @BuilderInference builder: PublishOptions.Builder.() -> Unit = {},
+    builder: PublishOptions.Builder.() -> Unit = {},
 ): PublishOptions = PublishOptions.Builder(properties).apply(builder).build()

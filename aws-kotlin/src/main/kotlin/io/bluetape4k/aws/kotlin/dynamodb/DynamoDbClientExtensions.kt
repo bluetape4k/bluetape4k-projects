@@ -55,7 +55,7 @@ inline fun dynamoDbClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
+    crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
     region.requireNotBlank("region")
 
@@ -97,7 +97,7 @@ suspend fun DynamoDbClient.createTable(
     attributeDefinitions: List<AttributeDefinition>? = null,
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
-    @BuilderInference builder: CreateTableRequest.Builder.() -> Unit = {},
+    builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableResponse {
     tableName.requireNotBlank("tableName")
 
@@ -230,7 +230,7 @@ suspend fun DynamoDbClient.waitForTableReady(
 suspend inline fun DynamoDbClient.putItem(
     tableName: String,
     item: Map<String, Any?>,
-    @BuilderInference crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemResponse {
     tableName.requireNotBlank("tableName")
 
@@ -263,7 +263,7 @@ inline fun DynamoDbClient.scanPaginated(
     tableName: String,
     exclusiveStartKey: Map<String, Any?>,
     limit: Int = 1,
-    @BuilderInference crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): Flow<ScanResponse> {
     tableName.requireNotBlank("tableName")
 

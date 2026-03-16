@@ -53,7 +53,7 @@ interface JwtProvider {
     fun composer(keyChain: KeyChain? = null): JwtComposer
 
     /** DSL로 JWT를 구성해 문자열을 반환합니다. */
-    fun compose(keyChain: KeyChain? = null, @BuilderInference builder: JwtComposerDsl.() -> Unit): String
+    fun compose(keyChain: KeyChain? = null, builder: JwtComposerDsl.() -> Unit): String
 
     /**
      * JWT 문자열을 파싱해 [JwtReader]를 반환합니다.

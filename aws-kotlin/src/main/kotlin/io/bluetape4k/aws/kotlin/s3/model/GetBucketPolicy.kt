@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun getBucketPolicyRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    @BuilderInference crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
+    crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
 ): GetBucketPolicyRequest {
     bucket.requireNotBlank("bucket")
 

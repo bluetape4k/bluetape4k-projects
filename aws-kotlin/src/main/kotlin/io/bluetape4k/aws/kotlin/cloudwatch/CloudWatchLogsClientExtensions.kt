@@ -47,7 +47,7 @@ inline fun cloudWatchLogsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: CloudWatchLogsClient.Config.Builder.() -> Unit = {},
+    crossinline builder: CloudWatchLogsClient.Config.Builder.() -> Unit = {},
 ): CloudWatchLogsClient =
     CloudWatchLogsClient {
         endpointUrl?.let { this.endpointUrl = it }
@@ -73,7 +73,7 @@ inline fun cloudWatchLogsClientOf(
  */
 suspend inline fun CloudWatchLogsClient.createLogGroup(
     logGroupName: String,
-    @BuilderInference crossinline builder: CreateLogGroupRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateLogGroupRequest.Builder.() -> Unit = {},
 ): CreateLogGroupResponse {
     logGroupName.requireNotBlank("logGroupName")
     return createLogGroup {
@@ -100,7 +100,7 @@ suspend inline fun CloudWatchLogsClient.createLogGroup(
 suspend inline fun CloudWatchLogsClient.createLogStream(
     logGroupName: String,
     logStreamName: String,
-    @BuilderInference crossinline builder: CreateLogStreamRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateLogStreamRequest.Builder.() -> Unit = {},
 ): CreateLogStreamResponse {
     logGroupName.requireNotBlank("logGroupName")
     logStreamName.requireNotBlank("logStreamName")
@@ -132,7 +132,7 @@ suspend inline fun CloudWatchLogsClient.putLogEvents(
     logGroupName: String,
     logStreamName: String,
     logEvents: List<InputLogEvent>,
-    @BuilderInference crossinline builder: PutLogEventsRequest.Builder.() -> Unit = {},
+    crossinline builder: PutLogEventsRequest.Builder.() -> Unit = {},
 ): PutLogEventsResponse {
     logGroupName.requireNotBlank("logGroupName")
     logStreamName.requireNotBlank("logStreamName")
@@ -158,7 +158,7 @@ suspend inline fun CloudWatchLogsClient.putLogEvents(
  */
 suspend inline fun CloudWatchLogsClient.describeLogGroups(
     logGroupNamePrefix: String? = null,
-    @BuilderInference crossinline builder: DescribeLogGroupsRequest.Builder.() -> Unit = {},
+    crossinline builder: DescribeLogGroupsRequest.Builder.() -> Unit = {},
 ): DescribeLogGroupsResponse =
     describeLogGroups {
         logGroupNamePrefix?.let { this.logGroupNamePrefix = it }
@@ -181,7 +181,7 @@ suspend inline fun CloudWatchLogsClient.describeLogGroups(
 suspend inline fun CloudWatchLogsClient.describeLogStreams(
     logGroupName: String,
     logStreamNamePrefix: String? = null,
-    @BuilderInference crossinline builder: DescribeLogStreamsRequest.Builder.() -> Unit = {},
+    crossinline builder: DescribeLogStreamsRequest.Builder.() -> Unit = {},
 ): DescribeLogStreamsResponse {
     logGroupName.requireNotBlank("logGroupName")
     return describeLogStreams {

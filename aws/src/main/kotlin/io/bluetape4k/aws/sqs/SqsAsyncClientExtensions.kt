@@ -35,7 +35,7 @@ private const val MAX_RECEIVE_MESSAGES = 10
  * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
  */
 inline fun sqsAsyncClient(
-    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit,
+    builder: SqsAsyncClientBuilder.() -> Unit,
 ): SqsAsyncClient =
     SqsAsyncClient
         .builder()
@@ -58,7 +58,7 @@ inline fun sqsAsyncClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.httpClient,
-    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
+    builder: SqsAsyncClientBuilder.() -> Unit = {},
 ): SqsAsyncClient =
     sqsAsyncClient {
         endpoint?.let { endpointOverride(it) }
@@ -148,7 +148,7 @@ fun SqsAsyncClient.sendBatchAsync(
 fun SqsAsyncClient.receiveMessagesAsync(
     queueUrl: String,
     maxResults: Int? = null,
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): CompletableFuture<ReceiveMessageResponse> {
     queueUrl.requireNotBlank("queueUrl")
     maxResults?.let { validateReceiveMessageCount(it) }

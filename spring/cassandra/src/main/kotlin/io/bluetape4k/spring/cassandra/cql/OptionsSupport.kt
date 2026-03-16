@@ -24,7 +24,7 @@ import org.springframework.data.cassandra.core.cql.WriteOptions
  * ```
  */
 inline fun queryOptions(
-    @BuilderInference builder: QueryOptions.QueryOptionsBuilder.() -> Unit,
+    builder: QueryOptions.QueryOptionsBuilder.() -> Unit,
 ): QueryOptions =
     QueryOptions.builder().apply(builder).build()
 
@@ -41,7 +41,7 @@ inline fun queryOptions(
  * ```
  */
 inline fun insertOptions(
-    @BuilderInference builder: InsertOptions.InsertOptionsBuilder.() -> Unit,
+    builder: InsertOptions.InsertOptionsBuilder.() -> Unit,
 ): InsertOptions =
     InsertOptions.builder().apply(builder).build()
 
@@ -58,7 +58,7 @@ inline fun insertOptions(
  * ```
  */
 inline fun updateOptions(
-    @BuilderInference builder: UpdateOptions.UpdateOptionsBuilder.() -> Unit,
+    builder: UpdateOptions.UpdateOptionsBuilder.() -> Unit,
 ): UpdateOptions =
     UpdateOptions.builder().apply(builder).build()
 
@@ -75,7 +75,7 @@ inline fun updateOptions(
  * ```
  */
 inline fun writeOptions(
-    @BuilderInference builder: WriteOptions.WriteOptionsBuilder.() -> Unit,
+    builder: WriteOptions.WriteOptionsBuilder.() -> Unit,
 ): WriteOptions =
     WriteOptions.builder().apply(builder).build()
 
@@ -92,7 +92,7 @@ inline fun writeOptions(
  * ```
  */
 inline fun deleteOptions(
-    @BuilderInference builder: DeleteOptions.DeleteOptionsBuilder.() -> Unit,
+    builder: DeleteOptions.DeleteOptionsBuilder.() -> Unit,
 ): DeleteOptions =
     DeleteOptions.builder().apply(builder).build()
 

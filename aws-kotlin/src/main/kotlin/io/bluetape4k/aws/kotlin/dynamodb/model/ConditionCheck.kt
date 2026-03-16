@@ -30,7 +30,7 @@ inline fun conditionCheckOf(
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, AttributeValue>? = null,
     key: Map<String, AttributeValue>? = null,
-    @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
+    crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck = ConditionCheck {
     this.conditionExpression = conditionExpression
     this.expressionAttributeNames = expressionAttributeNames
@@ -67,7 +67,7 @@ inline fun conditionCheckOf(
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, Any?>? = null,
     key: Map<String, Any?>? = null,
-    @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
+    crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck = ConditionCheck {
     this.conditionExpression = conditionExpression
     this.expressionAttributeNames = expressionAttributeNames

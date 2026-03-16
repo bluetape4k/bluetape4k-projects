@@ -25,7 +25,7 @@ suspend fun SqlClient.suspendQuery(sql: String): RowSet<Row> {
  */
 suspend inline fun <T> SqlClient.suspendQuery(
     sql: String,
-    @BuilderInference mapper: (Row) -> T,
+    mapper: (Row) -> T,
 ): List<T> {
     return suspendQuery(sql).map(mapper)
 }
@@ -52,7 +52,7 @@ suspend fun SqlClient.suspendQuery(sql: String, params: Tuple): RowSet<Row> {
 suspend inline fun <T> SqlClient.suspendQuery(
     sql: String,
     params: Tuple,
-    @BuilderInference mapper: (Row) -> T,
+    mapper: (Row) -> T,
 ): List<T> {
     return suspendQuery(sql, params).map(mapper)
 }

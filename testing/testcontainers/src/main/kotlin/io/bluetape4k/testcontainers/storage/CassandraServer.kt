@@ -194,7 +194,7 @@ class CassandraServer private constructor(
 
         inline fun getOrCreateSession(
             keyspace: String = DEFAULT_KEYSPACE,
-            @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
+            builder: CqlSessionBuilder.() -> Unit = {},
         ): CqlSession {
             keyspace.requireNotBlank("keyspace")
 

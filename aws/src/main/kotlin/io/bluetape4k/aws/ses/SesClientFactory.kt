@@ -23,7 +23,7 @@ object SesClientFactory {
     object Sync {
 
         inline fun create(
-            @BuilderInference builder: SesClientBuilder.() -> Unit,
+            builder: SesClientBuilder.() -> Unit,
         ): SesClient = sesClient(builder)
 
         inline fun create(
@@ -31,7 +31,7 @@ object SesClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SesClientBuilder.() -> Unit = {},
+            builder: SesClientBuilder.() -> Unit = {},
         ): SesClient =
             create {
                 endpointOverride?.let { endpointOverride(it) }
@@ -49,7 +49,7 @@ object SesClientFactory {
     object Async {
 
         inline fun create(
-            @BuilderInference builder: SesAsyncClientBuilder.() -> Unit,
+            builder: SesAsyncClientBuilder.() -> Unit,
         ): SesAsyncClient = sesAsyncClient(builder)
 
         inline fun create(
@@ -57,7 +57,7 @@ object SesClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
+            builder: SesAsyncClientBuilder.() -> Unit = {},
         ): SesAsyncClient =
             create {
                 endpointOverride?.let { endpointOverride(it) }

@@ -8,7 +8,7 @@ import io.nats.client.api.ObjectStoreConfiguration
  */
 inline fun objectStoreConfiguration(
     storeName: String,
-    @BuilderInference builder: ObjectStoreConfiguration.Builder.() -> Unit,
+    builder: ObjectStoreConfiguration.Builder.() -> Unit,
 ): ObjectStoreConfiguration {
     storeName.requireNotBlank("storeName")
 
@@ -20,7 +20,7 @@ inline fun objectStoreConfiguration(
  */
 inline fun objectStoreConfiguration(
     osc: ObjectStoreConfiguration? = null,
-    @BuilderInference builder: ObjectStoreConfiguration.Builder.() -> Unit,
+    builder: ObjectStoreConfiguration.Builder.() -> Unit,
 ): ObjectStoreConfiguration {
     return ObjectStoreConfiguration.builder(osc).apply(builder).build()
 }

@@ -12,7 +12,7 @@ import org.asynchttpclient.filter.RequestFilter
  */
 @JvmName("requestFilterWithBuilder")
 inline fun requestFilter(
-    @BuilderInference crossinline builder: FilterContextBuilder<*>.() -> Unit,
+    crossinline builder: FilterContextBuilder<*>.() -> Unit,
 ): RequestFilter {
     return object: RequestFilter {
         /** 변경된 [FilterContext]를 생성해 반환합니다. */
@@ -30,7 +30,7 @@ inline fun requestFilter(
  */
 @JvmName("requestFilter")
 inline fun requestFilter(
-    @BuilderInference crossinline handler: (FilterContext<*>) -> Unit,
+    crossinline handler: (FilterContext<*>) -> Unit,
 ): RequestFilter {
     return object: RequestFilter {
         /** [handler]를 적용하고 원본 [FilterContext]를 반환합니다. */
@@ -61,8 +61,8 @@ fun attachHeaderRequestFilterOf(headers: Map<String, Any?>): RequestFilter {
  * @param valueSupplier 헤더 값 공급 함수
  */
 inline fun attachHeaderRequestFilterOf(
-    @BuilderInference crossinline namesSupplier: () -> Iterable<String>,
-    @BuilderInference crossinline valueSupplier: (String) -> Any?,
+    crossinline namesSupplier: () -> Iterable<String>,
+    crossinline valueSupplier: (String) -> Any?,
 ): RequestFilter {
     return requestFilter { ctx ->
         namesSupplier().forEach { name ->

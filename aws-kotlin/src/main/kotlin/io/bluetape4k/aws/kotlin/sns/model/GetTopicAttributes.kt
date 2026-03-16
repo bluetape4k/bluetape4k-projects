@@ -17,7 +17,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun getTopicAttributesRequestOf(
     topicArn: String,
-    @BuilderInference crossinline builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
+    crossinline builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
 ): GetTopicAttributesRequest {
     topicArn.requireNotBlank("topicArn")
 

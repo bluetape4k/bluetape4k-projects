@@ -40,7 +40,7 @@ fun <K, V> emptyUnifiedMap(): MutableMap<K, V> = Maps.mutable.empty()
  */
 inline fun <K, V> unifiedMap(
     size: Int,
-    @BuilderInference initializer: (Int) -> Pair<K, V>,
+    initializer: (Int) -> Pair<K, V>,
 ): UnifiedMap<K, V> =
     UnifiedMap.newMap<K, V>(size)
         .apply {

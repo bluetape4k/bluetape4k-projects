@@ -65,6 +65,6 @@ object Geoip : KLogging() {
 
     private inline fun databaseReader(
         inputStream: InputStream,
-        @BuilderInference builder: DatabaseReader.Builder.() -> Unit,
+        builder: DatabaseReader.Builder.() -> Unit,
     ): DatabaseReader = DatabaseReader.Builder(inputStream).apply(builder).build()
 }

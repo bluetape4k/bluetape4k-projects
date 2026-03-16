@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.sns.model.CreatePlatformEndpointRequest
  * ```
  */
 inline fun createPlatformEndpointRequest(
-    @BuilderInference builder: CreatePlatformEndpointRequest.Builder.() -> Unit,
+    builder: CreatePlatformEndpointRequest.Builder.() -> Unit,
 ): CreatePlatformEndpointRequest =
     CreatePlatformEndpointRequest.builder().apply(builder).build()
 
@@ -44,7 +44,7 @@ inline fun createPlatformEndpointRequestOf(
     customUserData: String? = null,
     attributes: Map<String, String>? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointRequest {
     platformApplicationArn.requireNotBlank("platformApplicationArn")
     token.requireNotBlank("token")

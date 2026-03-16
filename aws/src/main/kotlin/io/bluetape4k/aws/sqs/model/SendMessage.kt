@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest
  * @param builder [SendMessageRequest.Builder]를 이용하여 [SendMessageRequest]를 초기화하는 람다입니다.
  */
 inline fun sendMessageRequest(
-    @BuilderInference builder: SendMessageRequest.Builder.() -> Unit,
+    builder: SendMessageRequest.Builder.() -> Unit,
 ): SendMessageRequest {
     return SendMessageRequest.builder().apply(builder).build()
 }
@@ -19,7 +19,7 @@ inline fun sendMessageRequestOf(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    @BuilderInference builder: SendMessageRequest.Builder.() -> Unit = {},
+    builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     messageBody.requireNotBlank("messageBody")
@@ -38,7 +38,7 @@ inline fun sendMessageRequestOf(
  * @param builder [SendMessageBatchRequestEntry.Builder]를 이용하여 [SendMessageBatchRequestEntry]를 초기화하는 람다입니다.
  */
 inline fun sendMessageBatchRequestEntry(
-    @BuilderInference builder: SendMessageBatchRequestEntry.Builder.() -> Unit,
+    builder: SendMessageBatchRequestEntry.Builder.() -> Unit,
 ): SendMessageBatchRequestEntry {
     return SendMessageBatchRequestEntry.builder().apply(builder).build()
 }
@@ -59,7 +59,7 @@ inline fun sendMessageBatchRequestEntryOf(
     messageGroupId: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    @BuilderInference builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
+    builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): SendMessageBatchRequestEntry {
     id.requireNotBlank("id")
     messageGroupId.requireNotBlank("messageGroupId")

@@ -36,7 +36,7 @@ inline fun snsClient(builder: SnsClientBuilder.() -> Unit): SnsClient =
 inline fun snsClientOf(
     region: Region,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
+    builder: SnsClientBuilder.() -> Unit = {},
 ): SnsClient = snsClient {
     region(region)
     httpClient(httpClient)
@@ -59,7 +59,7 @@ inline fun snsClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
+    builder: SnsClientBuilder.() -> Unit = {},
 ): SnsClient = snsClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

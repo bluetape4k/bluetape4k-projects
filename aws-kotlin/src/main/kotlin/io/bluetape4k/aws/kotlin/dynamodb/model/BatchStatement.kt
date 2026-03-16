@@ -32,7 +32,7 @@ inline fun batchStatementRequestOf(
     parameters: List<AttributeValue>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    @BuilderInference crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -73,7 +73,7 @@ inline fun batchStatementRequestOf(
     parameters: List<Any?>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    @BuilderInference crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 

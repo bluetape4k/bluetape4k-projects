@@ -94,7 +94,7 @@ private fun Throwable.unwrapKnownWrapper(): Throwable {
  */
 fun S3Client.createBucket(
     bucketName: String,
-    @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
+    builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
 
@@ -153,7 +153,7 @@ inline fun <T> S3Client.getObjectAs(
 inline fun S3Client.getAsByteArray(
     bucket: String,
     key: String,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray {
     val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toBytes()).asByteArray()
@@ -178,7 +178,7 @@ inline fun S3Client.getAsString(
     bucket: String,
     key: String,
     charset: Charset = Charsets.UTF_8,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): String =
     getAsByteArray(bucket, key, builder).toString(charset)
 
@@ -202,7 +202,7 @@ inline fun S3Client.getAsFile(
     bucket: String,
     key: String,
     file: File,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toFile(file))
@@ -228,7 +228,7 @@ inline fun S3Client.getAsFile(
     bucket: String,
     key: String,
     path: Path,
-    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toFile(path))
@@ -257,7 +257,7 @@ inline fun S3Client.put(
     bucket: String,
     key: String,
     body: RequestBody,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     val request = putObjectRequest(bucket, key, builder)
     return putObject(request, body)
@@ -282,7 +282,7 @@ inline fun S3Client.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucket, key, bytes.toRequestBody(), builder)
 
@@ -306,7 +306,7 @@ inline fun S3Client.putAsString(
     key: String,
     contents: String,
     charset: Charset = Charsets.UTF_8,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucket, key, contents.toRequestBody(charset), builder)
 
@@ -331,7 +331,7 @@ inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(file.exists()) { "File does not exist. file=$file" }
 
@@ -359,7 +359,7 @@ inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(path.exists()) { "file does not exist. path=$path" }
 

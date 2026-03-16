@@ -94,7 +94,7 @@ interface SuspendCache<K, V> {
      */
     suspend fun computeIfAbsent(
         cacheKey: K,
-        @BuilderInference loader: suspend () -> V,
+        loader: suspend () -> V,
     ): V
 
     /**

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Ehcache를 이용하는 [EhCacheAsyncMemoizer]를 생성합니다.
  */
 fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
-    @BuilderInference evaluator: (T) -> CompletableFuture<R>,
+    evaluator: (T) -> CompletableFuture<R>,
 ): EhCacheAsyncMemoizer<T, R> = EhCacheAsyncMemoizer(this, evaluator)
 
 /**
@@ -29,7 +29,7 @@ fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
  */
 class EhCacheAsyncMemoizer<T : Any, R : Any>(
     private val cache: Cache<T, R>,
-    @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
+    private val evaluator: (T) -> CompletableFuture<R>,
 ) : AsyncMemoizer<T, R> {
     companion object : KLoggingChannel()
 

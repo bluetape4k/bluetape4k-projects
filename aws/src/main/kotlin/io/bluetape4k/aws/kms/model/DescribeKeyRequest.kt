@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.kms.model.DescribeKeyRequest
  * ```
  */
 inline fun describeKey(
-    @BuilderInference builder: DescribeKeyRequest.Builder.() -> Unit,
+    builder: DescribeKeyRequest.Builder.() -> Unit,
 ): DescribeKeyRequest =
     DescribeKeyRequest.builder().apply(builder).build()
 
@@ -40,7 +40,7 @@ inline fun describeKey(
 fun describeKeyOf(
     keyId: String,
     vararg grantTokens: String = emptyArray(),
-    @BuilderInference builder: DescribeKeyRequest.Builder.() -> Unit = {},
+    builder: DescribeKeyRequest.Builder.() -> Unit = {},
 ): DescribeKeyRequest {
     keyId.requireNotBlank("keyId")
 

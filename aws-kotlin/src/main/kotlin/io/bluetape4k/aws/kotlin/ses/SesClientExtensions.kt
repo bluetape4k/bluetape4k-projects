@@ -44,7 +44,7 @@ inline fun sesClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: SesClient.Config.Builder.() -> Unit = {},
+    crossinline builder: SesClient.Config.Builder.() -> Unit = {},
 ): SesClient = SesClient {
     endpointUrl?.let { this.endpointUrl = it }
     region?.let { this.region = it }

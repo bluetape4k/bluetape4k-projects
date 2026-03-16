@@ -18,7 +18,7 @@ inline fun sendMessageRequestOf(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    @BuilderInference crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     messageBody.requireNotBlank("messageBody")
@@ -48,7 +48,7 @@ inline fun sendMessageBatchRequestEntryOf(
     messageBody: String,
     messageGroupId: String? = null,
     delaySeconds: Int? = null,
-    @BuilderInference crossinline builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): SendMessageBatchRequestEntry {
     id.requireNotBlank("id")
     messageBody.requireNotBlank("messageBody")
@@ -74,7 +74,7 @@ inline fun sendMessageBatchRequestEntryOf(
 inline fun sendMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
-    @BuilderInference crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")
@@ -98,7 +98,7 @@ inline fun sendMessageBatchRequestOf(
 inline fun sendMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
-    @BuilderInference crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
     entries.requireNotEmpty("entries")

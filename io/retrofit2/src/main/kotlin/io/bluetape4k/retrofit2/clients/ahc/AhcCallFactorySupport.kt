@@ -24,7 +24,7 @@ import kotlin.coroutines.resumeWithException
  * ```
  */
 inline fun asyncHttpClientCallFactory(
-    @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
+    builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
 ): okhttp3.Call.Factory =
     AsyncHttpClientCallFactory.builder().apply(builder).build()
 
@@ -44,7 +44,7 @@ inline fun asyncHttpClientCallFactory(
  */
 inline fun asyncHttpClientCallFactoryOf(
     client: AsyncHttpClient = defaultAsyncHttpClient,
-    @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit = {},
+    builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit = {},
 ): okhttp3.Call.Factory =
     asyncHttpClientCallFactory {
         httpClient(client)

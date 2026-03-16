@@ -14,7 +14,7 @@ import kotlinx.coroutines.sync.withLock
  * ```
  */
 fun <T: Any, R: Any> org.ehcache.Cache<T, R>.suspendMemoizer(
-    @BuilderInference evaluator: suspend (T) -> R,
+    evaluator: suspend (T) -> R,
 ): EhCacheSuspendMemoizer<T, R> =
     EhCacheSuspendMemoizer(this, evaluator)
 
@@ -41,7 +41,7 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(
  */
 class EhCacheSuspendMemoizer<T: Any, R: Any>(
     private val cache: org.ehcache.Cache<T, R>,
-    @BuilderInference private val evaluator: suspend (T) -> R,
+    private val evaluator: suspend (T) -> R,
 ): SuspendMemoizer<T, R> {
 
     companion object: KLogging()

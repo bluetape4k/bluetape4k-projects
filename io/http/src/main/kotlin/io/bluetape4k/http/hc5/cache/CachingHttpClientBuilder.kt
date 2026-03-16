@@ -17,7 +17,7 @@ import java.io.File
  * ```
  */
 inline fun cachingHttpClient(
-    @BuilderInference builder: CachingHttpClientBuilder.() -> Unit,
+    builder: CachingHttpClientBuilder.() -> Unit,
 ): CloseableHttpClient =
     CachingHttpClientBuilder.create()
         .apply(builder)
@@ -34,7 +34,7 @@ inline fun cachingHttpClient(
  */
 inline fun cachingHttpClient(
     cacheStorage: HttpCacheStorage,
-    @BuilderInference builder: CachingHttpClientBuilder.() -> Unit = {},
+    builder: CachingHttpClientBuilder.() -> Unit = {},
 ): CloseableHttpClient =
     CachingHttpClientBuilder.create()
         .setHttpCacheStorage(cacheStorage)

@@ -21,7 +21,7 @@ import java.nio.file.Path
  */
 inline fun <T> downloadRequest(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<T> =
     DownloadRequest.builder()
         .apply(builder)
@@ -41,7 +41,7 @@ inline fun <T> downloadRequestOf(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<T> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -68,7 +68,7 @@ inline fun downloadRequestOf(
     bucket: String,
     key: String,
     downloadPath: Path,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<GetObjectResponse> =
     downloadRequestOf(
         bucket,
@@ -90,7 +90,7 @@ inline fun downloadRequestOf(
 inline fun downloadByteArrayRequestOf(
     bucket: String,
     key: String,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<ResponseBytes<GetObjectResponse>> =
     downloadRequestOf(
         bucket,
@@ -110,7 +110,7 @@ inline fun downloadByteArrayRequestOf(
  * ```
  */
 inline fun downloadFileRequest(
-    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
+    builder: DownloadFileRequest.Builder.() -> Unit = {},
 ): DownloadFileRequest =
     DownloadFileRequest.builder().apply(builder).build()
 
@@ -128,7 +128,7 @@ inline fun downloadFileRequestOf(
     bucket: String,
     key: String,
     destination: Path,
-    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
+    builder: DownloadFileRequest.Builder.() -> Unit = {},
 ): DownloadFileRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -150,7 +150,7 @@ inline fun downloadFileRequestOf(
  * ```
  */
 inline fun downloadDirectoryRequest(
-    @BuilderInference builder: DownloadDirectoryRequest.Builder.() -> Unit = {},
+    builder: DownloadDirectoryRequest.Builder.() -> Unit = {},
 ): DownloadDirectoryRequest =
     DownloadDirectoryRequest.builder().apply(builder).build()
 
@@ -167,7 +167,7 @@ inline fun downloadDirectoryRequest(
 inline fun downloadDirectoryRequestOf(
     bucket: String,
     destination: Path,
-    @BuilderInference builder: DownloadDirectoryRequest.Builder.() -> Unit = {},
+    builder: DownloadDirectoryRequest.Builder.() -> Unit = {},
 ): DownloadDirectoryRequest {
     bucket.requireNotBlank("bucket")
 

@@ -54,7 +54,7 @@ inline fun kinesisClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    @BuilderInference crossinline builder: KinesisClient.Config.Builder.() -> Unit = {},
+    crossinline builder: KinesisClient.Config.Builder.() -> Unit = {},
 ): KinesisClient =
     KinesisClient {
         endpointUrl?.let { this.endpointUrl = it }
@@ -82,7 +82,7 @@ inline fun kinesisClientOf(
 suspend inline fun KinesisClient.createStream(
     streamName: String,
     shardCount: Int = 1,
-    @BuilderInference crossinline builder: CreateStreamRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateStreamRequest.Builder.() -> Unit = {},
 ): CreateStreamResponse {
     streamName.requireNotBlank("streamName")
     return createStream {
@@ -113,7 +113,7 @@ suspend inline fun KinesisClient.putRecord(
     streamName: String,
     partitionKey: String,
     data: ByteArray,
-    @BuilderInference crossinline builder: PutRecordRequest.Builder.() -> Unit = {},
+    crossinline builder: PutRecordRequest.Builder.() -> Unit = {},
 ): PutRecordResponse {
     streamName.requireNotBlank("streamName")
     partitionKey.requireNotBlank("partitionKey")
@@ -143,7 +143,7 @@ suspend inline fun KinesisClient.putRecord(
 suspend inline fun KinesisClient.putRecords(
     streamName: String,
     entries: List<PutRecordsRequestEntry>,
-    @BuilderInference crossinline builder: PutRecordsRequest.Builder.() -> Unit = {},
+    crossinline builder: PutRecordsRequest.Builder.() -> Unit = {},
 ): PutRecordsResponse {
     streamName.requireNotBlank("streamName")
     return putRecords {
@@ -174,7 +174,7 @@ suspend inline fun KinesisClient.getShardIterator(
     streamName: String,
     shardId: String,
     type: ShardIteratorType = ShardIteratorType.TrimHorizon,
-    @BuilderInference crossinline builder: GetShardIteratorRequest.Builder.() -> Unit = {},
+    crossinline builder: GetShardIteratorRequest.Builder.() -> Unit = {},
 ): GetShardIteratorResponse {
     streamName.requireNotBlank("streamName")
     shardId.requireNotBlank("shardId")
@@ -201,7 +201,7 @@ suspend inline fun KinesisClient.getShardIterator(
 suspend inline fun KinesisClient.getRecords(
     shardIterator: String,
     limit: Int = 100,
-    @BuilderInference crossinline builder: GetRecordsRequest.Builder.() -> Unit = {},
+    crossinline builder: GetRecordsRequest.Builder.() -> Unit = {},
 ): GetRecordsResponse {
     shardIterator.requireNotBlank("shardIterator")
     return getRecords {
@@ -224,7 +224,7 @@ suspend inline fun KinesisClient.getRecords(
  */
 suspend inline fun KinesisClient.describeStream(
     streamName: String,
-    @BuilderInference crossinline builder: DescribeStreamRequest.Builder.() -> Unit = {},
+    crossinline builder: DescribeStreamRequest.Builder.() -> Unit = {},
 ): DescribeStreamResponse {
     streamName.requireNotBlank("streamName")
     return describeStream {
@@ -246,7 +246,7 @@ suspend inline fun KinesisClient.describeStream(
  */
 suspend inline fun KinesisClient.deleteStream(
     streamName: String,
-    @BuilderInference crossinline builder: DeleteStreamRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteStreamRequest.Builder.() -> Unit = {},
 ): DeleteStreamResponse {
     streamName.requireNotBlank("streamName")
     return deleteStream {

@@ -32,7 +32,7 @@ import java.nio.charset.Charset
  * @return [message] 인스턴스
  */
 inline fun message(
-    @BuilderInference builder: Message.Builder.() -> Unit,
+    builder: Message.Builder.() -> Unit,
 ): Message {
     return Message.builder().apply(builder).build()
 }
@@ -77,7 +77,7 @@ fun messageOf(
  * @return [body] 인스턴스
  */
 inline fun body(
-    @BuilderInference builder: Body.Builder.() -> Unit,
+    builder: Body.Builder.() -> Unit,
 ): Body =
     Body.builder().apply(builder).build()
 
@@ -152,7 +152,7 @@ fun bodyAsHtml(
  * @return [content] 인스턴스
  */
 inline fun content(
-    @BuilderInference builder: Content.Builder.() -> Unit,
+    builder: Content.Builder.() -> Unit,
 ): Content {
     return Content.builder().apply(builder).build()
 }
@@ -187,7 +187,7 @@ fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = content
  * @return [messageTag] 인스턴스
  */
 inline fun messageTag(
-    @BuilderInference builder: MessageTag.Builder.() -> Unit,
+    builder: MessageTag.Builder.() -> Unit,
 ): MessageTag {
     return MessageTag.builder().apply(builder).build()
 }

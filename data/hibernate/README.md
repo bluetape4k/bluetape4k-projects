@@ -32,7 +32,7 @@ dependencies {
     compileOnly("io.github.bluetape4k:bluetape4k-tink:${version}")
 
     // JSON Converter 사용 시
-    compileOnly("io.github.bluetape4k:bluetape4k-jackson:${version}")
+    compileOnly("io.github.bluetape4k:bluetape4k-jackson2:${version}")
 
     // 직렬화 Converter 사용 시 (Kryo 또는 Apache Fory)
     compileOnly("com.esotericsoftware:kryo:5.6.2")

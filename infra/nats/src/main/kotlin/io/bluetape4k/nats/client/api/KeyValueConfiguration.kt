@@ -9,7 +9,7 @@ import io.nats.client.api.KeyValueConfiguration
  */
 inline fun keyValueConfiguration(
     name: String,
-    @BuilderInference builder: KeyValueConfiguration.Builder.() -> Unit = {},
+    builder: KeyValueConfiguration.Builder.() -> Unit = {},
 ): KeyValueConfiguration {
     name.requireNotBlank("name")
     
@@ -21,7 +21,7 @@ inline fun keyValueConfiguration(
  */
 inline fun keyValueConfiguration(
     kvConfig: KeyValueConfiguration? = null,
-    @BuilderInference builder: KeyValueConfiguration.Builder.() -> Unit,
+    builder: KeyValueConfiguration.Builder.() -> Unit,
 ): KeyValueConfiguration {
     return KeyValueConfiguration.builder(kvConfig).apply(builder).build()
 }
@@ -33,7 +33,7 @@ fun keyValueConfigurationOf(
     name: String,
     maxBucketSize: Long,
     replicas: Int,
-    @BuilderInference builder: KeyValueConfiguration.Builder.() -> Unit = {},
+    builder: KeyValueConfiguration.Builder.() -> Unit = {},
 ): KeyValueConfiguration {
     name.requireNotBlank("name")
     maxBucketSize.requirePositiveNumber("maxBucketSize")

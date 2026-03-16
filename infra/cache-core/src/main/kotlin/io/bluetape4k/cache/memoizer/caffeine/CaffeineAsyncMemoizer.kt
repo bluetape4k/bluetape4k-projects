@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @param evaluator cache value를 반환하는 메소드
  */
 fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
-    @BuilderInference evaluator: (T) -> CompletableFuture<R>,
+    evaluator: (T) -> CompletableFuture<R>,
 ): CaffeineAsyncMemoizer<T, R> = CaffeineAsyncMemoizer(this, evaluator)
 
 /**
@@ -36,7 +36,7 @@ fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
  */
 class CaffeineAsyncMemoizer<T : Any, R : Any>(
     private val cache: Cache<T, R>,
-    @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
+    private val evaluator: (T) -> CompletableFuture<R>,
 ) : AsyncMemoizer<T, R> {
     companion object : KLoggingChannel()
 

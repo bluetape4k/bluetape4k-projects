@@ -19,7 +19,7 @@ import io.bluetape4k.support.requireNotBlank
 fun contentOf(
     data: String,
     charset: String = Charsets.UTF_8.name(),
-    @BuilderInference builder: Content.Builder.() -> Unit = {},
+    builder: Content.Builder.() -> Unit = {},
 ): Content {
     data.requireNotBlank("data")
 
@@ -43,7 +43,7 @@ fun contentOf(
  */
 fun htmlBodyOf(
     html: Content? = null,
-    @BuilderInference builder: Body.Builder.() -> Unit = {},
+    builder: Body.Builder.() -> Unit = {},
 ): Body =
     Body {
         html?.let { this.html = it }
@@ -62,7 +62,7 @@ fun htmlBodyOf(
  */
 fun textBodyOf(
     text: Content? = null,
-    @BuilderInference builder: Body.Builder.() -> Unit = {},
+    builder: Body.Builder.() -> Unit = {},
 ): Body =
     Body {
         text?.let { this.text = it }
@@ -86,7 +86,7 @@ fun textBodyOf(
 fun messageOf(
     subject: Content,
     body: Body,
-    @BuilderInference builder: Message.Builder.() -> Unit = {},
+    builder: Message.Builder.() -> Unit = {},
 ): Message =
     Message {
         this.subject = subject

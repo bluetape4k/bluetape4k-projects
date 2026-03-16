@@ -19,7 +19,7 @@ import javax.net.ssl.SSLContext
  * @return [SSLContext]
  */
 inline fun sslContext(
-    @BuilderInference builder: SSLContextBuilder.() -> Unit,
+    builder: SSLContextBuilder.() -> Unit,
 ): SSLContext =
     SSLContexts.custom().apply(builder).build()
 

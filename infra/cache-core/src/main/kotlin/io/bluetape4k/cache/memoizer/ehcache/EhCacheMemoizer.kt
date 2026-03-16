@@ -9,7 +9,7 @@ import kotlin.concurrent.withLock
  * Ehcache를 이용하여 [EhCacheMemoizer]를 생성합니다.
  */
 fun <T : Any, R : Any> org.ehcache.Cache<T, R>.memoizer(
-    @BuilderInference evaluator: (T) -> R,
+    evaluator: (T) -> R,
 ): EhCacheMemoizer<T, R> = EhCacheMemoizer(this, evaluator)
 
 /**
@@ -23,7 +23,7 @@ fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: org.ehcache.Cache<T, R>): 
  */
 class EhCacheMemoizer<T : Any, R : Any>(
     private val cache: org.ehcache.Cache<T, R>,
-    @BuilderInference private val evaluator: (T) -> R,
+    private val evaluator: (T) -> R,
 ) : Memoizer<T, R> {
     companion object : KLogging()
 

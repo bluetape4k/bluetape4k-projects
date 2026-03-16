@@ -20,7 +20,7 @@ import org.springframework.r2dbc.core.DatabaseClient
  * ```
  */
 inline fun databaseClient(
-    @BuilderInference builder: DatabaseClient.Builder.() -> Unit,
+    builder: DatabaseClient.Builder.() -> Unit,
 ): DatabaseClient {
     return DatabaseClient.builder().also(builder).build()
 }
@@ -42,7 +42,7 @@ inline fun databaseClient(
  */
 inline fun databaseClient(
     factory: ConnectionFactory,
-    @BuilderInference builder: DatabaseClient.Builder.() -> Unit = {},
+    builder: DatabaseClient.Builder.() -> Unit = {},
 ): DatabaseClient = databaseClient {
     connectionFactory(factory)
     builder()

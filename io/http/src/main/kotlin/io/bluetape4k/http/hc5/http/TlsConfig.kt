@@ -18,7 +18,7 @@ val defaultTlsConfig: TlsConfig = TlsConfig.DEFAULT
  * @return [TlsConfig] 인스턴스
  */
 inline fun tlsConfig(
-    @BuilderInference builder: TlsConfig.Builder.() -> Unit,
+    builder: TlsConfig.Builder.() -> Unit,
 ): TlsConfig =
     TlsConfig.custom().apply(builder).build()
 
@@ -37,7 +37,7 @@ inline fun tlsConfigOf(
     handshakeTimeout: Timeout? = null,
     supportedCipherSuites: Array<String>? = null,
     versionPolicy: HttpVersionPolicy? = null,
-    @BuilderInference builder: TlsConfig.Builder.() -> Unit = {},
+    builder: TlsConfig.Builder.() -> Unit = {},
 ): TlsConfig =
     tlsConfig {
         setSupportedProtocols(*supportedProtocols.toTypedArray())

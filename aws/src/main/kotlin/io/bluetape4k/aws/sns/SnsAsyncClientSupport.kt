@@ -13,7 +13,7 @@ import java.net.URI
  * [SnsAsyncClient]를 빌드합니다.
  */
 inline fun snsAsyncClient(
-    @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit,
+    builder: SnsAsyncClientBuilder.() -> Unit,
 ): SnsAsyncClient =
     SnsAsyncClient.builder().apply(builder).build()
         .apply {
@@ -28,7 +28,7 @@ inline fun snsAsyncClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
+    builder: SnsAsyncClientBuilder.() -> Unit = {},
 ): SnsAsyncClient = snsAsyncClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

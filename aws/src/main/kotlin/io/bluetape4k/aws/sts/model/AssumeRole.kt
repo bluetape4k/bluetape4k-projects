@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
  * ```
  */
 inline fun assumeRoleRequest(
-    @BuilderInference builder: AssumeRoleRequest.Builder.() -> Unit,
+    builder: AssumeRoleRequest.Builder.() -> Unit,
 ): AssumeRoleRequest =
     AssumeRoleRequest.builder().apply(builder).build()
 
@@ -40,7 +40,7 @@ inline fun assumeRoleRequest(
 inline fun assumeRoleRequestOf(
     roleArn: String,
     sessionName: String,
-    @BuilderInference builder: AssumeRoleRequest.Builder.() -> Unit = {},
+    builder: AssumeRoleRequest.Builder.() -> Unit = {},
 ): AssumeRoleRequest {
     roleArn.requireNotBlank("roleArn")
     sessionName.requireNotBlank("sessionName")

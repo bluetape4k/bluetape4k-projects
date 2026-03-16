@@ -21,7 +21,7 @@ import org.apache.hc.core5.http.ContentType
  */
 inline fun simpleHttpResponse(
     status: Int,
-    @BuilderInference builder: SimpleResponseBuilder.() -> Unit,
+    builder: SimpleResponseBuilder.() -> Unit,
 ): SimpleHttpResponse {
     return SimpleResponseBuilder.create(status).apply(builder).build()
 }
@@ -43,7 +43,7 @@ inline fun simpleHttpResponseOf(
     status: Int,
     content: String,
     contentType: ContentType = ContentType.TEXT_PLAIN,
-    @BuilderInference builder: SimpleResponseBuilder.() -> Unit = {},
+    builder: SimpleResponseBuilder.() -> Unit = {},
 ): SimpleHttpResponse =
     simpleHttpResponse(status) {
         setBody(content, contentType)
@@ -67,7 +67,7 @@ inline fun simpleHttpResponseOf(
     status: Int,
     content: ByteArray,
     contentType: ContentType = ContentType.TEXT_PLAIN,
-    @BuilderInference builder: SimpleResponseBuilder.() -> Unit = {},
+    builder: SimpleResponseBuilder.() -> Unit = {},
 ): SimpleHttpResponse =
     simpleHttpResponse(status) {
         setBody(content, contentType)

@@ -26,7 +26,7 @@ object KinesisClientFactory {
          * DSL 빌더 블록으로 [KinesisClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: KinesisClientBuilder.() -> Unit,
+            builder: KinesisClientBuilder.() -> Unit,
         ): KinesisClient =
             kinesisClient(builder)
 
@@ -38,7 +38,7 @@ object KinesisClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: KinesisClientBuilder.() -> Unit = {},
+            builder: KinesisClientBuilder.() -> Unit = {},
         ): KinesisClient =
             kinesisClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -52,7 +52,7 @@ object KinesisClientFactory {
          * DSL 빌더 블록으로 [KinesisAsyncClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: KinesisAsyncClientBuilder.() -> Unit,
+            builder: KinesisAsyncClientBuilder.() -> Unit,
         ): KinesisAsyncClient =
             kinesisAsyncClient(builder)
 
@@ -64,7 +64,7 @@ object KinesisClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: KinesisAsyncClientBuilder.() -> Unit = {},
+            builder: KinesisAsyncClientBuilder.() -> Unit = {},
         ): KinesisAsyncClient =
             kinesisAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }

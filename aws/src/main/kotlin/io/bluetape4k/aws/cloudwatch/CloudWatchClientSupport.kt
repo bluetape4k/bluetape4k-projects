@@ -17,7 +17,7 @@ import java.net.URI
  * ```
  */
 inline fun cloudWatchClient(
-    @BuilderInference builder: CloudWatchClientBuilder.() -> Unit,
+    builder: CloudWatchClientBuilder.() -> Unit,
 ): CloudWatchClient =
     CloudWatchClient.builder().apply(builder).build()
         .apply {
@@ -36,7 +36,7 @@ inline fun cloudWatchClient(
 inline fun cloudWatchClientOf(
     region: Region,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: CloudWatchClientBuilder.() -> Unit = {},
+    builder: CloudWatchClientBuilder.() -> Unit = {},
 ): CloudWatchClient = cloudWatchClient {
     region(region)
     httpClient(httpClient)
@@ -58,7 +58,7 @@ inline fun cloudWatchClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: CloudWatchClientBuilder.() -> Unit = {},
+    builder: CloudWatchClientBuilder.() -> Unit = {},
 ): CloudWatchClient = cloudWatchClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

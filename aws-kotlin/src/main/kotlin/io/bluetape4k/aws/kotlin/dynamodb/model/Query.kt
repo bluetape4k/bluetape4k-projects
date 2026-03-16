@@ -32,7 +32,7 @@ inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
-    @BuilderInference crossinline builder: QueryRequest.Builder.() -> Unit = {},
+    crossinline builder: QueryRequest.Builder.() -> Unit = {},
 ): QueryRequest {
     tableName.requireNotBlank("tableName")
 
@@ -70,7 +70,7 @@ inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
-    @BuilderInference crossinline builder: QueryRequest.Builder.() -> Unit = {},
+    crossinline builder: QueryRequest.Builder.() -> Unit = {},
 ): QueryRequest =
     queryRequestOf(
         tableName,

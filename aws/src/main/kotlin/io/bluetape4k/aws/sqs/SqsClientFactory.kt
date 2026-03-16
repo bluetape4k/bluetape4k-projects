@@ -23,7 +23,7 @@ object SqsClientFactory {
     object Sync {
 
         inline fun create(
-            @BuilderInference builder: SqsClientBuilder.() -> Unit,
+            builder: SqsClientBuilder.() -> Unit,
         ): SqsClient = sqsClient(builder)
 
         inline fun create(
@@ -31,7 +31,7 @@ object SqsClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
+            builder: SqsClientBuilder.() -> Unit = {},
         ): SqsClient = sqsClientOf(
             endpointOverride,
             region,
@@ -47,7 +47,7 @@ object SqsClientFactory {
     object Async {
 
         inline fun create(
-            @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit,
+            builder: SqsAsyncClientBuilder.() -> Unit,
         ): SqsAsyncClient = sqsAsyncClient(builder)
 
         inline fun create(
@@ -55,7 +55,7 @@ object SqsClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
+            builder: SqsAsyncClientBuilder.() -> Unit = {},
         ): SqsAsyncClient = sqsAsyncClientOf(
             endpointOverride,
             region,

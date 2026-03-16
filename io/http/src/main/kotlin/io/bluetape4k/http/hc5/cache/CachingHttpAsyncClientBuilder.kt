@@ -17,7 +17,7 @@ import java.io.File
  * ```
  */
 inline fun cachingHttpAsyncClient(
-    @BuilderInference builder: CachingHttpAsyncClientBuilder.() -> Unit,
+    builder: CachingHttpAsyncClientBuilder.() -> Unit,
 ): CloseableHttpAsyncClient {
     return CachingHttpAsyncClientBuilder.create().apply(builder).build()
 }
@@ -33,7 +33,7 @@ inline fun cachingHttpAsyncClient(
  */
 inline fun cachingHttpAsyncClient(
     cacheStorage: HttpAsyncCacheStorage,
-    @BuilderInference builder: CachingHttpAsyncClientBuilder.() -> Unit = {},
+    builder: CachingHttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient {
     return CachingHttpAsyncClientBuilder.create()
         .setHttpCacheStorage(cacheStorage)

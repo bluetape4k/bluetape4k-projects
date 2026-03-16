@@ -20,7 +20,7 @@ import org.apache.hc.core5.http.HttpHost
  * @return [CredentialsProvider] 인스턴스
  */
 inline fun credentialsProvider(
-    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit,
+    builder: CredentialsProviderBuilder.() -> Unit,
 ): CredentialsProvider =
     CredentialsProviderBuilder.create().apply(builder).build()
 
@@ -53,7 +53,7 @@ fun emptyCredentialsProvider(): CredentialsProvider = credentialsProvider { }
 inline fun credentialsProviderOf(
     authScope: AuthScope,
     credentials: Credentials,
-    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+    builder: CredentialsProviderBuilder.() -> Unit = {},
 ): CredentialsProvider =
     credentialsProvider {
         add(authScope, credentials)
@@ -78,7 +78,7 @@ inline fun credentialsProviderOf(
 inline fun credentialsProviderOf(
     httpHost: HttpHost,
     credentials: Credentials,
-    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+    builder: CredentialsProviderBuilder.() -> Unit = {},
 ): CredentialsProvider =
     credentialsProvider {
         add(httpHost, credentials)
@@ -106,7 +106,7 @@ inline fun credentialsProviderOf(
     authScope: AuthScope,
     username: String,
     password: CharArray,
-    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+    builder: CredentialsProviderBuilder.() -> Unit = {},
 ): CredentialsProvider =
     credentialsProvider {
         add(authScope, username, password)
@@ -136,7 +136,7 @@ inline fun credentialsProviderOf(
     httpHost: HttpHost,
     username: String,
     password: CharArray,
-    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+    builder: CredentialsProviderBuilder.() -> Unit = {},
 ): CredentialsProvider =
     credentialsProvider {
         add(httpHost, username, password)

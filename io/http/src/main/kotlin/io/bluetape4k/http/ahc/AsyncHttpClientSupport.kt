@@ -48,7 +48,7 @@ val defaultAsyncHttpClient: AsyncHttpClient by lazy {
  * @param builder 기본값 적용 후 추가 커스터마이징 블록
  */
 inline fun asyncHttpClientConfig(
-    @BuilderInference builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
+    builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
 ): DefaultAsyncHttpClientConfig {
     return DefaultAsyncHttpClientConfig.Builder()
         .apply {
@@ -83,7 +83,7 @@ fun asyncHttpClientConfigOf(
  * @return 새 [AsyncHttpClient] 인스턴스
  */
 inline fun asyncHttpClient(
-    @BuilderInference builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
+    builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
 ): AsyncHttpClient {
     return Dsl.asyncHttpClient(asyncHttpClientConfig(builder))
 }

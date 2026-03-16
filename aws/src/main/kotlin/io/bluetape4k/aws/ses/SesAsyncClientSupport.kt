@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.ses.endpoints.SesEndpointProvider
  * @return [sesAsyncClient] 인스턴스
  */
 inline fun sesAsyncClient(
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit,
+    builder: SesAsyncClientBuilder.() -> Unit,
 ): SesAsyncClient {
     return SesAsyncClient.builder().apply(builder).build()
         .apply {
@@ -50,7 +50,7 @@ inline fun sesAsyncClient(
 inline fun sesAsyncClientOf(
     region: Region,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
+    builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = sesAsyncClient {
     region(region)
     httpClient(httpClient)
@@ -77,7 +77,7 @@ inline fun sesAsyncClientOf(
     endpointProvider: SesEndpointProvider? = null,
     region: Region? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
+    builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = sesAsyncClient {
 
     endpointProvider?.let { endpointProvider(it) }

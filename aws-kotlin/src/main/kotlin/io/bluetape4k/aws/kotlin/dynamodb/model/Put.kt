@@ -29,7 +29,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun putOf(
     tableName: String,
     item: Map<String, AttributeValue>? = null,
-    @BuilderInference crossinline builder: Put.Builder.() -> Unit = {},
+    crossinline builder: Put.Builder.() -> Unit = {},
 ): Put {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -62,7 +62,7 @@ inline fun putOf(
 inline fun putOf(
     tableName: String,
     item: Map<String, Any?>? = null,
-    @BuilderInference crossinline builder: Put.Builder.() -> Unit = {},
+    crossinline builder: Put.Builder.() -> Unit = {},
 ): Put =
     putOf(tableName, item?.toAttributeValueMap(), builder)
 
@@ -102,6 +102,6 @@ inline fun putRequestOf(
 @JvmName("putRequestOfAny")
 inline fun putRequestOf(
     item: Map<String, Any?>,
-    @BuilderInference crossinline builder: PutRequest.Builder.() -> Unit = {},
+    crossinline builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest =
     putRequestOf(item.toAttributeValueMap())

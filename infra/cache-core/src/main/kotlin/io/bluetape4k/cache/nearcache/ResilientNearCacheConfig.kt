@@ -43,7 +43,7 @@ data class ResilientNearCacheConfig<K: Any, V: Any>(
  * [ResilientNearCacheConfig] DSL 빌더.
  */
 inline fun <K: Any, V: Any> resilientNearCacheConfig(
-    @BuilderInference block: ResilientNearCacheConfigBuilder<K, V>.() -> Unit,
+    block: ResilientNearCacheConfigBuilder<K, V>.() -> Unit,
 ): ResilientNearCacheConfig<K, V> =
     ResilientNearCacheConfigBuilder<K, V>().apply(block).build()
 

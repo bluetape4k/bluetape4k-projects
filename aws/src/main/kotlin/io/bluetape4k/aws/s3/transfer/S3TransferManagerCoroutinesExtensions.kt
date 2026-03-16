@@ -32,7 +32,7 @@ import java.nio.file.Path
  */
 suspend inline fun <T: Any> S3TransferManager.download(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): CompletedDownload<T> = downloadAsync(responseTransformer, builder).completionFuture().await()
 
 /**
@@ -54,7 +54,7 @@ suspend fun <T: Any> S3TransferManager.download(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): CompletedDownload<T> = downloadAsync(bucket, key, responseTransformer, builder).completionFuture().await()
 
 /**
@@ -74,7 +74,7 @@ suspend fun <T: Any> S3TransferManager.download(
 suspend inline fun S3TransferManager.downloadAsByteArray(
     bucket: String,
     key: String,
-    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): CompletedDownload<ResponseBytes<GetObjectResponse>> =
     downloadAsByteArrayAsync(bucket, key, builder).completionFuture().await()
 
@@ -98,7 +98,7 @@ suspend inline fun S3TransferManager.downloadFile(
     bucket: String,
     key: String,
     destination: Path,
-    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
+    builder: DownloadFileRequest.Builder.() -> Unit = {},
 ): CompletedFileDownload = downloadFileAsync(bucket, key, destination, builder).completionFuture().await()
 
 /**
@@ -120,7 +120,7 @@ suspend inline fun S3TransferManager.upload(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
+    builder: UploadRequest.Builder.() -> Unit = {},
 ): CompletedUpload = uploadAsync(bucket, key, asyncRequestBody, builder).completionFuture().await()
 
 /**
@@ -142,7 +142,7 @@ suspend inline fun S3TransferManager.uploadByteArray(
     bucket: String,
     key: String,
     content: ByteArray,
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
+    builder: UploadRequest.Builder.() -> Unit = {},
 ): CompletedUpload = uploadByteArrayAsync(bucket, key, content, builder).completionFuture().await()
 
 /**
@@ -165,5 +165,5 @@ suspend inline fun S3TransferManager.uploadFile(
     bucket: String,
     key: String,
     source: Path,
-    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit = {},
+    builder: UploadFileRequest.Builder.() -> Unit = {},
 ): CompletedFileUpload = uploadFileAsync(bucket, key, source, builder).completionFuture().await()

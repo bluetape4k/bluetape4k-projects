@@ -26,7 +26,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun restoreTableFromBackupRequestOf(
     backupArn: String,
     targetTableName: String,
-    @BuilderInference crossinline builder: RestoreTableFromBackupRequest.Builder.() -> Unit = {},
+    crossinline builder: RestoreTableFromBackupRequest.Builder.() -> Unit = {},
 ): RestoreTableFromBackupRequest {
     backupArn.requireNotBlank("backupArn")
     targetTableName.requireNotBlank("targetTableName")
@@ -67,7 +67,7 @@ inline fun restoreTableToPointInTimeRequestOf(
     sourceTableName: String? = null,
     targetTableName: String? = null,
     useLatestRestorableTime: Boolean? = null,
-    @BuilderInference crossinline builder: RestoreTableToPointInTimeRequest.Builder.() -> Unit,
+    crossinline builder: RestoreTableToPointInTimeRequest.Builder.() -> Unit,
 ): RestoreTableToPointInTimeRequest {
 
     targetTableName.requireNotBlank("targetTableName")

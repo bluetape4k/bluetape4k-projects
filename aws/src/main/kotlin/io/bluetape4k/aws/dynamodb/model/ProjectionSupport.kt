@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProjectionType
  * @return [Projection] 인스턴스
  */
 inline fun Projection(
-    @BuilderInference builder: Projection.Builder.() -> Unit,
+    builder: Projection.Builder.() -> Unit,
 ): Projection {
     return Projection.builder().apply(builder).build()
 }

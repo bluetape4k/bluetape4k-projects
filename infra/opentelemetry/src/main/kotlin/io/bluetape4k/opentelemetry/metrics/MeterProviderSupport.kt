@@ -17,7 +17,7 @@ val NoopMeterProvider: MeterProvider = MeterProvider.noop()
  * @return [SdkMeterProvider] 인스턴스
  */
 inline fun sdkMeterProvider(
-    @BuilderInference builder: SdkMeterProviderBuilder.() -> Unit,
+    builder: SdkMeterProviderBuilder.() -> Unit,
 ): SdkMeterProvider {
     return SdkMeterProvider.builder().apply(builder).build()
 }

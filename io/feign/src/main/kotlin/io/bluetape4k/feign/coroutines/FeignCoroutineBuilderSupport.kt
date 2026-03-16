@@ -24,7 +24,7 @@ import io.bluetape4k.feign.defaultRequestOptions
  * ```
  */
 inline fun <C: Any> coroutineFeignBuilder(
-    @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
+    builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
 ): CoroutineFeign.CoroutineBuilder<C> {
     return CoroutineFeign.CoroutineBuilder<C>().apply(builder)
 }
@@ -48,7 +48,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
     decoder: Decoder = Decoder.Default(),
     options: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
-    @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
+    builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
 ): CoroutineFeign.CoroutineBuilder<C> {
     return coroutineFeignBuilder {
         client(asyncClient)

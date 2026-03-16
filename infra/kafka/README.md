@@ -46,7 +46,7 @@ dependencies {
 - `org.apache.kafka:kafka-clients` - Kafka 클라이언트
 - `org.springframework.kafka:spring-kafka` - Spring Kafka 지원
 - `io.github.bluetape4k:bluetape4k-io` - 직렬화 관련 유틸리티
-- `io.github.bluetape4k:bluetape4k-jackson` - JSON 직렬화 지원
+- `io.github.bluetape4k:bluetape4k-jackson2` - JSON 직렬화 지원
 - `io.projectreactor.kafka:reactor-kafka` - Reactive Kafka 지원
 
 ## 사용 예시

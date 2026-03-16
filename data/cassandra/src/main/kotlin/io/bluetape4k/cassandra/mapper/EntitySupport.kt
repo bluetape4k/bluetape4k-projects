@@ -56,7 +56,7 @@ fun <T: Any> EntityHelper<T>.prepareInsertIfNotExists(session: CqlSession): Prep
  */
 inline fun <T: Any> bindEntity(
     preparedStatement: PreparedStatement,
-    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
+    builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement {
     return preparedStatement.boundStatementBuilder()
         .apply(builder)
@@ -114,7 +114,7 @@ fun <T: Any> EntityHelper<T>.bind(
  */
 inline fun <T: Any> CqlSession.prepare(
     entityHelper: EntityHelper<T>,
-    @BuilderInference builder: EntityHelper<T>.() -> String,
+    builder: EntityHelper<T>.() -> String,
 ): PreparedStatement {
     return this@prepare.prepare(builder(entityHelper))
 }

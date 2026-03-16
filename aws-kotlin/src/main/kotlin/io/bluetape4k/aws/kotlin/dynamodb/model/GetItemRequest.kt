@@ -22,7 +22,7 @@ inline fun getItemRequestOf(
     consistentRead: Boolean? = null,
     expressionAttributeNames: Map<String, String>? = null,
     key: Map<String, AttributeValue>? = null,
-    @BuilderInference crossinline builder: GetItemRequest.Builder.() -> Unit = {},
+    crossinline builder: GetItemRequest.Builder.() -> Unit = {},
 ): GetItemRequest {
 
     return GetItemRequest {
@@ -41,7 +41,7 @@ inline fun getItemRequestOf(
     consistentRead: Boolean? = null,
     expressionAttributeNames: Map<String, String>? = null,
     key: Map<String, Any>? = null,
-    @BuilderInference crossinline builder: GetItemRequest.Builder.() -> Unit = {},
+    crossinline builder: GetItemRequest.Builder.() -> Unit = {},
 ): GetItemRequest = getItemRequestOf(
     attributesToGet,
     consistentRead,

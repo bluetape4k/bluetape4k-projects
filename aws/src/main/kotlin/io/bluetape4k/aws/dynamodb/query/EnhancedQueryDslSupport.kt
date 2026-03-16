@@ -53,7 +53,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * @return [QueryEnhancedRequest] 인스턴스
  */
 inline fun <T : DynamoDbEntity> queryEnhancedRequest(
-    @BuilderInference builder: EnhancedQueryBuilderKt<T>.() -> Unit,
+    builder: EnhancedQueryBuilderKt<T>.() -> Unit,
 ): QueryEnhancedRequest = EnhancedQueryBuilderKt<T>().apply(builder).build()
 
 @DynamoDslMarker
@@ -137,7 +137,7 @@ class EnhancedQueryBuilderKt<T : Any> {
 /** 파티션 키 DSL을 설정합니다. */
 inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
-    @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
+    builder: PrimaryKeyBuilder.() -> Unit,
 ) {
     primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
@@ -145,14 +145,14 @@ inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
 /** 정렬 키 DSL을 설정합니다. */
 inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
-    @BuilderInference builder: SortKeyBuilder.() -> Unit,
+    builder: SortKeyBuilder.() -> Unit,
 ) {
     sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
 /** 필터 조건 DSL을 설정합니다. */
 inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
-    @BuilderInference builder: RootFilterBuilder.() -> Unit,
+    builder: RootFilterBuilder.() -> Unit,
 ) {
     filtering = RootFilterBuilder().apply(builder).build()
 }

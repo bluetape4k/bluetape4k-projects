@@ -18,7 +18,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 @PublishedApi
 internal class LazyDeferred<out T>(
     val coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    @BuilderInference val block: suspend CoroutineScope.() -> T,
+    val block: suspend CoroutineScope.() -> T,
 ) {
     private val deferred = atomic<Deferred<T>?>(null)
 
@@ -89,7 +89,7 @@ internal fun requireFlowBufferCapacity(capacity: Int) {
  */
 inline fun <T, R> Flow<T>.async(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    @BuilderInference crossinline block: suspend CoroutineScope.(T) -> R,
+    crossinline block: suspend CoroutineScope.(T) -> R,
 ): AsyncFlow<R> {
     val deferredFlow: Flow<LazyDeferred<R>> = map { input ->
         LazyDeferred(coroutineContext) { block(input) }
@@ -117,7 +117,7 @@ inline fun <T, R> Flow<T>.async(
  * @param transform AsyncFlow 요소 변환 함수입니다.
  */
 inline fun <T, R> AsyncFlow<T>.map(
-    @BuilderInference crossinline transform: suspend (value: T) -> R,
+    crossinline transform: suspend (value: T) -> R,
 ): AsyncFlow<R> {
     return AsyncFlow(
         deferredFlow
@@ -183,7 +183,7 @@ suspend fun <T> AsyncFlow<T>.collect(
  */
 suspend inline fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,
-    @BuilderInference crossinline collector: suspend (value: T) -> Unit,
+    crossinline collector: suspend (value: T) -> Unit,
 ) {
     requireFlowBufferCapacity(capacity)
     collect(capacity, FlowCollector { value -> collector(value) })

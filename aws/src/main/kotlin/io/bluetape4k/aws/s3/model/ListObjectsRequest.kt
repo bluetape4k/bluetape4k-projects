@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsRequest
  */
 inline fun listObjectsRequest(
     bucket: String,
-    @BuilderInference builder: ListObjectsRequest.Builder.() -> Unit = {},
+    builder: ListObjectsRequest.Builder.() -> Unit = {},
 ): ListObjectsRequest {
     bucket.requireNotBlank("bucket")
     return ListObjectsRequest.builder()
@@ -36,6 +36,6 @@ inline fun listObjectsRequest(
  */
 inline fun listObjectsRequestOf(
     bucket: String,
-    @BuilderInference builder: ListObjectsRequest.Builder.() -> Unit = {},
+    builder: ListObjectsRequest.Builder.() -> Unit = {},
 ): ListObjectsRequest =
     listObjectsRequest(bucket, builder)

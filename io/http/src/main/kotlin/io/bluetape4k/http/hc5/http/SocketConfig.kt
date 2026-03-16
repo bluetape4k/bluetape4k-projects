@@ -14,7 +14,7 @@ val defaultSocketConfig: SocketConfig = SocketConfig.DEFAULT
  * @return [SocketConfig] 인스턴스
  */
 inline fun socketConfig(
-    @BuilderInference builder: SocketConfig.Builder.() -> Unit,
+    builder: SocketConfig.Builder.() -> Unit,
 ): SocketConfig =
     SocketConfig.custom().apply(builder).build()
 
@@ -30,7 +30,7 @@ inline fun socketConfigOf(
     soTimeout: Timeout = Timeout.ofMinutes(3),
     soReuseStrategy: Boolean = true,
     soLinger: Timeout = Timeout.ofMinutes(3),
-    @BuilderInference builder: SocketConfig.Builder.() -> Unit = {},
+    builder: SocketConfig.Builder.() -> Unit = {},
 ): SocketConfig =
     socketConfig {
         setSoTimeout(soTimeout)

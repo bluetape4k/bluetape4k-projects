@@ -58,7 +58,7 @@ val user2 = serializer.deserializeFromString<User>(jsonText)
 
 | 구현체                  | 모듈                   | 기반 라이브러리          |
 |----------------------|----------------------|-------------------|
-| `JacksonSerializer`  | bluetape4k-jackson   | Jackson 2.x       |
+| `JacksonSerializer`  | bluetape4k-jackson2   | Jackson 2.x       |
 | `JacksonSerializer`  | bluetape4k-jackson3  | Jackson 3.x       |
 | `FastjsonSerializer` | bluetape4k-fastjson2 | Fastjson2 (JSONB) |
 

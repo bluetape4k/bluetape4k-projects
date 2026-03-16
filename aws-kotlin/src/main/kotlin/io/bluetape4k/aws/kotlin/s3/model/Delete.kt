@@ -19,7 +19,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun deleteOf(
     vararg keys: String,
     quiet: Boolean? = null,
-    @BuilderInference crossinline builder: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete =
     deleteOf(keys.map { it.toObjectIdentifier() }, quiet, builder)
 
@@ -38,7 +38,7 @@ inline fun deleteOf(
 inline fun deleteOf(
     keys: Collection<String>,
     quiet: Boolean? = null,
-    @BuilderInference crossinline builder: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete =
     deleteOf(keys.map { it.toObjectIdentifier() }, quiet, builder)
 
@@ -58,7 +58,7 @@ inline fun deleteOf(
 inline fun deleteOf(
     keys: Collection<ObjectIdentifier>,
     quiet: Boolean? = null,
-    @BuilderInference crossinline builder: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete {
     keys.requireNotEmpty("keys")
 
@@ -85,6 +85,6 @@ inline fun deleteOf(
 inline fun deleteOf(
     vararg keys: ObjectIdentifier,
     quiet: Boolean? = null,
-    @BuilderInference crossinline builder: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete =
     deleteOf(keys.toList(), quiet, builder)

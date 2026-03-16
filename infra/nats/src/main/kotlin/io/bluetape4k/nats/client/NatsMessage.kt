@@ -9,7 +9,7 @@ import io.nats.client.impl.NatsMessage
  * NATS Java 클라이언트의 [NatsMessage]를 코틀린 DSL로 생성합니다.
  */
 inline fun natsMessage(
-    @BuilderInference builder: NatsMessage.Builder.() -> Unit,
+    builder: NatsMessage.Builder.() -> Unit,
 ): NatsMessage =
     NatsMessage.builder().apply(builder).build()
 

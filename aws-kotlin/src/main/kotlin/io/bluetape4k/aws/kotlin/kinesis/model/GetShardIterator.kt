@@ -23,7 +23,7 @@ inline fun getShardIteratorRequestOf(
     streamName: String,
     shardId: String,
     type: ShardIteratorType = ShardIteratorType.TrimHorizon,
-    @BuilderInference crossinline builder: GetShardIteratorRequest.Builder.() -> Unit = {},
+    crossinline builder: GetShardIteratorRequest.Builder.() -> Unit = {},
 ): GetShardIteratorRequest {
     streamName.requireNotBlank("streamName")
     shardId.requireNotBlank("shardId")

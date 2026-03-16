@@ -28,7 +28,7 @@ import software.amazon.awssdk.services.ses.waiters.SesWaiter
  * @return [sesWaiter] 인스턴스
  */
 fun sesWaiter(
-    @BuilderInference builder: SesWaiter.Builder.() -> Unit,
+    builder: SesWaiter.Builder.() -> Unit,
 ): SesWaiter {
     return SesWaiter.builder().apply(builder).build()
         .apply {
@@ -51,7 +51,7 @@ fun sesWaiter(
 fun sesWaiterOf(
     client: SesClient,
     configuration: WaiterOverrideConfiguration = waiterOverrideConfigurationOf(),
-    @BuilderInference builder: SesWaiter.Builder.() -> Unit = {},
+    builder: SesWaiter.Builder.() -> Unit = {},
 ): SesWaiter = sesWaiter {
     client(client)
     overrideConfiguration(configuration)

@@ -40,7 +40,7 @@ suspend inline fun <T: Any> DynamoDbAsyncTable<T>.putItem(item: T) {
  */
 suspend inline fun <reified T: Any> DynamoDbAsyncTable<T>.putItem(
     item: T,
-    @BuilderInference builder: PutItemEnhancedRequest.Builder<T>.() -> Unit,
+    builder: PutItemEnhancedRequest.Builder<T>.() -> Unit,
 ) {
     val request =
         PutItemEnhancedRequest
@@ -70,7 +70,7 @@ suspend inline fun <T: Any> DynamoDbAsyncTable<T>.deleteItem(
  * @return 스캔 결과 리스트
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.scanAll(
-    @BuilderInference builder: ScanEnhancedRequest.Builder.() -> Unit = {},
+    builder: ScanEnhancedRequest.Builder.() -> Unit = {},
 ): Flow<T> {
     val request = ScanEnhancedRequest.builder().apply(builder).build()
     return scan(request).items().asFlow()
@@ -85,7 +85,7 @@ inline fun <T: Any> DynamoDbAsyncTable<T>.scanAll(
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.queryAll(
     queryConditional: QueryConditional,
-    @BuilderInference builder: QueryEnhancedRequest.Builder.() -> Unit = {},
+    builder: QueryEnhancedRequest.Builder.() -> Unit = {},
 ): Flow<T> {
     val request =
         QueryEnhancedRequest
@@ -106,7 +106,7 @@ inline fun <T: Any> DynamoDbAsyncTable<T>.queryAll(
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.queryByPartition(
     partitionValue: String,
-    @BuilderInference builder: QueryEnhancedRequest.Builder.() -> Unit = {},
+    builder: QueryEnhancedRequest.Builder.() -> Unit = {},
 ): Flow<T> {
     val key = keyOf(partitionValue)
     return queryAll(QueryConditional.keyEqualTo(key), builder)

@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.kms.model.EnableKeyRequest
  * ```
  */
 inline fun enableKeyRequest(
-    @BuilderInference builder: EnableKeyRequest.Builder.() -> Unit,
+    builder: EnableKeyRequest.Builder.() -> Unit,
 ): EnableKeyRequest =
     EnableKeyRequest.builder().apply(builder).build()
 

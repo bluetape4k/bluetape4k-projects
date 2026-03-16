@@ -103,7 +103,7 @@ fun minimalH2AsyncClientOf(
 suspend inline fun MinimalHttpAsyncClient.suspendLease(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
-    @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
+    callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
     return leaseSuspending(host, context, callback)
 }
@@ -119,7 +119,7 @@ suspend inline fun MinimalHttpAsyncClient.suspendLease(
 suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
-    @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
+    callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
     return lease(host, context, callback).awaitSuspending()
 }

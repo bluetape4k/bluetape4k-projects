@@ -11,7 +11,7 @@ inline fun getObjectRequestOf(
     key: String,
     versionId: String? = null,
     partNumber: Int? = null,
-    @BuilderInference crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

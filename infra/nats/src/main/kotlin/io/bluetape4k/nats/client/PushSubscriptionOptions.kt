@@ -10,7 +10,7 @@ import io.nats.client.PushSubscribeOptions
  * @return [PushSubscribeOptions] 인스턴스
  */
 inline fun pushSubscriptionOptions(
-    @BuilderInference builder: PushSubscribeOptions.Builder.() -> Unit,
+    builder: PushSubscribeOptions.Builder.() -> Unit,
 ): PushSubscribeOptions = PushSubscribeOptions.builder().apply(builder).build()
 
 /**

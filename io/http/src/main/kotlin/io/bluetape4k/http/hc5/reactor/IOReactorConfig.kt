@@ -18,7 +18,7 @@ import org.apache.hc.core5.util.Timeout
  * @return [IOReactorConfig]
  */
 inline fun ioReactorConfig(
-    @BuilderInference builder: IOReactorConfig.Builder.() -> Unit,
+    builder: IOReactorConfig.Builder.() -> Unit,
 ): IOReactorConfig =
     IOReactorConfig.custom().apply(builder).build()
 
@@ -46,7 +46,7 @@ inline fun ioReactorConfigOf(
     soTimeout: Timeout = IOReactorConfig.DEFAULT.soTimeout,
     soLinger: TimeValue = IOReactorConfig.DEFAULT.soLinger,
     soKeepAlive: Boolean = IOReactorConfig.DEFAULT.isSoKeepAlive,
-    @BuilderInference builder: IOReactorConfig.Builder.() -> Unit = {},
+    builder: IOReactorConfig.Builder.() -> Unit = {},
 ): IOReactorConfig =
     ioReactorConfig {
         setIoThreadCount(ioThreadCount)

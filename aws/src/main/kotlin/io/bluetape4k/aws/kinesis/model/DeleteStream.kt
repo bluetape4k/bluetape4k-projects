@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.kinesis.model.DeleteStreamRequest
  * ```
  */
 inline fun deleteStreamRequest(
-    @BuilderInference builder: DeleteStreamRequest.Builder.() -> Unit,
+    builder: DeleteStreamRequest.Builder.() -> Unit,
 ): DeleteStreamRequest =
     DeleteStreamRequest.builder().apply(builder).build()
 
@@ -29,7 +29,7 @@ inline fun deleteStreamRequest(
  */
 inline fun deleteStreamRequestOf(
     streamName: String,
-    @BuilderInference builder: DeleteStreamRequest.Builder.() -> Unit = {},
+    builder: DeleteStreamRequest.Builder.() -> Unit = {},
 ): DeleteStreamRequest {
     streamName.requireNotBlank("streamName")
     return deleteStreamRequest {

@@ -24,7 +24,7 @@ import java.net.URI
  * ```
  */
 inline fun kmsAsyncClient(
-    @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit,
+    builder: KmsAsyncClientBuilder.() -> Unit,
 ): KmsAsyncClient =
     KmsAsyncClient.builder().apply(builder).build()
         .apply {
@@ -54,7 +54,7 @@ inline fun kmsAsyncClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit,
+    builder: KmsAsyncClientBuilder.() -> Unit,
 ): KmsAsyncClient = kmsAsyncClient {
     endpointOverride?.let { endpointOverride(it) }
     region?.let { region(it) }

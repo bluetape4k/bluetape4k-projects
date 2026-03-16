@@ -25,7 +25,7 @@ import io.bluetape4k.cassandra.toCqlIdentifier
 inline fun userDefinedTypeOf(
     keyspaceId: CqlIdentifier,
     typeId: CqlIdentifier,
-    @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
+    builder: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType {
     return UserDefinedTypeBuilder(keyspaceId, typeId).apply(builder).build()
 }
@@ -50,7 +50,7 @@ inline fun userDefinedTypeOf(
 inline fun userDefinedTypeOf(
     keyspaceName: String,
     typeName: String,
-    @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
+    builder: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType = userDefinedTypeOf(
     keyspaceName.toCqlIdentifier(),
     typeName.toCqlIdentifier(),

@@ -25,7 +25,7 @@ annotation class JwtComposerDslMarker
  */
 inline fun composeJwt(
     keyChain: KeyChain,
-    @BuilderInference builder: JwtComposerDsl.() -> Unit,
+    builder: JwtComposerDsl.() -> Unit,
 ): String {
     return JwtComposerDsl(keyChain).apply(builder).compose()
 }

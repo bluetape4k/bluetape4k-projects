@@ -70,7 +70,7 @@ class QueryRequestBuilderDSL {
 /** 파티션 키 조건을 설정합니다. */
 inline fun QueryRequestBuilderDSL.primaryKey(
     keyName: String,
-    @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
+    builder: PrimaryKeyBuilder.() -> Unit,
 ) {
     primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
@@ -78,14 +78,14 @@ inline fun QueryRequestBuilderDSL.primaryKey(
 /** 정렬 키 조건을 설정합니다. */
 inline fun QueryRequestBuilderDSL.sortKey(
     keyName: String,
-    @BuilderInference builder: SortKeyBuilder.() -> Unit,
+    builder: SortKeyBuilder.() -> Unit,
 ) {
     sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
 /** 필터 조건을 설정합니다. */
 inline fun QueryRequestBuilderDSL.filtering(
-    @BuilderInference builder: RootFilterBuilder.() -> Unit,
+    builder: RootFilterBuilder.() -> Unit,
 ) {
     filtering = RootFilterBuilder().apply(builder).build()
 }

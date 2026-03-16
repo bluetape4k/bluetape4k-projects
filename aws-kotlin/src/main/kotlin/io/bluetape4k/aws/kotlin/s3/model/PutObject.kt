@@ -15,7 +15,7 @@ inline fun putObjectRequestOf(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

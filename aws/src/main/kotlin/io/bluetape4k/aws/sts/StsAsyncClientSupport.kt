@@ -18,7 +18,7 @@ import java.net.URI
  * ```
  */
 inline fun stsAsyncClient(
-    @BuilderInference builder: StsAsyncClientBuilder.() -> Unit,
+    builder: StsAsyncClientBuilder.() -> Unit,
 ): StsAsyncClient =
     StsAsyncClient.builder().apply(builder).build()
         .apply {
@@ -40,7 +40,7 @@ inline fun stsAsyncClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: StsAsyncClientBuilder.() -> Unit = {},
+    builder: StsAsyncClientBuilder.() -> Unit = {},
 ): StsAsyncClient = stsAsyncClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

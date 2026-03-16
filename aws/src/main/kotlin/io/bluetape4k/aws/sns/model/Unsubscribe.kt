@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.sns.model.UnsubscribeRequest
  * ```
  */
 inline fun unsubscribeRequest(
-    @BuilderInference builder: UnsubscribeRequest.Builder.() -> Unit,
+    builder: UnsubscribeRequest.Builder.() -> Unit,
 ): UnsubscribeRequest = UnsubscribeRequest.builder().apply(builder).build()
 
 /**
@@ -32,7 +32,7 @@ inline fun unsubscribeRequest(
  */
 inline fun unsubscribeRequestOf(
     subscriptionArn: String,
-    @BuilderInference builder: UnsubscribeRequest.Builder.() -> Unit = {},
+    builder: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeRequest {
     subscriptionArn.requireNotBlank("subscriptionArn")
 

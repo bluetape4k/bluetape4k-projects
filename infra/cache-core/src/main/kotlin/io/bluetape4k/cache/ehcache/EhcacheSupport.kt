@@ -41,7 +41,7 @@ val DefaultEhCacheCacheManager: CacheManager by lazy {
  * @param builder [ConfigurationBuilder] 초기화 람다
  */
 inline fun ehcacheManager(
-    @BuilderInference builder: ConfigurationBuilder.() -> Unit,
+    builder: ConfigurationBuilder.() -> Unit,
 ): CacheManager {
     val configuration = ConfigurationBuilder.newConfigurationBuilder()
         .withDefaultClassLoader()
@@ -74,7 +74,7 @@ inline fun ehcacheManager(
  */
 inline fun <reified K: Any, reified V: Any> CacheManager.getOrCreateCache(
     cacheName: String,
-    @BuilderInference builder: ResourcePoolsBuilder.() -> Unit = { this.heap(10_000L, EntryUnit.ENTRIES) },
+    builder: ResourcePoolsBuilder.() -> Unit = { this.heap(10_000L, EntryUnit.ENTRIES) },
 ): Cache<K, V> {
     cacheName.requireNotBlank("cacheName")
 

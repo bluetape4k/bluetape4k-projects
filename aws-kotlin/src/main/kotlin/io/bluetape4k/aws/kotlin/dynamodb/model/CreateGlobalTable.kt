@@ -27,7 +27,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun createGlobalTableRequestOf(
     globalTableName: String,
     replicationGroup: List<Replica>? = null,
-    @BuilderInference crossinline builder: CreateGlobalTableRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateGlobalTableRequest.Builder.() -> Unit = {},
 ): CreateGlobalTableRequest {
     globalTableName.requireNotBlank("globalTableName")
 

@@ -74,7 +74,7 @@ inline fun transactGetItemOf(
 inline fun transactGetItemsRequestOf(
     transactItems: List<TransactGetItem>,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    @BuilderInference crossinline builder: TransactGetItemsRequest.Builder.() -> Unit = {},
+    crossinline builder: TransactGetItemsRequest.Builder.() -> Unit = {},
 ): TransactGetItemsRequest {
     transactItems.requireNotEmpty("transactItems")
 

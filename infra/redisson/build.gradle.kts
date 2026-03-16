@@ -33,7 +33,7 @@ dependencies {
     compileOnly(Libs.zstd_jni)
 
     // Jackson
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
     compileOnly(Libs.jackson_dataformat_protobuf)

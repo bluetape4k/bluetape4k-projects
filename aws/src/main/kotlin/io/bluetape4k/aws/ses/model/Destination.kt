@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.ses.model.Destination
  * @return [destination] 인스턴스
  */
 inline fun destination(
-    @BuilderInference builder: Destination.Builder.() -> Unit,
+    builder: Destination.Builder.() -> Unit,
 ): Destination =
     Destination.builder().apply(builder).build()
 

@@ -105,7 +105,7 @@ fun Iterable<Number>.asFloatArrayList() = when (this) {
  */
 inline fun floatArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Float,
+    builder: (index: Int) -> Float,
 ): FloatArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return FloatArrayList(initialCapacity).apply {

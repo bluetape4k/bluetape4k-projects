@@ -5,7 +5,7 @@ configurations {
 dependencies {
 
     api(project(":bluetape4k-core"))
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(project(":bluetape4k-kafka"))
     api(project(":bluetape4k-idgenerators"))
 

@@ -18,7 +18,7 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
  * @return 생성된 [MongoClient] 인스턴스
  */
 inline fun mongoClient(
-    @BuilderInference builder: MongoClientSettings.Builder.() -> Unit,
+    builder: MongoClientSettings.Builder.() -> Unit,
 ): MongoClient {
     val settings = MongoClientSettings.builder().apply(builder).build()
     return MongoClient.create(settings)
@@ -39,7 +39,7 @@ inline fun mongoClient(
  */
 inline fun mongoClientOf(
     connectionString: String = MongoClientProvider.DEFAULT_CONNECTION_STRING,
-    @BuilderInference builder: MongoClientSettings.Builder.() -> Unit = {},
+    builder: MongoClientSettings.Builder.() -> Unit = {},
 ): MongoClient = mongoClient {
     applyConnectionString(ConnectionString(connectionString))
     builder()

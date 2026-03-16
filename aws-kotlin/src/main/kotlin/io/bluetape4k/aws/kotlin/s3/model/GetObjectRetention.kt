@@ -10,7 +10,7 @@ inline fun getObjectRetentionRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
 ): GetObjectRetentionRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

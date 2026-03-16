@@ -11,7 +11,7 @@ dependencies {
     api(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-http"))
-    testImplementation(project(":bluetape4k-jackson"))
+    testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 

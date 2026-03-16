@@ -18,7 +18,7 @@ import org.apache.hc.client5.http.protocol.HttpClientContext
  * @return 생성된 [HttpClientContext]
  */
 inline fun httpClientContext(
-    @BuilderInference builder: ContextBuilder.() -> Unit,
+    builder: ContextBuilder.() -> Unit,
 ): HttpClientContext =
     ContextBuilder.create().apply(builder).build()
 

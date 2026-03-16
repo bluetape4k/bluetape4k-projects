@@ -27,7 +27,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun tagResourceRequestOf(
     resourceArn: String,
     tags: List<Tag>? = null,
-    @BuilderInference crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
+    crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
 ): TagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 
@@ -63,7 +63,7 @@ inline fun tagResourceRequestOf(
 inline fun tagResourceRequestOf(
     resourceArn: String,
     vararg tags: Tag,
-    @BuilderInference crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
+    crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
 ): TagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

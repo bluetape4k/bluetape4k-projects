@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sns.model.DeleteTopicRequest
  * ```
  */
 inline fun deleteTopicRequest(
-    @BuilderInference builder: DeleteTopicRequest.Builder.() -> Unit,
+    builder: DeleteTopicRequest.Builder.() -> Unit,
 ): DeleteTopicRequest =
     DeleteTopicRequest.builder().apply(builder).build()
 
@@ -35,7 +35,7 @@ inline fun deleteTopicRequest(
 inline fun deleteTopicRequestOf(
     topicArn: String,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: DeleteTopicRequest.Builder.() -> Unit = {},
+    builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicRequest {
     topicArn.requireNotBlank("topicArn")
 

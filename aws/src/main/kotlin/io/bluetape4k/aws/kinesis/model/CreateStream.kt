@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.kinesis.model.CreateStreamRequest
  * ```
  */
 inline fun createStreamRequest(
-    @BuilderInference builder: CreateStreamRequest.Builder.() -> Unit,
+    builder: CreateStreamRequest.Builder.() -> Unit,
 ): CreateStreamRequest =
     CreateStreamRequest.builder().apply(builder).build()
 
@@ -33,7 +33,7 @@ inline fun createStreamRequest(
 inline fun createStreamRequestOf(
     streamName: String,
     shardCount: Int = 1,
-    @BuilderInference builder: CreateStreamRequest.Builder.() -> Unit = {},
+    builder: CreateStreamRequest.Builder.() -> Unit = {},
 ): CreateStreamRequest {
     streamName.requireNotBlank("streamName")
     return createStreamRequest {

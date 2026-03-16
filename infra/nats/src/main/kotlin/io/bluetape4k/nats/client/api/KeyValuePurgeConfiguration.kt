@@ -9,5 +9,5 @@ import io.nats.client.api.KeyValuePurgeOptions
  * @return [KeyValuePurgeOptions] 인스턴스
  */
 inline fun keyValuePurgeOptions(
-    @BuilderInference builder: KeyValuePurgeOptions.Builder.() -> Unit,
+    builder: KeyValuePurgeOptions.Builder.() -> Unit,
 ): KeyValuePurgeOptions = KeyValuePurgeOptions.builder().apply(builder).build()

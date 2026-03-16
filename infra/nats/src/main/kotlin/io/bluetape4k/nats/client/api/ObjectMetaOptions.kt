@@ -6,7 +6,7 @@ import io.nats.client.api.ObjectMetaOptions
  * [ObjectMetaOptions]를 DSL로 생성합니다.
  */
 inline fun objectMetaOptions(
-    @BuilderInference builder: ObjectMetaOptions.Builder.() -> Unit,
+    builder: ObjectMetaOptions.Builder.() -> Unit,
 ): ObjectMetaOptions {
     return ObjectMetaOptions.Builder().apply(builder).build()
 }
@@ -16,7 +16,7 @@ inline fun objectMetaOptions(
  */
 inline fun objectMetaOptions(
     om: ObjectMetaOptions,
-    @BuilderInference builder: ObjectMetaOptions.Builder.() -> Unit,
+    builder: ObjectMetaOptions.Builder.() -> Unit,
 ): ObjectMetaOptions {
     return ObjectMetaOptions.Builder(om).apply(builder).build()
 }

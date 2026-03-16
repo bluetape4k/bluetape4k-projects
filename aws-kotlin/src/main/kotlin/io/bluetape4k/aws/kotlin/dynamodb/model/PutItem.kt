@@ -32,7 +32,7 @@ inline fun putItemRequestOf(
     tableName: String,
     item: Map<String, AttributeValue>,
     returnValues: ReturnValue? = null,
-    @BuilderInference crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemRequest {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -68,7 +68,7 @@ inline fun putItemRequestOf(
     tableName: String,
     item: Map<String, Any?>,
     returnValues: ReturnValue? = null,
-    @BuilderInference crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemRequest =
     putItemRequestOf(
         tableName,

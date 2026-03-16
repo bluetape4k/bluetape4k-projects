@@ -10,7 +10,7 @@ inline fun getObjectAclRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline builder: GetObjectAclRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectAclRequest.Builder.() -> Unit = {},
 ): GetObjectAclRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

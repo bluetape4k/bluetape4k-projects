@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.kms.model.EncryptRequest
  * ```
  */
 inline fun encryptRequest(
-    @BuilderInference builder: EncryptRequest.Builder.() -> Unit,
+    builder: EncryptRequest.Builder.() -> Unit,
 ): EncryptRequest =
     EncryptRequest.builder().apply(builder).build()
 
@@ -43,7 +43,7 @@ inline fun encryptRequestOf(
     grantTokens: List<String>? = null,
     encryptionAlgorithm: String? = null,
     dryRun: Boolean? = null,
-    @BuilderInference builder: EncryptRequest.Builder.() -> Unit = {},
+    builder: EncryptRequest.Builder.() -> Unit = {},
 ): EncryptRequest = encryptRequest {
 
     keyId?.let { keyId(it) }

@@ -19,7 +19,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartPartBuilder
  * @return [MultipartPart]
  */
 inline fun multipartPart(
-    @BuilderInference builder: MultipartPartBuilder.() -> Unit,
+    builder: MultipartPartBuilder.() -> Unit,
 ): MultipartPart =
     MultipartPartBuilder.create().apply(builder).build()
 
@@ -40,7 +40,7 @@ inline fun multipartPart(
  */
 inline fun multipartPart(
     body: ContentBody,
-    @BuilderInference builder: MultipartPartBuilder.() -> Unit = {},
+    builder: MultipartPartBuilder.() -> Unit = {},
 ): MultipartPart =
     multipartPart {
         setBody(body)
@@ -65,7 +65,7 @@ inline fun multipartPart(
 inline fun multipartPartOf(
     body: ContentBody,
     vararg mimeFields: MimeField,
-    @BuilderInference builder: MultipartPartBuilder.() -> Unit = {},
+    builder: MultipartPartBuilder.() -> Unit = {},
 ): MultipartPart =
     multipartPart {
         setBody(body)
@@ -93,7 +93,7 @@ inline fun multipartPartOf(
 inline fun multipartPartOf(
     body: ContentBody,
     fields: Map<String, String> = emptyMap(),
-    @BuilderInference builder: MultipartPartBuilder.() -> Unit = {},
+    builder: MultipartPartBuilder.() -> Unit = {},
 ): MultipartPart =
     multipartPart {
         setBody(body)

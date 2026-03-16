@@ -34,7 +34,7 @@ private val log by lazy { KotlinLogging.logger { } }
  *
  * @param builder JsonMapper 빌더 초기화 람다
  */
-inline fun jsonMapper(@BuilderInference builder: JsonMapper.Builder.() -> Unit): JsonMapper {
+inline fun jsonMapper(builder: JsonMapper.Builder.() -> Unit): JsonMapper {
     return JsonMapper.builder().apply(builder).build()
 }
 

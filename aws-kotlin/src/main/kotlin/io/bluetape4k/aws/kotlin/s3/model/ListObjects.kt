@@ -10,7 +10,7 @@ inline fun listObjectsRequestOf(
     delimiter: String? = null,
     maxKeys: Int? = null,
     encondingType: EncodingType? = null,
-    @BuilderInference crossinline builder: ListObjectsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListObjectsRequest.Builder.() -> Unit = {},
 ): ListObjectsRequest {
     bucket.requireNotBlank("bucket")
 

@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun headObjectRequestOf(
     bucket: String,
     key: String,
-    @BuilderInference crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
 ): HeadObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

@@ -45,7 +45,7 @@ abstract class AbstractJwtProvider: JwtProvider {
      */
     override fun compose(
         keyChain: KeyChain?,
-        @BuilderInference builder: JwtComposerDsl.() -> Unit,
+        builder: JwtComposerDsl.() -> Unit,
     ): String {
         return lock.withLock {
             composeJwt(keyChain ?: currentKeyChain(), builder)

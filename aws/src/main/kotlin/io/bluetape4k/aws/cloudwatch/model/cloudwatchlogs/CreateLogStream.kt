@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogStreamReque
  * ```
  */
 inline fun createLogStreamRequest(
-    @BuilderInference builder: CreateLogStreamRequest.Builder.() -> Unit,
+    builder: CreateLogStreamRequest.Builder.() -> Unit,
 ): CreateLogStreamRequest =
     CreateLogStreamRequest.builder().apply(builder).build()
 
@@ -35,7 +35,7 @@ inline fun createLogStreamRequest(
 inline fun createLogStreamRequestOf(
     logGroupName: String,
     logStreamName: String,
-    @BuilderInference builder: CreateLogStreamRequest.Builder.() -> Unit = {},
+    builder: CreateLogStreamRequest.Builder.() -> Unit = {},
 ): CreateLogStreamRequest {
     logGroupName.requireNotBlank("logGroupName")
     logStreamName.requireNotBlank("logStreamName")

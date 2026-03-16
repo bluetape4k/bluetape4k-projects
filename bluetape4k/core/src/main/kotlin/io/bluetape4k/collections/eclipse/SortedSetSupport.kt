@@ -86,7 +86,7 @@ fun <T: Comparable<T>> mutableSortedSetOf(vararg elements: T): MutableSortedSet<
  */
 inline fun <T: Comparable<T>> mutableSortedSet(
     size: Int = 10,
-    @BuilderInference builder: (Int) -> T,
+    builder: (Int) -> T,
 ): MutableSortedSet<T> =
     SortedSets.mutable.of<T>().apply {
         repeat(size) {

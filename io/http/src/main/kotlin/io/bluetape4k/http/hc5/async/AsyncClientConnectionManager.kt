@@ -28,7 +28,7 @@ val defaultAsyncClientConnectionManager: PoolingAsyncClientConnectionManager =
  * @return [PoolingAsyncClientConnectionManager] 인스턴스
  */
 inline fun asyncClientConnectionManager(
-    @BuilderInference builder: PoolingAsyncClientConnectionManagerBuilder.() -> Unit,
+    builder: PoolingAsyncClientConnectionManagerBuilder.() -> Unit,
 ): PoolingAsyncClientConnectionManager =
     PoolingAsyncClientConnectionManagerBuilder
         .create()

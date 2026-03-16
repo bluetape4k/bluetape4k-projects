@@ -23,7 +23,7 @@ fun charCodingConfigOf(): CharCodingConfig =
  * @return [CharCodingConfig]
  */
 inline fun charCodingConfig(
-    @BuilderInference builder: CharCodingConfig.Builder.() -> Unit,
+    builder: CharCodingConfig.Builder.() -> Unit,
 ): CharCodingConfig =
     CharCodingConfig.custom().apply(builder).build()
 
@@ -42,6 +42,6 @@ inline fun charCodingConfig(
  */
 inline fun charCodingConfig(
     source: CharCodingConfig,
-    @BuilderInference builder: CharCodingConfig.Builder.() -> Unit,
+    builder: CharCodingConfig.Builder.() -> Unit,
 ): CharCodingConfig =
     CharCodingConfig.copy(source).apply(builder).build()

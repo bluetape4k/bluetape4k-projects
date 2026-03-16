@@ -20,7 +20,7 @@ val noopTraceProvider: TracerProvider = TracerProvider.noop()
  * @return [SdkTracerProvider] 인스턴스
  */
 inline fun sdkTracerProvider(
-    @BuilderInference builder: SdkTracerProviderBuilder.() -> Unit,
+    builder: SdkTracerProviderBuilder.() -> Unit,
 ): SdkTracerProvider {
     return SdkTracerProvider.builder().apply(builder).build()
 }
@@ -61,7 +61,7 @@ inline fun sdkTracerProvider(
  */
 inline fun Tracer.startSpan(
     spanName: String,
-    @BuilderInference builder: SpanBuilder.() -> Unit,
+    builder: SpanBuilder.() -> Unit,
 ): Span {
     return spanBuilder(spanName).apply(builder).startSpan()
 }

@@ -24,7 +24,7 @@ inline fun listGlobalTableRequestOf(
     exclusiveStartGlobalTableName: String? = null,
     regionName: String? = null,
     limit: Int? = null,
-    @BuilderInference crossinline builder: ListGlobalTablesRequest.Builder.() -> Unit = {},
+    crossinline builder: ListGlobalTablesRequest.Builder.() -> Unit = {},
 ): ListGlobalTablesRequest = ListGlobalTablesRequest {
     this.exclusiveStartGlobalTableName = exclusiveStartGlobalTableName
     this.regionName = regionName

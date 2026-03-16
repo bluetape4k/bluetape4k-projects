@@ -17,7 +17,7 @@ import org.apache.hc.client5.http.config.RequestConfig
  * @return [RequestConfig] 인스턴스
  */
 inline fun requestConfig(
-    @BuilderInference builder: RequestConfig.Builder.() -> Unit,
+    builder: RequestConfig.Builder.() -> Unit,
 ): RequestConfig {
     return RequestConfig.custom().apply(builder).build()
 }

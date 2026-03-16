@@ -39,7 +39,7 @@ private val log = KotlinLogging.logger { }
  */
 inline fun <T: Any> S3TransferManager.downloadAsync(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): Download<T> = download(downloadRequest(responseTransformer, builder))
 
 /**
@@ -62,7 +62,7 @@ inline fun <T: Any> S3TransferManager.downloadAsync(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): Download<T> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -88,7 +88,7 @@ inline fun <T: Any> S3TransferManager.downloadAsync(
 inline fun S3TransferManager.downloadAsByteArrayAsync(
     bucket: String,
     key: String,
-    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): Download<ResponseBytes<GetObjectResponse>> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -120,7 +120,7 @@ inline fun S3TransferManager.downloadFileAsync(
     bucket: String,
     key: String,
     destination: Path,
-    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
+    builder: DownloadFileRequest.Builder.() -> Unit = {},
 ): FileDownload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -148,7 +148,7 @@ inline fun S3TransferManager.uploadAsync(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
+    builder: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -181,7 +181,7 @@ inline fun S3TransferManager.uploadByteArrayAsync(
     bucket: String,
     key: String,
     content: ByteArray,
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
+    builder: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -217,7 +217,7 @@ inline fun S3TransferManager.uploadFileAsync(
     bucket: String,
     key: String,
     source: Path,
-    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit = {},
+    builder: UploadFileRequest.Builder.() -> Unit = {},
 ): FileUpload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

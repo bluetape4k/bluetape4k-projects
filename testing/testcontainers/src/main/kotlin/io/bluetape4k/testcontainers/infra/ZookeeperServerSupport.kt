@@ -5,7 +5,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory
 
 @PublishedApi
 internal inline fun curatorFrameworkOf(
-    @BuilderInference builder: CuratorFrameworkFactory.Builder.() -> Unit,
+    builder: CuratorFrameworkFactory.Builder.() -> Unit,
 ): CuratorFramework {
     return CuratorFrameworkFactory.builder().apply(builder).build()
 }
@@ -13,7 +13,7 @@ internal inline fun curatorFrameworkOf(
 @PublishedApi
 internal inline fun <T> withCuratorFramework(
     zookeeper: ZooKeeperServer,
-    @BuilderInference block: CuratorFramework.() -> T,
+    block: CuratorFramework.() -> T,
 ): T {
     return ZooKeeperServer.Launcher.getCuratorFramework(zookeeper).use { curator ->
         curator.start()

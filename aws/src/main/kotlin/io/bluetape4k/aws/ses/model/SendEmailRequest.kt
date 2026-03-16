@@ -20,7 +20,7 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  * @return [SendEmailRequest] 인스턴스
  */
 inline fun sendEmailRequest(
-    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit,
+    builder: SendEmailRequest.Builder.() -> Unit,
 ): SendEmailRequest =
     SendEmailRequest.builder().apply(builder).build()
 
@@ -52,7 +52,7 @@ inline fun sendEmailRequestOf(
     returnPath: String? = null,
     returnPathArn: String? = null,
     tags: Collection<MessageTag>? = null,
-    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
+    builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest = sendEmailRequest {
     source(source)
     destination(destination)
@@ -80,7 +80,7 @@ inline fun sendEmailRequestOf(
  * @return [SendTemplatedEmailRequest] 인스턴스
  */
 inline fun sendTemplatedEmailRequest(
-    @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit,
+    builder: SendTemplatedEmailRequest.Builder.() -> Unit,
 ): SendTemplatedEmailRequest =
     SendTemplatedEmailRequest.builder().apply(builder).build()
 
@@ -122,7 +122,7 @@ inline fun sendTemplatedEmailRequestOf(
     returnPathArn: String? = null,
     tags: Collection<MessageTag>? = null,
     configurationSetName: String? = null,
-    @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit = {},
+    builder: SendTemplatedEmailRequest.Builder.() -> Unit = {},
 ): SendTemplatedEmailRequest {
     source.requireNotBlank("source")
     template.requireNotBlank("destination")

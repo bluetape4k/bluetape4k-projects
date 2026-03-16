@@ -51,7 +51,7 @@ data class ResilientLettuceNearCacheConfig<K: Any, V: Any>(
  * [ResilientLettuceNearCacheConfig] DSL 빌더.
  */
 inline fun <K: Any, V: Any> resilientLettuceNearCacheConfig(
-    @BuilderInference block: ResilientLettuceNearCacheConfigBuilder<K, V>.() -> Unit,
+    block: ResilientLettuceNearCacheConfigBuilder<K, V>.() -> Unit,
 ): ResilientLettuceNearCacheConfig<K, V> =
     ResilientLettuceNearCacheConfigBuilder<K, V>().apply(block).build()
 

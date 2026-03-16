@@ -25,7 +25,7 @@ inline fun sendEmailRequestOf(
     source: String,
     destination: Destination,
     message: Message,
-    @BuilderInference crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
+    crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest {
     source.requireNotBlank("source")
 
@@ -50,5 +50,5 @@ inline fun sendMailRequestOf(
     source: String,
     destination: Destination,
     message: Message,
-    @BuilderInference crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
+    crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest = sendEmailRequestOf(source, destination, message, builder)

@@ -24,7 +24,7 @@ import org.apache.hc.core5.http.Method
  */
 inline fun simpleHttpRequest(
     method: String,
-    @BuilderInference builder: SimpleRequestBuilder.() -> Unit,
+    builder: SimpleRequestBuilder.() -> Unit,
 ): SimpleHttpRequest {
     return SimpleRequestBuilder.create(method).apply(builder).build()
 }
@@ -45,7 +45,7 @@ inline fun simpleHttpRequest(
  */
 inline fun simpleHttpRequest(
     method: Method,
-    @BuilderInference builder: SimpleRequestBuilder.() -> Unit,
+    builder: SimpleRequestBuilder.() -> Unit,
 ): SimpleHttpRequest {
     return SimpleRequestBuilder.create(method).apply(builder).build()
 }
@@ -71,7 +71,7 @@ inline fun simpleHttpRequestOf(
     path: String,
     body: SimpleBody? = null,
     headers: Iterable<Header>? = null,
-    @BuilderInference builder: SimpleRequestBuilder.() -> Unit = {},
+    builder: SimpleRequestBuilder.() -> Unit = {},
 ): SimpleHttpRequest = simpleHttpRequest(method) {
     setHttpHost(host)
     setPath(path)
@@ -102,7 +102,7 @@ inline fun simpleHttpRequestOf(
     path: String,
     body: SimpleBody? = null,
     headers: Iterable<Header>? = null,
-    @BuilderInference builder: SimpleRequestBuilder.() -> Unit = {},
+    builder: SimpleRequestBuilder.() -> Unit = {},
 ): SimpleHttpRequest = simpleHttpRequest(method) {
     setHttpHost(host)
     setPath(path)

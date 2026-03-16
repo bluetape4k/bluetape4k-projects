@@ -42,7 +42,7 @@ suspend inline fun S3Client.put(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     val request = putObjectRequestOf(bucketName, key, body, metadata, acl, contentType, builder)
     return putObject(request)
@@ -69,7 +69,7 @@ suspend inline fun S3Client.putFromByteArray(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucketName, key, ByteStream.fromBytes(bytes), metadata, acl, contentType, builder)
 
@@ -93,7 +93,7 @@ suspend inline fun S3Client.putFromString(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucketName, key, ByteStream.fromString(text), metadata, acl, contentType, builder)
 
@@ -119,7 +119,7 @@ suspend inline fun S3Client.putFromFile(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(file.exists()) { "File not found: $file" }
 
@@ -148,7 +148,7 @@ suspend inline fun S3Client.putFromPath(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(filePath.exists()) { "File not found: $filePath" }
 

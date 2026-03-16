@@ -13,7 +13,7 @@ import aws.sdk.kotlin.services.cloudwatchlogs.model.InputLogEvent
  * ```
  */
 inline fun inputLogEvent(
-    @BuilderInference crossinline builder: InputLogEvent.Builder.() -> Unit,
+    crossinline builder: InputLogEvent.Builder.() -> Unit,
 ): InputLogEvent =
     InputLogEvent { builder() }
 
@@ -35,7 +35,7 @@ inline fun inputLogEvent(
 inline fun inputLogEventOf(
     timestamp: Long,
     message: String,
-    @BuilderInference crossinline builder: InputLogEvent.Builder.() -> Unit = {},
+    crossinline builder: InputLogEvent.Builder.() -> Unit = {},
 ): InputLogEvent = inputLogEvent {
     this.timestamp = timestamp
     this.message = message

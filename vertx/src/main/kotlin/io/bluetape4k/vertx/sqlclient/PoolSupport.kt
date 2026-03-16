@@ -26,7 +26,7 @@ import java.sql.SQLException
  * [kotlinx.coroutines.CancellationException]은 래핑하지 않고 그대로 전파합니다.
  */
 suspend inline fun <T> Pool.withSuspendTransaction(
-    @BuilderInference action: suspend (conn: SqlConnection) -> T,
+    action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()
@@ -67,7 +67,7 @@ suspend inline fun <T> Pool.withSuspendTransaction(
  * [kotlinx.coroutines.CancellationException]은 래핑하지 않고 그대로 전파합니다.
  */
 suspend inline fun <T> Pool.withSuspendRollback(
-    @BuilderInference action: suspend (conn: SqlConnection) -> T,
+    action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()

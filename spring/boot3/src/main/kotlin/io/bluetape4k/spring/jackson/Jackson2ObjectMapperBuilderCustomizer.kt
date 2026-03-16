@@ -28,7 +28,7 @@ import java.util.*
  * ```
  */
 inline fun jackson2ObjectMapperBuilderCustomizer(
-    @BuilderInference crossinline builder: Jackson2ObjectMapperBuilder.() -> Unit,
+    crossinline builder: Jackson2ObjectMapperBuilder.() -> Unit,
 ): Jackson2ObjectMapperBuilderCustomizer =
     Jackson2ObjectMapperBuilderCustomizer { builder ->
 

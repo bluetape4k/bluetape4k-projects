@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 inline fun putObjectRequest(
     bucket: String,
     key: String,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -41,7 +41,7 @@ inline fun putObjectRequestOf(
     key: String,
     acl: String? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectRequest =
     putObjectRequest(bucket, key) {
         acl?.let { acl(it) }

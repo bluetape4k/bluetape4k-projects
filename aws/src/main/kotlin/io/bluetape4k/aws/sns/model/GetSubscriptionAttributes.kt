@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sns.model.GetSubscriptionAttributesReques
  * ```
  */
 inline fun getSubscriptionAttributesRequest(
-    @BuilderInference builder: GetSubscriptionAttributesRequest.Builder.() -> Unit,
+    builder: GetSubscriptionAttributesRequest.Builder.() -> Unit,
 ): GetSubscriptionAttributesRequest =
     GetSubscriptionAttributesRequest.builder().apply(builder).build()
 
@@ -35,7 +35,7 @@ inline fun getSubscriptionAttributesRequest(
 inline fun getSubscriptionAttributesRequestOf(
     subscriptionArn: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: GetSubscriptionAttributesRequest.Builder.() -> Unit = {},
+    builder: GetSubscriptionAttributesRequest.Builder.() -> Unit = {},
 ): GetSubscriptionAttributesRequest =
     getSubscriptionAttributesRequest {
         subscriptionArn?.let {

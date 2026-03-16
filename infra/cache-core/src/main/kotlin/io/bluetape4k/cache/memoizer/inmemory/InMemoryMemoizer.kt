@@ -18,7 +18,7 @@ fun <T: Any, R: Any> ((T) -> R).memoizer(): InMemoryMemoizer<T, R> =
  * @param evaluator 수행할 함수
  */
 class InMemoryMemoizer<in T: Any, out R: Any>(
-    @BuilderInference private val evaluator: (T) -> R,
+    private val evaluator: (T) -> R,
 ): Memoizer<T, R> {
 
     companion object: KLogging()

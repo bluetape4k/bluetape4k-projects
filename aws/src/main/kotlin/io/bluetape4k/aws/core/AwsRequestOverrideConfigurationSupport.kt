@@ -18,7 +18,7 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
  * ```
  */
 inline fun awsRequestOverrideConfiguration(
-    @BuilderInference builder: AwsRequestOverrideConfiguration.Builder.() -> Unit,
+    builder: AwsRequestOverrideConfiguration.Builder.() -> Unit,
 ): AwsRequestOverrideConfiguration {
     return AwsRequestOverrideConfiguration.builder().apply(builder).build()
 }

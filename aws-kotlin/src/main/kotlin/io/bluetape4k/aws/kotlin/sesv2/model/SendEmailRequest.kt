@@ -25,7 +25,7 @@ fun sendEmailRequestOf(
     fromEmailAddress: String,
     destination: Destination,
     content: EmailContent,
-    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
+    builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest {
     fromEmailAddress.requireNotBlank("fromEmailAddress")
 
@@ -50,5 +50,5 @@ fun sendMailRequestOf(
     fromEmailAddress: String,
     destination: Destination,
     content: EmailContent,
-    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
+    builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest = sendEmailRequestOf(fromEmailAddress, destination, content, builder)

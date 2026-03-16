@@ -30,7 +30,7 @@ dependencies {
     implementation(Libs.vertx_pg_client)
     compileOnly(Libs.vertx_jdbc_client)
     compileOnly(Libs.agroal_pool)
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
     implementation(Libs.mybatis_dynamic_sql)

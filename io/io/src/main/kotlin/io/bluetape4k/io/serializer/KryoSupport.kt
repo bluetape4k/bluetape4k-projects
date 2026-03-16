@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture
  *    // do something
  * }
  */
-inline fun <T> withKryo(@BuilderInference func: Kryo.() -> T): T {
+inline fun <T> withKryo(func: Kryo.() -> T): T {
     val kryo = KryoProvider.obtainKryo()
     return try {
         func(kryo)
@@ -30,7 +30,7 @@ inline fun <T> withKryo(@BuilderInference func: Kryo.() -> T): T {
 /**
  * Kryo Ouptut을 Pool 에서 받아서 작업 후 반환합니다.
  */
-inline fun <T> withKryoOutput(@BuilderInference func: (output: Output) -> T): T {
+inline fun <T> withKryoOutput(func: (output: Output) -> T): T {
     val output = KryoProvider.obtainOutput()
     return try {
         func(output)
@@ -43,7 +43,7 @@ inline fun <T> withKryoOutput(@BuilderInference func: (output: Output) -> T): T 
  * Kryo Input을 Pool 에서 받아서 작업 후 반환합니다.
  */
 inline fun <T> withKryoInput(
-    @BuilderInference func: (input: Input) -> T,
+    func: (input: Input) -> T,
 ): T {
     val input = KryoProvider.obtainInput()
     return try {
@@ -58,7 +58,7 @@ inline fun <T> withKryoInput(
  * Kryo 가 thread-safe 하지 않기 때문에 이 함수를 사용해야 합니다.
  */
 inline fun <T: Any> withKryoAsync(
-    @BuilderInference crossinline func: Kryo.() -> T?,
+    crossinline func: Kryo.() -> T?,
 ): CompletableFuture<T?> {
     val kryo = KryoProvider.obtainKryo()
     return CompletableFuture.supplyAsync { func(kryo) }
@@ -75,7 +75,7 @@ inline fun <T: Any> withKryoAsync(
  * @return 작업 결과
  */
 suspend inline fun <T: Any> withKryoSuspending(
-    @BuilderInference crossinline func: suspend Kryo.() -> T?,
+    crossinline func: suspend Kryo.() -> T?,
 ): T? = coroutineScope {
     val kryo = KryoProvider.obtainKryo()
 

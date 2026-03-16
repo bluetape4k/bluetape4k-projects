@@ -26,7 +26,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun batchGetItemRequestOf(
     requestItems: Map<String, KeysAndAttributes>,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    @BuilderInference crossinline builder: BatchGetItemRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchGetItemRequest.Builder.() -> Unit = {},
 ): BatchGetItemRequest {
     requestItems.requireNotEmpty("requestItems")
 

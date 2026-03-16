@@ -4,14 +4,14 @@
 
 `bluetape4k-jackson3`은 [Jackson 3.x](https://github.com/FasterXML/jackson) 라이브러리를 Kotlin DSL과 확장 함수로 래핑하여 제공하는 모듈입니다.
 
-Jackson 2.x(`bluetape4k-jackson`)와 동일한 기능 구조를 제공하면서, Jackson 3.x의 새로운 API와 패키지 구조(`tools.jackson.*`)를 따릅니다.
+Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서, Jackson 3.x의 새로운 API와 패키지 구조(`tools.jackson.*`)를 따릅니다.
 
 ## Jackson 2.x vs 3.x
 
 | 항목            | Jackson 2.x                             | Jackson 3.x                            |
 |---------------|-----------------------------------------|----------------------------------------|
 | 패키지           | `com.fasterxml.jackson.*`               | `tools.jackson.*`                      |
-| 모듈            | bluetape4k-jackson                      | bluetape4k-jackson3                    |
+| 모듈            | bluetape4k-jackson2                      | bluetape4k-jackson3                    |
 | Module SPI    | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
 | 타입 정보         | `activateDefaultTyping()` 지원            | 제거됨                                    |
 | JsonMapper 빌드 | `JsonMapper.builder()`                  | `jsonMapper { }` (kotlinModule 내장)     |
@@ -204,13 +204,62 @@ objectNode.addBoolean(true, "active")
 objectNode.addNull("description")
 ```
 
+## 바이너리 / 텍스트 포맷 지원
+
+> 구 `bluetape4k-jackson3-binary`, `bluetape4k-jackson3-text` 모듈이 이 모듈에 통합되었습니다.
+
+바이너리 및 텍스트 포맷은 `compileOnly`로 선언되어 있으므로 사용할 포맷의 의존성을 런타임에 추가해야 합니다.
+
+| 포맷 | 종류 | 런타임 의존성 |
+|------|------|--------------|
+| CBOR | 바이너리 | `jackson3-dataformat-cbor` |
+| Ion | 바이너리 | `jackson3-dataformat-ion` |
+| Smile | 바이너리 | `jackson3-dataformat-smile` |
+| Avro | 바이너리 | `jackson3-dataformat-avro` |
+| Protobuf | 바이너리 | `jackson3-dataformat-protobuf` |
+| YAML | 텍스트 | `jackson3-dataformat-yaml` |
+| CSV | 텍스트 | `jackson3-dataformat-csv` |
+| TOML | 텍스트 | `jackson3-dataformat-toml` |
+| Properties | 텍스트 | `jackson3-dataformat-properties` |
+
+### CBOR 직렬화 예시
+
+```kotlin
+import tools.jackson.dataformat.cbor.CBORFactory
+import tools.jackson.databind.ObjectMapper
+
+val cborMapper = ObjectMapper(CBORFactory())
+val bytes = cborMapper.writeValueAsBytes(user)      // 바이너리 직렬화
+val restored = cborMapper.readValue<User>(bytes)    // 역직렬화
+```
+
+### YAML 직렬화 예시
+
+```kotlin
+import tools.jackson.dataformat.yaml.YAMLFactory
+import tools.jackson.databind.ObjectMapper
+
+val yamlMapper = ObjectMapper(YAMLFactory())
+val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
+val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
+```
+
 ## 의존성
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-jackson3"))
 
-    // 선택적 의존성
+    // 바이너리 포맷 (필요한 것만 추가)
+    implementation("tools.jackson.dataformat:jackson-dataformat-cbor3")
+    implementation("tools.jackson.dataformat:jackson-dataformat-smile3")
+
+    // 텍스트 포맷 (필요한 것만 추가)
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml3")
+    implementation("tools.jackson.dataformat:jackson-dataformat-csv3")
+    implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
+
+    // 암호화 (선택적)
     implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
     implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
 }

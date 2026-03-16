@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.sts.model.GetSessionTokenRequest
  * ```
  */
 inline fun getSessionTokenRequest(
-    @BuilderInference builder: GetSessionTokenRequest.Builder.() -> Unit,
+    builder: GetSessionTokenRequest.Builder.() -> Unit,
 ): GetSessionTokenRequest =
     GetSessionTokenRequest.builder().apply(builder).build()
 
@@ -32,7 +32,7 @@ inline fun getSessionTokenRequest(
  */
 inline fun getSessionTokenRequestOf(
     durationSeconds: Int = 3600,
-    @BuilderInference builder: GetSessionTokenRequest.Builder.() -> Unit = {},
+    builder: GetSessionTokenRequest.Builder.() -> Unit = {},
 ): GetSessionTokenRequest =
     getSessionTokenRequest {
         durationSeconds(durationSeconds)

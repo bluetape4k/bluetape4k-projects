@@ -35,7 +35,7 @@ inline fun executeStatementRequestOf(
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    @BuilderInference crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -80,7 +80,7 @@ inline fun executeStatementRequestOf(
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    @BuilderInference crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest = executeStatementRequestOf(
     statement,
     parameters?.toAttributeValueList(),

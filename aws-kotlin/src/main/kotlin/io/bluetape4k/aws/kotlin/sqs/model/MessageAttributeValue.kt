@@ -12,7 +12,7 @@ import aws.sdk.kotlin.services.sqs.model.MessageAttributeValue
 @JvmName("messageAttributeValueOfNullableString")
 inline fun messageAttributeValueOf(
     value: String?,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringValue = value
@@ -29,7 +29,7 @@ inline fun messageAttributeValueOf(
 @JvmName("messageAttributeValueOfNullableStringList")
 inline fun messageAttributeValueOf(
     values: List<String>?,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringListValues = values
@@ -47,7 +47,7 @@ inline fun messageAttributeValueOf(
 @JvmName("messageAttributeValueOfNullableByteArray")
 inline fun messageAttributeValueOf(
     value: ByteArray?,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryValue = value
@@ -65,7 +65,7 @@ inline fun messageAttributeValueOf(
 @JvmName("messageAttributeValueOfNullableByteArrayList")
 inline fun messageAttributeValueOf(
     values: List<ByteArray>?,
-    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryListValues = values

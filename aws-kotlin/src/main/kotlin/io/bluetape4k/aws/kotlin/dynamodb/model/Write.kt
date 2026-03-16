@@ -22,7 +22,7 @@ import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 @JvmName("writeRequestOfPut")
 inline fun writeRequestOf(
     putRequest: PutRequest,
-    @BuilderInference crossinline builder: WriteRequest.Builder.() -> Unit = {},
+    crossinline builder: WriteRequest.Builder.() -> Unit = {},
 ): WriteRequest = WriteRequest {
     this.putRequest = putRequest
     builder()
@@ -45,7 +45,7 @@ inline fun writeRequestOf(
 @JvmName("writeRequestOfDelete")
 inline fun writeRequestOf(
     deleteRequest: DeleteRequest,
-    @BuilderInference crossinline builder: WriteRequest.Builder.() -> Unit = {},
+    crossinline builder: WriteRequest.Builder.() -> Unit = {},
 ): WriteRequest = WriteRequest {
     this.deleteRequest = deleteRequest
     builder()

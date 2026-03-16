@@ -105,7 +105,7 @@ fun Iterable<Number>.asLongArrayList() = when (this) {
  */
 inline fun longArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Long,
+    builder: (index: Int) -> Long,
 ): LongArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return LongArrayList(initialCapacity).apply {

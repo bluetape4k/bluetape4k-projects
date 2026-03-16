@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService
  * @return [sesAsyncWaiter] 인스턴스
  */
 fun sesAsyncWaiter(
-    @BuilderInference builder: SesAsyncWaiter.Builder.() -> Unit,
+    builder: SesAsyncWaiter.Builder.() -> Unit,
 ): SesAsyncWaiter {
     return SesAsyncWaiter.builder().apply(builder).build()
         .apply {
@@ -55,7 +55,7 @@ fun sesAsyncWaiterOf(
     client: SesAsyncClient,
     scheduledExecutorService: ScheduledExecutorService,
     configuration: WaiterOverrideConfiguration = waiterOverrideConfigurationOf(),
-    @BuilderInference builder: SesAsyncWaiter.Builder.() -> Unit = {},
+    builder: SesAsyncWaiter.Builder.() -> Unit = {},
 ): SesAsyncWaiter = sesAsyncWaiter {
     client(client)
     scheduledExecutorService(scheduledExecutorService)

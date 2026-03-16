@@ -55,7 +55,7 @@ suspend fun SqsAsyncClient.sendBatch(
 suspend fun SqsAsyncClient.receiveMessages(
     queueUrl: String,
     maxResults: Int? = null,
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse =
     receiveMessagesAsync(queueUrl, maxResults, builder).await()
 

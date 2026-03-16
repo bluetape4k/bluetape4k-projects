@@ -24,7 +24,7 @@ import java.nio.file.Path
  * ```
  */
 inline fun uploadRequest(
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit,
+    builder: UploadRequest.Builder.() -> Unit,
 ): UploadRequest =
     UploadRequest.builder().apply(builder).build()
 
@@ -41,7 +41,7 @@ inline fun uploadRequest(
 inline fun uploadRequestOf(
     putObjectRequest: PutObjectRequest,
     requestBody: AsyncRequestBody,
-    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
+    builder: UploadRequest.Builder.() -> Unit = {},
 ): UploadRequest {
     return uploadRequest {
         putObjectRequest(putObjectRequest)
@@ -60,7 +60,7 @@ inline fun uploadRequestOf(
  * ```
  */
 inline fun uploadFileRequest(
-    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit,
+    builder: UploadFileRequest.Builder.() -> Unit,
 ): UploadFileRequest =
     UploadFileRequest.builder().apply(builder).build()
 
@@ -80,7 +80,7 @@ inline fun uploadFileRequestOf(
     bucket: String,
     key: String,
     source: Path,
-    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit,
+    builder: UploadFileRequest.Builder.() -> Unit,
 ): UploadFileRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -109,7 +109,7 @@ inline fun uploadFileRequestOf(
     bucket: String,
     key: String,
     source: File,
-    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit,
+    builder: UploadFileRequest.Builder.() -> Unit,
 ): UploadFileRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -135,7 +135,7 @@ inline fun uploadFileRequestOf(
  * ```
  */
 inline fun uploadDirectoryRequest(
-    @BuilderInference builder: UploadDirectoryRequest.Builder.() -> Unit,
+    builder: UploadDirectoryRequest.Builder.() -> Unit,
 ): UploadDirectoryRequest =
     UploadDirectoryRequest.builder().apply(builder).build()
 
@@ -154,7 +154,7 @@ inline fun uploadDirectoryRequest(
 inline fun uploadDirectoryRequestOf(
     bucket: String,
     source: Path,
-    @BuilderInference builder: UploadDirectoryRequest.Builder.() -> Unit,
+    builder: UploadDirectoryRequest.Builder.() -> Unit,
 ): UploadDirectoryRequest {
     bucket.requireNotBlank("bucket")
     require(source.exists()) { "source[$source] does not exist." }

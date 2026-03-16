@@ -49,7 +49,7 @@ dependencies {
     compileOnly(Libs.async_http_client_extras_rxjava2)
 
     // Jackson
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_core)
     api(Libs.jackson_databind)
     api(Libs.jackson_module_kotlin)

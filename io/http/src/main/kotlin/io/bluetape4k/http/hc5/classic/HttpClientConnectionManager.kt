@@ -24,7 +24,7 @@ val defaultHttpClientConnectionManager: PoolingHttpClientConnectionManager =
  * @return [HttpClientConnectionManager] 인스턴스
  */
 inline fun httpClientConnectionManager(
-    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
+    builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
 ): PoolingHttpClientConnectionManager =
     PoolingHttpClientConnectionManagerBuilder
         .create()

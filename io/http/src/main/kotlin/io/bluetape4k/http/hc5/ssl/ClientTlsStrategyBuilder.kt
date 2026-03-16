@@ -23,7 +23,7 @@ import javax.net.ssl.SSLContext
  * @return [TlsStrategy]
  */
 inline fun tlsStrategy(
-    @BuilderInference builder: ClientTlsStrategyBuilder.() -> Unit,
+    builder: ClientTlsStrategyBuilder.() -> Unit,
 ): TlsStrategy =
     ClientTlsStrategyBuilder.create().apply(builder).buildAsync()
 
@@ -54,7 +54,7 @@ inline fun tlsStrategyOf(
     ciphers: Array<String>? = null,
     sslBufferMode: SSLBufferMode = SSLBufferMode.STATIC,
     hostnameVerifier: HostnameVerifier = defaultHostnameVerifier,
-    @BuilderInference builder: ClientTlsStrategyBuilder.() -> Unit = {},
+    builder: ClientTlsStrategyBuilder.() -> Unit = {},
 ): TlsStrategy =
     tlsStrategy {
         sslContext?.run { setSslContext(sslContext) }

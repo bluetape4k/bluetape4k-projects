@@ -48,7 +48,7 @@ suspend fun currentObservationInContext(): Observation? =
  * @return 블록 결과 또는 `null`
  */
 suspend inline fun <T: Any> Observation.observeSuspending(
-    @BuilderInference crossinline block: suspend (Observation.Context) -> T?,
+    crossinline block: suspend (Observation.Context) -> T?,
 ): T? =
     withObservationContextSuspending { ctx: Observation.Context ->
         block(ctx)
@@ -62,7 +62,7 @@ suspend inline fun <T: Any> Observation.observeSuspending(
  * @return 성공 시 블록 결과, 실패 시 예외를 담은 [Result]
  */
 suspend inline fun <T: Any> Observation.tryObserveSuspending(
-    @BuilderInference crossinline block: suspend (Observation.Context) -> T?,
+    crossinline block: suspend (Observation.Context) -> T?,
 ): Result<T> =
     runCatching {
         withObservationContextSuspending { ctx: Observation.Context ->
@@ -82,7 +82,7 @@ suspend inline fun <T: Any> Observation.tryObserveSuspending(
 suspend inline fun <T: Any> withObservationSuspending(
     name: String,
     registry: ObservationRegistry,
-    @BuilderInference crossinline block: suspend () -> T?,
+    crossinline block: suspend () -> T?,
 ): T? =
     withObservationContextSuspending(name, registry) {
         block()
@@ -100,7 +100,7 @@ suspend inline fun <T: Any> withObservationSuspending(
 suspend inline fun <T: Any> tryWithObservationSuspending(
     name: String,
     registry: ObservationRegistry,
-    @BuilderInference crossinline block: suspend () -> T,
+    crossinline block: suspend () -> T,
 ): Result<T> =
     runCatching {
         withObservationSuspending(name, registry, block) ?: throw NoSuchElementException()

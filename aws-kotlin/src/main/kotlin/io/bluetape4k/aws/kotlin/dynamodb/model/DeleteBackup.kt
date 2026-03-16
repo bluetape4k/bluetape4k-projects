@@ -19,7 +19,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun deleteBackupRequestOf(
     backupArn: String,
-    @BuilderInference crossinline builder: DeleteBackupRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteBackupRequest.Builder.() -> Unit = {},
 ): DeleteBackupRequest {
     backupArn.requireNotBlank("backupArn")
 

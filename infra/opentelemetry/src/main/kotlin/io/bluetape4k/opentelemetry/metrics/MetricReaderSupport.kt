@@ -31,7 +31,7 @@ fun inMemoryMetricReaderDeltaOf(): InMemoryMetricReader = InMemoryMetricReader.c
  */
 fun periodicMetricReader(
     exporter: MetricExporter,
-    @BuilderInference builder: PeriodicMetricReaderBuilder.() -> Unit,
+    builder: PeriodicMetricReaderBuilder.() -> Unit,
 ): PeriodicMetricReader {
     return PeriodicMetricReader.builder(exporter).apply(builder).build()
 }

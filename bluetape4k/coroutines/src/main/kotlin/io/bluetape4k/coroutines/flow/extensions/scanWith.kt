@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.scan
  */
 fun <T, R> Flow<T>.scanWith(
     initialSupplier: suspend () -> R,
-    @BuilderInference operation: suspend (acc: R, item: T) -> R,
+    operation: suspend (acc: R, item: T) -> R,
 ): Flow<R> = flow {
     emitAll(scan(initialSupplier(), operation))
 }

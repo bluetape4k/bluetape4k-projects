@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sns.model.ConfirmSubscriptionRequest
  * ```
  */
 inline fun confirmSubscriptionRequest(
-    @BuilderInference builder: ConfirmSubscriptionRequest.Builder.() -> Unit,
+    builder: ConfirmSubscriptionRequest.Builder.() -> Unit,
 ): ConfirmSubscriptionRequest =
     ConfirmSubscriptionRequest.builder().apply(builder).build()
 
@@ -39,7 +39,7 @@ inline fun confirmSubscriptionRequest(
 inline fun confirmSubscriptionRequestOf(
     topicArn: String,
     token: String,
-    @BuilderInference builder: ConfirmSubscriptionRequest.Builder.() -> Unit = {},
+    builder: ConfirmSubscriptionRequest.Builder.() -> Unit = {},
 ): ConfirmSubscriptionRequest {
     topicArn.requireNotBlank("topicArn")
     token.requireNotBlank("token")

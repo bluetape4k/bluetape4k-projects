@@ -73,7 +73,7 @@ fun transactWriteItemOf(
     delete: Delete? = null,
     put: Put? = null,
     update: Update? = null,
-    @BuilderInference builder: TransactWriteItem.Builder.() -> Unit = {},
+    builder: TransactWriteItem.Builder.() -> Unit = {},
 ): TransactWriteItem = TransactWriteItem {
     this.conditionCheck = conditionCheck
     this.put = put

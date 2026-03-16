@@ -26,7 +26,7 @@ object CloudWatchClientFactory {
          * DSL 빌더로 [CloudWatchClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: CloudWatchClientBuilder.() -> Unit,
+            builder: CloudWatchClientBuilder.() -> Unit,
         ): CloudWatchClient =
             cloudWatchClient(builder)
 
@@ -38,7 +38,7 @@ object CloudWatchClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: CloudWatchClientBuilder.() -> Unit = {},
+            builder: CloudWatchClientBuilder.() -> Unit = {},
         ): CloudWatchClient =
             cloudWatchClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }
@@ -52,7 +52,7 @@ object CloudWatchClientFactory {
          * DSL 빌더로 [CloudWatchAsyncClient]를 생성합니다.
          */
         inline fun create(
-            @BuilderInference builder: CloudWatchAsyncClientBuilder.() -> Unit,
+            builder: CloudWatchAsyncClientBuilder.() -> Unit,
         ): CloudWatchAsyncClient =
             cloudWatchAsyncClient(builder)
 
@@ -64,7 +64,7 @@ object CloudWatchClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-            @BuilderInference builder: CloudWatchAsyncClientBuilder.() -> Unit = {},
+            builder: CloudWatchAsyncClientBuilder.() -> Unit = {},
         ): CloudWatchAsyncClient =
             cloudWatchAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
     }

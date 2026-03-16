@@ -36,7 +36,7 @@ fun <T: Any, R: Any> Flow<T>.concatMapEager(transform: suspend (T) -> Flow<R>): 
 
 @OptIn(ExperimentalTypeInference::class)
 internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
-    @BuilderInference transform: suspend (T) -> Flow<R>,
+    transform: suspend (T) -> Flow<R>,
 ): Flow<R> = channelFlow {
     coroutineScope {
         val resumeOutput = Resumable()

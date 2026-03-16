@@ -28,7 +28,7 @@ inline fun createTableRequestOf(
     tableClass: TableClass = TableClass.Standard,
     tags: List<Tag>? = null,
     streamSpecification: StreamSpecification? = null,
-    @BuilderInference crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableRequest {
     tableName.requireNotBlank("tableName")
 

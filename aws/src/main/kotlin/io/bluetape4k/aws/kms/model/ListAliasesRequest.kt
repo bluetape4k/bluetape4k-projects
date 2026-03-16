@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.kms.model.ListAliasesRequest
  * ```
  */
 fun listAliasesRequest(
-    @BuilderInference builder: ListAliasesRequest.Builder.() -> Unit,
+    builder: ListAliasesRequest.Builder.() -> Unit,
 ): ListAliasesRequest =
     ListAliasesRequest.builder().apply(builder).build()
 
@@ -39,7 +39,7 @@ fun listAliasesRequestOf(
     keyId: String? = null,
     limit: Int? = null,
     marker: String? = null,
-    @BuilderInference builder: ListAliasesRequest.Builder.() -> Unit = {},
+    builder: ListAliasesRequest.Builder.() -> Unit = {},
 ): ListAliasesRequest {
 
     return listAliasesRequest {

@@ -17,7 +17,7 @@ import io.bluetape4k.support.requireNotBlank
  * ```
  */
 inline fun assumeRoleRequest(
-    @BuilderInference crossinline builder: AssumeRoleRequest.Builder.() -> Unit,
+    crossinline builder: AssumeRoleRequest.Builder.() -> Unit,
 ): AssumeRoleRequest =
     AssumeRoleRequest { builder() }
 
@@ -40,7 +40,7 @@ inline fun assumeRoleRequest(
 inline fun assumeRoleRequestOf(
     roleArn: String,
     sessionName: String,
-    @BuilderInference crossinline builder: AssumeRoleRequest.Builder.() -> Unit = {},
+    crossinline builder: AssumeRoleRequest.Builder.() -> Unit = {},
 ): AssumeRoleRequest {
     roleArn.requireNotBlank("roleArn")
     sessionName.requireNotBlank("sessionName")

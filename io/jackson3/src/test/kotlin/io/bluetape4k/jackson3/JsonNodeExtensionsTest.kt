@@ -70,7 +70,7 @@ class JsonNodeExtensionsTest {
 
     @Test
     fun `지원하지 않는 JsonNode 타입에 addLong 호출 시 JsonException 이 발생한다`() {
-        val textNode = JsonNodeFactory.instance.textNode("hello")
+        val textNode = JsonNodeFactory.instance.stringNode("hello")
         assertFailsWith<JsonException> {
             textNode.addLong(1L, "x")
         }
@@ -98,21 +98,21 @@ class JsonNodeExtensionsTest {
     fun `ObjectNode 에 addString 호출 시 필드가 추가된다`() {
         val node = JsonNodeFactory.instance.objectNode()
         node.addString("hello", "greeting")
-        node.get("greeting").asText() shouldBeEqualTo "hello"
+        node.get("greeting").asString() shouldBeEqualTo "hello"
     }
 
     @Test
     fun `ArrayNode 에 addString 호출 시 원소가 추가된다`() {
         val node = JsonNodeFactory.instance.arrayNode()
         node.addString("world", null)
-        node.get(0).asText() shouldBeEqualTo "world"
+        node.get(0).asString() shouldBeEqualTo "world"
     }
 
     @Test
     fun `빈 문자열도 정상적으로 추가된다`() {
         val node = JsonNodeFactory.instance.objectNode()
         node.addString("", "empty")
-        node.get("empty").asText() shouldBeEqualTo ""
+        node.get("empty").asString() shouldBeEqualTo ""
     }
 
     // ── addDouble ─────────────────────────────────────────────────────────────
@@ -211,7 +211,7 @@ class JsonNodeExtensionsTest {
 
     @Test
     fun `지원하지 않는 JsonNode 타입에 addNull 호출 시 JsonException 이 발생한다`() {
-        val textNode = JsonNodeFactory.instance.textNode("hello")
+        val textNode = JsonNodeFactory.instance.stringNode("hello")
         assertFailsWith<JsonException> {
             textNode.addNull("x")
         }
@@ -227,7 +227,7 @@ class JsonNodeExtensionsTest {
         node.addBoolean(true, "active")
         node.addNull("address")
 
-        node.get("name").asText() shouldBeEqualTo "debop"
+        node.get("name").asString() shouldBeEqualTo "debop"
         node.get("age").asInt() shouldBeEqualTo 42
         node.get("active").asBoolean() shouldBeEqualTo true
         node.get("address").isNull shouldBeEqualTo true
@@ -242,7 +242,7 @@ class JsonNodeExtensionsTest {
         node.addNull(null)
 
         node.size() shouldBeEqualTo 4
-        node.get(0).asText() shouldBeEqualTo "first"
+        node.get(0).asString() shouldBeEqualTo "first"
         node.get(1).asLong() shouldBeEqualTo 2L
         node.get(2).asBoolean() shouldBeEqualTo false
         node.get(3).isNull shouldBeEqualTo true

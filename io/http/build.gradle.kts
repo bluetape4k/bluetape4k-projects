@@ -43,7 +43,7 @@ dependencies {
     compileOnly(Libs.async_http_client)
 
     // Jackson
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(Libs.jackson_databind)
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)

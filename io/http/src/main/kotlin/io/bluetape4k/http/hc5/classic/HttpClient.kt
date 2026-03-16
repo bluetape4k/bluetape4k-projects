@@ -21,7 +21,7 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  * @see HttpClientBuilder
  */
 inline fun httpClient(
-    @BuilderInference builder: HttpClientBuilder.() -> Unit,
+    builder: HttpClientBuilder.() -> Unit,
 ): CloseableHttpClient =
     HttpClientBuilder.create().apply(builder).build()
 
@@ -59,7 +59,7 @@ fun httpClientOf(): CloseableHttpClient = HttpClients.createDefault()
  */
 inline fun httpClientOf(
     connectionManager: HttpClientConnectionManager,
-    @BuilderInference builder: HttpClientBuilder.() -> Unit = {},
+    builder: HttpClientBuilder.() -> Unit = {},
 ): CloseableHttpClient = httpClient {
     setConnectionManager(connectionManager)
     builder()

@@ -17,7 +17,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun listSubscriptionsRequestOf(
     nextToken: String,
-    @BuilderInference crossinline builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
 ): ListSubscriptionsRequest {
     nextToken.requireNotBlank("nextToken")
 
@@ -33,5 +33,5 @@ inline fun listSubscriptionsRequestOf(
 )
 inline fun listSubscriptinosRequestOf(
     nextToken: String,
-    @BuilderInference crossinline builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListSubscriptionsRequest.Builder.() -> Unit = {},
 ): ListSubscriptionsRequest = listSubscriptionsRequestOf(nextToken, builder)

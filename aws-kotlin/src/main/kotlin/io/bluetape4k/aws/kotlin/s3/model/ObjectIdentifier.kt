@@ -18,7 +18,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
+    crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     key.requireNotBlank("key")
 
@@ -44,7 +44,7 @@ inline fun objectIdentifierOf(
  */
 inline fun String.toObjectIdentifier(
     versionId: String? = null,
-    @BuilderInference crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
+    crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     return objectIdentifierOf(this, versionId, builder)
 }

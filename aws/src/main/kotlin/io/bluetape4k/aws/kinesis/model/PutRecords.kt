@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.kinesis.model.PutRecordsRequestEntry
  * ```
  */
 inline fun putRecordsRequest(
-    @BuilderInference builder: PutRecordsRequest.Builder.() -> Unit,
+    builder: PutRecordsRequest.Builder.() -> Unit,
 ): PutRecordsRequest =
     PutRecordsRequest.builder().apply(builder).build()
 
@@ -33,7 +33,7 @@ inline fun putRecordsRequest(
 inline fun putRecordsRequestOf(
     streamName: String,
     entries: List<PutRecordsRequestEntry>,
-    @BuilderInference builder: PutRecordsRequest.Builder.() -> Unit = {},
+    builder: PutRecordsRequest.Builder.() -> Unit = {},
 ): PutRecordsRequest {
     streamName.requireNotBlank("streamName")
     return putRecordsRequest {

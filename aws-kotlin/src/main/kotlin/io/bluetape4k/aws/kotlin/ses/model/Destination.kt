@@ -15,7 +15,7 @@ import io.bluetape4k.support.requireNotEmpty
  */
 inline fun destinationOf(
     vararg toAddresses: String,
-    @BuilderInference crossinline builder: Destination.Builder.() -> Unit = {},
+    crossinline builder: Destination.Builder.() -> Unit = {},
 ): Destination {
     toAddresses.requireNotEmpty("toAddresses")
 
@@ -45,7 +45,7 @@ inline fun destinationOf(
     toAddresses: List<String>? = null,
     ccAddresses: List<String>? = null,
     bccAddresses: List<String>? = null,
-    @BuilderInference crossinline builder: Destination.Builder.() -> Unit = {},
+    crossinline builder: Destination.Builder.() -> Unit = {},
 ): Destination {
     val hasAddress = !toAddresses.isNullOrEmpty() || !ccAddresses.isNullOrEmpty() || !bccAddresses.isNullOrEmpty()
     require(hasAddress) { "At least one address must be provided." }

@@ -16,7 +16,7 @@ val defaultJetStreamOptions: JetStreamOptions = JetStreamOptions.DEFAULT_JS_OPTI
  * @return [JetStreamOptions] 인스턴스
  */
 inline fun jetStreamOptions(
-    @BuilderInference builder: JetStreamOptions.Builder.() -> Unit,
+    builder: JetStreamOptions.Builder.() -> Unit,
 ): JetStreamOptions = JetStreamOptions.builder().apply(builder).build()
 
 /**
@@ -34,7 +34,7 @@ inline fun jetStreamOptionsOf(
     requestTimeout: Duration? = null,
     publishNoAck: Boolean? = null,
     optOut290ConsumerCreate: Boolean? = null,
-    @BuilderInference builder: JetStreamOptions.Builder.() -> Unit = {},
+    builder: JetStreamOptions.Builder.() -> Unit = {},
 ): JetStreamOptions =
     jetStreamOptions {
         prefix?.run { prefix(this) }

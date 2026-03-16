@@ -55,122 +55,122 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveRequest
 import software.amazon.awssdk.services.dynamodb.model.WriteRequest
 
 inline fun BatchExecuteStatementRequest(
-    @BuilderInference builder: BatchExecuteStatementRequest.Builder.() -> Unit,
+    builder: BatchExecuteStatementRequest.Builder.() -> Unit,
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest.builder().apply(builder).build()
 
 inline fun BatchGetItemRequest(
-    @BuilderInference builder: BatchGetItemRequest.Builder.() -> Unit,
+    builder: BatchGetItemRequest.Builder.() -> Unit,
 ): BatchGetItemRequest =
     BatchGetItemRequest.builder().apply(builder).build()
 
 inline fun BatchStatementRequest(
-    @BuilderInference builder: BatchStatementRequest.Builder.() -> Unit,
+    builder: BatchStatementRequest.Builder.() -> Unit,
 ): BatchStatementRequest =
     BatchStatementRequest.builder().apply(builder).build()
 
 inline fun BatchWriteItemRequest(
-    @BuilderInference builder: BatchWriteItemRequest.Builder.() -> Unit,
+    builder: BatchWriteItemRequest.Builder.() -> Unit,
 ): BatchWriteItemRequest =
     BatchWriteItemRequest.builder().apply(builder).build()
 
 inline fun Capacity(
-    @BuilderInference builder: Capacity.Builder.() -> Unit,
+    builder: Capacity.Builder.() -> Unit,
 ): Capacity =
     Capacity.builder().apply(builder).build()
 
 inline fun ConditionCheck(
-    @BuilderInference builder: ConditionCheck.Builder.() -> Unit,
+    builder: ConditionCheck.Builder.() -> Unit,
 ): ConditionCheck =
     ConditionCheck.builder().apply(builder).build()
 
 inline fun Condition(
-    @BuilderInference builder: Condition.Builder.() -> Unit,
+    builder: Condition.Builder.() -> Unit,
 ): Condition =
     Condition.builder().apply(builder).build()
 
 inline fun CreateBackupRequest(
-    @BuilderInference builder: CreateBackupRequest.Builder.() -> Unit,
+    builder: CreateBackupRequest.Builder.() -> Unit,
 ): CreateBackupRequest =
     CreateBackupRequest.builder().apply(builder).build()
 
 inline fun CreateGlobalTableRequest(
-    @BuilderInference builder: CreateGlobalTableRequest.Builder.() -> Unit,
+    builder: CreateGlobalTableRequest.Builder.() -> Unit,
 ): CreateGlobalTableRequest =
     CreateGlobalTableRequest.builder().apply(builder).build()
 
 inline fun CreateTableRequest(
-    @BuilderInference builder: CreateTableRequest.Builder.() -> Unit,
+    builder: CreateTableRequest.Builder.() -> Unit,
 ): CreateTableRequest =
     CreateTableRequest.builder().apply(builder).build()
 
 inline fun DeleteBackupRequest(
-    @BuilderInference builder: DeleteBackupRequest.Builder.() -> Unit,
+    builder: DeleteBackupRequest.Builder.() -> Unit,
 ): DeleteBackupRequest =
     DeleteBackupRequest.builder().apply(builder).build()
 
 inline fun Delete(
-    @BuilderInference builder: Delete.Builder.() -> Unit,
+    builder: Delete.Builder.() -> Unit,
 ): Delete =
     Delete.builder().apply(builder).build()
 
 inline fun DeleteRequest(
-    @BuilderInference builder: DeleteRequest.Builder.() -> Unit,
+    builder: DeleteRequest.Builder.() -> Unit,
 ): DeleteRequest =
     DeleteRequest.builder().apply(builder).build()
 
 inline fun DeleteTableRequest(
-    @BuilderInference builder: DeleteTableRequest.Builder.() -> Unit,
+    builder: DeleteTableRequest.Builder.() -> Unit,
 ): DeleteTableRequest =
     DeleteTableRequest.builder().apply(builder).build()
 
 inline fun ExecuteStatementRequest(
-    @BuilderInference builder: ExecuteStatementRequest.Builder.() -> Unit,
+    builder: ExecuteStatementRequest.Builder.() -> Unit,
 ): ExecuteStatementRequest =
     ExecuteStatementRequest.builder().apply(builder).build()
 
 inline fun ExecuteTransactionRequest(
-    @BuilderInference builder: ExecuteTransactionRequest.Builder.() -> Unit,
+    builder: ExecuteTransactionRequest.Builder.() -> Unit,
 ): ExecuteTransactionRequest =
     ExecuteTransactionRequest.builder().apply(builder).build()
 
 inline fun GetItemRequest(
-    @BuilderInference builder: GetItemRequest.Builder.() -> Unit,
+    builder: GetItemRequest.Builder.() -> Unit,
 ): GetItemRequest =
     GetItemRequest.builder().apply(builder).build()
 
 inline fun GetRecordsRequest(
-    @BuilderInference builder: GetRecordsRequest.Builder.() -> Unit,
+    builder: GetRecordsRequest.Builder.() -> Unit,
 ): GetRecordsRequest =
     GetRecordsRequest.builder().apply(builder).build()
 
 inline fun GetShardIteratorRequest(
-    @BuilderInference builder: GetShardIteratorRequest.Builder.() -> Unit,
+    builder: GetShardIteratorRequest.Builder.() -> Unit,
 ): GetShardIteratorRequest =
     GetShardIteratorRequest.builder().apply(builder).build()
 
 inline fun ListGlobalTablesRequest(
-    @BuilderInference builder: ListGlobalTablesRequest.Builder.() -> Unit,
+    builder: ListGlobalTablesRequest.Builder.() -> Unit,
 ): ListGlobalTablesRequest =
     ListGlobalTablesRequest.builder().apply(builder).build()
 
 inline fun ListTablesRequest(
-    @BuilderInference builder: ListTablesRequest.Builder.() -> Unit,
+    builder: ListTablesRequest.Builder.() -> Unit,
 ): ListTablesRequest =
     ListTablesRequest.builder().apply(builder).build()
 
 inline fun ListTagsOfResourceRequest(
-    @BuilderInference builder: ListTagsOfResourceRequest.Builder.() -> Unit,
+    builder: ListTagsOfResourceRequest.Builder.() -> Unit,
 ): ListTagsOfResourceRequest =
     ListTagsOfResourceRequest.builder().apply(builder).build()
 
 inline fun PutItemRequest(
-    @BuilderInference builder: PutItemRequest.Builder.() -> Unit,
+    builder: PutItemRequest.Builder.() -> Unit,
 ): PutItemRequest =
     PutItemRequest.builder().apply(builder).build()
 
 inline fun PutRequest(
-    @BuilderInference builder: PutRequest.Builder.() -> Unit,
+    builder: PutRequest.Builder.() -> Unit,
 ): PutRequest =
     PutRequest.builder().apply(builder).build()
 
@@ -188,133 +188,133 @@ fun putRequestOf(items: Map<String, AttributeValue>): PutRequest =
     }
 
 inline fun QueryRequest(
-    @BuilderInference builder: QueryRequest.Builder.() -> Unit,
+    builder: QueryRequest.Builder.() -> Unit,
 ): QueryRequest =
     QueryRequest.builder().apply(builder).build()
 
 inline fun Record(
-    @BuilderInference builder: Record.Builder.() -> Unit,
+    builder: Record.Builder.() -> Unit,
 ): Record =
     Record.builder().apply(builder).build()
 
 inline fun ReplicaSettingsUpdate(
-    @BuilderInference builder: ReplicaSettingsUpdate.Builder.() -> Unit,
+    builder: ReplicaSettingsUpdate.Builder.() -> Unit,
 ): ReplicaSettingsUpdate =
     ReplicaSettingsUpdate.builder().apply(builder).build()
 
 inline fun ReplicaUpdate(
-    @BuilderInference builder: ReplicaUpdate.Builder.() -> Unit,
+    builder: ReplicaUpdate.Builder.() -> Unit,
 ): ReplicaUpdate =
     ReplicaUpdate.builder().apply(builder).build()
 
 inline fun RestoreTableFromBackupRequest(
-    @BuilderInference builder: RestoreTableFromBackupRequest.Builder.() -> Unit,
+    builder: RestoreTableFromBackupRequest.Builder.() -> Unit,
 ): RestoreTableFromBackupRequest =
     RestoreTableFromBackupRequest.builder().apply(builder).build()
 
 inline fun RestoreTableToPointInTimeRequest(
-    @BuilderInference builder: RestoreTableToPointInTimeRequest.Builder.() -> Unit,
+    builder: RestoreTableToPointInTimeRequest.Builder.() -> Unit,
 ): RestoreTableToPointInTimeRequest =
     RestoreTableToPointInTimeRequest.builder().apply(builder).build()
 
 inline fun ScanRequest(
-    @BuilderInference builder: ScanRequest.Builder.() -> Unit,
+    builder: ScanRequest.Builder.() -> Unit,
 ): ScanRequest =
     ScanRequest.builder().apply(builder).build()
 
 inline fun SequenceNumberRange(
-    @BuilderInference builder: SequenceNumberRange.Builder.() -> Unit,
+    builder: SequenceNumberRange.Builder.() -> Unit,
 ): SequenceNumberRange =
     SequenceNumberRange.builder().apply(builder).build()
 
 inline fun Stream(
-    @BuilderInference builder: Stream.Builder.() -> Unit,
+    builder: Stream.Builder.() -> Unit,
 ): Stream =
     Stream.builder().apply(builder).build()
 
 inline fun StreamRecord(
-    @BuilderInference builder: StreamRecord.Builder.() -> Unit,
+    builder: StreamRecord.Builder.() -> Unit,
 ): StreamRecord =
     StreamRecord.builder().apply(builder).build()
 
 inline fun StreamSpecification(
-    @BuilderInference builder: StreamSpecification.Builder.() -> Unit,
+    builder: StreamSpecification.Builder.() -> Unit,
 ): StreamSpecification =
     StreamSpecification.builder().apply(builder).build()
 
 inline fun TagResourceRequest(
-    @BuilderInference builder: TagResourceRequest.Builder.() -> Unit,
+    builder: TagResourceRequest.Builder.() -> Unit,
 ): TagResourceRequest =
     TagResourceRequest.builder().apply(builder).build()
 
 inline fun TransactGetItem(
-    @BuilderInference builder: TransactGetItem.Builder.() -> Unit,
+    builder: TransactGetItem.Builder.() -> Unit,
 ): TransactGetItem =
     TransactGetItem.builder().apply(builder).build()
 
 inline fun TransactGetItemsRequest(
-    @BuilderInference builder: TransactGetItemsRequest.Builder.() -> Unit,
+    builder: TransactGetItemsRequest.Builder.() -> Unit,
 ): TransactGetItemsRequest =
     TransactGetItemsRequest.builder().apply(builder).build()
 
 inline fun TransactWriteItem(
-    @BuilderInference builder: TransactWriteItem.Builder.() -> Unit,
+    builder: TransactWriteItem.Builder.() -> Unit,
 ): TransactWriteItem =
     TransactWriteItem.builder().apply(builder).build()
 
 inline fun TransactWriteItemsRequest(
-    @BuilderInference builder: TransactWriteItemsRequest.Builder.() -> Unit,
+    builder: TransactWriteItemsRequest.Builder.() -> Unit,
 ): TransactWriteItemsRequest =
     TransactWriteItemsRequest.builder().apply(builder).build()
 
 inline fun UntagResourceRequest(
-    @BuilderInference builder: UntagResourceRequest.Builder.() -> Unit,
+    builder: UntagResourceRequest.Builder.() -> Unit,
 ): UntagResourceRequest =
     UntagResourceRequest.builder().apply(builder).build()
 
 inline fun UpdateContinuousBackupsRequest(
-    @BuilderInference builder: UpdateContinuousBackupsRequest.Builder.() -> Unit,
+    builder: UpdateContinuousBackupsRequest.Builder.() -> Unit,
 ): UpdateContinuousBackupsRequest =
     UpdateContinuousBackupsRequest.builder().apply(builder).build()
 
 inline fun UpdateContributorInsightsRequest(
-    @BuilderInference builder: UpdateContributorInsightsRequest.Builder.() -> Unit,
+    builder: UpdateContributorInsightsRequest.Builder.() -> Unit,
 ): UpdateContributorInsightsRequest =
     UpdateContributorInsightsRequest.builder().apply(builder).build()
 
 inline fun Update(
-    @BuilderInference builder: Update.Builder.() -> Unit,
+    builder: Update.Builder.() -> Unit,
 ): Update =
     Update.builder().apply(builder).build()
 
 inline fun UpdateGlobalTableRequest(
-    @BuilderInference builder: UpdateGlobalTableRequest.Builder.() -> Unit,
+    builder: UpdateGlobalTableRequest.Builder.() -> Unit,
 ): UpdateGlobalTableRequest =
     UpdateGlobalTableRequest.builder().apply(builder).build()
 
 inline fun UpdateGlobalTableSettingsRequest(
-    @BuilderInference builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit,
+    builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit,
 ): UpdateGlobalTableSettingsRequest =
     UpdateGlobalTableSettingsRequest.builder().apply(builder).build()
 
 inline fun UpdateItemRequest(
-    @BuilderInference builder: UpdateItemRequest.Builder.() -> Unit,
+    builder: UpdateItemRequest.Builder.() -> Unit,
 ): UpdateItemRequest =
     UpdateItemRequest.builder().apply(builder).build()
 
 inline fun UpdateTableRequest(
-    @BuilderInference builder: UpdateTableRequest.Builder.() -> Unit,
+    builder: UpdateTableRequest.Builder.() -> Unit,
 ): UpdateTableRequest =
     UpdateTableRequest.builder().apply(builder).build()
 
 inline fun UpdateTimeToLiveRequest(
-    @BuilderInference builder: UpdateTimeToLiveRequest.Builder.() -> Unit,
+    builder: UpdateTimeToLiveRequest.Builder.() -> Unit,
 ): UpdateTimeToLiveRequest =
     UpdateTimeToLiveRequest.builder().apply(builder).build()
 
 inline fun <reified T: Any> WriteBatch(
     table: MappedTableResource<T>,
-    @BuilderInference builder: WriteBatch.Builder<T>.() -> Unit,
+    builder: WriteBatch.Builder<T>.() -> Unit,
 ): WriteBatch {
     return WriteBatch.builder(T::class.java)
         .mappedTableResource(table)
@@ -348,7 +348,7 @@ fun <T: Any> writeBatchOf(
 }
 
 inline fun WriteRequest(
-    @BuilderInference builder: WriteRequest.Builder.() -> Unit,
+    builder: WriteRequest.Builder.() -> Unit,
 ): WriteRequest {
     return WriteRequest.builder().apply(builder).build()
 }

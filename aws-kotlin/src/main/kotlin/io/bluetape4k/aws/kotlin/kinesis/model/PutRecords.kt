@@ -19,7 +19,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun putRecordsRequestEntryOf(
     partitionKey: String,
     data: ByteArray,
-    @BuilderInference crossinline builder: PutRecordsRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: PutRecordsRequestEntry.Builder.() -> Unit = {},
 ): PutRecordsRequestEntry {
     partitionKey.requireNotBlank("partitionKey")
     return PutRecordsRequestEntry {

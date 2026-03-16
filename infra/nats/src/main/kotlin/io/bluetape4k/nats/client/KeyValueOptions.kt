@@ -10,7 +10,7 @@ import io.nats.client.KeyValueOptions
  * @return [KeyValueOptions] 인스턴스
  */
 inline fun keyValueOptions(
-    @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
+    builder: KeyValueOptions.Builder.() -> Unit,
 ): KeyValueOptions = KeyValueOptions.builder().apply(builder).build()
 
 /**
@@ -22,7 +22,7 @@ inline fun keyValueOptions(
  */
 inline fun keyValueOptions(
     kvo: KeyValueOptions,
-    @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
+    builder: KeyValueOptions.Builder.() -> Unit,
 ): KeyValueOptions = KeyValueOptions.builder(kvo).apply(builder).build()
 
 /**
@@ -34,7 +34,7 @@ inline fun keyValueOptions(
  */
 inline fun keyValueOptions(
     jso: JetStreamOptions,
-    @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
+    builder: KeyValueOptions.Builder.() -> Unit,
 ): KeyValueOptions =
     keyValueOptions {
         this.jetStreamOptions(jso)

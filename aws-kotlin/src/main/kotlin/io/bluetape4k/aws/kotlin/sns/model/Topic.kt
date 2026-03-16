@@ -23,7 +23,7 @@ inline fun createTopicRequestOf(
     name: String,
     tags: List<Tag>? = null,
     attributes: Map<String, String>? = null,
-    @BuilderInference crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicRequest {
     name.requireNotBlank("name")
 
@@ -50,7 +50,7 @@ inline fun createTopicRequestOf(
  */
 inline fun deleteTopicRequestOf(
     topicArn: String,
-    @BuilderInference crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicRequest {
     topicArn.requireNotBlank("topicArn")
 

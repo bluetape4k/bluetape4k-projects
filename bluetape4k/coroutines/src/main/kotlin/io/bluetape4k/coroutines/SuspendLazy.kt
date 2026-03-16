@@ -63,7 +63,7 @@ interface SuspendLazy<out T> {
 inline fun <T> suspendBlockingLazy(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    @BuilderInference crossinline initializer: () -> T,
+    crossinline initializer: () -> T,
 ): SuspendLazy<T> =
     SuspendBlockingLazyImpl(coroutineContext, mode) { initializer() }
 
@@ -86,7 +86,7 @@ inline fun <T> suspendBlockingLazy(
  */
 inline fun <T> suspendBlockingLazyIO(
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    @BuilderInference crossinline initializer: () -> T,
+    crossinline initializer: () -> T,
 ): SuspendLazy<T> =
     SuspendBlockingLazyImpl(Dispatchers.IO, mode) { initializer() }
 
@@ -95,7 +95,7 @@ inline fun <T> suspendBlockingLazyIO(
 internal class SuspendBlockingLazyImpl<out T>(
     private val dispatcher: CoroutineContext = EmptyCoroutineContext,
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    @BuilderInference initializer: () -> T,
+    initializer: () -> T,
 ): SuspendLazy<T> {
 
     private val lazyValue: Lazy<T> = lazy(mode, initializer)
@@ -127,7 +127,7 @@ internal class SuspendBlockingLazyImpl<out T>(
 inline fun <T> CoroutineScope.suspendLazy(
     context: CoroutineContext = EmptyCoroutineContext,
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    @BuilderInference crossinline initializer: suspend CoroutineScope.() -> T,
+    crossinline initializer: suspend CoroutineScope.() -> T,
 ): SuspendLazy<T> {
     return SuspendLazyImpl(this, context, mode) { initializer() }
 }
@@ -137,7 +137,7 @@ internal class SuspendLazyImpl<out T>(
     coroutineScope: CoroutineScope,
     coroutineContext: CoroutineContext,
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    @BuilderInference initializer: suspend CoroutineScope.() -> T,
+    initializer: suspend CoroutineScope.() -> T,
 ): SuspendLazy<T> {
 
     private val deferredValue by lazy(mode) {

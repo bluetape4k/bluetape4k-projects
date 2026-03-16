@@ -11,7 +11,7 @@ inline fun deleteObjectRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference crossinline builder: DeleteObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteObjectRequest.Builder.() -> Unit = {},
 ): DeleteObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -28,7 +28,7 @@ inline fun deleteObjectRequestOf(
 inline fun deleteObjectsRequestOf(
     bucket: String,
     identifiers: List<ObjectIdentifier>,
-    @BuilderInference crossinline builder: DeleteObjectsRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit = {},
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
     identifiers.requireNotEmpty("identifiers")
@@ -39,7 +39,7 @@ inline fun deleteObjectsRequestOf(
 inline fun deleteObjectsRequestOf(
     bucket: String,
     delete: Delete,
-    @BuilderInference crossinline builder: DeleteObjectsRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit = {},
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
 

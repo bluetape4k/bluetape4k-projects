@@ -36,7 +36,7 @@ import org.redisson.command.CommandAsyncExecutor
  */
 inline fun redissonBasedProxyManagerOf(
     redisson: RedissonClient,
-    @BuilderInference builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     val executor = (redisson as? Redisson)?.commandExecutor
         ?: throw IllegalArgumentException(
@@ -79,7 +79,7 @@ inline fun redissonBasedProxyManagerOf(
  */
 inline fun redissonBasedProxyManagerOf(
     commandAsyncExecutor: CommandAsyncExecutor,
-    @BuilderInference builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     return Bucket4jRedisson
         .RedissonBasedProxyManagerBuilder(Mapper.BYTES, commandAsyncExecutor)

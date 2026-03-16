@@ -27,7 +27,7 @@ import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
  * @return [LanguageDetector] 인스턴스
  */
 inline fun allLanguageDetector(
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder
         .fromAllLanguages()
@@ -58,7 +58,7 @@ inline fun allLanguageDetector(
  */
 inline fun allLanguageWithoutDetector(
     languages: Set<Language>,
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder
         .fromAllLanguagesWithout(*languages.toTypedArray())
@@ -88,7 +88,7 @@ inline fun allLanguageWithoutDetector(
  * @return [LanguageDetector] 인스턴스
  */
 inline fun allSpokenLanguageDetector(
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder.fromAllSpokenLanguages().apply(builder).build()
 
@@ -119,7 +119,7 @@ inline fun allSpokenLanguageDetector(
 @JvmName("languageDetectorOfLanguage")
 inline fun languageDetectorOf(
     languages: Set<Language>,
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder
         .fromLanguages(*languages.toTypedArray())
@@ -195,7 +195,7 @@ fun languageDetectorOf(
 @JvmName("languageDetectorOfIsoCode639_1")
 inline fun languageDetectorOf(
     isoCodes: Set<IsoCode639_1>,
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder
         .fromIsoCodes639_1(*isoCodes.toTypedArray())
@@ -228,7 +228,7 @@ inline fun languageDetectorOf(
 @JvmName("languageDetectorOfIsoCode639_3")
 inline fun languageDetectorOf(
     isoCodes: Set<IsoCode639_3>,
-    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
+    builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
     LanguageDetectorBuilder
         .fromIsoCodes639_3(*isoCodes.toTypedArray())

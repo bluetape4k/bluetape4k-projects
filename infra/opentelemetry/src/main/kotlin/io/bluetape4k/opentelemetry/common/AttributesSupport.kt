@@ -11,7 +11,7 @@ import io.opentelemetry.api.common.AttributesBuilder
  * @return [Attributes] 인스턴스
  */
 inline fun attributes(
-    @BuilderInference builder: AttributesBuilder.() -> Unit,
+    builder: AttributesBuilder.() -> Unit,
 ): Attributes {
     return Attributes.builder().apply(builder).build()
 }

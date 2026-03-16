@@ -23,7 +23,7 @@ val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
  * @return [ConnectionConfig] 인스턴스
  */
 inline fun connectionConfig(
-    @BuilderInference builder: ConnectionConfig.Builder.() -> Unit,
+    builder: ConnectionConfig.Builder.() -> Unit,
 ): ConnectionConfig =
     ConnectionConfig.custom().apply(builder).build()
 
@@ -48,7 +48,7 @@ inline fun connectionConfigOf(
     socketTimeout: Timeout = defaultConnectionConfig.socketTimeout,
     validateAfterInactivity: TimeValue = defaultConnectionConfig.validateAfterInactivity,
     timeToLive: TimeValue = defaultConnectionConfig.timeToLive,
-    @BuilderInference builder: ConnectionConfig.Builder.() -> Unit = {},
+    builder: ConnectionConfig.Builder.() -> Unit = {},
 ): ConnectionConfig =
     connectionConfig {
         setConnectTimeout(connectTimeout)

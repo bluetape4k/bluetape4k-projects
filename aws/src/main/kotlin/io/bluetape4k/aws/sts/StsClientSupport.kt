@@ -18,7 +18,7 @@ import java.net.URI
  * ```
  */
 inline fun stsClient(
-    @BuilderInference builder: StsClientBuilder.() -> Unit,
+    builder: StsClientBuilder.() -> Unit,
 ): StsClient =
     StsClient.builder().apply(builder).build()
         .apply {
@@ -38,7 +38,7 @@ inline fun stsClient(
 inline fun stsClientOf(
     region: Region,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: StsClientBuilder.() -> Unit = {},
+    builder: StsClientBuilder.() -> Unit = {},
 ): StsClient = stsClient {
     region(region)
     httpClient(httpClient)
@@ -61,7 +61,7 @@ inline fun stsClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: StsClientBuilder.() -> Unit = {},
+    builder: StsClientBuilder.() -> Unit = {},
 ): StsClient = stsClient {
     endpoint?.let { endpointOverride(it) }
     region?.let { region(it) }

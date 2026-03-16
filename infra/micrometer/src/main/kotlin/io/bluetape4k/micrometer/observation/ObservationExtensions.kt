@@ -18,7 +18,7 @@ import io.micrometer.observation.ObservationRegistry
  * @return block의 실행 결과 [Result]
  */
 inline fun <T> Observation.tryObserve(
-    @BuilderInference crossinline block: () -> T,
+    crossinline block: () -> T,
 ): Result<T> =
     runCatching {
         withObservationContext { _: Observation.Context ->
@@ -46,7 +46,7 @@ inline fun <T> Observation.tryObserve(
 inline fun <T> withObservation(
     name: String,
     registry: ObservationRegistry,
-    @BuilderInference crossinline block: () -> T,
+    crossinline block: () -> T,
 ): T =
     Observation
         .createNotStarted(name, registry)
@@ -68,7 +68,7 @@ inline fun <T> withObservation(
  * @return block의 실행 결과
  */
 inline fun <T> Observation.withObservationContext(
-    @BuilderInference block: (Observation.Context) -> T,
+    block: (Observation.Context) -> T,
 ): T {
     val self = this
     start()

@@ -13,7 +13,7 @@ dependencies {
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     /* Jackson */
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
     compileOnly(Libs.r2dbc_spi)

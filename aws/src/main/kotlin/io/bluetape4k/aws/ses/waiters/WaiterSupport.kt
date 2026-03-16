@@ -15,7 +15,7 @@ import java.time.Duration
  * ```
  */
 fun waiterOverrideConfiguration(
-    @BuilderInference builder: WaiterOverrideConfiguration.Builder.() -> Unit,
+    builder: WaiterOverrideConfiguration.Builder.() -> Unit,
 ): WaiterOverrideConfiguration =
     WaiterOverrideConfiguration.builder().apply(builder).build()
 

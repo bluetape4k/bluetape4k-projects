@@ -34,7 +34,7 @@ private const val MAX_RECEIVE_MESSAGES = 10
  * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
  */
 inline fun sqsClient(
-    @BuilderInference builder: SqsClientBuilder.() -> Unit,
+    builder: SqsClientBuilder.() -> Unit,
 ): SqsClient =
     SqsClient
         .builder()
@@ -57,7 +57,7 @@ inline fun sqsClientOf(
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
+    builder: SqsClientBuilder.() -> Unit = {},
 ): SqsClient =
     sqsClient {
         endpoint?.let { endpointOverride(it) }
@@ -136,7 +136,7 @@ fun SqsClient.sendBatch(
 fun SqsClient.receiveMessages(
     queueUrl: String,
     maxResults: Int? = null,
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
     maxResults?.let { validateReceiveMessageCount(it) }

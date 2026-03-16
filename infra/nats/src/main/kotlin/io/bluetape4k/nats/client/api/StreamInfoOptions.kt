@@ -4,7 +4,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.nats.client.api.StreamInfoOptions
 
 inline fun streamInfoOptions(
-    @BuilderInference builder: StreamInfoOptions.Builder.() -> Unit,
+    builder: StreamInfoOptions.Builder.() -> Unit,
 ): StreamInfoOptions =
     StreamInfoOptions.builder().apply(builder).build()
 

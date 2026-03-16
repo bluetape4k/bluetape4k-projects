@@ -9,7 +9,7 @@ import io.nats.service.Endpoint
  * NATS [Endpoint]를 코틀린 DSL로 생성합니다.
  */
 inline fun endpoint(
-    @BuilderInference builder: Endpoint.Builder.() -> Unit,
+    builder: Endpoint.Builder.() -> Unit,
 ): Endpoint =
     Endpoint.builder().apply(builder).build()
 
@@ -29,7 +29,7 @@ inline fun endpointOf(
     name: String,
     subject: String,
     metadata: Map<String, String> = emptyMap(),
-    @BuilderInference builder: Endpoint.Builder.() -> Unit = {},
+    builder: Endpoint.Builder.() -> Unit = {},
 ): Endpoint {
     name.requireNotBlank("name")
     subject.requireNotBlank("subject")

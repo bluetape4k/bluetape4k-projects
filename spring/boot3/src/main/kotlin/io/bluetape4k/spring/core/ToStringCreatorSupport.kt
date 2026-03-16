@@ -40,7 +40,7 @@ fun ToStringCreator.append(): ToStringCreatorAppendTokens = ToStringCreatorAppen
  */
 inline fun toStringCreatorOf(
     obj: Any,
-    @BuilderInference body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit,
 ): ToStringCreator {
     return ToStringCreator(obj).apply(body)
 }
@@ -64,7 +64,7 @@ inline fun toStringCreatorOf(
 inline fun toStringCreatorOf(
     obj: Any,
     valueStyler: ValueStyler = DefaultValueStyler(),
-    @BuilderInference body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit,
 ): ToStringCreator {
     return ToStringCreator(obj, valueStyler).apply(body)
 }
@@ -88,7 +88,7 @@ inline fun toStringCreatorOf(
 inline fun toStringCreatorOf(
     obj: Any,
     styler: ToStringStyler = DefaultToStringStyler(DefaultValueStyler()),
-    @BuilderInference body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit,
 ): ToStringCreator =
     ToStringCreator(obj, styler).apply(body)
 

@@ -36,7 +36,7 @@ object S3ClientFactory {
          * @return [S3Client] 인스턴스
          */
         inline fun create(
-            @BuilderInference builder: S3ClientBuilder.() -> Unit,
+            builder: S3ClientBuilder.() -> Unit,
         ): S3Client {
             return S3Client.builder().apply(builder).build()
                 .apply {
@@ -59,7 +59,7 @@ object S3ClientFactory {
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             accelerate: Boolean = false,
-            @BuilderInference builder: S3ClientBuilder.() -> Unit = {},
+            builder: S3ClientBuilder.() -> Unit = {},
         ): S3Client {
             return create {
                 endpointOverride?.let { endpointOverride(it) }
@@ -87,7 +87,7 @@ object S3ClientFactory {
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
-            @BuilderInference builder: S3AsyncClientBuilder.() -> Unit,
+            builder: S3AsyncClientBuilder.() -> Unit,
         ): S3AsyncClient {
             return S3AsyncClient.builder()
                 .apply(builder)
@@ -112,7 +112,7 @@ object S3ClientFactory {
             credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             accelerate: Boolean = false,
-            @BuilderInference builder: S3AsyncClientBuilder.() -> Unit = {},
+            builder: S3AsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
                 endpointOverride?.let { endpointOverride(it) }
@@ -143,7 +143,7 @@ object S3ClientFactory {
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
-            @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit,
+            builder: S3CrtAsyncClientBuilder.() -> Unit,
         ): S3AsyncClient {
             return S3AsyncClient.crtBuilder().apply(builder).build()
                 .apply {
@@ -165,7 +165,7 @@ object S3ClientFactory {
             region: Region? = null,
             credentialsProvider: AwsCredentialsProvider? = null,
             miminumPartSizeInBytes: Long = 1 * MB,
-            @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit = {},
+            builder: S3CrtAsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
                 endpointOverride?.let { endpointOverride(it) }
@@ -192,7 +192,7 @@ object S3ClientFactory {
          * @return [S3TransferManager] 인스턴스
          */
         inline fun create(
-            @BuilderInference builder: S3TransferManager.Builder.() -> Unit,
+            builder: S3TransferManager.Builder.() -> Unit,
         ): S3TransferManager {
             return S3TransferManager.builder().apply(builder).build()
                 .apply {
@@ -218,7 +218,7 @@ object S3ClientFactory {
             credentialsProvider: AwsCredentialsProvider? = null,
             executor: Executor = Executors.newVirtualThreadPerTaskExecutor(),
             uploadDirectoryMaxDepth: Int? = null,
-            @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
+            builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
                 // AWS CRT-based S3AsyncClient 를 사용하는 것을 추천한다
@@ -243,7 +243,7 @@ object S3ClientFactory {
             asyncClient: S3AsyncClient,
             executor: Executor = Executors.newVirtualThreadPerTaskExecutor(),
             uploadDirectoryMaxDepth: Int? = null,
-            @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
+            builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
                 s3Client(asyncClient)

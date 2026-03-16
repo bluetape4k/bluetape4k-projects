@@ -69,7 +69,7 @@ fun openTelemetryOf(propagators: ContextPropagators): OpenTelemetry =
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드합니다.
  */
 inline fun openTelemetrySdk(
-    @BuilderInference builder: OpenTelemetrySdkBuilder.() -> Unit,
+    builder: OpenTelemetrySdkBuilder.() -> Unit,
 ): OpenTelemetrySdk =
     OpenTelemetrySdk.builder().apply(builder).build()
 
@@ -77,7 +77,7 @@ inline fun openTelemetrySdk(
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드하고 Global OpenTelemetry 로 지정합니다.
  */
 inline fun openTelemetrySdkGlobal(
-    @BuilderInference builder: OpenTelemetrySdkBuilder.() -> Unit,
+    builder: OpenTelemetrySdkBuilder.() -> Unit,
 ): OpenTelemetrySdk =
     OpenTelemetrySdk.builder().apply(builder).buildAndRegisterGlobal()
 
@@ -113,7 +113,7 @@ fun openTelemetrySdkOf(
  */
 inline fun OpenTelemetry.tracer(
     tracerName: String,
-    @BuilderInference builder: TracerBuilder.() -> Unit,
+    builder: TracerBuilder.() -> Unit,
 ): Tracer {
     tracerName.assertNotBlank("tracerName")
     return tracerProvider.tracerBuilder(tracerName).apply(builder).build()
@@ -128,7 +128,7 @@ inline fun OpenTelemetry.tracer(
  */
 inline fun OpenTelemetry.meter(
     meterName: String,
-    @BuilderInference builder: MeterBuilder.() -> Unit,
+    builder: MeterBuilder.() -> Unit,
 ): Meter {
     meterName.assertNotBlank("meterName")
     return meterProvider.meterBuilder(meterName).apply(builder).build()

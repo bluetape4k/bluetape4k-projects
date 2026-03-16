@@ -34,7 +34,7 @@ inline fun publishRequestOf(
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    @BuilderInference crossinline builder: PublishRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishRequest {
     topicArn.requireNotBlank("topicArn")
     phoneNumber.requireNotBlank("phoneNumber")
@@ -78,7 +78,7 @@ inline fun publishBatchRequestEntryOf(
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    @BuilderInference crossinline builder: PublishBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: PublishBatchRequestEntry.Builder.() -> Unit = {},
 ): PublishBatchRequestEntry {
     id.requireNotBlank("id")
     message.requireNotBlank("message")

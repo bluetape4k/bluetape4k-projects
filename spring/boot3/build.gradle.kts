@@ -22,7 +22,7 @@ dependencies {
 
     // Spring core (from spring/core)
     compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(Libs.spring("context-support"))
     compileOnly(Libs.spring("messaging"))
     compileOnly(Libs.spring("web"))
@@ -72,7 +72,7 @@ dependencies {
     compileOnly(Libs.async_http_client_extras_rxjava2)
 
     // Jackson
-    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-jackson2"))
     implementation(Libs.jackson_core)
     implementation(Libs.jackson_databind)
     implementation(Libs.jackson_module_kotlin)

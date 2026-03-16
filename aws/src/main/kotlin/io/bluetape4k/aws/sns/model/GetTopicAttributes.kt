@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sns.model.GetTopicAttributesRequest
  * ```
  */
 inline fun getTopicAttributesRequest(
-    @BuilderInference builder: GetTopicAttributesRequest.Builder.() -> Unit,
+    builder: GetTopicAttributesRequest.Builder.() -> Unit,
 ): GetTopicAttributesRequest =
     GetTopicAttributesRequest.builder().apply(builder).build()
 
@@ -35,7 +35,7 @@ inline fun getTopicAttributesRequest(
 inline fun getTopicAttributesRequestOf(
     topicArn: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    @BuilderInference builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
+    builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
 ): GetTopicAttributesRequest =
     getTopicAttributesRequest {
         topicArn?.let {

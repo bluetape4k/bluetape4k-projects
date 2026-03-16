@@ -19,7 +19,7 @@ import java.net.InetSocketAddress
  * @param builder [CqlSessionBuilder] 초기화 람다
  */
 inline fun cqlSession(
-    @BuilderInference builder: CqlSessionBuilder.() -> Unit,
+    builder: CqlSessionBuilder.() -> Unit,
 ): CqlSession {
     return CqlSessionBuilder().apply(builder).build()
 }
@@ -39,7 +39,7 @@ inline fun cqlSessionOf(
     contactPoint: InetSocketAddress = CqlSessionProvider.DEFAULT_CONTACT_POINT,
     localDatacenter: String = CqlSessionProvider.DEFAULT_LOCAL_DATACENTER,
     keyspaceName: String = CqlSessionProvider.DEFAULT_KEYSPACE,
-    @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
+    builder: CqlSessionBuilder.() -> Unit = {},
 ): CqlSession = cqlSession {
     addContactPoint(contactPoint)
     withLocalDatacenter(localDatacenter)

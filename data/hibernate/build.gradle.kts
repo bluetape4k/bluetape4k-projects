@@ -90,7 +90,7 @@ dependencies {
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-tink"))
-    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 

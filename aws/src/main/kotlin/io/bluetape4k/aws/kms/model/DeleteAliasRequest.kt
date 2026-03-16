@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.kms.model.DeleteAliasRequest
  * ```
  */
 inline fun deleteAlias(
-    @BuilderInference builder: DeleteAliasRequest.Builder.() -> Unit,
+    builder: DeleteAliasRequest.Builder.() -> Unit,
 ): DeleteAliasRequest =
     DeleteAliasRequest.builder().apply(builder).build()
 

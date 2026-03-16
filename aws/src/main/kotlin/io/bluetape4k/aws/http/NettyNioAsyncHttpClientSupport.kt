@@ -21,7 +21,7 @@ import kotlin.time.toJavaDuration
  * ```
  */
 inline fun nettyNioAsyncHttpClient(
-    @BuilderInference builder: NettyNioAsyncHttpClient.Builder.() -> Unit,
+    builder: NettyNioAsyncHttpClient.Builder.() -> Unit,
 ): SdkAsyncHttpClient {
     return NettyNioAsyncHttpClient.builder().apply(builder).build()
 }
@@ -47,7 +47,7 @@ inline fun nettyNioAsyncHttpClientOf(
     connectionTimeout: Duration = 30.seconds,
     readTimeout: Duration = 30.seconds,
     writeTimeout: Duration = 30.seconds,
-    @BuilderInference builder: NettyNioAsyncHttpClient.Builder.() -> Unit = {},
+    builder: NettyNioAsyncHttpClient.Builder.() -> Unit = {},
 ): SdkAsyncHttpClient = nettyNioAsyncHttpClient {
     this.maxConcurrency(maxConcurrency)
     this.connectionMaxIdleTime(connectionMaxIdleTime.toJavaDuration())

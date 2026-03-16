@@ -20,7 +20,7 @@ import org.apache.hc.client5.http.entity.mime.FormBodyPartBuilder
  * @return [FormBodyPart]
  */
 inline fun formBodyPart(
-    @BuilderInference builder: FormBodyPartBuilder.() -> Unit,
+    builder: FormBodyPartBuilder.() -> Unit,
 ): FormBodyPart =
     FormBodyPartBuilder.create().apply(builder).build()
 
@@ -43,7 +43,7 @@ inline fun formBodyPart(
 inline fun formBodyPart(
     name: String,
     body: ContentBody,
-    @BuilderInference builder: FormBodyPartBuilder.() -> Unit = {},
+    builder: FormBodyPartBuilder.() -> Unit = {},
 ): FormBodyPart =
     formBodyPart {
         setName(name)
@@ -73,7 +73,7 @@ inline fun formBodyPartOf(
     name: String,
     body: ContentBody,
     fields: Map<String, String>,
-    @BuilderInference builder: FormBodyPartBuilder.() -> Unit = {},
+    builder: FormBodyPartBuilder.() -> Unit = {},
 ): FormBodyPart =
     formBodyPart {
         setName(name)

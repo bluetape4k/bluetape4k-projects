@@ -82,7 +82,7 @@ fun <T: Any> DynamoDbTable<T>.putItems(items: Collection<T>) {
  * @return [CreateTableEnhancedRequest] 인스턴스
  */
 inline fun CreateTableEnhancedRequest(
-    @BuilderInference builder: CreateTableEnhancedRequest.Builder.() -> Unit,
+    builder: CreateTableEnhancedRequest.Builder.() -> Unit,
 ): CreateTableEnhancedRequest {
     return CreateTableEnhancedRequest.builder().apply(builder).build()
 }

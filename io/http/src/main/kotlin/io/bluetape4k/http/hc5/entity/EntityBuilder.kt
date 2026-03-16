@@ -36,7 +36,7 @@ import java.io.Serializable
  * @return [HttpEntity] 인스턴스
  */
 inline fun httpEntity(
-    @BuilderInference builder: EntityBuilder.() -> Unit,
+    builder: EntityBuilder.() -> Unit,
 ): HttpEntity =
     EntityBuilder.create().apply(builder).build()
 
@@ -61,7 +61,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentTypes.TEXT_PLAIN_UTF8,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setText(text)
@@ -93,7 +93,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setBinary(binary)
@@ -125,7 +125,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setStream(inputStream)
@@ -157,7 +157,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setFile(file)
@@ -189,7 +189,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setSerializable(serializable)
@@ -221,7 +221,7 @@ inline fun httpEntityOf(
     contentType: ContentType = ContentTypes.TEXT_PLAIN_UTF8,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+    builder: EntityBuilder.() -> Unit = {},
 ): HttpEntity =
     httpEntity {
         setParameters(parameters)

@@ -25,7 +25,7 @@ inline fun capacityOf(
     capacityUnits: Double? = null,
     readCapacityUnits: Double? = null,
     writeCapacityUnits: Double? = null,
-    @BuilderInference crossinline builder: Capacity.Builder.() -> Unit = {},
+    crossinline builder: Capacity.Builder.() -> Unit = {},
 ): Capacity {
     capacityUnits?.requirePositiveNumber("capacityUnits")
     readCapacityUnits?.requirePositiveNumber("readCapacityUnits")

@@ -131,7 +131,7 @@ interface GitHubReactorApi {
 Jackson 기반의 JSON 변환을 기본 제공하며, Scalars 변환도 지원합니다.
 
 ```kotlin
-// 기본 Jackson Converter (bluetape4k-jackson 기반)
+// 기본 Jackson Converter (bluetape4k-jackson2 기반)
 val jsonFactory = defaultJsonConverterFactory
 
 // 커스텀 ObjectMapper 사용

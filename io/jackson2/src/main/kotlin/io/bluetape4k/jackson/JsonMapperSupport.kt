@@ -35,7 +35,7 @@ private object JsonMapperSupportLogger : KLogging()
  * @param builder 매퍼 빌더 설정 블록
  */
 inline fun jsonMapper(
-    @BuilderInference builder: JsonMapper.Builder.() -> Unit,
+    builder: JsonMapper.Builder.() -> Unit,
 ): JsonMapper = JsonMapper.builder().apply(builder).build()
 
 /** reified 타입 [T]의 Jackson [TypeReference]를 생성합니다. */

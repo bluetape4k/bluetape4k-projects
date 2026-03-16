@@ -52,7 +52,7 @@ fun <T> emptyUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet<T>()
  */
 inline fun <T> unifiedSet(
     size: Int = 16,
-    @BuilderInference builder: (Int) -> T,
+    builder: (Int) -> T,
 ): UnifiedSet<T> =
     UnifiedSet.newSet<T>(size).apply {
         repeat(size) {

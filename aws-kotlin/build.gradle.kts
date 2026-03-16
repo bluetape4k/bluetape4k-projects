@@ -6,7 +6,7 @@ dependencies {
     // bluetape4k
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-coroutines"))
-    api(project(":bluetape4k-jackson"))
+    api(project(":bluetape4k-jackson2"))
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

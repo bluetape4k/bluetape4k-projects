@@ -25,7 +25,7 @@ import kotlin.time.toJavaDuration
  * ```
  */
 inline fun awsCrtAsyncHttpClient(
-    @BuilderInference builder: AwsCrtAsyncHttpClient.Builder.() -> Unit,
+    builder: AwsCrtAsyncHttpClient.Builder.() -> Unit,
 ): SdkAsyncHttpClient {
     return AwsCrtAsyncHttpClient.builder().apply(builder).build()
 }
@@ -52,7 +52,7 @@ inline fun awsCrtAsyncHttpClientOf(
     connectionMaxIdleTime: Duration = 30.seconds,
     connectionTimeout: Duration = 5.seconds,
     postQuantumTlsEnabled: Boolean = false,
-    @BuilderInference builder: AwsCrtAsyncHttpClient.Builder.() -> Unit = {},
+    builder: AwsCrtAsyncHttpClient.Builder.() -> Unit = {},
 ): SdkAsyncHttpClient = awsCrtAsyncHttpClient {
     this.maxConcurrency(maxConcurrency)
     this.readBufferSizeInBytes(readBufferSize)

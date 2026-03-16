@@ -56,7 +56,7 @@ dependencies {
     // Converter 사용 시
     // compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-tink"))
-    testImplementation(project(":bluetape4k-jackson"))
+    testImplementation(project(":bluetape4k-jackson2"))
 
     testImplementation(Libs.kryo)
     testImplementation(Libs.fory_kotlin)  // new Apache Fory

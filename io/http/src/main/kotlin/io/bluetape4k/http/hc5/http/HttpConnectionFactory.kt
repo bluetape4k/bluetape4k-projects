@@ -28,7 +28,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory
  * @return [HttpConnectionFactory]`<ManagedHttpClientConnection>` 인스턴스
  */
 inline fun managedHttpConnectionFactory(
-    @BuilderInference builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit,
+    builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit,
 ): HttpConnectionFactory<ManagedHttpClientConnection> =
     ManagedHttpClientConnectionFactory.builder().apply(builder).build()
 
@@ -60,7 +60,7 @@ inline fun managedHttpConnectionFactoryOf(
     charCodingConfig: CharCodingConfig = CharCodingConfig.DEFAULT,
     requestWriterFactory: HttpMessageWriterFactory<ClassicHttpRequest> = DefaultHttpRequestWriterFactory.INSTANCE,
     responseParserFactory: HttpMessageParserFactory<ClassicHttpResponse> = DefaultHttpResponseParserFactory.INSTANCE,
-    @BuilderInference builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit = {},
+    builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit = {},
 ): HttpConnectionFactory<ManagedHttpClientConnection> =
     managedHttpConnectionFactory {
         http1Config(http1Config)

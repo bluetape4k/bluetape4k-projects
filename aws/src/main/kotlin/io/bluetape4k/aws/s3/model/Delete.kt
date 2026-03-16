@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier
  * ```
  */
 inline fun delete(
-    @BuilderInference builder: Delete.Builder.() -> Unit,
+    builder: Delete.Builder.() -> Unit,
 ): Delete =
     Delete.builder().apply(builder).build()
 

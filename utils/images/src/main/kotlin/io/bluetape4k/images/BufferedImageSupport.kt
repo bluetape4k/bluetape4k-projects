@@ -146,7 +146,7 @@ fun BufferedImage.drawImage(
  * @param action 그래픽 작업
  */
 inline fun BufferedImage.useGraphics(
-    @BuilderInference action: (graphics: Graphics2D) -> Unit,
+    action: (graphics: Graphics2D) -> Unit,
 ) {
     val graphics = this.createGraphics()
     try {

@@ -20,7 +20,7 @@ import org.apache.hc.core5.http.support.BasicResponseBuilder
  */
 inline fun basicHttpResponse(
     status: Int,
-    @BuilderInference builder: BasicResponseBuilder.() -> Unit,
+    builder: BasicResponseBuilder.() -> Unit,
 ): BasicHttpResponse =
     BasicResponseBuilder.create(status).apply(builder).build()
 
@@ -40,6 +40,6 @@ inline fun basicHttpResponse(
  */
 inline fun basicHttpResponse(
     response: HttpResponse,
-    @BuilderInference builder: BasicResponseBuilder.() -> Unit,
+    builder: BasicResponseBuilder.() -> Unit,
 ): BasicHttpResponse =
     BasicResponseBuilder.copy(response).apply(builder).build()

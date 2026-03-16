@@ -31,7 +31,7 @@ val defaultHttpAsyncClient: CloseableHttpAsyncClient =
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
 inline fun httpAsyncClient(
-    @BuilderInference builder: HttpAsyncClientBuilder.() -> Unit,
+    builder: HttpAsyncClientBuilder.() -> Unit,
 ): CloseableHttpAsyncClient {
     return HttpAsyncClients.custom().apply(builder).build().apply { this.start() }
 }
@@ -54,7 +54,7 @@ inline fun httpAsyncClient(
  */
 inline fun httpAsyncClientOf(
     cm: AsyncClientConnectionManager = defaultAsyncClientConnectionManager,
-    @BuilderInference builder: HttpAsyncClientBuilder.() -> Unit = {},
+    builder: HttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient = httpAsyncClient {
     setConnectionManager(cm)
     builder()
@@ -95,7 +95,7 @@ val defaultH2AsyncClient: CloseableHttpAsyncClient =
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
 inline fun h2AsyncClient(
-    @BuilderInference builder: H2AsyncClientBuilder.() -> Unit,
+    builder: H2AsyncClientBuilder.() -> Unit,
 ): CloseableHttpAsyncClient {
     return HttpAsyncClients.customHttp2().apply(builder).build().apply { start() }
 }
@@ -122,7 +122,7 @@ fun h2AsyncClientOf(): CloseableHttpAsyncClient =
  */
 inline fun h2AsyncClientOf(
     h2config: H2Config = H2Config.DEFAULT,
-    @BuilderInference builder: H2AsyncClientBuilder.() -> Unit = {},
+    builder: H2AsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient {
     return h2AsyncClient {
         setH2Config(h2config)

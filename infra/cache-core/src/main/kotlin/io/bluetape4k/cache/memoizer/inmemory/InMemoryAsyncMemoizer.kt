@@ -25,7 +25,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemoizer(): InMemoryAsyn
  * - 신규 평가 → lock 밖에서 evaluator 실행
  */
 class InMemoryAsyncMemoizer<in T: Any, R: Any>(
-    @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
+    private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemoizer<T, R> {
 
     companion object: KLoggingChannel()

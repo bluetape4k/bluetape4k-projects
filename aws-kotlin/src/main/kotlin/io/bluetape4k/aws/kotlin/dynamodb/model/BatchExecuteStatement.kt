@@ -28,7 +28,7 @@ import io.bluetape4k.support.ifTrue
 inline fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     statements: List<BatchStatementRequest>? = null,
-    @BuilderInference crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest {
         returnConsumedCapacity?.let { this.returnConsumedCapacity = it }
@@ -58,7 +58,7 @@ inline fun batchExecutionStatementRequestOf(
 inline fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     vararg statements: BatchStatementRequest,
-    @BuilderInference crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest {
         returnConsumedCapacity?.let { this.returnConsumedCapacity = it }

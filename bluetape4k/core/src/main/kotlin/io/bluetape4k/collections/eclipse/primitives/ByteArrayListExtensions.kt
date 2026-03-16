@@ -105,7 +105,7 @@ fun Iterable<Number>.asByteArrayList() = when (this) {
  */
 inline fun byteArrayList(
     initialCapacity: Int = 10,
-    @BuilderInference builder: (index: Int) -> Byte,
+    builder: (index: Int) -> Byte,
 ): ByteArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return ByteArrayList(initialCapacity).apply {

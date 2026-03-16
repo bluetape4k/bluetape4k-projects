@@ -26,7 +26,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun updateTableRequestOf(
     tableName: String,
     tableClass: TableClass? = null,
-    @BuilderInference crossinline builder: UpdateTableRequest.Builder.() -> Unit = {},
+    crossinline builder: UpdateTableRequest.Builder.() -> Unit = {},
 ): UpdateTableRequest {
     tableName.requireNotBlank("tableName")
 

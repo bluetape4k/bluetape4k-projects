@@ -19,7 +19,7 @@ import io.bluetape4k.support.requireNotBlank
  */
 inline fun deleteTableRequestOf(
     tableName: String,
-    @BuilderInference crossinline builder: DeleteTableRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTableRequest.Builder.() -> Unit = {},
 ): DeleteTableRequest {
     tableName.requireNotBlank("tableName")
 

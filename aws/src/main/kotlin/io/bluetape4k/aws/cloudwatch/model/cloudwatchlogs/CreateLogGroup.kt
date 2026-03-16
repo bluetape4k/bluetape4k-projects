@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogGroupReques
  * ```
  */
 inline fun createLogGroupRequest(
-    @BuilderInference builder: CreateLogGroupRequest.Builder.() -> Unit,
+    builder: CreateLogGroupRequest.Builder.() -> Unit,
 ): CreateLogGroupRequest =
     CreateLogGroupRequest.builder().apply(builder).build()
 
@@ -30,7 +30,7 @@ inline fun createLogGroupRequest(
  */
 inline fun createLogGroupRequestOf(
     logGroupName: String,
-    @BuilderInference builder: CreateLogGroupRequest.Builder.() -> Unit = {},
+    builder: CreateLogGroupRequest.Builder.() -> Unit = {},
 ): CreateLogGroupRequest {
     logGroupName.requireNotBlank("logGroupName")
     return createLogGroupRequest {

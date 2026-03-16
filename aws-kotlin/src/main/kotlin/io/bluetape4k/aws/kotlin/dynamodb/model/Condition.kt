@@ -24,7 +24,7 @@ import aws.sdk.kotlin.services.dynamodb.model.Condition
 inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<AttributeValue>,
-    @BuilderInference crossinline builder: Condition.Builder.() -> Unit = {},
+    crossinline builder: Condition.Builder.() -> Unit = {},
 ): Condition = Condition {
     this.comparisonOperator = comparisonOperator
     this.attributeValueList = attributeValueList
@@ -52,7 +52,7 @@ inline fun conditionOf(
 inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<Any?>,
-    @BuilderInference crossinline builder: Condition.Builder.() -> Unit = {},
+    crossinline builder: Condition.Builder.() -> Unit = {},
 ): Condition = Condition {
     this.comparisonOperator = comparisonOperator
     this.attributeValueList = attributeValueList.map { it.toAttributeValue() }

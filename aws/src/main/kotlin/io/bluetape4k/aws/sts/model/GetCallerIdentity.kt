@@ -14,6 +14,6 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest
  * ```
  */
 inline fun getCallerIdentityRequest(
-    @BuilderInference builder: GetCallerIdentityRequest.Builder.() -> Unit,
+    builder: GetCallerIdentityRequest.Builder.() -> Unit,
 ): GetCallerIdentityRequest =
     GetCallerIdentityRequest.builder().apply(builder).build()

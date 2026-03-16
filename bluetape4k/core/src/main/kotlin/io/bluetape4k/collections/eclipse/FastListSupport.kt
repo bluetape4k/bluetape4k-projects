@@ -41,7 +41,7 @@ inline fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
  */
 inline fun <T> fastList(
     size: Int = 16,
-    @BuilderInference initializer: (index: Int) -> T,
+    initializer: (index: Int) -> T,
 ): FastList<T> =
     FastList.newList<T>(size).apply {
         repeat(size) { index ->

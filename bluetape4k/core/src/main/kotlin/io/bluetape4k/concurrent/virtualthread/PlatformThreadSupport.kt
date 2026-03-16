@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadFactory
  * @return [Thread.Builder.OfPlatform] 인스턴스
  */
 inline fun platformThreadBuilder(
-    @BuilderInference builder: Thread.Builder.OfPlatform.() -> Unit,
+    builder: Thread.Builder.OfPlatform.() -> Unit,
 ): Thread.Builder.OfPlatform {
     return Thread.ofPlatform().apply(builder)
 }
@@ -40,7 +40,7 @@ inline fun platformThreadBuilder(
  * @return [ThreadFactory] 인스턴스
  */
 inline fun platformThreadFactory(
-    @BuilderInference builder: Thread.Builder.OfPlatform.() -> Unit,
+    builder: Thread.Builder.OfPlatform.() -> Unit,
 ): ThreadFactory {
     return platformThreadBuilder(builder).factory()
 }

@@ -53,7 +53,7 @@ fun okHttp3ConnectionPool(
 inline fun okhttp3ClientBuilderOf(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
-    @BuilderInference builder: OkHttpClient.Builder.() -> Unit = {},
+    builder: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient.Builder =
     OkHttpClient.Builder()
         .apply {
@@ -111,7 +111,7 @@ fun okhttp3DispatcherOf(
 inline fun okhttp3Client(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
-    @BuilderInference builder: OkHttpClient.Builder.() -> Unit = {},
+    builder: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient =
     okhttp3ClientBuilderOf(connectionPool, dispatcher).apply(builder).build()
 
@@ -136,7 +136,7 @@ inline fun okhttp3Client(
  * @return [CacheControl] 인스턴스
  */
 inline fun okhttp3CacheControl(
-    @BuilderInference builder: CacheControl.Builder.() -> Unit,
+    builder: CacheControl.Builder.() -> Unit,
 ): CacheControl =
     CacheControl.Builder().apply(builder).build()
 
@@ -176,7 +176,7 @@ inline fun okhttp3CacheControlOf(
     noStore: Boolean = false,
     noTransform: Boolean = false,
     immutable: Boolean = false,
-    @BuilderInference builder: CacheControl.Builder.() -> Unit = {},
+    builder: CacheControl.Builder.() -> Unit = {},
 ): CacheControl =
     okhttp3CacheControl {
         maxAge(maxAgeInSeconds, TimeUnit.SECONDS)
@@ -207,7 +207,7 @@ inline fun okhttp3CacheControlOf(
  * @return [okhttp3.Request] 인스턴스
  */
 inline fun okhttp3Request(
-    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit,
+    builder: okhttp3.Request.Builder.() -> Unit,
 ): okhttp3.Request =
     okhttp3.Request.Builder().apply(builder).build()
 
@@ -230,7 +230,7 @@ inline fun okhttp3Request(
 inline fun okhttp3RequestOf(
     url: String,
     vararg nameAndValues: String,
-    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit = {},
+    builder: okhttp3.Request.Builder.() -> Unit = {},
 ): okhttp3.Request =
     okhttp3Request {
         url(url)
@@ -257,7 +257,7 @@ inline fun okhttp3RequestOf(
 inline fun okhttp3RequestOf(
     url: String,
     headers: okhttp3.Headers,
-    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit = {},
+    builder: okhttp3.Request.Builder.() -> Unit = {},
 ): okhttp3.Request =
     okhttp3Request {
         url(url)
@@ -285,6 +285,6 @@ inline fun okhttp3RequestOf(
  * @return [okhttp3.Response] 인스턴스
  */
 inline fun okhttp3Response(
-    @BuilderInference builder: okhttp3.Response.Builder.() -> Unit,
+    builder: okhttp3.Response.Builder.() -> Unit,
 ): okhttp3.Response =
     okhttp3.Response.Builder().apply(builder).build()
