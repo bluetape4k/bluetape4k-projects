@@ -52,16 +52,13 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * @param builder Enhanced Query Builder DSL
  * @return [QueryEnhancedRequest] 인스턴스
  */
-inline fun <T: DynamoDbEntity> queryEnhancedRequest(
+inline fun <T : DynamoDbEntity> queryEnhancedRequest(
     @BuilderInference builder: EnhancedQueryBuilderKt<T>.() -> Unit,
-): QueryEnhancedRequest {
-    return EnhancedQueryBuilderKt<T>().apply(builder).build()
-}
+): QueryEnhancedRequest = EnhancedQueryBuilderKt<T>().apply(builder).build()
 
 @DynamoDslMarker
-class EnhancedQueryBuilderKt<T: Any> {
-
-    companion object: KLogging()
+class EnhancedQueryBuilderKt<T : Any> {
+    companion object : KLogging()
 
     var primaryKey: PrimaryKey? = null
     var sortKey: SortKey? = null
@@ -80,39 +77,49 @@ class EnhancedQueryBuilderKt<T: Any> {
         log.debug { "Start query ...  primaryKey=$primaryKey, sortKey=$sortKey" }
         primaryKey.requireNotNull("primaryKey")
 
+        val pk = primaryKey!!
+
         return QueryEnhancedRequest {
-            val conditional = sortKey?.let { sk: SortKey ->
+            val conditional =
+                sortKey?.let { sk: SortKey ->
 
-                when (sk.comparisonOperator) {
-                    is BeginsWith          -> QueryConditional.sortBeginsWith(
-                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
-                    )
-
-                    is GreaterThan         -> QueryConditional.sortGreaterThan(
-                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
-                    )
-
-                    is GreaterThanOrEquals -> QueryConditional.sortGreaterThanOrEqualTo(
-                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
-                    )
-
-                    is LessThan            -> QueryConditional.sortLessThan(
-                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
-                    )
-
-                    is LessThanOrEquals    -> QueryConditional.sortLessThanOrEqualTo(
-                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
-                    )
-
-                    is Between             -> QueryConditional.sortBetween(
-                        keyOf(sk.sortKeyName, sk.comparisonOperator.left.toString()),
-                        keyOf(sk.sortKeyName, sk.comparisonOperator.right.toString())
-                    )
-
-                    else                   ->
-                        throw UnsupportedOperationException("Unknown comparison operator: ${sk.comparisonOperator}")
-                }
-            } ?: QueryConditional.keyEqualTo(keyOf(primaryKey!!.equals.right))
+                    when (sk.comparisonOperator) {
+                        is BeginsWith -> {
+                            QueryConditional.sortBeginsWith(
+                                keyOf(pk.equals.right, sk.comparisonOperator.right)
+                            )
+                        }
+                        is GreaterThan -> {
+                            QueryConditional.sortGreaterThan(
+                                keyOf(pk.equals.right, sk.comparisonOperator.right)
+                            )
+                        }
+                        is GreaterThanOrEquals -> {
+                            QueryConditional.sortGreaterThanOrEqualTo(
+                                keyOf(pk.equals.right, sk.comparisonOperator.right)
+                            )
+                        }
+                        is LessThan -> {
+                            QueryConditional.sortLessThan(
+                                keyOf(pk.equals.right, sk.comparisonOperator.right)
+                            )
+                        }
+                        is LessThanOrEquals -> {
+                            QueryConditional.sortLessThanOrEqualTo(
+                                keyOf(pk.equals.right, sk.comparisonOperator.right)
+                            )
+                        }
+                        is Between -> {
+                            QueryConditional.sortBetween(
+                                keyOf(sk.sortKeyName, sk.comparisonOperator.left.toString()),
+                                keyOf(sk.sortKeyName, sk.comparisonOperator.right.toString())
+                            )
+                        }
+                        else -> {
+                            throw UnsupportedOperationException("Unknown comparison operator: ${sk.comparisonOperator}")
+                        }
+                    }
+                } ?: QueryConditional.keyEqualTo(keyOf(pk.equals.right))
 
             queryConditional(conditional)
 
@@ -128,7 +135,7 @@ class EnhancedQueryBuilderKt<T: Any> {
 }
 
 /** 파티션 키 DSL을 설정합니다. */
-inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
+inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
     @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
 ) {
@@ -136,7 +143,7 @@ inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
 }
 
 /** 정렬 키 DSL을 설정합니다. */
-inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
+inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
     @BuilderInference builder: SortKeyBuilder.() -> Unit,
 ) {
@@ -144,7 +151,7 @@ inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
 }
 
 /** 필터 조건 DSL을 설정합니다. */
-inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
+inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
     @BuilderInference builder: RootFilterBuilder.() -> Unit,
 ) {
     filtering = RootFilterBuilder().apply(builder).build()

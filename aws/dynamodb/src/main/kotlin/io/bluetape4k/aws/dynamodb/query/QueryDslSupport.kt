@@ -37,20 +37,22 @@ class QueryRequestBuilderDSL {
         primaryKey.requireNotNull("primaryKey")
 
         val request = QueryRequest.builder().tableName(tableName)
+        val pk = primaryKey!!
 
         if (sortKey == null) {
-            request.keyConditions(mapOf(primaryKey!!.keyName to primaryKey!!.equals.toCondition()))
+            request.keyConditions(mapOf(pk.keyName to pk.equals.toCondition()))
         } else {
+            val sk = sortKey!!
             request.keyConditions(
                 mapOf(
-                    primaryKey!!.keyName to primaryKey!!.equals.toCondition(),
-                    sortKey!!.sortKeyName to sortKey!!.comparisonOperator.toCondition()
+                    pk.keyName to pk.equals.toCondition(),
+                    sk.sortKeyName to sk.comparisonOperator.toCondition()
                 )
             )
         }
 
-        if (filtering != null) {
-            val props = filtering!!.getFilterRequestProperties()
+        filtering?.let { filter ->
+            val props = filter.getFilterRequestProperties()
 
             request.filterExpression(props.filterExpression)
             if (props.expressionAttributeNames.isNotEmpty()) {
