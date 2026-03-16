@@ -25,7 +25,7 @@ dependencies {
     // Spring Kafka
     implementation(Libs.spring_kafka)
     compileOnly(Libs.spring_kafka_test)
-    implementation(project(":bluetape4k-spring-core"))
+    implementation(project(":bluetape4k-spring-boot3"))
     implementation(Libs.springData("commons"))
 
     // Jackson
