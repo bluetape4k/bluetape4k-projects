@@ -34,7 +34,7 @@ dependencies {
     compileOnly(Libs.caffeine_jcache)
 
     // Vertx
-    compileOnly(project(":bluetape4k-vertx-core"))
+    compileOnly(project(":bluetape4k-vertx"))
     compileOnly(Libs.vertx_core)
     compileOnly(Libs.vertx_lang_kotlin)
     compileOnly(Libs.vertx_lang_kotlin_coroutines)

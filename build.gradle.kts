@@ -29,7 +29,7 @@ plugins {
     id(Plugins.detekt) version Plugins.Versions.detekt
 
     id(Plugins.dependency_management) version Plugins.Versions.dependency_management
-    id(Plugins.spring_boot) version Plugins.Versions.spring_boot apply false
+    id(Plugins.spring_boot) version Plugins.Versions.spring_boot3 apply false
 
     id(Plugins.dokka) version Plugins.Versions.dokka
     id(Plugins.testLogger) version Plugins.Versions.testLogger

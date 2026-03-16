@@ -29,4 +29,17 @@ dependencies {
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    // Jackson3 Dataformats Binary (from jackson3-binary)
+    compileOnly(Libs.jackson3_dataformat_avro)
+    compileOnly(Libs.jackson3_dataformat_cbor)
+    compileOnly(Libs.jackson3_dataformat_ion)
+    compileOnly(Libs.jackson3_dataformat_protobuf)
+    compileOnly(Libs.jackson3_dataformat_smile)
+
+    // Jackson3 Dataformats Text (from jackson3-text)
+    compileOnly(Libs.jackson3_dataformat_csv)
+    compileOnly(Libs.jackson3_dataformat_properties)
+    compileOnly(Libs.jackson3_dataformat_yaml)
+    compileOnly(Libs.jackson3_dataformat_toml)
 }

@@ -29,7 +29,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-hibernate"))
     api(project(":bluetape4k-mutiny"))
-    api(project(":bluetape4k-vertx-core"))
+    api(project(":bluetape4k-vertx"))
 
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
     kapt(Libs.jakarta_annotation_api)

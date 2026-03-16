@@ -18,8 +18,8 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Vertx
-    testImplementation(project(":bluetape4k-vertx-core"))
-    testImplementation(project(":bluetape4k-vertx-sqlclient"))
+    testImplementation(project(":bluetape4k-vertx"))
+    testImplementation(project(":bluetape4k-vertx"))
     testImplementation(Libs.vertx_junit5)
 
     // Vertx Kotlin
