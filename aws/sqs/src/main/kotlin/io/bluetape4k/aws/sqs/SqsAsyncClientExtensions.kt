@@ -30,32 +30,44 @@ private const val MIN_RECEIVE_MESSAGES = 1
 private const val MAX_RECEIVE_MESSAGES = 10
 
 /**
- * Create [SqsAsyncClient] instance
- * 사용 후에는 꼭 `close()`를 호출하거나 , `use` 를 사용해서 cleanup 해주어야 합니다.
+ * DSL 빌더로 [SqsAsyncClient]를 생성합니다.
+ *
+ * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
  */
 inline fun sqsAsyncClient(
     @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit,
-): SqsAsyncClient {
-    return SqsAsyncClient.builder().apply(builder).build()
+): SqsAsyncClient =
+    SqsAsyncClient
+        .builder()
+        .apply(builder)
+        .build()
         .apply {
             ShutdownQueue.register(this)
         }
-}
 
+/**
+ * 편의 파라미터로 [SqsAsyncClient]를 생성합니다.
+ *
+ * @param endpoint 엔드포인트 URI (LocalStack 등 오버라이드 시 지정)
+ * @param region AWS 리전
+ * @param credentialsProvider 자격증명 공급자
+ * @param httpClient 비동기 HTTP 클라이언트
+ */
 inline fun sqsAsyncClientOf(
     endpoint: URI? = null,
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.httpClient,
     @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
-): SqsAsyncClient = sqsAsyncClient {
-    endpoint?.let { endpointOverride(it) }
-    region?.let { region(it) }
-    credentialsProvider?.let { credentialsProvider(it) }
-    httpClient(httpClient)
+): SqsAsyncClient =
+    sqsAsyncClient {
+        endpoint?.let { endpointOverride(it) }
+        region?.let { region(it) }
+        credentialsProvider?.let { credentialsProvider(it) }
+        httpClient(httpClient)
 
-    builder()
-}
+        builder()
+    }
 
 fun SqsAsyncClient.createQueueAsync(queueName: String): CompletableFuture<String> {
     queueName.requireNotBlank("queueName")
@@ -67,13 +79,12 @@ fun SqsAsyncClient.listQueuesAsync(
     prefix: String? = null,
     nextToken: String? = null,
     maxResults: Int? = null,
-): CompletableFuture<ListQueuesResponse> {
-    return listQueues {
+): CompletableFuture<ListQueuesResponse> =
+    listQueues {
         prefix?.run { it.queueNamePrefix(this) }
         nextToken?.run { it.nextToken(this) }
         maxResults?.run { it.maxResults(this) }
     }
-}
 
 fun SqsAsyncClient.getQueueUrlAsync(
     queueName: String,

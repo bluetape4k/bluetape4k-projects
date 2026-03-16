@@ -28,28 +28,45 @@ import java.net.URI
 private const val MIN_RECEIVE_MESSAGES = 1
 private const val MAX_RECEIVE_MESSAGES = 10
 
+/**
+ * DSL 빌더로 [SqsClient]를 생성합니다.
+ *
+ * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
+ */
 inline fun sqsClient(
     @BuilderInference builder: SqsClientBuilder.() -> Unit,
 ): SqsClient =
-    SqsClient.builder().apply(builder).build()
+    SqsClient
+        .builder()
+        .apply(builder)
+        .build()
         .apply {
             ShutdownQueue.register(this)
         }
 
+/**
+ * 편의 파라미터로 [SqsClient]를 생성합니다.
+ *
+ * @param endpoint 엔드포인트 URI (LocalStack 등 오버라이드 시 지정)
+ * @param region AWS 리전
+ * @param credentialsProvider 자격증명 공급자
+ * @param httpClient HTTP 클라이언트
+ */
 inline fun sqsClientOf(
     endpoint: URI? = null,
     region: Region? = null,
     credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
-): SqsClient = sqsClient {
-    endpoint?.let { endpointOverride(it) }
-    region?.let { region(it) }
-    credentialsProvider?.let { credentialsProvider(it) }
-    httpClient(httpClient)
+): SqsClient =
+    sqsClient {
+        endpoint?.let { endpointOverride(it) }
+        region?.let { region(it) }
+        credentialsProvider?.let { credentialsProvider(it) }
+        httpClient(httpClient)
 
-    builder()
-}
+        builder()
+    }
 
 fun SqsClient.createQueue(queueName: String): String {
     queueName.requireNotBlank("queueName")
@@ -60,22 +77,22 @@ fun SqsClient.listQueues(
     prefix: String? = null,
     nextToken: String? = null,
     maxResults: Int? = null,
-): ListQueuesResponse {
-    return listQueues {
+): ListQueuesResponse =
+    listQueues {
         prefix?.run { it.queueNamePrefix(prefix) }
         nextToken?.run { it.nextToken(nextToken) }
         maxResults?.run { it.maxResults(maxResults) }
     }
-}
 
 fun SqsClient.getQueueUrl(queueName: String): GetQueueUrlResponse {
     queueName.requireNotBlank("queueName")
     return getQueueUrl { it.queueName(queueName) }
 }
 
-fun SqsClient.send(queueUrl: String, messageBody: String): SendMessageResponse {
-    return sendMessage(sendMessageRequestOf(queueUrl, messageBody))
-}
+fun SqsClient.send(
+    queueUrl: String,
+    messageBody: String,
+): SendMessageResponse = sendMessage(sendMessageRequestOf(queueUrl, messageBody))
 
 /**
  * 메시지를 배치로 전송합니다.
