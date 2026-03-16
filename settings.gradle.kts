@@ -16,8 +16,10 @@ rootProject.name = "$PROJECT_NAME-projects"
 
 includeModules("bluetape4k", true, false)
 
-includeModules("aws", withBaseDir = true)
-includeModules("aws-kotlin", withBaseDir = true)
+include("bluetape4k-aws")
+project(":bluetape4k-aws").projectDir = file("aws")
+include("bluetape4k-aws-kotlin")
+project(":bluetape4k-aws-kotlin").projectDir = file("aws-kotlin")
 includeModules("data", withBaseDir = false)
 includeModules("infra", withBaseDir = false)
 includeModules("io", withBaseDir = false)
