@@ -17,7 +17,8 @@ object Plugins {
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
         const val kotlinx_benchmark = "0.4.15" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
-        const val spring_boot = "3.5.11"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot3 = "3.5.11"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot4 = "4.0.3"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val quarkus = "3.31.3"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
@@ -65,14 +66,14 @@ object Plugins {
 
 object Versions {
 
-    const val kotlin = "2.3.20-RC3"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    const val kotlin = "2.3.20"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     const val kotlinx_serialization = "1.10.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
     const val kotlinx_atomicfu = "0.31.0"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
-    const val spring_boot = Plugins.Versions.spring_boot
+    const val spring_boot = Plugins.Versions.spring_boot3
     const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
     const val spring_integration = "6.5.6"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.14"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
@@ -94,8 +95,8 @@ object Versions {
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
-    const val bucket4j = "8.16.1"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
-    const val resilience4j = "2.3.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
+    const val bucket4j = "8.17.0"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
+    const val resilience4j = "2.4.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.2.10.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws2 = "2.41.31"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
