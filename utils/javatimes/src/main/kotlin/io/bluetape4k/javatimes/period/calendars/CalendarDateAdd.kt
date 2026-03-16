@@ -25,9 +25,8 @@ import java.time.ZonedDateTime
 /**
  * 달력의 여러 기간에서 근무 시간만으로 기간을 산정할 수 있는 클래스입니다.
  */
-open class CalendarDateAdd private constructor(): DateAdd() {
-
-    companion object: KLogging() {
+open class CalendarDateAdd private constructor() : DateAdd() {
+    companion object : KLogging() {
         @JvmStatic
         operator fun invoke(): CalendarDateAdd = CalendarDateAdd()
     }
@@ -86,10 +85,11 @@ open class CalendarDateAdd private constructor(): DateAdd() {
             return start + offset
         }
 
-        val (end, remaining) = when {
-            offset.isNegative -> calculateEnd(start, offset.negated(), SeekDirection.BACKWARD, seekBoundary)
-            else              -> calculateEnd(start, offset, SeekDirection.FORWARD, seekBoundary)
-        }
+        val (end, remaining) =
+            when {
+                offset.isNegative -> calculateEnd(start, offset.negated(), SeekDirection.BACKWARD, seekBoundary)
+                else -> calculateEnd(start, offset, SeekDirection.FORWARD, seekBoundary)
+            }
 
         log.trace { "added... endInclusive=$end, remaining=$remaining" }
         return end
@@ -107,10 +107,11 @@ open class CalendarDateAdd private constructor(): DateAdd() {
             return start - offset
         }
 
-        val (endInclusive, remaining) = when {
-            offset.isNegative -> calculateEnd(start, offset.negated(), SeekDirection.FORWARD, seekBoundary)
-            else              -> calculateEnd(start, offset, SeekDirection.BACKWARD, seekBoundary)
-        }
+        val (endInclusive, remaining) =
+            when {
+                offset.isNegative -> calculateEnd(start, offset.negated(), SeekDirection.FORWARD, seekBoundary)
+                else -> calculateEnd(start, offset, SeekDirection.BACKWARD, seekBoundary)
+            }
 
         log.trace { "subtract... endInclusive=$endInclusive, remaining=$remaining" }
         return endInclusive
@@ -124,7 +125,7 @@ open class CalendarDateAdd private constructor(): DateAdd() {
     ): Pair<ZonedDateTime?, Duration?> {
         log.trace {
             "기준 시각으로부터 offset 만큼 떨어진 시각을 구합니다..." +
-                    "start=$start, offset=$offset, seekDir=$seekDir, seekBoundary=$seekBoundary"
+                "start=$start, offset=$offset, seekDir=$seekDir, seekBoundary=$seekBoundary"
         }
 
         check(offset?.isNotNegative ?: false) { "offset 값은 0 이사이어야 합니다. offset=$offset" }
@@ -141,7 +142,13 @@ open class CalendarDateAdd private constructor(): DateAdd() {
 
             log.trace { "가능한 기간=$includePeriods" }
 
-            val result = super.calculateEnd(moment, remaining!!, seekDir, seekBoundary)
+            val result =
+                super.calculateEnd(
+                    moment,
+                    requireNotNull(remaining) { "remaining이 null입니다." },
+                    seekDir,
+                    seekBoundary
+                )
             end = result.first
             remaining = result.second
 
@@ -157,8 +164,7 @@ open class CalendarDateAdd private constructor(): DateAdd() {
                     week = findNextWeek(week)
                     week?.let { moment = it.start }
                 }
-
-                else                  -> {
+                else -> {
                     week = findPrevWeek(week)
                     week?.let { moment = it.end }
                 }
@@ -172,21 +178,23 @@ open class CalendarDateAdd private constructor(): DateAdd() {
     private fun findNextWeek(current: WeekRange): WeekRange? {
         log.trace { "current week=$current 의 이후 week 기간을 구합니다..." }
 
-        val nextWeek = when {
-            excludePeriods.isEmpty() -> current.nextWeek()
+        val nextWeek =
+            when {
+                excludePeriods.isEmpty() -> {
+                    current.nextWeek()
+                }
+                else -> {
+                    val limits = TimeRange(start = current.end + 1.nanos(), end = MaxPeriodTime)
+                    val gapCalculator = TimeGapCalculator<TimeRange>(calendar)
+                    val remainingPeriods = gapCalculator.gaps(excludePeriods, limits)
 
-            else                     -> {
-                val limits = TimeRange(start = current.end + 1.nanos(), end = MaxPeriodTime)
-                val gapCalculator = TimeGapCalculator<TimeRange>(calendar)
-                val remainingPeriods = gapCalculator.gaps(excludePeriods, limits)
-
-                if (remainingPeriods.isNotEmpty()) {
-                    WeekRange(remainingPeriods.first().start, calendar)
-                } else {
-                    null
+                    if (remainingPeriods.isNotEmpty()) {
+                        WeekRange(remainingPeriods.first().start, calendar)
+                    } else {
+                        null
+                    }
                 }
             }
-        }
         log.trace { "current week=$current, next week=$nextWeek" }
         return nextWeek
     }
@@ -194,21 +202,23 @@ open class CalendarDateAdd private constructor(): DateAdd() {
     private fun findPrevWeek(current: WeekRange): WeekRange? {
         log.trace { "current week=$current 의 이전 week 기간을 구합니다..." }
 
-        val prevWeek = when {
-            excludePeriods.isEmpty() -> current.prevWeek()
+        val prevWeek =
+            when {
+                excludePeriods.isEmpty() -> {
+                    current.prevWeek()
+                }
+                else -> {
+                    val limits = TimeRange(start = MinPeriodTime, end = current.start - 1.nanos())
+                    val gapCalculator = TimeGapCalculator<TimeRange>(calendar)
+                    val remainingPeriods = gapCalculator.gaps(excludePeriods, limits)
 
-            else                     -> {
-                val limits = TimeRange(start = MinPeriodTime, end = current.start - 1.nanos())
-                val gapCalculator = TimeGapCalculator<TimeRange>(calendar)
-                val remainingPeriods = gapCalculator.gaps(excludePeriods, limits)
-
-                if (remainingPeriods.isNotEmpty()) {
-                    WeekRange(remainingPeriods.last().end, calendar)
-                } else {
-                    null
+                    if (remainingPeriods.isNotEmpty()) {
+                        WeekRange(remainingPeriods.last().end, calendar)
+                    } else {
+                        null
+                    }
                 }
             }
-        }
         log.trace { "current week=$current, prev week=$prevWeek" }
         return prevWeek
     }

@@ -20,15 +20,15 @@ open class TimePeriod(
     private var _start: ZonedDateTime = MinPeriodTime,
     private var _end: ZonedDateTime = MaxPeriodTime,
     override val readonly: Boolean = false,
-): AbstractValueObject(), ITimePeriod {
-
-    companion object: KLogging() {
+) : AbstractValueObject(),
+    ITimePeriod {
+    companion object : KLogging() {
         val AnyTime: TimePeriod = TimePeriod(readonly = true)
     }
 
-    constructor(src: ITimePeriod, readonly: Boolean = src.readonly): this(src.start, src.end, readonly)
+    constructor(src: ITimePeriod, readonly: Boolean = src.readonly) : this(src.start, src.end, readonly)
 
-    constructor(start: ZonedDateTime, duration: Duration, readonly: Boolean = false): this(
+    constructor(start: ZonedDateTime, duration: Duration, readonly: Boolean = false) : this(
         start,
         start + duration,
         readonly
@@ -58,11 +58,14 @@ open class TimePeriod(
             _end = value
         }
 
-    override fun setup(newStart: ZonedDateTime?, newEnd: ZonedDateTime?) {
+    override fun setup(
+        newStart: ZonedDateTime?,
+        newEnd: ZonedDateTime?,
+    ) {
         val start1 = newStart ?: MinPeriodTime
         val end1 = newEnd ?: MaxPeriodTime
-        _start = (start1 min end1)!!
-        _end = (start1 max end1)!!
+        _start = (start1 min end1) ?: MinPeriodTime
+        _end = (start1 max end1) ?: MaxPeriodTime
     }
 
     override fun copy(offset: Duration): ITimePeriod {
@@ -86,17 +89,14 @@ open class TimePeriod(
                 if (hasEnd) end += offset
                 if (hasStart) start += offset
             }
-
-            else              -> {
+            else -> {
                 if (hasStart) start += offset
                 if (hasEnd) end += offset
             }
         }
     }
 
-    override fun isSamePeriod(other: ITimePeriod?): Boolean {
-        return other != null && start == other.start && end == other.end
-    }
+    override fun isSamePeriod(other: ITimePeriod?): Boolean = other != null && start == other.start && end == other.end
 
     override fun reset() {
         assertMutable()
@@ -116,25 +116,20 @@ open class TimePeriod(
         return comparison
     }
 
-    override fun equalProperties(other: Any): Boolean {
-        return other is ITimePeriod &&
-                start == other.start &&
-                end == other.end &&
-                readonly == other.readonly
-    }
+    override fun equalProperties(other: Any): Boolean =
+        other is ITimePeriod &&
+            start == other.start &&
+            end == other.end &&
+            readonly == other.readonly
 
-    override fun equals(other: Any?): Boolean {
-        return other != null && super.equals(other)
-    }
+    override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 
-    override fun hashCode(): Int {
-        return hashOf(start, end, readonly)
-    }
+    override fun hashCode(): Int = hashOf(start, end, readonly)
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super
+            .buildStringHelper()
             .add("start", start)
             .add("end", end)
             .add("readonly", readonly)
-    }
 }

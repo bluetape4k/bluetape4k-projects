@@ -22,22 +22,30 @@ import java.time.temporal.Temporal
 /**
  * 두 개의 시각을 비교하여 더 작은 시각과 더 큰 시각 순서의 Pair를 반환합니다.
  */
-fun <T> adjustPeriod(left: T?, right: T?): Pair<T?, T?> where T: Temporal, T: Comparable<T> =
-    Pair(left min right, left max right)
-
+fun <T> adjustPeriod(
+    left: T?,
+    right: T?,
+): Pair<T?, T?> where T : Temporal, T : Comparable<T> = Pair(left min right, left max right)
 
 /**
  * 시작시각과 기간을 조정하여 시작시각과 Positive 기간을 반환합니다.
  */
-fun adjustPeriod(start: ZonedDateTime, duration: Duration): Pair<ZonedDateTime, Duration> = when {
-    duration.isPositive -> Pair(start, duration)
-    else                -> Pair(start - duration, duration.negated())
-}
+fun adjustPeriod(
+    start: ZonedDateTime,
+    duration: Duration,
+): Pair<ZonedDateTime, Duration> =
+    when {
+        duration.isPositive -> Pair(start, duration)
+        else -> Pair(start - duration, duration.negated())
+    }
 
 /**
  * [start]와 [end] 가 시간 순으로 되어 있는지 확인홥니다.
  */
-fun assertValidPeriod(start: ZonedDateTime?, end: ZonedDateTime?) {
+fun assertValidPeriod(
+    start: ZonedDateTime?,
+    end: ZonedDateTime?,
+) {
     if (start != null && end != null) {
         assert(start <= end) { "시작시각이 완료시각 이전이어야 합니다. start=$start, end=$end" }
     }
@@ -57,7 +65,10 @@ fun assertValidPeriod(start: ZonedDateTime?, end: ZonedDateTime?) {
  * @param right 비교할 두 번째 기간들
  * @return 모두 같으면 true, 아니면 false
  */
-fun <T: ITimePeriod> allItemsAreEquals(left: Iterable<T>, right: Iterable<T>): Boolean {
+fun <T : ITimePeriod> allItemsAreEquals(
+    left: Iterable<T>,
+    right: Iterable<T>,
+): Boolean {
     val leftIter = left.iterator()
     val rightIter = right.iterator()
 
@@ -102,11 +113,16 @@ fun ZonedDateTime.toTimeRange(end: ZonedDateTime): ITimeRange = TimeRange(this, 
  * yearOf(2025, 4, fiscalCalendar) == 2025
  * ```
  */
-fun yearOf(year: Int, monthOfYear: Int, calendar: ITimeCalendar = TimeCalendar.Default): Int = when {
-    monthOfYear !in 1..12            -> throw IllegalArgumentException("Invalid monthOfYear[$monthOfYear]")
-    monthOfYear < calendar.baseMonth -> year - 1
-    else                             -> year
-}
+fun yearOf(
+    year: Int,
+    monthOfYear: Int,
+    calendar: ITimeCalendar = TimeCalendar.Default,
+): Int =
+    when {
+        monthOfYear !in 1..12 -> throw IllegalArgumentException("Invalid monthOfYear[$monthOfYear]")
+        monthOfYear < calendar.baseMonth -> year - 1
+        else -> year
+    }
 
 /**
  * 현재 시각의 월과 기본 달력의 기준 월을 이용해 기준 연도를 계산합니다.
@@ -121,7 +137,10 @@ fun ZonedDateTime.yearOf(calendar: ITimeCalendar): Int = yearOf(year, monthValue
 /**
  * [year] 부터 [yearCount] 만큼의 기간을 가진 [ITimeRange]를 생성합니다.
  */
-fun relativeYearPeriodOf(year: Int, yearCount: Int = 1): ITimeRange {
+fun relativeYearPeriodOf(
+    year: Int,
+    yearCount: Int = 1,
+): ITimeRange {
     yearCount.assertZeroOrPositiveNumber("yearCount")
 
     val start = startOfYear(year)
@@ -242,8 +261,7 @@ fun ZonedDateTime.relativeSecondPeriod(secondCount: Int = 1): TimeRange {
  * 현 기간이 [moment]를 포함하는지 여부
  */
 @Suppress("ConvertTwoComparisonsToRangeCheck")
-infix fun ITimePeriod.hasInsideWith(moment: ZonedDateTime): Boolean =
-    start <= moment && moment <= end
+infix fun ITimePeriod.hasInsideWith(moment: ZonedDateTime): Boolean = start <= moment && moment <= end
 
 /**
  * 현 기간이 [that] 기간을 포함하는지 여부
@@ -254,8 +272,7 @@ infix fun ITimePeriod.hasInsideWith(that: ITimePeriod): Boolean =
 /**
  * [moment]가 현 기간의 내부에 완전히 포함되는지 여부
  */
-infix fun ITimePeriod.hasPureInsideWith(moment: ZonedDateTime): Boolean =
-    start < moment && moment < end
+infix fun ITimePeriod.hasPureInsideWith(moment: ZonedDateTime): Boolean = start < moment && moment < end
 
 /**
  * 두 기간 중 하나가 다른 기간에 완전히 포함되는지 여부
@@ -273,36 +290,53 @@ infix fun ITimePeriod.hasPureInsideWith(that: ITimePeriod): Boolean =
  * // After, Before, ExactMatch, StartTouching, EndTouching, EnclosingStartTouching, EnclosingEndTouching, Enclosing, InsideStartTouching, InsideEndTouching, Inside, StartInside, EndInside, NoRelation
  * ```
  */
-infix fun ITimePeriod.relationWith(that: ITimePeriod): PeriodRelation = when {
-    this.start > that.end    -> PeriodRelation.After
-    this.end < that.start    -> PeriodRelation.Before
-    this.isSamePeriod(that)  -> PeriodRelation.ExactMatch
-    this.start == that.end   -> PeriodRelation.StartTouching
-    this.end == that.start   -> PeriodRelation.EndTouching
-
-    this.hasInsideWith(that) -> when {
-        this.start == that.start -> PeriodRelation.EnclosingStartTouching
-        this.end == that.end     -> PeriodRelation.EnclosingEndTouching
-        else                     -> PeriodRelation.Enclosing
-    }
-
-    else                     -> {
-        val isInsideStart = that.hasInsideWith(this.start)
-        val isInsideEnd = that.hasInsideWith(this.end)
-        when {
-            isInsideStart && isInsideEnd -> when {
-                this.start == that.start -> PeriodRelation.InsideStartTouching
-                this.end == that.end     -> PeriodRelation.InsideEndTouching
-                else                     -> PeriodRelation.Inside
+infix fun ITimePeriod.relationWith(that: ITimePeriod): PeriodRelation =
+    when {
+        this.start > that.end -> {
+            PeriodRelation.After
+        }
+        this.end < that.start -> {
+            PeriodRelation.Before
+        }
+        this.isSamePeriod(that) -> {
+            PeriodRelation.ExactMatch
+        }
+        this.start == that.end -> {
+            PeriodRelation.StartTouching
+        }
+        this.end == that.start -> {
+            PeriodRelation.EndTouching
+        }
+        this.hasInsideWith(that) -> {
+            when {
+                this.start == that.start -> PeriodRelation.EnclosingStartTouching
+                this.end == that.end -> PeriodRelation.EnclosingEndTouching
+                else -> PeriodRelation.Enclosing
             }
-
-            isInsideStart                -> PeriodRelation.StartInside
-            isInsideEnd                  -> PeriodRelation.EndInside
-            else                         -> PeriodRelation.NoRelation
+        }
+        else -> {
+            val isInsideStart = that.hasInsideWith(this.start)
+            val isInsideEnd = that.hasInsideWith(this.end)
+            when {
+                isInsideStart && isInsideEnd -> {
+                    when {
+                        this.start == that.start -> PeriodRelation.InsideStartTouching
+                        this.end == that.end -> PeriodRelation.InsideEndTouching
+                        else -> PeriodRelation.Inside
+                    }
+                }
+                isInsideStart -> {
+                    PeriodRelation.StartInside
+                }
+                isInsideEnd -> {
+                    PeriodRelation.EndInside
+                }
+                else -> {
+                    PeriodRelation.NoRelation
+                }
+            }
         }
     }
-}
-
 
 /**
  * 두 기간의 교집합 기간이 있는지 확인합니다.
@@ -363,5 +397,5 @@ infix fun ITimePeriod.unionRange(that: ITimePeriod): TimeRange {
     val start = this.start min that.start
     val end = this.end max that.end
 
-    return TimeRange(start!!, end!!, this.readonly)
+    return TimeRange(start ?: MinPeriodTime, end ?: MaxPeriodTime, this.readonly)
 }
