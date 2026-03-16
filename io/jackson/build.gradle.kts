@@ -27,6 +27,13 @@ dependencies {
     compileOnly(Libs.jackson_dataformat_properties)
     compileOnly(Libs.jackson_dataformat_yaml)
 
+    // Jackson Dataformats Binary (from jackson-binary)
+    compileOnly(Libs.jackson_dataformat_avro)
+    compileOnly(Libs.jackson_dataformat_cbor)
+    compileOnly(Libs.jackson_dataformat_ion)
+    compileOnly(Libs.jackson_dataformat_protobuf)
+    compileOnly(Libs.jackson_dataformat_smile)
+
     api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-crypto"))
