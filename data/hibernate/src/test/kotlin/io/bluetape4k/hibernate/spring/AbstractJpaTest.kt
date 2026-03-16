@@ -16,12 +16,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 // NOTE: @DataJpaTest에서는 무조건 H2 를 사용하므로, SpringBootTest를 이용할 때에는 MySQL 모드로 사용하도록 해야 한다.
 @DataJpaTest(
     properties = [
-        // @DataJpaTest는 H2를 사용합니다. jdbc url을 mysql 로 지정하면 H2 DB를 MySQL 모드로 실행됩니다.
-        "spring.datasource.url=jdbc:mysql://localhost:3306/test;",
-        //                 "spring.datasource.driver-class-name = com.mysql.cj.jdbc.Driver",
-        //                 "spring.datasource.username = test",
-        //                 "spring.datasource.password = test",
-        //                 "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL57Dialect"
+        // @DataJpaTest는 H2를 사용합니다. MODE=MySQL 로 지정하면 H2 DB를 MySQL 호환 모드로 실행됩니다.
+        "spring.datasource.url=jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+        "spring.datasource.driver-class-name=org.h2.Driver",
 
         // DML 작업
         "spring.jpa.properties.hibernate.hbm2ddl.auto=update",
@@ -32,7 +29,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
         // 성능 측정 정보 제공
         "spring.jpa.properties.hibernate.generate_statistics=true",
-        //"spring.jpa.properties.hibernate.use_sql_comments=true",
+        // "spring.jpa.properties.hibernate.use_sql_comments=true",
         //
         // NOTE: literal 을 parameter 로 binding 시킵니다
         // 참고 : https://vladmihalcea.com/how-does-hibernate-handle-jpa-criteria-api-literals/
@@ -58,8 +55,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
     excludeAutoConfiguration = [FlywayAutoConfiguration::class]
 )
 abstract class AbstractJpaTest {
-
-    companion object: KLogging() {
+    companion object : KLogging() {
         // @DataJpaTest 는 H2 를 사용합니다. @SprintBootTest 로 직접적으로 사용하려면 MySQLServer를 생성해야 합니다.
         //        val mysql: MySQLServer by lazy {
         //            MySQLServer(useDefaultPort = true).apply {

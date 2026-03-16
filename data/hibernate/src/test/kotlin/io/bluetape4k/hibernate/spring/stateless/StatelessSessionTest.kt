@@ -1,11 +1,11 @@
 package io.bluetape4k.hibernate.spring.stateless
 
+import io.bluetape4k.hibernate.spring.AbstractJpaTest
 import io.bluetape4k.hibernate.stateless.withStateless
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.hibernate.spring.AbstractJpaTest
 import io.bluetape4k.support.asInt
 import io.bluetape4k.support.asString
 import org.amshove.kluent.shouldNotBeEmpty
@@ -21,17 +21,16 @@ import kotlin.system.measureTimeMillis
  * 대량의 데이터 삽입 시에는 Stateless 가 Stateful 보다 최소 3배 정도 빠르다
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class StatelessSessionTest: AbstractJpaTest() {
-
-    companion object: KLogging() {
+class StatelessSessionTest : AbstractJpaTest() {
+    companion object : KLogging() {
         private const val COUNT = 10 // 1_000
         private const val DETAIL_COUNT = 10 // 1_000
         private const val REPEAT_COUNT = 3
 
         private val faker = Fakers.faker
 
-        fun getStatelessEntity(index: Int): StatelessEntity {
-            return StatelessEntity(TimebasedUuid.Epoch.nextIdAsString() + "-" + index).apply {
+        fun getStatelessEntity(index: Int): StatelessEntity =
+            StatelessEntity(TimebasedUuid.Epoch.nextIdAsString() + "-" + index).apply {
                 firstname = faker.name().firstName()
                 lastname = faker.name().lastName()
                 age = faker.number().numberBetween(10, 99)
@@ -39,7 +38,6 @@ class StatelessSessionTest: AbstractJpaTest() {
                 city = faker.address().city()
                 zipcode = faker.address().zipCode()
             }
-        }
     }
 
     @Order(0)
@@ -60,66 +58,68 @@ class StatelessSessionTest: AbstractJpaTest() {
     }
 
     @Nested
-    inner class WithSession: AbstractJpaTest() {
-
+    inner class WithSession : AbstractJpaTest() {
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with session`() {
-            val elapsed = measureTimeMillis {
-                repeat(COUNT) {
-                    val entity = getStatelessEntity(it)
-                    log.debug { "Persist entity: $entity" }
-                    tem.persist(entity)
+            val elapsed =
+                measureTimeMillis {
+                    repeat(COUNT) {
+                        val entity = getStatelessEntity(it)
+                        log.debug { "Persist entity: $entity" }
+                        tem.persist(entity)
+                    }
+                    flush()
                 }
-                flush()
-            }
             log.debug { "Session save: $elapsed  msec" }
         }
 
         @RepeatedTest(REPEAT_COUNT)
         fun `one-to-many entity with session`() {
-            val elapsed = measureTimeMillis {
-                repeat(COUNT) {
-                    val master = createMaster("stateful master-$it")
-                    tem.persist(master)
-                    log.debug { "Persist master: $master" }
+            val elapsed =
+                measureTimeMillis {
+                    repeat(COUNT) {
+                        val master = createMaster("stateful master-$it")
+                        tem.persist(master)
+                        log.debug { "Persist master: $master" }
+                    }
+                    tem.flush()
                 }
-                tem.flush()
-            }
             log.debug { "Session save: $elapsed msec" }
         }
     }
 
     @Nested
-    inner class WithStateless: AbstractJpaTest() {
-
+    inner class WithStateless : AbstractJpaTest() {
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with stateless`() {
-            val elapsed = measureTimeMillis {
-                tem.entityManager.withStateless { stateless ->
-                    repeat(COUNT) {
-                        val entity = getStatelessEntity(it)
-                        log.debug { "Persist entity: $entity" }
-                        stateless.insert(entity)
+            val elapsed =
+                measureTimeMillis {
+                    tem.entityManager.withStateless { stateless ->
+                        repeat(COUNT) {
+                            val entity = getStatelessEntity(it)
+                            log.debug { "Persist entity: $entity" }
+                            stateless.insert(entity)
+                        }
                     }
                 }
-            }
             log.debug { "Stateless save: $elapsed  msec" }
         }
 
         @RepeatedTest(REPEAT_COUNT)
         fun `one-to-many entity with stateless`() {
-            val elapsed = measureTimeMillis {
-                tem.entityManager.withStateless { stateless ->
-                    repeat(COUNT) {
-                        val master = createMaster("stateless master-$it")
-                        stateless.insert(master)
-                        log.debug { "Persist master: $master" }
-                        master.details.forEach { detail ->
-                            stateless.insert(detail)
+            val elapsed =
+                measureTimeMillis {
+                    tem.entityManager.withStateless { stateless ->
+                        repeat(COUNT) {
+                            val master = createMaster("stateless master-$it")
+                            stateless.insert(master)
+                            log.debug { "Persist master: $master" }
+                            master.details.forEach { detail ->
+                                stateless.insert(detail)
+                            }
                         }
                     }
                 }
-            }
             log.debug { "Stateless save: $elapsed msec" }
         }
     }
@@ -137,9 +137,10 @@ class StatelessSessionTest: AbstractJpaTest() {
             }
         }
 
-        val rows: List<Any> = tem.entityManager.withStateless { stateless ->
-            stateless.createNativeQuery("select * from stateless_master m", Any::class.java).list()
-        } ?: emptyList()
+        val rows: List<Any> =
+            tem.entityManager.withStateless { stateless ->
+                stateless.createNativeQuery("select * from spring_stateless_master m", Any::class.java).list()
+            } ?: emptyList()
 
         rows.shouldNotBeEmpty()
 
@@ -152,7 +153,10 @@ class StatelessSessionTest: AbstractJpaTest() {
         }
     }
 
-    private fun createMaster(name: String, detailCount: Int = DETAIL_COUNT): StatelessMaster {
+    private fun createMaster(
+        name: String,
+        detailCount: Int = DETAIL_COUNT,
+    ): StatelessMaster {
         val master = StatelessMaster(name)
         repeat(detailCount) { index ->
             val detail = StatelessDetail("details-$index").also { it.master = master }
