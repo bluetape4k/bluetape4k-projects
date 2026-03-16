@@ -14,9 +14,8 @@ import io.bluetape4k.geohash.GeoHash
  * // iterator.hasNext() == true
  * ```
  */
-fun boundingBoxGeoHashIteratorOf(boundingBox: TwoGeoHashBoundingBox): BoundingBoxGeoHashIterator {
-    return BoundingBoxGeoHashIterator(boundingBox)
-}
+fun boundingBoxGeoHashIteratorOf(boundingBox: TwoGeoHashBoundingBox): BoundingBoxGeoHashIterator =
+    BoundingBoxGeoHashIterator(boundingBox)
 
 /**
  * 남서/북동 코너 해시로 반복자를 생성합니다.
@@ -30,9 +29,10 @@ fun boundingBoxGeoHashIteratorOf(boundingBox: TwoGeoHashBoundingBox): BoundingBo
  * // iterator.hasNext() == true
  * ```
  */
-fun boundingBoxGeoHashIteratorOf(southWest: GeoHash, northEast: GeoHash): BoundingBoxGeoHashIterator {
-    return BoundingBoxGeoHashIterator(twoGeoHashBoundingBoxOf(southWest, northEast))
-}
+fun boundingBoxGeoHashIteratorOf(
+    southWest: GeoHash,
+    northEast: GeoHash,
+): BoundingBoxGeoHashIterator = BoundingBoxGeoHashIterator(twoGeoHashBoundingBoxOf(southWest, northEast))
 
 /**
  * [TwoGeoHashBoundingBox] 범위 내 GeoHash를 순차 순회하는 반복자입니다.
@@ -48,13 +48,12 @@ fun boundingBoxGeoHashIteratorOf(southWest: GeoHash, northEast: GeoHash): Boundi
  * // first == sw
  * ```
  */
-class BoundingBoxGeoHashIterator(val boundingBox: TwoGeoHashBoundingBox): Iterator<GeoHash> {
-
+class BoundingBoxGeoHashIterator(
+    val boundingBox: TwoGeoHashBoundingBox,
+) : Iterator<GeoHash> {
     private var current: GeoHash? = boundingBox.southWestCorner
 
-    override fun hasNext(): Boolean {
-        return current != null
-    }
+    override fun hasNext(): Boolean = current != null
 
     override fun next(): GeoHash {
         if (!hasNext()) {
@@ -67,7 +66,11 @@ class BoundingBoxGeoHashIterator(val boundingBox: TwoGeoHashBoundingBox): Iterat
             current = null
         } else {
             current = rv.next()
-            while (hasNext() && !boundingBox.boundingBox.contains(current!!.originatingPoint)) {
+            while (hasNext() &&
+                !boundingBox.boundingBox.contains(
+                    requireNotNull(current) { "current GeoHash가 null입니다." }.originatingPoint
+                )
+            ) {
                 current = current?.next()
             }
         }

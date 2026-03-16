@@ -45,16 +45,15 @@ fun geoHashBoundingBoxQueryOf(
  */
 class GeoHashBoundingBoxQuery(
     private val bbox: BoundingBox,
-): GeoHashQuery, Serializable {
+) : GeoHashQuery,
+    Serializable {
+    companion object : KLogging()
 
-    companion object: KLogging()
-
-    /* there can be up to 8 hashes since it can be 2 separate queries */
+    // there can be up to 8 hashes since it can be 2 separate queries
     private val searchHashes = ArrayList<GeoHash>(8)
 
-    /* the combined bounding box of those hashes. */
+    // the combined bounding box of those hashes.
     private var boundingBox: BoundingBox? = null
-
 
     init {
         buildSearchHashes()
@@ -76,8 +75,11 @@ class GeoHashBoundingBoxQuery(
 
         // 결합된 Bounding Box 를 생성합니다.
         for (hash in searchHashes) {
-            if (boundingBox == null) boundingBox = hash.boundingBox.copy()
-            else boundingBox!!.expandToInclude(hash.boundingBox)
+            if (boundingBox == null) {
+                boundingBox = hash.boundingBox.copy()
+            } else {
+                (boundingBox ?: error("boundingBox가 null입니다.")).expandToInclude(hash.boundingBox)
+            }
         }
 
         // Check the search hashes on a query over the full planet
@@ -103,7 +105,9 @@ class GeoHashBoundingBoxQuery(
                     var hashCopy = hash.longValue
                     var hashCompareCopy = hashToCompare.longValue
                     var equalBits = 0
-                    while ((hashCompareCopy and GeoHash.FIRST_BIT_FLAGGED) == (hashCopy and GeoHash.FIRST_BIT_FLAGGED)) {
+                    while ((hashCompareCopy and GeoHash.FIRST_BIT_FLAGGED) ==
+                        (hashCopy and GeoHash.FIRST_BIT_FLAGGED)
+                    ) {
                         hashCompareCopy = hashCompareCopy shl 1
                         hashCopy = hashCopy shl 1
                         equalBits++
@@ -135,7 +139,10 @@ class GeoHashBoundingBoxQuery(
         }
     }
 
-    private fun expandSearch(centerHash: GeoHash, bbox: BoundingBox) {
+    private fun expandSearch(
+        centerHash: GeoHash,
+        bbox: BoundingBox,
+    ) {
         searchHashes.add(centerHash)
         log.trace { "Add expand center hashes. $centerHash" }
 
@@ -151,9 +158,10 @@ class GeoHashBoundingBoxQuery(
     /**
      * Checks if the provided hash completely(!) contains the provided bounding box
      */
-    private fun hashContainsBoundingBox(hash: GeoHash, bbox: BoundingBox): Boolean {
-        return hash.contains(bbox.getNorthWestCorner()) && hash.contains(bbox.getSouthEastCorner())
-    }
+    private fun hashContainsBoundingBox(
+        hash: GeoHash,
+        bbox: BoundingBox,
+    ): Boolean = hash.contains(bbox.getNorthWestCorner()) && hash.contains(bbox.getSouthEastCorner())
 
     /**
      * [hash]가 이 쿼리에 포함되는지 여부를 반환합니다.
@@ -161,9 +169,7 @@ class GeoHashBoundingBoxQuery(
      * @param hash 포함 여부를 판단할 [GeoHash]
      * @return 포함 여부
      */
-    override operator fun contains(hash: GeoHash): Boolean {
-        return searchHashes.exists { hash.within(it) }
-    }
+    override operator fun contains(hash: GeoHash): Boolean = searchHashes.exists { hash.within(it) }
 
     /**
      * [point]가 이 쿼리에 포함되는지 여부를 반환합니다.
@@ -171,9 +177,8 @@ class GeoHashBoundingBoxQuery(
      * @param point 포함 여부를 판단할 [WGS84Point]
      * @return 포함 여부
      */
-    override operator fun contains(point: WGS84Point): Boolean {
-        return contains(geoHashWithBits(point.latitude, point.longitude, 64))
-    }
+    override operator fun contains(point: WGS84Point): Boolean =
+        contains(geoHashWithBits(point.latitude, point.longitude, 64))
 
     /**
      * 검색 해시 목록을 반환합니다.
@@ -192,17 +197,15 @@ class GeoHashBoundingBoxQuery(
      *
      * @return 검색 해시 목록
      */
-    override fun getSearchHashes(): List<GeoHash> {
-        return searchHashes.toList()
-    }
+    override fun getSearchHashes(): List<GeoHash> = searchHashes.toList()
 
-    override fun toString(): String = buildString {
-        for (hash in searchHashes) {
-            appendLine(hash)
+    override fun toString(): String =
+        buildString {
+            for (hash in searchHashes) {
+                appendLine(hash)
+            }
         }
-    }
 
-    override fun getWktBox(): String {
-        return "BOX(${boundingBox?.westLongitude} ${boundingBox?.southLatitude}, ${boundingBox?.eastLongitude} ${boundingBox?.northLatitude})"
-    }
+    override fun getWktBox(): String =
+        "BOX(${boundingBox?.westLongitude} ${boundingBox?.southLatitude}, ${boundingBox?.eastLongitude} ${boundingBox?.northLatitude})"
 }
