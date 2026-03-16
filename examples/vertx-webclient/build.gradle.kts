@@ -8,7 +8,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Vertx
-    implementation(project(":bluetape4k-vertx-core"))
+    implementation(project(":bluetape4k-vertx"))
     implementation(Libs.vertx_core)
     implementation(Libs.vertx_lang_kotlin)
     implementation(Libs.vertx_lang_kotlin_coroutines)
