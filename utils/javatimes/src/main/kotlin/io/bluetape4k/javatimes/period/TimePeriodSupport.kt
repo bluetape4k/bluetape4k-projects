@@ -1,6 +1,8 @@
 package io.bluetape4k.javatimes.period
 
 import io.bluetape4k.javatimes.DaysPerWeek
+import io.bluetape4k.javatimes.MaxPeriodTime
+import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.MonthsPerQuarter
 import io.bluetape4k.javatimes.max
 import io.bluetape4k.javatimes.min
