@@ -6,16 +6,16 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * Get [CoroutineDispatcher] of current [Vertx] instance.
+ * 현재 [Vertx] 인스턴스의 [CoroutineDispatcher]를 반환합니다.
  */
 fun currentVertxDispatcher(): CoroutineDispatcher = currentVertx().dispatcher()
 
 /**
- * 현 [Vertx]의 `dispatcher()`를 사용하는 [CoroutineScope]를 빌드합니다.
+ * 현재 [Vertx]의 `dispatcher()`를 사용하는 [CoroutineScope]를 빌드합니다.
  */
 fun Vertx.asCoroutineScope(): CoroutineScope = CoroutineScope(this.dispatcher())
 
 /**
- * Current [Vertx]의 Thread를 사용하는 [CoroutineScope]를 빌드합니다.
+ * 현재 [Vertx]의 스레드를 사용하는 [CoroutineScope]를 빌드합니다.
  */
 fun currentVertxCoroutineScope(): CoroutineScope = currentVertx().asCoroutineScope()
