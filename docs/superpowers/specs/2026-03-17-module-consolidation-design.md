@@ -205,6 +205,7 @@ dependencies {
 | `io/json` | fastjson2/jackson 공통 인터페이스 |
 | `io/protobuf` | gRPC 없이 독립 사용 가능 (Kafka, REST 등) — grpc가 protobuf에 의존하는 구조 유지 |
 | `io/grpc` | protobuf 의존, gRPC 서버/클라이언트 전용 — 분리 유지 |
+| `io/netty` | 네트워킹(ByteBuf/Channel) — io/ 직렬화 계열과 성격이 달라 분리 유지. webflux/redisson/lettuce 전이 의존성으로 제공됨 |
 | `io/crypto` | @Deprecated 마킹만 — 다음 Phase 삭제 |
 | `utils/units` | @Deprecated 마킹만 — 다음 Phase 삭제 |
 
