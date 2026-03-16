@@ -6,7 +6,6 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.reflect.KProperty1
 
-
 /**
  * feature 집합으로 카테고리를 예측하는 나이브 베이즈 분류기입니다.
  *
@@ -26,13 +25,12 @@ import kotlin.reflect.KProperty1
  * @property k1 라플라스 계열 스무딩 상수 1
  * @property k2 라플라스 계열 스무딩 상수 2
  */
-class NaiveBayesClassifier<F: Any, C: Any>(
+class NaiveBayesClassifier<F : Any, C : Any>(
     private val observationLimit: Int = Int.MAX_VALUE,
     val k1: Double = DEFAULT_K1,
     val k2: Double = DEFAULT_K2,
 ) {
-
-    companion object: KLogging() {
+    companion object : KLogging() {
         const val DEFAULT_K1: Double = 0.5
         const val DEFAULT_K2: Double = DEFAULT_K1 * 2.0
     }
@@ -59,7 +57,10 @@ class NaiveBayesClassifier<F: Any, C: Any>(
      * // nbc.population.last().features.size == 2
      * ```
      */
-    fun addObservation(category: C, features: Iterable<F>) {
+    fun addObservation(
+        category: C,
+        features: Iterable<F>,
+    ) {
         if (_population.size == observationLimit) {
             _population.removeAt(0)
         }
@@ -79,17 +80,24 @@ class NaiveBayesClassifier<F: Any, C: Any>(
      * // nbc.population.isNotEmpty() == true
      * ```
      */
-    fun addObservation(category: C, vararg features: F) {
+    fun addObservation(
+        category: C,
+        vararg features: F,
+    ) {
         addObservation(category, features.toSet())
     }
 
     private fun rebuildModel() {
-        probabilities = _population.flatMap { it.features }.distinct()
-            .flatMap { f ->
-                _population.map { it.category }.distinct()
-                    .map { c -> FeatureProbability.Key(f, c) }
-            }
-            .associateWith { FeatureProbability(it.feature, it.category, this) }
+        probabilities =
+            _population
+                .flatMap { it.features }
+                .distinct()
+                .flatMap { f ->
+                    _population
+                        .map { it.category }
+                        .distinct()
+                        .map { c -> FeatureProbability.Key(f, c) }
+                }.associateWith { FeatureProbability(it.feature, it.category, this) }
 
         modelStaled = false
     }
@@ -140,38 +148,38 @@ class NaiveBayesClassifier<F: Any, C: Any>(
             .asSequence()
             .filter { category: C ->
                 population.any { it.category == category } && probabilities.values.any { it.feature in f }
-            }
-            .map { category: C ->
-                val probIfCategory = calcProbability(
-                    probabilities.values,
-                    category,
-                    features,
-                    FeatureProbability<F, C>::probability
-                )
+            }.map { category: C ->
+                val probIfCategory =
+                    calcProbability(
+                        probabilities.values,
+                        category,
+                        features,
+                        FeatureProbability<F, C>::probability
+                    )
 
-                val probIfNotCategory = calcProbability(
-                    probabilities.values,
-                    category,
-                    features,
-                    FeatureProbability<F, C>::notProbability
-                )
+                val probIfNotCategory =
+                    calcProbability(
+                        probabilities.values,
+                        category,
+                        features,
+                        FeatureProbability<F, C>::notProbability
+                    )
 
                 CategoryProbability(
                     category = category,
                     probability = probIfCategory / (probIfCategory + probIfNotCategory)
                 )
-            }
-            .filter { it.probability >= 0.1 }
+            }.filter { it.probability >= 0.1 }
             .maxByOrNull { it.probability }
     }
 
     private fun calcProbability(
-        porobabilities: Collection<FeatureProbability<F, C>>,
+        probabilities: Collection<FeatureProbability<F, C>>,
         category: C,
         features: Iterable<F>,
         props: KProperty1<FeatureProbability<F, C>, Double>,
-    ): Double {
-        return porobabilities
+    ): Double =
+        probabilities
             .filter { it.category == category }
             .sumOf {
                 if (it.feature in features) {
@@ -180,7 +188,6 @@ class NaiveBayesClassifier<F: Any, C: Any>(
                     ln(1.0 - props.get(it))
                 }
             }.let { exp(it) }
-    }
 
     /**
      * 단일 feature-카테고리 조합의 사후 확률 정보를 보관합니다.
@@ -194,20 +201,26 @@ class NaiveBayesClassifier<F: Any, C: Any>(
      * // fp.probability > 0.0
      * ```
      */
-    class FeatureProbability<F: Any, C: Any>(val feature: F, val category: C, nbc: NaiveBayesClassifier<F, C>) {
-
+    class FeatureProbability<F : Any, C : Any>(
+        val feature: F,
+        val category: C,
+        nbc: NaiveBayesClassifier<F, C>,
+    ) {
         /** feature-카테고리 복합 키입니다. */
-        data class Key<F, C>(val feature: F, val category: C)
+        data class Key<F, C>(
+            val feature: F,
+            val category: C,
+        )
 
         /** 카테고리일 때 feature가 나타날 확률입니다. */
         val probability: Double =
             (nbc.k1 + nbc.population.count { it.category == category && feature in it.features }) /
-                    (nbc.k2 + nbc.population.count { it.category == category })
+                (nbc.k2 + nbc.population.count { it.category == category })
 
         /** 카테고리가 아닐 때 feature가 나타날 확률입니다. */
         val notProbability: Double =
             (nbc.k1 + nbc.population.count { it.category != category && feature in it.features }) /
-                    (nbc.k2 + nbc.population.count { it.category != category })
+                (nbc.k2 + nbc.population.count { it.category != category })
 
         /** 현재 확률 항목의 키를 반환합니다. */
         val key: Key<F, C> get() = Key(feature, category)
