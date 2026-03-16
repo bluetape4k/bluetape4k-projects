@@ -203,6 +203,8 @@ dependencies {
 | `virtualthread/api`, `jdk21`, `jdk25` | Java 21/25 런타임 선택 — ServiceLoader 구조상 분리 필수 |
 | `data/exposed-*` 전체 | jdbc/r2dbc 사용처 명확히 분리 |
 | `io/json` | fastjson2/jackson 공통 인터페이스 |
+| `io/protobuf` | gRPC 없이 독립 사용 가능 (Kafka, REST 등) — grpc가 protobuf에 의존하는 구조 유지 |
+| `io/grpc` | protobuf 의존, gRPC 서버/클라이언트 전용 — 분리 유지 |
 | `io/crypto` | @Deprecated 마킹만 — 다음 Phase 삭제 |
 | `utils/units` | @Deprecated 마킹만 — 다음 Phase 삭제 |
 
