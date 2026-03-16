@@ -25,8 +25,7 @@ import java.io.InputStream
  * - [GeoIP2 Java API](https://maxmind.github.io/GeoIP2-java/)
  * - [Download GeoIP Databases](https://www.maxmind.com/en/accounts/379741/geoip/downloads)
  */
-object Geoip: KLogging() {
-
+object Geoip : KLogging() {
     private const val GEO_ASN_DB = "GeoLite2-ASN.mmdb"
     private const val GEO_CITY_DB = "GeoLite2-City.mmdb"
     private const val GEO_COUNTRY_DB = "GeoLite2-Country.mmdb"
@@ -54,8 +53,7 @@ object Geoip: KLogging() {
         locales: List<String> = listOf("en", "ko"),
     ): DatabaseReader {
         log.info { "Load $filename ..." }
-        val inputStream = Resourcex.getInputStream(filename)!!
-        inputStream.requireNotNull("inputStream")
+        val inputStream = Resourcex.getInputStream(filename).requireNotNull("inputStream")
         return databaseReader(inputStream) {
             locales(locales)
             withCache(CHMCache())
@@ -68,7 +66,5 @@ object Geoip: KLogging() {
     private inline fun databaseReader(
         inputStream: InputStream,
         @BuilderInference builder: DatabaseReader.Builder.() -> Unit,
-    ): DatabaseReader {
-        return DatabaseReader.Builder(inputStream).apply(builder).build()
-    }
+    ): DatabaseReader = DatabaseReader.Builder(inputStream).apply(builder).build()
 }
