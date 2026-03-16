@@ -34,6 +34,10 @@ dependencies {
     compileOnly(Libs.jackson_dataformat_protobuf)
     compileOnly(Libs.jackson_dataformat_smile)
 
+    // Jackson Dataformats Text (from jackson-text)
+    compileOnly(Libs.jackson_dataformat_csv)
+    compileOnly(Libs.jackson_dataformat_toml)
+
     api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-crypto"))
