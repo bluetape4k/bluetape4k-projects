@@ -3,7 +3,7 @@ package io.bluetape4k.examples.virtualthreads.part2
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
@@ -19,11 +19,8 @@ import java.util.concurrent.TimeoutException
  *
  * 동시성을 제어할 때에는 FixedThreadPool 을 사용하지 말고, [Semaphore]를 사용하세요
  */
-class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
-
-    companion object {
-        private val log = KotlinLogging.logger { }
-    }
+class Rule4UseSemaphoreInsteadOfFixedThreadPool : AbstractVirtualThreadTest() {
+    companion object : KLogging()
 
     @Nested
     inner class DoNot {
@@ -56,15 +53,17 @@ class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
         fun `추천 - Semaphore를 사용하여 동시성 제어하기`() {
             val results = ConcurrentLinkedQueue<String>()
             Executors.newVirtualThreadPerTaskExecutor().use { executor ->
-                val futures = List(taskSize) { index ->
-                    executor.submit<String> {
-                        log.trace { "Start run task[$index]" }
-                        val result = useSemaphoreToLimitConcurrency()
-                        log.trace { "Finish run task[$index]" }
-                        results.add(result)
-                        result
-                    }.asCompletableFuture()
-                }
+                val futures =
+                    List(taskSize) { index ->
+                        executor
+                            .submit<String> {
+                                log.trace { "Start run task[$index]" }
+                                val result = useSemaphoreToLimitConcurrency()
+                                log.trace { "Finish run task[$index]" }
+                                results.add(result)
+                                result
+                            }.asCompletableFuture()
+                    }
                 FutureUtils.allAsList(futures, executor).get()
                 results.size shouldBeEqualTo taskSize
             }

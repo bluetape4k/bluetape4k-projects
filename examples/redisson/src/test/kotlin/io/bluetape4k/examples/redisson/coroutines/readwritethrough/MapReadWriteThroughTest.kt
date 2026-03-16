@@ -37,7 +37,6 @@ import java.time.Duration
 import javax.sql.DataSource
 import kotlin.system.measureTimeMillis
 
-
 /**
  * Redisson Map read/write through 기능 예제
  *
@@ -47,10 +46,8 @@ import kotlin.system.measureTimeMillis
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [JdbcConfiguration::class])
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
-
-    companion object: KLoggingChannel() {
-
+class MapReadWriteThroughTest : AbstractRedissonCoroutineTest() {
+    companion object : KLoggingChannel() {
         const val ACTOR_SIZE = 30
 
         const val SELECT_ACTORS = "SELECT * FROM Actors"
@@ -65,88 +62,90 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
     @Autowired
     private lateinit var dataSource: DataSource
 
-    private fun newActor(id: Int): Actor {
-        return Actor(
+    private fun newActor(id: Int): Actor =
+        Actor(
             id = id,
             firstname = faker.name().firstName(),
             lastname = faker.name().lastName()
         )
-    }
 
-    private val actorWriter = object: MapWriter<Int, Actor> {
-        override fun write(map: MutableMap<Int, Actor>) {
-            try {
-                dataSource.withConnect { conn ->
-                    log.debug { "Insert Actor to DB. actors=${map.values.joinToString()}" }
-                    conn.prepareStatement(INSERT_ACTOR).use { ps ->
-                        map.entries.forEach { entry ->
-                            ps.setInt(1, entry.value.id)
-                            ps.setString(2, entry.value.firstname)
-                            ps.setString(3, entry.value.lastname)
-                            ps.addBatch()
+    private val actorWriter =
+        object : MapWriter<Int, Actor> {
+            override fun write(map: MutableMap<Int, Actor>) {
+                try {
+                    dataSource.withConnect { conn ->
+                        log.debug { "Insert Actor to DB. actors=${map.values.joinToString()}" }
+                        conn.prepareStatement(INSERT_ACTOR).use { ps ->
+                            map.entries.forEach { entry ->
+                                ps.setInt(1, entry.value.id)
+                                ps.setString(2, entry.value.firstname)
+                                ps.setString(3, entry.value.lastname)
+                                ps.addBatch()
+                            }
+                            ps.executeBatch()
                         }
-                        ps.executeBatch()
                     }
+                } catch (e: Exception) {
+                    throw IllegalStateException("삽입 실패. map=$map", e)
                 }
-            } catch (e: Exception) {
-                throw IllegalStateException("Fail to insert. map=$map", e)
+            }
+
+            override fun delete(keys: MutableCollection<Int>) {
+                try {
+                    dataSource.withConnect { conn ->
+                        conn.prepareStatement(DELETE_ACTOR).use { ps ->
+                            log.debug { "Delete actor from DB. keys=$keys" }
+                            keys.forEach { key ->
+                                ps.setInt(1, key)
+                                ps.addBatch()
+                            }
+                            ps.executeBatch()
+                        }
+                    }
+                } catch (e: Exception) {
+                    throw IllegalStateException("삭제 실패. keys=$keys", e)
+                }
             }
         }
 
-        override fun delete(keys: MutableCollection<Int>) {
-            try {
-                dataSource.withConnect { conn ->
-                    conn.prepareStatement(DELETE_ACTOR).use { ps ->
-                        log.debug { "Delete actor from DB. keys=$keys" }
-                        keys.forEach { key ->
+    private val actorLoader =
+        object : MapLoader<Int, Actor> {
+            override fun load(key: Int): Actor? =
+                dataSource
+                    .withConnect { conn ->
+                        conn.prepareStatement(SELECT_ACTOR_BY_ID).use { ps ->
+                            log.debug { "Load actor from DB. actor id=$key" }
                             ps.setInt(1, key)
-                            ps.addBatch()
+                            val resultSet = ps.executeQuery()
+
+                            resultSet
+                                .extract {
+                                    Actor(
+                                        int[Actor::id.name],
+                                        string[Actor::firstname.name],
+                                        string[Actor::lastname.name]
+                                    )
+                                }
                         }
-                        ps.executeBatch()
+                    }.firstOrNull()
+
+            override fun loadAllKeys(): Iterable<Int> =
+                dataSource.runQuery(SELECT_ACTOR_IDS) { rs ->
+                    log.debug { "Load all actor ids." }
+                    rs.extract {
+                        int[Actor::id.name]
                     }
                 }
-            } catch (e: Exception) {
-                throw IllegalStateException("Fail to delete. keys=$keys", e)
-            }
         }
-    }
-
-    private val actorLoader = object: MapLoader<Int, Actor> {
-        override fun load(key: Int): Actor? {
-            return dataSource.withConnect { conn ->
-                conn.prepareStatement(SELECT_ACTOR_BY_ID).use { ps ->
-                    log.debug { "Load actor from DB. actor id=$key" }
-                    ps.setInt(1, key)
-                    val resultSet = ps.executeQuery()
-
-                    resultSet
-                        .extract {
-                            Actor(
-                                int[Actor::id.name],
-                                string[Actor::firstname.name],
-                                string[Actor::lastname.name]
-                            )
-                        }
-                }
-            }.firstOrNull()
-        }
-
-        override fun loadAllKeys(): Iterable<Int> {
-            return dataSource.runQuery(SELECT_ACTOR_IDS) { rs ->
-                log.debug { "Load all actor ids." }
-                rs.extract {
-                    int[Actor::id.name]
-                }
-            }
-        }
-    }
 
     @Test
     @Order(0)
     fun `read through by redisson map`() {
         val name = randomName()
-        val options = MapCacheOptions.name<Int, Actor>(name)
-            .loader(actorLoader)
+        val options =
+            MapCacheOptions
+                .name<Int, Actor>(name)
+                .loader(actorLoader)
 
         // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
         val map = redisson.getMapCache(options)
@@ -156,12 +155,13 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         map.keys.size shouldBeEqualTo 1
 
         // 나머지를 read through 로 메모리에 올린다.
-        val readTimeDB = measureTimeMillis {
-            map[2].shouldNotBeNull()
-            map[3].shouldNotBeNull()
-            map[4].shouldNotBeNull()
-            map[5].shouldNotBeNull()
-        }
+        val readTimeDB =
+            measureTimeMillis {
+                map[2].shouldNotBeNull()
+                map[3].shouldNotBeNull()
+                map[4].shouldNotBeNull()
+                map[5].shouldNotBeNull()
+            }
 
         // 해당 Id의 Actor 가 DB에 없다
         map[100_000].shouldBeNull()
@@ -171,12 +171,13 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         map[4].shouldNotBeNull()
         map[5].shouldNotBeNull()
 
-        val readTimeRedis = measureTimeMillis {
-            map[2].shouldNotBeNull()
-            map[3].shouldNotBeNull()
-            map[4].shouldNotBeNull()
-            map[5].shouldNotBeNull()
-        }
+        val readTimeRedis =
+            measureTimeMillis {
+                map[2].shouldNotBeNull()
+                map[3].shouldNotBeNull()
+                map[4].shouldNotBeNull()
+                map[5].shouldNotBeNull()
+            }
 
         log.info { "Read DB=$readTimeDB ms, Read Redis=$readTimeRedis ms" }
 
@@ -187,11 +188,13 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
     @Order(1)
     fun `write through by redisson map`() {
         val name = randomName()
-        val options = MapCacheOptions.name<Int, Actor>(name)
-            .loader(actorLoader)
-            .writer(actorWriter)
-            .writeMode(WriteMode.WRITE_THROUGH)   // 추가될 때마다 즉시 DB에 저장된다.
-            .codec(RedissonCodecs.LZ4ForyComposite)
+        val options =
+            MapCacheOptions
+                .name<Int, Actor>(name)
+                .loader(actorLoader)
+                .writer(actorWriter)
+                .writeMode(WriteMode.WRITE_THROUGH) // 추가될 때마다 즉시 DB에 저장된다.
+                .codec(RedissonCodecs.LZ4ForyComposite)
 
         // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
         val map = redisson.getMapCache(options)
@@ -217,12 +220,14 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
     @Order(2)
     fun `write behind by redisson map`() {
         val name = randomName()
-        val options = MapCacheOptions.name<Int, Actor>(name)
-            .loader(actorLoader)
-            .writer(actorWriter)
-            .writeMode(WriteMode.WRITE_BEHIND)   // delay를 두고, batch로 insert 한다
-            .writeBehindBatchSize(20)           // batch size (기본 50)
-            .writeBehindDelay(100)  // 기본 delay 는 1초이다
+        val options =
+            MapCacheOptions
+                .name<Int, Actor>(name)
+                .loader(actorLoader)
+                .writer(actorWriter)
+                .writeMode(WriteMode.WRITE_BEHIND) // delay를 두고, batch로 insert 한다
+                .writeBehindBatchSize(20) // batch size (기본 50)
+                .writeBehindDelay(100) // 기본 delay 는 1초이다
 
         // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
         val map = redisson.getMapCache(options)
@@ -253,89 +258,101 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         actorCount shouldBeGreaterThan 3
     }
 
-    private fun getActorCountFromDB(): Int {
-        return dataSource.runQuery(SELECT_ACTOR_COUNT) { rs ->
-            if (rs.next()) rs.getInt("cnt")
-            else 0
+    private fun getActorCountFromDB(): Int =
+        dataSource.runQuery(SELECT_ACTOR_COUNT) { rs ->
+            if (rs.next()) {
+                rs.getInt("cnt")
+            } else {
+                0
+            }
         }
-    }
 
     @Test
     @Order(4)
-    fun `read write through with coroutines`() = runSuspendIO {
-        val name = randomName()
-        val options = MapCacheOptions.name<Int, Actor>(name)
-            .loader(actorLoader)
-            .writer(actorWriter)
-            .writeMode(WriteMode.WRITE_THROUGH)   // 추가될 때마다 즉시 DB에 저장된다.
+    fun `read write through with coroutines`() =
+        runSuspendIO {
+            val name = randomName()
+            val options =
+                MapCacheOptions
+                    .name<Int, Actor>(name)
+                    .loader(actorLoader)
+                    .writer(actorWriter)
+                    .writeMode(WriteMode.WRITE_THROUGH) // 추가될 때마다 즉시 DB에 저장된다.
 
-        // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
-        val map = redisson.getMapCache(options)
+            // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
+            val map = redisson.getMapCache(options)
 
-        // write through 로 redis -> db 로 저장한다
-        val insertJobs = List(ACTOR_SIZE) {
-            launch {
-                val id = 300_000 + it
-                val actor = newActor(id)
-                map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
-            }
+            // write through 로 redis -> db 로 저장한다
+            val insertJobs =
+                List(ACTOR_SIZE) {
+                    launch {
+                        val id = 300_000 + it
+                        val actor = newActor(id)
+                        map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
+                    }
+                }
+            insertJobs.joinAll()
+
+            map.keys.size shouldBeGreaterOrEqualTo ACTOR_SIZE
+
+            // 메모리에서 가져온다
+            val checkJob =
+                List(ACTOR_SIZE) {
+                    launch {
+                        val id = 300_000 + it
+                        map.getAsync(id).awaitSuspending().shouldNotBeNull()
+                    }
+                }
+            checkJob.joinAll()
+
+            map.deleteAsync().awaitSuspending()
         }
-        insertJobs.joinAll()
-
-        map.keys.size shouldBeGreaterOrEqualTo ACTOR_SIZE
-
-        // 메모리에서 가져온다
-        val checkJob = List(ACTOR_SIZE) {
-            launch {
-                val id = 300_000 + it
-                map.getAsync(id).awaitSuspending().shouldNotBeNull()
-            }
-        }
-        checkJob.joinAll()
-
-        map.deleteAsync().awaitSuspending()
-    }
 
     @Test
     @Order(4)
-    fun `read write behind with coroutines`() = runSuspendIO {
-        val name = randomName()
-        val options = MapCacheOptions.name<Int, Actor>(name)
-            .loader(actorLoader)
-            .writer(actorWriter)
-            .writeMode(WriteMode.WRITE_BEHIND)   // delay를 두고, batch로 insert 한다
-            .writeBehindBatchSize(20)           // batch size (기본 50)
-            .writeBehindDelay(100)  // 기본 delay 는 1초이다
+    fun `read write behind with coroutines`() =
+        runSuspendIO {
+            val name = randomName()
+            val options =
+                MapCacheOptions
+                    .name<Int, Actor>(name)
+                    .loader(actorLoader)
+                    .writer(actorWriter)
+                    .writeMode(WriteMode.WRITE_BEHIND) // delay를 두고, batch로 insert 한다
+                    .writeBehindBatchSize(20) // batch size (기본 50)
+                    .writeBehindDelay(100) // 기본 delay 는 1초이다
 
-        // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
-        val map = redisson.getMapCache(options)
+            // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
+            val map = redisson.getMapCache(options)
 
-        // write through 로 redis 에 저장하고, delay 후 batch 로 db에 저장한다
-        val prevActorCount = getActorCountFromDB()
-        // write through 로 redis -> db 로 저장한다
-        val insertJobs = List(ACTOR_SIZE) {
-            launch {
-                val id = 400_000 + it
-                val actor = newActor(id)
-                map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
-            }
+            // write through 로 redis 에 저장하고, delay 후 batch 로 db에 저장한다
+            val prevActorCount = getActorCountFromDB()
+            // write through 로 redis -> db 로 저장한다
+            val insertJobs =
+                List(ACTOR_SIZE) {
+                    launch {
+                        val id = 400_000 + it
+                        val actor = newActor(id)
+                        map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
+                    }
+                }
+            insertJobs.joinAll()
+
+            // delay 되어 있던 item들이 DB에 저장될 때까지 대기한다
+            await atMost Duration.ofSeconds(5) until { getActorCountFromDB() >= prevActorCount + ACTOR_SIZE }
+
+            map.keys.size shouldBeGreaterOrEqualTo ACTOR_SIZE
+
+            // 메모리에서 가져온다
+            val checkJob =
+                List(ACTOR_SIZE) {
+                    launch {
+                        val id = 400_000 + it
+                        map.getAsync(id).awaitSuspending().shouldNotBeNull()
+                    }
+                }
+            checkJob.joinAll()
+
+            map.deleteAsync().awaitSuspending()
         }
-        insertJobs.joinAll()
-
-        // delay 되어 있던 item들이 DB에 저장될 때까지 대기한다
-        await atMost Duration.ofSeconds(5) until { getActorCountFromDB() >= prevActorCount + ACTOR_SIZE }
-
-        map.keys.size shouldBeGreaterOrEqualTo ACTOR_SIZE
-
-        // 메모리에서 가져온다
-        val checkJob = List(ACTOR_SIZE) {
-            launch {
-                val id = 400_000 + it
-                map.getAsync(id).awaitSuspending().shouldNotBeNull()
-            }
-        }
-        checkJob.joinAll()
-
-        map.deleteAsync().awaitSuspending()
-    }
 }
