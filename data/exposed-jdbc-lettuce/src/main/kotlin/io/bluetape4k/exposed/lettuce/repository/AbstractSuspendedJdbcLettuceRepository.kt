@@ -1,12 +1,13 @@
 package io.bluetape4k.exposed.lettuce.repository
 
-import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapLoader
-import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapWriter
+import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
+import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapLoader
+import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapWriter
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
-import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
+import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
 import io.lettuce.core.RedisClient
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -20,16 +21,15 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 
 /**
- * Exposed DSL + Lettuce Redis 캐시를 결합한 suspend(코루틴) 기반 추상 레포지토리.
+ * Exposed JDBC + Lettuce Redis 캐시를 결합한 suspend(코루틴) 기반 추상 레포지토리.
  *
- * [SuspendedJdbcLettuceRepository] 인터페이스를 구현하며, 서브클래스는 4개 추상 멤버를 구현한다:
+ * [LettuceSuspendedLoadedMap]을 사용하여 `runBlocking` 없이 코루틴 네이티브로 동작한다.
+ *
+ * 서브클래스는 4개 추상 멤버를 구현한다:
  * - [table]: Exposed [IdTable]
  * - [ResultRow.toEntity]: ResultRow → E 변환
  * - [UpdateStatement.updateEntity]: UPDATE 컬럼 매핑
  * - [BatchInsertStatement.insertEntity]: INSERT 컬럼 매핑
- *
- * 모든 캐시 연산은 [withContext]([Dispatchers.IO])로 감싸 코루틴에서 안전하게 실행된다.
- * DB 직접 조회는 [suspendedTransactionAsync]([Dispatchers.IO])를 사용한다.
  *
  * @param ID PK 타입
  * @param E 엔티티(DTO) 타입
@@ -37,7 +37,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  * @param config [LettuceCacheConfig] 설정
  */
 abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : Any>(
-    client: RedisClient,
+    private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ) : SuspendedJdbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
@@ -50,28 +50,39 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : A
 
     open fun serializeKey(id: ID): String = id.toString()
 
-    protected val cache: LettuceLoadedMap<ID, E> by lazy {
-        LettuceLoadedMap(
+    /** [config.nearCacheEnabled]가 true일 때 Caffeine 로컬 캐시(front) */
+    protected val nearCache: LettuceSuspendNearCache<E>? by lazy {
+        if (config.nearCacheEnabled) {
+            LettuceSuspendNearCache(
+                redisClient = client,
+                config =
+                    LettuceNearCacheConfig(
+                        cacheName = config.nearCacheName,
+                        maxLocalSize = config.nearCacheMaxSize,
+                        redisTtl = config.nearCacheTtl
+                    )
+            )
+        } else {
+            null
+        }
+    }
+
+    protected val cache: LettuceSuspendedLoadedMap<ID, E> by lazy {
+        LettuceSuspendedLoadedMap(
             client = client,
             loader =
-                ExposedEntityMapLoader(
+                SuspendedExposedEntityMapLoader(
                     table = table,
                     toEntity = { row -> with(this@AbstractSuspendedJdbcLettuceRepository) { row.toEntity() } }
                 ),
             writer =
-                ExposedEntityMapWriter(
+                SuspendedExposedEntityMapWriter(
                     table = table,
                     writeMode = config.writeMode,
-                    updateEntity = {
-                        stmt,
-                        e,
-                        ->
+                    updateEntity = { stmt, e ->
                         with(this@AbstractSuspendedJdbcLettuceRepository) { stmt.updateEntity(e) }
                     },
-                    insertEntity = {
-                        stmt,
-                        e,
-                        ->
+                    insertEntity = { stmt, e ->
                         with(this@AbstractSuspendedJdbcLettuceRepository) { stmt.insertEntity(e) }
                     },
                     retryAttempts = config.writeRetryAttempts,
@@ -116,15 +127,29 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : A
     // 캐시 기반 조회 (Read-through)
     // -------------------------------------------------------------------------
 
-    override suspend fun findById(id: ID): E? =
-        withContext(Dispatchers.IO) {
-            cache[id]
-        }
+    override suspend fun findById(id: ID): E? {
+        nearCache?.get(serializeKey(id))?.let { return it }
+        val value = cache.get(id) ?: return null
+        nearCache?.put(serializeKey(id), value)
+        return value
+    }
 
-    override suspend fun findAll(ids: Collection<ID>): Map<ID, E> =
-        withContext(Dispatchers.IO) {
-            cache.getAll(ids.toSet())
+    override suspend fun findAll(ids: Collection<ID>): Map<ID, E> {
+        val nc = nearCache ?: return cache.getAll(ids.toSet())
+        val result = mutableMapOf<ID, E>()
+        val missedIds = mutableListOf<ID>()
+        for (id in ids) {
+            val local = nc.get(serializeKey(id))
+            if (local != null) result[id] = local else missedIds.add(id)
         }
+        if (missedIds.isNotEmpty()) {
+            cache.getAll(missedIds.toSet()).forEach { (id, value) ->
+                result[id] = value
+                nc.put(serializeKey(id), value)
+            }
+        }
+        return result
+    }
 
     override suspend fun findAll(
         limit: Int?,
@@ -147,10 +172,8 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : A
             }.await()
 
         // 조회 결과를 캐시에 적재
-        withContext(Dispatchers.IO) {
-            entities.forEach { entity ->
-                runCatching { cache[extractId(entity)] = entity }
-            }
+        entities.forEach { entity ->
+            runCatching { cache.set(extractId(entity), entity) }
         }
         return entities
     }
@@ -173,37 +196,43 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : A
     override suspend fun save(
         id: ID,
         entity: E,
-    ) = withContext(Dispatchers.IO) {
-        cache[id] = entity
+    ) {
+        cache.set(id, entity)
+        nearCache?.put(serializeKey(id), entity)
     }
 
-    override suspend fun saveAll(entities: Map<ID, E>) =
-        withContext(Dispatchers.IO) {
-            entities.forEach { (id, entity) -> cache[id] = entity }
+    override suspend fun saveAll(entities: Map<ID, E>) {
+        entities.forEach { (id, entity) ->
+            cache.set(id, entity)
+            nearCache?.put(serializeKey(id), entity)
         }
+    }
 
     // -------------------------------------------------------------------------
     // 삭제
     // -------------------------------------------------------------------------
 
-    override suspend fun delete(id: ID) =
-        withContext(Dispatchers.IO) {
-            cache.delete(id)
-        }
+    override suspend fun delete(id: ID) {
+        cache.delete(id)
+        nearCache?.remove(serializeKey(id))
+    }
 
-    override suspend fun deleteAll(ids: Collection<ID>) =
-        withContext(Dispatchers.IO) {
-            cache.deleteAll(ids)
-        }
+    override suspend fun deleteAll(ids: Collection<ID>) {
+        cache.deleteAll(ids)
+        nearCache?.removeAll(ids.map { serializeKey(it) }.toSet())
+    }
 
     // -------------------------------------------------------------------------
     // 캐시 관리
     // -------------------------------------------------------------------------
 
-    override suspend fun clearCache() =
-        withContext(Dispatchers.IO) {
-            cache.clear()
-        }
+    override suspend fun clearCache() {
+        nearCache?.clearAll()
+        cache.clear()
+    }
 
-    override fun close() = cache.close()
+    override fun close() {
+        nearCache?.close()
+        cache.close()
+    }
 }

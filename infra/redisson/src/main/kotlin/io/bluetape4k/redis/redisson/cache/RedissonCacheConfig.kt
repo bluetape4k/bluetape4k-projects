@@ -1,8 +1,6 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.support.requirePositiveNumber
-import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.ExMapOptions
 import org.redisson.api.options.LocalCachedMapOptions
@@ -30,6 +28,7 @@ import java.time.Duration
  * @property writeRetryAttempts 쓰기 실패 시 재시도 횟수
  * @property writeRetryInterval 쓰기 재시도 간격
  */
+@Deprecated("use RedissonCacheConfig instead.", replaceWith = ReplaceWith("RedissonCacheConfig"))
 data class RedisCacheConfig(
     val cacheMode: CacheMode = CacheMode.READ_WRITE,
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
@@ -185,7 +184,7 @@ data class RedisCacheConfig(
      * @return 설정이 적용된 [MapOptions] 인스턴스
      * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
-    fun <K : Any, V> toMapOptions(name: String): MapOptions<K, V> {
+    fun <K: Any, V> toMapOptions(name: String): MapOptions<K, V> {
         validateUnsupportedMapSettings()
 
         return MapOptions
@@ -208,7 +207,7 @@ data class RedisCacheConfig(
      * @return 설정이 적용된 [LocalCachedMapOptions] 인스턴스
      * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
      */
-    fun <K : Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
+    fun <K: Any, V> toLocalCachedMapOptions(name: String): LocalCachedMapOptions<K, V> {
         validateUnsupportedMapSettings()
 
         return LocalCachedMapOptions
@@ -230,7 +229,7 @@ data class RedisCacheConfig(
         }
     }
 
-    private fun <K : Any, V, T : ExMapOptions<T, K, V>> T.applyWriteOptions(): T =
+    private fun <K: Any, V, T: ExMapOptions<T, K, V>> T.applyWriteOptions(): T =
         apply {
             if (cacheMode == CacheMode.READ_WRITE) {
                 writeMode(writeMode)
@@ -245,7 +244,7 @@ data class RedisCacheConfig(
             }
         }
 
-    private fun <K : Any, V> LocalCachedMapOptions<K, V>.applyNearCacheOptions(): LocalCachedMapOptions<K, V> =
+    private fun <K: Any, V> LocalCachedMapOptions<K, V>.applyNearCacheOptions(): LocalCachedMapOptions<K, V> =
         apply {
             if (nearCacheEnabled) {
                 evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
