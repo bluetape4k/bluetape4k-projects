@@ -39,6 +39,7 @@ build/
 
 # AI - 임시 상태/로그 제외, 계획/설정은 추적
 .claude/settings.local.json
+.cluade/worktrees/
 
 .omc/sessions/
 .omc/state/
