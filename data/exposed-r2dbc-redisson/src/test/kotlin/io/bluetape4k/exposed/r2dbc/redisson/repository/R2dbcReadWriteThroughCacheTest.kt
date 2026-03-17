@@ -1,7 +1,9 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.r2dbc.redisson.R2dbcRedissonTestBase
+import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest
+import io.bluetape4k.exposed.r2dbc.redisson.domain.R2dbcUserCredentialRedissonRepository
+import io.bluetape4k.exposed.r2dbc.redisson.domain.R2dbcUserRedissonRepository
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsTable
@@ -13,7 +15,7 @@ import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcReadThrough
 import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcWriteThroughScenario
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -29,7 +31,7 @@ class R2dbcReadWriteThroughCacheTest {
 
     companion object: KLoggingChannel()
 
-    abstract class R2dbcAutoIncIdReadWriteThrough: R2dbcRedissonTestBase(),
+    abstract class R2dbcAutoIncIdReadWriteThrough: AbstractR2dbcRedissonTest(),
                                                    R2dbcReadThroughScenario<Long, UserTable, UserRecord>,
                                                    R2dbcWriteThroughScenario<Long, UserTable, UserRecord> {
         override suspend fun withR2dbcEntityTable(
@@ -67,7 +69,7 @@ class R2dbcReadWriteThroughCacheTest {
 
     @Nested
     inner class R2dbcAutoIncIdReadWriteThroughRemoteCache: R2dbcAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
             R2dbcUserRedissonRepository(
@@ -80,7 +82,7 @@ class R2dbcReadWriteThroughCacheTest {
 
     @Nested
     inner class R2dbcAutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: R2dbcAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: R2dbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
@@ -93,7 +95,7 @@ class R2dbcReadWriteThroughCacheTest {
 
     @Nested
     inner class R2dbcAutoIncIdReadWriteThroughNearCache: R2dbcAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository: R2dbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
@@ -107,7 +109,7 @@ class R2dbcReadWriteThroughCacheTest {
     @Nested
     inner class R2dbcAutoIncIdReadWriteThroughNearCacheWithDeleteDB: R2dbcAutoIncIdReadWriteThrough() {
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
+            RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: R2dbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
@@ -119,7 +121,7 @@ class R2dbcReadWriteThroughCacheTest {
     }
 
 
-    abstract class R2dbcClientGeneratedIdReadWriteThrough: R2dbcRedissonTestBase(),
+    abstract class R2dbcClientGeneratedIdReadWriteThrough: AbstractR2dbcRedissonTest(),
                                                            R2dbcReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord>,
                                                            R2dbcWriteThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override suspend fun withR2dbcEntityTable(
@@ -160,7 +162,7 @@ class R2dbcReadWriteThroughCacheTest {
     @Nested
     inner class R2dbcClientGeneratedIdReadThroughRemoteCache: R2dbcClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
@@ -175,7 +177,7 @@ class R2dbcReadWriteThroughCacheTest {
     inner class R2dbcClientGeneratedIdReadThroughRemoteCacheWithDeleteDB:
         R2dbcClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
@@ -190,7 +192,7 @@ class R2dbcReadWriteThroughCacheTest {
     @Nested
     inner class R2dbcClientGeneratedIdReadThroughNearCache: R2dbcClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
@@ -206,7 +208,7 @@ class R2dbcReadWriteThroughCacheTest {
         R2dbcClientGeneratedIdReadWriteThrough() {
 
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
+            RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(

@@ -14,6 +14,10 @@ import java.time.Duration
  * @param writeRetryInterval 쓰기 재시도 간격
  * @param ttl Redis 항목 TTL
  * @param keyPrefix Redis 키 prefix
+ * @param nearCacheEnabled Caffeine 로컬 캐시(NearCache) 사용 여부
+ * @param nearCacheName NearCache 이름 (`:` 포함 불가)
+ * @param nearCacheMaxSize NearCache 최대 항목 수
+ * @param nearCacheTtl NearCache 항목 TTL (null이면 무기한)
  */
 data class LettuceCacheConfig(
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
@@ -25,10 +29,20 @@ data class LettuceCacheConfig(
     val writeRetryInterval: Duration = Duration.ofMillis(100),
     val ttl: Duration = Duration.ofMinutes(30),
     val keyPrefix: String = "cache",
+    val nearCacheEnabled: Boolean = false,
+    val nearCacheName: String = "lettuce-near",
+    val nearCacheMaxSize: Long = 10_000,
+    val nearCacheTtl: Duration? = null,
 ) {
     companion object {
         val READ_ONLY = LettuceCacheConfig(writeMode = WriteMode.NONE)
         val READ_WRITE_THROUGH = LettuceCacheConfig(writeMode = WriteMode.WRITE_THROUGH)
         val WRITE_BEHIND = LettuceCacheConfig(writeMode = WriteMode.WRITE_BEHIND)
+
+        val READ_ONLY_WITH_NEAR_CACHE = LettuceCacheConfig(writeMode = WriteMode.NONE, nearCacheEnabled = true)
+        val READ_WRITE_THROUGH_WITH_NEAR_CACHE =
+            LettuceCacheConfig(writeMode = WriteMode.WRITE_THROUGH, nearCacheEnabled = true)
+        val WRITE_BEHIND_WITH_NEAR_CACHE =
+            LettuceCacheConfig(writeMode = WriteMode.WRITE_BEHIND, nearCacheEnabled = true)
     }
 }

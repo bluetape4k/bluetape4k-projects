@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.exposed.r2dbc.redisson.R2dbcRedissonTestBase
+import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest
+import io.bluetape4k.exposed.r2dbc.redisson.domain.R2dbcUserCredentialRedissonRepository
+import io.bluetape4k.exposed.r2dbc.redisson.domain.R2dbcUserRedissonRepository
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsTable
@@ -11,7 +13,7 @@ import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserTable
 import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcWriteBehindScenario
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -27,7 +29,7 @@ class R2dbcWriteBehindCacheTest {
 
     companion object: KLoggingChannel()
 
-    abstract class R2dbcAutoIncIdReadWriteBehind: R2dbcRedissonTestBase(),
+    abstract class R2dbcAutoIncIdReadWriteBehind: AbstractR2dbcRedissonTest(),
                                                   R2dbcWriteBehindScenario<Long, UserTable, UserRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
@@ -55,7 +57,7 @@ class R2dbcWriteBehindCacheTest {
 
     @Nested
     inner class R2dbcAutoIncIdReadWriteBehindRemoteCache: R2dbcAutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             R2dbcUserRedissonRepository(
@@ -68,7 +70,7 @@ class R2dbcWriteBehindCacheTest {
 
     @Nested
     inner class R2dbcAutoIncIdReadWriteBehindNearCache: R2dbcAutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             R2dbcUserRedissonRepository(
@@ -79,7 +81,7 @@ class R2dbcWriteBehindCacheTest {
         }
     }
 
-    abstract class R2dbcClientGeneratedIdReadWriteBehind: R2dbcRedissonTestBase(),
+    abstract class R2dbcClientGeneratedIdReadWriteBehind: AbstractR2dbcRedissonTest(),
                                                           R2dbcWriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
@@ -108,7 +110,7 @@ class R2dbcWriteBehindCacheTest {
     @Nested
     inner class R2dbcClientGeneratedIdReadBehindRemoteCache: R2dbcClientGeneratedIdReadWriteBehind() {
 
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
@@ -122,7 +124,7 @@ class R2dbcWriteBehindCacheTest {
     @Nested
     inner class R2dbcClientGeneratedIdReadBehindNearCache: R2dbcClientGeneratedIdReadWriteBehind() {
 
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(

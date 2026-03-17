@@ -1,16 +1,18 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
+import io.bluetape4k.exposed.redisson.domain.SuspendedUserCacheRepository
+import io.bluetape4k.exposed.redisson.domain.SuspendedUserCredentialCacheRepository
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withSuspendedUserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
@@ -53,7 +55,7 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadThroughRemteCache: SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
@@ -65,7 +67,7 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadThroughNearCache: SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
@@ -102,7 +104,7 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughRemoteCache: SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
@@ -114,7 +116,7 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughNearCache: SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,

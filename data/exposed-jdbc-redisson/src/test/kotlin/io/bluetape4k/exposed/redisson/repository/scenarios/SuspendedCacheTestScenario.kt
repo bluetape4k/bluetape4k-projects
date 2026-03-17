@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.SuspendedJdbcRedissonRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -25,7 +25,7 @@ interface SuspendedCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<I
     /**
      * 테스트에 사용할 캐시 설정
      */
-    val cacheConfig: RedisCacheConfig
+    val cacheConfig: RedissonCacheConfig
 
     /**
      * 테스트에 사용할 캐시 저장소

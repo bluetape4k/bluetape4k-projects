@@ -8,7 +8,7 @@ import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcExposedEntityMapWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
@@ -56,7 +56,7 @@ import java.time.Duration
 abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
-    private val config: RedisCacheConfig,
+    private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ): R2dbcRedissonRepository<ID, T, E> {
 
@@ -93,8 +93,8 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasId
      */
     protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedisCacheConfig.CacheMode.READ_ONLY  -> null
-            RedisCacheConfig.CacheMode.READ_WRITE -> R2dbcExposedEntityMapWriter(
+            RedissonCacheConfig.CacheMode.READ_ONLY  -> null
+            RedissonCacheConfig.CacheMode.READ_WRITE -> R2dbcExposedEntityMapWriter(
                 scope = scope,
                 entityTable = entityTable,
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },

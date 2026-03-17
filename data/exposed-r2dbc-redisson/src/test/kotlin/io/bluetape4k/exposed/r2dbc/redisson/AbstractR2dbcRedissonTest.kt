@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.redisson.api.RedissonClient
 
-abstract class R2dbcRedissonTestBase: AbstractExposedR2dbcTest() {
+abstract class AbstractR2dbcRedissonTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel() {
 

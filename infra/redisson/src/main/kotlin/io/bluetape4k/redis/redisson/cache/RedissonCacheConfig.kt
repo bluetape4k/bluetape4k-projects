@@ -28,8 +28,7 @@ import java.time.Duration
  * @property writeRetryAttempts 쓰기 실패 시 재시도 횟수
  * @property writeRetryInterval 쓰기 재시도 간격
  */
-@Deprecated("use RedissonCacheConfig instead.", replaceWith = ReplaceWith("RedissonCacheConfig"))
-data class RedisCacheConfig(
+data class RedissonCacheConfig(
     val cacheMode: CacheMode = CacheMode.READ_WRITE,
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
     val deleteFromDBOnInvalidate: Boolean = false,
@@ -92,7 +91,7 @@ data class RedisCacheConfig(
          * DB에서 데이터를 로드하지만, 캐시에 변경사항을 저장하지 않습니다.
          */
         val READ_ONLY =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_ONLY,
                 nearCacheEnabled = false
             )
@@ -102,7 +101,7 @@ data class RedisCacheConfig(
          * 자주 조회되는 데이터에 대해 성능을 향상시킵니다.
          */
         val READ_ONLY_WITH_NEAR_CACHE =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_ONLY,
                 nearCacheEnabled = true
             )
@@ -112,7 +111,7 @@ data class RedisCacheConfig(
          * 캐시와 DB 간의 데이터 일관성을 보장합니다.
          */
         val READ_WRITE_THROUGH =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_WRITE,
                 writeMode = WriteMode.WRITE_THROUGH,
                 nearCacheEnabled = false
@@ -122,7 +121,7 @@ data class RedisCacheConfig(
          * 읽기-쓰기 통과 캐시 설정으로, 로컬 캐시를 사용합니다.
          */
         val READ_WRITE_THROUGH_WITH_NEAR_CACHE =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_WRITE,
                 writeMode = WriteMode.WRITE_THROUGH,
                 nearCacheEnabled = true
@@ -133,7 +132,7 @@ data class RedisCacheConfig(
          * 높은 쓰기 처리량이 필요한 경우 적합합니다.
          */
         val WRITE_BEHIND =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_WRITE,
                 writeMode = WriteMode.WRITE_BEHIND,
                 nearCacheEnabled = false,
@@ -145,7 +144,7 @@ data class RedisCacheConfig(
          * 쓰기 지연 캐시 설정으로, 로컬 캐시를 사용합니다.
          */
         val WRITE_BEHIND_WITH_NEAR_CACHE =
-            RedisCacheConfig(
+            RedissonCacheConfig(
                 cacheMode = CacheMode.READ_WRITE,
                 writeMode = WriteMode.WRITE_BEHIND,
                 nearCacheEnabled = true,

@@ -254,9 +254,15 @@
   },
   "hotPaths": [
     {
+      "path": "CLAUDE.md",
+      "accessCount": 18,
+      "lastAccessed": 1773755492581,
+      "type": "file"
+    },
+    {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt",
-      "accessCount": 13,
-      "lastAccessed": 1773742975352,
+      "accessCount": 14,
+      "lastAccessed": 1773757174361,
       "type": "file"
     },
     {
@@ -272,21 +278,33 @@
       "type": "file"
     },
     {
-      "path": "CLAUDE.md",
-      "accessCount": 11,
-      "lastAccessed": 1773744045880,
-      "type": "file"
-    },
-    {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt",
       "accessCount": 9,
       "lastAccessed": 1773742974950,
       "type": "file"
     },
     {
+      "path": "settings.gradle.kts",
+      "accessCount": 8,
+      "lastAccessed": 1773753862091,
+      "type": "file"
+    },
+    {
       "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheTest.kt",
       "accessCount": 5,
       "lastAccessed": 1773741785524,
+      "type": "file"
+    },
+    {
+      "path": "testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773753844296,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheConfig.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773757144208,
       "type": "file"
     },
     {
@@ -299,18 +317,6 @@
       "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTest.kt",
       "accessCount": 4,
       "lastAccessed": 1773741820537,
-      "type": "file"
-    },
-    {
-      "path": "settings.gradle.kts",
-      "accessCount": 4,
-      "lastAccessed": 1773742696478,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheConfig.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773742976376,
       "type": "file"
     },
     {
@@ -533,12 +539,6 @@
       "path": "testing/junit5/src/main/kotlin/io/bluetape4k/junit5/concurrency/MultithreadingTester.kt",
       "accessCount": 1,
       "lastAccessed": 1773741159814,
-      "type": "file"
-    },
-    {
-      "path": "testing/junit5/src/main/kotlin/io/bluetape4k/junit5/coroutines/SuspendedJobTester.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773741164437,
       "type": "file"
     },
     {

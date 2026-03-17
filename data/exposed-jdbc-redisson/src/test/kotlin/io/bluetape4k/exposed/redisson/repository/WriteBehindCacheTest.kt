@@ -1,16 +1,19 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
+import io.bluetape4k.exposed.redisson.domain.UserCacheRepository
+import io.bluetape4k.exposed.redisson.domain.UserCredentialCacheRepository
+import io.bluetape4k.exposed.redisson.domain.UserSchema
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withUserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.WriteBehindScenario
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -47,7 +50,7 @@ class WriteBehindCacheTest {
 
     @Nested
     inner class AutoIncIdReadWriteBehindRemoteCache: AutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             UserCacheRepository(
@@ -60,7 +63,7 @@ class WriteBehindCacheTest {
 
     @Nested
     inner class AutoIncIdReadWriteBehindNearCache: AutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             UserCacheRepository(
@@ -99,7 +102,7 @@ class WriteBehindCacheTest {
     @Nested
     inner class ClientGeneratedIdReadBehindRemoteCache: ClientGeneratedIdReadWriteBehind() {
 
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             UserCredentialCacheRepository(
@@ -113,7 +116,7 @@ class WriteBehindCacheTest {
     @Nested
     inner class ClientGeneratedIdReadBehindNearCache: ClientGeneratedIdReadWriteBehind() {
 
-        override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             UserCredentialCacheRepository(

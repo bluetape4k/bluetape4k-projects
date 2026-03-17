@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.JdbcRedissonRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
@@ -19,7 +19,7 @@ interface CacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
     /**
      * 테스트에 사용할 캐시 설정
      */
-    val cacheConfig: RedisCacheConfig
+    val cacheConfig: RedissonCacheConfig
 
     /**
      * 테스트에 사용할 캐시 저장소

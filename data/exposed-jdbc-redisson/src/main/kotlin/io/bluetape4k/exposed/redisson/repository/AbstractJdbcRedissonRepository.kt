@@ -8,7 +8,7 @@ import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
@@ -34,7 +34,7 @@ import java.time.Duration
  * Read-Only 모드에서는 [doUpdateEntity]/[doInsertEntity] 구현이 불필요합니다.
  *
  * ## 동작/계약
- * - [config]의 `cacheMode`가 [RedisCacheConfig.CacheMode.READ_ONLY]이면 mapWriter를 생성하지 않습니다.
+ * - [config]의 `cacheMode`가 [RedissonCacheConfig.CacheMode.READ_ONLY]이면 mapWriter를 생성하지 않습니다.
  * - [config]의 `isNearCacheEnabled`가 true이면 `RLocalCachedMap`, 그렇지 않으면 `RMapCache`를 사용합니다.
  * - [doUpdateEntity]와 [doInsertEntity]는 Write-Through/Write-Behind 모드에서만 호출되며, Read-Only 모드에서 호출 시 오류가 발생합니다.
  *
@@ -57,12 +57,12 @@ import java.time.Duration
  * @param E 엔티티 타입. Redis 저장 시 직렬화 문제로 인해 반드시 Serializable data class를 사용해야 합니다.
  * @param redissonClient Redisson 클라이언트
  * @param cacheName Redis 캐시 이름
- * @param config 캐시 설정 ([RedisCacheConfig])
+ * @param config 캐시 설정 ([RedissonCacheConfig])
  */
 abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
-    protected val config: RedisCacheConfig,
+    protected val config: RedissonCacheConfig,
 ): JdbcRedissonRepository<ID, T, E> {
 
     companion object: KLogging()
@@ -98,8 +98,8 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
      */
     protected val mapWriter: EntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedisCacheConfig.CacheMode.READ_ONLY  -> null
-            RedisCacheConfig.CacheMode.READ_WRITE ->
+            RedissonCacheConfig.CacheMode.READ_ONLY  -> null
+            RedissonCacheConfig.CacheMode.READ_WRITE ->
                 ExposedEntityMapWriter(
                     entityTable = entityTable,
                     updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
@@ -147,7 +147,7 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
     /**
      * 원격 캐시 [RMapCache]를 생성합니다.
      * Read-Only 모드에서는 loader만, Read-Write 모드에서는 loader + writer를 설정합니다.
-     * [RedisCacheConfig.nearCacheMaxSize]가 0보다 크면 LRU 방식으로 최대 크기를 제한합니다.
+     * [RedissonCacheConfig.nearCacheMaxSize]가 0보다 크면 LRU 방식으로 최대 크기를 제한합니다.
      */
     protected fun createMapCache() =
         mapCache(cacheName, redissonClient) {
@@ -213,7 +213,7 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
      */
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
         batchSize.requirePositiveNumber("batchSize")
-        
+
         if (ids.isEmpty()) return emptyList()
         val chunkedIds = ids.chunked(batchSize)
 

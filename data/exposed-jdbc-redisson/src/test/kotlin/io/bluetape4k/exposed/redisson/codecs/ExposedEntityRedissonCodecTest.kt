@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.codecs
 
-import io.bluetape4k.exposed.redisson.repository.UserSchema
+import io.bluetape4k.exposed.redisson.domain.UserSchema
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables

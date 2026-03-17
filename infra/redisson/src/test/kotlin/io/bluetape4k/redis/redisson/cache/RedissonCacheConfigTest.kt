@@ -11,11 +11,11 @@ import org.redisson.api.options.LocalCachedMapParams
 import org.redisson.api.options.MapParams
 import java.time.Duration
 
-class RedisCacheConfigTest {
+class RedissonCacheConfigTest {
 
     @Test
     fun `toMapOptions applies codec and write-behind settings`() {
-        val config = RedisCacheConfig(
+        val config = RedissonCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             codec = RedissonCodecs.String,
             writeBehindBatchSize = 128,
@@ -38,8 +38,8 @@ class RedisCacheConfigTest {
 
     @Test
     fun `toLocalCachedMapOptions applies codec and near-cache settings`() {
-        val config = RedisCacheConfig(
-            cacheMode = RedisCacheConfig.CacheMode.READ_ONLY,
+        val config = RedissonCacheConfig(
+            cacheMode = RedissonCacheConfig.CacheMode.READ_ONLY,
             codec = RedissonCodecs.String,
             nearCacheEnabled = true,
             nearCacheMaxSize = 256,
@@ -63,17 +63,17 @@ class RedisCacheConfigTest {
     @Test
     fun `unsupported settings fail fast during option conversion`() {
         assertThrows<IllegalArgumentException> {
-            RedisCacheConfig(ttl = Duration.ofSeconds(1))
+            RedissonCacheConfig(ttl = Duration.ofSeconds(1))
                 .toMapOptions<String, String>("ttl-cache")
         }
 
         assertThrows<IllegalArgumentException> {
-            RedisCacheConfig(maxSize = 100)
+            RedissonCacheConfig(maxSize = 100)
                 .toLocalCachedMapOptions<String, String>("bounded-cache")
         }
 
         assertThrows<IllegalArgumentException> {
-            RedisCacheConfig(deleteFromDBOnInvalidate = true)
+            RedissonCacheConfig(deleteFromDBOnInvalidate = true)
                 .toMapOptions<String, String>("invalidate-cache")
         }
     }

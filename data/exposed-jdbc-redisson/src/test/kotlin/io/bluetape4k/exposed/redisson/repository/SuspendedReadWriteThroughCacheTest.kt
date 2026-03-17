@@ -2,17 +2,20 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialsTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
+import io.bluetape4k.exposed.redisson.domain.SuspendedUserCacheRepository
+import io.bluetape4k.exposed.redisson.domain.SuspendedUserCredentialCacheRepository
+import io.bluetape4k.exposed.redisson.domain.UserSchema
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserRecord
+import io.bluetape4k.exposed.redisson.domain.UserSchema.UserTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withSuspendedUserCredentialsTable
+import io.bluetape4k.exposed.redisson.domain.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
@@ -64,7 +67,7 @@ class SuspendedReadWriteThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCache: SuspendedAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
@@ -77,7 +80,7 @@ class SuspendedReadWriteThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: SuspendedAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
@@ -90,7 +93,7 @@ class SuspendedReadWriteThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadWriteThroughNearCache: SuspendedAutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
@@ -104,7 +107,7 @@ class SuspendedReadWriteThroughCacheTest {
     @Nested
     inner class SuspendedAutoIncIdReadWriteThroughNearCacheWithDeleteDB: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
+            RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
@@ -157,7 +160,7 @@ class SuspendedReadWriteThroughCacheTest {
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughRemoteCache: SuspendedClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
@@ -172,7 +175,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedClientGeneratedIdReadThroughRemoteCacheWithDeleteDB:
         SuspendedClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
@@ -187,7 +190,7 @@ class SuspendedReadWriteThroughCacheTest {
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughNearCache: SuspendedClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
@@ -203,7 +206,7 @@ class SuspendedReadWriteThroughCacheTest {
         SuspendedClientGeneratedIdReadWriteThrough() {
 
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
+            RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
