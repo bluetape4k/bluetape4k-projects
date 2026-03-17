@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-interface WriteThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     fun createNewEntity(): E

@@ -24,7 +24,7 @@ import org.redisson.api.map.MapLoader
  * @param loadByIdFromDB ID로 엔티티를 로드하는 함수입니다.
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수입니다.
  */
-open class EntityMapLoader<ID : Comparable<ID>, E : Any>(
+open class EntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: (ID) -> E?,
     private val loadAllIdsFromDB: () -> Collection<ID>,
 ) : MapLoader<ID, E> {

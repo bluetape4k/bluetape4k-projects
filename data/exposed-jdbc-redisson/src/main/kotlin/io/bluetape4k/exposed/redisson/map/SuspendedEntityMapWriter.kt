@@ -34,7 +34,7 @@ import java.util.concurrent.CompletionStage
  * @param scope DB 쓰기 작업에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
 @Suppress("DEPRECATION")
-open class SuspendedEntityMapWriter<ID : Comparable<ID>, E : Any>(
+open class SuspendedEntityMapWriter<ID: Any, E: Any>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,

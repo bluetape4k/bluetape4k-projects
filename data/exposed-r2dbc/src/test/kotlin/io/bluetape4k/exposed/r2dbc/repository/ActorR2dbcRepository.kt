@@ -14,11 +14,11 @@ import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class ActorR2dbcRepository : LongR2dbcRepository<ActorRecord> {
-    companion object : KLoggingChannel()
+class ActorR2dbcRepository: LongR2dbcRepository<ActorRecord> {
+    companion object: KLoggingChannel()
 
     override val table = ActorTable
-
+    override fun extractId(entity: ActorRecord): Long = entity.id
     override suspend fun ResultRow.toEntity(): ActorRecord = toActorRecord()
 
     fun searchActors(params: Map<String, String?>): Flow<ActorRecord> {
@@ -26,7 +26,7 @@ class ActorR2dbcRepository : LongR2dbcRepository<ActorRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name -> {
+                ActorTable::id.name       -> {
                     value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
                 }
                 ActorTable::firstName.name -> {
@@ -39,7 +39,7 @@ class ActorR2dbcRepository : LongR2dbcRepository<ActorRecord> {
                     value?.run {
                         query.andWhere {
                             ActorTable.birthday eq
-                                LocalDate.parse(value)
+                                    LocalDate.parse(value)
                         }
                     }
                 }

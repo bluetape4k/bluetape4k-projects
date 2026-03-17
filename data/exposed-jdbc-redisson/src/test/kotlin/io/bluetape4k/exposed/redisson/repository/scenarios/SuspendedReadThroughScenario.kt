@@ -22,7 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface SuspendedReadThroughScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }

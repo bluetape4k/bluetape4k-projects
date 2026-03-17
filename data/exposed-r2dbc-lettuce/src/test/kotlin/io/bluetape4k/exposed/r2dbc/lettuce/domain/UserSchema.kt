@@ -18,7 +18,7 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 /**
  * exposed-r2dbc-lettuce 통합 테스트용 User 도메인 스키마.
@@ -173,7 +173,7 @@ object UserSchema: KLoggingChannel() {
         withTables(testDB, UserCredentialsTable) {
             insertUserCredentials("debop")
             insertUserCredentials("midoogi")
-            insertUserCredentials(faker.internet().username())
+            insertUserCredentials(faker.credentials().username())
             commit()
             statement()
         }
@@ -185,7 +185,7 @@ object UserSchema: KLoggingChannel() {
     fun newUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(
             id = TimebasedUuid.Epoch.nextId(),
-            loginId = faker.internet().username() + "_" + Base58.randomString(8),
+            loginId = faker.credentials().username() + "_" + Base58.randomString(8),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = Instant.now().minusSeconds(86400)
         )

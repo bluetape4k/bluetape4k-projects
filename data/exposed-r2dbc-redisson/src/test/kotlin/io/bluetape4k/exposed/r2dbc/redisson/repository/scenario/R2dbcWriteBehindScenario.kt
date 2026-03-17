@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteBehindScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteBehindScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     suspend fun createNewEntity(): E

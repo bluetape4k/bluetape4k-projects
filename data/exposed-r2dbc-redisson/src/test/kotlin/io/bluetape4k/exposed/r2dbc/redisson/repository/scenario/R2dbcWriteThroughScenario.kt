@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }

@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface WriteBehindScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     fun createNewEntity(): E

@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.core
+package io.bluetape4k.exposed.jdbc
 
 import io.bluetape4k.collections.toList
 import io.bluetape4k.support.requirePositiveNumber

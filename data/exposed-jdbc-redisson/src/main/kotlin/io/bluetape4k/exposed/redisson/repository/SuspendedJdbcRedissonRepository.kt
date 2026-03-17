@@ -34,7 +34,7 @@ import org.redisson.api.RMap
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID Entity ID Type
  */
-interface SuspendedJdbcRedissonRepository<ID : Comparable<ID>, E : Any> {
+interface SuspendedJdbcRedissonRepository<ID: Any, E: Any> {
     companion object : KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }

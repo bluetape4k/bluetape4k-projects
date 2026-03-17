@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * @param toEntity [ResultRow] → [E] 변환 함수
  * @param batchSize 페이징 배치 크기
  */
-class ExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+class ExposedEntityMapLoader<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val toEntity: (ResultRow) -> E,
     private val batchSize: Int = 1000,

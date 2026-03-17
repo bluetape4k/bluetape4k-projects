@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.seconds
  *
  * - save() 시 캐시에는 즉시 반영, DB는 비동기로 적재
  */
-interface SuspendedWriteBehindScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */

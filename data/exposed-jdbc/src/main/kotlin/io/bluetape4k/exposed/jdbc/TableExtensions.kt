@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.core
+package io.bluetape4k.exposed.jdbc
 
 import org.jetbrains.exposed.v1.core.Index
 import org.jetbrains.exposed.v1.core.Sequence

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach
  * - 서브 인터페이스(ReadThroughScenario 등)가 테스트 메서드를 추가한다.
  * - 구현 클래스는 @BeforeAll setupDb(), @BeforeEach setupData(), @AfterEach tearDown()을 담당한다.
  */
-interface CacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface CacheTestScenario<ID: Any, E: Any> {
     companion object : KLogging()
 
     /** 테스트 대상 레포지토리 */

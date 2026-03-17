@@ -19,7 +19,6 @@ import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -52,7 +51,7 @@ import java.time.Duration
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class AbstractR2dbcRedissonRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedissonCacheConfig,

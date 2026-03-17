@@ -45,7 +45,7 @@ import java.util.concurrent.CompletionStage
  * @param scope DB 조회 및 채널 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
 @Suppress("DEPRECATION")
-open class SuspendedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+open class SuspendedEntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,

@@ -206,11 +206,11 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
   `LettuceSuspendedLoadedMap`;
   `runBlocking` 없이 `suspendTransaction` 기반으로 동작
 - **exposed-jdbc-redisson**: Exposed JDBC + Redisson (Read-through / Write-through / Write-behind 캐시) —
-  `JdbcRedissonRepository<ID: Comparable<ID>, E: Any>`, `AbstractJdbcRedissonRepository`,
+  `JdbcRedissonRepository<ID: Any, E: Any>`, `AbstractJdbcRedissonRepository`,
   `SuspendedJdbcRedissonRepository`, `AbstractSuspendedJdbcRedissonRepository`;
   `extractId(entity): ID` 패턴으로 엔티티 ID 추출 (Lettuce Repository와 동일 패턴)
 - **exposed-r2dbc-redisson**: Exposed R2DBC + Redisson (코루틴 네이티브 Read-through / Write-through / Write-behind 캐시) —
-  `R2dbcRedissonRepository<ID: Comparable<ID>, E: Any>`, `AbstractR2dbcRedissonRepository`;
+  `R2dbcRedissonRepository<ID: Any, E: Any>`, `AbstractR2dbcRedissonRepository`;
   `extractId(entity): ID` 패턴, `suspendTransaction` 기반
 - **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
 - **exposed-fastjson2**: Exposed JSON 컬럼 지원 (Fastjson2)
@@ -407,9 +407,10 @@ systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
 ### Repository Generic Pattern
 
 모든 Exposed Repository 인터페이스는 통일된 제네릭 패턴을 사용합니다:
-- `JdbcRepository<ID: Comparable<ID>, E: Any>` — T(테이블 타입) 제네릭 제거, `val table: IdTable<ID>` 사용
-- `R2dbcRepository<ID: Comparable<ID>, E: Any>` — 동일 패턴
-- Redisson/Lettuce 캐시 Repository도 동일: `<ID: Comparable<ID>, E: Any>` + `extractId(entity): ID`
+
+- `JdbcRepository<ID: Any, E: Any>` — T(테이블 타입) 제네릭 제거, `val table: IdTable<ID>` 사용
+- `R2dbcRepository<ID: Any, E: Any>` — 동일 패턴
+- Redisson/Lettuce 캐시 Repository도 동일: `<ID: Any, E: Any>` + `extractId(entity): ID`
 - `SoftDeletedJdbcRepository`/`SoftDeletedR2dbcRepository`만 `table.isDeleted` 접근을 위해 T 유지
 - MapWriter의 writeThrough/writeBehind에서는 `Map<ID, E>`의 entry key로 ID 접근 (HasIdentifier 의존 없음)
 

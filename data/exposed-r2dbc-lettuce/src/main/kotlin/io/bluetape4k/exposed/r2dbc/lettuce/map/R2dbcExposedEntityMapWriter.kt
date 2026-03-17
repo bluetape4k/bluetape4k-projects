@@ -45,7 +45,7 @@ import java.time.Duration
  * @param retryInterval Resilience4j 재시도 간격 (기본: 100ms)
  * @see R2dbcEntityMapWriter
  */
-class R2dbcExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
+class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val writeMode: WriteMode,
     private val updateEntity: (UpdateStatement, E) -> Unit,

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
  *
  * - save() 시 캐시에는 즉시 반영, DB는 비동기로 적재
  */
-interface WriteBehindScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */

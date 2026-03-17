@@ -34,7 +34,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * @param batchSize 배치 사이즈
  * @param toEntity ResultRow를 엔티티로 변환하는 함수
  */
-open class ExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+open class ExposedEntityMapLoader<ID: Any, E: Any>(
     private val entityTable: IdTable<ID>,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,

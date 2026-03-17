@@ -23,7 +23,7 @@ import org.redisson.api.map.MapWriter
  * @param writeToDB DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDB DB에서 데이터를 삭제하는 함수입니다.
  */
-open class EntityMapWriter<ID : Comparable<ID>, E : Any>(
+open class EntityMapWriter<ID: Any, E: Any>(
     private val writeToDB: (map: Map<ID, E>) -> Unit,
     private val deleteFromDB: (ids: Collection<ID>) -> Unit,
 ) : MapWriter<ID, E> {

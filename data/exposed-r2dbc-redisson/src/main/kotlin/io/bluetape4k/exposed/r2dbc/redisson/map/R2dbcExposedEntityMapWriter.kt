@@ -46,7 +46,7 @@ import org.redisson.api.map.WriteMode
  * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다. 기본값 false.
  * @param writeMode Redisson Write 모드. [WriteMode.WRITE_THROUGH] 또는 [WriteMode.WRITE_BEHIND]. 기본값 WRITE_THROUGH.
  */
-open class R2dbcExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
+open class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
     private val entityTable: IdTable<ID>,
     scope: CoroutineScope = defaultMapWriterCoroutineScope,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
@@ -81,7 +81,7 @@ open class R2dbcExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
     companion object : KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
-        private suspend fun <K : Comparable<K>, V : Any> writeThrough(
+        private suspend fun <K: Any, V: Any> writeThrough(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             updateBody: IdTable<K>.(UpdateStatement, V) -> Unit,
@@ -117,7 +117,7 @@ open class R2dbcExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
             }
         }
 
-        private suspend fun <K : Comparable<K>, V : Any> writeBehind(
+        private suspend fun <K: Any, V: Any> writeBehind(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             batchInsertBody: BatchInsertStatement.(V) -> Unit,

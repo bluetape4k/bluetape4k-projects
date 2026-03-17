@@ -39,7 +39,7 @@ import java.util.concurrent.CompletionStage
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  * @param scope CoroutineScope
  */
-open class R2dbcEntityMapLoader<ID : Comparable<ID>, E : Any>(
+open class R2dbcEntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,

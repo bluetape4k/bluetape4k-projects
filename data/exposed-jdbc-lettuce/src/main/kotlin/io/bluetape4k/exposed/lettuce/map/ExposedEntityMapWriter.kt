@@ -26,7 +26,7 @@ import java.time.Duration
  * @param retryAttempts 재시도 횟수
  * @param retryInterval 재시도 간격
  */
-class ExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
+class ExposedEntityMapWriter<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val writeMode: WriteMode,
     private val updateEntity: (UpdateStatement, E) -> Unit,

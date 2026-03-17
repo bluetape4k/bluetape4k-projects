@@ -24,7 +24,7 @@ import org.redisson.api.options.LocalCachedMapOptions
  * @param builder [LocalCachedMapOptions] DSL 블록
  * @return 설정이 적용된 [RLocalCachedMap] 인스턴스
  */
-inline fun <reified K : Any, reified V : Any> localCachedMap(
+inline fun <reified K: Any, reified V: Any> localCachedMap(
     name: String,
     redissonClient: RedissonClient,
     builder: LocalCachedMapOptions<K, V>.() -> Unit = {},

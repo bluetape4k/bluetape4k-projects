@@ -84,12 +84,17 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface JdbcRepository<ID : Comparable<ID>, E : Any> {
+interface JdbcRepository<ID: Any, E: Any> {
     /**
      * Exposed의 IdTable을 반환합니다.
      * @return 엔티티에 해당하는 IdTable
      */
     val table: IdTable<ID>
+
+    /**
+     * extract Identifier
+     */
+    fun extractId(entity: E): ID
 
     /**
      * ResultRow를 엔티티로 변환합니다.
@@ -341,6 +346,11 @@ interface JdbcRepository<ID : Comparable<ID>, E : Any> {
             .selectAll()
             .where { table.id inList ids }
             .map { it.toEntity() }
+
+    /**
+     * 엔티티를 삭제합니다.
+     */
+    fun delete(entity: E): Int = deleteById(extractId(entity))
 
     /**
      * ID로 엔티티를 삭제합니다.

@@ -87,11 +87,16 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface R2dbcRepository<ID : Comparable<ID>, E : Any> {
+interface R2dbcRepository<ID: Any, E: Any> {
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
     val table: IdTable<ID>
+
+    /**
+     * 엔티티의 Identifier 를 제공합니다.
+     */
+    fun extractId(entity: E): ID
 
     /**
      * ResultRow를 엔티티로 변환합니다.
@@ -308,6 +313,11 @@ interface R2dbcRepository<ID : Comparable<ID>, E : Any> {
             .where { table.id inList ids }
             .map { it.toEntity() }
 
+    /**
+     * 엔티티를 삭제합니다.
+     */
+    suspend fun delete(entity: E): Int = deleteById(extractId(entity))
+    
     /**
      * ID로 엔티티를 삭제합니다.
      * @param id 삭제할 엔티티의 ID

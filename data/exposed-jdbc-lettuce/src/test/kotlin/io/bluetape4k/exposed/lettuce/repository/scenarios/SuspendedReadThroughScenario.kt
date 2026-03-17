@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
  * - 캐시 미스 시 DB에서 로드 후 캐시에 적재
  * - 캐시 삭제(delete) 시 DB에는 영향 없음 (ReadOnly 모드)
  */
-interface SuspendedReadThroughScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     /** getNonExistentId()에 해당하는 엔티티를 생성해 반환한다 (DB에는 저장하지 않음) */

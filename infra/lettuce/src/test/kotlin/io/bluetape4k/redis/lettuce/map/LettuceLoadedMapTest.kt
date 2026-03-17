@@ -152,7 +152,7 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `delete - WRITE_THROUGH 모드에서 writer.delete와 Redis 삭제를 모두 수행한다`() {
+    fun `delete - WRITE_THROUGH 모드에서 writer delete와 Redis 삭제를 모두 수행한다`() {
         val deleted = mutableListOf<String>()
         val written = mutableMapOf<String, String>()
         val writer =

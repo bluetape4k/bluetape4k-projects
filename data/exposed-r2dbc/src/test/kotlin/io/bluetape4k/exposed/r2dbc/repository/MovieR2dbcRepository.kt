@@ -31,8 +31,8 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class MovieR2dbcRepository : LongR2dbcRepository<MovieRecord> {
-    companion object : KLoggingChannel() {
+class MovieR2dbcRepository: LongR2dbcRepository<MovieRecord> {
+    companion object: KLoggingChannel() {
         private val MovieActorJoin: Join by lazy {
             MovieTable
                 .innerJoin(ActorInMovieTable)
@@ -53,6 +53,8 @@ class MovieR2dbcRepository : LongR2dbcRepository<MovieRecord> {
     }
 
     override val table = MovieTable
+
+    override fun extractId(entity: MovieRecord): Long = entity.id
 
     override suspend fun ResultRow.toEntity(): MovieRecord = toMovieRecord()
 
@@ -75,10 +77,10 @@ class MovieR2dbcRepository : LongR2dbcRepository<MovieRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                LongIdTable::id.name -> {
+                LongIdTable::id.name         -> {
                     value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
                 }
-                MovieTable::name.name -> {
+                MovieTable::name.name        -> {
                     value?.run { query.andWhere { MovieTable.name eq value } }
                 }
                 MovieTable::producerName.name -> {

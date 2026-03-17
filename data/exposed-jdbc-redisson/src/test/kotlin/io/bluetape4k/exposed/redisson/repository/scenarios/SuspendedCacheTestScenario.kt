@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface SuspendedCacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     companion object : KLoggingChannel() {
         @JvmStatic
         fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()

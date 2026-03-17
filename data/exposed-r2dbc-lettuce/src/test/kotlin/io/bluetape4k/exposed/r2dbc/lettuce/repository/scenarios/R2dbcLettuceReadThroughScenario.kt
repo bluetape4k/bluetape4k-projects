@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource
  * - 캐시 미스 시 DB에서 로드 후 Redis에 적재
  * - delete 시 Redis에서만 삭제 (Read-only 모드에서 DB 영향 없음)
  */
-interface R2dbcLettuceReadThroughScenario<ID: Comparable<ID>, E: Any>: R2dbcLettuceCacheTestScenario<ID, E> {
+interface R2dbcLettuceReadThroughScenario<ID: Any, E: Any>: R2dbcLettuceCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     /**

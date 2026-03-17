@@ -37,7 +37,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * @param batchSize 배치 사이즈
  * @param toEntity ResultRow 를 E 타입으로 변환하는 함수입니다.
  */
-open class SuspendedExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+open class SuspendedExposedEntityMapLoader<ID: Any, E: Any>(
     private val entityTable: IdTable<ID>,
     scope: CoroutineScope = defaultMapLoaderCoroutineScope,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,

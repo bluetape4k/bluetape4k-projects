@@ -122,7 +122,7 @@ object UserSchema: KLoggingChannel() {
     }
 
     /**
-     * Client 에서 ID 값을 설정하는 [TimebasedUUIDBase62Table]을 구현한 `IdTable<String>` 테이블입니다.
+     * Client 에서 ID 값을 설정하는 [TimebasedUUIDTable]을 구현한 `IdTable<String>` 테이블입니다.
      */
     object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()

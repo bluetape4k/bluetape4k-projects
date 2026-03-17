@@ -36,7 +36,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractSuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ) : SuspendedJdbcLettuceRepository<ID, E> {

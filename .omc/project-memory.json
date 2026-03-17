@@ -255,8 +255,8 @@
   "hotPaths": [
     {
       "path": "CLAUDE.md",
-      "accessCount": 18,
-      "lastAccessed": 1773755492581,
+      "accessCount": 23,
+      "lastAccessed": 1773762757731,
       "type": "file"
     },
     {
@@ -272,9 +272,27 @@
       "type": "file"
     },
     {
+      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/JdbcRedissonRepository.kt",
+      "accessCount": 12,
+      "lastAccessed": 1773760696529,
+      "type": "file"
+    },
+    {
+      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/SuspendedJdbcRedissonRepository.kt",
+      "accessCount": 12,
+      "lastAccessed": 1773760770919,
+      "type": "file"
+    },
+    {
       "path": "data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/stateless/models.kt",
       "accessCount": 11,
       "lastAccessed": 1773705220689,
+      "type": "file"
+    },
+    {
+      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/AbstractJdbcRedissonRepository.kt",
+      "accessCount": 11,
+      "lastAccessed": 1773762430477,
       "type": "file"
     },
     {
@@ -320,12 +338,6 @@
       "type": "file"
     },
     {
-      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/SuspendedJdbcRedissonRepository.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773744535601,
-      "type": "file"
-    },
-    {
       "path": "infra/cache-lettuce",
       "accessCount": 3,
       "lastAccessed": 1773740710456,
@@ -341,18 +353,6 @@
       "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTrackingTest.kt",
       "accessCount": 3,
       "lastAccessed": 1773741844517,
-      "type": "file"
-    },
-    {
-      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/JdbcRedissonRepository.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773744372845,
-      "type": "file"
-    },
-    {
-      "path": "data/exposed-jdbc-redisson/src/main/kotlin/io/bluetape4k/exposed/redisson/repository/AbstractJdbcRedissonRepository.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773744373932,
       "type": "file"
     },
     {

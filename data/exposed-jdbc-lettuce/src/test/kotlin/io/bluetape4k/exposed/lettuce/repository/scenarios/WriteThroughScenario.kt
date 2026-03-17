@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
  * - save() 시 캐시와 DB를 동시에 갱신
  * - delete() 시 캐시와 DB를 모두 삭제
  */
-interface WriteThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */

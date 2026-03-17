@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface SuspendedWriteThroughScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_DELAY = 500L
     }

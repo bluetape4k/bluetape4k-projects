@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.jdbc.transactions
+package io.bluetape4k.exposed.jdbc
 
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor

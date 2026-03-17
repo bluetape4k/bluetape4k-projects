@@ -21,7 +21,9 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.EvictionMode
+import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
+import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
 import java.time.Duration
 
@@ -58,12 +60,13 @@ import java.time.Duration
  * @param cacheName Redis 캐시 이름
  * @param config 캐시 설정 ([RedissonCacheConfig])
  */
-abstract class AbstractJdbcRedissonRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractJdbcRedissonRepository<ID: Any, E: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     protected val config: RedissonCacheConfig,
-) : JdbcRedissonRepository<ID, E> {
-    companion object : KLogging()
+): JdbcRedissonRepository<ID, E> {
+
+    companion object: KLogging()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
@@ -129,52 +132,50 @@ abstract class AbstractJdbcRedissonRepository<ID : Comparable<ID>, E : Any>(
      * Near Cache(로컬 캐시)가 활성화된 [RLocalCachedMap]을 생성합니다.
      * Read-Only 모드에서는 loader만, Read-Write 모드에서는 loader + writer를 설정합니다.
      */
-    protected fun createLocalCacheMap() =
-        localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
-            if (config.isReadOnly) {
-                loader(mapLoader)
-            } else {
-                loader(mapLoader)
-                mapWriter.requireNotNull("mapWriter")
-                writer(mapWriter)
-                writeMode(config.writeMode)
-            }
-
-            codec(config.codec)
-            syncStrategy(config.nearCacheSyncStrategy)
-            writeRetryAttempts(config.writeRetryAttempts)
-            writeRetryInterval(config.writeRetryInterval)
-            timeToLive(config.ttl)
-            if (config.nearCacheMaxIdleTime > Duration.ZERO) {
-                maxIdle(config.nearCacheMaxIdleTime)
-            }
+    protected fun createLocalCacheMap(): RLocalCachedMap<ID, E?> = localCachedMap(cacheName, redissonClient) {
+        log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
+        if (config.isReadOnly) {
+            loader(mapLoader)
+        } else {
+            loader(mapLoader)
+            mapWriter.requireNotNull("mapWriter")
+            writer(mapWriter)
+            writeMode(config.writeMode)
         }
+
+        codec(config.codec)
+        syncStrategy(config.nearCacheSyncStrategy)
+        writeRetryAttempts(config.writeRetryAttempts)
+        writeRetryInterval(config.writeRetryInterval)
+        timeToLive(config.ttl)
+        if (config.nearCacheMaxIdleTime > Duration.ZERO) {
+            maxIdle(config.nearCacheMaxIdleTime)
+        }
+    }
 
     /**
      * 원격 캐시 [RMapCache]를 생성합니다.
      * Read-Only 모드에서는 loader만, Read-Write 모드에서는 loader + writer를 설정합니다.
      * [RedissonCacheConfig.nearCacheMaxSize]가 0보다 크면 LRU 방식으로 최대 크기를 제한합니다.
      */
-    protected fun createMapCache() =
-        mapCache(cacheName, redissonClient) {
-            log.info { "RMapCache 를 생성합니다. config=$config" }
-            if (config.isReadOnly) {
-                loader(mapLoader)
-            } else {
-                loader(mapLoader)
-                mapWriter.requireNotNull("mapWriter")
-                writer(mapWriter)
-                writeMode(config.writeMode)
-            }
-            codec(config.codec)
-            writeRetryAttempts(config.writeRetryAttempts)
-            writeRetryInterval(config.writeRetryInterval)
-        }.apply {
-            if (config.nearCacheMaxSize > 0) {
-                setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
-            }
+    protected fun createMapCache(): RMapCache<ID, E?> = mapCache(cacheName, redissonClient) {
+        log.info { "RMapCache 를 생성합니다. config=$config" }
+        if (config.isReadOnly) {
+            loader(mapLoader)
+        } else {
+            loader(mapLoader)
+            mapWriter.requireNotNull("mapWriter")
+            writer(mapWriter)
+            writeMode(config.writeMode)
         }
+        codec(config.codec)
+        writeRetryAttempts(config.writeRetryAttempts)
+        writeRetryInterval(config.writeRetryInterval)
+    }.apply {
+        if (config.nearCacheMaxSize > 0) {
+            setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
+        }
+    }
 
     /**
      * DB에서 조건에 맞는 엔티티 목록을 조회하고, 조회된 엔티티들을 캐시에 저장합니다.

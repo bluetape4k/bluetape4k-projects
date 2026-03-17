@@ -7,8 +7,8 @@ import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 
-interface CacheTestScenario<ID : Comparable<ID>, E : Any> {
-    companion object : KLogging() {
+interface CacheTestScenario<ID: Any, E: Any> {
+    companion object: KLogging() {
         @JvmStatic
         fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()
 

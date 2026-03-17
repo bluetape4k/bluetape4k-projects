@@ -30,6 +30,8 @@ class MovieJdbcRepository : LongJdbcRepository<MovieRecord> {
 
     override val table = MovieTable
 
+    override fun extractId(entity: MovieRecord): Long = entity.id
+
     override fun ResultRow.toEntity(): MovieRecord = toMovieRecord()
 
     fun searchMovies(params: Map<String, String?>): List<MovieEntity> {

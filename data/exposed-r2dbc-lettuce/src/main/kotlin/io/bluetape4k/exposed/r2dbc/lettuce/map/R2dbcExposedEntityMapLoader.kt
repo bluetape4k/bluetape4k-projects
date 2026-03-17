@@ -35,7 +35,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * @param batchSize 페이징 배치 크기 (기본: 1000). 0 이하이면 [IllegalArgumentException] 발생
  * @see R2dbcEntityMapLoader
  */
-class R2dbcExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+class R2dbcExposedEntityMapLoader<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val toEntity: suspend ResultRow.() -> E,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,

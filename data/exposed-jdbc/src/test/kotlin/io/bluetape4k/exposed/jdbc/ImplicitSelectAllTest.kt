@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.core
+package io.bluetape4k.exposed.jdbc
 
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB

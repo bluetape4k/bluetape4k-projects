@@ -93,7 +93,7 @@ import org.junit.jupiter.api.BeforeEach
  * - 서브 인터페이스(ReadThroughScenario 등)가 테스트 메서드를 추가한다.
  * - 구현 클래스는 @BeforeAll setupDb(), @BeforeEach setupData(), @AfterEach tearDown()을 담당한다.
  */
-interface CacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface CacheTestScenario<ID: Any, E : Any> {
     companion object : KLogging()
 
     /** 테스트 대상 레포지토리 */
@@ -152,7 +152,7 @@ import org.junit.jupiter.api.Test
  * - 캐시 미스 시 DB에서 로드 후 캐시에 적재
  * - 캐시 삭제(delete) 시 DB에는 영향 없음 (ReadOnly 모드)
  */
-interface ReadThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface ReadThroughScenario<ID: Any, E : Any> : CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     @Test
@@ -250,7 +250,7 @@ import org.junit.jupiter.api.Test
  * - save() 시 캐시와 DB를 동시에 갱신
  * - delete() 시 캐시와 DB를 모두 삭제
  */
-interface WriteThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteThroughScenario<ID: Any, E : Any> : CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
@@ -351,7 +351,7 @@ import org.junit.jupiter.api.Test
  *
  * - save() 시 캐시에는 즉시 반영, DB는 비동기로 적재
  */
-interface WriteBehindScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface WriteBehindScenario<ID: Any, E : Any> : CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
@@ -430,7 +430,7 @@ import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 
-interface SuspendedCacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface SuspendedCacheTestScenario<ID: Any, E : Any> {
     companion object : KLoggingChannel()
 
     val repository: SuspendedJdbcLettuceRepository<ID, E>
@@ -459,7 +459,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-interface SuspendedReadThroughScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedReadThroughScenario<ID: Any, E : Any> : SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     suspend fun buildEntityForId(id: ID): E
@@ -525,7 +525,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-interface SuspendedWriteThroughScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteThroughScenario<ID: Any, E : Any> : SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     suspend fun updateEmail(entity: E): E
@@ -597,7 +597,7 @@ import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-interface SuspendedWriteBehindScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteBehindScenario<ID: Any, E : Any> : SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     suspend fun updateEmail(entity: E): E

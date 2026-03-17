@@ -32,7 +32,7 @@ import org.redisson.api.RMap
  * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입
  */
-interface JdbcRedissonRepository<ID : Comparable<ID>, E : Any> {
+interface JdbcRedissonRepository<ID: Any, E: Any> {
     companion object {
         const val DEFAULT_BATCH_SIZE = 500
     }

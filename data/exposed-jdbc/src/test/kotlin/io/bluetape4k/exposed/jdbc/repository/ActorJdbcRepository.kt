@@ -13,10 +13,12 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class ActorJdbcRepository : LongJdbcRepository<ActorRecord> {
-    companion object : KLogging()
+class ActorJdbcRepository: LongJdbcRepository<ActorRecord> {
+    companion object: KLogging()
 
     override val table = ActorTable
+
+    override fun extractId(entity: ActorRecord): Long = entity.id
 
     override fun ResultRow.toEntity(): ActorRecord = toActorRecord()
 
@@ -25,7 +27,7 @@ class ActorJdbcRepository : LongJdbcRepository<ActorRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name -> {
+                ActorTable::id.name       -> {
                     value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
                 }
                 ActorTable::firstName.name -> {
@@ -38,7 +40,7 @@ class ActorJdbcRepository : LongJdbcRepository<ActorRecord> {
                     value?.run {
                         query.andWhere {
                             ActorTable.birthday eq
-                                LocalDate.parse(value)
+                                    LocalDate.parse(value)
                         }
                     }
                 }

@@ -31,7 +31,7 @@ import java.util.concurrent.CompletionStage
  * @param writeToDb DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
  */
-open class R2dbcEntityMapWriter<ID : Comparable<ID>, E : Any>(
+open class R2dbcEntityMapWriter<ID: Any, E: Any>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,

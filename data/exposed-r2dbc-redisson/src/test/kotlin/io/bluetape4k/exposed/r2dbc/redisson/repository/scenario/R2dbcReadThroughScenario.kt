@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface R2dbcReadThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }

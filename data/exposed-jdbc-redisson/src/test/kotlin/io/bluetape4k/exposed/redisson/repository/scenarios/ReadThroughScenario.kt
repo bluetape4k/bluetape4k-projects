@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface ReadThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+interface ReadThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     companion object : KLogging()
 
     @ParameterizedTest

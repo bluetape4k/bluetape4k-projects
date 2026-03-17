@@ -68,7 +68,7 @@ import java.time.Duration
  * @param config 캐시 설정 ([RedissonCacheConfig])
  * @param scope DB 조회 및 캐시 비동기 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
-abstract class AbstractSuspendedJdbcRedissonRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedissonCacheConfig,

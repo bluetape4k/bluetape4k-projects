@@ -12,7 +12,7 @@ import org.redisson.api.options.MapCacheOptions
  * @param redissonClient RedissonClient
  * @param builder MapCacheOptions 설정
  */
-inline fun <reified K : Any, reified V : Any> mapCache(
+inline fun <reified K: Any, reified V: Any> mapCache(
     name: String,
     redissonClient: RedissonClient,
     builder: MapCacheOptions<K, V>.() -> Unit = {},

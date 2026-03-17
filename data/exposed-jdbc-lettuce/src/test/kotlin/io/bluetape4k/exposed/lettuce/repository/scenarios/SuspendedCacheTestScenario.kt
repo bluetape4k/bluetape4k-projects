@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach
  * - `@BeforeEach`에서 캐시를 비운다.
  * - 서브 인터페이스(SuspendedReadThroughScenario 등)가 테스트 메서드를 추가한다.
  */
-interface SuspendedCacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     companion object : KLoggingChannel()
 
     /** 테스트 대상 suspend 레포지토리 */

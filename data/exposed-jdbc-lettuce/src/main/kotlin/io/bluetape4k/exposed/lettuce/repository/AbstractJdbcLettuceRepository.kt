@@ -31,7 +31,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractJdbcLettuceRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractJdbcLettuceRepository<ID: Any, E: Any>(
     client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ) : JdbcLettuceRepository<ID, E> {

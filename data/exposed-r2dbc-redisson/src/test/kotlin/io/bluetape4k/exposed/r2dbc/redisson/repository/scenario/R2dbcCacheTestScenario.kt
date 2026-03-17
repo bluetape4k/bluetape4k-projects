@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface R2dbcCacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface R2dbcCacheTestScenario<ID: Any, E: Any> {
     companion object : KLoggingChannel() {
         @JvmStatic
         fun enableDialects() =

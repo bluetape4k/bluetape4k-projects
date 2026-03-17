@@ -23,7 +23,7 @@ import java.io.Closeable
  * @param ID PK 타입 ([Comparable] 구현 필요)
  * @param E 엔티티(DTO) 타입. Redis 저장 시 직렬화 문제로 반드시 [java.io.Serializable]을 구현해야 합니다.
  */
-interface SuspendedJdbcLettuceRepository<ID : Comparable<ID>, E : Any> : Closeable {
+interface SuspendedJdbcLettuceRepository<ID: Any, E: Any>: Closeable {
     companion object {
         const val DEFAULT_BATCH_SIZE = 500
     }

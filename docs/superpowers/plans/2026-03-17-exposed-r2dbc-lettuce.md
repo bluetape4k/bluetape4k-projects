@@ -225,7 +225,7 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
  * @param toEntity [ResultRow] → [E] 변환 suspend 함수
  * @param batchSize 페이징 배치 크기
  */
-class R2dbcExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
+class R2dbcExposedEntityMapLoader<ID: Any, E : Any>(
     private val table: IdTable<ID>,
     private val toEntity: suspend ResultRow.() -> E,
     private val batchSize: Int = 1000,
@@ -385,7 +385,7 @@ import java.time.Duration
  * @param retryAttempts 재시도 횟수
  * @param retryInterval 재시도 간격
  */
-class R2dbcExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
+class R2dbcExposedEntityMapWriter<ID: Any, E : Any>(
     private val table: IdTable<ID>,
     private val writeMode: WriteMode,
     private val updateEntity: (UpdateStatement, E) -> Unit,
@@ -491,7 +491,7 @@ import java.io.Closeable
  * @param ID PK 타입 ([Comparable] 구현 필요)
  * @param E 엔티티(DTO) 타입. Redis 저장 시 직렬화 문제로 반드시 [java.io.Serializable]을 구현해야 합니다.
  */
-interface R2dbcLettuceRepository<ID : Comparable<ID>, E : Any> : Closeable {
+interface R2dbcLettuceRepository<ID: Any, E : Any> : Closeable {
 
     val table: IdTable<ID>
     val config: LettuceCacheConfig
@@ -563,7 +563,7 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractR2dbcLettuceRepository<ID : Comparable<ID>, E : Any>(
+abstract class AbstractR2dbcLettuceRepository<ID: Any, E : Any>(
     client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ) : R2dbcLettuceRepository<ID, E> {
@@ -882,7 +882,7 @@ import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 
-interface R2dbcCacheTestScenario<ID : Comparable<ID>, E : Any> {
+interface R2dbcCacheTestScenario<ID: Any, E : Any> {
 
     val repository: R2dbcLettuceRepository<ID, E>
     val config: LettuceCacheConfig
@@ -901,7 +901,7 @@ interface R2dbcCacheTestScenario<ID : Comparable<ID>, E : Any> {
 - [ ] **Step 2: R2dbcReadThroughScenario 작성**
 
 ```kotlin
-interface R2dbcReadThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcReadThroughScenario<ID: Any, E : Any> : R2dbcCacheTestScenario<ID, E> {
 
     suspend fun buildEntityForId(id: ID): E
 
@@ -953,7 +953,7 @@ interface R2dbcReadThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTes
 - [ ] **Step 3: R2dbcWriteThroughScenario 작성**
 
 ```kotlin
-interface R2dbcWriteThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteThroughScenario<ID: Any, E : Any> : R2dbcCacheTestScenario<ID, E> {
 
     suspend fun newEntityWithId(id: ID): E
     suspend fun findFromDb(id: ID): E?
@@ -1002,7 +1002,7 @@ interface R2dbcWriteThroughScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTe
 - [ ] **Step 4: R2dbcWriteBehindScenario 작성**
 
 ```kotlin
-interface R2dbcWriteBehindScenario<ID : Comparable<ID>, E : Any> : R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteBehindScenario<ID: Any, E : Any> : R2dbcCacheTestScenario<ID, E> {
 
     suspend fun newEntityWithId(id: ID): E
 

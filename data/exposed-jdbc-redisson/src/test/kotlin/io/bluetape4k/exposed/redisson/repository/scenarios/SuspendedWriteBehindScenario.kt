@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 @Suppress("DEPRECATION")
-interface SuspendedWriteBehindScenario<ID : Comparable<ID>, E : Any> : SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
     companion object : KLoggingChannel()
 
     suspend fun createNewEntity(): E

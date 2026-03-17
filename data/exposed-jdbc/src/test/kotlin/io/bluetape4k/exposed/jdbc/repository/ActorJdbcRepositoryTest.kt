@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.LocalDate
 import kotlin.test.assertFailsWith
 
-class ActorJdbcRepositoryTest : AbstractExposedTest() {
-    companion object : KLogging() {
+class ActorJdbcRepositoryTest: AbstractExposedTest() {
+    companion object: KLogging() {
         fun newActorRecord(): ActorRecord =
             ActorRecord(
                 firstName = faker.name().firstName(),
@@ -192,6 +192,21 @@ class ActorJdbcRepositoryTest : AbstractExposedTest() {
             repository.findAll { repository.table.lastName eq "Depp" } shouldHaveSize 1
             repository.findAll(limit = 3) { repository.table.lastName eq "Depp" } shouldHaveSize 1
             repository.findAll(limit = 3, offset = 1) { repository.table.lastName eq "Depp" } shouldHaveSize 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete entity`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor = newActorRecord()
+            val savedActor = repository.save(actor)
+            savedActor.id.shouldNotBeNull()
+
+            // Delete savedActor
+            repository.delete(savedActor) shouldBeEqualTo 1
+            // Already deleted
+            repository.delete(savedActor) shouldBeEqualTo 0
         }
     }
 

@@ -42,8 +42,9 @@ class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
         isDeleted = this[ContactTable.isDeleted]
     )
 
-    val repository = object: LongSoftDeletedR2dbcRepository<ContactTable, ContactRecord> {
+    val repository = object: LongSoftDeletedR2dbcRepository<ContactRecord, ContactTable> {
         override val table = ContactTable
+        override fun extractId(entity: ContactRecord): Long = entity.id
         override suspend fun ResultRow.toEntity(): ContactRecord = toContactRecord()
     }
 

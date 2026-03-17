@@ -20,7 +20,7 @@ import java.io.Closeable
  * @param ID PK 타입 ([Comparable] 구현 필요)
  * @param E 엔티티(DTO) 타입. Redis 저장 시 직렬화 문제로 반드시 [java.io.Serializable]을 구현해야 합니다.
  */
-interface R2dbcLettuceRepository<ID: Comparable<ID>, E: Any>: Closeable {
+interface R2dbcLettuceRepository<ID: Any, E: Any>: Closeable {
     /** 이 레포지토리가 사용하는 Exposed [IdTable]. */
     val table: IdTable<ID>
 
