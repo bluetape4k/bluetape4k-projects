@@ -5,6 +5,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-lettuce"))
     api(project(":bluetape4k-exposed-r2dbc"))
+    api(Libs.resilience4j_retry)
 
     // Exposed R2DBC
     api(Libs.exposed_core)
