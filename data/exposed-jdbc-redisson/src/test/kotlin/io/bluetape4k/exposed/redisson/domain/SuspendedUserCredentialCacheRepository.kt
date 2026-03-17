@@ -18,25 +18,27 @@ class SuspendedUserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:suspended:users",
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
-): AbstractSuspendedJdbcRedissonRepository<UUID, UserCredentialsTable, UserCredentialsRecord>(
-    redissonClient,
-    cacheName,
-    config
-) {
+) : AbstractSuspendedJdbcRedissonRepository<UUID, UserCredentialsRecord>(
+        redissonClient,
+        cacheName,
+        config
+    ) {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
+    override val table: UserCredentialsTable = UserCredentialsTable
 
-    override val entityTable: UserCredentialsTable = UserCredentialsTable
     override fun ResultRow.toEntity(): UserCredentialsRecord = toUserCredentialsRecord()
+
+    override fun extractId(entity: UserCredentialsRecord): UUID = entity.id
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
         entity: UserCredentialsRecord,
     ) {
-        statement[entityTable.loginId] = entity.loginId
-        statement[entityTable.email] = entity.email
-        statement[entityTable.lastLoginAt] = entity.lastLoginAt
-        statement[entityTable.updatedAt] = Instant.now()
+        statement[table.loginId] = entity.loginId
+        statement[table.email] = entity.email
+        statement[table.lastLoginAt] = entity.lastLoginAt
+        statement[table.updatedAt] = Instant.now()
     }
 
     override fun doInsertEntity(
@@ -44,12 +46,12 @@ class SuspendedUserCredentialCacheRepository(
         entity: UserCredentialsRecord,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        if (entityTable.id.autoIncColumnType == null) {
-            statement[entityTable.id] = entity.id
+        if (table.id.autoIncColumnType == null) {
+            statement[table.id] = entity.id
         }
-        statement[entityTable.id] = entity.id
-        statement[entityTable.loginId] = entity.loginId
-        statement[entityTable.email] = entity.email
-        statement[entityTable.lastLoginAt] = entity.lastLoginAt
+        statement[table.id] = entity.id
+        statement[table.loginId] = entity.loginId
+        statement[table.email] = entity.email
+        statement[table.lastLoginAt] = entity.lastLoginAt
     }
 }

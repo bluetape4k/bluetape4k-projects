@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
@@ -13,15 +12,13 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface ReadThroughScenario<ID: Any,  T: IdTable<ID>, E: HasIdentifier<ID>>: CacheTestScenario<ID, T, E> {
-
-    companion object: KLogging()
+interface ReadThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+    companion object : KLogging()
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
@@ -99,7 +96,11 @@ interface ReadThroughScenario<ID: Any,  T: IdTable<ID>, E: HasIdentifier<ID>>: C
         withEntityTable(testDB) {
             val entities = repository.findAll()
             entities.shouldNotBeEmpty()
-            entities.size shouldBeEqualTo repository.entityTable.selectAll().count().toInt()
+            entities.size shouldBeEqualTo
+                repository.table
+                    .selectAll()
+                    .count()
+                    .toInt()
         }
     }
 
@@ -142,7 +143,8 @@ interface ReadThroughScenario<ID: Any,  T: IdTable<ID>, E: HasIdentifier<ID>>: C
         withEntityTable(testDB) {
             repository.getAll(getExistingIds())
 
-            val invalidated = repository.invalidateByPattern("*1*") +
+            val invalidated =
+                repository.invalidateByPattern("*1*") +
                     ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
             invalidated shouldBeGreaterThan 0

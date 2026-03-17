@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
@@ -30,7 +29,7 @@ import java.time.Duration
  * Exposed JDBC와 Redisson을 결합한 동기 캐시 Repository의 추상 기반 클래스입니다.
  *
  * ## 사용 방법
- * 이 클래스를 상속하고 [entityTable], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
+ * 이 클래스를 상속하고 [table], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
  * Read-Only 모드에서는 [doUpdateEntity]/[doInsertEntity] 구현이 불필요합니다.
  *
  * ## 동작/계약
@@ -44,7 +43,7 @@ import java.time.Duration
  *     cacheName: String,
  *     config: RedisCacheConfig,
  * ): AbstractJdbcRedissonRepository<Long, UserTable, UserRecord>(redissonClient, cacheName, config) {
- *     override val entityTable = UserTable
+ *     override val table = UserTable
  *     override fun ResultRow.toEntity() = toUserRecord()
  *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
  *         statement[UserTable.email] = entity.email
@@ -59,25 +58,27 @@ import java.time.Duration
  * @param cacheName Redis 캐시 이름
  * @param config 캐시 설정 ([RedissonCacheConfig])
  */
-abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
+abstract class AbstractJdbcRedissonRepository<ID : Comparable<ID>, E : Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     protected val config: RedissonCacheConfig,
-): JdbcRedissonRepository<ID, T, E> {
-
-    companion object: KLogging()
+) : JdbcRedissonRepository<ID, E> {
+    companion object : KLogging()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
      */
     protected open val mapLoader: EntityMapLoader<ID, E> by lazy {
-        ExposedEntityMapLoader(entityTable) { toEntity() }
+        ExposedEntityMapLoader(table) { toEntity() }
     }
 
     /**
      * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doUpdateEntity(statement: UpdateStatement, entity: E) {
+    protected open fun doUpdateEntity(
+        statement: UpdateStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
@@ -86,7 +87,10 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
     /**
      * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: E) {
+    protected open fun doInsertEntity(
+        statement: BatchInsertStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -98,15 +102,18 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
      */
     protected val mapWriter: EntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY  -> null
-            RedissonCacheConfig.CacheMode.READ_WRITE ->
+            RedissonCacheConfig.CacheMode.READ_ONLY -> {
+                null
+            }
+            RedissonCacheConfig.CacheMode.READ_WRITE -> {
                 ExposedEntityMapWriter(
-                    entityTable = entityTable,
+                    entityTable = table,
                     updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                     batchInsertBody = { entity -> doInsertEntity(this, entity) },
-                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
-                    writeMode = config.writeMode,  // Write Through 모드
+                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                    writeMode = config.writeMode // Write Through 모드
                 )
+            }
         }
     }
 
@@ -186,20 +193,21 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<E> {
-        val entities = transaction {
-            entityTable
-                .selectAll()
-                .where(where)
-                .apply {
-                    orderBy(sortBy, sortOrder)
-                    limit?.run { limit(limit) }
-                    offset?.run { offset(offset) }
-                }.map { it.toEntity() }
-        }
+        val entities =
+            transaction {
+                table
+                    .selectAll()
+                    .where(where)
+                    .apply {
+                        orderBy(sortBy, sortOrder)
+                        limit?.run { limit(limit) }
+                        offset?.run { offset(offset) }
+                    }.map { it.toEntity() }
+            }
 
         if (entities.isNotEmpty()) {
             log.debug { "DB에서 엔티티를 조회했습니다. entities=$entities" }
-            cache.putAll(entities.associateBy { it.id })
+            cache.putAll(entities.associateBy { extractId(it) })
         }
         return entities
     }
@@ -211,7 +219,10 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIde
      * @param batchSize 한 번에 조회할 배치 크기
      * @return 조회된 엔티티 목록
      */
-    override fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
+    override fun getAll(
+        ids: Collection<ID>,
+        batchSize: Int,
+    ): List<E> {
         batchSize.requirePositiveNumber("batchSize")
 
         if (ids.isEmpty()) return emptyList()

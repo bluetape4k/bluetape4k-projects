@@ -24,29 +24,32 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class ReadWriteThroughCacheTest {
+    companion object : KLogging()
 
-    companion object: KLogging()
-
-    abstract class AutoIncIdReadWriteThrough: AbstractRedissonTest(),
-                                              ReadThroughScenario<Long, UserTable, UserRecord>,
-                                              WriteThroughScenario<Long, UserTable, UserRecord> {
+    abstract class AutoIncIdReadWriteThrough :
+        AbstractRedissonTest(),
+        ReadThroughScenario<Long, UserRecord>,
+        WriteThroughScenario<Long, UserRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
         ) = withUserTable(testDB, statement)
 
-        override fun getExistingId() = transaction {
-            UserTable
-                .select(UserTable.id)
-                .limit(1)
-                .first()[UserTable.id].value
-        }
+        override fun getExistingId() =
+            transaction {
+                UserTable
+                    .select(UserTable.id)
+                    .limit(1)
+                    .first()[UserTable.id]
+                    .value
+            }
 
-        override fun getExistingIds() = transaction {
-            UserTable
-                .select(UserTable.id)
-                .map { it[UserTable.id].value }
-        }
+        override fun getExistingIds() =
+            transaction {
+                UserTable
+                    .select(UserTable.id)
+                    .map { it[UserTable.id].value }
+            }
 
         override fun getNonExistentId() = Long.MIN_VALUE
 
@@ -55,14 +58,16 @@ class ReadWriteThroughCacheTest {
         override fun updateEntityEmail(entity: UserRecord) =
             entity.copy(email = "updated-${Base58.randomString(8)}@example.com")
 
-        override fun assertSameEntityWithoutUpdatedAt(entity1: UserRecord, entity2: UserRecord) {
+        override fun assertSameEntityWithoutUpdatedAt(
+            entity1: UserRecord,
+            entity2: UserRecord,
+        ) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
-
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemoteCache: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCache : AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
@@ -75,7 +80,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCacheWithDeleteDB : AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
@@ -88,7 +93,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughNearCache: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughNearCache : AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -101,7 +106,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughNearCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughNearCacheWithDeleteDB : AutoIncIdReadWriteThrough() {
         override val cacheConfig =
             RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
@@ -114,28 +119,30 @@ class ReadWriteThroughCacheTest {
         }
     }
 
-
-    abstract class ClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                      ReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord>,
-                                                      WriteThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
-
+    abstract class ClientGeneratedIdReadWriteThrough :
+        AbstractRedissonTest(),
+        ReadThroughScenario<UUID, UserCredentialsRecord>,
+        WriteThroughScenario<UUID, UserCredentialsRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
         ) = withUserCredentialsTable(testDB, statement)
 
-        override fun getExistingId() = transaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .limit(1)
-                .first()[UserCredentialsTable.id].value
-        }
+        override fun getExistingId() =
+            transaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .limit(1)
+                    .first()[UserCredentialsTable.id]
+                    .value
+            }
 
-        override fun getExistingIds() = transaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .map { it[UserCredentialsTable.id].value }
-        }
+        override fun getExistingIds() =
+            transaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .map { it[UserCredentialsTable.id].value }
+            }
 
         override fun getNonExistentId(): UUID = UUID.randomUUID()
 
@@ -144,57 +151,55 @@ class ReadWriteThroughCacheTest {
         override fun updateEntityEmail(entity: UserCredentialsRecord): UserCredentialsRecord =
             entity.copy(email = "updated.${Base58.randomString(8)}@example.com")
 
-        override fun assertSameEntityWithoutUpdatedAt(entity1: UserCredentialsRecord, entity2: UserCredentialsRecord) {
+        override fun assertSameEntityWithoutUpdatedAt(
+            entity1: UserCredentialsRecord,
+            entity2: UserCredentialsRecord,
+        ) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadWriteThrough() {
-
+    inner class ClientGeneratedIdReadThroughRemoteCache : ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:remote:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
-
+    inner class ClientGeneratedIdReadThroughRemoteCacheWithDeleteDB : ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:remote:delete-db:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
-
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadWriteThrough() {
-
+    inner class ClientGeneratedIdReadThroughNearCache : ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:near:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
-
+    inner class ClientGeneratedIdReadThroughNearCacheWithDeleteDB : ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig =
             RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
@@ -202,7 +207,7 @@ class ReadWriteThroughCacheTest {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:near:delete-db:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }

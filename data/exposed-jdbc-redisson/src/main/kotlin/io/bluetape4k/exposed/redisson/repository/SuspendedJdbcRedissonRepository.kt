@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.Dispatchers
@@ -35,9 +34,8 @@ import org.redisson.api.RMap
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID Entity ID Type
  */
-interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
-
-    companion object: KLoggingChannel() {
+interface SuspendedJdbcRedissonRepository<ID : Comparable<ID>, E : Any> {
+    companion object : KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }
 
@@ -49,12 +47,17 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
-    val entityTable: T
+    val table: IdTable<ID>
 
     /**
      * ResultRow를 엔티티로 변환합니다.
      */
     fun ResultRow.toEntity(): E
+
+    /**
+     * 엔티티에서 식별자를 추출합니다.
+     */
+    fun extractId(entity: E): ID
 
     /**
      * Redisson의 RMap 캐시 객체를 반환합니다.
@@ -69,7 +72,6 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      */
     suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).await()
 
-
     /**
      * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
      *
@@ -77,13 +79,14 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @return 조회된 엔티티 또는 null
      */
     @Suppress("DEPRECATION")
-    suspend fun findByIdFromDb(id: ID): E? = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id eq id }
-            .singleOrNull()
-            ?.toEntity()
-    }.await()
+    suspend fun findByIdFromDb(id: ID): E? =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            table
+                .selectAll()
+                .where { table.id eq id }
+                .singleOrNull()
+                ?.toEntity()
+        }.await()
 
     /**
      * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
@@ -92,12 +95,13 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @return 조회된 엔티티 목록
      */
     @Suppress("DEPRECATION")
-    suspend fun findAllFromDb(vararg ids: ID): List<E> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
-    }.await()
+    suspend fun findAllFromDb(vararg ids: ID): List<E> =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            table
+                .selectAll()
+                .where { table.id inList ids.toList() }
+                .map { it.toEntity() }
+        }.await()
 
     /**
      * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
@@ -106,12 +110,13 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @return 조회된 엔티티 목록
      */
     @Suppress("DEPRECATION")
-    suspend fun findAllFromDb(ids: Collection<ID>): List<E> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids }
-            .map { it.toEntity() }
-    }.await()
+    suspend fun findAllFromDb(ids: Collection<ID>): List<E> =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            table
+                .selectAll()
+                .where { table.id inList ids }
+                .map { it.toEntity() }
+        }.await()
 
     /**
      * 캐시에서 엔티티를 조회합니다.
@@ -134,7 +139,7 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
     suspend fun findAll(
         limit: Int? = null,
         offset: Long? = null,
-        sortBy: Expression<*> = entityTable.id,
+        sortBy: Expression<*> = table.id,
         sortOrder: SortOrder = SortOrder.ASC,
         where: () -> Op<Boolean> = { Op.TRUE },
     ): List<E>
@@ -146,14 +151,17 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @param batchSize 일괄 처리 크기
      * @return 조회된 엔티티 목록
      */
-    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<E>
+    suspend fun getAll(
+        ids: Collection<ID>,
+        batchSize: Int = DEFAULT_BATCH_SIZE,
+    ): List<E>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
      * @param entity 저장할 엔티티
      */
-    suspend fun put(entity: E): Boolean = cache.fastPutAsync(entity.id, entity).await()
+    suspend fun put(entity: E): Boolean = cache.fastPutAsync(extractId(entity), entity).await()
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.
@@ -161,9 +169,12 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @param entities 저장할 엔티티 목록
      * @param batchSize 일괄 처리 크기
      */
-    suspend fun putAll(entities: Collection<E>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+    suspend fun putAll(
+        entities: Collection<E>,
+        batchSize: Int = DEFAULT_BATCH_SIZE,
+    ) {
         batchSize.requirePositiveNumber("batchSize")
-        cache.putAllAsync(entities.associateBy { it.id }, batchSize).await()
+        cache.putAllAsync(entities.associateBy { extractId(it) }, batchSize).await()
     }
 
     /**
@@ -188,7 +199,10 @@ interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentif
      * @param count 일괄 처리 크기
      * @return 삭제된 엔티티 수
      */
-    suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
+    suspend fun invalidateByPattern(
+        patterns: String,
+        count: Int = DEFAULT_BATCH_SIZE,
+    ): Long {
         count.requirePositiveNumber("count")
         val keys = cache.keySet(patterns, count)
         if (keys.isEmpty()) {

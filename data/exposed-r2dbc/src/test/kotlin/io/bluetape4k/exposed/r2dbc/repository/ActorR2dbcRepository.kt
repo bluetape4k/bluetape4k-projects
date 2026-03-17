@@ -14,11 +14,11 @@ import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class ActorR2dbcRepository: LongR2dbcRepository<ActorTable, ActorRecord> {
-
-    companion object: KLoggingChannel()
+class ActorR2dbcRepository : LongR2dbcRepository<ActorRecord> {
+    companion object : KLoggingChannel()
 
     override val table = ActorTable
+
     override suspend fun ResultRow.toEntity(): ActorRecord = toActorRecord()
 
     fun searchActors(params: Map<String, String?>): Flow<ActorRecord> {
@@ -26,10 +26,23 @@ class ActorR2dbcRepository: LongR2dbcRepository<ActorTable, ActorRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name        -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
-                ActorTable::firstName.name -> value?.run { query.andWhere { ActorTable.firstName eq value } }
-                ActorTable::lastName.name  -> value?.run { query.andWhere { ActorTable.lastName eq value } }
-                ActorTable::birthday.name  -> value?.run { query.andWhere { ActorTable.birthday eq LocalDate.parse(value) } }
+                ActorTable::id.name -> {
+                    value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
+                }
+                ActorTable::firstName.name -> {
+                    value?.run { query.andWhere { ActorTable.firstName eq value } }
+                }
+                ActorTable::lastName.name -> {
+                    value?.run { query.andWhere { ActorTable.lastName eq value } }
+                }
+                ActorTable::birthday.name -> {
+                    value?.run {
+                        query.andWhere {
+                            ActorTable.birthday eq
+                                LocalDate.parse(value)
+                        }
+                    }
+                }
             }
         }
 
@@ -39,11 +52,12 @@ class ActorR2dbcRepository: LongR2dbcRepository<ActorTable, ActorRecord> {
     suspend fun save(actor: ActorRecord): ActorRecord {
         log.debug { "Create new actor. actor: $actor" }
 
-        val id = ActorTable.insertAndGetId {
-            it[firstName] = actor.firstName
-            it[lastName] = actor.lastName
-            it[birthday] = actor.birthday?.let { day -> LocalDate.parse(day) }
-        }
+        val id =
+            ActorTable.insertAndGetId {
+                it[firstName] = actor.firstName
+                it[lastName] = actor.lastName
+                it[birthday] = actor.birthday?.let { day -> LocalDate.parse(day) }
+            }
         return actor.copy(id = id.value)
     }
 }

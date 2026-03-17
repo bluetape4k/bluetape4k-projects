@@ -17,31 +17,39 @@ class UserCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:users",
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
-): AbstractJdbcRedissonRepository<Long, UserTable, UserRecord>(
-    redissonClient,
-    cacheName,
-    config
-) {
+) : AbstractJdbcRedissonRepository<Long, UserRecord>(
+        redissonClient,
+        cacheName,
+        config
+    ) {
+    companion object : KLogging()
 
-    companion object: KLogging()
+    override val table: UserTable = UserTable
 
-    override val entityTable: UserTable = UserTable
     override fun ResultRow.toEntity(): UserRecord = toUserRecord()
 
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
-        statement[entityTable.firstName] = entity.firstName
-        statement[entityTable.lastName] = entity.lastName
-        statement[entityTable.email] = entity.email
-        statement[entityTable.updatedAt] = Instant.now()
+    override fun extractId(entity: UserRecord): Long = entity.id
+
+    override fun doUpdateEntity(
+        statement: UpdateStatement,
+        entity: UserRecord,
+    ) {
+        statement[table.firstName] = entity.firstName
+        statement[table.lastName] = entity.lastName
+        statement[table.email] = entity.email
+        statement[table.updatedAt] = Instant.now()
     }
 
-    override fun doInsertEntity(statement: BatchInsertStatement, entity: UserRecord) {
+    override fun doInsertEntity(
+        statement: BatchInsertStatement,
+        entity: UserRecord,
+    ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        if (entityTable.id.autoIncColumnType == null) {
-            statement[entityTable.id] = entity.id
+        if (table.id.autoIncColumnType == null) {
+            statement[table.id] = entity.id
         }
-        statement[entityTable.firstName] = entity.firstName
-        statement[entityTable.lastName] = entity.lastName
-        statement[entityTable.email] = entity.email
+        statement[table.firstName] = entity.firstName
+        statement[table.lastName] = entity.lastName
+        statement[table.email] = entity.email
     }
 }

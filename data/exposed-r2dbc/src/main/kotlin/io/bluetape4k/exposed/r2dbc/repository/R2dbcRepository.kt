@@ -14,10 +14,6 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
-import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
-import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
-import org.jetbrains.exposed.v1.core.dao.id.UuidTable
-import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
@@ -38,12 +34,11 @@ import kotlin.uuid.Uuid
 /**
  * Exposed R2DBC를 사용하는 Repository의 기본 인터페이스입니다.
  *
- * `ID` 타입의 기본키를 가지는 [T] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
+ * `ID` 타입의 기본키를 가지는 [IdTable] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
  * 공통 CRUD 연산을 기본 구현과 함께 제공합니다. 모든 단건 조회/변경 연산은
  * `suspend` 함수로, 다건 조회 연산은 [kotlinx.coroutines.flow.Flow]로 제공됩니다.
  *
  * @param ID 기본키 타입 (예: [Long], [Int], [java.util.UUID])
- * @param T Exposed [IdTable] 구현체 (예: [LongIdTable], [IntIdTable])
  * @param E 조회 결과로 매핑될 엔티티(레코드) 타입
  *
  * ## 사용 예
@@ -63,7 +58,7 @@ import kotlin.uuid.Uuid
  * )
  *
  * // 3. Repository 구현
- * class ActorRepository : LongR2dbcRepository<ActorTable, ActorRecord> {
+ * class ActorRepository : LongR2dbcRepository<ActorRecord> {
  *     override val table = ActorTable
  *
  *     override suspend fun ResultRow.toEntity() = ActorRecord(
@@ -92,11 +87,11 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface R2dbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
+interface R2dbcRepository<ID : Comparable<ID>, E : Any> {
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
-    val table: T
+    val table: IdTable<ID>
 
     /**
      * ResultRow를 엔티티로 변환합니다.
@@ -530,40 +525,35 @@ interface R2dbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
 /**
  * [Int] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [IntIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface IntR2dbcRepository<T : IntIdTable, E : Any> : R2dbcRepository<Int, T, E>
+interface IntR2dbcRepository<E : Any> : R2dbcRepository<Int, E>
 
 /**
  * [Long] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [LongIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface LongR2dbcRepository<T : LongIdTable, E : Any> : R2dbcRepository<Long, T, E>
+interface LongR2dbcRepository<E : Any> : R2dbcRepository<Long, E>
 
 /**
  * Kotlin [kotlin.uuid.Uuid] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [UuidTable] 구현체
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidR2dbcRepository<T : UuidTable, E : Any> : R2dbcRepository<Uuid, T, E>
+interface UuidR2dbcRepository<E : Any> : R2dbcRepository<Uuid, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [UUIDTable] 구현체
  * @param E 엔티티 타입
  */
-interface UUIDR2dbcRepository<T : UUIDTable, E : Any> : R2dbcRepository<UUID, T, E>
+interface UUIDR2dbcRepository<E : Any> : R2dbcRepository<UUID, E>
 
 /**
  * [String] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [IdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringR2dbcRepository<T : IdTable<String>, E : Any> : R2dbcRepository<String, T, E>
+interface StringR2dbcRepository<E : Any> : R2dbcRepository<String, E>

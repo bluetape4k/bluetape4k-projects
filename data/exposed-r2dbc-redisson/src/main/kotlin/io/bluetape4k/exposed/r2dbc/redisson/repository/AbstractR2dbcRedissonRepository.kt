@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcExposedEntityMapLoader
@@ -53,26 +52,28 @@ import java.time.Duration
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
+abstract class AbstractR2dbcRedissonRepository<ID : Comparable<ID>, E : Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-): R2dbcRedissonRepository<ID, T, E> {
-
-    companion object: KLoggingChannel()
+) : R2dbcRedissonRepository<ID, E> {
+    companion object : KLoggingChannel()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [R2dbcEntityMapLoader] 입니다.
      */
     protected open val r2dbcEntityMapLoader: R2dbcEntityMapLoader<ID, E> by lazy {
-        R2dbcExposedEntityMapLoader(entityTable, scope) { toEntity() }
+        R2dbcExposedEntityMapLoader(table, scope) { toEntity() }
     }
 
     /**
      * [R2dbcEntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doUpdateEntity(statement: UpdateStatement, entity: E) {
+    protected open fun doUpdateEntity(
+        statement: UpdateStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
@@ -81,7 +82,10 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasId
     /**
      * [R2dbcEntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: E) {
+    protected open fun doInsertEntity(
+        statement: BatchInsertStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -93,15 +97,19 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasId
      */
     protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY  -> null
-            RedissonCacheConfig.CacheMode.READ_WRITE -> R2dbcExposedEntityMapWriter(
-                scope = scope,
-                entityTable = entityTable,
-                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                batchInsertBody = { entity -> doInsertEntity(this, entity) },
-                deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
-                writeMode = config.writeMode,  // Write Through 모드
-            )
+            RedissonCacheConfig.CacheMode.READ_ONLY -> {
+                null
+            }
+            RedissonCacheConfig.CacheMode.READ_WRITE -> {
+                R2dbcExposedEntityMapWriter(
+                    scope = scope,
+                    entityTable = table,
+                    updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
+                    batchInsertBody = { entity -> doInsertEntity(this, entity) },
+                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                    writeMode = config.writeMode // Write Through 모드
+                )
+            }
         }
     }
 
@@ -176,21 +184,21 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasId
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<E> {
-        val entities = suspendTransaction {
-            entityTable
-                .selectAll()
-                .where(where)
-                .apply {
-                    orderBy(sortBy, sortOrder)
-                    limit?.run { limit(limit) }
-                    offset?.run { offset(offset) }
-                }
-                .map { it.toEntity() }
-                .toList()
-        }
+        val entities =
+            suspendTransaction {
+                table
+                    .selectAll()
+                    .where(where)
+                    .apply {
+                        orderBy(sortBy, sortOrder)
+                        limit?.run { limit(limit) }
+                        offset?.run { offset(offset) }
+                    }.map { it.toEntity() }
+                    .toList()
+            }
 
         if (entities.isNotEmpty()) {
-            cache.putAllAsync(entities.associateBy { it.id }).await()
+            cache.putAllAsync(entities.associateBy { extractId(it) }).await()
         }
         return entities
     }
@@ -202,14 +210,21 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasId
      * @param batchSize 한 번에 조회할 배치 크기
      * @return 조회된 엔티티 목록
      */
-    override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
+    override suspend fun getAll(
+        ids: Collection<ID>,
+        batchSize: Int,
+    ): List<E> {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         if (ids.isEmpty()) return emptyList()
         return ids
             .chunked(batchSize)
             .flatMap { chunk ->
-                log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-                cache.getAllAsync(chunk.toSet()).await().values.filterNotNull()
+                log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=$chunk" }
+                cache
+                    .getAllAsync(chunk.toSet())
+                    .await()
+                    .values
+                    .filterNotNull()
             }
     }
 }

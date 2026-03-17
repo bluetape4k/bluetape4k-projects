@@ -1,20 +1,17 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.repository.R2dbcRedissonRepository
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface R2dbcCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
-
-    companion object: KLoggingChannel() {
+interface R2dbcCacheTestScenario<ID : Comparable<ID>, E : Any> {
+    companion object : KLoggingChannel() {
         @JvmStatic
         fun enableDialects() =
             setOf(TestDB.H2) // setOf(TestDB.MYSQL_V8) // setOf(TestDB.POSTGRESQL) //  TestDB.enabledDialects()
@@ -32,7 +29,7 @@ interface R2dbcCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: R2dbcRedissonRepository<ID, T, E>
+    val repository: R2dbcRedissonRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

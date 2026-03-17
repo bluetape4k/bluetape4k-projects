@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
@@ -33,7 +32,7 @@ import org.redisson.api.RMap
  * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입
  */
-interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
+interface JdbcRedissonRepository<ID : Comparable<ID>, E : Any> {
     companion object {
         const val DEFAULT_BATCH_SIZE = 500
     }
@@ -46,12 +45,17 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
     /**
      * Exposed의 엔티티 테이블
      */
-    val entityTable: T
+    val table: IdTable<ID>
 
     /**
      * ResultRow를 엔티티로 변환하는 확장 함수
      */
     fun ResultRow.toEntity(): E
+
+    /**
+     * 엔티티에서 식별자를 추출합니다.
+     */
+    fun extractId(entity: E): ID
 
     /**
      * Redisson의 RMap 캐시 객체
@@ -66,20 +70,20 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      */
     fun exists(id: ID): Boolean = cache.containsKey(id)
 
-
     /**
      * DB에서 최신 데이터를 조회합니다.
      *
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
-    fun findByIdFromDb(id: ID): E? = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id eq id }
-            .singleOrNull()
-            ?.toEntity()
-    }
+    fun findByIdFromDb(id: ID): E? =
+        transaction {
+            table
+                .selectAll()
+                .where { table.id eq id }
+                .singleOrNull()
+                ?.toEntity()
+        }
 
     /**
      * DB에서 여러 엔티티를 조회합니다.
@@ -87,12 +91,13 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      * @param ids 엔티티 식별자 목록
      * @return 엔티티 리스트
      */
-    fun findAllFromDb(vararg ids: ID): List<E> = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
-    }
+    fun findAllFromDb(vararg ids: ID): List<E> =
+        transaction {
+            table
+                .selectAll()
+                .where { table.id inList ids.toList() }
+                .map { it.toEntity() }
+        }
 
     /**
      * DB에서 여러 엔티티를 조회합니다.
@@ -100,12 +105,13 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      * @param ids 엔티티 식별자 컬렉션
      * @return 엔티티 리스트
      */
-    fun findAllFromDb(ids: Collection<ID>): List<E> = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids }
-            .map { it.toEntity() }
-    }
+    fun findAllFromDb(ids: Collection<ID>): List<E> =
+        transaction {
+            table
+                .selectAll()
+                .where { table.id inList ids }
+                .map { it.toEntity() }
+        }
 
     /**
      * 캐시에서 엔티티를 조회합니다.
@@ -128,7 +134,7 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
     fun findAll(
         limit: Int? = null,
         offset: Long? = null,
-        sortBy: Expression<*> = entityTable.id,
+        sortBy: Expression<*> = table.id,
         sortOrder: SortOrder = SortOrder.ASC,
         where: () -> Op<Boolean> = { Op.TRUE },
     ): List<E>
@@ -140,14 +146,17 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      * @param batchSize 배치 크기
      * @return 엔티티 리스트
      */
-    fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<E>
+    fun getAll(
+        ids: Collection<ID>,
+        batchSize: Int = DEFAULT_BATCH_SIZE,
+    ): List<E>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
      * @param entity 저장할 엔티티
      */
-    fun put(entity: E) = cache.fastPut(entity.id, entity)
+    fun put(entity: E) = cache.fastPut(extractId(entity), entity)
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.
@@ -155,9 +164,12 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      * @param entities 저장할 엔티티 컬렉션
      * @param batchSize 배치 크기
      */
-    fun putAll(entities: Collection<E>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+    fun putAll(
+        entities: Collection<E>,
+        batchSize: Int = DEFAULT_BATCH_SIZE,
+    ) {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
-        cache.putAll(entities.associateBy { it.id }, batchSize)
+        cache.putAll(entities.associateBy { extractId(it) }, batchSize)
     }
 
     /**
@@ -180,9 +192,12 @@ interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> 
      * @param count 최대 제거 개수
      * @return 제거된 엔티티 수
      */
-    fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
+    fun invalidateByPattern(
+        patterns: String,
+        count: Int = DEFAULT_BATCH_SIZE,
+    ): Long {
         count.requirePositiveNumber("count")
-        
+
         val keys = cache.keySet(patterns, count)
         if (keys.isEmpty()) {
             return 0

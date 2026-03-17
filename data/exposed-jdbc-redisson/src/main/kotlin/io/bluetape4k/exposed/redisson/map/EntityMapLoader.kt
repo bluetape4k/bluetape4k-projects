@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -25,28 +24,29 @@ import org.redisson.api.map.MapLoader
  * @param loadByIdFromDB ID로 엔티티를 로드하는 함수입니다.
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수입니다.
  */
-open class EntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
+open class EntityMapLoader<ID : Comparable<ID>, E : Any>(
     private val loadByIdFromDB: (ID) -> E?,
     private val loadAllIdsFromDB: () -> Collection<ID>,
-): MapLoader<ID, E> {
-
-    companion object: KLogging() {
-        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
+) : MapLoader<ID, E> {
+    companion object : KLogging() {
+        private const val DEFAULT_QUERY_TIMEOUT = 30_000 // 30 seconds
     }
 
     /** 단일 키를 DB에서 로드합니다. */
-    override fun load(id: ID): E? = transaction {
-        log.debug { "DB에서 엔티티를 로드합니다... id=$id" }
-        loadByIdFromDB(id)
-            .apply {
-                log.debug { "DB에서 엔티티를 로드했습니다. id=$id, entity=$this" }
-            }
-    }
+    override fun load(id: ID): E? =
+        transaction {
+            log.debug { "DB에서 엔티티를 로드합니다... id=$id" }
+            loadByIdFromDB(id)
+                .apply {
+                    log.debug { "DB에서 엔티티를 로드했습니다. id=$id, entity=$this" }
+                }
+        }
 
     /** 모든 키를 DB에서 로드합니다. */
-    override fun loadAllKeys(): Iterable<ID>? = transaction {
-        log.debug { "DB에서 모든 id 를 로드합니다..." }
-        queryTimeout = DEFAULT_QUERY_TIMEOUT
-        loadAllIdsFromDB()
-    }
+    override fun loadAllKeys(): Iterable<ID>? =
+        transaction {
+            log.debug { "DB에서 모든 id 를 로드합니다..." }
+            queryTimeout = DEFAULT_QUERY_TIMEOUT
+            loadAllIdsFromDB()
+        }
 }

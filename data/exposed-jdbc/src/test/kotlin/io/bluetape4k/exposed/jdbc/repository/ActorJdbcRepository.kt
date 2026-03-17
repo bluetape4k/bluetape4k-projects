@@ -13,9 +13,8 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class ActorJdbcRepository: LongJdbcRepository<ActorTable, ActorRecord> {
-
-    companion object: KLogging()
+class ActorJdbcRepository : LongJdbcRepository<ActorRecord> {
+    companion object : KLogging()
 
     override val table = ActorTable
 
@@ -26,10 +25,23 @@ class ActorJdbcRepository: LongJdbcRepository<ActorTable, ActorRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name        -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
-                ActorTable::firstName.name -> value?.run { query.andWhere { ActorTable.firstName eq value } }
-                ActorTable::lastName.name  -> value?.run { query.andWhere { ActorTable.lastName eq value } }
-                ActorTable::birthday.name  -> value?.run { query.andWhere { ActorTable.birthday eq LocalDate.parse(value) } }
+                ActorTable::id.name -> {
+                    value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
+                }
+                ActorTable::firstName.name -> {
+                    value?.run { query.andWhere { ActorTable.firstName eq value } }
+                }
+                ActorTable::lastName.name -> {
+                    value?.run { query.andWhere { ActorTable.lastName eq value } }
+                }
+                ActorTable::birthday.name -> {
+                    value?.run {
+                        query.andWhere {
+                            ActorTable.birthday eq
+                                LocalDate.parse(value)
+                        }
+                    }
+                }
             }
         }
 
@@ -39,11 +51,12 @@ class ActorJdbcRepository: LongJdbcRepository<ActorTable, ActorRecord> {
     fun save(actor: ActorRecord): ActorRecord {
         log.debug { "Create new actor. actor: $actor" }
 
-        val id = ActorTable.insertAndGetId {
-            it[firstName] = actor.firstName
-            it[lastName] = actor.lastName
-            it[birthday] = actor.birthday?.let { birthday -> LocalDate.parse(birthday) }
-        }
+        val id =
+            ActorTable.insertAndGetId {
+                it[firstName] = actor.firstName
+                it[lastName] = actor.lastName
+                it[birthday] = actor.birthday?.let { birthday -> LocalDate.parse(birthday) }
+            }
         return actor.copy(id = id.value)
     }
 }

@@ -10,10 +10,6 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
-import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
-import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
-import org.jetbrains.exposed.v1.core.dao.id.UuidTable
-import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
@@ -34,12 +30,11 @@ import kotlin.uuid.Uuid
 /**
  * Exposed JDBC를 사용하는 Repository의 기본 인터페이스입니다.
  *
- * `ID` 타입의 기본키를 가지는 [T] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
+ * `ID` 타입의 기본키를 가지는 [IdTable] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
  * 공통 CRUD 연산을 기본 구현과 함께 제공합니다.
  * 구현체는 [table]과 [ResultRow.toEntity]만 정의하면 됩니다.
  *
  * @param ID 기본키 타입 (예: [Long], [Int], [java.util.UUID])
- * @param T Exposed [IdTable] 구현체 (예: [LongIdTable], [IntIdTable])
  * @param E 조회 결과로 매핑될 엔티티(레코드) 타입
  *
  * ## 사용 예
@@ -60,7 +55,7 @@ import kotlin.uuid.Uuid
  * )
  *
  * // 3. Repository 구현
- * class ActorRepository : LongJdbcRepository<ActorTable, ActorRecord> {
+ * class ActorRepository : LongJdbcRepository<ActorRecord> {
  *     override val table = ActorTable
  *
  *     override fun ResultRow.toEntity() = ActorRecord(
@@ -89,17 +84,17 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface JdbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
+interface JdbcRepository<ID : Comparable<ID>, E : Any> {
     /**
      * Exposed의 IdTable을 반환합니다.
      * @return 엔티티에 해당하는 IdTable
      */
-    val table: T
+    val table: IdTable<ID>
 
     /**
      * ResultRow를 엔티티로 변환합니다.
      * @receiver [ResultRow]
-     * @return 엔티티 [T]
+     * @return 엔티티 [E]
      */
     fun ResultRow.toEntity(): E
 
@@ -592,15 +587,13 @@ interface JdbcRepository<ID : Any, T : IdTable<ID>, E : Any> {
 /**
  * [Int] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [IntIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface IntJdbcRepository<T : IntIdTable, E : Any> : JdbcRepository<Int, T, E>
+interface IntJdbcRepository<E : Any> : JdbcRepository<Int, E>
 
 /**
  * [Long] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [LongIdTable] 구현체
  * @param E 엔티티 타입
  *
  * ## 사용 예
@@ -610,7 +603,7 @@ interface IntJdbcRepository<T : IntIdTable, E : Any> : JdbcRepository<Int, T, E>
  *     val firstName = varchar("first_name", 50)
  * }
  *
- * class ActorRepository : LongJdbcRepository<ActorTable, ActorRecord> {
+ * class ActorRepository : LongJdbcRepository<ActorRecord> {
  *     override val table = ActorTable
  *     override fun ResultRow.toEntity() = ActorRecord(
  *         id        = this[ActorTable.id].value,
@@ -619,29 +612,26 @@ interface IntJdbcRepository<T : IntIdTable, E : Any> : JdbcRepository<Int, T, E>
  * }
  * ```
  */
-interface LongJdbcRepository<T : LongIdTable, E : Any> : JdbcRepository<Long, T, E>
+interface LongJdbcRepository<E : Any> : JdbcRepository<Long, E>
 
 /**
  * Kotlin [Uuid] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [UuidTable] 구현체
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidJdbcRepository<T : UuidTable, E : Any> : JdbcRepository<Uuid, T, E>
+interface UuidJdbcRepository<E : Any> : JdbcRepository<Uuid, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [UUIDTable] 구현체
  * @param E 엔티티 타입
  */
-interface UUIDJdbcRepository<T : UUIDTable, E : Any> : JdbcRepository<UUID, T, E>
+interface UUIDJdbcRepository<E : Any> : JdbcRepository<UUID, E>
 
 /**
  * [String] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
- * @param T [IdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringJdbcRepository<T : IdTable<String>, E : Any> : JdbcRepository<String, T, E>
+interface StringJdbcRepository<E : Any> : JdbcRepository<String, E>

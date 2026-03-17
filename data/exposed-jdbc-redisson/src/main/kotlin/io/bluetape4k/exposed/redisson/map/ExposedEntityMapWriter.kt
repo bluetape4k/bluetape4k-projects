@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.mapToLanguageType
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -41,38 +40,40 @@ import org.redisson.api.map.WriteMode
  * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다. 기본값은 false입니다.
  * @param writeMode 캐시 쓰기 모드 ([WriteMode.WRITE_THROUGH] 또는 [WriteMode.WRITE_BEHIND]). 기본값은 [WriteMode.WRITE_THROUGH]입니다.
  */
-open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
+open class ExposedEntityMapWriter<ID : Comparable<ID>, E : Any>(
     private val entityTable: IdTable<ID>,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
     writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-): EntityMapWriter<ID, E>(
-    writeToDB = { map: Map<ID, E> ->
-        when (writeMode) {
-            WriteMode.WRITE_THROUGH -> {
-                writeThrough(map, entityTable, updateBody, batchInsertBody)
+) : EntityMapWriter<ID, E>(
+        writeToDB = { map: Map<ID, E> ->
+            when (writeMode) {
+                WriteMode.WRITE_THROUGH -> {
+                    writeThrough(map, entityTable, updateBody, batchInsertBody)
+                }
+                WriteMode.WRITE_BEHIND -> {
+                    writeBehind(map, entityTable, batchInsertBody)
+                }
             }
-            WriteMode.WRITE_BEHIND -> {
-                writeBehind(map, entityTable, batchInsertBody)
-            }
-        }
-    },
-    deleteFromDB = { ids ->
-        if (deleteFromDBOnInvalidate) {
-            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
+        },
+        deleteFromDB = { ids ->
+            if (deleteFromDBOnInvalidate) {
+                log.debug {
+                    "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}"
+                }
 
-            // Map Key가 String Codec 인데, UUID로 변환을 못함
-            @Suppress("UNCHECKED_CAST")
-            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
-            entityTable.deleteWhere { entityTable.id inList idsToDelete }
+                // Map Key가 String Codec 인데, UUID로 변환을 못함
+                @Suppress("UNCHECKED_CAST")
+                val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
+                entityTable.deleteWhere { entityTable.id inList idsToDelete }
+            }
         }
-    }
-) {
-    companion object: KLogging() {
+    ) {
+    companion object : KLogging() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
-        private fun <K: Any, V: HasIdentifier<K>> writeThrough(
+        private fun <K : Comparable<K>, V : Any> writeThrough(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             updateBody: IdTable<K>.(UpdateStatement, V) -> Unit,
@@ -80,13 +81,14 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         ) {
             log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
             val existIds =
-                entityTable.select(entityTable.id)
+                entityTable
+                    .select(entityTable.id)
                     .where { entityTable.id inList map.keys }
                     .map { it[entityTable.id].value }
 
-            val entitiesToUpdate = map.values.filter { it.id in existIds }
-            entitiesToUpdate.forEach { entity ->
-                entityTable.update({ entityTable.id eq entity.id }) {
+            val entriesToUpdate = map.entries.filter { it.key in existIds }
+            entriesToUpdate.forEach { (id, entity) ->
+                entityTable.update({ entityTable.id eq id }) {
                     updateBody(it, entity)
                 }
             }
@@ -94,7 +96,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             // Write Behind 시에는 항상 batchInsert 를 수행합니다.
             val canBatchInsert = entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
             if (canBatchInsert) {
-                val entitiesToInsert = map.values.filterNot { it.id in existIds }
+                val entitiesToInsert = map.entries.filterNot { it.key in existIds }.map { it.value }
                 log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
                 entitiesToInsert.chunked(DEFAULT_BATCH_SIZE).forEach { chunk ->
                     entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
@@ -104,7 +106,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
 
-        private fun <K: Any, V: HasIdentifier<K>> writeBehind(
+        private fun <K : Comparable<K>, V : Any> writeBehind(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             batchInsertBody: BatchInsertStatement.(V) -> Unit,
@@ -113,7 +115,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
             val entitiesToInsert = map.values
             entitiesToInsert.chunked(batchSize).forEach { chunk ->
-                log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
+                log.debug { "캐시 변경 사항을 DB에 반영합니다... chunk size=${chunk.size}" }
                 entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
                     batchInsertBody(this, it)
                 }
@@ -129,7 +131,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         if (deleteFromDBOnInvalidate) {
             log.warn {
                 "⚠️ 주의! deleteFromDBOnInvalidate=true로 설정되었습니다. " +
-                        "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
+                    "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
             }
         }
         this.deleteFromDBOnInvalidate = deleteFromDBOnInvalidate

@@ -55,8 +55,7 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface SoftDeletedJdbcRepository<ID: Any, T: SoftDeletedIdTable<ID>, E: Any>: JdbcRepository<ID, T, E> {
-
+interface SoftDeletedJdbcRepository<ID : Comparable<ID>, T : SoftDeletedIdTable<ID>, E : Any> : JdbcRepository<ID, E> {
     override val table: T
 
     /**
@@ -207,7 +206,7 @@ interface SoftDeletedJdbcRepository<ID: Any, T: SoftDeletedIdTable<ID>, E: Any>:
  * @param T [SoftDeletedIdTable]<Long> 구현체
  * @param E 엔티티 타입
  */
-interface LongSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Long>, E: Any>: SoftDeletedJdbcRepository<Long, T, E>
+interface LongSoftDeletedJdbcRepository<T : SoftDeletedIdTable<Long>, E : Any> : SoftDeletedJdbcRepository<Long, T, E>
 
 /**
  * [Int] 기본키를 사용하는 [SoftDeletedJdbcRepository]의 편의 타입 별칭입니다.
@@ -215,7 +214,7 @@ interface LongSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Long>, E: Any>: So
  * @param T [SoftDeletedIdTable]<Int> 구현체
  * @param E 엔티티 타입
  */
-interface IntSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Int>, E: Any>: SoftDeletedJdbcRepository<Int, T, E>
+interface IntSoftDeletedJdbcRepository<T : SoftDeletedIdTable<Int>, E : Any> : SoftDeletedJdbcRepository<Int, T, E>
 
 /**
  * Kotlin [kotlin.uuid.Uuid] 기본키를 사용하는 [SoftDeletedJdbcRepository]의 편의 타입 별칭입니다.
@@ -224,7 +223,7 @@ interface IntSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Int>, E: Any>: Soft
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Uuid>, E: Any>: SoftDeletedJdbcRepository<Uuid, T, E>
+interface UuidSoftDeletedJdbcRepository<T : SoftDeletedIdTable<Uuid>, E : Any> : SoftDeletedJdbcRepository<Uuid, T, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [SoftDeletedJdbcRepository]의 편의 타입 별칭입니다.
@@ -232,7 +231,7 @@ interface UuidSoftDeletedJdbcRepository<T: SoftDeletedIdTable<Uuid>, E: Any>: So
  * @param T [SoftDeletedIdTable]<UUID> 구현체
  * @param E 엔티티 타입
  */
-interface UUIDSoftDeletedJdbcRepository<T: SoftDeletedIdTable<UUID>, E: Any>: SoftDeletedJdbcRepository<UUID, T, E>
+interface UUIDSoftDeletedJdbcRepository<T : SoftDeletedIdTable<UUID>, E : Any> : SoftDeletedJdbcRepository<UUID, T, E>
 
 /**
  * [String] 기본키를 사용하는 [SoftDeletedJdbcRepository]의 편의 타입 별칭입니다.
@@ -240,5 +239,5 @@ interface UUIDSoftDeletedJdbcRepository<T: SoftDeletedIdTable<UUID>, E: Any>: So
  * @param T [SoftDeletedIdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringSoftDeletedJdbcRepository<T: SoftDeletedIdTable<String>, E: Any>:
+interface StringSoftDeletedJdbcRepository<T : SoftDeletedIdTable<String>, E : Any> :
     SoftDeletedJdbcRepository<String, T, E>

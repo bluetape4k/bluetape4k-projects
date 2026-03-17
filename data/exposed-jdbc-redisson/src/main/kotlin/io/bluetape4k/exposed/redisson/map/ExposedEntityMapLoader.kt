@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -35,7 +34,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * @param batchSize 배치 사이즈
  * @param toEntity ResultRow를 엔티티로 변환하는 함수
  */
-open class ExposedEntityMapLoader<ID : Any, E : HasIdentifier<ID>>(
+open class ExposedEntityMapLoader<ID : Comparable<ID>, E : Any>(
     private val entityTable: IdTable<ID>,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,

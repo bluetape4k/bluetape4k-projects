@@ -1,22 +1,20 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.SuspendedJdbcRedissonRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface SuspendedCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
-
-    companion object: KLoggingChannel() {
+interface SuspendedCacheTestScenario<ID : Comparable<ID>, E : Any> {
+    companion object : KLoggingChannel() {
         @JvmStatic
         fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()
+
         const val ENABLE_DIALECTS_METHOD = "enableDialects"
 
         val DefaultCacheDispatcher = Dispatchers.IO
@@ -30,7 +28,7 @@ interface SuspendedCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<I
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: SuspendedJdbcRedissonRepository<ID, T, E>
+    val repository: SuspendedJdbcRedissonRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

@@ -14,25 +14,27 @@ class R2dbcUserRedissonRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:r2dbc:users",
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
-): AbstractR2dbcRedissonRepository<Long, UserSchema.UserTable, UserSchema.UserRecord>(
-    redissonClient,
-    cacheName,
-    config
-) {
+) : AbstractR2dbcRedissonRepository<Long, UserSchema.UserRecord>(
+        redissonClient,
+        cacheName,
+        config
+    ) {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
+    override val table: UserSchema.UserTable = UserSchema.UserTable
 
-    override val entityTable: UserSchema.UserTable = UserSchema.UserTable
     override suspend fun ResultRow.toEntity(): UserSchema.UserRecord = toUserRecord()
+
+    override fun extractId(entity: UserSchema.UserRecord): Long = entity.id
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
         entity: UserSchema.UserRecord,
     ) {
-        statement[entityTable.firstName] = entity.firstName
-        statement[entityTable.lastName] = entity.lastName
-        statement[entityTable.email] = entity.email
-        statement[entityTable.updatedAt] = Instant.now()
+        statement[table.firstName] = entity.firstName
+        statement[table.lastName] = entity.lastName
+        statement[table.email] = entity.email
+        statement[table.updatedAt] = Instant.now()
     }
 
     override fun doInsertEntity(
@@ -40,9 +42,9 @@ class R2dbcUserRedissonRepository(
         entity: UserSchema.UserRecord,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        statement[entityTable.id] = entity.id
-        statement[entityTable.firstName] = entity.firstName
-        statement[entityTable.lastName] = entity.lastName
-        statement[entityTable.email] = entity.email
+        statement[table.id] = entity.id
+        statement[table.firstName] = entity.firstName
+        statement[table.lastName] = entity.lastName
+        statement[table.email] = entity.email
     }
 }

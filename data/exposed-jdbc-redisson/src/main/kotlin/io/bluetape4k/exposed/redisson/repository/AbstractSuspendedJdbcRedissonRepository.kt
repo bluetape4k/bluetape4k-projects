@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
@@ -38,7 +37,7 @@ import java.time.Duration
  * Exposed JDBC와 Redisson을 결합한 코루틴 기반 비동기 캐시 Repository의 추상 기반 클래스입니다.
  *
  * ## 사용 방법
- * 이 클래스를 상속하고 [entityTable], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
+ * 이 클래스를 상속하고 [table], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
  * Read-Only 모드에서는 [doUpdateEntity]/[doInsertEntity] 구현이 불필요합니다.
  *
  * ## 동작/계약
@@ -53,7 +52,7 @@ import java.time.Duration
  *     cacheName: String,
  *     config: RedisCacheConfig,
  * ): AbstractSuspendedJdbcRedissonRepository<Long, UserTable, UserRecord>(redissonClient, cacheName, config) {
- *     override val entityTable = UserTable
+ *     override val table = UserTable
  *     override fun ResultRow.toEntity() = toUserRecord()
  *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
  *         statement[UserTable.email] = entity.email
@@ -69,26 +68,28 @@ import java.time.Duration
  * @param config 캐시 설정 ([RedissonCacheConfig])
  * @param scope DB 조회 및 캐시 비동기 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
-abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
+abstract class AbstractSuspendedJdbcRedissonRepository<ID : Comparable<ID>, E : Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-): SuspendedJdbcRedissonRepository<ID, T, E> {
-
-    companion object: KLoggingChannel()
+) : SuspendedJdbcRedissonRepository<ID, E> {
+    companion object : KLoggingChannel()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
      */
     protected open val suspendedMapLoader: SuspendedEntityMapLoader<ID, E> by lazy {
-        SuspendedExposedEntityMapLoader(entityTable, scope) { toEntity() }
+        SuspendedExposedEntityMapLoader(table, scope) { toEntity() }
     }
 
     /**
      * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doUpdateEntity(statement: UpdateStatement, entity: E) {
+    protected open fun doUpdateEntity(
+        statement: UpdateStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
@@ -97,7 +98,10 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
     /**
      * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: E) {
+    protected open fun doInsertEntity(
+        statement: BatchInsertStatement,
+        entity: E,
+    ) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -109,15 +113,19 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
      */
     protected val suspendedMapWriter: SuspendedEntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY  -> null
-            RedissonCacheConfig.CacheMode.READ_WRITE -> SuspendedExposedEntityMapWriter(
-                scope = scope,
-                entityTable = entityTable,
-                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                batchInsertBody = { entity -> doInsertEntity(this, entity) },
-                deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
-                writeMode = config.writeMode,  // Write Through 모드
-            )
+            RedissonCacheConfig.CacheMode.READ_ONLY -> {
+                null
+            }
+            RedissonCacheConfig.CacheMode.READ_WRITE -> {
+                SuspendedExposedEntityMapWriter(
+                    scope = scope,
+                    entityTable = table,
+                    updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
+                    batchInsertBody = { entity -> doInsertEntity(this, entity) },
+                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                    writeMode = config.writeMode // Write Through 모드
+                )
+            }
         }
     }
 
@@ -201,17 +209,17 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
     ): List<E> {
         @Suppress("DEPRECATION")
         return suspendedTransactionAsync(scope.coroutineContext) {
-            entityTable.selectAll()
+            table
+                .selectAll()
                 .where(where)
                 .apply {
                     orderBy(sortBy, sortOrder)
                     limit?.run { limit(limit) }
                     offset?.run { offset(offset) }
-                }
-                .map { it.toEntity() }
+                }.map { it.toEntity() }
         }.await().also { entities ->
             if (entities.isNotEmpty()) {
-                cache.putAllAsync(entities.associateBy { it.id }).await()
+                cache.putAllAsync(entities.associateBy { extractId(it) }).await()
             }
         }
     }
@@ -223,14 +231,21 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, 
      * @param batchSize 한 번에 조회할 배치 크기
      * @return 조회된 엔티티 목록
      */
-    override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
+    override suspend fun getAll(
+        ids: Collection<ID>,
+        batchSize: Int,
+    ): List<E> {
         batchSize.requirePositiveNumber("batchSize")
         if (ids.isEmpty()) {
             return emptyList()
         }
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-            cache.getAllAsync(chunk.toSet()).await().values.filterNotNull()
+            cache
+                .getAllAsync(chunk.toSet())
+                .await()
+                .values
+                .filterNotNull()
         }
     }
 }

@@ -31,9 +31,8 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
-
-    companion object: KLoggingChannel() {
+class MovieR2dbcRepository : LongR2dbcRepository<MovieRecord> {
+    companion object : KLoggingChannel() {
         private val MovieActorJoin: Join by lazy {
             MovieTable
                 .innerJoin(ActorInMovieTable)
@@ -60,11 +59,12 @@ class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
     suspend fun save(movieRecord: MovieRecord): MovieRecord {
         log.debug { "Create new movie. movie: $movieRecord" }
 
-        val id = MovieTable.insertAndGetId {
-            it[name] = movieRecord.name
-            it[producerName] = movieRecord.producerName
-            it[releaseDate] = LocalDate.parse(movieRecord.releaseDate)
-        }
+        val id =
+            MovieTable.insertAndGetId {
+                it[name] = movieRecord.name
+                it[producerName] = movieRecord.producerName
+                it[releaseDate] = LocalDate.parse(movieRecord.releaseDate)
+            }
         return movieRecord.copy(id = id.value)
     }
 
@@ -75,14 +75,21 @@ class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                LongIdTable::id.name          -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
-
-                MovieTable::name.name         -> value?.run { query.andWhere { MovieTable.name eq value } }
-                MovieTable::producerName.name -> value?.run {
-                    query.andWhere { MovieTable.producerName eq value }
+                LongIdTable::id.name -> {
+                    value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
                 }
-                MovieTable::releaseDate.name  -> value?.run {
-                    query.andWhere { MovieTable.releaseDate eq LocalDate.parse(value) }
+                MovieTable::name.name -> {
+                    value?.run { query.andWhere { MovieTable.name eq value } }
+                }
+                MovieTable::producerName.name -> {
+                    value?.run {
+                        query.andWhere { MovieTable.producerName eq value }
+                    }
+                }
+                MovieTable::releaseDate.name -> {
+                    value?.run {
+                        query.andWhere { MovieTable.releaseDate eq LocalDate.parse(value) }
+                    }
                 }
             }
         }
@@ -118,14 +125,12 @@ class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
                 ActorTable.firstName,
                 ActorTable.lastName,
                 ActorTable.birthday
-            )
-            .map { row ->
+            ).map { row ->
                 val movie = row.toMovieRecord()
                 val actor = row.toActorRecord()
 
                 movie to actor
-            }
-            .bufferUntilChanged { it.first.id }
+            }.bufferUntilChanged { it.first.id }
             .mapNotNull { pairs ->
                 val movie = pairs.first().first
                 val actors = pairs.map { it.second }
@@ -165,23 +170,19 @@ class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
                 ActorTable.firstName,
                 ActorTable.lastName,
                 ActorTable.birthday
-            )
-            .where { MovieTable.id eq movieId }
+            ).where { MovieTable.id eq movieId }
             .map { row ->
                 val movie = row.toMovieRecord()
                 val actor = row.toActorRecord()
 
                 movie to actor
-            }
-            .bufferUntilChanged { it.first.id }
+            }.bufferUntilChanged { it.first.id }
             .mapNotNull { pairs ->
                 val movie = pairs.first().first
                 val actors = pairs.map { it.second }
                 movie.toMovieWithActorRecord(actors)
-            }
-            .firstOrNull()
+            }.firstOrNull()
     }
-
 
     /**
      * ```sql
@@ -231,8 +232,7 @@ class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
                 MovieTable.name,
                 ActorTable.firstName,
                 ActorTable.lastName
-            )
-            .map {
+            ).map {
                 it.toMovieWithProducingActorRecord()
             }
     }

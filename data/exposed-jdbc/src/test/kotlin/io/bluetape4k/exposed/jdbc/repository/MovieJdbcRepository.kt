@@ -25,9 +25,8 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
-
-    companion object: KLogging()
+class MovieJdbcRepository : LongJdbcRepository<MovieRecord> {
+    companion object : KLogging()
 
     override val table = MovieTable
 
@@ -40,14 +39,21 @@ class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                MovieTable::id.name           -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
-
-                MovieTable::name.name         -> value?.run { query.andWhere { MovieTable.name eq value } }
-                MovieTable::producerName.name -> value?.run {
-                    query.andWhere { MovieTable.producerName eq value }
+                MovieTable::id.name -> {
+                    value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
                 }
-                MovieTable::releaseDate.name  -> value?.run {
-                    query.andWhere { MovieTable.releaseDate eq LocalDate.parse(value) }
+                MovieTable::name.name -> {
+                    value?.run { query.andWhere { MovieTable.name eq value } }
+                }
+                MovieTable::producerName.name -> {
+                    value?.run {
+                        query.andWhere { MovieTable.producerName eq value }
+                    }
+                }
+                MovieTable::releaseDate.name -> {
+                    value?.run {
+                        query.andWhere { MovieTable.releaseDate eq LocalDate.parse(value) }
+                    }
                 }
             }
         }
@@ -58,11 +64,12 @@ class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
     fun save(movieRecord: MovieRecord): MovieRecord {
         log.debug { "Create new movie. movie: $movieRecord" }
 
-        val id = MovieTable.insertAndGetId {
-            it[this.name] = movieRecord.name
-            it[this.producerName] = movieRecord.producerName
-            it[this.releaseDate] = LocalDate.parse(movieRecord.releaseDate)
-        }
+        val id =
+            MovieTable.insertAndGetId {
+                it[this.name] = movieRecord.name
+                it[this.producerName] = movieRecord.producerName
+                it[this.releaseDate] = LocalDate.parse(movieRecord.releaseDate)
+            }
         return movieRecord.copy(id = id.value)
     }
 
@@ -98,17 +105,17 @@ class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
                 ActorTable.firstName,
                 ActorTable.lastName,
                 ActorTable.birthday
-            )
-            .forEach { row ->
+            ).forEach { row ->
                 val movieId = row[MovieTable.id].value
-                val movie = movies.computeIfAbsent(movieId) {
-                    MovieWithActorRecord(
-                        id = row[MovieTable.id].value,
-                        name = row[MovieTable.name],
-                        producerName = row[MovieTable.producerName],
-                        releaseDate = row[MovieTable.releaseDate].toString(),
-                    )
-                }
+                val movie =
+                    movies.computeIfAbsent(movieId) {
+                        MovieWithActorRecord(
+                            id = row[MovieTable.id].value,
+                            name = row[MovieTable.name],
+                            producerName = row[MovieTable.producerName],
+                            releaseDate = row[MovieTable.releaseDate].toString()
+                        )
+                    }
                 movie.actors.add(row.toActorRecord())
             }
 
@@ -137,11 +144,11 @@ class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
     fun getMovieWithActors(movieId: Long): MovieWithActorRecord? {
         log.debug { "Get Movie with actors. movieId=$movieId" }
 
-        return MovieEntity.findById(movieId)
+        return MovieEntity
+            .findById(movieId)
             ?.load(MovieEntity::actors)
             ?.toMovieWithActorRecord()
     }
-
 
     /**
      * ```sql
@@ -186,17 +193,17 @@ class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
     fun findMoviesWithActingProducers(): List<MovieWithProducingActorRecord> {
         log.debug { "Find movies with acting producers." }
 
-        val query = MovieTable
-            .innerJoin(ActorInMovieTable)
-            .innerJoin(ActorTable)
-            .select(
-                MovieTable.name,
-                ActorTable.firstName,
-                ActorTable.lastName
-            )
-            .where {
-                MovieTable.producerName eq ActorTable.firstName
-            }
+        val query =
+            MovieTable
+                .innerJoin(ActorInMovieTable)
+                .innerJoin(ActorTable)
+                .select(
+                    MovieTable.name,
+                    ActorTable.firstName,
+                    ActorTable.lastName
+                ).where {
+                    MovieTable.producerName eq ActorTable.firstName
+                }
 
         return query.map { it.toMovieWithProducingActorRecord() }
     }

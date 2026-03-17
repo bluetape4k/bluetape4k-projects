@@ -23,36 +23,40 @@ import kotlin.coroutines.CoroutineContext
 
 @Suppress("DEPRECATION")
 class SuspendedWriteBehindCacheTest {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
-
-    abstract class SuspendedAutoIncIdReadWriteBehind: AbstractRedissonTest(),
-                                                      SuspendedWriteBehindScenario<Long, UserTable, UserRecord> {
+    abstract class SuspendedAutoIncIdReadWriteBehind :
+        AbstractRedissonTest(),
+        SuspendedWriteBehindScenario<Long, UserRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend JdbcTransaction.() -> Unit,
         ) = withSuspendedUserTable(testDB, context, statement)
 
-        override suspend fun getExistingId() = newSuspendedTransaction {
-            UserTable
-                .select(UserTable.id)
-                .limit(1)
-                .first()[UserTable.id].value
-        }
+        override suspend fun getExistingId() =
+            newSuspendedTransaction {
+                UserTable
+                    .select(UserTable.id)
+                    .limit(1)
+                    .first()[UserTable.id]
+                    .value
+            }
 
-        override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserTable
-                .select(UserTable.id)
-                .map { it[UserTable.id].value }
-        }
+        override suspend fun getExistingIds() =
+            newSuspendedTransaction {
+                UserTable
+                    .select(UserTable.id)
+                    .map { it[UserTable.id].value }
+            }
 
         override suspend fun getNonExistentId() = Long.MIN_VALUE
+
         override suspend fun createNewEntity() = UserSchema.newUserRecord()
     }
 
     @Nested
-    inner class SuspendedAutoIncIdReadWriteBehindRemoteCache: SuspendedAutoIncIdReadWriteBehind() {
+    inner class SuspendedAutoIncIdReadWriteBehindRemoteCache : SuspendedAutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
@@ -65,7 +69,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class SuspendedAutoIncIdReadWriteBehindNearCache: SuspendedAutoIncIdReadWriteBehind() {
+    inner class SuspendedAutoIncIdReadWriteBehindNearCache : SuspendedAutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -77,25 +81,29 @@ class SuspendedWriteBehindCacheTest {
         }
     }
 
-    abstract class SuspendedClientGeneratedIdReadWriteBehind: AbstractRedissonTest(),
-                                                              SuspendedWriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
+    abstract class SuspendedClientGeneratedIdReadWriteBehind :
+        AbstractRedissonTest(),
+        SuspendedWriteBehindScenario<UUID, UserCredentialsRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend JdbcTransaction.() -> Unit,
         ) = withSuspendedUserCredentialsTable(testDB, context, statement)
 
-        override suspend fun getExistingId() = newSuspendedTransaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .first()[UserCredentialsTable.id].value
-        }
+        override suspend fun getExistingId() =
+            newSuspendedTransaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .first()[UserCredentialsTable.id]
+                    .value
+            }
 
-        override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .map { it[UserCredentialsTable.id].value }
-        }
+        override suspend fun getExistingIds() =
+            newSuspendedTransaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .map { it[UserCredentialsTable.id].value }
+            }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
@@ -103,29 +111,27 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class SuspendedClientGeneratedIdReadBehindRemoteCache: SuspendedClientGeneratedIdReadWriteBehind() {
-
+    inner class SuspendedClientGeneratedIdReadBehindRemoteCache : SuspendedClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:write-behind:remote:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
     @Nested
-    inner class SuspendedClientGeneratedIdReadBehindNearCache: SuspendedClientGeneratedIdReadWriteBehind() {
-
+    inner class SuspendedClientGeneratedIdReadBehindNearCache : SuspendedClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:write-behind:near:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }

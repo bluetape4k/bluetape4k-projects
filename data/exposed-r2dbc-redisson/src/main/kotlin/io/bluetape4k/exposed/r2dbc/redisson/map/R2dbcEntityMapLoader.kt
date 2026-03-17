@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -40,47 +39,49 @@ import java.util.concurrent.CompletionStage
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  * @param scope CoroutineScope
  */
-open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
+open class R2dbcEntityMapLoader<ID : Comparable<ID>, E : Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
-): MapLoaderAsync<ID, E> {
-
-    companion object: KLoggingChannel() {
-        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
-        private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L  // 60 seconds
+) : MapLoaderAsync<ID, E> {
+    companion object : KLoggingChannel() {
+        private const val DEFAULT_QUERY_TIMEOUT = 30_000 // 30 seconds
+        private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L // 60 seconds
 
         protected val defaultMapLoaderCoroutineScope =
             CoroutineScope(Dispatchers.IO + CoroutineName("R2dbc-Loader"))
     }
 
-    override fun load(id: ID): CompletionStage<E?> = scope.async {
-        log.debug { "DB에서 엔티티를 로딩... id=$id" }
-        suspendTransaction {
-            try {
-                loadByIdFromDB(id)
-                    .apply {
-                        log.debug { "DB로부터 엔티티를 로딩했습니다. id=$id, entity=$this" }
+    override fun load(id: ID): CompletionStage<E?> =
+        scope
+            .async {
+                log.debug { "DB에서 엔티티를 로딩... id=$id" }
+                suspendTransaction {
+                    try {
+                        loadByIdFromDB(id)
+                            .apply {
+                                log.debug { "DB로부터 엔티티를 로딩했습니다. id=$id, entity=$this" }
+                            }
+                    } catch (e: Throwable) {
+                        log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
+                        throw e
                     }
-            } catch (e: Throwable) {
-                log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
-                throw e
-            }
-        }
-    }.asCompletableFuture()
+                }
+            }.asCompletableFuture()
 
     override fun loadAllKeys(): AsyncIterator<ID> {
-        val channel = Channel<ID>(Channel.RENDEZVOUS).also {
-            it.invokeOnClose { cause ->
-                log.debug { "Channel closed. cause=$cause" }
+        val channel =
+            Channel<ID>(Channel.RENDEZVOUS).also {
+                it.invokeOnClose { cause ->
+                    log.debug { "Channel closed. cause=$cause" }
+                }
             }
-        }
 
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
             try {
                 suspendTransaction {
-                    this.queryTimeout = DEFAULT_QUERY_TIMEOUT  // 30 seconds
+                    this.queryTimeout = DEFAULT_QUERY_TIMEOUT // 30 seconds
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
@@ -93,16 +94,15 @@ open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             }
         }
 
-        return object: AsyncIterator<ID> {
+        return object : AsyncIterator<ID> {
             private var pendingReceive: CompletableFuture<ChannelResult<ID>>? = null
 
-            private fun ensurePending(): CompletableFuture<ChannelResult<ID>> {
-                return pendingReceive ?: scope.async {
-                    channel.receiveCatching()
-                }
-                    .asCompletableFuture()
+            private fun ensurePending(): CompletableFuture<ChannelResult<ID>> =
+                pendingReceive ?: scope
+                    .async {
+                        channel.receiveCatching()
+                    }.asCompletableFuture()
                     .also { pendingReceive = it }
-            }
 
             override fun hasNext(): CompletionStage<Boolean?> =
                 ensurePending()

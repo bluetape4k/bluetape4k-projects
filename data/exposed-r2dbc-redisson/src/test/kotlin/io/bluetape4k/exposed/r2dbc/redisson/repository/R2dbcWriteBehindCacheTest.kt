@@ -26,37 +26,41 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class R2dbcWriteBehindCacheTest {
+    companion object : KLoggingChannel()
 
-    companion object: KLoggingChannel()
-
-    abstract class R2dbcAutoIncIdReadWriteBehind: AbstractR2dbcRedissonTest(),
-                                                  R2dbcWriteBehindScenario<Long, UserTable, UserRecord> {
+    abstract class R2dbcAutoIncIdReadWriteBehind :
+        AbstractR2dbcRedissonTest(),
+        R2dbcWriteBehindScenario<Long, UserRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend R2dbcTransaction.() -> Unit,
         ) = withUserTable(testDB, context, statement)
 
-        override suspend fun getExistingId() = suspendTransaction {
-            UserTable
-                .select(UserTable.id)
-                .limit(1)
-                .first()[UserTable.id].value
-        }
+        override suspend fun getExistingId() =
+            suspendTransaction {
+                UserTable
+                    .select(UserTable.id)
+                    .limit(1)
+                    .first()[UserTable.id]
+                    .value
+            }
 
-        override suspend fun getExistingIds() = suspendTransaction {
-            UserTable
-                .selectAll()
-                .map { it[UserTable.id].value }
-                .toList()
-        }
+        override suspend fun getExistingIds() =
+            suspendTransaction {
+                UserTable
+                    .selectAll()
+                    .map { it[UserTable.id].value }
+                    .toList()
+            }
 
         override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
+
         override suspend fun createNewEntity(): UserRecord = UserSchema.newUserRecord()
     }
 
     @Nested
-    inner class R2dbcAutoIncIdReadWriteBehindRemoteCache: R2dbcAutoIncIdReadWriteBehind() {
+    inner class R2dbcAutoIncIdReadWriteBehindRemoteCache : R2dbcAutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
@@ -69,7 +73,7 @@ class R2dbcWriteBehindCacheTest {
     }
 
     @Nested
-    inner class R2dbcAutoIncIdReadWriteBehindNearCache: R2dbcAutoIncIdReadWriteBehind() {
+    inner class R2dbcAutoIncIdReadWriteBehindNearCache : R2dbcAutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -81,26 +85,30 @@ class R2dbcWriteBehindCacheTest {
         }
     }
 
-    abstract class R2dbcClientGeneratedIdReadWriteBehind: AbstractR2dbcRedissonTest(),
-                                                          R2dbcWriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
+    abstract class R2dbcClientGeneratedIdReadWriteBehind :
+        AbstractR2dbcRedissonTest(),
+        R2dbcWriteBehindScenario<UUID, UserCredentialsRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend R2dbcTransaction.() -> Unit,
         ) = withUserCredentialsTable(testDB, context, statement)
 
-        override suspend fun getExistingId() = suspendTransaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .first()[UserCredentialsTable.id].value
-        }
+        override suspend fun getExistingId() =
+            suspendTransaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .first()[UserCredentialsTable.id]
+                    .value
+            }
 
-        override suspend fun getExistingIds() = suspendTransaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .map { it[UserCredentialsTable.id].value }
-                .toList()
-        }
+        override suspend fun getExistingIds() =
+            suspendTransaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .map { it[UserCredentialsTable.id].value }
+                    .toList()
+            }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
@@ -108,29 +116,27 @@ class R2dbcWriteBehindCacheTest {
     }
 
     @Nested
-    inner class R2dbcClientGeneratedIdReadBehindRemoteCache: R2dbcClientGeneratedIdReadWriteBehind() {
-
+    inner class R2dbcClientGeneratedIdReadBehindRemoteCache : R2dbcClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:remote:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
     @Nested
-    inner class R2dbcClientGeneratedIdReadBehindNearCache: R2dbcClientGeneratedIdReadWriteBehind() {
-
+    inner class R2dbcClientGeneratedIdReadBehindNearCache : R2dbcClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:near:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }

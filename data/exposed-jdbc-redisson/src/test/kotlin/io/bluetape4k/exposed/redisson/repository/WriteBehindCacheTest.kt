@@ -21,35 +21,39 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class WriteBehindCacheTest {
+    companion object : KLogging()
 
-    companion object: KLogging()
-
-    abstract class AutoIncIdReadWriteBehind: AbstractRedissonTest(),
-                                             WriteBehindScenario<Long, UserTable, UserRecord> {
+    abstract class AutoIncIdReadWriteBehind :
+        AbstractRedissonTest(),
+        WriteBehindScenario<Long, UserRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
         ) = withUserTable(testDB, statement)
 
-        override fun getExistingId() = transaction {
-            UserTable
-                .select(UserTable.id)
-                .limit(1)
-                .first()[UserTable.id].value
-        }
+        override fun getExistingId() =
+            transaction {
+                UserTable
+                    .select(UserTable.id)
+                    .limit(1)
+                    .first()[UserTable.id]
+                    .value
+            }
 
-        override fun getExistingIds() = transaction {
-            UserTable
-                .select(UserTable.id)
-                .map { it[UserTable.id].value }
-        }
+        override fun getExistingIds() =
+            transaction {
+                UserTable
+                    .select(UserTable.id)
+                    .map { it[UserTable.id].value }
+            }
 
         override fun getNonExistentId() = Long.MIN_VALUE
+
         override fun createNewEntity() = UserSchema.newUserRecord()
     }
 
     @Nested
-    inner class AutoIncIdReadWriteBehindRemoteCache: AutoIncIdReadWriteBehind() {
+    inner class AutoIncIdReadWriteBehindRemoteCache : AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
@@ -62,7 +66,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteBehindNearCache: AutoIncIdReadWriteBehind() {
+    inner class AutoIncIdReadWriteBehindNearCache : AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -74,25 +78,29 @@ class WriteBehindCacheTest {
         }
     }
 
-    abstract class ClientGeneratedIdReadWriteBehind: AbstractRedissonTest(),
-                                                     WriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
+    abstract class ClientGeneratedIdReadWriteBehind :
+        AbstractRedissonTest(),
+        WriteBehindScenario<UUID, UserCredentialsRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
         ) = withUserCredentialsTable(testDB, statement)
 
-        override fun getExistingId() = transaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .limit(1)
-                .first()[UserCredentialsTable.id].value
-        }
+        override fun getExistingId() =
+            transaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .limit(1)
+                    .first()[UserCredentialsTable.id]
+                    .value
+            }
 
-        override fun getExistingIds() = transaction {
-            UserCredentialsTable
-                .select(UserCredentialsTable.id)
-                .map { it[UserCredentialsTable.id].value }
-        }
+        override fun getExistingIds() =
+            transaction {
+                UserCredentialsTable
+                    .select(UserCredentialsTable.id)
+                    .map { it[UserCredentialsTable.id].value }
+            }
 
         override fun getNonExistentId(): UUID = UUID.randomUUID()
 
@@ -100,29 +108,27 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadBehindRemoteCache: ClientGeneratedIdReadWriteBehind() {
-
+    inner class ClientGeneratedIdReadBehindRemoteCache : ClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "write-behind:remote:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }
 
     @Nested
-    inner class ClientGeneratedIdReadBehindNearCache: ClientGeneratedIdReadWriteBehind() {
-
+    inner class ClientGeneratedIdReadBehindNearCache : ClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "write-behind:near:user-credentials",
-                config = cacheConfig,
+                config = cacheConfig
             )
         }
     }

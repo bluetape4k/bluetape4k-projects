@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
@@ -10,21 +9,22 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.autoIncColumnType
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-interface WriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: CacheTestScenario<ID, T, E> {
-
-    companion object: KLogging()
+interface WriteThroughScenario<ID : Comparable<ID>, E : Any> : CacheTestScenario<ID, E> {
+    companion object : KLogging()
 
     fun createNewEntity(): E
 
     fun updateEntityEmail(entity: E): E
 
-    fun assertSameEntityWithoutUpdatedAt(entity1: E, entity2: E)
+    fun assertSameEntityWithoutUpdatedAt(
+        entity1: E,
+        entity2: E,
+    )
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
@@ -78,7 +78,13 @@ interface WriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: C
             val entitiesFromCache = repository.getAll(ids)
             entitiesFromCache.shouldNotBeNull()
             entitiesFromCache.forEach { entity ->
-                assertSameEntityWithoutUpdatedAt(entity, updatedEntities.find { it.id == entity.id }!!)
+                assertSameEntityWithoutUpdatedAt(
+                    entity,
+                    updatedEntities.find {
+                        repository.extractId(it) ==
+                            repository.extractId(entity)
+                    }!!
+                )
             }
 
             // DB에서 조회한 값
@@ -86,7 +92,12 @@ interface WriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: C
             entitiesFromDB.shouldNotBeEmpty() shouldHaveSize ids.size
 
             entitiesFromDB.forEach { entity ->
-                assertSameEntityWithoutUpdatedAt(entity, entitiesFromCache.find { it.id == entity.id }!!)
+                assertSameEntityWithoutUpdatedAt(
+                    entity,
+                    entitiesFromCache.find {
+                        repository.extractId(it) == repository.extractId(entity)
+                    }!!
+                )
             }
         }
     }
@@ -98,14 +109,14 @@ interface WriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: C
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
         withEntityTable(testDB) {
-            val prevCount = repository.entityTable.selectAll().count()
+            val prevCount = repository.table.selectAll().count()
             val newEntities = List(5) { createNewEntity() }
             repository.putAll(newEntities)
 
-            val newCount = repository.entityTable.selectAll().count()
+            val newCount = repository.table.selectAll().count()
 
             // id가 DB에서 자동증가하지 않는 경우에만 batchInsert 를 수행합니다.
-            if (repository.entityTable.id.autoIncColumnType == null) {
+            if (repository.table.id.autoIncColumnType == null) {
                 newCount shouldBeEqualTo prevCount + newEntities.size
             } else {
                 newCount shouldBeEqualTo prevCount
