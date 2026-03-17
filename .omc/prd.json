@@ -1,0 +1,20 @@
+{
+  "title": "cache-ignite2 ARM64 테스트 안정성 근본 해결",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "IgniteAsyncMemoizer에 타임아웃 보호된 캐시 연산 적용",
+      "passes": true
+    },
+    {
+      "id": "US-002",
+      "title": "IgniteServers 테스트 인프라 최적화",
+      "passes": true
+    },
+    {
+      "id": "US-003",
+      "title": "전체 cache-ignite2 테스트 스위트 통과 확인",
+      "passes": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# cache-ignite2 ARM64 테스트 안정성 수정 진행
+
+## 근본 원인
+- Ignite 2.x thin client `ClientCache.get(key)`가 ARM64에서 간헐적으로 무한 hang
+- ForkJoinPool.commonPool() 스레드 고갈 + NIO 이슈
+- VirtualThreadPerTaskExecutor로 변경해도 cache.get() 자체가 hang되면 스레드는 풀려도 Future는 미완료
+
+## 이전 시도 (실패)
+1. ForkJoinPool → VirtualThread: hang 자체는 해결 안됨
+2. orTimeout(30s): 정상 동작하는 테스트도 timeout으로 실패 유발
+3. try-catch wrapper: cache.get()이 예외를 던지지 않고 hang → catch 무효
+
+## 해결 방향
+- cache.get()을 별도 CompletableFuture로 감싸고 .get(timeout)으로 바운딩
+- timeout 시 null(cache miss)로 처리하여 evaluator 실행
+- cache.putIfAbsent()도 동일하게 timeout 보호
+
+## 변경 파일
+- IgniteAsyncMemoizer.kt: cacheGetSafe/cachePutSafe 도입
+- IgniteServers.kt: KNOWN_CACHES 일괄 생성
+- IgniteAsyncMemoizerTest.kt: 랜덤→named 캐시
+- IgniteMemoizerTest.kt: 랜덤→named 캐시
+- IgniteSuspendMemoizerTest.kt: 랜덤→named 캐시

@@ -1,0 +1,378 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1773674543210,
+  "projectRoot": "/Users/debop/work/bluetape4k/bluetape4k-projects",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Kotlin",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "build.gradle.kts"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "bin",
+      "docs",
+      "examples"
+    ],
+    "gitBranches": {
+      "defaultBranch": "develop",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "aws": {
+      "path": "aws",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543202,
+      "keyFiles": []
+    },
+    "aws-kotlin": {
+      "path": "aws-kotlin",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543202,
+      "keyFiles": []
+    },
+    "bin": {
+      "path": "bin",
+      "purpose": "Executable scripts",
+      "fileCount": 3,
+      "lastAccessed": 1773674543202,
+      "keyFiles": [
+        "repo-diff",
+        "repo-status",
+        "repo-test-summary"
+      ]
+    },
+    "bluetape4k": {
+      "path": "bluetape4k",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543202,
+      "keyFiles": []
+    },
+    "build": {
+      "path": "build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "buildSrc": {
+      "path": "buildSrc",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1773674543203,
+      "keyFiles": [
+        "build.gradle.kts",
+        "gradle.properties"
+      ]
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "doc": {
+      "path": "doc",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1773674543203,
+      "keyFiles": [
+        "Kdoc_Instruction.md",
+        "blue-tape.png",
+        "bluetape4k.jpg",
+        "bluetape4k.png"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "examples": {
+      "path": "examples",
+      "purpose": "Example code",
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "gradle": {
+      "path": "gradle",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "guides": {
+      "path": "guides",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1773674543203,
+      "keyFiles": [
+        "index.yaml"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543203,
+      "keyFiles": []
+    },
+    "io": {
+      "path": "io",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "javers": {
+      "path": "javers",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1773674543204,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "spring": {
+      "path": "spring",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "testing": {
+      "path": "testing",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "timefold": {
+      "path": "timefold",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "tokenizer": {
+      "path": "tokenizer",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "utils": {
+      "path": "utils",
+      "purpose": "Utility functions",
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "vertx": {
+      "path": "vertx",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773674543204,
+      "keyFiles": []
+    },
+    "virtualthread": {
+      "path": "virtualthread",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1773674543204,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "buildSrc/build": {
+      "path": "buildSrc/build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1773674543205,
+      "keyFiles": []
+    },
+    "buildSrc/src": {
+      "path": "buildSrc/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1773674543205,
+      "keyFiles": []
+    },
+    "spring/tests": {
+      "path": "spring/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1773674543206,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    },
+    "virtualthread/api": {
+      "path": "virtualthread/api",
+      "purpose": "API routes",
+      "fileCount": 2,
+      "lastAccessed": 1773674543206,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "README.md",
+      "accessCount": 12,
+      "lastAccessed": 1773702632975,
+      "type": "file"
+    },
+    {
+      "path": "data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/stateless/models.kt",
+      "accessCount": 11,
+      "lastAccessed": 1773705220689,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 7,
+      "lastAccessed": 1773700852280,
+      "type": "file"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "accessCount": 2,
+      "lastAccessed": 1773677596579,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1773702067747,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson3/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1773702078953,
+      "type": "file"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "accessCount": 2,
+      "lastAccessed": 1773702622009,
+      "type": "file"
+    },
+    {
+      "path": "data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/AbstractJpaTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773704864102,
+      "type": "file"
+    },
+    {
+      "path": "data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/AbstractHibernateTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773704921787,
+      "type": "file"
+    },
+    {
+      "path": "data/hibernate/src/test/kotlin/io/bluetape4k/hibernate/spring/stateless/StatelessSessionTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773705230429,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701653495,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701655208,
+      "type": "file"
+    },
+    {
+      "path": "spring/boot3/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701942915,
+      "type": "file"
+    },
+    {
+      "path": "vertx/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701954887,
+      "type": "file"
+    },
+    {
+      "path": "aws/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701972031,
+      "type": "file"
+    },
+    {
+      "path": "aws-kotlin/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773701990767,
+      "type": "file"
+    },
+    {
+      "path": "utils/geo/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773702003433,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773702097039,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-redisson/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773702097389,
+      "type": "file"
+    },
+    {
+      "path": "data/exposed/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773702097929,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
