@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.lettuce.repository
 
+import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest
 import io.bluetape4k.exposed.lettuce.domain.UserRepository
 import io.bluetape4k.exposed.lettuce.domain.UserSchema
 import io.bluetape4k.exposed.lettuce.domain.UserSchema.UserRecord
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserReadThroughCacheTest :
-    AbstractJdbcLettuceRepositoryTest(),
+    AbstractJdbcLettuceTest(),
     ReadThroughScenario<Long, UserRecord> {
     companion object : KLogging()
 

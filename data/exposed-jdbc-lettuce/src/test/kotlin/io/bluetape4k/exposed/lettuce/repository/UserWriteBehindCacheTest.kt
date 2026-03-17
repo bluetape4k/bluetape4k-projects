@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.lettuce.repository
 
+import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest
 import io.bluetape4k.exposed.lettuce.domain.UserRepository
 import io.bluetape4k.exposed.lettuce.domain.UserSchema
 import io.bluetape4k.exposed.lettuce.domain.UserSchema.UserRecord
@@ -19,7 +20,7 @@ import java.time.Duration
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserWriteBehindCacheTest :
-    AbstractJdbcLettuceRepositoryTest(),
+    AbstractJdbcLettuceTest(),
     WriteBehindScenario<Long, UserRecord> {
     companion object : KLogging()
 

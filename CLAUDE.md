@@ -197,6 +197,8 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **exposed-dao**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable(`KsuidTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `SoftDeletedIdTable` 등)
 - **exposed-jdbc**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `TableExtensions`
 - **exposed-r2dbc**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
+- **exposed-jdbc-lettuce**: Exposed JDBC + Lettuce Redis 캐시 (Read-through / Write-through / Write-behind) —
+  `AbstractJdbcLettuceRepository`, `ExposedEntityMapLoader`, `ExposedEntityMapWriter`
 - **exposed-jdbc-redisson**: Exposed JDBC + Redisson (분산 락)
 - **exposed-r2dbc-redisson**: Exposed R2DBC + Redisson (분산 락)
 - **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
@@ -226,7 +228,9 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 #### Infrastructure Modules (`infra/`)
 
 - **redis** *(umbrella)*: `lettuce` + `redisson` + `spring-data-redis`를 묶는 하위 호환 모듈
-- **lettuce**: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memorizer) — sync/async/suspend 3-tier API
+- **lettuce
+  **: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memorizer) — sync/async/suspend 3-tier API;
+  `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind 추상화)
 - **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memorizer, NearCache, Coroutines
 - **kafka**: Kafka 클라이언트
 - **resilience4j**: Resilience4j + Coroutines, Coroutines Cache

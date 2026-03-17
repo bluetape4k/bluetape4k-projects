@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.lettuce.domain
 
-import io.bluetape4k.exposed.lettuce.repository.AbstractJdbcLettuceRepositoryTest
+import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,9 +21,9 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.util.Collections
+import java.util.*
 
-class ItemRepositoryTest : AbstractJdbcLettuceRepositoryTest() {
+class ItemRepositoryTest: AbstractJdbcLettuceTest() {
     companion object : KLoggingChannel()
 
     private lateinit var repo: ItemRepository

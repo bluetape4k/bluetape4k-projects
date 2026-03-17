@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.lettuce.map
 
-import io.bluetape4k.exposed.lettuce.repository.AbstractJdbcLettuceRepositoryTest
+import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
 import io.bluetape4k.redis.lettuce.map.MapWriter
@@ -9,9 +9,9 @@ import io.lettuce.core.RedisClient
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
-class LettuceLoadedMapConsistencyTest : AbstractJdbcLettuceRepositoryTest() {
+class LettuceLoadedMapConsistencyTest: AbstractJdbcLettuceTest() {
     @Test
     fun `WRITE_THROUGH save 실패 시 Redis는 갱신되지 않는다`() {
         val map =
