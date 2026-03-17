@@ -7,7 +7,6 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
-import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
@@ -127,8 +126,8 @@ class LettuceSuspendNearCache<V : Any>(
         key: String,
         value: V,
     ) {
+        setRedis(key, value) // Redis 먼저 - 실패 시 local 오염 방지
         frontCache.put(key, value)
-        setRedis(key, value)
         // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
         commands.get(config.redisKey(key))
     }
@@ -137,24 +136,17 @@ class LettuceSuspendNearCache<V : Any>(
      * 여러 key-value를 한 번에 저장한다.
      */
     suspend fun putAll(map: Map<String, V>) {
-        frontCache.putAll(map)
+        val rMap = map.mapKeys { config.redisKey(it.key) }
 
-        val rMap = map.map { config.redisKey(it.key) to it.value }.toMap()
-        val ttlArgs = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
-
-        // HINT: mget이 CLIENT TRACKING 활성화가 된다면, mset, mget 으로
-        if (ttlArgs != null) {
-            commands.msetex(rMap, ttlArgs)
+        // Redis 먼저 - 실패 시 local 오염 방지
+        if (config.redisTtl != null) {
+            for ((k, v) in map) setRedis(k, v)
         } else {
             commands.mset(rMap)
         }
-        commands.mget(*rMap.keys.toTypedArray()).collect() // CLIENT TRACKING 활성화
 
-//        map.forEach { (key, value) ->
-//            setRedis(key, value)
-//        }
-//        val keys = map.map { config.redisKey(it.key) }.toTypedArray()
-//        commands.mget(*keys).collect()  // CLIENT TRACKING 활성화
+        frontCache.putAll(map)
+        commands.mget(*rMap.keys.toTypedArray()).collect() // CLIENT TRACKING 활성화
     }
 
     /**
@@ -169,12 +161,19 @@ class LettuceSuspendNearCache<V : Any>(
         if (existing != null) return existing
 
         val rKey = config.redisKey(key)
-        val setted = commands.setnx(rKey, value) == true
-        return if (setted) {
-            config.redisTtl?.let { ttl ->
-                commands.expire(rKey, ttl.seconds)
+        val ttl = config.redisTtl
+
+        // TTL이 있으면 SET NX PX 단일 원자 명령으로 처리
+        val stored =
+            if (ttl != null) {
+                commands.set(rKey, value, SetArgs.Builder.nx().px(ttl.toMillis())) != null
+            } else {
+                commands.setnx(rKey, value) == true
             }
+
+        return if (stored) {
             frontCache.put(key, value)
+            commands.get(rKey) // CLIENT TRACKING 활성화
             null
         } else {
             commands.get(rKey)
@@ -303,7 +302,7 @@ class LettuceSuspendNearCache<V : Any>(
     /**
      * Redis에서 이 cacheName에 속한 key의 개수를 반환한다.
      */
-    suspend fun redisSize(): Long {
+    suspend fun backCacheSize(): Long {
         val pattern = "${config.cacheName}:*"
         var count = 0L
         var cursor: ScanCursor = ScanCursor.INITIAL
@@ -338,7 +337,7 @@ class LettuceSuspendNearCache<V : Any>(
     }
 
     private val redisTtlArgs: SetArgs? by lazy {
-        config.redisTtl?.let { SetArgs.Builder.ex(it) }
+        config.redisTtl?.let { SetArgs.Builder.px(it.toMillis()) }
     }
 
     private suspend inline fun setRedis(

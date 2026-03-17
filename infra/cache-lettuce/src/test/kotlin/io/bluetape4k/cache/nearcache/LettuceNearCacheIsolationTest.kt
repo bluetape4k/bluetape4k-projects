@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test
  * - 동기/비동기 캐시 혼합 사용 시에도 격리 보장
  */
 class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
-
     // ---- 동기 캐시 인스턴스 3개 ----
     private lateinit var cacheA: LettuceNearCache<String>
     private lateinit var cacheB: LettuceNearCache<String>
@@ -83,7 +82,7 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
         cacheA.remove(key)
 
         cacheA.get(key).shouldBeNull()
-        cacheB.get(key) shouldBeEqualTo "from-B"   // B는 영향 없음
+        cacheB.get(key) shouldBeEqualTo "from-B" // B는 영향 없음
     }
 
     @Test
@@ -120,7 +119,7 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
 
         cacheA.clearAll()
         cacheA.get("x").shouldBeNull()
-        cacheB.get("x") shouldBeEqualTo "bx"   // B 영향 없음
+        cacheB.get("x") shouldBeEqualTo "bx" // B 영향 없음
 
         cacheB.clearAll()
         cacheB.get("x").shouldBeNull()
@@ -138,7 +137,7 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
 
         cacheA.remove("r1")
         cacheA.backCacheSize() shouldBeEqualTo 2L
-        cacheB.backCacheSize() shouldBeEqualTo 2L   // B 영향 없음
+        cacheB.backCacheSize() shouldBeEqualTo 2L // B 영향 없음
     }
 
     // ---- containsKey 격리 ----
@@ -148,7 +147,7 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
         cacheA.put("exist-key", "value")
 
         cacheA.containsKey("exist-key") shouldBeEqualTo true
-        cacheB.containsKey("exist-key") shouldBeEqualTo false  // B에는 없음
+        cacheB.containsKey("exist-key") shouldBeEqualTo false // B에는 없음
         cacheC.containsKey("exist-key") shouldBeEqualTo false
     }
 
@@ -165,7 +164,7 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
         cacheA.clearLocal()
 
         cacheA.localCacheSize() shouldBeEqualTo 0L
-        cacheB.localCacheSize() shouldBeEqualTo 1L  // B L1 유지
+        cacheB.localCacheSize() shouldBeEqualTo 1L // B L1 유지
 
         // Redis 데이터도 영향 없음
         directCommands.get("isolation-a:loc-key").shouldNotBeNull()
@@ -197,51 +196,54 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
     // ---- 동기/코루틴 혼합 격리 ----
 
     @Test
-    fun `동기 캐시와 코루틴 캐시가 동일 key 이름으로 독립 동작한다`() = runTest {
-        val key = "mixed-key"
+    fun `동기 캐시와 코루틴 캐시가 동일 key 이름으로 독립 동작한다`() =
+        runTest {
+            val key = "mixed-key"
 
-        cacheA.put(key, "sync-value")
-        suspendCacheX.put(key, "suspend-value")
+            cacheA.put(key, "sync-value")
+            suspendCacheX.put(key, "suspend-value")
 
-        cacheA.get(key) shouldBeEqualTo "sync-value"
-        suspendCacheX.get(key) shouldBeEqualTo "suspend-value"
+            cacheA.get(key) shouldBeEqualTo "sync-value"
+            suspendCacheX.get(key) shouldBeEqualTo "suspend-value"
 
-        // Redis 직접 확인
-        directCommands.get("isolation-a:$key") shouldBeEqualTo "sync-value"
-        directCommands.get("isolation-x:$key") shouldBeEqualTo "suspend-value"
-    }
-
-    @Test
-    fun `코루틴 캐시 clearAll()은 해당 cacheName만 삭제한다`() = runTest {
-        suspendCacheX.putAll(mapOf("p" to "xp", "q" to "xq"))
-        suspendCacheY.putAll(mapOf("p" to "yp", "q" to "yq"))
-
-        suspendCacheX.clearAll()
-
-        suspendCacheX.get("p").shouldBeNull()
-        suspendCacheX.get("q").shouldBeNull()
-        suspendCacheX.redisSize() shouldBeEqualTo 0L
-
-        // Y는 영향 없음
-        suspendCacheY.get("p") shouldBeEqualTo "yp"
-        suspendCacheY.get("q") shouldBeEqualTo "yq"
-        suspendCacheY.redisSize() shouldBeEqualTo 2L
-    }
+            // Redis 직접 확인
+            directCommands.get("isolation-a:$key") shouldBeEqualTo "sync-value"
+            directCommands.get("isolation-x:$key") shouldBeEqualTo "suspend-value"
+        }
 
     @Test
-    fun `코루틴 캐시 동일 key - 서로 독립적으로 관리된다`() = runTest {
-        val key = "common-key"
+    fun `코루틴 캐시 clearAll()은 해당 cacheName만 삭제한다`() =
+        runTest {
+            suspendCacheX.putAll(mapOf("p" to "xp", "q" to "xq"))
+            suspendCacheY.putAll(mapOf("p" to "yp", "q" to "yq"))
 
-        suspendCacheX.put(key, "x-value")
-        suspendCacheY.put(key, "y-value")
+            suspendCacheX.clearAll()
 
-        suspendCacheX.get(key) shouldBeEqualTo "x-value"
-        suspendCacheY.get(key) shouldBeEqualTo "y-value"
+            suspendCacheX.get("p").shouldBeNull()
+            suspendCacheX.get("q").shouldBeNull()
+            suspendCacheX.backCacheSize() shouldBeEqualTo 0L
 
-        suspendCacheX.remove(key)
-        suspendCacheX.get(key).shouldBeNull()
-        suspendCacheY.get(key) shouldBeEqualTo "y-value"  // Y 영향 없음
-    }
+            // Y는 영향 없음
+            suspendCacheY.get("p") shouldBeEqualTo "yp"
+            suspendCacheY.get("q") shouldBeEqualTo "yq"
+            suspendCacheY.backCacheSize() shouldBeEqualTo 2L
+        }
+
+    @Test
+    fun `코루틴 캐시 동일 key - 서로 독립적으로 관리된다`() =
+        runTest {
+            val key = "common-key"
+
+            suspendCacheX.put(key, "x-value")
+            suspendCacheY.put(key, "y-value")
+
+            suspendCacheX.get(key) shouldBeEqualTo "x-value"
+            suspendCacheY.get(key) shouldBeEqualTo "y-value"
+
+            suspendCacheX.remove(key)
+            suspendCacheX.get(key).shouldBeNull()
+            suspendCacheY.get(key) shouldBeEqualTo "y-value" // Y 영향 없음
+        }
 
     // ---- 대량 데이터 격리 ----
 
@@ -259,10 +261,10 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
         cacheA.clearAll()
 
         cacheA.backCacheSize() shouldBeEqualTo 0L
-        cacheB.backCacheSize() shouldBeEqualTo countB.toLong()  // B 영향 없음
+        cacheB.backCacheSize() shouldBeEqualTo countB.toLong() // B 영향 없음
 
         // B 데이터 무결성 확인
         cacheB.get("key-1") shouldBeEqualTo "val-b-1"
-        cacheB.get("key-${countB}") shouldBeEqualTo "val-b-${countB}"
+        cacheB.get("key-$countB") shouldBeEqualTo "val-b-$countB"
     }
 }

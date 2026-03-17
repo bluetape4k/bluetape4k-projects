@@ -27,13 +27,12 @@ import java.nio.ByteBuffer
  *
  * @param V 값 타입
  */
-class TrackingInvalidationListener<V: Any>(
+class TrackingInvalidationListener<V : Any>(
     private val frontCache: LettuceLocalCache<String, V>,
     private val connection: StatefulRedisConnection<String, V>,
     private val cacheName: String,
-): AutoCloseable {
-
-    companion object: KLogging() {
+) : AutoCloseable {
+    companion object : KLogging() {
         private val trackingEnabled = TrackingArgs.Builder.enabled().noloop()
         private val trackingDisabled = TrackingArgs.Builder.enabled(false)
     }
@@ -44,16 +43,17 @@ class TrackingInvalidationListener<V: Any>(
      * invalidate push 메시지를 처리하는 PushListener.
      * content[0] = type (ByteBuffer), content[1] = key list (List<ByteBuffer>) or null (= full flush)
      */
-    private val pushListener = PushListener { message ->
-        if (message.type == "invalidate") {
-            handleInvalidation(message.content)
+    private val pushListener =
+        PushListener { message ->
+            if (message.type == "invalidate") {
+                handleInvalidation(message.content)
+            }
         }
-    }
 
     @Suppress("UNCHECKED_CAST")
     private fun handleInvalidation(content: List<Any?>) {
         // content[0] = type string as ByteBuffer (already matched "invalidate")
-        // content[1] = null (flush all) or List<ByteBuffer> (key bytes)
+        // content[1] = null (flush all) or List<any> (key bytes) or single ByteBuffer/ByteArray
         val keysRaw = if (content.size >= 2) content[1] else null
 
         if (keysRaw == null) {
@@ -62,26 +62,49 @@ class TrackingInvalidationListener<V: Any>(
             return
         }
 
-        val prefix = "${cacheName}:"
-        val keys = when (keysRaw) {
-            is List<*>    -> (keysRaw as List<ByteBuffer?>)
-                .filterNotNull()
-                .mapNotNull { buf ->
-                    val fullKey = StringCodec.UTF8.decodeKey(buf.duplicate())
-                    if (fullKey.startsWith(prefix)) fullKey.removePrefix(prefix) else null
+        val prefix = "$cacheName:"
+        val keys =
+            when (keysRaw) {
+                is List<*> -> {
+                    keysRaw.filterNotNull().mapNotNull { item ->
+                        decodeToFullKey(item)?.let { if (it.startsWith(prefix)) it.removePrefix(prefix) else null }
+                    }
                 }
-            is ByteBuffer -> {
-                val fullKey = StringCodec.UTF8.decodeKey(keysRaw.duplicate())
-                if (fullKey.startsWith(prefix)) listOf(fullKey.removePrefix(prefix)) else emptyList()
+                is ByteBuffer -> {
+                    decodeToFullKey(
+                        keysRaw
+                    )?.let { if (it.startsWith(prefix)) listOf(it.removePrefix(prefix)) else emptyList() }
+                        ?: emptyList()
+                }
+                is ByteArray -> {
+                    decodeToFullKey(
+                        keysRaw
+                    )?.let { if (it.startsWith(prefix)) listOf(it.removePrefix(prefix)) else emptyList() }
+                        ?: emptyList()
+                }
+                else -> {
+                    emptyList()
+                }
             }
-            else          -> emptyList()
-        }
 
         if (keys.isNotEmpty()) {
             log.debug { "Invalidating ${keys.size} keys from local cache: $keys" }
             frontCache.invalidateAll(keys)
         }
     }
+
+    private fun decodeToFullKey(item: Any): String? =
+        try {
+            when (item) {
+                is ByteBuffer -> StringCodec.UTF8.decodeKey(item.duplicate())
+                is ByteArray -> String(item, Charsets.UTF_8)
+                is String -> item
+                else -> null
+            }
+        } catch (e: Exception) {
+            log.warn(e) { "Failed to decode invalidation key from $item" }
+            null
+        }
 
     /**
      * CLIENT TRACKING을 활성화하고 push 리스너를 등록한다.
