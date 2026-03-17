@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -139,7 +140,7 @@ class InstantSupportTest {
         val instant = Instant.parse("2021-03-01T00:00:00Z")
         val calendar = instant.toCalendar()
 
-        calendar.timeZone.hasSameRules(UtcTimeZone) shouldBeEqualTo true
+        calendar.timeZone.hasSameRules(UtcTimeZone).shouldBeTrue()
     }
 
 }

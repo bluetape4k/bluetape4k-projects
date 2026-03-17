@@ -5,6 +5,7 @@ import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.atMost
@@ -118,10 +119,10 @@ class ResilientNearCacheTest {
     @Test
     fun `containsKey - 키 존재 여부 확인`() {
         cache.put("keyX", "valX")
-        cache.containsKey("keyX") shouldBeEqualTo true
-        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeTrue()
+        cache.containsKey("nonexistent").shouldBeFalse()
         cache.remove("keyX")
-        cache.containsKey("keyX") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeFalse()
     }
 
     @Test
@@ -134,13 +135,13 @@ class ResilientNearCacheTest {
 
     @Test
     fun `replace - 키가 존재할 때만 교체`() {
-        cache.replace("noKey", "val") shouldBeEqualTo false
+        cache.replace("noKey", "val").shouldBeFalse()
         cache.put("key", "old")
 
         // write-behind 완료 대기 (replace는 back cache 직접 호출)
         await atMost 5.seconds until { backCache.get("key") != null }
 
-        cache.replace("key", "new") shouldBeEqualTo true
+        cache.replace("key", "new").shouldBeTrue()
         cache.get("key") shouldBeEqualTo "new"
     }
 
@@ -149,8 +150,8 @@ class ResilientNearCacheTest {
         cache.put("k", "old")
         await atMost 5.seconds until { backCache.get("k") != null }
 
-        cache.replace("k", "wrong", "new") shouldBeEqualTo false
-        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.replace("k", "wrong", "new").shouldBeFalse()
+        cache.replace("k", "old", "new").shouldBeTrue()
         cache.get("k") shouldBeEqualTo "new"
     }
 
@@ -183,7 +184,7 @@ class ResilientNearCacheTest {
         await atMost 3.seconds until { backCache.get("k1") != null }
 
         // back cache에서 읽어와서 front에 populate
-        cache.containsKey("k1") shouldBeEqualTo true
+        cache.containsKey("k1").shouldBeTrue()
     }
 
     @Test

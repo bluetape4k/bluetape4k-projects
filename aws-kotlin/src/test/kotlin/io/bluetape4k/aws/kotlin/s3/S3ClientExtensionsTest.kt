@@ -13,7 +13,10 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
@@ -21,8 +24,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 
 @TempFolderTest
 class S3ClientExtensionsTest: AbstractKotlinS3Test() {
@@ -48,13 +49,13 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
     @Test
     fun `existsBucket는 없는 버킷에 대해 false를 반환한다`() = runSuspendIO {
         val missingBucket = "missing-${randomKey()}"
-        s3Client.existsBucket(missingBucket) shouldBeEqualTo false
+        s3Client.existsBucket(missingBucket).shouldBeFalse()
     }
 
     @Test
     fun `existsObject는 없는 객체에 대해 false를 반환한다`() = runSuspendIO {
         val missingKey = "missing-${randomKey()}"
-        s3Client.existsObject(BUCKET_NAME, missingKey) shouldBeEqualTo false
+        s3Client.existsObject(BUCKET_NAME, missingKey).shouldBeFalse()
     }
 
     @Test

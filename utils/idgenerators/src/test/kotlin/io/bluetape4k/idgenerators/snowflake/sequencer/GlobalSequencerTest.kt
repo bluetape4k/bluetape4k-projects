@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators.snowflake.sequencer
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class GlobalSequencerTest: AbstractSequencerTest() {
@@ -48,6 +48,6 @@ class GlobalSequencerTest: AbstractSequencerTest() {
         ids.map { it.value }.distinct().size shouldBeEqualTo size
 
         // timestamp는 양수여야 함
-        ids.all { it.timestamp > 0 } shouldBeEqualTo true
+        ids.all { it.timestamp > 0 }.shouldBeTrue()
     }
 }

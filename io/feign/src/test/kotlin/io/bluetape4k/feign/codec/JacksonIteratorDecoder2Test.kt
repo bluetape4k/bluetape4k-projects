@@ -8,6 +8,7 @@ import io.bluetape4k.feign.feignResponse
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -49,7 +50,7 @@ class JacksonIteratorDecoder2Test : AbstractFeignTest() {
         val result = decoder.decode(response, iteratorType)
         result.shouldNotBeNull()
         val iterator = result as Iterator<*>
-        iterator.hasNext() shouldBeEqualTo true
+        iterator.hasNext().shouldBeTrue()
         val first = iterator.next()
         first.shouldNotBeNull()
     }

@@ -1,6 +1,7 @@
 package io.bluetape4k.okio
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -24,6 +25,6 @@ class TimeoutSupportTest {
         val remaining = deadline.deadlineNanoTime() - System.nanoTime()
         val tolerance = TimeUnit.MILLISECONDS.toNanos(5)
         val withinTolerance = kotlin.math.abs(remaining - duration.toNanos()) <= tolerance
-        withinTolerance shouldBeEqualTo true
+        withinTolerance.shouldBeTrue()
     }
 }

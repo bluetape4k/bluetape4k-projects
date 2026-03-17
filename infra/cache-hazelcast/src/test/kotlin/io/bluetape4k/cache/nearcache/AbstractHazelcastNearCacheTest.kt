@@ -3,7 +3,9 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.cache.AbstractHazelcastTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 
@@ -48,10 +50,10 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
         remove: (String) -> Unit,
     ) {
         put("keyX", "valX")
-        containsKey("keyX") shouldBeEqualTo true
-        containsKey("nonexistent") shouldBeEqualTo false
+        containsKey("keyX").shouldBeTrue()
+        containsKey("nonexistent").shouldBeFalse()
         remove("keyX")
-        containsKey("keyX") shouldBeEqualTo false
+        containsKey("keyX").shouldBeFalse()
     }
 
     protected fun verifyPutIfAbsent(
@@ -82,9 +84,9 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
         replace: (String, String) -> Boolean,
         get: (String) -> String?,
     ) {
-        replace("noKey", "val") shouldBeEqualTo false
+        replace("noKey", "val").shouldBeFalse()
         put("key", "old")
-        replace("key", "new") shouldBeEqualTo true
+        replace("key", "new").shouldBeTrue()
         get("key") shouldBeEqualTo "new"
     }
 
@@ -132,6 +134,6 @@ abstract class AbstractHazelcastNearCacheTest: AbstractHazelcastTest() {
         put("k2", "v2")
         clearLocal()
         localSize() shouldBeEqualTo 0L
-        containsKeyInBack("k1") shouldBeEqualTo true
+        containsKeyInBack("k1").shouldBeTrue()
     }
 }

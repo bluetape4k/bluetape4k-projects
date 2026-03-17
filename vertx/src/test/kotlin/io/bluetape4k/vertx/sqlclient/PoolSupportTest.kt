@@ -5,6 +5,7 @@ import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
@@ -22,7 +23,7 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
             val result = runCatching {
                 pool.withSuspendTransaction { throw CancellationException("cancel requested") }
             }
-            result.isFailure shouldBeEqualTo true
+            result.isFailure.shouldBeTrue()
             val error = result.exceptionOrNull().shouldNotBeNull()
             error::class shouldBeEqualTo CancellationException::class
             error.message shouldBeEqualTo "cancel requested"
@@ -41,7 +42,7 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
             val result = runCatching {
                 pool.withSuspendRollback { throw CancellationException("cancel requested") }
             }
-            result.isFailure shouldBeEqualTo true
+            result.isFailure.shouldBeTrue()
             val error = result.exceptionOrNull().shouldNotBeNull()
             error::class shouldBeEqualTo CancellationException::class
             error.message shouldBeEqualTo "cancel requested"
@@ -60,7 +61,7 @@ class PoolSupportTest: AbstractVertxSqlClientTest() {
             val result = runCatching {
                 pool.withSuspendTransaction { throw IllegalStateException("boom") }
             }
-            result.isFailure shouldBeEqualTo true
+            result.isFailure.shouldBeTrue()
             val error = result.exceptionOrNull().shouldNotBeNull()
             error::class shouldBeEqualTo SQLException::class
             error.cause.shouldNotBeNull()::class shouldBeEqualTo IllegalStateException::class

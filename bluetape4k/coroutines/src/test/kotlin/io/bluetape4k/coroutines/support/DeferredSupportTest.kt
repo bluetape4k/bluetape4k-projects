@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
@@ -55,7 +56,7 @@ class DeferredSupportTest {
         }
 
         thrown.message shouldBeEqualTo failure.message
-        second.isCancelled shouldBeEqualTo false
+        second.isCancelled.shouldBeFalse()
     }
 
     @Test

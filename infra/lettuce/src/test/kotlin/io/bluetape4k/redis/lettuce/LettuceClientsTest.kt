@@ -9,6 +9,7 @@ import io.bluetape4k.redis.lettuce.LettuceTestUtils.commands
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
@@ -34,12 +35,12 @@ class LettuceClientsTest: AbstractLettuceTest() {
     fun `reuse same connection for same client and codec`() {
         val conn1 = LettuceClients.connect(client)
         val conn2 = LettuceClients.connect(client)
-        (conn1 === conn2) shouldBeEqualTo true
+        (conn1 === conn2).shouldBeTrue()
 
         val codec = LettuceBinaryCodecs.Default
         val typedConn1 = LettuceClients.connect(client, codec)
         val typedConn2 = LettuceClients.connect(client, codec)
-        (typedConn1 === typedConn2) shouldBeEqualTo true
+        (typedConn1 === typedConn2).shouldBeTrue()
     }
 
     @Test

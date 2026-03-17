@@ -112,10 +112,10 @@ class ResilientLettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `containsKey`() {
         cache.put("keyX", "valX")
-        cache.containsKey("keyX") shouldBeEqualTo true
-        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeTrue()
+        cache.containsKey("nonexistent").shouldBeFalse()
         cache.remove("keyX")
-        cache.containsKey("keyX") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeFalse()
     }
 
     @Test

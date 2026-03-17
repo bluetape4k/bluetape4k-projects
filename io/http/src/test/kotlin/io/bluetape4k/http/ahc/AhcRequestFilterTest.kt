@@ -2,6 +2,7 @@ package io.bluetape4k.http.ahc
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.asynchttpclient.filter.FilterContext
 import org.junit.jupiter.api.Test
@@ -134,7 +135,7 @@ class AhcRequestFilterTest {
         val ctx = buildFilterContext()
         val result = filter.filter(ctx)
 
-        called shouldBeEqualTo true
+        called.shouldBeTrue()
         result.shouldNotBeNull()
         result.request.headers.get("X-Handler") shouldBeEqualTo "handler-value"
     }

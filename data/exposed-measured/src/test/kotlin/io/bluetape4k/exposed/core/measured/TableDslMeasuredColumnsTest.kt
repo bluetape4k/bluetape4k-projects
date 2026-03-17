@@ -30,8 +30,8 @@ import io.bluetape4k.measured.kiloWatts
 import io.bluetape4k.measured.kilograms
 import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNear
+import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -74,16 +74,16 @@ class TableDslMeasuredColumnsTest {
         assertMeasureBaseUnit(SampleTable.energyCol.columnType, Energy.joules)
         assertMeasureBaseUnit(SampleTable.powerCol.columnType, Power.watts)
 
-        (SampleTable.tempCol.columnType is TemperatureColumnType) shouldBeEqualTo true
-        (SampleTable.tempDeltaCol.columnType is TemperatureDeltaColumnType) shouldBeEqualTo true
+        (SampleTable.tempCol.columnType is TemperatureColumnType).shouldBeTrue()
+        (SampleTable.tempDeltaCol.columnType is TemperatureDeltaColumnType).shouldBeTrue()
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun <T: Units> assertMeasureBaseUnit(columnType: Any, expected: T) {
-        (columnType is MeasureColumnType<*>) shouldBeEqualTo true
+        (columnType is MeasureColumnType<*>).shouldBeTrue()
         val typed = columnType as MeasureColumnType<T>
         val decoded = typed.valueFromDB(1.0)!!
-        (decoded.units == expected) shouldBeEqualTo true
+        (decoded.units == expected).shouldBeTrue()
     }
 
     @Nested

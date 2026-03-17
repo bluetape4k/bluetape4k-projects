@@ -10,7 +10,9 @@ import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.ProtocolVersion
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 
@@ -52,16 +54,16 @@ abstract class AbstractLettuceNearCacheTest {
     // 공통 테스트 헬퍼
     // -----------------------------------------------------------------------------------------
 
-    protected fun verifyGetMiss(get: (String) -> String?) {
+    protected inline fun verifyGetMiss(get: (String) -> String?) {
         get("missing-key").shouldBeNull()
     }
 
-    protected fun verifyPutAndGet(put: (String, String) -> Unit, get: (String) -> String?) {
+    protected inline fun verifyPutAndGet(put: (String, String) -> Unit, get: (String) -> String?) {
         put("key1", "value1")
         get("key1") shouldBeEqualTo "value1"
     }
 
-    protected fun verifyRemove(
+    protected inline fun verifyRemove(
         put: (String, String) -> Unit,
         get: (String) -> String?,
         remove: (String) -> Unit,
@@ -72,19 +74,19 @@ abstract class AbstractLettuceNearCacheTest {
         get("key1").shouldBeNull()
     }
 
-    protected fun verifyContainsKey(
+    protected inline fun verifyContainsKey(
         put: (String, String) -> Unit,
         containsKey: (String) -> Boolean,
         remove: (String) -> Unit,
     ) {
         put("keyX", "valX")
-        containsKey("keyX") shouldBeEqualTo true
-        containsKey("nonexistent") shouldBeEqualTo false
+        containsKey("keyX").shouldBeTrue()
+        containsKey("nonexistent").shouldBeFalse()
         remove("keyX")
-        containsKey("keyX") shouldBeEqualTo false
+        containsKey("keyX").shouldBeFalse()
     }
 
-    protected fun verifyPutIfAbsent(
+    protected inline fun verifyPutIfAbsent(
         putIfAbsent: (String, String) -> String?,
         get: (String) -> String?,
     ) {
@@ -94,7 +96,7 @@ abstract class AbstractLettuceNearCacheTest {
         get("key") shouldBeEqualTo "first"
     }
 
-    protected fun verifyGetAll(
+    protected inline fun verifyGetAll(
         putAll: (Map<String, String>) -> Unit,
         getAll: (Set<String>) -> Map<String, String>,
     ) {
@@ -107,18 +109,18 @@ abstract class AbstractLettuceNearCacheTest {
         result["x"].shouldBeNull()
     }
 
-    protected fun verifyReplace(
+    protected inline fun verifyReplace(
         put: (String, String) -> Unit,
         replace: (String, String) -> Boolean,
         get: (String) -> String?,
     ) {
-        replace("noKey", "val") shouldBeEqualTo false
+        replace("noKey", "val").shouldBeFalse()
         put("key", "old")
-        replace("key", "new") shouldBeEqualTo true
+        replace("key", "new").shouldBeTrue()
         get("key") shouldBeEqualTo "new"
     }
 
-    protected fun verifyGetAndRemove(
+    protected inline fun verifyGetAndRemove(
         put: (String, String) -> Unit,
         getAndRemove: (String) -> String?,
         get: (String) -> String?,
@@ -129,7 +131,7 @@ abstract class AbstractLettuceNearCacheTest {
         getAndRemove("key").shouldBeNull()
     }
 
-    protected fun verifyGetAndReplace(
+    protected inline fun verifyGetAndReplace(
         put: (String, String) -> Unit,
         getAndReplace: (String, String) -> String?,
         get: (String) -> String?,
@@ -140,7 +142,7 @@ abstract class AbstractLettuceNearCacheTest {
         get("key") shouldBeEqualTo "new"
     }
 
-    protected fun verifyRemoveAll(
+    protected inline fun verifyRemoveAll(
         putAll: (Map<String, String>) -> Unit,
         removeAll: (Set<String>) -> Unit,
         get: (String) -> String?,
@@ -152,7 +154,7 @@ abstract class AbstractLettuceNearCacheTest {
         get("c") shouldBeEqualTo "3"
     }
 
-    protected fun verifyClearLocal(
+    protected inline fun verifyClearLocal(
         put: (String, String) -> Unit,
         clearLocal: () -> Unit,
         localSize: () -> Long,

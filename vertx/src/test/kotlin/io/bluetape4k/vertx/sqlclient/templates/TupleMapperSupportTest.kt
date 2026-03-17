@@ -1,9 +1,12 @@
 package io.bluetape4k.vertx.sqlclient.templates
 
+import io.bluetape4k.support.asBoolean
 import org.amshove.kluent.shouldBeEmpty
-import org.junit.jupiter.api.Test
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Test
 
 class TupleMapperSupportTest {
 
@@ -24,11 +27,11 @@ class TupleMapperSupportTest {
 
         params["id0"] shouldBeEqualTo 1L
         params["name0"] shouldBeEqualTo "alice"
-        params["enabled0"] shouldBeEqualTo true
+        params["enabled0"].asBoolean().shouldBeTrue()
 
         params["id1"] shouldBeEqualTo 2L
         params["name1"].shouldBeNull()
-        params["enabled1"] shouldBeEqualTo false
+        params["enabled1"].asBoolean().shouldBeFalse()
     }
 
     @Test

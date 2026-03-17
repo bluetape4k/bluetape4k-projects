@@ -3,6 +3,7 @@ package io.bluetape4k.mongodb.bson
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -20,7 +21,7 @@ class DocumentExtensionsTest {
 
         doc.getString("name") shouldBeEqualTo "Alice"
         doc.getInteger("age") shouldBeEqualTo 30
-        doc.getBoolean("active") shouldBeEqualTo true
+        doc.getBoolean("active").shouldBeTrue()
     }
 
     @Test

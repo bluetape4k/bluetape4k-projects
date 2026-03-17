@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.core.fastjson2
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
@@ -68,7 +69,7 @@ class FastjsonColumnTypeUnitTest {
 
     @Test
     fun `FastjsonColumnType 은 usesBinaryFormat 이 false 이다`() {
-        columnType.usesBinaryFormat shouldBeEqualTo false
+        columnType.usesBinaryFormat.shouldBeFalse()
     }
 
     @Test

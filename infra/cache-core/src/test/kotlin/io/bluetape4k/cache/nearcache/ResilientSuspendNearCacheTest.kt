@@ -6,6 +6,7 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.atMost
@@ -114,10 +115,10 @@ class ResilientSuspendNearCacheTest {
     @Test
     fun `containsKey - 키 존재 여부 확인`() = runSuspendIO {
         cache.put("keyX", "valX")
-        cache.containsKey("keyX") shouldBeEqualTo true
-        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeTrue()
+        cache.containsKey("nonexistent").shouldBeFalse()
         cache.remove("keyX")
-        cache.containsKey("keyX") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeFalse()
     }
 
     @Test
@@ -130,13 +131,13 @@ class ResilientSuspendNearCacheTest {
 
     @Test
     fun `replace - 키가 존재할 때만 교체`() = runSuspendIO {
-        cache.replace("noKey", "val") shouldBeEqualTo false
+        cache.replace("noKey", "val").shouldBeFalse()
         cache.put("key", "old")
 
         // replace는 back cache를 직접 호출 → write-behind 완료 대기
         await atMost 5.seconds untilSuspending { backCache.get("key") == "old" }
 
-        cache.replace("key", "new") shouldBeEqualTo true
+        cache.replace("key", "new").shouldBeTrue()
         cache.get("key") shouldBeEqualTo "new"
     }
 
@@ -145,8 +146,8 @@ class ResilientSuspendNearCacheTest {
         cache.put("k", "old")
         await atMost 5.seconds untilSuspending { backCache.get("k") == "old" }
 
-        cache.replace("k", "wrong", "new") shouldBeEqualTo false
-        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.replace("k", "wrong", "new").shouldBeFalse()
+        cache.replace("k", "old", "new").shouldBeTrue()
         cache.get("k") shouldBeEqualTo "new"
     }
 

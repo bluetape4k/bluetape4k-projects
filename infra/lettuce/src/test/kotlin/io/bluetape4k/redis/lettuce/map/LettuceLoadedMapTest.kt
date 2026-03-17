@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -170,7 +171,7 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
             map["k1"] = "v1"
             map.delete("k1")
 
-            deleted.contains("k1") shouldBeEqualTo true
+            deleted.contains("k1").shouldBeTrue()
             map["k1"].shouldBeNull()
         }
     }

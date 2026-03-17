@@ -2,12 +2,10 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
-import org.awaitility.kotlin.untilNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -21,9 +19,9 @@ import java.util.concurrent.TimeUnit
  * write-behind + retry + graceful degradation 패턴을 검증한다.
  * IMap 반영은 비동기이므로 awaitility로 폴링한다.
  */
-class ResilientHazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
+class ResilientHazelcastNearCacheTest: AbstractHazelcastNearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var cache: ResilientHazelcastNearCache<String>
 
@@ -134,19 +132,19 @@ class ResilientHazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
     @Test
     fun `replace - 키가 존재할 때만 교체`() {
         // write-behind: IMap에 없는 키는 replace false
-        cache.replace("noKey", "val") shouldBeEqualTo false
+        cache.replace("noKey", "val").shouldBeFalse()
         cache.put("key", "old")
         // write-behind 완료 후 replace 호출
         await.atMost(5, TimeUnit.SECONDS).until { cache.backCacheSize() > 0L }
-        cache.replace("key", "new") shouldBeEqualTo true
+        cache.replace("key", "new").shouldBeTrue()
         cache.get("key") shouldBeEqualTo "new"
     }
 
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() {
         cache.put("k", "old")
-        cache.replace("k", "wrong", "new") shouldBeEqualTo false
-        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.replace("k", "wrong", "new").shouldBeFalse()
+        cache.replace("k", "old", "new").shouldBeTrue()
         cache.get("k") shouldBeEqualTo "new"
     }
 

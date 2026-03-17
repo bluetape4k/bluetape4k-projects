@@ -2,7 +2,9 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -19,8 +21,6 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.CoroutineScope
 
 class ResilientLettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
@@ -116,10 +116,10 @@ class ResilientLettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `containsKey`() = runTest {
         cache.put("keyX", "valX")
-        cache.containsKey("keyX") shouldBeEqualTo true
-        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeTrue()
+        cache.containsKey("nonexistent").shouldBeFalse()
         cache.remove("keyX")
-        cache.containsKey("keyX") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeFalse()
     }
 
     @Test

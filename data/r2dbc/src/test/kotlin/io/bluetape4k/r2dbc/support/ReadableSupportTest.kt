@@ -3,6 +3,7 @@ package io.bluetape4k.r2dbc.support
 import io.r2dbc.spi.Readable
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -12,25 +13,24 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 class ReadableSupportTest {
     private class FakeReadable(
         private val indexValues: Map<Int, Any?>,
         private val nameValues: Map<String, Any?>,
-    ) : Readable {
+    ): Readable {
         override fun get(index: Int): Any? = indexValues[index]
 
         override fun get(name: String): Any? = nameValues[name]
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any?> get(
+        override fun <T: Any?> get(
             index: Int,
             type: Class<T>,
         ): T? = indexValues[index] as T?
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any?> get(
+        override fun <T: Any?> get(
             name: String,
             type: Class<T>,
         ): T? = nameValues[name] as T?
@@ -118,8 +118,8 @@ class ReadableSupportTest {
 
     @Test
     fun `boolean 변환을 지원한다`() {
-        readable.boolean(6) shouldBeEqualTo true
-        readable.boolean("boolVal") shouldBeEqualTo true
+        readable.boolean(6).shouldBeTrue()
+        readable.boolean("boolVal").shouldBeTrue()
         readable.booleanOrNull(3).shouldBeNull()
         readable.booleanOrNull("nullable").shouldBeNull()
     }

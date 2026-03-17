@@ -15,6 +15,9 @@ dependencies {
     compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_kotlin_datetime)
 
+    // Lettuce
+    api(Libs.lettuce_core)
+
     // Serializer (LettuceLoadedMap 코덱용)
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)

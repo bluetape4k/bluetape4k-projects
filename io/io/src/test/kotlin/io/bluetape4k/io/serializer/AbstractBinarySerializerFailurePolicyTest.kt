@@ -2,6 +2,7 @@ package io.bluetape4k.io.serializer
 
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -23,7 +24,7 @@ class AbstractBinarySerializerFailurePolicyTest {
             serializer.serialize("fail")
         }
 
-        (exception.cause is IllegalStateException) shouldBeEqualTo true
+        (exception.cause is IllegalStateException).shouldBeTrue()
     }
 
     @Test
@@ -32,7 +33,7 @@ class AbstractBinarySerializerFailurePolicyTest {
             serializer.deserialize<String>(byteArrayOf(1, 2, 3))
         }
 
-        (exception.cause is IllegalStateException) shouldBeEqualTo true
+        (exception.cause is IllegalStateException).shouldBeTrue()
     }
 
     @Test

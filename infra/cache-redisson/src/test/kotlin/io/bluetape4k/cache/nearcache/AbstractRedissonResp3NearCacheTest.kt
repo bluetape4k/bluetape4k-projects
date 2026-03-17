@@ -8,7 +8,9 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.protocol.ProtocolVersion
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
@@ -81,10 +83,10 @@ abstract class AbstractRedissonResp3NearCacheTest {
         remove: (String) -> Unit,
     ) {
         put("keyX", "valX")
-        containsKey("keyX") shouldBeEqualTo true
-        containsKey("nonexistent") shouldBeEqualTo false
+        containsKey("keyX").shouldBeTrue()
+        containsKey("nonexistent").shouldBeFalse()
         remove("keyX")
-        containsKey("keyX") shouldBeEqualTo false
+        containsKey("keyX").shouldBeFalse()
     }
 
     protected fun verifyPutIfAbsent(
@@ -115,9 +117,9 @@ abstract class AbstractRedissonResp3NearCacheTest {
         replace: (String, String) -> Boolean,
         get: (String) -> String?,
     ) {
-        replace("noKey", "val") shouldBeEqualTo false
+        replace("noKey", "val").shouldBeFalse()
         put("key", "old")
-        replace("key", "new") shouldBeEqualTo true
+        replace("key", "new").shouldBeTrue()
         get("key") shouldBeEqualTo "new"
     }
 

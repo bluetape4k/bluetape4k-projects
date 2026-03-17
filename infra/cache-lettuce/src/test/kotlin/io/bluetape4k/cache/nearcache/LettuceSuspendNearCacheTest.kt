@@ -5,6 +5,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -18,7 +19,7 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
-class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
+class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     private lateinit var cache: LettuceSuspendNearCache<String>
 
     @BeforeEach
@@ -65,10 +66,10 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
         runTest {
             // prefix key로 직접 설정
             directCommands.set("${cache.cacheName}:remote-key", "remote-val")
-            cache.localSize() shouldBeEqualTo 0L
+            cache.localCacheSize() shouldBeEqualTo 0L
 
             cache.get("remote-key") shouldBeEqualTo "remote-val"
-            cache.localSize() shouldBeEqualTo 1L // front populated
+            cache.localCacheSize() shouldBeEqualTo 1L // front populated
         }
 
     @Test
@@ -106,10 +107,10 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
     fun `containsKey`() =
         runTest {
             cache.put("keyX", "valX")
-            cache.containsKey("keyX") shouldBeEqualTo true
-            cache.containsKey("nonexistent") shouldBeEqualTo false
+            cache.containsKey("keyX").shouldBeTrue()
+            cache.containsKey("nonexistent").shouldBeFalse()
             cache.remove("keyX")
-            cache.containsKey("keyX") shouldBeEqualTo false
+            cache.containsKey("keyX").shouldBeFalse()
         }
 
     @Test
@@ -122,20 +123,19 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
         }
 
     @Test
-    fun `replace`() =
-        runTest {
-            cache.replace("noKey", "val") shouldBeEqualTo false
-            cache.put("key", "old")
-            cache.replace("key", "new") shouldBeEqualTo true
-            cache.get("key") shouldBeEqualTo "new"
-        }
+    fun `replace`() = runTest {
+        cache.replace("noKey", "val").shouldBeFalse()
+        cache.put("key", "old")
+        cache.replace("key", "new").shouldBeTrue()
+        cache.get("key") shouldBeEqualTo "new"
+    }
 
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() =
         runTest {
             cache.put("k", "old")
-            cache.replace("k", "wrong", "new") shouldBeEqualTo false
-            cache.replace("k", "old", "new") shouldBeEqualTo true
+            cache.replace("k", "wrong", "new").shouldBeFalse()
+            cache.replace("k", "old", "new").shouldBeTrue()
             cache.get("k") shouldBeEqualTo "new"
         }
 
@@ -164,9 +164,9 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
         runTest {
             cache.put("k1", "v1")
             cache.put("k2", "v2")
-            cache.localSize() shouldBeEqualTo 2L
+            cache.localCacheSize() shouldBeEqualTo 2L
             cache.clearFrontCache()
-            cache.localSize() shouldBeEqualTo 0L
+            cache.localCacheSize() shouldBeEqualTo 0L
             // prefix key로 Redis 데이터 유지 확인
             directCommands.get("${cache.cacheName}:k1").shouldNotBeNull()
         }
@@ -177,7 +177,7 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
             cache.put("k1", "v1")
             cache.put("k2", "v2")
             cache.clearAll()
-            cache.localSize() shouldBeEqualTo 0L
+            cache.localCacheSize() shouldBeEqualTo 0L
             // prefix key로 삭제 확인
             directCommands.get("${cache.cacheName}:k1").shouldBeNull()
             directCommands.get("${cache.cacheName}:k2").shouldBeNull()
@@ -263,7 +263,7 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
                 )
             failingCache.use { c ->
                 assertFailsWith<Exception> { c.put("k", "v") }
-                c.localSize() shouldBeEqualTo 0L
+                c.localCacheSize() shouldBeEqualTo 0L
             }
         }
 
@@ -278,7 +278,7 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
                 )
             failingCache.use { c ->
                 assertFailsWith<Exception> { c.putAll(mapOf("k1" to "v1", "k2" to "v2")) }
-                c.localSize() shouldBeEqualTo 0L
+                c.localCacheSize() shouldBeEqualTo 0L
             }
         }
 
@@ -358,7 +358,7 @@ class LettuceSuspendNearCacheTest : AbstractLettuceNearCacheTest() {
     // ---- helpers ----
 
     private fun failingValueCodec(): RedisCodec<String, String> =
-        object : RedisCodec<String, String> {
+        object: RedisCodec<String, String> {
             private val delegate = StringCodec.UTF8
 
             override fun decodeKey(bytes: ByteBuffer): String = delegate.decodeKey(bytes)

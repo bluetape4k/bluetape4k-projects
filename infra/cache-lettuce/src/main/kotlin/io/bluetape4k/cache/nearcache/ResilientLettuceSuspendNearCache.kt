@@ -16,6 +16,7 @@ import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.coroutines
@@ -59,15 +60,24 @@ import java.util.concurrent.ConcurrentHashMap
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class ResilientLettuceSuspendNearCache<V : Any>(
-    private val redisClient: RedisClient,
-    private val codec: RedisCodec<String, V> = lettuceDefaultCodec(),
+class ResilientLettuceSuspendNearCache<V: Any>(
+    redisClient: RedisClient,
+    codec: RedisCodec<String, V> = lettuceDefaultCodec(),
     private val config: ResilientLettuceNearCacheConfig<String, V> =
         ResilientLettuceNearCacheConfig(
             LettuceNearCacheConfig()
         ),
-) : AutoCloseable {
-    companion object : KLogging() {
+): AutoCloseable {
+    companion object: KLogging() {
+        private const val COMPARE_AND_SET_SCRIPT = """
+            local current = redis.call('GET', KEYS[1])
+            if current == false or current ~= ARGV[1] then
+                return 0
+            end
+            redis.call('SET', KEYS[1], ARGV[2], 'XX', 'KEEPTTL')
+            return 1
+        """
+
         /**
          * String 키/값 타입의 Resilient Near Suspend Cache를 생성한다.
          */
@@ -85,6 +95,11 @@ class ResilientLettuceSuspendNearCache<V : Any>(
 
     private val closed = atomic(false)
     val isClosed by closed
+    private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
+    private val setArgsNx: SetArgs = SetArgs.Builder.nx()
+    private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
+    private val setArgsXxKeepTtl: SetArgs = SetArgs.Builder.xx().keepttl()
+    private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config.base)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
@@ -154,12 +169,15 @@ class ResilientLettuceSuspendNearCache<V : Any>(
 
     private suspend fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put -> {
+            is BackCacheCommand.Put    -> {
                 setRedis(cmd.key, cmd.value)
+                registerTrackingKey(cmd.key)
             }
             is BackCacheCommand.PutAll -> {
-                cmd.entries.forEach { (k, v) -> setRedis(k, v) }
+                setRedisBulk(cmd.entries)
+                registerTrackingKeys(cmd.entries.keys)
             }
+
             is BackCacheCommand.Remove -> {
                 commands.del(config.redisKey(cmd.key))
                 tombstones.remove(cmd.key)
@@ -268,13 +286,13 @@ class ResilientLettuceSuspendNearCache<V : Any>(
         val existing = get(key)
         if (existing != null) return existing
 
-        val rKey = config.redisKey(key)
-        val setted = commands.setnx(rKey, value) == true
+        val setted = setNxRedis(key, value) == "OK"
         return if (setted) {
-            config.redisTtl?.let { ttl -> commands.expire(rKey, ttl.seconds) }
             frontCache.put(key, value)
+            registerTrackingKey(key)
             null
         } else {
+            val rKey = config.redisKey(key)
             commands.get(rKey)
         }
     }
@@ -283,19 +301,17 @@ class ResilientLettuceSuspendNearCache<V : Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    suspend fun replace(
-        key: String,
-        value: V,
-    ): Boolean {
+    suspend fun replace(key: String, value: V): Boolean {
         key.requireNotBlank("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
         if (!frontCache.containsKey(key)) {
             if ((commands.exists(config.redisKey(key)) ?: 0L) == 0L) return false
         }
-        val ok = commands.set(config.redisKey(key), value, SetArgs.Builder.xx()) != null
+        val ok = setRedis(key, value) != null
         if (ok) {
             frontCache.put(key, value)
+            registerTrackingKey(key)
         }
         return ok
     }
@@ -303,14 +319,19 @@ class ResilientLettuceSuspendNearCache<V : Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    suspend fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean {
-        val current = get(key) ?: return false
-        if (current != oldValue) return false
-        return replace(key, newValue)
+    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+        val replaced = commands.eval<Long>(
+            COMPARE_AND_SET_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(config.redisKey(key)),
+            oldValue,
+            newValue,
+        ) == 1L
+        if (replaced) {
+            frontCache.put(key, newValue)
+            registerTrackingKey(key)
+        }
+        return replaced
     }
 
     /**
@@ -325,10 +346,7 @@ class ResilientLettuceSuspendNearCache<V : Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    suspend fun getAndReplace(
-        key: String,
-        value: V,
-    ): V? {
+    suspend fun getAndReplace(key: String, value: V): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -460,34 +478,44 @@ class ResilientLettuceSuspendNearCache<V : Any>(
         log.debug { "Redis back cache cleared for cacheName=${config.cacheName}" }
     }
 
-    private val redisTtlArgs: SetArgs? by lazy {
-        config.redisTtl?.let { SetArgs.Builder.ex(it) }
-    }
-
-    private suspend fun setRedis(
-        key: String,
-        value: V,
-    ) {
+    private suspend inline fun setRedis(key: String, value: V): String? {
         val rKey = config.redisKey(key)
-
-        if (redisTtlArgs != null) {
-            commands.set(rKey, value, redisTtlArgs!!)
+        return if (setArgsPx != null) {
+            commands.set(rKey, value, setArgsPx)
         } else {
             commands.set(rKey, value)
         }
     }
 
-    private val redisTtlExArgs: MSetExArgs? by lazy {
-        config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
+    private suspend fun setNxRedis(key: String, value: V): String? {
+        val rKey = config.redisKey(key)
+        return if (setArgsNxPx != null) {
+            commands.set(rKey, value, setArgsNxPx)
+        } else {
+            commands.set(rKey, value, setArgsNx)
+        }
     }
 
-    private suspend fun msetRedis(map: Map<String, V>) {
-        val rMap = map.map { config.redisKey(it.key) to it.value }.toMap()
+    private fun registerTrackingKey(key: String) {
+        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
+        // write 경로 지연을 줄이기 위해 fire-and-forget으로 등록한다.
+        connection.async().get(config.redisKey(key))
+    }
 
-        if (redisTtlExArgs != null) {
-            commands.msetex(rMap, redisTtlExArgs!!)
+    private suspend fun setRedisBulk(map: Map<String, V>) {
+        val redisMap = map.entries.associate { (key, value) -> config.redisKey(key) to value }
+        val ttl = config.redisTtl
+        if (ttl != null) {
+            val applied = commands.msetex(redisMap, MSetExArgs().ex(ttl))
+            check(applied == true) { "Redis MSETEX failed for cacheName=${config.cacheName}" }
         } else {
-            commands.mset(rMap)
+            val status = commands.mset(redisMap)
+            check(status == "OK") { "Redis MSET failed for cacheName=${config.cacheName}: $status" }
         }
+    }
+
+    private fun registerTrackingKeys(keys: Collection<String>) {
+        if (keys.isEmpty()) return
+        connection.async().mget(*keys.map(config::redisKey).toTypedArray())
     }
 }

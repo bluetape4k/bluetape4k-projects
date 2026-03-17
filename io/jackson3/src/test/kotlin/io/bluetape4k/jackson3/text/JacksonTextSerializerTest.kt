@@ -1,12 +1,12 @@
 package io.bluetape4k.jackson3.text
 
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import tools.jackson.module.kotlin.readValue
 
 /**
  * CSV/Properties/TOML/YAML 직렬화기 통합 테스트
@@ -218,9 +218,9 @@ class JacksonTextSerializerTest : AbstractJacksonTextTest() {
             val tomlJson = JacksonText.Toml.defaultJsonMapper
             val yamlJson = JacksonText.Yaml.defaultJsonMapper
 
-            (csvJson === propsJson) shouldBeEqualTo true
-            (propsJson === tomlJson) shouldBeEqualTo true
-            (tomlJson === yamlJson) shouldBeEqualTo true
+            csvJson shouldBe propsJson
+            propsJson shouldBe tomlJson
+            tomlJson shouldBe yamlJson
         }
     }
 }

@@ -16,14 +16,15 @@ import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.SpanExporter
+import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.CancellationException
 
 /**
  * NOTE: 테스트 시에 java agent 를 사용하면서 SdkTraceProvider 를 통해 tracer 를 얻으면 충돌이 납니다.
@@ -145,7 +146,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         val span = finished[0]
         span.name shouldBeEqualTo "cancelled-span"
         span.status.statusCode.name shouldBeEqualTo "UNSET"
-        span.events.any { it.name == "exception" } shouldBeEqualTo false
+        span.events.any { it.name == "exception" }.shouldBeFalse()
     }
 
     @Test
@@ -154,7 +155,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         val failure = IllegalStateException("deprecated")
 
         val ex = kotlin.runCatching {
-            tracer.spanBuilder("deprecated-error-span").useSuspendSpan {
+            tracer.spanBuilder("deprecated-error-span").useSpanSuspending {
                 throw failure
             }
         }.exceptionOrNull()

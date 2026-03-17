@@ -8,10 +8,12 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.lettuce.core.KeyScanCursor
+import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
@@ -48,12 +50,21 @@ import kotlinx.atomicfu.atomic
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class LettuceNearCache<V : Any>(
+class LettuceNearCache<V: Any>(
     redisClient: RedisClient,
     codec: RedisCodec<String, V> = lettuceDefaultCodec(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-) : AutoCloseable {
-    companion object : KLogging() {
+): AutoCloseable {
+    companion object: KLogging() {
+        private const val COMPARE_AND_SET_SCRIPT = """
+            local current = redis.call('GET', KEYS[1])
+            if current == false or current ~= ARGV[1] then
+                return 0
+            end
+            redis.call('SET', KEYS[1], ARGV[2], 'XX', 'KEEPTTL')
+            return 1
+        """
+
         /**
          * String 키/값 타입의 Near Cache를 생성한다.
          */
@@ -67,6 +78,11 @@ class LettuceNearCache<V : Any>(
 
     private val closed = atomic(false)
     val isClosed by closed
+    private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
+    private val setArgsNx: SetArgs = SetArgs.Builder.nx()
+    private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
+    private val setArgsXxKeepTtl: SetArgs = SetArgs.Builder.xx().keepttl()
+    private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
@@ -135,27 +151,24 @@ class LettuceNearCache<V : Any>(
         key: String,
         value: V,
     ) {
-        setRedis(key, value) // Redis 먼저 - 실패 시 local 오염 방지
+        key.requireNotBlank("key")
+        setRedis(key, value)
         frontCache.put(key, value)
-        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
-        connection.async().get(config.redisKey(key))
+        registerTrackingKey(key)
     }
 
     /**
      * 여러 key-value를 한 번에 저장한다.
      */
     fun putAll(map: Map<out String, V>) {
-        val redisMap = map.mapKeys { config.redisKey(it.key) }
+        if (map.isEmpty()) return
 
-        // Redis 먼저 - 실패 시 local 오염 방지
-        if (config.redisTtl != null) {
-            map.forEach { (key, value) -> setRedis(key, value) }
-        } else {
-            commands.mset(redisMap)
+        val normalizedMap = map.entries.associate { (key, value) ->
+            key.requireNotBlank("key") to value
         }
-
-        frontCache.putAll(map)
-        connection.async().mget(*redisMap.keys.toTypedArray()) // CLIENT TRACKING 활성화
+        setRedisBulk(normalizedMap)
+        frontCache.putAll(normalizedMap)
+        registerTrackingKeys(normalizedMap.keys)
     }
 
     /**
@@ -170,19 +183,11 @@ class LettuceNearCache<V : Any>(
         if (existing != null) return existing
 
         val rKey = config.redisKey(key)
-        val ttl = config.redisTtl
-
-        // TTL이 있으면 SET NX PX 단일 원자 명령으로 처리
-        val stored =
-            if (ttl != null) {
-                commands.set(rKey, value, SetArgs.Builder.nx().px(ttl.toMillis())) != null
-            } else {
-                commands.setnx(rKey, value) == true
-            }
-
-        return if (stored) {
+        val status = setNxRedis(key, value)
+        val setted = status == "OK"
+        return if (setted) {
             frontCache.put(key, value)
-            connection.async().get(rKey) // CLIENT TRACKING 활성화
+            registerTrackingKey(key)
             null
         } else {
             commands.get(rKey)
@@ -210,14 +215,12 @@ class LettuceNearCache<V : Any>(
      * 기존 값을 새 값으로 교체한다.
      * @return 교체 성공 여부
      */
-    fun replace(
-        key: String,
-        value: V,
-    ): Boolean {
+    fun replace(key: String, value: V): Boolean {
         commands.get(config.redisKey(key)) ?: return false
         val ok = commands.set(config.redisKey(key), value, SetArgs.Builder.xx()) != null
         if (ok) {
             frontCache.put(key, value)
+            registerTrackingKey(key)
         }
         return ok
     }
@@ -225,14 +228,19 @@ class LettuceNearCache<V : Any>(
     /**
      * 기존 값이 oldValue와 같을 때만 newValue로 교체한다.
      */
-    fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean {
-        val current = get(key) ?: return false
-        if (current != oldValue) return false
-        return replace(key, newValue)
+    fun replace(key: String, oldValue: V, newValue: V): Boolean {
+        val replaced = commands.eval<Long>(
+            COMPARE_AND_SET_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(config.redisKey(key)),
+            oldValue,
+            newValue,
+        ) == 1L
+        if (replaced) {
+            frontCache.put(key, newValue)
+            registerTrackingKey(key)
+        }
+        return replaced
     }
 
     /**
@@ -278,10 +286,7 @@ class LettuceNearCache<V : Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                commands.scan(
-                    cursor,
-                    ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE)
-                )
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             if (result.keys.isNotEmpty()) {
                 commands.del(*result.keys.toTypedArray())
             }
@@ -312,10 +317,7 @@ class LettuceNearCache<V : Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                commands.scan(
-                    cursor,
-                    ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE)
-                )
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
             count += result.keys.size
             cursor = result
         } while (!result.isFinished)
@@ -343,16 +345,45 @@ class LettuceNearCache<V : Any>(
         config.redisTtl?.let { SetArgs.Builder.px(it.toMillis()) }
     }
 
-    private fun setRedis(
-        key: String,
-        value: V,
-    ) {
+    private fun setRedis(key: String, value: V): String? {
         val rKey = config.redisKey(key)
-
-        if (redisTtlArgs != null) {
-            commands.set(rKey, value, redisTtlArgs)
+        return if (setArgsPx != null) {
+            commands.set(rKey, value, setArgsPx)
         } else {
             commands.set(rKey, value)
         }
+    }
+
+    private fun setNxRedis(
+        key: String,
+        value: V,
+    ): String? {
+        val rKey = config.redisKey(key)
+        return if (setArgsNxPx != null) {
+            commands.set(rKey, value, setArgsNxPx)
+        } else {
+            commands.set(rKey, value, setArgsNx)
+        }
+    }
+
+    private fun setRedisBulk(map: Map<String, V>) {
+        val redisMap = map.entries.associate { (key, value) -> config.redisKey(key) to value }
+        if (msetExArgs != null) {
+            val applied = commands.msetex(redisMap, msetExArgs)
+            check(applied == true) { "Redis MSETEX failed for cacheName=${config.cacheName}" }
+        } else {
+            val status = commands.mset(redisMap)
+            check(status == "OK") { "Redis MSET failed for cacheName=${config.cacheName}: $status" }
+        }
+    }
+
+    private fun registerTrackingKey(key: String) {
+        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
+        connection.async().get(config.redisKey(key))
+    }
+
+    private fun registerTrackingKeys(keys: Collection<String>) {
+        if (keys.isEmpty()) return
+        connection.async().mget(*keys.map(config::redisKey).toTypedArray())
     }
 }

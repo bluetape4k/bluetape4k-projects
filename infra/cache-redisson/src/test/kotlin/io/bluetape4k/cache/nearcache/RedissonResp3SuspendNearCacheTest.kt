@@ -4,6 +4,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -91,10 +92,10 @@ class RedissonResp3SuspendNearCacheTest: AbstractRedissonResp3NearCacheTest() {
     @Test
     fun `containsKey`() = runTest {
         cache.put("keyX", "valX")
-        cache.containsKey("keyX") shouldBeEqualTo true
-        cache.containsKey("nonexistent") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeTrue()
+        cache.containsKey("nonexistent").shouldBeFalse()
         cache.remove("keyX")
-        cache.containsKey("keyX") shouldBeEqualTo false
+        cache.containsKey("keyX").shouldBeFalse()
     }
 
     @Test
@@ -107,17 +108,17 @@ class RedissonResp3SuspendNearCacheTest: AbstractRedissonResp3NearCacheTest() {
 
     @Test
     fun `replace - 키가 존재할 때만 교체`() = runTest {
-        cache.replace("noKey", "val") shouldBeEqualTo false
+        cache.replace("noKey", "val").shouldBeFalse()
         cache.put("key", "old")
-        cache.replace("key", "new") shouldBeEqualTo true
+        cache.replace("key", "new").shouldBeTrue()
         cache.get("key") shouldBeEqualTo "new"
     }
 
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() = runTest {
         cache.put("k", "old")
-        cache.replace("k", "wrong", "new") shouldBeEqualTo false
-        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.replace("k", "wrong", "new").shouldBeFalse()
+        cache.replace("k", "old", "new").shouldBeTrue()
         cache.get("k") shouldBeEqualTo "new"
     }
 

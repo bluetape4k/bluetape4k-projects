@@ -15,6 +15,9 @@ dependencies {
     api(Libs.exposed_jdbc)
     api(Libs.exposed_java_time)
 
+    // Lettuce
+    api(Libs.lettuce_core)
+
     // Serializer (LettuceLoadedMap에서 사용하는 codec용)
     compileOnly(Libs.fory_kotlin)
     compileOnly(Libs.kryo5)

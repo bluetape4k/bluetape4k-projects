@@ -2,6 +2,7 @@ package io.bluetape4k.logging
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNullOrEmpty
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.slf4j.MDC
@@ -114,7 +115,7 @@ class MdcSupportTest {
             executed = true
             MDC.get("traceId") shouldBeEqualTo "origin"
         }
-        executed shouldBeEqualTo true
+        executed.shouldBeTrue()
         MDC.get("traceId") shouldBeEqualTo "origin"
     }
 

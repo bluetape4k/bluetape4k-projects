@@ -4,6 +4,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.AfterAll
@@ -121,8 +122,8 @@ class RedissonResp3NearCacheTest : AbstractRedissonResp3NearCacheTest() {
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() {
         cache.put("k", "old")
-        cache.replace("k", "wrong", "new") shouldBeEqualTo false
-        cache.replace("k", "old", "new") shouldBeEqualTo true
+        cache.replace("k", "wrong", "new").shouldBeFalse()
+        cache.replace("k", "old", "new").shouldBeTrue()
         cache.get("k") shouldBeEqualTo "new"
     }
 

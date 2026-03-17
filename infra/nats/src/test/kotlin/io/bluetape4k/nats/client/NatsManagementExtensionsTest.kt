@@ -14,6 +14,7 @@ import io.nats.client.api.KeyValueStatus
 import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class JetStreamManagementExtensionsTest {
 
         val deleted = jetStreamManagement.forcedDeleteStream("orders")
 
-        deleted shouldBeEqualTo false
+        deleted.shouldBeFalse()
     }
 
     @Test
@@ -65,7 +66,7 @@ class JetStreamManagementExtensionsTest {
 
         val deleted = jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
 
-        deleted shouldBeEqualTo false
+        deleted.shouldBeFalse()
     }
 
     @Test

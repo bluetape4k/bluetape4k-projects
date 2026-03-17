@@ -60,6 +60,7 @@ class FlowExceptionsTest {
             }
 
         (deserialized is FlowNoElementException).shouldBeTrue()
+        @Suppress("USELESS_CAST")
         (deserialized as FlowNoElementException).message shouldBeEqualTo "serializable"
     }
 
@@ -94,6 +95,7 @@ class FlowExceptionsTest {
             }
 
         (deserialized is FlowOperationException).shouldBeTrue()
+        @Suppress("USELESS_CAST")
         (deserialized as FlowOperationException).message shouldBeEqualTo "serializable op"
     }
 

@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Test
@@ -15,7 +16,7 @@ import java.io.StringReader
  * [JsonMapperSupport] 확장 함수에 대한 단위 테스트입니다.
  */
 class JsonMapperSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val mapper = Jackson.defaultJsonMapper
 
@@ -198,7 +199,7 @@ class JsonMapperSupportTest {
         val json = mapper.prettyWriteAsString(sample)
         json.shouldNotBeNull()
         // 줄바꿈 포함 확인
-        (json.contains("\n")) shouldBeEqualTo true
+        (json.contains("\n")).shouldBeTrue()
     }
 
     @Test
@@ -241,13 +242,13 @@ class JsonMapperSupportTest {
     fun `등록된 모듈 이름 목록을 반환한다`() {
         val names = mapper.registeredModuleNames()
         names.shouldNotBeNull()
-        (names.isNotEmpty()) shouldBeEqualTo true
+        (names.isNotEmpty()).shouldBeTrue()
     }
 
     @Test
     fun `등록된 모듈 ID 목록을 반환한다`() {
         val ids = mapper.registeredModuleIds()
         ids.shouldNotBeNull()
-        (ids.isNotEmpty()) shouldBeEqualTo true
+        (ids.isNotEmpty()).shouldBeTrue()
     }
 }

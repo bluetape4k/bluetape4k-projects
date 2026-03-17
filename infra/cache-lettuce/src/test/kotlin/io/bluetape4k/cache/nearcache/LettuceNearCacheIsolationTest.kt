@@ -3,7 +3,9 @@ package io.bluetape4k.cache.nearcache
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -146,9 +148,9 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
     fun `containsKey()는 해당 캐시의 key만 조회한다`() {
         cacheA.put("exist-key", "value")
 
-        cacheA.containsKey("exist-key") shouldBeEqualTo true
-        cacheB.containsKey("exist-key") shouldBeEqualTo false // B에는 없음
-        cacheC.containsKey("exist-key") shouldBeEqualTo false
+        cacheA.containsKey("exist-key").shouldBeTrue()
+        cacheB.containsKey("exist-key").shouldBeFalse() // B에는 없음
+        cacheC.containsKey("exist-key").shouldBeFalse()
     }
 
     // ---- clearLocal 격리: L1만 비워도 다른 캐시 영향 없음 ----

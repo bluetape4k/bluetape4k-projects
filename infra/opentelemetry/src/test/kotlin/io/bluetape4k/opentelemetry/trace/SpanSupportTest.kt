@@ -5,13 +5,14 @@ import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
+import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CancellationException
 
 /**
  * NOTE: 테스트 시에 java agent 를 사용하면서 SdkTraceProvider 를 통해 tracer 를 얻으면 충돌이 납니다.
@@ -99,7 +100,7 @@ class SpanSupportTest: AbstractOtelTest() {
         val span = finished[0]
         span.name shouldBeEqualTo "cancel-span"
         span.status.statusCode shouldBeEqualTo StatusCode.UNSET
-        span.events.any { it.name == "exception" } shouldBeEqualTo false
+        span.events.any { it.name == "exception" }.shouldBeFalse()
     }
 
     @Test

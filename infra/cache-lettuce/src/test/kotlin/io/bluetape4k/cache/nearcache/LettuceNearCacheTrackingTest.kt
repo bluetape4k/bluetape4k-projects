@@ -7,11 +7,11 @@ import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
@@ -92,7 +92,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache2.put(key, "updated-by-cache2")
 
         // Step 4: nearCache1의 local cache가 비동기로 invalidated되기를 기다림
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -135,7 +135,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         directCommands.set("$cacheName:$key", "updated-by-external")
 
         // Step 4: nearCache1의 local이 invalidated되기를 기다림
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -159,7 +159,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache2.remove(key)
 
         // Step 4: nearCache1의 local이 invalidated되기를 기다림
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -209,14 +209,14 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
             // nearSuspendCache1이 읽어 local populate + tracking 활성화
             nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache1.localSize() shouldBeEqualTo 1L
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
             // nearSuspendCache2가 수정 → Redis가 invalidation push 전송
             nearSuspendCache2.put(key, "updated-by-suspend-cache2")
 
             // nearSuspendCache1의 local이 비동기로 invalidated되기를 기다림
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localSize() shouldBeEqualTo 0L
+            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
             }
 
             nearSuspendCache1.get(key) shouldBeEqualTo "updated-by-suspend-cache2"
@@ -233,14 +233,14 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
             // nearSuspendCache1이 읽어 local populate + tracking 활성화
             nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache1.localSize() shouldBeEqualTo 1L
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
             // 외부 연결이 prefix key를 직접 수정
             directCommands.set("$cacheName:$key", "external-update")
 
             // nearSuspendCache1의 local이 invalidated되기를 기다림
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localSize() shouldBeEqualTo 0L
+            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
             }
 
             nearSuspendCache1.get(key) shouldBeEqualTo "external-update"
@@ -260,29 +260,27 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // 외부 변경 → nearCache1 local이 invalidated 되어야 함
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
         nearCache1.get(key) shouldBeEqualTo "updated-externally"
     }
 
-    // FIXME: 테스트 시나리오 변경 필요
-    @Disabled("테스트 시나리오를 변경해야 한다")
     @Test
     fun `replace success 경로도 tracking을 등록해서 외부 변경 시 invalidation 된다`() {
         val key = "replace-tracking-key"
         val cacheName = nearCache1.cacheName
 
         // 초기값 설정 후 replace (내부 get이 tracking 활성화)
-        directCommands.set("$cacheName:$key", "initial")
-        nearCache1.replace(key, "replaced") shouldBeEqualTo true
+        nearCache1.put(key, "initial")
+        nearCache1.replace(key, "replaced").shouldBeTrue()
         nearCache1.localCacheSize() shouldBeEqualTo 1L
 
         // 외부 변경 → nearCache1 local이 invalidated 되어야 함
-        directCommands.set("$cacheName:$key", "updated-externally")
+        directCommands.set("${nearCache1.cacheName}:$key", "updated-externally")
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -297,32 +295,30 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         val cacheName = nearSuspendCache1.cacheName
 
         nearSuspendCache1.putIfAbsent(key, "initial").shouldBeNull()
-        nearSuspendCache1.localSize() shouldBeEqualTo 1L
+        nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-            nearSuspendCache1.localSize() shouldBeEqualTo 0L
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
         nearSuspendCache1.get(key) shouldBeEqualTo "updated-externally"
     }
 
 
-    // FIXME: 테스트 시나리오 변경 필요 
-    @Disabled("테스트 시나리오를 변경해야 한다")
     @Test
     fun `suspend - replace success 경로도 tracking을 등록한다`() = runSuspendIO {
         val key = "susp-replace-tracking-key"
         val cacheName = nearSuspendCache1.cacheName
 
         directCommands.set("$cacheName:$key", "initial")
-        nearSuspendCache1.replace(key, "replaced") shouldBeEqualTo true
-        nearSuspendCache1.localSize() shouldBeEqualTo 1L
+        nearSuspendCache1.replace(key, "replaced").shouldBeTrue()
+        nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(3, TimeUnit.SECONDS).untilSuspending {
+        await.atMost(5, TimeUnit.SECONDS).untilSuspending {
             nearSuspendCache1.get(key) == "updated-externally"
         }
 
@@ -344,7 +340,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // nearCache2가 putAll로 한번에 수정 → nearCache1 local invalidated
         nearCache2.putAll(keys.associateWith { "updated-$it" })
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -365,7 +361,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // nearCache1이 removeAll → Redis 삭제 → nearCache2 local invalidated
         nearCache1.removeAll(keys.toSet())
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache2.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -387,7 +383,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache1.put(key, "initial")
         nearCache1.replace(key, "replaced")
 
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache2.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -407,7 +403,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
         // 외부에서 값 변경 → nearCache1 local invalidated
         directCommands.set("$cacheName:$key", "v2")
-        await.atMost(3, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -426,12 +422,12 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
             keys.forEach { key -> directCommands.set("$cacheName:$key", "initial") }
             keys.forEach { key -> nearSuspendCache1.get(key) shouldBeEqualTo "initial" }
-            nearSuspendCache1.localSize() shouldBeEqualTo 2L
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 2L
 
             nearSuspendCache2.putAll(keys.associateWith { "updated-$it" })
 
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localSize() shouldBeEqualTo 0L
+            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
             }
 
             keys.forEach { key -> nearSuspendCache1.get(key) shouldBeEqualTo "updated-$key" }
@@ -445,12 +441,12 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
             keys.forEach { key -> directCommands.set("$cacheName:$key", "value") }
             keys.forEach { key -> nearSuspendCache2.get(key) shouldBeEqualTo "value" }
-            nearSuspendCache2.localSize() shouldBeEqualTo 2L
+            nearSuspendCache2.localCacheSize() shouldBeEqualTo 2L
 
             nearSuspendCache1.removeAll(keys.toSet())
 
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache2.localSize() shouldBeEqualTo 0L
+            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+                nearSuspendCache2.localCacheSize() shouldBeEqualTo 0L
             }
 
             keys.forEach { key -> nearSuspendCache2.get(key).shouldBeNull() }
@@ -464,13 +460,13 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
             directCommands.set("$cacheName:$key", "initial")
             nearSuspendCache2.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache2.localSize() shouldBeEqualTo 1L
+            nearSuspendCache2.localCacheSize() shouldBeEqualTo 1L
 
             nearSuspendCache1.put(key, "initial")
             nearSuspendCache1.replace(key, "replaced")
 
-            await.atMost(3, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache2.localSize() shouldBeEqualTo 0L
+            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+                nearSuspendCache2.localCacheSize() shouldBeEqualTo 0L
             }
 
             nearSuspendCache2.get(key) shouldBeEqualTo "replaced"

@@ -2,6 +2,7 @@ package io.bluetape4k.javatimes
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -48,7 +49,7 @@ class YearQuarterTest {
         val yq3 = YearQuarter(2024, Quarter.Q2)
 
         yq1 shouldBeEqualTo yq2
-        (yq1 == yq3).let { it shouldBeEqualTo false }
+        yq1 shouldNotBeEqualTo yq3
     }
 
     @Test

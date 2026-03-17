@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
@@ -61,7 +62,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
-            (id1.value == id2.value) shouldBeEqualTo false
+            (id1.value == id2.value).shouldBeFalse()
             KsuidItems.selectAll().toList() shouldHaveSize 2
         }
     }
@@ -89,7 +90,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
-            (id1.value == id2.value) shouldBeEqualTo false
+            (id1.value == id2.value).shouldBeFalse()
         }
     }
 
@@ -102,7 +103,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
             }[SnowflakeItems.id]
 
             id.shouldNotBeNull()
-            (id.value > 0L) shouldBeEqualTo true
+            (id.value > 0L).shouldBeTrue()
             SnowflakeItems.selectAll().toList() shouldHaveSize 1
         }
     }
@@ -116,7 +117,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
-            (id1.value == id2.value) shouldBeEqualTo false
+            (id1.value == id2.value).shouldBeFalse()
         }
     }
 
@@ -143,7 +144,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
-            (id1.value == id2.value) shouldBeEqualTo false
+            (id1.value == id2.value).shouldBeFalse()
         }
     }
 
@@ -170,7 +171,7 @@ class CustomIdTablesTest: AbstractExposedTest() {
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
-            (id1.value == id2.value) shouldBeEqualTo false
+            (id1.value == id2.value).shouldBeFalse()
         }
     }
 }

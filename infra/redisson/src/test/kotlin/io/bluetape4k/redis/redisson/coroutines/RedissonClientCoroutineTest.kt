@@ -10,6 +10,7 @@ import io.bluetape4k.redis.redisson.RedissonTestUtils.randomString
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
+import io.bluetape4k.support.asBoolean
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -36,7 +37,7 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                 batchMap.getAllAsync(setOf("1", "2"))
             }
             log.debug { "responses=${result.responses}" }
-            result.responses.first() shouldBeEqualTo true
+            result.responses.first().asBoolean().shouldBeTrue()
             result.responses.last() shouldBeEqualTo mapOf("1" to "2", "2" to "5")
 
         } finally {

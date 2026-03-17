@@ -4,6 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import jakarta.json.JsonException
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.node.ArrayNode
@@ -17,7 +19,7 @@ import kotlin.test.assertFailsWith
  * [JsonNodeExtensions] 에 대한 단위 테스트입니다.
  */
 class JsonNodeExtensionsTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ── createNode / createArray ──────────────────────────────────────────────
 
@@ -26,7 +28,7 @@ class JsonNodeExtensionsTest {
         val root = JsonNodeFactory.instance.objectNode()
         val child = root.createNode("child")
         child.shouldNotBeNull()
-        root.has("child") shouldBeEqualTo true
+        root.has("child").shouldBeTrue()
     }
 
     @Test
@@ -41,7 +43,7 @@ class JsonNodeExtensionsTest {
         val root = JsonNodeFactory.instance.objectNode()
         val arr = root.createArray("items")
         arr.shouldNotBeNull()
-        root.has("items") shouldBeEqualTo true
+        root.has("items").shouldBeTrue()
     }
 
     @Test
@@ -128,7 +130,7 @@ class JsonNodeExtensionsTest {
     fun `ArrayNode 에 addDouble 호출 시 원소가 추가된다`() {
         val node = JsonNodeFactory.instance.arrayNode()
         node.addDouble(2.71, null)
-        (node.get(0).asDouble() - 2.71 < 1e-9) shouldBeEqualTo true
+        (node.get(0).asDouble() - 2.71 < 1e-9).shouldBeTrue()
     }
 
     // ── addFloat ──────────────────────────────────────────────────────────────
@@ -138,7 +140,7 @@ class JsonNodeExtensionsTest {
         val node = JsonNodeFactory.instance.objectNode()
         node.addFloat(1.5f, "rate")
         log.debug { "rate=${node.get("rate")}" }
-        node.has("rate") shouldBeEqualTo true
+        node.has("rate").shouldBeTrue()
     }
 
     // ── addBigDecimal ─────────────────────────────────────────────────────────
@@ -174,21 +176,21 @@ class JsonNodeExtensionsTest {
     fun `ObjectNode 에 addBoolean true 호출 시 필드가 추가된다`() {
         val node = JsonNodeFactory.instance.objectNode()
         node.addBoolean(true, "flag")
-        node.get("flag").asBoolean() shouldBeEqualTo true
+        node.get("flag").asBoolean().shouldBeTrue()
     }
 
     @Test
     fun `ObjectNode 에 addBoolean false 호출 시 필드가 추가된다`() {
         val node = JsonNodeFactory.instance.objectNode()
         node.addBoolean(false, "flag")
-        node.get("flag").asBoolean() shouldBeEqualTo false
+        node.get("flag").asBoolean().shouldBeFalse()
     }
 
     @Test
     fun `ArrayNode 에 addBoolean 호출 시 원소가 추가된다`() {
         val node = JsonNodeFactory.instance.arrayNode()
         node.addBoolean(true, null)
-        node.get(0).asBoolean() shouldBeEqualTo true
+        node.get(0).asBoolean().shouldBeTrue()
     }
 
     // ── addNull ───────────────────────────────────────────────────────────────
@@ -197,8 +199,8 @@ class JsonNodeExtensionsTest {
     fun `ObjectNode 에 addNull 호출 시 null 필드가 추가된다`() {
         val node = JsonNodeFactory.instance.objectNode()
         node.addNull("nothing")
-        node.has("nothing") shouldBeEqualTo true
-        node.get("nothing").isNull shouldBeEqualTo true
+        node.has("nothing").shouldBeTrue()
+        node.get("nothing").isNull.shouldBeTrue()
     }
 
     @Test
@@ -206,7 +208,7 @@ class JsonNodeExtensionsTest {
         val node = JsonNodeFactory.instance.arrayNode()
         node.addNull(null)
         node.size() shouldBeEqualTo 1
-        node.get(0).isNull shouldBeEqualTo true
+        node.get(0).isNull.shouldBeTrue()
     }
 
     @Test
@@ -229,8 +231,8 @@ class JsonNodeExtensionsTest {
 
         node.get("name").asString() shouldBeEqualTo "debop"
         node.get("age").asInt() shouldBeEqualTo 42
-        node.get("active").asBoolean() shouldBeEqualTo true
-        node.get("address").isNull shouldBeEqualTo true
+        node.get("active").asBoolean().shouldBeTrue()
+        node.get("address").isNull.shouldBeTrue()
     }
 
     @Test
@@ -244,7 +246,7 @@ class JsonNodeExtensionsTest {
         node.size() shouldBeEqualTo 4
         node.get(0).asString() shouldBeEqualTo "first"
         node.get(1).asLong() shouldBeEqualTo 2L
-        node.get(2).asBoolean() shouldBeEqualTo false
-        node.get(3).isNull shouldBeEqualTo true
+        node.get(2).asBoolean().shouldBeFalse()
+        node.get(3).isNull.shouldBeTrue()
     }
 }
