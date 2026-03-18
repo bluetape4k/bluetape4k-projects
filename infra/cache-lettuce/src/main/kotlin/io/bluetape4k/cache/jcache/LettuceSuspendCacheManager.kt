@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 @Suppress("UNCHECKED_CAST")
 /**
- * Lettuce 기반 [LettuceSuspendCache] 인스턴스의 생성/조회/종료를 관리합니다.
+ * Lettuce 기반 [LettuceSuspendJCache] 인스턴스의 생성/조회/종료를 관리합니다.
  *
  * ## 동작/계약
  * - `cacheName`을 키로 내부 `ConcurrentHashMap`에 캐시 래퍼를 저장/재사용합니다.
@@ -40,7 +40,7 @@ class LettuceSuspendCacheManager(
 
     companion object: KLoggingChannel()
 
-    private val caches = ConcurrentHashMap<String, LettuceSuspendCache<out Any>>()
+    private val caches = ConcurrentHashMap<String, LettuceSuspendJCache<out Any>>()
 
     private val closed = atomic(false)
 
@@ -75,7 +75,7 @@ class LettuceSuspendCacheManager(
         cacheName: String,
         ttlSeconds: Long? = null,
         codec: LettuceBinaryCodec<V>? = null,
-    ): LettuceSuspendCache<V> {
+    ): LettuceSuspendJCache<V> {
         checkNotClosed()
         cacheName.requireNotBlank("cacheName")
 
@@ -85,7 +85,7 @@ class LettuceSuspendCacheManager(
             val conn = redisClient.connect(codec ?: this@LettuceSuspendCacheManager.codec)
             val commands = conn.coroutines() as RedisCoroutinesCommands<String, V>
 
-            LettuceSuspendCache(
+            LettuceSuspendJCache(
                 name,
                 commands,
                 ttlSeconds ?: this@LettuceSuspendCacheManager.ttlSeconds,
@@ -93,7 +93,7 @@ class LettuceSuspendCacheManager(
                 supportsHSetEx = supportsHSetEx,
                 closeResource = { conn.close() },
             )
-        } as LettuceSuspendCache<V>
+        } as LettuceSuspendJCache<V>
     }
 
     /**
@@ -109,11 +109,11 @@ class LettuceSuspendCacheManager(
      * // cache == null || cache.cacheName == "users"
      * ```
      */
-    fun <V: Any> getCache(cacheName: String): LettuceSuspendCache<V>? {
+    fun <V: Any> getCache(cacheName: String): LettuceSuspendJCache<V>? {
         checkNotClosed()
         cacheName.requireNotBlank("cacheName")
 
-        return caches[cacheName] as? LettuceSuspendCache<V>
+        return caches[cacheName] as? LettuceSuspendJCache<V>
     }
 
     /**
@@ -154,7 +154,7 @@ class LettuceSuspendCacheManager(
      * // manager.getCache<Any>(cache.cacheName) == null
      * ```
      */
-    fun closeCache(cache: LettuceSuspendCache<*>) {
+    fun closeCache(cache: LettuceSuspendJCache<*>) {
         caches.remove(cache.cacheName)
     }
 

@@ -3,8 +3,8 @@ package io.bluetape4k.jwt.reader
 import io.bluetape4k.LibraryName
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.RedissonJCaching
-import io.bluetape4k.cache.nearcache.jcache.NearCache
-import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.provider.JwtProviderFactory
@@ -124,19 +124,19 @@ class JwtReaderCachingTest: AbstractJwtTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `caching reader with two near cache`() {
-        val nearCacheConfig1 = NearCacheConfig<String, JwtReaderDto>(isSynchronous = true)
-        val nearCacheConfig2 = NearCacheConfig<String, JwtReaderDto>(isSynchronous = true)
-        val nearCache1 = NearCache(nearCacheConfig1, backCache)
-        val nearCache2 = NearCache(nearCacheConfig2, backCache)
+        val nearJCacheConfig1 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = true)
+        val nearJCacheConfig2 = NearJCacheConfig<String, JwtReaderDto>(isSynchronous = true)
+        val nearJCache1 = NearJCache(nearJCacheConfig1, backCache)
+        val nearJCache2 = NearJCache(nearJCacheConfig2, backCache)
 
         // Cache 1 에서 저장
-        nearCache1.put(jwt, reader.toDto())
-        nearCache1.get(jwt)!!.toJwtReader() shouldBeEqualTo reader
+        nearJCache1.put(jwt, reader.toDto())
+        nearJCache1.get(jwt)!!.toJwtReader() shouldBeEqualTo reader
 
-        await atMost 10.seconds until { nearCache2.containsKey(jwt) }
+        await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
 
         // Cache 2 에서 조회
-        val actual = nearCache2.get(jwt)!!.toJwtReader()
+        val actual = nearJCache2.get(jwt)!!.toJwtReader()
 
         assertSameReader(reader, actual)
     }

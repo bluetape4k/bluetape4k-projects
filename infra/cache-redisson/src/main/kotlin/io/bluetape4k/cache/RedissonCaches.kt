@@ -3,16 +3,16 @@ package io.bluetape4k.cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonJCaching
-import io.bluetape4k.cache.jcache.RedissonSuspendCache
-import io.bluetape4k.cache.jcache.SuspendCache
+import io.bluetape4k.cache.jcache.RedissonSuspendJCache
+import io.bluetape4k.cache.jcache.SuspendJCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.RedissonNearCache
 import io.bluetape4k.cache.nearcache.RedissonNearCacheConfig
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
-import io.bluetape4k.cache.nearcache.jcache.NearCache
-import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
-import io.bluetape4k.cache.nearcache.jcache.SuspendNearCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.redisson.api.RedissonClient
@@ -24,7 +24,7 @@ import javax.cache.configuration.MutableConfiguration
 /**
  * Redisson 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
- * [JCache], [SuspendCache], [NearCache], [SuspendNearCache],
+ * [JCache], [SuspendJCache], [NearJCache], [SuspendNearJCache],
  * [NearCacheOperations], [SuspendNearCacheOperations]를 한 곳에서 생성할 수 있습니다.
  *
  * ```kotlin
@@ -81,63 +81,63 @@ object RedissonCaches : KLogging() {
     // ─────────────────────────────────────────────
 
     /**
-     * RedissonClient로 [RedissonSuspendCache]를 생성하거나 재사용합니다.
+     * RedissonClient로 [RedissonSuspendJCache]를 생성하거나 재사용합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param cacheName 캐시 이름
      * @param redisson Redisson 클라이언트
      * @param configuration JCache 설정
-     * @return [RedissonSuspendCache] 인스턴스
+     * @return [RedissonSuspendJCache] 인스턴스
      */
     fun <K : Any, V : Any> suspendCache(
         cacheName: String,
         redisson: RedissonClient,
         configuration: Configuration<K, V> = MutableConfiguration(),
-    ): RedissonSuspendCache<K, V> = RedissonSuspendCache(cacheName, redisson, configuration)
+    ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redisson, configuration)
 
     /**
-     * Redisson [Config]로 [RedissonSuspendCache]를 생성하거나 재사용합니다.
+     * Redisson [Config]로 [RedissonSuspendJCache]를 생성하거나 재사용합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param cacheName 캐시 이름
      * @param redissonConfig Redisson 설정
-     * @return [RedissonSuspendCache] 인스턴스
+     * @return [RedissonSuspendJCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> suspendCache(
         cacheName: String,
         redissonConfig: Config,
-    ): RedissonSuspendCache<K, V> = RedissonSuspendCache(cacheName, redissonConfig)
+    ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redissonConfig)
 
     // ─────────────────────────────────────────────
     // NearCache (JCache 백엔드, 레거시)
     // ─────────────────────────────────────────────
 
     /**
-     * 기존 [JCache] 인스턴스로 [NearCache]를 생성합니다.
+     * 기존 [JCache] 인스턴스로 [NearJCache]를 생성합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param backCache 백엔드 JCache
-     * @param nearCacheConfig Near Cache 설정
-     * @return [NearCache] 인스턴스
+     * @param nearJCacheConfig Near Cache 설정
+     * @return [NearJCache] 인스턴스
      */
     fun <K : Any, V : Any> nearCache(
         backCache: JCache<K, V>,
-        nearCacheConfig: NearCacheConfig<K, V> = NearCacheConfig(),
-    ): NearCache<K, V> = NearCache(nearCacheConfig, backCache)
+        nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
+    ): NearJCache<K, V> = NearJCache(nearJCacheConfig, backCache)
 
     /**
-     * RedissonClient로 백엔드 캐시를 생성하고 [NearCache]를 반환합니다.
+     * RedissonClient로 백엔드 캐시를 생성하고 [NearJCache]를 반환합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param backCacheName 백엔드 캐시 이름
      * @param redisson Redisson 클라이언트
      * @param backCacheConfiguration 백엔드 JCache 설정
-     * @param nearCacheConfig Near Cache 설정
-     * @return [NearCache] 인스턴스
+     * @param nearJCacheConfig Near Cache 설정
+     * @return [NearJCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> nearCache(
         backCacheName: String,
@@ -146,10 +146,10 @@ object RedissonCaches : KLogging() {
             MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
             },
-        nearCacheConfig: NearCacheConfig<K, V> = NearCacheConfig(),
-    ): NearCache<K, V> {
+        nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
+    ): NearJCache<K, V> {
         val backCache = RedissonJCaching.getOrCreate(backCacheName, redisson, backCacheConfiguration)
-        return NearCache(nearCacheConfig, backCache)
+        return NearJCache(nearJCacheConfig, backCache)
     }
 
     // ─────────────────────────────────────────────
@@ -157,23 +157,23 @@ object RedissonCaches : KLogging() {
     // ─────────────────────────────────────────────
 
     /**
-     * Front/Back [SuspendCache]를 직접 지정해 [SuspendNearCache]를 생성합니다.
+     * Front/Back [SuspendJCache]를 직접 지정해 [SuspendNearJCache]를 생성합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
-     * @param frontSuspendCache 프론트 SuspendCache
-     * @param backSuspendCache 백엔드 SuspendCache
+     * @param frontSuspendJCache 프론트 SuspendCache
+     * @param backSuspendJCache 백엔드 SuspendCache
      * @param checkExpiryPeriod 만료 검사 주기(ms)
-     * @return [SuspendNearCache] 인스턴스
+     * @return [SuspendNearJCache] 인스턴스
      */
     fun <K : Any, V : Any> suspendNearCache(
-        frontSuspendCache: SuspendCache<K, V>,
-        backSuspendCache: SuspendCache<K, V>,
-        checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-    ): SuspendNearCache<K, V> = SuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
+        frontSuspendJCache: SuspendJCache<K, V>,
+        backSuspendJCache: SuspendJCache<K, V>,
+        checkExpiryPeriod: Long = SuspendNearJCache.DEFAULT_EXPIRY_CHECK_PERIOD,
+    ): SuspendNearJCache<K, V> = SuspendNearJCache(frontSuspendJCache, backSuspendJCache, checkExpiryPeriod)
 
     /**
-     * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearCache]를 반환합니다.
+     * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearJCache]를 반환합니다.
      * 프론트 캐시는 기본적으로 Caffeine을 사용합니다.
      *
      * @param K 키 타입
@@ -183,7 +183,7 @@ object RedissonCaches : KLogging() {
      * @param backCacheConfiguration 백엔드 JCache 설정
      * @param checkExpiryPeriod 만료 검사 주기(ms)
      * @param frontCacheBuilder 프론트 Caffeine 빌더 블록
-     * @return [SuspendNearCache] 인스턴스
+     * @return [SuspendNearJCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> suspendNearCache(
         backCacheName: String,
@@ -192,14 +192,14 @@ object RedissonCaches : KLogging() {
             MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
             },
-        checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
+        checkExpiryPeriod: Long = SuspendNearJCache.DEFAULT_EXPIRY_CHECK_PERIOD,
         noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
-    ): SuspendNearCache<K, V> {
+    ): SuspendNearJCache<K, V> {
         val frontCache =
             io.bluetape4k.cache.jcache
-                .CaffeineSuspendCache<K, V>(frontCacheBuilder)
-        val backCache = RedissonSuspendCache<K, V>(backCacheName, redisson, backCacheConfiguration)
-        return SuspendNearCache(frontCache, backCache, checkExpiryPeriod)
+                .CaffeineSuspendJCache<K, V>(frontCacheBuilder)
+        val backCache = RedissonSuspendJCache<K, V>(backCacheName, redisson, backCacheConfiguration)
+        return SuspendNearJCache(frontCache, backCache, checkExpiryPeriod)
     }
 
     // ─────────────────────────────────────────────

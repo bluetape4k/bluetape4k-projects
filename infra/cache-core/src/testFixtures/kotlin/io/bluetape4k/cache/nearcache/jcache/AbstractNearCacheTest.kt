@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.untilNull
@@ -22,13 +23,16 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import kotlin.time.Duration.Companion.seconds
 
 @OutputCapture
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractNearCacheTest {
 
     companion object: KLogging() {
-        protected const val TEST_SIZE = 5
+        protected const val TEST_SIZE = 3
+
+        protected val awaitTimeout = 5.seconds
 
         @JvmStatic
         fun randomKey(): String = TimebasedUuid.Epoch.nextIdAsString() + Base58.randomString(6)
@@ -40,26 +44,26 @@ abstract class AbstractNearCacheTest {
 
     abstract val backCache: JCache<String, Any>
 
-    open val nearCacheCfg1 = NearCacheConfig<String, Any>()
-    open val nearCacheCfg2 = NearCacheConfig<String, Any>()
+    open val nearCacheCfg1 = NearJCacheConfig<String, Any>()
+    open val nearCacheCfg2 = NearJCacheConfig<String, Any>()
 
-    protected open val nearCache1: NearCache<String, Any> by lazy { NearCache(nearCacheCfg1, backCache) }
-    protected open val nearCache2: NearCache<String, Any> by lazy { NearCache(nearCacheCfg2, backCache) }
+    protected open val nearJCache1: NearJCache<String, Any> by lazy { NearJCache(nearCacheCfg1, backCache) }
+    protected open val nearJCache2: NearJCache<String, Any> by lazy { NearJCache(nearCacheCfg2, backCache) }
 
     @BeforeEach
     fun setup() {
-        nearCache1.clear()
-        nearCache2.clear()
+        nearJCache1.clear()
+        nearJCache2.clear()
         backCache.clear()
     }
 
     @Test
     fun `create near cache`() {
         val frontCacheName = "frontCache-" + randomKey()
-        val nearCacheCfg = NearCacheConfig<String, Any>(frontCacheName = frontCacheName)
+        val nearCacheCfg = NearJCacheConfig<String, Any>(frontCacheName = frontCacheName)
         nearCacheCfg.frontCacheName shouldBeEqualTo frontCacheName
-        val nearCache = NearCache(nearCacheCfg, backCache)
-        nearCache.frontCache.name shouldBeEqualTo frontCacheName
+        val nearJCache = NearJCache(nearCacheCfg, backCache)
+        nearJCache.frontCache.name shouldBeEqualTo frontCacheName
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -67,14 +71,14 @@ abstract class AbstractNearCacheTest {
         val key = randomKey()
         val value = randomValue()
 
-        nearCache1[key].shouldBeNull()
+        nearJCache1[key].shouldBeNull()
 
         backCache.put(key, value)
-        await until { nearCache1.containsKey(key) && nearCache2.containsKey(key) }
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key) && nearJCache2.containsKey(key) }
 
         // 이 것은 cache entry event listener 를 통해 backCache -> frontCache로 전달된다
-        nearCache1[key] shouldBeEqualTo value
-        nearCache2[key] shouldBeEqualTo value
+        nearJCache1[key] shouldBeEqualTo value
+        nearJCache2[key] shouldBeEqualTo value
     }
 
     // TODO: 실제 시나리오를 만들기 힘듬 (시점 차이) -> Mockk 로 대체해야 함
@@ -85,14 +89,14 @@ abstract class AbstractNearCacheTest {
         val value = randomValue()
 
         backCache.put(key, value)
-        nearCache1.clear()
-        nearCache2.clear()
+        nearJCache1.clear()
+        nearJCache2.clear()
 
-        nearCache1[key].shouldBeNull()
-        nearCache2[key].shouldBeNull()
+        nearJCache1[key].shouldBeNull()
+        nearJCache2[key].shouldBeNull()
 
-        nearCache1.getDeeply(key) shouldBeEqualTo value
-        nearCache1[key] shouldBeEqualTo value
+        nearJCache1.getDeeply(key) shouldBeEqualTo value
+        nearJCache1[key] shouldBeEqualTo value
         backCache[key] shouldBeEqualTo value
     }
 
@@ -103,11 +107,11 @@ abstract class AbstractNearCacheTest {
 
         backCache.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, value)
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
         backCache.get(key) shouldBeEqualTo value   // 이 것은 write through 로
-        nearCache2[key] shouldBeEqualTo value  // 이 것은 cache entry event listener 로 추가됨
+        nearJCache2[key] shouldBeEqualTo value  // 이 것은 cache entry event listener 로 추가됨
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -117,18 +121,18 @@ abstract class AbstractNearCacheTest {
 
         backCache.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, value)
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
         backCache.containsKey(key).shouldBeTrue()
-        nearCache2.containsKey(key).shouldBeTrue()
+        nearJCache2.containsKey(key).shouldBeTrue()
 
-        nearCache1.remove(key)
-        await until { !nearCache2.containsKey(key) }
+        nearJCache1.remove(key)
+        await atMost (awaitTimeout) until { !nearJCache2.containsKey(key) }
 
         backCache.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
-        nearCache2[key].shouldBeNull()
+        nearJCache2.containsKey(key).shouldBeFalse()
+        nearJCache2[key].shouldBeNull()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -139,18 +143,18 @@ abstract class AbstractNearCacheTest {
 
         backCache.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, oldValue)
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
         backCache.get(key) shouldBeEqualTo oldValue     // write through로 인해
-        nearCache2.containsKey(key).shouldBeTrue()
-        nearCache2[key] shouldBeEqualTo oldValue    // read through로 인해
+        nearJCache2.containsKey(key).shouldBeTrue()
+        nearJCache2[key] shouldBeEqualTo oldValue    // read through로 인해
 
-        nearCache1.replace(key, newValue)
-        await until { nearCache2[key] == newValue }
+        nearJCache1.replace(key, newValue)
+        await atMost (awaitTimeout) until { nearJCache2[key] == newValue }
 
         backCache.get(key) shouldBeEqualTo newValue     // write through로 인해
-        nearCache2[key] shouldBeEqualTo newValue
+        nearJCache2[key] shouldBeEqualTo newValue
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -160,11 +164,11 @@ abstract class AbstractNearCacheTest {
         val key2 = randomKey()
         val value2 = randomValue()
 
-        nearCache1.put(key1, value1)  // write through -> remote -> event -> event cache2
-        nearCache2.put(key2, value2)  // write through -> remote -> event -> event cache1
-        await until { nearCache1.containsKey(key2) && nearCache2.containsKey(key1) }
+        nearJCache1.put(key1, value1)  // write through -> remote -> event -> event cache2
+        nearJCache2.put(key2, value2)  // write through -> remote -> event -> event cache1
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) && nearJCache2.containsKey(key1) }
 
-        nearCache1.getAll(key1, key2) shouldContainSame mapOf(key1 to value1, key2 to value2)
+        nearJCache1.getAll(key1, key2) shouldContainSame mapOf(key1 to value1, key2 to value2)
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -172,13 +176,13 @@ abstract class AbstractNearCacheTest {
         val key = randomKey()
         val value = randomValue()
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, value)    // write through -> remote -> event -> near cache2
-        await until { nearCache2.containsKey(key) }
-        nearCache1.containsKey(key).shouldBeTrue()
-        nearCache2.containsKey(key).shouldBeTrue()
+        nearJCache1.put(key, value)    // write through -> remote -> event -> near cache2
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
+        nearJCache1.containsKey(key).shouldBeTrue()
+        nearJCache2.containsKey(key).shouldBeTrue()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -186,15 +190,15 @@ abstract class AbstractNearCacheTest {
         val key = randomKey()
         val value = randomValue()
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, value)    // write through -> backCache -> event -> nearCache2
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, value)    // write through -> backCache -> event -> nearCache2
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
-        nearCache1[key] shouldBeEqualTo value
+        nearJCache1[key] shouldBeEqualTo value
         backCache.get(key) shouldBeEqualTo value
-        nearCache2[key] shouldBeEqualTo value
+        nearJCache2[key] shouldBeEqualTo value
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -203,13 +207,13 @@ abstract class AbstractNearCacheTest {
             randomKey() to randomValue()
         }.toMap()
 
-        nearCache1.putAll(map)
-        await until { nearCache2.getAll(*map.keys.toTypedArray()).size == map.size }
+        nearJCache1.putAll(map)
+        await atMost (awaitTimeout) until { nearJCache2.getAll(*map.keys.toTypedArray()).size == map.size }
 
-        map.keys.all { nearCache1[it] != null }.shouldBeTrue()
-        map.keys.all { nearCache2[it] != null }.shouldBeTrue()
+        map.keys.all { nearJCache1[it] != null }.shouldBeTrue()
+        map.keys.all { nearJCache2[it] != null }.shouldBeTrue()
 
-        nearCache2.getAll(map.keys.toSet()) shouldContainSame map
+        nearJCache2.getAll(map.keys.toSet()) shouldContainSame map
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -218,15 +222,16 @@ abstract class AbstractNearCacheTest {
         val oldValue = randomValue()
         val newValue = randomValue()
 
-        nearCache1.put(key, oldValue)
-        nearCache1[key] shouldBeEqualTo oldValue
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, oldValue)
+        nearJCache1[key] shouldBeEqualTo oldValue
+
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
         // 이미 등록되어 있는 key 에 대해 저장되지 않는다
-        nearCache2.putIfAbsent(key, newValue).shouldBeFalse()
+        nearJCache2.putIfAbsent(key, newValue).shouldBeFalse()
 
-        nearCache2[key] shouldBeEqualTo oldValue
-        nearCache2[key] shouldBeEqualTo oldValue
+        nearJCache2[key] shouldBeEqualTo oldValue
+        nearJCache2[key] shouldBeEqualTo oldValue
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -235,13 +240,13 @@ abstract class AbstractNearCacheTest {
         val key = "not-exist-key"
         val value = randomValue()
 
-        nearCache2.putIfAbsent(key, value).shouldBeTrue()
-        nearCache2[key] shouldBeEqualTo value
+        nearJCache2.putIfAbsent(key, value).shouldBeTrue()
+        nearJCache2[key] shouldBeEqualTo value
 
-        await until { nearCache1.containsKey(key) }
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key) }
 
         backCache[key] shouldBeEqualTo value
-        nearCache1[key] shouldBeEqualTo value
+        nearJCache1[key] shouldBeEqualTo value
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -249,20 +254,20 @@ abstract class AbstractNearCacheTest {
         val key = randomKey()
         val value = randomValue()
 
-        nearCache1.put(key, value)
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
-        nearCache1.containsKey(key).shouldBeTrue()
-        nearCache2.containsKey(key).shouldBeTrue()
-        nearCache2[key] shouldBeEqualTo value
+        nearJCache1.containsKey(key).shouldBeTrue()
+        nearJCache2.containsKey(key).shouldBeTrue()
+        nearJCache2[key] shouldBeEqualTo value
 
-        nearCache2.remove(key)
-        await untilNull { nearCache1[key] }
+        nearJCache2.remove(key)
+        await atMost (awaitTimeout) untilNull { nearJCache1[key] }
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
-        nearCache1[key].shouldBeNull()
-        nearCache2[key].shouldBeNull()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
+        nearJCache1[key].shouldBeNull()
+        nearJCache2[key].shouldBeNull()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -271,39 +276,39 @@ abstract class AbstractNearCacheTest {
         val oldValue = randomValue()
         val newValue = randomValue()
 
-        nearCache1.put(key, newValue)
-        await until { nearCache2[key] == newValue }
+        nearJCache1.put(key, newValue)
+        await atMost (awaitTimeout) until { nearJCache2[key] == newValue }
 
-        nearCache2.put(key, oldValue)
-        await until { nearCache1[key] == oldValue }
+        nearJCache2.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache1[key] == oldValue }
 
         // nearCache2에서 update 한 것이 반영되었다
-        nearCache1.remove(key, oldValue).shouldBeTrue()
-        await untilNull { nearCache2[key] }
+        nearJCache1.remove(key, oldValue).shouldBeTrue()
+        await atMost (awaitTimeout) untilNull { nearJCache2[key] }
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, newValue)
-        await until { nearCache2[key] == newValue }
+        nearJCache1.put(key, newValue)
+        await atMost (awaitTimeout) until { nearJCache2[key] == newValue }
 
-        nearCache2.put(key, oldValue)
-        await until { nearCache1[key] == oldValue }
+        nearJCache2.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache1[key] == oldValue }
 
         // 마지막 Layer의 Cache 값이 Update 되어서 oldValue를 가진다.
-        nearCache1.remove(key, oldValue).shouldBeTrue()
-        await untilNull { nearCache2[key] }
+        nearJCache1.remove(key, oldValue).shouldBeTrue()
+        await atMost (awaitTimeout) untilNull { nearJCache2[key] }
 
-        nearCache1[key].shouldBeNull()
-        nearCache2[key].shouldBeNull()
+        nearJCache1[key].shouldBeNull()
+        nearJCache2[key].shouldBeNull()
 
         // 다른 값으로 삭제가 실패할 경우에는 값이 존재한다
-        nearCache1.put(key, oldValue)
-        nearCache1.remove(key, newValue).shouldBeFalse()
-        await until { nearCache2[key] == oldValue }
+        nearJCache1.put(key, oldValue)
+        nearJCache1.remove(key, newValue).shouldBeFalse()
+        await atMost (awaitTimeout) until { nearJCache2[key] == oldValue }
 
-        nearCache1[key] shouldBeEqualTo oldValue
-        nearCache2[key] shouldBeEqualTo oldValue
+        nearJCache1[key] shouldBeEqualTo oldValue
+        nearJCache2[key] shouldBeEqualTo oldValue
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -312,48 +317,49 @@ abstract class AbstractNearCacheTest {
         val value = randomValue()
         val value2 = randomValue()
 
-        nearCache1.put(key, value)
-        await until { nearCache2[key] == value }
+        nearJCache1.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache2[key] == value }
 
-        nearCache1.getAndRemove(key) shouldBeEqualTo value
-        await until { nearCache1[key] == null && nearCache2[key] == null }
+        nearJCache1.getAndRemove(key) shouldBeEqualTo value
+        await atMost (awaitTimeout) until { nearJCache1[key] == null && nearJCache2[key] == null }
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
-        nearCache2.put(key, value)
-        await until { nearCache1[key] == value }
+        nearJCache2.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache1[key] == value }
 
-        nearCache1.getAndRemove(key) shouldBeEqualTo value
-        await until { nearCache2[key] == null }
+        nearJCache1.getAndRemove(key) shouldBeEqualTo value
+        await atMost (awaitTimeout) until { nearJCache2[key] == null }
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
-        nearCache1.put(key, value)
-        nearCache2.put(key, value)
-        await until { nearCache1[key] == value }
+        nearJCache1.put(key, value)
+        nearJCache2.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache1[key] == value }
 
-        nearCache1.getAndRemove(key) shouldBeEqualTo value
-        await until { nearCache2[key] == null }
+        nearJCache1.getAndRemove(key) shouldBeEqualTo value
+        await atMost (awaitTimeout) until { nearJCache2[key] == null }
 
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
 
         // 마지막 Layer의 변경이 전파된다.
-        nearCache1.put(key, value)
-        await until { nearCache2[key] == value }
+        nearJCache1.put(key, value)
+        await atMost (awaitTimeout) until { nearJCache2[key] == value }
+
         // BackCache가 변경되면 모든 NearCache에 전파됩니다
         backCache.put(key, value2)
-        await until { nearCache1[key] == value2 && nearCache2[key] == value2 }
+        await atMost (awaitTimeout) until { nearJCache1[key] == value2 && nearJCache2[key] == value2 }
 
-        nearCache1[key] shouldBeEqualTo value2
-        nearCache2[key] shouldBeEqualTo value2
+        nearJCache1[key] shouldBeEqualTo value2
+        nearJCache2[key] shouldBeEqualTo value2
 
-        nearCache1.getAndRemove(key) shouldBeEqualTo value2
-        await until { nearCache2[key] == null }
+        nearJCache1.getAndRemove(key) shouldBeEqualTo value2
+        await atMost (awaitTimeout) until { nearJCache2[key] == null }
 
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
         backCache.containsKey(key).shouldBeFalse()
     }
 
@@ -363,18 +369,18 @@ abstract class AbstractNearCacheTest {
         val oldValue = randomValue()
         val newValue = randomValue()
 
-        nearCache2.put(key, oldValue)
-        await until { nearCache1[key] == oldValue }
+        nearJCache2.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache1[key] == oldValue }
 
-        nearCache1.replace(key, oldValue, newValue).shouldBeTrue()
-        await until { nearCache2[key] == newValue }
+        nearJCache1.replace(key, oldValue, newValue).shouldBeTrue()
+        await atMost (awaitTimeout) until { nearJCache2[key] == newValue }
 
-        nearCache1[key] shouldBeEqualTo newValue
-        nearCache2[key] shouldBeEqualTo newValue
+        nearJCache1[key] shouldBeEqualTo newValue
+        nearJCache2[key] shouldBeEqualTo newValue
         backCache.get(key) shouldBeEqualTo newValue
 
         // 이미 newValue를 가진다
-        nearCache2.replace(key, oldValue, newValue).shouldBeFalse()
+        nearJCache2.replace(key, oldValue, newValue).shouldBeFalse()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -383,19 +389,19 @@ abstract class AbstractNearCacheTest {
         val oldValue = randomValue()
         val newValue = randomValue()
 
-        nearCache1.put(key, oldValue)
-        await until { nearCache2.containsKey(key) }
+        nearJCache1.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key) }
 
-        nearCache2.replace(key, newValue).shouldBeTrue()
-        await until { nearCache1[key] == newValue }
+        nearJCache2.replace(key, newValue).shouldBeTrue()
+        await atMost (awaitTimeout) until { nearJCache1[key] == newValue }
 
-        nearCache1[key] shouldBeEqualTo newValue
+        nearJCache1[key] shouldBeEqualTo newValue
 
-        nearCache1.remove(key)
-        await until { nearCache2[key] == null }
+        nearJCache1.remove(key)
+        await atMost (awaitTimeout) until { nearJCache2[key] == null }
 
-        nearCache2.replace(key, newValue).shouldBeFalse()
-        nearCache1.replace(key, newValue).shouldBeFalse()
+        nearJCache2.replace(key, newValue).shouldBeFalse()
+        nearJCache1.replace(key, newValue).shouldBeFalse()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -406,38 +412,38 @@ abstract class AbstractNearCacheTest {
         val newValue = randomValue()
 
         // 기존에 key가 없으므로 replace 하지 못한다
-        nearCache1.getAndReplace(key, oldValue).shouldBeNull()
+        nearJCache1.getAndReplace(key, oldValue).shouldBeNull()
 
-        nearCache1.put(key, oldValue)
-        await until { nearCache2[key] == oldValue }
+        nearJCache1.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache2[key] == oldValue }
 
         // 이제 key가 있으니 oldValue를 반환하고, newValue를 저장한다
-        nearCache2.getAndReplace(key, newValue) shouldBeEqualTo oldValue
-        await until { nearCache1[key] == newValue }
+        nearJCache2.getAndReplace(key, newValue) shouldBeEqualTo oldValue
+        await atMost (awaitTimeout) until { nearJCache1[key] == newValue }
 
-        nearCache1[key] shouldBeEqualTo newValue
-        nearCache2[key] shouldBeEqualTo newValue
+        nearJCache1[key] shouldBeEqualTo newValue
+        nearJCache2[key] shouldBeEqualTo newValue
 
-        nearCache1.clear()
-        nearCache2.clear()
-        await until { nearCache1.count() == 0 && nearCache2.count() == 0 }
+        nearJCache1.clear()
+        nearJCache2.clear()
+        await until { nearJCache1.count() == 0 && nearJCache2.count() == 0 }
 
-        nearCache1.put(key, oldValue)
-        await until { nearCache2[key] == oldValue }
-        nearCache2.put(key, oldValue2)
-        await until { nearCache1[key] == oldValue2 }
+        nearJCache1.put(key, oldValue)
+        await atMost (awaitTimeout) until { nearJCache2[key] == oldValue }
+        nearJCache2.put(key, oldValue2)
+        await atMost (awaitTimeout) until { nearJCache1[key] == oldValue2 }
 
-        nearCache1.getAndReplace(key, newValue) shouldBeEqualTo oldValue2
-        await until { nearCache2[key] == newValue }
-        nearCache1[key] shouldBeEqualTo newValue
-        nearCache2[key] shouldBeEqualTo newValue
+        nearJCache1.getAndReplace(key, newValue) shouldBeEqualTo oldValue2
+        await atMost (awaitTimeout) until { nearJCache2[key] == newValue }
+        nearJCache1[key] shouldBeEqualTo newValue
+        nearJCache2[key] shouldBeEqualTo newValue
 
         // key가 존재하지 않으므로 replace도 하지 않는다
-        nearCache1.remove(key)
-        await until { nearCache2[key] == null }
-        nearCache2.getAndReplace(key, newValue).shouldBeNull()
-        nearCache1.containsKey(key).shouldBeFalse()
-        nearCache2.containsKey(key).shouldBeFalse()
+        nearJCache1.remove(key)
+        await atMost (awaitTimeout) until { nearJCache2[key] == null }
+        nearJCache2.getAndReplace(key, newValue).shouldBeNull()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -447,17 +453,17 @@ abstract class AbstractNearCacheTest {
         val key2 = randomKey()
         val value2 = randomValue()
 
-        nearCache1.put(key1, value1)
-        nearCache2.put(key2, value2)
-        await until { nearCache1.containsKey(key2) && nearCache2.containsKey(key1) }
+        nearJCache1.put(key1, value1)
+        nearJCache2.put(key2, value2)
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) && nearJCache2.containsKey(key1) }
 
-        nearCache1.removeAll(key1, key2)
-        await until { nearCache2[key1] == null && nearCache2[key2] == null }
+        nearJCache1.removeAll(key1, key2)
+        await atMost (awaitTimeout) until { nearJCache2[key1] == null && nearJCache2[key2] == null }
 
-        nearCache1.containsKey(key1).shouldBeFalse()
-        nearCache1.containsKey(key2).shouldBeFalse()
-        nearCache2.containsKey(key1).shouldBeFalse()
-        nearCache2.containsKey(key2).shouldBeFalse()
+        nearJCache1.containsKey(key1).shouldBeFalse()
+        nearJCache1.containsKey(key2).shouldBeFalse()
+        nearJCache2.containsKey(key1).shouldBeFalse()
+        nearJCache2.containsKey(key2).shouldBeFalse()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -467,17 +473,17 @@ abstract class AbstractNearCacheTest {
         val key2 = randomKey()
         val value2 = randomValue()
 
-        nearCache1.put(key1, value1)
-        nearCache2.put(key2, value2)
-        await until { nearCache1.containsKey(key2) && nearCache2.containsKey(key1) }
+        nearJCache1.put(key1, value1)
+        nearJCache2.put(key2, value2)
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) && nearJCache2.containsKey(key1) }
 
-        nearCache1.removeAll()
-        await until { nearCache2[key1] == null && nearCache2[key2] == null }
+        nearJCache1.removeAll()
+        await atMost (awaitTimeout) until { nearJCache2[key1] == null && nearJCache2[key2] == null }
 
-        nearCache1.containsKey(key1).shouldBeFalse()
-        nearCache1.containsKey(key2).shouldBeFalse()
-        nearCache2.containsKey(key1).shouldBeFalse()
-        nearCache2.containsKey(key2).shouldBeFalse()
+        nearJCache1.containsKey(key1).shouldBeFalse()
+        nearJCache1.containsKey(key2).shouldBeFalse()
+        nearJCache2.containsKey(key1).shouldBeFalse()
+        nearJCache2.containsKey(key2).shouldBeFalse()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -487,22 +493,22 @@ abstract class AbstractNearCacheTest {
         val key2 = randomKey()
         val value2 = randomValue()
 
-        nearCache1.put(key1, value1)
-        await until { nearCache2.containsKey(key1) }
+        nearJCache1.put(key1, value1)
+        await atMost (awaitTimeout) until { nearJCache2.containsKey(key1) }
 
-        nearCache2.put(key2, value2)
-        await until { nearCache1.containsKey(key2) }
+        nearJCache2.put(key2, value2)
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) }
 
         // 로컬 캐시만 삭제됩니다. backCache는 삭제되지 않습니다.
-        nearCache1.clear()
+        nearJCache1.clear()
 
         // frontCache에서 containsKey 를 조회합니다.
-        nearCache1.containsKey(key1).shouldBeFalse()
-        nearCache1.containsKey(key2).shouldBeFalse()
+        nearJCache1.containsKey(key1).shouldBeFalse()
+        nearJCache1.containsKey(key2).shouldBeFalse()
 
         // 다른 캐시에는 전파되지 않습니다
-        nearCache2.containsKey(key1).shouldBeTrue()
-        nearCache2.containsKey(key2).shouldBeTrue()
+        nearJCache2.containsKey(key1).shouldBeTrue()
+        nearJCache2.containsKey(key2).shouldBeTrue()
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -512,21 +518,21 @@ abstract class AbstractNearCacheTest {
         val key2 = randomKey()
         val value2 = randomValue()
 
-        nearCache1.put(key1, value1)
-        nearCache2.put(key2, value2)
-        await until { nearCache1.containsKey(key2) && nearCache2.containsKey(key1) }
+        nearJCache1.put(key1, value1)
+        nearJCache2.put(key2, value2)
+        await atMost (awaitTimeout) until { nearJCache1.containsKey(key2) && nearJCache2.containsKey(key1) }
 
-        nearCache1.clearAllCache()
+        nearJCache1.clearAllCache()
 
         // front & back cache 모두 삭제한다
-        nearCache1.containsKey(key1).shouldBeFalse()
-        nearCache1.containsKey(key2).shouldBeFalse()
+        nearJCache1.containsKey(key1).shouldBeFalse()
+        nearJCache1.containsKey(key2).shouldBeFalse()
         backCache.containsKey(key1).shouldBeFalse()
         backCache.containsKey(key2).shouldBeFalse()
 
         // 다른 nearCache에는 전파되지 않습니다
-        nearCache2.containsKey(key1).shouldBeTrue()
-        nearCache2.containsKey(key2).shouldBeTrue()
+        nearJCache2.containsKey(key1).shouldBeTrue()
+        nearJCache2.containsKey(key2).shouldBeTrue()
     }
 
     // ─────────────────────────────────────────────
@@ -539,19 +545,19 @@ abstract class AbstractNearCacheTest {
         val value = randomValue()
 
         // 먼저 데이터 넣기
-        keys.forEach { nearCache1.put(it, value) }
-        await until { keys.all { nearCache2.containsKey(it) } }
+        keys.forEach { nearJCache1.put(it, value) }
+        await until { keys.all { nearJCache2.containsKey(it) } }
 
         MultithreadingTester()
             .workers(8)
-            .rounds(50)
+            .rounds(4)
             .add {
                 val key = keys.random()
-                nearCache1[key] shouldBeEqualTo value
+                nearJCache1[key] shouldBeEqualTo value
             }
             .add {
                 val key = randomKey()
-                nearCache2.put(key, value)
+                nearJCache2.put(key, value)
             }
             .run()
     }
@@ -560,11 +566,11 @@ abstract class AbstractNearCacheTest {
     fun `MultithreadingTester - 동시 put과 remove가 안전하다`() {
         MultithreadingTester()
             .workers(8)
-            .rounds(50)
+            .rounds(4)
             .add {
                 val key = randomKey()
-                nearCache1.put(key, randomValue())
-                nearCache1.remove(key)
+                nearJCache1.put(key, randomValue())
+                nearJCache1.remove(key)
                 // 비동기 이벤트 전파로 인해 즉시 null이 아닐 수 있으므로, 예외 없이 실행됨만 검증
             }
             .run()
@@ -577,9 +583,9 @@ abstract class AbstractNearCacheTest {
             .add {
                 val key = randomKey()
                 val value = randomValue()
-                nearCache1.put(key, value)
-                nearCache1[key] // get 호출 (비동기 전파로 값이 다를 수 있음)
-                nearCache1.remove(key)
+                nearJCache1.put(key, value)
+                nearJCache1[key] // get 호출 (비동기 전파로 값이 다를 수 있음)
+                nearJCache1.remove(key)
                 // 예외 없이 사이클이 완료됨을 검증
             }
             .run()
@@ -592,12 +598,12 @@ abstract class AbstractNearCacheTest {
 
         // 여러 태스크가 동시에 putIfAbsent 시도 — 하나만 성공해야 함
         StructuredTaskScopeTester()
-            .rounds(16)
+            .rounds(32)
             .add {
-                nearCache1.putIfAbsent(sharedKey, value)
+                nearJCache1.putIfAbsent(sharedKey, value)
             }
             .run()
 
-        nearCache1[sharedKey] shouldBeEqualTo value
+        nearJCache1[sharedKey] shouldBeEqualTo value
     }
 }

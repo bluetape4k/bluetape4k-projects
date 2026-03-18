@@ -1,13 +1,13 @@
 package io.bluetape4k.cache
 
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.jcache.RedissonSuspendCache
-import io.bluetape4k.cache.nearcache.jcache.NearCache
+import io.bluetape4k.cache.jcache.RedissonSuspendJCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.RedissonNearCache
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
-import io.bluetape4k.cache.nearcache.jcache.SuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeInstanceOf
@@ -38,7 +38,7 @@ class RedissonCachesTest {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.suspendCache<String, String>(name, redisson)
         try {
-            cache shouldBeInstanceOf RedissonSuspendCache::class
+            cache shouldBeInstanceOf RedissonSuspendJCache::class
         } finally {
             runCatching { runBlocking { cache.close() } }
         }
@@ -49,7 +49,7 @@ class RedissonCachesTest {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.nearCache<String, String>(name, redisson)
         try {
-            cache shouldBeInstanceOf NearCache::class
+            cache shouldBeInstanceOf NearJCache::class
         } finally {
             runCatching { cache.close() }
         }
@@ -60,7 +60,7 @@ class RedissonCachesTest {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.suspendNearCache<String, String>(name, redisson)
         try {
-            cache shouldBeInstanceOf SuspendNearCache::class
+            cache shouldBeInstanceOf SuspendNearJCache::class
         } finally {
             runCatching { runBlocking { cache.close() } }
         }

@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
@@ -19,11 +18,11 @@ import io.github.resilience4j.retry.RetryConfig
  * @param config Resilience 설정
  * @see ResilientNearCacheDecorator blocking 버전
  */
-class ResilientSuspendNearCacheDecorator<V : Any>(
+class ResilientSuspendNearCacheDecorator<V: Any>(
     private val delegate: SuspendNearCacheOperations<V>,
     private val config: NearCacheResilienceConfig = NearCacheResilienceConfig(),
-) : SuspendNearCacheOperations<V> {
-    companion object : KLogging()
+): SuspendNearCacheOperations<V> {
+    companion object: KLogging()
 
     private val retry: Retry =
         Retry.of(
@@ -92,39 +91,29 @@ class ResilientSuspendNearCacheDecorator<V : Any>(
 
     // -- Write --
 
-    override suspend fun put(
-        key: String,
-        value: V,
-    ) {
-        log.debug { "put with retry. key=$key" }
-        retry.executeSuspendFunction { delegate.put(key, value) }
+    override suspend fun put(key: String, value: V) {
+        retry.executeSuspendFunction {
+            delegate.put(key, value)
+        }
     }
 
     override suspend fun putAll(entries: Map<String, V>) {
-        retry.executeSuspendFunction { delegate.putAll(entries) }
+        retry.executeSuspendFunction {
+            delegate.putAll(entries)
+        }
     }
 
-    override suspend fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V? =
+    override suspend fun putIfAbsent(key: String, value: V): V? =
         retry.executeSuspendFunction {
             delegate.putIfAbsent(key, value)
         }
 
-    override suspend fun replace(
-        key: String,
-        value: V,
-    ): Boolean =
+    override suspend fun replace(key: String, value: V): Boolean =
         retry.executeSuspendFunction {
             delegate.replace(key, value)
         }
 
-    override suspend fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean =
+    override suspend fun replace(key: String, oldValue: V, newValue: V): Boolean =
         retry.executeSuspendFunction {
             delegate.replace(key, oldValue, newValue)
         }
@@ -132,19 +121,23 @@ class ResilientSuspendNearCacheDecorator<V : Any>(
     // -- Delete --
 
     override suspend fun remove(key: String) {
-        retry.executeSuspendFunction { delegate.remove(key) }
+        retry.executeSuspendFunction {
+            delegate.remove(key)
+        }
     }
 
     override suspend fun removeAll(keys: Set<String>) {
-        retry.executeSuspendFunction { delegate.removeAll(keys) }
+        retry.executeSuspendFunction {
+            delegate.removeAll(keys)
+        }
     }
 
-    override suspend fun getAndRemove(key: String): V? = retry.executeSuspendFunction { delegate.getAndRemove(key) }
+    override suspend fun getAndRemove(key: String): V? =
+        retry.executeSuspendFunction {
+            delegate.getAndRemove(key)
+        }
 
-    override suspend fun getAndReplace(
-        key: String,
-        value: V,
-    ): V? =
+    override suspend fun getAndReplace(key: String, value: V): V? =
         retry.executeSuspendFunction {
             delegate.getAndReplace(key, value)
         }
@@ -154,7 +147,9 @@ class ResilientSuspendNearCacheDecorator<V : Any>(
     override fun clearLocal() = delegate.clearLocal()
 
     override suspend fun clearAll() {
-        retry.executeSuspendFunction { delegate.clearAll() }
+        retry.executeSuspendFunction {
+            delegate.clearAll()
+        }
     }
 
     override fun localCacheSize(): Long = delegate.localCacheSize()
@@ -175,13 +170,18 @@ class ResilientSuspendNearCacheDecorator<V : Any>(
 /**
  * [SuspendNearCacheOperations]에 Resilience Decorator를 적용합니다.
  */
-fun <V : Any> SuspendNearCacheOperations<V>.withResilience(
+fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
     config: NearCacheResilienceConfig,
-): SuspendNearCacheOperations<V> = ResilientSuspendNearCacheDecorator(this, config)
+): SuspendNearCacheOperations<V> =
+    ResilientSuspendNearCacheDecorator(this, config)
 
 /**
  * [SuspendNearCacheOperations]에 Resilience Decorator를 DSL로 적용합니다.
  */
-fun <V : Any> SuspendNearCacheOperations<V>.withResilience(
+inline fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
     block: NearCacheResilienceConfigBuilder.() -> Unit,
-): SuspendNearCacheOperations<V> = ResilientSuspendNearCacheDecorator(this, nearCacheResilienceConfig(block))
+): SuspendNearCacheOperations<V> =
+    ResilientSuspendNearCacheDecorator(
+        this,
+        nearCacheResilienceConfig(block)
+    )

@@ -13,7 +13,7 @@ package io.bluetape4k.cache.nearcache
  * @see NearCacheOperations blocking 버전
  * @see ResilientSuspendNearCacheDecorator retry + failure strategy Decorator
  */
-interface SuspendNearCacheOperations<V : Any> {
+interface SuspendNearCacheOperations<V: Any> {
     /** 캐시 이름 */
     val cacheName: String
 
@@ -46,10 +46,7 @@ interface SuspendNearCacheOperations<V : Any> {
     /**
      * [key]-[value] 쌍을 저장합니다.
      */
-    suspend fun put(
-        key: String,
-        value: V,
-    )
+    suspend fun put(key: String, value: V)
 
     /**
      * 여러 [entries]를 일괄 저장합니다.
@@ -61,31 +58,21 @@ interface SuspendNearCacheOperations<V : Any> {
      *
      * @return 기존에 존재하던 값. 키가 없어서 저장에 성공하면 null.
      */
-    suspend fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V?
+    suspend fun putIfAbsent(key: String, value: V): V?
 
     /**
      * [key]의 값을 [value]로 교체합니다.
      *
      * @return 키가 존재하여 교체에 성공하면 true.
      */
-    suspend fun replace(
-        key: String,
-        value: V,
-    ): Boolean
+    suspend fun replace(key: String, value: V): Boolean
 
     /**
      * [key]의 값이 [oldValue]와 일치할 때만 [newValue]로 교체합니다.
      *
      * @return 교체에 성공하면 true.
      */
-    suspend fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean
+    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean
 
     // -- Delete --
 
@@ -111,10 +98,7 @@ interface SuspendNearCacheOperations<V : Any> {
      *
      * @return 교체 전 값. 키가 없으면 null (교체하지 않음).
      */
-    suspend fun getAndReplace(
-        key: String,
-        value: V,
-    ): V?
+    suspend fun getAndReplace(key: String, value: V): V?
 
     // -- Cache Management --
 

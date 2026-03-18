@@ -29,11 +29,11 @@ import io.github.resilience4j.retry.RetryConfig
  * @param delegate 감쌀 NearCacheOperations 구현체
  * @param config Resilience 설정
  */
-class ResilientNearCacheDecorator<V : Any>(
+class ResilientNearCacheDecorator<V: Any>(
     private val delegate: NearCacheOperations<V>,
     private val config: NearCacheResilienceConfig = NearCacheResilienceConfig(),
-) : NearCacheOperations<V> {
-    companion object : KLogging()
+): NearCacheOperations<V> {
+    companion object: KLogging()
 
     private val retry: Retry =
         Retry.of(
@@ -102,10 +102,7 @@ class ResilientNearCacheDecorator<V : Any>(
 
     // -- Write --
 
-    override fun put(
-        key: String,
-        value: V,
-    ) {
+    override fun put(key: String, value: V) {
         log.debug { "put with retry. key=$key" }
         retry.executeRunnable { delegate.put(key, value) }
     }
@@ -114,21 +111,13 @@ class ResilientNearCacheDecorator<V : Any>(
         retry.executeRunnable { delegate.putAll(entries) }
     }
 
-    override fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V? = retry.executeCallable { delegate.putIfAbsent(key, value) }
+    override fun putIfAbsent(key: String, value: V): V? =
+        retry.executeCallable { delegate.putIfAbsent(key, value) }
 
-    override fun replace(
-        key: String,
-        value: V,
-    ): Boolean = retry.executeCallable { delegate.replace(key, value) }
+    override fun replace(key: String, value: V): Boolean =
+        retry.executeCallable { delegate.replace(key, value) }
 
-    override fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean =
+    override fun replace(key: String, oldValue: V, newValue: V): Boolean =
         retry.executeCallable {
             delegate.replace(key, oldValue, newValue)
         }
@@ -145,10 +134,8 @@ class ResilientNearCacheDecorator<V : Any>(
 
     override fun getAndRemove(key: String): V? = retry.executeCallable { delegate.getAndRemove(key) }
 
-    override fun getAndReplace(
-        key: String,
-        value: V,
-    ): V? = retry.executeCallable { delegate.getAndReplace(key, value) }
+    override fun getAndReplace(key: String, value: V): V? =
+        retry.executeCallable { delegate.getAndReplace(key, value) }
 
     // -- Cache Management --
 
@@ -176,7 +163,7 @@ class ResilientNearCacheDecorator<V : Any>(
  *
  * @param config Resilience 설정
  */
-fun <V : Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceConfig): NearCacheOperations<V> =
+fun <V: Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceConfig): NearCacheOperations<V> =
     ResilientNearCacheDecorator(this, config)
 
 /**
@@ -190,6 +177,6 @@ fun <V : Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceC
  *     }
  * ```
  */
-inline fun <V : Any> NearCacheOperations<V>.withResilience(
+inline fun <V: Any> NearCacheOperations<V>.withResilience(
     block: NearCacheResilienceConfigBuilder.() -> Unit,
 ): NearCacheOperations<V> = ResilientNearCacheDecorator(this, nearCacheResilienceConfig(block))

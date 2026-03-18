@@ -13,7 +13,7 @@ package io.bluetape4k.cache.nearcache
  * @see SuspendNearCacheOperations suspend 버전
  * @see ResilientNearCacheDecorator retry + failure strategy Decorator
  */
-interface NearCacheOperations<V : Any> : AutoCloseable {
+interface NearCacheOperations<V: Any>: AutoCloseable {
     /** 캐시 이름 */
     val cacheName: String
 
@@ -50,10 +50,7 @@ interface NearCacheOperations<V : Any> : AutoCloseable {
      * [key]-[value] 쌍을 저장합니다.
      * 로컬과 백엔드 모두에 write-through로 저장합니다.
      */
-    fun put(
-        key: String,
-        value: V,
-    )
+    fun put(key: String, value: V)
 
     /**
      * 여러 [entries]를 일괄 저장합니다.
@@ -65,31 +62,21 @@ interface NearCacheOperations<V : Any> : AutoCloseable {
      *
      * @return 기존에 존재하던 값. 키가 없어서 저장에 성공하면 null.
      */
-    fun putIfAbsent(
-        key: String,
-        value: V,
-    ): V?
+    fun putIfAbsent(key: String, value: V): V?
 
     /**
      * [key]의 값을 [value]로 교체합니다.
      *
      * @return 키가 존재하여 교체에 성공하면 true.
      */
-    fun replace(
-        key: String,
-        value: V,
-    ): Boolean
+    fun replace(key: String, value: V): Boolean
 
     /**
      * [key]의 값이 [oldValue]와 일치할 때만 [newValue]로 교체합니다.
      *
      * @return 교체에 성공하면 true.
      */
-    fun replace(
-        key: String,
-        oldValue: V,
-        newValue: V,
-    ): Boolean
+    fun replace(key: String, oldValue: V, newValue: V): Boolean
 
     // -- Delete --
 
@@ -115,10 +102,7 @@ interface NearCacheOperations<V : Any> : AutoCloseable {
      *
      * @return 교체 전 값. 키가 없으면 null (교체하지 않음).
      */
-    fun getAndReplace(
-        key: String,
-        value: V,
-    ): V?
+    fun getAndReplace(key: String, value: V): V?
 
     // -- Cache Management --
 

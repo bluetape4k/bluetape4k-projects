@@ -1,6 +1,6 @@
 package io.bluetape4k.cache
 
-import io.bluetape4k.cache.jcache.HazelcastSuspendCache
+import io.bluetape4k.cache.jcache.HazelcastSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
@@ -10,8 +10,8 @@ import io.bluetape4k.cache.nearcache.ResilientNearCacheDecorator
 import io.bluetape4k.cache.nearcache.ResilientSuspendNearCacheDecorator
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.withResilience
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -44,7 +44,7 @@ class HazelcastCachesTest {
     fun `suspendCache - HazelcastSuspendCache 인스턴스 반환`() = runTest {
         val cache = HazelcastCaches.suspendCache<String, String>(hazelcastClient, randomName())
         try {
-            cache.shouldBeInstanceOf<HazelcastSuspendCache<*, *>>()
+            cache.shouldBeInstanceOf<HazelcastSuspendJCache<*, *>>()
         } finally {
             runCatching { runSuspendIO { cache.close() } }
         }

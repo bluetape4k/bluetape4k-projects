@@ -2,9 +2,9 @@ package io.bluetape4k.cache
 
 import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.cache.jcache.HazelcastJCaching
-import io.bluetape4k.cache.jcache.HazelcastSuspendCache
+import io.bluetape4k.cache.jcache.HazelcastSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.jcache.SuspendCache
+import io.bluetape4k.cache.jcache.SuspendJCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfigBuilder
@@ -19,7 +19,7 @@ import javax.cache.configuration.MutableConfiguration
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
- * [JCache], [SuspendCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
+ * [JCache], [SuspendJCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
  *
  * ```kotlin
  * val cache = HazelcastCaches.jcache<String, String>("my-cache")
@@ -54,33 +54,33 @@ object HazelcastCaches : KLogging() {
     // ─────────────────────────────────────────────
 
     /**
-     * 이름으로 Hazelcast [SuspendCache]를 생성하거나 재사용합니다.
+     * 이름으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param cacheName 캐시 이름
-     * @return [HazelcastSuspendCache] 인스턴스
+     * @return [HazelcastSuspendJCache] 인스턴스
      */
     inline fun <reified K : Any, reified V : Any> suspendCache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
-    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(hazelcastInstance, cacheName)
+    ): HazelcastSuspendJCache<K, V> = HazelcastSuspendJCache(hazelcastInstance, cacheName)
 
     /**
-     * 이름과 설정으로 Hazelcast [SuspendCache]를 생성하거나 재사용합니다.
+     * 이름과 설정으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
      *
      * @param K 키 타입
      * @param V 값 타입
      * @param hazelcastInstance 연결된 Hazelcast 인스턴스
      * @param cacheName 캐시 이름
      * @param configuration JCache 설정
-     * @return [HazelcastSuspendCache] 인스턴스
+     * @return [HazelcastSuspendJCache] 인스턴스
      */
     fun <K : Any, V : Any> suspendCache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
         configuration: Configuration<K, V>,
-    ): HazelcastSuspendCache<K, V> = HazelcastSuspendCache(hazelcastInstance, cacheName, configuration)
+    ): HazelcastSuspendJCache<K, V> = HazelcastSuspendJCache(hazelcastInstance, cacheName, configuration)
 
     // ─────────────────────────────────────────────
     // NearCache

@@ -21,7 +21,7 @@ import java.time.Duration
  * suspend 환경에서의 retry 및 failure strategy를 검증합니다.
  */
 class ResilientSuspendNearCacheDecoratorTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val delegate = mockk<SuspendNearCacheOperations<String>>(relaxed = true)
 
@@ -34,46 +34,44 @@ class ResilientSuspendNearCacheDecoratorTest {
     }
 
     @Test
-    fun `get - retry 후 성공`() =
-        runSuspendIO {
-            var callCount = 0
-            coEvery { delegate.get("key1") } answers {
-                callCount++
-                if (callCount < 3) throw RuntimeException("transient failure")
-                "value1"
-            }
-
-            val cache =
-                ResilientSuspendNearCacheDecorator(
-                    delegate,
-                    NearCacheResilienceConfig(
-                        retryMaxAttempts = 3,
-                        retryWaitDuration = Duration.ofMillis(50),
-                        getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
-                    )
-                )
-
-            cache.get("key1") shouldBeEqualTo "value1"
-            coVerify(exactly = 3) { delegate.get("key1") }
+    fun `get - retry 후 성공`() = runSuspendIO {
+        var callCount = 0
+        coEvery { delegate.get("key1") } answers {
+            callCount++
+            if (callCount < 3) throw RuntimeException("transient failure")
+            "value1"
         }
+
+        val cache =
+            ResilientSuspendNearCacheDecorator(
+                delegate,
+                NearCacheResilienceConfig(
+                    retryMaxAttempts = 3,
+                    retryWaitDuration = Duration.ofMillis(50),
+                    getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
+                )
+            )
+
+        cache.get("key1") shouldBeEqualTo "value1"
+        coVerify(exactly = 3) { delegate.get("key1") }
+    }
 
     @Test
-    fun `get - RETURN_FRONT_OR_NULL 전략 시 null 반환`() =
-        runSuspendIO {
-            coEvery { delegate.get("key1") } throws RuntimeException("failure")
+    fun `get - RETURN_FRONT_OR_NULL 전략 시 null 반환`() = runSuspendIO {
+        coEvery { delegate.get("key1") } throws RuntimeException("failure")
 
-            val cache =
-                ResilientSuspendNearCacheDecorator(
-                    delegate,
-                    NearCacheResilienceConfig(
-                        retryMaxAttempts = 1,
-                        retryWaitDuration = Duration.ofMillis(10),
-                        getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
-                    )
+        val cache =
+            ResilientSuspendNearCacheDecorator(
+                delegate,
+                NearCacheResilienceConfig(
+                    retryMaxAttempts = 1,
+                    retryWaitDuration = Duration.ofMillis(10),
+                    getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
                 )
+            )
 
-            cache.get("key1").shouldBeNull()
-        }
+        cache.get("key1").shouldBeNull()
+    }
 
     @Test
     fun `get - PROPAGATE_EXCEPTION 전략 시 예외 전파`() {
@@ -95,35 +93,33 @@ class ResilientSuspendNearCacheDecoratorTest {
     }
 
     @Test
-    fun `put - retry 후 성공`() =
-        runSuspendIO {
-            var callCount = 0
-            coEvery { delegate.put("key1", "value1") } answers {
-                callCount++
-                if (callCount < 2) throw RuntimeException("transient failure")
-            }
-
-            val cache =
-                ResilientSuspendNearCacheDecorator(
-                    delegate,
-                    NearCacheResilienceConfig(
-                        retryMaxAttempts = 3,
-                        retryWaitDuration = Duration.ofMillis(50)
-                    )
-                )
-
-            cache.put("key1", "value1")
-            coVerify(exactly = 2) { delegate.put("key1", "value1") }
+    fun `put - retry 후 성공`() = runSuspendIO {
+        var callCount = 0
+        coEvery { delegate.put("key1", "value1") } answers {
+            callCount++
+            if (callCount < 2) throw RuntimeException("transient failure")
         }
+
+        val cache =
+            ResilientSuspendNearCacheDecorator(
+                delegate,
+                NearCacheResilienceConfig(
+                    retryMaxAttempts = 3,
+                    retryWaitDuration = Duration.ofMillis(50)
+                )
+            )
+
+        cache.put("key1", "value1")
+        coVerify(exactly = 2) { delegate.put("key1", "value1") }
+    }
 
     @Test
-    fun `close - delegate에 위임`() =
-        runSuspendIO {
-            val cache = ResilientSuspendNearCacheDecorator(delegate)
+    fun `close - delegate에 위임`() = runSuspendIO {
+        val cache = ResilientSuspendNearCacheDecorator(delegate)
 
-            cache.close()
-            coVerify(exactly = 1) { delegate.close() }
-        }
+        cache.close()
+        coVerify(exactly = 1) { delegate.close() }
+    }
 
     @Test
     fun `stats - delegate에 위임`() {
