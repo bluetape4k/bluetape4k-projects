@@ -27,7 +27,7 @@ import kotlin.concurrent.withLock
  * Lettuce 기반 [javax.cache.CacheManager] 구현체입니다.
  *
  * ## 동작/계약
- * - `createCache`는 [LettuceCacheConfig]를 받아 [LettuceCache]를 생성합니다.
+ * - `createCache`는 [LettuceCacheConfig]를 받아 [LettuceJCache]를 생성합니다.
  * - 캐시 인스턴스는 내부 맵에 이름 기준으로 보관되며 중복 생성 시 [javax.cache.CacheException]이 발생합니다.
  * - 매니저가 닫히면 공개 API 대부분이 `IllegalStateException`을 발생시킵니다.
  */
@@ -48,7 +48,7 @@ class LettuceCacheManager(
             RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE)
     }
 
-    private val caches = ConcurrentHashMap<String, LettuceCache<*, *>>()
+    private val caches = ConcurrentHashMap<String, LettuceJCache<*, *>>()
     private val closed = AtomicBoolean(false)
     private val lock = ReentrantLock()
 
@@ -93,7 +93,7 @@ class LettuceCacheManager(
         val connection = redisClient.connect(STRING_BYTES_CODEC)
         val map = LettuceMap<ByteArray>(connection, cacheName, supportsHSetEx = supportsHSetEx)
 
-        val cache = LettuceCache(
+        val cache = LettuceJCache(
             map = map,
             keyCodec = keyCodec,
             keyDecoder = keyDecoder,
@@ -118,13 +118,13 @@ class LettuceCacheManager(
         checkNotClosed()
         cacheName.requireNotBlank("cacheName")
         log.debug { "Get LettuceCache. cacheName=$cacheName, keyType=$keyType, valueType=$valueType" }
-        return caches[cacheName] as? LettuceCache<K, V>
+        return caches[cacheName] as? LettuceJCache<K, V>
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <K: Any, V: Any> getCache(cacheName: String?): Cache<K, V>? {
         checkNotClosed()
-        return caches[cacheName] as? LettuceCache<K, V>
+        return caches[cacheName] as? LettuceJCache<K, V>
     }
 
     override fun getCacheNames(): MutableIterable<String> = caches.keys.toMutableSet()
@@ -141,9 +141,9 @@ class LettuceCacheManager(
     }
 
     /**
-     * 캐시 이름을 기준으로 내부 맵에서 제거합니다. [LettuceCache.close] 내부에서 호출됩니다.
+     * 캐시 이름을 기준으로 내부 맵에서 제거합니다. [LettuceJCache.close] 내부에서 호출됩니다.
      */
-    fun closeCache(cache: LettuceCache<*, *>) {
+    fun closeCache(cache: LettuceJCache<*, *>) {
         caches.remove(cache.name)
     }
 

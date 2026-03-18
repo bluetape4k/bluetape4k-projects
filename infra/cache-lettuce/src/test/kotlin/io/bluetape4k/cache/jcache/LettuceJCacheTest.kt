@@ -3,33 +3,33 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.StringCodec
-import org.awaitility.kotlin.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
-import java.util.concurrent.TimeUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
 import javax.cache.processor.EntryProcessor
 import javax.cache.processor.MutableEntry
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class LettuceCacheTest {
+class LettuceJCacheTest {
 
     companion object: KLogging()
 
     val provider = jcachingProvider<LettuceCachingProvider>()
     val manager = provider.getCacheManager(URI(RedisServers.redis.url), null)
 
-    private lateinit var cache: LettuceCache<String, String>
+    private lateinit var cache: LettuceJCache<String, String>
 
     @BeforeEach
     fun beforeEach() {
@@ -38,7 +38,7 @@ class LettuceCacheTest {
         cache = manager.createCache(
             cacheName,
             lettuceCacheConfigOf<String, String>()
-        ) as LettuceCache<String, String>
+        ) as LettuceJCache<String, String>
     }
 
     @AfterEach
@@ -96,7 +96,7 @@ class LettuceCacheTest {
         val ttlCache = manager.createCache(
             "ttl-cache-" + UUID.randomUUID().toString().take(8),
             lettuceCacheConfigOf<String, String>(ttlSeconds = 1)
-        ) as LettuceCache<String, String>
+        ) as LettuceJCache<String, String>
 
         try {
             ttlCache.putIfAbsent("key1", "value1").shouldBeTrue()
@@ -234,7 +234,7 @@ class LettuceCacheTest {
             lettuceCacheConfigOf<Int, String>(
                 keyDecoder = String::toInt
             )
-        ) as LettuceCache<Int, String>
+        ) as LettuceJCache<Int, String>
 
         try {
             intKeyCache.put(1, "one")
@@ -251,7 +251,7 @@ class LettuceCacheTest {
         val intKeyCache = manager.createCache(
             "int-key-cache-" + UUID.randomUUID().toString().take(8),
             lettuceCacheConfigOf<Int, String>()
-        ) as LettuceCache<Int, String>
+        ) as LettuceJCache<Int, String>
 
         try {
             intKeyCache.put(1, "one")

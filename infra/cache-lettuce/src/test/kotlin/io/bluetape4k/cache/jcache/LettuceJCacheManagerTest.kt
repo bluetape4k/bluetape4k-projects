@@ -14,7 +14,7 @@ import org.junit.jupiter.api.assertThrows
 import javax.cache.CacheException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class LettuceCacheManagerTest {
+class LettuceJCacheManagerTest {
 
     companion object: KLogging()
 

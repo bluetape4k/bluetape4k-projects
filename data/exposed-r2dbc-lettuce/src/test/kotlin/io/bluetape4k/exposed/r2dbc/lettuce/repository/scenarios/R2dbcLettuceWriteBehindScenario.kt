@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.lettuce.repository.scenarios
 
-import io.bluetape4k.exposed.r2dbc.lettuce.repository.scenarios.R2dbcLettuceCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.r2dbc.lettuce.repository.scenarios.R2DbcLettuceJCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -18,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
  *
  * - save() 시 Redis에는 즉시 반영, DB는 비동기로 일괄 적재
  */
-interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Any>: R2dbcLettuceCacheTestScenario<ID, E> {
+interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */

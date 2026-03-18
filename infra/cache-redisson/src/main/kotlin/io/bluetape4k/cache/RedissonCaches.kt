@@ -1,6 +1,7 @@
 package io.bluetape4k.cache
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.jcache.RedissonSuspendJCache
@@ -33,7 +34,7 @@ import javax.cache.configuration.MutableConfiguration
  * val suspendNear = RedissonCaches.suspendNearCacheOps<String>("my-near", redisson)
  * ```
  */
-object RedissonCaches : KLogging() {
+object RedissonCaches: KLogging() {
     // ─────────────────────────────────────────────
     // JCache
     // ─────────────────────────────────────────────
@@ -48,7 +49,7 @@ object RedissonCaches : KLogging() {
      * @param configuration JCache 설정
      * @return [JCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> jcache(
+    inline fun <reified K: Any, reified V: Any> jcache(
         cacheName: String,
         redisson: RedissonClient,
         configuration: Configuration<K, V> =
@@ -67,7 +68,7 @@ object RedissonCaches : KLogging() {
      * @param configuration JCache 설정
      * @return [JCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> jcache(
+    inline fun <reified K: Any, reified V: Any> jcache(
         cacheName: String,
         redissonConfig: Config,
         configuration: Configuration<K, V> =
@@ -90,7 +91,7 @@ object RedissonCaches : KLogging() {
      * @param configuration JCache 설정
      * @return [RedissonSuspendJCache] 인스턴스
      */
-    fun <K : Any, V : Any> suspendCache(
+    fun <K: Any, V: Any> suspendCache(
         cacheName: String,
         redisson: RedissonClient,
         configuration: Configuration<K, V> = MutableConfiguration(),
@@ -105,7 +106,7 @@ object RedissonCaches : KLogging() {
      * @param redissonConfig Redisson 설정
      * @return [RedissonSuspendJCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> suspendCache(
+    inline fun <reified K: Any, reified V: Any> suspendCache(
         cacheName: String,
         redissonConfig: Config,
     ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redissonConfig)
@@ -123,7 +124,7 @@ object RedissonCaches : KLogging() {
      * @param nearJCacheConfig Near Cache 설정
      * @return [NearJCache] 인스턴스
      */
-    fun <K : Any, V : Any> nearCache(
+    fun <K: Any, V: Any> nearCache(
         backCache: JCache<K, V>,
         nearJCacheConfig: NearJCacheConfig<K, V> = NearJCacheConfig(),
     ): NearJCache<K, V> = NearJCache(nearJCacheConfig, backCache)
@@ -139,7 +140,7 @@ object RedissonCaches : KLogging() {
      * @param nearJCacheConfig Near Cache 설정
      * @return [NearJCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> nearCache(
+    inline fun <reified K: Any, reified V: Any> nearCache(
         backCacheName: String,
         redisson: RedissonClient,
         backCacheConfiguration: Configuration<K, V> =
@@ -166,11 +167,10 @@ object RedissonCaches : KLogging() {
      * @param checkExpiryPeriod 만료 검사 주기(ms)
      * @return [SuspendNearJCache] 인스턴스
      */
-    fun <K : Any, V : Any> suspendNearCache(
+    fun <K: Any, V: Any> suspendNearCache(
         frontSuspendJCache: SuspendJCache<K, V>,
         backSuspendJCache: SuspendJCache<K, V>,
-        checkExpiryPeriod: Long = SuspendNearJCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-    ): SuspendNearJCache<K, V> = SuspendNearJCache(frontSuspendJCache, backSuspendJCache, checkExpiryPeriod)
+    ): SuspendNearJCache<K, V> = SuspendNearJCache(frontSuspendJCache, backSuspendJCache)
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearJCache]를 반환합니다.
@@ -185,21 +185,18 @@ object RedissonCaches : KLogging() {
      * @param frontCacheBuilder 프론트 Caffeine 빌더 블록
      * @return [SuspendNearJCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> suspendNearCache(
+    inline fun <reified K: Any, reified V: Any> suspendNearCache(
         backCacheName: String,
         redisson: RedissonClient,
         backCacheConfiguration: Configuration<K, V> =
             MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
             },
-        checkExpiryPeriod: Long = SuspendNearJCache.DEFAULT_EXPIRY_CHECK_PERIOD,
         noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
     ): SuspendNearJCache<K, V> {
-        val frontCache =
-            io.bluetape4k.cache.jcache
-                .CaffeineSuspendJCache<K, V>(frontCacheBuilder)
-        val backCache = RedissonSuspendJCache<K, V>(backCacheName, redisson, backCacheConfiguration)
-        return SuspendNearJCache(frontCache, backCache, checkExpiryPeriod)
+        val frontCache = CaffeineSuspendJCache<K, V>(frontCacheBuilder)
+        val backCache = RedissonSuspendJCache(backCacheName, redisson, backCacheConfiguration)
+        return SuspendNearJCache(frontCache, backCache)
     }
 
     // ─────────────────────────────────────────────
@@ -215,7 +212,7 @@ object RedissonCaches : KLogging() {
      * @param codec Redisson 직렬화 Codec
      * @return [NearCacheOperations] 인스턴스
      */
-    fun <V : Any> nearCacheOps(
+    fun <V: Any> nearCacheOps(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
         codec: Codec = RedissonCodecs.LZ4Fory,
@@ -230,7 +227,7 @@ object RedissonCaches : KLogging() {
      * @param codec Redisson 직렬화 Codec
      * @return [SuspendNearCacheOperations] 인스턴스
      */
-    fun <V : Any> suspendNearCacheOps(
+    fun <V: Any> suspendNearCacheOps(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
         codec: Codec = RedissonCodecs.LZ4Fory,

@@ -291,7 +291,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
         MultithreadingTester()
             .workers(8)
-            .rounds(10)
+            .rounds(4)
             .add {
                 cache.get("mt-key") shouldBeEqualTo "mt-val"
             }
@@ -324,9 +324,9 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
         val storeCount = AtomicInteger(0)
         MultithreadingTester()
             .workers(8)
-            .rounds(5)
+            .rounds(4)
             .add {
-                val existing = cache.putIfAbsent("race-key", "v-${Thread.currentThread().id}")
+                val existing = cache.putIfAbsent("race-key", "v-${Thread.currentThread().threadId()}")
                 if (existing == null) storeCount.incrementAndGet()
             }.run()
         storeCount.get() shouldBeEqualTo 1

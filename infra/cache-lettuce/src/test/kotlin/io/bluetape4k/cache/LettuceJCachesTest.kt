@@ -14,7 +14,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 
-class LettuceCachesTest {
+class LettuceJCachesTest {
 
     companion object: KLogging() {
         private val redisClient by lazy { RedisServers.redisClient }

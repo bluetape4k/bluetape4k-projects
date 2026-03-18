@@ -5,8 +5,8 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceMap
-import java.util.concurrent.ConcurrentHashMap
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
 import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
@@ -33,7 +33,7 @@ import javax.cache.processor.MutableEntry
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
  * - 직렬화는 [serializer]로 처리하며, 기본값은 Fory 기반 직렬화입니다.
  */
-class LettuceCache<K: Any, V: Any>(
+class LettuceJCache<K: Any, V: Any>(
     private val map: LettuceMap<ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
     private val keyDecoder: ((String) -> K)? = null,
@@ -93,7 +93,7 @@ class LettuceCache<K: Any, V: Any>(
         return decodeValue(bytes)
     }
 
-    override fun getAll(keys: MutableSet<out K>): MutableMap<K, V> {
+    override fun getAll(keys: Set<K>): MutableMap<K, V> {
         checkNotClosed()
         val result = mutableMapOf<K, V>()
         keys.chunked(100).forEach { chunk ->
@@ -140,7 +140,7 @@ class LettuceCache<K: Any, V: Any>(
         return oldBytes?.let { decodeValue(it) }
     }
 
-    override fun putAll(map: MutableMap<out K, out V>) {
+    override fun putAll(map: Map<out K, out V>) {
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
@@ -234,7 +234,7 @@ class LettuceCache<K: Any, V: Any>(
         return decodeValue(oldBytes)
     }
 
-    override fun removeAll(keys: MutableSet<out K>) {
+    override fun removeAll(keys: Set<K>) {
         checkNotClosed()
         if (keys.isEmpty()) return
         keys.forEach { key ->
@@ -270,7 +270,7 @@ class LettuceCache<K: Any, V: Any>(
     }
 
     override fun loadAll(
-        keys: MutableSet<out K>?,
+        keys: Set<K>,
         replaceExistingValues: Boolean,
         completionListener: CompletionListener?,
     ) {
@@ -308,7 +308,7 @@ class LettuceCache<K: Any, V: Any>(
     }
 
     override fun <T: Any> invokeAll(
-        keys: MutableSet<out K>,
+        keys: Set<K>,
         entryProcessor: EntryProcessor<K, V, T>,
         vararg arguments: Any?,
     ): MutableMap<K, EntryProcessorResult<T>> {
@@ -407,9 +407,9 @@ class LettuceCache<K: Any, V: Any>(
         fun commit() {
             ensureLoaded()
             when {
-                removeRequested && exists -> this@LettuceCache.remove(key)
+                removeRequested && exists -> this@LettuceJCache.remove(key)
                 removeRequested -> Unit
-                updatedValue != null -> this@LettuceCache.put(key, updatedValue!!)
+                updatedValue != null      -> this@LettuceJCache.put(key, updatedValue!!)
             }
         }
 

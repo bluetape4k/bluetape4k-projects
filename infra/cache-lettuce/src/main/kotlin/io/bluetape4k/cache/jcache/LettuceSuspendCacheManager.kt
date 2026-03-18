@@ -7,8 +7,6 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
-import io.lettuce.core.api.coroutines
-import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
 
@@ -39,6 +37,16 @@ class LettuceSuspendCacheManager(
 ) {
 
     companion object: KLoggingChannel()
+
+    private val jcacheManager by lazy {
+        LettuceCacheManager(
+            redisClient = redisClient,
+            classLoader = javaClass.classLoader,
+            cacheProvider = LettuceCachingProvider(),
+            properties = null,
+            uri = null,
+        )
+    }
 
     private val caches = ConcurrentHashMap<String, LettuceSuspendJCache<out Any>>()
 
@@ -81,18 +89,9 @@ class LettuceSuspendCacheManager(
 
         return caches.computeIfAbsent(cacheName) { name ->
             log.info { "Create LettuceSuspendCache. name=$name" }
+            val jcache = jcacheManager.getOrCreate(name, lettuceCacheConfigOf<String, Any>())
 
-            val conn = redisClient.connect(codec ?: this@LettuceSuspendCacheManager.codec)
-            val commands = conn.coroutines() as RedisCoroutinesCommands<String, V>
-
-            LettuceSuspendJCache(
-                name,
-                commands,
-                ttlSeconds ?: this@LettuceSuspendCacheManager.ttlSeconds,
-                this@LettuceSuspendCacheManager,
-                supportsHSetEx = supportsHSetEx,
-                closeResource = { conn.close() },
-            )
+            LettuceSuspendJCache(jcache as LettuceJCache<String, V>)
         } as LettuceSuspendJCache<V>
     }
 
@@ -155,7 +154,7 @@ class LettuceSuspendCacheManager(
      * ```
      */
     fun closeCache(cache: LettuceSuspendJCache<*>) {
-        caches.remove(cache.cacheName)
+        caches.remove(cache.name)
     }
 
     /**
