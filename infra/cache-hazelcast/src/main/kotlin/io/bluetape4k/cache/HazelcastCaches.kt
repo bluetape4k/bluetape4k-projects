@@ -4,7 +4,10 @@ import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.cache.jcache.HazelcastJCaching
 import io.bluetape4k.cache.jcache.HazelcastSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.SuspendJCache
+import io.bluetape4k.cache.jcache.SuspendJCacheEntryEventListener
+import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfigBuilder
@@ -12,8 +15,13 @@ import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.info
 import javax.cache.configuration.Configuration
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import javax.cache.configuration.MutableConfiguration
 
 /**
@@ -137,4 +145,56 @@ object HazelcastCaches : KLogging() {
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
     ): SuspendNearCacheOperations<V> = suspendNearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
+
+    // -------------------------------------
+    // NearJCache
+    // -------------------------------------
+
+    inline fun <reified K: Any, reified V: Any> nearJCache(
+        frontCache: JCache<K, V>,
+        hazelcastInstance: HazelcastInstance,
+        configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
+        nearCacheCfg: NearJCacheConfig<K, V>,
+    ): NearJCache<K, V> {
+        // back cache의 event를 받아 front cache에 반영합니다.
+        val cacheEntryEventListenerCfg =
+            MutableCacheEntryListenerConfiguration(
+                { JCacheEntryEventListener(frontCache) },
+                null,
+                false,
+                nearCacheCfg.isSynchronous
+            )
+
+        val backCache: JCache<K, V> =
+            HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
+        log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
+        backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
+
+        log.info { "Create NearCache instance. config=$nearCacheCfg" }
+        return NearJCache(frontCache, backCache, nearCacheCfg)
+    }
+
+    inline fun <reified K: Any, reified V: Any> suspendNearJCache(
+        frontCache: SuspendJCache<K, V>,
+        hazelcastInstance: HazelcastInstance,
+        configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
+        nearCacheCfg: NearJCacheConfig<K, V>,
+    ): SuspendNearJCache<K, V> {
+        val cacheEntryEventListenerCfg = MutableCacheEntryListenerConfiguration(
+            { SuspendJCacheEntryEventListener(frontCache) },
+            null,
+            false,
+            false
+        )
+
+        val jcache = HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
+        val backCache = HazelcastSuspendJCache(jcache)
+
+        log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
+        backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
+
+        log.info { "Create HazelcastSuspendNearJCache instance." }
+        return SuspendNearJCache(frontCache, backCache)
+    }
+
 }
