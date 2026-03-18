@@ -1,7 +1,11 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.cache.nearcache.jcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.logging.KLogging
@@ -546,5 +550,77 @@ abstract class AbstractNearCacheTest {
 
         // nearCache가 close 되었으므로
         nearCache.frontCache.isClosed.shouldBeTrue()
+    }
+
+    // ─────────────────────────────────────────────
+    // 동시성 테스트
+    // ─────────────────────────────────────────────
+
+    @RepeatedTest(TEST_SIZE)
+    fun `MultithreadingTester - 동시 put과 get이 안전하다`() {
+        val keys = (1..100).map { randomKey() }
+        val value = randomValue()
+
+        // 먼저 데이터 넣기
+        keys.forEach { nearCache1.put(it, value) }
+        await until { keys.all { nearCache2.containsKey(it) } }
+
+        MultithreadingTester()
+            .numThreads(8)
+            .roundsPerThread(50)
+            .add {
+                val key = keys.random()
+                nearCache1[key] shouldBeEqualTo value
+            }
+            .add {
+                val key = randomKey()
+                nearCache2.put(key, value)
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `MultithreadingTester - 동시 put과 remove가 안전하다`() {
+        MultithreadingTester()
+            .numThreads(8)
+            .roundsPerThread(50)
+            .add {
+                val key = randomKey()
+                nearCache1.put(key, randomValue())
+                nearCache1.remove(key)
+                nearCache1[key].shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `StructuredTaskScopeTester - 병렬 put-get-remove 사이클`() {
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val key = randomKey()
+                val value = randomValue()
+                nearCache1.put(key, value)
+                nearCache1[key] shouldBeEqualTo value
+                nearCache1.remove(key)
+                nearCache1[key].shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `StructuredTaskScopeTester - 동시 putIfAbsent 경합`() {
+        val sharedKey = randomKey()
+        val value = randomValue()
+
+        // 여러 태스크가 동시에 putIfAbsent 시도 — 하나만 성공해야 함
+        StructuredTaskScopeTester()
+            .rounds(16)
+            .add {
+                nearCache1.putIfAbsent(sharedKey, value)
+            }
+            .run()
+
+        nearCache1[sharedKey] shouldBeEqualTo value
     }
 }

@@ -2,9 +2,11 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.cache.jcache.SuspendCacheEntry
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearCache
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.awaitility.untilSuspending
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -440,5 +442,78 @@ abstract class AbstractSuspendNearCacheTest
         // 다른 near cache에는 반영안된다. - removeAll() 을 사용해야 다른 nearCache에도 반영됩니다.
         suspendNearCache2.containsKey(key1).shouldBeTrue()
         suspendNearCache2.containsKey(key2).shouldBeTrue()
+    }
+
+    // ─────────────────────────────────────────────
+    // 동시성 테스트
+    // ─────────────────────────────────────────────
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 put과 get이 안전하다`() = runSuspendIO {
+        val keys = (1..100).map { getKey() }
+        val value = getValue()
+
+        // 먼저 데이터 넣기
+        keys.forEach { suspendNearCache1.put(it, value) }
+        await untilSuspending { keys.all { suspendNearCache2.containsKey(it) } }
+
+        SuspendedJobTester()
+            .workers(8)
+            .rounds(50)
+            .add {
+                val key = keys.random()
+                suspendNearCache1.get(key) shouldBeEqualTo value
+            }
+            .add {
+                val key = getKey()
+                suspendNearCache2.put(key, value)
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 put과 remove가 안전하다`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(8)
+            .rounds(50)
+            .add {
+                val key = getKey()
+                suspendNearCache1.put(key, getValue())
+                suspendNearCache1.remove(key)
+                suspendNearCache1.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 병렬 put-get-remove 사이클`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(32)
+            .rounds(10)
+            .add {
+                val key = getKey()
+                val value = getValue()
+                suspendNearCache1.put(key, value)
+                suspendNearCache1.get(key) shouldBeEqualTo value
+                suspendNearCache1.remove(key)
+                suspendNearCache1.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 putIfAbsent 경합`() = runSuspendIO {
+        val sharedKey = getKey()
+        val value = getValue()
+
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(1)
+            .add {
+                suspendNearCache1.putIfAbsent(sharedKey, value)
+            }
+            .run()
+
+        suspendNearCache1.get(sharedKey) shouldBeEqualTo value
     }
 }
