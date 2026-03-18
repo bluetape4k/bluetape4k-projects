@@ -3,11 +3,11 @@ package io.bluetape4k.cache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.nearcache.NearCache
-import io.bluetape4k.cache.nearcache.RedissonResp3NearCache
-import io.bluetape4k.cache.nearcache.RedissonResp3SuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientRedissonResp3NearCache
-import io.bluetape4k.cache.nearcache.ResilientRedissonResp3SuspendNearCache
+import io.bluetape4k.cache.nearcache.NearCacheOperations
+import io.bluetape4k.cache.nearcache.RedissonNearCache
+import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCache
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeInstanceOf
@@ -18,10 +18,8 @@ import org.junit.jupiter.api.Test
  * 각 팩토리 메서드가 올바른 타입의 인스턴스를 반환하는지 검증합니다.
  */
 class RedissonCachesTest {
-
     companion object : KLogging() {
         private val redisson get() = RedisServers.redisson
-        private val redisClient get() = RedisServers.redisClient
     }
 
     @Test
@@ -69,42 +67,24 @@ class RedissonCachesTest {
     }
 
     @Test
-    fun `resp3NearCache 팩토리는 RedissonResp3NearCache 인스턴스를 반환한다`() {
-        val cache = RedissonCaches.resp3NearCache<String>(redisson, redisClient)
+    fun `nearCacheOps 팩토리는 RedissonNearCache 인스턴스를 반환한다`() {
+        val cache = RedissonCaches.nearCacheOps<String>(redisson)
         try {
-            cache shouldBeInstanceOf RedissonResp3NearCache::class
+            cache shouldBeInstanceOf NearCacheOperations::class
+            cache shouldBeInstanceOf RedissonNearCache::class
         } finally {
             runCatching { cache.close() }
         }
     }
 
     @Test
-    fun `resp3SuspendNearCache 팩토리는 RedissonResp3SuspendNearCache 인스턴스를 반환한다`() {
-        val cache = RedissonCaches.resp3SuspendNearCache<String>(redisson, redisClient)
+    fun `suspendNearCacheOps 팩토리는 RedissonSuspendNearCache 인스턴스를 반환한다`() {
+        val cache = RedissonCaches.suspendNearCacheOps<String>(redisson)
         try {
-            cache shouldBeInstanceOf RedissonResp3SuspendNearCache::class
+            cache shouldBeInstanceOf SuspendNearCacheOperations::class
+            cache shouldBeInstanceOf RedissonSuspendNearCache::class
         } finally {
-            runCatching { cache.close() }
-        }
-    }
-
-    @Test
-    fun `resilientResp3NearCache 팩토리는 ResilientRedissonResp3NearCache 인스턴스를 반환한다`() {
-        val cache = RedissonCaches.resilientResp3NearCache<String>(redisson, redisClient)
-        try {
-            cache shouldBeInstanceOf ResilientRedissonResp3NearCache::class
-        } finally {
-            runCatching { cache.close() }
-        }
-    }
-
-    @Test
-    fun `resilientResp3SuspendNearCache 팩토리는 ResilientRedissonResp3SuspendNearCache 인스턴스를 반환한다`() {
-        val cache = RedissonCaches.resilientResp3SuspendNearCache<String>(redisson, redisClient)
-        try {
-            cache shouldBeInstanceOf ResilientRedissonResp3SuspendNearCache::class
-        } finally {
-            runCatching { cache.close() }
+            runCatching { runBlocking { cache.close() } }
         }
     }
 }

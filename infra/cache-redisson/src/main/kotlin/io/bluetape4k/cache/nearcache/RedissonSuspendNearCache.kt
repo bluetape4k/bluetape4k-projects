@@ -1,96 +1,219 @@
 package io.bluetape4k.cache.nearcache
 
-import com.github.benmanes.caffeine.cache.Caffeine
-import io.bluetape4k.cache.jcache.CaffeineSuspendCache
-import io.bluetape4k.cache.jcache.RedissonSuspendCache
-import io.bluetape4k.cache.jcache.SuspendCache
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.support.requireNotBlank
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.future.await
+import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RedissonClient
-import javax.cache.configuration.Configuration
-import javax.cache.configuration.MutableConfiguration
+import org.redisson.client.codec.Codec
+import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Redisson back cache 기반 [SuspendNearCache] 팩토리입니다.
+ * Redisson [RLocalCachedMap] 기반 Near Cache (2-tier cache) - Coroutine(Suspend) 구현.
  *
- * ## 동작/계약
- * - 기본 front suspend cache는 Caffeine 구현을 사용합니다.
- * - back suspend cache는 `RedissonSuspendCache`를 생성해 연결합니다.
- * - `backCacheName`이 blank면 `IllegalArgumentException`이 발생합니다.
+ * ## 아키텍처
+ * Redisson `RLocalCachedMap`은 내장 2-tier 캐시를 제공합니다:
+ * - **로컬 캐시**: JVM 내 in-memory 캐시 (front)
+ * - **Redis 캐시**: Redisson이 관리하는 분산 캐시 (back)
+ * - **Invalidation**: Redisson이 자동으로 client-side caching + pub/sub invalidation을 처리
  *
- * ```kotlin
- * val near = RedissonNearSuspendCache<String, Int>("scores", redisson)
- * // near.isClosed() == false
- * ```
+ * 모든 연산은 `RLocalCachedMap`의 `*Async()` 메서드에 `.await()`를 적용하여 suspend function으로 제공합니다.
+ *
+ * @param V 값 타입 (키는 항상 String)
+ * @param redisson Redisson 클라이언트
+ * @param config Near Cache 설정
+ * @param codec Redisson 직렬화 Codec
  */
-object RedissonSuspendNearCache {
+class RedissonSuspendNearCache<V : Any>(
+    private val redisson: RedissonClient,
+    private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
+    private val codec: Codec = RedissonCodecs.LZ4Fory,
+) : SuspendNearCacheOperations<V> {
+    companion object : KLogging()
+
+    override val cacheName: String get() = config.cacheName
+
+    private val closed = atomic(false)
+    override val isClosed: Boolean by closed
+
+    private val backHitCount = AtomicLong(0)
+    private val backMissCount = AtomicLong(0)
+
+    private val localCachedMap: RLocalCachedMap<String, V> =
+        redisson.getLocalCachedMap(
+            config.cacheName,
+            codec,
+            buildLocalCachedMapOptions(config)
+        )
 
     /**
-     * 기본 Codec: [RedissonCodecs.LZ4Fory]
-     */
-    val defaultNearCacheCodec = RedissonCodecs.LZ4Fory
-
-
-    /**
-     * Front/Back SuspendCache를 직접 지정해 [SuspendNearCache]를 생성합니다.
+     * [key]에 해당하는 값을 조회합니다.
      *
-     * @param frontSuspendCache Front SuspendCache
-     * @param backSuspendCache Back SuspendCache
-     * @param checkExpiryPeriod Back Cache 만료 검사 주기(ms)
+     * `RLocalCachedMap`이 자동으로 로컬 캐시 → Redis 순서로 조회합니다.
      */
-    operator fun <K: Any, V: Any> invoke(
-        frontSuspendCache: SuspendCache<K, V>,
-        backSuspendCache: SuspendCache<K, V>,
-        checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-    ): SuspendNearCache<K, V> = SuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
-
-    /**
-     * Back Cache 이름으로 Back SuspendCache를 생성하고 [SuspendNearCache]를 생성합니다.
-     *
-     * Front SuspendCache는 기본적으로 Caffeine을 사용합니다.
-     *
-     * @param backCacheName Back Cache 이름
-     * @param redisson Redisson 클라이언트
-     * @param backCacheConfiguration Back Cache 설정
-     * @param checkExpiryPeriod Back Cache 만료 검사 주기(ms)
-     * @param frontCacheBuilder Front Caffeine 설정 빌더
-     */
-    inline operator fun <reified K: Any, reified V: Any> invoke(
-        backCacheName: String,
-        redisson: RedissonClient,
-        backCacheConfiguration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
-        checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-        noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
-    ): SuspendNearCache<K, V> {
-        backCacheName.requireNotBlank("backCacheName")
-
-        val frontSuspendCache = CaffeineSuspendCache<K, V>(frontCacheBuilder)
-        val backSuspendCache = RedissonSuspendCache<K, V>(backCacheName, redisson, backCacheConfiguration)
-        return SuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
+    override suspend fun get(key: String): V? {
+        val value = localCachedMap.getAsync(key).await()
+        if (value != null) backHitCount.incrementAndGet() else backMissCount.incrementAndGet()
+        return value
     }
 
     /**
-     * Back Cache 이름으로 Back SuspendCache를 생성하고, 지정된 Front SuspendCache와 조합합니다.
-     *
-     * @param backCacheName Back Cache 이름
-     * @param redisson Redisson 클라이언트
-     * @param frontSuspendCache Front SuspendCache
-     * @param backCacheConfiguration Back Cache 설정
-     * @param checkExpiryPeriod Back Cache 만료 검사 주기(ms)
+     * 여러 [keys]에 해당하는 값을 일괄 조회합니다.
      */
-    inline operator fun <reified K: Any, reified V: Any> invoke(
-        backCacheName: String,
-        redisson: RedissonClient,
-        frontSuspendCache: SuspendCache<K, V>,
-        backCacheConfiguration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
-        checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-    ): SuspendNearCache<K, V> {
-        backCacheName.requireNotBlank("backCacheName")
-        val backSuspendCache = RedissonSuspendCache<K, V>(backCacheName, redisson, backCacheConfiguration)
-        return SuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
+    override suspend fun getAll(keys: Set<String>): Map<String, V> {
+        @Suppress("UNCHECKED_CAST")
+        return localCachedMap.getAllAsync(keys).await() as Map<String, V>
+    }
+
+    /**
+     * [key]가 캐시에 존재하는지 확인합니다.
+     */
+    override suspend fun containsKey(key: String): Boolean = localCachedMap.containsKeyAsync(key).await() == true
+
+    /**
+     * [key]-[value] 쌍을 저장합니다.
+     */
+    override suspend fun put(
+        key: String,
+        value: V,
+    ) {
+        localCachedMap.putAsync(key, value).await()
+    }
+
+    /**
+     * 여러 [entries]를 일괄 저장합니다.
+     */
+    override suspend fun putAll(entries: Map<String, V>) {
+        localCachedMap.putAllAsync(entries).await()
+    }
+
+    /**
+     * [key]가 없을 때만 [value]를 저장합니다.
+     *
+     * @return 기존에 존재하던 값. 저장에 성공하면 null.
+     */
+    override suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? = localCachedMap.putIfAbsentAsync(key, value).await()
+
+    /**
+     * [key]의 값을 [value]로 교체합니다.
+     *
+     * @return 키가 존재하여 교체에 성공하면 true.
+     */
+    override suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean = localCachedMap.replaceAsync(key, value).await() != null
+
+    /**
+     * [key]의 값이 [oldValue]와 일치할 때만 [newValue]로 교체합니다.
+     *
+     * @return 교체에 성공하면 true.
+     */
+    override suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean = localCachedMap.replaceAsync(key, oldValue, newValue).await() == true
+
+    /**
+     * [key]를 삭제합니다.
+     */
+    override suspend fun remove(key: String) {
+        localCachedMap.removeAsync(key).await()
+    }
+
+    /**
+     * 여러 [keys]를 일괄 삭제합니다.
+     */
+    override suspend fun removeAll(keys: Set<String>) {
+        keys.forEach { localCachedMap.removeAsync(it).await() }
+    }
+
+    /**
+     * [key]의 값을 반환하고 삭제합니다.
+     *
+     * @return 삭제된 값. 키가 없으면 null.
+     */
+    override suspend fun getAndRemove(key: String): V? = localCachedMap.removeAsync(key).await()
+
+    /**
+     * [key]의 현재 값을 반환하고 [value]로 교체합니다.
+     *
+     * @return 교체 전 값. 키가 없으면 null.
+     */
+    override suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? = localCachedMap.replaceAsync(key, value).await()
+
+    /**
+     * 로컬 캐시만 비웁니다. Redis 캐시는 유지됩니다.
+     * 로컬 메모리 접근이므로 suspend가 아닙니다.
+     */
+    override fun clearLocal() {
+        localCachedMap.clearLocalCache()
+    }
+
+    /**
+     * 로컬 캐시 + Redis 캐시 모두 비웁니다.
+     */
+    override suspend fun clearAll() {
+        localCachedMap.clearAsync().await()
+    }
+
+    /**
+     * 로컬 캐시 엔트리 수를 반환합니다.
+     * 로컬 메모리 접근이므로 suspend가 아닙니다.
+     */
+    override fun localCacheSize(): Long = localCachedMap.cachedKeySet().size.toLong()
+
+    /**
+     * Redis 캐시 엔트리 수를 반환합니다.
+     */
+    override suspend fun backCacheSize(): Long =
+        localCachedMap.sizeAsync().await()?.toLong() ?: localCachedMap.size.toLong()
+
+    /**
+     * 캐시 통계 스냅샷을 반환합니다.
+     * 로컬 카운터 기반이므로 suspend가 아닙니다.
+     */
+    override fun stats(): NearCacheStatistics =
+        DefaultNearCacheStatistics(
+            localHits = 0L,
+            localMisses = 0L,
+            localSize = localCacheSize(),
+            localEvictions = 0L,
+            backHits = backHitCount.get(),
+            backMisses = backMissCount.get()
+        )
+
+    /**
+     * 리소스를 정리합니다.
+     */
+    override suspend fun close() {
+        if (closed.compareAndSet(expect = false, update = true)) {
+            runCatching { localCachedMap.destroy() }
+            log.debug { "RedissonSuspendNearCache [${config.cacheName}] closed" }
+        }
     }
 }
+
+/**
+ * [RedissonClient]로 [SuspendNearCacheOperations]를 생성하는 팩토리 함수입니다.
+ *
+ * @param V 값 타입
+ * @param redisson Redisson 클라이언트
+ * @param config Near Cache 설정
+ * @param codec Redisson 직렬화 Codec
+ * @return [SuspendNearCacheOperations] 인스턴스
+ */
+fun <V : Any> redissonSuspendNearCacheOf(
+    redisson: RedissonClient,
+    config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
+    codec: Codec = RedissonCodecs.LZ4Fory,
+): SuspendNearCacheOperations<V> = RedissonSuspendNearCache(redisson, config, codec)

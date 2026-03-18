@@ -1,138 +1,96 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.codec.encodeBase62
-import org.redisson.jcache.configuration.RedissonConfiguration
-import java.util.*
-import javax.cache.CacheManager
-import javax.cache.configuration.Configuration
-import javax.cache.configuration.Factory
-import javax.cache.configuration.MutableConfiguration
-import javax.cache.expiry.AccessedExpiryPolicy
-import javax.cache.expiry.Duration
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
+import org.redisson.api.LocalCachedMapOptions
+import java.time.Duration
 
 /**
- * Redis(Redisson) back cache를 사용하는 near cache 설정을 표현합니다.
+ * Redisson [RLocalCachedMap][org.redisson.api.RLocalCachedMap] 기반 Near Cache 설정.
  *
- * ## 동작/계약
- * - [redissonConfig]가 주어지면 back cache 구성에 해당 설정을 사용합니다.
- * - `isStoreByValue()`는 항상 `true`를 반환합니다.
- * - equals/hashCode 비교에는 `redissonConfig`, `kType`, `vType`가 반영됩니다.
+ * `RLocalCachedMap`은 Redisson 내장 2-tier 캐시로, 자동 로컬 캐시 + 분산 캐시 + invalidation을 제공합니다.
+ * Lettuce RESP3 하이브리드 없이도 client-side caching이 동작합니다.
  *
- * ```kotlin
- * val cfg = RedisNearCacheConfig(
- *   redissonConfig = null,
- *   kType = String::class.java,
- *   vType = Int::class.java
- * )
- * // cfg.keyType == String::class.java
- * ```
+ * @param cacheName 캐시 이름 (Redis map 이름으로 사용됨)
+ * @param maxLocalSize 로컬 캐시 최대 항목 수
+ * @param timeToLive Redis 저장 TTL (null이면 만료 없음)
+ * @param maxIdle Redis idle 만료 시간 (null이면 비활성)
+ * @param syncStrategy 로컬 캐시 동기화 전략
+ * @param reconnectionStrategy 재연결 시 로컬 캐시 처리 전략
+ * @param evictionPolicy 로컬 캐시 퇴거 정책
  */
-class RedisNearCacheConfig<K: Any, V: Any>(
-    cacheManagerFactory: Factory<CacheManager> = CaffeineCacheManagerFactory,
-    frontCacheName: String = "near-front-cache-" + UUID.randomUUID().encodeBase62(),
-    frontCacheConfiguration: MutableConfiguration<K, V> = MutableConfiguration<K, V>().apply {
-        setExpiryPolicyFactory {
-            AccessedExpiryPolicy(Duration.THIRTY_MINUTES)
-        }
-    },
-    isSynchronous: Boolean = true,
-    checkExpiryPeriod: Long = DEFAULT_EXPIRY_CHECK_PERIOD,
-    val redissonConfig: RedissonConfiguration<K, V>?,
-    private val kType: Class<K>,
-    private val vType: Class<V>,
-): NearCacheConfig<K, V>(
-    cacheManagerFactory,
-    frontCacheName,
-    frontCacheConfiguration,
-    isSynchronous,
-    checkExpiryPeriod
-),
-   Configuration<K, V> {
-
-    override fun getKeyType(): Class<K> = kType
-    override fun getValueType(): Class<V> = vType
-    override fun isStoreByValue(): Boolean = true
-
-    override fun equals(other: Any?): Boolean {
-        return other is RedisNearCacheConfig<*, *> &&
-                redissonConfig == other.redissonConfig &&
-                kType == other.kType &&
-                vType == other.vType
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), redissonConfig, kType, vType)
+data class RedissonNearCacheConfig(
+    val cacheName: String = "redisson-near-cache",
+    val maxLocalSize: Int = 10_000,
+    val timeToLive: Duration? = null,
+    val maxIdle: Duration? = null,
+    val syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE,
+    val reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.CLEAR,
+    val evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU,
+) {
+    init {
+        require(cacheName.isNotBlank()) { "cacheName은 비어 있으면 안 됩니다" }
+        require(maxLocalSize > 0) { "maxLocalSize는 0보다 커야 합니다. 현재 값: $maxLocalSize" }
     }
 }
 
 /**
- * [RedisNearCacheConfig] 생성을 위한 DSL 빌더입니다.
- *
- * ## 동작/계약
- * - 기본 front cache 만료 정책은 `AccessedExpiryPolicy(30분)`입니다.
- * - [buildConfig]에서 `redissonConfig.isStoreByValue == false`면 `IllegalArgumentException`이 발생합니다.
- * - [buildConfig]는 현재 빌더 상태로 새 설정 객체를 생성합니다.
+ * [RedissonNearCacheConfig] DSL 빌더 함수.
  *
  * ```kotlin
- * val cfg = RedisNearCacheConfigBuilderDsl(String::class.java, Int::class.java).buildConfig()
- * // cfg.valueType == Int::class.java
+ * val config = redissonNearCacheConfig {
+ *     cacheName = "my-cache"
+ *     maxLocalSize = 5_000
+ *     timeToLive = Duration.ofMinutes(10)
+ *     syncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE
+ * }
  * ```
+ *
+ * @param block [RedissonNearCacheConfigBuilder]에 대한 설정 블록
+ * @return 빌드된 [RedissonNearCacheConfig] 인스턴스
  */
-class RedisNearCacheConfigBuilderDsl<K: Any, V: Any>(
-    private val kType: Class<K>,
-    private val vType: Class<V>,
+inline fun redissonNearCacheConfig(block: RedissonNearCacheConfigBuilder.() -> Unit): RedissonNearCacheConfig =
+    RedissonNearCacheConfigBuilder().apply(block).build()
 
-    ) {
-    var cacheManagerFactory: Factory<CacheManager> = NearCacheConfig.CaffeineCacheManagerFactory
-    var frontCacheName: String = "near-front-cache-" + UUID.randomUUID().encodeBase62()
-    var frontCacheConfiguration: MutableConfiguration<K, V> = MutableConfiguration<K, V>().apply {
-        setExpiryPolicyFactory {
-            AccessedExpiryPolicy(
-                Duration.THIRTY_MINUTES
-            )
-        }
-    }
-    var isSynchronous: Boolean = true
-    var checkExpiryPeriod: Long = NearCacheConfig.DEFAULT_EXPIRY_CHECK_PERIOD
-    var redissonConfig: RedissonConfiguration<K, V>? = null
+/**
+ * [RedissonNearCacheConfig] 빌더 클래스.
+ */
+class RedissonNearCacheConfigBuilder {
+    /** 캐시 이름 (Redis map 이름으로 사용됨). 기본값: `"redisson-near-cache"` */
+    var cacheName: String = "redisson-near-cache"
 
+    /** 로컬 캐시 최대 항목 수. 기본값: `10_000` */
+    var maxLocalSize: Int = 10_000
 
-    // org.redisson.jcache.configuration.RedissonConfiguration 은 isStoreValue 를 true 로 강제하고 있다.
-    // redis 를 back cache 로 사용한다면 reference 를 캐시하는 의미 자체가 없으므로 isStoreByValue 를 true 로 강제한다.
-    fun buildConfig(): RedisNearCacheConfig<K, V> {
-        if (false == redissonConfig?.isStoreByValue) {
-            throw IllegalArgumentException("RedissonConfig's isStoreByValue should be true")
-        }
-        return RedisNearCacheConfig(
-            cacheManagerFactory,
-            frontCacheName,
-            frontCacheConfiguration,
-            isSynchronous,
-            checkExpiryPeriod,
-            redissonConfig,
-            kType,
-            vType
+    /** Redis 저장 TTL. `null`이면 만료 없음. 기본값: `null` */
+    var timeToLive: Duration? = null
+
+    /** Redis idle 만료 시간. `null`이면 비활성. 기본값: `null` */
+    var maxIdle: Duration? = null
+
+    /** 로컬 캐시 동기화 전략. 기본값: [LocalCachedMapOptions.SyncStrategy.INVALIDATE] */
+    var syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE
+
+    /** 재연결 시 로컬 캐시 처리 전략. 기본값: [LocalCachedMapOptions.ReconnectionStrategy.CLEAR] */
+    var reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.CLEAR
+
+    /** 로컬 캐시 퇴거 정책. 기본값: [LocalCachedMapOptions.EvictionPolicy.LRU] */
+    var evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU
+
+    /**
+     * 설정값을 검증하고 [RedissonNearCacheConfig]를 생성합니다.
+     *
+     * @return 빌드된 [RedissonNearCacheConfig] 인스턴스
+     * @throws IllegalArgumentException cacheName이 blank이거나 maxLocalSize가 0 이하인 경우
+     */
+    fun build(): RedissonNearCacheConfig =
+        RedissonNearCacheConfig(
+            cacheName = cacheName.requireNotBlank("cacheName"),
+            maxLocalSize = maxLocalSize.requirePositiveNumber("maxLocalSize"),
+            timeToLive = timeToLive,
+            maxIdle = maxIdle,
+            syncStrategy = syncStrategy,
+            reconnectionStrategy = reconnectionStrategy,
+            evictionPolicy = evictionPolicy
         )
-    }
-}
-
-/**
- * DSL 블록으로 [RedisNearCacheConfig]를 생성합니다.
- *
- * ## 동작/계약
- * - `K/V` reified 타입을 빌더에 전달합니다.
- * - [customizer]에서 설정한 값을 반영해 최종 설정을 생성합니다.
- * - 호출마다 새 설정 객체를 반환합니다.
- *
- * ```kotlin
- * val cfg = redisNearCacheConfigurationOf<String, Int> { isSynchronous = false }
- * // cfg.isSynchronous == false
- * ```
- */
-inline fun <reified K: Any, reified V: Any> redisNearCacheConfigurationOf(
-    customizer: RedisNearCacheConfigBuilderDsl<K, V>.() -> Unit,
-): RedisNearCacheConfig<K, V> {
-    return RedisNearCacheConfigBuilderDsl(K::class.java, V::class.java).apply {
-        customizer(this)
-    }.buildConfig()
 }

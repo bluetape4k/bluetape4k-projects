@@ -9,13 +9,6 @@ dependencies {
     // Redisson JCache provider
     api(Libs.redisson)
     api(project(":bluetape4k-redisson"))
-    api(project(":bluetape4k-lettuce"))   // RESP3 NearCache에서 Lettuce 사용
-
-    // RESP3 CLIENT TRACKING invalidation 전용 (데이터 연산은 Redisson 사용)
-    implementation(Libs.lettuce_core)
-    // Lettuce coroutines API가 내부적으로 사용
-    implementation(Libs.kotlinx_coroutines_reactive)
-
     // bluetape4k-resilience4j는 compileOnly(cache-redisson) 의존으로 순환 의존성 발생 → 직접 라이브러리 사용
     implementation(Libs.resilience4j_retry)
     implementation(Libs.resilience4j_kotlin)

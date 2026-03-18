@@ -8,7 +8,6 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import org.redisson.api.RedissonClient
 
 object RedisServers {
-
     /** 테스트 전역 Redis 서버 (Testcontainers) */
     val redisServer: RedisServer by lazy { RedisServer.Launcher.redis }
 
@@ -23,17 +22,13 @@ object RedisServers {
 
     val redisson by lazy { redissonClient }
 
-    /**
-     * RESP3 를 사용하기 위한 Lettuce 의 RedisClient
-     */
-    val redisClient by lazy { RedisServer.Launcher.LettuceLib.getRedisClient(redisServer.url) }
-
     internal fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
-            redisServer.url,
-            256,
-            24
-        )
+        val config =
+            RedisServer.Launcher.RedissonLib.getRedissonConfig(
+                redisServer.url,
+                256,
+                24
+            )
         return redissonClientOf(config)
     }
 
@@ -41,10 +36,8 @@ object RedisServers {
     val faker = Fakers.faker
 
     @JvmStatic
-    internal fun randomName(): String =
-        "$LibraryName:${Base58.randomString(8)}"
+    internal fun randomName(): String = "$LibraryName:${Base58.randomString(8)}"
 
     @JvmStatic
-    internal fun randomString(size: Int = 2048): String =
-        Fakers.fixedString(size)
+    internal fun randomString(size: Int = 2048): String = Fakers.fixedString(size)
 }

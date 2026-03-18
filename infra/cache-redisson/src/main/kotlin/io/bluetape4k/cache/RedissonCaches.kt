@@ -7,17 +7,14 @@ import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.RedissonNearCache
-import io.bluetape4k.cache.nearcache.RedissonResp3NearCache
-import io.bluetape4k.cache.nearcache.RedissonResp3NearCacheConfig
-import io.bluetape4k.cache.nearcache.RedissonResp3SuspendNearCache
+import io.bluetape4k.cache.nearcache.RedissonNearCacheConfig
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientRedissonResp3NearCache
-import io.bluetape4k.cache.nearcache.ResilientRedissonResp3NearCacheConfig
-import io.bluetape4k.cache.nearcache.ResilientRedissonResp3SuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCache
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.logging.KLogging
-import io.lettuce.core.RedisClient
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
 import org.redisson.config.Config
@@ -28,16 +25,15 @@ import javax.cache.configuration.MutableConfiguration
  * Redisson 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
  * [JCache], [SuspendCache], [NearCache], [SuspendNearCache],
- * RESP3 하이브리드 NearCache, Resilient NearCache를 한 곳에서 생성할 수 있습니다.
+ * [NearCacheOperations], [SuspendNearCacheOperations]를 한 곳에서 생성할 수 있습니다.
  *
  * ```kotlin
  * val cache = RedissonCaches.jcache<String, String>("my-cache", redisson)
- * val near  = RedissonCaches.nearCache<String, String>("my-near", redisson)
- * val resp3 = RedissonCaches.resp3NearCache<String>(redisson, redisClient)
+ * val near  = RedissonCaches.nearCacheOps<String>("my-near", redisson)
+ * val suspendNear = RedissonCaches.suspendNearCacheOps<String>("my-near", redisson)
  * ```
  */
 object RedissonCaches : KLogging() {
-
     // ─────────────────────────────────────────────
     // JCache
     // ─────────────────────────────────────────────
@@ -55,9 +51,10 @@ object RedissonCaches : KLogging() {
     inline fun <reified K : Any, reified V : Any> jcache(
         cacheName: String,
         redisson: RedissonClient,
-        configuration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
+        configuration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
     ): JCache<K, V> = RedissonJCaching.getOrCreate(cacheName, redisson, configuration)
 
     /**
@@ -73,9 +70,10 @@ object RedissonCaches : KLogging() {
     inline fun <reified K : Any, reified V : Any> jcache(
         cacheName: String,
         redissonConfig: Config,
-        configuration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
+        configuration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
     ): JCache<K, V> = RedissonJCaching.getOrCreate(cacheName, redissonConfig, configuration)
 
     // ─────────────────────────────────────────────
@@ -113,7 +111,7 @@ object RedissonCaches : KLogging() {
     ): RedissonSuspendCache<K, V> = RedissonSuspendCache(cacheName, redissonConfig)
 
     // ─────────────────────────────────────────────
-    // NearCache (JCache 백엔드)
+    // NearCache (JCache 백엔드, 레거시)
     // ─────────────────────────────────────────────
 
     /**
@@ -128,7 +126,7 @@ object RedissonCaches : KLogging() {
     fun <K : Any, V : Any> nearCache(
         backCache: JCache<K, V>,
         nearCacheConfig: NearCacheConfig<K, V> = NearCacheConfig(),
-    ): NearCache<K, V> = RedissonNearCache(backCache, nearCacheConfig)
+    ): NearCache<K, V> = NearCache(nearCacheConfig, backCache)
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [NearCache]를 반환합니다.
@@ -144,14 +142,18 @@ object RedissonCaches : KLogging() {
     inline fun <reified K : Any, reified V : Any> nearCache(
         backCacheName: String,
         redisson: RedissonClient,
-        backCacheConfiguration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
+        backCacheConfiguration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
         nearCacheConfig: NearCacheConfig<K, V> = NearCacheConfig(),
-    ): NearCache<K, V> = RedissonNearCache(backCacheName, redisson, backCacheConfiguration, nearCacheConfig)
+    ): NearCache<K, V> {
+        val backCache = RedissonJCaching.getOrCreate(backCacheName, redisson, backCacheConfiguration)
+        return NearCache(nearCacheConfig, backCache)
+    }
 
     // ─────────────────────────────────────────────
-    // SuspendNearCache (JCache 백엔드)
+    // SuspendNearCache (JCache 백엔드, 레거시)
     // ─────────────────────────────────────────────
 
     /**
@@ -168,7 +170,7 @@ object RedissonCaches : KLogging() {
         frontSuspendCache: SuspendCache<K, V>,
         backSuspendCache: SuspendCache<K, V>,
         checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
-    ): SuspendNearCache<K, V> = RedissonSuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
+    ): SuspendNearCache<K, V> = SuspendNearCache(frontSuspendCache, backSuspendCache, checkExpiryPeriod)
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearCache]를 반환합니다.
@@ -186,88 +188,51 @@ object RedissonCaches : KLogging() {
     inline fun <reified K : Any, reified V : Any> suspendNearCache(
         backCacheName: String,
         redisson: RedissonClient,
-        backCacheConfiguration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
+        backCacheConfiguration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
         checkExpiryPeriod: Long = SuspendNearCache.DEFAULT_EXPIRY_CHECK_PERIOD,
         noinline frontCacheBuilder: Caffeine<Any, Any>.() -> Unit = {},
-    ): SuspendNearCache<K, V> =
-        RedissonSuspendNearCache(backCacheName, redisson, backCacheConfiguration, checkExpiryPeriod, frontCacheBuilder)
+    ): SuspendNearCache<K, V> {
+        val frontCache =
+            io.bluetape4k.cache.jcache
+                .CaffeineSuspendCache<K, V>(frontCacheBuilder)
+        val backCache = RedissonSuspendCache<K, V>(backCacheName, redisson, backCacheConfiguration)
+        return SuspendNearCache(frontCache, backCache, checkExpiryPeriod)
+    }
 
     // ─────────────────────────────────────────────
-    // RESP3 NearCache
+    // NearCacheOperations (RLocalCachedMap 기반)
     // ─────────────────────────────────────────────
 
     /**
-     * Redisson + Lettuce RESP3 하이브리드 [RedissonResp3NearCache]를 생성합니다.
+     * Redisson [RLocalCachedMap][org.redisson.api.RLocalCachedMap] 기반 [NearCacheOperations]를 생성합니다.
      *
      * @param V 값 타입
      * @param redisson Redisson 클라이언트
-     * @param redisClient Lettuce RedisClient (RESP3 tracking 용)
-     * @param codec Redisson 직렬화 Codec
      * @param config Near Cache 설정
-     * @return [RedissonResp3NearCache] 인스턴스
+     * @param codec Redisson 직렬화 Codec
+     * @return [NearCacheOperations] 인스턴스
      */
-    fun <V : Any> resp3NearCache(
+    fun <V : Any> nearCacheOps(
         redisson: RedissonClient,
-        redisClient: RedisClient,
-        codec: Codec = RedissonNearCache.defaultNearCacheCodec,
-        config: RedissonResp3NearCacheConfig = RedissonResp3NearCacheConfig(),
-    ): RedissonResp3NearCache<V> = RedissonResp3NearCache(redisson, redisClient, codec, config)
+        config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
+        codec: Codec = RedissonCodecs.LZ4Fory,
+    ): NearCacheOperations<V> = RedissonNearCache(redisson, config, codec)
 
     /**
-     * Redisson + Lettuce RESP3 하이브리드 [RedissonResp3SuspendNearCache]를 생성합니다.
+     * Redisson [RLocalCachedMap][org.redisson.api.RLocalCachedMap] 기반 [SuspendNearCacheOperations]를 생성합니다.
      *
      * @param V 값 타입
      * @param redisson Redisson 클라이언트
-     * @param redisClient Lettuce RedisClient (RESP3 tracking 용)
-     * @param codec Redisson 직렬화 Codec
      * @param config Near Cache 설정
-     * @return [RedissonResp3SuspendNearCache] 인스턴스
-     */
-    fun <V : Any> resp3SuspendNearCache(
-        redisson: RedissonClient,
-        redisClient: RedisClient,
-        codec: Codec = RedissonNearCache.defaultNearCacheCodec,
-        config: RedissonResp3NearCacheConfig = RedissonResp3NearCacheConfig(),
-    ): RedissonResp3SuspendNearCache<V> = RedissonResp3SuspendNearCache(redisson, redisClient, codec, config)
-
-    // ─────────────────────────────────────────────
-    // Resilient RESP3 NearCache
-    // ─────────────────────────────────────────────
-
-    /**
-     * write-behind + retry를 지원하는 [ResilientRedissonResp3NearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param redisson Redisson 클라이언트
-     * @param redisClient Lettuce RedisClient (RESP3 tracking 용)
      * @param codec Redisson 직렬화 Codec
-     * @param config Resilient Near Cache 설정
-     * @return [ResilientRedissonResp3NearCache] 인스턴스
+     * @return [SuspendNearCacheOperations] 인스턴스
      */
-    fun <V : Any> resilientResp3NearCache(
+    fun <V : Any> suspendNearCacheOps(
         redisson: RedissonClient,
-        redisClient: RedisClient,
-        codec: Codec = RedissonNearCache.defaultNearCacheCodec,
-        config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(RedissonResp3NearCacheConfig()),
-    ): ResilientRedissonResp3NearCache<V> = ResilientRedissonResp3NearCache(redisson, redisClient, codec, config)
-
-    /**
-     * write-behind + retry를 지원하는 [ResilientRedissonResp3SuspendNearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param redisson Redisson 클라이언트
-     * @param redisClient Lettuce RedisClient (RESP3 tracking 용)
-     * @param codec Redisson 직렬화 Codec
-     * @param config Resilient Near Cache 설정
-     * @return [ResilientRedissonResp3SuspendNearCache] 인스턴스
-     */
-    fun <V : Any> resilientResp3SuspendNearCache(
-        redisson: RedissonClient,
-        redisClient: RedisClient,
-        codec: Codec = RedissonNearCache.defaultNearCacheCodec,
-        config: ResilientRedissonResp3NearCacheConfig = ResilientRedissonResp3NearCacheConfig(RedissonResp3NearCacheConfig()),
-    ): ResilientRedissonResp3SuspendNearCache<V> =
-        ResilientRedissonResp3SuspendNearCache(redisson, redisClient, codec, config)
+        config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
+        codec: Codec = RedissonCodecs.LZ4Fory,
+    ): SuspendNearCacheOperations<V> = RedissonSuspendNearCache(redisson, config, codec)
 }
