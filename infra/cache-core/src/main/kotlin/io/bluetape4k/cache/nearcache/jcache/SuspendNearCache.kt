@@ -5,27 +5,11 @@ import io.bluetape4k.cache.jcache.SuspendCacheEntry
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
-import io.bluetape4k.logging.warn
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
-import kotlin.system.measureTimeMillis
 
 /**
  * 분산환경에서 front cache, back cache 를 활용하여 빠른 Access 와 분산환경에서의 Data consistency를 만족하는
@@ -43,9 +27,6 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
     private val backCache: SuspendCache<K, V>,
     private val checkExpiryPeriod: Long,
 ): SuspendCache<K, V> by backCache {
-
-    // SupervisorJob 으로 close() 시 자식 코루틴(만료 검사 등)을 일괄 취소
-    private val scope = CoroutineScope(SupervisorJob() + CoroutineName("nearCoCache") + Dispatchers.IO)
 
     companion object: KLoggingChannel() {
         const val DEFAULT_EXPIRY_CHECK_PERIOD = 30_000L
@@ -71,49 +52,6 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         }
     }
 
-    init {
-        if (checkExpiryPeriod in 1000..Int.MAX_VALUE) {
-            checkBackCacheExpiration()
-        }
-    }
-
-    // NOTE: 향후 제거 예정 (checkBackCacheExpiration)
-    private fun checkBackCacheExpiration() {
-        scope.launch {
-            val entrySizer = AtomicInteger(0)
-
-            while (!isClosed() && isActive) {
-                runCatching {
-                    delay(checkExpiryPeriod)
-                    log.trace { "backCache의 cache entry가 expire 되었는지 검사합니다... check expiration period=$checkExpiryPeriod" }
-                    entrySizer.set(0)
-                    val elapsed = measureTimeMillis {
-                        entries().chunked(100)
-                            .onEach { entries ->
-                                runCatching {
-                                    if (!isClosed()) {
-                                        val frontKeys = entries.map { it.key }.toSet()
-                                        entrySizer.addAndGet(frontKeys.size)
-
-                                        val backKeys = backCache.getAll(frontKeys).map { it.key }.toSet()
-                                        val keysToRemove = frontKeys - backKeys
-                                        log.trace { "key size to expire in frontCache=${keysToRemove.size}" }
-                                        if (keysToRemove.isNotEmpty()) {
-                                            frontCache.removeAll(keysToRemove)
-                                        }
-                                    }
-                                }.onFailure {
-                                    log.warn(it) { "Fail to check bachCache expiration." }
-                                }
-                            }
-                            .collect()
-                    }
-                    log.trace { "bachCache cache entry expire 검사 완료. entrySize=${entrySizer.get()}, elapsed=$elapsed msec" }
-                }
-            }
-        }
-    }
-
     override fun entries(): Flow<SuspendCacheEntry<K, V>> = frontCache.entries()
 
     override suspend fun clear() {
@@ -121,22 +59,19 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         runCatching { frontCache.clear() }
     }
 
-    suspend fun clearAll() = coroutineScope {
+    suspend fun clearAll() {
         log.info {
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
         }
-        val frontClearJob = launch { frontCache.clear() }
-        val backClearJob = launch { backCache.clear() }
-        joinAll(frontClearJob, backClearJob)
+        frontCache.clear()
+        backCache.clear()
 
         log.info { "front cache, back cache 모두 clear 완료." }
     }
 
     override suspend fun close() {
         log.info { "Near Cache 의 Front Cache를 Close 합니다." }
-        // scope 취소로 자식 코루틴(만료 검사 등) 일괄 정리
-        scope.cancel()
         runCatching { frontCache.close() }
     }
 
@@ -156,8 +91,8 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
      * @param key 조회할 캐시 키
      * @return 조회된 값, 없으면 `null`
      */
-    suspend fun getDeeply(key: K): V? = coroutineScope {
-        frontCache.get(key)
+    suspend fun getDeeply(key: K): V? {
+        return frontCache.get(key)
             ?: backCache.get(key)?.also { value -> frontCache.put(key, value) }
     }
 
@@ -172,8 +107,8 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         return frontCache.getAll(keys)
     }
 
-    override suspend fun getAndPut(key: K, value: V): V? = coroutineScope {
-        frontCache.getAndPut(key, value)?.apply {
+    override suspend fun getAndPut(key: K, value: V): V? {
+        return frontCache.getAndPut(key, value)?.apply {
             backCache.putIfAbsent(key, value)
         }
     }
@@ -188,17 +123,15 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         return get(key)?.apply { put(key, value) }
     }
 
-    override suspend fun put(key: K, value: V) = coroutineScope {
+    override suspend fun put(key: K, value: V) {
         frontCache.put(key, value).apply {
             backCache.put(key, value)
         }
     }
 
-    override suspend fun putAll(map: Map<K, V>) = coroutineScope {
+    override suspend fun putAll(map: Map<K, V>) {
         frontCache.putAll(map).apply {
-            launch {
-                backCache.putAll(map)
-            }
+            backCache.putAll(map)
         }
     }
 
@@ -206,55 +139,42 @@ class SuspendNearCache<K: Any, V: Any> private constructor(
         entries.onEach { put(it.first, it.second) }.collect()
     }
 
-    override suspend fun putIfAbsent(key: K, value: V): Boolean = coroutineScope {
-        frontCache.putIfAbsent(key, value).apply {
-            launch {
-                backCache.putIfAbsent(key, value)
-            }
+    override suspend fun putIfAbsent(key: K, value: V): Boolean {
+        return frontCache.putIfAbsent(key, value).apply {
+            backCache.putIfAbsent(key, value)
         }
     }
 
-    override suspend fun remove(key: K): Boolean = coroutineScope {
-        frontCache.remove(key).apply {
-            launch {
-                backCache.remove(key)
-            }
+    override suspend fun remove(key: K): Boolean {
+        return frontCache.remove(key).apply {
+            backCache.remove(key)
         }
     }
 
     override suspend fun remove(key: K, oldValue: V): Boolean {
         frontCache.remove(key, oldValue)
-        // TODO: 왜  backCache.remove(key, oldValue) 를 직접 사용하지 않았는지 이유를 기록해야 한다
-        // NOTE: 아마 remove(key, oldValue) 는 event 를 발생시키지 않아서 직접 remove를 수행하도록 하는 걸로 추측한다
         if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
             return backCache.remove(key)
         }
         return false
     }
 
-    override suspend fun removeAll() = coroutineScope {
+    override suspend fun removeAll() {
         frontCache.removeAll()
         // NOTE: Redisson에서는 bulk operation 의 경우 REMOVED event 가 발생하지 않습니다!!!
         backCache.entries()
-            .map {
-                launch {
-                    backCache.remove(it.key)
-                }
-            }
-            .toList()
-            .joinAll()
+            .map { backCache.remove(it.key) }
+            .collect()
     }
 
     override suspend fun removeAll(vararg keys: K) {
         removeAll(keys.toSet())
     }
 
-    override suspend fun removeAll(keys: Set<K>) = coroutineScope {
+    override suspend fun removeAll(keys: Set<K>) {
         frontCache.removeAll(keys)
         // NOTE: Redisson에서는 bulk operation 의 경우 REMOVED event 가 발생하지 않습니다!!!
-        keys.map {
-            launch { remove(it) }
-        }.joinAll()
+        keys.map { remove(it) }
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {

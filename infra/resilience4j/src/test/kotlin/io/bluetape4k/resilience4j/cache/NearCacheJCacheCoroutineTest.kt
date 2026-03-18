@@ -1,8 +1,8 @@
 package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.cache.jcache.RedissonJCaching
-import io.bluetape4k.cache.nearcache.NearCache
-import io.bluetape4k.cache.nearcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.RedisServer
 import org.junit.jupiter.api.BeforeEach

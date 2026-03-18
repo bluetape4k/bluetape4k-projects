@@ -275,39 +275,99 @@
   "hotPaths": [
     {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCache.kt",
-      "accessCount": 43,
-      "lastAccessed": 1773798435928,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCache.kt",
-      "accessCount": 35,
-      "lastAccessed": 1773798436356,
+      "accessCount": 53,
+      "lastAccessed": 1773802957375,
       "type": "file"
     },
     {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt",
-      "accessCount": 31,
-      "lastAccessed": 1773798435326,
+      "accessCount": 48,
+      "lastAccessed": 1773810750143,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCache.kt",
+      "accessCount": 44,
+      "lastAccessed": 1773803054821,
       "type": "file"
     },
     {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt",
-      "accessCount": 30,
-      "lastAccessed": 1773798435724,
+      "accessCount": 43,
+      "lastAccessed": 1773803249568,
       "type": "file"
     },
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache",
-      "accessCount": 10,
-      "lastAccessed": 1773797708239,
-      "type": "directory"
+      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheTest.kt",
+      "accessCount": 24,
+      "lastAccessed": 1773810905053,
+      "type": "file"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-03-18-nearcache-unification.md",
+      "accessCount": 13,
+      "lastAccessed": 1773801898032,
+      "type": "file"
     },
     {
       "path": "infra/cache-lettuce",
-      "accessCount": 10,
-      "lastAccessed": 1773797864643,
+      "accessCount": 11,
+      "lastAccessed": 1773801538567,
       "type": "directory"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache",
+      "accessCount": 11,
+      "lastAccessed": 1773803147000,
+      "type": "directory"
+    },
+    {
+      "path": "",
+      "accessCount": 8,
+      "lastAccessed": 1773802676489,
+      "type": "directory"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt",
+      "accessCount": 8,
+      "lastAccessed": 1773804657089,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheTest.kt",
+      "accessCount": 8,
+      "lastAccessed": 1773807347624,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractSuspendNearCacheTest.kt",
+      "accessCount": 8,
+      "lastAccessed": 1773807402481,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/BackCacheCommand.kt",
+      "accessCount": 6,
+      "lastAccessed": 1773801545357,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheOperations.kt",
+      "accessCount": 6,
+      "lastAccessed": 1773802652156,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt",
+      "accessCount": 6,
+      "lastAccessed": 1773802791425,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCache.kt",
+      "accessCount": 6,
+      "lastAccessed": 1773803771227,
+      "type": "file"
     },
     {
       "path": "infra/cache-lettuce/src/main/kotlin",
@@ -316,10 +376,46 @@
       "type": "directory"
     },
     {
-      "path": "",
-      "accessCount": 4,
-      "lastAccessed": 1773797458549,
-      "type": "directory"
+      "path": "docs/superpowers/specs/2026-03-18-nearcache-unification-design.md",
+      "accessCount": 5,
+      "lastAccessed": 1773801446678,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheConfig.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773802273614,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheOperations.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773802652930,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCacheConfig.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773802699561,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastSuspendNearCache.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773802855721,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonSuspendNearCache.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773804670668,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheFactory.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773810749659,
+      "type": "file"
     },
     {
       "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheConfig.kt",
@@ -328,27 +424,75 @@
       "type": "file"
     },
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCacheConfig.kt",
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCache.kt",
       "accessCount": 4,
-      "lastAccessed": 1773798451318,
+      "lastAccessed": 1773801482039,
       "type": "file"
     },
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheOperations.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773798440389,
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCache.kt",
+      "accessCount": 4,
+      "lastAccessed": 1773802273279,
       "type": "file"
     },
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheOperations.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773798440538,
+      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/AbstractLettuceNearCacheTest.kt",
+      "accessCount": 4,
+      "lastAccessed": 1773810898129,
       "type": "file"
     },
     {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/BackCacheCommand.kt",
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCache.kt",
       "accessCount": 3,
-      "lastAccessed": 1773798452008,
+      "lastAccessed": 1773799827062,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/GetFailureStrategy.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773802113015,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheConfig.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773802113605,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCache.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773802682835,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastSuspendNearCache.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773802683252,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCacheTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773802692386,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonResp3NearCache.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773803975070,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCache.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773803980213,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1773810892486,
       "type": "file"
     },
     {
@@ -370,105 +514,39 @@
       "type": "file"
     },
     {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheTest.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773797733984,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCacheTest.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773797736133,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798432074,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798432234,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheConfig.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798432669,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798432836,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheFactory.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798440590,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798444161,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798444850,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheConfig.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773798451301,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795345556,
-      "type": "file"
-    },
-    {
       "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3SuspendNearCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795345683,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCacheConfig.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795349128,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795349980,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastSuspendNearCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795350225,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCacheConfig.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795353160,
+      "accessCount": 2,
+      "lastAccessed": 1773799835202,
       "type": "file"
     },
     {
       "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCacheConfig.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795353566,
+      "accessCount": 2,
+      "lastAccessed": 1773802674971,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCacheConfig.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773802683863,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache",
+      "accessCount": 2,
+      "lastAccessed": 1773803645338,
+      "type": "directory"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonResp3SuspendNearCache.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773803975695,
+      "type": "file"
+    },
+    {
+      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCacheConfig.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773803981554,
       "type": "file"
     },
     {
@@ -484,45 +562,15 @@
       "type": "directory"
     },
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache",
-      "accessCount": 1,
-      "lastAccessed": 1773795528001,
-      "type": "directory"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/AbstractLettuceNearCacheTest.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795548478,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTest.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795549796,
-      "type": "file"
-    },
-    {
       "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCacheTest.kt",
       "accessCount": 1,
       "lastAccessed": 1773795556154,
       "type": "file"
     },
     {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastSuspendNearCache.kt",
+      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheLocalCache.kt",
       "accessCount": 1,
-      "lastAccessed": 1773798444219,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773798444472,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/GetFailureStrategy.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773798451750,
+      "lastAccessed": 1773801511748,
       "type": "file"
     }
   ],

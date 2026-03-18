@@ -96,49 +96,6 @@ class NearCache<K : Any, V : Any> private constructor(
     private var thread: Thread? = null
     private val lock = ReentrantLock()
 
-//    init {
-//        if (config.checkExpiryPeriod >= NearCacheConfig.MIN_EXPIRY_CHECK_PERIOD) {
-//            thread = checkBackCacheExpiration()
-//        }
-//    }
-
-//    private fun checkBackCacheExpiration(): Thread {
-//        return Thread.ofVirtual().name("nearcache-expiration-check").start {
-//            try {
-//                Thread.sleep(config.checkExpiryPeriod)
-//                while (!isClosed && !Thread.currentThread().isInterrupted) {
-//                    log.trace { "backCache의 cache entry가 expire 되었는지 검사합니다... check expiration period=${config.checkExpiryPeriod}" }
-//                    var entrySize = 0
-//                    val elapsed =
-//                        measureTimeMillis {
-//                            runCatching {
-//                                this.chunked(100) { entries ->
-//                                    if (isClosed || Thread.currentThread().isInterrupted) {
-//                                        return@chunked
-//                                    }
-//                                    val frontKeys = entries.map { it.key }.toSet()
-//                                    entrySize += frontKeys.size
-//                                    log.trace { "Front Cache item 유효기간 조사=$entrySize" }
-//                                    frontKeys.forEach {
-//                                        if (!backCache.containsKey(it)) {
-//                                            frontCache.remove(it)
-//                                        }
-//                                    }
-//                                    Thread.sleep(1)
-//                                }
-//                            }
-//                        }
-//                    log.trace { "backCache cache entry expire 검사 완료. front cache item size=$entrySize, elapsed=$elapsed msec" }
-//                    Thread.sleep(config.checkExpiryPeriod)
-//                }
-//                log.debug { "backCache epiration 검사를 종료합니다" }
-//            } catch (e: InterruptedException) {
-//                // ignore InterruptedException
-//                log.debug { "backCache expiration 검사가 중단되었습니다." }
-//            }
-//        }
-//    }
-
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
     override fun clear() {
@@ -160,11 +117,6 @@ class NearCache<K : Any, V : Any> private constructor(
             log.debug { "Near Cache 의 Front Cache를 Close 합니다." }
             runCatching {
                 frontCache.close()
-//                thread?.let {
-//                    if (it.isAlive) {
-//                        it.interrupt()
-//                    }
-//                }
             }
         }
     }

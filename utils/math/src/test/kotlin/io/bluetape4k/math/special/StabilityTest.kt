@@ -44,7 +44,7 @@ class StabilityTest {
     }
 
     @Test
-    fun `hypotenuse 동일한 두 변이면 sqrt(2)*a 이다`() {
+    fun `hypotenuse 동일한 두 변이면 sqrt(2) x a 이다`() {
         val a = 1.0
         hypotenuse(a, a).shouldBeNear(sqrt(2.0) * a, 1e-10)
     }

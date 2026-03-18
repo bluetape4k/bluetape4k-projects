@@ -3,8 +3,8 @@ package io.bluetape4k.jwt.reader
 import io.bluetape4k.LibraryName
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.RedissonJCaching
-import io.bluetape4k.cache.nearcache.NearCache
-import io.bluetape4k.cache.nearcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.provider.JwtProviderFactory

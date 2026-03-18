@@ -1,8 +1,6 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.nearcache.jcache.NearCache
-import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -15,7 +13,6 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
-import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.untilNull
@@ -25,8 +22,6 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 @OutputCapture
 @Execution(ExecutionMode.SAME_THREAD)
@@ -532,25 +527,6 @@ abstract class AbstractNearCacheTest {
         // 다른 nearCache에는 전파되지 않습니다
         nearCache2.containsKey(key1).shouldBeTrue()
         nearCache2.containsKey(key2).shouldBeTrue()
-    }
-
-    @Test
-    fun `nearCache Close 시, backCache expiration thread 중지된다`(/*output: OutputCapturer*/) {
-        val checkExpiryMs = 1000L
-        val nearCache = NearCache(NearCacheConfig(checkExpiryPeriod = checkExpiryMs), backCache)
-
-        val key = randomKey()
-        val value = randomValue()
-        nearCache.put(key, value)
-
-        Thread.sleep(checkExpiryMs * 3)
-
-        nearCache.close()
-        await atMost 30.seconds.toJavaDuration() until { nearCache.isClosed }
-        Thread.sleep(checkExpiryMs)
-
-        // nearCache가 close 되었으므로
-        nearCache.frontCache.isClosed.shouldBeTrue()
     }
 
     // ─────────────────────────────────────────────

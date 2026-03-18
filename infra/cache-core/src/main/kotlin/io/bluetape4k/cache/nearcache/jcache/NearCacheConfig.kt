@@ -3,7 +3,6 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.cache.jcache.jcacheManagerOf
 import io.bluetape4k.codec.Base58
 import java.io.Serializable
-import java.util.*
 import javax.cache.CacheManager
 import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration
@@ -22,21 +21,19 @@ import javax.cache.expiry.Duration
  * @property frontCacheName Front Cache의 고유 이름
  * @property frontCacheConfiguration Front Cache 설정 (만료 시간 등)
  * @property isSynchronous Front-Back 캐시 간 동기화 방식 (true: 동기, false: 비동기)
- * @property checkExpiryPeriod Back Cache 만료 검사 주기 (밀리초)
  * @property syncRemoteTimeout 원격 캐시 동기화 타임아웃 (밀리초)
  *
  * @see NearCache
  */
-open class NearCacheConfig<K: Any, V: Any>(
+data class NearCacheConfig<K: Any, V: Any>(
     val cacheManagerFactory: Factory<CacheManager> = CaffeineCacheManagerFactory,
     val frontCacheName: String = "front-cache-" + Base58.randomString(8),
     val frontCacheConfiguration: MutableConfiguration<K, V> = getDefaultFrontCacheConfiguration(),
     val isSynchronous: Boolean = false,
-    val checkExpiryPeriod: Long = DEFAULT_EXPIRY_CHECK_PERIOD,
     val syncRemoteTimeout: Long = NearCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,
 ): Serializable {
+
     companion object {
-        @Suppress("ConstPropertyName")
         private const val serialVersionUID: Long = 1L
 
         /** 최소 만료 검사 주기 (1초) */
@@ -67,26 +64,4 @@ open class NearCacheConfig<K: Any, V: Any>(
                 setExpiryPolicyFactory { AccessedExpiryPolicy(Duration.THIRTY_MINUTES) }
             }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-
-        return other is NearCacheConfig<*, *> &&
-                cacheManagerFactory == other.cacheManagerFactory &&
-                frontCacheName == other.frontCacheName &&
-                frontCacheConfiguration == other.frontCacheConfiguration &&
-                isSynchronous == other.isSynchronous &&
-                checkExpiryPeriod == other.checkExpiryPeriod &&
-                syncRemoteTimeout == other.syncRemoteTimeout
-    }
-
-    override fun hashCode(): Int =
-        Objects.hash(
-            cacheManagerFactory,
-            frontCacheName,
-            frontCacheConfiguration,
-            isSynchronous,
-            checkExpiryPeriod,
-            syncRemoteTimeout,
-        )
 }

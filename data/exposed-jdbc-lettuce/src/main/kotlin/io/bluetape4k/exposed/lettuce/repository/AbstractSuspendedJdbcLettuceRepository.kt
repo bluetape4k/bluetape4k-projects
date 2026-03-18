@@ -8,6 +8,7 @@ import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
 import io.lettuce.core.RedisClient
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -39,7 +40,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : SuspendedJdbcLettuceRepository<ID, E> {
+): SuspendedJdbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
 
     abstract fun ResultRow.toEntity(): E
@@ -185,7 +186,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     protected open fun extractId(entity: E): ID {
         error(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
-                "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
+                    "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
         )
     }
 
@@ -232,7 +233,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     }
 
     override fun close() {
-        nearCache?.close()
+        nearCache?.let { runBlocking { it.close() } }
         cache.close()
     }
 }

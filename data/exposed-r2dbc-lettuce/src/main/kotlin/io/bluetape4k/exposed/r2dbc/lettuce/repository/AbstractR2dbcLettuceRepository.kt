@@ -10,6 +10,7 @@ import io.lettuce.core.RedisClient
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -229,7 +230,7 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
     }
 
     override fun close() {
-        nearCache?.close()
+        nearCache?.let { runBlocking { it.close() } }
         cache.close()
     }
 }

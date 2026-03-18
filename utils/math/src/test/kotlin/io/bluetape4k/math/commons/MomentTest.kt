@@ -1,6 +1,7 @@
 package io.bluetape4k.math.commons
 
 import io.bluetape4k.logging.KLogging
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 
@@ -60,6 +61,6 @@ class MomentTest {
     @Test
     fun `moment 는 Moment 데이터 클래스를 반환한다`() {
         val m = data.moment()
-        assert(m is Moment)
+        m shouldBeInstanceOf Moment::class
     }
 }
