@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -15,10 +16,13 @@ import java.nio.ByteBuffer
  * 다양한 payload 타입(ByteBuffer, ByteArray, String, mixed, null)에 대한
  * 처리가 올바른지 검증한다.
  */
-class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
+class TrackingInvalidationListenerPayloadTest: AbstractLettuceNearCacheTest() {
+
+    companion object: KLogging()
+
     // ---- 테스트용 RecordingLocalCache ----
 
-    private class RecordingLocalCache : LettuceLocalCache<String, String> {
+    private class RecordingLocalCache: LettuceLocalCache<String, String> {
         val invalidatedKeys = mutableListOf<String>()
         var clearCalled = false
 
@@ -26,10 +30,7 @@ class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
 
         override fun getAll(keys: Set<String>): Map<String, String> = emptyMap()
 
-        override fun put(
-            key: String,
-            value: String,
-        ) {}
+        override fun put(key: String, value: String) {}
 
         override fun putAll(map: Map<out String, String>) {}
 
@@ -87,17 +88,16 @@ class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
         val localCache = RecordingLocalCache()
         val listener = createListener(cacheName, localCache)
 
-        val content =
-            listOf<Any?>(
-                encodeKey("invalidate"),
-                listOf(
-                    encodeKey("$cacheName:key1"), // ByteBuffer → 무효화
-                    "some-non-bytebuffer-string", // String → 다른 cacheName이므로 무시
-                    encodeKey("$cacheName:key2"), // ByteBuffer → 무효화
-                    null, // null → filterNotNull로 제거
-                    encodeKey("other-cache:key3") // 다른 cacheName → 무시
-                )
+        val content = listOf<Any?>(
+            encodeKey("invalidate"),
+            listOf(
+                encodeKey("$cacheName:key1"), // ByteBuffer → 무효화
+                "some-non-bytebuffer-string", // String → 다른 cacheName이므로 무시
+                encodeKey("$cacheName:key2"), // ByteBuffer → 무효화
+                null, // null → filterNotNull로 제거
+                encodeKey("other-cache:key3") // 다른 cacheName → 무시
             )
+        )
 
         callHandleInvalidation(listener, content)
 
@@ -123,14 +123,13 @@ class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
         val localCache = RecordingLocalCache()
         val listener = createListener("my-cache", localCache)
 
-        val content =
-            listOf<Any?>(
-                encodeKey("invalidate"),
-                listOf(
-                    encodeKey("other-cache:key1"),
-                    encodeKey("another:key2")
-                )
+        val content = listOf<Any?>(
+            encodeKey("invalidate"),
+            listOf(
+                encodeKey("other-cache:key1"),
+                encodeKey("another:key2")
             )
+        )
 
         callHandleInvalidation(listener, content)
 
@@ -146,11 +145,10 @@ class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
 
         // content[1]이 단일 ByteArray
         val key = "$cacheName:mykey"
-        val content =
-            listOf<Any?>(
-                encodeKey("invalidate"),
-                key.toByteArray(Charsets.UTF_8)
-            )
+        val content = listOf<Any?>(
+            encodeKey("invalidate"),
+            key.toByteArray(Charsets.UTF_8)
+        )
 
         callHandleInvalidation(listener, content)
 
@@ -164,11 +162,10 @@ class TrackingInvalidationListenerPayloadTest : AbstractLettuceNearCacheTest() {
         val listener = createListener(cacheName, localCache)
 
         // content[1]이 단일 ByteBuffer (리스트가 아님)
-        val content =
-            listOf<Any?>(
-                encodeKey("invalidate"),
-                encodeKey("$cacheName:singlekey")
-            )
+        val content = listOf<Any?>(
+            encodeKey("invalidate"),
+            encodeKey("$cacheName:singlekey")
+        )
 
         callHandleInvalidation(listener, content)
 

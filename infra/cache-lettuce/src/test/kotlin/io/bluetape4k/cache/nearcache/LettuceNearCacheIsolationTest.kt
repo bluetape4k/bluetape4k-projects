@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
  * - redisSize()는 해당 cacheName의 key만 카운트
  * - 동기/비동기 캐시 혼합 사용 시에도 격리 보장
  */
-class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
+class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
     // ---- 동기 캐시 인스턴스 3개 ----
     private lateinit var cacheA: LettuceNearCache<String>
     private lateinit var cacheB: LettuceNearCache<String>
@@ -198,54 +198,51 @@ class LettuceNearCacheIsolationTest : AbstractLettuceNearCacheTest() {
     // ---- 동기/코루틴 혼합 격리 ----
 
     @Test
-    fun `동기 캐시와 코루틴 캐시가 동일 key 이름으로 독립 동작한다`() =
-        runTest {
-            val key = "mixed-key"
+    fun `동기 캐시와 코루틴 캐시가 동일 key 이름으로 독립 동작한다`() = runTest {
+        val key = "mixed-key"
 
-            cacheA.put(key, "sync-value")
-            suspendCacheX.put(key, "suspend-value")
+        cacheA.put(key, "sync-value")
+        suspendCacheX.put(key, "suspend-value")
 
-            cacheA.get(key) shouldBeEqualTo "sync-value"
-            suspendCacheX.get(key) shouldBeEqualTo "suspend-value"
+        cacheA.get(key) shouldBeEqualTo "sync-value"
+        suspendCacheX.get(key) shouldBeEqualTo "suspend-value"
 
-            // Redis 직접 확인
-            directCommands.get("isolation-a:$key") shouldBeEqualTo "sync-value"
-            directCommands.get("isolation-x:$key") shouldBeEqualTo "suspend-value"
-        }
-
-    @Test
-    fun `코루틴 캐시 clearAll()은 해당 cacheName만 삭제한다`() =
-        runTest {
-            suspendCacheX.putAll(mapOf("p" to "xp", "q" to "xq"))
-            suspendCacheY.putAll(mapOf("p" to "yp", "q" to "yq"))
-
-            suspendCacheX.clearAll()
-
-            suspendCacheX.get("p").shouldBeNull()
-            suspendCacheX.get("q").shouldBeNull()
-            suspendCacheX.backCacheSize() shouldBeEqualTo 0L
-
-            // Y는 영향 없음
-            suspendCacheY.get("p") shouldBeEqualTo "yp"
-            suspendCacheY.get("q") shouldBeEqualTo "yq"
-            suspendCacheY.backCacheSize() shouldBeEqualTo 2L
-        }
+        // Redis 직접 확인
+        directCommands.get("isolation-a:$key") shouldBeEqualTo "sync-value"
+        directCommands.get("isolation-x:$key") shouldBeEqualTo "suspend-value"
+    }
 
     @Test
-    fun `코루틴 캐시 동일 key - 서로 독립적으로 관리된다`() =
-        runTest {
-            val key = "common-key"
+    fun `코루틴 캐시 clearAll()은 해당 cacheName만 삭제한다`() = runTest {
+        suspendCacheX.putAll(mapOf("p" to "xp", "q" to "xq"))
+        suspendCacheY.putAll(mapOf("p" to "yp", "q" to "yq"))
 
-            suspendCacheX.put(key, "x-value")
-            suspendCacheY.put(key, "y-value")
+        suspendCacheX.clearAll()
 
-            suspendCacheX.get(key) shouldBeEqualTo "x-value"
-            suspendCacheY.get(key) shouldBeEqualTo "y-value"
+        suspendCacheX.get("p").shouldBeNull()
+        suspendCacheX.get("q").shouldBeNull()
+        suspendCacheX.backCacheSize() shouldBeEqualTo 0L
 
-            suspendCacheX.remove(key)
-            suspendCacheX.get(key).shouldBeNull()
-            suspendCacheY.get(key) shouldBeEqualTo "y-value" // Y 영향 없음
-        }
+        // Y는 영향 없음
+        suspendCacheY.get("p") shouldBeEqualTo "yp"
+        suspendCacheY.get("q") shouldBeEqualTo "yq"
+        suspendCacheY.backCacheSize() shouldBeEqualTo 2L
+    }
+
+    @Test
+    fun `코루틴 캐시 동일 key - 서로 독립적으로 관리된다`() = runTest {
+        val key = "common-key"
+
+        suspendCacheX.put(key, "x-value")
+        suspendCacheY.put(key, "y-value")
+
+        suspendCacheX.get(key) shouldBeEqualTo "x-value"
+        suspendCacheY.get(key) shouldBeEqualTo "y-value"
+
+        suspendCacheX.remove(key)
+        suspendCacheX.get(key).shouldBeNull()
+        suspendCacheY.get(key) shouldBeEqualTo "y-value" // Y 영향 없음
+    }
 
     // ---- 대량 데이터 격리 ----
 

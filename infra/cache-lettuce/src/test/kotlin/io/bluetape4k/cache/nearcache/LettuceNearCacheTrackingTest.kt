@@ -270,7 +270,6 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `replace success 경로도 tracking을 등록해서 외부 변경 시 invalidation 된다`() {
         val key = "replace-tracking-key"
-        val cacheName = nearCache1.cacheName
 
         // 초기값 설정 후 replace (내부 get이 tracking 활성화)
         nearCache1.put(key, "initial")

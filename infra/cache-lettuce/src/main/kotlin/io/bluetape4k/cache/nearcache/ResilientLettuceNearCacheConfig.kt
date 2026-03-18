@@ -44,7 +44,15 @@ data class ResilientLettuceNearCacheConfig<K: Any, V: Any>(
     val useRespProtocol3: Boolean get() = base.useRespProtocol3
     val recordStats: Boolean get() = base.recordStats
 
-    fun redisKey(key: String): String = base.redisKey(key)
+    /**
+     * cacheName prefix를 포함한 Redis key를 생성한다.
+     * 예: cacheName="orders", key="user:123" → "orders:user:123"
+     *
+     * key에는 ':'를 포함할 수 있다. invalidation 수신 시 startsWith + removePrefix 방식으로
+     * cacheName prefix만 제거하므로 key의 ':' 문자는 그대로 보존된다.
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun redisKey(key: String): String = base.redisKey(key)
 }
 
 /**

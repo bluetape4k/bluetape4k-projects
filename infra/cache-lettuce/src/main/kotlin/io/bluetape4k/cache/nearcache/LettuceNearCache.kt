@@ -147,10 +147,7 @@ class LettuceNearCache<V: Any>(
      *
      * write-through 후 async Redis GET을 fire-and-forget으로 실행해 CLIENT TRACKING을 활성화한다.
      */
-    fun put(
-        key: String,
-        value: V,
-    ) {
+    fun put(key: String, value: V) {
         key.requireNotBlank("key")
         setRedis(key, value)
         frontCache.put(key, value)
@@ -341,10 +338,6 @@ class LettuceNearCache<V: Any>(
         }
     }
 
-    private val redisTtlArgs: SetArgs? by lazy {
-        config.redisTtl?.let { SetArgs.Builder.px(it.toMillis()) }
-    }
-
     private fun setRedis(key: String, value: V): String? {
         val rKey = config.redisKey(key)
         return if (setArgsPx != null) {
@@ -354,10 +347,7 @@ class LettuceNearCache<V: Any>(
         }
     }
 
-    private fun setNxRedis(
-        key: String,
-        value: V,
-    ): String? {
+    private fun setNxRedis(key: String, value: V): String? {
         val rKey = config.redisKey(key)
         return if (setArgsNxPx != null) {
             commands.set(rKey, value, setArgsNxPx)

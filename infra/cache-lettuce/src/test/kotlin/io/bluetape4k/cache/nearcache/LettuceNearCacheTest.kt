@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
@@ -13,14 +14,16 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import org.testcontainers.utility.Base58
 import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
-class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
-    companion object : KLogging()
+class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
+    companion object: KLogging()
 
     private lateinit var cache: LettuceNearCache<String>
 
@@ -29,12 +32,11 @@ class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
         if (::cache.isInitialized) {
             cache.close()
         }
-        cache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = StringCodec.UTF8,
-                config = LettuceNearCacheConfig(cacheName = "test-near-cache-" + Base58.randomString(6))
-            )
+        cache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config = LettuceNearCacheConfig(cacheName = "test-near-cache-" + Base58.randomString(6))
+        )
         // BeforeEach의 flushdb 이후 생성
     }
 
@@ -256,9 +258,14 @@ class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
                 codec = failingValueCodec(),
                 config = LettuceNearCacheConfig(cacheName = "fail-put-" + Base58.randomString(6))
             )
-        failingCache.use { c ->
-            assertFailsWith<Exception> { c.put("k", "v") }
-            c.localCacheSize() shouldBeEqualTo 0L
+
+        failingCache.use { broken ->
+            assertWriteFailure {
+                broken.put("k", "boom")
+            }
+
+            broken.localCacheSize() shouldBeEqualTo 0L
+            broken.containsKey("k").shouldBeFalse()
         }
     }
 
@@ -281,12 +288,35 @@ class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
     @Test
     fun `get - MultithreadingTester 동일 key 첫 조회 경쟁에서도 read-through 결과가 유지된다`() {
         directCommands.set("${cache.cacheName}:mt-key", "mt-val")
+
         MultithreadingTester()
             .workers(8)
             .rounds(10)
-            .add { cache.get("mt-key") shouldBeEqualTo "mt-val" }
+            .add {
+                cache.get("mt-key") shouldBeEqualTo "mt-val"
+            }
             .run()
+
         cache.localCacheSize() shouldBeEqualTo 1L
+        cache.get("mt-key") shouldBeEqualTo "mt-val"
+    }
+
+
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @Test
+    fun `get - StructuredTaskScopeTester 병렬 조회에서도 값 일관성을 유지한다`() {
+        val key = "structured-read-through"
+        directCommands.set("${cache.cacheName}:$key", "structured-value")
+
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                cache.get(key) shouldBeEqualTo "structured-value"
+            }
+            .run()
+
+        cache.localCacheSize() shouldBeEqualTo 1L
+        cache.get(key) shouldBeEqualTo "structured-value"
     }
 
     @Test
@@ -362,7 +392,7 @@ class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
     // ---- helpers ----
 
     private fun failingValueCodec(): RedisCodec<String, String> =
-        object : RedisCodec<String, String> {
+        object: RedisCodec<String, String> {
             private val delegate = StringCodec.UTF8
 
             override fun decodeKey(bytes: ByteBuffer): String = delegate.decodeKey(bytes)
@@ -372,6 +402,14 @@ class LettuceNearCacheTest : AbstractLettuceNearCacheTest() {
             override fun encodeKey(key: String): ByteBuffer = delegate.encodeKey(key)
 
             override fun encodeValue(value: String): ByteBuffer =
-                throw RuntimeException("Simulated Redis write failure")
+                throw IllegalStateException("encode failure for test")
         }
+
+    private fun assertWriteFailure(block: () -> Unit) {
+        val thrown = runCatching(block).exceptionOrNull()
+        thrown.shouldNotBeNull()
+        generateSequence(thrown) { it.cause }
+            .any { it is IllegalStateException && it.message == "encode failure for test" }
+            .shouldBeTrue()
+    }
 }

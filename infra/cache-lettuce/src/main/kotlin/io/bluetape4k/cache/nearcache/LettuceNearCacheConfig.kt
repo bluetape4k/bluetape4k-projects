@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import java.time.Duration
@@ -20,11 +21,15 @@ data class LettuceNearCacheConfig<K: Any, V: Any>(
     val recordStats: Boolean = false,
 ) {
     init {
-        require(cacheName.isNotBlank()) { "cacheName must not be blank" }
+        cacheName.requireNotBlank("cacheName")
+        maxLocalSize.requirePositiveNumber("maxLocalSize")
         require(':' !in cacheName) {
             "cacheName must not contain ':' to avoid Redis key prefix collision, but was: '$cacheName'. " +
                 "Use '-' or '_' as separator instead (e.g. 'my-cache', 'cache_v2')."
         }
+        frontExpireAfterWrite.requireGt(Duration.ZERO, "frontExpireAfterWrite")
+        frontExpireAfterAccess?.requireGt(Duration.ZERO, "frontExpireAfterAccess")
+        redisTtl?.requireGt(Duration.ZERO, "redisTtl")
     }
 
     /**
