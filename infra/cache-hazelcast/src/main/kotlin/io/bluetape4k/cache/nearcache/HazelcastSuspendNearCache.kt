@@ -37,14 +37,13 @@ import java.util.UUID
 class HazelcastSuspendNearCache<V : Any>(
     hazelcastInstance: HazelcastInstance,
     private val config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
-) : AutoCloseable {
-
+) : SuspendNearCacheOperations<V> {
     companion object : KLogging()
 
     private val closed = atomic(false)
-    val isClosed: Boolean by closed
+    override val isClosed: Boolean by closed
 
-    val cacheName: String get() = config.cacheName
+    override val cacheName: String get() = config.cacheName
 
     @Suppress("UNCHECKED_CAST")
     private val imap: IMap<String, V> = hazelcastInstance.getMap(config.cacheName)
@@ -54,30 +53,46 @@ class HazelcastSuspendNearCache<V : Any>(
     private val entryListener = HazelcastEntryEventListener(frontCache)
     private val listenerId: UUID = imap.addEntryListener(entryListener, true)
 
+    // 백엔드 조회 통계 카운터
+    private val backHitCount = atomic(0L)
+    private val backMissCount = atomic(0L)
+
     /**
      * 키에 대한 값을 조회한다.
      * - front hit → return
      * - front miss → IMap getAsync → front populate → return
      */
-    suspend fun get(key: String): V? {
+    override suspend fun get(key: String): V? {
         key.requireNotBlank("key")
 
         frontCache.get(key)?.let { return it }
-        return imap.getAsync(key).await()?.also { frontCache.put(key, it) }
+        val backValue = imap.getAsync(key).await()
+        return if (backValue != null) {
+            backHitCount.incrementAndGet()
+            frontCache.put(key, backValue)
+            backValue
+        } else {
+            backMissCount.incrementAndGet()
+            null
+        }
     }
 
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
      */
-    suspend fun getAll(keys: Set<String>): Map<String, V> {
+    override suspend fun getAll(keys: Set<String>): Map<String, V> {
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = keys - result.keys
 
         if (missedKeys.isNotEmpty()) {
             missedKeys.forEach { key ->
-                imap.getAsync(key).await()?.let { value ->
-                    result[key] = value
-                    frontCache.put(key, value)
+                val backValue = imap.getAsync(key).await()
+                if (backValue != null) {
+                    result[key] = backValue
+                    frontCache.put(key, backValue)
+                    backHitCount.incrementAndGet()
+                } else {
+                    backMissCount.incrementAndGet()
                 }
             }
         }
@@ -89,7 +104,10 @@ class HazelcastSuspendNearCache<V : Any>(
      * key-value를 저장한다 (write-through).
      * front cache + IMap setAsync.
      */
-    suspend fun put(key: String, value: V) {
+    override suspend fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
 
         frontCache.put(key, value)
@@ -99,9 +117,9 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 여러 key-value를 한 번에 저장한다.
      */
-    suspend fun putAll(map: Map<out String, V>) {
-        frontCache.putAll(map)
-        map.forEach { (key, value) ->
+    override suspend fun putAll(entries: Map<String, V>) {
+        frontCache.putAll(entries)
+        entries.forEach { (key, value) ->
             imap.setAsync(key, value).await()
         }
     }
@@ -110,7 +128,10 @@ class HazelcastSuspendNearCache<V : Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    suspend fun putIfAbsent(key: String, value: V): V? {
+    override suspend fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         key.requireNotBlank("key")
 
         val existing = get(key)
@@ -128,7 +149,7 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 키를 제거한다 (front + IMap).
      */
-    suspend fun remove(key: String) {
+    override suspend fun remove(key: String) {
         key.requireNotBlank("key")
 
         frontCache.remove(key)
@@ -138,7 +159,7 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 여러 키를 한 번에 제거한다.
      */
-    suspend fun removeAll(keys: Set<String>) {
+    override suspend fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
         keys.forEach { imap.deleteAsync(it).await() }
     }
@@ -148,7 +169,10 @@ class HazelcastSuspendNearCache<V : Any>(
      * 키가 존재하는 경우에만 교체한다.
      * @return 교체 성공 여부
      */
-    suspend fun replace(key: String, value: V): Boolean {
+    override suspend fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
 
         val replaced = withContext(Dispatchers.IO) { imap.replace(key, value) }
@@ -163,7 +187,11 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 기존 값이 oldValue와 같을 때만 newValue로 교체한다.
      */
-    suspend fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    override suspend fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         key.requireNotBlank("key")
 
         val replaced = withContext(Dispatchers.IO) { imap.replace(key, oldValue, newValue) }
@@ -176,7 +204,7 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 조회 후 제거한다.
      */
-    suspend fun getAndRemove(key: String): V? {
+    override suspend fun getAndRemove(key: String): V? {
         val value = get(key)
         if (value != null) {
             remove(key)
@@ -187,7 +215,10 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 조회 후 교체한다.
      */
-    suspend fun getAndReplace(key: String, value: V): V? {
+    override suspend fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -196,7 +227,7 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 해당 키가 캐시에 존재하는지 확인한다 (front or IMap).
      */
-    suspend fun containsKey(key: String): Boolean {
+    override suspend fun containsKey(key: String): Boolean {
         if (frontCache.containsKey(key)) return true
         return withContext(Dispatchers.IO) { imap.containsKey(key) }
     }
@@ -204,14 +235,14 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 로컬 캐시만 비운다 (IMap 유지).
      */
-    fun clearLocal() {
+    override fun clearLocal() {
         frontCache.clear()
     }
 
     /**
      * 로컬 캐시 + IMap을 모두 비운다.
      */
-    suspend fun clearAll() {
+    override suspend fun clearAll() {
         clearLocal()
         withContext(Dispatchers.IO) { imap.clear() }
     }
@@ -219,17 +250,33 @@ class HazelcastSuspendNearCache<V : Any>(
     /**
      * 로컬 캐시의 추정 크기.
      */
-    fun localSize(): Long = frontCache.estimatedSize()
+    override fun localCacheSize(): Long = frontCache.estimatedSize()
 
     /**
      * IMap(back-cache)의 크기.
      */
-    fun backCacheSize(): Int = imap.size
+    override suspend fun backCacheSize(): Long = withContext(Dispatchers.IO) { imap.size.toLong() }
+
+    /**
+     * 캐시 통계를 반환한다.
+     * Caffeine 로컬 통계와 백엔드 hit/miss 카운터를 합산한다.
+     */
+    override fun stats(): NearCacheStatistics {
+        val caffeineStats = frontCache.stats()
+        return DefaultNearCacheStatistics(
+            localHits = caffeineStats?.hitCount() ?: 0L,
+            localMisses = caffeineStats?.missCount() ?: 0L,
+            localSize = frontCache.estimatedSize(),
+            localEvictions = caffeineStats?.evictionCount() ?: 0L,
+            backHits = backHitCount.value,
+            backMisses = backMissCount.value
+        )
+    }
 
     /**
      * 모든 리소스를 정리하고 리스너를 제거한다.
      */
-    override fun close() {
+    override suspend fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             runCatching { imap.removeEntryListener(listenerId) }
             runCatching { frontCache.close() }

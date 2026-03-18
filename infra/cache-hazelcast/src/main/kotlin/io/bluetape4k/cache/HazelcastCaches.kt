@@ -9,9 +9,6 @@ import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientHazelcastNearCache
-import io.bluetape4k.cache.nearcache.ResilientHazelcastNearCacheConfig
-import io.bluetape4k.cache.nearcache.ResilientHazelcastSuspendNearCache
 import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import javax.cache.configuration.Configuration
@@ -20,8 +17,7 @@ import javax.cache.configuration.MutableConfiguration
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
- * [JCache], [SuspendCache], [HazelcastNearCache], [HazelcastSuspendNearCache],
- * [ResilientHazelcastNearCache], [ResilientHazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
+ * [JCache], [SuspendCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
  *
  * ```kotlin
  * val cache = HazelcastCaches.jcache<String, String>("my-cache")
@@ -29,7 +25,6 @@ import javax.cache.configuration.MutableConfiguration
  * ```
  */
 object HazelcastCaches : KLogging() {
-
     // ─────────────────────────────────────────────
     // JCache
     // ─────────────────────────────────────────────
@@ -46,9 +41,10 @@ object HazelcastCaches : KLogging() {
     inline fun <reified K : Any, reified V : Any> jcache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
-        configuration: Configuration<K, V> = MutableConfiguration<K, V>().apply {
-            setTypes(K::class.java, V::class.java)
-        },
+        configuration: Configuration<K, V> =
+            MutableConfiguration<K, V>().apply {
+                setTypes(K::class.java, V::class.java)
+            },
     ): JCache<K, V> = HazelcastJCaching.getOrCreate(hazelcastInstance, cacheName, configuration)
 
     // ─────────────────────────────────────────────
@@ -139,62 +135,4 @@ object HazelcastCaches : KLogging() {
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
     ): HazelcastSuspendNearCache<V> = suspendNearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
-
-    // ─────────────────────────────────────────────
-    // Resilient NearCache
-    // ─────────────────────────────────────────────
-
-    /**
-     * [ResilientHazelcastNearCacheConfig]로 [ResilientHazelcastNearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param hazelcastInstance Hazelcast 인스턴스
-     * @param config Resilient Near Cache 설정
-     * @return [ResilientHazelcastNearCache] 인스턴스
-     */
-    fun <V : Any> resilientNearCache(
-        hazelcastInstance: HazelcastInstance,
-        config: ResilientHazelcastNearCacheConfig = ResilientHazelcastNearCacheConfig(HazelcastNearCacheConfig()),
-    ): ResilientHazelcastNearCache<V> = ResilientHazelcastNearCache(hazelcastInstance, config)
-
-    /**
-     * [HazelcastNearCacheConfig]로 [ResilientHazelcastNearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param hazelcastInstance Hazelcast 인스턴스
-     * @param nearCacheConfig Near Cache 기본 설정
-     * @return [ResilientHazelcastNearCache] 인스턴스
-     */
-    fun <V : Any> resilientNearCache(
-        hazelcastInstance: HazelcastInstance,
-        nearCacheConfig: HazelcastNearCacheConfig,
-    ): ResilientHazelcastNearCache<V> =
-        ResilientHazelcastNearCache(hazelcastInstance, ResilientHazelcastNearCacheConfig(nearCacheConfig))
-
-    /**
-     * [ResilientHazelcastNearCacheConfig]로 [ResilientHazelcastSuspendNearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param hazelcastInstance Hazelcast 인스턴스
-     * @param config Resilient Near Cache 설정
-     * @return [ResilientHazelcastSuspendNearCache] 인스턴스
-     */
-    fun <V : Any> resilientSuspendNearCache(
-        hazelcastInstance: HazelcastInstance,
-        config: ResilientHazelcastNearCacheConfig = ResilientHazelcastNearCacheConfig(HazelcastNearCacheConfig()),
-    ): ResilientHazelcastSuspendNearCache<V> = ResilientHazelcastSuspendNearCache(hazelcastInstance, config)
-
-    /**
-     * [HazelcastNearCacheConfig]로 [ResilientHazelcastSuspendNearCache]를 생성합니다.
-     *
-     * @param V 값 타입
-     * @param hazelcastInstance Hazelcast 인스턴스
-     * @param nearCacheConfig Near Cache 기본 설정
-     * @return [ResilientHazelcastSuspendNearCache] 인스턴스
-     */
-    fun <V : Any> resilientSuspendNearCache(
-        hazelcastInstance: HazelcastInstance,
-        nearCacheConfig: HazelcastNearCacheConfig,
-    ): ResilientHazelcastSuspendNearCache<V> =
-        ResilientHazelcastSuspendNearCache(hazelcastInstance, ResilientHazelcastNearCacheConfig(nearCacheConfig))
 }

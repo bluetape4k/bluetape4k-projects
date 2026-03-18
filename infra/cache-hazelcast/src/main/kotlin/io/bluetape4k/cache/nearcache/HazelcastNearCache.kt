@@ -39,14 +39,13 @@ import java.util.UUID
 class HazelcastNearCache<V : Any>(
     hazelcastInstance: HazelcastInstance,
     private val config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
-) : AutoCloseable {
-
+) : NearCacheOperations<V> {
     companion object : KLogging()
 
     private val closed = atomic(false)
-    val isClosed: Boolean by closed
+    override val isClosed: Boolean by closed
 
-    val cacheName: String get() = config.cacheName
+    override val cacheName: String get() = config.cacheName
 
     @Suppress("UNCHECKED_CAST")
     private val imap: IMap<String, V> = hazelcastInstance.getMap(config.cacheName)
@@ -56,22 +55,34 @@ class HazelcastNearCache<V : Any>(
     private val entryListener = HazelcastEntryEventListener(frontCache)
     private val listenerId: UUID = imap.addEntryListener(entryListener, true)
 
+    // 백엔드 조회 통계 카운터
+    private val backHitCount = atomic(0L)
+    private val backMissCount = atomic(0L)
+
     /**
      * 키에 대한 값을 조회한다.
      * - front hit → return
      * - front miss → IMap GET → front populate → return
      */
-    fun get(key: String): V? {
+    override fun get(key: String): V? {
         key.requireNotBlank("key")
 
         frontCache.get(key)?.let { return it }
-        return imap.get(key)?.also { frontCache.put(key, it) }
+        val backValue = imap.get(key)
+        return if (backValue != null) {
+            backHitCount.incrementAndGet()
+            frontCache.put(key, backValue)
+            backValue
+        } else {
+            backMissCount.incrementAndGet()
+            null
+        }
     }
 
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
      */
-    fun getAll(keys: Set<String>): Map<String, V> {
+    override fun getAll(keys: Set<String>): Map<String, V> {
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = keys - result.keys
 
@@ -79,7 +90,10 @@ class HazelcastNearCache<V : Any>(
             imap.getAll(missedKeys).forEach { (key, value) ->
                 result[key] = value
                 frontCache.put(key, value)
+                backHitCount.incrementAndGet()
             }
+            val stillMissed = missedKeys.size - (missedKeys.size - (missedKeys - result.keys).size)
+            backMissCount.addAndGet(stillMissed.toLong())
         }
 
         return result
@@ -89,7 +103,10 @@ class HazelcastNearCache<V : Any>(
      * key-value를 저장한다 (write-through).
      * front cache + IMap PUT.
      */
-    fun put(key: String, value: V) {
+    override fun put(
+        key: String,
+        value: V,
+    ) {
         key.requireNotBlank("key")
 
         frontCache.put(key, value)
@@ -99,16 +116,19 @@ class HazelcastNearCache<V : Any>(
     /**
      * 여러 key-value를 한 번에 저장한다.
      */
-    fun putAll(map: Map<out String, V>) {
-        frontCache.putAll(map)
-        imap.putAll(map)
+    override fun putAll(entries: Map<String, V>) {
+        frontCache.putAll(entries)
+        imap.putAll(entries)
     }
 
     /**
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    fun putIfAbsent(key: String, value: V): V? {
+    override fun putIfAbsent(
+        key: String,
+        value: V,
+    ): V? {
         key.requireNotBlank("key")
 
         val existing = get(key)
@@ -126,7 +146,7 @@ class HazelcastNearCache<V : Any>(
     /**
      * 키를 제거한다 (front + IMap).
      */
-    fun remove(key: String) {
+    override fun remove(key: String) {
         key.requireNotBlank("key")
 
         frontCache.remove(key)
@@ -136,7 +156,7 @@ class HazelcastNearCache<V : Any>(
     /**
      * 여러 키를 한 번에 제거한다.
      */
-    fun removeAll(keys: Set<String>) {
+    override fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
         keys.forEach { imap.delete(it) }
     }
@@ -146,7 +166,10 @@ class HazelcastNearCache<V : Any>(
      * 키가 존재하는 경우에만 교체한다.
      * @return 교체 성공 여부
      */
-    fun replace(key: String, value: V): Boolean {
+    override fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
 
         val replaced = imap.replace(key, value)
@@ -161,7 +184,11 @@ class HazelcastNearCache<V : Any>(
     /**
      * 기존 값이 oldValue와 같을 때만 newValue로 교체한다.
      */
-    fun replace(key: String, oldValue: V, newValue: V): Boolean {
+    override fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
         key.requireNotBlank("key")
 
         val replaced = imap.replace(key, oldValue, newValue)
@@ -174,7 +201,7 @@ class HazelcastNearCache<V : Any>(
     /**
      * 조회 후 제거한다.
      */
-    fun getAndRemove(key: String): V? {
+    override fun getAndRemove(key: String): V? {
         val value = get(key)
         if (value != null) {
             remove(key)
@@ -185,7 +212,10 @@ class HazelcastNearCache<V : Any>(
     /**
      * 조회 후 교체한다.
      */
-    fun getAndReplace(key: String, value: V): V? {
+    override fun getAndReplace(
+        key: String,
+        value: V,
+    ): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -194,7 +224,7 @@ class HazelcastNearCache<V : Any>(
     /**
      * 해당 키가 캐시에 존재하는지 확인한다 (front or IMap).
      */
-    fun containsKey(key: String): Boolean {
+    override fun containsKey(key: String): Boolean {
         if (frontCache.containsKey(key)) return true
         return imap.containsKey(key)
     }
@@ -202,14 +232,14 @@ class HazelcastNearCache<V : Any>(
     /**
      * 로컬 캐시만 비운다 (IMap 유지).
      */
-    fun clearLocal() {
+    override fun clearLocal() {
         frontCache.clear()
     }
 
     /**
      * 로컬 캐시 + IMap을 모두 비운다.
      */
-    fun clearAll() {
+    override fun clearAll() {
         clearLocal()
         imap.clear()
     }
@@ -217,12 +247,28 @@ class HazelcastNearCache<V : Any>(
     /**
      * 로컬 캐시의 추정 크기.
      */
-    fun localSize(): Long = frontCache.estimatedSize()
+    override fun localCacheSize(): Long = frontCache.estimatedSize()
 
     /**
      * IMap(back-cache)의 크기.
      */
-    fun backCacheSize(): Int = imap.size
+    override fun backCacheSize(): Long = imap.size.toLong()
+
+    /**
+     * 캐시 통계를 반환한다.
+     * Caffeine 로컬 통계와 백엔드 hit/miss 카운터를 합산한다.
+     */
+    override fun stats(): NearCacheStatistics {
+        val caffeineStats = frontCache.stats()
+        return DefaultNearCacheStatistics(
+            localHits = caffeineStats?.hitCount() ?: 0L,
+            localMisses = caffeineStats?.missCount() ?: 0L,
+            localSize = frontCache.estimatedSize(),
+            localEvictions = caffeineStats?.evictionCount() ?: 0L,
+            backHits = backHitCount.value,
+            backMisses = backMissCount.value
+        )
+    }
 
     /**
      * 모든 리소스를 정리하고 리스너를 제거한다.
