@@ -30,6 +30,8 @@ dependencies {
     compileOnly(Libs.kotlinx_coroutines_core)
 
     testFixturesApi(project(":bluetape4k-junit5"))
+    testFixturesApi(Libs.awaitility_kotlin)
+    testFixturesImplementation(Libs.kotlinx_coroutines_core)
     testFixturesImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
