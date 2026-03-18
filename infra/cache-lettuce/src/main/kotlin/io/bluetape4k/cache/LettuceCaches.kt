@@ -9,9 +9,8 @@ import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.lettuceNearCacheConfig
-import io.bluetape4k.io.serializer.BinarySerializer
-import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.RedisCodec
@@ -39,14 +38,14 @@ object LettuceCaches : KLogging() {
      *
      * @param cacheName 캐시 이름
      * @param ttlSeconds TTL (초), null이면 만료 없음
-     * @param serializer 직렬화 방식 (기본값: Fory)
+     * @param codec 직렬화 codec (기본값: lz4Fory)
      */
     inline fun <reified K : Any, reified V : Any> jcache(
         redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
-        serializer: BinarySerializer = BinarySerializers.Fory,
-    ): JCache<K, V> = LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, serializer)
+        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+    ): JCache<K, V> = LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, codec)
 
     // -------------------------------------------------------------------------
     // NearCache (동기)

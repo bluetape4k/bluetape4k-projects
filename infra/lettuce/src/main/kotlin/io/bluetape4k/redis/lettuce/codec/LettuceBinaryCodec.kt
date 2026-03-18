@@ -18,7 +18,7 @@ import java.nio.ByteBuffer
  * @property serializer [BinarySerializer] 인스턴스
  */
 class LettuceBinaryCodec<V: Any>(
-    private val serializer: BinarySerializer,
+    val serializer: BinarySerializer,
 ): RedisCodec<String, V>, ToByteBufEncoder<String, V> {
 
     companion object: KLogging() {

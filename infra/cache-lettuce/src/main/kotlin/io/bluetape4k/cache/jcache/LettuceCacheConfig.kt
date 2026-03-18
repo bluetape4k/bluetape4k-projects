@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.io.serializer.BinarySerializer
-import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import javax.cache.configuration.MutableConfiguration
 
 /**
@@ -24,8 +24,8 @@ class LettuceCacheConfig<K: Any, V: Any>(
     val keyCodec: ((K) -> String)? = null,
     /** Redis hash field 문자열을 JCache key로 복원하는 함수입니다. */
     val keyDecoder: ((String) -> K)? = null,
-    /** 캐시 값을 바이트 배열로 직렬화/역직렬화하는 구현체입니다. */
-    val serializer: BinarySerializer = BinarySerializers.Fory,
+    /** 캐시 값을 바이트 배열로 직렬화/역직렬화하는 [LettuceBinaryCodec] 인스턴스입니다. */
+    val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
     keyType: Class<K>,
     valueType: Class<V>,
 ): MutableConfiguration<K, V>() {
@@ -43,12 +43,12 @@ inline fun <reified K: Any, reified V: Any> lettuceCacheConfigOf(
     ttlSeconds: Long? = null,
     noinline keyCodec: ((K) -> String)? = null,
     noinline keyDecoder: ((String) -> K)? = null,
-    serializer: BinarySerializer = BinarySerializers.Fory,
+    codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
 ): LettuceCacheConfig<K, V> = LettuceCacheConfig(
     ttlSeconds = ttlSeconds,
     keyCodec = keyCodec,
     keyDecoder = keyDecoder,
-    serializer = serializer,
+    codec = codec,
     keyType = K::class.java,
     valueType = V::class.java,
 )

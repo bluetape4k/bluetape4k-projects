@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.io.serializer.BinarySerializer
-import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.time.Duration
@@ -31,13 +31,13 @@ import javax.cache.processor.MutableEntry
  * - 캐시 항목은 [LettuceMap]을 통해 Redis hash에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
  * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
  * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
- * - 직렬화는 [serializer]로 처리하며, 기본값은 Fory 기반 직렬화입니다.
+ * - 직렬화는 [codec]의 serializer로 처리하며, 기본값은 LZ4+Fory 기반 직렬화입니다.
  */
 class LettuceJCache<K: Any, V: Any>(
     private val map: LettuceMap<ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
     private val keyDecoder: ((String) -> K)? = null,
-    private val serializer: BinarySerializer = BinarySerializers.Fory,
+    private val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
     private val configuration: Configuration<K, V>,
@@ -72,10 +72,10 @@ class LettuceJCache<K: Any, V: Any>(
         )
     }
 
-    private fun encodeValue(value: V): ByteArray = serializer.serialize(value)
+    private fun encodeValue(value: V): ByteArray = codec.serializer.serialize(value)
 
     @Suppress("UNCHECKED_CAST")
-    private fun decodeValue(bytes: ByteArray): V = serializer.deserialize<V>(bytes)!!
+    private fun decodeValue(bytes: ByteArray): V = codec.serializer.deserialize<V>(bytes)!!
 
     override fun getName(): String = cacheName
 

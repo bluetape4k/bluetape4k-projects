@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.io.serializer.BinarySerializer
-import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.RedisClient
 import javax.cache.configuration.Configuration
 
@@ -39,19 +39,19 @@ object LettuceJCaching: KLogging() {
      * @param redisClient 연결된 Lettuce RedisClient
      * @param cacheName 캐시 이름
      * @param ttlSeconds TTL (초), null이면 만료 없음
-     * @param serializer 직렬화 방식 (기본값: Fory)
+     * @param codec 직렬화 codec (기본값: lz4Fory)
      */
     inline fun <reified K: Any, reified V: Any> getOrCreate(
         redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
-        serializer: BinarySerializer = BinarySerializers.Fory,
+        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
     ): JCache<K, V> {
         val manager = cacheManagerOf(redisClient)
         return manager.getCache(cacheName)
             ?: manager.createCache(
                 cacheName,
-                lettuceCacheConfigOf<K, V>(ttlSeconds = ttlSeconds, serializer = serializer)
+                lettuceCacheConfigOf<K, V>(ttlSeconds = ttlSeconds, codec = codec)
             )
     }
 

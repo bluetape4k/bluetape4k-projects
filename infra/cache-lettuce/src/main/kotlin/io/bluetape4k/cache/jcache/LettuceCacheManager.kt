@@ -1,7 +1,8 @@
 package io.bluetape4k.cache.jcache
 
-import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.lettuce.RedisCommandSupports
@@ -87,7 +88,7 @@ class LettuceCacheManager(
         val ttlSeconds = lettuceCfg?.ttlSeconds
         val keyCodec = lettuceCfg?.keyCodec ?: { k: K -> k.toString() }
         val keyDecoder = lettuceCfg?.keyDecoder
-        val serializer = lettuceCfg?.serializer ?: BinarySerializers.Fory
+        val codec: LettuceBinaryCodec<*> = lettuceCfg?.codec ?: LettuceBinaryCodecs.lz4Fory<Any>()
 
         log.debug { "RedisClient 연결 생성. cacheName=$cacheName" }
         val connection = redisClient.connect(STRING_BYTES_CODEC)
@@ -97,7 +98,7 @@ class LettuceCacheManager(
             map = map,
             keyCodec = keyCodec,
             keyDecoder = keyDecoder,
-            serializer = serializer,
+            codec = codec,
             ttlSeconds = ttlSeconds,
             cacheManager = this,
             configuration = configuration,
