@@ -6,12 +6,7 @@ import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientLettuceNearCache
-import io.bluetape4k.cache.nearcache.ResilientLettuceNearCacheConfig
-import io.bluetape4k.cache.nearcache.ResilientLettuceNearCacheConfigBuilder
-import io.bluetape4k.cache.nearcache.ResilientLettuceSuspendNearCache
 import io.bluetape4k.cache.nearcache.lettuceNearCacheConfig
-import io.bluetape4k.cache.nearcache.resilientLettuceNearCacheConfig
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
@@ -33,7 +28,6 @@ import io.lettuce.core.codec.RedisCodec
  * ```
  */
 object LettuceCaches : KLogging() {
-
     // -------------------------------------------------------------------------
     // JCache
     // -------------------------------------------------------------------------
@@ -134,87 +128,5 @@ object LettuceCaches : KLogging() {
     ): LettuceSuspendNearCache<V> {
         val config = lettuceNearCacheConfig(block)
         return LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
-    }
-
-    // -------------------------------------------------------------------------
-    // ResilientNearCache (동기 + 재시도)
-    // -------------------------------------------------------------------------
-
-    /**
-     * [ResilientLettuceNearCacheConfig]를 이용해 [ResilientLettuceNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param config Resilient NearCache 설정
-     */
-    fun <V : Any> resilientNearCache(
-        redisClient: RedisClient,
-        config: ResilientLettuceNearCacheConfig<String, V> = ResilientLettuceNearCacheConfig(LettuceNearCacheConfig()),
-    ): ResilientLettuceNearCache<V> = ResilientLettuceNearCache(redisClient, config = config)
-
-    /**
-     * [LettuceNearCacheConfig]로부터 [ResilientLettuceNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param nearCacheConfig NearCache 기본 설정
-     */
-    fun <V : Any> resilientNearCache(
-        redisClient: RedisClient,
-        nearCacheConfig: LettuceNearCacheConfig<String, V>,
-    ): ResilientLettuceNearCache<V> =
-        ResilientLettuceNearCache(redisClient, config = ResilientLettuceNearCacheConfig(nearCacheConfig))
-
-    /**
-     * DSL 빌더를 이용해 [ResilientLettuceNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param block Resilient NearCache 설정 DSL 블록
-     */
-    fun <V : Any> resilientNearCache(
-        redisClient: RedisClient,
-        block: ResilientLettuceNearCacheConfigBuilder<String, V>.() -> Unit,
-    ): ResilientLettuceNearCache<V> {
-        val config = resilientLettuceNearCacheConfig(block)
-        return ResilientLettuceNearCache(redisClient, config = config)
-    }
-
-    // -------------------------------------------------------------------------
-    // ResilientSuspendNearCache (코루틴 + 재시도)
-    // -------------------------------------------------------------------------
-
-    /**
-     * [ResilientLettuceNearCacheConfig]를 이용해 [ResilientLettuceSuspendNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param config Resilient NearCache 설정
-     */
-    fun <V : Any> resilientSuspendNearCache(
-        redisClient: RedisClient,
-        config: ResilientLettuceNearCacheConfig<String, V> = ResilientLettuceNearCacheConfig(LettuceNearCacheConfig()),
-    ): ResilientLettuceSuspendNearCache<V> = ResilientLettuceSuspendNearCache(redisClient, config = config)
-
-    /**
-     * [LettuceNearCacheConfig]로부터 [ResilientLettuceSuspendNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param nearCacheConfig NearCache 기본 설정
-     */
-    fun <V : Any> resilientSuspendNearCache(
-        redisClient: RedisClient,
-        nearCacheConfig: LettuceNearCacheConfig<String, V>,
-    ): ResilientLettuceSuspendNearCache<V> =
-        ResilientLettuceSuspendNearCache(redisClient, config = ResilientLettuceNearCacheConfig(nearCacheConfig))
-
-    /**
-     * DSL 빌더를 이용해 [ResilientLettuceSuspendNearCache]`<V>`를 생성합니다.
-     *
-     * @param redisClient Lettuce RedisClient
-     * @param block Resilient NearCache 설정 DSL 블록
-     */
-    fun <V : Any> resilientSuspendNearCache(
-        redisClient: RedisClient,
-        block: ResilientLettuceNearCacheConfigBuilder<String, V>.() -> Unit,
-    ): ResilientLettuceSuspendNearCache<V> {
-        val config = resilientLettuceNearCacheConfig(block)
-        return ResilientLettuceSuspendNearCache(redisClient, config = config)
     }
 }

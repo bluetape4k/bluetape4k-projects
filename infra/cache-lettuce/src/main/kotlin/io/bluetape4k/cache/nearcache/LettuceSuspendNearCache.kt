@@ -19,6 +19,7 @@ import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Lettuce 기반 Near Cache (2-tier cache) - Coroutine(Suspend) 구현.
@@ -50,12 +51,12 @@ import kotlinx.atomicfu.atomic
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class LettuceSuspendNearCache<V: Any>(
+class LettuceSuspendNearCache<V : Any>(
     redisClient: RedisClient,
     codec: RedisCodec<String, V> = lettuceDefaultCodec(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-): LettuceSuspendNearCacheOperations<V> {
-    companion object: KLogging() {
+) : SuspendNearCacheOperations<V> {
+    companion object : KLogging() {
         private const val COMPARE_AND_SET_SCRIPT = """
             local current = redis.call('GET', KEYS[1])
             if current == false or current ~= ARGV[1] then
@@ -68,7 +69,7 @@ class LettuceSuspendNearCache<V: Any>(
         /**
          * String 키/값 타입의 Near Suspend Cache를 생성한다.
          */
-        operator fun <V: Any> invoke(
+        operator fun <V : Any> invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
         ): LettuceSuspendNearCache<V> = LettuceSuspendNearCache(redisClient, lettuceDefaultCodec(), config)
@@ -78,6 +79,10 @@ class LettuceSuspendNearCache<V: Any>(
 
     private val closed = atomic(false)
     override val isClosed by closed
+
+    private val backHitCount = AtomicLong(0)
+    private val backMissCount = AtomicLong(0)
+
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
@@ -109,8 +114,14 @@ class LettuceSuspendNearCache<V: Any>(
 
         frontCache.get(key)?.let { return it }
 
-        return commands.get(config.redisKey(key))?.also { value ->
-            frontCache.put(key, value)
+        val backValue = commands.get(config.redisKey(key))
+        return if (backValue != null) {
+            backHitCount.incrementAndGet()
+            frontCache.put(key, backValue)
+            backValue
+        } else {
+            backMissCount.incrementAndGet()
+            null
         }
     }
 
@@ -155,11 +166,11 @@ class LettuceSuspendNearCache<V: Any>(
     /**
      * 여러 key-value를 한 번에 저장한다.
      */
-    override suspend fun putAll(map: Map<out String, V>) {
-        if (map.isEmpty()) return
+    override suspend fun putAll(entries: Map<String, V>) {
+        if (entries.isEmpty()) return
 
         val normalizedMap =
-            map.entries.associate { (key, value) ->
+            entries.entries.associate { (key, value) ->
                 key.requireNotBlank("key") to value
             }
         setRedisBulk(normalizedMap)
@@ -341,14 +352,30 @@ class LettuceSuspendNearCache<V: Any>(
     }
 
     /**
+     * NearCache 통계 스냅샷을 반환한다.
+     * [LettuceNearCacheConfig.recordStats]가 true일 때 로컬 hit/miss/eviction이 유효하다.
+     */
+    override fun stats(): NearCacheStatistics {
+        val caffeineStats = frontCache.stats()
+        return DefaultNearCacheStatistics(
+            localHits = caffeineStats?.hitCount() ?: 0L,
+            localMisses = caffeineStats?.missCount() ?: 0L,
+            localSize = localCacheSize(),
+            localEvictions = caffeineStats?.evictionCount() ?: 0L,
+            backHits = backHitCount.get(),
+            backMisses = backMissCount.get()
+        )
+    }
+
+    /**
      * 로컬 캐시(Caffeine) 통계. [LettuceNearCacheConfig.recordStats]가 true일 때만 유효한 값을 반환한다.
      */
-    override fun localStats(): CacheStats? = frontCache.stats()
+    fun localStats(): CacheStats? = frontCache.stats()
 
     /**
      * 모든 리소스를 정리하고 연결을 닫는다.
      */
-    override fun close() {
+    override suspend fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             runCatching { trackingListener.close() }
             runCatching { connection.close() }
