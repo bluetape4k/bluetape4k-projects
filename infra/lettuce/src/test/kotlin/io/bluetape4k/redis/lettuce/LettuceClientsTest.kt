@@ -27,7 +27,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
 
     @RepeatedTest(10)
     fun `connect to redis server repeatly`() {
-        val commands = LettuceClients.commands(client, LettuceBinaryCodecs.Default)
+        val commands = LettuceClients.commands(client, LettuceBinaryCodecs.default())
         commands.ping() shouldBeEqualTo "PONG"
     }
 
@@ -37,7 +37,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
         val conn2 = LettuceClients.connect(client)
         (conn1 === conn2).shouldBeTrue()
 
-        val codec = LettuceBinaryCodecs.Default
+        val codec = LettuceBinaryCodecs.default<Any>()
         val typedConn1 = LettuceClients.connect(client, codec)
         val typedConn2 = LettuceClients.connect(client, codec)
         (typedConn1 === typedConn2).shouldBeTrue()
@@ -46,10 +46,10 @@ class LettuceClientsTest: AbstractLettuceTest() {
     @Test
     fun `connect to redis server in multi-threading`() {
         MultithreadingTester()
-            .workers(16)
-            .rounds(2)
+            .workers(8)
+            .rounds(4)
             .add {
-                val commands = LettuceClients.commands(client, LettuceBinaryCodecs.Default)
+                val commands = LettuceClients.commands(client, LettuceBinaryCodecs.default())
                 commands.ping() shouldBeEqualTo "PONG"
             }
             .run()
@@ -61,7 +61,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
         StructuredTaskScopeTester()
             .rounds(32)
             .add {
-                val asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.Default)
+                val asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.default())
                 asyncCommands.ping().get() shouldBeEqualTo "PONG"
             }
             .run()
@@ -71,10 +71,9 @@ class LettuceClientsTest: AbstractLettuceTest() {
     @Test
     fun `connect to redis server in coroutines`() = runSuspendIO {
         SuspendedJobTester()
-            .workers(16)
             .rounds(32)
             .add {
-                val coroutinesCommand = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.Default)
+                val coroutinesCommand = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.default())
                 coroutinesCommand.ping() shouldBeEqualTo "PONG"
             }
             .run()

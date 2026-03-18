@@ -19,9 +19,9 @@ import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.cache.nearcache.jcache.nearJCacheConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import java.util.concurrent.TimeUnit
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
-import java.util.concurrent.TimeUnit
 
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
@@ -68,7 +68,7 @@ object HazelcastCaches : KLogging() {
      * @param cacheName 캐시 이름
      * @return [HazelcastSuspendJCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> suspendCache(
+    inline fun <reified K: Any, reified V: Any> suspendJCache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
     ): HazelcastSuspendJCache<K, V> = HazelcastSuspendJCache(hazelcastInstance, cacheName)
@@ -83,7 +83,7 @@ object HazelcastCaches : KLogging() {
      * @param configuration JCache 설정
      * @return [HazelcastSuspendJCache] 인스턴스
      */
-    fun <K : Any, V : Any> suspendCache(
+    fun <K: Any, V: Any> suspendJCache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
         configuration: Configuration<K, V>,

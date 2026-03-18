@@ -74,6 +74,98 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 | `CaffeineLocalCache<K, V>` | Caffeine 기반 LocalCache 구현 |
 | `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너 |
 
+### JCache 기반 NearCache (nearcache.jcache 패키지)
+
+`NearJCache<K,V>` /
+`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
+`NearJCacheConfig` Builder DSL로 설정합니다.
+
+```mermaid
+classDiagram
+    class NearJCache~K_V~ {
+        +frontCache: JCache~K_V~
+        +backCache: JCache~K_V~
+        -config: NearJCacheConfig~K_V~
+        +invoke(config, backCache) NearJCache
+    }
+
+    class SuspendNearJCache~K_V~ {
+        -frontCache: SuspendJCache~K_V~
+        -backCache: SuspendJCache~K_V~
+        +invoke(front, back) SuspendNearJCache
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +close()
+    }
+
+    class LettuceJCache~K_V~ {
+        -map: LettuceMap~ByteArray~
+        -codec: LettuceBinaryCodec~V~
+        -ttlSeconds: Long?
+        Redis hash 기반
+    }
+
+    class LettuceSuspendJCache~V~ {
+        -cache: LettuceJCache~String_V~
+        +invoke(cacheName, redisClient) LettuceSuspendJCache
+    }
+
+    class CaffeineSuspendJCache~K_V~ {
+        Caffeine AsyncCache 기반
+        (frontCache 역할)
+    }
+
+    class NearJCacheConfig~K_V~ {
+        +cacheName: String
+        +isSynchronous: Boolean
+        +syncRemoteTimeout: Long
+    }
+
+    NearJCache --> LettuceJCache: backCache
+    SuspendNearJCache --> CaffeineSuspendJCache: frontCache
+    SuspendNearJCache --> LettuceSuspendJCache: backCache
+    NearJCache --> NearJCacheConfig
+```
+
+#### NearJCacheConfig DSL
+
+```kotlin
+import io.bluetape4k.cache.nearcache.jcache.nearJCacheConfig
+
+val config = nearJCacheConfig<String, String> {
+    cacheName = "my-near-jcache"
+    isSynchronous = true               // 동기 이벤트 전파
+    syncRemoteTimeout = 1000L          // 이벤트 타임아웃 (ms)
+}
+```
+
+#### NearJCache (동기) 사용 예
+
+```kotlin
+val cache = LettuceCaches.nearJCache<String, String>(redisClient) {
+    cacheName = "orders-near-jcache"
+}
+
+cache.put("order-1", "data")
+val value = cache.get("order-1")   // front(Caffeine) → back(Lettuce) 순으로 조회
+cache.close()
+```
+
+#### SuspendNearJCache (코루틴) 사용 예
+
+```kotlin
+val cache = LettuceCaches.suspendNearJCache<String>(redisClient) {
+    cacheName = "sessions-suspend-near-jcache"
+}
+
+cache.put("session-1", "token-abc")
+val token = cache.get("session-1")   // suspend fun
+cache.close()
+```
+
+> **선택 기준**: JCache 표준 호환이 필요하면 `NearJCache`/`SuspendNearJCache`를, 더 풍부한 통계·resilience가 필요하면 `LettuceNearCache`/
+`LettuceSuspendNearCache`를 사용하세요.
+
 ### NearCache 아키텍처
 
 #### Write-through (기본)
@@ -143,12 +235,26 @@ sessions.putIfAbsent("token:2", "value2")
 
 ```kotlin
 // JCache 생성
-val jcache = LettuceCaches.jcache<String, String>("my-cache")
+val jcache = LettuceCaches.jcache<String, String>(redisClient, "my-cache")
 
-// NearCache (동기)
+// SuspendJCache 생성 (코루틴)
+val suspendJCache = LettuceCaches.suspendJCache<String>(redisClient, "my-cache")
+
+// NearJCache — JCache 기반 2-Tier (동기)
+val nearJCache = LettuceCaches.nearJCache<String, String>(redisClient) {
+    cacheName = "my-near-jcache"
+    isSynchronous = true
+}
+
+// SuspendNearJCache — JCache 기반 2-Tier (코루틴)
+val suspendNearJCache = LettuceCaches.suspendNearJCache<String>(redisClient) {
+    cacheName = "my-suspend-near-jcache"
+}
+
+// NearCache — RESP3 CLIENT TRACKING 기반 (동기)
 val near = LettuceCaches.nearCache<String>(redisClient) { cacheName = "my-near" }
 
-// SuspendNearCache (코루틴)
+// SuspendNearCache — RESP3 CLIENT TRACKING 기반 (코루틴)
 val suspendNear = LettuceCaches.suspendNearCache<String>(redisClient) { cacheName = "my-near" }
 
 // ResilientNearCache (write-behind + retry)

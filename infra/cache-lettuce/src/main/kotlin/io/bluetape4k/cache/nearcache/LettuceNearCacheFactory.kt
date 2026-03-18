@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.cache.lettuceDefaultCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.RedisCodec
 
@@ -29,9 +29,9 @@ import io.lettuce.core.codec.RedisCodec
  * @param config Near Cache 설정
  * @return [NearCacheOperations] 구현체
  */
-fun <V : Any> lettuceNearCacheOf(
+fun <V: Any> lettuceNearCacheOf(
     redisClient: RedisClient,
-    codec: RedisCodec<String, V> = lettuceDefaultCodec(),
+    codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): NearCacheOperations<V> = LettuceNearCache(redisClient, codec, config)
 
@@ -43,8 +43,8 @@ fun <V : Any> lettuceNearCacheOf(
  * @param config Near Cache 설정
  * @return [SuspendNearCacheOperations] 구현체
  */
-fun <V : Any> lettuceSuspendNearCacheOf(
+fun <V: Any> lettuceSuspendNearCacheOf(
     redisClient: RedisClient,
-    codec: RedisCodec<String, V> = lettuceDefaultCodec(),
+    codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): SuspendNearCacheOperations<V> = LettuceSuspendNearCache(redisClient, codec, config)

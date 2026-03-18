@@ -37,19 +37,101 @@ dependencies {
 
 ```kotlin
 // JCache
-val jcache = HazelcastCaches.jcache<String, String>("my-cache")
+val jcache = HazelcastCaches.jcache<String, String>(hazelcastInstance, "my-cache")
 
 // SuspendCache
-val sc = HazelcastCaches.suspendCache<String, String>("my-cache")
+val sc = HazelcastCaches.suspendCache<String, String>(hazelcastInstance, "my-cache")
 
-// NearCache (config 또는 DSL)
+// NearJCache — JCache 기반 2-Tier (동기, DSL)
+val nearJCache = HazelcastCaches.nearJCache<String, String>(hazelcastInstance) {
+    cacheName = "my-near-jcache"
+    isSynchronous = true
+}
+
+// SuspendNearJCache — JCache 기반 2-Tier (코루틴, DSL)
+val suspendNearJCache = HazelcastCaches.suspendNearJCache<String, String>(hazelcastInstance) {
+    cacheName = "my-suspend-near-jcache"
+}
+
+// NearCache — Caffeine + IMap 기반 (동기, DSL)
 val near = HazelcastCaches.nearCache<String>(hazelcastInstance) { cacheName = "my-near" }
 
-// SuspendNearCache
+// SuspendNearCache — Caffeine + IMap 기반 (코루틴, DSL)
 val suspendNear = HazelcastCaches.suspendNearCache<String>(hazelcastInstance) { cacheName = "my-near" }
 
-// Resilient NearCache
+// Resilient NearCache (write-behind + retry)
 val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, nearCacheConfig)
+```
+
+## JCache 기반 NearCache (nearcache.jcache 패키지)
+
+`NearJCache<K,V>` /
+`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Hazelcast IMap(back) 구조입니다.
+
+```mermaid
+classDiagram
+    class NearJCache~K_V~ {
+        +frontCache: JCache~K_V~
+        +backCache: JCache~K_V~
+        -config: NearJCacheConfig~K_V~
+        +invoke(config, backCache) NearJCache
+    }
+
+    class SuspendNearJCache~K_V~ {
+        -frontCache: SuspendJCache~K_V~
+        -backCache: SuspendJCache~K_V~
+        +invoke(front, back) SuspendNearJCache
+        +withoutListener(front, back) SuspendNearJCache
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +close()
+    }
+
+    class HazelcastSuspendJCache~K_V~ {
+        -hazelcastInstance: HazelcastInstance
+        -cacheName: String
+        IMap 기반 SuspendJCache
+    }
+
+    class CaffeineSuspendJCache~K_V~ {
+        Caffeine AsyncCache 기반
+        (frontCache 역할)
+    }
+
+    class NearJCacheConfig~K_V~ {
+        +cacheName: String
+        +isSynchronous: Boolean
+        +syncRemoteTimeout: Long
+    }
+
+    NearJCache --> NearJCacheConfig
+    SuspendNearJCache --> CaffeineSuspendJCache: frontCache
+    SuspendNearJCache --> HazelcastSuspendJCache: backCache
+```
+
+> Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
+
+### NearJCache 사용 예
+
+```kotlin
+// DSL로 NearJCache 생성
+val nearJCache = HazelcastCaches.nearJCache<String, String>(hazelcastInstance) {
+    cacheName = "orders-near-jcache"
+    isSynchronous = true
+}
+
+nearJCache.put("order-1", "data")
+val value = nearJCache.get("order-1")   // front(Caffeine) → back(IMap) 순으로 조회
+nearJCache.close()
+
+// DSL로 SuspendNearJCache 생성
+val suspendNearJCache = HazelcastCaches.suspendNearJCache<String, String>(hazelcastInstance) {
+    cacheName = "sessions-near-jcache"
+}
+
+suspendNearJCache.put("session-1", "token-abc")
+val token = suspendNearJCache.get("session-1")   // suspend fun
+suspendNearJCache.close()
 ```
 
 ## NearCache 아키텍처

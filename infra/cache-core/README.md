@@ -136,43 +136,174 @@ classDiagram
     SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
 ```
 
-#### Legacy JCache NearCache (`nearcache.jcache` 패키지)
+#### JCache 기반 NearCache (`nearcache.jcache` 패키지)
 
-JCache 인터페이스를 직접 구현하는 기존 2-tier 캐시. `JCache<K,V> by backCache` 위임으로 JCache 호환성을 유지합니다.
+`JCache<K,V>` / `SuspendJCache<K,V>` 인터페이스를 직접 구현하는 2-tier 캐시입니다. `JCache<K,V> by backCache` 위임으로 JCache 호환성을 유지하며,
+`NearJCacheConfig` Builder DSL로 설정할 수 있습니다.
+
+##### SuspendJCache 인터페이스
 
 ```mermaid
 classDiagram
-    class NearCache~K_V~ {
-        +frontCache: JCache~K, V~
-        +backCache: JCache~K, V~
-        +getDeeply(key: K) V?
-        +clearAllCache()
+    class SuspendJCache~K_V~ {
+        <<interface>>
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +remove(key: K) Boolean
+        +putIfAbsent(key: K, value: V) Boolean
+        +replace(key: K, value: V) Boolean
+        +containsKey(key: K) Boolean
+        +getAndPut(key: K, value: V) V?
+        +getAndRemove(key: K) V?
+        +entries() Flow~SuspendJCacheEntry~K_V~~
+        +getAll(keys: Set~K~) Flow~SuspendJCacheEntry~K_V~~
+        +putAll(map: Map~K_V~)
+        +removeAll()
+        +clear()
+        +close()
+        +isClosed() Boolean
     }
 
-    class SuspendNearCache~K_V~ {
-        +frontCache: SuspendCache~K, V~
-        +backCache: SuspendCache~K, V~
-        +getDeeply(key: K) V?
+    class CaffeineSuspendJCache~K_V~ {
+        -cache: AsyncCache~K_V~
+        +invoke(builder) CaffeineSuspendJCache
     }
 
-    class ResilientNearCache~K_V~ {
-        -writeQueue: LinkedBlockingQueue
-        -tombstones: ConcurrentHashMap
-        +write-behind + retry
+    class LettuceSuspendJCache~V~ {
+        -cache: LettuceJCache~String_V~
+        +invoke(cacheName, redisClient) LettuceSuspendJCache
     }
 
-    class ResilientSuspendNearCache~K_V~ {
-        -writeChannel: Channel
-        +write-behind + retry
+    class HazelcastSuspendJCache~K_V~ {
+        -hazelcastInstance: HazelcastInstance
+        -cacheName: String
     }
 
-    JCache~K_V~ <|.. NearCache
-    NearCache <|-- ResilientNearCache
-    SuspendNearCache <|-- ResilientSuspendNearCache
+    class RedissonSuspendJCache~K_V~ {
+        -redisson: RedissonClient
+        -cacheName: String
+    }
+
+    SuspendJCache~K_V~ <|.. CaffeineSuspendJCache
+    SuspendJCache~K_V~ <|.. LettuceSuspendJCache
+    SuspendJCache~K_V~ <|.. HazelcastSuspendJCache
+    SuspendJCache~K_V~ <|.. RedissonSuspendJCache
 ```
 
-> `nearcache.jcache` 패키지의 클래스는 JCache 호환이 필요한 경우에 사용합니다.
-> 새 코드는 `NearCacheOperations<V>` / `SuspendNearCacheOperations<V>` 인터페이스를 사용하세요.
+##### NearJCache (동기)
+
+```mermaid
+classDiagram
+    class NearJCache~K_V~ {
+        +frontCache: JCache~K_V~
+        +backCache: JCache~K_V~
+        -config: NearJCacheConfig~K_V~
+        +invoke(config, backCache) NearJCache
+    }
+
+    class NearJCacheConfig~K_V~ {
+        +cacheName: String
+        +cacheManagerFactory: Factory~CacheManager~
+        +frontCacheConfiguration: MutableConfiguration~K_V~
+        +isSynchronous: Boolean
+        +syncRemoteTimeout: Long
+    }
+
+    class NearJCacheConfigBuilder~K_V~ {
+        +cacheName: String
+        +cacheManagerFactory: Factory~CacheManager~
+        +frontCacheConfiguration: MutableConfiguration~K_V~
+        +isSynchronous: Boolean
+        +syncRemoteTimeout: Long
+        +build() NearJCacheConfig
+    }
+
+    NearJCache --> NearJCacheConfig: config
+    NearJCacheConfigBuilder ..> NearJCacheConfig: build()
+```
+
+##### SuspendNearJCache (코루틴)
+
+```mermaid
+classDiagram
+    class SuspendNearJCache~K_V~ {
+        -frontCache: SuspendJCache~K_V~
+        -backCache: SuspendJCache~K_V~
+        +invoke(front, back) SuspendNearJCache
+        +withoutListener(front, back) SuspendNearJCache
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +remove(key: K) Boolean
+        +clear()
+        +close()
+    }
+
+    class CaffeineSuspendJCache~K_V~ {
+        <<frontCache>>
+        Caffeine AsyncCache 기반
+    }
+
+    class LettuceSuspendJCache~V~ {
+<<backCache(Lettuce)>>
+Redis hash 기반
+    }
+
+class HazelcastSuspendJCache~K_V~ {
+<<backCache(Hazelcast)>>
+IMap 기반
+    }
+
+SuspendNearJCache --> CaffeineSuspendJCache: frontCache
+SuspendNearJCache --> LettuceSuspendJCache: backCache (Lettuce)
+SuspendNearJCache --> HazelcastSuspendJCache: backCache (Hazelcast)
+```
+
+##### NearJCacheConfig Builder DSL
+
+```kotlin
+// DSL로 NearJCacheConfig 생성
+val config = nearJCacheConfig<String, String> {
+    cacheName = "my-near-jcache"
+    isSynchronous = true
+    syncRemoteTimeout = 1000L
+}
+
+// Hazelcast 기반 NearJCache
+val nearCache = HazelcastCaches.nearJCache<String, String>(hazelcastInstance) {
+    cacheName = "my-near-jcache"
+    isSynchronous = true
+}
+
+// Lettuce 기반 NearJCache
+val nearCacheLettuce = LettuceCaches.nearJCache<String, String>(redisClient) {
+    cacheName = "my-near-jcache"
+}
+
+// Lettuce 기반 SuspendNearJCache
+val suspendNear = LettuceCaches.suspendNearJCache<String>(redisClient) {
+    cacheName = "my-suspend-near-jcache"
+}
+suspendNear.put("key", "value")
+val v = suspendNear.get("key")
+suspendNear.close()
+```
+
+> 새 코드는 `NearJCacheConfigBuilder` DSL을 활용하세요. `NearCacheOperations<V>` /
+`SuspendNearCacheOperations<V>` 인터페이스 기반 구현체(Lettuce, Hazelcast, Redisson NearCache)가 더 풍부한 통계/resilience 기능을 제공합니다.
+
+| 클래스                            | 모듈              | 설명                                      |
+|--------------------------------|-----------------|-----------------------------------------|
+| `JCache<K,V>`                  | cache-core      | JCache (JSR-107) 표준 인터페이스               |
+| `SuspendJCache<K,V>`           | cache-core      | Coroutines suspend 캐시 인터페이스             |
+| `NearJCache<K,V>`              | cache-core      | 동기 2-Tier NearCache (JCache 구현)         |
+| `SuspendNearJCache<K,V>`       | cache-core      | 코루틴 2-Tier NearCache (SuspendJCache 구현) |
+| `NearJCacheConfig<K,V>`        | cache-core      | NearJCache 설정 data class                |
+| `NearJCacheConfigBuilder<K,V>` | cache-core      | NearJCacheConfig DSL 빌더                 |
+| `CaffeineSuspendJCache<K,V>`   | cache-core      | Caffeine 기반 SuspendJCache (front cache) |
+| `LettuceJCache<K,V>`           | cache-lettuce   | Lettuce Redis hash 기반 JCache            |
+| `LettuceSuspendJCache<V>`      | cache-lettuce   | Lettuce 기반 SuspendJCache                |
+| `HazelcastSuspendJCache<K,V>`  | cache-hazelcast | Hazelcast 기반 SuspendJCache              |
+| `RedissonSuspendJCache<K,V>`   | cache-redisson  | Redisson 기반 SuspendJCache               |
 
 | 클래스 | 모듈 | 설명 |
 |---|---|---|

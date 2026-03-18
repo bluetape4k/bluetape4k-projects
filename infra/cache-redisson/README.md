@@ -330,6 +330,80 @@ cache.close()
 
 ---
 
+## JCache 기반 NearCache (nearcache.jcache 패키지)
+
+`NearJCache<K,V>` /
+`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Redisson JCache(back) 구조입니다.
+
+```mermaid
+classDiagram
+    class NearJCache~K_V~ {
+        +frontCache: JCache~K_V~
+        +backCache: JCache~K_V~
+        -config: NearJCacheConfig~K_V~
+        +invoke(config, backCache) NearJCache
+    }
+
+    class SuspendNearJCache~K_V~ {
+        -frontCache: SuspendJCache~K_V~
+        -backCache: SuspendJCache~K_V~
+        +invoke(front, back) SuspendNearJCache
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +close()
+    }
+
+    class RedissonSuspendJCache~K_V~ {
+        -redisson: RedissonClient
+        -cacheName: String
+        RMap 기반 SuspendJCache
+    }
+
+    class CaffeineSuspendJCache~K_V~ {
+        Caffeine AsyncCache 기반
+        (frontCache 역할)
+    }
+
+    class NearJCacheConfig~K_V~ {
+        +cacheName: String
+        +isSynchronous: Boolean
+        +syncRemoteTimeout: Long
+    }
+
+    NearJCache --> NearJCacheConfig
+    SuspendNearJCache --> CaffeineSuspendJCache: frontCache
+    SuspendNearJCache --> RedissonSuspendJCache: backCache
+```
+
+### 팩토리 네이밍 규칙
+
+| 함수명                       | 반환 타입                           | 설명                     |
+|---------------------------|---------------------------------|------------------------|
+| `nearJCache()`            | `NearJCache<K,V>`               | JCache 기반 동기 2-Tier    |
+| `suspendNearJCache()`     | `SuspendNearJCache<K,V>`        | JCache 기반 코루틴 2-Tier   |
+| `nearCache()`             | `NearCacheOperations<V>`        | RLocalCachedMap 기반 동기  |
+| `suspendNearCache()`      | `SuspendNearCacheOperations<V>` | RLocalCachedMap 기반 코루틴 |
+| `resp3NearCache()`        | `NearCacheOperations<V>`        | RESP3 하이브리드 동기         |
+| `resp3SuspendNearCache()` | `SuspendNearCacheOperations<V>` | RESP3 하이브리드 코루틴        |
+
+### NearJCache 사용 예
+
+```kotlin
+// NearJCache (동기)
+val cache = RedissonCaches.nearJCache<String, String>("orders-near-jcache", redisson)
+cache.put("order-1", "data")
+val value = cache.get("order-1")   // front(Caffeine) → back(Redisson JCache) 순으로 조회
+cache.close()
+
+// SuspendNearJCache (코루틴)
+val suspendCache = RedissonCaches.suspendNearJCache<String, String>("sessions-near-jcache", redisson)
+suspendCache.put("session-1", "token-abc")
+val token = suspendCache.get("session-1")
+suspendCache.close()
+```
+
+---
+
 ## Factory (RedissonCaches)
 
 `RedissonCaches` 오브젝트를 사용하면 모든 캐시 타입을 한 곳에서 생성할 수 있습니다.
@@ -343,11 +417,17 @@ val jcache = RedissonCaches.jcache<String, String>("my-cache", redisson)
 // SuspendCache
 val sc = RedissonCaches.suspendCache<String, String>("my-cache", redisson)
 
-// NearCache
-val near = RedissonCaches.nearCache<String, String>("my-near", redisson)
+// NearJCache — JCache 기반 2-Tier (동기)
+val nearJCache = RedissonCaches.nearJCache<String, String>("my-near-jcache", redisson)
 
-// SuspendNearCache
-val suspendNear = RedissonCaches.suspendNearCache<String, String>("my-near", redisson)
+// SuspendNearJCache — JCache 기반 2-Tier (코루틴)
+val suspendNearJCache = RedissonCaches.suspendNearJCache<String, String>("my-near-jcache", redisson)
+
+// NearCache — RLocalCachedMap 기반 (동기)
+val near = RedissonCaches.nearCache<String>("my-near", redisson)
+
+// SuspendNearCache — RLocalCachedMap 기반 (코루틴)
+val suspendNear = RedissonCaches.suspendNearCache<String>("my-near", redisson)
 
 // RESP3 NearCache (Redisson + Lettuce tracking)
 val resp3 = RedissonCaches.resp3NearCache<String>(redisson, redisClient)

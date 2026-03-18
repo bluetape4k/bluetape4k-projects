@@ -1,10 +1,10 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
-import io.bluetape4k.cache.lettuceDefaultCodec
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.lettuce.core.KeyScanCursor
@@ -51,12 +51,12 @@ import java.util.concurrent.atomic.AtomicLong
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class LettuceNearCache<V : Any>(
+class LettuceNearCache<V: Any>(
     redisClient: RedisClient,
-    codec: RedisCodec<String, V> = lettuceDefaultCodec(),
+    codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-) : NearCacheOperations<V> {
-    companion object : KLogging() {
+): NearCacheOperations<V> {
+    companion object: KLogging() {
         private const val COMPARE_AND_SET_SCRIPT = """
             local current = redis.call('GET', KEYS[1])
             if current == false or current ~= ARGV[1] then
@@ -72,7 +72,7 @@ class LettuceNearCache<V : Any>(
         operator fun invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
-        ): LettuceNearCache<String> = LettuceNearCache(redisClient, lettuceDefaultCodec(), config)
+        ): LettuceNearCache<String> = LettuceNearCache(redisClient, LettuceBinaryCodecs.default(), config)
     }
 
     override val cacheName: String get() = config.cacheName

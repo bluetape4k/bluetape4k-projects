@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit
  * }
  * ```
  */
-object LettuceCaches : KLogging() {
+object LettuceCaches: KLogging() {
     // -------------------------------------------------------------------------
     // JCache
     // -------------------------------------------------------------------------
@@ -50,11 +50,11 @@ object LettuceCaches : KLogging() {
      * @param ttlSeconds TTL (초), null이면 만료 없음
      * @param codec 직렬화 codec (기본값: lz4Fory)
      */
-    inline fun <reified K : Any, reified V : Any> jcache(
+    inline fun <reified K: Any, reified V: Any> jcache(
         redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
     ): JCache<K, V> = LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, codec)
 
     // -------------------------------------------------------------------------
@@ -69,11 +69,11 @@ object LettuceCaches : KLogging() {
      * @param ttlSeconds TTL (초), null이면 만료 없음
      * @param codec 직렬화 codec (기본값: lz4Fory)
      */
-    inline fun <reified V : Any> suspendJCache(
+    inline fun <reified V: Any> suspendJCache(
         redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
     ): LettuceSuspendJCache<V> {
         val jcache = jcache<String, V>(redisClient, cacheName, ttlSeconds, codec)
         return LettuceSuspendJCache(jcache as LettuceJCache<String, V>)
@@ -99,9 +99,9 @@ object LettuceCaches : KLogging() {
      * @param codec 직렬화 codec (기본값: lz4Fory)
      * @param block [NearJCacheConfigBuilder] DSL 블록
      */
-    inline fun <reified K : Any, reified V : Any> nearJCache(
+    inline fun <reified K: Any, reified V: Any> nearJCache(
         redisClient: RedisClient,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
         block: NearJCacheConfigBuilder<K, V>.() -> Unit,
     ): NearJCache<K, V> {
         val config = nearJCacheConfig(block)
@@ -117,10 +117,10 @@ object LettuceCaches : KLogging() {
      * @param config [NearJCacheConfig] 설정
      * @param codec 직렬화 codec (기본값: lz4Fory)
      */
-    inline fun <reified K : Any, reified V : Any> nearJCache(
+    inline fun <reified K: Any, reified V: Any> nearJCache(
         redisClient: RedisClient,
         config: NearJCacheConfig<K, V>,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
     ): NearJCache<K, V> {
         val backCache = jcache<K, V>(redisClient, config.cacheName, codec = codec)
         log.info { "Lettuce NearJCache 생성. cacheName=${config.cacheName}" }
@@ -145,9 +145,9 @@ object LettuceCaches : KLogging() {
      * @param codec 직렬화 codec (기본값: lz4Fory)
      * @param block [NearJCacheConfigBuilder] DSL 블록
      */
-    inline fun <reified V : Any> suspendNearJCache(
+    inline fun <reified V: Any> suspendNearJCache(
         redisClient: RedisClient,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
         block: NearJCacheConfigBuilder<String, V>.() -> Unit,
     ): SuspendNearJCache<String, V> {
         val config = nearJCacheConfig(block)
@@ -162,10 +162,10 @@ object LettuceCaches : KLogging() {
      * @param config [NearJCacheConfig] 설정
      * @param codec 직렬화 codec (기본값: lz4Fory)
      */
-    inline fun <reified V : Any> suspendNearJCache(
+    inline fun <reified V: Any> suspendNearJCache(
         redisClient: RedisClient,
         config: NearJCacheConfig<String, V>,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
     ): SuspendNearJCache<String, V> {
         val backJCache = jcache<String, V>(redisClient, config.cacheName, codec = codec)
         val backCache = LettuceSuspendJCache(backJCache as LettuceJCache<String, V>)
@@ -189,7 +189,7 @@ object LettuceCaches : KLogging() {
      * @param redisClient Lettuce RedisClient
      * @param config NearCache 설정
      */
-    fun <V : Any> nearCache(
+    fun <V: Any> nearCache(
         redisClient: RedisClient,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
     ): NearCacheOperations<V> = LettuceNearCache(redisClient, config = config)
@@ -201,7 +201,7 @@ object LettuceCaches : KLogging() {
      * @param codec Redis 코덱
      * @param config NearCache 설정
      */
-    fun <V : Any> nearCache(
+    fun <V: Any> nearCache(
         redisClient: RedisClient,
         codec: RedisCodec<String, V>,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
@@ -213,7 +213,7 @@ object LettuceCaches : KLogging() {
      * @param redisClient Lettuce RedisClient
      * @param block NearCache 설정 DSL 블록
      */
-    fun <V : Any> nearCache(
+    fun <V: Any> nearCache(
         redisClient: RedisClient,
         block: LettuceNearCacheConfigBuilder<String, V>.() -> Unit,
     ): NearCacheOperations<V> {
@@ -231,10 +231,11 @@ object LettuceCaches : KLogging() {
      * @param redisClient Lettuce RedisClient
      * @param config NearCache 설정
      */
-    fun <V : Any> suspendNearCache(
+    fun <V: Any> suspendNearCache(
         redisClient: RedisClient,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): SuspendNearCacheOperations<V> = LettuceSuspendNearCache(redisClient, config = config)
+    ): SuspendNearCacheOperations<V> =
+        LettuceSuspendNearCache(redisClient, config = config)
 
     /**
      * [LettuceNearCacheConfig]를 이용해 [LettuceSuspendNearCache]`<V>`를 생성합니다.
@@ -243,11 +244,12 @@ object LettuceCaches : KLogging() {
      * @param codec Redis 코덱
      * @param config NearCache 설정
      */
-    fun <V : Any> suspendNearCache(
+    fun <V: Any> suspendNearCache(
         redisClient: RedisClient,
         codec: RedisCodec<String, V>,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): SuspendNearCacheOperations<V> = LettuceSuspendNearCache(redisClient, codec, config)
+    ): SuspendNearCacheOperations<V> =
+        LettuceSuspendNearCache(redisClient, codec, config)
 
     /**
      * DSL 빌더를 이용해 [LettuceSuspendNearCache]`<V>`를 생성합니다.
@@ -255,11 +257,15 @@ object LettuceCaches : KLogging() {
      * @param redisClient Lettuce RedisClient
      * @param block NearCache 설정 DSL 블록
      */
-    fun <V : Any> suspendNearCache(
+    fun <V: Any> suspendNearCache(
         redisClient: RedisClient,
         block: LettuceNearCacheConfigBuilder<String, V>.() -> Unit,
     ): SuspendNearCacheOperations<V> {
         val config = lettuceNearCacheConfig(block)
-        return LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
+        return LettuceSuspendNearCache(
+            redisClient,
+            LettuceBinaryCodecs.default<V>(),
+            config
+        )
     }
 }

@@ -27,7 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @OutputCapture
 @Execution(ExecutionMode.SAME_THREAD)
-abstract class AbstractNearCacheTest {
+abstract class AbstractNearJCacheTest {
 
     companion object: KLogging() {
         protected const val TEST_SIZE = 3

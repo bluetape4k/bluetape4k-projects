@@ -18,14 +18,14 @@ import org.junit.jupiter.api.Test
  * 각 팩토리 메서드가 올바른 타입의 인스턴스를 반환하는지 검증합니다.
  */
 class RedissonCachesTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val redisson get() = RedisServers.redisson
     }
 
     @Test
     fun `jcache 팩토리는 JCache 인스턴스를 반환한다`() {
         val name = RedisServers.randomName()
-        val cache = RedissonCaches.jcache<String, String>(name, redisson)
+        val cache = RedissonCaches.jcache<String, String>(redisson, name)
         try {
             cache shouldBeInstanceOf JCache::class
         } finally {
@@ -36,7 +36,7 @@ class RedissonCachesTest {
     @Test
     fun `suspendCache 팩토리는 RedissonSuspendCache 인스턴스를 반환한다`() {
         val name = RedisServers.randomName()
-        val cache = RedissonCaches.suspendCache<String, String>(name, redisson)
+        val cache = RedissonCaches.suspendJCache<String, String>(redisson, name)
         try {
             cache shouldBeInstanceOf RedissonSuspendJCache::class
         } finally {

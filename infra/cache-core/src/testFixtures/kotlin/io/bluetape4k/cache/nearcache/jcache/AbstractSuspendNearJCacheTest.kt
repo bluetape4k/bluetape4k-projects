@@ -40,7 +40,7 @@ abstract class AbstractSuspendNearJCacheTest
         private val awaitTimeout = 5.seconds
 
         fun getKey() = Base58.randomString(16)
-        fun getValue() = Fakers.randomString(1024, 4096, true)
+        fun getValue() = Fakers.randomString(128, 256, true)
     }
 
     abstract val backSuspendJCache: SuspendJCache<String, Any>

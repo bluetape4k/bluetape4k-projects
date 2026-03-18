@@ -50,8 +50,8 @@ object RedissonCaches: KLogging() {
      * @return [JCache] 인스턴스
      */
     inline fun <reified K: Any, reified V: Any> jcache(
-        cacheName: String,
         redisson: RedissonClient,
+        cacheName: String,
         configuration: Configuration<K, V> =
             MutableConfiguration<K, V>().apply {
                 setTypes(K::class.java, V::class.java)
@@ -91,9 +91,9 @@ object RedissonCaches: KLogging() {
      * @param configuration JCache 설정
      * @return [RedissonSuspendJCache] 인스턴스
      */
-    fun <K: Any, V: Any> suspendCache(
-        cacheName: String,
+    fun <K: Any, V: Any> suspendJCache(
         redisson: RedissonClient,
+        cacheName: String,
         configuration: Configuration<K, V> = MutableConfiguration(),
     ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redisson, configuration)
 
@@ -106,7 +106,7 @@ object RedissonCaches: KLogging() {
      * @param redissonConfig Redisson 설정
      * @return [RedissonSuspendJCache] 인스턴스
      */
-    inline fun <reified K: Any, reified V: Any> suspendCache(
+    inline fun <reified K: Any, reified V: Any> suspendJCache(
         cacheName: String,
         redissonConfig: Config,
     ): RedissonSuspendJCache<K, V> = RedissonSuspendJCache(cacheName, redissonConfig)

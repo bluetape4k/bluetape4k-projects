@@ -10,10 +10,10 @@ import io.bluetape4k.io.serializer.BinarySerializers
  */
 object LettuceBinaryCodecs {
 
-    val Default: LettuceBinaryCodec<Any> by lazy { lz4Fory() }
-
     fun <V: Any> codec(serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
+
+    fun <V: Any> default(): LettuceBinaryCodec<V> = lz4Fory()
 
     /**
      * Jdk Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
