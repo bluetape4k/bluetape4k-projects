@@ -1,4 +1,4 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.cache.jcache.SuspendCacheEntry
