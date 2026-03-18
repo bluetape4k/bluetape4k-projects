@@ -256,10 +256,10 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
 - **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 cache-local 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체
-- **cache-hazelcast**: Hazelcast 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-hazelcast-near 병합)
-- **cache-redisson**: Redisson 분산 캐시 + NearCache (Caffeine 2-Tier, 구 cache-redisson-near 병합)
-- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig` (구 `NearCacheConfig`), `lettuceNearCacheConfig {}` DSL, Hazelcast NearCache 테스트는 embedded 모드 시도 중
+- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 — `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>` 공통 인터페이스, `ResilientNearCacheDecorator` (retry + failure strategy), `JCacheNearCache<V>`, `NearCacheStatistics`, Memorizer 구현체
+- **cache-hazelcast**: Hazelcast 분산 캐시 + `HazelcastNearCache<V>: NearCacheOperations<V>`, `HazelcastSuspendNearCache<V>: SuspendNearCacheOperations<V>`
+- **cache-redisson**: Redisson 분산 캐시 + `RedissonNearCache<V>: NearCacheOperations<V>` (RLocalCachedMap 기반), `RedissonSuspendNearCache<V>: SuspendNearCacheOperations<V>`
+- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 + `LettuceNearCache<V>: NearCacheOperations<V>` (RESP3 CLIENT TRACKING), `LettuceSuspendNearCache<V>: SuspendNearCacheOperations<V>`
 
 #### Spring Modules (`spring/`)
 
@@ -413,6 +413,26 @@ systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
 - Redisson/Lettuce 캐시 Repository도 동일: `<ID: Any, E: Any>` + `extractId(entity): ID`
 - `SoftDeletedJdbcRepository`/`SoftDeletedR2dbcRepository`만 `table.isDeleted` 접근을 위해 T 유지
 - MapWriter의 writeThrough/writeBehind에서는 `Map<ID, E>`의 entry key로 ID 접근 (HasIdentifier 의존 없음)
+
+### NearCache Unified Interface Pattern
+
+모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)는 공통 인터페이스로 통일:
+
+- `NearCacheOperations<V: Any>: AutoCloseable` — blocking 인터페이스 (키는 String 고정)
+- `SuspendNearCacheOperations<V: Any>` — suspend 인터페이스 (`suspend fun close()`)
+- `NearCacheStatistics` — 로컬/백엔드 hit/miss 통계
+- `ResilientNearCacheDecorator` — retry + failure strategy Decorator (`.withResilience {}`)
+- 팩토리 함수: `lettuceNearCacheOf()`, `hazelcastNearCacheOf()`, `redissonNearCacheOf()`, `jcacheNearCacheOf()`
+
+```kotlin
+// 기본 사용
+val cache = lettuceNearCacheOf<MyValue>(redisClient, codec, config)
+cache.put("key", value)
+
+// Resilience 래핑
+val resilient = lettuceNearCacheOf<MyValue>(redisClient, codec, config)
+    .withResilience { retryMaxAttempts = 5 }
+```
 
 ### Extension Functions
 

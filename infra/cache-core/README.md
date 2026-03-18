@@ -8,7 +8,10 @@
 
 - **JCache 공통 유틸리티**: `JCaching`, `jcacheManager`, `jcacheConfiguration` 등
 - **Coroutines 캐시 추상화**: `SuspendCache`, `SuspendCacheEntry`
-- **Near Cache 공통 구현**: `NearCache`, `NearSuspendCache`, `NearCacheConfig`
+- **NearCache 통일 인터페이스**: `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>`, `NearCacheStatistics`
+- **Resilient Decorator**: `ResilientNearCacheDecorator`, `ResilientSuspendNearCacheDecorator` (retry + failure strategy)
+- **JCache NearCache**: `JCacheNearCache<V>` — JCache 호환 백엔드용 NearCacheOperations 구현
+- **Legacy Near Cache**: `NearCache<K,V>`, `SuspendNearCache<K,V>` (기존 호환)
 - **Memorizer 추상화**: `Memorizer`, `AsyncMemorizer`, `SuspendMemorizer` (구 인터페이스)
 - **Memoizer 추상화**: `Memoizer`, `AsyncMemoizer`, `SuspendMemoizer` (신 인터페이스)
 - **로컬 캐시 Provider** (구 `cache-local` 통합):
@@ -28,39 +31,109 @@ dependencies {
 
 ## 제공 기능 (상세)
 
-### Resilient NearCache (write-behind + retry + graceful degradation)
+### NearCache 통일 인터페이스
 
-`ResilientNearCache` / `ResilientSuspendNearCache` 는 JCache(sync) 또는 SuspendCache(coroutine) 기반 back cache에 대해
-**write-behind + Resilience4j retry + GetFailureStrategy** 패턴을 제공하는 2-Tier Near Cache입니다.
+모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)가 공통 인터페이스를 구현합니다.
 
-| 클래스 | 설명 |
-|---|---|
-| `BackCacheCommand<K,V>` | Put / PutAll / Remove / RemoveAll / ClearBack 커맨드 sealed interface |
-| `GetFailureStrategy` | back cache GET 실패 시 동작 전략 enum (RETURN_FRONT_OR_NULL / PROPAGATE_EXCEPTION) |
-| `ResilientNearCacheConfig<K,V>` | write-behind 큐 용량, retry 설정, GetFailureStrategy 포함 config |
-| `ResilientNearCache<K,V>` | 동기(Blocking) Resilient NearCache. LinkedBlockingQueue + virtualThread consumer |
-| `ResilientSuspendNearCache<K,V>` | 코루틴 Resilient NearCache. Channel + scope.launch consumer |
+```mermaid
+classDiagram
+    class NearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String): V?
+        +getAll(keys: Set~String~): Map~String, V~
+        +put(key: String, value: V)
+        +putIfAbsent(key: String, value: V): V?
+        +replace(key: String, value: V): Boolean
+        +remove(key: String)
+        +getAndRemove(key: String): V?
+        +clearLocal()
+        +clearAll()
+        +stats(): NearCacheStatistics
+    }
 
-**아키텍처**:
+    class SuspendNearCacheOperations~V~ {
+        <<interface>>
+        +suspend get(key: String): V?
+        +suspend put(key: String, value: V)
+        +suspend close()
+    }
+
+    class NearCacheStatistics {
+        <<interface>>
+        +localHits: Long
+        +localMisses: Long
+        +backHits: Long
+        +backMisses: Long
+        +hitRate: Double
+    }
+
+    class ResilientNearCacheDecorator~V~ {
+        -delegate: NearCacheOperations~V~
+        -retry: Retry
+        -config: NearCacheResilienceConfig
+    }
+
+    class JCacheNearCache~V~ {
+        -frontCache: JCache~String, V~
+        -backCache: JCache~String, V~
+    }
+
+    class LettuceNearCache~V~ {
+        -redisClient: RedisClient
+        -RESP3 CLIENT TRACKING
+    }
+
+    class HazelcastNearCache~V~ {
+        -imap: IMap~String, V~
+        -EntryListener invalidation
+    }
+
+    class RedissonNearCache~V~ {
+        -localCachedMap: RLocalCachedMap
+        -Redisson 내장 invalidation
+    }
+
+    NearCacheOperations <|.. JCacheNearCache
+    NearCacheOperations <|.. LettuceNearCache
+    NearCacheOperations <|.. HazelcastNearCache
+    NearCacheOperations <|.. RedissonNearCache
+    NearCacheOperations <|.. ResilientNearCacheDecorator
+    NearCacheOperations --o ResilientNearCacheDecorator : delegate
+    NearCacheOperations ..> NearCacheStatistics : stats()
 ```
-Application
-    |
-[ResilientNearCache / ResilientSuspendNearCache]
-    |
-+---+----------+
-|              |
-Front          Write Queue (LinkedBlockingQueue / Channel)
-Caffeine           |
-(즉시 반영)    Consumer (virtualThread / coroutine)
-               (retry { backCache.put/remove })
+
+| 클래스 | 모듈 | 설명 |
+|---|---|---|
+| `NearCacheOperations<V>` | cache-core | 공통 blocking 인터페이스 (AutoCloseable) |
+| `SuspendNearCacheOperations<V>` | cache-core | 공통 suspend 인터페이스 |
+| `NearCacheStatistics` | cache-core | 로컬/백엔드 hit/miss 통계 |
+| `NearCacheResilienceConfig` | cache-core | retry + failure strategy 설정 |
+| `ResilientNearCacheDecorator<V>` | cache-core | Decorator: Resilience4j retry + GetFailureStrategy |
+| `ResilientSuspendNearCacheDecorator<V>` | cache-core | Decorator suspend 버전 |
+| `JCacheNearCache<V>` | cache-core | JCache 호환 백엔드용 구현 |
+| `LettuceNearCache<V>` | cache-lettuce | RESP3 CLIENT TRACKING 기반 |
+| `LettuceSuspendNearCache<V>` | cache-lettuce | Lettuce coroutines 버전 |
+| `HazelcastNearCache<V>` | cache-hazelcast | IMap + EntryListener invalidation |
+| `HazelcastSuspendNearCache<V>` | cache-hazelcast | IMap async + await |
+| `RedissonNearCache<V>` | cache-redisson | RLocalCachedMap (내장 invalidation) |
+| `RedissonSuspendNearCache<V>` | cache-redisson | RLocalCachedMap async + await |
+
+**Resilience Decorator 사용:**
+```kotlin
+// 어떤 백엔드든 .withResilience {} 로 래핑 가능
+val cache = lettuceNearCacheOf<String>(redisClient, codec, config)
+    .withResilience {
+        retryMaxAttempts = 5
+        retryWaitDuration = Duration.ofSeconds(1)
+        getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
+    }
 ```
 
-**주요 특성**:
-- **write-behind**: put/remove는 front cache에 즉시 반영, back cache 쓰기는 비동기 큐/채널로 처리
-- **tombstones**: remove 후 write-behind 완료 전 stale read 방지용 tombstone 집합
-- **clearPending**: clearAll 호출 후 ClearBack이 처리될 때까지 back cache read 차단
-- **retry**: Resilience4j Retry로 back cache 쓰기 실패 시 재시도 (지수 백오프 옵션)
-- **GetFailureStrategy**: back cache GET 실패 시 null 반환(RETURN_FRONT_OR_NULL) 또는 예외 전파(PROPAGATE_EXCEPTION)
+**GetFailureStrategy:**
+- `RETURN_FRONT_OR_NULL`: back cache GET 실패 시 null 반환 (graceful degradation)
+- `PROPAGATE_EXCEPTION`: 예외를 호출자에게 전파
 
 ---
 
@@ -99,57 +172,41 @@ val config = jcacheConfiguration<String, String> {
 }
 ```
 
-### 4. NearCache 공통 구성
+### 4. NearCacheOperations (통일 인터페이스)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.NearCacheConfig
-
-val nearConfig = NearCacheConfig<String, Any>(
-    isSynchronous = false,
-    checkExpiryPeriod = 30_000L,
-)
-```
-
-### 5. ResilientNearCache (write-behind + retry)
-
-```kotlin
-import io.bluetape4k.cache.nearcache.ResilientNearCache
-import io.bluetape4k.cache.nearcache.ResilientNearCacheConfig
+import io.bluetape4k.cache.nearcache.jcacheNearCacheOf
 import io.bluetape4k.cache.jcache.JCaching
-import java.time.Duration
 
+// JCache 백엔드로 NearCache 생성
 val backCache = JCaching.Caffeine.getOrCreate<String, String>("back-cache")
+val cache = jcacheNearCacheOf<String>(backCache)
 
-val cache = ResilientNearCache(
-    backCache = backCache,
-    config = ResilientNearCacheConfig(
-        retryMaxAttempts = 3,
-        retryWaitDuration = Duration.ofMillis(200),
-        retryExponentialBackoff = true,
-        writeQueueCapacity = 1024,
-    ),
-)
-
-cache.put("key", "value")          // front 즉시 반영, back는 write-behind
-cache.get("key")                   // front hit → 즉시 반환
-cache.remove("key")                // front 즉시 삭제, back는 write-behind
-cache.clearAll()                   // front 즉시 초기화, back는 write-behind
+cache.put("key", "value")
+cache.get("key")             // front hit → 즉시 반환
+cache.clearLocal()           // front만 비우기
+cache.clearAll()             // front + back 모두 비우기
+cache.stats()                // NearCacheStatistics 조회
 cache.close()
 ```
 
-### 6. ResilientSuspendNearCache (코루틴)
+### 5. Resilient Decorator (.withResilience)
 
 ```kotlin
-import io.bluetape4k.cache.nearcache.ResilientSuspendNearCache
-import io.bluetape4k.cache.jcache.CaffeineSuspendCache
+import io.bluetape4k.cache.nearcache.jcacheNearCacheOf
+import io.bluetape4k.cache.nearcache.withResilience
+import io.bluetape4k.cache.nearcache.GetFailureStrategy
 
-val backCache = CaffeineSuspendCache<String, String> { maximumSize(10_000) }
+val cache = jcacheNearCacheOf<String>(backCache)
+    .withResilience {
+        retryMaxAttempts = 3
+        retryWaitDuration = Duration.ofMillis(200)
+        retryExponentialBackoff = true
+        getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
+    }
 
-val cache = ResilientSuspendNearCache(backCache = backCache)
-
-// suspend 함수로 사용
-cache.put("key", "value")
-val value = cache.get("key")
+cache.put("key", "value")   // retry 적용된 write-through
+cache.get("key")             // retry + failure strategy 적용
 cache.close()
 ```
 
@@ -183,8 +240,10 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 | 클래스 | 패키지 | 설명 |
 |--------|--------|------|
 | `AbstractSuspendCacheTest` | `jcache` | `SuspendCache` 기본 CRUD + 동시성 검증 |
-| `AbstractNearCacheTest` | `nearcache` | `NearCache` write-through/event 전파 검증 |
-| `AbstractSuspendNearCacheTest` | `nearcache` | `SuspendNearCache` coroutines 검증 |
+| `AbstractNearCacheOperationsTest<V>` | `nearcache` | `NearCacheOperations` 공통 14개 시나리오 (blocking) |
+| `AbstractSuspendNearCacheOperationsTest<V>` | `nearcache` | `SuspendNearCacheOperations` 공통 14개 시나리오 (suspend) |
+| `AbstractNearCacheTest` | `nearcache` | `NearCache` (legacy) write-through/event 전파 검증 |
+| `AbstractSuspendNearCacheTest` | `nearcache` | `SuspendNearCache` (legacy) coroutines 검증 |
 | `AbstractMemorizerTest` | `memorizer` | `Memorizer` 단일 계산 보장 |
 | `AbstractAsyncMemorizerTest` | `memorizer` | `AsyncMemorizer` CompletableFuture 검증 |
 | `AbstractSuspendMemorizerTest` | `memorizer` | `SuspendMemorizer` suspend 검증 |
@@ -210,11 +269,18 @@ dependencies {
 ```
 
 ```kotlin
-// 새 Provider NearCache 테스트 예시
-class MyProviderNearCacheTest : AbstractNearCacheTest() {
+// 새 Provider NearCache 테스트 예시 (통일 인터페이스)
+class MyProviderNearCacheTest : AbstractNearCacheOperationsTest<String>() {
+    override fun createCache(): NearCacheOperations<String> = myProviderNearCacheOf(...)
+    override fun sampleValue(): String = "hello"
+    override fun anotherValue(): String = "world"
+}
 
-    override val backCache: JCache<String, Any> by lazy {
-        MyProviderJCaching.getOrCreate("my-back-cache-" + UUID.randomUUID().encodeBase62())
-    }
+// Resilient Decorator 테스트도 동일 패턴
+class ResilientMyProviderTest : AbstractNearCacheOperationsTest<String>() {
+    override fun createCache() = myProviderNearCacheOf(...)
+        .withResilience { retryMaxAttempts = 3 }
+    override fun sampleValue(): String = "hello"
+    override fun anotherValue(): String = "world"
 }
 ```
