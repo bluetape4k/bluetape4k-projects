@@ -6,6 +6,8 @@ import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.cache.nearcache.NearCacheOperations
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.lettuceNearCacheConfig
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
@@ -59,7 +61,7 @@ object LettuceCaches : KLogging() {
     fun <V : Any> nearCache(
         redisClient: RedisClient,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): LettuceNearCache<V> = LettuceNearCache(redisClient, config = config)
+    ): NearCacheOperations<V> = LettuceNearCache(redisClient, config = config)
 
     /**
      * [LettuceNearCacheConfig]를 이용해 [LettuceNearCache]`<V>`를 생성합니다.
@@ -72,7 +74,7 @@ object LettuceCaches : KLogging() {
         redisClient: RedisClient,
         codec: RedisCodec<String, V>,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): LettuceNearCache<V> = LettuceNearCache(redisClient, codec, config)
+    ): NearCacheOperations<V> = LettuceNearCache(redisClient, codec, config)
 
     /**
      * DSL 빌더를 이용해 [LettuceNearCache]`<V>`를 생성합니다.
@@ -83,7 +85,7 @@ object LettuceCaches : KLogging() {
     fun <V : Any> nearCache(
         redisClient: RedisClient,
         block: LettuceNearCacheConfigBuilder<String, V>.() -> Unit,
-    ): LettuceNearCache<V> {
+    ): NearCacheOperations<V> {
         val config = lettuceNearCacheConfig(block)
         return LettuceNearCache(redisClient, config = config)
     }
@@ -101,7 +103,7 @@ object LettuceCaches : KLogging() {
     fun <V : Any> suspendNearCache(
         redisClient: RedisClient,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): LettuceSuspendNearCache<V> = LettuceSuspendNearCache(redisClient, config = config)
+    ): SuspendNearCacheOperations<V> = LettuceSuspendNearCache(redisClient, config = config)
 
     /**
      * [LettuceNearCacheConfig]를 이용해 [LettuceSuspendNearCache]`<V>`를 생성합니다.
@@ -114,7 +116,7 @@ object LettuceCaches : KLogging() {
         redisClient: RedisClient,
         codec: RedisCodec<String, V>,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): LettuceSuspendNearCache<V> = LettuceSuspendNearCache(redisClient, codec, config)
+    ): SuspendNearCacheOperations<V> = LettuceSuspendNearCache(redisClient, codec, config)
 
     /**
      * DSL 빌더를 이용해 [LettuceSuspendNearCache]`<V>`를 생성합니다.
@@ -125,7 +127,7 @@ object LettuceCaches : KLogging() {
     fun <V : Any> suspendNearCache(
         redisClient: RedisClient,
         block: LettuceNearCacheConfigBuilder<String, V>.() -> Unit,
-    ): LettuceSuspendNearCache<V> {
+    ): SuspendNearCacheOperations<V> {
         val config = lettuceNearCacheConfig(block)
         return LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.lz4Fory(), config)
     }
