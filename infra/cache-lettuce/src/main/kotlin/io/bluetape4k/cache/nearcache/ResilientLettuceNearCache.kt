@@ -60,7 +60,7 @@ class ResilientLettuceNearCache<V: Any>(
         ResilientLettuceNearCacheConfig(
             LettuceNearCacheConfig()
         ),
-): AutoCloseable {
+): LettuceNearCacheOperations<V> {
     companion object: KLogging() {
         private const val COMPARE_AND_SET_SCRIPT = """
             local current = redis.call('GET', KEYS[1])
@@ -80,14 +80,13 @@ class ResilientLettuceNearCache<V: Any>(
                 ResilientLettuceNearCacheConfig(
                     LettuceNearCacheConfig()
                 ),
-        ): ResilientLettuceNearCache<String> =
-            ResilientLettuceNearCache(redisClient, lettuceDefaultCodec(), config)
+        ): ResilientLettuceNearCache<String> = ResilientLettuceNearCache(redisClient, lettuceDefaultCodec(), config)
     }
 
-    val cacheName: String get() = config.cacheName
+    override val cacheName: String get() = config.cacheName
 
     private val closed = atomic(false)
-    val isClosed by closed
+    override val isClosed by closed
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
@@ -162,15 +161,15 @@ class ResilientLettuceNearCache<V: Any>(
 
     private fun applyCommand(cmd: BackCacheCommand<String, V>) {
         when (cmd) {
-            is BackCacheCommand.Put       -> {
+            is BackCacheCommand.Put    -> {
                 setRedis(cmd.key, cmd.value)
                 registerTrackingKey(cmd.key)
             }
-            is BackCacheCommand.PutAll    -> {
+            is BackCacheCommand.PutAll -> {
                 setRedisBulk(cmd.entries)
                 registerTrackingKeys(cmd.entries.keys)
             }
-            is BackCacheCommand.Remove    -> {
+            is BackCacheCommand.Remove -> {
                 commands.del(config.redisKey(cmd.key))
                 tombstones.remove(cmd.key)
             }
@@ -193,7 +192,7 @@ class ResilientLettuceNearCache<V: Any>(
      * - front miss → Redis GET → front populate → return
      * - Redis 실패 시 [GetFailureStrategy]에 따라 처리
      */
-    fun get(key: String): V? {
+    override fun get(key: String): V? {
         key.requireNotBlank("key")
 
         if (tombstones.contains(key) || clearPending.value) return null
@@ -206,7 +205,7 @@ class ResilientLettuceNearCache<V: Any>(
                     .getOrNull()
                     ?.also { value -> frontCache.put(key, value) }
             }
-            GetFailureStrategy.PROPAGATE_EXCEPTION  -> {
+            GetFailureStrategy.PROPAGATE_EXCEPTION -> {
                 commands.get(config.redisKey(key))?.also { value ->
                     frontCache.put(key, value)
                 }
@@ -217,7 +216,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 여러 키에 대한 값을 한 번에 조회한다 (multi-get pipeline).
      */
-    fun getAll(keys: Set<String>): Map<String, V> {
+    override fun getAll(keys: Set<String>): Map<String, V> {
         if (clearPending.value) return emptyMap()
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = (keys - result.keys).filter { !tombstones.contains(it) }
@@ -247,7 +246,7 @@ class ResilientLettuceNearCache<V: Any>(
      * - front cache 즉시 반영
      * - Redis write는 queue로 큐잉 (write-behind)
      */
-    fun put(
+    override fun put(
         key: String,
         value: V,
     ) {
@@ -262,11 +261,12 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 여러 키-값 쌍을 저장한다.
      */
-    fun putAll(entries: Map<String, V>) {
-        tombstones.removeAll(entries.keys)
-        entries.forEach { (k, v) -> frontCache.put(k, v) }
-        if (!queue.offer(BackCacheCommand.PutAll(entries))) {
-            log.warn { "Write queue full, dropping PutAll for ${entries.size} entries" }
+    override fun putAll(map: Map<out String, V>) {
+        val normalized: Map<String, V> = map.entries.associate { (k, v) -> k to v }
+        tombstones.removeAll(normalized.keys)
+        normalized.forEach { (k, v) -> frontCache.put(k, v) }
+        if (!queue.offer(BackCacheCommand.PutAll(normalized))) {
+            log.warn { "Write queue full, dropping PutAll for ${map.size} entries" }
         }
     }
 
@@ -274,7 +274,7 @@ class ResilientLettuceNearCache<V: Any>(
      * 키-값이 없을 때만 저장한다. Redis setnx를 사용하여 원자적으로 처리한다.
      * @return 이미 존재하는 값이 있으면 기존 값, 새로 저장하면 null
      */
-    fun putIfAbsent(
+    override fun putIfAbsent(
         key: String,
         value: V,
     ): V? {
@@ -296,7 +296,10 @@ class ResilientLettuceNearCache<V: Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    fun replace(key: String, value: V): Boolean {
+    override fun replace(
+        key: String,
+        value: V,
+    ): Boolean {
         key.requireNotBlank("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
@@ -314,14 +317,19 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    fun replace(key: String, oldValue: V, newValue: V): Boolean {
-        val replaced = commands.eval<Long>(
-            COMPARE_AND_SET_SCRIPT,
-            ScriptOutputType.INTEGER,
-            arrayOf(config.redisKey(key)),
-            oldValue,
-            newValue,
-        ) == 1L
+    override fun replace(
+        key: String,
+        oldValue: V,
+        newValue: V,
+    ): Boolean {
+        val replaced =
+            commands.eval<Long>(
+                COMPARE_AND_SET_SCRIPT,
+                ScriptOutputType.INTEGER,
+                arrayOf(config.redisKey(key)),
+                oldValue,
+                newValue
+            ) == 1L
         if (replaced) {
             frontCache.put(key, newValue)
             registerTrackingKey(key)
@@ -332,7 +340,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 조회 후 제거한다.
      */
-    fun getAndRemove(key: String): V? {
+    override fun getAndRemove(key: String): V? {
         val value = get(key)
         if (value != null) remove(key)
         return value
@@ -341,7 +349,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    fun getAndReplace(
+    override fun getAndReplace(
         key: String,
         value: V,
     ): V? {
@@ -353,7 +361,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 해당 키가 캐시에 존재하는지 확인한다 (front or Redis).
      */
-    fun containsKey(key: String): Boolean {
+    override fun containsKey(key: String): Boolean {
         if (tombstones.contains(key) || clearPending.value) return false
         if (frontCache.containsKey(key)) return true
         return commands.exists(config.redisKey(key)) > 0L
@@ -364,7 +372,7 @@ class ResilientLettuceNearCache<V: Any>(
      * - front cache 즉시 반영
      * - Redis delete는 queue로 큐잉 (write-behind)
      */
-    fun remove(key: String) {
+    override fun remove(key: String) {
         key.requireNotBlank("key")
         frontCache.remove(key)
         tombstones.add(key)
@@ -377,7 +385,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
      */
-    fun removeAll(keys: Set<String>) {
+    override fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
         tombstones.addAll(keys)
         if (!queue.offer(BackCacheCommand.RemoveAll(keys))) {
@@ -389,7 +397,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 로컬 캐시만 비운다 (Redis 유지).
      */
-    fun clearLocal() {
+    override fun clearLocal() {
         frontCache.clear()
         log.debug { "Front cache cleared for cacheName=${config.cacheName}" }
     }
@@ -398,7 +406,7 @@ class ResilientLettuceNearCache<V: Any>(
      * 로컬 캐시와 Redis를 모두 비운다.
      * SCAN으로 이 cacheName의 key만 삭제한다 (다른 cacheName 데이터 보존).
      */
-    fun clearAll() {
+    override fun clearAll() {
         clearLocal()
         clearPending.value = true
         if (!queue.offer(BackCacheCommand.ClearBack())) {
@@ -410,12 +418,12 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 로컬 캐시의 추정 크기.
      */
-    fun localCacheSize(): Long = frontCache.estimatedSize()
+    override fun localCacheSize(): Long = frontCache.estimatedSize()
 
     /**
      * Redis에서 이 cacheName에 속한 key의 개수를 반환한다.
      */
-    fun backCacheSize(): Long {
+    override fun backCacheSize(): Long {
         val pattern = "${config.cacheName}:*"
         var count = 0L
         var cursor: ScanCursor = ScanCursor.INITIAL
@@ -431,7 +439,7 @@ class ResilientLettuceNearCache<V: Any>(
     /**
      * 로컬 캐시(Caffeine) 통계. [LettuceNearCacheConfig.recordStats]가 true일 때만 유효한 값을 반환한다.
      */
-    fun localStats(): CacheStats? = frontCache.stats()
+    override fun localStats(): CacheStats? = frontCache.stats()
 
     /**
      * 모든 리소스를 정리하고 연결을 닫는다.
@@ -461,7 +469,10 @@ class ResilientLettuceNearCache<V: Any>(
         log.debug { "Redis back cache cleared for cacheName=${config.cacheName}" }
     }
 
-    private fun setRedis(key: String, value: V): String? {
+    private fun setRedis(
+        key: String,
+        value: V,
+    ): String? {
         val rKey = config.redisKey(key)
 
         return if (setArgsPx != null) {
@@ -469,10 +480,12 @@ class ResilientLettuceNearCache<V: Any>(
         } else {
             commands.set(rKey, value)
         }
-
     }
 
-    private fun setNxRedis(key: String, value: V): String? {
+    private fun setNxRedis(
+        key: String,
+        value: V,
+    ): String? {
         val rKey = config.redisKey(key)
         return if (setArgsNxPx != null) {
             commands.set(rKey, value, setArgsNxPx)
