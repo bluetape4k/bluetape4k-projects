@@ -2,11 +2,11 @@ package io.bluetape4k.cache
 
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonSuspendCache
-import io.bluetape4k.cache.nearcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCache
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.RedissonNearCache
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
-import io.bluetape4k.cache.nearcache.SuspendNearCache
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking

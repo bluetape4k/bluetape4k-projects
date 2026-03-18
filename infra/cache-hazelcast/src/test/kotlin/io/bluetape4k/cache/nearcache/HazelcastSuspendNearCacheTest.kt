@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -26,7 +27,7 @@ class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
 
     @BeforeEach
     fun createCache() {
-        if (::cache.isInitialized) cache.close()
+        if (::cache.isInitialized) runSuspendIO { cache.close() }
         cache = HazelcastSuspendNearCache(
             hazelcastInstance = hazelcastClient,
             config = HazelcastNearCacheConfig(cacheName = "test-suspend-cache-" + Base58.randomString(6)),
@@ -37,7 +38,7 @@ class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
     fun tearDown() = runTest {
         if (::cache.isInitialized) {
             runCatching { cache.clearAll() }
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -147,7 +148,7 @@ class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
         cache.clearLocal()
-        cache.localSize() shouldBeEqualTo 0L
+        cache.localCacheSize() shouldBeEqualTo 0L
         cache.containsKey("k1").shouldBeTrue()
     }
 
@@ -156,7 +157,7 @@ class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
         cache.clearAll()
-        cache.localSize() shouldBeEqualTo 0L
+        cache.localCacheSize() shouldBeEqualTo 0L
         cache.get("k1").shouldBeNull()
         cache.get("k2").shouldBeNull()
     }
@@ -172,7 +173,7 @@ class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
     }
 
     @Test
-    fun `close - 중복 close 시 예외 없음`() {
+    fun `close - 중복 close 시 예외 없음`() = runSuspendIO {
         val c = HazelcastSuspendNearCache<String>(
             hazelcastInstance = hazelcastClient,
             config = HazelcastNearCacheConfig(cacheName = "test-suspend-close-" + Base58.randomString(6)),

@@ -3,16 +3,20 @@ package io.bluetape4k.cache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientLettuceNearCache
-import io.bluetape4k.cache.nearcache.ResilientLettuceSuspendNearCache
+import io.bluetape4k.cache.nearcache.NearCacheOperations
+import io.bluetape4k.cache.nearcache.ResilientNearCacheDecorator
+import io.bluetape4k.cache.nearcache.ResilientSuspendNearCacheDecorator
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
+import io.bluetape4k.cache.nearcache.withResilience
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 
 class LettuceCachesTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val redisClient by lazy { RedisServers.redisClient }
     }
 
@@ -28,7 +32,7 @@ class LettuceCachesTest {
     }
 
     @Test
-    fun `nearCache - LettuceNearCache 인스턴스를 반환한다`() {
+    fun `nearCache - NearCacheOperations 인스턴스를 반환한다`() {
         val cache = LettuceCaches.nearCache<String>(redisClient)
         try {
             cache.shouldBeInstanceOf<LettuceNearCache<*>>()
@@ -38,32 +42,34 @@ class LettuceCachesTest {
     }
 
     @Test
-    fun `suspendNearCache - LettuceSuspendNearCache 인스턴스를 반환한다`() {
+    fun `suspendNearCache - SuspendNearCacheOperations 인스턴스를 반환한다`() {
         val cache = LettuceCaches.suspendNearCache<String>(redisClient)
         try {
             cache.shouldBeInstanceOf<LettuceSuspendNearCache<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runBlocking { cache.close() } }
         }
     }
 
     @Test
-    fun `resilientNearCache - ResilientLettuceNearCache 인스턴스를 반환한다`() {
-        val cache = LettuceCaches.resilientNearCache<String>(redisClient)
+    fun `nearCache withResilience - ResilientNearCacheDecorator 인스턴스를 반환한다`() {
+        val cache: NearCacheOperations<String> = LettuceCaches.nearCache<String>(redisClient)
+            .withResilience { retryMaxAttempts = 3 }
         try {
-            cache.shouldBeInstanceOf<ResilientLettuceNearCache<*>>()
+            cache.shouldBeInstanceOf<ResilientNearCacheDecorator<*>>()
         } finally {
             runCatching { cache.close() }
         }
     }
 
     @Test
-    fun `resilientSuspendNearCache - ResilientLettuceSuspendNearCache 인스턴스를 반환한다`() {
-        val cache = LettuceCaches.resilientSuspendNearCache<String>(redisClient)
+    fun `suspendNearCache withResilience - ResilientSuspendNearCacheDecorator 인스턴스를 반환한다`() {
+        val cache: SuspendNearCacheOperations<String> = LettuceCaches.suspendNearCache<String>(redisClient)
+            .withResilience { retryMaxAttempts = 3 }
         try {
-            cache.shouldBeInstanceOf<ResilientLettuceSuspendNearCache<*>>()
+            cache.shouldBeInstanceOf<ResilientSuspendNearCacheDecorator<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runBlocking { cache.close() } }
         }
     }
 }

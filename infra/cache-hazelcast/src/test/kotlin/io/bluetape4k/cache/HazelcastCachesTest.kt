@@ -5,9 +5,13 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
-import io.bluetape4k.cache.nearcache.ResilientHazelcastNearCache
-import io.bluetape4k.cache.nearcache.ResilientHazelcastSuspendNearCache
+import io.bluetape4k.cache.nearcache.NearCacheOperations
+import io.bluetape4k.cache.nearcache.ResilientNearCacheDecorator
+import io.bluetape4k.cache.nearcache.ResilientSuspendNearCacheDecorator
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
+import io.bluetape4k.cache.nearcache.withResilience
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -32,7 +36,7 @@ class HazelcastCachesTest {
         try {
             cache.shouldBeInstanceOf<JCache<*, *>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -42,7 +46,7 @@ class HazelcastCachesTest {
         try {
             cache.shouldBeInstanceOf<HazelcastSuspendCache<*, *>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -53,7 +57,7 @@ class HazelcastCachesTest {
         try {
             cache.shouldBeInstanceOf<HazelcastNearCache<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -64,29 +68,31 @@ class HazelcastCachesTest {
         try {
             cache.shouldBeInstanceOf<HazelcastSuspendNearCache<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
     @Test
-    fun `resilientNearCache - ResilientHazelcastNearCache 인스턴스 반환`() {
-        val nearCacheConfig = HazelcastNearCacheConfig(cacheName = randomName())
-        val cache = HazelcastCaches.resilientNearCache<String>(hazelcastClient, nearCacheConfig)
+    fun `nearCache withResilience - ResilientNearCacheDecorator 인스턴스 반환`() {
+        val config = HazelcastNearCacheConfig(cacheName = randomName())
+        val cache: NearCacheOperations<String> = HazelcastCaches.nearCache<String>(hazelcastClient, config)
+            .withResilience { retryMaxAttempts = 3 }
         try {
-            cache.shouldBeInstanceOf<ResilientHazelcastNearCache<*>>()
+            cache.shouldBeInstanceOf<ResilientNearCacheDecorator<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
     @Test
-    fun `resilientSuspendNearCache - ResilientHazelcastSuspendNearCache 인스턴스 반환`() {
-        val nearCacheConfig = HazelcastNearCacheConfig(cacheName = randomName())
-        val cache = HazelcastCaches.resilientSuspendNearCache<String>(hazelcastClient, nearCacheConfig)
+    fun `suspendNearCache withResilience - ResilientSuspendNearCacheDecorator 인스턴스 반환`() = runTest {
+        val config = HazelcastNearCacheConfig(cacheName = randomName())
+        val cache: SuspendNearCacheOperations<String> = HazelcastCaches.suspendNearCache<String>(hazelcastClient, config)
+            .withResilience { retryMaxAttempts = 3 }
         try {
-            cache.shouldBeInstanceOf<ResilientHazelcastSuspendNearCache<*>>()
+            cache.shouldBeInstanceOf<ResilientSuspendNearCacheDecorator<*>>()
         } finally {
-            runCatching { cache.close() }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 }

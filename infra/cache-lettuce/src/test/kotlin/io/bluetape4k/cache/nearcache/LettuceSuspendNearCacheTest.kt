@@ -2,6 +2,7 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
@@ -28,7 +29,7 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @BeforeEach
     fun createCache() {
-        if (::cache.isInitialized) cache.close()
+        if (::cache.isInitialized) runSuspendIO { cache.close() }
 
         cache =
             LettuceSuspendNearCache(
@@ -40,7 +41,7 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @AfterAll
     fun tearDown() {
-        if (::cache.isInitialized) cache.close()
+        if (::cache.isInitialized) runSuspendIO { cache.close() }
     }
 
     // ---- 기본 CRUD ----
@@ -198,7 +199,8 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                     codec = StringCodec.UTF8,
                     config = LettuceNearCacheConfig(cacheName = "other-suspend-cache-" + Base58.randomString(6))
                 )
-            otherCache.use { other ->
+            try {
+                val other = otherCache
                 cache.put("shared-key", "from-main")
                 other.put("shared-key", "from-other")
 
@@ -206,6 +208,8 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
 
                 cache.get("shared-key").shouldBeNull()
                 other.get("shared-key") shouldBeEqualTo "from-other"
+            } finally {
+                runCatching { runSuspendIO { otherCache.close() } }
             }
         }
 
@@ -225,12 +229,15 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                             redisTtl = Duration.ofSeconds(2)
                         )
                 )
-            ttlCache.use { c ->
+            try {
+                val c = ttlCache
                 c.put("ttl-key", "ttl-val")
                 c.get("ttl-key") shouldBeEqualTo "ttl-val"
                 // prefix key로 TTL 확인
                 val ttl = directCommands.ttl("$ttlCacheName:ttl-key")
                 (ttl > 0L).shouldBeTrue()
+            } finally {
+                runCatching { ttlCache.close() }
             }
         }
 
@@ -250,7 +257,7 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
     // ---- lifecycle ----
 
     @Test
-    fun `close - 중복 close 시 예외 없음`() {
+    fun `close - 중복 close 시 예외 없음`() = runSuspendIO {
         val c = LettuceSuspendNearCache<String>(resp3Client)
         c.close()
         c.close()
@@ -268,11 +275,14 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                     config = LettuceNearCacheConfig(cacheName = "fail-put-susp-" + Base58.randomString(6))
                 )
 
-            failingCache.use { c ->
+            try {
+                val c = failingCache
                 assertWriteFailure {
                     c.put("k", "v")
                 }
                 c.localCacheSize() shouldBeEqualTo 0L
+            } finally {
+                runCatching { runSuspendIO { failingCache.close() } }
             }
         }
 
@@ -286,11 +296,14 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                     config = LettuceNearCacheConfig(cacheName = "fail-putall-susp-" + Base58.randomString(6))
                 )
 
-            failingCache.use { c ->
+            try {
+                val c = failingCache
                 assertWriteFailure {
                     c.putAll(mapOf("k1" to "v1", "k2" to "v2"))
                 }
                 c.localCacheSize() shouldBeEqualTo 0L
+            } finally {
+                runCatching { runSuspendIO { failingCache.close() } }
             }
         }
 
@@ -307,10 +320,13 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                     codec = StringCodec.UTF8,
                     config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
                 )
-            ttlCache.use { c ->
+            try {
+                val c = ttlCache
                 c.putIfAbsent("pia-key", "pia-val").shouldBeNull()
                 val pttl = directCommands.pttl("$ttlCacheName:pia-key")
                 (pttl > 0L && pttl <= ttlMs).shouldBeTrue()
+            } finally {
+                runCatching { runSuspendIO { ttlCache.close() } }
             }
         }
 
@@ -357,10 +373,13 @@ class LettuceSuspendNearCacheTest: AbstractLettuceNearCacheTest() {
                     codec = StringCodec.UTF8,
                     config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
                 )
-            ttlCache.use { c ->
+            try {
+                val c = ttlCache
                 c.put("ms-key", "ms-val")
                 val pttl = directCommands.pttl("$ttlCacheName:ms-key")
                 (pttl > 0L && pttl <= ttlMs).shouldBeTrue()
+            } finally {
+                runCatching { runSuspendIO { ttlCache.close() } }
             }
         }
 

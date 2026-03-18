@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.lettuce.core.codec.StringCodec
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -50,8 +51,8 @@ class LettuceNearCacheIsolationTest: AbstractLettuceNearCacheTest() {
         runCatching { cacheA.close() }
         runCatching { cacheB.close() }
         runCatching { cacheC.close() }
-        runCatching { suspendCacheX.close() }
-        runCatching { suspendCacheY.close() }
+        runCatching { runSuspendIO { suspendCacheX.close() } }
+        runCatching { runSuspendIO { suspendCacheY.close() } }
     }
 
     // ---- 기본 격리: 동일 key 이름 ----

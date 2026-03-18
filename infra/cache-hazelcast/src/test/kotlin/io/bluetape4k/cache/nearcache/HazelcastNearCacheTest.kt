@@ -148,7 +148,7 @@ class HazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
         verifyClearLocal(
             put = { k, v -> cache.put(k, v) },
             clearLocal = { cache.clearLocal() },
-            localSize = { cache.localSize() },
+            localSize = { cache.localCacheSize() },
             containsKeyInBack = { cache.containsKey(it) },
         )
     }
@@ -158,7 +158,7 @@ class HazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
         cache.clearAll()
-        cache.localSize() shouldBeEqualTo 0L
+        cache.localCacheSize() shouldBeEqualTo 0L
         cache.get("k1").shouldBeNull()
         cache.get("k2").shouldBeNull()
     }

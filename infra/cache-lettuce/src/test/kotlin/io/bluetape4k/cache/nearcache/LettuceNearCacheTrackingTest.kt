@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.junit5.awaitility.untilSuspending
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -63,10 +63,10 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @AfterEach
     fun closeCaches() {
-        runCatching { nearCache1.close() }
-        runCatching { nearCache2.close() }
-        runCatching { nearSuspendCache1.close() }
-        runCatching { nearSuspendCache2.close() }
+        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearCache1.close() } } }
+        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearCache2.close() } } }
+        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearSuspendCache1.close() } } }
+        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearSuspendCache2.close() } } }
     }
 
     @AfterAll
