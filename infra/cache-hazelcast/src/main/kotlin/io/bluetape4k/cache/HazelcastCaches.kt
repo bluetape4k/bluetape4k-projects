@@ -9,6 +9,8 @@ import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.HazelcastSuspendNearCache
+import io.bluetape4k.cache.nearcache.NearCacheOperations
+import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import javax.cache.configuration.Configuration
@@ -95,7 +97,7 @@ object HazelcastCaches : KLogging() {
     fun <V : Any> nearCache(
         hazelcastInstance: HazelcastInstance,
         config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
-    ): HazelcastNearCache<V> = HazelcastNearCache(hazelcastInstance, config)
+    ): NearCacheOperations<V> = HazelcastNearCache(hazelcastInstance, config)
 
     /**
      * DSL 블록으로 [HazelcastNearCache]를 생성합니다.
@@ -108,7 +110,7 @@ object HazelcastCaches : KLogging() {
     fun <V : Any> nearCache(
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
-    ): HazelcastNearCache<V> = nearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
+    ): NearCacheOperations<V> = nearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
 
     /**
      * [HazelcastNearCacheConfig]로 [HazelcastSuspendNearCache]를 생성합니다.
@@ -121,7 +123,7 @@ object HazelcastCaches : KLogging() {
     fun <V : Any> suspendNearCache(
         hazelcastInstance: HazelcastInstance,
         config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
-    ): HazelcastSuspendNearCache<V> = HazelcastSuspendNearCache(hazelcastInstance, config)
+    ): SuspendNearCacheOperations<V> = HazelcastSuspendNearCache(hazelcastInstance, config)
 
     /**
      * DSL 블록으로 [HazelcastSuspendNearCache]를 생성합니다.
@@ -134,5 +136,5 @@ object HazelcastCaches : KLogging() {
     fun <V : Any> suspendNearCache(
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
-    ): HazelcastSuspendNearCache<V> = suspendNearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
+    ): SuspendNearCacheOperations<V> = suspendNearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
 }
