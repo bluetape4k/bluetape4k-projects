@@ -1,7 +1,8 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -19,9 +20,9 @@ import org.testcontainers.utility.Base58
  *
  * JCache 기반 테스트와 달리 리스너 직렬화 문제가 없다.
  */
-class HazelcastSuspendNearCacheTest : AbstractHazelcastNearCacheTest() {
+class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var cache: HazelcastSuspendNearCache<String>
 

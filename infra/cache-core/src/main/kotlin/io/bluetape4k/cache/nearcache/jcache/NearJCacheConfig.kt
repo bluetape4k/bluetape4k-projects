@@ -18,7 +18,7 @@ import javax.cache.expiry.Duration
  * @param K 캐시 키 타입
  * @param V 캐시 값 타입
  * @property cacheManagerFactory Front Cache를 위한 [CacheManager] 팩토리 (기본: Caffeine)
- * @property frontCacheName Front Cache의 고유 이름
+ * @property cacheName Front Cache의 고유 이름
  * @property frontCacheConfiguration Front Cache 설정 (만료 시간 등)
  * @property isSynchronous Front-Back 캐시 간 동기화 방식 (true: 동기, false: 비동기)
  * @property syncRemoteTimeout 원격 캐시 동기화 타임아웃 (밀리초)
@@ -27,7 +27,7 @@ import javax.cache.expiry.Duration
  */
 data class NearJCacheConfig<K: Any, V: Any>(
     val cacheManagerFactory: Factory<CacheManager> = CaffeineCacheManagerFactory,
-    val frontCacheName: String = "front-cache-" + Base58.randomString(8),
+    val cacheName: String = "near-jcache-" + Base58.randomString(8),
     val frontCacheConfiguration: MutableConfiguration<K, V> = getDefaultFrontCacheConfiguration(),
     val isSynchronous: Boolean = false,
     val syncRemoteTimeout: Long = NearJCacheConfig.DEFAULT_SYNC_REMOTE_TIMEOUT,

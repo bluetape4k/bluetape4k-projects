@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.HazelcastServers
+import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -16,9 +18,9 @@ import org.testcontainers.utility.Base58
  *
  * JCache 기반 테스트와 달리 리스너 직렬화 문제가 없다.
  */
-class HazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
+class HazelcastNearCacheTest: AbstractHazelcastNearCacheTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var cache: HazelcastNearCache<String>
 
@@ -26,7 +28,7 @@ class HazelcastNearCacheTest : AbstractHazelcastNearCacheTest() {
     fun createCache() {
         if (::cache.isInitialized) cache.close()
         cache = HazelcastNearCache(
-            hazelcastInstance = hazelcastClient,
+            hazelcastInstance = HazelcastServers.hazelcastClient,
             config = HazelcastNearCacheConfig(cacheName = "test-near-cache-" + Base58.randomString(6)),
         )
     }

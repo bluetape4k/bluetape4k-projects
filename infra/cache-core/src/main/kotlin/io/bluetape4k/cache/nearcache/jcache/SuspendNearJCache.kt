@@ -27,7 +27,6 @@ import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 class SuspendNearJCache<K: Any, V: Any> private constructor(
     private val frontCache: SuspendJCache<K, V>,
     private val backCache: SuspendJCache<K, V>,
-    private val checkExpiryPeriod: Long,
 ): SuspendJCache<K, V> by backCache {
 
     companion object: KLoggingChannel() {
@@ -36,7 +35,6 @@ class SuspendNearJCache<K: Any, V: Any> private constructor(
         operator fun <K: Any, V: Any> invoke(
             frontCache: SuspendJCache<K, V>,
             backCache: SuspendJCache<K, V>,
-            checkExpiryPeriod: Long = DEFAULT_EXPIRY_CHECK_PERIOD,
         ): SuspendNearJCache<K, V> {
             log.info { "Back cache의 event 를 수신하는 listener를 생성합니다..." }
 
@@ -50,7 +48,7 @@ class SuspendNearJCache<K: Any, V: Any> private constructor(
             backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
 
             log.info { "Create SuspendNearCache instance." }
-            return SuspendNearJCache(frontCache, backCache, checkExpiryPeriod)
+            return SuspendNearJCache(frontCache, backCache)
         }
     }
 

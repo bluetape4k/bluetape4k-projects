@@ -9,9 +9,6 @@ abstract class AbstractHazelcastTest {
 
         val faker = Fakers.faker
 
-        @JvmStatic
-        protected val hazelcastClient by lazy { HazelcastServers.hazelcastClient }
-
     }
 
 }

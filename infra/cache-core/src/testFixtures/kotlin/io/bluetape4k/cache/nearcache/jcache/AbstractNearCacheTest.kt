@@ -60,8 +60,8 @@ abstract class AbstractNearCacheTest {
     @Test
     fun `create near cache`() {
         val frontCacheName = "frontCache-" + randomKey()
-        val nearCacheCfg = NearJCacheConfig<String, Any>(frontCacheName = frontCacheName)
-        nearCacheCfg.frontCacheName shouldBeEqualTo frontCacheName
+        val nearCacheCfg = NearJCacheConfig<String, Any>(cacheName = frontCacheName)
+        nearCacheCfg.cacheName shouldBeEqualTo frontCacheName
         val nearJCache = NearJCache(nearCacheCfg, backCache)
         nearJCache.frontCache.name shouldBeEqualTo frontCacheName
     }

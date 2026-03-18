@@ -50,18 +50,10 @@ abstract class AbstractSuspendNearJCacheTest
     protected val frontCoCache2 by lazy { createFrontSuspendCache(Duration.ofMinutes(10)) }
 
     protected val suspendNearJCache1: SuspendNearJCache<String, Any> by lazy {
-        SuspendNearJCache(
-            frontCoCache1,
-            backSuspendJCache,
-            1000L
-        )
+        SuspendNearJCache(frontCoCache1, backSuspendJCache)
     }
     protected val suspendNearJCache2: SuspendNearJCache<String, Any> by lazy {
-        SuspendNearJCache(
-            frontCoCache2,
-            backSuspendJCache,
-            1000L
-        )
+        SuspendNearJCache(frontCoCache2, backSuspendJCache)
     }
 
     @BeforeEach

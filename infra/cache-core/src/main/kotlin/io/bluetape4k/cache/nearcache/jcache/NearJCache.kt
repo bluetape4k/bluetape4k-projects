@@ -46,12 +46,12 @@ import kotlin.concurrent.withLock
  * @see NearJCacheConfig
  * @see io.bluetape4k.cache.jcache.JCacheEntryEventListener
  */
-class NearJCache<K: Any, V: Any> private constructor(
+class NearJCache<K: Any, V: Any>(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearJCacheConfig<K, V>,
-) : JCache<K, V> by backCache {
-    companion object : KLogging() {
+): JCache<K, V> by backCache {
+    companion object: KLogging() {
         /** Redis SCAN 명령의 배치 크기 */
         const val SCAN_BATCH_SIZE = 100L
 
@@ -67,16 +67,16 @@ class NearJCache<K: Any, V: Any> private constructor(
          * @param backCache 분산 환경에서 사용할 원격 캐시 인스턴스
          * @return [NearJCache] 인스턴스
          */
-        operator fun <K : Any, V : Any> invoke(
+        operator fun <K: Any, V: Any> invoke(
             nearCacheCfg: NearJCacheConfig<K, V>,
             backCache: JCache<K, V>,
         ): NearJCache<K, V> {
             val frontCacheManager = nearCacheCfg.cacheManagerFactory.create()
 
             // back cache의 event를 수신하여 반영할 front cache 생성
-            log.info { "front cache 생성. name=${nearCacheCfg.frontCacheName}" }
+            log.info { "front cache 생성. name=${nearCacheCfg.cacheName}" }
             val frontCache =
-                frontCacheManager.createCache(nearCacheCfg.frontCacheName, nearCacheCfg.frontCacheConfiguration)
+                frontCacheManager.createCache(nearCacheCfg.cacheName, nearCacheCfg.frontCacheConfiguration)
 
             // back cache의 event를 받아 front cache에 반영합니다.
             val JCacheEntryEventListenerCfg =
@@ -107,7 +107,7 @@ class NearJCache<K: Any, V: Any> private constructor(
     fun clearAllCache() {
         log.debug {
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
-                "전파를 위해서는 removeAll을 사용하세요"
+                    "전파를 위해서는 removeAll을 사용하세요"
         }
         runCatching { frontCache.clear() }
         runCatching { backCache.clear() }
@@ -159,10 +159,7 @@ class NearJCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    override fun getAndReplace(
-        key: K,
-        value: V,
-    ): V? {
+    override fun getAndReplace(key: K, value: V): V? {
         log.trace { "get and replace. key=$key" }
         if (containsKey(key)) {
             log.trace { "get entry, and put new value. key=$key, new value=$value" }
@@ -173,17 +170,11 @@ class NearJCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    operator fun set(
-        key: K,
-        value: V,
-    ) {
+    operator fun set(key: K, value: V) {
         put(key, value)
     }
 
-    override fun put(
-        key: K,
-        value: V,
-    ) {
+    override fun put(key: K, value: V) {
         frontCache.put(key, value).apply {
             syncBackCache {
                 backCache.put(key, value)
@@ -199,10 +190,7 @@ class NearJCache<K: Any, V: Any> private constructor(
         }
     }
 
-    override fun putIfAbsent(
-        key: K,
-        value: V,
-    ): Boolean =
+    override fun putIfAbsent(key: K, value: V): Boolean =
         frontCache.putIfAbsent(key, value).also {
             if (it) {
                 syncBackCache {
@@ -222,10 +210,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             }
         }
 
-    override fun remove(
-        key: K,
-        oldValue: V,
-    ): Boolean =
+    override fun remove(key: K, oldValue: V): Boolean =
         frontCache.remove(key, oldValue).also {
             if (it) {
                 syncBackCache {
@@ -263,11 +248,7 @@ class NearJCache<K: Any, V: Any> private constructor(
         removeAll(keys.toSet())
     }
 
-    override fun replace(
-        key: K,
-        oldValue: V,
-        newValue: V,
-    ): Boolean =
+    override fun replace(key: K, oldValue: V, newValue: V): Boolean =
         frontCache.replace(key, oldValue, newValue).also {
             if (it) {
                 syncBackCache {
@@ -278,10 +259,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             }
         }
 
-    override fun replace(
-        key: K,
-        value: V,
-    ): Boolean =
+    override fun replace(key: K, value: V): Boolean =
         frontCache.replace(key, value).also {
             if (it) {
                 syncBackCache {
@@ -293,7 +271,7 @@ class NearJCache<K: Any, V: Any> private constructor(
             }
         }
 
-    override fun <T : Any> unwrap(clazz: Class<T>): T? {
+    override fun <T: Any> unwrap(clazz: Class<T>): T? {
         if (clazz.isAssignableFrom(javaClass)) {
             return clazz.cast(this)
         }
