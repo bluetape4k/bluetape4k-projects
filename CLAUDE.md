@@ -282,7 +282,6 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 #### Utilities (`utils/`)
 
-- **ahocorasick**: 문자열 검색 (Aho-Corasick 알고리즘)
 - **bloomfilter**: Bloom Filter
 - **captcha**: CAPTCHA 생성
 - **bluetape4k-geo** *(통합 모듈)*: 지리 정보 처리 — geocode(Bing/Google), geohash, geoip2(MaxMind) 통합
@@ -292,14 +291,30 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **javatimes**: 날짜/시간 유틸리티
 - **jwt**: JWT 처리
 - **leader**: Leader 선출
-- **lingua**: 언어 감지
 - **logback-kafka**: Logback Kafka Appender
 - **math**: 수학 유틸리티
 - **measured**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **money**: Money API
 - **mutiny**: Mutiny reactive 라이브러리 통합
-- **naivebayes**: Naive Bayes 분류기
 - ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
+
+#### Deprecated Utilities (`utils-deprecated/`)
+
+빌드에서 제외된 deprecated 모듈들. 점차 삭제될 예정.
+
+- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — **Deprecated**
+- ~~**lingua**~~: 언어 감지 — **Deprecated**
+- ~~**naivebayes**~~: Naive Bayes 분류기 — **Deprecated**
+- ~~**mutiny-examples**~~: Mutiny 사용 예제 — **Deprecated**
+
+#### Obsoleted Modules (`x-obsoleted/`)
+
+빌드에서 완전 제외된 폐기 모듈들.
+
+- ~~**vertx-coroutines**~~: `bluetape4k-vertx`로 통합됨
+- ~~**vertx-sqlclient**~~: `bluetape4k-vertx`로 통합됨
+- ~~**vertx-webclient**~~: `bluetape4k-vertx`로 통합됨
+- ~~**mapstruct**~~: 미사용으로 폐기
 
 #### Testing Modules (`testing/`)
 
@@ -317,7 +332,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **javers/**: JaVers 감사 로그
 - **tokenizer/**: 한국어/일본어 토크나이저
 - **timefold/**: Timefold Solver
-- **examples/**: 라이브러리 사용 예제
+- **examples/**: 라이브러리 사용 예제 (coroutines, jpa-querydsl, redisson, virtualthreads) — 배포 제외
 
 ### Build Configuration
 

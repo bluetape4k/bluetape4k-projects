@@ -14,6 +14,165 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 - **결과 상태 표준화**: `RateLimitResult(status, consumedTokens, availableTokens)`로 소비/거절/오류를 일관되게 반환
 - **요청 검증 내장**: 빈 key, `0 이하 token`, 정책 상한(`MAX_TOKENS_PER_REQUEST`) 초과 요청을 사전에 차단
 
+## 클래스 구조
+
+### Bucket4j 통합 클래스 다이어그램
+
+```mermaid
+classDiagram
+    direction TB
+
+    class RateLimiter~K~ {
+        <<interface>>
+        +consume(key: K, numToken: Long) RateLimitResult
+    }
+
+    class SuspendRateLimiter~K~ {
+        <<interface>>
+        +consume(key: K, numToken: Long) RateLimitResult
+    }
+
+    class RateLimitResult {
+        +status: RateLimitStatus
+        +consumedTokens: Long
+        +availableTokens: Long
+        +errorMessage: String?
+        +isConsumed: Boolean
+        +isRejected: Boolean
+        +isError: Boolean
+        +consumed(consumedTokens, availableTokens) RateLimitResult
+        +rejected(availableTokens) RateLimitResult
+        +error(cause) RateLimitResult
+    }
+
+    class RateLimitStatus {
+        <<enumeration>>
+        CONSUMED
+        REJECTED
+        ERROR
+    }
+
+    class LocalRateLimiter {
+        -bucketProvider: LocalBucketProvider
+        +consume(key, numToken) RateLimitResult
+    }
+
+    class LocalSuspendRateLimiter {
+        -bucketProvider: LocalSuspendBucketProvider
+        +consume(key, numToken) RateLimitResult
+    }
+
+    class DistributedRateLimiter {
+        -bucketProxyProvider: BucketProxyProvider
+        +consume(key, numToken) RateLimitResult
+    }
+
+    class DistributedSuspendRateLimiter {
+        -asyncBucketProxyProvider: AsyncBucketProxyProvider
+        +consume(key, numToken) RateLimitResult
+    }
+
+    class AbstractLocalBucketProvider~T~ {
+        #bucketConfiguration: BucketConfiguration
+        #keyPrefix: String
+        #cache: LoadingCache
+        +resolveBucket(key: String) T
+        #createBucket() T
+    }
+
+    class LocalBucketProvider {
+        +createBucket() LocalBucket
+    }
+
+    class LocalSuspendBucketProvider {
+        +createBucket() SuspendLocalBucket
+    }
+
+    class SuspendLocalBucket {
+        +tryConsume(tokensToConsume, maxWaitTime) Boolean
+        +consume(tokensToConsume)
+    }
+
+    class BucketProxyProvider {
+        #proxyManager: ProxyManager
+        #bucketConfiguration: BucketConfiguration
+        +resolveBucket(key: String) BucketProxy
+    }
+
+    class AsyncBucketProxyProvider {
+        #asyncProxyManager: AsyncProxyManager
+        #bucketConfiguration: BucketConfiguration
+        +resolveBucket(key: String) AsyncBucketProxy
+    }
+
+    RateLimiter <|.. LocalRateLimiter
+    RateLimiter <|.. DistributedRateLimiter
+    SuspendRateLimiter <|.. LocalSuspendRateLimiter
+    SuspendRateLimiter <|.. DistributedSuspendRateLimiter
+    AbstractLocalBucketProvider <|-- LocalBucketProvider
+    AbstractLocalBucketProvider <|-- LocalSuspendBucketProvider
+    LocalBucketProvider <-- LocalRateLimiter
+    LocalSuspendBucketProvider <-- LocalSuspendRateLimiter
+    LocalSuspendBucketProvider ..> SuspendLocalBucket: creates
+    BucketProxyProvider <-- DistributedRateLimiter
+    AsyncBucketProxyProvider <-- DistributedSuspendRateLimiter
+    RateLimitResult --> RateLimitStatus
+```
+
+### Rate Limiting 시퀀스 다이어그램
+
+#### 로컬 Rate Limiter — 토큰 소비 흐름
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant LocalRateLimiter
+    participant LocalBucketProvider
+    participant LocalBucket
+    Caller ->> LocalRateLimiter: consume("user:1", 1)
+    LocalRateLimiter ->> LocalRateLimiter: validateRateLimitRequest(key, numToken)
+    LocalRateLimiter ->> LocalBucketProvider: resolveBucket("user:1")
+    LocalBucketProvider -->> LocalRateLimiter: LocalBucket (캐시에서 반환)
+    LocalRateLimiter ->> LocalBucket: tryConsumeAndReturnRemaining(1)
+
+    alt 토큰 충분 (CONSUMED)
+        LocalBucket -->> LocalRateLimiter: probe { isConsumed=true, remaining=9 }
+        LocalRateLimiter -->> Caller: RateLimitResult(CONSUMED, consumed=1, available=9)
+    else 토큰 부족 (REJECTED)
+        LocalBucket -->> LocalRateLimiter: probe { isConsumed=false, remaining=0 }
+        LocalRateLimiter -->> Caller: RateLimitResult(REJECTED, consumed=0, available=0)
+    else 오류 발생 (ERROR)
+        LocalBucket -->> LocalRateLimiter: Exception
+        LocalRateLimiter -->> Caller: RateLimitResult(ERROR, errorMessage=...)
+    end
+```
+
+#### 분산 Suspend Rate Limiter — Redis 기반 코루틴 흐름
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant DistributedSuspendRateLimiter
+    participant AsyncBucketProxyProvider
+    participant AsyncBucketProxy
+    participant Redis
+    Caller ->> DistributedSuspendRateLimiter: consume("tenant:a", 1)
+    DistributedSuspendRateLimiter ->> AsyncBucketProxyProvider: resolveBucket("tenant:a")
+    AsyncBucketProxyProvider -->> DistributedSuspendRateLimiter: AsyncBucketProxy
+    DistributedSuspendRateLimiter ->> AsyncBucketProxy: tryConsumeAndReturnRemaining(1)
+    AsyncBucketProxy ->> Redis: EVALSHA (atomic Lua script)
+
+    alt 토큰 충분
+        Redis -->> AsyncBucketProxy: consumed=1, remaining=99
+        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
+        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(CONSUMED, 1, 99)
+    else 토큰 부족
+        Redis -->> AsyncBucketProxy: consumed=0, remaining=0
+        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
+        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(REJECTED, 0, 0)
+    end
+```
+
 ## Bucket4j 직접 사용 대비 추가 기능
 
 `bluetape4k-bucket4j`는 Bucket4j를 직접 사용할 때 반복되는 보일러플레이트를 줄이는 데 초점이 있습니다.

@@ -8,6 +8,28 @@
 
 ### Added
 
+#### infra/cache-core — JCache 기반 NearCache
+
+- **`NearJCache<K, V>`**: Caffeine front + JCache back 2-Tier 동기 NearCache (`JCache<K,V>` 위임) ([
+  `0a09c19d`](https://github.com/bluetape4k/bluetape4k-projects/commit/0a09c19d))
+- **`SuspendNearJCache<K, V>`**: Caffeine front + SuspendJCache back 코루틴 NearCache ([
+  `0a09c19d`](https://github.com/bluetape4k/bluetape4k-projects/commit/0a09c19d))
+- **`NearJCacheConfig<K, V>`** + **`NearJCacheConfigBuilder`** + **`nearJCacheConfig {}`** DSL ([
+  `b19b48b9`](https://github.com/bluetape4k/bluetape4k-projects/commit/b19b48b9))
+- `AbstractNearCacheOperationsTest` / `AbstractSuspendNearCacheOperationsTest` 동시성 테스트 추가 ([
+  `a4c0bf14`](https://github.com/bluetape4k/bluetape4k-projects/commit/a4c0bf14))
+- `ResilientNearCacheDecorator` 단위 테스트 추가 ([
+  `054be42a`](https://github.com/bluetape4k/bluetape4k-projects/commit/054be42a))
+
+#### infra/cache-lettuce — 팩토리 확장
+
+- **`LettuceCaches.suspendJCache()`**: `LettuceSuspendJCache<V>` 팩토리 ([
+  `0b0ebbf6`](https://github.com/bluetape4k/bluetape4k-projects/commit/0b0ebbf6))
+- **`LettuceCaches.nearJCache()`**: DSL/Config 오버로드로 `NearJCache<K,V>` 생성 ([
+  `0b0ebbf6`](https://github.com/bluetape4k/bluetape4k-projects/commit/0b0ebbf6))
+- **`LettuceCaches.suspendNearJCache()`**: DSL/Config 오버로드로 `SuspendNearJCache<K,V>` 생성 ([
+  `0b0ebbf6`](https://github.com/bluetape4k/bluetape4k-projects/commit/0b0ebbf6))
+
 #### README 최신화
 
 - 통합 모듈별 README.md 신규 작성: `spring/boot3`, `vertx`, `aws`, `aws-kotlin`, `utils/geo`
@@ -43,9 +65,48 @@
 - **`bluetape4k-aws`**: 구 `aws/core`, `aws/dynamodb`, `aws/s3`, `aws/ses`, `aws/sns`, `aws/sqs`, `aws/kms`, `aws/cloudwatch`, `aws/kinesis`, `aws/sts` 통합 (22개 → 2개) ([`f2c36d53`](https://github.com/bluetape4k/bluetape4k-projects/commit/f2c36d53))
 - **`bluetape4k-aws-kotlin`**: 구 `aws-kotlin/core`, `aws-kotlin/dynamodb`, `aws-kotlin/s3`, `aws-kotlin/ses`, `aws-kotlin/sesv2`, `aws-kotlin/sns`, `aws-kotlin/sqs`, `aws-kotlin/kms`, `aws-kotlin/cloudwatch`, `aws-kotlin/kinesis`, `aws-kotlin/sts` 통합 ([`f2c36d53`](https://github.com/bluetape4k/bluetape4k-projects/commit/f2c36d53))
 
+#### infra/cache — 일관성 리팩토링
+
+- **`LettuceBinaryCodec` 통일**: 팩토리 파라미터의 `BinarySerializer` → `LettuceBinaryCodec<V>` 교체 ([
+  `598c88c0`](https://github.com/bluetape4k/bluetape4k-projects/commit/598c88c0))
+- **`LettuceSuspendCacheManager`**: 미사용 파라미터 실제 활용으로 개선 ([
+  `495f5330`](https://github.com/bluetape4k/bluetape4k-projects/commit/495f5330))
+- **`RedissonCaches`**: 팩토리 네이밍 통일 ([`a10df979`](https://github.com/bluetape4k/bluetape4k-projects/commit/a10df979))
+- **`HazelcastCaches.nearJCache/suspendNearJCache`**: 파라미터 2개로 축소 + DSL 지원 ([
+  `7f7cdb52`](https://github.com/bluetape4k/bluetape4k-projects/commit/7f7cdb52))
+- `JCache NearCache`를 `nearcache.jcache` 서브패키지로 이동 ([
+  `f405197b`](https://github.com/bluetape4k/bluetape4k-projects/commit/f405197b))
+
+### Deprecated
+
+#### io/crypto
+
+- **`bluetape4k-crypto`**: Jasypt 기반 암호화 모듈 Deprecated — `bluetape4k-tink` (Google Tink AEAD)로 대체 ([
+  `38a05c26`](https://github.com/bluetape4k/bluetape4k-projects/commit/38a05c26))
+
+#### io/okio
+
+- **Cipher/Jasypt Sink/Source**: `io/okio` 모듈에서 cipher 및 jasypt 관련 클래스 제거 — `io/tink`의 `TinkEncryptSink`/
+  `TinkDecryptSource` 사용 권장 ([`27edccc5`](https://github.com/bluetape4k/bluetape4k-projects/commit/27edccc5))
+
+#### utils-deprecated
+
+- **`ahocorasick`**: `utils/` → `utils-deprecated/` 이동, 빌드 제외 ([
+  `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
+- **`lingua`**: `utils/` → `utils-deprecated/` 이동, 빌드 제외 ([
+  `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
+- **`naivebayes`**: `utils/` → `utils-deprecated/` 이동, 빌드 제외 ([
+  `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
+- **`mutiny-examples`**: 예제성 모듈 → `utils-deprecated/` 이동, 빌드 제외 ([
+  `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
+
 ### Removed
 
 - 구 서브모듈 소스 파일 정리 (`jackson-binary/text`, `jackson3-binary/text`, `geocode`, `geohash`, `geoip2`, `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`, aws 개별 서브모듈) ([`c7fb930c`](https://github.com/bluetape4k/bluetape4k-projects/commit/c7fb930c))
+- **`TiDBServer`**: 테스트 인프라에서 TiDB Testcontainers 지원 제거 ([
+  `bf617426`](https://github.com/bluetape4k/bluetape4k-projects/commit/bf617426))
+- **예제성 모듈 제거**: 사용 빈도 낮은 예제 모듈 빌드에서 제외 (`utils-deprecated/`, `x-obsoleted/` 이동) ([
+  `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
 
 ### Fixed
 

@@ -1,5 +1,7 @@
 # Module bluetape4k-ahocorasick
 
+> **⚠️ Deprecated**: 이 모듈은 deprecated 되었으며 빌드에서 제외되었습니다. 유지보수가 중단될 예정입니다.
+
 Aho-Corasick 문자열 검색 알고리즘을 Kotlin으로 구현한 모듈입니다. 여러 키워드를 동시에 효율적으로 검색할 수 있으며, 대용량 텍스트 처리에 최적화되어 있습니다.
 
 ## 특징

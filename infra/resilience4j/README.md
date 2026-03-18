@@ -4,6 +4,161 @@
 
 이 모듈은 Resilience4j를 Kotlin Coroutines 및 Flow 환경에서 사용할 수 있도록 확장 함수와 데코레이터를 제공합니다.
 
+## 클래스 구조
+
+### Resilience4j Coroutines 통합 클래스 다이어그램
+
+```mermaid
+classDiagram
+    direction TB
+
+    class SuspendDecorators {
+        <<object>>
+        +ofRunnable(runnable) DecoratorForSuspendSupplier
+        +ofSupplier(supplier) DecoratorForSuspendSupplier
+        +ofFunction1(function) DecoratorForSuspendFunction1
+        +ofFunction2(function) DecoratorForSuspendFunction2
+    }
+
+    class DecoratorForSuspendSupplier~T~ {
+        +withCircuitBreaker(cb) DecoratorForSuspendSupplier
+        +withRetry(retry) DecoratorForSuspendSupplier
+        +withRateLimit(rl) DecoratorForSuspendSupplier
+        +withBulkhead(bh) DecoratorForSuspendSupplier
+        +withTimeLimiter(tl) DecoratorForSuspendSupplier
+        +withFallback(handler) DecoratorForSuspendSupplier
+        +decorate() suspend() -> T
+        +invoke() T
+    }
+
+    class DecoratorForSuspendFunction1~T, R~ {
++withCircuitBreaker(cb) DecoratorForSuspendFunction1
++withRetry(retry) DecoratorForSuspendFunction1
++withRateLimit(rl) DecoratorForSuspendFunction1
++withBulkhead(bh) DecoratorForSuspendFunction1
++withTimeLimiter(tl) DecoratorForSuspendFunction1
++withCache(cache) DecoratorForSuspendFunction1
++withSuspendCache(sc) DecoratorForSuspendFunction1
++decorate() suspend(T) -> R
++invoke(input) R
+}
+
+class DecoratorForSuspendFunction2~T, U, R~ {
++withCircuitBreaker(cb) DecoratorForSuspendFunction2
++withRetry(retry) DecoratorForSuspendFunction2
++withRateLimit(rl) DecoratorForSuspendFunction2
++withBulkhead(bh) DecoratorForSuspendFunction2
++withTimeLimiter(tl) DecoratorForSuspendFunction2
++decorate() suspend(T, U) -> R
++invoke(t, u) R
+}
+
+class SuspendCache~K, V~ {
+<<interface>>
++name: String
++jcache: Cache
++metrics: Metrics
++eventPublisher: EventPublisher
++computeIfAbsent(cacheKey, loader) V
++containsKey(cacheKey) Boolean
++of(jcache) SuspendCache
+}
+
+class SuspendCacheImpl~K, V~ {
+-jcache: Cache
++computeIfAbsent(cacheKey, loader) V
++containsKey(cacheKey) Boolean
+}
+
+SuspendDecorators --> DecoratorForSuspendSupplier: creates
+SuspendDecorators --> DecoratorForSuspendFunction1: creates
+SuspendDecorators --> DecoratorForSuspendFunction2 : creates
+
+SuspendCache <|.. SuspendCacheImpl
+DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
+```
+
+### 아키텍처
+
+#### CircuitBreaker + Retry 조합 시퀀스 다이어그램
+
+CLOSED → 실패 누적 → OPEN → Half-Open → 복구 흐름:
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant SuspendDecorators
+    participant Retry
+    participant CircuitBreaker
+    participant Service
+    Caller ->> SuspendDecorators: ofSupplier { service.call() }<br/>.withCircuitBreaker(cb).withRetry(retry).invoke()
+    Note over CircuitBreaker: 상태: CLOSED
+
+    loop Retry (최대 maxAttempts)
+        SuspendDecorators ->> CircuitBreaker: executeSuspendFunction
+        CircuitBreaker ->> Service: call()
+
+        alt 성공
+            Service -->> CircuitBreaker: result
+            CircuitBreaker -->> SuspendDecorators: result (성공 기록)
+            SuspendDecorators -->> Caller: result
+        else 실패 (실패율 임계치 미달)
+            Service -->> CircuitBreaker: Exception
+            CircuitBreaker -->> Retry: Exception (실패 기록)
+            Retry ->> Retry: waitDuration delay 후 재시도
+        else 실패율 임계치 초과
+            Note over CircuitBreaker: 상태: CLOSED → OPEN
+            CircuitBreaker -->> SuspendDecorators: CallNotPermittedException
+            SuspendDecorators -->> Caller: CallNotPermittedException
+        end
+    end
+
+    Note over CircuitBreaker: waitDurationInOpenState 경과
+    Note over CircuitBreaker: 상태: OPEN → HALF_OPEN
+    Caller ->> CircuitBreaker: 다음 호출 (탐침)
+    CircuitBreaker ->> Service: call()
+    alt 탐침 성공
+        Service -->> CircuitBreaker: result
+        Note over CircuitBreaker: 상태: HALF_OPEN → CLOSED
+    else 탐침 실패
+        Service -->> CircuitBreaker: Exception
+        Note over CircuitBreaker: 상태: HALF_OPEN → OPEN
+    end
+```
+
+#### SuspendCache 동작 시퀀스 다이어그램
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant SuspendCacheImpl
+    participant JCache
+    participant Loader
+    Caller ->> SuspendCacheImpl: computeIfAbsent("user:1") { loadUser() }
+    SuspendCacheImpl ->> JCache: containsKey("user:1")
+
+    alt Cache Hit
+        JCache -->> SuspendCacheImpl: true
+        SuspendCacheImpl ->> JCache: get("user:1")
+        JCache -->> SuspendCacheImpl: cachedValue
+        SuspendCacheImpl ->> SuspendCacheImpl: onCacheHit() 이벤트 발행
+        SuspendCacheImpl -->> Caller: cachedValue
+    else Cache Miss
+        JCache -->> SuspendCacheImpl: false
+        SuspendCacheImpl ->> SuspendCacheImpl: onCacheMiss() 이벤트 발행
+        SuspendCacheImpl ->> Loader: loader() suspend 실행
+        Loader -->> SuspendCacheImpl: loadedValue
+        SuspendCacheImpl ->> JCache: put("user:1", loadedValue)
+        SuspendCacheImpl -->> Caller: loadedValue
+    else Cache Error
+        JCache -->> SuspendCacheImpl: Exception
+        SuspendCacheImpl ->> SuspendCacheImpl: onError() 이벤트 발행
+        SuspendCacheImpl ->> Loader: loader() fallback 실행
+        Loader -->> SuspendCacheImpl: loadedValue
+        SuspendCacheImpl -->> Caller: loadedValue
+    end
+```
+
 ## 특징
 
 - **Coroutines 지원**: `suspend` 함수용 Circuit Breaker, Retry, RateLimiter, Bulkhead, TimeLimiter

@@ -1,5 +1,7 @@
 # Module Examples - Mutiny
 
+> **⚠️ Deprecated**: 이 모듈은 예제성 모듈로 deprecated 되었으며 빌드에서 제외되었습니다.
+
 [Mutiny](https://smallrye.io/smallrye-mutiny/)는 Reactive Programming을 위한 SmallRye 라이브러리입니다. 이 프로젝트는 Mutiny를 사용하는 다양한 예제를 제공합니다.
 
 ## 예제 목록

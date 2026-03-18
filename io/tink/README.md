@@ -237,6 +237,121 @@ io.bluetape4k.tink
     └── TinkEncryptorExtensions.kt          # 확장 함수
 ```
 
+## 다이어그램
+
+### TinkEncryptor 클래스 계층
+
+```mermaid
+classDiagram
+    class TinkEncryptor {
+        <<interface>>
+        +encrypt(plaintext: ByteArray): ByteArray
+        +decrypt(ciphertext: ByteArray): ByteArray
+        +encrypt(plaintext: String): String
+        +decrypt(ciphertext: String): String
+    }
+    class TinkAeadEncryptor {
+        -aead: TinkAead
+        +encrypt(plaintext: ByteArray): ByteArray
+        +decrypt(ciphertext: ByteArray): ByteArray
+    }
+    class TinkDaeadEncryptor {
+        -daead: TinkDeterministicAead
+        +encrypt(plaintext: ByteArray): ByteArray
+        +decrypt(ciphertext: ByteArray): ByteArray
+    }
+    class TinkAead {
+        -aead: Aead
+        +encrypt(plaintext, associatedData): ByteArray
+        +decrypt(ciphertext, associatedData): ByteArray
+    }
+    class TinkDeterministicAead {
+        -daead: DeterministicAead
+        +encryptDeterministically(plaintext): ByteArray
+        +decryptDeterministically(ciphertext): ByteArray
+    }
+    class TinkEncryptors {
+        <<object>>
+        +AES256_GCM: TinkEncryptor
+        +AES128_GCM: TinkEncryptor
+        +CHACHA20_POLY1305: TinkEncryptor
+        +XCHACHA20_POLY1305: TinkEncryptor
+        +DETERMINISTIC_AES256_SIV: TinkEncryptor
+    }
+    class TinkAeads {
+        <<object>>
+        +AES256_GCM: TinkAead
+        +AES128_GCM: TinkAead
+        +CHACHA20_POLY1305: TinkAead
+        +XCHACHA20_POLY1305: TinkAead
+    }
+    class TinkMac {
+        -mac: Mac
+        +computeMac(data: ByteArray): ByteArray
+        +verifyMac(tag, data): Boolean
+    }
+    class TinkMacs {
+        <<object>>
+        +HMAC_SHA256: TinkMac
+        +HMAC_SHA512: TinkMac
+        +HMAC_SHA512_512BITTAG: TinkMac
+    }
+    class TinkDigester {
+        +algorithmName: String
+        +digest(data: ByteArray): ByteArray
+        +digest(data: String): String
+        +matches(data, expected): Boolean
+    }
+    class TinkDigesters {
+        <<object>>
+        +MD5: TinkDigester
+        +SHA1: TinkDigester
+        +SHA256: TinkDigester
+        +SHA384: TinkDigester
+        +SHA512: TinkDigester
+    }
+
+    TinkEncryptor <|.. TinkAeadEncryptor
+    TinkEncryptor <|.. TinkDaeadEncryptor
+    TinkAeadEncryptor --> TinkAead : delegates
+    TinkDaeadEncryptor --> TinkDeterministicAead : delegates
+    TinkEncryptors ..> TinkAeadEncryptor : creates
+    TinkEncryptors ..> TinkDaeadEncryptor : creates
+    TinkAeads ..> TinkAead : creates
+    TinkMacs ..> TinkMac : creates
+    TinkDigesters ..> TinkDigester : creates
+```
+
+### AEAD encrypt/decrypt 흐름
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant TinkEncryptors
+    participant TinkAeadEncryptor
+    participant TinkAead
+    participant Aead
+
+    Note over Caller,Aead: 암호화 (encrypt)
+    Caller->>TinkEncryptors: AES256_GCM.encrypt("평문")
+    TinkEncryptors->>TinkAeadEncryptor: encrypt("평문")
+    TinkAeadEncryptor->>TinkAead: encrypt("평문".toByteArray())
+    TinkAead->>Aead: encrypt(plainBytes, EMPTY_AD)
+    Aead-->>TinkAead: cipherBytes (nonce + ciphertext + tag)
+    TinkAead-->>TinkAeadEncryptor: Base64(cipherBytes)
+    TinkAeadEncryptor-->>TinkEncryptors: Base64 암호문
+    TinkEncryptors-->>Caller: Base64 암호문
+
+    Note over Caller,Aead: 복호화 (decrypt)
+    Caller->>TinkEncryptors: AES256_GCM.decrypt(base64Cipher)
+    TinkEncryptors->>TinkAeadEncryptor: decrypt(base64Cipher)
+    TinkAeadEncryptor->>TinkAead: decrypt(base64Cipher)
+    TinkAead->>Aead: decrypt(cipherBytes, EMPTY_AD)
+    Aead-->>TinkAead: plainBytes (인증 검증 포함)
+    TinkAead-->>TinkAeadEncryptor: plainBytes.toString(UTF-8)
+    TinkAeadEncryptor-->>Caller: "평문"
+```
+
 ## bluetape4k-crypto 와의 차이
 
 > **`bluetape4k-crypto`는 @Deprecated 되었습니다.** 신규 개발에서는 `bluetape4k-tink`를 사용하세요.

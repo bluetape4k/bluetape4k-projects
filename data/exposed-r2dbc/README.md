@@ -194,6 +194,119 @@ suspendTransaction {
 | `restoreAll(predicate)`                     | suspend    | `Int`          | 조건에 맞는 레코드 일괄 복원         |
 | `findActivePage(pageNumber, pageSize, ...)` | suspend    | `ExposedPage<E>` | 활성 레코드 페이징 조회          |
 
+## 다이어그램
+
+### R2dbcRepository 계층
+
+```mermaid
+classDiagram
+    class R2dbcRepository {
+        <<interface>>
+        +table: IdTable~ID~
+        +extractId(entity) ID
+        +count() Long
+        +existsById(id) Boolean
+        +findById(id) E
+        +findByIdOrNull(id) E?
+        +findAll(...) Flow~E~
+        +findPage(...) ExposedPage~E~
+        +deleteById(id) Int
+        +updateById(id, ...) Int
+        +batchInsert(...) List~E~
+        +batchUpsert(...) List~E~
+    }
+    class SoftDeletedR2dbcRepository {
+        <<interface>>
+        +table: SoftDeletedIdTable~ID~
+        +softDeleteById(id)
+        +restoreById(id)
+        +countActive(...) Long
+        +findActive(...) Flow~E~
+        +findDeleted(...) Flow~E~
+        +findActivePage(...) ExposedPage~E~
+    }
+    class IntR2dbcRepository {
+        <<interface>>
+    }
+    class LongR2dbcRepository {
+        <<interface>>
+    }
+    class StringR2dbcRepository {
+        <<interface>>
+    }
+    class LongSoftDeletedR2dbcRepository {
+        <<interface>>
+    }
+
+    R2dbcRepository <|-- SoftDeletedR2dbcRepository
+    R2dbcRepository <|-- IntR2dbcRepository
+    R2dbcRepository <|-- LongR2dbcRepository
+    R2dbcRepository <|-- StringR2dbcRepository
+    SoftDeletedR2dbcRepository <|-- LongSoftDeletedR2dbcRepository
+```
+
+### suspend 트랜잭션 흐름
+
+`suspendTransaction` 블록 내에서 `R2dbcRepository`를 통해 CRUD 연산이 수행되는 흐름입니다.
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant T as suspendTransaction
+    participant R as R2dbcRepository
+    participant DB as R2DBC Database
+
+    C->>T: suspendTransaction { ... }
+    activate T
+
+    T->>R: findById(id)
+    R->>DB: SELECT * WHERE id = ?
+    DB-->>R: ResultRow
+    R-->>T: toEntity() → E
+
+    T->>R: updateById(id) { ... }
+    R->>DB: UPDATE SET ... WHERE id = ?
+    DB-->>R: Int (updated rows)
+    R-->>T: Int
+
+    T->>R: deleteById(id)
+    R->>DB: DELETE WHERE id = ?
+    DB-->>R: Int (deleted rows)
+    R-->>T: Int
+
+    deactivate T
+    T-->>C: 결과 반환
+```
+
+### SoftDelete 트랜잭션 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant T as suspendTransaction
+    participant R as SoftDeletedR2dbcRepository
+    participant DB as R2DBC Database
+
+    C->>T: suspendTransaction { ... }
+    activate T
+
+    T->>R: softDeleteById(id)
+    R->>DB: UPDATE SET is_deleted=true WHERE id=?
+    DB-->>R: Unit
+
+    T->>R: findActive()
+    R->>DB: SELECT * WHERE is_deleted=false
+    DB-->>R: Flow~ResultRow~
+    R-->>T: Flow~E~
+
+    T->>R: restoreById(id)
+    R->>DB: UPDATE SET is_deleted=false WHERE id=?
+    DB-->>R: Unit
+
+    deactivate T
+    T-->>C: 결과 반환
+```
+
 ## 편의 타입 별칭
 
 | 인터페이스                              | 기본키 타입           |

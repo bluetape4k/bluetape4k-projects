@@ -1,5 +1,7 @@
 # Module Examples - Vert.x with Kotlin Coroutines
 
+> **⚠️ Obsolete**: 이 모듈은 `bluetape4k-vertx`로 통합되었습니다. 빌드에서 완전 제외되었습니다.
+
 Vert.x를 Kotlin Coroutines와 함께 사용하는 예제입니다.
 
 ## 예제 목록

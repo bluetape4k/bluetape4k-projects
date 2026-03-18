@@ -70,16 +70,16 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 
 ```mermaid
 classDiagram
-    class NearJCache~K_V~ {
-        +frontCache: JCache~K_V~
-        +backCache: JCache~K_V~
-        -config: NearJCacheConfig~K_V~
+    class NearJCache~K, V~ {
++frontCache: JCache
++backCache: JCache
+-config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-    class SuspendNearJCache~K_V~ {
-        -frontCache: SuspendJCache~K_V~
-        -backCache: SuspendJCache~K_V~
+class SuspendNearJCache~K, V~ {
+-frontCache: SuspendJCache
+-backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
         +withoutListener(front, back) SuspendNearJCache
         +get(key: K) V?
@@ -87,18 +87,16 @@ classDiagram
         +close()
     }
 
-    class HazelcastSuspendJCache~K_V~ {
+class HazelcastSuspendJCache~K, V~ {
         -hazelcastInstance: HazelcastInstance
         -cacheName: String
-        IMap 기반 SuspendJCache
     }
 
-    class CaffeineSuspendJCache~K_V~ {
-        Caffeine AsyncCache 기반
-        (frontCache 역할)
+class CaffeineSuspendJCache~K, V~ {
+<<frontCache>>
     }
 
-    class NearJCacheConfig~K_V~ {
+class NearJCacheConfig~K, V~ {
         +cacheName: String
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
@@ -132,6 +130,127 @@ val suspendNearJCache = HazelcastCaches.suspendNearJCache<String, String>(hazelc
 suspendNearJCache.put("session-1", "token-abc")
 val token = suspendNearJCache.get("session-1")   // suspend fun
 suspendNearJCache.close()
+```
+
+## 클래스 구조
+
+### HazelcastNearCache 계층
+
+```mermaid
+classDiagram
+    class NearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +getAll(keys: Set~String~) Map
+        +put(key: String, value: V)
+        +putIfAbsent(key: String, value: V) V?
+        +replace(key: String, value: V) Boolean
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class SuspendNearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class HazelcastNearCache~V~ {
+        -imap: IMap
+        -frontCache: CaffeineHazelcastLocalCache
+        -entryListener: HazelcastEntryEventListener
+        -listenerId: UUID
+        -config: HazelcastNearCacheConfig
+    }
+
+    class HazelcastSuspendNearCache~V~ {
+        -imap: IMap
+        -frontCache: CaffeineHazelcastLocalCache
+        -entryListener: HazelcastEntryEventListener
+        -listenerId: UUID
+        -config: HazelcastNearCacheConfig
+    }
+
+    class HazelcastLocalCache~K, V~ {
+<<interface>>
++get(key: K) V?
++put(key: K, value: V)
++getAll(keys: Set~K~) Map
++remove(key: K)
++removeAll(keys: Set~K~)
++clear()
++estimatedSize() Long
++stats() CacheStats?
+}
+
+class CaffeineHazelcastLocalCache~V~ {
+-cache: Cache
++invalidate(key: String)
+}
+
+class HazelcastEntryEventListener~K, V~ {
+-frontCache: HazelcastLocalCache
++entryAdded(event)
++entryUpdated(event)
++entryRemoved(event)
++entryExpired(event)
++entryEvicted(event)
+}
+
+class HazelcastNearCacheConfig {
++cacheName: String
++maxLocalSize: Int
++frontExpireAfterWrite: Duration
++frontExpireAfterAccess: Duration?
++recordStats: Boolean
+}
+
+NearCacheOperations <|.. HazelcastNearCache
+SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
+HazelcastLocalCache <|.. CaffeineHazelcastLocalCache
+HazelcastNearCache --> CaffeineHazelcastLocalCache: frontCache
+HazelcastNearCache --> HazelcastEntryEventListener: entryListener
+HazelcastNearCache --> HazelcastNearCacheConfig: config
+HazelcastSuspendNearCache --> CaffeineHazelcastLocalCache: frontCache
+HazelcastSuspendNearCache --> HazelcastEntryEventListener: entryListener
+HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
+HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
+```
+
+### IMap EntryListener 기반 Invalidation 흐름
+
+```mermaid
+sequenceDiagram
+    participant App1 as Application (인스턴스 1)
+    participant NC1 as HazelcastNearCache (인스턴스 1)
+    participant Front1 as Caffeine (인스턴스 1)
+    participant IMap as Hazelcast IMap (분산)
+    participant Listener2 as EntryListener (인스턴스 2)
+    participant Front2 as Caffeine (인스턴스 2)
+    Note over NC1, IMap: 초기화 — IMap.addEntryListener 등록
+    NC1 ->> IMap: addEntryListener(entryListener, true)
+    Listener2 ->> IMap: addEntryListener(entryListener, true)
+    Note over App1, Front1: 인스턴스 1이 키를 수정
+    App1 ->> NC1: put("key", newValue)
+    NC1 ->> Front1: put("key", newValue)
+    NC1 ->> IMap: set("key", newValue)
+    Note over IMap, Front2: IMap이 EntryUpdated 이벤트 발행
+    IMap ->> Listener2: entryUpdated("key", newValue)
+    Listener2 ->> Front2: invalidate("key")
+    Front2 -->> Listener2: (로컬 캐시에서 제거)
+    Note over Front2: 다음 get("key") 시 IMap에서 최신값 조회
 ```
 
 ## NearCache 아키텍처

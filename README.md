@@ -69,7 +69,9 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 - **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
 - **[okio](./io/okio/README.md)**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
-- **[jackson](./io/jackson/README.md)/[jackson3](./io/jackson3/README.md)**: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`, `jackson3-binary/text` 통합됨)
+- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)
+  **: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`,
+  `jackson3-binary/text` 통합됨)
 - **[json](./io/json/README.md)**: JSON 처리
 - **[csv](./io/csv/README.md)**: CSV 처리
 - **[feign](./io/feign/README.md)**: Feign HTTP 클라이언트 (Coroutines 지원)
@@ -159,7 +161,6 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### 유틸리티 모듈 (`utils/`)
 
-- **[ahocorasick](./utils/ahocorasick/README.md)**: 문자열 검색 (Aho-Corasick 알고리즘)
 - **[bloomfilter](./utils/bloomfilter/README.md)**: Bloom Filter
 - **[captcha](./utils/captcha/README.md)**: CAPTCHA 생성
 - **bluetape4k-geo** (`utils/geo`): 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구 `utils/geocode`, `utils/geohash`, `utils/geoip2` 통합됨)
@@ -168,15 +169,22 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[javatimes](./utils/javatimes/README.md)**: 날짜/시간 유틸리티
 - **[jwt](./utils/jwt/README.md)**: JWT 처리
 - **[leader](./utils/leader/README.md)**: Leader 선출
-- **[lingua](./utils/lingua/README.md)**: 언어 감지
 - **[logback-kafka](./utils/logback-kafka/README.md)**: Logback Kafka Appender
 - **[math](./utils/math/README.md)**: 수학 유틸리티
 - **[measured](./utils/measured/README.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
   복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **[money](./utils/money/README.md)**: Money API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive 통합
-- **[naivebayes](./utils/naivebayes/README.md)**: Naive Bayes 분류기
 - ~~**[units](./utils/units/README.md)**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
+
+### Deprecated 유틸리티 모듈 (`utils-deprecated/`)
+
+사용 빈도가 낮거나 대안이 있는 모듈입니다. 점차 삭제될 예정이며 새로운 코드에서는 사용을 권장하지 않습니다.
+
+- ~~**[ahocorasick](./utils-deprecated/ahocorasick/README.md)**~~: 문자열 검색 (Aho-Corasick 알고리즘) — **Deprecated**
+- ~~**[lingua](./utils-deprecated/lingua/README.md)**~~: 언어 감지 — **Deprecated**
+- ~~**[naivebayes](./utils-deprecated/naivebayes/README.md)**~~: Naive Bayes 분류기 — **Deprecated**
+- ~~**mutiny-examples** (`utils-deprecated/mutiny-examples`)~~: Mutiny 사용 예제 — **Deprecated**
 
 ### 테스트 모듈 (`testing/`)
 
@@ -200,7 +208,24 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
    - **[korean](./tokenizer/korean/README.md)**: 한국어 형태소 분석
    - **[japanese](./tokenizer/japanese/README.md)**: 일본어 형태소 분석
 - **[timefold](./timefold/solver-persistence-exposed/README.md)**: Timefold Solver + Exposed 통합
-- **examples/**: 라이브러리 사용 예제
+
+### 예제 모듈 (`examples/`)
+
+라이브러리 사용 방법을 보여주는 예제 모듈입니다. 배포되지 않습니다.
+
+- **[coroutines](./examples/coroutines/README.md)**: Kotlin Coroutines 사용 예제
+- **[jpa-querydsl](./examples/jpa-querydsl/README.md)**: JPA + QueryDSL 사용 예제
+- **[redisson](./examples/redisson/README.md)**: Redisson 사용 예제
+- **[virtualthreads](./examples/virtualthreads/README.md)**: Java Virtual Thread 사용 예제
+
+### 폐기된 모듈 (`x-obsoleted/`)
+
+더 이상 유지보수되지 않는 모듈입니다. 빌드에서 제외되었으며 삭제될 예정입니다.
+
+- ~~**vertx-coroutines**~~: Vert.x + Coroutines — `bluetape4k-vertx`로 통합됨
+- ~~**vertx-sqlclient**~~: Vert.x SQL Client — `bluetape4k-vertx`로 통합됨
+- ~~**vertx-webclient**~~: Vert.x Web Client — `bluetape4k-vertx`로 통합됨
+- ~~**mapstruct**~~: MapStruct 통합 — 미사용으로 폐기
 
 ## 빌드 및 테스트
 

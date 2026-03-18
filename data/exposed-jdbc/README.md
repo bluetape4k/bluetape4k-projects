@@ -256,6 +256,157 @@ transaction {
 | `UUIDSoftDeletedJdbcRepository`     | `java.util.UUID` |
 | `StringSoftDeletedJdbcRepository`   | `String`         |
 
+## 클래스 다이어그램
+
+### Repository 계층 구조
+
+```mermaid
+classDiagram
+    direction TB
+
+    class JdbcRepository~ID, E~ {
+<<interface>>
++table: IdTable~ID~
++extractId(entity: E) ID
++ResultRow.toEntity() E
++count() Long
++existsById(id: ID) Boolean
++findById(id: ID) E
++findByIdOrNull(id: ID) E?
++findAll(limit, offset, ...) List~E~
++findPage(pageNumber, pageSize, ...) ExposedPage~E~
++deleteById(id: ID) Int
++updateById(id: ID, ...) Int
++batchInsert(entities, ...) List~E~
++batchUpsert(entities, ...) List~E~
+}
+
+class SoftDeletedJdbcRepository~ID, E, T~ {
+<<interface>>
++table: T
++softDeleteById(id: ID)
++restoreById(id: ID)
++findActive(...) List~E~
++findDeleted(...) List~E~
++countActive(predicate) Long
++countDeleted(predicate) Long
++softDeleteAll(predicate) Int
++restoreAll(predicate) Int
++findActivePage(...) ExposedPage~E~
+}
+
+class IntJdbcRepository~E~ {
+<<interface>>
+}
+
+class LongJdbcRepository~E~ {
+<<interface>>
+}
+
+class UUIDJdbcRepository~E~ {
+<<interface>>
+}
+
+class StringJdbcRepository~E~ {
+<<interface>>
+}
+
+class LongSoftDeletedJdbcRepository~E, T~ {
+<<interface>>
+}
+
+class IntSoftDeletedJdbcRepository~E, T~ {
+<<interface>>
+}
+
+class ExposedPage~E~ {
++content: List~E~
++totalCount: Long
++pageNumber: Int
++pageSize: Int
++totalPages: Int
++isLast: Boolean
+}
+
+JdbcRepository <|-- SoftDeletedJdbcRepository
+JdbcRepository <|-- IntJdbcRepository
+JdbcRepository <|-- LongJdbcRepository
+JdbcRepository <|-- UUIDJdbcRepository
+JdbcRepository <|-- StringJdbcRepository
+SoftDeletedJdbcRepository <|-- LongSoftDeletedJdbcRepository
+SoftDeletedJdbcRepository <|-- IntSoftDeletedJdbcRepository
+JdbcRepository ..> ExposedPage: returns
+```
+
+## 시퀀스 다이어그램
+
+### findById — 단건 조회
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Repository as MyRepository<br/>(JdbcRepository)
+    participant Exposed as Exposed DSL
+    participant DB as Database
+    Client ->> Repository: findById(id)
+    Repository ->> Exposed: table.selectAll().where { id eq id }.single()
+    Exposed ->> DB: SELECT * FROM table WHERE id = ?
+    DB -->> Exposed: ResultRow
+    Exposed -->> Repository: ResultRow
+    Repository ->> Repository: ResultRow.toEntity()
+    Repository -->> Client: entity E
+```
+
+### save + findPage — 저장 후 페이징 조회
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Repository as MyRepository<br/>(JdbcRepository)
+    participant Exposed as Exposed DSL
+    participant DB as Database
+    Client ->> Repository: save(entity)
+    Repository ->> Exposed: table.insert { ... }
+    Exposed ->> DB: INSERT INTO table VALUES (...)
+    DB -->> Exposed: generated id
+    Exposed -->> Repository: EntityID
+    Repository -->> Client: saved entity
+    Client ->> Repository: findPage(pageNumber=0, pageSize=20)
+    Repository ->> Exposed: countBy(predicate)
+    Exposed ->> DB: SELECT COUNT(*) FROM table WHERE ...
+    DB -->> Exposed: totalCount
+    Repository ->> Exposed: findAll(limit=20, offset=0)
+    Exposed ->> DB: SELECT * FROM table ORDER BY id LIMIT 20
+    DB -->> Exposed: List~ResultRow~
+    Exposed -->> Repository: List~ResultRow~
+    Repository ->> Repository: rows.map { toEntity() }
+    Repository -->> Client: ExposedPage(content, totalCount, ...)
+```
+
+### softDeleteById / restoreById — 논리 삭제 및 복원
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Repository as MyRepository<br/>(SoftDeletedJdbcRepository)
+    participant Exposed as Exposed DSL
+    participant DB as Database
+    Client ->> Repository: softDeleteById(id)
+    Repository ->> Exposed: table.update { isDeleted = true }
+    Exposed ->> DB: UPDATE table SET is_deleted = true WHERE id = ?
+    DB -->> Client: (완료)
+    Client ->> Repository: findActive()
+    Repository ->> Exposed: findAll { isDeleted eq false }
+    Exposed ->> DB: SELECT * FROM table WHERE is_deleted = false
+    DB -->> Exposed: List~ResultRow~
+    Exposed -->> Repository: List~ResultRow~
+    Repository -->> Client: List~E~ (활성 엔티티만)
+    Client ->> Repository: restoreById(id)
+    Repository ->> Exposed: table.update { isDeleted = false }
+    Exposed ->> DB: UPDATE table SET is_deleted = false WHERE id = ?
+    DB -->> Client: (완료)
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                                                           | 설명                                |

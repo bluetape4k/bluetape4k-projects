@@ -1,5 +1,7 @@
 # Module Examples - Vert.x WebClient
 
+> **⚠️ Obsolete**: 이 모듈은 `bluetape4k-vertx`로 통합되었습니다. 빌드에서 완전 제외되었습니다.
+
 [Vert.x WebClient](https://vertx.io/docs/vertx-web-client/java/)는 Async/Non-Blocking 방식의 HTTP 클라이언트입니다. Spring의 WebClient와 비슷한 기능을 제공하지만, Reactor 대신 Coroutines를 사용하여 더 쉽게 구현할 수 있습니다.
 
 ## 예제 목록

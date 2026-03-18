@@ -369,6 +369,170 @@ val writeFuture = readFuture.thenCompose { bytes ->
 ./gradlew :bluetape4k-io:benchmark
 ```
 
+## 클래스 구조
+
+### Compressor 계층
+
+```mermaid
+classDiagram
+    class Compressor {
+        <<interface>>
+        +compress(plain: ByteArray?) ByteArray
+        +decompress(compressed: ByteArray?) ByteArray
+        +compress(plain: String) String
+        +decompress(compressed: String) String
+        +compress(plainBuffer: ByteBuffer) ByteBuffer
+        +compress(plainStream: InputStream) InputStream
+    }
+
+    class AbstractCompressor {
+        <<abstract>>
+        #doCompress(plain: ByteArray) ByteArray
+        #doDecompress(compressed: ByteArray) ByteArray
+        +compress(plain: ByteArray?) ByteArray
+        +decompress(compressed: ByteArray?) ByteArray
+    }
+
+    class LZ4Compressor
+    class BlockLZ4Compressor
+    class FramedLZ4Compressor
+    class SnappyCompressor
+    class FramedSnappyCompressor
+    class ZstdCompressor
+    class GZipCompressor
+    class DeflateCompressor
+    class BZip2Compressor
+    class ApacheGZipCompressor
+    class ApacheDeflateCompressor
+    class ApacheZstdCompressor
+
+    class StreamingCompressor {
+        <<interface>>
+        +compressing(output: OutputStream) OutputStream
+        +decompressing(input: InputStream) InputStream
+        +compress(source: InputStream, sink: OutputStream) Long
+        +decompress(source: InputStream, sink: OutputStream) Long
+        +compress(plain: ByteArray?) ByteArray
+        +decompress(compressed: ByteArray?) ByteArray
+    }
+
+    Compressor <|.. AbstractCompressor
+    AbstractCompressor <|-- LZ4Compressor
+    AbstractCompressor <|-- BlockLZ4Compressor
+    AbstractCompressor <|-- FramedLZ4Compressor
+    AbstractCompressor <|-- SnappyCompressor
+    AbstractCompressor <|-- FramedSnappyCompressor
+    AbstractCompressor <|-- ZstdCompressor
+    AbstractCompressor <|-- GZipCompressor
+    AbstractCompressor <|-- DeflateCompressor
+    AbstractCompressor <|-- BZip2Compressor
+    AbstractCompressor <|-- ApacheGZipCompressor
+    AbstractCompressor <|-- ApacheDeflateCompressor
+    AbstractCompressor <|-- ApacheZstdCompressor
+```
+
+### BinarySerializer 계층
+
+```mermaid
+classDiagram
+    class BinarySerializer {
+        <<interface>>
+        +serialize(graph: Any?) ByteArray
+        +deserialize(bytes: ByteArray?) T?
+    }
+
+    class AbstractBinarySerializer {
+        <<abstract>>
+        #doSerialize(graph: Any) ByteArray
+        #doDeserialize(bytes: ByteArray) T?
+        +serialize(graph: Any?) ByteArray
+        +deserialize(bytes: ByteArray?) T?
+    }
+
+    class BinarySerializerDecorator {
+        #serializer: BinarySerializer
+    }
+
+    class CompressableBinarySerializer {
+        +compressor: Compressor
+        +serialize(graph: Any?) ByteArray
+        +deserialize(bytes: ByteArray?) T?
+    }
+
+    class JdkBinarySerializer
+    class KryoBinarySerializer {
+        -bufferSize: Int
+        -kryoPool: Pool
+    }
+    class ForyBinarySerializer {
+        -fory: ThreadSafeFory
+    }
+
+    BinarySerializer <|.. AbstractBinarySerializer
+    BinarySerializer <|.. BinarySerializerDecorator
+    AbstractBinarySerializer <|-- JdkBinarySerializer
+    AbstractBinarySerializer <|-- KryoBinarySerializer
+    AbstractBinarySerializer <|-- ForyBinarySerializer
+    BinarySerializerDecorator <|-- CompressableBinarySerializer
+    CompressableBinarySerializer --> Compressor
+```
+
+### compress/decompress 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant AC as AbstractCompressor
+    participant Impl as 구현체(e.g. LZ4Compressor)
+
+    C->>AC: compress(plain: ByteArray?)
+    AC->>AC: plain.isNullOrEmpty() 검사
+    alt null 또는 빈 배열
+        AC-->>C: emptyByteArray
+    else 유효한 데이터
+        AC->>Impl: doCompress(plain)
+        Impl-->>AC: compressed: ByteArray
+        AC-->>C: compressed
+    end
+
+    C->>AC: decompress(compressed: ByteArray?)
+    AC->>AC: compressed.isNullOrEmpty() 검사
+    alt null 또는 빈 배열
+        AC-->>C: emptyByteArray
+    else 유효한 데이터
+        AC->>Impl: doDecompress(compressed)
+        Impl-->>AC: plain: ByteArray
+        AC-->>C: plain
+    end
+```
+
+### serialize/deserialize 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant ABS as AbstractBinarySerializer
+    participant Impl as 구현체(e.g. KryoBinarySerializer)
+
+    C->>ABS: serialize(graph: Any?)
+    alt graph == null
+        ABS-->>C: emptyByteArray
+    else 유효한 객체
+        ABS->>Impl: doSerialize(graph)
+        Impl-->>ABS: bytes: ByteArray
+        ABS-->>C: bytes
+    end
+
+    C->>ABS: deserialize(bytes: ByteArray?)
+    alt null 또는 빈 배열
+        ABS-->>C: null
+    else 유효한 데이터
+        ABS->>Impl: doDeserialize(bytes)
+        Impl-->>ABS: obj: T?
+        ABS-->>C: obj
+    end
+```
+
 ## 모듈 구조
 
 ```

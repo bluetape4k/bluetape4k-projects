@@ -184,6 +184,80 @@ dependencies {
 }
 ```
 
+## 클래스 구조
+
+### Retrofit2 + Result 패턴 통합 구조
+
+```mermaid
+classDiagram
+    class Retrofit {
+        <<Retrofit2>>
+        +create(serviceClass) T
+        +baseUrl() HttpUrl
+    }
+
+    class CallAdapter {
+        <<interface>>
+        +responseType() Type
+        +adapt(call) T
+    }
+
+    class ResultCallAdapterFactory {
+        +get(returnType, annotations, retrofit) CallAdapter?
+    }
+
+    class ResultCall~T~ {
+        -delegate: Call~T~
+        +execute() Response~Result~T~~
+        +enqueue(callback)
+        +clone() Call~Result~T~~
+    }
+
+    class Hc5CallFactory {
+        -asyncClient: CloseableHttpAsyncClient
+        +newCall(request) Call
+        +close()
+    }
+
+    class VertxCallFactory {
+        +newCall(request) Call
+    }
+
+    CallAdapter <|.. ResultCallAdapterFactory
+    ResultCallAdapterFactory ..> ResultCall : 생성
+    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
+    Retrofit --> Hc5CallFactory : callFactory
+    Retrofit --> VertxCallFactory : callFactory
+```
+
+### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant API as Retrofit 인터페이스(suspend fun)
+    participant RC as ResultCall
+    participant CF as Call.Factory(e.g. Hc5CallFactory)
+    participant Server as HTTP 서버
+
+    App->>API: suspend fun getUser(): Result~User~
+    API->>RC: enqueue(callback)
+    RC->>CF: delegate.enqueue(resultCallback)
+    CF->>Server: HTTP 요청 (비동기)
+    Server-->>CF: HTTP 응답
+    alt 2xx 성공
+        CF-->>RC: onResponse (body != null)
+        RC-->>API: Result.success(body)
+    else 4xx/5xx 실패
+        CF-->>RC: onResponse (isSuccessful == false)
+        RC-->>API: Result.failure(HttpException)
+    else 네트워크 오류
+        CF-->>RC: onFailure(throwable)
+        RC-->>API: Result.failure(IOException)
+    end
+    API-->>App: Result~User~
+```
+
 ## 모듈 구조
 
 ```

@@ -197,6 +197,96 @@ transaction {
 }
 ```
 
+## 다이어그램
+
+### 커스텀 IdTable 계층
+
+`exposed-core`의 IdTable 구현을 DAO 엔티티와 함께 사용하는 전체 계층입니다.
+
+```mermaid
+classDiagram
+    class IdTable {
+<<ExposedCore>>
++id: Column~EntityID~
++primaryKey: PrimaryKey
+}
+class SoftDeletedIdTable {
+<<abstract,exposed-core>>
++isDeleted: Column~Boolean~
+}
+class KsuidTable {
++id: Column~EntityID~String~~
+}
+class KsuidMillisTable {
++id: Column~EntityID~String~~
+}
+class SnowflakeIdTable {
++id: Column~EntityID~Long~~
+}
+class TimebasedUUIDTable {
++id: Column~EntityID~UUID~~
+}
+class TimebasedUUIDBase62Table {
++id: Column~EntityID~String~~
+}
+
+IdTable <|-- SoftDeletedIdTable
+IdTable <|-- KsuidTable
+IdTable <|-- KsuidMillisTable
+IdTable <|-- SnowflakeIdTable
+IdTable <|-- TimebasedUUIDTable
+IdTable <|-- TimebasedUUIDBase62Table
+```
+
+### Entity 확장 계층
+
+각 IdTable에 대응하는 DAO Entity 및 EntityClass 계층입니다.
+
+```mermaid
+classDiagram
+    class Entity {
+<<ExposedCore>>
++id: EntityID~ID~
+}
+class StringEntity {
+<<abstract>>
+}
+class KsuidEntity
+class KsuidMillisEntity
+class SnowflakeIdEntity
+class TimebasedUUIDEntity
+class TimebasedUUIDBase62Entity
+
+class EntityClass {
+<<ExposedCore>>
++new(init) E
++findById(id) E?
+}
+class StringEntityClass {
+<<abstract>>
+}
+class KsuidEntityClass
+class SnowflakeIdEntityClass
+class TimebasedUUIDEntityClass
+
+Entity <|-- StringEntity
+StringEntity <|-- KsuidEntity
+StringEntity <|-- KsuidMillisEntity
+StringEntity <|-- TimebasedUUIDBase62Entity
+Entity <|-- SnowflakeIdEntity
+Entity <|-- TimebasedUUIDEntity
+
+EntityClass <|-- StringEntityClass
+StringEntityClass <|-- KsuidEntityClass
+StringEntityClass <|-- TimebasedUUIDBase62EntityClass
+EntityClass <|-- SnowflakeIdEntityClass
+EntityClass <|-- TimebasedUUIDEntityClass
+
+KsuidEntityClass --> KsuidEntity: manages
+SnowflakeIdEntityClass --> SnowflakeIdEntity: manages
+TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                                   | 설명                                                            |

@@ -52,6 +52,111 @@ val value = suspendCache.get("key")
 
 ---
 
+## 클래스 구조
+
+### RedissonNearCache 계층
+
+```mermaid
+classDiagram
+    class NearCacheOperations {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key) V?
+        +getAll(keys) Map
+        +put(key, value)
+        +putIfAbsent(key, value) V?
+        +remove(key)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class SuspendNearCacheOperations {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key) V?
+        +put(key, value)
+        +remove(key)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class RedissonNearCache {
+        -redisson: RedissonClient
+        -config: RedissonNearCacheConfig
+        -codec: Codec
+        -localCachedMap: RLocalCachedMap
+    }
+
+    class RedissonSuspendNearCache {
+        -redisson: RedissonClient
+        -config: RedissonNearCacheConfig
+        -codec: Codec
+        -localCachedMap: RLocalCachedMap
+    }
+
+    class RedissonNearCacheConfig {
+        +cacheName: String
+        +maxLocalSize: Int
+        +evictionPolicy: EvictionPolicy
+        +syncStrategy: SyncStrategy
+        +reconnectionStrategy: ReconnectionStrategy
+        +timeToLive: Duration?
+        +maxIdle: Duration?
+    }
+
+    class RLocalCachedMap {
+<<Redisson- 내장2-tier>>
++get(key) V?
++put(key, value)
++getAsync(key) RFuture
++putAsync(key, value) RFuture
++clearLocalCache()
++cachedKeySet() Set
+}
+
+NearCacheOperations <|.. RedissonNearCache
+SuspendNearCacheOperations <|.. RedissonSuspendNearCache
+RedissonNearCache --> RLocalCachedMap: localCachedMap
+RedissonNearCache --> RedissonNearCacheConfig: config
+RedissonSuspendNearCache --> RLocalCachedMap: localCachedMap
+RedissonSuspendNearCache --> RedissonNearCacheConfig: config
+```
+
+### RLocalCachedMap 내장 Invalidation 흐름
+
+```mermaid
+sequenceDiagram
+    participant App1 as Application (인스턴스 1)
+    participant NC1 as RedissonNearCache (인스턴스 1)
+    participant LCM1 as RLocalCachedMap (인스턴스 1)
+    participant Redis as Redis Server
+    participant LCM2 as RLocalCachedMap (인스턴스 2)
+    participant NC2 as RedissonNearCache (인스턴스 2)
+    Note over LCM1, LCM2: Redisson이 pub/sub 기반 자동 invalidation 관리
+    App1 ->> NC1: put("key", newValue)
+    NC1 ->> LCM1: put("key", newValue)
+    LCM1 ->> Redis: SET key newValue
+    LCM1 ->> Redis: PUBLISH invalidation topic
+    Note over Redis, LCM2: Redisson pub/sub invalidation 전파
+    Redis ->> LCM2: SUB invalidation ("key")
+    LCM2 ->> LCM2: 로컬 캐시에서 "key" 제거
+    Note over NC2: 다음 get("key") 시 Redis에서 최신값 조회
+    App1 ->> NC2: get("key")
+    NC2 ->> LCM2: get("key")
+    LCM2 ->> Redis: GET key
+    Redis -->> LCM2: newValue
+    LCM2 -->> NC2: newValue
+    NC2 -->> App1: newValue
+```
+
+---
+
 ### 2. Redisson Near Cache (2-Tier)
 
 Caffeine 로컬 캐시 + Redisson LocalCachedMap 분산 캐시를 조합한 2-tier Near Cache입니다.

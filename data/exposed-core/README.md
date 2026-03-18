@@ -154,6 +154,128 @@ println("총 페이지: ${page.totalPages}")
 println("마지막 페이지: ${page.isLast}")
 ```
 
+## 다이어그램
+
+### 커스텀 컬럼 타입 계층
+
+`ColumnWithTransform`을 기반으로 압축/암호화/직렬화 컬럼 타입이 일관된 구조로 구성됩니다.
+
+```mermaid
+classDiagram
+    class ColumnWithTransform {
+<<ExposedCore>>
++delegate: ColumnType
++transformer: ColumnTransformer
+}
+class ColumnTransformer {
+<<interface>>
++wrap(value) T
++unwrap(value) T
+}
+
+class CompressedBinaryColumnType {
++compressor: Compressor
++length: Int
+ }
+class CompressedBlobColumnType {
++compressor: Compressor
+}
+class EncryptedBinaryColumnType {
++encryptor: Encryptor
++length: Int
+ }
+class EncryptedVarCharColumnType {
++encryptor: Encryptor
++colLength: Int
+ }
+class BinarySerializedBinaryColumnType {
++serializer: BinarySerializer
++length: Int
+ }
+class BinarySerializedBlobColumnType {
++serializer: BinarySerializer
+}
+
+ColumnWithTransform <|-- CompressedBinaryColumnType
+ColumnWithTransform <|-- CompressedBlobColumnType
+ColumnWithTransform <|-- EncryptedBinaryColumnType
+ColumnWithTransform <|-- EncryptedVarCharColumnType
+ColumnWithTransform <|-- BinarySerializedBinaryColumnType
+ColumnWithTransform <|-- BinarySerializedBlobColumnType
+ColumnWithTransform --> ColumnTransformer
+```
+
+### ID 생성 전략별 IdTable 계층
+
+클라이언트 측에서 ID를 생성하는 커스텀 `IdTable` 구현체들입니다.
+
+```mermaid
+classDiagram
+    class IdTable {
+<<ExposedCore>>
++id: Column~EntityID~
++primaryKey: PrimaryKey
+}
+class KsuidTable {
++id: Column~EntityID~String~~
++ksuidGenerated()
+}
+class KsuidMillisTable {
++id: Column~EntityID~String~~
++ksuidMillisGenerated()
+}
+class SnowflakeIdTable {
++id: Column~EntityID~Long~~
++snowflakeGenerated()
+}
+class TimebasedUUIDTable {
++id: Column~EntityID~UUID~~
++timebasedGenerated()
+}
+class TimebasedUUIDBase62Table {
++id: Column~EntityID~String~~
++timebasedGenerated()
+}
+class SoftDeletedIdTable {
+<<abstract>>
++isDeleted: Column~Boolean~
+}
+
+IdTable <|-- KsuidTable
+IdTable <|-- KsuidMillisTable
+IdTable <|-- SnowflakeIdTable
+IdTable <|-- TimebasedUUIDTable
+IdTable <|-- TimebasedUUIDBase62Table
+IdTable <|-- SoftDeletedIdTable
+```
+
+### HasIdentifier 및 ExposedPage
+
+```mermaid
+classDiagram
+    class HasIdentifier {
+        <<interface>>
+        +id: ID?
+    }
+    class ExposedPage {
+        +content: List~T~
+        +totalCount: Long
+        +pageNumber: Int
+        +pageSize: Int
+        +totalPages: Int
+        +isFirst: Boolean
+        +isLast: Boolean
+        +hasNext: Boolean
+        +hasPrevious: Boolean
+    }
+    class Serializable {
+<<java.io>>
+}
+
+Serializable <|-- HasIdentifier
+HasIdentifier <.. ExposedPage: content 항목에 적용 가능
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                                                 | 설명                     |

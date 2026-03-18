@@ -128,22 +128,7 @@ val decodeSource = ApacheBase64Source(delegate)
 decodeSource.read(outputBuffer, Long.MAX_VALUE)
 ```
 
-### 7. Cipher 암호화 (Deprecated)
-
-javax.crypto 기반 암호화. Tink 기반으로 마이그레이션을 권장합니다.
-
-| 클래스 | 상태 | 대체 |
-|--------|------|------|
-| `TinkEncryptSink` | **권장** | — |
-| `TinkDecryptSource` | **권장** | — |
-| `FinalizingCipherSink` | Deprecated | `TinkEncryptSink` |
-| `StreamingCipherSource` | Deprecated | `TinkDecryptSource` |
-| `CipherSink` | Deprecated | `TinkEncryptSink` |
-| `CipherSource` | Deprecated | `TinkDecryptSource` |
-| `JasyptSink` | Deprecated | `TinkEncryptSink` |
-| `JasyptSource` | Deprecated | `TinkDecryptSource` |
-
-### 8. Kotlin Coroutines 비동기 I/O
+### 7. Kotlin Coroutines 비동기 I/O
 
 Okio Source/Sink를 Kotlin Coroutines `suspend` 함수로 래핑하여 비동기 I/O를 제공합니다.
 
@@ -241,14 +226,6 @@ io.bluetape4k.okio
 ├── tink/                       # Tink AEAD 암호화 (권장)
 │   ├── TinkEncryptSink.kt
 │   └── TinkDecryptSource.kt
-├── cipher/                     # javax.crypto 암호화 (Deprecated)
-│   ├── FinalizingCipherSink.kt
-│   ├── StreamingCipherSource.kt
-│   ├── CipherSink.kt
-│   └── CipherSource.kt
-├── jasypt/                     # Jasypt 암호화 (Deprecated)
-│   ├── JasyptSink.kt
-│   └── JasyptSource.kt
 ├── base64/                     # Base64 인코딩/디코딩
 │   ├── ApacheBase64Sink.kt
 │   ├── ApacheBase64Source.kt

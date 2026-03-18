@@ -77,6 +77,117 @@ val userBySsn = Users.selectAll()
 | 인덱스 생성 가능       | 보안 요구사항에 따라 부적합할 수 있음     |
 | 정렬 가능           |                           |
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ColumnWithTransform~Exposed, Entity~ {
+        <<Exposed>>
+    }
+    class ColumnTransformer~Exposed, Entity~ {
+        <<interface>>
+        +unwrap(value: Entity): Exposed
+        +wrap(value: Exposed): Entity
+    }
+
+    class JasyptVarCharColumnType {
+        -encryptor: Encryptor
+        +delegate: VarCharColumnType
+    }
+    class JasyptBinaryColumnType {
+        -encryptor: Encryptor
+        +delegate: BinaryColumnType
+    }
+    class JasyptBlobColumnType {
+        -encryptor: Encryptor
+        +delegate: BlobColumnType
+    }
+
+    class StringJasyptEncryptionTransformer {
+        +unwrap(value: String): String
+        +wrap(value: String): String
+    }
+    class ByteArrayJasyptEncryptionTransformer {
+        +unwrap(value: ByteArray): ByteArray
+        +wrap(value: ByteArray): ByteArray
+    }
+    class JasyptBlobTransformer {
+        +unwrap(value: ByteArray): ExposedBlob
+        +wrap(value: ExposedBlob): ByteArray
+    }
+
+    class Encryptor {
+        <<bluetape4k-crypto>>
+        +encrypt(value: String): String
+        +decrypt(value: String): String
+        +encrypt(value: ByteArray): ByteArray
+        +decrypt(value: ByteArray): ByteArray
+    }
+
+    ColumnWithTransform <|-- JasyptVarCharColumnType
+    ColumnWithTransform <|-- JasyptBinaryColumnType
+    ColumnWithTransform <|-- JasyptBlobColumnType
+
+    ColumnTransformer <|.. StringJasyptEncryptionTransformer
+    ColumnTransformer <|.. ByteArrayJasyptEncryptionTransformer
+    ColumnTransformer <|.. JasyptBlobTransformer
+
+    JasyptVarCharColumnType --> StringJasyptEncryptionTransformer
+    JasyptBinaryColumnType --> ByteArrayJasyptEncryptionTransformer
+    JasyptBlobColumnType --> JasyptBlobTransformer
+
+    StringJasyptEncryptionTransformer --> Encryptor
+    ByteArrayJasyptEncryptionTransformer --> Encryptor
+    JasyptBlobTransformer --> Encryptor
+```
+
+## 암복호화 시퀀스 다이어그램
+
+### DB 저장 시 자동 암호화
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as JasyptVarCharColumnType
+    participant Tx as StringJasyptEncryptionTransformer
+    participant Enc as Encryptor (Jasypt)
+    participant DB as Database
+
+    App->>Col: insert { it[ssn] = "123-45-6789" }
+    Col->>Tx: unwrap("123-45-6789")
+    Tx->>Enc: encrypt("123-45-6789")
+    Note over Enc: 결정적 암호화<br/>동일 입력 → 동일 암호문
+    Enc-->>Tx: "ENC(xyz...)" (암호문)
+    Tx-->>Col: "ENC(xyz...)"
+    Col->>DB: INSERT ... VALUES ('ENC(xyz...)')
+```
+
+### DB 조회 및 조건 검색
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as JasyptVarCharColumnType
+    participant Tx as StringJasyptEncryptionTransformer
+    participant Enc as Encryptor (Jasypt)
+    participant DB as Database
+
+    Note over App,DB: 조건 검색 (결정적 암호화이므로 가능)
+    App->>Col: where { ssn eq "123-45-6789" }
+    Col->>Tx: unwrap("123-45-6789")
+    Tx->>Enc: encrypt("123-45-6789")
+    Enc-->>Col: "ENC(xyz...)" (항상 동일)
+    Col->>DB: WHERE ssn = 'ENC(xyz...)'
+
+    Note over App,DB: 조회 결과 복호화
+    DB-->>Col: "ENC(xyz...)"
+    Col->>Tx: wrap("ENC(xyz...)")
+    Tx->>Enc: decrypt("ENC(xyz...)")
+    Enc-->>Tx: "123-45-6789"
+    Tx-->>Col: "123-45-6789"
+    Col-->>App: row[Users.ssn] == "123-45-6789"
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                           | 설명                |

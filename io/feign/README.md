@@ -153,6 +153,89 @@ dependencies {
 }
 ```
 
+## 클래스 구조
+
+### Feign + Coroutines 통합 구조
+
+```mermaid
+classDiagram
+    class CoroutineFeign {
+        <<feign-kotlin>>
+    }
+
+    class CoroutineBuilder {
+        +client(asyncClient) CoroutineBuilder
+        +encoder(encoder) CoroutineBuilder
+        +decoder(decoder) CoroutineBuilder
+        +options(options) CoroutineBuilder
+        +logLevel(level) CoroutineBuilder
+        +target(type, url) T
+    }
+
+    class AsyncClient {
+        <<interface>>
+    }
+
+    class Encoder {
+        <<interface>>
+    }
+
+    class Decoder {
+        <<interface>>
+    }
+
+    class JacksonEncoder2 {
+        -mapper: JsonMapper
+        +encode(object, bodyType, template)
+    }
+
+    class JacksonDecoder2 {
+        -mapper: JsonMapper
+        +decode(response, type) Any?
+    }
+
+    class FeignFastjsonEncoder {
+        +encode(object, bodyType, template)
+    }
+
+    class FeignFastjsonDecoder {
+        +decode(response, type) Any?
+    }
+
+    CoroutineFeign +-- CoroutineBuilder
+    CoroutineBuilder --> AsyncClient : 설정
+    CoroutineBuilder --> Encoder : 설정
+    CoroutineBuilder --> Decoder : 설정
+    Encoder <|.. JacksonEncoder2
+    Decoder <|.. JacksonDecoder2
+    Encoder <|.. FeignFastjsonEncoder
+    Decoder <|.. FeignFastjsonDecoder
+```
+
+### suspend 함수 기반 HTTP 요청 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant API as Feign 인터페이스(suspend fun)
+    participant CB as CoroutineFeign.CoroutineBuilder
+    participant AC as AsyncClient
+    participant Codec as JacksonDecoder2
+    participant Server as HTTP 서버
+
+    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
+    CB-->>App: MyApi 프록시 반환
+
+    App->>API: suspend fun someApi()
+    API->>AC: 비동기 HTTP 요청
+    AC->>Server: HTTP 요청
+    Server-->>AC: HTTP 응답
+    AC-->>API: Response
+    API->>Codec: decode(response, type)
+    Codec-->>API: 역직렬화된 객체
+    API-->>App: 결과 반환
+```
+
 ## 모듈 구조
 
 ```

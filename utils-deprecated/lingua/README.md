@@ -1,5 +1,7 @@
 # Module bluetape4k-lingua
 
+> **⚠️ Deprecated**: 이 모듈은 deprecated 되었으며 빌드에서 제외되었습니다. 유지보수가 중단될 예정입니다.
+
 ## 개요
 
 [Lingua](https://github.com/pemistahl/lingua) 라이브러리를 기반으로 텍스트에서 언어를 자동 감지하는 기능을 제공합니다. 75개 이상의 언어를 고정밀도로 감지할 수 있습니다.

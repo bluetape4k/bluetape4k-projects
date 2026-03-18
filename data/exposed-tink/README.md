@@ -202,6 +202,152 @@ object SensitiveData: IntIdTable("sensitive_data") {
 }
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ColumnWithTransform~Exposed, Entity~ {
+        <<Exposed>>
+    }
+    class ColumnTransformer~Exposed, Entity~ {
+        <<interface>>
+        +unwrap(value: Entity): Exposed
+        +wrap(value: Exposed): Entity
+    }
+
+    class TinkAeadVarCharColumnType {
+        -encryptor: TinkAead
+        +delegate: VarCharColumnType
+    }
+    class TinkAeadBinaryColumnType {
+        -encryptor: TinkAead
+        +delegate: BinaryColumnType
+    }
+    class TinkAeadBlobColumnType {
+        -encryptor: TinkAead
+        +delegate: BlobColumnType
+    }
+    class TinkDaeadVarCharColumnType {
+        -encryptor: TinkDeterministicAead
+        +delegate: VarCharColumnType
+    }
+    class TinkDaeadBinaryColumnType {
+        -encryptor: TinkDeterministicAead
+        +delegate: BinaryColumnType
+    }
+    class TinkDaeadBlobColumnType {
+        -encryptor: TinkDeterministicAead
+        +delegate: BlobColumnType
+    }
+
+    class StringTinkAeadEncryptionTransformer {
+        +unwrap(value: String): String
+        +wrap(value: String): String
+    }
+    class ByteArrayTinkAeadEncryptionTransformer {
+        +unwrap(value: ByteArray): ByteArray
+        +wrap(value: ByteArray): ByteArray
+    }
+    class TinkAeadBlobTransformer {
+        +unwrap(value: ByteArray): ExposedBlob
+        +wrap(value: ExposedBlob): ByteArray
+    }
+    class StringTinkDaeadEncryptionTransformer {
+        +unwrap(value: String): String
+        +wrap(value: String): String
+    }
+    class ByteArrayTinkDaeadEncryptionTransformer {
+        +unwrap(value: ByteArray): ByteArray
+        +wrap(value: ByteArray): ByteArray
+    }
+    class TinkDaeadBlobTransformer {
+        +unwrap(value: ByteArray): ExposedBlob
+        +wrap(value: ExposedBlob): ByteArray
+    }
+
+    ColumnWithTransform <|-- TinkAeadVarCharColumnType
+    ColumnWithTransform <|-- TinkAeadBinaryColumnType
+    ColumnWithTransform <|-- TinkAeadBlobColumnType
+    ColumnWithTransform <|-- TinkDaeadVarCharColumnType
+    ColumnWithTransform <|-- TinkDaeadBinaryColumnType
+    ColumnWithTransform <|-- TinkDaeadBlobColumnType
+
+    ColumnTransformer <|.. StringTinkAeadEncryptionTransformer
+    ColumnTransformer <|.. ByteArrayTinkAeadEncryptionTransformer
+    ColumnTransformer <|.. TinkAeadBlobTransformer
+    ColumnTransformer <|.. StringTinkDaeadEncryptionTransformer
+    ColumnTransformer <|.. ByteArrayTinkDaeadEncryptionTransformer
+    ColumnTransformer <|.. TinkDaeadBlobTransformer
+
+    TinkAeadVarCharColumnType --> StringTinkAeadEncryptionTransformer
+    TinkAeadBinaryColumnType --> ByteArrayTinkAeadEncryptionTransformer
+    TinkAeadBlobColumnType --> TinkAeadBlobTransformer
+    TinkDaeadVarCharColumnType --> StringTinkDaeadEncryptionTransformer
+    TinkDaeadBinaryColumnType --> ByteArrayTinkDaeadEncryptionTransformer
+    TinkDaeadBlobColumnType --> TinkDaeadBlobTransformer
+```
+
+## 암복호화 시퀀스 다이어그램
+
+### AEAD — DB 저장 시 자동 암호화
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as TinkAeadVarCharColumnType
+    participant Tx as StringTinkAeadEncryptionTransformer
+    participant Tink as TinkAead (AES-256-GCM)
+    participant DB as Database
+
+    App->>Col: insert { it[email] = "user@example.com" }
+    Col->>Tx: unwrap("user@example.com")
+    Tx->>Tink: encrypt(plaintext)
+    Note over Tink: 랜덤 nonce 생성<br/>AES-256-GCM 암호화
+    Tink-->>Tx: ciphertext (Base64)
+    Tx-->>Col: "AXrk9...==" (암호문)
+    Col->>DB: INSERT INTO ... VALUES ('AXrk9...==')
+```
+
+### AEAD — DB 조회 시 자동 복호화
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as TinkAeadVarCharColumnType
+    participant Tx as StringTinkAeadEncryptionTransformer
+    participant Tink as TinkAead (AES-256-GCM)
+    participant DB as Database
+
+    App->>DB: SELECT ... WHERE id = 1
+    DB-->>Col: "AXrk9...==" (암호문)
+    Col->>Tx: wrap("AXrk9...==")
+    Tx->>Tink: decrypt(ciphertext)
+    Note over Tink: Base64 디코딩<br/>AES-256-GCM 복호화 + 인증
+    Tink-->>Tx: "user@example.com"
+    Tx-->>Col: "user@example.com"
+    Col-->>App: row[Users.email] == "user@example.com"
+```
+
+### DAEAD — 결정적 암호화로 인덱스/검색 가능
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as TinkDaeadVarCharColumnType
+    participant Tx as StringTinkDaeadEncryptionTransformer
+    participant Tink as TinkDeterministicAead (AES-256-SIV)
+    participant DB as Database
+
+    App->>Col: selectAll().where { email eq "user@example.com" }
+    Col->>Tx: unwrap("user@example.com")
+    Tx->>Tink: encryptDeterministically(plaintext)
+    Note over Tink: AES-256-SIV 결정적 암호화<br/>동일 입력 → 항상 동일 암호문
+    Tink-->>Tx: "BYzp1...==" (항상 동일)
+    Tx-->>Col: "BYzp1...=="
+    Col->>DB: WHERE email = 'BYzp1...=='
+    DB-->>App: ResultRow (인덱스 사용 가능)
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                              | 설명                                     |

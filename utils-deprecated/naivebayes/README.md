@@ -1,5 +1,7 @@
 # Module bluetape4k-naivebayes
 
+> **⚠️ Deprecated**: 이 모듈은 deprecated 되었으며 빌드에서 제외되었습니다. 유지보수가 중단될 예정입니다.
+
 ## 개요
 
 Naive Bayes 알고리즘을 이용하여 분류(Classification)를 수행하는 기능을 제공합니다. 확률 기반 분류기로, 스팸 필터링, 텍스트 분류, 감성 분석 등에 활용할 수 있습니다.

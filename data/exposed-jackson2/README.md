@@ -101,6 +101,83 @@ val settings: UserSettings = resultRow.getJackson(Users.settings)
 val metadata: ProductMetadata? = resultRow.getJacksonOrNull(Products.metadata)
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ColumnType~T~ {
+        <<Exposed>>
+        +sqlType(): String
+        +valueFromDB(value: Any): T?
+        +notNullValueToDB(value: T): Any
+    }
+    class JsonColumnMarker {
+        <<interface Exposed>>
+        +usesBinaryFormat: Boolean
+        +needsBinaryFormatCast: Boolean
+    }
+
+    class JacksonColumnType~T~ {
+        +serilaize: (T) -> String
+        +deserialize: (String) -> T
+        +sqlType(): String
+        +valueFromDB(value: Any): T?
+        +notNullValueToDB(value: T): Any
+    }
+    class JacksonBColumnType~T~ {
+        +usesBinaryFormat: Boolean = true
+        +sqlType(): String
+        +parameterMarker(value: T?): String
+    }
+
+    class JacksonSerializer {
+        <<bluetape4k-jackson>>
+        +serializeAsString(value: T): String
+        +deserializeFromString(json: String): T?
+    }
+
+    ColumnType <|-- JacksonColumnType
+    JsonColumnMarker <|.. JacksonColumnType
+    JacksonColumnType <|-- JacksonBColumnType
+    JacksonColumnType ..> JacksonSerializer : uses
+```
+
+## 직렬화/역직렬화 시퀀스 다이어그램
+
+### 객체 → JSON → DB 저장
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as JacksonColumnType~T~
+    participant Ser as JacksonSerializer
+    participant DB as Database
+
+    App->>Col: insert { it[settings] = UserSettings(theme="dark") }
+    Col->>Ser: serializeAsString(UserSettings(...))
+    Note over Ser: ObjectMapper.writeValueAsString()
+    Ser-->>Col: '{"theme":"dark","notifications":true}'
+    Col->>DB: INSERT ... VALUES ('{"theme":"dark",...}')
+    Note over DB: JSON / JSONB 컬럼에 저장
+```
+
+### DB 조회 → JSON → 객체 역직렬화
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Col as JacksonColumnType~T~
+    participant Ser as JacksonSerializer
+    participant DB as Database
+
+    App->>DB: SELECT settings FROM users WHERE id = 1
+    DB-->>Col: '{"theme":"dark","notifications":true}'
+    Col->>Ser: deserializeFromString~UserSettings~(json)
+    Note over Ser: ObjectMapper.readValue()
+    Ser-->>Col: UserSettings(theme="dark", notifications=true)
+    Col-->>App: row[Users.settings]
+```
+
 ## 주요 파일/클래스 목록
 
 | 파일                       | 설명                    |

@@ -172,6 +172,87 @@ dependencies {
 }
 ```
 
+## 클래스 구조
+
+### HTTP 클라이언트 계층 (HC5)
+
+```mermaid
+classDiagram
+    class CloseableHttpAsyncClient {
+        <<Apache HC5>>
+        +execute(request, callback) Future
+        +start()
+        +close()
+    }
+
+    class HttpAsyncClientCoroutines {
+        <<확장 함수>>
+        +executeSuspending(request) SimpleHttpResponse
+    }
+
+    class CachingHttpAsyncClientBuilder {
+        <<DSL 빌더>>
+        +setHttpCacheStorage(storage)
+        +build() CloseableHttpAsyncClient
+    }
+
+    class InMemoryHttpCacheStorage
+    class JavaCacheHttpCacheStorage
+
+    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
+    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
+    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
+```
+
+### OkHttp3 클라이언트 계층
+
+```mermaid
+classDiagram
+    class OkHttpClient {
+        <<OkHttp3>>
+        +newCall(request) Call
+    }
+
+    class LoggingInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingRequestInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingResponseInterceptor {
+        +intercept(chain) Response
+    }
+
+    class OkHttpClientExtensionsCoroutines {
+        <<확장 함수>>
+        +executeSuspending(request) Response
+    }
+
+    OkHttpClient --> LoggingInterceptor : addInterceptor
+    OkHttpClient --> CachingRequestInterceptor : addInterceptor
+    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
+    OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
+```
+
+### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as executeSuspending()
+    participant HC5 as CloseableHttpAsyncClient
+    participant Server as HTTP 서버
+
+    App->>Ext: suspend fun executeSuspending(request)
+    Ext->>HC5: execute(request, FutureCallback)
+    HC5->>Server: HTTP 요청 (비동기)
+    Server-->>HC5: HTTP 응답
+    HC5-->>Ext: FutureCallback.completed(response)
+    Ext-->>App: SimpleHttpResponse
+```
+
 ## 모듈 구조
 
 ```

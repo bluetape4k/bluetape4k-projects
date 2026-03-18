@@ -1,5 +1,7 @@
 # Module Vert.x Sql Client Example
 
+> **⚠️ Obsolete**: 이 모듈은 `bluetape4k-vertx`로 통합되었습니다. 빌드에서 완전 제외되었습니다.
+
 [Vert.x Sql Client](https://vertx.io/docs/vertx-sql-client/java/) 와
 [MyBatis Dynamic SQL](https://mybatis.org/mybatis-dynamic-sql/docs/introduction.html) 을 사용하여 Async/Non-Blocking 방식으로 데이터베이스를 사용하는 예제입니다.
 

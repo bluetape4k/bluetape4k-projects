@@ -82,40 +82,38 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 
 ```mermaid
 classDiagram
-    class NearJCache~K_V~ {
-        +frontCache: JCache~K_V~
-        +backCache: JCache~K_V~
-        -config: NearJCacheConfig~K_V~
+    class NearJCache~K, V~ {
++frontCache: JCache
++backCache: JCache
+-config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-    class SuspendNearJCache~K_V~ {
-        -frontCache: SuspendJCache~K_V~
-        -backCache: SuspendJCache~K_V~
+class SuspendNearJCache~K, V~ {
+-frontCache: SuspendJCache
+-backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
         +get(key: K) V?
         +put(key: K, value: V)
         +close()
     }
 
-    class LettuceJCache~K_V~ {
-        -map: LettuceMap~ByteArray~
-        -codec: LettuceBinaryCodec~V~
+class LettuceJCache~K, V~ {
+-map: LettuceMap
+-codec: LettuceBinaryCodec
         -ttlSeconds: Long?
-        Redis hash 기반
     }
 
     class LettuceSuspendJCache~V~ {
-        -cache: LettuceJCache~String_V~
+-cache: LettuceJCache
         +invoke(cacheName, redisClient) LettuceSuspendJCache
     }
 
-    class CaffeineSuspendJCache~K_V~ {
-        Caffeine AsyncCache 기반
-        (frontCache 역할)
+class CaffeineSuspendJCache~K, V~ {
+<<frontCache>>
     }
 
-    class NearJCacheConfig~K_V~ {
+class NearJCacheConfig~K, V~ {
         +cacheName: String
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
@@ -165,6 +163,131 @@ cache.close()
 
 > **선택 기준**: JCache 표준 호환이 필요하면 `NearJCache`/`SuspendNearJCache`를, 더 풍부한 통계·resilience가 필요하면 `LettuceNearCache`/
 `LettuceSuspendNearCache`를 사용하세요.
+
+### 클래스 구조
+
+#### LettuceNearCache 계층
+
+```mermaid
+classDiagram
+    class NearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +getAll(keys: Set~String~) Map
+        +put(key: String, value: V)
+        +putIfAbsent(key: String, value: V) V?
+        +replace(key: String, value: V) Boolean
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class SuspendNearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class LettuceNearCache~V~ {
+        -config: LettuceNearCacheConfig
+        -frontCache: LettuceCaffeineLocalCache
+        -connection: StatefulRedisConnection
+        -commands: RedisCommands
+        -trackingListener: TrackingInvalidationListener
+    }
+
+    class LettuceSuspendNearCache~V~ {
+        -config: LettuceNearCacheConfig
+        -frontCache: LettuceCaffeineLocalCache
+        -connection: StatefulRedisConnection
+        -commands: RedisCoroutinesCommands
+        -trackingListener: TrackingInvalidationListener
+    }
+
+    class LettuceLocalCache~K, V~ {
+<<interface>>
++get(key: K) V?
++put(key: K, value: V)
++remove(key: K)
++clear()
++estimatedSize() Long
++stats() CacheStats?
+ }
+
+class LettuceCaffeineLocalCache~V~ {
+-cache: Cache
++invalidate(key: String)
+}
+
+class TrackingInvalidationListener~V~ {
+-frontCache: LettuceLocalCache
+-connection: StatefulRedisConnection
+-cacheName: String
++start()
++close()
+}
+
+class LettuceNearCacheConfig~K, V~ {
++cacheName: String
++maxLocalSize: Int
++frontExpireAfterWrite: Duration
++redisTtl: Duration?
++useRespProtocol3: Boolean
++recordStats: Boolean
++redisKey(key: String) String
+}
+
+NearCacheOperations <|.. LettuceNearCache
+SuspendNearCacheOperations <|.. LettuceSuspendNearCache
+LettuceLocalCache <|.. LettuceCaffeineLocalCache
+LettuceNearCache --> LettuceCaffeineLocalCache: frontCache
+LettuceNearCache --> TrackingInvalidationListener: trackingListener
+LettuceNearCache --> LettuceNearCacheConfig: config
+LettuceSuspendNearCache --> LettuceCaffeineLocalCache: frontCache
+LettuceSuspendNearCache --> TrackingInvalidationListener: trackingListener
+LettuceSuspendNearCache --> LettuceNearCacheConfig: config
+TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
+```
+
+#### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
+
+```mermaid
+sequenceDiagram
+    participant App1 as Application (인스턴스 1)
+    participant NC1 as LettuceNearCache (인스턴스 1)
+    participant Front1 as Caffeine (인스턴스 1)
+    participant Redis as Redis Server
+    participant NC2 as LettuceNearCache (인스턴스 2)
+    participant Front2 as Caffeine (인스턴스 2)
+    Note over NC1, Redis: 초기화 — RESP3 CLIENT TRACKING 등록
+    NC1 ->> Redis: CLIENT TRACKING ON (RESP3)
+    NC2 ->> Redis: CLIENT TRACKING ON (RESP3)
+    Note over App1, Front1: 인스턴스 1이 키를 읽어 로컬 캐시에 저장
+    App1 ->> NC1: get("key")
+    NC1 ->> Redis: GET {cacheName}:key
+    Redis -->> NC1: value
+    NC1 ->> Front1: put("key", value)
+    Note over App1, Front2: 인스턴스 1이 키를 수정
+    App1 ->> NC1: put("key", newValue)
+    NC1 ->> Redis: SET {cacheName}:key newValue
+    Redis -->> NC1: OK
+    Note over Redis, Front2: Redis가 추적 중인 인스턴스에 invalidation push
+    Redis ->> NC2: INVALIDATE {cacheName}:key (push)
+    NC2 ->> Front2: invalidate("key")
+    Front2 -->> NC2: (로컬 캐시에서 제거)
+    Note over NC2, Redis: 인스턴스 2가 다음 get 시 Redis에서 최신값 조회
+```
 
 ### NearCache 아키텍처
 

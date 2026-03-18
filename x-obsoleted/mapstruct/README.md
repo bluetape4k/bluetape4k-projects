@@ -1,5 +1,7 @@
 # Module Examples - MapStruct
 
+> **⚠️ Obsolete**: 이 모듈은 미사용으로 폐기되었습니다. 빌드에서 완전 제외되었습니다.
+
 [MapStruct](http://mapstruct.org/)를 Kotlin에서 사용하는 매핑 예제입니다.
 
 ## 예제 목록

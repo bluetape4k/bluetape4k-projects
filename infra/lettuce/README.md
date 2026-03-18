@@ -299,6 +299,154 @@ dependencies {
 }
 ```
 
+## 다이어그램
+
+### 분산 Primitive 클래스 계층
+
+```mermaid
+classDiagram
+    class LettuceAtomicLong {
+        +key: String
+        +get(): Long
+        +incrementAndGet(): Long
+        +addAndGet(delta): Long
+        +compareAndSet(expect, update): Boolean
+        +getAsync(): CompletableFuture~Long~
+    }
+    class LettuceSuspendAtomicLong {
+        +key: String
+        +get(): Long
+        +incrementAndGet(): Long
+        +compareAndSet(expect, update): Boolean
+    }
+
+    class LettuceLock {
+        +lockKey: String
+        +tryLock(waitTime, leaseTime): Boolean
+        +lock(leaseTime)
+        +unlock()
+        +tryLockAsync(): CompletableFuture~Boolean~
+    }
+    class LettuceSuspendLock {
+        +lockKey: String
+        +tryLock(waitTime, leaseTime): Boolean
+        +lock(leaseTime)
+        +unlock()
+    }
+
+    class LettuceSemaphore {
+        +semaphoreKey: String
+        +totalPermits: Int
+        +tryAcquire(permits): Boolean
+        +acquire(permits, waitTime)
+        +release(permits)
+    }
+    class LettuceSuspendSemaphore {
+        +semaphoreKey: String
+        +totalPermits: Int
+        +tryAcquire(permits): Boolean
+        +release(permits)
+    }
+
+    class LettuceLeaderElection {
+        +runIfLeader(lockName, action): T
+        +runAsyncIfLeader(lockName, action): CompletableFuture~T~
+    }
+    class LettuceSuspendLeaderElection {
+        +runIfLeader(lockName, action): T
+    }
+
+    LettuceLeaderElection --> LettuceLock: uses
+    LettuceSuspendLeaderElection --> LettuceSuspendLock: uses
+    note for LettuceSuspendAtomicLong "suspend 전용"
+    note for LettuceSuspendLock "suspend 전용"
+    note for LettuceSuspendSemaphore "suspend 전용"
+    note for LettuceSuspendLeaderElection "suspend 전용"
+```
+
+### LettuceLoadedMap Read-Through / Write-Through 흐름
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant LettuceLoadedMap
+    participant Redis
+    participant MapLoader
+    participant MapWriter
+    Note over Client, MapWriter: Read-Through (캐시 미스)
+    Client ->> LettuceLoadedMap: get(key)
+    LettuceLoadedMap ->> Redis: GET prefix:key
+    Redis -->> LettuceLoadedMap: null (캐시 미스)
+    LettuceLoadedMap ->> MapLoader: load(key)
+    MapLoader -->> LettuceLoadedMap: value
+    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
+    LettuceLoadedMap -->> Client: value
+    Note over Client, MapWriter: Read-Through (캐시 히트)
+    Client ->> LettuceLoadedMap: get(key)
+    LettuceLoadedMap ->> Redis: GET prefix:key
+    Redis -->> LettuceLoadedMap: value (캐시 히트)
+    LettuceLoadedMap -->> Client: value
+    Note over Client, MapWriter: Write-Through
+    Client ->> LettuceLoadedMap: set(key, value)
+    LettuceLoadedMap ->> MapWriter: write({key: value})
+    MapWriter -->> LettuceLoadedMap: ok
+    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
+    LettuceLoadedMap -->> Client: ok
+```
+
+### LettuceBinaryCodec 계층
+
+```mermaid
+classDiagram
+    class RedisCodec~K,V~ {
+<<interface>>
++encodeKey(key): ByteBuffer
++decodeKey(bytes): K
++encodeValue(value): ByteBuffer
++decodeValue(bytes): V
+}
+class ToByteBufEncoder~K, V~ {
+<<interface>>
++encodeKey(key, target: ByteBuf)
++encodeValue(value, target: ByteBuf)
++estimateSize(keyOrValue): Int
+}
+class LettuceBinaryCodec~V~ {
++serializer: BinarySerializer
++encodeKey(key): ByteBuffer
++encodeValue(value): ByteBuffer
++decodeKey(bytes): String
++decodeValue(bytes): V
++estimateSize(keyOrValue): Int
+}
+class LettuceBinaryCodecs {
+<<object>>
++default~V~(): LettuceBinaryCodec~V~
++jdk~V~(): LettuceBinaryCodec~V~
++kryo~V~(): LettuceBinaryCodec~V~
++fory~V~(): LettuceBinaryCodec~V~
++lz4Fory~V~(): LettuceBinaryCodec~V~
++zstdFory~V~(): LettuceBinaryCodec~V~
++snappyFory~V~(): LettuceBinaryCodec~V~
+}
+class LettuceIntCodec {
+<<object>>
++encodeValue(value: Int): ByteBuffer
++decodeValue(bytes): Int
+}
+class LettuceLongCodec {
+<<object>>
++encodeValue(value: Long): ByteBuffer
++decodeValue(bytes): Long
+}
+
+RedisCodec <|.. LettuceBinaryCodec
+ToByteBufEncoder <|.. LettuceBinaryCodec
+RedisCodec <|.. LettuceIntCodec
+RedisCodec <|.. LettuceLongCodec
+LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
+```
+
 ## 빌드 및 테스트
 
 테스트 실행 시 Redis 서버(기본값: `localhost:6379`)가 필요합니다.

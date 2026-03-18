@@ -35,6 +35,50 @@ dependencies {
 
 모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)가 공통 인터페이스를 구현합니다.
 
+#### NearCache get() 동작 시퀀스 (front miss → back lookup → front fill)
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant NC as NearCache
+    participant Front as Front Cache (Caffeine)
+    participant Back as Back Cache (Redis/IMap/Redisson)
+    App ->> NC: get("key")
+    NC ->> Front: get("key")
+    alt front hit
+        Front -->> NC: value
+        NC -->> App: value (즉시 반환)
+    else front miss
+        Front -->> NC: null
+        NC ->> Back: get("key")
+        alt back hit
+            Back -->> NC: value
+            NC ->> Front: put("key", value)
+            Front -->> NC: ok
+            NC -->> App: value
+        else back miss
+            Back -->> NC: null
+            NC -->> App: null
+        end
+    end
+```
+
+#### NearCache put() 동작 시퀀스 (write-through)
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant NC as NearCache
+    participant Front as Front Cache (Caffeine)
+    participant Back as Back Cache (Redis/IMap/Redisson)
+    App ->> NC: put("key", value)
+    NC ->> Back: set("key", value)
+    Back -->> NC: ok
+    NC ->> Front: put("key", value)
+    Front -->> NC: ok
+    NC -->> App: (완료)
+```
+
 #### NearCacheOperations (Blocking)
 
 ```mermaid
@@ -44,7 +88,7 @@ classDiagram
         +cacheName: String
         +isClosed: Boolean
         +get(key: String) V?
-        +getAll(keys: Set~String~) Map~String, V~
+        +getAll(keys: Set~String~) Map
         +put(key: String, value: V)
         +putIfAbsent(key: String, value: V) V?
         +replace(key: String, value: V) Boolean
@@ -74,12 +118,12 @@ classDiagram
 
     class LettuceNearCache~V~ {
         -redisClient: RedisClient
-        -RESP3 CLIENT TRACKING
+        -trackingListener: TrackingInvalidationListener
     }
 
     class HazelcastNearCache~V~ {
-        -imap: IMap~String, V~
-        -EntryListener
+        -imap: IMap
+        -entryListener: EntryListener
     }
 
     class RedissonNearCache~V~ {
@@ -118,15 +162,15 @@ classDiagram
     }
 
     class LettuceSuspendNearCache~V~ {
-        -RedisCoroutinesCommands
+        -commands: RedisCoroutinesCommands
     }
 
     class HazelcastSuspendNearCache~V~ {
-        -IMap async + await
+        -imap: IMap
     }
 
     class RedissonSuspendNearCache~V~ {
-        -RLocalCachedMap async + await
+        -localCachedMap: RLocalCachedMap
     }
 
     SuspendNearCacheOperations <|.. LettuceSuspendNearCache
@@ -145,7 +189,7 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class SuspendJCache~K_V~ {
+    class SuspendJCache~K, V~ {
         <<interface>>
         +get(key: K) V?
         +put(key: K, value: V)
@@ -155,64 +199,64 @@ classDiagram
         +containsKey(key: K) Boolean
         +getAndPut(key: K, value: V) V?
         +getAndRemove(key: K) V?
-        +entries() Flow~SuspendJCacheEntry~K_V~~
-        +getAll(keys: Set~K~) Flow~SuspendJCacheEntry~K_V~~
-        +putAll(map: Map~K_V~)
+        +entries() Flow
+        +getAll(keys: Set~K~) Flow
++putAll(map: Map)
         +removeAll()
         +clear()
         +close()
         +isClosed() Boolean
     }
 
-    class CaffeineSuspendJCache~K_V~ {
-        -cache: AsyncCache~K_V~
+class CaffeineSuspendJCache~K, V~ {
+-cache: AsyncCache
         +invoke(builder) CaffeineSuspendJCache
     }
 
     class LettuceSuspendJCache~V~ {
-        -cache: LettuceJCache~String_V~
+-cache: LettuceJCache
         +invoke(cacheName, redisClient) LettuceSuspendJCache
     }
 
-    class HazelcastSuspendJCache~K_V~ {
+class HazelcastSuspendJCache~K, V~ {
         -hazelcastInstance: HazelcastInstance
         -cacheName: String
     }
 
-    class RedissonSuspendJCache~K_V~ {
+class RedissonSuspendJCache~K, V~ {
         -redisson: RedissonClient
         -cacheName: String
     }
 
-    SuspendJCache~K_V~ <|.. CaffeineSuspendJCache
-    SuspendJCache~K_V~ <|.. LettuceSuspendJCache
-    SuspendJCache~K_V~ <|.. HazelcastSuspendJCache
-    SuspendJCache~K_V~ <|.. RedissonSuspendJCache
+SuspendJCache <|.. CaffeineSuspendJCache
+SuspendJCache <|.. LettuceSuspendJCache
+SuspendJCache <|.. HazelcastSuspendJCache
+SuspendJCache <|.. RedissonSuspendJCache
 ```
 
 ##### NearJCache (동기)
 
 ```mermaid
 classDiagram
-    class NearJCache~K_V~ {
-        +frontCache: JCache~K_V~
-        +backCache: JCache~K_V~
-        -config: NearJCacheConfig~K_V~
+    class NearJCache~K, V~ {
++frontCache: JCache
++backCache: JCache
+-config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-    class NearJCacheConfig~K_V~ {
+class NearJCacheConfig~K, V~ {
         +cacheName: String
-        +cacheManagerFactory: Factory~CacheManager~
-        +frontCacheConfiguration: MutableConfiguration~K_V~
+        +cacheManagerFactory: Factory
++frontCacheConfiguration: MutableConfiguration
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
     }
 
-    class NearJCacheConfigBuilder~K_V~ {
+class NearJCacheConfigBuilder~K, V~ {
         +cacheName: String
-        +cacheManagerFactory: Factory~CacheManager~
-        +frontCacheConfiguration: MutableConfiguration~K_V~
+        +cacheManagerFactory: Factory
++frontCacheConfiguration: MutableConfiguration
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
         +build() NearJCacheConfig
@@ -226,9 +270,9 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class SuspendNearJCache~K_V~ {
-        -frontCache: SuspendJCache~K_V~
-        -backCache: SuspendJCache~K_V~
+    class SuspendNearJCache~K, V~ {
+-frontCache: SuspendJCache
+-backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
         +withoutListener(front, back) SuspendNearJCache
         +get(key: K) V?
@@ -238,19 +282,16 @@ classDiagram
         +close()
     }
 
-    class CaffeineSuspendJCache~K_V~ {
+class CaffeineSuspendJCache~K, V~ {
         <<frontCache>>
-        Caffeine AsyncCache 기반
     }
 
     class LettuceSuspendJCache~V~ {
 <<backCache(Lettuce)>>
-Redis hash 기반
     }
 
-class HazelcastSuspendJCache~K_V~ {
+class HazelcastSuspendJCache~K, V~ {
 <<backCache(Hazelcast)>>
-IMap 기반
     }
 
 SuspendNearJCache --> CaffeineSuspendJCache: frontCache
