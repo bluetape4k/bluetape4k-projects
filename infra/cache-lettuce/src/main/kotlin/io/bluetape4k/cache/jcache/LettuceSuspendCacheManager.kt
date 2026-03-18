@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.lettuce.RedisCommandSupports
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
+import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
@@ -19,9 +20,10 @@ import java.util.concurrent.ConcurrentHashMap
  * - `cacheName`을 키로 내부 `ConcurrentHashMap`에 캐시 래퍼를 저장/재사용합니다.
  * - 매니저가 닫히면(`isClosed == true`) 대부분의 공개 API가 즉시 예외를 발생시킵니다.
  * - `getOrCreate`는 같은 이름에 대해 기존 캐시를 재사용하고, 없을 때만 Redis 연결을 생성합니다.
+ * - [defaultTtlSeconds], [defaultCodec]는 `getOrCreate` 호출 시 개별 파라미터가 없을 때 적용됩니다.
  *
  * ```kotlin
- * val manager = LettuceSuspendCacheManager(redisClient, ttlSeconds = 60)
+ * val manager = LettuceSuspendCacheManager(redisClient, defaultTtlSeconds = 60)
  * val users = manager.getOrCreate<String>("users")
  * val same = manager.getOrCreate<String>("users")
  * // users === same
@@ -31,9 +33,9 @@ class LettuceSuspendCacheManager(
     /** 캐시 생성에 사용할 Redis 클라이언트입니다. */
     val redisClient: RedisClient,
     /** 기본 TTL(초). `getOrCreate`에 개별 TTL이 없을 때 사용됩니다. */
-    val ttlSeconds: Long? = null,
-    /** 기본 바이너리 codec. `null`이면 Lettuce 기본 codec을 사용합니다. */
-    val codec: LettuceBinaryCodec<Any>? = null,
+    val defaultTtlSeconds: Long? = null,
+    /** 기본 바이너리 codec. `getOrCreate`에 개별 codec이 없을 때 사용됩니다. */
+    val defaultCodec: LettuceBinaryCodec<Any> = LettuceBinaryCodecs.lz4Fory(),
 ) {
 
     companion object: KLoggingChannel()
@@ -71,7 +73,8 @@ class LettuceSuspendCacheManager(
      * ## 동작/계약
      * - 매니저가 닫혀 있으면 `IllegalStateException`이 발생합니다.
      * - [cacheName] blank 입력은 `requireNotBlank("cacheName")`로 `IllegalArgumentException`이 발생합니다.
-     * - [ttlSeconds], [codec]가 null이면 매니저 기본값을 사용합니다.
+     * - [ttlSeconds]가 null이면 매니저의 [defaultTtlSeconds]를 사용합니다.
+     * - [codec]이 null이면 매니저의 [defaultCodec]을 사용합니다.
      *
      * ```kotlin
      * val cache = manager.getOrCreate<String>("users")
@@ -81,16 +84,24 @@ class LettuceSuspendCacheManager(
      */
     fun <V: Any> getOrCreate(
         cacheName: String,
-        ttlSeconds: Long? = null,
+        ttlSeconds: Long? = this.defaultTtlSeconds,
         codec: LettuceBinaryCodec<V>? = null,
     ): LettuceSuspendJCache<V> {
         checkNotClosed()
         cacheName.requireNotBlank("cacheName")
 
         return caches.computeIfAbsent(cacheName) { name ->
-            log.info { "Create LettuceSuspendCache. name=$name" }
-            val jcache = jcacheManager.getOrCreate(name, lettuceCacheConfigOf<String, Any>())
-
+            log.info { "Create LettuceSuspendCache. name=$name, ttlSeconds=$ttlSeconds" }
+            @Suppress("UNCHECKED_CAST")
+            val effectiveCodec = codec ?: (defaultCodec as LettuceBinaryCodec<V>)
+            val config = LettuceCacheConfig<String, V>(
+                ttlSeconds = ttlSeconds,
+                codec = effectiveCodec,
+                keyType = String::class.java,
+                valueType = Any::class.java as Class<V>,
+            )
+            val jcache = jcacheManager.getCache<String, V>(name)
+                ?: jcacheManager.createCache(name, config)
             LettuceSuspendJCache(jcache as LettuceJCache<String, V>)
         } as LettuceSuspendJCache<V>
     }
