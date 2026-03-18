@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -259,4 +260,73 @@ abstract class AbstractSuspendNearCacheOperationsTest<V : Any> {
             stats.backHits shouldBeEqualTo 1L
             stats.backMisses shouldBeEqualTo 1L
         }
+
+    // ─────────────────────────────────────────────
+    // 동시성 테스트
+    // ─────────────────────────────────────────────
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 put과 get이 안전하다`() = runSuspendIO {
+        val keys = (1..50).map { randomKey() }
+        val value = sampleValue()
+        keys.forEach { cache.put(it, value) }
+
+        SuspendedJobTester()
+            .workers(8)
+            .rounds(50)
+            .add {
+                val key = keys.random()
+                cache.get(key) shouldBeEqualTo value
+            }
+            .add {
+                cache.put(randomKey(), sampleValue())
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 put과 remove가 안전하다`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(8)
+            .rounds(50)
+            .add {
+                val key = randomKey()
+                cache.put(key, sampleValue())
+                cache.remove(key)
+                cache.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 병렬 put-get-remove 사이클`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(32)
+            .rounds(10)
+            .add {
+                val key = randomKey()
+                val value = sampleValue()
+                cache.put(key, value)
+                cache.get(key) shouldBeEqualTo value
+                cache.remove(key)
+                cache.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `SuspendedJobTester - 동시 putIfAbsent 경합`() = runSuspendIO {
+        val sharedKey = randomKey()
+        val value = sampleValue()
+
+        SuspendedJobTester()
+            .workers(16)
+            .rounds(1)
+            .add {
+                cache.putIfAbsent(sharedKey, value)
+            }
+            .run()
+
+        cache.get(sharedKey) shouldBeEqualTo value
+    }
 }

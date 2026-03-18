@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -247,5 +249,72 @@ abstract class AbstractNearCacheOperationsTest<V : Any> {
         val stats = cache.stats()
         stats.backHits shouldBeEqualTo 1L
         stats.backMisses shouldBeEqualTo 1L
+    }
+
+    // ─────────────────────────────────────────────
+    // 동시성 테스트
+    // ─────────────────────────────────────────────
+
+    @RepeatedTest(TEST_SIZE)
+    fun `MultithreadingTester - 동시 put과 get이 안전하다`() {
+        val keys = (1..50).map { randomKey() }
+        val value = sampleValue()
+        keys.forEach { cache.put(it, value) }
+
+        MultithreadingTester()
+            .numThreads(8)
+            .roundsPerThread(50)
+            .add {
+                val key = keys.random()
+                cache.get(key) shouldBeEqualTo value
+            }
+            .add {
+                cache.put(randomKey(), sampleValue())
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `MultithreadingTester - 동시 put과 remove가 안전하다`() {
+        MultithreadingTester()
+            .numThreads(8)
+            .roundsPerThread(50)
+            .add {
+                val key = randomKey()
+                cache.put(key, sampleValue())
+                cache.remove(key)
+                cache.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `StructuredTaskScopeTester - 병렬 put-get-remove 사이클`() {
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val key = randomKey()
+                val value = sampleValue()
+                cache.put(key, value)
+                cache.get(key) shouldBeEqualTo value
+                cache.remove(key)
+                cache.get(key).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `StructuredTaskScopeTester - 동시 putIfAbsent 경합`() {
+        val sharedKey = randomKey()
+        val value = sampleValue()
+
+        StructuredTaskScopeTester()
+            .rounds(16)
+            .add {
+                cache.putIfAbsent(sharedKey, value)
+            }
+            .run()
+
+        cache.get(sharedKey) shouldBeEqualTo value
     }
 }
