@@ -1,48 +1,55 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
-import io.bluetape4k.concurrent.virtualthread.virtualThread
+import io.bluetape4k.cache.nearcache.GetFailureStrategy
+
+import io.bluetape4k.cache.jcache.SuspendCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotNull
+import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.LinkedBlockingQueue
-import javax.cache.Cache
 
 /**
- * Resilient JCache 기반 Near Cache (2-tier: Caffeine front + JCache back) - 동기(Blocking) 구현.
+ * Resilient SuspendCache 기반 Near Cache (2-tier: Caffeine front + SuspendCache back) - Coroutine(Suspend) 구현.
  *
- * JCache back cache와 raw Caffeine front cache를 사용하는 2-tier 캐시.
+ * [SuspendCache] back cache와 raw Caffeine front cache를 사용하는 2-tier 캐시.
  * back cache 쓰기에 대해 다음을 추가한다:
  *
  * - **write-behind**: put/remove는 front cache에 즉시 반영하고,
- *   back cache 쓰기는 [LinkedBlockingQueue]에 큐잉하여 daemon thread가 순차 처리
- * - **retry**: consumer thread에서 resilience4j [Retry]로 재시도 (지수 백오프 옵션)
+ *   back cache 쓰기는 [Channel]에 큐잉하여 consumer coroutine이 순차 처리
+ * - **retry**: consumer에서 resilience4j [Retry]로 재시도 (지수 백오프 옵션)
  * - **get graceful degradation**: back cache GET 실패 시 front 값 반환 또는 null
  *
  * ```
- * Application (blocking)
+ * Application (suspend)
  *     |
- * [ResilientNearCache]
+ * [ResilientSuspendNearCache]
  *     |
  * +---+--------+
  * |            |
- * Front        LinkedBlockingQueue<BackCacheCommand>
+ * Front        Write Channel (Channel<BackCacheCommand>)
  * Caffeine        |
- * (즉시반영)   Daemon Thread (consumer)
- *              (Retry.executeRunnable { backCache.put/remove })
+ * (즉시반영)   Consumer Coroutine
+ *              (withRetry + backCache.put/remove)
  * ```
  *
  * @param K 키 타입
  * @param V 값 타입
  */
-class ResilientNearCache<K: Any, V: Any>(
-    private val backCache: Cache<K, V>,
+class ResilientSuspendNearCache<K: Any, V: Any>(
+    private val backCache: SuspendCache<K, V>,
     private val config: ResilientNearCacheConfig<K, V> = ResilientNearCacheConfig(),
 ): AutoCloseable {
 
@@ -58,8 +65,10 @@ class ResilientNearCache<K: Any, V: Any>(
         recordStats = config.recordStats,
     )
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val writeChannel = Channel<BackCacheCommand<K, V>>(capacity = config.writeQueueCapacity)
+
     private val retry: Retry = buildRetry()
-    private val queue = LinkedBlockingQueue<BackCacheCommand<K, V>>(config.writeQueueCapacity)
 
     /**
      * write-behind로 삭제 요청된 키 집합 (tombstone).
@@ -71,22 +80,8 @@ class ResilientNearCache<K: Any, V: Any>(
      */
     private val clearPending = atomic(false)
 
-    private val consumerThread: Thread = virtualThread(
-        name = "resilient-near-cache-writer-${config.cacheName}",
-    ) {
-        while (!closed.value) {
-            try {
-                val cmd = queue.take()
-                try {
-                    retry.executeRunnable { applyCommand(cmd) }
-                } catch (e: Exception) {
-                    log.error(e) { "Back cache write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
-                }
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-                break
-            }
-        }
+    init {
+        launchWriteConsumer()
     }
 
     private fun buildRetry(): Retry {
@@ -99,10 +94,22 @@ class ResilientNearCache<K: Any, V: Any>(
             .maxAttempts(config.retryMaxAttempts)
             .intervalFunction(intervalFn)
             .build()
-        return Retry.of("resilient-near-cache-write-retry", retryConfig)
+        return Retry.of("resilient-suspend-near-cache-write-retry", retryConfig)
     }
 
-    private fun applyCommand(cmd: BackCacheCommand<K, V>) {
+    private fun launchWriteConsumer() {
+        scope.launch {
+            for (cmd in writeChannel) {
+                try {
+                    retry.executeSuspendFunction { applyCommand(cmd) }
+                } catch (e: Exception) {
+                    log.error(e) { "Back cache write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
+                }
+            }
+        }
+    }
+
+    private suspend fun applyCommand(cmd: BackCacheCommand<K, V>) {
         when (cmd) {
             is BackCacheCommand.Put -> backCache.put(cmd.key, cmd.value)
             is BackCacheCommand.PutAll -> backCache.putAll(cmd.entries)
@@ -111,7 +118,7 @@ class ResilientNearCache<K: Any, V: Any>(
                 tombstones.remove(cmd.key)
             }
             is BackCacheCommand.RemoveAll -> {
-                cmd.keys.forEach { backCache.remove(it) }
+                backCache.removeAll(cmd.keys)
                 tombstones.removeAll(cmd.keys)
             }
             is BackCacheCommand.ClearBack -> {
@@ -128,7 +135,7 @@ class ResilientNearCache<K: Any, V: Any>(
      * - front miss → back cache GET → front populate → return
      * - back cache 실패 시 [GetFailureStrategy]에 따라 처리
      */
-    fun get(key: K): V? {
+    suspend fun get(key: K): V? {
         key.requireNotNull("key")
 
         if (tombstones.contains(key) || clearPending.value) return null
@@ -149,21 +156,19 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
      */
-    fun getAll(keys: Set<K>): Map<K, V> {
+    suspend fun getAll(keys: Set<K>): Map<K, V> {
         if (clearPending.value) return emptyMap()
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = (keys - result.keys).filter { !tombstones.contains(it) }
 
-        if (missedKeys.isNotEmpty()) {
-            missedKeys.forEach { key ->
-                runCatching { backCache.get(key) }
-                    .onFailure { e -> log.warn(e) { "Back cache GET failed for key=$key during getAll" } }
-                    .getOrNull()
-                    ?.let { value ->
-                        result[key] = value
-                        frontCache.put(key, value)
-                    }
-            }
+        missedKeys.forEach { key ->
+            runCatching { backCache.get(key) }
+                .onFailure { e -> log.warn(e) { "Back cache GET failed for key=$key during getAll" } }
+                .getOrNull()
+                ?.let { value ->
+                    result[key] = value
+                    frontCache.put(key, value)
+                }
         }
         return result
     }
@@ -171,25 +176,25 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 키-값 쌍을 저장한다.
      * - front cache 즉시 반영
-     * - back cache write는 queue로 큐잉 (write-behind)
+     * - back cache write는 channel로 큐잉 (write-behind)
      */
-    fun put(key: K, value: V) {
+    suspend fun put(key: K, value: V) {
         key.requireNotNull("key")
         tombstones.remove(key)
         frontCache.put(key, value)
-        if (!queue.offer(BackCacheCommand.Put(key, value))) {
-            log.warn { "Write queue full, dropping Put for key=$key" }
+        writeChannel.trySend(BackCacheCommand.Put(key, value)).also { result ->
+            if (result.isFailure) log.warn { "Write channel full, dropping Put for key=$key" }
         }
     }
 
     /**
      * 여러 키-값 쌍을 저장한다.
      */
-    fun putAll(entries: Map<K, V>) {
+    suspend fun putAll(entries: Map<K, V>) {
         tombstones.removeAll(entries.keys)
         frontCache.putAll(entries)
-        if (!queue.offer(BackCacheCommand.PutAll(entries))) {
-            log.warn { "Write queue full, dropping PutAll for ${entries.size} entries" }
+        writeChannel.trySend(BackCacheCommand.PutAll(entries)).also { result ->
+            if (result.isFailure) log.warn { "Write channel full, dropping PutAll for ${entries.size} entries" }
         }
     }
 
@@ -197,18 +202,18 @@ class ResilientNearCache<K: Any, V: Any>(
      * 해당 키가 없을 때만 저장한다 (put-if-absent).
      * @return 기존 값(있었으면) 또는 null(새로 저장됨)
      */
-    fun putIfAbsent(key: K, value: V): V? {
+    suspend fun putIfAbsent(key: K, value: V): V? {
         key.requireNotNull("key")
 
         val existing = get(key)
         if (existing != null) return existing
 
-        val prev = backCache.getAndPut(key, value)
-        return if (prev == null) {
+        val setted = backCache.putIfAbsent(key, value)
+        return if (setted) {
             frontCache.put(key, value)
             null
         } else {
-            prev
+            backCache.get(key)
         }
     }
 
@@ -216,7 +221,7 @@ class ResilientNearCache<K: Any, V: Any>(
      * 기존 값을 새 값으로 교체한다 (키가 있을 때만).
      * @return 교체 성공 여부
      */
-    fun replace(key: K, value: V): Boolean {
+    suspend fun replace(key: K, value: V): Boolean {
         key.requireNotNull("key")
         if (tombstones.contains(key) || clearPending.value) return false
 
@@ -233,7 +238,7 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 기존 값이 [oldValue]와 같을 때만 [newValue]로 교체한다.
      */
-    fun replace(key: K, oldValue: V, newValue: V): Boolean {
+    suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
         val current = get(key) ?: return false
         if (current != oldValue) return false
         return replace(key, newValue)
@@ -242,7 +247,7 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 조회 후 제거한다.
      */
-    fun getAndRemove(key: K): V? {
+    suspend fun getAndRemove(key: K): V? {
         val value = get(key)
         if (value != null) remove(key)
         return value
@@ -251,7 +256,7 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 조회 후 새 값으로 교체한다.
      */
-    fun getAndReplace(key: K, value: V): V? {
+    suspend fun getAndReplace(key: K, value: V): V? {
         val existing = get(key) ?: return null
         put(key, value)
         return existing
@@ -260,7 +265,7 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 해당 키가 캐시에 존재하는지 확인한다 (front or back).
      */
-    fun containsKey(key: K): Boolean {
+    suspend fun containsKey(key: K): Boolean {
         if (tombstones.contains(key) || clearPending.value) return false
         if (frontCache.containsKey(key)) return true
         return runCatching { backCache.containsKey(key) }
@@ -271,25 +276,25 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 키에 해당하는 캐시 항목을 제거한다.
      * - front cache 즉시 반영
-     * - back cache delete는 queue로 큐잉 (write-behind)
+     * - back cache delete는 channel로 큐잉 (write-behind)
      */
-    fun remove(key: K) {
+    suspend fun remove(key: K) {
         key.requireNotNull("key")
         frontCache.remove(key)
         tombstones.add(key)
-        if (!queue.offer(BackCacheCommand.Remove(key))) {
-            log.warn { "Write queue full, dropping Remove for key=$key" }
+        writeChannel.trySend(BackCacheCommand.Remove(key)).also { result ->
+            if (result.isFailure) log.warn { "Write channel full, dropping Remove for key=$key" }
         }
     }
 
     /**
      * 여러 키에 해당하는 캐시 항목을 제거한다.
      */
-    fun removeAll(keys: Set<K>) {
+    suspend fun removeAll(keys: Set<K>) {
         frontCache.removeAll(keys)
         tombstones.addAll(keys)
-        if (!queue.offer(BackCacheCommand.RemoveAll(keys))) {
-            log.warn { "Write queue full, dropping RemoveAll for ${keys.size} keys" }
+        writeChannel.trySend(BackCacheCommand.RemoveAll(keys)).also { result ->
+            if (result.isFailure) log.warn { "Write channel full, dropping RemoveAll for ${keys.size} keys" }
         }
     }
 
@@ -304,11 +309,11 @@ class ResilientNearCache<K: Any, V: Any>(
     /**
      * 로컬 캐시와 back cache를 모두 비운다 (write-behind).
      */
-    fun clearAll() {
+    suspend fun clearAll() {
         clearLocal()
         clearPending.value = true
-        if (!queue.offer(BackCacheCommand.ClearBack())) {
-            log.warn { "Write queue full, dropping ClearBack" }
+        writeChannel.trySend(BackCacheCommand.ClearBack()).also { result ->
+            if (result.isFailure) log.warn { "Write channel full, dropping ClearBack" }
         }
     }
 
@@ -322,10 +327,10 @@ class ResilientNearCache<K: Any, V: Any>(
      */
     override fun close() {
         if (closed.compareAndSet(false, true)) {
-            runCatching { consumerThread.interrupt() }
-            runCatching { queue.clear() }
+            runCatching { scope.cancel() }
+            runCatching { writeChannel.close() }
             runCatching { frontCache.close() }
-            log.debug { "ResilientNearCache closed" }
+            log.debug { "ResilientSuspendNearCache closed" }
         }
     }
 }

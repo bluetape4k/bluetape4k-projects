@@ -1,4 +1,4 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine

@@ -35,35 +35,32 @@ dependencies {
 
 모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)가 공통 인터페이스를 구현합니다.
 
+#### NearCacheOperations (Blocking)
+
 ```mermaid
 classDiagram
     class NearCacheOperations~V~ {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
-        +get(key: String): V?
-        +getAll(keys: Set~String~): Map~String, V~
+        +get(key: String) V?
+        +getAll(keys: Set~String~) Map~String, V~
         +put(key: String, value: V)
-        +putIfAbsent(key: String, value: V): V?
-        +replace(key: String, value: V): Boolean
+        +putIfAbsent(key: String, value: V) V?
+        +replace(key: String, value: V) Boolean
         +remove(key: String)
-        +getAndRemove(key: String): V?
+        +getAndRemove(key: String) V?
         +clearLocal()
         +clearAll()
-        +stats(): NearCacheStatistics
-    }
-
-    class SuspendNearCacheOperations~V~ {
-        <<interface>>
-        +suspend get(key: String): V?
-        +suspend put(key: String, value: V)
-        +suspend close()
+        +stats() NearCacheStatistics
     }
 
     class NearCacheStatistics {
         <<interface>>
         +localHits: Long
         +localMisses: Long
+        +localSize: Long
+        +localEvictions: Long
         +backHits: Long
         +backMisses: Long
         +hitRate: Double
@@ -75,11 +72,6 @@ classDiagram
         -config: NearCacheResilienceConfig
     }
 
-    class JCacheNearCache~V~ {
-        -frontCache: JCache~String, V~
-        -backCache: JCache~String, V~
-    }
-
     class LettuceNearCache~V~ {
         -redisClient: RedisClient
         -RESP3 CLIENT TRACKING
@@ -87,15 +79,13 @@ classDiagram
 
     class HazelcastNearCache~V~ {
         -imap: IMap~String, V~
-        -EntryListener invalidation
+        -EntryListener
     }
 
     class RedissonNearCache~V~ {
         -localCachedMap: RLocalCachedMap
-        -Redisson 내장 invalidation
     }
 
-    NearCacheOperations <|.. JCacheNearCache
     NearCacheOperations <|.. LettuceNearCache
     NearCacheOperations <|.. HazelcastNearCache
     NearCacheOperations <|.. RedissonNearCache
@@ -103,6 +93,86 @@ classDiagram
     NearCacheOperations --o ResilientNearCacheDecorator : delegate
     NearCacheOperations ..> NearCacheStatistics : stats()
 ```
+
+#### SuspendNearCacheOperations (Coroutine)
+
+```mermaid
+classDiagram
+    class SuspendNearCacheOperations~V~ {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +putIfAbsent(key: String, value: V) V?
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class ResilientSuspendNearCacheDecorator~V~ {
+        -delegate: SuspendNearCacheOperations~V~
+        -retry: Retry
+    }
+
+    class LettuceSuspendNearCache~V~ {
+        -RedisCoroutinesCommands
+    }
+
+    class HazelcastSuspendNearCache~V~ {
+        -IMap async + await
+    }
+
+    class RedissonSuspendNearCache~V~ {
+        -RLocalCachedMap async + await
+    }
+
+    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
+    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
+    SuspendNearCacheOperations <|.. RedissonSuspendNearCache
+    SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
+    SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
+```
+
+#### Legacy JCache NearCache (`nearcache.jcache` 패키지)
+
+JCache 인터페이스를 직접 구현하는 기존 2-tier 캐시. `JCache<K,V> by backCache` 위임으로 JCache 호환성을 유지합니다.
+
+```mermaid
+classDiagram
+    class NearCache~K_V~ {
+        +frontCache: JCache~K, V~
+        +backCache: JCache~K, V~
+        +getDeeply(key: K) V?
+        +clearAllCache()
+    }
+
+    class SuspendNearCache~K_V~ {
+        +frontCache: SuspendCache~K, V~
+        +backCache: SuspendCache~K, V~
+        +getDeeply(key: K) V?
+    }
+
+    class ResilientNearCache~K_V~ {
+        -writeQueue: LinkedBlockingQueue
+        -tombstones: ConcurrentHashMap
+        +write-behind + retry
+    }
+
+    class ResilientSuspendNearCache~K_V~ {
+        -writeChannel: Channel
+        +write-behind + retry
+    }
+
+    JCache~K_V~ <|.. NearCache
+    NearCache <|-- ResilientNearCache
+    SuspendNearCache <|-- ResilientSuspendNearCache
+```
+
+> `nearcache.jcache` 패키지의 클래스는 JCache 호환이 필요한 경우에 사용합니다.
+> 새 코드는 `NearCacheOperations<V>` / `SuspendNearCacheOperations<V>` 인터페이스를 사용하세요.
 
 | 클래스 | 모듈 | 설명 |
 |---|---|---|

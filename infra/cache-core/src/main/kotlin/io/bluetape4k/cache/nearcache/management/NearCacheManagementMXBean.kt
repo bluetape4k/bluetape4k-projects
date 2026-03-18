@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.nearcache.management
 
-import io.bluetape4k.cache.nearcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCache
 import javax.cache.management.CacheMXBean
 
 /**
@@ -9,8 +9,9 @@ import javax.cache.management.CacheMXBean
  * NOTE: Configuration 정보를 얻기 위한 getConfiguration 에서 CapturedType 문제가 있어
  * 현재는 안전한 기본값을 반환합니다. 추후 Java 클래스로 재작성하여 완전히 구현해야 합니다.
  */
-class NearCacheManagementMXBean(private val cache: NearCache<*, *>): CacheMXBean {
-
+class NearCacheManagementMXBean(
+    private val cache: NearCache<*, *>,
+) : CacheMXBean {
     /**
      * Determines the required type of keys for this [Cache], if any.
      *

@@ -190,6 +190,6 @@ fun <V : Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceC
  *     }
  * ```
  */
-fun <V : Any> NearCacheOperations<V>.withResilience(
+inline fun <V : Any> NearCacheOperations<V>.withResilience(
     block: NearCacheResilienceConfigBuilder.() -> Unit,
 ): NearCacheOperations<V> = ResilientNearCacheDecorator(this, nearCacheResilienceConfig(block))

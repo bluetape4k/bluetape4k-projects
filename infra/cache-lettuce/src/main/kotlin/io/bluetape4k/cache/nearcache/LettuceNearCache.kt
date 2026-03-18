@@ -306,7 +306,7 @@ class LettuceNearCache<V : Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100L))
             if (result.keys.isNotEmpty()) {
                 commands.del(*result.keys.toTypedArray())
             }
@@ -337,7 +337,7 @@ class LettuceNearCache<V : Any>(
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
             val result: KeyScanCursor<String> =
-                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(NearCache.SCAN_BATCH_SIZE))
+                commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100L))
             count += result.keys.size
             cursor = result
         } while (!result.isFinished)

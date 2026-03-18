@@ -5,14 +5,14 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.RedissonJCaching
 import io.bluetape4k.cache.jcache.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.SuspendCache
-import io.bluetape4k.cache.nearcache.NearCache
-import io.bluetape4k.cache.nearcache.NearCacheConfig
 import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.RedissonNearCache
 import io.bluetape4k.cache.nearcache.RedissonNearCacheConfig
 import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
-import io.bluetape4k.cache.nearcache.SuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
+import io.bluetape4k.cache.nearcache.jcache.NearCache
+import io.bluetape4k.cache.nearcache.jcache.NearCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import org.redisson.api.RedissonClient

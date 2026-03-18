@@ -1,4 +1,4 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.jcacheManagerOf
 import io.bluetape4k.codec.Base58

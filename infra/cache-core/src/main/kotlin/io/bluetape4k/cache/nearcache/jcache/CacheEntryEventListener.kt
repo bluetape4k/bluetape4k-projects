@@ -1,4 +1,4 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.logging.KLogging

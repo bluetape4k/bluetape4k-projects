@@ -1,4 +1,6 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
+
+import io.bluetape4k.cache.nearcache.GetFailureStrategy
 
 import io.bluetape4k.support.requirePositiveNumber
 import java.time.Duration

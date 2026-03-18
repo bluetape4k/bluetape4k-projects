@@ -1,4 +1,4 @@
-package io.bluetape4k.cache.nearcache
+package io.bluetape4k.cache.nearcache.jcache
 
 /**
  * JCache/SuspendCache back cache에 대한 비동기 write-behind 명령.
