@@ -10,8 +10,7 @@ dependencies {
     api(project(":bluetape4k-r2dbc"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(project(":bluetape4k-spring-boot3"))
-    testImplementation(project(":bluetape4k-spring-boot3"))
+    api(project(":bluetape4k-spring-boot3-core"))
 
     // R2DBC
     api(Libs.springBootStarter("data-r2dbc"))

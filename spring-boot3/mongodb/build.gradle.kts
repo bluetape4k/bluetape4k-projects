@@ -13,7 +13,7 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-spring-boot3"))
+    api(project(":bluetape4k-spring-boot3-core"))
     api(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(project(":bluetape4k-junit5"))

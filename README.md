@@ -144,10 +144,12 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 ### Spring 모듈 (`spring/`)
 
 - **bluetape4k-spring-boot3** (`spring/boot3`): Spring Boot 3 기반 공통 기능 통합 모듈 — Spring core 유틸리티, WebFlux + Coroutines, Retrofit2 통합, 테스트 유틸리티 포함 (구 `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests` 통합됨)
-- **[data-redis](./spring/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[cassandra](./spring/cassandra/README.md)**: Spring Data Cassandra
-- **[mongodb](./spring/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring/r2dbc/README.md)**: Spring Data R2DBC
+- **[data-redis](spring-boot3/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
+  `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[cassandra](spring-boot3/cassandra/README.md)**: Spring Data Cassandra
+- **[mongodb](spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive —
+  `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
+- **[r2dbc](spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
 
 > Spring Data JPA는 `data/hibernate` 모듈로 이동했습니다.
 

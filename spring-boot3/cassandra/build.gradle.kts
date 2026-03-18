@@ -23,7 +23,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-cassandra"))
-    api(project(":bluetape4k-spring-boot3"))
+    api(project(":bluetape4k-spring-boot3-core"))
     testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
