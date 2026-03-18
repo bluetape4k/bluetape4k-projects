@@ -167,6 +167,4 @@ dependencies {
     // ChromaDB
     compileOnly(Libs.testcontainers_chromadb)
 
-    // TiDB
-    compileOnly(Libs.testcontainers_tidb)
 }
