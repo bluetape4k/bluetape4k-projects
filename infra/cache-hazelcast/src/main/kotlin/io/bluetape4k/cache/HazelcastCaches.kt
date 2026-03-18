@@ -1,13 +1,10 @@
 package io.bluetape4k.cache
 
 import com.hazelcast.core.HazelcastInstance
+import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
 import io.bluetape4k.cache.jcache.HazelcastJCaching
 import io.bluetape4k.cache.jcache.HazelcastSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.cache.jcache.JCacheEntryEventListener
-import io.bluetape4k.cache.jcache.SuspendJCache
-import io.bluetape4k.cache.jcache.SuspendJCacheEntryEventListener
-import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.HazelcastNearCacheConfigBuilder
@@ -17,12 +14,14 @@ import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.hazelcastNearCacheConfig
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
+import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfigBuilder
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
+import io.bluetape4k.cache.nearcache.jcache.nearJCacheConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import javax.cache.configuration.Configuration
-import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import javax.cache.configuration.MutableConfiguration
+import java.util.concurrent.TimeUnit
 
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
@@ -150,51 +149,103 @@ object HazelcastCaches : KLogging() {
     // NearJCache
     // -------------------------------------
 
+    /**
+     * DSL 블록으로 Hazelcast 기반 [NearJCache]를 생성합니다.
+     *
+     * @param K 키 타입
+     * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
+     * @param block [NearJCacheConfigBuilder] DSL 블록
+     * @return [NearJCache] 인스턴스
+     */
     inline fun <reified K: Any, reified V: Any> nearJCache(
-        frontCache: JCache<K, V>,
         hazelcastInstance: HazelcastInstance,
-        configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
-        nearCacheCfg: NearJCacheConfig<K, V>,
+        block: NearJCacheConfigBuilder<K, V>.() -> Unit,
     ): NearJCache<K, V> {
-        // back cache의 event를 받아 front cache에 반영합니다.
-        val cacheEntryEventListenerCfg =
-            MutableCacheEntryListenerConfiguration(
-                { JCacheEntryEventListener(frontCache) },
-                null,
-                false,
-                nearCacheCfg.isSynchronous
-            )
-
-        val backCache: JCache<K, V> =
-            HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
-        log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
-        backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
-
-        log.info { "Create NearCache instance. config=$nearCacheCfg" }
-        return NearJCache(frontCache, backCache, nearCacheCfg)
+        val config = nearJCacheConfig(block)
+        return nearJCache(hazelcastInstance, config)
     }
 
-    inline fun <reified K: Any, reified V: Any> suspendNearJCache(
-        frontCache: SuspendJCache<K, V>,
+    /**
+     * [NearJCacheConfig]로 Hazelcast 기반 [NearJCache]를 생성합니다.
+     *
+     * @param K 키 타입
+     * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
+     * @param config [NearJCacheConfig] 설정
+     * @return [NearJCache] 인스턴스
+     */
+    inline fun <reified K: Any, reified V: Any> nearJCache(
         hazelcastInstance: HazelcastInstance,
-        configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
-        nearCacheCfg: NearJCacheConfig<K, V>,
-    ): SuspendNearJCache<K, V> {
-        val cacheEntryEventListenerCfg = MutableCacheEntryListenerConfiguration(
-            { SuspendJCacheEntryEventListener(frontCache) },
-            null,
-            false,
-            false
+        config: NearJCacheConfig<K, V>,
+    ): NearJCache<K, V> {
+        val configuration = MutableConfiguration<K, V>().apply {
+            setTypes(K::class.java, V::class.java)
+        }
+        val backCache: JCache<K, V> = HazelcastJCaching.getOrCreate(
+            hazelcastInstance,
+            config.cacheName,
+            configuration,
         )
+        // Hazelcast client JCache는 직렬화 불가 listener를 클러스터에 전파할 수 없으므로
+        // NearJCache.invoke(config, backCache) 대신 front cache를 직접 생성하여 listener 없이 구성합니다.
+        val frontCacheManager = config.cacheManagerFactory.create()
+        val frontCache: JCache<K, V> =
+            frontCacheManager.createCache(config.cacheName, config.frontCacheConfiguration)
 
-        val jcache = HazelcastJCaching.getOrCreate(hazelcastInstance, nearCacheCfg.cacheName, configuration)
-        val backCache = HazelcastSuspendJCache(jcache)
+        log.info { "NearJCache 생성. config=$config" }
+        return NearJCache(frontCache, backCache, config)
+    }
 
-        log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
-        backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
+    /**
+     * DSL 블록으로 Hazelcast 기반 [SuspendNearJCache]를 생성합니다.
+     *
+     * @param K 키 타입
+     * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
+     * @param block [NearJCacheConfigBuilder] DSL 블록
+     * @return [SuspendNearJCache] 인스턴스
+     */
+    inline fun <reified K: Any, reified V: Any> suspendNearJCache(
+        hazelcastInstance: HazelcastInstance,
+        block: NearJCacheConfigBuilder<K, V>.() -> Unit,
+    ): SuspendNearJCache<K, V> {
+        val config = nearJCacheConfig(block)
+        return suspendNearJCache(hazelcastInstance, config)
+    }
 
-        log.info { "Create HazelcastSuspendNearJCache instance." }
-        return SuspendNearJCache(frontCache, backCache)
+    /**
+     * [NearJCacheConfig]로 Hazelcast 기반 [SuspendNearJCache]를 생성합니다.
+     *
+     * @param K 키 타입
+     * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
+     * @param config [NearJCacheConfig] 설정
+     * @return [SuspendNearJCache] 인스턴스
+     */
+    inline fun <reified K: Any, reified V: Any> suspendNearJCache(
+        hazelcastInstance: HazelcastInstance,
+        config: NearJCacheConfig<K, V>,
+    ): SuspendNearJCache<K, V> {
+        val configuration = MutableConfiguration<K, V>().apply {
+            setTypes(K::class.java, V::class.java)
+        }
+        val backJCache: JCache<K, V> = HazelcastJCaching.getOrCreate(
+            hazelcastInstance,
+            config.cacheName,
+            configuration,
+        )
+        val backCache = HazelcastSuspendJCache(backJCache)
+
+        val frontCache = CaffeineSuspendJCache<K, V> {
+            maximumSize(10_000)
+            expireAfterAccess(30, TimeUnit.MINUTES)
+        }
+
+        // Hazelcast client JCache는 listener를 클러스터에 직렬화해서 전파하므로
+        // non-serializable front cache를 listener로 등록하면 실패합니다.
+        log.info { "SuspendNearJCache 생성. config=$config" }
+        return SuspendNearJCache.withoutListener(frontCache, backCache)
     }
 
 }

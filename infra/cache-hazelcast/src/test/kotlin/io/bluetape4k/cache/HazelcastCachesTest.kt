@@ -9,10 +9,13 @@ import io.bluetape4k.cache.nearcache.NearCacheOperations
 import io.bluetape4k.cache.nearcache.ResilientNearCacheDecorator
 import io.bluetape4k.cache.nearcache.ResilientSuspendNearCacheDecorator
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
+import io.bluetape4k.cache.nearcache.jcache.NearJCache
+import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.cache.nearcache.withResilience
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
@@ -93,6 +96,30 @@ class HazelcastCachesTest {
             cache.shouldBeInstanceOf<ResilientSuspendNearCacheDecorator<*>>()
         } finally {
             runCatching { runSuspendIO { cache.close() } }
+        }
+    }
+
+    @Test
+    fun `nearJCache DSL로 생성 - NearJCache 인스턴스 반환`() {
+        val cache = HazelcastCaches.nearJCache<String, String>(hazelcastClient) {
+            cacheName = randomName()
+        }
+        try {
+            cache.shouldBeInstanceOf<NearJCache<*, *>>()
+        } finally {
+            runCatching { cache.close() }
+        }
+    }
+
+    @Test
+    fun `suspendNearJCache DSL로 생성 - SuspendNearJCache 인스턴스 반환`() = runTest {
+        val cache = HazelcastCaches.suspendNearJCache<String, String>(hazelcastClient) {
+            cacheName = randomName()
+        }
+        try {
+            cache.shouldBeInstanceOf<SuspendNearJCache<*, *>>()
+        } finally {
+            runCatching { cache.close() }
         }
     }
 }

@@ -24,7 +24,7 @@ import javax.cache.configuration.MutableCacheEntryListenerConfiguration
  * @property backCache 분산환경에서 사용할 원격 캐시
  * @constructor Create empty Co near cache
  */
-class SuspendNearJCache<K: Any, V: Any> private constructor(
+class SuspendNearJCache<K: Any, V: Any> internal constructor(
     private val frontCache: SuspendJCache<K, V>,
     private val backCache: SuspendJCache<K, V>,
 ): SuspendJCache<K, V> by backCache {
@@ -48,6 +48,26 @@ class SuspendNearJCache<K: Any, V: Any> private constructor(
             backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
 
             log.info { "Create SuspendNearCache instance." }
+            return SuspendNearJCache(frontCache, backCache)
+        }
+
+        /**
+         * back cache에 listener를 등록하지 않고 [SuspendNearJCache]를 생성합니다.
+         *
+         * Hazelcast client JCache 처럼 listener를 클러스터에 직렬화해서 전파해야 하는 환경에서
+         * non-serializable listener 등록이 실패할 때 사용합니다.
+         *
+         * @param K 캐시 키 타입
+         * @param V 캐시 값 타입
+         * @param frontCache 로컬 front cache
+         * @param backCache 원격 back cache
+         * @return [SuspendNearJCache] 인스턴스
+         */
+        fun <K: Any, V: Any> withoutListener(
+            frontCache: SuspendJCache<K, V>,
+            backCache: SuspendJCache<K, V>,
+        ): SuspendNearJCache<K, V> {
+            log.info { "listener 없이 SuspendNearJCache를 생성합니다." }
             return SuspendNearJCache(frontCache, backCache)
         }
     }
