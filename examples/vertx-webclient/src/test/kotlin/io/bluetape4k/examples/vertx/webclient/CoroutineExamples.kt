@@ -47,7 +47,7 @@ class CoroutineExamples {
                 .coAwait()
 
             log.debug { "Response body=${response.body()}" }
-            response.body() shouldBeEqualTo "Hello Coroutines!"
+            response.body().shouldNotBeNull() shouldBeEqualTo "Hello Coroutines!"
         }
     }
 }

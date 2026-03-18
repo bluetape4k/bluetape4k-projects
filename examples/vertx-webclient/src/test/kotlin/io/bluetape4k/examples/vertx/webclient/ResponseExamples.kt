@@ -15,6 +15,7 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -88,7 +89,7 @@ class ResponseExamples {
 
             log.debug { "Response body=${response.body()}" }
             response.statusCode() shouldBeEqualTo 200
-            val responseUser = response.body()
+            val responseUser = response.body().shouldNotBeNull()
             responseUser shouldBeEqualTo expectedUser
         }
     }

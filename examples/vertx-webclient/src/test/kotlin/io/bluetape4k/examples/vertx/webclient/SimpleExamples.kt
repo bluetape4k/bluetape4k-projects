@@ -15,6 +15,7 @@ import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -56,7 +57,7 @@ class SimpleExamples {
                 .coAwait()
 
             log.debug { "Response body=${response.body()}" }
-            response.body() shouldBeEqualTo "Hello World!"
+            response.body().shouldNotBeNull() shouldBeEqualTo "Hello World!"
         }
     }
 }

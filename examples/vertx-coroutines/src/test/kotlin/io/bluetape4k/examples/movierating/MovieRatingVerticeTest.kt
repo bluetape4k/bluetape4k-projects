@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -52,7 +53,7 @@ class MovieRatingVerticeTest {
             log.debug { "Response body=${response.body()}" }
 
             response.statusCode() shouldBeEqualTo 200
-            val movie = response.body()
+            val movie = response.body().shouldNotBeNull()
             movie.getString("id") shouldBeEqualTo movieId
             movie.getString("title").shouldNotBeEmpty()
         }
@@ -74,7 +75,7 @@ class MovieRatingVerticeTest {
             log.debug { "Response body=${response.body()}" }
 
             response.statusCode() shouldBeEqualTo 200
-            val movie = response.body()
+            val movie = response.body().shouldNotBeNull()
             movie.getString("id") shouldBeEqualTo movieId
             movie.getDouble("getRating") shouldBeGreaterThan 0.0
         }
