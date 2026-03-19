@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 @PublishedApi
@@ -17,7 +17,7 @@ internal val log by lazy { KotlinLogging.logger(LibraryName) }
  *
  * ## 동작/계약
  * - `invokeOnCompletion(onCancelling = true)` 핸들러를 등록하므로 취소 시점에도 로그가 남습니다.
- * - 완료 원인이 `CancellationException`이면 `[$tag] 🔥`, 그 외(정상 완료/실패)는 `[$tag] ✅` 형식으로 기록합니다.
+ * - 완료 원인이 `CancellationException`이면 `[tag] 🔥`, 그 외(정상 완료/실패)는 `[tag] ✅` 형식으로 기록합니다.
  * - 수신 `Job` 자체를 새로 만들지 않으며 `apply`로 같은 인스턴스를 반환합니다.
  *
  * ```kotlin
@@ -52,9 +52,9 @@ fun <T: Job> T.log(tag: Any): T = apply {
  * ```
  * @param msg 로그로 출력할 메시지를 생성하는 suspend 함수입니다.
  */
-suspend inline fun suspendLogging(crossinline msg: suspend () -> Any?) = coroutineScope {
-    val name = coroutineContext[CoroutineName]?.name
-    val props = coroutineContext[PropertyCoroutineContext]?.properties
+suspend inline fun suspendLogging(crossinline msg: suspend () -> Any?) {
+    val name = currentCoroutineContext()[CoroutineName]?.name
+    val props = currentCoroutineContext()[PropertyCoroutineContext]?.properties
 
     val msgText = msg.invoke()
     if (props != null) {

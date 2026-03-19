@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.junit5.output.OutputCapturer
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test
 @OutputCapture
 class LoggingSupportTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-    }
+    companion object: KLoggingChannel()
 
     @Test
     fun `job logging`(capturer: OutputCapturer) = runTest {

@@ -78,7 +78,7 @@ class BehaviorSubjectTest {
 
             val job = launch(executor) {
                 subject
-                    .onEach { delay(100) }
+                    .onEach { delay(10) }
                     .log("#1")
                     .collect { result.add(it) }
             }
@@ -227,7 +227,7 @@ class BehaviorSubjectTest {
         withSingleThread { executor ->
             val job = launch(executor) {
                 subject
-                    .onEach { delay(100) }
+                    .onEach { delay(10) }
                     .log("collector")
                     .collect { result.add(it) }
             }.log("job")

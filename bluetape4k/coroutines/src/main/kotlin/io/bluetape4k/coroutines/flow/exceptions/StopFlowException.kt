@@ -5,7 +5,6 @@ import kotlinx.coroutines.CancellationException
 @PublishedApi
 internal class StopFlowException: CancellationException {
     constructor(): super()
-
     constructor(message: String?): super(message)
 
     constructor(message: String?, cause: Throwable?): super(message) {

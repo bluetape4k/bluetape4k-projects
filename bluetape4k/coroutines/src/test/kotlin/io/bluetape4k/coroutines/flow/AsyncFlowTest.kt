@@ -46,7 +46,8 @@ class AsyncFlowTest {
     @DisplayName("asyncFlow with custom dispatcher")
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with custom dispatcher`() = runTest {
-        newFixedThreadPoolContext(Runtimex.availableProcessors, "asyncflow").use { dispatcher ->
+        val processorCount = Runtimex.availableProcessors
+        newFixedThreadPoolContext(processorCount, "asyncflow").use { dispatcher ->
             runAsyncFlow(dispatcher)
         }
     }
@@ -57,7 +58,7 @@ class AsyncFlowTest {
         runAsyncFlow(Dispatchers.VT)
     }
 
-    private suspend fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
+    private suspend inline fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
         // 중복된 요소가 없어야 합니다
         val results = mutableListOf<Int>()
 
@@ -90,6 +91,7 @@ class AsyncFlowTest {
                 count.incrementAndGet()
                 it
             }
+            .log("Default")
             .collect()
 
         count.get() shouldBeEqualTo ITEM_SIZE
@@ -99,10 +101,8 @@ class AsyncFlowTest {
     fun `collect rejects invalid buffer capacity`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             expectedItems
-                .asFlow()
-                .async {
-                    it
-                }
+                .asFlow().log("Fail")
+                .async { it }
                 .collect(capacity = -3) { }
         }
     }
@@ -111,18 +111,14 @@ class AsyncFlowTest {
     fun `collect accepts special channel capacity constants`() = runTest {
         expectedItems
             .take(32)
-            .asFlow()
-            .async {
-                it
-            }
+            .asFlow().log("#1")
+            .async { it }
             .collect(capacity = Channel.CONFLATED) { }
 
         expectedItems
             .take(32)
-            .asFlow()
-            .async {
-                it
-            }
+            .asFlow().log("#2")
+            .async { it }
             .collect(capacity = Channel.BUFFERED) { }
     }
 }

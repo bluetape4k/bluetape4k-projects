@@ -32,7 +32,7 @@ internal val logger by lazy { KotlinLogging.logger(LibraryName) }
  * @param log 출력에 사용할 SLF4J Logger입니다.
  */
 @Suppress("IMPLICIT_CAST_TO_ANY")
-fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger) =
+fun <F: Flow<T>, T> F.log(tag: Any, log: org.slf4j.Logger = logger): F {
     this
         .onStart {
             log.debug { "[$tag] \uD83D\uDE80" }
@@ -57,3 +57,6 @@ fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger) =
                 }
             }
         }
+
+    return this
+}

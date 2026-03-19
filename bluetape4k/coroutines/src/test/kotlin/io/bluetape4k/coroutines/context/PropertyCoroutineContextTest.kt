@@ -7,7 +7,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -42,21 +41,17 @@ class PropertyCoroutineContextTest {
 
         val scope = CoroutineScope(ctx) + SupervisorJob()
 
-        // Scope를 생성할 때 전달한 CoroutineContext를 사용한다.
         val job1 = scope.launch {
             val propCtx = coroutineContext[PropertyCoroutineContext]!!
             propCtx["key1"] shouldBeEqualTo 1
             propCtx["key2"] shouldBeEqualTo "two"
         }.log("#1")
-        yield()
 
-        // Scope를 생성할 때 전달한 CoroutineContext를 사용한다.
-        val job2 = launch(scope.coroutineContext) {
+        val job2 = scope.launch {
             val propCtx = coroutineContext[PropertyCoroutineContext]!!
             propCtx["key1"] shouldBeEqualTo 1
             propCtx["key2"] shouldBeEqualTo "two"
         }.log("#2")
-        yield()
 
         job1.join()
         job2.join()

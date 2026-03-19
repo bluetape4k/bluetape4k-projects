@@ -48,7 +48,9 @@ class BufferingDebouncedTest: AbstractFlowTest() {
                 delay(150)
                 emit(3)
                 delay(150)
+
                 throw RuntimeException("Boom!")
+
                 delay(90)
                 emit(4)
             }.catch { }
