@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
@@ -142,15 +143,18 @@ class RedisServer private constructor(
                     start()
                     ShutdownQueue.register(this)
 
-                    // Testcontainers 첫 실행 시 Docker 포트 프록시가 완전히 준비되기 전에
-                    // Redisson pub/sub 채널을 열면 StacklessClosedChannelException이 발생합니다.
-                    // 임시 클라이언트로 pub/sub를 워밍업하여 포트 프록시를 안정화합니다.
-                    // 이후 Redisson.create()로 직접 생성한 클라이언트도 안전하게 사용할 수 있습니다.
-                    val tempClient = RedissonLib.getRedisson(url)
-                    try {
-                        RedissonLib.warmupPubSubChannel(tempClient)
-                    } finally {
-                        tempClient.shutdown()
+                    // Redisson 을 사용하는 경우에만 warm up 을 수행한다 
+                    if (classIsPresent("org.redisson.Redisson")) {
+                        // Testcontainers 첫 실행 시 Docker 포트 프록시가 완전히 준비되기 전에
+                        // Redisson pub/sub 채널을 열면 StacklessClosedChannelException이 발생합니다.
+                        // 임시 클라이언트로 pub/sub를 워밍업하여 포트 프록시를 안정화합니다.
+                        // 이후 Redisson.create()로 직접 생성한 클라이언트도 안전하게 사용할 수 있습니다.
+                        val tempClient = RedissonLib.getRedisson(url)
+                        try {
+                            RedissonLib.warmupPubSubChannel(tempClient)
+                        } finally {
+                            tempClient.shutdown()
+                        }
                     }
                 }
         }
