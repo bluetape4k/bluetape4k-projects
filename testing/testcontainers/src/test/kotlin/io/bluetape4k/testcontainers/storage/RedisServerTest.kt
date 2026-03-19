@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -27,7 +28,7 @@ class RedisServerTest: AbstractContainerTest() {
 
                 await atMost Duration.ofSeconds(5) until {
                     runCatching {
-                        verifyRedisServer(redis)
+                        verifyWithRedisson(redis)
                         true
                     }.getOrDefault(false)
                 }
@@ -43,7 +44,8 @@ class RedisServerTest: AbstractContainerTest() {
                 redis.start()
                 redis.isRunning.shouldBeTrue()
 
-                verifyRedisServer(redis)
+                verifyWithRedisson(redis)
+                verifyWithLettuce(redis)
             }
         }
 
@@ -52,11 +54,12 @@ class RedisServerTest: AbstractContainerTest() {
             val redis = RedisServer.Launcher.redis
             redis.isRunning.shouldBeTrue()
 
-            verifyRedisServer(redis)
+            verifyWithRedisson(redis)
+            verifyWithLettuce(redis)
         }
     }
 
-    private fun verifyRedisServer(redisServer: RedisServer) {
+    private fun verifyWithRedisson(redisServer: RedisServer) {
         val redisson = RedisServer.Launcher.RedissonLib.getRedisson(redisServer.url)
 
         try {
@@ -67,6 +70,16 @@ class RedisServerTest: AbstractContainerTest() {
             map2["key1"] shouldBeEqualTo "value1"
         } finally {
             runCatching { redisson.shutdown() }
+        }
+    }
+
+    private fun verifyWithLettuce(redisServer: RedisServer) {
+        val redisClient = RedisServer.Launcher.LettuceLib.getRedisClient(redisServer.url)
+
+        redisClient.connect().use { conn ->
+            val command = conn.sync()
+            val result = command.ping()
+            result.shouldNotBeNull() shouldBeEqualTo "PONG"
         }
     }
 
