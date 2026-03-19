@@ -124,11 +124,33 @@ class LocalStackServer private constructor(
      * [LocalStackServer]용 Launcher
      */
     object Launcher {
+
+        val services = listOf(
+            "cloudwatch",
+            "logs",
+            "dynamodb",
+            "kinesis",
+            "kms",
+            "s3",
+            "ses",
+            "sns",
+            "sqs",
+            "sts"
+        )
+
         /**
          * [LocalStackServer] 인스턴스를 생성하고 시작합니다.
          */
         val localStack: LocalStackServer by lazy {
-            LocalStackServer().apply {
+            getLocalStack(*services.toTypedArray())
+        }
+
+        /**
+         * [LocalStackServer] 인스턴스를 생성하고 시작합니다.
+         */
+        fun getLocalStack(vararg services: String): LocalStackServer {
+            return LocalStackServer().apply {
+                withServices(*services)
                 start()
                 ShutdownQueue.register(this)
             }
