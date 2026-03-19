@@ -288,10 +288,232 @@
   },
   "hotPaths": [
     {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowOperatorExamples.kt",
+      "accessCount": 12,
+      "lastAccessed": 1773906928126,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/exceptions/ExceptionHandlingExamples.kt",
+      "accessCount": 11,
+      "lastAccessed": 1773906878524,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/scope/CoroutineScopeExamples.kt",
+      "accessCount": 9,
+      "lastAccessed": 1773906879309,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowLifecycleExamples.kt",
+      "accessCount": 9,
+      "lastAccessed": 1773906945464,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/ChannelFlowExamples.kt",
+      "accessCount": 7,
+      "lastAccessed": 1773906890733,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/cancellation/CancellationExamples.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773906836449,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/channels/ActorExamples.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773906842179,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/channels/ChannelExamples.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773906847912,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/Events.kt",
+      "accessCount": 5,
+      "lastAccessed": 1773906970381,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/select/SelectExamples.kt",
+      "accessCount": 4,
+      "lastAccessed": 1773904335869,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/README.md",
+      "accessCount": 4,
+      "lastAccessed": 1773904364512,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/TestSupport.kt",
+      "accessCount": 4,
+      "lastAccessed": 1773906776048,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 2,
       "lastAccessed": 1773898612666,
       "type": "directory"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/CoroutineContextExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903505290,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/CounterCoroutineContext.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903506087,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/UuidProviderCoroutineContext.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903506183,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/dispatchers/DispatcherExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903506990,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowBasicExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903512817,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowBuilderExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903513843,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/SharedFlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903515357,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/StateFlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903523312,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/CallbackFlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903523772,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/SharedFlowAsEventBus.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903524790,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/tests/TurbineExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903533039,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903533523,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/FlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903534014,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/SuspendExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903534633,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/MDCContextExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903535218,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/ChannelExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903540471,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/ChannelAsFlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903541493,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineBuilderExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903542179,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineContextExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903542617,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/SharedFlowExamples.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773903543291,
+      "type": "file"
+    },
+    {
+      "path": ".editorconfig",
+      "accessCount": 2,
+      "lastAccessed": 1773906676510,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/resources/junit-platform.properties",
+      "accessCount": 1,
+      "lastAccessed": 1773903469354,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/resources/logback-test.xml",
+      "accessCount": 1,
+      "lastAccessed": 1773903469650,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/concurrency/MutexExamples.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773903892923,
+      "type": "file"
+    },
+    {
+      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/timeout/TimeoutExamples.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773903907461,
+      "type": "file"
     }
   ],
   "userDirectives": []
