@@ -95,7 +95,7 @@ if (condition) { }
 
 ```kotlin
 // Type and supertype: space before
-abstract class Foo<out T : Any> : IFoo {
+abstract class Foo<out T: Any>: IFoo {
     // Declaration and type: no space before
     abstract fun foo(a: Int): T
 }
@@ -107,10 +107,19 @@ abstract class Foo<out T : Any> : IFoo {
 // Short: single line
 fun foo(a: Int): String = a.toString()
 
-// Long: break parameters
+// Medium: single line (columns: 120 under)
+fun longMethodName(argument: ArgumentType = defaultValue, argument2: AnotherArgumentType): ReturnType {
+    // body
+}
+
+// Long: break parameters (columns: 120 over)
 fun longMethodName(
     argument: ArgumentType = defaultValue,
     argument2: AnotherArgumentType,
+    argument3: String,
+    argument4: Int,
+    argument5: Boolean,
+    argument6: ByteArry,
 ): ReturnType {
     // body
 }

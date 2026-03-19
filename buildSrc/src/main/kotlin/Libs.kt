@@ -19,8 +19,7 @@ object Plugins {
 
         const val spring_boot3 = "3.5.11"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val spring_boot4 = "4.0.3"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
-        const val quarkus = "3.31.3"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
-        
+
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
@@ -36,7 +35,6 @@ object Plugins {
     const val dokka = "org.jetbrains.dokka"
     const val dependency_management = "io.spring.dependency-management"
     const val spring_boot = "org.springframework.boot"
-    const val quarkus = "io.quarkus"
 
     const val protobuf = "com.google.protobuf" // https://github.com/google/protobuf-gradle-plugin
 
@@ -73,7 +71,8 @@ object Versions {
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
-    const val spring_boot = Plugins.Versions.spring_boot3
+    const val spring_boot3 = Plugins.Versions.spring_boot3
+    const val spring_boot4 = Plugins.Versions.spring_boot4
     const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
     const val spring_integration = "6.5.6"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.14"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
@@ -82,12 +81,7 @@ object Versions {
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
     const val blockhound = "1.0.16.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
 
-    const val quarkus = Plugins.Versions.quarkus
-
-    const val resteasy = "7.0.1.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
     const val mutiny = "3.1.1"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
-    const val camel_quarkus = "3.31.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
-
     const val vertx = "4.5.25"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.43"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
@@ -235,7 +229,7 @@ object Libs {
         }
     }
 
-    const val jetbrains_annotations = "org.jetbrains:annotations:26.0.2" // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    const val jetbrains_annotations = "org.jetbrains:annotations:26.1.0" // https://mvnrepository.com/artifact/org.jetbrains/annotations
 
     // kotlin
     fun kotlin(module: String, version: String = Versions.kotlin) = "org.jetbrains.kotlin:kotlin-$module:$version"
@@ -382,7 +376,8 @@ object Libs {
     const val fory_kotlin = "org.apache.fory:fory-kotlin:0.15.0" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
 
     // Spring Boot
-    const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
+    const val spring_boot3_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot3}"
+    const val spring_boot4_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot4}"
 
     fun spring(module: String) = "org.springframework:spring-$module"
     fun springBoot(module: String) = "org.springframework.boot:spring-boot-$module"
@@ -438,55 +433,7 @@ object Libs {
     // Chaos Monkey (https://github.com/codecentric/chaos-monkey-spring-boot)
     const val chaos_monkey_spring_boot = "de.codecentric:chaos-monkey-spring-boot:${Versions.chaos_monkey}"
 
-    // Quarkus
-    fun quarkus(extension: String) = "io.quarkus:quarkus-$extension:${Versions.quarkus}"
-
-    const val quarkus_bom = "io.quarkus.platform:quarkus-bom:${Versions.quarkus}"
-    val quarkus_universe_bom = quarkus("universe-bom")
-
-    val quarkus_arc = quarkus("arc")
-    val quarkus_hibernate_reactive_panache = quarkus("hibernate-reactive-panache")
-    val quarkus_junit5 = quarkus("junit5")
-    val quarkus_kotlin = quarkus("kotlin")
-    val quarkus_mutiny = quarkus("mutiny")
-    val quarkus_opentelemetry = quarkus("opentelemetry")
-    val quarkus_security = quarkus("security")
-    val quarkus_vertx = quarkus("vertx")
-    val quarkus_vertx_http = quarkus("vertx-http")
-
-    val quarkus_reactive_routes = quarkus("reactive-routes")
-    val quarkus_reactive_mysql_client = quarkus("reactive-routes-mysql-client")
-    val quarkus_reactive_pg_client = quarkus("reactive-routes-pg-client")
-
-    val quarkus_test_security = quarkus("test-security")
-    val quarkus_test_keycloak_server = quarkus("test-keycloak-server")
-
-    // Quarkus Blaze Persistence
-    const val quarkus_blaze_persistence_bom = "io.quarkus.platform:quarkus-blaze-persistence-bom:${Versions.quarkus}"
-
-    // Smallrye
-    fun smallrye(module: String) = "io.smallrye:smallrye-$module"
-    fun smallryeReactive(module: String) = "io.smallrye.reactive:smallrye-$module"
-
-    // Resteasy (https://resteasy.dev/)
-    fun resteasy(module: String, version: String = Versions.resteasy) = "org.jboss.resteasy:resteasy-$module:$version"
-    val resteasy_bom = resteasy("bom")
-
-    val resteasy_cdi = resteasy("cdi")
-    val resteasy_client = resteasy("client")
-    val resteasy_jackson2_provider = resteasy("jackson2-provider")
-    val resteasy_spring = resteasy("spring")
-    val resteasy_vertx = resteasy("vertx")
-
-    // Camel Quarkus
-    fun camelQuarkus(extension: String, version: String = Versions.camel_quarkus) =
-        "org.apache.camel.quarkus:camel-quarkus-$extension:$version"
-
-    val camel_quarkus_bom = camelQuarkus("bom")
-    val camel_quarkus_sql = camelQuarkus("sql")
-    val camel_quarkus_vertx = camelQuarkus("vertx")
-
-    // Vert.x (https://vertx.io/docs/)
+     // Vert.x (https://vertx.io/docs/)
     fun vertx(module: String, version: String = Versions.vertx) = "io.vertx:vertx-$module:$version"
     val vertx_dependencies = vertx("dependencies")
 
@@ -976,7 +923,6 @@ object Libs {
 
     // OpenTelemetry
     fun opentelemetry(module: String): String = "io.opentelemetry:opentelemetry-$module"
-
     fun opentelemetryInstrumentation(module: String): String = "io.opentelemetry.instrumentation:opentelemetry-$module"
 
     val opentelemetry_bom = opentelemetry("bom:${Versions.opentelemetry}")
@@ -1214,7 +1160,6 @@ object Libs {
 
     fun blazePersistenceIntegration(module: String) = blazePersistence("integration-$module")
 
-    val blaze_persistence_integration_quarkus = blazePersistenceIntegration("quarkus")
     val blaze_persistence_integration_hibernate_5 = blazePersistenceIntegration("hibernate-5")
     val blaze_persistence_integration_hibernate_5_6 = blazePersistenceIntegration("hibernate-5.6")
     val blaze_persistence_integration_jackson = blazePersistenceIntegration("jackson")

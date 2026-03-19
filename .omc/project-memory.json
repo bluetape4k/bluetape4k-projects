@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1773766975656,
+  "lastScanned": 1773898345467,
   "projectRoot": "/Users/debop/work/bluetape4k/bluetape4k-projects",
   "techStack": {
     "languages": [
@@ -49,7 +49,7 @@
       "path": "aws",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1773766975651,
+      "lastAccessed": 1773898345459,
       "keyFiles": [
         "README.md",
         "build.gradle.kts"
@@ -59,7 +59,7 @@
       "path": "aws-kotlin",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1773766975651,
+      "lastAccessed": 1773898345460,
       "keyFiles": [
         "README.md",
         "build.gradle.kts"
@@ -69,7 +69,7 @@
       "path": "bin",
       "purpose": "Executable scripts",
       "fileCount": 3,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345460,
       "keyFiles": [
         "repo-diff",
         "repo-status",
@@ -80,21 +80,21 @@
       "path": "bluetape4k",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345460,
       "keyFiles": []
     },
     "build": {
       "path": "build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345460,
       "keyFiles": []
     },
     "buildSrc": {
       "path": "buildSrc",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345460,
       "keyFiles": [
         "build.gradle.kts",
         "gradle.properties"
@@ -104,14 +104,14 @@
       "path": "data",
       "purpose": "Data files",
       "fileCount": 0,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345460,
       "keyFiles": []
     },
     "doc": {
       "path": "doc",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1773766975652,
+      "lastAccessed": 1773898345461,
       "keyFiles": [
         "Kdoc_Instruction.md",
         "blue-tape.png",
@@ -123,28 +123,28 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "examples": {
       "path": "examples",
       "purpose": "Example code",
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "gradle": {
       "path": "gradle",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "guides": {
       "path": "guides",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": [
         "index.yaml"
       ]
@@ -153,65 +153,72 @@
       "path": "infra",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "io": {
       "path": "io",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "javers": {
       "path": "javers",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": [
         "README.md"
       ]
     },
-    "spring": {
-      "path": "spring",
+    "spring-boot3": {
+      "path": "spring-boot3",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "testing": {
       "path": "testing",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "timefold": {
       "path": "timefold",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345461,
       "keyFiles": []
     },
     "tokenizer": {
       "path": "tokenizer",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345462,
       "keyFiles": []
     },
     "utils": {
       "path": "utils",
       "purpose": "Utility functions",
       "fileCount": 0,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345462,
+      "keyFiles": []
+    },
+    "utils-deprecated": {
+      "path": "utils-deprecated",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773898345462,
       "keyFiles": []
     },
     "vertx": {
       "path": "vertx",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1773766975653,
+      "lastAccessed": 1773898345463,
       "keyFiles": [
         "README.md",
         "build.gradle.kts"
@@ -221,51 +228,58 @@
       "path": "virtualthread",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1773766975654,
+      "lastAccessed": 1773898345463,
       "keyFiles": [
         "README.md"
       ]
+    },
+    "x-obsoleted": {
+      "path": "x-obsoleted",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1773898345463,
+      "keyFiles": []
     },
     "aws/src": {
       "path": "aws/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1773766975654,
+      "lastAccessed": 1773898345463,
       "keyFiles": []
     },
     "aws-kotlin/src": {
       "path": "aws-kotlin/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1773766975654,
+      "lastAccessed": 1773898345464,
       "keyFiles": []
     },
     "buildSrc/build": {
       "path": "buildSrc/build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1773766975654,
+      "lastAccessed": 1773898345464,
       "keyFiles": []
     },
     "buildSrc/src": {
       "path": "buildSrc/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1773766975654,
+      "lastAccessed": 1773898345464,
       "keyFiles": []
     },
     "vertx/src": {
       "path": "vertx/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1773766975655,
+      "lastAccessed": 1773898345466,
       "keyFiles": []
     },
     "virtualthread/api": {
       "path": "virtualthread/api",
       "purpose": "API routes",
       "fileCount": 2,
-      "lastAccessed": 1773766975655,
+      "lastAccessed": 1773898345466,
       "keyFiles": [
         "README.md",
         "build.gradle.kts"
@@ -274,304 +288,10 @@
   },
   "hotPaths": [
     {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCache.kt",
-      "accessCount": 53,
-      "lastAccessed": 1773802957375,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCache.kt",
-      "accessCount": 49,
-      "lastAccessed": 1773842492564,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCache.kt",
-      "accessCount": 44,
-      "lastAccessed": 1773803054821,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt",
-      "accessCount": 44,
-      "lastAccessed": 1773842492992,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheTest.kt",
-      "accessCount": 24,
-      "lastAccessed": 1773810905053,
-      "type": "file"
-    },
-    {
       "path": "",
-      "accessCount": 14,
-      "lastAccessed": 1773843215418,
+      "accessCount": 2,
+      "lastAccessed": 1773898612666,
       "type": "directory"
-    },
-    {
-      "path": "docs/superpowers/plans/2026-03-18-nearcache-unification.md",
-      "accessCount": 13,
-      "lastAccessed": 1773801898032,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce",
-      "accessCount": 12,
-      "lastAccessed": 1773833146274,
-      "type": "directory"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache",
-      "accessCount": 11,
-      "lastAccessed": 1773803147000,
-      "type": "directory"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonNearCache.kt",
-      "accessCount": 9,
-      "lastAccessed": 1773842499804,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractNearCacheTest.kt",
-      "accessCount": 8,
-      "lastAccessed": 1773807347624,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/testFixtures/kotlin/io/bluetape4k/cache/nearcache/AbstractSuspendNearCacheTest.kt",
-      "accessCount": 8,
-      "lastAccessed": 1773807402481,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCache.kt",
-      "accessCount": 7,
-      "lastAccessed": 1773842498566,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/BackCacheCommand.kt",
-      "accessCount": 6,
-      "lastAccessed": 1773801545357,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheOperations.kt",
-      "accessCount": 6,
-      "lastAccessed": 1773802652156,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCache.kt",
-      "accessCount": 6,
-      "lastAccessed": 1773803771227,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastSuspendNearCache.kt",
-      "accessCount": 6,
-      "lastAccessed": 1773842498920,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonSuspendNearCache.kt",
-      "accessCount": 6,
-      "lastAccessed": 1773842500122,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin",
-      "accessCount": 5,
-      "lastAccessed": 1773797793814,
-      "type": "directory"
-    },
-    {
-      "path": "docs/superpowers/specs/2026-03-18-nearcache-unification-design.md",
-      "accessCount": 5,
-      "lastAccessed": 1773801446678,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheConfig.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773802273614,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCacheOperations.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773802652930,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCacheConfig.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773802699561,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheFactory.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773810749659,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheConfig.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773798440350,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCache.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773801482039,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCache.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773802273279,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/AbstractLettuceNearCacheTest.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773810898129,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCache.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773799827062,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/GetFailureStrategy.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773802113015,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheConfig.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773802113605,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCache.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773802682835,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastSuspendNearCache.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773802683252,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceSuspendNearCacheTest.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773802692386,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonResp3NearCache.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773803975070,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCache.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773803980213,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/LettuceNearCacheTest.kt",
-      "accessCount": 3,
-      "lastAccessed": 1773810892486,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceLocalCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773795511428,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceCaffeineLocalCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773795511780,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/TrackingInvalidationListener.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773795555935,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3SuspendNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773799835202,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/HazelcastNearCacheConfig.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773802674971,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-hazelcast/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientHazelcastNearCacheConfig.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773802683863,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache",
-      "accessCount": 2,
-      "lastAccessed": 1773803645338,
-      "type": "directory"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/RedissonResp3SuspendNearCache.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773803975695,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-redisson/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientRedissonResp3NearCacheConfig.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773803981554,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache",
-      "accessCount": 1,
-      "lastAccessed": 1773795354385,
-      "type": "directory"
-    },
-    {
-      "path": "infra",
-      "accessCount": 1,
-      "lastAccessed": 1773795516899,
-      "type": "directory"
-    },
-    {
-      "path": "infra/cache-lettuce/src/test/kotlin/io/bluetape4k/cache/nearcache/ResilientLettuceNearCacheTest.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773795556154,
-      "type": "file"
-    },
-    {
-      "path": "infra/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheLocalCache.kt",
-      "accessCount": 1,
-      "lastAccessed": 1773801511748,
-      "type": "file"
     }
   ],
   "userDirectives": []

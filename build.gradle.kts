@@ -197,8 +197,8 @@ subprojects {
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs(
                 "-Xshare:off",
-                "-Xms512M",
-                "-Xmx2G",
+                "-Xms2M",
+                "-Xmx4G",
                 "-XX:+UseG1GC",
                 "-XX:+UnlockExperimentalVMOptions",
                 "-XX:+EnableDynamicAgentLoading",
@@ -234,7 +234,6 @@ subprojects {
         val reportMerge by registering(ReportMergeTask::class) {
             val file = rootProject.layout.buildDirectory.asFile.get().resolve("reports/detekt/exposed.xml")
             output.set(file)
-            // output.set(rootProject.buildDir.resolve("reports/detekt/exposed.xml"))
         }
         withType<Detekt>().configureEach detekt@{
             enabled = this@subprojects.name !== "exposed-tests"
@@ -243,63 +242,6 @@ subprojects {
                 input.from(this@detekt.xmlReportFile)
             }
         }
-
-//        jacoco {
-//            toolVersion = Plugins.Versions.jacoco
-//        }
-//
-//        jacocoTestReport {
-//            reports {
-//                html.required.set(true)
-//                xml.required.set(true)
-//            }
-//        }
-//
-//        jacocoTestCoverageVerification {
-//            dependsOn(jacocoTestReport)
-//
-//            violationRules {
-//                rule {
-//                    // 룰 검증 수행 여부
-//                    enabled = true
-//
-//                    // 룰을 검증할 단위를 클래스 단위로 한다
-//                    element = "CLASS"         // BUNDLE|PACKAGE|CLASS|SOURCEFILE|METHOD
-//
-//                    // 브랜치 커버리지를 최소한 10% 를 만족시켜야 한다
-//                    limit {
-//                        counter =
-//                            "INSTRUCTION"       // INSTRUCTION, LINE, BRANCH, COMPLEXITY, METHOD and CLASS. Defaults to INSTRUCTION.
-//                        value =
-//                            "COVEREDRATIO"   // TOTALCOUNT, MISSEDCOUNT, COVEREDCOUNT, MISSEDRATIO and COVEREDRATIO. Defaults to COVEREDRATIO
-//                        minimum = 0.10.toBigDecimal()
-//                    }
-//                }
-//            }
-//        }
-//
-//        jacocoTestCoverageVerification {
-//            dependsOn(jacocoTestReport)
-//
-//            violationRules {
-//                rule {
-//                    // 룰 검증 수행 여부
-//                    enabled = true
-//
-//                    // 룰을 검증할 단위를 클래스 단위로 한다
-//                    element = "CLASS"         // BUNDLE|PACKAGE|CLASS|SOURCEFILE|METHOD
-//
-//                    // 브랜치 커버리지를 최소한 10% 를 만족시켜야 한다
-//                    limit {
-//                        counter =
-//                            "INSTRUCTION"       // INSTRUCTION, LINE, BRANCH, COMPLEXITY, METHOD and CLASS. Defaults to INSTRUCTION.
-//                        value =
-//                            "COVEREDRATIO"   // TOTALCOUNT, MISSEDCOUNT, COVEREDCOUNT, MISSEDRATIO and COVEREDRATIO. Defaults to COVEREDRATIO
-//                        minimum = 0.10.toBigDecimal()
-//                    }
-//                }
-//            }
-//        }
 
         jar {
             manifest.attributes["Specification-Title"] = project.name
@@ -338,7 +280,7 @@ subprojects {
         imports {
             mavenBom(Libs.spring_integration_bom)
             mavenBom(Libs.spring_cloud_dependencies)
-            mavenBom(Libs.spring_boot_dependencies)
+            mavenBom(Libs.spring_boot3_dependencies)
 
             mavenBom(Libs.feign_bom)
             mavenBom(Libs.micrometer_bom)
