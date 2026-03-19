@@ -1,13 +1,17 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.awaitility.untilSuspending
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -63,10 +67,10 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @AfterEach
     fun closeCaches() {
-        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearCache1.close() } } }
-        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearCache2.close() } } }
-        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearSuspendCache1.close() } } }
-        runCatching { runSuspendIO { kotlinx.coroutines.runBlocking { nearSuspendCache2.close() } } }
+        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearCache1.close() } } }
+        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearCache2.close() } } }
+        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearSuspendCache1.close() } } }
+        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearSuspendCache2.close() } } }
     }
 
     @AfterAll
@@ -317,7 +321,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(5, TimeUnit.SECONDS).untilSuspending {
+        await atMost 5.seconds() untilSuspending {
             nearSuspendCache1.get(key) == "updated-externally"
         }
 

@@ -197,7 +197,6 @@ class RedisServer private constructor(
                     this.executor = VirtualThreadExecutor
                     this.threads = threads
                     this.nettyThreads = nettyThreads
-                    this.codec = this.codec ?: TEST_REDISSON_CODEC
                     setTcpNoDelay(true)
                     // setTcpUserTimeout(5000)  // ← Linux 전용, Docker Desktop macOS에서 간헐적 채널 종료 유발
                 }

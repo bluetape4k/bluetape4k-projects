@@ -10,7 +10,7 @@ dependencies {
     // Lettuce JCache provider
     api(Libs.lettuce_core)
 
-    // NearCache front tier (Caffeine)
+    // Front Cache in NearCache (Caffeine)
     api(Libs.caffeine)
 
     implementation(project(":bluetape4k-coroutines"))

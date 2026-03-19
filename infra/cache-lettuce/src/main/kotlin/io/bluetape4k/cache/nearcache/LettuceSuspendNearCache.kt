@@ -19,6 +19,7 @@ import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.future.await
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -51,12 +52,12 @@ import java.util.concurrent.atomic.AtomicLong
  * @param V 값 타입 (키는 항상 String)
  */
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class LettuceSuspendNearCache<V : Any>(
+class LettuceSuspendNearCache<V: Any>(
     redisClient: RedisClient,
     codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-) : SuspendNearCacheOperations<V> {
-    companion object : KLogging() {
+): SuspendNearCacheOperations<V> {
+    companion object: KLogging() {
         private const val COMPARE_AND_SET_SCRIPT = """
             local current = redis.call('GET', KEYS[1])
             if current == false or current ~= ARGV[1] then
@@ -69,7 +70,7 @@ class LettuceSuspendNearCache<V : Any>(
         /**
          * String 키/값 타입의 Near Suspend Cache를 생성한다.
          */
-        operator fun <V : Any> invoke(
+        operator fun <V: Any> invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
         ): LettuceSuspendNearCache<V> = LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.default(), config)
@@ -133,7 +134,9 @@ class LettuceSuspendNearCache<V : Any>(
         val missedKeys = (keys - result.keys).toList()
 
         if (missedKeys.isNotEmpty()) {
-            val values = connection.async().mget(*missedKeys.map(config::redisKey).toTypedArray()).get()
+            val values = connection.async()
+                .mget(*missedKeys.map(config::redisKey).toTypedArray())
+                .await()
             values.forEachIndexed { index, keyValue ->
                 if (keyValue.hasValue()) {
                     val value = keyValue.value

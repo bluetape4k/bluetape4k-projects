@@ -1,9 +1,9 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
@@ -75,7 +75,7 @@ class LettuceJCache<K: Any, V: Any>(
     private fun encodeValue(value: V): ByteArray = codec.serializer.serialize(value)
 
     @Suppress("UNCHECKED_CAST")
-    private fun decodeValue(bytes: ByteArray): V = codec.serializer.deserialize<V>(bytes)!!
+    private fun decodeValue(bytes: ByteArray): V = codec.serializer.deserialize(bytes)!!
 
     override fun getName(): String = cacheName
 
@@ -140,7 +140,7 @@ class LettuceJCache<K: Any, V: Any>(
         return oldBytes?.let { decodeValue(it) }
     }
 
-    override fun putAll(map: Map<out K, out V>) {
+    override fun putAll(map: Map<out K, V>) {
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
@@ -263,7 +263,7 @@ class LettuceJCache<K: Any, V: Any>(
             entries.add(object: Cache.Entry<K, V> {
                 override fun getKey(): K = key
                 override fun getValue(): V = value
-                override fun <T: Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
+                override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
             })
         }
         return entries.iterator()
@@ -325,7 +325,7 @@ class LettuceJCache<K: Any, V: Any>(
         return results
     }
 
-    override fun <T: Any?> unwrap(clazz: Class<T>): T {
+    override fun <T> unwrap(clazz: Class<T>): T {
         if (clazz.isAssignableFrom(javaClass)) return clazz.cast(this)
         throw IllegalArgumentException("Can't unwrap to $clazz")
     }
@@ -348,7 +348,7 @@ class LettuceJCache<K: Any, V: Any>(
                 override fun getValue(): V? = value
                 override fun getOldValue(): V? = null
                 override fun isOldValueAvailable(): Boolean = false
-                override fun <T: Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
+                override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -381,7 +381,7 @@ class LettuceJCache<K: Any, V: Any>(
             return when {
                 removeRequested -> null
                 updatedValue != null -> updatedValue
-                else -> originalValue
+                else            -> originalValue
             }
         }
 
@@ -402,7 +402,7 @@ class LettuceJCache<K: Any, V: Any>(
             removeRequested = false
         }
 
-        override fun <T : Any?> unwrap(clazz: Class<T>): T = clazz.cast(this)
+        override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
 
         fun commit() {
             ensureLoaded()
