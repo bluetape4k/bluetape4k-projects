@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.cassandra.reactive.auditing
 
-import io.bluetape4k.spring4.cassandra.model.AbstractCassandraAuditable
-import io.bluetape4k.spring4.cassandra.model.AbstractCassandraPersistable
+import io.bluetape4k.spring.cassandra.model.AbstractCassandraAuditable
+import io.bluetape4k.spring.cassandra.model.AbstractCassandraPersistable
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id

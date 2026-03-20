@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.cassandra.basic
 
-import io.bluetape4k.spring4.cassandra.model.AbstractCassandraAuditable
+import io.bluetape4k.spring.cassandra.model.AbstractCassandraAuditable
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table

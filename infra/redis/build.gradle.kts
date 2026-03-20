@@ -2,5 +2,5 @@
 dependencies {
     api(project(":bluetape4k-lettuce"))
     api(project(":bluetape4k-redisson"))
-    api(project(":bluetape4k-spring-boot3-data-redis"))
+    implementation(project(":bluetape4k-spring-boot3-redis"))
 }

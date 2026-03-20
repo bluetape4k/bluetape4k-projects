@@ -4,10 +4,10 @@ import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring4.cassandra.cql.updateOptions
-import io.bluetape4k.spring4.cassandra.insertSuspending
-import io.bluetape4k.spring4.cassandra.query.eq
-import io.bluetape4k.spring4.cassandra.truncateSuspending
+import io.bluetape4k.spring.cassandra.cql.updateOptions
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
