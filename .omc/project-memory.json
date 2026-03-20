@@ -228,9 +228,21 @@
   },
   "hotPaths": [
     {
+      "path": "",
+      "accessCount": 14,
+      "lastAccessed": 1774013807001,
+      "type": "directory"
+    },
+    {
       "path": "CLAUDE.md",
       "accessCount": 8,
       "lastAccessed": 1773997458775,
+      "type": "file"
+    },
+    {
+      "path": "utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/IdGenerator.kt",
+      "accessCount": 6,
+      "lastAccessed": 1774014771801,
       "type": "file"
     },
     {
