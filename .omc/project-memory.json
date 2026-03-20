@@ -288,9 +288,21 @@
   },
   "hotPaths": [
     {
+      "path": "CLAUDE.md",
+      "accessCount": 16,
+      "lastAccessed": 1773977124982,
+      "type": "file"
+    },
+    {
       "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowOperatorExamples.kt",
       "accessCount": 12,
       "lastAccessed": 1773906928126,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 12,
+      "lastAccessed": 1773976715977,
       "type": "file"
     },
     {
@@ -357,6 +369,12 @@
       "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/TestSupport.kt",
       "accessCount": 4,
       "lastAccessed": 1773906776048,
+      "type": "file"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "accessCount": 3,
+      "lastAccessed": 1773976805650,
       "type": "file"
     },
     {
@@ -489,6 +507,12 @@
       "path": ".editorconfig",
       "accessCount": 2,
       "lastAccessed": 1773906676510,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 2,
+      "lastAccessed": 1773977402900,
       "type": "file"
     },
     {

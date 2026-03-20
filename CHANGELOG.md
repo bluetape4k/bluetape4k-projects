@@ -107,6 +107,15 @@
   `bf617426`](https://github.com/bluetape4k/bluetape4k-projects/commit/bf617426))
 - **예제성 모듈 제거**: 사용 빈도 낮은 예제 모듈 빌드에서 제외 (`utils-deprecated/`, `x-obsoleted/` 이동) ([
   `2cdfacf4`](https://github.com/bluetape4k/bluetape4k-projects/commit/2cdfacf4))
+- **`bloomfilter`**: 사용 빈도 낮아 `x-obsoleted/bloomfilter`로 이동 ([
+  `8b30555c`](https://github.com/bluetape4k/bluetape4k-projects/commit/8b30555c))
+- **`captcha`**: 사용 빈도 낮아 `x-obsoleted/captcha`로 이동 ([
+  `8b30555c`](https://github.com/bluetape4k/bluetape4k-projects/commit/8b30555c))
+- **`logback-kafka`**: 사용 빈도 낮아 `x-obsoleted/logback-kafka`로 이동 ([
+  `8b30555c`](https://github.com/bluetape4k/bluetape4k-projects/commit/8b30555c))
+- **`nats`**: 사용 빈도 낮아 `x-obsoleted/nats`로 이동
+- **`javers`**: 사용 빈도 낮아 `x-obsoleted/javers`로 이동
+- **`tokenizer`**: 사용 빈도 낮아 `x-obsoleted/tokenizer`로 이동
 
 ### Fixed
 

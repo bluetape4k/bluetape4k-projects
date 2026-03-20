@@ -6,29 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 공용 라이브러리 모음입니다. Kotlin의 장점을 최대화하고, 기존 Java 라이브러리를 개선하며, Kotlin Coroutines 기반의 async/non-blocking 개발을 지원합니다.
 
-## Claude 작업 지침
-
-- Rate Limit 이 다가오면 Memory.md 에 현재까지의 Context 를 저장해서 토큰을 절약할 것
-- 작업 시 Python 코드 제작은 자제하고, Read/Edit 방식으로 작업할 것
-- Think Before Coding — 모르면 추측하지 말고 물어봐
-- Simplicity First — 요청한 것만 만들어. 200줄이 50줄로 되면 다시 써
-- Surgical Changes — 옆 코드 "개선"하지 마. 변경된 모든 줄이 요청으로 추적 가능해야 함
-- Goal-Driven Execution — "버그 고쳐" 대신 "버그 재현 테스트 쓰고 통과시켜"
-
-### CLI 도구 사용 규칙 (Rust 기반 현대 도구 우선)
-
-- **파일 탐색**: `find` 대신 `fd` 사용 (예: `fd -e kt -t f`)
-- **텍스트 검색**: `grep` 대신 `rg` (ripgrep) 사용 (예: `rg "패턴" --type kotlin`)
-- **파일 내용 확인**: `cat` 대신 `bat` 사용 (예: `bat src/Foo.kt`)
-- **디렉토리 목록**: `ls` 대신 `eza` 사용 (예: `eza -la --git`)
-- **코드 구조 검색/리팩토링**: `ast-grep` 적극 활용 (예: `ast-grep -p 'fun $NAME($$$)' -l kotlin`)
-- **JSON 파싱**: `jq` 사용 (예: `curl ... | jq '.data[]'`)
-- **YAML 파싱**: `yq` 사용 (예: `yq '.dependencies' build.gradle.yaml`)
-- **GitHub 작업**: `gh` CLI를 비대화형 모드로 사용 (예: `gh pr list --json number,title`,
-  `gh issue create --title "..." --body "..."`)
-- **Python 린팅/포매팅**: `ruff` 사용 (예: `ruff check .`, `ruff format .`)
-- **모든 외부 CLI 명령**: 비대화형 플래그(`--yes`, `--quiet`, `--no-input`) 및 JSON 출력(`--format json`, `--json`) 강제 적용
-
 ## Development Guidelines
 
 ### Language and Documentation
@@ -162,6 +139,8 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - **grpc**: gRPC 서버/클라이언트 추상화 (`bluetape4k-protobuf` 포함)
 - ~~**crypto**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
 - **tink**: Google Tink 기반 현대적 암호화 — AEAD (AES-GCM, ChaCha20-Poly1305), Deterministic AEAD (AES-SIV), MAC (HMAC), Digest (SHA-256 등), 통합 Encryptor (`TinkEncryptor`); Okio 암호화 Sink/Source (`TinkEncryptSink`/`TinkDecryptSource`)는 `io/io` 모듈에 위치
+- **vertx**: Vert.x 단일 통합 모듈 — 핵심 기능 + SQL 클라이언트 + Resilience4j 통합 (구 `vertx/core`, `vertx/sqlclient`,
+  `vertx/resilience4j` 통합됨)
 
 #### AWS Modules (`aws/`, `aws-kotlin/`)
 
@@ -249,7 +228,6 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **bucket4j**: Rate limiting
 - **micrometer**: 메트릭
 - **opentelemetry**: 분산 추적
-- **nats**: NATS 메시징
 
 ##### 캐시 모듈 (`infra/cache-*`)
 
@@ -261,7 +239,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **cache-redisson**: Redisson 분산 캐시 + `RedissonNearCache<V>: NearCacheOperations<V>` (RLocalCachedMap 기반), `RedissonSuspendNearCache<V>: SuspendNearCacheOperations<V>`
 - **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 + `LettuceNearCache<V>: NearCacheOperations<V>` (RESP3 CLIENT TRACKING), `LettuceSuspendNearCache<V>: SuspendNearCacheOperations<V>`
 
-#### Spring Modules (`spring/`)
+#### Spring Modules (`spring-boot3/`)
 
 - **bluetape4k-spring-boot3** *(통합 모듈)*: Spring Boot 3 기반 공통 기능 통합
   - Spring core 유틸리티 (BeanFactory 확장, ToStringCreator 지원 등)
@@ -275,15 +253,8 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
 
-#### Vert.x Modules (`vertx/`)
-
-- **bluetape4k-vertx** *(통합 모듈)*: Vert.x 핵심 기능 + SQL 클라이언트 + Resilience4j 통합
-  - ~~vertx/core, vertx/sqlclient, vertx/resilience4j 통합됨~~
-
 #### Utilities (`utils/`)
 
-- **bloomfilter**: Bloom Filter
-- **captcha**: CAPTCHA 생성
 - **bluetape4k-geo** *(통합 모듈)*: 지리 정보 처리 — geocode(Bing/Google), geohash, geoip2(MaxMind) 통합
   - ~~utils/geocode, utils/geohash, utils/geoip2 통합됨~~
 - **idgenerators**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
@@ -291,21 +262,11 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **javatimes**: 날짜/시간 유틸리티
 - **jwt**: JWT 처리
 - **leader**: Leader 선출
-- **logback-kafka**: Logback Kafka Appender
 - **math**: 수학 유틸리티
 - **measured**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **money**: Money API
 - **mutiny**: Mutiny reactive 라이브러리 통합
 - ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
-
-#### Deprecated Utilities (`utils-deprecated/`)
-
-빌드에서 제외된 deprecated 모듈들. 점차 삭제될 예정.
-
-- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — **Deprecated**
-- ~~**lingua**~~: 언어 감지 — **Deprecated**
-- ~~**naivebayes**~~: Naive Bayes 분류기 — **Deprecated**
-- ~~**mutiny-examples**~~: Mutiny 사용 예제 — **Deprecated**
 
 #### Obsoleted Modules (`x-obsoleted/`)
 
@@ -315,6 +276,16 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - ~~**vertx-sqlclient**~~: `bluetape4k-vertx`로 통합됨
 - ~~**vertx-webclient**~~: `bluetape4k-vertx`로 통합됨
 - ~~**mapstruct**~~: 미사용으로 폐기
+- ~~**bloomfilter**~~: Bloom Filter — 사용 빈도 낮아 폐기
+- ~~**captcha**~~: CAPTCHA 생성 — 사용 빈도 낮아 폐기
+- ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
+- ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
+- ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
+- ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
+- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
+- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
+- ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
+- ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
 
 #### Testing Modules (`testing/`)
 
@@ -329,10 +300,8 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 #### Other Modules
 
-- **javers/**: JaVers 감사 로그
-- **tokenizer/**: 한국어/일본어 토크나이저
 - **timefold/**: Timefold Solver
-- **examples/**: 라이브러리 사용 예제 (coroutines, jpa-querydsl, redisson, virtualthreads) — 배포 제외
+- **examples/**: 라이브러리 사용 예제 (coroutines-demo, jpa-querydsl-demo, redisson-demo, virtualthreads-demo) — 배포 제외
 
 ### Build Configuration
 

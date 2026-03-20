@@ -84,8 +84,10 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[netty](./io/netty/README.md)**: Netty 통합
 - **[avro](./io/avro/README.md)**: Apache Avro
 - **[fastjson2](./io/fastjson2/README.md)**: FastJSON2
+- **[vertx](./io/vertx/README.md)**: Vert.x 단일 통합 모듈 — 핵심 기능, SQL 클라이언트, Resilience4j 통합 포함 (구 `vertx/core`,
+  `vertx/sqlclient`, `vertx/resilience4j` 통합됨)
 
-### AWS 모듈 (`aws/`, `aws-kotlin/`)
+### AWS 모듈 (`aws/`)
 
 각 서비스마다 **3단계 API** 패턴 제공: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
@@ -131,7 +133,6 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
 - **[micrometer](./infra/micrometer/README.md)**: 메트릭
 - **[opentelemetry](./infra/opentelemetry/README.md)**: 분산 추적
-- **[nats](./infra/nats/README.md)**: NATS 메시징
 
 #### 캐시 모듈 (`infra/cache-*`)
 
@@ -143,48 +144,36 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
 - **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
 
-### Spring 모듈 (`spring/`)
+### Spring Boot 3 모듈 (`spring-boot3/`)
 
-- **bluetape4k-spring-boot3** (`spring/boot3`): Spring Boot 3 기반 공통 기능 통합 모듈 — Spring core 유틸리티, WebFlux + Coroutines, Retrofit2 통합, 테스트 유틸리티 포함 (구 `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests` 통합됨)
-- **[data-redis](spring-boot3/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
+- **[bluetape4k-spring-boot3](./spring-boot3/core/README.md)** (
+  `spring-boot3/core`): Spring Boot 3 기반 공통 기능 통합 모듈 — Spring core 유틸리티, WebFlux + Coroutines, Retrofit2 통합, 테스트 유틸리티 포함 (구
+  `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests` 통합됨)
+- **[data-redis](./spring-boot3/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
   `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[cassandra](spring-boot3/cassandra/README.md)**: Spring Data Cassandra
-- **[mongodb](spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive —
+- **[cassandra](./spring-boot3/cassandra/README.md)**: Spring Data Cassandra
+- **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive —
   `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
-- **[r2dbc](spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
+- **[r2dbc](./spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
 
 > Spring Data JPA는 `data/hibernate` 모듈로 이동했습니다.
 
-### Vert.x 모듈 (`vertx/`)
-
-- **bluetape4k-vertx**: Vert.x 단일 통합 모듈 — 핵심 기능, SQL 클라이언트, Resilience4j 통합 포함 (구 `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j` 통합됨)
-
 ### 유틸리티 모듈 (`utils/`)
 
-- **[bloomfilter](./utils/bloomfilter/README.md)**: Bloom Filter
-- **[captcha](./utils/captcha/README.md)**: CAPTCHA 생성
-- **bluetape4k-geo** (`utils/geo`): 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구 `utils/geocode`, `utils/geohash`, `utils/geoip2` 통합됨)
+- **[bluetape4k-geo](./utils/geo/README.md)** (
+  `utils/geo`): 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구 `utils/geocode`,
+  `utils/geohash`, `utils/geoip2` 통합됨)
 - **[idgenerators](./utils/idgenerators/README.md)**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
 - **[images](./utils/images/README.md)**: 이미지 처리
 - **[javatimes](./utils/javatimes/README.md)**: 날짜/시간 유틸리티
 - **[jwt](./utils/jwt/README.md)**: JWT 처리
 - **[leader](./utils/leader/README.md)**: Leader 선출
-- **[logback-kafka](./utils/logback-kafka/README.md)**: Logback Kafka Appender
 - **[math](./utils/math/README.md)**: 수학 유틸리티
 - **[measured](./utils/measured/README.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
   복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **[money](./utils/money/README.md)**: Money API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive 통합
-- ~~**[units](./utils/units/README.md)**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
-
-### Deprecated 유틸리티 모듈 (`utils-deprecated/`)
-
-사용 빈도가 낮거나 대안이 있는 모듈입니다. 점차 삭제될 예정이며 새로운 코드에서는 사용을 권장하지 않습니다.
-
-- ~~**[ahocorasick](./utils-deprecated/ahocorasick/README.md)**~~: 문자열 검색 (Aho-Corasick 알고리즘) — **Deprecated**
-- ~~**[lingua](./utils-deprecated/lingua/README.md)**~~: 언어 감지 — **Deprecated**
-- ~~**[naivebayes](./utils-deprecated/naivebayes/README.md)**~~: Naive Bayes 분류기 — **Deprecated**
-- ~~**mutiny-examples** (`utils-deprecated/mutiny-examples`)~~: Mutiny 사용 예제 — **Deprecated**
+- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
 
 ### 테스트 모듈 (`testing/`)
 
@@ -200,23 +189,16 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### 기타 모듈
 
-- **[javers](./javers/README.md)**: JaVers 감사 로그
-   - **[core](./javers/core/README.md)**: JaVers 핵심 기능
-   - **[persistence-kafka](./javers/persistence-kafka/README.md)**: Kafka 영속화
-   - **[persistence-redis](./javers/persistence-redis/README.md)**: Redis 영속화
-- **[tokenizer](./tokenizer/core/README.md)**: 형태소 분석기
-   - **[korean](./tokenizer/korean/README.md)**: 한국어 형태소 분석
-   - **[japanese](./tokenizer/japanese/README.md)**: 일본어 형태소 분석
 - **[timefold](./timefold/solver-persistence-exposed/README.md)**: Timefold Solver + Exposed 통합
 
 ### 예제 모듈 (`examples/`)
 
 라이브러리 사용 방법을 보여주는 예제 모듈입니다. 배포되지 않습니다.
 
-- **[coroutines](./examples/coroutines/README.md)**: Kotlin Coroutines 사용 예제
-- **[jpa-querydsl](./examples/jpa-querydsl/README.md)**: JPA + QueryDSL 사용 예제
-- **[redisson](./examples/redisson/README.md)**: Redisson 사용 예제
-- **[virtualthreads](./examples/virtualthreads/README.md)**: Java Virtual Thread 사용 예제
+- **[coroutines-demo](./examples/coroutines-demo/README.md)**: Kotlin Coroutines 사용 예제
+- **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL 사용 예제
+- **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson 사용 예제
+- **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread 사용 예제
 
 ### 폐기된 모듈 (`x-obsoleted/`)
 
@@ -226,6 +208,16 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - ~~**vertx-sqlclient**~~: Vert.x SQL Client — `bluetape4k-vertx`로 통합됨
 - ~~**vertx-webclient**~~: Vert.x Web Client — `bluetape4k-vertx`로 통합됨
 - ~~**mapstruct**~~: MapStruct 통합 — 미사용으로 폐기
+- ~~**bloomfilter**~~: Bloom Filter — 사용 빈도 낮아 폐기
+- ~~**captcha**~~: CAPTCHA 생성 — 사용 빈도 낮아 폐기
+- ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
+- ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
+- ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
+- ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
+- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
+- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
+- ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
+- ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
 
 ## 빌드 및 테스트
 

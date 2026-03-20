@@ -418,23 +418,78 @@ Recommended mode fields:
 
 Run `omx setup` to install all components. Run `omx doctor` to verify installation.
 
+## Project Overview
+
+**Bluetape4k**는 Kotlin 언어로 JVM 환경 Backend 개발에 사용하는 공용 라이브러리 모음입니다.
+
+- **Java 21** (JVM Toolchain), **Kotlin 2.3** (language & API), **Spring Boot 3.4+**
+- 멀티 모듈 Gradle 프로젝트 — `bluetape4k/`, `io/`, `data/`, `infra/`, `spring-boot3/`, `aws/`, `utils/`, `testing/`,
+  `virtualthread/`, `timefold/`, `examples/`
+- 폐기 모듈: `x-obsoleted/` (빌드 제외)
+
 ## Build, Test, and Development Commands
 
 Use the Gradle wrapper from the repository root.
 
-- `./gradlew clean build`: compile all modules and run all tests.
-- `./gradlew test`: run test tasks across modules.
-- `./gradlew :05-exposed-dml:01-dml:test`: run tests for a single module.
-- `./gradlew detekt`: run static analysis configured for subprojects.
-- `./bin/repo-status`: compact repository status summary for Codex sessions.
-- `./bin/repo-diff`: compact diff summary with per-file churn instead of full patch output.
-- `./bin/repo-test-summary -- ./gradlew <task>`: compact Gradle test/task summary with failure highlights.
+```bash
+# 전체 빌드
+./gradlew clean build
+
+# 전체 테스트
+./gradlew test
+
+# 특정 모듈 테스트 (예: bluetape4k-coroutines)
+./gradlew :bluetape4k-coroutines:test
+
+# 특정 테스트 클래스 실행
+./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.CompressorTest"
+
+# 정적 분석
+./gradlew detekt
+
+# 빌드 (테스트 제외)
+./gradlew build -x test
+```
+
+Token-efficient summary commands (Codex 세션에서 우선 사용):
+
+- `./bin/repo-status`: git status 요약 (raw `git status` 대신 사용)
+- `./bin/repo-diff`: 파일별 변경량 요약 (전체 patch 전에 먼저 확인)
+- `./bin/repo-test-summary -- ./gradlew <task>`: Gradle 테스트/빌드 결과 요약
 
 Prefer targeted module tasks during development to reduce feedback time.
+
+## Coding Guidelines
+
+- **언어**: Kotlin 2.3, 주석·커밋 메시지는 **한국어**
+- **커밋 prefix**: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`
+- **테스트**: JUnit 5 + Kotest + MockK + Kluent
+- **비동기**: Coroutines 우선 (`suspend`, `Flow`); blocking API는 `withContext(Dispatchers.IO)` 래핑
+- **Kotlin 패턴**: extension function, DSL, value class, sealed class 적극 활용
+- **KDoc**: public class/interface/extension 필수, **한국어**로 작성
+- 버그 수정 후에는 단위 테스트 및 회귀 테스트를 실행하여 모두 통과시켜야 함
+
+## Key Module Paths
+
+| 모듈                       | 경로                      | 설명                                        |
+|--------------------------|-------------------------|-------------------------------------------|
+| bluetape4k-core          | `bluetape4k/core`       | assertions, 압축, required 유틸리티             |
+| bluetape4k-coroutines    | `bluetape4k/coroutines` | Flow 확장, AsyncFlow, Deferred 유틸리티         |
+| bluetape4k-io            | `io/io`                 | 파일 I/O, LZ4/Zstd/Snappy 압축, Kryo/Fory 직렬화 |
+| bluetape4k-tink          | `io/tink`               | Google Tink AEAD 암호화                      |
+| bluetape4k-vertx         | `io/vertx`              | Vert.x 통합 모듈                              |
+| bluetape4k-exposed       | `data/exposed`          | Exposed umbrella (core+dao+jdbc)          |
+| bluetape4k-exposed-jdbc  | `data/exposed-jdbc`     | JDBC Repository, SuspendedQuery           |
+| bluetape4k-exposed-r2dbc | `data/exposed-r2dbc`    | R2DBC Repository                          |
+| bluetape4k-lettuce       | `infra/lettuce`         | Lettuce Redis 클라이언트 + Coroutines          |
+| bluetape4k-redisson      | `infra/redisson`        | Redisson 클라이언트 + Coroutines               |
+| bluetape4k-spring-boot3  | `spring-boot3/core`     | Spring Boot 3 통합 모듈                       |
+| bluetape4k-aws           | `aws/aws`               | AWS Java SDK v2 통합                        |
+| bluetape4k-aws-kotlin    | `aws/aws-kotlin`        | AWS Kotlin SDK 통합                         |
 
 ## Token-Efficient Codex Workflow
 
 - In Codex sessions, prefer `./bin/repo-status` over raw `git status`.
 - Prefer `./bin/repo-diff` before requesting full `git diff`; open a full patch only for the specific file under review.
 - Prefer `./bin/repo-test-summary -- ./gradlew ...` over pasting full Gradle output into context.
-- Follow a two-step inspection flow: summary first, targeted raw output second only when the summary indicates it is necessary. 
+- Follow a two-step inspection flow: summary first, targeted raw output second only when the summary indicates it is necessary.
