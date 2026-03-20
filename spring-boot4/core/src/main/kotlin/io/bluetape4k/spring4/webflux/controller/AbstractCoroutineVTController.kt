@@ -18,6 +18,6 @@ import kotlinx.coroutines.SupervisorJob
  * class BlockingBridgeController: AbstractCoroutineVTController()
  * ```
  */
-abstract class AbstractCoroutineVTController : CoroutineScope by CoroutineScope(Dispatchers.VT + SupervisorJob()) {
-    companion object : KLoggingChannel()
+abstract class AbstractCoroutineVTController: CoroutineScope by CoroutineScope(Dispatchers.VT + SupervisorJob()) {
+    companion object: KLoggingChannel()
 }

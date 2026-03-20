@@ -12,7 +12,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 
 class RestClientCoroutinesDslTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var mockServer: MockWebServer
     private lateinit var restClient: RestClient

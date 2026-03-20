@@ -87,21 +87,21 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 코루틴 함수는 `XyzSuspending` 형식으로 제공됩니다.
 
-| 함수 | 반환 타입 | 설명 |
-|---|---|---|
-| `findOneByIdSuspending<T>(id)` | `T` | ID로 단건 조회 |
-| `findOneByIdOrNullSuspending<T>(id)` | `T?` | ID로 단건 조회 (없으면 null) |
-| `selectAllSuspending<T>()` | `Flow<T>` | 전체 조회 |
-| `selectSuspending<T>(query)` | `Flow<T>` | 조건 조회 |
-| `selectOneSuspending<T>(query)` | `T` | 단건 조회 |
-| `selectOneOrNullSuspending<T>(query)` | `T?` | 단건 조회 (없으면 null) |
-| `insertSuspending(entity)` | `T` | 삽입 |
-| `updateSuspending<T>(query, update)` | `Int` | 업데이트 |
-| `deleteSuspending<T>(query)` | `Int` | 삭제 |
-| `deleteAllSuspending<T>()` | `Int` | 전체 삭제 |
-| `countAllSuspending<T>()` | `Long` | 전체 건수 |
-| `countSuspending<T>(query)` | `Long` | 조건부 건수 |
-| `existsSuspending<T>(query)` | `Boolean` | 존재 여부 |
+| 함수                                    | 반환 타입     | 설명                   |
+|---------------------------------------|-----------|----------------------|
+| `findOneByIdSuspending<T>(id)`        | `T`       | ID로 단건 조회            |
+| `findOneByIdOrNullSuspending<T>(id)`  | `T?`      | ID로 단건 조회 (없으면 null) |
+| `selectAllSuspending<T>()`            | `Flow<T>` | 전체 조회                |
+| `selectSuspending<T>(query)`          | `Flow<T>` | 조건 조회                |
+| `selectOneSuspending<T>(query)`       | `T`       | 단건 조회                |
+| `selectOneOrNullSuspending<T>(query)` | `T?`      | 단건 조회 (없으면 null)     |
+| `insertSuspending(entity)`            | `T`       | 삽입                   |
+| `updateSuspending<T>(query, update)`  | `Int`     | 업데이트                 |
+| `deleteSuspending<T>(query)`          | `Int`     | 삭제                   |
+| `deleteAllSuspending<T>()`            | `Int`     | 전체 삭제                |
+| `countAllSuspending<T>()`             | `Long`    | 전체 건수                |
+| `countSuspending<T>(query)`           | `Long`    | 조건부 건수               |
+| `existsSuspending<T>(query)`          | `Boolean` | 존재 여부                |
 
 ## 빌드 및 테스트
 

@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClient
  * @param accept 수신할 미디어 타입
  * @return 역직렬화된 응답 객체
  */
-suspend inline fun <reified T : Any> RestClient.suspendGet(
+suspend inline fun <reified T: Any> RestClient.suspendGet(
     uri: String,
     accept: MediaType? = null,
 ): T =
@@ -39,7 +39,7 @@ suspend inline fun <reified T : Any> RestClient.suspendGet(
  * @param accept 수신할 미디어 타입
  * @return 역직렬화된 응답 객체
  */
-suspend inline fun <reified T : Any> RestClient.suspendPost(
+suspend inline fun <reified T: Any> RestClient.suspendPost(
     uri: String,
     body: Any? = null,
     contentType: MediaType? = null,
@@ -66,7 +66,7 @@ suspend inline fun <reified T : Any> RestClient.suspendPost(
  * @param accept 수신할 미디어 타입
  * @return 역직렬화된 응답 객체
  */
-suspend inline fun <reified T : Any> RestClient.suspendPut(
+suspend inline fun <reified T: Any> RestClient.suspendPut(
     uri: String,
     body: Any? = null,
     contentType: MediaType? = null,
@@ -93,7 +93,7 @@ suspend inline fun <reified T : Any> RestClient.suspendPut(
  * @param accept 수신할 미디어 타입
  * @return 역직렬화된 응답 객체
  */
-suspend inline fun <reified T : Any> RestClient.suspendPatch(
+suspend inline fun <reified T: Any> RestClient.suspendPatch(
     uri: String,
     body: Any? = null,
     contentType: MediaType? = null,

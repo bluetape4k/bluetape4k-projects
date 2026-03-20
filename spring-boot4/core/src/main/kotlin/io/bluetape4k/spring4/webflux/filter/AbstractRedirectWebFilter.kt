@@ -26,8 +26,8 @@ import reactor.core.publisher.Mono
 abstract class AbstractRedirectWebFilter(
     val redirectPath: String,
     val requestPath: String = ROOT_PATH,
-) : WebFilter {
-    companion object : KLoggingChannel() {
+): WebFilter {
+    companion object: KLoggingChannel() {
         /**
          * 기본 매칭 요청 경로(`/`)입니다.
          */

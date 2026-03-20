@@ -156,14 +156,14 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## 주요 의존성 구조
 
-| 범주 | 의존 방식 | 설명 |
-|------|-----------|------|
-| `spring-boot-starter-webflux` | `api` | WebFlux + Coroutines 필수 |
-| `bluetape4k-retrofit2` | `api` | Retrofit2 통합 |
-| `bluetape4k-coroutines` | `api` | Coroutines 지원 |
-| `bluetape4k-jackson2` | `compileOnly` | Jackson 2 지원 |
-| `spring-boot-starter-web` | `compileOnly` | 선택적 서블릿 지원 |
-| `resilience4j-*` | `compileOnly` | 선택적 Resilience4j |
+| 범주                            | 의존 방식         | 설명                      |
+|-------------------------------|---------------|-------------------------|
+| `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines 필수 |
+| `bluetape4k-retrofit2`        | `api`         | Retrofit2 통합            |
+| `bluetape4k-coroutines`       | `api`         | Coroutines 지원           |
+| `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 지원            |
+| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
+| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
 
 ## 빌드 및 테스트
 

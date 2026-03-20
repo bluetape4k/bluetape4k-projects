@@ -48,7 +48,7 @@ operator fun PropertyResolver.get(
  * // num == 5
  * ```
  */
-operator fun <T : Any> PropertyResolver.get(
+operator fun <T: Any> PropertyResolver.get(
     key: String,
     targetType: KClass<T>,
 ): T? = getProperty(key, targetType.java)
@@ -65,7 +65,7 @@ operator fun <T : Any> PropertyResolver.get(
  * // enabled == true
  * ```
  */
-inline fun <reified T : Any> PropertyResolver.getAs(key: String): T? = getProperty<T>(key)
+inline fun <reified T: Any> PropertyResolver.getAs(key: String): T? = getProperty<T>(key)
 
 /**
  * 지정한 키의 속성 값을 [targetType]으로 조회하고 없으면 기본값을 반환합니다.
@@ -79,7 +79,7 @@ inline fun <reified T : Any> PropertyResolver.getAs(key: String): T? = getProper
  * // enabled == true
  * ```
  */
-operator fun <T : Any> PropertyResolver.get(
+operator fun <T: Any> PropertyResolver.get(
     key: String,
     targetType: KClass<T>,
     defaultValue: T,
@@ -97,7 +97,7 @@ operator fun <T : Any> PropertyResolver.get(
  * // enabled == true
  * ```
  */
-inline fun <reified T : Any> PropertyResolver.getAs(
+inline fun <reified T: Any> PropertyResolver.getAs(
     key: String,
     defaultValue: T,
 ): T = getProperty<T>(key, defaultValue)
@@ -115,7 +115,7 @@ inline fun <reified T : Any> PropertyResolver.getAs(
  * ```
  */
 @Throws(IllegalStateException::class)
-fun <T : Any> PropertyResolver.getRequiredProperty(
+fun <T: Any> PropertyResolver.getRequiredProperty(
     key: String,
     targetType: KClass<T>,
 ): T = getRequiredProperty(key, targetType.java)
@@ -132,4 +132,4 @@ fun <T : Any> PropertyResolver.getRequiredProperty(
  * // required == "required.value"
  * ```
  */
-inline fun <reified T : Any> PropertyResolver.getRequiredPropertyAs(key: String): T = getRequiredProperty<T>(key)
+inline fun <reified T: Any> PropertyResolver.getRequiredPropertyAs(key: String): T = getRequiredProperty<T>(key)

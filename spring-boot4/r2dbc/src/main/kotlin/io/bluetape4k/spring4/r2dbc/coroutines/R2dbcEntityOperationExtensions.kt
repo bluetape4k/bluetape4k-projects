@@ -22,7 +22,7 @@ import org.springframework.data.relational.core.query.isEqual
  * @param idName 식별자 컬럼명
  * @throws org.springframework.dao.IncorrectResultSizeDataAccessException 조회 결과가 단건이 아닐 때 발생할 수 있습니다.
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdSuspending(
+suspend inline fun <reified T: Any> R2dbcEntityOperations.findOneByIdSuspending(
     id: Any,
     idName: String = "id",
 ): T {
@@ -46,7 +46,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdSuspending
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdOrNullSuspending(
+suspend inline fun <reified T: Any> R2dbcEntityOperations.findOneByIdOrNullSuspending(
     id: Any,
     idName: String = "id",
 ): T? {
@@ -70,7 +70,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdOrNullSusp
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.findFirstByIdSuspending(
+suspend inline fun <reified T: Any> R2dbcEntityOperations.findFirstByIdSuspending(
     id: Any,
     idName: String = "id",
 ): T {
@@ -94,7 +94,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.findFirstByIdSuspendi
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.findFirstByIdOrNullSuspending(
+suspend inline fun <reified T: Any> R2dbcEntityOperations.findFirstByIdOrNullSuspending(
     id: Any,
     idName: String = "id",
 ): T? {

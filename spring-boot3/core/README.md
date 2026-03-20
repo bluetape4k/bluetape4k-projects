@@ -7,18 +7,21 @@ Spring Boot 3 기반 공통 기능 통합 모듈입니다.
 ## 제공 기능
 
 ### Spring Core 유틸리티 (구 `spring/core`)
+
 - BeanFactory 확장 함수
 - `ToStringCreator` 지원 유틸리티
 - Spring Boot AutoConfiguration 지원
 - Jakarta Annotation API 통합
 
 ### Spring WebFlux + Coroutines (구 `spring/webflux`)
+
 - Coroutines 기반 WebFlux 핸들러 유틸리티
 - `WebTestClient` 확장 함수
 - Reactor ↔ Coroutines 변환 지원
 - Netty 기반 HTTP 서버 통합
 
 ### Retrofit2 통합 (구 `spring/retrofit2`)
+
 - Spring Boot + Retrofit2 자동 구성
 - OkHttp3 클라이언트 통합
 - Apache HttpClient5 통합
@@ -26,6 +29,7 @@ Spring Boot 3 기반 공통 기능 통합 모듈입니다.
 - Jackson 직렬화/역직렬화 컨버터
 
 ### 테스트 유틸리티 (구 `spring/tests`)
+
 - Spring Boot Test 기반 통합 테스트 지원
 - `WebTestClient` 테스트 확장
 - Testcontainers 통합
@@ -53,15 +57,15 @@ dependencies {
 
 ## 주요 의존성 구조
 
-| 범주 | 의존 방식 | 설명 |
-|------|-----------|------|
-| `spring-boot-starter-webflux` | `api` | WebFlux + Coroutines 필수 |
-| `bluetape4k-retrofit2` | `api` | Retrofit2 통합 |
-| `bluetape4k-coroutines` | `api` | Coroutines 지원 |
-| `bluetape4k-netty` | `api` | Netty 통합 |
-| `bluetape4k-micrometer` | `api` | 메트릭 |
-| `spring-boot-starter-web` | `compileOnly` | 선택적 서블릿 지원 |
-| `resilience4j-*` | `compileOnly` | 선택적 Resilience4j |
+| 범주                            | 의존 방식         | 설명                      |
+|-------------------------------|---------------|-------------------------|
+| `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines 필수 |
+| `bluetape4k-retrofit2`        | `api`         | Retrofit2 통합            |
+| `bluetape4k-coroutines`       | `api`         | Coroutines 지원           |
+| `bluetape4k-netty`            | `api`         | Netty 통합                |
+| `bluetape4k-micrometer`       | `api`         | 메트릭                     |
+| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
+| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
 
 ## 사용 예시
 

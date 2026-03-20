@@ -22,7 +22,7 @@ import kotlin.math.absoluteValue
 @RandomizedTest
 class JsonPlaceHolderApiSuspendTest: AbstractJsonPlaceHolderApiTest() {
 
-    companion object: KLoggingChannel() 
+    companion object: KLoggingChannel()
 
     @Autowired
     private val api: JsonPlaceHolderApi = uninitialized()

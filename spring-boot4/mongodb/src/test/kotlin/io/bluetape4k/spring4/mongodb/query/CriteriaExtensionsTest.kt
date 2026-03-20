@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria
  * MongoDB 연결 없이 [Criteria] 객체의 직렬화된 형태를 비교하여 DSL 함수의 정확성을 검증합니다.
  */
 class CriteriaExtensionsTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     // ====================================================
     // eq (is)

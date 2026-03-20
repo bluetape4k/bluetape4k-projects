@@ -24,8 +24,8 @@ import org.springframework.test.web.reactive.server.returnResult
 
 class PostControllerTest(
     @param:Autowired private val client: WebTestClient,
-) : AbstractR2dbcBlogApplicationTest() {
-    companion object : KLoggingChannel()
+): AbstractR2dbcBlogApplicationTest() {
+    companion object: KLoggingChannel()
 
     @Test
     fun `find all posts`() =

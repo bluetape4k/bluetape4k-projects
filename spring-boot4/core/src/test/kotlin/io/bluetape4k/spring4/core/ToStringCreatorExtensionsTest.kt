@@ -11,14 +11,14 @@ import java.io.Serializable
 import java.time.LocalDate
 
 @RandomizedTest
-class ToStringCreatorExtensionsTest : AbstractSpringTest() {
-    companion object : KLogging()
+class ToStringCreatorExtensionsTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     class SampleClass(
         val name: String,
         val age: Int,
         val birth: LocalDate = LocalDate.of(1968, 10, 14),
-    ) : Serializable {
+    ): Serializable {
         override fun toString(): String =
             toStringCreatorOf(this) {
                 append("name", name)
@@ -55,7 +55,7 @@ class ToStringCreatorExtensionsTest : AbstractSpringTest() {
         toString shouldContain "age = ${instance.age}"
     }
 
-    internal class SampleValueObject : Serializable {
+    internal class SampleValueObject: Serializable {
         var name: String? = null
         var age: Int? = null
 

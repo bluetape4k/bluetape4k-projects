@@ -17,6 +17,6 @@ import kotlinx.coroutines.SupervisorJob
  * class FileController: AbstractCoroutineIOController()
  * ```
  */
-abstract class AbstractCoroutineIOController : CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
-    companion object : KLoggingChannel()
+abstract class AbstractCoroutineIOController: CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+    companion object: KLoggingChannel()
 }

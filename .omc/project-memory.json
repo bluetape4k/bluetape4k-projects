@@ -246,6 +246,12 @@
       "type": "file"
     },
     {
+      "path": "gradle.properties",
+      "accessCount": 3,
+      "lastAccessed": 1773993047106,
+      "type": "file"
+    },
+    {
       "path": "spring-boot4/core/src/test/kotlin/io/bluetape4k/spring4/http/RestClientCoroutinesDslTest.kt",
       "accessCount": 2,
       "lastAccessed": 1773987768158,
@@ -387,12 +393,6 @@
       "path": "spring-boot3/r2dbc/README.md",
       "accessCount": 2,
       "lastAccessed": 1773990147823,
-      "type": "file"
-    },
-    {
-      "path": "gradle.properties",
-      "accessCount": 2,
-      "lastAccessed": 1773990345147,
       "type": "file"
     },
     {

@@ -20,7 +20,7 @@ import org.springframework.data.r2dbc.core.insert
  *
  * @param entity 저장할 엔티티
  */
-suspend inline fun <reified T : Any> ReactiveInsertOperation.insertSuspending(entity: T): T =
+suspend inline fun <reified T: Any> ReactiveInsertOperation.insertSuspending(entity: T): T =
     insert<T>().using(entity).awaitSingle()
 
 /**
@@ -37,5 +37,5 @@ suspend inline fun <reified T : Any> ReactiveInsertOperation.insertSuspending(en
  *
  * @param entity 저장할 엔티티
  */
-suspend inline fun <reified T : Any> ReactiveInsertOperation.insertOrNullSuspending(entity: T): T? =
+suspend inline fun <reified T: Any> ReactiveInsertOperation.insertOrNullSuspending(entity: T): T? =
     insert<T>().using(entity).awaitSingleOrNull()

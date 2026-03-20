@@ -26,8 +26,8 @@ import org.springframework.util.ClassUtils
  * // registrar가 HttpbinApi 메타데이터를 읽어 FactoryBean 정의를 등록한다.
  * ```
  */
-class RetrofitClientsRegistrar : ImportBeanDefinitionRegistrar {
-    companion object : KLogging()
+class RetrofitClientsRegistrar: ImportBeanDefinitionRegistrar {
+    companion object: KLogging()
 
     override fun registerBeanDefinitions(
         importingClassMetadata: AnnotationMetadata,
@@ -50,7 +50,7 @@ class RetrofitClientsRegistrar : ImportBeanDefinitionRegistrar {
                     val name = attributes["name"].toString()
                     log.debug {
                         "New Retrofit Client BeanDefinition with name=$name, " +
-                            "type=${beanDefinition.beanClassName}, baseUrl=${attributes["baseUrl"]}"
+                                "type=${beanDefinition.beanClassName}, baseUrl=${attributes["baseUrl"]}"
                     }
 
                     val builder = BeanDefinitionBuilder.genericBeanDefinition(RetrofitClientFactoryBean::class.java)
@@ -69,10 +69,10 @@ class RetrofitClientsRegistrar : ImportBeanDefinitionRegistrar {
     }
 
     private fun getScanner(): ClassPathScanningCandidateComponentProvider =
-        object : ClassPathScanningCandidateComponentProvider(false) {
+        object: ClassPathScanningCandidateComponentProvider(false) {
             override fun isCandidateComponent(beanDefinition: AnnotatedBeanDefinition): Boolean =
                 beanDefinition.metadata.isIndependent &&
-                    !beanDefinition.metadata.isAnnotation
+                        !beanDefinition.metadata.isAnnotation
         }
 
     private fun registerClientConfiguration(

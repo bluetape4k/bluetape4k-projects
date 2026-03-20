@@ -10,5 +10,5 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 class SchemaBuilderTestConfiguration: AbstractReactiveCassandraTestConfiguration() {
 
     companion object: KLoggingChannel()
-    
+
 }

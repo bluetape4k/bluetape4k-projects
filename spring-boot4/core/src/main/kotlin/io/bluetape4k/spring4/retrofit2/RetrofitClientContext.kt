@@ -17,7 +17,7 @@ import org.springframework.cloud.context.named.NamedContextFactory
  * // hasConfig == true
  * ```
  */
-class RetrofitClientContext :
+class RetrofitClientContext:
     NamedContextFactory<RetrofitClientSpecification>(
         DefaultRetrofitClientConfiguration::class.java,
         "retrofit2",

@@ -21,7 +21,7 @@ private val log by lazy { KotlinLogging.logger {} }
  * // service != null
  * ```
  */
-inline fun <reified T : Any> BeanFactory.get(): T = getBean<T>()
+inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
 
 /**
  * 이름으로 빈을 조회하고 타입 캐스팅에 실패하면 `null`을 반환합니다.
@@ -36,7 +36,7 @@ inline fun <reified T : Any> BeanFactory.get(): T = getBean<T>()
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-operator fun <T : Any> BeanFactory.get(name: String): T? = getBean(name) as? T
+operator fun <T: Any> BeanFactory.get(name: String): T? = getBean(name) as? T
 
 /**
  * [KClass]로 지정한 타입의 빈을 조회합니다.
@@ -50,7 +50,7 @@ operator fun <T : Any> BeanFactory.get(name: String): T? = getBean(name) as? T
  * // service != null
  * ```
  */
-operator fun <T : Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requiredType.java)
+operator fun <T: Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requiredType.java)
 
 /**
  * [Class]로 지정한 타입의 빈을 조회합니다.
@@ -64,7 +64,7 @@ operator fun <T : Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(req
  * // service != null
  * ```
  */
-operator fun <T : Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requiredType)
+operator fun <T: Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requiredType)
 
 /**
  * 이름과 타입으로 빈을 조회합니다.
@@ -78,7 +78,7 @@ operator fun <T : Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requ
  * // service != null
  * ```
  */
-operator fun <T : Any> BeanFactory.get(
+operator fun <T: Any> BeanFactory.get(
     name: String,
     requiredType: Class<T>,
 ): T = getBean(name, requiredType)
@@ -116,7 +116,7 @@ operator fun BeanFactory.get(
  * // service == null || service is MyService
  * ```
  */
-fun <T : Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requiredType.java)
+fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requiredType.java)
 
 /**
  * 타입으로 빈을 조회하고 실패하면 경고 로그 후 `null`을 반환합니다.
@@ -130,7 +130,7 @@ fun <T : Any> BeanFactory.findBean(requiredType: KClass<T>): T? = findBean(requi
  * // service == null || service is MyService
  * ```
  */
-fun <T : Any> BeanFactory.findBean(requiredType: Class<T>): T? =
+fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? =
     runCatching { get(requiredType) }
         .getOrElse { e ->
             log.warn(e) { "Fail to find bean. requiredType=$requiredType, return null." }
@@ -149,7 +149,7 @@ fun <T : Any> BeanFactory.findBean(requiredType: Class<T>): T? =
  * // service == null || service is MyService
  * ```
  */
-fun <T : Any> BeanFactory.findBean(
+fun <T: Any> BeanFactory.findBean(
     name: String,
     requiredType: Class<T>,
 ): T? =
@@ -171,7 +171,7 @@ fun <T : Any> BeanFactory.findBean(
  * // bean == null || bean != null
  * ```
  */
-fun <T : Any> BeanFactory.findBean(
+fun <T: Any> BeanFactory.findBean(
     name: String,
     vararg args: Any?,
 ): Any? =

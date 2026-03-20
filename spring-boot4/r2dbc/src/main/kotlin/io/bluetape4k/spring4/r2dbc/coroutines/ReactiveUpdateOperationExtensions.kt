@@ -22,7 +22,7 @@ import org.springframework.data.relational.core.query.Update
  * @param query 갱신 조건
  * @param update 반영할 컬럼 변경 값
  */
-suspend inline fun <reified T : Any> ReactiveUpdateOperation.updateSuspending(
+suspend inline fun <reified T: Any> ReactiveUpdateOperation.updateSuspending(
     query: Query,
     update: Update,
 ): Long = update<T>().matching(query).apply(update).awaitSingle()

@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class HttpbinApiTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Autowired
     private val httpbinApi: HttpbinApi = uninitialized()

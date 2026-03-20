@@ -119,7 +119,7 @@ fun WebTestClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebTestClient.httpPost(
+inline fun <reified T: Any> WebTestClient.httpPost(
     uri: String,
     publisher: Publisher<T>,
     httpStatus: HttpStatus? = null,
@@ -155,7 +155,7 @@ inline fun <reified T : Any> WebTestClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebTestClient.httpPost(
+inline fun <reified T: Any> WebTestClient.httpPost(
     uri: String,
     flow: Flow<T>,
     httpStatus: HttpStatus? = null,
@@ -227,7 +227,7 @@ fun WebTestClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebTestClient.httpPut(
+inline fun <reified T: Any> WebTestClient.httpPut(
     uri: String,
     publisher: Publisher<T>,
     httpStatus: HttpStatus? = null,
@@ -263,7 +263,7 @@ inline fun <reified T : Any> WebTestClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebTestClient.httpPut(
+inline fun <reified T: Any> WebTestClient.httpPut(
     uri: String,
     flow: Flow<T>,
     httpStatus: HttpStatus? = null,

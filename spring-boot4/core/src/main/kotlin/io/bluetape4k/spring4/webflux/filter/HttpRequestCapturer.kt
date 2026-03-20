@@ -24,8 +24,8 @@ import reactor.core.publisher.Mono
  * @see io.bluetape4k.spring4.webflux.filter.HttpRequestHolder
  */
 @Component
-class HttpRequestCapturer : WebFilter {
-    companion object : KLoggingChannel()
+class HttpRequestCapturer: WebFilter {
+    companion object: KLoggingChannel()
 
     override fun filter(
         exchange: ServerWebExchange,

@@ -6,8 +6,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.text.NumberFormat
 
-class NumberUtilsSupportTest : AbstractSpringTest() {
-    companion object : KLogging()
+class NumberUtilsSupportTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     @Test
     fun `parse string to number`() {

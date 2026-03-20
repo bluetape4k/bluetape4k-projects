@@ -17,7 +17,7 @@ import kotlinx.coroutines.SupervisorJob
  * class ComputeController: AbstractCoroutineDefaultController()
  * ```
  */
-abstract class AbstractCoroutineDefaultController :
+abstract class AbstractCoroutineDefaultController:
     CoroutineScope by CoroutineScope(Dispatchers.Default + SupervisorJob()) {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 }

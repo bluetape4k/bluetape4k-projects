@@ -25,9 +25,8 @@ import java.util.*
  * @param U 생성/수정 작업 주체 타입
  * @param PK 엔티티 식별자 타입
  */
-abstract class AbstractCassandraAuditable<U : Any, PK : Any> :
-    AbstractCassandraPersistable<PK>(),
-    Auditable<U, PK, Instant> {
+abstract class AbstractCassandraAuditable<U: Any, PK: Any>: AbstractCassandraPersistable<PK>(),
+                                                            Auditable<U, PK, Instant> {
     @field:Column("created_by")
     private var _createdBy: U? = null
 

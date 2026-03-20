@@ -17,8 +17,8 @@ import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class WebClientExtensionsTest : AbstractSpringTest() {
-    companion object : KLoggingChannel()
+class WebClientExtensionsTest: AbstractSpringTest() {
+    companion object: KLoggingChannel()
 
     private val client: WebClient =
         WebClient

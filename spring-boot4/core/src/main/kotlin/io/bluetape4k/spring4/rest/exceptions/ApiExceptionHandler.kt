@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
  */
 @RestControllerAdvice
 class ApiExceptionHandler {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private fun handleApiExceptionOf(
             exception: Throwable,
             status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR,

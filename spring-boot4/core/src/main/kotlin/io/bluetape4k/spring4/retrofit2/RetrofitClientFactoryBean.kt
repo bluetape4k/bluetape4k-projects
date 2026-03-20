@@ -39,11 +39,11 @@ import retrofit2.Retrofit
  * // afterPropertiesSet() 이후 getObject()는 HttpbinApi 프록시를 반환한다.
  * ```
  */
-class RetrofitClientFactoryBean :
+class RetrofitClientFactoryBean:
     FactoryBean<Any?>,
     ApplicationContextAware,
     InitializingBean {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 생성할 Retrofit 서비스 인터페이스 타입이다.

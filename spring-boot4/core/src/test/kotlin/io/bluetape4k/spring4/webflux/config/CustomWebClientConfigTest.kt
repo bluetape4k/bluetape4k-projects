@@ -22,7 +22,7 @@ import org.springframework.web.reactive.function.client.awaitBody
  */
 @SpringBootTest(classes = [CustomWebClientConfig::class])
 class CustomWebClientConfigTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Autowired
     private val webClient: WebClient = uninitialized()

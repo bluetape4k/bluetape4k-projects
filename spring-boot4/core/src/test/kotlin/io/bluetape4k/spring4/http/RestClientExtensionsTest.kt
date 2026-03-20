@@ -17,7 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class RestClientExtensionsTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         @JvmStatic
         private val httpbin by lazy { HttpbinServer.Launcher.httpbin }
 

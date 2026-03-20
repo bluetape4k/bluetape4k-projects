@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  * // result == "table ready"
  * ```
  */
-object SchemaGenerator : KLoggingChannel() {
+object SchemaGenerator: KLoggingChannel() {
     /**
      * 제네릭 엔티티 타입의 UDT와 테이블 생성을 수행합니다.
      *
@@ -43,7 +43,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "schema checked"
      * ```
      */
-    inline fun <reified T : Any> createTableAndTypes(operations: CassandraOperations) {
+    inline fun <reified T: Any> createTableAndTypes(operations: CassandraOperations) {
         createTableAndTypes(operations, T::class)
     }
 
@@ -60,7 +60,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "schema checked"
      * ```
      */
-    fun <T : Any> createTableAndTypes(
+    fun <T: Any> createTableAndTypes(
         operations: CassandraOperations,
         entityKClass: KClass<T>,
     ) {
@@ -82,7 +82,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "table checked"
      * ```
      */
-    inline fun <reified T : Any> potentiallyCreateTableFor(operations: CassandraOperations) {
+    inline fun <reified T: Any> potentiallyCreateTableFor(operations: CassandraOperations) {
         potentiallyCreateTableFor(operations, T::class)
     }
 
@@ -98,7 +98,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "table checked"
      * ```
      */
-    fun <T : Any> potentiallyCreateTableFor(
+    fun <T: Any> potentiallyCreateTableFor(
         operations: CassandraOperations,
         entityKClass: KClass<T>,
     ) {
@@ -163,7 +163,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "table truncated if exists"
      * ```
      */
-    inline fun <reified T : Any> truncate(operations: CassandraOperations) {
+    inline fun <reified T: Any> truncate(operations: CassandraOperations) {
         truncate(operations, T::class.java)
     }
 
@@ -179,7 +179,7 @@ object SchemaGenerator : KLoggingChannel() {
      * // result == "truncate attempted"
      * ```
      */
-    fun <T : Any> truncate(
+    fun <T: Any> truncate(
         operations: CassandraOperations,
         entityClass: Class<T>,
     ) {

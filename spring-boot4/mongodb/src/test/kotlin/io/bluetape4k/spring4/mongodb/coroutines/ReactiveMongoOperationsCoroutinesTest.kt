@@ -33,14 +33,14 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 
 @DataMongoTest
-class ReactiveMongoOperationsCoroutinesTest : AbstractReactiveMongoCoroutineTest() {
+class ReactiveMongoOperationsCoroutinesTest: AbstractReactiveMongoCoroutineTest() {
     /** 도시별 사용자 수 집계 결과 모델 */
     data class CityCount(
         @Id val id: String,
         val count: Int,
     )
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private val testUsers =
             listOf(
                 User(name = "Alice", email = "alice@test.com", age = 30, city = "Seoul"),

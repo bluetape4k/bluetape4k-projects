@@ -22,9 +22,8 @@ import java.io.Serializable
  *
  * @param PK 엔티티 식별자 타입
  */
-abstract class AbstractCassandraPersistable<PK : Any> :
-    Persistable<PK>,
-    Serializable {
+abstract class AbstractCassandraPersistable<PK: Any>: Persistable<PK>,
+                                                      Serializable {
     /**
      * 엔티티 식별자를 갱신합니다.
      *

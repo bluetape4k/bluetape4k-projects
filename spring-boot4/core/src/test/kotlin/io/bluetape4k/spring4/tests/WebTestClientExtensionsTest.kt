@@ -13,8 +13,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import kotlin.test.Test
 
-class WebTestClientExtensionsTest : AbstractSpringTest() {
-    companion object : KLoggingChannel()
+class WebTestClientExtensionsTest: AbstractSpringTest() {
+    companion object: KLoggingChannel()
 
     private val client: WebTestClient =
         WebTestClient

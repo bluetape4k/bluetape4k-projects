@@ -8,13 +8,13 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 
 ## 주요 기능
 
-| 클래스 / 함수 | 설명 |
-|---|---|
-| `RedisBinarySerializer` | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현 |
-| `RedisCompressSerializer` | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>` |
-| `RedisBinarySerializers` | 직렬화(Jdk/Kryo/Fory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
-| `redisSerializationContext {}` | DSL 기반 `RedisSerializationContext` 빌더 |
-| `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수 |
+| 클래스 / 함수                           | 설명                                                       |
+|------------------------------------|----------------------------------------------------------|
+| `RedisBinarySerializer`            | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현          |
+| `RedisCompressSerializer`          | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>`       |
+| `RedisBinarySerializers`           | 직렬화(Jdk/Kryo/Fory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
+| `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                    |
+| `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                            |
 
 ## 설치
 
@@ -80,25 +80,25 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### 직렬화 (객체 → ByteArray)
 
-| 상수 | 직렬화 엔진 | 압축 |
-|---|---|---|
-| `RedisBinarySerializers.Jdk` | JDK | 없음 |
-| `RedisBinarySerializers.Kryo` | Kryo | 없음 |
-| `RedisBinarySerializers.Fory` | Fory | 없음 |
-| `RedisBinarySerializers.LZ4Fory` | Fory | LZ4 |
-| `RedisBinarySerializers.LZ4Kryo` | Kryo | LZ4 |
-| `RedisBinarySerializers.ZstdFory` | Fory | Zstd |
-| `RedisBinarySerializers.SnappyFory` | Fory | Snappy |
-| `RedisBinarySerializers.GzipFory` | Fory | GZip |
+| 상수                                  | 직렬화 엔진 | 압축     |
+|-------------------------------------|--------|--------|
+| `RedisBinarySerializers.Jdk`        | JDK    | 없음     |
+| `RedisBinarySerializers.Kryo`       | Kryo   | 없음     |
+| `RedisBinarySerializers.Fory`       | Fory   | 없음     |
+| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    |
+| `RedisBinarySerializers.LZ4Kryo`    | Kryo   | LZ4    |
+| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   |
+| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy |
+| `RedisBinarySerializers.GzipFory`   | Fory   | GZip   |
 
 ### 압축 전용 (ByteArray → ByteArray)
 
-| 상수 | 압축 알고리즘 |
-|---|---|
-| `RedisBinarySerializers.LZ4` | LZ4 |
-| `RedisBinarySerializers.Zstd` | Zstd |
-| `RedisBinarySerializers.Snappy` | Snappy |
-| `RedisBinarySerializers.Gzip` | GZip |
+| 상수                              | 압축 알고리즘 |
+|---------------------------------|---------|
+| `RedisBinarySerializers.LZ4`    | LZ4     |
+| `RedisBinarySerializers.Zstd`   | Zstd    |
+| `RedisBinarySerializers.Snappy` | Snappy  |
+| `RedisBinarySerializers.Gzip`   | GZip    |
 
 ## 빌드 및 테스트
 

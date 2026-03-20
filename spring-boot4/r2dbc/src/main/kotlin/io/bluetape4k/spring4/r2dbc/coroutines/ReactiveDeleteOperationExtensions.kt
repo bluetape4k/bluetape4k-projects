@@ -20,7 +20,7 @@ import org.springframework.data.relational.core.query.Query
  *
  * @param query 삭제 조건
  */
-suspend inline fun <reified T : Any> ReactiveDeleteOperation.deleteSuspending(query: Query): Long =
+suspend inline fun <reified T: Any> ReactiveDeleteOperation.deleteSuspending(query: Query): Long =
     delete<T>().matching(query).all().awaitSingle()
 
 /**
@@ -35,5 +35,5 @@ suspend inline fun <reified T : Any> ReactiveDeleteOperation.deleteSuspending(qu
  * // deleted >= 0L
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveDeleteOperation.deleteAllSuspending(): Long =
+suspend inline fun <reified T: Any> ReactiveDeleteOperation.deleteAllSuspending(): Long =
     delete<T>().matching(Query.empty()).all().awaitSingle()

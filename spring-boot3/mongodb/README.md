@@ -1,7 +1,6 @@
 # Module bluetape4k-spring-mongodb
 
-[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를
-Kotlin Coroutines 기반으로 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다.
+[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를 Kotlin Coroutines 기반으로 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다.
 
 `ReactiveMongoOperations`의 `Flux`/`Mono` 반환 타입을 `Flow`/`suspend`로 변환하는 확장 함수와,
 `Criteria`·`Query`·`Update` 구성을 위한 Kotlin infix DSL을 제공합니다.
@@ -181,25 +180,25 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 
 ### ReactiveMongoOperations 확장
 
-| 함수 | 반환 타입 | 설명 |
-|------|-----------|------|
-| `findAsFlow<T>(query)` | `Flow<T>` | 조건에 맞는 문서 스트림 |
-| `findAllAsFlow<T>()` | `Flow<T>` | 전체 문서 스트림 |
-| `findOneOrNullSuspending<T>(query)` | `T?` | 단건 조회 (없으면 null) |
-| `findByIdOrNullSuspending<T>(id)` | `T?` | ID로 단건 조회 |
-| `countSuspending<T>(query?)` | `Long` | 문서 수 조회 |
-| `existsSuspending<T>(query)` | `Boolean` | 존재 여부 확인 |
-| `insertSuspending(entity)` | `T` | 단건 삽입 |
-| `insertAllAsFlow(entities)` | `Flow<T>` | 다건 삽입 |
-| `saveSuspending(entity)` | `T` | 저장 (삽입 또는 업데이트) |
-| `updateFirstSuspending<T>(query, update)` | `UpdateResult` | 첫 번째 일치 문서 업데이트 |
-| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | 모든 일치 문서 업데이트 |
-| `upsertSuspending<T>(query, update)` | `UpdateResult` | Upsert |
-| `removeSuspending<T>(query)` | `DeleteResult` | 조건 삭제 |
-| `findAndModifySuspending<T>(query, update)` | `T?` | 수정 후 이전 문서 반환 |
-| `findAndRemoveSuspending<T>(query)` | `T?` | 삭제 후 삭제된 문서 반환 |
-| `aggregateAsFlow<I, O>(aggregation)` | `Flow<O>` | Aggregation 실행 |
-| `dropCollectionSuspending<T>()` | `Unit` | 컬렉션 삭제 |
+| 함수                                          | 반환 타입          | 설명               |
+|---------------------------------------------|----------------|------------------|
+| `findAsFlow<T>(query)`                      | `Flow<T>`      | 조건에 맞는 문서 스트림    |
+| `findAllAsFlow<T>()`                        | `Flow<T>`      | 전체 문서 스트림        |
+| `findOneOrNullSuspending<T>(query)`         | `T?`           | 단건 조회 (없으면 null) |
+| `findByIdOrNullSuspending<T>(id)`           | `T?`           | ID로 단건 조회        |
+| `countSuspending<T>(query?)`                | `Long`         | 문서 수 조회          |
+| `existsSuspending<T>(query)`                | `Boolean`      | 존재 여부 확인         |
+| `insertSuspending(entity)`                  | `T`            | 단건 삽입            |
+| `insertAllAsFlow(entities)`                 | `Flow<T>`      | 다건 삽입            |
+| `saveSuspending(entity)`                    | `T`            | 저장 (삽입 또는 업데이트)  |
+| `updateFirstSuspending<T>(query, update)`   | `UpdateResult` | 첫 번째 일치 문서 업데이트  |
+| `updateMultiSuspending<T>(query, update)`   | `UpdateResult` | 모든 일치 문서 업데이트    |
+| `upsertSuspending<T>(query, update)`        | `UpdateResult` | Upsert           |
+| `removeSuspending<T>(query)`                | `DeleteResult` | 조건 삭제            |
+| `findAndModifySuspending<T>(query, update)` | `T?`           | 수정 후 이전 문서 반환    |
+| `findAndRemoveSuspending<T>(query)`         | `T?`           | 삭제 후 삭제된 문서 반환   |
+| `aggregateAsFlow<I, O>(aggregation)`        | `Flow<O>`      | Aggregation 실행   |
+| `dropCollectionSuspending<T>()`             | `Unit`         | 컬렉션 삭제           |
 
 ## 참고 자료
 

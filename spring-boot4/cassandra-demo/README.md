@@ -8,30 +8,30 @@ Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다
 
 ### 기본 (basic/)
 
-| 예제 파일 | 설명 |
-|---|---|
-| `BasicUserRepositoryTest.kt` | 기본 Repository 사용법 |
-| `CassandraOperationsTest.kt` | CassandraOperations로 쿼리 실행 |
-| `CoroutineCassandraOperationsTest.kt` | Coroutines 기반 비동기 쿼리 |
+| 예제 파일                                 | 설명                         |
+|---------------------------------------|----------------------------|
+| `BasicUserRepositoryTest.kt`          | 기본 Repository 사용법          |
+| `CassandraOperationsTest.kt`          | CassandraOperations로 쿼리 실행 |
+| `CoroutineCassandraOperationsTest.kt` | Coroutines 기반 비동기 쿼리       |
 
 ### Kotlin DSL (kotlin/)
 
-| 예제 파일 | 설명 |
-|---|---|
+| 예제 파일                     | 설명                        |
+|---------------------------|---------------------------|
 | `PersonRepositoryTest.kt` | Kotlin DSL로 Repository 정의 |
-| `TemplateTest.kt` | CassandraTemplate 사용법 |
+| `TemplateTest.kt`         | CassandraTemplate 사용법     |
 
 ### Reactive (reactive/)
 
-| 예제 파일 | 설명 |
-|---|---|
-| `ReactivePersonRepositoryTest.kt` | Reactive Repository |
+| 예제 파일                              | 설명                    |
+|------------------------------------|-----------------------|
+| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
 | `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
 
 ### 감사 (auditing/)
 
-| 예제 파일 | 설명 |
-|---|---|
+| 예제 파일             | 설명                              |
+|-------------------|---------------------------------|
 | `AuditingTest.kt` | `@CreatedBy`, `@LastModifiedBy` |
 
 ## Entity 정의

@@ -12,8 +12,8 @@ Thread Local 을 이용하여 `tenantId` 를 관리하고, 이를 활용하여 P
 
 기본적으로는 Thread Local 을 이용하여 `tenantId` 를 관리하고, Session의 `keyspace` 를 활용하거나 Query 에 `keyspace` 를 지정해서 사용하는 방법이 있다.
 
-`Repository` 를 사용하는 경우에는 `SimpleCassandraRepository` 를 상속받고, TenantId 를 `keyspace`로
-지정하는 `KeyspaceAwareCassandraRepository` 를 구현하고 사용한다
+`Repository` 를 사용하는 경우에는 `SimpleCassandraRepository` 를 상속받고, TenantId 를 `keyspace`로 지정하는
+`KeyspaceAwareCassandraRepository` 를 구현하고 사용한다
 
 Keyspace로 multi-tenant를 구현한 경우 Repository 구현체를 변경하는 법
 
@@ -27,8 +27,8 @@ class MultitenantConfiguraiton {
 
 ## 주의할 점
 
-ThreadLocal 을 이용하여 tenantId 를 사용할 경우, Reactive 나 Coroutines 에서 문제가 발생할 수 있습니다.
-Coroutines 환경에서는 `ThreadLocal` 을 하나의 `CoroutineContext` 로 취급할 수 있으므로 다음과 같이 사용하면 됩니다.
+ThreadLocal 을 이용하여 tenantId 를 사용할 경우, Reactive 나 Coroutines 에서 문제가 발생할 수 있습니다. Coroutines 환경에서는 `ThreadLocal` 을 하나의
+`CoroutineContext` 로 취급할 수 있으므로 다음과 같이 사용하면 됩니다.
 
 ThreadLocal 을 Coroutine ContextElement로 사용
 

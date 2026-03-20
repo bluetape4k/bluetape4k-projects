@@ -101,7 +101,7 @@ fun RestClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> RestClient.httpPost(
+inline fun <reified T: Any> RestClient.httpPost(
     uri: String,
     publisher: Publisher<T>,
     contentType: MediaType? = null,
@@ -132,7 +132,7 @@ inline fun <reified T : Any> RestClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> RestClient.httpPost(
+inline fun <reified T: Any> RestClient.httpPost(
     uri: String,
     flow: Flow<T>,
     contentType: MediaType? = null,
@@ -194,7 +194,7 @@ fun RestClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> RestClient.httpPut(
+inline fun <reified T: Any> RestClient.httpPut(
     uri: String,
     publisher: Publisher<T>,
     contentType: MediaType? = null,
@@ -225,7 +225,7 @@ inline fun <reified T : Any> RestClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> RestClient.httpPut(
+inline fun <reified T: Any> RestClient.httpPut(
     uri: String,
     flow: Flow<T>,
     contentType: MediaType? = null,

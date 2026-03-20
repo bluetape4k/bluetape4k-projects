@@ -37,7 +37,7 @@ fun <T> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
  * // instance is MyType
  * ```
  */
-fun <T : Any> Constructor<T>.instantiateClass(vararg args: Any?): T =
+fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T =
     try {
         when {
             KotlinDetector.isKotlinType(this.declaringClass) -> {

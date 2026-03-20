@@ -9,8 +9,8 @@ import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.util.StopWatch
 
-class StopWatchSupportTest : AbstractSpringTest() {
-    companion object : KLogging()
+class StopWatchSupportTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     @Test
     fun `run with StopWatch`() {

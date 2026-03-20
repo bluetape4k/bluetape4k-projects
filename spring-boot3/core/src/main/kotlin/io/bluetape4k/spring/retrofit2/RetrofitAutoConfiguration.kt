@@ -47,19 +47,19 @@ class RetrofitAutoConfiguration {
     class RetrofitClientConfiguration
 
     @Bean
-    /**
-     * Retrofit 클라이언트용 named context 팩토리를 생성한다.
-     *
-     * ## 동작/계약
-     * - `specs`가 null이 아니면 `setConfigurations(specs)`를 호출해 명세를 등록한다.
-     * - `specs`가 null이면 기본 설정만 가진 빈 컨텍스트를 반환한다.
-     *
-     * ```kotlin
-     * val specs = listOf(RetrofitClientSpecification("httpbin", emptyArray()))
-     * val context = RetrofitClientContext().apply { setConfigurations(specs) }
-     * // context.configurations.size == 1
-     * ```
-     */
+            /**
+             * Retrofit 클라이언트용 named context 팩토리를 생성한다.
+             *
+             * ## 동작/계약
+             * - `specs`가 null이 아니면 `setConfigurations(specs)`를 호출해 명세를 등록한다.
+             * - `specs`가 null이면 기본 설정만 가진 빈 컨텍스트를 반환한다.
+             *
+             * ```kotlin
+             * val specs = listOf(RetrofitClientSpecification("httpbin", emptyArray()))
+             * val context = RetrofitClientContext().apply { setConfigurations(specs) }
+             * // context.configurations.size == 1
+             * ```
+             */
     fun retrofitContext(specs: List<RetrofitClientSpecification>?): RetrofitClientContext {
         log.debug { "Create RetrofitClientContext ... specs=$specs" }
 

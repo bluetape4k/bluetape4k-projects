@@ -103,7 +103,7 @@ fun WebClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebClient.httpPost(
+inline fun <reified T: Any> WebClient.httpPost(
     uri: String,
     publisher: Publisher<T>,
     contentType: MediaType? = null,
@@ -134,7 +134,7 @@ inline fun <reified T : Any> WebClient.httpPost(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebClient.httpPost(
+inline fun <reified T: Any> WebClient.httpPost(
     uri: String,
     flow: Flow<T>,
     contentType: MediaType? = null,
@@ -196,7 +196,7 @@ fun WebClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebClient.httpPut(
+inline fun <reified T: Any> WebClient.httpPut(
     uri: String,
     publisher: Publisher<T>,
     contentType: MediaType? = null,
@@ -227,7 +227,7 @@ inline fun <reified T : Any> WebClient.httpPut(
  * @param contentType 요청 바디 타입
  * @param accept 수신할 미디어 타입
  */
-inline fun <reified T : Any> WebClient.httpPut(
+inline fun <reified T: Any> WebClient.httpPut(
     uri: String,
     flow: Flow<T>,
     contentType: MediaType? = null,

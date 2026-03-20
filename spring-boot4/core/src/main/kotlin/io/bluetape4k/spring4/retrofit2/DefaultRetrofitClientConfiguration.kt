@@ -42,7 +42,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 @Configuration
 @ConditionalOnClass(Retrofit::class, JacksonConverterFactory::class)
 class DefaultRetrofitClientConfiguration {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * `JsonMapper`를 사용하는 Retrofit Jackson 변환기 팩토리를 생성한다.

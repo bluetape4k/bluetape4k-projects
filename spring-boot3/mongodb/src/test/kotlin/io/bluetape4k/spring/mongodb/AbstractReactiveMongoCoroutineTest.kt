@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 abstract class AbstractReactiveMongoCoroutineTest(
     private val coroutineName: String = "spring-mongodb",
 ): AbstractReactiveMongoTest(),
-    CoroutineScope by CoroutineScope(Dispatchers.IO + CoroutineName(coroutineName)) {
+   CoroutineScope by CoroutineScope(Dispatchers.IO + CoroutineName(coroutineName)) {
 
     companion object: KLoggingChannel()
 }

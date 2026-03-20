@@ -17,7 +17,7 @@ import org.springframework.messaging.support.MessageBuilder
  * // msg.payload == "payload"
  * ```
  */
-inline fun <T : Any> message(
+inline fun <T: Any> message(
     payload: T,
     builder: MessageBuilder<T>.() -> Unit = {},
 ): Message<T> = MessageBuilder.withPayload(payload).apply(builder).build()
@@ -34,7 +34,7 @@ inline fun <T : Any> message(
  * // msg.payload == "payload"
  * ```
  */
-inline fun <T : Any> messageOf(
+inline fun <T: Any> messageOf(
     payload: T,
     builder: MessageBuilder<T>.() -> Unit = {},
 ): Message<T> = message(payload, builder)
@@ -53,7 +53,7 @@ inline fun <T : Any> messageOf(
  * // msg.headers["a"] == 1
  * ```
  */
-inline fun <T : Any> messageOf(
+inline fun <T: Any> messageOf(
     payload: T,
     headers: Map<String, Any?> = emptyMap(),
     builder: MessageBuilder<T>.() -> Unit = {},

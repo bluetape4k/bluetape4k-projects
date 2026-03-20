@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
  * // ex.httpStatus == HttpStatus.BAD_REQUEST
  * ```
  */
-abstract class ApiException : RuntimeException {
+abstract class ApiException: RuntimeException {
     /**
      * 예외와 매핑되는 HTTP 상태 코드입니다.
      *
@@ -41,7 +41,7 @@ abstract class ApiException : RuntimeException {
      * // ex.cause === cause
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외만으로 예외를 생성합니다.
@@ -55,7 +55,7 @@ abstract class ApiException : RuntimeException {
      * // ex.cause === cause
      * ```
      */
-    constructor(cause: Throwable?) : super(cause)
+    constructor(cause: Throwable?): super(cause)
 }
 
 /**
@@ -70,7 +70,7 @@ abstract class ApiException : RuntimeException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
-open class ApiEntityNotFoundException : ApiException {
+open class ApiEntityNotFoundException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.NOT_FOUND
 
     /**
@@ -84,7 +84,7 @@ open class ApiEntityNotFoundException : ApiException {
      * // ex.message == "missing"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -97,7 +97,7 @@ open class ApiEntityNotFoundException : ApiException {
      * // ex.message == "missing"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Entity not found", cause)
+    constructor(cause: Throwable): this(cause.message ?: "Entity not found", cause)
 }
 
 /**
@@ -112,7 +112,7 @@ open class ApiEntityNotFoundException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-open class ApiBadRequestException : ApiException {
+open class ApiBadRequestException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.BAD_REQUEST
 
     /**
@@ -126,7 +126,7 @@ open class ApiBadRequestException : ApiException {
      * // ex.message == "bad"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -139,7 +139,7 @@ open class ApiBadRequestException : ApiException {
      * // ex.message == "wrong format"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Bad request")
+    constructor(cause: Throwable): this(cause.message ?: "Bad request")
 }
 
 /**
@@ -154,7 +154,7 @@ open class ApiBadRequestException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.TOO_MANY_REQUESTS)
-open class ApiTooManyRequestsException : ApiException {
+open class ApiTooManyRequestsException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.TOO_MANY_REQUESTS
 
     /**
@@ -168,7 +168,7 @@ open class ApiTooManyRequestsException : ApiException {
      * // ex.message == "retry later"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -181,7 +181,7 @@ open class ApiTooManyRequestsException : ApiException {
      * // ex.message == "limit exceeded"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Too many requests")
+    constructor(cause: Throwable): this(cause.message ?: "Too many requests")
 }
 
 /**
@@ -196,7 +196,7 @@ open class ApiTooManyRequestsException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.FORBIDDEN)
-open class ApiForbiddenException : ApiException {
+open class ApiForbiddenException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.FORBIDDEN
 
     /**
@@ -210,7 +210,7 @@ open class ApiForbiddenException : ApiException {
      * // ex.message == "denied"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -223,7 +223,7 @@ open class ApiForbiddenException : ApiException {
      * // ex.message == "not allowed"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Forbidden")
+    constructor(cause: Throwable): this(cause.message ?: "Forbidden")
 }
 
 /**
@@ -238,7 +238,7 @@ open class ApiForbiddenException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-open class ApiUnauthorizedException : ApiException {
+open class ApiUnauthorizedException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.UNAUTHORIZED
 
     /**
@@ -252,7 +252,7 @@ open class ApiUnauthorizedException : ApiException {
      * // ex.message == "no token"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -265,7 +265,7 @@ open class ApiUnauthorizedException : ApiException {
      * // ex.message == "expired"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Unauthorized")
+    constructor(cause: Throwable): this(cause.message ?: "Unauthorized")
 }
 
 /**
@@ -280,7 +280,7 @@ open class ApiUnauthorizedException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-open class ApiInternalServerErrorException : ApiException {
+open class ApiInternalServerErrorException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
 
     /**
@@ -294,7 +294,7 @@ open class ApiInternalServerErrorException : ApiException {
      * // ex.message == "internal"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -307,7 +307,7 @@ open class ApiInternalServerErrorException : ApiException {
      * // ex.message == "db down"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Internal server error")
+    constructor(cause: Throwable): this(cause.message ?: "Internal server error")
 }
 
 /**
@@ -322,7 +322,7 @@ open class ApiInternalServerErrorException : ApiException {
  * ```
  */
 @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
-open class ApiServiceUnavailableException : ApiException {
+open class ApiServiceUnavailableException: ApiException {
     override val httpStatus: HttpStatus = HttpStatus.SERVICE_UNAVAILABLE
 
     /**
@@ -336,7 +336,7 @@ open class ApiServiceUnavailableException : ApiException {
      * // ex.message == "maintenance"
      * ```
      */
-    constructor(message: String, cause: Throwable? = null) : super(message, cause)
+    constructor(message: String, cause: Throwable? = null): super(message, cause)
 
     /**
      * 원인 예외를 기반으로 예외를 생성합니다.
@@ -349,5 +349,5 @@ open class ApiServiceUnavailableException : ApiException {
      * // ex.message == "temporarily down"
      * ```
      */
-    constructor(cause: Throwable) : this(cause.message ?: "Service unavailable")
+    constructor(cause: Throwable): this(cause.message ?: "Service unavailable")
 }

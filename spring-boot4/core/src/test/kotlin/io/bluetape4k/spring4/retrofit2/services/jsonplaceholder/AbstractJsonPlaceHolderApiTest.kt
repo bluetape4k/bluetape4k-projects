@@ -8,7 +8,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNullOrBlank
 
 abstract class AbstractJsonPlaceHolderApiTest {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val REPEAT_SIZE = 3
 
         @JvmStatic

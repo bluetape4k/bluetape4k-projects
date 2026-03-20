@@ -26,8 +26,8 @@ import java.io.ByteArrayOutputStream
 /**
  * DataBufferSupport 확장 함수 테스트
  */
-class DataBufferSupportTest : AbstractSpringTest() {
-    companion object : KLogging()
+class DataBufferSupportTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     private val bufferFactory = DefaultDataBufferFactory(true)
     private val nettyBufferFactory = NettyDataBufferFactory(PooledByteBufAllocator.DEFAULT)

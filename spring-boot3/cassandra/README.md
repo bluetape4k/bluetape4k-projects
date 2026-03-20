@@ -1,7 +1,6 @@
 # Module bluetape4k-spring-cassandra
 
-`bluetape4k-spring-cassandra`는 Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장과
-편의 DSL, 스키마 유틸을 제공합니다.
+`bluetape4k-spring-cassandra`는 Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장과 편의 DSL, 스키마 유틸을 제공합니다.
 
 ## 주요 기능
 

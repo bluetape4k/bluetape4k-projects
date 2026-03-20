@@ -42,7 +42,7 @@ data class ApiErrorBody(
     val timestamp: Instant = Instant.now(),
     val message: String? = null,
     val stackTraces: List<StackTraceElement> = emptyList(),
-) : Serializable
+): Serializable
 
 /**
  * 상태 코드와 오류 본문으로 [ApiErrorResponseEntity]를 생성합니다.

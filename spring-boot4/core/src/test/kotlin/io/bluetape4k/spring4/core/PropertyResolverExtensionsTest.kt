@@ -17,8 +17,8 @@ import org.springframework.core.env.getRequiredProperty
 import java.util.*
 import kotlin.test.assertFailsWith
 
-class PropertyResolverExtensionsTest : AbstractSpringTest() {
-    companion object : KLogging()
+class PropertyResolverExtensionsTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     private lateinit var testProperties: Properties
     private lateinit var propertySources: MutablePropertySources

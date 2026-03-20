@@ -1,7 +1,6 @@
 # Module bluetape4k-spring-boot4-mongodb
 
-[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를
-Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.x).
+[Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)를 Kotlin Coroutines 기반으로 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다 (Spring Boot 4.x).
 
 `ReactiveMongoOperations`의 `Flux`/`Mono` 반환 타입을 `Flow`/`suspend`로 변환하는 확장 함수와,
 `Criteria`·`Query`·`Update` 구성을 위한 Kotlin infix DSL을 제공합니다.
@@ -81,20 +80,20 @@ val update = ("name" setTo "Alice")
 
 ## 제공 확장 함수 목록
 
-| 함수 | 반환 타입 | 설명 |
-|---|---|---|
-| `findAsFlow<T>(query)` | `Flow<T>` | 조건에 맞는 문서 스트림 |
-| `findAllAsFlow<T>()` | `Flow<T>` | 전체 문서 스트림 |
-| `findOneOrNullSuspending<T>(query)` | `T?` | 단건 조회 (없으면 null) |
-| `countSuspending<T>(query?)` | `Long` | 문서 수 조회 |
-| `existsSuspending<T>(query)` | `Boolean` | 존재 여부 확인 |
-| `insertSuspending(entity)` | `T` | 단건 삽입 |
-| `insertAllAsFlow(entities)` | `Flow<T>` | 다건 삽입 |
-| `saveSuspending(entity)` | `T` | 저장 (삽입 또는 업데이트) |
-| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | 다건 업데이트 |
-| `removeSuspending<T>(query)` | `DeleteResult` | 조건 삭제 |
-| `aggregateAsFlow<I, O>(aggregation)` | `Flow<O>` | Aggregation 실행 |
-| `dropCollectionSuspending<T>()` | `Unit` | 컬렉션 삭제 |
+| 함수                                        | 반환 타입          | 설명               |
+|-------------------------------------------|----------------|------------------|
+| `findAsFlow<T>(query)`                    | `Flow<T>`      | 조건에 맞는 문서 스트림    |
+| `findAllAsFlow<T>()`                      | `Flow<T>`      | 전체 문서 스트림        |
+| `findOneOrNullSuspending<T>(query)`       | `T?`           | 단건 조회 (없으면 null) |
+| `countSuspending<T>(query?)`              | `Long`         | 문서 수 조회          |
+| `existsSuspending<T>(query)`              | `Boolean`      | 존재 여부 확인         |
+| `insertSuspending(entity)`                | `T`            | 단건 삽입            |
+| `insertAllAsFlow(entities)`               | `Flow<T>`      | 다건 삽입            |
+| `saveSuspending(entity)`                  | `T`            | 저장 (삽입 또는 업데이트)  |
+| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | 다건 업데이트          |
+| `removeSuspending<T>(query)`              | `DeleteResult` | 조건 삭제            |
+| `aggregateAsFlow<I, O>(aggregation)`      | `Flow<O>`      | Aggregation 실행   |
+| `dropCollectionSuspending<T>()`           | `Unit`         | 컬렉션 삭제           |
 
 ## 빌드 및 테스트
 

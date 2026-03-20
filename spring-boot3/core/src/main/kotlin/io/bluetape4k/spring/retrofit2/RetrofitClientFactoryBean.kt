@@ -56,6 +56,7 @@ class RetrofitClientFactoryBean: FactoryBean<Any?>, ApplicationContextAware, Ini
      * ```
      */
     var type: Class<*> = uninitialized()
+
     /**
      * Retrofit 클라이언트 이름이다.
      *
@@ -69,6 +70,7 @@ class RetrofitClientFactoryBean: FactoryBean<Any?>, ApplicationContextAware, Ini
      * ```
      */
     var name: String = uninitialized()
+
     /**
      * Retrofit builder에 전달할 base URL이다.
      *
@@ -82,6 +84,7 @@ class RetrofitClientFactoryBean: FactoryBean<Any?>, ApplicationContextAware, Ini
      * ```
      */
     var baseUrl: String = uninitialized()
+
     /**
      * `RetrofitClientContext`를 조회할 Spring `ApplicationContext`다.
      *

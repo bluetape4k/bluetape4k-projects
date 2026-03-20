@@ -15,10 +15,10 @@ import retrofit2.awaitResponse
 
 @SpringBootApplication
 class Retrofit2SpringBootApplication {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Component
-    class Retrofit2SampleRunner : CommandLineRunner {
+    class Retrofit2SampleRunner: CommandLineRunner {
         @Autowired
         private val httpbinApi: HttpbinApi = uninitialized()
 

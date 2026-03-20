@@ -17,7 +17,7 @@ import kotlin.reflect.full.declaredMemberProperties
  * // matcher != null
  * ```
  */
-inline fun <reified T : Any> KClass<T>.buildExampleMatcher(vararg searchFields: String): ExampleMatcher {
+inline fun <reified T: Any> KClass<T>.buildExampleMatcher(vararg searchFields: String): ExampleMatcher {
     var matcher =
         ExampleMatcher
             .matching()
@@ -44,7 +44,7 @@ inline fun <reified T : Any> KClass<T>.buildExampleMatcher(vararg searchFields: 
  * // matcher != null
  * ```
  */
-inline fun <reified T : Any> KClass<T>.buildExampleMatcher(vararg searchFields: KProperty<*>): ExampleMatcher =
+inline fun <reified T: Any> KClass<T>.buildExampleMatcher(vararg searchFields: KProperty<*>): ExampleMatcher =
     buildExampleMatcher(*searchFields.map { it.name }.toTypedArray())
 
 /**
@@ -59,7 +59,7 @@ inline fun <reified T : Any> KClass<T>.buildExampleMatcher(vararg searchFields: 
  * // ignored.contains("name") == false
  * ```
  */
-fun <T : Any> KClass<T>.ignoredProperties(vararg exclusions: String): Array<String> =
+fun <T: Any> KClass<T>.ignoredProperties(vararg exclusions: String): Array<String> =
     declaredMemberProperties
         .filterNot { exclusions.contains(it.name) }
         .map { it.name }
@@ -77,5 +77,5 @@ fun <T : Any> KClass<T>.ignoredProperties(vararg exclusions: String): Array<Stri
  * // ignored.contains("name") == false
  * ```
  */
-internal fun <T : Any> KClass<T>.ignoredProperties(vararg exclusions: KProperty<*>): Array<String> =
+internal fun <T: Any> KClass<T>.ignoredProperties(vararg exclusions: KProperty<*>): Array<String> =
     ignoredProperties(*exclusions.map { it.name }.toTypedArray())

@@ -31,7 +31,7 @@ import java.time.Duration
  * 참고: [Configuring Spring WebFlux WebClient to use a custom thread pool](https://stackoverflow.com/questions/56764801/configuring-spring-webflux-webclient-to-use-a-custom-thread-pool)
  */
 abstract class AbstractWebClientConfig {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /**
      * WebClient 전용 이벤트 루프 스레드 수.

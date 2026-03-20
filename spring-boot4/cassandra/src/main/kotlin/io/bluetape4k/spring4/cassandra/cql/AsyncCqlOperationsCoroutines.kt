@@ -21,11 +21,12 @@ import java.util.concurrent.CompletableFuture
  * // result == id
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
     vararg args: Any,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = query<T>(cql, { extractor(it) }, *args).await()
+): T? =
+    query<T>(cql, { extractor(it) }, *args).await()
 
 /**
  * CQL 문자열을 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
@@ -41,11 +42,18 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == names.size
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
     vararg args: Any,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = query(cql, { row, rowNum -> rowMapper(row, rowNum) }, *args).await()
+): List<T> =
+    query(
+        cql,
+        { row, rowNum ->
+            rowMapper(row, rowNum)
+        },
+        *args
+    ).await()
 
 /**
  * [Statement]를 실행하고 [AsyncResultSet] 기반 추출 결과를 코루틴으로 반환합니다.
@@ -61,10 +69,11 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == value
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = query<T>(statement) { extractor(it) }.await()
+): T? =
+    query<T>(statement) { extractor(it) }.await()
 
 /**
  * [Statement]를 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
@@ -78,7 +87,10 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == rows.size
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.await()
+): List<T> =
+    query(statement) { row, rowNum ->
+        rowMapper(row, rowNum)
+    }.await()

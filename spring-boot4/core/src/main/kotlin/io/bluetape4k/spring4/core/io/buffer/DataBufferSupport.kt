@@ -223,7 +223,7 @@ fun Publisher<out DataBuffer>.skipUntilByteCount(maxByteCount: Long): Flow<DataB
  * // retained === dataBuffer
  * ```
  */
-fun <T : DataBuffer> T.retain(): T = DataBufferUtils.retain(this)
+fun <T: DataBuffer> T.retain(): T = DataBufferUtils.retain(this)
 
 /**
  * 풀링 버퍼의 유출 추적용 힌트를 연결합니다.
@@ -237,7 +237,7 @@ fun <T : DataBuffer> T.retain(): T = DataBufferUtils.retain(this)
  * // touched === dataBuffer
  * ```
  */
-fun <T : DataBuffer> T.touch(hint: Any): T = DataBufferUtils.touch(this, hint)
+fun <T: DataBuffer> T.touch(hint: Any): T = DataBufferUtils.touch(this, hint)
 
 /**
  * 풀링된 [DataBuffer]를 해제합니다.

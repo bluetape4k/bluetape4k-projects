@@ -23,8 +23,8 @@ import kotlin.math.absoluteValue
 
 @SpringBootTest
 @RandomizedTest
-class JsonPlaceHolderCoroutineApiTest : AbstractJsonPlaceHolderApiTest() {
-    companion object : KLoggingChannel()
+class JsonPlaceHolderCoroutineApiTest: AbstractJsonPlaceHolderApiTest() {
+    companion object: KLoggingChannel()
 
     @Autowired
     private val api: JsonPlaceHolderCoroutineApi = uninitialized()

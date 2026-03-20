@@ -39,7 +39,7 @@ import org.springframework.data.domain.Slice
  * // result == rows
  * ```
  */
-inline fun <reified T : Any> ReactiveCassandraOperations.selectAsFlow(statement: Statement<*>): Flow<T> =
+inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(statement: Statement<*>): Flow<T> =
     select<T>(statement).asFlow()
 
 /**
@@ -54,7 +54,7 @@ inline fun <reified T : Any> ReactiveCassandraOperations.selectAsFlow(statement:
  * // result == rows
  * ```
  */
-inline fun <reified T : Any> ReactiveCassandraOperations.selectAsFlow(cql: String): Flow<T> = select<T>(cql).asFlow()
+inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String): Flow<T> = select<T>(cql).asFlow()
 
 /**
  * [Query] 조회 결과를 [Flow]로 반환합니다.
@@ -68,55 +68,55 @@ inline fun <reified T : Any> ReactiveCassandraOperations.selectAsFlow(cql: Strin
  * // result == rows
  * ```
  */
-inline fun <reified T : Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> = select<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> = select<T>(query).asFlow()
 
 /**
  * [Statement]로 단건을 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneSuspending(statement: Statement<*>): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneSuspending(statement: Statement<*>): T =
     selectOne<T>(statement).awaitSingle()
 
 /**
  * [Statement]로 단건을 조회하고 없으면 null을 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneOrNullSuspending(
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullSuspending(
     statement: Statement<*>,
 ): T? = selectOne<T>(statement).awaitSingleOrNull()
 
 /**
  * CQL 문자열로 단건을 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneSuspending(cql: String): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneSuspending(cql: String): T =
     selectOne<T>(cql).awaitSingle()
 
 /**
  * CQL 문자열로 단건을 조회하고 없으면 null을 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneOrNullSuspending(cql: String): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullSuspending(cql: String): T? =
     selectOne<T>(cql).awaitSingleOrNull()
 
 /**
  * [Query]로 단건을 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneSuspending(query: Query): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneSuspending(query: Query): T =
     selectOne<T>(query).awaitSingle()
 
 /**
  * [Query]로 단건을 조회하고 없으면 null을 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneOrNullSuspending(query: Query): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullSuspending(query: Query): T? =
     selectOne<T>(query).awaitSingleOrNull()
 
 /**
  * [Statement]로 [Slice]를 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.sliceSuspending(statement: Statement<*>): Slice<T> =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.sliceSuspending(statement: Statement<*>): Slice<T> =
     slice(statement, T::class.java).awaitSingle()
 
 /**
  * [Query]로 [Slice]를 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.sliceSuspending(query: Query): Slice<T> =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.sliceSuspending(query: Query): Slice<T> =
     slice(query, T::class.java).awaitSingle()
 
 /**
@@ -128,7 +128,7 @@ suspend fun ReactiveCassandraOperations.executeSuspending(statement: Statement<*
 /**
  * [Query]와 [Update]로 갱신하고 성공 여부를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.updateSuspending(
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.updateSuspending(
     query: Query,
     update: Update,
 ): Boolean = update<T>(query, update).awaitSingle()
@@ -136,59 +136,59 @@ suspend inline fun <reified T : Any> ReactiveCassandraOperations.updateSuspendin
 /**
  * [Query]로 삭제하고 성공 여부를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.deleteSuspending(query: Query): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.deleteSuspending(query: Query): Boolean =
     delete<T>(query).awaitSingle()
 
 /**
  * 전체 건수를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.countSuspending(): Long = count<T>().awaitSingle()
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.countSuspending(): Long = count<T>().awaitSingle()
 
 /**
  * [Query] 조건의 건수를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.countSuspending(query: Query): Long =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.countSuspending(query: Query): Long =
     count<T>(query).awaitSingle()
 
 /**
  * 데이터 존재 여부를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.existsSuspending(): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.existsSuspending(): Boolean =
     query<T>().exists().awaitSingle()
 
 /**
  * [Query] 조건으로 존재 여부를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.existsSuspending(query: Query): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.existsSuspending(query: Query): Boolean =
     exists<T>(query).awaitSingle()
 
 /**
  * id 기준으로 존재 여부를 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.existsSuspending(id: Any): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.existsSuspending(id: Any): Boolean =
     exists<T>(id).awaitSingle()
 
 /**
  * id 기준으로 단건을 조회합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneByIdSuspending(id: Any): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneByIdSuspending(id: Any): T =
     selectOneById<T>(id).awaitSingle()
 
 /**
  * id 기준으로 단건을 조회하고 없으면 null을 반환합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.selectOneOrNullByIdSuspending(id: Any): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneOrNullByIdSuspending(id: Any): T? =
     selectOneById<T>(id).awaitSingleOrNull()
 
 /**
  * 엔티티를 저장하고 저장된 엔티티를 반환합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.insertSuspending(entity: T): T = insert(entity).awaitSingle()
+suspend fun <T: Any> ReactiveCassandraOperations.insertSuspending(entity: T): T = insert(entity).awaitSingle()
 
 /**
  * 엔티티를 저장하고 [InsertOptions]를 적용합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.insertSuspending(
+suspend fun <T: Any> ReactiveCassandraOperations.insertSuspending(
     entity: T,
     options: InsertOptions,
 ): EntityWriteResult<T> = insert(entity, options).awaitSingle()
@@ -196,12 +196,12 @@ suspend fun <T : Any> ReactiveCassandraOperations.insertSuspending(
 /**
  * 엔티티를 갱신하고 갱신된 엔티티를 반환합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.updateSuspending(entity: T): T = update(entity).awaitSingle()
+suspend fun <T: Any> ReactiveCassandraOperations.updateSuspending(entity: T): T = update(entity).awaitSingle()
 
 /**
  * 엔티티를 갱신하고 [UpdateOptions]를 적용합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.updateSuspending(
+suspend fun <T: Any> ReactiveCassandraOperations.updateSuspending(
     entity: T,
     options: UpdateOptions,
 ): EntityWriteResult<T> = update(entity, options).awaitSingle()
@@ -209,12 +209,12 @@ suspend fun <T : Any> ReactiveCassandraOperations.updateSuspending(
 /**
  * 엔티티를 삭제하고 삭제된 엔티티를 반환합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.deleteSuspending(entity: T): T = delete(entity).awaitSingle()
+suspend fun <T: Any> ReactiveCassandraOperations.deleteSuspending(entity: T): T = delete(entity).awaitSingle()
 
 /**
  * 엔티티를 삭제하고 [QueryOptions]를 적용합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.deleteSuspending(
+suspend fun <T: Any> ReactiveCassandraOperations.deleteSuspending(
     entity: T,
     options: QueryOptions,
 ): WriteResult = delete(entity, options).awaitSingle()
@@ -222,7 +222,7 @@ suspend fun <T : Any> ReactiveCassandraOperations.deleteSuspending(
 /**
  * 엔티티를 삭제하고 [DeleteOptions]를 적용합니다.
  */
-suspend fun <T : Any> ReactiveCassandraOperations.deleteSuspending(
+suspend fun <T: Any> ReactiveCassandraOperations.deleteSuspending(
     entity: T,
     options: DeleteOptions,
 ): WriteResult = delete(entity, options).awaitSingle()
@@ -230,12 +230,12 @@ suspend fun <T : Any> ReactiveCassandraOperations.deleteSuspending(
 /**
  * id 기준으로 삭제합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.deleteByIdSuspending(id: Any): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.deleteByIdSuspending(id: Any): Boolean =
     deleteById<T>(id).awaitSingle()
 
 /**
  * 테이블을 truncate 합니다.
  */
-suspend inline fun <reified T : Any> ReactiveCassandraOperations.truncateSuspending() {
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.truncateSuspending() {
     truncate<T>().awaitSingleOrNull()
 }

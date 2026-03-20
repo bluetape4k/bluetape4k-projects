@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.util.concurrent.atomic.AtomicReference
 
-class HttpRequestFilterTest : AbstractWebfluxTest() {
+class HttpRequestFilterTest: AbstractWebfluxTest() {
     @Test
     fun `holder returns request from reactor context`() {
         val request = MockServerHttpRequest.get("/test").build()
@@ -61,7 +61,7 @@ class HttpRequestFilterTest : AbstractWebfluxTest() {
 
     @Test
     fun `redirect filter rewrites path`() {
-        val filter = object : AbstractRedirectWebFilter("/swagger", "/") {}
+        val filter = object: AbstractRedirectWebFilter("/swagger", "/") {}
         val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build())
         val redirectedPath = AtomicReference<String?>()
 
@@ -77,7 +77,7 @@ class HttpRequestFilterTest : AbstractWebfluxTest() {
 
     @Test
     fun `redirect filter keeps non matching path`() {
-        val filter = object : AbstractRedirectWebFilter("/swagger", "/") {}
+        val filter = object: AbstractRedirectWebFilter("/swagger", "/") {}
         val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/api").build())
         val redirectedPath = AtomicReference<String?>()
 

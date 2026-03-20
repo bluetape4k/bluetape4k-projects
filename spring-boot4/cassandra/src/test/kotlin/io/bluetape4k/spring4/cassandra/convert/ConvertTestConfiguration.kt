@@ -9,5 +9,5 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 @EntityScan(basePackageClasses = [AllPossibleTypes::class, CounterEntity::class])
 class ConvertTestConfiguration: AbstractReactiveCassandraTestConfiguration() {
 
-    companion object: KLoggingChannel() 
+    companion object: KLoggingChannel()
 }

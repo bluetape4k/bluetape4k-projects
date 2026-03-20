@@ -44,7 +44,7 @@ import org.springframework.data.mongodb.core.upsert
  * users.collect { println(it) }
  * ```
  */
-inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(query: Query): Flow<T> = find<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.findAsFlow(query: Query): Flow<T> = find<T>(query).asFlow()
 
 /**
  * [Query] 조건에 맞는 문서를 지정한 컬렉션에서 [Flow]로 반환합니다.
@@ -56,7 +56,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(query: Query): F
  * val users: Flow<User> = mongoOps.findAsFlow(query, "users_archive")
  * ```
  */
-inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(
+inline fun <reified T: Any> ReactiveMongoOperations.findAsFlow(
     query: Query,
     collectionName: String,
 ): Flow<T> = find<T>(query, collectionName).asFlow()
@@ -71,7 +71,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAsFlow(
  * val allUsers: Flow<User> = mongoOps.findAllAsFlow<User>()
  * ```
  */
-inline fun <reified T : Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> = findAll<T>().asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> = findAll<T>().asFlow()
 
 // ====================================================
 // 조회 - Suspend (단건)
@@ -87,7 +87,7 @@ inline fun <reified T : Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> = 
  * val user: User? = mongoOps.findOneOrNullSuspending(Query(Criteria.where("name").`is`("Alice")))
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneOrNullSuspending(query: Query): T? =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findOneOrNullSuspending(query: Query): T? =
     findOne<T>(query).awaitSingleOrNull()
 
 /**
@@ -100,7 +100,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneOrNullSuspen
  * val user: User = mongoOps.findOneSuspending(Query(Criteria.where("name").`is`("Alice")))
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneSuspending(query: Query): T =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findOneSuspending(query: Query): T =
     findOne<T>(query).awaitSingle()
 
 /**
@@ -113,7 +113,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findOneSuspending(q
  * val user: User? = mongoOps.findByIdOrNullSuspending("userId123")
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdOrNullSuspending(id: Any): T? =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findByIdOrNullSuspending(id: Any): T? =
     findById<T>(id).awaitSingleOrNull()
 
 /**
@@ -126,7 +126,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdOrNullSuspe
  * val user: User = mongoOps.findByIdSuspending("userId123")
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdSuspending(id: Any): T =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findByIdSuspending(id: Any): T =
     findById<T>(id).awaitSingle()
 
 // ====================================================
@@ -143,7 +143,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findByIdSuspending(
  * val count: Long = mongoOps.countSuspending<User>(Query(Criteria.where("age").gt(20)))
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.countSuspending(query: Query = Query()): Long =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.countSuspending(query: Query = Query()): Long =
     count<T>(query).awaitSingle()
 
 /**
@@ -156,7 +156,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.countSuspending(que
  * val exists: Boolean = mongoOps.existsSuspending<User>(Query(Criteria.where("email").`is`("alice@example.com")))
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.existsSuspending(query: Query): Boolean =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.existsSuspending(query: Query): Boolean =
     exists<T>(query).awaitSingle()
 
 // ====================================================
@@ -174,7 +174,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.existsSuspending(qu
  * val saved: User = mongoOps.insertSuspending(User(name = "Alice", age = 30))
  * ```
  */
-suspend fun <T : Any> ReactiveMongoOperations.insertSuspending(entity: T): T = insert(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.insertSuspending(entity: T): T = insert(entity).awaitSingle()
 
 /**
  * 여러 엔티티를 삽입하고 저장된 엔티티를 [Flow]로 반환합니다.
@@ -186,7 +186,7 @@ suspend fun <T : Any> ReactiveMongoOperations.insertSuspending(entity: T): T = i
  * val savedUsers: Flow<User> = mongoOps.insertAllAsFlow(listOf(user1, user2))
  * ```
  */
-fun <T : Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): Flow<T> = insertAll(entities).asFlow()
+fun <T: Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): Flow<T> = insertAll(entities).asFlow()
 
 /**
  * 엔티티를 저장합니다 (삽입 또는 업데이트).
@@ -198,7 +198,7 @@ fun <T : Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): 
  * val saved: User = mongoOps.saveSuspending(user)
  * ```
  */
-suspend fun <T : Any> ReactiveMongoOperations.saveSuspending(entity: T): T = save(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.saveSuspending(entity: T): T = save(entity).awaitSingle()
 
 // ====================================================
 // 쓰기 - Update/Upsert
@@ -217,7 +217,7 @@ suspend fun <T : Any> ReactiveMongoOperations.saveSuspending(entity: T): T = sav
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.updateFirstSuspending(
+suspend inline fun <reified T: Any> ReactiveMongoOperations.updateFirstSuspending(
     query: Query,
     update: UpdateDefinition,
 ): UpdateResult = updateFirst<T>(query, update).awaitSingle()
@@ -235,7 +235,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.updateFirstSuspendi
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.updateMultiSuspending(
+suspend inline fun <reified T: Any> ReactiveMongoOperations.updateMultiSuspending(
     query: Query,
     update: UpdateDefinition,
 ): UpdateResult = updateMulti<T>(query, update).awaitSingle()
@@ -254,7 +254,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.updateMultiSuspendi
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.upsertSuspending(
+suspend inline fun <reified T: Any> ReactiveMongoOperations.upsertSuspending(
     query: Query,
     update: UpdateDefinition,
 ): UpdateResult = upsert<T>(query, update).awaitSingle()
@@ -275,7 +275,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.upsertSuspending(
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.removeSuspending(query: Query): DeleteResult =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.removeSuspending(query: Query): DeleteResult =
     remove<T>(query).awaitSingle()
 
 /**
@@ -288,7 +288,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.removeSuspending(qu
  * val result: DeleteResult = mongoOps.removeSuspending(user)
  * ```
  */
-suspend fun <T : Any> ReactiveMongoOperations.removeSuspending(entity: T): DeleteResult = remove(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.removeSuspending(entity: T): DeleteResult = remove(entity).awaitSingle()
 
 // ====================================================
 // 조회 + 수정/삭제 (Atomic)
@@ -308,7 +308,7 @@ suspend fun <T : Any> ReactiveMongoOperations.removeSuspending(entity: T): Delet
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndModifySuspending(
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findAndModifySuspending(
     query: Query,
     update: UpdateDefinition,
 ): T? = findAndModify(query, update, T::class.java).awaitSingleOrNull()
@@ -325,7 +325,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndModifySuspen
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndRemoveSuspending(query: Query): T? =
+suspend inline fun <reified T: Any> ReactiveMongoOperations.findAndRemoveSuspending(query: Query): T? =
     findAndRemove<T>(query).awaitSingleOrNull()
 
 // ====================================================
@@ -345,7 +345,7 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.findAndRemoveSuspen
  * )
  * ```
  */
-inline fun <reified I : Any, reified O : Any> ReactiveMongoOperations.findDistinctAsFlow(
+inline fun <reified I: Any, reified O: Any> ReactiveMongoOperations.findDistinctAsFlow(
     query: Query,
     field: String,
 ): Flow<O> = findDistinct(query, field, I::class.java, O::class.java).asFlow()
@@ -368,7 +368,7 @@ inline fun <reified I : Any, reified O : Any> ReactiveMongoOperations.findDistin
  * val results: Flow<CityCount> = mongoOps.aggregateAsFlow<User, CityCount>(aggregation)
  * ```
  */
-inline fun <reified I : Any, reified O : Any> ReactiveMongoOperations.aggregateAsFlow(
+inline fun <reified I: Any, reified O: Any> ReactiveMongoOperations.aggregateAsFlow(
     aggregation: Aggregation,
 ): Flow<O> = aggregate(aggregation, I::class.java, O::class.java).asFlow()
 
@@ -385,7 +385,7 @@ inline fun <reified I : Any, reified O : Any> ReactiveMongoOperations.aggregateA
  * val results: Flow<CityCount> = mongoOps.aggregateAsFlow<CityCount>(typedAgg)
  * ```
  */
-inline fun <reified O : Any> ReactiveMongoOperations.aggregateAsFlow(aggregation: TypedAggregation<*>): Flow<O> =
+inline fun <reified O: Any> ReactiveMongoOperations.aggregateAsFlow(aggregation: TypedAggregation<*>): Flow<O> =
     aggregate<O>(aggregation).asFlow()
 
 // ====================================================
@@ -405,7 +405,7 @@ inline fun <reified O : Any> ReactiveMongoOperations.aggregateAsFlow(aggregation
  * events.collect { event -> processEvent(event) }
  * ```
  */
-inline fun <reified T : Any> ReactiveMongoOperations.tailAsFlow(query: Query): Flow<T> = tail<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.tailAsFlow(query: Query): Flow<T> = tail<T>(query).asFlow()
 
 // ====================================================
 // 컬렉션 관리
@@ -435,7 +435,7 @@ suspend fun ReactiveMongoOperations.collectionExistsSuspending(collectionName: S
  * mongoOps.dropCollectionSuspending<User>()
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.dropCollectionSuspending() {
+suspend inline fun <reified T: Any> ReactiveMongoOperations.dropCollectionSuspending() {
     dropCollection<T>().awaitSingleOrNull()
 }
 
@@ -464,7 +464,7 @@ suspend fun ReactiveMongoOperations.dropCollectionSuspending(collectionName: Str
  * mongoOps.createCollectionSuspending<User>()
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSuspending() {
+suspend inline fun <reified T: Any> ReactiveMongoOperations.createCollectionSuspending() {
     createCollection<T>().awaitSingleOrNull()
 }
 
@@ -481,6 +481,6 @@ suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSus
  * )
  * ```
  */
-suspend inline fun <reified T : Any> ReactiveMongoOperations.createCollectionSuspending(options: CollectionOptions) {
+suspend inline fun <reified T: Any> ReactiveMongoOperations.createCollectionSuspending(options: CollectionOptions) {
     createCollection<T>(options).awaitSingleOrNull()
 }

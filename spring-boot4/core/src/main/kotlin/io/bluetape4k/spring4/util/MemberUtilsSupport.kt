@@ -15,7 +15,7 @@ import java.text.NumberFormat
  * // intValue == 123
  * ```
  */
-inline fun <reified T : Number> String.parseNumber(numberFormat: NumberFormat = NumberFormat.getInstance()): T =
+inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat = NumberFormat.getInstance()): T =
     NumberUtils.parseNumber(this, T::class.java, numberFormat)
 
 /**
@@ -30,7 +30,7 @@ inline fun <reified T : Number> String.parseNumber(numberFormat: NumberFormat = 
  * // value == 123
  * ```
  */
-fun <T : Number> String.parseNumber(
+fun <T: Number> String.parseNumber(
     targetClass: Class<T>,
     numberFormat: NumberFormat = NumberFormat.getInstance(),
 ): T = NumberUtils.parseNumber(this, targetClass, numberFormat)
@@ -47,7 +47,7 @@ fun <T : Number> String.parseNumber(
  * // converted == 123.0
  * ```
  */
-inline fun <reified T : Number> Number.toTargetClass(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)
+inline fun <reified T: Number> Number.toTargetClass(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)
 
 /**
  * 숫자를 reified 대상 숫자 타입으로 변환합니다.
@@ -61,4 +61,4 @@ inline fun <reified T : Number> Number.toTargetClass(): T = NumberUtils.convertN
  * // converted == 123L
  * ```
  */
-inline fun <reified T : Number> Number.convertAs(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)
+inline fun <reified T: Number> Number.convertAs(): T = NumberUtils.convertNumberToTargetClass(this, T::class.java)

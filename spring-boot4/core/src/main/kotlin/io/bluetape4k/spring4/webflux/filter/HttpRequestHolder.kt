@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono
  *
  * @see io.bluetape4k.spring4.webflux.filter.HttpRequestCapturer
  */
-object HttpRequestHolder : KLoggingChannel() {
+object HttpRequestHolder: KLoggingChannel() {
     private val REQUEST_KEY = ServerHttpRequest::class.java
 
     /**

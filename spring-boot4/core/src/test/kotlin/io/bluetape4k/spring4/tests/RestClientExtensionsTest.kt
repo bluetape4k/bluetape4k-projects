@@ -15,8 +15,8 @@ import org.springframework.web.client.toEntity
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class RestClientExtensionsTest : AbstractSpringTest() {
-    companion object : KLogging()
+class RestClientExtensionsTest: AbstractSpringTest() {
+    companion object: KLogging()
 
     private val client: RestClient =
         RestClient

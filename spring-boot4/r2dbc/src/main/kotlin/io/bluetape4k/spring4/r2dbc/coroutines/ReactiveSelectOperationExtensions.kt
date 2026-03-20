@@ -24,7 +24,7 @@ import org.springframework.data.relational.core.query.Query
  *
  * @param query 조회 조건
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.existsSuspending(query: Query): Boolean =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.existsSuspending(query: Query): Boolean =
     select<T>().matching(query).awaitExists()
 
 /**
@@ -41,7 +41,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.existsSuspending(quer
  *
  * @param query 조회 조건
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.countSuspending(query: Query): Long =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.countSuspending(query: Query): Long =
     select<T>().matching(query).awaitCount()
 
 /**
@@ -56,7 +56,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.countSuspending(query
  * // count >= 0L
  * ```
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.countAllSuspending(): Long =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.countAllSuspending(): Long =
     countSuspending<T>(Query.empty())
 
 /**
@@ -73,7 +73,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.countAllSuspending():
  *
  * @param query 조회 조건
  */
-inline fun <reified T : Any> R2dbcEntityOperations.selectSuspending(query: Query): Flow<T> =
+inline fun <reified T: Any> R2dbcEntityOperations.selectSuspending(query: Query): Flow<T> =
     select<T>().matching(query).flow()
 
 /**
@@ -88,7 +88,7 @@ inline fun <reified T : Any> R2dbcEntityOperations.selectSuspending(query: Query
  * // posts.isNotEmpty() == true
  * ```
  */
-inline fun <reified T : Any> R2dbcEntityOperations.selectAllSuspending(): Flow<T> = selectSuspending(Query.empty())
+inline fun <reified T: Any> R2dbcEntityOperations.selectAllSuspending(): Flow<T> = selectSuspending(Query.empty())
 
 /**
  * 조회 조건에서 단건을 반환합니다.
@@ -105,7 +105,7 @@ inline fun <reified T : Any> R2dbcEntityOperations.selectAllSuspending(): Flow<T
  * @param query 조회 조건
  * @throws org.springframework.dao.IncorrectResultSizeDataAccessException 조회 결과가 단건이 아닐 때 발생할 수 있습니다.
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.selectOneSuspending(query: Query): T =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.selectOneSuspending(query: Query): T =
     select<T>().matching(query).one().awaitSingle()
 
 /**
@@ -123,7 +123,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.selectOneSuspending(q
  *
  * @param query 조회 조건
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.selectOneOrNullSuspending(query: Query): T? =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.selectOneOrNullSuspending(query: Query): T? =
     select<T>().matching(query).one().awaitSingleOrNull()
 
 /**
@@ -140,7 +140,7 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.selectOneOrNullSuspen
  *
  * @param query 조회 조건
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.selectFirstSuspending(query: Query): T =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.selectFirstSuspending(query: Query): T =
     select<T>().matching(query).first().awaitSingle()
 
 /**
@@ -157,5 +157,5 @@ suspend inline fun <reified T : Any> R2dbcEntityOperations.selectFirstSuspending
  *
  * @param query 조회 조건
  */
-suspend inline fun <reified T : Any> R2dbcEntityOperations.selectFirstOrNullSuspending(query: Query): T? =
+suspend inline fun <reified T: Any> R2dbcEntityOperations.selectFirstOrNullSuspending(query: Query): T? =
     select<T>().matching(query).first().awaitSingleOrNull()

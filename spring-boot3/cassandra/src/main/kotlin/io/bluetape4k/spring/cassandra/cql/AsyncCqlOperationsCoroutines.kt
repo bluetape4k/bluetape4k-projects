@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture
  * // result == id
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
     vararg args: Any,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
@@ -41,7 +41,7 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == names.size
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
     vararg args: Any,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
@@ -61,7 +61,7 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == value
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
 ): T? = query<T>(statement) { extractor(it) }.await()
@@ -78,7 +78,7 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
  * // result == rows.size
  * ```
  */
-suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
+suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
 ): List<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.await()

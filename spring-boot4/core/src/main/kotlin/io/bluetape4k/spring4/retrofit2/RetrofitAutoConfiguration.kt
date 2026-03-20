@@ -25,7 +25,7 @@ import retrofit2.Retrofit
 @Configuration
 @ConditionalOnClass(Retrofit::class)
 class RetrofitAutoConfiguration {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * Retrofit 클라이언트 스캔을 활성화하는 내부 설정 클래스다.
