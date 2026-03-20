@@ -22,8 +22,12 @@ import java.util.*
  * // text.isNotBlank() == true
  * ```
  */
-class NamebasedUuidGenerator: IdGenerator<UUID> {
-
+@Deprecated(
+    "Uuid.V5 또는 Uuid.namebased(name) 을 사용하세요",
+    ReplaceWith("Uuid.V5"),
+    DeprecationLevel.WARNING
+)
+class NamebasedUuidGenerator : IdGenerator<UUID> {
     private val namebasedUuid = Generators.nameBasedGenerator()
     private val randomUuid =
         Generators.randomBasedGenerator(SecureRandom())
@@ -54,7 +58,5 @@ class NamebasedUuidGenerator: IdGenerator<UUID> {
      */
     override fun nextIdAsString(): String = Url62.encode(nextIdInternal())
 
-    private fun nextIdInternal(): UUID {
-        return namebasedUuid.generate(randomUuid.generate().toString())
-    }
+    private fun nextIdInternal(): UUID = namebasedUuid.generate(randomUuid.generate().toString())
 }

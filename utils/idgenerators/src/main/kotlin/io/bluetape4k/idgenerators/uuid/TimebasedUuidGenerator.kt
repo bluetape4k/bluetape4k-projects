@@ -20,8 +20,12 @@ import java.util.*
  * // ids.size == 2
  * ```
  */
-class TimebasedUuidGenerator: IdGenerator<UUID> {
-
+@Deprecated(
+    "Uuid.V6 또는 UuidGenerator(Uuid.V6) 를 사용하세요",
+    ReplaceWith("UuidGenerator(Uuid.V6)"),
+    DeprecationLevel.WARNING
+)
+class TimebasedUuidGenerator : IdGenerator<UUID> {
     private val generator: TimeBasedReorderedGenerator by lazy {
         Generators.timeBasedReorderedGenerator()
     }
@@ -57,8 +61,7 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      *
      * @param size 생성할 UUID 개수
      */
-    fun nextUUIDs(size: Int): Sequence<UUID> =
-        generateSequence { nextUUID() }.take(size)
+    fun nextUUIDs(size: Int): Sequence<UUID> = generateSequence { nextUUID() }.take(size)
 
     /**
      * 시간 기반 UUID를 생성하고 Base62 문자열로 반환합니다.
@@ -85,6 +88,5 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      * // values.size == 2
      * ```
      */
-    fun nextBase62Strings(size: Int): Sequence<String> =
-        generateSequence { nextBase62String() }.take(size)
+    fun nextBase62Strings(size: Int): Sequence<String> = generateSequence { nextBase62String() }.take(size)
 }

@@ -21,10 +21,14 @@ import java.util.*
  * // text.isNotBlank() == true
  * ```
  */
+@Deprecated(
+    "Uuid.V4 또는 Uuid.random() 을 사용하세요",
+    ReplaceWith("Uuid.V4"),
+    DeprecationLevel.WARNING
+)
 class RandomUuidGenerator(
     random: Random = Random(System.currentTimeMillis()),
-): IdGenerator<UUID> {
-
+) : IdGenerator<UUID> {
     // VERSION 4
     private val generator = Generators.randomBasedGenerator(random)
 

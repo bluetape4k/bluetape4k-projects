@@ -19,8 +19,8 @@ import java.util.*
  * // text.isNotBlank() == true
  * ```
  */
+@Deprecated("Uuid.V1, Uuid.V6, Uuid.V7 을 사용하세요", ReplaceWith("Uuid"), DeprecationLevel.WARNING)
 object TimebasedUuid {
-
     /**
      * 기본 time-based(UUID v1 계열) 생성기를 제공합니다.
      *
@@ -33,16 +33,13 @@ object TimebasedUuid {
      * // id.version() >= 1
      * ```
      */
-    object Default: IdGenerator<UUID> {
+    @Deprecated("Uuid.V1 을 사용하세요", ReplaceWith("Uuid.V1"), DeprecationLevel.WARNING)
+    object Default : IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedGenerator() }
 
-        override fun nextId(): UUID {
-            return generator.generate()
-        }
+        override fun nextId(): UUID = generator.generate()
 
-        override fun nextIdAsString(): String {
-            return nextId().encodeBase62()
-        }
+        override fun nextIdAsString(): String = nextId().encodeBase62()
     }
 
     /**
@@ -57,16 +54,13 @@ object TimebasedUuid {
      * // id.isNotBlank() == true
      * ```
      */
-    object Reordered: IdGenerator<UUID> {
+    @Deprecated("Uuid.V6 을 사용하세요", ReplaceWith("Uuid.V6"), DeprecationLevel.WARNING)
+    object Reordered : IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedReorderedGenerator() }
 
-        override fun nextId(): UUID {
-            return generator.generate()
-        }
+        override fun nextId(): UUID = generator.generate()
 
-        override fun nextIdAsString(): String {
-            return nextId().encodeBase62()
-        }
+        override fun nextIdAsString(): String = nextId().encodeBase62()
     }
 
     /**
@@ -81,15 +75,12 @@ object TimebasedUuid {
      * // id.version() > 0
      * ```
      */
-    object Epoch: IdGenerator<UUID> {
+    @Deprecated("Uuid.V7 을 사용하세요", ReplaceWith("Uuid.V7"), DeprecationLevel.WARNING)
+    object Epoch : IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedEpochGenerator() }
 
-        override fun nextId(): UUID {
-            return generator.generate()
-        }
+        override fun nextId(): UUID = generator.generate()
 
-        override fun nextIdAsString(): String {
-            return nextId().encodeBase62()
-        }
+        override fun nextIdAsString(): String = nextId().encodeBase62()
     }
 }
