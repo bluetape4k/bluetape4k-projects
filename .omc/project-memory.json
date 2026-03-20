@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1773898345467,
+  "lastScanned": 1773985945026,
   "projectRoot": "/Users/debop/work/bluetape4k/bluetape4k-projects",
   "techStack": {
     "languages": [
@@ -48,28 +48,15 @@
     "aws": {
       "path": "aws",
       "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1773898345459,
-      "keyFiles": [
-        "README.md",
-        "build.gradle.kts"
-      ]
-    },
-    "aws-kotlin": {
-      "path": "aws-kotlin",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1773898345460,
-      "keyFiles": [
-        "README.md",
-        "build.gradle.kts"
-      ]
+      "fileCount": 0,
+      "lastAccessed": 1773985945014,
+      "keyFiles": []
     },
     "bin": {
       "path": "bin",
       "purpose": "Executable scripts",
       "fileCount": 3,
-      "lastAccessed": 1773898345460,
+      "lastAccessed": 1773985945019,
       "keyFiles": [
         "repo-diff",
         "repo-status",
@@ -80,21 +67,21 @@
       "path": "bluetape4k",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345460,
+      "lastAccessed": 1773985945019,
       "keyFiles": []
     },
     "build": {
       "path": "build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1773898345460,
+      "lastAccessed": 1773985945019,
       "keyFiles": []
     },
     "buildSrc": {
       "path": "buildSrc",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1773898345460,
+      "lastAccessed": 1773985945020,
       "keyFiles": [
         "build.gradle.kts",
         "gradle.properties"
@@ -104,14 +91,14 @@
       "path": "data",
       "purpose": "Data files",
       "fileCount": 0,
-      "lastAccessed": 1773898345460,
+      "lastAccessed": 1773985945020,
       "keyFiles": []
     },
     "doc": {
       "path": "doc",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945020,
       "keyFiles": [
         "Kdoc_Instruction.md",
         "blue-tape.png",
@@ -123,28 +110,28 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945020,
       "keyFiles": []
     },
     "examples": {
       "path": "examples",
       "purpose": "Example code",
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945021,
       "keyFiles": []
     },
     "gradle": {
       "path": "gradle",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945022,
       "keyFiles": []
     },
     "guides": {
       "path": "guides",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945022,
       "keyFiles": [
         "index.yaml"
       ]
@@ -153,82 +140,56 @@
       "path": "infra",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945022,
       "keyFiles": []
     },
     "io": {
       "path": "io",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945023,
       "keyFiles": []
-    },
-    "javers": {
-      "path": "javers",
-      "purpose": null,
-      "fileCount": 1,
-      "lastAccessed": 1773898345461,
-      "keyFiles": [
-        "README.md"
-      ]
     },
     "spring-boot3": {
       "path": "spring-boot3",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945023,
+      "keyFiles": []
+    },
+    "spring-boot4": {
+      "path": "spring-boot4",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1773985945023,
       "keyFiles": []
     },
     "testing": {
       "path": "testing",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
+      "lastAccessed": 1773985945023,
       "keyFiles": []
     },
     "timefold": {
       "path": "timefold",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345461,
-      "keyFiles": []
-    },
-    "tokenizer": {
-      "path": "tokenizer",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1773898345462,
+      "lastAccessed": 1773985945023,
       "keyFiles": []
     },
     "utils": {
       "path": "utils",
       "purpose": "Utility functions",
       "fileCount": 0,
-      "lastAccessed": 1773898345462,
+      "lastAccessed": 1773985945024,
       "keyFiles": []
-    },
-    "utils-deprecated": {
-      "path": "utils-deprecated",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1773898345462,
-      "keyFiles": []
-    },
-    "vertx": {
-      "path": "vertx",
-      "purpose": null,
-      "fileCount": 2,
-      "lastAccessed": 1773898345463,
-      "keyFiles": [
-        "README.md",
-        "build.gradle.kts"
-      ]
     },
     "virtualthread": {
       "path": "virtualthread",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1773898345463,
+      "lastAccessed": 1773985945024,
       "keyFiles": [
         "README.md"
       ]
@@ -237,49 +198,28 @@
       "path": "x-obsoleted",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1773898345463,
-      "keyFiles": []
-    },
-    "aws/src": {
-      "path": "aws/src",
-      "purpose": "Source code",
-      "fileCount": 0,
-      "lastAccessed": 1773898345463,
-      "keyFiles": []
-    },
-    "aws-kotlin/src": {
-      "path": "aws-kotlin/src",
-      "purpose": "Source code",
-      "fileCount": 0,
-      "lastAccessed": 1773898345464,
+      "lastAccessed": 1773985945024,
       "keyFiles": []
     },
     "buildSrc/build": {
       "path": "buildSrc/build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1773898345464,
+      "lastAccessed": 1773985945025,
       "keyFiles": []
     },
     "buildSrc/src": {
       "path": "buildSrc/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1773898345464,
-      "keyFiles": []
-    },
-    "vertx/src": {
-      "path": "vertx/src",
-      "purpose": "Source code",
-      "fileCount": 0,
-      "lastAccessed": 1773898345466,
+      "lastAccessed": 1773985945025,
       "keyFiles": []
     },
     "virtualthread/api": {
       "path": "virtualthread/api",
       "purpose": "API routes",
       "fileCount": 2,
-      "lastAccessed": 1773898345466,
+      "lastAccessed": 1773985945026,
       "keyFiles": [
         "README.md",
         "build.gradle.kts"
@@ -289,254 +229,158 @@
   "hotPaths": [
     {
       "path": "CLAUDE.md",
-      "accessCount": 16,
-      "lastAccessed": 1773977124982,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowOperatorExamples.kt",
-      "accessCount": 12,
-      "lastAccessed": 1773906928126,
-      "type": "file"
-    },
-    {
-      "path": "README.md",
-      "accessCount": 12,
-      "lastAccessed": 1773976715977,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/exceptions/ExceptionHandlingExamples.kt",
-      "accessCount": 11,
-      "lastAccessed": 1773906878524,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/scope/CoroutineScopeExamples.kt",
-      "accessCount": 9,
-      "lastAccessed": 1773906879309,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowLifecycleExamples.kt",
-      "accessCount": 9,
-      "lastAccessed": 1773906945464,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/ChannelFlowExamples.kt",
-      "accessCount": 7,
-      "lastAccessed": 1773906890733,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/cancellation/CancellationExamples.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773906836449,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/channels/ActorExamples.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773906842179,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/channels/ChannelExamples.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773906847912,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/Events.kt",
-      "accessCount": 5,
-      "lastAccessed": 1773906970381,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/select/SelectExamples.kt",
       "accessCount": 4,
-      "lastAccessed": 1773904335869,
+      "lastAccessed": 1773988236401,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/README.md",
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt",
       "accessCount": 4,
-      "lastAccessed": 1773904364512,
+      "lastAccessed": 1773989088651,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/TestSupport.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773906776048,
-      "type": "file"
-    },
-    {
-      "path": "CHANGELOG.md",
-      "accessCount": 3,
-      "lastAccessed": 1773976805650,
-      "type": "file"
-    },
-    {
-      "path": "",
+      "path": "spring-boot4/core/src/test/kotlin/io/bluetape4k/spring4/http/RestClientCoroutinesDslTest.kt",
       "accessCount": 2,
-      "lastAccessed": 1773898612666,
-      "type": "directory"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/CoroutineContextExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903505290,
+      "lastAccessed": 1773987768158,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/CounterCoroutineContext.kt",
+      "path": "spring-boot4/r2dbc/src/test/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/blog/test/controller/PostControllerTest.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903506087,
+      "lastAccessed": 1773988105466,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/context/UuidProviderCoroutineContext.kt",
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/ReactiveSelectOperationExtensions.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903506183,
+      "lastAccessed": 1773989122130,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/dispatchers/DispatcherExamples.kt",
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/ReactiveInsertOperationExtensions.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903506990,
+      "lastAccessed": 1773989140502,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowBasicExamples.kt",
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/ReactiveUpdateOperationExtensions.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903512817,
+      "lastAccessed": 1773989157663,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/FlowBuilderExamples.kt",
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/ReactiveDeleteOperationExtensions.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903513843,
+      "lastAccessed": 1773989173646,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/SharedFlowExamples.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/cql/AsyncCqlOperationsCoroutines.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903515357,
+      "lastAccessed": 1773989194120,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/StateFlowExamples.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/cql/ReactiveCqlOperationsSupport.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903523312,
+      "lastAccessed": 1773989251184,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/CallbackFlowExamples.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/ReactiveCassandraOperationsCoroutines.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903523772,
+      "lastAccessed": 1773989294897,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/flow/SharedFlowAsEventBus.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/ReactiveSelectOperationSupport.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903524790,
+      "lastAccessed": 1773989332919,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/tests/TurbineExamples.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/AsyncCassandraOperationsCoroutines.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903533039,
+      "lastAccessed": 1773989366822,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineExamples.kt",
+      "path": "spring-boot4/cassandra/src/main/kotlin/io/bluetape4k/spring4/cassandra/ReactiveSessionCoroutines.kt",
       "accessCount": 2,
-      "lastAccessed": 1773903533523,
+      "lastAccessed": 1773989393073,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/FlowExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903534014,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/SuspendExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903534633,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/MDCContextExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903535218,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/ChannelExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903540471,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/ChannelAsFlowExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903541493,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineBuilderExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903542179,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/CoroutineContextExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903542617,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/guide/SharedFlowExamples.kt",
-      "accessCount": 2,
-      "lastAccessed": 1773903543291,
-      "type": "file"
-    },
-    {
-      "path": ".editorconfig",
-      "accessCount": 2,
-      "lastAccessed": 1773906676510,
-      "type": "file"
-    },
-    {
-      "path": "AGENTS.md",
-      "accessCount": 2,
-      "lastAccessed": 1773977402900,
-      "type": "file"
-    },
-    {
-      "path": "examples/coroutines-demo/src/test/resources/junit-platform.properties",
+      "path": "io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/Jackson.kt",
       "accessCount": 1,
-      "lastAccessed": 1773903469354,
+      "lastAccessed": 1773987050914,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/resources/logback-test.xml",
+      "path": "spring-boot3/core/src/main/kotlin/io/bluetape4k/spring/jackson/Jackson2ObjectMapperBuilderCustomizer.kt",
       "accessCount": 1,
-      "lastAccessed": 1773903469650,
+      "lastAccessed": 1773987200965,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/concurrency/MutexExamples.kt",
+      "path": "spring-boot4/core/src/main/kotlin/io/bluetape4k/spring4/jackson/JacksonObjectMapperBuilderCustomizer.kt",
       "accessCount": 1,
-      "lastAccessed": 1773903892923,
+      "lastAccessed": 1773987328956,
       "type": "file"
     },
     {
-      "path": "examples/coroutines-demo/src/test/kotlin/io/bluetape4k/examples/coroutines/timeout/TimeoutExamples.kt",
+      "path": "spring-boot4/core/src/main/kotlin/io/bluetape4k/spring4/http/RestClientCoroutinesDsl.kt",
       "accessCount": 1,
-      "lastAccessed": 1773903907461,
+      "lastAccessed": 1773987729746,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/core/src/test/resources/application.yml",
+      "accessCount": 1,
+      "lastAccessed": 1773987843733,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/core/src/test/resources/application.yml",
+      "accessCount": 1,
+      "lastAccessed": 1773987939633,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/core/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988684224,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/data-redis/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988699921,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/r2dbc/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988715536,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/mongodb/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988733600,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/cassandra/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988741523,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/cassandra-demo/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773988750490,
       "type": "file"
     }
   ],

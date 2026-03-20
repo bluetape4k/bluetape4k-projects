@@ -33,12 +33,6 @@ inline fun <reified R : Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> 
  */
 suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspending(): Long = count().awaitSingle()
 
-@Deprecated(
-    message = "countSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("countSuspending()")
-)
-suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendCount(): Long = countSuspending()
-
 /**
  * 조회 결과 존재 여부를 코루틴에서 반환합니다.
  *
@@ -52,12 +46,6 @@ suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendCount(
  * ```
  */
 suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspending(): Boolean = exists().awaitSingle()
-
-@Deprecated(
-    message = "existsSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("existsSuspending()")
-)
-suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendExists(): Boolean = existsSuspending()
 
 /**
  * 첫 번째 결과를 코루틴에서 단건으로 반환합니다.
@@ -87,12 +75,6 @@ suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.first(): T = 
  */
 suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? = one().awaitSingle()
 
-@Deprecated(
-    message = "oneSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("oneSuspending()")
-)
-suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendOne(): T? = oneSuspending()
-
 /**
  * 전체 조회 결과를 리스트로 수집해 반환합니다.
  *
@@ -107,9 +89,3 @@ suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendOne():
  */
 suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.allSuspending(): List<T> =
     all().collectList().awaitSingle()
-
-@Deprecated(
-    message = "allSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("allSuspending()")
-)
-suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendAll(): List<T> = allSuspending()

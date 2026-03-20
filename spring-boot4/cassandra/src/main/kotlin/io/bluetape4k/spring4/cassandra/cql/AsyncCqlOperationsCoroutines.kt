@@ -27,26 +27,6 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
 ): T? = query<T>(cql, { extractor(it) }, *args).await()
 
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(cql, *args, extractor = extractor)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.suspendQuery(
-    cql: String,
-    vararg args: Any,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = querySuspending(cql, *args, extractor = extractor)
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(cql, *args, extractor = extractor)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
-    cql: String,
-    vararg args: Any,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = query<T>(cql, { extractor(it) }, *args).await()
-
 /**
  * CQL 문자열을 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
  *
@@ -62,26 +42,6 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
  * ```
  */
 suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
-    cql: String,
-    vararg args: Any,
-    crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = query(cql, { row, rowNum -> rowMapper(row, rowNum) }, *args).await()
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(cql, *args, rowMapper = rowMapper)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.suspendQuery(
-    cql: String,
-    vararg args: Any,
-    crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = querySuspending(cql, *args, rowMapper = rowMapper)
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(cql, *args, rowMapper = rowMapper)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
     cql: String,
     vararg args: Any,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
@@ -106,24 +66,6 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
 ): T? = query<T>(statement) { extractor(it) }.await()
 
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(statement, extractor = extractor)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.suspendQuery(
-    statement: Statement<*>,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = querySuspending(statement, extractor = extractor)
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(statement, extractor = extractor)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
-    statement: Statement<*>,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? = query<T>(statement) { extractor(it) }.await()
-
 /**
  * [Statement]를 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
  *
@@ -137,24 +79,6 @@ suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
  * ```
  */
 suspend inline fun <reified T : Any> AsyncCqlOperations.querySuspending(
-    statement: Statement<*>,
-    crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.await()
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(statement, rowMapper = rowMapper)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.suspendQuery(
-    statement: Statement<*>,
-    crossinline rowMapper: (row: Row, rowNum: Int) -> T,
-): List<T> = querySuspending(statement, rowMapper = rowMapper)
-
-@Deprecated(
-    message = "querySuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("querySuspending(statement, rowMapper = rowMapper)")
-)
-suspend inline fun <reified T : Any> AsyncCqlOperations.coQuery(
     statement: Statement<*>,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
 ): List<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.await()

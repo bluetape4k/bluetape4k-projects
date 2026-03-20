@@ -22,35 +22,13 @@ import org.springframework.data.relational.core.query.isEqual
  * @param idName 식별자 컬럼명
  * @throws org.springframework.dao.IncorrectResultSizeDataAccessException 조회 결과가 단건이 아닐 때 발생할 수 있습니다.
  */
-suspend inline fun <reified T: Any> R2dbcEntityOperations.findOneByIdSuspending(
+suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdSuspending(
     id: Any,
     idName: String = "id",
 ): T {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return selectOneSuspending(query)
 }
-
-/**
- * [findOneByIdSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [findOneByIdSuspending]에 그대로 위임됩니다.
- * - 동작/예외 계약은 대상 함수와 동일합니다.
- *
- * ```kotlin
- * val post = operations.suspendFindOneById<Post>(1L)
- * // post.id == 1L
- * ```
- */
-@Deprecated(
-    message = "findOneByIdSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("findOneByIdSuspending(id, idName)"),
-)
-suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneById(
-    id: Any,
-    idName: String = "id",
-): T =
-    findOneByIdSuspending(id, idName)
 
 /**
  * 지정한 id 컬럼 조건으로 단건 조회를 수행하고 없으면 `null`을 반환합니다.
@@ -68,35 +46,13 @@ suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneById(
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T: Any> R2dbcEntityOperations.findOneByIdOrNullSuspending(
+suspend inline fun <reified T : Any> R2dbcEntityOperations.findOneByIdOrNullSuspending(
     id: Any,
     idName: String = "id",
 ): T? {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return selectOneOrNullSuspending(query)
 }
-
-/**
- * [findOneByIdOrNullSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [findOneByIdOrNullSuspending]에 위임됩니다.
- * - 결과가 없으면 `null`을 반환합니다.
- *
- * ```kotlin
- * val post = operations.suspendFindOneByIdOrNull<Post>(-1L)
- * // post == null
- * ```
- */
-@Deprecated(
-    message = "findOneByIdOrNullSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("findOneByIdOrNullSuspending(id, idName)"),
-)
-suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneByIdOrNull(
-    id: Any,
-    idName: String = "id",
-): T? =
-    findOneByIdOrNullSuspending(id, idName)
 
 /**
  * 지정한 id 컬럼 조건으로 첫 번째 엔티티를 조회합니다.
@@ -114,35 +70,13 @@ suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneByIdOrNu
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T: Any> R2dbcEntityOperations.findFirstByIdSuspending(
+suspend inline fun <reified T : Any> R2dbcEntityOperations.findFirstByIdSuspending(
     id: Any,
     idName: String = "id",
 ): T {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return selectFirstSuspending(query)
 }
-
-/**
- * [findFirstByIdSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 내부 구현은 [findFirstByIdSuspending]과 동일합니다.
- * - 첫 번째 결과만 반환합니다.
- *
- * ```kotlin
- * val first = operations.suspendFindFirstById<Post>(1L)
- * // first.id == 1L
- * ```
- */
-@Deprecated(
-    message = "findFirstByIdSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("findFirstByIdSuspending(id, idName)"),
-)
-suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindFirstById(
-    id: Any,
-    idName: String = "id",
-): T =
-    findFirstByIdSuspending(id, idName)
 
 /**
  * 지정한 id 컬럼 조건으로 첫 번째 엔티티를 조회하고 없으면 `null`을 반환합니다.
@@ -160,32 +94,10 @@ suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindFirstById(
  * @param id 조회할 식별자 값
  * @param idName 식별자 컬럼명
  */
-suspend inline fun <reified T: Any> R2dbcEntityOperations.findFirstByIdOrNullSuspending(
+suspend inline fun <reified T : Any> R2dbcEntityOperations.findFirstByIdOrNullSuspending(
     id: Any,
     idName: String = "id",
 ): T? {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return selectFirstOrNullSuspending(query)
 }
-
-/**
- * [findFirstByIdOrNullSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [findFirstByIdOrNullSuspending]에 위임됩니다.
- * - 결과가 없으면 `null`을 반환합니다.
- *
- * ```kotlin
- * val first = operations.suspendFindFirstByIdOrNull<Post>(-1L)
- * // first == null
- * ```
- */
-@Deprecated(
-    message = "findFirstByIdOrNullSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("findFirstByIdOrNullSuspending(id, idName)"),
-)
-suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindFirstByIdOrNull(
-    id: Any,
-    idName: String = "id",
-): T? =
-    findFirstByIdOrNullSuspending(id, idName)
