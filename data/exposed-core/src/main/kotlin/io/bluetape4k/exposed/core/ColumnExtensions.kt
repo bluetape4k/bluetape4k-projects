@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.core
 
 import io.bluetape4k.idgenerators.ksuid.Ksuid
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
 import org.jetbrains.exposed.v1.core.ArrayColumnType
@@ -47,7 +47,7 @@ import kotlin.reflect.KClass
 private val log by lazy { KotlinLogging.logger { } }
 
 /**
- * UUID 컬럼의 기본값을 `TimebasedUuid.Epoch.nextId()`로 설정합니다.
+ * UUID 컬럼의 기본값을 `Uuid.V7.nextId()`로 설정합니다.
  *
  * ## 동작/계약
  * - DB 기본값이 아니라 Exposed `clientDefault`를 사용해 INSERT 시점에 값이 생성됩니다.
@@ -59,10 +59,10 @@ private val log by lazy { KotlinLogging.logger { } }
  * ```
  */
 @JvmName("timebasedGeneratedUUID")
-fun Column<UUID>.timebasedGenerated(): Column<UUID> = clientDefault { TimebasedUuid.Epoch.nextId() }
+fun Column<UUID>.timebasedGenerated(): Column<UUID> = clientDefault { Uuid.V7.nextId() }
 
 /**
- * 문자열 컬럼의 기본값을 UUIDv7 Base62 문자열(`TimebasedUuid.Epoch.nextIdAsString()`)로 설정합니다.
+ * 문자열 컬럼의 기본값을 UUIDv7 Base62 문자열(`Uuid.V7.nextIdAsString()`)로 설정합니다.
  *
  * ## 동작/계약
  * - Exposed `clientDefault`를 사용하므로 INSERT 시 클라이언트에서 값이 계산됩니다.
@@ -74,7 +74,7 @@ fun Column<UUID>.timebasedGenerated(): Column<UUID> = clientDefault { TimebasedU
  * ```
  */
 @JvmName("timebasedGeneratedString")
-fun Column<String>.timebasedGenerated(): Column<String> = clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+fun Column<String>.timebasedGenerated(): Column<String> = clientDefault { Uuid.V7.nextIdAsString() }
 
 /**
  * `snowflakeGenerated()`의 이전 이름입니다.

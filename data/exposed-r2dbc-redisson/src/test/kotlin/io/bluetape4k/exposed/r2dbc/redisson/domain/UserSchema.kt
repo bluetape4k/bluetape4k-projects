@@ -5,7 +5,7 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -25,14 +25,13 @@ import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-object UserSchema: KLoggingChannel() {
-
+object UserSchema : KLoggingChannel() {
     private val faker = Fakers.faker
 
     /**
      * Auto Incremented ID 를 가진 [LongIdTable]을 구현한 `IdTable<Long>` 테이블입니다.
      */
-    object UserTable: LongIdTable("users") {
+    object UserTable : LongIdTable("users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -48,26 +47,26 @@ object UserSchema: KLoggingChannel() {
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<Long> {
+    ) : HasIdentifier<Long> {
         fun withId(id: Long) = copy(id = id)
     }
 
-    fun ResultRow.toUserRecord(): UserRecord = UserRecord(
-        id = this[UserTable.id].value,
-        firstName = this[UserTable.firstName],
-        lastName = this[UserTable.lastName],
-        email = this[UserTable.email],
-        createdAt = this[UserTable.createdAt],
-        updatedAt = this[UserTable.updatedAt]
-    )
+    fun ResultRow.toUserRecord(): UserRecord =
+        UserRecord(
+            id = this[UserTable.id].value,
+            firstName = this[UserTable.firstName],
+            lastName = this[UserTable.lastName],
+            email = this[UserTable.email],
+            createdAt = this[UserTable.createdAt],
+            updatedAt = this[UserTable.updatedAt]
+        )
 
-    private suspend fun insertUser(user: UserRecord): EntityID<Long> {
-        return UserTable.insertAndGetId {
+    private suspend fun insertUser(user: UserRecord): EntityID<Long> =
+        UserTable.insertAndGetId {
             it[UserTable.firstName] = user.firstName
             it[UserTable.lastName] = user.lastName
             it[UserTable.email] = user.email
         }
-    }
 
     suspend fun withUserTable(
         testDB: TestDB,
@@ -107,24 +106,25 @@ object UserSchema: KLoggingChannel() {
 
     private val lastUserId = atomic(1000L)
 
-    fun newUserRecord(): UserRecord = UserRecord(
-        id = lastUserId.getAndIncrement(),
-        firstName = faker.name().firstName(),
-        lastName = faker.name().lastName(),
-        email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
-    )
+    fun newUserRecord(): UserRecord =
+        UserRecord(
+            id = lastUserId.getAndIncrement(),
+            firstName = faker.name().firstName(),
+            lastName = faker.name().lastName(),
+            email = Base58.randomString(4) + "." + faker.internet().emailAddress()
+        )
 
-    suspend fun findUserById(id: Long): UserRecord? {
-        return UserTable.selectAll()
+    suspend fun findUserById(id: Long): UserRecord? =
+        UserTable
+            .selectAll()
             .where { UserTable.id eq id }
             .singleOrNull()
             ?.toUserRecord()
-    }
 
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDTable]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
+    object UserCredentialsTable : TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -140,18 +140,19 @@ object UserSchema: KLoggingChannel() {
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<UUID> {
+    ) : HasIdentifier<UUID> {
         fun withId(id: UUID) = copy(id = id)
     }
 
-    fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord = UserCredentialsRecord(
-        id = this[UserCredentialsTable.id].value,
-        loginId = this[UserCredentialsTable.loginId],
-        email = this[UserCredentialsTable.email],
-        lastLoginAt = this[UserCredentialsTable.lastLoginAt],
-        createdAt = this[UserCredentialsTable.createdAt],
-        updatedAt = this[UserCredentialsTable.updatedAt],
-    )
+    fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord =
+        UserCredentialsRecord(
+            id = this[UserCredentialsTable.id].value,
+            loginId = this[UserCredentialsTable.loginId],
+            email = this[UserCredentialsTable.email],
+            lastLoginAt = this[UserCredentialsTable.lastLoginAt],
+            createdAt = this[UserCredentialsTable.createdAt],
+            updatedAt = this[UserCredentialsTable.updatedAt]
+        )
 
     suspend fun withUserCredentialsTable(
         testDB: TestDB,
@@ -168,34 +169,36 @@ object UserSchema: KLoggingChannel() {
         }
     }
 
-    fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord {
-        return UserCredentialsRecord(
-            id = TimebasedUuid.Epoch.nextId(),
+    fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord =
+        UserCredentialsRecord(
+            id = Uuid.V7.nextId(),
             loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
-    }
 
-    suspend fun insertUserCredentials(loginId: String? = null, lastDays: Long = 100L): UUID {
-        return UserCredentialsTable.insertAndGetId {
-            it[UserCredentialsTable.loginId] = loginId ?: faker.credentials().username()
-            it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
-            it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(lastDays).toInstant()
-        }.value
-    }
+    suspend fun insertUserCredentials(
+        loginId: String? = null,
+        lastDays: Long = 100L,
+    ): UUID =
+        UserCredentialsTable
+            .insertAndGetId {
+                it[UserCredentialsTable.loginId] = loginId ?: faker.credentials().username()
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(lastDays).toInstant()
+            }.value
 
-    suspend fun findUserCredentialsById(id: UUID): UserCredentialsRecord? {
-        return UserCredentialsTable.selectAll()
+    suspend fun findUserCredentialsById(id: UUID): UserCredentialsRecord? =
+        UserCredentialsTable
+            .selectAll()
             .where { UserCredentialsTable.id eq id }
             .singleOrNull()
             ?.toUserCredentialsRecord()
-    }
 
-    suspend fun findUserCredentialsByLoginid(loginId: String): UserCredentialsRecord? {
-        return UserCredentialsTable.selectAll()
+    suspend fun findUserCredentialsByLoginid(loginId: String): UserCredentialsRecord? =
+        UserCredentialsTable
+            .selectAll()
             .where { UserCredentialsTable.loginId eq loginId }
             .singleOrNull()
             ?.toUserCredentialsRecord()
-    }
 }

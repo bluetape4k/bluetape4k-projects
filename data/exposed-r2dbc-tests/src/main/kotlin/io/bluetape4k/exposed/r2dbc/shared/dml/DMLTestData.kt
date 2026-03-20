@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.r2dbc.shared.dml
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -15,7 +15,6 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import java.math.BigDecimal
 
 object DMLTestData {
-
     /**
      * Postgres:
      * ```sql
@@ -25,7 +24,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Cities: Table() {
+    object Cities : Table() {
         val id = integer("city_id").autoIncrement()
         val name = varchar("name", 50)
 
@@ -46,7 +45,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Users: Table() {
+    object Users : Table() {
         val id = varchar("id", 10)
         val name = varchar("name", 50)
         val cityId = optReference("city_id", Cities.id)
@@ -73,7 +72,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object UserData: Table() {
+    object UserData : Table() {
         val userId = reference("user_id", Users.id)
         val comment = varchar("comment", 30)
         val value = integer("value")
@@ -91,7 +90,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Sales: Table() {
+    object Sales : Table() {
         val year = integer("year")
         val month = integer("month")
         val product = varchar("product", 30).nullable()
@@ -107,18 +106,15 @@ object DMLTestData {
      * )
      * ```
      */
-    object SomeAmounts: Table() {
+    object SomeAmounts : Table() {
         val amount = decimal("amount", 8, 2)
     }
 
-
     /** [ResultRow] 이터러블에서 도시명 목록을 추출합니다. */
-    fun Iterable<ResultRow>.toCityNameList(): List<String> =
-        map { it[Cities.name] }
+    fun Iterable<ResultRow>.toCityNameList(): List<String> = map { it[Cities.name] }
 
     /** [ResultRow] Flow에서 도시명 목록을 suspend 방식으로 추출합니다. */
-    suspend fun Flow<ResultRow>.toCityNameList(): List<String> =
-        map { it[Cities.name] }.toList()
+    suspend fun Flow<ResultRow>.toCityNameList(): List<String> = map { it[Cities.name] }.toList()
 
     /**
      * Cities, Users, UserData 테이블을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행합니다.
@@ -146,13 +142,15 @@ object DMLTestData {
         val userData = UserData
 
         withTables(testDB, cities, users, userData) {
-            val saintPetersburgId = cities.insert {
-                it[name] = "St. Petersburg"
-            } get Cities.id
+            val saintPetersburgId =
+                cities.insert {
+                    it[name] = "St. Petersburg"
+                } get Cities.id
 
-            val munichId = cities.insert {
-                it[name] = "Munich"
-            } get Cities.id
+            val munichId =
+                cities.insert {
+                    it[name] = "Munich"
+                } get Cities.id
 
             cities.insert {
                 it[name] = "Prague"
@@ -251,7 +249,12 @@ object DMLTestData {
         }
     }
 
-    private suspend fun insertSale(year: Int, month: Int, product: String?, amount: String) {
+    private suspend fun insertSale(
+        year: Int,
+        month: Int,
+        product: String?,
+        amount: String,
+    ) {
         val sales = Sales
         sales.insert {
             it[Sales.year] = year
@@ -347,10 +350,11 @@ object DMLTestData {
      * ALTER TABLE orgs ADD CONSTRAINT orgs_uid_unique UNIQUE (uid)
      * ```
      */
-    object Orgs: IntIdTable() {
-        val uid = varchar("uid", 36)
-            .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
-            .uniqueIndex()
+    object Orgs : IntIdTable() {
+        val uid =
+            varchar("uid", 36)
+                .clientDefault { Uuid.V7.nextIdAsString() }
+                .uniqueIndex()
 
         val name = varchar("name", 255)
     }
@@ -367,8 +371,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object OrgMemberships: IntIdTable() {
+    object OrgMemberships : IntIdTable() {
         val orgId = reference("org", Orgs.uid)
     }
-
 }

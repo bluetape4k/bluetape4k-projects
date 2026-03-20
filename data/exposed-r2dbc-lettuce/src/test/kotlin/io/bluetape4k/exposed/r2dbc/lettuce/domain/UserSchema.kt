@@ -4,7 +4,7 @@ import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
@@ -23,14 +23,14 @@ import java.util.*
 /**
  * exposed-r2dbc-lettuce 통합 테스트용 User 도메인 스키마.
  */
-object UserSchema: KLoggingChannel() {
+object UserSchema : KLoggingChannel() {
     private val faker = Fakers.faker
 
     /**
      * Auto-increment Long ID를 가진 User 테이블.
      * 테이블명은 `r2dbc_lettuce_users`로 다른 테스트와 충돌하지 않는다.
      */
-    object UserTable: LongIdTable("r2dbc_lettuce_users") {
+    object UserTable : LongIdTable("r2dbc_lettuce_users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -49,7 +49,7 @@ object UserSchema: KLoggingChannel() {
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): java.io.Serializable {
+    ) : java.io.Serializable {
         fun withId(id: Long) = copy(id = id)
     }
 
@@ -124,7 +124,7 @@ object UserSchema: KLoggingChannel() {
      * Client에서 UUID를 직접 생성하여 PK로 사용하는 UserCredentials 테이블.
      * [TimebasedUUIDTable]을 사용하며 auto-increment 없이 클라이언트가 ID를 제공한다.
      */
-    object UserCredentialsTable: TimebasedUUIDTable("r2dbc_lettuce_user_credentials") {
+    object UserCredentialsTable : TimebasedUUIDTable("r2dbc_lettuce_user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -143,7 +143,7 @@ object UserSchema: KLoggingChannel() {
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): java.io.Serializable
+    ) : java.io.Serializable
 
     fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(
@@ -184,7 +184,7 @@ object UserSchema: KLoggingChannel() {
      */
     fun newUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(
-            id = TimebasedUuid.Epoch.nextId(),
+            id = Uuid.V7.nextId(),
             loginId = faker.credentials().username() + "_" + Base58.randomString(8),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = Instant.now().minusSeconds(86400)

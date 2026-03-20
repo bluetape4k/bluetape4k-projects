@@ -5,7 +5,7 @@ import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.aws.dynamodb.model.DynamoDbEntity.Companion.ENTITY_ID_DELIMITER
 import io.bluetape4k.aws.dynamodb.model.DynamoDbEntity.Companion.ENTITY_NAME_DELIMITER
 import io.bluetape4k.idgenerators.snowflake.GlobalSnowflake
-import io.bluetape4k.idgenerators.uuid.TimebasedUuidGenerator
+import io.bluetape4k.idgenerators.uuid.Uuid
 import software.amazon.awssdk.enhanced.dynamodb.Key
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey
@@ -14,13 +14,11 @@ import java.io.Serializable
 /**
  * DynamoDB의 Entity를 표현하는 인터페이스입니다.
  */
-interface DynamoDbEntity: Serializable {
-
+interface DynamoDbEntity : Serializable {
     companion object {
         const val ENTITY_ID_DELIMITER = "#"
         const val ENTITY_NAME_DELIMITER = ":"
 
-        val uuidGenerator by lazy { TimebasedUuidGenerator() }
         val snowflake by lazy { GlobalSnowflake() }
     }
 
@@ -49,32 +47,33 @@ interface DynamoDbEntity: Serializable {
     /**
      * UUID를 Base62로 인코딩한 Unique 값을 제공합니다.
      */
-    fun getUniqueUuidString(): String = uuidGenerator.nextBase62String()
+    fun getUniqueUuidString(): String = Uuid.V7.nextBase62()
 }
 
 /**
  * DynamoDB의 Entity를 표현하는 추상 클래스입니다.
  */
-abstract class AbstractDynamoDbEntity: AbstractValueObject(), DynamoDbEntity {
-
+abstract class AbstractDynamoDbEntity :
+    AbstractValueObject(),
+    DynamoDbEntity {
     override val key: Key by lazy {
-        Key.builder()
+        Key
+            .builder()
             .partitionValue(partitionKey)
             .sortValue(sortKey)
             .build()
     }
 
-    override fun equalProperties(other: Any): Boolean {
-        return other is DynamoDbEntity &&
-                partitionKey == other.partitionKey &&
-                sortKey == other.sortKey
-    }
+    override fun equalProperties(other: Any): Boolean =
+        other is DynamoDbEntity &&
+            partitionKey == other.partitionKey &&
+            sortKey == other.sortKey
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super
+            .buildStringHelper()
             .add("partitionKey", partitionKey)
             .add("sortKey", sortKey)
-    }
 }
 
 /**
@@ -98,22 +97,23 @@ abstract class AbstractDynamoDbEntity: AbstractValueObject(), DynamoDbEntity {
  * @param sortKey 정렬 키 값 (null 또는 blank이면 생략)
  * @return `ClassName[:partitionKey][#sortKey]` 형태의 문자열
  */
-inline fun <reified T: DynamoDbEntity> T.makeKeyString(
+inline fun <reified T : DynamoDbEntity> T.makeKeyString(
     partitionKey: Any? = null,
     sortKey: Any? = null,
-): String = buildString {
-    append(T::class.simpleName)
+): String =
+    buildString {
+        append(T::class.simpleName)
 
-    partitionKey
-        ?.takeIf { it.toString().isNotBlank() }
-        ?.let {
-            append(ENTITY_NAME_DELIMITER)
-            append(it)
-        }
-    sortKey
-        ?.takeIf { it.toString().isNotBlank() }
-        ?.let {
-            append(ENTITY_ID_DELIMITER)
-            append(it)
-        }
-}
+        partitionKey
+            ?.takeIf { it.toString().isNotBlank() }
+            ?.let {
+                append(ENTITY_NAME_DELIMITER)
+                append(it)
+            }
+        sortKey
+            ?.takeIf { it.toString().isNotBlank() }
+            ?.let {
+                append(ENTITY_ID_DELIMITER)
+                append(it)
+            }
+    }

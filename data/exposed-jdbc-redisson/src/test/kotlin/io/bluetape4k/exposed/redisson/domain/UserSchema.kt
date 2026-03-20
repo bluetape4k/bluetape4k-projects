@@ -11,7 +11,7 @@ import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.exposed.tests.withTablesSuspending
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -36,14 +36,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
-object UserSchema: KLogging() {
-
+object UserSchema : KLogging() {
     private val faker = Fakers.faker
 
     /**
      * Auto Incremented ID 를 가진 [org.jetbrains.exposed.v1.core.dao.id.LongIdTable]을 구현한 `IdTable<Long>` 테이블입니다.
      */
-    object UserTable: LongIdTable("users") {
+    object UserTable : LongIdTable("users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -52,9 +51,11 @@ object UserSchema: KLogging() {
         val updatedAt = timestamp("updated_at").nullable()
     }
 
-    class UserEntity(id: EntityID<Long>): LongEntity(id) {
+    class UserEntity(
+        id: EntityID<Long>,
+    ) : LongEntity(id) {
         // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
-        companion object: LongEntityClass<UserEntity>(UserTable)
+        companion object : LongEntityClass<UserEntity>(UserTable)
 
         var firstName by UserTable.firstName
         var lastName by UserTable.lastName
@@ -64,12 +65,15 @@ object UserSchema: KLogging() {
         var updatedAt by UserTable.updatedAt
 
         override fun equals(other: Any?): Boolean = idEquals(other)
+
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = entityToStringBuilder()
-            .add("firstName", firstName)
-            .add("lastName", lastName)
-            .add("email", email)
-            .toString()
+
+        override fun toString(): String =
+            entityToStringBuilder()
+                .add("firstName", firstName)
+                .add("lastName", lastName)
+                .add("email", email)
+                .toString()
     }
 
     data class UserRecord(
@@ -79,31 +83,35 @@ object UserSchema: KLogging() {
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<Long> {
+    ) : HasIdentifier<Long> {
         fun withId(id: Long) = copy(id = id)
     }
 
-    fun ResultRow.toUserRecord(): UserRecord = UserRecord(
-        id = this[UserTable.id].value,
-        firstName = this[UserTable.firstName],
-        lastName = this[UserTable.lastName],
-        email = this[UserTable.email],
-        createdAt = this[UserTable.createdAt],
-        updatedAt = this[UserTable.updatedAt]
-    )
+    fun ResultRow.toUserRecord(): UserRecord =
+        UserRecord(
+            id = this[UserTable.id].value,
+            firstName = this[UserTable.firstName],
+            lastName = this[UserTable.lastName],
+            email = this[UserTable.email],
+            createdAt = this[UserTable.createdAt],
+            updatedAt = this[UserTable.updatedAt]
+        )
 
-    fun UserEntity.toUserRecord(): UserRecord = UserRecord(
-        id = this.id.value,
-        firstName = this.firstName,
-        lastName = this.lastName,
-        email = this.email,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt
-    )
+    fun UserEntity.toUserRecord(): UserRecord =
+        UserRecord(
+            id = this.id.value,
+            firstName = this.firstName,
+            lastName = this.lastName,
+            email = this.email,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt
+        )
 
-    fun withUserTable(testDB: TestDB, statement: JdbcTransaction.() -> Unit) {
+    fun withUserTable(
+        testDB: TestDB,
+        statement: JdbcTransaction.() -> Unit,
+    ) {
         withTables(testDB, UserTable) {
-
             UserEntity.new {
                 firstName = "Sunghyouk"
                 lastName = "Bae"
@@ -158,24 +166,25 @@ object UserSchema: KLogging() {
 
     private val lastUserId = atomic(1000L)
 
-    fun newUserRecord(): UserRecord = UserRecord(
-        id = lastUserId.getAndIncrement(),
-        firstName = faker.name().firstName(),
-        lastName = faker.name().lastName(),
-        email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
-    )
+    fun newUserRecord(): UserRecord =
+        UserRecord(
+            id = lastUserId.getAndIncrement(),
+            firstName = faker.name().firstName(),
+            lastName = faker.name().lastName(),
+            email = Base58.randomString(4) + "." + faker.internet().emailAddress()
+        )
 
-    fun findUserById(id: Long): UserRecord? {
-        return UserTable.selectAll()
+    fun findUserById(id: Long): UserRecord? =
+        UserTable
+            .selectAll()
             .where { UserTable.id eq id }
             .singleOrNull()
             ?.toUserRecord()
-    }
 
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDBase62Table]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
+    object UserCredentialsTable : TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -184,9 +193,11 @@ object UserSchema: KLogging() {
         val updatedAt = timestamp("updated_at").nullable()
     }
 
-    class UserCredentialsEntity(id: EntityID<UUID>): TimebasedUUIDEntity(id) {
+    class UserCredentialsEntity(
+        id: EntityID<UUID>,
+    ) : TimebasedUUIDEntity(id) {
         // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
-        companion object: TimebasedUUIDEntityClass<UserCredentialsEntity>(UserCredentialsTable)
+        companion object : TimebasedUUIDEntityClass<UserCredentialsEntity>(UserCredentialsTable)
 
         var loginId by UserCredentialsTable.loginId
         var email by UserCredentialsTable.email
@@ -196,11 +207,14 @@ object UserSchema: KLogging() {
         var updatedAt by UserCredentialsTable.updatedAt
 
         override fun equals(other: Any?): Boolean = idEquals(other)
+
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = entityToStringBuilder()
-            .add("loginId", loginId)
-            .add("email", email)
-            .toString()
+
+        override fun toString(): String =
+            entityToStringBuilder()
+                .add("loginId", loginId)
+                .add("email", email)
+                .toString()
     }
 
     data class UserCredentialsRecord(
@@ -210,16 +224,17 @@ object UserSchema: KLogging() {
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<UUID>
+    ) : HasIdentifier<UUID>
 
-    fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord = UserCredentialsRecord(
-        id = this[UserCredentialsTable.id].value,
-        loginId = this[UserCredentialsTable.loginId],
-        email = this[UserCredentialsTable.email],
-        lastLoginAt = this[UserCredentialsTable.lastLoginAt],
-        createdAt = this[UserCredentialsTable.createdAt],
-        updatedAt = this[UserCredentialsTable.updatedAt],
-    )
+    fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord =
+        UserCredentialsRecord(
+            id = this[UserCredentialsTable.id].value,
+            loginId = this[UserCredentialsTable.loginId],
+            email = this[UserCredentialsTable.email],
+            lastLoginAt = this[UserCredentialsTable.lastLoginAt],
+            createdAt = this[UserCredentialsTable.createdAt],
+            updatedAt = this[UserCredentialsTable.updatedAt]
+        )
 
     fun withUserCredentialsTable(
         testDB: TestDB,
@@ -280,34 +295,33 @@ object UserSchema: KLogging() {
         }
     }
 
-    fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord {
-        return UserCredentialsRecord(
-            id = TimebasedUuid.Epoch.nextId(),
+    fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord =
+        UserCredentialsRecord(
+            id = Uuid.V7.nextId(),
             loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
-    }
 
-    fun insertUserCredentials(loginId: String? = null): UUID {
-        return UserCredentialsTable.insertAndGetId {
-            it[UserCredentialsTable.loginId] = loginId ?: faker.credentials().username()
-            it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
-            it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
-        }.value
-    }
+    fun insertUserCredentials(loginId: String? = null): UUID =
+        UserCredentialsTable
+            .insertAndGetId {
+                it[UserCredentialsTable.loginId] = loginId ?: faker.credentials().username()
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
+            }.value
 
-    fun findUserCredentialsById(id: UUID): UserCredentialsRecord? {
-        return UserCredentialsTable.selectAll()
+    fun findUserCredentialsById(id: UUID): UserCredentialsRecord? =
+        UserCredentialsTable
+            .selectAll()
             .where { UserCredentialsTable.id eq id }
             .singleOrNull()
             ?.toUserCredentialsRecord()
-    }
 
-    fun findUserCredentialsByLoginid(loginId: String): UserCredentialsRecord? {
-        return UserCredentialsTable.selectAll()
+    fun findUserCredentialsByLoginid(loginId: String): UserCredentialsRecord? =
+        UserCredentialsTable
+            .selectAll()
             .where { UserCredentialsTable.loginId eq loginId }
             .singleOrNull()
             ?.toUserCredentialsRecord()
-    }
 }

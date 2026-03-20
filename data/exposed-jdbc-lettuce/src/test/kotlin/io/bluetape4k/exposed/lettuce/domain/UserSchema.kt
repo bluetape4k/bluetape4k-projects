@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.lettuce.domain
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.atomicfu.atomic
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -94,7 +94,7 @@ object UserSchema {
 
     fun newUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(
-            id = TimebasedUuid.Epoch.nextId(),
+            id = Uuid.V7.nextId(),
             loginId = faker.internet().domainWord() + "_" + Base58.randomString(6),
             email = Base58.randomString(4) + "." + faker.internet().safeEmailAddress(),
             lastLoginAt = Instant.now().minusSeconds(3600)

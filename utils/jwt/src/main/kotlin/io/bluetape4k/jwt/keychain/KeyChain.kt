@@ -2,7 +2,7 @@ package io.bluetape4k.jwt.keychain
 
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.jwt.JwtConsts.DEFAULT_KEY_ROTATION_TTL_MILLIS
 import io.bluetape4k.jwt.JwtConsts.DefaultSignatureAlgorithm
 import io.bluetape4k.jwt.JwtConsts.RSA_ALGORITHM_IDS
@@ -31,8 +31,7 @@ class KeyChain private constructor(
     val id: String,
     val createdAt: Long,
     val expiredTtl: Long,
-): AbstractValueObject() {
-
+) : AbstractValueObject() {
     companion object {
         private const val TRANSFORMATION = "RSA"
 
@@ -54,11 +53,13 @@ class KeyChain private constructor(
         operator fun invoke(
             algorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
             keyPair: KeyPair = algorithm.keyPair().build(),
-            id: String = TimebasedUuid.Epoch.nextIdAsString(),
+            id: String = Uuid.V7.nextIdAsString(),
             createdAt: Long = System.currentTimeMillis(),
             expiredTtl: Duration = Duration.ofMillis(DEFAULT_KEY_ROTATION_TTL_MILLIS),
         ): KeyChain {
-            require(algorithm.id in RSA_ALGORITHM_IDS) { "Algorithm must be RSA signature algorithm. got=${algorithm.id}" }
+            require(
+                algorithm.id in RSA_ALGORITHM_IDS
+            ) { "Algorithm must be RSA signature algorithm. got=${algorithm.id}" }
             return KeyChain(algorithm, keyPair, id, createdAt, expiredTtl.toMillis())
         }
     }
@@ -75,18 +76,17 @@ class KeyChain private constructor(
 
     override fun hashCode(): Int = hashOf(id, algorithm, keyPair.private, keyPair.public)
 
-    override fun equalProperties(other: Any): Boolean {
-        return other is KeyChain &&
-                id == other.id &&
-                algorithm == other.algorithm &&
-                keyPair.private == other.keyPair.private &&
-                keyPair.public == other.keyPair.public
-    }
+    override fun equalProperties(other: Any): Boolean =
+        other is KeyChain &&
+            id == other.id &&
+            algorithm == other.algorithm &&
+            keyPair.private == other.keyPair.private &&
+            keyPair.public == other.keyPair.public
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super
+            .buildStringHelper()
             .add("id", id)
             .add("algorithm", algorithm.id)
             .add("createdAt", createdAt)
-    }
 }

@@ -2,7 +2,7 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -25,31 +25,34 @@ import kotlin.time.Duration.Companion.seconds
  * back cache 반영은 비동기이므로 awaitility로 폴링한다.
  */
 class ResilientNearJCacheTest {
-
-    companion object: KLogging() {
+    companion object : KLogging() {
         const val REPEAT_SIZE = 3
 
-        private fun randomKey(): String = TimebasedUuid.Epoch.nextIdAsString()
+        private fun randomKey(): String = Uuid.V7.nextIdAsString()
     }
 
-    private val backCache = JCaching.Caffeine.getOrCreate<String, String>(
-        name = "resilient-near-back-" + randomKey(),
-        configuration = jcacheConfiguration {
-            setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
-        }
-    )
+    private val backCache =
+        JCaching.Caffeine.getOrCreate<String, String>(
+            name = "resilient-near-back-" + randomKey(),
+            configuration =
+                jcacheConfiguration {
+                    setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
+                }
+        )
 
     private lateinit var cache: ResilientNearJCache<String, String>
 
     @BeforeEach
     fun createCache() {
-        cache = ResilientNearJCache(
-            backCache = backCache,
-            config = ResilientNearJCacheConfig(
-                retryMaxAttempts = 2,
-                retryWaitDuration = java.time.Duration.ofMillis(100),
-            ),
-        )
+        cache =
+            ResilientNearJCache(
+                backCache = backCache,
+                config =
+                    ResilientNearJCacheConfig(
+                        retryMaxAttempts = 2,
+                        retryWaitDuration = java.time.Duration.ofMillis(100)
+                    )
+            )
     }
 
     @AfterEach
@@ -204,7 +207,7 @@ class ResilientNearJCacheTest {
     fun `close - 중복 close 시 예외 없음`() {
         val c = ResilientNearJCache(backCache = backCache)
         c.close()
-        c.close()    // 중복 호출 시에도 예외 없음
+        c.close() // 중복 호출 시에도 예외 없음
         c.isClosed.shouldBeTrue()
     }
 }

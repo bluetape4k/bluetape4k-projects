@@ -1,12 +1,10 @@
 package io.bluetape4k.exposed.r2dbc.shared.entities
 
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 
-
 class BoardSchema {
-
     /**
      * ```sql
      * CREATE TABLE IF NOT EXISTS board (
@@ -16,7 +14,7 @@ class BoardSchema {
      * ALTER TABLE board ADD CONSTRAINT board_name_unique UNIQUE ("name");
      * ```
      */
-    object Boards: IntIdTable("board") {
+    object Boards : IntIdTable("board") {
         val name = varchar("name", 255).uniqueIndex()
     }
 
@@ -47,7 +45,7 @@ class BoardSchema {
      *          ON DELETE RESTRICT ON UPDATE RESTRICT;
      * ```
      */
-    object Posts: LongIdTable("posts") {
+    object Posts : LongIdTable("posts") {
         val boardId = optReference("board_id", Boards.id)
         val parentId = optReference("parent_id", this)
         val categoryId = optReference("category_uniqueId", Categories.uniqueId).uniqueIndex()
@@ -66,10 +64,11 @@ class BoardSchema {
      *      ADD CONSTRAINT categories_uniqueid_unique UNIQUE ("uniqueId");
      * ```
      */
-    object Categories: IntIdTable("categories") {
-        val uniqueId = varchar("uniqueId", 22)
-            .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
-            .uniqueIndex()
+    object Categories : IntIdTable("categories") {
+        val uniqueId =
+            varchar("uniqueId", 22)
+                .clientDefault { Uuid.V7.nextIdAsString() }
+                .uniqueIndex()
         val title = varchar("title", 50)
     }
 }

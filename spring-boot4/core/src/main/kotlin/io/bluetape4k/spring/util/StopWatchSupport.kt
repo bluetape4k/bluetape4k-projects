@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.util
 
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import org.springframework.util.StopWatch
 
 /**
@@ -23,7 +23,7 @@ import org.springframework.util.StopWatch
  * @return StopWatch 인스턴스
  */
 inline fun withStopWatch(
-    id: String = TimebasedUuid.Epoch.nextIdAsString(),
+    id: String = Uuid.V7.nextIdAsString(),
     body: () -> Unit,
 ): StopWatch =
     StopWatch(id).apply {
@@ -55,7 +55,7 @@ inline fun withStopWatch(
  * @return StopWatch 인스턴스
  */
 suspend inline fun withSuspendStopWatch(
-    id: String = TimebasedUuid.Epoch.nextIdAsString(),
+    id: String = Uuid.V7.nextIdAsString(),
     body: suspend () -> Unit,
 ): StopWatch =
     StopWatch(id).apply {
@@ -91,7 +91,7 @@ suspend inline fun withSuspendStopWatch(
  * @throws IllegalStateException StopWatch가 이미 실행 중인 경우 발생합니다.
  */
 inline fun <T> StopWatch.task(
-    taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
+    taskName: String = Uuid.V7.nextIdAsString(),
     body: () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }
@@ -127,7 +127,7 @@ inline fun <T> StopWatch.task(
  * @throws IllegalStateException StopWatch가 이미 실행 중인 경우 발생합니다.
  */
 suspend inline fun <T> StopWatch.suspendTask(
-    taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
+    taskName: String = Uuid.V7.nextIdAsString(),
     body: suspend () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }

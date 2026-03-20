@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.shared.dml.DMLTestData.Users.Flags
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -16,7 +16,6 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import java.math.BigDecimal
 
 object DMLTestData {
-
     /**
      * Postgres:
      * ```sql
@@ -26,7 +25,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Cities: Table() {
+    object Cities : Table() {
         val id = integer("city_id").autoIncrement()
         val name = varchar("name", 50)
 
@@ -47,7 +46,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Users: Table() {
+    object Users : Table() {
         val id = varchar("id", 10)
         val name = varchar("name", 50)
         val cityId = reference("city_id", Cities.id).nullable()
@@ -74,7 +73,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object UserData: Table() {
+    object UserData : Table() {
         val userId = reference("user_id", Users.id)
         val comment = varchar("comment", 30)
         val value = integer("value")
@@ -91,7 +90,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Sales: Table() {
+    object Sales : Table() {
         val year = integer("year")
         val month = integer("month")
         val product = varchar("product", 30).nullable()
@@ -107,14 +106,11 @@ object DMLTestData {
      * )
      * ```
      */
-    object SomeAmounts: Table() {
+    object SomeAmounts : Table() {
         val amount = decimal("amount", 8, 2)
     }
 
-
-    fun Iterable<ResultRow>.toCityNameList(): List<String> =
-        map { it[Cities.name] }
-
+    fun Iterable<ResultRow>.toCityNameList(): List<String> = map { it[Cities.name] }
 
     @Suppress("UnusedReceiverParameter")
     fun AbstractExposedTest.withCitiesAndUsers(
@@ -131,13 +127,15 @@ object DMLTestData {
         val userData = UserData
 
         withTables(testDB, cities, users, userData) {
-            val saintPetersburgId = cities.insert {
-                it[name] = "St. Petersburg"
-            } get Cities.id
+            val saintPetersburgId =
+                cities.insert {
+                    it[name] = "St. Petersburg"
+                } get Cities.id
 
-            val munichId = cities.insert {
-                it[name] = "Munich"
-            } get Cities.id
+            val munichId =
+                cities.insert {
+                    it[name] = "Munich"
+                } get Cities.id
 
             cities.insert {
                 it[name] = "Prague"
@@ -225,7 +223,12 @@ object DMLTestData {
         }
     }
 
-    private fun insertSale(year: Int, month: Int, product: String?, amount: String) {
+    private fun insertSale(
+        year: Int,
+        month: Int,
+        product: String?,
+        amount: String,
+    ) {
         val sales = Sales
         sales.insert {
             it[Sales.year] = year
@@ -249,7 +252,6 @@ object DMLTestData {
         }
 
         withTables(dialect, someAmounts) {
-
             insertAmount("650.70".toBigDecimal())
             insertAmount("1500.25".toBigDecimal())
             insertAmount("1000.00".toBigDecimal())
@@ -303,11 +305,12 @@ object DMLTestData {
      * ALTER TABLE orgs ADD CONSTRAINT orgs_uid_unique UNIQUE (uid)
      * ```
      */
-    object Orgs: IntIdTable() {
-        val uid = varchar("uid", 36)
-            .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
-            .uniqueIndex()
-            
+    object Orgs : IntIdTable() {
+        val uid =
+            varchar("uid", 36)
+                .clientDefault { Uuid.V7.nextIdAsString() }
+                .uniqueIndex()
+
         val name = varchar("name", 255)
     }
 
@@ -323,19 +326,23 @@ object DMLTestData {
      * )
      * ```
      */
-    object OrgMemberships: IntIdTable() {
+    object OrgMemberships : IntIdTable() {
         val orgId = reference("org", Orgs.uid)
     }
 
-    class Org(id: EntityID<Int>): IntEntity(id) {
-        companion object: IntEntityClass<Org>(Orgs)
+    class Org(
+        id: EntityID<Int>,
+    ) : IntEntity(id) {
+        companion object : IntEntityClass<Org>(Orgs)
 
         var uid by Orgs.uid
         var name by Orgs.name
     }
 
-    class OrgMembership(id: EntityID<Int>): IntEntity(id) {
-        companion object: IntEntityClass<OrgMembership>(OrgMemberships)
+    class OrgMembership(
+        id: EntityID<Int>,
+    ) : IntEntity(id) {
+        companion object : IntEntityClass<OrgMembership>(OrgMemberships)
 
         var orgId by OrgMemberships.orgId
         var org by Org referencedOn OrgMemberships.orgId
