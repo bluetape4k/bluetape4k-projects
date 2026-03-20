@@ -22,25 +22,7 @@ import org.springframework.data.relational.core.query.Update
  * @param query 갱신 조건
  * @param update 반영할 컬럼 변경 값
  */
-suspend inline fun <reified T: Any> ReactiveUpdateOperation.updateSuspending(query: Query, update: Update): Long =
-    update<T>().matching(query).apply(update).awaitSingle()
-
-/**
- * [updateSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [updateSuspending]으로 위임됩니다.
- * - 반환값은 반영된 행 수입니다.
- *
- * ```kotlin
- * val query = Query.empty()
- * val updated = operations.suspendUpdate<Post>(query, Update.update("title", "Updated"))
- * // updated == 1L
- * ```
- */
-@Deprecated(
-    message = "updateSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("updateSuspending<T>(query, update)"),
-)
-suspend inline fun <reified T: Any> ReactiveUpdateOperation.suspendUpdate(query: Query, update: Update): Long =
-    updateSuspending<T>(query, update)
+suspend inline fun <reified T : Any> ReactiveUpdateOperation.updateSuspending(
+    query: Query,
+    update: Update,
+): Long = update<T>().matching(query).apply(update).awaitSingle()

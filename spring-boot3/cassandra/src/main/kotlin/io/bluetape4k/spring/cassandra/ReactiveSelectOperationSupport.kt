@@ -17,9 +17,7 @@ import org.springframework.data.cassandra.core.ReactiveSelectOperation.SelectWit
  * // result == projected
  * ```
  */
-inline fun <reified R: Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> =
-    `as`(R::class.java)
-
+inline fun <reified R : Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> = `as`(R::class.java)
 
 /**
  * 조회 결과 건수를 코루틴에서 반환합니다.
@@ -33,15 +31,7 @@ inline fun <reified R: Any> SelectWithProjection<*>.cast(): SelectWithQuery<R> =
  * // result == 0L
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspending(): Long =
-    count().awaitSingle()
-
-@Deprecated(
-    message = "countSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("countSuspending()")
-)
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendCount(): Long =
-    countSuspending()
+suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.countSuspending(): Long = count().awaitSingle()
 
 /**
  * 조회 결과 존재 여부를 코루틴에서 반환합니다.
@@ -55,15 +45,7 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendCount()
  * // result == true
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspending(): Boolean =
-    exists().awaitSingle()
-
-@Deprecated(
-    message = "existsSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("existsSuspending()")
-)
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendExists(): Boolean =
-    existsSuspending()
+suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspending(): Boolean = exists().awaitSingle()
 
 /**
  * 첫 번째 결과를 코루틴에서 단건으로 반환합니다.
@@ -77,8 +59,7 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendExists(
  * // result == user.id
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.first(): T =
-    first().awaitSingle()
+suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.first(): T = first().awaitSingle()
 
 /**
  * 단건 조회 결과를 반환하고 없으면 `null`을 반환합니다.
@@ -92,15 +73,7 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.first(): T =
  * // result == loaded
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? =
-    one().awaitSingle()
-
-@Deprecated(
-    message = "oneSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("oneSuspending()")
-)
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendOne(): T? =
-    oneSuspending()
+suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? = one().awaitSingle()
 
 /**
  * 전체 조회 결과를 리스트로 수집해 반환합니다.
@@ -114,12 +87,5 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendOne(): 
  * // result == users.size
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.allSuspending(): List<T> =
+suspend fun <T : Any> ReactiveSelectOperation.TerminatingSelect<T>.allSuspending(): List<T> =
     all().collectList().awaitSingle()
-
-@Deprecated(
-    message = "allSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("allSuspending()")
-)
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.suspendAll(): List<T> =
-    allSuspending()

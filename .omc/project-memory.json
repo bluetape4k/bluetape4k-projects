@@ -312,6 +312,72 @@
       "type": "file"
     },
     {
+      "path": "spring-boot3/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989690797,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveSelectOperationExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989713114,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveInsertOperationExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989719943,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveUpdateOperationExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989736598,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/r2dbc/src/main/kotlin/io/bluetape4k/spring/r2dbc/coroutines/ReactiveDeleteOperationExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989743061,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/AsyncCqlOperationsCoroutines.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989756847,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/cql/ReactiveCqlOperationsSupport.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989809971,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveCassandraOperationsCoroutines.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989837271,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSelectOperationSupport.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989851054,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/AsyncCassandraOperationsCoroutines.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989885925,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt",
+      "accessCount": 2,
+      "lastAccessed": 1773989901302,
+      "type": "file"
+    },
+    {
       "path": "io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/Jackson.kt",
       "accessCount": 1,
       "lastAccessed": 1773987050914,

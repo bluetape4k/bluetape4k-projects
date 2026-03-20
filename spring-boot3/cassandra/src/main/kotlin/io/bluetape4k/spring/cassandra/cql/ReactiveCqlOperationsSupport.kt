@@ -35,15 +35,8 @@ import org.springframework.data.cassandra.core.cql.queryForObject
  * @param action [ReactiveSession]을 받아 [Flow]를 반환하는 함수
  * @return [Flow] 형식의 결과
  */
-fun <T: Any> ReactiveCqlOperations.executeSuspending(action: (ReactiveSession) -> Flow<T>): Flow<T> =
+fun <T : Any> ReactiveCqlOperations.executeSuspending(action: (ReactiveSession) -> Flow<T>): Flow<T> =
     execute(ReactiveSessionCallback { session -> action(session).asPublisher() }).asFlow()
-
-@Deprecated(
-    message = "executeSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("executeSuspending(action)")
-)
-fun <T: Any> ReactiveCqlOperations.suspendExecute(action: (ReactiveSession) -> Flow<T>): Flow<T> =
-    executeSuspending(action)
 
 /**
  * CQL 문자열을 실행하고 적용 여부를 코루틴으로 반환합니다.
@@ -57,15 +50,7 @@ fun <T: Any> ReactiveCqlOperations.suspendExecute(action: (ReactiveSession) -> F
  * // result == applied
  * ```
  */
-suspend fun ReactiveCqlOperations.executeSuspending(cql: String): Boolean? =
-    execute(cql).awaitSingleOrNull()
-
-@Deprecated(
-    message = "executeSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("executeSuspending(cql)")
-)
-suspend fun ReactiveCqlOperations.suspendExecute(cql: String): Boolean? =
-    executeSuspending(cql)
+suspend fun ReactiveCqlOperations.executeSuspending(cql: String): Boolean? = execute(cql).awaitSingleOrNull()
 
 /**
  * [ReactivePreparedStatementCreator]를 실행하고 적용 여부를 코루틴으로 반환합니다.
@@ -94,15 +79,10 @@ suspend fun ReactiveCqlOperations.coExecute(psc: ReactivePreparedStatementCreato
  * // result == result
  * ```
  */
-fun ReactiveCqlOperations.executeSuspending(cql: String, args: () -> Flow<Array<Any?>>): Flow<Boolean?> =
-    execute(cql, args().asPublisher()).asFlow()
-
-@Deprecated(
-    message = "executeSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("executeSuspending(cql, args)")
-)
-fun ReactiveCqlOperations.suspendExecute(cql: String, args: () -> Flow<Array<Any?>>): Flow<Boolean?> =
-    executeSuspending(cql, args)
+fun ReactiveCqlOperations.executeSuspending(
+    cql: String,
+    args: () -> Flow<Array<Any?>>,
+): Flow<Boolean?> = execute(cql, args().asPublisher()).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 단건으로 매핑해 반환하고 없으면 `null`을 반환합니다.
@@ -119,13 +99,11 @@ fun ReactiveCqlOperations.suspendExecute(cql: String, args: () -> Flow<Array<Any
  * // result == firstName
  * ```
  */
-suspend fun <T: Any> ReactiveCqlOperations.queryForObjectSuspending(
+suspend fun <T : Any> ReactiveCqlOperations.queryForObjectSuspending(
     cql: String,
     vararg args: Any?,
     rowMapper: (Row, Int) -> T?,
-): T? {
-    return queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
-}
+): T? = queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
 
 /**
  * CQL 문자열 실행 결과를 타입 기반 단건 매핑으로 반환하고 없으면 `null`을 반환합니다.
@@ -139,7 +117,7 @@ suspend fun <T: Any> ReactiveCqlOperations.queryForObjectSuspending(
  * // result == user
  * ```
  */
-suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspending(
+suspend inline fun <reified T : Any> ReactiveCqlOperations.queryForObjectSuspending(
     cql: String,
     vararg args: Any,
 ): T? = queryForObject<T>(cql, *args).awaitSingleOrNull()
@@ -156,32 +134,8 @@ suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspendi
  * // result == user
  * ```
  */
-suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspending(statement: Statement<*>): T? =
+suspend inline fun <reified T : Any> ReactiveCqlOperations.queryForObjectSuspending(statement: Statement<*>): T? =
     queryForObject<T>(statement).awaitSingleOrNull()
-
-@Deprecated(
-    message = "queryForObjectSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForObjectSuspending(cql, *args, rowMapper)")
-)
-suspend fun <T: Any> ReactiveCqlOperations.suspendQueryForObject(
-    cql: String,
-    vararg args: Any?,
-    rowMapper: (Row, Int) -> T?,
-): T? = queryForObjectSuspending(cql, *args, rowMapper = rowMapper)
-
-@Deprecated(
-    message = "queryForObjectSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForObjectSuspending(cql, *args)")
-)
-suspend inline fun <reified T: Any> ReactiveCqlOperations.suspendQueryForObject(cql: String, vararg args: Any): T? =
-    queryForObjectSuspending(cql, *args)
-
-@Deprecated(
-    message = "queryForObjectSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForObjectSuspending(statement)")
-)
-suspend inline fun <reified T: Any> ReactiveCqlOperations.suspendQueryForObject(statement: Statement<*>): T? =
-    queryForObjectSuspending(statement)
 
 /**
  * CQL 문자열 실행 결과를 단일 행 맵으로 반환합니다.
@@ -195,15 +149,10 @@ suspend inline fun <reified T: Any> ReactiveCqlOperations.suspendQueryForObject(
  * // result == row["id"]
  * ```
  */
-suspend fun ReactiveCqlOperations.queryForMapSuspending(cql: String, vararg args: Any): Map<String, Any?> =
-    queryForMap(cql, args).awaitSingle()
-
-@Deprecated(
-    message = "queryForMapSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForMapSuspending(cql, *args)")
-)
-suspend fun ReactiveCqlOperations.suspendQueryForMap(cql: String, vararg args: Any): Map<String, Any?> =
-    queryForMapSuspending(cql, *args)
+suspend fun ReactiveCqlOperations.queryForMapSuspending(
+    cql: String,
+    vararg args: Any,
+): Map<String, Any?> = queryForMap(cql, args).awaitSingle()
 
 /**
  * CQL 문자열 실행 결과를 지정 타입 [Flow]로 반환합니다.
@@ -217,8 +166,10 @@ suspend fun ReactiveCqlOperations.suspendQueryForMap(cql: String, vararg args: A
  * // result == users
  * ```
  */
-inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(cql: String, vararg args: Any): Flow<T> =
-    queryForFlux<T>(cql, *args).asFlow()
+inline fun <reified T : Any> ReactiveCqlOperations.queryForFlow(
+    cql: String,
+    vararg args: Any,
+): Flow<T> = queryForFlux<T>(cql, *args).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 `Map<String, Any?>` [Flow]로 반환합니다.
@@ -232,8 +183,10 @@ inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(cql: String, vara
  * // result == rows
  * ```
  */
-fun ReactiveCqlOperations.queryForMapFlow(cql: String, vararg args: Any): Flow<Map<String, Any?>> =
-    queryForFlux(cql, *args).asFlow()
+fun ReactiveCqlOperations.queryForMapFlow(
+    cql: String,
+    vararg args: Any,
+): Flow<Map<String, Any?>> = queryForFlux(cql, *args).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 [ReactiveResultSet]으로 반환합니다.
@@ -247,53 +200,37 @@ fun ReactiveCqlOperations.queryForMapFlow(cql: String, vararg args: Any): Flow<M
  * // result == rs.availableRows()
  * ```
  */
-suspend fun ReactiveCqlOperations.queryForResultSetSuspending(cql: String, vararg args: Any): ReactiveResultSet =
-    queryForResultSet(cql, *args).awaitSingle()
+suspend fun ReactiveCqlOperations.queryForResultSetSuspending(
+    cql: String,
+    vararg args: Any,
+): ReactiveResultSet = queryForResultSet(cql, *args).awaitSingle()
 
-@Deprecated(
-    message = "queryForResultSetSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForResultSetSuspending(cql, *args)")
-)
-suspend fun ReactiveCqlOperations.suspendQueryForResultSet(cql: String, vararg args: Any): ReactiveResultSet =
-    queryForResultSetSuspending(cql, *args)
+fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> = queryForRows(statement).asFlow()
 
-fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> =
-    queryForRows(statement).asFlow()
-
-fun ReactiveCqlOperations.queryForRowsFlow(cql: String, vararg args: Any): Flow<Row> =
-    queryForRows(cql, *args).asFlow()
-
+fun ReactiveCqlOperations.queryForRowsFlow(
+    cql: String,
+    vararg args: Any,
+): Flow<Row> = queryForRows(cql, *args).asFlow()
 
 fun ReactiveCqlOperations.executeForFlow(statementFlow: Flow<String>): Flow<Boolean> =
     execute(statementFlow.asPublisher()).asFlow()
 
-suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Boolean =
-    execute(statement).awaitSingle()
+suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Boolean = execute(statement).awaitSingle()
 
-@Deprecated(
-    message = "executeSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("executeSuspending(statement)")
-)
-suspend fun ReactiveCqlOperations.suspendExecute(statement: Statement<*>): Boolean =
-    executeSuspending(statement)
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
+    statement: Statement<*>,
+    rse: (ReactiveResultSet) -> Flow<T>,
+): Flow<T> = query(statement) { rs -> rse(rs).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>, rse: (ReactiveResultSet) -> Flow<T>): Flow<T> =
-    query(statement) { rs -> rse(rs).asPublisher() }.asFlow()
-
-fun <T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>, rowMapper: (Row, Int) -> T): Flow<T> =
-    query(statement) { row, rowNum -> rowMapper(row, rowNum) }.asFlow()
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
+    statement: Statement<*>,
+    rowMapper: (Row, Int) -> T,
+): Flow<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.asFlow()
 
 suspend fun ReactiveCqlOperations.queryForMapSuspending(statement: Statement<*>): Map<String, Any?> =
     queryForMap(statement).awaitSingle()
 
-@Deprecated(
-    message = "queryForMapSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForMapSuspending(statement)")
-)
-suspend fun ReactiveCqlOperations.suspendQueryForMap(statement: Statement<*>): Map<String, Any?> =
-    queryForMapSuspending(statement)
-
-inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>): Flow<T> =
+inline fun <reified T : Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>): Flow<T> =
     queryForFlux<T>(statement).asFlow()
 
 fun ReactiveCqlOperations.queryForMapFlow(statement: Statement<*>): Flow<Map<String, Any?>> =
@@ -302,69 +239,52 @@ fun ReactiveCqlOperations.queryForMapFlow(statement: Statement<*>): Flow<Map<Str
 suspend fun ReactiveCqlOperations.queryForResultSetSuspending(statement: Statement<*>): ReactiveResultSet =
     queryForResultSet(statement).awaitSingle()
 
-@Deprecated(
-    message = "queryForResultSetSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("queryForResultSetSuspending(statement)")
-)
-suspend fun ReactiveCqlOperations.suspendQueryForResultSet(statement: Statement<*>): ReactiveResultSet =
-    queryForResultSetSuspending(statement)
-
-fun <T: Any> ReactiveCqlOperations.executeForFlow(
+fun <T : Any> ReactiveCqlOperations.executeForFlow(
     psc: ReactivePreparedStatementCreator,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
-): Flow<T> =
-    execute(psc) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
+): Flow<T> = execute(psc) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.executeForFlow(
+fun <T : Any> ReactiveCqlOperations.executeForFlow(
     cql: String,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
-): Flow<T> =
-    execute(cql) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
+): Flow<T> = execute(cql) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any?,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> =
-    query(cql, { rs -> rse(rs).asPublisher() }, *args).asFlow()
+): Flow<T> = query(cql, { rs -> rse(rs).asPublisher() }, *args).asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any,
     rowMapper: (Row, Int) -> T,
-): Flow<T> =
-    query(cql, rowMapper, *args).asFlow()
+): Flow<T> = query(cql, rowMapper, *args).asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> =
-    query(psc) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> = query(psc) { rs -> rse(rs).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> =
-    query(cql, psb) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> = query(cql, psb) { rs -> rse(rs).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> =
-    query(psc, psb) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> = query(psc, psb) { rs -> rse(rs).asPublisher() }.asFlow()
 
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     rowMapper: (row: Row, rowNum: Int) -> T,
-): Flow<T> =
-    query(psc, rowMapper).asFlow()
+): Flow<T> = query(psc, rowMapper).asFlow()
 
-
-fun <T: Any> ReactiveCqlOperations.queryForFlow(
+fun <T : Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     psb: PreparedStatementBinder? = null,
     rowMapper: (row: Row, rowNum: Int) -> T,
-): Flow<T> =
-    query(psc, psb, rowMapper).asFlow()
+): Flow<T> = query(psc, psb, rowMapper).asFlow()

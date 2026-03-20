@@ -20,27 +20,8 @@ import org.springframework.data.r2dbc.core.insert
  *
  * @param entity 저장할 엔티티
  */
-suspend inline fun <reified T: Any> ReactiveInsertOperation.insertSuspending(entity: T): T =
+suspend inline fun <reified T : Any> ReactiveInsertOperation.insertSuspending(entity: T): T =
     insert<T>().using(entity).awaitSingle()
-
-/**
- * [insertSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [insertSuspending]으로 위임됩니다.
- * - 저장 성공 시 저장된 엔티티를 반환합니다.
- *
- * ```kotlin
- * val saved = operations.suspendInsert(createPost())
- * // saved.id != null
- * ```
- */
-@Deprecated(
-    message = "insertSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("insertSuspending(entity)"),
-)
-suspend inline fun <reified T: Any> ReactiveInsertOperation.suspendInsert(entity: T): T =
-    insertSuspending(entity)
 
 /**
  * 엔티티를 저장하고 결과가 비어 있으면 `null`을 반환합니다.
@@ -56,24 +37,5 @@ suspend inline fun <reified T: Any> ReactiveInsertOperation.suspendInsert(entity
  *
  * @param entity 저장할 엔티티
  */
-suspend inline fun <reified T: Any> ReactiveInsertOperation.insertOrNullSuspending(entity: T): T? =
+suspend inline fun <reified T : Any> ReactiveInsertOperation.insertOrNullSuspending(entity: T): T? =
     insert<T>().using(entity).awaitSingleOrNull()
-
-/**
- * [insertOrNullSuspending]의 이전 이름을 제공합니다.
- *
- * ## 동작/계약
- * - 구현은 [insertOrNullSuspending]으로 위임됩니다.
- * - 결과가 비어 있으면 `null`을 반환합니다.
- *
- * ```kotlin
- * val saved = operations.suspendInsertOrNull(createPost())
- * // saved?.id != null
- * ```
- */
-@Deprecated(
-    message = "insertOrNullSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("insertOrNullSuspending(entity)"),
-)
-suspend inline fun <reified T: Any> ReactiveInsertOperation.suspendInsertOrNull(entity: T): T? =
-    insertOrNullSuspending(entity)
