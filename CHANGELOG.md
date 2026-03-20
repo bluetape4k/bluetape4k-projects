@@ -4,9 +4,52 @@
 
 ---
 
-## [1.5.0-SNAPSHOT] - Unreleased
+## [1.5.0-Beta2] - 2026-03-21
 
 ### Added
+
+#### utils/idgenerators — ULID 통합
+
+- **`bluetape4k-ulid` 실험 모듈 → `bluetape4k-idgenerators`에 통합** ([`a40a3392`](https://github.com/bluetape4k/bluetape4k-projects/commit/a40a3392))
+  - `ULID` interface + `ULIDFactory` / `ULIDMonotonic` / `ULIDStatefulMonotonic` 구현체 마이그레이션 (`io.bluetape4k.ulid` → `io.bluetape4k.idgenerators.ulid`)
+  - `UlidGenerator`: `ULID.StatefulMonotonic` 기반 `IdGenerator<String>` 어댑터 추가
+  - `JavaUUIDSupport` / `KotlinUuidSupport` 확장 함수 포함
+  - 동시성 테스트 추가: `MultithreadingTester`, `StructuredTaskScopeTester`, `SuspendedJobTester`
+
+#### utils/idgenerators — Ksuid/Snowflake 어댑터
+
+- **`KsuidGenerator`**: `Ksuid.Generator` 전략을 주입받는 `IdGenerator<String>` 어댑터 추가 ([`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
+- **`SnowflakeGenerator`**: `Snowflake` 구현체를 주입받는 `IdGenerator<Long>` 어댑터 추가 ([`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
+- **`Snowflakers.default(machineId)`** / **`Snowflakers.global()`** 팩토리 함수 추가 ([`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
+
+### Changed
+
+#### utils/idgenerators — ID 생성기 API 통일 (Uuid 패턴)
+
+UUID, KSUID를 `object Uuid { interface Generator; object V1..V7 }` 패턴으로 통일 ([`945b7444`](https://github.com/bluetape4k/bluetape4k-projects/commit/945b7444), [`694a8340`](https://github.com/bluetape4k/bluetape4k-projects/commit/694a8340))
+
+- **`object Uuid`**: `Uuid.Generator` interface + `Uuid.V1`/`V4`/`V5`/`V6`/`V7` nested objects
+  - `Uuid.random(random)` — 커스텀 Random V4 생성기
+  - `Uuid.epochRandom(random)` — 커스텀 Random V7 생성기
+  - `Uuid.namebased(name)` — 결정론적 V5 생성기
+  - 인코딩 `Url62.encode()` 로 통일 (`nextBase62()`, `nextBase62s(size)`)
+- **`object Ksuid`**: `Ksuid.Generator` interface + `Ksuid.Seconds`(초 기반) / `Ksuid.Millis`(밀리초 기반) nested objects
+- **`UuidGenerator(generator: Uuid.Generator = Uuid.V7)`**: `IdGenerator<UUID>` 어댑터
+- 기존 `TimebasedUuidGenerator`, `RandomUuidGenerator`, `NamebasedUuidGenerator` → `@Deprecated(WARNING)` + `ReplaceWith` 유지
+- 기존 `KsuidMillis` → `@Deprecated(WARNING)` + `Ksuid.Millis` 위임으로 하위 호환 유지
+
+#### 마이그레이션 — deprecated 사용처 신규 API로 교체
+
+`TimebasedUuid.Epoch` → `Uuid.V7`, `KsuidMillis` → `Ksuid.Millis` 교체 완료 ([`7163e35e`](https://github.com/bluetape4k/bluetape4k-projects/commit/7163e35e), [`4d9b712c`](https://github.com/bluetape4k/bluetape4k-projects/commit/4d9b712c))
+
+- `spring-boot3/4/StopWatchSupport`, `utils/jwt/KeyChain`, `examples/coroutines-demo`
+- `aws/aws/DynamoDbEntity` (`TimebasedUuidGenerator` → `Uuid.V7.nextBase62()`)
+- `data/exposed-core/ColumnExtensions`, `data/hibernate`, `data/exposed-jdbc/r2dbc` 테스트 인프라
+- `infra/cache-core` 테스트
+
+---
+
+### Added (Beta1)
 
 #### spring-boot4 — Spring Boot 4.x 전용 모듈 신규 추가
 
