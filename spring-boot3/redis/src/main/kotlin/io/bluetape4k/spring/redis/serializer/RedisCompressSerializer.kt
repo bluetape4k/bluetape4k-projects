@@ -1,4 +1,4 @@
-package io.bluetape4k.redis.spring.serializer
+package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors

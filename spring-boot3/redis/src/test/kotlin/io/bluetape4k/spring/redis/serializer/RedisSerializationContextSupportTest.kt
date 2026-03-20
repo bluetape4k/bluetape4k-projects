@@ -1,4 +1,4 @@
-package io.bluetape4k.redis.spring.serializer
+package io.bluetape4k.spring.redis.serializer
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
