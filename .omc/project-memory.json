@@ -229,14 +229,20 @@
   "hotPaths": [
     {
       "path": "CLAUDE.md",
-      "accessCount": 4,
-      "lastAccessed": 1773988236401,
+      "accessCount": 5,
+      "lastAccessed": 1773992293179,
       "type": "file"
     },
     {
       "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt",
       "accessCount": 4,
       "lastAccessed": 1773989088651,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 3,
+      "lastAccessed": 1773992259226,
       "type": "file"
     },
     {
@@ -375,6 +381,24 @@
       "path": "spring-boot3/cassandra/src/main/kotlin/io/bluetape4k/spring/cassandra/ReactiveSessionCoroutines.kt",
       "accessCount": 2,
       "lastAccessed": 1773989901302,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/r2dbc/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1773990147823,
+      "type": "file"
+    },
+    {
+      "path": "gradle.properties",
+      "accessCount": 2,
+      "lastAccessed": 1773990345147,
+      "type": "file"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "accessCount": 2,
+      "lastAccessed": 1773992283484,
       "type": "file"
     },
     {
