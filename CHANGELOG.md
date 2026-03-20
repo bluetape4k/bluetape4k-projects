@@ -8,6 +8,33 @@
 
 ### Added
 
+#### spring-boot4 — Spring Boot 4.x 전용 모듈 신규 추가
+
+- **`bluetape4k-spring-boot4-core`**: WebFlux/RestClient Coroutines DSL (`suspendGet`, `suspendPost`, `suspendPut`, `suspendPatch`, `suspendDelete`), Jackson 2 ObjectMapper 커스터마이저, Retrofit2 통합, WebClient/WebTestClient 확장
+- **`bluetape4k-spring-boot4-data-redis`**: Spring Data Redis 고성능 직렬화 (`RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL)
+- **`bluetape4k-spring-boot4-r2dbc`**: Spring Data R2DBC 코루틴 확장 (`XyzSuspending` 패턴)
+- **`bluetape4k-spring-boot4-mongodb`**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
+- **`bluetape4k-spring-boot4-cassandra`**: Spring Data Cassandra 코루틴 확장
+- **`bluetape4k-spring-boot4-cassandra-demo`**: Cassandra + Spring Data Cassandra 종합 예제
+
+> Spring Boot 4 BOM은 `implementation(platform(...))` 방식으로 적용 (`dependencyManagement { imports }` 방식은 KGP 2.3.x와 충돌)
+
+### Changed
+
+#### spring-boot3, spring-boot4 — Deprecated 함수 제거
+
+- `spring-boot3/r2dbc`, `spring-boot4/r2dbc`: `suspend*` 접두사 deprecated 래퍼 함수 제거 (총 18개)
+  - 제거: `suspendFindOneById`, `suspendSelectOne`, `suspendInsert`, `suspendUpdate`, `suspendDelete`, `suspendCount`, `suspendExists` 등
+- `spring-boot3/cassandra`, `spring-boot4/cassandra`: `suspend*`/`co*` 접두사 deprecated 래퍼 함수 제거 (총 130개 이상)
+  - 제거: `suspendQuery`, `coQuery`, `suspendExecute`, `suspendSelectOne`, `suspendInsert`, `suspendUpdate`, `suspendDelete` 등
+  - 사용처 모두 `XyzSuspending` 형식으로 교체 완료
+
+### Fixed
+
+- `gradle.properties`에서 deprecated `kotlin.incremental.useClasspathSnapshot=false` 속성 제거 (KGP 2.3.x에서 불필요)
+
+
+
 #### infra/cache-core — JCache 기반 NearCache
 
 - **`NearJCache<K, V>`**: Caffeine front + JCache back 2-Tier 동기 NearCache (`JCache<K,V>` 위임) ([
