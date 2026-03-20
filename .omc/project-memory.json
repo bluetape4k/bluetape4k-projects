@@ -258,15 +258,21 @@
       "type": "file"
     },
     {
-      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt",
-      "accessCount": 4,
-      "lastAccessed": 1773989088651,
+      "path": "CHANGELOG.md",
+      "accessCount": 5,
+      "lastAccessed": 1774021024725,
       "type": "file"
     },
     {
       "path": "README.md",
-      "accessCount": 3,
-      "lastAccessed": 1773992259226,
+      "accessCount": 5,
+      "lastAccessed": 1774021196885,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/r2dbc/src/main/kotlin/io/bluetape4k/spring4/r2dbc/coroutines/R2dbcEntityOperationExtensions.kt",
+      "accessCount": 4,
+      "lastAccessed": 1773989088651,
       "type": "file"
     },
     {
@@ -417,12 +423,6 @@
       "path": "spring-boot3/r2dbc/README.md",
       "accessCount": 2,
       "lastAccessed": 1773990147823,
-      "type": "file"
-    },
-    {
-      "path": "CHANGELOG.md",
-      "accessCount": 2,
-      "lastAccessed": 1773992283484,
       "type": "file"
     },
     {

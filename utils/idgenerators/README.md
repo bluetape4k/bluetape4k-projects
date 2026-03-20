@@ -2,7 +2,7 @@
 
 ## 개요
 
-분산 환경에서 Unique한 ID 값을 다양한 방식으로 생성하는 라이브러리입니다. Twitter Snowflake, UUID, KSUID, ULID, Flake, Hashids 등 다양한 ID 생성 알고리즘을 제공합니다.
+분산 환경에서 Unique한 ID 값을 다양한 방식으로 생성하는 라이브러리입니다. UUID(V1~V7), ULID, KSUID, Snowflake, Flake, Hashids 등 다양한 ID 생성 알고리즘을 통일된 API(`Uuid`, `ULID`, `Ksuid`, `Snowflakers`)로 제공합니다.
 
 ## 의존성 추가
 
@@ -314,6 +314,7 @@ val decoded = encoded.toBase62Uuid()  // 원본 UUID
 | `ulid/UlidGenerator.kt`          | ULID 어댑터 클래스         |
 | `ksuid/Ksuid.kt`                 | KSUID 통합 생성기 (Seconds/Millis)   |
 | `ksuid/KsuidGenerator.kt`        | KSUID 어댑터 클래스                  |
+| `ksuid/KsuidMillis.kt`           | (deprecated) 밀리초 KSUID — `Ksuid.Millis` 사용 권장 |
 | `flake/Flake.kt`                 | Flake ID 생성기          |
 | `hashids/Hashids.kt`             | Hashids 알고리즘          |
 | `hashids/HashidsSupport.kt`      | Hashids 확장 함수         |
