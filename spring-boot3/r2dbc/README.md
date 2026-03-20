@@ -226,28 +226,6 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 코루틴 함수는 `XyzSuspending` 형식으로 제공됩니다.
 
-#### Deprecated → 신규 함수
-
-| Deprecated (제거 예정)   | 신규 함수                   |
-|----------------------|-------------------------|
-| `suspendFindOneById` | `findOneByIdSuspending` |
-| `suspendSelectOne`   | `selectOneSuspending`   |
-| `suspendInsert`      | `insertSuspending`      |
-| `suspendUpdate`      | `updateSuspending`      |
-| `suspendDelete`      | `deleteSuspending`      |
-| `suspendCount`       | `countSuspending`       |
-| `suspendExists`      | `existsSuspending`      |
-
-#### 예시
-
-```kotlin
-// 이전 방식 (Deprecated)
-val post = operations.suspendFindOneById<Post>(1L)
-
-// 새로운 방식 (권장)
-val post = operations.findOneByIdSuspending<Post>(1L)
-```
-
 ---
 
 ### 7. 전체 예시
