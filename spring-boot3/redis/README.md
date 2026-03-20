@@ -1,4 +1,4 @@
-# bluetape4k-spring-data-redis
+# bluetape4k-spring-boot3-redis
 
 Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축 조합으로 대체할 수 있는 모듈입니다.
 `RedisTemplate` / `ReactiveRedisTemplate` 설정 시 Serializer와 `RedisSerializationContext`를 간편하게 구성할 수 있습니다.
@@ -18,7 +18,7 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-spring-data-redis:$bluetape4kVersion")
+    implementation("io.github.bluetape4k:bluetape4k-spring-boot3-redis:$bluetape4kVersion")
 }
 ```
 
@@ -112,5 +112,5 @@ val context = redisSerializationContext<String, ByteArray> {
 ## 빌드 및 테스트
 
 ```bash
-./gradlew :bluetape4k-spring-data-redis:test
+./gradlew :bluetape4k-spring-boot3-redis:test
 ```

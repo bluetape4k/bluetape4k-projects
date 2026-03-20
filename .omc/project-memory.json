@@ -229,8 +229,20 @@
   "hotPaths": [
     {
       "path": "CLAUDE.md",
+      "accessCount": 8,
+      "lastAccessed": 1773997458775,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/redis/README.md",
       "accessCount": 5,
-      "lastAccessed": 1773992293179,
+      "lastAccessed": 1773997415367,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/redis/README.md",
+      "accessCount": 5,
+      "lastAccessed": 1773997431118,
       "type": "file"
     },
     {
@@ -471,6 +483,36 @@
       "path": "spring-boot4/cassandra-demo/README.md",
       "accessCount": 1,
       "lastAccessed": 1773988750490,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/core/src/test/kotlin/io/bluetape4k/spring/core/io/buffer/DataBufferSupportTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773997319389,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/redis/src/test/kotlin/io/bluetape4k/redis/spring/serializer/RedisBinarySerializersTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773997332277,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/redis/src/main/kotlin/io/bluetape4k/redis/spring/serializer/RedisBinarySerializer.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773997337803,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot3/redis/src/main/kotlin/io/bluetape4k/redis/spring/serializer/RedisBinarySerializer.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773997343157,
+      "type": "file"
+    },
+    {
+      "path": "spring-boot4/core/src/main/kotlin/io/bluetape4k/spring/ui/ModelMapExtensions.kt",
+      "accessCount": 1,
+      "lastAccessed": 1773997362305,
       "type": "file"
     }
   ],

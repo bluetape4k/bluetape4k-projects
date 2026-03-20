@@ -250,12 +250,13 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **spring/jpa** → `data/hibernate`로 이동: JPA 관련 Spring 통합은 `bluetape4k-hibernate` 모듈에 위치
 - **cassandra**: Spring Data Cassandra
 - **mongodb**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장 (`findAsFlow`, `insertSuspending` 등), Criteria/Query/Update infix DSL
-- **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
+- **redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
 
 #### Spring Boot 4 Modules (`spring-boot4/`)
 
-Spring Boot 4.x 전용 모듈. Spring Boot 3과 독립적으로 사용 가능하며 동일한 기능을 Spring Boot 4 API 기반으로 제공합니다.
+Spring Boot 4.x 전용 모듈. Spring Boot 3과 독립적으로 사용 가능하며 동일한 기능을 Spring Boot 4 API 기반으로 제공합니다. Spring Boot 3→4 업그레이드 시 변경을 최소화하기 위해 spring-boot4 모듈도
+`io.bluetape4k.spring.*` 패키지를 사용합니다 (spring-boot3과 동일).
 
 - **core** (`bluetape4k-spring-boot4-core`): Spring Boot 4 기반 공통 기능
   - Spring core 유틸리티 (BeanFactory 확장 등)
@@ -267,7 +268,7 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3과 독립적으로 사용 가능하
   - **주의**: Spring Boot 4는 내부적으로 Jackson 2(`com.fasterxml.jackson.*`)를 사용 (Jackson 3 미지원)
   - **BOM 적용**: `implementation(platform(Libs.spring_boot4_dependencies))` — `dependencyManagement { imports }` 대신 사용해야 KGP와 충돌 없음
 - **cassandra** (`bluetape4k-spring-boot4-cassandra`): Spring Data Cassandra 4.x 통합
-- **data-redis** (`bluetape4k-spring-boot4-data-redis`): Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer)
+- **redis** (`bluetape4k-spring-boot4-redis`): Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer)
 - **mongodb** (`bluetape4k-spring-boot4-mongodb`): Spring Data MongoDB Reactive 코루틴 확장
 - **r2dbc** (`bluetape4k-spring-boot4-r2dbc`): Spring Data R2DBC 4.x 통합
 
