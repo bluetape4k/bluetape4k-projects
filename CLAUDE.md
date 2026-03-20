@@ -253,6 +253,40 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **data-redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
 - **r2dbc**: Spring Data R2DBC
 
+#### Spring Boot 4 Modules (`spring-boot4/`)
+
+Spring Boot 4.x 전용 모듈. Spring Boot 3과 독립적으로 사용 가능하며 동일한 기능을 Spring Boot 4 API 기반으로 제공합니다.
+
+- **core** (`bluetape4k-spring-boot4-core`): Spring Boot 4 기반 공통 기능
+  - Spring core 유틸리티 (BeanFactory 확장 등)
+  - Spring WebFlux + Coroutines 지원 (WebClient, WebTestClient 확장)
+  - RestClient Coroutines DSL (`suspendGet`, `suspendPost`, `suspendPut`, `suspendPatch`, `suspendDelete`)
+  - Jackson 2.x 기반 ObjectMapper 커스터마이저 (`jacksonObjectMapperBuilderCustomizer`)
+  - Spring + Retrofit2 통합 (OkHttp3, Apache HttpClient5)
+  - Spring 테스트 유틸리티 (`httpGet`, `httpPost` 등 WebTestClient/WebClient 확장)
+  - **주의**: Spring Boot 4는 내부적으로 Jackson 2(`com.fasterxml.jackson.*`)를 사용 (Jackson 3 미지원)
+  - **BOM 적용**: `implementation(platform(Libs.spring_boot4_dependencies))` — `dependencyManagement { imports }` 대신 사용해야 KGP와 충돌 없음
+- **cassandra** (`bluetape4k-spring-boot4-cassandra`): Spring Data Cassandra 4.x 통합
+- **data-redis** (`bluetape4k-spring-boot4-data-redis`): Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer)
+- **mongodb** (`bluetape4k-spring-boot4-mongodb`): Spring Data MongoDB Reactive 코루틴 확장
+- **r2dbc** (`bluetape4k-spring-boot4-r2dbc`): Spring Data R2DBC 4.x 통합
+
+##### Spring Boot 4 BOM 적용 주의사항
+
+Spring Boot 4 BOM을 `dependencyManagement { imports { mavenBom() } }`로 적용하면 Gradle 내부 `kotlinBuildToolsApiClasspath` 설정에도 영향을 주어 KGP 2.3.x 컴파일이 실패합니다. 반드시 `implementation(platform(...))` 방식을 사용하세요:
+
+```kotlin
+// ❌ 잘못된 방식 (kotlinBuildToolsApiClasspath 오염)
+dependencyManagement {
+    imports { mavenBom(Libs.spring_boot4_dependencies) }
+}
+
+// ✅ 올바른 방식
+dependencies {
+    implementation(platform(Libs.spring_boot4_dependencies))
+}
+```
+
 #### Utilities (`utils/`)
 
 - **bluetape4k-geo** *(통합 모듈)*: 지리 정보 처리 — geocode(Bing/Google), geohash, geoip2(MaxMind) 통합

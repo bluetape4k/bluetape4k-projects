@@ -62,6 +62,8 @@ allprojects {
         mavenCentral()
         google()
     }
+
+
 }
 
 subprojects {
@@ -77,6 +79,7 @@ subprojects {
             }
         }
     }
+
 
     plugins.withId(Plugins.nmcp) {
         extensions.configure<NmcpExtension>("nmcp") {

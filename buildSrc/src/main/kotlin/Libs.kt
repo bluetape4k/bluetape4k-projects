@@ -382,6 +382,11 @@ object Libs {
     fun spring(module: String) = "org.springframework:spring-$module"
     fun springBoot(module: String) = "org.springframework.boot:spring-boot-$module"
     fun springBootStarter(module: String) = "org.springframework.boot:spring-boot-starter-$module"
+
+    // Spring Boot 4.x 전용 헬퍼 (BOM 오버라이드 시 버전 명시가 필요한 경우 사용)
+    fun springBoot4Starter(module: String) = "org.springframework.boot:spring-boot-starter-$module:${Versions.spring_boot4}"
+    fun springBoot4(module: String) = "org.springframework.boot:spring-boot-$module:${Versions.spring_boot4}"
+
     fun springData(module: String) = "org.springframework.data:spring-data-$module"
 
     fun springSecurity(module: String) = "org.springframework.security:spring-security-$module"
