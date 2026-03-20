@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core
 
 import io.bluetape4k.idgenerators.ksuid.Ksuid
-import io.bluetape4k.idgenerators.ksuid.KsuidMillis
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.KotlinLogging
@@ -60,8 +59,7 @@ private val log by lazy { KotlinLogging.logger { } }
  * ```
  */
 @JvmName("timebasedGeneratedUUID")
-fun Column<UUID>.timebasedGenerated(): Column<UUID> =
-    clientDefault { TimebasedUuid.Epoch.nextId() }
+fun Column<UUID>.timebasedGenerated(): Column<UUID> = clientDefault { TimebasedUuid.Epoch.nextId() }
 
 /**
  * 문자열 컬럼의 기본값을 UUIDv7 Base62 문자열(`TimebasedUuid.Epoch.nextIdAsString()`)로 설정합니다.
@@ -76,8 +74,7 @@ fun Column<UUID>.timebasedGenerated(): Column<UUID> =
  * ```
  */
 @JvmName("timebasedGeneratedString")
-fun Column<String>.timebasedGenerated(): Column<String> =
-    clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+fun Column<String>.timebasedGenerated(): Column<String> = clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
 
 /**
  * `snowflakeGenerated()`의 이전 이름입니다.
@@ -92,28 +89,23 @@ fun Column<Long>.snowflakeIdGenerated(): Column<Long> = snowflakeGenerated()
  * Long 컬럼의 기본값을 Snowflake ID(`Snowflakers.Global.nextId()`)로 설정합니다.
  */
 @JvmName("snowflakeGeneratedLong")
-fun Column<Long>.snowflakeGenerated(): Column<Long> =
-    clientDefault { Snowflakers.Global.nextId() }
+fun Column<Long>.snowflakeGenerated(): Column<Long> = clientDefault { Snowflakers.Global.nextId() }
 
 /**
  * 문자열 컬럼의 기본값을 Snowflake ID 문자열(`nextIdAsString`)로 설정합니다.
  */
 @JvmName("snowflakeGeneratedString")
-fun Column<String>.snowflakeGenerated(): Column<String> =
-    clientDefault { Snowflakers.Global.nextIdAsString() }
+fun Column<String>.snowflakeGenerated(): Column<String> = clientDefault { Snowflakers.Global.nextIdAsString() }
 
 /**
- * 문자열 컬럼의 기본값을 KSUID(`Ksuid.nextId()`)로 설정합니다.
+ * 문자열 컬럼의 기본값을 KSUID(`Ksuid.Seconds.nextId()`)로 설정합니다.
  */
-fun Column<String>.ksuidGenerated(): Column<String> =
-    clientDefault { Ksuid.nextId() }
+fun Column<String>.ksuidGenerated(): Column<String> = clientDefault { Ksuid.Seconds.nextId() }
 
 /**
- * 문자열 컬럼의 기본값을 밀리초 기반 KSUID(`KsuidMillis.nextId()`)로 설정합니다.
+ * 문자열 컬럼의 기본값을 밀리초 기반 KSUID(`Ksuid.Millis.nextId()`)로 설정합니다.
  */
-fun Column<String>.ksuidMillisGenerated(): Column<String> =
-    clientDefault { KsuidMillis.nextId() }
-
+fun Column<String>.ksuidMillisGenerated(): Column<String> = clientDefault { Ksuid.Millis.nextId() }
 
 /**
  * Exposed 컬럼 타입을 대응되는 Kotlin 런타임 타입으로 매핑합니다.
@@ -128,51 +120,107 @@ fun Column<String>.ksuidMillisGenerated(): Column<String> =
  * // type != null
  * ```
  */
-fun IColumnType<*>.getLanguageType(): KClass<*>? {
-    return when (this) {
-        is BooleanColumnType              -> Boolean::class
-        is CharacterColumnType            -> Char::class
-        is ShortColumnType                -> Short::class
-        is UShortColumnType               -> UShort::class
-        is IntegerColumnType              -> Int::class
-        is UIntegerColumnType             -> UInt::class
-        is LongColumnType                 -> Long::class
-        is ULongColumnType                -> ULong::class
-        is FloatColumnType                -> Float::class
-        is DoubleColumnType               -> Double::class
-        is DecimalColumnType              -> BigDecimal::class
-        is StringColumnType               -> String::class
-        is UUIDColumnType                 -> UUID::class
-        is EnumerationColumnType<*>       -> Enum::class
-        is EnumerationNameColumnType<*>   -> Enum::class
-        is BasicBinaryColumnType          -> ByteArray::class
-        is BlobColumnType                 -> ExposedBlob::class
-        is ArrayColumnType<*, *>          -> Array::class
-
-        is JavaLocalDateColumnType        -> java.time.LocalDate::class
-        is JavaLocalTimeColumnType        -> java.time.LocalTime::class
-        is JavaLocalDateTimeColumnType    -> java.time.LocalDateTime::class
-        is JavaOffsetDateTimeColumnType   -> java.time.OffsetDateTime::class
-        is JavaDurationColumnType         -> java.time.Duration::class
-
+fun IColumnType<*>.getLanguageType(): KClass<*>? =
+    when (this) {
+        is BooleanColumnType -> {
+            Boolean::class
+        }
+        is CharacterColumnType -> {
+            Char::class
+        }
+        is ShortColumnType -> {
+            Short::class
+        }
+        is UShortColumnType -> {
+            UShort::class
+        }
+        is IntegerColumnType -> {
+            Int::class
+        }
+        is UIntegerColumnType -> {
+            UInt::class
+        }
+        is LongColumnType -> {
+            Long::class
+        }
+        is ULongColumnType -> {
+            ULong::class
+        }
+        is FloatColumnType -> {
+            Float::class
+        }
+        is DoubleColumnType -> {
+            Double::class
+        }
+        is DecimalColumnType -> {
+            BigDecimal::class
+        }
+        is StringColumnType -> {
+            String::class
+        }
+        is UUIDColumnType -> {
+            UUID::class
+        }
+        is EnumerationColumnType<*> -> {
+            Enum::class
+        }
+        is EnumerationNameColumnType<*> -> {
+            Enum::class
+        }
+        is BasicBinaryColumnType -> {
+            ByteArray::class
+        }
+        is BlobColumnType -> {
+            ExposedBlob::class
+        }
+        is ArrayColumnType<*, *> -> {
+            Array::class
+        }
+        is JavaLocalDateColumnType -> {
+            java.time.LocalDate::class
+        }
+        is JavaLocalTimeColumnType -> {
+            java.time.LocalTime::class
+        }
+        is JavaLocalDateTimeColumnType -> {
+            java.time.LocalDateTime::class
+        }
+        is JavaOffsetDateTimeColumnType -> {
+            java.time.OffsetDateTime::class
+        }
+        is JavaDurationColumnType -> {
+            java.time.Duration::class
+        }
         // exposed-kotlin-datetime 모듈을 추가해야 함
-        is KotlinLocalDateColumnType      -> kotlinx.datetime.LocalDate::class
-        is KotlinLocalTimeColumnType      -> kotlinx.datetime.LocalTime::class
-        is KotlinLocalDateTimeColumnType  -> kotlinx.datetime.LocalDateTime::class
-        is KotlinOffsetDateTimeColumnType -> java.time.OffsetDateTime::class
-        is KotlinDurationColumnType       -> java.time.Duration::class
-
+        is KotlinLocalDateColumnType -> {
+            kotlinx.datetime.LocalDate::class
+        }
+        is KotlinLocalTimeColumnType -> {
+            kotlinx.datetime.LocalTime::class
+        }
+        is KotlinLocalDateTimeColumnType -> {
+            kotlinx.datetime.LocalDateTime::class
+        }
+        is KotlinOffsetDateTimeColumnType -> {
+            java.time.OffsetDateTime::class
+        }
+        is KotlinDurationColumnType -> {
+            java.time.Duration::class
+        }
         // exposed-json 모듈을 추가해야 함
         // is JsonColumnType<*> -> Any::class
 
-        is EntityIDColumnType<*>          -> this.idColumn.columnType.getLanguageType()
-        is AutoIncColumnType<*>           -> this.delegate.getLanguageType()
-        else                              -> {
+        is EntityIDColumnType<*> -> {
+            this.idColumn.columnType.getLanguageType()
+        }
+        is AutoIncColumnType<*> -> {
+            this.delegate.getLanguageType()
+        }
+        else -> {
             log.warn { "알 수 없는 타입: ${this.javaClass.simpleName}" }
             null
         }
     }
-}
 
 /**
  * 컬럼의 `columnType`을 기준으로 Kotlin 런타임 타입을 반환합니다.
@@ -184,5 +232,4 @@ fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
  * `EntityID` 컬럼의 내부 식별자 타입을 기준으로 Kotlin 런타임 타입을 반환합니다.
  */
 @JvmName("getEntityColumnLanguageType")
-fun <ID: Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? =
-    this.columnType.getLanguageType()
+fun <ID : Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()

@@ -18,8 +18,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidMillisTest {
-
-    companion object: KLoggingChannel() {
+    companion object : KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = MAX_SEQUENCE * 4
     }
@@ -27,29 +26,29 @@ class KsuidMillisTest {
     @Test
     fun `KsuidMillis should decode to 20 bytes and payload should be 12 bytes`() {
         repeat(TEST_COUNT) {
-            val ksuid = KsuidMillis.generate()
-            ksuid.length shouldBeEqualTo KsuidMillis.MAX_ENCODED_LEN
+            val ksuid = Ksuid.Millis.generate()
+            ksuid.length shouldBeEqualTo Ksuid.Millis.MAX_ENCODED_LEN
 
-            val decoded = BytesBase62.decode(ksuid, expectedBytes = KsuidMillis.TOTAL_BYTES)
-            decoded.size shouldBeEqualTo KsuidMillis.TOTAL_BYTES
+            val decoded = BytesBase62.decode(ksuid, expectedBytes = Ksuid.Millis.TOTAL_BYTES)
+            decoded.size shouldBeEqualTo Ksuid.Millis.TOTAL_BYTES
 
-            val payloadHex = decoded.copyOfRange(KsuidMillis.TIMESTAMP_LEN, KsuidMillis.TOTAL_BYTES).encodeHexString()
-            payloadHex.length shouldBeEqualTo KsuidMillis.PAYLOAD_LEN * 2
+            val payloadHex = decoded.copyOfRange(Ksuid.Millis.TIMESTAMP_LEN, Ksuid.Millis.TOTAL_BYTES).encodeHexString()
+            payloadHex.length shouldBeEqualTo Ksuid.Millis.PAYLOAD_LEN * 2
         }
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate ksuid`() {
-        val ksuid = KsuidMillis.generate()
+        val ksuid = Ksuid.Millis.generate()
 
         log.debug { "Generated KSUID: $ksuid" }
-        log.debug { "Decoded KSUID: ${KsuidMillis.prettyString(ksuid)}" }
+        log.debug { "Decoded KSUID: ${Ksuid.Millis.prettyString(ksuid)}" }
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate multiple ksuids`() {
         val count = 100
-        val ids = List(count) { KsuidMillis.generate() }
+        val ids = List(count) { Ksuid.Millis.generate() }
 
         ids.distinct().size shouldBeEqualTo count
     }
@@ -62,10 +61,9 @@ class KsuidMillisTest {
             .workers(Runtimex.availableProcessors * 2)
             .rounds(TEST_COUNT)
             .add {
-                val ksuid = KsuidMillis.generate()
+                val ksuid = Ksuid.Millis.generate()
                 idMaps.putIfAbsent(ksuid, 1).shouldBeNull()
-            }
-            .run()
+            }.run()
     }
 
     @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
@@ -76,22 +74,21 @@ class KsuidMillisTest {
         StructuredTaskScopeTester()
             .rounds(TEST_COUNT)
             .add {
-                val ksuid = KsuidMillis.generate()
+                val ksuid = Ksuid.Millis.generate()
                 idMap.putIfAbsent(ksuid, 1).shouldBeNull()
-            }
-            .run()
+            }.run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate ksuid in coroutines`() = runSuspendDefault {
-        val idMap = ConcurrentHashMap<String, Int>()
+    fun `generate ksuid in coroutines`() =
+        runSuspendDefault {
+            val idMap = ConcurrentHashMap<String, Int>()
 
-        SuspendedJobTester()
-            .rounds(TEST_COUNT)
-            .add {
-                val ksuid = KsuidMillis.generate()
-                idMap.putIfAbsent(ksuid, 1).shouldBeNull()
-            }
-            .run()
-    }
+            SuspendedJobTester()
+                .rounds(TEST_COUNT)
+                .add {
+                    val ksuid = Ksuid.Millis.generate()
+                    idMap.putIfAbsent(ksuid, 1).shouldBeNull()
+                }.run()
+        }
 }
