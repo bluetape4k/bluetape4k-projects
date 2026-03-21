@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 class MulticastSubjectTest {
@@ -20,7 +20,7 @@ class MulticastSubjectTest {
     @Test
     fun `1개의 collector 가 등록될 때까지 producer가 대기합니다`() = runTest {
         val subject = MulticastSubject<Int>(1)
-        val result = CopyOnWriteArrayList<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
 
         withSingleThread { dispatcher ->
             val job = launch(dispatcher) {
@@ -39,7 +39,7 @@ class MulticastSubjectTest {
             subject.complete()
             job.join()
         }
-        result shouldBeEqualTo List(10) { it }
+        result.toList() shouldBeEqualTo List(10) { it }
     }
 
     @Test

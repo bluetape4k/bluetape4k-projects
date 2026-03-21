@@ -19,7 +19,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -157,7 +157,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
     fun `FairLock은 요청 순서대로 락을 획득합니다`() = runSuspendIO {
         val lockName = randomName()
         val counter = AtomicInteger(0)
-        val executionOrder = CopyOnWriteArrayList<Int>()
+        val executionOrder = ConcurrentLinkedQueue<Int>()
 
         // 여러 코루틴에서 동시에 FairLock 획득 시도
         val jobs = List(5) { index ->
@@ -187,6 +187,6 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         jobs.joinAll()
         log.debug { "실행 순서: $executionOrder" }
         // 실행 순서가 0, 1, 2, 3, 4 순서대로 처리되었는지 확인
-        executionOrder shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+        executionOrder.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
 }

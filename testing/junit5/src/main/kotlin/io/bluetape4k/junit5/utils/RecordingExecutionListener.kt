@@ -4,7 +4,7 @@ import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.reporting.ReportEntry
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * JUnit 엔진 실행 이벤트를 메모리에 기록하는 [EngineExecutionListener] 구현체입니다.
@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class RecordingExecutionListener: EngineExecutionListener {
 
-    private val events = CopyOnWriteArrayList<ExecutionEvent>()
+    private val events = ConcurrentLinkedQueue<ExecutionEvent>()
 
     override fun dynamicTestRegistered(testDescriptor: TestDescriptor) {
         addEvent(ExecutionEvent.dynamicTestRegistered(testDescriptor))

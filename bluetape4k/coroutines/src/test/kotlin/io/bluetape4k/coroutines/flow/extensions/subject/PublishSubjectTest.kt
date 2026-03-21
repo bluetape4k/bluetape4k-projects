@@ -18,7 +18,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
@@ -32,8 +32,8 @@ class PublishSubjectTest {
     fun `multicast values to one or more flow collectors`() = runTest {
         val subject = PublishSubject<Int>()
 
-        val result1 = CopyOnWriteArrayList<Int>()
-        val result2 = CopyOnWriteArrayList<Int>()
+        val result1 = ConcurrentLinkedQueue<Int>()
+        val result2 = ConcurrentLinkedQueue<Int>()
 
         coroutineScope {
             launch {
@@ -61,14 +61,14 @@ class PublishSubjectTest {
         }
 
         val expected = (1..10).toList()
-        result1 shouldBeEqualTo expected
-        result2 shouldBeEqualTo expected
+        result1.toList() shouldBeEqualTo expected
+        result2.toList() shouldBeEqualTo expected
     }
 
     @Test
     fun `basic create`() = runTest {
-        val result1 = CopyOnWriteArrayList<Int>()
-        val result2 = CopyOnWriteArrayList<Int>()
+        val result1 = ConcurrentLinkedQueue<Int>()
+        val result2 = ConcurrentLinkedQueue<Int>()
 
         withSingleThread { dispatcher ->
             val subject = PublishSubject<Int>()
@@ -100,8 +100,8 @@ class PublishSubjectTest {
             job2.join()
         }
         val expected = listOf(1, 2, 3, 4, 5)
-        result1 shouldBeEqualTo expected
-        result2 shouldBeEqualTo expected
+        result1.toList() shouldBeEqualTo expected
+        result2.toList() shouldBeEqualTo expected
     }
 
     @Test

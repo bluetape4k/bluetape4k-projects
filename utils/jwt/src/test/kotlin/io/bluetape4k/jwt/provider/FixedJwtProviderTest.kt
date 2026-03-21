@@ -14,7 +14,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.test.assertFailsWith
 
 class FixedJwtProviderTest: AbstractJwtTest() {
@@ -51,7 +51,7 @@ class FixedJwtProviderTest: AbstractJwtTest() {
     fun `compose jwt in concurrency`() {
         val customData = randomString(1024)
         val now = Date()
-        val jwts = CopyOnWriteArrayList<String>()
+        val jwts = ConcurrentLinkedQueue<String>()
 
         MultithreadingTester()
             .workers(16)

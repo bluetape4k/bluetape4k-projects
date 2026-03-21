@@ -17,7 +17,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
@@ -222,7 +222,7 @@ class BehaviorSubjectTest {
     fun `초기 값이 주어진 경우`() = runTest {
         // 초기 값 0 가 주어진다.
         val subject = BehaviorSubject(0)
-        val result = CopyOnWriteArrayList<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
 
         withSingleThread { executor ->
             val job = launch(executor) {
@@ -241,7 +241,7 @@ class BehaviorSubjectTest {
             subject.complete()
             job.join()
         }
-        result shouldBeEqualTo listOf(0, 1, 2, 3, 4, 5)   // 초기 값 : 0
+        result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4, 5)   // 초기 값 : 0
     }
 
     @Test

@@ -16,7 +16,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
@@ -28,7 +27,7 @@ class ReplaySubjectSizeBoundTest {
     fun `basic online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
-            val result = CopyOnWriteArrayList<Int>()
+            val result = mutableListOf<Int>()
 
             val job = launch {
                 replay
@@ -58,7 +57,7 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = mutableListOf<Int>()
         replay
             .onEach { delay(10) }
             .log("#1")
@@ -72,7 +71,7 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result = CopyOnWriteArrayList<Int>()
+            val result = mutableListOf<Int>()
             val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
@@ -106,7 +105,7 @@ class ReplaySubjectSizeBoundTest {
     fun `error offline`() = runTest {
         val replay = ReplaySubject<Int>(10)
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = mutableListOf<Int>()
         val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
@@ -132,7 +131,7 @@ class ReplaySubjectSizeBoundTest {
     fun `take online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
-            val result = CopyOnWriteArrayList<Int>()
+            val result = mutableListOf<Int>()
 
             val job = launch {
                 replay.take(3)
@@ -161,7 +160,7 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = mutableListOf<Int>()
         replay.take(3)
             .log("#1")
             .collect {
@@ -175,7 +174,7 @@ class ReplaySubjectSizeBoundTest {
     fun `bounded online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(2)
-            val result = CopyOnWriteArrayList<Int>()
+            val result = mutableListOf<Int>()
 
             val job = launch {
                 replay
@@ -217,7 +216,7 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = mutableListOf<Int>()
         replay
             .onEach { delay(10) }
             .log("#1")
@@ -235,7 +234,7 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = mutableListOf<Int>()
         replay.collect { result.add(it) }
 
         result shouldBeEqualTo listOf(4)
@@ -246,8 +245,8 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result1 = CopyOnWriteArrayList<Int>()
-            val result2 = CopyOnWriteArrayList<Int>()
+            val result1 = mutableListOf<Int>()
+            val result2 = mutableListOf<Int>()
 
             val job1 = launch {
                 replay
@@ -283,7 +282,7 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result1 = CopyOnWriteArrayList<Int>()
+            val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(10) }
@@ -291,7 +290,7 @@ class ReplaySubjectSizeBoundTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = CopyOnWriteArrayList<Int>()
+            val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay.take(3)
                     .onEach { delay(20) }

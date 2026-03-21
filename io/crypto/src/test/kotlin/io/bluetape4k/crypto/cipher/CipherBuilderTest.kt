@@ -80,7 +80,6 @@ class CipherBuilderTest: AbstractCipherTest() {
 
     @Test
     fun `create AES cipher for encryption in suspended jobs`() = runTest {
-
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
             .rounds(4 * 2 * Runtimex.availableProcessors)

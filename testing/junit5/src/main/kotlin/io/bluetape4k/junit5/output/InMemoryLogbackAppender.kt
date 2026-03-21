@@ -5,7 +5,6 @@ import ch.qos.logback.core.AppenderBase
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender.Companion.invoke
 import io.bluetape4k.logging.KLogging
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
 /**
@@ -76,7 +75,7 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
     }
 
-    private val events = CopyOnWriteArrayList<ILoggingEvent>()
+    private val events = mutableListOf<ILoggingEvent>()
 
     /** 수집된 이벤트 개수입니다. */
     val size: Int get() = events.size

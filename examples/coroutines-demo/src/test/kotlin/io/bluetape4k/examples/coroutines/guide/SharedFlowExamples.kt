@@ -29,7 +29,6 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.seconds
 
@@ -77,8 +76,8 @@ class SharedFlowExamples {
         val totalConsumed = AtomicLong(0L)
 
         val eventBus = BroadcastEventBus()
-        val producers = CopyOnWriteArrayList<Job>()
-        val consumers = CopyOnWriteArrayList<Job>()
+        val producers = mutableListOf<Job>()
+        val consumers = mutableListOf<Job>()
 
         // 5개의 Producer 가 [Created, Deleted] 를 번갈아가며 발송합니다.
         producers += List(5) { producerId ->

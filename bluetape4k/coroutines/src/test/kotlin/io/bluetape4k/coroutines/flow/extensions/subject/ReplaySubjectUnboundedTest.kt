@@ -16,7 +16,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
@@ -180,7 +179,7 @@ class ReplaySubjectUnboundedTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = CopyOnWriteArrayList<Int>()
+            val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay
                     .onEach { delay(100) }

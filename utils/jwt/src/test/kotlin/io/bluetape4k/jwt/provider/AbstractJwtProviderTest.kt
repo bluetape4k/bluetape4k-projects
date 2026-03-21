@@ -29,7 +29,7 @@ import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.test.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -108,7 +108,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
     fun `compose jwt in multit-hreading`() {
         val customData = randomString(1024)
         val now = Date()
-        val jwts = CopyOnWriteArrayList<String>()
+        val jwts = ConcurrentLinkedQueue<String>()
 
         MultithreadingTester()
             .workers(16)
@@ -142,7 +142,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
     fun `compose jwt in virtual threads`() {
         val customData = randomString(1024)
         val now = Date()
-        val jwts = CopyOnWriteArrayList<String>()
+        val jwts = ConcurrentLinkedQueue<String>()
 
         StructuredTaskScopeTester()
             .rounds(16 * 32)
@@ -174,7 +174,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
     fun `compose jwt in coroutines`() = runSuspendDefault {
         val customData = randomString(1024)
         val now = Date()
-        val jwts = CopyOnWriteArrayList<String>()
+        val jwts = ConcurrentLinkedQueue<String>()
 
         SuspendedJobTester()
             .workers(16)

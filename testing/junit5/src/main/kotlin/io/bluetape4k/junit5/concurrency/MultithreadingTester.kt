@@ -11,7 +11,6 @@ import io.bluetape4k.junit5.utils.MultiException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -45,7 +44,7 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
 
     private var workers = DEFAULT_WORKER_SIZE
     private var roundsPerWorker = DEFAULT_ROUNDS_PER_WORKER
-    private val runnables = CopyOnWriteArrayList<() -> Unit>()
+    private val runnables = mutableListOf<() -> Unit>()
     private val futures = mutableListOf<Future<*>>()
     private var executor: ExecutorService? = null
 

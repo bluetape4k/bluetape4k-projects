@@ -16,7 +16,7 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -45,7 +45,7 @@ class TimeoutSupportTest: AbstractCoreTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `제한시간이 적용된 복수의 비동기 작업을 수행`() {
         val taskSize = 1000
-        val done = CopyOnWriteArrayList<Int>()
+        val done = ConcurrentLinkedQueue<Int>()
 
         val futures = List(taskSize) {
             asyncRunWithTimeout(1000) {

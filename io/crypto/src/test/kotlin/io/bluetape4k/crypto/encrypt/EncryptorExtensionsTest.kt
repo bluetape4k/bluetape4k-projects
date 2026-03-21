@@ -16,9 +16,11 @@ class EncryptorExtensionsTest {
 
     private val encryptors: List<Arguments> = listOf(
         Encryptors.AES,
+        Encryptors.DeterministicAES,
         Encryptors.DES,
         Encryptors.RC2,
         Encryptors.RC4,
+        Encryptors.DeterministicRC4,
         Encryptors.TripleDES,
     ).map { Arguments.of(it) }
 

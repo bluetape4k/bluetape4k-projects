@@ -7,7 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutionException
 
 class FutureUtilsTest {
@@ -70,7 +70,7 @@ class FutureUtilsTest {
 
     @Test
     fun `CompletableFuture Task들 중 첫번째 완료된 작업을 반환하고, 나머지는 캔슬한다`() {
-        val completedTasks = CopyOnWriteArrayList<Int>()
+        val completedTasks = ConcurrentLinkedQueue<Int>()
 
         val futures = List(10) {
             futureOf {
