@@ -8,8 +8,9 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 - **Encoding/Decoding (Codec)**: Base58, Base62, Hex, URL62 등 다양한 인코딩
 - **Type Extensions**: 모든 기본 타입에 대한 Kotlin 스타일 확장 함수
 - **Ranges**: 다양한 Range 타입 (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
-- **Collections**: 컬렉션 유틸리티
+- **Collections**: 컬렉션 유틸리티 (BoundedStack, RingBuffer, PaginatedList, Permutation 지연 평가 순열)
 - **Concurrent**: 동시성 처리 유틸리티
+- **Utils**: Wildcard 패턴 매칭, XXHasher 고속 해시
 - **Functional**: 함수형 프로그래밍 지원
 - **Java Time DSL**: `java.time` 기초 확장 함수 (Duration/Period DSL, Temporal 유틸리티, Quarter 등)
 
@@ -305,6 +306,89 @@ val chunked = (1..10).toList().chunked(3)
 // Partitioning
 val (even, odd) = (1..10).toList().partition { it % 2 == 0 }
 // even = [2,4,6,8,10], odd = [1,3,5,7,9]
+```
+
+#### BoundedStack (크기 제한 스택)
+
+고정 크기 LIFO 스택입니다. 최대 크기 초과 시 가장 오래된 요소가 자동 제거됩니다. Thread-safe (`ReentrantLock`).
+
+```kotlin
+import io.bluetape4k.collections.BoundedStack
+
+val stack = BoundedStack<String>(maxSize = 3)
+stack.push("a")
+stack.push("b")
+stack.push("c")
+stack.push("d")  // "a"가 자동 제거됨
+
+stack.peek()  // "d"
+stack.pop()   // "d"
+stack.size    // 2
+```
+
+#### RingBuffer (원형 버퍼)
+
+고정 용량의 원형 버퍼입니다. 용량 초과 시 가장 오래된 요소를 덮어씁니다. Thread-safe (`ReentrantLock`).
+
+```kotlin
+import io.bluetape4k.collections.RingBuffer
+
+val buffer = RingBuffer<Int>(capacity = 3)
+buffer.add(1)
+buffer.add(2)
+buffer.add(3)
+buffer.add(4)  // 1이 덮어써짐
+
+buffer.next()  // 2 (가장 오래된 요소)
+buffer.toList()  // [3, 4]
+buffer.removeIf { it > 3 }  // 4 제거
+```
+
+#### PaginatedList (페이지네이션)
+
+페이징된 데이터를 표현하는 인터페이스입니다.
+
+```kotlin
+import io.bluetape4k.collections.PaginatedList
+import io.bluetape4k.collections.SimplePaginatedList
+
+val page = SimplePaginatedList(
+    contents = listOf("a", "b", "c"),
+    pageNo = 0,
+    pageSize = 10,
+    totalItemCount = 25L
+)
+page.totalPageCount  // 3
+page.contents        // ["a", "b", "c"]
+```
+
+#### Permutation (지연 평가 순열)
+
+함수형 지연 평가 시퀀스입니다. 무한 시퀀스를 메모리 효율적으로 처리하며, `map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`, `sorted` 등 풍부한 연산자를 제공합니다. Thread-safe (`Cons`의 tail 평가에 `ReentrantLock` + DCL 패턴 적용).
+
+```kotlin
+import io.bluetape4k.collections.permutations.*
+
+// 기본 생성
+val nums = permutationOf(1, 2, 3, 4, 5)
+val mapped = nums.map { it * 2 }  // [2, 4, 6, 8, 10]
+val filtered = nums.filter { it % 2 == 0 }  // [2, 4]
+
+// 무한 시퀀스
+val naturals = numbers(1)  // 1, 2, 3, 4, ...
+val firstTen = naturals.take(10)  // [1..10]
+
+// 지연 평가 cons 셀
+val fibonacci = cons(0) {
+    cons(1) {
+        iterate(0 to 1) { (a, b) -> b to (a + b) }
+            .map { it.second }
+    }
+}
+
+// Java Stream 호환
+val stream = nums.toStream()
+stream.filter { it > 2 }.count()  // 3
 ```
 
 ### 6. Lazy Initialization
@@ -683,6 +767,45 @@ val yq = YearQuarter(2024, Quarter.Q1)
 yq.addQuarters(2)  // 2024-Q3
 yq.quarter         // Q1
 yq.year            // 2024
+```
+
+### 10. 유틸리티 (Utils)
+
+#### Wildcard (와일드카드 패턴 매칭)
+
+파일 경로 및 문자열에 대한 와일드카드 패턴 매칭을 지원합니다. `?` (단일 문자), `*` (여러 문자), `**` (디렉토리 트리), `\` (이스케이프)를 지원합니다.
+
+```kotlin
+import io.bluetape4k.utils.Wildcard
+
+// 단순 패턴 매칭
+Wildcard.match("hello.kt", "*.kt")          // true
+Wildcard.match("test", "te?t")              // true
+
+// 경로 패턴 매칭 (** 지원)
+Wildcard.matchPath("src/main/kotlin/Foo.kt", "**/kotlin/*.kt")  // true
+
+// 여러 패턴 중 하나라도 매칭
+Wildcard.matchOne("hello.kt", "*.java", "*.kt")  // true
+Wildcard.matchPathOne("src/test/Foo.kt", "**/main/**", "**/test/**")  // true
+```
+
+#### XXHasher (고속 해시)
+
+lz4-java의 XXHash 알고리즘을 사용한 고속 해시 계산기입니다. Thread-safe (`ThreadLocal` 적용).
+
+```kotlin
+import io.bluetape4k.utils.XXHasher
+
+// 다양한 타입의 해시값 계산
+val hash1 = XXHasher.hash("hello", 42, 3.14)
+val hash2 = XXHasher.hash(listOf(1, 2, 3))
+
+// null 안전
+val hash3 = XXHasher.hash(null, "world")
+
+// 같은 입력 → 같은 해시값 (결정적)
+XXHasher.hash("test") == XXHasher.hash("test")  // true
 ```
 
 ## 참고 자료

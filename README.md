@@ -60,14 +60,14 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### Core 모듈 (`bluetape4k/`)
 
-- **[core](./bluetape4k/core/README.md)**: 핵심 유틸리티 (assertions, 압축, required 등)
+- **[core](./bluetape4k/core/README.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)
 - **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines 확장 (DeferredValue, Flow extensions, AsyncFlow)
 - **[logging](./bluetape4k/logging/README.md)**: 로깅 관련 기능
 - **bom**: Bill of Materials (의존성 관리)
 
 ### I/O 모듈 (`io/`)
 
-- **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory), Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
+- **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy, Zip), 직렬화(Kryo, Fory), ZIP 빌더/유틸리티, Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
 - **[okio](./io/okio/README.md)**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
 - **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)
   **: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`,

@@ -18,6 +18,7 @@
 - **GZip**: 범용적인 압축 (호환성 우수)
 - **Deflate**: GZip의 기반 알고리즘
 - **BZip2**: 높은 압축률 (속도는 느림)
+- **Zip**: ZIP 포맷 압축/해제 (파일 아카이브에 적합)
 
 ```kotlin
 import io.bluetape4k.io.compressor.Compressors
@@ -63,6 +64,46 @@ Compressors.Streaming.Zstd.decompress(
 - **실시간 처리**: LZ4, Snappy (압축률 < 속도)
 - **네트워크 전송**: Zstd, GZip (속도 + 압축률 균형)
 - **저장 공간 최적화**: BZip2, Zstd (압축률 > 속도)
+- **파일 아카이브**: Zip (디렉토리 구조 보존)
+
+**ZIP 파일 빌더 (ZipBuilder):**
+
+인메모리 또는 파일 기반 ZIP 아카이브를 빌더 패턴으로 생성합니다.
+
+```kotlin
+import io.bluetape4k.io.compressor.ZipBuilder
+
+// 인메모리 ZIP 생성
+val zipBytes = ZipBuilder()
+    .addContent("hello.txt", "Hello, World!")
+    .addContent("data/config.json", """{"key": "value"}""")
+    .toBytes()
+
+// 파일 기반 ZIP 생성
+val zipFile = ZipBuilder()
+    .addFile(File("document.pdf"))
+    .addFolder(File("images/"))
+    .toZipFile(File("archive.zip"))
+```
+
+**ZIP 파일 유틸리티 (ZipFileSupport):**
+
+gzip, zlib, zip/unzip 등 파일 압축 관련 톱레벨 함수를 제공합니다. Zip Slip 보안 방어가 내장되어 있습니다.
+
+```kotlin
+import io.bluetape4k.io.compressor.*
+
+// gzip/ungzip
+val gzipped = gzip(File("data.txt"))       // data.txt.gz 생성
+val original = ungzip(gzipped)              // data.txt 복원
+
+// zip/unzip (디렉토리 지원)
+zip(File("project/"), File("project.zip"))
+unzip(File("project.zip"), File("output/"))
+
+// 패턴 필터링 unzip (Wildcard 지원)
+unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
+```
 
 ### 2. 직렬화 (BinarySerializer)
 
@@ -405,6 +446,7 @@ classDiagram
     class ApacheGZipCompressor
     class ApacheDeflateCompressor
     class ApacheZstdCompressor
+    class ZipCompressor
 
     class StreamingCompressor {
         <<interface>>
@@ -429,6 +471,7 @@ classDiagram
     AbstractCompressor <|-- ApacheGZipCompressor
     AbstractCompressor <|-- ApacheDeflateCompressor
     AbstractCompressor <|-- ApacheZstdCompressor
+    AbstractCompressor <|-- ZipCompressor
 ```
 
 ### BinarySerializer 계층
@@ -542,6 +585,9 @@ io.bluetape4k.io
 │   ├── StreamingCompressor.kt
 │   ├── StreamingCompressors.kt
 │   ├── Compressors.kt
+│   ├── ZipCompressor.kt     # ZIP 압축/해제
+│   ├── ZipBuilder.kt        # ZIP 파일 빌더
+│   ├── ZipFileSupport.kt    # gzip/zlib/zip/unzip 유틸리티
 │   └── [각종 구현체]
 ├── serializer/          # 직렬화
 │   ├── BinarySerializer.kt
