@@ -4,9 +4,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.atomicfu.atomic
-import org.redisson.api.LocalCachedMapOptions
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RedissonClient
+import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.client.codec.Codec
 import java.util.concurrent.atomic.AtomicLong
 
@@ -26,12 +26,12 @@ import java.util.concurrent.atomic.AtomicLong
  * @param config Near Cache 설정
  * @param codec Redisson 직렬화 Codec
  */
-class RedissonNearCache<V : Any>(
+class RedissonNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
     private val codec: Codec = RedissonCodecs.LZ4Fory,
-) : NearCacheOperations<V> {
-    companion object : KLogging()
+): NearCacheOperations<V> {
+    companion object: KLogging()
 
     override val cacheName: String get() = config.cacheName
 
@@ -43,9 +43,7 @@ class RedissonNearCache<V : Any>(
 
     private val localCachedMap: RLocalCachedMap<String, V> =
         redisson.getLocalCachedMap(
-            config.cacheName,
-            codec,
-            buildLocalCachedMapOptions(config)
+            buildLocalCachedMapOptions(config, codec)
         )
 
     /**
@@ -202,16 +200,19 @@ class RedissonNearCache<V : Any>(
 /**
  * [RedissonNearCacheConfig]로 [LocalCachedMapOptions]를 생성합니다.
  */
-internal fun <K, V> buildLocalCachedMapOptions(config: RedissonNearCacheConfig): LocalCachedMapOptions<K, V> {
-    val opts =
-        LocalCachedMapOptions
-            .defaults<K, V>()
-            .cacheSize(config.maxLocalSize)
-            .evictionPolicy(config.evictionPolicy)
-            .syncStrategy(config.syncStrategy)
-            .reconnectionStrategy(config.reconnectionStrategy)
-    config.timeToLive?.let { opts.timeToLive(it.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS) }
-    config.maxIdle?.let { opts.maxIdle(it.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS) }
+internal fun <K, V> buildLocalCachedMapOptions(
+    config: RedissonNearCacheConfig,
+    codec: Codec = RedissonCodecs.LZ4Fory,
+): LocalCachedMapOptions<K, V> {
+    val opts = LocalCachedMapOptions
+        .name<K, V>(config.cacheName)
+        .codec(codec)
+        .cacheSize(config.maxLocalSize)
+        .evictionPolicy(config.evictionPolicy)
+        .syncStrategy(config.syncStrategy)
+        .reconnectionStrategy(config.reconnectionStrategy)
+    config.timeToLive?.let { opts.timeToLive(it) }
+    config.maxIdle?.let { opts.maxIdle(it) }
     return opts
 }
 
@@ -224,7 +225,7 @@ internal fun <K, V> buildLocalCachedMapOptions(config: RedissonNearCacheConfig):
  * @param codec Redisson 직렬화 Codec
  * @return [NearCacheOperations] 인스턴스
  */
-fun <V : Any> redissonNearCacheOf(
+fun <V: Any> redissonNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
     codec: Codec = RedissonCodecs.LZ4Fory,

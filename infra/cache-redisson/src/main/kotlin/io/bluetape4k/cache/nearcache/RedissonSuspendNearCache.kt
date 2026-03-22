@@ -42,11 +42,7 @@ class RedissonSuspendNearCache<V : Any>(
     private val backMissCount = AtomicLong(0)
 
     private val localCachedMap: RLocalCachedMap<String, V> =
-        redisson.getLocalCachedMap(
-            config.cacheName,
-            codec,
-            buildLocalCachedMapOptions(config)
-        )
+        redisson.getLocalCachedMap(buildLocalCachedMapOptions(config, codec))
 
     /**
      * [key]에 해당하는 값을 조회합니다.

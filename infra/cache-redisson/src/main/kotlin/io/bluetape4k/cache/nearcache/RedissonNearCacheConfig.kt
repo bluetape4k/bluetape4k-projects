@@ -2,7 +2,7 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
-import org.redisson.api.LocalCachedMapOptions
+import org.redisson.api.options.LocalCachedMapOptions
 import java.time.Duration
 
 /**
@@ -29,8 +29,8 @@ data class RedissonNearCacheConfig(
     val evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU,
 ) {
     init {
-        require(cacheName.isNotBlank()) { "cacheName은 비어 있으면 안 됩니다" }
-        require(maxLocalSize > 0) { "maxLocalSize는 0보다 커야 합니다. 현재 값: $maxLocalSize" }
+        cacheName.requireNotBlank("cacheName")
+        maxLocalSize.requirePositiveNumber("maxLocalSize")
     }
 }
 
