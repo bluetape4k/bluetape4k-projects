@@ -282,6 +282,71 @@ Containers.Postgres
 ./gradlew test -DtestDB=POSTGRESQL
 ```
 
+## 테스트 인프라 구조
+
+```mermaid
+flowchart TD
+    subgraph 테스트_클래스
+        A[AbstractExposedTest] --> B[ParameterizedTest]
+        B --> C[ENABLE_DIALECTS_METHOD]
+    end
+
+    subgraph 지원_DB
+        D[H2 / H2_MYSQL / H2_MARIADB / H2_PSQL]
+        E[MariaDB - Testcontainers]
+        F[MySQL 5.7 / 8.0 - Testcontainers]
+        G[PostgreSQL - Testcontainers]
+    end
+
+    subgraph 유틸_함수
+        H[withDb - DB 연결만]
+        I[withTables - 테이블 자동 생성/삭제]
+        J[withTablesSuspending - Coroutine 버전]
+        K[withSchemas]
+        L[withAutoCommit]
+    end
+
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+
+    A --> H
+    A --> I
+    A --> J
+
+    subgraph 공유_스키마
+        M[MovieSchema]
+        N[BoardSchema]
+        O[BlogSchema]
+        P[PersonSchema]
+        Q[OrderSchema]
+    end
+
+    I --> M
+    I --> N
+```
+
+### 테스트 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant Test as 테스트 클래스
+    participant Infra as 테스트 인프라
+    participant TC as Testcontainers
+    participant DB as 데이터베이스
+
+    Test->>Infra: withTables(testDB, Users, Orders)
+    Infra->>TC: Docker 컨테이너 시작 (실제 DB인 경우)
+    TC-->>Infra: 컨테이너 준비 완료
+    Infra->>DB: 커넥션 획득 + 테이블 생성
+    DB-->>Infra: 테이블 준비 완료
+    Infra->>Test: 트랜잭션 블록 실행
+    Test->>DB: CRUD 작업
+    DB-->>Test: 결과 반환
+    Infra->>DB: 테이블 삭제 + 롤백
+```
+
 ## 참고 사항
 
 - `exposed-tests` 모듈은 Detekt 검사가 비활성화되어 있습니다

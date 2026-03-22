@@ -330,6 +330,76 @@ jjwt 0.11.x에서 0.13.x로 업그레이드 시 주요 변경사항:
 4. **민감 정보 제외**: JWT에 비밀번호, 신용카드 등 민감 정보 포함 금지
 5. **분산 환경**: Redis/MongoDB로 KeyChain 공유
 
+## JWT 생성 및 검증 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant Client as 클라이언트
+    participant Provider as JwtProvider
+    participant KeyChain as KeyChain
+    participant Repo as KeyChainRepository
+
+    Note over Provider,Repo: JWT 생성
+    Client->>Provider: composer().claim(...).compose()
+    Provider->>Repo: current() - 현재 KeyChain 조회
+    Repo-->>Provider: KeyChain (kid, RSA 키 페어)
+    Provider->>Provider: JWT 서명 (RS256)
+    Provider-->>Client: JWT 문자열 (header.payload.signature)
+
+    Note over Client,Repo: JWT 검증
+    Client->>Provider: parse(jwt)
+    Provider->>Provider: JWT에서 kid 추출
+    Provider->>Repo: findOrNull(kid) - KeyChain 조회
+    Repo-->>Provider: KeyChain
+    Provider->>Provider: 서명 검증 + 만료 확인
+    Provider-->>Client: JwtReader (클레임 접근 가능)
+
+    Note over Provider,Repo: 키 회전 (Rotation)
+    Provider->>Provider: forcedRotate()
+    Provider->>Provider: 새 RSA 키 페어 생성
+    Provider->>Repo: rotate(newKeyChain)
+    Note right of Repo: 이전 KeyChain 보관<br/>(기존 JWT 검증 유지)
+```
+
+## KeyChain 저장소 구조
+
+```mermaid
+classDiagram
+    class KeyChainRepository {
+        <<interface>>
+        +current() KeyChain
+        +findOrNull(kid) KeyChain?
+        +rotate(newKeyChain) Boolean
+        +forcedRotate(newKeyChain) Boolean
+    }
+
+    class InMemoryKeyChainRepository {
+        -keychains: Map~String, KeyChain~
+    }
+
+    class RedisKeyChainRepository {
+        -redissonClient: RedissonClient
+    }
+
+    class JwtProvider {
+        <<interface>>
+        +composer() JwtComposer
+        +parse(jwt) JwtReader
+        +rotate()
+        +forcedRotate()
+    }
+
+    class DefaultJwtProvider {
+        -keyChainRepository: KeyChainRepository
+        -signatureAlgorithm: SignatureAlgorithm
+    }
+
+    KeyChainRepository <|-- InMemoryKeyChainRepository
+    KeyChainRepository <|-- RedisKeyChainRepository
+    JwtProvider <|-- DefaultJwtProvider
+    DefaultJwtProvider --> KeyChainRepository
+```
+
 ## 참고 자료
 
 - [JWT.io](https://jwt.io/)

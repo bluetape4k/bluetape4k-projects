@@ -148,6 +148,97 @@ val customSettings = CsvParserSettings().apply {
 val reader = CsvRecordReader(customSettings)
 ```
 
+## 아키텍처 다이어그램
+
+### 클래스 구조
+
+```mermaid
+classDiagram
+    class RecordReader~T~ {
+        <<interface>>
+        +read(input, charset, skipHeaders, transform) Sequence~T~
+    }
+
+    class RecordWriter {
+        <<interface>>
+        +writeHeaders(headers: List~String~)
+        +writeRow(row: List~Any~)
+        +close()
+    }
+
+    class SuspendRecordReader~T~ {
+        <<interface>>
+        +read(input, charset, skipHeaders, transform) Flow~T~
+    }
+
+    class SuspendRecordWriter {
+        <<interface>>
+        +writeHeaders(headers: List~String~)
+        +writeRow(row: List~Any~)
+        +writeAll(rows: Flow~List~Any~~)
+        +close()
+    }
+
+    class CsvRecordReader
+    class TsvRecordReader
+    class CsvRecordWriter
+    class TsvRecordWriter
+    class SuspendCsvRecordReader
+    class SuspendTsvRecordReader
+    class SuspendCsvRecordWriter
+    class SuspendTsvRecordWriter
+
+    RecordReader <|.. CsvRecordReader
+    RecordReader <|.. TsvRecordReader
+    RecordWriter <|.. CsvRecordWriter
+    RecordWriter <|.. TsvRecordWriter
+    SuspendRecordReader <|.. SuspendCsvRecordReader
+    SuspendRecordReader <|.. SuspendTsvRecordReader
+    SuspendRecordWriter <|.. SuspendCsvRecordWriter
+    SuspendRecordWriter <|.. SuspendTsvRecordWriter
+```
+
+### CSV/TSV 처리 흐름
+
+```mermaid
+flowchart TD
+    subgraph 입력 소스
+        F[File]
+        IS[InputStream]
+        STR[String]
+    end
+
+    subgraph 동기 처리
+        CR[CsvRecordReader\nTsvRecordReader]
+        CW[CsvRecordWriter\nTsvRecordWriter]
+        SEQ[Sequence~T~]
+    end
+
+    subgraph 비동기 처리
+        SCR[SuspendCsvRecordReader\nSuspendTsvRecordReader]
+        SCW[SuspendCsvRecordWriter\nSuspendTsvRecordWriter]
+        FL[Flow~T~]
+    end
+
+    subgraph 출력
+        OF[OutputFile]
+        OW[OutputWriter]
+    end
+
+    F --> CR --> SEQ
+    IS --> CR
+    STR --> CR
+
+    F --> SCR --> FL
+    IS --> SCR
+
+    SEQ -->|transform| 앱[애플리케이션]
+    FL -->|collect| 앱
+
+    앱 -->|entities| CW --> OF
+    앱 -->|Flow entities| SCW --> OW
+```
+
 ## 의존성
 
 ```kotlin

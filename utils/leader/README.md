@@ -275,6 +275,68 @@ class ScheduledTaskRunner(private val leaderElection: LeaderElection) {
 | `local/LocalVirtualThreadLeaderGroupElection.kt` | `java.util.concurrent.Semaphore` + Virtual Thread 기반 |
 | `coroutines/LocalSuspendLeaderGroupElection.kt` | `kotlinx.coroutines.sync.Semaphore` 기반 코루틴 구현체 |
 
+## 인터페이스 계층 다이어그램
+
+```mermaid
+classDiagram
+    class AsyncLeaderElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, action) CompletableFuture~T?~
+    }
+
+    class LeaderElection {
+        <<interface>>
+        +runIfLeader(lockName, action) T?
+    }
+
+    class VirtualThreadLeaderElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, action) VirtualFuture~T?~
+    }
+
+    class SuspendLeaderElection {
+        <<interface>>
+        +runIfLeader(lockName, action) T?
+    }
+
+    class LocalLeaderElection {
+        -locks: ConcurrentHashMap~String, ReentrantLock~
+    }
+
+    class LocalAsyncLeaderElection
+    class LocalVirtualThreadLeaderElection
+    class LocalSuspendLeaderElection {
+        -mutexes: ConcurrentHashMap~String, Mutex~
+    }
+
+    AsyncLeaderElection <|-- LeaderElection
+    LeaderElection <|-- LocalLeaderElection
+    AsyncLeaderElection <|-- LocalAsyncLeaderElection
+    VirtualThreadLeaderElection <|-- LocalVirtualThreadLeaderElection
+    SuspendLeaderElection <|-- LocalSuspendLeaderElection
+```
+
+## 리더 선출 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant N1 as 노드 1 (Leader 후보)
+    participant N2 as 노드 2 (Leader 후보)
+    participant Lock as 분산 Lock
+
+    N1->>Lock: tryLock("scheduled-task-lock")
+    N2->>Lock: tryLock("scheduled-task-lock")
+    Lock-->>N1: 성공 (Leader 선출)
+    Lock-->>N2: 실패 (Leader 아님 → null 반환)
+
+    N1->>N1: 작업 실행 (Leader 권한)
+    Note over N2: 작업 Skip
+
+    N1->>Lock: unlock() (작업 완료)
+
+    Note over N1,N2: 다음 실행 시 재경쟁
+```
+
 ## 사용 시나리오
 
 ### 단일 리더 (LeaderElection)

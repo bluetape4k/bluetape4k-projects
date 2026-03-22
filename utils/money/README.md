@@ -232,5 +232,74 @@ USD.isCurrencyConversionAvailable    // true
 | 환전    | 정확               | 정밀도 손실 가능    |
 | 사용 예시 | 금융 계산, 높은 정밀도 필요 | 대량 연산, 성능 중요 |
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class MonetaryAmount {
+        <<interface>>
+        +currency: CurrencyUnit
+        +number: NumberValue
+        +add(other) MonetaryAmount
+        +subtract(other) MonetaryAmount
+        +multiply(n) MonetaryAmount
+        +divide(n) MonetaryAmount
+        +negate() MonetaryAmount
+    }
+
+    class Money {
+        -amount: BigDecimal
+        +of(amount, currency) Money
+        +round() Money
+        +defaultRound() Money
+    }
+
+    class FastMoney {
+        -amount: Long
+        +of(amount, currency) FastMoney
+    }
+
+    class CurrencyUnit {
+        <<interface>>
+        +currencyCode: String
+        +numericCode: Int
+        +defaultFractionDigits: Int
+    }
+
+    class CurrencyConvertor {
+        +getConversion(currency) CurrencyConversion
+        +USDConversion: CurrencyConversion
+    }
+
+    MonetaryAmount <|-- Money
+    MonetaryAmount <|-- FastMoney
+    MonetaryAmount --> CurrencyUnit
+    CurrencyConvertor --> MonetaryAmount : "convertTo()"
+
+    note for Money "BigDecimal 기반\n무제한 정밀도\n금융 계산 권장"
+    note for FastMoney "Long 기반\n소수점 5자리\n고성능 대량 연산"
+```
+
+## 통화 연산 흐름
+
+```mermaid
+flowchart LR
+    subgraph 생성
+        A["moneyOf(1000, KRW)"] --> M1["Money(1000 KRW)"]
+        B["1.05.toMoney(USD)"] --> M2["Money(1.05 USD)"]
+        C["10000.inFastKRW()"] --> FM["FastMoney(10000 KRW)"]
+    end
+
+    subgraph 연산
+        M1 -->|"+ 500"| R1["1500 KRW"]
+        M1 -->|"* 2"| R2["2000 KRW"]
+        M2 -->|"convertTo(KRW)"| R3["환전 결과 KRW"]
+    end
+
+    subgraph 집계
+        L["listOf(100.inKRW(), 200.inKRW())"] -->|"sum(KRW)"| TOTAL["300 KRW"]
+    end
+```
+
 > **참고**: 환전 작업은 정확성을 위해 `Money`를 사용하는 것을 권장합니다.
 > `FastMoney`는 기본 스케일이 5이므로, 소수점 5자리 이하의 값은 손실될 수 있습니다.

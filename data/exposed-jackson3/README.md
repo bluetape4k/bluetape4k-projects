@@ -108,6 +108,69 @@ val query2 = Users.selectAll()
 ./gradlew :bluetape4k-exposed-jackson3:test
 ```
 
+## 아키텍처 다이어그램
+
+### JSON 컬럼 타입 클래스 구조
+
+```mermaid
+classDiagram
+    class ColumnType {
+        <<Exposed 기반 추상>>
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): Any
+    }
+    class JacksonColumnType~T~ {
+        -objectMapper: ObjectMapper
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): String
+    }
+    class JacksonBColumnType~T~ {
+        -objectMapper: ObjectMapper
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): ByteArray
+    }
+    class JacksonSerializer {
+        +configure(objectMapper): ObjectMapper
+    }
+    class JsonFunctions {
+        +Column.jsonPath(path): Expression
+        +Column.jsonContains(field, value): Op
+    }
+    class ResultRowExtensions {
+        +ResultRow.getJackson(col): T
+        +ResultRow.getJacksonOrNull(col): T?
+    }
+
+    ColumnType <|-- JacksonColumnType
+    ColumnType <|-- JacksonBColumnType
+    JacksonSerializer --> JacksonColumnType : ObjectMapper 제공
+    JacksonSerializer --> JacksonBColumnType : ObjectMapper 제공
+    JacksonColumnType --> JsonFunctions : 연동
+    ResultRowExtensions --> JacksonColumnType : 사용
+    ResultRowExtensions --> JacksonBColumnType : 사용
+```
+
+### Jackson 2 vs Jackson 3 패키지 차이
+
+```mermaid
+flowchart LR
+    subgraph Jackson2["bluetape4k-exposed-jackson (Jackson 2.x)"]
+        A2["com.fasterxml.jackson.*"]
+        B2["jackson&lt;T&gt; / jacksonb&lt;T&gt;"]
+    end
+    subgraph Jackson3["bluetape4k-exposed-jackson3 (Jackson 3.x)"]
+        A3["tools.jackson.*"]
+        B3["jackson&lt;T&gt; / jacksonb&lt;T&gt;"]
+    end
+    C[Kotlin 객체] -->|직렬화| Jackson2
+    C -->|직렬화| Jackson3
+    Jackson2 -->|역직렬화| C
+    Jackson3 -->|역직렬화| C
+```
+
 ## 참고
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)

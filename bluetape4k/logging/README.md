@@ -2,6 +2,75 @@
 
 Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라이브러리입니다.
 
+## 클래스 계층 다이어그램
+
+```mermaid
+classDiagram
+    class KLogging {
+        <<open class>>
+        +log: Logger
+    }
+
+    class KLoggingChannel {
+        <<open class>>
+        +log: Logger
+        -channel: MutableSharedFlow~LogEvent~
+        -processor: CoroutineScope
+    }
+
+    class KotlinLogging {
+        <<object>>
+        +logger(block) Logger
+        +logger(name) Logger
+    }
+
+    class Logger {
+        <<interface>>
+        +trace(msg: () -> String)
+        +debug(msg: () -> String)
+        +info(msg: () -> String)
+        +warn(t, msg: () -> String)
+        +error(t, msg: () -> String)
+    }
+
+    class MDC["MDC (Mapped Diagnostic Context)"] {
+        <<utility>>
+        +withLoggingContext(pairs, block)
+    }
+
+    class CoroutineMDC {
+        <<utility>>
+        +withCoroutineLoggingContext(pairs, block)
+    }
+
+    KLogging --> Logger : "정적 log 프로퍼티"
+    KLoggingChannel --> Logger : "비동기 채널 경유"
+    KotlinLogging --> Logger : "팩토리"
+    Logger --> MDC : "일반 블로킹 컨텍스트"
+    Logger --> CoroutineMDC : "코루틴 컨텍스트"
+```
+
+## 로깅 처리 흐름
+
+```mermaid
+flowchart LR
+    subgraph KLogging["KLogging (동기)"]
+        A1["log.debug { msg }"] -->|"레벨 활성화 시만 실행"| SLF4J["SLF4J Logger"]
+        SLF4J --> APPENDER["Logback Appender\n(Console/File)"]
+    end
+
+    subgraph KLoggingChannel["KLoggingChannel (비동기)"]
+        B1["log.debug { msg }"] --> CHANNEL["MutableSharedFlow\n(버퍼 64개)"]
+        CHANNEL -->|"별도 코루틴"| SLF4J2["SLF4J Logger"]
+        SLF4J2 --> APPENDER2["Logback Appender"]
+    end
+
+    subgraph MDC["MDC 컨텍스트"]
+        C1["withLoggingContext(pairs)"] --> TL["ThreadLocal MDC"]
+        C2["withCoroutineLoggingContext(pairs)"] --> CC["CoroutineContext MDC\n(async 블록에도 전파)"]
+    end
+```
+
 ## 주요 기능
 
 - **Lambda 기반 Lazy Logging**: 로그 레벨이 활성화되지 않으면 메시지를 생성하지 않아 성능 향상

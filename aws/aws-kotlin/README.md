@@ -125,6 +125,51 @@ suspend fun putRecord(client: KinesisClient, streamName: String, data: ByteArray
 }
 ```
 
+## Java SDK v2 vs Kotlin SDK 비교 다이어그램
+
+```mermaid
+graph LR
+    subgraph JAVA["bluetape4k-aws\n(Java SDK v2)"]
+        JA["DynamoDbAsyncClient\n.getItem(request)"]
+        JB[".thenApply { result }"]
+        JC["CompletableFuture.await()\n→ suspend 변환"]
+        JA --> JB --> JC
+    end
+
+    subgraph KOTLIN["bluetape4k-aws-kotlin\n(Kotlin SDK)"]
+        KA["DynamoDbClient\n.getItem { ... }"]
+        KB["native suspend\n변환 없이 바로 사용"]
+        KA --> KB
+    end
+
+    style JAVA fill:#dbeafe
+    style KOTLIN fill:#dcfce7
+```
+
+## DSL 지원 서비스
+
+```mermaid
+graph TD
+    MOD["bluetape4k-aws-kotlin\n(Kotlin SDK 기반 단일 모듈)"]
+
+    subgraph DSL["bluetape4k DSL 제공"]
+        CW["metricDatum { }\n(CloudWatch)"]
+        CWL["inputLogEvent { }\n(CloudWatch Logs)"]
+        KIN["putRecordRequestOf()\n(Kinesis)"]
+        STS["stsClientOf()\n(STS)"]
+    end
+
+    subgraph NATIVE["Native suspend (래핑 불필요)"]
+        DDB["DynamoDbClient\n.getItem { }"]
+        S3["S3Client\n.putObject { }"]
+        SQS["SqsClient\n.sendMessage { }"]
+        SNS["SnsClient\n.publish { }"]
+    end
+
+    MOD --> DSL
+    MOD --> NATIVE
+```
+
 ## 테스트 환경
 
 LocalStack을 사용한 통합 테스트를 지원합니다:

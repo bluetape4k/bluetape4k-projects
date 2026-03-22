@@ -116,6 +116,62 @@ val extraData: Map<String, Any>? = resultRow.getFastjsonOrNull(Products.extraDat
 ./gradlew :bluetape4k-exposed-fastjson2:test
 ```
 
+## 아키텍처 다이어그램
+
+### JSON 컬럼 타입 클래스 구조
+
+```mermaid
+classDiagram
+    class ColumnType {
+        <<Exposed 기반 추상>>
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): Any
+    }
+    class FastjsonColumnType~T~ {
+        -objectMapper: ObjectMapper
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): String
+    }
+    class FastjsonBColumnType~T~ {
+        -objectMapper: ObjectMapper
+        +sqlType(): String
+        +valueFromDB(value): T
+        +notNullValueToDB(value): ByteArray
+    }
+    class JsonFunctions {
+        +Column.jsonPath(path): Expression
+        +Column.jsonContains(field, value): Op
+    }
+    class ResultRowExtensions {
+        +ResultRow.getFastjson(col): T
+        +ResultRow.getFastjsonOrNull(col): T?
+    }
+
+    ColumnType <|-- FastjsonColumnType
+    ColumnType <|-- FastjsonBColumnType
+    FastjsonColumnType --> JsonFunctions : 연동
+    FastjsonBColumnType --> JsonFunctions : 연동
+    ResultRowExtensions --> FastjsonColumnType : 사용
+    ResultRowExtensions --> FastjsonBColumnType : 사용
+```
+
+### JSON 컬럼 데이터 흐름
+
+```mermaid
+flowchart LR
+    A[Kotlin 객체] -->|Fastjson2 직렬화| B[JSON 문자열 / ByteArray]
+    B -->|DB 저장| C[(Database)]
+    C -->|DB 조회| D[JSON 문자열 / ByteArray]
+    D -->|Fastjson2 역직렬화| E[Kotlin 객체]
+
+    subgraph JSON 컬럼 타입
+        F[fastjson&lt;T&gt; → TEXT]
+        G[fastjsonb&lt;T&gt; → JSONB/BLOB]
+    end
+```
+
 ## 참고
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)

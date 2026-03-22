@@ -334,6 +334,104 @@ class KafkaIntegrationTest {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### Kafka 클래스 계층
+
+```mermaid
+classDiagram
+    class KafkaCodec {
+        <<interface>>
+        +serialize(topic, data) ByteArray
+        +deserialize(topic, bytes) T
+    }
+
+    class JacksonKafkaCodec {
+        +serialize(topic, data) ByteArray
+        +deserialize(topic, bytes) T
+    }
+
+    class BinaryKafkaCodec {
+        +serialize(topic, data) ByteArray
+        +deserialize(topic, bytes) T
+    }
+
+    class StringKafkaCodec {
+        +serialize(topic, data) ByteArray
+        +deserialize(topic, bytes) String
+    }
+
+    class KafkaCodecs {
+        <<object>>
+        +String: StringKafkaCodec
+        +Jackson: JacksonKafkaCodec
+        +Kryo: BinaryKafkaCodec
+        +Fory: BinaryKafkaCodec
+        +LZ4Jdk: BinaryKafkaCodec
+        +Lz4Kryo: BinaryKafkaCodec
+        +ZstdKryo: BinaryKafkaCodec
+    }
+
+    class SuspendKafkaProducerTemplate {
+        -senderOptions: SenderOptions
+        +send(topic, value) SenderResult
+        +send(topic, key, value) SenderResult
+        +send(record) SenderResult
+    }
+
+    class SuspendKafkaConsumerTemplate {
+        -receiverOptions: ReceiverOptions
+        +receive() Flow~ReceiverRecord~
+    }
+
+    KafkaCodec <|.. JacksonKafkaCodec
+    KafkaCodec <|.. BinaryKafkaCodec
+    KafkaCodec <|.. StringKafkaCodec
+    KafkaCodecs --> JacksonKafkaCodec
+    KafkaCodecs --> BinaryKafkaCodec
+    KafkaCodecs --> StringKafkaCodec
+```
+
+### Producer/Consumer 메시지 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant PT as SuspendKafkaProducerTemplate
+    participant Kafka as Kafka Broker
+    participant CT as SuspendKafkaConsumerTemplate
+    participant Handler as 메시지 핸들러
+
+    App->>+PT: send(topic, key, value)
+    Note over PT: Reactor Kafka SenderRecord 래핑
+    PT->>+Kafka: ProducerRecord 발행
+    Kafka-->>-PT: SenderResult (partition, offset)
+    PT-->>-App: SenderResult 반환
+
+    Kafka->>+CT: ReceiverRecord 스트림
+    CT->>+Handler: Flow.collect { record }
+    Handler->>Handler: 비즈니스 로직 처리
+    Handler->>Kafka: receiverOffset.commit()
+    Handler-->>-CT: 처리 완료
+    CT-->>-Kafka: ACK
+```
+
+### Kafka Streams 처리 흐름
+
+```mermaid
+flowchart LR
+    IT[입력 토픽] -->|consumedOf| KS[KStream]
+    KS -->|filter / map| KS2[변환된 KStream]
+    KS2 -->|groupByKey| KG[KGroupedStream]
+    KG -->|count / aggregate| KT[KTable]
+    KT -->|toStream| OS[출력 KStream]
+    OS -->|producedOf| OT[출력 토픽]
+
+    style IT fill:#4a90d9,color:#fff
+    style OT fill:#5ba85a,color:#fff
+    style KT fill:#e07b39,color:#fff
+```
+
 ## 패키지 구조
 
 ```

@@ -115,6 +115,101 @@ val bytes = serializer.serialize(itemV2)
 val itemV1 = serializer.deserialize<ItemV1>(bytes)
 ```
 
+## 아키텍처 다이어그램
+
+### Serializer 클래스 계층
+
+```mermaid
+classDiagram
+    class AvroSerializer {
+        <<interface>>
+        +serialize(schema, record) ByteArray
+        +deserialize(schema, bytes) GenericRecord
+        +serializeAsString(schema, record) String
+        +deserializeFromString(schema, text) GenericRecord
+    }
+
+    class AvroGenericRecordSerializer {
+        <<interface>>
+        +serialize(schema, record) ByteArray
+        +deserialize(schema, bytes) GenericRecord
+    }
+
+    class AvroSpecificRecordSerializer {
+        <<interface>>
+        +serialize(record) ByteArray
+        +deserialize(bytes) T
+        +serializeList(records) ByteArray
+        +deserializeList(bytes) List~T~
+    }
+
+    class AvroReflectSerializer {
+        <<interface>>
+        +serialize(obj) ByteArray
+        +deserialize(bytes) T
+    }
+
+    class DefaultAvroGenericRecordSerializer {
+        -codecFactory: CodecFactory
+    }
+
+    class DefaultAvroSpecificRecordSerializer {
+        -codecFactory: CodecFactory
+    }
+
+    class DefaultAvroReflectSerializer {
+        -codecFactory: CodecFactory
+        -schemaCache: Map~Class, Schema~
+    }
+
+    AvroGenericRecordSerializer <|.. DefaultAvroGenericRecordSerializer
+    AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
+    AvroReflectSerializer <|.. DefaultAvroReflectSerializer
+```
+
+### Avro 직렬화/역직렬화 흐름
+
+```mermaid
+sequenceDiagram
+    participant 앱 as 애플리케이션
+    participant S as AvroSerializer
+    participant C as CodecFactory
+    participant A as Avro 런타임
+
+    Note over 앱,A: 직렬화 흐름
+    앱->>S: serialize(record)
+    S->>C: 압축 코덱 선택 (Zstd/Snappy/Deflate)
+    S->>A: DatumWriter로 인코딩
+    A-->>S: 압축된 ByteArray
+    S-->>앱: ByteArray
+
+    Note over 앱,A: 역직렬화 흐름 (스키마 진화 포함)
+    앱->>S: deserialize(bytes)
+    S->>A: Writer Schema + Reader Schema 비교
+    A->>A: 필드 호환성 검증
+    A-->>S: 역직렬화된 객체
+    S-->>앱: T (실패 시 null 반환)
+```
+
+### 압축 코덱 선택 가이드
+
+```mermaid
+flowchart TD
+    시작([직렬화 시작]) --> 용도{사용 목적?}
+    용도 -->|고성능 온라인 처리| FAST[FAST_CODEC_FACTORY\nZstd 레벨 -1]
+    용도 -->|Kafka/Hadoop 호환| SNAPPY[SNAPPY_CODEC_FACTORY]
+    용도 -->|Avro 기본값 호환| DEFAULT[DEFAULT_CODEC_FACTORY\nDeflate 기본]
+    용도 -->|균형형 압축| ZSTD[ZSTD_CODEC_FACTORY\nZstd 기본]
+    용도 -->|장기 보관/최대 압축| ARCHIVE[ARCHIVE_CODEC_FACTORY\nZstd 레벨 9]
+    용도 -->|압축 없이 최대 속도| NULL[NULL_CODEC_FACTORY]
+    FAST --> 직렬화([ByteArray 출력])
+    SNAPPY --> 직렬화
+    DEFAULT --> 직렬화
+    ZSTD --> 직렬화
+    ARCHIVE --> 직렬화
+    NULL --> 직렬화
+```
+
 ## 의존성
 
 ```kotlin

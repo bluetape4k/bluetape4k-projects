@@ -101,6 +101,85 @@ spring:
 
 직접 Testcontainers 를 사용할 때 자주 필요한 `@DynamicPropertySource` 등록 코드를, 이 모듈에서는 시스템 프로퍼티 자동 등록으로 단순화할 수 있습니다.
 
+## 컨테이너 생명주기 다이어그램
+
+```mermaid
+sequenceDiagram
+    participant TEST as 테스트 클래스
+    participant SERVER as GenericServer (래퍼)
+    participant TC as Testcontainers
+    participant DOCKER as Docker 컨테이너
+    participant SPRING as Spring Boot
+
+    TEST->>SERVER: start()
+    SERVER->>TC: 컨테이너 시작 요청
+    TC->>DOCKER: Docker 이미지 pull & run
+    DOCKER-->>TC: 컨테이너 준비 완료
+    TC-->>SERVER: 포트 매핑 정보 반환
+    SERVER->>SERVER: writeToSystemProperties()\ntestcontainers.{name}.host/port/url 등록
+    SERVER-->>TEST: 시작 완료
+
+    TEST->>SPRING: 테스트 실행 시작
+    SPRING->>SPRING: application-test.yml 로드\n${testcontainers.mysql.jdbc-url} 치환
+    SPRING-->>TEST: ApplicationContext 준비 완료
+
+    TEST->>TEST: 테스트 로직 실행
+
+    TEST->>SERVER: stop() (또는 @AfterAll)
+    SERVER->>DOCKER: 컨테이너 종료 & 제거
+```
+
+## 지원 컨테이너 구조
+
+```mermaid
+graph TD
+    GS["GenericServer\n(공통 기반)"]
+
+    subgraph 데이터베이스
+        MY5["MySQL5Server"]
+        MY8["MySQL8Server"]
+        MA["MariaDBServer"]
+        PG["PostgreSQLServer"]
+        CR["CockroachServer"]
+        CH["ClickHouseServer"]
+    end
+
+    subgraph 스토리지
+        RD["RedisServer"]
+        RDC["RedisClusterServer"]
+        MG["MongoDBServer"]
+        CS["CassandraServer"]
+        ES["ElasticsearchServer"]
+        OS["OpenSearchServer"]
+        MN["MinIOServer"]
+    end
+
+    subgraph 메시지큐
+        KF["KafkaServer"]
+        RB["RabbitMQServer"]
+        PL["PulsarServer"]
+        NT["NatsServer"]
+        RP["RedpandaServer"]
+    end
+
+    subgraph 인프라
+        CN["ConsulServer"]
+        VT["VaultServer"]
+        PR["PrometheusServer"]
+        ZK["ZooKeeperServer"]
+    end
+
+    subgraph AWS
+        LS["LocalStackServer\n(S3, DynamoDB 등)"]
+    end
+
+    GS --> 데이터베이스
+    GS --> 스토리지
+    GS --> 메시지큐
+    GS --> 인프라
+    GS --> AWS
+```
+
 ## 참고
 
 - [Testcontainers](https://www.testcontainers.org/)

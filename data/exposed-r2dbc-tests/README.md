@@ -272,6 +272,56 @@ Containers.Postgres
 "r2dbc:postgresql://user:pass@host:5432/database"
 ```
 
+## 테스트 인프라 구조
+
+```mermaid
+flowchart TD
+    subgraph 테스트_클래스
+        A[AbstractExposedR2dbcTest] --> B[ParameterizedTest]
+        B --> C[ENABLE_DIALECTS_METHOD]
+    end
+
+    subgraph 지원_DB_R2DBC
+        D[H2 / H2_MYSQL / H2_MARIADB / H2_PSQL<br/>r2dbc-h2]
+        E[MariaDB - r2dbc-mariadb]
+        F[MySQL 8.0 - r2dbc-mysql]
+        G[PostgreSQL - r2dbc-postgresql]
+    end
+
+    subgraph Coroutine_유틸
+        H[suspend withDb]
+        I[suspend withTables]
+        J[suspend withAutoCommit]
+        K[suspend withSchemas]
+    end
+
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+
+    A --> H
+    A --> I
+    A --> J
+```
+
+### JDBC vs R2DBC 테스트 비교
+
+```mermaid
+flowchart LR
+    subgraph JDBC_Tests["exposed-jdbc-tests"]
+        J1[withDb] -->|동기| J2[JdbcTransaction]
+        J3[withTables] -->|동기/비동기| J4[withTablesSuspending]
+    end
+    subgraph R2DBC_Tests["exposed-r2dbc-tests"]
+        R1[suspend withDb] -->|코루틴 네이티브| R2[R2dbcTransaction]
+        R3[suspend withTables] -->|Flow 스트리밍| R4[Flow 쿼리]
+    end
+
+    style JDBC_Tests fill:#e8f4f8
+    style R2DBC_Tests fill:#f4f8e8
+```
+
 ## 참고 사항
 
 - R2DBC 테스트는 모두 `suspend` 함수 기반입니다

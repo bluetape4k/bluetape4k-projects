@@ -136,6 +136,97 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 |-------------------------------|------------|
 | `ServerInterceptorSupport.kt` | 서버 인터셉터 확장 |
 
+## 아키텍처 다이어그램
+
+### 클래스 계층
+
+```mermaid
+classDiagram
+    class GrpcServer {
+        <<interface>>
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcServer {
+        #server: Server?
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcClient {
+        #channel: ManagedChannel?
+        +connect()
+        +close()
+    }
+
+    class AbstractGrpcInprocessServer {
+        #serverName: String
+        +start()
+        +stop()
+    }
+
+    class AbstractGrpcInprocessClient {
+        #serverName: String
+        +connect()
+        +close()
+    }
+
+    GrpcServer <|.. AbstractGrpcServer
+    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
+    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
+```
+
+### gRPC 서버-클라이언트 통신 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant C as GrpcClient
+    participant CH as ManagedChannel
+    participant S as GrpcServer
+    participant SVC as ServiceImpl
+
+    C->>CH: ManagedChannelBuilder.forAddress(host, port)
+    CH->>S: TCP 연결 수립
+    S->>SVC: 서비스 등록
+
+    C->>CH: stub.doSomething(request)
+    CH->>S: HTTP/2 요청 전송
+    S->>SVC: 메서드 호출
+    SVC-->>S: 응답 생성
+    S-->>CH: HTTP/2 응답
+    CH-->>C: Response 반환
+
+    C->>CH: channel.shutdown()
+    CH->>S: 연결 종료
+```
+
+### In-process 테스트 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant T as 테스트 코드
+    participant IS as InprocessServer
+    participant IC as InprocessClient
+    participant SVC as ServiceImpl
+
+    T->>IS: InProcessServerBuilder.forName("test-server")
+    IS->>SVC: 서비스 등록 및 시작
+    T->>IC: InProcessChannelBuilder.forName("test-server")
+    IC->>IS: 인메모리 채널 연결
+
+    T->>IC: stub.call(request)
+    IC->>IS: 인메모리 전송 (네트워크 없음)
+    IS->>SVC: 메서드 호출
+    SVC-->>IC: 응답
+    IC-->>T: Response 반환
+
+    T->>IS: server.shutdown()
+    T->>IC: channel.shutdown()
+```
+
 ## 관련 모듈
 
 - **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)

@@ -104,6 +104,30 @@ election.runIfLeader {
 }
 ```
 
+## 모듈 의존성 구조
+
+```mermaid
+flowchart TD
+    A[bluetape4k-redis<br/>umbrella] --> B[bluetape4k-lettuce<br/>Lettuce 클라이언트]
+    A --> C[bluetape4k-redisson<br/>Redisson 클라이언트]
+
+    B --> B1[LettuceClients<br/>연결 팩토리 / 캐싱]
+    B --> B2[LettuceBinaryCodecs<br/>직렬화 × 압축 Codec]
+    B --> B3[RedisFuture.awaitSuspending<br/>Coroutines 어댑터]
+    B --> B4[LettuceLoadedMap<br/>Read-through / Write-through]
+    B --> B5[LettuceSuspendedLoadedMap<br/>suspend 버전]
+
+    C --> C1[redissonClient DSL<br/>클라이언트 생성]
+    C --> C2[RedissonCodecs<br/>Fory/Kryo5 × LZ4/Zstd]
+    C --> C3[RedissonLeaderElection<br/>분산 리더 선출]
+    C --> C4[RedissonNearCache<br/>2-tier Near Cache]
+    C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
+
+    style A fill:#c0392b,color:#fff
+    style B fill:#4a90d9,color:#fff
+    style C fill:#9b59b6,color:#fff
+```
+
 ## Spring Data Redis
 
 별도 모듈 [bluetape4k-spring-data-redis](../../spring/data-redis/README.md)에서

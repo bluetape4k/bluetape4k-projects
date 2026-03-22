@@ -243,6 +243,125 @@ val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
 val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 ```
 
+## 아키텍처 다이어그램
+
+### 클래스 구조
+
+```mermaid
+classDiagram
+    class JsonSerializer {
+        <<interface>>
+        +serialize(graph) ByteArray
+        +deserialize(bytes, clazz) T?
+        +serializeAsString(graph) String
+        +deserializeFromString(text, clazz) T?
+    }
+
+    class JacksonSerializer {
+        -mapper: ObjectMapper
+    }
+
+    class Jackson {
+        <<singleton>>
+        +defaultJsonMapper: JsonMapper
+        +prettyJsonWriter: ObjectWriter
+    }
+
+    class AsyncJsonParser {
+        -callback: (JsonNode) -> Unit
+        +consume(bytes: ByteArray)
+    }
+
+    class SuspendJsonParser {
+        -callback: suspend (JsonNode) -> Unit
+        +consume(flow: Flow~ByteArray~)
+    }
+
+    class JsonEncrypt {
+        <<annotation>>
+    }
+
+    class JsonTinkEncrypt {
+        <<annotation>>
+        +algorithm: TinkEncryptAlgorithm
+    }
+
+    class JsonMasker {
+        <<annotation>>
+        +value: String
+    }
+
+    class JsonUuidEncoder {
+        <<annotation>>
+        +type: JsonUuidEncoderType
+    }
+
+    JsonSerializer <|.. JacksonSerializer
+    JacksonSerializer --> Jackson : 사용
+    AsyncJsonParser --> SuspendJsonParser
+```
+
+### Jackson 직렬화 파이프라인
+
+```mermaid
+flowchart LR
+    subgraph 데이터 클래스
+        OBJ[Kotlin 객체]
+        ANN["@JsonTinkEncrypt\n@JsonMasker\n@JsonUuidEncoder"]
+    end
+
+    subgraph ObjectMapper["ObjectMapper 처리"]
+        SER[직렬화기\nSerializer]
+        DES[역직렬화기\nDeserializer]
+        MOD[Jackson Module\n등록]
+    end
+
+    subgraph 출력 포맷
+        JSON[JSON 텍스트]
+        CBOR[CBOR 바이너리]
+        YAML[YAML]
+        SMILE[Smile 바이너리]
+        CSV_FMT[CSV]
+    end
+
+    OBJ --> ANN
+    ANN --> SER
+    MOD --> SER
+    MOD --> DES
+    SER --> JSON
+    SER --> CBOR
+    SER --> YAML
+    SER --> SMILE
+    SER --> CSV_FMT
+    JSON --> DES --> OBJ
+```
+
+### 필드 암호화 흐름 (@JsonTinkEncrypt)
+
+```mermaid
+sequenceDiagram
+    participant 앱 as 애플리케이션
+    participant M as ObjectMapper
+    participant S as JsonTinkEncryptSerializer
+    participant T as Google Tink AEAD
+
+    Note over 앱,T: 직렬화 (암호화)
+    앱->>M: writeValueAsString(user)
+    M->>S: serialize(@JsonTinkEncrypt 필드)
+    S->>T: AEAD.encrypt(plaintext)
+    T-->>S: Base64 암호문
+    S-->>M: 암호화된 JSON 필드
+    M-->>앱: JSON 문자열
+
+    Note over 앱,T: 역직렬화 (복호화)
+    앱->>M: readValue(json, User::class)
+    M->>S: deserialize(@JsonTinkEncrypt 필드)
+    S->>T: AEAD.decrypt(ciphertext)
+    T-->>S: 평문
+    S-->>M: 복호화된 값
+    M-->>앱: User 객체
+```
+
 ## 의존성
 
 ```kotlin

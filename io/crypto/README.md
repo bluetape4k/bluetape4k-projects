@@ -130,6 +130,99 @@ val decrypted = decryptCipher.decrypt(encrypted)
 - **CipherBuilder**: 호출 시마다 새로운 `Cipher` 인스턴스 생성
 - BouncyCastle 프로바이더 등록은 `ReentrantLock`으로 보호
 
+## 아키텍처 다이어그램
+
+### 암호화 클래스 계층
+
+```mermaid
+classDiagram
+    class Digester {
+        <<interface>>
+        +digest(message: String) String
+        +digest(bytes: ByteArray) ByteArray
+        +matches(message: String, digest: String) Boolean
+    }
+
+    class Encryptor {
+        <<interface>>
+        +encrypt(message: String) String
+        +encrypt(bytes: ByteArray) ByteArray
+        +decrypt(encrypted: String) String
+        +decrypt(bytes: ByteArray) ByteArray
+    }
+
+    class AbstractDigester {
+        #pooledDigester: PooledByteDigester
+    }
+
+    class AbstractEncryptor {
+        #pooledEncryptor: PooledPBEByteEncryptor
+    }
+
+    class SHA256
+    class SHA512
+    class MD5
+    class Keccak256
+
+    class AES
+    class TripleDES
+    class DES
+    class RC2
+    class RC4
+
+    class CipherBuilder {
+        +secretKeySize(size: Int) CipherBuilder
+        +ivBytesSize(size: Int) CipherBuilder
+        +algorithm(alg: String) CipherBuilder
+        +transformation(t: String) CipherBuilder
+        +build(mode: Int) Cipher
+    }
+
+    Digester <|.. AbstractDigester
+    AbstractDigester <|-- SHA256
+    AbstractDigester <|-- SHA512
+    AbstractDigester <|-- MD5
+    AbstractDigester <|-- Keccak256
+
+    Encryptor <|.. AbstractEncryptor
+    AbstractEncryptor <|-- AES
+    AbstractEncryptor <|-- TripleDES
+    AbstractEncryptor <|-- DES
+    AbstractEncryptor <|-- RC2
+    AbstractEncryptor <|-- RC4
+```
+
+### 암호화/복호화 데이터 흐름
+
+```mermaid
+flowchart LR
+    subgraph 입력
+        P[평문\nPlaintext]
+    end
+
+    subgraph Digest["해시 다이제스트 (단방향)"]
+        D1[Jasypt\nPooledByteDigester]
+        D2[BouncyCastle\nKeccak Provider]
+    end
+
+    subgraph Encrypt["대칭 암호화 (양방향)"]
+        E1[PBE 암호화\nPooledPBEByteEncryptor]
+        E2[JCA Cipher\nAES/CBC/PKCS5Padding]
+    end
+
+    subgraph 출력
+        H[해시값\nBase64 문자열]
+        C[암호문\nByteArray / Base64]
+    end
+
+    P -->|SHA256/MD5/Keccak| D1 --> H
+    P -->|Keccak256/384/512| D2 --> H
+    P -->|AES/DES/TripleDES| E1 --> C
+    P -->|커스텀 변환| E2 --> C
+    C -->|decrypt| E1
+    C -->|decrypt| E2
+```
+
 ## 의존성
 
 ```kotlin

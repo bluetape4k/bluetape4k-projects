@@ -75,6 +75,69 @@ sf.withSessionSuspending { session ->
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/*`
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/*`
 
+## 아키텍처 다이어그램
+
+### Hibernate Reactive API 구조
+
+```mermaid
+flowchart TD
+    A[EntityManagerFactory<br/>JPA 표준] -->|asMutinySessionFactory| B[Mutiny.SessionFactory]
+    A -->|asStageSessionFactory| C[Stage.SessionFactory]
+
+    subgraph Mutiny_API["Mutiny API (SmallRye)"]
+        B --> D[withSessionSuspending]
+        B --> E[withTransactionSuspending]
+        B --> F[withStatelessSessionSuspending]
+        D --> G[Mutiny.Session 확장<br/>findAs / getAs<br/>createSelectionQueryAs]
+        F --> H[Mutiny.StatelessSession 확장<br/>getAs / createQueryAs]
+    end
+
+    subgraph Stage_API["Stage API (CompletionStage)"]
+        C --> I[withSessionSuspending]
+        C --> J[withTransactionSuspending]
+        I --> K[Stage.Session 확장<br/>findAs / getAs]
+    end
+
+    subgraph Coroutines["Coroutines 연결"]
+        L[awaitSuspending] --> M[suspend 함수로 변환]
+        N[await] --> M
+    end
+
+    G --> L
+    H --> L
+    K --> N
+```
+
+### 세션 유형 비교
+
+```mermaid
+classDiagram
+    class MutinySessionFactory {
+        +withSession(block): Uni~T~
+        +withTransaction(block): Uni~T~
+        +withStatelessSession(block): Uni~T~
+        +withSessionSuspending(block): T  ← 확장
+        +withTransactionSuspending(block): T  ← 확장
+    }
+    class StageSessionFactory {
+        +withSession(block): CompletionStage~T~
+        +withTransaction(block): CompletionStage~T~
+        +withSessionSuspending(block): T  ← 확장
+    }
+    class MutinySession {
+        +find(cls, id): Uni~T~
+        +findAs(id): Uni~T~  ← reified 확장
+        +persist(entity): Uni~Void~
+    }
+    class StageSession {
+        +find(cls, id): CompletionStage~T~
+        +findAs(id): CompletionStage~T~  ← reified 확장
+    }
+
+    MutinySessionFactory --> MutinySession : 생성
+    StageSessionFactory --> StageSession : 생성
+```
+
 ## 참고
 
 - [Hibernate Reactive](https://hibernate.org/reactive/)

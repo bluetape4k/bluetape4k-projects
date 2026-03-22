@@ -95,6 +95,47 @@ suspend fun receiveMessages(client: SqsAsyncClient, queueUrl: String) =
     }.messages()
 ```
 
+## 3단계 API 패턴 다이어그램
+
+```mermaid
+graph LR
+    subgraph "AWS Java SDK v2 기반 3단계 API"
+        direction TB
+        SYNC["1. Sync (Blocking)\nDynamoDbClient\n.getItem(request)"]
+        ASYNC["2. Async (CompletableFuture)\nDynamoDbAsyncClient\n.getItem(request)\n.thenApply { }"]
+        CORO["3. Coroutines (suspend)\nclient.getItemSuspend { }\n= CompletableFuture.await()"]
+    end
+
+    SYNC -->|"비동기화"| ASYNC
+    ASYNC -->|"코루틴 래핑\n(.await())"| CORO
+```
+
+## 서비스별 지원 현황
+
+```mermaid
+graph TD
+    MOD["bluetape4k-aws\n(단일 통합 모듈)"]
+
+    subgraph 서비스["AWS 서비스 (compileOnly 선언)"]
+        DDB["DynamoDB\n+ Enhanced Client"]
+        S3["S3\n+ TransferManager"]
+        SES["SES"]
+        SNS["SNS"]
+        SQS["SQS"]
+        KMS["KMS"]
+        CW["CloudWatch\n+ Logs"]
+        KIN["Kinesis"]
+        STS["STS"]
+    end
+
+    subgraph 확장["각 서비스별 Coroutines 확장"]
+        EXT["XxxAsyncClientCoroutinesExtensions.kt\ngetItemSuspend { }\nsendMessageSuspend { }\n..."]
+    end
+
+    MOD --> 서비스
+    서비스 --> 확장
+```
+
 ## 테스트 환경
 
 LocalStack을 사용한 통합 테스트를 지원합니다:

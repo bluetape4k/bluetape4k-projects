@@ -321,6 +321,95 @@ val decoded = encoded.toBase62Uuid()  // 원본 UUID
 | `utils/node/NodeIdentifier.kt`   | 노드 식별자 인터페이스          |
 | `MachineIdSupport.kt`            | 기계 ID 생성 유틸리티         |
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class IdGenerator~T~ {
+        <<interface>>
+        +nextId() T
+        +nextIds(count) Sequence~T~
+    }
+
+    class LongIdGenerator {
+        <<interface>>
+        +nextId() Long
+    }
+
+    class SnowflakeGenerator {
+        +nextId() Long
+        +parse(id) SnowflakeId
+    }
+
+    class UuidGenerator {
+        +nextId() UUID
+        +nextUUID() UUID
+        +nextIdAsString() String
+    }
+
+    class UlidGenerator {
+        +nextId() String
+        +nextULID() ULID
+    }
+
+    class KsuidGenerator {
+        +nextId() String
+    }
+
+    class Snowflake {
+        <<interface>>
+        +nextId() Long
+    }
+
+    class DefaultSnowflake {
+        -machineId: Int
+        -timestamp: 41bit
+        -sequence: 12bit
+    }
+
+    class GlobalSnowflake {
+        -centralCounter: AtomicLong
+    }
+
+    class Snowflakers {
+        <<object>>
+        +Default: DefaultSnowflake
+        +Global: GlobalSnowflake
+        +default(machineId) DefaultSnowflake
+        +global() GlobalSnowflake
+    }
+
+    class Uuid {
+        <<object>>
+        +V1: UuidStrategy
+        +V4: UuidStrategy
+        +V5: UuidStrategy
+        +V6: UuidStrategy
+        +V7: UuidStrategy
+    }
+
+    IdGenerator <|-- LongIdGenerator
+    IdGenerator <|-- SnowflakeGenerator
+    IdGenerator <|-- UuidGenerator
+    IdGenerator <|-- UlidGenerator
+    IdGenerator <|-- KsuidGenerator
+    LongIdGenerator <|-- SnowflakeGenerator
+    Snowflake <|-- DefaultSnowflake
+    Snowflake <|-- GlobalSnowflake
+    Snowflakers --> DefaultSnowflake
+    Snowflakers --> GlobalSnowflake
+    SnowflakeGenerator --> Snowflake
+    UuidGenerator --> Uuid
+```
+
+## Snowflake ID 비트 구조
+
+```mermaid
+block-beta
+    columns 4
+    A["sign\n(1 bit)"] B["timestamp\n(41 bits)\n~69년 범위"] C["machineId\n(10 bits)\n최대 1024대"] D["sequence\n(12 bits)\n밀리초당 4096개"]
+```
+
 ## 참고 자료
 
 - [Twitter Snowflake](https://developer.twitter.com/en/docs/basics/twitter-ids)

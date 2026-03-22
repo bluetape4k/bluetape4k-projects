@@ -224,6 +224,77 @@ val result = totalAmount.await().indefinitely()
 | `MultiSupport.kt`     | Multi 생성 및 변환 확장 함수  |
 | `CoroutineSupport.kt` | Coroutine과 Mutiny 연동 |
 
+## Mutiny 타입 다이어그램
+
+```mermaid
+graph TD
+    subgraph Mutiny 핵심 타입
+        UNI["Uni&lt;T&gt;\n0 또는 1개 아이템\n(Reactor Mono 대응)"]
+        MULTI["Multi&lt;T&gt;\n0개 이상의 아이템 스트림\n(Reactor Flux 대응)"]
+    end
+
+    subgraph Uni 생성
+        UV["uniOf(value)"]
+        US["uniOf { supplier }"]
+        UN["nullUni()"]
+        UF["uniFailureOf(exception)"]
+        UCF["CompletableFuture.asUni()"]
+        UCORO["CoroutineScope.asUni { suspend }"]
+    end
+
+    subgraph Multi 생성
+        MV["multiOf(1, 2, 3)"]
+        MR["multiRangeOf(0, 100)"]
+        ML["List.asMulti()"]
+        MS["Sequence.asMulti()"]
+        MSTR["Stream.asMulti()"]
+    end
+
+    subgraph 변환 및 처리
+        MAP["map { }"]
+        FLT["filter { }"]
+        FM["flatMap { }"]
+        OE["onEach { }"]
+        ERR["onFailure().recoverWithItem()"]
+        RET["onFailure().retry().atMost(3)"]
+    end
+
+    UV --> UNI
+    US --> UNI
+    UN --> UNI
+    UF --> UNI
+    UCF --> UNI
+    UCORO --> UNI
+
+    MV --> MULTI
+    MR --> MULTI
+    ML --> MULTI
+    MS --> MULTI
+    MSTR --> MULTI
+
+    UNI --> MAP
+    UNI --> FM
+    UNI --> ERR
+    UNI --> RET
+    MULTI --> MAP
+    MULTI --> FLT
+    MULTI --> OE
+```
+
+## Coroutine 연동 흐름
+
+```mermaid
+sequenceDiagram
+    participant CS as CoroutineScope
+    participant UNI as Uni&lt;T&gt;
+    participant SUB as Subscriber
+
+    CS->>UNI: asUni { suspend 블록 }
+    Note over UNI: 별도 코루틴에서 실행
+    UNI->>SUB: onItem(result)
+    SUB->>SUB: await().atMost(5.seconds)
+```
+
 ## Mutiny vs 다른 반응형 라이브러리
 
 | 라이브러리           | 특징                           |

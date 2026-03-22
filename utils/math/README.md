@@ -233,6 +233,58 @@ combinations(10, 3)  // 120
 permutations(5, 3)   // 60
 ```
 
+## 기능 구조 다이어그램
+
+```mermaid
+graph TD
+    subgraph 통계["통계 (Statistics)"]
+        DS["descriptives()\n기술통계 (평균/분산/표준편차)"]
+        HG["Histogram\n(Double/BigDecimal/Comparable)"]
+        MA["이동평균 / 이동합"]
+        AG["aggregateBy()\n키별 집계"]
+    end
+
+    subgraph 보간["보간 (Interpolation)"]
+        LIN["linearInterpolatorOf()"]
+        SPL["splineInterpolatorOf()"]
+        LOE["loessInterpolatorOf()"]
+        AKI["akimaSplineInterpolatorOf()"]
+    end
+
+    subgraph 적분["적분 (Integration)"]
+        ROM["rombergIntegratorOf()"]
+        SIM["simpsonIntegratorOf()"]
+        TRP["trapezoidIntegratorOf()"]
+        MID["midPointIntegratorOf()"]
+    end
+
+    subgraph 방정식["방정식 해법 (Equation)"]
+        BIS["bisectionEquatorOf()"]
+        BRN["brentEquatorOf()"]
+        SEC["secantEquatorOf()"]
+    end
+
+    subgraph 랜덤["랜덤 (Random)"]
+        RF["randomFirst()"]
+        RD["randomDistinct(n)"]
+        WC["weightedCoinFlip(p)"]
+        WD["WeightedDice"]
+    end
+
+    subgraph ML["머신러닝"]
+        KM["K-Means 클러스터링"]
+        DM["거리 측정\n(Euclidean/Cosine)"]
+    end
+
+    MATH["bluetape4k-math\n(Apache Commons Math3 기반)"]
+    MATH --> 통계
+    MATH --> 보간
+    MATH --> 적분
+    MATH --> 방정식
+    MATH --> 랜덤
+    MATH --> ML
+```
+
 ## 주요 기능 상세
 
 | 파일                        | 설명                                              |

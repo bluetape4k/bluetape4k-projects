@@ -174,6 +174,77 @@ class MyMongoTest : AbstractMongoTest() {
 | `createIndex/dropIndex` 래퍼 | 이미 `suspend` |
 | `aggregateAsFlow()` | 네이티브 `aggregate()`가 이미 `AggregateFlow<T>` (= `Flow`) 반환 |
 
+## 아키텍처 다이어그램
+
+### 모듈 API 구조
+
+```mermaid
+classDiagram
+    class MongoClientSupport {
+        +mongoClient(block): MongoClient
+        +mongoClientOf(connectionString): MongoClient
+    }
+    class MongoClientProvider {
+        -cache: Map~String, MongoClient~
+        +getOrCreate(connectionString): MongoClient
+    }
+    class MongoDatabaseExtensions {
+        +MongoDatabase.getCollectionOf~T~(name): MongoCollection~T~
+        +MongoDatabase.listCollectionNamesList(): List~String~
+    }
+    class MongoCollectionExtensions {
+        +findFirst(filter): T?
+        +findFirstOrNull(filter): T?
+        +exists(filter): Boolean
+        +upsert(filter, update): UpdateResult
+        +findAsFlow(filter, sort, skip, limit): Flow~T~
+    }
+    class DocumentExtensions {
+        +documentOf(vararg pairs): Document
+        +documentOf(block): Document
+        +Document.getAs~T~(key): T?
+    }
+    class AggregationSupport {
+        +pipeline(block): List~Bson~
+        +matchStage(filter): Bson
+        +groupStage(id, accumulators): Bson
+        +sortStage(sort): Bson
+        +limitStage(n): Bson
+        +skipStage(n): Bson
+        +projectStage(projection): Bson
+        +unwindStage(field): Bson
+    }
+
+    MongoClientSupport --> MongoClientProvider : 위임 가능
+    MongoDatabaseExtensions --> MongoCollectionExtensions : Collection 제공
+    AggregationSupport --> MongoCollectionExtensions : pipeline 전달
+    DocumentExtensions --> MongoCollectionExtensions : BSON 생성
+```
+
+### Aggregation Pipeline 데이터 흐름
+
+```mermaid
+flowchart LR
+    A["pipeline { ... } DSL"] -->|stages 구성| B[List~Bson~]
+    B -->|collection.aggregate| C[AggregateFlow~T~]
+    C -->|Flow 변환| D[Flow~T~]
+
+    subgraph 스테이지_종류
+        E[matchStage - 필터]
+        F[groupStage - 그룹화]
+        G[sortStage - 정렬]
+        H[limitStage - 제한]
+        I[skipStage - 건너뛰기]
+        J[projectStage - 프로젝션]
+        K[unwindStage - 배열 전개]
+    end
+
+    A --> E
+    A --> F
+    A --> G
+    A --> H
+```
+
 ## 참고 자료
 
 - [MongoDB Kotlin Coroutine Driver 공식 문서](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/)

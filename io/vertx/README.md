@@ -59,6 +59,91 @@ dependencies {
 | `vertx-web` | `compileOnly` | 선택적 Web 지원 |
 | `vertx-jdbc-client` | `compileOnly` | 선택적 JDBC |
 
+## 아키텍처 다이어그램
+
+### 모듈 의존성 구조
+
+```mermaid
+flowchart TD
+    subgraph bluetape4k-vertx
+        CORE[Vert.x Core\nvertx-core]
+        KOTLIN[Vert.x Kotlin\nvertx-lang-kotlin]
+        COROUTINES[Vert.x Coroutines\nvertx-lang-kotlin-coroutines]
+        SQL[Vert.x SQL Client\nvertx-sql-client]
+        R4J[bluetape4k-resilience4j]
+    end
+
+    subgraph 선택적 런타임
+        MYSQL[vertx-mysql-client]
+        PG[vertx-pg-client]
+        WEB[vertx-web]
+        JDBC[vertx-jdbc-client]
+    end
+
+    CORE --> KOTLIN --> COROUTINES
+    CORE --> SQL
+    COROUTINES --> SQL
+    bluetape4k-vertx --> MYSQL
+    bluetape4k-vertx --> PG
+    bluetape4k-vertx -.->|compileOnly| WEB
+    bluetape4k-vertx -.->|compileOnly| JDBC
+```
+
+### Vert.x 이벤트 루프 + Coroutines 처리 흐름
+
+```mermaid
+flowchart LR
+    subgraph 이벤트 루프["Vert.x 이벤트 루프"]
+        EL[Event Loop Thread]
+        EB[EventBus]
+        VER[Verticle\nCoroutineVerticle]
+    end
+
+    subgraph Coroutines["Kotlin Coroutines"]
+        SC[suspend fun start]
+        COR[CoroutineScope\nvertxDispatcher]
+    end
+
+    subgraph SQL_Client["SQL 클라이언트"]
+        POOL[Connection Pool]
+        QUERY[preparedQuery.execute]
+        RS[RowSet~Row~]
+    end
+
+    EL --> VER
+    VER --> SC
+    SC --> COR
+    COR -->|await| EB
+    COR -->|await| POOL
+    POOL --> QUERY --> RS
+    RS -->|await| COR
+```
+
+### Circuit Breaker + Resilience4j 통합 흐름
+
+```mermaid
+sequenceDiagram
+    participant 앱 as Verticle (Coroutines)
+    participant CB as CircuitBreaker\n(Resilience4j)
+    participant SVC as 원격 서비스
+
+    앱->>CB: cb.executeSuspend { remoteCall() }
+    CB->>CB: 상태 확인 (CLOSED/OPEN/HALF_OPEN)
+
+    alt CLOSED (정상)
+        CB->>SVC: 원격 호출
+        SVC-->>CB: 응답
+        CB-->>앱: 성공 결과
+    else OPEN (차단)
+        CB-->>앱: CallNotPermittedException
+    else HALF_OPEN (테스트)
+        CB->>SVC: 테스트 호출
+        SVC-->>CB: 성공/실패
+        CB->>CB: 상태 전환 (CLOSED/OPEN)
+        CB-->>앱: 결과 반환
+    end
+```
+
 ## 사용 예시
 
 ### Verticle (Coroutines)

@@ -246,6 +246,62 @@ CREATE TABLE planning_solution (
 ./gradlew :bluetape4k-timefold-solver-persistence-exposed:test --tests "HardSoftScoreTest"
 ```
 
+## 아키텍처 다이어그램
+
+```mermaid
+graph LR
+    subgraph Timefold["Timefold Solver"]
+        SS["SimpleScore"]
+        HSS["HardSoftScore"]
+        HMSS["HardMediumSoftScore"]
+        BS["BendableScore"]
+    end
+
+    subgraph Module["bluetape4k-timefold-solver-persistence-exposed"]
+        CT["ColumnType 구현체\n(simpleScore, hardSoftScore, ...)"]
+        EXT["Exposed 확장 함수\n(Table.hardSoftScore() 등)"]
+    end
+
+    subgraph Exposed["JetBrains Exposed ORM"]
+        TABLE["IdTable 정의\n(val score = hardSoftScore(...))"]
+        DAO["Entity (DAO)\n(var score by Table.score)"]
+        DSL["DSL insert/update/select"]
+    end
+
+    subgraph DB["RDB (H2/MySQL/PostgreSQL 등)"]
+        INT["INTEGER\n(SimpleScore)"]
+        VC["VARCHAR\n(HardSoftScore → '100/-50')"]
+        VC2["VARCHAR\n(BendableScore → '[100]hard/[-30]soft')"]
+    end
+
+    Timefold --> Module
+    Module --> Exposed
+    Exposed --> DB
+```
+
+## Score 직렬화 흐름
+
+```mermaid
+sequenceDiagram
+    participant APP as 애플리케이션
+    participant EXP as Exposed ORM
+    participant CT as ScoreColumnType
+    participant DB as 데이터베이스
+
+    Note over APP,DB: 저장 (직렬화)
+    APP->>EXP: entity.score = HardSoftScore.of(100, -50)
+    EXP->>CT: valueToDb(score)
+    CT->>CT: ScoreDefinition.formatScore(score)\n→ "100hard/-50soft"
+    CT->>DB: INSERT ... score = '100hard/-50soft'
+
+    Note over APP,DB: 조회 (역직렬화)
+    APP->>EXP: PlanningSolution.findById(1)
+    EXP->>DB: SELECT score FROM ...
+    DB-->>CT: "100hard/-50soft"
+    CT->>CT: ScoreDefinition.parseScore("100hard/-50soft")\n→ HardSoftScore.of(100, -50)
+    CT-->>APP: HardSoftScore 객체
+```
+
 ## 참고
 
 - [Timefold Solver 공식 문서](https://timefold.ai/docs)

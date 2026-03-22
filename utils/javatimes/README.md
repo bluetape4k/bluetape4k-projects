@@ -453,6 +453,95 @@ when (relation) {
 ./gradlew test --tests "io.bluetape4k.javatimes.DurationSupportTest"
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class TimePeriod {
+        <<interface>>
+        +start: ZonedDateTime
+        +end: ZonedDateTime
+        +duration: Duration
+        +contains(dt) Boolean
+        +overlaps(other) Boolean
+        +relationWith(other) PeriodRelation
+    }
+
+    class TimeBlock {
+        +start: ZonedDateTime
+        +duration: Duration
+        +move(duration)
+        +expandBy(duration)
+    }
+
+    class TimeRange {
+        +start: ZonedDateTime
+        +end: ZonedDateTime
+        +move(duration)
+        +expandBy(duration)
+    }
+
+    class CalendarTimeRange {
+        +calendar: TimeCalendar
+        +unmappedStart: ZonedDateTime
+        +unmappedEnd: ZonedDateTime
+    }
+
+    class YearRange
+    class MonthRange
+    class WeekRange
+    class DayRange
+    class HourRange
+    class MinuteRange
+
+    class TemporalInterval {
+        +start: Instant
+        +end: Instant
+        +toDuration() Duration
+        +contains(instant) Boolean
+        +overlaps(other) Boolean
+        +windowedDays(size, step)
+        +chunkMonths(size)
+    }
+
+    class DateAdd {
+        +excludePeriods: List~TimeRange~
+        +add(start, duration) ZonedDateTime
+        +subtract(start, duration) ZonedDateTime
+    }
+
+    class DateDiff {
+        +years: Int
+        +months: Int
+        +days: Int
+        +hours: Int
+    }
+
+    TimePeriod <|-- TimeBlock
+    TimePeriod <|-- TimeRange
+    TimeRange <|-- CalendarTimeRange
+    CalendarTimeRange <|-- YearRange
+    CalendarTimeRange <|-- MonthRange
+    CalendarTimeRange <|-- WeekRange
+    CalendarTimeRange <|-- DayRange
+    CalendarTimeRange <|-- HourRange
+    CalendarTimeRange <|-- MinuteRange
+```
+
+## Time Range Flow 처리 흐름
+
+```mermaid
+flowchart LR
+    START["시작 ZonedDateTime"] --> RANGE["ZonedDateTime Range\n(start..end)"]
+    RANGE -->|"step(1.monthPeriod())"| STEP["월별 순회"]
+    RANGE -->|"windowedMonths(3, 1)"| WIND["이동 윈도우\n(3개월, 1개월 이동)"]
+    RANGE -->|"chunkedDays(7)"| CHUNK["주 단위 분할"]
+    RANGE -->|"asFlow()"| FLOW["Flow<ZonedDateTime>"]
+
+    FLOW -->|"windowedFlowMonths(3)"| WF["Flow<Pair> 윈도우"]
+    FLOW -->|"chunkedFlowDays(7)"| CF["Flow<List> 청크"]
+```
+
 ## 참고
 
 - [Java Time API Documentation](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)

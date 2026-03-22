@@ -47,6 +47,81 @@ println(distance.toHuman())    // 50.0 m
 ./gradlew :bluetape4k-measured:test
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class Units {
+        <<interface>>
+        +suffix: String
+        +ratio: Double
+    }
+
+    class Measure~T : Units~ {
+        +amount: Double
+        +units: T
+        +as(target: T) Double
+        +toHuman() String
+        +times(other) UnitsProduct
+        +div(other) UnitsRatio
+    }
+
+    class UnitsProduct~A : Units, B : Units~ {
+        +left: Measure~A~
+        +right: Measure~B~
+    }
+
+    class UnitsRatio~N : Units, D : Units~ {
+        +numerator: Measure~N~
+        +denominator: Measure~D~
+    }
+
+    class Length {
+        +meters
+        +kilometers
+        +centimeters
+    }
+
+    class Time {
+        +seconds
+        +minutes
+        +hours
+    }
+
+    class Mass {
+        +kilograms
+        +grams
+        +pounds
+    }
+
+    class Velocity
+    class Acceleration
+
+    Units <|-- Length
+    Units <|-- Time
+    Units <|-- Mass
+    Measure --> Units
+    UnitsRatio --|> Measure : 복합 단위
+    UnitsProduct --|> Measure : 복합 단위
+    Velocity --> UnitsRatio : "Length / Time (m/s)"
+    Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
+```
+
+## 단위 조합 흐름
+
+```mermaid
+flowchart LR
+    L["10 * meters\n(Measure&lt;Length&gt;)"]
+    T["seconds\n(Time)"]
+    V["speed\n(UnitsRatio&lt;Length, Time&gt;)\n= 10 m/s"]
+    D["5 * seconds\n(Measure&lt;Time&gt;)"]
+    R["distance\n(Measure&lt;Length&gt;)\n= 50 m"]
+
+    L -->|"/ seconds"| V
+    V -->|"* duration"| R
+    D --> R
+```
+
 ## units 호환 어댑터
 
 `bluetape4k-units`에서 `bluetape4k-measured`로 점진 전환할 수 있도록 호환 확장 함수를 제공합니다.

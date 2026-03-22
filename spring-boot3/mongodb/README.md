@@ -205,6 +205,60 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 - [Spring Data MongoDB 공식 문서](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)
 - [bluetape4k-mongodb](../data/mongodb/README.md) — 네이티브 MongoDB Kotlin 드라이버 확장
 
+## 아키텍처 다이어그램
+
+### ReactiveMongoOperations 코루틴 확장 흐름
+
+```mermaid
+graph TD
+    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수\n(bluetape4k-spring-mongodb)"]
+    Ext --> ROps["ReactiveMongoOperations"]
+    ROps --> Reactor["Reactor\nMono / Flux"]
+    Reactor --> Driver["MongoDB Reactive Driver"]
+    Driver --> MongoDB[("MongoDB")]
+    Ext -- "Mono → suspend" --> App
+    Ext -- "Flux → Flow" --> App
+```
+
+### Criteria / Query / Update DSL 흐름
+
+```mermaid
+graph LR
+    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL\n\"age\".criteria() gt 20"]
+    Code --> QueryBuilder["Query 빌더 확장\nqueryOf() / paginate()"]
+    Code --> UpdateDSL["Update DSL\n\"field\" setTo value"]
+    CriteriaDSL --> Query["Query 객체"]
+    QueryBuilder --> Query
+    UpdateDSL --> Update["Update 객체"]
+    Query --> ROps["ReactiveMongoOperations\n코루틴 확장"]
+    Update --> ROps
+    ROps --> MongoDB[("MongoDB")]
+```
+
+### 코루틴 변환 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as 코루틴 확장
+    participant Ops as ReactiveMongoOperations
+    participant DB as MongoDB
+
+    App->>Ext: findAllAsFlow<User>()
+    Ext->>Ops: findAll(User::class) → Flux<User>
+    Ops->>DB: find({}) 쿼리
+    DB-->>Ops: 문서 스트림
+    Ops-->>Ext: Flux<User>
+    Ext-->>App: Flow<User> (코루틴 스트림)
+
+    App->>Ext: insertSuspending(user)
+    Ext->>Ops: insert(user) → Mono<User>
+    Ops->>DB: insertOne 요청
+    DB-->>Ops: 삽입된 문서
+    Ops-->>Ext: Mono<User>
+    Ext-->>App: User (suspend 결과)
+```
+
 ## 라이선스
 
 Apache License 2.0

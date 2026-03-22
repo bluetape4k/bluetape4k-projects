@@ -297,6 +297,62 @@ class PostRepository(
 ./gradlew :spring:r2dbc:test
 ```
 
+## 아키텍처 다이어그램
+
+### R2DBC + Coroutines 데이터 흐름
+
+```mermaid
+graph TD
+    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수\n(XyzSuspending / Flow)"]
+    Ext --> ROps["R2dbcEntityOperations"]
+    ROps --> R2DBC["Spring Data R2DBC"]
+    R2DBC --> Driver["R2DBC Driver\n(H2 / PostgreSQL / MySQL)"]
+    Driver --> DB[("관계형 데이터베이스")]
+    Ext -- "Mono → suspend" --> App
+    Ext -- "Flux → Flow" --> App
+```
+
+### CRUD 연산 계층 구조
+
+```mermaid
+graph LR
+    Service["서비스 / Repository"] --> Select["selectAllSuspending()\nselectSuspending(query)\nfindOneByIdOrNullSuspending(id)"]
+    Service --> Insert["insertSuspending(entity)\ninsertOrNullSuspending(entity)"]
+    Service --> Update["updateSuspending(query, update)"]
+    Service --> Delete["deleteSuspending(query)\ndeleteAllSuspending()"]
+    Service --> Count["countAllSuspending()\ncountSuspending(query)\nexistsSuspending(query)"]
+    Select --> ROps["R2dbcEntityOperations"]
+    Insert --> ROps
+    Update --> ROps
+    Delete --> ROps
+    Count --> ROps
+    ROps --> DB[("데이터베이스")]
+```
+
+### 코루틴 변환 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as XyzSuspending 확장
+    participant Ops as R2dbcEntityOperations
+    participant DB as 데이터베이스
+
+    App->>Ext: findOneByIdOrNullSuspending<Post>(id)
+    Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
+    Ops->>DB: SELECT * FROM posts WHERE id=?
+    DB-->>Ops: 행 데이터
+    Ops-->>Ext: Mono<Post>
+    Ext-->>App: Post? (suspend 반환)
+
+    App->>Ext: selectAllSuspending<Post>()
+    Ext->>Ops: select(Post::class) → Flux<Post>
+    Ops->>DB: SELECT * FROM posts
+    DB-->>Ops: 행 스트림
+    Ops-->>Ext: Flux<Post>
+    Ext-->>App: Flow<Post> (코루틴 스트림)
+```
+
 ## 참고
 
 - [Spring Data R2DBC Reference](https://docs.spring.io/spring-data/r2dbc/reference/)

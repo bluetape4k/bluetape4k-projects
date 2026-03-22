@@ -283,6 +283,91 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### 주요 API 구조
+
+```mermaid
+classDiagram
+    class DatabaseClientExtensions {
+        +DatabaseClient.flow(mapper): Flow~T~
+        +DatabaseClient.awaitSingle(mapper): T
+        +DatabaseClient.awaitSingleAsMap(): Map~String,Any~
+        +DatabaseClient.awaitList(mapper): List~T~
+        +DatabaseClient.awaitCount(): Long
+        +DatabaseClient.awaitExists(): Boolean
+        +DatabaseClient.awaitGeneratedKey(): Long?
+        +DatabaseClient.awaitRowsUpdated(): Long
+        +DatabaseClient.withTransactionSuspend(block): T
+    }
+    class BindSpecExtensions {
+        +bindMap(params: Map~String,Any~): BindSpec
+        +bindIndexedMap(params: Map~Int,Any~): BindSpec
+    }
+    class QueryBuilder {
+        +build(block): Query
+        +select(sql)
+        +where(condition)
+        +whereGroup(op, block)
+        +orderBy(clause)
+        +limit(n)
+        +parameter(name, value)
+    }
+    class Query {
+        +sql: String
+        +parameters: Map~String,Any~
+    }
+    class R2dbcClient {
+        +execute~T~(sql): ExecuteSpec~T~
+        +execute~T~(query): ExecuteSpec~T~
+    }
+
+    DatabaseClientExtensions --> BindSpecExtensions : 파라미터 바인딩
+    QueryBuilder --> Query : 생성
+    R2dbcClient --> DatabaseClientExtensions : 위임
+    R2dbcClient --> QueryBuilder : 사용
+```
+
+### R2DBC 쿼리 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant R2DBC as DatabaseClient 확장
+    participant Spring as Spring R2DBC
+    participant DB as 데이터베이스
+
+    App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
+    R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
+    Spring->>DB: R2DBC 쿼리 실행 (논블로킹)
+    DB-->>Spring: Flux~Row~
+    Spring-->>R2DBC: Flux~Row~
+    R2DBC-->>App: Flow~T~ (코루틴 변환)
+
+    Note over App,DB: 모든 I/O가 논블로킹, 코루틴 컨텍스트에서 실행
+```
+
+### JDBC vs R2DBC 비교
+
+```mermaid
+flowchart LR
+    subgraph JDBC
+        A1[DataSource] --> A2[Connection]
+        A2 --> A3[PreparedStatement]
+        A3 --> A4[ResultSet]
+        A4 --> A5[동기 처리]
+    end
+    subgraph R2DBC
+        B1[ConnectionFactory] --> B2[Connection]
+        B2 --> B3[Statement]
+        B3 --> B4[Result / Flux~Row~]
+        B4 -->|asFlow| B5[Flow~T~ 비동기]
+    end
+
+    style JDBC fill:#f9f0e0
+    style R2DBC fill:#e0f0f9
+```
+
 ## 참고 자료
 
 - [R2DBC 공식 문서](https://r2dbc.io/)

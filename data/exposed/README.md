@@ -86,6 +86,35 @@ dependencies {
 ./gradlew :bluetape4k-exposed-jdbc:test
 ```
 
+## 모듈 의존성 구조
+
+```mermaid
+flowchart TD
+    A[bluetape4k-exposed<br/>umbrella] --> B[bluetape4k-exposed-core<br/>핵심 컬럼 타입 · ID 확장]
+    A --> C[bluetape4k-exposed-dao<br/>DAO 엔티티 · 커스텀 IdTable]
+    A --> D[bluetape4k-exposed-jdbc<br/>Repository · 트랜잭션 · 쿼리]
+    D --> B
+    D --> C
+
+    E[exposed-r2dbc] --> B
+    F[exposed-jackson] --> B
+    G[exposed-fastjson2] --> B
+    H[exposed-tink] --> B
+    I[exposed-jackson3] --> B
+
+    subgraph 권장_선택_가이드
+        J["R2DBC, 압축/암호화 컬럼 타입<br/>→ exposed-core"]
+        K["DAO Entity, 커스텀 IdTable<br/>→ exposed-dao"]
+        L["JDBC Repository, 트랜잭션<br/>→ exposed-jdbc"]
+        M["기존 코드 호환<br/>→ exposed (umbrella)"]
+    end
+
+    style A fill:#4a90d9,color:#fff
+    style B fill:#7ab648,color:#fff
+    style C fill:#7ab648,color:#fff
+    style D fill:#7ab648,color:#fff
+```
+
 ## 참고
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)

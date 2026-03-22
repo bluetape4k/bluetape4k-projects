@@ -184,6 +184,89 @@ buf.writeUIntSmart(100000) // 4바이트
 |----------------------------|-------------|
 | `NettyTransportSupport.kt` | Netty 전송 지원 |
 
+## 아키텍처 다이어그램
+
+### ByteBuf 확장 API 구조
+
+```mermaid
+classDiagram
+    class ByteBuf {
+        <<Netty>>
+        +readByte() Byte
+        +writeByte(value: Int)
+        +readableBytes() Int
+    }
+
+    class ByteBufExtensions {
+        <<extensions>>
+        +readUByteNeg() UByte
+        +readUShortAdd() UShort
+        +readShortSmart() Short
+        +readIntSmart() Int
+        +readUIntSmart() Int
+        +readVarInt() Int
+        +readBytesReversed(length) ByteArray
+        +writeShortSmart(value: Short)
+        +writeIntSmart(value: Int)
+        +writeVarInt(value: Int)
+        +writeString(value: String)
+    }
+
+    class BitBuf {
+        -buf: ByteBuf
+        +readBit() Boolean
+        +writeBit(value: Boolean)
+    }
+
+    class ReferenceCountedSupport {
+        <<extensions>>
+        +safeRelease()
+        +refCnt() Int
+    }
+
+    ByteBuf <-- ByteBufExtensions : 확장
+    ByteBuf <-- BitBuf : 래핑
+    ByteBuf <-- ReferenceCountedSupport : 확장
+```
+
+### Smart 인코딩 데이터 흐름
+
+```mermaid
+flowchart LR
+    subgraph 값 범위별 인코딩
+        V1["작은 값\n0 ~ 127"]
+        V2["중간 값\n128 ~ 32767"]
+        V3["큰 값\n32768+"]
+    end
+
+    subgraph ByteBuf 인코딩
+        B1["1바이트\n0xxx xxxx"]
+        B2["2바이트\n1xxx xxxx xxxx xxxx"]
+        B3["4바이트\n(부호 확장)"]
+    end
+
+    V1 -->|writeShortSmart / writeUShortSmart| B1
+    V2 -->|writeShortSmart / writeUShortSmart| B2
+    V3 -->|writeIntSmart / writeUIntSmart| B3
+
+    B1 -->|readShortSmart / readUShortSmart| V1
+    B2 -->|readShortSmart / readUShortSmart| V2
+    B3 -->|readIntSmart / readUIntSmart| V3
+```
+
+### Netty 채널 파이프라인 처리 흐름
+
+```mermaid
+flowchart TD
+    NET[네트워크 계층] -->|수신 바이트| CH[Channel]
+    CH --> P1[ChannelHandler 1\n바이트 디코딩]
+    P1 --> P2[ChannelHandler 2\nByteBuf 확장 처리\nreadVarInt / readShortSmart]
+    P2 --> P3[ChannelHandler 3\n비즈니스 로직]
+    P3 -->|응답 생성| W1[ChannelHandler\nwriteVarInt / writeString]
+    W1 -->|인코딩| CH
+    CH -->|송신 바이트| NET
+```
+
 ## 테스트
 
 ```bash

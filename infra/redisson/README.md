@@ -288,6 +288,138 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ---
 
+## 아키텍처 다이어그램
+
+### Codec 계층 구조
+
+```mermaid
+classDiagram
+    class Codec {
+        <<interface>>
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class ForyCodec {
+        -fallbackCodec: Codec
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class Kryo5Codec {
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class Lz4Codec {
+        -innerCodec: Codec
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class ZstdCodec {
+        -innerCodec: Codec
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class GzipCodec {
+        -innerCodec: Codec
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class RedissonCodecs {
+        <<object>>
+        +Default: Lz4Codec
+        +Fory: ForyCodec
+        +Kryo5: Kryo5Codec
+        +LZ4: Lz4Codec
+        +Zstd: ZstdCodec
+    }
+
+    Codec <|.. ForyCodec
+    Codec <|.. Kryo5Codec
+    Codec <|.. Lz4Codec
+    Codec <|.. ZstdCodec
+    Codec <|.. GzipCodec
+    Lz4Codec --> ForyCodec : innerCodec
+    ZstdCodec --> ForyCodec : innerCodec
+    ForyCodec --> Kryo5Codec : fallback
+    RedissonCodecs --> Lz4Codec
+    RedissonCodecs --> ForyCodec
+    RedissonCodecs --> Kryo5Codec
+```
+
+### 분산 리더 선출 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant P1 as 프로세스 1
+    participant P2 as 프로세스 2
+    participant Redis as Redis (RLock)
+    participant Job as 배치 작업
+
+    P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
+    P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
+    Redis-->>P1: Lock 획득 성공
+    Redis-->>P2: Lock 획득 실패 (대기 or 포기)
+
+    P1->>+Job: runIfLeader { processBatch() }
+    Note over P1,Job: 리더로 선출된 P1만 실행
+    Job-->>-P1: 작업 완료
+    P1->>Redis: unlock()
+    Redis-->>-P1: Lock 해제
+
+    P2->>Redis: 다음 라운드에서 재시도
+```
+
+### NearCache 2-Tier 캐시 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Local as 로컬 캐시<br/>(RLocalCachedMap)
+    participant Redis as Redis<br/>(원격 저장소)
+    participant Other as 다른 노드
+
+    App->>+Local: get("key")
+    alt 로컬 캐시 히트
+        Local-->>App: 값 즉시 반환
+    else 로컬 캐시 미스
+        Local->>+Redis: GET "key"
+        Redis-->>-Local: 값 반환
+        Local->>Local: 로컬 캐시에 저장
+        Local-->>-App: 값 반환
+    end
+
+    App->>Redis: put("key", newValue)
+    Redis->>Local: Invalidation 전파
+    Redis->>Other: Invalidation 전파 (Pub/Sub)
+    Other->>Other: 로컬 캐시 무효화
+```
+
+### Batch / Transaction 처리 흐름
+
+```mermaid
+flowchart TD
+    App[애플리케이션] -->|withBatch| Batch[RBatch]
+    Batch -->|setAsync| Op1[bucket.setAsync]
+    Batch -->|incrementAndGetAsync| Op2[atomicLong.incrementAsync]
+    Batch -->|putAsync| Op3[map.putAsync]
+    Op1 & Op2 & Op3 -->|execute| Redis[Redis<br/>파이프라인 실행]
+    Redis -->|BatchResult| App
+
+    App2[코루틴 환경] -->|withSuspendedTransaction| Tx[RTransaction]
+    Tx -->|set/put 작업| TxOps[트랜잭션 연산]
+    TxOps -->|성공 시 commitAsync| Redis
+    TxOps -->|예외 시 rollbackAsync| Redis
+
+    style App fill:#4a90d9,color:#fff
+    style App2 fill:#9b59b6,color:#fff
+    style Redis fill:#c0392b,color:#fff
+```
+
 ## Redis 버전 요구사항
 
 | 기능 | 최소 Redis 버전 |

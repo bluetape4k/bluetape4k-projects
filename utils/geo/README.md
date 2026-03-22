@@ -23,6 +23,29 @@
 - City, Country, ASN 조회 지원
 - Coroutines 확장 (선택적)
 
+## 아키텍처 다이어그램
+
+```mermaid
+graph TD
+    subgraph bluetape4k-geo["bluetape4k-geo (통합 모듈)"]
+        direction TB
+        GC["Geocode<br/>(구 utils/geocode)"]
+        GH["GeoHash<br/>(구 utils/geohash)"]
+        GI["GeoIP2<br/>(구 utils/geoip2)"]
+    end
+
+    GC -->|"Google Maps API"| GOOGLE["Google Maps Services"]
+    GC -->|"Bing Maps API"| BING["Bing Maps API"]
+    GC -->|"HTTP 클라이언트"| FEIGN["Feign (Coroutines 지원)"]
+
+    GH -->|"Base32 인코딩"| COORD["위도/경도 ↔ GeoHash 문자열"]
+    GH --> NEIGHBOR["이웃 셀 계산<br/>(neighbors)"]
+    GH --> RADIUS["반경 내 셀 목록<br/>(precision 1~12)"]
+
+    GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
+    GI --> IPINFO["IP → 국가/도시/위도경도"]
+```
+
 ## 설치
 
 각 기능은 `compileOnly`로 선언되어 있으므로, 사용할 라이브러리를 런타임 의존성으로 추가해야 합니다.

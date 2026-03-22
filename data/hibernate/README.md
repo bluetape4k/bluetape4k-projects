@@ -465,6 +465,96 @@ class Purchase {
 ./gradlew :bluetape4k-hibernate:test --tests "io.bluetape4k.hibernate.converter.*"
 ```
 
+## 아키텍처 다이어그램
+
+### JPA 엔티티 클래스 계층 구조
+
+```mermaid
+classDiagram
+    class JpaEntity~ID~ {
+        <<interface>>
+        +id: ID?
+        +isPersisted(): Boolean
+        +equals(other): Boolean
+        +hashCode(): Int
+    }
+    class AbstractJpaEntity~ID~ {
+        <<abstract>>
+        +id: ID?
+        +equals(other): Boolean
+        +hashCode(): Int
+        +toString(): String
+    }
+    class IntJpaEntity {
+        +id: Int?
+    }
+    class LongJpaEntity {
+        +id: Long?
+    }
+    class UuidJpaEntity {
+        +id: UUID?
+    }
+    class JpaTreeEntity~T, ID~ {
+        <<interface>>
+        +parent: T?
+        +children: MutableList~T~
+        +addChildren(child)
+        +removeChildren(child)
+    }
+    class LongJpaTreeEntity~T~ {
+        +id: Long?
+        +parent: T?
+        +children: MutableList~T~
+    }
+    class IntJpaTreeEntity~T~ {
+        +id: Int?
+        +parent: T?
+        +children: MutableList~T~
+    }
+
+    JpaEntity <|.. AbstractJpaEntity
+    AbstractJpaEntity <|-- IntJpaEntity
+    AbstractJpaEntity <|-- LongJpaEntity
+    AbstractJpaEntity <|-- UuidJpaEntity
+    JpaTreeEntity <|.. LongJpaTreeEntity
+    JpaTreeEntity <|.. IntJpaTreeEntity
+    LongJpaEntity <|-- LongJpaTreeEntity
+    IntJpaEntity <|-- IntJpaTreeEntity
+```
+
+### AttributeConverter 종류
+
+```mermaid
+flowchart LR
+    subgraph 직렬화_Converter
+        A1[JdkObjectAsByteArrayConverter]
+        A2[KryoObjectAsByteArrayConverter]
+        A3[ForyObjectAsByteArrayConverter]
+        A4[LZ4KryoObjectAsByteArrayConverter]
+        A5[ZstdForyObjectAsByteArrayConverter]
+    end
+    subgraph 암호화_Converter
+        B1[AESStringConverter<br/>AES-256-GCM]
+        B2[DeterministicAESStringConverter<br/>AES-256-SIV]
+    end
+    subgraph 압축_Converter
+        C1[LZ4StringConverter]
+        C2[ZstdStringConverter]
+        C3[GZipStringConverter]
+        C4[SnappyStringConverter]
+    end
+    subgraph 기타_Converter
+        D1[LocaleAsStringConverter]
+        D2[DurationAsTimestampConverter]
+        D3[AbstractObjectAsJsonConverter]
+    end
+
+    E[DB 컬럼] <-->|변환| 직렬화_Converter
+    E <-->|변환| 암호화_Converter
+    E <-->|변환| 압축_Converter
+    E <-->|변환| 기타_Converter
+```
+
 ## 참고
 
 - [Hibernate ORM](https://hibernate.org/orm/)

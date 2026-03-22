@@ -358,6 +358,68 @@ class MyCassandraTest: AbstractCassandraTest() {
   - `DeleteFromStatementExamples.kt`: DELETE 구문
   - `schema/`: 스키마 관리 예제 (Keyspace, Table, Index, UDT 등)
 
+## 아키텍처 다이어그램
+
+### 주요 API 구조
+
+```mermaid
+classDiagram
+    class CqlSession {
+        +execute(statement): ResultSet
+        +executeAsync(statement): CompletableFuture
+        +prepare(query): PreparedStatement
+    }
+    class AsyncCqlSession {
+        +executeAsync(statement): CompletableFuture
+        +prepareAsync(query): CompletableFuture
+    }
+    class CqlSessionExtensions {
+        +executeSuspending(query): AsyncResultSet
+        +prepareSuspending(query): PreparedStatement
+        +rowsFlow(): Flow~Row~
+    }
+    class CassandraAdmin {
+        +createKeyspace(session, keyspace, rf): Boolean
+        +dropKeyspace(session, keyspace): Boolean
+        +getReleaseVersion(session): String
+    }
+    class StatementBuilders {
+        +statementOf(query): SimpleStatement
+        +simpleStatementOf(query, block): SimpleStatement
+        +boundStatementOf(bound, block): BoundStatement
+        +batchStatementOf(type, block): BatchStatement
+    }
+    class QueryBuilderExtensions {
+        +String.bindMarker(): BindMarker
+        +String.raw(): Raw
+        +String.udt(): UserDefinedType
+    }
+    CqlSession <|-- AsyncCqlSession
+    CqlSessionExtensions --> CqlSession : 확장
+    CassandraAdmin --> CqlSession : 사용
+    StatementBuilders --> CqlSession : 생성된 Statement 전달
+    QueryBuilderExtensions --> StatementBuilders : 사용
+```
+
+### 비동기 쿼리 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as CqlSession 확장
+    participant Session as CqlSession
+    participant DB as Cassandra
+
+    App->>Ext: executeSuspending(query)
+    Ext->>Session: executeAsync(statement)
+    Session->>DB: CQL 실행
+    DB-->>Session: AsyncResultSet
+    Session-->>Ext: CompletionStage
+    Ext-->>App: suspend (Flow<Row>)
+    App->>Ext: rowsFlow()
+    Ext-->>App: Flow<Row>
+```
+
 ## 참고 자료
 
 - [Apache Cassandra 공식 문서](https://cassandra.apache.org/doc/latest/)

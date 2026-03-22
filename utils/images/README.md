@@ -13,6 +13,42 @@ dependencies {
 }
 ```
 
+## 아키텍처 다이어그램
+
+```mermaid
+graph LR
+    subgraph 입력["입력 소스"]
+        BA[ByteArray]
+        IS[InputStream]
+        FILE[File / Path]
+    end
+
+    subgraph 이미지처리["이미지 처리 (Scrimage 기반)"]
+        II["ImmutableImage\n(immutableImageOf)"]
+        BI["BufferedImage\n(bufferedImageOf)"]
+    end
+
+    subgraph 조작["이미지 조작"]
+        SC["크기 조절\n(ImageScaler)"]
+        SP["이미지 분할\n(ImageSplitter)"]
+        WM["워터마크\n(WatermarkFilter)"]
+        CP["캡션\n(CaptionFilter)"]
+        PD["패딩\n(PaddingSupport)"]
+    end
+
+    subgraph 출력["비동기 저장 (Coroutines)"]
+        JPG["SuspendJpegWriter\n(손실 압축)"]
+        PNG["SuspendPngWriter\n(무손실)"]
+        WEBP["SuspendWebpWriter\n(최고 압축)"]
+        GIF["SuspendGifWriter\n(애니메이션)"]
+        ANIM["SuspendGif2WebpWriter\n(GIF→WebP 변환)"]
+    end
+
+    입력 --> 이미지처리
+    이미지처리 --> 조작
+    조작 --> 출력
+```
+
 ## 주요 기능
 
 ### 이미지 포맷 지원

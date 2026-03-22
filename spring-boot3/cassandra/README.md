@@ -32,6 +32,41 @@ val options = writeOptions {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### Cassandra 데이터 접근 계층
+
+```mermaid
+graph TD
+    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수\n(bluetape4k-spring-cassandra)"]
+    Ext --> ROps["ReactiveCassandraOperations\n코루틴 확장"]
+    Ext --> RSession["ReactiveSession\n코루틴 확장"]
+    Ext --> AOps["AsyncCassandraOperations\n코루틴 확장"]
+    DSL["WriteOptions / QueryOptions DSL\nwriteOptions { ttl / timestamp }"] --> ROps
+    ROps --> Driver["Cassandra Reactive Driver"]
+    RSession --> Driver
+    AOps --> Driver
+    Driver --> Cassandra[("Apache Cassandra")]
+    SchemaGen["SchemaGenerator\n스키마 생성 / 트렁케이트"] --> ROps
+```
+
+### 코루틴 변환 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as 코루틴 확장
+    participant Ops as ReactiveCassandraOperations
+    participant DB as Apache Cassandra
+
+    App->>Ext: executeSuspending(cql, args)
+    Ext->>Ops: execute(statement) → Mono/Flux
+    Ops->>DB: CQL 쿼리 전송
+    DB-->>Ops: ReactiveResultSet
+    Ops-->>Ext: Mono<ReactiveResultSet>
+    Ext-->>App: suspend 결과 반환 (코루틴)
+```
+
 ## 테스트
 
 ```bash

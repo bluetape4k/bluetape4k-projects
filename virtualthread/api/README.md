@@ -169,6 +169,79 @@ class VirtualThreadsTest {
 }
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class VirtualThreadRuntime {
+        <<interface>>
+        +runtimeName: String
+        +priority: Int
+        +isSupported() Boolean
+        +threadFactory(prefix) ThreadFactory
+        +executorService() ExecutorService
+    }
+
+    class VirtualThreads {
+        <<object>>
+        +runtime() VirtualThreadRuntime
+        +runtimeName() String
+        +threadFactory(prefix) ThreadFactory
+        +executorService() ExecutorService
+    }
+
+    class StructuredTaskScopeProvider {
+        <<interface>>
+        +providerName: String
+        +priority: Int
+        +isSupported() Boolean
+        +withAll(name, factory, block) T
+        +withAny(name, factory, block) T
+    }
+
+    class StructuredTaskScopes {
+        <<object>>
+        +all(name, factory, block) T
+        +any(name, factory, block) T
+    }
+
+    class Jdk21VirtualThreadRuntime {
+        +runtimeName = "jdk21"
+        +priority = 21
+    }
+
+    class Jdk25VirtualThreadRuntime {
+        +runtimeName = "jdk25"
+        +priority = 25
+    }
+
+    class PlatformThreadFallback {
+        +runtimeName = "platform-fallback"
+        +priority = MIN_VALUE
+    }
+
+    VirtualThreadRuntime <|-- Jdk21VirtualThreadRuntime
+    VirtualThreadRuntime <|-- Jdk25VirtualThreadRuntime
+    VirtualThreadRuntime <|-- PlatformThreadFallback
+    VirtualThreads --> VirtualThreadRuntime : "ServiceLoader 선택"
+    StructuredTaskScopes --> StructuredTaskScopeProvider : "ServiceLoader 선택"
+```
+
+## ServiceLoader 기반 런타임 선택 흐름
+
+```mermaid
+flowchart TD
+    START["VirtualThreads.executorService()"] --> SL["ServiceLoader.load(VirtualThreadRuntime)"]
+    SL --> CANDIDATES["구현체 목록 수집\n(classpath에 있는 모든 구현체)"]
+    CANDIDATES --> FILTER["isSupported() == true 필터링"]
+    FILTER --> SORT["priority 내림차순 정렬"]
+    SORT --> SELECT["최우선 구현체 선택"]
+    SELECT --> JDK25{"JDK 25 환경?"}
+    JDK25 -->|"Yes"| USE25["Jdk25VirtualThreadRuntime\n(priority=25)"]
+    JDK25 -->|"No, JDK 21"| USE21["Jdk21VirtualThreadRuntime\n(priority=21)"]
+    JDK25 -->|"No, JDK 17-"| USEFALL["PlatformThreadFallback\n(CachedThreadPool)"]
+```
+
 ## 참고 자료
 
 - [JEP 444: Virtual Threads (Java 21)](https://openjdk.org/jeps/444)

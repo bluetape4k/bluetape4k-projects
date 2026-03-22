@@ -246,6 +246,83 @@ val compositeExporter = spanExporterOf(
 )
 ```
 
+## 아키텍처 다이어그램
+
+### OpenTelemetry 구성 요소
+
+```mermaid
+flowchart TD
+    App[애플리케이션] --> Tracer[Tracer<br/>Span 생성/관리]
+    App --> Meter[Meter<br/>메트릭 수집]
+    App --> Logger[Logger<br/>로그 수집]
+
+    Tracer --> TP[TracerProvider<br/>SdkTracerProvider]
+    Meter --> MP[MeterProvider<br/>SdkMeterProvider]
+
+    TP --> SP[SpanProcessor]
+    SP --> SE[SpanExporter]
+
+    MP --> MR[MetricReader]
+    MR --> ME[MetricExporter]
+
+    SE --> OTLP[OTLP gRPC/HTTP]
+    SE --> LogExp[Logging Exporter]
+    ME --> OTLP
+    ME --> InMem[InMemory Exporter<br/>테스트용]
+
+    OTLP --> Jaeger[Jaeger]
+    OTLP --> Zipkin[Zipkin]
+    OTLP --> OtelCol[OpenTelemetry Collector]
+
+    style App fill:#4a90d9,color:#fff
+    style TP fill:#e07b39,color:#fff
+    style MP fill:#9b59b6,color:#fff
+    style OtelCol fill:#5ba85a,color:#fff
+```
+
+### Span 생명주기 (Coroutines 환경)
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Builder as SpanBuilder
+    participant Span as Span
+    participant Context as CoroutineContext
+    participant Child as 하위 작업
+
+    App->>+Builder: tracer.spanBuilder("operation")
+    App->>Builder: useSpanSuspending { ... }
+    Builder->>+Span: startSpan()
+    Span->>+Context: makeCurrent() / withContext
+    Note over Context: Span Context 코루틴에 전파
+    Context->>+Child: 하위 코루틴 실행
+    Note over Child: withContext(Dispatchers.IO)<br/>에서도 Context 유지
+    Child-->>-Context: 결과 반환
+    Context-->>-Span: 블록 종료
+    Span->>Span: end()
+    Span-->>-Builder: Span 종료
+    Builder-->>-App: 결과 반환
+```
+
+### 분산 추적 전파 흐름
+
+```mermaid
+flowchart LR
+    ServiceA[서비스 A<br/>Parent Span] -->|HTTP Header<br/>traceparent: 00-traceId-spanId-01| ServiceB[서비스 B<br/>Child Span]
+    ServiceB -->|propagate| ServiceC[서비스 C<br/>Child Span]
+
+    ServiceA -->|export| Collector[OTel Collector]
+    ServiceB -->|export| Collector
+    ServiceC -->|export| Collector
+
+    Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
+
+    style ServiceA fill:#4a90d9,color:#fff
+    style ServiceB fill:#e07b39,color:#fff
+    style ServiceC fill:#9b59b6,color:#fff
+    style Backend fill:#5ba85a,color:#fff
+```
+
 ## 테스트 전략
 
 ### 단위 테스트

@@ -80,6 +80,54 @@ near.put("key", "value")
 val value = near.get("key")
 ```
 
+## 모듈 의존성 구조
+
+```mermaid
+flowchart TD
+    A[bluetape4k-cache<br/>umbrella] --> B[bluetape4k-cache-core<br/>JCache 추상화 + 로컬 캐시]
+    A --> C[bluetape4k-cache-hazelcast<br/>Hazelcast 분산 캐시 + NearCache]
+    A --> D[bluetape4k-cache-redisson<br/>Redisson 분산 캐시 + NearCache]
+    A --> E[bluetape4k-cache-lettuce<br/>Lettuce Redis 분산 캐시 + NearCache]
+
+    B --> B1[Caffeine 로컬 캐시]
+    B --> B2[Cache2k 로컬 캐시]
+    B --> B3[Ehcache 로컬 캐시]
+    B --> B4[NearCacheOperations 인터페이스]
+    B --> B5[SuspendNearCacheOperations 인터페이스]
+
+    C --> C1[HazelcastNearCache]
+    C --> C2[HazelcastSuspendNearCache]
+
+    D --> D1[RedissonNearCache<br/>RLocalCachedMap 기반]
+    D --> D2[RedissonSuspendNearCache]
+    D --> D3[RedissonResp3NearCache<br/>RESP3 하이브리드]
+
+    E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
+    E --> E2[LettuceSuspendNearCache]
+
+    style A fill:#4a90d9,color:#fff
+    style B fill:#5ba85a,color:#fff
+    style C fill:#e07b39,color:#fff
+    style D fill:#9b59b6,color:#fff
+    style E fill:#c0392b,color:#fff
+```
+
+## Near Cache 2-Tier 아키텍처
+
+```mermaid
+flowchart LR
+    App[애플리케이션] -->|get| LocalCache[로컬 캐시<br/>Caffeine/Cache2k]
+    LocalCache -->|캐시 히트| App
+    LocalCache -->|캐시 미스| RemoteCache[원격 캐시<br/>Redis / Hazelcast]
+    RemoteCache -->|데이터 반환| LocalCache
+    App -->|put| RemoteCache
+    RemoteCache -->|Invalidation 전파| LocalCache
+
+    style LocalCache fill:#5ba85a,color:#fff
+    style RemoteCache fill:#c0392b,color:#fff
+    style App fill:#4a90d9,color:#fff
+```
+
 ## CachingProvider 자동 로딩 주의
 
 여러 모듈이 `META-INF/services/javax.cache.spi.CachingProvider`를 등록합니다. Umbrella 모듈 사용 시 Provider를 명시적으로 지정하세요:

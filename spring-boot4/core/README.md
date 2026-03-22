@@ -165,6 +165,51 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
 | `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
 
+## 아키텍처 다이어그램
+
+### Spring WebFlux + Coroutines 요청 흐름
+
+```mermaid
+graph LR
+    Client["HTTP 클라이언트"] --> Netty["Netty HTTP 서버"]
+    Netty --> WebFlux["Spring WebFlux\nDispatcherHandler"]
+    WebFlux --> Handler["Coroutines 핸들러\n(suspend fun / Flow)"]
+    Handler --> Service["서비스 계층"]
+    Service --> DB[("데이터베이스 / 외부 API")]
+    DB -->> Service
+    Service -->> Handler
+    Handler -->> WebFlux
+    WebFlux -->> Netty
+    Netty -->> Client
+```
+
+### RestClient Coroutines DSL 구조
+
+```mermaid
+graph TD
+    App["애플리케이션 코드"] --> DSL["RestClient Coroutines DSL\nsuspendGet / suspendPost\nsuspendPut / suspendPatch / suspendDelete"]
+    DSL --> RestClient["Spring RestClient"]
+    RestClient --> HTTP["HTTP 요청"]
+    HTTP --> ExternalAPI["외부 REST API"]
+    ExternalAPI -->> RestClient
+    RestClient -->> DSL
+    DSL -->> App
+```
+
+### Retrofit2 통합 구조
+
+```mermaid
+graph TD
+    App["애플리케이션"] --> RetrofitBean["Retrofit Bean\n(@Bean retrofit.create<T>())"]
+    RetrofitBean --> Retrofit2["Retrofit2"]
+    Retrofit2 --> OkHttp["OkHttp3 클라이언트"]
+    Retrofit2 --> HttpClient5["Apache HttpClient5"]
+    Retrofit2 --> Jackson["Jackson 2 직렬화/역직렬화"]
+    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter\n(suspend 함수 지원)"]
+    OkHttp --> ExternalAPI["외부 REST API"]
+    HttpClient5 --> ExternalAPI
+```
+
 ## 빌드 및 테스트
 
 ```bash

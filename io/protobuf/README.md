@@ -101,6 +101,115 @@ val message = serializer.deserialize<MyMessage>(bytes)
 | `MessageSupport.kt` | `Any` 기반 메시지 pack/unpack 유틸리티 |
 | `serializers/ProtobufSerializer.kt` | `BinarySerializer` 구현체 (Protobuf + fallback 직렬화) |
 
+## 아키텍처 다이어그램
+
+### 타입 변환 클래스 구조
+
+```mermaid
+classDiagram
+    class BinarySerializer {
+        <<interface>>
+        +serialize(obj: Any?) ByteArray
+        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
+    }
+
+    class ProtobufSerializer {
+        +serialize(message: ProtoMessage?) ByteArray
+        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
+    }
+
+    class TimestampSupport {
+        <<extensions>>
+        +Instant.toTimestamp() Timestamp
+        +Timestamp.toInstant() Instant
+        +String.toTimestamp() Timestamp
+    }
+
+    class DurationSupport {
+        <<extensions>>
+        +Duration.toProtoDuration() ProtoDuration
+        +ProtoDuration.toJavaDuration() Duration
+        +ProtoDuration.plus(other) ProtoDuration
+        +ProtoDuration.minus(other) ProtoDuration
+    }
+
+    class DateTimeSupport {
+        <<extensions>>
+        +LocalDate.toProtoDate() Date
+        +LocalTime.toProtoTimeOfDay() TimeOfDay
+        +LocalDateTime.toProtoDateTime() DateTime
+    }
+
+    class MoneySupport {
+        <<extensions>>
+        +JavaMoney.toProtoMoney() Money
+        +ProtoMoney.toJavaMoney() JavaMoney
+    }
+
+    class MessageSupport {
+        <<extensions>>
+        +packMessage(message) ByteArray
+        +unpackMessage(bytes) T?
+    }
+
+    BinarySerializer <|.. ProtobufSerializer
+```
+
+### Protobuf 타입 변환 흐름
+
+```mermaid
+flowchart LR
+    subgraph Java_Types["Java/Kotlin 타입"]
+        INS[java.time.Instant]
+        DUR[java.time.Duration]
+        LDT[LocalDateTime]
+        JM[JavaMoney]
+        MSG[ProtoMessage]
+    end
+
+    subgraph Proto_Types["Protobuf 타입"]
+        TS[google.protobuf.Timestamp]
+        PD[google.protobuf.Duration]
+        DT[google.type.DateTime]
+        PM[google.type.Money]
+        ANY[google.protobuf.Any]
+    end
+
+    subgraph 직렬화
+        BA[ByteArray]
+    end
+
+    INS <-->|toTimestamp / toInstant| TS
+    DUR <-->|toProtoDuration / toJavaDuration| PD
+    LDT <-->|toProtoDateTime| DT
+    JM <-->|toProtoMoney / toJavaMoney| PM
+    MSG -->|packMessage| ANY
+    ANY -->|unpackMessage| MSG
+    MSG -->|ProtobufSerializer.serialize| BA
+    BA -->|ProtobufSerializer.deserialize| MSG
+```
+
+### 직렬화 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant 앱 as 애플리케이션
+    participant S as ProtobufSerializer
+    participant P as Protobuf 런타임
+
+    Note over 앱,P: 직렬화
+    앱->>S: serialize(protoMessage)
+    S->>P: message.toByteArray()
+    P-->>S: ByteArray (바이너리 Protobuf)
+    S-->>앱: ByteArray
+
+    Note over 앱,P: 역직렬화
+    앱->>S: deserialize(bytes, MyMessage::class.java)
+    S->>P: MyMessage.parseFrom(bytes)
+    P-->>S: MyMessage 객체
+    S-->>앱: MyMessage (실패 시 null)
+```
+
 ## 테스트
 
 ```bash

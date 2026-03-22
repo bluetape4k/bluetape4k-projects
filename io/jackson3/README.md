@@ -244,6 +244,98 @@ val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
 val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 ```
 
+## 아키텍처 다이어그램
+
+### Jackson 2.x vs 3.x 모듈 비교
+
+```mermaid
+flowchart LR
+    subgraph JK2["bluetape4k-jackson2 (Jackson 2.x)"]
+        M2[com.fasterxml.jackson.*]
+        MOD2[Module SPI:\ncom.fasterxml.jackson.databind.Module]
+        TK2["@JsonTinkEncrypt\n→ 자동 등록"]
+    end
+
+    subgraph JK3["bluetape4k-jackson3 (Jackson 3.x)"]
+        M3[tools.jackson.*]
+        MOD3[Module SPI:\ntools.jackson.databind.JacksonModule]
+        TK3["@JsonTinkEncrypt\n→ JsonTinkEncryptModule 수동 등록"]
+    end
+
+    JK2 -->|동일 기능, 다른 패키지| JK3
+```
+
+### 클래스 구조
+
+```mermaid
+classDiagram
+    class JsonSerializer {
+        <<interface>>
+        +serialize(graph) ByteArray
+        +deserialize(bytes, clazz) T?
+        +serializeAsString(graph) String
+        +deserializeFromString(text, clazz) T?
+    }
+
+    class JacksonSerializer {
+        -mapper: ObjectMapper
+    }
+
+    class Jackson {
+        <<singleton>>
+        +defaultJsonMapper: JsonMapper
+        +prettyJsonWriter: ObjectWriter
+        +createDefaultJsonMapper() JsonMapper
+    }
+
+    class JsonEncryptModule {
+        +setupModule(context)
+    }
+
+    class JsonTinkEncryptModule {
+        +setupModule(context)
+    }
+
+    class JsonMaskerModule {
+        +setupModule(context)
+    }
+
+    class JsonUuidModule {
+        +setupModule(context)
+    }
+
+    JsonSerializer <|.. JacksonSerializer
+    JacksonSerializer --> Jackson : 사용
+    Jackson --> JsonEncryptModule : 등록
+    Jackson --> JsonTinkEncryptModule : 등록
+    Jackson --> JsonMaskerModule : 등록
+    Jackson --> JsonUuidModule : 등록
+```
+
+### Jackson 3.x 모듈 등록 흐름
+
+```mermaid
+sequenceDiagram
+    participant 앱 as 애플리케이션
+    participant J as Jackson
+    participant M as JsonMapper.Builder
+    participant MOD as JacksonModule들
+
+    앱->>J: Jackson.createDefaultJsonMapper()
+    J->>M: jsonMapper { findAndAddModules() }
+    M->>MOD: JsonTinkEncryptModule 등록
+    M->>MOD: JsonMaskerModule 등록
+    M->>MOD: JsonUuidModule 등록
+    MOD-->>M: Introspector / Serializer / Deserializer 연결
+    M-->>J: JsonMapper 생성
+    J-->>앱: 구성된 ObjectMapper
+
+    앱->>J: mapper.writeValueAsString(obj)
+    J->>MOD: @JsonTinkEncrypt 필드 탐지
+    MOD-->>J: 암호화된 값
+    J-->>앱: JSON 문자열
+```
+
 ## 의존성
 
 ```kotlin

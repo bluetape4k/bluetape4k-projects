@@ -227,6 +227,71 @@ val kvs3 = keyValueOf(mapOf("x" to "1", "y" to "2"))
 val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 ```
 
+## 아키텍처 다이어그램
+
+### 메트릭 수집 흐름
+
+```mermaid
+flowchart TD
+    App[애플리케이션] --> TE[Timer Extensions<br/>recordSuspend / withTimer]
+    App --> OE[Observation Extensions<br/>withObservation]
+    App --> RM[Retrofit2 Metrics<br/>MicrometerRetrofitMetricsFactory]
+    App --> CM[Cache2k Metrics<br/>Cache2kCacheMetrics]
+
+    TE --> MR[MeterRegistry]
+    OE --> OR[ObservationRegistry]
+    RM --> MR
+    CM --> MR
+
+    OR --> MR
+
+    MR --> Prometheus[Prometheus Exporter]
+    MR --> Grafana[Grafana / Monitoring]
+    MR --> Log[Logging]
+
+    style App fill:#4a90d9,color:#fff
+    style MR fill:#e07b39,color:#fff
+    style OR fill:#9b59b6,color:#fff
+    style Grafana fill:#5ba85a,color:#fff
+```
+
+### Retrofit2 메트릭 수집 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant Client as 클라이언트
+    participant Retrofit as Retrofit2
+    participant Metrics as MicrometerRetrofitMetricsFactory
+    participant API as 외부 API
+    participant Registry as MeterRegistry
+
+    Client->>+Retrofit: API 호출
+    Retrofit->>+Metrics: 계측 래퍼 Call 생성
+    Metrics->>+API: HTTP 요청
+    API-->>-Metrics: HTTP 응답
+    Metrics->>Registry: Timer 기록<br/>(method, uri, status_code, outcome)
+    Metrics-->>-Retrofit: 응답 반환
+    Retrofit-->>-Client: 결과 반환
+```
+
+### Coroutine Observation 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Obs as withObservationContext
+    participant Registry as ObservationRegistry
+    participant Work as 비동기 작업
+
+    App->>+Obs: withObservationContext("operation", registry)
+    Obs->>Registry: Observation.start()
+    Obs->>+Work: 코루틴 블록 실행
+    Note over Work: suspend 함수 / delay 등
+    Work-->>-Obs: 결과 반환
+    Obs->>Registry: Observation.stop()
+    Obs-->>-App: 결과 반환
+```
+
 ## 아키텍처
 
 ```

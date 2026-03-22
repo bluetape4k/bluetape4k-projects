@@ -120,6 +120,84 @@ val user = jsonObject.readValueOrNull<User>("key")
 | JSONB (바이너리) | 빠름 | 작음 | 불가  | 내부 직렬화, 캐시, RPC |
 | JSON (텍스트)   | 보통 | 보통 | 가능  | API 응답, 로깅, 디버깅 |
 
+## 아키텍처 다이어그램
+
+### 클래스 구조
+
+```mermaid
+classDiagram
+    class JsonSerializer {
+        <<interface>>
+        +serialize(graph: Any?) ByteArray
+        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
+        +serializeAsString(graph: Any?) String
+        +deserializeFromString(text: String?, clazz: Class~T~) T?
+    }
+
+    class FastjsonSerializer {
+        +serialize(graph) ByteArray
+        +deserialize(bytes, clazz) T?
+        +serializeAsString(graph) String
+        +deserializeFromString(text, clazz) T?
+    }
+
+    class JSONExtensions {
+        <<extensions>>
+        +Any.toJsonString() String
+        +String.readValueOrNull() T?
+        +String.readValueAsList() List~T~
+        +String.readAsJSONObject() JSONObject
+    }
+
+    class JSONBExtensions {
+        <<extensions>>
+        +Any.toJsonBytes() ByteArray
+        +ByteArray.readBytesOrNull() T?
+        +InputStream.readBytesOrNull() T?
+    }
+
+    class JSONArrayExtensions {
+        <<extensions>>
+        +JSONArray.readValueOrNull() T?
+        +JSONArray.readList() List~T~
+        +JSONArray.readArray() Array~T~
+    }
+
+    class JSONObjectExtensions {
+        <<extensions>>
+        +JSONObject.readValueOrNull() T?
+        +JSONObject.readValueOrNull(key) T?
+    }
+
+    JsonSerializer <|.. FastjsonSerializer
+    FastjsonSerializer ..> JSONBExtensions : 내부 사용
+```
+
+### JSON vs JSONB 직렬화 흐름
+
+```mermaid
+flowchart LR
+    OBJ[Kotlin 객체]
+
+    subgraph JSON["JSON 텍스트 (가독성)"]
+        JS[toJsonString\nserializeAsString]
+        JD[readValueOrNull\ndeserializeFromString]
+        JSTR[JSON String]
+    end
+
+    subgraph JSONB["JSONB 바이너리 (고성능)"]
+        BS[toJsonBytes\nserialize]
+        BD[readBytesOrNull\ndeserialize]
+        BARR[ByteArray]
+    end
+
+    OBJ -->|직렬화| JS --> JSTR
+    JSTR -->|역직렬화| JD --> OBJ
+
+    OBJ -->|직렬화| BS --> BARR
+    BARR -->|역직렬화| BD --> OBJ
+```
+
 ## 의존성
 
 ```kotlin

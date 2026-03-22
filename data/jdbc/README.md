@@ -472,6 +472,71 @@ class MyJdbcTest : AbstractJdbcTest() {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### 주요 API 구조
+
+```mermaid
+classDiagram
+    class DataSourceExtensions {
+        +DataSource.withConnect(block): T
+        +DataSource.withStatement(block): T
+        +DataSource.withTransaction(block): T
+        +DataSource.withReadOnlyTransaction(block): T
+        +DataSource.runQuery(sql, block): T
+        +DataSource.executeBatch(sql, params): IntArray
+    }
+    class ConnectionExtensions {
+        +Connection.withStatement(block): T
+        +Connection.withTransaction(block): T
+        +Connection.withAutoCommit(flag, block): T
+        +Connection.withReadOnly(block): T
+        +Connection.withIsolationLevel(level, block): T
+        +Connection.executeQuery(sql, params, block): T
+        +Connection.executeUpdate(sql, params): Int
+        +Connection.executeBatch(sql, params): IntArray
+        +Connection.preparedStatement(sql, block): T
+    }
+    class ResultSetExtensions {
+        +ResultSet.toList(mapper): List~T~
+        +ResultSet.toSet(mapper): Set~T~
+        +ResultSet.toMap(keyMapper, valueMapper): Map~K,V~
+        +ResultSet.groupBy(keyMapper, valueMapper): Map~K,List~V~~
+        +ResultSet.mapFirst(mapper): T?
+        +ResultSet.mapSingle(mapper): T
+        +ResultSet.sequence(mapper): Sequence~T~
+        +ResultSet.filterMap(predicate, mapper): List~T~
+        +ResultSet.singleInt(): Int?
+        +ResultSet.singleLong(): Long?
+        +ResultSet.columnNames: List~String~
+    }
+
+    DataSourceExtensions --> ConnectionExtensions : 위임
+    ConnectionExtensions --> ResultSetExtensions : ResultSet 전달
+```
+
+### JDBC 쿼리 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant DS as DataSource 확장
+    participant Conn as Connection 확장
+    participant PS as PreparedStatement
+    participant DB as 데이터베이스
+
+    App->>DS: withConnect { conn -> ... }
+    DS->>Conn: executeQuery(sql, params) { rs -> ... }
+    Conn->>PS: prepareStatement(sql)
+    Conn->>PS: setParameters(params)
+    PS->>DB: executeQuery()
+    DB-->>PS: ResultSet
+    PS-->>Conn: ResultSet
+    Conn-->>App: ResultSet 처리 결과
+
+    Note over DS,DB: withTransaction 사용 시 자동 커밋/롤백 처리
+```
+
 ## 참고 자료
 
 - [JDBC 공식 문서](https://docs.oracle.com/javase/tutorial/jdbc/)

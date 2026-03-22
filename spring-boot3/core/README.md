@@ -69,6 +69,48 @@ dependencies {
 
 ## 사용 예시
 
+## 아키텍처 다이어그램
+
+### Spring WebFlux + Coroutines 요청 흐름
+
+```mermaid
+graph LR
+    Client["HTTP 클라이언트"] --> Netty["Netty HTTP 서버"]
+    Netty --> WebFlux["Spring WebFlux\nDispatcherHandler"]
+    WebFlux --> Handler["Coroutines 핸들러\n(suspend fun / Flow)"]
+    Handler --> Service["서비스 계층"]
+    Service --> DB[("데이터베이스 / 외부 API")]
+    DB -->> Service
+    Service -->> Handler
+    Handler -->> WebFlux
+    WebFlux -->> Netty
+    Netty -->> Client
+```
+
+### Retrofit2 통합 구조
+
+```mermaid
+graph TD
+    App["애플리케이션"] --> RetrofitBean["Retrofit Bean\n(@Bean retrofit.create<T>())"]
+    RetrofitBean --> Retrofit2["Retrofit2"]
+    Retrofit2 --> OkHttp["OkHttp3 클라이언트"]
+    Retrofit2 --> HttpClient5["Apache HttpClient5"]
+    Retrofit2 --> Jackson["Jackson 직렬화/역직렬화"]
+    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter\n(suspend 함수 지원)"]
+    OkHttp --> ExternalAPI["외부 REST API"]
+    HttpClient5 --> ExternalAPI
+```
+
+### WebTestClient 테스트 구조
+
+```mermaid
+graph LR
+    Test["@SpringBootTest\n통합 테스트"] --> WTC["WebTestClient"]
+    WTC --> Controller["REST 컨트롤러\n(Coroutines)"]
+    Controller --> Service["서비스 계층"]
+    TC["Testcontainers\n(DB / Redis 등)"] -.->|"@DynamicPropertySource"| Test
+```
+
 ### WebFlux 컨트롤러 (Coroutines)
 
 ```kotlin
