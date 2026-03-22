@@ -154,7 +154,7 @@ class ResilientNearCacheDecorator<V: Any>(
     // -- Lifecycle --
 
     override fun close() {
-        delegate.close()
+        runCatching { delegate.close() }
     }
 }
 

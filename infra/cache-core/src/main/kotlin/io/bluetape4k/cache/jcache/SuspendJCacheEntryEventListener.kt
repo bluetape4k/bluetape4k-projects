@@ -6,6 +6,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.cache.event.CacheEntryCreatedListener
 import javax.cache.event.CacheEntryEvent
@@ -28,12 +29,17 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any>(
 ): CacheEntryCreatedListener<K, V>,
    CacheEntryUpdatedListener<K, V>,
    CacheEntryRemovedListener<K, V>,
-   CacheEntryExpiredListener<K, V> {
+   CacheEntryExpiredListener<K, V>,
+   AutoCloseable {
 
     companion object: KLoggingChannel()
 
     // JCache 이벤트 스레드를 블로킹하지 않기 위해 전용 코루틴 스코프 사용
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun close() {
+        scope.cancel()
+    }
 
     /**
      * Called after one or more entries have been created.

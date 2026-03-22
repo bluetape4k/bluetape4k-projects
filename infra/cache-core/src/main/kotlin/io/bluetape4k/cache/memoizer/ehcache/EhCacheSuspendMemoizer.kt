@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.memoizer.ehcache
 
 import io.bluetape4k.cache.memoizer.SuspendMemoizer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -44,7 +44,7 @@ class EhCacheSuspendMemoizer<T: Any, R: Any>(
     private val evaluator: suspend (T) -> R,
 ): SuspendMemoizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val mutex = Mutex()
 

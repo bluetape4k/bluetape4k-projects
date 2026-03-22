@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.memoizer
 
 import com.hazelcast.map.IMap
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -66,7 +66,7 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
     val evaluator: suspend (K) -> V,
 ): SuspendMemoizer<K, V> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, Deferred<V>>()
 

@@ -4,13 +4,12 @@ import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.coroutineScope
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
@@ -46,8 +45,7 @@ class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>)
         }
     }
 
-    @Volatile
-    private var closed: Boolean = false
+    private val closed = atomic(false)
 
     override fun entries(): Flow<SuspendJCacheEntry<K, V>> = flow {
         cache.asMap().entries.forEach { (key, valueFuture) ->
@@ -60,10 +58,12 @@ class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>)
     }
 
     override suspend fun close() {
-        closed = true
+        if (!closed.compareAndSet(false, true)) return
+        runCatching { cache.synchronous().invalidateAll() }
+        runCatching { cache.synchronous().cleanUp() }
     }
 
-    override fun isClosed(): Boolean = closed
+    override fun isClosed(): Boolean = closed.value
 
     override suspend fun containsKey(key: K): Boolean {
         return cache.getIfPresent(key)?.await() != null
@@ -108,13 +108,8 @@ class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>)
         entries.onEach { put(it.first, it.second) }.collect()
     }
 
-    override suspend fun putIfAbsent(key: K, value: V): Boolean = coroutineScope {
-        if (!containsKey(key)) {
-            cache.put(key, future { value })
-            true
-        } else {
-            false
-        }
+    override suspend fun putIfAbsent(key: K, value: V): Boolean {
+        return cache.synchronous().asMap().putIfAbsent(key, value) == null
     }
 
     override suspend fun remove(key: K): Boolean {
@@ -126,11 +121,7 @@ class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>)
     }
 
     override suspend fun remove(key: K, oldValue: V): Boolean {
-        if (get(key) == oldValue) {
-            cache.synchronous().invalidate(key)
-            return true
-        }
-        return false
+        return cache.synchronous().asMap().remove(key, oldValue)
     }
 
     override suspend fun removeAll() {
@@ -142,19 +133,11 @@ class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>)
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
-        if (get(key) == oldValue) {
-            put(key, newValue)
-            return true
-        }
-        return false
+        return cache.synchronous().asMap().replace(key, oldValue, newValue)
     }
 
     override suspend fun replace(key: K, value: V): Boolean {
-        if (containsKey(key)) {
-            put(key, value)
-            return true
-        }
-        return false
+        return cache.synchronous().asMap().replace(key, value) != null
     }
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {

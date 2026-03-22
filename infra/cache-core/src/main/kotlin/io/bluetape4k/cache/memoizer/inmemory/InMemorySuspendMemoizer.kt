@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.memoizer.inmemory
 
 import io.bluetape4k.cache.memoizer.SuspendMemoizer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,7 +20,7 @@ class InMemorySuspendMemoizer<in T: Any, out R: Any>(
     private val evaluator: suspend (T) -> R,
 ): SuspendMemoizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val resultCache = ConcurrentHashMap<T, R>()
     private val mutex = Mutex()

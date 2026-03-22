@@ -79,22 +79,21 @@ class NearJCache<K: Any, V: Any>(
                 frontCacheManager.createCache(nearCacheCfg.cacheName, nearCacheCfg.frontCacheConfiguration)
 
             // back cache의 event를 받아 front cache에 반영합니다.
-            val JCacheEntryEventListenerCfg =
+            val jCacheEntryEventListenerCfg =
                 MutableCacheEntryListenerConfiguration(
                     { JCacheEntryEventListener(frontCache) },
                     null,
                     false,
                     nearCacheCfg.isSynchronous
                 )
-            log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$JCacheEntryEventListenerCfg" }
-            backCache.registerCacheEntryListener(JCacheEntryEventListenerCfg)
+            log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$jCacheEntryEventListenerCfg" }
+            backCache.registerCacheEntryListener(jCacheEntryEventListenerCfg)
 
             log.info { "Create NearCache instance. config=$nearCacheCfg" }
             return NearJCache(frontCache, backCache, nearCacheCfg)
         }
     }
 
-    private var thread: Thread? = null
     private val lock = ReentrantLock()
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
@@ -124,6 +123,7 @@ class NearJCache<K: Any, V: Any>(
 
     override fun isClosed(): Boolean = frontCache.isClosed
 
+    // clear()는 front만 비우므로 containsKey()도 front만 확인하는 것이 의도된 동작
     override fun containsKey(key: K): Boolean = frontCache.containsKey(key)
 
     override operator fun get(key: K): V? { // 모든 조회는 Front 에서만 한다

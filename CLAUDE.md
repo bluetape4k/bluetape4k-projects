@@ -219,10 +219,10 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 - **redis** *(umbrella)*: `lettuce` + `redisson` + `spring-data-redis`를 묶는 하위 호환 모듈
 - **lettuce
-  **: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memorizer) — sync/async/suspend 3-tier API;
+  **: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memoizer) — sync/async/suspend 3-tier API;
   `MapLoader`/`MapWriter`/`LettuceLoadedMap` (동기 Read-through/Write-through/Write-behind 추상화);
   `SuspendedMapLoader`/`SuspendedMapWriter`/`LettuceSuspendedLoadedMap` (코루틴 네이티브 suspend 버전, `runBlocking` 없음)
-- **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memorizer, NearCache, Coroutines
+- **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memoizer, NearCache, Coroutines
 - **kafka**: Kafka 클라이언트
 - **resilience4j**: Resilience4j + Coroutines, Coroutines Cache
 - **bucket4j**: Rate limiting
@@ -234,7 +234,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
 - **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 — `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>` 공통 인터페이스, `ResilientNearCacheDecorator` (retry + failure strategy), `JCacheNearCache<V>`, `NearCacheStatistics`, Memorizer 구현체
+- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 — `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>` 공통 인터페이스, `ResilientNearCacheDecorator` (retry + failure strategy), `JCacheNearCache<V>`, `NearCacheStatistics`, Memoizer 구현체
 - **cache-hazelcast**: Hazelcast 분산 캐시 + `HazelcastNearCache<V>: NearCacheOperations<V>`, `HazelcastSuspendNearCache<V>: SuspendNearCacheOperations<V>`
 - **cache-redisson**: Redisson 분산 캐시 + `RedissonNearCache<V>: NearCacheOperations<V>` (RLocalCachedMap 기반), `RedissonSuspendNearCache<V>: SuspendNearCacheOperations<V>`
 - **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 + `LettuceNearCache<V>: NearCacheOperations<V>` (RESP3 CLIENT TRACKING), `LettuceSuspendNearCache<V>: SuspendNearCacheOperations<V>`

@@ -2,7 +2,7 @@ package io.bluetape4k.cache.nearcache
 
 import com.hazelcast.core.HazelcastInstance
 import com.hazelcast.map.IMap
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.atomicfu.atomic
@@ -38,7 +38,7 @@ class HazelcastSuspendNearCache<V : Any>(
     hazelcastInstance: HazelcastInstance,
     private val config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
 ) : SuspendNearCacheOperations<V> {
-    companion object : KLogging()
+    companion object : KLoggingChannel()
 
     private val closed = atomic(false)
     override val isClosed: Boolean by closed
@@ -119,9 +119,8 @@ class HazelcastSuspendNearCache<V : Any>(
      */
     override suspend fun putAll(entries: Map<String, V>) {
         frontCache.putAll(entries)
-        entries.forEach { (key, value) ->
-            imap.setAsync(key, value).await()
-        }
+        val futures = entries.map { (key, value) -> imap.setAsync(key, value) }
+        futures.forEach { it.await() }
     }
 
     /**
@@ -161,7 +160,8 @@ class HazelcastSuspendNearCache<V : Any>(
      */
     override suspend fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
-        keys.forEach { imap.deleteAsync(it).await() }
+        val futures = keys.map { imap.deleteAsync(it) }
+        futures.forEach { it.await() }
     }
 
     /**

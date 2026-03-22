@@ -163,7 +163,7 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
     // -- Lifecycle --
 
     override suspend fun close() {
-        delegate.close()
+        runCatching { delegate.close() }
     }
 }
 

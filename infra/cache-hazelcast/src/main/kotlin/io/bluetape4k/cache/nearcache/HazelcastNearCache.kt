@@ -92,7 +92,7 @@ class HazelcastNearCache<V : Any>(
                 frontCache.put(key, value)
                 backHitCount.incrementAndGet()
             }
-            val stillMissed = missedKeys.size - (missedKeys.size - (missedKeys - result.keys).size)
+            val stillMissed = (missedKeys - result.keys).size
             backMissCount.addAndGet(stillMissed.toLong())
         }
 
