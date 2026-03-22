@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.RedisClient
+import java.util.concurrent.ConcurrentHashMap
 import javax.cache.configuration.Configuration
 
 /**
@@ -16,22 +17,27 @@ import javax.cache.configuration.Configuration
  */
 object LettuceJCaching: KLogging() {
 
+    private val managers = ConcurrentHashMap<RedisClient, LettuceCacheManager>()
+
     /**
-     * 주어진 [RedisClient]로 [LettuceCacheManager]를 생성합니다.
+     * 주어진 [RedisClient]에 대한 [LettuceCacheManager]를 가져오거나 생성합니다.
      *
+     * 동일한 [RedisClient]에 대해 항상 같은 매니저를 반환하여 연결 누수를 방지합니다.
      * 외부에서 관리되는 [RedisClient]를 재사용하므로, 반환된 매니저가 닫혀도 클라이언트는 종료하지 않습니다.
      *
      * @param redisClient 연결된 Lettuce RedisClient
      */
     fun cacheManagerOf(redisClient: RedisClient): LettuceCacheManager =
-        LettuceCacheManager(
-            redisClient = redisClient,
-            classLoader = Thread.currentThread().contextClassLoader,
-            cacheProvider = LettuceCachingProvider(),
-            properties = null,
-            uri = null,
-            closeResource = {},  // 외부 관리 client이므로 종료하지 않음
-        )
+        managers.computeIfAbsent(redisClient) {
+            LettuceCacheManager(
+                redisClient = it,
+                classLoader = Thread.currentThread().contextClassLoader,
+                cacheProvider = LettuceCachingProvider(),
+                properties = null,
+                uri = null,
+                closeResource = {},  // 외부 관리 client이므로 종료하지 않음
+            )
+        }
 
     /**
      * [JCache]`<K, V>`를 생성하거나 기존 캐시를 가져옵니다.

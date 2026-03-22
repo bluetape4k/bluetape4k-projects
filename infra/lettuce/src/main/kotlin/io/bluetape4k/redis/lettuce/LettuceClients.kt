@@ -187,13 +187,15 @@ object LettuceClients : KLogging() {
      * 캐시된 connection을 정리하고 [client]를 종료합니다.
      */
     fun shutdown(client: RedisClient) {
-        defaultConnections.remove(client)?.close()
-        codecConnections
-            .filterKeys { it.client == client }
-            .forEach { (key, connection) ->
-                connection.close()
-                codecConnections.remove(key)
+        runCatching { defaultConnections.remove(client)?.close() }
+        codecConnections.entries.removeIf { (key, conn) ->
+            if (key.client == client) {
+                runCatching { conn.close() }
+                true
+            } else {
+                false
             }
+        }
         client.shutdown()
     }
 

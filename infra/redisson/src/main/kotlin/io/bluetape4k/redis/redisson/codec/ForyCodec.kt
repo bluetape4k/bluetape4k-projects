@@ -54,18 +54,23 @@ class ForyCodec(
             val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
-            log.info(e) { "Encoding: Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.info(e) { "Encoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
 
     private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
+        val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
         try {
-            val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
             fory.deserialize(bytes)
         } catch (e: Exception) {
-            log.info(e) { "Decoding: Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]" }
-            fallbackCodec.valueDecoder.decode(buf, state)
+            log.info(e) { "Decoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]" }
+            val fallbackBuf = Unpooled.wrappedBuffer(bytes)
+            try {
+                fallbackCodec.valueDecoder.decode(fallbackBuf, state)
+            } finally {
+                fallbackBuf.release()
+            }
         }
     }
 

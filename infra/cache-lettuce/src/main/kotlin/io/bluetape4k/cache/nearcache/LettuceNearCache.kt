@@ -20,7 +20,6 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Lettuce 기반 Near Cache (2-tier cache) - 동기(Blocking) 구현.
@@ -80,13 +79,12 @@ class LettuceNearCache<V: Any>(
     private val closed = atomic(false)
     override val isClosed by closed
 
-    private val backHitCount = AtomicLong(0)
-    private val backMissCount = AtomicLong(0)
+    private val backHitCount = atomic(0L)
+    private val backMissCount = atomic(0L)
 
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
-    private val setArgsXxKeepTtl: SetArgs = SetArgs.Builder.xx().keepttl()
     private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
@@ -355,8 +353,8 @@ class LettuceNearCache<V: Any>(
             localMisses = caffeineStats?.missCount() ?: 0L,
             localSize = localCacheSize(),
             localEvictions = caffeineStats?.evictionCount() ?: 0L,
-            backHits = backHitCount.get(),
-            backMisses = backMissCount.get()
+            backHits = backHitCount.value,
+            backMisses = backMissCount.value
         )
     }
 

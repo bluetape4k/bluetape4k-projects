@@ -10,7 +10,7 @@ import org.redisson.client.codec.Codec
  * Redisson 구현체가 [LocalCachedMapParams]인 경우에만 값을 반환할 수 있습니다.
  */
 val LocalCachedMapOptions<*, *>.name: String?
-    get() = (this as LocalCachedMapParams<*, *>).name
+    get() = (this as? LocalCachedMapParams<*, *>)?.name
 
 /**
  * [LocalCachedMapOptions]에 설정된 [Codec]을 조회합니다.
@@ -18,4 +18,4 @@ val LocalCachedMapOptions<*, *>.name: String?
  * Redisson 구현체가 [LocalCachedMapParams]인 경우에만 값을 반환할 수 있습니다.
  */
 val LocalCachedMapOptions<*, *>.codec: Codec?
-    get() = (this as LocalCachedMapParams<*, *>).codec
+    get() = (this as? LocalCachedMapParams<*, *>)?.codec

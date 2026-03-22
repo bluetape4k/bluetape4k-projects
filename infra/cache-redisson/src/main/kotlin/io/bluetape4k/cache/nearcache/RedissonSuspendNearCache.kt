@@ -8,7 +8,6 @@ import kotlinx.coroutines.future.await
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.Codec
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Redisson [RLocalCachedMap] 기반 Near Cache (2-tier cache) - Coroutine(Suspend) 구현.
@@ -38,8 +37,8 @@ class RedissonSuspendNearCache<V : Any>(
     private val closed = atomic(false)
     override val isClosed: Boolean by closed
 
-    private val backHitCount = AtomicLong(0)
-    private val backMissCount = AtomicLong(0)
+    private val backHitCount = atomic(0L)
+    private val backMissCount = atomic(0L)
 
     private val localCachedMap: RLocalCachedMap<String, V> =
         redisson.getLocalCachedMap(buildLocalCachedMapOptions(config, codec))
@@ -125,9 +124,12 @@ class RedissonSuspendNearCache<V : Any>(
 
     /**
      * 여러 [keys]를 일괄 삭제합니다.
+     *
+     * 모든 삭제 요청을 먼저 비동기로 시작한 뒤 일괄 완료를 기다립니다.
      */
     override suspend fun removeAll(keys: Set<String>) {
-        keys.forEach { localCachedMap.removeAsync(it).await() }
+        val futures = keys.map { localCachedMap.removeAsync(it) }
+        futures.forEach { it.await() }
     }
 
     /**
@@ -177,6 +179,10 @@ class RedissonSuspendNearCache<V : Any>(
     /**
      * 캐시 통계 스냅샷을 반환합니다.
      * 로컬 카운터 기반이므로 suspend가 아닙니다.
+     *
+     * **참고**: Redisson의 `RLocalCachedMap`이 로컬 캐시와 Redis 캐시를 내부적으로 통합 관리하므로,
+     * `backHitCount`/`backMissCount`는 로컬+Redis 통합 조회 결과를 기준으로 카운트됩니다.
+     * Redisson이 별도의 로컬/백엔드 통계를 노출하지 않으므로 `localHits`/`localMisses`는 0으로 보고됩니다.
      */
     override fun stats(): NearCacheStatistics =
         DefaultNearCacheStatistics(
@@ -184,8 +190,8 @@ class RedissonSuspendNearCache<V : Any>(
             localMisses = 0L,
             localSize = localCacheSize(),
             localEvictions = 0L,
-            backHits = backHitCount.get(),
-            backMisses = backMissCount.get()
+            backHits = backHitCount.value,
+            backMisses = backMissCount.value
         )
 
     /**

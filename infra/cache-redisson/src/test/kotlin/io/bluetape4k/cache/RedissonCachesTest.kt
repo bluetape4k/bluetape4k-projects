@@ -8,8 +8,8 @@ import io.bluetape4k.cache.nearcache.RedissonSuspendNearCache
 import io.bluetape4k.cache.nearcache.SuspendNearCacheOperations
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
@@ -40,7 +40,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf RedissonSuspendJCache::class
         } finally {
-            runCatching { runBlocking { cache.close() } }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -62,7 +62,7 @@ class RedissonCachesTest {
         try {
             cache shouldBeInstanceOf SuspendNearJCache::class
         } finally {
-            runCatching { runBlocking { cache.close() } }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 
@@ -84,7 +84,7 @@ class RedissonCachesTest {
             cache shouldBeInstanceOf SuspendNearCacheOperations::class
             cache shouldBeInstanceOf RedissonSuspendNearCache::class
         } finally {
-            runCatching { runBlocking { cache.close() } }
+            runCatching { runSuspendIO { cache.close() } }
         }
     }
 }

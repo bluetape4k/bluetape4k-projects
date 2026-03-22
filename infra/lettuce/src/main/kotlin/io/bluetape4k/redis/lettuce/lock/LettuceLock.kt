@@ -11,7 +11,7 @@ import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
+import kotlinx.atomicfu.atomic
 
 
 /**
@@ -47,7 +47,7 @@ class LettuceLock(
             "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
     }
 
-    private val tokenRef = AtomicReference<String?>(null)
+    private val tokenRef = atomic<String?>(null)
     private val syncCommands: RedisCommands<String, String> get() = connection.sync()
     private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
 
@@ -63,7 +63,7 @@ class LettuceLock(
      * 리스 시간(leaseTime) 만료로 Redis에서 키가 삭제된 경우 false를 반환합니다.
      */
     fun isHeldByCurrentInstance(): Boolean {
-        val token = tokenRef.get() ?: return false
+        val token = tokenRef.value ?: return false
         return syncCommands.get(lockKey) == token
     }
 
@@ -90,7 +90,7 @@ class LettuceLock(
             val args = SetArgs().nx().px(leaseMs)
             val result = syncCommands.set(lockKey, token, args)
             if (result != null) {
-                tokenRef.set(token)
+                tokenRef.value = token
                 log.debug { "Lock 획득 성공: lockKey=$lockKey" }
                 return true
             }
@@ -117,7 +117,7 @@ class LettuceLock(
         while (true) {
             val result = syncCommands.set(lockKey, token, args)
             if (result != null) {
-                tokenRef.set(token)
+                tokenRef.value = token
                 log.debug { "Lock 획득 성공: lockKey=$lockKey" }
                 return
             }
@@ -165,7 +165,7 @@ class LettuceLock(
             return asyncCommands.set(lockKey, token, args).toCompletableFuture()
                 .thenCompose { result ->
                     if (result != null) {
-                        tokenRef.set(token)
+                        tokenRef.value = token
                         log.debug { "Lock 획득 성공 (async): lockKey=$lockKey" }
                         CompletableFuture.completedFuture(true)
                     } else if (System.currentTimeMillis() < deadline) {
@@ -203,7 +203,7 @@ class LettuceLock(
             return asyncCommands.set(lockKey, token, args).toCompletableFuture()
                 .thenCompose { result ->
                     if (result != null) {
-                        tokenRef.set(token)
+                        tokenRef.value = token
                         log.debug { "Lock 획득 성공 (async): lockKey=$lockKey" }
                         CompletableFuture.completedFuture(Unit)
                     } else if (System.currentTimeMillis() < deadline) {

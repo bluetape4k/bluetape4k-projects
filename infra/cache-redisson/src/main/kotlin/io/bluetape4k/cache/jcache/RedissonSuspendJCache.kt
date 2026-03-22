@@ -2,6 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
 import org.redisson.jcache.JCache
@@ -104,7 +106,7 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
     }
 
     override suspend fun close() {
-        cache.close()
+        withContext(Dispatchers.IO) { runCatching { cache.close() } }
     }
 
     override fun isClosed(): Boolean = cache.isClosed
@@ -127,6 +129,13 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
         }
     }
 
+    /**
+     * [key]의 현재 값을 반환하고 [value]로 교체합니다.
+     *
+     * **참고**: Redisson JCache는 `getAndPutAsync()`를 제공하지 않습니다.
+     * 현재 구현은 get → put 두 단계로 동작하므로 원자적이지 않습니다.
+     * 엄격한 원자성이 필요하면 Redisson `RMap.getAndSetAsync()`를 직접 사용하세요.
+     */
     override suspend fun getAndPut(key: K, value: V): V? {
         return get(key).apply { put(key, value) }
     }
@@ -167,7 +176,7 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
     }
 
     override suspend fun removeAll() {
-        cache.removeAll()
+        withContext(Dispatchers.IO) { cache.removeAll() }
     }
 
     override suspend fun removeAll(keys: Set<K>) {

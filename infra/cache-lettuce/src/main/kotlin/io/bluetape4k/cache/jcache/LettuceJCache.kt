@@ -48,15 +48,14 @@ class LettuceJCache<K: Any, V: Any>(
 
     private val cacheName: String get() = map.mapKey
 
-    @Volatile
-    private var closed = false
+    private val closed = kotlinx.atomicfu.atomic(false)
 
     private val listeners = ConcurrentHashMap<CacheEntryListenerConfiguration<K, V>, CacheEntryListener<K, V>>()
 
     private val ttlDuration: Duration? by lazy { ttlSeconds?.let(Duration::ofSeconds) }
 
     private fun checkNotClosed() {
-        check(!closed) { "LettuceCache[$cacheName]가 이미 닫혀 있습니다." }
+        check(!closed.value) { "LettuceCache[$cacheName]가 이미 닫혀 있습니다." }
     }
 
     private fun encodeKey(key: K): String = keyCodec(key)
@@ -330,11 +329,10 @@ class LettuceJCache<K: Any, V: Any>(
         throw IllegalArgumentException("Can't unwrap to $clazz")
     }
 
-    override fun isClosed(): Boolean = closed
+    override fun isClosed(): Boolean = closed.value
 
     override fun close() {
-        if (closed) return
-        closed = true
+        if (!closed.compareAndSet(expect = false, update = true)) return
         runCatching { map.clear() }
         cacheManager.closeCache(this)
         runCatching { closeResource() }

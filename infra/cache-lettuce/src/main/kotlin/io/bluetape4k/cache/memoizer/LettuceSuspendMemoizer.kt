@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import kotlinx.coroutines.CompletableDeferred
@@ -45,7 +45,7 @@ class LettuceSuspendMemoizer<K: Any, V: Any>(
     val evaluator: suspend (K) -> V,
 ): SuspendMemoizer<K, V> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<K, CompletableDeferred<V>>()
 

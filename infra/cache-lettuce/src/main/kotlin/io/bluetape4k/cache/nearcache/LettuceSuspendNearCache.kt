@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
@@ -20,7 +20,6 @@ import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Lettuce 기반 Near Cache (2-tier cache) - Coroutine(Suspend) 구현.
@@ -57,7 +56,7 @@ class LettuceSuspendNearCache<V: Any>(
     codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): SuspendNearCacheOperations<V> {
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val COMPARE_AND_SET_SCRIPT = """
             local current = redis.call('GET', KEYS[1])
             if current == false or current ~= ARGV[1] then
@@ -81,13 +80,12 @@ class LettuceSuspendNearCache<V: Any>(
     private val closed = atomic(false)
     override val isClosed by closed
 
-    private val backHitCount = AtomicLong(0)
-    private val backMissCount = AtomicLong(0)
+    private val backHitCount = atomic(0L)
+    private val backMissCount = atomic(0L)
 
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
-    private val setArgsXxKeepTtl: SetArgs = SetArgs.Builder.xx().keepttl()
     private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
@@ -365,8 +363,8 @@ class LettuceSuspendNearCache<V: Any>(
             localMisses = caffeineStats?.missCount() ?: 0L,
             localSize = localCacheSize(),
             localEvictions = caffeineStats?.evictionCount() ?: 0L,
-            backHits = backHitCount.get(),
-            backMisses = backMissCount.get()
+            backHits = backHitCount.value,
+            backMisses = backMissCount.value
         )
     }
 

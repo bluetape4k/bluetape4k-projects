@@ -163,7 +163,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
         try {
             return action()
         } finally {
-            semaphore.releaseAsync().await()
+            runCatching { semaphore.releaseAsync().await() }
             log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
         }
     }

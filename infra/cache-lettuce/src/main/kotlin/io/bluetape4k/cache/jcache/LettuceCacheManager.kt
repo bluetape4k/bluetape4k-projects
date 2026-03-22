@@ -15,7 +15,7 @@ import io.lettuce.core.codec.StringCodec
 import java.net.URI
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
 import javax.cache.CacheException
@@ -50,7 +50,7 @@ class LettuceCacheManager(
     }
 
     private val caches = ConcurrentHashMap<String, LettuceJCache<*, *>>()
-    private val closed = AtomicBoolean(false)
+    private val closed = atomic(false)
     private val lock = ReentrantLock()
 
     private val supportsHSetEx: Boolean by lazy {
@@ -58,7 +58,7 @@ class LettuceCacheManager(
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "LettuceCacheManager가 닫혀 있습니다." }
+        check(!closed.value) { "LettuceCacheManager가 닫혀 있습니다." }
     }
 
     override fun getCachingProvider(): CachingProvider = cacheProvider
@@ -157,11 +157,11 @@ class LettuceCacheManager(
     }
 
     override fun close() {
-        if (closed.get()) return
+        if (closed.value) return
         lock.withLock {
-            if (!closed.get()) {
+            if (!closed.value) {
                 // 재귀 진입 방지를 위해 closed를 먼저 true로 설정
-                closed.set(true)
+                closed.value = true
                 log.info { "Close LettuceCacheManager." }
                 if (uri != null) {
                     runCatching { cacheProvider.close(uri, classLoader) }
@@ -174,7 +174,7 @@ class LettuceCacheManager(
         }
     }
 
-    override fun isClosed(): Boolean = closed.get()
+    override fun isClosed(): Boolean = closed.value
 
     override fun <T: Any> unwrap(clazz: Class<T>): T {
         if (clazz.isAssignableFrom(javaClass)) return clazz.cast(this)

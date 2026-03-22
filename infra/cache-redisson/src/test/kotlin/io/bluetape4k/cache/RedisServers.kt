@@ -11,12 +11,18 @@ object RedisServers {
     /** 테스트 전역 Redis 서버 (Testcontainers) */
     val redisServer: RedisServer by lazy { RedisServer.Launcher.redis }
 
+    /** Redisson 연결 풀 크기 (최대 동시 연결 수) */
+    private const val CONNECTION_POOL_SIZE = 256
+
+    /** Redisson 연결 최소 유지 수 */
+    private const val CONNECTION_MINIMUM_IDLE_SIZE = 24
+
     @JvmStatic
     val redissonClient by lazy {
         RedisServer.Launcher.RedissonLib.getRedisson(
             redisServer.url,
-            256,
-            24
+            CONNECTION_POOL_SIZE,
+            CONNECTION_MINIMUM_IDLE_SIZE
         )
     }
 
@@ -26,8 +32,8 @@ object RedisServers {
         val config =
             RedisServer.Launcher.RedissonLib.getRedissonConfig(
                 redisServer.url,
-                256,
-                24
+                CONNECTION_POOL_SIZE,
+                CONNECTION_MINIMUM_IDLE_SIZE
             )
         return redissonClientOf(config)
     }

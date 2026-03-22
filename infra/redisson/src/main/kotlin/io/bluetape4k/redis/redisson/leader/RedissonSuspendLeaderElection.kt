@@ -139,7 +139,7 @@ class RedissonSuspendLeaderElection private constructor(
                     return action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        lock.unlockAsync(lockId).await()
+                        runCatching { lock.unlockAsync(lockId).await() }
                         log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }
