@@ -280,6 +280,9 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache1.replace(key, "replaced").shouldBeTrue()
         nearCache1.localCacheSize() shouldBeEqualTo 1L
 
+        // replace 내부의 fire-and-forget tracking GET이 서버에 도달할 시간 확보
+        nearCache1.get(key)
+
         // 외부 변경 → nearCache1 local이 invalidated 되어야 함
         directCommands.set("${nearCache1.cacheName}:$key", "updated-externally")
 
@@ -318,6 +321,9 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         directCommands.set("$cacheName:$key", "initial")
         nearSuspendCache1.replace(key, "replaced").shouldBeTrue()
         nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
+
+        // replace 내부의 fire-and-forget tracking GET이 서버에 도달할 시간 확보
+        nearSuspendCache1.get(key)
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
