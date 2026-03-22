@@ -23,6 +23,7 @@ includeModules("io", withBaseDir = false)
 includeModules("spring-boot3", withBaseDir = true)
 includeModules("spring-boot4", withBaseDir = true)
 includeModules("testing", withBaseDir = false)
+includeModules("timefold", withBaseDir = true)
 includeModules("utils", withBaseDir = false)
 includeModules("virtualthread", withProjectName = true, withBaseDir = true)
 
