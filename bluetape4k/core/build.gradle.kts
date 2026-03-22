@@ -34,6 +34,9 @@ dependencies {
     compileOnly(Libs.commons_compress)
     compileOnly(Libs.commons_io)
 
+    // Hashing (XXHasher용)
+    compileOnly(Libs.lz4_java)
+
     // Coroutines
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)

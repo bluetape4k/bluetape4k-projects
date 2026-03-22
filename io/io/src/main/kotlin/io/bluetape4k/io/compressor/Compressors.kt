@@ -42,6 +42,8 @@ object Compressors {
 
     val BZip2: BZip2Compressor by lazy { BZip2Compressor() }
 
+    val Zip: ZipCompressor by lazy { ZipCompressor() }
+
     /**
      * 스트리밍 압축기 모음입니다.
      *
@@ -110,5 +112,7 @@ object Compressors {
                 decompressing = { BZip2CompressorInputStream(it) }
             )
         }
+
+        val Zip: StreamingCompressor by lazy { StreamingCompressors.from(Compressors.Zip) }
     }
 }
