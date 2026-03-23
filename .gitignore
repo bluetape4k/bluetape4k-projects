@@ -41,6 +41,8 @@ build/
 .claude/settings.local.json
 .cluade/worktrees/
 
+.code-review-graph
+
 .omc/sessions/
 .omc/state/
 .omc/logs/
