@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -25,21 +25,21 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
     fun `AtomicLog operatiions`() = runSuspendIO {
         val counter = redisson.getAtomicLong(randomName())
 
-        counter.setAsync(0).awaitSuspending()
-        counter.addAndGetAsync(10L).awaitSuspending() shouldBeEqualTo 10L
+        counter.setAsync(0).await()
+        counter.addAndGetAsync(10L).await() shouldBeEqualTo 10L
 
-        counter.compareAndSetAsync(-1L, 42L).awaitSuspending().shouldBeFalse()
-        counter.compareAndSetAsync(10L, 42L).awaitSuspending().shouldBeTrue()
+        counter.compareAndSetAsync(-1L, 42L).await().shouldBeFalse()
+        counter.compareAndSetAsync(10L, 42L).await().shouldBeTrue()
 
-        counter.decrementAndGetAsync().awaitSuspending() shouldBeEqualTo 41L
-        counter.incrementAndGetAsync().awaitSuspending() shouldBeEqualTo 42L
+        counter.decrementAndGetAsync().await() shouldBeEqualTo 41L
+        counter.incrementAndGetAsync().await() shouldBeEqualTo 42L
 
-        counter.getAndAddAsync(3L).awaitSuspending() shouldBeEqualTo 42L
+        counter.getAndAddAsync(3L).await() shouldBeEqualTo 42L
 
-        counter.getAndDecrementAsync().awaitSuspending() shouldBeEqualTo 45L
-        counter.getAndIncrementAsync().awaitSuspending() shouldBeEqualTo 44L
+        counter.getAndDecrementAsync().await() shouldBeEqualTo 45L
+        counter.getAndIncrementAsync().await() shouldBeEqualTo 44L
 
-        counter.deleteAsync().awaitSuspending().shouldBeTrue()
+        counter.deleteAsync().await().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -50,12 +50,12 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
             .workers(4)
             .rounds(32 * 8)
             .add {
-                counter.incrementAndGetAsync().awaitSuspending()
+                counter.incrementAndGetAsync().await()
             }
             .run()
 
-        counter.async.awaitSuspending() shouldBeEqualTo 32 * 8L
-        counter.deleteAsync().awaitSuspending().shouldBeTrue()
+        counter.async.await() shouldBeEqualTo 32 * 8L
+        counter.deleteAsync().await().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)

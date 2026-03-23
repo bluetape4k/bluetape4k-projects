@@ -2,11 +2,11 @@ package io.bluetape4k.redis.lettuce.atomic
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import kotlinx.coroutines.future.await
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 AtomicLong의 코루틴 구현체입니다.
@@ -81,7 +81,7 @@ end"""
      * @return 현재 Long 값
      */
     suspend fun get(): Long =
-        asyncCommands.get(key).awaitSuspending()?.toLongOrNull() ?: initialValue
+        asyncCommands.get(key).await()?.toLongOrNull() ?: initialValue
 
     /**
      * 값을 설정합니다.
@@ -89,7 +89,7 @@ end"""
      * @param value 설정할 값
      */
     suspend fun set(value: Long) {
-        asyncCommands.set(key, value.toString()).awaitSuspending()
+        asyncCommands.set(key, value.toString()).await()
         log.debug { "LettuceSuspendAtomicLong set: key=$key, value=$value" }
     }
 
@@ -103,7 +103,7 @@ end"""
         asyncCommands.eval<String>(
             GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), value.toString()
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
+        ).await()?.toLongOrNull() ?: 0L
 
     /**
      * 값을 1 증가시키고 증가된 값을 반환합니다.
@@ -111,7 +111,7 @@ end"""
      * @return 증가된 값
      */
     suspend fun incrementAndGet(): Long =
-        asyncCommands.incr(key).awaitSuspending() ?: 1L
+        asyncCommands.incr(key).await() ?: 1L
 
     /**
      * 값을 1 감소시키고 감소된 값을 반환합니다.
@@ -119,7 +119,7 @@ end"""
      * @return 감소된 값
      */
     suspend fun decrementAndGet(): Long =
-        asyncCommands.decr(key).awaitSuspending() ?: -1L
+        asyncCommands.decr(key).await() ?: -1L
 
     /**
      * 값에 delta를 더하고 더해진 값을 반환합니다.
@@ -128,7 +128,7 @@ end"""
      * @return 더해진 값
      */
     suspend fun addAndGet(delta: Long): Long =
-        asyncCommands.incrby(key, delta).awaitSuspending() ?: delta
+        asyncCommands.incrby(key, delta).await() ?: delta
 
     /**
      * 현재 값을 반환하고 1 증가시킵니다.
@@ -139,7 +139,7 @@ end"""
         asyncCommands.eval<String>(
             GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "1"
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
+        ).await()?.toLongOrNull() ?: 0L
 
     /**
      * 현재 값을 반환하고 1 감소시킵니다.
@@ -150,7 +150,7 @@ end"""
         asyncCommands.eval<String>(
             GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "-1"
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
+        ).await()?.toLongOrNull() ?: 0L
 
     /**
      * 현재 값을 반환하고 delta를 더합니다.
@@ -162,7 +162,7 @@ end"""
         asyncCommands.eval<String>(
             GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), delta.toString()
-        ).awaitSuspending()?.toLongOrNull() ?: 0L
+        ).await()?.toLongOrNull() ?: 0L
 
     /**
      * 현재 값이 expect와 같으면 update로 변경합니다.
@@ -175,5 +175,5 @@ end"""
         asyncCommands.eval<Long>(
             COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(key), expect.toString(), update.toString()
-        ).awaitSuspending() == 1L
+        ).await() == 1L
 }

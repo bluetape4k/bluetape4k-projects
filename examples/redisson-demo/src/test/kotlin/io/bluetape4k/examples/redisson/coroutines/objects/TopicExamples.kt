@@ -1,16 +1,15 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.future.await
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.StringCodec
 import java.util.concurrent.atomic.AtomicInteger
-
 
 class TopicExamples: AbstractRedissonCoroutineTest() {
 
@@ -23,25 +22,27 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
 
         // topic 예 listener를 등록합니다.
         // listener id 를 반환한다.
-        val listenerId1 = topic.addListenerAsync(String::class.java) { channel, msg ->
-            println("Listener1: channel[$channel] received: $msg")
-            receivedCounter.incrementAndGet()
-        }.awaitSuspending()
+        val listenerId1 = topic
+            .addListenerAsync(String::class.java) { channel, msg ->
+                println("Listener1: channel[$channel] received: $msg")
+                receivedCounter.incrementAndGet()
+            }.await()
 
-        val listenerId2 = topic.addListenerAsync(String::class.java) { channel, msg ->
-            println("Listener2: channel[$channel] received: $msg")
-            receivedCounter.incrementAndGet()
-        }.awaitSuspending()
+        val listenerId2 = topic
+            .addListenerAsync(String::class.java) { channel, msg ->
+                println("Listener2: channel[$channel] received: $msg")
+                receivedCounter.incrementAndGet()
+            }.await()
 
         log.debug { "Listener listener1 Id=$listenerId1, listener2 Id=$listenerId2" }
 
         // topic 에 메시지 전송
-        topic.publishAsync("message-1").awaitSuspending()
-        topic.publishAsync("message-2").awaitSuspending()
+        topic.publishAsync("message-1").await()
+        topic.publishAsync("message-2").await()
 
         // topic 에 listener가 2개, 메시지 2개 전송
         await untilSuspending { receivedCounter.get() == 2 * 2 }
 
-        topic.removeAllListenersAsync().awaitSuspending()
+        topic.removeAllListenersAsync().await()
     }
 }

@@ -45,8 +45,8 @@ suspend infix fun ConditionFactory.suspendUntil(block: suspend () -> Boolean) =
  *
  * @param block 성공 시점까지 반복 실행할 suspend 블록
  */
-suspend infix fun ConditionFactory.awaitSuspending(
-    block: suspend () -> Unit,
+suspend inline infix fun ConditionFactory.awaitSuspending(
+    crossinline block: suspend () -> Unit,
 ) {
     untilSuspending { block(); true }
 }

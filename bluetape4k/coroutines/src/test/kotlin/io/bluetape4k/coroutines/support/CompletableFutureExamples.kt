@@ -7,6 +7,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -28,7 +29,7 @@ class CompletableFutureExamples {
             42
         }
 
-        future.awaitSuspending() shouldBeEqualTo 42
+        future.await() shouldBeEqualTo 42
     }
 
     @Test
@@ -44,7 +45,7 @@ class CompletableFutureExamples {
                 }
 
                 log.debug { "예외가 발생했는지 확인합니다." }
-                future.awaitSuspending()
+                future.await()
             }
         }
     }
@@ -55,7 +56,7 @@ class CompletableFutureExamples {
             delay(100)
             42
         }
-        val deferred = async { future.awaitSuspending() }
+        val deferred = async { future.await() }
 
         future.cancel(false).shouldBeTrue()
         future.isCancelled.shouldBeTrue()

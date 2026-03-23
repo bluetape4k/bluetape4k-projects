@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -10,6 +9,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -32,8 +32,8 @@ class LockExamples: AbstractRedissonCoroutineTest() {
 
         log.debug { "Lock1 lock in 2 seconds." }
         log.debug { "Lock1 lock: current coroutineId=$lockId1, threadId=${Thread.currentThread().threadId()}" }
-        lock1.lockAsync(60, TimeUnit.SECONDS, lockId1).awaitSuspending()
-        lock1.isLockedAsync.awaitSuspending().shouldBeTrue()
+        lock1.lockAsync(60, TimeUnit.SECONDS, lockId1).await()
+        lock1.isLockedAsync.await().shouldBeTrue()
 
         // 다른 Coroutine context 에서 Lock 잡고, 풀기
         val job = scope.launch(exceptionHandler) {
@@ -41,27 +41,27 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             val lock2 = redisson.getLock(lockName)
             val lockId2 = redisson.getLockId(lockName)
             // 이미 lock이 잡혀 있다.
-            lock2.isLockedAsync.awaitSuspending().shouldBeTrue()
+            lock2.isLockedAsync.await().shouldBeTrue()
             // lock1 과 다른 currentCoroutineId 를 가지므로 실패한다.
-            lock2.tryLockAsync(lockId2).awaitSuspending().shouldBeFalse()
-            lock2.isLockedAsync.awaitSuspending().shouldBeTrue()
+            lock2.tryLockAsync(lockId2).await().shouldBeFalse()
+            lock2.isLockedAsync.await().shouldBeTrue()
 
             delay(100)
 
             // lock1 에서 이미 lock 이 걸렸고, lock2는 소유권이 없으므로 lock2로는 unlock 할 수 없다
             log.debug { "Lock2 unlock: current coroutineId=$lockId2, threadId=${Thread.currentThread().threadId()}" }
             runCatching {
-                lock2.unlockAsync().awaitSuspending()
+                lock2.unlockAsync().await()
             }
-            lock2.isLockedAsync.awaitSuspending().shouldBeTrue()
+            lock2.isLockedAsync.await().shouldBeTrue()
         }
         delay(1000)
         job.join()
         delay(10)
 
         log.debug { "lock1.isLocked=${lock1.isLocked}" }
-        lock1.unlockAsync(lockId1).awaitSuspending()
-        lock1.isLockedAsync.awaitSuspending().shouldBeFalse()
+        lock1.unlockAsync(lockId1).await()
+        lock1.isLockedAsync.await().shouldBeFalse()
     }
 
     @Test
@@ -71,28 +71,28 @@ class LockExamples: AbstractRedissonCoroutineTest() {
         val lockId = redisson.getLockId(lockName)
 
         log.debug { "Main Thread에서 tryLock 시도" }
-        val acquired1 = lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).awaitSuspending()
+        val acquired1 = lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).await()
         acquired1.shouldBeTrue()
-        lock.isLockedAsync.awaitSuspending().shouldBeTrue()
+        lock.isLockedAsync.await().shouldBeTrue()
 
-        val ttl1 = lock.remainTimeToLiveAsync().awaitSuspending()
+        val ttl1 = lock.remainTimeToLiveAsync().await()
         log.debug { "TTL1: $ttl1" }
         ttl1 shouldBeGreaterThan 0L
 
         val job = scope.launch(exceptionHandler) {
             log.debug { "다른 Coroutine scope에서 기존 lock에 tryLock 시도 -> 소유권이 다르므로 실패한다" }
             val lockId2 = redisson.getLockId(lockName)
-            lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).awaitSuspending().shouldBeFalse()
+            lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).await().shouldBeFalse()
         }
         delay(5)
         job.join()
 
-        val prevTtl = lock.remainTimeToLiveAsync().awaitSuspending()
+        val prevTtl = lock.remainTimeToLiveAsync().await()
 
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다 (ttl3 >= prevTtl)
-        lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).awaitSuspending().shouldBeTrue()
+        lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).await().shouldBeTrue()
 
-        val ttl3 = lock.remainTimeToLiveAsync().awaitSuspending()
+        val ttl3 = lock.remainTimeToLiveAsync().await()
         log.debug { "TTL3: $ttl3, PrevTTL: $prevTtl" }
         ttl3 shouldBeGreaterOrEqualTo prevTtl
     }
@@ -140,7 +140,7 @@ class LockExamples: AbstractRedissonCoroutineTest() {
                 val lockId = redisson.getLockId(lock.name)
 
                 log.debug { "Lock[$index] 획득 시도 ..." }
-                val locked = lock.tryLockAsync(10, 10, TimeUnit.SECONDS, lockId).awaitSuspending()
+                val locked = lock.tryLockAsync(10, 10, TimeUnit.SECONDS, lockId).await()
 
                 if (locked) {
                     log.debug { "Lock[$index] 획득 성공 ..." }
@@ -149,7 +149,7 @@ class LockExamples: AbstractRedissonCoroutineTest() {
                 }
 
                 log.debug { "Lock[$index] 해제 ..." }
-                lock.unlockAsync(lockId).awaitSuspending()
+                lock.unlockAsync(lockId).await()
             }
             .run()
 

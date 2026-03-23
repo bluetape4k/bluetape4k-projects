@@ -2,13 +2,13 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -77,7 +77,7 @@ return v"""
      * `SET semaphoreKey totalPermits NX` 명령을 사용합니다.
      */
     suspend fun initialize() {
-        asyncCommands.set(semaphoreKey, totalPermits.toString(), SetArgs().nx()).awaitSuspending()
+        asyncCommands.set(semaphoreKey, totalPermits.toString(), SetArgs().nx()).await()
         log.debug { "세마포어 초기화: semaphoreKey=$semaphoreKey, totalPermits=$totalPermits" }
     }
 
@@ -89,7 +89,7 @@ return v"""
      */
     suspend fun trySetPermits(permits: Int) {
         permits.requirePositiveNumber("permits")
-        asyncCommands.set(semaphoreKey, permits.toString()).awaitSuspending()
+        asyncCommands.set(semaphoreKey, permits.toString()).await()
         log.debug { "세마포어 허가 수 설정: semaphoreKey=$semaphoreKey, permits=$permits" }
     }
 
@@ -99,7 +99,7 @@ return v"""
      * @return 잔여 허가 수 (초기화 안 된 경우 0)
      */
     suspend fun availablePermits(): Int =
-        asyncCommands.get(semaphoreKey).awaitSuspending()?.toIntOrNull() ?: 0
+        asyncCommands.get(semaphoreKey).await()?.toIntOrNull() ?: 0
 
     // =========================================================================
     // 코루틴 API (suspend)
@@ -117,7 +117,7 @@ return v"""
         val result = asyncCommands.eval<Long>(
             ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString()
-        ).awaitSuspending()
+        ).await()
         val acquired = result >= 0
         log.debug { "Semaphore tryAcquire: key=$semaphoreKey, permits=$permits, acquired=$acquired" }
         return acquired
@@ -152,7 +152,7 @@ return v"""
         val remaining = asyncCommands.eval<Long>(
             RELEASE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
-        ).awaitSuspending()
+        ).await()
         log.debug { "Semaphore release: key=$semaphoreKey, permits=$permits, remaining=$remaining" }
     }
 }

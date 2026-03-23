@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
@@ -34,8 +34,8 @@ class BinaryStreamExamples: AbstractRedissonCoroutineTest() {
         val contentStr = randomString()
         val contentBytes = contentStr.toUtf8Bytes()
 
-        stream.setIfAbsentAsync(contentBytes, Duration.ofSeconds(10)).awaitSuspending().shouldBeTrue()
-        stream.setAsync(contentBytes).awaitSuspending()
+        stream.setIfAbsentAsync(contentBytes, Duration.ofSeconds(10)).await().shouldBeTrue()
+        stream.setAsync(contentBytes).await()
 
         val loadedBytes = stream.inputStream.readBytes()
         val loadedStr = loadedBytes.toUtf8String()
@@ -43,8 +43,8 @@ class BinaryStreamExamples: AbstractRedissonCoroutineTest() {
 
         // 기존 값을 비교해서 새로운 Bytes 로 대체한다
         val contentBytes2 = randomString().toUtf8Bytes()
-        stream.compareAndSetAsync(contentBytes, contentBytes2).awaitSuspending().shouldBeTrue()
+        stream.compareAndSetAsync(contentBytes, contentBytes2).await().shouldBeTrue()
 
-        stream.deleteAsync().awaitSuspending().shouldBeTrue()
+        stream.deleteAsync().await().shouldBeTrue()
     }
 }

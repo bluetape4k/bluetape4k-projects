@@ -5,11 +5,11 @@ import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.toRateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.validateRateLimitRequest
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.future.await
 
 /**
  * 분산 환경에서 즉시 소비 시도 계약을 제공하는 코루틴용 rate limiter 구현체입니다.
@@ -60,7 +60,7 @@ class DistributedSuspendRateLimiter(
 
         return try {
             val bucketProxy = asyncBucketProxyProvider.resolveBucket(key)
-            toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken).awaitSuspending(), numToken)
+            toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken).await(), numToken)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

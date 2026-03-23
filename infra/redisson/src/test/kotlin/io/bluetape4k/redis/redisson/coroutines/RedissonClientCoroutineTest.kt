@@ -1,6 +1,5 @@
 package io.bluetape4k.redis.redisson.coroutines
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -12,6 +11,7 @@ import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
 import io.bluetape4k.support.asBoolean
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -53,13 +53,13 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         try {
             val value: String = randomString(32)
             redisson.withSuspendedTransaction {
-                map.putAsync("1", value).awaitSuspending()
-                map.getAsync("3").awaitSuspending()
+                map.putAsync("1", value).await()
+                map.getAsync("3").await()
 
-                set.addAsync(value).awaitSuspending()
+                set.addAsync(value).await()
             }
-            map.getAsync("1").awaitSuspending() shouldBeEqualTo value
-            set.containsAsync(value).awaitSuspending().shouldBeTrue()
+            map.getAsync("1").await() shouldBeEqualTo value
+            set.containsAsync(value).await().shouldBeTrue()
 
         } finally {
             map.delete()
@@ -76,13 +76,13 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
             val result = runCatching {
                 redisson.withSuspendedTransaction {
                     val txMap = getMap<String, String>(mapName)
-                    txMap.putAsync("1", "value").awaitSuspending()
+                    txMap.putAsync("1", "value").await()
                     throw IllegalStateException("boom")
                 }
             }
             result.isFailure.shouldBeTrue()
 
-            map.getAsync("1").awaitSuspending().shouldBeNull()
+            map.getAsync("1").await().shouldBeNull()
         } finally {
             map.delete()
         }
@@ -105,15 +105,15 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                     leaderElection.runIfLeader(lockName) {
                         val value = randomString(64)
                         redisson.withSuspendedTransaction {
-                            map.putAsync("1", value).awaitSuspending()
-                            map.putAsync("2", value).awaitSuspending()
-                            map.putAsync("3", value).awaitSuspending()
+                            map.putAsync("1", value).await()
+                            map.putAsync("2", value).await()
+                            map.putAsync("3", value).await()
                             counter.incrementAndGet()
                         }
                         delay(10L)
-                        map.getAsync("1").awaitSuspending() shouldBeEqualTo value
-                        map.getAsync("2").awaitSuspending() shouldBeEqualTo value
-                        map.getAsync("3").awaitSuspending() shouldBeEqualTo value
+                        map.getAsync("1").await() shouldBeEqualTo value
+                        map.getAsync("2").await() shouldBeEqualTo value
+                        map.getAsync("3").await() shouldBeEqualTo value
                     }
                 }
                 .run()

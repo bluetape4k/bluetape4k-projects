@@ -2,13 +2,13 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import java.time.Duration
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,7 +36,7 @@ class LettuceSuspendLock(
     val lockKey: String,
     val defaultLeaseTime: Duration = Duration.ofSeconds(30),
 ) {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val RETRY_DELAY_MS = 50L
         private const val DEFAULT_MAX_WAIT_MINUTES = 5L
         private const val UNLOCK_SCRIPT =
@@ -51,7 +51,7 @@ class LettuceSuspendLock(
      *
      * @return 잠겨 있으면 true
      */
-    suspend fun isLocked(): Boolean = asyncCommands.get(lockKey).awaitSuspending() != null
+    suspend fun isLocked(): Boolean = asyncCommands.get(lockKey).await() != null
 
     /**
      * 현재 인스턴스가 락을 보유하고 있는지 코루틴으로 확인합니다.
@@ -60,7 +60,7 @@ class LettuceSuspendLock(
      */
     suspend fun isHeldByCurrentInstance(): Boolean {
         val token = tokenRef.value ?: return false
-        return asyncCommands.get(lockKey).awaitSuspending() == token
+        return asyncCommands.get(lockKey).await() == token
     }
 
     /**
@@ -80,7 +80,7 @@ class LettuceSuspendLock(
 
         do {
             val args = SetArgs().nx().px(leaseMs)
-            val result = asyncCommands.set(lockKey, token, args).awaitSuspending()
+            val result = asyncCommands.set(lockKey, token, args).await()
             if (result != null) {
                 tokenRef.value = token
                 log.debug { "Lock 획득 성공 (suspend): lockKey=$lockKey" }
@@ -112,7 +112,7 @@ class LettuceSuspendLock(
 
         while (true) {
             val args = SetArgs().nx().px(leaseMs)
-            val result = asyncCommands.set(lockKey, token, args).awaitSuspending()
+            val result = asyncCommands.set(lockKey, token, args).await()
             if (result != null) {
                 tokenRef.value = token
                 log.debug { "Lock 획득 성공 (suspend): lockKey=$lockKey" }
@@ -143,7 +143,7 @@ class LettuceSuspendLock(
         val released =
             asyncCommands
                 .eval<Long>(UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token)
-                .awaitSuspending()
+                .await()
 
         if (released == 0L) {
             throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")

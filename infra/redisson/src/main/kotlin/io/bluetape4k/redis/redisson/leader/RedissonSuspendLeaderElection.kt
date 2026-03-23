@@ -1,6 +1,5 @@
 package io.bluetape4k.redis.redisson.leader
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.leader.LeaderElectionOptions
 import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -131,7 +130,7 @@ class RedissonSuspendLeaderElection private constructor(
                     TimeUnit.MILLISECONDS,
                     lockId
                 )
-                .awaitSuspending()
+                .await()
 
             if (acquired) {
                 log.debug { "Leader로 승격되어 작업을 수행합니다. lock=$lockName, lockId=$lockId" }

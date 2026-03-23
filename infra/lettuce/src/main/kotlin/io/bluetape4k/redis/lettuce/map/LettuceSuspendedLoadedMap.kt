@@ -4,7 +4,6 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
-import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
@@ -20,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -87,11 +87,11 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      */
     suspend fun get(key: K): V? {
         val redisKey = redisKey(key)
-        val cached = runCatching { asyncCommands.get(redisKey).awaitSuspending() }.getOrNull()
+        val cached = runCatching { asyncCommands.get(redisKey).await() }.getOrNull()
         if (cached != null) return cached
         val loader = loader ?: return null
         val value = loader.load(key) ?: return null
-        runCatching { asyncCommands.set(redisKey, value, SetArgs().ex(ttlSeconds)).awaitSuspending() }
+        runCatching { asyncCommands.set(redisKey, value, SetArgs().ex(ttlSeconds)).await() }
             .onFailure { log.warn(it) { "Redis SETEX 실패: $redisKey" } }
         return value
     }
@@ -105,11 +105,11 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     ) {
         when (config.writeMode) {
             WriteMode.NONE          -> {
-                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).awaitSuspending()
+                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
             }
             WriteMode.WRITE_THROUGH -> {
                 writer?.write(mapOf(key to value))
-                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).awaitSuspending()
+                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
             }
             WriteMode.WRITE_BEHIND  -> {
                 val channel = writeBehindChannel ?: return
@@ -119,7 +119,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                         "Write-behind 채널 포화 (capacity=${config.writeBehindQueueCapacity})"
                     )
                 }
-                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).awaitSuspending()
+                asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
             }
         }
     }
@@ -132,7 +132,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         val keyList = keys.toList()
         val redisKeys = keyList.map { redisKey(it) }.toTypedArray()
 
-        val values = runCatching { asyncCommands.mget(*redisKeys).awaitSuspending() }.getOrNull() ?: emptyList()
+        val values = runCatching { asyncCommands.mget(*redisKeys).await() }.getOrNull() ?: emptyList()
 
         val result = mutableMapOf<K, V>()
         val missedKeys = mutableListOf<K>()
@@ -150,7 +150,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 val value = loader.load(key) ?: continue
                 result[key] = value
                 runCatching {
-                    asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).awaitSuspending()
+                    asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
                 }.onFailure { log.warn(it) { "Redis SETEX 실패: ${redisKey(key)}" } }
             }
         }
@@ -162,7 +162,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      */
     suspend fun delete(key: K) {
         if (config.writeMode != WriteMode.NONE) writer?.delete(listOf(key))
-        asyncCommands.del(redisKey(key)).awaitSuspending()
+        asyncCommands.del(redisKey(key)).await()
     }
 
     /**
@@ -171,7 +171,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     suspend fun deleteAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
         if (config.writeMode != WriteMode.NONE) writer?.delete(keys)
-        asyncCommands.del(*keys.map { redisKey(it) }.toTypedArray()).awaitSuspending()
+        asyncCommands.del(*keys.map { redisKey(it) }.toTypedArray()).await()
     }
 
     /**
@@ -182,9 +182,9 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         val scanArgs = ScanArgs.Builder.matches(pattern).limit(100)
         var cursor: ScanCursor = ScanCursor.INITIAL
         do {
-            val scanResult = asyncCommands.scan(cursor, scanArgs).awaitSuspending()
+            val scanResult = asyncCommands.scan(cursor, scanArgs).await()
             if (scanResult.keys.isNotEmpty()) {
-                asyncCommands.del(*scanResult.keys.toTypedArray()).awaitSuspending()
+                asyncCommands.del(*scanResult.keys.toTypedArray()).await()
             }
             cursor = scanResult
         } while (!cursor.isFinished)
@@ -223,7 +223,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
                         strAsyncCommands
                             .lpush(deadLetterKey, *batch.keys.map { keySerializer(it) }.toTypedArray())
-                            .awaitSuspending()
+                            .await()
                     }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
                 }
             }

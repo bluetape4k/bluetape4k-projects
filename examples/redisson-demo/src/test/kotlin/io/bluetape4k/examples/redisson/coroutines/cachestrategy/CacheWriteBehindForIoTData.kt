@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.untilSuspending
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.future.await
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.withPollDelay
@@ -261,7 +261,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
             val cache = redisson.getMapCache(options)
             try {
                 val dataSize = 1000
-                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).awaitSuspending()
+                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).await()
 
                 Thread.sleep(100)
 
@@ -278,7 +278,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().awaitSuspending()
+                cache.deleteAsync().await()
             }
         }
     }

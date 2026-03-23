@@ -1,10 +1,10 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -41,7 +41,7 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
             )
             addAllAsync(objects)
         }
-        batch.executeAsync().awaitSuspending()
+        batch.executeAsync().await()
 
         return redisson.getScoredSortedSet(zsetName)
     }
@@ -50,13 +50,13 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
     fun `RScoredSortedSet 조작하기`() = runTest {
         val zset: RScoredSortedSet<String> = getSampleScoredSortedSet()
 
-        zset.sizeAsync().awaitSuspending() shouldBeEqualTo 6
+        zset.sizeAsync().await() shouldBeEqualTo 6
         zset.toSortedSet() shouldBeEqualTo setOf("1", "2", "3", "4", "5", "6")
 
-        zset.containsAsync("2").awaitSuspending().shouldBeTrue()
-        zset.containsAllAsync(setOf("2", "3", "4")).awaitSuspending().shouldBeTrue()
+        zset.containsAsync("2").await().shouldBeTrue()
+        zset.containsAllAsync(setOf("2", "3", "4")).await().shouldBeTrue()
 
-        zset.deleteAsync().awaitSuspending()
+        zset.deleteAsync().await()
     }
 
     @Test
@@ -64,12 +64,12 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         val zset: RScoredSortedSet<String> = getSampleScoredSortedSet()
 
         // "2" 의 score 값을 추가한다
-        zset.addScoreAsync("2", 15.0).awaitSuspending() shouldBeEqualTo 35.0
+        zset.addScoreAsync("2", 15.0).await() shouldBeEqualTo 35.0
 
         // "1" 의 score를 추가하고, 올림차순 Rank 를 얻는다
-        zset.addScoreAndGetRankAsync("1", 1.0).awaitSuspending() shouldBeEqualTo 0
+        zset.addScoreAndGetRankAsync("1", 1.0).await() shouldBeEqualTo 0
 
-        zset.deleteAsync().awaitSuspending()
+        zset.deleteAsync().await()
     }
 
     @Test
@@ -77,31 +77,31 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         val zset: RScoredSortedSet<String> = getSampleScoredSortedSet()
 
         // 올림차순으로 Top 4 조회
-        val top4 = zset.entryRangeAsync(0, 3).awaitSuspending()
+        val top4 = zset.entryRangeAsync(0, 3).await()
         top4.forEach { entry ->
             log.debug { "member=${entry.value}, score=${entry.score}" }
         }
         top4.map { it.value } shouldBeEqualTo listOf("1", "2", "3", "4")
 
         // 내림차순으로 Top 4 조회
-        val top4Rev = zset.entryRangeReversedAsync(0, 3).awaitSuspending()
+        val top4Rev = zset.entryRangeReversedAsync(0, 3).await()
         top4Rev.forEach { entry ->
             log.debug { "member=${entry.value}, score=${entry.score}" }
         }
         top4Rev.map { it.value } shouldBeEqualTo listOf("6", "5", "4", "3")
 
         // 올림차순으로 첫번째 요소
-        zset.firstAsync().awaitSuspending() shouldBeEqualTo "1"
+        zset.firstAsync().await() shouldBeEqualTo "1"
         // 올림차순으로 마지막 요소
-        zset.lastAsync().awaitSuspending() shouldBeEqualTo "6"
+        zset.lastAsync().await() shouldBeEqualTo "6"
 
         // 올림차순으로 Top 2 요소를 가져오고, 요소는 제거합니다. (Rank 갯수를 제한할 때 사용)
-        zset.pollFirstAsync(2).awaitSuspending() shouldBeEqualTo listOf("1", "2")
+        zset.pollFirstAsync(2).await() shouldBeEqualTo listOf("1", "2")
 
         // 특정 Ranking에 해당하는 요소를 제거합니다. (Rank 갯수를 제한할 때 사용)
-        zset.removeRangeByRankAsync(-2, -1).awaitSuspending() shouldBeEqualTo 2
+        zset.removeRangeByRankAsync(-2, -1).await() shouldBeEqualTo 2
 
-        zset.deleteAsync().awaitSuspending()
+        zset.deleteAsync().await()
     }
 
     @Test
@@ -110,21 +110,21 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         zset.clear()
 
         val job = scope.launch {
-            zset.takeFirstAsync().awaitSuspending() shouldBeEqualTo "1"
+            zset.takeFirstAsync().await() shouldBeEqualTo "1"
         }
         delay(1)
 
-        zset.sizeAsync().awaitSuspending() shouldBeEqualTo 0
+        zset.sizeAsync().await() shouldBeEqualTo 0
 
-        zset.addAsync(10.0, "1").awaitSuspending()
-        zset.addAsync(20.0, "2").awaitSuspending()
-        zset.addAsync(30.0, "3").awaitSuspending()
+        zset.addAsync(10.0, "1").await()
+        zset.addAsync(20.0, "2").await()
+        zset.addAsync(30.0, "3").await()
 
         job.join()
 
         zset.readAll() shouldBeEqualTo listOf("2", "3")
 
-        zset.deleteAsync().awaitSuspending()
+        zset.deleteAsync().await()
     }
 
     @Test
@@ -137,31 +137,31 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         val map2 = mapOf("2" to 10.0, "3" to 20.0)
         val map3 = mapOf("3" to 30.0, "4" to 40.0)
 
-        zset1.addAllAsync(map1).awaitSuspending()
-        zset2.addAllAsync(map2).awaitSuspending()
-        zset3.addAllAsync(map3).awaitSuspending()
+        zset1.addAllAsync(map1).await()
+        zset2.addAllAsync(map2).await()
+        zset3.addAllAsync(map3).await()
 
         val union = redisson.getScoredSortedSet<String>(randomName())
         val unionArgs = SetUnionArgs.names(zset1.name, zset3.name).apply {
             aggregate(RScoredSortedSet.Aggregate.SUM)
         }
-        union.unionAsync(unionArgs).awaitSuspending() shouldBeEqualTo 4
-        // union.unionAsync(RScoredSortedSet.Aggregate.SUM, zset1.name, zset3.name).awaitSuspending() shouldBeEqualTo 4
+        union.unionAsync(unionArgs).await() shouldBeEqualTo 4
+        // union.unionAsync(RScoredSortedSet.Aggregate.SUM, zset1.name, zset3.name).await() shouldBeEqualTo 4
         union.readAll() shouldBeEqualTo listOf("1", "2", "3", "4")
 
         val intersection = redisson.getScoredSortedSet<String>(randomName())
         val intersectionArgs = SetIntersectionArgs.names(zset1.name, zset2.name).apply {
             aggregate(RScoredSortedSet.Aggregate.MAX)
         }
-        intersection.intersectionAsync(intersectionArgs).awaitSuspending() shouldBeEqualTo 1
+        intersection.intersectionAsync(intersectionArgs).await() shouldBeEqualTo 1
         intersection.readAll() shouldBeEqualTo listOf("2")
         intersection.getScore("2") shouldBeEqualTo 20.0
 
-        zset1.deleteAsync().awaitSuspending()
-        zset2.deleteAsync().awaitSuspending()
-        zset3.deleteAsync().awaitSuspending()
+        zset1.deleteAsync().await()
+        zset2.deleteAsync().await()
+        zset3.deleteAsync().await()
 
-        union.deleteAsync().awaitSuspending()
-        intersection.deleteAsync().awaitSuspending()
+        union.deleteAsync().await()
+        intersection.deleteAsync().await()
     }
 }

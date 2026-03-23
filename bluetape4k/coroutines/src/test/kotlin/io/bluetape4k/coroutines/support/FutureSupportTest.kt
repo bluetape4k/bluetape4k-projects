@@ -8,6 +8,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -60,7 +61,7 @@ class FutureSupportTest {
                     log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
-                val result = task.awaitSuspending()
+                val result = task.await()
                 log.trace { "result=$result" }
             }
             .run()
@@ -69,12 +70,12 @@ class FutureSupportTest {
     }
 
     @Test
-    fun `취소된 Future는 awaitSuspending 시 CancellationException을 던진다`() = runSuspendDefault {
+    fun `취소된 Future는 await 시 CancellationException을 던진다`() = runSuspendDefault {
         val cancelled = CompletableFuture<Int>()
         cancelled.cancel(true)
 
         assertThrows<CancellationException> {
-            cancelled.awaitSuspending()
+            cancelled.await()
         }
     }
 }

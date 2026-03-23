@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -73,11 +73,11 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val keyToAdd = randomName()
 
         log.debug { "front cache1: put key=$keyToAdd" }
-        frontCache1.fastPutAsync(keyToAdd, 42).awaitSuspending()
+        frontCache1.fastPutAsync(keyToAdd, 42).await()
         await.until { backCache.containsKey(keyToAdd) }
 
         log.debug { "front cache2: get key=$keyToAdd" }
-        frontCache2.getAsync(keyToAdd).awaitSuspending() shouldBeEqualTo 42
+        frontCache2.getAsync(keyToAdd).await() shouldBeEqualTo 42
     }
 
     @Test
@@ -85,14 +85,14 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val keyToRemove = randomName()
 
         log.debug { "front cache1: put $keyToRemove" }
-        frontCache1.fastPutAsync(keyToRemove, 42).awaitSuspending()
+        frontCache1.fastPutAsync(keyToRemove, 42).await()
         await.until { backCache.containsKey(keyToRemove) }
-        frontCache2.getAsync(keyToRemove).awaitSuspending() shouldBeEqualTo 42
+        frontCache2.getAsync(keyToRemove).await() shouldBeEqualTo 42
 
         log.debug { "front cache1: remove $keyToRemove" }
-        frontCache1.fastRemoveAsync(keyToRemove).awaitSuspending()
+        frontCache1.fastRemoveAsync(keyToRemove).await()
         await.until { !backCache.containsKey(keyToRemove) }
-        frontCache2.getAsync(keyToRemove).awaitSuspending().shouldBeNull()
+        frontCache2.getAsync(keyToRemove).await().shouldBeNull()
     }
 
     @Test
@@ -100,25 +100,25 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val key = randomName()
 
         // 초기에 frontCache에 존재하지 않는다.
-        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
-        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
+        frontCache1.containsKeyAsync(key).await().shouldBeFalse()
+        frontCache2.containsKeyAsync(key).await().shouldBeFalse()
 
         // bachCache에 cache 등록
-        backCache.fastPutAsync(key, 42).awaitSuspending()
+        backCache.fastPutAsync(key, 42).await()
 
         await.atMost(Duration.ofSeconds(1)).until { frontCache1.containsKey(key) }
 
         // frontCache에 등록 반영
-        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeTrue()
-        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeTrue()
+        frontCache1.containsKeyAsync(key).await().shouldBeTrue()
+        frontCache2.containsKeyAsync(key).await().shouldBeTrue()
 
         // backCache에서 cache 삭제
-        backCache.fastRemoveAsync(key).awaitSuspending() shouldBeEqualTo 1L
+        backCache.fastRemoveAsync(key).await() shouldBeEqualTo 1L
 
         await.atMost(Duration.ofSeconds(1)).until { !frontCache1.containsKey(key) }
 
         // frontCache에 삭제 반영
-        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
-        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
+        frontCache1.containsKeyAsync(key).await().shouldBeFalse()
+        frontCache2.containsKeyAsync(key).await().shouldBeFalse()
     }
 }

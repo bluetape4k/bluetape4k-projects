@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -9,6 +8,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
+import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
@@ -166,7 +166,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().awaitSuspending()
+                cache.deleteAsync().await()
             }
         }
 
@@ -217,7 +217,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().awaitSuspending()
+                cache.deleteAsync().await()
             }
         }
     }
