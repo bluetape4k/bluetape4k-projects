@@ -25,6 +25,7 @@
     "jetbrainsMCP"
   ],
   "enabledPlugins": {
-    "oh-my-claudecode@omc": true
+    "oh-my-claudecode@omc": true,
+    "code-review-graph@code-review-graph": true
   }
 }
