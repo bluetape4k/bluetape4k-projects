@@ -17,7 +17,7 @@ import java.util.*
 val EPOCH: Instant = Instant.EPOCH
 
 /**
- * [epochMillis]를 가지는 [Instant]를 빌드힙니다.
+ * [epochMillis]를 가지는 [Instant]를 빌드합니다.
  *
  * ```
  * val instant = instantOf() // 현재 시간

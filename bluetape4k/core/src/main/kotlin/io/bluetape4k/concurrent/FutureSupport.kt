@@ -62,17 +62,17 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
     private fun tryToComplete() {
         try {
             if (future.isDone) {
-                try {
-                    this.complete(future.get())
-                } catch (e: InterruptedException) {
-                    this.completeExceptionally(e.cause ?: e)
-                } catch (e: ExecutionException) {
-                    this.completeExceptionally(e.cause ?: e)
+                if (future.isCancelled) {
+                    this.cancel(true)
+                } else {
+                    try {
+                        this.complete(future.get())
+                    } catch (e: InterruptedException) {
+                        this.completeExceptionally(e.cause ?: e)
+                    } catch (e: ExecutionException) {
+                        this.completeExceptionally(e.cause ?: e)
+                    }
                 }
-                return
-            }
-            if (future.isCancelled) {
-                this.cancel(true)
                 return
             }
             schedule { tryToComplete() }

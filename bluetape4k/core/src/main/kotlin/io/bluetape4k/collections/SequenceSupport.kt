@@ -198,11 +198,11 @@ fun Sequence<*>.asCharArray(dv: Char = '\u0000'): CharArray = map { it.asChar(dv
 fun Sequence<*>.asByteArray(fallback: Byte = 0): ByteArray = map { it.asByte(fallback) }.toByteArray()
 
 /**
- * Sequence의 요소를 [Short]로 변환하여 [ShortArray] 로 반환합니다.
+ * Sequence의 요소를 [Int]로 변환하여 [IntArray] 로 반환합니다.
  *
  * ```
  * val sequence = sequenceOf(0, 1, 2)
- * val shortArray = sequence.asShortArray()  // [0, 1, 2]
+ * val intArray = sequence.asIntArray()  // [0, 1, 2]
  * ```
  */
 fun Sequence<*>.asIntArray(fallback: Int = 0): IntArray = map { it.asInt(fallback) }.toIntArray()
@@ -269,8 +269,8 @@ inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = map { it as? T }.
  * @param mapper 변환 작업
  * @return 변환된 결과를 담은 `Sequence<Result<R>>` 객체
  */
-inline fun <T, R> Sequence<T>.tryMap(crossinline mapper: (T) -> R): Sequence<Result<R>> =
-    map { runCatching { mapper(it) } }
+@Deprecated("Use mapCatching", ReplaceWith("mapCatching(mapper)"))
+inline fun <T, R> Sequence<T>.tryMap(crossinline mapper: (T) -> R): Sequence<Result<R>> = mapCatching(mapper)
 
 /**
  * [mapper] 실행이 성공한 결과만 추출합니다.
@@ -374,6 +374,7 @@ inline fun <T, R> Sequence<T>.sliding(
  * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
  * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 원본 시퀀스의 모든 요소를 내부 캐시에 보관하므로, 원소가 많은 시퀀스에서는 메모리 사용량에 주의하세요.
  *
  * ```kotlin
  * val result = sequenceOf(1, 2).repeat().take(5).toList()

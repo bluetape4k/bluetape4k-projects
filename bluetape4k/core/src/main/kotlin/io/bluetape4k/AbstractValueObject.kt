@@ -30,7 +30,7 @@ abstract class AbstractValueObject: ValueObject {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        return other != null && equalProperties(other)
+        return other != null && this.javaClass == other.javaClass && equalProperties(other)
     }
 
     abstract override fun hashCode(): Int

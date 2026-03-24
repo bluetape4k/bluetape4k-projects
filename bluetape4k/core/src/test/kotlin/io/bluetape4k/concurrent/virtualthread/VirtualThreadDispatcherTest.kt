@@ -41,7 +41,7 @@ class VirtualThreadDispatcherTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `Virtual Thread Dispatcher를 이용하여 Job 실행하기`() = runSuspendTest(Dispatchers.newVT) {
+    fun `Virtual Thread Dispatcher를 이용하여 Job 실행하기`() = runSuspendVT {
         val elapsedTime = measureTimeMillis {
             val jobs = List(TASK_SIZE) {
                 launch {

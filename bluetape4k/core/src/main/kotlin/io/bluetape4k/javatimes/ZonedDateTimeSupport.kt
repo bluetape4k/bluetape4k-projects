@@ -158,6 +158,13 @@ fun ZonedDateTime.startOfSecond(): ZonedDateTime = truncatedTo(ChronoUnit.SECOND
 fun ZonedDateTime.endOfSeconds(): ZonedDateTime = startOfSecond().plusSeconds(1).minusNanos(1)
 
 /**
+ * [ZonedDateTime]의 해당 초의 마지막 시각을 반환합니다. (예: 4월 3일 13:19:23.999999999)
+ *
+ * [endOfSeconds]의 단수형 별칭입니다.
+ */
+fun ZonedDateTime.endOfSecond(): ZonedDateTime = endOfSeconds()
+
+/**
  * [ZonedDateTime]의 해당 밀리초의 시작 시각을 반환합니다. (예: 4월 3일 13:19:23.123000000)
  */
 fun ZonedDateTime.startOfMillis(): ZonedDateTime = truncatedTo(ChronoUnit.MILLIS)

@@ -81,14 +81,45 @@ fun <E: Any> concurrentLinkedQueueOf(collections: Collection<E>): ConcurrentLink
  * [LinkedBlockingDeque]를 생성합니다.
  *
  * ```
+ * val deque = linkedBlockingDequeOf<String>(10)  // 크기가 10인 덱 생성
+ * ```
+ *
+ * @param capacity    큐의 용량
+ * @return [LinkedBlockingDeque] 인스턴스
+ */
+fun <E: Any> linkedBlockingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingDeque<E> =
+    LinkedBlockingDeque(capacity)
+
+/**
+ * [LinkedBlockingDeque]를 생성합니다.
+ *
+ * ```
+ * val deque = linkedBlockingDequeOf(listOf("a", "b", "c"))  // a, b, c
+ * ```
+ *
+ * @param collections 초기 데이터
+ * @return [LinkedBlockingDeque] 인스턴스
+ * @see LinkedBlockingDeque
+ */
+fun <E: Any> linkedBlockingDequeOf(collections: Collection<E>): LinkedBlockingDeque<E> =
+    LinkedBlockingDeque(collections)
+
+/**
+ * [LinkedBlockingDeque]를 생성합니다.
+ *
+ * ```
  * val deque = linkedBlokcingDequeOf<String>(10)  // 크기가 10인 덱 생성
  * ```
  *
  * @param capacity    큐의 용량
  * @return [LinkedBlockingDeque] 인스턴스
  */
+@Deprecated(
+    message = "오타가 포함된 함수입니다. Use linkedBlockingDequeOf",
+    replaceWith = ReplaceWith("linkedBlockingDequeOf(capacity)")
+)
 fun <E: Any> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingDeque<E> =
-    LinkedBlockingDeque(capacity)
+    linkedBlockingDequeOf(capacity)
 
 /**
  * [LinkedBlockingDeque]를 생성합니다.
@@ -101,8 +132,39 @@ fun <E: Any> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
  * @return [LinkedBlockingDeque] 인스턴스
  * @see LinkedBlockingDeque
  */
+@Deprecated(
+    message = "오타가 포함된 함수입니다. Use linkedBlockingDequeOf",
+    replaceWith = ReplaceWith("linkedBlockingDequeOf(collections)")
+)
 fun <E: Any> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDeque<E> =
-    LinkedBlockingDeque(collections)
+    linkedBlockingDequeOf(collections)
+
+/**
+ * [LinkedBlockingQueue]를 생성합니다.
+ *
+ * ```
+ * val queue = linkedBlockingQueueOf<String>(10)  // 크기가 10인 큐 생성
+ * ```
+ *
+ * @param capacity    큐의 용량
+ * @return [LinkedBlockingQueue] 인스턴스
+ */
+fun <E: Any> linkedBlockingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingQueue<E> =
+    LinkedBlockingQueue(capacity)
+
+/**
+ * [LinkedBlockingQueue]를 생성합니다.
+ *
+ * ```
+ * val queue = linkedBlockingQueueOf(listOf("a", "b", "c"))  // a, b, c
+ * ```
+ *
+ * @param collections 초기 데이터
+ * @return [LinkedBlockingQueue] 인스턴스
+ * @see LinkedBlockingQueue
+ */
+fun <E: Any> linkedBlockingQueueOf(collections: Collection<E>): LinkedBlockingQueue<E> =
+    LinkedBlockingQueue(collections)
 
 /**
  * [LinkedBlockingQueue]를 생성합니다.
@@ -114,8 +176,12 @@ fun <E: Any> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDe
  * @param capacity    큐의 용량
  * @return [LinkedBlockingQueue] 인스턴스
  */
+@Deprecated(
+    message = "오타가 포함된 함수입니다. Use linkedBlockingQueueOf",
+    replaceWith = ReplaceWith("linkedBlockingQueueOf(capacity)")
+)
 fun <E: Any> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingQueue<E> =
-    LinkedBlockingQueue(capacity)
+    linkedBlockingQueueOf(capacity)
 
 /**
  * [LinkedBlockingQueue]를 생성합니다.
@@ -128,8 +194,12 @@ fun <E: Any> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
  * @return [LinkedBlockingQueue] 인스턴스
  * @see LinkedBlockingQueue
  */
+@Deprecated(
+    message = "오타가 포함된 함수입니다. Use linkedBlockingQueueOf",
+    replaceWith = ReplaceWith("linkedBlockingQueueOf(collections)")
+)
 fun <E: Any> linkedBlokcingQueueOf(collections: Collection<E>): LinkedBlockingQueue<E> =
-    LinkedBlockingQueue(collections)
+    linkedBlockingQueueOf(collections)
 
 /**
  * [PriorityBlockingQueue]를 생성합니다.

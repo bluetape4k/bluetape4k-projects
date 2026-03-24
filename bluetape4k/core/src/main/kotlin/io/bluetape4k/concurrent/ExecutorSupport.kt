@@ -19,24 +19,14 @@ object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
 /**
  * [Executors.newVirtualThreadPerTaskExecutor]를 사용하는 [ExecutorService]
  */
+/**
+ * [Executors.newVirtualThreadPerTaskExecutor]를 사용하는 [ExecutorService].
+ * [io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor]로 대체되었습니다.
+ */
 @Deprecated(
-    message = "User io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor instead",
+    message = "Use io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor instead",
     replaceWith = ReplaceWith("VirtualThreadExecutor"),
 )
-/**
- * VirtualThreadExecutor 타입을 제공합니다.
- *
- * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
- *
- * ```kotlin
- * val type = VirtualThreadExecutor::class
- * // type.simpleName
- * // type.simpleName != null
- * ```
- */
 object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTaskExecutor()
 
 /**
@@ -67,14 +57,19 @@ fun <T> withWorkStealingPool(
     parallelism.assertPositiveNumber("parallelism")
     val executor = Executors.newWorkStealingPool(parallelism)
 
-    return executor
-        .invokeAll(listOf(Callable { task() }))
-        .first()
-        .asCompletableFuture()
-        .whenComplete { result, error ->
-            log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-            runCatching { executor.shutdown() }
-        }
+    return try {
+        executor
+            .invokeAll(listOf(Callable { task() }))
+            .first()
+            .asCompletableFuture()
+            .whenComplete { result, error ->
+                log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
+                runCatching { executor.shutdown() }
+            }
+    } catch (e: Exception) {
+        executor.shutdown()
+        throw e
+    }
 }
 
 /**
@@ -97,12 +92,17 @@ fun <T> withWorkStealingPool(
     parallelism.assertPositiveNumber("parallelism")
     val executor = Executors.newWorkStealingPool(parallelism)
 
-    return executor
-        .invokeAll(tasks.map { Callable { it.invoke() } })
-        .map { it.asCompletableFuture() }
-        .sequence(executor)
-        .whenComplete { result, error ->
-            log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-            runCatching { executor.shutdown() }
-        }
+    return try {
+        executor
+            .invokeAll(tasks.map { Callable { it.invoke() } })
+            .map { it.asCompletableFuture() }
+            .sequence(executor)
+            .whenComplete { result, error ->
+                log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
+                runCatching { executor.shutdown() }
+            }
+    } catch (e: Exception) {
+        executor.shutdown()
+        throw e
+    }
 }

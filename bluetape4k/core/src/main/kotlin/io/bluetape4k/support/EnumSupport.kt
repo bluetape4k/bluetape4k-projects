@@ -72,6 +72,10 @@ inline fun <E: Enum<E>> EnumEntries<E>.isValidName(name: String, ignoreCase: Boo
  *
  * @return Enum 정보의 Map
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> Class<E>.enumMap(): Map<String, E> =
     this.enumConstants.associateBy { it.name }
 
@@ -85,6 +89,10 @@ fun <E: Enum<E>> Class<E>.enumMap(): Map<String, E> =
  *
  * @return Enum 정보의 Map
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> KClass<E>.enumMap(): Map<String, E> = java.enumMap()
 
 
@@ -98,6 +106,10 @@ fun <E: Enum<E>> KClass<E>.enumMap(): Map<String, E> = java.enumMap()
  *
  * @return Enum 값들의 List
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> Class<E>.enumList(): List<E> = this.enumConstants.toList()
 
 /**
@@ -110,6 +122,10 @@ fun <E: Enum<E>> Class<E>.enumList(): List<E> = this.enumConstants.toList()
  *
  * @return Enum 값들의 List
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> KClass<E>.enumList(): List<E> = java.enumList()
 
 /**
@@ -126,6 +142,10 @@ fun <E: Enum<E>> KClass<E>.enumList(): List<E> = java.enumList()
  * @param ignoreCase 대소문자 무시 여부 (기본값: false)
  * @return 검색된 Enum 값 (존재하지 않을 경우 null)
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> Class<E>.findByNameOrNull(name: String, ignoreCase: Boolean = false): E? =
     this.enumConstants.firstOrNull { it.name.equals(name, ignoreCase) }
 
@@ -143,6 +163,10 @@ fun <E: Enum<E>> Class<E>.findByNameOrNull(name: String, ignoreCase: Boolean = f
  * @param ignoreCase 대소문자 무시 여부 (기본값: false)
  * @return 검색된 Enum 값 (존재하지 않을 경우 null)
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> KClass<E>.findByNameOrNull(name: String, ignoreCase: Boolean = false): E? =
     java.findByNameOrNull(name, ignoreCase)
 
@@ -161,6 +185,10 @@ fun <E: Enum<E>> KClass<E>.findByNameOrNull(name: String, ignoreCase: Boolean = 
  * @param ignoreCase 대소문자 무시 여부 (기본값: false)
  * @return 존재 여부
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> Class<E>.isValidName(name: String, ignoreCase: Boolean = false): Boolean =
     findByNameOrNull(name, ignoreCase) != null
 
@@ -178,5 +206,9 @@ fun <E: Enum<E>> Class<E>.isValidName(name: String, ignoreCase: Boolean = false)
  * @param ignoreCase 대소문자 무시 여부 (기본값: false)
  * @return 존재 여부
  */
+@Deprecated(
+    message = "Use EnumEntries 기반 함수를 사용하세요",
+    level = DeprecationLevel.WARNING,
+)
 fun <E: Enum<E>> KClass<E>.isValidName(name: String, ignoreCase: Boolean = false): Boolean =
     java.isValidName(name, ignoreCase)

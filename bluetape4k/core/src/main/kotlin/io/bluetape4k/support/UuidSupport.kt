@@ -21,7 +21,7 @@ import java.util.*
          * // ZERO_UUID.leastSignificantBits == 0L
          * ```
          */
-val ZERO_UUID: UUID = 0L.toBigInteger().toUuid()
+val ZERO_UUID: UUID = UUID(0L, 0L)
 
 /**
  * [BigInteger]를 [UUID]로 변환합니다.

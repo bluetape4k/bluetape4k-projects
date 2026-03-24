@@ -4,89 +4,85 @@ import org.apache.commons.lang3.ClassUtils
 import kotlin.reflect.KClass
 
 /**
- * Gets the abbreviated name of a class.
+ * 클래스의 축약된 이름을 반환합니다.
  *
- * The abbreviated name stands for the class name without the package name.
+ * 축약된 이름은 패키지 이름이 제외된 클래스 이름을 의미합니다.
  *
- * @receiver the class to get the abbreviated name for
- * @return the abbreviated name
+ * @receiver 축약 이름을 가져올 클래스
+ * @return 축약된 클래스 이름
  */
 fun KClass<*>.getAbbrName(): String = ClassUtils.getAbbreviatedName(this.java, 0)
 
 /**
- * Gets the abbreviated name of a class.
+ * 클래스 이름 문자열의 축약된 이름을 반환합니다.
  *
- * The abbreviated name stands for the class name without the package name.
+ * 축약된 이름은 패키지 이름이 제외된 클래스 이름을 의미합니다.
  *
- * @param className the class name to get the abbreviated name for
- * @return the abbreviated name
+ * @param className 축약 이름을 가져올 클래스 이름 문자열
+ * @return 축약된 클래스 이름
  */
 fun getAbbrName(className: String): String = ClassUtils.getAbbreviatedName(className, 0)
 
 /**
- * Gets the interfaces for the class with the given name.
+ * 해당 클래스가 구현하는 모든 인터페이스 목록을 반환합니다.
  *
- * @receiver the class to get the interfaces for
- * @return the interfaces for the class
+ * @receiver 인터페이스 목록을 가져올 클래스
+ * @return 구현된 인터페이스 목록
  */
 fun KClass<*>.getAllInterfaces(): List<Class<*>> = ClassUtils.getAllInterfaces(this.java)
 
 /**
- * Gets the superclasses for the class with the given name.
+ * 모든 상위 클래스 목록을 반환합니다.
  *
- * @receiver the class to get the superclasses for
- * @return the superclasses for the class
+ * @receiver 상위 클래스 목록을 가져올 클래스
+ * @return 상위 클래스 목록
  */
 fun KClass<*>.getAllSuperclasses(): List<Class<*>> = ClassUtils.getAllSuperclasses(this.java)
 
 /**
- * Gets the canonical name for an `KClass`.
+ * [KClass]의 정규 이름(canonical name)을 반환합니다.
  *
- * @receiver the object for which to get the canonical class name; may be null
- * @return the canonical name of the object or {@code valueIfNull}
+ * @receiver 정규 이름을 가져올 클래스
+ * @return 클래스의 정규 이름
  */
 fun KClass<*>.getCanonicalName(): String = ClassUtils.getCanonicalName(this.java)
 
 /**
- * Gets the package name from the class name.
+ * 클래스 이름에서 패키지의 정규 이름을 반환합니다.
  *
- * The string passed in is assumed to be a class name - it is not checked.
+ * 입력 문자열은 클래스 이름으로 간주하며 별도로 검증하지 않습니다.
+ * 기본 패키지에 속하는 경우 빈 문자열을 반환합니다.
  *
- * If the class is in the default package, return an empty string.
- *
- * @receiver the name to get the package name for, may be `null`
- * @return the package name or an empty string
+ * @receiver 패키지 이름을 가져올 클래스
+ * @return 패키지 이름 또는 빈 문자열
  */
 fun KClass<*>.getPackageCanonicalName(): String = ClassUtils.getPackageCanonicalName(this.java)
 
 /**
- * Gets the package name of a {@link Class}.
+ * [Class]의 패키지 이름을 반환합니다.
  *
- * @receiver the class to get the package name for.
- * @return the package name or an empty string
+ * @receiver 패키지 이름을 가져올 클래스
+ * @return 패키지 이름 또는 빈 문자열
  */
 fun KClass<*>.getPackageName(): String = ClassUtils.getPackageName(this.java)
 
 /**
- * Gets the canonical name minus the package name from a {@link Class}.
+ * [Class]에서 패키지 이름을 제외한 짧은 정규 이름을 반환합니다.
  *
- * @receiver cls the class for which to get the short canonical class name; may be null
- * @return the canonical name without the package name or an empty string
+ * @receiver 짧은 정규 이름을 가져올 클래스
+ * @return 패키지 이름이 제외된 정규 이름 또는 빈 문자열
  */
 fun KClass<*>.getShortCanonicalName(): String =
     ClassUtils.getShortCanonicalName(this.java)
 
 /**
- * Gets the class name minus the package name from a {@link Class}.
+ * [Class]에서 패키지 이름을 제외한 짧은 클래스 이름을 반환합니다.
  *
- * <p>
- * This method simply gets the name using {@code Class.getName()} and then calls {@link #getShortClassName(String)}. See
- * relevant notes there.
- * </p>
+ * 내부적으로 `Class.getName()`으로 이름을 가져온 뒤 패키지를 제거합니다.
+ * 내부 클래스인 경우 외부 클래스 이름이 `.`(점)으로 구분되어 포함됩니다.
  *
- * @receiver  the class to get the short name for.
- * @return the class name without the package name or an empty string. If the class is an inner class then the returned
- *         value will contain the outer class or classes separated with {@code .} (dot) character.
+ * @receiver 짧은 클래스 이름을 가져올 클래스
+ * @return 패키지 이름이 제외된 클래스 이름 또는 빈 문자열
  */
 fun KClass<*>.getShortClassName(): String =
     ClassUtils.getShortClassName(this.java)
@@ -108,11 +104,10 @@ fun KClass<*>.hierarchy(): Iterable<Class<*>> =
     ClassUtils.hierarchy(this.java)
 
 /**
- * Gets an `Iterable` that can iterate over a class hierarchy in ascending (subclass to superclass) order.
+ * 클래스 계층 구조를 서브클래스에서 슈퍼클래스 방향(오름차순)으로 순회하는 [Iterable]을 반환합니다.
  *
- * @param interfaceBehavior switch indicating whether to include or exclude interfaces
- * @return Iterable an Iterable over the class hierarchy of the given class
- * @since 3.2
+ * @param interfaceBehavior 인터페이스 포함 여부를 지정하는 옵션
+ * @return 클래스 계층 구조를 순회하는 [Iterable]
  */
 fun KClass<*>.hierarchy(interfaceBehavior: ClassUtils.Interfaces): Iterable<Class<*>> =
     ClassUtils.hierarchy(this.java, interfaceBehavior)

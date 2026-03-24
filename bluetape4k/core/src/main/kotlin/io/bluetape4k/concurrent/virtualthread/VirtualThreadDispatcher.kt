@@ -19,6 +19,8 @@ val Dispatchers.VT: CoroutineDispatcher
  * Kotlin Coroutines 에서 Virtual Thread를 사용하기 위한 Dispatcher
  * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환합니다.
  * 생성된 Dispatcher는 JVM 종료 시 [ShutdownQueue]를 통해 자동으로 정리됩니다.
+ *
+ * 매 호출마다 새로운 Virtual Thread 기반 Dispatcher를 생성합니다. 재사용하려면 변수에 저장하세요.
  */
-val Dispatchers.newVT: CoroutineDispatcher
-    get() = VirtualThreads.executorService().asCoroutineDispatcher().apply { ShutdownQueue.register(this) }
+fun Dispatchers.newVT(): CoroutineDispatcher =
+    VirtualThreads.executorService().asCoroutineDispatcher().apply { ShutdownQueue.register(this) }

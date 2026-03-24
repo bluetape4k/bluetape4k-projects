@@ -11,6 +11,7 @@ import io.bluetape4k.javatimes.period.ranges.DayRange
 import io.bluetape4k.javatimes.period.ranges.DayRangeCollection
 import io.bluetape4k.javatimes.period.ranges.DayRangeInMonth
 import io.bluetape4k.javatimes.period.ranges.HourRange
+import io.bluetape4k.javatimes.period.ranges.HourRangeCollection
 import io.bluetape4k.javatimes.period.ranges.MonthRange
 import io.bluetape4k.javatimes.period.ranges.MonthRangeCollection
 import io.bluetape4k.javatimes.period.ranges.YearRange
@@ -174,8 +175,14 @@ class CalendarPeriodCollector private constructor(
 
         filter.collectingHours.forEach { h ->
             val start = zonedDateTimeOf(day.start.toLocalDate(), h.start)
-            val end = zonedDateTimeOf(day.start.toLocalDate(), h.end)
-            val hc = CalendarTimeRange(start, end, day.calendar)
+            // 분(minute)이 없는 정시 범위는 HourRangeCollection, 분이 있는 경우는 CalendarTimeRange 사용
+            val hc = if (h.start.minute == 0 && h.end.minute == 0) {
+                val hourCount = h.end.hour - h.start.hour
+                HourRangeCollection(start, hourCount, day.calendar)
+            } else {
+                val end = zonedDateTimeOf(day.start.toLocalDate(), h.end)
+                CalendarTimeRange(start, end, day.calendar)
+            }
             if (isExcludePeriod(hc) && isLimits(hc)) {
                 periods.add(hc)
             }

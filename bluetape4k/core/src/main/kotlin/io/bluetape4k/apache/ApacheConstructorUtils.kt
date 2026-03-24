@@ -4,87 +4,84 @@ import org.apache.commons.lang3.reflect.ConstructorUtils
 import java.lang.reflect.Constructor
 
 /**
- * Get a constructor of the class that matches the parameter types.
+ * 파라미터 타입에 일치하는 접근 가능한 생성자를 반환합니다.
  *
- * @param parameterTypes the parameter types of the constructor
- * @return the constructor
+ * @param parameterTypes 생성자의 파라미터 타입 목록
+ * @return 일치하는 [Constructor]
+ * @deprecated [getAccessibleConstructor]를 사용하세요.
  */
+@Deprecated(
+    message = "Use getAccessibleConstructor",
+    replaceWith = ReplaceWith("getAccessibleConstructor(*parameterTypes)")
+)
 fun <T> Class<T>.getAccessbleConstructor(vararg parameterTypes: Class<*>): Constructor<T> {
     return ConstructorUtils.getAccessibleConstructor(this, *parameterTypes)
 }
 
 /**
- * Get a constructor of the class that matches the parameter types.
+ * 파라미터 타입에 일치하는 접근 가능한 생성자를 반환합니다.
  *
- * @param parameterTypes the parameter types of the constructor
- * @return the constructor
+ * @param parameterTypes 생성자의 파라미터 타입 목록
+ * @return 일치하는 [Constructor]
+ */
+fun <T> Class<T>.getAccessibleConstructor(vararg parameterTypes: Class<*>): Constructor<T> {
+    return ConstructorUtils.getAccessibleConstructor(this, *parameterTypes)
+}
+
+/**
+ * 파라미터 타입에 가장 잘 맞는 접근 가능한 생성자를 반환합니다.
+ *
+ * @param parameterTypes 생성자의 파라미터 타입 목록
+ * @return 가장 적합한 [Constructor]
  */
 fun <T> Class<T>.getMatchingAccessibleConstructor(vararg parameterTypes: Class<*>): Constructor<T> {
     return ConstructorUtils.getMatchingAccessibleConstructor(this, *parameterTypes)
 }
 
 /**
- * Returns a new instance of the specified class inferring the right constructor
- * from the types of the arguments.
+ * 인수 타입을 추론하여 적합한 생성자를 호출해 새 인스턴스를 생성합니다.
  *
- * <p>This locates and calls a constructor.
- * The constructor signature must match the argument types by assignment compatibility.</p>
+ * 생성자 시그니처는 인수 타입과 할당 호환성(assignment compatibility)으로 매칭됩니다.
  *
- * @param <T> the type to be constructed
- * @receiver  the class to be constructed
- * @param args  the array of arguments, `null` treated as empty
- * @return new instance of {@code cls}, not `null`
+ * @param args 생성자 인수 배열 (null이면 빈 배열로 처리)
+ * @return 생성된 [T] 인스턴스
  */
 fun <T> Class<T>.invokeConstructor(vararg args: Any?): T =
     ConstructorUtils.invokeConstructor(this, *args)
 
 /**
- * Returns a new instance of the specified class choosing the right constructor
- * from the list of parameter types.
+ * 파라미터 타입 목록으로 적합한 생성자를 선택해 새 인스턴스를 생성합니다.
  *
- * <p>This locates and calls a constructor.
- * The constructor signature must match the parameter types by assignment compatibility.</p>
+ * 생성자 시그니처는 파라미터 타입과 할당 호환성으로 매칭됩니다.
  *
- * @param <T> the type to be constructed
- * @receiver  the class to be constructed
- * @param args  the array of arguments, `null` treated as empty
- * @param parameterTypes  the array of parameter types, `null` treated as empty
- * @return new instance of {@code cls}, not `null`
+ * @param args 생성자 인수 배열 (null이면 빈 배열로 처리)
+ * @param parameterTypes 파라미터 타입 배열 (null이면 빈 배열로 처리)
+ * @return 생성된 [T] 인스턴스
  */
 fun <T> Class<T>.invokeConstructor(args: Array<Any?>, parameterTypes: Array<out Class<*>>): T =
     ConstructorUtils.invokeConstructor(this, args, parameterTypes)
 
 /**
- * Returns a new instance of the specified class inferring the right constructor
- * from the types of the arguments.
+ * 인수 타입을 추론하여 정확히 일치하는 생성자를 호출해 새 인스턴스를 생성합니다.
  *
- * This locates and calls a constructor.
- * The constructor signature must match the argument types exactly.
+ * 생성자 시그니처는 인수 타입과 정확히 일치해야 합니다.
  *
- * @param <T> the type to be constructed
- * @receiver the class to be constructed, not `null`
- * @param args the array of arguments, `null` treated as empty
- * @return new instance of {@code cls}, not `null`
- *
- * @see invokeExactConstructor(Class, Object[], Class[])
+ * @param args 생성자 인수 배열 (null이면 빈 배열로 처리)
+ * @return 생성된 [T] 인스턴스
  */
 fun <T> Class<T>.invokeExactConstructor(vararg args: Any?): T =
     ConstructorUtils.invokeExactConstructor(this, *args)
 
 /**
- * Returns a new instance of the specified class choosing the right constructor
- * from the list of parameter types.
+ * 파라미터 타입 목록으로 정확히 일치하는 생성자를 선택해 새 인스턴스를 생성합니다.
  *
- * <p>This locates and calls a constructor.
- * The constructor signature must match the parameter types exactly.</p>
+ * 생성자 시그니처는 파라미터 타입과 정확히 일치해야 합니다.
  *
- * @param <T> the type to be constructed
- * @receiver the class to be constructed, not `null`
- * @param args the array of arguments, `null` treated as empty
- * @param parameterTypes  the array of parameter types, `null` treated as empty
- * @return new instance of {@code cls}, not `null`
+ * @param args 생성자 인수 배열 (null이면 빈 배열로 처리)
+ * @param parameterTypes 파라미터 타입 배열 (null이면 빈 배열로 처리)
+ * @return 생성된 [T] 인스턴스
  *
- * @see Constructor#newInstance
+ * @see Constructor.newInstance
  */
 fun <T> Class<T>.invokeExactConstructor(args: Array<Any?>, parameterTypes: Array<out Class<*>>): T =
     ConstructorUtils.invokeExactConstructor(this, args, parameterTypes)

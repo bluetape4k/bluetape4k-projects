@@ -202,6 +202,6 @@ interface JdbcRedissonRepository<ID: Any, E: Any> {
         if (keys.isEmpty()) {
             return 0
         }
-        return cache.fastRemove(*keys.toVarargArray())
+        return cache.fastRemove(*keys.toTypedArray())
     }
 }

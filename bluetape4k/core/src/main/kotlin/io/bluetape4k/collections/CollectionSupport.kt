@@ -105,7 +105,7 @@ fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
  * // result == [1, 2, 3, 0, 0]
  * ```
  */
-inline fun <reified T> List<T>.padTo(newSize: Int, item: T): List<T> {
+fun <T> List<T>.padTo(newSize: Int, item: T): List<T> {
     val remains = newSize - this.size
     if (remains <= 0) {
         return this

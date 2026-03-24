@@ -5,6 +5,9 @@
  * - 모든 함수는 Kotlin/JVM의 `assert(...) { ... }`를 사용합니다.
  * - JVM assertions가 비활성화된 경우(기본), 검증이 수행되지 않을 수 있습니다. 필요 시 `-ea` 옵션을 사용하세요.
  * - 실패 시 기본적으로 [AssertionError]가 발생합니다.
+ *
+ * **주의**: JVM `-ea` (enable assertions) 플래그 없이 실행하면 모든 검증이 무시됩니다.
+ * 프로덕션 환경에서의 검증에는 `RequireSupport`의 함수를 사용하세요.
  */
 @file:OptIn(ExperimentalContracts::class)
 @file:Suppress("NOTHING_TO_INLINE")
@@ -21,6 +24,9 @@ import kotlin.contracts.contract
  * - `assert` 기반으로 동작하며, JVM assertions가 활성화되어야 합니다.
  * - 실패 시 [AssertionError]가 발생합니다.
  * - Kotlin contracts를 사용하여 스마트 캐스트 힌트를 제공합니다.
+ *
+ * **주의**: JVM `-ea` (enable assertions) 플래그 없이 실행하면 모든 검증이 무시됩니다.
+ * 프로덕션 환경에서의 검증에는 `RequireSupport`의 함수를 사용하세요.
  *
  * ```kotlin
  * val value: String? = "hello"

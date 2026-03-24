@@ -94,7 +94,7 @@ fun <T: Any> newInstanceOrNull(
     qualifiedName: String,
     classLoader: ClassLoader? = getContextClassLoader(),
 ): T? {
-    qualifiedName.assertNotBlank("qualifiedName")
+    qualifiedName.requireNotBlank("qualifiedName")
 
     return runCatching {
         val clazz = (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) as? Class<T>

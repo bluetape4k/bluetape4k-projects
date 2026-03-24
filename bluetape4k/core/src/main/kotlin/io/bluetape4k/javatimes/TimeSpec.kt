@@ -56,6 +56,10 @@ const val NANO_PER_SECOND: Long = 1_000_000_000L
  * // true
  * ```
  */
+@Deprecated(
+    message = "Use MillisPerDay 등 camelCase 상수를 사용하세요",
+    replaceWith = ReplaceWith("MillisPerDay")
+)
 val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
 
 /**
@@ -72,6 +76,10 @@ val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
  * // true
  * ```
  */
+@Deprecated(
+    message = "Use MillisPerHour 등 camelCase 상수를 사용하세요",
+    replaceWith = ReplaceWith("MillisPerHour")
+)
 val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
 
 /**
@@ -88,6 +96,10 @@ val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
  * // true
  * ```
  */
+@Deprecated(
+    message = "Use MillisPerMinute 등 camelCase 상수를 사용하세요",
+    replaceWith = ReplaceWith("MillisPerMinute")
+)
 val MILLIS_IN_MINUTE = Duration.ofMinutes(1).toMillis()
 
 /**
@@ -195,6 +207,8 @@ val UtcTimeZone: TimeZone = TimeZone.getTimeZone(ZoneOffset.UTC)
  * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
  * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
  *
+ * JVM 시작 시점의 시스템 타임존을 캐시합니다. 런타임에 TimeZone.setDefault()로 변경해도 이 값은 갱신되지 않습니다.
+ *
  * ```kotlin
  * val value = SystemTimeZone
  * // value
@@ -211,6 +225,8 @@ val SystemTimeZone: TimeZone = TimeZone.getDefault()
  * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
  * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
  *
+ * JVM 시작 시점의 시스템 타임존을 캐시합니다. 런타임에 TimeZone.setDefault()로 변경해도 이 값은 갱신되지 않습니다.
+ *
  * ```kotlin
  * val value = SystemZoneId
  * // value
@@ -226,6 +242,8 @@ val SystemZoneId: ZoneId = ZoneId.systemDefault()
  * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
  * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
  * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
+ *
+ * JVM 시작 시점의 시스템 타임존을 캐시합니다. 런타임에 TimeZone.setDefault()로 변경해도 이 값은 갱신되지 않습니다.
  *
  * ```kotlin
  * val value = SystemOffset
@@ -586,7 +604,7 @@ const val MicrosPerDay: Long = MicrosPerHour * HoursPerDay
  * // true
  * ```
  */
-const val NanosPerMillis: Long = MicrosPerSecond
+const val NanosPerMillis: Long = 1_000_000L
 
 /**
  * 1초의 나노초 수

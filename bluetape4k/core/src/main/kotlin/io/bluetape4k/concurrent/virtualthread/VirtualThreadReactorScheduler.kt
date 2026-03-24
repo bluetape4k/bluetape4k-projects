@@ -14,8 +14,10 @@ val Schedulers.virtualThread: Scheduler
 
 /**
  * Reactor에서 Virtual Thread를 사용하기 위한 [Scheduler]
- * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환
+ * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환합니다.
+ *
+ * 매 호출마다 새로운 Virtual Thread 기반 Scheduler를 생성합니다. 재사용하려면 변수에 저장하세요.
  */
 @Suppress("UnusedReceiverParameter")
-val Schedulers.newVirtualThread: Scheduler
-    get() = Schedulers.fromExecutorService(VirtualThreads.executorService())
+fun Schedulers.newVirtualThread(): Scheduler =
+    Schedulers.fromExecutorService(VirtualThreads.executorService())

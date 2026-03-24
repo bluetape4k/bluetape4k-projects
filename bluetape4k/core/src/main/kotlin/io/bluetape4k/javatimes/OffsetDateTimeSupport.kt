@@ -10,6 +10,8 @@ import java.time.ZoneOffset
 /**
  * [OffsetDateTime]을 생성합니다.
  *
+ * 기본값은 시스템 로컬 오프셋입니다. UTC 기준이 필요하면 ZoneOffset.UTC를 명시적으로 전달하세요.
+ *
  * ```
  * val offsetDateTime = offsetDateTimeOf(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
  * ```
@@ -37,6 +39,8 @@ fun offsetDateTimeOf(
 
 /**
  * [OffsetDateTime]을 생성합니다.
+ *
+ * 기본값은 시스템 로컬 오프셋입니다. UTC 기준이 필요하면 ZoneOffset.UTC를 명시적으로 전달하세요.
  *
  * ```
  * val localDate = LocalDate.of(2021, 1, 1)

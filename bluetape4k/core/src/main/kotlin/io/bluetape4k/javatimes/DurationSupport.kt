@@ -484,7 +484,10 @@ private val durationIsoFormat: Regex =
 fun parseIsoFormattedDuration(isoFormattedString: String): Duration? {
     val matchResult = durationIsoFormat.matchEntire(isoFormattedString)
     return matchResult?.let {
-        val (_, _, d, h, min, s, ms) = it.destructured
+        val (year, month, d, h, min, s, ms) = it.destructured
+        require(year.toInt() == 0 && month.toInt() == 0) {
+            "연(year)과 월(month) 단위는 지원하지 않습니다. 일(day) 이하 단위만 사용하세요. input=$isoFormattedString"
+        }
         Duration.ofDays(d.toLong())
             .plusHours(h.toLong())
             .plusMinutes(min.toLong())

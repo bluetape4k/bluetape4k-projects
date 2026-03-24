@@ -10,6 +10,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
@@ -147,38 +148,41 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
     /**
      * FairLock은 요청 순서대로 락을 획득합니다.
      *
-     * 여러 코루틴에서 동시에 FairLock 획득 시도
-     * 코루틴 시작 시점 차이 주기
-     * 락 획득한 순서 기록
-     * 임의의 작업 수행
-     * 락 해제
+     * FairLock의 순서는 Redis가 lock 요청을 받는 순서에 의존합니다.
+     * Redisson은 Netty를 통해 비동기로 Redis 명령을 전송하므로, `tryLockAsync` 호출 후
+     * Netty 이벤트 루프가 실제로 명령을 전송할 시간을 충분히 준 뒤 다음 코루틴에 신호를 보냅니다.
      */
     @Test
     fun `FairLock은 요청 순서대로 락을 획득합니다`() = runSuspendIO {
         val lockName = randomName()
         val counter = AtomicInteger(0)
         val executionOrder = ConcurrentLinkedQueue<Int>()
+        // 각 코루틴이 Redis에 lock 요청을 실제로 전송 완료했음을 알리는 신호
+        val requestFlushed = List(5) { CompletableDeferred<Unit>() }
 
-        // 여러 코루틴에서 동시에 FairLock 획득 시도
         val jobs = List(5) { index ->
             scope.launch(exceptionHandler) {
                 val fairLock = redisson.getFairLock(lockName)
                 val lockId = redisson.getLockId("fair-$index")
 
-                delay(10 * index.toLong()) // 코루틴 시작 시점 차이 주기
-                log.debug { "코루틴 $index 에서 FairLock 획득 시도 시작" }
-                fairLock.tryLockAsync(10, 60, TimeUnit.SECONDS, lockId).await().shouldBeTrue()
+                // 이전 코루틴의 Redis 명령 전송이 완료된 후에 요청
+                if (index > 0) requestFlushed[index - 1].await()
+
+                log.debug { "코루틴 $index: FairLock 획득 시도" }
+                val lockFuture = fairLock.tryLockAsync(10, 60, TimeUnit.SECONDS, lockId)
+                // Netty 이벤트 루프가 Redis로 실제 명령을 전송할 시간 부여
+                delay(30L)
+                requestFlushed[index].complete(Unit)
+
+                lockFuture.await().shouldBeTrue()
 
                 try {
-                    // 락 획득한 순서 기록
                     val order = counter.incrementAndGet()
                     executionOrder.add(index)
-                    log.debug { "코루틴 $index 에서 FairLock 획득 성공 (순서: $order)" }
-
-                    // 임의의 작업 수행
+                    log.debug { "코루틴 $index: FairLock 획득 성공 (순서: $order)" }
                     delay(100)
                 } finally {
-                    log.debug { "코루틴 $index 에서 FairLock 해제" }
+                    log.debug { "코루틴 $index: FairLock 해제" }
                     fairLock.unlockAsync(lockId).await()
                 }
             }
@@ -186,7 +190,6 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
 
         jobs.joinAll()
         log.debug { "실행 순서: $executionOrder" }
-        // 실행 순서가 0, 1, 2, 3, 4 순서대로 처리되었는지 확인
         executionOrder.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
 }

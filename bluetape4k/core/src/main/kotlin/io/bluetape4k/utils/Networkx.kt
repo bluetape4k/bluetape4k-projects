@@ -28,7 +28,7 @@ object Networkx: KLogging() {
         try {
             Localhost.hostName
         } catch (uhe: UnknownHostException) {
-            uhe.message!!
+            uhe.message ?: LOCALHOST_NAME
         }
     }
 
@@ -77,7 +77,7 @@ object Networkx: KLogging() {
      */
     @JvmStatic
     fun ipToInt(ip: String): Int {
-        return ipToOptionInt(ip) ?: throw java.lang.IllegalArgumentException("Invalid IPv4 address: $ip")
+        return ipToOptionInt(ip) ?: throw IllegalArgumentException("Invalid IPv4 address: $ip")
     }
 
     /**

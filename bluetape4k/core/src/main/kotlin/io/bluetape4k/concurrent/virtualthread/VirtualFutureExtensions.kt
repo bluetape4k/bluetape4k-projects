@@ -120,7 +120,7 @@ fun <T> Iterable<VirtualFuture<T>>.awaitAll(): List<T> {
     if (this is Collection && isEmpty()) {
         return emptyList()
     }
-    return map { it.asCompletableFuture() }.sequence(VirtualThreadExecutor).get()
+    return map { it.toCompletableFuture() }.sequence(VirtualThreadExecutor).get()
 }
 
 /**
@@ -130,7 +130,7 @@ fun <T> Iterable<VirtualFuture<T>>.awaitAll(timeout: Duration): List<T> {
     if (this is Collection && isEmpty()) {
         return emptyList()
     }
-    return map { it.asCompletableFuture() }.sequence(VirtualThreadExecutor)
+    return map { it.toCompletableFuture() }.sequence(VirtualThreadExecutor)
         .get(timeout.toMillis(), TimeUnit.MILLISECONDS)
 }
 

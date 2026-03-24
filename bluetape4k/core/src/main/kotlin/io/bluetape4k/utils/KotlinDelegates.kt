@@ -69,7 +69,7 @@ object KotlinDelegates: KLogging() {
         return try {
             val kotlinCtor = constructor.kotlinFunction ?: return constructor.newInstance(*args)
             val parameters = kotlinCtor.parameters
-            check(args.size <= parameters.size) {
+            require(args.size <= parameters.size) {
                 "Number of provided arguments should be less than or equal to number of constructor parameters."
             }
 

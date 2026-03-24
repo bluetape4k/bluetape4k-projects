@@ -3,9 +3,9 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.support.requireNotBlank
 
 /**
- * Gets the system thread group.
+ * 시스템 스레드 그룹을 반환합니다.
  *
- * @return the system thread group
+ * @return 시스템 스레드 그룹
  */
 fun getSystemThreadGroup(): ThreadGroup {
     var group: ThreadGroup = Thread.currentThread().threadGroup
@@ -18,20 +18,20 @@ fun getSystemThreadGroup(): ThreadGroup {
 /**
  * [predicate]를 만족하는 활성화된 스레드 그룹을 모두 찾습니다.
  *
- * @param predicate the predicate
- * @return An unmodifiable {@link Collection} of active thread groups matching the given predicate
+ * @param predicate 조건 함수
+ * @return 조건을 만족하는 활성 스레드 그룹 목록
  */
 fun findThreadGroups(predicate: (ThreadGroup) -> Boolean): List<ThreadGroup> =
     findThreadGroups(getSystemThreadGroup(), true, predicate)
 
 
 /**
- * Finds all active thread groups which match the given predicate and which is a subgroup of the given thread group (or one of its subgroups).
+ * 주어진 스레드 그룹(및 하위 그룹)에서 [predicate]를 만족하는 활성 스레드 그룹을 모두 찾습니다.
  *
- * @param threadGroup the thread group
- * @param recurse if {@code true} then evaluate the predicate recursively on all thread groups in all subgroups of the given group
- * @param predicate the predicate
- * @return An unmodifiable {@link Collection} of active thread groups which match the given predicate and which is a subgroup of the given thread group
+ * @param threadGroup 검색 기준 스레드 그룹
+ * @param recurse `true`이면 하위 그룹까지 재귀적으로 검색합니다
+ * @param predicate 조건 함수
+ * @return 조건을 만족하는 활성 스레드 그룹 목록
  */
 fun findThreadGroups(
     threadGroup: ThreadGroup = getSystemThreadGroup(),
@@ -49,17 +49,10 @@ fun findThreadGroups(
 }
 
 /**
- * findThreadGroupsByName 기능을 제공합니다.
+ * 이름이 [name]인 스레드 그룹을 모두 찾습니다.
  *
- * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
- *
- * ```kotlin
- * val result = findThreadGroupsByName("main")
- * // result.isNotEmpty() == true
- * ```
+ * @param name 검색할 스레드 그룹 이름
+ * @return 이름이 일치하는 활성 스레드 그룹 목록
  */
 fun findThreadGroupsByName(name: String): List<ThreadGroup> {
     name.requireNotBlank("name")
@@ -67,12 +60,12 @@ fun findThreadGroupsByName(name: String): List<ThreadGroup> {
 }
 
 /**
- * Finds all active threads which match the given predicate and which belongs to the given thread group (or one of its subgroups).
+ * 주어진 스레드 그룹(및 하위 그룹)에서 [predicate]를 만족하는 활성 스레드를 모두 찾습니다.
  *
- * @param threadGroup the thread group
- * @param recurse if {@code true} then evaluate the predicate recursively on all threads in all subgroups of the given group
- * @param predicate the predicate
- * @return An unmodifiable {@link Collection} of active threads which match the given predicate and which belongs to the given thread group
+ * @param threadGroup 검색 기준 스레드 그룹
+ * @param recurse `true`이면 하위 그룹까지 재귀적으로 검색합니다
+ * @param predicate 조건 함수
+ * @return 조건을 만족하는 활성 스레드 목록
  */
 fun findThreads(
     threadGroup: ThreadGroup = getSystemThreadGroup(),
@@ -91,12 +84,11 @@ fun findThreads(
 }
 
 /**
- * Finds active threads with the specified name if they belong to a thread group with the specified group name.
+ * 지정한 스레드 그룹 이름에 속하면서 이름이 [threadName]인 활성 스레드를 찾습니다.
  *
- * @param threadName The thread name
- * @param threadGroupName The thread group name
- * @return The threads which belongs to a thread group with the specified group name and the thread's name match the specified name,
- * An empty collection is returned if no such thread exists. The collection returned is always unmodifiable.
+ * @param threadName 검색할 스레드 이름
+ * @param threadGroupName 검색할 스레드 그룹 이름
+ * @return 조건을 만족하는 스레드 목록. 없으면 빈 목록을 반환합니다.
  */
 fun findThreadByName(threadName: String, threadGroupName: String): List<Thread> =
     findThreadGroups { it.name == threadGroupName }
@@ -105,10 +97,11 @@ fun findThreadByName(threadName: String, threadGroupName: String): List<Thread> 
         }
 
 /**
- * Finds active threads with the specified name.
+ * 이름이 [threadName]인 활성 스레드를 찾습니다.
  *
- * @param threadName The thread name
- * @return The threads with the specified name or an empty collection if no such thread exists. The collection returned is always unmodifiable.
+ * @param threadName 검색할 스레드 이름
+ * @param threadGroup 검색 기준 스레드 그룹 (기본값: 시스템 스레드 그룹)
+ * @return 이름이 일치하는 스레드 목록. 없으면 빈 목록을 반환합니다.
  */
 fun findThreadByName(threadName: String, threadGroup: ThreadGroup = getSystemThreadGroup()): List<Thread> {
     threadName.requireNotBlank("name")
@@ -116,26 +109,25 @@ fun findThreadByName(threadName: String, threadGroup: ThreadGroup = getSystemThr
 }
 
 /**
- * Finds the active thread with the specified id if it belongs to the specified thread group.
+ * 지정한 스레드 그룹에서 ID가 [threadId]인 활성 스레드를 찾습니다.
  *
- * @param threadId The thread id
- * @param threadGroup The thread group
- * @return The thread which belongs to a specified thread group and the thread's id match the specified id.
- * `null` is returned if no such thread exists
+ * @param threadId 검색할 스레드 ID
+ * @param threadGroup 검색 기준 스레드 그룹 (기본값: 시스템 스레드 그룹)
+ * @return 조건을 만족하는 스레드. 없으면 `null`을 반환합니다.
  */
 fun findThreadByThreadId(threadId: Long, threadGroup: ThreadGroup = getSystemThreadGroup()): Thread? =
     findThreads(threadGroup) { it.threadId() == threadId }.firstOrNull()
 
 /**
- * Gets all active thread groups excluding the system thread group (A thread group is active if it has been not destroyed).
+ * 시스템 스레드 그룹을 제외한 모든 활성 스레드 그룹을 반환합니다.
  *
- * @return all thread groups excluding the system thread group. The collection returned is always unmodifiable.
+ * @return 활성 스레드 그룹 목록
  */
 fun getAllThreadGroups(): List<ThreadGroup> = findThreadGroups { true }
 
 /**
- * Gets all active threads (A thread is active if it has been started and has not yet died).
+ * 모든 활성 스레드를 반환합니다.
  *
- * @return all active threads. The collection returned is always unmodifiable.
+ * @return 활성 스레드 목록
  */
 fun getAllThreads(): List<Thread> = findThreads { true }

@@ -39,13 +39,14 @@ fun Throwable?.buildMessage(message: String?): String? {
  * @return 가장 내부의 원인 (없는 경우 `null`)
  */
 fun Throwable.getRootCause(): Throwable? {
-    var rootCause: Throwable? = null
+    val visited = mutableSetOf<Throwable>()
+    var rootCause = this
     var cause = this.cause
-    while (cause != null && cause != rootCause) {
+    while (cause != null && visited.add(rootCause)) {
         rootCause = cause
         cause = cause.cause
     }
-    return rootCause
+    return if (rootCause === this) null else rootCause
 }
 
 /**

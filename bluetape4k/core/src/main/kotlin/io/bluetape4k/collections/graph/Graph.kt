@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.toList
  * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
  * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 탐색 순서의 결정성(determinism)을 보장하기 위해 노드 타입 T에 [Comparable] 제약이 필요합니다.
  *
  * ```kotlin
  * val type = Graph::class
@@ -26,6 +27,13 @@ object Graph {
         BFS
     }
 
+    /**
+     * DFS/BFS 방식으로 그래프를 탐색하여 방문한 노드 목록을 반환합니다.
+     *
+     * 탐색 순서의 결정성(determinism)을 보장하기 위해 Comparable 제약이 필요합니다.
+     *
+     * @param T 노드 타입 ([Comparable] 제약: 탐색 순서의 결정성(determinism)을 보장하기 위해 필요)
+     */
     fun <T: Comparable<T>> search(
         order: TraversalOrder,
         source: T,
@@ -34,6 +42,13 @@ object Graph {
         return traverseGraph(order, source) { adjacents(it).asSequence() }.toList()
     }
 
+    /**
+     * DFS/BFS 방식으로 그래프를 탐색하여 방문한 노드의 [Sequence]를 반환합니다.
+     *
+     * 탐색 순서의 결정성(determinism)을 보장하기 위해 Comparable 제약이 필요합니다.
+     *
+     * @param T 노드 타입 ([Comparable] 제약: 탐색 순서의 결정성(determinism)을 보장하기 위해 필요)
+     */
     fun <T: Comparable<T>> searchAsSequence(
         order: TraversalOrder,
         source: T,
@@ -42,6 +57,13 @@ object Graph {
         return traverseGraph(order, source, adjacents)
     }
 
+    /**
+     * DFS/BFS 방식으로 그래프를 탐색하여 방문한 노드의 [Flow]를 반환합니다.
+     *
+     * 탐색 순서의 결정성(determinism)을 보장하기 위해 Comparable 제약이 필요합니다.
+     *
+     * @param T 노드 타입 ([Comparable] 제약: 탐색 순서의 결정성(determinism)을 보장하기 위해 필요)
+     */
     inline fun <T: Comparable<T>> searchAsFlow(
         order: TraversalOrder,
         source: T,
@@ -58,6 +80,13 @@ object Graph {
         }
     }
 
+    /**
+     * DFS/BFS 방식으로 그래프를 순회하는 [Sequence]를 반환합니다.
+     *
+     * 탐색 순서의 결정성(determinism)을 보장하기 위해 Comparable 제약이 필요합니다.
+     *
+     * @param T 노드 타입 ([Comparable] 제약: 탐색 순서의 결정성(determinism)을 보장하기 위해 필요)
+     */
     inline fun <T: Comparable<T>> traverseGraph(
         order: TraversalOrder,
         source: T,
@@ -85,6 +114,13 @@ object Graph {
         }
     }
 
+    /**
+     * DFS/BFS 방식으로 그래프를 순회하며 각 노드를 [emit]으로 방출합니다.
+     *
+     * 탐색 순서의 결정성(determinism)을 보장하기 위해 Comparable 제약이 필요합니다.
+     *
+     * @param T 노드 타입 ([Comparable] 제약: 탐색 순서의 결정성(determinism)을 보장하기 위해 필요)
+     */
     suspend inline fun <T: Comparable<T>> traverseGraphAsFlow(
         order: TraversalOrder,
         source: T,

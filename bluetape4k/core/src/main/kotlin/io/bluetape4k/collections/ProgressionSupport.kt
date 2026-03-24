@@ -105,7 +105,7 @@ fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgressio
     }
 
     val step = self.step
-    val count = self.count()
+    val count = if (step > 0) (self.last - self.first) / step + 1 else (self.first - self.last) / (-step) + 1
     val reminder = count % partitionCount
     val partitionSize = count / partitionCount + (if (reminder > 0) 1 else 0)
 
@@ -217,7 +217,7 @@ fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgress
     }
 
     val step = self.step
-    val count = self.count()
+    val count = (if (step > 0) (self.last - self.first) / step + 1 else (self.first - self.last) / (-step) + 1).toInt()
     val reminder = count % partitionCount
     val partitionSize = count / partitionCount + (if (reminder > 0) 1 else 0)
 

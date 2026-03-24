@@ -32,29 +32,33 @@ enum class Quarter(val number: Int) {
     /**
      * 두 개의 Quarter를 더합니다.
      *
+     * 분기 인덱스를 modulo 4로 더하는 연산입니다. Q1.plus(Q2)는 분기 인덱스 0+1=1 → Q2 반환.
+     *
      * @param that Quarter
      * @return Quarter
      */
     operator fun plus(that: Quarter): Quarter = entries[(ordinal + that.ordinal + 1) % QuartersPerYear]
 
     /**
-     * Quarter를 [quaterCount]만큼 증가시킨 [Quarter]를 반환합니다.
+     * Quarter를 [quarterCount]만큼 증가시킨 [Quarter]를 반환합니다.
      *
      * ```kotlin
      *  val q3 = Quarter.Q1.increment(2) // return Q3
      *  val q1 = Quarter.Q1.increment(4) // return Q1
      * ```
-     * @param quaterCount 증가시킬 quater 수
+     * @param quarterCount 증가시킬 quarter 수
      * @return Quarter
      */
-    fun increment(quaterCount: Int): Quarter {
-        var index = (ordinal + quaterCount) % QuartersPerYear
+    fun increment(quarterCount: Int): Quarter {
+        var index = (ordinal + quarterCount) % QuartersPerYear
         if (index < 0) index += QuartersPerYear
         return entries[index]
     }
 
     /**
      * 지정된 [Quarter]만큼 감소시킵니다.
+     *
+     * 분기 인덱스를 modulo 4로 빼는 연산입니다. Q1.minus(Q2)는 분기 인덱스 0-1=-1 → modulo 보정 후 Q4 반환.
      *
      * @param that Quarter
      * @return Quarter

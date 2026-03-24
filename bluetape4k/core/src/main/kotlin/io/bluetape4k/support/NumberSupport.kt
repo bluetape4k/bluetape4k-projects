@@ -49,7 +49,7 @@ val BigIntMax = Long.MAX_VALUE.toBigInt()
          *
          * ## 동작/계약
          * - 정수/부동소수/임의정밀도([BigDecimal], [BigInteger]) 타입을 포함합니다.
-         * - 집합 자체는 공개되어 있으므로 호출자가 변경할 수 있습니다.
+         * - 불변 Set으로 외부에서 변경할 수 없습니다.
          * - null 타입은 포함하지 않습니다.
          * - 조회 비용은 해시셋 기준 평균 `O(1)`입니다.
          *
@@ -58,15 +58,17 @@ val BigIntMax = Long.MAX_VALUE.toBigInt()
          * // BigDecimal::class in StandardNumberTypes
          * ```
          */
-val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
-    Byte::class,
-    Short::class,
-    Int::class,
-    Long::class,
-    Float::class,
-    Double::class,
-    BigDecimal::class,
-    BigInteger::class,
+val StandardNumberTypes: Set<KClass<out Number>> = java.util.Collections.unmodifiableSet(
+    hashSetOf(
+        Byte::class,
+        Short::class,
+        Int::class,
+        Long::class,
+        Float::class,
+        Double::class,
+        BigDecimal::class,
+        BigInteger::class,
+    )
 )
 
 /**
@@ -86,6 +88,8 @@ val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
 const val defaultNumberFormatPattern = "#,##0.#"
 /**
  * 소수점 자리를 표현하는 기본 포맷
+ *
+ * 매 호출마다 새 인스턴스를 반환합니다. DecimalFormat은 thread-safe하지 않으므로 각 스레드/호출별로 새 인스턴스를 사용하세요.
  */
 val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat(defaultNumberFormatPattern)
 

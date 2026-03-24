@@ -31,18 +31,18 @@ class NamedThreadFactory private constructor(
     private val threadNumber = atomic(1)
 
     /**
-     * Create a new thread
+     * 새 스레드를 생성합니다.
      *
-     * @param body 스레드 실행할 람다
-     * @return 새로은 스레드 객체
+     * @param body 스레드에서 실행할 람다
+     * @return 새로운 스레드 객체
      */
     fun newThread(body: () -> Unit): Thread = newThread(Runnable(body))
 
     /**
-     * Create a new thread
+     * 새 스레드를 생성합니다.
      *
-     * @param runnable The runnable
-     * @return The new thread
+     * @param runnable 스레드에서 실행할 [Runnable]
+     * @return 새로운 스레드 객체
      */
     override fun newThread(runnable: Runnable): Thread {
         val threadName = "$name-${threadNumber.getAndIncrement()}"

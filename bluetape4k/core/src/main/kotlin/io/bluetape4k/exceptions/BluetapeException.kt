@@ -8,4 +8,8 @@ open class BluetapeException: RuntimeException {
     constructor(msg: String): super(msg)
     constructor(msg: String, cause: Throwable?): super(msg, cause)
     constructor(cause: Throwable?): super(cause)
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
 }

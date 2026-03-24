@@ -47,15 +47,15 @@ fun Locale.isLanguageUndetermined(): Boolean = LocaleUtils.isLanguageUndetermine
 fun languageByCountry(countryCode: String): List<Locale> = LocaleUtils.languagesByCountry(countryCode)
 
 /**
- * obtains the list of locales to search through when performing a locale search.
+ * 로케일 검색 시 탐색할 로케일 목록을 반환합니다.
  *
  * ```
  * localeLookupList(Locale("fr", "CA", "xxx"))
  *   = [Locale("fr", "CA", "xxx"), Locale("fr", "CA"), Locale("fr")]
  * ```
  *
- * @receiver the locale to start from
- * @return the unmodifiable list of Locale objects, 0 being locale, not null
+ * @receiver 검색을 시작할 기준 로케일
+ * @return 탐색 순서로 정렬된 [Locale] 목록 (수정 불가)
  */
 fun Locale.localeLookupList(defaultLocale: Locale = this): List<Locale> =
     LocaleUtils.localeLookupList(this, defaultLocale)

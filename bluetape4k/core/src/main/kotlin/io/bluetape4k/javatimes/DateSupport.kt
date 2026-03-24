@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes
 
+import io.bluetape4k.javatimes.MillisPerDay
 import java.sql.Timestamp
 import java.time.Duration
 import java.time.Period
@@ -24,6 +25,10 @@ fun dateOf(epochMillis: Long = System.currentTimeMillis()): Date = Date(epochMil
  * @param that 더할 [Date]
  * @return 두 시간을 합한 새로운 [Date]
  */
+@Deprecated(
+    message = "두 Date 값을 더하는 것은 의미론적으로 올바르지 않습니다. Duration을 사용하세요.",
+    level = DeprecationLevel.WARNING
+)
 operator fun Date.plus(that: Date): Date = Date(this.time + that.time)
 
 /**
@@ -48,7 +53,7 @@ operator fun Date.plus(duration: Duration): Date = Date(this.time + duration.toM
  * @param period 더할 [Period]
  * @return [Period]의 일 수를 더한 새로운 [Date]
  */
-operator fun Date.plus(period: Period): Date = Date(this.time + period.inWholeDaysUtc() * MILLIS_IN_DAY)
+operator fun Date.plus(period: Period): Date = Date(this.time + period.inWholeDaysUtc() * MillisPerDay)
 
 /**
  * 두 [Date]의 시간 값을 뺍니다.
@@ -80,7 +85,7 @@ operator fun Date.minus(duration: Duration): Date = Date(this.time - duration.to
  * @param period 뺄 [Period]
  * @return [Period]의 일 수를 뺀 새로운 [Date]
  */
-operator fun Date.minus(period: Period): Date = Date(this.time - period.inWholeDaysUtc() * MILLIS_IN_DAY)
+operator fun Date.minus(period: Period): Date = Date(this.time - period.inWholeDaysUtc() * MillisPerDay)
 
 /**
  * 두 [Timestamp]의 시간 값을 더합니다.
@@ -88,6 +93,10 @@ operator fun Date.minus(period: Period): Date = Date(this.time - period.inWholeD
  * @param that 더할 [Timestamp]
  * @return 두 시간을 합한 새로운 [Timestamp]
  */
+@Deprecated(
+    message = "두 Timestamp 값을 더하는 것은 의미론적으로 올바르지 않습니다. Duration을 사용하세요.",
+    level = DeprecationLevel.WARNING
+)
 operator fun Timestamp.plus(that: Timestamp): Timestamp = Timestamp(this.time + that.time)
 
 /**
@@ -112,7 +121,7 @@ operator fun Timestamp.plus(duration: Duration): Timestamp = Timestamp(this.time
  * @param period 더할 [Period]
  * @return [Period]의 일 수를 더한 새로운 [Timestamp]
  */
-operator fun Timestamp.plus(period: Period): Timestamp = Timestamp(this.time + period.inWholeDaysUtc() * MILLIS_IN_DAY)
+operator fun Timestamp.plus(period: Period): Timestamp = Timestamp(this.time + period.inWholeDaysUtc() * MillisPerDay)
 
 /**
  * 두 [Timestamp]의 시간 값을 뺍니다.
@@ -144,7 +153,7 @@ operator fun Timestamp.minus(duration: Duration): Timestamp = Timestamp(this.tim
  * @param period 뺄 [Period]
  * @return [Period]의 일 수를 뺀 새로운 [Timestamp]
  */
-operator fun Timestamp.minus(period: Period): Timestamp = Timestamp(this.time - period.inWholeDaysUtc() * MILLIS_IN_DAY)
+operator fun Timestamp.minus(period: Period): Timestamp = Timestamp(this.time - period.inWholeDaysUtc() * MillisPerDay)
 
 private fun Period.inWholeDaysUtc(): Long {
     require(years == 0 && months == 0) {

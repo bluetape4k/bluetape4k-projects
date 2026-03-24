@@ -50,5 +50,6 @@ object ShutdownQueue: KLogging() {
             closeable.closeSafe()
             log.debug { "Success to close AutoCloseable instance ... $closeable" }
         }
+        registered.clear()
     }
 }

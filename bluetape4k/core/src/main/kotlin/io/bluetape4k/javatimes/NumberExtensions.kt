@@ -396,7 +396,7 @@ fun Long.yearPeriod(): Period = Period.ofYears(this.toInt())
 /**
  * 밀리초를 나노초로 변환합니다.
  */
-fun Long.millisToNanos(): Int = (this * NanosPerMillis).toInt()
+fun Long.millisToNanos(): Long = this * NanosPerMillis
 
 /**
  * 해당 연도가 윤년인지 여부를 반환합니다.

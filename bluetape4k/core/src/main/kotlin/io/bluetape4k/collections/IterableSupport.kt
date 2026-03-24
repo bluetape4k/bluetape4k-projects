@@ -136,8 +136,8 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  * @return [Result] 리스트
  * @see mapCatching
  */
-inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> =
-    map { runCatching { mapper(it) } }
+@Deprecated("Use mapCatching", ReplaceWith("mapCatching(mapper)"))
+inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> = mapCatching(mapper)
 
 /**
  * [mapper] 실행의 [Result] 를 반환합니다.
