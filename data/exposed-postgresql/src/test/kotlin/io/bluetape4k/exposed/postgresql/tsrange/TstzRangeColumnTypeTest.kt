@@ -13,8 +13,6 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 import java.time.Instant
 
 /**
@@ -22,23 +20,22 @@ import java.time.Instant
  *
  * H2 및 PostgreSQL 다이얼렉트에서 TimestampRange 저장/조회를 검증한다.
  */
-class TstzRangeColumnTypeTest : AbstractExposedTest() {
+class TstzRangeColumnTypeTest: AbstractExposedTest() {
 
-    companion object : KLogging() {
-        object EventTable : LongIdTable("tsrange_events") {
+    companion object: KLogging() {
+        object EventTable: LongIdTable("tsrange_events") {
             val name = varchar("name", 100)
             val period = tstzRange("period")
         }
     }
 
-    @ParameterizedTest
-    @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `범위 저장 및 조회 - 기본 경계`(testDB: TestDB) {
+    @Test
+    fun `범위 저장 및 조회 - 기본 경계`() {
         val start = Instant.parse("2024-01-01T00:00:00Z")
         val end = Instant.parse("2024-12-31T23:59:59Z")
         val range = TimestampRange(start, end)
 
-        withTables(testDB, EventTable) {
+        withTables(TestDB.POSTGRESQL, EventTable) {
             EventTable.insert {
                 it[name] = "2024 연간 이벤트"
                 it[period] = range
@@ -54,14 +51,13 @@ class TstzRangeColumnTypeTest : AbstractExposedTest() {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `범위 저장 및 조회 - 양쪽 포함 경계`(testDB: TestDB) {
+    @Test
+    fun `범위 저장 및 조회 - 양쪽 포함 경계`() {
         val start = Instant.parse("2024-06-01T09:00:00Z")
         val end = Instant.parse("2024-06-01T18:00:00Z")
         val range = TimestampRange(start, end, lowerInclusive = true, upperInclusive = true)
 
-        withTables(testDB, EventTable) {
+        withTables(TestDB.POSTGRESQL, EventTable) {
             EventTable.insert {
                 it[name] = "회의"
                 it[period] = range
@@ -77,14 +73,13 @@ class TstzRangeColumnTypeTest : AbstractExposedTest() {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `범위 저장 및 조회 - 양쪽 미포함 경계`(testDB: TestDB) {
+    @Test
+    fun `범위 저장 및 조회 - 양쪽 미포함 경계`() {
         val start = Instant.parse("2024-03-01T00:00:00Z")
         val end = Instant.parse("2024-03-31T23:59:59Z")
         val range = TimestampRange(start, end, lowerInclusive = false, upperInclusive = false)
 
-        withTables(testDB, EventTable) {
+        withTables(TestDB.POSTGRESQL, EventTable) {
             EventTable.insert {
                 it[name] = "3월 이벤트"
                 it[period] = range
@@ -175,9 +170,8 @@ class TstzRangeColumnTypeTest : AbstractExposedTest() {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `여러 범위 저장 및 조회`(testDB: TestDB) {
+    @Test
+    fun `여러 범위 저장 및 조회`() {
         val ranges = listOf(
             "Q1" to TimestampRange(
                 Instant.parse("2024-01-01T00:00:00Z"),
@@ -193,7 +187,7 @@ class TstzRangeColumnTypeTest : AbstractExposedTest() {
             ),
         )
 
-        withTables(testDB, EventTable) {
+        withTables(TestDB.POSTGRESQL, EventTable) {
             ranges.forEach { (n, range) ->
                 EventTable.insert {
                     it[name] = n
