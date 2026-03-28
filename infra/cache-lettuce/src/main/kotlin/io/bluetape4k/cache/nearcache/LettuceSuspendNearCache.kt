@@ -8,7 +8,6 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
-import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
@@ -17,6 +16,7 @@ import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
+import io.lettuce.core.api.coroutines.multi
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
@@ -86,7 +86,6 @@ class LettuceSuspendNearCache<V: Any>(
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
-    private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
@@ -417,10 +416,13 @@ class LettuceSuspendNearCache<V: Any>(
 
     private suspend fun setRedisBulk(map: Map<String, V>) {
         val redisMap = map.entries.associate { (key, value) -> config.redisKey(key) to value }
-        val ttl = config.redisTtl
-        if (ttl != null) {
-            val applied = commands.msetex(redisMap, MSetExArgs().ex(ttl))
-            check(applied == true) { "Redis MSETEX failed for cacheName=${config.cacheName}" }
+
+        if (setArgsPx != null) {
+            commands.multi {
+                redisMap.forEach { (redisKey, value) ->
+                    set(redisKey, value, setArgsPx)
+                }
+            }
         } else {
             val status = commands.mset(redisMap)
             check(status == "OK") { "Redis MSET failed for cacheName=${config.cacheName}: $status" }

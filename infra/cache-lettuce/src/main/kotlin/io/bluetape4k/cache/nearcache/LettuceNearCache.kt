@@ -7,8 +7,8 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
+import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
-import io.lettuce.core.MSetExArgs
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.ScanArgs
@@ -18,6 +18,7 @@ import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.api.sync.multi
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
 
@@ -85,7 +86,6 @@ class LettuceNearCache<V: Any>(
     private val setArgsPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.px(it) }
     private val setArgsNx: SetArgs = SetArgs.Builder.nx()
     private val setArgsNxPx: SetArgs? = config.redisTtl?.let { SetArgs.Builder.nx().px(it) }
-    private val msetExArgs: MSetExArgs? = config.redisTtl?.let { MSetExArgs.Builder.ex(it) }
 
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
@@ -375,10 +375,7 @@ class LettuceNearCache<V: Any>(
         }
     }
 
-    private fun setRedis(
-        key: String,
-        value: V,
-    ): String? {
+    private fun setRedis(key: String, value: V): String? {
         val rKey = config.redisKey(key)
         return if (setArgsPx != null) {
             commands.set(rKey, value, setArgsPx)
@@ -399,11 +396,16 @@ class LettuceNearCache<V: Any>(
         }
     }
 
+    @OptIn(ExperimentalLettuceCoroutinesApi::class)
     private fun setRedisBulk(map: Map<String, V>) {
         val redisMap = map.entries.associate { (key, value) -> config.redisKey(key) to value }
-        if (msetExArgs != null) {
-            val applied = commands.msetex(redisMap, msetExArgs)
-            check(applied == true) { "Redis MSETEX failed for cacheName=${config.cacheName}" }
+
+        if (setArgsPx != null) {
+            commands.multi {
+                redisMap.forEach { (redisKey, value) ->
+                    set(redisKey, value, setArgsPx)
+                }
+            }
         } else {
             val status = commands.mset(redisMap)
             check(status == "OK") { "Redis MSET failed for cacheName=${config.cacheName}: $status" }

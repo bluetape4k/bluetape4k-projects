@@ -63,17 +63,14 @@ class SystemxTest {
     fun `Java feature 버전 플래그는 런타임과 일관된다`() {
         val feature = Runtime.version().feature()
 
-        (Systemx.isJava6 == (feature == 6)).shouldBeTrue()
-        (Systemx.isJava7 == (feature == 7)).shouldBeTrue()
-        (Systemx.isJava8 == (feature == 8)).shouldBeTrue()
-        (Systemx.isJava9 == (feature == 9)).shouldBeTrue()
-        (Systemx.isJava10 == (feature == 10)).shouldBeTrue()
         (Systemx.isJava11 == (feature == 11)).shouldBeTrue()
         (Systemx.isJava17 == (feature == 17)).shouldBeTrue()
         (Systemx.isJava19 == (feature == 19)).shouldBeTrue()
         (Systemx.isJava21 == (feature == 21)).shouldBeTrue()
         (Systemx.isJava22 == (feature == 22)).shouldBeTrue()
         (Systemx.isJava23 == (feature == 23)).shouldBeTrue()
+        (Systemx.isJava24 == (feature == 24)).shouldBeTrue()
+        (Systemx.isJava25 == (feature == 25)).shouldBeTrue()
     }
 
     @Test
