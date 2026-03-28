@@ -200,6 +200,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **exposed-r2dbc-tests**: R2DBC 기반 테스트 공통 인프라
 - **hibernate**: Hibernate 통합
 - **hibernate-reactive**: Hibernate Reactive
+- **hibernate-cache-lettuce**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 - **jdbc**: JDBC 유틸리티
 - **mongodb**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `MongoClientProvider`, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL (`pipeline {}`)
 - **exposed-postgresql**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(POINT/POLYGON), pgvector 벡터 검색(VECTOR(n)), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
