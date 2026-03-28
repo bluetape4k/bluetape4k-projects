@@ -172,7 +172,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella 포함):
 
 - **exposed** *(umbrella)*: `exposed-core` + `exposed-dao` + `exposed-jdbc`를 묶는 하위 호환 모듈. 기존 코드는 변경 없이 사용 가능
-- **exposed-core**: JDBC 불필요한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, 클라이언트 ID 생성 확장(`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`), `HasIdentifier`, `ExposedPage`
+- **exposed-core**: JDBC 불필요한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, 네트워크 주소 컬럼 타입(`inetAddress`, `cidr`, PostgreSQL `<<` 연산자), 전화번호 컬럼 타입(`phoneNumber`, `phoneNumberString`, libphonenumber opt-in), 클라이언트 ID 생성 확장(`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`), `HasIdentifier`, `ExposedPage`
 - **exposed-dao**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable(`KsuidTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `SoftDeletedIdTable` 등)
 - **exposed-jdbc**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `TableExtensions`
 - **exposed-r2dbc**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)

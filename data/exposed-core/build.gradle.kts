@@ -42,6 +42,9 @@ dependencies {
     compileOnly(project(":bluetape4k-crypto"))
     testRuntimeOnly(Libs.jasypt)
 
+    // Phone number column types (compileOnly -> testImplementation 자동 전이 via extendsFrom)
+    compileOnly(Libs.libphonenumber)
+
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_junit_jupiter)

@@ -363,6 +363,9 @@ object Libs {
 
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
     const val guava = "com.google.guava:guava:33.4.8-jre"  // https://mvnrepository.com/artifact/com.google.guava/guava
+    // Google libphonenumber — 전화번호 E.164 정규화 (exposed-core phone 컬럼 타입)
+    // https://mvnrepository.com/artifact/com.googlecode.libphonenumber/libphonenumber
+    const val libphonenumber = "com.googlecode.libphonenumber:libphonenumber:8.13.52"
 
     const val eclipse_collections = "org.eclipse.collections:eclipse-collections:${Versions.eclipse_collections}"
     const val eclipse_collections_forkjoin = "org.eclipse.collections:eclipse-collections-forkjoin:${Versions.eclipse_collections}"
