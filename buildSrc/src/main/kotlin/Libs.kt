@@ -1212,6 +1212,11 @@ object Libs {
     // NOTE: clickhouse-jdbc 0.9.5 버전만 지원
     const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.5" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 
+    const val duckdb_jdbc = "org.duckdb:duckdb_jdbc:1.1.3" // https://mvnrepository.com/artifact/org.duckdb/duckdb_jdbc
+
+    // BigQuery REST API 클라이언트
+    const val google_api_services_bigquery = "com.google.apis:google-api-services-bigquery:v2-rev20240919-2.0.0" // https://mvnrepository.com/artifact/com.google.apis/google-api-services-bigquery
+
     // NOTE: Apache Ignite 2.x 에서는 꼭 1.4.197 를 써야 합니다. Ignite 3.x는 이 제약 없음.
     const val h2 = "com.h2database:h2:1.4.197"
 
