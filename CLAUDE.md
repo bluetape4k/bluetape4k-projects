@@ -141,12 +141,22 @@ Pluggable NearCache abstraction — swap backends without changing code.
 
 Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` (serialization), `r2dbc`.
 
+| Module | Description |
+|--------|-------------|
+| `exposed-jdbc` (`bluetape4k-spring-boot3-exposed-jdbc`) | Exposed DAO Entity 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 |
+| `exposed-r2dbc` (`bluetape4k-spring-boot3-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
+
 ### Spring Boot 4 (`spring-boot4/`)
 
 Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal migration effort.
 
 - `core`: Spring Boot 4 utilities, RestClient Coroutines DSL, Retrofit2, Jackson 2.x ObjectMapper customizer
 - `cassandra` / `redis` / `mongodb` / `r2dbc`
+
+| Module | Description |
+|--------|-------------|
+| `exposed-jdbc` (`bluetape4k-spring-boot4-exposed-jdbc`) | Exposed DAO Entity 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 |
+| `exposed-r2dbc` (`bluetape4k-spring-boot4-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
 
 > **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
