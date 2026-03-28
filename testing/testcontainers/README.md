@@ -4,12 +4,14 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ## 주요 기능
 
-- **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, Cockroach, ClickHouse, TiDB(Deprecated)
+- **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, PostGIS, pgvector, Cockroach, ClickHouse, TiDB(Deprecated)
 - **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elastic/OpenSearch, MinIO
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper
 - **AWS LocalStack 지원**: S3, DynamoDB 등 로컬 테스트 환경 구성
 - **Container 유틸**: 공통 GenericServer/GenericContainer 확장
+- **PostgreSQL 확장 자동 활성화**: `PostgisServer`(postgis), `PgvectorServer`(vector) 시작 시 해당 확장 자동 `CREATE EXTENSION`
+- **`withExtensions()` API**: 컨테이너 시작 시 추가 PostgreSQL 확장을 선언적으로 활성화
 
 ## 최근 안정성 개선
 
@@ -42,8 +44,56 @@ dependencies {
 - `database/MySQL5Server.kt`
 - `database/MySQL8Server.kt`
 - `database/MariaDBServer.kt`
-- `database/PostgreSQLServer.kt`
+- `database/PostgreSQLServer.kt` — 표준 PostgreSQL, `withExtensions()` 지원
+- `database/PostgisServer.kt` — `postgis/postgis` 이미지, postgis 확장 자동 활성화
+- `database/PgvectorServer.kt` — `pgvector/pgvector` 이미지, vector 확장 자동 활성화
 - `database/CockroachServer.kt`
+
+#### PostgreSQL 확장 서버
+
+`PostgisServer`와 `PgvectorServer`는 각 이미지의 기본 확장(postgis, vector)을 컨테이너 시작 시 자동으로 활성화합니다. 테스트에서 `CREATE EXTENSION` 을 직접 실행할 필요가 없습니다.
+
+**기본 싱글턴 사용:**
+
+```kotlin
+// postgis 확장이 자동 활성화된 서버
+val server = PostgisServer.Launcher.postgis
+
+// vector 확장이 자동 활성화된 서버
+val server = PgvectorServer.Launcher.pgvector
+```
+
+**`withExtensions()` — 추가 확장 활성화:**
+
+```kotlin
+// postgis + postgis_topology 활성화
+PostgisServer()
+    .withExtensions("postgis_topology")
+    .apply { start() }
+
+// vector + pg_trgm 활성화
+PgvectorServer()
+    .withExtensions("pg_trgm")
+    .apply { start() }
+
+// 표준 postgres 에서 contrib 확장 활성화
+PostgreSQLServer()
+    .withExtensions("uuid-ossp", "hstore", "pg_trgm")
+    .apply { start() }
+```
+
+**`Launcher.withExtensions()` — 확장 포함 싱글턴 직접 생성:**
+
+```kotlin
+// postgis_topology 까지 활성화된 싱글턴
+val server = PostgisServer.Launcher.withExtensions("postgis_topology")
+
+// pg_trgm 까지 활성화된 싱글턴
+val server = PgvectorServer.Launcher.withExtensions("pg_trgm")
+
+// uuid-ossp, hstore 가 활성화된 표준 PostgreSQL 싱글턴
+val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
+```
 
 ### 2. 스토리지/검색 컨테이너
 
@@ -139,7 +189,9 @@ graph TD
         MY5["MySQL5Server"]
         MY8["MySQL8Server"]
         MA["MariaDBServer"]
-        PG["PostgreSQLServer"]
+        PG["PostgreSQLServer\n(withExtensions 지원)"]
+        PGS["PostgisServer\n(postgis 자동 활성화)"]
+        PGV["PgvectorServer\n(vector 자동 활성화)"]
         CR["CockroachServer"]
         CH["ClickHouseServer"]
     end

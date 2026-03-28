@@ -1199,6 +1199,9 @@ object Libs {
     const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.7"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     const val postgresql_driver = "org.postgresql:postgresql:42.7.10"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
+    // PostgreSQL Extensions
+    const val postgis_jdbc = "net.postgis:postgis-jdbc:2024.1.0"       // https://mvnrepository.com/artifact/net.postgis/postgis-jdbc
+    const val pgvector = "com.pgvector:pgvector:0.1.6"                  // https://mvnrepository.com/artifact/com.pgvector/pgvector
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
 
     // NOTE: clickhouse-jdbc 0.9.5 버전만 지원
