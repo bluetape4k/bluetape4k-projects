@@ -1,550 +1,238 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working in this repository.
 
 ## Project Overview
 
-Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 공용 라이브러리 모음입니다. Kotlin의 장점을 최대화하고, 기존 Java 라이브러리를 개선하며, Kotlin Coroutines 기반의 async/non-blocking 개발을 지원합니다.
+Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotlin idioms, improves Java libraries, and supports Kotlin Coroutines-based async/non-blocking development.
 
 ## Development Guidelines
 
-### Language and Documentation
-
-- 주석과 설명은 KDoc 형식으로 **한국어**로 작성
-- 커밋 메시지는 **한국어**로 작성하며, 머릿말(feat, fix, docs, style, refactor, perf, test, chore) 사용
-- Kotlin 2.3 이상 사용
-- 최대한 Kotlin extensions와 DSL 활용
-
-### Technology Stack
-
-- Java 21 (JVM Toolchain)
-- Kotlin 2.3 (languageVersion & apiVersion)
-- Spring Boot 3.4.0+
-- Kotlin Exposed 1.0.0+
-- 데이터베이스: H2, PostgreSQL, MySQL 주로 사용
-
-### Testing Standards
-
-- JUnit 5 기반 테스트
-- MockK를 Mock 라이브러리로 사용
-- Kluent를 Assertions 라이브러리로 사용
-- 예제는 간결하되 프로덕션 수준으로 작성하며, 실제 동작 가능해야 함
-
-### Documentation
-
-- Public Class, Interface, Extensions methods 에 대해서 필수적으로 KDoc 을 작성한다
-- KDoc 은 항상 한국어로 작성한다
+- **KDoc**: Required for all public classes, interfaces, and extension methods — written in **Korean**
+- **Commit messages**: Korean, with prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
+- **Kotlin**: 2.3+, use extensions and DSLs wherever possible
+- **Stack**: Java 21 · Kotlin 2.3 · Spring Boot 3.4+ · Exposed 1.0+ · H2 / PostgreSQL / MySQL
+- **Testing**: JUnit 5 + MockK + Kluent; examples must be production-quality and runnable
 
 ## Build Commands
 
-### Git
-
 ```bash
-# 저장소 상태 요약
-./bin/repo-status
+# Repo summary (prefer over raw git commands)
+./bin/repo-status          # git status summary
+./bin/repo-diff            # per-file change count
+./bin/repo-test-summary -- ./gradlew :module:test   # condensed test output
 
-# diff 요약
-./bin/repo-diff
-
-# 테스트/Gradle 출력 요약
-./bin/repo-test-summary -- ./gradlew :bluetape4k-coroutines:test
-```
-
-### Basic Build
-
-```bash
-# Clean and build all modules
+# Build
 ./gradlew clean build
-
-# Build specific module
 ./gradlew :bluetape4k-coroutines:build
-
-# Build without tests
 ./gradlew build -x test
-```
 
-### Testing
-
-```bash
-# Run all tests
+# Test
 ./gradlew test
-
-# Run tests for specific module
 ./gradlew :bluetape4k-io:test
-
-# Run specific test class
 ./gradlew test --tests "io.bluetape4k.io.CompressorTest"
 
-# Run tests with detailed logging
-./gradlew test --info
-```
-
-### Code Quality
-
-```bash
-# Run Detekt (static analysis)
+# Quality
 ./gradlew detekt
-
-# Format code (if formatter is configured)
 ./gradlew formatKotlin
-```
 
-### Publishing
-
-```bash
-# Publish SNAPSHOT to Maven repository
-./gradlew publishBluetape4kPublicationToBluetape4kRepository
-
-# Publish RELEASE (remove snapshot version)
-./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
+# Publish
+./gradlew publishBluetape4kPublicationToBluetape4kRepository           # SNAPSHOT
+./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=  # RELEASE
 ```
 
 ## Token-Efficient Workflow
 
-- 세션 컨텍스트 절약을 위해 `git status` 대신 `./bin/repo-status`를 우선 사용합니다.
-- 전체 patch가 필요하기 전에는 `git diff` 대신 `./bin/repo-diff`로 파일별 변경량만 먼저 확인합니다.
-- Gradle 테스트/빌드 로그는 `./bin/repo-test-summary -- ./gradlew ...` 형태로 요약해서 확인합니다.
-- 기본 흐름은 "요약 먼저, 원본 출력은 필요한 파일이나 태스크에 한해 2차로 확인"입니다.
+Prefer `./bin/repo-*` scripts over raw git/gradle output. Summarize first; read raw output only for specific files or tasks.
 
 ## Architecture
 
-### Module Structure
+Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories as `bluetape4k-{dirname}`.
 
-프로젝트는 멀티 모듈 Gradle 프로젝트로, 기능별로 모듈이 분리되어 있습니다:
+### Core (`bluetape4k/`)
 
-#### Core Modules (`bluetape4k/`)
+| Module | Description |
+|--------|-------------|
+| `core` | Core utilities (assertions, compression) |
+| `coroutines` | Coroutines utilities (DeferredValue, Flow extensions, AsyncFlow) |
+| `logging` | Logging utilities |
+| `bom` | Bill of Materials |
 
-- **core**: 핵심 유틸리티 (assertions, required, 압축 등)
-- **coroutines**: Coroutines 관련 유틸리티 (DeferredValue, Flow extensions, AsyncFlow 등)
-- **logging**: 로깅 관련 기능
-- **bom**: Bill of Materials (dependency management)
+### I/O (`io/`)
 
-#### I/O Modules (`io/`)
+| Module | Description |
+|--------|-------------|
+| `io` | File I/O, compression (LZ4/Zstd/Snappy), serialization (Kryo/Fory) |
+| `okio` | Okio Buffer/Sink/Source extensions, Jasypt/Tink encrypt Sink/Source |
+| `jackson` / `jackson3` | Jackson 2.x / 3.x integration (all formats: CBOR, CSV, YAML, TOML…) |
+| `fastjson2` | FastJSON2 |
+| `feign` / `retrofit2` | HTTP clients with Coroutines support |
+| `protobuf` / `grpc` | Protobuf utilities + gRPC server/client abstraction |
+| `tink` | Google Tink AEAD/DAEAD/MAC encryption (`TinkEncryptor`) |
+| `vertx` | Vert.x unified module (core + SQL client + Resilience4j) |
+| `netty` / `http` / `avro` / `csv` | Netty, HTTP utils, Avro, CSV |
+| ~~`crypto`~~ | Deprecated → use `tink` |
 
-- **io**: 파일 I/O, 압축(LZ4, Zstd, Snappy), 직렬화(Kryo, Fory)
-- **okio**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines(Suspended I/O), Jasypt/Tink 암호화 Sink/Source
-- **json**: JSON 처리
-- **jackson**: Jackson 2.x 통합
-- **jackson3**: Jackson 3.x 통합
-- ~~**jackson-binary/jackson-text**~~: **`bluetape4k-jackson2`에 통합됨** (CBOR, Ion, Smile, CSV, YAML, TOML 등 모든 포맷 포함)
-- ~~**jackson3-binary/jackson3-text**~~: **`bluetape4k-jackson3`에 통합됨**
-- **fastjson2**: FastJSON2
-- **csv**: CSV 처리
-- **avro**: Apache Avro
-- **feign**: Feign HTTP 클라이언트 (Coroutines 지원)
-- **retrofit2**: Retrofit2 (Coroutines 지원)
-- **http**: HTTP 유틸리티
-- **netty**: Netty 통합
-- **protobuf**: Protobuf 유틸리티 — 타입 별칭(`ProtoMessage`, `ProtoAny` 등), Timestamp/Duration/DateTime/Money 변환, `ProtobufSerializer`
-- **grpc**: gRPC 서버/클라이언트 추상화 (`bluetape4k-protobuf` 포함)
-- ~~**crypto**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
-- **tink**: Google Tink 기반 현대적 암호화 — AEAD (AES-GCM, ChaCha20-Poly1305), Deterministic AEAD (AES-SIV), MAC (HMAC), Digest (SHA-256 등), 통합 Encryptor (`TinkEncryptor`); Okio 암호화 Sink/Source (`TinkEncryptSink`/`TinkDecryptSource`)는 `io/io` 모듈에 위치
-- **vertx**: Vert.x 단일 통합 모듈 — 핵심 기능 + SQL 클라이언트 + Resilience4j 통합 (구 `vertx/core`, `vertx/sqlclient`,
-  `vertx/resilience4j` 통합됨)
+### AWS (`aws/`, `aws-kotlin/`)
 
-#### AWS Modules (`aws/`, `aws-kotlin/`)
+3-tier API per service: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`.
 
-각 서비스마다 **3단계 API** 패턴을 제공합니다: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
+- `bluetape4k-aws`: Java SDK v2, services via `compileOnly`, coroutines via `.await()` wrappers
+- `bluetape4k-aws-kotlin`: Kotlin SDK, native `suspend` functions, no wrapping needed
 
-##### Java SDK v2 기반 (`bluetape4k-aws`)
+### Data (`data/`)
 
-단일 통합 모듈. AWS 핵심 기능은 `api()`로 제공하고, 각 서비스 SDK는 `compileOnly()`로 선언하여 사용자가 필요한 서비스만 런타임에 추가합니다.
+#### Exposed
 
-- DynamoDB, S3(TransferManager), SES, SNS, SQS, KMS, CloudWatch/CloudWatchLogs, Kinesis, STS
-- 각 서비스별 coroutines 확장: `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑)
+| Module | Use When |
+|--------|----------|
+| `exposed` *(umbrella)* | Keep existing code unchanged |
+| `exposed-core` | Column types (compress/encrypt/serialize/inet/phone), `HasIdentifier`, `ExposedPage` |
+| `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.) |
+| `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction` |
+| `exposed-r2dbc` | Reactive `ExposedR2dbcRepository` |
+| `exposed-jdbc-lettuce` | JDBC + Lettuce Redis cache (sync + suspend, Read/Write-through/behind) |
+| `exposed-r2dbc-lettuce` | R2DBC + Lettuce Redis cache (suspend, no `runBlocking`) |
+| `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` | Same pattern with Redisson |
+| `exposed-jackson` / `exposed-jackson3` / `exposed-fastjson2` | JSON column types |
+| `exposed-jasypt` / `exposed-tink` | Encrypted column types |
+| `exposed-measured` | Query timing via Micrometer |
+| `exposed-postgresql` | PostGIS, pgvector, TSTZRANGE; H2 fallback |
+| `exposed-mysql8` | GIS geometry types (8 kinds), JTS, spatial functions |
+| `exposed-duckdb` | DuckDB dialect, `DuckDBDatabase` factory, `suspendTransaction`, `queryFlow` |
+| `exposed-bigquery` | BigQuery REST API via H2 SQL generation; `BigQueryContext`, suspend/Flow API |
+| `exposed-jdbc-tests` / `exposed-r2dbc-tests` | Shared test infrastructure |
 
-##### AWS Kotlin SDK 기반 (`bluetape4k-aws-kotlin`)
+#### Other Data
 
-네이티브 `suspend` 함수를 기본 제공하는 단일 통합 모듈. `.await()` 변환 없이 코루틴에서 직접 사용 가능합니다.
+- `hibernate` / `hibernate-reactive`: Hibernate + Hibernate Reactive
+- `hibernate-cache-lettuce`: Hibernate 2nd Level Cache via `LettuceNearCacheRegionFactory` (Caffeine L1 + Redis L2, 15 codecs)
+- `mongodb`: MongoDB Kotlin Coroutine Driver — `mongoClient {}` DSL, `findAsFlow`, `pipeline {}` Aggregation DSL
+- `jdbc` / `r2dbc` / `cassandra`: JDBC utils, R2DBC, Cassandra driver
 
-- DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/CloudWatchLogs, Kinesis, STS
-- DSL 지원: `metricDatum {}`, `inputLogEvent {}`, `putRecordRequestOf {}`, `stsClientOf {}` 등
+### Infrastructure (`infra/`)
 
-##### AWS 모듈 패턴
+| Module | Description |
+|--------|-------------|
+| `lettuce` | Lettuce Redis client, high-perf codec, distributed primitives (Lock, Semaphore, AtomicLong, Leader Election, Memoizer), sync/async/suspend 3-tier; `MapLoader`/`MapWriter`/`LettuceLoadedMap`; suspend variants without `runBlocking` |
+| `redisson` | Redisson client, Codec, Cache, Leader Election, Memoizer, NearCache, Coroutines |
+| `redis` *(umbrella)* | lettuce + redisson + spring-data-redis |
+| `kafka` | Kafka client |
+| `resilience4j` | Resilience4j + Coroutines cache |
+| `bucket4j` | Rate limiting |
+| `micrometer` | Metrics |
+| `opentelemetry` | Distributed tracing |
 
-| SDK | 모듈 | Coroutines |
-|-----|------|------------|
-| Java SDK v2 | `bluetape4k-aws` | `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑) |
-| Kotlin SDK | `bluetape4k-aws-kotlin` | 기본 제공 (별도 래핑 불필요) |
+#### Cache (`infra/cache-*`)
 
-#### Data Modules (`data/`)
+Pluggable NearCache abstraction — swap backends without changing code.
 
-Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella 포함):
+| Module | Description |
+|--------|-------------|
+| `cache` *(umbrella)* | cache-core + hazelcast + redisson + lettuce |
+| `cache-core` | JCache abstraction, Caffeine/Cache2k/Ehcache; `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>`, `ResilientNearCacheDecorator` |
+| `cache-hazelcast` | Hazelcast `HazelcastNearCache<V>` / `HazelcastSuspendNearCache<V>` |
+| `cache-redisson` | Redisson `RedissonNearCache<V>` (RLocalCachedMap) / suspend variant |
+| `cache-lettuce` | Lettuce RESP3 CLIENT TRACKING `LettuceNearCache<V>` / suspend variant |
 
-- **exposed** *(umbrella)*: `exposed-core` + `exposed-dao` + `exposed-jdbc`를 묶는 하위 호환 모듈. 기존 코드는 변경 없이 사용 가능
-- **exposed-core**: JDBC 불필요한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, 네트워크 주소 컬럼 타입(`inetAddress`, `cidr`, PostgreSQL `<<` 연산자), 전화번호 컬럼 타입(`phoneNumber`, `phoneNumberString`, libphonenumber opt-in), 클라이언트 ID 생성 확장(`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`), `HasIdentifier`, `ExposedPage`
-- **exposed-dao**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable(`KsuidTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `SoftDeletedIdTable` 등)
-- **exposed-jdbc**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `TableExtensions`
-- **exposed-r2dbc**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
-- **exposed-jdbc-lettuce**: Exposed JDBC + Lettuce Redis 캐시 (Read-through / Write-through / Write-behind) —
-  `AbstractJdbcLettuceRepository`, `ExposedEntityMapLoader`, `ExposedEntityMapWriter`;
-  `AbstractSuspendedJdbcLettuceRepository`, `SuspendedExposedEntityMapLoader/Writer` (코루틴 네이티브 버전,
-  `LettuceSuspendedLoadedMap` 사용)
-- **exposed-r2dbc-lettuce**: Exposed R2DBC + Lettuce Redis 캐시 (코루틴 네이티브 Read-through / Write-through / Write-behind) —
-  `AbstractR2dbcLettuceRepository`, `R2dbcExposedEntityMapLoader`, `R2dbcExposedEntityMapWriter`,
-  `LettuceSuspendedLoadedMap`;
-  `runBlocking` 없이 `suspendTransaction` 기반으로 동작
-- **exposed-jdbc-redisson**: Exposed JDBC + Redisson (Read-through / Write-through / Write-behind 캐시) —
-  `JdbcRedissonRepository<ID: Any, E: Any>`, `AbstractJdbcRedissonRepository`,
-  `SuspendedJdbcRedissonRepository`, `AbstractSuspendedJdbcRedissonRepository`;
-  `extractId(entity): ID` 패턴으로 엔티티 ID 추출 (Lettuce Repository와 동일 패턴)
-- **exposed-r2dbc-redisson**: Exposed R2DBC + Redisson (코루틴 네이티브 Read-through / Write-through / Write-behind 캐시) —
-  `R2dbcRedissonRepository<ID: Any, E: Any>`, `AbstractR2dbcRedissonRepository`;
-  `extractId(entity): ID` 패턴, `suspendTransaction` 기반
-- **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
-- **exposed-fastjson2**: Exposed JSON 컬럼 지원 (Fastjson2)
-- **exposed-jasypt**: Exposed 암호화 컬럼 (Jasypt)
-- **exposed-tink**: Exposed 암호화 컬럼 (Google Tink AEAD/Deterministic AEAD)
-- **exposed-measured**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
-- **exposed-jdbc-tests**: JDBC 기반 테스트 공통 인프라
-- **exposed-r2dbc-tests**: R2DBC 기반 테스트 공통 인프라
-- **hibernate**: Hibernate 통합
-- **hibernate-reactive**: Hibernate Reactive
-- **hibernate-cache-lettuce**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
-- **jdbc**: JDBC 유틸리티
-- **mongodb**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `MongoClientProvider`, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL (`pipeline {}`)
-- **exposed-postgresql**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(POINT/POLYGON), pgvector 벡터 검색(VECTOR(n)), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
-- **exposed-mysql8**: MySQL 8.0 전용 Exposed 확장 — GIS 공간 데이터(POINT/POLYGON/LINESTRING 등 8종), JTS 기반 Geometry 컬럼 타입, ST_Contains/ST_Distance 등 공간 함수; MySQL Internal Format WKB 변환
-- **exposed-duckdb**: DuckDB JDBC 통합 — `DuckDBDialect`(PostgreSQL 상속), `DuckDBDatabase` 팩토리(인메모리/파일/읽기전용), `suspendTransaction`, `queryFlow`
-- **exposed-bigquery**: Google BigQuery REST API 통합 — H2(PostgreSQL 모드)로 SQL 생성 후 BigQuery REST 실행, `BigQueryContext`(SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow`(Column 참조 타입 안전 접근), suspend/Flow API
-- **r2dbc**: R2DBC 지원
-- **cassandra**: Cassandra 드라이버
+### Spring Boot 3 (`spring-boot3/`)
 
-##### Exposed 모듈 의존성 선택 가이드
+`bluetape4k-spring-boot3`: Unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2, test utilities (WebTestClient, Testcontainers).
 
-| 사용 목적 | 권장 모듈 |
-|-----------|-----------|
-| Jackson/암호화/압축 컬럼 타입, R2DBC와 함께 사용 | `bluetape4k-exposed-core` |
-| DAO Entity, 커스텀 IdTable | `bluetape4k-exposed-dao` |
-| JDBC Repository, 쿼리, 트랜잭션 | `bluetape4k-exposed-jdbc` |
-| 쿼리 실행 시간 측정 (Micrometer) | `bluetape4k-exposed-measured` |
-| 기존 코드 그대로 유지 | `bluetape4k-exposed` (umbrella) |
+Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` (serialization), `r2dbc`.
 
-#### Infrastructure Modules (`infra/`)
+### Spring Boot 4 (`spring-boot4/`)
 
-- **redis** *(umbrella)*: `lettuce` + `redisson` + `spring-data-redis`를 묶는 하위 호환 모듈
-- **lettuce
-  **: Lettuce Redis 클라이언트, 고성능 Codec, Future→Coroutine 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Map, Leader Election, Memoizer) — sync/async/suspend 3-tier API;
-  `MapLoader`/`MapWriter`/`LettuceLoadedMap` (동기 Read-through/Write-through/Write-behind 추상화);
-  `SuspendedMapLoader`/`SuspendedMapWriter`/`LettuceSuspendedLoadedMap` (코루틴 네이티브 suspend 버전, `runBlocking` 없음)
-- **redisson**: Redisson Redis 클라이언트, Codec, Cache, Leader Election, Memoizer, NearCache, Coroutines
-- **kafka**: Kafka 클라이언트
-- **resilience4j**: Resilience4j + Coroutines, Coroutines Cache
-- **bucket4j**: Rate limiting
-- **micrometer**: 메트릭
-- **opentelemetry**: 분산 추적
+Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal migration effort.
 
-##### 캐시 모듈 (`infra/cache-*`)
+- `core`: Spring Boot 4 utilities, RestClient Coroutines DSL, Retrofit2, Jackson 2.x ObjectMapper customizer
+- `cassandra` / `redis` / `mongodb` / `r2dbc`
 
-플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
+> **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
-- **cache**: 캐시 추상화 umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **cache-core**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 — `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>` 공통 인터페이스, `ResilientNearCacheDecorator` (retry + failure strategy), `JCacheNearCache<V>`, `NearCacheStatistics`, Memoizer 구현체
-- **cache-hazelcast**: Hazelcast 분산 캐시 + `HazelcastNearCache<V>: NearCacheOperations<V>`, `HazelcastSuspendNearCache<V>: SuspendNearCacheOperations<V>`
-- **cache-redisson**: Redisson 분산 캐시 + `RedissonNearCache<V>: NearCacheOperations<V>` (RLocalCachedMap 기반), `RedissonSuspendNearCache<V>: SuspendNearCacheOperations<V>`
-- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시 + `LettuceNearCache<V>: NearCacheOperations<V>` (RESP3 CLIENT TRACKING), `LettuceSuspendNearCache<V>: SuspendNearCacheOperations<V>`
+### Utilities (`utils/`)
 
-#### Spring Modules (`spring-boot3/`)
+`geo` (geocode/geohash/geoip2), `idgenerators` (Ksuid/Snowflake/ULID/UUID), `images`, `javatimes`, `jwt`, `leader`, `math`, `measured` (type-safe units + measurements), `money`, `mutiny`.
 
-- **bluetape4k-spring-boot3** *(통합 모듈)*: Spring Boot 3 기반 공통 기능 통합
-  - Spring core 유틸리티 (BeanFactory 확장, ToStringCreator 지원 등)
-  - Spring WebFlux + Coroutines 지원 (WebTestClient 확장 포함)
-  - Spring + Retrofit2 통합 (OkHttp3, Apache HttpClient5 포함)
-  - Spring 테스트 유틸리티 (WebTestClient, Testcontainers 통합)
-  - ~~spring/core, spring/webflux, spring/retrofit2, spring/tests 통합됨~~
-- **spring/jpa** → `data/hibernate`로 이동: JPA 관련 Spring 통합은 `bluetape4k-hibernate` 모듈에 위치
-- **cassandra**: Spring Data Cassandra
-- **mongodb**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장 (`findAsFlow`, `insertSuspending` 등), Criteria/Query/Update infix DSL
-- **redis**: Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer, SerializationContext DSL)
-- **r2dbc**: Spring Data R2DBC
+### Testing (`testing/`)
 
-#### Spring Boot 4 Modules (`spring-boot4/`)
+`junit5` — JUnit 5 extensions · `testcontainers` — Docker-based test infrastructure.
 
-Spring Boot 4.x 전용 모듈. Spring Boot 3과 독립적으로 사용 가능하며 동일한 기능을 Spring Boot 4 API 기반으로 제공합니다. Spring Boot 3→4 업그레이드 시 변경을 최소화하기 위해 spring-boot4 모듈도
-`io.bluetape4k.spring.*` 패키지를 사용합니다 (spring-boot3과 동일).
+### Virtual Threads (`virtualthread/`)
 
-- **core** (`bluetape4k-spring-boot4-core`): Spring Boot 4 기반 공통 기능
-  - Spring core 유틸리티 (BeanFactory 확장 등)
-  - Spring WebFlux + Coroutines 지원 (WebClient, WebTestClient 확장)
-  - RestClient Coroutines DSL (`suspendGet`, `suspendPost`, `suspendPut`, `suspendPatch`, `suspendDelete`)
-  - Jackson 2.x 기반 ObjectMapper 커스터마이저 (`jacksonObjectMapperBuilderCustomizer`)
-  - Spring + Retrofit2 통합 (OkHttp3, Apache HttpClient5)
-  - Spring 테스트 유틸리티 (`httpGet`, `httpPost` 등 WebTestClient/WebClient 확장)
-  - **주의**: Spring Boot 4는 내부적으로 Jackson 2(`com.fasterxml.jackson.*`)를 사용 (Jackson 3 미지원)
-  - **BOM 적용**: `implementation(platform(Libs.spring_boot4_dependencies))` — `dependencyManagement { imports }` 대신 사용해야 KGP와 충돌 없음
-- **cassandra** (`bluetape4k-spring-boot4-cassandra`): Spring Data Cassandra 4.x 통합
-- **redis** (`bluetape4k-spring-boot4-redis`): Spring Data Redis 직렬화 (BinarySerializer, CompressSerializer)
-- **mongodb** (`bluetape4k-spring-boot4-mongodb`): Spring Data MongoDB Reactive 코루틴 확장
-- **r2dbc** (`bluetape4k-spring-boot4-r2dbc`): Spring Data R2DBC 4.x 통합
+`api` (ServiceLoader-based runtime selection) · `jdk21` · `jdk25`.
 
-##### Spring Boot 4 BOM 적용 주의사항
+### Other
 
-Spring Boot 4 BOM을 `dependencyManagement { imports { mavenBom() } }`로 적용하면 Gradle 내부 `kotlinBuildToolsApiClasspath` 설정에도 영향을 주어 KGP 2.3.x 컴파일이 실패합니다. 반드시 `implementation(platform(...))` 방식을 사용하세요:
+`timefold/` — Timefold Solver · `examples/` — Usage examples (not published).
 
-```kotlin
-// ❌ 잘못된 방식 (kotlinBuildToolsApiClasspath 오염)
-dependencyManagement {
-    imports { mavenBom(Libs.spring_boot4_dependencies) }
-}
+## Build Configuration
 
-// ✅ 올바른 방식
-dependencies {
-    implementation(platform(Libs.spring_boot4_dependencies))
-}
+- **JVM Toolchain**: Java 21 · **Kotlin**: 2.3 · **Gradle**: ZGC daemon, 4–8 GB heap, parallel build (disabled during test), build cache
+- `build.gradle.kts` — root config · `settings.gradle.kts` — `includeModules` · `gradle.properties` — versions · `buildSrc/Libs.kt` — dependency versions
+
+### Key Kotlin Compiler Flags
+
+```
+-Xjsr305=strict  -jvm-default=enable  -Xinline-classes
+-Xcontext-parameters  -Xannotation-default-target=param-property
+-opt-in=kotlin.ExperimentalStdlibApi
+-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi
 ```
 
-#### Utilities (`utils/`)
+### Test JVM Options
 
-- **bluetape4k-geo** *(통합 모듈)*: 지리 정보 처리 — geocode(Bing/Google), geohash, geoip2(MaxMind) 통합
-  - ~~utils/geocode, utils/geohash, utils/geoip2 통합됨~~
-- **idgenerators**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
-- **images**: 이미지 처리
-- **javatimes**: 날짜/시간 유틸리티
-- **jwt**: JWT 처리
-- **leader**: Leader 선출
-- **math**: 수학 유틸리티
-- **measured**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
-- **money**: Money API
-- **mutiny**: Mutiny reactive 라이브러리 통합
-- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
-
-#### Obsoleted Modules (`x-obsoleted/`)
-
-빌드에서 완전 제외된 폐기 모듈들.
-
-- ~~**vertx-coroutines**~~: `bluetape4k-vertx`로 통합됨
-- ~~**vertx-sqlclient**~~: `bluetape4k-vertx`로 통합됨
-- ~~**vertx-webclient**~~: `bluetape4k-vertx`로 통합됨
-- ~~**mapstruct**~~: 미사용으로 폐기
-- ~~**bloomfilter**~~: Bloom Filter — 사용 빈도 낮아 폐기
-- ~~**captcha**~~: CAPTCHA 생성 — 사용 빈도 낮아 폐기
-- ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
-- ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
-- ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
-- ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
-- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
-- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
-- ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
-- ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
-
-#### Testing Modules (`testing/`)
-
-- **junit5**: JUnit 5 확장 및 유틸리티
-- **testcontainers**: Testcontainers 지원
-
-#### Virtual Thread Modules (`virtualthread/`)
-
-- **api**: Virtual Thread API 및 ServiceLoader 기반 런타임 선택
-- **jdk21**: Java 21 Virtual Thread 구현체
-- **jdk25**: Java 25 Virtual Thread 구현체
-
-#### Other Modules
-
-- **timefold/**: Timefold Solver
-- **examples/**: 라이브러리 사용 예제 (coroutines-demo, jpa-querydsl-demo, redisson-demo, virtualthreads-demo) — 배포 제외
-
-### Build Configuration
-
-#### Gradle Settings
-
-- **JVM Toolchain**: Java 21
-- **Kotlin Version**: 2.3 (API & Language)
-- **Gradle Daemon**: ZGC, 4-8GB heap
-- **Parallel Build**: enabled (단 test 시에는 비활성화)
-- **Build Cache**: enabled
-
-#### Key Gradle Files
-
-- `build.gradle.kts`: 루트 빌드 설정, 공통 dependencies, 플러그인 구성
-- `settings.gradle.kts`: 모듈 include 로직 (`includeModules` 함수)
-- `gradle.properties`: 버전 정보, JVM 옵션
-- `buildSrc/src/main/kotlin/Libs.kt`: 의존성 버전 중앙 관리
-
-#### Dependency Management
-
-- Spring Boot, Spring Cloud BOM 사용
-- AWS SDK, Jackson, Micrometer, OpenTelemetry, Testcontainers 등 주요 BOM 적용
-- `dependencyManagement.setApplyMavenExclusions(false)` 설정으로 빌드 속도 개선
-
-### Kotlin Compiler Options
-
-```kotlin
-kotlinOptions {
-    jvmTarget = "21"
-    languageVersion = "2.3"
-    apiVersion = "2.3"
-    freeCompilerArgs = listOf(
-        "-Xjsr305=strict",
-        "-jvm-default=enable",
-        "-Xinline-classes",
-        "-Xstring-concat=indy",
-        "-Xcontext-parameters",
-        "-Xannotation-default-target=param-property",
-        // Opt-in annotations
-        "-opt-in=kotlin.RequiresOptIn",
-        "-opt-in=kotlin.ExperimentalStdlibApi",
-        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-        ...
-    )
-}
 ```
-
-### Test Configuration
-
-테스트는 다음과 같은 JVM 옵션으로 실행됩니다:
-
-```kotlin
-test {
-    jvmArgs(
-        "-Xshare:off",
-        "-Xmx8G",
-        "-XX:+UseZGC",
-        "-XX:-MaxFDLimit",
-        "-XX:+UnlockExperimentalVMOptions",
-        "-XX:+EnableDynamicAgentLoading",
-    )
-}
-```
-
-Quarkus 모듈의 경우 추가로:
-
-```kotlin
-systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
+-Xshare:off  -Xmx8G  -XX:+UseZGC  -XX:+UnlockExperimentalVMOptions  -XX:+EnableDynamicAgentLoading
 ```
 
 ## Key Design Patterns
 
-### Coroutines-First Approach
+### Coroutines-First
 
-- 모든 비동기 작업은 Coroutines 기반으로 설계
-- Reactor, RxJava 등 다른 reactive 라이브러리는 Coroutines와 통합하여 사용
-- AWS SDK, HTTP 클라이언트 등 blocking API를 Coroutines로 래핑
-- 최대한 내부 소스를 사용한다. (예: bluetape4k-core 의 RequireSupport.kt 등)
-
-### High-Performance Optimization
-
-- **압축**: LZ4, Zstd 등 고성능 압축 알고리즘 적극 활용
-- **직렬화**: Kryo, Fory 등 Java 기본 직렬화보다 빠른 방식 사용
-- **Redis Codec**: 공식 Codec보다 성능이 우수한 커스텀 Codec 제공
-- **S3 TransferManager**: 대용량 파일 전송 시 성능 최적화
+All async work uses Coroutines. Wrap blocking APIs with `withContext(Dispatchers.IO)`. Use internal utilities (e.g., `bluetape4k-core` `RequireSupport.kt`) over external alternatives.
 
 ### Repository Generic Pattern
 
-모든 Exposed Repository 인터페이스는 통일된 제네릭 패턴을 사용합니다:
+```kotlin
+// All repositories: <ID: Any, E: Any> — no table type generic
+class MyRepository : AbstractJdbcRepository<Long, MyEntity>() {
+    override val table = MyTable
+    override fun extractId(entity: MyEntity) = entity.id
+}
+```
+`SoftDeleted*` repositories retain `T` for `table.isDeleted` access.
 
-- `JdbcRepository<ID: Any, E: Any>` — T(테이블 타입) 제네릭 제거, `val table: IdTable<ID>` 사용
-- `R2dbcRepository<ID: Any, E: Any>` — 동일 패턴
-- Redisson/Lettuce 캐시 Repository도 동일: `<ID: Any, E: Any>` + `extractId(entity): ID`
-- `SoftDeletedJdbcRepository`/`SoftDeletedR2dbcRepository`만 `table.isDeleted` 접근을 위해 T 유지
-- MapWriter의 writeThrough/writeBehind에서는 `Map<ID, E>`의 entry key로 ID 접근 (HasIdentifier 의존 없음)
-
-### NearCache Unified Interface Pattern
-
-모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)는 공통 인터페이스로 통일:
-
-- `NearCacheOperations<V: Any>: AutoCloseable` — blocking 인터페이스 (키는 String 고정)
-- `SuspendNearCacheOperations<V: Any>` — suspend 인터페이스 (`suspend fun close()`)
-- `NearCacheStatistics` — 로컬/백엔드 hit/miss 통계
-- `ResilientNearCacheDecorator` — retry + failure strategy Decorator (`.withResilience {}`)
-- 팩토리 함수: `lettuceNearCacheOf()`, `hazelcastNearCacheOf()`, `redissonNearCacheOf()`, `jcacheNearCacheOf()`
+### NearCache Unified Interface
 
 ```kotlin
-// 기본 사용
 val cache = lettuceNearCacheOf<MyValue>(redisClient, codec, config)
-cache.put("key", value)
-
-// Resilience 래핑
-val resilient = lettuceNearCacheOf<MyValue>(redisClient, codec, config)
-    .withResilience { retryMaxAttempts = 5 }
+val resilient = cache.withResilience { retryMaxAttempts = 5 }
 ```
 
-### Extension Functions
+Key interfaces: `NearCacheOperations<V>` (blocking), `SuspendNearCacheOperations<V>` (suspend), `NearCacheStatistics`.
 
-- Kotlin의 extension function을 적극 활용하여 기존 라이브러리의 사용성 개선
-- 예: `Flow.chunked()`, `Flow.windowed()`, `File.copyToAsync()`, `Deferred.zipWith()` 등
+### High-Performance Optimization
 
-### Result Pattern
-
-- 최근 추가된 패턴으로, Result 타입을 사용한 에러 핸들링 (예: `io/io` 모듈의 파일 I/O)
-
-### Testcontainers Integration
-
-- 테스트 환경에서 Docker 기반 외부 서비스(Redis, Kafka, DB 등) 자동 구성
-
-## Common Patterns
-
-### Module Dependencies
-
-각 모듈은 필요한 core 모듈을 의존성으로 가짐:
-
-```kotlin
-dependencies {
-    api(project(":bluetape4k-core"))
-    api(project(":bluetape4k-coroutines"))
-    // 모듈별 추가 의존성
-}
-```
-
-### Codec Implementation
-
-Redis, Jackson 등 직렬화가 필요한 곳에서는 고성능 Codec 구현:
-
-- `bluetape4k-io`의 `BinarySerializer` 활용
-- LZ4/Zstd 압축 + Kryo/Fory 직렬화 조합
-
-### Coroutines Extensions
-
-기존 라이브러리의 blocking API를 suspend function으로 변환:
-
-```kotlin
-suspend fun <T> blockingOperation(): T = withContext(Dispatchers.IO) {
-    // blocking call
-}
-```
-
-### Flow Operators
-
-복잡한 Flow 처리를 위한 커스텀 연산자 제공:
-
-- `Flow.chunked()`, `Flow.windowed()`: 배치 처리
-- `AsyncFlow`: 비동기 매핑을 순서 보장하며 처리
+Compression: LZ4/Zstd · Serialization: Kryo/Fory · Custom Redis codecs (faster than official).
 
 ## Version Management
 
-프로젝트 버전은 `gradle.properties`에서 관리:
-
 ```properties
+# gradle.properties
 projectGroup=io.github.bluetape4k
 baseVersion=1.5.0
-snapshotVersion=-SNAPSHOT
+snapshotVersion=-SNAPSHOT   # empty for RELEASE
 ```
-
-- SNAPSHOT 빌드: `snapshotVersion=-SNAPSHOT`
-- RELEASE 빌드: `snapshotVersion=` (빈 값)
 
 ## Git Workflow
 
-- Main branch: `develop`
-- 커밋 메시지는 한국어로, prefix 사용 (feat, fix, docs, refactor, test, chore 등)
-- 예: `feat: Result 패턴 기반 파일 I/O 유틸리티 추가`
+- Branch: `develop`
+- Commits: Korean + prefix (`feat: ...`, `fix: ...`)
 
 ## Important Notes
 
-### Publishing
-
-- 이 프로젝트는 GitHub Packages Maven에 배포됩니다
-- `workshop/` 및 `examples/` 하위 모듈은 배포되지 않음
-- GitHub 토큰 설정 필요: `~/.gradle/gradle.properties` 또는 환경변수로 설정
-
-### Atomicfu
-
-- `kotlinx-atomicfu` 플러그인 사용
-- VarHandle 기반 atomic 연산 (`jvmVariant = "VH"`)
-
-### Detekt
-
-- `exposed-jdbc-tests` 모듈은 Detekt disabled
-
-### Jacoco (Currently Commented Out)
-
-- 코드 커버리지 설정은 주석 처리되어 있음 (필요시 활성화)
+- **Publishing**: GitHub Packages Maven; `workshop/` and `examples/` are excluded
+- **atomicfu**: `kotlinx-atomicfu` plugin, `jvmVariant = "VH"` — use only as class-level properties (not method-local)
+- **Detekt**: disabled for `exposed-jdbc-tests`
+- **Jacoco**: commented out (enable when needed)
