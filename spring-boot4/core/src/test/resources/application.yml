@@ -1,7 +1,7 @@
 bluetape4k:
     retrofit2:
         services:
-            httpbin: https://nghttp2.org
+            httpbin: ${testcontainers.httpbin.url}
             jsonPlaceHolder: https://jsonplaceholder.typicode.com
 
 spring:
