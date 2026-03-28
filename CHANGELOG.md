@@ -4,6 +4,68 @@
 
 ---
 
+## [1.5.0-Beta3] - 2026-03-28
+
+### Added
+
+#### data/hibernate-cache-lettuce — Hibernate 2nd Level Cache + Lettuce NearCache 신규 추가
+
+- **`bluetape4k-hibernate-cache-lettuce`** experimental → projects 이관 ([`de7cf96d`](https://github.com/bluetape4k/bluetape4k-projects/commit/de7cf96d))
+  - `LettuceNearCacheRegionFactory`: `RegionFactoryTemplate` 상속, Redis 클라이언트/코덱 초기화, region별 `StorageAccess` 생성
+  - `LettuceNearCacheStorageAccess`: `DomainDataStorageAccess` 구현, Caffeine(L1) + Redis(L2) 2-tier 캐시 브릿지, 복합키/NaturalId 키 정규화
+  - `LettuceNearCacheProperties`: Hibernate properties 파싱, 15가지 코덱 지원(Fory/Kryo × 5가지 압축), region별 TTL 오버라이드
+  - 14개 테스트 클래스, 58개 테스트 케이스 전체 통과 (Testcontainers Redis + H2)
+
+#### data/exposed-bigquery — Google BigQuery REST API 통합 신규 추가
+
+- **`bluetape4k-exposed-bigquery`** experimental → projects 이관 ([`d7acd494`](https://github.com/bluetape4k/bluetape4k-projects/commit/d7acd494))
+  - `BigQueryContext`: Exposed DSL → H2(PostgreSQL 모드) SQL 생성 후 BigQuery REST API 실행. SELECT/INSERT/UPDATE/DELETE/DDL 지원
+  - `BigQueryQueryExecutor`: `toList()`, `toListSuspending()`, `toFlow()`, 페이지네이션 자동 처리
+  - `BigQueryResultRow`: Column 참조 기반 타입 안전 행 접근 (Long, BigDecimal, Instant 등)
+  - `BigQueryDialect`: `PostgreSQLDialect` 상속 BigQuery 전용 다이얼렉트
+  - `BigQueryEmulator`: 로컬 에뮬레이터(포트 9050) 자동 감지, 없으면 Testcontainers 자동 기동
+
+#### data/exposed-duckdb — DuckDB JDBC 통합 신규 추가
+
+- **`bluetape4k-exposed-duckdb`** experimental → projects 이관 ([`d7acd494`](https://github.com/bluetape4k/bluetape4k-projects/commit/d7acd494))
+  - `DuckDBDialect`: `PostgreSQLDialect` 상속 DuckDB 전용 다이얼렉트 + `DuckDBDialectMetadata` (FK 제약 캐싱 no-op)
+  - `DuckDBDatabase`: 인메모리/파일/읽기전용 연결 팩토리 (`object`)
+  - `DuckDBConnectionWrapper`: JDBC 1.1.3 `prepareStatement` 오버로드 호환 래퍼
+  - `suspendTransaction`: `Dispatchers.IO` 기반 suspend 트랜잭션 확장 함수
+  - `queryFlow`: 대용량 결과셋 `Flow<T>` 스트리밍 확장 함수
+
+#### data/exposed-postgresql — PostgreSQL 전용 Exposed 확장 신규 추가
+
+- **`bluetape4k-exposed-postgresql`** 신규 추가 ([`06c5087f`](https://github.com/bluetape4k/bluetape4k-projects/commit/06c5087f))
+  - PostGIS 공간 데이터 컬럼 타입 — `POINT`, `POLYGON` (H2 fallback 지원)
+  - pgvector 벡터 검색 컬럼 타입 — `VECTOR(n)`, 유사도 검색 (`<->`, `<#>`, `<=>`)
+  - TSTZRANGE 시간 범위 컬럼 타입
+
+#### data/exposed-mysql8 — MySQL 8.0 GIS 전용 Exposed 확장 신규 추가
+
+- **`bluetape4k-exposed-mysql8`** experimental → projects 이관 ([`5a9e32d7`](https://github.com/bluetape4k/bluetape4k-projects/commit/5a9e32d7))
+  - GIS 공간 데이터 컬럼 타입 8종: `POINT`, `LINESTRING`, `POLYGON`, `MULTIPOINT`, `MULTILINESTRING`, `MULTIPOLYGON`, `GEOMETRYCOLLECTION`, `GEOMETRY`
+  - JTS(Java Topology Suite) 기반 `Geometry` 컬럼 타입
+  - 공간 함수: `ST_Contains`, `ST_Distance`, `ST_AsText`, `ST_GeomFromText` 등
+  - MySQL Internal Format WKB 자동 변환
+
+#### data/exposed-core — inet/phone 컬럼 타입 통합
+
+- **`exposed-inet`, `exposed-phone`** 모듈을 `exposed-core`로 이관 ([`dd520942`](https://github.com/bluetape4k/bluetape4k-projects/commit/dd520942))
+  - `inetAddress`, `cidr` 컬럼 타입 + PostgreSQL `<<` 네트워크 포함 연산자
+  - `phoneNumber`, `phoneNumberString` 컬럼 타입 (libphonenumber opt-in)
+  - 기존 별도 모듈 의존성 → `bluetape4k-exposed-core`로 통합
+
+#### infra/lettuce — 확률적 자료구조 추가
+
+- **BloomFilter / CuckooFilter**: Redis Lua 스크립트 기반 구현 (RedisBloom 서버 확장 불필요) ([`4a3d0fb9`](https://github.com/bluetape4k/bluetape4k-projects/commit/4a3d0fb9))
+  - `BloomFilter<E>`: `add`, `mightContain`, `clear` — 지정 오류율·최대 항목 수 기반 비트배열 크기 자동 계산
+  - `CuckooFilter<E>`: `add`, `mightContain`, `delete` 지원 — BloomFilter 대비 삭제 연산 지원
+- **HyperLogLog**: PFADD/PFCOUNT/PFMERGE 래핑 ([`4a3d0fb9`](https://github.com/bluetape4k/bluetape4k-projects/commit/4a3d0fb9))
+  - `HyperLogLog<E>`: `add`, `count`, `merge` — 대용량 카디널리티 근사 계산 (표준오차 ≈ 0.81%)
+
+---
+
 ## [1.5.0-Beta2] - 2026-03-21
 
 ### Added

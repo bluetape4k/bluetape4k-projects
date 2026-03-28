@@ -115,7 +115,14 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 #### 기타 데이터 모듈
 
+- **[exposed-postgresql](./data/exposed-postgresql/README.md)**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(`POINT`/`POLYGON`), pgvector 벡터 검색(`VECTOR(n)`), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
+- **[exposed-mysql8](./data/exposed-mysql8/README.md)**: MySQL 8.0 전용 Exposed 확장 — GIS 공간 데이터(8종), JTS 기반 Geometry 컬럼, `ST_Contains`/`ST_Distance` 등 공간 함수; MySQL Internal Format WKB 변환
+- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC 통합 — `DuckDBDialect`(PostgreSQL 상속), `DuckDBDatabase` 팩토리(인메모리/파일/읽기전용), `suspendTransaction`, `queryFlow`
+- **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API 통합 — H2(PostgreSQL 모드)로 SQL 생성 후 BigQuery REST 실행, `BigQueryContext`(SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow`(Column 참조 타입 안전 접근), suspend/Flow API
+- **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis 캐시 — Read-through/Write-through/Write-behind, `AbstractJdbcLettuceRepository`, 코루틴 네이티브 `AbstractSuspendedJdbcLettuceRepository`
+- **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis 캐시 — 코루틴 네이티브 Read-through/Write-through/Write-behind, `AbstractR2dbcLettuceRepository`
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM 통합
+- **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 - **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
 - **[r2dbc](./data/r2dbc/README.md)**: R2DBC 지원
 - **[cassandra](./data/cassandra/README.md)**: Cassandra 드라이버
@@ -125,7 +132,9 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 - **[redis](./infra/redis/README.md)**: Lettuce/Redisson umbrella 모듈 (하위 호환)
     - **[lettuce](./infra/lettuce/README.md)**: Lettuce 클라이언트, 고성능 Codec (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd),
-      `RedisFuture` → Coroutines 어댑터
+      `RedisFuture` → Coroutines 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Leader Election),
+      `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind),
+      **BloomFilter/CuckooFilter** (Lua 스크립트 기반, RedisBloom 불필요), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
     - **[redisson](./infra/redisson/README.md)**: Redisson 클라이언트, Codec, Memorizer, NearCache (
       `RLocalCachedMap`), Leader Election (Coroutines 지원)
 - **[kafka](./infra/kafka/README.md)**: Kafka 클라이언트
