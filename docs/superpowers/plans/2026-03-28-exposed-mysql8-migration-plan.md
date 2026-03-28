@@ -39,7 +39,8 @@
   data/exposed-mysql8/
   └── src/
       ├── main/kotlin/io/bluetape4k/exposed/mysql8/gis/
-      └── test/kotlin/io/bluetape4k/exposed/mysql8/gis/
+      ├── test/kotlin/io/bluetape4k/exposed/mysql8/gis/
+      └── test/resources/
   ```
 - **검증**: 디렉토리 존재 확인
 
@@ -75,12 +76,12 @@
 - **소스 변경**: 없음 (패키지명 동일, import 호환)
 - **검증**: 파일 존재 + 패키지 선언 확인
 
-### Task 5: test 소스 7개 파일 복사
+### Task 5: test 소스 7개 파일 + resources 복사
 
 - **complexity: low**
-- **소스**: `bluetape4k-experimental/data/exposed-mysql8-gis/src/test/kotlin/io/bluetape4k/exposed/mysql8/gis/`
-- **대상**: `bluetape4k-projects/data/exposed-mysql8/src/test/kotlin/io/bluetape4k/exposed/mysql8/gis/`
-- **파일 목록**:
+- **소스**: `bluetape4k-experimental/data/exposed-mysql8-gis/src/test/`
+- **대상**: `bluetape4k-projects/data/exposed-mysql8/src/test/`
+- **kotlin 파일 목록** (→ `test/kotlin/io/bluetape4k/exposed/mysql8/gis/`):
     1. `AbstractMySqlGisTest.kt`
     2. `GeometryColumnTypeTest.kt`
     3. `MySqlWkbUtilsTest.kt`
@@ -88,6 +89,10 @@
     5. `SpatialMeasurementTest.kt`
     6. `SpatialRelationTest.kt`
     7. `SpikeWritePathTest.kt` (spike 테스트이나 그대로 포함)
+- **resources 파일** (→ `test/resources/`):
+    - `junit-platform.properties` (테스트 lifecycle=per_class, 병렬 설정)
+    - `logback-test.xml` (DEBUG 로깅 설정)
+    - **참고**: `exposed-postgresql`은 이 파일들이 없이 `bluetape4k-exposed-jdbc-tests`의 설정을 상속. 동일 패턴 적용 가능하나, 일관성 위해 복사 포함
 - **소스 변경**: 없음
 - **검증**: 파일 존재 확인
 
@@ -114,10 +119,12 @@
 
 - **complexity: low**
 - **파일**: `data/exposed-mysql8/README.md`
-- **작업**: experimental의 README.md 복사 후 의존성 섹션만 수정
-    - artifact 이름: `bluetape4k-exposed-mysql8`
-    - 의존성 예시 코드를 projects 기준으로 업데이트
-- **검증**: 내용 확인
+- **작업**: experimental의 README.md 복사 후 전체 모듈명/artifact 참조 수정
+    - 모듈명: `exposed-mysql8-gis` → `bluetape4k-exposed-mysql8`
+    - artifact 이름: `exposed-mysql8-gis` → `bluetape4k-exposed-mysql8`
+    - 의존성 예시 코드를 projects 기준으로 업데이트 (`project(":bluetape4k-exposed-mysql8")`)
+    - 저장소 참조가 experimental을 가리키는 경우 bluetape4k-projects로 변경
+- **검증**: README 내 `exposed-mysql8-gis` 문자열 잔류 없는지 확인
 
 ### Task 9: CLAUDE.md 업데이트
 
@@ -180,7 +187,7 @@ Task 10 (삭제) ─────── Task 11 이후
 | B (파일 작성)  | Task 3 + Task 4 + Task 5 | A 완료 후 동시 실행 가능 |
 | C (검증)     | Task 6 -> Task 7         | 순차 실행           |
 | D (문서)     | Task 8 + Task 9          | B 완료 후 동시 실행 가능 |
-| E (정리)     | Task 10 -> Task 11       | C 완료 후 순차 실행    |
+| E (정리)     | Task 11 -> Task 10       | C+D 완료 후 순차 실행 (최종 빌드 검증 후 삭제)  |
 
 ---
 

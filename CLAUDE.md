@@ -203,6 +203,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **jdbc**: JDBC 유틸리티
 - **mongodb**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `MongoClientProvider`, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL (`pipeline {}`)
 - **exposed-postgresql**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(POINT/POLYGON), pgvector 벡터 검색(VECTOR(n)), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
+- **exposed-mysql8**: MySQL 8.0 전용 Exposed 확장 — GIS 공간 데이터(POINT/POLYGON/LINESTRING 등 8종), JTS 기반 Geometry 컬럼 타입, ST_Contains/ST_Distance 등 공간 함수; MySQL Internal Format WKB 변환
 - **r2dbc**: R2DBC 지원
 - **cassandra**: Cassandra 드라이버
 
