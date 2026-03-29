@@ -34,6 +34,17 @@ import java.util.concurrent.atomic.AtomicInteger
         "spring.datasource.driver-class-name=org.h2.Driver",
         "bluetape4k.cache.lettuce-near.metrics.enabled=true",
         "bluetape4k.cache.lettuce-near.metrics.enable-caffeine-stats=true",
+        // Hibernate 6.2+ 에서 PhysicalNamingStrategySnakeCaseImpl 제거 → 유효한 클래스로 명시
+        "spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
+        // Spring Boot 3 autoconfigure jar가 classpath에 있을 때 SB4 split 모듈과 같은 bean을
+        // 두 경로에서 등록하므로, SB3 측 AutoConfiguration 클래스를 명시적으로 제외한다.
+        "spring.autoconfigure.exclude=" +
+            "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration," +
+            "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
+            "org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration," +
+            "org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration," +
+            "org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizationAutoConfiguration," +
+            "org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration",
     ]
 )
 class LettuceNearCacheIntegrationTest {
