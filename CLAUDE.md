@@ -145,6 +145,8 @@ Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` 
 |--------|-------------|
 | `exposed-jdbc` (`bluetape4k-spring-boot3-exposed-jdbc`) | Exposed DAO Entity 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 |
 | `exposed-r2dbc` (`bluetape4k-spring-boot3-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
+| `exposed-jdbc-demo` (`bluetape4k-spring-boot3-exposed-jdbc-demo`) | Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 |
+| `exposed-r2dbc-demo` (`bluetape4k-spring-boot3-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 |
 
 ### Spring Boot 4 (`spring-boot4/`)
 
@@ -157,6 +159,8 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 |--------|-------------|
 | `exposed-jdbc` (`bluetape4k-spring-boot4-exposed-jdbc`) | Exposed DAO Entity 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 |
 | `exposed-r2dbc` (`bluetape4k-spring-boot4-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
+| `exposed-jdbc-demo` (`bluetape4k-spring-boot4-exposed-jdbc-demo`) | Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 (Spring Boot 4 BOM) |
+| `exposed-r2dbc-demo` (`bluetape4k-spring-boot4-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4 BOM) |
 
 > **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
