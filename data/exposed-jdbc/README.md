@@ -241,7 +241,140 @@ transaction {
 | `restoreAll(predicate)`                     | 조건에 맞는 레코드 일괄 복원         |
 | `findActivePage(pageNumber, pageSize, ...)` | 활성 레코드 페이징 조회            |
 
-## 편의 타입 별칭
+## AuditableJdbcRepository (감사 추적 Repository)
+
+`AuditableJdbcRepository`는 UPDATE 시 `updatedAt`과 `updatedBy`를 자동으로 설정하는 감사 기능을 제공합니다.
+
+### 테이블 정의 (exposed-core)
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
+
+object ArticleTable : AuditableLongIdTable("articles") {
+    val title = varchar("title", 255)
+    val content = text("content")
+    // createdBy, createdAt, updatedBy, updatedAt 자동 추가
+}
+```
+
+### Repository 구현
+
+```kotlin
+import io.bluetape4k.exposed.jdbc.repository.LongAuditableJdbcRepository
+import org.jetbrains.exposed.v1.core.ResultRow
+
+data class ArticleRecord(
+    val id: Long = 0L,
+    val title: String,
+    val content: String,
+)
+
+class ArticleRepository : LongAuditableJdbcRepository<ArticleRecord, ArticleTable> {
+    override val table = ArticleTable
+
+    override fun extractId(entity: ArticleRecord) = entity.id
+
+    override fun ResultRow.toEntity() = ArticleRecord(
+        id = this[ArticleTable.id].value,
+        title = this[ArticleTable.title],
+        content = this[ArticleTable.content],
+    )
+}
+```
+
+### auditedUpdateById — ID로 수정
+
+UPDATE 시 `updatedAt`을 DB `CURRENT_TIMESTAMP`(UTC)로, `updatedBy`를 `UserContext.getCurrentUser()`로 자동 설정합니다.
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.UserContext
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+
+transaction {
+    UserContext.withUser("editor@example.com") {
+        val repo = ArticleRepository()
+
+        // updatedBy="editor@example.com", updatedAt=DB현재시각 자동 설정
+        val rows = repo.auditedUpdateById(1L) {
+            it[ArticleTable.title] = "Updated Title"
+        }
+        println("수정된 행: $rows")
+    }
+}
+```
+
+### auditedUpdateAll — 조건으로 대량 수정
+
+조건에 맞는 모든 레코드를 UPDATE하고 감사 필드를 자동 설정합니다.
+
+```kotlin
+transaction {
+    UserContext.withUser("batch-job") {
+        val repo = ArticleRepository()
+
+        // title이 "Draft"인 모든 레코드 수정
+        // updatedBy="batch-job", updatedAt=DB현재시각 자동 설정
+        val rows = repo.auditedUpdateAll(predicate = { ArticleTable.title eq "Draft" }) {
+            it[ArticleTable.title] = "Published"
+        }
+        println("수정된 행: $rows")
+    }
+}
+```
+
+### 전체 사용 예시
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.UserContext
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+
+transaction {
+    val repo = ArticleRepository()
+
+    // 1. INSERT
+    UserContext.withUser("alice") {
+        val newArticle = ArticleRecord(
+            title = "Hello Auditable",
+            content = "Tracking changes automatically",
+        )
+        // INSERT 시 createdBy="alice", createdAt=DB현재시각 자동 설정
+        repo.save(newArticle)
+    }
+
+    // 2. SELECT
+    val article = repo.findByIdOrNull(1L)
+    println("생성자: ${article?.createdBy}")  // "alice"
+    println("생성일: ${article?.createdAt}")   // DB 타임스탬프
+
+    // 3. UPDATE
+    UserContext.withUser("bob") {
+        // updatedBy="bob", updatedAt=DB현재시각 자동 설정
+        repo.auditedUpdateById(1L) {
+            it[ArticleTable.title] = "Updated by Bob"
+        }
+    }
+
+    // 4. 수정 내역 확인
+    val updated = repo.findByIdOrNull(1L)
+    println("수정자: ${updated?.updatedBy}")  // "bob"
+    println("수정일: ${updated?.updatedAt}")   // DB 타임스탬프 (생성일과 다름)
+}
+```
+
+### 중요 사항
+
+- `auditedUpdateById()` 또는 `auditedUpdateAll()`을 반드시 사용하세요.
+- 일반 `JdbcRepository.updateById()`를 사용하면 감사 필드가 자동 설정되지 않습니다.
+
+### 편의 타입 별칭
+
+| 인터페이스 | 기본키 타입 |
+|----------|-----------|
+| `IntAuditableJdbcRepository` | `Int` |
+| `LongAuditableJdbcRepository` | `Long` |
+| `UUIDAuditableJdbcRepository` | `java.util.UUID` |
+
+## 편의 타입 별칭 (일반 Repository)
 
 | 인터페이스                             | 기본키 타입             |
 |-------------------------------------|------------------|

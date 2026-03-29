@@ -311,6 +311,92 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 | `TimebasedUUIDBase62Table` | `String` | 22자 | UUID를 Base62로 인코딩 |
 | `SoftDeletedIdTable`       | 제네릭      | -   | `isDeleted` 컬럼 포함 |
 
+## AuditableEntity (감사 추적 DAO)
+
+`AuditableEntity`와 `AuditableEntityClass`를 통해 DAO 엔티티에 자동 감사 기능을 추가합니다.
+
+### AuditableEntity 설명
+
+`flush()` 메서드 오버라이드를 통해 `createdBy`와 `updatedBy`를 자동으로 설정합니다.
+
+#### 자동 설정 동작
+
+| 상황 | 자동 설정 필드 | 비고 |
+|-----|-------------|------|
+| 신규 엔티티 INSERT | `createdBy` | `createdAt`은 테이블의 DB `defaultExpression(CurrentTimestamp)`으로 설정 |
+| 기존 엔티티 UPDATE | `updatedBy` | `updatedAt`은 Repository의 `auditedUpdateById()` 호출 시 설정 |
+
+#### 주의 사항
+
+- `flush()` 단독 호출 시 `updatedAt`은 자동 설정되지 않습니다.
+- `updatedAt` 자동 설정은 `AuditableJdbcRepository.auditedUpdateById()` 사용 시에만 보장됩니다.
+
+### 테이블 정의 (exposed-core)
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
+
+object ArticleTable : AuditableLongIdTable("articles") {
+    val title = varchar("title", 255)
+    val content = text("content")
+    // createdBy, createdAt, updatedBy, updatedAt 자동 추가
+}
+```
+
+### 엔티티 정의
+
+```kotlin
+import io.bluetape4k.exposed.dao.auditable.AuditableLongEntity
+import io.bluetape4k.exposed.dao.auditable.AuditableLongEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import java.time.Instant
+
+class Article(id: EntityID<Long>) : AuditableLongEntity(id) {
+    companion object : AuditableLongEntityClass<Article>(ArticleTable)
+
+    var title by ArticleTable.title
+    var content by ArticleTable.content
+
+    override var createdBy by ArticleTable.createdBy
+    override var createdAt by ArticleTable.createdAt
+    override var updatedBy by ArticleTable.updatedBy
+    override var updatedAt by ArticleTable.updatedAt
+}
+```
+
+### 엔티티 사용
+
+```kotlin
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import io.bluetape4k.exposed.core.auditable.UserContext
+
+transaction {
+    UserContext.withUser("alice@example.com") {
+        // INSERT: flush() 호출 시 createdBy="alice@example.com" 자동 설정
+        val article = Article.new {
+            title = "Exposed DAO Auditing"
+            content = "Auto tracking of changes"
+        }
+        println("생성자: ${article.createdBy}")  // "alice@example.com"
+    }
+
+    UserContext.withUser("bob@example.com") {
+        // UPDATE: flush() 호출 시 updatedBy="bob@example.com" 자동 설정
+        article.title = "Updated Title"
+        article.flush()
+        println("수정자: ${article.updatedBy}")  // "bob@example.com"
+    }
+}
+```
+
+### 구체 엔티티/EntityClass 타입
+
+| 기본키 | Entity | EntityClass |
+|-------|--------|------------|
+| `Int` | `AuditableIntEntity` | `AuditableIntEntityClass` |
+| `Long` | `AuditableLongEntity` | `AuditableLongEntityClass` |
+| `UUID` | `AuditableUUIDEntity` | `AuditableUUIDEntityClass` |
+
 ## 테스트
 
 ```bash
@@ -321,4 +407,5 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 
 - [JetBrains Exposed DAO](https://github.com/JetBrains/Exposed/wiki/DAO)
 - [bluetape4k-exposed-core](../exposed-core)
+- [bluetape4k-exposed-jdbc (AuditableJdbcRepository)](../exposed-jdbc)
 - [bluetape4k-idgenerators](../../../utils/idgenerators)

@@ -346,6 +346,133 @@ HasIdentifier <.. ExposedPage: content 항목에 적용 가능
 | `phone/PhoneNumberColumnType.kt`                   | 전화번호 컬럼 타입 (E.164 정규화)  |
 | `phone/PhoneNumberExtensions.kt`                   | phoneNumber, phoneNumberString 확장 함수 |
 
+## Auditable (감사 추적)
+
+`Auditable` 인터페이스 및 `AuditableIdTable`을 통해 모든 엔티티의 생성자, 생성 시간, 수정자, 수정 시간을 자동으로 추적합니다.
+
+### Auditable 인터페이스
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.Auditable
+import java.time.Instant
+
+interface Auditable {
+    val createdBy: String        // INSERT 시 자동 설정 (기본값: "system")
+    val createdAt: Instant?      // INSERT 시 DB CURRENT_TIMESTAMP 자동 설정
+    val updatedBy: String?       // UPDATE 시 자동 설정
+    val updatedAt: Instant?      // UPDATE 시 DB CURRENT_TIMESTAMP 자동 설정
+}
+```
+
+### UserContext — 사용자 컨텍스트 관리
+
+현재 작업 중인 사용자명을 전파하는 컨텍스트 객체입니다. Virtual Thread / Structured Concurrency와 Coroutines 환경 모두 지원합니다.
+
+#### Virtual Thread 환경
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.UserContext
+
+UserContext.withUser("admin") {
+    // 이 블록 내에서 INSERT/UPDATE 시 createdBy/updatedBy = "admin"
+    userRepository.save(entity)
+}
+```
+
+#### Coroutines 환경
+
+```kotlin
+UserContext.withThreadLocalUser("admin") {
+    // Coroutines 환경에서는 ThreadLocal 전용 메서드 사용
+    userRepository.save(entity)
+}
+```
+
+#### 현재 사용자 조회
+
+```kotlin
+val user = UserContext.getCurrentUser()  // 우선순위: ScopedValue > ThreadLocal > "system"
+```
+
+### AuditableIdTable 사용법
+
+#### 1. 테이블 정의
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
+import org.jetbrains.exposed.v1.core.varchar
+import org.jetbrains.exposed.v1.core.text
+
+object ArticleTable : AuditableLongIdTable("articles") {
+    val title = varchar("title", 255)
+    val content = text("content")
+    // createdBy, createdAt, updatedBy, updatedAt은 자동으로 추가됨
+}
+```
+
+#### 2. 컬럼 동작
+
+| 컬럼 | INSERT 시 | UPDATE 시 | 비고 |
+|-----|----------|----------|------|
+| `created_by` | `UserContext.getCurrentUser()` 자동 설정 | 변경 없음 | 기본값: "system" |
+| `created_at` | DB `CURRENT_TIMESTAMP` 자동 설정 | 변경 없음 | UTC, nullable |
+| `updated_by` | null | `UserContext.getCurrentUser()` 설정 | Repository에서 관리 |
+| `updated_at` | null | DB `CURRENT_TIMESTAMP` 설정 | Repository에서 관리 |
+
+#### 3. 구체 테이블 클래스
+
+| 클래스 | 기본키 타입 | 사용 시기 |
+|--------|----------|----------|
+| `AuditableIntIdTable` | `Int` (자동증가) | 소규모 데이터셋 |
+| `AuditableLongIdTable` | `Long` (자동증가) | 대규모 데이터셋, 분산환경 |
+| `AuditableUUIDTable` | `java.util.UUID` (client-side 생성) | 분산 환경 |
+
+#### 4. 완전한 예시
+
+```kotlin
+import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
+import org.jetbrains.exposed.v1.core.varchar
+import org.jetbrains.exposed.v1.core.text
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.insert
+import io.bluetape4k.exposed.core.auditable.UserContext
+
+object ArticleTable : AuditableLongIdTable("articles") {
+    val title = varchar("title", 255)
+    val content = text("content")
+}
+
+transaction {
+    UserContext.withUser("john@example.com") {
+        // INSERT: createdBy="john@example.com", createdAt=DB현재시각 자동 설정
+        ArticleTable.insert {
+            it[title] = "Hello Exposed"
+            it[content] = "Auditable demo"
+        }
+    }
+}
+
+transaction {
+    UserContext.withUser("editor@example.com") {
+        // UPDATE: updatedBy="editor@example.com", updatedAt=DB현재시각 자동 설정
+        // (auditedUpdateById 메서드 사용, exposed-jdbc 참고)
+    }
+}
+```
+
+### 의존성
+
+`exposed-java-time` 모듈이 필요합니다:
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-exposed-core:${version}")
+
+    // Auditable 사용 시
+    compileOnly("org.jetbrains.exposed:exposed-java-time:${exposedVersion}")
+}
+```
+
 ## 테스트
 
 ```bash

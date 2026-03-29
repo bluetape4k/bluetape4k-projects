@@ -87,9 +87,9 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | Module | Use When |
 |--------|----------|
 | `exposed` *(umbrella)* | Keep existing code unchanged |
-| `exposed-core` | Column types (compress/encrypt/serialize/inet/phone), `HasIdentifier`, `ExposedPage` |
-| `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.) |
-| `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction` |
+| `exposed-core` | Column types (compress/encrypt/serialize/inet/phone), `HasIdentifier`, `ExposedPage`, `Auditable` + `UserContext` + `AuditableIdTable` (감사 추적) |
+| `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.), `AuditableEntity` + `AuditableEntityClass` (감사 추적) |
+| `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `AuditableJdbcRepository` (감사 추적) |
 | `exposed-r2dbc` | Reactive `ExposedR2dbcRepository` |
 | `exposed-jdbc-lettuce` | JDBC + Lettuce Redis cache (sync + suspend, Read/Write-through/behind) |
 | `exposed-r2dbc-lettuce` | R2DBC + Lettuce Redis cache (suspend, no `runBlocking`) |
@@ -233,6 +233,44 @@ Key interfaces: `NearCacheOperations<V>` (blocking), `SuspendNearCacheOperations
 ### High-Performance Optimization
 
 Compression: LZ4/Zstd · Serialization: Kryo/Fory · Custom Redis codecs (faster than official).
+
+### Auditable Pattern (감사 추적)
+
+모든 Exposed 테이블의 생성자, 생성 시간, 수정자, 수정 시간을 자동으로 추적합니다.
+
+**3계층 구조**:
+1. **exposed-core**: `Auditable` 인터페이스 + `UserContext` (ScopedValue/ThreadLocal 듀얼 전략) + `AuditableIdTable` (테이블 베이스)
+2. **exposed-dao**: `AuditableEntity` (flush() 오버라이드로 createdBy/updatedBy 자동 설정) + `AuditableEntityClass` (DAO)
+3. **exposed-jdbc**: `AuditableJdbcRepository` (auditedUpdateById/auditedUpdateAll 메서드로 updatedAt/updatedBy DB CURRENT_TIMESTAMP 자동 설정)
+
+**사용 예시**:
+```kotlin
+object ArticleTable : AuditableLongIdTable("articles") {
+    val title = varchar("title", 255)
+}
+
+class Article(id: EntityID<Long>) : AuditableLongEntity(id) {
+    companion object : AuditableLongEntityClass<Article>(ArticleTable)
+    var title by ArticleTable.title
+    override var createdBy by ArticleTable.createdBy
+    override var createdAt by ArticleTable.createdAt
+    override var updatedBy by ArticleTable.updatedBy
+    override var updatedAt by ArticleTable.updatedAt
+}
+
+class ArticleRepository : LongAuditableJdbcRepository<ArticleRecord, ArticleTable> { ... }
+
+transaction {
+    UserContext.withUser("alice") {
+        Article.new { title = "Hello" }  // createdBy="alice", createdAt=DB시각 자동설정
+    }
+    UserContext.withUser("bob") {
+        repo.auditedUpdateById(1L) { it[title] = "Updated" }  // updatedBy="bob", updatedAt=DB시각 자동설정
+    }
+}
+```
+
+**중요**: UPDATE 시에는 반드시 `auditedUpdateById()` 또는 `auditedUpdateAll()`을 사용하세요.
 
 ## Version Management
 
