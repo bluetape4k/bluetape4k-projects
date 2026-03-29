@@ -1,15 +1,12 @@
-package io.bluetape4k.exposed.jdbc.auditable
+package io.bluetape4k.exposed.dao.auditable
 
 import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
 import io.bluetape4k.exposed.core.auditable.UserContext
-import io.bluetape4k.exposed.dao.auditable.AuditableLongEntity
-import io.bluetape4k.exposed.dao.auditable.AuditableLongEntityClass
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -22,7 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 /**
- * [io.bluetape4k.exposed.dao.auditable.AuditableEntity] DAO 통합 테스트입니다.
+ * [AuditableEntity] DAO 통합 테스트입니다.
  *
  * [AuditableLongEntity]를 상속한 Article 엔티티를 통해
  * 감사 컬럼(createdBy/createdAt/updatedBy/updatedAt)의 자동 설정 동작을 검증합니다.
