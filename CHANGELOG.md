@@ -4,6 +4,52 @@
 
 ---
 
+## [1.5.0-Beta4] - 2026-03-29
+
+### Added
+
+#### spring-boot3/4 — Exposed Spring Data JDBC/R2DBC Repository 이관
+
+- **`bluetape4k-spring-boot3-exposed-jdbc`** experimental → projects 이관 ([`08c6711a`](https://github.com/bluetape4k/bluetape4k-projects/commit/08c6711a))
+  - `ExposedJdbcRepository<E, ID>`: PartTree 쿼리 자동 생성, QBE(Query By Example), Pageable/Sort 지원
+  - `SimpleExposedJdbcRepository`: `findAll`, `findById`, `save`, `saveAll`, `deleteById`, `count`, `exists`
+  - `ExposedQueryCreator`: 메서드명 기반 WHERE 절 자동 생성 (`findByName`, `findByPriceLessThan` 등)
+  - `@EnableExposedJdbcRepositories`: Auto-Configuration 진입점
+- **`bluetape4k-spring-boot4-exposed-jdbc`**: Spring Boot 4 BOM(`platform()`) 적용 동일 기능 제공
+
+- **`bluetape4k-spring-boot3-exposed-r2dbc`** experimental → projects 이관 ([`08c6711a`](https://github.com/bluetape4k/bluetape4k-projects/commit/08c6711a))
+  - `ExposedR2dbcRepository<T, ID>`: suspend CRUD (`findAll`, `findByIdOrNull`, `save`, `deleteById`), Flow 지원
+  - `SimpleExposedR2dbcRepository`: `toDomain`, `toPersistValues`, `extractId` 오버라이드 패턴
+  - `@EnableExposedR2dbcRepositories`: Auto-Configuration 진입점
+- **`bluetape4k-spring-boot4-exposed-r2dbc`**: Spring Boot 4 BOM 적용 동일 기능 제공
+
+#### spring-boot3/4 — Exposed Spring Data 데모 앱 추가
+
+- **`bluetape4k-spring-boot3-exposed-jdbc-demo`** / **`bluetape4k-spring-boot4-exposed-jdbc-demo`** ([`3b3b2729`](https://github.com/bluetape4k/bluetape4k-projects/commit/3b3b2729))
+  - Exposed DAO + Spring Data JDBC + Spring MVC CRUD 데모 (H2 in-memory, 검색 API 포함)
+- **`bluetape4k-spring-boot3-exposed-r2dbc-demo`** / **`bluetape4k-spring-boot4-exposed-r2dbc-demo`** ([`3b3b2729`](https://github.com/bluetape4k/bluetape4k-projects/commit/3b3b2729))
+  - Exposed R2DBC + suspend Repository + Spring WebFlux CRUD 데모 (H2 R2DBC in-memory)
+
+#### spring-boot3/4 — Hibernate Lettuce NearCache Auto-Configuration 이관
+
+- **`bluetape4k-spring-boot3-hibernate-lettuce`** experimental → projects 이관 ([`1f0eae55`](https://github.com/bluetape4k/bluetape4k-projects/commit/1f0eae55))
+  - `LettuceNearCacheHibernateAutoConfiguration`: YAML 프로퍼티 → `HibernatePropertiesCustomizer` 자동 변환
+  - `LettuceNearCacheSpringProperties`: `bluetape4k.cache.lettuce-near.*` 바인딩 — codec, useResp3, local(Caffeine), redisTtl(region별 오버라이드)
+  - `LettuceNearCacheMetricsAutoConfiguration`: Micrometer Gauge — `lettuce.nearcache.active.regions`, `lettuce.nearcache.total.local.size`
+  - `LettuceNearCacheActuatorAutoConfiguration`: `GET /actuator/nearcache`, `GET /actuator/nearcache/{region}` 엔드포인트
+  - 13개 테스트 케이스 전체 통과 (ApplicationContextRunner 단위 + Testcontainers Redis 통합)
+- **`bluetape4k-spring-boot4-hibernate-lettuce`**: Spring Boot 4 BOM 적용 (HibernatePropertiesCustomizer 패키지 `org.springframework.boot.hibernate.autoconfigure`로 변경) ([`93d9d10e`](https://github.com/bluetape4k/bluetape4k-projects/commit/93d9d10e))
+
+#### spring-boot3/4 — Hibernate Lettuce NearCache 데모 앱 추가
+
+- **`bluetape4k-spring-boot3-hibernate-lettuce-demo`** / **`bluetape4k-spring-boot4-hibernate-lettuce-demo`** ([`0c85c9e5`](https://github.com/bluetape4k/bluetape4k-projects/commit/0c85c9e5), [`1ebdaa3c`](https://github.com/bluetape4k/bluetape4k-projects/commit/1ebdaa3c))
+  - `Product` JPA 엔티티 (`@Cacheable`, `@Cache(NONSTRICT_READ_WRITE)`) + Spring Data JPA
+  - `ProductController`: CRUD REST API (`/api/products`)
+  - `CacheController`: L1 캐시 통계 조회/evict API (`/api/cache/stats`, `/api/cache/evict`)
+  - 6개 통합 테스트 (Testcontainers Redis + H2)
+
+---
+
 ## [1.5.0-Beta3] - 2026-03-28
 
 ### Added
