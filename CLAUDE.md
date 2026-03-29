@@ -147,6 +147,8 @@ Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` 
 | `exposed-r2dbc` (`bluetape4k-spring-boot3-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
 | `exposed-jdbc-demo` (`bluetape4k-spring-boot3-exposed-jdbc-demo`) | Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 |
 | `exposed-r2dbc-demo` (`bluetape4k-spring-boot3-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 |
+| `hibernate-lettuce` (`bluetape4k-spring-boot3-hibernate-lettuce`) | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Properties 바인딩, Micrometer Metrics, Actuator Endpoint |
+| `hibernate-lettuce-demo` (`bluetape4k-spring-boot3-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC 통합 데모 |
 
 ### Spring Boot 4 (`spring-boot4/`)
 
@@ -161,6 +163,8 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `exposed-r2dbc` (`bluetape4k-spring-boot4-exposed-r2dbc`) | Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 |
 | `exposed-jdbc-demo` (`bluetape4k-spring-boot4-exposed-jdbc-demo`) | Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 (Spring Boot 4 BOM) |
 | `exposed-r2dbc-demo` (`bluetape4k-spring-boot4-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4 BOM) |
+| `hibernate-lettuce` (`bluetape4k-spring-boot4-hibernate-lettuce`) | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Properties 바인딩, Micrometer Metrics, Actuator Endpoint |
+| `hibernate-lettuce-demo` (`bluetape4k-spring-boot4-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC 통합 데모 (Spring Boot 4 BOM) |
 
 > **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
