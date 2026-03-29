@@ -4,7 +4,7 @@
 
 ---
 
-## [1.5.0-Beta4] - 2026-03-29
+## [1.5.0-Beta3] - 2026-03-28
 
 ### Added
 
@@ -47,12 +47,6 @@
   - `ProductController`: CRUD REST API (`/api/products`)
   - `CacheController`: L1 캐시 통계 조회/evict API (`/api/cache/stats`, `/api/cache/evict`)
   - 6개 통합 테스트 (Testcontainers Redis + H2)
-
----
-
-## [1.5.0-Beta3] - 2026-03-28
-
-### Added
 
 #### data/hibernate-cache-lettuce — Hibernate 2nd Level Cache + Lettuce NearCache 신규 추가
 
