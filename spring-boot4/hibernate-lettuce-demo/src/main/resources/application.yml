@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: hibernate-cache-lettuce-near-demo
+  datasource:
+    url: jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+bluetape4k:
+  cache:
+    lettuce-near:
+      redis-uri: redis://localhost:6379
+      codec: lz4fory
+      use-resp3: true
+      local:
+        max-size: 5000
+        expire-after-write: 15m
+      redis-ttl:
+        default: 120s
+        regions:
+          product: 300s
+      metrics:
+        enabled: true
+        enable-caffeine-stats: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,nearcache
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    io.bluetape4k.cache: DEBUG
+    io.bluetape4k.hibernate: DEBUG
+    org.hibernate.cache: INFO
