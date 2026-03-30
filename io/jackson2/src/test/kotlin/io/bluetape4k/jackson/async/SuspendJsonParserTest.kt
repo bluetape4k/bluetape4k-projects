@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.io.Serializable
@@ -163,5 +164,18 @@ class SuspendJsonParserTest {
         parser.consume(flowOf("]".toByteArray()))
 
         parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `parse scalar root value`() = runTest {
+        var rootValue: String? = null
+        val parser = SuspendJsonParser { root ->
+            root.isTextual.shouldBeTrue()
+            rootValue = root.asText()
+        }
+
+        parser.consume("\"root-value\"".toByteArray().map { byteArrayOf(it) }.asFlow())
+
+        rootValue shouldBeEqualTo "root-value"
     }
 }

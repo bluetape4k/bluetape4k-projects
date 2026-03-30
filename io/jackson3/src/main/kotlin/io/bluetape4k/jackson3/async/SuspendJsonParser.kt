@@ -17,6 +17,7 @@ import tools.jackson.core.json.JsonFactory
 import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.node.JsonNodeFactory
+import tools.jackson.databind.node.ValueNode
 import java.io.Serializable
 import java.util.*
 
@@ -26,7 +27,34 @@ import java.util.*
  * ## 동작/계약
  * - [consume]는 Flow를 수집하며 청크를 non-blocking parser에 공급합니다.
  * - 루트 노드 완성 시마다 [onNodeDone] suspend 콜백을 호출합니다.
+ * - 루트가 객체/배열뿐 아니라 문자열, 숫자, 불리언, null 같은 스칼라여도 [JsonNode]로 전달합니다.
  * - 비정상 토큰 시퀀스는 [JsonParsingException]으로 전파됩니다.
+ *
+ * ## 이런 경우에 적합합니다
+ * - `Flow<ByteArray>` 기반 스트리밍 파이프라인
+ * - `WebClient`, 파일, 메시지 브로커 응답을 Coroutine으로 이어받아 순차 처리하는 경우
+ * - 루트 JSON 단위마다 suspend 후처리가 필요한 경우
+ *
+ * ## WebClient 연동 예시
+ * ```kotlin
+ * val parser = SuspendJsonParser { root ->
+ *    processNode(root)
+ * }
+ *
+ * val chunkFlow: Flow<ByteArray> = webClient.get()
+ *    .uri("/stream/3")
+ *    .retrieve()
+ *    .bodyToFlux(DataBuffer::class.java)
+ *    .map { buffer ->
+ *        val bytes = ByteArray(buffer.readableByteCount())
+ *        buffer.read(bytes)
+ *        DataBufferUtils.release(buffer)
+ *        bytes
+ *    }
+ *    .asFlow()
+ *
+ * parser.consume(chunkFlow)
+ * ```
  *
  * ```kotlin
  * val roots = mutableListOf<JsonNode>()
@@ -99,6 +127,7 @@ class SuspendJsonParser(
      * ## 동작/계약
      * - Flow 요소를 순서대로 읽어 파서 입력으로 사용합니다.
      * - 루트 완성 시 [onNodeDone]을 호출합니다.
+     * - 하나의 Flow 안에 여러 JSON 루트가 연속으로 들어와도 순서대로 처리합니다.
      */
     suspend fun consume(flow: Flow<ByteArray>) {
         val feeder = parser.nonBlockingInputFeeder()
@@ -160,39 +189,57 @@ class SuspendJsonParser(
                 }
 
                 JsonToken.VALUE_NUMBER_INT -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addLong(parser.longValue, getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addLong(parser.longValue, getCurrentFieldName())
+                        null
+                    }
                 }
 
                 JsonToken.VALUE_STRING -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
+                        null
+                    }
                 }
 
                 JsonToken.VALUE_NUMBER_FLOAT -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
+                        null
+                    }
                 }
 
                 JsonToken.VALUE_NULL -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addNull(getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addNull(getCurrentFieldName())
+                        null
+                    }
                 }
 
                 JsonToken.VALUE_TRUE -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addBoolean(true, getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addBoolean(true, getCurrentFieldName())
+                        null
+                    }
                 }
 
                 JsonToken.VALUE_FALSE -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addBoolean(false, getCurrentFieldName())
-                    return null
+                    return if (stack.isEmpty) {
+                        buildScalarNode(token)
+                    } else {
+                        stack.top().node.addBoolean(false, getCurrentFieldName())
+                        null
+                    }
                 }
 
                 else -> {
@@ -210,4 +257,15 @@ class SuspendJsonParser(
             error("JSON 파싱 오류: 예상치 못한 토큰을 발견했습니다. 파서 상태가 올바르지 않을 수 있습니다.")
         }
     }
+
+    private fun buildScalarNode(token: JsonToken): ValueNode =
+        when (token) {
+            JsonToken.VALUE_NUMBER_INT -> JsonNodeFactory.instance.numberNode(parser.longValue)
+            JsonToken.VALUE_STRING -> JsonNodeFactory.instance.textNode(parser.valueAsString)
+            JsonToken.VALUE_NUMBER_FLOAT -> JsonNodeFactory.instance.numberNode(parser.doubleValue)
+            JsonToken.VALUE_NULL -> JsonNodeFactory.instance.nullNode()
+            JsonToken.VALUE_TRUE -> JsonNodeFactory.instance.booleanNode(true)
+            JsonToken.VALUE_FALSE -> JsonNodeFactory.instance.booleanNode(false)
+            else -> error("Unsupported scalar token $token")
+        }
 }

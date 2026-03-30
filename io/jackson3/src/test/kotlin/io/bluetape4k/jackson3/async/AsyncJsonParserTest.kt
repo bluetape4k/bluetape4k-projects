@@ -10,6 +10,7 @@ import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
@@ -196,5 +197,20 @@ class AsyncJsonParserTest {
         }
 
         parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `루트 스칼라 문자열도 올바르게 파싱한다`() {
+        var rootValue: String? = null
+        val parser = AsyncJsonParser { root ->
+            root.isTextual.shouldBeTrue()
+            rootValue = root.asText()
+        }
+
+        "\"root-value\"".toByteArray().forEach { byte ->
+            parser.consume(byteArrayOf(byte))
+        }
+
+        rootValue shouldBeEqualTo "root-value"
     }
 }

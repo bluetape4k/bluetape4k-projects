@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
@@ -219,5 +220,19 @@ class SuspendJsonParserTest {
             parser.consume(flow)
 
             parsed.get() shouldBeEqualTo 1
+        }
+
+    @Test
+    fun `루트 스칼라 문자열도 올바르게 파싱한다`() =
+        runTest {
+            var rootValue: String? = null
+            val parser = SuspendJsonParser { root ->
+                root.isTextual.shouldBeTrue()
+                rootValue = root.asText()
+            }
+
+            parser.consume("\"root-value\"".toByteArray().map { byteArrayOf(it) }.asFlow())
+
+            rootValue shouldBeEqualTo "root-value"
         }
 }

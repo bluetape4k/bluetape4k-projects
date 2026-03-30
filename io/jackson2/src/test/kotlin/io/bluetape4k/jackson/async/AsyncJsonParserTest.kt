@@ -11,6 +11,7 @@ import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.io.Serializable
@@ -156,5 +157,20 @@ class AsyncJsonParserTest {
         }
         parser.consume("]".toByteArray())
         parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `parse scalar root value`() {
+        var rootValue: String? = null
+        val parser = AsyncJsonParser { root ->
+            root.isTextual.shouldBeTrue()
+            rootValue = root.asText()
+        }
+
+        "\"root-value\"".toByteArray().forEach { byte ->
+            parser.consume(byteArrayOf(byte))
+        }
+
+        rootValue shouldBeEqualTo "root-value"
     }
 }

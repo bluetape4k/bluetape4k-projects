@@ -105,6 +105,51 @@ val suspendParser = SuspendJsonParser { root ->
 suspendParser.consume(byteArrayFlow)
 ```
 
+언제 어떤 파서를 쓰면 좋은지:
+
+- `AsyncJsonParser`: Netty, WebSocket, TCP, 메시지 리스너처럼 `ByteArray` 청크를 콜백으로 받는 push 스타일 코드
+- `SuspendJsonParser`: `Flow<ByteArray>` 기반 파이프라인, `WebClient`/파일/브로커 스트림처럼 suspend 후처리가 필요한 코드
+- 두 파서 모두 연속된 여러 JSON 루트와 루트 스칼라 JSON(`"text"`, `123`, `true`, `null`)를 처리할 수 있습니다.
+
+### 4-1. WebClient 스트리밍 예제
+
+`HttpbinHttp2Server`의 `/stream/3` 응답을 `WebClient`로 받아 루트 JSON 객체 3개를 순차 처리하는 예제입니다.
+
+```kotlin
+import io.bluetape4k.jackson.async.SuspendJsonParser
+import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
+import kotlinx.coroutines.reactive.asFlow
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.web.reactive.function.client.WebClient
+
+val httpbin = HttpbinHttp2Server.Launcher.httpbinHttp2
+val webClient = WebClient.builder()
+    .baseUrl(httpbin.url)
+    .build()
+
+val parser = SuspendJsonParser { root ->
+    println(root["url"].asText())   // /stream/3 응답의 각 JSON 객체 처리
+}
+
+val chunkFlow = webClient.get()
+    .uri("/stream/3")
+    .retrieve()
+    .bodyToFlux(DataBuffer::class.java)
+    .map { buffer ->
+        try {
+            ByteArray(buffer.readableByteCount()).also { buffer.read(it) }
+        } finally {
+            DataBufferUtils.release(buffer)
+        }
+    }
+    .asFlow()
+
+parser.consume(chunkFlow)
+```
+
+같은 상황에서 이미 청크를 콜백으로 받고 있다면 `AsyncJsonParser`가 더 단순합니다.
+
 ### 5. UUID Base62 인코딩
 
 UUID를 Base62로 인코딩하여 짧은 문자열로 JSON에 저장합니다.

@@ -150,16 +150,19 @@ fun <T: Any> ObjectMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
     graph?.run { writerWithDefaultPrettyPrinter().writeValueAsBytes(graph) }
 
 /**
- * JsonNode 를 문자열로 변환합니다.
+ * [JsonNode]를 JSON 문자열로 직렬화합니다.
+ *
+ * ## 동작/계약
+ * - [writeAsString]과 동일한 결과를 반환합니다.
+ * - 기존 Jackson 2 계열 API와의 호환을 위해 유지합니다.
+ *
+ * @deprecated [writeAsString]으로 대체되었습니다.
  */
-fun ObjectMapper.writeTree(jsonNode: JsonNode): String {
-    return StringWriter().use { writer ->
-        createGenerator(writer).use { generator ->
-            writeTree(generator, jsonNode)
-        }
-        writer.toString()
-    }
-}
+@Deprecated(
+    "writeAsString(JsonNode)으로 대체되었습니다.",
+    replaceWith = ReplaceWith("writeAsString(jsonNode)"),
+)
+fun ObjectMapper.writeTree(jsonNode: JsonNode): String = writeAsString(jsonNode)
 
 /**
  * 등록된 Jackson 모듈의 이름 목록을 반환합니다.

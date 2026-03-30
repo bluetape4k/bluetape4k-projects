@@ -29,6 +29,11 @@ dependencies {
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(Libs.kotlinx_coroutines_reactive)
+    testImplementation(Libs.spring("context"))
+    testImplementation(Libs.spring("webflux"))
+    testRuntimeOnly(Libs.reactor_netty)
+    testImplementation(project(":bluetape4k-testcontainers"))
 
     // Jackson3 Dataformats Binary (from jackson3-binary)
     compileOnly(Libs.jackson3_dataformat_avro)
