@@ -6,6 +6,8 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.ifTrue
+import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
@@ -32,8 +34,11 @@ abstract class AbstractGrpcInprocessServer(
     builder: InProcessServerBuilder,
     vararg services: BindableService,
 ) : GrpcServer {
-    constructor(name: String, vararg services: BindableService) : this(InProcessServerBuilder.forName(name), *services)
-    constructor(port: Int, vararg services: BindableService) : this(InProcessServerBuilder.forPort(port), *services)
+    constructor(name: String, vararg services: BindableService) :
+        this(InProcessServerBuilder.forName(name.requireNotBlank("name")), *services)
+
+    constructor(port: Int, vararg services: BindableService) :
+        this(InProcessServerBuilder.forPort(port.requireInRange(1, 65535, "port")), *services)
 
     companion object : KLogging()
 

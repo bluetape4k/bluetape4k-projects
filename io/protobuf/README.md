@@ -89,6 +89,12 @@ val bytes = serializer.serialize(protoMessage)
 val message = serializer.deserialize<MyMessage>(bytes)
 ```
 
+추천 사용 방법:
+
+- 값이 모두 Protobuf 메시지라면 `packMessage` / `unpackMessage` 또는 각 메시지의 `parseFrom`을 직접 사용하는 편이 가장 단순합니다.
+- 캐시/세션/큐처럼 Protobuf 메시지와 일반 JVM 객체가 섞여 들어오는 저장소라면 `ProtobufSerializer`가 fallback serializer와 함께 더 유용합니다.
+- 서비스 간 wire protocol 자체는 gRPC/Protobuf 규약에 맡기고, `ProtobufSerializer`는 애플리케이션 내부 바이너리 저장/전달 경계에서 사용하는 편이 관리가 쉽습니다.
+
 ## 주요 파일/클래스 목록
 
 | 파일 | 설명 |

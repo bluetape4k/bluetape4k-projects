@@ -2,6 +2,8 @@ package io.bluetape4k.grpc.inprocess
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requireNotBlank
 import io.grpc.ManagedChannel
 import io.grpc.inprocess.InProcessChannelBuilder
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +16,8 @@ import java.util.concurrent.TimeUnit
  *
  * ## 동작/계약
  * - 이름 기반/주소 기반 in-process 채널 생성자를 제공합니다.
+ * - 이름 기반 생성자는 blank 이름을 허용하지 않습니다.
+ * - 주소 기반 생성자는 [port]가 `1..65535` 범위를 벗어나면 예외를 발생시킵니다.
  * - [close]는 채널이 살아 있으면 `shutdown + awaitTermination(5s)`를 수행합니다.
  *
  * ```kotlin
@@ -32,7 +36,7 @@ abstract class AbstractGrpcInprocessClient(
         @JvmStatic
         private fun buildChannelByName(name: String): ManagedChannel {
             return InProcessChannelBuilder
-                .forName(name)
+                .forName(name.requireNotBlank("name"))
                 .usePlaintext()
                 .executor(Dispatchers.IO.asExecutor())
                 .build()
@@ -41,7 +45,7 @@ abstract class AbstractGrpcInprocessClient(
         @JvmStatic
         private fun buildChannelByAddress(host: String, port: Int): ManagedChannel {
             return InProcessChannelBuilder
-                .forAddress(host, port)
+                .forAddress(host.requireNotBlank("host"), port.requireInRange(1, 65535, "port"))
                 .usePlaintext()
                 .executor(Dispatchers.IO.asExecutor())
                 .build()
