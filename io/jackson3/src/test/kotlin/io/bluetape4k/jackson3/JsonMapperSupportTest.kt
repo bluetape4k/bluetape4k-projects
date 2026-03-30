@@ -186,7 +186,7 @@ class JsonMapperSupportTest {
                 add(2)
                 add(3)
             }
-        val json = mapper.writeTree(node)
+        val json = mapper.writeAsString(node)
         log.debug { "json=$json" }
         json shouldBeEqualTo "[1,2,3]"
     }
