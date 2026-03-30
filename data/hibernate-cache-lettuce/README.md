@@ -105,6 +105,9 @@ spring:
               default: 120s
 ```
 
+지원 codec 값은 `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, `zstd*` 계열이며,
+오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
+
 ## Entity 설정
 
 ```kotlin

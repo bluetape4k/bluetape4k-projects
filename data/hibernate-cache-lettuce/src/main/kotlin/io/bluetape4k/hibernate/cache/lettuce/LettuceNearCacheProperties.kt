@@ -7,6 +7,7 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import org.hibernate.cache.spi.RegionFactory
+import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -32,12 +33,16 @@ data class LettuceNearCacheProperties(
     val regionTtls: Map<String, Duration> = emptyMap(),
     val useResp3: Boolean = true,
     val recordLocalStats: Boolean = false,
-) {
+): Serializable {
     init {
         redisUri.requireNotBlank("redisUri")
+        codec.requireNotBlank("codec")
         localMaxSize.requirePositiveNumber("localMaxSize")
         validatePositiveDuration("localExpireAfterWrite", localExpireAfterWrite)
         validatePositiveDuration("redisTtlDefault", redisTtlDefault)
+        require(codec.lowercase() in SUPPORTED_CODECS) {
+            "Unsupported codec: $codec. supported=$SUPPORTED_CODECS"
+        }
         regionTtls.forEach { (regionName, ttl) ->
             regionName.requireNotBlank("regionTtls.key")
             validatePositiveDuration("regionTtls[$regionName]", ttl)
@@ -45,7 +50,25 @@ data class LettuceNearCacheProperties(
     }
 
     companion object {
+        private const val serialVersionUID: Long = 1L
         private const val PREFIX = "hibernate.cache.lettuce."
+        private val SUPPORTED_CODECS = setOf(
+            "jdk",
+            "kryo",
+            "fory",
+            "gzipjdk",
+            "gzipkryo",
+            "gzipfory",
+            "lz4jdk",
+            "lz4kryo",
+            "lz4fory",
+            "snappyjdk",
+            "snappykryo",
+            "snappyfory",
+            "zstdjdk",
+            "zstdkryo",
+            "zstdfory",
+        )
 
         fun from(configValues: Map<String, Any>): LettuceNearCacheProperties {
             fun str(key: String, default: String): String =
@@ -124,7 +147,7 @@ data class LettuceNearCacheProperties(
         "zstdjdk"    -> LettuceBinaryCodecs.zstdJdk()
         "zstdkryo"   -> LettuceBinaryCodecs.zstdKryo()
         "zstdfory"   -> LettuceBinaryCodecs.zstdFory()
-        else -> LettuceBinaryCodecs.default()
+        else         -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
     }
 
     fun buildNearCacheConfig(regionName: String): LettuceNearCacheConfig<String, Any> {

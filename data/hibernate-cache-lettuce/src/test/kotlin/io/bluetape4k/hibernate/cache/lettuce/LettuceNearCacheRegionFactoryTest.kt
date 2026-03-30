@@ -105,6 +105,15 @@ class LettuceNearCacheRegionFactoryTest {
     }
 
     @Test
+    fun `지원하지 않는 codec 설정은 즉시 실패한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            LettuceNearCacheProperties.from(
+                mapOf("hibernate.cache.lettuce.codec" to "unknown-codec")
+            )
+        }
+    }
+
+    @Test
     fun `StorageAccess release는 공유 near cache를 닫지 않는다`() {
         val redisClient = RedisClient.create("redis://${redis.host}:${redis.port}")
 
