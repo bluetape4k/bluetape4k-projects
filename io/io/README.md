@@ -150,6 +150,9 @@ val forySerializer = BinarySerializers.Fory
 val foryBytes = forySerializer.serialize(user)
 ```
 
+`BinarySerializerSupport.deserialize(ByteBuffer)`는 `ByteBuffer`의 현재 `position`부터 `remaining` 범위만 읽습니다.
+따라서 헤더를 건너뛴 슬라이스/부분 버퍼도 그대로 역직렬화할 수 있습니다.
+
 **직렬화 방식 선택 가이드:**
 
 - **호환성 우선**: Jdk (모든 Java 환경)

@@ -27,7 +27,7 @@ fun BinarySerializer.serializeAsByteBuffer(graph: Any?): ByteBuffer =
  * ```
  *
  * @param T     역직렬화할 객체 수형
- * @param buffer 직렬화된 데이터
+ * @param buffer 직렬화된 데이터. 현재 [ByteBuffer.position]부터 [ByteBuffer.remaining] 구간만 읽습니다.
  * @return 역직렬화한 객체
  */
 fun <T: Any> BinarySerializer.deserialize(buffer: ByteBuffer): T? =
