@@ -24,7 +24,7 @@ class NamebasedUuidGeneratorTest {
     }
 
     // private val randomUuid = TimebasedUuidGenerator()
-    private val uuidGenerator = NamebasedUuidGenerator()
+    private val uuidGenerator = Uuid.V5
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate random uuid`() {

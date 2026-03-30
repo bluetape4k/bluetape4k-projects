@@ -23,7 +23,7 @@ class RandomUuidGeneratorTest {
         private val TEST_LIST = List(TEST_COUNT) { it }
     }
 
-    private val uuidGenerator = RandomUuidGenerator()
+    private val uuidGenerator = Uuid.V4
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate random uuid`() {
