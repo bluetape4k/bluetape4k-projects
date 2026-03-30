@@ -41,8 +41,9 @@ class BigQueryQueryExecutor(
     suspend fun toListSuspending(): List<BigQueryResultRow> = withContext(context.dispatcher) { toList() }
 
     /**
-     * 결과를 페이지 단위로 emit하는 [Flow]를 반환합니다.
-     * 대용량 결과셋을 메모리에 모두 올리지 않고 처리할 때 적합합니다.
+     * 결과를 행 단위로 emit하는 [Flow]를 반환합니다.
+     * 내부적으로는 BigQuery pageToken을 따라가며 각 페이지를 순차 조회한 뒤,
+     * 각 페이지의 행을 즉시 emit 하므로 전체 결과를 한 번에 적재하지 않습니다.
      */
     fun toFlow(): Flow<BigQueryResultRow> = context.collectRowsFlow(sql())
 
@@ -60,6 +61,7 @@ class BigQueryQueryExecutor(
  * BigQuery REST API 응답의 단일 행.
  *
  * Exposed [Column] 참조로 타입 안전하게 값을 읽을 수 있습니다.
+ * 내부 맵 키는 소문자로 정규화하므로 컬럼 이름 조회는 대소문자를 구분하지 않습니다.
  *
  * ```kotlin
  * val row: BigQueryResultRow = ...

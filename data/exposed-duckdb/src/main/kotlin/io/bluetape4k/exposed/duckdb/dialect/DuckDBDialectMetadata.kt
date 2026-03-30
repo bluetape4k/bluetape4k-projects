@@ -4,15 +4,16 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.vendors.PostgreSQLDialectMetadata
 
 /**
- * DuckDB dialect metadata implementation.
+ * DuckDB용 Exposed 메타데이터 어댑터입니다.
  *
- * DuckDB는 PostgreSQL과 호환되므로 [PostgreSQLDialectMetadata]를 상속합니다.
+ * 기본 메타데이터 해석은 [PostgreSQLDialectMetadata]를 재사용하되,
+ * DuckDB JDBC가 지원하지 않는 메타데이터 조회는 안전하게 우회합니다.
  */
 class DuckDBDialectMetadata : PostgreSQLDialectMetadata() {
 
     /**
      * DuckDB JDBC 1.1.3은 [java.sql.DatabaseMetaData.getImportedKeys]를 지원하지 않습니다.
-     * FK 제약 조건 캐싱을 건너뜁니다 — [columnConstraints]는 빈 맵을 반환합니다.
+     * 따라서 FK 제약 조건 캐시 적재를 생략하고, 관련 조회는 빈 결과로 처리합니다.
      */
     override fun fillConstraintCacheForTables(tables: List<Table>) {
         // no-op: DuckDB JDBC throws SQLFeatureNotSupportedException for getImportedKeys
