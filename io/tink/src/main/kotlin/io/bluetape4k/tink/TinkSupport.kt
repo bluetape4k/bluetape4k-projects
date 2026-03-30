@@ -20,6 +20,7 @@ private val tinkRegistered = atomic(false)
  *
  * AEAD, DeterministicAEAD, MAC 설정을 모두 등록하며,
  * 멀티스레드 환경에서 안전하게 1회만 초기화됩니다.
+ * 애플리케이션 시작 시 여러 번 호출해도 추가 부작용 없이 재사용할 수 있습니다.
  *
  * ```kotlin
  * registerTink()
@@ -37,6 +38,9 @@ fun registerTink() {
 /**
  * 지정된 [KeyTemplate]로 AEAD용 [KeysetHandle]을 생성합니다.
  *
+ * 매 호출마다 새 키셋을 생성하므로, 이전 [KeysetHandle]로 암호화한 데이터는
+ * 새 핸들로 복호화할 수 없습니다. 재시작 후 복호화가 필요하면 키셋을 외부에 안전하게 보관하세요.
+ *
  * @param keyTemplate 사용할 키 템플릿 (기본값: AES256-GCM)
  * @return 생성된 [KeysetHandle]
  */
@@ -48,6 +52,8 @@ fun aeadKeysetHandle(keyTemplate: KeyTemplate = AesGcmKeyManager.aes256GcmTempla
 /**
  * 지정된 [KeyTemplate]로 Deterministic AEAD용 [KeysetHandle]을 생성합니다.
  *
+ * 매 호출마다 새 키셋을 생성하므로, 동일한 템플릿이라도 다른 핸들과는 교차 복호화할 수 없습니다.
+ *
  * @param keyTemplate 사용할 키 템플릿 (기본값: AES256-SIV)
  * @return 생성된 [KeysetHandle]
  */
@@ -58,6 +64,8 @@ fun daeadKeysetHandle(keyTemplate: KeyTemplate = AesSivKeyManager.aes256SivTempl
 
 /**
  * 지정된 [KeyTemplate]으로 MAC용 [KeysetHandle]을 생성합니다.
+ *
+ * 매 호출마다 새 키셋을 생성하므로, 생성 시점이 다른 핸들끼리는 같은 MAC 태그를 검증할 수 없습니다.
  *
  * @param keyTemplate 사용할 키 템플릿 (기본값: HMAC-SHA256 256비트 태그)
  * @return 생성된 [KeysetHandle]
