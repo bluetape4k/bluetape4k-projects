@@ -106,6 +106,7 @@ transaction {
 
 > **⚠️ 주의**: AEAD(`tinkAeadVarChar`, `tinkAeadBinary`) 컬럼은 비결정적이므로
 > `WHERE col = value` 형태의 검색이 동작하지 않습니다.
+> 실제로 동일 평문으로 `WHERE col = value`를 만들어도 새 nonce로 다시 암호화되므로 일치하지 않습니다.
 > 검색이 필요한 컬럼에는 반드시 `tinkDaead*` 변형을 사용하세요.
 
 ## 알고리즘 선택 가이드

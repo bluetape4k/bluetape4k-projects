@@ -103,6 +103,42 @@ class TinkColumnTypeTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `AEAD 컬럼은 동일 평문으로 WHERE 조건 검색이 동작하지 않는다`(testDB: TestDB) {
+        val aeadTable = object: IntIdTable("tink_aead_search_table") {
+            val secret = tinkAeadVarChar("secret", 512, TinkAeads.AES256_GCM)
+        }
+
+        withTables(testDB, aeadTable) {
+            val insertedSecret = faker.internet().emailAddress()
+
+            aeadTable.insertAndGetId {
+                it[secret] = insertedSecret
+            }
+
+            aeadTable.selectAll()
+                .where { aeadTable.secret eq insertedSecret }
+                .count() shouldBeEqualTo 0L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `컬럼 이름은 blank 일 수 없다`(testDB: TestDB) {
+        assertThrows<IllegalArgumentException> {
+            object: IntIdTable("invalid_name_aead_varchar_$testDB") {
+                val invalid = tinkAeadVarChar(" ", 32)
+            }
+        }
+
+        assertThrows<IllegalArgumentException> {
+            object: IntIdTable("invalid_name_daead_blob_$testDB") {
+                val invalid = tinkDaeadBlob("")
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `AEAD 컬럼 Update`(testDB: TestDB) {
         val secretTable = object: IntIdTable("tink_aead_update_table") {
             val secret = tinkAeadVarChar("secret", 512, TinkAeads.AES256_GCM)
