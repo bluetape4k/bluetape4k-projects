@@ -52,18 +52,19 @@ object UserContext {
      *
      * Virtual Thread 환경에서 권장되는 방법입니다.
      * [ScopedValue]는 `Callable` 경계 내에서 전파되며,
-     * `finally` 블록에서 [ThreadLocal]이 항상 제거됩니다.
+     * `finally` 블록에서 이전 [ThreadLocal] 값을 복원합니다.
      *
      * @param username 이 블록 내에서 사용할 사용자명
      * @param block 사용자명 컨텍스트 내에서 실행할 코드 블록
      * @return [block]의 반환값
      */
     fun <T> withUser(username: String, block: () -> T): T {
+        val prev = THREAD_LOCAL_USER.get()
         THREAD_LOCAL_USER.set(username)
         return try {
             ScopedValue.where(SCOPED_USER, username).call(block)
         } finally {
-            THREAD_LOCAL_USER.remove()
+            if (prev != null) THREAD_LOCAL_USER.set(prev) else THREAD_LOCAL_USER.remove()
         }
     }
 

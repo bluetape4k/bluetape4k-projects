@@ -20,7 +20,8 @@ open class TimebasedUUIDBase62Entity(id: TimebasedUUIDBase62EntityID): StringEnt
  *
  * ## 동작/계약
  * - 테스트의 `T1: TimebasedUUIDBase62Table`/`E1: TimebasedUUIDBase62Entity` 패턴으로 `companion object`에서 사용합니다.
- * - PK는 Base62 UUID 문자열(`VARCHAR(22)`)이며, `new { ... }` 호출 시 테이블 기본 ID 생성 규칙을 따릅니다.
+ * - PK 저장 컬럼은 Base62 UUID 문자열용 `VARCHAR(24)`이며, 실제 생성 문자열은 24자 이내로 유지됩니다.
+ * - `new { ... }` 호출 시 테이블 기본 ID 생성 규칙을 따릅니다.
  * - [entityType], [entityCtor]를 생략하면 Exposed 기본 엔티티 타입/생성자 추론을 사용합니다.
  *
  * ```kotlin
@@ -28,7 +29,7 @@ open class TimebasedUUIDBase62Entity(id: TimebasedUUIDBase62EntityID): StringEnt
  * class E1(id: TimebasedUUIDBase62EntityID): TimebasedUUIDBase62Entity(id) {
  *     companion object: TimebasedUUIDBase62EntityClass<E1>(T1)
  * }
- * // E1.new { name = "debop" }.id.value.length == 22
+ * // E1.new { name = "debop" }.id.value.length <= 24
  * ```
  */
 open class TimebasedUUIDBase62EntityClass<out E: TimebasedUUIDBase62Entity>(

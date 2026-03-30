@@ -34,6 +34,19 @@ class UserContextTest {
     }
 
     @Test
+    fun `withUser 중첩 시 inner 종료 후 outer 사용자명으로 복원된다`() {
+        UserContext.withUser("outer") {
+            UserContext.getCurrentUser() shouldBeEqualTo "outer"
+
+            UserContext.withUser("inner") {
+                UserContext.getCurrentUser() shouldBeEqualTo "inner"
+            }
+
+            UserContext.getCurrentUser() shouldBeEqualTo "outer"
+        }
+    }
+
+    @Test
     fun `withThreadLocalUser 내부에서 getCurrentUser는 지정된 사용자명을 반환한다`() {
         UserContext.withThreadLocalUser("coroutineUser") {
             UserContext.getCurrentUser() shouldBeEqualTo "coroutineUser"

@@ -123,6 +123,31 @@ class AuditableEntityTest : AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `UserContext withThreadLocalUser 내에서 수정 시 updatedBy 가 해당 사용자명으로 설정된다`(testDB: TestDB) {
+        withTables(testDB, Articles) {
+            val article = Article.new {
+                title = "thread local article"
+            }
+            flushCache()
+            entityCache.clear()
+
+            val updatedId = UserContext.withThreadLocalUser("editor") {
+                val loaded = Article.findById(article.id)!!
+                loaded.title = "edited by thread local"
+                loaded.flush()
+                loaded.id
+            }
+
+            entityCache.clear()
+
+            val loaded = Article.findById(updatedId)!!
+            loaded.updatedBy shouldBeEqualTo "editor"
+            loaded.title shouldBeEqualTo "edited by thread local"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `동일 ID 를 가진 두 엔티티는 equals 가 true 이다`(testDB: TestDB) {
         withTables(testDB, Articles) {
             val article = Article.new {

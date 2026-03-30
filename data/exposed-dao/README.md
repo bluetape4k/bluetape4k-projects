@@ -306,9 +306,10 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 |----------------------------|----------|-----|-------------------|
 | `KsuidTable`               | `String` | 27자 | 시간 정렬, URL-safe   |
 | `KsuidMillisTable`         | `String` | 27자 | 밀리초 정밀도 KSUID     |
+| `UlidTable`                | `String` | 26자 | StatefulMonotonic ULID |
 | `SnowflakeIdTable`         | `Long`   | -   | 분산 환경, 고성능        |
-| `TimebasedUUIDTable`       | `UUID`   | 36자 | UUID v1 표준 호환     |
-| `TimebasedUUIDBase62Table` | `String` | 22자 | UUID를 Base62로 인코딩 |
+| `TimebasedUUIDTable`       | `UUID`   | 36자 | UUID v7 기반 시간 정렬 ID |
+| `TimebasedUUIDBase62Table` | `String` | 최대 24자 | UUID v7을 Base62로 인코딩 |
 | `SoftDeletedIdTable`       | 제네릭      | -   | `isDeleted` 컬럼 포함 |
 
 ## AuditableEntity (감사 추적 DAO)
@@ -325,6 +326,22 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 |-----|-------------|------|
 | 신규 엔티티 INSERT | `createdBy` | `createdAt`은 테이블의 DB `defaultExpression(CurrentTimestamp)`으로 설정 |
 | 기존 엔티티 UPDATE | `updatedBy` | `updatedAt`은 Repository의 `auditedUpdateById()` 호출 시 설정 |
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant UserContext
+    participant Article
+    participant AuditableEntity
+    participant DB
+
+    Caller->>UserContext: withUser("alice") { ... }
+    Caller->>Article: new / flush
+    Article->>AuditableEntity: flush()
+    AuditableEntity->>UserContext: getCurrentUser()
+    AuditableEntity->>DB: INSERT / UPDATE
+    DB-->>Article: createdBy 또는 updatedBy 저장
+```
 
 #### 주의 사항
 
@@ -388,6 +405,8 @@ transaction {
     }
 }
 ```
+
+`UserContext.withUser(...)`는 중첩 호출 시에도 outer 사용자 컨텍스트를 복원하므로, 감사 필드 기록 중 스코프가 흔들리지 않습니다.
 
 ### 구체 엔티티/EntityClass 타입
 
