@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import java.time.Duration
@@ -12,8 +13,8 @@ import java.time.Duration
  *
  * @param cacheName 캐시(IMap) 이름
  * @param maxLocalSize 로컬(Caffeine) 캐시 최대 크기
- * @param frontExpireAfterWrite 로컬 캐시 쓰기 후 만료 시간
- * @param frontExpireAfterAccess 로컬 캐시 접근 후 만료 시간 (null이면 비활성)
+ * @param frontExpireAfterWrite 로컬 캐시 쓰기 후 만료 시간. 0보다 커야 한다.
+ * @param frontExpireAfterAccess 로컬 캐시 접근 후 만료 시간 (null이면 비활성). 지정하면 0보다 커야 한다.
  * @param recordStats 로컬 캐시 통계 기록 여부
  */
 data class HazelcastNearCacheConfig(
@@ -22,7 +23,14 @@ data class HazelcastNearCacheConfig(
     val frontExpireAfterWrite: Duration = Duration.ofMinutes(30),
     val frontExpireAfterAccess: Duration? = null,
     val recordStats: Boolean = false,
-)
+) {
+    init {
+        cacheName.requireNotBlank("cacheName")
+        maxLocalSize.requirePositiveNumber("maxLocalSize")
+        frontExpireAfterWrite.requireGt(Duration.ZERO, "frontExpireAfterWrite")
+        frontExpireAfterAccess?.requireGt(Duration.ZERO, "frontExpireAfterAccess")
+    }
+}
 
 /**
  * [HazelcastNearCacheConfig] DSL 빌더.
