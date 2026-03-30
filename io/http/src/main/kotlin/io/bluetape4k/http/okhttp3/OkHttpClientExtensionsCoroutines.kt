@@ -24,6 +24,10 @@ suspend inline fun okhttp3.OkHttpClient.suspendExecute(request: okhttp3.Request)
 
 /**
  * [Call]을 코루틴 방식으로 실행합니다. (Non-Blocking)
+ *
+ * ## 동작/계약
+ * - 코루틴이 취소되면 내부 [Call.cancel]을 호출해 네트워크 요청도 함께 취소합니다.
+ * - 성공 시 [Response]를 그대로 반환하고, 실패 시 원인 예외를 재개합니다.
  */
 suspend inline fun Call.executeSuspending(): Response = suspendCancellableCoroutine { cont ->
     cont.invokeOnCancellation {

@@ -91,7 +91,7 @@ class InMemoryHttpCacheStorage<T>(
      * 여러 키에 해당하는 캐시 엔트리를 한 번에 조회합니다.
      *
      * @param storageKeys 조회할 캐시 키 컬렉션
-     * @return 키 → 캐시 엔트리 맵 (존재하는 항목만 포함)
+     * @return 키 → 캐시 엔트리 맵 (존재하는 항목만 포함). 빈 컬렉션이면 빈 맵을 반환합니다.
      */
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
         log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }

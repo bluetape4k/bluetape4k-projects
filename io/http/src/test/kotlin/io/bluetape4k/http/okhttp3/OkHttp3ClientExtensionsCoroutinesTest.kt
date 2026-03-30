@@ -3,9 +3,12 @@ package io.bluetape4k.http.okhttp3
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -91,5 +94,28 @@ class OkHttp3ClientExtensionsCoroutinesTest {
             response.isSuccessful.shouldBeTrue()
             response.bodyAsString() shouldBeEqualTo "legacy"
         }
+    }
+
+    @Test
+    fun `Call executeSuspending 는 코루틴 취소 시 okhttp call 을 취소한다`() = runSuspendIO {
+        server.enqueueBody("delayed")
+
+        val request = okhttp3Request {
+            url(server.baseUrl)
+            get()
+        }
+
+        val call = client.newCall(request)
+        val job = async {
+            call.executeSuspending()
+        }
+
+        delay(10)
+        job.cancel()
+        delay(10)
+
+        call.isCanceled().shouldBeTrue()
+        job.isCancelled.shouldBeTrue()
+        job.isCompleted.shouldBeTrue()
     }
 }

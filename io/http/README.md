@@ -100,6 +100,10 @@ val request = okhttp3RequestOf("https://httpbin.org/get") {
 val response = client.executeSuspending(request)
 ```
 
+`executeSuspending` 계약:
+- 코루틴이 취소되면 내부 OkHttp `Call`도 함께 취소됩니다.
+- 성공 시 `Response`를 그대로 반환하고, 실패 시 원인 예외를 전파합니다.
+
 ### 3. Vert.x HttpClient
 
 Eclipse Vert.x의 비동기 HttpClient를 Kotlin Coroutines와 통합합니다.
