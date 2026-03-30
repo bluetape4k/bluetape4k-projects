@@ -52,6 +52,7 @@ build/
 .omx/metrics.json
 .omx/state/
 .omx/context/
+.omx/project-memory.json
 .omx/tmux-hook.json
 
 .ai/

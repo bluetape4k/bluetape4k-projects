@@ -243,173 +243,102 @@ Utilities:
 ---
 
 <team_compositions>
-Common agent workflows for typical scenarios:
+Typical compositions:
 
-Feature Development:
-analyst -> planner -> executor -> test-engineer -> quality-reviewer -> verifier
-
-Bug Investigation:
-explore + debugger + executor + test-engineer + verifier
-
-Code Review:
-style-reviewer + quality-reviewer + api-reviewer + security-reviewer
-
-Product Discovery:
-product-manager + ux-researcher + product-analyst + designer
-
-UX Audit:
-ux-researcher + information-architect + designer + product-analyst
+- Feature: `analyst -> planner -> executor -> test-engineer -> verifier`
+- Bug: `explore + debugger + executor + test-engineer + verifier`
+- Review: `style-reviewer + quality-reviewer + api-reviewer + security-reviewer`
+- Product: `product-manager + ux-researcher + product-analyst + designer`
 </team_compositions>
 
 ---
 
 <team_pipeline>
-Team is the default multi-agent orchestrator. It uses a canonical staged pipeline:
+Default team pipeline:
+`team-plan -> team-prd -> team-exec -> team-verify -> team-fix(loop)`
 
-`team-plan -> team-prd -> team-exec -> team-verify -> team-fix (loop)`
-
-Stage transitions:
-
-- `team-plan` -> `team-prd`: planning/decomposition complete
-- `team-prd` -> `team-exec`: acceptance criteria and scope are explicit
-- `team-exec` -> `team-verify`: all execution tasks reach terminal states
-- `team-verify` -> `team-fix` | `complete` | `failed`: verification decides next step
-- `team-fix` -> `team-exec` | `team-verify` | `complete` | `failed`: fixes feed back into execution
-
-The `team-fix` loop is bounded by max attempts; exceeding the bound transitions to `failed`. Terminal states:
-`complete`, `failed`, `cancelled`. Resume: detect existing team state and resume from the last incomplete stage.
+Terminal states: `complete`, `failed`, `cancelled`. Resume from the last incomplete stage when prior state exists.
 </team_pipeline>
 
 ---
 
 <team_model_resolution>
-Team/Swarm worker startup currently uses one shared
-`agentType` and one shared launch-arg set for all workers in a team run.
+Worker model precedence:
 
-For worker model selection, apply this precedence (highest to lowest):
+1. explicit model in `OMX_TEAM_WORKER_LAUNCH_ARGS`
+2. inherited leader `--model`
+3. default `gpt-5.3-codex-spark` for low-complexity teams
 
-1. Explicit model already present in `OMX_TEAM_WORKER_LAUNCH_ARGS`
-2. Inherited leader `--model` (when inheritance is enabled)
-3. Injected low-complexity default model: `gpt-5.3-codex-spark` (only when 1+2 are absent and team
-   `agentType` is low-complexity)
-
-Model flag normalization contract:
-
-- Accept both `--model <value>` and `--model=<value>`
-- Remove duplicates/conflicts
-- Emit exactly one final canonical model flag: `--model <value>`
-- Preserve unrelated worker launch args
+Normalize to a single canonical flag: `--model <value>`.
   </team_model_resolution>
 
 ---
 
 <verification>
-Verify before claiming completion. The goal is evidence-backed confidence, not ceremony.
+Verify before claiming completion.
+- Small changes: lightweight verification
+- Standard changes: standard verification
+- Large/security/architecture changes: thorough verification
 
-Sizing guidance:
-
-- Small changes (<5 files, <100 lines): lightweight verifier
-- Standard changes: standard verifier
-- Large or security/architectural changes (>20 files): thorough verifier
-
-Verification loop: identify what proves the claim, run the verification, read the output, then report with evidence. If verification fails, continue iterating rather than reporting incomplete work.
+Run the proving command, read the output, and report with evidence. If it fails, keep iterating.
 </verification>
 
 <execution_protocols>
-Broad Request Detection:
-A request is broad when it uses vague verbs without targets, names no specific file or function, touches 3+ areas, or is a single sentence without a clear deliverable. When detected: explore first, optionally consult architect, then plan.
+Broad requests: if scope is vague or spans 3+ areas, explore first, then plan.
 
 Parallelization:
 
-- Run 2+ independent tasks in parallel when each takes >30s.
-- Run dependent tasks sequentially.
-- Use background execution for installs, builds, and tests.
-- Prefer Team mode as the primary parallel execution surface. Use ad hoc parallelism only when Team overhead is disproportionate to the task.
+- parallelize independent tasks
+- serialize dependent tasks
+- run installs/builds/tests in background when useful
+- prefer Team mode when its overhead is justified
 
-Visual iteration gate:
+Visual tasks:
 
-- For visual tasks (reference image(s) + generated screenshot), run
-  `$visual-verdict` every iteration before the next edit.
-- Persist visual verdict JSON in `.omx/state/{scope}/ralph-progress.json` with both numeric (
-  `score`, threshold pass/fail) and qualitative (`reasoning`, `differences`, `suggestions`, `next_actions`) feedback.
+- run `$visual-verdict` before the next edit
+- persist verdict data under `.omx/state/.../ralph-progress.json`
 
-Continuation:
-Before concluding, confirm: zero pending tasks, all features working, tests passing, zero errors, verification evidence collected. If any item is unchecked, continue working.
+Before concluding, confirm:
 
-Ralph planning gate:
-If ralph is active, verify PRD + test spec artifacts exist before any implementation work/tool execution. If missing, stay in planning and create them first (ralplan-first).
+- no pending tasks
+- requested behavior works
+- tests/build/diagnostics are green
+- verification evidence exists
+
+If ralph is active, stay in planning until PRD + test spec artifacts exist.
 </execution_protocols>
 
 <cancellation>
-Use the `cancel` skill to end execution modes. This clears state files and stops active loops.
+Use `cancel` to stop active modes and clear state.
 
-When to cancel:
+Cancel when:
 
-- All tasks are done and verified: invoke cancel.
-- Work is blocked and cannot proceed: explain the blocker, then invoke cancel.
-- User says "stop": invoke cancel immediately.
+- all work is done and verified
+- the user says stop
+- a fundamental blocker prevents progress
 
-When not to cancel:
-
-- Work is still incomplete: continue working.
-- A single subtask failed but others can continue: fix and retry.
+Otherwise continue, fix, and retry.
   </cancellation>
 
 ---
 
 <state_management>
-oh-my-codex uses the `.omx/` directory for persistent state:
+Persistent OMX state lives under `.omx/`:
 
-- `.omx/state/` -- Mode state files (JSON)
-- `.omx/notepad.md` -- Session-persistent notes
-- `.omx/project-memory.json` -- Cross-session project knowledge
-- `.omx/plans/` -- Planning documents
-- `.omx/logs/` -- Audit logs
+- `state/`, `plans/`, `logs/`, `notepad.md`, `project-memory.json`
 
-Tools are available via MCP when configured (`omx setup` registers all servers):
+Useful MCP groups:
 
-State & Memory:
+- state/memory: `state_*`, `project_memory_*`, `notepad_*`
+- code intel: `lsp_*`, `ast_grep_*`
+- trace: `trace_timeline`, `trace_summary`
 
-- `state_read`, `state_write`, `state_clear`, `state_list_active`, `state_get_status`
-- `project_memory_read`, `project_memory_write`, `project_memory_add_note`, `project_memory_add_directive`
-- `notepad_read`, `notepad_write_priority`, `notepad_write_working`, `notepad_write_manual`, `notepad_prune`,
-  `notepad_stats`
+Lifecycle:
 
-Code Intelligence:
-
-- `lsp_diagnostics` -- type errors for a single file (tsc --noEmit)
-- `lsp_diagnostics_directory` -- project-wide type checking
-- `lsp_document_symbols` -- function/class/variable outline for a file
-- `lsp_workspace_symbols` -- search symbols by name across the workspace
-- `lsp_hover` -- type info at a position (regex-based approximation)
-- `lsp_find_references` -- find all references to a symbol (grep-based)
-- `lsp_servers` -- list available diagnostic backends
-- `ast_grep_search` -- structural code pattern search (requires ast-grep CLI)
-- `ast_grep_replace` -- structural code transformation (dryRun=true by default)
-
-Trace:
-
-- `trace_timeline` -- chronological agent turn + mode event timeline
-- `trace_summary` -- aggregate statistics (turn counts, timing, token usage)
-
-Mode lifecycle requirements:
-
-- On mode start, call `state_write` with `mode`, `active: true`, `started_at`, and mode-specific fields.
-- On phase/iteration transitions, call `state_write` with updated `current_phase` /
-  `iteration` and mode-specific progress fields.
-- On completion, call `state_write` with `active: false`, terminal `current_phase`, and `completed_at`.
-- On cancel/abort cleanup, call `state_clear(mode="<mode>")`.
-
-Recommended mode fields:
-
-- `ralph`: `active`, `iteration`, `max_iterations`, `current_phase`, `started_at`, `completed_at`
-- `autopilot`: `active`, `current_phase` (`expansion|planning|execution|qa|validation|complete`), `started_at`,
-  `completed_at`
-- `ultrawork`: `active`, `reinforcement_count`, `started_at`
-- `team`: `active`, `current_phase` (`team-plan|team-prd|team-exec|team-verify|team-fix|complete`), `agent_count`,
-  `team_name`
-- `ecomode`: `active`
-- `ultraqa`: `active`, `current_phase`, `iteration`, `started_at`, `completed_at`
+- on start: `state_write(active=true, started_at=...)`
+- on progress changes: update phase/iteration
+- on completion: `state_write(active=false, completed_at=...)`
+- on cleanup: `state_clear(mode=...)`
 </state_management>
 
 ---
@@ -420,72 +349,72 @@ Run `omx setup` to install all components. Run `omx doctor` to verify installati
 
 ## Project Overview
 
-**Bluetape4k**는 Kotlin 언어로 JVM 환경 Backend 개발에 사용하는 공용 라이브러리 모음입니다.
+**Bluetape4k** is a shared library suite for JVM backend development in Kotlin.
 
 - **Java 21** (JVM Toolchain), **Kotlin 2.3** (language & API), **Spring Boot 3.4+**
-- 멀티 모듈 Gradle 프로젝트 — `bluetape4k/`, `io/`, `data/`, `infra/`, `spring-boot3/`, `aws/`, `utils/`, `testing/`,
+- Multi-module Gradle project: `bluetape4k/`, `io/`, `data/`, `infra/`, `spring-boot3/`, `aws/`, `utils/`, `testing/`,
   `virtualthread/`, `timefold/`, `examples/`
-- 폐기 모듈: `x-obsoleted/` (빌드 제외)
+- Deprecated modules: `x-obsoleted/` (excluded from builds)
 
 ## Build, Test, and Development Commands
 
 Use the Gradle wrapper from the repository root.
 
 ```bash
-# 전체 빌드
+# Full build
 ./gradlew clean build
 
-# 전체 테스트
+# All tests
 ./gradlew test
 
-# 특정 모듈 테스트 (예: bluetape4k-coroutines)
+# Single module test
 ./gradlew :bluetape4k-coroutines:test
 
-# 특정 테스트 클래스 실행
+# Single test class
 ./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.CompressorTest"
 
-# 정적 분석
+# Static analysis
 ./gradlew detekt
 
-# 빌드 (테스트 제외)
+# Build without tests
 ./gradlew build -x test
 ```
 
-Token-efficient summary commands (Codex 세션에서 우선 사용):
+Token-efficient summary commands (prefer these in Codex sessions):
 
-- `./bin/repo-status`: git status 요약 (raw `git status` 대신 사용)
-- `./bin/repo-diff`: 파일별 변경량 요약 (전체 patch 전에 먼저 확인)
-- `./bin/repo-test-summary -- ./gradlew <task>`: Gradle 테스트/빌드 결과 요약
+- `./bin/repo-status`: concise git status summary
+- `./bin/repo-diff`: per-file change summary before opening full patches
+- `./bin/repo-test-summary -- ./gradlew <task>`: concise Gradle build/test summary
 
 Prefer targeted module tasks during development to reduce feedback time.
 
 ## Coding Guidelines
 
-- **언어**: Kotlin 2.3, 주석·커밋 메시지는 **한국어**
-- **커밋 prefix**: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`
-- **테스트**: JUnit 5 + Kotest + MockK + Kluent
-- **비동기**: Coroutines 우선 (`suspend`, `Flow`); blocking API는 `withContext(Dispatchers.IO)` 래핑
-- **Kotlin 패턴**: extension function, DSL, value class, sealed class 적극 활용
-- **KDoc**: public class/interface/extension 필수, **한국어**로 작성
-- 버그 수정 후에는 단위 테스트 및 회귀 테스트를 실행하여 모두 통과시켜야 함
+- **Language**: Kotlin 2.3. Comments and commit messages should be in Korean.
+- **Commit prefixes**: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`
+- **Tests**: JUnit 5 + Kotest + MockK + Kluent
+- **Async**: prefer coroutines (`suspend`, `Flow`); wrap blocking APIs with `withContext(Dispatchers.IO)`
+- **Kotlin style**: prefer extension functions, DSLs, value classes, and sealed classes
+- **KDoc**: required for public classes/interfaces/extensions, written in Korean
+- After bug fixes, run unit and regression tests and require them to pass
 
 ## Key Module Paths
 
-| 모듈                       | 경로                      | 설명                                        |
-|--------------------------|-------------------------|-------------------------------------------|
-| bluetape4k-core          | `bluetape4k/core`       | assertions, 압축, required 유틸리티             |
-| bluetape4k-coroutines    | `bluetape4k/coroutines` | Flow 확장, AsyncFlow, Deferred 유틸리티         |
-| bluetape4k-io            | `io/io`                 | 파일 I/O, LZ4/Zstd/Snappy 압축, Kryo/Fory 직렬화 |
-| bluetape4k-tink          | `io/tink`               | Google Tink AEAD 암호화                      |
-| bluetape4k-vertx         | `io/vertx`              | Vert.x 통합 모듈                              |
-| bluetape4k-exposed       | `data/exposed`          | Exposed umbrella (core+dao+jdbc)          |
-| bluetape4k-exposed-jdbc  | `data/exposed-jdbc`     | JDBC Repository, SuspendedQuery           |
-| bluetape4k-exposed-r2dbc | `data/exposed-r2dbc`    | R2DBC Repository                          |
-| bluetape4k-lettuce       | `infra/lettuce`         | Lettuce Redis 클라이언트 + Coroutines          |
-| bluetape4k-redisson      | `infra/redisson`        | Redisson 클라이언트 + Coroutines               |
-| bluetape4k-spring-boot3  | `spring-boot3/core`     | Spring Boot 3 통합 모듈                       |
-| bluetape4k-aws           | `aws/aws`               | AWS Java SDK v2 통합                        |
-| bluetape4k-aws-kotlin    | `aws/aws-kotlin`        | AWS Kotlin SDK 통합                         |
+| Module                   | Path                    | Description                                |
+|--------------------------|-------------------------|--------------------------------------------|
+| bluetape4k-core          | `bluetape4k/core`       | Assertions, compression, required utils    |
+| bluetape4k-coroutines    | `bluetape4k/coroutines` | Flow extensions, AsyncFlow, Deferred utils |
+| bluetape4k-io            | `io/io`                 | File I/O, LZ4/Zstd/Snappy, Kryo/Fory       |
+| bluetape4k-tink          | `io/tink`               | Google Tink AEAD                           |
+| bluetape4k-vertx         | `io/vertx`              | Vert.x integration                         |
+| bluetape4k-exposed       | `data/exposed`          | Exposed umbrella (core+dao+jdbc)           |
+| bluetape4k-exposed-jdbc  | `data/exposed-jdbc`     | JDBC Repository, SuspendedQuery            |
+| bluetape4k-exposed-r2dbc | `data/exposed-r2dbc`    | R2DBC Repository                           |
+| bluetape4k-lettuce       | `infra/lettuce`         | Lettuce Redis client + coroutines          |
+| bluetape4k-redisson      | `infra/redisson`        | Redisson client + coroutines               |
+| bluetape4k-spring-boot3  | `spring-boot3/core`     | Spring Boot 3 integration                  |
+| bluetape4k-aws           | `aws/aws`               | AWS Java SDK v2 integration                |
+| bluetape4k-aws-kotlin    | `aws/aws-kotlin`        | AWS Kotlin SDK integration                 |
 
 ## Token-Efficient Codex Workflow
 
