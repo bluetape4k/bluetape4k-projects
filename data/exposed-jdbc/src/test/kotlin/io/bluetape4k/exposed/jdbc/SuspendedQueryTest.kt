@@ -17,6 +17,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.greater
+import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -187,6 +189,76 @@ class SuspendedQueryTest : AbstractExposedTest() {
                     ProductTable
                         .select(ProductTable.id)
                         .fetchBatchedResultFlow(-1)
+                        .toList()
+                }
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `기존 where 조건을 유지한 채 배치 조회한다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                listOf(10, 20, 30, 40, 50).forEachIndexed { index, price ->
+                    ProductTable.insert {
+                        it[name] = "product-$index"
+                        it[ProductTable.price] = price
+                    }
+                }
+
+                val ids =
+                    ProductTable
+                        .select(ProductTable.id)
+                        .where { ProductTable.price greater 25 }
+                        .fetchBatchedResultFlow(2)
+                        .flatMapConcat { rows -> rows.asFlow().map { it[ProductTable.id].value } }
+                        .toList()
+
+                ids.size shouldBeEqualTo 3
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `추가 where 조건을 기존 query 조건과 AND 로 결합한다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                listOf(10, 20, 30, 40, 50).forEachIndexed { index, price ->
+                    ProductTable.insert {
+                        it[name] = "product-$index"
+                        it[ProductTable.price] = price
+                    }
+                }
+
+                val ids =
+                    ProductTable
+                        .select(ProductTable.id)
+                        .where { ProductTable.price greater 15 }
+                        .fetchBatchedResultFlow(
+                            batch = 2,
+                            where = ProductTable.price less 45
+                        )
+                        .flatMapConcat { rows -> rows.asFlow().map { it[ProductTable.id].value } }
+                        .toList()
+
+                ids.size shouldBeEqualTo 3
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `첫 번째 선택 컬럼이 Int Long 이 아니면 예외를 던진다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                ProductTable.insert {
+                    it[name] = "sample"
+                    it[price] = 100
+                }
+
+                assertFailsWith<IllegalArgumentException> {
+                    ProductTable
+                        .select(ProductTable.name)
+                        .fetchBatchedResultFlow(10)
                         .toList()
                 }
             }

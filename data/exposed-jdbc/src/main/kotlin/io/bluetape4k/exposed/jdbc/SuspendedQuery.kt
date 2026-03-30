@@ -28,6 +28,7 @@ private const val DEFAULT_BATCH_SIZE: Int = 1000
  *
  * ## 동작/계약
  * - 내부적으로 [Query.fetchBatchedResultFlow]를 호출합니다.
+ * - 현재 [FieldSet]의 선택 컬럼 구성을 그대로 유지합니다.
  * - 기준 컬럼은 첫 번째 select 컬럼이며 Int/Long/EntityID(Int|Long)만 지원합니다.
  *
  * ```kotlin
@@ -39,13 +40,14 @@ fun FieldSet.fetchBatchedResultFlow(
     batch: Int = DEFAULT_BATCH_SIZE,
     sortOrder: SortOrder = SortOrder.ASC,
     where: Op<Boolean>? = null,
-): Flow<List<ResultRow>> = Query(this.source, where = where).fetchBatchedResultFlow(batch, sortOrder)
+): Flow<List<ResultRow>> = Query(this, where = where).fetchBatchedResultFlow(batch, sortOrder)
 
 /**
  * [Query]를 배치 단위 [Flow] 조회로 변환합니다.
  *
  * ## 동작/계약
- * - 현재 Query의 `set`과 추가 `where`를 사용해 [SuspendedQuery]를 만들고 배치 조회를 수행합니다.
+ * - 현재 Query의 `set`, 기존 `where`, 추가 `where`를 함께 사용해 [SuspendedQuery]를 만들고 배치 조회를 수행합니다.
+ * - 추가 `where`가 있으면 기존 조건과 `AND`로 결합됩니다.
  * - 수동 `limit`/`orderBy`가 이미 걸린 Query는 [SuspendedQuery.fetchBatchResultFlow]에서 거부됩니다.
  */
 fun Query.fetchBatchedResultFlow(
@@ -53,7 +55,7 @@ fun Query.fetchBatchedResultFlow(
     sortOrder: SortOrder = SortOrder.ASC,
     where: Op<Boolean>? = null,
 ): Flow<List<ResultRow>> =
-    SuspendedQuery(this@fetchBatchedResultFlow.set, where = where).fetchBatchResultFlow(batch, sortOrder)
+    SuspendedQuery(this@fetchBatchedResultFlow, where = where).fetchBatchResultFlow(batch, sortOrder)
 
 /**
  * Exposed Query를 커서 기반 배치 조회 [Flow]로 노출하는 Query 구현입니다.
@@ -62,6 +64,12 @@ open class SuspendedQuery(
     set: FieldSet,
     where: Op<Boolean>? = null,
 ) : Query(set, where) {
+
+    constructor(
+        sourceQuery: Query,
+        where: Op<Boolean>? = null,
+    ) : this(set = sourceQuery.set, where = sourceQuery.where?.and(where ?: Op.TRUE) ?: where)
+
     /**
      * 결과를 `batchSize` 단위로 끊어 [Flow]로 방출합니다.
      *
@@ -87,13 +95,13 @@ open class SuspendedQuery(
             "A manual `ORDER BY` clause should not be set. By default, the auto-incrementing column will be used."
         }
 
-        // snowflakeId 같은 Global Unique ID 도 지원하기 위해 첫 번째 컬럼을 커서로 사용
+        // snowflakeId 같은 Global Unique ID 도 지원하기 위해 첫 번째 선택 컬럼을 커서로 사용
         val cursorColumn =
             try {
-                set.source.columns.first()
+                set.fields.first { it is Column<*> } as Column<*>
             } catch (_: NoSuchElementException) {
                 throw UnsupportedOperationException(
-                    "Batched select only works on tables with an auto-incrementing column"
+                    "Batched select only works when the first selected expression is an Int/Long id column"
                 )
             }
         val columnType = cursorColumn.columnType
