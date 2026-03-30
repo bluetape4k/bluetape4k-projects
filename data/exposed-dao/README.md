@@ -8,7 +8,7 @@ JetBrains Exposed DAO 계층을 위한 엔티티 확장, String 기반 엔티티
 
 - **DAO 확장 함수**: `idEquals`, `idHashCode`, `entityToStringBuilder` 등 Entity 공통 구현 보조
 - **StringEntity**: `String` 타입 기본 키를 가진 DAO Entity
-- **커스텀 IdTable**: KSUID, Snowflake, Timebased UUID, Soft Delete 등 다양한 ID 전략
+- **커스텀 IdTable**: KSUID, ULID, Snowflake, Timebased UUID, Soft Delete 등 다양한 ID 전략
 - `bluetape4k-exposed-core`를 기반으로 하며, DAO 레이어에서만 필요한 기능을 분리
 
 ## 의존성 추가
@@ -132,7 +132,28 @@ class EventEntity(id: SnowflakeIdEntityID): SnowflakeIdEntity(id) {
 }
 ```
 
-### 5. Timebased UUID 기반 DAO 엔티티
+### 5. ULID 기반 DAO 엔티티
+
+```kotlin
+import io.bluetape4k.exposed.core.dao.id.UlidTable
+import io.bluetape4k.exposed.dao.id.UlidEntity
+import io.bluetape4k.exposed.dao.id.UlidEntityClass
+import io.bluetape4k.exposed.dao.id.UlidEntityID
+
+object SessionTable: UlidTable("sessions") {
+    val userId = long("user_id")
+    val status = varchar("status", 20)
+}
+
+class SessionEntity(id: UlidEntityID): UlidEntity(id) {
+    companion object: UlidEntityClass<SessionEntity>(SessionTable)
+
+    var userId by SessionTable.userId
+    var status by SessionTable.status
+}
+```
+
+### 6. Timebased UUID 기반 DAO 엔티티
 
 ```kotlin
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
@@ -167,7 +188,7 @@ class TokenEntity(id: TimebasedUUIDBase62EntityID): TimebasedUUIDBase62Entity(id
 }
 ```
 
-### 6. Soft Delete 지원 IdTable
+### 7. Soft Delete 지원 IdTable
 
 ```kotlin
 import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
@@ -220,6 +241,9 @@ class KsuidTable {
 class KsuidMillisTable {
 +id: Column~EntityID~String~~
 }
+class UlidTable {
++id: Column~EntityID~String~~
+}
 class SnowflakeIdTable {
 +id: Column~EntityID~Long~~
 }
@@ -233,6 +257,7 @@ class TimebasedUUIDBase62Table {
 IdTable <|-- SoftDeletedIdTable
 IdTable <|-- KsuidTable
 IdTable <|-- KsuidMillisTable
+IdTable <|-- UlidTable
 IdTable <|-- SnowflakeIdTable
 IdTable <|-- TimebasedUUIDTable
 IdTable <|-- TimebasedUUIDBase62Table
@@ -253,6 +278,7 @@ class StringEntity {
 }
 class KsuidEntity
 class KsuidMillisEntity
+class UlidEntity
 class SnowflakeIdEntity
 class TimebasedUUIDEntity
 class TimebasedUUIDBase62Entity
@@ -272,6 +298,7 @@ class TimebasedUUIDEntityClass
 Entity <|-- StringEntity
 StringEntity <|-- KsuidEntity
 StringEntity <|-- KsuidMillisEntity
+StringEntity <|-- UlidEntity
 StringEntity <|-- TimebasedUUIDBase62Entity
 Entity <|-- SnowflakeIdEntity
 Entity <|-- TimebasedUUIDEntity
@@ -295,6 +322,7 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 | `StringEntity.kt`                    | String PK 기반 Entity/EntityClass                               |
 | `dao/id/KsuidTable.kt`               | KSUID PK IdTable                                              |
 | `dao/id/KsuidMillisTable.kt`         | KSUID Millis PK IdTable                                       |
+| `dao/id/UlidTable.kt`                | ULID PK IdTable                                               |
 | `dao/id/SnowflakeIdTable.kt`         | Snowflake Long PK IdTable                                     |
 | `dao/id/TimebasedUUIDTable.kt`       | Timebased UUID PK IdTable                                     |
 | `dao/id/TimebasedUUIDBase62Table.kt` | Timebased UUID Base62 인코딩 PK IdTable                          |

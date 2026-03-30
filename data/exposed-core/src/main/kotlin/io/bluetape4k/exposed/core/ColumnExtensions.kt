@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.core
 
 import io.bluetape4k.idgenerators.ksuid.Ksuid
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.idgenerators.ulid.ULID
 import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
@@ -45,6 +46,7 @@ import java.util.*
 import kotlin.reflect.KClass
 
 private val log by lazy { KotlinLogging.logger { } }
+private val statefulMonotonicUlid by lazy { ULID.statefulMonotonic() }
 
 /**
  * UUID 컬럼의 기본값을 `Uuid.V7.nextId()`로 설정합니다.
@@ -106,6 +108,20 @@ fun Column<String>.ksuidGenerated(): Column<String> = clientDefault { Ksuid.Seco
  * 문자열 컬럼의 기본값을 밀리초 기반 KSUID(`Ksuid.Millis.nextId()`)로 설정합니다.
  */
 fun Column<String>.ksuidMillisGenerated(): Column<String> = clientDefault { Ksuid.Millis.nextId() }
+
+/**
+ * 문자열 컬럼의 기본값을 상태 기반 단조 증가 ULID로 설정합니다.
+ *
+ * ## 동작/계약
+ * - Exposed `clientDefault`를 사용하므로 INSERT 시 클라이언트에서 값이 계산됩니다.
+ * - 모듈 전역 [ULID.StatefulMonotonic] 인스턴스를 공유하여 동일 밀리초 내에서도 단조 증가를 보장합니다.
+ *
+ * ```kotlin
+ * val id = varchar("id", 26).ulidGenerated()
+ * // id.defaultValueFun != null
+ * ```
+ */
+fun Column<String>.ulidGenerated(): Column<String> = clientDefault { statefulMonotonicUlid.nextULID().toString() }
 
 /**
  * Exposed 컬럼 타입을 대응되는 Kotlin 런타임 타입으로 매핑합니다.

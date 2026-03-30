@@ -14,7 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 /**
- * [KsuidTable], [KsuidMillisTable], [SnowflakeIdTable], [TimebasedUUIDTable],
+ * [KsuidTable], [KsuidMillisTable], [UlidTable], [SnowflakeIdTable], [TimebasedUUIDTable],
  * [TimebasedUUIDBase62Table] 의 클라이언트 측 ID 생성을 검증하는 통합 테스트입니다.
  */
 class CustomIdTablesTest: AbstractExposedTest() {
@@ -24,6 +24,10 @@ class CustomIdTablesTest: AbstractExposedTest() {
     }
 
     private object KsuidMillisItems: KsuidMillisTable("ksuid_millis_items") {
+        val name = varchar("name", 100)
+    }
+
+    private object UlidItems: UlidTable("ulid_items") {
         val name = varchar("name", 100)
     }
 
@@ -87,6 +91,33 @@ class CustomIdTablesTest: AbstractExposedTest() {
         withTables(testDB, KsuidMillisItems) {
             val id1 = KsuidMillisItems.insert { it[name] = "item1" }[KsuidMillisItems.id]
             val id2 = KsuidMillisItems.insert { it[name] = "item2" }[KsuidMillisItems.id]
+
+            id1.shouldNotBeNull()
+            id2.shouldNotBeNull()
+            (id1.value == id2.value).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `UlidTable 은 26자 ULID를 기본키로 자동 생성한다`(testDB: TestDB) {
+        withTables(testDB, UlidItems) {
+            val id = UlidItems.insert {
+                it[name] = "ulid-item"
+            }[UlidItems.id]
+
+            id.shouldNotBeNull()
+            id.value.length shouldBeEqualTo 26
+            UlidItems.selectAll().toList() shouldHaveSize 1
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `UlidTable 은 서로 다른 레코드에 고유한 ID를 생성한다`(testDB: TestDB) {
+        withTables(testDB, UlidItems) {
+            val id1 = UlidItems.insert { it[name] = "item1" }[UlidItems.id]
+            val id2 = UlidItems.insert { it[name] = "item2" }[UlidItems.id]
 
             id1.shouldNotBeNull()
             id2.shouldNotBeNull()
