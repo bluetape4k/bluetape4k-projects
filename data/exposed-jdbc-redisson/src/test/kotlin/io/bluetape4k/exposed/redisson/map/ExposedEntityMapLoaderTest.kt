@@ -48,6 +48,7 @@ class ExposedEntityMapLoaderTest: AbstractExposedTest() {
 
             val ids = loader.loadAllKeys()!!.toList()
             ids.size shouldBeEqualTo 3
+            ids shouldBeEqualTo ids.sorted()
         }
     }
 

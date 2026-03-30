@@ -16,7 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  *
  * ## 동작/계약
  * - 단건 조회는 `selectAll().where { id eq ... }.singleOrNull()` 결과를 [toEntity]로 변환합니다.
- * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 모든 ID를 수집합니다.
+ * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 모든 ID를 PK 오름차순으로 수집합니다.
  * - [batchSize]가 0 이하이면 초기화 시 [IllegalArgumentException]이 발생합니다.
  * - `loadAllKeys()`는 DB 오류를 로깅 후 예외를 다시 던집니다.
  *

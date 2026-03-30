@@ -20,7 +20,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  *
  * ## 동작/계약
  * - 단건 조회는 `selectAll().where { id eq ... }.singleOrNull()` 결과를 [toEntity]로 변환합니다.
- * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 채널에 키를 전송합니다.
+ * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 PK 오름차순 키를 채널에 전송합니다.
  * - [batchSize]가 0 이하이면 초기화 시 [IllegalArgumentException]이 발생합니다.
  * - 테스트 기준으로 `batchSize=2`일 때도 3건 키를 모두 로드합니다.
  *

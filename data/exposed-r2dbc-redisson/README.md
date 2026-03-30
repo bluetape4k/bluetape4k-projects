@@ -11,6 +11,7 @@ Exposed R2DBC와 Redisson 캐시를 결합해 비동기 Read-Through/Write-Throu
 ### 주요 기능
 
 - **MapLoader/MapWriter 비동기 지원**: Redisson `AsyncMapLoader`/`AsyncMapWriter` 연동
+  - `loadAllKeys()`는 PK 오름차순으로 안정적으로 순회
 - **Repository 추상화**: 캐시 + DB 접근 공통 패턴 (`R2dbcRedissonRepository`)
 - **Coroutines 네이티브**: 모든 연산이 `suspend` 함수
 - **Near Cache 지원**: Local Cache + Redis 2-Tier 캐시

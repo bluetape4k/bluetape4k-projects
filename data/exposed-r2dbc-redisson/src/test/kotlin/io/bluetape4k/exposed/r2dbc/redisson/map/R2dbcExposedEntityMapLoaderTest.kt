@@ -5,6 +5,7 @@ import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -47,6 +48,7 @@ class R2dbcExposedEntityMapLoaderTest: AbstractExposedR2dbcTest() {
 
             val ids = loader.loadAllKeys().toList()
             ids shouldHaveSize 3
+            ids shouldBeEqualTo ids.sorted()
         }
     }
 

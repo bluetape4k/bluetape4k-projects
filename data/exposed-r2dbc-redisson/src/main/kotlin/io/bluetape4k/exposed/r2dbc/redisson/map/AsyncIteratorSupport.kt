@@ -9,6 +9,7 @@ import org.redisson.api.AsyncIterator
  * ## 동작/계약
  * - `hasNext().await()`가 `false`가 될 때까지 `next().await()`를 반복 호출합니다.
  * - 전달한 [destination] 리스트를 직접 채우며, 같은 인스턴스를 반환합니다.
+ * - iterator가 반환하는 순서를 그대로 보존합니다.
  *
  * ```kotlin
  * val values = iterator.toList()
