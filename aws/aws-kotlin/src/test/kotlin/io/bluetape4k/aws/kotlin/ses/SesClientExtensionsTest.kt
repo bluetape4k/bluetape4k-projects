@@ -5,6 +5,7 @@ import aws.sdk.kotlin.services.ses.model.SendRawEmailRequest
 import aws.sdk.kotlin.services.ses.model.SendTemplatedEmailRequest
 import aws.sdk.kotlin.services.ses.model.Template
 import aws.sdk.kotlin.services.ses.model.VerifyEmailAddressRequest
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -72,7 +73,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
 
     @Test
     fun `send templated email`() = runSuspendIO {
-        val newTemplateName = "template-name"
+        val newTemplateName = "template-name-" + Base58.randomString(6)
 
         // 템플릿 부터 생성해야 한다.
         val template = Template {

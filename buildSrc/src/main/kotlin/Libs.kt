@@ -81,8 +81,8 @@ object Versions {
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
     const val blockhound = "1.0.16.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
 
-    const val mutiny = "3.1.1"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
-    const val vertx = "4.5.25"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val mutiny = "3.1.1"               // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+    const val vertx = "4.5.26"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.43"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.15"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
@@ -93,10 +93,10 @@ object Versions {
     const val resilience4j = "2.4.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.2.10.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
-    const val aws2 = "2.42.15"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.43.8"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.6.18"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.6.2" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.42.23"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.44.0"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.6.46"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.6.7" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
