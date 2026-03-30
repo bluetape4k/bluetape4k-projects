@@ -1,6 +1,8 @@
 package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.model.JpaEntity
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import org.hibernate.Session
@@ -224,6 +226,40 @@ inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T
  * - 내부적으로 JPA `find`를 호출합니다.
  */
 inline fun <reified T> EntityManager.findAs(id: Serializable): T? = find(T::class.java, id)
+
+/**
+ * simple natural id 값으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 현재 Hibernate [Session]을 구해 [Session.findBySimpleNaturalId]에 위임합니다.
+ */
+inline fun <reified T : Any> EntityManager.findBySimpleNaturalId(naturalId: Any): T? =
+    currentSession().findBySimpleNaturalId<T>(naturalId)
+
+/**
+ * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - [naturalIdValues]는 비어 있을 수 없고, 각 속성명은 blank일 수 없습니다.
+ * - 내부적으로 현재 Hibernate [Session]을 구해 [Session.findByNaturalId]에 위임합니다.
+ */
+inline fun <reified T : Any> EntityManager.findByNaturalId(
+    naturalIdValues: Map<String, Any?>,
+): T? {
+    naturalIdValues.requireNotEmpty("naturalIdValues")
+    naturalIdValues.keys.forEach { it.requireNotBlank("naturalIdValues.key") }
+    return currentSession().findByNaturalId<T>(naturalIdValues)
+}
+
+/**
+ * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - [findByNaturalId]의 pair 오버로드입니다.
+ */
+inline fun <reified T : Any> EntityManager.findByNaturalId(
+    vararg naturalIdValues: Pair<String, Any?>,
+): T? = findByNaturalId(naturalIdValues.toMap())
 
 /**
  * id에 해당하는 엔티티를 조회합니다. 없으면 null을 반환합니다.

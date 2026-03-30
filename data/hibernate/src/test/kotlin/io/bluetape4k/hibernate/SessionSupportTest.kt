@@ -1,9 +1,11 @@
 package io.bluetape4k.hibernate
 
+import io.bluetape4k.hibernate.mapping.naturalid.NaturalIdBook
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
 
 class SessionSupportTest: AbstractHibernateTest() {
@@ -64,5 +66,30 @@ class SessionSupportTest: AbstractHibernateTest() {
             .setParameter("name", "not-exist")
             .resultList
         empty.shouldBeEmpty()
+    }
+
+    @Test
+    fun `session natural id helpers 는 simple natural id 조회를 지원한다`() {
+        val book = NaturalIdBook(
+            isbn = "978-89-1234-567-8",
+            title = "Session NaturalId",
+        )
+        em.persist(book)
+        flushAndClear()
+
+        val session = em.currentSession()
+        val loaded = session.findBySimpleNaturalId<NaturalIdBook>(book.isbn)
+
+        loaded.shouldNotBeNull()
+        loaded.title shouldBeEqualTo "Session NaturalId"
+    }
+
+    @Test
+    fun `session natural id helpers 는 빈 복합 natural id 입력을 허용하지 않는다`() {
+        val session = em.currentSession()
+
+        assertThrows<IllegalArgumentException> {
+            session.findByNaturalId<NaturalIdBook>(emptyMap())
+        }
     }
 }

@@ -2,6 +2,8 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
 import org.hibernate.Session
 import org.hibernate.query.Query
@@ -56,6 +58,46 @@ inline fun <reified T: Any> Session.findAs(id: Serializable): T? = find(T::class
  * - 즉시 DB 조회가 일어나지 않을 수 있으며, 접근 시점에 예외가 발생할 수 있습니다.
  */
 inline fun <reified T: Any> Session.getReferenceAs(id: Serializable): T = getReference(T::class.java, id)
+
+/**
+ * simple natural id 값으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - Hibernate `bySimpleNaturalId(...).load(...)`에 위임합니다.
+ * - `@NaturalId`가 하나인 엔티티에 사용합니다.
+ */
+inline fun <reified T : Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
+    bySimpleNaturalId(T::class.java).load(naturalId)
+
+/**
+ * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - [naturalIdValues]는 비어 있을 수 없고, 각 속성명은 blank일 수 없습니다.
+ * - Hibernate `byNaturalId(...).using(...).load()`에 위임합니다.
+ */
+inline fun <reified T : Any> Session.findByNaturalId(
+    naturalIdValues: Map<String, Any?>,
+): T? {
+    naturalIdValues.requireNotEmpty("naturalIdValues")
+
+    val access = byNaturalId(T::class.java)
+    naturalIdValues.forEach { (attributeName, value) ->
+        attributeName.requireNotBlank("naturalIdValues.key")
+        access.using(attributeName, value)
+    }
+    return access.load()
+}
+
+/**
+ * 복합 natural id 속성으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.
+ *
+ * ## 동작/계약
+ * - [findByNaturalId]의 pair 오버로드입니다.
+ */
+inline fun <reified T : Any> Session.findByNaturalId(
+    vararg naturalIdValues: Pair<String, Any?>,
+): T? = findByNaturalId(naturalIdValues.toMap())
 
 /**
  * HQL/JPQL 문자열과 결과 수형을 받아 [Query]를 생성합니다.
