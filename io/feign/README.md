@@ -31,6 +31,10 @@ val api = feignBuilderOf(
 ).client<GitHubApi>("https://api.github.com")
 ```
 
+`feignBuilder` 계약:
+- 기본값으로 `Encoder.Default()`와 `Decoder.Default()`를 적용합니다.
+- builder 블록에서 지정한 encoder/decoder/client/logLevel 설정이 마지막에 그대로 반영됩니다.
+
 ### 2. Coroutines 지원
 
 `CoroutineFeign`을 활용하여 suspend 함수 기반의 비동기 API 호출을 지원합니다.
@@ -63,6 +67,9 @@ interface GitHubApi {
 val api = feignBuilderOf(client = ApacheHttp5Client()).client<GitHubApi>()
 val user = api.getUser(URI("https://api.github.com"), "octocat")
 ```
+
+`bodyAsReader()` 계약:
+- 응답 body가 없으면 `IllegalStateException("Response body is null.")`를 던집니다.
 
 ### 3. 다양한 HTTP 전송 계층
 

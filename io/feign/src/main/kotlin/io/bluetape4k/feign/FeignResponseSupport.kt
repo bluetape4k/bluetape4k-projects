@@ -76,6 +76,7 @@ fun Response.isTextBody(): Boolean {
  * ## 동작/계약
  * - 본문이 없으면 [IllegalStateException]이 발생합니다.
  * - 본문 charset 정보가 있으면 해당 charset으로 reader를 생성합니다.
+ * - body를 소비한 뒤 다시 읽을 수 있는지 여부는 Feign [Response.Body] 구현체에 따릅니다.
  *
  * ```kotlin
  * val reader = response.bodyAsReader()

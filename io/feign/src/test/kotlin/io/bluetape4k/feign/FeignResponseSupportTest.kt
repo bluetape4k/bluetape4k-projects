@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 /**
  * [FeignResponseSupport]의 Content-Type 판별 및 본문 접근 확장 함수를 검증합니다.
@@ -123,5 +124,21 @@ class FeignResponseSupportTest : AbstractFeignTest() {
         val reader = response.bodyAsReader()
         val content = reader.readText()
         content shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `bodyAsReader 는 body 가 없으면 예외를 던진다`() {
+        val response =
+            feignResponse {
+                status(204)
+                reason("No Content")
+                request(dummyRequest)
+                headers(emptyMap())
+            }
+
+        val ex = assertThrows<IllegalStateException> {
+            response.bodyAsReader()
+        }
+        ex.message shouldBeEqualTo "Response body is null."
     }
 }
