@@ -6,6 +6,8 @@ import com.google.crypto.tink.aead.XChaCha20Poly1305KeyManager
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy
 import io.bluetape4k.tink.aeadKeysetHandle
+import io.bluetape4k.tink.keyset.VersionedKeysetStore
+import io.bluetape4k.tink.keyset.VersionedTinkAead
 import io.bluetape4k.tink.registerTink
 
 /**
@@ -45,4 +47,12 @@ object TinkAeads : KLogging() {
     val XCHACHA20_POLY1305: TinkAead by publicLazy {
         TinkAead(aeadKeysetHandle(XChaCha20Poly1305KeyManager.xChaCha20Poly1305Template()))
     }
+
+    /**
+     * versioned keyset 저장소를 사용하는 AEAD 래퍼를 생성합니다.
+     *
+     * Redis/KMS 등 외부 저장소 기반 키 로테이션과 이전 버전 복호화가 필요할 때 사용합니다.
+     */
+    fun versioned(keysetStore: VersionedKeysetStore): VersionedTinkAead =
+        VersionedTinkAead(keysetStore)
 }

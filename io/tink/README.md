@@ -209,11 +209,34 @@ val keysetJson = outputStream.toString()
 `encrypt(String)` 반환값은 **Base64(표준)** 인코딩된 암호문입니다.
 `decrypt(String)` 입력도 동일한 Base64 형식이어야 합니다.
 
+### Redis 기반 키 로테이션
+
+`bluetape4k-tink`는 versioned keyset 추상화와 envelope 암호화 래퍼를 제공합니다.
+실제 Redis 저장은 `bluetape4k-lettuce`의 `LettuceVersionedKeysetStore`를 사용합니다.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.tink.LettuceVersionedKeysetStore
+val store = LettuceVersionedKeysetStore(connection, "user-email", AesGcmKeyManager.aes256GcmTemplate())
+val aead = TinkAeads.versioned(store)
+
+val encrypted = aead.encrypt("hello")
+store.rotate()
+
+// rotation 이전 암호문도 version prefix를 이용해 계속 복호화 가능
+val decrypted = aead.decrypt(encrypted)
+```
+
 ## 모듈 구조
 
 ```
 io.bluetape4k.tink
 ├── TinkSupport.kt                          # 초기화, 헬퍼 함수, 상수
+├── keyset/                                 # 버전 관리 keyset/rotation 지원
+│   ├── VersionedKeysetHandle.kt            # version + createdAt + KeysetHandle
+│   ├── VersionedKeysetStore.kt             # 저장소 추상화
+│   ├── TinkKeysetJsonSupport.kt            # KeysetHandle JSON 직렬화/복원
+│   ├── VersionedTinkAead.kt                # version prefix 기반 AEAD 래퍼
+│   └── VersionedTinkDaead.kt               # version prefix 기반 DAEAD 래퍼
 ├── aead/                                   # AEAD (인증 암호화)
 │   ├── TinkAead.kt                         # AEAD 래퍼 클래스
 │   ├── TinkAeads.kt                        # 팩토리 싱글턴

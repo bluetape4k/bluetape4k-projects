@@ -4,6 +4,8 @@ import com.google.crypto.tink.daead.AesSivKeyManager
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy
 import io.bluetape4k.tink.daeadKeysetHandle
+import io.bluetape4k.tink.keyset.VersionedKeysetStore
+import io.bluetape4k.tink.keyset.VersionedTinkDaead
 import io.bluetape4k.tink.registerTink
 
 /**
@@ -28,4 +30,12 @@ object TinkDaeads : KLogging() {
     val AES256_SIV: TinkDeterministicAead by publicLazy {
         TinkDeterministicAead(daeadKeysetHandle(AesSivKeyManager.aes256SivTemplate()))
     }
+
+    /**
+     * versioned keyset 저장소를 사용하는 Deterministic AEAD 래퍼를 생성합니다.
+     *
+     * 주기적 키 로테이션과 이전 버전 복호화가 필요한 검색용 암호화 시나리오에 사용합니다.
+     */
+    fun versioned(keysetStore: VersionedKeysetStore): VersionedTinkDaead =
+        VersionedTinkDaead(keysetStore)
 }

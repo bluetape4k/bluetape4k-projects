@@ -4,7 +4,10 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
+    compileOnly(Libs.lettuce_core)
+    compileOnly(Libs.redisson)
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-testcontainers"))
 
     // Google Tink - 현대적 AEAD 암호화 (AES-GCM, ChaCha20-Poly1305, AES-SIV, HMAC)
     api(Libs.tink)

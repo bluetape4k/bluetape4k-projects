@@ -97,6 +97,7 @@ commands.set("user:1", User(1L, "Alice"))
 val user = commands.get("user:1") // User(id=1, name="Alice")
 ```
 
+
 ### Primitive 타입 Codec (LettuceIntCodec / LettuceLongCodec)
 
 Int, Long 원시 타입을 Redis에 효율적으로 저장할 때 사용합니다. Redisson의 `IntegerCodec` / `LongCodec`과 바이너리 호환됩니다.
