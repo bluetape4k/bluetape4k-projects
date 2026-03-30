@@ -4,7 +4,7 @@
 
 ---
 
-## [1.5.0-Beta3] - 2026-03-28
+## [1.5.0-Beta3] - 2026-03-31
 
 ### Added
 
@@ -103,6 +103,103 @@
   - `CuckooFilter<E>`: `add`, `mightContain`, `delete` 지원 — BloomFilter 대비 삭제 연산 지원
 - **HyperLogLog**: PFADD/PFCOUNT/PFMERGE 래핑 ([`4a3d0fb9`](https://github.com/bluetape4k/bluetape4k-projects/commit/4a3d0fb9))
   - `HyperLogLog<E>`: `add`, `count`, `merge` — 대용량 카디널리티 근사 계산 (표준오차 ≈ 0.81%)
+
+#### data/exposed — Auditable 감사 추적 패턴 추가
+
+- **`exposed-core`**: `Auditable` 인터페이스 + `UserContext` (ScopedValue/ThreadLocal 듀얼 전략) + `AuditableIdTable` 베이스 테이블 추가 ([`207bcbca`](https://github.com/bluetape4k/bluetape4k-projects/commit/207bcbca))
+- **`exposed-dao`**: `AuditableEntity` (`flush()` 오버라이드로 createdBy/updatedBy 자동 설정) + `AuditableEntityClass` DAO 추가 ([`207bcbca`](https://github.com/bluetape4k/bluetape4k-projects/commit/207bcbca))
+- **`exposed-jdbc`**: `AuditableJdbcRepository` (`auditedUpdateById`/`auditedUpdateAll` — updatedAt/updatedBy DB CURRENT_TIMESTAMP 자동 설정) 추가 ([`207bcbca`](https://github.com/bluetape4k/bluetape4k-projects/commit/207bcbca))
+- **`exposed-core/dao`**: ULID 커스텀 ID 지원 추가 (`UlidIdTable`, `UlidEntity`) ([`cd345b11`](https://github.com/bluetape4k/bluetape4k-projects/commit/cd345b11))
+
+#### data/hibernate — Hibernate 6.6 NaturalId 확장
+
+- **`Session`/`EntityManager`** 용 `bySimpleNaturalId`, 복합 NaturalId helper 추가 ([`5e7e7f00`](https://github.com/bluetape4k/bluetape4k-projects/commit/5e7e7f00))
+- `ConcreteProxy`, embeddable inheritance 매핑 회귀 테스트 추가
+
+#### io/tink — Redis Key Rotation 지원
+
+- Versioned Keyset + Lettuce/Redisson 기반 Redis 키셋 저장소 추가 ([`02fe8621`](https://github.com/bluetape4k/bluetape4k-projects/commit/02fe8621))
+- `TinkJsonProtoKeysetFormat` 기반 키셋 직렬화로 deprecated API 제거
+
+#### io/http — MockWebServer 헤더 지연 헬퍼 추가
+
+- **`enqueueBodyWithHeadersDelay`** 확장 함수 추가 — headers delay 기반 취소 테스트 안정화 ([`2a15d515`](https://github.com/bluetape4k/bluetape4k-projects/commit/2a15d515))
+
+#### utils/idgenerators — Uuid 생성기 교체
+
+- 테스트 코드 전반의 `TimebasedUuid` → `Uuid` 클래스 교체 완료 ([`db55831f`](https://github.com/bluetape4k/bluetape4k-projects/commit/db55831f))
+  - `Uuid.V7` (EpochTimebased), `Uuid.V1` (DefaultTimebased), `Uuid.V6` (Reordered), `Uuid.V4` (Random), `Uuid.V5` (Namebased)
+
+### Fixed
+
+#### core/coroutines
+
+- **`startCollectOn`**: upstream `launch` 의 `CancellationException` 을 error 로 변환하지 않도록 수정 ([`03c396e6`](https://github.com/bluetape4k/bluetape4k-projects/commit/03c396e6))
+- **`DeferredValue.value`** / **`SuspendRingBuffer.iterator`** deprecated 처리 — blocking 계약 명확화 ([`712d7cbf`](https://github.com/bluetape4k/bluetape4k-projects/commit/712d7cbf))
+- **`PublishSubject.emitError(null)`** 종료 계약 정리 ([`712d7cbf`](https://github.com/bluetape4k/bluetape4k-projects/commit/712d7cbf))
+- **`firstCompleted`**: 첫 완료 기준으로 의미를 정렬하고 `firstSucceeded` 분리 ([`b9c55f5d`](https://github.com/bluetape4k/bluetape4k-projects/commit/b9c55f5d))
+
+#### io/jackson
+
+- **`JsonNode` 변환 로직**: `stringNode` 호출 수정 + `treeToValueOrNull()` `TreeNode` 캐스팅 명시 ([`97a8280e`](https://github.com/bluetape4k/bluetape4k-projects/commit/97a8280e))
+
+#### io/retrofit2
+
+- **Retry Call 재사용 버그**: 매 시도마다 `clone()` 된 Call 사용하도록 수정 ([`cbe6eeca`](https://github.com/bluetape4k/bluetape4k-projects/commit/cbe6eeca))
+
+#### infra/resilience4j
+
+- **Coroutine 예외 계약**: `CompletionStage recover` null cause 및 동기 예외 복구 정리, `CancellationException` 전파 보장 ([`d2b32b60`](https://github.com/bluetape4k/bluetape4k-projects/commit/d2b32b60))
+
+#### infra/bucket4j
+
+- **`RateLimitResult`**: 음수 값 불변식 추가 + error 결과 진단 메시지 보존 강화 ([`62b3d39d`](https://github.com/bluetape4k/bluetape4k-projects/commit/62b3d39d))
+
+#### infra/kafka
+
+- **`SuspendKafkaConsumerTemplate`**: subscribe/assign/commit/seek 관리 기능 추가, 종료 시 `CoroutineScope` 취소 보장 ([`aedc6e44`](https://github.com/bluetape4k/bluetape4k-projects/commit/aedc6e44))
+
+#### infra/cache
+
+- **`NearCacheResilienceConfig`** / **`HazelcastNearCacheConfig`**: 입력 제약 추가 ([`188163b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/188163b4))
+- **`RedissonNearCacheConfig`**: TTL/idle 입력 제약 추가 ([`79db098f`](https://github.com/bluetape4k/bluetape4k-projects/commit/79db098f))
+- **`LettuceCacheConfig`**: 생성 시점 입력 제약 검증 추가 ([`d4cbd1dd`](https://github.com/bluetape4k/bluetape4k-projects/commit/d4cbd1dd))
+
+#### data/hibernate-cache-lettuce
+
+- **`LettuceNearCacheProperties`**: `Serializable` 처리 + 미지원 codec 즉시 검증 ([`3a061b72`](https://github.com/bluetape4k/bluetape4k-projects/commit/3a061b72))
+
+#### data/exposed
+
+- **`exposed-r2dbc`**: `ON CONFLICT DO NOTHING` PostgreSQL 표준 SQL로 일반화 ([`b9c0b838`](https://github.com/bluetape4k/bluetape4k-projects/commit/b9c0b838))
+- **`exposed-r2dbc`**: 페이징 계약 강화 ([`e53024c1`](https://github.com/bluetape4k/bluetape4k-projects/commit/e53024c1))
+- **`exposed-jdbc`**: 배치 조회 시 쿼리 조건 보존 수정 ([`b0a73d13`](https://github.com/bluetape4k/bluetape4k-projects/commit/b0a73d13))
+- **`exposed lettuce loader/writer`**: `loadAllKeys` PK 오름차순 고정 + `chunkSize` 입력 검증 추가 ([`5fb405e0`](https://github.com/bluetape4k/bluetape4k-projects/commit/5fb405e0))
+- **`exposed-postgresql`**: TSTZRANGE fractional seconds 파싱 수정 ([`d7607df2`](https://github.com/bluetape4k/bluetape4k-projects/commit/d7607df2))
+- **`exposed-mysql8`**: Geometry literal 경로를 표준 WKB 기반으로 수정 ([`d7607df2`](https://github.com/bluetape4k/bluetape4k-projects/commit/d7607df2))
+
+#### utils/geo
+
+- **`GeoHashCircleQuery`**: 음수 반경 즉시 거부 검증 추가 ([`a4d555cc`](https://github.com/bluetape4k/bluetape4k-projects/commit/a4d555cc))
+
+#### utils/idgenerators
+
+- **UUID 시퀀스 API**: Base62 시퀀스 `size` 검증 일관성 정렬 ([`17f509b8`](https://github.com/bluetape4k/bluetape4k-projects/commit/17f509b8))
+
+### Changed
+
+#### 의존성 버전 업데이트
+
+- `vertx`: 4.5.25 → 4.5.26
+- `aws2`: 2.42.15 → 2.42.23
+- `aws2_crt`: 0.43.8 → 0.44.0
+- `aws_kotlin`: 1.6.18 → 1.6.46
+- `aws_smithy_kotlin`: 1.6.2 → 1.6.7
+([`42600939`](https://github.com/bluetape4k/bluetape4k-projects/commit/42600939))
+
+#### infra/redisson
+
+- **`RedissonCodecs`** deprecated 객체 제거 ([`52d84d11`](https://github.com/bluetape4k/bluetape4k-projects/commit/52d84d11))
 
 ---
 
