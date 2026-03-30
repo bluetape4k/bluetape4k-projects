@@ -137,12 +137,14 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * @param ex 전파할 종료 원인 예외입니다.
      */
     override suspend fun emitError(ex: Throwable?) {
-        if (this.error == null) {
-            this.error = ex
-            val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
-            colls.forEach { collector ->
-                runCatching { collector.error(ex) }
-            }
+        if (areEqualAsAny(collectors.value, TERMINATED)) {
+            return
+        }
+
+        this.error = ex
+        val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        colls.forEach { collector ->
+            runCatching { collector.error(ex) }
         }
     }
 

@@ -40,6 +40,7 @@ class DeferredValueTest {
         dv.isCompleted.shouldBeFalse()
 
         // 초기화 진행 후 반환합니다. 이미 초기화가 끝난 후에는 바로 반환합니다.
+        @Suppress("DEPRECATION")
         dv.value shouldBeGreaterThan createdTime
 
         dv.isActive.shouldBeFalse()
@@ -129,6 +130,7 @@ class DeferredValueTest {
         val deferred = deferredValueOf<Int> { throw failure }
 
         assertFailsWith<IllegalStateException> { deferred.await() }.message shouldBeEqualTo failure.message
+        @Suppress("DEPRECATION")
         assertFailsWith<IllegalStateException> { deferred.value }.message shouldBeEqualTo failure.message
     }
 }

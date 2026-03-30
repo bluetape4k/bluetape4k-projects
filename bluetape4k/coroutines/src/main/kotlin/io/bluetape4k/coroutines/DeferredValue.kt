@@ -46,6 +46,10 @@ class DeferredValue<T: Any>(
      * // value == 42
      * ```
      */
+    @Deprecated(
+        message = "The value property may block the current thread. Prefer await() in coroutine code.",
+        replaceWith = ReplaceWith("await()"),
+    )
     val value: T by lazy {
         if (_value.isCompleted && !_value.isCancelled) {
             _value.getCompleted()

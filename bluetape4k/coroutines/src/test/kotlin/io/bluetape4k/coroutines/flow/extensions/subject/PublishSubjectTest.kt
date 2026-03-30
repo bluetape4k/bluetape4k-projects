@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
@@ -291,6 +292,19 @@ class PublishSubjectTest {
                 .log("#1")
                 .collect { counter.incrementAndGet() }
         } // completed 이후에는 collect 가 동작하지 않는다
+
+        counter.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `null error 로 종료해도 subject 는 완료 상태가 된다`() = runTest {
+        val subject = PublishSubject<Int>()
+        subject.emitError(null)
+
+        subject.hasCollectors.shouldBeFalse()
+
+        val counter = AtomicInteger(0)
+        subject.collect { counter.incrementAndGet() }
 
         counter.get() shouldBeEqualTo 0
     }

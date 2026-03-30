@@ -30,8 +30,10 @@ class SuspendRingBufferTest {
         for (i in 1..30) {
             buffer.push(i.toDouble())
         }
+        @Suppress("DEPRECATION")
         buffer.sumOf { it!! } shouldBeEqualTo 410.0
 
+        @Suppress("DEPRECATION")
         buffer.forEach {
             log.debug { it }
         }
@@ -63,6 +65,7 @@ class SuspendRingBufferTest {
             .run()
 
         // CoRingBuffer 의 크기가 16 이므로, 2바퀴 돌아서 17 ~ 32 까지의 숫자를 가진다.
+        @Suppress("DEPRECATION")
         buffer.toList().sortedBy { it } shouldBeEqualTo List(bufferSize) { (it + 1).toDouble() }
     }
 

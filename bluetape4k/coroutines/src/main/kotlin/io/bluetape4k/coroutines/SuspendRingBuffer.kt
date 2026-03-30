@@ -125,6 +125,10 @@ class SuspendRingBuffer<T: Any>(
      * val list = ring.snapshot()
      * ```
      */
+    @Deprecated(
+        message = "iterator() blocks the current thread. Prefer snapshot() in coroutine code.",
+        replaceWith = ReplaceWith("snapshot().iterator()"),
+    )
     override fun iterator(): Iterator<T> {
         log.warn { "iterator()는 runBlocking을 사용합니다. 코루틴 내부에서는 snapshot()을 사용하세요." }
         return runBlocking { snapshot().iterator() }
