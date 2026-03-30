@@ -31,8 +31,8 @@ class BatchInsertOnConflictDoNothingExecutable(
  *
  * ## 동작/계약
  * - MySQL 계열은 `INSERT IGNORE`로 SQL을 변환합니다.
- * - 그 외 dialect는 `ON CONFLICT ... DO NOTHING`을 뒤에 추가합니다.
- * - PostgreSQL은 충돌 타깃을 `(id)`로 고정합니다.
+ * - 그 외 dialect는 `ON CONFLICT DO NOTHING`을 뒤에 추가합니다.
+ * - PostgreSQL은 충돌 타깃을 고정하지 않아, 임의의 unique/primary key 제약과 함께 사용할 수 있습니다.
  *
  * ```kotlin
  * val stmt = BatchInsertOnConflictDoNothing(UserTable)
@@ -57,8 +57,7 @@ class BatchInsertOnConflictDoNothing(
 
             else -> {
                 append(insertStatement)
-                val identifier = if (dialect is PostgreSQLDialect) "(id)" else ""
-                append(" ON CONFLICT $identifier DO NOTHING")
+                append(" ON CONFLICT DO NOTHING")
             }
         }
     }

@@ -22,6 +22,10 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
         val id = varchar("id", 10).uniqueIndex()
     }
 
+    private val codeTester = object: Table("code_tester") {
+        val code = varchar("code", 20).uniqueIndex()
+    }
+
     /**
      * Batch Insert with ON CONFLICT DO NOTHING - [batchInsert] 시, 예외가 발생하면 해당 예외를 무시하고, 다음 작업을 수행합니다.
      *
@@ -112,6 +116,31 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
                 execute(this@withTables)
             }
             numInserted shouldBeEqualTo 3
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `postgres like dialect 에서는 id 가 아닌 unique 컬럼도 대상으로 사용할 수 있다`(testDB: TestDB) = runSuspendIO {
+        Assumptions.assumeTrue { testDB in TestDB.ALL_POSTGRES_LIKE }
+
+        withTables(testDB, codeTester) {
+            codeTester.insert { it[code] = "alpha" }
+
+            val statement = BatchInsertOnConflictDoNothing(codeTester)
+            val executable = BatchInsertOnConflictDoNothingExecutable(statement)
+
+            val numInserted = executable.run {
+                statement.addBatch()
+                statement[codeTester.code] = "alpha"
+
+                statement.addBatch()
+                statement[codeTester.code] = "beta"
+
+                execute(this@withTables)
+            }
+
+            numInserted shouldBeEqualTo 1
         }
     }
 }
