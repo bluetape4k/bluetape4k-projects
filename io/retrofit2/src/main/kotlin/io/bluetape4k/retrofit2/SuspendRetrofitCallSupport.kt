@@ -60,6 +60,7 @@ suspend inline fun <T> Call<T>.suspendExecute(
  *
  * ## 동작/계약
  * - 기본 실행은 [suspendExecute]를 사용합니다.
+ * - 재시도마다 현재 [Call]을 `clone()`한 새 인스턴스로 실행합니다.
  * - 재시도 정책은 [retry] 설정(`maxAttempts`, `waitDuration`, retryOnException`)을 그대로 따릅니다.
  * - 취소 경로의 [cancelHandler] 동작은 [suspendExecute]와 동일합니다.
  *
@@ -76,7 +77,7 @@ suspend inline fun <T> Call<T>.suspendExecute(
     crossinline cancelHandler: (Throwable?) -> Unit = {},
 ): Response<T> {
     return SuspendDecorators
-        .ofSupplier { suspendExecute(cancelHandler) }
+        .ofSupplier { clone().suspendExecute(cancelHandler) }
         .withRetry(retry)
         .get()
 }

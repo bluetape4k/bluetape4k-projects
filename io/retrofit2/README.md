@@ -76,6 +76,13 @@ suspend fun fetchMultiple(api: HttpbinApi) = coroutineScope {
 }
 ```
 
+추천 사용 방법:
+
+- 새 API 설계에서는 가능하면 `suspend fun` 또는 `suspend fun ...: Result<T>` 형태를 우선 사용합니다.
+- 기존 Java 호출부와의 호환이나 명시적 취소/콜백 브리지가 필요할 때만 `Call<T>` + `executeAsync()`를 선택하는 편이 단순합니다.
+- Resilience4j `Retry`와 함께 사용할 때는 이 모듈의 `executeAsync(retry)` / `suspendExecute(retry)`를 사용하면 내부적으로 `clone()`된 새 `Call`로 재시도합니다.
+- `ResultCallAdapterFactory`는 HTTP 오류를 `Result.failure(HttpException)`로 정규화하므로, 비즈니스 레이어에서 예외 대신 `Result` 중심으로 합성할 때 특히 유용합니다.
+
 ### 4. 다양한 HTTP 전송 계층 (CallFactory)
 
 OkHttp3 외에 다양한 HTTP 클라이언트를 `Call.Factory`로 사용할 수 있습니다.
