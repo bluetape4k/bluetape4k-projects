@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class GeoHashCircleQueryTest {
 
@@ -45,5 +46,12 @@ class GeoHashCircleQueryTest {
         query.contains(test3).shouldBeTrue()
         query.contains(test4).shouldBeFalse()
         query.contains(test5).shouldBeFalse()
+    }
+
+    @Test
+    fun `circle query radius 는 음수일 수 없다`() {
+        assertFailsWith<IllegalArgumentException> {
+            geoHashCircleQueryOf(wgs84PointOf(37.5665, 126.9780), -1.0)
+        }
     }
 }

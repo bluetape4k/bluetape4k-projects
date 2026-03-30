@@ -5,6 +5,7 @@ import io.bluetape4k.geohash.WGS84Point
 import io.bluetape4k.geohash.boundingBoxOf
 import io.bluetape4k.geohash.utils.VincentyGeodesy
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.Serializable
 
 /**
@@ -25,6 +26,7 @@ fun geoHashCircleQueryOf(latitude: Double, longitude: Double, radius: Double): G
  * @return GeoHashCircleQuery
  */
 fun geoHashCircleQueryOf(center: WGS84Point, radius: Double): GeoHashCircleQuery {
+    radius.requireZeroOrPositiveNumber("radius")
     return GeoHashCircleQuery(center, radius)
 }
 
@@ -33,7 +35,7 @@ fun geoHashCircleQueryOf(center: WGS84Point, radius: Double): GeoHashCircleQuery
  * GeoHash의 정확도를 높이기 위해 원을 정사각형으로 근사합니다.
  *
  * @property center 중심 위치
- * @property radius 반경 (단위: meter)
+ * @property radius 반경 (단위: meter). 0 이상이어야 한다.
  */
 class GeoHashCircleQuery(
     private val center: WGS84Point,
