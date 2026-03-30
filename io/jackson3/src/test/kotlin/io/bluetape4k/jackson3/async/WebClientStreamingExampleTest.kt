@@ -26,7 +26,7 @@ class WebClientStreamingExampleTest {
     fun `WebClient stream response can be parsed by async parser`() {
         val roots = mutableListOf<String>()
         val parser = AsyncJsonParser { root ->
-            roots += root.get("url").asText()
+            roots += root.get("url").asString()
         }
 
         client.get()

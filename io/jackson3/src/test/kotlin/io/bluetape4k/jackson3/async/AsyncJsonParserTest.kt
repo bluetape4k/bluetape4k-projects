@@ -8,9 +8,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
 class AsyncJsonParserTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     data class Model(
         val stringValue: String? = null,
@@ -27,7 +27,7 @@ class AsyncJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ) : Serializable {
+    ): Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }
@@ -203,8 +203,8 @@ class AsyncJsonParserTest {
     fun `루트 스칼라 문자열도 올바르게 파싱한다`() {
         var rootValue: String? = null
         val parser = AsyncJsonParser { root ->
-            root.isTextual.shouldBeTrue()
-            rootValue = root.asText()
+            root.isString.shouldBeTrue()
+            rootValue = root.asString()
         }
 
         "\"root-value\"".toByteArray().forEach { byte ->

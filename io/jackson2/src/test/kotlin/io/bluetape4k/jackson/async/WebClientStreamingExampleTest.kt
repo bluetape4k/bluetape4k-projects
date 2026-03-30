@@ -2,7 +2,6 @@ package io.bluetape4k.jackson.async
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain

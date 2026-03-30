@@ -9,9 +9,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.io.Serializable
@@ -148,8 +148,8 @@ class AsyncJsonParserTest {
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         parser.consume("[".toByteArray())
         repeat(modelSize) {
-            bytes.forEach {
-                parser.consume(byteArrayOf(it))
+            bytes.forEach { byte ->
+                parser.consume(byteArrayOf(byte))
             }
             if (it != modelSize - 1) {
                 parser.consume(",".toByteArray())
