@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +38,8 @@ internal fun <T> startCollectOnInternal(
                     inner.next(it)
                 }
                 inner.complete()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 inner.error(e)
             }
