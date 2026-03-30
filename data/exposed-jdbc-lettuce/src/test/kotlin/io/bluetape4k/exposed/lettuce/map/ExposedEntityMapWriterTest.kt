@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 /**
  * [ExposedEntityMapWriter] 단위 테스트.
@@ -158,6 +159,26 @@ class ExposedEntityMapWriterTest : AbstractExposedTest() {
             rows shouldHaveSize 2
             rows[0].toWriterEntity().name shouldBeEqualTo "alice-updated"
             rows[1].toWriterEntity().name shouldBeEqualTo "bob-new"
+        }
+    }
+
+    @Test
+    fun `chunkSize는 0보다 커야 한다`() {
+        withTables(TestDB.H2, WriterTable) {
+            assertFailsWith<IllegalArgumentException> {
+                ExposedEntityMapWriter(
+                    table = WriterTable,
+                    writeMode = WriteMode.WRITE_THROUGH,
+                    chunkSize = 0,
+                    updateEntity = { stmt: UpdateStatement, entity: WriterEntity ->
+                        stmt[WriterTable.name] = entity.name
+                    },
+                    insertEntity = { stmt: BatchInsertStatement, entity: WriterEntity ->
+                        stmt[WriterTable.id] = entity.id
+                        stmt[WriterTable.name] = entity.name
+                    }
+                )
+            }
         }
     }
 }

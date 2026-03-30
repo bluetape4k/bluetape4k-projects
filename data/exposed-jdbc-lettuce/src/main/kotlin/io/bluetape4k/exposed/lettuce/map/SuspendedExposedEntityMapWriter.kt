@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.lettuce.map
 
+import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.github.resilience4j.retry.RetryConfig
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -22,7 +23,7 @@ import java.time.Duration
  * @param writeMode 쓰기 전략 ([WriteMode])
  * @param updateEntity UPDATE 시 컬럼 매핑 함수
  * @param insertEntity INSERT 시 컬럼 매핑 함수
- * @param chunkSize batchInsert 청크 크기
+ * @param chunkSize batchInsert 청크 크기. 0 이하여서는 안 된다.
  * @param retryAttempts 재시도 횟수
  * @param retryInterval 재시도 간격
  */
@@ -43,6 +44,10 @@ class SuspendedExposedEntityMapWriter<ID: Any, E: Any>(
 ) {
     companion object {
         private const val DEFAULT_CHUNK_SIZE = 1000
+    }
+
+    init {
+        chunkSize.requirePositiveNumber("chunkSize")
     }
 
     override fun writeEntities(map: Map<ID, E>) {

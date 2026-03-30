@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.lettuce.map
 
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
@@ -13,7 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * @param E 반환 엔티티(DTO) 타입
  * @param table Exposed [IdTable]
  * @param toEntity [ResultRow] → [E] 변환 함수
- * @param batchSize 페이징 배치 크기
+ * @param batchSize 페이징 배치 크기. 0 이하여서는 안 되며, PK 오름차순으로 모든 키를 안정적으로 순회한다.
  */
 class ExposedEntityMapLoader<ID: Any, E: Any>(
     private val table: IdTable<ID>,
@@ -38,6 +39,7 @@ class ExposedEntityMapLoader<ID: Any, E: Any>(
                 val batch =
                     table
                         .select(table.id)
+                        .orderBy(table.id, SortOrder.ASC)
                         .limit(batchSize)
                         .offset(offset)
                         .map { it[table.id].value }

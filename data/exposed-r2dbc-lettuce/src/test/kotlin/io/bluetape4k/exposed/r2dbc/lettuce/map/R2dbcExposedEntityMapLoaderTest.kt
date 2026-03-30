@@ -103,6 +103,7 @@ class R2dbcExposedEntityMapLoaderTest: AbstractR2dbcLettuceTest() {
 
                 val ids = loader.loadAllKeys()
                 ids.size shouldBeEqualTo 5
+                ids shouldBeEqualTo ids.sorted()
             }
         }
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.lettuce.map
 
+import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.github.resilience4j.retry.RetryConfig
 import kotlinx.coroutines.flow.map
@@ -40,7 +41,7 @@ import java.time.Duration
  * @param writeMode 쓰기 전략 ([WriteMode]). [WriteMode.NONE]이면 DB에 쓰지 않는다
  * @param updateEntity UPDATE 시 컬럼 매핑 함수 (`(UpdateStatement, E) -> Unit`)
  * @param insertEntity INSERT 시 컬럼 매핑 함수 (`(BatchInsertStatement, E) -> Unit`)
- * @param chunkSize batchInsert 청크 크기 (기본: 1000)
+ * @param chunkSize batchInsert 청크 크기 (기본: 1000). 0 이하여서는 안 된다.
  * @param retryAttempts Resilience4j 재시도 횟수 (기본: 3)
  * @param retryInterval Resilience4j 재시도 간격 (기본: 100ms)
  * @see R2dbcEntityMapWriter
@@ -62,6 +63,10 @@ class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
     ) {
     companion object {
         private const val DEFAULT_CHUNK_SIZE = 1000
+    }
+
+    init {
+        chunkSize.requirePositiveNumber("chunkSize")
     }
 
     /**

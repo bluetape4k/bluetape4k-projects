@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 /**
  * [R2dbcExposedEntityMapWriter] 단위 테스트.
@@ -168,6 +169,27 @@ class R2dbcExposedEntityMapWriterTest: AbstractR2dbcLettuceTest() {
                 rows shouldHaveSize 2
                 rows[0].name shouldBeEqualTo "alice-updated"
                 rows[1].name shouldBeEqualTo "bob-new"
+            }
+        }
+
+    @Test
+    fun `chunkSize는 0보다 커야 한다`() =
+        runTest {
+            withTables(TestDB.H2, WriterTable) {
+                assertFailsWith<IllegalArgumentException> {
+                    R2dbcExposedEntityMapWriter(
+                        table = WriterTable,
+                        writeMode = WriteMode.WRITE_THROUGH,
+                        chunkSize = 0,
+                        updateEntity = { stmt: UpdateStatement, entity: WriterEntity ->
+                            stmt[WriterTable.name] = entity.name
+                        },
+                        insertEntity = { stmt: BatchInsertStatement, entity: WriterEntity ->
+                            stmt[WriterTable.id] = entity.id
+                            stmt[WriterTable.name] = entity.name
+                        }
+                    )
+                }
             }
         }
 }

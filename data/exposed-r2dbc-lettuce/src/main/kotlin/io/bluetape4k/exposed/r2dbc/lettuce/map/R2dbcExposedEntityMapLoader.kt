@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  * Exposed R2DBC DSL을 사용해 DB에서 엔티티를 로드하는 [R2dbcEntityMapLoader] 구현체.
  *
  * `suspendTransaction` 내에서 실행되며 `runBlocking` 없이 코루틴 네이티브로 동작한다.
- * [loadAllIds]는 대용량 테이블을 위해 [batchSize] 단위로 페이징하여 모든 PK를 로드한다.
+ * [loadAllIds]는 대용량 테이블을 위해 [batchSize] 단위로 페이징하며, PK 오름차순으로 모든 키를 안정적으로 로드한다.
  *
  * ### 사용 예시
  * ```kotlin
