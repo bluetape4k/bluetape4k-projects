@@ -234,11 +234,19 @@ val receiverOptions = ReceiverOptions.create<String, String>(
 val consumerTemplate = SuspendKafkaConsumerTemplate(receiverOptions)
 
 suspend fun consumeWithTemplate() {
+    consumerTemplate.subscribe("test-topic")
+    val assignments = consumerTemplate.assignment()
+
     consumerTemplate.receive().collect { record ->
         println("Received: ${record.value()}")
         // 수동 커밋
         record.receiverOffset().commit().await()
     }
+
+    // 운영 중 consumer 관리 기능
+    consumerTemplate.commitCurrentOffsets(*assignments.toTypedArray())
+    consumerTemplate.seekToTimestamp(assignments.first(), System.currentTimeMillis() - 60_000)
+    consumerTemplate.unsubscribe()
 }
 ```
 

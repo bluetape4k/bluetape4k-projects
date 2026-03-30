@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -27,6 +28,7 @@ import reactor.kafka.sender.SenderRecord
 import reactor.kafka.sender.SenderResult
 import reactor.kafka.sender.TransactionManager
 import java.io.Closeable
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Coroutine 환경에서 사용하는 Kafka ProducerTemplate 기능을 제공합니다.
@@ -41,7 +43,12 @@ import java.io.Closeable
 class SuspendKafkaProducerTemplate<K, V> private constructor(
     private val sender: KafkaSender<K, V>,
     private val messageConverter: RecordMessageConverter,
-): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()), Closeable, DisposableBean {
+): CoroutineScope, Closeable, DisposableBean {
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val closed = AtomicBoolean(false)
+
+    override val coroutineContext = scope.coroutineContext
 
     companion object: KLoggingChannel() {
         /**
@@ -91,14 +98,17 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
 
     @Suppress("UNCHECKED_CAST")
     suspend fun send(topic: String, message: Message<*>): SenderResult<Unit> {
-        val producerRecord =
-            messageConverter.fromMessage(message, topic) as ProducerRecord<K, V>
+        val producerRecord = messageConverter.fromMessage(message, topic)
+        require(producerRecord is ProducerRecord<*, *>) {
+            "RecordMessageConverter returned ${producerRecord?.javaClass?.name ?: "null"} for topic=$topic"
+        }
+        val typedRecord = producerRecord as ProducerRecord<K, V>
 
         val correlationId = message.headers[KafkaHeaders.CORRELATION_ID, ByteArray::class.java]
         if (correlationId != null) {
-            producerRecord.headers().add(KafkaHeaders.CORRELATION_ID, correlationId)
+            typedRecord.headers().add(KafkaHeaders.CORRELATION_ID, correlationId)
         }
-        return send(producerRecord)
+        return send(typedRecord)
     }
 
     suspend fun send(record: ProducerRecord<K, V>): SenderResult<Unit> {
@@ -137,6 +147,9 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
     }
 
     private fun doClose() {
-        sender.close()
+        if (closed.compareAndSet(false, true)) {
+            scope.cancel("SuspendKafkaProducerTemplate closed")
+            sender.close()
+        }
     }
 }

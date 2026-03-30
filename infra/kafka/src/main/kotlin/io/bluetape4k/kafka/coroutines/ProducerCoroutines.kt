@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.onCompletion
 import org.apache.kafka.clients.producer.Producer
@@ -111,9 +111,10 @@ suspend fun <K, V> Producer<K, V>.sendAndForget(
         .async {
             send(it).awaitSuspending()
         }
-        .collectLatest {
+        .onCompletion {
             if (needFlush) {
                 flush()
             }
         }
+        .collect()
 }

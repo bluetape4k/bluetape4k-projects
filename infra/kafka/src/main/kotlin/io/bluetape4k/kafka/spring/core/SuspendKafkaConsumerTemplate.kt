@@ -1,9 +1,12 @@
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -19,6 +22,10 @@ import reactor.kafka.receiver.KafkaReceiver
 import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.receiver.ReceiverRecord
 import reactor.kafka.sender.TransactionManager
+import java.io.Closeable
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.regex.Pattern
+import org.springframework.beans.factory.DisposableBean
 
 /**
  * Coroutine 환경에서 Kafka Consumer 기능을 제공하는 구현체입니다.
@@ -58,7 +65,12 @@ import reactor.kafka.sender.TransactionManager
  */
 class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private val receiver: KafkaReceiver<K, V>,
-) : CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+) : CoroutineScope, Closeable, DisposableBean {
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val closed = AtomicBoolean(false)
+
+    override val coroutineContext = scope.coroutineContext
+
     companion object : KLoggingChannel() {
         @JvmStatic
         operator fun <K, V> invoke(receiverOptions: ReceiverOptions<K, V>): SuspendKafkaConsumerTemplate<K, V> =
@@ -69,8 +81,14 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
             SuspendKafkaConsumerTemplate(receiver)
     }
 
+    /**
+     * 레코드를 수동 acknowledgment 방식으로 수신합니다.
+     */
     fun receive(): Flow<ReceiverRecord<K, V>> = receiver.receive().asFlow()
 
+    /**
+     * 레코드를 자동 acknowledgment 방식으로 수신합니다.
+     */
     fun receiveAutoAck(): Flow<ConsumerRecord<K, V>> = receiver.receiveAutoAck().concatMap { it }.asFlow()
 
     /**
@@ -110,8 +128,50 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         crossinline function: (Consumer<K, V>) -> T,
     ): T = receiver.doOnConsumer { function(it) }.awaitSingle()
 
+    /**
+     * 지정한 topic 목록으로 consumer를 구독시킵니다.
+     *
+     * @param topics 구독할 topic 목록
+     */
+    suspend fun subscribe(vararg topics: String) {
+        topics.requireNotEmpty("topics")
+        topics.forEach { it.requireNotBlank("topics") }
+        doOnConsumer { it.subscribe(topics.asList()) }
+    }
+
+    /**
+     * 정규식 패턴과 일치하는 topic을 구독시킵니다.
+     *
+     * @param pattern 구독할 topic 패턴
+     */
+    suspend fun subscribe(pattern: Pattern) {
+        doOnConsumer { it.subscribe(pattern) }
+    }
+
+    /**
+     * 지정한 파티션들을 직접 할당합니다.
+     *
+     * @param partitions 직접 할당할 파티션 목록
+     */
+    suspend fun assign(vararg partitions: TopicPartition) {
+        doOnConsumer { it.assign(partitions.asList()) }
+    }
+
+    /**
+     * 현재 구독/할당을 모두 해제합니다.
+     */
+    suspend fun unsubscribe() {
+        doOnConsumer { it.unsubscribe() }
+    }
+
+    /**
+     * 현재 consumer에 할당된 파티션 목록을 반환합니다.
+     */
     suspend fun assignment(): Set<TopicPartition> = doOnConsumer { it.assignment() }
 
+    /**
+     * 현재 consumer의 구독 topic 목록을 반환합니다.
+     */
     suspend fun subscription(): Set<String> = doOnConsumer { it.subscription() }
 
     suspend fun seek(
@@ -121,6 +181,24 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         doOnConsumer { consumer ->
             consumer.seek(partition, offset)
         }
+    }
+
+    /**
+     * 지정한 timestamp 시점에 가장 가까운 offset으로 이동합니다.
+     *
+     * @param partition 이동할 대상 파티션
+     * @param timestamp 찾을 timestamp(epoch millis)
+     * @return seek에 사용한 offset. 해당 timestamp가 없으면 `null`
+     */
+    suspend fun seekToTimestamp(
+        partition: TopicPartition,
+        timestamp: Long,
+    ): Long? {
+        val offset = offsetsForTimes(mapOf(partition to timestamp))[partition]?.offset()
+        if (offset != null) {
+            seek(partition, offset)
+        }
+        return offset
     }
 
     suspend fun seekToBeginning(vararg partitions: TopicPartition) {
@@ -137,9 +215,48 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
 
     suspend fun partition(partition: TopicPartition): Long = doOnConsumer { it.position(partition) }
 
+    /**
+     * 지정한 파티션의 현재 position을 반환합니다.
+     */
+    suspend fun position(partition: TopicPartition): Long = doOnConsumer { it.position(partition) }
+
     suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata> =
         doOnConsumer {
             it.committed(partitions)
+        }
+
+    /**
+     * 지정한 offset들을 동기 커밋합니다.
+     *
+     * @param offsets 커밋할 topic-partition별 offset metadata
+     */
+    suspend fun commit(offsets: Map<TopicPartition, OffsetAndMetadata>) {
+        doOnConsumer { it.commitSync(offsets) }
+    }
+
+    /**
+     * 지정한 파티션들의 현재 position을 offset으로 계산해 동기 커밋합니다.
+     *
+     * 파티션을 생략하면 현재 assignment 전체를 커밋합니다.
+     *
+     * @param partitions 현재 position을 커밋할 파티션 목록
+     * @return 실제로 커밋한 offset metadata 맵
+     */
+    suspend fun commitCurrentOffsets(vararg partitions: TopicPartition): Map<TopicPartition, OffsetAndMetadata> =
+        doOnConsumer { consumer ->
+            val targets = if (partitions.isNotEmpty()) partitions.toSet() else consumer.assignment()
+            if (targets.isEmpty()) {
+                return@doOnConsumer emptyMap()
+            }
+            val currentAssignment = consumer.assignment()
+            require(targets.all { it in currentAssignment }) {
+                "Cannot commit offsets for unassigned partitions. targets=$targets, assignment=$currentAssignment"
+            }
+            val offsets = targets.associateWith { topicPartition ->
+                OffsetAndMetadata(consumer.position(topicPartition))
+            }
+            consumer.commitSync(offsets)
+            offsets
         }
 
     suspend fun partitionsFromConsumerFor(topic: String): List<PartitionInfo> = doOnConsumer { it.partitionsFor(topic) }
@@ -174,4 +291,19 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         doOnConsumer {
             it.endOffsets(partitions.asList())
         }
+
+    override fun close() {
+        doClose()
+    }
+
+    override fun destroy() {
+        doClose()
+    }
+
+    private fun doClose() {
+        if (closed.compareAndSet(false, true)) {
+            scope.cancel("SuspendKafkaConsumerTemplate closed")
+            (receiver as? AutoCloseable)?.close()
+        }
+    }
 }
