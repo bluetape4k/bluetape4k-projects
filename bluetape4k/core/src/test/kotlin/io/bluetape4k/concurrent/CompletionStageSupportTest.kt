@@ -4,9 +4,11 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletionStage
 import kotlin.test.assertFailsWith
 
@@ -54,6 +56,15 @@ class CompletionStageSupportTest {
             val pending: CompletionStage<Int> = CompletableFuture<Int>()
             pending.getExceptionOrNull().shouldBeNull()
         }
+
+        @Test
+        fun `취소된 CompletionStage에서 getExceptionOrNull 호출 시 CancellationException 을 반환한다`() {
+            val cancelled = CompletableFuture<Int>().apply { cancel(true) }
+
+            val ex = cancelled.getExceptionOrNull()
+            ex.shouldNotBeNull()
+            ex shouldBeInstanceOf CancellationException::class
+        }
     }
 
     @Nested
@@ -67,6 +78,35 @@ class CompletionStageSupportTest {
             )
             val result = stages.sequence().toCompletableFuture().get()
             result shouldBeEqualTo listOf(1, 2, 3)
+        }
+    }
+
+    @Nested
+    inner class FirstCompletedTest {
+        @Test
+        fun `firstCompleted 는 첫 실패 완료를 즉시 반환한다`() {
+            val failedFirst = failedCompletableFutureOf<Int>(IllegalStateException("boom"))
+            val pending = CompletableFuture<Int>()
+
+            val result = listOf<CompletionStage<Int>>(failedFirst, pending).firstCompleted()
+
+            val error = assertFailsWith<java.util.concurrent.ExecutionException> {
+                result.get()
+            }
+            error.cause shouldBeInstanceOf IllegalStateException::class
+            pending.isCancelled.shouldBeTrue()
+        }
+
+        @Test
+        fun `firstSucceeded 는 첫 성공을 반환하고 나머지를 취소한다`() {
+            val failed = failedCompletableFutureOf<Int>(IllegalStateException("boom"))
+            val success = CompletableFuture.completedFuture(42)
+            val pending = CompletableFuture<Int>()
+
+            val result = listOf<CompletionStage<Int>>(failed, success, pending).firstSucceeded()
+
+            result.get() shouldBeEqualTo 42
+            pending.isCancelled.shouldBeTrue()
         }
     }
 

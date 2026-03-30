@@ -2,7 +2,8 @@ package io.bluetape4k.concurrent
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 비동기 작업을 위한 유틸리티 함수들을 제공합니다.
@@ -11,7 +12,7 @@ object FutureUtils {
 
     // TODO: 이건 VirtualThreadUtils 로 이동 
     /**
-     * [futures] 중 가장 처음에 완료되는 것을 반환하고, 나머지 futures 는 취소합니다.
+     * [futures] 중 가장 먼저 terminal state(성공/실패/취소)로 완료되는 것을 반환하고, 나머지 futures 는 취소합니다.
      *
      * ```
      * val future1 = async { delay(1000); 1 }
@@ -24,26 +25,54 @@ object FutureUtils {
      * @param futures [CompletableFuture]의 컬렉션
      * @return 가장 먼저 완료된 [CompletableFuture]
      */
-    fun <V> firstCompleted(
-        futures: Iterable<CompletableFuture<V>>,
-    ): CompletableFuture<V> {
-        val promise = CompletableFuture<V>()
+    fun <V> firstCompleted(futures: Iterable<CompletableFuture<V>>): CompletableFuture<V> {
+        val futureList = futures.toList()
+        require(futureList.isNotEmpty()) { "CompletableFuture collection must not be empty." }
 
-        return StructuredTaskScope.ShutdownOnSuccess<V>("first-completed", Thread.ofVirtual().factory()).use { scope ->
-            futures.forEach { item ->
-                scope.fork {
-                    item.get()
+        val promise = CompletableFuture<V>()
+        futureList.forEach { future ->
+            future.whenComplete { result, error ->
+                val completed = if (error == null) promise.complete(result) else promise.completeExceptionally(error)
+                if (completed) {
+                    futureList.asSequence()
+                        .filter { it !== future }
+                        .forEach { it.cancel(true) }
                 }
             }
-
-            scope.join()
-            try {
-                promise.complete(scope.result())
-            } catch (e: Throwable) {
-                promise.completeExceptionally(e)
-            }
-            promise
         }
+        return promise
+    }
+
+    /**
+     * [futures] 중 가장 먼저 성공한 것을 반환하고, 나머지 futures 는 취소합니다.
+     *
+     * 모든 future가 실패/취소되면 첫 번째 예외를 반환합니다.
+     */
+    fun <V> firstSucceeded(futures: Iterable<CompletableFuture<V>>): CompletableFuture<V> {
+        val futureList = futures.toList()
+        require(futureList.isNotEmpty()) { "CompletableFuture collection must not be empty." }
+
+        val promise = CompletableFuture<V>()
+        val remaining = AtomicInteger(futureList.size)
+        val firstError = AtomicReference<Throwable?>(null)
+
+        futureList.forEach { future ->
+            future.whenComplete { result, error ->
+                if (error == null) {
+                    if (promise.complete(result)) {
+                        futureList.asSequence()
+                            .filter { it !== future }
+                            .forEach { it.cancel(true) }
+                    }
+                } else {
+                    firstError.compareAndSet(null, error)
+                    if (remaining.decrementAndGet() == 0) {
+                        promise.completeExceptionally(firstError.get() ?: IllegalStateException("All CompletableFutures failed."))
+                    }
+                }
+            }
+        }
+        return promise
     }
 
     /**

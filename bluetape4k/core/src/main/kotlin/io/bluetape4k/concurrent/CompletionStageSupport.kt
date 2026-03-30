@@ -6,7 +6,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executor
-import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.CancellationException
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiFunction
 
 /**
@@ -34,6 +36,8 @@ fun <T> CompletionStage<T>.getException(): Throwable? {
         null
     } catch (e: CompletionException) {
         e.cause
+    } catch (e: CancellationException) {
+        e
     }
 }
 
@@ -60,6 +64,8 @@ fun <T> CompletionStage<T>.getExceptionOrNull(): Throwable? {
             null
         } catch (e: CompletionException) {
             e.cause
+        } catch (e: CancellationException) {
+            e
         }
     }
 }
@@ -156,7 +162,7 @@ fun <T> List<CompletionStage<T>>.successfulAsList(
 }
 
 /**
- * 복수의 [CompletionStage] 중 가장 처음에 완료되는 것을 반환하고, 나머지는 취소합니다.
+ * 복수의 [CompletionStage] 중 가장 먼저 terminal state(성공/실패/취소)로 완료되는 것을 반환하고, 나머지는 취소합니다.
  *
  * ```
  * val futures: List<CompletableFuture<Int>> = listOf(...)
@@ -167,27 +173,65 @@ fun <T> List<CompletionStage<T>>.successfulAsList(
  * @receiver [CompletionStage]의 컬렉션
  * @return 가장 먼저 완료된 [CompletableFuture]
  *
- * @see CompletableFuture.anyOf
+ * @throws IllegalArgumentException [CompletionStage] 컬렉션이 비어 있으면 발생합니다.
  */
 fun <T> Iterable<CompletionStage<T>>.firstCompleted(): CompletableFuture<T> {
-    val promise = CompletableFuture<T>()
+    val futures = map { it.toCompletableFuture() }
+    require(futures.isNotEmpty()) { "CompletionStage collection must not be empty." }
 
-    // TODO: JDK 21의 StructuredTaskScope 를 사용하는데, 이를 JDK 버전에 상관없이 사용할 수 있도록 한다.
-    return StructuredTaskScope.ShutdownOnSuccess<T>("first-completed", Thread.ofVirtual().factory()).use { scope ->
-        this@firstCompleted.forEach { item ->
-            scope.fork {
-                item.toCompletableFuture().get()
+    val promise = CompletableFuture<T>()
+    futures.forEach { future ->
+        future.whenComplete { result, error ->
+            val completed = if (error == null) promise.complete(result) else promise.completeExceptionally(error)
+            if (completed) {
+                futures.asSequence()
+                    .filter { it !== future }
+                    .forEach { it.cancel(true) }
             }
         }
-
-        scope.join()
-        try {
-            promise.complete(scope.result())
-        } catch (e: Throwable) {
-            promise.completeExceptionally(e)
-        }
-        promise
     }
+    return promise
+}
+
+/**
+ * 복수의 [CompletionStage] 중 가장 먼저 성공한 것을 반환하고, 나머지는 취소합니다.
+ *
+ * ## 동작/계약
+ * - 첫 성공 결과를 즉시 반환하고 나머지 stage는 `cancel(true)`를 시도합니다.
+ * - 모든 stage가 실패/취소되면 첫 번째 예외를 반환합니다.
+ * - 입력 컬렉션은 비어 있을 수 없습니다.
+ *
+ * ```kotlin
+ * val result: CompletableFuture<Int> = futures.firstSucceeded()
+ * ```
+ *
+ * @throws IllegalArgumentException [CompletionStage] 컬렉션이 비어 있으면 발생합니다.
+ */
+fun <T> Iterable<CompletionStage<T>>.firstSucceeded(): CompletableFuture<T> {
+    val futures = map { it.toCompletableFuture() }
+    require(futures.isNotEmpty()) { "CompletionStage collection must not be empty." }
+
+    val promise = CompletableFuture<T>()
+    val remaining = AtomicInteger(futures.size)
+    val firstError = AtomicReference<Throwable?>(null)
+
+    futures.forEach { future ->
+        future.whenComplete { result, error ->
+            if (error == null) {
+                if (promise.complete(result)) {
+                    futures.asSequence()
+                        .filter { it !== future }
+                        .forEach { it.cancel(true) }
+                }
+            } else {
+                firstError.compareAndSet(null, error)
+                if (remaining.decrementAndGet() == 0) {
+                    promise.completeExceptionally(firstError.get() ?: IllegalStateException("All CompletionStages failed."))
+                }
+            }
+        }
+    }
+    return promise
 }
 
 /**

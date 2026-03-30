@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -89,6 +90,31 @@ class FutureUtilsTest {
         val result = FutureUtils.firstCompleted(futures)
         result.get() shouldBeEqualTo 0
         completedTasks.size shouldBeEqualTo 1   // 1개만 완료되어야 하지만, 거의 동시에 완료되는 경우가 있기 때문에
+    }
+
+    @Test
+    fun `firstCompleted 는 첫 실패 완료를 즉시 반환한다`() {
+        val failedFirst = failedCompletableFutureOf<Int>(IllegalStateException("boom"))
+        val pending = CompletableFuture<Int>()
+
+        val result = FutureUtils.firstCompleted(listOf(failedFirst, pending))
+
+        assertFailsWith<ExecutionException> {
+            result.get()
+        }.cause shouldBeInstanceOf IllegalStateException::class
+        pending.isCancelled.shouldBeTrue()
+    }
+
+    @Test
+    fun `firstSucceeded 는 첫 성공을 반환하고 나머지를 취소한다`() {
+        val failedFirst = failedCompletableFutureOf<Int>(IllegalStateException("boom"))
+        val success = completableFutureOf(7)
+        val pending = CompletableFuture<Int>()
+
+        val result = FutureUtils.firstSucceeded(listOf(failedFirst, success, pending))
+
+        result.get() shouldBeEqualTo 7
+        pending.isCancelled.shouldBeTrue()
     }
 
     @Test
