@@ -18,6 +18,7 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.test.assertFailsWith
 
 class UuidTest {
     companion object : KLoggingChannel() {
@@ -111,6 +112,13 @@ class UuidTest {
             val strs = Uuid.V7.nextBase62s(ID_SIZE).toList()
             strs shouldHaveSize ID_SIZE
             strs.all { it.isNotBlank() } shouldBeEqualTo true
+        }
+
+        @Test
+        fun `nextBase62s의 size는 1 이상이어야 한다`() {
+            assertFailsWith<AssertionError> {
+                Uuid.V7.nextBase62s(0).toList()
+            }
         }
     }
 

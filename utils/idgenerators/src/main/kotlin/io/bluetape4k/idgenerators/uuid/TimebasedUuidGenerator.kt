@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.impl.TimeBasedReorderedGenerator
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
+import io.bluetape4k.support.assertPositiveNumber
 import java.util.*
 
 /**
@@ -12,7 +13,7 @@ import java.util.*
  * ## 동작/계약
  * - 내부적으로 JUG `timeBasedReorderedGenerator()`를 지연 초기화해 재사용합니다.
  * - 문자열 변환은 URL-safe Base62 인코딩([Url62])을 사용합니다.
- * - `size` 인자는 별도 검증 없이 `take(size)`를 사용하므로 `size <= 0`이면 빈 시퀀스를 반환합니다.
+ * - `size`는 1 이상이어야 하며, `assertPositiveNumber` 검증에 실패하면 `-ea` 환경에서 [AssertionError]가 발생합니다.
  *
  * ```kotlin
  * val generator = TimebasedUuidGenerator()
@@ -52,7 +53,7 @@ class TimebasedUuidGenerator : IdGenerator<UUID> {
      *
      * ## 동작/계약
      * - 지연 시퀀스로 생성되며 소비 시점에 UUID가 생성됩니다.
-     * - `size <= 0`이면 빈 시퀀스를 반환합니다.
+     * - `size <= 0`이면 `assertPositiveNumber` 검증에 실패하며 `-ea` 환경에서 [AssertionError]가 발생합니다.
      *
      * ```kotlin
      * val generator = TimebasedUuidGenerator()
@@ -61,7 +62,10 @@ class TimebasedUuidGenerator : IdGenerator<UUID> {
      *
      * @param size 생성할 UUID 개수
      */
-    fun nextUUIDs(size: Int): Sequence<UUID> = generateSequence { nextUUID() }.take(size)
+    fun nextUUIDs(size: Int): Sequence<UUID> {
+        size.assertPositiveNumber("size")
+        return generateSequence { nextUUID() }.take(size)
+    }
 
     /**
      * 시간 기반 UUID를 생성하고 Base62 문자열로 반환합니다.
@@ -81,12 +85,15 @@ class TimebasedUuidGenerator : IdGenerator<UUID> {
      *
      * ## 동작/계약
      * - [nextBase62String]을 반복 호출하는 지연 시퀀스를 반환합니다.
-     * - `size <= 0`이면 빈 시퀀스를 반환합니다.
+     * - `size <= 0`이면 `assertPositiveNumber` 검증에 실패하며 `-ea` 환경에서 [AssertionError]가 발생합니다.
      *
      * ```kotlin
      * val values = TimebasedUuidGenerator().nextBase62Strings(2).toList()
      * // values.size == 2
      * ```
      */
-    fun nextBase62Strings(size: Int): Sequence<String> = generateSequence { nextBase62String() }.take(size)
+    fun nextBase62Strings(size: Int): Sequence<String> {
+        size.assertPositiveNumber("size")
+        return generateSequence { nextBase62String() }.take(size)
+    }
 }

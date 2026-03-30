@@ -3,6 +3,7 @@ package io.bluetape4k.idgenerators.uuid
 import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
+import io.bluetape4k.support.assertPositiveNumber
 import java.util.Random
 import java.util.UUID
 
@@ -73,7 +74,10 @@ object Uuid {
          * val strs: Sequence<String> = generator.nextBase62s(5)
          * ```
          */
-        fun nextBase62s(size: Int): Sequence<String> = generateSequence { nextBase62() }.take(size)
+        fun nextBase62s(size: Int): Sequence<String> {
+            size.assertPositiveNumber("size")
+            return generateSequence { nextBase62() }.take(size)
+        }
     }
 
     /**
@@ -113,7 +117,7 @@ object Uuid {
     }
 
     /**
-     * UUID v5: name-based SHA-1 생성기.
+     * UUID v5: 랜덤 name 입력 기반 SHA-1 생성기.
      *
      * 호출마다 랜덤 UUID를 이름 값으로 공급하여 name-based UUID를 생성합니다.
      * 동일한 입력을 재현하는 결정론적 생성기가 필요하면 [namebased]를 사용하세요.

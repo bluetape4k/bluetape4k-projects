@@ -74,7 +74,7 @@ val id1: UUID = Uuid.V1.nextId()
 // UUID v4 (완전 랜덤)
 val id4: UUID = Uuid.V4.nextId()
 
-// UUID v5 (name-based SHA-1, 비결정론적)
+// UUID v5 (랜덤 name 입력 기반 SHA-1)
 val id5: UUID = Uuid.V5.nextId()
 ```
 
