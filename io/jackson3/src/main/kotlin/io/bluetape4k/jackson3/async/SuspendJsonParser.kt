@@ -261,7 +261,7 @@ class SuspendJsonParser(
     private fun buildScalarNode(token: JsonToken): ValueNode =
         when (token) {
             JsonToken.VALUE_NUMBER_INT -> JsonNodeFactory.instance.numberNode(parser.longValue)
-            JsonToken.VALUE_STRING -> JsonNodeFactory.instance.textNode(parser.valueAsString)
+            JsonToken.VALUE_STRING -> JsonNodeFactory.instance.stringNode(parser.valueAsString)
             JsonToken.VALUE_NUMBER_FLOAT -> JsonNodeFactory.instance.numberNode(parser.doubleValue)
             JsonToken.VALUE_NULL -> JsonNodeFactory.instance.nullNode()
             JsonToken.VALUE_TRUE -> JsonNodeFactory.instance.booleanNode(true)
