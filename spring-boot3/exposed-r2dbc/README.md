@@ -4,6 +4,24 @@
 
 Spring Boot 3와 Spring Data Reactive를 활용하여 Exposed R2DBC를 완전한 suspend 기반 코루틴 Repository로 제공합니다. 논블로킹 I/O와 백프레셔 지원으로 고성능 non-blocking 애플리케이션을 구축합니다.
 
+## UML
+
+```mermaid
+flowchart LR
+    WebFlux["WebFlux / Coroutine Service"]
+    Repo["ExposedR2dbcRepository"]
+    Mapper["toDomain / toPersistValues"]
+    DSL["Exposed R2DBC DSL"]
+    Driver["R2DBC Driver"]
+    DB[("Reactive DB")]
+
+    WebFlux --> Repo
+    Repo --> Mapper
+    Repo --> DSL
+    DSL --> Driver
+    Driver --> DB
+```
+
 ## 설치
 
 ```gradle

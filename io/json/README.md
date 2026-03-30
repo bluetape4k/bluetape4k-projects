@@ -122,9 +122,9 @@ classDiagram
 ```mermaid
 flowchart TD
     시작([JsonSerializer 선택]) --> 요구사항{요구사항?}
-    요구사항 -->|Spring/표준 호환| J2[JacksonSerializer\nJackson 2.x]
-    요구사항 -->|Spring Boot 4 / 최신 API| J3[JacksonSerializer\nJackson 3.x]
-    요구사항 -->|최고 성능 + 바이너리| FJ[FastjsonSerializer\nFastjson2 JSONB]
+    요구사항 -->|Spring/표준 호환| J2[JacksonSerializer<br/>Jackson 2.x]
+    요구사항 -->|Spring Boot 4 / 최신 API| J3[JacksonSerializer<br/>Jackson 3.x]
+    요구사항 -->|최고 성능 + 바이너리| FJ[FastjsonSerializer<br/>Fastjson2 JSONB]
 
     J2 -->|serialize| BA[ByteArray]
     J3 -->|serialize| BA

@@ -66,10 +66,10 @@ dependencies {
 ```mermaid
 flowchart TD
     subgraph bluetape4k-vertx
-        CORE[Vert.x Core\nvertx-core]
-        KOTLIN[Vert.x Kotlin\nvertx-lang-kotlin]
-        COROUTINES[Vert.x Coroutines\nvertx-lang-kotlin-coroutines]
-        SQL[Vert.x SQL Client\nvertx-sql-client]
+        CORE[Vert.x Core<br/>vertx-core]
+        KOTLIN[Vert.x Kotlin<br/>vertx-lang-kotlin]
+        COROUTINES[Vert.x Coroutines<br/>vertx-lang-kotlin-coroutines]
+        SQL[Vert.x SQL Client<br/>vertx-sql-client]
         R4J[bluetape4k-resilience4j]
     end
 
@@ -96,12 +96,12 @@ flowchart LR
     subgraph 이벤트 루프["Vert.x 이벤트 루프"]
         EL[Event Loop Thread]
         EB[EventBus]
-        VER[Verticle\nCoroutineVerticle]
+        VER[Verticle<br/>CoroutineVerticle]
     end
 
     subgraph Coroutines["Kotlin Coroutines"]
         SC[suspend fun start]
-        COR[CoroutineScope\nvertxDispatcher]
+        COR[CoroutineScope<br/>vertxDispatcher]
     end
 
     subgraph SQL_Client["SQL 클라이언트"]
@@ -124,7 +124,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant 앱 as Verticle (Coroutines)
-    participant CB as CircuitBreaker\n(Resilience4j)
+    participant CB as CircuitBreaker<br/>(Resilience4j)
     participant SVC as 원격 서비스
 
     앱->>CB: cb.executeSuspend { remoteCall() }

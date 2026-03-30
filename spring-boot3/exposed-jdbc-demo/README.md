@@ -6,6 +6,26 @@ Exposed DAO + Spring Data JDBC Repository + Spring MVC 통합 데모 (Spring Boo
 
 이 모듈은 **Exposed DAO 엔티티**를 Spring Data JDBC Repository로 감싸고, Spring MVC REST API로 노출하는 기본 패턴을 보여줍니다.
 
+## UML
+
+```mermaid
+flowchart TD
+    App["DemoApplication"]
+    Init["DataInitializer"]
+    Controller["ProductController"]
+    Service["transaction { ... }"]
+    Repo["ProductJdbcRepository"]
+    Entity["ProductEntity / Products"]
+    DB[("H2 / JDBC DB")]
+
+    App --> Init
+    App --> Controller
+    Controller --> Service
+    Service --> Repo
+    Repo --> Entity
+    Entity --> DB
+```
+
 ### 주요 특징
 
 - **Exposed DAO 엔티티 기반**: `ProductEntity`, `Products` 테이블 정의

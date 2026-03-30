@@ -249,7 +249,7 @@ CREATE TABLE planning_solution (
 ## 아키텍처 다이어그램
 
 ```mermaid
-graph LR
+flowchart LR
     subgraph Timefold["Timefold Solver"]
         SS["SimpleScore"]
         HSS["HardSoftScore"]
@@ -258,20 +258,20 @@ graph LR
     end
 
     subgraph Module["bluetape4k-timefold-solver-persistence-exposed"]
-        CT["ColumnType 구현체\n(simpleScore, hardSoftScore, ...)"]
-        EXT["Exposed 확장 함수\n(Table.hardSoftScore() 등)"]
+        CT["ColumnType 구현체<br/>(simpleScore, hardSoftScore, ...)"]
+        EXT["Exposed 확장 함수<br/>(Table.hardSoftScore() 등)"]
     end
 
     subgraph Exposed["JetBrains Exposed ORM"]
-        TABLE["IdTable 정의\n(val score = hardSoftScore(...))"]
-        DAO["Entity (DAO)\n(var score by Table.score)"]
+        TABLE["IdTable 정의<br/>(val score = hardSoftScore(...))"]
+        DAO["Entity (DAO)<br/>(var score by Table.score)"]
         DSL["DSL insert/update/select"]
     end
 
     subgraph DB["RDB (H2/MySQL/PostgreSQL 등)"]
-        INT["INTEGER\n(SimpleScore)"]
-        VC["VARCHAR\n(HardSoftScore → '100/-50')"]
-        VC2["VARCHAR\n(BendableScore → '[100]hard/[-30]soft')"]
+        INT["INTEGER<br/>(SimpleScore)"]
+        VC["VARCHAR<br/>(HardSoftScore → '100/-50')"]
+        VC2["VARCHAR<br/>(BendableScore → '[100]hard/[-30]soft')"]
     end
 
     Timefold --> Module
@@ -291,14 +291,14 @@ sequenceDiagram
     Note over APP,DB: 저장 (직렬화)
     APP->>EXP: entity.score = HardSoftScore.of(100, -50)
     EXP->>CT: valueToDb(score)
-    CT->>CT: ScoreDefinition.formatScore(score)\n→ "100hard/-50soft"
+    CT->>CT: ScoreDefinition.formatScore(score)<br/>→ "100hard/-50soft"
     CT->>DB: INSERT ... score = '100hard/-50soft'
 
     Note over APP,DB: 조회 (역직렬화)
     APP->>EXP: PlanningSolution.findById(1)
     EXP->>DB: SELECT score FROM ...
     DB-->>CT: "100hard/-50soft"
-    CT->>CT: ScoreDefinition.parseScore("100hard/-50soft")\n→ HardSoftScore.of(100, -50)
+    CT->>CT: ScoreDefinition.parseScore("100hard/-50soft")<br/>→ HardSoftScore.of(100, -50)
     CT-->>APP: HardSoftScore 객체
 ```
 

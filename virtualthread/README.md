@@ -24,25 +24,25 @@ val executor = VirtualThreads.executorService()
 ## 모듈 구조 및 런타임 선택
 
 ```mermaid
-graph TD
-    APP["애플리케이션\n(API 모듈만 의존)"]
+flowchart TD
+    APP["애플리케이션<br/>(API 모듈만 의존)"]
 
-    API["bluetape4k-virtualthread-api\n공통 인터페이스 + ServiceLoader"]
+    API["bluetape4k-virtualthread-api<br/>공통 인터페이스 + ServiceLoader"]
 
-    JDK21["bluetape4k-virtualthread-jdk21\nJava 21 구현체\npriority = 21"]
-    JDK25["bluetape4k-virtualthread-jdk25\nJava 25 구현체\npriority = 25"]
-    FALLBACK["Platform Thread Fallback\n(JDK 17 이하)\npriority = MIN_VALUE"]
+    JDK21["bluetape4k-virtualthread-jdk21<br/>Java 21 구현체<br/>priority = 21"]
+    JDK25["bluetape4k-virtualthread-jdk25<br/>Java 25 구현체<br/>priority = 25"]
+    FALLBACK["Platform Thread Fallback<br/>(JDK 17 이하)<br/>priority = MIN_VALUE"]
 
-    RUNTIME{"런타임 JDK 버전\nServiceLoader 선택"}
+    RUNTIME{"런타임 JDK 버전<br/>ServiceLoader 선택"}
 
     APP -->|"implementation"| API
     APP -->|"runtimeOnly"| JDK21
     APP -->|"runtimeOnly"| JDK25
 
     API --> RUNTIME
-    RUNTIME -->|"JDK 25 환경\npriority 25 선택"| JDK25
-    RUNTIME -->|"JDK 21 환경\npriority 21 선택"| JDK21
-    RUNTIME -->|"JDK 17 이하\nisSupported() = false"| FALLBACK
+    RUNTIME -->|"JDK 25 환경<br/>priority 25 선택"| JDK25
+    RUNTIME -->|"JDK 21 환경<br/>priority 21 선택"| JDK21
+    RUNTIME -->|"JDK 17 이하<br/>isSupported() = false"| FALLBACK
 ```
 
 ## 주의

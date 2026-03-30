@@ -33,6 +33,23 @@ Hibernate Session Factory
 H2 Database
 ```
 
+```mermaid
+flowchart TD
+    Client["Client HTTP Request"]
+    Controller["ProductController"]
+    Repo["ProductRepository"]
+    Hibernate["Hibernate Session Factory"]
+    RegionFactory["Lettuce Near Cache<br/>Region Factory"]
+    L1["L1 Cache<br/>Caffeine"]
+    L2["L2 Cache<br/>Redis"]
+    DB[("H2 Database")]
+
+    Client --> Controller --> Repo --> Hibernate --> RegionFactory
+    RegionFactory --> L1
+    RegionFactory --> L2
+    Repo --> DB
+```
+
 ## 도메인 모델
 
 ### Product 엔티티

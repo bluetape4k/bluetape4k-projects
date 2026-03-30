@@ -227,10 +227,10 @@ val result = totalAmount.await().indefinitely()
 ## Mutiny 타입 다이어그램
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph Mutiny 핵심 타입
-        UNI["Uni&lt;T&gt;\n0 또는 1개 아이템\n(Reactor Mono 대응)"]
-        MULTI["Multi&lt;T&gt;\n0개 이상의 아이템 스트림\n(Reactor Flux 대응)"]
+        UNI["Uni&lt;T&gt;<br/>0 또는 1개 아이템<br/>(Reactor Mono 대응)"]
+        MULTI["Multi&lt;T&gt;<br/>0개 이상의 아이템 스트림<br/>(Reactor Flux 대응)"]
     end
 
     subgraph Uni 생성

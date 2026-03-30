@@ -234,15 +234,15 @@ classDiagram
 ```mermaid
 flowchart LR
     subgraph 값 범위별 인코딩
-        V1["작은 값\n0 ~ 127"]
-        V2["중간 값\n128 ~ 32767"]
-        V3["큰 값\n32768+"]
+        V1["작은 값<br/>0 ~ 127"]
+        V2["중간 값<br/>128 ~ 32767"]
+        V3["큰 값<br/>32768+"]
     end
 
     subgraph ByteBuf 인코딩
-        B1["1바이트\n0xxx xxxx"]
-        B2["2바이트\n1xxx xxxx xxxx xxxx"]
-        B3["4바이트\n(부호 확장)"]
+        B1["1바이트<br/>0xxx xxxx"]
+        B2["2바이트<br/>1xxx xxxx xxxx xxxx"]
+        B3["4바이트<br/>(부호 확장)"]
     end
 
     V1 -->|writeShortSmart / writeUShortSmart| B1
@@ -259,10 +259,10 @@ flowchart LR
 ```mermaid
 flowchart TD
     NET[네트워크 계층] -->|수신 바이트| CH[Channel]
-    CH --> P1[ChannelHandler 1\n바이트 디코딩]
-    P1 --> P2[ChannelHandler 2\nByteBuf 확장 처리\nreadVarInt / readShortSmart]
-    P2 --> P3[ChannelHandler 3\n비즈니스 로직]
-    P3 -->|응답 생성| W1[ChannelHandler\nwriteVarInt / writeString]
+    CH --> P1[ChannelHandler 1<br/>바이트 디코딩]
+    P1 --> P2[ChannelHandler 2<br/>ByteBuf 확장 처리<br/>readVarInt / readShortSmart]
+    P2 --> P3[ChannelHandler 3<br/>비즈니스 로직]
+    P3 -->|응답 생성| W1[ChannelHandler<br/>writeVarInt / writeString]
     W1 -->|인코딩| CH
     CH -->|송신 바이트| NET
 ```

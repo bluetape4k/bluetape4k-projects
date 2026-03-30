@@ -150,11 +150,11 @@ classDiagram
 ### ReactiveRedisTemplate 직렬화 흐름
 
 ```mermaid
-graph LR
-    App["애플리케이션"] --> Template["ReactiveRedisTemplate\n(String, Any)"]
-    Template --> Context["RedisSerializationContext\nredisSerializationContext { }"]
-    Context --> KeySer["키 Serializer\nRedisSerializer.string()"]
-    Context --> ValSer["값 Serializer\nRedisBinarySerializers.LZ4Fory"]
+flowchart LR
+    App["애플리케이션"] --> Template["ReactiveRedisTemplate<br/>(String, Any)"]
+    Template --> Context["RedisSerializationContext<br/>redisSerializationContext { }"]
+    Context --> KeySer["키 Serializer<br/>RedisSerializer.string()"]
+    Context --> ValSer["값 Serializer<br/>RedisBinarySerializers.LZ4Fory"]
     ValSer --> Fory["Fory 직렬화"]
     ValSer --> LZ4["LZ4 압축"]
     LZ4 --> Redis[("Redis")]

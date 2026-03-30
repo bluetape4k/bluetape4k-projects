@@ -196,11 +196,11 @@ sequenceDiagram
 ```mermaid
 flowchart TD
     시작([직렬화 시작]) --> 용도{사용 목적?}
-    용도 -->|고성능 온라인 처리| FAST[FAST_CODEC_FACTORY\nZstd 레벨 -1]
+    용도 -->|고성능 온라인 처리| FAST[FAST_CODEC_FACTORY<br/>Zstd 레벨 -1]
     용도 -->|Kafka/Hadoop 호환| SNAPPY[SNAPPY_CODEC_FACTORY]
-    용도 -->|Avro 기본값 호환| DEFAULT[DEFAULT_CODEC_FACTORY\nDeflate 기본]
-    용도 -->|균형형 압축| ZSTD[ZSTD_CODEC_FACTORY\nZstd 기본]
-    용도 -->|장기 보관/최대 압축| ARCHIVE[ARCHIVE_CODEC_FACTORY\nZstd 레벨 9]
+    용도 -->|Avro 기본값 호환| DEFAULT[DEFAULT_CODEC_FACTORY<br/>Deflate 기본]
+    용도 -->|균형형 압축| ZSTD[ZSTD_CODEC_FACTORY<br/>Zstd 기본]
+    용도 -->|장기 보관/최대 압축| ARCHIVE[ARCHIVE_CODEC_FACTORY<br/>Zstd 레벨 9]
     용도 -->|압축 없이 최대 속도| NULL[NULL_CODEC_FACTORY]
     FAST --> 직렬화([ByteArray 출력])
     SNAPPY --> 직렬화

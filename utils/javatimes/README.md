@@ -532,9 +532,9 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    START["시작 ZonedDateTime"] --> RANGE["ZonedDateTime Range\n(start..end)"]
+    START["시작 ZonedDateTime"] --> RANGE["ZonedDateTime Range<br/>(start..end)"]
     RANGE -->|"step(1.monthPeriod())"| STEP["월별 순회"]
-    RANGE -->|"windowedMonths(3, 1)"| WIND["이동 윈도우\n(3개월, 1개월 이동)"]
+    RANGE -->|"windowedMonths(3, 1)"| WIND["이동 윈도우<br/>(3개월, 1개월 이동)"]
     RANGE -->|"chunkedDays(7)"| CHUNK["주 단위 분할"]
     RANGE -->|"asFlow()"| FLOW["Flow<ZonedDateTime>"]
 

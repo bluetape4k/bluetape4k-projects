@@ -170,10 +170,10 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 ### Spring WebFlux + Coroutines 요청 흐름
 
 ```mermaid
-graph LR
+flowchart LR
     Client["HTTP 클라이언트"] --> Netty["Netty HTTP 서버"]
-    Netty --> WebFlux["Spring WebFlux\nDispatcherHandler"]
-    WebFlux --> Handler["Coroutines 핸들러\n(suspend fun / Flow)"]
+    Netty --> WebFlux["Spring WebFlux<br/>DispatcherHandler"]
+    WebFlux --> Handler["Coroutines 핸들러<br/>suspend fun / Flow"]
     Handler --> Service["서비스 계층"]
     Service --> DB[("데이터베이스 / 외부 API")]
     DB -->> Service
@@ -186,8 +186,8 @@ graph LR
 ### RestClient Coroutines DSL 구조
 
 ```mermaid
-graph TD
-    App["애플리케이션 코드"] --> DSL["RestClient Coroutines DSL\nsuspendGet / suspendPost\nsuspendPut / suspendPatch / suspendDelete"]
+flowchart TD
+    App["애플리케이션 코드"] --> DSL["RestClient Coroutines DSL<br/>suspendGet / suspendPost<br/>suspendPut / suspendPatch / suspendDelete"]
     DSL --> RestClient["Spring RestClient"]
     RestClient --> HTTP["HTTP 요청"]
     HTTP --> ExternalAPI["외부 REST API"]
@@ -199,13 +199,13 @@ graph TD
 ### Retrofit2 통합 구조
 
 ```mermaid
-graph TD
-    App["애플리케이션"] --> RetrofitBean["Retrofit Bean\n(@Bean retrofit.create<T>())"]
+flowchart TD
+    App["애플리케이션"] --> RetrofitBean["Retrofit Bean<br/>(@Bean retrofit.create<T>())"]
     RetrofitBean --> Retrofit2["Retrofit2"]
     Retrofit2 --> OkHttp["OkHttp3 클라이언트"]
     Retrofit2 --> HttpClient5["Apache HttpClient5"]
     Retrofit2 --> Jackson["Jackson 2 직렬화/역직렬화"]
-    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter\n(suspend 함수 지원)"]
+    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>(suspend 함수 지원)"]
     OkHttp --> ExternalAPI["외부 REST API"]
     HttpClient5 --> ExternalAPI
 ```

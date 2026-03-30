@@ -2,6 +2,26 @@
 
 PostgreSQL 전용 Kotlin Exposed 확장 모듈입니다. PostGIS 공간 데이터, pgvector 벡터 검색, TSTZRANGE 시간 범위 컬럼 타입을 제공합니다.
 
+## UML
+
+```mermaid
+flowchart LR
+    Core["Exposed PostgreSQL Module"]
+    PostGIS["postgis<br/>Geometry types + spatial ops"]
+    Pgvector["pgvector<br/>Vector type + similarity ops"]
+    Range["tsrange / tstzrange<br/>Range column types"]
+    Query["Exposed DSL / SQL functions"]
+    PG[("PostgreSQL")]
+
+    Core --> PostGIS
+    Core --> Pgvector
+    Core --> Range
+    PostGIS --> Query
+    Pgvector --> Query
+    Range --> Query
+    Query --> PG
+```
+
 ## 주요 기능
 
 ### 1. PostGIS - 공간 데이터

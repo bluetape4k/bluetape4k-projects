@@ -252,14 +252,14 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 flowchart LR
     subgraph JK2["bluetape4k-jackson2 (Jackson 2.x)"]
         M2[com.fasterxml.jackson.*]
-        MOD2[Module SPI:\ncom.fasterxml.jackson.databind.Module]
-        TK2["@JsonTinkEncrypt\n→ 자동 등록"]
+        MOD2[Module SPI:<br/>com.fasterxml.jackson.databind.Module]
+        TK2["@JsonTinkEncrypt<br/>→ 자동 등록"]
     end
 
     subgraph JK3["bluetape4k-jackson3 (Jackson 3.x)"]
         M3[tools.jackson.*]
-        MOD3[Module SPI:\ntools.jackson.databind.JacksonModule]
-        TK3["@JsonTinkEncrypt\n→ JsonTinkEncryptModule 수동 등록"]
+        MOD3[Module SPI:<br/>tools.jackson.databind.JacksonModule]
+        TK3["@JsonTinkEncrypt<br/>→ JsonTinkEncryptModule 수동 등록"]
     end
 
     JK2 -->|동일 기능, 다른 패키지| JK3

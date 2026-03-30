@@ -9,6 +9,26 @@ Java 25 Virtual Thread 구현체 모듈입니다.
 
 JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK 25 환경에서는 이 구현체가 자동으로 선택됩니다.
 
+## UML
+
+```mermaid
+classDiagram
+    class VirtualThreadRuntime {
+        <<interface>>
+    }
+    class StructuredTaskScopeProvider {
+        <<interface>>
+    }
+    class Jdk25VirtualThreadRuntime
+    class Jdk25StructuredTaskScopeProvider
+    class ServiceLoader
+
+    VirtualThreadRuntime <|.. Jdk25VirtualThreadRuntime
+    StructuredTaskScopeProvider <|.. Jdk25StructuredTaskScopeProvider
+    ServiceLoader --> Jdk25VirtualThreadRuntime
+    ServiceLoader --> Jdk25StructuredTaskScopeProvider
+```
+
 ## 주요 구현체
 
 ### Jdk25VirtualThreadRuntime

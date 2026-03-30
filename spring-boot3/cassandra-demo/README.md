@@ -2,6 +2,24 @@
 
 Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다.
 
+## UML
+
+```mermaid
+flowchart TD
+    Entity["@Table Entity"]
+    Repo["CassandraRepository /<br/>CoroutineCrudRepository"]
+    Template["CassandraTemplate /<br/>CassandraOperations"]
+    Reactive["Reactive / Coroutine APIs"]
+    Cassandra[("Apache Cassandra")]
+
+    Entity --> Repo
+    Entity --> Template
+    Repo --> Cassandra
+    Template --> Cassandra
+    Reactive --> Repo
+    Reactive --> Template
+```
+
 ## 예제 목록
 
 ### 기본 (basic/)

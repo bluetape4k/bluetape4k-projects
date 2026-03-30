@@ -166,11 +166,11 @@ sequenceDiagram
     TC->>DOCKER: Docker 이미지 pull & run
     DOCKER-->>TC: 컨테이너 준비 완료
     TC-->>SERVER: 포트 매핑 정보 반환
-    SERVER->>SERVER: writeToSystemProperties()\ntestcontainers.{name}.host/port/url 등록
+    SERVER->>SERVER: writeToSystemProperties()<br/>testcontainers.{name}.host/port/url 등록
     SERVER-->>TEST: 시작 완료
 
     TEST->>SPRING: 테스트 실행 시작
-    SPRING->>SPRING: application-test.yml 로드\n${testcontainers.mysql.jdbc-url} 치환
+    SPRING->>SPRING: application-test.yml 로드<br/>${testcontainers.mysql.jdbc-url} 치환
     SPRING-->>TEST: ApplicationContext 준비 완료
 
     TEST->>TEST: 테스트 로직 실행
@@ -182,16 +182,16 @@ sequenceDiagram
 ## 지원 컨테이너 구조
 
 ```mermaid
-graph TD
-    GS["GenericServer\n(공통 기반)"]
+flowchart TD
+    GS["GenericServer<br/>(공통 기반)"]
 
     subgraph 데이터베이스
         MY5["MySQL5Server"]
         MY8["MySQL8Server"]
         MA["MariaDBServer"]
-        PG["PostgreSQLServer\n(withExtensions 지원)"]
-        PGS["PostgisServer\n(postgis 자동 활성화)"]
-        PGV["PgvectorServer\n(vector 자동 활성화)"]
+        PG["PostgreSQLServer<br/>(withExtensions 지원)"]
+        PGS["PostgisServer<br/>(postgis 자동 활성화)"]
+        PGV["PgvectorServer<br/>(vector 자동 활성화)"]
         CR["CockroachServer"]
         CH["ClickHouseServer"]
     end
@@ -222,7 +222,7 @@ graph TD
     end
 
     subgraph AWS
-        LS["LocalStackServer\n(S3, DynamoDB 등)"]
+        LS["LocalStackServer<br/>(S3, DynamoDB 등)"]
     end
 
     GS --> 데이터베이스

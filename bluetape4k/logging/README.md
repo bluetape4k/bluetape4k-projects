@@ -56,18 +56,18 @@ classDiagram
 flowchart LR
     subgraph KLogging["KLogging (동기)"]
         A1["log.debug { msg }"] -->|"레벨 활성화 시만 실행"| SLF4J["SLF4J Logger"]
-        SLF4J --> APPENDER["Logback Appender\n(Console/File)"]
+        SLF4J --> APPENDER["Logback Appender<br/>(Console/File)"]
     end
 
     subgraph KLoggingChannel["KLoggingChannel (비동기)"]
-        B1["log.debug { msg }"] --> CHANNEL["MutableSharedFlow\n(버퍼 64개)"]
+        B1["log.debug { msg }"] --> CHANNEL["MutableSharedFlow<br/>(버퍼 64개)"]
         CHANNEL -->|"별도 코루틴"| SLF4J2["SLF4J Logger"]
         SLF4J2 --> APPENDER2["Logback Appender"]
     end
 
     subgraph MDC["MDC 컨텍스트"]
         C1["withLoggingContext(pairs)"] --> TL["ThreadLocal MDC"]
-        C2["withCoroutineLoggingContext(pairs)"] --> CC["CoroutineContext MDC\n(async 블록에도 전파)"]
+        C2["withCoroutineLoggingContext(pairs)"] --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]
     end
 ```
 

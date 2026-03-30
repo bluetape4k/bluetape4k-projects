@@ -236,12 +236,12 @@ permutations(5, 3)   // 60
 ## 기능 구조 다이어그램
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph 통계["통계 (Statistics)"]
-        DS["descriptives()\n기술통계 (평균/분산/표준편차)"]
-        HG["Histogram\n(Double/BigDecimal/Comparable)"]
+        DS["descriptives()<br/>기술통계 (평균/분산/표준편차)"]
+        HG["Histogram<br/>(Double/BigDecimal/Comparable)"]
         MA["이동평균 / 이동합"]
-        AG["aggregateBy()\n키별 집계"]
+        AG["aggregateBy()<br/>키별 집계"]
     end
 
     subgraph 보간["보간 (Interpolation)"]
@@ -273,10 +273,10 @@ graph TD
 
     subgraph ML["머신러닝"]
         KM["K-Means 클러스터링"]
-        DM["거리 측정\n(Euclidean/Cosine)"]
+        DM["거리 측정<br/>(Euclidean/Cosine)"]
     end
 
-    MATH["bluetape4k-math\n(Apache Commons Math3 기반)"]
+    MATH["bluetape4k-math<br/>(Apache Commons Math3 기반)"]
     MATH --> 통계
     MATH --> 보간
     MATH --> 적분

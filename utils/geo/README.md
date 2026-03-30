@@ -26,7 +26,7 @@
 ## 아키텍처 다이어그램
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph bluetape4k-geo["bluetape4k-geo (통합 모듈)"]
         direction TB
         GC["Geocode<br/>(구 utils/geocode)"]

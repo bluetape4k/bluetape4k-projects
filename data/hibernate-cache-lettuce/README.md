@@ -9,14 +9,14 @@ Hibernate 7 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 + R
 ## 아키텍처
 
 ```mermaid
-graph TD
+flowchart TD
     Hibernate["Hibernate ORM"]
-    Factory["LettuceNearCacheRegionFactory\nRegionFactoryTemplate 구현"]
-    Region["EntityRegion / CollectionRegion\nQueryResultsRegion"]
-    Storage["LettuceNearCacheStorageAccess\nDomainDataStorageAccess 구현\nkey: {regionName}::{key}"]
-    NearCache["LettuceNearCache\n2-tier cache"]
-    L1["Caffeine (L1)\n로컬 인메모리"]
-    L2["Redis (L2, Lettuce)\n분산 캐시 + CLIENT TRACKING"]
+    Factory["LettuceNearCacheRegionFactory<br/>RegionFactoryTemplate 구현"]
+    Region["EntityRegion / CollectionRegion<br/>QueryResultsRegion"]
+    Storage["LettuceNearCacheStorageAccess<br/>DomainDataStorageAccess 구현<br/>key: {regionName}::{key}"]
+    NearCache["LettuceNearCache<br/>2-tier cache"]
+    L1["Caffeine (L1)<br/>로컬 인메모리"]
+    L2["Redis (L2, Lettuce)<br/>분산 캐시 + CLIENT TRACKING"]
 
     Hibernate --> Factory
     Factory --> Region

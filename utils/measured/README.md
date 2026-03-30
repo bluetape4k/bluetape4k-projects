@@ -111,11 +111,11 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    L["10 * meters\n(Measure&lt;Length&gt;)"]
-    T["seconds\n(Time)"]
-    V["speed\n(UnitsRatio&lt;Length, Time&gt;)\n= 10 m/s"]
-    D["5 * seconds\n(Measure&lt;Time&gt;)"]
-    R["distance\n(Measure&lt;Length&gt;)\n= 50 m"]
+    L["10 * meters<br/>(Measure&lt;Length&gt;)"]
+    T["seconds<br/>(Time)"]
+    V["speed<br/>(UnitsRatio&lt;Length, Time&gt;)<br/>= 10 m/s"]
+    D["5 * seconds<br/>(Measure&lt;Time&gt;)"]
+    R["distance<br/>(Measure&lt;Length&gt;)<br/>= 50 m"]
 
     L -->|"/ seconds"| V
     V -->|"* duration"| R

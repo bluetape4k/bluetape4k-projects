@@ -197,22 +197,22 @@ classDiagram
 ```mermaid
 flowchart LR
     subgraph 입력
-        P[평문\nPlaintext]
+        P[평문<br/>Plaintext]
     end
 
     subgraph Digest["해시 다이제스트 (단방향)"]
-        D1[Jasypt\nPooledByteDigester]
-        D2[BouncyCastle\nKeccak Provider]
+        D1[Jasypt<br/>PooledByteDigester]
+        D2[BouncyCastle<br/>Keccak Provider]
     end
 
     subgraph Encrypt["대칭 암호화 (양방향)"]
-        E1[PBE 암호화\nPooledPBEByteEncryptor]
-        E2[JCA Cipher\nAES/CBC/PKCS5Padding]
+        E1[PBE 암호화<br/>PooledPBEByteEncryptor]
+        E2[JCA Cipher<br/>AES/CBC/PKCS5Padding]
     end
 
     subgraph 출력
-        H[해시값\nBase64 문자열]
-        C[암호문\nByteArray / Base64]
+        H[해시값<br/>Base64 문자열]
+        C[암호문<br/>ByteArray / Base64]
     end
 
     P -->|SHA256/MD5/Keccak| D1 --> H

@@ -180,14 +180,14 @@ flowchart LR
     OBJ[Kotlin 객체]
 
     subgraph JSON["JSON 텍스트 (가독성)"]
-        JS[toJsonString\nserializeAsString]
-        JD[readValueOrNull\ndeserializeFromString]
+        JS[toJsonString<br/>serializeAsString]
+        JD[readValueOrNull<br/>deserializeFromString]
         JSTR[JSON String]
     end
 
     subgraph JSONB["JSONB 바이너리 (고성능)"]
-        BS[toJsonBytes\nserialize]
-        BD[readBytesOrNull\ndeserialize]
+        BS[toJsonBytes<br/>serialize]
+        BD[readBytesOrNull<br/>deserialize]
         BARR[ByteArray]
     end
 

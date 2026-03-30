@@ -4,6 +4,26 @@
 
 Spring Boot 3와 Spring Data를 활용하여 Exposed DAO 엔티티를 관리하는 고성능 Repository 구현입니다. PartTree 메서드 이름 쿼리와 `@Query` 어노테이션을 통한 Exposed DSL 지원을 제공합니다.
 
+## UML
+
+```mermaid
+flowchart LR
+    Controller["Spring MVC / Service"]
+    Repo["UserRepository<br/>ExposedJdbcRepository"]
+    PartTree["PartTree Parser"]
+    Query["@Query SQL"]
+    DSL["Exposed DSL"]
+    DB[("RDBMS")]
+
+    Controller --> Repo
+    Repo --> PartTree
+    Repo --> Query
+    Repo --> DSL
+    PartTree --> DSL
+    Query --> DB
+    DSL --> DB
+```
+
 ## 설치
 
 ```gradle

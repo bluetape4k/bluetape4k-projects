@@ -7,6 +7,26 @@ Java 21 Virtual Thread 구현체 모듈입니다.
 이 모듈은
 `bluetape4k-virtualthread-api`가 정의한 인터페이스를 Java 21 기준으로 구현합니다. ServiceLoader를 통해 런타임에 자동으로 로드되며, JDK 21 이상 환경에서 활성화됩니다.
 
+## UML
+
+```mermaid
+classDiagram
+    class VirtualThreadRuntime {
+        <<interface>>
+    }
+    class StructuredTaskScopeProvider {
+        <<interface>>
+    }
+    class Jdk21VirtualThreadRuntime
+    class Jdk21StructuredTaskScopeProvider
+    class ServiceLoader
+
+    VirtualThreadRuntime <|.. Jdk21VirtualThreadRuntime
+    StructuredTaskScopeProvider <|.. Jdk21StructuredTaskScopeProvider
+    ServiceLoader --> Jdk21VirtualThreadRuntime
+    ServiceLoader --> Jdk21StructuredTaskScopeProvider
+```
+
 ## 주요 구현체
 
 ### Jdk21VirtualThreadRuntime

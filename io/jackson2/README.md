@@ -307,13 +307,13 @@ classDiagram
 flowchart LR
     subgraph 데이터 클래스
         OBJ[Kotlin 객체]
-        ANN["@JsonTinkEncrypt\n@JsonMasker\n@JsonUuidEncoder"]
+        ANN["@JsonTinkEncrypt<br/>@JsonMasker<br/>@JsonUuidEncoder"]
     end
 
     subgraph ObjectMapper["ObjectMapper 처리"]
-        SER[직렬화기\nSerializer]
-        DES[역직렬화기\nDeserializer]
-        MOD[Jackson Module\n등록]
+        SER[직렬화기<br/>Serializer]
+        DES[역직렬화기<br/>Deserializer]
+        MOD[Jackson Module<br/>등록]
     end
 
     subgraph 출력 포맷

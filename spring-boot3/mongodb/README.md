@@ -210,10 +210,10 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
 ```mermaid
-graph TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수\n(bluetape4k-spring-mongodb)"]
+flowchart TD
+    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(bluetape4k-spring-mongodb)"]
     Ext --> ROps["ReactiveMongoOperations"]
-    ROps --> Reactor["Reactor\nMono / Flux"]
+    ROps --> Reactor["Reactor<br/>Mono / Flux"]
     Reactor --> Driver["MongoDB Reactive Driver"]
     Driver --> MongoDB[("MongoDB")]
     Ext -- "Mono → suspend" --> App
@@ -223,14 +223,14 @@ graph TD
 ### Criteria / Query / Update DSL 흐름
 
 ```mermaid
-graph LR
-    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL\n\"age\".criteria() gt 20"]
-    Code --> QueryBuilder["Query 빌더 확장\nqueryOf() / paginate()"]
-    Code --> UpdateDSL["Update DSL\n\"field\" setTo value"]
+flowchart LR
+    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>\"age\".criteria() gt 20"]
+    Code --> QueryBuilder["Query 빌더 확장<br/>queryOf() / paginate()"]
+    Code --> UpdateDSL["Update DSL<br/>\"field\" setTo value"]
     CriteriaDSL --> Query["Query 객체"]
     QueryBuilder --> Query
     UpdateDSL --> Update["Update 객체"]
-    Query --> ROps["ReactiveMongoOperations\n코루틴 확장"]
+    Query --> ROps["ReactiveMongoOperations<br/>코루틴 확장"]
     Update --> ROps
     ROps --> MongoDB[("MongoDB")]
 ```

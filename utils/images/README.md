@@ -16,7 +16,7 @@ dependencies {
 ## 아키텍처 다이어그램
 
 ```mermaid
-graph LR
+flowchart LR
     subgraph 입력["입력 소스"]
         BA[ByteArray]
         IS[InputStream]
@@ -24,24 +24,24 @@ graph LR
     end
 
     subgraph 이미지처리["이미지 처리 (Scrimage 기반)"]
-        II["ImmutableImage\n(immutableImageOf)"]
-        BI["BufferedImage\n(bufferedImageOf)"]
+        II["ImmutableImage<br/>(immutableImageOf)"]
+        BI["BufferedImage<br/>(bufferedImageOf)"]
     end
 
     subgraph 조작["이미지 조작"]
-        SC["크기 조절\n(ImageScaler)"]
-        SP["이미지 분할\n(ImageSplitter)"]
-        WM["워터마크\n(WatermarkFilter)"]
-        CP["캡션\n(CaptionFilter)"]
-        PD["패딩\n(PaddingSupport)"]
+        SC["크기 조절<br/>(ImageScaler)"]
+        SP["이미지 분할<br/>(ImageSplitter)"]
+        WM["워터마크<br/>(WatermarkFilter)"]
+        CP["캡션<br/>(CaptionFilter)"]
+        PD["패딩<br/>(PaddingSupport)"]
     end
 
     subgraph 출력["비동기 저장 (Coroutines)"]
-        JPG["SuspendJpegWriter\n(손실 압축)"]
-        PNG["SuspendPngWriter\n(무손실)"]
-        WEBP["SuspendWebpWriter\n(최고 압축)"]
-        GIF["SuspendGifWriter\n(애니메이션)"]
-        ANIM["SuspendGif2WebpWriter\n(GIF→WebP 변환)"]
+        JPG["SuspendJpegWriter<br/>(손실 압축)"]
+        PNG["SuspendPngWriter<br/>(무손실)"]
+        WEBP["SuspendWebpWriter<br/>(최고 압축)"]
+        GIF["SuspendGifWriter<br/>(애니메이션)"]
+        ANIM["SuspendGif2WebpWriter<br/>(GIF→WebP 변환)"]
     end
 
     입력 --> 이미지처리

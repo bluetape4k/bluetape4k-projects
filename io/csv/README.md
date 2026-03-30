@@ -209,14 +209,14 @@ flowchart TD
     end
 
     subgraph 동기 처리
-        CR[CsvRecordReader\nTsvRecordReader]
-        CW[CsvRecordWriter\nTsvRecordWriter]
+        CR[CsvRecordReader<br/>TsvRecordReader]
+        CW[CsvRecordWriter<br/>TsvRecordWriter]
         SEQ[Sequence~T~]
     end
 
     subgraph 비동기 처리
-        SCR[SuspendCsvRecordReader\nSuspendTsvRecordReader]
-        SCW[SuspendCsvRecordWriter\nSuspendTsvRecordWriter]
+        SCR[SuspendCsvRecordReader<br/>SuspendTsvRecordReader]
+        SCW[SuspendCsvRecordWriter<br/>SuspendTsvRecordWriter]
         FL[Flow~T~]
     end
 

@@ -4,6 +4,26 @@ Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 3 A
 
 `application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달된다.
 
+## UML
+
+```mermaid
+flowchart TD
+    Props["application.yml<br/>bluetape4k.cache.lettuce-near.*"]
+    AutoConfig["Spring Boot 3<br/>Auto Configuration"]
+    Customizer["HibernatePropertiesCustomizer"]
+    RegionFactory["Lettuce Near Cache<br/>RegionFactory"]
+    L1["L1 Cache<br/>Caffeine"]
+    L2["L2 Cache<br/>Redis"]
+    DB[("Database")]
+
+    Props --> AutoConfig
+    AutoConfig --> Customizer
+    Customizer --> RegionFactory
+    RegionFactory --> L1
+    RegionFactory --> L2
+    L2 --> DB
+```
+
 ## 특징
 
 - 의존성 추가 + `application.yml` 설정만으로 2nd Level Cache 활성화

@@ -128,17 +128,17 @@ suspend fun putRecord(client: KinesisClient, streamName: String, data: ByteArray
 ## Java SDK v2 vs Kotlin SDK 비교 다이어그램
 
 ```mermaid
-graph LR
-    subgraph JAVA["bluetape4k-aws\n(Java SDK v2)"]
-        JA["DynamoDbAsyncClient\n.getItem(request)"]
+flowchart LR
+    subgraph JAVA["bluetape4k-aws<br/>(Java SDK v2)"]
+        JA["DynamoDbAsyncClient<br/>.getItem(request)"]
         JB[".thenApply { result }"]
-        JC["CompletableFuture.await()\n→ suspend 변환"]
+        JC["CompletableFuture.await()<br/>→ suspend 변환"]
         JA --> JB --> JC
     end
 
-    subgraph KOTLIN["bluetape4k-aws-kotlin\n(Kotlin SDK)"]
-        KA["DynamoDbClient\n.getItem { ... }"]
-        KB["native suspend\n변환 없이 바로 사용"]
+    subgraph KOTLIN["bluetape4k-aws-kotlin<br/>(Kotlin SDK)"]
+        KA["DynamoDbClient<br/>.getItem { ... }"]
+        KB["native suspend<br/>변환 없이 바로 사용"]
         KA --> KB
     end
 
@@ -149,21 +149,21 @@ graph LR
 ## DSL 지원 서비스
 
 ```mermaid
-graph TD
-    MOD["bluetape4k-aws-kotlin\n(Kotlin SDK 기반 단일 모듈)"]
+flowchart TD
+    MOD["bluetape4k-aws-kotlin<br/>(Kotlin SDK 기반 단일 모듈)"]
 
     subgraph DSL["bluetape4k DSL 제공"]
-        CW["metricDatum { }\n(CloudWatch)"]
-        CWL["inputLogEvent { }\n(CloudWatch Logs)"]
-        KIN["putRecordRequestOf()\n(Kinesis)"]
-        STS["stsClientOf()\n(STS)"]
+        CW["metricDatum { }<br/>(CloudWatch)"]
+        CWL["inputLogEvent { }<br/>(CloudWatch Logs)"]
+        KIN["putRecordRequestOf()<br/>(Kinesis)"]
+        STS["stsClientOf()<br/>(STS)"]
     end
 
     subgraph NATIVE["Native suspend (래핑 불필요)"]
-        DDB["DynamoDbClient\n.getItem { }"]
-        S3["S3Client\n.putObject { }"]
-        SQS["SqsClient\n.sendMessage { }"]
-        SNS["SnsClient\n.publish { }"]
+        DDB["DynamoDbClient<br/>.getItem { }"]
+        S3["S3Client<br/>.putObject { }"]
+        SQS["SqsClient<br/>.sendMessage { }"]
+        SNS["SnsClient<br/>.publish { }"]
     end
 
     MOD --> DSL

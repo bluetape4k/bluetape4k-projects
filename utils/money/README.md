@@ -276,8 +276,8 @@ classDiagram
     MonetaryAmount --> CurrencyUnit
     CurrencyConvertor --> MonetaryAmount : "convertTo()"
 
-    note for Money "BigDecimal 기반\n무제한 정밀도\n금융 계산 권장"
-    note for FastMoney "Long 기반\n소수점 5자리\n고성능 대량 연산"
+    note for Money "BigDecimal 기반<br/>무제한 정밀도<br/>금융 계산 권장"
+    note for FastMoney "Long 기반<br/>소수점 5자리<br/>고성능 대량 연산"
 ```
 
 ## 통화 연산 흐름

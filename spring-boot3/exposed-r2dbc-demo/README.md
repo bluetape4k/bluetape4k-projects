@@ -6,6 +6,26 @@ Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 3
 
 이 모듈은 **Exposed R2DBC**를 Spring Data Repository로 감싸고, Spring WebFlux REST API로 비동기 논블로킹으로 노출하는 패턴을 보여줍니다.
 
+## UML
+
+```mermaid
+flowchart TD
+    App["WebfluxDemoApplication"]
+    Init["DataInitializer"]
+    Controller["ProductController<br/>suspend endpoints"]
+    Repo["ProductR2dbcRepository"]
+    Table["Products / ProductDto"]
+    R2DBC["Exposed R2DBC"]
+    DB[("Reactive DB")]
+
+    App --> Init
+    App --> Controller
+    Controller --> Repo
+    Repo --> Table
+    Repo --> R2DBC
+    R2DBC --> DB
+```
+
 ### 주요 특징
 
 - **Exposed R2DBC 기반**: `ProductDto`, `Products` 테이블 정의

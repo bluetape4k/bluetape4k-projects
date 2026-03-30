@@ -2,6 +2,28 @@
 
 Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bluetape4k 프로젝트의 모든 모듈이 의존하는 기본 기능들을 제공합니다.
 
+## UML
+
+```mermaid
+flowchart TD
+    Core["bluetape4k-core"]
+    Validation["RequireSupport<br/>Validation"]
+    Codec["Codec<br/>Base58/Base62/Hex/Url62"]
+    Extensions["Type Extensions"]
+    Collections["Collections / Range"]
+    Concurrent["Concurrent Utils"]
+    Functional["Functional Utils"]
+    Time["Java Time DSL"]
+
+    Core --> Validation
+    Core --> Codec
+    Core --> Extensions
+    Core --> Collections
+    Core --> Concurrent
+    Core --> Functional
+    Core --> Time
+```
+
 ## 주요 기능
 
 - **Validation (RequireSupport)**: 파라미터 검증을 위한 Contract 기반 함수들

@@ -232,14 +232,14 @@ classDiagram
 ```mermaid
 flowchart TD
     START["VirtualThreads.executorService()"] --> SL["ServiceLoader.load(VirtualThreadRuntime)"]
-    SL --> CANDIDATES["구현체 목록 수집\n(classpath에 있는 모든 구현체)"]
+    SL --> CANDIDATES["구현체 목록 수집<br/>(classpath에 있는 모든 구현체)"]
     CANDIDATES --> FILTER["isSupported() == true 필터링"]
     FILTER --> SORT["priority 내림차순 정렬"]
     SORT --> SELECT["최우선 구현체 선택"]
     SELECT --> JDK25{"JDK 25 환경?"}
-    JDK25 -->|"Yes"| USE25["Jdk25VirtualThreadRuntime\n(priority=25)"]
-    JDK25 -->|"No, JDK 21"| USE21["Jdk21VirtualThreadRuntime\n(priority=21)"]
-    JDK25 -->|"No, JDK 17-"| USEFALL["PlatformThreadFallback\n(CachedThreadPool)"]
+    JDK25 -->|"Yes"| USE25["Jdk25VirtualThreadRuntime<br/>(priority=25)"]
+    JDK25 -->|"No, JDK 21"| USE21["Jdk21VirtualThreadRuntime<br/>(priority=21)"]
+    JDK25 -->|"No, JDK 17-"| USEFALL["PlatformThreadFallback<br/>(CachedThreadPool)"]
 ```
 
 ## 참고 자료

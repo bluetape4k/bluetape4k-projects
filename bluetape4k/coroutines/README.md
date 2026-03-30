@@ -124,8 +124,8 @@ Useful entry points:
 ### 1. Flow 확장 함수 카테고리 개요
 
 ```mermaid
-graph TD
-    FlowExt["Flow Extensions\nio.bluetape4k.coroutines.flow.extensions"]
+flowchart TD
+    FlowExt["Flow Extensions<br/>io.bluetape4k.coroutines.flow.extensions"]
     FlowExt --> Batch["배치 / 윈도우"]
     FlowExt --> Parallel["병렬 처리"]
     FlowExt --> Temporal["시간 기반 제어"]

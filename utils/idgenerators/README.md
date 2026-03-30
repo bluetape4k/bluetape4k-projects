@@ -257,11 +257,11 @@ val fromJava: ULID = ULID.fromJavaUUID(javaUuid)
 ```mermaid
 flowchart TD
     Start(["ULID 생성 필요"])
-    Q1{"같은 ms 내\n순서 보장 필요?"}
-    Q2{"이전 값을\n직접 관리?"}
-    Basic["ULID.nextULID()\n기본 랜덤 팩토리"]
-    Mono["ULID.monotonic()\nnextULID(previous)"]
-    State["ULID.statefulMonotonic()\nnextULID()"]
+    Q1{"같은 ms 내<br/>순서 보장 필요?"}
+    Q2{"이전 값을<br/>직접 관리?"}
+    Basic["ULID.nextULID()<br/>기본 랜덤 팩토리"]
+    Mono["ULID.monotonic()<br/>nextULID(previous)"]
+    State["ULID.statefulMonotonic()<br/>nextULID()"]
 
     Start --> Q1
     Q1 -->|No| Basic
@@ -549,7 +549,7 @@ classDiagram
 ```mermaid
 block-beta
     columns 4
-    A["sign\n(1 bit)"] B["timestamp\n(41 bits)\n~69년 범위"] C["machineId\n(10 bits)\n최대 1024대"] D["sequence\n(12 bits)\n밀리초당 4096개"]
+    A["sign<br/>(1 bit)"] B["timestamp<br/>(41 bits)<br/>~69년 범위"] C["machineId<br/>(10 bits)<br/>최대 1024대"] D["sequence<br/>(12 bits)<br/>밀리초당 4096개"]
 ```
 
 ## 참고 자료

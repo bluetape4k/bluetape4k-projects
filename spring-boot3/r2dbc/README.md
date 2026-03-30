@@ -302,11 +302,11 @@ class PostRepository(
 ### R2DBC + Coroutines 데이터 흐름
 
 ```mermaid
-graph TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수\n(XyzSuspending / Flow)"]
+flowchart TD
+    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(XyzSuspending / Flow)"]
     Ext --> ROps["R2dbcEntityOperations"]
     ROps --> R2DBC["Spring Data R2DBC"]
-    R2DBC --> Driver["R2DBC Driver\n(H2 / PostgreSQL / MySQL)"]
+    R2DBC --> Driver["R2DBC Driver<br/>(H2 / PostgreSQL / MySQL)"]
     Driver --> DB[("관계형 데이터베이스")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
@@ -315,12 +315,12 @@ graph TD
 ### CRUD 연산 계층 구조
 
 ```mermaid
-graph LR
-    Service["서비스 / Repository"] --> Select["selectAllSuspending()\nselectSuspending(query)\nfindOneByIdOrNullSuspending(id)"]
-    Service --> Insert["insertSuspending(entity)\ninsertOrNullSuspending(entity)"]
+flowchart LR
+    Service["서비스 / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
+    Service --> Insert["insertSuspending(entity)<br/>insertOrNullSuspending(entity)"]
     Service --> Update["updateSuspending(query, update)"]
-    Service --> Delete["deleteSuspending(query)\ndeleteAllSuspending()"]
-    Service --> Count["countAllSuspending()\ncountSuspending(query)\nexistsSuspending(query)"]
+    Service --> Delete["deleteSuspending(query)<br/>deleteAllSuspending()"]
+    Service --> Count["countAllSuspending()<br/>countSuspending(query)<br/>existsSuspending(query)"]
     Select --> ROps["R2dbcEntityOperations"]
     Insert --> ROps
     Update --> ROps
