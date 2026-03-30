@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.LocalDate
+import kotlin.test.assertFailsWith
 
 class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
@@ -252,6 +253,29 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
             actors shouldHaveSize 1
             actors.forEach {
                 log.debug { "actor: $it" }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 는 음수 pageNumber 를 거부한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.findPage(pageNumber = -1, pageSize = 10)
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 는 0 이하 pageSize 를 거부한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.findPage(pageNumber = 0, pageSize = 0)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                repository.findPage(pageNumber = 0, pageSize = -1)
             }
         }
     }

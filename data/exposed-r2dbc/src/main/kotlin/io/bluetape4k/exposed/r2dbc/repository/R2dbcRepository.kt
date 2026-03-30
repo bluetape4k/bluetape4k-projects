@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.core.ExposedPage
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -305,6 +307,10 @@ interface R2dbcRepository<ID: Any, E: Any> {
 
     /**
      * 여러 ID로 엔티티를 일괄 조회합니다.
+     *
+     * **주의**: `ids` 개수가 많을 경우 DB별 `IN` 절 크기 제한을 초과할 수 있습니다.
+     * 대용량 ID 목록은 청크 단위로 나눠 호출하세요.
+     *
      * @param ids 조회할 ID 컬렉션
      */
     fun findAllByIds(ids: Iterable<ID>): Flow<E> =
@@ -352,6 +358,10 @@ interface R2dbcRepository<ID: Any, E: Any> {
 
     /**
      * 여러 ID로 엔티티를 일괄 삭제합니다.
+     *
+     * **주의**: `ids` 개수가 많을 경우 DB별 `IN` 절 크기 제한을 초과할 수 있습니다.
+     * 대용량 ID 목록은 청크 단위로 나눠 호출하세요.
+     *
      * @param ids 삭제할 ID 컬렉션
      */
     suspend fun deleteAllByIds(ids: Iterable<ID>): Int = table.deleteWhere { table.id inList ids }
@@ -501,6 +511,11 @@ interface R2dbcRepository<ID: Any, E: Any> {
 
     /**
      * 페이징하여 엔티티를 조회합니다.
+     *
+     * **주의**: `totalCount`와 `content`는 별도 쿼리로 조회되므로 원자적으로 일관성이 보장되지 않습니다.
+     * 두 쿼리 사이에 다른 트랜잭션이 행을 삽입/삭제하면 값이 불일치할 수 있습니다.
+     * 엄격한 일관성이 필요한 경우 더 높은 격리 수준을 사용하세요.
+     *
      * @param pageNumber 페이지 번호 (0부터 시작)
      * @param pageSize 페이지 크기
      * @param sortOrder 정렬 순서
@@ -513,8 +528,8 @@ interface R2dbcRepository<ID: Any, E: Any> {
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
     ): ExposedPage<E> {
-        require(pageNumber >= 0) { "pageNumber는 0 이상이어야 합니다. (pageNumber=$pageNumber)" }
-        require(pageSize > 0) { "pageSize는 1 이상이어야 합니다. (pageSize=$pageSize)" }
+        pageNumber.requireGe(0, "pageNumber")
+        pageSize.requirePositiveNumber("pageSize")
         val totalCount = countBy(predicate)
         val content =
             findAll(
