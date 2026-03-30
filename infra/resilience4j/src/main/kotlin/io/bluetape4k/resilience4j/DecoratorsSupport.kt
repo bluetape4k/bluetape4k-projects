@@ -61,21 +61,46 @@ fun <T, R> decorateCompletableFutureFunction(
 class DecorateCompletableFutureFunction<T, R>(
     private var func: (T) -> CompletableFuture<R>,
 ) {
+    /**
+     * [Bulkhead]를 적용합니다.
+     *
+     * @param bulkhead 적용할 bulkhead 인스턴스
+     * @return 현재 데코레이터 빌더
+     */
     fun withBulkhead(bulkhead: Bulkhead): DecorateCompletableFutureFunction<T, R> =
         apply {
             func = bulkhead.completableFuture(func)
         }
 
+    /**
+     * [CircuitBreaker]를 적용합니다.
+     *
+     * @param circuitBreaker 적용할 circuit breaker 인스턴스
+     * @return 현재 데코레이터 빌더
+     */
     fun withCircuitBreaker(circuitBreaker: CircuitBreaker): DecorateCompletableFutureFunction<T, R> =
         apply {
             func = circuitBreaker.completableFuture(func)
         }
 
+    /**
+     * [RateLimiter]를 적용합니다.
+     *
+     * @param rateLimiter 적용할 rate limiter 인스턴스
+     * @return 현재 데코레이터 빌더
+     */
     fun withRateLimiter(rateLimiter: RateLimiter): DecorateCompletableFutureFunction<T, R> =
         apply {
             func = rateLimiter.completableFuture(func)
         }
 
+    /**
+     * [Retry]를 적용합니다.
+     *
+     * @param retry 적용할 retry 인스턴스
+     * @param scheduler 재시도 스케줄링에 사용할 executor
+     * @return 현재 데코레이터 빌더
+     */
     fun withRetry(
         retry: Retry,
         scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
@@ -87,15 +112,15 @@ class DecorateCompletableFutureFunction<T, R>(
     /**
      * [func] 함수를 decorate 합니다.
      *
-     * @return
+     * @return 현재까지 적용된 resilience4j 체인을 포함하는 함수
      */
     fun decorate(): (T) -> CompletableFuture<R> = { input: T -> func(input) }
 
     /**
      * decorated [func]을 실행합니다.
      *
-     * @param input
-     * @return
+     * @param input 입력 값
+     * @return 실행 결과를 담은 [CompletableFuture]
      */
     fun invoke(input: T): CompletableFuture<R> = func(input)
 }

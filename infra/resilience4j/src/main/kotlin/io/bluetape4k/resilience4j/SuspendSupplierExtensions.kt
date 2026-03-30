@@ -1,6 +1,12 @@
 package io.bluetape4k.resilience4j
 
 import kotlin.reflect.KClass
+import kotlin.coroutines.cancellation.CancellationException
+
+@PublishedApi
+internal fun Throwable.rethrowIfCancellation() {
+    if (this is CancellationException) throw this
+}
 
 /**
  * suspend 함수의 결과를 [resultHandler]로 변환합니다.
@@ -26,6 +32,7 @@ inline fun <T, R> (suspend () -> T).andThen(
  * suspend 함수 실행 결과 또는 예외를 [handler]로 처리합니다.
  *
  * 성공 시 `handler(result, null)`, 실패 시 `handler(null, exception)` 형태로 호출됩니다.
+ * 코루틴 취소는 복구하지 않고 그대로 전파합니다.
  *
  * ```kotlin
  * val fn: suspend () -> Int = { throw RuntimeException("err") }
@@ -47,6 +54,7 @@ inline fun <T, R> (suspend () -> T).andThen(
         val result = this()
         handler(result, null)
     } catch (e: Throwable) {
+        e.rethrowIfCancellation()
         handler(null, e)
     }
 }
@@ -77,6 +85,7 @@ inline fun <T, R> (suspend () -> T).andThen(
         val result = this.invoke()
         resultHandler(result)
     } catch (e: Throwable) {
+        e.rethrowIfCancellation()
         exceptionHandler(e)
     }
 }
@@ -90,6 +99,8 @@ inline fun <T, R> (suspend () -> T).andThen(
  * // safe() == -1
  * ```
  *
+ * 코루틴 취소는 복구하지 않고 그대로 전파합니다.
+ *
  * @param T 반환 타입
  * @param exceptionHandler 예외 발생 시 대체 값을 반환하는 핸들러
  * @return 예외 복구 로직이 포함된 suspend 함수
@@ -100,6 +111,7 @@ inline fun <T> (suspend () -> T).recover(
     try {
         this.invoke()
     } catch (e: Throwable) {
+        e.rethrowIfCancellation()
         exceptionHandler(e)
     }
 }
@@ -157,6 +169,7 @@ inline fun <X: Throwable, T> (suspend () -> T).recover(
     try {
         this.invoke()
     } catch (e: Throwable) {
+        e.rethrowIfCancellation()
         if (exceptionType.java.isAssignableFrom(e.javaClass)) {
             exceptionHandler(e)
         } else {
@@ -188,6 +201,7 @@ inline fun <X: Throwable, T> (suspend () -> T).recover(
     try {
         this.invoke()
     } catch (e: Throwable) {
+        e.rethrowIfCancellation()
         if (exceptionTypes.any { it.isAssignableFrom(e.javaClass) }) {
             exceptionHandler(e)
         } else {

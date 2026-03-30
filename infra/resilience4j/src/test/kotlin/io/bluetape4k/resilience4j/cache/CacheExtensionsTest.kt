@@ -2,13 +2,21 @@ package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.onSuccess
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.github.resilience4j.cache.Cache
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.test.assertFailsWith
 
 class CacheExtensionsTest {
 
@@ -80,5 +88,38 @@ class CacheExtensionsTest {
             callCount.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
         }.join()
+    }
+
+    @Test
+    fun `executeSuspendFunction 은 동일 key 동시 miss 에서 loader 를 한 번만 실행한다`() = runSuspendTest {
+        val jcache = CaffeineJCacheProvider.getJCache<String, String>("suspend-concurrent")
+        val cache = Cache.of(jcache)
+        val callCount = AtomicInteger(0)
+        val cachedLoader = cache.decorateSuspendFunction { key: String ->
+            callCount.incrementAndGet()
+            delay(100)
+            "Hi $key!"
+        }
+
+        val results = awaitAll(
+            async { cachedLoader("debop") },
+            async { cachedLoader("debop") },
+        )
+
+        results[0] shouldBeEqualTo "Hi debop!"
+        results[1] shouldBeEqualTo "Hi debop!"
+        callCount.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `executeSuspendFunction 은 cache backend 예외를 miss 로 숨기지 않는다`() = runSuspendTest {
+        val cache = mockk<Cache<String, String>>()
+        every { cache.computeIfAbsent(any(), any()) } throws IllegalStateException("cache down")
+
+        val error = assertFailsWith<IllegalStateException> {
+            cache.executeSuspendFunction("debop") { key -> "Hi $key!" }
+        }
+
+        error.message shouldBeEqualTo "cache down"
     }
 }

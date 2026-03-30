@@ -2,11 +2,13 @@ package io.bluetape4k.resilience4j
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.IOException
+import kotlin.test.assertFailsWith
 
 class SuspendSupplierExtensionsTest {
 
@@ -64,6 +66,16 @@ class SuspendSupplierExtensionsTest {
             )
 
             mapped() shouldBeEqualTo "fallback"
+        }
+
+        @Test
+        fun `andThen with handler - 취소 예외는 그대로 전파한다`() = runSuspendTest {
+            val fn: suspend () -> Int = { throw CancellationException("cancelled") }
+            val mapped = fn.andThen { _: Int?, _: Throwable? -> -1 }
+
+            assertFailsWith<CancellationException> {
+                mapped()
+            }
         }
     }
 
@@ -145,6 +157,26 @@ class SuspendSupplierExtensionsTest {
             val result = runCatching { safe() }
             result.isFailure.shouldBeTrue()
             (result.exceptionOrNull() is RuntimeException).shouldBeTrue()
+        }
+
+        @Test
+        fun `recover with exceptionHandler - 취소 예외는 복구하지 않고 전파한다`() = runSuspendTest {
+            val fn: suspend () -> Int = { throw CancellationException("cancelled") }
+            val safe = fn.recover { -1 }
+
+            assertFailsWith<CancellationException> {
+                safe()
+            }
+        }
+
+        @Test
+        fun `recover with exceptionType - 취소 예외는 타입이 일치해도 전파한다`() = runSuspendTest {
+            val fn: suspend () -> Int = { throw CancellationException("cancelled") }
+            val safe = fn.recover(CancellationException::class) { -1 }
+
+            assertFailsWith<CancellationException> {
+                safe()
+            }
         }
     }
 

@@ -44,11 +44,7 @@ fun <T> CompletionStage<T>.recover(
 
     this.whenComplete { result, throwable ->
         if (throwable != null) {
-            if (throwable is CompletionException || throwable is ExecutionException) {
-                tryRecover(exceptionTypes, exceptionHandler, promise, throwable.cause!!)
-            } else {
-                tryRecover(exceptionTypes, exceptionHandler, promise, throwable)
-            }
+            tryRecover(exceptionTypes, exceptionHandler, promise, throwable.unwrapCompletionCause())
         } else {
             promise.complete(result)
         }
@@ -77,17 +73,19 @@ fun <X: Throwable, T> CompletionStage<T>.recover(
 
     this.whenComplete { result, throwable ->
         if (throwable != null) {
-            if (throwable is CompletionException || throwable is ExecutionException) {
-                tryRecover(exceptionType, exceptionHandler, promise, throwable.cause!!)
-            } else {
-                tryRecover(exceptionType, exceptionHandler, promise, throwable)
-            }
+            tryRecover(exceptionType, exceptionHandler, promise, throwable.unwrapCompletionCause())
         } else {
             promise.complete(result)
         }
     }
     return promise
 }
+
+private fun Throwable.unwrapCompletionCause(): Throwable =
+    when (this) {
+        is CompletionException, is ExecutionException -> cause ?: this
+        else -> this
+    }
 
 private fun <T> tryRecover(
     exceptionTypes: List<Class<out Throwable>>,
@@ -138,7 +136,11 @@ private fun <X: Throwable, T> tryRecover(
 fun <T> (() -> CompletionStage<T>).recover(
     exceptionHandler: (Throwable?) -> T,
 ): () -> CompletionStage<T> = {
-    this.invoke().recover(exceptionHandler)
+    try {
+        this.invoke().recover(exceptionHandler)
+    } catch (error: Throwable) {
+        recoverFromSyncFailure(error, exceptionHandler)
+    }
 }
 
 /**
@@ -158,7 +160,11 @@ fun <X: Throwable, T> (() -> CompletionStage<T>).recover(
     exceptionType: KClass<X>,
     exceptionHandler: (Throwable?) -> T,
 ): () -> CompletionStage<T> = {
-    this.invoke().recover(exceptionType, exceptionHandler)
+    try {
+        this.invoke().recover(exceptionType, exceptionHandler)
+    } catch (error: Throwable) {
+        recoverFromSyncFailure(error, exceptionType, exceptionHandler)
+    }
 }
 
 /**
@@ -178,7 +184,11 @@ fun <T> (() -> CompletionStage<T>).recover(
     exceptionTypes: List<Class<out Throwable>>,
     exceptionHandler: (Throwable?) -> T,
 ): () -> CompletionStage<T> = {
-    this.invoke().recover(exceptionTypes, exceptionHandler)
+    try {
+        this.invoke().recover(exceptionTypes, exceptionHandler)
+    } catch (error: Throwable) {
+        recoverFromSyncFailure(error, exceptionTypes, exceptionHandler)
+    }
 }
 
 /**
@@ -226,4 +236,37 @@ fun <T, R> (() -> CompletionStage<T>).andThen(
     handler: (T, Throwable?) -> R,
 ): () -> CompletionStage<R> = {
     this.invoke().handle(handler)
+}
+
+private fun <T> recoverFromSyncFailure(
+    error: Throwable,
+    exceptionHandler: (Throwable?) -> T,
+): CompletionStage<T> =
+    runCatching { CompletableFuture.completedFuture(exceptionHandler(error)) }
+        .getOrElse { CompletableFuture.failedFuture(it) }
+
+private fun <X: Throwable, T> recoverFromSyncFailure(
+    error: Throwable,
+    exceptionType: KClass<X>,
+    exceptionHandler: (Throwable?) -> T,
+): CompletionStage<T> {
+    val unwrapped = error.unwrapCompletionCause()
+    return if (exceptionType.java.isAssignableFrom(unwrapped.javaClass)) {
+        recoverFromSyncFailure(unwrapped, exceptionHandler)
+    } else {
+        CompletableFuture.failedFuture(unwrapped)
+    }
+}
+
+private fun <T> recoverFromSyncFailure(
+    error: Throwable,
+    exceptionTypes: List<Class<out Throwable>>,
+    exceptionHandler: (Throwable?) -> T,
+): CompletionStage<T> {
+    val unwrapped = error.unwrapCompletionCause()
+    return if (exceptionTypes.any { it.isAssignableFrom(unwrapped.javaClass) }) {
+        recoverFromSyncFailure(unwrapped, exceptionHandler)
+    } else {
+        CompletableFuture.failedFuture(unwrapped)
+    }
 }
