@@ -93,7 +93,7 @@ class TstzRangeColumnType : ColumnType<TimestampRange>() {
      * range literal 문자열을 [TimestampRange]로 파싱한다.
      *
      * ISO-8601 포맷(`2024-01-01T00:00:00Z`)과
-     * PostgreSQL JDBC 드라이버 포맷(`"2024-01-01 00:00:00+00"`)을 모두 지원한다.
+     * PostgreSQL JDBC 드라이버 포맷(`"2024-01-01 00:00:00+00"`, `"2024-01-01 00:00:00.123456+00"`)을 모두 지원한다.
      */
     private fun parseRangeLiteral(literal: String): TimestampRange {
         val trimmed = literal.trim()

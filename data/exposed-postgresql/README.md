@@ -199,6 +199,8 @@ data class TimestampRange(
 #### 컬럼 타입
 
 - `TstzRangeColumnType`: TSTZRANGE (PostgreSQL) 또는 VARCHAR(120) (H2 등)으로 저장
+  - PostgreSQL JDBC literal과 ISO-8601 literal 모두 파싱
+  - fractional seconds (`2024-01-01 00:00:00.123456+00`)도 지원
 
 #### 사용 예제
 

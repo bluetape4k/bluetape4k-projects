@@ -14,12 +14,15 @@ import org.locationtech.jts.geom.MultiPoint
 import org.locationtech.jts.geom.MultiPolygon
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.Polygon
+import org.locationtech.jts.io.ByteOrderValues
+import org.locationtech.jts.io.WKBWriter
 import kotlin.reflect.KClass
 
 /**
  * MySQL 8.0 Geometry 컬럼 타입.
  *
- * MySQL Internal Format (4바이트 LE SRID + WKB)으로 직렬화/역직렬화한다.
+ * JDBC 바인딩 시에는 MySQL Internal Format (4바이트 LE SRID + WKB)으로 직렬화/역직렬화하고,
+ * SQL literal 경로에서는 `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')` 표현식을 생성한다.
  *
  * @param T JTS Geometry 서브타입
  * @param geometryType MySQL SQL 타입 문자열 (예: "POINT", "POLYGON")
@@ -80,7 +83,8 @@ class GeometryColumnType<T: Geometry>(
         MySqlWkbUtils.buildMySqlInternalGeometry(value, srid)
 
     override fun nonNullValueToString(value: T): String {
-        val hex = MySqlWkbUtils.buildMySqlInternalGeometry(value, srid)
+        val hex = WKBWriter(2, ByteOrderValues.LITTLE_ENDIAN)
+            .write(value)
             .joinToString("") { "%02X".format(it) }
         return "ST_GeomFromWKB(X'$hex', $srid, 'axis-order=long-lat')"
     }

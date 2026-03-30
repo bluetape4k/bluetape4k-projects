@@ -36,6 +36,9 @@ classDiagram
 - **좌표계**: WGS84 (SRID 4326) 기본값
 - **공간 함수**: 9개 관계 함수 + 4개 측정 함수 + 3개 속성 함수
 - **MySQL 전용**: `MysqlDialect` 사용 시에만 동작
+- **직렬화 경로**:
+  - PreparedStatement 바인딩은 MySQL Internal Format (`4byte SRID LE + WKB`) 사용
+  - SQL literal 경로는 `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')` 사용
 
 ## 지원하는 Geometry 타입
 
@@ -397,6 +400,13 @@ abstract class AbstractMySqlGisTest : AbstractExposedTest() {
         }
     }
 }
+```
+
+핵심 회귀 테스트:
+
+```bash
+./gradlew :bluetape4k-exposed-mysql8:test --tests "io.bluetape4k.exposed.mysql8.gis.GeometryColumnTypeTest"
+./gradlew :bluetape4k-exposed-mysql8:test --tests "io.bluetape4k.exposed.mysql8.gis.MySqlWkbUtilsTest"
 ```
 
 ## 참조

@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.mysql8.gis
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -9,6 +10,8 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
+import org.locationtech.jts.io.ByteOrderValues
+import org.locationtech.jts.io.WKBWriter
 import kotlin.math.abs
 
 class GeometryColumnTypeTest: AbstractMySqlGisTest() {
@@ -184,5 +187,18 @@ class GeometryColumnTypeTest: AbstractMySqlGisTest() {
             val sqlType = pointColumnType().sqlType()
             sqlType shouldBeEqualTo "POINT SRID 4326"
         }
+    }
+
+    @Test
+    fun `GeometryColumnType nonNullValueToString 은 표준 WKB literal 을 생성한다`() {
+        val point = wgs84Point(126.9780, 37.5665)
+        val expectedHex = WKBWriter(2, ByteOrderValues.LITTLE_ENDIAN)
+            .write(point)
+            .joinToString("") { "%02X".format(it) }
+
+        val literal = pointColumnType().nonNullValueToString(point)
+
+        literal shouldBeEqualTo "ST_GeomFromWKB(X'$expectedHex', 4326, 'axis-order=long-lat')"
+        literal shouldContain expectedHex
     }
 }
