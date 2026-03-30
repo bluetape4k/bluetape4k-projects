@@ -265,4 +265,41 @@ class TinkColumnTypeTest: AbstractExposedTest() {
             row[multiAlgoTable.chacha20] shouldBeEqualTo value
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `기본 AEAD VARCHAR 길이 255 는 일반적인 이메일 길이 암호문을 수용하지 못할 수 있다`(testDB: TestDB) {
+        val constrainedTable = object: IntIdTable("tink_aead_default_length_$testDB") {
+            val secret = tinkAeadVarChar("secret")
+        }
+
+        withTables(testDB, constrainedTable) {
+            val longEmail = "${"a".repeat(180)}@example.com"
+
+            assertThrows<Exception> {
+                constrainedTable.insertAndGetId {
+                    it[secret] = longEmail
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `AEAD VARCHAR 길이를 512 로 늘리면 일반적인 이메일 길이 암호문을 저장할 수 있다`(testDB: TestDB) {
+        val roomyTable = object: IntIdTable("tink_aead_roomy_length_$testDB") {
+            val secret = tinkAeadVarChar("secret", 512)
+        }
+
+        withTables(testDB, roomyTable) {
+            val longEmail = "${"a".repeat(180)}@example.com"
+
+            val id = roomyTable.insertAndGetId {
+                it[secret] = longEmail
+            }
+
+            val row = roomyTable.selectAll().where { roomyTable.id eq id }.single()
+            row[roomyTable.secret] shouldBeEqualTo longEmail
+        }
+    }
 }

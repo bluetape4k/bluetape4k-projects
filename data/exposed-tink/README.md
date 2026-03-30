@@ -164,6 +164,10 @@ val email = tinkDaeadVarChar("email", 512).index()
 val ssn = tinkDaeadVarChar("ssn", 128)
 ```
 
+기본 `tinkAeadVarChar(...)/tinkDaeadVarChar(...)` 길이 `255`는 짧은 토큰/식별자에는 충분하지만,
+이메일처럼 길이가 긴 문자열은 암호화 후 Base64 확장으로 부족할 수 있습니다.
+검색 가능 컬럼이나 사용자 입력이 긴 컬럼에는 `512` 이상을 명시적으로 권장합니다.
+
 ## 실전 사용 예시
 
 ### 개인정보 보호가 필요한 사용자 테이블
