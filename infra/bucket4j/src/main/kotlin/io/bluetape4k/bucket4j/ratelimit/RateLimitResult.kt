@@ -39,11 +39,20 @@ enum class RateLimitStatus {
  * ```
  */
 data class RateLimitResult(
+    /** 토큰 소비 결과 상태입니다. */
     val status: RateLimitStatus,
+    /** 실제로 소비된 토큰 수입니다. */
     val consumedTokens: Long = 0,
+    /** 소비 시도 이후 관측된 잔여 토큰 수입니다. */
     val availableTokens: Long,
+    /** 오류 발생 시 상위 계층에서 로깅/메트릭 태깅에 사용할 메시지입니다. */
     val errorMessage: String? = null,
 ): Serializable {
+
+    init {
+        require(consumedTokens >= 0) { "consumedTokens must be greater than or equal to 0. consumedTokens=$consumedTokens" }
+        require(availableTokens >= 0) { "availableTokens must be greater than or equal to 0. availableTokens=$availableTokens" }
+    }
 
     @Deprecated(
         message = "Use status-based factory methods or the primary constructor with explicit status.",
@@ -55,8 +64,13 @@ data class RateLimitResult(
         availableTokens = availableTokens,
     )
 
+    /** 소비 성공 여부를 반환합니다. */
     val isConsumed: Boolean get() = status == RateLimitStatus.CONSUMED
+
+    /** 소비 거절 여부를 반환합니다. */
     val isRejected: Boolean get() = status == RateLimitStatus.REJECTED
+
+    /** 오류 발생 여부를 반환합니다. */
     val isError: Boolean get() = status == RateLimitStatus.ERROR
 
     companion object {
@@ -77,7 +91,7 @@ data class RateLimitResult(
                 status = RateLimitStatus.ERROR,
                 consumedTokens = 0,
                 availableTokens = 0,
-                errorMessage = cause?.message
+                errorMessage = cause?.message ?: cause?.toString()
             )
     }
 }

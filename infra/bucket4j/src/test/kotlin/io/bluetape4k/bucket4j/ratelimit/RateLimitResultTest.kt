@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class RateLimitResultTest {
     @Test
@@ -56,6 +57,14 @@ class RateLimitResultTest {
     }
 
     @Test
+    fun `error factory 는 예외 메시지가 없으면 예외 타입 정보를 보존한다`() {
+        val result = RateLimitResult.error(IllegalStateException())
+
+        result.status shouldBeEqualTo RateLimitStatus.ERROR
+        result.errorMessage shouldBeEqualTo "java.lang.IllegalStateException"
+    }
+
+    @Test
     @Suppress("DEPRECATION")
     fun `deprecated 생성자는 consumedTokens 가 양수이면 consumed 로 해석한다`() {
         val result = RateLimitResult(consumedTokens = 3, availableTokens = 7)
@@ -73,6 +82,25 @@ class RateLimitResultTest {
 
         result.status shouldBeEqualTo RateLimitStatus.REJECTED
         result.isRejected.shouldBeTrue()
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `deprecated 생성자는 음수 consumedTokens 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            RateLimitResult(consumedTokens = -1, availableTokens = 4)
+        }
+    }
+
+    @Test
+    fun `primary constructor 는 음수 availableTokens 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            RateLimitResult(
+                status = RateLimitStatus.CONSUMED,
+                consumedTokens = 1,
+                availableTokens = -1,
+            )
+        }
     }
 
     @Test

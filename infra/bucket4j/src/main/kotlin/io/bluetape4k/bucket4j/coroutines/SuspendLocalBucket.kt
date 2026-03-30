@@ -62,6 +62,15 @@ class SuspendLocalBucket private constructor(
         @JvmStatic
         val DEFAULT_MAX_WAIT_TIME: Duration = Duration.ofSeconds(3)
 
+        /**
+         * 기존 [BucketConfiguration]을 사용해 [SuspendLocalBucket]을 생성합니다.
+         *
+         * @param config 버킷 대역폭/리필 정책을 포함한 구성
+         * @param mathType 토큰 계산에 사용할 수학 정책
+         * @param timeMeter 현재 시간을 읽을 [TimeMeter]
+         * @param listener 토큰 소비/대기/취소 이벤트를 수집할 [BucketListener]
+         * @return 생성한 [SuspendLocalBucket]
+         */
         @JvmStatic
         operator fun invoke(
             config: BucketConfiguration,
@@ -72,6 +81,15 @@ class SuspendLocalBucket private constructor(
             return SuspendLocalBucket(config, mathType, timeMeter, listener)
         }
 
+        /**
+         * DSL 기반 설정 블록으로 [SuspendLocalBucket]을 생성합니다.
+         *
+         * @param mathType 토큰 계산에 사용할 수학 정책
+         * @param timeMeter 현재 시간을 읽을 [TimeMeter]
+         * @param listener 토큰 소비/대기/취소 이벤트를 수집할 [BucketListener]
+         * @param configurer [ConfigurationBuilder] 초기화 블록
+         * @return 생성한 [SuspendLocalBucket]
+         */
         @JvmStatic
         operator fun invoke(
             mathType: MathType = DEFAULT_MATH_TYPE,
