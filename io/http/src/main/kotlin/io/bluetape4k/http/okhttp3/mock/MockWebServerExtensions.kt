@@ -106,6 +106,42 @@ fun MockWebServer.enqueueBodyWithDelay(
 }
 
 /**
+ * 헤더 전송을 지연한 응답을 enqueue 합니다.
+ *
+ * @param body 응답 바디
+ * @param delay 헤더 전송 지연 시간
+ * @param headers 응답 헤더
+ */
+fun MockWebServer.enqueueBodyWithHeadersDelay(
+    body: String,
+    delay: Duration = Duration.ofMillis(10),
+    vararg headers: String,
+) {
+    enqueueBody(body) {
+        setHeadersDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
+        addHeaders(*headers)
+    }
+}
+
+/**
+ * 헤더 전송을 지연한 응답을 enqueue 합니다.
+ *
+ * @param body 응답 바디
+ * @param delay 헤더 전송 지연 시간
+ * @param headers 응답 헤더
+ */
+fun MockWebServer.enqueueBodyWithHeadersDelay(
+    body: String,
+    delay: Duration = Duration.ofMillis(10),
+    headers: Map<String, Any>,
+) {
+    enqueueBody(body) {
+        setHeadersDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
+        addHeaders(headers)
+    }
+}
+
+/**
  * gzip 압축 바디 응답을 enqueue 합니다.
  *
  * @param body 원본 바디

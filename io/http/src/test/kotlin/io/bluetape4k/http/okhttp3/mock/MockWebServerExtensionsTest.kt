@@ -110,6 +110,27 @@ class MockWebServerExtensionsTest {
     }
 
     @Test
+    fun `enqueueBodyWithHeadersDelay - 헤더 전송을 지연한 응답을 반환한다`() {
+        server.enqueueBodyWithHeadersDelay("headers-delayed", Duration.ofMillis(50))
+
+        executeGet().use { response ->
+            response.isSuccessful.shouldBeTrue()
+            response.body.shouldNotBeNull().string() shouldBeEqualTo "headers-delayed"
+        }
+    }
+
+    @Test
+    fun `enqueueBodyWithHeadersDelay with map headers - 헤더 맵을 포함한 지연 응답을 반환한다`() {
+        server.enqueueBodyWithHeadersDelay("headers-map", headers = mapOf("X-Headers-Delay" to "true"))
+
+        executeGet().use { response ->
+            response.isSuccessful.shouldBeTrue()
+            response.header("X-Headers-Delay") shouldBeEqualTo "true"
+            response.body.shouldNotBeNull().string() shouldBeEqualTo "headers-map"
+        }
+    }
+
+    @Test
     fun `enqueueBodyWithGzip - gzip 압축 응답을 반환한다`() {
         server.enqueueBodyWithGzip("gzip body content")
 
