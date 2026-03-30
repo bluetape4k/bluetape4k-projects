@@ -74,6 +74,11 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 | `CaffeineLocalCache<K, V>` | Caffeine 기반 LocalCache 구현 |
 | `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너 |
 
+`LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
+- 배치 크기, 큐 크기, 재시도 횟수, local cache 크기는 0보다 커야 합니다.
+- TTL은 지정 시 0보다 커야 합니다.
+- 캐시 이름과 key prefix는 공백일 수 없습니다.
+
 ### JCache 기반 NearCache (nearcache.jcache 패키지)
 
 `NearJCache<K,V>` /
