@@ -21,6 +21,11 @@
 | `RedissonAsyncMemoizer<T, R>` | `memoizer` | RMap 기반 비동기(CompletableFuture) 메모이저 |
 | `RedissonSuspendMemoizer<T, R>` | `memoizer` | RMap 기반 suspend 메모이저 |
 
+`RedissonNearCacheConfig` 제약:
+- `cacheName`은 공백일 수 없습니다.
+- `maxLocalSize`는 0보다 커야 합니다.
+- `timeToLive`, `maxIdle`은 지정 시 0보다 커야 합니다.
+
 ## 의존성
 
 ```kotlin

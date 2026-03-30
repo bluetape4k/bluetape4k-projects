@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import org.redisson.api.options.LocalCachedMapOptions
@@ -13,8 +14,8 @@ import java.time.Duration
  *
  * @param cacheName 캐시 이름 (Redis map 이름으로 사용됨)
  * @param maxLocalSize 로컬 캐시 최대 항목 수
- * @param timeToLive Redis 저장 TTL (null이면 만료 없음)
- * @param maxIdle Redis idle 만료 시간 (null이면 비활성)
+ * @param timeToLive Redis 저장 TTL (null이면 만료 없음). 지정하면 0보다 커야 한다.
+ * @param maxIdle Redis idle 만료 시간 (null이면 비활성). 지정하면 0보다 커야 한다.
  * @param syncStrategy 로컬 캐시 동기화 전략
  * @param reconnectionStrategy 재연결 시 로컬 캐시 처리 전략
  * @param evictionPolicy 로컬 캐시 퇴거 정책
@@ -31,6 +32,8 @@ data class RedissonNearCacheConfig(
     init {
         cacheName.requireNotBlank("cacheName")
         maxLocalSize.requirePositiveNumber("maxLocalSize")
+        timeToLive?.requireGt(Duration.ZERO, "timeToLive")
+        maxIdle?.requireGt(Duration.ZERO, "maxIdle")
     }
 }
 

@@ -16,6 +16,10 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | `RedissonLeaderGroupElection` | `RSemaphore` 기반 복수(N개) 동시 리더 선출 |
 | `RedissonNearCache` | `RLocalCachedMap` 기반 2-tier Near Cache |
 
+`RedissonCacheConfig`/`RedissonNearCacheConfig` 사용 시:
+- `maxSize`, `nearCacheMaxSize`, `writeBehindBatchSize`는 음수일 수 없고, 배치 크기는 0보다 커야 합니다.
+- `timeToLive`, `maxIdle`, `nearCacheTtl`, `nearCacheMaxIdleTime`은 지정 시 음수일 수 없으며, near cache TTL/idle은 0보다 커야 합니다.
+
 ## 의존성
 
 ```kotlin
