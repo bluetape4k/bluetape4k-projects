@@ -201,8 +201,25 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 ### Test JVM Options
 
 ```
--Xshare:off  -Xmx8G  -XX:+UseZGC  -XX:+UnlockExperimentalVMOptions  -XX:+EnableDynamicAgentLoading
+-Xshare:off  -Xmx4G  -XX:+UseG1GC  -XX:+UnlockExperimentalVMOptions  -XX:+EnableDynamicAgentLoading
 ```
+
+## Kotlin Edit Workflow (MANDATORY)
+
+Follow this sequence on every `.kt` file edit — no exceptions.
+
+### Before modifying a class
+1. Run `ide_find_references` or `get_impact_radius_tool` to map affected files.
+
+### After every `.kt` edit
+1. `ide_diagnostics` — catch import errors and `@Deprecated` warnings immediately.
+2. If import errors → `ide_optimize_imports` to fix.
+3. If `@Deprecated` warnings → apply `lsp_code_actions` Quick Fix to replace with non-deprecated API. Never leave deprecated usage in the code.
+4. Only run build/compile after the above steps pass cleanly.
+
+### Why
+- Skipping step 1 causes cascading failures across callers.
+- Skipping steps 2–3 leads to repeated compile-fix cycles that waste tokens and time.
 
 ## Key Design Patterns
 
