@@ -15,8 +15,8 @@ import io.bluetape4k.aws.kotlin.s3.getObjectAcl
 import io.bluetape4k.aws.kotlin.s3.putFromByteArray
 import io.bluetape4k.aws.kotlin.s3.putFromFile
 import io.bluetape4k.aws.kotlin.s3.putFromString
+import io.bluetape4k.aws.kotlin.s3.withS3Client
 import io.bluetape4k.codec.Base58
-
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
@@ -40,19 +40,31 @@ class BasicExamples: AbstractKotlinS3Test() {
     companion object: KLoggingChannel()
 
     @Test
-    fun `launch S3 Server`() {
-        s3Client.shouldNotBeNull()
+    fun `launch S3 Server`() = runSuspendIO {
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.shouldNotBeNull()
+        }
     }
 
     @Test
     fun `모든 Bucket을 조회합니다`() = runSuspendIO {
         log.debug { "모든 Bucket을 조회합니다 ..." }
 
-        val response = s3Client.listBuckets { }
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.listBuckets { }
 
-        response.buckets.shouldNotBeNull()
-        response.buckets!!.forEach {
-            log.debug { "Bucket=${it.name}" }
+            response.buckets.shouldNotBeNull()
+            response.buckets!!.forEach {
+                log.debug { "Bucket=${it.name}" }
+            }
         }
     }
 
@@ -60,101 +72,137 @@ class BasicExamples: AbstractKotlinS3Test() {
     fun `Bucket의 모든 Object를 조회합니다`() = runSuspendIO {
         log.debug { "Bucket의 모든 Object를 조회합니다 ..." }
 
-        // 테스트용 Bucket 생성
-        val bucketName = Base58.randomString(16).lowercase()
-        s3Client.ensureBucketExists(bucketName)
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            // 테스트용 Bucket 생성
+            val bucketName = Base58.randomString(16).lowercase()
+            client.ensureBucketExists(bucketName)
 
-        val keys = List(5) { randomKey() }
-        val uploadTasks = keys.map { key ->
-            async(Dispatchers.IO) {
-                s3Client.putFromString(bucketName, key, randomString())
+            val keys = List(5) { randomKey() }
+            val uploadTasks = keys.map { key ->
+                async(Dispatchers.IO) {
+                    client.putFromString(bucketName, key, randomString())
+                }
             }
+            uploadTasks.awaitAll()
+
+            val response = client.listObjectsV2 { bucket = bucketName }
+            val objects = response.contents ?: emptyList()
+
+            objects.forEach {
+                log.debug { "Object info. key=${it.key}, size=${it.size}, owner=${it.owner}" }
+            }
+            objects.map { it.key!! } shouldContainSame keys
+
+            client.forceDeleteBucket(bucketName)
         }
-        uploadTasks.awaitAll()
-
-        val response = s3Client.listObjectsV2 { bucket = bucketName }
-        val objects = response.contents ?: emptyList()
-
-        objects.forEach {
-            log.debug { "Object info. key=${it.key}, size=${it.size}, owner=${it.owner}" }
-        }
-        objects.map { it.key!! } shouldContainSame keys
-
-        s3Client.forceDeleteBucket(bucketName)
     }
 
     @Test
     fun `put get object as ByteArray`() = runSuspendIO {
-        val key = randomKey()
-        val contents = randomString().toUtf8Bytes()
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val key = randomKey()
+            val contents = randomString().toUtf8Bytes()
 
-        // Put Object
-        val putRes = s3Client.putFromByteArray(BUCKET_NAME, key, contents)
-        putRes.eTag.shouldNotBeNull()
+            // Put Object
+            val putRes = client.putFromByteArray(BUCKET_NAME, key, contents)
+            putRes.eTag.shouldNotBeNull()
 
-        // Get Object
-        val downloadContents = s3Client.getAsByteArray(BUCKET_NAME, key)
-        downloadContents.shouldNotBeNull()
-        downloadContents shouldBeEqualTo contents
+            // Get Object
+            val downloadContents = client.getAsByteArray(BUCKET_NAME, key)
+            downloadContents.shouldNotBeNull()
+            downloadContents shouldBeEqualTo contents
+        }
     }
 
     @Test
     fun `put get object as String`() = runSuspendIO {
-        val key = randomKey()
-        val contents = randomString()
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val key = randomKey()
+            val contents = randomString()
 
-        // Put Object
-        val putRes = s3Client.putFromString(BUCKET_NAME, key, contents)
-        putRes.eTag.shouldNotBeNull()
+            // Put Object
+            val putRes = client.putFromString(BUCKET_NAME, key, contents)
+            putRes.eTag.shouldNotBeNull()
 
-        // Get Object
-        val downloadContents = s3Client.getAsString(BUCKET_NAME, key)
-        downloadContents shouldBeEqualTo contents
+            // Get Object
+            val downloadContents = client.getAsString(BUCKET_NAME, key)
+            downloadContents shouldBeEqualTo contents
+        }
     }
 
     @Test
     fun `put get object as File`(temp: TempFolder) = runSuspendIO {
-        val key = randomKey()
-        val content = randomString()
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val key = randomKey()
+            val content = randomString()
 
-        val file = temp.createFile()
-        file.writeText(content)
+            val file = temp.createFile()
+            file.writeText(content)
 
-        // Put Object
-        val putRes = s3Client.putFromFile(BUCKET_NAME, key, file)
-        putRes.eTag.shouldNotBeNull()
+            // Put Object
+            val putRes = client.putFromFile(BUCKET_NAME, key, file)
+            putRes.eTag.shouldNotBeNull()
 
-        // Get Object
-        val downloadFile = temp.createFile()
-        val getRes = s3Client.getAsFile(BUCKET_NAME, key, downloadFile)
-        getRes shouldBeGreaterThan 0L
+            // Get Object
+            val downloadFile = temp.createFile()
+            val getRes = client.getAsFile(BUCKET_NAME, key, downloadFile)
+            getRes shouldBeGreaterThan 0L
 
-        downloadFile.readText() shouldBeEqualTo content
+            downloadFile.readText() shouldBeEqualTo content
+        }
     }
 
     @Test
     fun `get bucket acl`() = runSuspendIO {
-        val key = randomKey()
-        s3Client.putFromByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val key = randomKey()
+            client.putFromByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
 
-        val aclResponse = s3Client.getObjectAcl(BUCKET_NAME, key)
-        val grants = aclResponse.grants ?: emptyList()
+            val aclResponse = client.getObjectAcl(BUCKET_NAME, key)
+            val grants = aclResponse.grants ?: emptyList()
 
-        grants.forEach {
-            log.debug { "Grantee=${it.grantee}, Permission=${it.permission}" }
+            grants.forEach {
+                log.debug { "Grantee=${it.grantee}, Permission=${it.permission}" }
+            }
+            grants.shouldNotBeEmpty()
+
+            val grant = grants.first()
+            grant.grantee?.id.shouldNotBeNull().shouldNotBeEmpty()
+            grant.permission shouldBeEqualTo Permission.FullControl
         }
-        grants.shouldNotBeEmpty()
-
-        val grant = grants.first()
-        grant.grantee?.id.shouldNotBeNull().shouldNotBeEmpty()
-        grant.permission shouldBeEqualTo Permission.FullControl
     }
 
     @Test
     fun `get bucket policy`() = runSuspendIO {
-        assertFailsWith<S3Exception> {
-            // Bucket Policy 를 지정하지 않았습니다. Policy가 없으면 예외가 발생합니다.
-            s3Client.getBucketPolicy { bucket = BUCKET_NAME }
+        withS3Client(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            assertFailsWith<S3Exception> {
+                // Bucket Policy 를 지정하지 않았습니다. Policy가 없으면 예외가 발생합니다.
+                client.getBucketPolicy { bucket = BUCKET_NAME }
+            }
         }
     }
 }

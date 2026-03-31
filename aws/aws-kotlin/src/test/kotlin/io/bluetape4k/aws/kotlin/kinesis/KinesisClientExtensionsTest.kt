@@ -35,78 +35,120 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
     @Test
     @Order(1)
     fun `스트림 생성`() = runSuspendIO {
-        val response = client.createStream(STREAM_NAME, shardCount = 1)
-        log.debug { "createStream response=$response" }
-        response.shouldNotBeNull()
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.createStream(STREAM_NAME, shardCount = 1)
+            log.debug { "createStream response=$response" }
+            response.shouldNotBeNull()
+        }
     }
 
     @Test
     @Order(2)
     fun `스트림 ACTIVE 상태 대기`() = runSuspendIO {
-        var status: StreamStatus? = null
-        await.atMost(Duration.ofSeconds(30))
-            .pollInterval(Duration.ofSeconds(1))
-            .untilSuspending {
-                val desc = client.describeStream(STREAM_NAME)
-                status = desc.streamDescription?.streamStatus
-                status == StreamStatus.Active
-            }
-        status.shouldNotBeNull()
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            var status: StreamStatus? = null
+            await.atMost(Duration.ofSeconds(30))
+                .pollInterval(Duration.ofSeconds(1))
+                .untilSuspending {
+                    val desc = client.describeStream(STREAM_NAME)
+                    status = desc.streamDescription?.streamStatus
+                    status == StreamStatus.Active
+                }
+            status.shouldNotBeNull()
+        }
     }
 
     @Test
     @Order(3)
     fun `단일 레코드 전송`() = runSuspendIO {
-        val data = "Hello Kotlin Kinesis!".toByteArray()
-        val response = client.putRecord(STREAM_NAME, "partition-1", data)
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val data = "Hello Kotlin Kinesis!".toByteArray()
+            val response = client.putRecord(STREAM_NAME, "partition-1", data)
 
-        response.sequenceNumber.shouldNotBeEmpty()
-        response.shardId.shouldNotBeEmpty()
-        shardId = response.shardId
-        log.debug { "putRecord sequenceNumber=${response.sequenceNumber}, shardId=$shardId" }
+            response.sequenceNumber.shouldNotBeEmpty()
+            response.shardId.shouldNotBeEmpty()
+            shardId = response.shardId
+            log.debug { "putRecord sequenceNumber=${response.sequenceNumber}, shardId=$shardId" }
+        }
     }
 
     @Test
     @Order(4)
     fun `복수 레코드 배치 전송`() = runSuspendIO {
-        val entries = (1..5).map { i ->
-            putRecordsRequestEntryOf(
-                partitionKey = "partition-$i",
-                data = "kotlin-message-$i".toByteArray()
-            )
-        }
-        val response = client.putRecords(STREAM_NAME, entries)
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val entries = (1..5).map { i ->
+                putRecordsRequestEntryOf(
+                    partitionKey = "partition-$i",
+                    data = "kotlin-message-$i".toByteArray()
+                )
+            }
+            val response = client.putRecords(STREAM_NAME, entries)
 
-        log.debug { "putRecords failedRecordCount=${response.failedRecordCount}" }
-        response.records.shouldNotBeNull().shouldNotBeEmpty()
+            log.debug { "putRecords failedRecordCount=${response.failedRecordCount}" }
+            response.records.shouldNotBeNull().shouldNotBeEmpty()
+        }
     }
 
     @Test
     @Order(5)
     fun `샤드 이터레이터 조회`() = runSuspendIO {
-        val response = client.getShardIterator(STREAM_NAME, shardId, ShardIteratorType.TrimHorizon)
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.getShardIterator(STREAM_NAME, shardId, ShardIteratorType.TrimHorizon)
 
-        shardIterator = response.shardIterator!!
-        shardIterator.shouldNotBeEmpty()
-        log.debug { "shardIterator=$shardIterator" }
+            shardIterator = response.shardIterator!!
+            shardIterator.shouldNotBeEmpty()
+            log.debug { "shardIterator=$shardIterator" }
+        }
     }
 
     @Test
     @Order(6)
     fun `레코드 조회`() = runSuspendIO {
-        val response = client.getRecords(shardIterator, limit = 100)
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.getRecords(shardIterator, limit = 100)
 
-        log.debug { "getRecords count=${response.records.size}" }
-        response.records.forEach { record ->
-            log.debug { "record partitionKey=${record.partitionKey}, data=${record.data.decodeToString()}" }
+            log.debug { "getRecords count=${response.records.size}" }
+            response.records.forEach { record ->
+                log.debug { "record partitionKey=${record.partitionKey}, data=${record.data.decodeToString()}" }
+            }
         }
     }
 
     @Test
     @Order(7)
     fun `스트림 삭제`() = runSuspendIO {
-        val response = client.deleteStream(STREAM_NAME)
-        log.debug { "deleteStream response=$response" }
-        response.shouldNotBeNull()
+        withKinesisClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.deleteStream(STREAM_NAME)
+            log.debug { "deleteStream response=$response" }
+            response.shouldNotBeNull()
+        }
     }
 }

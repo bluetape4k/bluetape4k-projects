@@ -5,7 +5,7 @@ import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
-import io.bluetape4k.utils.ShutdownQueue
+import io.bluetape4k.support.useSafe
 
 /**
  * AWS Kotlin SDK KMS 클라이언트를 생성합니다.
@@ -33,15 +33,35 @@ inline fun kmsClientOf(
     endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
+    httpClient: HttpClientEngine? = HttpClientEngineProvider.defaultHttpEngine,
     crossinline builder: KmsClient.Config.Builder.() -> Unit = {},
 ): KmsClient = KmsClient {
     endpointUrl?.let { this.endpointUrl = it }
     region?.let { this.region = it }
     credentialsProvider?.let { this.credentialsProvider = it }
-    this.httpClient = httpClient
+    httpClient?.let { this.httpClient = it }
 
     builder()
-}.apply {
-    ShutdownQueue.register(this)
+}
+
+/**
+ * [KmsClient]를 생성하고 [block]을 실행한 후 자동으로 닫습니다.
+ *
+ * SDK가 내부 HTTP 엔진을 직접 관리하므로 close() 시 엔진도 함께 종료됩니다.
+ *
+ * ```kotlin
+ * withKmsClient(endpointUrl, region, credentialsProvider) { client ->
+ *     client.encrypt { ... }
+ * }
+ * ```
+ *
+ * @param block suspend 블록. AWS SDK의 모든 operations는 suspend 함수이므로 이 블록도 suspend로 선언합니다.
+ */
+suspend fun <R> withKmsClient(
+    endpointUrl: Url? = null,
+    region: String? = null,
+    credentialsProvider: CredentialsProvider? = null,
+    block: suspend (KmsClient) -> R,
+): R = kmsClientOf(endpointUrl, region, credentialsProvider).useSafe { client ->
+    block(client)
 }

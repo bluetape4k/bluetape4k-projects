@@ -29,9 +29,14 @@ class CloudWatchClientExtensionsTest: AbstractKotlinCloudWatchTest() {
         // 따라서 dimensions 없이 최소 파라미터로만 테스트한다.
         val datum = metricDatumOf(METRIC_NAME, 42.0, StandardUnit.Count)
 
-        cloudWatchClient.putMetricData(NAMESPACE, datum)
-
-        log.debug { "putMetricData completed: namespace=$NAMESPACE, metric=$METRIC_NAME" }
+        withCloudWatchClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.putMetricData(NAMESPACE, datum)
+            log.debug { "putMetricData completed: namespace=$NAMESPACE, metric=$METRIC_NAME" }
+        }
     }
 
     @Test
@@ -43,30 +48,45 @@ class CloudWatchClientExtensionsTest: AbstractKotlinCloudWatchTest() {
             metricDatumOf(METRIC_NAME, 30.0, StandardUnit.Count),
         )
 
-        cloudWatchClient.putMetricData(NAMESPACE, data)
-
-        log.debug { "putMetricData (multiple) completed: count=${data.size}" }
+        withCloudWatchClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.putMetricData(NAMESPACE, data)
+            log.debug { "putMetricData (multiple) completed: count=${data.size}" }
+        }
     }
 
     @Test
     @Order(3)
     fun `list metrics`() = runSuspendIO {
-        val response = cloudWatchClient.listMetrics(namespace = NAMESPACE)
-
-        response.metrics.shouldNotBeNull().shouldNotBeEmpty()
-        response.metrics!!.forEach { metric ->
-            log.debug { "metric: namespace=${metric.namespace}, name=${metric.metricName}" }
+        withCloudWatchClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.listMetrics(namespace = NAMESPACE)
+            response.metrics.shouldNotBeNull().shouldNotBeEmpty()
+            response.metrics!!.forEach { metric ->
+                log.debug { "metric: namespace=${metric.namespace}, name=${metric.metricName}" }
+            }
         }
     }
 
     @Test
     @Order(4)
     fun `list metrics with metric name filter`() = runSuspendIO {
-        val response = cloudWatchClient.listMetrics(namespace = NAMESPACE, metricName = METRIC_NAME)
-
-        response.metrics.shouldNotBeNull().shouldNotBeEmpty()
-        response.metrics!!.forEach { metric ->
-            log.debug { "filtered metric: ${metric.metricName}" }
+        withCloudWatchClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.listMetrics(namespace = NAMESPACE, metricName = METRIC_NAME)
+            response.metrics.shouldNotBeNull().shouldNotBeEmpty()
+            response.metrics!!.forEach { metric ->
+                log.debug { "filtered metric: ${metric.metricName}" }
+            }
         }
     }
 }

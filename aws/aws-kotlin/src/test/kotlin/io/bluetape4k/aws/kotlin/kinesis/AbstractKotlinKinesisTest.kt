@@ -1,8 +1,6 @@
 package io.bluetape4k.aws.kotlin.kinesis
 
-import aws.sdk.kotlin.services.kinesis.KinesisClient
 import io.bluetape4k.aws.kotlin.AbstractAwsTest
-import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.aws.LocalStackServer
@@ -12,15 +10,17 @@ import io.bluetape4k.testcontainers.aws.LocalStackServer
  *
  * LocalStack을 사용하여 로컬 환경에서 AWS Kinesis API를 테스트합니다.
  * [LocalStackServer]를 통해 Kinesis 서비스 컨테이너를 자동으로 시작하고,
- * [KinesisClient]를 생성하여 테스트에서 재사용할 수 있도록 제공합니다.
+ * 각 테스트에서 [withKinesisClient] 패턴으로 클라이언트를 생성합니다.
  *
  * 사용 예시:
  * ```kotlin
  * class MyKinesisTest : AbstractKotlinKinesisTest() {
  *     @Test
  *     fun `스트림 생성 테스트`() = runTest {
- *         val response = client.createStream("test-stream", shardCount = 1)
- *         // assertions ...
+ *         withKinesisClient(localStackServer.endpointUrl, localStackServer.region, localStackServer.credentialsProvider) { client ->
+ *             val response = client.createStream("test-stream", shardCount = 1)
+ *             // assertions ...
+ *         }
  *     }
  * }
  * ```
@@ -35,14 +35,5 @@ abstract class AbstractKotlinKinesisTest: AbstractAwsTest() {
         protected fun randomString(min: Int = 256, max: Int = 2048): String {
             return Fakers.randomString(min, max)
         }
-    }
-
-    protected val client: KinesisClient by lazy {
-        kinesisClientOf(
-            localStackServer.endpointUrl,
-            localStackServer.region,
-            localStackServer.credentialsProvider,
-            HttpClientEngineProvider.defaultHttpEngine
-        )
     }
 }

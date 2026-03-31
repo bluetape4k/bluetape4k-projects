@@ -33,16 +33,11 @@ import aws.sdk.kotlin.services.sqs.receiveMessage
 import aws.sdk.kotlin.services.sqs.sendMessage
 import aws.sdk.kotlin.services.sqs.sendMessageBatch
 import aws.smithy.kotlin.runtime.ServiceException
-import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
-import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.http.response.statusCode
-import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
-import io.bluetape4k.utils.ShutdownQueue
 
 @PublishedApi
 internal val log = KotlinLogging.logger {}
@@ -52,52 +47,6 @@ internal const val MIN_RECEIVE_MESSAGES = 1
 
 @PublishedApi
 internal const val MAX_RECEIVE_MESSAGES = 10
-
-/**
- * [SqsClient] 인스턴스를 생성합니다.
- *
- * ```
- * val sqsClient = sqsClientOf(
- *      endpoint = "http://localhost:4566",
- *      region = "us-east-1",
- *      credentialsProvider = credentialsProvider
- * ) {
- *      // 설정
- *      retryPolicy {
- *      }
- *      interpreter {
- *      }
- * }
- * ```
- *
- * @param endpointUrl Amazon SQS endpoint URL입니다.
- * @param region AWS region입니다.
- * @param credentialsProvider AWS credentials provider입니다.
- * @param httpClient [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
- * @param builder Amazon SQS client 설정 빌더입니다.
- * @return [SqsClient] 인스턴스를 반환합니다.
- */
-inline fun sqsClientOf(
-    endpointUrl: Url? = null,
-    region: String? = null,
-    credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
-): SqsClient {
-    endpointUrl?.hostAndPort.requireNotBlank("endpointUrl")
-
-    return SqsClient {
-        endpointUrl?.let { this.endpointUrl = it }
-        region?.let { this.region = it }
-        credentialsProvider?.let { this.credentialsProvider = it }
-
-        this.httpClient = httpClient
-
-        builder()
-    }.apply {
-        ShutdownQueue.register(this)
-    }
-}
 
 /**
  * [queueName]에 해당하는 큐를 생성합니다.

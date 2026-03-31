@@ -1,7 +1,5 @@
 package io.bluetape4k.aws.kotlin.cloudwatch
 
-import aws.sdk.kotlin.services.cloudwatch.CloudWatchClient
-import aws.sdk.kotlin.services.cloudwatchlogs.CloudWatchLogsClient
 import io.bluetape4k.aws.kotlin.AbstractAwsTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -11,13 +9,21 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
  *
  * LocalStack을 사용하여 로컬 환경에서 AWS CloudWatch / CloudWatch Logs API를 테스트합니다.
  *
+ * 클라이언트는 각 테스트에서 [withCloudWatchClient] / [withCloudWatchLogsClient] 패턴으로
+ * 직접 생성하고 블록 종료 시 자동 종료합니다.
+ *
  * 사용 예시:
  * ```kotlin
  * class MyCloudWatchTest : AbstractKotlinCloudWatchTest() {
  *     @Test
- *     fun `메트릭 게시 테스트`() = runTest {
- *         val response = cloudWatchClient.putMetricData("MyNamespace", metricDatum { ... })
- *         // assertions ...
+ *     fun `메트릭 게시 테스트`() = runSuspendIO {
+ *         withCloudWatchClient(
+ *             localStackServer.endpointUrl,
+ *             localStackServer.region,
+ *             localStackServer.credentialsProvider,
+ *         ) { client ->
+ *             client.putMetricData("MyNamespace", metricDatum { ... })
+ *         }
  *     }
  * }
  * ```
@@ -33,21 +39,5 @@ abstract class AbstractKotlinCloudWatchTest: AbstractAwsTest() {
         protected fun randomString(min: Int = 256, max: Int = 2048): String {
             return Fakers.randomString(min, max)
         }
-    }
-
-    protected val cloudWatchClient: CloudWatchClient by lazy {
-        cloudWatchClientOf(
-            localStackServer.endpointUrl,
-            localStackServer.region,
-            localStackServer.credentialsProvider,
-        )
-    }
-
-    protected val cloudWatchLogsClient: CloudWatchLogsClient by lazy {
-        cloudWatchLogsClientOf(
-            localStackServer.endpointUrl,
-            localStackServer.region,
-            localStackServer.credentialsProvider,
-        )
     }
 }

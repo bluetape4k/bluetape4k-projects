@@ -12,6 +12,7 @@ import aws.sdk.kotlin.services.s3.model.GetObjectRetentionResponse
 import aws.sdk.kotlin.services.s3.model.HeadObjectRequest
 import aws.sdk.kotlin.services.s3.presigners.presignGetObject
 import aws.smithy.kotlin.runtime.ServiceException
+import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.decodeToString
 import aws.smithy.kotlin.runtime.content.toByteArray
 import aws.smithy.kotlin.runtime.content.writeToFile
@@ -28,7 +29,7 @@ import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import java.io.OutputStream
 import java.nio.file.Path
 import kotlin.time.Duration
@@ -237,14 +238,19 @@ suspend inline fun S3Client.getAsOutputStream(
 fun S3Client.getAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg getObjectRequests: GetObjectRequest,
-): Flow<GetObjectResponse> = flow {
-    val asyncFlow = getObjectRequests
+): Flow<GetObjectResponse> = channelFlow {
+    getObjectRequests
         .asFlow()
         .async { request ->
-            getObject(request) { it }
+            getObject(request) { response ->
+                // body 스트림은 getObject 블록 종료 시 닫히므로 블록 내에서 메모리로 읽어둔다.
+                val bodyBytes = response.body?.toByteArray()
+                response.copy { body = bodyBytes?.let { ByteStream.fromBytes(it) } }
+            }
         }
-
-    asyncFlow.collectAsync(concurrency) { response -> emit(response) }
+        .collectAsync(concurrency) { response ->
+            send(response)
+        }
 }
 
 /**

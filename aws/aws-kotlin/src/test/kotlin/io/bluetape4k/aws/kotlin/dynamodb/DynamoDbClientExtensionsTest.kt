@@ -27,57 +27,68 @@ class DynamoDbClientExtensionsTest: AbstractKotlinDynamoDbTest() {
     @Test
     @Order(0)
     fun `create table`() = runSuspendIO {
-        client.deleteTableIfExists(TEST_TABLE_NAME)
+        withDynamoDbClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.deleteTableIfExists(TEST_TABLE_NAME)
 
-        val response = client.createTable(TEST_TABLE_NAME) {
-            keySchema = listOf(
-                partitionKeyOf("Artist"),
-                sortKeyOf("SongTitle")
-            )
-            attributeDefinitions = listOf(
-                stringAttrDefinitionOf("Artist"),
-                stringAttrDefinitionOf("SongTitle")
-            )
-            provisionedThroughput {
-                readCapacityUnits = 5
-                writeCapacityUnits = 5
+            val response = client.createTable(TEST_TABLE_NAME) {
+                keySchema = listOf(
+                    partitionKeyOf("Artist"),
+                    sortKeyOf("SongTitle")
+                )
+                attributeDefinitions = listOf(
+                    stringAttrDefinitionOf("Artist"),
+                    stringAttrDefinitionOf("SongTitle")
+                )
+                provisionedThroughput {
+                    readCapacityUnits = 5
+                    writeCapacityUnits = 5
+                }
+                tableClass = TableClass.Standard
             }
-            tableClass = TableClass.Standard
-        }
-        log.debug { "Create table: ${response.tableDescription?.tableArn}" }
+            log.debug { "Create table: ${response.tableDescription?.tableArn}" }
 
-        client.waitForTableReady(TEST_TABLE_NAME)
+            client.waitForTableReady(TEST_TABLE_NAME)
+        }
     }
 
     @Test
     @Order(1)
     fun `scan paginated respects exclusive start key`() = runSuspendIO {
-        client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Bar"))
-        client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Baz"))
-        client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Qux"))
+        withDynamoDbClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Bar"))
+            client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Baz"))
+            client.putItem(TEST_TABLE_NAME, mapOf("Artist" to "Foo", "SongTitle" to "Qux"))
 
-        val results = client
-            .scanPaginated(
-                TEST_TABLE_NAME,
-                mapOf("Artist" to "Foo", "SongTitle" to "Bar"),
-                1
-            )
-            .buffer()
-            .mapNotNull { scan ->
-                if (scan.items?.isNotEmpty() == true) {
-                    scan.items!!.single()
-                } else {
-                    null
+            val results = client
+                .scanPaginated(
+                    TEST_TABLE_NAME,
+                    mapOf("Artist" to "Foo", "SongTitle" to "Bar"),
+                    1
+                )
+                .buffer()
+                .mapNotNull { scan ->
+                    if (scan.items?.isNotEmpty() == true) {
+                        scan.items!!.single()
+                    } else {
+                        null
+                    }
                 }
+                .toList()
+
+            results.forEach {
+                log.debug { "item=$it" }
             }
-            .toList()
-
-
-        results.forEach {
-            log.debug { "item=$it" }
+            results shouldHaveSize 2
+            results[0]["SongTitle"]?.asS() shouldBeEqualTo "Baz"
+            results[1]["SongTitle"]?.asS() shouldBeEqualTo "Qux"
         }
-        results shouldHaveSize 2
-        results[0]["SongTitle"]?.asS() shouldBeEqualTo "Baz"
-        results[1]["SongTitle"]?.asS() shouldBeEqualTo "Qux"
     }
 }

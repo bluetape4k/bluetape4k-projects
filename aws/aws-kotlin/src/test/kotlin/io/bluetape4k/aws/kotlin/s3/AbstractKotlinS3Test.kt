@@ -1,6 +1,5 @@
 package io.bluetape4k.aws.kotlin.s3
 
-import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.listBuckets
 import io.bluetape4k.aws.kotlin.AbstractAwsTest
 import io.bluetape4k.codec.Base58
@@ -31,7 +30,6 @@ abstract class AbstractKotlinS3Test: AbstractAwsTest() {
             )
         }
 
-
         @JvmStatic
         protected val faker = Fakers.faker
 
@@ -44,36 +42,27 @@ abstract class AbstractKotlinS3Test: AbstractAwsTest() {
         protected fun randomKey(): String = Base58.randomString(16).lowercase()
     }
 
-    protected val s3Client: S3Client by lazy {
-        s3ClientOf(
-            localStackServer.endpointUrl,
-            localStackServer.region,
-            localStackServer.credentialsProvider,
-        )
-    }
-
     @BeforeAll
     fun beforeAll() {
         runBlocking {
-            deleteAllBuckets()
-            createBucketsIfNotExists(BUCKET_NAME, BUCKET_NAME2)
-        }
-    }
+            withS3Client(
+                localStackServer.endpointUrl,
+                localStackServer.region,
+                localStackServer.credentialsProvider,
+            ) { client ->
+                log.info { "Delete all buckets ..." }
+                val buckets = client.listBuckets { }.buckets!!
+                buckets.forEach { bucket ->
+                    client.forceDeleteBucket(bucket.name!!)
+                }
 
-    protected suspend fun deleteAllBuckets() {
-        log.info { "Delete all buckets ..." }
-        val buckets = s3Client.listBuckets { }.buckets!!
-        buckets.forEach { bucket ->
-            s3Client.forceDeleteBucket(bucket.name!!)
-        }
-    }
-
-    protected suspend fun createBucketsIfNotExists(vararg bucketNames: String) {
-        bucketNames.forEach { bucketName ->
-            runCatching {
-                s3Client.ensureBucketExists(bucketName)
-            }.onFailure {
-                log.warn(it) { "Failed to create bucket: $bucketName" }
+                listOf(BUCKET_NAME, BUCKET_NAME2).forEach { bucketName ->
+                    runCatching {
+                        client.ensureBucketExists(bucketName)
+                    }.onFailure {
+                        log.warn(it) { "Failed to create bucket: $bucketName" }
+                    }
+                }
             }
         }
     }

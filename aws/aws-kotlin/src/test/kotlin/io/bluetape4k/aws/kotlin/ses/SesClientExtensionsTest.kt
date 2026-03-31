@@ -12,7 +12,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
@@ -28,86 +27,109 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
 
     companion object: KLoggingChannel()
 
-    @BeforeEach
-    fun setup() {
-        runSuspendIO {
-            // 테스트 시 사용할 email 주소를 등록합니다.
-            sesClient.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = senderEmail })
-            sesClient.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = receiverEmail })
-        }
-    }
-
     @Test
     fun `send email`() = runSuspendIO {
-        val request = SendEmailRequest {
-            source = senderEmail
-            destination {
-                toAddresses = listOf(receiverEmail)
-            }
-            message {
-                subject { data = "제목" }
-                body {
-                    text { data = "본문" }
-                    html { data = "<p1>본문</p1>" }
+        withSesClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = senderEmail })
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = receiverEmail })
+
+            val request = SendEmailRequest {
+                source = senderEmail
+                destination {
+                    toAddresses = listOf(receiverEmail)
+                }
+                message {
+                    subject { data = "제목" }
+                    body {
+                        text { data = "본문" }
+                        html { data = "<p1>본문</p1>" }
+                    }
                 }
             }
+            val response = client.send(request)
+            log.debug { "response=$response" }
+            response.messageId.shouldNotBeEmpty()
         }
-        val response = sesClient.send(request)
-        log.debug { "response=$response" }
-        response.messageId.shouldNotBeEmpty()
     }
 
     @Test
     fun `send raw email`() = runSuspendIO {
-        val request = SendRawEmailRequest {
-            source = senderEmail
-            destinations = listOf(receiverEmail)
-            rawMessage {
-                data = "Hello, world!".toUtf8Bytes()
+        withSesClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = senderEmail })
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = receiverEmail })
+
+            val request = SendRawEmailRequest {
+                source = senderEmail
+                destinations = listOf(receiverEmail)
+                rawMessage {
+                    data = "Hello, world!".toUtf8Bytes()
+                }
             }
+            val response = client.sendRaw(request)
+            log.debug { "response=$response" }
+            response.messageId.shouldNotBeEmpty()
         }
-        val response = sesClient.sendRaw(request)
-        log.debug { "response=$response" }
-        response.messageId.shouldNotBeEmpty()
     }
 
     @Test
     fun `send templated email`() = runSuspendIO {
-        val newTemplateName = "template-name-" + Base58.randomString(6)
+        withSesClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = senderEmail })
+            client.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = receiverEmail })
 
-        // 템플릿 부터 생성해야 한다.
-        val template = Template {
-            templateName = newTemplateName
-            subjectPart = "Hello, {{name}}"
-            htmlPart = "<h1>Hello, {{name}}</h1>"
-            textPart = "Hello, {{name}}"
-        }
+            val newTemplateName = "template-name-" + Base58.randomString(6)
 
-        val createTemplateResponse = sesClient.createTemplate(template)
-        log.debug { "createTemplateResponse=$createTemplateResponse" }
-
-
-        val savedTemplate = sesClient.getTemplateOrNull(newTemplateName)
-        log.debug { "saved template=$savedTemplate" }
-        savedTemplate?.templateName shouldBeEqualTo newTemplateName
-
-        val request = SendTemplatedEmailRequest {
-            source = senderEmail
-            destination {
-                toAddresses = listOf(receiverEmail)
+            // 템플릿 부터 생성해야 한다.
+            val template = Template {
+                templateName = newTemplateName
+                subjectPart = "Hello, {{name}}"
+                htmlPart = "<h1>Hello, {{name}}</h1>"
+                textPart = "Hello, {{name}}"
             }
-            this.template = newTemplateName
-            templateData = """{"name": "world"}"""
-        }
 
-        val response = sesClient.sendTemplated(request)
-        log.debug { "response=$response" }
-        response.messageId.shouldNotBeEmpty()
+            val createTemplateResponse = client.createTemplate(template)
+            log.debug { "createTemplateResponse=$createTemplateResponse" }
+
+            val savedTemplate = client.getTemplateOrNull(newTemplateName)
+            log.debug { "saved template=$savedTemplate" }
+            savedTemplate?.templateName shouldBeEqualTo newTemplateName
+
+            val request = SendTemplatedEmailRequest {
+                source = senderEmail
+                destination {
+                    toAddresses = listOf(receiverEmail)
+                }
+                this.template = newTemplateName
+                templateData = """{"name": "world"}"""
+            }
+
+            val response = client.sendTemplated(request)
+            log.debug { "response=$response" }
+            response.messageId.shouldNotBeEmpty()
+        }
     }
 
     @Test
     fun `unknown template은 null을 반환한다`() = runSuspendIO {
-        val unknown = sesClient.getTemplateOrNull("not-exists-template")
-        unknown shouldBeEqualTo null
+        withSesClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val unknown = client.getTemplateOrNull("not-exists-template")
+            unknown shouldBeEqualTo null
+        }
     }
 }

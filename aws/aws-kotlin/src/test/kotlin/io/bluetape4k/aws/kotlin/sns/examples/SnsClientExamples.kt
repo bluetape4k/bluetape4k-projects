@@ -11,6 +11,7 @@ import aws.sdk.kotlin.services.sns.publishBatch
 import aws.sdk.kotlin.services.sns.subscribe
 import aws.sdk.kotlin.services.sns.unsubscribe
 import io.bluetape4k.aws.kotlin.sns.AbstractKotlinSnsTest
+import io.bluetape4k.aws.kotlin.sns.withSnsClient
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -45,116 +46,170 @@ class SnsClientExamples: AbstractKotlinSnsTest() {
     @Test
     @Order(1)
     fun `create FIFO topic`() = runSuspendIO {
-        val response = snsClient.createTopic {
-            this.name = TOPIC_NAME_FIFO
-            this.attributes = mapOf("FifoTopic" to "true", "ContentBasedDeduplication" to "true")
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.createTopic {
+                this.name = TOPIC_NAME_FIFO
+                this.attributes = mapOf("FifoTopic" to "true", "ContentBasedDeduplication" to "true")
+            }
+            response.topicArn.shouldNotBeNull().shouldNotBeEmpty()
+            testTopicArn = response.topicArn!!
+            log.debug { "topic name=$TOPIC_NAME_FIFO, topicArn=$testTopicArn" }
         }
-        response.topicArn.shouldNotBeNull().shouldNotBeEmpty()
-        testTopicArn = response.topicArn!!
-        log.debug { "topic name=$TOPIC_NAME_FIFO, topicArn=$testTopicArn" }
     }
 
     @Test
     @Order(2)
     fun `subscribe topic`() = runSuspendIO {
-        val response = snsClient.subscribe {
-            protocol = "sms"
-            endpoint = testPhoneNumber
-            returnSubscriptionArn = true
-            topicArn = testTopicArn
-        }
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.subscribe {
+                protocol = "sms"
+                endpoint = testPhoneNumber
+                returnSubscriptionArn = true
+                topicArn = testTopicArn
+            }
 
-        response.subscriptionArn.shouldNotBeNull().shouldNotBeEmpty()
-        testSubscriptionArn = response.subscriptionArn!!
-        log.debug { "subscriptionArn=$testSubscriptionArn" }
+            response.subscriptionArn.shouldNotBeNull().shouldNotBeEmpty()
+            testSubscriptionArn = response.subscriptionArn!!
+            log.debug { "subscriptionArn=$testSubscriptionArn" }
+        }
     }
 
     @Disabled("token은 SNS 구독 시에 클라이언트에 전송된다")
     @Test
     @Order(3)
     fun `confirm subscription`() = runSuspendIO {
-        val response = snsClient.confirmSubscription {
-            token = testToken
-            topicArn = testTopicArn
-        }
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.confirmSubscription {
+                token = testToken
+                topicArn = testTopicArn
+            }
 
-        response.subscriptionArn.shouldNotBeNull().shouldNotBeEmpty()
-        log.debug { "subscriptionArn=${response.subscriptionArn}" }
+            response.subscriptionArn.shouldNotBeNull().shouldNotBeEmpty()
+            log.debug { "subscriptionArn=${response.subscriptionArn}" }
+        }
     }
 
     @Test
     @Order(4)
     fun `list subscriptions`() = runSuspendIO {
-        val response = snsClient.listSubscriptions { }
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.listSubscriptions { }
 
-        response.subscriptions?.forEach { subscription ->
-            log.debug { "subscriptionArn=${subscription.subscriptionArn}" }
+            response.subscriptions?.forEach { subscription ->
+                log.debug { "subscriptionArn=${subscription.subscriptionArn}" }
+            }
+            response.subscriptions.shouldNotBeNull().shouldNotBeEmpty()
         }
-        response.subscriptions.shouldNotBeNull().shouldNotBeEmpty()
     }
 
     @Test
     @Order(5)
     fun `check opt out status for phone number`() = runSuspendIO {
-        val response = snsClient.checkIfPhoneNumberIsOptedOut {
-            phoneNumber = testPhoneNumber
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.checkIfPhoneNumberIsOptedOut {
+                phoneNumber = testPhoneNumber
+            }
+            log.debug { "OptOut status=${response.isOptedOut}" }
+            response.isOptedOut.shouldBeFalse()
         }
-        log.debug { "OptOut status=${response.isOptedOut}" }
-        response.isOptedOut.shouldBeFalse()
     }
 
     @Test
     @Order(6)
     fun `publish messages`() = runSuspendIO {
-        val response = snsClient.publish {
-            subject = "[Test]"
-            message = "Hello, AWS SNS!"
-            phoneNumber = testPhoneNumber
-            topicArn = testTopicArn
-            messageGroupId = "partitionKey"
-            messageDeduplicationId = hashOf(topicArn, message, phoneNumber).toString()
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.publish {
+                subject = "[Test]"
+                message = "Hello, AWS SNS!"
+                phoneNumber = testPhoneNumber
+                topicArn = testTopicArn
+                messageGroupId = "partitionKey"
+                messageDeduplicationId = hashOf(topicArn, message, phoneNumber).toString()
+            }
+            log.debug { "response=$response" }
+            response.messageId.shouldNotBeNull().shouldNotBeEmpty()
         }
-        log.debug { "response=$response" }
-        response.messageId.shouldNotBeNull().shouldNotBeEmpty()
     }
 
     @Test
     @Order(7)
     fun `publish messages in batch`() = runSuspendIO {
-        val messageSize = 10
-        val response = snsClient.publishBatch {
-            topicArn = testTopicArn
-            publishBatchRequestEntries = List(messageSize) {
-                PublishBatchRequestEntry {
-                    id = Base58.randomString(6).lowercase()
-                    this.message = "Hello, AWS SNS! ${Base58.randomString(6).lowercase()}"
-                    this.messageDeduplicationId = hashOf(testTopicArn, message, testPhoneNumber).toString()
-                    this.messageGroupId = "partitionKey"
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val messageSize = 10
+            val response = client.publishBatch {
+                topicArn = testTopicArn
+                publishBatchRequestEntries = List(messageSize) {
+                    PublishBatchRequestEntry {
+                        id = Base58.randomString(6).lowercase()
+                        this.message = "Hello, AWS SNS! ${Base58.randomString(6).lowercase()}"
+                        this.messageDeduplicationId = hashOf(testTopicArn, message, testPhoneNumber).toString()
+                        this.messageGroupId = "partitionKey"
+                    }
                 }
             }
+            response.successful?.forEach { result ->
+                result.messageId.shouldNotBeNull().shouldNotBeEmpty()
+                log.debug { "result=$result" }
+            }
+            response.successful!! shouldHaveSize messageSize
         }
-        response.successful?.forEach { result ->
-            result.messageId.shouldNotBeNull().shouldNotBeEmpty()
-            log.debug { "result=$result" }
-        }
-        response.successful!! shouldHaveSize messageSize
     }
 
     @Test
     @Order(8)
     fun `unsubscribe topic`() = runSuspendIO {
-        val response = snsClient.unsubscribe {
-            subscriptionArn = testSubscriptionArn
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.unsubscribe {
+                subscriptionArn = testSubscriptionArn
+            }
+            log.debug { "response=$response" }
         }
-        log.debug { "response=$response" }
     }
 
     @Test
     @Order(9)
     fun `delete topic`() = runSuspendIO {
-        val response = snsClient.deleteTopic {
-            topicArn = testTopicArn
+        withSnsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.deleteTopic {
+                topicArn = testTopicArn
+            }
+            log.debug { "response=$response" }
         }
-        log.debug { "response=$response" }
     }
 }

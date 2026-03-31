@@ -13,48 +13,6 @@ import aws.sdk.kotlin.services.ses.model.SendRawEmailResponse
 import aws.sdk.kotlin.services.ses.model.SendTemplatedEmailRequest
 import aws.sdk.kotlin.services.ses.model.SendTemplatedEmailResponse
 import aws.sdk.kotlin.services.ses.model.Template
-import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
-import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
-import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
-import io.bluetape4k.utils.ShutdownQueue
-
-/**
- * [SesClient] 인스턴스를 생성합니다.
- *
- * ```kotlin
- * val sesClient = sesClientOf(
- *  endpoint = "http://localhost:4566",
- *  region = "us-east-1",
- *  credentialsProvider = credentialsProvider
- * )
- * ```
- *
- * @param endpoint SES endpoint URL
- * @param region AWS region
- * @param credentialsProvider AWS credentials provider
- * @param httpClient [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
- * @param builder SES client 설정 빌더
- *
- * @return [SesClient] 인스턴스
- *
- */
-inline fun sesClientOf(
-    endpointUrl: Url? = null,
-    region: String? = null,
-    credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
-    crossinline builder: SesClient.Config.Builder.() -> Unit = {},
-): SesClient = SesClient {
-    endpointUrl?.let { this.endpointUrl = it }
-    region?.let { this.region = it }
-    credentialsProvider?.let { this.credentialsProvider = it }
-    this.httpClient = httpClient
-
-    builder()
-}.apply {
-    ShutdownQueue.register(this)
-}
 
 /**
  * [emailRequest]를 바탕으로 email 을 전송합니다.

@@ -23,17 +23,27 @@ class CloudWatchLogsClientExtensionsTest: AbstractKotlinCloudWatchTest() {
     @Test
     @Order(1)
     fun `create log group`() = runSuspendIO {
-        cloudWatchLogsClient.createLogGroup(LOG_GROUP_NAME)
-
-        log.debug { "createLogGroup completed: $LOG_GROUP_NAME" }
+        withCloudWatchLogsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.createLogGroup(LOG_GROUP_NAME)
+            log.debug { "createLogGroup completed: $LOG_GROUP_NAME" }
+        }
     }
 
     @Test
     @Order(2)
     fun `create log stream`() = runSuspendIO {
-        cloudWatchLogsClient.createLogStream(LOG_GROUP_NAME, LOG_STREAM_NAME)
-
-        log.debug { "createLogStream completed: $LOG_GROUP_NAME/$LOG_STREAM_NAME" }
+        withCloudWatchLogsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.createLogStream(LOG_GROUP_NAME, LOG_STREAM_NAME)
+            log.debug { "createLogStream completed: $LOG_GROUP_NAME/$LOG_STREAM_NAME" }
+        }
     }
 
     @Test
@@ -45,30 +55,45 @@ class CloudWatchLogsClientExtensionsTest: AbstractKotlinCloudWatchTest() {
             inputLogEventOf(System.currentTimeMillis() + 2, "Kotlin log message 3"),
         )
 
-        cloudWatchLogsClient.putLogEvents(LOG_GROUP_NAME, LOG_STREAM_NAME, events)
-
-        log.debug { "putLogEvents completed: count=${events.size}" }
+        withCloudWatchLogsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            client.putLogEvents(LOG_GROUP_NAME, LOG_STREAM_NAME, events)
+            log.debug { "putLogEvents completed: count=${events.size}" }
+        }
     }
 
     @Test
     @Order(4)
     fun `describe log groups`() = runSuspendIO {
-        val response = cloudWatchLogsClient.describeLogGroups(logGroupNamePrefix = "/bluetape4k")
-
-        response.logGroups.shouldNotBeNull().shouldNotBeEmpty()
-        response.logGroups!!.forEach { group ->
-            log.debug { "logGroup: ${group.logGroupName}" }
+        withCloudWatchLogsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.describeLogGroups(logGroupNamePrefix = "/bluetape4k")
+            response.logGroups.shouldNotBeNull().shouldNotBeEmpty()
+            response.logGroups!!.forEach { group ->
+                log.debug { "logGroup: ${group.logGroupName}" }
+            }
         }
     }
 
     @Test
     @Order(5)
     fun `describe log streams`() = runSuspendIO {
-        val response = cloudWatchLogsClient.describeLogStreams(LOG_GROUP_NAME)
-
-        response.logStreams.shouldNotBeNull().shouldNotBeEmpty()
-        response.logStreams!!.forEach { stream ->
-            log.debug { "logStream: ${stream.logStreamName}" }
+        withCloudWatchLogsClient(
+            localStackServer.endpointUrl,
+            localStackServer.region,
+            localStackServer.credentialsProvider,
+        ) { client ->
+            val response = client.describeLogStreams(LOG_GROUP_NAME)
+            response.logStreams.shouldNotBeNull().shouldNotBeEmpty()
+            response.logStreams!!.forEach { stream ->
+                log.debug { "logStream: ${stream.logStreamName}" }
+            }
         }
     }
 }
