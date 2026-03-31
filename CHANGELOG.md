@@ -4,6 +4,24 @@
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+#### aws-kotlin — 클라이언트 생성/해제 패턴 통일 ([`af247f65`](https://github.com/bluetape4k/bluetape4k-projects/commit/af247f65))
+
+- 모든 서비스에 `xxxClientOf` + `withXxxClient` 팩토리 함수 쌍을 `*Support.kt`로 분리
+  - 신규 파일: `KinesisClientSupport`, `SesClientSupport`, `SesV2ClientSupport`, `SnsClientSupport`, `SqsClientSupport`
+- `withXxxClient`를 `xxxClientOf(...).useSafe { }` 패턴으로 통일 — 코루틴 취소·예외 시 자동 `close()` 보장
+- `httpClient` 기본값을 `HttpClientEngineProvider.defaultHttpEngine`(CRT)으로 전체 통일
+- `*Extensions.kt`에서 팩토리/with 함수 제거 — 확장 함수만 유지
+
+> **[!NOTE]**
+> AWS Kotlin SDK 클라이언트는 내부 HTTP 커넥션 풀·스레드를 보유합니다.
+> 사용 후 반드시 `close()`를 호출하거나, **`withXxxClient { }` 블록을 사용하면 자동으로 리소스가 해제**됩니다.
+
+---
+
 ## [1.5.0-Beta3] - 2026-03-31
 
 ### Added

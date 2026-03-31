@@ -43,21 +43,58 @@ dependencies {
 }
 ```
 
+## 클라이언트 생성 패턴
+
+각 서비스는 두 가지 팩토리 함수를 제공합니다.
+
+### `xxxClientOf` — 클라이언트 직접 생성
+
+장기 보유(long-lived) 클라이언트가 필요할 때 사용합니다. **반드시 `close()`를 호출**해야 합니다.
+
+```kotlin
+val client = sqsClientOf(
+    endpointUrl = Url.parse("http://localhost:4566"),
+    region = "us-east-1",
+    credentialsProvider = credentialsProvider
+)
+
+try {
+    client.sendMessage(queueUrl, "Hello!")
+} finally {
+    client.close()   // 또는 useSafe { } 활용
+}
+```
+
+### `withXxxClient` — 단발성 사용 (권장)
+
+내부적으로 `useSafe { }` 를 사용하여 코루틴 취소·예외 상황에서도 리소스를 안전하게 해제합니다.
+
+```kotlin
+withSqsClient(endpointUrl, region, credentialsProvider) { client ->
+    client.sendMessage(queueUrl, "Hello!")
+}   // close() 자동 호출
+```
+
+> **[!NOTE]**
+> AWS Kotlin SDK 클라이언트는 내부 HTTP 커넥션 풀·스레드를 보유하므로, 사용 후 반드시 `close()`를 호출해야 합니다.
+> `withXxxClient { }` 블록을 사용하면 코루틴 취소·예외 상황에서도 자동으로 리소스가 해제됩니다.
+> 장기 보유 클라이언트를 직접 생성한 경우에는 애플리케이션 종료 시점에 `close()`를 명시적으로 호출하세요.
+
 ## 사용 예시
 
 ### DynamoDB (native suspend)
 
 ```kotlin
 import aws.sdk.kotlin.services.dynamodb.DynamoDbClient
-import aws.sdk.kotlin.services.dynamodb.model.*
+import io.bluetape4k.aws.kotlin.dynamodb.*
 
-val client = DynamoDbClient { region = "ap-northeast-2" }
-
-// native suspend - .await() 불필요
+// 단발성: withDynamoDbClient 사용 (close 자동)
 suspend fun getItem(tableName: String, key: Map<String, AttributeValue>) =
-    client.getItem {
-        this.tableName = tableName
-        this.key = key
+    withDynamoDbClient(region = "ap-northeast-2") { client ->
+        client.getItem {
+            this.tableName = tableName
+            this.key = key
+        }
     }
 ```
 
