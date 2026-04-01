@@ -107,7 +107,7 @@ flowchart LR
     subgraph SQL_Client["SQL 클라이언트"]
         POOL[Connection Pool]
         QUERY[preparedQuery.execute]
-        RS[RowSet~Row~]
+        RS["RowSet&lt;Row&gt;"]
     end
 
     EL --> VER
@@ -148,33 +148,33 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class CoroutineVerticle:::serverStyle {
-        <<Vert.x Kotlin>>
+    class CoroutineVerticle {
+        <<VertxKotlin>>
         +vertx: Vertx
         +context: Context
         +start()
         +stop()
     }
 
-    class EventBus:::infraStyle {
+    class EventBus {
         +send(address, message)
         +publish(address, message)
         +consumer(address) MessageConsumer
     }
 
-    class SqlClient:::clientStyle {
+    class SqlClient {
         <<interface>>
         +preparedQuery(sql) PreparedQuery
         +query(sql) Query
         +close() Future
     }
 
-    class Pool:::clientStyle {
+    class Pool {
         +withConnection(handler) Future
         +withTransaction(handler) Future
     }
 
-    class CircuitBreaker:::infraStyle {
+    class CircuitBreaker {
         <<Resilience4j>>
         +executeSuspend(block) T
         +getState() State
@@ -185,9 +185,6 @@ classDiagram
     Pool --|> SqlClient
     CoroutineVerticle --> CircuitBreaker : 장애 격리
 
-    classDef clientStyle fill:#2196F3
-    classDef serverStyle fill:#4CAF50
-    classDef infraStyle  fill:#607D8B
 ```
 
 ## 사용 예시

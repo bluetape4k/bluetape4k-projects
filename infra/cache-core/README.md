@@ -84,7 +84,7 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class NearCacheOperations:::abstractStyle {
+    class NearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -100,7 +100,7 @@ classDiagram
         +stats() NearCacheStatistics
     }
 
-    class NearCacheStatistics:::infraStyle {
+    class NearCacheStatistics {
         <<interface>>
         +localHits: Long
         +localMisses: Long
@@ -111,23 +111,23 @@ classDiagram
         +hitRate: Double
     }
 
-    class ResilientNearCacheDecorator:::serviceStyle {
+    class ResilientNearCacheDecorator {
         -delegate: NearCacheOperations~V~
         -retry: Retry
         -config: NearCacheResilienceConfig
     }
 
-    class LettuceNearCache:::redisStyle {
+    class LettuceNearCache {
         -redisClient: RedisClient
         -trackingListener: TrackingInvalidationListener
     }
 
-    class HazelcastNearCache:::clientStyle {
+    class HazelcastNearCache {
         -imap: IMap
         -entryListener: EntryListener
     }
 
-    class RedissonNearCache:::cacheStyle {
+    class RedissonNearCache {
         -localCachedMap: RLocalCachedMap
     }
 
@@ -138,19 +138,13 @@ classDiagram
     NearCacheOperations --o ResilientNearCacheDecorator : delegate
     NearCacheOperations ..> NearCacheStatistics : stats()
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 #### SuspendNearCacheOperations (Coroutine)
 
 ```mermaid
 classDiagram
-    class SuspendNearCacheOperations:::abstractStyle {
+    class SuspendNearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -164,20 +158,20 @@ classDiagram
         +close()
     }
 
-    class ResilientSuspendNearCacheDecorator:::serviceStyle {
+    class ResilientSuspendNearCacheDecorator {
         -delegate: SuspendNearCacheOperations~V~
         -retry: Retry
     }
 
-    class LettuceSuspendNearCache:::redisStyle {
+    class LettuceSuspendNearCache {
         -commands: RedisCoroutinesCommands
     }
 
-    class HazelcastSuspendNearCache:::clientStyle {
+    class HazelcastSuspendNearCache {
         -imap: IMap
     }
 
-    class RedissonSuspendNearCache:::cacheStyle {
+    class RedissonSuspendNearCache {
         -localCachedMap: RLocalCachedMap
     }
 
@@ -187,12 +181,6 @@ classDiagram
     SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
     SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)
@@ -204,7 +192,7 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class SuspendJCache~K, V~ {
+    class SuspendJCache~K_V~ {
         <<interface>>
         +get(key: K) V?
         +put(key: K, value: V)
@@ -223,7 +211,7 @@ classDiagram
         +isClosed() Boolean
     }
 
-class CaffeineSuspendJCache~K, V~ {
+class CaffeineSuspendJCache~K_V~ {
 -cache: AsyncCache
         +invoke(builder) CaffeineSuspendJCache
     }
@@ -233,12 +221,12 @@ class CaffeineSuspendJCache~K, V~ {
         +invoke(cacheName, redisClient) LettuceSuspendJCache
     }
 
-class HazelcastSuspendJCache~K, V~ {
+class HazelcastSuspendJCache~K_V~ {
         -hazelcastInstance: HazelcastInstance
         -cacheName: String
     }
 
-class RedissonSuspendJCache~K, V~ {
+class RedissonSuspendJCache~K_V~ {
         -redisson: RedissonClient
         -cacheName: String
     }
@@ -253,14 +241,14 @@ SuspendJCache <|.. RedissonSuspendJCache
 
 ```mermaid
 classDiagram
-    class NearJCache~K, V~ {
+    class NearJCache~K_V~ {
 +frontCache: JCache
 +backCache: JCache
 -config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-class NearJCacheConfig~K, V~ {
+class NearJCacheConfig~K_V~ {
         +cacheName: String
         +cacheManagerFactory: Factory
 +frontCacheConfiguration: MutableConfiguration
@@ -268,7 +256,7 @@ class NearJCacheConfig~K, V~ {
         +syncRemoteTimeout: Long
     }
 
-class NearJCacheConfigBuilder~K, V~ {
+class NearJCacheConfigBuilder~K_V~ {
         +cacheName: String
         +cacheManagerFactory: Factory
 +frontCacheConfiguration: MutableConfiguration
@@ -285,7 +273,7 @@ class NearJCacheConfigBuilder~K, V~ {
 
 ```mermaid
 classDiagram
-    class SuspendNearJCache~K, V~ {
+    class SuspendNearJCache~K_V~ {
 -frontCache: SuspendJCache
 -backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
@@ -297,16 +285,16 @@ classDiagram
         +close()
     }
 
-class CaffeineSuspendJCache~K, V~ {
+class CaffeineSuspendJCache~K_V~ {
         <<frontCache>>
     }
 
     class LettuceSuspendJCache~V~ {
-<<backCache(Lettuce)>>
+<<backCache_Lettuce>>
     }
 
-class HazelcastSuspendJCache~K, V~ {
-<<backCache(Hazelcast)>>
+class HazelcastSuspendJCache~K_V~ {
+<<backCache_Hazelcast>>
     }
 
 SuspendNearJCache --> CaffeineSuspendJCache: frontCache
@@ -528,14 +516,14 @@ dependencies {
 ```kotlin
 // 새 Provider NearCache 테스트 예시 (통일 인터페이스)
 class MyProviderNearCacheTest : AbstractNearCacheOperationsTest<String>() {
-    override fun createCache(): NearCacheOperations<String> = myProviderNearCacheOf(...)
+    override fun createCache(): NearCacheOperations<String> = myProviderNearCacheOf(/* ... */)
     override fun sampleValue(): String = "hello"
     override fun anotherValue(): String = "world"
 }
 
 // Resilient Decorator 테스트도 동일 패턴
 class ResilientMyProviderTest : AbstractNearCacheOperationsTest<String>() {
-    override fun createCache() = myProviderNearCacheOf(...)
+    override fun createCache() = myProviderNearCacheOf(/* ... */)
         .withResilience { retryMaxAttempts = 3 }
     override fun sampleValue(): String = "hello"
     override fun anotherValue(): String = "world"

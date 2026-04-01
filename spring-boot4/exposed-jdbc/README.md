@@ -8,51 +8,45 @@ Spring Boot 4와 Spring Data를 활용하여 Exposed DAO 엔티티를 관리하�
 
 ```mermaid
 classDiagram
-    class UserController:::controllerStyle {
+    class UserController {
         -userService: UserService
         +createUser(request): ResponseEntity~User~
         +listUsers(pageable): Page~User~
         +searchByName(name): List~User~
     }
-    class UserService:::serviceStyle {
+    class UserService {
         -userRepository: UserRepository
         +createUser(name, email, age): User
         +getUserByName(name): List~User~
         +getAdultUsers(): List~User~
         +getUserPage(pageable): Page~User~
     }
-    class UserRepository:::repoStyle {
+    class UserRepository {
         +findByName(name): List~User~
         +findByAgeGreaterThan(age): List~User~
         +findByEmailContaining(keyword): List~User~
         +countByAge(age): Long
         +existsByEmail(email): Boolean
     }
-    class ExposedJdbcRepository:::repoStyle {
+    class ExposedJdbcRepository {
         <<interface>>
         +save(entity): E
         +findById(id): Optional~E~
         +findAll(pageable): Page~E~
         +delete(entity)
     }
-    class UserEntity:::entityStyle {
+    class UserEntity {
         +id: EntityID~Long~
         +name: String
         +email: String
         +age: Int
     }
-    class UserTable:::entityStyle {
+    class UserTable {
         <<object>>
         +name: Column~String~
         +email: Column~String~
         +age: Column~Int~
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     UserController --> UserService
     UserService --> UserRepository
@@ -261,7 +255,7 @@ class UserController(
 Repository 인터페이스에서 추가 메서드 사용:
 
 ```kotlin
-val userRepository: UserRepository = ...
+val userRepository: UserRepository = TODO()
 
 // DSL 조건으로 조회
 val activeUsers = userRepository.findAll { Users.age greaterEq 18 }
@@ -331,13 +325,15 @@ fun createUser(name: String, email: String): User {
 
 동일한 Repository 패턴으로 H2, PostgreSQL, MySQL, MariaDB 지원:
 
-```kotlin
-// application.properties
+```properties
+# application.properties (MySQL 예시)
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb
 spring.datasource.username=root
 spring.datasource.password=password
+```
 
-# 또는
+```properties
+# application.properties (PostgreSQL 예시)
 spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
 ```
 
@@ -375,6 +371,7 @@ val users = userRepository.findAll {
 
 ```kotlin
 @EnableExposedJdbcRepositories(basePackages = ["com.example.repository"])
+class AppConfig
 ```
 
 또는 자동 구성 확인:

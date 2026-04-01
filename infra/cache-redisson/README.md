@@ -63,7 +63,7 @@ val value = suspendCache.get("key")
 
 ```mermaid
 classDiagram
-    class NearCacheOperations:::abstractStyle {
+    class NearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -78,7 +78,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations:::abstractStyle {
+    class SuspendNearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -91,21 +91,21 @@ classDiagram
         +close()
     }
 
-    class RedissonNearCache:::cacheStyle {
+    class RedissonNearCache {
         -redisson: RedissonClient
         -config: RedissonNearCacheConfig
         -codec: Codec
         -localCachedMap: RLocalCachedMap
     }
 
-    class RedissonSuspendNearCache:::cacheStyle {
+    class RedissonSuspendNearCache {
         -redisson: RedissonClient
         -config: RedissonNearCacheConfig
         -codec: Codec
         -localCachedMap: RLocalCachedMap
     }
 
-    class RedissonNearCacheConfig:::infraStyle {
+    class RedissonNearCacheConfig {
         +cacheName: String
         +maxLocalSize: Int
         +evictionPolicy: EvictionPolicy
@@ -115,8 +115,8 @@ classDiagram
         +maxIdle: Duration?
     }
 
-    class RLocalCachedMap:::redisStyle {
-        <<Redisson 내장 2-tier>>
+    class RLocalCachedMap {
+        <<Redisson내장2tier>>
         +get(key) V?
         +put(key, value)
         +getAsync(key) RFuture
@@ -132,12 +132,6 @@ classDiagram
     RedissonSuspendNearCache --> RLocalCachedMap: localCachedMap
     RedissonSuspendNearCache --> RedissonNearCacheConfig: config
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ### RLocalCachedMap 내장 Invalidation 흐름
@@ -272,7 +266,7 @@ spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.RedissonNearCachingPr
 @Service
 class UserService {
     @Cacheable("users")
-    fun findUser(id: Long): User = ...
+    fun findUser(id: Long): User = TODO()
 }
 ```
 

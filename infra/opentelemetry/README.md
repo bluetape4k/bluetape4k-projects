@@ -252,19 +252,19 @@ val compositeExporter = spanExporterOf(
 
 ```mermaid
 classDiagram
-    class OpenTelemetry:::abstractStyle {
+    class OpenTelemetry {
         <<interface>>
         +getTracer(name) Tracer
         +getMeter(name) Meter
         +getPropagators() ContextPropagators
     }
 
-    class Tracer:::clientStyle {
+    class Tracer {
         <<interface>>
         +spanBuilder(spanName) SpanBuilder
     }
 
-    class SpanBuilder:::clientStyle {
+    class SpanBuilder {
         <<interface>>
         +setSpanKind(kind) SpanBuilder
         +setAttribute(key, value) SpanBuilder
@@ -273,7 +273,7 @@ classDiagram
         +useSpanSuspending(block) T
     }
 
-    class Span:::serviceStyle {
+    class Span {
         <<interface>>
         +addEvent(name) Span
         +setAttribute(key, value) Span
@@ -283,17 +283,17 @@ classDiagram
         +useSuspending(block) T
     }
 
-    class SdkTracerProvider:::infraStyle {
+    class SdkTracerProvider {
         +addSpanProcessor(sp) SdkTracerProviderBuilder
         +setResource(resource) SdkTracerProviderBuilder
         +get(instrumentationName) Tracer
     }
 
-    class SdkMeterProvider:::infraStyle {
+    class SdkMeterProvider {
         +registerMetricReader(mr) SdkMeterProviderBuilder
     }
 
-    class Meter:::abstractStyle {
+    class Meter {
         <<interface>>
         +counterBuilder(name) LongCounterBuilder
         +timerBuilder(name) DoubleHistogramBuilder
@@ -307,12 +307,6 @@ classDiagram
     SdkTracerProvider ..|> Tracer: implements
     SdkMeterProvider ..|> Meter: implements
 
-    classDef cacheStyle    fill:#F44336
-    classDef redisStyle    fill:#FF9800
-    classDef infraStyle    fill:#607D8B
-    classDef clientStyle   fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### OpenTelemetry 구성 요소

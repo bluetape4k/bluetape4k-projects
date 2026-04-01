@@ -201,7 +201,7 @@ import io.bluetape4k.r2dbc.R2dbcClient
 import io.bluetape4k.r2dbc.core.execute
 
 // R2dbcClient로 쿼리 실행
-val r2dbcClient: R2dbcClient = /* 주입 */
+val r2dbcClient: R2dbcClient = TODO() // 주입
 
 val users = r2dbcClient
     .execute<User>("SELECT * FROM users WHERE active = :active")
@@ -234,14 +234,16 @@ val exists = databaseClient
 
 ### 9. Spring Boot Auto Configuration
 
-```kotlin
-// application.yml
+```yaml
+# application.yml
 spring:
-r2dbc:
-url: r2dbc:postgresql://localhost:5432/mydb
-username: user
-password: pass
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/mydb
+    username: user
+    password: pass
+```
 
+```kotlin
 // R2dbcClient 자동 주입
 @Service
 class UserService(
@@ -291,19 +293,16 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 classDiagram
     direction LR
     class R2dbcExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +ConnectionFactory.execute(sql): Mono~Long~
         +Connection.createStatement(sql): Statement
     }
     class FlowExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Result.toFlow~T~(): Flow~T~
         +Publisher~T~.asFlow(): Flow~T~
     }
 
-    classDef serviceStyle fill:#4CAF50
-    class R2dbcExtensions:::serviceStyle
-    class FlowExtensions:::serviceStyle
 ```
 
 ### 주요 API 구조
@@ -381,8 +380,8 @@ flowchart LR
     subgraph R2DBC
         B1[ConnectionFactory] --> B2[Connection]
         B2 --> B3[Statement]
-        B3 --> B4[Result / Flux~Row~]
-        B4 -->|asFlow| B5[Flow~T~ 비동기]
+        B3 --> B4["Result / Flux&lt;Row&gt;"]
+        B4 -->|asFlow| B5["Flow&lt;T&gt; 비동기"]
     end
 
     style JDBC fill:#f9f0e0

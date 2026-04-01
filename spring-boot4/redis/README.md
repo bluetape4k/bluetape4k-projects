@@ -106,22 +106,22 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ```mermaid
 classDiagram
-    class RedisSerializer:::configStyle {
+    class RedisSerializer {
         <<interface>>
         +serialize(T): ByteArray
         +deserialize(ByteArray): T
     }
-    class RedisBinarySerializer:::serviceStyle {
+    class RedisBinarySerializer {
         -serializer: BinarySerializer
         +serialize(Any): ByteArray
         +deserialize(ByteArray): Any
     }
-    class RedisCompressSerializer:::serviceStyle {
+    class RedisCompressSerializer {
         -compressor: Compressor
         +serialize(ByteArray): ByteArray
         +deserialize(ByteArray): ByteArray
     }
-    class RedisBinarySerializers:::cacheStyle {
+    class RedisBinarySerializers {
         <<object>>
         +Jdk: RedisBinarySerializer
         +Kryo: RedisBinarySerializer
@@ -132,12 +132,6 @@ classDiagram
         +LZ4: RedisCompressSerializer
         +Zstd: RedisCompressSerializer
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     RedisSerializer <|.. RedisBinarySerializer
     RedisSerializer <|.. RedisCompressSerializer

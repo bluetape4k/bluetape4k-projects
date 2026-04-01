@@ -480,21 +480,17 @@ class MyJdbcTest : AbstractJdbcTest() {
 classDiagram
     direction LR
     class JdbcExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +DataSource.execute(sql): Int
         +DataSource.query~T~(sql): List~T~
         +Connection.executeBatch(sqls): IntArray
     }
     class DataSourceExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +dataSourceOf(url, user, pw): DataSource
         +HikariDataSource(block): DataSource
     }
 
-    classDef serviceStyle fill:#4CAF50
-    classDef dbStyle fill:#607D8B
-    class JdbcExtensions:::serviceStyle
-    class DataSourceExtensions:::dbStyle
 ```
 
 ### 주요 API 구조

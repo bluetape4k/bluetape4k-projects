@@ -129,21 +129,16 @@ classDiagram
         +valueToDB(value): Any
     }
     class Fastjson2BColumnType~T~ {
-        <<ColumnType JSONB>>
+        <<ColumnTypeJSONB>>
         +valueToDB(value): PGobject
     }
     class TableExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.fastjson2~T~(name): Column~T~
         +Table.fastjson2b~T~(name): Column~T~
     }
     Fastjson2ColumnType <|-- Fastjson2BColumnType
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class Fastjson2ColumnType:::tableStyle
-    class Fastjson2BColumnType:::tableStyle
-    class TableExtensions:::serviceStyle
 ```
 
 ### JSON 컬럼 타입 클래스 구조
@@ -151,7 +146,7 @@ classDiagram
 ```mermaid
 classDiagram
     class ColumnType {
-        <<Exposed 기반 추상>>
+        <<Exposed기반추상>>
         +sqlType(): String
         +valueFromDB(value): T
         +notNullValueToDB(value): Any
@@ -195,8 +190,8 @@ flowchart LR
     D -->|Fastjson2 역직렬화| E[Kotlin 객체]
 
     subgraph JSON 컬럼 타입
-        F[fastjson&lt;T&gt; → TEXT]
-        G[fastjsonb&lt;T&gt; → JSONB/BLOB]
+        F["fastjson~T~ → TEXT"]
+        G["fastjsonb~T~ → JSONB/BLOB"]
     end
 ```
 

@@ -233,32 +233,32 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ```mermaid
 classDiagram
-    class TimerExtensions:::infraStyle {
+    class TimerExtensions {
         <<extensions>>
         +recordSuspend(block) T
         +withTimer(timer) Flow~T~
     }
 
-    class ObservationExtensions:::infraStyle {
+    class ObservationExtensions {
         <<extensions>>
         +withObservation(name, registry, block) T
         +withObservationContext(obs, block) T
         +withObservationContextSuspending(name, registry, block) T
     }
 
-    class MicrometerRetrofitMetricsFactory:::serviceStyle {
+    class MicrometerRetrofitMetricsFactory {
         -registry: MeterRegistry
         +create(returnType, annotations, retrofit) CallAdapter
     }
 
-    class Cache2kCacheMetrics:::serviceStyle {
+    class Cache2kCacheMetrics {
         -cache: Cache
         -tags: Tags
         +monitor(registry, cache, tags)
         +bindTo(registry)
     }
 
-    class MeterRegistry:::abstractStyle {
+    class MeterRegistry {
         <<interface>>
         +timer(name, tags) Timer
         +counter(name, tags) Counter
@@ -266,7 +266,7 @@ classDiagram
         +find(name) Search
     }
 
-    class ObservationRegistry:::abstractStyle {
+    class ObservationRegistry {
         <<interface>>
         +observationConfig() ObservationConfig
         +getCurrentObservation() Observation
@@ -278,12 +278,6 @@ classDiagram
     Cache2kCacheMetrics --> MeterRegistry: binds to
     ObservationRegistry --> MeterRegistry: delegates
 
-    classDef cacheStyle    fill:#F44336
-    classDef redisStyle    fill:#FF9800
-    classDef infraStyle    fill:#607D8B
-    classDef clientStyle   fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### 메트릭 수집 흐름

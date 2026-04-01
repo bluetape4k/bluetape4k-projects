@@ -171,41 +171,35 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ```mermaid
 classDiagram
-    class UserController:::controllerStyle {
+    class UserController {
         -service: UserService
         +getUsers(): Flow~User~
         +getUser(id): User
         +createUser(request): ResponseEntity~User~
     }
-    class UserService:::serviceStyle {
+    class UserService {
         -restClient: RestClient
         +findAllAsFlow(): Flow~User~
         +findById(id): User
         +create(user): User
     }
-    class RestClientDsl:::configStyle {
+    class RestClientDsl {
         <<extension>>
         +suspendGet(uri): T
         +suspendPost(uri, body): T
         +suspendPut(uri, body): T
         +suspendDelete(uri)
     }
-    class WebTestClientExt:::configStyle {
+    class WebTestClientExt {
         <<extension>>
         +httpGet(uri): ResponseSpec
         +httpPost(uri, body): ResponseSpec
     }
-    class Retrofit2Config:::configStyle {
+    class Retrofit2Config {
         +retrofit(): Retrofit
         +okHttpClient(): OkHttpClient
         +jacksonConverterFactory(): JacksonConverterFactory
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     UserController --> UserService
     UserService --> RestClientDsl
@@ -222,11 +216,11 @@ flowchart LR
     WebFlux --> Handler["Coroutines 핸들러<br/>suspend fun / Flow"]
     Handler --> Service["서비스 계층"]
     Service --> DB[("데이터베이스 / 외부 API")]
-    DB -->> Service
-    Service -->> Handler
-    Handler -->> WebFlux
-    WebFlux -->> Netty
-    Netty -->> Client
+    DB --> Service
+    Service --> Handler
+    Handler --> WebFlux
+    WebFlux --> Netty
+    Netty --> Client
 ```
 
 ### RestClient Coroutines DSL 구조
@@ -237,9 +231,9 @@ flowchart TD
     DSL --> RestClient["Spring RestClient"]
     RestClient --> HTTP["HTTP 요청"]
     HTTP --> ExternalAPI["외부 REST API"]
-    ExternalAPI -->> RestClient
-    RestClient -->> DSL
-    DSL -->> App
+    ExternalAPI --> RestClient
+    RestClient --> DSL
+    DSL --> App
 ```
 
 ### Retrofit2 통합 구조

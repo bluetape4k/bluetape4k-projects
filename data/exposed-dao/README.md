@@ -228,7 +228,7 @@ transaction {
 classDiagram
     direction TB
     class AuditableLongEntity {
-        <<abstract Entity>>
+        <<abstractEntity>>
         +createdBy: String
         +createdAt: Instant
         +updatedBy: String
@@ -236,25 +236,19 @@ classDiagram
         +flush()
     }
     class AuditableLongEntityClass~E~ {
-        <<abstract EntityClass>>
+        <<abstractEntityClass>>
         +new(init): E
     }
     class KsuidTable {
-        <<IdTable~String~>>
+        <<IdTable_String>>
         +id: Column~String~
     }
     class SnowflakeIdTable {
-        <<IdTable~Long~>>
+        <<IdTable_Long>>
         +id: Column~Long~
     }
     AuditableLongEntityClass --> AuditableLongEntity : manages
 
-    classDef tableStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    class AuditableLongEntity:::entityStyle
-    class AuditableLongEntityClass:::entityStyle
-    class KsuidTable:::tableStyle
-    class SnowflakeIdTable:::tableStyle
 ```
 
 ### 커스텀 IdTable 계층
@@ -269,7 +263,7 @@ classDiagram
 +primaryKey: PrimaryKey
 }
 class SoftDeletedIdTable {
-<<abstract,exposed-core>>
+<<abstract_exposed_core>>
 +isDeleted: Column~Boolean~
 }
 class KsuidTable {

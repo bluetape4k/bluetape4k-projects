@@ -44,7 +44,7 @@ classDiagram
         +valueFromDB(value): Polygon
     }
     class MySQL8GeoExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.geoPoint(name): Column~Point~
         +Table.geoPolygon(name): Column~Polygon~
         +Table.geoLineString(name): Column~LineString~
@@ -52,11 +52,6 @@ classDiagram
         +ST_Contains(g1, g2): Expression
     }
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class GeoPointColumnType:::tableStyle
-    class GeoPolygonColumnType:::tableStyle
-    class MySQL8GeoExtensions:::serviceStyle
 ```
 
 ## 개요

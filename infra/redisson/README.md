@@ -298,42 +298,42 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ```mermaid
 classDiagram
-    class Codec:::abstractStyle {
+    class Codec {
         <<interface>>
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class ForyCodec:::redisStyle {
+    class ForyCodec {
         -fallbackCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class Kryo5Codec:::redisStyle {
+    class Kryo5Codec {
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class Lz4Codec:::clientStyle {
+    class Lz4Codec {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class ZstdCodec:::clientStyle {
+    class ZstdCodec {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class GzipCodec:::clientStyle {
+    class GzipCodec {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class RedissonCodecs:::infraStyle {
+    class RedissonCodecs {
         <<object>>
         +Default: Lz4Codec
         +Fory: ForyCodec
@@ -354,12 +354,6 @@ classDiagram
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ### 분산 리더 선출 시퀀스

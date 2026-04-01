@@ -519,21 +519,18 @@ class Purchase {
 ```mermaid
 classDiagram
     direction TB
-    class HibernateRepository~ID,E~ {
+    class HibernateRepository~ID_E~ {
         <<abstract>>
         +findByIdOrNull(id): E?
         +save(entity): E
         +deleteById(id): Int
         +findAll(spec): List~E~
     }
-    class AbstractHibernateRepository~ID,E~ {
+    class AbstractHibernateRepository~ID_E~ {
         #sessionFactory: SessionFactory
     }
     HibernateRepository <|-- AbstractHibernateRepository
 
-    classDef repoStyle fill:#2196F3
-    class HibernateRepository:::repoStyle
-    class AbstractHibernateRepository:::repoStyle
 ```
 
 ### JPA 엔티티 클래스 계층 구조
@@ -563,7 +560,7 @@ classDiagram
     class UuidJpaEntity {
         +id: UUID?
     }
-    class JpaTreeEntity~T, ID~ {
+    class JpaTreeEntity~T_ID~ {
         <<interface>>
         +parent: T?
         +children: MutableList~T~

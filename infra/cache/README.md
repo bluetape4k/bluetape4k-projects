@@ -116,7 +116,7 @@ flowchart TD
 
 ```mermaid
 classDiagram
-    class NearCacheOperations:::abstractStyle {
+    class NearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -129,7 +129,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations:::abstractStyle {
+    class SuspendNearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -142,31 +142,31 @@ classDiagram
         +close()
     }
 
-    class HazelcastNearCache:::clientStyle {
+    class HazelcastNearCache {
         Caffeine + IMap (EntryListener invalidation)
     }
 
-    class HazelcastSuspendNearCache:::clientStyle {
+    class HazelcastSuspendNearCache {
         Caffeine + IMap (코루틴)
     }
 
-    class RedissonNearCache:::cacheStyle {
+    class RedissonNearCache {
         RLocalCachedMap (내장 pub/sub invalidation)
     }
 
-    class RedissonSuspendNearCache:::cacheStyle {
+    class RedissonSuspendNearCache {
         RLocalCachedMap (코루틴)
     }
 
-    class RedissonResp3NearCache:::cacheStyle {
+    class RedissonResp3NearCache {
         Redisson RBucket + Lettuce RESP3 tracking
     }
 
-    class LettuceNearCache:::redisStyle {
+    class LettuceNearCache {
         Caffeine + Redis (RESP3 CLIENT TRACKING)
     }
 
-    class LettuceSuspendNearCache:::redisStyle {
+    class LettuceSuspendNearCache {
         Caffeine + Redis RESP3 (코루틴)
     }
 
@@ -178,12 +178,6 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. LettuceSuspendNearCache
 
-    classDef cacheStyle    fill:#F44336
-    classDef redisStyle    fill:#FF9800
-    classDef infraStyle    fill:#607D8B
-    classDef clientStyle   fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle  fill:#4CAF50
 ```
 
 ## Near Cache 2-Tier 아키텍처

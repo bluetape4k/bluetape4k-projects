@@ -76,7 +76,7 @@ suspend fun example(repo: UserR2dbcLettuceRepository) {
 classDiagram
     direction TB
     class LettuceSuspendR2dbcRepository~E~ {
-        <<abstract suspend>>
+        <<abstractSuspend>>
         -nearCache: SuspendNearCacheOperations
         +findByIdOrNull(id): E?
         +findAll(): Flow~E~
@@ -88,10 +88,6 @@ classDiagram
     }
     LettuceSuspendR2dbcRepository --> SuspendLettuceNearCache : suspend cache
 
-    classDef repoStyle fill:#2196F3
-    classDef cacheStyle fill:#F44336
-    class LettuceSuspendR2dbcRepository:::repoStyle
-    class SuspendLettuceNearCache:::cacheStyle
 ```
 
 ## 클래스 다이어그램
@@ -102,7 +98,7 @@ classDiagram
 classDiagram
     direction TB
 
-    class R2dbcLettuceRepository~ID, E~ {
+    class R2dbcLettuceRepository~ID_E~ {
 <<interface>>
 +table: IdTable~ID~
 +config: LettuceCacheConfig
@@ -119,7 +115,7 @@ classDiagram
 +suspend clearCache()
 }
 
-class AbstractR2dbcLettuceRepository~ID, E~ {
+class AbstractR2dbcLettuceRepository~ID_E~ {
 <<abstract>>
 #cache: LettuceSuspendedLoadedMap~ID, E~
 #nearCache: LettuceSuspendNearCache~E~ ?
@@ -130,7 +126,7 @@ class AbstractR2dbcLettuceRepository~ID, E~ {
 #extractId(entity: E) ID
 }
 
-class R2dbcEntityMapLoader~ID, E~ {
+class R2dbcEntityMapLoader~ID_E~ {
 <<abstract>>
 +suspend load(key: ID) E?
 +suspend loadAllKeys() List~ID~
@@ -138,7 +134,7 @@ class R2dbcEntityMapLoader~ID, E~ {
 #abstract suspend loadAllIds() List~ID~
 }
 
-class R2dbcEntityMapWriter~ID, E~ {
+class R2dbcEntityMapWriter~ID_E~ {
 <<abstract>>
 -retry: Retry
 +suspend write(map: Map~ID, E~)
@@ -147,7 +143,7 @@ class R2dbcEntityMapWriter~ID, E~ {
 #abstract suspend deleteEntities(keys: Collection~ID~)
 }
 
-class R2dbcExposedEntityMapLoader~ID, E~ {
+class R2dbcExposedEntityMapLoader~ID_E~ {
 -table: IdTable~ID~
 -toEntity: suspend ResultRow.() → E
 -batchSize: Int
@@ -155,7 +151,7 @@ class R2dbcExposedEntityMapLoader~ID, E~ {
 #suspend loadAllIds() List~ID~
 }
 
-class R2dbcExposedEntityMapWriter~ID, E~ {
+class R2dbcExposedEntityMapWriter~ID_E~ {
 -table: IdTable~ID~
 -writeMode: WriteMode
 -chunkSize: Int
@@ -163,7 +159,7 @@ class R2dbcExposedEntityMapWriter~ID, E~ {
 #suspend deleteEntities(keys: Collection~ID~)
 }
 
-class LettuceSuspendedLoadedMap~ID, E~ {
+class LettuceSuspendedLoadedMap~ID_E~ {
 +suspend get(key: ID) E?
 +suspend getAll(keys: Set~ID~) Map~ ID, E~
 +suspend set(key: ID, value: E)

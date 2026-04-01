@@ -10,7 +10,7 @@ Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4
 
 ```mermaid
 classDiagram
-    class ProductController:::controllerStyle {
+    class ProductController {
         -productRepository: ProductR2dbcRepository
         +findAll(): List~ProductDto~
         +findById(id): ProductDto
@@ -18,41 +18,35 @@ classDiagram
         +update(id, dto): ProductDto
         +delete(id): ResponseEntity~Void~
     }
-    class ProductR2dbcRepository:::repoStyle {
+    class ProductR2dbcRepository {
         <<interface>>
         +table: IdTable~Long~
         +extractId(entity): Long?
         +toDomain(row): ProductDto
         +toPersistValues(domain): Map
     }
-    class ExposedR2dbcRepository:::repoStyle {
+    class ExposedR2dbcRepository {
         <<interface>>
         +save(entity): T
         +findById(id): T?
         +findAll(): Flow~T~
         +deleteById(id): Boolean
     }
-    class ProductDto:::entityStyle {
+    class ProductDto {
         +id: Long
         +name: String
         +description: String
         +price: BigDecimal
     }
-    class Products:::entityStyle {
+    class Products {
         <<object>>
         +name: Column~String~
         +description: Column~String~
         +price: Column~BigDecimal~
     }
-    class DataInitializer:::configStyle {
+    class DataInitializer {
         +initialize()
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     ProductController --> ProductR2dbcRepository
     ProductR2dbcRepository --|> ExposedR2dbcRepository

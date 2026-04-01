@@ -112,13 +112,13 @@ flowchart TD
     A --> C[bluetape4k-redisson<br/>Redisson 클라이언트]
 
     B --> B1[LettuceClients<br/>연결 팩토리 / 캐싱]
-    B --> B2[LettuceBinaryCodecs<br/>직렬화 × 압축 Codec]
+    B --> B2["LettuceBinaryCodecs<br/>직렬화 × 압축 Codec"]
     B --> B3[RedisFuture.awaitSuspending<br/>Coroutines 어댑터]
     B --> B4[LettuceLoadedMap<br/>Read-through / Write-through]
     B --> B5[LettuceSuspendedLoadedMap<br/>suspend 버전]
 
     C --> C1[redissonClient DSL<br/>클라이언트 생성]
-    C --> C2[RedissonCodecs<br/>Fory/Kryo5 × LZ4/Zstd]
+    C --> C2["RedissonCodecs<br/>Fory/Kryo5 × LZ4/Zstd"]
     C --> C3[RedissonLeaderElection<br/>분산 리더 선출]
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
     C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
@@ -132,7 +132,7 @@ flowchart TD
 
 ```mermaid
 classDiagram
-    class LettuceClients:::clientStyle {
+    class LettuceClients {
         <<object>>
         +clientOf(uri: String) RedisClient
         +connect(client) StatefulRedisConnection
@@ -142,7 +142,7 @@ classDiagram
         +shutdown(client)
     }
 
-    class LettuceBinaryCodecs:::redisStyle {
+    class LettuceBinaryCodecs {
         <<object>>
         +default~V~() LettuceBinaryCodec
         +lz4Fory~V~() LettuceBinaryCodec
@@ -151,14 +151,14 @@ classDiagram
         +fory~V~() LettuceBinaryCodec
     }
 
-    class RedissonClientSupport:::clientStyle {
+    class RedissonClientSupport {
         <<object>>
         +redissonClient(config) RedissonClient
         +redissonReactiveClient(config) RedissonReactiveClient
         +configFromYamlOf(input) Config
     }
 
-    class RedissonCodecs:::redisStyle {
+    class RedissonCodecs {
         <<object>>
         +Default: Lz4Codec
         +Fory: ForyCodec
@@ -167,19 +167,19 @@ classDiagram
         +Zstd: ZstdCodec
     }
 
-    class LettuceLoadedMap:::serviceStyle {
+    class LettuceLoadedMap {
         +get(key: String) V?
         +set(key: String, value: V)
         +load(key: String) V?
         +write(entries: Map) Unit
     }
 
-    class RedissonLeaderElection:::serviceStyle {
+    class RedissonLeaderElection {
         +runIfLeader(lockName, action) T
         +runAsyncIfLeader(lockName, action) CompletableFuture~T~
     }
 
-    class RedissonNearCache:::cacheStyle {
+    class RedissonNearCache {
         +get(key) V?
         +put(key, value)
         +clearLocalCache()
@@ -191,12 +191,6 @@ classDiagram
     RedissonClientSupport --> RedissonLeaderElection: creates
     RedissonClientSupport --> RedissonNearCache: creates
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ## Spring Data Redis

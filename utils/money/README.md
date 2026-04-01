@@ -236,7 +236,7 @@ USD.isCurrencyConversionAvailable    // true
 
 ```mermaid
 classDiagram
-    class MonetaryAmount:::utilStyle {
+    class MonetaryAmount {
         <<interface>>
         +currency: CurrencyUnit
         +number: NumberValue
@@ -247,26 +247,26 @@ classDiagram
         +negate() MonetaryAmount
     }
 
-    class Money:::modelStyle {
+    class Money {
         -amount: BigDecimal
         +of(amount, currency) Money
         +round() Money
         +defaultRound() Money
     }
 
-    class FastMoney:::modelStyle {
+    class FastMoney {
         -amount: Long
         +of(amount, currency) FastMoney
     }
 
-    class CurrencyUnit:::infraStyle {
+    class CurrencyUnit {
         <<interface>>
         +currencyCode: String
         +numericCode: Int
         +defaultFractionDigits: Int
     }
 
-    class CurrencyConvertor:::serviceStyle {
+    class CurrencyConvertor {
         +getConversion(currency) CurrencyConversion
         +USDConversion: CurrencyConversion
     }
@@ -279,10 +279,6 @@ classDiagram
     note for Money "BigDecimal 기반<br/>무제한 정밀도<br/>금융 계산 권장"
     note for FastMoney "Long 기반<br/>소수점 5자리<br/>고성능 대량 연산"
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
 ```
 
 ## 통화 연산 흐름

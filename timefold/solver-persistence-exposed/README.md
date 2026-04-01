@@ -177,21 +177,21 @@ transaction {
 ```sql
 -- SimpleScore: INTEGER
 CREATE TABLE planning_solution (
-    id SERIAL PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
     score INTEGER
 );
 
 -- HardSoftScore: VARCHAR(255)
 CREATE TABLE planning_solution (
-    id SERIAL PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
     score VARCHAR(255)  -- 예: "100/-50"
 );
 
 -- BendableScore: VARCHAR(500) 이상 권장
 CREATE TABLE planning_solution (
-    id SERIAL PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
     score VARCHAR(500)  -- 예: "[100/50]hard/[-30/-20/-10]soft"
 );
@@ -250,48 +250,48 @@ CREATE TABLE planning_solution (
 
 ```mermaid
 classDiagram
-    class Score:::utilStyle {
+    class Score {
         <<interface>>
         +isFeasible() Boolean
         +isZero() Boolean
         +negate() Score
         +add(other) Score
     }
-    class SimpleScore:::modelStyle {
+    class SimpleScore {
         +score: Int
         +of(score) SimpleScore
     }
-    class HardSoftScore:::modelStyle {
+    class HardSoftScore {
         +hardScore: Int
         +softScore: Int
         +of(hard, soft) HardSoftScore
     }
-    class HardMediumSoftScore:::modelStyle {
+    class HardMediumSoftScore {
         +hardScore: Int
         +mediumScore: Int
         +softScore: Int
     }
-    class BendableScore:::modelStyle {
+    class BendableScore {
         +hardScores: IntArray
         +softScores: IntArray
         +of(hard, soft) BendableScore
     }
-    class ScoreColumnType:::infraStyle {
+    class ScoreColumnType {
         <<abstract>>
         +valueFromDB(value) Score
         +valueToDB(value) Any
         +sqlType() String
     }
-    class SimpleScoreColumnType:::infraStyle {
+    class SimpleScoreColumnType {
         +sqlType() String = "INTEGER"
     }
-    class HardSoftScoreColumnType:::infraStyle {
+    class HardSoftScoreColumnType {
         +sqlType() String = "VARCHAR(255)"
     }
-    class BendableScoreColumnType:::infraStyle {
+    class BendableScoreColumnType {
         +sqlType() String = "VARCHAR(500)"
     }
-    class ExposedTableExt:::serviceStyle {
+    class ExposedTableExt {
         +Table.simpleScore(name) Column~SimpleScore~
         +Table.hardSoftScore(name) Column~HardSoftScore~
         +Table.bendableScore(name) Column~BendableScore~
@@ -309,10 +309,6 @@ classDiagram
     HardSoftScoreColumnType --> HardSoftScore : serializes
     BendableScoreColumnType --> BendableScore : serializes
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
 ```
 
 ## 아키텍처 다이어그램

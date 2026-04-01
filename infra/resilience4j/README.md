@@ -31,7 +31,7 @@ classDiagram
         +invoke() T
     }
 
-    class DecoratorForSuspendFunction1~T, R~ {
+    class DecoratorForSuspendFunction1~T_R~ {
 +withCircuitBreaker(cb) DecoratorForSuspendFunction1
 +withRetry(retry) DecoratorForSuspendFunction1
 +withRateLimit(rl) DecoratorForSuspendFunction1
@@ -43,7 +43,7 @@ classDiagram
 +invoke(input) R
 }
 
-class DecoratorForSuspendFunction2~T, U, R~ {
+class DecoratorForSuspendFunction2~T_U_R~ {
 +withCircuitBreaker(cb) DecoratorForSuspendFunction2
 +withRetry(retry) DecoratorForSuspendFunction2
 +withRateLimit(rl) DecoratorForSuspendFunction2
@@ -53,7 +53,7 @@ class DecoratorForSuspendFunction2~T, U, R~ {
 +invoke(t, u) R
 }
 
-class SuspendCache~K, V~ {
+class SuspendCache~K_V~ {
 <<interface>>
 +name: String
 +jcache: Cache
@@ -64,7 +64,7 @@ class SuspendCache~K, V~ {
 +of(jcache) SuspendCache
 }
 
-class SuspendCacheImpl~K, V~ {
+class SuspendCacheImpl~K_V~ {
 -jcache: Cache
 +computeIfAbsent(cacheKey, loader) V
 +containsKey(cacheKey) Boolean
@@ -77,19 +77,7 @@ SuspendDecorators --> DecoratorForSuspendFunction2 : creates
 SuspendCache <|.. SuspendCacheImpl
 DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
 
-classDef cacheStyle    fill:#F44336
-classDef redisStyle    fill:#FF9800
-classDef infraStyle    fill:#607D8B
-classDef clientStyle   fill:#2196F3
-classDef abstractStyle fill:#9C27B0
-classDef serviceStyle  fill:#4CAF50
 
-class SuspendDecorators:::infraStyle
-class DecoratorForSuspendSupplier:::clientStyle
-class DecoratorForSuspendFunction1:::clientStyle
-class DecoratorForSuspendFunction2:::clientStyle
-class SuspendCache:::abstractStyle
-class SuspendCacheImpl:::serviceStyle
 ```
 
 ### 아키텍처

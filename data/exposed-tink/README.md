@@ -221,25 +221,21 @@ classDiagram
         +valueToDB(value): ByteArray
     }
     class TableExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.tinkEncrypted~T~(name): Column~T~
     }
     TableExtensions --> TinkEncryptedColumnType : creates
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class TinkEncryptedColumnType:::tableStyle
-    class TableExtensions:::serviceStyle
 ```
 
 ## 클래스 다이어그램
 
 ```mermaid
 classDiagram
-    class ColumnWithTransform~Exposed, Entity~ {
+    class ColumnWithTransform~Exposed_Entity~ {
         <<Exposed>>
     }
-    class ColumnTransformer~Exposed, Entity~ {
+    class ColumnTransformer~Exposed_Entity~ {
         <<interface>>
         +unwrap(value: Entity): Exposed
         +wrap(value: Exposed): Entity

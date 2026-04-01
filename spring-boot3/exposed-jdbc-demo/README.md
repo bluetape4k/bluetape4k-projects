@@ -10,7 +10,7 @@ Exposed DAO + Spring Data JDBC Repository + Spring MVC 통합 데모 (Spring Boo
 
 ```mermaid
 classDiagram
-    class ProductController:::controllerStyle {
+    class ProductController {
         -productJdbcRepository: ProductJdbcRepository
         +findAll(): List~ProductDto~
         +findById(id): ResponseEntity~ProductDto~
@@ -19,40 +19,34 @@ classDiagram
         +delete(id): ResponseEntity~Void~
         +search(name): List~ProductDto~
     }
-    class ProductJdbcRepository:::repoStyle {
+    class ProductJdbcRepository {
         <<interface>>
         +findByName(name): List~ProductEntity~
         +findByPriceLessThan(price): List~ProductEntity~
     }
-    class ExposedJdbcRepository:::repoStyle {
+    class ExposedJdbcRepository {
         <<interface>>
         +save(entity): E
         +findById(id): Optional~E~
         +findAll(): List~E~
         +delete(entity)
     }
-    class ProductEntity:::entityStyle {
+    class ProductEntity {
         +id: EntityID~Long~
         +name: String
         +price: BigDecimal
         +stock: Int
         +toDto(): ProductDto
     }
-    class Products:::entityStyle {
+    class Products {
         <<object>>
         +name: Column~String~
         +price: Column~BigDecimal~
         +stock: Column~Int~
     }
-    class DataInitializer:::configStyle {
+    class DataInitializer {
         +initialize()
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     ProductController --> ProductJdbcRepository
     ProductJdbcRepository --|> ExposedJdbcRepository

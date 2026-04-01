@@ -125,7 +125,7 @@ Useful entry points:
 
 ```mermaid
 classDiagram
-    class DeferredValue:::asyncStyle {
+    class DeferredValue {
         <<class>>
         +await() T
         +value: T  (blocking)
@@ -133,13 +133,13 @@ classDiagram
         +flatMap(transform) DeferredValue~R~
     }
 
-    class deferredValueOf:::asyncStyle {
-        <<factory function>>
+    class deferredValueOf {
+        <<factoryFunction>>
         +deferredValueOf(block) DeferredValue~T~
     }
 
-    class DeferredSupport:::asyncStyle {
-        <<extension functions>>
+    class DeferredSupport {
+        <<extensionFunctions>>
         +zip(a, b, transform) Deferred~R~
         +awaitAny(vararg deferred) T
         +awaitAnyAndCancelOthers() T
@@ -148,30 +148,30 @@ classDiagram
         +concatMap(transform) Deferred~R~
     }
 
-    class DefaultCoroutineScope:::serviceStyle {
+    class DefaultCoroutineScope {
         <<class>>
         +coroutineContext: Dispatchers.Default + SupervisorJob
     }
 
-    class IoCoroutineScope:::serviceStyle {
+    class IoCoroutineScope {
         <<class>>
         +coroutineContext: Dispatchers.IO + SupervisorJob
     }
 
-    class ThreadPoolCoroutineScope:::serviceStyle {
+    class ThreadPoolCoroutineScope {
         <<class>>
         +poolSize: Int
         +name: String
         +close()
     }
 
-    class VirtualThreadCoroutineScope:::serviceStyle {
+    class VirtualThreadCoroutineScope {
         <<class>>
         +coroutineContext: VirtualThread dispatcher + SupervisorJob
     }
 
-    class FlowExtensions:::utilStyle {
-        <<extension functions>>
+    class FlowExtensions {
+        <<extensionFunctions>>
         +chunked(n) Flow~List~T~~
         +windowed(size, step) Flow~List~T~~
         +sliding(n) Flow~List~T~~
@@ -187,13 +187,13 @@ classDiagram
         +groupBy(keySelector) Flow~GroupedFlow~K,V~~
     }
 
-    class AsyncFlow:::asyncStyle {
-        <<extension function>>
+    class AsyncFlow {
+        <<extensionFunction>>
         +Flow.async(dispatcher, transform) Flow~R~
     }
 
-    class ReactorContextHelpers:::utilStyle {
-        <<extension functions>>
+    class ReactorContextHelpers {
+        <<extensionFunctions>>
         +currentReactiveContext() Context?
         +Context.getOrNull(key) V?
     }
@@ -206,10 +206,6 @@ classDiagram
     VirtualThreadCoroutineScope ..|> CoroutineScope
     FlowExtensions ..> AsyncFlow : includes
 
-    classDef coreStyle    fill:#607D8B
-    classDef serviceStyle fill:#4CAF50
-    classDef utilStyle    fill:#2196F3
-    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---
@@ -222,10 +218,10 @@ sequenceDiagram
     participant DV as DeferredValue
     participant Co as 코루틴 (백그라운드)
 
-    C->>DV: deferredValueOf { delay(100); 21 }
+    C->>DV: deferredValueOf(block)
     DV->>Co: 즉시 코루틴 시작 (eager)
 
-    C->>DV: .map { it * 2 }
+    C->>DV: .map(transform)
     DV-->>C: 새 DeferredValue (doubled) 반환
 
     C->>DV: doubled.await()

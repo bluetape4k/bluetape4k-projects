@@ -82,15 +82,13 @@ sf.withSessionSuspending { session ->
 ```mermaid
 classDiagram
     direction TB
-    class ReactiveHibernateRepository~ID,E~ {
-        <<abstract suspend>>
+    class ReactiveHibernateRepository~ID_E~ {
+        <<abstractSuspend>>
         +findByIdOrNull(id): E?
         +findAll(): Flow~E~
         +save(entity): E
     }
 
-    classDef repoStyle fill:#2196F3
-    class ReactiveHibernateRepository:::repoStyle
 ```
 
 ### Hibernate Reactive API 구조

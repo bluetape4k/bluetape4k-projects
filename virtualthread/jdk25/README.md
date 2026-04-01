@@ -13,7 +13,7 @@ JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK
 
 ```mermaid
 classDiagram
-    class VirtualThreadRuntime:::utilStyle {
+    class VirtualThreadRuntime {
         <<interface>>
         +runtimeName: String
         +priority: Int
@@ -21,7 +21,7 @@ classDiagram
         +threadFactory(prefix) ThreadFactory
         +executorService() ExecutorService
     }
-    class StructuredTaskScopeProvider:::utilStyle {
+    class StructuredTaskScopeProvider {
         <<interface>>
         +providerName: String
         +priority: Int
@@ -29,20 +29,20 @@ classDiagram
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
     }
-    class Jdk25VirtualThreadRuntime:::serviceStyle {
+    class Jdk25VirtualThreadRuntime {
         +runtimeName = "jdk25"
         +priority = 25
         +isSupported() Boolean
         +threadFactory(prefix) ThreadFactory
         +executorService() ExecutorService
     }
-    class Jdk25StructuredTaskScopeProvider:::serviceStyle {
+    class Jdk25StructuredTaskScopeProvider {
         +providerName = "jdk25"
         +priority = 25
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
     }
-    class ServiceLoader:::infraStyle {
+    class ServiceLoader {
         +load(type) ServiceLoader
         +findFirst() Optional
     }
@@ -52,9 +52,6 @@ classDiagram
     ServiceLoader --> Jdk25VirtualThreadRuntime : discovers
     ServiceLoader --> Jdk25StructuredTaskScopeProvider : discovers
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef infraStyle   fill:#607D8B
 ```
 
 ## 주요 구현체
@@ -351,7 +348,7 @@ dependencies {
 // 2. JDK 25 설치 및 JAVA_HOME 변경
 
 // 3. 애플리케이션 재빌드 및 테스트
-    ./ gradlew clean build
+    // ./gradlew clean build
 
 // 4. 런타임 확인
         VirtualThreads.runtimeName() // "jdk25"

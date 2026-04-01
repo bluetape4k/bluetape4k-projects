@@ -122,13 +122,13 @@ classDiagram
         +valueToDB(value): Any
     }
     class JacksonBColumnType~T~ {
-        <<ColumnType JSONB>>
+        <<ColumnTypeJSONB>>
         -objectMapper: ObjectMapper
         +valueFromDB(value): T
         +valueToDB(value): PGobject
     }
     class TableExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.jackson~T~(name): Column~T~
         +Table.jacksonb~T~(name): Column~T~
     }
@@ -136,11 +136,6 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class JacksonColumnType:::tableStyle
-    class JacksonBColumnType:::tableStyle
-    class TableExtensions:::serviceStyle
 ```
 
 ### JSON 컬럼 타입 클래스 구조
@@ -148,7 +143,7 @@ classDiagram
 ```mermaid
 classDiagram
     class ColumnType {
-        <<Exposed 기반 추상>>
+        <<Exposed기반추상>>
         +sqlType(): String
         +valueFromDB(value): T
         +notNullValueToDB(value): Any

@@ -83,7 +83,7 @@ io.bluetape4k.json
 
 ```mermaid
 classDiagram
-    class JsonSerializer:::serializerStyle {
+    class JsonSerializer {
         <<interface>>
         +serialize(graph: Any?) ByteArray
         +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
@@ -91,22 +91,22 @@ classDiagram
         +deserializeFromString(text: String?, clazz: Class~T~) T?
     }
 
-    class JsonSerializationException:::ioStyle {
+    class JsonSerializationException {
         +message: String
         +cause: Throwable?
     }
 
-    class JacksonSerializer_2:::extensionStyle {
+    class JacksonSerializer_2 {
         Jackson 2.x 기반
         bluetape4k-jackson2
     }
 
-    class JacksonSerializer_3:::extensionStyle {
+    class JacksonSerializer_3 {
         Jackson 3.x 기반
         bluetape4k-jackson3
     }
 
-    class FastjsonSerializer:::codecStyle {
+    class FastjsonSerializer {
         Fastjson2 JSONB 기반
         bluetape4k-fastjson2
     }
@@ -116,11 +116,6 @@ classDiagram
     JsonSerializer <|.. FastjsonSerializer
     JsonSerializer ..> JsonSerializationException : 실패 시 throw
 
-    classDef serializerStyle fill:#FF9800
-    classDef extensionStyle fill:#4CAF50
-    classDef codecStyle fill:#2196F3
-    classDef ioStyle fill:#607D8B
-    classDef encryptStyle fill:#F44336
 ```
 
 ### 구현체 선택 흐름

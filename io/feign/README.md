@@ -82,20 +82,20 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 
 ```mermaid
 classDiagram
-    class FeignClient:::clientStyle {
+    class FeignClient {
         <<interface>>
         +target(type, url) T
     }
-    class ApacheHttp5Client:::infraStyle {
+    class ApacheHttp5Client {
         +execute(request, options) Response
     }
-    class AsyncApacheHttp5Client:::infraStyle {
+    class AsyncApacheHttp5Client {
         +execute(request, options, callback)
     }
-    class VertxHttpClient:::infraStyle {
+    class VertxHttpClient {
         +execute(request, options) Response
     }
-    class AsyncVertxHttpClient:::infraStyle {
+    class AsyncVertxHttpClient {
         +execute(request, options, callback)
     }
 
@@ -104,8 +104,6 @@ classDiagram
     FeignClient --> VertxHttpClient : Vert.x 동기
     FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
 
-    classDef clientStyle fill:#2196F3
-    classDef infraStyle  fill:#607D8B
 ```
 
 ```kotlin
@@ -194,11 +192,11 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class CoroutineFeign:::clientStyle {
-        <<feign-kotlin>>
+    class CoroutineFeign {
+        <<feign_kotlin>>
     }
 
-    class CoroutineBuilder:::clientStyle {
+    class CoroutineBuilder {
         +client(asyncClient) CoroutineBuilder
         +encoder(encoder) CoroutineBuilder
         +decoder(decoder) CoroutineBuilder
@@ -207,37 +205,37 @@ classDiagram
         +target(type, url) T
     }
 
-    class AsyncClient:::infraStyle {
+    class AsyncClient {
         <<interface>>
     }
 
-    class Encoder:::codecStyle {
+    class Encoder {
         <<interface>>
     }
 
-    class Decoder:::codecStyle {
+    class Decoder {
         <<interface>>
     }
 
-    class JacksonEncoder2:::codecStyle {
+    class JacksonEncoder2 {
         -mapper: JsonMapper
         +encode(object, bodyType, template)
     }
 
-    class JacksonDecoder2:::codecStyle {
+    class JacksonDecoder2 {
         -mapper: JsonMapper
         +decode(response, type) Any?
     }
 
-    class FeignFastjsonEncoder:::codecStyle {
+    class FeignFastjsonEncoder {
         +encode(object, bodyType, template)
     }
 
-    class FeignFastjsonDecoder:::codecStyle {
+    class FeignFastjsonDecoder {
         +decode(response, type) Any?
     }
 
-    CoroutineFeign +-- CoroutineBuilder
+    CoroutineFeign *-- CoroutineBuilder
     CoroutineBuilder --> AsyncClient : 설정
     CoroutineBuilder --> Encoder : 설정
     CoroutineBuilder --> Decoder : 설정
@@ -246,9 +244,6 @@ classDiagram
     Encoder <|.. FeignFastjsonEncoder
     Decoder <|.. FeignFastjsonDecoder
 
-    classDef clientStyle fill:#2196F3
-    classDef infraStyle  fill:#607D8B
-    classDef codecStyle  fill:#FF9800
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름

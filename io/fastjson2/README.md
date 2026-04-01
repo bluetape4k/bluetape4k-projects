@@ -84,7 +84,7 @@ val user = inputStream.readBytesOrNull<User>()
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
-val jsonArray: JSONArray = ...
+val jsonArray: JSONArray = JSONArray()
 
 // 전체를 특정 타입으로 변환
 val data = jsonArray.readValueOrNull<MyData>()
@@ -104,7 +104,7 @@ val userArray = jsonArray.readArray<User>()
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
-val jsonObject: JSONObject = ...
+val jsonObject: JSONObject = JSONObject()
 
 // 전체를 특정 타입으로 변환
 val user = jsonObject.readValueOrNull<User>()
@@ -126,7 +126,7 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ```mermaid
 classDiagram
-    class JsonSerializer:::serializerStyle {
+    class JsonSerializer {
         <<interface>>
         +serialize(graph: Any?) ByteArray
         +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
@@ -134,14 +134,14 @@ classDiagram
         +deserializeFromString(text: String?, clazz: Class~T~) T?
     }
 
-    class FastjsonSerializer:::serializerStyle {
+    class FastjsonSerializer {
         +serialize(graph) ByteArray
         +deserialize(bytes, clazz) T?
         +serializeAsString(graph) String
         +deserializeFromString(text, clazz) T?
     }
 
-    class JSONExtensions:::extensionStyle {
+    class JSONExtensions {
         <<extensions>>
         +Any.toJsonString() String
         +String.readValueOrNull() T?
@@ -149,21 +149,21 @@ classDiagram
         +String.readAsJSONObject() JSONObject
     }
 
-    class JSONBExtensions:::codecStyle {
+    class JSONBExtensions {
         <<extensions>>
         +Any.toJsonBytes() ByteArray
         +ByteArray.readBytesOrNull() T?
         +InputStream.readBytesOrNull() T?
     }
 
-    class JSONArrayExtensions:::extensionStyle {
+    class JSONArrayExtensions {
         <<extensions>>
         +JSONArray.readValueOrNull() T?
         +JSONArray.readList() List~T~
         +JSONArray.readArray() Array~T~
     }
 
-    class JSONObjectExtensions:::extensionStyle {
+    class JSONObjectExtensions {
         <<extensions>>
         +JSONObject.readValueOrNull() T?
         +JSONObject.readValueOrNull(key) T?
@@ -172,11 +172,6 @@ classDiagram
     JsonSerializer <|.. FastjsonSerializer
     FastjsonSerializer ..> JSONBExtensions : 내부 사용
 
-    classDef serializerStyle fill:#FF9800
-    classDef extensionStyle fill:#4CAF50
-    classDef codecStyle fill:#2196F3
-    classDef ioStyle fill:#607D8B
-    classDef encryptStyle fill:#F44336
 ```
 
 ### JSON vs JSONB 직렬화 흐름

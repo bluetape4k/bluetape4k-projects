@@ -211,7 +211,7 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 
 ```mermaid
 classDiagram
-    class ReactiveMongoOperationsExt:::serviceStyle {
+    class ReactiveMongoOperationsExt {
         <<extension>>
         +findAsFlow(query): Flow~T~
         +findAllAsFlow(): Flow~T~
@@ -226,8 +226,8 @@ classDiagram
         +removeSuspending(query): DeleteResult
         +aggregateAsFlow(aggregation): Flow~O~
     }
-    class CriteriaDsl:::configStyle {
-        <<infix DSL>>
+    class CriteriaDsl {
+        <<infixDSL>>
         +gt(value): Criteria
         +gte(value): Criteria
         +lt(value): Criteria
@@ -237,15 +237,15 @@ classDiagram
         +isNull(): Criteria
         +fieldExists(): Criteria
     }
-    class QueryBuilderExt:::configStyle {
+    class QueryBuilderExt {
         <<extension>>
         +queryOf(criteria): Query
         +sortAscBy(fields): Query
         +sortDescBy(fields): Query
         +paginate(page, size): Query
     }
-    class UpdateDsl:::configStyle {
-        <<infix DSL>>
+    class UpdateDsl {
+        <<infixDSL>>
         +setTo(value): Update
         +andSet(field, value): Update
         +incBy(amount): Update
@@ -253,16 +253,10 @@ classDiagram
         +pushValue(value): Update
         +pullValue(value): Update
     }
-    class AbstractReactiveMongoCoroutineTest:::configStyle {
+    class AbstractReactiveMongoCoroutineTest {
         +mongoOperations: ReactiveMongoOperations
         +runTest(block)
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     ReactiveMongoOperationsExt --> CriteriaDsl : accepts
     ReactiveMongoOperationsExt --> QueryBuilderExt : works with
@@ -287,9 +281,9 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>\"age\".criteria() gt 20"]
+    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>age.criteria() gt 20"]
     Code --> QueryBuilder["Query 빌더 확장<br/>queryOf() / paginate()"]
-    Code --> UpdateDSL["Update DSL<br/>\"field\" setTo value"]
+    Code --> UpdateDSL["Update DSL<br/>field setTo value"]
     CriteriaDSL --> Query["Query 객체"]
     QueryBuilder --> Query
     UpdateDSL --> Update["Update 객체"]

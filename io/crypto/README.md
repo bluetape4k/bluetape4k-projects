@@ -136,14 +136,14 @@ val decrypted = decryptCipher.decrypt(encrypted)
 
 ```mermaid
 classDiagram
-    class Digester:::encryptStyle {
+    class Digester {
         <<interface>>
         +digest(message: String) String
         +digest(bytes: ByteArray) ByteArray
         +matches(message: String, digest: String) Boolean
     }
 
-    class Encryptor:::encryptStyle {
+    class Encryptor {
         <<interface>>
         +encrypt(message: String) String
         +encrypt(bytes: ByteArray) ByteArray
@@ -151,26 +151,17 @@ classDiagram
         +decrypt(bytes: ByteArray) ByteArray
     }
 
-    class AbstractDigester:::ioStyle {
+    class AbstractDigester {
         #pooledDigester: PooledByteDigester
     }
 
-    class AbstractEncryptor:::ioStyle {
+    class AbstractEncryptor {
         #pooledEncryptor: PooledPBEByteEncryptor
     }
 
-    class SHA256:::extensionStyle
-    class SHA512:::extensionStyle
-    class MD5:::extensionStyle
-    class Keccak256:::extensionStyle
 
-    class AES:::serializerStyle
-    class TripleDES:::serializerStyle
-    class DES:::serializerStyle
-    class RC2:::serializerStyle
-    class RC4:::serializerStyle
 
-    class CipherBuilder:::codecStyle {
+    class CipherBuilder {
         +secretKeySize(size: Int) CipherBuilder
         +ivBytesSize(size: Int) CipherBuilder
         +algorithm(alg: String) CipherBuilder
@@ -191,11 +182,6 @@ classDiagram
     AbstractEncryptor <|-- RC2
     AbstractEncryptor <|-- RC4
 
-    classDef encryptStyle fill:#F44336
-    classDef ioStyle fill:#607D8B
-    classDef extensionStyle fill:#4CAF50
-    classDef serializerStyle fill:#FF9800
-    classDef codecStyle fill:#2196F3
 ```
 
 ### 암호화/복호화 데이터 흐름

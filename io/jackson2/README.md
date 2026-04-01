@@ -294,7 +294,7 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ```mermaid
 classDiagram
-    class JsonSerializer:::serializerStyle {
+    class JsonSerializer {
         <<interface>>
         +serialize(graph) ByteArray
         +deserialize(bytes, clazz) T?
@@ -302,41 +302,41 @@ classDiagram
         +deserializeFromString(text, clazz) T?
     }
 
-    class JacksonSerializer:::serializerStyle {
+    class JacksonSerializer {
         -mapper: ObjectMapper
     }
 
-    class Jackson:::codecStyle {
+    class Jackson {
         <<singleton>>
         +defaultJsonMapper: JsonMapper
         +prettyJsonWriter: ObjectWriter
     }
 
-    class AsyncJsonParser:::extensionStyle {
+    class AsyncJsonParser {
         -callback: (JsonNode) -> Unit
         +consume(bytes: ByteArray)
     }
 
-    class SuspendJsonParser:::extensionStyle {
+    class SuspendJsonParser {
         -callback: suspend (JsonNode) -> Unit
         +consume(flow: Flow~ByteArray~)
     }
 
-    class JsonEncrypt:::encryptStyle {
+    class JsonEncrypt {
         <<annotation>>
     }
 
-    class JsonTinkEncrypt:::encryptStyle {
+    class JsonTinkEncrypt {
         <<annotation>>
         +algorithm: TinkEncryptAlgorithm
     }
 
-    class JsonMasker:::ioStyle {
+    class JsonMasker {
         <<annotation>>
         +value: String
     }
 
-    class JsonUuidEncoder:::ioStyle {
+    class JsonUuidEncoder {
         <<annotation>>
         +type: JsonUuidEncoderType
     }
@@ -345,11 +345,6 @@ classDiagram
     JacksonSerializer --> Jackson : 사용
     AsyncJsonParser --> SuspendJsonParser
 
-    classDef serializerStyle fill:#FF9800
-    classDef encryptStyle fill:#F44336
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
-    classDef extensionStyle fill:#4CAF50
 ```
 
 ### Jackson 직렬화 파이프라인

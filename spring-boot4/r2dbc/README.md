@@ -115,7 +115,7 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 ```mermaid
 classDiagram
-    class PostRepository:::repoStyle {
+    class PostRepository {
         -operations: R2dbcEntityOperations
         +findById(id): Post?
         +findAll(): Flow~Post~
@@ -124,7 +124,7 @@ classDiagram
         +delete(id): Int
         +count(): Long
     }
-    class R2dbcEntityOperationsExt:::serviceStyle {
+    class R2dbcEntityOperationsExt {
         <<extension>>
         +findOneByIdOrNullSuspending(id): T?
         +selectAllSuspending(): Flow~T~
@@ -137,23 +137,17 @@ classDiagram
         +countAllSuspending(): Long
         +existsSuspending(query): Boolean
     }
-    class Post:::entityStyle {
+    class Post {
         +id: Long?
         +title: String
         +content: String
         +authorId: Long
         +createdAt: Instant
     }
-    class R2dbcConfig:::configStyle {
+    class R2dbcConfig {
         +connectionFactory(): ConnectionFactory
         +r2dbcEntityOperations(): R2dbcEntityOperations
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     PostRepository --> R2dbcEntityOperationsExt
     PostRepository --> Post

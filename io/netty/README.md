@@ -31,7 +31,7 @@ dependencies {
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
-val buf: ByteBuf = ...
+val buf: ByteBuf = Unpooled.buffer()
 
 // 기본 읽기
 val byte = buf.readByte()
@@ -62,7 +62,7 @@ val reversed: ByteArray = buf.readBytesReversed(length)
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
-val buf: ByteBuf = ...
+val buf: ByteBuf = Unpooled.buffer()
 
 // 기본 쓰기
 buf.writeByte(0xFF)
@@ -94,7 +94,7 @@ buf.writeBytesAdd(byteArray)
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
-val buf: ByteBuf = ...
+val buf: ByteBuf = Unpooled.buffer()
 
 // 인덱스로 읽기
 val byte = buf.getByte(index)
@@ -190,14 +190,14 @@ buf.writeUIntSmart(100000) // 4바이트
 
 ```mermaid
 classDiagram
-    class ByteBuf:::infraStyle {
+    class ByteBuf {
         <<Netty>>
         +readByte() Byte
         +writeByte(value: Int)
         +readableBytes() Int
     }
 
-    class ByteBufExtensions:::clientStyle {
+    class ByteBufExtensions {
         <<extensions>>
         +readUByteNeg() UByte
         +readUShortAdd() UShort
@@ -212,13 +212,13 @@ classDiagram
         +writeString(value: String)
     }
 
-    class BitBuf:::codecStyle {
+    class BitBuf {
         -buf: ByteBuf
         +readBit() Boolean
         +writeBit(value: Boolean)
     }
 
-    class ReferenceCountedSupport:::infraStyle {
+    class ReferenceCountedSupport {
         <<extensions>>
         +safeRelease()
         +refCnt() Int
@@ -228,9 +228,6 @@ classDiagram
     ByteBuf <-- BitBuf : 래핑
     ByteBuf <-- ReferenceCountedSupport : 확장
 
-    classDef clientStyle fill:#2196F3
-    classDef infraStyle  fill:#607D8B
-    classDef codecStyle  fill:#FF9800
 ```
 
 ### Smart 인코딩 데이터 흐름

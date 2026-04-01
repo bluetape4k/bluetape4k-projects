@@ -154,24 +154,24 @@ val reader = CsvRecordReader(customSettings)
 
 ```mermaid
 classDiagram
-    class RecordReader:::codecStyle {
+    class RecordReader {
         <<interface>>
         +read(input, charset, skipHeaders, transform) Sequence~T~
     }
 
-    class RecordWriter:::codecStyle {
+    class RecordWriter {
         <<interface>>
         +writeHeaders(headers: List~String~)
         +writeRow(row: List~Any~)
         +close()
     }
 
-    class SuspendRecordReader:::clientStyle {
+    class SuspendRecordReader {
         <<interface>>
         +read(input, charset, skipHeaders, transform) Flow~T~
     }
 
-    class SuspendRecordWriter:::clientStyle {
+    class SuspendRecordWriter {
         <<interface>>
         +writeHeaders(headers: List~String~)
         +writeRow(row: List~Any~)
@@ -179,14 +179,6 @@ classDiagram
         +close()
     }
 
-    class CsvRecordReader:::codecStyle
-    class TsvRecordReader:::codecStyle
-    class CsvRecordWriter:::codecStyle
-    class TsvRecordWriter:::codecStyle
-    class SuspendCsvRecordReader:::clientStyle
-    class SuspendTsvRecordReader:::clientStyle
-    class SuspendCsvRecordWriter:::clientStyle
-    class SuspendTsvRecordWriter:::clientStyle
 
     RecordReader <|.. CsvRecordReader
     RecordReader <|.. TsvRecordReader
@@ -197,8 +189,6 @@ classDiagram
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
 
-    classDef clientStyle fill:#2196F3
-    classDef codecStyle  fill:#FF9800
 ```
 
 ### CSV/TSV 처리 흐름
@@ -214,13 +204,13 @@ flowchart TD
     subgraph 동기 처리
         CR[CsvRecordReader<br/>TsvRecordReader]
         CW[CsvRecordWriter<br/>TsvRecordWriter]
-        SEQ[Sequence~T~]
+        SEQ["Sequence&lt;T&gt;"]
     end
 
     subgraph 비동기 처리
         SCR[SuspendCsvRecordReader<br/>SuspendTsvRecordReader]
         SCW[SuspendCsvRecordWriter<br/>SuspendTsvRecordWriter]
-        FL[Flow~T~]
+        FL["Flow&lt;T&gt;"]
     end
 
     subgraph 출력

@@ -419,7 +419,7 @@ val writeFuture = readFuture.thenCompose { bytes ->
 
 ```mermaid
 classDiagram
-    class Compressor:::ioStyle {
+    class Compressor {
         <<interface>>
         +compress(plain: ByteArray?) ByteArray
         +decompress(compressed: ByteArray?) ByteArray
@@ -429,7 +429,7 @@ classDiagram
         +compress(plainStream: InputStream) InputStream
     }
 
-    class AbstractCompressor:::ioStyle {
+    class AbstractCompressor {
         <<abstract>>
         #doCompress(plain: ByteArray) ByteArray
         #doDecompress(compressed: ByteArray) ByteArray
@@ -437,21 +437,8 @@ classDiagram
         +decompress(compressed: ByteArray?) ByteArray
     }
 
-    class LZ4Compressor:::codecStyle
-    class BlockLZ4Compressor:::codecStyle
-    class FramedLZ4Compressor:::codecStyle
-    class SnappyCompressor:::codecStyle
-    class FramedSnappyCompressor:::codecStyle
-    class ZstdCompressor:::codecStyle
-    class GZipCompressor:::codecStyle
-    class DeflateCompressor:::codecStyle
-    class BZip2Compressor:::codecStyle
-    class ApacheGZipCompressor:::codecStyle
-    class ApacheDeflateCompressor:::codecStyle
-    class ApacheZstdCompressor:::codecStyle
-    class ZipCompressor:::codecStyle
 
-    class StreamingCompressor:::ioStyle {
+    class StreamingCompressor {
         <<interface>>
         +compressing(output: OutputStream) OutputStream
         +decompressing(input: InputStream) InputStream
@@ -476,23 +463,19 @@ classDiagram
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
 
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
-    classDef serializerStyle fill:#FF9800
-    classDef extensionStyle fill:#4CAF50
 ```
 
 ### BinarySerializer 계층
 
 ```mermaid
 classDiagram
-    class BinarySerializer:::serializerStyle {
+    class BinarySerializer {
         <<interface>>
         +serialize(graph: Any?) ByteArray
         +deserialize(bytes: ByteArray?) T?
     }
 
-    class AbstractBinarySerializer:::serializerStyle {
+    class AbstractBinarySerializer {
         <<abstract>>
         #doSerialize(graph: Any) ByteArray
         #doDeserialize(bytes: ByteArray) T?
@@ -500,22 +483,21 @@ classDiagram
         +deserialize(bytes: ByteArray?) T?
     }
 
-    class BinarySerializerDecorator:::serializerStyle {
+    class BinarySerializerDecorator {
         #serializer: BinarySerializer
     }
 
-    class CompressableBinarySerializer:::serializerStyle {
+    class CompressableBinarySerializer {
         +compressor: Compressor
         +serialize(graph: Any?) ByteArray
         +deserialize(bytes: ByteArray?) T?
     }
 
-    class JdkBinarySerializer:::extensionStyle
-    class KryoBinarySerializer:::extensionStyle {
+    class KryoBinarySerializer {
         -bufferSize: Int
         -kryoPool: Pool
     }
-    class ForyBinarySerializer:::extensionStyle {
+    class ForyBinarySerializer {
         -fory: ThreadSafeFory
     }
 
@@ -527,10 +509,6 @@ classDiagram
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
 
-    classDef serializerStyle fill:#FF9800
-    classDef extensionStyle fill:#4CAF50
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
 ```
 
 ### compress/decompress 흐름

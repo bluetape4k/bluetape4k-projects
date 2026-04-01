@@ -123,35 +123,35 @@ println("경도: ${cityResponse.location.longitude}")
 
 ```mermaid
 classDiagram
-    class GeoHashUtils:::utilStyle {
+    class GeoHashUtils {
         +encode(lat, lon, precision) String
         +decode(hash) GeoPoint
         +neighbors(hash) List~String~
     }
-    class GeoHashCircleQuery:::utilStyle {
+    class GeoHashCircleQuery {
         +radiusMeters: Double
         +centerHash: String
         +getHashes() List~String~
     }
-    class GeoPoint:::modelStyle {
+    class GeoPoint {
         +latitude: Double
         +longitude: Double
     }
-    class GoogleGeocoder:::serviceStyle {
+    class GoogleGeocoder {
         +apiKey: String
         +geocode(address) GeoPoint
         +reverseGeocode(lat, lon) String
     }
-    class BingGeocoder:::serviceStyle {
+    class BingGeocoder {
         +apiKey: String
         +geocode(address) GeoPoint
         +reverseGeocode(lat, lon) String
     }
-    class GeoIp2Support:::infraStyle {
+    class GeoIp2Support {
         +cityReader(path) DatabaseReader
         +countryReader(path) DatabaseReader
     }
-    class CityResponse:::modelStyle {
+    class CityResponse {
         +country: Country
         +city: City
         +location: Location
@@ -163,8 +163,4 @@ classDiagram
     BingGeocoder --> GeoPoint : returns
     GeoIp2Support --> CityResponse : returns
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
 ```

@@ -543,21 +543,7 @@ classDiagram
     SnowflakeGenerator --> Snowflake
     UuidGenerator --> Uuid
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
 
-    class IdGenerator:::utilStyle
-    class LongIdGenerator:::utilStyle
-    class SnowflakeGenerator:::utilStyle
-    class UuidGenerator:::utilStyle
-    class UlidGenerator:::utilStyle
-    class KsuidGenerator:::utilStyle
-    class Snowflake:::serviceStyle
-    class DefaultSnowflake:::serviceStyle
-    class GlobalSnowflake:::serviceStyle
-    class Snowflakers:::serviceStyle
-    class Uuid:::modelStyle
 ```
 
 ## Snowflake ID 비트 구조

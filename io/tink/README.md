@@ -266,34 +266,34 @@ io.bluetape4k.tink
 
 ```mermaid
 classDiagram
-    class TinkEncryptor:::encryptStyle {
+    class TinkEncryptor {
         <<interface>>
         +encrypt(plaintext: ByteArray): ByteArray
         +decrypt(ciphertext: ByteArray): ByteArray
         +encrypt(plaintext: String): String
         +decrypt(ciphertext: String): String
     }
-    class TinkAeadEncryptor:::encryptStyle {
+    class TinkAeadEncryptor {
         -aead: TinkAead
         +encrypt(plaintext: ByteArray): ByteArray
         +decrypt(ciphertext: ByteArray): ByteArray
     }
-    class TinkDaeadEncryptor:::encryptStyle {
+    class TinkDaeadEncryptor {
         -daead: TinkDeterministicAead
         +encrypt(plaintext: ByteArray): ByteArray
         +decrypt(ciphertext: ByteArray): ByteArray
     }
-    class TinkAead:::encryptStyle {
+    class TinkAead {
         -aead: Aead
         +encrypt(plaintext, associatedData): ByteArray
         +decrypt(ciphertext, associatedData): ByteArray
     }
-    class TinkDeterministicAead:::encryptStyle {
+    class TinkDeterministicAead {
         -daead: DeterministicAead
         +encryptDeterministically(plaintext): ByteArray
         +decryptDeterministically(ciphertext): ByteArray
     }
-    class TinkEncryptors:::encryptStyle {
+    class TinkEncryptors {
         <<object>>
         +AES256_GCM: TinkEncryptor
         +AES128_GCM: TinkEncryptor
@@ -301,31 +301,31 @@ classDiagram
         +XCHACHA20_POLY1305: TinkEncryptor
         +DETERMINISTIC_AES256_SIV: TinkEncryptor
     }
-    class TinkAeads:::encryptStyle {
+    class TinkAeads {
         <<object>>
         +AES256_GCM: TinkAead
         +AES128_GCM: TinkAead
         +CHACHA20_POLY1305: TinkAead
         +XCHACHA20_POLY1305: TinkAead
     }
-    class TinkMac:::codecStyle {
+    class TinkMac {
         -mac: Mac
         +computeMac(data: ByteArray): ByteArray
         +verifyMac(tag, data): Boolean
     }
-    class TinkMacs:::codecStyle {
+    class TinkMacs {
         <<object>>
         +HMAC_SHA256: TinkMac
         +HMAC_SHA512: TinkMac
         +HMAC_SHA512_512BITTAG: TinkMac
     }
-    class TinkDigester:::extensionStyle {
+    class TinkDigester {
         +algorithmName: String
         +digest(data: ByteArray): ByteArray
         +digest(data: String): String
         +matches(data, expected): Boolean
     }
-    class TinkDigesters:::extensionStyle {
+    class TinkDigesters {
         <<object>>
         +MD5: TinkDigester
         +SHA1: TinkDigester
@@ -344,11 +344,6 @@ classDiagram
     TinkMacs ..> TinkMac : creates
     TinkDigesters ..> TinkDigester : creates
 
-    classDef encryptStyle fill:#F44336
-    classDef codecStyle fill:#2196F3
-    classDef extensionStyle fill:#4CAF50
-    classDef ioStyle fill:#607D8B
-    classDef serializerStyle fill:#FF9800
 ```
 
 ### AEAD encrypt/decrypt 흐름

@@ -182,58 +182,54 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class CloseableHttpAsyncClient:::infraStyle {
-        <<Apache HC5>>
+    class CloseableHttpAsyncClient {
+        <<ApacheHC5>>
         +execute(request, callback) Future
         +start()
         +close()
     }
 
-    class HttpAsyncClientCoroutines:::clientStyle {
-        <<확장 함수>>
+    class HttpAsyncClientCoroutines {
+        <<확장함수>>
         +executeSuspending(request) SimpleHttpResponse
     }
 
-    class CachingHttpAsyncClientBuilder:::infraStyle {
-        <<DSL 빌더>>
+    class CachingHttpAsyncClientBuilder {
+        <<DSL빌더>>
         +setHttpCacheStorage(storage)
         +build() CloseableHttpAsyncClient
     }
 
-    class InMemoryHttpCacheStorage:::infraStyle
-    class JavaCacheHttpCacheStorage:::infraStyle
 
     CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
     CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
     CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
 
-    classDef clientStyle fill:#2196F3
-    classDef infraStyle  fill:#607D8B
 ```
 
 ### OkHttp3 클라이언트 계층
 
 ```mermaid
 classDiagram
-    class OkHttpClient:::clientStyle {
+    class OkHttpClient {
         <<OkHttp3>>
         +newCall(request) Call
     }
 
-    class LoggingInterceptor:::infraStyle {
+    class LoggingInterceptor {
         +intercept(chain) Response
     }
 
-    class CachingRequestInterceptor:::infraStyle {
+    class CachingRequestInterceptor {
         +intercept(chain) Response
     }
 
-    class CachingResponseInterceptor:::infraStyle {
+    class CachingResponseInterceptor {
         +intercept(chain) Response
     }
 
-    class OkHttpClientExtensionsCoroutines:::clientStyle {
-        <<확장 함수>>
+    class OkHttpClientExtensionsCoroutines {
+        <<확장함수>>
         +executeSuspending(request) Response
     }
 
@@ -242,8 +238,6 @@ classDiagram
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
     OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
 
-    classDef clientStyle fill:#2196F3
-    classDef infraStyle  fill:#607D8B
 ```
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)

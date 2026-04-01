@@ -303,7 +303,7 @@ class PostRepository(
 
 ```mermaid
 classDiagram
-    class R2dbcEntityOperationsExt:::serviceStyle {
+    class R2dbcEntityOperationsExt {
         <<extension>>
         +findOneByIdSuspending(id): T
         +findOneByIdOrNullSuspending(id): T?
@@ -320,7 +320,7 @@ classDiagram
         +countSuspending(query): Long
         +existsSuspending(query): Boolean
     }
-    class PostRepository:::repoStyle {
+    class PostRepository {
         -operations: R2dbcEntityOperations
         +findById(id): Post?
         +findAll(): Flow~Post~
@@ -330,7 +330,7 @@ classDiagram
         +delete(id): Int
         +count(): Long
     }
-    class Post:::entityStyle {
+    class Post {
         +id: Long?
         +title: String
         +content: String
@@ -339,18 +339,12 @@ classDiagram
         +createdAt: Instant
         +updatedAt: Instant?
     }
-    class PostStatus:::entityStyle {
+    class PostStatus {
         <<enum>>
         DRAFT
         PUBLISHED
         ARCHIVED
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     PostRepository --> R2dbcEntityOperationsExt : uses
     PostRepository --> Post

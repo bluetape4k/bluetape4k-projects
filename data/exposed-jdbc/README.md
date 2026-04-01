@@ -403,7 +403,7 @@ classDiagram
         +save(entity): E
         +deleteById(id): Int
     }
-    class AbstractJdbcRepository~ID,E~ {
+    class AbstractJdbcRepository~ID_E~ {
         <<abstract>>
         #table: Table
         +findAll(where): List~E~
@@ -424,12 +424,6 @@ classDiagram
     LongJdbcRepository <|-- AbstractJdbcRepository
     AbstractJdbcRepository <|-- AuditableJdbcRepository
 
-    classDef repoStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    class LongJdbcRepository:::repoStyle
-    class AbstractJdbcRepository:::repoStyle
-    class AuditableJdbcRepository:::repoStyle
-    class VirtualThreadJdbcTransaction:::serviceStyle
 ```
 
 ```mermaid
@@ -453,7 +447,7 @@ sequenceDiagram
 classDiagram
     direction TB
 
-    class JdbcRepository~ID, E~ {
+    class JdbcRepository~ID_E~ {
 <<interface>>
 +table: IdTable~ID~
 +extractId(entity: E) ID
@@ -470,7 +464,7 @@ classDiagram
 +batchUpsert(entities, ...) List~E~
 }
 
-class SoftDeletedJdbcRepository~ID, E, T~ {
+class SoftDeletedJdbcRepository~ID_E_T~ {
 <<interface>>
 +table: T
 +softDeleteById(id: ID)
@@ -500,11 +494,11 @@ class StringJdbcRepository~E~ {
 <<interface>>
 }
 
-class LongSoftDeletedJdbcRepository~E, T~ {
+class LongSoftDeletedJdbcRepository~E_T~ {
 <<interface>>
 }
 
-class IntSoftDeletedJdbcRepository~E, T~ {
+class IntSoftDeletedJdbcRepository~E_T~ {
 <<interface>>
 }
 

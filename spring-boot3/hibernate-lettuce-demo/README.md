@@ -35,7 +35,7 @@ H2 Database
 
 ```mermaid
 classDiagram
-    class ProductController:::controllerStyle {
+    class ProductController {
         -productRepository: ProductRepository
         +findAll(): List~Product~
         +findById(id): ResponseEntity~Product~
@@ -43,35 +43,29 @@ classDiagram
         +update(id, product): Product
         +delete(id): ResponseEntity~Void~
     }
-    class CacheController:::controllerStyle {
+    class CacheController {
         +stats(): Map
         +evictAll(): ResponseEntity~Void~
         +evict(region): ResponseEntity~Void~
     }
-    class ProductRepository:::repoStyle {
+    class ProductRepository {
         <<interface>>
         +findAll(): List~Product~
         +findById(id): Optional~Product~
         +save(product): Product
         +delete(product)
     }
-    class Product:::entityStyle {
+    class Product {
         +id: Long?
         +name: String
         +description: String?
         +price: Double
     }
-    class LettuceNearCacheRegionFactory:::cacheStyle {
+    class LettuceNearCacheRegionFactory {
         +getL1Cache(region): CaffeineCache
         +getL2Cache(region): RedisCache
         +getStats(region): RegionStats
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     ProductController --> ProductRepository
     ProductRepository --> Product

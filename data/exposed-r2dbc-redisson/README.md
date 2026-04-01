@@ -130,7 +130,7 @@ val nearCacheConfig = RedisCacheConfig.readOnly(
 classDiagram
     direction TB
     class RedissonR2dbcRepository~E~ {
-        <<abstract suspend>>
+        <<abstractSuspend>>
         -nearCache: RedissonNearCache
         +findByIdOrNull(id): E?
         +findAll(): Flow~E~
@@ -143,10 +143,6 @@ classDiagram
     }
     RedissonR2dbcRepository --> RedissonNearCache : RLocalCachedMap
 
-    classDef repoStyle fill:#2196F3
-    classDef cacheStyle fill:#F44336
-    class RedissonR2dbcRepository:::repoStyle
-    class RedissonNearCache:::cacheStyle
 ```
 
 ## 클래스 다이어그램
@@ -155,7 +151,7 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class R2dbcRedissonRepository~ID, E~ {
+    class R2dbcRedissonRepository~ID_E~ {
 <<interface>>
 +cacheName: String
 +table: IdTable~ID~
@@ -175,7 +171,7 @@ classDiagram
 +invalidateByPattern(patterns, count): Long [suspend]
 }
 
-class AbstractR2dbcRedissonRepository~ID, E~ {
+class AbstractR2dbcRedissonRepository~ID_E~ {
 <<abstract>>
 +redissonClient: RedissonClient
 +cacheName: String
@@ -191,26 +187,26 @@ class AbstractR2dbcRedissonRepository~ID, E~ {
 +getAll(ids, batchSize): List~E~ [suspend]
 }
 
-class R2dbcEntityMapLoader~ID, E~ {
+class R2dbcEntityMapLoader~ID_E~ {
 <<abstract>>
 +load(key: ID): CompletableFuture~E~
 +loadAllKeys(): AsyncIterator~ID~
 }
 
-class R2dbcEntityMapWriter~ID, E~ {
+class R2dbcEntityMapWriter~ID_E~ {
 <<abstract>>
 +write(map: Map~ID, E~): CompletableFuture~Void~
 +delete(keys: Collection~Any~): CompletableFuture~Void~
 }
 
-class R2dbcExposedEntityMapLoader~ID, E~ {
+class R2dbcExposedEntityMapLoader~ID_E~ {
 -entityTable: IdTable~ID~
 -scope: CoroutineScope
 -batchSize: Int
 -toEntity: suspend ResultRow.() -> E
  }
 
-class R2dbcExposedEntityMapWriter~ID, E~ {
+class R2dbcExposedEntityMapWriter~ID_E~ {
 -entityTable: IdTable~ID~
 -scope: CoroutineScope
 -updateBody: (UpdateStatement, E) -> Unit
@@ -219,11 +215,11 @@ class R2dbcExposedEntityMapWriter~ID, E~ {
 -writeMode: WriteMode
 }
 
-R2dbcRedissonRepository~ID, E~ <|.. AbstractR2dbcRedissonRepository~ID, E~
-AbstractR2dbcRedissonRepository~ID, E~ --> R2dbcEntityMapLoader~ID, E~: r2dbcEntityMapLoader
-AbstractR2dbcRedissonRepository~ID, E~ --> R2dbcEntityMapWriter~ID, E~: r2dbcEntityMapWriter (nullable)
-R2dbcEntityMapLoader~ID, E~ <|-- R2dbcExposedEntityMapLoader~ID, E~
-R2dbcEntityMapWriter~ID, E~ <|-- R2dbcExposedEntityMapWriter~ID, E~
+R2dbcRedissonRepository~ID_E~ <|.. AbstractR2dbcRedissonRepository~ID_E~
+AbstractR2dbcRedissonRepository~ID_E~ --> R2dbcEntityMapLoader~ID_E~: r2dbcEntityMapLoader
+AbstractR2dbcRedissonRepository~ID_E~ --> R2dbcEntityMapWriter~ID_E~: r2dbcEntityMapWriter (nullable)
+R2dbcEntityMapLoader~ID_E~ <|-- R2dbcExposedEntityMapLoader~ID_E~
+R2dbcEntityMapWriter~ID_E~ <|-- R2dbcExposedEntityMapWriter~ID_E~
 ```
 
 ## 캐시 패턴

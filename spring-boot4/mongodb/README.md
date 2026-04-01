@@ -107,7 +107,7 @@ val update = ("name" setTo "Alice")
 
 ```mermaid
 classDiagram
-    class ReactiveMongoOperationsExt:::serviceStyle {
+    class ReactiveMongoOperationsExt {
         <<extension>>
         +findAsFlow(query): Flow~T~
         +findAllAsFlow(): Flow~T~
@@ -121,7 +121,7 @@ classDiagram
         +removeSuspending(query): DeleteResult
         +aggregateAsFlow(aggregation): Flow~O~
     }
-    class CriteriaDsl:::configStyle {
+    class CriteriaDsl {
         <<DSL>>
         +criteria() gt value
         +criteria() eq value
@@ -129,31 +129,25 @@ classDiagram
         +criteria().isNull()
         +andWith(other)
     }
-    class QueryBuilderExt:::configStyle {
+    class QueryBuilderExt {
         <<extension>>
         +queryOf(criteria): Query
         +sortAscBy(field): Query
         +paginate(page, size): Query
     }
-    class UpdateDsl:::configStyle {
+    class UpdateDsl {
         <<DSL>>
         +setTo(value): Update
         +andSet(field, value): Update
         +incBy(delta): Update
     }
-    class UserRepository:::repoStyle {
+    class UserRepository {
         -operations: ReactiveMongoOperations
         +findAllUsers(): Flow~User~
         +findByName(name): User?
         +save(user): User
         +delete(query): DeleteResult
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     UserRepository --> ReactiveMongoOperationsExt
     UserRepository --> CriteriaDsl
@@ -178,9 +172,9 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>\"age\".criteria() gt 20"]
+    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>age.criteria() gt 20"]
     Code --> QueryBuilder["Query 빌더 확장<br/>queryOf() / paginate()"]
-    Code --> UpdateDSL["Update DSL<br/>\"field\" setTo value"]
+    Code --> UpdateDSL["Update DSL<br/>field setTo value"]
     CriteriaDSL --> Query["Query 객체"]
     QueryBuilder --> Query
     UpdateDSL --> Update["Update 객체"]

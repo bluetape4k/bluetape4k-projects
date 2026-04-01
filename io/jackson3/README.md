@@ -314,7 +314,7 @@ flowchart LR
 
 ```mermaid
 classDiagram
-    class JsonSerializer:::serializerStyle {
+    class JsonSerializer {
         <<interface>>
         +serialize(graph) ByteArray
         +deserialize(bytes, clazz) T?
@@ -322,30 +322,30 @@ classDiagram
         +deserializeFromString(text, clazz) T?
     }
 
-    class JacksonSerializer:::serializerStyle {
+    class JacksonSerializer {
         -mapper: ObjectMapper
     }
 
-    class Jackson:::codecStyle {
+    class Jackson {
         <<singleton>>
         +defaultJsonMapper: JsonMapper
         +prettyJsonWriter: ObjectWriter
         +createDefaultJsonMapper() JsonMapper
     }
 
-    class JsonEncryptModule:::encryptStyle {
+    class JsonEncryptModule {
         +setupModule(context)
     }
 
-    class JsonTinkEncryptModule:::encryptStyle {
+    class JsonTinkEncryptModule {
         +setupModule(context)
     }
 
-    class JsonMaskerModule:::ioStyle {
+    class JsonMaskerModule {
         +setupModule(context)
     }
 
-    class JsonUuidModule:::ioStyle {
+    class JsonUuidModule {
         +setupModule(context)
     }
 
@@ -356,11 +356,6 @@ classDiagram
     Jackson --> JsonMaskerModule : 등록
     Jackson --> JsonUuidModule : 등록
 
-    classDef serializerStyle fill:#FF9800
-    classDef encryptStyle fill:#F44336
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
-    classDef extensionStyle fill:#4CAF50
 ```
 
 ### Jackson 3.x 모듈 등록 흐름

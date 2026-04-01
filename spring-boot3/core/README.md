@@ -75,34 +75,28 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class DispatcherHandler:::configStyle {
+    class DispatcherHandler {
         +handle(exchange): Mono~Void~
     }
-    class WebFluxHandler:::controllerStyle {
+    class WebFluxHandler {
         +handle(): Flow~T~
         +handleSuspend(): T
     }
-    class UserService:::serviceStyle {
+    class UserService {
         +findAllAsFlow(): Flow~User~
         +findById(id): User
     }
-    class UserRepository:::repoStyle {
+    class UserRepository {
         +findAll(): Flow~User~
         +findById(id): User?
     }
-    class Retrofit2Client:::configStyle {
+    class Retrofit2Client {
         +create(): ApiClient
     }
-    class WebTestClientExt:::configStyle {
+    class WebTestClientExt {
         +httpGet(uri): ResponseSpec
         +httpPost(uri, body): ResponseSpec
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     DispatcherHandler --> WebFluxHandler
     WebFluxHandler --> UserService
@@ -120,11 +114,11 @@ flowchart LR
     WebFlux --> Handler["Coroutines 핸들러<br/>suspend fun / Flow"]
     Handler --> Service["서비스 계층"]
     Service --> DB[("데이터베이스 / 외부 API")]
-    DB -->> Service
-    Service -->> Handler
-    Handler -->> WebFlux
-    WebFlux -->> Netty
-    Netty -->> Client
+    DB --> Service
+    Service --> Handler
+    Handler --> WebFlux
+    WebFlux --> Netty
+    Netty --> Client
 ```
 
 ### Retrofit2 통합 구조

@@ -83,73 +83,65 @@ Proj4J 기반 좌표계 변환, GeoTools Shapefile 파싱, JTS 공간 기하학 
 classDiagram
     direction TB
 
-    namespace model {
-        class SpatialLayerRecord {
-            <<data class>>
-            +id: Long
-            +name: String
-            +srid: Int
-            +geometryType: String?
-            +recordCount: Int
-        }
-        class SpatialFeatureRecord {
-            <<data class>>
-            +id: Long
-            +layerId: Long
-            +featureType: String
-            +geom: Geometry
-            +properties: Map
-        }
-        class NetCdfFileRecord {
-            <<data class>>
-            +id: Long
-            +filename: String
-            +variables: List~NetCdfVariableInfo~
-        }
+    class SpatialLayerRecord {
+        <<dataClass>>
+        +id: Long
+        +name: String
+        +srid: Int
+        +geometryType: String?
+        +recordCount: Int
+    }
+    class SpatialFeatureRecord {
+        <<dataClass>>
+        +id: Long
+        +layerId: Long
+        +featureType: String
+        +geom: Geometry
+        +properties: Map
+    }
+    class NetCdfFileRecord {
+        <<dataClass>>
+        +id: Long
+        +filename: String
+        +variables: List~NetCdfVariableInfo~
     }
 
-    namespace schema {
-        class SpatialLayerTable {
-            <<AuditableLongIdTable>>
-            +name: Column~String~
-            +srid: Column~Int~
-            +geometryType: Column~String?~
-        }
-        class SpatialFeatureTable {
-            <<AuditableLongIdTable>>
-            +layerId: Column~EntityID~
-            +geom: Column~PGGeometry~
-            +properties: Column~Map~
-        }
-        class NetCdfFileTable {
-            <<AuditableLongIdTable>>
-            +filename: Column~String~
-            +variables: Column~List~
-        }
+    class SpatialLayerTable {
+        <<AuditableLongIdTable>>
+        +name: Column~String~
+        +srid: Column~Int~
+        +geometryType: Column~String?~
+    }
+    class SpatialFeatureTable {
+        <<AuditableLongIdTable>>
+        +layerId: Column~EntityID~
+        +geom: Column~PGGeometry~
+        +properties: Column~Map~
+    }
+    class NetCdfFileTable {
+        <<AuditableLongIdTable>>
+        +filename: Column~String~
+        +variables: Column~List~
     }
 
-    namespace repository {
-        class SpatialLayerRepository {
-            <<LongJdbcRepository>>
-            +save(SpatialLayerRecord): SpatialLayerRecord
-            +findByName(String): SpatialLayerRecord?
-        }
-        class SpatialFeatureRepository {
-            <<LongJdbcRepository>>
-            +save(SpatialFeatureRecord): SpatialFeatureRecord
-        }
-        class NetCdfFileRepository {
-            <<LongJdbcRepository>>
-            +save(NetCdfFileRecord): NetCdfFileRecord
-        }
+    class SpatialLayerRepository {
+        <<LongJdbcRepository>>
+        +save(SpatialLayerRecord): SpatialLayerRecord
+        +findByName(String): SpatialLayerRecord?
+    }
+    class SpatialFeatureRepository {
+        <<LongJdbcRepository>>
+        +save(SpatialFeatureRecord): SpatialFeatureRecord
+    }
+    class NetCdfFileRepository {
+        <<LongJdbcRepository>>
+        +save(NetCdfFileRecord): NetCdfFileRecord
     }
 
-    namespace service {
-        class ShapefileImportService {
-            -layerRepo: SpatialLayerRepository
-            -featureRepo: SpatialFeatureRepository
-            +importShapefile(File, String, Int): Int
-        }
+    class ShapefileImportService {
+        -layerRepo: SpatialLayerRepository
+        -featureRepo: SpatialFeatureRepository
+        +importShapefile(File, String, Int): Int
     }
 
     SpatialLayerRepository --> SpatialLayerTable : uses
@@ -162,21 +154,7 @@ classDiagram
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
 
-    classDef modelStyle  fill:#FF9800
-    classDef schemaStyle fill:#9C27B0
-    classDef repoStyle   fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
 
-    class SpatialLayerRecord:::modelStyle
-    class SpatialFeatureRecord:::modelStyle
-    class NetCdfFileRecord:::modelStyle
-    class SpatialLayerTable:::schemaStyle
-    class SpatialFeatureTable:::schemaStyle
-    class NetCdfFileTable:::schemaStyle
-    class SpatialLayerRepository:::repoStyle
-    class SpatialFeatureRepository:::repoStyle
-    class NetCdfFileRepository:::repoStyle
-    class ShapefileImportService:::serviceStyle
 ```
 
 **Schema** — Exposed 테이블 정의
@@ -375,65 +353,57 @@ dependencies {
 classDiagram
     direction LR
 
-    namespace coords {
-        class GeoLocation {
-            +latitude: Double
-            +longitude: Double
-        }
-        class BoundingBox {
-            +minLat: Double
-            +maxLat: Double
-            +minLon: Double
-            +maxLon: Double
-            +contains(GeoLocation): Boolean
-            +intersects(BoundingBox): Boolean
-        }
-        class UtmZone {
-            +longitudeZone: Int
-            +latitudeZone: Char
-            +boundingBox(): BoundingBox
-            +cellBoundingBox(size, row, col): BoundingBox
-        }
-        class DM {
-            +degree: Int
-            +minute: Double
-        }
-        class DMS {
-            +degree: Int
-            +minute: Int
-            +second: Double
-        }
+    class GeoLocation {
+        +latitude: Double
+        +longitude: Double
+    }
+    class BoundingBox {
+        +minLat: Double
+        +maxLat: Double
+        +minLon: Double
+        +maxLon: Double
+        +contains(GeoLocation): Boolean
+        +intersects(BoundingBox): Boolean
+    }
+    class UtmZone {
+        +longitudeZone: Int
+        +latitudeZone: Char
+        +boundingBox(): BoundingBox
+        +cellBoundingBox(size, row, col): BoundingBox
+    }
+    class DM {
+        +degree: Int
+        +minute: Double
+    }
+    class DMS {
+        +degree: Int
+        +minute: Int
+        +second: Double
     }
 
-    namespace projection {
-        class CrsRegistry {
-            <<object>>
-            +getCrs(epsg: String): CoordinateReferenceSystem
-            +getCrsFromProj4(params: String): CoordinateReferenceSystem
-            +clearCache()
-        }
-        class Projections {
-            <<functions>>
-            +wgs84ToUtm(GeoLocation): Pair~Double,Double~
-            +utmToWgs84(easting, northing, UtmZone): GeoLocation
-            +transform(srcCrs, dstCrs, x, y): Pair~Double,Double~
-        }
+    class CrsRegistry {
+        <<object>>
+        +getCrs(epsg: String): CoordinateReferenceSystem
+        +clearCache()
+    }
+    class Projections {
+        <<functions>>
+        +wgs84ToUtm(GeoLocation): Pair~Double,Double~
+        +utmToWgs84(easting, northing, UtmZone): GeoLocation
     }
 
-    namespace shapefile {
-        class Shape {
-            +header: ShapeHeader
-            +records: List~ShapeRecord~
-            +size: Int
-        }
-        class ShapeRecord {
-            +geometry: Geometry
-            +attributes: Map~String,Any?~
-        }
-        class ShapeHeader {
-            +bbox: BoundingBox
-            +shapeType: Int
-        }
+    class Shape {
+        +header: ShapeHeader
+        +records: List~ShapeRecord~
+        +size: Int
+    }
+    class ShapeRecord {
+        +geometry: Geometry
+        +attributes: Map~String,Any?~
+    }
+    class ShapeHeader {
+        +bbox: BoundingBox
+        +shapeType: Int
     }
 
     BoundingBox --> GeoLocation : contains
@@ -441,20 +411,7 @@ classDiagram
     Shape --> ShapeHeader
     Shape --> ShapeRecord
 
-    classDef coordsStyle  fill:#4CAF50
-    classDef projectStyle fill:#2196F3
-    classDef shapeStyle   fill:#FF9800
 
-    class GeoLocation:::coordsStyle
-    class BoundingBox:::coordsStyle
-    class UtmZone:::coordsStyle
-    class DM:::coordsStyle
-    class DMS:::coordsStyle
-    class CrsRegistry:::projectStyle
-    class Projections:::projectStyle
-    class Shape:::shapeStyle
-    class ShapeRecord:::shapeStyle
-    class ShapeHeader:::shapeStyle
 ```
 
 ```

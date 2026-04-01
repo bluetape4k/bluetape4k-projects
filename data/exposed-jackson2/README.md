@@ -115,13 +115,13 @@ classDiagram
         +valueToDB(value): Any
     }
     class JacksonBColumnType~T~ {
-        <<ColumnType JSONB>>
+        <<ColumnTypeJSONB>>
         -objectMapper: ObjectMapper
         +valueFromDB(value): T
         +valueToDB(value): PGobject
     }
     class TableExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.jackson~T~(name): Column~T~
         +Table.jacksonb~T~(name): Column~T~
     }
@@ -129,11 +129,6 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class JacksonColumnType:::tableStyle
-    class JacksonBColumnType:::tableStyle
-    class TableExtensions:::serviceStyle
 ```
 
 ## 클래스 다이어그램
@@ -147,7 +142,7 @@ classDiagram
         +notNullValueToDB(value: T): Any
     }
     class JsonColumnMarker {
-        <<interface Exposed>>
+        <<interfaceExposed>>
         +usesBinaryFormat: Boolean
         +needsBinaryFormatCast: Boolean
     }
@@ -166,7 +161,7 @@ classDiagram
     }
 
     class JacksonSerializer {
-        <<bluetape4k-jackson>>
+        <<bluetape4k_jackson>>
         +serializeAsString(value: T): String
         +deserializeFromString(json: String): T?
     }

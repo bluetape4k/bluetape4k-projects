@@ -399,15 +399,7 @@ classDiagram
     JwtProvider <|-- DefaultJwtProvider
     DefaultJwtProvider --> KeyChainRepository
 
-    classDef securityStyle fill:#F44336
-    classDef serviceStyle  fill:#4CAF50
-    classDef infraStyle    fill:#607D8B
 
-    class KeyChainRepository:::securityStyle
-    class InMemoryKeyChainRepository:::infraStyle
-    class RedisKeyChainRepository:::infraStyle
-    class JwtProvider:::securityStyle
-    class DefaultJwtProvider:::serviceStyle
 ```
 
 ## 참고 자료

@@ -87,15 +87,11 @@ classDiagram
         +connectInMemory(): Database
     }
     class DuckDBExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +suspendTransaction~T~(block): T
         +queryFlow~T~(query): Flow~T~
     }
 
-    classDef dbStyle fill:#607D8B
-    classDef serviceStyle fill:#4CAF50
-    class DuckDBDatabase:::dbStyle
-    class DuckDBExtensions:::serviceStyle
 ```
 
 ## 다이어그램

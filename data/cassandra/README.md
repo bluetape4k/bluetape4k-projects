@@ -253,7 +253,7 @@ val unquoted = "'Simpson''s family'".unquote()  // Simpson's family
 
 // Double quote 이스케이프
 val doubleQuoted = "<div class=\"content\">".doubleQuote()  // <div class=""content"">
-val unDoubleQuoted = "<div class=""content"">".unDoubleQuote()  // <div class="content">
+val unDoubleQuoted = """<div class=""content"">""".unDoubleQuote()  // <div class="content">
 
 // Quote 상태 확인
 val isQuoted = "'test'".isQuoted()  // true
@@ -366,13 +366,11 @@ class MyCassandraTest: AbstractCassandraTest() {
 classDiagram
     direction LR
     class CassandraExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +CqlSession.executeAsFlow~T~(stmt): Flow~T~
         +CqlSession.executeAsync~T~(stmt): Deferred~T~
     }
 
-    classDef serviceStyle fill:#4CAF50
-    class CassandraExtensions:::serviceStyle
 ```
 
 ### 주요 API 구조

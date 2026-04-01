@@ -166,31 +166,31 @@ suspend fun putRecord(client: KinesisClient, streamName: String, data: ByteArray
 
 ```mermaid
 classDiagram
-    class DynamoDbClient:::serviceStyle {
+    class DynamoDbClient {
         +getItem(block) GetItemResponse
         +putItem(block) PutItemResponse
         +scan(block) ScanResponse
         +query(block) QueryResponse
         +close()
     }
-    class SqsClient:::serviceStyle {
+    class SqsClient {
         +sendMessage(block) SendMessageResponse
         +receiveMessage(block) ReceiveMessageResponse
         +deleteMessage(block) DeleteMessageResponse
         +close()
     }
-    class S3Client:::serviceStyle {
+    class S3Client {
         +getObject(block) GetObjectResponse
         +putObject(block) PutObjectResponse
         +listObjects(block) ListObjectsResponse
         +close()
     }
-    class CloudWatchClient:::serviceStyle {
+    class CloudWatchClient {
         +putMetricData(block) PutMetricDataResponse
         +getMetricData(block) GetMetricDataResponse
         +close()
     }
-    class AwsClientFactory:::infraStyle {
+    class AwsClientFactory {
         +dynamoDbClientOf(endpointUrl, region) DynamoDbClient
         +withDynamoDbClient(block) T
         +sqsClientOf(endpointUrl, region) SqsClient
@@ -204,8 +204,6 @@ classDiagram
     AwsClientFactory --> S3Client : creates
     AwsClientFactory --> CloudWatchClient : creates
 
-    classDef serviceStyle fill:#4CAF50
-    classDef infraStyle   fill:#607D8B
 ```
 
 ## Java SDK v2 vs Kotlin SDK 비교 다이어그램

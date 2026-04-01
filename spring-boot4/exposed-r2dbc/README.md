@@ -8,7 +8,7 @@ Spring Boot 4와 Spring Data Reactive를 활용하여 Exposed R2DBC를 완전한
 
 ```mermaid
 classDiagram
-    class UserController:::controllerStyle {
+    class UserController {
         -userService: UserService
         +createUser(request): ResponseEntity~User~
         +getUser(id): ResponseEntity~User~
@@ -16,7 +16,7 @@ classDiagram
         +getAdults(): Flow~User~
         +streamUsers(): Flow~User~
     }
-    class UserService:::serviceStyle {
+    class UserService {
         -userRepository: UserRepository
         +createUser(name, email, age): User
         +getUserById(id): User?
@@ -24,7 +24,7 @@ classDiagram
         +streamLargeUserList(): Flow~User~
         +countByAge(age): Long
     }
-    class UserRepository:::repoStyle {
+    class UserRepository {
         <<interface>>
         +table: IdTable~Long~
         +extractId(entity): Long?
@@ -32,7 +32,7 @@ classDiagram
         +toPersistValues(domain): Map
         +findByAge(age): Flow~UserDto~
     }
-    class ExposedR2dbcRepository:::repoStyle {
+    class ExposedR2dbcRepository {
         <<interface>>
         +save(entity): T
         +findById(id): T?
@@ -40,24 +40,18 @@ classDiagram
         +deleteById(id): Boolean
         +count(): Long
     }
-    class UserDto:::entityStyle {
+    class UserDto {
         +id: Long
         +name: String
         +email: String
         +age: Int
     }
-    class UserTable:::entityStyle {
+    class UserTable {
         <<object>>
         +name: Column~String~
         +email: Column~String~
         +age: Column~Int~
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     UserController --> UserService
     UserService --> UserRepository
@@ -485,12 +479,14 @@ dependencies {
 ### Spring Boot 자동 구성
 
 ```properties
-# application.properties
+# application.properties (H2 예시)
 spring.r2dbc.url=r2dbc:h2:mem:///test
 spring.r2dbc.username=sa
 spring.r2dbc.password=
+```
 
-# 또는 PostgreSQL
+```properties
+# application.properties (PostgreSQL 예시)
 spring.r2dbc.url=r2dbc:postgresql://localhost:5432/mydb
 spring.r2dbc.username=postgres
 spring.r2dbc.password=password

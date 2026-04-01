@@ -43,7 +43,7 @@ classDiagram
         +valueToDB(value): PGobject
     }
     class PostGISExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.geoGeometry(name): Column~PGgeometry~
         +Table.geoPoint(name): Column~PGgeometry~
         +Table.geoPolygon(name): Column~PGgeometry~
@@ -54,12 +54,6 @@ classDiagram
     PostGISExtensions --> PgvectorColumnType : creates
     PostGISExtensions --> TstzrangeColumnType : creates
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class GeoGeometryColumnType:::tableStyle
-    class PgvectorColumnType:::tableStyle
-    class TstzrangeColumnType:::tableStyle
-    class PostGISExtensions:::serviceStyle
 ```
 
 ## 주요 기능
@@ -187,7 +181,7 @@ transaction {
     }
 
     // 코사인 거리 검색 (유사도 순서)
-    val queryVector = FloatArray(384) { ... }
+    val queryVector = FloatArray(384) { 0.0f }
     DocumentTable
         .select(DocumentTable.title)
         .orderBy(DocumentTable.embedding.cosineDistance(queryVector))
@@ -353,7 +347,7 @@ val db = Database.connect(
 
 // pgvector — vector 확장 자동 활성화 (JDBC 타입 등록은 별도 필요)
 val pgvector = PgvectorServer.Launcher.pgvector
-val db = Database.connect(url = pgvector.jdbcUrl, ...).also {
+val db = Database.connect(url = pgvector.jdbcUrl).also {
     transaction(it) {
         PGvector.addVectorType(connection.connection as java.sql.Connection)
     }

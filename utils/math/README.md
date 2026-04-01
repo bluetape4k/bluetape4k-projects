@@ -75,7 +75,7 @@ import java.time.Instant
 
 data class Event(val eventTimestamp: Instant, val durationMs: Long)
 
-val events: List<Event> = // ...
+val events: List<Event> = emptyList() // 이벤트 목록
 
 // 시간대별 duration 합계
 val sumByHour = events.aggregateBy(
@@ -237,7 +237,7 @@ permutations(5, 3)   // 60
 
 ```mermaid
 classDiagram
-    class Descriptives:::utilStyle {
+    class Descriptives {
         <<interface>>
         +mean: Double
         +variance: Double
@@ -248,30 +248,30 @@ classDiagram
         +max: Double
         +percentile(p) Double
     }
-    class DoubleStatistics:::modelStyle {
+    class DoubleStatistics {
         +descriptives() Descriptives
         +aggregateBy(keySelector, valueTransform, aggregator)
     }
-    class Histogram:::modelStyle {
+    class Histogram {
         +add(value)
         +binCount: Int
         +bins: List~Bin~
     }
-    class Interpolator:::serviceStyle {
+    class Interpolator {
         <<interface>>
         +interpolate(x) Double
     }
-    class LinearInterpolator:::serviceStyle {
+    class LinearInterpolator {
         +interpolate(x) Double
     }
-    class SplineInterpolator:::serviceStyle {
+    class SplineInterpolator {
         +interpolate(x) Double
     }
-    class Integrator:::serviceStyle {
+    class Integrator {
         <<interface>>
         +integrate(f, a, b) Double
     }
-    class WeightedDice:::utilStyle {
+    class WeightedDice {
         +roll() T
     }
 
@@ -279,9 +279,6 @@ classDiagram
     Interpolator <|.. LinearInterpolator
     Interpolator <|.. SplineInterpolator
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
 ```
 
 ## 기능 구조 다이어그램

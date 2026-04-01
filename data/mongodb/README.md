@@ -182,7 +182,7 @@ class MyMongoTest : AbstractMongoTest() {
 classDiagram
     direction TB
     class MongoClientExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +mongoClient(block): MongoClient
         +MongoDatabase.getCollectionAsFlow~T~(): Flow~T~
     }
@@ -198,11 +198,6 @@ classDiagram
     }
     AggregationDSL --> FlowExtensions : builds pipeline
 
-    classDef serviceStyle fill:#4CAF50
-    classDef dbStyle fill:#607D8B
-    class MongoClientExtensions:::dbStyle
-    class AggregationDSL:::serviceStyle
-    class FlowExtensions:::serviceStyle
 ```
 
 ### 모듈 API 구조
@@ -254,9 +249,9 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    A["pipeline { ... } DSL"] -->|stages 구성| B[List~Bson~]
-    B -->|collection.aggregate| C[AggregateFlow~T~]
-    C -->|Flow 변환| D[Flow~T~]
+    A["pipeline { ... } DSL"] -->|stages 구성| B["List&lt;Bson&gt;"]
+    B -->|collection.aggregate| C["AggregateFlow&lt;T&gt;"]
+    C -->|Flow 변환| D["Flow&lt;T&gt;"]
 
     subgraph 스테이지_종류
         E[matchStage - 필터]

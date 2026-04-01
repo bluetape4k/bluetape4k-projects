@@ -29,10 +29,6 @@ flowchart TD
     Core --> Time
     Core --> ValueObject
 
-    classDef coreStyle    fill:#607D8B
-    classDef serviceStyle fill:#4CAF50
-    classDef utilStyle    fill:#2196F3
-    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---
@@ -41,19 +37,19 @@ flowchart TD
 
 ```mermaid
 classDiagram
-    class ValueObject:::coreStyle {
+    class ValueObject {
         <<interface>>
         +Serializable
     }
 
-    class AbstractValueObject:::coreStyle {
+    class AbstractValueObject {
         <<abstract>>
         +equals(other) Boolean
         +hashCode() Int
         +equalProperties(other)* Boolean
     }
 
-    class Range:::utilStyle {
+    class Range {
         <<interface>>
         +first: T
         +last: T
@@ -63,56 +59,56 @@ classDiagram
         +isEmpty() Boolean
     }
 
-    class ClosedClosedRange:::utilStyle {
+    class ClosedClosedRange {
         +isStartInclusive = true
         +isEndInclusive = true
     }
 
-    class ClosedOpenRange:::utilStyle {
+    class ClosedOpenRange {
         +isStartInclusive = true
         +isEndInclusive = false
     }
 
-    class OpenClosedRange:::utilStyle {
+    class OpenClosedRange {
         +isStartInclusive = false
         +isEndInclusive = true
     }
 
-    class OpenOpenRange:::utilStyle {
+    class OpenOpenRange {
         +isStartInclusive = false
         +isEndInclusive = false
     }
 
-    class StringEncoder:::serviceStyle {
+    class StringEncoder {
         <<interface>>
         +encode(bytes: ByteArray) String
         +decode(encoded: String) ByteArray
     }
 
-    class Base64StringEncoder:::serviceStyle {
+    class Base64StringEncoder {
         +encode(bytes) String
         +decode(encoded) ByteArray
     }
 
-    class HexStringEncoder:::serviceStyle {
+    class HexStringEncoder {
         +encode(bytes) String
         +decode(encoded) ByteArray
     }
 
-    class Base58:::serviceStyle {
+    class Base58 {
         <<object>>
         +encode(data: ByteArray) String
         +decode(encoded: String) ByteArray
     }
 
-    class Base62:::serviceStyle {
+    class Base62 {
         <<object>>
         +encode(number: Long) String
         +decode(encoded: String) Long
     }
 
-    class RequireSupport:::coreStyle {
-        <<extension functions>>
+    class RequireSupport {
+        <<extensionFunctions>>
         +requireNotNull(name)
         +requireNotEmpty(name)
         +requireNotBlank(name)
@@ -130,10 +126,6 @@ classDiagram
     StringEncoder <|.. Base64StringEncoder
     StringEncoder <|.. HexStringEncoder
 
-    classDef coreStyle    fill:#607D8B
-    classDef serviceStyle fill:#4CAF50
-    classDef utilStyle    fill:#2196F3
-    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---
@@ -744,7 +736,7 @@ val name = username.requireNotBlank("username")  // ✅ 빠름
 
 // 복잡한 검증은 lazy 평가 고려
 val valid = data.validate {
-    expensive Validation ()
+    expensiveValidation()
 }
 ```
 
@@ -768,6 +760,7 @@ import io.bluetape4k.javatimes.*
 
 // Duration 생성
 val duration = 5.days() + 3.hours() + 30.minutes() + 45.seconds()
+// 밀리초/나노초 Duration
 val shortDuration = 100.millis() + 500.nanos()
 val weekDuration = 2.weeks()
 

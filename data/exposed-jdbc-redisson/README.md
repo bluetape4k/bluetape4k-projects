@@ -234,10 +234,6 @@ classDiagram
     }
     RedissonJdbcRepository --> RedissonNearCache : RLocalCachedMap
 
-    classDef repoStyle fill:#2196F3
-    classDef cacheStyle fill:#F44336
-    class RedissonJdbcRepository:::repoStyle
-    class RedissonNearCache:::cacheStyle
 ```
 
 ## 클래스 다이어그램
@@ -246,7 +242,7 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class JdbcRedissonRepository~ID, E~ {
+    class JdbcRedissonRepository~ID_E~ {
         <<interface>>
         +cacheName: String
         +table: IdTable~ID~
@@ -266,7 +262,7 @@ classDiagram
         +invalidateByPattern(patterns, count): Long
     }
 
-    class AbstractJdbcRedissonRepository~ID, E~ {
+    class AbstractJdbcRedissonRepository~ID_E~ {
         <<abstract>>
         +redissonClient: RedissonClient
         +cacheName: String
@@ -281,25 +277,25 @@ classDiagram
         +getAll(ids, batchSize): List~E~
     }
 
-    class EntityMapLoader~ID, E~ {
+    class EntityMapLoader~ID_E~ {
         <<abstract>>
         +load(key: ID): E?
         +loadAllKeys(): Iterable~ID~?
     }
 
-    class EntityMapWriter~ID, E~ {
+    class EntityMapWriter~ID_E~ {
         <<abstract>>
         +write(map: Map~ID, E~)
         +delete(keys: Collection~Any~)
     }
 
-    class ExposedEntityMapLoader~ID, E~ {
+    class ExposedEntityMapLoader~ID_E~ {
         -entityTable: IdTable~ID~
         -batchSize: Int
         -toEntity: ResultRow.() -> E
     }
 
-    class ExposedEntityMapWriter~ID, E~ {
+    class ExposedEntityMapWriter~ID_E~ {
         -entityTable: IdTable~ID~
         -updateBody: (UpdateStatement, E) -> Unit
         -batchInsertBody: BatchInsertStatement.(E) -> Unit
@@ -307,18 +303,18 @@ classDiagram
         -writeMode: WriteMode
     }
 
-    JdbcRedissonRepository~ID, E~ <|.. AbstractJdbcRedissonRepository~ID, E~
-    AbstractJdbcRedissonRepository~ID, E~ --> EntityMapLoader~ID, E~ : mapLoader
-    AbstractJdbcRedissonRepository~ID, E~ --> EntityMapWriter~ID, E~ : mapWriter (nullable)
-    EntityMapLoader~ID, E~ <|-- ExposedEntityMapLoader~ID, E~
-    EntityMapWriter~ID, E~ <|-- ExposedEntityMapWriter~ID, E~
+    JdbcRedissonRepository~ID_E~ <|.. AbstractJdbcRedissonRepository~ID_E~
+    AbstractJdbcRedissonRepository~ID_E~ --> EntityMapLoader~ID_E~ : mapLoader
+    AbstractJdbcRedissonRepository~ID_E~ --> EntityMapWriter~ID_E~ : mapWriter (nullable)
+    EntityMapLoader~ID_E~ <|-- ExposedEntityMapLoader~ID_E~
+    EntityMapWriter~ID_E~ <|-- ExposedEntityMapWriter~ID_E~
 ```
 
 ### 코루틴(Suspend) Repository 계층 구조
 
 ```mermaid
 classDiagram
-    class SuspendedJdbcRedissonRepository~ID, E~ {
+    class SuspendedJdbcRedissonRepository~ID_E~ {
         <<interface>>
         +cacheName: String
         +table: IdTable~ID~
@@ -338,7 +334,7 @@ classDiagram
         +invalidateByPattern(patterns, count): Long [suspend]
     }
 
-    class AbstractSuspendedJdbcRedissonRepository~ID, E~ {
+    class AbstractSuspendedJdbcRedissonRepository~ID_E~ {
         <<abstract>>
         +redissonClient: RedissonClient
         +cacheName: String
@@ -354,26 +350,26 @@ classDiagram
         +getAll(ids, batchSize): List~E~ [suspend]
     }
 
-    class SuspendedEntityMapLoader~ID, E~ {
+    class SuspendedEntityMapLoader~ID_E~ {
         <<abstract>>
         +load(key: ID): CompletableFuture~E~
         +loadAllKeys(): AsyncIterator~ID~
     }
 
-    class SuspendedEntityMapWriter~ID, E~ {
+    class SuspendedEntityMapWriter~ID_E~ {
         <<abstract>>
         +write(map: Map~ID, E~): CompletableFuture~Void~
         +delete(keys: Collection~Any~): CompletableFuture~Void~
     }
 
-    class SuspendedExposedEntityMapLoader~ID, E~ {
+    class SuspendedExposedEntityMapLoader~ID_E~ {
         -entityTable: IdTable~ID~
         -scope: CoroutineScope
         -batchSize: Int
         -toEntity: ResultRow.() -> E
     }
 
-    class SuspendedExposedEntityMapWriter~ID, E~ {
+    class SuspendedExposedEntityMapWriter~ID_E~ {
         -entityTable: IdTable~ID~
         -scope: CoroutineScope
         -updateBody: (UpdateStatement, E) -> Unit
@@ -382,11 +378,11 @@ classDiagram
         -writeMode: WriteMode
     }
 
-    SuspendedJdbcRedissonRepository~ID, E~ <|.. AbstractSuspendedJdbcRedissonRepository~ID, E~
-    AbstractSuspendedJdbcRedissonRepository~ID, E~ --> SuspendedEntityMapLoader~ID, E~ : suspendedMapLoader
-    AbstractSuspendedJdbcRedissonRepository~ID, E~ --> SuspendedEntityMapWriter~ID, E~ : suspendedMapWriter (nullable)
-    SuspendedEntityMapLoader~ID, E~ <|-- SuspendedExposedEntityMapLoader~ID, E~
-    SuspendedEntityMapWriter~ID, E~ <|-- SuspendedExposedEntityMapWriter~ID, E~
+    SuspendedJdbcRedissonRepository~ID_E~ <|.. AbstractSuspendedJdbcRedissonRepository~ID_E~
+    AbstractSuspendedJdbcRedissonRepository~ID_E~ --> SuspendedEntityMapLoader~ID_E~ : suspendedMapLoader
+    AbstractSuspendedJdbcRedissonRepository~ID_E~ --> SuspendedEntityMapWriter~ID_E~ : suspendedMapWriter (nullable)
+    SuspendedEntityMapLoader~ID_E~ <|-- SuspendedExposedEntityMapLoader~ID_E~
+    SuspendedEntityMapWriter~ID_E~ <|-- SuspendedExposedEntityMapWriter~ID_E~
 ```
 
 ## 캐시 패턴

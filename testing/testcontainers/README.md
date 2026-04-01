@@ -183,7 +183,7 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class GenericServer:::infraStyle {
+    class GenericServer {
         <<abstract>>
         +useDefaultPort: Boolean
         +start()
@@ -191,26 +191,26 @@ classDiagram
         +writeToSystemProperties(name)
         +exposeCustomPorts(vararg ports)
     }
-    class PostgreSQLServer:::serviceStyle {
+    class PostgreSQLServer {
         +withExtensions(vararg names) PostgreSQLServer
     }
-    class PostgisServer:::serviceStyle {
+    class PostgisServer {
         +withExtensions(vararg names) PostgisServer
     }
-    class PgvectorServer:::serviceStyle {
+    class PgvectorServer {
         +withExtensions(vararg names) PgvectorServer
     }
-    class MySQL8Server:::serviceStyle {
+    class MySQL8Server {
         +getDataSource() DataSource
     }
-    class RedisServer:::infraStyle {
+    class RedisServer {
         +host: String
         +port: Int
     }
-    class KafkaServer:::infraStyle {
+    class KafkaServer {
         +bootstrapServers: String
     }
-    class LocalStackServer:::infraStyle {
+    class LocalStackServer {
         +endpointOverride: URI
         +getCredentialsProvider() AwsCredentialsProvider
     }
@@ -225,8 +225,6 @@ classDiagram
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
-    classDef infraStyle   fill:#607D8B
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ## 지원 컨테이너 구조

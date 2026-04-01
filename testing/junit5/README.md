@@ -767,49 +767,49 @@ class ConfigurationTest {
 
 ```mermaid
 classDiagram
-    class StopwatchExtension:::utilStyle {
+    class StopwatchExtension {
         +beforeEach(context)
         +afterEach(context)
     }
-    class TempFolderExtension:::serviceStyle {
+    class TempFolderExtension {
         +beforeEach(context)
         +afterEach(context)
         +resolveParameter(context) TempFolder
     }
-    class TempFolder:::modelStyle {
+    class TempFolder {
         +root: File
         +rootPath: String
         +createFile(name) File
         +createDirectory(name) File
         +close()
     }
-    class OutputCapturer:::serviceStyle {
+    class OutputCapturer {
         +capture() String
         +expect(block)
     }
-    class FakeValueExtension:::serviceStyle {
+    class FakeValueExtension {
         +beforeEach(context)
         +resolveParameter(context) Any
     }
-    class Fakers:::utilStyle {
+    class Fakers {
         +randomString(min, max) String
         +fixedString(length) String
         +numberString(pattern) String
         +randomUuid() String
     }
-    class MultithreadingTester:::serviceStyle {
+    class MultithreadingTester {
         +workers(n) MultithreadingTester
         +rounds(n) MultithreadingTester
         +add(block) MultithreadingTester
         +run()
     }
-    class SuspendedJobTester:::asyncStyle {
+    class SuspendedJobTester {
         +workers(n) SuspendedJobTester
         +rounds(n) SuspendedJobTester
         +add(block) SuspendedJobTester
         +run()
     }
-    class StructuredTaskScopeTester:::asyncStyle {
+    class StructuredTaskScopeTester {
         +rounds(n) StructuredTaskScopeTester
         +add(block) StructuredTaskScopeTester
         +run()
@@ -819,10 +819,6 @@ classDiagram
     MultithreadingTester --> SuspendedJobTester : similar API
     StructuredTaskScopeTester --> SuspendedJobTester : similar API
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef modelStyle   fill:#FF9800
-    classDef asyncStyle   fill:#9C27B0
 ```
 
 ## 확장 기능 구성 다이어그램

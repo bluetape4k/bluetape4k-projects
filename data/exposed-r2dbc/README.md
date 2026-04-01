@@ -205,14 +205,14 @@ suspendTransaction {
 ```mermaid
 classDiagram
     direction TB
-    class ExposedR2dbcRepository~ID,E~ {
+    class ExposedR2dbcRepository~ID_E~ {
         <<interface>>
         +findByIdOrNull(id): E?
         +findAll(): Flow~E~
         +save(entity): E
         +deleteById(id): Long
     }
-    class AbstractR2dbcRepository~ID,E~ {
+    class AbstractR2dbcRepository~ID_E~ {
         <<abstract>>
         #table: Table
         +findAll(where): Flow~E~
@@ -221,9 +221,6 @@ classDiagram
     }
     ExposedR2dbcRepository <|-- AbstractR2dbcRepository
 
-    classDef repoStyle fill:#2196F3
-    class ExposedR2dbcRepository:::repoStyle
-    class AbstractR2dbcRepository:::repoStyle
 ```
 
 ### R2dbcRepository 계층

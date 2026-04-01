@@ -143,33 +143,33 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 
 ```mermaid
 classDiagram
-    class GrpcServer:::serverStyle {
+    class GrpcServer {
         <<interface>>
         +start()
         +stop()
         +blockUntilShutdown()
     }
 
-    class AbstractGrpcServer:::serverStyle {
+    class AbstractGrpcServer {
         #server: Server?
         +start()
         +stop()
         +blockUntilShutdown()
     }
 
-    class AbstractGrpcClient:::clientStyle {
+    class AbstractGrpcClient {
         #channel: ManagedChannel?
         +connect()
         +close()
     }
 
-    class AbstractGrpcInprocessServer:::infraStyle {
+    class AbstractGrpcInprocessServer {
         #serverName: String
         +start()
         +stop()
     }
 
-    class AbstractGrpcInprocessClient:::infraStyle {
+    class AbstractGrpcInprocessClient {
         #serverName: String
         +connect()
         +close()
@@ -179,9 +179,6 @@ classDiagram
     AbstractGrpcServer <|-- AbstractGrpcInprocessServer
     AbstractGrpcClient <|-- AbstractGrpcInprocessClient
 
-    classDef clientStyle fill:#2196F3
-    classDef serverStyle fill:#4CAF50
-    classDef infraStyle  fill:#607D8B
 ```
 
 ### gRPC 서버-클라이언트 통신 시퀀스

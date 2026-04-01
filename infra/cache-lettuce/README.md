@@ -87,14 +87,14 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 
 ```mermaid
 classDiagram
-    class NearJCache~K, V~ {
+    class NearJCache~K_V~ {
 +frontCache: JCache
 +backCache: JCache
 -config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-class SuspendNearJCache~K, V~ {
+class SuspendNearJCache~K_V~ {
 -frontCache: SuspendJCache
 -backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
@@ -103,7 +103,7 @@ class SuspendNearJCache~K, V~ {
         +close()
     }
 
-class LettuceJCache~K, V~ {
+class LettuceJCache~K_V~ {
 -map: LettuceMap
 -codec: LettuceBinaryCodec
         -ttlSeconds: Long?
@@ -114,11 +114,11 @@ class LettuceJCache~K, V~ {
         +invoke(cacheName, redisClient) LettuceSuspendJCache
     }
 
-class CaffeineSuspendJCache~K, V~ {
+class CaffeineSuspendJCache~K_V~ {
 <<frontCache>>
     }
 
-class NearJCacheConfig~K, V~ {
+class NearJCacheConfig~K_V~ {
         +cacheName: String
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
@@ -175,7 +175,7 @@ cache.close()
 
 ```mermaid
 classDiagram
-    class NearCacheOperations:::abstractStyle {
+    class NearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -191,7 +191,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations:::abstractStyle {
+    class SuspendNearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -204,7 +204,7 @@ classDiagram
         +close()
     }
 
-    class LettuceNearCache:::redisStyle {
+    class LettuceNearCache {
         -config: LettuceNearCacheConfig
         -frontCache: LettuceCaffeineLocalCache
         -connection: StatefulRedisConnection
@@ -212,7 +212,7 @@ classDiagram
         -trackingListener: TrackingInvalidationListener
     }
 
-    class LettuceSuspendNearCache:::redisStyle {
+    class LettuceSuspendNearCache {
         -config: LettuceNearCacheConfig
         -frontCache: LettuceCaffeineLocalCache
         -connection: StatefulRedisConnection
@@ -220,7 +220,7 @@ classDiagram
         -trackingListener: TrackingInvalidationListener
     }
 
-    class LettuceLocalCache:::abstractStyle {
+    class LettuceLocalCache {
         <<interface>>
         +get(key: K) V?
         +put(key: K, value: V)
@@ -230,12 +230,12 @@ classDiagram
         +stats() CacheStats?
     }
 
-    class LettuceCaffeineLocalCache:::cacheStyle {
+    class LettuceCaffeineLocalCache {
         -cache: Cache
         +invalidate(key: String)
     }
 
-    class TrackingInvalidationListener:::serviceStyle {
+    class TrackingInvalidationListener {
         -frontCache: LettuceLocalCache
         -connection: StatefulRedisConnection
         -cacheName: String
@@ -243,7 +243,7 @@ classDiagram
         +close()
     }
 
-    class LettuceNearCacheConfig:::infraStyle {
+    class LettuceNearCacheConfig {
         +cacheName: String
         +maxLocalSize: Int
         +frontExpireAfterWrite: Duration
@@ -264,12 +264,6 @@ classDiagram
     LettuceSuspendNearCache --> LettuceNearCacheConfig: config
     TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름

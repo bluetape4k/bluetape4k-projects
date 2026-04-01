@@ -66,12 +66,12 @@ classDiagram
         +div(other) UnitsRatio
     }
 
-    class UnitsProduct~A : Units, B : Units~ {
+    class UnitsProduct~A_Units_B_Units~ {
         +left: Measure~A~
         +right: Measure~B~
     }
 
-    class UnitsRatio~N : Units, D : Units~ {
+    class UnitsRatio~N_Units_D_Units~ {
         +numerator: Measure~N~
         +denominator: Measure~D~
     }
@@ -106,18 +106,7 @@ classDiagram
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
 
-    classDef utilStyle    fill:#2196F3
-    classDef modelStyle   fill:#FF9800
 
-    class Units:::utilStyle
-    class Measure:::modelStyle
-    class UnitsProduct:::modelStyle
-    class UnitsRatio:::modelStyle
-    class Length:::utilStyle
-    class Time:::utilStyle
-    class Mass:::utilStyle
-    class Velocity:::modelStyle
-    class Acceleration:::modelStyle
 ```
 
 ## 단위 조합 흐름

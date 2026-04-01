@@ -91,26 +91,22 @@ classDiagram
         +valueToDB(value): String
     }
     class TableExtensions {
-        <<extension functions>>
+        <<extensionFunctions>>
         +Table.encryptedVarchar(name): Column~String~
         +Table.encryptedText(name): Column~String~
     }
     TableExtensions --> JasyptEncryptedColumnType : creates
 
-    classDef tableStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
-    class JasyptEncryptedColumnType:::tableStyle
-    class TableExtensions:::serviceStyle
 ```
 
 ## 클래스 다이어그램
 
 ```mermaid
 classDiagram
-    class ColumnWithTransform~Exposed, Entity~ {
+    class ColumnWithTransform~Exposed_Entity~ {
         <<Exposed>>
     }
-    class ColumnTransformer~Exposed, Entity~ {
+    class ColumnTransformer~Exposed_Entity~ {
         <<interface>>
         +unwrap(value: Entity): Exposed
         +wrap(value: Exposed): Entity
@@ -143,7 +139,7 @@ classDiagram
     }
 
     class Encryptor {
-        <<bluetape4k-crypto>>
+        <<bluetape4k_crypto>>
         +encrypt(value: String): String
         +decrypt(value: String): String
         +encrypt(value: ByteArray): ByteArray

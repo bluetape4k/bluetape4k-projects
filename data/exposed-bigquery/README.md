@@ -66,7 +66,7 @@ with(context) {
     val rows = Events.selectAll().withBigQuery().toListSuspending()
 
     // Flow (대용량 결과셋)
-    Events.selectAll().withBigQuery().toFlow().collect { row -> ... }
+    Events.selectAll().withBigQuery().toFlow().collect { row -> println(row) }
 }
 ```
 
@@ -89,8 +89,8 @@ with(context) {
     Events.execDelete(Events.region eq "us")
 
     // suspend 버전
-    Events.execInsertSuspending { ... }
-    Events.execUpdateSuspending(where) { ... }
+    Events.execInsertSuspending { /* 삽입 로직 */ }
+    Events.execUpdateSuspending(where) { /* 업데이트 로직 */ }
     Events.execDeleteSuspending(where)
 }
 ```
@@ -145,18 +145,12 @@ classDiagram
         +insert(entity): E
     }
     class BigQueryExtensions {
-        <<suspend functions>>
+        <<suspendFunctions>>
         +suspendTransaction~T~(block): T
         +queryAsFlow~T~(sql): Flow~T~
     }
     BigQueryRepository --> BigQueryContext : uses
 
-    classDef dbStyle fill:#607D8B
-    classDef repoStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    class BigQueryContext:::dbStyle
-    class BigQueryRepository:::repoStyle
-    class BigQueryExtensions:::serviceStyle
 ```
 
 ## 다이어그램

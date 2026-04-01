@@ -52,16 +52,16 @@ classDiagram
     }
 
     class Measure~T~ {
-        <<bluetape4k-measured>>
+        <<bluetape4k_measured>>
         +value: Double
         +unit: T
         +in(unit: T): Double
     }
     class Units {
-        <<bluetape4k-measured>>
+        <<bluetape4k_measured>>
     }
     class Temperature {
-        <<bluetape4k-measured>>
+        <<bluetape4k_measured>>
         +inKelvin(): Double
         +fromKelvin(k: Double): Temperature
     }

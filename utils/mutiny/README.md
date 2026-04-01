@@ -228,8 +228,8 @@ val result = totalAmount.await().indefinitely()
 
 ```mermaid
 classDiagram
-    class UniT:::asyncStyle {
-        <<Uni~T~>>
+    class UniT {
+        <<UniT>>
         +onItem() UniOnItem
         +onFailure() UniOnFailure
         +await() UniAwait
@@ -237,27 +237,27 @@ classDiagram
         +map(mapper) Uni~U~
         +toMulti() Multi~T~
     }
-    class MultiT:::asyncStyle {
-        <<Multi~T~>>
+    class MultiT {
+        <<MultiT>>
         +onItem() MultiOnItem
         +onFailure() MultiOnFailure
         +filter(predicate) Multi~T~
         +map(mapper) Multi~U~
         +collect() MultiCollect
     }
-    class UniSupport:::utilStyle {
+    class UniSupport {
         +uniOf(value) Uni~T~
         +nullUni() Uni~T~
         +voidUni() Uni~Void~
         +uniFailureOf(ex) Uni~T~
     }
-    class MultiSupport:::utilStyle {
+    class MultiSupport {
         +multiOf(vararg items) Multi~T~
         +multiRangeOf(start, end) Multi~Int~
         +List.asMulti() Multi~T~
         +Sequence.asMulti() Multi~T~
     }
-    class CoroutineSupport:::asyncStyle {
+    class CoroutineSupport {
         +CoroutineScope.asUni(block) Uni~T~
         +CompletableFuture.asUni() Uni~T~
     }
@@ -267,8 +267,6 @@ classDiagram
     CoroutineSupport --> UniT : creates
     UniT --> MultiT : toMulti()
 
-    classDef asyncStyle   fill:#9C27B0
-    classDef utilStyle    fill:#2196F3
 ```
 
 ## Mutiny 처리 흐름
@@ -333,7 +331,7 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     participant CS as CoroutineScope
-    participant UNI as Uni&lt;T&gt;
+    participant UNI as "Uni~T~"
     participant SUB as Subscriber
 
     CS->>UNI: asUni { suspend 블록 }

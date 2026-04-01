@@ -53,31 +53,31 @@ flowchart LR
 
 ```mermaid
 classDiagram
-    class ImmutableImage:::utilStyle {
+    class ImmutableImage {
         +width: Int
         +height: Int
         +scale(width, height) ImmutableImage
         +output(writer) ByteArray
     }
-    class ImageScaler:::serviceStyle {
+    class ImageScaler {
         +scale(image, width, height) ImmutableImage
     }
-    class ImageSplitter:::serviceStyle {
+    class ImageSplitter {
         +split(image, rows, cols) List~ImmutableImage~
     }
-    class WatermarkFilter:::serviceStyle {
+    class WatermarkFilter {
         +apply(image) ImmutableImage
     }
-    class SuspendJpegWriter:::asyncStyle {
+    class SuspendJpegWriter {
         +writeImage(image) ByteArray
     }
-    class SuspendPngWriter:::asyncStyle {
+    class SuspendPngWriter {
         +writeImage(image) ByteArray
     }
-    class SuspendWebpWriter:::asyncStyle {
+    class SuspendWebpWriter {
         +writeImage(image) ByteArray
     }
-    class SuspendGif2WebpWriter:::asyncStyle {
+    class SuspendGif2WebpWriter {
         +writeImage(image) ByteArray
     }
 
@@ -89,9 +89,6 @@ classDiagram
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
 
-    classDef utilStyle    fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef asyncStyle   fill:#9C27B0
 ```
 
 ## 주요 기능

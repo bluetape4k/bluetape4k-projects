@@ -348,28 +348,28 @@ class KafkaIntegrationTest {
 
 ```mermaid
 classDiagram
-    class KafkaCodec:::abstractStyle {
+    class KafkaCodec {
         <<interface>>
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class JacksonKafkaCodec:::serviceStyle {
+    class JacksonKafkaCodec {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class BinaryKafkaCodec:::clientStyle {
+    class BinaryKafkaCodec {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class StringKafkaCodec:::clientStyle {
+    class StringKafkaCodec {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) String
     }
 
-    class KafkaCodecs:::infraStyle {
+    class KafkaCodecs {
         <<object>>
         +String: StringKafkaCodec
         +Jackson: JacksonKafkaCodec
@@ -380,14 +380,14 @@ classDiagram
         +ZstdKryo: BinaryKafkaCodec
     }
 
-    class SuspendKafkaProducerTemplate:::redisStyle {
+    class SuspendKafkaProducerTemplate {
         -senderOptions: SenderOptions
         +send(topic, value) SenderResult
         +send(topic, key, value) SenderResult
         +send(record) SenderResult
     }
 
-    class SuspendKafkaConsumerTemplate:::redisStyle {
+    class SuspendKafkaConsumerTemplate {
         -receiverOptions: ReceiverOptions
         +receive() Flow~ReceiverRecord~
     }
@@ -399,12 +399,6 @@ classDiagram
     KafkaCodecs --> BinaryKafkaCodec
     KafkaCodecs --> StringKafkaCodec
 
-    classDef cacheStyle    fill:#F44336
-    classDef redisStyle    fill:#FF9800
-    classDef infraStyle    fill:#607D8B
-    classDef clientStyle   fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### Producer/Consumer 메시지 흐름

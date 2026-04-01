@@ -527,22 +527,7 @@ classDiagram
     CalendarTimeRange <|-- HourRange
     CalendarTimeRange <|-- MinuteRange
 
-    classDef utilStyle    fill:#2196F3
-    classDef modelStyle   fill:#FF9800
 
-    class TimePeriod:::utilStyle
-    class TimeBlock:::modelStyle
-    class TimeRange:::modelStyle
-    class CalendarTimeRange:::modelStyle
-    class YearRange:::modelStyle
-    class MonthRange:::modelStyle
-    class WeekRange:::modelStyle
-    class DayRange:::modelStyle
-    class HourRange:::modelStyle
-    class MinuteRange:::modelStyle
-    class TemporalInterval:::utilStyle
-    class DateAdd:::utilStyle
-    class DateDiff:::utilStyle
 ```
 
 ## Time Range Flow 처리 흐름

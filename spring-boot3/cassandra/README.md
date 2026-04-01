@@ -38,7 +38,7 @@ val options = writeOptions {
 
 ```mermaid
 classDiagram
-    class ReactiveCassandraOperationsExt:::serviceStyle {
+    class ReactiveCassandraOperationsExt {
         <<extension>>
         +findOneOrNullSuspending(query): T?
         +findAllAsFlow(): Flow~T~
@@ -48,29 +48,23 @@ classDiagram
         +updateMultiSuspending(query, update): UpdateResult
         +aggregateAsFlow(aggregation): Flow~O~
     }
-    class ReactiveSessionExt:::serviceStyle {
+    class ReactiveSessionExt {
         <<extension>>
         +executeSuspending(cql, args): ReactiveResultSet
     }
-    class WriteOptionsDsl:::configStyle {
+    class WriteOptionsDsl {
         <<DSL>>
         +ttl(duration)
         +timestamp(millis)
     }
-    class SchemaGenerator:::configStyle {
+    class SchemaGenerator {
         +createTables(operations, types)
         +truncateTables(operations, types)
     }
-    class AbstractReactiveCassandraCoroutineTest:::configStyle {
+    class AbstractReactiveCassandraCoroutineTest {
         +mongoOperations: ReactiveMongoOperations
         +runTest(block)
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     ReactiveCassandraOperationsExt --> WriteOptionsDsl : uses
     SchemaGenerator --> ReactiveCassandraOperationsExt : uses

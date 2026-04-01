@@ -208,7 +208,7 @@ println("마지막 페이지: ${page.isLast}")
 classDiagram
     direction TB
     class AuditableLongIdTable {
-        <<abstract Table>>
+        <<abstractTable>>
         +createdBy: Column~String~
         +createdAt: Column~Instant~
         +updatedBy: Column~String~
@@ -231,13 +231,6 @@ classDiagram
     }
     AuditableLongIdTable --> UserContext : reads current user
 
-    classDef tableStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef serviceStyle fill:#4CAF50
-    class AuditableLongIdTable:::tableStyle
-    class ExposedPage:::entityStyle
-    class UserContext:::serviceStyle
-    class HasIdentifier:::entityStyle
 ```
 
 ### 커스텀 컬럼 타입 계층
@@ -358,8 +351,8 @@ classDiagram
         +hasPrevious: Boolean
     }
     class Serializable {
-<<java.io>>
-}
+        <<interface>>
+    }
 
 Serializable <|-- HasIdentifier
 HasIdentifier <.. ExposedPage: content 항목에 적용 가능

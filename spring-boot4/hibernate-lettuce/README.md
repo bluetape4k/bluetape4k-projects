@@ -8,36 +8,30 @@ Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 A
 
 ```mermaid
 classDiagram
-    class LettuceNearCacheHibernateAutoConfiguration:::configStyle {
+    class LettuceNearCacheHibernateAutoConfiguration {
         +hibernatePropertiesCustomizer(): HibernatePropertiesCustomizer
     }
-    class LettuceNearCacheMetricsAutoConfiguration:::configStyle {
+    class LettuceNearCacheMetricsAutoConfiguration {
         +lettuceNearCacheMetricsBinder(): LettuceNearCacheMetricsBinder
     }
-    class LettuceNearCacheActuatorAutoConfiguration:::configStyle {
+    class LettuceNearCacheActuatorAutoConfiguration {
         +lettuceNearCacheEndpoint(): LettuceNearCacheEndpoint
     }
-    class HibernatePropertiesCustomizer:::configStyle {
+    class HibernatePropertiesCustomizer {
         <<interface>>
         +customize(hibernateProperties): void
     }
-    class LettuceNearCacheRegionFactory:::cacheStyle {
+    class LettuceNearCacheRegionFactory {
         +buildCache(regionName, config): RegionAccessStrategy
         +getL1Cache(region): CaffeineCache
         +getL2Cache(region): RedisCache
     }
-    class LettuceNearCacheMetricsBinder:::cacheStyle {
+    class LettuceNearCacheMetricsBinder {
         +bindTo(registry): void
     }
-    class LettuceNearCacheEndpoint:::cacheStyle {
+    class LettuceNearCacheEndpoint {
         +stats(): Map~String, CacheStats~
     }
-    classDef controllerStyle fill:#2196F3
-    classDef serviceStyle fill:#4CAF50
-    classDef repoStyle fill:#9C27B0
-    classDef entityStyle fill:#FF9800
-    classDef configStyle fill:#607D8B
-    classDef cacheStyle fill:#F44336
 
     LettuceNearCacheHibernateAutoConfiguration --> HibernatePropertiesCustomizer
     HibernatePropertiesCustomizer --> LettuceNearCacheRegionFactory

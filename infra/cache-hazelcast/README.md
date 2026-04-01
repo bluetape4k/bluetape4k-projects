@@ -75,14 +75,14 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 
 ```mermaid
 classDiagram
-    class NearJCache~K, V~ {
+    class NearJCache~K_V~ {
 +frontCache: JCache
 +backCache: JCache
 -config: NearJCacheConfig
         +invoke(config, backCache) NearJCache
     }
 
-class SuspendNearJCache~K, V~ {
+class SuspendNearJCache~K_V~ {
 -frontCache: SuspendJCache
 -backCache: SuspendJCache
         +invoke(front, back) SuspendNearJCache
@@ -92,16 +92,16 @@ class SuspendNearJCache~K, V~ {
         +close()
     }
 
-class HazelcastSuspendJCache~K, V~ {
+class HazelcastSuspendJCache~K_V~ {
         -hazelcastInstance: HazelcastInstance
         -cacheName: String
     }
 
-class CaffeineSuspendJCache~K, V~ {
+class CaffeineSuspendJCache~K_V~ {
 <<frontCache>>
     }
 
-class NearJCacheConfig~K, V~ {
+class NearJCacheConfig~K_V~ {
         +cacheName: String
         +isSynchronous: Boolean
         +syncRemoteTimeout: Long
@@ -143,7 +143,7 @@ suspendNearJCache.close()
 
 ```mermaid
 classDiagram
-    class NearCacheOperations:::abstractStyle {
+    class NearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -159,7 +159,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations:::abstractStyle {
+    class SuspendNearCacheOperations {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -172,7 +172,7 @@ classDiagram
         +close()
     }
 
-    class HazelcastNearCache:::clientStyle {
+    class HazelcastNearCache {
         -imap: IMap
         -frontCache: CaffeineHazelcastLocalCache
         -entryListener: HazelcastEntryEventListener
@@ -180,7 +180,7 @@ classDiagram
         -config: HazelcastNearCacheConfig
     }
 
-    class HazelcastSuspendNearCache:::clientStyle {
+    class HazelcastSuspendNearCache {
         -imap: IMap
         -frontCache: CaffeineHazelcastLocalCache
         -entryListener: HazelcastEntryEventListener
@@ -188,7 +188,7 @@ classDiagram
         -config: HazelcastNearCacheConfig
     }
 
-    class HazelcastLocalCache:::abstractStyle {
+    class HazelcastLocalCache {
         <<interface>>
         +get(key: K) V?
         +put(key: K, value: V)
@@ -200,12 +200,12 @@ classDiagram
         +stats() CacheStats?
     }
 
-    class CaffeineHazelcastLocalCache:::cacheStyle {
+    class CaffeineHazelcastLocalCache {
         -cache: Cache
         +invalidate(key: String)
     }
 
-    class HazelcastEntryEventListener:::serviceStyle {
+    class HazelcastEntryEventListener {
         -frontCache: HazelcastLocalCache
         +entryAdded(event)
         +entryUpdated(event)
@@ -214,7 +214,7 @@ classDiagram
         +entryEvicted(event)
     }
 
-    class HazelcastNearCacheConfig:::infraStyle {
+    class HazelcastNearCacheConfig {
         +cacheName: String
         +maxLocalSize: Int
         +frontExpireAfterWrite: Duration
@@ -233,12 +233,6 @@ classDiagram
     HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
     HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ### IMap EntryListener 기반 Invalidation 흐름

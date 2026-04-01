@@ -250,87 +250,83 @@ Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등
 
 ```mermaid
 classDiagram
-    class Sink:::ioStyle {
-        <<interface, okio>>
+    class Sink {
+        <<interface_okio>>
         +write(source: Buffer, byteCount: Long)
         +flush()
         +close()
     }
 
-    class Source:::ioStyle {
-        <<interface, okio>>
+    class Source {
+        <<interface_okio>>
         +read(sink: Buffer, byteCount: Long) Long
         +close()
     }
 
-    class ForwardingSink:::ioStyle {
+    class ForwardingSink {
         <<okio>>
         #delegate: Sink
     }
 
-    class ForwardingSource:::ioStyle {
+    class ForwardingSource {
         <<okio>>
         #delegate: Source
     }
 
-    class InputStreamSource:::ioStyle {
+    class InputStreamSource {
         -input: InputStream
         +read(sink: Buffer, byteCount: Long) Long
     }
 
-    class OutputStreamSink:::ioStyle {
+    class OutputStreamSink {
         -output: OutputStream
         +write(source: Buffer, byteCount: Long)
     }
 
-    class CompressableSink:::codecStyle {
+    class CompressableSink {
         -plainBuffer: Buffer
         -compressor: Compressor
         +write(source: Buffer, byteCount: Long)
         +close()
     }
 
-    class StreamingCompressSink:::codecStyle {
+    class StreamingCompressSink {
         -compressingStream: OutputStream
         -compressor: StreamingCompressor
     }
 
-    class DecompressableSource:::codecStyle {
+    class DecompressableSource {
         -decodedBuffer: Buffer
         -compressor: Compressor
         -ensureDecoded()
     }
 
-    class StreamingDecompressSource:::codecStyle {
+    class StreamingDecompressSource {
         -decompressingStream: InputStream
         -compressor: StreamingCompressor
     }
 
-    class TinkEncryptSink:::encryptStyle {
+    class TinkEncryptSink {
         -encryptor: TinkEncryptor
         +write(source: Buffer, byteCount: Long)
     }
 
-    class TinkDecryptSource:::encryptStyle {
+    class TinkDecryptSource {
         -encryptor: TinkEncryptor
         -decryptedBuffer: Buffer
         -ensureDecrypted()
     }
 
-    class AbstractBase64Sink:::extensionStyle {
+    class AbstractBase64Sink {
         <<abstract>>
         #getEncodedBuffer(ByteString) Buffer
     }
 
-    class AbstractBase64Source:::extensionStyle {
+    class AbstractBase64Source {
         <<abstract>>
         #decodeBase64Bytes(String) ByteString
     }
 
-    class ApacheBase64Sink:::extensionStyle
-    class OkioBase64Sink:::extensionStyle
-    class ApacheBase64Source:::extensionStyle
-    class OkioBase64Source:::extensionStyle
 
     Sink <|.. ForwardingSink
     Source <|.. ForwardingSource
@@ -352,11 +348,6 @@ classDiagram
     AbstractBase64Source <|-- ApacheBase64Source
     AbstractBase64Source <|-- OkioBase64Source
 
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
-    classDef encryptStyle fill:#F44336
-    classDef extensionStyle fill:#4CAF50
-    classDef serializerStyle fill:#FF9800
 ```
 
 ### NIO 채널 어댑터 계층
@@ -365,31 +356,31 @@ Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
 ```mermaid
 classDiagram
-    class Sink:::ioStyle {
-        <<interface, okio>>
+    class Sink {
+        <<interface_okio>>
     }
-    class Source:::ioStyle {
-        <<interface, okio>>
+    class Source {
+        <<interface_okio>>
     }
 
-    class FileChannelSink:::ioStyle {
+    class FileChannelSink {
         -channel: FileChannel
         +write(source: Buffer, byteCount: Long)
         +flush()
     }
 
-    class FileChannelSource:::ioStyle {
+    class FileChannelSource {
         -channel: FileChannel
         +read(sink: Buffer, byteCount: Long) Long
         +readAll(sink: Buffer) Long
     }
 
-    class ByteChannelSink:::ioStyle {
+    class ByteChannelSink {
         -channel: ByteChannel
         +write(source: Buffer, byteCount: Long)
     }
 
-    class ByteChannelSource:::ioStyle {
+    class ByteChannelSource {
         -channel: ByteChannel
         +read(sink: Buffer, byteCount: Long) Long
         +readAll(sink: Buffer) Long
@@ -400,8 +391,6 @@ classDiagram
     Source <|.. FileChannelSource
     Source <|.. ByteChannelSource
 
-    classDef ioStyle fill:#607D8B
-    classDef codecStyle fill:#2196F3
 ```
 
 ### Coroutines 비동기 I/O 계층
@@ -410,7 +399,7 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 
 ```mermaid
 classDiagram
-    class SuspendedSink:::ioStyle {
+    class SuspendedSink {
         <<interface>>
         +write(source: Buffer, byteCount: Long)*
         +flush()*
@@ -418,7 +407,7 @@ classDiagram
         +timeout() Timeout
     }
 
-    class SuspendedSource:::ioStyle {
+    class SuspendedSource {
         <<interface>>
         +read(sink: Buffer, byteCount: Long)* Long
         +close()*
@@ -426,7 +415,7 @@ classDiagram
         +readAll(sink: Buffer)* Long
     }
 
-    class BufferedSuspendedSink:::ioStyle {
+    class BufferedSuspendedSink {
         <<interface>>
         +buffer: Buffer
         +write(byteString: ByteString)*
@@ -437,7 +426,7 @@ classDiagram
         +emit()*
     }
 
-    class BufferedSuspendedSource:::ioStyle {
+    class BufferedSuspendedSource {
         <<interface>>
         +buffer: Buffer
         +exhausted()* Boolean
@@ -449,37 +438,37 @@ classDiagram
         +readAll()* ByteString
     }
 
-    class RealBufferedSuspendedSink:::extensionStyle {
+    class RealBufferedSuspendedSink {
         -sink: SuspendedSink
         -closed: AtomicBoolean
     }
 
-    class RealBufferedSuspendedSource:::extensionStyle {
+    class RealBufferedSuspendedSource {
         -source: SuspendedSource
         -closed: AtomicBoolean
     }
 
-    class SuspendedFileChannelSink:::extensionStyle {
+    class SuspendedFileChannelSink {
         -channel: AsynchronousFileChannel
         -position: Long
         -writeBuffer: ByteBuffer
     }
 
-    class SuspendedFileChannelSource:::extensionStyle {
+    class SuspendedFileChannelSource {
         -channel: AsynchronousFileChannel
         -position: Long
         -readBuffer: ByteBuffer
     }
 
-    class SuspendedSocketChannelSink:::extensionStyle {
+    class SuspendedSocketChannelSink {
         -channel: AsynchronousSocketChannel
     }
 
-    class SuspendedSocketChannelSource:::extensionStyle {
+    class SuspendedSocketChannelSource {
         -channel: AsynchronousSocketChannel
     }
 
-    class SuspendedPipe:::codecStyle {
+    class SuspendedPipe {
         +sink: BufferedSuspendedSink
         +source: BufferedSuspendedSource
     }
@@ -498,11 +487,6 @@ classDiagram
     SuspendedPipe --> BufferedSuspendedSink
     SuspendedPipe --> BufferedSuspendedSource
 
-    classDef ioStyle fill:#607D8B
-    classDef extensionStyle fill:#4CAF50
-    classDef codecStyle fill:#2196F3
-    classDef encryptStyle fill:#F44336
-    classDef serializerStyle fill:#FF9800
 ```
 
 ### 압축 팩토리 (Compressable)
@@ -511,11 +495,11 @@ classDiagram
 
 ```mermaid
 classDiagram
-    class Compressable:::codecStyle {
+    class Compressable {
         <<object>>
     }
 
-    class Sinks:::codecStyle {
+    class Sinks {
         <<object>>
         +compressableSink(Sink, Compressor) CompressableSink
         +compressableSink(Sink, StreamingCompressor) StreamingCompressSink
@@ -527,7 +511,7 @@ classDiagram
         +bzip2(Sink) CompressableSink
     }
 
-    class Sources:::codecStyle {
+    class Sources {
         <<object>>
         +decompressableSource(Source, Compressor) DecompressableSource
         +decompressableSource(Source, StreamingCompressor) StreamingDecompressSource
@@ -542,11 +526,6 @@ classDiagram
     Compressable *-- Sinks
     Compressable *-- Sources
 
-    classDef codecStyle fill:#2196F3
-    classDef ioStyle fill:#607D8B
-    classDef encryptStyle fill:#F44336
-    classDef extensionStyle fill:#4CAF50
-    classDef serializerStyle fill:#FF9800
 ```
 
 ## 시퀀스 다이어그램

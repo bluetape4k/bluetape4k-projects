@@ -122,12 +122,6 @@ classDiagram
     LettuceJdbcRepository --> LettuceNearCache : L1/L2 cache
     LettuceJdbcRepository --> ReadWriteThrough : pattern
 
-    classDef repoStyle fill:#2196F3
-    classDef cacheStyle fill:#F44336
-    classDef serviceStyle fill:#4CAF50
-    class LettuceJdbcRepository:::repoStyle
-    class LettuceNearCache:::cacheStyle
-    class ReadWriteThrough:::serviceStyle
 ```
 
 ```mermaid
@@ -157,7 +151,7 @@ sequenceDiagram
 classDiagram
     direction TB
 
-    class JdbcLettuceRepository~ID, E~ {
+    class JdbcLettuceRepository~ID_E~ {
 <<interface>>
 +table: IdTable~ID~
 +config: LettuceCacheConfig
@@ -173,7 +167,7 @@ classDiagram
 +clearCache()
 }
 
-class SuspendedJdbcLettuceRepository~ID, E~ {
+class SuspendedJdbcLettuceRepository~ID_E~ {
 <<interface>>
 +table: IdTable~ID~
 +config: LettuceCacheConfig
@@ -185,7 +179,7 @@ class SuspendedJdbcLettuceRepository~ID, E~ {
 +suspend clearCache()
 }
 
-class AbstractJdbcLettuceRepository~ID, E~ {
+class AbstractJdbcLettuceRepository~ID_E~ {
 <<abstract>>
 #cache: LettuceLoadedMap~ID, E~
 +abstract ResultRow.toEntity() E
@@ -194,7 +188,7 @@ class AbstractJdbcLettuceRepository~ID, E~ {
 #extractId(entity: E) ID
  }
 
-class AbstractSuspendedJdbcLettuceRepository~ID, E~ {
+class AbstractSuspendedJdbcLettuceRepository~ID_E~ {
 <<abstract>>
 #cache: LettuceSuspendedLoadedMap~ID, E~
 #nearCache: LettuceSuspendNearCache~E~ ?
@@ -204,7 +198,7 @@ class AbstractSuspendedJdbcLettuceRepository~ID, E~ {
 #extractId(entity: E) ID
 }
 
-class EntityMapLoader~ID, E~ {
+class EntityMapLoader~ID_E~ {
 <<abstract>>
 +load(key: ID) E?
 +loadAllKeys() Iterable~ID~
@@ -212,7 +206,7 @@ class EntityMapLoader~ID, E~ {
 #abstract loadAllIds() Iterable~ID~
 }
 
-class EntityMapWriter~ID, E~ {
+class EntityMapWriter~ID_E~ {
 <<abstract>>
 -retry: Retry
 +write(map: Map~ID, E~)
@@ -221,7 +215,7 @@ class EntityMapWriter~ID, E~ {
 #abstract deleteEntities(keys: Collection~ID~)
 }
 
-class SuspendedEntityMapLoader~ID, E~ {
+class SuspendedEntityMapLoader~ID_E~ {
 <<abstract>>
 +suspend load(key: ID) E?
 +suspend loadAllKeys() List~ID~
@@ -229,7 +223,7 @@ class SuspendedEntityMapLoader~ID, E~ {
 #abstract loadAllIds() List~ID~
 }
 
-class SuspendedEntityMapWriter~ID, E~ {
+class SuspendedEntityMapWriter~ID_E~ {
 <<abstract>>
 -retry: Retry
 +suspend write(map: Map~ID, E~)
@@ -238,28 +232,28 @@ class SuspendedEntityMapWriter~ID, E~ {
 #abstract deleteEntities(keys: Collection~ID~)
 }
 
-class ExposedEntityMapLoader~ID, E~ {
+class ExposedEntityMapLoader~ID_E~ {
 -table: IdTable~ID~
 -toEntity: (ResultRow) → E
 #loadById(id: ID) E?
 #loadAllIds() Iterable~ID~
 }
 
-class ExposedEntityMapWriter~ID, E~ {
+class ExposedEntityMapWriter~ID_E~ {
 -table: IdTable~ID~
 -writeMode: WriteMode
 #writeEntities(map: Map~ID, E~)
 #deleteEntities(keys: Collection~ID~)
 }
 
-class SuspendedExposedEntityMapLoader~ID, E~ {
+class SuspendedExposedEntityMapLoader~ID_E~ {
 -table: IdTable~ID~
 -toEntity: (ResultRow) → E
 #loadById(id: ID) E?
 #loadAllIds() List~ID~
 }
 
-class SuspendedExposedEntityMapWriter~ID, E~ {
+class SuspendedExposedEntityMapWriter~ID_E~ {
 -table: IdTable~ID~
 -writeMode: WriteMode
 #writeEntities(map: Map~ID, E~)

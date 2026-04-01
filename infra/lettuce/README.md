@@ -317,7 +317,7 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class LettuceAtomicLong:::clientStyle {
+    class LettuceAtomicLong {
         +key: String
         +get(): Long
         +incrementAndGet(): Long
@@ -325,46 +325,46 @@ classDiagram
         +compareAndSet(expect, update): Boolean
         +getAsync(): CompletableFuture~Long~
     }
-    class LettuceSuspendAtomicLong:::abstractStyle {
+    class LettuceSuspendAtomicLong {
         +key: String
         +get(): Long
         +incrementAndGet(): Long
         +compareAndSet(expect, update): Boolean
     }
 
-    class LettuceLock:::clientStyle {
+    class LettuceLock {
         +lockKey: String
         +tryLock(waitTime, leaseTime): Boolean
         +lock(leaseTime)
         +unlock()
         +tryLockAsync(): CompletableFuture~Boolean~
     }
-    class LettuceSuspendLock:::abstractStyle {
+    class LettuceSuspendLock {
         +lockKey: String
         +tryLock(waitTime, leaseTime): Boolean
         +lock(leaseTime)
         +unlock()
     }
 
-    class LettuceSemaphore:::clientStyle {
+    class LettuceSemaphore {
         +semaphoreKey: String
         +totalPermits: Int
         +tryAcquire(permits): Boolean
         +acquire(permits, waitTime)
         +release(permits)
     }
-    class LettuceSuspendSemaphore:::abstractStyle {
+    class LettuceSuspendSemaphore {
         +semaphoreKey: String
         +totalPermits: Int
         +tryAcquire(permits): Boolean
         +release(permits)
     }
 
-    class LettuceLeaderElection:::serviceStyle {
+    class LettuceLeaderElection {
         +runIfLeader(lockName, action): T
         +runAsyncIfLeader(lockName, action): CompletableFuture~T~
     }
-    class LettuceSuspendLeaderElection:::serviceStyle {
+    class LettuceSuspendLeaderElection {
         +runIfLeader(lockName, action): T
     }
 
@@ -375,12 +375,6 @@ classDiagram
     note for LettuceSuspendSemaphore "suspend 전용"
     note for LettuceSuspendLeaderElection "suspend 전용"
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
@@ -417,20 +411,20 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class RedisCodec:::abstractStyle {
+    class RedisCodec {
         <<interface>>
         +encodeKey(key): ByteBuffer
         +decodeKey(bytes): K
         +encodeValue(value): ByteBuffer
         +decodeValue(bytes): V
     }
-    class ToByteBufEncoder:::abstractStyle {
+    class ToByteBufEncoder {
         <<interface>>
         +encodeKey(key, target: ByteBuf)
         +encodeValue(value, target: ByteBuf)
         +estimateSize(keyOrValue): Int
     }
-    class LettuceBinaryCodec:::redisStyle {
+    class LettuceBinaryCodec {
         +serializer: BinarySerializer
         +encodeKey(key): ByteBuffer
         +encodeValue(value): ByteBuffer
@@ -438,7 +432,7 @@ classDiagram
         +decodeValue(bytes): V
         +estimateSize(keyOrValue): Int
     }
-    class LettuceBinaryCodecs:::infraStyle {
+    class LettuceBinaryCodecs {
         <<object>>
         +default~V~(): LettuceBinaryCodec~V~
         +jdk~V~(): LettuceBinaryCodec~V~
@@ -448,12 +442,12 @@ classDiagram
         +zstdFory~V~(): LettuceBinaryCodec~V~
         +snappyFory~V~(): LettuceBinaryCodec~V~
     }
-    class LettuceIntCodec:::clientStyle {
+    class LettuceIntCodec {
         <<object>>
         +encodeValue(value: Int): ByteBuffer
         +decodeValue(bytes): Int
     }
-    class LettuceLongCodec:::clientStyle {
+    class LettuceLongCodec {
         <<object>>
         +encodeValue(value: Long): ByteBuffer
         +decodeValue(bytes): Long
@@ -465,12 +459,6 @@ classDiagram
     RedisCodec <|.. LettuceLongCodec
     LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
 
-    classDef cacheStyle   fill:#F44336
-    classDef redisStyle   fill:#FF9800
-    classDef infraStyle   fill:#607D8B
-    classDef clientStyle  fill:#2196F3
-    classDef abstractStyle fill:#9C27B0
-    classDef serviceStyle fill:#4CAF50
 ```
 
 ## 확률 자료구조
