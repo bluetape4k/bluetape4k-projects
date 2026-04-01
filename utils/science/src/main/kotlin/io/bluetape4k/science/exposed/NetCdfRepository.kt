@@ -68,11 +68,13 @@ class NetCdfFileRepository : LongJdbcRepository<NetCdfFileRecord> {
 /**
  * NetCDF 파일 등록 및 격자 값 임포트를 담당하는 서비스입니다.
  *
- * Phase 4 (UCAR netcdfAll) 완료 후 실제 파일 파싱 로직을 구현합니다.
+ * **⚠️ 미구현**: UCAR netcdfAll Maven 아티팩트 의존성 해결 후 구현 예정 (Phase 4).
+ * 현재 모든 메서드가 [NotImplementedError]를 발생시킵니다.
+ * 테이블 DDL([NetCdfFileTable], [NetCdfGridValueTable])과 [NetCdfFileRepository]는 사용 가능합니다.
  *
  * @param fileRepo NetCDF 파일 Repository
  */
-class NetCdfCatalogService(
+internal class NetCdfCatalogService(
     private val fileRepo: NetCdfFileRepository,
 ) {
     /**

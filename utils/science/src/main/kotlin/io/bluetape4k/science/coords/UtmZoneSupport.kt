@@ -5,8 +5,11 @@ import java.util.concurrent.ConcurrentSkipListMap
 /** UTM Zone 경도 구역의 크기 (6도) */
 const val UTM_LONGITUDE_SIZE = 6
 
-/** UTM Zone 위도 구역의 크기 (8도) */
+/** UTM Zone 위도 구역의 기본 크기 (8도, Band X 제외) */
 const val UTM_LATITUDE_SIZE = 8
+
+/** UTM Band X의 위도 구역 크기 (12도: 72°N ~ 84°N) */
+const val UTM_LATITUDE_BAND_X_SIZE = 12
 
 /** UTM Zone 최소 경도 구역 번호 */
 const val UTM_LONGITUDE_MIN = 1
@@ -57,10 +60,12 @@ val UTM_ZONE_BOUNDING_BOXES: Map<UtmZone, BoundingBox> by lazy {
             val zone = UtmZone(lon, lat)
             val longitude = lon.toUtmLongitude()
             val latitude = UTM_LATITUDE_BANDS[lat]!!
+            // Band X는 72°N ~ 84°N으로 12도 구간 (나머지는 8도)
+            val latHeight = if (lat == 'X') UTM_LATITUDE_BAND_X_SIZE.toDouble() else UTM_LATITUDE_SIZE.toDouble()
             map[zone] = BoundingBox(
                 minLat = latitude,
                 minLon = longitude,
-                maxLat = latitude + UTM_LATITUDE_SIZE,
+                maxLat = latitude + latHeight,
                 maxLon = longitude + UTM_LONGITUDE_SIZE,
             )
         }
@@ -94,9 +99,12 @@ fun utmZoneOf(location: GeoLocation): UtmZone =
  * C~X (I, O 제외) 범위를 사용합니다.
  *
  * @param latitude 위도 (-80.0 ~ 84.0)
- * @throws IllegalArgumentException 범위를 벗어난 위도
+ * @throws IllegalArgumentException 범위를 벗어난 위도 (UTM 유효 범위: -80.0 ~ 84.0)
  */
 fun utmLatitudeBand(latitude: Double): Char {
+    require(latitude in -80.0..84.0) {
+        "UTM 유효 범위를 벗어난 위도입니다. latitude=$latitude (유효 범위: -80.0 ~ 84.0)"
+    }
     val sorted = UTM_LATITUDE_BANDS.entries
         .sortedByDescending { it.value }
 

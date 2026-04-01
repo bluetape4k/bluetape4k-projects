@@ -21,7 +21,9 @@ import org.locationtech.proj4j.ProjCoordinate
  * @return WGS84 위경도 좌표
  */
 fun utmToWgs84(easting: Double, northing: Double, utmZone: UtmZone): GeoLocation {
-    val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs"
+    // 남반구(밴드 C~M, 'N' 미만)는 +south 파라미터 필수
+    val south = if (utmZone.latitudeZone < 'N') " +south" else ""
+    val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs$south"
     val utmCrs = CrsRegistry.getCrsFromProj4(proj4Params)
     val wgs84Crs = CrsRegistry.getCrs("EPSG:4326")
 
@@ -41,7 +43,9 @@ fun utmToWgs84(easting: Double, northing: Double, utmZone: UtmZone): GeoLocation
  */
 fun wgs84ToUtm(location: GeoLocation): Pair<Double, Double> {
     val utmZone = utmZoneOf(location.latitude, location.longitude)
-    val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs"
+    // 남반구(위도 < 0)는 +south 파라미터 필수
+    val south = if (location.latitude < 0) " +south" else ""
+    val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs$south"
     val wgs84Crs = CrsRegistry.getCrs("EPSG:4326")
     val utmCrs = CrsRegistry.getCrsFromProj4(proj4Params)
 

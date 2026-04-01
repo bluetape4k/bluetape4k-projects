@@ -7,6 +7,7 @@ import io.bluetape4k.science.shapefile.loadShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 import net.postgis.jdbc.PGgeometry
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -212,46 +213,53 @@ class ShapefileImportService(
     suspend fun importShapefile(file: File, layerName: String, batchSize: Int = 1000): Int {
         val shape = withContext(Dispatchers.IO) { loadShape(file) }
 
-        return withContext(Dispatchers.IO) { suspendTransaction {
-            require(layerRepo.findByName(layerName) == null) {
-                "동일한 이름의 레이어가 이미 존재합니다: $layerName"
-            }
-
-            val header = shape.header
-            val layerRecord = layerRepo.save(
-                SpatialLayerRecord(
-                    name = layerName,
-                    sourceFile = file.absolutePath,
-                    srid = 4326,
-                    geometryType = shape.records.firstOrNull()?.geometry?.geometryType,
-                    bboxMinX = header.bbox.minLon,
-                    bboxMinY = header.bbox.minLat,
-                    bboxMaxX = header.bbox.maxLon,
-                    bboxMaxY = header.bbox.maxLat,
-                    recordCount = shape.size,
-                )
-            )
-
-            val wktWriter = WKTWriter()
-            var totalInserted = 0
-
-            shape.records.chunked(batchSize).forEach { batch ->
-                coroutineContext.ensureActive()
-
-                SpatialFeatureTable.batchInsert(batch) { record ->
-                    val wkt = wktWriter.write(record.geometry)
-                    val pgGeom = PGgeometry(wkt).geometry
-
-                    this[SpatialFeatureTable.layerId] = layerRecord.id
-                    this[SpatialFeatureTable.featureType] = record.geometry.geometryType
-                    this[SpatialFeatureTable.geom] = pgGeom
-                    this[SpatialFeatureTable.properties] = record.attributes
-                    this[SpatialFeatureTable.name] = record.attributes["NAME"]?.toString()
+        // 1. 레이어 메타데이터 insert — 별도 트랜잭션 (중복 검사 포함)
+        val layerRecord = withContext(Dispatchers.IO) {
+            suspendTransaction {
+                require(layerRepo.findByName(layerName) == null) {
+                    "동일한 이름의 레이어가 이미 존재합니다: $layerName"
                 }
-                totalInserted += batch.size
-                log.debug { "배치 삽입 완료: $totalInserted / ${shape.size}" }
+                val header = shape.header
+                layerRepo.save(
+                    SpatialLayerRecord(
+                        name = layerName,
+                        sourceFile = file.absolutePath,
+                        srid = 4326,
+                        geometryType = shape.records.firstOrNull()?.geometry?.geometryType,
+                        bboxMinX = header.bbox.minLon,
+                        bboxMinY = header.bbox.minLat,
+                        bboxMaxX = header.bbox.maxLon,
+                        bboxMaxY = header.bbox.maxLat,
+                        recordCount = shape.size,
+                    )
+                )
             }
-            totalInserted
-        } }
+        }
+
+        // 2. 피처 배치 insert — 배치마다 독립 트랜잭션 (부분 실패 시 해당 배치만 롤백)
+        val wktWriter = WKTWriter()
+        var totalInserted = 0
+
+        for (batch in shape.records.chunked(batchSize)) {
+            coroutineContext.ensureActive()
+
+            withContext(Dispatchers.IO) {
+                suspendTransaction {
+                    SpatialFeatureTable.batchInsert(batch) { record ->
+                        val wkt = wktWriter.write(record.geometry)
+                        val pgGeom = PGgeometry(wkt).geometry
+
+                        this[SpatialFeatureTable.layerId] = layerRecord.id
+                        this[SpatialFeatureTable.featureType] = record.geometry.geometryType
+                        this[SpatialFeatureTable.geom] = pgGeom
+                        this[SpatialFeatureTable.properties] = record.attributes
+                        this[SpatialFeatureTable.name] = record.attributes["NAME"]?.toString()
+                    }
+                }
+            }
+            totalInserted += batch.size
+            log.debug { "배치 삽입 완료: $totalInserted / ${shape.size}" }
+        }
+        return totalInserted
     }
 }

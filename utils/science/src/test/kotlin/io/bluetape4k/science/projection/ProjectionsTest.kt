@@ -12,6 +12,9 @@ class ProjectionsTest {
         const val EPSILON = 1e-4
         val SEOUL = GeoLocation(37.5665, 126.9780)
         val NEW_YORK = GeoLocation(40.7128, -74.0060)
+        // 남반구 테스트 좌표
+        val SYDNEY = GeoLocation(-33.8688, 151.2093)    // 시드니 (밴드 H, 남반구)
+        val SAO_PAULO = GeoLocation(-23.5505, -46.6333) // 상파울루 (밴드 K, 남반구)
     }
 
     @Test
@@ -56,6 +59,39 @@ class ProjectionsTest {
         val (x, y) = transform("EPSG:4326", "EPSG:32652", SEOUL.longitude, SEOUL.latitude)
         assert(x > 300_000.0 && x < 400_000.0) { "x(easting) 범위 오류: $x" }
         assert(y > 4_000_000.0 && y < 4_300_000.0) { "y(northing) 범위 오류: $y" }
+    }
+
+    @Test
+    fun `시드니 남반구 WGS84를 UTM으로 변환하고 왕복 정확도를 검증한다`() {
+        // 시드니: Zone 56H (남반구) — +south 없으면 northing이 수백만 미터 오차 발생
+        val zone = UtmZone(56, 'H')
+        val (easting, northing) = wgs84ToUtm(SYDNEY)
+
+        // 남반구 UTM northing은 10,000,000m 기준 음수 방향: 약 6,250,000m 근방
+        assert(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
+        assert(northing > 6_000_000.0 && northing < 6_500_000.0) { "northing 범위 오류 (남반구): $northing" }
+
+        val restored = utmToWgs84(easting, northing, zone)
+        assert(abs(restored.latitude - SYDNEY.latitude) < EPSILON) {
+            "위도 오차: ${abs(restored.latitude - SYDNEY.latitude)}"
+        }
+        assert(abs(restored.longitude - SYDNEY.longitude) < EPSILON) {
+            "경도 오차: ${abs(restored.longitude - SYDNEY.longitude)}"
+        }
+    }
+
+    @Test
+    fun `상파울루 남반구 WGS84를 UTM으로 변환하고 왕복 정확도를 검증한다`() {
+        val zone = UtmZone(23, 'K')
+        val (easting, northing) = wgs84ToUtm(SAO_PAULO)
+        val restored = utmToWgs84(easting, northing, zone)
+
+        assert(abs(restored.latitude - SAO_PAULO.latitude) < EPSILON) {
+            "위도 오차: ${abs(restored.latitude - SAO_PAULO.latitude)}"
+        }
+        assert(abs(restored.longitude - SAO_PAULO.longitude) < EPSILON) {
+            "경도 오차: ${abs(restored.longitude - SAO_PAULO.longitude)}"
+        }
     }
 
     @Test
