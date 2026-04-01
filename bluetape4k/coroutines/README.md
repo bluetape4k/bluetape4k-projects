@@ -125,7 +125,7 @@ Useful entry points:
 
 ```mermaid
 classDiagram
-    class `DeferredValue`:::asyncStyle {
+    class DeferredValue:::asyncStyle {
         <<class>>
         +await() T
         +value: T  (blocking)
@@ -133,12 +133,12 @@ classDiagram
         +flatMap(transform) DeferredValue~R~
     }
 
-    class `deferredValueOf`:::asyncStyle {
+    class deferredValueOf:::asyncStyle {
         <<factory function>>
         +deferredValueOf(block) DeferredValue~T~
     }
 
-    class `DeferredSupport`:::asyncStyle {
+    class DeferredSupport:::asyncStyle {
         <<extension functions>>
         +zip(a, b, transform) Deferred~R~
         +awaitAny(vararg deferred) T
@@ -148,29 +148,29 @@ classDiagram
         +concatMap(transform) Deferred~R~
     }
 
-    class `DefaultCoroutineScope`:::serviceStyle {
+    class DefaultCoroutineScope:::serviceStyle {
         <<class>>
         +coroutineContext: Dispatchers.Default + SupervisorJob
     }
 
-    class `IoCoroutineScope`:::serviceStyle {
+    class IoCoroutineScope:::serviceStyle {
         <<class>>
         +coroutineContext: Dispatchers.IO + SupervisorJob
     }
 
-    class `ThreadPoolCoroutineScope`:::serviceStyle {
+    class ThreadPoolCoroutineScope:::serviceStyle {
         <<class>>
         +poolSize: Int
         +name: String
         +close()
     }
 
-    class `VirtualThreadCoroutineScope`:::serviceStyle {
+    class VirtualThreadCoroutineScope:::serviceStyle {
         <<class>>
         +coroutineContext: VirtualThread dispatcher + SupervisorJob
     }
 
-    class `FlowExtensions`:::utilStyle {
+    class FlowExtensions:::utilStyle {
         <<extension functions>>
         +chunked(n) Flow~List~T~~
         +windowed(size, step) Flow~List~T~~
@@ -187,12 +187,12 @@ classDiagram
         +groupBy(keySelector) Flow~GroupedFlow~K,V~~
     }
 
-    class `AsyncFlow`:::asyncStyle {
+    class AsyncFlow:::asyncStyle {
         <<extension function>>
         +Flow.async(dispatcher, transform) Flow~R~
     }
 
-    class `ReactorContextHelpers`:::utilStyle {
+    class ReactorContextHelpers:::utilStyle {
         <<extension functions>>
         +currentReactiveContext() Context?
         +Context.getOrNull(key) V?

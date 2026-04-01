@@ -41,19 +41,19 @@ flowchart TD
 
 ```mermaid
 classDiagram
-    class `ValueObject`:::coreStyle {
+    class ValueObject:::coreStyle {
         <<interface>>
         +Serializable
     }
 
-    class `AbstractValueObject`:::coreStyle {
+    class AbstractValueObject:::coreStyle {
         <<abstract>>
         +equals(other) Boolean
         +hashCode() Int
         +equalProperties(other)* Boolean
     }
 
-    class `Range`:::utilStyle {
+    class Range:::utilStyle {
         <<interface>>
         +first: T
         +last: T
@@ -63,55 +63,55 @@ classDiagram
         +isEmpty() Boolean
     }
 
-    class `ClosedClosedRange`:::utilStyle {
+    class ClosedClosedRange:::utilStyle {
         +isStartInclusive = true
         +isEndInclusive = true
     }
 
-    class `ClosedOpenRange`:::utilStyle {
+    class ClosedOpenRange:::utilStyle {
         +isStartInclusive = true
         +isEndInclusive = false
     }
 
-    class `OpenClosedRange`:::utilStyle {
+    class OpenClosedRange:::utilStyle {
         +isStartInclusive = false
         +isEndInclusive = true
     }
 
-    class `OpenOpenRange`:::utilStyle {
+    class OpenOpenRange:::utilStyle {
         +isStartInclusive = false
         +isEndInclusive = false
     }
 
-    class `StringEncoder`:::serviceStyle {
+    class StringEncoder:::serviceStyle {
         <<interface>>
         +encode(bytes: ByteArray) String
         +decode(encoded: String) ByteArray
     }
 
-    class `Base64StringEncoder`:::serviceStyle {
+    class Base64StringEncoder:::serviceStyle {
         +encode(bytes) String
         +decode(encoded) ByteArray
     }
 
-    class `HexStringEncoder`:::serviceStyle {
+    class HexStringEncoder:::serviceStyle {
         +encode(bytes) String
         +decode(encoded) ByteArray
     }
 
-    class `Base58`:::serviceStyle {
+    class Base58:::serviceStyle {
         <<object>>
         +encode(data: ByteArray) String
         +decode(encoded: String) ByteArray
     }
 
-    class `Base62`:::serviceStyle {
+    class Base62:::serviceStyle {
         <<object>>
         +encode(number: Long) String
         +decode(encoded: String) Long
     }
 
-    class `RequireSupport`:::coreStyle {
+    class RequireSupport:::coreStyle {
         <<extension functions>>
         +requireNotNull(name)
         +requireNotEmpty(name)
