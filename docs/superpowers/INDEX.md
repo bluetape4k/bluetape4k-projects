@@ -37,6 +37,7 @@
 | 2026-03-29 | Hibernate Lettuce 마이그레이션 | [design](specs/2026-03-29-hibernate-lettuce-migration-design.md) | [plan](plans/2026-03-29-hibernate-lettuce-migration-plan.md) | ✅ | [`1f0eae55`](https://github.com/bluetape4k/bluetape4k-projects/commit/1f0eae55) [`93d9d10e`](https://github.com/bluetape4k/bluetape4k-projects/commit/93d9d10e) [`1ebdaa3c`](https://github.com/bluetape4k/bluetape4k-projects/commit/1ebdaa3c) |
 | 2026-03-29 | Spring Data Demo 마이그레이션 | [design](specs/2026-03-29-spring-data-demo-migration-design.md) | [plan](plans/2026-03-29-spring-data-demo-migration-plan.md) | ✅ | [`3b3b2729`](https://github.com/bluetape4k/bluetape4k-projects/commit/3b3b2729) [`4e339dbe`](https://github.com/bluetape4k/bluetape4k-projects/commit/4e339dbe) |
 | 2026-03-29 | Spring Data Exposed 마이그레이션 | [design](specs/2026-03-29-spring-data-exposed-migration-design.md) | [plan](plans/2026-03-29-spring-data-exposed-migration-plan.md) | ✅ | [`08c6711a`](https://github.com/bluetape4k/bluetape4k-projects/commit/08c6711a) |
+| 2026-04-01 | bluetape4k-science (GIS/Shapefile/PostGIS) | [design](specs/2026-04-01-bluetape4k-science-design.md) | [plan](plans/2026-04-01-bluetape4k-science-plan.md) | ✅ | [`a32d243b`](https://github.com/bluetape4k/bluetape4k-projects/commit/a32d243b) |
 
 ---
 
@@ -44,9 +45,9 @@
 
 | 상태 | 건수 |
 |------|------|
-| ✅ 완료 | 20 |
+| ✅ 완료 | 21 |
 | ⏳ 구현 대기 | 0 |
-| 합계 | 20 |
+| 합계 | 21 |
 
 ---
 
