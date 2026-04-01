@@ -52,8 +52,8 @@ classDiagram
         +ST_Contains(g1, g2): Expression
     }
 
-    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0
+    classDef serviceStyle fill:#4CAF50
     class GeoPointColumnType:::tableStyle
     class GeoPolygonColumnType:::tableStyle
     class MySQL8GeoExtensions:::serviceStyle

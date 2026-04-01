@@ -76,10 +76,10 @@ classDiagram
     Logger ..> MDC : "일반 블로킹 컨텍스트"
     Logger ..> CoroutineMDC : "코루틴 컨텍스트"
 
-    classDef coreStyle    fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef coreStyle    fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
+    classDef utilStyle    fill:#2196F3
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---
@@ -107,10 +107,10 @@ flowchart TD
         C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]:::asyncStyle
     end
 
-    classDef coreStyle    fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef coreStyle    fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
+    classDef utilStyle    fill:#2196F3
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---

@@ -160,8 +160,8 @@ classDiagram
 
     BinarySerializer <|.. ProtobufSerializer
 
-    classDef protoStyle  fill:#9C27B0,stroke:#6A1B9A
-    classDef codecStyle  fill:#FF9800,stroke:#E65100
+    classDef protoStyle  fill:#9C27B0
+    classDef codecStyle  fill:#FF9800
 ```
 
 ### Protobuf 타입 변환 흐름

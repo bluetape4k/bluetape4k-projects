@@ -172,11 +172,11 @@ classDiagram
     JsonSerializer <|.. FastjsonSerializer
     FastjsonSerializer ..> JSONBExtensions : 내부 사용
 
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
+    classDef serializerStyle fill:#FF9800
+    classDef extensionStyle fill:#4CAF50
+    classDef codecStyle fill:#2196F3
+    classDef ioStyle fill:#607D8B
+    classDef encryptStyle fill:#F44336
 ```
 
 ### JSON vs JSONB 직렬화 흐름

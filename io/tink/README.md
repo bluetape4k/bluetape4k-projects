@@ -344,11 +344,11 @@ classDiagram
     TinkMacs ..> TinkMac : creates
     TinkDigesters ..> TinkDigester : creates
 
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef encryptStyle fill:#F44336
+    classDef codecStyle fill:#2196F3
+    classDef extensionStyle fill:#4CAF50
+    classDef ioStyle fill:#607D8B
+    classDef serializerStyle fill:#FF9800
 ```
 
 ### AEAD encrypt/decrypt 흐름

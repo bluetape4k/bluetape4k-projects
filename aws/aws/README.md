@@ -138,8 +138,8 @@ classDiagram
     S3Client --> S3AsyncClient : wraps (async)
     SqsAsyncClient --> SqsCoroutinesExt : .await() extension
 
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ## 3단계 API 패턴 다이어그램

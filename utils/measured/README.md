@@ -106,8 +106,8 @@ classDiagram
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
 
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef modelStyle   fill:#FF9800,stroke:#E65100
+    classDef utilStyle    fill:#2196F3
+    classDef modelStyle   fill:#FF9800
 
     class Units:::utilStyle
     class Measure:::modelStyle

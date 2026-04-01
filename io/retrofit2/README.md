@@ -241,9 +241,9 @@ classDiagram
     Retrofit --> VertxCallFactory : callFactory
     Retrofit --> AhcCallFactory : callFactory
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef infraStyle  fill:#607D8B,stroke:#37474F
-    classDef codecStyle  fill:#FF9800,stroke:#E65100
+    classDef clientStyle fill:#2196F3
+    classDef infraStyle  fill:#607D8B
+    classDef codecStyle  fill:#FF9800
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)

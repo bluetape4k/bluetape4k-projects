@@ -89,7 +89,7 @@ classDiagram
         +save(entity): E
     }
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
+    classDef repoStyle fill:#2196F3
     class ReactiveHibernateRepository:::repoStyle
 ```
 

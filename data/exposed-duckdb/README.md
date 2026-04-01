@@ -92,8 +92,8 @@ classDiagram
         +queryFlow~T~(query): Flow~T~
     }
 
-    classDef dbStyle fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef dbStyle fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
     class DuckDBDatabase:::dbStyle
     class DuckDBExtensions:::serviceStyle
 ```

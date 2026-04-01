@@ -52,9 +52,9 @@ classDiagram
     ServiceLoader --> Jdk25VirtualThreadRuntime : discovers
     ServiceLoader --> Jdk25StructuredTaskScopeProvider : discovers
 
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef utilStyle    fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
+    classDef infraStyle   fill:#607D8B
 ```
 
 ## 주요 구현체

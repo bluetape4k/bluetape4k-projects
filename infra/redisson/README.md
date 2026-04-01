@@ -354,12 +354,12 @@ classDiagram
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
 
-    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
-    classDef redisStyle   fill:#FF9800,stroke:#E65100
-    classDef infraStyle   fill:#607D8B,stroke:#37474F
-    classDef clientStyle  fill:#2196F3,stroke:#1565C0
-    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef cacheStyle   fill:#F44336
+    classDef redisStyle   fill:#FF9800
+    classDef infraStyle   fill:#607D8B
+    classDef clientStyle  fill:#2196F3
+    classDef abstractStyle fill:#9C27B0
+    classDef serviceStyle fill:#4CAF50
 ```
 
 ### 분산 리더 선출 시퀀스
@@ -426,15 +426,15 @@ flowchart TD
     TxOps -->|성공 시 commitAsync| Redis
     TxOps -->|예외 시 rollbackAsync| Redis
 
-    style App fill:#2196F3,stroke:#1565C0
-    style App2 fill:#9C27B0,stroke:#6A1B9A
-    style Redis fill:#F44336,stroke:#B71C1C
-    style Batch fill:#FF9800,stroke:#E65100
-    style Tx fill:#FF9800,stroke:#E65100
-    style Op1 fill:#607D8B,stroke:#37474F
-    style Op2 fill:#607D8B,stroke:#37474F
-    style Op3 fill:#607D8B,stroke:#37474F
-    style TxOps fill:#607D8B,stroke:#37474F
+    style App fill:#2196F3
+    style App2 fill:#9C27B0
+    style Redis fill:#F44336
+    style Batch fill:#FF9800
+    style Tx fill:#FF9800
+    style Op1 fill:#607D8B
+    style Op2 fill:#607D8B
+    style Op3 fill:#607D8B
+    style TxOps fill:#607D8B
 ```
 
 ## Redis 버전 요구사항

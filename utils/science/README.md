@@ -162,10 +162,10 @@ classDiagram
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
 
-    classDef modelStyle  fill:#FF9800,stroke:#E65100
-    classDef schemaStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef repoStyle   fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef modelStyle  fill:#FF9800
+    classDef schemaStyle fill:#9C27B0
+    classDef repoStyle   fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
 
     class SpatialLayerRecord:::modelStyle
     class SpatialFeatureRecord:::modelStyle
@@ -441,9 +441,9 @@ classDiagram
     Shape --> ShapeHeader
     Shape --> ShapeRecord
 
-    classDef coordsStyle  fill:#4CAF50,stroke:#388E3C
-    classDef projectStyle fill:#2196F3,stroke:#1565C0
-    classDef shapeStyle   fill:#FF9800,stroke:#E65100
+    classDef coordsStyle  fill:#4CAF50
+    classDef projectStyle fill:#2196F3
+    classDef shapeStyle   fill:#FF9800
 
     class GeoLocation:::coordsStyle
     class BoundingBox:::coordsStyle

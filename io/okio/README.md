@@ -352,11 +352,11 @@ classDiagram
     AbstractBase64Source <|-- ApacheBase64Source
     AbstractBase64Source <|-- OkioBase64Source
 
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef ioStyle fill:#607D8B
+    classDef codecStyle fill:#2196F3
+    classDef encryptStyle fill:#F44336
+    classDef extensionStyle fill:#4CAF50
+    classDef serializerStyle fill:#FF9800
 ```
 
 ### NIO 채널 어댑터 계층
@@ -400,8 +400,8 @@ classDiagram
     Source <|.. FileChannelSource
     Source <|.. ByteChannelSource
 
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
+    classDef ioStyle fill:#607D8B
+    classDef codecStyle fill:#2196F3
 ```
 
 ### Coroutines 비동기 I/O 계층
@@ -498,11 +498,11 @@ classDiagram
     SuspendedPipe --> BufferedSuspendedSink
     SuspendedPipe --> BufferedSuspendedSource
 
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef ioStyle fill:#607D8B
+    classDef extensionStyle fill:#4CAF50
+    classDef codecStyle fill:#2196F3
+    classDef encryptStyle fill:#F44336
+    classDef serializerStyle fill:#FF9800
 ```
 
 ### 압축 팩토리 (Compressable)
@@ -542,11 +542,11 @@ classDiagram
     Compressable *-- Sinks
     Compressable *-- Sources
 
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef codecStyle fill:#2196F3
+    classDef ioStyle fill:#607D8B
+    classDef encryptStyle fill:#F44336
+    classDef extensionStyle fill:#4CAF50
+    classDef serializerStyle fill:#FF9800
 ```
 
 ## 시퀀스 다이어그램

@@ -77,12 +77,12 @@ SuspendDecorators --> DecoratorForSuspendFunction2 : creates
 SuspendCache <|.. SuspendCacheImpl
 DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
 
-classDef cacheStyle    fill:#F44336,stroke:#B71C1C
-classDef redisStyle    fill:#FF9800,stroke:#E65100
-classDef infraStyle    fill:#607D8B,stroke:#37474F
-classDef clientStyle   fill:#2196F3,stroke:#1565C0
-classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+classDef cacheStyle    fill:#F44336
+classDef redisStyle    fill:#FF9800
+classDef infraStyle    fill:#607D8B
+classDef clientStyle   fill:#2196F3
+classDef abstractStyle fill:#9C27B0
+classDef serviceStyle  fill:#4CAF50
 
 class SuspendDecorators:::infraStyle
 class DecoratorForSuspendSupplier:::clientStyle

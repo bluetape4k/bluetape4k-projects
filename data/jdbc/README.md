@@ -491,8 +491,8 @@ classDiagram
         +HikariDataSource(block): DataSource
     }
 
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef dbStyle fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50
+    classDef dbStyle fill:#607D8B
     class JdbcExtensions:::serviceStyle
     class DataSourceExtensions:::dbStyle
 ```

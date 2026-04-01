@@ -29,10 +29,10 @@ flowchart TD
     Core --> Time
     Core --> ValueObject
 
-    classDef coreStyle    fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef coreStyle    fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
+    classDef utilStyle    fill:#2196F3
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---
@@ -130,10 +130,10 @@ classDiagram
     StringEncoder <|.. Base64StringEncoder
     StringEncoder <|.. HexStringEncoder
 
-    classDef coreStyle    fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef coreStyle    fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
+    classDef utilStyle    fill:#2196F3
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ---

@@ -424,8 +424,8 @@ classDiagram
     LongJdbcRepository <|-- AbstractJdbcRepository
     AbstractJdbcRepository <|-- AuditableJdbcRepository
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
     class LongJdbcRepository:::repoStyle
     class AbstractJdbcRepository:::repoStyle
     class AuditableJdbcRepository:::repoStyle

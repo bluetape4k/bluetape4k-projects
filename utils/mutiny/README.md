@@ -267,8 +267,8 @@ classDiagram
     CoroutineSupport --> UniT : creates
     UniT --> MultiT : toMulti()
 
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0
+    classDef utilStyle    fill:#2196F3
 ```
 
 ## Mutiny 처리 흐름

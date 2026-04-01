@@ -207,8 +207,8 @@ classDiagram
     CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
     CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef clientStyle fill:#2196F3
+    classDef infraStyle  fill:#607D8B
 ```
 
 ### OkHttp3 클라이언트 계층
@@ -242,8 +242,8 @@ classDiagram
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
     OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef clientStyle fill:#2196F3
+    classDef infraStyle  fill:#607D8B
 ```
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)

@@ -371,7 +371,7 @@ classDiagram
         +CqlSession.executeAsync~T~(stmt): Deferred~T~
     }
 
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef serviceStyle fill:#4CAF50
     class CassandraExtensions:::serviceStyle
 ```
 

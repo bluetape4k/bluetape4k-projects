@@ -226,8 +226,8 @@ classDiagram
     }
     TableExtensions --> TinkEncryptedColumnType : creates
 
-    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0
+    classDef serviceStyle fill:#4CAF50
     class TinkEncryptedColumnType:::tableStyle
     class TableExtensions:::serviceStyle
 ```

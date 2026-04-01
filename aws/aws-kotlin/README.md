@@ -204,8 +204,8 @@ classDiagram
     AwsClientFactory --> S3Client : creates
     AwsClientFactory --> CloudWatchClient : creates
 
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50
+    classDef infraStyle   fill:#607D8B
 ```
 
 ## Java SDK v2 vs Kotlin SDK 비교 다이어그램

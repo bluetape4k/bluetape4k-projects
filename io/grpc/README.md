@@ -179,9 +179,9 @@ classDiagram
     AbstractGrpcServer <|-- AbstractGrpcInprocessServer
     AbstractGrpcClient <|-- AbstractGrpcInprocessClient
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef serverStyle fill:#4CAF50,stroke:#388E3C
-    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef clientStyle fill:#2196F3
+    classDef serverStyle fill:#4CAF50
+    classDef infraStyle  fill:#607D8B
 ```
 
 ### gRPC 서버-클라이언트 통신 시퀀스

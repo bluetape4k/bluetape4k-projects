@@ -54,8 +54,8 @@ classDiagram
     PostGISExtensions --> PgvectorColumnType : creates
     PostGISExtensions --> TstzrangeColumnType : creates
 
-    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0
+    classDef serviceStyle fill:#4CAF50
     class GeoGeometryColumnType:::tableStyle
     class PgvectorColumnType:::tableStyle
     class TstzrangeColumnType:::tableStyle

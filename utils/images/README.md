@@ -89,9 +89,9 @@ classDiagram
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
 
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef utilStyle    fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ## 주요 기능

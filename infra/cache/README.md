@@ -105,11 +105,11 @@ flowchart TD
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
 
-    style A fill:#2196F3,stroke:#1565C0
-    style B fill:#4CAF50,stroke:#388E3C
-    style C fill:#FF9800,stroke:#E65100
-    style D fill:#9C27B0,stroke:#6A1B9A
-    style E fill:#F44336,stroke:#B71C1C
+    style A fill:#2196F3
+    style B fill:#4CAF50
+    style C fill:#FF9800
+    style D fill:#9C27B0
+    style E fill:#F44336
 ```
 
 ## NearCache 통일 인터페이스 계층
@@ -178,12 +178,12 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. LettuceSuspendNearCache
 
-    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
-    classDef redisStyle    fill:#FF9800,stroke:#E65100
-    classDef infraStyle    fill:#607D8B,stroke:#37474F
-    classDef clientStyle   fill:#2196F3,stroke:#1565C0
-    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+    classDef cacheStyle    fill:#F44336
+    classDef redisStyle    fill:#FF9800
+    classDef infraStyle    fill:#607D8B
+    classDef clientStyle   fill:#2196F3
+    classDef abstractStyle fill:#9C27B0
+    classDef serviceStyle  fill:#4CAF50
 ```
 
 ## Near Cache 2-Tier 아키텍처
@@ -197,9 +197,9 @@ flowchart LR
     App -->|put| RemoteCache
     RemoteCache -->|Invalidation 전파| LocalCache
 
-    style LocalCache fill:#4CAF50,stroke:#388E3C
-    style RemoteCache fill:#F44336,stroke:#B71C1C
-    style App fill:#2196F3,stroke:#1565C0
+    style LocalCache fill:#4CAF50
+    style RemoteCache fill:#F44336
+    style App fill:#2196F3
 ```
 
 ## CachingProvider 자동 로딩 주의

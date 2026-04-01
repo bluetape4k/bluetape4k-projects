@@ -476,10 +476,10 @@ classDiagram
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
 
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
+    classDef ioStyle fill:#607D8B
+    classDef codecStyle fill:#2196F3
+    classDef serializerStyle fill:#FF9800
+    classDef extensionStyle fill:#4CAF50
 ```
 
 ### BinarySerializer 계층
@@ -527,10 +527,10 @@ classDiagram
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
 
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
+    classDef serializerStyle fill:#FF9800
+    classDef extensionStyle fill:#4CAF50
+    classDef ioStyle fill:#607D8B
+    classDef codecStyle fill:#2196F3
 ```
 
 ### compress/decompress 흐름

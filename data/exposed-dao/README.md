@@ -249,8 +249,8 @@ classDiagram
     }
     AuditableLongEntityClass --> AuditableLongEntity : manages
 
-    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef tableStyle fill:#9C27B0
+    classDef entityStyle fill:#FF9800
     class AuditableLongEntity:::entityStyle
     class AuditableLongEntityClass:::entityStyle
     class KsuidTable:::tableStyle

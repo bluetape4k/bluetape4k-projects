@@ -151,9 +151,9 @@ classDiagram
     }
     BigQueryRepository --> BigQueryContext : uses
 
-    classDef dbStyle fill:#607D8B,stroke:#37474F
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef dbStyle fill:#607D8B
+    classDef repoStyle fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
     class BigQueryContext:::dbStyle
     class BigQueryRepository:::repoStyle
     class BigQueryExtensions:::serviceStyle

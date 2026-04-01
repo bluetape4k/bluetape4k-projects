@@ -46,12 +46,12 @@ classDiagram
     class DataInitializer:::configStyle {
         +initialize()
     }
-    classDef controllerStyle fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef entityStyle fill:#FF9800,stroke:#E65100
-    classDef configStyle fill:#607D8B,stroke:#37474F
-    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+    classDef controllerStyle fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
+    classDef repoStyle fill:#9C27B0
+    classDef entityStyle fill:#FF9800
+    classDef configStyle fill:#607D8B
+    classDef cacheStyle fill:#F44336
 
     ProductController --> ProductJdbcRepository
     ProductJdbcRepository --|> ExposedJdbcRepository

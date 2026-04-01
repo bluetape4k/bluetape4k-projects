@@ -225,8 +225,8 @@ classDiagram
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
-    classDef infraStyle   fill:#607D8B,stroke:#37474F
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef infraStyle   fill:#607D8B
+    classDef serviceStyle fill:#4CAF50
 ```
 
 ## 지원 컨테이너 구조

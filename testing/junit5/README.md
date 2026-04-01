@@ -819,10 +819,10 @@ classDiagram
     MultithreadingTester --> SuspendedJobTester : similar API
     StructuredTaskScopeTester --> SuspendedJobTester : similar API
 
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef modelStyle   fill:#FF9800,stroke:#E65100
-    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef utilStyle    fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
+    classDef modelStyle   fill:#FF9800
+    classDef asyncStyle   fill:#9C27B0
 ```
 
 ## 확장 기능 구성 다이어그램

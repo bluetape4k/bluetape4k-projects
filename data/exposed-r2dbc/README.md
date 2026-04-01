@@ -221,7 +221,7 @@ classDiagram
     }
     ExposedR2dbcRepository <|-- AbstractR2dbcRepository
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
+    classDef repoStyle fill:#2196F3
     class ExposedR2dbcRepository:::repoStyle
     class AbstractR2dbcRepository:::repoStyle
 ```

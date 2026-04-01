@@ -309,10 +309,10 @@ classDiagram
     HardSoftScoreColumnType --> HardSoftScore : serializes
     BendableScoreColumnType --> BendableScore : serializes
 
-    classDef utilStyle    fill:#2196F3,stroke:#1565C0
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
-    classDef modelStyle   fill:#FF9800,stroke:#E65100
-    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef utilStyle    fill:#2196F3
+    classDef serviceStyle fill:#4CAF50
+    classDef modelStyle   fill:#FF9800
+    classDef infraStyle   fill:#607D8B
 ```
 
 ## 아키텍처 다이어그램

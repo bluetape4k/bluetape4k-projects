@@ -345,11 +345,11 @@ classDiagram
     JacksonSerializer --> Jackson : 사용
     AsyncJsonParser --> SuspendJsonParser
 
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
+    classDef serializerStyle fill:#FF9800
+    classDef encryptStyle fill:#F44336
+    classDef ioStyle fill:#607D8B
+    classDef codecStyle fill:#2196F3
+    classDef extensionStyle fill:#4CAF50
 ```
 
 ### Jackson 직렬화 파이프라인

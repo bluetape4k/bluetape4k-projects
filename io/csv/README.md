@@ -197,8 +197,8 @@ classDiagram
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef codecStyle  fill:#FF9800,stroke:#E65100
+    classDef clientStyle fill:#2196F3
+    classDef codecStyle  fill:#FF9800
 ```
 
 ### CSV/TSV 처리 흐름

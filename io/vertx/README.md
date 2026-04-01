@@ -185,9 +185,9 @@ classDiagram
     Pool --|> SqlClient
     CoroutineVerticle --> CircuitBreaker : 장애 격리
 
-    classDef clientStyle fill:#2196F3,stroke:#1565C0
-    classDef serverStyle fill:#4CAF50,stroke:#388E3C
-    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef clientStyle fill:#2196F3
+    classDef serverStyle fill:#4CAF50
+    classDef infraStyle  fill:#607D8B
 ```
 
 ## 사용 예시

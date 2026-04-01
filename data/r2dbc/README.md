@@ -301,7 +301,7 @@ classDiagram
         +Publisher~T~.asFlow(): Flow~T~
     }
 
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef serviceStyle fill:#4CAF50
     class R2dbcExtensions:::serviceStyle
     class FlowExtensions:::serviceStyle
 ```

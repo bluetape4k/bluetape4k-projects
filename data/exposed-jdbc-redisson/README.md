@@ -234,8 +234,8 @@ classDiagram
     }
     RedissonJdbcRepository --> RedissonNearCache : RLocalCachedMap
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
-    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+    classDef repoStyle fill:#2196F3
+    classDef cacheStyle fill:#F44336
     class RedissonJdbcRepository:::repoStyle
     class RedissonNearCache:::cacheStyle
 ```

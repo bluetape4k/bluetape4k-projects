@@ -191,11 +191,11 @@ classDiagram
     AbstractEncryptor <|-- RC2
     AbstractEncryptor <|-- RC4
 
-    classDef encryptStyle fill:#F44336,stroke:#B71C1C
-    classDef ioStyle fill:#607D8B,stroke:#37474F
-    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
-    classDef serializerStyle fill:#FF9800,stroke:#E65100
-    classDef codecStyle fill:#2196F3,stroke:#1565C0
+    classDef encryptStyle fill:#F44336
+    classDef ioStyle fill:#607D8B
+    classDef extensionStyle fill:#4CAF50
+    classDef serializerStyle fill:#FF9800
+    classDef codecStyle fill:#2196F3
 ```
 
 ### 암호화/복호화 데이터 흐름
@@ -228,13 +228,13 @@ flowchart LR
     C -->|decrypt| E1
     C -->|decrypt| E2
 
-    style P fill:#607D8B,stroke:#37474F
-    style D1 fill:#4CAF50,stroke:#388E3C
-    style D2 fill:#4CAF50,stroke:#388E3C
-    style E1 fill:#F44336,stroke:#B71C1C
-    style E2 fill:#2196F3,stroke:#1565C0
-    style H fill:#FF9800,stroke:#E65100
-    style C fill:#FF9800,stroke:#E65100
+    style P fill:#607D8B
+    style D1 fill:#4CAF50
+    style D2 fill:#4CAF50
+    style E1 fill:#F44336
+    style E2 fill:#2196F3
+    style H fill:#FF9800
+    style C fill:#FF9800
 ```
 
 ## 의존성

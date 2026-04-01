@@ -307,12 +307,12 @@ classDiagram
     SdkTracerProvider ..|> Tracer: implements
     SdkMeterProvider ..|> Meter: implements
 
-    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
-    classDef redisStyle    fill:#FF9800,stroke:#E65100
-    classDef infraStyle    fill:#607D8B,stroke:#37474F
-    classDef clientStyle   fill:#2196F3,stroke:#1565C0
-    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+    classDef cacheStyle    fill:#F44336
+    classDef redisStyle    fill:#FF9800
+    classDef infraStyle    fill:#607D8B
+    classDef clientStyle   fill:#2196F3
+    classDef abstractStyle fill:#9C27B0
+    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### OpenTelemetry 구성 요소
@@ -341,14 +341,14 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    style App fill:#2196F3,stroke:#1565C0
-    style TP fill:#FF9800,stroke:#E65100
-    style MP fill:#9C27B0,stroke:#6A1B9A
-    style OtelCol fill:#4CAF50,stroke:#388E3C
-    style SP fill:#607D8B,stroke:#37474F
-    style SE fill:#607D8B,stroke:#37474F
-    style MR fill:#607D8B,stroke:#37474F
-    style ME fill:#607D8B,stroke:#37474F
+    style App fill:#2196F3
+    style TP fill:#FF9800
+    style MP fill:#9C27B0
+    style OtelCol fill:#4CAF50
+    style SP fill:#607D8B
+    style SE fill:#607D8B
+    style MR fill:#607D8B
+    style ME fill:#607D8B
 ```
 
 ### Span 생명주기 (Coroutines 환경)
@@ -388,11 +388,11 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
 
-    style ServiceA fill:#2196F3,stroke:#1565C0
-    style ServiceB fill:#FF9800,stroke:#E65100
-    style ServiceC fill:#9C27B0,stroke:#6A1B9A
-    style Backend fill:#4CAF50,stroke:#388E3C
-    style Collector fill:#607D8B,stroke:#37474F
+    style ServiceA fill:#2196F3
+    style ServiceB fill:#FF9800
+    style ServiceC fill:#9C27B0
+    style Backend fill:#4CAF50
+    style Collector fill:#607D8B
 ```
 
 ## 테스트 전략

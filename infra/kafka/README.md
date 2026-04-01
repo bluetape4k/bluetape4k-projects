@@ -399,12 +399,12 @@ classDiagram
     KafkaCodecs --> BinaryKafkaCodec
     KafkaCodecs --> StringKafkaCodec
 
-    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
-    classDef redisStyle    fill:#FF9800,stroke:#E65100
-    classDef infraStyle    fill:#607D8B,stroke:#37474F
-    classDef clientStyle   fill:#2196F3,stroke:#1565C0
-    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+    classDef cacheStyle    fill:#F44336
+    classDef redisStyle    fill:#FF9800
+    classDef infraStyle    fill:#607D8B
+    classDef clientStyle   fill:#2196F3
+    classDef abstractStyle fill:#9C27B0
+    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### Producer/Consumer 메시지 흐름
@@ -442,13 +442,13 @@ flowchart LR
     KT -->|toStream| OS[출력 KStream]
     OS -->|producedOf| OT[출력 토픽]
 
-    style IT fill:#2196F3,stroke:#1565C0
-    style OT fill:#4CAF50,stroke:#388E3C
-    style KT fill:#FF9800,stroke:#E65100
-    style KS fill:#607D8B,stroke:#37474F
-    style KS2 fill:#607D8B,stroke:#37474F
-    style KG fill:#9C27B0,stroke:#6A1B9A
-    style OS fill:#607D8B,stroke:#37474F
+    style IT fill:#2196F3
+    style OT fill:#4CAF50
+    style KT fill:#FF9800
+    style KS fill:#607D8B
+    style KS2 fill:#607D8B
+    style KG fill:#9C27B0
+    style OS fill:#607D8B
 ```
 
 ## 패키지 구조

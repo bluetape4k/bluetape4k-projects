@@ -122,9 +122,9 @@ classDiagram
     LettuceJdbcRepository --> LettuceNearCache : L1/L2 cache
     LettuceJdbcRepository --> ReadWriteThrough : pattern
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
-    classDef cacheStyle fill:#F44336,stroke:#B71C1C
-    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#2196F3
+    classDef cacheStyle fill:#F44336
+    classDef serviceStyle fill:#4CAF50
     class LettuceJdbcRepository:::repoStyle
     class LettuceNearCache:::cacheStyle
     class ReadWriteThrough:::serviceStyle

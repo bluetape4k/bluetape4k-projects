@@ -166,8 +166,8 @@ classDiagram
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
 
-    classDef codecStyle  fill:#FF9800,stroke:#E65100
-    classDef protoStyle  fill:#9C27B0,stroke:#6A1B9A
+    classDef codecStyle  fill:#FF9800
+    classDef protoStyle  fill:#9C27B0
 ```
 
 ### Avro 직렬화/역직렬화 흐름

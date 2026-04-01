@@ -278,12 +278,12 @@ classDiagram
     Cache2kCacheMetrics --> MeterRegistry: binds to
     ObservationRegistry --> MeterRegistry: delegates
 
-    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
-    classDef redisStyle    fill:#FF9800,stroke:#E65100
-    classDef infraStyle    fill:#607D8B,stroke:#37474F
-    classDef clientStyle   fill:#2196F3,stroke:#1565C0
-    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
-    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+    classDef cacheStyle    fill:#F44336
+    classDef redisStyle    fill:#FF9800
+    classDef infraStyle    fill:#607D8B
+    classDef clientStyle   fill:#2196F3
+    classDef abstractStyle fill:#9C27B0
+    classDef serviceStyle  fill:#4CAF50
 ```
 
 ### 메트릭 수집 흐름
@@ -306,14 +306,14 @@ flowchart TD
     MR --> Grafana[Grafana / Monitoring]
     MR --> Log[Logging]
 
-    style App fill:#2196F3,stroke:#1565C0
-    style MR fill:#FF9800,stroke:#E65100
-    style OR fill:#9C27B0,stroke:#6A1B9A
-    style Grafana fill:#4CAF50,stroke:#388E3C
-    style TE fill:#607D8B,stroke:#37474F
-    style OE fill:#607D8B,stroke:#37474F
-    style RM fill:#607D8B,stroke:#37474F
-    style CM fill:#607D8B,stroke:#37474F
+    style App fill:#2196F3
+    style MR fill:#FF9800
+    style OR fill:#9C27B0
+    style Grafana fill:#4CAF50
+    style TE fill:#607D8B
+    style OE fill:#607D8B
+    style RM fill:#607D8B
+    style CM fill:#607D8B
 ```
 
 ### Retrofit2 메트릭 수집 시퀀스

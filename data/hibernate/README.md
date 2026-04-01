@@ -531,7 +531,7 @@ classDiagram
     }
     HibernateRepository <|-- AbstractHibernateRepository
 
-    classDef repoStyle fill:#2196F3,stroke:#1565C0
+    classDef repoStyle fill:#2196F3
     class HibernateRepository:::repoStyle
     class AbstractHibernateRepository:::repoStyle
 ```
