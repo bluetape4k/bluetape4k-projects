@@ -1,6 +1,11 @@
 package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.science.exposed.schema.NetCdfFileTable
+import io.bluetape4k.science.exposed.schema.NetCdfGridValueTable
+import io.bluetape4k.science.exposed.schema.PoiTable
+import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
+import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import io.bluetape4k.testcontainers.database.PostgisServer
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils

@@ -1,7 +1,9 @@
-package io.bluetape4k.science.exposed
+package io.bluetape4k.science.exposed.repository
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.science.exposed.AbstractPostgisTest
+import io.bluetape4k.science.exposed.schema.PoiTable
 import net.postgis.jdbc.geometry.Point
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
@@ -13,6 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
+import kotlin.math.abs
 
 /**
  * [PoiTable] 통합 테스트.
@@ -149,8 +152,8 @@ class PoiRepositoryTest: AbstractPostgisTest() {
             retrievedPoint.shouldNotBeNull()
 
             // PostGIS는 부동소수점 정밀도를 유지하므로 소수점 3자리까지 비교
-            val lngDiff = kotlin.math.abs(retrievedPoint.x - dokdo.x)
-            val latDiff = kotlin.math.abs(retrievedPoint.y - dokdo.y)
+            val lngDiff = abs(retrievedPoint.x - dokdo.x)
+            val latDiff = abs(retrievedPoint.y - dokdo.y)
 
             (lngDiff < 0.001) shouldBeEqualTo true
             (latDiff < 0.001) shouldBeEqualTo true

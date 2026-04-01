@@ -1,4 +1,4 @@
-package io.bluetape4k.science.exposed
+package io.bluetape4k.science.exposed.schema
 
 import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
 import io.bluetape4k.exposed.core.jackson3.jacksonb

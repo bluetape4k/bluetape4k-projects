@@ -1,7 +1,12 @@
-package io.bluetape4k.science.exposed
+package io.bluetape4k.science.exposed.schema
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.science.exposed.AbstractPostgisTest
+import io.bluetape4k.science.exposed.repository.NetCdfCatalogService
+import io.bluetape4k.science.exposed.repository.NetCdfFileRecord
+import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeNull
@@ -130,7 +135,7 @@ class NetCdfTableTest: AbstractPostgisTest() {
     @Test
     fun `NetCdfCatalogService - registerFile 호출 시 NotImplementedError 발생`() {
         assertThrows<NotImplementedError> {
-            kotlinx.coroutines.runBlocking {
+            runBlocking {
                 catalogService.registerFile("/data/test.nc")
             }
         }
@@ -139,7 +144,7 @@ class NetCdfTableTest: AbstractPostgisTest() {
     @Test
     fun `NetCdfCatalogService - importGridValues 호출 시 NotImplementedError 발생`() {
         assertThrows<NotImplementedError> {
-            kotlinx.coroutines.runBlocking {
+            runBlocking {
                 catalogService.importGridValues(1L, "temperature")
             }
         }
