@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class BoundingBoxTest {
 
@@ -89,5 +90,19 @@ class BoundingBoxTest {
         env.maxX shouldBeEqualTo 131.0
         env.minY shouldBeEqualTo 33.0
         env.maxY shouldBeEqualTo 38.9
+    }
+
+    @Test
+    fun `cellBoundingBox size가 0이하이면 예외를 발생시킨다`() {
+        val zone = UtmZone(52, 'S')
+        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 0.0, row = 0, col = 0) }
+        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = -1.0, row = 0, col = 0) }
+    }
+
+    @Test
+    fun `cellBoundingBox row나 col이 음수이면 예외를 발생시킨다`() {
+        val zone = UtmZone(52, 'S')
+        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = -1, col = 0) }
+        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = 0, col = -1) }
     }
 }

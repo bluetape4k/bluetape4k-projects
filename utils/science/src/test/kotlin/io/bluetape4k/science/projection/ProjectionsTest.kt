@@ -100,4 +100,22 @@ class ProjectionsTest {
         val crs2 = CrsRegistry.getCrs("EPSG:4326")
         assert(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
     }
+
+    @Test
+    fun `CrsRegistry getCrsFromProj4 캐시가 동일 proj4 문자열에 대해 같은 객체를 반환한다`() {
+        val proj4 = "+proj=utm +zone=52 +datum=WGS84 +units=m +no_defs"
+        val crs1 = CrsRegistry.getCrsFromProj4(proj4)
+        val crs2 = CrsRegistry.getCrsFromProj4(proj4)
+        assert(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
+    }
+
+    @Test
+    fun `CrsRegistry clearCache 후 새 인스턴스를 반환한다`() {
+        val epsg = "EPSG:4326"
+        val before = CrsRegistry.getCrs(epsg)
+        CrsRegistry.clearCache()
+        val after = CrsRegistry.getCrs(epsg)
+        // clearCache 후에는 새 인스턴스가 생성되어야 함
+        assert(before !== after) { "clearCache 후 새 인스턴스를 반환해야 합니다" }
+    }
 }
