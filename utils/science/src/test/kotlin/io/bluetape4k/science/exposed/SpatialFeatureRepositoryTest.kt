@@ -2,21 +2,15 @@ package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.database.PostgisServer
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
@@ -28,25 +22,11 @@ import java.io.File
  * PostGIS 컨테이너(`postgis/postgis:16-3.4`)를 Testcontainers로 구동하여
  * DDL 생성, 레이어/피처 저장·조회, Shapefile 임포트를 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SpatialFeatureRepositoryTest {
+class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val SRID = 4326
         private val geometryFactory = GeometryFactory()
-
-        @JvmStatic
-        val postgisContainer = PostgisServer.Launcher.postgis
-
-        @JvmStatic
-        val db: Database by lazy {
-            Database.connect(
-                url = postgisContainer.jdbcUrl,
-                driver = "org.postgresql.Driver",
-                user = postgisContainer.username!!,
-                password = postgisContainer.password!!,
-            )
-        }
 
         /**
          * JTS Point 생성 헬퍼. 좌표 순서: x=경도(lng), y=위도(lat)
@@ -57,20 +37,6 @@ class SpatialFeatureRepositoryTest {
 
     private val layerRepo = SpatialLayerRepository()
     private val featureRepo = SpatialFeatureRepository()
-
-    @BeforeAll
-    fun setUp() {
-        transaction(db) {
-            SchemaUtils.create(SpatialLayerTable, SpatialFeatureTable)
-        }
-    }
-
-    @AfterAll
-    fun tearDown() {
-        transaction(db) {
-            runCatching { SchemaUtils.drop(SpatialFeatureTable, SpatialLayerTable) }
-        }
-    }
 
     @Test
     fun `DDL - SpatialLayerTable과 SpatialFeatureTable 생성 확인`() {

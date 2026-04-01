@@ -2,23 +2,17 @@ package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.database.PostgisServer
 import net.postgis.jdbc.geometry.Point
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [PoiTable] 통합 테스트.
@@ -26,24 +20,10 @@ import org.junit.jupiter.api.TestInstance
  * PostGIS 컨테이너(`postgis/postgis:16-3.4`)를 Testcontainers로 구동하여
  * DDL 생성, POI insert/findById, geoPoint(POINT geometry) 저장·조회를 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PoiRepositoryTest {
+class PoiRepositoryTest: AbstractPostgisTest() {
 
     companion object: KLogging() {
         private const val SRID = 4326
-
-        @JvmStatic
-        val postgisContainer = PostgisServer.Launcher.postgis
-
-        @JvmStatic
-        val db: Database by lazy {
-            Database.connect(
-                url = postgisContainer.jdbcUrl,
-                driver = "org.postgresql.Driver",
-                user = postgisContainer.username!!,
-                password = postgisContainer.password!!,
-            )
-        }
 
         /**
          * PostGIS Point 생성 헬퍼. 좌표 순서: x=경도(lng), y=위도(lat)
@@ -71,20 +51,6 @@ class PoiRepositoryTest {
         location = this[PoiTable.location],
         properties = this[PoiTable.properties],
     )
-
-    @BeforeAll
-    fun setUp() {
-        transaction(db) {
-            SchemaUtils.create(PoiTable)
-        }
-    }
-
-    @AfterAll
-    fun tearDown() {
-        transaction(db) {
-            runCatching { SchemaUtils.drop(PoiTable) }
-        }
-    }
 
     @Test
     fun `DDL - PoiTable 생성 확인`() {

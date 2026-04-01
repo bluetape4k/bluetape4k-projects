@@ -2,18 +2,12 @@ package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.database.PostgisServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeNull
-import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 
 /**
@@ -22,40 +16,12 @@ import org.junit.jupiter.api.assertThrows
  * PostGIS 컨테이너(`postgis/postgis:16-3.4`)를 Testcontainers로 구동하여
  * DDL 생성, 더미 데이터 insert/findById, CatalogService의 미구현 메서드 예외를 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class NetCdfTableTest {
+class NetCdfTableTest: AbstractPostgisTest() {
 
-    companion object: KLogging() {
-        @JvmStatic
-        val postgisContainer = PostgisServer.Launcher.postgis
-
-        @JvmStatic
-        val db: Database by lazy {
-            Database.connect(
-                url = postgisContainer.jdbcUrl,
-                driver = "org.postgresql.Driver",
-                user = postgisContainer.username!!,
-                password = postgisContainer.password!!,
-            )
-        }
-    }
+    companion object: KLogging()
 
     private val fileRepo = NetCdfFileRepository()
     private val catalogService = NetCdfCatalogService(fileRepo)
-
-    @BeforeAll
-    fun setUp() {
-        transaction(db) {
-            SchemaUtils.create(NetCdfFileTable, NetCdfGridValueTable)
-        }
-    }
-
-    @AfterAll
-    fun tearDown() {
-        transaction(db) {
-            runCatching { SchemaUtils.drop(NetCdfGridValueTable, NetCdfFileTable) }
-        }
-    }
 
     @Test
     fun `DDL - NetCdfFileTable과 NetCdfGridValueTable 생성 확인`() {
