@@ -61,6 +61,10 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+        // GeoTools (LGPL) — Shapefile 처리 시 필요
+        maven("https://repo.osgeo.org/repository/release/")
+        // UCAR/Unidata — NetCDF/CDM 라이브러리
+        maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
     }
 
 

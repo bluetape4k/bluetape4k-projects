@@ -170,7 +170,19 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 
 ### Utilities (`utils/`)
 
-`geo` (geocode/geohash/geoip2), `idgenerators` (Ksuid/Snowflake/ULID/UUID), `images`, `javatimes`, `jwt`, `leader`, `math`, `measured` (type-safe units + measurements), `money`, `mutiny`.
+| Module | Description |
+|--------|-------------|
+| `geo` | Geocode (Google Maps/Bing), GeoHash, GeoIP2 (MaxMind) |
+| `science` | GIS 좌표계 (BoundingBox/UTM/DMS), Shapefile (GeoTools LGPL), PostGIS DB 적재 파이프라인 |
+| `idgenerators` | Ksuid, Snowflake, ULID, UUID |
+| `images` | Image processing utilities |
+| `javatimes` | Java Time extensions |
+| `jwt` | JWT token utilities |
+| `leader` | Leader election |
+| `math` | Math utilities |
+| `measured` | Type-safe units + measurements |
+| `money` | Money/currency types |
+| `mutiny` | Mutiny reactive extensions |
 
 ### Testing (`testing/`)
 

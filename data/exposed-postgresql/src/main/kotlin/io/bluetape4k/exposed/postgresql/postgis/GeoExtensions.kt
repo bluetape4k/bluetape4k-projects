@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.postgresql.postgis
 
+import net.postgis.jdbc.geometry.Geometry
 import net.postgis.jdbc.geometry.Point
 import net.postgis.jdbc.geometry.Polygon
 import org.jetbrains.exposed.v1.core.Column
@@ -29,6 +30,17 @@ fun Table.geoPoint(name: String): Column<Point> =
  */
 fun Table.geoPolygon(name: String): Column<Polygon> =
     registerColumn(name, GeoPolygonColumnType())
+
+/**
+ * PostGIS generic GEOMETRY 컬럼을 테이블에 등록한다.
+ *
+ * POINT, POLYGON, LINESTRING, MULTIPOLYGON 등 모든 Geometry 하위 타입을 저장할 수 있다.
+ *
+ * @param name 컬럼 이름
+ * @return [Geometry] 타입의 [Column]
+ */
+fun Table.geoGeometry(name: String): Column<Geometry> =
+    registerColumn(name, GeoGeometryColumnType())
 
 /**
  * PostGIS `ST_Distance` 함수를 사용하여 두 geometry 간 거리를 계산한다.
@@ -203,7 +215,7 @@ class StDWithinOp(
     private val left: Expression<Point>,
     private val right: Expression<Point>,
     private val distance: Double,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_DWithin(")
         queryBuilder.append(left)
@@ -219,7 +231,7 @@ class StDWithinOp(
 class StWithinOp(
     private val point: Expression<Point>,
     private val polygon: Expression<Polygon>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Within(")
         queryBuilder.append(point)
@@ -235,7 +247,7 @@ class StWithinOp(
 class StContainsPolygonOp(
     private val polygon: Expression<Polygon>,
     private val other: Expression<Polygon>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Contains(")
         queryBuilder.append(polygon)
@@ -251,7 +263,7 @@ class StContainsPolygonOp(
 class StContainsPointOp(
     private val polygon: Expression<Polygon>,
     private val point: Expression<Point>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Contains(")
         queryBuilder.append(polygon)
@@ -267,7 +279,7 @@ class StContainsPointOp(
 class StOverlapsOp(
     private val left: Expression<Polygon>,
     private val right: Expression<Polygon>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Overlaps(")
         queryBuilder.append(left)
@@ -283,7 +295,7 @@ class StOverlapsOp(
 class StIntersectsOp(
     private val left: Expression<Polygon>,
     private val right: Expression<Polygon>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Intersects(")
         queryBuilder.append(left)
@@ -299,7 +311,7 @@ class StIntersectsOp(
 class StDisjointOp(
     private val left: Expression<Polygon>,
     private val right: Expression<Polygon>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Disjoint(")
         queryBuilder.append(left)
@@ -320,6 +332,183 @@ class StAreaExpr(
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Area(")
         queryBuilder.append(polygon)
+        queryBuilder.append(")")
+    }
+}
+
+// =========================================================================
+// Generic Geometry 컬럼 전용 ST_* 확장 함수
+// =========================================================================
+
+/**
+ * PostGIS `ST_Distance` 함수를 사용하여 두 generic geometry 간 거리를 계산한다.
+ *
+ * PostgreSQL(PostGIS) dialect 전용.
+ *
+ * @param other 비교 대상 geometry 컬럼
+ * @return 거리 표현식
+ * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
+ */
+@JvmName("stDistanceGeometry")
+fun Column<Geometry>.stDistance(other: Column<Geometry>): Expression<Double> {
+    check(currentDialect is PostgreSQLDialect) {
+        "stDistance 는 PostgreSQL(PostGIS) dialect 에서만 지원됩니다."
+    }
+    return GeoDistanceExpr(this, other)
+}
+
+/**
+ * PostGIS `ST_DWithin` 함수를 사용하여 두 generic geometry가 지정 거리 이내인지 확인한다.
+ *
+ * PostgreSQL(PostGIS) dialect 전용.
+ *
+ * @param other 비교 대상 geometry 컬럼
+ * @param distance 최대 거리 (도 단위, SRID 4326 기준)
+ * @return 거리 조건 [Op]
+ * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
+ */
+@JvmName("stDWithinGeometry")
+fun Column<Geometry>.stDWithin(other: Column<Geometry>, distance: Double): Op<Boolean> {
+    check(currentDialect is PostgreSQLDialect) {
+        "stDWithin 는 PostgreSQL(PostGIS) dialect 에서만 지원됩니다."
+    }
+    return GeoDWithinOp(this, other, distance)
+}
+
+/**
+ * PostGIS `ST_Intersects` 함수를 사용하여 두 generic geometry가 교차하는지 확인한다.
+ *
+ * PostgreSQL(PostGIS) dialect 전용.
+ *
+ * @param other 비교 대상 geometry 컬럼
+ * @return 교차 여부 [Op]
+ * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
+ */
+@JvmName("stIntersectsGeometry")
+fun Column<Geometry>.stIntersects(other: Column<Geometry>): Op<Boolean> {
+    check(currentDialect is PostgreSQLDialect) {
+        "stIntersects 는 PostgreSQL(PostGIS) dialect 에서만 지원됩니다."
+    }
+    return GeoIntersectsOp(this, other)
+}
+
+/**
+ * PostGIS `ST_Contains` 함수를 사용하여 geometry가 다른 geometry를 완전히 포함하는지 확인한다.
+ *
+ * PostgreSQL(PostGIS) dialect 전용.
+ *
+ * @param other 포함 여부를 확인할 대상 geometry 컬럼
+ * @return 포함 여부 [Op]
+ * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
+ */
+@JvmName("stContainsGeometry")
+fun Column<Geometry>.stContains(other: Column<Geometry>): Op<Boolean> {
+    check(currentDialect is PostgreSQLDialect) {
+        "stContains 는 PostgreSQL(PostGIS) dialect 에서만 지원됩니다."
+    }
+    return GeoContainsOp(this, other)
+}
+
+/**
+ * PostGIS `ST_Within` 함수를 사용하여 geometry가 다른 geometry 내부에 있는지 확인한다.
+ *
+ * PostgreSQL(PostGIS) dialect 전용.
+ *
+ * @param other 포함하는 geometry 컬럼
+ * @return 포함 여부 [Op]
+ * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
+ */
+@JvmName("stWithinGeometry")
+fun Column<Geometry>.stWithin(other: Column<Geometry>): Op<Boolean> {
+    check(currentDialect is PostgreSQLDialect) {
+        "stWithin 는 PostgreSQL(PostGIS) dialect 에서만 지원됩니다."
+    }
+    return GeoWithinOp(this, other)
+}
+
+// =========================================================================
+// Generic Geometry SQL 표현식 클래스
+// =========================================================================
+
+/**
+ * PostGIS `ST_Distance(left, right)` SQL 표현식 (generic Geometry 타입).
+ */
+class GeoDistanceExpr(
+    private val left: Expression<Geometry>,
+    private val right: Expression<Geometry>,
+): ExpressionWithColumnType<Double>() {
+    override val columnType = DoubleColumnType()
+
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append("ST_Distance(")
+        queryBuilder.append(left)
+        queryBuilder.append(", ")
+        queryBuilder.append(right)
+        queryBuilder.append(")")
+    }
+}
+
+/**
+ * PostGIS `ST_DWithin(left, right, distance)` SQL 표현식 (generic Geometry 타입).
+ */
+class GeoDWithinOp(
+    private val left: Expression<Geometry>,
+    private val right: Expression<Geometry>,
+    private val distance: Double,
+): Op<Boolean>() {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append("ST_DWithin(")
+        queryBuilder.append(left)
+        queryBuilder.append(", ")
+        queryBuilder.append(right)
+        queryBuilder.append(", $distance)")
+    }
+}
+
+/**
+ * PostGIS `ST_Intersects(left, right)` SQL 표현식 (generic Geometry 타입).
+ */
+class GeoIntersectsOp(
+    private val left: Expression<Geometry>,
+    private val right: Expression<Geometry>,
+): Op<Boolean>() {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append("ST_Intersects(")
+        queryBuilder.append(left)
+        queryBuilder.append(", ")
+        queryBuilder.append(right)
+        queryBuilder.append(")")
+    }
+}
+
+/**
+ * PostGIS `ST_Contains(left, right)` SQL 표현식 (generic Geometry 타입).
+ */
+class GeoContainsOp(
+    private val left: Expression<Geometry>,
+    private val right: Expression<Geometry>,
+): Op<Boolean>() {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append("ST_Contains(")
+        queryBuilder.append(left)
+        queryBuilder.append(", ")
+        queryBuilder.append(right)
+        queryBuilder.append(")")
+    }
+}
+
+/**
+ * PostGIS `ST_Within(left, right)` SQL 표현식 (generic Geometry 타입).
+ */
+class GeoWithinOp(
+    private val left: Expression<Geometry>,
+    private val right: Expression<Geometry>,
+): Op<Boolean>() {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append("ST_Within(")
+        queryBuilder.append(left)
+        queryBuilder.append(", ")
+        queryBuilder.append(right)
         queryBuilder.append(")")
     }
 }

@@ -1201,6 +1201,18 @@ object Libs {
     const val mysql_connector_j = "com.mysql:mysql-connector-j:9.6.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     // MySQL 8 GIS Extensions
     const val jts_core = "org.locationtech.jts:jts-core:1.20.0"        // https://mvnrepository.com/artifact/org.locationtech.jts/jts-core
+
+    // === Science / GIS ===
+    // TODO: UCAR CDM 5.x+는 Maven Central에 없음. Unidata 저장소 재구성으로 5.6.0 아티팩트 미존재.
+    // Phase 4 구현 전 정확한 좌표 확인 필요. 현재 사용 불가.
+    // 대안 후보: edu.ucar:cdm-core (CDM6 모듈식), edu.ucar:netcdfAll:5.5.3 (구 Nexus)
+    const val ucar_netcdf = "edu.ucar:netcdfAll:5.6.0"                 // 미사용 — 저장소 이슈
+    const val geotools_shapefile = "org.geotools:gt-shapefile:31.6"     // https://mvnrepository.com/artifact/org.geotools/gt-shapefile
+    const val geotools_referencing = "org.geotools:gt-referencing:31.6" // https://mvnrepository.com/artifact/org.geotools/gt-referencing
+    const val geotools_epsg_hsql = "org.geotools:gt-epsg-hsql:31.6"     // https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql
+    const val proj4j = "org.locationtech.proj4j:proj4j:1.3.0"           // https://mvnrepository.com/artifact/org.locationtech.proj4j/proj4j
+    const val proj4j_epsg = "org.locationtech.proj4j:proj4j-epsg:1.3.0" // https://mvnrepository.com/artifact/org.locationtech.proj4j/proj4j-epsg
+    const val esri_geometry_api = "com.esri.geometry:esri-geometry-api:2.2.4"  // https://mvnrepository.com/artifact/com.esri.geometry/esri-geometry-api
     const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.7"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     const val postgresql_driver = "org.postgresql:postgresql:42.7.10"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
