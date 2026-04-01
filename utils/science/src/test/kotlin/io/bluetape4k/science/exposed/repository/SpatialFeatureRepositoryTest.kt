@@ -3,7 +3,9 @@ package io.bluetape4k.science.exposed.repository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
-import io.bluetape4k.science.exposed.repository.ShapefileImportService
+import io.bluetape4k.science.exposed.model.SpatialFeatureRecord
+import io.bluetape4k.science.exposed.model.SpatialLayerRecord
+import io.bluetape4k.science.exposed.service.ShapefileImportService
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import org.amshove.kluent.shouldBeEqualTo

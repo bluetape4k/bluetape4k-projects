@@ -134,6 +134,9 @@ fun UtmZone.boundingBox(): BoundingBox =
  * @param col  셀의 열 인덱스 (0부터 시작, 서쪽에서 동쪽 방향)
  */
 fun UtmZone.cellBoundingBox(size: Double, row: Int = 0, col: Int = 0): BoundingBox {
+    require(size > 0.0) { "size는 양수여야 합니다: $size" }
+    require(row >= 0) { "row는 0 이상이어야 합니다: $row" }
+    require(col >= 0) { "col은 0 이상이어야 합니다: $col" }
     val utmBbox = boundingBox()
     val minLon = utmBbox.minLon + size * col
     val maxLat = utmBbox.maxLat - size * row

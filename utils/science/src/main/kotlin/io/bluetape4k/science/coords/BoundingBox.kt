@@ -1,6 +1,8 @@
 package io.bluetape4k.science.coords
 
+import io.bluetape4k.logging.KLogging
 import org.locationtech.jts.geom.Envelope
+import java.io.Serializable
 
 /**
  * 위경도 좌표로 정의된 직사각형 경계 영역(Bounding Box)을 나타내는 클래스입니다.
@@ -15,14 +17,16 @@ data class BoundingBox(
     val minLon: Double,
     val maxLat: Double,
     val maxLon: Double,
-): Comparable<BoundingBox> {
+): Comparable<BoundingBox>, Serializable {
 
     init {
         require(minLat <= maxLat) { "minLat($minLat)는 maxLat($maxLat)보다 작거나 같아야 합니다." }
         require(minLon <= maxLon) { "minLon($minLon)는 maxLon($maxLon)보다 작거나 같아야 합니다." }
     }
 
-    companion object {
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+
         /**
          * 두 [GeoLocation]으로부터 [BoundingBox]를 생성합니다.
          *

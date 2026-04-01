@@ -1,5 +1,7 @@
 package io.bluetape4k.science.coords
 
+import io.bluetape4k.logging.KLogging
+import java.io.Serializable
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -15,14 +17,16 @@ import kotlin.math.sqrt
 data class GeoLocation(
     val latitude: Double,
     val longitude: Double,
-): Comparable<GeoLocation> {
+): Comparable<GeoLocation>, Serializable {
 
     init {
         require(latitude in -90.0..90.0) { "위도는 -90~90 범위여야 합니다: $latitude" }
         require(longitude in -180.0..180.0) { "경도는 -180~180 범위여야 합니다: $longitude" }
     }
 
-    companion object {
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+
         /** 원점(0, 0) 좌표 */
         val ZERO = GeoLocation(0.0, 0.0)
 

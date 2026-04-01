@@ -1,7 +1,9 @@
 package io.bluetape4k.science.shapefile
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.coords.BoundingBox
 import org.locationtech.jts.geom.Geometry
+import java.io.Serializable
 
 /**
  * Shapefile 헤더 정보를 담는 데이터 클래스입니다.
@@ -18,7 +20,12 @@ data class ShapeHeader(
     val version: Int,
     val shapeType: Int,
     val bbox: BoundingBox,
-)
+): Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
 
 /**
  * Shapefile의 DBF 속성 필드 정의를 담는 데이터 클래스입니다.
@@ -50,7 +57,12 @@ data class ShapeRecord(
     val bbox: BoundingBox?,
     val geometry: Geometry,
     val attributes: Map<String, Any?> = emptyMap(),
-)
+): Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
 
 /**
  * Shapefile 전체 데이터(헤더, 레코드 목록, 속성 정의)를 담는 클래스입니다.
@@ -63,7 +75,12 @@ data class Shape(
     val header: ShapeHeader,
     val records: List<ShapeRecord>,
     val attributes: List<ShapeAttribute>,
-) {
+): Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
+
     /** 레코드 수 */
     val size: Int get() = records.size
 

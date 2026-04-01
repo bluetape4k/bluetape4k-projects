@@ -1,5 +1,8 @@
 package io.bluetape4k.science.coords
 
+import io.bluetape4k.logging.KLogging
+import java.io.Serializable
+
 /**
  * 방향(도)과 거리(미터)로 구성된 벡터를 나타내는 클래스입니다.
  *
@@ -11,4 +14,9 @@ package io.bluetape4k.science.coords
 data class Vector(
     val degree: Double,
     val distance: Double,
-)
+): Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}

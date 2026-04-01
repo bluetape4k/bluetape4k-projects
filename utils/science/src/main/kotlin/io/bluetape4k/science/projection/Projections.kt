@@ -13,6 +13,13 @@ import org.locationtech.proj4j.ProjCoordinate
  */
 
 /**
+ * 남반구 UTM Zone인 경우 Proj4 파라미터용 " +south" 접미사를 반환합니다.
+ * 남반구는 위도 구역 문자가 'N' 미만(C~M)인 경우입니다.
+ */
+private fun UtmZone.southernHemisphereSuffix(): String =
+    if (latitudeZone < 'N') " +south" else ""
+
+/**
  * UTM 좌표(easting, northing)를 WGS84 위경도 [GeoLocation]으로 변환합니다.
  *
  * @param easting  UTM Easting (미터)
@@ -21,8 +28,7 @@ import org.locationtech.proj4j.ProjCoordinate
  * @return WGS84 위경도 좌표
  */
 fun utmToWgs84(easting: Double, northing: Double, utmZone: UtmZone): GeoLocation {
-    // 남반구(밴드 C~M, 'N' 미만)는 +south 파라미터 필수
-    val south = if (utmZone.latitudeZone < 'N') " +south" else ""
+    val south = utmZone.southernHemisphereSuffix()
     val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs$south"
     val utmCrs = CrsRegistry.getCrsFromProj4(proj4Params)
     val wgs84Crs = CrsRegistry.getCrs("EPSG:4326")
@@ -42,9 +48,8 @@ fun utmToWgs84(easting: Double, northing: Double, utmZone: UtmZone): GeoLocation
  * @return Pair(easting, northing) — UTM 좌표 (미터)
  */
 fun wgs84ToUtm(location: GeoLocation): Pair<Double, Double> {
-    val utmZone = utmZoneOf(location.latitude, location.longitude)
-    // 남반구(위도 < 0)는 +south 파라미터 필수
-    val south = if (location.latitude < 0) " +south" else ""
+    val utmZone = utmZoneOf(location)
+    val south = utmZone.southernHemisphereSuffix()
     val proj4Params = "+proj=utm +zone=${utmZone.longitudeZone} +datum=WGS84 +units=m +no_defs$south"
     val wgs84Crs = CrsRegistry.getCrs("EPSG:4326")
     val utmCrs = CrsRegistry.getCrsFromProj4(proj4Params)
@@ -62,8 +67,8 @@ fun wgs84ToUtm(location: GeoLocation): Pair<Double, Double> {
  *
  * @param sourceCrs 소스 좌표계 EPSG 코드 (예: "EPSG:4326")
  * @param targetCrs 대상 좌표계 EPSG 코드 (예: "EPSG:32652")
- * @param lon       경도 (소스 CRS 기준)
- * @param lat       위도 (소스 CRS 기준)
+ * @param lon       소스 CRS 기준 첫 번째 좌표 (WGS84인 경우 경도)
+ * @param lat       소스 CRS 기준 두 번째 좌표 (WGS84인 경우 위도)
  * @return Pair(x, y) — 대상 CRS 기준 좌표
  */
 fun transform(sourceCrs: String, targetCrs: String, lon: Double, lat: Double): Pair<Double, Double> {

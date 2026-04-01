@@ -1,5 +1,8 @@
 package io.bluetape4k.science.coords
 
+import io.bluetape4k.logging.KLogging
+import java.io.Serializable
+
 /**
  * 도(Degree), 분(Minute), 초(Second)로 좌표를 표현하는 클래스입니다.
  *
@@ -11,7 +14,11 @@ data class DMS(
     val degree: Int,
     val minute: Int,
     val second: Double,
-): Comparable<DMS> {
+): Comparable<DMS>, Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
 
     override fun compareTo(other: DMS): Int {
         var diff = degree.compareTo(other.degree)

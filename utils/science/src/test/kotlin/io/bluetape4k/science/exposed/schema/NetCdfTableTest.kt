@@ -3,9 +3,10 @@ package io.bluetape4k.science.exposed.schema
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
-import io.bluetape4k.science.exposed.repository.NetCdfCatalogService
-import io.bluetape4k.science.exposed.repository.NetCdfFileRecord
+import io.bluetape4k.science.exposed.model.NetCdfFileRecord
+import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import io.bluetape4k.science.exposed.service.NetCdfCatalogService
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan

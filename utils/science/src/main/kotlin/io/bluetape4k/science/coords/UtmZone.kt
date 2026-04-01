@@ -1,5 +1,8 @@
 package io.bluetape4k.science.coords
 
+import io.bluetape4k.logging.KLogging
+import java.io.Serializable
+
 /**
  * UTM Zone 식별자를 나타내는 클래스입니다.
  *
@@ -14,7 +17,11 @@ package io.bluetape4k.science.coords
 data class UtmZone(
     val longitudeZone: Int,
     val latitudeZone: Char,
-): Comparable<UtmZone> {
+): Comparable<UtmZone>, Serializable {
+
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
 
     init {
         require(longitudeZone in UTM_LONGITUDE_MIN..UTM_LONGITUDE_MAX) {

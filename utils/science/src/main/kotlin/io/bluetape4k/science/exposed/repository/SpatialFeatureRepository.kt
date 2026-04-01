@@ -1,6 +1,8 @@
 package io.bluetape4k.science.exposed.repository
 
 import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.model.SpatialFeatureRecord
 import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
@@ -83,23 +85,31 @@ class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
  */
 class SpatialFeatureRepository : LongJdbcRepository<SpatialFeatureRecord> {
 
+    companion object: KLogging()
+
     override val table = SpatialFeatureTable
 
     override fun extractId(entity: SpatialFeatureRecord): Long = entity.id
 
     override fun ResultRow.toEntity(): SpatialFeatureRecord {
         val pgGeom = this[SpatialFeatureTable.geom]
+        val wktStr = pgGeom.toString()
         // PostGIS Geometry.toString()은 EWKT 형태를 반환합니다.
         // WKTReader가 SRID 포함 문자열을 처리할 수 있도록 SRID 접두어를 제거합니다.
         val jtsGeom = runCatching {
-            val wkt = pgGeom.toString().let { s ->
-                // "SRID=4326;POINT(...)" → "POINT(...)"
-                if (s.startsWith("SRID=", ignoreCase = true)) s.substringAfter(";") else s
-            }
+            val wkt = if (wktStr.startsWith("SRID=", ignoreCase = true)) wktStr.substringAfter(";") else wktStr
             WKTReader().read(wkt)
-        }.getOrElse {
+        }.getOrElse { wktEx ->
+            log.debug(wktEx) { "WKT 파싱 실패, WKB 헥스 폴백 시도: $wktStr" }
             // WKB 헥스 폴백: PostGIS Geometry의 바이너리 WKB 변환 시도
-            WKBReader().read(WKBReader.hexToBytes(pgGeom.toString()))
+            runCatching {
+                WKBReader().read(WKBReader.hexToBytes(wktStr))
+            }.getOrElse { wkbEx ->
+                throw IllegalStateException(
+                    "PostGIS 도형 변환 실패 (WKT, WKB 모두 실패): $wktStr",
+                    wkbEx.also { it.addSuppressed(wktEx) }
+                )
+            }
         }
         return SpatialFeatureRecord(
             id = this[SpatialFeatureTable.id].value,
