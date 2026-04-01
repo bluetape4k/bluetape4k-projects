@@ -4,40 +4,9 @@ import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
 import io.bluetape4k.exposed.core.jackson3.jacksonb
 import io.bluetape4k.exposed.postgresql.postgis.geoPoint
 import io.bluetape4k.exposed.postgresql.postgis.geoPolygon
+import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.javatime.timestamp
-
-/**
- * NetCDF 변수 정보를 담는 데이터 클래스입니다.
- *
- * Phase 4 (UCAR netcdfAll) 구현 시 별도 패키지로 이동 예정입니다.
- *
- * @param name       변수 이름
- * @param dataType   데이터 타입 (float, double 등)
- * @param shape      차원별 크기 목록
- * @param attributes 변수 메타데이터 속성
- */
-data class NetCdfVariableInfo(
-    val name: String,
-    val dataType: String,
-    val shape: List<Int>,
-    val attributes: Map<String, String>,
-)
-
-/**
- * NetCDF 차원 정보를 담는 데이터 클래스입니다.
- *
- * Phase 4 (UCAR netcdfAll) 구현 시 별도 패키지로 이동 예정입니다.
- *
- * @param name        차원 이름 (time, lat, lon 등)
- * @param length      차원 길이
- * @param isUnlimited 무제한 차원 여부
- */
-data class NetCdfDimensionInfo(
-    val name: String,
-    val length: Int,
-    val isUnlimited: Boolean,
-)
 
 /**
  * NetCDF 파일 메타데이터를 저장하는 Exposed 테이블입니다.

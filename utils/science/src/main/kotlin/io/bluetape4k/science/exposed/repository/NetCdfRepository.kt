@@ -1,31 +1,10 @@
 package io.bluetape4k.science.exposed.repository
 
 import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
+import io.bluetape4k.science.exposed.model.NetCdfFileRecord
 import io.bluetape4k.science.exposed.schema.NetCdfFileTable
-import io.bluetape4k.science.exposed.schema.NetCdfVariableInfo
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
-
-/**
- * NetCDF 파일 메타데이터 레코드를 담는 데이터 클래스입니다.
- *
- * @param id          기본키 (자동 생성)
- * @param filename    파일 이름
- * @param filePath    파일 전체 경로
- * @param fileSize    파일 크기 (바이트)
- * @param variables   변수 목록
- * @param dimensions  차원 이름-크기 매핑
- * @param globalAttrs 전역 속성
- */
-data class NetCdfFileRecord(
-    val id: Long = 0L,
-    val filename: String,
-    val filePath: String,
-    val fileSize: Long = 0L,
-    val variables: List<NetCdfVariableInfo> = emptyList(),
-    val dimensions: Map<String, Int> = emptyMap(),
-    val globalAttrs: Map<String, String> = emptyMap(),
-)
 
 /**
  * [NetCdfFileTable] 기반 JDBC Repository 입니다.
@@ -66,4 +45,3 @@ class NetCdfFileRepository : LongJdbcRepository<NetCdfFileRecord> {
         return record.copy(id = id.value)
     }
 }
-
