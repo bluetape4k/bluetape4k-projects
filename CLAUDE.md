@@ -239,6 +239,26 @@ Follow this sequence on every `.kt` file edit — no exceptions.
 
 All async work uses Coroutines. Wrap blocking APIs with `withContext(Dispatchers.IO)`. Use internal utilities (e.g., `bluetape4k-core` `RequireSupport.kt`) over external alternatives.
 
+### Record / Model Data Class Pattern
+
+DB Row를 담는 data class (`*Record`, `*Info`, `*Model`)는 반드시 다음 규칙을 따릅니다:
+
+```kotlin
+// ✅ 분산 캐시(Lettuce/Redisson) 저장을 위해 Serializable 필수
+data class SpatialLayerRecord(
+    val id: Long = 0L,
+    val name: String,
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
+```
+
+- `Serializable` 구현 필수 (Lettuce/Redisson 캐시 직렬화)
+- `companion object : KLogging()` + `private const val serialVersionUID = 1L` 필수
+- `exposed.model` 패키지에 위치
+
 ### Repository Generic Pattern
 
 ```kotlin

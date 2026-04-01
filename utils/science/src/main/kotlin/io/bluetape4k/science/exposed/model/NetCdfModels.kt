@@ -1,5 +1,8 @@
 package io.bluetape4k.science.exposed.model
 
+import io.bluetape4k.logging.KLogging
+import java.io.Serializable
+
 /**
  * NetCDF 변수 정보를 담는 데이터 클래스입니다.
  *
@@ -13,7 +16,11 @@ data class NetCdfVariableInfo(
     val dataType: String,
     val shape: List<Int>,
     val attributes: Map<String, String>,
-)
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
 
 /**
  * NetCDF 차원 정보를 담는 데이터 클래스입니다.
@@ -26,7 +33,11 @@ data class NetCdfDimensionInfo(
     val name: String,
     val length: Int,
     val isUnlimited: Boolean,
-)
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
 
 /**
  * NetCDF 파일 메타데이터 레코드를 담는 데이터 클래스입니다.
@@ -47,4 +58,8 @@ data class NetCdfFileRecord(
     val variables: List<NetCdfVariableInfo> = emptyList(),
     val dimensions: Map<String, Int> = emptyMap(),
     val globalAttrs: Map<String, String> = emptyMap(),
-)
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}

@@ -1,6 +1,8 @@
 package io.bluetape4k.science.exposed.model
 
+import io.bluetape4k.logging.KLogging
 import org.locationtech.jts.geom.Geometry
+import java.io.Serializable
 
 /**
  * 공간 레이어 레코드를 담는 데이터 클래스입니다.
@@ -29,7 +31,11 @@ data class SpatialLayerRecord(
     val bboxMaxX: Double? = null,
     val bboxMaxY: Double? = null,
     val recordCount: Int = 0,
-)
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
 
 /**
  * 공간 피처 레코드를 담는 데이터 클래스입니다.
@@ -48,4 +54,8 @@ data class SpatialFeatureRecord(
     val geom: Geometry,
     val properties: Map<String, Any?> = emptyMap(),
     val name: String? = null,
-)
+) : Serializable {
+    companion object : KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
