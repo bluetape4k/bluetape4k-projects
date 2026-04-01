@@ -249,10 +249,10 @@ flowchart TD
     MR --> Grafana[Grafana / Monitoring]
     MR --> Log[Logging]
 
-    style App fill:#4a90d9,color:#fff
-    style MR fill:#e07b39,color:#fff
-    style OR fill:#9b59b6,color:#fff
-    style Grafana fill:#5ba85a,color:#fff
+    style App fill:#4a90d9
+    style MR fill:#e07b39
+    style OR fill:#9b59b6
+    style Grafana fill:#5ba85a
 ```
 
 ### Retrofit2 메트릭 수집 시퀀스

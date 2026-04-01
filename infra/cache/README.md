@@ -105,11 +105,11 @@ flowchart TD
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
 
-    style A fill:#4a90d9,color:#fff
-    style B fill:#5ba85a,color:#fff
-    style C fill:#e07b39,color:#fff
-    style D fill:#9b59b6,color:#fff
-    style E fill:#c0392b,color:#fff
+    style A fill:#4a90d9
+    style B fill:#5ba85a
+    style C fill:#e07b39
+    style D fill:#9b59b6
+    style E fill:#c0392b
 ```
 
 ## Near Cache 2-Tier 아키텍처
@@ -123,9 +123,9 @@ flowchart LR
     App -->|put| RemoteCache
     RemoteCache -->|Invalidation 전파| LocalCache
 
-    style LocalCache fill:#5ba85a,color:#fff
-    style RemoteCache fill:#c0392b,color:#fff
-    style App fill:#4a90d9,color:#fff
+    style LocalCache fill:#5ba85a
+    style RemoteCache fill:#c0392b
+    style App fill:#4a90d9
 ```
 
 ## CachingProvider 자동 로딩 주의

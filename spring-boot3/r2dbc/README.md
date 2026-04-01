@@ -299,6 +299,64 @@ class PostRepository(
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class R2dbcEntityOperationsExt:::serviceStyle {
+        <<extension>>
+        +findOneByIdSuspending(id): T
+        +findOneByIdOrNullSuspending(id): T?
+        +selectAllSuspending(): Flow~T~
+        +selectSuspending(query): Flow~T~
+        +selectOneSuspending(query): T
+        +selectOneOrNullSuspending(query): T?
+        +insertSuspending(entity): T
+        +insertOrNullSuspending(entity): T?
+        +updateSuspending(query, update): Int
+        +deleteSuspending(query): Int
+        +deleteAllSuspending(): Int
+        +countAllSuspending(): Long
+        +countSuspending(query): Long
+        +existsSuspending(query): Boolean
+    }
+    class PostRepository:::repoStyle {
+        -operations: R2dbcEntityOperations
+        +findById(id): Post?
+        +findAll(): Flow~Post~
+        +findByStatus(status): List~Post~
+        +save(post): Post
+        +update(id, title, content): Int
+        +delete(id): Int
+        +count(): Long
+    }
+    class Post:::entityStyle {
+        +id: Long?
+        +title: String
+        +content: String
+        +status: PostStatus
+        +authorId: Long
+        +createdAt: Instant
+        +updatedAt: Instant?
+    }
+    class PostStatus:::entityStyle {
+        <<enum>>
+        DRAFT
+        PUBLISHED
+        ARCHIVED
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    PostRepository --> R2dbcEntityOperationsExt : uses
+    PostRepository --> Post
+    Post --> PostStatus
+```
+
 ### R2DBC + Coroutines 데이터 흐름
 
 ```mermaid

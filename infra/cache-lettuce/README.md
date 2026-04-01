@@ -175,7 +175,7 @@ cache.close()
 
 ```mermaid
 classDiagram
-    class NearCacheOperations~V~ {
+    class NearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -191,7 +191,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations~V~ {
+    class SuspendNearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -204,7 +204,7 @@ classDiagram
         +close()
     }
 
-    class LettuceNearCache~V~ {
+    class LettuceNearCache:::redisStyle {
         -config: LettuceNearCacheConfig
         -frontCache: LettuceCaffeineLocalCache
         -connection: StatefulRedisConnection
@@ -212,7 +212,7 @@ classDiagram
         -trackingListener: TrackingInvalidationListener
     }
 
-    class LettuceSuspendNearCache~V~ {
+    class LettuceSuspendNearCache:::redisStyle {
         -config: LettuceNearCacheConfig
         -frontCache: LettuceCaffeineLocalCache
         -connection: StatefulRedisConnection
@@ -220,49 +220,56 @@ classDiagram
         -trackingListener: TrackingInvalidationListener
     }
 
-    class LettuceLocalCache~K, V~ {
-<<interface>>
-+get(key: K) V?
-+put(key: K, value: V)
-+remove(key: K)
-+clear()
-+estimatedSize() Long
-+stats() CacheStats?
- }
+    class LettuceLocalCache:::abstractStyle {
+        <<interface>>
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +remove(key: K)
+        +clear()
+        +estimatedSize() Long
+        +stats() CacheStats?
+    }
 
-class LettuceCaffeineLocalCache~V~ {
--cache: Cache
-+invalidate(key: String)
-}
+    class LettuceCaffeineLocalCache:::cacheStyle {
+        -cache: Cache
+        +invalidate(key: String)
+    }
 
-class TrackingInvalidationListener~V~ {
--frontCache: LettuceLocalCache
--connection: StatefulRedisConnection
--cacheName: String
-+start()
-+close()
-}
+    class TrackingInvalidationListener:::serviceStyle {
+        -frontCache: LettuceLocalCache
+        -connection: StatefulRedisConnection
+        -cacheName: String
+        +start()
+        +close()
+    }
 
-class LettuceNearCacheConfig~K, V~ {
-+cacheName: String
-+maxLocalSize: Int
-+frontExpireAfterWrite: Duration
-+redisTtl: Duration?
-+useRespProtocol3: Boolean
-+recordStats: Boolean
-+redisKey(key: String) String
-}
+    class LettuceNearCacheConfig:::infraStyle {
+        +cacheName: String
+        +maxLocalSize: Int
+        +frontExpireAfterWrite: Duration
+        +redisTtl: Duration?
+        +useRespProtocol3: Boolean
+        +recordStats: Boolean
+        +redisKey(key: String) String
+    }
 
-NearCacheOperations <|.. LettuceNearCache
-SuspendNearCacheOperations <|.. LettuceSuspendNearCache
-LettuceLocalCache <|.. LettuceCaffeineLocalCache
-LettuceNearCache --> LettuceCaffeineLocalCache: frontCache
-LettuceNearCache --> TrackingInvalidationListener: trackingListener
-LettuceNearCache --> LettuceNearCacheConfig: config
-LettuceSuspendNearCache --> LettuceCaffeineLocalCache: frontCache
-LettuceSuspendNearCache --> TrackingInvalidationListener: trackingListener
-LettuceSuspendNearCache --> LettuceNearCacheConfig: config
-TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
+    NearCacheOperations <|.. LettuceNearCache
+    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
+    LettuceLocalCache <|.. LettuceCaffeineLocalCache
+    LettuceNearCache --> LettuceCaffeineLocalCache: frontCache
+    LettuceNearCache --> TrackingInvalidationListener: trackingListener
+    LettuceNearCache --> LettuceNearCacheConfig: config
+    LettuceSuspendNearCache --> LettuceCaffeineLocalCache: frontCache
+    LettuceSuspendNearCache --> TrackingInvalidationListener: trackingListener
+    LettuceSuspendNearCache --> LettuceNearCacheConfig: config
+    TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름

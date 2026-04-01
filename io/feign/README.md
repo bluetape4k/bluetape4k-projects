@@ -80,6 +80,34 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 | VertxHttpClient        | 이벤트 루프 기반, 경량      | Vert.x 생태계 통합 |
 | AsyncVertxHttpClient   | Vert.x 비동기 클라이언트   | Vert.x 비동기 통신 |
 
+```mermaid
+classDiagram
+    class FeignClient:::clientStyle {
+        <<interface>>
+        +target(type, url) T
+    }
+    class ApacheHttp5Client:::infraStyle {
+        +execute(request, options) Response
+    }
+    class AsyncApacheHttp5Client:::infraStyle {
+        +execute(request, options, callback)
+    }
+    class VertxHttpClient:::infraStyle {
+        +execute(request, options) Response
+    }
+    class AsyncVertxHttpClient:::infraStyle {
+        +execute(request, options, callback)
+    }
+
+    FeignClient --> ApacheHttp5Client : 동기 전송
+    FeignClient --> AsyncApacheHttp5Client : 비동기 전송
+    FeignClient --> VertxHttpClient : Vert.x 동기
+    FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
+```
+
 ```kotlin
 // Vert.x 기반 Feign 클라이언트
 val api = feignBuilderOf(
@@ -166,11 +194,11 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class CoroutineFeign {
+    class CoroutineFeign:::clientStyle {
         <<feign-kotlin>>
     }
 
-    class CoroutineBuilder {
+    class CoroutineBuilder:::clientStyle {
         +client(asyncClient) CoroutineBuilder
         +encoder(encoder) CoroutineBuilder
         +decoder(decoder) CoroutineBuilder
@@ -179,33 +207,33 @@ classDiagram
         +target(type, url) T
     }
 
-    class AsyncClient {
+    class AsyncClient:::infraStyle {
         <<interface>>
     }
 
-    class Encoder {
+    class Encoder:::codecStyle {
         <<interface>>
     }
 
-    class Decoder {
+    class Decoder:::codecStyle {
         <<interface>>
     }
 
-    class JacksonEncoder2 {
+    class JacksonEncoder2:::codecStyle {
         -mapper: JsonMapper
         +encode(object, bodyType, template)
     }
 
-    class JacksonDecoder2 {
+    class JacksonDecoder2:::codecStyle {
         -mapper: JsonMapper
         +decode(response, type) Any?
     }
 
-    class FeignFastjsonEncoder {
+    class FeignFastjsonEncoder:::codecStyle {
         +encode(object, bodyType, template)
     }
 
-    class FeignFastjsonDecoder {
+    class FeignFastjsonDecoder:::codecStyle {
         +decode(response, type) Any?
     }
 
@@ -217,6 +245,10 @@ classDiagram
     Decoder <|.. JacksonDecoder2
     Encoder <|.. FeignFastjsonEncoder
     Decoder <|.. FeignFastjsonDecoder
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름

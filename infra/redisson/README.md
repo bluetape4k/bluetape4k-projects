@@ -298,42 +298,42 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ```mermaid
 classDiagram
-    class Codec {
+    class Codec:::abstractStyle {
         <<interface>>
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class ForyCodec {
+    class ForyCodec:::redisStyle {
         -fallbackCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class Kryo5Codec {
+    class Kryo5Codec:::redisStyle {
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class Lz4Codec {
+    class Lz4Codec:::clientStyle {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class ZstdCodec {
+    class ZstdCodec:::clientStyle {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class GzipCodec {
+    class GzipCodec:::clientStyle {
         -innerCodec: Codec
         +getValueEncoder() Encoder
         +getValueDecoder() Decoder
     }
 
-    class RedissonCodecs {
+    class RedissonCodecs:::infraStyle {
         <<object>>
         +Default: Lz4Codec
         +Fory: ForyCodec
@@ -353,6 +353,13 @@ classDiagram
     RedissonCodecs --> Lz4Codec
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ### 분산 리더 선출 시퀀스
@@ -419,9 +426,9 @@ flowchart TD
     TxOps -->|성공 시 commitAsync| Redis
     TxOps -->|예외 시 rollbackAsync| Redis
 
-    style App fill:#4a90d9,color:#fff
-    style App2 fill:#9b59b6,color:#fff
-    style Redis fill:#c0392b,color:#fff
+    style App fill:#4a90d9
+    style App2 fill:#9b59b6
+    style Redis fill:#c0392b
 ```
 
 ## Redis 버전 요구사항

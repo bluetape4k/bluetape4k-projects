@@ -198,8 +198,8 @@ classDiagram
     }
     AggregationDSL --> FlowExtensions : builds pipeline
 
-    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
-    classDef dbStyle fill:#607D8B,color:#fff,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef dbStyle fill:#607D8B,stroke:#37474F
     class MongoClientExtensions:::dbStyle
     class AggregationDSL:::serviceStyle
     class FlowExtensions:::serviceStyle

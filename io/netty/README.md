@@ -190,14 +190,14 @@ buf.writeUIntSmart(100000) // 4바이트
 
 ```mermaid
 classDiagram
-    class ByteBuf {
+    class ByteBuf:::infraStyle {
         <<Netty>>
         +readByte() Byte
         +writeByte(value: Int)
         +readableBytes() Int
     }
 
-    class ByteBufExtensions {
+    class ByteBufExtensions:::clientStyle {
         <<extensions>>
         +readUByteNeg() UByte
         +readUShortAdd() UShort
@@ -212,13 +212,13 @@ classDiagram
         +writeString(value: String)
     }
 
-    class BitBuf {
+    class BitBuf:::codecStyle {
         -buf: ByteBuf
         +readBit() Boolean
         +writeBit(value: Boolean)
     }
 
-    class ReferenceCountedSupport {
+    class ReferenceCountedSupport:::infraStyle {
         <<extensions>>
         +safeRelease()
         +refCnt() Int
@@ -227,6 +227,10 @@ classDiagram
     ByteBuf <-- ByteBufExtensions : 확장
     ByteBuf <-- BitBuf : 래핑
     ByteBuf <-- ReferenceCountedSupport : 확장
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
 ```
 
 ### Smart 인코딩 데이터 흐름

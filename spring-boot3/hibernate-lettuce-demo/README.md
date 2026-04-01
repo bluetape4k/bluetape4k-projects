@@ -34,6 +34,54 @@ H2 Database
 ```
 
 ```mermaid
+classDiagram
+    class ProductController:::controllerStyle {
+        -productRepository: ProductRepository
+        +findAll(): List~Product~
+        +findById(id): ResponseEntity~Product~
+        +create(product): Product
+        +update(id, product): Product
+        +delete(id): ResponseEntity~Void~
+    }
+    class CacheController:::controllerStyle {
+        +stats(): Map
+        +evictAll(): ResponseEntity~Void~
+        +evict(region): ResponseEntity~Void~
+    }
+    class ProductRepository:::repoStyle {
+        <<interface>>
+        +findAll(): List~Product~
+        +findById(id): Optional~Product~
+        +save(product): Product
+        +delete(product)
+    }
+    class Product:::entityStyle {
+        +id: Long?
+        +name: String
+        +description: String?
+        +price: Double
+    }
+    class LettuceNearCacheRegionFactory:::cacheStyle {
+        +getL1Cache(region): CaffeineCache
+        +getL2Cache(region): RedisCache
+        +getStats(region): RegionStats
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ProductController --> ProductRepository
+    ProductRepository --> Product
+    Product --> LettuceNearCacheRegionFactory : cached by
+    CacheController --> LettuceNearCacheRegionFactory
+```
+
+### 요청 흐름 다이어그램
+
+```mermaid
 flowchart TD
     Client["Client HTTP Request"]
     Controller["ProductController"]

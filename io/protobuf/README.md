@@ -113,25 +113,25 @@ val message = serializer.deserialize<MyMessage>(bytes)
 
 ```mermaid
 classDiagram
-    class BinarySerializer {
+    class BinarySerializer:::codecStyle {
         <<interface>>
         +serialize(obj: Any?) ByteArray
         +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
     }
 
-    class ProtobufSerializer {
+    class ProtobufSerializer:::protoStyle {
         +serialize(message: ProtoMessage?) ByteArray
         +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
     }
 
-    class TimestampSupport {
+    class TimestampSupport:::protoStyle {
         <<extensions>>
         +Instant.toTimestamp() Timestamp
         +Timestamp.toInstant() Instant
         +String.toTimestamp() Timestamp
     }
 
-    class DurationSupport {
+    class DurationSupport:::protoStyle {
         <<extensions>>
         +Duration.toProtoDuration() ProtoDuration
         +ProtoDuration.toJavaDuration() Duration
@@ -139,26 +139,29 @@ classDiagram
         +ProtoDuration.minus(other) ProtoDuration
     }
 
-    class DateTimeSupport {
+    class DateTimeSupport:::protoStyle {
         <<extensions>>
         +LocalDate.toProtoDate() Date
         +LocalTime.toProtoTimeOfDay() TimeOfDay
         +LocalDateTime.toProtoDateTime() DateTime
     }
 
-    class MoneySupport {
+    class MoneySupport:::protoStyle {
         <<extensions>>
         +JavaMoney.toProtoMoney() Money
         +ProtoMoney.toJavaMoney() JavaMoney
     }
 
-    class MessageSupport {
+    class MessageSupport:::protoStyle {
         <<extensions>>
         +packMessage(message) ByteArray
         +unpackMessage(bytes) T?
     }
 
     BinarySerializer <|.. ProtobufSerializer
+
+    classDef protoStyle  fill:#9C27B0,stroke:#6A1B9A
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
 ```
 
 ### Protobuf 타입 변환 흐름

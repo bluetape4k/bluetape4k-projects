@@ -154,24 +154,24 @@ val reader = CsvRecordReader(customSettings)
 
 ```mermaid
 classDiagram
-    class RecordReader~T~ {
+    class RecordReader:::codecStyle {
         <<interface>>
         +read(input, charset, skipHeaders, transform) Sequence~T~
     }
 
-    class RecordWriter {
+    class RecordWriter:::codecStyle {
         <<interface>>
         +writeHeaders(headers: List~String~)
         +writeRow(row: List~Any~)
         +close()
     }
 
-    class SuspendRecordReader~T~ {
+    class SuspendRecordReader:::clientStyle {
         <<interface>>
         +read(input, charset, skipHeaders, transform) Flow~T~
     }
 
-    class SuspendRecordWriter {
+    class SuspendRecordWriter:::clientStyle {
         <<interface>>
         +writeHeaders(headers: List~String~)
         +writeRow(row: List~Any~)
@@ -179,14 +179,14 @@ classDiagram
         +close()
     }
 
-    class CsvRecordReader
-    class TsvRecordReader
-    class CsvRecordWriter
-    class TsvRecordWriter
-    class SuspendCsvRecordReader
-    class SuspendTsvRecordReader
-    class SuspendCsvRecordWriter
-    class SuspendTsvRecordWriter
+    class CsvRecordReader:::codecStyle
+    class TsvRecordReader:::codecStyle
+    class CsvRecordWriter:::codecStyle
+    class TsvRecordWriter:::codecStyle
+    class SuspendCsvRecordReader:::clientStyle
+    class SuspendTsvRecordReader:::clientStyle
+    class SuspendCsvRecordWriter:::clientStyle
+    class SuspendTsvRecordWriter:::clientStyle
 
     RecordReader <|.. CsvRecordReader
     RecordReader <|.. TsvRecordReader
@@ -196,6 +196,9 @@ classDiagram
     SuspendRecordReader <|.. SuspendTsvRecordReader
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
 ```
 
 ### CSV/TSV 처리 흐름

@@ -103,18 +103,18 @@ flowchart TD
     ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce 캐시]
     ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson 캐시]
 
-    style E fill:#607D8B,color:#fff
-    style EC fill:#9C27B0,color:#fff
-    style ED fill:#FF9800,color:#fff
-    style EJ fill:#2196F3,color:#fff
-    style ER fill:#2196F3,color:#fff
-    style EJK fill:#4CAF50,color:#fff
-    style EP fill:#4CAF50,color:#fff
-    style EM fill:#4CAF50,color:#fff
-    style EJL fill:#F44336,color:#fff
-    style EJR fill:#F44336,color:#fff
-    style ERL fill:#F44336,color:#fff
-    style ERR fill:#F44336,color:#fff
+    style E fill:#607D8B
+    style EC fill:#9C27B0
+    style ED fill:#FF9800
+    style EJ fill:#2196F3
+    style ER fill:#2196F3
+    style EJK fill:#4CAF50
+    style EP fill:#4CAF50
+    style EM fill:#4CAF50
+    style EJL fill:#F44336
+    style EJR fill:#F44336
+    style ERL fill:#F44336
+    style ERR fill:#F44336
 ```
 
 ## 참고

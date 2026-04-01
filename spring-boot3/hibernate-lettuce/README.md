@@ -7,6 +7,50 @@ Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 3 A
 ## UML
 
 ```mermaid
+classDiagram
+    class LettuceNearCacheHibernateAutoConfiguration:::configStyle {
+        +hibernatePropertiesCustomizer(): HibernatePropertiesCustomizer
+    }
+    class LettuceNearCacheMetricsAutoConfiguration:::configStyle {
+        +lettuceNearCacheMetricsBinder(): LettuceNearCacheMetricsBinder
+    }
+    class LettuceNearCacheActuatorAutoConfiguration:::configStyle {
+        +lettuceNearCacheEndpoint(): LettuceNearCacheEndpoint
+    }
+    class HibernatePropertiesCustomizer:::configStyle {
+        <<interface>>
+        +customize(hibernateProperties): void
+    }
+    class LettuceNearCacheRegionFactory:::cacheStyle {
+        +buildCache(regionName, config): RegionAccessStrategy
+        +getL1Cache(region): CaffeineCache
+        +getL2Cache(region): RedisCache
+    }
+    class LettuceNearCacheMetricsBinder:::cacheStyle {
+        +bindTo(registry): void
+    }
+    class LettuceNearCacheEndpoint:::configStyle {
+        +stats(): Map
+        +stats(regionName): RegionStats
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    LettuceNearCacheHibernateAutoConfiguration --> HibernatePropertiesCustomizer : registers
+    HibernatePropertiesCustomizer --> LettuceNearCacheRegionFactory : configures
+    LettuceNearCacheMetricsAutoConfiguration --> LettuceNearCacheMetricsBinder : registers
+    LettuceNearCacheActuatorAutoConfiguration --> LettuceNearCacheEndpoint : registers
+    LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory : monitors
+    LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory : queries
+```
+
+### Auto-Configuration 흐름 다이어그램
+
+```mermaid
 flowchart TD
     Props["application.yml<br/>bluetape4k.cache.lettuce-near.*"]
     AutoConfig["Spring Boot 3<br/>Auto Configuration"]

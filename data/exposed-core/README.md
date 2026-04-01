@@ -231,9 +231,9 @@ classDiagram
     }
     AuditableLongIdTable --> UserContext : reads current user
 
-    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
-    classDef entityStyle fill:#FF9800,color:#fff,stroke:#E65100
-    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
     class AuditableLongIdTable:::tableStyle
     class ExposedPage:::entityStyle
     class UserContext:::serviceStyle

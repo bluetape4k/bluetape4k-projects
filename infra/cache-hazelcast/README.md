@@ -143,7 +143,7 @@ suspendNearJCache.close()
 
 ```mermaid
 classDiagram
-    class NearCacheOperations~V~ {
+    class NearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -159,7 +159,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations~V~ {
+    class SuspendNearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -172,7 +172,7 @@ classDiagram
         +close()
     }
 
-    class HazelcastNearCache~V~ {
+    class HazelcastNearCache:::clientStyle {
         -imap: IMap
         -frontCache: CaffeineHazelcastLocalCache
         -entryListener: HazelcastEntryEventListener
@@ -180,7 +180,7 @@ classDiagram
         -config: HazelcastNearCacheConfig
     }
 
-    class HazelcastSuspendNearCache~V~ {
+    class HazelcastSuspendNearCache:::clientStyle {
         -imap: IMap
         -frontCache: CaffeineHazelcastLocalCache
         -entryListener: HazelcastEntryEventListener
@@ -188,50 +188,57 @@ classDiagram
         -config: HazelcastNearCacheConfig
     }
 
-    class HazelcastLocalCache~K, V~ {
-<<interface>>
-+get(key: K) V?
-+put(key: K, value: V)
-+getAll(keys: Set~K~) Map
-+remove(key: K)
-+removeAll(keys: Set~K~)
-+clear()
-+estimatedSize() Long
-+stats() CacheStats?
-}
+    class HazelcastLocalCache:::abstractStyle {
+        <<interface>>
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +getAll(keys: Set~K~) Map
+        +remove(key: K)
+        +removeAll(keys: Set~K~)
+        +clear()
+        +estimatedSize() Long
+        +stats() CacheStats?
+    }
 
-class CaffeineHazelcastLocalCache~V~ {
--cache: Cache
-+invalidate(key: String)
-}
+    class CaffeineHazelcastLocalCache:::cacheStyle {
+        -cache: Cache
+        +invalidate(key: String)
+    }
 
-class HazelcastEntryEventListener~K, V~ {
--frontCache: HazelcastLocalCache
-+entryAdded(event)
-+entryUpdated(event)
-+entryRemoved(event)
-+entryExpired(event)
-+entryEvicted(event)
-}
+    class HazelcastEntryEventListener:::serviceStyle {
+        -frontCache: HazelcastLocalCache
+        +entryAdded(event)
+        +entryUpdated(event)
+        +entryRemoved(event)
+        +entryExpired(event)
+        +entryEvicted(event)
+    }
 
-class HazelcastNearCacheConfig {
-+cacheName: String
-+maxLocalSize: Int
-+frontExpireAfterWrite: Duration
-+frontExpireAfterAccess: Duration?
-+recordStats: Boolean
-}
+    class HazelcastNearCacheConfig:::infraStyle {
+        +cacheName: String
+        +maxLocalSize: Int
+        +frontExpireAfterWrite: Duration
+        +frontExpireAfterAccess: Duration?
+        +recordStats: Boolean
+    }
 
-NearCacheOperations <|.. HazelcastNearCache
-SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
-HazelcastLocalCache <|.. CaffeineHazelcastLocalCache
-HazelcastNearCache --> CaffeineHazelcastLocalCache: frontCache
-HazelcastNearCache --> HazelcastEntryEventListener: entryListener
-HazelcastNearCache --> HazelcastNearCacheConfig: config
-HazelcastSuspendNearCache --> CaffeineHazelcastLocalCache: frontCache
-HazelcastSuspendNearCache --> HazelcastEntryEventListener: entryListener
-HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
-HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
+    NearCacheOperations <|.. HazelcastNearCache
+    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
+    HazelcastLocalCache <|.. CaffeineHazelcastLocalCache
+    HazelcastNearCache --> CaffeineHazelcastLocalCache: frontCache
+    HazelcastNearCache --> HazelcastEntryEventListener: entryListener
+    HazelcastNearCache --> HazelcastNearCacheConfig: config
+    HazelcastSuspendNearCache --> CaffeineHazelcastLocalCache: frontCache
+    HazelcastSuspendNearCache --> HazelcastEntryEventListener: entryListener
+    HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
+    HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ### IMap EntryListener 기반 Invalidation 흐름

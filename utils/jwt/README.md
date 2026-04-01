@@ -398,6 +398,16 @@ classDiagram
     KeyChainRepository <|-- RedisKeyChainRepository
     JwtProvider <|-- DefaultJwtProvider
     DefaultJwtProvider --> KeyChainRepository
+
+    classDef securityStyle fill:#F44336,stroke:#B71C1C
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+
+    class KeyChainRepository:::securityStyle
+    class InMemoryKeyChainRepository:::infraStyle
+    class RedisKeyChainRepository:::infraStyle
+    class JwtProvider:::securityStyle
+    class DefaultJwtProvider:::serviceStyle
 ```
 
 ## 참고 자료

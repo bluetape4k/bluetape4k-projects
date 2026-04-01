@@ -314,6 +314,20 @@ classDiagram
     AsyncLeaderElection <|-- LocalAsyncLeaderElection
     VirtualThreadLeaderElection <|-- LocalVirtualThreadLeaderElection
     SuspendLeaderElection <|-- LocalSuspendLeaderElection
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+
+    class AsyncLeaderElection:::utilStyle
+    class LeaderElection:::utilStyle
+    class VirtualThreadLeaderElection:::asyncStyle
+    class SuspendLeaderElection:::asyncStyle
+    class LocalLeaderElection:::serviceStyle
+    class LocalAsyncLeaderElection:::serviceStyle
+    class LocalVirtualThreadLeaderElection:::infraStyle
+    class LocalSuspendLeaderElection:::infraStyle
 ```
 
 ## 리더 선출 시퀀스

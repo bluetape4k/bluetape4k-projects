@@ -136,8 +136,8 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
-    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
     class JacksonColumnType:::tableStyle
     class JacksonBColumnType:::tableStyle
     class TableExtensions:::serviceStyle

@@ -49,6 +49,51 @@ flowchart LR
     조작 --> 출력
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ImmutableImage:::utilStyle {
+        +width: Int
+        +height: Int
+        +scale(width, height) ImmutableImage
+        +output(writer) ByteArray
+    }
+    class ImageScaler:::serviceStyle {
+        +scale(image, width, height) ImmutableImage
+    }
+    class ImageSplitter:::serviceStyle {
+        +split(image, rows, cols) List~ImmutableImage~
+    }
+    class WatermarkFilter:::serviceStyle {
+        +apply(image) ImmutableImage
+    }
+    class SuspendJpegWriter:::asyncStyle {
+        +writeImage(image) ByteArray
+    }
+    class SuspendPngWriter:::asyncStyle {
+        +writeImage(image) ByteArray
+    }
+    class SuspendWebpWriter:::asyncStyle {
+        +writeImage(image) ByteArray
+    }
+    class SuspendGif2WebpWriter:::asyncStyle {
+        +writeImage(image) ByteArray
+    }
+
+    ImmutableImage --> ImageScaler : uses
+    ImmutableImage --> ImageSplitter : uses
+    ImmutableImage --> WatermarkFilter : uses
+    ImmutableImage --> SuspendJpegWriter : output
+    ImmutableImage --> SuspendPngWriter : output
+    ImmutableImage --> SuspendWebpWriter : output
+    ImmutableImage --> SuspendGif2WebpWriter : output
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
 ## 주요 기능
 
 ### 이미지 포맷 지원

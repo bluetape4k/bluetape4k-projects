@@ -233,6 +233,57 @@ combinations(10, 3)  // 120
 permutations(5, 3)   // 60
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class Descriptives:::utilStyle {
+        <<interface>>
+        +mean: Double
+        +variance: Double
+        +standardDeviation: Double
+        +skewness: Double
+        +kurtosis: Double
+        +min: Double
+        +max: Double
+        +percentile(p) Double
+    }
+    class DoubleStatistics:::modelStyle {
+        +descriptives() Descriptives
+        +aggregateBy(keySelector, valueTransform, aggregator)
+    }
+    class Histogram:::modelStyle {
+        +add(value)
+        +binCount: Int
+        +bins: List~Bin~
+    }
+    class Interpolator:::serviceStyle {
+        <<interface>>
+        +interpolate(x) Double
+    }
+    class LinearInterpolator:::serviceStyle {
+        +interpolate(x) Double
+    }
+    class SplineInterpolator:::serviceStyle {
+        +interpolate(x) Double
+    }
+    class Integrator:::serviceStyle {
+        <<interface>>
+        +integrate(f, a, b) Double
+    }
+    class WeightedDice:::utilStyle {
+        +roll() T
+    }
+
+    Descriptives <|.. DoubleStatistics
+    Interpolator <|.. LinearInterpolator
+    Interpolator <|.. SplineInterpolator
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef modelStyle   fill:#FF9800,stroke:#E65100
+```
+
 ## 기능 구조 다이어그램
 
 ```mermaid

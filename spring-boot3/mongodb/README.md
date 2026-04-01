@@ -207,6 +207,69 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ReactiveMongoOperationsExt:::serviceStyle {
+        <<extension>>
+        +findAsFlow(query): Flow~T~
+        +findAllAsFlow(): Flow~T~
+        +findOneOrNullSuspending(query): T?
+        +findByIdOrNullSuspending(id): T?
+        +countSuspending(query): Long
+        +existsSuspending(query): Boolean
+        +insertSuspending(entity): T
+        +insertAllAsFlow(entities): Flow~T~
+        +saveSuspending(entity): T
+        +updateMultiSuspending(query, update): UpdateResult
+        +removeSuspending(query): DeleteResult
+        +aggregateAsFlow(aggregation): Flow~O~
+    }
+    class CriteriaDsl:::configStyle {
+        <<infix DSL>>
+        +gt(value): Criteria
+        +gte(value): Criteria
+        +lt(value): Criteria
+        +eq(value): Criteria
+        +inValues(values): Criteria
+        +regex(pattern): Criteria
+        +isNull(): Criteria
+        +fieldExists(): Criteria
+    }
+    class QueryBuilderExt:::configStyle {
+        <<extension>>
+        +queryOf(criteria): Query
+        +sortAscBy(fields): Query
+        +sortDescBy(fields): Query
+        +paginate(page, size): Query
+    }
+    class UpdateDsl:::configStyle {
+        <<infix DSL>>
+        +setTo(value): Update
+        +andSet(field, value): Update
+        +incBy(amount): Update
+        +unsetField(): Update
+        +pushValue(value): Update
+        +pullValue(value): Update
+    }
+    class AbstractReactiveMongoCoroutineTest:::configStyle {
+        +mongoOperations: ReactiveMongoOperations
+        +runTest(block)
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ReactiveMongoOperationsExt --> CriteriaDsl : accepts
+    ReactiveMongoOperationsExt --> QueryBuilderExt : works with
+    ReactiveMongoOperationsExt --> UpdateDsl : accepts
+    AbstractReactiveMongoCoroutineTest --> ReactiveMongoOperationsExt : tests
+```
+
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
 ```mermaid

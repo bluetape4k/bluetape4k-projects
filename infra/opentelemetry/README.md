@@ -274,10 +274,10 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    style App fill:#4a90d9,color:#fff
-    style TP fill:#e07b39,color:#fff
-    style MP fill:#9b59b6,color:#fff
-    style OtelCol fill:#5ba85a,color:#fff
+    style App fill:#4a90d9
+    style TP fill:#e07b39
+    style MP fill:#9b59b6
+    style OtelCol fill:#5ba85a
 ```
 
 ### Span 생명주기 (Coroutines 환경)
@@ -317,10 +317,10 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
 
-    style ServiceA fill:#4a90d9,color:#fff
-    style ServiceB fill:#e07b39,color:#fff
-    style ServiceC fill:#9b59b6,color:#fff
-    style Backend fill:#5ba85a,color:#fff
+    style ServiceA fill:#4a90d9
+    style ServiceB fill:#e07b39
+    style ServiceC fill:#9b59b6
+    style Backend fill:#5ba85a
 ```
 
 ## 테스트 전략

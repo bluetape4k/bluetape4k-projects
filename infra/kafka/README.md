@@ -435,9 +435,9 @@ flowchart LR
     KT -->|toStream| OS[출력 KStream]
     OS -->|producedOf| OT[출력 토픽]
 
-    style IT fill:#4a90d9,color:#fff
-    style OT fill:#5ba85a,color:#fff
-    style KT fill:#e07b39,color:#fff
+    style IT fill:#4a90d9
+    style OT fill:#5ba85a
+    style KT fill:#e07b39
 ```
 
 ## 패키지 구조

@@ -105,6 +105,19 @@ classDiagram
     UnitsProduct --|> Measure : 복합 단위
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef modelStyle   fill:#FF9800,stroke:#E65100
+
+    class Units:::utilStyle
+    class Measure:::modelStyle
+    class UnitsProduct:::modelStyle
+    class UnitsRatio:::modelStyle
+    class Length:::utilStyle
+    class Time:::utilStyle
+    class Mass:::utilStyle
+    class Velocity:::modelStyle
+    class Acceleration:::modelStyle
 ```
 
 ## 단위 조합 흐름

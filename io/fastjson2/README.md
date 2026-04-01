@@ -126,7 +126,7 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ```mermaid
 classDiagram
-    class JsonSerializer {
+    class JsonSerializer:::serializerStyle {
         <<interface>>
         +serialize(graph: Any?) ByteArray
         +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
@@ -134,14 +134,14 @@ classDiagram
         +deserializeFromString(text: String?, clazz: Class~T~) T?
     }
 
-    class FastjsonSerializer {
+    class FastjsonSerializer:::serializerStyle {
         +serialize(graph) ByteArray
         +deserialize(bytes, clazz) T?
         +serializeAsString(graph) String
         +deserializeFromString(text, clazz) T?
     }
 
-    class JSONExtensions {
+    class JSONExtensions:::extensionStyle {
         <<extensions>>
         +Any.toJsonString() String
         +String.readValueOrNull() T?
@@ -149,21 +149,21 @@ classDiagram
         +String.readAsJSONObject() JSONObject
     }
 
-    class JSONBExtensions {
+    class JSONBExtensions:::codecStyle {
         <<extensions>>
         +Any.toJsonBytes() ByteArray
         +ByteArray.readBytesOrNull() T?
         +InputStream.readBytesOrNull() T?
     }
 
-    class JSONArrayExtensions {
+    class JSONArrayExtensions:::extensionStyle {
         <<extensions>>
         +JSONArray.readValueOrNull() T?
         +JSONArray.readList() List~T~
         +JSONArray.readArray() Array~T~
     }
 
-    class JSONObjectExtensions {
+    class JSONObjectExtensions:::extensionStyle {
         <<extensions>>
         +JSONObject.readValueOrNull() T?
         +JSONObject.readValueOrNull(key) T?
@@ -171,6 +171,12 @@ classDiagram
 
     JsonSerializer <|.. FastjsonSerializer
     FastjsonSerializer ..> JSONBExtensions : 내부 사용
+
+    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
+    classDef codecStyle fill:#2196F3,stroke:#1565C0
+    classDef ioStyle fill:#607D8B,stroke:#37474F
+    classDef encryptStyle fill:#F44336,stroke:#B71C1C
 ```
 
 ### JSON vs JSONB 직렬화 흐름

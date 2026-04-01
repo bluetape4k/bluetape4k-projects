@@ -317,7 +317,7 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class LettuceAtomicLong {
+    class LettuceAtomicLong:::clientStyle {
         +key: String
         +get(): Long
         +incrementAndGet(): Long
@@ -325,46 +325,46 @@ classDiagram
         +compareAndSet(expect, update): Boolean
         +getAsync(): CompletableFuture~Long~
     }
-    class LettuceSuspendAtomicLong {
+    class LettuceSuspendAtomicLong:::abstractStyle {
         +key: String
         +get(): Long
         +incrementAndGet(): Long
         +compareAndSet(expect, update): Boolean
     }
 
-    class LettuceLock {
+    class LettuceLock:::clientStyle {
         +lockKey: String
         +tryLock(waitTime, leaseTime): Boolean
         +lock(leaseTime)
         +unlock()
         +tryLockAsync(): CompletableFuture~Boolean~
     }
-    class LettuceSuspendLock {
+    class LettuceSuspendLock:::abstractStyle {
         +lockKey: String
         +tryLock(waitTime, leaseTime): Boolean
         +lock(leaseTime)
         +unlock()
     }
 
-    class LettuceSemaphore {
+    class LettuceSemaphore:::clientStyle {
         +semaphoreKey: String
         +totalPermits: Int
         +tryAcquire(permits): Boolean
         +acquire(permits, waitTime)
         +release(permits)
     }
-    class LettuceSuspendSemaphore {
+    class LettuceSuspendSemaphore:::abstractStyle {
         +semaphoreKey: String
         +totalPermits: Int
         +tryAcquire(permits): Boolean
         +release(permits)
     }
 
-    class LettuceLeaderElection {
+    class LettuceLeaderElection:::serviceStyle {
         +runIfLeader(lockName, action): T
         +runAsyncIfLeader(lockName, action): CompletableFuture~T~
     }
-    class LettuceSuspendLeaderElection {
+    class LettuceSuspendLeaderElection:::serviceStyle {
         +runIfLeader(lockName, action): T
     }
 
@@ -374,6 +374,13 @@ classDiagram
     note for LettuceSuspendLock "suspend 전용"
     note for LettuceSuspendSemaphore "suspend 전용"
     note for LettuceSuspendLeaderElection "suspend 전용"
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
@@ -410,53 +417,60 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class RedisCodec~K,V~ {
-<<interface>>
-+encodeKey(key): ByteBuffer
-+decodeKey(bytes): K
-+encodeValue(value): ByteBuffer
-+decodeValue(bytes): V
-}
-class ToByteBufEncoder~K, V~ {
-<<interface>>
-+encodeKey(key, target: ByteBuf)
-+encodeValue(value, target: ByteBuf)
-+estimateSize(keyOrValue): Int
-}
-class LettuceBinaryCodec~V~ {
-+serializer: BinarySerializer
-+encodeKey(key): ByteBuffer
-+encodeValue(value): ByteBuffer
-+decodeKey(bytes): String
-+decodeValue(bytes): V
-+estimateSize(keyOrValue): Int
-}
-class LettuceBinaryCodecs {
-<<object>>
-+default~V~(): LettuceBinaryCodec~V~
-+jdk~V~(): LettuceBinaryCodec~V~
-+kryo~V~(): LettuceBinaryCodec~V~
-+fory~V~(): LettuceBinaryCodec~V~
-+lz4Fory~V~(): LettuceBinaryCodec~V~
-+zstdFory~V~(): LettuceBinaryCodec~V~
-+snappyFory~V~(): LettuceBinaryCodec~V~
-}
-class LettuceIntCodec {
-<<object>>
-+encodeValue(value: Int): ByteBuffer
-+decodeValue(bytes): Int
-}
-class LettuceLongCodec {
-<<object>>
-+encodeValue(value: Long): ByteBuffer
-+decodeValue(bytes): Long
-}
+    class RedisCodec:::abstractStyle {
+        <<interface>>
+        +encodeKey(key): ByteBuffer
+        +decodeKey(bytes): K
+        +encodeValue(value): ByteBuffer
+        +decodeValue(bytes): V
+    }
+    class ToByteBufEncoder:::abstractStyle {
+        <<interface>>
+        +encodeKey(key, target: ByteBuf)
+        +encodeValue(value, target: ByteBuf)
+        +estimateSize(keyOrValue): Int
+    }
+    class LettuceBinaryCodec:::redisStyle {
+        +serializer: BinarySerializer
+        +encodeKey(key): ByteBuffer
+        +encodeValue(value): ByteBuffer
+        +decodeKey(bytes): String
+        +decodeValue(bytes): V
+        +estimateSize(keyOrValue): Int
+    }
+    class LettuceBinaryCodecs:::infraStyle {
+        <<object>>
+        +default~V~(): LettuceBinaryCodec~V~
+        +jdk~V~(): LettuceBinaryCodec~V~
+        +kryo~V~(): LettuceBinaryCodec~V~
+        +fory~V~(): LettuceBinaryCodec~V~
+        +lz4Fory~V~(): LettuceBinaryCodec~V~
+        +zstdFory~V~(): LettuceBinaryCodec~V~
+        +snappyFory~V~(): LettuceBinaryCodec~V~
+    }
+    class LettuceIntCodec:::clientStyle {
+        <<object>>
+        +encodeValue(value: Int): ByteBuffer
+        +decodeValue(bytes): Int
+    }
+    class LettuceLongCodec:::clientStyle {
+        <<object>>
+        +encodeValue(value: Long): ByteBuffer
+        +decodeValue(bytes): Long
+    }
 
-RedisCodec <|.. LettuceBinaryCodec
-ToByteBufEncoder <|.. LettuceBinaryCodec
-RedisCodec <|.. LettuceIntCodec
-RedisCodec <|.. LettuceLongCodec
-LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
+    RedisCodec <|.. LettuceBinaryCodec
+    ToByteBufEncoder <|.. LettuceBinaryCodec
+    RedisCodec <|.. LettuceIntCodec
+    RedisCodec <|.. LettuceLongCodec
+    LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ## 확률 자료구조

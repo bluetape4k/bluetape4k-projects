@@ -2,26 +2,170 @@
 
 Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bluetape4k 프로젝트의 모든 모듈이 의존하는 기본 기능들을 제공합니다.
 
-## UML
+## 아키텍처
+
+### 모듈 구성 개요
 
 ```mermaid
 flowchart TD
-    Core["bluetape4k-core"]
-    Validation["RequireSupport<br/>Validation"]
-    Codec["Codec<br/>Base58/Base62/Hex/Url62"]
-    Extensions["Type Extensions"]
-    Collections["Collections / Range"]
-    Concurrent["Concurrent Utils"]
-    Functional["Functional Utils"]
-    Time["Java Time DSL"]
+    Core["bluetape4k-core"]:::coreStyle
+    Validation["RequireSupport<br/>Validation"]:::serviceStyle
+    Codec["Codec<br/>Base58/Base62/Hex/Url62"]:::serviceStyle
+    Extensions["Type Extensions"]:::utilStyle
+    Ranges["Ranges<br/>ClosedClosed/ClosedOpen<br/>OpenClosed/OpenOpen"]:::utilStyle
+    Collections["Collections<br/>BoundedStack/RingBuffer<br/>PaginatedList/Permutation"]:::utilStyle
+    Concurrent["Concurrent Utils<br/>VirtualThread/CompletableFuture"]:::asyncStyle
+    Functional["Functional Utils<br/>Currying/Decorator"]:::utilStyle
+    Time["Java Time DSL<br/>Duration/Period/Quarter"]:::serviceStyle
+    ValueObject["ValueObject<br/>AbstractValueObject"]:::coreStyle
 
     Core --> Validation
     Core --> Codec
     Core --> Extensions
+    Core --> Ranges
     Core --> Collections
     Core --> Concurrent
     Core --> Functional
     Core --> Time
+    Core --> ValueObject
+
+    classDef coreStyle    fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
+---
+
+### 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class `ValueObject`:::coreStyle {
+        <<interface>>
+        +Serializable
+    }
+
+    class `AbstractValueObject`:::coreStyle {
+        <<abstract>>
+        +equals(other) Boolean
+        +hashCode() Int
+        +equalProperties(other)* Boolean
+    }
+
+    class `Range`:::utilStyle {
+        <<interface>>
+        +first: T
+        +last: T
+        +isStartInclusive: Boolean
+        +isEndInclusive: Boolean
+        +contains(value: T) Boolean
+        +isEmpty() Boolean
+    }
+
+    class `ClosedClosedRange`:::utilStyle {
+        +isStartInclusive = true
+        +isEndInclusive = true
+    }
+
+    class `ClosedOpenRange`:::utilStyle {
+        +isStartInclusive = true
+        +isEndInclusive = false
+    }
+
+    class `OpenClosedRange`:::utilStyle {
+        +isStartInclusive = false
+        +isEndInclusive = true
+    }
+
+    class `OpenOpenRange`:::utilStyle {
+        +isStartInclusive = false
+        +isEndInclusive = false
+    }
+
+    class `StringEncoder`:::serviceStyle {
+        <<interface>>
+        +encode(bytes: ByteArray) String
+        +decode(encoded: String) ByteArray
+    }
+
+    class `Base64StringEncoder`:::serviceStyle {
+        +encode(bytes) String
+        +decode(encoded) ByteArray
+    }
+
+    class `HexStringEncoder`:::serviceStyle {
+        +encode(bytes) String
+        +decode(encoded) ByteArray
+    }
+
+    class `Base58`:::serviceStyle {
+        <<object>>
+        +encode(data: ByteArray) String
+        +decode(encoded: String) ByteArray
+    }
+
+    class `Base62`:::serviceStyle {
+        <<object>>
+        +encode(number: Long) String
+        +decode(encoded: String) Long
+    }
+
+    class `RequireSupport`:::coreStyle {
+        <<extension functions>>
+        +requireNotNull(name)
+        +requireNotEmpty(name)
+        +requireNotBlank(name)
+        +requireGt(value, name)
+        +requireGe(value, name)
+        +requireLt(value, name)
+        +requireLe(value, name)
+    }
+
+    ValueObject <|.. AbstractValueObject
+    Range <|.. ClosedClosedRange
+    Range <|.. ClosedOpenRange
+    Range <|.. OpenClosedRange
+    Range <|.. OpenOpenRange
+    StringEncoder <|.. Base64StringEncoder
+    StringEncoder <|.. HexStringEncoder
+
+    classDef coreStyle    fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
+---
+
+### Validation 체이닝 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant R as RequireSupport
+    participant V as 유효한 값
+
+    C->>R: username.requireNotBlank("username")
+    alt 빈 문자열 또는 null
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>C: username (non-null)
+    end
+
+    C->>R: .requireStartsWith("user_", "username")
+    alt 접두사 불일치
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>V: username (검증 완료)
+    end
+
+    C->>R: age.requireGe(18, "age")
+    alt 18 미만
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>C: age (체이닝 반환)
+    end
 ```
 
 ## 주요 기능

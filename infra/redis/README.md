@@ -123,9 +123,80 @@ flowchart TD
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
     C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
 
-    style A fill:#c0392b,color:#fff
-    style B fill:#4a90d9,color:#fff
-    style C fill:#9b59b6,color:#fff
+    style A fill:#c0392b
+    style B fill:#4a90d9
+    style C fill:#9b59b6
+```
+
+## 핵심 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class LettuceClients:::clientStyle {
+        <<object>>
+        +clientOf(uri: String) RedisClient
+        +connect(client) StatefulRedisConnection
+        +commands(client) RedisCommands
+        +asyncCommands(client) RedisAsyncCommands
+        +coroutinesCommands(client) RedisCoroutinesCommands
+        +shutdown(client)
+    }
+
+    class LettuceBinaryCodecs:::redisStyle {
+        <<object>>
+        +default~V~() LettuceBinaryCodec
+        +lz4Fory~V~() LettuceBinaryCodec
+        +zstdFory~V~() LettuceBinaryCodec
+        +kryo~V~() LettuceBinaryCodec
+        +fory~V~() LettuceBinaryCodec
+    }
+
+    class RedissonClientSupport:::clientStyle {
+        <<object>>
+        +redissonClient(config) RedissonClient
+        +redissonReactiveClient(config) RedissonReactiveClient
+        +configFromYamlOf(input) Config
+    }
+
+    class RedissonCodecs:::redisStyle {
+        <<object>>
+        +Default: Lz4Codec
+        +Fory: ForyCodec
+        +Kryo5: Kryo5Codec
+        +LZ4: Lz4Codec
+        +Zstd: ZstdCodec
+    }
+
+    class LettuceLoadedMap:::serviceStyle {
+        +get(key: String) V?
+        +set(key: String, value: V)
+        +load(key: String) V?
+        +write(entries: Map) Unit
+    }
+
+    class RedissonLeaderElection:::serviceStyle {
+        +runIfLeader(lockName, action) T
+        +runAsyncIfLeader(lockName, action) CompletableFuture~T~
+    }
+
+    class RedissonNearCache:::cacheStyle {
+        +get(key) V?
+        +put(key, value)
+        +clearLocalCache()
+    }
+
+    LettuceClients --> LettuceBinaryCodecs: uses codec
+    LettuceClients --> LettuceLoadedMap: creates
+    RedissonClientSupport --> RedissonCodecs: uses codec
+    RedissonClientSupport --> RedissonLeaderElection: creates
+    RedissonClientSupport --> RedissonNearCache: creates
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ## Spring Data Redis

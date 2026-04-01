@@ -121,7 +121,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ```mermaid
 classDiagram
-    class AvroSerializer {
+    class AvroSerializer:::codecStyle {
         <<interface>>
         +serialize(schema, record) ByteArray
         +deserialize(schema, bytes) GenericRecord
@@ -129,13 +129,13 @@ classDiagram
         +deserializeFromString(schema, text) GenericRecord
     }
 
-    class AvroGenericRecordSerializer {
+    class AvroGenericRecordSerializer:::codecStyle {
         <<interface>>
         +serialize(schema, record) ByteArray
         +deserialize(schema, bytes) GenericRecord
     }
 
-    class AvroSpecificRecordSerializer {
+    class AvroSpecificRecordSerializer:::codecStyle {
         <<interface>>
         +serialize(record) ByteArray
         +deserialize(bytes) T
@@ -143,21 +143,21 @@ classDiagram
         +deserializeList(bytes) List~T~
     }
 
-    class AvroReflectSerializer {
+    class AvroReflectSerializer:::codecStyle {
         <<interface>>
         +serialize(obj) ByteArray
         +deserialize(bytes) T
     }
 
-    class DefaultAvroGenericRecordSerializer {
+    class DefaultAvroGenericRecordSerializer:::protoStyle {
         -codecFactory: CodecFactory
     }
 
-    class DefaultAvroSpecificRecordSerializer {
+    class DefaultAvroSpecificRecordSerializer:::protoStyle {
         -codecFactory: CodecFactory
     }
 
-    class DefaultAvroReflectSerializer {
+    class DefaultAvroReflectSerializer:::protoStyle {
         -codecFactory: CodecFactory
         -schemaCache: Map~Class, Schema~
     }
@@ -165,6 +165,9 @@ classDiagram
     AvroGenericRecordSerializer <|.. DefaultAvroGenericRecordSerializer
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
+
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
+    classDef protoStyle  fill:#9C27B0,stroke:#6A1B9A
 ```
 
 ### Avro 직렬화/역직렬화 흐름

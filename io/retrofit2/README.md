@@ -197,36 +197,40 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class Retrofit {
+    class Retrofit:::clientStyle {
         <<Retrofit2>>
         +create(serviceClass) T
         +baseUrl() HttpUrl
     }
 
-    class CallAdapter {
+    class CallAdapter:::codecStyle {
         <<interface>>
         +responseType() Type
         +adapt(call) T
     }
 
-    class ResultCallAdapterFactory {
+    class ResultCallAdapterFactory:::codecStyle {
         +get(returnType, annotations, retrofit) CallAdapter?
     }
 
-    class ResultCall~T~ {
+    class ResultCall:::clientStyle {
         -delegate: Call~T~
         +execute() Response~Result~T~~
         +enqueue(callback)
         +clone() Call~Result~T~~
     }
 
-    class Hc5CallFactory {
+    class Hc5CallFactory:::infraStyle {
         -asyncClient: CloseableHttpAsyncClient
         +newCall(request) Call
         +close()
     }
 
-    class VertxCallFactory {
+    class VertxCallFactory:::infraStyle {
+        +newCall(request) Call
+    }
+
+    class AhcCallFactory:::infraStyle {
         +newCall(request) Call
     }
 
@@ -235,6 +239,11 @@ classDiagram
     Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
     Retrofit --> Hc5CallFactory : callFactory
     Retrofit --> VertxCallFactory : callFactory
+    Retrofit --> AhcCallFactory : callFactory
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
+    classDef codecStyle  fill:#FF9800,stroke:#E65100
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)

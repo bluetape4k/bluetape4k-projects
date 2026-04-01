@@ -118,3 +118,53 @@ println("도시: ${cityResponse.city.name}")
 println("위도: ${cityResponse.location.latitude}")
 println("경도: ${cityResponse.location.longitude}")
 ```
+
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class GeoHashUtils:::utilStyle {
+        +encode(lat, lon, precision) String
+        +decode(hash) GeoPoint
+        +neighbors(hash) List~String~
+    }
+    class GeoHashCircleQuery:::utilStyle {
+        +radiusMeters: Double
+        +centerHash: String
+        +getHashes() List~String~
+    }
+    class GeoPoint:::modelStyle {
+        +latitude: Double
+        +longitude: Double
+    }
+    class GoogleGeocoder:::serviceStyle {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class BingGeocoder:::serviceStyle {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class GeoIp2Support:::infraStyle {
+        +cityReader(path) DatabaseReader
+        +countryReader(path) DatabaseReader
+    }
+    class CityResponse:::modelStyle {
+        +country: Country
+        +city: City
+        +location: Location
+    }
+
+    GeoHashCircleQuery --> GeoHashUtils : uses
+    GeoHashUtils --> GeoPoint : returns
+    GoogleGeocoder --> GeoPoint : returns
+    BingGeocoder --> GeoPoint : returns
+    GeoIp2Support --> CityResponse : returns
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef modelStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+```

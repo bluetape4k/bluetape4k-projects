@@ -2,73 +2,145 @@
 
 Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라이브러리입니다.
 
-## 클래스 계층 다이어그램
+## 아키텍처
+
+### 클래스 계층 다이어그램
 
 ```mermaid
 classDiagram
-    class KLogging {
+    class `KLogging`:::coreStyle {
         <<open class>>
-        +log: Logger
+        +log: Logger  (lazy)
     }
 
-    class KLoggingChannel {
+    class `KLoggingChannel`:::asyncStyle {
         <<open class>>
-        +log: Logger
-        -channel: MutableSharedFlow~LogEvent~
-        -processor: CoroutineScope
+        -sharedFlow: MutableSharedFlow~LogEvent~
+        -scope: CoroutineScope
+        -job: Job  (lazy)
+        +send(event: LogEvent)
+        +trace(error, msg)
+        +debug(error, msg)
+        +info(error, msg)
+        +warn(error, msg)
+        +error(error, msg)
     }
 
-    class KotlinLogging {
+    class `LogEvent`:::asyncStyle {
+        <<data class / JvmRecord>>
+        +level: Level
+        +msg: String?
+        +error: Throwable?
+    }
+
+    class `KotlinLogging`:::serviceStyle {
         <<object>>
-        +logger(block) Logger
-        +logger(name) Logger
+        +logger(block: () -> Unit) Logger
+        +logger(name: String) Logger
     }
 
-    class Logger {
-        <<interface>>
-        +trace(msg: () -> String)
-        +debug(msg: () -> String)
-        +info(msg: () -> String)
-        +warn(t, msg: () -> String)
-        +error(t, msg: () -> String)
+    class `Logger`:::utilStyle {
+        <<interface / SLF4J>>
+        +isTraceEnabled: Boolean
+        +isDebugEnabled: Boolean
+        +trace(msg: () -> Any?)
+        +debug(msg: () -> Any?)
+        +info(msg: () -> Any?)
+        +warn(t: Throwable?, msg: () -> Any?)
+        +error(t: Throwable?, msg: () -> Any?)
     }
 
-    class MDC["MDC (Mapped Diagnostic Context)"] {
+    class `MDC`:::serviceStyle {
         <<utility>>
-        +withLoggingContext(pairs, block)
+        +withLoggingContext(vararg pairs, block)
     }
 
-    class CoroutineMDC {
+    class `CoroutineMDC`:::asyncStyle {
         <<utility>>
-        +withCoroutineLoggingContext(pairs, block)
+        +withCoroutineLoggingContext(vararg pairs, block)
     }
 
-    KLogging --> Logger : "정적 log 프로퍼티"
-    KLoggingChannel --> Logger : "비동기 채널 경유"
-    KotlinLogging --> Logger : "팩토리"
-    Logger --> MDC : "일반 블로킹 컨텍스트"
-    Logger --> CoroutineMDC : "코루틴 컨텍스트"
+    class `KLoggerFactory`:::coreStyle {
+        <<internal object>>
+        +logger(clazz: Class~*~) Logger
+        +logger(name: String) Logger
+    }
+
+    KLogging --> Logger : "정적 log 프로퍼티 (lazy)"
+    KLogging <|-- KLoggingChannel : 상속
+    KLoggingChannel --> LogEvent : "이벤트 발행"
+    KLoggingChannel --> Logger : "백그라운드 코루틴에서 기록"
+    KotlinLogging --> Logger : "팩토리 생성"
+    KLoggerFactory --> Logger : "생성"
+    KLogging ..> KLoggerFactory : "사용"
+    Logger ..> MDC : "일반 블로킹 컨텍스트"
+    Logger ..> CoroutineMDC : "코루틴 컨텍스트"
+
+    classDef coreStyle    fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
 ```
 
-## 로깅 처리 흐름
+---
+
+### 로깅 처리 흐름
 
 ```mermaid
-flowchart LR
-    subgraph KLogging["KLogging (동기)"]
-        A1["log.debug { msg }"] -->|"레벨 활성화 시만 실행"| SLF4J["SLF4J Logger"]
-        SLF4J --> APPENDER["Logback Appender<br/>(Console/File)"]
+flowchart TD
+    subgraph Sync["KLogging (동기 로깅)"]
+        direction LR
+        A1["log.debug { msg }"]:::coreStyle -->|"레벨 활성화 시만 Lambda 실행"| SLF4J["SLF4J Logger"]:::utilStyle
+        SLF4J --> APPENDER["Logback Appender<br/>(Console/File)"]:::serviceStyle
     end
 
-    subgraph KLoggingChannel["KLoggingChannel (비동기)"]
-        B1["log.debug { msg }"] --> CHANNEL["MutableSharedFlow<br/>(버퍼 64개)"]
-        CHANNEL -->|"별도 코루틴"| SLF4J2["SLF4J Logger"]
-        SLF4J2 --> APPENDER2["Logback Appender"]
+    subgraph Async["KLoggingChannel (비동기 로깅)"]
+        direction LR
+        B1["log.debug { msg }"]:::asyncStyle --> CHANNEL["MutableSharedFlow<br/>버퍼 64개 · SUSPEND 정책"]:::asyncStyle
+        CHANNEL -->|"별도 코루틴 (Dispatchers.IO)"| SLF4J2["SLF4J Logger"]:::utilStyle
+        SLF4J2 --> APPENDER2["Logback Appender"]:::serviceStyle
     end
 
-    subgraph MDC["MDC 컨텍스트"]
-        C1["withLoggingContext(pairs)"] --> TL["ThreadLocal MDC"]
-        C2["withCoroutineLoggingContext(pairs)"] --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]
+    subgraph MDCContext["MDC 컨텍스트"]
+        direction LR
+        C1["withLoggingContext(pairs)"]:::serviceStyle --> TL["ThreadLocal MDC<br/>(블로킹 코드용)"]:::utilStyle
+        C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]:::asyncStyle
     end
+
+    classDef coreStyle    fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
+---
+
+### KLoggingChannel 비동기 로깅 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션 코루틴
+    participant CH as KLoggingChannel
+    participant SF as MutableSharedFlow (버퍼 64)
+    participant BG as 백그라운드 코루틴
+    participant SLF as SLF4J Logger
+
+    App->>CH: log.debug { "Processing event: $id" }
+    CH->>CH: isDebugEnabled 확인
+    alt DEBUG 비활성화
+        CH-->>App: (Lambda 미실행, 즉시 반환)
+    else DEBUG 활성화
+        CH->>SF: emit(LogEvent(DEBUG, msg))
+        alt 버퍼 여유 있음
+            SF-->>App: 즉시 resume (non-blocking)
+        else 버퍼 꽉 참 (64개 초과)
+            SF-->>App: SUSPEND (BackPressure)
+        end
+        BG->>SF: collect LogEvent
+        BG->>SLF: log.debug(msg, error)
+    end
+
+    Note over App,SLF: JVM 종료 시 Shutdown Hook → job.cancel()
 ```
 
 ## 주요 기능

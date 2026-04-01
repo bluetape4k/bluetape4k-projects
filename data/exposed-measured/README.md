@@ -84,12 +84,12 @@ flowchart LR
     D --> E[Timer 종료 + 태그 기록]
     E --> F[결과 반환]
 
-    style A fill:#607D8B,color:#fff
-    style B fill:#9C27B0,color:#fff
-    style C fill:#F44336,color:#fff
-    style D fill:#607D8B,color:#fff
-    style E fill:#F44336,color:#fff
-    style F fill:#4CAF50,color:#fff
+    style A fill:#607D8B
+    style B fill:#9C27B0
+    style C fill:#F44336
+    style D fill:#607D8B
+    style E fill:#F44336
+    style F fill:#4CAF50
 ```
 
 ## 저장/조회 시퀀스 다이어그램

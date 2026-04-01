@@ -19,13 +19,13 @@ flowchart LR
     D --> F[원격 캐시 동기화]
     F --> G[DB 쿼리 최소화]
 
-    style A fill:#607D8B,color:#fff
-    style B fill:#9C27B0,color:#fff
-    style C fill:#FF9800,color:#fff
-    style D fill:#F44336,color:#fff
-    style E fill:#4CAF50,color:#fff
-    style F fill:#F44336,color:#fff
-    style G fill:#4CAF50,color:#fff
+    style A fill:#607D8B
+    style B fill:#9C27B0
+    style C fill:#FF9800
+    style D fill:#F44336
+    style E fill:#4CAF50
+    style F fill:#F44336
+    style G fill:#4CAF50
 ```
 
 ### 레이어 구조

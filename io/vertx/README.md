@@ -144,6 +144,52 @@ sequenceDiagram
     end
 ```
 
+### Vert.x 핵심 컴포넌트 클래스 구조
+
+```mermaid
+classDiagram
+    class CoroutineVerticle:::serverStyle {
+        <<Vert.x Kotlin>>
+        +vertx: Vertx
+        +context: Context
+        +start()
+        +stop()
+    }
+
+    class EventBus:::infraStyle {
+        +send(address, message)
+        +publish(address, message)
+        +consumer(address) MessageConsumer
+    }
+
+    class SqlClient:::clientStyle {
+        <<interface>>
+        +preparedQuery(sql) PreparedQuery
+        +query(sql) Query
+        +close() Future
+    }
+
+    class Pool:::clientStyle {
+        +withConnection(handler) Future
+        +withTransaction(handler) Future
+    }
+
+    class CircuitBreaker:::infraStyle {
+        <<Resilience4j>>
+        +executeSuspend(block) T
+        +getState() State
+    }
+
+    CoroutineVerticle --> EventBus : 이벤트 수신/발행
+    CoroutineVerticle --> Pool : SQL 쿼리
+    Pool --|> SqlClient
+    CoroutineVerticle --> CircuitBreaker : 장애 격리
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef serverStyle fill:#4CAF50,stroke:#388E3C
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
+```
+
 ## 사용 예시
 
 ### Verticle (Coroutines)

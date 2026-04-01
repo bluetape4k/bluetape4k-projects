@@ -7,6 +7,62 @@ Spring Boot 3와 Spring Data Reactive를 활용하여 Exposed R2DBC를 완전한
 ## UML
 
 ```mermaid
+classDiagram
+    class UserController:::controllerStyle {
+        -userService: UserService
+        +createUser(request): ResponseEntity~User~
+        +getUser(id): ResponseEntity~User~
+        +listUsers(pageable): Page~User~
+        +getAdults(): Flow~User~
+        +streamUsers(): Flow~User~
+    }
+    class UserService:::serviceStyle {
+        -userRepository: UserRepository
+        +createUser(name, email, age): User
+        +getUserById(id): User?
+        +getAdultUsers(): List~User~
+        +streamLargeUserList(): Flow~User~
+        +countByAge(age): Long
+    }
+    class UserRepository:::repoStyle {
+        <<interface>>
+        +table: IdTable~Long~
+        +extractId(entity): Long?
+        +toDomain(row): User
+        +toPersistValues(domain): Map
+    }
+    class ExposedR2dbcRepository:::repoStyle {
+        <<interface>>
+        +save(entity): User
+        +findByIdOrNull(id): User?
+        +findAll(): Flow~User~
+        +streamAll(): Flow~User~
+        +findAll(op): Flow~User~
+        +count(op): Long
+        +deleteById(id)
+    }
+    class User:::entityStyle {
+        +id: Long?
+        +name: String
+        +email: String
+        +age: Int
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    UserController --> UserService
+    UserService --> UserRepository
+    UserRepository --|> ExposedR2dbcRepository
+    UserRepository --> User
+```
+
+### 데이터 흐름 다이어그램
+
+```mermaid
 flowchart LR
     WebFlux["WebFlux / Coroutine Service"]
     Repo["ExposedR2dbcRepository"]

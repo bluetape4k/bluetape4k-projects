@@ -182,54 +182,57 @@ dependencies {
 
 ```mermaid
 classDiagram
-    class CloseableHttpAsyncClient {
+    class CloseableHttpAsyncClient:::infraStyle {
         <<Apache HC5>>
         +execute(request, callback) Future
         +start()
         +close()
     }
 
-    class HttpAsyncClientCoroutines {
+    class HttpAsyncClientCoroutines:::clientStyle {
         <<확장 함수>>
         +executeSuspending(request) SimpleHttpResponse
     }
 
-    class CachingHttpAsyncClientBuilder {
+    class CachingHttpAsyncClientBuilder:::infraStyle {
         <<DSL 빌더>>
         +setHttpCacheStorage(storage)
         +build() CloseableHttpAsyncClient
     }
 
-    class InMemoryHttpCacheStorage
-    class JavaCacheHttpCacheStorage
+    class InMemoryHttpCacheStorage:::infraStyle
+    class JavaCacheHttpCacheStorage:::infraStyle
 
     CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
     CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
     CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
 ```
 
 ### OkHttp3 클라이언트 계층
 
 ```mermaid
 classDiagram
-    class OkHttpClient {
+    class OkHttpClient:::clientStyle {
         <<OkHttp3>>
         +newCall(request) Call
     }
 
-    class LoggingInterceptor {
+    class LoggingInterceptor:::infraStyle {
         +intercept(chain) Response
     }
 
-    class CachingRequestInterceptor {
+    class CachingRequestInterceptor:::infraStyle {
         +intercept(chain) Response
     }
 
-    class CachingResponseInterceptor {
+    class CachingResponseInterceptor:::infraStyle {
         +intercept(chain) Response
     }
 
-    class OkHttpClientExtensionsCoroutines {
+    class OkHttpClientExtensionsCoroutines:::clientStyle {
         <<확장 함수>>
         +executeSuspending(request) Response
     }
@@ -238,6 +241,9 @@ classDiagram
     OkHttpClient --> CachingRequestInterceptor : addInterceptor
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
     OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
+
+    classDef clientStyle fill:#2196F3,stroke:#1565C0
+    classDef infraStyle  fill:#607D8B,stroke:#37474F
 ```
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)

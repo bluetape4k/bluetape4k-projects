@@ -119,6 +119,127 @@ Useful entry points:
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
 
+## 아키텍처
+
+### 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class `DeferredValue`:::asyncStyle {
+        <<class>>
+        +await() T
+        +value: T  (blocking)
+        +map(transform) DeferredValue~R~
+        +flatMap(transform) DeferredValue~R~
+    }
+
+    class `deferredValueOf`:::asyncStyle {
+        <<factory function>>
+        +deferredValueOf(block) DeferredValue~T~
+    }
+
+    class `DeferredSupport`:::asyncStyle {
+        <<extension functions>>
+        +zip(a, b, transform) Deferred~R~
+        +awaitAny(vararg deferred) T
+        +awaitAnyAndCancelOthers() T
+        +map(transform) Deferred~R~
+        +mapAll(transform) Deferred~List~R~~
+        +concatMap(transform) Deferred~R~
+    }
+
+    class `DefaultCoroutineScope`:::serviceStyle {
+        <<class>>
+        +coroutineContext: Dispatchers.Default + SupervisorJob
+    }
+
+    class `IoCoroutineScope`:::serviceStyle {
+        <<class>>
+        +coroutineContext: Dispatchers.IO + SupervisorJob
+    }
+
+    class `ThreadPoolCoroutineScope`:::serviceStyle {
+        <<class>>
+        +poolSize: Int
+        +name: String
+        +close()
+    }
+
+    class `VirtualThreadCoroutineScope`:::serviceStyle {
+        <<class>>
+        +coroutineContext: VirtualThread dispatcher + SupervisorJob
+    }
+
+    class `FlowExtensions`:::utilStyle {
+        <<extension functions>>
+        +chunked(n) Flow~List~T~~
+        +windowed(size, step) Flow~List~T~~
+        +sliding(n) Flow~List~T~~
+        +mapParallel(parallelism, transform) Flow~R~
+        +concatMapEager(transform) Flow~R~
+        +bufferingDebounce(timeout) Flow~List~T~~
+        +throttleLeading(duration) Flow~T~
+        +throttleTrailing(duration) Flow~T~
+        +takeUntil(notifier) Flow~T~
+        +skipUntil(notifier) Flow~T~
+        +pairwise() Flow~Pair~T,T~~
+        +scanWith(initial, accumulator) Flow~R~
+        +groupBy(keySelector) Flow~GroupedFlow~K,V~~
+    }
+
+    class `AsyncFlow`:::asyncStyle {
+        <<extension function>>
+        +Flow.async(dispatcher, transform) Flow~R~
+    }
+
+    class `ReactorContextHelpers`:::utilStyle {
+        <<extension functions>>
+        +currentReactiveContext() Context?
+        +Context.getOrNull(key) V?
+    }
+
+    DeferredValue ..> deferredValueOf : created by
+    DeferredSupport ..> DeferredValue : wraps
+    DefaultCoroutineScope ..|> CoroutineScope
+    IoCoroutineScope ..|> CoroutineScope
+    ThreadPoolCoroutineScope ..|> CoroutineScope
+    VirtualThreadCoroutineScope ..|> CoroutineScope
+    FlowExtensions ..> AsyncFlow : includes
+
+    classDef coreStyle    fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
+---
+
+### DeferredValue 사용 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant DV as DeferredValue
+    participant Co as 코루틴 (백그라운드)
+
+    C->>DV: deferredValueOf { delay(100); 21 }
+    DV->>Co: 즉시 코루틴 시작 (eager)
+
+    C->>DV: .map { it * 2 }
+    DV-->>C: 새 DeferredValue (doubled) 반환
+
+    C->>DV: doubled.await()
+    DV->>Co: 결과 대기 (suspend)
+    Co-->>DV: 42
+    DV-->>C: 42
+
+    Note over C,Co: value 프로퍼티는 블로킹 접근 (비추천)
+    C->>DV: doubled.value
+    DV-->>C: 42 (스레드 블록)
+```
+
+---
+
 ## Flow 연산자 다이어그램
 
 ### 1. Flow 확장 함수 카테고리 개요

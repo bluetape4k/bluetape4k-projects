@@ -84,7 +84,7 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    class NearCacheOperations~V~ {
+    class NearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -100,7 +100,7 @@ classDiagram
         +stats() NearCacheStatistics
     }
 
-    class NearCacheStatistics {
+    class NearCacheStatistics:::infraStyle {
         <<interface>>
         +localHits: Long
         +localMisses: Long
@@ -111,23 +111,23 @@ classDiagram
         +hitRate: Double
     }
 
-    class ResilientNearCacheDecorator~V~ {
+    class ResilientNearCacheDecorator:::serviceStyle {
         -delegate: NearCacheOperations~V~
         -retry: Retry
         -config: NearCacheResilienceConfig
     }
 
-    class LettuceNearCache~V~ {
+    class LettuceNearCache:::redisStyle {
         -redisClient: RedisClient
         -trackingListener: TrackingInvalidationListener
     }
 
-    class HazelcastNearCache~V~ {
+    class HazelcastNearCache:::clientStyle {
         -imap: IMap
         -entryListener: EntryListener
     }
 
-    class RedissonNearCache~V~ {
+    class RedissonNearCache:::cacheStyle {
         -localCachedMap: RLocalCachedMap
     }
 
@@ -137,13 +137,20 @@ classDiagram
     NearCacheOperations <|.. ResilientNearCacheDecorator
     NearCacheOperations --o ResilientNearCacheDecorator : delegate
     NearCacheOperations ..> NearCacheStatistics : stats()
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 #### SuspendNearCacheOperations (Coroutine)
 
 ```mermaid
 classDiagram
-    class SuspendNearCacheOperations~V~ {
+    class SuspendNearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -157,20 +164,20 @@ classDiagram
         +close()
     }
 
-    class ResilientSuspendNearCacheDecorator~V~ {
+    class ResilientSuspendNearCacheDecorator:::serviceStyle {
         -delegate: SuspendNearCacheOperations~V~
         -retry: Retry
     }
 
-    class LettuceSuspendNearCache~V~ {
+    class LettuceSuspendNearCache:::redisStyle {
         -commands: RedisCoroutinesCommands
     }
 
-    class HazelcastSuspendNearCache~V~ {
+    class HazelcastSuspendNearCache:::clientStyle {
         -imap: IMap
     }
 
-    class RedissonSuspendNearCache~V~ {
+    class RedissonSuspendNearCache:::cacheStyle {
         -localCachedMap: RLocalCachedMap
     }
 
@@ -179,6 +186,13 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
     SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)

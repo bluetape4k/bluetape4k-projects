@@ -63,7 +63,7 @@ val value = suspendCache.get("key")
 
 ```mermaid
 classDiagram
-    class NearCacheOperations {
+    class NearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -78,7 +78,7 @@ classDiagram
         +close()
     }
 
-    class SuspendNearCacheOperations {
+    class SuspendNearCacheOperations:::abstractStyle {
         <<interface>>
         +cacheName: String
         +isClosed: Boolean
@@ -91,21 +91,21 @@ classDiagram
         +close()
     }
 
-    class RedissonNearCache {
+    class RedissonNearCache:::cacheStyle {
         -redisson: RedissonClient
         -config: RedissonNearCacheConfig
         -codec: Codec
         -localCachedMap: RLocalCachedMap
     }
 
-    class RedissonSuspendNearCache {
+    class RedissonSuspendNearCache:::cacheStyle {
         -redisson: RedissonClient
         -config: RedissonNearCacheConfig
         -codec: Codec
         -localCachedMap: RLocalCachedMap
     }
 
-    class RedissonNearCacheConfig {
+    class RedissonNearCacheConfig:::infraStyle {
         +cacheName: String
         +maxLocalSize: Int
         +evictionPolicy: EvictionPolicy
@@ -115,22 +115,29 @@ classDiagram
         +maxIdle: Duration?
     }
 
-    class RLocalCachedMap {
-<<Redisson- 내장2-tier>>
-+get(key) V?
-+put(key, value)
-+getAsync(key) RFuture
-+putAsync(key, value) RFuture
-+clearLocalCache()
-+cachedKeySet() Set
-}
+    class RLocalCachedMap:::redisStyle {
+        <<Redisson 내장 2-tier>>
+        +get(key) V?
+        +put(key, value)
+        +getAsync(key) RFuture
+        +putAsync(key, value) RFuture
+        +clearLocalCache()
+        +cachedKeySet() Set
+    }
 
-NearCacheOperations <|.. RedissonNearCache
-SuspendNearCacheOperations <|.. RedissonSuspendNearCache
-RedissonNearCache --> RLocalCachedMap: localCachedMap
-RedissonNearCache --> RedissonNearCacheConfig: config
-RedissonSuspendNearCache --> RLocalCachedMap: localCachedMap
-RedissonSuspendNearCache --> RedissonNearCacheConfig: config
+    NearCacheOperations <|.. RedissonNearCache
+    SuspendNearCacheOperations <|.. RedissonSuspendNearCache
+    RedissonNearCache --> RLocalCachedMap: localCachedMap
+    RedissonNearCache --> RedissonNearCacheConfig: config
+    RedissonSuspendNearCache --> RLocalCachedMap: localCachedMap
+    RedissonSuspendNearCache --> RedissonNearCacheConfig: config
+
+    classDef cacheStyle   fill:#F44336,stroke:#B71C1C
+    classDef redisStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef clientStyle  fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
 ```
 
 ### RLocalCachedMap 내장 Invalidation 흐름

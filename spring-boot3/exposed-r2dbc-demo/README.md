@@ -9,6 +9,64 @@ Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 3
 ## UML
 
 ```mermaid
+classDiagram
+    class ProductController:::controllerStyle {
+        -productRepository: ProductR2dbcRepository
+        +findAll(): List~ProductDto~
+        +findById(id): ProductDto
+        +create(dto): ResponseEntity~ProductDto~
+        +update(id, dto): ProductDto
+        +delete(id): ResponseEntity~Void~
+    }
+    class ProductR2dbcRepository:::repoStyle {
+        <<interface>>
+        +table: IdTable~Long~
+        +extractId(entity): Long?
+        +toDomain(row): ProductDto
+        +toPersistValues(domain): Map
+    }
+    class ExposedR2dbcRepository:::repoStyle {
+        <<interface>>
+        +save(entity): T
+        +findByIdOrNull(id): T?
+        +findAll(): Flow~T~
+        +streamAll(): Flow~T~
+        +deleteById(id)
+    }
+    class ProductDto:::entityStyle {
+        +id: Long?
+        +name: String
+        +price: BigDecimal
+        +stock: Int
+    }
+    class Products:::entityStyle {
+        <<object>>
+        +name: Column~String~
+        +price: Column~BigDecimal~
+        +stock: Column~Int~
+    }
+    class DataInitializer:::configStyle {
+        -scope: CoroutineScope
+        +onApplicationReady(event)
+        -initializeData()
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ProductController --> ProductR2dbcRepository
+    ProductR2dbcRepository --|> ExposedR2dbcRepository
+    ProductR2dbcRepository --> ProductDto
+    ProductDto --> Products : persisted via
+    DataInitializer --> ProductR2dbcRepository
+```
+
+### 애플리케이션 흐름 다이어그램
+
+```mermaid
 flowchart TD
     App["WebfluxDemoApplication"]
     Init["DataInitializer"]

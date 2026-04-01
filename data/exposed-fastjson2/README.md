@@ -139,8 +139,8 @@ classDiagram
     }
     Fastjson2ColumnType <|-- Fastjson2BColumnType
 
-    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
-    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef tableStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
     class Fastjson2ColumnType:::tableStyle
     class Fastjson2BColumnType:::tableStyle
     class TableExtensions:::serviceStyle
