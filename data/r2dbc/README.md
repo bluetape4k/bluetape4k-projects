@@ -285,6 +285,27 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ## 아키텍처 다이어그램
 
+### 확장 함수 API 개요
+
+```mermaid
+classDiagram
+    direction LR
+    class R2dbcExtensions {
+        <<extension functions>>
+        +ConnectionFactory.execute(sql): Mono~Long~
+        +Connection.createStatement(sql): Statement
+    }
+    class FlowExtensions {
+        <<extension functions>>
+        +Result.toFlow~T~(): Flow~T~
+        +Publisher~T~.asFlow(): Flow~T~
+    }
+
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class R2dbcExtensions:::serviceStyle
+    class FlowExtensions:::serviceStyle
+```
+
 ### 주요 API 구조
 
 ```mermaid

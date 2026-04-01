@@ -77,6 +77,32 @@ val userBySsn = Users.selectAll()
 | 인덱스 생성 가능       | 보안 요구사항에 따라 부적합할 수 있음     |
 | 정렬 가능           |                           |
 
+## 아키텍처 다이어그램
+
+### 컬럼 타입 구조 (요약)
+
+```mermaid
+classDiagram
+    direction LR
+    class JasyptEncryptedColumnType~T~ {
+        <<ColumnType>>
+        -encryptor: StringEncryptor
+        +valueFromDB(value): T
+        +valueToDB(value): String
+    }
+    class TableExtensions {
+        <<extension functions>>
+        +Table.encryptedVarchar(name): Column~String~
+        +Table.encryptedText(name): Column~String~
+    }
+    TableExtensions --> JasyptEncryptedColumnType : creates
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class JasyptEncryptedColumnType:::tableStyle
+    class TableExtensions:::serviceStyle
+```
+
 ## 클래스 다이어그램
 
 ```mermaid

@@ -514,6 +514,28 @@ class Purchase {
 
 ## 아키텍처 다이어그램
 
+### Repository 클래스 구조
+
+```mermaid
+classDiagram
+    direction TB
+    class HibernateRepository~ID,E~ {
+        <<abstract>>
+        +findByIdOrNull(id): E?
+        +save(entity): E
+        +deleteById(id): Int
+        +findAll(spec): List~E~
+    }
+    class AbstractHibernateRepository~ID,E~ {
+        #sessionFactory: SessionFactory
+    }
+    HibernateRepository <|-- AbstractHibernateRepository
+
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    class HibernateRepository:::repoStyle
+    class AbstractHibernateRepository:::repoStyle
+```
+
 ### JPA 엔티티 클래스 계층 구조
 
 ```mermaid

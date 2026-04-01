@@ -124,6 +124,31 @@ val nearCacheConfig = RedisCacheConfig.readOnly(
 )
 ```
 
+## 아키텍처 개요
+
+```mermaid
+classDiagram
+    direction TB
+    class RedissonR2dbcRepository~E~ {
+        <<abstract suspend>>
+        -nearCache: RedissonNearCache
+        +findByIdOrNull(id): E?
+        +findAll(): Flow~E~
+        +save(entity): E
+    }
+    class RedissonNearCache~V~ {
+        +get(key): V?
+        +put(key, value)
+        +invalidate(key)
+    }
+    RedissonR2dbcRepository --> RedissonNearCache : RLocalCachedMap
+
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef cacheStyle fill:#F44336,color:#fff,stroke:#B71C1C
+    class RedissonR2dbcRepository:::repoStyle
+    class RedissonNearCache:::cacheStyle
+```
+
 ## 클래스 다이어그램
 
 ### R2DBC Redisson Repository 계층 구조

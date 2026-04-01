@@ -474,6 +474,29 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ## 아키텍처 다이어그램
 
+### 확장 함수 API 개요
+
+```mermaid
+classDiagram
+    direction LR
+    class JdbcExtensions {
+        <<extension functions>>
+        +DataSource.execute(sql): Int
+        +DataSource.query~T~(sql): List~T~
+        +Connection.executeBatch(sqls): IntArray
+    }
+    class DataSourceExtensions {
+        <<extension functions>>
+        +dataSourceOf(url, user, pw): DataSource
+        +HikariDataSource(block): DataSource
+    }
+
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef dbStyle fill:#607D8B,color:#fff,stroke:#37474F
+    class JdbcExtensions:::serviceStyle
+    class DataSourceExtensions:::dbStyle
+```
+
 ### 주요 API 구조
 
 ```mermaid

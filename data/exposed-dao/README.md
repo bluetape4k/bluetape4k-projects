@@ -220,6 +220,43 @@ transaction {
 
 ## 다이어그램
 
+### AuditableEntity 핵심 구조
+
+`AuditableLongEntity`, `AuditableLongEntityClass`, 커스텀 IdTable 계층의 관계를 나타냅니다.
+
+```mermaid
+classDiagram
+    direction TB
+    class AuditableLongEntity {
+        <<abstract Entity>>
+        +createdBy: String
+        +createdAt: Instant
+        +updatedBy: String
+        +updatedAt: Instant
+        +flush()
+    }
+    class AuditableLongEntityClass~E~ {
+        <<abstract EntityClass>>
+        +new(init): E
+    }
+    class KsuidTable {
+        <<IdTable~String~>>
+        +id: Column~String~
+    }
+    class SnowflakeIdTable {
+        <<IdTable~Long~>>
+        +id: Column~Long~
+    }
+    AuditableLongEntityClass --> AuditableLongEntity : manages
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,color:#fff,stroke:#E65100
+    class AuditableLongEntity:::entityStyle
+    class AuditableLongEntityClass:::entityStyle
+    class KsuidTable:::tableStyle
+    class SnowflakeIdTable:::tableStyle
+```
+
 ### 커스텀 IdTable 계층
 
 `exposed-core`의 IdTable 구현을 DAO 엔티티와 함께 사용하는 전체 계층입니다.

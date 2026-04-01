@@ -96,6 +96,59 @@ suspend fun example(repo: UserSuspendedRepository) {
 }
 ```
 
+## 아키텍처 개요
+
+```mermaid
+classDiagram
+    direction TB
+    class LettuceJdbcRepository~E~ {
+        <<abstract>>
+        -nearCache: LettuceNearCache
+        +findByIdOrNull(id): E?
+        +save(entity): E
+        +deleteById(id): Int
+    }
+    class LettuceNearCache~V~ {
+        +get(key): V?
+        +put(key, value)
+        +invalidate(key)
+    }
+    class ReadWriteThrough {
+        <<strategy>>
+        DB읽기 → 캐시 저장
+        캐시 먼저 조회 → Miss시 DB
+    }
+
+    LettuceJdbcRepository --> LettuceNearCache : L1/L2 cache
+    LettuceJdbcRepository --> ReadWriteThrough : pattern
+
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef cacheStyle fill:#F44336,color:#fff,stroke:#B71C1C
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class LettuceJdbcRepository:::repoStyle
+    class LettuceNearCache:::cacheStyle
+    class ReadWriteThrough:::serviceStyle
+```
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Repo as LettuceJdbcRepository
+    participant Cache as LettuceNearCache
+    participant DB as PostgreSQL
+
+    App->>Repo: findByIdOrNull(id)
+    Repo->>Cache: get(id)
+    alt Cache Hit
+        Cache-->>Repo: entity
+    else Cache Miss
+        Repo->>DB: SELECT WHERE id=?
+        DB-->>Repo: row
+        Repo->>Cache: put(id, entity)
+    end
+    Repo-->>App: entity?
+```
+
 ## 클래스 다이어그램
 
 ### Repository 계층 구조

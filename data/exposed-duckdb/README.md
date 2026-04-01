@@ -76,6 +76,28 @@ queryFlow(db) {
 > 트랜잭션 안에서 결과를 `List`로 materialize 한 뒤 emit 합니다.
 > 따라서 API는 `Flow`이지만, 진짜 row-by-row streaming cursor는 아닙니다.
 
+## 핵심 API 다이어그램
+
+```mermaid
+classDiagram
+    direction LR
+    class DuckDBDatabase {
+        <<factory>>
+        +connect(path): Database
+        +connectInMemory(): Database
+    }
+    class DuckDBExtensions {
+        <<extension functions>>
+        +suspendTransaction~T~(block): T
+        +queryFlow~T~(query): Flow~T~
+    }
+
+    classDef dbStyle fill:#607D8B,color:#fff,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class DuckDBDatabase:::dbStyle
+    class DuckDBExtensions:::serviceStyle
+```
+
 ## 다이어그램
 
 ```mermaid

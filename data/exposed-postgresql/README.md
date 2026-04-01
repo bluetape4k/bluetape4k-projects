@@ -22,6 +22,46 @@ flowchart LR
     Query --> PG
 ```
 
+## 컬럼 타입 다이어그램
+
+```mermaid
+classDiagram
+    direction TB
+    class GeoGeometryColumnType {
+        <<ColumnType>>
+        +valueFromDB(value): PGgeometry
+        +valueToDB(value): PGobject
+    }
+    class PgvectorColumnType {
+        <<ColumnType>>
+        +valueFromDB(value): FloatArray
+        +valueToDB(value): PGobject
+    }
+    class TstzrangeColumnType {
+        <<ColumnType>>
+        +valueFromDB(value): ClosedRange~Instant~
+        +valueToDB(value): PGobject
+    }
+    class PostGISExtensions {
+        <<extension functions>>
+        +Table.geoGeometry(name): Column~PGgeometry~
+        +Table.geoPoint(name): Column~PGgeometry~
+        +Table.geoPolygon(name): Column~PGgeometry~
+        +Table.pgvector(name, dim): Column~FloatArray~
+        +Table.tstzrange(name): Column~ClosedRange~Instant~~
+    }
+    PostGISExtensions --> GeoGeometryColumnType : creates
+    PostGISExtensions --> PgvectorColumnType : creates
+    PostGISExtensions --> TstzrangeColumnType : creates
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class GeoGeometryColumnType:::tableStyle
+    class PgvectorColumnType:::tableStyle
+    class TstzrangeColumnType:::tableStyle
+    class PostGISExtensions:::serviceStyle
+```
+
 ## 주요 기능
 
 ### 1. PostGIS - 공간 데이터

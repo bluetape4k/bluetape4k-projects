@@ -74,6 +74,24 @@ classDiagram
     TemperatureColumnType ..> Temperature : stores as Kelvin DOUBLE
 ```
 
+## 쿼리 실행 흐름
+
+```mermaid
+flowchart LR
+    A[SQL 쿼리 실행] --> B{MeasuredTransaction}
+    B --> C[Micrometer Timer 시작]
+    C --> D[실제 DB 쿼리]
+    D --> E[Timer 종료 + 태그 기록]
+    E --> F[결과 반환]
+
+    style A fill:#607D8B,color:#fff
+    style B fill:#9C27B0,color:#fff
+    style C fill:#F44336,color:#fff
+    style D fill:#607D8B,color:#fff
+    style E fill:#F44336,color:#fff
+    style F fill:#4CAF50,color:#fff
+```
+
 ## 저장/조회 시퀀스 다이어그램
 
 ```mermaid

@@ -207,6 +207,31 @@ object SensitiveData: IntIdTable("sensitive_data") {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### 컬럼 타입 구조 (요약)
+
+```mermaid
+classDiagram
+    direction LR
+    class TinkEncryptedColumnType~T~ {
+        <<ColumnType>>
+        -aead: Aead
+        +valueFromDB(value): T
+        +valueToDB(value): ByteArray
+    }
+    class TableExtensions {
+        <<extension functions>>
+        +Table.tinkEncrypted~T~(name): Column~T~
+    }
+    TableExtensions --> TinkEncryptedColumnType : creates
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class TinkEncryptedColumnType:::tableStyle
+    class TableExtensions:::serviceStyle
+```
+
 ## 클래스 다이어그램
 
 ```mermaid

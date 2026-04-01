@@ -391,6 +391,62 @@ transaction {
 
 ## 클래스 다이어그램
 
+### Repository 및 VirtualThread 트랜잭션 핵심 구조
+
+```mermaid
+classDiagram
+    direction TB
+    class LongJdbcRepository~E~ {
+        <<interface>>
+        +findByIdOrNull(id): E?
+        +findAll(): List~E~
+        +save(entity): E
+        +deleteById(id): Int
+    }
+    class AbstractJdbcRepository~ID,E~ {
+        <<abstract>>
+        #table: Table
+        +findAll(where): List~E~
+        +count(where): Long
+        #ResultRow.toEntity(): E
+    }
+    class AuditableJdbcRepository~E~ {
+        <<abstract>>
+        +auditedUpdateById(id, block)
+        +auditedUpdateAll(where, block)
+    }
+    class VirtualThreadJdbcTransaction {
+        <<functions>>
+        +newVirtualThreadJdbcTransaction(): T
+        +virtualThreadJdbcTransactionAsync(): VirtualFuture~T~
+    }
+
+    LongJdbcRepository <|-- AbstractJdbcRepository
+    AbstractJdbcRepository <|-- AuditableJdbcRepository
+
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class LongJdbcRepository:::repoStyle
+    class AbstractJdbcRepository:::repoStyle
+    class AuditableJdbcRepository:::repoStyle
+    class VirtualThreadJdbcTransaction:::serviceStyle
+```
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant VT as newVirtualThreadJdbcTransaction
+    participant DB as Database
+
+    Caller->>VT: { query/insert/update }
+    VT->>DB: BEGIN (VirtualThread)
+    DB-->>VT: connection
+    VT->>DB: SQL operations
+    DB-->>VT: result
+    VT->>DB: COMMIT
+    VT-->>Caller: T (result)
+```
+
 ### Repository 계층 구조
 
 ```mermaid

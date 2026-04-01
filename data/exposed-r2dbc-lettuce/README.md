@@ -70,6 +70,30 @@ suspend fun example(repo: UserR2dbcLettuceRepository) {
 }
 ```
 
+## 아키텍처 개요
+
+```mermaid
+classDiagram
+    direction TB
+    class LettuceSuspendR2dbcRepository~E~ {
+        <<abstract suspend>>
+        -nearCache: SuspendNearCacheOperations
+        +findByIdOrNull(id): E?
+        +findAll(): Flow~E~
+        +save(entity): E
+    }
+    class SuspendLettuceNearCache~V~ {
+        +get(key): V?
+        +put(key, value)
+    }
+    LettuceSuspendR2dbcRepository --> SuspendLettuceNearCache : suspend cache
+
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef cacheStyle fill:#F44336,color:#fff,stroke:#B71C1C
+    class LettuceSuspendR2dbcRepository:::repoStyle
+    class SuspendLettuceNearCache:::cacheStyle
+```
+
 ## 클래스 다이어그램
 
 ### Repository 계층 구조

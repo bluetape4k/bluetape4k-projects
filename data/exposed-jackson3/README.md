@@ -110,6 +110,39 @@ val query2 = Users.selectAll()
 
 ## 아키텍처 다이어그램
 
+### 컬럼 타입 구조 (요약)
+
+```mermaid
+classDiagram
+    direction LR
+    class JacksonColumnType~T~ {
+        <<ColumnType>>
+        -objectMapper: ObjectMapper
+        +valueFromDB(value): T
+        +valueToDB(value): Any
+    }
+    class JacksonBColumnType~T~ {
+        <<ColumnType JSONB>>
+        -objectMapper: ObjectMapper
+        +valueFromDB(value): T
+        +valueToDB(value): PGobject
+    }
+    class TableExtensions {
+        <<extension functions>>
+        +Table.jackson~T~(name): Column~T~
+        +Table.jacksonb~T~(name): Column~T~
+    }
+    JacksonColumnType <|-- JacksonBColumnType
+    TableExtensions --> JacksonColumnType : creates
+    TableExtensions --> JacksonBColumnType : creates
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class JacksonColumnType:::tableStyle
+    class JacksonBColumnType:::tableStyle
+    class TableExtensions:::serviceStyle
+```
+
 ### JSON 컬럼 타입 클래스 구조
 
 ```mermaid

@@ -8,6 +8,28 @@ Hibernate 7 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 + R
 
 ## 아키텍처
 
+### Near Cache 2-Tier 구조
+
+```mermaid
+flowchart LR
+    A[Hibernate 2nd Level Cache] --> B{LettuceNearCacheRegionFactory}
+    B --> C[L1: Caffeine\n로컬 인메모리]
+    B --> D[L2: Redis\nLettuce RESP3\nClient Tracking]
+    C --> E[캐시 히트 즉시 반환]
+    D --> F[원격 캐시 동기화]
+    F --> G[DB 쿼리 최소화]
+
+    style A fill:#607D8B,color:#fff
+    style B fill:#9C27B0,color:#fff
+    style C fill:#FF9800,color:#fff
+    style D fill:#F44336,color:#fff
+    style E fill:#4CAF50,color:#fff
+    style F fill:#F44336,color:#fff
+    style G fill:#4CAF50,color:#fff
+```
+
+### 레이어 구조
+
 ```mermaid
 flowchart TD
     Hibernate["Hibernate ORM"]

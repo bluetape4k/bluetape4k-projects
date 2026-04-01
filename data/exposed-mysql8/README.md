@@ -30,6 +30,35 @@ classDiagram
     GeometryColumnType <|-- GeoGeometryColumnType
 ```
 
+## 확장 함수 다이어그램
+
+```mermaid
+classDiagram
+    direction LR
+    class GeoPointColumnType {
+        <<ColumnType>>
+        +valueFromDB(value): Point
+    }
+    class GeoPolygonColumnType {
+        <<ColumnType>>
+        +valueFromDB(value): Polygon
+    }
+    class MySQL8GeoExtensions {
+        <<extension functions>>
+        +Table.geoPoint(name): Column~Point~
+        +Table.geoPolygon(name): Column~Polygon~
+        +Table.geoLineString(name): Column~LineString~
+        +ST_Distance(g1, g2): Expression
+        +ST_Contains(g1, g2): Expression
+    }
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class GeoPointColumnType:::tableStyle
+    class GeoPolygonColumnType:::tableStyle
+    class MySQL8GeoExtensions:::serviceStyle
+```
+
 ## 개요
 
 - **Geometry 타입**: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (기본)

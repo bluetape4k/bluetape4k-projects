@@ -161,6 +161,22 @@ classDiagram
     ShapefileImportService --> SpatialLayerRepository : delegates
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
+
+    classDef modelStyle  fill:#FF9800,color:#fff,stroke:#E65100
+    classDef schemaStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef repoStyle   fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+
+    class SpatialLayerRecord:::modelStyle
+    class SpatialFeatureRecord:::modelStyle
+    class NetCdfFileRecord:::modelStyle
+    class SpatialLayerTable:::schemaStyle
+    class SpatialFeatureTable:::schemaStyle
+    class NetCdfFileTable:::schemaStyle
+    class SpatialLayerRepository:::repoStyle
+    class SpatialFeatureRepository:::repoStyle
+    class NetCdfFileRepository:::repoStyle
+    class ShapefileImportService:::serviceStyle
 ```
 
 **Schema** — Exposed 테이블 정의
@@ -424,6 +440,21 @@ classDiagram
     UtmZone --> BoundingBox : produces
     Shape --> ShapeHeader
     Shape --> ShapeRecord
+
+    classDef coordsStyle  fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef projectStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef shapeStyle   fill:#FF9800,color:#fff,stroke:#E65100
+
+    class GeoLocation:::coordsStyle
+    class BoundingBox:::coordsStyle
+    class UtmZone:::coordsStyle
+    class DM:::coordsStyle
+    class DMS:::coordsStyle
+    class CrsRegistry:::projectStyle
+    class Projections:::projectStyle
+    class Shape:::shapeStyle
+    class ShapeRecord:::shapeStyle
+    class ShapeHeader:::shapeStyle
 ```
 
 ```

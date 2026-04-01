@@ -118,6 +118,34 @@ val extraData: Map<String, Any>? = resultRow.getFastjsonOrNull(Products.extraDat
 
 ## 아키텍처 다이어그램
 
+### 컬럼 타입 구조 (요약)
+
+```mermaid
+classDiagram
+    direction LR
+    class Fastjson2ColumnType~T~ {
+        <<ColumnType>>
+        +valueFromDB(value): T
+        +valueToDB(value): Any
+    }
+    class Fastjson2BColumnType~T~ {
+        <<ColumnType JSONB>>
+        +valueToDB(value): PGobject
+    }
+    class TableExtensions {
+        <<extension functions>>
+        +Table.fastjson2~T~(name): Column~T~
+        +Table.fastjson2b~T~(name): Column~T~
+    }
+    Fastjson2ColumnType <|-- Fastjson2BColumnType
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class Fastjson2ColumnType:::tableStyle
+    class Fastjson2BColumnType:::tableStyle
+    class TableExtensions:::serviceStyle
+```
+
 ### JSON 컬럼 타입 클래스 구조
 
 ```mermaid

@@ -90,29 +90,31 @@ dependencies {
 
 ```mermaid
 flowchart TD
-    A[bluetape4k-exposed<br/>umbrella] --> B[bluetape4k-exposed-core<br/>핵심 컬럼 타입 · ID 확장]
-    A --> C[bluetape4k-exposed-dao<br/>DAO 엔티티 · 커스텀 IdTable]
-    A --> D[bluetape4k-exposed-jdbc<br/>Repository · 트랜잭션 · 쿼리]
-    D --> B
-    D --> C
+    E[exposed\numbrella] --> EC[exposed-core\n컬럼 타입 + Auditable]
+    E --> ED[exposed-dao\nDAO Entity + IdTable]
+    E --> EJ[exposed-jdbc\nJDBC Repository\n+ VirtualThread]
+    E --> ER[exposed-r2dbc\nR2DBC Repository\n+ Flow/suspend]
 
-    E[exposed-r2dbc] --> B
-    F[exposed-jackson] --> B
-    G[exposed-fastjson2] --> B
-    H[exposed-tink] --> B
-    I[exposed-jackson3] --> B
+    EC --> EJK[exposed-jackson3\nJSONB 컬럼]
+    EC --> EP[exposed-postgresql\nPostGIS + pgvector]
+    EC --> EM[exposed-mysql8\nGIS 타입]
+    EJ --> EJL[exposed-jdbc-lettuce\nJDBC + Lettuce 캐시]
+    EJ --> EJR[exposed-jdbc-redisson\nJDBC + Redisson 캐시]
+    ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce 캐시]
+    ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson 캐시]
 
-    subgraph 권장_선택_가이드
-        J["R2DBC, 압축/암호화 컬럼 타입<br/>→ exposed-core"]
-        K["DAO Entity, 커스텀 IdTable<br/>→ exposed-dao"]
-        L["JDBC Repository, 트랜잭션<br/>→ exposed-jdbc"]
-        M["기존 코드 호환<br/>→ exposed (umbrella)"]
-    end
-
-    style A fill:#4a90d9,color:#fff
-    style B fill:#7ab648,color:#fff
-    style C fill:#7ab648,color:#fff
-    style D fill:#7ab648,color:#fff
+    style E fill:#607D8B,color:#fff
+    style EC fill:#9C27B0,color:#fff
+    style ED fill:#FF9800,color:#fff
+    style EJ fill:#2196F3,color:#fff
+    style ER fill:#2196F3,color:#fff
+    style EJK fill:#4CAF50,color:#fff
+    style EP fill:#4CAF50,color:#fff
+    style EM fill:#4CAF50,color:#fff
+    style EJL fill:#F44336,color:#fff
+    style EJR fill:#F44336,color:#fff
+    style ERL fill:#F44336,color:#fff
+    style ERR fill:#F44336,color:#fff
 ```
 
 ## 참고

@@ -360,6 +360,21 @@ class MyCassandraTest: AbstractCassandraTest() {
 
 ## 아키텍처 다이어그램
 
+### 확장 함수 API 개요
+
+```mermaid
+classDiagram
+    direction LR
+    class CassandraExtensions {
+        <<extension functions>>
+        +CqlSession.executeAsFlow~T~(stmt): Flow~T~
+        +CqlSession.executeAsync~T~(stmt): Deferred~T~
+    }
+
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class CassandraExtensions:::serviceStyle
+```
+
 ### 주요 API 구조
 
 ```mermaid

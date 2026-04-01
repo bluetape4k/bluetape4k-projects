@@ -176,6 +176,35 @@ class MyMongoTest : AbstractMongoTest() {
 
 ## 아키텍처 다이어그램
 
+### 주요 클래스 구조
+
+```mermaid
+classDiagram
+    direction TB
+    class MongoClientExtensions {
+        <<extension functions>>
+        +mongoClient(block): MongoClient
+        +MongoDatabase.getCollectionAsFlow~T~(): Flow~T~
+    }
+    class AggregationDSL {
+        <<DSL>>
+        +pipeline~T~(block): List~Bson~
+        +match(filter): Bson
+        +group(id, accumulators): Bson
+    }
+    class FlowExtensions {
+        +MongoCollection.findAsFlow~T~(filter): Flow~T~
+        +MongoCollection.insertMany(docs): Flow~InsertManyResult~
+    }
+    AggregationDSL --> FlowExtensions : builds pipeline
+
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    classDef dbStyle fill:#607D8B,color:#fff,stroke:#37474F
+    class MongoClientExtensions:::dbStyle
+    class AggregationDSL:::serviceStyle
+    class FlowExtensions:::serviceStyle
+```
+
 ### 모듈 API 구조
 
 ```mermaid

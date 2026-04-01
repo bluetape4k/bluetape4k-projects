@@ -200,6 +200,46 @@ println("마지막 페이지: ${page.isLast}")
 
 ## 다이어그램
 
+### Auditable 핵심 구조
+
+`AuditableLongIdTable`, `UserContext`, `HasIdentifier`, `ExposedPage`의 관계를 나타냅니다.
+
+```mermaid
+classDiagram
+    direction TB
+    class AuditableLongIdTable {
+        <<abstract Table>>
+        +createdBy: Column~String~
+        +createdAt: Column~Instant~
+        +updatedBy: Column~String~
+        +updatedAt: Column~Instant~
+    }
+    class UserContext {
+        <<object>>
+        +withUser(username): T
+        +currentUser(): String?
+    }
+    class HasIdentifier~ID~ {
+        <<interface>>
+        +id: ID
+    }
+    class ExposedPage~T~ {
+        +content: List~T~
+        +totalElements: Long
+        +pageNumber: Int
+        +pageSize: Int
+    }
+    AuditableLongIdTable --> UserContext : reads current user
+
+    classDef tableStyle fill:#9C27B0,color:#fff,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,color:#fff,stroke:#E65100
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class AuditableLongIdTable:::tableStyle
+    class ExposedPage:::entityStyle
+    class UserContext:::serviceStyle
+    class HasIdentifier:::entityStyle
+```
+
 ### 커스텀 컬럼 타입 계층
 
 `ColumnWithTransform`을 기반으로 압축/암호화/직렬화 컬럼 타입이 일관된 구조로 구성됩니다.

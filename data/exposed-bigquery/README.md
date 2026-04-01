@@ -129,6 +129,36 @@ BigQuery REST API 응답 → Kotlin 타입 변환:
 `BigQueryResultRow`는 내부 키를 소문자로 정규화하므로 `row["REGION"]`, `row["region"]` 모두 동일하게 동작합니다.
 또한 nullable 컬럼에서 내려오는 `"null"` 문자열과 null sentinel 값은 Kotlin `null`로 처리합니다.
 
+## 아키텍처 다이어그램
+
+```mermaid
+classDiagram
+    direction TB
+    class BigQueryContext {
+        +projectId: String
+        +datasetId: String
+        +credentials: GoogleCredentials
+    }
+    class BigQueryRepository~E~ {
+        <<abstract>>
+        +findAll(where): Flow~E~
+        +insert(entity): E
+    }
+    class BigQueryExtensions {
+        <<suspend functions>>
+        +suspendTransaction~T~(block): T
+        +queryAsFlow~T~(sql): Flow~T~
+    }
+    BigQueryRepository --> BigQueryContext : uses
+
+    classDef dbStyle fill:#607D8B,color:#fff,stroke:#37474F
+    classDef repoStyle fill:#2196F3,color:#fff,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,color:#fff,stroke:#388E3C
+    class BigQueryContext:::dbStyle
+    class BigQueryRepository:::repoStyle
+    class BigQueryExtensions:::serviceStyle
+```
+
 ## 다이어그램
 
 ```mermaid
