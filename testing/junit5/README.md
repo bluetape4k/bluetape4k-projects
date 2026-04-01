@@ -763,6 +763,104 @@ class ConfigurationTest {
 }
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class StopwatchExtension:::utilStyle {
+        +beforeEach(context)
+        +afterEach(context)
+    }
+    class TempFolderExtension:::serviceStyle {
+        +beforeEach(context)
+        +afterEach(context)
+        +resolveParameter(context) TempFolder
+    }
+    class TempFolder:::modelStyle {
+        +root: File
+        +rootPath: String
+        +createFile(name) File
+        +createDirectory(name) File
+        +close()
+    }
+    class OutputCapturer:::serviceStyle {
+        +capture() String
+        +expect(block)
+    }
+    class FakeValueExtension:::serviceStyle {
+        +beforeEach(context)
+        +resolveParameter(context) Any
+    }
+    class Fakers:::utilStyle {
+        +randomString(min, max) String
+        +fixedString(length) String
+        +numberString(pattern) String
+        +randomUuid() String
+    }
+    class MultithreadingTester:::serviceStyle {
+        +workers(n) MultithreadingTester
+        +rounds(n) MultithreadingTester
+        +add(block) MultithreadingTester
+        +run()
+    }
+    class SuspendedJobTester:::asyncStyle {
+        +workers(n) SuspendedJobTester
+        +rounds(n) SuspendedJobTester
+        +add(block) SuspendedJobTester
+        +run()
+    }
+    class StructuredTaskScopeTester:::asyncStyle {
+        +rounds(n) StructuredTaskScopeTester
+        +add(block) StructuredTaskScopeTester
+        +run()
+    }
+
+    TempFolderExtension --> TempFolder : provides
+    MultithreadingTester --> SuspendedJobTester : similar API
+    StructuredTaskScopeTester --> SuspendedJobTester : similar API
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef modelStyle   fill:#FF9800,stroke:#E65100
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
+## 확장 기능 구성 다이어그램
+
+```mermaid
+flowchart TD
+    JU5["bluetape4k-junit5<br/>(JUnit 5 확장 모음)"]
+
+    subgraph 실행관리["실행 관리"]
+        SW["StopwatchExtension<br/>(실행 시간 측정)"]
+        TF["TempFolderExtension<br/>(임시 파일/디렉토리)"]
+        OC["OutputCapturer<br/>(stdout/stderr 캡처)"]
+        SP["SystemProperty<br/>(시스템 속성 설정/복원)"]
+    end
+
+    subgraph 테스트데이터["테스트 데이터"]
+        FV["FakeValueExtension<br/>(Data Faker 주입)"]
+        RV["RandomValueExtension<br/>(랜덤 객체 생성)"]
+        FS["FieldSource<br/>(파라미터화 테스트 인자)"]
+    end
+
+    subgraph 비동기테스트["비동기/동시성 테스트"]
+        MT["MultithreadingTester<br/>(플랫폼 스레드)"]
+        SJT["SuspendedJobTester<br/>(코루틴)"]
+        STST["StructuredTaskScopeTester<br/>(Virtual Thread)"]
+        AW["suspendUntil / awaitSuspending<br/>(Awaitility + Coroutines)"]
+    end
+
+    subgraph 리포트["리포트"]
+        MR["Mermaid Gantt 리포트<br/>(테스트 타임라인)"]
+    end
+
+    JU5 --> 실행관리
+    JU5 --> 테스트데이터
+    JU5 --> 비동기테스트
+    JU5 --> 리포트
+```
+
 ## 참고
 
 - [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)

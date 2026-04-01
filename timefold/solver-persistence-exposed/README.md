@@ -246,6 +246,75 @@ CREATE TABLE planning_solution (
 ./gradlew :bluetape4k-timefold-solver-persistence-exposed:test --tests "HardSoftScoreTest"
 ```
 
+## 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class Score:::utilStyle {
+        <<interface>>
+        +isFeasible() Boolean
+        +isZero() Boolean
+        +negate() Score
+        +add(other) Score
+    }
+    class SimpleScore:::modelStyle {
+        +score: Int
+        +of(score) SimpleScore
+    }
+    class HardSoftScore:::modelStyle {
+        +hardScore: Int
+        +softScore: Int
+        +of(hard, soft) HardSoftScore
+    }
+    class HardMediumSoftScore:::modelStyle {
+        +hardScore: Int
+        +mediumScore: Int
+        +softScore: Int
+    }
+    class BendableScore:::modelStyle {
+        +hardScores: IntArray
+        +softScores: IntArray
+        +of(hard, soft) BendableScore
+    }
+    class ScoreColumnType:::infraStyle {
+        <<abstract>>
+        +valueFromDB(value) Score
+        +valueToDB(value) Any
+        +sqlType() String
+    }
+    class SimpleScoreColumnType:::infraStyle {
+        +sqlType() String = "INTEGER"
+    }
+    class HardSoftScoreColumnType:::infraStyle {
+        +sqlType() String = "VARCHAR(255)"
+    }
+    class BendableScoreColumnType:::infraStyle {
+        +sqlType() String = "VARCHAR(500)"
+    }
+    class ExposedTableExt:::serviceStyle {
+        +Table.simpleScore(name) Column~SimpleScore~
+        +Table.hardSoftScore(name) Column~HardSoftScore~
+        +Table.bendableScore(name) Column~BendableScore~
+    }
+
+    Score <|-- SimpleScore
+    Score <|-- HardSoftScore
+    Score <|-- HardMediumSoftScore
+    Score <|-- BendableScore
+    ScoreColumnType <|-- SimpleScoreColumnType
+    ScoreColumnType <|-- HardSoftScoreColumnType
+    ScoreColumnType <|-- BendableScoreColumnType
+    ExposedTableExt --> ScoreColumnType : uses
+    SimpleScoreColumnType --> SimpleScore : serializes
+    HardSoftScoreColumnType --> HardSoftScore : serializes
+    BendableScoreColumnType --> BendableScore : serializes
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef modelStyle   fill:#FF9800,stroke:#E65100
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+```
+
 ## 아키텍처 다이어그램
 
 ```mermaid

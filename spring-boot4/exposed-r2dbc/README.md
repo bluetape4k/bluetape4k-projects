@@ -7,6 +7,68 @@ Spring Boot 4와 Spring Data Reactive를 활용하여 Exposed R2DBC를 완전한
 ## UML
 
 ```mermaid
+classDiagram
+    class UserController:::controllerStyle {
+        -userService: UserService
+        +createUser(request): ResponseEntity~User~
+        +getUser(id): ResponseEntity~User~
+        +listUsers(pageable): Page~User~
+        +getAdults(): Flow~User~
+        +streamUsers(): Flow~User~
+    }
+    class UserService:::serviceStyle {
+        -userRepository: UserRepository
+        +createUser(name, email, age): User
+        +getUserById(id): User?
+        +getAdultUsers(): List~User~
+        +streamLargeUserList(): Flow~User~
+        +countByAge(age): Long
+    }
+    class UserRepository:::repoStyle {
+        <<interface>>
+        +table: IdTable~Long~
+        +extractId(entity): Long?
+        +toDomain(row): UserDto
+        +toPersistValues(domain): Map
+        +findByAge(age): Flow~UserDto~
+    }
+    class ExposedR2dbcRepository:::repoStyle {
+        <<interface>>
+        +save(entity): T
+        +findById(id): T?
+        +findAll(): Flow~T~
+        +deleteById(id): Boolean
+        +count(): Long
+    }
+    class UserDto:::entityStyle {
+        +id: Long
+        +name: String
+        +email: String
+        +age: Int
+    }
+    class UserTable:::entityStyle {
+        <<object>>
+        +name: Column~String~
+        +email: Column~String~
+        +age: Column~Int~
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    UserController --> UserService
+    UserService --> UserRepository
+    UserRepository --|> ExposedR2dbcRepository
+    UserRepository --> UserDto
+    UserDto --> UserTable
+```
+
+### 비동기 처리 흐름
+
+```mermaid
 flowchart LR
     WebFlux["WebFlux / Coroutine Service"]
     Repo["ExposedR2dbcRepository"]

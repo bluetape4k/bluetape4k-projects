@@ -67,6 +67,54 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class ReactiveCassandraOperationsExt:::serviceStyle {
+        <<extension>>
+        +findOneOrNullSuspending(query): T?
+        +findAllAsFlow(): Flow~T~
+        +insertSuspending(entity): T
+        +countSuspending(query): Long
+        +existsSuspending(query): Boolean
+        +updateMultiSuspending(query, update): UpdateResult
+        +aggregateAsFlow(aggregation): Flow~O~
+    }
+    class ReactiveSessionExt:::serviceStyle {
+        <<extension>>
+        +executeSuspending(cql, args): ReactiveResultSet
+    }
+    class WriteOptionsDsl:::configStyle {
+        <<DSL>>
+        +ttl(duration)
+        +timestamp(millis)
+    }
+    class SchemaGenerator:::configStyle {
+        +createTables(operations, types)
+        +truncateTables(operations, types)
+    }
+    class UserRepository:::repoStyle {
+        <<interface>>
+        +findByEmail(email): User?
+    }
+    class CoroutineUserRepository:::repoStyle {
+        <<interface>>
+        +findByEmail(email): User?
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ReactiveCassandraOperationsExt --> WriteOptionsDsl : uses
+    SchemaGenerator --> ReactiveCassandraOperationsExt : uses
+    ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
+    CoroutineUserRepository --> ReactiveCassandraOperationsExt : delegates
+```
+
 ### Cassandra 데이터 접근 계층
 
 ```mermaid

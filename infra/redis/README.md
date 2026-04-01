@@ -123,9 +123,9 @@ flowchart TD
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
     C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
 
-    style A fill:#c0392b
-    style B fill:#4a90d9
-    style C fill:#9b59b6
+    style A fill:#F44336,stroke:#B71C1C
+    style B fill:#2196F3,stroke:#1565C0
+    style C fill:#9C27B0,stroke:#6A1B9A
 ```
 
 ## 핵심 클래스 다이어그램

@@ -162,6 +162,52 @@ suspend fun putRecord(client: KinesisClient, streamName: String, data: ByteArray
 }
 ```
 
+## 클라이언트 패턴 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class DynamoDbClient:::serviceStyle {
+        +getItem(block) GetItemResponse
+        +putItem(block) PutItemResponse
+        +scan(block) ScanResponse
+        +query(block) QueryResponse
+        +close()
+    }
+    class SqsClient:::serviceStyle {
+        +sendMessage(block) SendMessageResponse
+        +receiveMessage(block) ReceiveMessageResponse
+        +deleteMessage(block) DeleteMessageResponse
+        +close()
+    }
+    class S3Client:::serviceStyle {
+        +getObject(block) GetObjectResponse
+        +putObject(block) PutObjectResponse
+        +listObjects(block) ListObjectsResponse
+        +close()
+    }
+    class CloudWatchClient:::serviceStyle {
+        +putMetricData(block) PutMetricDataResponse
+        +getMetricData(block) GetMetricDataResponse
+        +close()
+    }
+    class AwsClientFactory:::infraStyle {
+        +dynamoDbClientOf(endpointUrl, region) DynamoDbClient
+        +withDynamoDbClient(block) T
+        +sqsClientOf(endpointUrl, region) SqsClient
+        +withSqsClient(block) T
+        +s3ClientOf(region) S3Client
+        +withS3Client(block) T
+    }
+
+    AwsClientFactory --> DynamoDbClient : creates
+    AwsClientFactory --> SqsClient : creates
+    AwsClientFactory --> S3Client : creates
+    AwsClientFactory --> CloudWatchClient : creates
+
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+```
+
 ## Java SDK v2 vs Kotlin SDK 비교 다이어그램
 
 ```mermaid

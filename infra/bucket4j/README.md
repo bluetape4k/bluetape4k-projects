@@ -117,6 +117,28 @@ classDiagram
     BucketProxyProvider <-- DistributedRateLimiter
     AsyncBucketProxyProvider <-- DistributedSuspendRateLimiter
     RateLimitResult --> RateLimitStatus
+
+    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
+    classDef redisStyle    fill:#FF9800,stroke:#E65100
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+    classDef clientStyle   fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+
+    class RateLimiter:::abstractStyle
+    class SuspendRateLimiter:::abstractStyle
+    class RateLimitResult:::infraStyle
+    class RateLimitStatus:::infraStyle
+    class LocalRateLimiter:::clientStyle
+    class LocalSuspendRateLimiter:::clientStyle
+    class DistributedRateLimiter:::redisStyle
+    class DistributedSuspendRateLimiter:::redisStyle
+    class AbstractLocalBucketProvider:::abstractStyle
+    class LocalBucketProvider:::serviceStyle
+    class LocalSuspendBucketProvider:::serviceStyle
+    class SuspendLocalBucket:::serviceStyle
+    class BucketProxyProvider:::cacheStyle
+    class AsyncBucketProxyProvider:::cacheStyle
 ```
 
 ### Rate Limiting 시퀀스 다이어그램

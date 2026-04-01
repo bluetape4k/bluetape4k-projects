@@ -426,9 +426,15 @@ flowchart TD
     TxOps -->|성공 시 commitAsync| Redis
     TxOps -->|예외 시 rollbackAsync| Redis
 
-    style App fill:#4a90d9
-    style App2 fill:#9b59b6
-    style Redis fill:#c0392b
+    style App fill:#2196F3,stroke:#1565C0
+    style App2 fill:#9C27B0,stroke:#6A1B9A
+    style Redis fill:#F44336,stroke:#B71C1C
+    style Batch fill:#FF9800,stroke:#E65100
+    style Tx fill:#FF9800,stroke:#E65100
+    style Op1 fill:#607D8B,stroke:#37474F
+    style Op2 fill:#607D8B,stroke:#37474F
+    style Op3 fill:#607D8B,stroke:#37474F
+    style TxOps fill:#607D8B,stroke:#37474F
 ```
 
 ## Redis 버전 요구사항

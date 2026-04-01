@@ -115,22 +115,22 @@ val context = redisSerializationContext<String, ByteArray> {
 
 ```mermaid
 classDiagram
-    class RedisSerializer {
+    class RedisSerializer:::configStyle {
         <<interface>>
         +serialize(T): ByteArray
         +deserialize(ByteArray): T
     }
-    class RedisBinarySerializer {
+    class RedisBinarySerializer:::serviceStyle {
         -serializer: BinarySerializer
         +serialize(Any): ByteArray
         +deserialize(ByteArray): Any
     }
-    class RedisCompressSerializer {
+    class RedisCompressSerializer:::serviceStyle {
         -compressor: Compressor
         +serialize(ByteArray): ByteArray
         +deserialize(ByteArray): ByteArray
     }
-    class RedisBinarySerializers {
+    class RedisBinarySerializers:::cacheStyle {
         <<object>>
         +Jdk: RedisBinarySerializer
         +Kryo: RedisBinarySerializer
@@ -141,6 +141,13 @@ classDiagram
         +LZ4: RedisCompressSerializer
         +Zstd: RedisCompressSerializer
     }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
     RedisSerializer <|.. RedisBinarySerializer
     RedisSerializer <|.. RedisCompressSerializer
     RedisBinarySerializers --> RedisBinarySerializer : 생성

@@ -167,6 +167,52 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class UserController:::controllerStyle {
+        -service: UserService
+        +getUsers(): Flow~User~
+        +getUser(id): User
+        +createUser(request): ResponseEntity~User~
+    }
+    class UserService:::serviceStyle {
+        -restClient: RestClient
+        +findAllAsFlow(): Flow~User~
+        +findById(id): User
+        +create(user): User
+    }
+    class RestClientDsl:::configStyle {
+        <<extension>>
+        +suspendGet(uri): T
+        +suspendPost(uri, body): T
+        +suspendPut(uri, body): T
+        +suspendDelete(uri)
+    }
+    class WebTestClientExt:::configStyle {
+        <<extension>>
+        +httpGet(uri): ResponseSpec
+        +httpPost(uri, body): ResponseSpec
+    }
+    class Retrofit2Config:::configStyle {
+        +retrofit(): Retrofit
+        +okHttpClient(): OkHttpClient
+        +jacksonConverterFactory(): JacksonConverterFactory
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    UserController --> UserService
+    UserService --> RestClientDsl
+    Retrofit2Config --> UserService : inject
+    WebTestClientExt --> UserController : test
+```
+
 ### Spring WebFlux + Coroutines 요청 흐름
 
 ```mermaid

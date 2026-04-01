@@ -111,6 +111,55 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class PostRepository:::repoStyle {
+        -operations: R2dbcEntityOperations
+        +findById(id): Post?
+        +findAll(): Flow~Post~
+        +save(post): Post
+        +update(id, title): Int
+        +delete(id): Int
+        +count(): Long
+    }
+    class R2dbcEntityOperationsExt:::serviceStyle {
+        <<extension>>
+        +findOneByIdOrNullSuspending(id): T?
+        +selectAllSuspending(): Flow~T~
+        +selectSuspending(query): Flow~T~
+        +selectOneSuspending(query): T
+        +insertSuspending(entity): T
+        +updateSuspending(query, update): Int
+        +deleteSuspending(query): Int
+        +deleteAllSuspending(): Int
+        +countAllSuspending(): Long
+        +existsSuspending(query): Boolean
+    }
+    class Post:::entityStyle {
+        +id: Long?
+        +title: String
+        +content: String
+        +authorId: Long
+        +createdAt: Instant
+    }
+    class R2dbcConfig:::configStyle {
+        +connectionFactory(): ConnectionFactory
+        +r2dbcEntityOperations(): R2dbcEntityOperations
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    PostRepository --> R2dbcEntityOperationsExt
+    PostRepository --> Post
+    R2dbcConfig --> PostRepository : inject
+```
+
 ### R2DBC + Coroutines 데이터 흐름
 
 ```mermaid

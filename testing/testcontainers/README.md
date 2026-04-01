@@ -179,6 +179,56 @@ sequenceDiagram
     SERVER->>DOCKER: 컨테이너 종료 & 제거
 ```
 
+## 지원 컨테이너 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class GenericServer:::infraStyle {
+        <<abstract>>
+        +useDefaultPort: Boolean
+        +start()
+        +stop()
+        +writeToSystemProperties(name)
+        +exposeCustomPorts(vararg ports)
+    }
+    class PostgreSQLServer:::serviceStyle {
+        +withExtensions(vararg names) PostgreSQLServer
+    }
+    class PostgisServer:::serviceStyle {
+        +withExtensions(vararg names) PostgisServer
+    }
+    class PgvectorServer:::serviceStyle {
+        +withExtensions(vararg names) PgvectorServer
+    }
+    class MySQL8Server:::serviceStyle {
+        +getDataSource() DataSource
+    }
+    class RedisServer:::infraStyle {
+        +host: String
+        +port: Int
+    }
+    class KafkaServer:::infraStyle {
+        +bootstrapServers: String
+    }
+    class LocalStackServer:::infraStyle {
+        +endpointOverride: URI
+        +getCredentialsProvider() AwsCredentialsProvider
+    }
+
+    GenericServer <|-- PostgreSQLServer
+    GenericServer <|-- PostgisServer
+    GenericServer <|-- PgvectorServer
+    GenericServer <|-- MySQL8Server
+    GenericServer <|-- RedisServer
+    GenericServer <|-- KafkaServer
+    GenericServer <|-- LocalStackServer
+    PostgreSQLServer <|-- PostgisServer
+    PostgreSQLServer <|-- PgvectorServer
+
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+```
+
 ## 지원 컨테이너 구조
 
 ```mermaid

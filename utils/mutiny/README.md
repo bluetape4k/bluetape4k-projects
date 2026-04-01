@@ -227,13 +227,60 @@ val result = totalAmount.await().indefinitely()
 ## Mutiny 타입 다이어그램
 
 ```mermaid
+classDiagram
+    class UniT:::asyncStyle {
+        <<Uni~T~>>
+        +onItem() UniOnItem
+        +onFailure() UniOnFailure
+        +await() UniAwait
+        +flatMap(mapper) Uni~U~
+        +map(mapper) Uni~U~
+        +toMulti() Multi~T~
+    }
+    class MultiT:::asyncStyle {
+        <<Multi~T~>>
+        +onItem() MultiOnItem
+        +onFailure() MultiOnFailure
+        +filter(predicate) Multi~T~
+        +map(mapper) Multi~U~
+        +collect() MultiCollect
+    }
+    class UniSupport:::utilStyle {
+        +uniOf(value) Uni~T~
+        +nullUni() Uni~T~
+        +voidUni() Uni~Void~
+        +uniFailureOf(ex) Uni~T~
+    }
+    class MultiSupport:::utilStyle {
+        +multiOf(vararg items) Multi~T~
+        +multiRangeOf(start, end) Multi~Int~
+        +List.asMulti() Multi~T~
+        +Sequence.asMulti() Multi~T~
+    }
+    class CoroutineSupport:::asyncStyle {
+        +CoroutineScope.asUni(block) Uni~T~
+        +CompletableFuture.asUni() Uni~T~
+    }
+
+    UniSupport --> UniT : creates
+    MultiSupport --> MultiT : creates
+    CoroutineSupport --> UniT : creates
+    UniT --> MultiT : toMulti()
+
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+```
+
+## Mutiny 처리 흐름
+
+```mermaid
 flowchart TD
-    subgraph Mutiny 핵심 타입
+    subgraph Mutiny핵심타입["Mutiny 핵심 타입"]
         UNI["Uni&lt;T&gt;<br/>0 또는 1개 아이템<br/>(Reactor Mono 대응)"]
         MULTI["Multi&lt;T&gt;<br/>0개 이상의 아이템 스트림<br/>(Reactor Flux 대응)"]
     end
 
-    subgraph Uni 생성
+    subgraph Uni생성["Uni 생성"]
         UV["uniOf(value)"]
         US["uniOf { supplier }"]
         UN["nullUni()"]
@@ -242,7 +289,7 @@ flowchart TD
         UCORO["CoroutineScope.asUni { suspend }"]
     end
 
-    subgraph Multi 생성
+    subgraph Multi생성["Multi 생성"]
         MV["multiOf(1, 2, 3)"]
         MR["multiRangeOf(0, 100)"]
         ML["List.asMulti()"]
@@ -250,7 +297,7 @@ flowchart TD
         MSTR["Stream.asMulti()"]
     end
 
-    subgraph 변환 및 처리
+    subgraph 변환및처리["변환 및 처리"]
         MAP["map { }"]
         FLT["filter { }"]
         FM["flatMap { }"]

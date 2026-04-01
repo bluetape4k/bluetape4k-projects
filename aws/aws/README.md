@@ -95,6 +95,53 @@ suspend fun receiveMessages(client: SqsAsyncClient, queueUrl: String) =
     }.messages()
 ```
 
+## 3단계 API 패턴 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class DynamoDbClient:::serviceStyle {
+        +getItem(request) GetItemResponse
+        +putItem(request) PutItemResponse
+        +scan(request) ScanResponse
+        +query(request) QueryResponse
+    }
+    class DynamoDbAsyncClient:::asyncStyle {
+        +getItem(request) CompletableFuture
+        +putItem(request) CompletableFuture
+        +scan(request) CompletableFuture
+    }
+    class DynamoDbCoroutinesExt:::asyncStyle {
+        +getItemSuspend(block) GetItemResponse
+        +putItemSuspend(block) PutItemResponse
+        +scanSuspend(block) ScanResponse
+    }
+    class S3Client:::serviceStyle {
+        +getObject(request) ResponseInputStream
+        +putObject(request) PutObjectResponse
+    }
+    class S3AsyncClient:::asyncStyle {
+        +getObject(request) CompletableFuture
+        +putObject(request) CompletableFuture
+    }
+    class SqsAsyncClient:::asyncStyle {
+        +sendMessage(request) CompletableFuture
+        +receiveMessage(request) CompletableFuture
+        +deleteMessage(request) CompletableFuture
+    }
+    class SqsCoroutinesExt:::asyncStyle {
+        +sendMessageSuspend(block) SendMessageResponse
+        +receiveMessageSuspend(block) ReceiveMessageResponse
+    }
+
+    DynamoDbClient --> DynamoDbAsyncClient : wraps (async)
+    DynamoDbAsyncClient --> DynamoDbCoroutinesExt : .await() extension
+    S3Client --> S3AsyncClient : wraps (async)
+    SqsAsyncClient --> SqsCoroutinesExt : .await() extension
+
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef asyncStyle   fill:#9C27B0,stroke:#6A1B9A
+```
+
 ## 3단계 API 패턴 다이어그램
 
 ```mermaid

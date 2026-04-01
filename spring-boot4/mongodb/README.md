@@ -103,6 +103,64 @@ val update = ("name" setTo "Alice")
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class ReactiveMongoOperationsExt:::serviceStyle {
+        <<extension>>
+        +findAsFlow(query): Flow~T~
+        +findAllAsFlow(): Flow~T~
+        +findOneOrNullSuspending(query): T?
+        +countSuspending(query?): Long
+        +existsSuspending(query): Boolean
+        +insertSuspending(entity): T
+        +insertAllAsFlow(entities): Flow~T~
+        +saveSuspending(entity): T
+        +updateMultiSuspending(query, update): UpdateResult
+        +removeSuspending(query): DeleteResult
+        +aggregateAsFlow(aggregation): Flow~O~
+    }
+    class CriteriaDsl:::configStyle {
+        <<DSL>>
+        +criteria() gt value
+        +criteria() eq value
+        +criteria() inValues list
+        +criteria().isNull()
+        +andWith(other)
+    }
+    class QueryBuilderExt:::configStyle {
+        <<extension>>
+        +queryOf(criteria): Query
+        +sortAscBy(field): Query
+        +paginate(page, size): Query
+    }
+    class UpdateDsl:::configStyle {
+        <<DSL>>
+        +setTo(value): Update
+        +andSet(field, value): Update
+        +incBy(delta): Update
+    }
+    class UserRepository:::repoStyle {
+        -operations: ReactiveMongoOperations
+        +findAllUsers(): Flow~User~
+        +findByName(name): User?
+        +save(user): User
+        +delete(query): DeleteResult
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    UserRepository --> ReactiveMongoOperationsExt
+    UserRepository --> CriteriaDsl
+    UserRepository --> QueryBuilderExt
+    UserRepository --> UpdateDsl
+```
+
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
 ```mermaid

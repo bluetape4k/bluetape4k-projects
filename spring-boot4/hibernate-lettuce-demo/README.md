@@ -4,6 +4,51 @@ Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache*
 
 `bluetape4k-spring-boot4-hibernate-lettuce` 모듈의 auto-configuration을 사용해 zero-code로 Hibernate 2nd Level Cache를 활성화하는 예제이다.
 
+## UML 다이어그램
+
+```mermaid
+classDiagram
+    class ProductController:::controllerStyle {
+        -productRepository: ProductRepository
+        +findAll(): List~Product~
+        +findById(id): ResponseEntity~Product~
+        +create(product): ResponseEntity~Product~
+        +update(id, product): ResponseEntity~Product~
+        +delete(id): ResponseEntity~Void~
+    }
+    class ProductRepository:::repoStyle {
+        <<interface>>
+        +findByName(name): List~Product~
+        +findByPriceLessThan(price): List~Product~
+    }
+    class Product:::entityStyle {
+        +id: Long?
+        +name: String
+        +description: String?
+        +price: Double
+    }
+    class LettuceNearCacheRegionFactory:::cacheStyle {
+        +buildCache(regionName, config): RegionAccessStrategy
+        +getL1Cache(region): CaffeineCache
+        +getL2Cache(region): RedisCache
+    }
+    class HibernateSessionFactory:::configStyle {
+        +openSession(): Session
+        +getCurrentSession(): Session
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ProductController --> ProductRepository
+    ProductRepository --> Product
+    HibernateSessionFactory --> LettuceNearCacheRegionFactory
+    ProductRepository --> HibernateSessionFactory
+```
+
 ## 아키텍처
 
 ```

@@ -348,28 +348,28 @@ class KafkaIntegrationTest {
 
 ```mermaid
 classDiagram
-    class KafkaCodec {
+    class KafkaCodec:::abstractStyle {
         <<interface>>
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class JacksonKafkaCodec {
+    class JacksonKafkaCodec:::serviceStyle {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class BinaryKafkaCodec {
+    class BinaryKafkaCodec:::clientStyle {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) T
     }
 
-    class StringKafkaCodec {
+    class StringKafkaCodec:::clientStyle {
         +serialize(topic, data) ByteArray
         +deserialize(topic, bytes) String
     }
 
-    class KafkaCodecs {
+    class KafkaCodecs:::infraStyle {
         <<object>>
         +String: StringKafkaCodec
         +Jackson: JacksonKafkaCodec
@@ -380,14 +380,14 @@ classDiagram
         +ZstdKryo: BinaryKafkaCodec
     }
 
-    class SuspendKafkaProducerTemplate {
+    class SuspendKafkaProducerTemplate:::redisStyle {
         -senderOptions: SenderOptions
         +send(topic, value) SenderResult
         +send(topic, key, value) SenderResult
         +send(record) SenderResult
     }
 
-    class SuspendKafkaConsumerTemplate {
+    class SuspendKafkaConsumerTemplate:::redisStyle {
         -receiverOptions: ReceiverOptions
         +receive() Flow~ReceiverRecord~
     }
@@ -398,6 +398,13 @@ classDiagram
     KafkaCodecs --> JacksonKafkaCodec
     KafkaCodecs --> BinaryKafkaCodec
     KafkaCodecs --> StringKafkaCodec
+
+    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
+    classDef redisStyle    fill:#FF9800,stroke:#E65100
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+    classDef clientStyle   fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
 ```
 
 ### Producer/Consumer 메시지 흐름
@@ -435,9 +442,13 @@ flowchart LR
     KT -->|toStream| OS[출력 KStream]
     OS -->|producedOf| OT[출력 토픽]
 
-    style IT fill:#4a90d9
-    style OT fill:#5ba85a
-    style KT fill:#e07b39
+    style IT fill:#2196F3,stroke:#1565C0
+    style OT fill:#4CAF50,stroke:#388E3C
+    style KT fill:#FF9800,stroke:#E65100
+    style KS fill:#607D8B,stroke:#37474F
+    style KS2 fill:#607D8B,stroke:#37474F
+    style KG fill:#9C27B0,stroke:#6A1B9A
+    style OS fill:#607D8B,stroke:#37474F
 ```
 
 ## 패키지 구조

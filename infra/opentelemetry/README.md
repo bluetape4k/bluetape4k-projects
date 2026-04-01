@@ -248,6 +248,73 @@ val compositeExporter = spanExporterOf(
 
 ## 아키텍처 다이어그램
 
+### OpenTelemetry 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class OpenTelemetry:::abstractStyle {
+        <<interface>>
+        +getTracer(name) Tracer
+        +getMeter(name) Meter
+        +getPropagators() ContextPropagators
+    }
+
+    class Tracer:::clientStyle {
+        <<interface>>
+        +spanBuilder(spanName) SpanBuilder
+    }
+
+    class SpanBuilder:::clientStyle {
+        <<interface>>
+        +setSpanKind(kind) SpanBuilder
+        +setAttribute(key, value) SpanBuilder
+        +startSpan() Span
+        +useSpan(block) T
+        +useSpanSuspending(block) T
+    }
+
+    class Span:::serviceStyle {
+        <<interface>>
+        +addEvent(name) Span
+        +setAttribute(key, value) Span
+        +recordException(t) Span
+        +end()
+        +use(block) T
+        +useSuspending(block) T
+    }
+
+    class SdkTracerProvider:::infraStyle {
+        +addSpanProcessor(sp) SdkTracerProviderBuilder
+        +setResource(resource) SdkTracerProviderBuilder
+        +get(instrumentationName) Tracer
+    }
+
+    class SdkMeterProvider:::infraStyle {
+        +registerMetricReader(mr) SdkMeterProviderBuilder
+    }
+
+    class Meter:::abstractStyle {
+        <<interface>>
+        +counterBuilder(name) LongCounterBuilder
+        +timerBuilder(name) DoubleHistogramBuilder
+        +gaugeBuilder(name) ObservableDoubleGaugeBuilder
+    }
+
+    OpenTelemetry --> Tracer: provides
+    OpenTelemetry --> Meter: provides
+    Tracer --> SpanBuilder: creates
+    SpanBuilder --> Span: starts
+    SdkTracerProvider ..|> Tracer: implements
+    SdkMeterProvider ..|> Meter: implements
+
+    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
+    classDef redisStyle    fill:#FF9800,stroke:#E65100
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+    classDef clientStyle   fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+```
+
 ### OpenTelemetry 구성 요소
 
 ```mermaid
@@ -274,10 +341,14 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    style App fill:#4a90d9
-    style TP fill:#e07b39
-    style MP fill:#9b59b6
-    style OtelCol fill:#5ba85a
+    style App fill:#2196F3,stroke:#1565C0
+    style TP fill:#FF9800,stroke:#E65100
+    style MP fill:#9C27B0,stroke:#6A1B9A
+    style OtelCol fill:#4CAF50,stroke:#388E3C
+    style SP fill:#607D8B,stroke:#37474F
+    style SE fill:#607D8B,stroke:#37474F
+    style MR fill:#607D8B,stroke:#37474F
+    style ME fill:#607D8B,stroke:#37474F
 ```
 
 ### Span 생명주기 (Coroutines 환경)
@@ -317,10 +388,11 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
 
-    style ServiceA fill:#4a90d9
-    style ServiceB fill:#e07b39
-    style ServiceC fill:#9b59b6
-    style Backend fill:#5ba85a
+    style ServiceA fill:#2196F3,stroke:#1565C0
+    style ServiceB fill:#FF9800,stroke:#E65100
+    style ServiceC fill:#9C27B0,stroke:#6A1B9A
+    style Backend fill:#4CAF50,stroke:#388E3C
+    style Collector fill:#607D8B,stroke:#37474F
 ```
 
 ## 테스트 전략

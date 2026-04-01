@@ -105,11 +105,85 @@ flowchart TD
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
 
-    style A fill:#4a90d9
-    style B fill:#5ba85a
-    style C fill:#e07b39
-    style D fill:#9b59b6
-    style E fill:#c0392b
+    style A fill:#2196F3,stroke:#1565C0
+    style B fill:#4CAF50,stroke:#388E3C
+    style C fill:#FF9800,stroke:#E65100
+    style D fill:#9C27B0,stroke:#6A1B9A
+    style E fill:#F44336,stroke:#B71C1C
+```
+
+## NearCache 통일 인터페이스 계층
+
+```mermaid
+classDiagram
+    class NearCacheOperations:::abstractStyle {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class SuspendNearCacheOperations:::abstractStyle {
+        <<interface>>
+        +cacheName: String
+        +isClosed: Boolean
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+        +close()
+    }
+
+    class HazelcastNearCache:::clientStyle {
+        Caffeine + IMap (EntryListener invalidation)
+    }
+
+    class HazelcastSuspendNearCache:::clientStyle {
+        Caffeine + IMap (코루틴)
+    }
+
+    class RedissonNearCache:::cacheStyle {
+        RLocalCachedMap (내장 pub/sub invalidation)
+    }
+
+    class RedissonSuspendNearCache:::cacheStyle {
+        RLocalCachedMap (코루틴)
+    }
+
+    class RedissonResp3NearCache:::cacheStyle {
+        Redisson RBucket + Lettuce RESP3 tracking
+    }
+
+    class LettuceNearCache:::redisStyle {
+        Caffeine + Redis (RESP3 CLIENT TRACKING)
+    }
+
+    class LettuceSuspendNearCache:::redisStyle {
+        Caffeine + Redis RESP3 (코루틴)
+    }
+
+    NearCacheOperations <|.. HazelcastNearCache
+    NearCacheOperations <|.. RedissonNearCache
+    NearCacheOperations <|.. RedissonResp3NearCache
+    NearCacheOperations <|.. LettuceNearCache
+    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
+    SuspendNearCacheOperations <|.. RedissonSuspendNearCache
+    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
+
+    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
+    classDef redisStyle    fill:#FF9800,stroke:#E65100
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+    classDef clientStyle   fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
 ```
 
 ## Near Cache 2-Tier 아키텍처
@@ -123,9 +197,9 @@ flowchart LR
     App -->|put| RemoteCache
     RemoteCache -->|Invalidation 전파| LocalCache
 
-    style LocalCache fill:#5ba85a
-    style RemoteCache fill:#c0392b
-    style App fill:#4a90d9
+    style LocalCache fill:#4CAF50,stroke:#388E3C
+    style RemoteCache fill:#F44336,stroke:#B71C1C
+    style App fill:#2196F3,stroke:#1565C0
 ```
 
 ## CachingProvider 자동 로딩 주의

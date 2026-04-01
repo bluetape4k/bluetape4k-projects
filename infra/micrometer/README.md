@@ -229,6 +229,63 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ## 아키텍처 다이어그램
 
+### 핵심 클래스 구조
+
+```mermaid
+classDiagram
+    class TimerExtensions:::infraStyle {
+        <<extensions>>
+        +recordSuspend(block) T
+        +withTimer(timer) Flow~T~
+    }
+
+    class ObservationExtensions:::infraStyle {
+        <<extensions>>
+        +withObservation(name, registry, block) T
+        +withObservationContext(obs, block) T
+        +withObservationContextSuspending(name, registry, block) T
+    }
+
+    class MicrometerRetrofitMetricsFactory:::serviceStyle {
+        -registry: MeterRegistry
+        +create(returnType, annotations, retrofit) CallAdapter
+    }
+
+    class Cache2kCacheMetrics:::serviceStyle {
+        -cache: Cache
+        -tags: Tags
+        +monitor(registry, cache, tags)
+        +bindTo(registry)
+    }
+
+    class MeterRegistry:::abstractStyle {
+        <<interface>>
+        +timer(name, tags) Timer
+        +counter(name, tags) Counter
+        +gauge(name, tags, number) T
+        +find(name) Search
+    }
+
+    class ObservationRegistry:::abstractStyle {
+        <<interface>>
+        +observationConfig() ObservationConfig
+        +getCurrentObservation() Observation
+    }
+
+    TimerExtensions --> MeterRegistry: records to
+    ObservationExtensions --> ObservationRegistry: uses
+    MicrometerRetrofitMetricsFactory --> MeterRegistry: records to
+    Cache2kCacheMetrics --> MeterRegistry: binds to
+    ObservationRegistry --> MeterRegistry: delegates
+
+    classDef cacheStyle    fill:#F44336,stroke:#B71C1C
+    classDef redisStyle    fill:#FF9800,stroke:#E65100
+    classDef infraStyle    fill:#607D8B,stroke:#37474F
+    classDef clientStyle   fill:#2196F3,stroke:#1565C0
+    classDef abstractStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef serviceStyle  fill:#4CAF50,stroke:#388E3C
+```
+
 ### 메트릭 수집 흐름
 
 ```mermaid
@@ -249,10 +306,14 @@ flowchart TD
     MR --> Grafana[Grafana / Monitoring]
     MR --> Log[Logging]
 
-    style App fill:#4a90d9
-    style MR fill:#e07b39
-    style OR fill:#9b59b6
-    style Grafana fill:#5ba85a
+    style App fill:#2196F3,stroke:#1565C0
+    style MR fill:#FF9800,stroke:#E65100
+    style OR fill:#9C27B0,stroke:#6A1B9A
+    style Grafana fill:#4CAF50,stroke:#388E3C
+    style TE fill:#607D8B,stroke:#37474F
+    style OE fill:#607D8B,stroke:#37474F
+    style RM fill:#607D8B,stroke:#37474F
+    style CM fill:#607D8B,stroke:#37474F
 ```
 
 ### Retrofit2 메트릭 수집 시퀀스

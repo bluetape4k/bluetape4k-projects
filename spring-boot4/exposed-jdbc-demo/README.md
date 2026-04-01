@@ -9,6 +9,60 @@ Exposed DAO + Spring Data JDBC Repository + Spring MVC 통합 데모 (Spring Boo
 ## UML
 
 ```mermaid
+classDiagram
+    class ProductController:::controllerStyle {
+        -productJdbcRepository: ProductJdbcRepository
+        +findAll(): List~ProductDto~
+        +findById(id): ResponseEntity~ProductDto~
+        +create(dto): ResponseEntity~ProductDto~
+        +update(id, dto): ResponseEntity~ProductDto~
+        +delete(id): ResponseEntity~Void~
+        +search(name): List~ProductDto~
+    }
+    class ProductJdbcRepository:::repoStyle {
+        <<interface>>
+        +findByName(name): List~ProductEntity~
+        +findByPriceLessThan(price): List~ProductEntity~
+    }
+    class ExposedJdbcRepository:::repoStyle {
+        <<interface>>
+        +save(entity): E
+        +findById(id): Optional~E~
+        +findAll(): List~E~
+        +delete(entity)
+    }
+    class ProductEntity:::entityStyle {
+        +id: EntityID~Long~
+        +name: String
+        +description: String
+        +price: BigDecimal
+    }
+    class Products:::entityStyle {
+        <<object>>
+        +name: Column~String~
+        +description: Column~String~
+        +price: Column~BigDecimal~
+    }
+    class DataInitializer:::configStyle {
+        +initialize()
+    }
+    classDef controllerStyle fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef repoStyle fill:#9C27B0,stroke:#6A1B9A
+    classDef entityStyle fill:#FF9800,stroke:#E65100
+    classDef configStyle fill:#607D8B,stroke:#37474F
+    classDef cacheStyle fill:#F44336,stroke:#B71C1C
+
+    ProductController --> ProductJdbcRepository
+    ProductJdbcRepository --|> ExposedJdbcRepository
+    ProductJdbcRepository --> ProductEntity
+    ProductEntity --> Products
+    DataInitializer --> ProductJdbcRepository
+```
+
+### 애플리케이션 구조 흐름
+
+```mermaid
 flowchart TD
     App["DemoApplication"]
     Init["DataInitializer"]

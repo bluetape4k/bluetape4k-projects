@@ -13,20 +13,48 @@ JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK
 
 ```mermaid
 classDiagram
-    class VirtualThreadRuntime {
+    class VirtualThreadRuntime:::utilStyle {
         <<interface>>
+        +runtimeName: String
+        +priority: Int
+        +isSupported() Boolean
+        +threadFactory(prefix) ThreadFactory
+        +executorService() ExecutorService
     }
-    class StructuredTaskScopeProvider {
+    class StructuredTaskScopeProvider:::utilStyle {
         <<interface>>
+        +providerName: String
+        +priority: Int
+        +isSupported() Boolean
+        +withAll(name, factory, block) T
+        +withAny(name, factory, block) T
     }
-    class Jdk25VirtualThreadRuntime
-    class Jdk25StructuredTaskScopeProvider
-    class ServiceLoader
+    class Jdk25VirtualThreadRuntime:::serviceStyle {
+        +runtimeName = "jdk25"
+        +priority = 25
+        +isSupported() Boolean
+        +threadFactory(prefix) ThreadFactory
+        +executorService() ExecutorService
+    }
+    class Jdk25StructuredTaskScopeProvider:::serviceStyle {
+        +providerName = "jdk25"
+        +priority = 25
+        +withAll(name, factory, block) T
+        +withAny(name, factory, block) T
+    }
+    class ServiceLoader:::infraStyle {
+        +load(type) ServiceLoader
+        +findFirst() Optional
+    }
 
     VirtualThreadRuntime <|.. Jdk25VirtualThreadRuntime
     StructuredTaskScopeProvider <|.. Jdk25StructuredTaskScopeProvider
-    ServiceLoader --> Jdk25VirtualThreadRuntime
-    ServiceLoader --> Jdk25StructuredTaskScopeProvider
+    ServiceLoader --> Jdk25VirtualThreadRuntime : discovers
+    ServiceLoader --> Jdk25StructuredTaskScopeProvider : discovers
+
+    classDef utilStyle    fill:#2196F3,stroke:#1565C0
+    classDef serviceStyle fill:#4CAF50,stroke:#388E3C
+    classDef infraStyle   fill:#607D8B,stroke:#37474F
 ```
 
 ## 주요 구현체

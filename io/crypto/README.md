@@ -136,14 +136,14 @@ val decrypted = decryptCipher.decrypt(encrypted)
 
 ```mermaid
 classDiagram
-    class Digester {
+    class Digester:::encryptStyle {
         <<interface>>
         +digest(message: String) String
         +digest(bytes: ByteArray) ByteArray
         +matches(message: String, digest: String) Boolean
     }
 
-    class Encryptor {
+    class Encryptor:::encryptStyle {
         <<interface>>
         +encrypt(message: String) String
         +encrypt(bytes: ByteArray) ByteArray
@@ -151,26 +151,26 @@ classDiagram
         +decrypt(bytes: ByteArray) ByteArray
     }
 
-    class AbstractDigester {
+    class AbstractDigester:::ioStyle {
         #pooledDigester: PooledByteDigester
     }
 
-    class AbstractEncryptor {
+    class AbstractEncryptor:::ioStyle {
         #pooledEncryptor: PooledPBEByteEncryptor
     }
 
-    class SHA256
-    class SHA512
-    class MD5
-    class Keccak256
+    class SHA256:::extensionStyle
+    class SHA512:::extensionStyle
+    class MD5:::extensionStyle
+    class Keccak256:::extensionStyle
 
-    class AES
-    class TripleDES
-    class DES
-    class RC2
-    class RC4
+    class AES:::serializerStyle
+    class TripleDES:::serializerStyle
+    class DES:::serializerStyle
+    class RC2:::serializerStyle
+    class RC4:::serializerStyle
 
-    class CipherBuilder {
+    class CipherBuilder:::codecStyle {
         +secretKeySize(size: Int) CipherBuilder
         +ivBytesSize(size: Int) CipherBuilder
         +algorithm(alg: String) CipherBuilder
@@ -190,6 +190,12 @@ classDiagram
     AbstractEncryptor <|-- DES
     AbstractEncryptor <|-- RC2
     AbstractEncryptor <|-- RC4
+
+    classDef encryptStyle fill:#F44336,stroke:#B71C1C
+    classDef ioStyle fill:#607D8B,stroke:#37474F
+    classDef extensionStyle fill:#4CAF50,stroke:#388E3C
+    classDef serializerStyle fill:#FF9800,stroke:#E65100
+    classDef codecStyle fill:#2196F3,stroke:#1565C0
 ```
 
 ### 암호화/복호화 데이터 흐름
@@ -221,6 +227,14 @@ flowchart LR
     P -->|커스텀 변환| E2 --> C
     C -->|decrypt| E1
     C -->|decrypt| E2
+
+    style P fill:#607D8B,stroke:#37474F
+    style D1 fill:#4CAF50,stroke:#388E3C
+    style D2 fill:#4CAF50,stroke:#388E3C
+    style E1 fill:#F44336,stroke:#B71C1C
+    style E2 fill:#2196F3,stroke:#1565C0
+    style H fill:#FF9800,stroke:#E65100
+    style C fill:#FF9800,stroke:#E65100
 ```
 
 ## 의존성
