@@ -6,6 +6,55 @@
 
 ## [Unreleased]
 
+---
+
+## [1.5.0-RC1] - 2026-04-01
+
+### Added
+
+#### utils/science — GIS 공간 데이터 처리 모듈 신규 추가 ([`a32d243b`](https://github.com/bluetape4k/bluetape4k-projects/commit/a32d243b))
+
+debop4k-science를 Kotlin 2.3 + 최신 라이브러리로 완전 재작성한 `bluetape4k-science` 모듈입니다.
+
+**coords 패키지 — 좌표계 및 변환**
+- `GeoLocation(latitude, longitude)`: Haversine 거리 계산 (`distanceTo`)
+- `BoundingBox`: 경계 박스 + `relationTo(other)` (DISJOINT/INTERSECTS/CONTAINS/WITHIN), JTS `Envelope` 변환
+- `DM` / `DMS`: 도분/도분초 data class + `CoordConverters` (Degree ↔ DM ↔ DMS 왕복 변환)
+- `UtmZoneSupport`: UTM Zone/Band 결정(`utmZoneOf`), 위도 밴드 `I·O` 제외 로직, `UtmZone.boundingBox()`
+
+**geometry 패키지 — JTS 기반 공간 연산**
+- `GeometryOperations`: 두 점 간 각도·거리, 선분 교차점, 위경도 유효성 검증
+- `PolygonExtensions`: JTS `Polygon` 넓이(㎡), 무게중심, `BoundingBox` 변환
+
+**projection 패키지 — Proj4J 기반 좌표계 변환**
+- `Projections`: `utmToWgs84()`, `wgs84ToUtm()`, `transform(sourceCrs, targetCrs, coord)` — 임의 EPSG CRS 변환
+- `CrsRegistry` (internal): EPSG 코드 기반 CRS 캐시 (`ConcurrentHashMap`)
+
+**shapefile 패키지 — GeoTools 31.6 기반 Shapefile 처리**
+- `ShapefileReader`: `loadShape(file)` (동기), `loadShapeAsync(file)` (`withContext(Dispatchers.IO)` 래핑)
+- `ShapeModels`: `ShapeHeader`, `ShapeAttribute`, `ShapeRecord`, `Shape` — GeoTools 타입을 public API에 노출하지 않음
+- `ShapefileExtensions`: `toGeoLocations()`, `filterByBoundingBox()`, `filterByAttribute()`, `computeBoundingBox()`
+
+**exposed 패키지 — PostGIS DB 적재 파이프라인**
+- `SpatialLayerTable` / `SpatialFeatureTable`: `AuditableLongIdTable` 상속, `geoGeometry()` + `jacksonb<Map<String,Any?>>()` JSONB
+- `PoiTable`: POI 지점 저장 (`geoPoint()` + `jacksonb<Map<String,Any?>>()`)
+- `NetCdfFileTable` / `NetCdfGridValueTable`: 테이블 DDL (UCAR 구현은 Phase 4 보류)
+- `SpatialLayerRepository` / `SpatialFeatureRepository`: `LongJdbcRepository` 기반 CRUD
+- `ShapefileImportService.importShapefile()`: Shapefile → PostGIS 배치 적재 (1,000건/트랜잭션, `ensureActive()`, JTS→WKT→PostGIS 변환)
+- `NetCdfFileRepository` / `NetCdfCatalogService`: 구조 정의 (NetCDF 읽기는 Phase 4 후 구현)
+
+> **[!NOTE]**
+> GeoTools는 **LGPL** 라이선스로 `compileOnly`로만 선언됩니다. 빌드 스크립트에 OsGeo Maven 저장소 추가 필요:
+> ```kotlin
+> maven("https://repo.osgeo.org/repository/release/")
+> ```
+
+#### data/exposed-postgresql — GeoGeometryColumnType 추가
+
+- `GeoGeometryColumnType`: 모든 PostGIS geometry 타입(Point/Polygon/LineString/MultiPolygon 등)을 수용하는 generic 컬럼 타입 ([`a32d243b`](https://github.com/bluetape4k/bluetape4k-projects/commit/a32d243b))
+- `Table.geoGeometry(name)` 확장함수
+- `ST_Distance(geography)`, `ST_DWithin(geography)`, `ST_Intersects`, `ST_Contains`, `ST_Within` Expression 클래스 추가
+
 ### Changed
 
 #### aws-kotlin — 클라이언트 생성/해제 패턴 통일 ([`af247f65`](https://github.com/bluetape4k/bluetape4k-projects/commit/af247f65))
@@ -19,6 +68,11 @@
 > **[!NOTE]**
 > AWS Kotlin SDK 클라이언트는 내부 HTTP 커넥션 풀·스레드를 보유합니다.
 > 사용 후 반드시 `close()`를 호출하거나, **`withXxxClient { }` 블록을 사용하면 자동으로 리소스가 해제**됩니다.
+
+### Fixed
+
+- mutiny 테스트 병렬 실행 비활성화 ([`e0082a82`](https://github.com/bluetape4k/bluetape4k-projects/commit/e0082a82))
+- JUnit Jupiter 병렬 실행 비활성화 ([`70cd469e`](https://github.com/bluetape4k/bluetape4k-projects/commit/70cd469e))
 
 ---
 
