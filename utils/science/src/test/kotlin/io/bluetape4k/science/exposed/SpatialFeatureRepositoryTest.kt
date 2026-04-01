@@ -2,7 +2,6 @@ package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull
@@ -182,21 +181,21 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
     }
 
     @Test
-    fun `Shapefile 임포트 - 파일 존재 시 DB 적재`() = runTest {
+    fun `Shapefile 임포트 - 파일 존재 시 DB 적재`() {
         val shpFile = File(
             javaClass.classLoader.getResource("data/shp_v5/harbors/harbour_new.shp")?.file
-                ?: return@runTest
+                ?: return
         )
 
         if (!shpFile.exists()) {
             log.debug { "Shapefile 없음, 테스트 건너뜀: ${shpFile.absolutePath}" }
-            return@runTest
+            return
         }
 
         val importService = ShapefileImportService(layerRepo, featureRepo)
         val layerName = "harbors-import-${System.currentTimeMillis()}"
 
-        // importShapefile 내부에서 suspendTransaction을 직접 열므로, 여기서는 suspend 호출만
+        // Virtual Thread 트랜잭션으로 실행 — suspend 불필요
         val count = importService.importShapefile(shpFile, layerName)
         count shouldBeGreaterThan 0
         log.debug { "임포트된 피처 수: $count" }

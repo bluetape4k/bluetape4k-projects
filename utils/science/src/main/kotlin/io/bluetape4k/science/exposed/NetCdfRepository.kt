@@ -80,20 +80,24 @@ internal class NetCdfCatalogService(
     /**
      * NetCDF 파일을 읽어 메타데이터를 DB에 등록합니다.
      *
+     * Virtual Thread에서 JDBC 트랜잭션을 실행합니다.
+     *
      * @param filePath 파일 경로
      * @return 등록된 파일 레코드 ID
      */
-    suspend fun registerFile(filePath: String): Long {
+    fun registerFile(filePath: String): Long {
         TODO("Phase 4 (UCAR netcdfAll) 완료 후 구현 예정")
     }
 
     /**
      * NetCDF 파일의 격자 값을 DB에 임포트합니다.
      *
+     * Virtual Thread에서 배치 JDBC 트랜잭션을 실행합니다.
+     *
      * @param fileId       파일 레코드 ID
      * @param variableName 변수 이름
      */
-    suspend fun importGridValues(fileId: Long, variableName: String) {
+    fun importGridValues(fileId: Long, variableName: String) {
         TODO("Phase 4 (UCAR netcdfAll) 완료 후 구현 예정")
     }
 }
