@@ -168,8 +168,10 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 
 ```kotlin
 val keycloak = KeycloakServer.Launcher.keycloak
-println("Auth Server URL: ${keycloak.authServerUrl}")  // http://localhost:PORT/auth
-println("Admin Console: ${keycloak.adminConsoleUrl}")
+// Keycloak 17+ (Quarkus 기반): context path = "/"
+println("Auth Server URL: ${keycloak.getAuthServerUrl()}")  // http://localhost:PORT
+println("Admin Username: ${keycloak.getAdminUsername()}")
+println("Admin Password: ${keycloak.getAdminPassword()}")
 ```
 
 ### 시계열 DB
@@ -334,7 +336,7 @@ flowchart TD
     subgraph 스토리지
         RD["RedisServer"]
         RDC["RedisClusterServer"]
-        MG["MongoDBServer"]
+        MGO["MongoDBServer"]
         CS["CassandraServer"]
         ES["ElasticsearchServer"]
         OS["OpenSearchServer"]
@@ -344,7 +346,7 @@ flowchart TD
 
     subgraph 그래프DB
         NJ["Neo4jServer"]
-        MG2["MemgraphServer"]
+        MG["MemgraphServer"]
         PA["PostgreSQLAgeServer"]
     end
 
@@ -365,9 +367,8 @@ flowchart TD
         KC["KeycloakServer"]
     end
 
-    subgraph 분산쿼리와시계열
+    subgraph 분산쿼리
         TR["TrinoServer"]
-        IDB["InfluxDBServer"]
     end
 
     subgraph HTTPMock
@@ -383,7 +384,7 @@ flowchart TD
     GS --> 그래프DB
     GS --> 메시지큐
     GS --> 인프라
-    GS --> 분산쿼리와시계열
+    GS --> 분산쿼리
     GS --> HTTPMock
     GS --> AWS
 ```
