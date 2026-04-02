@@ -28,9 +28,16 @@ class ZooKeeperServer private constructor(
 ): GenericContainer<ZooKeeperServer>(imageName), GenericServer {
 
     companion object: KLogging() {
+        /** ZooKeeper 서버의 Docker Hub 이미지 이름입니다. */
         const val IMAGE = "zookeeper"
+
+        /** 기본 Docker 이미지 태그입니다. */
         const val TAG = "3.9"
+
+        /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "zookeeper"
+
+        /** ZooKeeper 클라이언트 연결 포트입니다. */
         const val PORT = 2181
 
         @JvmStatic

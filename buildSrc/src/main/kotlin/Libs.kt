@@ -1084,6 +1084,9 @@ object Libs {
     // Hashicorp Vault
     const val vault_java_driver = "com.bettercloud:vault-java-driver:5.1.0" // https://mvnrepository.com/artifact/com.bettercloud/vault-java-driver
 
+    // Keycloak
+    const val keycloak_testcontainers = "com.github.dasniko:testcontainers-keycloak:3.7.0"  // https://mvnrepository.com/artifact/com.github.dasniko/testcontainers-keycloak
+
     // Hibernate
     fun hibernate(module: String) = "org.hibernate.orm:hibernate-$module:${Versions.hibernate}"
     val hibernate_core = hibernate("core")
@@ -1201,6 +1204,12 @@ object Libs {
     const val mysql_connector_j = "com.mysql:mysql-connector-j:9.6.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     // MySQL 8 GIS Extensions
     const val jts_core = "org.locationtech.jts:jts-core:1.20.0"        // https://mvnrepository.com/artifact/org.locationtech.jts/jts-core
+
+    // Neo4j
+    const val neo4j_java_driver = "org.neo4j.driver:neo4j-java-driver:5.28.4"  // https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver
+
+    // Trino
+    const val trino_jdbc = "io.trino:trino-jdbc:475"  // https://mvnrepository.com/artifact/io.trino/trino-jdbc
 
     // === Science / GIS ===
     // TODO: UCAR CDM 5.x+는 Maven Central에 없음. Unidata 저장소 재구성으로 5.6.0 아티팩트 미존재.
@@ -1375,7 +1384,6 @@ object Libs {
     val testcontainers_mariadb = testcontainersModule("mariadb")
     val testcontainers_mongodb = testcontainersModule("mongodb")
     val testcontainers_mysql = testcontainersModule("mysql")
-    val testcontaiiners_nginx = testcontainersModule("nginx")
     val testcontainers_ollama = testcontainersModule("ollama")
     val testcontainers_oracle_xe = testcontainersModule("oracle-xe")
     val testcontainers_postgresql = testcontainersModule("postgresql")
@@ -1401,6 +1409,9 @@ object Libs {
     val testcontainers_r2dbc = testcontainersModule("r2dbc")
 
     val testcontainers_gcloud = testcontainersModule("gcloud")
+    val testcontainers_neo4j = testcontainersModule("neo4j")
+    val testcontainers_trino = testcontainersModule("trino")
+    val testcontainers_toxiproxy = testcontainersModule("toxiproxy")
 
     // kubernetes
     val testcontainers_k3s = testcontainersModule("k3s")

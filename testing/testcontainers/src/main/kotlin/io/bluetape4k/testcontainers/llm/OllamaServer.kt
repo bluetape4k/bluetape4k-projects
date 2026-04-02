@@ -28,9 +28,16 @@ class OllamaServer private constructor(
 ): GenericContainer<OllamaServer>(imageName), GenericServer {
 
     companion object: KLogging() {
+        /** Ollama 서버의 Docker Hub 이미지 이름입니다. */
         const val IMAGE = "ollama/ollama"
+
+        /** 기본 Docker 이미지 태그입니다. */
         const val TAG = "0.5.11"
+
+        /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "ollama"
+
+        /** Ollama REST API 포트입니다. */
         const val PORT = 11434
 
         @JvmStatic

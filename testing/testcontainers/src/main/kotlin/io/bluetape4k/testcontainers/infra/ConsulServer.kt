@@ -22,14 +22,25 @@ class ConsulServer private constructor(
 ): GenericContainer<ConsulServer>(imageName), GenericServer {
 
     companion object: KLogging() {
+        /** Consul 서버의 Docker Hub 이미지 이름입니다. */
         const val IMAGE = "hashicorp/consul"
+
+        /** 기본 Docker 이미지 태그입니다. */
         const val TAG = "1.20"
+
+        /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "consul"
 
+        /** Consul DNS 서비스 포트입니다. */
         const val DNS_PORT = 8600
+
+        /** Consul HTTP API 포트입니다. */
         const val HTTP_PORT = 8500
+
+        /** Consul RPC 통신 포트입니다. */
         const val RPC_PORT = 8300
 
+        /** 컨테이너에 노출할 포트 목록입니다. */
         val EXPORT_PORTS = intArrayOf(DNS_PORT, HTTP_PORT, RPC_PORT)
 
         @JvmStatic

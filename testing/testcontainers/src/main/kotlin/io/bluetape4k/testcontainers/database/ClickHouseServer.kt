@@ -23,14 +23,31 @@ class ClickHouseServer private constructor(
 ): ClickHouseContainer(imageName), JdbcServer {
 
     companion object: KLogging() {
+        /** ClickHouse 서버의 Docker Hub 이미지 이름입니다. */
         const val IMAGE = "clickhouse/clickhouse-server"
+
+        /** 기본 Docker 이미지 태그입니다. */
         const val TAG = "25.4"
+
+        /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "clickhouse"
+
+        /** ClickHouse HTTP 인터페이스 포트입니다. */
         const val HTTP_PORT = 8123
+
+        /** ClickHouse Native 프로토콜 포트입니다. */
         const val NATIVE_PORT = 9000
+
+        /** 기본 데이터베이스 이름입니다. */
         const val DATABASE_NAME = "default"
+
+        /** 기본 사용자 이름입니다. */
         const val USERNAME = "test"
+
+        /** 기본 비밀번호입니다. */
         const val PASSWORD = "test"
+
+        /** ClickHouse JDBC 드라이버 클래스 이름입니다. */
         const val DRIVER_CLASS_NAME = "com.clickhouse.jdbc.ClickHouseDriver"
 
         /**

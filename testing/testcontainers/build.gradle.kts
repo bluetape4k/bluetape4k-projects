@@ -70,6 +70,10 @@ dependencies {
     compileOnly(Libs.cassandra_java_driver_core)
     compileOnly(Libs.cassandra_java_driver_query_builder)
 
+    // Graph DB (Neo4j)
+    compileOnly(Libs.testcontainers_neo4j)
+    compileOnly(Libs.neo4j_java_driver)
+
     // ElasticSearch
     compileOnly(Libs.testcontainers_elasticsearch)
     compileOnly(Libs.elasticsearch_rest_client)
@@ -90,6 +94,13 @@ dependencies {
 
     // Redpanda
     compileOnly(Libs.testcontainers_redpanda)
+
+    // Chaos Testing (Toxiproxy)
+    compileOnly(Libs.testcontainers_toxiproxy)
+
+    // Distributed SQL (Trino)
+    compileOnly(Libs.testcontainers_trino)
+    testRuntimeOnly(Libs.trino_jdbc)
 
     // NATS
     compileOnly(Libs.jnats)
@@ -155,6 +166,9 @@ dependencies {
     // Wiremock
     compileOnly(Libs.wiremock)
 
+    // Keycloak
+    compileOnly(Libs.keycloak_testcontainers)
+
     // ClickHouse
     compileOnly(Libs.testcontainers_clickhouse)
     testRuntimeOnly(Libs.clickhouse_jdbc)
@@ -166,5 +180,8 @@ dependencies {
 
     // ChromaDB
     compileOnly(Libs.testcontainers_chromadb)
+
+    // InfluxDB
+    compileOnly(Libs.testcontainers_influxdb)
 
 }

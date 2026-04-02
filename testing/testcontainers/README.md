@@ -5,9 +5,12 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 ## 주요 기능
 
 - **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, PostGIS, pgvector, Cockroach, ClickHouse, TiDB(Deprecated)
-- **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elastic/OpenSearch, MinIO
+- **Graph DB 서버 지원**: Neo4j, Memgraph, PostgreSQL + Apache AGE
+- **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elastic/OpenSearch, MinIO, InfluxDB
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
-- **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper
+- **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
+- **분산 SQL 엔진**: Trino
+- **HTTP Mock 지원**: WireMock
 - **AWS LocalStack 지원**: S3, DynamoDB 등 로컬 테스트 환경 구성
 - **Container 유틸**: 공통 GenericServer/GenericContainer 확장
 - **PostgreSQL 확장 자동 활성화**: `PostgisServer`(postgis), `PgvectorServer`(vector) 시작 시 해당 확장 자동 `CREATE EXTENSION`
@@ -102,17 +105,101 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 - `storage/ElasticsearchServer.kt`, `storage/OpenSearchServer.kt`
 - `storage/MinIOServer.kt`
 
-### 3. 메시지/인프라/AWS 컨테이너
+### 3. 그래프 DB 컨테이너
+
+- `graphdb/Neo4jServer.kt` — Neo4j 그래프 DB
+- `graphdb/MemgraphServer.kt` — Memgraph 그래프 DB
+- `graphdb/PostgreSQLAgeServer.kt` — PostgreSQL + Apache AGE 그래프 확장
+
+### 4. 메시지/인프라/AWS 컨테이너
 
 - `mq/KafkaServer.kt`, `mq/RabbitMQServer.kt`, `mq/PulsarServer.kt`
-- `infra/ConsulServer.kt`, `infra/VaultServer.kt`, `infra/PrometheusServer.kt`
+- `infra/ConsulServer.kt`, `infra/VaultServer.kt`, `infra/PrometheusServer.kt`, `infra/ToxiproxyServer.kt`, `infra/KeycloakServer.kt`
 - `aws/LocalStackServer.kt`
 
+### 5. 분산 SQL 및 시계열 DB 컨테이너
+
+- `http/WireMockServer.kt` — HTTP Mock 서버
+- `database/TrinoServer.kt` — 분산 SQL 쿼리 엔진
+- `storage/InfluxDBServer.kt` — InfluxDB 2.x 시계열 DB
+
 ## 사용 예
+
+### 데이터베이스
 
 ```kotlin
 val mysql = MySQL8Server(useDefaultPort = true).apply { start() }
 val ds = mysql.getDataSource()
+```
+
+### Graph DB 서버
+
+```kotlin
+// Neo4j 서버
+val neo4j = Neo4jServer.Launcher.neo4j
+val driver = GraphDatabase.driver(neo4j.boltUrl, AuthTokens.basic(neo4j.username, neo4j.password))
+
+// Memgraph 서버
+val memgraph = MemgraphServer.Launcher.memgraph
+val driver = GraphDatabase.driver(memgraph.boltUrl, AuthTokens.none())
+
+// PostgreSQL with Apache AGE
+val age = PostgreSQLAgeServer.Launcher.postgresqlAge
+val conn = DriverManager.getConnection(age.jdbcUrl, age.username, age.password)
+// conn.createStatement().executeQuery("SELECT * FROM cypher('age', 'MATCH (n) RETURN n') AS (node agtype)")
+```
+
+### HTTP Mock 서버
+
+```kotlin
+val wireMock = WireMockServer.Launcher.wireMock
+
+// 스텁 정의
+wireMock.stubFor(
+    get("/hello")
+        .willReturn(ok("Hello!"))
+)
+
+// 검증
+verify(getRequestedFor(urlEqualTo("/hello")))
+```
+
+### 인증 서버
+
+```kotlin
+val keycloak = KeycloakServer.Launcher.keycloak
+println("Auth Server URL: ${keycloak.authServerUrl}")  // http://localhost:PORT/auth
+println("Admin Console: ${keycloak.adminConsoleUrl}")
+```
+
+### 시계열 DB
+
+```kotlin
+val influxDB = InfluxDBServer.Launcher.influxDB
+println("URL: ${influxDB.url}")
+println("Admin Token: ${influxDB.adminToken}")
+println("Bucket: ${influxDB.bucket}")
+println("Organization: ${influxDB.organization}")
+```
+
+### 카오스 테스트
+
+```kotlin
+val toxiproxy = ToxiproxyServer.Launcher.toxiproxy
+// ToxiproxyClient로 프록시 생성 후 toxic(지연, 중단 등) 주입
+```
+
+### 분산 SQL 쿼리 엔진
+
+```kotlin
+val trino = TrinoServer.Launcher.trino
+val conn = DriverManager.getConnection(
+    "jdbc:trino://${trino.host}:${trino.port}/memory",
+    "test",
+    null
+)
+val stmt = conn.createStatement()
+val rs = stmt.executeQuery("SELECT 1 as num")
 ```
 
 ## Spring Boot 환경설정
@@ -252,6 +339,13 @@ flowchart TD
         ES["ElasticsearchServer"]
         OS["OpenSearchServer"]
         MN["MinIOServer"]
+        IFL["InfluxDBServer"]
+    end
+
+    subgraph 그래프DB
+        NJ["Neo4jServer"]
+        MG2["MemgraphServer"]
+        PA["PostgreSQLAgeServer"]
     end
 
     subgraph 메시지큐
@@ -267,6 +361,17 @@ flowchart TD
         VT["VaultServer"]
         PR["PrometheusServer"]
         ZK["ZooKeeperServer"]
+        TX["ToxiproxyServer"]
+        KC["KeycloakServer"]
+    end
+
+    subgraph 분산쿼리와시계열
+        TR["TrinoServer"]
+        IDB["InfluxDBServer"]
+    end
+
+    subgraph HTTPMock
+        WM["WireMockServer"]
     end
 
     subgraph AWS
@@ -275,8 +380,11 @@ flowchart TD
 
     GS --> 데이터베이스
     GS --> 스토리지
+    GS --> 그래프DB
     GS --> 메시지큐
     GS --> 인프라
+    GS --> 분산쿼리와시계열
+    GS --> HTTPMock
     GS --> AWS
 ```
 

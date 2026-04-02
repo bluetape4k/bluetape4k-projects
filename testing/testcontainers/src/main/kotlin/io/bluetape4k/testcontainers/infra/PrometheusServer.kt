@@ -30,14 +30,25 @@ class PrometheusServer private constructor(
 ): GenericContainer<PrometheusServer>(imageName), GenericServer {
 
     companion object: KLogging() {
+        /** Prometheus 서버의 Docker Hub 이미지 이름입니다. */
         const val IMAGE = "prom/prometheus"
+
+        /** 기본 Docker 이미지 태그입니다. */
         const val TAG = "v3.7.3"
+
+        /** 시스템 프로퍼티 등록 시 사용하는 서버 식별자입니다. */
         const val NAME = "prometheus"
 
+        /** Prometheus HTTP API 및 Web UI 포트입니다. */
         const val PORT = 9090
+
+        /** Prometheus Pushgateway 포트입니다. */
         const val PUSHGATEWAY_PORT = 9091
+
+        /** Graphite Exporter 포트입니다. */
         const val GRAPHITE_EXPORTER_PORT = 9109
 
+        /** 컨테이너에 노출할 포트 목록입니다. */
         val EXPOSED_PORTS = intArrayOf(PORT, PUSHGATEWAY_PORT, GRAPHITE_EXPORTER_PORT)
 
         @JvmStatic
@@ -90,7 +101,9 @@ class PrometheusServer private constructor(
         val extraProps = mapOf<String, Any?>(
             "server.port" to serverPort,
             "pushgateway.port" to pushgatewayPort,
-            "graphiteExporter.port" to graphiteExporterPort
+            "graphite.exporter.port" to graphiteExporterPort,
+            // 하위 호환을 위해 기존 camelCase 키도 유지합니다.
+            "graphiteExporter.port" to graphiteExporterPort,
         )
         writeToSystemProperties(NAME, extraProps)
     }
