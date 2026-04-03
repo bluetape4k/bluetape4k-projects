@@ -93,11 +93,10 @@ class MySQL8Server private constructor(
     override val propertyNamespace: String = NAME
 
     override fun propertyKeys(): Set<String> = setOf(
-        "jdbc.url", "driver.class.name", "username", "password", "database.name",
-        "jdbc-url", "driver-class-name"
+        "jdbc-url", "driver-class-name", "username", "password", "database-name",
     )
 
-    override fun properties(): Map<String, String> = buildJdbcPropertiesCompat()
+    override fun properties(): Map<String, String> = buildKebabJdbcProperties()
 
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
     override val port: Int get() = getMappedPort(PORT)

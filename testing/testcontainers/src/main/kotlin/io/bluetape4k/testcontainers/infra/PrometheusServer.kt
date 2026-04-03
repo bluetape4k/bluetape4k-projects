@@ -82,18 +82,16 @@ class PrometheusServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "server.port", "pushgateway.port", "graphite.exporter.port", "graphiteExporter.port",
+        "server-port", "pushgateway-port", "graphite-exporter-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "server.port" to serverPort.toString(),
-        "pushgateway.port" to pushgatewayPort.toString(),
-        "graphite.exporter.port" to graphiteExporterPort.toString(),
-        // 하위 호환을 위해 기존 camelCase 키도 유지합니다.
-        "graphiteExporter.port" to graphiteExporterPort.toString(),
+        "server-port" to serverPort.toString(),
+        "pushgateway-port" to pushgatewayPort.toString(),
+        "graphite-exporter-port" to graphiteExporterPort.toString(),
     )
 
     init {

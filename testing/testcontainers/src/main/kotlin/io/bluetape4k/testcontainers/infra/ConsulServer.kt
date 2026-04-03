@@ -73,15 +73,15 @@ class ConsulServer private constructor(
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "dns.port", "http.port", "rpc.port")
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "dns-port", "http-port", "rpc-port")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "dns.port" to dnsPort.toString(),
-        "http.port" to httpPort.toString(),
-        "rpc.port" to rpcPort.toString(),
+        "dns-port" to dnsPort.toString(),
+        "http-port" to httpPort.toString(),
+        "rpc-port" to rpcPort.toString(),
     )
 
     init {

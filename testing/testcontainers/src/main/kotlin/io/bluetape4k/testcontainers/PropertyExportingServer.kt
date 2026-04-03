@@ -6,16 +6,19 @@ package io.bluetape4k.testcontainers
  * 모든 testcontainers 서버가 이 인터페이스를 구현하여 일관된 키 명명 규칙과
  * 프로퍼티 등록/해제 기능을 제공합니다.
  *
- * 시스템 프로퍼티 키는 `testcontainers.{propertyNamespace}.{key}` 형식으로 생성됩니다.
+ * **프로퍼티 키 명명 규칙**: kebab-case 소문자
+ * 시스템 프로퍼티 키 형식: `testcontainers.{propertyNamespace}.{kebab-case-key}`
+ * 예: `testcontainers.postgresql.jdbc-url`, `testcontainers.kafka.bootstrap-servers`
  *
  * ```kotlin
  * class MyServer : GenericContainer<MyServer>("image"), PropertyExportingServer {
  *     override val propertyNamespace: String = "my-server"
- *     override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+ *     override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "my-port")
  *     override fun properties(): Map<String, String> = mapOf(
  *         "host" to host,
  *         "port" to firstMappedPort.toString(),
  *         "url" to "$host:$firstMappedPort",
+ *         "my-port" to myPort.toString(),
  *     )
  * }
  * ```
@@ -100,22 +103,22 @@ interface PropertyExportingServer {
 }
 
 /**
- * 비-JDBC 서버의 키 명명 변경 시 구 키도 함께 등록하기 위한 유틸리티입니다.
+ * 서버의 키 명명 변경 시 구 camelCase 키도 함께 등록하기 위한 유틸리티입니다.
  *
- * [mapping]의 새 키가 현재 맵에 있으면 구 키도 같은 값으로 추가합니다.
+ * [mapping]의 새 키(kebab-case)가 현재 맵에 있으면 구 키(camelCase)도 같은 값으로 추가합니다.
  *
  * 사용 예시 (KafkaServer):
  * ```kotlin
  * override fun properties() = mapOf(
- *     "bootstrap.servers" to bootstrapServers,
- *     "bound.port.numbers" to boundPortNumbers.joinToString(",")
+ *     "bootstrap-servers" to bootstrapServers,
+ *     "bound-port-numbers" to boundPortNumbers.joinToString(",")
  * ).withCompatKeys(mapOf(
- *     "bootstrap.servers" to "bootstrapServers",
- *     "bound.port.numbers" to "boundPortNumbers"
+ *     "bootstrap-servers" to "bootstrapServers",
+ *     "bound-port-numbers" to "boundPortNumbers"
  * ))
  * ```
  *
- * @param mapping 새 키 → 구 키 매핑. 새 키가 맵에 있으면 구 키도 같은 값으로 추가
+ * @param mapping 새 키(kebab-case) → 구 키(camelCase) 매핑. 새 키가 맵에 있으면 구 키도 같은 값으로 추가
  * @return 구 키가 추가된 새 맵
  */
 fun Map<String, String>.withCompatKeys(mapping: Map<String, String>): Map<String, String> {

@@ -94,22 +94,22 @@ class RabbitMQServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "amqp.url", "management.url", "username", "password",
-        "amqp.port", "amqps.port", "rabbitmq.http.port", "rabbitmq.https.port",
+        "amqp-url", "management-url", "username", "password",
+        "amqp-port", "amqps-port", "rabbitmq-http-port", "rabbitmq-https-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "amqp.url" to amqpUrl,
-        "management.url" to httpUrl,
+        "amqp-url" to amqpUrl,
+        "management-url" to httpUrl,
         "username" to adminUsername,
         "password" to adminPassword,
-        "amqp.port" to amqpPort.toString(),
-        "amqps.port" to amqpsPort.toString(),
-        "rabbitmq.http.port" to rabbitmqHttpPort.toString(),
-        "rabbitmq.https.port" to rabbitmqHttpsPort.toString(),
+        "amqp-port" to amqpPort.toString(),
+        "amqps-port" to amqpsPort.toString(),
+        "rabbitmq-http-port" to rabbitmqHttpPort.toString(),
+        "rabbitmq-https-port" to rabbitmqHttpsPort.toString(),
     )
 
     /** AMQP 포트의 매핑 결과입니다. */

@@ -62,19 +62,19 @@ class PropertyExportingServerContractTest {
     }
 
     /**
-     * [PropertyExportingServer.propertyKeys]는 dot-separated lowercase 형식이어야 합니다.
+     * [PropertyExportingServer.propertyKeys]는 kebab-case lowercase 형식이어야 합니다.
      * compat 키(camelCase 형식의 구 키)는 검증에서 제외합니다.
      */
     @Test
-    fun `propertyKeys 는 dot-separated lowercase 형식이어야 한다`() {
+    fun `propertyKeys 는 kebab-case lowercase 형식이어야 한다`() {
         val server = MockServer(
             propertyNamespace = "test",
-            keys = setOf("host", "port", "bootstrap.servers", "bound.port.numbers"),
+            keys = setOf("host", "port", "bootstrap-servers", "bound-port-numbers"),
             props = mapOf(
                 "host" to "localhost",
                 "port" to "5432",
-                "bootstrap.servers" to "localhost:9093",
-                "bound.port.numbers" to "9093",
+                "bootstrap-servers" to "localhost:9093",
+                "bound-port-numbers" to "9093",
             ),
         )
 
@@ -83,9 +83,9 @@ class PropertyExportingServerContractTest {
 
         val nonCompatKeys = server.propertyKeys().filterNot { isCamelCase(it) }
 
-        // 비-compat 키는 모두 dot-separated lowercase 형식이어야 합니다
+        // 비-compat 키는 모두 kebab-case lowercase 형식이어야 합니다
         nonCompatKeys.forEach { key ->
-            key.matches(Regex("[a-z][a-z0-9.\\-]*")).shouldBeTrue()
+            key.matches(Regex("[a-z][a-z0-9\\-]*")).shouldBeTrue()
         }
     }
 
@@ -231,25 +231,25 @@ class PropertyExportingServerContractTest {
     }
 
     /**
-     * [PropertyExportingServer.withCompatKeys] 유틸리티는 구 키를 새 키와 함께 맵에 추가합니다.
+     * [PropertyExportingServer.withCompatKeys] 유틸리티는 구 camelCase 키를 새 kebab-case 키와 함께 맵에 추가합니다.
      */
     @Test
-    fun `withCompatKeys 는 구 키를 현재 맵에 추가한다`() {
+    fun `withCompatKeys 는 구 camelCase 키를 현재 맵에 추가한다`() {
         val original = mapOf(
-            "bootstrap.servers" to "localhost:9093",
-            "bound.port.numbers" to "9093",
+            "bootstrap-servers" to "localhost:9093",
+            "bound-port-numbers" to "9093",
         )
 
         val result = original.withCompatKeys(
             mapOf(
-                "bootstrap.servers" to "bootstrapServers",
-                "bound.port.numbers" to "boundPortNumbers",
+                "bootstrap-servers" to "bootstrapServers",
+                "bound-port-numbers" to "boundPortNumbers",
             )
         )
 
-        result["bootstrap.servers"] shouldBeEqualTo "localhost:9093"
+        result["bootstrap-servers"] shouldBeEqualTo "localhost:9093"
         result["bootstrapServers"] shouldBeEqualTo "localhost:9093"
-        result["bound.port.numbers"] shouldBeEqualTo "9093"
+        result["bound-port-numbers"] shouldBeEqualTo "9093"
         result["boundPortNumbers"] shouldBeEqualTo "9093"
     }
 
@@ -261,7 +261,7 @@ class PropertyExportingServerContractTest {
         val original = mapOf("host" to "localhost")
 
         val result = original.withCompatKeys(
-            mapOf("bootstrap.servers" to "bootstrapServers")
+            mapOf("bootstrap-servers" to "bootstrapServers")
         )
 
         result.containsKey("bootstrapServers").shouldBeFalse()

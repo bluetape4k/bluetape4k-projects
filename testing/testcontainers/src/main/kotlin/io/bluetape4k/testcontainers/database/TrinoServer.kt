@@ -85,11 +85,11 @@ class TrinoServer private constructor(
     override val propertyNamespace: String = NAME
 
     override fun propertyKeys(): Set<String> = setOf(
-        "jdbc.url", "username"
+        "jdbc-url", "username"
     )
 
     override fun properties(): Map<String, String> = buildMap {
-        put("jdbc.url", "jdbc:trino://$host:$port/memory")
+        put("jdbc-url", "jdbc:trino://$host:$port/memory")
         username?.let { put("username", it) }
     }
 

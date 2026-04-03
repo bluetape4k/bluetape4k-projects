@@ -105,11 +105,10 @@ class PgvectorServer private constructor(
     override val propertyNamespace: String = NAME
 
     override fun propertyKeys(): Set<String> = setOf(
-        "jdbc.url", "driver.class.name", "username", "password", "database.name",
-        "jdbc-url", "driver-class-name"
+        "jdbc-url", "driver-class-name", "username", "password", "database-name",
     )
 
-    override fun properties(): Map<String, String> = buildJdbcPropertiesCompat()
+    override fun properties(): Map<String, String> = buildKebabJdbcProperties()
 
     private val extraExtensions = mutableListOf<String>()
 

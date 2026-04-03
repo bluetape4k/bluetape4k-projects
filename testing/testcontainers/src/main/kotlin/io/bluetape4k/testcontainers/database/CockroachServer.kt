@@ -85,11 +85,10 @@ class CockroachServer private constructor(
     override val propertyNamespace: String = NAME
 
     override fun propertyKeys(): Set<String> = setOf(
-        "jdbc.url", "driver.class.name", "username", "password", "database.name",
-        "jdbc-url", "driver-class-name"
+        "jdbc-url", "driver-class-name", "username", "password", "database-name",
     )
 
-    override fun properties(): Map<String, String> = buildJdbcPropertiesCompat()
+    override fun properties(): Map<String, String> = buildKebabJdbcProperties()
 
     override val port: Int get() = getMappedPort(DB_PORT)
     override val url: String get() = jdbcUrl

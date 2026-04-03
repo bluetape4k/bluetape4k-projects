@@ -94,16 +94,16 @@ class RedpandaServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "admin.port", "schema.registry.port", "rest.proxy.port",
+        "admin-port", "schema-registry-port", "rest-proxy-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "admin.port" to adminPort.toString(),
-        "schema.registry.port" to schemaRegistryPort.toString(),
-        "rest.proxy.port" to restProxyPort.toString(),
+        "admin-port" to adminPort.toString(),
+        "schema-registry-port" to schemaRegistryPort.toString(),
+        "rest-proxy-port" to restProxyPort.toString(),
     )
 
     /** Admin API 포트의 매핑 결과입니다. */

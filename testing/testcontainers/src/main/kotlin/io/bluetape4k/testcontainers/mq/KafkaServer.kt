@@ -103,7 +103,7 @@ class KafkaServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "bootstrap.servers", "bound.port.numbers",
+        "bootstrap-servers", "bound-port-numbers",
         "bootstrapServers", "boundPortNumbers",   // compat keys
     )
 
@@ -111,11 +111,11 @@ class KafkaServer private constructor(
         put("host", host)
         put("port", port.toString())
         put("url", url)
-        put("bootstrap.servers", bootstrapServers)
-        put("bound.port.numbers", boundPortNumbers.joinToString(","))
+        put("bootstrap-servers", bootstrapServers)
+        put("bound-port-numbers", boundPortNumbers.joinToString(","))
     }.withCompatKeys(mapOf(
-        "bootstrap.servers" to "bootstrapServers",
-        "bound.port.numbers" to "boundPortNumbers",
+        "bootstrap-servers" to "bootstrapServers",
+        "bound-port-numbers" to "boundPortNumbers",
     ))
 
     init {

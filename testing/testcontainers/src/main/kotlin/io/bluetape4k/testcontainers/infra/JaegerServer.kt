@@ -80,17 +80,17 @@ class JaegerServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "frontend.port", "zipkin.port", "config.port", "thrift.port",
+        "frontend-port", "zipkin-port", "config-port", "thrift-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "frontend.port" to frontendPort.toString(),
-        "zipkin.port" to zipkinPort.toString(),
-        "config.port" to configPort.toString(),
-        "thrift.port" to thriftPort.toString(),
+        "frontend-port" to frontendPort.toString(),
+        "zipkin-port" to zipkinPort.toString(),
+        "config-port" to configPort.toString(),
+        "thrift-port" to thriftPort.toString(),
     )
 
     init {

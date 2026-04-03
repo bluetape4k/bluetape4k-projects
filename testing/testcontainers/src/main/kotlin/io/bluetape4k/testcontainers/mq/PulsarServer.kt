@@ -92,16 +92,16 @@ class PulsarServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "broker.url", "broker.port", "broker.http.port",
+        "broker-url", "broker-port", "broker-http-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "broker.url" to pulsarBrokerUrl,
-        "broker.port" to brokerPort.toString(),
-        "broker.http.port" to brokerHttpPort.toString(),
+        "broker-url" to pulsarBrokerUrl,
+        "broker-port" to brokerPort.toString(),
+        "broker-http-port" to brokerHttpPort.toString(),
     )
 
     /** Pulsar broker TCP 포트의 매핑 결과입니다. */

@@ -92,15 +92,15 @@ class NatsServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "cluster.port", "monitor.port",
+        "cluster-port", "monitor-port",
     )
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "cluster.port" to clusterPort.toString(),
-        "monitor.port" to monitorPort.toString(),
+        "cluster-port" to clusterPort.toString(),
+        "monitor-port" to monitorPort.toString(),
     )
 
     /** NATS 클라이언트 접속 포트의 매핑 결과입니다. */
