@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.graphdb
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.database.JdbcServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
@@ -35,7 +36,7 @@ class PostgreSQLAgeServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): PostgreSQLContainer(imageName), JdbcServer {
+): PostgreSQLContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Docker 이미지 이름 */
@@ -110,6 +111,17 @@ class PostgreSQLAgeServer private constructor(
     /** JDBC URL */
     override val url: String get() = jdbcUrl
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("jdbc.url", "username", "password", "database")
+
+    override fun properties(): Map<String, String> = buildMap {
+        put("jdbc.url", jdbcUrl)
+        username?.let { put("username", it) }
+        password?.let { put("password", it) }
+        databaseName?.let { put("database", it) }
+    }
+
     init {
         addExposedPorts(PORT)
 
@@ -149,12 +161,7 @@ class PostgreSQLAgeServer private constructor(
             }
         }
 
-        writeToSystemProperties(NAME, mapOf(
-            "jdbc.url" to jdbcUrl,
-            "username" to username,
-            "password" to password,
-            "database" to databaseName,
-        ))
+        writeToSystemProperties()
     }
 
     /**

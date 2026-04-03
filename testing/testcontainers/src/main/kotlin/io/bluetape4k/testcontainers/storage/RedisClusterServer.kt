@@ -5,9 +5,9 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.storage.RedisClusterServer.Launcher.RedissonLib.getRedissonConfig
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import io.lettuce.core.RedisURI
 import io.lettuce.core.cluster.ClusterClientOptions
@@ -55,7 +55,7 @@ class RedisClusterServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<RedisClusterServer>(imageName), GenericServer {
+): GenericContainer<RedisClusterServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "tommy351/redis-cluster"
@@ -130,6 +130,25 @@ class RedisClusterServer private constructor(
     private val nodeRedisUrl: List<String> by lazy { mappedPorts.values.map { "redis://$host:$it" } }
     private val socketAddresses = ConcurrentHashMap<Int, SocketAddress>()
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = buildSet {
+        add("host"); add("port"); add("url")
+        add("nodes"); add("urls")
+        PORTS.indices.forEach { add("nodes.$it") }
+    }
+
+    override fun properties(): Map<String, String> = buildMap {
+        put("host", host)
+        put("port", port.toString())
+        put("url", url)
+        put("nodes", nodeAddresses.joinToString(","))
+        put("urls", nodeRedisUrl.joinToString(","))
+        nodeAddresses.forEachIndexed { index, nodeAddress ->
+            put("nodes.$index", nodeAddress)
+        }
+    }
+
     init {
         addExposedPorts(*PORTS)
         withReuse(reuse)
@@ -179,18 +198,7 @@ class RedisClusterServer private constructor(
      * ```
      */
     private fun writeClusterInfo() {
-        val extraMaps = mutableMapOf(
-            // testcontainers.redis.cluster.nodes=localhost:7000,localhost:7001 ...
-            "nodes" to nodeAddresses.joinToString(","),
-
-            // testcontainers.redis.cluster.nodes=redis://localhost:7000,redis://localhost:7001 ...
-            "urls" to nodeRedisUrl.joinToString(",")
-        )
-        // 이건 안해도 될 듯 하다. (${testcontainers.redis.cluster.node.0} 이런식으로 접근 가능)
-        nodeAddresses.forEachIndexed { index, nodeAddress ->
-            extraMaps["nodes.$index"] = nodeAddress
-        }
-        writeToSystemProperties(NAME, extraMaps)
+        writeToSystemProperties()
     }
 
     /**

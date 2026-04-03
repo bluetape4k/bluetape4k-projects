@@ -3,11 +3,10 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.opensearch.testcontainers.OpenSearchContainer
-import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -30,7 +29,7 @@ class OpenSearchServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): OpenSearchContainer<OpenSearchServer>(imageName), GenericServer {
+): OpenSearchContainer<OpenSearchServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object Companion: KLogging() {
         const val IMAGE = "opensearchproject/opensearch"
@@ -98,6 +97,16 @@ class OpenSearchServer private constructor(
     override val port: Int get() = getMappedPort(HTTP_PORT)
     override val url: String get() = httpHostAddress
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         addExposedPorts(HTTP_PORT, TCP_PORT)
         withReuse(reuse)
@@ -109,7 +118,7 @@ class OpenSearchServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**
@@ -136,18 +145,5 @@ class OpenSearchServer private constructor(
             }
         }
 
-        /**
-         * Spring Data Elasticsearch 를 사용 할 때 사용할 클라이언트 설정을 제공합니다.
-         *
-         * @param opensearch [OpenSearchServer] 인스턴스
-         * @return Spring Data Elasticsearch에서 제공하는 [ClientConfiguration] 인스턴스
-         */
-        fun getClientConfiguration(opensearch: OpenSearchServer): ClientConfiguration {
-            return ClientConfiguration.builder()
-                .connectedTo(opensearch.url)
-                //.usingSsl(opensearch.createSslContextFromCa())
-                .withBasicAuth(opensearch.username, opensearch.password)
-                .build()
-        }
     }
 }

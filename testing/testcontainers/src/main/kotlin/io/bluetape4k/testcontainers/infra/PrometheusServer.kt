@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.infra
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
@@ -27,7 +27,7 @@ class PrometheusServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<PrometheusServer>(imageName), GenericServer {
+): GenericContainer<PrometheusServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Prometheus 서버의 Docker Hub 이미지 이름입니다. */
@@ -78,6 +78,22 @@ class PrometheusServer private constructor(
     /** Graphite exporter 포트의 매핑 결과입니다. */
     val graphiteExporterPort: Int get() = getMappedPort(GRAPHITE_EXPORTER_PORT)
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "server-port", "pushgateway-port", "graphite-exporter-port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "server-port" to serverPort.toString(),
+        "pushgateway-port" to pushgatewayPort.toString(),
+        "graphite-exporter-port" to graphiteExporterPort.toString(),
+    )
+
     init {
         addExposedPorts(*EXPOSED_PORTS)
         withReuse(reuse)
@@ -97,15 +113,7 @@ class PrometheusServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf<String, Any?>(
-            "server.port" to serverPort,
-            "pushgateway.port" to pushgatewayPort,
-            "graphite.exporter.port" to graphiteExporterPort,
-            // 하위 호환을 위해 기존 camelCase 키도 유지합니다.
-            "graphiteExporter.port" to graphiteExporterPort,
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

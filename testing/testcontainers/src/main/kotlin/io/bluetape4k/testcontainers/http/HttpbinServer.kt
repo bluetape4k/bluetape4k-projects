@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.http
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -31,7 +32,7 @@ class HttpbinServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<HttpbinServer>(imageName), GenericServer {
+): GenericContainer<HttpbinServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "kong/httpbin"
@@ -97,6 +98,16 @@ class HttpbinServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "http://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         withExposedPorts(PORT)
         withReuse(reuse)
@@ -111,7 +122,7 @@ class HttpbinServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**

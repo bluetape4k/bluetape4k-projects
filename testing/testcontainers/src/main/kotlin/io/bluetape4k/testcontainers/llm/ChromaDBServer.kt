@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.llm
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -19,7 +20,7 @@ class ChromaDBServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): ChromaDBContainer(imageName), GenericServer {
+): ChromaDBContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** ChromaDB 서버의 Docker Hub 이미지 이름입니다. */
@@ -61,6 +62,16 @@ class ChromaDBServer private constructor(
     override val port: Int get() = firstMappedPort
     override val url: String get() = endpoint
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         withExposedPorts(PORT)
         withReuse(reuse)
@@ -72,7 +83,7 @@ class ChromaDBServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**

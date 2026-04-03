@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.mq
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import io.nats.client.Connection
 import io.nats.client.Nats
@@ -31,7 +31,7 @@ class NatsServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<NatsServer>(imageName), GenericServer {
+): GenericContainer<NatsServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "nats"
@@ -88,6 +88,21 @@ class NatsServer private constructor(
     override val port: Int get() = getMappedPort(NATS_PORT)
     override val url: String get() = "$NAME://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "cluster-port", "monitor-port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "cluster-port" to clusterPort.toString(),
+        "monitor-port" to monitorPort.toString(),
+    )
+
     /** NATS 클라이언트 접속 포트의 매핑 결과입니다. */
     val natsPort: Int get() = getMappedPort(NATS_PORT)
 
@@ -113,12 +128,7 @@ class NatsServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf(
-            "cluster.port" to clusterPort,
-            "monitor.port" to monitorPort,
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

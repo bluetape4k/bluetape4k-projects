@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.cockroachdb.CockroachContainer
 import org.testcontainers.utility.DockerImageName
@@ -21,7 +21,7 @@ class CockroachServer private constructor(
     password: String,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): CockroachContainer(imageName), JdbcServer {
+): CockroachContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "cockroachdb/cockroach"
@@ -82,6 +82,14 @@ class CockroachServer private constructor(
         }
     }
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "jdbc-url", "driver-class-name", "username", "password", "database-name",
+    )
+
+    override fun properties(): Map<String, String> = buildKebabJdbcProperties()
+
     override val port: Int get() = getMappedPort(DB_PORT)
     override val url: String get() = jdbcUrl
 
@@ -112,7 +120,7 @@ class CockroachServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME, buildJdbcProperties())
+        writeToSystemProperties()
     }
 
     /**

@@ -32,6 +32,82 @@ bluetape4k-testcontainers 는 Testcontainers 를 감싼 thin wrapper 이지만, 
 - **Spring Boot 설정 단순화**: `application-test.yml`에서 `${testcontainers...}` placeholder 만으로 연결 정보를 주입할 수 있습니다.
 - **공통 유틸 제공**: `getDataSource()` 같은 헬퍼로 JDBC 초기 설정 보일러플레이트를 줄일 수 있습니다.
 
+## 시스템 프로퍼티 Export (PropertyExportingServer)
+
+모든 서버 클래스는 `PropertyExportingServer` 인터페이스를 구현하여, `start()` 시 연결 정보를 시스템 프로퍼티로 자동 등록합니다.
+
+### 키 명명 규칙
+
+모든 프로퍼티 키는 **kebab-case 소문자**를 사용합니다.
+
+시스템 프로퍼티 형식: `testcontainers.{namespace}.{kebab-case-key}`
+
+예:
+- `testcontainers.postgresql.jdbc-url`
+- `testcontainers.kafka.bootstrap-servers`
+- `testcontainers.redis.host`
+
+### 서버별 export 키
+
+| 서버 | namespace | 주요 키 |
+|------|-----------|---------|
+| PostgreSQLServer | `postgresql` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| PostgisServer | `postgis` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| PgvectorServer | `pgvector` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| MySQL8Server | `mysql` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| MariaDBServer | `mariadb` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| CockroachServer | `cockroach` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| ClickHouseServer | `clickhouse` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
+| TrinoServer | `trino` | `jdbc-url`, `username` |
+| RedisServer | `redis` | `host`, `port`, `url` |
+| MongoDBServer | `mongo` | `host`, `port`, `url` |
+| ElasticsearchServer | `elasticsearch` | `host`, `port`, `url` |
+| KafkaServer | `kafka` | `host`, `port`, `url`, `bootstrap-servers`, `bound-port-numbers` |
+| RedpandaServer | `redpanda` | `host`, `port`, `url`, `admin-port`, `schema-registry-port`, `rest-proxy-port` |
+| NatsServer | `nats` | `host`, `port`, `url`, `cluster-port`, `monitor-port` |
+| PulsarServer | `pulsar` | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port` |
+| RabbitMQServer | `rabbitmq` | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url` |
+| LocalStackServer | `localstack` | `host`, `port`, `url` |
+| PrometheusServer | `prometheus` | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port` |
+| ConsulServer | `consul` | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port` |
+| JaegerServer | `jaeger` | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+
+### 사용 예제
+
+```kotlin
+// 예제 1: start() 후 시스템 프로퍼티 직접 조회
+val postgresUrl = System.getProperty("testcontainers.postgresql.jdbc-url")
+val kafkaServers = System.getProperty("testcontainers.kafka.bootstrap-servers")
+
+// 예제 2: registerSystemProperties() — 테스트 후 자동 복원
+@BeforeEach
+fun setup() {
+    registration = PostgreSQLServer.Launcher.postgres.registerSystemProperties()
+}
+
+@AfterEach
+fun cleanup() {
+    registration.close()
+}
+
+// 예제 3: use {} 블록
+PostgreSQLServer().use { server ->
+    server.start()
+    server.registerSystemProperties().use {
+        // 이 블록 안에서만 시스템 프로퍼티 유효
+        val url = System.getProperty("testcontainers.postgresql.jdbc-url")
+    }
+}
+
+// 예제 4: Spring Boot 테스트 (application-test.yml)
+// spring:
+//   datasource:
+//     url: ${testcontainers.postgresql.jdbc-url}
+//     driver-class-name: ${testcontainers.postgresql.driver-class-name}
+//     username: ${testcontainers.postgresql.username}
+//     password: ${testcontainers.postgresql.password}
+```
+
 ## 의존성 추가
 
 ```kotlin
@@ -224,6 +300,8 @@ class MyRepositoryTest {
 
 ### 2) `application-test.yml` 에서 placeholder 사용
 
+모든 프로퍼티 키는 kebab-case입니다.
+
 ```yaml
 spring:
   datasource:
@@ -236,6 +314,19 @@ spring:
     redis:
       host: ${testcontainers.redis.host}
       port: ${testcontainers.redis.port}
+
+# Kafka
+spring:
+  kafka:
+    bootstrap-servers: ${testcontainers.kafka.bootstrap-servers}
+
+# PostgreSQL
+spring:
+  datasource:
+    url: ${testcontainers.postgresql.jdbc-url}
+    driver-class-name: ${testcontainers.postgresql.driver-class-name}
+    username: ${testcontainers.postgresql.username}
+    password: ${testcontainers.postgresql.password}
 ```
 
 직접 Testcontainers 를 사용할 때 자주 필요한 `@DynamicPropertySource` 등록 코드를, 이 모듈에서는 시스템 프로퍼티 자동 등록으로 단순화할 수 있습니다.

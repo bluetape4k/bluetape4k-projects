@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.infra
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -25,7 +26,7 @@ class ZooKeeperServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): GenericContainer<ZooKeeperServer>(imageName), GenericServer {
+): GenericContainer<ZooKeeperServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** ZooKeeper 서버의 Docker Hub 이미지 이름입니다. */
@@ -67,6 +68,16 @@ class ZooKeeperServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         withExposedPorts(PORT)
         withReuse(reuse)
@@ -79,7 +90,7 @@ class ZooKeeperServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**

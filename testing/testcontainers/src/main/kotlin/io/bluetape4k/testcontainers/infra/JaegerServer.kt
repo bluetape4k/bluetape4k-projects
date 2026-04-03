@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.infra
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -23,7 +23,7 @@ class JaegerServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<JaegerServer>(imageName), GenericServer {
+): GenericContainer<JaegerServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "jaegertracing/all-in-one"
@@ -76,6 +76,23 @@ class JaegerServer private constructor(
     /** Thrift 수집 포트의 매핑 결과입니다. */
     val thriftPort: Int get() = getMappedPort(THRIFT_PORT)
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "frontend-port", "zipkin-port", "config-port", "thrift-port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "frontend-port" to frontendPort.toString(),
+        "zipkin-port" to zipkinPort.toString(),
+        "config-port" to configPort.toString(),
+        "thrift-port" to thriftPort.toString(),
+    )
+
     init {
         addExposedPorts(*EXPOSED_PORT)
         withReuse(reuse)
@@ -90,14 +107,7 @@ class JaegerServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf<String, Any?>(
-            "frontend.port" to frontendPort,
-            "zipkin.port" to zipkinPort,
-            "config.port" to configPort,
-            "thrift.port" to thriftPort,
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

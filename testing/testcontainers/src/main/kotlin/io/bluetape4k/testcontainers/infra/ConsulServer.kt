@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.infra
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -19,7 +20,7 @@ class ConsulServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<ConsulServer>(imageName), GenericServer {
+): GenericContainer<ConsulServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Consul 서버의 Docker Hub 이미지 이름입니다. */
@@ -70,6 +71,19 @@ class ConsulServer private constructor(
     /** RPC 통신용 Consul 포트의 매핑 결과입니다. */
     val rpcPort: Int get() = getMappedPort(RPC_PORT)
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "dns-port", "http-port", "rpc-port")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "dns-port" to dnsPort.toString(),
+        "http-port" to httpPort.toString(),
+        "rpc-port" to rpcPort.toString(),
+    )
+
     init {
         addExposedPorts(*EXPORT_PORTS)
         withReuse(reuse)
@@ -83,12 +97,7 @@ class ConsulServer private constructor(
     override fun start() {
         super.start()
 
-        val extraProps = mapOf(
-            "dns.port" to dnsPort,
-            "http.port" to httpPort,
-            "rpc.port" to rpcPort
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**
