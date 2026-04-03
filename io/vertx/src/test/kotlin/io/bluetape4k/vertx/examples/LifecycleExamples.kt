@@ -55,12 +55,13 @@ class LifecycleExample: AbstractVertxTest() {
     @Test
     fun `request to server`(testContext: VertxTestContext) = withTestContext(testContext) {
         val webClient = WebClient.create(vertx)
+        val verticle = SampleVerticle()
 
         vertx
-            .deployVerticle(SampleVerticle())
+            .deployVerticle(verticle)
             .onSuccess {
                 testContext.succeeding<Unit> {
-                    webClient.get(SampleVerticle.PORT, "localhost", "/yo")
+                    webClient.get(verticle.actualPort, "localhost", "/yo")
                         .`as`(BodyCodec.string())
                         .send()
                         .onSuccess { resp ->
@@ -78,10 +79,11 @@ class LifecycleExample: AbstractVertxTest() {
     fun `request to server by coroutines`(testContext: VertxTestContext) = runSuspendTest {
         vertx.withSuspendTestContext(testContext) {
             val webClient = WebClient.create(vertx)
+            val verticle = SampleVerticle()
 
-            vertx.deployVerticle(SampleVerticle()).coAwait()
+            vertx.deployVerticle(verticle).coAwait()
 
-            val response = webClient.get(SampleVerticle.PORT, "localhost", "/yo")
+            val response = webClient.get(verticle.actualPort, "localhost", "/yo")
                 .`as`(BodyCodec.string())
                 .send()
                 .coAwait()

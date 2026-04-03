@@ -7,11 +7,15 @@ import io.bluetape4k.logging.info
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 
-class SampleVerticle: AbstractVerticle() {
+class SampleVerticle(private val port: Int = 0): AbstractVerticle() {
 
-    companion object: KLoggingChannel() {
-        const val PORT = 11981
-    }
+    companion object: KLoggingChannel()
+
+    /**
+     * 서버가 바인딩된 실제 포트. [start] 완료 후 사용 가능.
+     */
+    var actualPort: Int = 0
+        private set
 
     override fun start(startPromise: Promise<Void>) {
         vertx.createHttpServer()
@@ -22,9 +26,10 @@ class SampleVerticle: AbstractVerticle() {
                     .end("Yo!")
                 log.info { "Handle a request on path ${req.path()} from ${req.remoteAddress().host()}" }
             }
-            .listen(PORT)
+            .listen(port)
             .onSuccess { server ->
-                log.info { "Server is now listening! server actual port=${server.actualPort()}" }
+                actualPort = server.actualPort()
+                log.info { "Server is now listening! server actual port=$actualPort" }
                 startPromise.complete()
             }
             .onFailure { error ->

@@ -51,17 +51,17 @@ class SampleVerticleTest: AbstractVertxTest() {
         val deploymentCheckpoint = testContext.checkpoint()
         val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
+        val verticle = SampleVerticle()
         vertx
-            .deployVerticle(SampleVerticle())
+            .deployVerticle(verticle)
             .onSuccess {
                 deploymentCheckpoint.flag()
-                Thread.sleep(1)
 
                 val webClient = WebClient.create(vertx)
 
                 repeat(REPEAT_SIZE) {
                     log.debug { "Request $it" }
-                    webClient.get(SampleVerticle.PORT, "localhost", "/")
+                    webClient.get(verticle.actualPort, "localhost", "/")
                         .`as`(BodyCodec.string())
                         .send()
                         .onSuccess { resp ->
@@ -84,8 +84,9 @@ class SampleVerticleTest: AbstractVertxTest() {
             val deploymentCheckpoint = testContext.checkpoint()
             val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
-            log.debug { "Deply SampleVerticle" }
-            vertx.deployVerticle(SampleVerticle()).coAwait()
+            val verticle = SampleVerticle()
+            log.debug { "Deploy SampleVerticle" }
+            vertx.deployVerticle(verticle).coAwait()
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
 
             val webClient = WebClient.create(vertx)
@@ -94,7 +95,7 @@ class SampleVerticleTest: AbstractVertxTest() {
                 launch {
                     log.debug { "Request $requestIndex" }
                     val resp =
-                        webClient.get(SampleVerticle.PORT, "localhost", "/")
+                        webClient.get(verticle.actualPort, "localhost", "/")
                             .`as`(BodyCodec.string())
                             .send()
                             .coAwait()
