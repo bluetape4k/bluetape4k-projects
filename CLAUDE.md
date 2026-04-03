@@ -100,6 +100,7 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `exposed-postgresql` | PostGIS, pgvector, TSTZRANGE; H2 fallback |
 | `exposed-mysql8` | GIS geometry types (8 kinds), JTS, spatial functions |
 | `exposed-duckdb` | DuckDB dialect, `DuckDBDatabase` factory, `suspendTransaction`, `queryFlow` |
+| `exposed-trino` | Trino JDBC Dialect, TrinoDatabase, suspendTransaction/queryFlow; autocommit 전용 (트랜잭션 미지원) |
 | `exposed-bigquery` | BigQuery REST API via H2 SQL generation; `BigQueryContext`, suspend/Flow API |
 | `exposed-jdbc-tests` / `exposed-r2dbc-tests` | Shared test infrastructure |
 
