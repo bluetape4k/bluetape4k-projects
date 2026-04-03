@@ -39,51 +39,22 @@ inline fun feignBuilder(
  * // b != null
  * ```
  */
-fun feignBuilderOf(
+inline fun feignBuilderOf(
     client: feign.Client,
     encoder: Encoder = Encoder.Default(),
     decoder: Decoder = Decoder.Default(),
     options: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
-): Feign.Builder {
-    return feignBuilder {
-        client(client)
-        encoder(encoder)
-        decoder(decoder)
-        options(options)
-        logLevel(logLevel)
-    }
-}
+    builder: Feign.Builder.() -> Unit = {},
+): Feign.Builder = feignBuilder {
+    client(client)
+    encoder(encoder)
+    decoder(decoder)
+    options(options)
+    logLevel(logLevel)
 
-/**
- * 오탈자 함수명(`feingBuilderOf`) 호환용 deprecated 래퍼입니다.
- *
- * ## 동작/계약
- * - 내부에서 [feignBuilderOf]로 위임합니다.
- * - 신규 코드는 [feignBuilderOf] 사용을 권장합니다.
- *
- * ```kotlin
- * val b = feingBuilderOf(client = VertxHttpClient())
- * // b != null
- * ```
- */
-@Deprecated(
-    message = "Use feignBuilderOf()",
-    replaceWith = ReplaceWith("feignBuilderOf(client, encoder, decoder, options, logLevel)")
-)
-fun feingBuilderOf(
-    client: feign.Client,
-    encoder: Encoder = Encoder.Default(),
-    decoder: Decoder = Decoder.Default(),
-    options: Request.Options = defaultRequestOptions,
-    logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
-): Feign.Builder = feignBuilderOf(
-    client = client,
-    encoder = encoder,
-    decoder = decoder,
-    options = options,
-    logLevel = logLevel
-)
+    builder()
+}
 
 /**
  * 지정 타입의 Feign API 클라이언트를 생성합니다.
