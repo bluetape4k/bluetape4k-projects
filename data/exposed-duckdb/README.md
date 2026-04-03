@@ -13,6 +13,12 @@ JetBrains Exposed ORM과 DuckDB JDBC를 통합하는 모듈입니다. PostgreSQL
 - **suspendTransaction**: `Dispatchers.IO`에서 블로킹 JDBC를 suspend 함수로 래핑
 - **queryFlow**: 트랜잭션 안에서 결과를 materialize 한 뒤 `Flow<T>`로 emit
 
+## 포지셔닝
+
+- DuckDB를 Exposed JDBC 백엔드로 연결해 분석/임시 저장소/파일 기반 내장 DB 용도로 사용합니다.
+- `DuckDBDatabase.inMemory()` 는 연결별 독립 상태를 가지므로 여러 트랜잭션 간 공유 저장소에는 그대로 쓰기 어렵습니다.
+- 지속성이나 여러 트랜잭션 간 일관된 공유 상태가 필요하면 `DuckDBDatabase.file(...)` 를 우선 고려하는 편이 안전합니다.
+
 ## 의존성 추가
 
 ```kotlin
@@ -50,6 +56,21 @@ transaction(db) {
 }
 ```
 
+파일 경로는 blank 값을 허용하지 않습니다.
+
+### 2.1 읽기 전용 파일 연결
+
+```kotlin
+val db = DuckDBDatabase.readOnly("/tmp/analytics.db")
+
+transaction(db) {
+    val rows = Events.selectAll().toList()
+}
+```
+
+읽기 전용 연결은 기존 파일 데이터를 안정적으로 조회하는 용도에 적합하며, 쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다.
+쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다.
+
 ### 3. suspend 트랜잭션
 
 ```kotlin
@@ -75,24 +96,7 @@ queryFlow(db) {
 > `queryFlow`는 JDBC `ResultSet` 수명과 Exposed 트랜잭션 경계를 안전하게 유지하기 위해
 > 트랜잭션 안에서 결과를 `List`로 materialize 한 뒤 emit 합니다.
 > 따라서 API는 `Flow`이지만, 진짜 row-by-row streaming cursor는 아닙니다.
-
-## 핵심 API 다이어그램
-
-```mermaid
-classDiagram
-    direction LR
-    class DuckDBDatabase {
-        <<factory>>
-        +connect(path): Database
-        +connectInMemory(): Database
-    }
-    class DuckDBExtensions {
-        <<extensionFunctions>>
-        +suspendTransaction~T~(block): T
-        +queryFlow~T~(query): Flow~T~
-    }
-
-```
+> 큰 결과셋은 `Flow` API라도 결국 메모리에 적재되므로 페이지 전략을 별도로 고려해야 합니다.
 
 ## 다이어그램
 
@@ -128,7 +132,7 @@ classDiagram
 | 파일 | 설명 |
 |------|------|
 | `DuckDBDatabase.kt` | 연결 팩토리 (인메모리/파일/읽기전용) |
-| `DuckDBConnectionWrapper.kt` | JDBC 1.1.3 호환 Connection 래퍼 |
+| `DuckDBConnectionWrapper.kt` | JDBC 1.1.3 generated-key 오버로드 호환 래퍼 |
 | `DuckDBExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 함수 |
 | `dialect/DuckDBDialect.kt` | PostgreSQLDialect 상속 DuckDB 다이얼렉트 |
 | `dialect/DuckDBDialectMetadata.kt` | FK 제약 캐싱 no-op 구현 |
@@ -144,6 +148,7 @@ classDiagram
 ```bash
 ./gradlew :bluetape4k-exposed-duckdb:test --tests "io.bluetape4k.exposed.duckdb.DuckDBConnectionWrapperTest"
 ./gradlew :bluetape4k-exposed-duckdb:test --tests "io.bluetape4k.exposed.duckdb.DuckDBDatabaseTest"
+./gradlew :bluetape4k-exposed-duckdb:test --tests "io.bluetape4k.exposed.duckdb.DuckDBExtensionsTest"
 ```
 
 ## 참고

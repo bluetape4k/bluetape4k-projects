@@ -64,4 +64,16 @@ class DuckDBExtensionsTest : AbstractDuckDBTest() {
         rows shouldHaveSize 3
         rows.map { it[Events.eventId] } shouldBeEqualTo listOf(1L, 2L, 3L)
     }
+
+    @Test
+    fun `queryFlow 는 빈 결과를 빈 리스트로 반환한다`() = runTest {
+        withEventsTable {}
+
+        val rows = queryFlow(db) {
+            Events.selectAll()
+                .orderBy(Events.eventId to SortOrder.ASC)
+        }.toList()
+
+        rows shouldHaveSize 0
+    }
 }

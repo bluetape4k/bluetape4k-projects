@@ -4,6 +4,7 @@ tasks.test {
 }
 
 dependencies {
+    implementation(project(":bluetape4k-core"))
     api(project(":bluetape4k-logging"))
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)

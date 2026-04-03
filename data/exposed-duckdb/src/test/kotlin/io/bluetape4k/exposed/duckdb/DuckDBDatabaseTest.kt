@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
+import kotlin.test.assertFailsWith
 
 class DuckDBDatabaseTest {
 
@@ -37,5 +38,19 @@ class DuckDBDatabaseTest {
         }.exceptionOrNull()
 
         failure.shouldNotBeNull()
+    }
+
+    @Test
+    fun `file 은 blank path 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            DuckDBDatabase.file(" ")
+        }
+    }
+
+    @Test
+    fun `readOnly 는 blank path 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            DuckDBDatabase.readOnly(" ")
+        }
     }
 }
