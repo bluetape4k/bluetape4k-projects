@@ -3,10 +3,10 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -30,7 +30,7 @@ class ElasticsearchOssServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): ElasticsearchContainer(imageName), GenericServer {
+): ElasticsearchContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "docker.elastic.co/elasticsearch/elasticsearch-oss"
@@ -99,6 +99,16 @@ class ElasticsearchOssServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = httpHostAddress
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         addExposedPorts(PORT, TCP_PORT)
         withReuse(reuse)
@@ -110,7 +120,7 @@ class ElasticsearchOssServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**
@@ -135,24 +145,5 @@ class ElasticsearchOssServer private constructor(
             }
         }
 
-        /**
-         * Spring Data Elasticsearch용 [ClientConfiguration]을 생성합니다.
-         *
-         * ## 동작/계약
-         * - 전달한 서버의 `url`을 대상 엔드포인트로 사용합니다.
-         * - 인증 정보는 `elastic / changeme` 고정값을 사용합니다.
-         * - 새 설정 객체를 반환하며 서버 상태는 변경하지 않습니다.
-         *
-         * ```kotlin
-         * val config = ElasticsearchOssServer.Launcher.getClientConfiguration(server)
-         * // config != null
-         * ```
-         */
-        fun getClientConfiguration(elasticsearch: ElasticsearchOssServer): ClientConfiguration {
-            return ClientConfiguration.builder()
-                .connectedTo(elasticsearch.url)
-                .withBasicAuth("elastic", ElasticsearchOssServer.DEFAULT_PASSWORD)
-                .build()
-        }
     }
 }

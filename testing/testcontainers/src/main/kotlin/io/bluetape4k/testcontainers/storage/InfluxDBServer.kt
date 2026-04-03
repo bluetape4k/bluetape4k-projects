@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
@@ -32,7 +32,7 @@ class InfluxDBServer private constructor(
     val adminToken: String = DEFAULT_ADMIN_TOKEN,
     val username: String = DEFAULT_USERNAME,
     val password: String = DEFAULT_PASSWORD,
-): GenericContainer<InfluxDBServer>(imageName), GenericServer {
+): GenericContainer<InfluxDBServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "influxdb"
@@ -104,6 +104,23 @@ class InfluxDBServer private constructor(
      */
     override val url: String get() = "http://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "organization", "bucket", "admin.token", "username",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "organization" to organization,
+        "bucket" to bucket,
+        "admin.token" to adminToken,
+        "username" to username,
+    )
+
     init {
         withExposedPorts(PORT)
         withReuse(reuse)
@@ -122,15 +139,7 @@ class InfluxDBServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "organization" to organization,
-                "bucket" to bucket,
-                "admin.token" to adminToken,
-                "username" to username,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.infra
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.toxiproxy.ToxiproxyContainer
@@ -41,7 +42,7 @@ class ToxiproxyServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): ToxiproxyContainer(imageName), GenericServer {
+): ToxiproxyContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Toxiproxy 컨테이너 기본 이미지 이름입니다. */
@@ -117,6 +118,18 @@ class ToxiproxyServer private constructor(
      */
     override val url: String get() = "http://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "control.port", "control.url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "control.port" to port.toString(),
+        "control.url" to url,
+    )
+
     init {
         withReuse(reuse)
     }
@@ -133,13 +146,7 @@ class ToxiproxyServer private constructor(
      */
     override fun start() {
         super.start()
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "control.port" to port,
-                "control.url" to url,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

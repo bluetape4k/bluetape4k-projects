@@ -23,7 +23,7 @@ class OpenSearchServerTest: AbstractContainerTest() {
                 es.start()
                 es.isRunning.shouldBeTrue()
 
-                val config = OpenSearchServer.Launcher.getClientConfiguration(es)
+                val config = OpenSearchServer.Launcher.Spring.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }
@@ -38,7 +38,7 @@ class OpenSearchServerTest: AbstractContainerTest() {
                 es.isRunning.shouldBeTrue()
                 es.port shouldBeEqualTo OpenSearchServer.HTTP_PORT
 
-                val config = OpenSearchServer.Launcher.getClientConfiguration(es)
+                val config = OpenSearchServer.Launcher.Spring.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }

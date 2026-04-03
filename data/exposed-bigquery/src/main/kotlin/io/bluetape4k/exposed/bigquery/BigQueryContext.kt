@@ -23,6 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.Locale
 
 /**
  * **Exposed SQL generator + BigQuery REST executor** 컨텍스트.
@@ -35,6 +36,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * - **보장**: SELECT/filter/order/group/aggregate, 기본 DML(INSERT/UPDATE/DELETE)
  * - **제한**: SchemaUtils DDL 자동화, DAO 완전 호환, JDBC 트랜잭션 의미론
  * - **조건부**: join/alias(컬럼명 기준 접근), 대용량 결과셋(pagination 자동 처리)
+ * - **분리**: JDBC 트랜잭션 일관성이나 Trino connector 기반 실행이 필요하면 `bluetape4k-exposed-trino` 또는
+ *   후속 `exposed-bigquery-trino` 모듈을 사용해야 합니다.
  *
  * ## 동기 사용 예
  *
@@ -79,6 +82,8 @@ class BigQueryContext(
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     companion object : KLogging() {
+        private const val DEFAULT_QUERY_TIMEOUT_MS = 30_000L
+
         /**
          * H2(PostgreSQL 모드) sqlGenDb를 자동 생성하는 팩토리.
          * 별도 Database 설정 없이 바로 사용 가능합니다.
@@ -89,25 +94,28 @@ class BigQueryContext(
             datasetId: String,
             dispatcher: CoroutineDispatcher = Dispatchers.IO,
         ): BigQueryContext {
+            val dbName = "bq_sqlgen_${projectId}_${datasetId}"
+                .replace(Regex("[^A-Za-z0-9_]"), "_")
             val sqlGenDb = Database.connect(
-                url = "jdbc:h2:mem:bq_sqlgen_${projectId}_${datasetId};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1",
+                url = "jdbc:h2:mem:$dbName;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1",
                 driver = "org.h2.Driver",
             )
             return BigQueryContext(bigquery, projectId, datasetId, sqlGenDb, dispatcher)
         }
     }
 
+    private fun newQueryRequest(sql: String): QueryRequest =
+        QueryRequest()
+            .setQuery(sql.trimIndent().trim())
+            .setUseLegacySql(false)
+            .setDefaultDataset(DatasetReference().setProjectId(projectId).setDatasetId(datasetId))
+            .setTimeoutMs(DEFAULT_QUERY_TIMEOUT_MS)
+
     // ── RAW SQL ───────────────────────────────────────────────────────────────
 
     /** 원시 SQL 문자열을 BigQuery에서 실행합니다. DML 또는 단순 조회에 사용합니다. */
     fun runRawQuery(sql: String): QueryResponse {
-        val request = QueryRequest()
-            .setQuery(sql.trimIndent().trim())
-            .setUseLegacySql(false)
-            .setDefaultDataset(DatasetReference().setProjectId(projectId).setDatasetId(datasetId))
-            .setTimeoutMs(30_000L)
-
-        return bigquery.jobs().query(projectId, request).execute()
+        return bigquery.jobs().query(projectId, newQueryRequest(sql)).execute()
             .also { it.checkErrors(sql) }
     }
 
@@ -245,7 +253,7 @@ class BigQueryContext(
      */
     internal fun collectAllRows(sql: String): List<BigQueryResultRow> {
         val (schema, allRows) = fetchAllPages(sql)
-        val fieldNames = schema?.fields?.map { it.name.lowercase() } ?: emptyList()
+        val fieldNames = schema?.fields?.map { it.name.lowercase(Locale.ROOT) } ?: emptyList()
         return allRows.map { row ->
             val data = fieldNames.zip(row.f).associate { (name, cell) -> name to cell.v }
             BigQueryResultRow(data)
@@ -258,14 +266,8 @@ class BigQueryContext(
      * [BigQueryQueryExecutor.toFlow]에서 내부적으로 사용합니다.
      */
     internal fun collectRowsFlow(sql: String): Flow<BigQueryResultRow> = flow {
-        val request = QueryRequest()
-            .setQuery(sql.trimIndent().trim())
-            .setUseLegacySql(false)
-            .setDefaultDataset(DatasetReference().setProjectId(projectId).setDatasetId(datasetId))
-            .setTimeoutMs(30_000L)
-
         val initial = withContext(dispatcher) {
-            bigquery.jobs().query(projectId, request).execute()
+            bigquery.jobs().query(projectId, newQueryRequest(sql)).execute()
         }
         initial.checkErrors(sql)
 
@@ -275,7 +277,7 @@ class BigQueryContext(
         var jobComplete = initial.jobComplete ?: true
 
         // 첫 페이지 emit
-        val firstFieldNames = schema?.fields?.map { it.name.lowercase() } ?: emptyList()
+        val firstFieldNames = schema?.fields?.map { it.name.lowercase(Locale.ROOT) } ?: emptyList()
         initial.rows?.forEach { row ->
             val data = firstFieldNames.zip(row.f).associate { (name, cell) -> name to cell.v }
             emit(BigQueryResultRow(data))
@@ -287,7 +289,7 @@ class BigQueryContext(
             val page = withContext(dispatcher) {
                 bigquery.jobs().getQueryResults(projectId, jobId)
                     .apply { if (pageToken != null) setPageToken(pageToken) }
-                    .setTimeoutMs(30_000L)
+                    .setTimeoutMs(DEFAULT_QUERY_TIMEOUT_MS)
                     .execute()
             }
 
@@ -297,7 +299,7 @@ class BigQueryContext(
             }
 
             if (schema == null) schema = page.schema
-            val fieldNames = schema?.fields?.map { it.name.lowercase() } ?: emptyList()
+            val fieldNames = schema?.fields?.map { it.name.lowercase(Locale.ROOT) } ?: emptyList()
             page.rows?.forEach { row ->
                 val data = fieldNames.zip(row.f).associate { (name, cell) -> name to cell.v }
                 emit(BigQueryResultRow(data))
@@ -308,13 +310,7 @@ class BigQueryContext(
     }
 
     private fun fetchAllPages(sql: String): Pair<com.google.api.services.bigquery.model.TableSchema?, List<TableRow>> {
-        val request = QueryRequest()
-            .setQuery(sql.trimIndent().trim())
-            .setUseLegacySql(false)
-            .setDefaultDataset(DatasetReference().setProjectId(projectId).setDatasetId(datasetId))
-            .setTimeoutMs(30_000L)
-
-        val initial = bigquery.jobs().query(projectId, request).execute()
+        val initial = bigquery.jobs().query(projectId, newQueryRequest(sql)).execute()
         initial.checkErrors(sql)
 
         val jobId = initial.jobReference?.jobId
@@ -329,7 +325,7 @@ class BigQueryContext(
             checkNotNull(jobId) { "jobReference가 없는 상태에서 추가 페이지를 요청할 수 없습니다." }
             val page = bigquery.jobs().getQueryResults(projectId, jobId)
                 .apply { if (pageToken != null) setPageToken(pageToken) }
-                .setTimeoutMs(30_000L)
+                .setTimeoutMs(DEFAULT_QUERY_TIMEOUT_MS)
                 .execute()
 
             page.errors?.takeIf { it.isNotEmpty() }?.let { errors ->

@@ -49,6 +49,7 @@ import java.util.Properties
  * - `transaction {}` 블록 내 다중 DML 실행 시, 중간 실패가 발생하면 앞선 DML은 롤백되지 않습니다.
  * - `rollback()`은 no-op입니다 — Exposed 프레임워크 호환을 위한 어댑터입니다.
  * - Nested transaction / Savepoint는 미지원됩니다 — 호출은 허용되나 원자성이 보장되지 않습니다.
+ * - DDL 생성 시에는 일반 [org.jetbrains.exposed.v1.core.Table] 대신 [TrinoTable] 사용을 권장합니다.
  */
 object TrinoDatabase: KLogging() {
 
@@ -74,6 +75,7 @@ object TrinoDatabase: KLogging() {
      *
      * **주의**: Trino는 트랜잭션을 지원하지 않습니다. autocommit 모드로 실행되며,
      * 블록 중간 실패 시 앞선 DML은 롤백되지 않습니다.
+     * DDL을 생성할 때는 PRIMARY KEY 구문을 제거하는 [TrinoTable] 사용을 권장합니다.
      *
      * @param host Trino 코디네이터 호스트 (기본값: `localhost`)
      * @param port Trino 코디네이터 포트 (기본값: `8080`)
@@ -103,6 +105,7 @@ object TrinoDatabase: KLogging() {
      *
      * **주의**: Trino는 트랜잭션을 지원하지 않습니다. autocommit 모드로 실행되며,
      * 블록 중간 실패 시 앞선 DML은 롤백되지 않습니다.
+     * DDL을 생성할 때는 PRIMARY KEY 구문을 제거하는 [TrinoTable] 사용을 권장합니다.
      *
      * @param jdbcUrl Trino JDBC URL (예: `jdbc:trino://host:8080/hive/default`)
      * @param user 접속 사용자 (기본값: `trino`)

@@ -3,9 +3,9 @@ package io.bluetape4k.testcontainers.mq
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.mq.PulsarServer.Launcher.PulsarClient
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.apache.pulsar.client.api.ClientBuilder
 import org.apache.pulsar.client.api.PulsarClient
@@ -32,7 +32,7 @@ class PulsarServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): PulsarContainer(imageName), GenericServer {
+): PulsarContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "apachepulsar/pulsar"
@@ -88,6 +88,22 @@ class PulsarServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = pulsarBrokerUrl
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "broker-url", "broker-port", "broker-http-port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "broker-url" to pulsarBrokerUrl,
+        "broker-port" to brokerPort.toString(),
+        "broker-http-port" to brokerHttpPort.toString(),
+    )
+
     /** Pulsar broker TCP 포트의 매핑 결과입니다. */
     val brokerPort: Int get() = getMappedPort(PORT)
 
@@ -105,13 +121,7 @@ class PulsarServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf(
-            "broker.url" to pulsarBrokerUrl,
-            "broker.port" to brokerPort,
-            "broker.http.port" to brokerHttpPort
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

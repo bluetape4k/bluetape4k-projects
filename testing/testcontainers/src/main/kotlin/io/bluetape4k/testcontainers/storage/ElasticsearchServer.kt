@@ -4,10 +4,9 @@ import io.bluetape4k.LibraryName
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -31,7 +30,7 @@ class ElasticsearchServer private constructor(
     reuse: Boolean,
     /** `elastic` 사용자 기본 비밀번호입니다. */
     val password: String,
-): ElasticsearchContainer(imageName), GenericServer {
+): ElasticsearchContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "docker.elastic.co/elasticsearch/elasticsearch"
@@ -71,6 +70,16 @@ class ElasticsearchServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = httpHostAddress
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         addExposedPorts(PORT, TCP_PORT)
         withReuse(reuse)
@@ -83,7 +92,7 @@ class ElasticsearchServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**
@@ -100,18 +109,5 @@ class ElasticsearchServer private constructor(
             }
         }
 
-        /**
-         * Spring Data Elasticsearch 를 사용 할 때 사용할 클라이언트 설정을 제공합니다.
-         *
-         * @param elasticsearch [ElasticsearchServer] 인스턴스
-         * @return Spring Data Elasticsearch에서 제공하는 [ClientConfiguration] 인스턴스
-         */
-        fun getClientConfiguration(elasticsearch: ElasticsearchServer): ClientConfiguration {
-            return ClientConfiguration.builder()
-                .connectedTo(elasticsearch.url)
-                .usingSsl(elasticsearch.createSslContextFromCa())
-                .withBasicAuth("elastic", elasticsearch.password)
-                .build()
-        }
     }
 }

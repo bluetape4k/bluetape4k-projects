@@ -61,6 +61,7 @@ suspend fun <T> suspendTransaction(
  * @param db DuckDB 데이터베이스 연결
  * @param dispatcher 블로킹 JDBC 호출을 실행할 디스패처 (기본값: [Dispatchers.IO])
  * @param block 조회 결과를 반환하는 트랜잭션 블록. 반환된 [Iterable]은 트랜잭션 안에서 즉시 materialize 됩니다.
+ *   매우 큰 결과셋은 `Flow` API라도 전체를 메모리에 적재하므로 별도 페이지 전략을 고려해야 합니다.
  */
 fun <T> queryFlow(
     db: Database,

@@ -4,6 +4,7 @@ import dasniko.testcontainers.keycloak.KeycloakContainer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.utility.DockerImageName
@@ -21,7 +22,7 @@ class KeycloakServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): KeycloakContainer(imageName.toString()), GenericServer {
+): KeycloakContainer(imageName.toString()), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "quay.io/keycloak/keycloak"
@@ -59,6 +60,20 @@ class KeycloakServer private constructor(
     /** Keycloak 서버의 기본 URL (예: `http://localhost:32768`)을 반환합니다. */
     override val url: String get() = "http://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> =
+        setOf("host", "port", "url", "auth.url", "admin.username", "admin.password")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "auth.url" to getAuthServerUrl(),
+        "admin.username" to getAdminUsername(),
+        "admin.password" to getAdminPassword(),
+    )
+
     /**
      * Keycloak 인증 서버 URL을 반환합니다.
      *
@@ -74,14 +89,7 @@ class KeycloakServer private constructor(
     override fun start() {
         super.start()
 
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "auth.url" to getAuthServerUrl(),
-                "admin.username" to getAdminUsername(),
-                "admin.password" to getAdminPassword(),
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

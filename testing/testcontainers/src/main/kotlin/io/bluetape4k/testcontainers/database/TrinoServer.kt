@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.TrinoContainer
 import org.testcontainers.utility.DockerImageName
@@ -35,7 +35,7 @@ class TrinoServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): TrinoContainer(imageName), JdbcServer {
+): TrinoContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "trinodb/trino"
@@ -82,6 +82,17 @@ class TrinoServer private constructor(
         }
     }
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "jdbc-url", "username"
+    )
+
+    override fun properties(): Map<String, String> = buildMap {
+        put("jdbc-url", "jdbc:trino://$host:$port/memory")
+        username?.let { put("username", it) }
+    }
+
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "http://$host:$port"
 
@@ -96,13 +107,7 @@ class TrinoServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "jdbc.url" to "jdbc:trino://$host:$port/memory",
-                "username" to username,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

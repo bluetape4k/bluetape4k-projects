@@ -1,6 +1,6 @@
 # Module bluetape4k-exposed-trino
 
-JetBrains Exposed ORM과 Trino JDBC를 통합하는 모듈입니다. PostgreSQL Dialect 기반으로 Trino에서 Exposed DSL을 사용하고, 코루틴 기반 suspend 트랜잭션과 Flow 쿼리를 지원합니다.
+JetBrains Exposed ORM과 Trino JDBC를 통합하는 모듈입니다. PostgreSQL Dialect 기반으로 Trino에서 Exposed DSL을 사용하고, 코루틴 기반 suspend 트랜잭션과 Flow 쿼리를 제공합니다.
 
 ## 개요
 
@@ -8,10 +8,11 @@ JetBrains Exposed ORM과 Trino JDBC를 통합하는 모듈입니다. PostgreSQL 
 
 - **TrinoDialect**: `PostgreSQLDialect` 상속, Exposed ORM과 Trino 호환 (ALTER COLUMN TYPE / multiple generated keys 비활성화)
 - **TrinoDialectMetadata**: `getImportedKeys` 미지원 우회 (FK 제약 캐싱 no-op)
-- **TrinoConnectionWrapper**: Trino JDBC `prepareStatement` 오버로드 호환 래퍼, autocommit/commit/rollback no-op 처리
+- **TrinoConnectionWrapper**: Trino JDBC `prepareStatement` 오버로드 호환 래퍼, 실제 JDBC 연결을 `autoCommit=true`로 고정
 - **TrinoDatabase**: JDBC URL 또는 호스트/포트/카탈로그/스키마 기반 연결 팩토리 (`object`)
 - **suspendTransaction**: `Dispatchers.IO`에서 블로킹 JDBC를 suspend 함수로 래핑
 - **queryFlow**: 트랜잭션 안에서 결과를 materialize 한 뒤 `Flow<T>`로 emit
+- **TrinoTable**: Trino DDL에서 unsupported PRIMARY KEY / NULL 구문을 제거하는 테이블 베이스 클래스
 - **@TrinoUnsupported**: Trino 미지원 기능 마커 어노테이션
 
 ## 의존성 추가
@@ -62,6 +63,9 @@ transaction(db) {
     val rows = Events.selectAll().toList()
 }
 ```
+
+> DDL을 Exposed에서 생성할 때는 일반 `Table` 대신 `TrinoTable` 상속을 권장합니다.
+> Trino Memory 커넥터는 PRIMARY KEY / CONSTRAINT 구문을 지원하지 않으므로 기본 `Table`의 DDL을 그대로 쓰면 실패할 수 있습니다.
 
 ### 3. suspend 트랜잭션
 
@@ -126,9 +130,9 @@ Trino는 ACID 트랜잭션을 지원하지 않습니다. `transaction {}` 블록
 | 기능 | 지원 여부 | 비고 |
 |------|-----------|------|
 | SELECT / JOIN / 집계 | ✅ | 표준 SQL |
-| INSERT / UPDATE / DELETE | ✅ | autocommit 단위 |
-| CREATE TABLE / DROP TABLE | ✅ | Memory 커넥터 등 |
-| DDL via SchemaUtils | ✅ | `create`, `drop` |
+| INSERT / UPDATE / DELETE | ⚠️ 커넥터 의존 | 모듈은 Exposed DSL을 제공하지만 실제 지원 범위는 커넥터가 결정 |
+| CREATE TABLE / DROP TABLE | ⚠️ 커넥터 의존 | 테스트는 Memory 커넥터 기준으로 검증 |
+| DDL via SchemaUtils | ⚠️ 커넥터 의존 | `TrinoTable` 사용 권장 |
 | 윈도우 함수 (GROUPS 모드) | ✅ | `supportsWindowFrameGroupsMode = true` |
 | 트랜잭션 원자성 | ❌ | autocommit 전용 |
 | Rollback | ❌ | no-op |
@@ -199,8 +203,9 @@ classDiagram
 | 파일 | 설명 |
 |------|------|
 | `TrinoDatabase.kt` | 연결 팩토리 (호스트/포트/카탈로그 또는 JDBC URL) |
-| `TrinoConnectionWrapper.kt` | Trino JDBC 호환 Connection 래퍼 (autocommit/commit/rollback no-op) |
+| `TrinoConnectionWrapper.kt` | Trino JDBC 호환 Connection 래퍼 (실제 JDBC 연결을 autocommit=true로 고정) |
 | `TrinoExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 함수 |
+| `TrinoTable.kt` | Trino unsupported DDL 구문(PRIMARY KEY, 명시적 NULL) 제거 |
 | `TrinoUnsupported.kt` | Trino 미지원 기능 마커 어노테이션 |
 | `dialect/TrinoDialect.kt` | PostgreSQLDialect 상속 Trino 다이얼렉트 |
 | `dialect/TrinoDialectMetadata.kt` | FK 제약 캐싱 no-op 구현 |
@@ -216,6 +221,7 @@ classDiagram
 ```bash
 ./gradlew :bluetape4k-exposed-trino:test --tests "io.bluetape4k.exposed.trino.TrinoConnectionWrapperTest"
 ./gradlew :bluetape4k-exposed-trino:test --tests "io.bluetape4k.exposed.trino.TrinoDatabaseTest"
+./gradlew :bluetape4k-exposed-trino:test --tests "io.bluetape4k.exposed.trino.TrinoTransactionAtomicityTest"
 ```
 
 ## Phase 2 로드맵

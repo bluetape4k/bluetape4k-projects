@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.mysql.MySQLContainer
@@ -28,7 +28,7 @@ class MySQL8Server private constructor(
     username: String,
     password: String,
     configuration: String,
-): MySQLContainer(imageName), JdbcServer {
+): MySQLContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "mysql"
@@ -90,6 +90,14 @@ class MySQL8Server private constructor(
         }
     }
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "jdbc-url", "driver-class-name", "username", "password", "database-name",
+    )
+
+    override fun properties(): Map<String, String> = buildKebabJdbcProperties()
+
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = jdbcUrl
@@ -115,7 +123,7 @@ class MySQL8Server private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME, buildJdbcProperties())
+        writeToSystemProperties()
     }
 
     /**

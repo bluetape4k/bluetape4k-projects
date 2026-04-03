@@ -5,9 +5,9 @@ import com.mongodb.client.MongoClients
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.storage.MongoDBServer.Launcher.getClient
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.mongodb.MongoDBContainer
 import org.testcontainers.utility.DockerImageName
@@ -34,7 +34,7 @@ class MongoDBServer private constructor(
     useDefaultPort: Boolean,
     reuse: Boolean,
     private val databaseName: String,
-): MongoDBContainer(imageName), GenericServer {
+): MongoDBContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "mongo"
@@ -103,6 +103,16 @@ class MongoDBServer private constructor(
 
     override val port: Int get() = getMappedPort(PORT)
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     /**
      * 현재 컨테이너에 접속하는 MongoDB URL입니다.
      *
@@ -139,7 +149,7 @@ class MongoDBServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**

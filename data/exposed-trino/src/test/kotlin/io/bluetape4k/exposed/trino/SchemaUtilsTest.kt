@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.trino
 
 import io.bluetape4k.exposed.trino.domain.Events
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -29,6 +30,16 @@ class SchemaUtilsTest : AbstractTrinoTest() {
     fun `create 후 Events 테이블은 비어있다`() = withEventsTable {
         transaction(db) {
             Events.selectAll().count() shouldBeEqualTo 0L
+        }
+    }
+
+    @Test
+    fun `TrinoTable createStatement 는 PRIMARY KEY 구문을 제거한다`() {
+        transaction(db) {
+            val ddl = Events.createStatement().single()
+
+            ddl.contains("PRIMARY KEY").shouldBeFalse()
+            ddl.contains("CONSTRAINT").shouldBeFalse()
         }
     }
 

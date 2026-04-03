@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -39,7 +40,7 @@ class WireMockServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<WireMockServer>(imageName), GenericServer {
+): GenericContainer<WireMockServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "wiremock/wiremock"
@@ -100,6 +101,19 @@ class WireMockServer private constructor(
      */
     val baseUrl: String get() = url
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "http.port", "https.port", "base.url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "http.port" to port.toString(),
+        "https.port" to getMappedPort(HTTPS_PORT).toString(),
+        "base.url" to baseUrl,
+    )
+
     private var wireMockClient: WireMock? = null
 
     init {
@@ -114,14 +128,7 @@ class WireMockServer private constructor(
     override fun start() {
         super.start()
         wireMockClient = WireMock(host, port)
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "http.port" to port,
-                "https.port" to getMappedPort(HTTPS_PORT),
-                "base.url" to baseUrl,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

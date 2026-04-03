@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -32,7 +33,7 @@ class Ignite2Server private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<Ignite2Server>(imageName), GenericServer {
+): GenericContainer<Ignite2Server>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Apache Ignite 2.x Docker Hub 이미지 이름 */
@@ -86,6 +87,16 @@ class Ignite2Server private constructor(
     /** 씬 클라이언트 연결 주소 (`host:port` 형식) */
     override val url: String get() = "$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+    )
+
     init {
         addExposedPorts(PORT)
         withReuse(reuse)
@@ -102,7 +113,7 @@ class Ignite2Server private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME)
+        writeToSystemProperties()
     }
 
     /**

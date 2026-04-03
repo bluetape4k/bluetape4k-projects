@@ -10,7 +10,21 @@ class JdbcServerSupportTest {
     companion object : KLogging()
 
     @Test
-    fun `buildJdbcProperties 는 jdbc 관련 정보를 맵으로 제공한다`() {
+    fun `buildKebabJdbcProperties 는 kebab-case 키로 jdbc 관련 정보를 맵으로 제공한다`() {
+        val server = jdbcServer()
+
+        val props = server.buildKebabJdbcProperties()
+
+        props["driver-class-name"] shouldBeEqualTo "org.postgresql.Driver"
+        props["jdbc-url"] shouldBeEqualTo "jdbc:postgresql://localhost:5432/testdb"
+        props["username"] shouldBeEqualTo "testuser"
+        props["password"] shouldBeEqualTo "testpass"
+        props["database-name"] shouldBeEqualTo "testdb"
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `buildJdbcProperties deprecated 함수는 기존 형식의 jdbc 관련 정보를 맵으로 제공한다`() {
         val server = jdbcServer()
 
         val props = server.buildJdbcProperties()
