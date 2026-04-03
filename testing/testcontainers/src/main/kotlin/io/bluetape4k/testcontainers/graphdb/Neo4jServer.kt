@@ -35,7 +35,7 @@ class Neo4jServer private constructor(
         const val IMAGE = "neo4j"
 
         /** Neo4j Docker 이미지 태그 */
-        const val TAG = "5.28.0"
+        const val TAG = "5"
 
         /** 시스템 프로퍼티 등록에 사용할 서버 이름 */
         const val NAME = "neo4j"
@@ -108,16 +108,16 @@ class Neo4jServer private constructor(
     override val propertyNamespace: String = NAME
 
     override fun propertyKeys(): Set<String> =
-        setOf("host", "port", "url", "bolt.port", "http.port", "bolt.url", "http.url")
+        setOf("host", "port", "url", "bolt-port", "http-port", "bolt-url", "http-url")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "bolt.port" to getMappedPort(BOLT_PORT).toString(),
-        "http.port" to getMappedPort(HTTP_PORT).toString(),
-        "bolt.url" to boltUrl,
-        "http.url" to httpUrl,
+        "bolt-port" to getMappedPort(BOLT_PORT).toString(),
+        "http-port" to getMappedPort(HTTP_PORT).toString(),
+        "bolt-url" to boltUrl,
+        "http-url" to httpUrl,
     )
 
     init {
@@ -137,10 +137,10 @@ class Neo4jServer private constructor(
      * - `testcontainers.neo4j.host`
      * - `testcontainers.neo4j.port` (Bolt 포트)
      * - `testcontainers.neo4j.url` (Bolt URL)
-     * - `testcontainers.neo4j.bolt.port`
-     * - `testcontainers.neo4j.http.port`
-     * - `testcontainers.neo4j.bolt.url`
-     * - `testcontainers.neo4j.http.url`
+     * - `testcontainers.neo4j.bolt-port`
+     * - `testcontainers.neo4j.http-port`
+     * - `testcontainers.neo4j.bolt-url`
+     * - `testcontainers.neo4j.http-url`
      */
     override fun start() {
         super.start()

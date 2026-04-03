@@ -34,11 +34,11 @@ class KeycloakServerTest: AbstractContainerTest() {
         System.getProperty("$prefix.host").shouldNotBeBlank()
         System.getProperty("$prefix.port").shouldNotBeBlank()
         System.getProperty("$prefix.url").shouldNotBeBlank()
-        System.getProperty("$prefix.auth.url").shouldNotBeBlank()
-        System.getProperty("$prefix.admin.username").shouldNotBeBlank()
-        System.getProperty("$prefix.admin.password").shouldNotBeBlank()
+        System.getProperty("$prefix.auth-url").shouldNotBeBlank()
+        System.getProperty("$prefix.admin-username").shouldNotBeBlank()
+        System.getProperty("$prefix.admin-password").shouldNotBeBlank()
 
-        log.debug { "auth.url=${System.getProperty("$prefix.auth.url")}" }
+        log.debug { "auth-url=${System.getProperty("$prefix.auth-url")}" }
     }
 
     @Test

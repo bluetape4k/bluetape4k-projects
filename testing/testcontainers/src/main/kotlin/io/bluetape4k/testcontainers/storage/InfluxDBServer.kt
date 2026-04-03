@@ -108,7 +108,7 @@ class InfluxDBServer private constructor(
 
     override fun propertyKeys(): Set<String> = setOf(
         "host", "port", "url",
-        "organization", "bucket", "admin.token", "username",
+        "organization", "bucket", "admin-token", "username",
     )
 
     override fun properties(): Map<String, String> = mapOf(
@@ -117,7 +117,7 @@ class InfluxDBServer private constructor(
         "url" to url,
         "organization" to organization,
         "bucket" to bucket,
-        "admin.token" to adminToken,
+        "admin-token" to adminToken,
         "username" to username,
     )
 

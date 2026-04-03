@@ -32,7 +32,7 @@ class InfluxDBServerTest: AbstractContainerTest() {
         System.getProperty("testcontainers.influxdb.url").shouldNotBeNullOrBlank()
         System.getProperty("testcontainers.influxdb.organization").shouldNotBeNullOrBlank()
         System.getProperty("testcontainers.influxdb.bucket").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.admin.token").shouldNotBeNullOrBlank()
+        System.getProperty("testcontainers.influxdb.admin-token").shouldNotBeNullOrBlank()
 
         // InfluxDB ping 확인 (health check)
         val client = HttpClient.newHttpClient()

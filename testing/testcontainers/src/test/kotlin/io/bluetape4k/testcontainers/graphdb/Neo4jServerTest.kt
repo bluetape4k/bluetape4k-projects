@@ -55,9 +55,9 @@ class Neo4jServerTest: AbstractContainerTest() {
     @Test
     @Order(4)
     fun `시스템 프로퍼티에 Neo4j Bolt URL이 등록되어야 한다`() {
-        val boltUrl = System.getProperty("testcontainers.neo4j.bolt.url")
+        val boltUrl = System.getProperty("testcontainers.neo4j.bolt-url")
         boltUrl.shouldNotBeNullOrBlank()
-        log.debug { "testcontainers.neo4j.bolt.url=$boltUrl" }
+        log.debug { "testcontainers.neo4j.bolt-url=$boltUrl" }
     }
 
     @Test

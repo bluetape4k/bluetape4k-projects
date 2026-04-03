@@ -8,7 +8,6 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
@@ -92,32 +91,25 @@ class WireMockServer private constructor(
     override val url: String get() = "http://$host:$port"
 
     /**
-     * HTTPS 엔드포인트 URL을 반환합니다.
-     */
-    val httpsUrl: String get() = "https://$host:${getMappedPort(HTTPS_PORT)}"
-
-    /**
      * WireMock 서버의 베이스 URL (HTTP)을 반환합니다.
      */
     val baseUrl: String get() = url
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "http.port", "https.port", "base.url")
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "base-url")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "http.port" to port.toString(),
-        "https.port" to getMappedPort(HTTPS_PORT).toString(),
-        "base.url" to baseUrl,
+        "base-url" to baseUrl,
     )
 
     private var wireMockClient: WireMock? = null
 
     init {
-        withExposedPorts(HTTP_PORT, HTTPS_PORT)
+        withExposedPorts(HTTP_PORT)
         withReuse(reuse)
 
         if (useDefaultPort) {

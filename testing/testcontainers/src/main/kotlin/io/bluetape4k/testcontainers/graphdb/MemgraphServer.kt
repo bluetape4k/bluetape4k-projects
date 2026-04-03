@@ -5,7 +5,8 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
+import io.bluetape4k.testcontainers.graphdb.MemgraphServer.Companion.IMAGE
+import io.bluetape4k.testcontainers.graphdb.MemgraphServer.Companion.TAG
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -100,15 +101,15 @@ class MemgraphServer private constructor(
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "bolt.port", "log.port", "bolt.url")
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "bolt-port", "log-port", "bolt-url")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "bolt.port" to getMappedPort(BOLT_PORT).toString(),
-        "log.port" to getMappedPort(LOG_PORT).toString(),
-        "bolt.url" to boltUrl,
+        "bolt-port" to getMappedPort(BOLT_PORT).toString(),
+        "log-port" to getMappedPort(LOG_PORT).toString(),
+        "bolt-url" to boltUrl,
     )
 
     /**

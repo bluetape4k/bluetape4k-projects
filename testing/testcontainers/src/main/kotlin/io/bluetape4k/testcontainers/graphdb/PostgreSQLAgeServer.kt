@@ -6,7 +6,6 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.database.JdbcServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
@@ -43,7 +42,7 @@ class PostgreSQLAgeServer private constructor(
         const val IMAGE = "apache/age"
 
         /** Docker 이미지 태그 */
-        const val TAG = "PG17_latest"
+        const val TAG = "latest"
 
         /** 시스템 프로퍼티 등록에 사용할 서버 이름 */
         const val NAME = "postgresql-age"
@@ -95,31 +94,24 @@ class PostgreSQLAgeServer private constructor(
         }
     }
 
-    override fun getDriverClassName(): String = DRIVER_CLASS_NAME
-
-    override fun getJdbcUrl(): String = jdbcUrl
-
-    override fun getUsername(): String? = username
-
-    override fun getPassword(): String? = password
-
-    override fun getDatabaseName(): String? = databaseName
-
     /** 매핑된 포트 번호 */
     override val port: Int get() = getMappedPort(PORT)
 
     /** JDBC URL */
-    override val url: String get() = jdbcUrl
+    override val url: String get() = super.getJdbcUrl()
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("jdbc.url", "username", "password", "database")
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "jdbc-url", "username", "password", "database")
 
     override fun properties(): Map<String, String> = buildMap {
-        put("jdbc.url", jdbcUrl)
-        username?.let { put("username", it) }
-        password?.let { put("password", it) }
-        databaseName?.let { put("database", it) }
+        put("host", host)
+        put("port", port.toString())
+        put("url", url)
+        put("jdbc-url", super.getJdbcUrl())
+        super.getUsername()?.let { put("username", it) }
+        super.getPassword()?.let { put("password", it) }
+        super.getDatabaseName()?.let { put("database", it) }
     }
 
     init {

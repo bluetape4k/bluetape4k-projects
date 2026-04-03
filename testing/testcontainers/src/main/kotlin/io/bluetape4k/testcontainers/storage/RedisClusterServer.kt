@@ -67,7 +67,7 @@ class RedisClusterServer private constructor(
         //        const val IMAGE = "grokzen/redis-cluster"
         //        const val TAG = "6.2.1"
 
-        const val NAME = "redis.cluster"
+        const val NAME = "redis-cluster"
 
         val PORTS = intArrayOf(7000, 7001, 7002, 7003, 7004, 7005)
 

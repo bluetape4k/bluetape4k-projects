@@ -88,13 +88,13 @@ class CassandraServer private constructor(
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "cql.port")
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "cql-port")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "cql.port" to cqlPort.toString(),
+        "cql-port" to cqlPort.toString(),
     )
 
     private var configLocation: String = ""
