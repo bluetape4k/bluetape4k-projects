@@ -101,6 +101,19 @@ abstract class AbstractTrinoTest {
         waitForTrinoReady()
     }
 
+    private fun resetEventsTable() {
+        transaction(db) {
+            runCatching { SchemaUtils.drop(Events) }
+            SchemaUtils.create(Events)
+        }
+    }
+
+    private fun dropEventsTable() {
+        transaction(db) {
+            runCatching { SchemaUtils.drop(Events) }
+        }
+    }
+
     /**
      * events 테이블을 생성하고 테스트 블록을 실행합니다.
      *
@@ -112,12 +125,12 @@ abstract class AbstractTrinoTest {
     protected fun withEventsTable(block: () -> Unit) {
         repeat(5) { attempt ->
             runCatching {
-                transaction(db) { SchemaUtils.create(Events) }
+                resetEventsTable()
                 try {
                     block()
                     return
                 } finally {
-                    runCatching { transaction(db) { SchemaUtils.drop(Events) } }
+                    runCatching { dropEventsTable() }
                 }
             }.onFailure { e ->
                 if (attempt < 4 && e.isNoNodesAvailable()) {
@@ -133,12 +146,12 @@ abstract class AbstractTrinoTest {
     protected fun withEventsTableSuspend(block: suspend () -> Unit) {
         repeat(5) { attempt ->
             runCatching {
-                transaction(db) { SchemaUtils.create(Events) }
+                resetEventsTable()
                 try {
                     runBlocking { block() }
                     return
                 } finally {
-                    runCatching { transaction(db) { SchemaUtils.drop(Events) } }
+                    runCatching { dropEventsTable() }
                 }
             }.onFailure { e ->
                 if (attempt < 4 && e.isNoNodesAvailable()) {

@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.javatime.JavaInstantColumnType
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.Locale
 
 /**
  * Exposed [Query] 객체를 BigQuery REST API로 실행하는 실행기.
@@ -71,19 +72,21 @@ class BigQueryQueryExecutor(
  * ```
  */
 class BigQueryResultRow(private val data: Map<String, Any?>) {
+    private val normalizedData: Map<String, Any?> = data.mapKeys { (name, _) -> name.lowercase(Locale.ROOT) }
 
     /** Exposed [Column]으로 타입 변환된 값을 반환합니다. */
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(column: Column<T>): T =
-        convertValue(data[column.name.lowercase()], column) as T
+        convertValue(normalizedData[column.name.lowercase(Locale.ROOT)], column) as T
 
     /** 컬럼 이름으로 원시값을 반환합니다. */
-    operator fun get(name: String): Any? = data[name.lowercase()]
+    operator fun get(name: String): Any? = normalizedData[name.lowercase(Locale.ROOT)]
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> convertValue(raw: Any?, column: Column<T>): T? {
-        if (raw == null || raw.javaClass == Any::class.java || raw.toString() == "null") return null
+        if (raw == null || raw.javaClass == Any::class.java) return null
         val s = raw.toString()
+        if (s.equals("null", ignoreCase = true)) return null
         return when (column.columnType) {
             is DecimalColumnType ->
                 BigDecimal(s)
@@ -95,5 +98,5 @@ class BigQueryResultRow(private val data: Map<String, Any?>) {
         } as T?
     }
 
-    override fun toString(): String = data.toString()
+    override fun toString(): String = normalizedData.toString()
 }

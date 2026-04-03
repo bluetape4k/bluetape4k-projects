@@ -23,6 +23,11 @@ import java.sql.PreparedStatement
 @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 internal class TrinoConnectionWrapper(private val conn: Connection): Connection by conn {
 
+    init {
+        // Exposed가 조회하는 상태값과 실제 JDBC 연결 상태를 맞춰 둡니다.
+        conn.autoCommit = true
+    }
+
     /**
      * Trino는 항상 autocommit 모드로 동작하므로, 항상 `true`를 반환합니다.
      */
@@ -32,7 +37,8 @@ internal class TrinoConnectionWrapper(private val conn: Connection): Connection 
      * Trino는 autocommit 모드만 지원하므로, 설정을 무시합니다 (no-op).
      */
     override fun setAutoCommit(autoCommit: Boolean) {
-        // no-op: Trino는 autocommit 모드만 지원
+        // Trino는 autocommit=true만 지원. 이미 true가 아닐 때만 설정합니다.
+        if (!conn.autoCommit) conn.autoCommit = true
     }
 
     /**
