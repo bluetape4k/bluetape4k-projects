@@ -1,50 +1,23 @@
 # Test Execution Log
 
-기능 추가/수정 후 테스트 수행 결과를 기록합니다.
+코드 수정 후 테스트 수행 결과를 기록합니다.
 
 ## 작성 가이드
 
-- 일자별 섹션(`## YYYY-MM-DD`)은 **하나만** 존재해야 한다. 같은 날짜가 이미 있으면 해당 섹션 아래에 소제목(`### 작업 설명`)을 추가한다.
-- 최신 날짜가 파일 상단, 오래된 날짜가 하단으로 **역순 정렬**한다.
-- 표 컬럼: `대상 | 테스트 항목 | 결과 | 소요 | 비고`
-- 결과 표기: ✅ 성공, ❌ 실패, ⚠️ 일부 실패
-- 편집 후 해당 날짜 섹션 앞뒤를 읽어 중복/누락을 확인한다.
+- 새 행은 표 **맨 아래**에 추가한다 (최신이 하단).
+- 컬럼: `날짜 | 작업 | 대상 | 테스트 항목 | 결과 | 소요 | 비고`
+- 결과: ✅ 성공, ❌ 실패, ⚠️ 일부 실패
+- 편집 시 표 마지막 5행만 읽어 중복 확인 후 추가한다.
 
 ---
 
-## 2026-04-04
-
-### KDoc/README 프로퍼티 키 `.` → `-` 잔여 수정 (MemgraphServer, RedisClusterServer)
-
-| 대상 | 테스트 항목 | 결과 | 소요 | 비고 |
-|------|------------|------|------|------|
-| `MemgraphServerTest.kt` | MemgraphServerTest (6 tests) | ✅ | 14.1s | `bolt-port`, `log-port`, `bolt-url` KDoc 수정 확인 |
-| `RedisClusterServerTest.kt` | RedisClusterServerTest (3 tests) | ✅ | 14.1s | `redis-cluster` namespace KDoc 수정 확인 |
-
-### ZooKeeperServer Curator 연결 안정화 (connectionTimeout/blockUntilConnected)
-
-| 대상 | 테스트 항목 | 결과 | 소요 | 비고 |
-|------|------------|------|------|------|
-| `ZooKeeperServerTest.kt` | `ZooKeeperServerTest` (4 tests) | ✅ | 8s | UseDockerPort 5.2s — IPv6→IPv4 폴백 안정화 확인 |
-
-**변경 파일:**
-- `ZooKeeperServer.kt:112-113` — `RetryOneTime(100)` → `RetryOneTime(1000)`, `connectionTimeoutMs(3000)` → `connectionTimeoutMs(10_000)`
-- `ZookeeperServerSupport.kt:20` — `curator.start()` 후 `blockUntilConnected(10, SECONDS)` 추가
-
----
-
-## 2026-04-03
-
-### testcontainers property key `.` → `-` 마이그레이션 (테스트 코드 동기화)
-
-| 대상 | 테스트 항목 | 결과 | 소요 | 비고 |
-|------|------------|------|------|------|
-| `Neo4jServerTest.kt` | `compileTestKotlin` | ✅ | 9s | 컴파일 검증 |
-| `Neo4jServerTest.kt` | `Neo4jServerTest` (7 tests) | ✅ | 3.9s | `bolt-url` 프로퍼티 검증 통과 |
-| `KeycloakServerTest.kt` | `KeycloakServerTest` (4 tests) | ✅ | 2.6s | `auth-url`, `admin-username`, `admin-password` 검증 통과 |
-| `InfluxDBServerTest.kt` | `InfluxDBServerTest` (2 tests) | ✅ | 3.8s | `admin-token` 프로퍼티 검증 통과 |
-
-**변경 파일:**
-- `Neo4jServerTest.kt:58` — `bolt.url` → `bolt-url`
-- `InfluxDBServerTest.kt:35` — `admin.token` → `admin-token`
-- `KeycloakServerTest.kt:37-39` — `auth.url` → `auth-url`, `admin.username` → `admin-username`, `admin.password` → `admin-password`
+| 날짜 | 작업 | 대상 | 테스트 항목 | 결과 | 소요 | 비고 |
+|------|------|------|------------|------|------|------|
+| 2026-04-03 | property key `.`→`-` 마이그레이션 | `Neo4jServerTest.kt` | compileTestKotlin | ✅ | 9s | 컴파일 검증 |
+| 2026-04-03 | property key `.`→`-` 마이그레이션 | `Neo4jServerTest.kt` | Neo4jServerTest (7 tests) | ✅ | 3.9s | `bolt-url` 프로퍼티 검증 |
+| 2026-04-03 | property key `.`→`-` 마이그레이션 | `KeycloakServerTest.kt` | KeycloakServerTest (4 tests) | ✅ | 2.6s | `auth-url`, `admin-username`, `admin-password` 검증 |
+| 2026-04-03 | property key `.`→`-` 마이그레이션 | `InfluxDBServerTest.kt` | InfluxDBServerTest (2 tests) | ✅ | 3.8s | `admin-token` 프로퍼티 검증 |
+| 2026-04-04 | ZooKeeper Curator 연결 안정화 | `ZooKeeperServerTest.kt` | ZooKeeperServerTest (4 tests) | ✅ | 8s | IPv6→IPv4 폴백 안정화 |
+| 2026-04-04 | KDoc 프로퍼티 키 `.`→`-` 잔여 수정 | `MemgraphServerTest.kt` | MemgraphServerTest (6 tests) | ✅ | 14.1s | `bolt-port`, `log-port`, `bolt-url` KDoc 수정 |
+| 2026-04-04 | KDoc 프로퍼티 키 `.`→`-` 잔여 수정 | `RedisClusterServerTest.kt` | RedisClusterServerTest (3 tests) | ✅ | 14.1s | `redis-cluster` namespace KDoc 수정 |
+| 2026-04-04 | ToxiproxyServer 개선 | `ToxiproxyServerTest.kt` | ToxiproxyServerTest (5 tests) | ✅ | — | exposeCustomPorts 추가, proxy+latency toxic 테스트 구현 (Codex) |
