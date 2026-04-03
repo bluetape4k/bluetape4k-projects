@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import io.minio.MinioClient
 import org.testcontainers.containers.MinIOContainer
@@ -25,7 +25,7 @@ class MinIOServer private constructor(
     reuse: Boolean,
     username: String = DEFAULT_USER,
     password: String = DEFAULT_PASSWORD,
-): MinIOContainer(imageName), GenericServer {
+): MinIOContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "minio/minio"
@@ -68,6 +68,18 @@ class MinIOServer private constructor(
 
     override val url: String get() = s3URL
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "username", "password")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "username" to userName,
+        "password" to password,
+    )
+
     init {
         withReuse(reuse)
         withUserName(username)
@@ -80,12 +92,7 @@ class MinIOServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf(
-            "username" to userName,
-            "password" to password
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

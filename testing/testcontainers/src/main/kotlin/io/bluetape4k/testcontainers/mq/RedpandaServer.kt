@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.mq
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.redpanda.RedpandaContainer
 import org.testcontainers.utility.DockerImageName
@@ -31,7 +31,7 @@ class RedpandaServer private constructor(
     dockerImageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): RedpandaContainer(dockerImageName), GenericServer {
+): RedpandaContainer(dockerImageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "docker.redpanda.com/redpandadata/redpanda"
@@ -89,6 +89,23 @@ class RedpandaServer private constructor(
 
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "redpanda://$host:$port"
+
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "admin.port", "schema.registry.port", "rest.proxy.port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "admin.port" to adminPort.toString(),
+        "schema.registry.port" to schemaRegistryPort.toString(),
+        "rest.proxy.port" to restProxyPort.toString(),
+    )
+
     /** Admin API 포트의 매핑 결과입니다. */
     val adminPort: Int get() = getMappedPort(ADMIN_PORT)
 
@@ -109,13 +126,7 @@ class RedpandaServer private constructor(
 
     override fun start() {
         super.start()
-
-        val extraProps = mapOf(
-            "admin.port" to adminPort,
-            "schema.registry.port" to schemaRegistryPort,
-            "rest.proxy.port" to restProxyPort,
-        )
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

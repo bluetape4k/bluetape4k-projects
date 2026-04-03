@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.graphdb
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -35,7 +36,7 @@ class MemgraphServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): GenericContainer<MemgraphServer>(imageName), GenericServer {
+): GenericContainer<MemgraphServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Memgraph 공식 Docker 이미지 이름 */
@@ -97,6 +98,19 @@ class MemgraphServer private constructor(
     /** Bolt 프로토콜 URL (`bolt://host:port` 형식) */
     override val url: String get() = "bolt://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "bolt.port", "log.port", "bolt.url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "bolt.port" to getMappedPort(BOLT_PORT).toString(),
+        "log.port" to getMappedPort(LOG_PORT).toString(),
+        "bolt.url" to boltUrl,
+    )
+
     /**
      * Neo4j Java Driver 등에서 사용할 수 있는 Bolt 연결 URL입니다.
      *
@@ -131,14 +145,7 @@ class MemgraphServer private constructor(
      */
     override fun start() {
         super.start()
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "bolt.port" to getMappedPort(BOLT_PORT),
-                "log.port" to getMappedPort(LOG_PORT),
-                "bolt.url" to boltUrl,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

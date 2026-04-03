@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.graphdb
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -26,7 +27,7 @@ class Neo4jServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): Neo4jContainer(imageName), GenericServer {
+): Neo4jContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         /** Neo4j Docker 이미지 이름 */
@@ -103,6 +104,21 @@ class Neo4jServer private constructor(
      */
     fun getHttpUrlString(): String = "http://$host:${getMappedPort(HTTP_PORT)}"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> =
+        setOf("host", "port", "url", "bolt.port", "http.port", "bolt.url", "http.url")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "bolt.port" to getMappedPort(BOLT_PORT).toString(),
+        "http.port" to getMappedPort(HTTP_PORT).toString(),
+        "bolt.url" to boltUrl,
+        "http.url" to httpUrl,
+    )
+
     init {
         addExposedPorts(HTTP_PORT, BOLT_PORT)
         withoutAuthentication()
@@ -128,15 +144,7 @@ class Neo4jServer private constructor(
     override fun start() {
         super.start()
 
-        writeToSystemProperties(
-            NAME,
-            mapOf(
-                "bolt.port" to getMappedPort(BOLT_PORT),
-                "http.port" to getMappedPort(HTTP_PORT),
-                "bolt.url" to boltUrl,
-                "http.url" to httpUrl,
-            )
-        )
+        writeToSystemProperties()
     }
 
     /**

@@ -24,7 +24,7 @@ class ElasticsearchOssServerTest: AbstractContainerTest() {
                 es.start()
                 es.isRunning.shouldBeTrue()
 
-                val config = ElasticsearchOssServer.Launcher.getClientConfiguration(es)
+                val config = ElasticsearchOssServer.Launcher.Spring.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }
@@ -40,7 +40,7 @@ class ElasticsearchOssServerTest: AbstractContainerTest() {
                 es.isRunning.shouldBeTrue()
                 es.port shouldBeEqualTo ElasticsearchOssServer.PORT
 
-                val config = ElasticsearchOssServer.Launcher.getClientConfiguration(es)
+                val config = ElasticsearchOssServer.Launcher.Spring.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }

@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
@@ -35,7 +35,7 @@ class PostgreSQLServer private constructor(
     reuse: Boolean,
     username: String,
     password: String,
-): PostgreSQLContainer(imageName), JdbcServer {
+): PostgreSQLContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "postgres"
@@ -100,6 +100,15 @@ class PostgreSQLServer private constructor(
         }
     }
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "jdbc.url", "driver.class.name", "username", "password", "database.name",
+        "jdbc-url", "driver-class-name"
+    )
+
+    override fun properties(): Map<String, String> = buildJdbcPropertiesCompat()
+
     private val extensions = mutableListOf<String>()
 
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
@@ -146,7 +155,7 @@ class PostgreSQLServer private constructor(
                 }
             }
         }
-        writeToSystemProperties(NAME, buildJdbcProperties())
+        writeToSystemProperties()
     }
 
     /**

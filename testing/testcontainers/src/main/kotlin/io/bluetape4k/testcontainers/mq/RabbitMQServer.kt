@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.mq
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.rabbitmq.RabbitMQContainer
 import org.testcontainers.utility.DockerImageName
@@ -30,7 +30,7 @@ class RabbitMQServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): RabbitMQContainer(imageName), GenericServer {
+): RabbitMQContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "rabbitmq"
@@ -90,6 +90,28 @@ class RabbitMQServer private constructor(
     override val port: Int get() = getMappedPort(AMQP_PORT)
     override val url: String get() = "amqp://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "host", "port", "url",
+        "amqp.url", "management.url", "username", "password",
+        "amqp.port", "amqps.port", "rabbitmq.http.port", "rabbitmq.https.port",
+    )
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "amqp.url" to amqpUrl,
+        "management.url" to httpUrl,
+        "username" to adminUsername,
+        "password" to adminPassword,
+        "amqp.port" to amqpPort.toString(),
+        "amqps.port" to amqpsPort.toString(),
+        "rabbitmq.http.port" to rabbitmqHttpPort.toString(),
+        "rabbitmq.https.port" to rabbitmqHttpsPort.toString(),
+    )
+
     /** AMQP 포트의 매핑 결과입니다. */
     val amqpPort: Int get() = getMappedPort(AMQP_PORT)
 
@@ -116,14 +138,7 @@ class RabbitMQServer private constructor(
 
     override fun start() {
         super.start()
-
-        val props = mapOf(
-            "amqp.port" to amqpPort,
-            "amqps.port" to amqpsPort,
-            "rabbitmq.http.port" to rabbitmqHttpPort,
-            "rabbitmq.https.port" to rabbitmqHttpsPort
-        )
-        writeToSystemProperties(NAME, props)
+        writeToSystemProperties()
     }
 
     /**

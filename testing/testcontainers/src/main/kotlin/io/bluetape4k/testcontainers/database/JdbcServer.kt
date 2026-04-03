@@ -37,8 +37,45 @@ interface JdbcServer: GenericServer {
 }
 
 /**
+ * dot-separated lowercase 키를 사용하는 JDBC 프로퍼티 맵을 생성합니다.
+ *
+ * **타입 변경 주의**: 기존 [buildJdbcProperties]는 `Map<String, Any?>`(null 값 포함)을 반환했으나,
+ * 이 함수는 `Map<String, String>`(null 값 제외)을 반환합니다.
+ * [writeToSystemProperties][io.bluetape4k.testcontainers.PropertyExportingServer.writeToSystemProperties]는
+ * 기존에도 null 필터링했으므로 시스템 프로퍼티 등록에는 영향 없습니다.
+ */
+fun <T: JdbcServer> T.buildDotSeparatedJdbcProperties(): Map<String, String> = buildMap {
+    put("jdbc.url", getJdbcUrl())
+    put("driver.class.name", getDriverClassName())
+    getUsername()?.let { put("username", it) }
+    getPassword()?.let { put("password", it) }
+    getDatabaseName()?.let { put("database.name", it) }
+}
+
+/**
+ * Phase 1 하위 호환용 JDBC 프로퍼티 맵을 생성합니다.
+ *
+ * dot-separated 새 키와 기존 kebab-case 구 키를 모두 포함합니다.
+ * Phase 7에서 제거 예정입니다.
+ */
+fun <T: JdbcServer> T.buildJdbcPropertiesCompat(): Map<String, String> {
+    val newProps = buildDotSeparatedJdbcProperties()
+    return buildMap {
+        putAll(newProps)
+        // 구 키 (하위 호환)
+        put("jdbc-url", newProps["jdbc.url"] ?: "")
+        put("driver-class-name", newProps["driver.class.name"] ?: "")
+        newProps["database.name"]?.let { put("database-name", it) }
+    }.filterValues { it.isNotEmpty() }
+}
+
+/**
  * [JdbcServer]의 Jdbc properties를 생성합니다.
  */
+@Deprecated(
+    message = "buildJdbcProperties()는 Map<String, Any?> 반환으로 인해 deprecated. buildDotSeparatedJdbcProperties() 사용",
+    replaceWith = ReplaceWith("buildDotSeparatedJdbcProperties()")
+)
 fun <T: JdbcServer> T.buildJdbcProperties(): Map<String, Any?> {
     return mapOf(
         "driver-class-name" to getDriverClassName(),

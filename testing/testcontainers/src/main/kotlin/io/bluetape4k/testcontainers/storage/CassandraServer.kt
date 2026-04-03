@@ -14,9 +14,9 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.storage.CassandraServer.Launcher.cassandra4
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.Resourcex
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
@@ -44,7 +44,7 @@ class CassandraServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): GenericContainer<CassandraServer>(imageName), GenericServer {
+): GenericContainer<CassandraServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "cassandra"
@@ -85,6 +85,17 @@ class CassandraServer private constructor(
     override val url: String get() = "$host:$port"
     /** Cassandra 드라이버 접속에 사용할 contact point입니다. */
     val contactPoint: InetSocketAddress get() = InetSocketAddress(host, port)
+
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "cql.port")
+
+    override fun properties(): Map<String, String> = mapOf(
+        "host" to host,
+        "port" to port.toString(),
+        "url" to url,
+        "cql.port" to cqlPort.toString(),
+    )
 
     private var configLocation: String = ""
     private var initScriptPath: String = ""
@@ -136,8 +147,7 @@ class CassandraServer private constructor(
 
     override fun start() {
         super.start()
-        val extraProps = mapOf<String, Any?>("cql.port" to cqlPort)
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

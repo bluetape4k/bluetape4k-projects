@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.mariadb.MariaDBContainer
@@ -28,7 +28,7 @@ class MariaDBServer private constructor(
     username: String,
     password: String,
     configuration: String,
-): MariaDBContainer(imageName), JdbcServer {
+): MariaDBContainer(imageName), JdbcServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "mariadb"
@@ -90,6 +90,15 @@ class MariaDBServer private constructor(
         }
     }
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf(
+        "jdbc.url", "driver.class.name", "username", "password", "database.name",
+        "jdbc-url", "driver-class-name"
+    )
+
+    override fun properties(): Map<String, String> = buildJdbcPropertiesCompat()
+
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = jdbcUrl
@@ -125,7 +134,7 @@ class MariaDBServer private constructor(
 
     override fun start() {
         super.start()
-        writeToSystemProperties(NAME, buildJdbcProperties())
+        writeToSystemProperties()
     }
 
     /**

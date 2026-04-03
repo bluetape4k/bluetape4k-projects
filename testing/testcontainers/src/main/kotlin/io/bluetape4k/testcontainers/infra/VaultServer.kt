@@ -5,6 +5,7 @@ import com.bettercloud.vault.VaultConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
+import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -21,7 +22,7 @@ class VaultServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean = false,
     reuse: Boolean = true,
-): VaultContainer<VaultServer>(imageName), GenericServer {
+): VaultContainer<VaultServer>(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
         const val IMAGE = "hashicorp/vault"
@@ -56,6 +57,17 @@ class VaultServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "http://$host:$port"
 
+    override val propertyNamespace: String = NAME
+
+    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "token")
+
+    override fun properties(): Map<String, String> = buildMap {
+        put("host", host)
+        put("port", port.toString())
+        put("url", url)
+        envMap["VAULT_TOKEN"]?.let { put("token", it) }
+    }
+
     init {
         addExposedPorts(PORT)
         withReuse(reuse)
@@ -68,8 +80,7 @@ class VaultServer private constructor(
     override fun start() {
         super.start()
 
-        val extraProps = mapOf("token" to envMap["VAULT_TOKEN"])
-        writeToSystemProperties(NAME, extraProps)
+        writeToSystemProperties()
     }
 
     /**

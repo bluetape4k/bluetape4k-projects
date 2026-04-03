@@ -32,7 +32,7 @@ class ElasticsearchServerTest: AbstractContainerTest() {
                 es.start()
                 es.isRunning.shouldBeTrue()
 
-                val config = ElasticsearchServer.Launcher.getClientConfiguration(es)
+                val config = ElasticsearchServer.Launcher.Spring.getClientConfiguration(es)
                 val client = ElasticsearchClients.getRestClient(config)
                 client.isRunning.shouldBeTrue()
                 client.close()
