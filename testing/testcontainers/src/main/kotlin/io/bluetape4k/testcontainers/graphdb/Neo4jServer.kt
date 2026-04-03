@@ -5,7 +5,8 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
+import io.bluetape4k.testcontainers.graphdb.Neo4jServer.Companion.IMAGE
+import io.bluetape4k.testcontainers.graphdb.Neo4jServer.Companion.TAG
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.neo4j.Neo4jContainer
 import org.testcontainers.utility.DockerImageName

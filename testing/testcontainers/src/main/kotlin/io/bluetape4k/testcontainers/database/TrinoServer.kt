@@ -5,7 +5,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.utils.ShutdownQueue
-import org.testcontainers.containers.TrinoContainer
+import org.testcontainers.trino.TrinoContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
