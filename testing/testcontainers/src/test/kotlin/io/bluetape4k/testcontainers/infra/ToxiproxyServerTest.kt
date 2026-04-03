@@ -1,25 +1,118 @@
 package io.bluetape4k.testcontainers.infra
 
+import eu.rekawek.toxiproxy.ToxiproxyClient
+import eu.rekawek.toxiproxy.model.ToxicDirection
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.testcontainers.storage.RedisServer
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.testcontainers.containers.Network
+import kotlin.system.measureTimeMillis
+import kotlin.test.assertTrue
 import kotlin.test.assertFailsWith
 
 /**
  * [ToxiproxyServer] 테스트입니다.
- *
- * TODO: proxy를 통한 upstream 통신 테스트는 macOS Docker Desktop 네트워킹 이슈로 보류 중입니다.
- *       ToxiproxyContainer의 proxy 포트(8666)를 통한 트래픽이 upstream에 전달되지 않는 현상이 있습니다.
- *       raw RESP 소켓, Lettuce, Jedis 등 다양한 클라이언트로 시도했으나 동일하게 실패합니다.
- *       향후 Docker Desktop 업데이트 또는 Linux 환경에서 재검증이 필요합니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ToxiproxyServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
+
+    @Nested
+    inner class UseDefaultPort {
+        @Test
+        fun `create toxiproxy server with default port`() {
+            ToxiproxyServer(useDefaultPort = true).use { server ->
+                server.start()
+                server.isRunning.shouldBeTrue()
+                server.port shouldBeEqualTo ToxiproxyServer.CONTROL_PORT
+                server.controlPort shouldBeEqualTo ToxiproxyServer.CONTROL_PORT
+            }
+        }
+    }
+
+    @Nested
+    inner class UseDockerPort {
+        @Test
+        fun `create toxiproxy server`() {
+            ToxiproxyServer().use { server ->
+                server.start()
+                server.isRunning.shouldBeTrue()
+            }
+        }
+    }
+
+    @Nested
+    inner class WithRedisAndLettuce {
+        @Test
+        fun `redis upstream 을 프록시하고 lettuce 로 latency toxic 을 검증한다`() {
+            Network.newNetwork().use { network ->
+                RedisServer()
+                    .withNetwork(network)
+                    .withNetworkAliases("redis")
+                    .use { redis ->
+                        ToxiproxyServer()
+                            .withNetwork(network)
+                            .use { toxiproxy ->
+                                redis.start()
+                                toxiproxy.start()
+
+                                val toxiproxyClient = ToxiproxyClient(toxiproxy.host, toxiproxy.controlPort)
+                                val proxy = toxiproxyClient.createProxy(
+                                    "redis-primary",
+                                    "0.0.0.0:8666",
+                                    "redis:${RedisServer.PORT}",
+                                )
+                                val proxyPort = toxiproxy.getMappedPort(8666)
+                                val redisClient = RedisServer.Launcher.LettuceLib.getRedisClient(toxiproxy.host, proxyPort)
+
+                                try {
+                                    redisClient.connect().use { connection ->
+                                        val commands = connection.sync()
+
+                                        commands.ping() shouldBeEqualTo "PONG"
+                                        commands.set("toxiproxy:key", "value") shouldBeEqualTo "OK"
+                                        commands.get("toxiproxy:key") shouldBeEqualTo "value"
+
+                                        val latency = proxy.toxics().latency(
+                                            "redis-latency",
+                                            ToxicDirection.DOWNSTREAM,
+                                            250,
+                                        )
+
+                                        val delayedElapsed = measureTimeMillis {
+                                            commands.get("toxiproxy:key") shouldBeEqualTo "value"
+                                        }
+                                        assertTrue(
+                                            delayedElapsed >= 150,
+                                            "latency toxic 이후 GET 응답은 지연되어야 한다. actual=${delayedElapsed}ms"
+                                        )
+
+                                        latency.remove()
+
+                                        val recoveredElapsed = measureTimeMillis {
+                                            commands.get("toxiproxy:key") shouldBeEqualTo "value"
+                                        }
+                                        assertTrue(
+                                            recoveredElapsed < delayedElapsed,
+                                            "latency toxic 제거 후 응답 시간은 감소해야 한다. delayed=${delayedElapsed}ms, recovered=${recoveredElapsed}ms"
+                                        )
+                                    }
+                                } finally {
+                                    runCatching { proxy.delete() }
+                                    runCatching { redisClient.shutdown() }
+                                }
+                            }
+                    }
+            }
+        }
+    }
 
     @Test
     fun `blank image tag 는 허용하지 않는다`() {
@@ -38,9 +131,4 @@ class ToxiproxyServerTest: AbstractContainerTest() {
             server.stop()
         }
     }
-
-    // TODO: proxy를 통한 upstream 통신 테스트 (Redis latency toxic 등)는
-    //       macOS Docker Desktop 환경에서 포트 매핑 이슈로 보류합니다.
-    //       공식 testcontainers-java ToxiproxyContainerTest 패턴(Redis + Jedis)과 동일하게
-    //       구성했으나, getMappedPort(8666)를 통한 프록시 접속 시 연결이 즉시 종료됩니다.
 }

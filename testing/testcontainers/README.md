@@ -267,6 +267,57 @@ val toxiproxy = ToxiproxyServer.Launcher.toxiproxy
 // ToxiproxyClient로 프록시 생성 후 toxic(지연, 중단 등) 주입
 ```
 
+#### Toxiproxy 동작 구조
+
+`ToxiproxyServer`는 애플리케이션 클라이언트와 실제 Upstream 서버 사이에 프록시를 하나 더 두고,
+그 프록시에 지연(latency), 연결 차단(timeout/reset), 대역폭 제한(bandwidth) 같은 네트워크 장애를 주입하는 방식으로 동작합니다.
+
+가장 이해하기 쉬운 시나리오는 `RedisServer + ToxiproxyServer + Lettuce` 조합입니다.
+테스트에서는 Redis를 Docker network 안에서 `redis` alias로 띄우고, Toxiproxy가 `redis:6379`를 향하는 프록시 포트(`8666` 등)를 생성합니다.
+이후 Lettuce 클라이언트는 Redis에 직접 연결하지 않고, Toxiproxy가 노출한 프록시 포트로 접속합니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant TEST as 테스트 코드
+    participant REDIS as RedisServer
+    participant TOXI as ToxiproxyServer
+    participant API as ToxiproxyClient
+    participant LETTUCE as Lettuce Client
+
+    TEST->>REDIS: start() withNetwork(network)
+    TEST->>TOXI: start() withNetwork(network)
+    TEST->>API: createProxy("redis-primary", "0.0.0.0:8666", "redis:6379")
+    API-->>TOXI: 프록시 생성 및 listen/upstream 구성
+
+    TEST->>LETTUCE: connect(toxiproxy.host, toxiproxy.getMappedPort(8666))
+    LETTUCE->>TOXI: PING / SET / GET 요청
+    TOXI->>REDIS: redis:6379 로 요청 전달
+    REDIS-->>TOXI: 응답 반환
+    TOXI-->>LETTUCE: 프록시 응답 반환
+
+    TEST->>API: proxy.toxics().latency(..., DOWNSTREAM, 250)
+    API-->>TOXI: downstream latency toxic 추가
+    LETTUCE->>TOXI: GET 요청
+    TOXI-->>LETTUCE: 지연 후 응답 반환
+
+    TEST->>API: latency.remove()
+    API-->>TOXI: toxic 제거
+    LETTUCE->>TOXI: GET 요청
+    TOXI-->>LETTUCE: 정상 속도로 응답 반환
+```
+
+#### UML 해설
+
+- `RedisServer`는 실제 Upstream 서버입니다. Toxiproxy가 최종적으로 요청을 전달하는 대상입니다.
+- `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트(`8474`)와 프록시 포트 범위(`8666~8697`)를 노출합니다.
+- `ToxiproxyClient`는 Control API에 붙어서 프록시를 만들고 toxic을 추가/삭제하는 관리용 클라이언트입니다.
+- `Lettuce Client`는 애플리케이션이 사용하는 실제 Redis 클라이언트입니다. 중요 포인트는 Redis가 아니라 Toxiproxy의 프록시 포트에 연결한다는 점입니다.
+- `DOWNSTREAM latency`는 Upstream 응답이 클라이언트로 돌아오는 구간을 늦춥니다. 따라서 `GET` 같은 읽기 호출의 체감 시간이 증가합니다.
+- toxic을 제거하면 같은 연결 경로를 유지한 채 정상 지연 시간으로 복구되는지 바로 검증할 수 있습니다.
+
+실제 예제 테스트는 `ToxiproxyServerTest.WithRedisAndLettuce`를 참고하면 됩니다.
+
 ### 분산 SQL 쿼리 엔진
 
 ```kotlin

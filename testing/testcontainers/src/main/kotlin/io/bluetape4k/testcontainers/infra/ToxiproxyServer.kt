@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
+import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.toxiproxy.ToxiproxyContainer
 import org.testcontainers.utility.DockerImageName
@@ -34,7 +35,7 @@ import org.testcontainers.utility.DockerImageName
  * ```
  *
  * @param imageName Docker 이미지 이름
- * @param useDefaultPort `true`이면 컨트롤 포트(8474)를 호스트에 고정 바인딩합니다.
+ * @param useDefaultPort `true`이면 컨트롤 포트와 프록시 포트를 호스트의 동일 번호로 고정 바인딩합니다.
  * @param reuse `true`이면 Testcontainers 재사용 옵션을 활성화합니다.
  */
 class ToxiproxyServer private constructor(
@@ -60,7 +61,7 @@ class ToxiproxyServer private constructor(
          * [DockerImageName]으로 [ToxiproxyServer] 인스턴스를 생성합니다.
          *
          * @param imageName Docker 이미지 이름
-         * @param useDefaultPort `true`이면 컨트롤 포트를 호스트에 고정 바인딩합니다.
+         * @param useDefaultPort `true`이면 컨트롤 포트와 프록시 포트를 호스트의 동일 번호로 고정 바인딩합니다.
          * @param reuse Testcontainers 재사용 여부
          * @return 새로운 [ToxiproxyServer] 인스턴스
          */
@@ -87,7 +88,7 @@ class ToxiproxyServer private constructor(
          *
          * @param image Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
          * @param tag Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
-         * @param useDefaultPort `true`이면 컨트롤 포트(8474)를 호스트에 고정 바인딩합니다.
+         * @param useDefaultPort `true`이면 컨트롤 포트와 프록시 포트를 호스트의 동일 번호로 고정 바인딩합니다.
          * @param reuse Testcontainers 재사용 여부
          * @return 새로운 [ToxiproxyServer] 인스턴스
          */
@@ -131,6 +132,10 @@ class ToxiproxyServer private constructor(
 
     init {
         withReuse(reuse)
+
+        if (useDefaultPort) {
+            exposeCustomPorts()
+        }
     }
 
     /**
@@ -140,8 +145,8 @@ class ToxiproxyServer private constructor(
      * - `testcontainers.toxiproxy.host`
      * - `testcontainers.toxiproxy.port`
      * - `testcontainers.toxiproxy.url`
-     * - `testcontainers.toxiproxy.control.port`
-     * - `testcontainers.toxiproxy.control.url`
+     * - `testcontainers.toxiproxy.control-port`
+     * - `testcontainers.toxiproxy.control-url`
      */
     override fun start() {
         super.start()

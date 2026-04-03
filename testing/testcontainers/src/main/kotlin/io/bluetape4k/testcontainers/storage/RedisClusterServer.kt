@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
  * ## 동작/계약
  * - `7000..7005` 포트를 노출하고 `start()`에서 클러스터가 `cluster_state:ok`가 될 때까지 대기합니다.
  * - `useDefaultPort=true`이면 클러스터 포트를 호스트에 고정 바인딩하려고 시도합니다.
- * - 시작 후 노드 주소/URL 정보를 시스템 프로퍼티(`testcontainers.redis.cluster.*`)로 기록합니다.
+ * - 시작 후 노드 주소/URL 정보를 시스템 프로퍼티(`testcontainers.redis-cluster.*`)로 기록합니다.
  *
  * ```kotlin
  * val cluster = RedisClusterServer()
@@ -183,18 +183,18 @@ class RedisClusterServer private constructor(
      * Write cluster info
      *
      * ```
-     * Start redis.cluster Server:
-     * 	testcontainers.redis.cluster.host=localhost
-     * 	testcontainers.redis.cluster.port=33087
-     * 	testcontainers.redis.cluster.url=redis://localhost:33087
-     * 	testcontainers.redis.cluster.nodes=localhost:33087,localhost:33086,localhost:33085,localhost:33084,localhost:33083,localhost:33081
-     * 	testcontainers.redis.cluster.urls=redis://localhost:33087,redis://localhost:33086,redis://localhost:33085,redis://localhost:33084,redis://localhost:33083,redis://localhost:33081
-     * 	testcontainers.redis.cluster.nodes.0=localhost:33087
-     * 	testcontainers.redis.cluster.nodes.1=localhost:33086
-     * 	testcontainers.redis.cluster.nodes.2=localhost:33085
-     * 	testcontainers.redis.cluster.nodes.3=localhost:33084
-     * 	testcontainers.redis.cluster.nodes.4=localhost:33083
-     * 	testcontainers.redis.cluster.nodes.5=localhost:33081
+     * Start redis-cluster Server:
+     * 	testcontainers.redis-cluster.host=localhost
+     * 	testcontainers.redis-cluster.port=33087
+     * 	testcontainers.redis-cluster.url=redis://localhost:33087
+     * 	testcontainers.redis-cluster.nodes=localhost:33087,localhost:33086,localhost:33085,localhost:33084,localhost:33083,localhost:33081
+     * 	testcontainers.redis-cluster.urls=redis://localhost:33087,redis://localhost:33086,redis://localhost:33085,redis://localhost:33084,redis://localhost:33083,redis://localhost:33081
+     * 	testcontainers.redis-cluster.nodes.0=localhost:33087
+     * 	testcontainers.redis-cluster.nodes.1=localhost:33086
+     * 	testcontainers.redis-cluster.nodes.2=localhost:33085
+     * 	testcontainers.redis-cluster.nodes.3=localhost:33084
+     * 	testcontainers.redis-cluster.nodes.4=localhost:33083
+     * 	testcontainers.redis-cluster.nodes.5=localhost:33081
      * ```
      */
     private fun writeClusterInfo() {

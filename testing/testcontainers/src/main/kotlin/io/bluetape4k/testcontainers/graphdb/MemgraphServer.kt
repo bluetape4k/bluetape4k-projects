@@ -140,9 +140,9 @@ class MemgraphServer private constructor(
      * - `testcontainers.memgraph.host`
      * - `testcontainers.memgraph.port`
      * - `testcontainers.memgraph.url`
-     * - `testcontainers.memgraph.bolt.port`
-     * - `testcontainers.memgraph.log.port`
-     * - `testcontainers.memgraph.bolt.url`
+     * - `testcontainers.memgraph.bolt-port`
+     * - `testcontainers.memgraph.log-port`
+     * - `testcontainers.memgraph.bolt-url`
      */
     override fun start() {
         super.start()

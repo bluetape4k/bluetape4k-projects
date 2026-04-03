@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-04-04
+
+### KDoc/README 프로퍼티 키 `.` → `-` 잔여 수정 (MemgraphServer, RedisClusterServer)
+
+| 대상 | 테스트 항목 | 결과 | 소요 | 비고 |
+|------|------------|------|------|------|
+| `MemgraphServerTest.kt` | MemgraphServerTest (6 tests) | ✅ | 14.1s | `bolt-port`, `log-port`, `bolt-url` KDoc 수정 확인 |
+| `RedisClusterServerTest.kt` | RedisClusterServerTest (3 tests) | ✅ | 14.1s | `redis-cluster` namespace KDoc 수정 확인 |
+
 ## 2026-04-03
 
 ### testcontainers property key `.` → `-` 마이그레이션 (테스트 코드 동기화)
