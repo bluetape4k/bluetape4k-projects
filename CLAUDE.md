@@ -338,6 +338,7 @@ snapshotVersion=-SNAPSHOT   # empty for RELEASE
 
 ## Important Notes
 
+- **Library source extraction**: When extracting jar sources for reference, use `.claude/lib-sources/<library-name>/` — never extract into the project source tree or `/tmp/`
 - **Publishing**: GitHub Packages Maven; `workshop/` and `examples/` are excluded
 - **atomicfu**: `kotlinx-atomicfu` plugin, `jvmVariant = "VH"` — use only as class-level properties (not method-local)
 - **Detekt**: disabled for `exposed-jdbc-tests`
