@@ -6,6 +6,44 @@
 
 ## [Unreleased]
 
+### Added
+
+#### testing/testcontainers — 신규 서버 8종 추가 ([`3b0e5af8`](https://github.com/bluetape4k/bluetape4k-projects/commit/3b0e5af8))
+
+- `Neo4jServer`: Neo4j 그래프 DB, Bolt/HTTP 포트, `bolt-url` 프로퍼티 export
+- `MemgraphServer`: Memgraph 그래프 DB, `bolt-port`/`log-port`/`bolt-url` export
+- `PostgreSQLAgeServer`: PostgreSQL + Apache AGE 그래프 확장
+- `ToxiproxyServer`: 카오스 테스트용 네트워크 프록시, `control-port`/`control-url` export, latency·bandwidth toxic 주입 테스트 구현
+- `TrinoServer`: 분산 SQL 쿼리 엔진
+- `WireMockServer`: HTTP stub/mock 서버, stale 커넥션 자동 재시도 (`resetAll`)
+- `KeycloakServer`: Keycloak 인증 서버, `auth-url`/`admin-username`/`admin-password` export
+- `InfluxDBServer`: InfluxDB 2.x 시계열 DB, `admin-token`/`organization`/`bucket` export
+
+#### testing/testcontainers — `PropertyExportingServer` 계약 강화 ([`cc0d7204`](https://github.com/bluetape4k/bluetape4k-projects/commit/cc0d7204))
+
+- `PropertyExportingServer` 인터페이스: `propertyKeys()` / `properties()` / `registerSystemProperties()` / `writeToSystemProperties()` 통일
+- 프로퍼티 키 명명 규칙을 **kebab-case 소문자**로 통일 (`bootstrapServers` → `bootstrap-servers`, `bolt.url` → `bolt-url` 등)
+- `withCompatKeys()`: kebab-case 키 추가 시 구 camelCase 키도 병행 등록 (하위 호환)
+
+#### data/exposed-trino — Trino JDBC Dialect 모듈 추가 ([`28dab07f`](https://github.com/bluetape4k/bluetape4k-projects/commit/28dab07f), [`7816a3ca`](https://github.com/bluetape4k/bluetape4k-projects/commit/7816a3ca))
+
+- `TrinoDatabase`: Trino JDBC 연결 팩토리 (`jdbc:trino://`)
+- `suspendTransaction` / `queryFlow`: 코루틴 기반 Trino 쿼리 API
+- autocommit 전용 (Trino는 트랜잭션 미지원)
+- `testcontainers`의 `TrinoServer`와 연동 테스트 포함
+
+### Changed
+
+#### data/exposed-trino, exposed-bigquery, exposed-duckdb — Codex 개선 적용 ([`4ce6750b`](https://github.com/bluetape4k/bluetape4k-projects/commit/4ce6750b), [`c50998bf`](https://github.com/bluetape4k/bluetape4k-projects/commit/c50998bf))
+
+- API 일관성·KDoc·테스트 코드 정리
+
+### Fixed
+
+- `WireMockServer.resetAll()`: Apache HttpClient 5 stale 커넥션으로 인한 `NoHttpResponseException` 발생 시 클라이언트 재생성 후 1회 재시도 ([`c4adae7d`](https://github.com/bluetape4k/bluetape4k-projects/commit/c4adae7d))
+- `ZooKeeperServer`: Curator 연결 타임아웃 안정화 — `RetryOneTime(1000)` + `blockUntilConnected(10s)` 추가 (IPv6→IPv4 폴백 대응) ([`0d05542d`](https://github.com/bluetape4k/bluetape4k-projects/commit/0d05542d))
+- `ToxiproxyServer`: `useDefaultPort` 시 `exposeCustomPorts()` 누락 수정, KDoc 프로퍼티 키 `control.port` → `control-port` ([`a46226b8`](https://github.com/bluetape4k/bluetape4k-projects/commit/a46226b8))
+
 ---
 
 ## [1.5.0-RC1] - 2026-04-01
