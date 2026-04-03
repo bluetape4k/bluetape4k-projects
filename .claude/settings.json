@@ -21,7 +21,6 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "notionMCP",
     "jetbrainsMCP"
   ],
   "enabledPlugins": {
