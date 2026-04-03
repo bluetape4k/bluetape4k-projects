@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.r2dbc.lettuce
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.exposed.r2dbc.lettuce.AbstractR2dbcLettuceTest.Companion.redisClient
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.faker.Fakers

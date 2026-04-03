@@ -5,6 +5,7 @@ import com.google.api.services.bigquery.model.DatasetReference
 import com.google.api.services.bigquery.model.QueryRequest
 import com.google.api.services.bigquery.model.QueryResponse
 import com.google.api.services.bigquery.model.TableRow
+import io.bluetape4k.exposed.bigquery.BigQueryContext.Companion.create
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.util.Locale
+import java.util.*
 
 /**
  * **Exposed SQL generator + BigQuery REST executor** 컨텍스트.

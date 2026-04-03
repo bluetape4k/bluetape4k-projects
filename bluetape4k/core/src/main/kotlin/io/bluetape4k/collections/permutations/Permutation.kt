@@ -1,6 +1,7 @@
 package io.bluetape4k.collections.permutations
 
 import java.util.Objects
+import kotlin.collections.AbstractList
 
 /**
  * 지연 평가(lazy evaluation) 기반의 순열(Permutation) 추상 클래스입니다.

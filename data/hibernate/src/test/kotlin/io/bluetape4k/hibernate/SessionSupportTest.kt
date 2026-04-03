@@ -5,8 +5,8 @@ import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class SessionSupportTest: AbstractHibernateTest() {
 

@@ -4,8 +4,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.SpanContext
 import io.opentelemetry.api.trace.StatusCode
-import java.time.Duration
 import kotlinx.coroutines.CancellationException
+import java.time.Duration
 
 
 /**

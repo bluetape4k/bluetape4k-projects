@@ -1,6 +1,5 @@
 package io.bluetape4k.collections
 
-import java.util.NoSuchElementException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 

@@ -5,8 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.Collections
-import java.util.WeakHashMap
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @PublishedApi

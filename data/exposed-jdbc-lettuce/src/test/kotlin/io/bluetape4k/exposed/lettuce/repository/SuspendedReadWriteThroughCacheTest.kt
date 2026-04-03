@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
-import java.util.UUID
+import java.util.*
 
 /**
  * exposed-jdbc-lettuce Read/Write-through 캐시 통합 테스트.

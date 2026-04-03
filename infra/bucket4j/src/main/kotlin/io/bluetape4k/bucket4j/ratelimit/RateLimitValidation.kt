@@ -2,9 +2,9 @@
 
 package io.bluetape4k.bucket4j.ratelimit
 
-import io.github.bucket4j.ConsumptionProbe
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireNotBlank
+import io.github.bucket4j.ConsumptionProbe
 
 /**
  * 요청당 허용하는 최대 토큰 수.

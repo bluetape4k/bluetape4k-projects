@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.atomicfu.atomic
-import java.util.UUID
+import java.util.*
 
 /**
  * Hazelcast IMap + EntryListener 기반 Near Cache (2-tier cache) - 동기(Blocking) 구현.

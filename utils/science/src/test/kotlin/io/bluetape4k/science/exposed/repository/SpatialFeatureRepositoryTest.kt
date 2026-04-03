@@ -5,9 +5,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
 import io.bluetape4k.science.exposed.model.SpatialFeatureRecord
 import io.bluetape4k.science.exposed.model.SpatialLayerRecord
-import io.bluetape4k.science.exposed.service.ShapefileImportService
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
+import io.bluetape4k.science.exposed.service.ShapefileImportService
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull

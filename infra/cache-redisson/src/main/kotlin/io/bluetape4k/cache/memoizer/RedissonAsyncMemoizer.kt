@@ -1,8 +1,5 @@
 package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.concurrent.completableFutureOf
-import io.bluetape4k.concurrent.flatMap
-import io.bluetape4k.concurrent.map
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.redisson.api.RMap

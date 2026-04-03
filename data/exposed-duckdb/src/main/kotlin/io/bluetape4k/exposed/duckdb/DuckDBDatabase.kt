@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.duckdb
 
+import io.bluetape4k.exposed.duckdb.DuckDBDatabase.file
 import io.bluetape4k.exposed.duckdb.dialect.DuckDBDialect
 import io.bluetape4k.exposed.duckdb.dialect.DuckDBDialectMetadata
 import io.bluetape4k.logging.KLogging

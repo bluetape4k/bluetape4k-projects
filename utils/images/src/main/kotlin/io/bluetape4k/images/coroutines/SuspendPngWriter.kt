@@ -3,6 +3,7 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.nio.PngWriter
 import io.bluetape4k.images.coroutines.SuspendPngWriter.Companion.MaxCompression
 import io.bluetape4k.images.coroutines.SuspendPngWriter.Companion.MinCompression
+import io.bluetape4k.images.coroutines.SuspendPngWriter.Companion.NoCompression
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 /**

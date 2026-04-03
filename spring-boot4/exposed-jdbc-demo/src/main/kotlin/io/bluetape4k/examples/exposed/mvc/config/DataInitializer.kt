@@ -2,8 +2,8 @@ package io.bluetape4k.examples.exposed.mvc.config
 
 import io.bluetape4k.examples.exposed.mvc.domain.ProductEntity
 import io.bluetape4k.examples.exposed.mvc.domain.Products
-import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component

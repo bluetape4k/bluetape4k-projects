@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.lettuce.map
 
-import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.WriteMode
+import io.bluetape4k.support.requirePositiveNumber
 import io.github.resilience4j.retry.RetryConfig
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq

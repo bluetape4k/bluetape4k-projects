@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j
 
-import kotlin.reflect.KClass
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.reflect.KClass
 
 @PublishedApi
 internal fun Throwable.rethrowIfCancellation() {

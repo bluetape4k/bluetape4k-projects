@@ -4,8 +4,6 @@ import io.bluetape4k.javatimes.DaysPerWeek
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.period.TimeRange
-import io.bluetape4k.javatimes.weekOfWeekyear
-import io.bluetape4k.javatimes.weekyear
 import java.time.ZonedDateTime
 
 /**

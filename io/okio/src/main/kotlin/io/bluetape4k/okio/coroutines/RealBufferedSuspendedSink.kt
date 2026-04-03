@@ -1,7 +1,7 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.okio.SEGMENT_SIZE
 import kotlinx.atomicfu.atomic
 import okio.Buffer
 import okio.ByteString

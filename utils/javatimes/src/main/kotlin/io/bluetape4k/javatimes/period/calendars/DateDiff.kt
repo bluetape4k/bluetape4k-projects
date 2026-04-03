@@ -16,7 +16,6 @@ import io.bluetape4k.javatimes.nanos
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.period.yearOf
-import io.bluetape4k.javatimes.startOfWeek
 import io.bluetape4k.javatimes.yearPeriod
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging

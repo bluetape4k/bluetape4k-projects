@@ -2,7 +2,7 @@ package io.bluetape4k.collections.permutations
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import java.util.Optional
+import java.util.*
 import java.util.stream.Stream
 
 /**

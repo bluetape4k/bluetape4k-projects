@@ -1,7 +1,6 @@
 package io.bluetape4k.feign
 
 import feign.Client
-import feign.Request
 import feign.Request.HttpMethod
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -33,7 +32,7 @@ class FeignBuilderSupportTest {
         val markerClient = Client { _, _ -> error("not used") }
 
         val builder = feignBuilderOf(client = markerClient)
-        val deprecatedBuilder = feingBuilderOf(client = markerClient)
+        val deprecatedBuilder = feignBuilderOf(client = markerClient)
 
         builder::class shouldBeEqualTo deprecatedBuilder::class
     }

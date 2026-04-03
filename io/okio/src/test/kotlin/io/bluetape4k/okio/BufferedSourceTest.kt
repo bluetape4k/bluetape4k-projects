@@ -1,8 +1,8 @@
 package io.bluetape4k.okio
 
-import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.support.asByte
 import io.bluetape4k.support.toUtf8Bytes
 import okio.ArrayIndexOutOfBoundsException

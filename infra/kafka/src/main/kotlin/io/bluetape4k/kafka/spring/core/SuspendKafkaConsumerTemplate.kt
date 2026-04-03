@@ -18,6 +18,7 @@ import org.apache.kafka.common.Metric
 import org.apache.kafka.common.MetricName
 import org.apache.kafka.common.PartitionInfo
 import org.apache.kafka.common.TopicPartition
+import org.springframework.beans.factory.DisposableBean
 import reactor.kafka.receiver.KafkaReceiver
 import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.receiver.ReceiverRecord
@@ -25,7 +26,6 @@ import reactor.kafka.sender.TransactionManager
 import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.regex.Pattern
-import org.springframework.beans.factory.DisposableBean
 
 /**
  * Coroutine 환경에서 Kafka Consumer 기능을 제공하는 구현체입니다.

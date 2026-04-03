@@ -1,6 +1,5 @@
 package io.bluetape4k.logging
 
-import io.bluetape4k.logging.WARN_ERROR_PREFIX
 import org.slf4j.Logger
 
 /**

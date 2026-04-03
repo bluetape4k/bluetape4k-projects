@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
 import okio.EOFException
 import org.amshove.kluent.shouldBeEqualTo

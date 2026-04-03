@@ -1,11 +1,11 @@
 package io.bluetape4k.retrofit2.clients.vertx
 
 import io.bluetape4k.http.vertx.defaultVertxHttpClient
-import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
+import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.retrofit2.toIOException
 import io.vertx.core.http.HttpClient
 import io.vertx.kotlin.core.http.requestOptionsOf

@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.core.auditable
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import java.util.UUID
+import java.util.*
 
 /**
  * `java.util.UUID` 기본키와 감사 컬럼을 포함한 Exposed 테이블 베이스 클래스입니다.

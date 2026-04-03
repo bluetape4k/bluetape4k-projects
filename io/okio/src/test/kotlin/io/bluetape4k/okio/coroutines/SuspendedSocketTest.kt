@@ -1,10 +1,10 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.AbstractOkioTest
-import io.bluetape4k.okio.coroutines.internal.await
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.okio.AbstractOkioTest
+import io.bluetape4k.okio.coroutines.internal.await
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

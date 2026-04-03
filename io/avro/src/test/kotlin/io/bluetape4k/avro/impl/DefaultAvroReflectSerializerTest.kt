@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.util.Base64
+import java.util.*
 import io.bluetape4k.avro.message.examples.v1.VersionedItem as ItemV1
 import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
 

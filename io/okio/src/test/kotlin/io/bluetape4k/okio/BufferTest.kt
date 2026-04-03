@@ -1,10 +1,10 @@
 package io.bluetape4k.okio
 
-import io.bluetape4k.okio.TestUtil.SEGMENT_POOL_MAX_SIZE
-import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.TestUtil.SEGMENT_POOL_MAX_SIZE
+import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import okio.Buffer

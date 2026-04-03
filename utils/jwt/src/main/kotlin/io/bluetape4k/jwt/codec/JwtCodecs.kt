@@ -1,5 +1,7 @@
 package io.bluetape4k.jwt.codec
 
+import io.bluetape4k.jwt.codec.JwtCodecs.Deflate
+import io.bluetape4k.jwt.codec.JwtCodecs.Gzip
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.CompressionAlgorithm
 

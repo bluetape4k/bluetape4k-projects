@@ -1,7 +1,7 @@
 package io.bluetape4k.okio.tink
 
-import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.tink.encrypt.TinkEncryptor
 import okio.Buffer

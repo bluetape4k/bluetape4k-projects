@@ -22,7 +22,7 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.junit.jupiter.api.Nested
-import java.util.UUID
+import java.util.*
 
 /**
  * R2DBC Lettuce Read-through 캐시 통합 테스트.

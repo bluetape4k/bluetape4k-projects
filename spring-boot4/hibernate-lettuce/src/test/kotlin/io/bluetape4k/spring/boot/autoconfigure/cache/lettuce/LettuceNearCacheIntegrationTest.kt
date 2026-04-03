@@ -23,7 +23,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest(

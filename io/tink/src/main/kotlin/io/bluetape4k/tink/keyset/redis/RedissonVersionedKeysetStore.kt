@@ -3,11 +3,11 @@ package io.bluetape4k.tink.keyset.redis
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.tink.registerTink
 import io.bluetape4k.tink.keyset.VersionedKeysetHandle
 import io.bluetape4k.tink.keyset.VersionedKeysetStore
 import io.bluetape4k.tink.keyset.keysetHandleOf
 import io.bluetape4k.tink.keyset.toJsonKeyset
+import io.bluetape4k.tink.registerTink
 import org.redisson.api.RedissonClient
 import java.time.Clock
 import java.time.Duration

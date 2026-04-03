@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.asBufferedSink
 import io.bluetape4k.okio.asBufferedSource
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

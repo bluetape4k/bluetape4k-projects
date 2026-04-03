@@ -7,6 +7,7 @@ import com.google.api.services.bigquery.model.QueryResponse
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.AccessToken
 import com.google.auth.oauth2.GoogleCredentials
+import io.bluetape4k.exposed.bigquery.AbstractBigQueryTest.Companion.setupEventsTable
 import io.bluetape4k.exposed.bigquery.domain.Events
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.Op

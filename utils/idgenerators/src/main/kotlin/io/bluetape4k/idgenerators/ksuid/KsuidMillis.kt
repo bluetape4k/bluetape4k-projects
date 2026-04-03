@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators.ksuid
 import io.bluetape4k.idgenerators.IdGenerator
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.Date
+import java.util.*
 
 /**
  * 밀리초(milliseconds) 기반 KSUID 생성기.

@@ -2,9 +2,9 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
 import java.io.BufferedInputStream
-import java.io.ByteArrayOutputStream
 import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.ObjectInputFilter
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream

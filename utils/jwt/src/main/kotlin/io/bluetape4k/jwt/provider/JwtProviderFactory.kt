@@ -3,6 +3,10 @@ package io.bluetape4k.jwt.provider
 import io.bluetape4k.jwt.JwtConsts.DefaultKeyChainRepository
 import io.bluetape4k.jwt.JwtConsts.DefaultSignatureAlgorithm
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
+import io.bluetape4k.jwt.provider.JwtProviderFactory.default
+import io.bluetape4k.jwt.provider.JwtProviderFactory.fixed
+import io.bluetape4k.jwt.provider.JwtProviderFactory.jcached
+import io.bluetape4k.jwt.provider.JwtProviderFactory.redissonCached
 import io.bluetape4k.jwt.provider.cache.JCacheJwtProvider
 import io.bluetape4k.jwt.provider.cache.RedissonJwtProvider
 import io.bluetape4k.jwt.provider.cache.RedissonJwtProvider.Companion.DEFAULT_TTL

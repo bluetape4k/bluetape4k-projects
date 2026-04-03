@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 
 /**
  * exposed-jdbc-lettuce Write-behind 캐시 통합 테스트.

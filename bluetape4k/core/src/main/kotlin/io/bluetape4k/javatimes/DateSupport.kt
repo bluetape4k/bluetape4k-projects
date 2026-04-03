@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes
 
-import io.bluetape4k.javatimes.MillisPerDay
 import java.sql.Timestamp
 import java.time.Duration
 import java.time.Period

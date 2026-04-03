@@ -5,7 +5,7 @@ import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
 import io.bluetape4k.exposed.core.auditable.AuditableUUIDTable
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.EntityClass
-import java.util.UUID
+import java.util.*
 
 /**
  * [AuditableIntIdTable] 기반 엔티티를 관리하는 DAO `EntityClass` 추상 클래스입니다.

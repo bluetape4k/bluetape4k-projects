@@ -1,7 +1,7 @@
 package io.bluetape4k.okio.base64
 
-import io.bluetape4k.okio.byteStringOf
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.okio.byteStringOf
 import okio.Sink
 
 class OkioBase64SinkTest: AbstractBaseNSinkTest() {

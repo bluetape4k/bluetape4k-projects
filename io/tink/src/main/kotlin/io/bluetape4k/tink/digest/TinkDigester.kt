@@ -1,7 +1,7 @@
 package io.bluetape4k.tink.digest
 
 import java.security.MessageDigest
-import java.util.Base64
+import java.util.*
 
 /**
  * JDK [MessageDigest] 기반의 해시 다이제스트 클래스입니다.

@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.duckdb
 
+import io.bluetape4k.exposed.duckdb.AbstractDuckDBTest.Companion.rootConn
 import io.bluetape4k.exposed.duckdb.domain.Events
 import io.bluetape4k.logging.KLogging
 import org.duckdb.DuckDBConnection

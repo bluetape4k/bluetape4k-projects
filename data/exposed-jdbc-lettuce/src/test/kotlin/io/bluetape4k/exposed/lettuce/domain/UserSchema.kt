@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 /**
  * exposed-jdbc-lettuce 통합 테스트용 User 도메인 스키마.

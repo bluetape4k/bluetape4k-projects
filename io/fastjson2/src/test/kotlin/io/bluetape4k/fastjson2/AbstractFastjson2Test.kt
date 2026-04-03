@@ -1,5 +1,6 @@
 package io.bluetape4k.fastjson2
 
+import io.bluetape4k.fastjson2.AbstractFastjson2Test.Companion.faker
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 

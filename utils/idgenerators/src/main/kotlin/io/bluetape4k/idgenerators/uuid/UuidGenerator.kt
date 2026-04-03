@@ -2,7 +2,7 @@ package io.bluetape4k.idgenerators.uuid
 
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.logging.KLogging
-import java.util.UUID
+import java.util.*
 
 /**
  * [Uuid.Generator]를 [IdGenerator]<[UUID]>로 사용하는 어댑터.

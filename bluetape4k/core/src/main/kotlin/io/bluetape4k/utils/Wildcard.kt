@@ -1,5 +1,9 @@
 package io.bluetape4k.utils
 
+import io.bluetape4k.utils.Wildcard.match
+import io.bluetape4k.utils.Wildcard.matchPath
+
+
 /**
  * 문자열 또는 경로가 와일드카드 패턴에 매칭되는지 검사합니다.
  *

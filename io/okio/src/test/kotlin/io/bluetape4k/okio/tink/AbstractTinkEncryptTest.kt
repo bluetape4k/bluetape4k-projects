@@ -1,8 +1,8 @@
 package io.bluetape4k.okio.tink
 
 import io.bluetape4k.io.compressor.Compressors
-import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.encrypt.TinkEncryptors
 

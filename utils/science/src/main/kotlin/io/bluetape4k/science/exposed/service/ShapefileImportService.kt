@@ -3,8 +3,8 @@ package io.bluetape4k.science.exposed.service
 import io.bluetape4k.exposed.jdbc.newVirtualThreadJdbcTransaction
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
 import io.bluetape4k.science.exposed.model.SpatialLayerRecord
+import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
 import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.shapefile.loadShape

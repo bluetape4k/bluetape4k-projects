@@ -2,7 +2,6 @@ package io.bluetape4k.science.geometry
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate

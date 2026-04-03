@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.lettuce.repository
 
-import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest
 import io.bluetape4k.exposed.lettuce.domain.SuspendedUserCredentialRepository
 import io.bluetape4k.exposed.lettuce.domain.SuspendedUserRepository
@@ -23,7 +22,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
-import java.util.UUID
+import java.util.*
 
 /**
  * exposed-jdbc-lettuce Read-through 캐시 통합 테스트.

@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.util.UUID
+import java.util.*
 
 /**
  * [AbstractSuspendedJdbcLettuceRepository] 구현체 — 테스트용 UserCredentialsRecord suspend 레포지토리.

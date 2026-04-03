@@ -1,7 +1,7 @@
 package io.bluetape4k.okio.coroutines.internal
 
-import io.bluetape4k.okio.coroutines.SuspendedSource
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.okio.coroutines.SuspendedSource
 import okio.Buffer
 import okio.Source
 import okio.Timeout

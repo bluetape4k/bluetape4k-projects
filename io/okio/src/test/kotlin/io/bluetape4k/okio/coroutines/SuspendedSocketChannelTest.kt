@@ -1,11 +1,11 @@
 package io.bluetape4k.okio.coroutines
 
 import io.bluetape4k.coroutines.support.awaitSuspending
-import io.bluetape4k.okio.AbstractOkioTest
-import io.bluetape4k.okio.SEGMENT_SIZE
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.okio.AbstractOkioTest
+import io.bluetape4k.okio.SEGMENT_SIZE
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail

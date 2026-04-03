@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.DatabaseApi
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.sql.DriverManager
-import java.util.Properties
+import java.util.*
 
 /**
  * Trino 데이터베이스 연결 팩토리.

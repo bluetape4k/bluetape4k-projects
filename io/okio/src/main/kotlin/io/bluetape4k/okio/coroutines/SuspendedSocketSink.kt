@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.coroutines.internal.await
-import io.bluetape4k.okio.readUnsafeAndClose
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.coroutines.internal.await
+import io.bluetape4k.okio.readUnsafeAndClose
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Buffer

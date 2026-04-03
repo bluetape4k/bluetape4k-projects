@@ -3,7 +3,6 @@ package io.bluetape4k.opentelemetry.coroutines
 import io.bluetape4k.coroutines.support.getOrCurrent
 import io.bluetape4k.opentelemetry.trace.endSafely
 import io.bluetape4k.opentelemetry.trace.recordFailure
-import io.bluetape4k.opentelemetry.trace.use
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.context.Context

@@ -2,8 +2,8 @@ package io.bluetape4k.spring.data.exposed.jdbc.mapping
 
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.dao.EntityClass
-import org.springframework.data.util.TypeInformation
 import org.springframework.data.mapping.model.BasicPersistentEntity
+import org.springframework.data.util.TypeInformation
 import kotlin.reflect.full.companionObjectInstance
 
 /**

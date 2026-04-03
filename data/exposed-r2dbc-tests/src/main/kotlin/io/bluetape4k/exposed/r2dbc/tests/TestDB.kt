@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.tests
 
+import io.bluetape4k.exposed.r2dbc.tests.TestDB.Companion.enabledDialects
 import io.bluetape4k.exposed.r2dbc.tests.TestDBConfig.useFastDB
 import io.bluetape4k.exposed.r2dbc.tests.TestDBConfig.useTestcontainers
 import io.bluetape4k.logging.KLogging

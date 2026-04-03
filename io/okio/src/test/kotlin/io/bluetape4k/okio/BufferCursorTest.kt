@@ -1,9 +1,9 @@
 package io.bluetape4k.okio
 
 import io.bluetape4k.apache.reflectionToString
-import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.TestUtil.SEGMENT_SIZE
 import okio.Buffer
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo

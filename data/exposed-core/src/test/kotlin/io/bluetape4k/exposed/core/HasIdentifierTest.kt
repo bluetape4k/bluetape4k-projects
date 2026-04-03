@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.core
 
-import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull

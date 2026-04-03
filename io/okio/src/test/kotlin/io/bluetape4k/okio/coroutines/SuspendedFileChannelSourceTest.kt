@@ -1,10 +1,10 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll

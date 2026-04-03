@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.coroutines
 
-import io.bluetape4k.okio.SEGMENT_SIZE
-import io.bluetape4k.okio.coroutines.internal.ForwardSuspendedSource
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
+import io.bluetape4k.okio.SEGMENT_SIZE
+import io.bluetape4k.okio.coroutines.internal.ForwardSuspendedSource
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.atomicfu.atomic

@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
-import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse

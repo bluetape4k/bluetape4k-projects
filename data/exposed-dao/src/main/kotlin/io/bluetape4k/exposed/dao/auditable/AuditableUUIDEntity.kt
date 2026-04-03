@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.dao.auditable
 
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import java.util.UUID
+import java.util.*
 
 /**
  * `java.util.UUID` 기본키를 사용하는 감사(Auditing) DAO 엔티티 추상 클래스입니다.

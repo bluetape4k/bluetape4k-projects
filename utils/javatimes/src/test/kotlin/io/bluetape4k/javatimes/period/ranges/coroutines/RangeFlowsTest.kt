@@ -8,7 +8,6 @@ import io.bluetape4k.javatimes.period.ranges.DayRange
 import io.bluetape4k.javatimes.period.ranges.HourRange
 import io.bluetape4k.javatimes.period.ranges.MinuteRange
 import io.bluetape4k.javatimes.period.ranges.MonthRange
-import io.bluetape4k.javatimes.period.ranges.WeekRange
 import io.bluetape4k.javatimes.period.ranges.YearRange
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import kotlinx.coroutines.flow.Flow

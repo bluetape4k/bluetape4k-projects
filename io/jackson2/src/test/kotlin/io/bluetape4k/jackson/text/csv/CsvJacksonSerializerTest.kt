@@ -1,6 +1,5 @@
 package io.bluetape4k.jackson.text.csv
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.jackson.text.Point

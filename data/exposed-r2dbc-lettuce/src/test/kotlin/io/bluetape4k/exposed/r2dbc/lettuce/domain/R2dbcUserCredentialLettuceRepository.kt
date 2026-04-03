@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
-import java.util.UUID
+import java.util.*
 
 /**
  * Client-generated UUID PK를 가진 [UserCredentialsRecord] 레포지토리 구체 구현체.

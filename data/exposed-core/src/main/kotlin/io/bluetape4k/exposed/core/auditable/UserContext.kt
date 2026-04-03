@@ -1,5 +1,13 @@
 package io.bluetape4k.exposed.core.auditable
 
+import io.bluetape4k.exposed.core.auditable.UserContext.DEFAULT_USERNAME
+import io.bluetape4k.exposed.core.auditable.UserContext.SCOPED_USER
+import io.bluetape4k.exposed.core.auditable.UserContext.THREAD_LOCAL_USER
+import io.bluetape4k.exposed.core.auditable.UserContext.getCurrentUser
+import io.bluetape4k.exposed.core.auditable.UserContext.withThreadLocalUser
+import io.bluetape4k.exposed.core.auditable.UserContext.withUser
+
+
 /**
  * 현재 작업을 수행하는 사용자명을 전파하는 컨텍스트 객체입니다.
  *

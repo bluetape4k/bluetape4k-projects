@@ -1,7 +1,6 @@
 package io.bluetape4k.micrometer.instrument
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.micrometer.core.instrument.Timer
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect

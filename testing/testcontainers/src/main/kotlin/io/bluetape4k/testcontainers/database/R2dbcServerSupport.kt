@@ -1,12 +1,12 @@
 package io.bluetape4k.testcontainers.database
 
 import io.r2dbc.spi.ConnectionFactoryOptions
-import org.testcontainers.mariadb.MariaDBR2DBCDatabaseContainer
-import org.testcontainers.mysql.MySQLR2DBCDatabaseContainer
-import org.testcontainers.postgresql.PostgreSQLR2DBCDatabaseContainer
 import org.testcontainers.mariadb.MariaDBContainer
+import org.testcontainers.mariadb.MariaDBR2DBCDatabaseContainer
 import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.mysql.MySQLR2DBCDatabaseContainer
 import org.testcontainers.postgresql.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLR2DBCDatabaseContainer
 
 /**
  * [PostgreSQLServer]로부터 R2DBC [ConnectionFactoryOptions]를 생성합니다.

@@ -1,9 +1,9 @@
 package io.bluetape4k.okio.tink
 
-import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.encrypt.TinkEncryptors
 import okio.Buffer

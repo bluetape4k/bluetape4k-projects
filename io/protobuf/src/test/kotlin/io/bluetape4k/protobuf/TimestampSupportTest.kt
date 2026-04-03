@@ -6,7 +6,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.util.Date
+import java.util.*
 
 class TimestampSupportTest {
     companion object : KLogging()

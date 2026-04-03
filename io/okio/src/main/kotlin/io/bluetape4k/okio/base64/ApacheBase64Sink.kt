@@ -1,7 +1,7 @@
 package io.bluetape4k.okio.base64
 
-import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.okio.bufferOf
 import okio.Buffer
 import okio.ByteString
 import okio.Sink

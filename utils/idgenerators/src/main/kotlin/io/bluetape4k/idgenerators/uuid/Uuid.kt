@@ -3,9 +3,9 @@ package io.bluetape4k.idgenerators.uuid
 import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
+import io.bluetape4k.idgenerators.uuid.Uuid.namebased
 import io.bluetape4k.support.assertPositiveNumber
-import java.util.Random
-import java.util.UUID
+import java.util.*
 
 /**
  * UUID 생성 전략을 통합 제공하는 진입점.
