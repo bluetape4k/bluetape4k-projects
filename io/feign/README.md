@@ -23,17 +23,30 @@ val api = feignBuilder {
     logLevel(Logger.Level.BASIC)
 }.client<GitHubApi>("https://api.github.com")
 
-// 팩토리 함수 방식
+// 팩토리 함수 방식 (기본 사용)
 val api = feignBuilderOf(
     client = ApacheHttp5Client(),
     encoder = JacksonEncoder(),
     decoder = JacksonDecoder(),
 ).client<GitHubApi>("https://api.github.com")
+
+// 팩토리 함수 방식 + 추가 설정 (builder 람다 활용)
+val api = feignBuilderOf(
+    client = ApacheHttp5Client(),
+    encoder = JacksonEncoder(),
+    decoder = JacksonDecoder(),
+) {
+    // 추가 Feign.Builder 설정 적용
+    retryer(Retryer.Default())
+    errorDecoder(MyErrorDecoder())
+}.client<GitHubApi>("https://api.github.com")
 ```
 
-`feignBuilder` 계약:
+`feignBuilderOf` 계약:
 - 기본값으로 `Encoder.Default()`와 `Decoder.Default()`를 적용합니다.
-- builder 블록에서 지정한 encoder/decoder/client/logLevel 설정이 마지막에 그대로 반영됩니다.
+- `builder: Feign.Builder.() -> Unit = {}` 파라미터로 추가 설정을 인라인으로 지정할 수 있습니다.
+- `inline fun`으로 구현되어 람다 호출 오버헤드가 없습니다.
+- 기존에 오탈자로 제공되던 `feingBuilderOf`는 제거되었습니다. `feignBuilderOf`를 사용하세요.
 
 ### 2. Coroutines 지원
 

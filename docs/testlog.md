@@ -22,3 +22,4 @@
 | 2026-04-04 | KDoc 프로퍼티 키 `.`→`-` 잔여 수정              | `RedisClusterServerTest.kt` | RedisClusterServerTest (3 tests) | ✅  | 14.1s | `redis-cluster` namespace KDoc 수정                        |
 | 2026-04-04 | ToxiproxyServer 개선                     | `ToxiproxyServerTest.kt`    | ToxiproxyServerTest (5 tests)    | ✅  | —     | exposeCustomPorts 추가, proxy+latency toxic 테스트 구현 (Codex) |
 | 2026-04-04 | WireMockServer resetAll() stale 커넥션 수정 | `WireMockServerTest.kt`     | WireMockServerTest (5 tests) x3회 | ✅  | 2.7s  | stale 커넥션 재시도 로직 추가, 3회 반복 전부 통과                         |
+| 2026-04-04 | 전체 모듈 README 최신화 (12 워커 병렬) | 전체 모듈 ~70개 | git 이력 기반 변경사항 반영 | ✅  | ~60m  | 실제 수정: io/feign README 1개 (feignBuilderOf builder 람다 반영), 나머지는 변경사항 없어 건너뜀 |
