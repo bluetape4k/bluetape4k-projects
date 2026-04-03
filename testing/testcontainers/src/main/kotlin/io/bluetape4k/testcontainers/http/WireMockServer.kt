@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
@@ -131,10 +132,20 @@ class WireMockServer private constructor(
 
     /**
      * 등록된 모든 stub과 요청 기록을 초기화합니다.
+     *
+     * Apache HttpClient 5 커넥션 풀의 stale 커넥션 문제로
+     * [org.apache.hc.core5.http.NoHttpResponseException]이 발생할 수 있어 1회 재시도합니다.
      */
     fun resetAll() {
-        wireMockClient!!.resetMappings()
-        wireMockClient!!.resetRequests()
+        try {
+            wireMockClient!!.resetMappings()
+            wireMockClient!!.resetRequests()
+        } catch (e: Exception) {
+            log.warn(e) { "resetAll() 실패, WireMock 클라이언트 재생성 후 재시도합니다." }
+            wireMockClient = WireMock(host, port)
+            wireMockClient!!.resetMappings()
+            wireMockClient!!.resetRequests()
+        }
     }
 
     /**
@@ -144,7 +155,7 @@ class WireMockServer private constructor(
         val wireMock: WireMockServer by lazy {
             WireMockServer().apply {
                 start()
-                ShutdownQueue.register(this as AutoCloseable)
+                ShutdownQueue.register(this)
             }
         }
     }
