@@ -5,7 +5,6 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.retry.RetryOneTime
@@ -110,8 +109,8 @@ class ZooKeeperServer private constructor(
         fun getCuratorFramework(zookeeper: ZooKeeperServer): CuratorFramework {
             return curatorFrameworkOf {
                 connectString(zookeeper.url)
-                retryPolicy(RetryOneTime(100))
-                connectionTimeoutMs(3000)
+                retryPolicy(RetryOneTime(1000))
+                connectionTimeoutMs(10_000)
             }
         }
     }

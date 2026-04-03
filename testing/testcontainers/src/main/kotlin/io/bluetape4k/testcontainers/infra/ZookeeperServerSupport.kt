@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.infra
 
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.CuratorFrameworkFactory
+import java.util.concurrent.TimeUnit
 
 @PublishedApi
 internal inline fun curatorFrameworkOf(
@@ -17,6 +18,7 @@ internal inline fun <T> withCuratorFramework(
 ): T {
     return ZooKeeperServer.Launcher.getCuratorFramework(zookeeper).use { curator ->
         curator.start()
+        curator.blockUntilConnected(10, TimeUnit.SECONDS)
         curator.block()
     }
 }
