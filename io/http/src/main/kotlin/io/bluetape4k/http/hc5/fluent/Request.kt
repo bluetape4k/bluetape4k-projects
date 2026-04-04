@@ -7,7 +7,7 @@ import java.net.URI
 /**
  * Fluent API의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestOf(Method.GET, URI.create("https://example.com"))
  * ```
  *
@@ -20,7 +20,7 @@ fun requestOf(method: Method, uri: URI): Request = Request.create(method, uri)
 /**
  * Fluent API의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestOf(Method.GET, "https://example.com")
  * ```
  *
@@ -33,7 +33,7 @@ fun requestOf(methodName: String, uri: URI): Request = Request.create(methodName
 /**
  * Fluent API의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestOf("GET", "https://example.com")
  * ```
  *
@@ -46,7 +46,7 @@ fun requestOf(methodName: String, uri: String): Request = Request.create(methodN
 /**
  * Fluent API의 GET 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestGet(URI.create("https://example.com"))
  * ```
  *
@@ -58,7 +58,7 @@ fun requestGet(uri: URI): Request = Request.get(uri)
 /**
  * Fluent API의 GET 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestGet("https://example.com")
  * ```
  *
@@ -70,7 +70,7 @@ fun requestGet(uri: String): Request = Request.get(uri)
 /**
  * Fluent API의 HEAD 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestHead(URI.create("https://example.com"))
  * ```
  *
@@ -82,7 +82,7 @@ fun requestHead(uri: URI): Request = Request.head(uri)
 /**
  * Fluent API의 HEAD 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestHead("https://example.com")
  * ```
  *
@@ -94,7 +94,7 @@ fun requestHead(uri: String): Request = Request.head(uri)
 /**
  * Fluent API의 POST 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPost(URI.create("https://example.com"))
  * ```
  *
@@ -106,7 +106,7 @@ fun requestPost(uri: URI): Request = Request.post(uri)
 /**
  * Fluent API의 POST 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPost("https://example.com")
  * ```
  *
@@ -118,7 +118,7 @@ fun requestPost(uri: String): Request = Request.post(uri)
 /**
  * Fluent API의 PATCH 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPatch(URI.create("https://example.com"))
  * ```
  *
@@ -130,7 +130,7 @@ fun requestPatch(uri: URI): Request = Request.patch(uri)
 /**
  * Fluent API의 PATCH 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPatch("https://example.com")
  * ```
  *
@@ -142,7 +142,7 @@ fun requestPatch(uri: String): Request = Request.patch(uri)
 /**
  * Fluent API의 PUT 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPut(URI.create("https://example.com"))
  * ```
  *
@@ -154,7 +154,7 @@ fun requestPut(uri: URI): Request = Request.put(uri)
 /**
  * Fluent API의 PUT 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestPut("https://example.com")
  * ```
  *
@@ -166,7 +166,7 @@ fun requestPut(uri: String): Request = Request.put(uri)
 /**
  * Fluent API의 TRACE 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestTrace(URI.create("https://example.com"))
  * ```
  *
@@ -178,7 +178,7 @@ fun requestTrace(uri: URI): Request = Request.trace(uri)
 /**
  * Fluent API의 TRACE 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestTrace("https://example.com")
  * ```
  *
@@ -190,7 +190,7 @@ fun requestTrace(uri: String): Request = Request.trace(uri)
 /**
  * Fluent API의 DELETE 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestDelete(URI.create("https://example.com"))
  * ```
  *
@@ -202,7 +202,7 @@ fun requestDelete(uri: URI): Request = Request.delete(uri)
 /**
  * Fluent API의 DELETE 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestDelete("https://example.com")
  * ```
  *
@@ -214,7 +214,7 @@ fun requestDelete(uri: String): Request = Request.delete(uri)
 /**
  * Fluent API의 OPTIONS 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestOptions(URI.create("https://example.com"))
  * ```
  *
@@ -226,7 +226,7 @@ fun requestOptions(uri: URI): Request = Request.options(uri)
 /**
  * Fluent API의 OPTIONS 방식의 [Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = requestOptions("https://example.com")
  * ```
  *

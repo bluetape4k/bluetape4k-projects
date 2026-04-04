@@ -5,6 +5,14 @@ import okhttp3.mockwebserver.MockResponse
 /**
  * 헤더 문자열 목록을 [MockResponse]에 추가합니다.
  *
+ * ```kotlin
+ * val server = MockWebServer()
+ * val response = MockResponse()
+ *     .setBody("Hello")
+ *     .addHeaders("Content-Type: application/json", "X-Custom: value")
+ * server.enqueue(response)
+ * ```
+ *
  * @param headers 추가할 헤더 문자열 목록
  * @return 현재 [MockResponse]
  */
@@ -14,6 +22,14 @@ fun MockResponse.addHeaders(vararg headers: String): MockResponse = apply {
 
 /**
  * 헤더 맵을 [MockResponse]에 추가합니다.
+ *
+ * ```kotlin
+ * val server = MockWebServer()
+ * val response = MockResponse()
+ *     .setBody("Hello")
+ *     .addHeaders(mapOf("Content-Type" to "application/json", "X-Version" to "1"))
+ * server.enqueue(response)
+ * ```
  *
  * @param headers 추가할 헤더 맵
  * @return 현재 [MockResponse]

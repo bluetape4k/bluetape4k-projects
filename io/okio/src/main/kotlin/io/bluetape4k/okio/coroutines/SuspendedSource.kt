@@ -6,10 +6,17 @@ import okio.Timeout
 import java.io.IOException
 
 /**
- * Coroutines 방식으로 [okio.Source] 기능을 제공하는 인터페이스
- */
-/**
- * `SuspendedSource` 계약을 정의합니다.
+ * 코루틴 방식으로 [okio.Source] 기능을 제공하는 인터페이스.
+ * 모든 읽기 작업은 `suspend` 함수로 제공됩니다.
+ *
+ * ```kotlin
+ * val source: SuspendedSource = bufferOf("hello").asSuspended()
+ * val sink = Buffer()
+ * val read = source.read(sink, 5L)
+ * // read == 5L
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  */
 interface SuspendedSource {
     companion object {
@@ -37,7 +44,20 @@ interface SuspendedSource {
     fun timeout(): Timeout = Timeout.NONE
 
     /**
-     * Okio 코루틴에서 데이터를 읽어오는 `readAll` 함수를 제공합니다.
+     * 이 [SuspendedSource]의 모든 바이트를 읽어 [sink]에 씁니다.
+     * 스트림이 소진될 때까지 읽으며, 총 읽은 바이트 수를 반환합니다.
+     *
+     * ```kotlin
+     * val source: SuspendedSource = bufferOf("hello world").asSuspended()
+     * val sink = Buffer()
+     * val total = source.readAll(sink)
+     * // total == 11L
+     * val text = sink.readUtf8()
+     * // text == "hello world"
+     * ```
+     *
+     * @param sink 읽은 데이터를 쓸 버퍼
+     * @return 총 읽은 바이트 수
      */
     suspend fun readAll(sink: Buffer): Long {
         var totalBytesRead = 0L

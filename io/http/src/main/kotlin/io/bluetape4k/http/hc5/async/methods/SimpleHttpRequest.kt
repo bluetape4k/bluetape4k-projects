@@ -11,7 +11,7 @@ import org.apache.hc.core5.http.Method
 /**
  * [SimpleHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = simpleHttpRequest("GET") {
  *     setHttpHost(HttpHost("localhost", 8080))
  *     setPath("/api/v1")
@@ -32,7 +32,7 @@ inline fun simpleHttpRequest(
 /**
  * [SimpleHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = simpleHttpRequest(Method.GET) {
  *     setHttpHost(HttpHost("localhost", 8080))
  *     setPath("/api/v1")
@@ -53,7 +53,7 @@ inline fun simpleHttpRequest(
 /**
  * [SimpleHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = simpleHttpRequestOf("GET", HttpHost("localhost", 8080), "/api/v1")
  * ```
  *
@@ -84,7 +84,7 @@ inline fun simpleHttpRequestOf(
 /**
  * [SimpleHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = simpleHttpRequestOf(Method.GET, HttpHost("localhost", 8080), "/api/v1")
  * ```
  *
@@ -114,7 +114,7 @@ inline fun simpleHttpRequestOf(
 /**
  * [SimpleHttpRequest]를 이용하여 [SimpleRequestProducer]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val producer = simpleHttpRequest("GET") {
  *    setHttpHost(HttpHost("localhost", 8080))
  *    setPath("/api/v1")

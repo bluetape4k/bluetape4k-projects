@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService
 /**
  * [HttpClient]와 [ExecutorService]를 이용해 [FutureRequestExecutionService]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val executor = Executors.newFixedThreadPool(10)
  * val futureRequestExecutionService = futureRequestExecutionServiceOf(httpClient, executor)
  * ```

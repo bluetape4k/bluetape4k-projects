@@ -10,7 +10,7 @@ import okhttp3.Response
  *
  * OkHttp3Client Builder에 `addNetworkInterceptor` 에 추가해야 합니다.
  *
- * ```
+ * ```kotlin
  * val client = OkHttpClient.Builder()
  *   .addNetworkInterceptor(CachingResponseInterceptor())
  *   .build()

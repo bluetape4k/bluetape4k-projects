@@ -7,12 +7,24 @@ import org.apache.hc.core5.util.Timeout
 
 /**
  * 기본 [TlsConfig] 입니다.
+ *
+ * ```kotlin
+ * val config = defaultTlsConfig
+ * // TlsConfig.DEFAULT
+ * ```
  */
 @JvmField
 val defaultTlsConfig: TlsConfig = TlsConfig.DEFAULT
 
 /**
  * [TlsConfig]를 생성합니다.
+ *
+ * ```kotlin
+ * val config = tlsConfig {
+ *     setSupportedProtocols(TLS.V_1_3)
+ *     setHandshakeTimeout(Timeout.ofSeconds(10))
+ * }
+ * ```
  *
  * @param builder [TlsConfig.Builder] 설정 블록
  * @return [TlsConfig] 인스턴스
@@ -24,6 +36,17 @@ inline fun tlsConfig(
 
 /**
  * 기본값을 바탕으로 [TlsConfig]를 생성합니다.
+ *
+ * ```kotlin
+ * val config = tlsConfigOf(
+ *     supportedProtocols = listOf(TLS.V_1_2, TLS.V_1_3),
+ *     handshakeTimeout = Timeout.ofSeconds(10),
+ *     versionPolicy = HttpVersionPolicy.NEGOTIATE,
+ * )
+ * val connManager = poolingHttpClientConnectionManagerOf {
+ *     setDefaultTlsConfig(config)
+ * }
+ * ```
  *
  * @param supportedProtocols 지원 [TLS] 프로토콜 목록
  * @param handshakeTimeout TLS 핸드셰이크 타임아웃

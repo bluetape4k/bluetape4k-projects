@@ -11,6 +11,17 @@ import kotlin.coroutines.resumeWithException
 
 /**
  * 현재 요청을 코루틴에서 실행하고 응답 완료 시점까지 대기합니다.
+ *
+ * ```kotlin
+ * val client = Dsl.asyncHttpClient()
+ * val response = runBlocking {
+ *     client.prepareGet("https://example.com")
+ *         .executeSuspending()
+ * }
+ * // response.statusCode == 200
+ * ```
+ *
+ * @return 완료된 [Response]
  */
 suspend fun BoundRequestBuilder.executeSuspending(): Response =
     suspendCancellableCoroutine { cont ->

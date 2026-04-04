@@ -4,14 +4,33 @@ import okio.Buffer
 import okio.ByteString
 
 /**
- * `BufferedSuspendedSink` 계약을 정의합니다.
+ * 내부 버퍼를 사용해 효율적인 쓰기를 제공하는 코루틴 Sink 인터페이스.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink: BufferedSuspendedSink = (output as okio.Sink).asSuspended().buffered()
+ * sink.writeUtf8("hello")
+ * sink.flush()
+ * val text = output.readUtf8()
+ * // text == "hello"
+ * ```
  */
 interface BufferedSuspendedSink: SuspendedSink {
 
     val buffer: Buffer
 
     /**
-     * Okio 코루틴에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     * [byteString]을 Sink 버퍼에 씁니다.
+     *
+     * ```kotlin
+     * val output = Buffer()
+     * val sink = (output as okio.Sink).asSuspended().buffered()
+     * val bs = ByteString.encodeUtf8("hi")
+     * sink.write(bs)
+     * sink.flush()
+     * val size = output.size
+     * // size == 2L
+     * ```
      */
     suspend fun write(byteString: ByteString): BufferedSuspendedSink
 
@@ -31,7 +50,16 @@ interface BufferedSuspendedSink: SuspendedSink {
     suspend fun write(source: SuspendedSource, byteCount: Long): BufferedSuspendedSink
 
     /**
-     * Okio 코루틴에서 데이터를 기록하는 `writeUtf8` 함수를 제공합니다.
+     * UTF-8 문자열을 Sink 버퍼에 씁니다.
+     *
+     * ```kotlin
+     * val output = Buffer()
+     * val sink = (output as okio.Sink).asSuspended().buffered()
+     * sink.writeUtf8("hello world", 0, 5)
+     * sink.flush()
+     * val text = output.readUtf8()
+     * // text == "hello"
+     * ```
      */
     suspend fun writeUtf8(string: String, beginIndex: Int = 0, endIndex: Int = string.length): BufferedSuspendedSink
 

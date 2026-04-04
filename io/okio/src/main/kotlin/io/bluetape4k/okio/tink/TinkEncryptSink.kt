@@ -9,10 +9,19 @@ import okio.ForwardingSink
 import okio.Sink
 
 /**
- * 데이터를 암호화하여 [Sink]에 쓰는 [Sink] 구현체.
+ * 데이터를 Google Tink로 암호화하여 [Sink]에 쓰는 [Sink] 구현체.
  *
  * [TinkEncryptor]를 사용하여 바이트 배열 단위로 암호화한 후 위임 [Sink]에 씁니다.
  * Tink는 스트림 업데이트를 제공하지 않으므로 요청한 구간만 한 번에 암호화합니다.
+ *
+ * ```kotlin
+ * val encryptor: TinkEncryptor = ... // TinkEncryptor 인스턴스
+ * val output = Buffer()
+ * val sink = TinkEncryptSink(output, encryptor)
+ * val source = bufferOf("secret data")
+ * sink.write(source, source.size)
+ * // output에는 암호화된 데이터가 담겨 있다
+ * ```
  *
  * @see TinkDecryptSource
  */

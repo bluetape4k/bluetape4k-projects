@@ -11,6 +11,22 @@ import org.asynchttpclient.filter.RequestFilter
  *
  * [headerValueSupplier] 실행 중 예외가 발생해도 요청 전체를 중단하지 않으며,
  * 실패 내용은 로그로 남깁니다.
+ *
+ * ```kotlin
+ * val filter = DynamicAttachHandlerRequest(
+ *     headerNames = listOf("X-Timestamp", "X-Request-Id"),
+ *     headerValueSupplier = { name ->
+ *         when (name) {
+ *             "X-Timestamp" -> System.currentTimeMillis().toString()
+ *             "X-Request-Id" -> java.util.UUID.randomUUID().toString()
+ *             else -> null
+ *         }
+ *     }
+ * )
+ * val client = asyncHttpClientOf(filter)
+ * val response = client.prepareGet("https://api.example.com").execute().get()
+ * // response.statusCode == 200
+ * ```
  */
 class DynamicAttachHandlerRequest(
     private val headerNames: List<String>,

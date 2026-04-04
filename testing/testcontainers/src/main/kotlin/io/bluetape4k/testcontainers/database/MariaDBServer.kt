@@ -42,6 +42,11 @@ class MariaDBServer private constructor(
         /**
          * [MariaDBServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = MariaDBServer(image = "mariadb", tag = "12")
+         * // server.url.startsWith("jdbc:mariadb://") == true (시작 후)
+         * ```
+         *
          * @param image             docker image (기본: `mariadb`)
          * @param tag               docker image tag (기본: `12`)
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
@@ -69,6 +74,12 @@ class MariaDBServer private constructor(
 
         /**
          * [MariaDBServer]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("mariadb").withTag("12")
+         * val server = MariaDBServer(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName         docker image name
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)

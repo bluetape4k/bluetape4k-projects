@@ -7,8 +7,17 @@ import okio.Source
 import java.util.*
 
 /**
- * 데이터를 Apache Commons의 Base64로 인코딩하여 [Source]에 쓰는 [Source] 구현체.
+ * URL-safe Base64로 인코딩된 [Source]를 읽어 복호화하는 [Source] 구현체.
  * NOTE: Apache Commons의 Base64 인코딩은 okio의 Base64 인코딩과 다르다. (특히 한글의 경우)
+ *
+ * ```kotlin
+ * val encoded = bufferOf(Base64.getUrlEncoder().encodeToString("hello".toByteArray()))
+ * val source = ApacheBase64Source(encoded)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  *
  * @see ApacheBase64Sink
  */
@@ -27,7 +36,17 @@ class ApacheBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 }
 
 /**
- * Okio Base64 타입 변환을 위한 `asApacheBase64Source` 함수를 제공합니다.
+ * [Source]를 URL-safe Base64 디코딩하는 [ApacheBase64Source]로 변환합니다.
+ * 이미 [ApacheBase64Source]인 경우 그대로 반환합니다.
+ *
+ * ```kotlin
+ * val encoded = bufferOf(Base64.getUrlEncoder().encodeToString("world".toByteArray()))
+ * val source = (encoded as Source).asApacheBase64Source()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "world"
+ * ```
  */
 fun Source.asApacheBase64Source(): ApacheBase64Source = when (this) {
     is ApacheBase64Source -> this

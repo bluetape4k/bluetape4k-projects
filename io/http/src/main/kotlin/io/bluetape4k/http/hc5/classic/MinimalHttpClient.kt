@@ -7,7 +7,7 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
 /**
  * 최소한의 [MinimalHttpClient] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cm = httpClientConnectionManager {
  *     setMaxConnPerRoute(5)
  *     setMaxConnTotal(5)

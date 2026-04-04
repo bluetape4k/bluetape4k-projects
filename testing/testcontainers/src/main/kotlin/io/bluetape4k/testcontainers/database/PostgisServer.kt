@@ -57,6 +57,11 @@ class PostgisServer private constructor(
         /**
          * [PostgisServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = PostgisServer(image = "postgis/postgis", tag = "16-3.4")
+         * // server.url.startsWith("jdbc:postgresql://") == true (시작 후)
+         * ```
+         *
          * @param image docker image (기본: `postgis/postgis`)
          * @param tag docker image tag (기본: `16-3.4`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -83,6 +88,12 @@ class PostgisServer private constructor(
 
         /**
          * [PostgisServer]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres")
+         * val server = PostgisServer(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName docker image name
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -136,6 +147,12 @@ class PostgisServer private constructor(
      * `postgis` 확장은 기본으로 항상 활성화됩니다.
      * 이 메서드로 `postgis_topology`, `postgis_raster` 등 추가 확장을 등록할 수 있습니다.
      *
+     * ```kotlin
+     * val server = PostgisServer()
+     *     .withExtensions("postgis_topology", "postgis_raster")
+     * // server 시작 시 postgis_topology, postgis_raster 확장이 활성화됩니다.
+     * ```
+     *
      * @param extensions 활성화할 확장 이름 목록
      * @return this (메서드 체이닝용)
      */
@@ -172,6 +189,11 @@ class PostgisServer private constructor(
          * 추가 확장이 활성화된 [PostgisServer] 싱글턴을 생성하고 시작합니다.
          *
          * `postgis` 확장은 기본으로 항상 활성화됩니다.
+         *
+         * ```kotlin
+         * val server = PostgisServer.Launcher.withExtensions("postgis_topology")
+         * // server.isRunning == true
+         * ```
          *
          * @param extensions 추가로 활성화할 확장 이름 목록
          */

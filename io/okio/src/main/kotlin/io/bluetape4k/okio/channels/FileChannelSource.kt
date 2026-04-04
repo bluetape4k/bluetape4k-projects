@@ -9,12 +9,37 @@ import okio.Timeout
 import java.nio.channels.FileChannel
 
 /**
- * Okio 채널 I/O 타입 변환을 위한 `asSource` 함수를 제공합니다.
+ * [FileChannel]을 Okio [Source]로 변환합니다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * file.writeText("hello")
+ * val channel = java.nio.channels.FileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.READ)
+ * val source = channel.asSource()
+ * val sink = Buffer()
+ * source.readAll(sink)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  */
 fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) = FileChannelSource(this, timeout)
 
 /**
- * Okio 채널 I/O에서 사용하는 `FileChannelSource` 타입입니다.
+ * [FileChannel]을 Okio [Source]로 감싼 구현체입니다.
+ * 파일 채널 현재 위치에서 순차적으로 읽습니다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * file.writeText("hello")
+ * val channel = java.nio.channels.FileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.READ)
+ * val source = FileChannelSource(channel)
+ * val sink = Buffer()
+ * val total = source.readAll(sink)
+ * // total == 5L
+ * source.close()
+ * ```
  */
 class FileChannelSource(
     private val channel: FileChannel,

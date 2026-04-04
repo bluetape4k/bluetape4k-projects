@@ -6,7 +6,7 @@ import org.apache.hc.core5.http.HttpRequest
 /**
  * [HttpRequest]에서 경로 접두사를 추출합니다.
  *
- * ```
+ * ```kotlin
  * val pathPrefix = request.extractPathPrefix()  // "/api/v1"
  * ```
  *

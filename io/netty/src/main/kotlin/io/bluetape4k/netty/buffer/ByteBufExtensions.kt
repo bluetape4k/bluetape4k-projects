@@ -10,31 +10,67 @@ internal const val HALF_BYTE = 128
 
 /**
  * Netty 처리에서 `getByteNeg` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getByteNeg(0)
+ * // result == (-10).toByte()
+ * ```
  */
 fun ByteBuf.getByteNeg(index: Int): Byte = (-getByte(index)).toByte()
 
 /**
  * Netty 처리에서 `getByteAdd` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getByteAdd(0)
+ * // result == (10 - 128).toByte()
+ * ```
  */
 fun ByteBuf.getByteAdd(index: Int): Byte = (getByte(index) - HALF_BYTE).toByte()
 
 /**
  * Netty 처리에서 `getByteSub` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getByteSub(0)
+ * // result == (128 - 10).toByte()
+ * ```
  */
 fun ByteBuf.getByteSub(index: Int): Byte = (HALF_BYTE - getByte(index)).toByte()
 
 /**
  * Netty 처리에서 `getUByteNeg` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getUByteNeg(0)
+ * // result == (246).toUByte()  // -10 and 0xFF
+ * ```
  */
 fun ByteBuf.getUByteNeg(index: Int): UByte = (-getByte(index) and 0xFF).toUByte()
 
 /**
  * Netty 처리에서 `getUByteAdd` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getUByteAdd(0)
+ * // result == (138).toUByte()  // 10 + 128
+ * ```
  */
 fun ByteBuf.getUByteAdd(index: Int): UByte = (getByte(index) - HALF_BYTE).toUByte()
 
 /**
  * Netty 처리에서 `getUByteSub` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(10))
+ * val result = buf.getUByteSub(0)
+ * // result == (118).toUByte()  // 128 - 10
+ * ```
  */
 fun ByteBuf.getUByteSub(index: Int): UByte = (HALF_BYTE - getByte(index)).toUByte()
 
@@ -138,6 +174,12 @@ fun ByteBuf.getUSmallLong(index: Int): Long =
 
 /**
  * Netty 처리에서 `getBytes` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.wrappedBuffer(byteArrayOf(1, 2, 3, 4))
+ * val bytes = buf.getBytes(0, 3)
+ * // bytes.toList() == listOf<Byte>(1, 2, 3)
+ * ```
  */
 fun ByteBuf.getBytes(
     start: Int = readerIndex(),
@@ -520,6 +562,14 @@ fun ByteBuf.readVarInt(): Int {
 
 /**
  * Netty 처리에서 데이터를 읽어오는 `readString` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.buffer()
+ * buf.writeCharSequence("hello", Charsets.UTF_8)
+ * buf.writeByte(0)
+ * val str = buf.readString()
+ * // str == "hello"
+ * ```
  */
 fun ByteBuf.readString(charset: Charset = Charsets.UTF_8): String {
     val end = forEachByte(ByteProcessor.FIND_NUL)
@@ -770,6 +820,13 @@ fun ByteBuf.writeVarInt(value: Int): ByteBuf {
 
 /**
  * Netty 처리에서 데이터를 기록하는 `writeString` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.buffer()
+ * buf.writeString("hello")
+ * val str = buf.readString()
+ * // str == "hello"
+ * ```
  */
 fun ByteBuf.writeString(
     value: String,
@@ -781,6 +838,13 @@ fun ByteBuf.writeString(
 
 /**
  * Netty 처리에서 데이터를 기록하는 `writeVersionedString` 함수를 제공합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.buffer()
+ * buf.writeVersionedString("hello", version = 1)
+ * val str = buf.readVersionedString(expectedVersion = 1)
+ * // str == "hello"
+ * ```
  */
 fun ByteBuf.writeVersionedString(
     value: String,

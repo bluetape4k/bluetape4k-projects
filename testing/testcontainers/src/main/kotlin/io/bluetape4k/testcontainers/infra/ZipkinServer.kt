@@ -31,6 +31,19 @@ class ZipkinServer private constructor(
         const val TAG = "2.23"      // NOTE: 2.24 이상에서는 예외가 발생합니다. 꼭 2.23으로 고정하세요!!!
         const val PORT = 9411
 
+        /**
+         * [DockerImageName]으로 [ZipkinServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("openzipkin/zipkin-slim").withTag("2.23")
+         * val server = ZipkinServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름
+         * @param useDefaultPort `true`면 9411 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -40,6 +53,19 @@ class ZipkinServer private constructor(
             return ZipkinServer(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * 이미지 이름/태그로 [ZipkinServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = ZipkinServer(image = "openzipkin/zipkin-slim", tag = "2.23")
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 9411 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -49,7 +75,7 @@ class ZipkinServer private constructor(
         ): ZipkinServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
-            
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }

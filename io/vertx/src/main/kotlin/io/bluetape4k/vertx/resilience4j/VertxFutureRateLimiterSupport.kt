@@ -6,9 +6,10 @@ import io.vertx.core.Future
 /**
  * Vert.x [Future]를 [RateLimiter]로 decorate 하여 실행합니다.
  *
- * ```
+ * ```kotlin
  * val rateLimiter = RateLimiter.ofDefaults("test")
  * val future = rateLimiter.executeVertxFuture { service.returnHelloWorld() }
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수
@@ -23,10 +24,11 @@ inline fun <T> RateLimiter.executeVertxFuture(
 /**
  * Vert.x [Future]를 [RateLimiter]로 decorate 합니다.
  *
- * ```
+ * ```kotlin
  * val rateLimiter = RateLimiter.ofDefaults("test")
  * val decorated = rateLimiter.decorateVertxFuture { service.returnHelloWorld() }
  * val future = decorated.invoke()
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수

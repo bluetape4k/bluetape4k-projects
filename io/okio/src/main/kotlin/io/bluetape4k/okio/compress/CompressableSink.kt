@@ -19,6 +19,17 @@ import okio.buffer
  * `close()` 시점에 한 번만 압축해 delegate에 기록합니다.
  * 따라서 압축 결과를 보장하려면 반드시 `close()`(또는 `use { ... }`)를 호출해야 합니다.
  *
+ * ```kotlin
+ * val output = Buffer()
+ * CompressableSink(output, Compressors.GZip).use { sink ->
+ *     val source = bufferOf("hello world")
+ *     sink.write(source, source.size)
+ * }
+ * // output에는 GZip 압축된 데이터가 담겨 있다
+ * val compressedSize = output.size
+ * // compressedSize < 11L (원본보다 작거나 같다)
+ * ```
+ *
  * @see DecompressableSource
  */
 open class CompressableSink(
@@ -106,18 +117,34 @@ open class StreamingCompressSink(
 }
 
 /**
- * Okio 압축/해제 타입 변환을 위한 `asCompressSink` 함수를 제공합니다.
- *
+ * [okio.Sink]를 [Compressor]로 압축하는 [CompressableSink]로 변환합니다.
  * 반환된 [CompressableSink]는 `close()` 시점에 압축 결과가 확정됩니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).asCompressSink(Compressors.GZip)
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 GZip 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.asCompressSink(compressor: Compressor): CompressableSink {
     return CompressableSink(this, compressor)
 }
 
 /**
- * Okio 압축/해제 타입 변환을 위한 `asCompressSink` 함수를 제공합니다.
- *
+ * [okio.Sink]를 [StreamingCompressor]로 스트리밍 압축하는 [CompressableSink]로 변환합니다.
  * 반환된 sink는 스트리밍 압축을 수행하며, footer/finalize 기록을 위해 `close()`가 필요합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).asCompressSink(Compressors.GZip as StreamingCompressor)
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 스트리밍 방식으로 GZip 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.asCompressSink(compressor: StreamingCompressor): CompressableSink {
     return StreamingCompressSink(this, compressor)

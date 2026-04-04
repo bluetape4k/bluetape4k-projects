@@ -37,6 +37,21 @@ class MinIOServer private constructor(
         const val DEFAULT_USER = "minioadmin"
         const val DEFAULT_PASSWORD = "minioadmin"
 
+        /**
+         * 이미지 이름/태그로 [MinIOServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = MinIOServer(image = "minio/minio", tag = MinIOServer.TAG)
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image    Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag      Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 9000/9001 포트를 고정 바인딩합니다.
+         * @param reuse    컨테이너 재사용 여부입니다.
+         * @param username S3 접속 username (기본: `minioadmin`)
+         * @param password S3 접속 password (기본: `minioadmin`)
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -52,6 +67,21 @@ class MinIOServer private constructor(
             return invoke(imageName, useDefaultPort, reuse, username, password)
         }
 
+        /**
+         * [DockerImageName]으로 [MinIOServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("minio/minio").withTag(MinIOServer.TAG)
+         * val server = MinIOServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName Docker 이미지 이름
+         * @param useDefaultPort `true`면 9000/9001 포트를 고정 바인딩합니다.
+         * @param reuse 컨테이너 재사용 여부입니다.
+         * @param username S3 접속 username (기본: `minioadmin`)
+         * @param password S3 접속 password (기본: `minioadmin`)
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -110,6 +140,14 @@ class MinIOServer private constructor(
 
         /**
          * 현재 MinIO 서버 접속 정보로 [MinioClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = MinIOServer.Launcher.getClient(MinIOServer.Launcher.minio)
+         * // client != null
+         * ```
+         *
+         * @param minio 연결할 [MinIOServer] 인스턴스
+         * @return [MinioClient] 인스턴스
          */
         fun getClient(minio: MinIOServer): MinioClient {
             return MinioClient.builder()

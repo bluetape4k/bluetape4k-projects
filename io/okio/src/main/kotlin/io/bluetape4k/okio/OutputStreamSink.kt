@@ -9,13 +9,33 @@ import okio.Timeout
 import java.io.OutputStream
 
 /**
- * Okio I/O 타입 변환을 위한 `asSink` 함수를 제공합니다.
+ * [OutputStream]을 Okio [Sink]로 변환합니다.
+ *
+ * ```kotlin
+ * val baos = java.io.ByteArrayOutputStream()
+ * val sink = baos.asSink()
+ * val buffer = bufferOf("hello")
+ * sink.write(buffer, buffer.size)
+ * sink.flush()
+ * val text = baos.toString(Charsets.UTF_8)
+ * // text == "hello"
+ * ```
  */
 fun OutputStream.asSink(timeout: Timeout = Timeout.NONE) =
     OutputStreamSink(this, timeout)
 
 /**
- * Okio I/O에서 사용하는 `OutputStreamSink` 타입입니다.
+ * [OutputStream]을 Okio [Sink]로 감싼 구현체입니다.
+ *
+ * ```kotlin
+ * val baos = java.io.ByteArrayOutputStream()
+ * val sink = OutputStreamSink(baos)
+ * val source = bufferOf("world")
+ * sink.write(source, source.size)
+ * sink.flush()
+ * val text = baos.toString(Charsets.UTF_8)
+ * // text == "world"
+ * ```
  */
 class OutputStreamSink(
     private val out: OutputStream,
@@ -25,7 +45,19 @@ class OutputStreamSink(
     companion object: KLogging()
 
     /**
-     * Okio I/O에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     * [source]에서 [byteCount] 바이트를 읽어 [OutputStream]에 씁니다.
+     *
+     * ```kotlin
+     * val baos = java.io.ByteArrayOutputStream()
+     * val sink = OutputStreamSink(baos)
+     * val source = bufferOf("hello")
+     * sink.write(source, 5L)
+     * val text = baos.toString(Charsets.UTF_8)
+     * // text == "hello"
+     * ```
+     *
+     * @param source 읽을 데이터 버퍼
+     * @param byteCount 쓸 바이트 수
      */
     override fun write(source: Buffer, byteCount: Long) {
         byteCount.requireInRange(0, source.size, "byteCount")

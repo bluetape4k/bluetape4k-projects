@@ -26,6 +26,13 @@ class FeignFastjsonEncoder: feign.codec.Encoder {
 
     /**
      * 객체를 JSON 문자열로 직렬화해 [RequestTemplate] 본문으로 설정합니다.
+     *
+     * ```kotlin
+     * val encoder = FeignFastjsonEncoder()
+     * val template = RequestTemplate()
+     * encoder.encode(mapOf("key" to "value"), Map::class.java, template)
+     * // template.body() != null
+     * ```
      */
     override fun encode(obj: Any?, bodyType: Type?, template: RequestTemplate) {
         try {

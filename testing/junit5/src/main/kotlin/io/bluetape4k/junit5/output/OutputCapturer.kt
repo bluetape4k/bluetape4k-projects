@@ -44,6 +44,15 @@ class OutputCapturer {
 
     /**
      * 캡처 문자열을 계산해 [body]에 전달합니다.
+     *
+     * ```kotlin
+     * val capturer = OutputCapturer()
+     * capturer.startCapture()
+     * println("hello")
+     * capturer.expect { output -> output.contains("hello") == true }
+     * ```
+     *
+     * @param body 캡처된 출력 문자열을 받는 람다
      */
     inline fun expect(body: (String) -> Unit) {
         body(capture())
@@ -51,6 +60,14 @@ class OutputCapturer {
 
     /**
      * out/err 캡처 스트림을 flush합니다.
+     *
+     * ```kotlin
+     * val capturer = OutputCapturer()
+     * capturer.startCapture()
+     * print("partial")
+     * capturer.flush()
+     * // 버퍼가 동기화됩니다.
+     * ```
      */
     fun flush() {
         captureOut?.flush()

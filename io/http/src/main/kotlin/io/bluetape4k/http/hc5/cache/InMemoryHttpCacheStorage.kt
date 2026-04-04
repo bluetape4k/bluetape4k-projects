@@ -12,7 +12,14 @@ import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
 import java.util.concurrent.ConcurrentHashMap
 
-/** 메모리에 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다. */
+/**
+ * 메모리에 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다.
+ *
+ * ```kotlin
+ * val storage = InMemoryHttpCacheStorage.createObjectCache()
+ * val cachingClient = memoryCachingHttpClientOf(storage = storage)
+ * ```
+ */
 class InMemoryHttpCacheStorage<T>(
     config: CacheConfig = CacheConfig.DEFAULT,
     serializer: HttpCacheEntrySerializer<T>,
@@ -21,6 +28,11 @@ class InMemoryHttpCacheStorage<T>(
     companion object: KLogging() {
         /**
          * [HttpCacheStorageEntry]를 직렬화 없이 그대로 저장하는 인메모리 캐시를 생성합니다.
+         *
+         * ```kotlin
+         * val storage = InMemoryHttpCacheStorage.createObjectCache()
+         * // HttpCacheStorageEntry 객체를 직렬화 없이 저장
+         * ```
          *
          * @param config 캐시 설정 ([CacheConfig])
          * @return [InMemoryHttpCacheStorage] 인스턴스
@@ -34,6 +46,12 @@ class InMemoryHttpCacheStorage<T>(
 
         /**
          * [HttpCacheStorageEntry]를 [ByteArray]로 직렬화해 저장하는 인메모리 캐시를 생성합니다.
+         *
+         * ```kotlin
+         * val storage = InMemoryHttpCacheStorage.createSerializedCache()
+         * val cachingClient = memoryCachingHttpClientOf(storage = storage)
+         * // ByteArray 직렬화 방식으로 캐시 저장
+         * ```
          *
          * @param config 캐시 설정 ([CacheConfig])
          * @param serializer HTTP 캐시 엔트리 직렬화기

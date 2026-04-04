@@ -40,6 +40,19 @@ class OllamaServer private constructor(
         /** Ollama REST API 포트입니다. */
         const val PORT = 11434
 
+        /**
+         * 이미지 이름/태그로 [OllamaServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = OllamaServer(image = "ollama/ollama", tag = "0.5.11")
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 11434 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -53,6 +66,19 @@ class OllamaServer private constructor(
             return invoke(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * [DockerImageName]으로 [OllamaServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("ollama/ollama").withTag("0.5.11")
+         * val server = OllamaServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름 (`ollama/ollama` 호환 이미지여야 합니다)
+         * @param useDefaultPort `true`면 11434 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -104,9 +130,18 @@ class OllamaServer private constructor(
     }
 
     /**
-     * Commits the current file system changes in the container into a new image.
-     * Should be used for creating an image that contains a loaded model.
-     * @param imageName the name of the new image
+     * 현재 컨테이너 파일 시스템 변경 내용을 새로운 이미지로 커밋합니다.
+     * 모델이 로드된 상태를 이미지로 저장할 때 사용합니다.
+     *
+     * ```kotlin
+     * val server = OllamaServer()
+     * server.start()
+     * // 모델 로드 후
+     * server.commitToImage("my-ollama-with-model:latest")
+     * // 새 이미지가 Docker에 등록됩니다.
+     * ```
+     *
+     * @param imageName 새로 생성할 이미지 이름 (예: `my-ollama:latest`)
      */
     fun commitToImage(imageName: String) {
         val dockerImageName = DockerImageName.parse(dockerImageName)

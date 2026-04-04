@@ -7,7 +7,7 @@ import org.apache.hc.core5.net.URIAuthority
 /**
  * [ConfigurableHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = configurableHttpRequestOf("GET", "http://localhost:8080/api/v1")
  * ```
  *
@@ -27,7 +27,7 @@ fun configurableHttpRequestOf(
 /**
  * [ConfigurableHttpRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = configurableHttpRequestOf("GET", "http://localhost:8080/api/v1")
  * ```
  *

@@ -9,7 +9,7 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder
 /**
  * [BasicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = basicHttpRequest("GET") {
  *     setHttpHost(HttpHost("localhost", 8080))
  *     setPath("/api/v1")
@@ -29,7 +29,7 @@ inline fun basicHttpRequest(
 /**
  * [BasicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = basicHttpRequest(Method.GET) {
  *     setHttpHost(HttpHost("localhost", 8080))
  *     setPath("/api/v1")
@@ -49,7 +49,7 @@ inline fun basicHttpRequest(
 /**
  * [BasicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = basicHttpRequestOf("GET", HttpHost("localhost", 8080), "/api/v1") {
  *      setHeader("Authorization", "Bearer token")
  *      setHeader("Content-Type", "application/json")
@@ -82,7 +82,7 @@ inline fun basicHttpRequestOf(
 /**
  * [BasicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = basicHttpRequestOf(Method.GET, HttpHost("localhost", 8080), "/api/v1") {
  *      setHeader("Authorization", "Bearer token")
  *      setHeader("Content-Type", "application/json")

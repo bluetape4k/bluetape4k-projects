@@ -8,6 +8,15 @@ import org.asynchttpclient.filter.RequestFilter
 /**
  * 모든 요청에 고정 헤더를 추가하는 [RequestFilter]입니다.
  *
+ * ```kotlin
+ * val filter = AttachHeaderRequestFilter(
+ *     mapOf("Authorization" to "Bearer token", "X-App-Version" to "1.0")
+ * )
+ * val client = asyncHttpClientOf(filter)
+ * val response = client.prepareGet("https://api.example.com").execute().get()
+ * // response.statusCode == 200
+ * ```
+ *
  * @param headers 추가할 헤더 이름/값 쌍
  * @see attachHeaderRequestFilterOf
  */

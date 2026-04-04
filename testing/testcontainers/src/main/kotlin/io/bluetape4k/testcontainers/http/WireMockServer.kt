@@ -126,6 +126,16 @@ class WireMockServer private constructor(
 
     /**
      * WireMock stub을 등록합니다.
+     *
+     * ```kotlin
+     * val wireMock = WireMockServer()
+     * wireMock.start()
+     * wireMock.stubFor(WireMock.get("/hello").willReturn(WireMock.ok("Hello")))
+     * // GET /hello → 200 "Hello"
+     * ```
+     *
+     * @param mappingBuilder 등록할 stub 설정 빌더
+     * @return 등록된 [StubMapping] 인스턴스
      */
     fun stubFor(mappingBuilder: MappingBuilder): StubMapping =
         wireMockClient!!.register(mappingBuilder)
@@ -135,6 +145,14 @@ class WireMockServer private constructor(
      *
      * Apache HttpClient 5 커넥션 풀의 stale 커넥션 문제로
      * [org.apache.hc.core5.http.NoHttpResponseException]이 발생할 수 있어 1회 재시도합니다.
+     *
+     * ```kotlin
+     * val wireMock = WireMockServer()
+     * wireMock.start()
+     * wireMock.stubFor(WireMock.get("/test").willReturn(WireMock.ok()))
+     * wireMock.resetAll()
+     * // 모든 stub이 제거됩니다.
+     * ```
      */
     fun resetAll() {
         try {

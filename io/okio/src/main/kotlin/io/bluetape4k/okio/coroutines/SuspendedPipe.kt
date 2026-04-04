@@ -13,6 +13,21 @@ import kotlin.concurrent.withLock
  *
  * 이 파이프는 내부 버퍼를 사용하여 데이터를 비동기적으로 읽고 쓸 수 있으며,
  * 취소 시 모든 입출력 작업이 즉시 중단된다.
+ *
+ * ```kotlin
+ * val pipe = SuspendedPipe(maxBufferSize = 4096L)
+ * // 쓰기 코루틴
+ * launch {
+ *     val source = bufferOf("hello")
+ *     pipe.sink.write(source, source.size)
+ *     pipe.sink.close()
+ * }
+ * // 읽기
+ * val sink = Buffer()
+ * pipe.source.readAll(sink)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  */
 class SuspendedPipe(internal val maxBufferSize: Long) {
 

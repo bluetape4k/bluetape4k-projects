@@ -18,7 +18,7 @@ import org.apache.hc.core5.reactor.IOReactorStatus
 /**
  * Coroutines 환경에서 [HttpAsyncClient.execute]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClient {
  *   setConnectionManager(cm)
  *   setMaxConnTotal(100)
@@ -76,7 +76,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
 /**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClient {
  *     setConnectionManager(cm)
  *     setMaxConnTotal(100)
@@ -117,7 +117,7 @@ suspend inline fun CloseableHttpAsyncClient.execute(
 /**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClient {
  *    setConnectionManager(cm)
  *    setMaxConnTotal(100)
@@ -166,7 +166,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
 /**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClient {
  *    setConnectionManager(cm)
  *    setMaxConnTotal(100)

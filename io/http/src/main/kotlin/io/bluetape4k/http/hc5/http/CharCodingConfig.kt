@@ -11,7 +11,7 @@ fun charCodingConfigOf(): CharCodingConfig =
 /**
  * [CharCodingConfig] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val config = charCodingConfig {
  *     setCharset("UTF-8")
  *     setMalformedInputAction(CodingErrorAction.REPLACE)
@@ -30,7 +30,7 @@ inline fun charCodingConfig(
 /**
  * [source] 를 복사하여 [CharCodingConfig] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val config = charCodingConfig(source) {
  *    setCharset("UTF-8")
  * }

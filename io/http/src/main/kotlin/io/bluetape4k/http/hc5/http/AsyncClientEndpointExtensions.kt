@@ -13,7 +13,7 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer
  * Coroutines 환경에서 [AsyncClientEndpoint]를 이용하여
  * 요청 [SimpleHttpRequest] 을 전송하고, [SimpleHttpResponse] 를 받습니다.
  *
- * ```
+ * ```kotlin
  * runBlocking {
  *      val endpoint = asyncClientEndpointOf()
  *      val request = simpleHttpRequestOf("http://localhost:8080")
@@ -42,7 +42,7 @@ suspend inline fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest
  * Coroutines 환경에서 [AsyncClientEndpoint]를 이용하여
  * [requestProducer] 를 이용하여 요청을 전송하고, [responseConsumer] 를 이용하여 응답을 [T] 타입으로 변환하여 반환합니다.
  *
- * ```
+ * ```kotlin
  * runBlocking {
  *      val endpoint = asyncClientEndpointOf()
  *      val requestProducer = simpleRequestProducerOf("http://localhost:8080")

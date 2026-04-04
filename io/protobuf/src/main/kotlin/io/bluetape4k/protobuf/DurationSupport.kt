@@ -62,13 +62,34 @@ val PROTO_DURATION_ZERO: ProtoDuration = Durations.ZERO
  */
 operator fun ProtoDuration.compareTo(other: ProtoDuration): Int = Durations.compare(this, other)
 
-/** Duration 값이 protobuf 규격 범위에 있으면 `true`입니다. */
+/**
+ * Duration 값이 protobuf 규격 범위에 있으면 `true`입니다.
+ *
+ * ```kotlin
+ * val valid = protoDurationOfSeconds(1).isValid
+ * // valid == true
+ * ```
+ */
 val ProtoDuration.isValid: Boolean get() = Durations.isValid(this)
 
-/** Duration 값이 0보다 크면 `true`입니다. */
+/**
+ * Duration 값이 0보다 크면 `true`입니다.
+ *
+ * ```kotlin
+ * val pos = protoDurationOfSeconds(1).isPositive
+ * // pos == true
+ * ```
+ */
 val ProtoDuration.isPositive: Boolean get() = Durations.isPositive(this)
 
-/** Duration 값이 0보다 작으면 `true`입니다. */
+/**
+ * Duration 값이 0보다 작으면 `true`입니다.
+ *
+ * ```kotlin
+ * val neg = protoDurationOfSeconds(-1).isNegative
+ * // neg == true
+ * ```
+ */
 val ProtoDuration.isNegative: Boolean get() = Durations.isNegative(this)
 
 /**
@@ -130,25 +151,74 @@ fun protoDurationOf(duration: java.time.Duration): ProtoDuration = com.google.pr
     this.nanos = duration.nano
 }
 
-/** 일(day) 단위를 Protobuf Duration으로 생성합니다. */
+/**
+ * 일(day) 단위를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfDays(2)
+ * // d.toSeconds() == 172_800L
+ * ```
+ */
 fun protoDurationOfDays(days: Long): ProtoDuration = Durations.fromDays(days)
 
-/** 시(hour) 단위를 Protobuf Duration으로 생성합니다. */
+/**
+ * 시(hour) 단위를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfHours(3)
+ * // d.toSeconds() == 10_800L
+ * ```
+ */
 fun protoDurationOfHours(hours: Long): ProtoDuration = Durations.fromHours(hours)
 
-/** 분(minute) 단위를 Protobuf Duration으로 생성합니다. */
+/**
+ * 분(minute) 단위를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfMinutes(5)
+ * // d.toSeconds() == 300L
+ * ```
+ */
 fun protoDurationOfMinutes(minutes: Long): ProtoDuration = Durations.fromMinutes(minutes)
 
-/** 초(second) 단위를 Protobuf Duration으로 생성합니다. */
+/**
+ * 초(second) 단위를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfSeconds(30)
+ * // d.toSeconds() == 30L
+ * ```
+ */
 fun protoDurationOfSeconds(seconds: Long): ProtoDuration = Durations.fromSeconds(seconds)
 
-/** 밀리초를 Protobuf Duration으로 생성합니다. */
+/**
+ * 밀리초를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfMillis(1500)
+ * // d.toMillis() == 1500L
+ * ```
+ */
 fun protoDurationOfMillis(millis: Long): ProtoDuration = Durations.fromMillis(millis)
 
-/** 마이크로초를 Protobuf Duration으로 생성합니다. */
+/**
+ * 마이크로초를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfMicros(2_000_000)
+ * // d.toMicros() == 2_000_000L
+ * ```
+ */
 fun protoDurationOfMicros(micros: Long): ProtoDuration = Durations.fromMicros(micros)
 
-/** 나노초를 Protobuf Duration으로 생성합니다. */
+/**
+ * 나노초를 Protobuf Duration으로 생성합니다.
+ *
+ * ```kotlin
+ * val d = protoDurationOfNanos(1_000_000_000)
+ * // d.toNanos() == 1_000_000_000L
+ * ```
+ */
 fun protoDurationOfNanos(nanos: Long): ProtoDuration = Durations.fromNanos(nanos)
 
 /**
@@ -183,28 +253,84 @@ fun java.time.Duration.toProtoDuration(): Duration =
         .setNanos(this@toProtoDuration.nano)
         .build()
 
-/** Protobuf Duration을 일(day) 단위로 내림 변환합니다. */
+/**
+ * Protobuf Duration을 일(day) 단위로 내림 변환합니다.
+ *
+ * ```kotlin
+ * val days = protoDurationOfHours(25).toDays()
+ * // days == 1L
+ * ```
+ */
 fun ProtoDuration.toDays(): Long = Durations.toDays(this)
 
-/** Protobuf Duration을 시(hour) 단위로 내림 변환합니다. */
+/**
+ * Protobuf Duration을 시(hour) 단위로 내림 변환합니다.
+ *
+ * ```kotlin
+ * val hours = protoDurationOfMinutes(90).toHours()
+ * // hours == 1L
+ * ```
+ */
 fun ProtoDuration.toHours(): Long = Durations.toHours(this)
 
-/** Protobuf Duration을 분(minute) 단위로 내림 변환합니다. */
+/**
+ * Protobuf Duration을 분(minute) 단위로 내림 변환합니다.
+ *
+ * ```kotlin
+ * val minutes = protoDurationOfSeconds(90).toMinutes()
+ * // minutes == 1L
+ * ```
+ */
 fun ProtoDuration.toMinutes(): Long = Durations.toMinutes(this)
 
-/** Protobuf Duration을 초(second) 단위로 변환합니다. */
+/**
+ * Protobuf Duration을 초(second) 단위로 변환합니다.
+ *
+ * ```kotlin
+ * val seconds = protoDurationOfMillis(2500).toSeconds()
+ * // seconds == 2L
+ * ```
+ */
 fun ProtoDuration.toSeconds(): Long = Durations.toSeconds(this)
 
-/** Protobuf Duration을 소수점 초(Double)로 변환합니다. */
+/**
+ * Protobuf Duration을 소수점 초(Double)로 변환합니다.
+ *
+ * ```kotlin
+ * val secs = protoDurationOfMillis(1500).toSecondsAsDouble()
+ * // secs == 1.5
+ * ```
+ */
 fun ProtoDuration.toSecondsAsDouble(): Double = Durations.toSecondsAsDouble(this)
 
-/** Protobuf Duration을 밀리초로 변환합니다. */
+/**
+ * Protobuf Duration을 밀리초로 변환합니다.
+ *
+ * ```kotlin
+ * val ms = protoDurationOfSeconds(2).toMillis()
+ * // ms == 2000L
+ * ```
+ */
 fun ProtoDuration.toMillis(): Long = Durations.toMillis(this)
 
-/** Protobuf Duration을 마이크로초로 변환합니다. */
+/**
+ * Protobuf Duration을 마이크로초로 변환합니다.
+ *
+ * ```kotlin
+ * val us = protoDurationOfMillis(1).toMicros()
+ * // us == 1_000L
+ * ```
+ */
 fun ProtoDuration.toMicros(): Long = Durations.toMicros(this)
 
-/** Protobuf Duration을 나노초로 변환합니다. */
+/**
+ * Protobuf Duration을 나노초로 변환합니다.
+ *
+ * ```kotlin
+ * val ns = protoDurationOfMillis(1).toNanos()
+ * // ns == 1_000_000L
+ * ```
+ */
 fun ProtoDuration.toNanos(): Long = Durations.toNanos(this)
 
 /**

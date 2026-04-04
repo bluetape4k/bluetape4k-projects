@@ -9,9 +9,10 @@ import java.util.concurrent.ScheduledExecutorService
 /**
  * Vert.x [Future]를 [Retry]로 decorate 하여 실행합니다.
  *
- * ```
+ * ```kotlin
  * val retry = Retry.ofDefaults("test")
  * val future = retry.executeVertxFuture { service.returnHelloWorld() }
+ * // future.result() == "Hello World"
  * ```
  *
  * @param scheduler [ScheduledExecutorService] 객체
@@ -27,10 +28,11 @@ inline fun <T> Retry.executeVertxFuture(
 /**
  * Vert.x [Future]를 [Retry]로 decorate 합니다.
  *
- * ```
+ * ```kotlin
  * val retry = Retry.ofDefaults("test")
  * val decorated = retry.decorateVertxFuture { service.returnHelloWorld() }
  * val future = decorated.invoke()
+ * // future.result() == "Hello World"
  * ```
  *
  * @param scheduler [ScheduledExecutorService] 객체

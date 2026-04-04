@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 /**
  * [OkHttpClient]의 Connection Pool을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val connectionPool = okHttp3ConnectionPoolOf(
  *      maxIdleConnections = 5
  *      keepAliveDurations = Duration.ofMinutes(5)
@@ -32,7 +32,7 @@ fun okHttp3ConnectionPool(
 /**
  * [OkHttpClient]의 Connection Pool을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val connectionPool = okHttp3ConnectionPoolOf(
  *  maxIdleConnections = 5
  *  keepAliveDurations = Duration.ofMinutes(5)
@@ -68,6 +68,16 @@ inline fun okhttp3ClientBuilderOf(
 
 /**
  * Virtual Thread 기반 [okhttp3.Dispatcher]를 생성합니다.
+ *
+ * ```kotlin
+ * val dispatcher = okhttp3DispatcherWithVirtualThread("my-http-")
+ * val client = OkHttpClient.Builder()
+ *     .dispatcher(dispatcher)
+ *     .build()
+ * ```
+ *
+ * @param threadName Virtual Thread 이름 접두사
+ * @return [okhttp3.Dispatcher] 인스턴스
  */
 fun okhttp3DispatcherWithVirtualThread(
     threadName: String = "okhttp3-virtual-thread-",
@@ -82,6 +92,17 @@ fun okhttp3DispatcherWithVirtualThread(
 
 /**
  * 지정한 ExecutorService 기반 [okhttp3.Dispatcher]를 생성합니다.
+ *
+ * ```kotlin
+ * val executor = Executors.newFixedThreadPool(10)
+ * val dispatcher = okhttp3DispatcherOf(executor)
+ * val client = OkHttpClient.Builder()
+ *     .dispatcher(dispatcher)
+ *     .build()
+ * ```
+ *
+ * @param executorService [ExecutorService] 인스턴스 (기본값: Virtual Thread per task)
+ * @return [okhttp3.Dispatcher] 인스턴스
  */
 fun okhttp3DispatcherOf(
     executorService: java.util.concurrent.ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
@@ -92,7 +113,7 @@ fun okhttp3DispatcherOf(
 /**
  * [OkHttpClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val connectionPool = okHttp3ConnectionPoolOf(
  *  maxIdleConnections = 5
  *  keepAliveDurations = Duration.ofMinutes(5)
@@ -118,7 +139,7 @@ inline fun okhttp3Client(
 /**
  * OkHttp3의 [CacheControl]을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cacheControl = okhttp3CacheControl {
  *    maxAge(10, TimeUnit.SECONDS)
  *    maxStale(10, TimeUnit.SECONDS)
@@ -143,7 +164,7 @@ inline fun okhttp3CacheControl(
 /**
  * OkHttp3의 [CacheControl]을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cacheControl = okhttp3CacheControlOf(
  *    maxAgeInSeconds = 10,
  *    maxStaleInSeconds = 10,
@@ -194,7 +215,7 @@ inline fun okhttp3CacheControlOf(
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = okhttp3Request {
  *   url("https://example.com")
  *   headers {
@@ -214,7 +235,7 @@ inline fun okhttp3Request(
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = okhttp3RequestOf("https://example.com") {
  *     get()
  *     cacheControl(cacheControl)
@@ -241,7 +262,7 @@ inline fun okhttp3RequestOf(
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = okhttp3RequestOf("https://example.com", headers) {
  *     get()
  *     cacheControl(cacheControl)
@@ -268,7 +289,7 @@ inline fun okhttp3RequestOf(
 /**
  * OkHttp3의 [okhttp3.Response]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val response = okhttp3Response {
  *   code(200)
  *   message("OK")

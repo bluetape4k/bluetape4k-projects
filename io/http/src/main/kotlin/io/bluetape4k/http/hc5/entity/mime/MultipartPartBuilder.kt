@@ -8,7 +8,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartPartBuilder
 /**
  * [MultipartPart]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val part = multipartPart {
  *     setBody(StringBody("Hello, World!", ContentType.TEXT_PLAIN))
  *     addHeader("Content-Disposition", "form-data; name=\"file\"; filename=\"hello.txt\"")
@@ -26,7 +26,7 @@ inline fun multipartPart(
 /**
  * [MultipartPart]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val part = multipartPart(
  *     StringBody("Hello, World!", ContentType.TEXT_PLAIN)
  * ) {
@@ -50,7 +50,7 @@ inline fun multipartPart(
 /**
  * [MultipartPart]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val part = multipartPartOf(
  *     StringBody("Hello, World!", ContentType.TEXT_PLAIN),
  *     MimeField("Content-Disposition", "form-data; name=\"file\"; filename=\"hello.txt\"")
@@ -78,7 +78,7 @@ inline fun multipartPartOf(
 /**
  * [MultipartPart]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val part = multipartPartOf(
  *     StringBody("Hello, World!", ContentType.TEXT_PLAIN),
  *     mapOf("Content-Disposition" to "form-data; name=\"file\"; filename=\"hello.txt\"")

@@ -26,12 +26,13 @@ private fun recordToParameterMap(record: Any): Map<String, Any?> {
  *
  * 성능 최적화를 위해 레코드 타입별 리플렉션 결과([kotlin.reflect.KProperty])를 캐시합니다.
  *
- * ```
+ * ```kotlin
  * val result = SqlTemplate
  *     .forQuery(pool, "INSERT INTO users VALUES (#{id}, #{firstName}, #{lastName})")
- *     .mapFrom(tupleMapperOfRecord())
+ *     .mapFrom(tupleMapperOfRecord<User>())
  *     .execute(user)
- *     .await()
+ *     .coAwait()
+ * // result.rowCount() == 1
  * ```
  *
  * @param T 레코드 타입
@@ -43,7 +44,7 @@ fun <T: Any> tupleMapperOfRecord(): TupleMapper<T> =
 /**
  * 레코드 목록을 SQL Template `execute`에 전달 가능한 파라미터 맵으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val record1 = PersonRecord(100, "Joe", "Jones", Date(), true, "Developer", 1)
  * val record2 = PersonRecord(101, "Sarah", "Smith", Date(), true, "Architect", 2)
  *
@@ -52,16 +53,12 @@ fun <T: Any> tupleMapperOfRecord(): TupleMapper<T> =
  *      map(person.id) toProperty PersonRecord::id.name
  *      map(person.firstName) toProperty PersonRecord::firstName.name
  *      map(person.lastName) toProperty PersonRecord::lastName.name
- *      map(person.birthDate) toProperty PersonRecord::birthDate.name
- *      map(person.employed) toProperty PersonRecord::employed.name
- *      map(person.occupation) toProperty PersonRecord::occupation.name
- *      map(person.addressId) toProperty PersonRecord::addressId.name
  * }.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
  *
- * // val rowCount = sqlClient.insertMultiple(insertProvider)
- * val result = SqlTemplate.forUpdate(this, insertProvider.insertStatement)
+ * val result = SqlTemplate.forUpdate(sqlClient, insertProvider.insertStatement)
  *      .execute(insertProvider.records.toParameters())
- *      .await()
+ *      .coAwait()
+ * // result.rowCount() == 2
  * ```
  *
  * 각 레코드의 프로퍼티 이름 뒤에 레코드 인덱스를 붙여 키를 만듭니다.

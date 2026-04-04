@@ -48,6 +48,13 @@ class JacksonEncoder2 private constructor(
 
     /**
      * Feign 연동에서 `encode` 함수를 제공합니다.
+     *
+     * ```kotlin
+     * val encoder = JacksonEncoder2()
+     * val template = RequestTemplate()
+     * encoder.encode(mapOf("key" to "value"), Map::class.java, template)
+     * // template.body() != null
+     * ```
      */
     override fun encode(obj: Any?, bodyType: Type, template: RequestTemplate) {
         try {

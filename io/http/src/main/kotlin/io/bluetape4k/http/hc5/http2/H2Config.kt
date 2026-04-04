@@ -10,7 +10,7 @@ fun h2ConfigOf(): H2Config = H2Config.DEFAULT
 /**
  * [H2Config] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val config = h2Config {
  *    setPushEnabled(true)
  *    setHeaderTableSize(4096)
@@ -30,7 +30,7 @@ inline fun h2Config(
 /**
  * [H2Config] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val source = h2ConfigOf()
  * val config = h2Config(source) {
  *    setPushEnabled(true)
@@ -52,7 +52,7 @@ inline fun h2Config(
 /**
  * [H2Config] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val config = h2Config(
  *    pushEnabled = true,
  *    headerTableSize = 4096,

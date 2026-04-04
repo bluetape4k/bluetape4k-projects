@@ -45,6 +45,11 @@ class MySQL5Server private constructor(
         /**
          * [MySQL5Server]를 생성합니다.
          *
+         * ```kotlin
+         * val server = MySQL5Server(image = "biarms/mysql", tag = "5")
+         * // server.url.startsWith("jdbc:mysql://") == true (시작 후)
+         * ```
+         *
          * @param image             docker image (기본: `mysql`)
          * @param tag               docker image tag (기본: `5.7`)
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)
@@ -75,6 +80,12 @@ class MySQL5Server private constructor(
 
         /**
          * [MySQL5Server]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("biarms/mysql").withTag("5").asCompatibleSubstituteFor("mysql")
+         * val server = MySQL5Server(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName         docker image name
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)

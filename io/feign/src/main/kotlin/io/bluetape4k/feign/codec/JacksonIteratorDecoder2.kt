@@ -61,6 +61,12 @@ class JacksonIteratorDecoder2 private constructor(
 
     /**
      * Feign 연동에서 `decode` 함수를 제공합니다.
+     *
+     * ```kotlin
+     * val decoder = JacksonIteratorDecoder2()
+     * // Iterator<T> 반환 타입에서 JSON 배열을 순차적으로 디코딩
+     * // non-JSON 응답 -> 기본 Feign decoder로 위임
+     * ```
      */
     override fun decode(response: Response, type: Type): Any? = when {
         response.isJsonBody() -> jsonDecode(response, type)
@@ -127,6 +133,12 @@ class JacksonIteratorDecoder2 private constructor(
 
         /**
          * Feign 연동에서 `hasNext` 함수를 제공합니다.
+         *
+         * ```kotlin
+         * val iterator = decoder.decode(response, iteratorType) as Iterator<*>
+         * val hasMore = iterator.hasNext()
+         * // hasMore == true  (응답에 요소가 있을 때)
+         * ```
          */
         override fun hasNext(): Boolean {
             if (!nextLoaded) {
@@ -138,6 +150,14 @@ class JacksonIteratorDecoder2 private constructor(
 
         /**
          * Feign 연동에서 `next` 함수를 제공합니다.
+         *
+         * ```kotlin
+         * val iterator = decoder.decode(response, iteratorType) as Iterator<*>
+         * if (iterator.hasNext()) {
+         *     val element = iterator.next()
+         *     // element is the next decoded item
+         * }
+         * ```
          */
         override fun next(): T {
             if (!nextLoaded) {

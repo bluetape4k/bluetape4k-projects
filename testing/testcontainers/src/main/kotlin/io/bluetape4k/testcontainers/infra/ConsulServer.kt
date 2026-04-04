@@ -43,6 +43,19 @@ class ConsulServer private constructor(
         /** 컨테이너에 노출할 포트 목록입니다. */
         val EXPORT_PORTS = intArrayOf(DNS_PORT, HTTP_PORT, RPC_PORT)
 
+        /**
+         * 이미지 이름/태그로 [ConsulServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = ConsulServer(image = "hashicorp/consul", tag = "1.20")
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image  Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag    Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 8600/8500/8300 포트를 고정 바인딩합니다.
+         * @param reuse  컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,

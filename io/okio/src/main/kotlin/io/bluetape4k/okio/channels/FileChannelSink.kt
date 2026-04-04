@@ -10,12 +10,33 @@ import java.io.IOException
 import java.nio.channels.FileChannel
 
 /**
- * Okio 채널 I/O 타입 변환을 위한 `asSink` 함수를 제공합니다.
+ * [FileChannel]을 Okio [Sink]로 변환합니다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * val channel = java.nio.channels.FileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.WRITE)
+ * val sink = channel.asSink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * ```
  */
 fun FileChannel.asSink(timeout: Timeout = Timeout.NONE) = FileChannelSink(this, timeout)
 
 /**
- * Okio 채널 I/O에서 사용하는 `FileChannelSink` 타입입니다.
+ * [FileChannel]을 Okio [Sink]로 감싼 구현체입니다.
+ * 파일 채널 현재 위치에서 순차적으로 씁니다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * val channel = java.nio.channels.FileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.WRITE)
+ * FileChannelSink(channel).use { sink ->
+ *     val source = bufferOf("hello")
+ *     sink.write(source, source.size)
+ * }
+ * ```
  */
 class FileChannelSink(
     private val channel: FileChannel,

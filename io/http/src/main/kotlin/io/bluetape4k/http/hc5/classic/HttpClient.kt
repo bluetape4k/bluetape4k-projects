@@ -8,7 +8,7 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
 /**
  * Apache HttpComponent 5 의 [CloseableHttpClient] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val cm = httpClientConnectionManager {
  *      setMaxConnPerRoute(5)
  *      setMaxConnTotal(5)
@@ -33,7 +33,13 @@ inline fun httpClient(
 fun defaultHttpClient(): CloseableHttpClient = HttpClients.createDefault()
 
 /**
- * [HttpClientConnectionManager] 를 사용하는 기본 [CloseableHttpClient] 를 생성합니다.
+ * 기본 설정으로 [CloseableHttpClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val client = httpClientOf()
+ * val response = client.execute(HttpGet("https://example.com"))
+ * // response.code == 200
+ * ```
  *
  * @return [CloseableHttpClient]
  */
@@ -42,7 +48,7 @@ fun httpClientOf(): CloseableHttpClient = HttpClients.createDefault()
 /**
  * [HttpClientConnectionManager] 를 사용하는 [CloseableHttpClient] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cm = httpClientConnectionManager {
  *     setMaxConnPerRoute(5)
  *     setMaxConnTotal(5)
@@ -67,6 +73,12 @@ inline fun httpClientOf(
 
 /**
  * 시스템 기본 [CloseableHttpClient] 를 생성합니다.
+ *
+ * ```kotlin
+ * val client = systemHttpClientOf()
+ * val response = client.execute(HttpGet("https://example.com"))
+ * // 시스템 속성(http.proxyHost 등)이 적용된 클라이언트
+ * ```
  *
  * @return [CloseableHttpClient]
  */

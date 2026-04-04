@@ -10,7 +10,7 @@ fun http1ConfigOf(): Http1Config = Http1Config.DEFAULT
 /**
  * [Http1Config] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val config = http1Config {
  *    setBufferSize(1024)
  *    setChunkSizeHint(1024)
@@ -29,7 +29,7 @@ inline fun http1Config(
 /**
  * [source] 를 복사하여 [Http1Config] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val source = http1ConfigOf()
  * val config = http1Config(source) {
  *    setBufferSize(1024)

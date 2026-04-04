@@ -7,7 +7,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder
 /**
  * [ClassicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = classicRequest("GET") {
  *     setUri("https://example.com")
  * }
@@ -26,7 +26,7 @@ inline fun classicRequest(
 /**
  * [ClassicHttpRequest] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = classicRequest(Method.GET) {
  *     setUri("https://example.com")
  * }

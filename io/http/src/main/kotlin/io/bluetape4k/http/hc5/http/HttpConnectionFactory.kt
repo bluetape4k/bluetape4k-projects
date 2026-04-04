@@ -15,7 +15,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory
 /**
  * [ManagedHttpClientConnectionFactory]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val factory = managedHttpConnectionFactory {
  *     setBufferSize(8192)
  *     setFragmentSizeHint(8192)
@@ -35,7 +35,7 @@ inline fun managedHttpConnectionFactory(
 /**
  * 기본값과 사용자 설정을 조합해 [ManagedHttpClientConnectionFactory]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val http1Config = Http1Config.custom()
  *    .setBufferSize(8192)
  *    .build()

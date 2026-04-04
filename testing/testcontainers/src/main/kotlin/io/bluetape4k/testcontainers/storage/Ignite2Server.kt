@@ -55,6 +55,16 @@ class Ignite2Server private constructor(
 
         /**
          * [DockerImageName]으로 [Ignite2Server]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("apacheignite/ignite").withTag("2.17.0")
+         * val server = Ignite2Server(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름
+         * @param useDefaultPort `true`면 10800 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
          */
         @JvmStatic
         operator fun invoke(
@@ -65,6 +75,16 @@ class Ignite2Server private constructor(
 
         /**
          * 이미지 이름과 태그로 [Ignite2Server]를 생성합니다.
+         *
+         * ```kotlin
+         * val server = Ignite2Server(image = "apacheignite/ignite", tag = "2.17.0")
+         * // server.url.contains(":10800") == true (시작 후)
+         * ```
+         *
+         * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 10800 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
          */
         @JvmStatic
         operator fun invoke(

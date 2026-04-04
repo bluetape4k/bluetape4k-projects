@@ -14,7 +14,7 @@ fun BasicHttpRequest.toProducer(): BasicRequestProducer = basicRequestProducerOf
 /**
  * [BasicRequestProducer]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val request = BasicHttpRequest(Method.GET, URI.create("http://localhost:8080"))
  * val producer = basicRequestProducerOf(request)
  * ```
@@ -32,7 +32,7 @@ fun basicRequestProducerOf(
 /**
  * [BasicRequestProducer]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val producer = basicRequestProducerOf(Method.GET, URI.create("http://localhost:8080"))
  * ```
  *
@@ -51,7 +51,7 @@ fun basicRequestProducerOf(
 /**
  * [BasicRequestProducer]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val entityProducer = asyncEntityProducerOf("Hello, World!")
  * val producer = basicRequestProducerOf("GET", URI.create("http://localhost:8080"), entityProducer)
  * ```

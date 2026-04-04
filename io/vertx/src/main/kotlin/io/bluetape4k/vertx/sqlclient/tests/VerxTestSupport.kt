@@ -10,13 +10,14 @@ import io.vertx.sqlclient.SqlConnection
 /**
  * Vertx Sql Client 작업 테스트를 [testContext]하에서 Transactional 하게 수행합니다.
  *
- * ```
+ * ```kotlin
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
  *
  * vertx.testWithSuspendTransaction(testContext, pool) { conn ->
- *    val rows = conn.query("select * from Person where id=#{id}")
- *      .execute(mapOf("id" to 1))
- *      .coAwait()
+ *    val rows = conn.query("select * from Person where id=1")
+ *        .execute()
+ *        .coAwait()
+ *    // rows.size() >= 0
  * }
  * ```
  *

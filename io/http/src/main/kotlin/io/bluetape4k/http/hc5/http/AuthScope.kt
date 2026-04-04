@@ -6,8 +6,8 @@ import org.apache.hc.core5.http.HttpHost
 /**
  * [AuthScope] 를 생성합니다.
  *
- * ```
- * val authScope = authScopeOf("http://localhost:8080")
+ * ```kotlin
+ * val authScope = authScopeOf("http", "localhost", 8080, realm = "admin", schemeName = "BASIC")
  * ```
  *
  * @param protocol 프로토콜
@@ -28,8 +28,9 @@ fun authScopeOf(
 /**
  * [AuthScope] 를 생성합니다.
  *
- * ```
- * val authScope = authScopeOf("http://localhost:8080")
+ * ```kotlin
+ * val host = HttpHost("http", "localhost", 8080)
+ * val authScope = authScopeOf(host, realm = "admin")
  * ```
  *
  * @param origin [HttpHost]
@@ -44,10 +45,10 @@ fun authScopeOf(
 ): AuthScope = AuthScope(origin, realm, schemeName)
 
 /**
- * [AuthScope] 를 생성합니다.
+ * URL 문자열로 [AuthScope] 를 생성합니다.
  *
- * ```
- * val authScope = authScopeOf("http://localhost:8080")
+ * ```kotlin
+ * val authScope = authScopeOf("http://localhost:8080", realm = "admin")
  * ```
  *
  * @param url URL
@@ -62,7 +63,20 @@ fun authScopeOf(
 ): AuthScope = AuthScope(httpHostOf(url), realm, schemeName)
 
 /**
- * HTTP 처리에서 `authScopeOf` 함수를 제공합니다.
+ * 호스트와 포트로 [AuthScope]를 생성합니다.
+ *
+ * ```kotlin
+ * val authScope = authScopeOf("example.com", 8080)
+ * val credentialsProvider = credentialsProviderOf(
+ *     authScope,
+ *     "user",
+ *     "password".toCharArray()
+ * )
+ * ```
+ *
+ * @param host 호스트 이름
+ * @param port 포트 번호
+ * @return [AuthScope]
  */
 fun authScopeOf(
     host: String,

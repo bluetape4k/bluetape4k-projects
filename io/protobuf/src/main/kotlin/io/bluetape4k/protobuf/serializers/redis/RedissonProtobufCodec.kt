@@ -17,9 +17,19 @@ import java.util.concurrent.ConcurrentHashMap
 typealias AnyMessage = com.google.protobuf.Any
 
 /**
- * Proto Buffer 객체를 Redisson 에서 사용하기 위한 Codec
+ * Protobuf 메시지를 Redisson에서 사용하기 위한 Codec입니다.
  *
- * @property fallbackCodec 내부 코덱
+ * ## 동작/계약
+ * - [com.google.protobuf.Message] 인스턴스는 `Any.pack(message).toByteArray()`로 직렬화합니다.
+ * - 역직렬화 시 `typeUrl`의 클래스명을 기반으로 Message 타입을 캐시해 언패킹합니다.
+ * - Protobuf 경로 실패 시 [fallbackCodec]에 위임합니다.
+ *
+ * ```kotlin
+ * val codec = RedissonProtobufCodec()
+ * // Redisson Config에 codec을 등록하면 Protobuf 직렬화가 적용됩니다.
+ * ```
+ *
+ * @property fallbackCodec Protobuf 처리 실패 시 사용하는 fallback Codec입니다.
  */
 class RedissonProtobufCodec(
     private val fallbackCodec: Codec = RedissonCodecs.Jdk,

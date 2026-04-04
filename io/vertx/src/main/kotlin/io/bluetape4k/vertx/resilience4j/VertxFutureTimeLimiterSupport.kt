@@ -9,9 +9,10 @@ import java.util.concurrent.ScheduledExecutorService
 /**
  * Vert.x [Future]를 [TimeLimiter]로 decorate 하여 실행합니다.
  *
- * ```
+ * ```kotlin
  * val timeLimiter = TimeLimiter.ofDefaults("test")
  * val future = timeLimiter.executeVertxFuture { service.returnHelloWorld() }
+ * // future.result() == "Hello World"
  * ```
  *
  * @param scheduler [ScheduledExecutorService] 객체
@@ -26,10 +27,11 @@ inline fun <T, F : Future<T>> TimeLimiter.executeVertxFuture(
 /**
  * Vert.x [Future]를 [TimeLimiter]로 decorate 합니다.
  *
- * ```
+ * ```kotlin
  * val timeLimiter = TimeLimiter.ofDefaults("test")
  * val decorated = timeLimiter.decorateVertxFuture { service.returnHelloWorld() }
  * val future = decorated.invoke()
+ * // future.result() == "Hello World"
  * ```
  *
  * @param scheduler [ScheduledExecutorService] 객체

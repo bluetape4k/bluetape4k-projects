@@ -33,7 +33,7 @@ val defaultMinimalH2AsyncClient: MinimalH2AsyncClient = HttpAsyncClients.createH
 /**
  * 고급 HTTP 프로토콜 기능 없이 HTTP/1.1 및 HTTP/2 메시지를 전송하는 [MinimalHttpAsyncClient] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = minimalHttpAsyncClient(
  *      h2config = H2Config.custom().build(),
  *      h1config = Http1Config.custom().build(),
@@ -64,7 +64,7 @@ fun minimalHttpAsyncClientOf(
 /**
  * 고급 HTTP 프로토콜 기능 없이 HTTP/1.1 및 HTTP/2 메시지를 전송하는 [MinimalH2AsyncClient] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = minimalH2AsyncClientOf(
  *      h2config = H2Config.custom().build(),
  *      ioReactorConfig = IOReactorConfig.custom().build(),
@@ -110,6 +110,14 @@ suspend inline fun MinimalHttpAsyncClient.suspendLease(
 
 /**
  * Coroutines 환경에서 [MinimalHttpAsyncClient.lease]를 수행합니다.
+ *
+ * ```kotlin
+ * val client = minimalHttpAsyncClientOf()
+ * client.start()
+ * val host = HttpHost("https", "example.com", 443)
+ * val endpoint = runBlocking { client.leaseSuspending(host) }
+ * // endpoint를 통해 요청 실행 후 endpoint.releaseAndReuse() 또는 endpoint.releaseAndDiscard() 호출
+ * ```
  *
  * @param host [HttpHost] 호스트 정보
  * @param context [HttpContext] 설정

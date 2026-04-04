@@ -14,15 +14,34 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
 
 /**
- * Okio 코루틴 타입 변환을 위한 `asSuspendedSource` 함수를 제공합니다.
+ * [Socket]을 코루틴 방식의 [SuspendedSocketSource]로 변환합니다.
+ * 소켓은 반드시 [SocketChannel]을 통해 생성되어야 합니다.
+ *
+ * ```kotlin
+ * val socketChannel = SocketChannel.open()
+ * socketChannel.connect(java.net.InetSocketAddress("localhost", 8080))
+ * val source = socketChannel.socket().asSuspendedSource()
+ * // source를 코루틴에서 사용 가능
+ * source.close()
+ * ```
  */
 fun Socket.asSuspendedSource(): SuspendedSocketSource = SuspendedSocketSource(this)
 
 /**
- * non-blocking [SocketChannel]을 이용해 소켓 읽기를 제공하는 [SuspendedSource].
+ * non-blocking [SocketChannel]을 이용해 소켓 읽기를 제공하는 코루틴 [SuspendedSource].
  *
  * Selector 기반으로 읽기 가능 시점을 기다린 뒤 재사용 direct [ByteBuffer]로 읽는다.
  * 소켓 close는 블로킹 가능성이 있어 `Dispatchers.IO`에서 수행한다.
+ *
+ * ```kotlin
+ * val socketChannel = SocketChannel.open()
+ * socketChannel.connect(java.net.InetSocketAddress("localhost", 8080))
+ * val source = SuspendedSocketSource(socketChannel.socket())
+ * val sink = Buffer()
+ * source.read(sink, 1024L)
+ * val text = sink.readUtf8()
+ * source.close()
+ * ```
  */
 class SuspendedSocketSource(socket: Socket): SuspendedSource {
 

@@ -128,6 +128,13 @@ class SuspendJsonParser(
      * - Flow 요소를 순서대로 읽어 파서 입력으로 사용합니다.
      * - 루트 완성 시 [onNodeDone]을 호출합니다.
      * - 하나의 Flow 안에 여러 JSON 루트가 연속으로 들어와도 순서대로 처리합니다.
+     * - 파싱 예외는 [jakarta.json.stream.JsonParsingException]으로 전파됩니다.
+     *
+     * ```kotlin
+     * parser.consume(flowOf("{\"name\":\"debop\"}".toByteArray()))
+     * // onNodeDone이 1회 호출됨
+     * ```
+     * @param flow JSON 바이트 청크 Flow
      */
     suspend fun consume(flow: Flow<ByteArray>) {
         val feeder = parser.nonBlockingInputFeeder()

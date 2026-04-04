@@ -5,49 +5,120 @@ import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
 
 /**
- * Okio 압축/해제에서 `decompressableSource` 함수를 제공합니다.
+ * [Compressor]를 사용해 압축 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // 압축된 데이터
+ * val source = (compressed as okio.Source).decompressableSource(Compressors.GZip)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.decompressableSource(compressor: Compressor): DecompressableSource =
     DecompressableSource(this, compressor)
 
 /**
- * Okio 압축/해제에서 `decompressableSource` 함수를 제공합니다.
+ * [StreamingCompressor]를 사용해 스트리밍 방식으로 압축 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // 압축된 데이터
+ * val source = (compressed as okio.Source).decompressableSource(
+ *     Compressors.GZip as StreamingCompressor)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * ```
  */
 fun okio.Source.decompressableSource(compressor: StreamingCompressor): DecompressableSource =
     StreamingDecompressSource(this, compressor)
 
 /**
- * Okio 압축/해제에서 `inflateSource` 함수를 제공합니다.
+ * Deflate 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // deflate 압축된 데이터
+ * val source = (compressed as okio.Source).inflateSource()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.inflateSource(): DecompressableSource =
     decompressableSource(Compressors.Deflate)
 
 /**
- * Okio 압축/해제에서 `gzipSource` 함수를 제공합니다.
+ * GZip 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // gzip 압축된 데이터
+ * val source = (compressed as okio.Source).gzipSource()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.gzipSource(): DecompressableSource =
     decompressableSource(Compressors.GZip)
 
 /**
- * Okio 압축/해제에서 `lz4Source` 함수를 제공합니다.
+ * LZ4 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // lz4 압축된 데이터
+ * val source = (compressed as okio.Source).lz4Source()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.lz4Source(): DecompressableSource =
     decompressableSource(Compressors.LZ4)
 
 /**
- * Okio 압축/해제에서 `snappySource` 함수를 제공합니다.
+ * Snappy 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // snappy 압축된 데이터
+ * val source = (compressed as okio.Source).snappySource()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.snappySource(): DecompressableSource =
     decompressableSource(Compressors.Snappy)
 
 /**
- * Okio 압축/해제에서 `zstdSource` 함수를 제공합니다.
+ * Zstd 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // zstd 압축된 데이터
+ * val source = (compressed as okio.Source).zstdSource()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.zstdSource(): DecompressableSource =
     decompressableSource(Compressors.Zstd)
 
 /**
- * Okio 압축/해제에서 `bzip2Source` 함수를 제공합니다.
+ * BZip2 압축된 데이터를 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // bzip2 압축된 데이터
+ * val source = (compressed as okio.Source).bzip2Source()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.bzip2Source(): DecompressableSource =
     decompressableSource(Compressors.BZip2)

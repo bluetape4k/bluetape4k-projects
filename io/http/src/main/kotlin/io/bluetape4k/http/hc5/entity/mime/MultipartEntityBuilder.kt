@@ -10,7 +10,7 @@ import java.nio.charset.Charset
 /**
  * 멀티파트 포맷의 [HttpEntity]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val multipartEntity = multipartEntity {
  *    addTextBody("name", "value")
  *    addBinaryBody("file", file)
@@ -29,7 +29,7 @@ inline fun multipartEntity(
 /**
  * 멀티파트 포맷의 [HttpEntity]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val multipartEntity = multipartEntity(
  *    mode = HttpMultipartMode.BROWSER_COMPATIBLE,
  *    charset = Charsets.UTF_8,

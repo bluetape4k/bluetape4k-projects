@@ -17,7 +17,7 @@ import org.apache.hc.core5.util.TimeValue
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cm = poolingHttpClientConnectionManager {
  *     setMaxConnPerRoute(5)
  *     setMaxConnTotal(5)
@@ -32,7 +32,7 @@ inline fun poolingHttpClientConnectionManager(
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val cm = poolingHttpClientConnectionManager {
  *     setMaxConnPerRoute(5)
  *     setMaxConnTotal(5)
@@ -44,6 +44,23 @@ fun poolingHttpClientConnectionManagerOf(): PoolingHttpClientConnectionManager =
 
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
+ *
+ * ```kotlin
+ * val cm = poolingHttpClientConnectionManagerOf(
+ *     poolConcurrencyPolicy = PoolConcurrencyPolicy.STRICT,
+ *     poolReusePolicy = PoolReusePolicy.LIFO,
+ *     timeToLive = TimeValue.ofMinutes(5),
+ * )
+ * val client = httpClientOf(cm)
+ * ```
+ *
+ * @param poolConcurrencyPolicy 연결 풀 동시성 정책
+ * @param poolReusePolicy 연결 풀 재사용 정책
+ * @param timeToLive 연결 생존 시간
+ * @param schemePortResolver 스킴별 포트 해석기
+ * @param dnsResolver DNS 해석기
+ * @param connFactory 연결 팩토리
+ * @return [PoolingHttpClientConnectionManager] 인스턴스
  */
 fun poolingHttpClientConnectionManagerOf(
     // socketFactoryRegistry: Registry<ConnectionSocketFactory> = defaultSocketFactoryRegistry,
@@ -76,6 +93,30 @@ fun poolingHttpClientConnectionManagerOf(
 
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
+ *
+ * ```kotlin
+ * val cm = poolingHttpClientConnectionManagerOf(
+ *     maxConnTotal = 100,
+ *     maxConnPerRoute = 10,
+ *     connectionConfig = connectionConfig {
+ *         setConnectTimeout(Timeout.ofSeconds(10))
+ *     },
+ * )
+ * val client = httpClientOf(cm)
+ * ```
+ *
+ * @param poolConcurrencyPolicy 연결 풀 동시성 정책
+ * @param poolReusePolicy 연결 풀 재사용 정책
+ * @param schemePortResolver 스킴별 포트 해석기
+ * @param dnsResolver DNS 해석기
+ * @param connFactory 연결 팩토리
+ * @param maxConnTotal 최대 전체 연결 수
+ * @param maxConnPerRoute 라우트당 최대 연결 수
+ * @param connectionConfig 연결 설정
+ * @param socketConfig 소켓 설정
+ * @param socketConfigResolver 소켓 설정 해석기
+ * @param builder [PoolingHttpClientConnectionManagerBuilder] 추가 설정 블록
+ * @return [PoolingHttpClientConnectionManager] 인스턴스
  */
 inline fun poolingHttpClientConnectionManagerOf(
     // sslSocketFactory: LayeredConnectionSocketFactory = SSLConnectionSocketFactory.getSocketFactory(),

@@ -9,7 +9,7 @@ import javax.net.ssl.SSLContext
 /**
  * [builder]를 이용해 [ClientTlsStrategyBuilder] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val tlsStrategy = tlsStrategy {
  *     setSslContext(sslContext)
  *     setTlsVersions("TLSv1.2")
@@ -30,7 +30,7 @@ inline fun tlsStrategy(
 /**
  * [sslContext]를 이용해 [TlsStrategy] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val tlsStrategy = tlsStrategyOf(
  *     sslContext = sslContext,
  *     tlsVersions = arrayOf("TLSv1.2"),

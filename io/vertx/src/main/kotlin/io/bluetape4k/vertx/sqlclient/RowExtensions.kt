@@ -16,21 +16,41 @@ import java.util.*
 
 /**
  * 지정한 인덱스의 컬럼이 존재하는지 여부를 반환합니다.
+ *
+ * ```kotlin
+ * val exists = row.hasColumn(0)
+ * // exists == true  (첫 번째 컬럼이 있는 경우)
+ * ```
  */
 fun Row.hasColumn(index: Int): Boolean = index in 0 until size()
 
 /**
  * 지정한 이름의 컬럼이 존재하는지 여부를 반환합니다.
+ *
+ * ```kotlin
+ * val exists = row.hasColumn("name")
+ * // exists == true  (name 컬럼이 있는 경우)
+ * ```
  */
 fun Row.hasColumn(columnName: String): Boolean = hasColumn(getColumnIndex(columnName))
 
 /**
  * 지정한 컬럼의 값을 [T] 타입으로 변환하여 반환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```kotlin
+ * val name: String? = row.valueAs<String>("name")
+ * // name == "Alice" 또는 null (컬럼이 없거나 타입 불일치)
+ * ```
  */
 inline fun <reified T : Any> Row.valueAs(columnName: String): T? = getValue(columnName) as? T
 
 /**
  * 지정한 컬럼이 존재하면 값을 반환하고, 없으면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val value = row.getValueOrNull("optional_column")
+ * // value == null  (컬럼이 없는 경우)
+ * ```
  */
 fun Row.getValueOrNull(columnName: String): Any? = if (hasColumn(columnName)) getValue(columnName) else null
 
@@ -176,12 +196,31 @@ fun Row.getArrayOfJsonsOrNull(columnName: String): Array<Any>? =
 
 /**
  * [columnName] 컬럼이 존재하면 [T] 타입으로 변환하여 반환하고, 없으면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val id: Long? = row.getOrNull<Long>("id")
+ * // id == 42L 또는 null (컬럼 없는 경우)
+ * ```
  */
 inline fun <reified T : Any> Row.getOrNull(columnName: String): T? =
     if (hasColumn(columnName)) get(T::class.java, columnName) else null
 
-/** 현재 Row를 JSON 문자열로 인코딩합니다. */
+/**
+ * 현재 Row를 JSON 문자열로 인코딩합니다.
+ *
+ * ```kotlin
+ * val json = row.jsonEncode()
+ * // json == "{\"id\":1,\"name\":\"Alice\"}"
+ * ```
+ */
 fun Row.jsonEncode(): String = toJson().encode()
 
-/** [RowSet]의 모든 행을 JSON 문자열 목록으로 변환하여 반환합니다. */
+/**
+ * [RowSet]의 모든 행을 JSON 문자열 목록으로 변환하여 반환합니다.
+ *
+ * ```kotlin
+ * val json = rowSet.jsonEncode()
+ * // json == "{\"id\":1,...}, {\"id\":2,...}"
+ * ```
+ */
 fun RowSet<Row>.jsonEncode(): String = joinToString { it.jsonEncode() }

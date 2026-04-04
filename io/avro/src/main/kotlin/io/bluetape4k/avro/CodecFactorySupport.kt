@@ -8,6 +8,11 @@ import org.apache.avro.file.CodecFactory
  * ## 동작/계약
  * - [CodecFactory.DEFAULT_DEFLATE_LEVEL]을 사용해 Avro 기본값과 동일한 압축 수준으로 생성합니다.
  * - 최초 접근 시 1회 생성되고 이후 동일 인스턴스를 재사용합니다.
+ *
+ * ```kotlin
+ * val codec = DEFAULT_CODEC_FACTORY
+ * // codec.toString().contains("deflate") == true
+ * ```
  */
 val DEFAULT_CODEC_FACTORY: CodecFactory by lazy {
     CodecFactory.deflateCodec(CodecFactory.DEFAULT_DEFLATE_LEVEL)
@@ -19,6 +24,11 @@ val DEFAULT_CODEC_FACTORY: CodecFactory by lazy {
  * ## 동작/계약
  * - [CodecFactory.DEFAULT_ZSTANDARD_LEVEL]을 사용합니다.
  * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ *
+ * ```kotlin
+ * val codec = ZSTD_CODEC_FACTORY
+ * // codec.toString().contains("zstandard") == true
+ * ```
  */
 val ZSTD_CODEC_FACTORY: CodecFactory by lazy {
     CodecFactory.zstandardCodec(CodecFactory.DEFAULT_ZSTANDARD_LEVEL)
@@ -110,6 +120,11 @@ val SNAPPY_CODEC_FACTORY: CodecFactory by lazy {
  * ## 동작/계약
  * - 느리지만 높은 압축률이 필요한 경로에 적합합니다.
  * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ *
+ * ```kotlin
+ * val codec = BZIP2_CODEC_FACTORY
+ * // codec.toString().contains("bzip2") == true
+ * ```
  */
 val BZIP2_CODEC_FACTORY: CodecFactory by lazy {
     CodecFactory.bzip2Codec()
@@ -121,6 +136,11 @@ val BZIP2_CODEC_FACTORY: CodecFactory by lazy {
  * ## 동작/계약
  * - 높은 압축률이 필요한 아카이브 경로에서 사용할 수 있습니다.
  * - lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ *
+ * ```kotlin
+ * val codec = XZ_CODEC_FACTORY
+ * // codec.toString().contains("xz") == true
+ * ```
  */
 val XZ_CODEC_FACTORY: CodecFactory by lazy {
     CodecFactory.xzCodec(6)

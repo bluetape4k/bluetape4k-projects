@@ -5,7 +5,7 @@ import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 /**
  * Apache HttpClient5의 [SimpleResponseConsumer]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = HttpAsyncClients.custom()
  * .addInterceptorFirst(LoggingRequestInterceptor())
  * .addInterceptorFirst(LoggingResponseInterceptor())

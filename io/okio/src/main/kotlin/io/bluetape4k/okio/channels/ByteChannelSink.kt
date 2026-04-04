@@ -11,12 +11,31 @@ import java.nio.ByteBuffer
 import java.nio.channels.WritableByteChannel
 
 /**
- * Okio 채널 I/O 타입 변환을 위한 `asSink` 함수를 제공합니다.
+ * [WritableByteChannel]을 Okio [Sink]로 변환합니다.
+ *
+ * ```kotlin
+ * val channel = java.nio.channels.Channels.newChannel(java.io.ByteArrayOutputStream())
+ * val sink = channel.asSink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * ```
  */
 fun WritableByteChannel.asSink(timeout: Timeout = Timeout.NONE): ByteChannelSink = ByteChannelSink(this, timeout)
 
 /**
- * Okio 채널 I/O에서 사용하는 `ByteChannelSink` 타입입니다.
+ * [WritableByteChannel]을 Okio [Sink]로 감싼 구현체입니다.
+ *
+ * ```kotlin
+ * val baos = java.io.ByteArrayOutputStream()
+ * val channel = java.nio.channels.Channels.newChannel(baos)
+ * val sink = ByteChannelSink(channel)
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * val text = baos.toString(Charsets.UTF_8)
+ * // text == "hello"
+ * ```
  */
 class ByteChannelSink(
     private val channel: WritableByteChannel,

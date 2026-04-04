@@ -7,7 +7,7 @@ import org.apache.hc.core5.util.Timeout
 /**
  * [builder]를 이용해 [IOReactorConfig] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val ioReactorConfig = ioReactorConfig {
  *     setIoThreadCount(2)
  *     setSoTimeout(3000)
@@ -25,7 +25,7 @@ inline fun ioReactorConfig(
 /**
  * [ioReactorConfig] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val ioReactorConfig = ioReactorConfigOf(
  *     ioThreadCount = 2,
  *     soTimeout = 3000,

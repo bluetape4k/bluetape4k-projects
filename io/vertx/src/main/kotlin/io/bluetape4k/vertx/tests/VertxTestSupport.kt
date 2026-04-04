@@ -8,12 +8,11 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * Vertx Framework 테스트 시 [VertxTestContext]를 사용하여 테스트를 수행합니다.
  *
- * ```
+ * ```kotlin
  * @Test
  * fun `test something`(testContext: VertxTestContext) = withTestContext(testContext) {
- *
  *    // 테스트 코드
- *
+ *    assert(1 + 1 == 2)
  * }
  * ```
  *
@@ -35,20 +34,16 @@ inline fun withTestContext(
 /**
  * Vertx Framework 테스트 시 [VertxTestContext]를 사용하여 Coroutines 환경에서 테스트를 수행합니다.
  *
- * ```
+ * ```kotlin
  * @Test
  * fun `request to server by coroutines`(testContext: VertxTestContext) = runSuspendTest {
- *     vertx.withTestContextSuspending(testContext) {
+ *     vertx.withSuspendTestContext(testContext) {
  *         val webClient = WebClient.create(vertx)
  *         vertx.deployVerticle(SampleVerticle()).coAwait()
- *         val response = webClient.get(11981, "localhost", "/yo")
- *             .`as`(BodyCodec.string())
+ *         val response = webClient.get(8080, "localhost", "/hello")
  *             .send()
  *             .coAwait()
- *         testContext.verify {
- *             response.statusCode() shouldBeEqualTo 200
- *             response.body() shouldContain "Yo!"
- *         }
+ *         // response.statusCode() == 200
  *     }
  * }
  * ```

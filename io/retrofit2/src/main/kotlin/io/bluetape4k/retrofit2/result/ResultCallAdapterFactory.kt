@@ -32,11 +32,11 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
      * ## 동작/계약
      * - `Call<Result<T>>`이면 [ResultCall] 어댑터를 반환합니다.
      * - 그 외 타입이면 `null`을 반환합니다.
- *
- * ```kotlin
- * val factory = ResultCallAdapterFactory()
- * // Call<Result<T>> 타입에서만 어댑터 생성
- * ```
+     *
+     * ```kotlin
+     * val factory = ResultCallAdapterFactory()
+     * // Call<Result<T>> 타입에서만 어댑터 생성
+     * ```
      */
     override fun get(
         returnType: Type,

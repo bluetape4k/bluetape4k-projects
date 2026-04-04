@@ -13,7 +13,7 @@ val defaultAsyncClientConnectionManager: PoolingAsyncClientConnectionManager =
 /**
  * [PoolingAsyncClientConnectionManager]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val asyncClientConnectionManager = asyncClientConnectionManager {
  *    setMaxTotal(100)
  *    setDefaultMaxPerRoute(10)

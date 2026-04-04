@@ -7,7 +7,7 @@ import org.apache.hc.core5.http.support.BasicResponseBuilder
 /**
  * [BasicHttpResponse] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val response = basicHttpResponse(200) {
  *     addHeader("Content-Type", "text/plain")
  *     setEntity("Hello, World!")
@@ -27,7 +27,7 @@ inline fun basicHttpResponse(
 /**
  * [BasicHttpResponse] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val response = basicHttpResponse(response) {
  *     addHeader("Content-Type", "text/plain")
  *     setEntity("Hello, World!")

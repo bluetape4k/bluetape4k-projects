@@ -9,6 +9,11 @@ import io.vertx.sqlclient.Tuple
 /**
  * SQL 문자열을 코루틴 환경에서 실행하고 [RowSet]을 반환합니다.
  *
+ * ```kotlin
+ * val rows = sqlClient.suspendQuery("SELECT * FROM users")
+ * // rows.size() >= 0
+ * ```
+ *
  * @param sql 실행할 SQL 문장
  * @return 조회 결과 [RowSet]
  */
@@ -18,6 +23,11 @@ suspend fun SqlClient.suspendQuery(sql: String): RowSet<Row> {
 
 /**
  * SQL 문자열을 실행하고 각 행을 [mapper]로 변환한 결과 목록을 반환합니다.
+ *
+ * ```kotlin
+ * val names = sqlClient.suspendQuery("SELECT name FROM users") { row -> row.getString("name") }
+ * // names == listOf("Alice", "Bob")
+ * ```
  *
  * @param sql 실행할 SQL 문장
  * @param mapper 조회된 [Row]를 도메인 객체로 변환하는 함수
@@ -33,6 +43,11 @@ suspend inline fun <T> SqlClient.suspendQuery(
 /**
  * 파라미터 바인딩 SQL을 코루틴 환경에서 실행하고 [RowSet]을 반환합니다.
  *
+ * ```kotlin
+ * val rows = sqlClient.suspendQuery("SELECT * FROM users WHERE id = $1", Tuple.of(1))
+ * // rows.size() == 1
+ * ```
+ *
  * @param sql 실행할 SQL 문장
  * @param params 바인딩할 파라미터 [Tuple]
  * @return 조회 결과 [RowSet]
@@ -43,6 +58,14 @@ suspend fun SqlClient.suspendQuery(sql: String, params: Tuple): RowSet<Row> {
 
 /**
  * 파라미터 바인딩 SQL을 실행하고 각 행을 [mapper]로 변환한 결과 목록을 반환합니다.
+ *
+ * ```kotlin
+ * val names = sqlClient.suspendQuery(
+ *     "SELECT name FROM users WHERE active = $1",
+ *     Tuple.of(true)
+ * ) { row -> row.getString("name") }
+ * // names == listOf("Alice", "Bob")
+ * ```
  *
  * @param sql 실행할 SQL 문장
  * @param params 바인딩할 파라미터 [Tuple]

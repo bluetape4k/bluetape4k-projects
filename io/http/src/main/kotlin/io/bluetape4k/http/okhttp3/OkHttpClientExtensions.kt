@@ -8,12 +8,28 @@ import java.util.concurrent.CompletableFuture
 /**
  * [request]를 전송하고 [okhttp3.Response]를 반환합니다.
  *
+ * ```kotlin
+ * val client = OkHttpClient()
+ * val request = okhttp3.Request.Builder().url("https://example.com").build()
+ * val response = client.execute(request)
+ * // response.code == 200
+ * ```
+ *
  * @param request [okhttp3.Request] 인스턴스
+ * @return [okhttp3.Response] 인스턴스
  */
 fun OkHttpClient.execute(request: okhttp3.Request): okhttp3.Response = newCall(request).execute()
 
 /**
  * [OkHttpClient]를 비동기 방식으로 실행합니다.
+ *
+ * ```kotlin
+ * val client = OkHttpClient()
+ * val request = okhttp3.Request.Builder().url("https://example.com").build()
+ * val future = client.executeAsync(request) { e -> println("취소됨: $e") }
+ * val response = future.get()
+ * // response.code == 200
+ * ```
  *
  * @param request [okhttp3.Request] 인스턴스
  * @param cancelHandler 취소 시 호출할 핸들러

@@ -11,7 +11,16 @@ import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
 import javax.cache.Cache
 
-/** Java 캐시를 이용해 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다. */
+/**
+ * Java 캐시를 이용해 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다.
+ *
+ * ```kotlin
+ * val cacheManager = Caching.getCachingProvider().cacheManager
+ * val jcache = cacheManager.getCache<String, HttpCacheStorageEntry>("http-cache")
+ * val storage = JavaCacheHttpCacheStorage.createObjectCache(jcache)
+ * val cachingClient = memoryCachingHttpClientOf(storage = storage)
+ * ```
+ */
 class JavaCacheHttpCacheStorage<T>(
     private val cache: Cache<String, T>,
     config: CacheConfig = CacheConfig.DEFAULT,
@@ -21,6 +30,12 @@ class JavaCacheHttpCacheStorage<T>(
     companion object: KLogging() {
         /**
          * [HttpCacheStorageEntry]를 직렬화 없이 그대로 저장하는 JCache 기반 캐시를 생성합니다.
+         *
+         * ```kotlin
+         * val jcache = cacheManager.getCache<String, HttpCacheStorageEntry>("http-cache")
+         * val storage = JavaCacheHttpCacheStorage.createObjectCache(jcache)
+         * // HttpCacheStorageEntry 객체를 직렬화 없이 JCache에 저장
+         * ```
          *
          * @param cache JCache [Cache] 인스턴스
          * @param config 캐시 설정 ([CacheConfig])
@@ -36,6 +51,12 @@ class JavaCacheHttpCacheStorage<T>(
 
         /**
          * [HttpCacheStorageEntry]를 [ByteArray]로 직렬화해 저장하는 JCache 기반 캐시를 생성합니다.
+         *
+         * ```kotlin
+         * val jcache = cacheManager.getCache<String, ByteArray>("http-cache-bytes")
+         * val storage = JavaCacheHttpCacheStorage.createSerializedCache(jcache)
+         * val cachingClient = memoryCachingHttpClientOf(storage = storage)
+         * ```
          *
          * @param cache JCache [Cache] 인스턴스
          * @param config 캐시 설정 ([CacheConfig])

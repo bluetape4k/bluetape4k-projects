@@ -9,11 +9,21 @@ import okio.Source
 import java.io.IOException
 
 /**
- * 데이터를 복호화하여 [Source]로 읽는 [Source] 구현체.
+ * Google Tink로 암호화된 데이터를 복호화하여 [Source]로 읽는 [Source] 구현체.
  *
  * [TinkEncryptor]를 사용하여 위임 [Source]의 모든 암호화 데이터를 읽은 후
  * 한 번에 복호화합니다. Tink는 스트림 복호화를 제공하지 않으므로 전체 암호문을
  * 먼저 읽은 뒤 복호화합니다.
+ *
+ * ```kotlin
+ * val encryptor: TinkEncryptor = ... // TinkEncryptor 인스턴스
+ * val encrypted = Buffer() // TinkEncryptSink로 암호화된 데이터
+ * val source = TinkDecryptSource(encrypted, encryptor)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "secret data" (원본 평문)
+ * ```
  *
  * @see TinkEncryptSink
  */

@@ -7,7 +7,7 @@ import okhttp3.Response
 /**
  * [okhttp3.OkHttpClient] 실행 시, 요청과 응답 정보를 [logger]에 출력하는 [Interceptor]입니다.
  *
- * ```
+ * ```kotlin
  * val client = OkHttpClient.Builder()
  *    .addInterceptor(LoggingInterceptor(logger))
  *    .build()

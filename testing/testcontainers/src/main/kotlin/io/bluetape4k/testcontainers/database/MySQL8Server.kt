@@ -42,6 +42,11 @@ class MySQL8Server private constructor(
         /**
          * [MySQL8Server]를 생성합니다.
          *
+         * ```kotlin
+         * val server = MySQL8Server(image = "mysql", tag = "8.4")
+         * // server.url.startsWith("jdbc:mysql://") == true (시작 후)
+         * ```
+         *
          * @param image             docker image (기본: `mysql`)
          * @param tag               docker image tag (기본: `8.4`)
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)
@@ -69,6 +74,12 @@ class MySQL8Server private constructor(
 
         /**
          * [MySQL8Server]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("mysql").withTag("8.4")
+         * val server = MySQL8Server(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName         docker image name
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)

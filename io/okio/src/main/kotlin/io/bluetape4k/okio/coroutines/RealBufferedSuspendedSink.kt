@@ -9,7 +9,16 @@ import okio.Timeout
 import java.io.IOException
 
 /**
- * Okio 코루틴에서 `buffered` 함수를 제공합니다.
+ * [SuspendedSink]에 내부 버퍼를 추가하여 효율적인 쓰기를 제공하는 [BufferedSuspendedSink]를 반환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val bufferedSink = (output as okio.Sink).asSuspended().buffered()
+ * bufferedSink.writeUtf8("hello")
+ * bufferedSink.flush()
+ * val text = output.readUtf8()
+ * // text == "hello"
+ * ```
  */
 fun SuspendedSink.buffered(): BufferedSuspendedSink = RealBufferedSuspendedSink(this)
 

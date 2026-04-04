@@ -42,12 +42,28 @@ abstract class AbstractGrpcServer(
     private val running = atomic(false)
     private val lock = reentrantLock()
 
+    /** 서버가 바인딩된 포트 번호입니다. */
     val port: Int get() = server.port
+
+    /** 서버에 등록된 서비스 정의 목록입니다. */
     val serviceDefinitions: List<ServerServiceDefinition> get() = server.services
 
     override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
 
+    /**
+     * gRPC [Server] 인스턴스를 생성합니다.
+     *
+     * ## 동작/계약
+     * - [builder]에 [services]를 모두 등록한 뒤 `build()`를 호출합니다.
+     * - 서브클래스에서 override하여 추가 설정을 적용할 수 있습니다.
+     *
+     * ```kotlin
+     * // 서브클래스에서 override 예시
+     * override fun createServer(): Server =
+     *     builder.addService(myService).build()
+     * ```
+     */
     protected open fun createServer(): Server {
         log.debug { "Create gRPC server..." }
         return builder.apply { services.forEach { addService(it) } }.build()

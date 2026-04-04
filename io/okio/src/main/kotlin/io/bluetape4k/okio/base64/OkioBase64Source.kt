@@ -6,7 +6,16 @@ import okio.ByteString.Companion.decodeBase64
 import okio.Source
 
 /**
- * Base64로 인코딩된 [Source]를 읽어 디코딩하여 전달하는 [Source] 구현체.
+ * Okio 내장 Base64로 인코딩된 [Source]를 읽어 디코딩하는 [Source] 구현체.
+ *
+ * ```kotlin
+ * val encoded = bufferOf("aGVsbG8=")  // "hello" in Base64
+ * val source = OkioBase64Source(encoded)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  *
  * @see OkioBase64Sink
  * @see ApacheBase64Source
@@ -24,7 +33,17 @@ class OkioBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 }
 
 /**
- * Okio Base64 타입 변환을 위한 `asBase64Source` 함수를 제공합니다.
+ * [Source]를 Okio Base64 디코딩하는 [OkioBase64Source]로 변환합니다.
+ * 이미 [OkioBase64Source]인 경우 그대로 반환합니다.
+ *
+ * ```kotlin
+ * val encoded = bufferOf("aGVsbG8=")  // "hello" in Base64
+ * val source = (encoded as Source).asBase64Source()
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  */
 fun Source.asBase64Source(): OkioBase64Source = when (this) {
     is OkioBase64Source -> this

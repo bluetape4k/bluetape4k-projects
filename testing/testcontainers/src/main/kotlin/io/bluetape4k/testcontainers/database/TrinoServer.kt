@@ -46,6 +46,11 @@ class TrinoServer private constructor(
         /**
          * [TrinoServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = TrinoServer(image = "trinodb/trino", tag = "475")
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
          * @param image         Docker 이미지 이름 (기본: `trinodb/trino`)
          * @param tag           Docker 이미지 태그 (기본: `475`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -67,6 +72,12 @@ class TrinoServer private constructor(
 
         /**
          * [TrinoServer]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("trinodb/trino").withTag("475")
+         * val server = TrinoServer(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName     Docker 이미지 이름
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)

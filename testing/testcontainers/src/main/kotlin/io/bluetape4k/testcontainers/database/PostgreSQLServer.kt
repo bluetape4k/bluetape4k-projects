@@ -138,6 +138,12 @@ class PostgreSQLServer private constructor(
      * 표준 `postgres` 이미지에 포함된 contrib 확장(예: `pg_trgm`, `uuid-ossp`, `hstore`)을
      * 활성화할 때 사용합니다.
      *
+     * ```kotlin
+     * val server = PostgreSQLServer()
+     *     .withExtensions("pg_trgm", "uuid-ossp")
+     * // server 시작 시 pg_trgm, uuid-ossp 확장이 활성화됩니다.
+     * ```
+     *
      * @param extensions 활성화할 확장 이름 목록
      * @return this (메서드 체이닝용)
      */
@@ -173,6 +179,11 @@ class PostgreSQLServer private constructor(
          *
          * 표준 `postgres` 이미지에 포함된 contrib 확장(예: `pg_trgm`, `uuid-ossp`, `hstore`)을
          * 활성화할 때 사용합니다.
+         *
+         * ```kotlin
+         * val server = PostgreSQLServer.Launcher.withExtensions("pg_trgm", "uuid-ossp")
+         * // server.isRunning == true
+         * ```
          *
          * @param extensions 활성화할 확장 이름 목록
          */

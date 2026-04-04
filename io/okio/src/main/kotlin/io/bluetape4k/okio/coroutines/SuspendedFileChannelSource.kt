@@ -11,16 +11,39 @@ import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 
 /**
- * Okio 코루틴 타입 변환을 위한 `asSuspendedSource` 함수를 제공합니다.
+ * [AsynchronousFileChannel]을 코루틴 방식의 [SuspendedFileChannelSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * file.writeText("hello")
+ * val channel = AsynchronousFileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.READ)
+ * val source = channel.asSuspendedSource()
+ * // source를 코루틴에서 사용 가능
+ * source.close()
+ * ```
  */
 fun AsynchronousFileChannel.asSuspendedSource(): SuspendedFileChannelSource =
     SuspendedFileChannelSource(this)
 
 /**
- * [AsynchronousFileChannel] 기반의 [SuspendedSource] 구현체.
+ * [AsynchronousFileChannel] 기반의 코루틴 [SuspendedSource] 구현체.
  *
  * 성능을 위해 단일 direct [ByteBuffer]를 재사용하며, EOF는 `read()` 결과로 판별한다.
  * 리소스 해제는 블로킹 가능성이 있어 `Dispatchers.IO`에서 수행한다.
+ *
+ * ```kotlin
+ * val file = kotlin.io.path.createTempFile()
+ * file.writeText("hello")
+ * val channel = AsynchronousFileChannel.open(file,
+ *     java.nio.file.StandardOpenOption.READ)
+ * val source = SuspendedFileChannelSource(channel)
+ * val sink = Buffer()
+ * source.readAll(sink)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * source.close()
+ * ```
  */
 class SuspendedFileChannelSource(
     private val channel: AsynchronousFileChannel,

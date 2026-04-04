@@ -6,7 +6,7 @@ import org.apache.hc.client5.http.async.methods.SimpleRequestProducer
 /**
  * [SimpleRequestProducer]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val producer = simpleRequestProducerOf(simpleHttpRequest("GET"))
  * ```
  *

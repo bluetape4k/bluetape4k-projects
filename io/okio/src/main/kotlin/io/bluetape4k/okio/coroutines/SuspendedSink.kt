@@ -4,10 +4,18 @@ import okio.Buffer
 import okio.Timeout
 
 /**
- * Coroutines 방식으로 비동기로 [okio.Sink] 기능을 제공하는 인터페이스
- */
-/**
- * `SuspendedSink` 계약을 정의합니다.
+ * 코루틴 방식으로 비동기로 [okio.Sink] 기능을 제공하는 인터페이스.
+ * 모든 쓰기 작업은 `suspend` 함수로 제공됩니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink: SuspendedSink = (output as okio.Sink).asSuspended()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.flush()
+ * val text = output.readUtf8()
+ * // text == "hello"
+ * ```
  */
 interface SuspendedSink {
 

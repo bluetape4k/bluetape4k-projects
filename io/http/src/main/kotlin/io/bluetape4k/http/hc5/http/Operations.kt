@@ -7,7 +7,7 @@ import java.util.concurrent.Future
 /**
  * [Future]를 [Cancellable]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val cancellable = future.toCancellable()
  * ```
  *

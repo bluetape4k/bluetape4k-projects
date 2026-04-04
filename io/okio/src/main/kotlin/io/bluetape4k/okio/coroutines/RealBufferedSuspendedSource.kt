@@ -14,9 +14,16 @@ import okio.Options
 import okio.Timeout
 
 /**
- * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
+ * [SuspendedSource]에 내부 버퍼를 추가하여 효율적인 읽기를 제공하는 [BufferedSuspendedSource]를 반환합니다.
  * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
  * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
+ *
+ * ```kotlin
+ * val bufferedSource = bufferOf("hello world").asSuspended().buffered()
+ * val line = bufferedSource.readUtf8()
+ * // line == "hello world"
+ * bufferedSource.close()
+ * ```
  */
 fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)
 

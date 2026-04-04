@@ -6,6 +6,12 @@ import io.netty.util.ReferenceCounted
 /**
  * Wrap this [ByteBuf] into a [BitBuf]
  *
+ * ```kotlin
+ * val byteBuf = ByteBufAllocator.DEFAULT.buffer(4)
+ * val bitBuf = byteBuf.toBitBuf()
+ * // bitBuf is BitBuf
+ * ```
+ *
  * @return [BitBuf] that wraps this [ByteBuf]
  */
 fun ByteBuf.toBitBuf(): BitBuf = BitBufImpl(this)
@@ -53,6 +59,13 @@ interface BitBuf: ReferenceCounted {
      * or [writerIndex] of this buffer or the underlying [ByteBuf]. Unlike [ByteBuf.getBoolean], this method only reads
      * from a single bit, instead of a single [Byte].
      *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.setBoolean(0L, true)
+     * val bit = bitBuf.getBoolean(0L)
+     * // bit == true
+     * ```
+     *
      * @throws IndexOutOfBoundsException if the [index] is less than 0 or index + 1 is greater than [capacity]
      */
     fun getBoolean(index: Long): Boolean
@@ -60,6 +73,13 @@ interface BitBuf: ReferenceCounted {
     /**
      * Gets a [UInt] at the specified absolute bit [index] in this buffer. This method does not modify [readerIndex]
      * or [writerIndex] of this buffer or the underlying [ByteBuf].
+     *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.setBits(0L, 4, 0b1010)
+     * val value = bitBuf.getUnsignedBits(0L, 4)
+     * // value == 10u
+     * ```
      *
      * @throws IllegalArgumentException if the [amount] is less than 0 or greater than [Int.SIZE_BITS]
      * @throws IndexOutOfBoundsException if the [index] is less than 0 or index + 1 is greater than [capacity]
@@ -71,6 +91,13 @@ interface BitBuf: ReferenceCounted {
      * or [writerIndex] of this buffer or the underlying [ByteBuf]. Unlike [ByteBuf.setBoolean], this method only sets a
      * single bit, instead of a single byte.
      *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.setBoolean(0L, true)
+     * val bit = bitBuf.getBoolean(0L)
+     * // bit == true
+     * ```
+     *
      * @throws IndexOutOfBoundsException if the specified [index] is less than 0 or index + 1 is greater than [capacity]
      */
     fun setBoolean(index: Long, value: Boolean): BitBuf =
@@ -79,6 +106,13 @@ interface BitBuf: ReferenceCounted {
     /**
      * Sets the [value] at the specified absolute bit [index] in this buffer encoded in [amount] of bits. This method
      * does not modify [readerIndex] or [writerIndex] of this buffer or the underlying [ByteBuf].
+     *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.setBits(0L, 3, 0b101)
+     * val value = bitBuf.getUnsignedBits(0L, 3)
+     * // value == 5u
+     * ```
      *
      * @throws IllegalArgumentException if the [amount] is less than 0 or greater than [Int.SIZE_BITS]
      * @throws IndexOutOfBoundsException if the specified [index] is less than 0 or index + 1 is greater than [capacity]
@@ -89,6 +123,13 @@ interface BitBuf: ReferenceCounted {
      * Gets a [Boolean] at the current [readerIndex] and increases the [readerIndex] by 1 in this buffer. This method
      * also increases the [ByteBuf.readerIndex] in the underlying [ByteBuf], if required.
      *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.writeBoolean(true)
+     * val bit = bitBuf.readBoolean()
+     * // bit == true
+     * ```
+     *
      * @throws IndexOutOfBoundsException if [readableBits] is less than 1
      */
     fun readBoolean(): Boolean
@@ -98,6 +139,13 @@ interface BitBuf: ReferenceCounted {
      * [amount] in this buffer. This method also increases the [ByteBuf.readerIndex] in the underlying [ByteBuf], if
      * required.
      *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.writeBits(0b110, 3)
+     * val value = bitBuf.readUnsignedBits(3)
+     * // value == 6u
+     * ```
+     *
      * @throws IndexOutOfBoundsException if [readableBits] is less than [amount]
      */
     fun readUnsignedBits(amount: Int): UInt
@@ -106,6 +154,13 @@ interface BitBuf: ReferenceCounted {
      * Writes a [Boolean] at the current [writerIndex] and increases the [writerIndex] by 1 in this buffer. This method
      * also increases the [ByteBuf.writerIndex] in the underlying [ByteBuf], if required.
      *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.writeBoolean(true)
+     * val bit = bitBuf.readBoolean()
+     * // bit == true
+     * ```
+     *
      * @throws IndexOutOfBoundsException if [writableBits] is less than 1
      */
     fun writeBoolean(value: Boolean): BitBuf
@@ -113,6 +168,13 @@ interface BitBuf: ReferenceCounted {
     /**
      * Writes a [value] in [amount] of bits at the current [writerIndex] and increases the [writerIndex] by [amount] in
      * this buffer. This method also increases the [ByteBuf.writerIndex] in the underlying [ByteBuf], if required.
+     *
+     * ```kotlin
+     * val bitBuf = ByteBufAllocator.DEFAULT.buffer(1).toBitBuf()
+     * bitBuf.writeBits(0b111, 3)
+     * val value = bitBuf.readUnsignedBits(3)
+     * // value == 7u
+     * ```
      *
      * @throws IndexOutOfBoundsException if [writableBits] is less than [amount]
      */

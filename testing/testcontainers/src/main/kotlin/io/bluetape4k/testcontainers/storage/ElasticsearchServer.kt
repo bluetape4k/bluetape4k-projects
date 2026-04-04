@@ -42,6 +42,20 @@ class ElasticsearchServer private constructor(
         const val PORT = 9200
         const val TCP_PORT = 9300
 
+        /**
+         * [DockerImageName]으로 [ElasticsearchServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse(ElasticsearchServer.IMAGE).withTag(ElasticsearchServer.TAG)
+         * val server = ElasticsearchServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름
+         * @param useDefaultPort `true`면 9200/9300 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         * @param password       `elastic` 사용자 비밀번호
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -52,6 +66,20 @@ class ElasticsearchServer private constructor(
             return ElasticsearchServer(imageName, useDefaultPort, reuse, password)
         }
 
+        /**
+         * 이미지 이름/태그로 [ElasticsearchServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = ElasticsearchServer(image = ElasticsearchServer.IMAGE, tag = ElasticsearchServer.TAG)
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 9200/9300 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         * @param password       `elastic` 사용자 비밀번호
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,

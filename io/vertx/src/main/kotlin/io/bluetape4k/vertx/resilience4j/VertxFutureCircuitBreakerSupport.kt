@@ -8,9 +8,10 @@ import java.util.concurrent.TimeUnit
 /**
  * Vert.x [Future]를 [CircuitBreaker]로 decorate 하여 실행합니다.
  *
- * ```
+ * ```kotlin
  * val circuitBreaker = CircuitBreaker.ofDefaults("test")
  * val future = circuitBreaker.executeVertxFuture { service.returnHelloWorld() }
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수
@@ -25,14 +26,15 @@ inline fun <T> CircuitBreaker.executeVertxFuture(
 /**
  * Vert.x [Future]를 [CircuitBreaker]로 decorate 합니다.
  *
- * ```
+ * ```kotlin
  * val circuitBreaker = CircuitBreaker.ofDefaults("test")
  * val decorated = circuitBreaker.decorateVertxFuture { service.returnHelloWorld() }
- * val futureu = decorated.invoke()
+ * val future = decorated.invoke()
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수
- * @param supplier 를 CircuitBreaker로 decorate 한 함수
+ * @return [supplier] 를 [CircuitBreaker]로 decorate 한 함수
  */
 inline fun <T> CircuitBreaker.decorateVertxFuture(
     crossinline supplier: () -> Future<T>,

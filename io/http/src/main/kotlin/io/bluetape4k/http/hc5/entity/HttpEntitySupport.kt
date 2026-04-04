@@ -10,7 +10,7 @@ import java.nio.charset.Charset
  *
  * 이 과정은 **조용히** 수행되며, IOException을 throw하지 않습니다.
  *
- * ```
+ * ```kotlin
  * val response = httpClient.execute(httpGet)
  * response.entity.consumeQuietly()
  * ```
@@ -22,7 +22,7 @@ fun HttpEntity?.consumeQuietly() {
 /**
  * 엔티티 콘텐츠가 모두 소비되고 콘텐츠 스트림이 존재하는 경우 닫습니다.
  *
- * ```
+ * ```kotlin
  * val response = httpClient.execute(httpGet)
  * response.entity.consume()
  * ```
@@ -34,7 +34,7 @@ fun HttpEntity?.consume() {
 /**
  * 엔티티의 내용을 읽어 ByteArray 로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val response = httpClient.execute(httpGet)
  * val content = response.entity.toByteArrayOrNull()
  * ```
@@ -49,7 +49,7 @@ fun HttpEntity.toByteArrayOrNull(maxResultLength: Int = Int.MAX_VALUE): ByteArra
 /**
  * 엔티티 콘텐츠를 문자열로 반환합니다. 문자셋이 없는 경우 제공된 기본 문자셋("UTF-8")을 사용합니다.
  *
- * ```
+ * ```kotlin
  * val response = httpClient.execute(httpGet)
  * val content = response.entity.toStringOrNull()
  * ```
@@ -70,7 +70,7 @@ fun HttpEntity.toStringOrNull(
  *
  * 인코딩은 엔티티의 `Content-Encoding` 헤더에서 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val response = httpClient.execute(httpGet)
  * val params = response.entity.parse()
  * ```

@@ -2,6 +2,16 @@ package io.bluetape4k.netty.buffer
 
 /**
  * Netty 처리에서 사용하는 `Smart` 타입입니다.
+ *
+ * Smart 인코딩에서 사용하는 범위 상수를 정의합니다.
+ * 값의 크기에 따라 1바이트 또는 2바이트로 압축하는 인코딩 방식입니다.
+ *
+ * ```kotlin
+ * val maxByte = Smart.MAX_BYTE_VALUE
+ * // maxByte == 63
+ * val maxShort = Smart.MAX_SHORT_VALUE
+ * // maxShort == 16383
+ * ```
  */
 object Smart {
     const val MAX_BYTE_VALUE: Int = 63

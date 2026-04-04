@@ -7,7 +7,14 @@ import org.apache.hc.client5.http.psl.PublicSuffixMatcherLoader
 import org.apache.hc.core5.http.config.Lookup
 
 /**
- * 제공된 PublicSuffixMatcher로 기본 레지스트리를 생성합니다.
+ * 제공된 PublicSuffixMatcher로 기본 쿠키 스펙 레지스트리를 생성합니다.
+ *
+ * ```kotlin
+ * val registry = defaultRegistryOf()
+ * val httpClient = httpClient {
+ *     setDefaultCookieSpecRegistry(registry)
+ * }
+ * ```
  *
  * @param publicSuffixMatcher 사용할 [PublicSuffixMatcher] (기본값: [PublicSuffixMatcherLoader.getDefault])
  * @return [CookieSpecFactory] 조회용 [Lookup]

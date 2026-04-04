@@ -12,6 +12,13 @@ import io.vertx.sqlclient.SqlResult
  * MySQL은 `last-inserted-id` 속성에서 값을 조회하고, 그 외 구현체(JDBC 등)는
  * `GENERATED_KEYS`에서 [columnName] 키를 조회합니다.
  *
+ * ```kotlin
+ * val result = sqlClient.preparedQuery("INSERT INTO users (name) VALUES ($1)")
+ *     .execute(Tuple.of("Alice")).coAwait()
+ * val id = result.getGeneratedId<Long>(conn, "id")
+ * // id != null  (생성된 자동 증가 값)
+ * ```
+ *
  * @param ID 식별자 타입
  * @param client 현재 결과를 생성한 SQL 클라이언트 연결
  * @param columnName 생성 키 컬럼명 (기본값: `id`)

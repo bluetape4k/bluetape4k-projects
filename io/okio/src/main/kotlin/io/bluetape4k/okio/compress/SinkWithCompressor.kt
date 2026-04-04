@@ -5,49 +5,120 @@ import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
 
 /**
- * Okio 압축/해제에서 `compressableSink` 함수를 제공합니다.
+ * [Compressor]를 사용해 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).compressableSink(Compressors.GZip)
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 GZip 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.compressableSink(compressor: Compressor): CompressableSink =
     CompressableSink(this, compressor)
 
 /**
- * Okio 압축/해제에서 `compressableSink` 함수를 제공합니다.
+ * [StreamingCompressor]를 사용해 스트리밍 방식으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).compressableSink(Compressors.GZip as StreamingCompressor)
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * ```
  */
 fun okio.Sink.compressableSink(compressor: StreamingCompressor): CompressableSink =
     StreamingCompressSink(this, compressor)
 
 /**
- * Okio 압축/해제에서 `deflateSink` 함수를 제공합니다.
+ * Deflate 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).deflateSink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 Deflate 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.deflateSink(): CompressableSink =
     compressableSink(Compressors.Deflate)
 
 /**
- * Okio 압축/해제에서 `gzipSink` 함수를 제공합니다.
+ * GZip 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).gzipSink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 GZip 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.gzipSink(): CompressableSink =
     compressableSink(Compressors.GZip)
 
 /**
- * Okio 압축/해제에서 `lz4Sink` 함수를 제공합니다.
+ * LZ4 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).lz4Sink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 LZ4 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.lz4Sink(): CompressableSink =
     compressableSink(Compressors.LZ4)
 
 /**
- * Okio 압축/해제에서 `snappySink` 함수를 제공합니다.
+ * Snappy 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).snappySink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 Snappy 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.snappySink(): CompressableSink =
     compressableSink(Compressors.Snappy)
 
 /**
- * Okio 압축/해제에서 `zstdSink` 함수를 제공합니다.
+ * Zstd 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).zstdSink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 Zstd 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.zstdSink(): CompressableSink =
     compressableSink(Compressors.Zstd)
 
 /**
- * Okio 압축/해제에서 `bzip2Sink` 함수를 제공합니다.
+ * BZip2 알고리즘으로 압축하는 [CompressableSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * val sink = (output as okio.Sink).bzip2Sink()
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.close()
+ * // output에는 BZip2 압축된 데이터가 담겨 있다
+ * ```
  */
 fun okio.Sink.bzip2Sink(): CompressableSink =
     compressableSink(Compressors.BZip2)

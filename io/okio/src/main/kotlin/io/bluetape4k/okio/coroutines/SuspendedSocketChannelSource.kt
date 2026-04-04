@@ -12,16 +12,33 @@ import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 
 /**
- * Okio 코루틴 타입 변환을 위한 `asSuspendedSource` 함수를 제공합니다.
+ * [AsynchronousSocketChannel]을 코루틴 방식의 [SuspendedSocketChannelSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val channel = AsynchronousSocketChannel.open()
+ * // channel.connect(addr).get() 후 사용
+ * val source = channel.asSuspendedSource()
+ * // source를 코루틴에서 사용 가능
+ * ```
  */
 fun AsynchronousSocketChannel.asSuspendedSource(): SuspendedSocketChannelSource =
     SuspendedSocketChannelSource(this)
 
 /**
- * [AsynchronousSocketChannel] 기반의 [SuspendedSource] 구현체.
+ * [AsynchronousSocketChannel] 기반의 코루틴 [SuspendedSource] 구현체.
  *
  * 반복 read에서 direct [ByteBuffer]를 재사용해 할당 비용을 줄이고,
  * close는 블로킹 가능성을 고려해 `Dispatchers.IO`에서 수행한다.
+ *
+ * ```kotlin
+ * val channel = AsynchronousSocketChannel.open()
+ * // channel.connect(addr).get() 후 사용
+ * val source = SuspendedSocketChannelSource(channel)
+ * val sink = Buffer()
+ * source.read(sink, 1024L)
+ * val text = sink.readUtf8()
+ * source.close()
+ * ```
  */
 class SuspendedSocketChannelSource(
     private val channel: AsynchronousSocketChannel,

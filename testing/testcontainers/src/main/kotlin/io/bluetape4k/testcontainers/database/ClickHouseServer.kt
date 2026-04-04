@@ -53,6 +53,11 @@ class ClickHouseServer private constructor(
         /**
          * [ClickHouseServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = ClickHouseServer(image = "clickhouse/clickhouse-server", tag = "25.4")
+         * // server.url.startsWith("jdbc:clickhouse://") == true (시작 후)
+         * ```
+         *
          * @param image             docker image (기본: `clickhouse/clickhouse-server`)
          * @param tag               docker image tag (기본: `25.4`)
          * @param username          사용자 이름 (기본: `test`)
@@ -76,6 +81,21 @@ class ClickHouseServer private constructor(
             return invoke(imageName, username, password, useDefaultPort, reuse)
         }
 
+        /**
+         * [DockerImageName]으로 [ClickHouseServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("clickhouse/clickhouse-server").withTag("25.4")
+         * val server = ClickHouseServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름
+         * @param username       사용자 이름 (기본: `test`)
+         * @param password       비밀번호 (기본: `test`)
+         * @param useDefaultPort `true`면 8123/9000 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,

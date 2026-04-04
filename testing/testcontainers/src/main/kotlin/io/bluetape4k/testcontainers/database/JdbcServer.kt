@@ -6,31 +6,62 @@ import io.bluetape4k.testcontainers.GenericServer
 
 /**
  * Jdbc Server의 기본 정보를 제공합니다.
+ *
+ * ```kotlin
+ * val server: JdbcServer = PostgreSQLServer()
+ * // server.getDriverClassName() == "org.postgresql.Driver"
+ * // server.getJdbcUrl().startsWith("jdbc:postgresql://") == true
+ * ```
  */
 interface JdbcServer: GenericServer {
 
     /**
      * Jdbc Driver class name을 제공합니다.
+     *
+     * ```kotlin
+     * val server: JdbcServer = PostgreSQLServer()
+     * // server.getDriverClassName() == "org.postgresql.Driver"
+     * ```
      */
     fun getDriverClassName(): String
 
     /**
      * Jdbc URL을 제공합니다.
+     *
+     * ```kotlin
+     * val server: JdbcServer = PostgreSQLServer()
+     * // server.getJdbcUrl().startsWith("jdbc:postgresql://") == true
+     * ```
      */
     fun getJdbcUrl(): String
 
     /**
      * Jdbc Username을 제공합니다.
+     *
+     * ```kotlin
+     * val server: JdbcServer = PostgreSQLServer()
+     * // server.getUsername() == "test"
+     * ```
      */
     fun getUsername(): String?
 
     /**
      * Jdbc Password를 제공합니다.
+     *
+     * ```kotlin
+     * val server: JdbcServer = PostgreSQLServer()
+     * // server.getPassword() == "test"
+     * ```
      */
     fun getPassword(): String?
 
     /**
      * Database 이름을 제공합니다.
+     *
+     * ```kotlin
+     * val server: JdbcServer = PostgreSQLServer()
+     * // server.getDatabaseName() == "test"
+     * ```
      */
     fun getDatabaseName(): String?
 
@@ -46,6 +77,13 @@ interface JdbcServer: GenericServer {
  * 이 함수는 `Map<String, String>`(null 값 제외)을 반환합니다.
  * [writeToSystemProperties][io.bluetape4k.testcontainers.PropertyExportingServer.writeToSystemProperties]는
  * 기존에도 null 필터링했으므로 시스템 프로퍼티 등록에는 영향 없습니다.
+ *
+ * ```kotlin
+ * val server = PostgreSQLServer()
+ * val props = server.buildKebabJdbcProperties()
+ * // props["jdbc-url"]?.startsWith("jdbc:postgresql://") == true
+ * // props["driver-class-name"] == "org.postgresql.Driver"
+ * ```
  */
 fun <T: JdbcServer> T.buildKebabJdbcProperties(): Map<String, String> = buildMap {
     put("jdbc-url", getJdbcUrl())
@@ -105,6 +143,12 @@ private fun JdbcServer.newHikariConfig(builder: HikariConfig.() -> Unit): Hikari
 
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
+ *
+ * ```kotlin
+ * val server = PostgreSQLServer()
+ * val ds = server.getDataSource { maximumPoolSize = 5 }
+ * // ds.isClosed == false
+ * ```
  */
 fun <T: JdbcServer> T.getDataSource(
     builder: HikariConfig.() -> Unit = {},
@@ -115,6 +159,12 @@ fun <T: JdbcServer> T.getDataSource(
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
  * [getDataSource]의 별칭입니다.
+ *
+ * ```kotlin
+ * val server = PostgreSQLServer()
+ * val ds = server.getHikariDataSource { maximumPoolSize = 5 }
+ * // ds.isClosed == false
+ * ```
  */
 fun <T: JdbcServer> T.getHikariDataSource(
     builder: HikariConfig.() -> Unit = {},

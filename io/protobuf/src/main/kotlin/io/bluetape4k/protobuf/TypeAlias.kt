@@ -23,10 +23,24 @@ typealias ProtoDuration = com.google.protobuf.Duration
 /** Protobuf `Timestamp` 타입 별칭입니다. */
 typealias ProtoTimestamp = com.google.protobuf.Timestamp
 
-/** 기본 `Empty` 인스턴스입니다. */
+/**
+ * 기본 `Empty` 인스턴스입니다.
+ *
+ * ```kotlin
+ * val empty = PROTO_EMPTY
+ * // empty.isInitialized == true
+ * ```
+ */
 @JvmField
 val PROTO_EMPTY: ProtoEmpty = ProtoEmpty.getDefaultInstance()
 
-/** 기본 `Any` 인스턴스입니다. */
+/**
+ * 기본 `Any` 인스턴스입니다.
+ *
+ * ```kotlin
+ * val any = PROTO_ANY
+ * // any.typeUrl.isEmpty() == true
+ * ```
+ */
 @JvmField
 val PROTO_ANY: ProtoAny = ProtoAny.getDefaultInstance()

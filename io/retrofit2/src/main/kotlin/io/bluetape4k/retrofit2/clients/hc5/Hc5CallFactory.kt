@@ -82,10 +82,29 @@ class Hc5CallFactory private constructor(
         }
     }
 
+    /**
+     * 새 [okhttp3.Call] 인스턴스를 생성합니다.
+     *
+     * ```kotlin
+     * val factory = hc5CallFactoryOf()
+     * val request = okhttp3.Request.Builder().url("https://example.com").build()
+     * val call = factory.newCall(request)
+     * // call != null
+     * ```
+     */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
         return AsyncClientCall(request)
     }
 
+    /**
+     * 내부 HC5 비동기 클라이언트를 종료합니다.
+     *
+     * ```kotlin
+     * val factory = hc5CallFactoryOf()
+     * factory.close()
+     * // 내부 asyncClient 종료됨
+     * ```
+     */
     override fun close() {
         asyncClient.close()
     }

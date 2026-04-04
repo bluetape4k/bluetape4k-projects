@@ -39,6 +39,16 @@ class VertxHttpClient private constructor(
         }
     }
 
+    /**
+     * Feign [Request]를 동기 실행하고 [feign.Response]를 반환합니다.
+     *
+     * ```kotlin
+     * val client = VertxHttpClient()
+     * val request = feignRequestOf("https://example.com/health", HttpMethod.GET)
+     * val response = client.execute(request, defaultRequestOptions)
+     * // response.status() == 200
+     * ```
+     */
     override fun execute(
         feignRequest: feign.Request,
         feignOptions: feign.Request.Options,

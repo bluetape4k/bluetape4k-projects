@@ -96,12 +96,24 @@ class Neo4jServer private constructor(
     override val url: String get() = "bolt://$host:$port"
 
     /**
-     * Neo4j Bolt 프로토콜 URL을 반환합니다. (예: `bolt://localhost:7687`)
+     * Neo4j Bolt 프로토콜 URL을 반환합니다.
+     *
+     * ```kotlin
+     * val server = Neo4jServer()
+     * val boltUrl = server.getBoltUrlString()
+     * // boltUrl == "bolt://${server.host}:${server.getMappedPort(7687)}"
+     * ```
      */
     fun getBoltUrlString(): String = "bolt://$host:${getMappedPort(BOLT_PORT)}"
 
     /**
-     * Neo4j HTTP 프로토콜 URL을 반환합니다. (예: `http://localhost:7474`)
+     * Neo4j HTTP 프로토콜 URL을 반환합니다.
+     *
+     * ```kotlin
+     * val server = Neo4jServer()
+     * val httpUrl = server.getHttpUrlString()
+     * // httpUrl == "http://${server.host}:${server.getMappedPort(7474)}"
+     * ```
      */
     fun getHttpUrlString(): String = "http://$host:${getMappedPort(HTTP_PORT)}"
 

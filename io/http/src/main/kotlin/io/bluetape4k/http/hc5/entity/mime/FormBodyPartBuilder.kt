@@ -7,7 +7,7 @@ import org.apache.hc.client5.http.entity.mime.FormBodyPartBuilder
 /**
  * [FormBodyPart] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val formBodyPart = formBodyPart {
  *    setName("file")
  *    setBody(FileBody(file))
@@ -27,7 +27,7 @@ inline fun formBodyPart(
 /**
  * [FormBodyPart] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val formBodyPart = formBodyPart("file", FileBody(file)) {
  *   addField("name", "file")
  *   addField("filename", file.name)
@@ -54,7 +54,7 @@ inline fun formBodyPart(
 /**
  * [FormBodyPart] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val formBodyPart = formBodyPartOf("file", FileBody(file), mapOf(
  *   "name" to "file",
  *   "filename" to file.name,

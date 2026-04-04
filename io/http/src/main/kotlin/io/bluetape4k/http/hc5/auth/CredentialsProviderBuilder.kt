@@ -9,7 +9,7 @@ import org.apache.hc.core5.http.HttpHost
 /**
  * [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = credentialsProvider {
  *    add(AuthScope.ANY, UsernamePasswordCredentials("username", "password"))
  *    add(HttpHost("localhost", 8080), UsernamePasswordCredentials("username", "password"))
@@ -27,7 +27,7 @@ inline fun credentialsProvider(
 /**
  * 빈 [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = emptyCredentialsProvider()
  * ```
  *
@@ -38,7 +38,7 @@ fun emptyCredentialsProvider(): CredentialsProvider = credentialsProvider { }
 /**
  * [AuthScope]와 [Credentials]를 추가한 [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = credentialsProviderOf(
  *      AuthScope.ANY,
  *      UsernamePasswordCredentials("username", "password")
@@ -63,7 +63,7 @@ inline fun credentialsProviderOf(
 /**
  * [HttpHost]와 [Credentials]를 추가한 [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = credentialsProviderOf(
  *      HttpHost("localhost", 8080),
  *      UsernamePasswordCredentials("username", "password")
@@ -88,7 +88,7 @@ inline fun credentialsProviderOf(
 /**
  * [AuthScope]와 [username], [password]를 추가한 [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = credentialsProviderOf(
  *      AuthScope.ANY,
  *      "username",
@@ -116,7 +116,7 @@ inline fun credentialsProviderOf(
 /**
  * [HttpHost]와 [username], [password]를 추가한 [CredentialsProvider]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val credentialsProvider = credentialsProviderOf(
  *      HttpHost("localhost", 8080),
  *      "username",

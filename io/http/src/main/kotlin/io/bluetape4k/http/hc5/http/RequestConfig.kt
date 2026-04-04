@@ -5,7 +5,7 @@ import org.apache.hc.client5.http.config.RequestConfig
 /**
  * 새로운 [RequestConfig]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val requestConfig = requestConfig {
  *    setConnectTimeout(1000)
  *    setSocketTimeout(1000)

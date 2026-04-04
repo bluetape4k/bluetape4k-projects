@@ -22,6 +22,11 @@ val defaultVertxHttpClientOptions: HttpClientOptions = httpClientOptionsOf(
 
 /**
  * 기본 Vert.x [HttpClient] 입니다.
+ *
+ * ```kotlin
+ * val client = defaultVertxHttpClient
+ * // keep-alive, ALPN, TLS 인증서 검증이 활성화된 기본 클라이언트
+ * ```
  */
 val defaultVertxHttpClient: HttpClient by lazy {
     vertxHttpClientOf(defaultVertxHttpClientOptions)
@@ -29,6 +34,15 @@ val defaultVertxHttpClient: HttpClient by lazy {
 
 /**
  * 주어진 [options]으로 새 Vert.x [HttpClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val options = httpClientOptionsOf(
+ *     keepAlive = true,
+ *     useAlpn = true,
+ *     trustAll = false,
+ * )
+ * val client = vertxHttpClientOf(options)
+ * ```
  *
  * @param options [HttpClientOptions]
  * @return [HttpClient]

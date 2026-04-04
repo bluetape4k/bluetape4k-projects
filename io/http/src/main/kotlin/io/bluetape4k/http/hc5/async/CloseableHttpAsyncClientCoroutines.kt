@@ -13,7 +13,7 @@ import org.apache.hc.core5.http.protocol.HttpContext
 /**
  * Coroutines 방식으로 [CloseableHttpAsyncClient]를 사용하여 요청을 실행합니다.
  *
- * ```
+ * ```kotlin
  * val client = CloseableHttpAsyncClientBuilder.create().build()
  * client.start()
  *

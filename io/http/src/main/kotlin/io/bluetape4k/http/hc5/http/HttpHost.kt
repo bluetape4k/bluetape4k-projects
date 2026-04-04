@@ -6,7 +6,7 @@ import java.net.URI
 /**
  * [URI]를 [HttpHost]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val httpHost = URI("http://localhost:8080").toHttpHost()
  * ```
  *
@@ -18,7 +18,7 @@ fun URI.toHttpHost(): HttpHost = HttpHost.create(this)
 /**
  * URL 문자열을 [HttpHost]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val httpHost = httpHostOf("http://localhost:8080")
  * ```
  *

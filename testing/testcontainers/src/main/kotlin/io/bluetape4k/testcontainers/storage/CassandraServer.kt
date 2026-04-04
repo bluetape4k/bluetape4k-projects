@@ -34,7 +34,7 @@ import javax.script.ScriptException
  *
  * 참고: [Cassandra docker image](https://hub.docker.com/_/cassandra)
  *
- * ```
+ * ```kotlin
  * val cassandraServer = CassandraServer().apply { start() }
  * ```
  *
@@ -54,6 +54,19 @@ class CassandraServer private constructor(
         const val LOCAL_DATACENTER1 = "datacenter1"
         const val CQL_PORT = 9042
 
+        /**
+         * 이미지 이름/태그로 [CassandraServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = CassandraServer(image = "cassandra", tag = "5")
+         * // server.cqlPort > 0 (시작 후)
+         * ```
+         *
+         * @param image Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag   Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 9042 포트를 고정 바인딩합니다.
+         * @param reuse 컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -63,11 +76,24 @@ class CassandraServer private constructor(
         ): CassandraServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
-            
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * [DockerImageName]으로 [CassandraServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("cassandra").withTag("5")
+         * val server = CassandraServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName Docker 이미지 이름
+         * @param useDefaultPort `true`면 9042 포트를 고정 바인딩합니다.
+         * @param reuse 컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -152,6 +178,12 @@ class CassandraServer private constructor(
 
     /**
      * 컨테이너 구성을 위한 외부 설정 경로를 저장합니다.
+     *
+     * ```kotlin
+     * val server = CassandraServer()
+     * server.withConfigurationOverride("cassandra/custom.yaml")
+     * // server.configLocation == "cassandra/custom.yaml"
+     * ```
      */
     fun withConfigurationOverride(configLocation: String) = apply {
         this.configLocation = configLocation
@@ -159,6 +191,12 @@ class CassandraServer private constructor(
 
     /**
      * Cassandra Server 시작 시 [initScriptPath] 의 script를 실행시켜 준다.
+     *
+     * ```kotlin
+     * val server = CassandraServer()
+     * server.withInitScript("schema/init-schema.cql")
+     * // server 시작 시 init-schema.cql이 자동 실행됩니다.
+     * ```
      *
      * @param initScriptPath Cassandra database 초기화를 위한 script file path (eg: schema/init-schema.cql)
      */
@@ -168,6 +206,12 @@ class CassandraServer private constructor(
 
     /**
      * 현재 서버에 연결되는 [CqlSessionBuilder]를 생성합니다.
+     *
+     * ```kotlin
+     * val server = CassandraServer()
+     * val builder = server.newCqlSessionBuilder()
+     * // builder.build() 호출 시 Cassandra 세션 생성 가능
+     * ```
      */
     fun newCqlSessionBuilder(): CqlSessionBuilder =
         CqlSessionBuilder().addContactPoint(contactPoint).withLocalDatacenter(LOCAL_DATACENTER1)
@@ -194,6 +238,12 @@ class CassandraServer private constructor(
         /**
          * [cassandra4]에 접속하는 [CqlSession]을 빌드하는 [CqlSessionBuilder] 를 생성합니다.
          *
+         * ```kotlin
+         * val builder = CassandraServer.Launcher.newCqlSessionBuilder()
+         * val session = builder.build()
+         * // session.isClosed == false
+         * ```
+         *
          * @param localDataCenter local datacenter name (default=datacenter1)
          * @return [CqlSessionBuilder] 인스턴스
          */
@@ -202,6 +252,18 @@ class CassandraServer private constructor(
                 .withConfigLoader(DriverConfigLoader.fromClasspath("application.conf"))
         }
 
+        /**
+         * 지정된 keyspace를 재생성하고 [CqlSession]을 반환합니다.
+         *
+         * ```kotlin
+         * val session = CassandraServer.Launcher.getOrCreateSession("my_keyspace")
+         * // session.keyspace.isPresent == true
+         * ```
+         *
+         * @param keyspace 사용할 Cassandra keyspace 이름
+         * @param builder [CqlSessionBuilder] 추가 설정 블록
+         * @return 연결된 [CqlSession] 인스턴스
+         */
         inline fun getOrCreateSession(
             keyspace: String = DEFAULT_KEYSPACE,
             builder: CqlSessionBuilder.() -> Unit = {},
@@ -216,6 +278,16 @@ class CassandraServer private constructor(
             }
         }
 
+        /**
+         * 지정된 keyspace를 삭제 후 재생성합니다.
+         *
+         * ```kotlin
+         * CassandraServer.Launcher.recreateKeyspace("my_keyspace")
+         * // keyspace가 삭제되고 다시 생성됩니다.
+         * ```
+         *
+         * @param keyspace 재생성할 keyspace 이름
+         */
         fun recreateKeyspace(keyspace: String) {
             if (keyspace.isNotBlank()) {
                 // 테스트 서버에 keyspace 가 존재하지 않을 수 있으므로, 새로 추가하도록 합니다.
@@ -228,6 +300,21 @@ class CassandraServer private constructor(
             }
         }
 
+        /**
+         * 지정된 keyspace를 생성합니다.
+         *
+         * ```kotlin
+         * CassandraServer.Launcher.newCqlSessionBuilder().build().use { session ->
+         *     val applied = CassandraServer.Launcher.createKeyspace(session, "my_keyspace")
+         *     // applied == true
+         * }
+         * ```
+         *
+         * @param session 연결된 [CqlSession]
+         * @param keyspace 생성할 keyspace 이름
+         * @param replicationFactor replication factor (기본값: 1)
+         * @return 적용 여부
+         */
         fun createKeyspace(
             session: CqlSession,
             keyspace: String,
@@ -240,6 +327,20 @@ class CassandraServer private constructor(
             return session.execute(createKeyspaceStmt).wasApplied()
         }
 
+        /**
+         * 지정된 keyspace를 삭제합니다.
+         *
+         * ```kotlin
+         * CassandraServer.Launcher.newCqlSessionBuilder().build().use { session ->
+         *     val applied = CassandraServer.Launcher.dropKeyspace(session, "my_keyspace")
+         *     // applied == true (존재할 경우)
+         * }
+         * ```
+         *
+         * @param session 연결된 [CqlSession]
+         * @param keyspace 삭제할 keyspace 이름
+         * @return 적용 여부
+         */
         fun dropKeyspace(session: CqlSession, keyspace: String): Boolean {
             val dropKeyspaceStmt = SchemaBuilder.dropKeyspace(keyspace).ifExists().build()
             log.info { "Drop keyspace if exists. statement=${dropKeyspaceStmt.query}" }

@@ -7,7 +7,7 @@ import org.apache.hc.core5.http.ContentType
 /**
  * [SimpleHttpResponse]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val response = simpleHttpResponse(200) {
  *    body("Hello, World!")
  *    contentType(ContentType.TEXT_PLAIN)
@@ -29,7 +29,7 @@ inline fun simpleHttpResponse(
 /**
  * [SimpleHttpResponse]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val response = simpleHttpResponseOf(200, "Hello, World!")
  * ```
  *
@@ -53,7 +53,7 @@ inline fun simpleHttpResponseOf(
 /**
  * [SimpleHttpResponse]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val response = simpleHttpResponseOf(200, "Hello, World!".toUtf8Bytes())
  * ```
  *

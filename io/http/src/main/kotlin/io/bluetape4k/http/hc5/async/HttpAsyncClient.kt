@@ -17,7 +17,7 @@ val defaultHttpAsyncClient: CloseableHttpAsyncClient =
 /**
  * [CloseableHttpAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClient {
  *    setConnectionManager(cm)
  *    setMaxConnTotal(100)
@@ -39,7 +39,7 @@ inline fun httpAsyncClient(
 /**
  * [CloseableHttpAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = httpAsyncClientOf(cm) {
  *    setMaxConnTotal(100)
  *    setMaxConnPerRoute(10)
@@ -63,8 +63,9 @@ inline fun httpAsyncClientOf(
 /**
  * 기본 설정과 System Property 설정으로 [CloseableHttpAsyncClient]를 생성합니다.
  *
- * ```
- * val client = httpAsyncClientSystemOf(cm)
+ * ```kotlin
+ * val client = httpAsyncClientSystemOf()
+ * // 시스템 속성(http.proxyHost 등)이 적용된 비동기 클라이언트
  * ```
  *
  * @return [CloseableHttpAsyncClient] 인스턴스
@@ -82,7 +83,7 @@ val defaultH2AsyncClient: CloseableHttpAsyncClient =
 /**
  * Http2 [CloseableHttpAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = h2AsyncClient {
  *   setH2Config(h2config)
  *   setConnectionManager(cm)
@@ -102,6 +103,14 @@ inline fun h2AsyncClient(
 
 /**
  * 기본 설정으로 Http2 [CloseableHttpAsyncClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val client = h2AsyncClientOf()
+ * client.start()
+ * // 기본 설정의 HTTP/2 비동기 클라이언트
+ * ```
+ *
+ * @return [CloseableHttpAsyncClient] 인스턴스
  */
 fun h2AsyncClientOf(): CloseableHttpAsyncClient =
     HttpAsyncClients.createHttp2Default()
@@ -109,7 +118,7 @@ fun h2AsyncClientOf(): CloseableHttpAsyncClient =
 /**
  * Http2 [CloseableHttpAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = h2AsyncClientOf(h2config) {
  *      setConnectionManager(cm)
  *      setMaxConnTotal(100)
@@ -132,6 +141,13 @@ inline fun h2AsyncClientOf(
 
 /**
  * System Property 설정으로 Http2 [CloseableHttpAsyncClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val client = h2AsyncClientSystemOf()
+ * // 시스템 속성이 적용된 HTTP/2 비동기 클라이언트
+ * ```
+ *
+ * @return [CloseableHttpAsyncClient] 인스턴스
  */
 fun h2AsyncClientSystemOf(): CloseableHttpAsyncClient =
     HttpAsyncClients.createHttp2System().apply { start() }

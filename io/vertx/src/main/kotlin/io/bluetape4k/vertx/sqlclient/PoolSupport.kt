@@ -10,13 +10,14 @@ import java.sql.SQLException
 /**
  * Transaction 환경 하에서 Database 작업을 수행합니다.
  *
- * ```
+ * ```kotlin
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withSuspendTransaction {
- *     SqlTemplate.forQuery("select * from Person where id=#{id}")
- *      .execute(mapOf("id" to 1))
- *      .await()
+ * val rows = pool.withSuspendTransaction { conn ->
+ *     SqlTemplate.forQuery(conn, "select * from Person where id=#{id}")
+ *         .execute(mapOf("id" to 1))
+ *         .coAwait()
  * }
+ * // rows.size() >= 0
  * ```
  *
  * @param action Transaction 하에서 수행할 작업
@@ -51,16 +52,16 @@ suspend inline fun <T> Pool.withSuspendTransaction(
 /**
  * 테스트 시에 기존 데이터에 영향을 주지 않도록, Tx 작업이 성공하더라도 Rollback을 하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withSuspendRollback {
- *     SqlTemplate.forQuery("select * from Person where id=#{id}")
- *      .execute(mapOf("id" to 1))
- *      .await()
+ * val rows = pool.withSuspendRollback { conn ->
+ *     SqlTemplate.forQuery(conn, "select * from Person where id=#{id}")
+ *         .execute(mapOf("id" to 1))
+ *         .coAwait()
  * }
+ * // rows.size() >= 0  (작업 후 자동 롤백됨)
  * ```
  *
- * @param T
  * @param action Transaction 하에서 수행할 작업
  * @return 작업 결과
  *

@@ -23,7 +23,7 @@ import java.io.Serializable
  * - [setParameters(NameValuePair...)]
  * - [setFile(java.io.File)]
  *
- * ```
+ * ```kotlin
  * val entity = httpEntity {
  *    setText("Hello, World!")
  *    setContentType(ContentTypes.TEXT_PLAIN_UTF8)
@@ -43,7 +43,7 @@ inline fun httpEntity(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf("Hello, World!") {
  *      setParameters(NameValuePair("key", "value"))
  * }
@@ -75,7 +75,7 @@ inline fun httpEntityOf(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf(byteArrayOf(1, 2, 3, 4)) {
  *    setParameters(NameValuePair("key", "value"))
  * }
@@ -107,7 +107,7 @@ inline fun httpEntityOf(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf(inputStream) {
  *   setParameters(NameValuePair("key", "value"))
  * }
@@ -139,7 +139,7 @@ inline fun httpEntityOf(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf(file) {
  *   setParameters(NameValuePair("key", "value"))
  * }
@@ -171,7 +171,7 @@ inline fun httpEntityOf(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf(serializable) {
  *   setParameters(NameValuePair("key", "value"))
  *   setContentType(ContentTypes.APPLICATION_JAVA_OBJECT)
@@ -203,7 +203,7 @@ inline fun httpEntityOf(
 /**
  * [HttpEntity]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val entity = httpEntityOf(parameters) {
  *   setContentType(ContentTypes.APPLICATION_FORM_URLENCODED)
  * }

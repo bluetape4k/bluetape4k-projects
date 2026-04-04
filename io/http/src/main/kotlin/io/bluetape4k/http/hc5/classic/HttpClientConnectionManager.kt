@@ -12,7 +12,7 @@ val defaultHttpClientConnectionManager: PoolingHttpClientConnectionManager =
 /**
  * Apache HttpComponent 5 의 [HttpClientConnectionManager]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val cm = httpClientConnectionManager {
  *      setMaxConnPerRoute(5)
  *      setMaxConnTotal(5)

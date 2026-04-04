@@ -127,6 +127,15 @@ class AsyncJsonParser(
      * - [length]만큼 입력을 공급합니다.
      * - 루트 노드가 완성되면 [onNodeDone]을 호출합니다.
      * - 연속된 여러 루트 JSON 객체/배열/스칼라도 순서대로 처리할 수 있습니다.
+     * - 파싱 중 오류는 [jakarta.json.stream.JsonParsingException]으로 전파됩니다.
+     *
+     * ```kotlin
+     * parser.consume("{\"name\":\"debop\"}".toByteArray())
+     * // onNodeDone이 1회 호출됨
+     * ```
+     *
+     * @param bytes JSON 데이터 청크
+     * @param length 처리할 바이트 수
      */
     fun consume(
         bytes: ByteArray,

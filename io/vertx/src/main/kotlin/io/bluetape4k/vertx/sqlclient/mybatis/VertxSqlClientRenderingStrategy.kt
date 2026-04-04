@@ -6,13 +6,21 @@ import org.mybatis.dynamic.sql.BindableColumn
 import org.mybatis.dynamic.sql.render.RenderingStrategies
 import org.mybatis.dynamic.sql.render.RenderingStrategy
 
+/**
+ * Vert.x SQL Client Template 용 전역 [RenderingStrategy] 싱글턴입니다.
+ *
+ * ```kotlin
+ * val provider = selectModel.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+ * // provider.selectStatement == "SELECT ... WHERE id = #{id}"
+ * ```
+ */
 @JvmField
 val VERTX_SQL_CLIENT_RENDERING_STRATEGY: RenderingStrategy = VertxSqlClientRenderingStrategy.INSTANCE
 
 /**
  * Vertx 의  SqlClient Template 에서 사용할 수 있도록 SQL Statement용 Parameter를 rendering 합니다.
  *
- * ```
+ * ```kotlin
  * // NOTE: 대상 Entity가 없다면 Parameter가 `#{p1}`, `#{p2}` 형태로 rendering 됩니다.
  * val insert = insertInto(person) {
  *      set(people.id).toValue(1)
@@ -20,29 +28,18 @@ val VERTX_SQL_CLIENT_RENDERING_STRATEGY: RenderingStrategy = VertxSqlClientRende
  *      set(people.lastName).toValue("Musk")
  * }.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
  *
- * insert.insertStatement shouldBeEqualTo
- *      "insert into Person (id, first_name, last_name) values (#{p1}, #{p2}, #{p3})"
+ * // insert.insertStatement == "insert into Person (id, first_name, last_name) values (#{p1}, #{p2}, #{p3})"
  *
  * // entity 로 insert 하는 경우
- * val person1 = PersonRecord(100, "Joe", LastName("Jones"), Date(), true, "Developer", 1)
- *
+ * val person1 = PersonRecord(100, "Joe", "Jones", Date(), true, "Developer", 1)
  * val insertModel = insert(person1) {
  *     into(person)
- *
  *     map(person.id) toProperty PersonRecord::id.name
  *     map(person.firstName) toProperty PersonRecord::firstName.name
- *     map(person.lastName) toProperty PersonRecord::lastName.name
- *     map(person.birthDate) toProperty PersonRecord::birthDate.name
- *     map(person.employed) toProperty PersonRecord::employed.name
- *     map(person.occupation) toProperty PersonRecord::occupation.name
- *     map(person.addressId) toProperty PersonRecord::addressId.name
  * }
- * val insert = insertModel.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
- *
+ * val insertRendered = insertModel.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
  * // NOTE: Entity를 직접 insert 하는 경우 parameter name 이 property name 과 같게 생성됩니다.
- * insert.insertStatement shouldBeEqualTo
- *      "insert into Person (id, first_name, last_name, birth_date, employed, occupation, address_id) " +
- *      "values (#{id}, #{firstName}, #{lastName}, #{birthDate}, #{employed}, #{occupation}, #{addressId})"
+ * // insertRendered.insertStatement == "insert into Person (id, first_name) values (#{id}, #{firstName})"
  * ```
  *
  * @see [RenderingStrategy]

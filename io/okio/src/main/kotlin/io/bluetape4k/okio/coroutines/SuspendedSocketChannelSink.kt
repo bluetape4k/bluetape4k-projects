@@ -13,16 +13,33 @@ import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 
 /**
- * Okio 코루틴 타입 변환을 위한 `asSuspendedSink` 함수를 제공합니다.
+ * [AsynchronousSocketChannel]을 코루틴 방식의 [SuspendedSocketChannelSink]로 변환합니다.
+ *
+ * ```kotlin
+ * val channel = AsynchronousSocketChannel.open()
+ * // channel.connect(...) 후 사용
+ * val sink = channel.asSuspendedSink()
+ * // sink를 코루틴에서 사용 가능
+ * ```
  */
 fun AsynchronousSocketChannel.asSuspendedSink(): SuspendedSocketChannelSink =
     SuspendedSocketChannelSink(this)
 
 /**
- * [AsynchronousSocketChannel] 기반의 [SuspendedSink] 구현체.
+ * [AsynchronousSocketChannel] 기반의 코루틴 [SuspendedSink] 구현체.
  *
  * 쓰기 경로에서 direct [ByteBuffer]를 재사용해 chunk 할당을 줄이며,
  * close는 블로킹 가능성을 고려해 `Dispatchers.IO`에서 수행한다.
+ *
+ * ```kotlin
+ * val channel = AsynchronousSocketChannel.open()
+ * // channel.connect(addr).get() 후 사용
+ * val sink = SuspendedSocketChannelSink(channel)
+ * val source = bufferOf("GET / HTTP/1.1\r\n\r\n")
+ * sink.write(source, source.size)
+ * sink.flush()
+ * sink.close()
+ * ```
  */
 class SuspendedSocketChannelSink(
     private val channel: AsynchronousSocketChannel,

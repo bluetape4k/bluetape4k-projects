@@ -10,6 +10,14 @@ val defaultSocketConfig: SocketConfig = SocketConfig.DEFAULT
 /**
  * [SocketConfig]를 생성합니다.
  *
+ * ```kotlin
+ * val config = socketConfig {
+ *     setSoTimeout(Timeout.ofSeconds(30))
+ *     setSoReuseAddress(true)
+ *     setSoLinger(Timeout.ofSeconds(0))
+ * }
+ * ```
+ *
  * @param builder [SocketConfig.Builder] 초기화 람다
  * @return [SocketConfig] 인스턴스
  */
@@ -21,10 +29,21 @@ inline fun socketConfig(
 /**
  * 기본 소켓 옵션을 적용한 [SocketConfig]를 생성합니다.
  *
+ * ```kotlin
+ * val config = socketConfigOf(
+ *     soTimeout = Timeout.ofSeconds(30),
+ *     soReuseStrategy = true,
+ *     soLinger = Timeout.ofSeconds(0),
+ * ) {
+ *     setTcpNoDelay(true)
+ * }
+ * ```
+ *
  * @param soTimeout 소켓 타임아웃
  * @param soReuseStrategy 소켓 주소 재사용 여부
  * @param soLinger 소켓 linger 시간
  * @param builder [SocketConfig.Builder] 추가 설정 블록
+ * @return [SocketConfig] 인스턴스
  */
 inline fun socketConfigOf(
     soTimeout: Timeout = Timeout.ofMinutes(3),

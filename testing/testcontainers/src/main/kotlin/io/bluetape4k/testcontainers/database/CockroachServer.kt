@@ -38,6 +38,11 @@ class CockroachServer private constructor(
         /**
          * [CockroachServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = CockroachServer(image = "cockroachdb/cockroach", tag = CockroachServer.TAG)
+         * // server.url.startsWith("jdbc:postgresql://") == true (시작 후)
+         * ```
+         *
          * @param image docker image (기본: `cockroachdb/cockroach`)
          * @param tag docker image tag (기본: `v22.2.8`)
          * @param username 사용자 이름 (기본: `test`)
@@ -63,6 +68,12 @@ class CockroachServer private constructor(
 
         /**
          * [CockroachServer]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("cockroachdb/cockroach").withTag(CockroachServer.TAG)
+         * val server = CockroachServer(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName docker image name (eg: `cockroachdb/cockroach:v22.2.8`)
          * @param username 사용자 이름 (기본: `test`)

@@ -10,12 +10,32 @@ import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 
 /**
- * Okio 채널 I/O 타입 변환을 위한 `asSource` 함수를 제공합니다.
+ * [ReadableByteChannel]을 Okio [Source]로 변환합니다.
+ *
+ * ```kotlin
+ * val bytes = "hello".toByteArray()
+ * val channel = java.nio.channels.Channels.newChannel(bytes.inputStream())
+ * val source = channel.asSource()
+ * val sink = Buffer()
+ * source.read(sink, 5L)
+ * val text = sink.readUtf8()
+ * // text == "hello"
+ * ```
  */
 fun ReadableByteChannel.asSource(timeout: Timeout = Timeout.NONE): ByteChannelSource = ByteChannelSource(this, timeout)
 
 /**
- * Okio 채널 I/O에서 사용하는 `ByteChannelSource` 타입입니다.
+ * [ReadableByteChannel]을 Okio [Source]로 감싼 구현체입니다.
+ *
+ * ```kotlin
+ * val bytes = "world".toByteArray()
+ * val channel = java.nio.channels.Channels.newChannel(bytes.inputStream())
+ * val source = ByteChannelSource(channel)
+ * val sink = Buffer()
+ * val total = source.readAll(sink)
+ * // total == 5L
+ * source.close()
+ * ```
  */
 class ByteChannelSource(
     private val channel: ReadableByteChannel,

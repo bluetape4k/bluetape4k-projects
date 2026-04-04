@@ -7,7 +7,7 @@ import javax.net.ssl.SSLContext
 /**
  * [builder]를 이용해 [SSLContextBuilder] 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val sslContext = sslContext {
  *     loadTrustMaterial(trustStore)
  *     loadKeyMaterial(keyStore, keyPassword)
@@ -26,7 +26,7 @@ inline fun sslContext(
 /**
  * 기본 [SSLContext] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val sslContext = sslContextOf()
  * ```
  *
@@ -37,7 +37,7 @@ fun sslContextOf(): SSLContext = SSLContexts.createDefault()
 /**
  * 시스템 기본 [SSLContext] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val sslContext = sslContextOfSystem()
  * ```
  *

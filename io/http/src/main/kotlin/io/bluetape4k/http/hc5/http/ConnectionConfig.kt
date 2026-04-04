@@ -11,7 +11,7 @@ val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
 /**
  * [builder]를 이용해 [ConnectionConfig]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val connectionConfig = connectionConfig {
  *      setConnectTimeout(TimeValue.ofSeconds(10))
  *      setSocketTimeout(TimeValue.ofSeconds(10))
@@ -30,7 +30,7 @@ inline fun connectionConfig(
 /**
  * 기본값을 바탕으로 [ConnectionConfig]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val connectionConfig = connectionConfigOf(TimeValue.ofSeconds(10)) {
  *    // custom configuration
  * }

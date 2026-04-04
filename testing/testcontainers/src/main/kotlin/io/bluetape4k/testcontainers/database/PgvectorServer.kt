@@ -57,6 +57,11 @@ class PgvectorServer private constructor(
         /**
          * [PgvectorServer]를 생성합니다.
          *
+         * ```kotlin
+         * val server = PgvectorServer(image = "pgvector/pgvector", tag = "pg16")
+         * // server.url.startsWith("jdbc:postgresql://") == true (시작 후)
+         * ```
+         *
          * @param image docker image (기본: `pgvector/pgvector`)
          * @param tag docker image tag (기본: `pg16`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -83,6 +88,12 @@ class PgvectorServer private constructor(
 
         /**
          * [PgvectorServer]를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres")
+         * val server = PgvectorServer(image)
+         * // server.isRunning == false
+         * ```
          *
          * @param imageName docker image name
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
@@ -136,6 +147,12 @@ class PgvectorServer private constructor(
      * `vector` 확장은 기본으로 항상 활성화됩니다.
      * 이 메서드로 `pg_trgm` 등 추가 확장을 등록할 수 있습니다.
      *
+     * ```kotlin
+     * val server = PgvectorServer()
+     *     .withExtensions("pg_trgm")
+     * // server 시작 시 pg_trgm 확장이 추가로 활성화됩니다.
+     * ```
+     *
      * @param extensions 활성화할 확장 이름 목록
      * @return this (메서드 체이닝용)
      */
@@ -172,6 +189,11 @@ class PgvectorServer private constructor(
          * 추가 확장이 활성화된 [PgvectorServer] 싱글턴을 생성하고 시작합니다.
          *
          * `vector` 확장은 기본으로 항상 활성화됩니다.
+         *
+         * ```kotlin
+         * val server = PgvectorServer.Launcher.withExtensions("pg_trgm")
+         * // server.isRunning == true
+         * ```
          *
          * @param extensions 추가로 활성화할 확장 이름 목록
          */

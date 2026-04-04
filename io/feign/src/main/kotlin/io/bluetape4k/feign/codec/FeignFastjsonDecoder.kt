@@ -50,6 +50,12 @@ class FeignFastjsonDecoder: feign.codec.Decoder {
 
     /**
      * Feign 연동에서 `decode` 함수를 제공합니다.
+     *
+     * ```kotlin
+     * val decoder = FeignFastjsonDecoder()
+     * // JSON content-type 응답 -> fastjson2로 디코딩
+     * // non-JSON 응답 -> 기본 Feign decoder로 위임
+     * ```
      */
     override fun decode(response: feign.Response, type: Type): Any? = when {
         response.isJsonBody() -> jsonDecode(response, type)

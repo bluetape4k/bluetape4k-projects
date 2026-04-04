@@ -13,7 +13,21 @@ import okio.buffer
 import java.io.IOException
 
 /**
- * 데이터를 압축 해제하여 [okio.Source]로 읽는 [okio.ForwardingSource] 구현체.
+ * 압축된 데이터를 해제하여 [okio.Source]로 읽는 [okio.ForwardingSource] 구현체.
+ * `close()` 전까지 모든 압축 데이터를 한 번에 로딩 후 복원합니다.
+ *
+ * ```kotlin
+ * val output = Buffer()
+ * CompressableSink(output, Compressors.LZ4).use { sink ->
+ *     val source = bufferOf("hello world")
+ *     sink.write(source, source.size)
+ * }
+ * val decompressSource = DecompressableSource(output, Compressors.LZ4)
+ * val sink = Buffer()
+ * decompressSource.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == "hello world"
+ * ```
  *
  * @see CompressableSink
  */
@@ -77,14 +91,33 @@ open class DecompressableSource(
 }
 
 /**
- * Okio 압축/해제 타입 변환을 위한 `asDecompressSource` 함수를 제공합니다.
+ * [okio.Source]를 [Compressor]로 압축 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // 압축된 데이터
+ * val source = (compressed as okio.Source).asDecompressSource(Compressors.GZip)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.asDecompressSource(compressor: Compressor): DecompressableSource {
     return DecompressableSource(this, compressor)
 }
 
 /**
- * Okio 압축/해제 타입 변환을 위한 `asDecompressSource` 함수를 제공합니다.
+ * [okio.Source]를 [StreamingCompressor]로 스트리밍 방식으로 압축 해제하는 [DecompressableSource]로 변환합니다.
+ *
+ * ```kotlin
+ * val compressed = Buffer() // 스트리밍 압축된 데이터
+ * val source = (compressed as okio.Source).asDecompressSource(
+ *     Compressors.GZip as StreamingCompressor)
+ * val sink = Buffer()
+ * source.read(sink, Long.MAX_VALUE)
+ * val text = sink.readUtf8()
+ * // text == 원본 데이터
+ * ```
  */
 fun okio.Source.asDecompressSource(compressor: StreamingCompressor): DecompressableSource {
     return StreamingDecompressSource(this, compressor)

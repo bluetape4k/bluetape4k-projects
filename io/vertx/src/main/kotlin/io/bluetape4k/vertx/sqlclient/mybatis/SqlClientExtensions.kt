@@ -38,6 +38,15 @@ import org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Count를 구하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = select(count()) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }.renderForVertx()
+ * val cnt = sqlClient.count(provider)
+ * // cnt >= 0L
+ * ```
+ *
  * @param countProvider Count를 구하는 [SelectStatementProvider]
  */
 suspend fun SqlClient.count(
@@ -55,6 +64,14 @@ suspend fun SqlClient.count(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Count를 구하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val cnt = sqlClient.count(person.id) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }
+ * // cnt >= 0L
+ * ```
+ *
  * @param column Count를 구할 [BasicColumn]
  * @param completer Count를 구하는 조건을 설정하는 람다 함수
  */
@@ -70,6 +87,13 @@ suspend fun SqlClient.count(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Distinct Count를 구하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val cnt = sqlClient.countDistinct(person.lastName) {
+ *     from(person)
+ * }
+ * // cnt >= 0L
+ * ```
+ *
  * @param column Count를 구할 [BasicColumn]
  * @param completer Count를 구하는 조건을 설정하는 람다 함수
  */
@@ -84,6 +108,13 @@ suspend fun SqlClient.countDistinct(
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Table Count를 구하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val cnt = sqlClient.countFrom(person) {
+ *     where { person.employed isEqualTo true }
+ * }
+ * // cnt >= 0L
+ * ```
  */
 suspend fun SqlClient.countFrom(table: SqlTable, completer: CountCompleter): Long {
     val model =
@@ -95,6 +126,14 @@ suspend fun SqlClient.countFrom(table: SqlTable, completer: CountCompleter): Lon
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Delete를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val provider = deleteFrom(person) {
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val result = sqlClient.delete(provider)
+ * // result.rowCount() == 1
+ * ```
  */
 suspend fun SqlClient.delete(deleteProvider: DeleteStatementProvider): SqlResult<Void> {
     SqlLogger.logSQL(deleteProvider.deleteStatement, deleteProvider.parameters)
@@ -106,6 +145,13 @@ suspend fun SqlClient.delete(deleteProvider: DeleteStatementProvider): SqlResult
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 [table]로부터 Delete를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val result = sqlClient.deleteFrom(person) {
+ *     where { person.id isEqualTo 1 }
+ * }
+ * // result.rowCount() == 1
+ * ```
  */
 suspend fun SqlClient.deleteFrom(table: SqlTable, completer: DeleteCompleter): SqlResult<Void> {
     val model = KotlinDeleteBuilder(SqlBuilder.deleteFrom(table)).apply(completer).build()
@@ -117,6 +163,17 @@ suspend fun SqlClient.deleteFrom(table: SqlTable, completer: DeleteCompleter): S
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Batch Insert를 수행하는 확장 함수입니다.
  *
  * 참고: [Vertx SqlClient Templates executeBatch](https://vertx.io/docs/vertx-sql-client-templates/java/#_parameters_mapping)
+ *
+ * ```kotlin
+ * val records = listOf(PersonRecord(1, "Joe"), PersonRecord(2, "Jane"))
+ * val batchInsert = insertBatch(records) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }.renderForVertx()
+ * val result = sqlClient.insertBatch(batchInsert)
+ * // result.rowCount() == 2
+ * ```
  *
  * @param T Batch Insert 대상 Entity Type
  * @param batchInsert Batch Insert 정보
@@ -134,6 +191,17 @@ suspend fun <T: Any> SqlClient.insertBatch(batchInsert: BatchInsert<T>): SqlResu
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Batch Insert를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val record1 = PersonRecord(1, "Joe")
+ * val record2 = PersonRecord(2, "Jane")
+ * val result = sqlClient.insertBatch(record1, record2) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }
+ * // result.rowCount() == 2
+ * ```
+ *
  * @param records Batch Insert 대상 Entity List
  * @param completer Batch Insert 정보 설정 람다 함수
  */
@@ -146,6 +214,16 @@ suspend fun <T: Any> SqlClient.insertBatch(
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Batch Insert를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val records = listOf(PersonRecord(1, "Joe"), PersonRecord(2, "Jane"))
+ * val result = sqlClient.insertBatch(records) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }
+ * // result.rowCount() == 2
+ * ```
  *
  * @param records Batch Insert 대상 Entity List
  * @param completer Batch Insert 정보 설정 람다 함수
@@ -161,6 +239,17 @@ suspend fun <T: Any> SqlClient.insertBatch(
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val person1 = PersonRecord(1, "Joe", "Jones")
+ * val provider = insert(person1) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }.renderForVertx()
+ * val result = sqlClient.insert(provider)
+ * // result.rowCount() == 1
+ * ```
  */
 suspend fun <T: Any> SqlClient.insert(insertProvider: InsertStatementProvider<T>): SqlResult<Void> {
     SqlLogger.logSQL(insertProvider.insertStatement, insertProvider.row)
@@ -174,6 +263,16 @@ suspend fun <T: Any> SqlClient.insert(insertProvider: InsertStatementProvider<T>
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val person1 = PersonRecord(1, "Joe", "Jones")
+ * val result = sqlClient.insert(person1) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }
+ * // result.rowCount() == 1
+ * ```
+ *
  * @param entity Insert 대상 Entity
  * @param completer Insert 정보 설정 람다 함수
  */
@@ -185,6 +284,15 @@ suspend fun <T: Any> SqlClient.insert(entity: T, completer: KotlinInsertComplete
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 General Insert를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val provider = insertInto(person) {
+ *     set(person.id).toValue(1)
+ *     set(person.firstName).toValue("Joe")
+ * }.renderForVertx()
+ * val result = sqlClient.generalInsert(provider)
+ * // result.rowCount() == 1
+ * ```
  *
  * @param insertProvider General Insert 정보
  */
@@ -199,6 +307,14 @@ suspend fun SqlClient.generalInsert(insertProvider: GeneralInsertStatementProvid
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 General Insert를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val result = sqlClient.generalInsert(person) {
+ *     set(person.id).toValue(1)
+ *     set(person.firstName).toValue("Joe")
+ * }
+ * // result.rowCount() == 1
+ * ```
+ *
  * @param table Insert 대상 Table
  * @param completer General Insert 정보 설정 람다 함수
  */
@@ -211,6 +327,17 @@ suspend fun SqlClient.generalInsert(table: SqlTable, completer: GeneralInsertCom
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert Multiple를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val records = listOf(PersonRecord(1, "Joe"), PersonRecord(2, "Jane"))
+ * val provider = insertMultiple(records) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }.renderForVertx()
+ * val result = sqlClient.insertMultiple(provider)
+ * // result.rowCount() == 2
+ * ```
  *
  * @param insertProvider Multiple row insert 정보
  */
@@ -227,6 +354,17 @@ suspend fun <T: Any> SqlClient.insertMultiple(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val record1 = PersonRecord(1, "Joe")
+ * val record2 = PersonRecord(2, "Jane")
+ * val result = sqlClient.insertMultiple(record1, record2) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }
+ * // result.rowCount() == 2
+ * ```
+ *
  * @param records Insert Select 정보
  * @param completer Insert Select 정보 설정 람다 함수
  */
@@ -239,6 +377,16 @@ suspend fun <T: Any> SqlClient.insertMultiple(
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert Multiple를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val records = listOf(PersonRecord(1, "Joe"), PersonRecord(2, "Jane"))
+ * val result = sqlClient.insertMultiple(records) {
+ *     into(person)
+ *     map(person.id) toProperty PersonRecord::id.name
+ *     map(person.firstName) toProperty PersonRecord::firstName.name
+ * }
+ * // result.rowCount() == 2
+ * ```
  *
  * @param records Insert 할 Entity List
  * @param completer Multiple row insert 정보 설정 람다 함수
@@ -257,6 +405,18 @@ suspend fun <T: Any> SqlClient.insertMultiple(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = insertSelect {
+ *     into(archive)
+ *     withColumnList(archive.id, archive.name)
+ *     withSelectStatement {
+ *         select(person.id, person.firstName) { from(person) }
+ *     }
+ * }.renderForVertx()
+ * val result = sqlClient.insertSelect(provider)
+ * // result.rowCount() >= 0
+ * ```
+ *
  * @param provider Insert Select 정보
  */
 suspend fun SqlClient.insertSelect(provider: InsertSelectStatementProvider): SqlResult<Void> {
@@ -270,6 +430,17 @@ suspend fun SqlClient.insertSelect(provider: InsertSelectStatementProvider): Sql
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Insert Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val result = sqlClient.insertSelect {
+ *     into(archive)
+ *     withColumnList(archive.id, archive.name)
+ *     withSelectStatement {
+ *         select(person.id, person.firstName) { from(person) }
+ *     }
+ * }
+ * // result.rowCount() >= 0
+ * ```
+ *
  * @param completer Insert Select 정보 설정 람다 함수
  */
 suspend fun SqlClient.insertSelect(completer: InsertSelectCompleter): SqlResult<Void> {
@@ -280,6 +451,15 @@ suspend fun SqlClient.insertSelect(completer: InsertSelectCompleter): SqlResult<
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }.renderForVertx()
+ * val rows = sqlClient.select(provider)
+ * // rows.size() >= 0
+ * ```
  *
  * @param provider Select 정보
  */
@@ -293,6 +473,14 @@ suspend fun SqlClient.select(provider: SelectStatementProvider): RowSet<Row> {
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val rows = sqlClient.select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }
+ * // rows.size() >= 0
+ * ```
  *
  * @param columns Select 대상 Column List
  * @param completer Select 정보 설정 람다 함수
@@ -310,6 +498,16 @@ suspend fun SqlClient.select(columns: List<BasicColumn>, completer: SelectComple
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val rows = sqlClient.select(provider, personMapper)
+ * // rows.size() == 1
+ * ```
+ *
  * @param provider Select 정보
  * @param rowMapper Row Mapper
  */
@@ -324,6 +522,15 @@ suspend fun <T: Any> SqlClient.select(provider: SelectStatementProvider, rowMapp
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val rows = sqlClient.select(listOf(person.id, person.firstName), personMapper) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }
+ * // rows.size() >= 0
+ * ```
  *
  * @param columns Select 대상 Column List
  * @param rowMapper Row Mapper
@@ -343,6 +550,15 @@ suspend fun <T: Any> SqlClient.select(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val rows = sqlClient.selectAs<PersonRecord>(provider)
+ * // rows.size() == 1
+ * ```
+ *
  * @param provider Select 정보
  */
 suspend inline fun <reified T: Any> SqlClient.selectAs(provider: SelectStatementProvider): RowSet<T> {
@@ -356,6 +572,14 @@ suspend inline fun <reified T: Any> SqlClient.selectAs(provider: SelectStatement
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val rows = sqlClient.selectAs<PersonRecord>(listOf(person.id, person.firstName)) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }
+ * // rows.size() >= 0
+ * ```
  *
  * @param columns Select 대상 Column List
  * @param completer Select 정보 설정 람다 함수
@@ -386,6 +610,14 @@ internal suspend fun SqlClient.selectDistinct(provider: SelectStatementProvider)
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select Distinct를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val rows = sqlClient.selectDistinct(person.lastName) {
+ *     from(person)
+ *     orderBy(person.lastName)
+ * }
+ * // rows.size() >= 0
+ * ```
+ *
  * @param columns Select Distinct 대상 Column List
  * @param completer Select Distinct 정보 설정 람다 함수
  */
@@ -395,6 +627,14 @@ suspend fun SqlClient.selectDistinct(vararg columns: BasicColumn, completer: Sel
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select Distinct를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val rows = sqlClient.selectDistinct(listOf(person.lastName)) {
+ *     from(person)
+ *     orderBy(person.lastName)
+ * }
+ * // rows.size() >= 0
+ * ```
  *
  * @param columns Select Distinct 대상 Column List
  * @param completer Select Distinct 정보 설정 람다 함수
@@ -408,6 +648,15 @@ suspend fun SqlClient.selectDistinct(columns: List<BasicColumn>, completer: Sele
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }.renderForVertx()
+ * val persons = sqlClient.selectListAs<PersonRecord>(provider)
+ * // persons.size >= 0
+ * ```
+ *
  * @param provider Select Distinct 정보
  */
 suspend inline fun <reified T: Any> SqlClient.selectListAs(provider: SelectStatementProvider): List<T> {
@@ -420,6 +669,16 @@ suspend inline fun <reified T: Any> SqlClient.selectListAs(provider: SelectState
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }.renderForVertx()
+ * val persons = sqlClient.selectList(provider, personMapper)
+ * // persons.size >= 0
+ * ```
  *
  * @param provider Select statement provider
  * @param mapper Row Mapper
@@ -440,6 +699,15 @@ suspend fun <T: Any> SqlClient.selectList(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val persons = sqlClient.selectList(listOf(person.id, person.firstName), personMapper) {
+ *     from(person)
+ *     where { person.employed isEqualTo true }
+ * }
+ * // persons.size >= 0
+ * ```
+ *
  * @param columns Select 대상 Column List
  * @param rowMapper Row Mapper
  * @param completer Select 정보 설정 람다 함수
@@ -457,6 +725,15 @@ suspend fun <T: Any> SqlClient.selectList(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val row = sqlClient.selectOne(provider)
+ * // row != null
+ * ```
+ *
  * @param provider select statement provider
  */
 suspend fun SqlClient.selectOne(provider: SelectStatementProvider): Row? {
@@ -471,6 +748,14 @@ suspend fun SqlClient.selectOne(provider: SelectStatementProvider): Row? {
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val row = sqlClient.selectOne(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }
+ * // row != null
+ * ```
+ *
  * @param columns Select 대상 Column List
  * @param completer Select 정보 설정 람다 함수
  */
@@ -484,6 +769,14 @@ suspend fun SqlClient.selectOne(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val row = sqlClient.selectOne(listOf(person.id, person.firstName)) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }
+ * // row != null
+ * ```
+ *
  * @param columns Select 대상 Column List
  * @param completer Select 정보 설정 람다 함수
  */
@@ -495,6 +788,17 @@ suspend fun SqlClient.selectOne(columns: List<BasicColumn>, completer: SelectCom
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val person1 = sqlClient.selectOne(provider, personMapper)
+ * // person1 != null
+ * // person1?.id == 1
+ * ```
  *
  * @param T Select 결과 타입
  * @param provider Select statement provider
@@ -513,6 +817,16 @@ suspend fun <T: Any> SqlClient.selectOne(provider: SelectStatementProvider, mapp
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = select(person.id, person.firstName) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val person1 = sqlClient.selectOneAs<PersonRecord>(provider)
+ * // person1 != null
+ * // person1?.id == 1
+ * ```
+ *
  * @param T Select 결과 타입
  * @param provider Select statement provider
  */
@@ -527,6 +841,16 @@ suspend inline fun <reified T: Any> SqlClient.selectOneAs(provider: SelectStatem
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Select One를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val personMapper = RowMapper { row -> PersonRecord(row.getInteger("id"), row.getString("first_name")) }
+ * val person1 = sqlClient.selectOne(listOf(person.id, person.firstName), personMapper) {
+ *     from(person)
+ *     where { person.id isEqualTo 1 }
+ * }
+ * // person1 != null
+ * // person1?.id == 1
+ * ```
  *
  * @param columns Select 대상 Column List
  * @param rowMapper Row Mapper
@@ -543,6 +867,15 @@ suspend fun <T: Any> SqlClient.selectOne(
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 Update를 수행하는 확장 함수입니다.
  *
+ * ```kotlin
+ * val provider = update(person) {
+ *     set(person.firstName) equalToValue "Jane"
+ *     where { person.id isEqualTo 1 }
+ * }.renderForVertx()
+ * val result = sqlClient.update(provider)
+ * // result.rowCount() == 1
+ * ```
+ *
  * @param provider Update 정보 ([UpdateStatementProvider])
  */
 suspend fun SqlClient.update(provider: UpdateStatementProvider): SqlResult<Void> {
@@ -555,6 +888,14 @@ suspend fun SqlClient.update(provider: UpdateStatementProvider): SqlResult<Void>
 
 /**
  * [SqlClient]를 Mybatis Dynamic SQL 을 이용하여 Coroutine 환경에서 [table]로부터 Update를 수행하는 확장 함수입니다.
+ *
+ * ```kotlin
+ * val result = sqlClient.update(person) {
+ *     set(person.firstName) equalToValue "Jane"
+ *     where { person.id isEqualTo 1 }
+ * }
+ * // result.rowCount() == 1
+ * ```
  *
  * @param table Update 대상 Table
  * @param completer Update 정보 설정 람다 함수

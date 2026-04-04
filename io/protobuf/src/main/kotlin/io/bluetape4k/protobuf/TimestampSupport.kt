@@ -65,7 +65,14 @@ val PROTO_TIMESTAMP_EPOCH: ProtoTimestamp = Timestamps.EPOCH
  */
 operator fun ProtoTimestamp.compareTo(other: ProtoTimestamp): Int = Timestamps.compare(this, other)
 
-/** Timestamp 값이 protobuf 규격 범위에 있으면 `true`입니다. */
+/**
+ * Timestamp 값이 protobuf 규격 범위에 있으면 `true`입니다.
+ *
+ * ```kotlin
+ * val valid = protoTimestampOfSeconds(0).isValid
+ * // valid == true
+ * ```
+ */
 val ProtoTimestamp.isValid: Boolean get() = Timestamps.isValid(this)
 
 /**
@@ -142,16 +149,44 @@ fun protoTimestampOf(instant: Instant): ProtoTimestamp =
         nanos = instant.nano
     }
 
-/** Epoch 기준 초 값을 Protobuf Timestamp로 생성합니다. */
+/**
+ * Epoch 기준 초 값을 Protobuf Timestamp로 생성합니다.
+ *
+ * ```kotlin
+ * val ts = protoTimestampOfSeconds(60)
+ * // ts.seconds == 60L
+ * ```
+ */
 fun protoTimestampOfSeconds(seconds: Long): ProtoTimestamp = Timestamps.fromSeconds(seconds)
 
-/** Epoch 기준 밀리초 값을 Protobuf Timestamp로 생성합니다. */
+/**
+ * Epoch 기준 밀리초 값을 Protobuf Timestamp로 생성합니다.
+ *
+ * ```kotlin
+ * val ts = protoTimestampOfMillis(2000)
+ * // ts.toMillis() == 2000L
+ * ```
+ */
 fun protoTimestampOfMillis(millis: Long): ProtoTimestamp = Timestamps.fromMillis(millis)
 
-/** Epoch 기준 마이크로초 값을 Protobuf Timestamp로 생성합니다. */
+/**
+ * Epoch 기준 마이크로초 값을 Protobuf Timestamp로 생성합니다.
+ *
+ * ```kotlin
+ * val ts = protoTimestampOfMicros(1_000_000)
+ * // ts.toMicros() == 1_000_000L
+ * ```
+ */
 fun protoTimestampOfMicros(micros: Long): ProtoTimestamp = Timestamps.fromMicros(micros)
 
-/** Epoch 기준 나노초 값을 Protobuf Timestamp로 생성합니다. */
+/**
+ * Epoch 기준 나노초 값을 Protobuf Timestamp로 생성합니다.
+ *
+ * ```kotlin
+ * val ts = protoTimestampOfNanos(1_000_000_000)
+ * // ts.toNanos() == 1_000_000_000L
+ * ```
+ */
 fun protoTimestampOfNanos(nanos: Long): ProtoTimestamp = Timestamps.fromNanos(nanos)
 
 /**
@@ -182,13 +217,34 @@ fun ProtoTimestamp.toInstant(): Instant = Instant.ofEpochSecond(seconds, nanos.t
  */
 fun ProtoTimestamp.toSeconds(): Long = Timestamps.toSeconds(this)
 
-/** Protobuf Timestamp를 epoch 밀리초로 변환합니다. */
+/**
+ * Protobuf Timestamp를 epoch 밀리초로 변환합니다.
+ *
+ * ```kotlin
+ * val ms = protoTimestampOfSeconds(2).toMillis()
+ * // ms == 2000L
+ * ```
+ */
 fun ProtoTimestamp.toMillis(): Long = Timestamps.toMillis(this)
 
-/** Protobuf Timestamp를 epoch 마이크로초로 변환합니다. */
+/**
+ * Protobuf Timestamp를 epoch 마이크로초로 변환합니다.
+ *
+ * ```kotlin
+ * val us = protoTimestampOfSeconds(1).toMicros()
+ * // us == 1_000_000L
+ * ```
+ */
 fun ProtoTimestamp.toMicros(): Long = Timestamps.toMicros(this)
 
-/** Protobuf Timestamp를 epoch 나노초로 변환합니다. */
+/**
+ * Protobuf Timestamp를 epoch 나노초로 변환합니다.
+ *
+ * ```kotlin
+ * val ns = protoTimestampOfSeconds(1).toNanos()
+ * // ns == 1_000_000_000L
+ * ```
+ */
 fun ProtoTimestamp.toNanos(): Long = Timestamps.toNanos(this)
 
 /**

@@ -34,6 +34,19 @@ class ChromaDBServer private constructor(
         /** ChromaDB HTTP API 포트입니다. */
         const val PORT = 8000
 
+        /**
+         * [DockerImageName]으로 [ChromaDBServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("chromadb/chroma").withTag("0.5.23")
+         * val server = ChromaDBServer(image)
+         * // server.isRunning == false
+         * ```
+         *
+         * @param imageName      Docker 이미지 이름
+         * @param useDefaultPort `true`면 8000 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -43,6 +56,19 @@ class ChromaDBServer private constructor(
             return ChromaDBServer(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * 이미지 이름/태그로 [ChromaDBServer] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val server = ChromaDBServer(image = "chromadb/chroma", tag = "0.5.23")
+         * // server.url.startsWith("http://") == true (시작 후)
+         * ```
+         *
+         * @param image          Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param tag            Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
+         * @param useDefaultPort `true`면 8000 포트를 고정 바인딩합니다.
+         * @param reuse          컨테이너 재사용 여부입니다.
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,

@@ -7,6 +7,13 @@ import org.asynchttpclient.filter.RequestFilter
 /**
  * [FilterContextBuilder]를 사용해 [FilterContext]를 재구성하는 [RequestFilter]를 생성합니다.
  *
+ * ```kotlin
+ * val filter = requestFilter<Any> {
+ *     // FilterContextBuilder를 통해 요청을 재구성
+ * }
+ * val client = asyncHttpClientOf(filter)
+ * ```
+ *
  * @param builder [FilterContextBuilder] 변경 블록
  * @return 생성된 [RequestFilter]
  */
@@ -24,6 +31,15 @@ inline fun requestFilter(
 
 /**
  * 람다 핸들러 기반 [RequestFilter]를 생성합니다.
+ *
+ * ```kotlin
+ * val filter = requestFilter { ctx ->
+ *     ctx.request.headers.add("X-Custom-Header", "custom-value")
+ * }
+ * val client = asyncHttpClientOf(filter)
+ * val response = client.prepareGet("https://api.example.com").execute().get()
+ * // response.statusCode == 200
+ * ```
  *
  * @param handler 현재 [FilterContext]를 받아 처리하는 함수
  * @return 생성된 [RequestFilter]
@@ -44,7 +60,17 @@ inline fun requestFilter(
 /**
  * 요청에 고정 헤더를 추가하는 [RequestFilter]를 생성합니다.
  *
+ * ```kotlin
+ * val filter = attachHeaderRequestFilterOf(
+ *     mapOf("Authorization" to "Bearer token", "X-App-Id" to "my-app")
+ * )
+ * val client = asyncHttpClientOf(filter)
+ * val response = client.prepareGet("https://api.example.com").execute().get()
+ * // response.statusCode == 200
+ * ```
+ *
  * @param headers 헤더 이름/값 쌍
+ * @return 생성된 [RequestFilter]
  */
 fun attachHeaderRequestFilterOf(headers: Map<String, Any?>): RequestFilter {
     return requestFilter { ctx ->
@@ -57,8 +83,24 @@ fun attachHeaderRequestFilterOf(headers: Map<String, Any?>): RequestFilter {
 /**
  * 요청 시점에 헤더 이름/값을 계산해 추가하는 [RequestFilter]를 생성합니다.
  *
+ * ```kotlin
+ * val filter = attachHeaderRequestFilterOf(
+ *     namesSupplier = { listOf("X-Timestamp", "X-Nonce") },
+ *     valueSupplier = { name ->
+ *         when (name) {
+ *             "X-Timestamp" -> System.currentTimeMillis().toString()
+ *             else -> java.util.UUID.randomUUID().toString()
+ *         }
+ *     }
+ * )
+ * val client = asyncHttpClientOf(filter)
+ * val response = client.prepareGet("https://api.example.com").execute().get()
+ * // response.statusCode == 200
+ * ```
+ *
  * @param namesSupplier 헤더 이름 공급 함수
  * @param valueSupplier 헤더 값 공급 함수
+ * @return 생성된 [RequestFilter]
  */
 inline fun attachHeaderRequestFilterOf(
     crossinline namesSupplier: () -> Iterable<String>,

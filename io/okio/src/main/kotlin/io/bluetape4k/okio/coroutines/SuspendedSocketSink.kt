@@ -14,14 +14,33 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
 
 /**
- * Okio 코루틴 타입 변환을 위한 `asSuspendedSink` 함수를 제공합니다.
+ * [Socket]을 코루틴 방식의 [SuspendedSocketSink]로 변환합니다.
+ * 소켓은 반드시 [SocketChannel]을 통해 생성되어야 합니다.
+ *
+ * ```kotlin
+ * val socketChannel = SocketChannel.open()
+ * socketChannel.connect(java.net.InetSocketAddress("localhost", 8080))
+ * val sink = socketChannel.socket().asSuspendedSink()
+ * // sink를 코루틴에서 사용 가능
+ * sink.close()
+ * ```
  */
 fun Socket.asSuspendedSink(): SuspendedSocketSink = SuspendedSocketSink(this)
 
 /**
- * non-blocking [SocketChannel]을 이용해 소켓 쓰기를 제공하는 [SuspendedSink].
+ * non-blocking [SocketChannel]을 이용해 소켓 쓰기를 제공하는 코루틴 [SuspendedSink].
  *
  * Selector 기반으로 쓰기 가능 시점을 기다리며, close는 `Dispatchers.IO`에서 수행한다.
+ *
+ * ```kotlin
+ * val socketChannel = SocketChannel.open()
+ * socketChannel.connect(java.net.InetSocketAddress("localhost", 8080))
+ * val sink = SuspendedSocketSink(socketChannel.socket())
+ * val source = bufferOf("hello")
+ * sink.write(source, source.size)
+ * sink.flush()
+ * sink.close()
+ * ```
  */
 class SuspendedSocketSink(socket: Socket): SuspendedSink {
 

@@ -7,9 +7,10 @@ import io.vertx.core.Future
 /**
  * Vert.x [Future]를 [Bulkhead]로 decorate 하여 실행합니다.
  *
- * ```
+ * ```kotlin
  * val bulkhead = Bulkhead.ofDefaults("test")
  * val future = bulkhead.executeVertxFuture { service.returnHelloWorld() }
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수
@@ -24,10 +25,11 @@ inline fun <T> Bulkhead.executeVertxFuture(
 /**
  * Vert.x [Future]를 [Bulkhead]로 decorate 합니다.
  *
- * ```
+ * ```kotlin
  * val bulkhead = Bulkhead.ofDefaults("test")
  * val decorated = bulkhead.decorateVertxFuture { service.returnHelloWorld() }
  * val future = decorated.invoke()
+ * // future.result() == "Hello World"
  * ```
  *
  * @param supplier Vert.x [Future]를 생성하는 함수

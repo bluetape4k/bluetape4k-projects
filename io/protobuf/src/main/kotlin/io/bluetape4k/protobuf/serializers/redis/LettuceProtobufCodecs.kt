@@ -18,36 +18,66 @@ object LettuceProtobufCodecs {
 
     /**
      * Protobuf Serializer를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.protobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> protobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
 
     /**
      * Protobuf Serializer와 Gzip Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.gzipProtobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> gzipProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.GZip))
 
     /**
      * Protobuf Serializer와 Deflate Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.deflateProtobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> deflateProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Deflate))
 
     /**
      * Protobuf Serializer와 LZ4 Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.lz4Protobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> lz4Protobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.LZ4))
 
     /**
      * Protobuf Serializer와 Snappy Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.snappyProtobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> snappyProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Snappy))
 
     /**
      * Protobuf Serializer와 Zstd Compressor를 사용하는 [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceProtobufCodecs.zstdProtobuf<MyMessage>()
+     * // codec != null
+     * ```
      */
     fun <V: Any> zstdProtobuf(): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, Compressors.Zstd))

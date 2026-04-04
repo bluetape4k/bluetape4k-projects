@@ -18,11 +18,30 @@ import java.io.Closeable
  */
 interface GrpcServer: Closeable {
 
+    /** 서버가 현재 실행 중이면 `true`입니다. */
     val isRunning: Boolean
+
+    /** 서버가 이미 종료되었으면 `true`입니다. */
     val isShutdown: Boolean
 
+    /**
+     * 서버를 시작합니다.
+     *
+     * ```kotlin
+     * server.start()
+     * // server.isRunning == true
+     * ```
+     */
     fun start()
 
+    /**
+     * 서버를 중지합니다.
+     *
+     * ```kotlin
+     * server.stop()
+     * // server.isShutdown == true
+     * ```
+     */
     fun stop()
 
     override fun close() {

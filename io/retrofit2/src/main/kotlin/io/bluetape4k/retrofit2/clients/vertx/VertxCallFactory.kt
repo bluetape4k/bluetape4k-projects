@@ -70,10 +70,29 @@ class VertxCallFactory private constructor(
         }
     }
 
+    /**
+     * 새 [okhttp3.Call] 인스턴스를 생성합니다.
+     *
+     * ```kotlin
+     * val factory = vertxCallFactoryOf()
+     * val request = okhttp3.Request.Builder().url("https://example.com").build()
+     * val call = factory.newCall(request)
+     * // call != null
+     * ```
+     */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
         return VertxCall(request)
     }
 
+    /**
+     * 내부 Vert.x HTTP 클라이언트를 종료합니다.
+     *
+     * ```kotlin
+     * val factory = vertxCallFactoryOf()
+     * factory.close()
+     * // 내부 Vert.x HttpClient 종료됨
+     * ```
+     */
     override fun close() {
         client.close()
     }

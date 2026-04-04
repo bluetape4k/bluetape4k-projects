@@ -47,6 +47,17 @@ class AsyncVertxHttpClient private constructor(
         }
     }
 
+    /**
+     * Feign [Request]를 비동기 실행하고 [CompletableFuture]<[Response]>를 반환합니다.
+     *
+     * ```kotlin
+     * val client = AsyncVertxHttpClient()
+     * val request = feignRequestOf("https://example.com/health", HttpMethod.GET)
+     * val future = client.execute(request, defaultRequestOptions, Optional.empty())
+     * val response = future.get()
+     * // response.status() == 200
+     * ```
+     */
     override fun execute(
         feignRequest: feign.Request,
         feignOptions: Request.Options,

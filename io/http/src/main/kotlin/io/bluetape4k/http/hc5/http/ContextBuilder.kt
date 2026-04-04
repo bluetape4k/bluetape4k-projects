@@ -7,7 +7,7 @@ import org.apache.hc.client5.http.protocol.HttpClientContext
 /**
  * [HttpClientContext]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val context = httpClientContext {
  *    setCookieStore(cookieStore)
  *    setCredentialsProvider(credentialsProvider)
@@ -25,7 +25,7 @@ inline fun httpClientContext(
 /**
  * 기본 [ContextBuilder]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val contextBuilder = contextBuilderOf()
  * ```
  *
@@ -36,7 +36,7 @@ fun contextBuilderOf(): ContextBuilder = ContextBuilder.create()
 /**
  * [SchemePortResolver]를 적용한 [ContextBuilder]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val contextBuilder = contextBuilderOf(schemePortResolver)
  * ```
  *

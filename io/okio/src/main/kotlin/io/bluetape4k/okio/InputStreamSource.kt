@@ -9,13 +9,31 @@ import okio.Timeout
 import java.io.InputStream
 
 /**
- * Okio I/O 타입 변환을 위한 `asSource` 함수를 제공합니다.
+ * [InputStream]을 Okio [Source]로 변환합니다.
+ *
+ * ```kotlin
+ * val bytes = "hello".toByteArray()
+ * val source = bytes.inputStream().asSource()
+ * val buffer = Buffer()
+ * source.read(buffer, 5L)
+ * val text = buffer.readUtf8()
+ * // text == "hello"
+ * ```
  */
 fun InputStream.asSource(timeout: Timeout = Timeout.NONE) =
     InputStreamSource(this, timeout)
 
 /**
- * Okio I/O에서 사용하는 `InputStreamSource` 타입입니다.
+ * [InputStream]을 Okio [Source]로 감싼 구현체입니다.
+ *
+ * ```kotlin
+ * val bytes = "hello world".toByteArray()
+ * val source = InputStreamSource(bytes.inputStream())
+ * val sink = Buffer()
+ * val read = source.readAll(sink)
+ * // read == 11L
+ * source.close()
+ * ```
  */
 class InputStreamSource(
     private val input: InputStream,
@@ -25,7 +43,18 @@ class InputStreamSource(
     companion object: KLogging()
 
     /**
-     * Okio I/O에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     * [InputStream]에서 최대 [byteCount] 바이트를 읽어 [sink]에 씁니다.
+     *
+     * ```kotlin
+     * val source = InputStreamSource("hi".toByteArray().inputStream())
+     * val sink = Buffer()
+     * val read = source.read(sink, 2L)
+     * // read == 2L
+     * ```
+     *
+     * @param sink 데이터를 쓸 버퍼
+     * @param byteCount 읽을 최대 바이트 수
+     * @return 실제 읽은 바이트 수, EOF이면 -1
      */
     override fun read(sink: Buffer, byteCount: Long): Long {
         byteCount.requireZeroOrPositiveNumber("byteCount")
@@ -54,7 +83,17 @@ class InputStreamSource(
     }
 
     /**
-     * Okio I/O에서 데이터를 읽어오는 `readAll` 함수를 제공합니다.
+     * [InputStream]의 모든 내용을 읽어 [sink]에 씁니다.
+     *
+     * ```kotlin
+     * val source = InputStreamSource("hello".toByteArray().inputStream())
+     * val sink = Buffer()
+     * val total = source.readAll(sink)
+     * // total == 5L
+     * ```
+     *
+     * @param sink 데이터를 쓸 버퍼
+     * @return 읽은 총 바이트 수
      */
     fun readAll(sink: Buffer): Long {
         var totalReadCount = 0L
