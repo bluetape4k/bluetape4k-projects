@@ -8,6 +8,26 @@
 
 ### Added
 
+#### utils/states — 코루틴 기반 유한 상태 머신(FSM) 모듈 추가 ([`3e9be7d25`](https://github.com/bluetape4k/bluetape4k-projects/commit/3e9be7d25))
+
+- `BaseStateMachine` / `StateMachine` / `SuspendStateMachineInterface` 3계층 인터페이스 (시그니처 충돌 방지)
+- `DefaultStateMachine`: `AtomicReference` CAS 기반 Thread-safe 동기 FSM
+- `SuspendStateMachine`: `Mutex` + `MutableStateFlow` 기반 코루틴 FSM + 상태 관찰
+- `stateMachine {}` / `suspendStateMachine {}` DSL + `on<E>()` 헬퍼 + Guard 조건 지원
+- `TransitionBuilder`: Guard 조건 람다 DSL
+- clinic-appointment Map 기반 O(1) 전이 패턴 채택
+- 테스트 35개 (Turnstile, Order, Appointment, GuardedTransition)
+
+#### utils/rule-engine — Kotlin DSL 기반 규칙 엔진 모듈 추가 ([`69de83742`](https://github.com/bluetape4k/bluetape4k-projects/commit/69de83742))
+
+- `Rule` / `SuspendRule` / `Facts`(`ConcurrentHashMap`) / `RuleEngine` / `SuspendRuleEngine` 핵심 인터페이스
+- `rule {}` / `suspendRule {}` DSL + `@Rule` / `@Condition` / `@Action` 어노테이션 + `RuleProxy` 변환
+- `CompositeRule`: `ActivationRuleGroup` / `ConditionalRuleGroup` / `UnitRuleGroup`
+- `InferenceRuleEngine`: 전방 추론(Forward Chaining) 지원
+- Expression Engine: MVEL2 / SpEL / Kotlin Script (`BasicJvmScriptingHost`, 컴파일 캐시)
+- Rule Reader: YAML / JSON / HOCON 파일에서 규칙 로드
+- 테스트 72개 통과
+
 #### testing/testcontainers — 신규 서버 8종 추가 ([`3b0e5af8`](https://github.com/bluetape4k/bluetape4k-projects/commit/3b0e5af8))
 
 - `Neo4jServer`: Neo4j 그래프 DB, Bolt/HTTP 포트, `bolt-url` 프로퍼티 export
