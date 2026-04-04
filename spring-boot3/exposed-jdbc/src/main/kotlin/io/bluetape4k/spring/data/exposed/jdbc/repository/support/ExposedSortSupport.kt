@@ -12,6 +12,17 @@ private val log = KotlinLogging.logger {}
 
 /**
  * Spring Data [Sort]를 Exposed [SortOrder] 쌍 배열로 변환합니다.
+ *
+ * camelCase 프로퍼티 이름과 snake_case 컬럼명을 대소문자 무시로 매핑합니다.
+ * 매핑되지 않는 프로퍼티는 경고 로그와 함께 건너뜁니다.
+ *
+ * ```kotlin
+ * val sort = Sort.by(Sort.Order.asc("name"), Sort.Order.desc("createdAt"))
+ * val orderBy: Array<Pair<Expression<*>, SortOrder>> = sort.toExposedOrderBy(Users)
+ * // orderBy[0] → Users.name to SortOrder.ASC
+ * // orderBy[1] → Users.createdAt to SortOrder.DESC
+ * entityClass.all().orderBy(*orderBy).toList()
+ * ```
  */
 fun Sort.toExposedOrderBy(table: Table): Array<Pair<Expression<*>, SortOrder>> {
     val result = mutableListOf<Pair<Expression<*>, SortOrder>>()

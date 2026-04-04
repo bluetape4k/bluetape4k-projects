@@ -11,6 +11,11 @@ import java.net.URI
 
 /**
  * [SnsAsyncClient]를 빌드합니다.
+ *
+ * ```kotlin
+ * val client = snsAsyncClient { region(Region.AP_NORTHEAST_2) }
+ * // client != null
+ * ```
  */
 inline fun snsAsyncClient(
     builder: SnsAsyncClientBuilder.() -> Unit,
@@ -22,6 +27,11 @@ inline fun snsAsyncClient(
 
 /**
  * endpoint + credentials 기반으로 [SnsAsyncClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val client = snsAsyncClientOf(endpoint = URI("http://localhost:4566"), region = Region.AP_NORTHEAST_2)
+ * // client != null
+ * ```
  */
 inline fun snsAsyncClientOf(
     endpoint: URI? = null,

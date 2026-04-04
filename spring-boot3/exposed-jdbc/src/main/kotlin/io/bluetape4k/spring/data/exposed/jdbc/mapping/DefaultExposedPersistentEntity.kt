@@ -9,6 +9,14 @@ import kotlin.reflect.full.companionObjectInstance
 /**
  * [ExposedPersistentEntity]의 기본 구현체입니다.
  * Domain 클래스의 companion object에서 [EntityClass]를 추출합니다.
+ *
+ * ```kotlin
+ * // ExposedMappingContext가 내부적으로 생성합니다.
+ * val context = ExposedMappingContext()
+ * val entity = context.getRequiredPersistentEntity(User::class.java)
+ * val entityClass = entity.getEntityClass()  // User.Companion (EntityClass<Long, User>)
+ * val table = entity.getTable()              // Users (IdTable<Long>)
+ * ```
  */
 class DefaultExposedPersistentEntity<T : Any>(
     typeInformation: TypeInformation<T>,

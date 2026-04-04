@@ -14,6 +14,15 @@ import java.util.*
 
 /**
  * Exposed Repository 인스턴스를 생성하는 Factory입니다.
+ *
+ * Spring Data 인프라가 `@EnableExposedJdbcRepositories` 스캔 시 자동으로 사용하며,
+ * [SimpleExposedJdbcRepository] 인스턴스와 [ExposedQueryLookupStrategy]를 설정합니다.
+ *
+ * ```kotlin
+ * // 직접 사용 시 (주로 테스트)
+ * val factory = ExposedJdbcRepositoryFactory()
+ * val userRepo = factory.getRepository(UserRepository::class.java)
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 class ExposedJdbcRepositoryFactory : RepositoryFactorySupport() {

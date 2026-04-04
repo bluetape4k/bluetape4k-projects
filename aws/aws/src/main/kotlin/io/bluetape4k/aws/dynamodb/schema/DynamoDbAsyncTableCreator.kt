@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
 /**
  * 비동기 방식으로 DynamoDb Table을 생성하는 유틸리티 클래스입니다.
  *
- * ```
+ * ```kotlin
  * val tableCreator = DynamoDbAsyncTableCreator()
  * val request = CreateTableEnhancedRequest {
  *    provisionedThroughput(tableCreator.defaultProvisionedThroughput)
@@ -38,7 +38,7 @@ class DynamoDbAsyncTableCreator {
      * 비동기 방식으로 새로운 DynamoDb Table을 생성한다.
      * 이미 테이블이 존재할 경우에는 생성하지 않고, 경고만 로깅합니다.
      *
-     * ```
+     * ```kotlin
      * val tableCreator = DynamoDbAsyncTableCreator()
      * val request = CreateTableEnhancedRequest {
      *   provisionedThroughput(tableCreator.defaultProvisionedThroughput)

@@ -15,6 +15,15 @@ import org.springframework.context.annotation.Bean
  *
  * [MeterRegistry]가 있을 때 [LettuceNearCacheMetricsBinder]를 등록한다.
  * Actuator endpoint는 [LettuceNearCacheActuatorAutoConfiguration]에서 별도로 등록된다.
+ *
+ * ```kotlin
+ * // application.yml
+ * // bluetape4k.cache.lettuce-near.metrics.enabled: true           (기본값)
+ * // bluetape4k.cache.lettuce-near.metrics.enable-caffeine-stats: true
+ * // 등록 메트릭:
+ * // lettuce.nearcache.active.regions   — 활성 region 수 (Gauge)
+ * // lettuce.nearcache.total.local.size — 전체 Caffeine 캐시 항목 수 (Gauge)
+ * ```
  */
 @AutoConfiguration(after = [LettuceNearCacheHibernateAutoConfiguration::class])
 @ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class, MeterRegistry::class)

@@ -8,6 +8,14 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest
  * [SendMessageRequest] 를 생성합니다.
  *
  * @param builder [SendMessageRequest.Builder]를 이용하여 [SendMessageRequest]를 초기화하는 람다입니다.
+ *
+ * ```kotlin
+ * val request = sendMessageRequest {
+ *     queueUrl("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue")
+ *     messageBody("hello")
+ * }
+ * // request.messageBody() == "hello"
+ * ```
  */
 inline fun sendMessageRequest(
     builder: SendMessageRequest.Builder.() -> Unit,
@@ -15,6 +23,18 @@ inline fun sendMessageRequest(
     return SendMessageRequest.builder().apply(builder).build()
 }
 
+/**
+ * [queueUrl], [messageBody]로 [SendMessageRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = sendMessageRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123/my-queue",
+ *     messageBody = "hello",
+ *     delaySeconds = 5
+ * )
+ * // request.delaySeconds() == 5
+ * ```
+ */
 inline fun sendMessageRequestOf(
     queueUrl: String,
     messageBody: String,
@@ -36,6 +56,14 @@ inline fun sendMessageRequestOf(
  * [SendMessageBatchRequestEntry] 를 생성합니다.
  *
  * @param builder [SendMessageBatchRequestEntry.Builder]를 이용하여 [SendMessageBatchRequestEntry]를 초기화하는 람다입니다.
+ *
+ * ```kotlin
+ * val entry = sendMessageBatchRequestEntry {
+ *     id("msg-1")
+ *     messageBody("hello")
+ * }
+ * // entry.id() == "msg-1"
+ * ```
  */
 inline fun sendMessageBatchRequestEntry(
     builder: SendMessageBatchRequestEntry.Builder.() -> Unit,

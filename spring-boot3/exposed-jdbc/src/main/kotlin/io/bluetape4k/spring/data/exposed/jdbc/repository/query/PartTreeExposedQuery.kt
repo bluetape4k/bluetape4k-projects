@@ -16,6 +16,20 @@ import org.springframework.data.repository.query.parser.PartTree
 
 /**
  * 메서드명 기반 PartTree 쿼리를 Exposed DAO로 실행합니다.
+ *
+ * Spring Data의 메서드명 파생 규칙(`findBy...`, `deleteBy...`, `countBy...` 등)을
+ * Exposed DSL Op 조건으로 변환하여 DAO 조회/삭제를 수행합니다.
+ *
+ * ```kotlin
+ * interface UserRepository : ExposedJdbcRepository<User, Long> {
+ *     // 메서드명 → PartTree → Exposed DSL Op 자동 변환
+ *     fun findByNameAndAgeGreaterThan(name: String, age: Int): List<User>
+ *     fun countByAgeGreaterThanEqual(minAge: Int): Long
+ *     fun deleteByName(name: String): Long
+ *     fun findTop3ByOrderByAgeDesc(): List<User>
+ *     fun findByName(name: String, pageable: Pageable): Page<User>
+ * }
+ * ```
  */
 class PartTreeExposedQuery<E : Entity<ID>, ID : Any>(
     private val queryMethod: ExposedQueryMethod,

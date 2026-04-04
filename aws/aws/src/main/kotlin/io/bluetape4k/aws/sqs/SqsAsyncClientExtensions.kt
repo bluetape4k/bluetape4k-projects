@@ -33,6 +33,11 @@ private const val MAX_RECEIVE_MESSAGES = 10
  * DSL 빌더로 [SqsAsyncClient]를 생성합니다.
  *
  * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
+ *
+ * ```kotlin
+ * val client = sqsAsyncClient { region(Region.AP_NORTHEAST_2) }
+ * // client != null
+ * ```
  */
 inline fun sqsAsyncClient(
     builder: SqsAsyncClientBuilder.() -> Unit,
@@ -52,6 +57,11 @@ inline fun sqsAsyncClient(
  * @param region AWS 리전
  * @param credentialsProvider 자격증명 공급자
  * @param httpClient 비동기 HTTP 클라이언트
+ *
+ * ```kotlin
+ * val client = sqsAsyncClientOf(endpoint = URI("http://localhost:4566"), region = Region.AP_NORTHEAST_2)
+ * // client != null
+ * ```
  */
 inline fun sqsAsyncClientOf(
     endpoint: URI? = null,
@@ -69,12 +79,28 @@ inline fun sqsAsyncClientOf(
         builder()
     }
 
+/**
+ * [queueName]으로 SQS 큐를 비동기 생성하고 큐 URL을 반환합니다.
+ *
+ * ```kotlin
+ * val queueUrl = sqsAsyncClient.createQueueAsync("my-queue").join()
+ * // queueUrl.contains("my-queue") == true
+ * ```
+ */
 fun SqsAsyncClient.createQueueAsync(queueName: String): CompletableFuture<String> {
     queueName.requireNotBlank("queueName")
     return createQueue { it.queueName(queueName) }
         .thenApply { it.queueUrl() }
 }
 
+/**
+ * SQS 큐 목록을 비동기로 조회합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.listQueuesAsync(prefix = "my-").join()
+ * // response.queueUrls().isNotEmpty() == true
+ * ```
+ */
 fun SqsAsyncClient.listQueuesAsync(
     prefix: String? = null,
     nextToken: String? = null,
@@ -86,6 +112,14 @@ fun SqsAsyncClient.listQueuesAsync(
         maxResults?.run { it.maxResults(this) }
     }
 
+/**
+ * [queueName]으로 SQS 큐 URL을 비동기로 조회합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.getQueueUrlAsync("my-queue").join()
+ * // response.queueUrl().contains("my-queue") == true
+ * ```
+ */
 fun SqsAsyncClient.getQueueUrlAsync(
     queueName: String,
     queueOwnerAWSAccountId: String? = null,
@@ -97,6 +131,14 @@ fun SqsAsyncClient.getQueueUrlAsync(
     }
 }
 
+/**
+ * [queueUrl] 큐에 [messageBody]를 비동기로 전송합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.sendAsync("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue", "hello").join()
+ * // response.messageId().isNotBlank() == true
+ * ```
+ */
 fun SqsAsyncClient.sendAsync(
     queueUrl: String,
     messageBody: String,
@@ -159,6 +201,14 @@ fun SqsAsyncClient.receiveMessagesAsync(
     }
 }
 
+/**
+ * 큐 메시지의 가시성 타임아웃을 비동기로 변경합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.changeMessageVisibilityAsync(queueUrl, receiptHandle = handle, visibilityTimeout = 30).join()
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsAsyncClient.changeMessageVisibilityAsync(
     queueUrl: String,
     receiptHandle: String? = null,
@@ -206,6 +256,14 @@ fun SqsAsyncClient.changeMessageVisibilityBatchAsync(
     }
 }
 
+/**
+ * 큐에서 메시지를 비동기로 삭제합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.deleteMessageAsync(queueUrl, receiptHandle = handle).join()
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsAsyncClient.deleteMessageAsync(
     queueUrl: String,
     receiptHandle: String? = null,
@@ -251,6 +309,14 @@ fun SqsAsyncClient.deleteMessageBatchAsync(
     }
 }
 
+/**
+ * SQS 큐를 비동기로 삭제합니다.
+ *
+ * ```kotlin
+ * val response = sqsAsyncClient.deleteQueueAsync("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue").join()
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsAsyncClient.deleteQueueAsync(queueUrl: String): CompletableFuture<DeleteQueueResponse> {
     queueUrl.requireNotBlank("queueUrl")
     return deleteQueue {

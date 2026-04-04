@@ -33,6 +33,11 @@ object S3Factory {
         /**
          * [S3Client] 를 생성합니다.
          *
+         * ```kotlin
+         * val client = S3Factory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         *
          * @param builder [S3ClientBuilder]를 이용하여 [S3Client]를 설정합니다.
          * @return [S3Client] 인스턴스
          */
@@ -47,6 +52,14 @@ object S3Factory {
 
         /**
          * [S3Client] 를 생성합니다.
+         *
+         * ```kotlin
+         * val client = S3Factory.Sync.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
          *
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
@@ -82,6 +95,11 @@ object S3Factory {
         /**
          * [S3AsyncClient] 를 생성합니다.
          *
+         * ```kotlin
+         * val client = S3Factory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         *
          * @param builder [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
@@ -98,6 +116,14 @@ object S3Factory {
 
         /**
          * [S3AsyncClient] 를 생성합니다.
+         *
+         * ```kotlin
+         * val client = S3Factory.Async.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
          *
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
@@ -135,6 +161,11 @@ object S3Factory {
         /**
          * [S3AsyncClient] 를 생성합니다.
          *
+         * ```kotlin
+         * val client = S3Factory.CrtAsync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         *
          * @param builder [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
@@ -149,6 +180,14 @@ object S3Factory {
 
         /**
          * [S3AsyncClient] 를 생성합니다.
+         *
+         * ```kotlin
+         * val client = S3Factory.CrtAsync.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
          *
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
@@ -183,6 +222,11 @@ object S3Factory {
         /**
          * [S3TransferManager]를 생성합니다.
          *
+         * ```kotlin
+         * val tm = S3Factory.TransferManager.create { }
+         * // tm != null
+         * ```
+         *
          * @param  builder [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
          * @return [S3TransferManager] 인스턴스
          */
@@ -197,6 +241,14 @@ object S3Factory {
 
         /**
          * [S3TransferManager]를 생성합니다.
+         *
+         * ```kotlin
+         * val tm = S3Factory.TransferManager.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // tm != null
+         * ```
          *
          * 참고: [Amazon S3 Transfer Manager](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/transfer-manager.html)
          *
@@ -231,6 +283,12 @@ object S3Factory {
 
         /**
          * [S3TransferManager]를 생성합니다.
+         *
+         * ```kotlin
+         * val asyncClient = S3Factory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * val tm = S3Factory.TransferManager.create(asyncClient)
+         * // tm != null
+         * ```
          *
          * @param  asyncClient            [S3AsyncClient] 인스턴스
          * @param  executor               [Executor] 인스턴스

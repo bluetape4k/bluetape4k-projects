@@ -7,6 +7,14 @@ import org.springframework.data.util.TypeInformation
 
 /**
  * Exposed DAO Entity를 위한 Spring Data MappingContext 구현체입니다.
+ *
+ * ```kotlin
+ * val context = ExposedMappingContext()
+ * context.setInitialEntitySet(setOf(User::class.java))
+ * val persistentEntity = context.getRequiredPersistentEntity(User::class.java)
+ * // persistentEntity.getEntityClass() → User.Companion
+ * // persistentEntity.getTable()       → Users
+ * ```
  */
 class ExposedMappingContext :
     AbstractMappingContext<DefaultExposedPersistentEntity<*>, ExposedPersistentProperty>() {

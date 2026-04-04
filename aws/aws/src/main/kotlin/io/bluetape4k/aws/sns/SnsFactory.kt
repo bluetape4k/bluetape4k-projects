@@ -24,11 +24,30 @@ object SnsFactory {
      */
     object Sync {
 
+        /**
+         * DSL 빌더로 [SnsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SnsFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SnsClientBuilder.() -> Unit,
         ): SnsClient =
             snsClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SnsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SnsFactory.Sync.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
+         */
         fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
@@ -44,11 +63,30 @@ object SnsFactory {
      */
     object Async {
 
+        /**
+         * DSL 빌더로 [SnsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SnsFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SnsAsyncClientBuilder.() -> Unit,
         ): SnsAsyncClient =
             snsAsyncClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SnsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SnsFactory.Async.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,

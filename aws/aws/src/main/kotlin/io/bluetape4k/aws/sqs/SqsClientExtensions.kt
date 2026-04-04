@@ -32,6 +32,11 @@ private const val MAX_RECEIVE_MESSAGES = 10
  * DSL 빌더로 [SqsClient]를 생성합니다.
  *
  * 생성된 클라이언트는 JVM 종료 시 자동으로 닫히도록 [ShutdownQueue]에 등록됩니다.
+ *
+ * ```kotlin
+ * val client = sqsClient { region(Region.AP_NORTHEAST_2) }
+ * // client != null
+ * ```
  */
 inline fun sqsClient(
     builder: SqsClientBuilder.() -> Unit,
@@ -51,6 +56,11 @@ inline fun sqsClient(
  * @param region AWS 리전
  * @param credentialsProvider 자격증명 공급자
  * @param httpClient HTTP 클라이언트
+ *
+ * ```kotlin
+ * val client = sqsClientOf(endpoint = URI("http://localhost:4566"), region = Region.AP_NORTHEAST_2)
+ * // client != null
+ * ```
  */
 inline fun sqsClientOf(
     endpoint: URI? = null,
@@ -68,11 +78,27 @@ inline fun sqsClientOf(
         builder()
     }
 
+/**
+ * [queueName]으로 SQS 큐를 생성하고 큐 URL을 반환합니다.
+ *
+ * ```kotlin
+ * val queueUrl = sqsClient.createQueue("my-queue")
+ * // queueUrl.contains("my-queue") == true
+ * ```
+ */
 fun SqsClient.createQueue(queueName: String): String {
     queueName.requireNotBlank("queueName")
     return createQueue { it.queueName(queueName) }.queueUrl()
 }
 
+/**
+ * SQS 큐 목록을 조회합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.listQueues(prefix = "my-")
+ * // response.queueUrls().isNotEmpty() == true
+ * ```
+ */
 fun SqsClient.listQueues(
     prefix: String? = null,
     nextToken: String? = null,
@@ -84,11 +110,27 @@ fun SqsClient.listQueues(
         maxResults?.run { it.maxResults(maxResults) }
     }
 
+/**
+ * [queueName]으로 SQS 큐 URL을 조회합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.getQueueUrl("my-queue")
+ * // response.queueUrl().contains("my-queue") == true
+ * ```
+ */
 fun SqsClient.getQueueUrl(queueName: String): GetQueueUrlResponse {
     queueName.requireNotBlank("queueName")
     return getQueueUrl { it.queueName(queueName) }
 }
 
+/**
+ * [queueUrl] 큐에 [messageBody]를 전송합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.send("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue", "hello")
+ * // response.messageId().isNotBlank() == true
+ * ```
+ */
 fun SqsClient.send(
     queueUrl: String,
     messageBody: String,
@@ -148,6 +190,14 @@ fun SqsClient.receiveMessages(
     }
 }
 
+/**
+ * 큐 메시지의 가시성 타임아웃을 변경합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.changeMessageVisibility(queueUrl, receiptHandle = handle, visibilityTimeout = 30)
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsClient.changeMessageVisibility(
     queueUrl: String,
     receiptHandle: String? = null,
@@ -195,6 +245,14 @@ fun SqsClient.changeMessageVisibilityBatch(
     }
 }
 
+/**
+ * 큐에서 메시지를 삭제합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.deleteMessage(queueUrl, receiptHandle = handle)
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsClient.deleteMessage(
     queueUrl: String,
     receiptHandle: String? = null,
@@ -240,6 +298,14 @@ fun SqsClient.deleteMessageBatch(
     }
 }
 
+/**
+ * SQS 큐를 삭제합니다.
+ *
+ * ```kotlin
+ * val response = sqsClient.deleteQueue("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue")
+ * // response.sdkHttpResponse().isSuccessful == true
+ * ```
+ */
 fun SqsClient.deleteQueue(queueUrl: String): DeleteQueueResponse {
     queueUrl.requireNotBlank("queueUrl")
 

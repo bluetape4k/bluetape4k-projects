@@ -15,6 +15,27 @@ import org.springframework.data.repository.query.QueryByExampleExecutor
  * [QueryByExampleExecutor]를 모두 지원합니다.
  *
  * Exposed DSL Op 직접 사용을 위한 확장 메서드도 제공합니다.
+ *
+ * ```kotlin
+ * @ExposedEntity
+ * class User(id: EntityID<Long>) : LongEntity(id) {
+ *     companion object : LongEntityClass<User>(Users)
+ *     var name by Users.name
+ *     var age  by Users.age
+ * }
+ *
+ * interface UserRepository : ExposedJdbcRepository<User, Long> {
+ *     override val table get() = Users
+ *     override fun extractId(entity: User): Long? =
+ *         if (entity.id._value == null) null else entity.id.value
+ *
+ *     // PartTree 파생 쿼리
+ *     fun findByName(name: String): List<User>
+ *
+ *     // Exposed DSL 직접 사용
+ *     fun findAdults(): List<User> = findAll { Users.age greaterEq 18 }
+ * }
+ * ```
  */
 @NoRepositoryBean
 interface ExposedJdbcRepository<E: Entity<ID>, ID: Any>: ListCrudRepository<E, ID>,
@@ -42,11 +63,21 @@ interface ExposedJdbcRepository<E: Entity<ID>, ID: Any>: ListCrudRepository<E, I
 
     /**
      * 주어진 Exposed DSL 조건에 맞는 Entity 수를 반환합니다.
+     *
+     * ```kotlin
+     * val adultCount = userRepository.count { Users.age greaterEq 18 }
+     * // adultCount → 42
+     * ```
      */
     fun count(op: () -> Op<Boolean>): Long
 
     /**
      * 주어진 Exposed DSL 조건에 맞는 Entity가 존재하는지 확인합니다.
+     *
+     * ```kotlin
+     * val hasAdmin = userRepository.exists { Users.role eq "ADMIN" }
+     * // hasAdmin → true
+     * ```
      */
     fun exists(op: () -> Op<Boolean>): Boolean
 }

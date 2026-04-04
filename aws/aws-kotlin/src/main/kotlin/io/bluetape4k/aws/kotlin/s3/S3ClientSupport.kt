@@ -10,13 +10,13 @@ import io.bluetape4k.support.useSafe
 /**
  * [S3Client] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val s3Client = s3ClientOf(
- *    endpointUrl = "http://localhost:4566",
+ *    endpointUrl = Url.parse("http://localhost:4566"),
  *    region = "us-west-2",
- *    credentialsProvider = StaticCredentialsProvider { accessKeyId = "test"; secretAccess = "test" }
+ *    credentialsProvider = StaticCredentialsProvider { accessKeyId = "test"; secretAccessKey = "test" }
  * ) {
- *  clientName = "bluetape4k-s3-client"
+ *    clientName = "bluetape4k-s3-client"
  * }
  * ```
  *

@@ -6,6 +6,23 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
+/**
+ * S3 버킷/키/버전 정보를 담는 위치 데이터 클래스입니다.
+ *
+ * S3 URL 형식 (`s3://bucket/key^version`)을 파싱하거나 생성할 때 사용합니다.
+ *
+ * ```kotlin
+ * val location = Location("my-bucket", "path/to/object.txt")
+ * val url = location.url   // "s3://my-bucket/path/to/object.txt"
+ *
+ * val fromUrl = Location("s3://my-bucket/path/to/object.txt")
+ * val bucket = fromUrl.bucket   // "my-bucket"
+ * ```
+ *
+ * @property bucket S3 버킷 이름
+ * @property key S3 객체 키
+ * @property version 버전 ID (null이면 최신 버전)
+ */
 data class Location(
     val bucket: String,
     val key: String,

@@ -6,7 +6,25 @@ import aws.smithy.kotlin.runtime.content.ByteStream
 import io.bluetape4k.support.requireNotBlank
 
 /**
- * [bucket]의 [key]에 객체를 저장하기 위한 [PutObjectRequest] 를 생성합니다.
+ * [bucket]의 [key]에 객체를 저장하기 위한 [PutObjectRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = putObjectRequestOf(
+ *     bucket = "my-bucket",
+ *     key = "path/to/object.txt",
+ *     body = ByteStream.fromString("Hello, World!"),
+ *     contentType = "text/plain"
+ * )
+ * s3Client.putObject(request)
+ * ```
+ *
+ * @param bucket 버킷 이름
+ * @param key 객체 키
+ * @param body 저장할 [aws.smithy.kotlin.runtime.content.ByteStream] (null이면 빈 객체)
+ * @param metadata 메타데이터 맵
+ * @param acl 접근 제어 목록
+ * @param contentType 콘텐츠 타입 (예: "text/plain", "application/json")
+ * @return [PutObjectRequest] 인스턴스
  */
 inline fun putObjectRequestOf(
     bucket: String,

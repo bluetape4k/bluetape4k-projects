@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.dynamodb.model.Projection
 /**
  * [EnhancedGlobalSecondaryIndex] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val index = EnhancedGlobalSecondaryIndex {
  *   indexName("indexName")
  *   projection(projection)
@@ -26,7 +26,7 @@ inline fun EnhancedGlobalSecondaryIndex(
 /**
  * [EnhancedGlobalSecondaryIndex] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val index = enhancedGlobalSecondaryIndexOf("indexName", projection)
  * ```
  *
@@ -45,7 +45,7 @@ fun enhancedGlobalSecondaryIndexOf(
 /**
  * [EnhancedLocalSecondaryIndex] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val index = EnhancedLocalSecondaryIndex {
  *   indexName("indexName")
  *   projection(projection)
@@ -64,7 +64,7 @@ inline fun EnhancedLocalSecondaryIndex(
 /**
  * [EnhancedLocalSecondaryIndex] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val index = enhancedLocalSecondaryIndexOf("indexName", projection)
  * ```
  *

@@ -10,6 +10,15 @@ import kotlin.reflect.full.companionObjectInstance
 /**
  * [ExposedEntityInformation]의 기본 구현체입니다.
  * Domain 클래스의 companion object에서 [EntityClass]를 추출합니다.
+ *
+ * ```kotlin
+ * val info = ExposedEntityInformationImpl<User, Long>(User::class.java)
+ * info.entityClass        // User.Companion
+ * info.table              // Users
+ * info.getId(user)        // user.id.value (신규이면 null)
+ * info.isNew(newUser)     // true
+ * info.isNew(savedUser)   // false
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 class ExposedEntityInformationImpl<E: Entity<ID>, ID: Any>(

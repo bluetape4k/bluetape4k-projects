@@ -14,6 +14,11 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 조회된 아이템 또는 null
+ *
+ * ```kotlin
+ * val item = table.getItem(partitionValue = "user-1")
+ * // item?.id == "user-1"
+ * ```
  */
 inline fun <T: Any> DynamoDbTable<T>.getItem(
     partitionValue: Any,
@@ -27,6 +32,11 @@ inline fun <T: Any> DynamoDbTable<T>.getItem(
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 삭제된 아이템
+ *
+ * ```kotlin
+ * val deleted = table.deleteItem(partitionValue = "user-1")
+ * // deleted?.id == "user-1"
+ * ```
  */
 inline fun <T: Any> DynamoDbTable<T>.deleteItem(
     partitionValue: Any,
@@ -53,6 +63,11 @@ inline fun <T: Any> DynamoDbTable<T>.deleteItem(
  * 모든 아이템을 조회합니다 (스캔).
  *
  * @return 모든 아이템 리스트
+ *
+ * ```kotlin
+ * val items = table.findAll()
+ * // items.isNotEmpty() == true
+ * ```
  */
 fun <T> DynamoDbTable<T>.findAll(): List<T> = scan().items().toList()
 
@@ -61,6 +76,11 @@ fun <T> DynamoDbTable<T>.findAll(): List<T> = scan().items().toList()
  *
  * @param partitionValue 파티션 키 값
  * @return 아이템 리스트
+ *
+ * ```kotlin
+ * val items = table.findByPartition("user-1")
+ * // items.all { it.userId == "user-1" } == true
+ * ```
  */
 fun <T: Any> DynamoDbTable<T>.findByPartition(partitionValue: String): List<T> {
     val key = Key.builder().partitionValue(partitionValue).build()
@@ -73,6 +93,11 @@ fun <T: Any> DynamoDbTable<T>.findByPartition(partitionValue: String): List<T> {
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 존재하면 true
+ *
+ * ```kotlin
+ * val exists = table.exists(partitionValue = "user-1")
+ * // exists == true
+ * ```
  */
 inline fun <T: Any> DynamoDbTable<T>.exists(
     partitionValue: Any,
@@ -83,5 +108,10 @@ inline fun <T: Any> DynamoDbTable<T>.exists(
  * 결과를 List로 변환합니다.
  *
  * @return 모든 아이템 리스트
+ *
+ * ```kotlin
+ * val items = pageIterable.toList()
+ * // items.isNotEmpty() == true
+ * ```
  */
 fun <T> PageIterable<T>.toList(): List<T> = items().toList()

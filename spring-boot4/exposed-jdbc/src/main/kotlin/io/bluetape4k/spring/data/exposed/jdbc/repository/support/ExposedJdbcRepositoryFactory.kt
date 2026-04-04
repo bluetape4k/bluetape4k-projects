@@ -14,6 +14,13 @@ import java.util.*
 
 /**
  * Exposed Repository 인스턴스를 생성하는 Factory입니다.
+ *
+ * ```kotlin
+ * // Spring이 자동으로 사용합니다. 직접 사용할 경우:
+ * val factory = ExposedJdbcRepositoryFactory()
+ * val repo = factory.getRepository(UserRepository::class.java)
+ * // repo는 SimpleExposedJdbcRepository 기반의 프록시 인스턴스
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 class ExposedJdbcRepositoryFactory : RepositoryFactorySupport() {

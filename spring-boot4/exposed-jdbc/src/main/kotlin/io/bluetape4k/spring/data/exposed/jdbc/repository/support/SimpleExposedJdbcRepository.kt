@@ -31,6 +31,19 @@ import java.util.stream.Stream
 /**
  * [ExposedJdbcRepository]의 기본 CRUD 구현체입니다.
  * 모든 Exposed DAO 연산은 트랜잭션 내에서 실행됩니다.
+ *
+ * ```kotlin
+ * // Spring이 자동으로 생성합니다. UserRepository가 ExposedJdbcRepository를 상속하면 됩니다.
+ * // 트랜잭션 예 (쓰기 작업):
+ * transaction {
+ *     val user = User.new { name = "Alice"; age = 30 }
+ *     userRepository.save(user) // Exposed 변경 감지 모델에 위임 — 별도 INSERT 없음
+ * }
+ *
+ * // 읽기 작업:
+ * val page = userRepository.findAll(PageRequest.of(0, 10, Sort.by("name")))
+ * val users = userRepository.findAll { Users.age greaterEq 18 }
+ * ```
  */
 
 /** Exposed Spring Boot 4 Starter가 등록하는 SpringTransactionManager 빈 이름 */

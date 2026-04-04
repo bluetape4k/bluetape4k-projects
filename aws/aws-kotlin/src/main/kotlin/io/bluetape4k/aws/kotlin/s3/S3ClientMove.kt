@@ -10,7 +10,7 @@ import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 /**
  * S3 Object 를 이동 시킵니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.move("src-bucket", "src-key", "dest-bucket", "dest-key")
  * ```
  *
@@ -41,7 +41,7 @@ suspend inline fun S3Client.move(
 /**
  * S3 Object 를 이동 시킵니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.move(
  *    copyRequestBuilder = {
  *        bucket = "dest-bucket"

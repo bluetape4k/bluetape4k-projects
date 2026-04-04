@@ -10,7 +10,7 @@ import java.nio.charset.Charset
 /**
  * [Message.Builder]를 사용하여 [message] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val message = Message {
  *    subject {
  *        data("Hello")
@@ -40,7 +40,7 @@ inline fun message(
 /**
  * [Message] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val message = messageOf(
  *     subject = contentOf("Hello", Charsets.UTF_8),
  *     body = bodyOf("Hello", "<p>Hello</p>", Charsets.UTF_8)
@@ -62,7 +62,7 @@ fun messageOf(
 /**
  * [Body.Builder]를 이용하여 [body] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val body = Body {
  *    text {
  *        contentOf("Hello", Charsets.UTF_8)
@@ -84,7 +84,7 @@ inline fun body(
 /**
  * [Body] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val body = bodyOf("Hello", "<p>Hello</p>", Charsets.UTF_8)
  * ```
  *
@@ -105,7 +105,7 @@ fun bodyOf(
 /**
  * Text [Body] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val body = bodyOf("Hello", Charsets.UTF_8)
  * ```
  *
@@ -123,7 +123,7 @@ fun bodyAsText(
 /**
  * HTML [Body] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val body = bodyOf("<p>Hello</p>", Charsets.UTF_8)
  * ```
  *
@@ -141,7 +141,7 @@ fun bodyAsHtml(
 /**
  * [Content.Builder]를 이용하여 [content] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val content = Content {
  *    data("Hello")
  *    charset("UTF-8")
@@ -160,7 +160,7 @@ inline fun content(
 /**
  * [Content] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val content = contentOf("Hello", Charsets.UTF_8)
  * ```
  *
@@ -176,7 +176,7 @@ fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = content
 /**
  * [MessageTag.Builder]를 이용하여 [messageTag] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val messageTag = messageTag {
  *    name("key")
  *    value("value")
@@ -195,7 +195,7 @@ inline fun messageTag(
 /**
  * [MessageTag] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val messageTag = messageTagOf("key", "value")
  * ```
  *

@@ -6,7 +6,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 /**
  * [DynamoDbEntity]를 상속받은 Entity에 대한 Table Schema를 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val schema = getTableSchema<FoodDocument>()
  * ```
  *

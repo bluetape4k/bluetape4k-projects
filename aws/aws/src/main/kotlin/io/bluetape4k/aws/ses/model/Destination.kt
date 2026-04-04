@@ -5,7 +5,7 @@ import software.amazon.awssdk.services.ses.model.Destination
 /**
  * [Destination.Builder]를 이용하여 [destination] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val destination = destination {
  *    toAddresses("user1@example.com")
  *    ccAddresses("user2@example.com")
@@ -24,7 +24,7 @@ inline fun destination(
 /**
  * [Destination] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val destination = destinationOf(listOf("debop@example.com", "user1@example.com"))
  * ```
  *
@@ -46,7 +46,7 @@ fun destinationOf(
 /**
  * [Destination] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val destination = destinationOf("debop@example.com", "user1@example.com")
  * ```
  *

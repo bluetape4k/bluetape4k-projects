@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 /**
  * [AttributeValue.Builder]를 이용하여 [AttributeValue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val strValue = attributeValue { s("Hello, World!") }
  * val intValue = attributeValue { n("123") }
  * val boolValue = attributeValue { bool(true) }

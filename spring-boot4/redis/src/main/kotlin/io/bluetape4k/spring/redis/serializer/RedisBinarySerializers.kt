@@ -6,6 +6,16 @@ import io.bluetape4k.io.serializer.BinarySerializers
 /**
  * Spring Data Redis 에서 사용하는 [org.springframework.data.redis.serializer.RedisSerializer]의
  * 다양한 구현체를 제공합니다.
+ *
+ * ## 동작/계약
+ * - 모든 인스턴스는 `lazy` 초기화 방식으로 필요한 시점에 생성됩니다.
+ * - 압축 방식(GZip/LZ4/Snappy/Zstd)과 직렬화 방식(Jdk/Kryo/Fory)을 조합해 선택할 수 있습니다.
+ *
+ * ```kotlin
+ * val redisTemplate = RedisTemplate<String, Any>()
+ * redisTemplate.valueSerializer = RedisBinarySerializers.LZ4Kryo
+ * // LZ4 압축 + Kryo 직렬화가 적용된다.
+ * ```
  */
 object RedisBinarySerializers {
 

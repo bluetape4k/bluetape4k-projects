@@ -19,6 +19,14 @@ internal const val MAX_WAIT_TIME_SECONDS = 20
  * [ReceiveMessageRequest]를 생성합니다.
  *
  * @param builder [ReceiveMessageRequest.Builder]를 이용하여 [ReceiveMessageRequest]를 초기화하는 람다입니다.
+ *
+ * ```kotlin
+ * val request = receiveMessageRequest {
+ *     queueUrl("https://sqs.ap-northeast-2.amazonaws.com/123/my-queue")
+ *     maxNumberOfMessages(5)
+ * }
+ * // request.maxNumberOfMessages() == 5
+ * ```
  */
 inline fun receiveMessageRequest(
     builder: ReceiveMessageRequest.Builder.() -> Unit,
@@ -35,6 +43,18 @@ inline fun receiveMessageRequest(
  * @param attributeNames 수신할 메시지의 속성 이름 컬렉션입니다. 기본값은 null입니다.
  * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return ReceiveMessageRequest 인스턴스를 반환합니다.
+ */
+/**
+ * `queueUrl`, `maxNumber`, `waitTimeSeconds`, `attributeNames`로 [ReceiveMessageRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = receiveMessageRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123/my-queue",
+ *     maxNumber = 5,
+ *     waitTimeSeconds = 10
+ * )
+ * // request.maxNumberOfMessages() == 5
+ * ```
  */
 inline fun receiveMessageRequestOf(
     queueUrl: String,

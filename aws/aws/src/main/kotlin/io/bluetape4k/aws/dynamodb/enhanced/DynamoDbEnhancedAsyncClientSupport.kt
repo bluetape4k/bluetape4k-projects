@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
 /**
  * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = dynamoDbEnhancedAsyncClient {
  *    dynamoDbClient(DynamoDbAsyncClient.create())
  * }
@@ -26,7 +26,7 @@ inline fun dynamoDbEnhancedAsyncClient(
 /**
  * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = dynamoDbEnhancedAsyncClientOf(DynamoDbAsyncClient.create()) {
  *   extensions(ExtensionResolver.defaultExtensions())
  * }
@@ -49,7 +49,7 @@ inline fun dynamoDbEnhancedAsyncClientOf(
 /**
  * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = dynamoDbEnhancedAsyncClientOf(
  *      DynamoDbAsyncClient.create(),
  *      *ExtensionResolver.defaultExtensions().toTypedArray()

@@ -17,6 +17,14 @@ import javax.sql.DataSource
 /**
  * Spring Data Exposed 자동 설정입니다.
  * Exposed `EntityClass`가 classpath에 있을 때 활성화됩니다.
+ *
+ * ```kotlin
+ * // Spring Boot 자동 등록 — 별도 설정 불필요
+ * // @EnableExposedJdbcRepositories 어노테이션과 함께 사용됩니다.
+ * @SpringBootApplication
+ * @EnableExposedJdbcRepositories(basePackages = ["io.example.repository"])
+ * class Application
+ * ```
  */
 @AutoConfiguration
 @ConditionalOnClass(EntityClass::class)

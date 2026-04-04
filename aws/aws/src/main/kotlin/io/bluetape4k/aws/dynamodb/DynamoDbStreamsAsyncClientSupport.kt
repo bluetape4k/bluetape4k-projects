@@ -13,7 +13,7 @@ import java.net.URI
  * [dynamoDbStreamsAsyncClient]를 빌드해주는 함수입니다.
  * JVM 종료 시 자동으로 자원을 해제합니다
  *
- * ```
+ * ```kotlin
  * val dynamoDbStreamsAsyncClient = DynamoDbStreamsAsyncClient {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)
@@ -37,7 +37,7 @@ inline fun dynamoDbStreamsAsyncClient(
  * [DynamoDbStreamsAsyncClient]를 빌드해주는 함수입니다.
  * JVM 종료 시 자동으로 자원을 해제합니다
  *
- * ```
+ * ```kotlin
  * val dynamoDbStreamsAsyncClient = dynamoDbStreamsAsyncClientOf(
  *    endpoint = endpoint,
  *      region = region,

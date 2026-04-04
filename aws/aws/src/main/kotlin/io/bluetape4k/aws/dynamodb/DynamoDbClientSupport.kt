@@ -13,7 +13,7 @@ import java.net.URI
  * [dynamoDbClient]를 빌드해주는 함수입니다.
  * JVM 종료 시 자동으로 자원을 해제합니다
  *
- * ```
+ * ```kotlin
  * val dynamoDbClient = DynamoDbClient {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)
@@ -36,7 +36,7 @@ inline fun dynamoDbClient(
 /**
  * [DynamoDbClient]를 빌드해주는 함수입니다.
  *
- * ```
+ * ```kotlin
  * val dynamoDbClient = dynamoDbClientOf(
  *    endpoint = endpoint,
  *    region = region,

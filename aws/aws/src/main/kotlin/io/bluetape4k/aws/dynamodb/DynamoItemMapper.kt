@@ -20,7 +20,7 @@ interface DynamoItemMapper<T: Any> {
 /**
  * Iterable의 엔티티들을 DynamoDB WriteRequest로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val writeRequests = items.buildWriteRequest(mapper)
  * ```
  */

@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.ses.endpoints.SesEndpointProvider
 /**
  * [sesAsyncClient]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val client = SesAsyncClient {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)
@@ -35,7 +35,7 @@ inline fun sesAsyncClient(
 /**
  * [SesAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = sesAsyncClientOf(region) {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)
@@ -61,7 +61,7 @@ inline fun sesAsyncClientOf(
 /**
  * [SesAsyncClient]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client = sesAsyncClientOf(endpointProvider) {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)

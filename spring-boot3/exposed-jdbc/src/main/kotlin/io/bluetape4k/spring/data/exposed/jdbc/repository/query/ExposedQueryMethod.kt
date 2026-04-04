@@ -11,6 +11,15 @@ import java.lang.reflect.Method
 
 /**
  * Exposed Repository 메서드에 대한 메타데이터를 표현합니다.
+ *
+ * ```kotlin
+ * // Repository 메서드의 @Query 어노테이션 존재 여부와 SQL 문자열을 조회합니다.
+ * val method = UserRepository::class.java.getMethod("findByName", String::class.java)
+ * val metadata = object : RepositoryMetadata by ... {}
+ * val queryMethod = ExposedQueryMethod(method, metadata, factory)
+ * queryMethod.isAnnotatedQuery      // true (@Query가 있으면)
+ * queryMethod.getAnnotatedQuery()   // "SELECT * FROM users WHERE name = ?1"
+ * ```
  */
 class ExposedQueryMethod(
     method: Method,

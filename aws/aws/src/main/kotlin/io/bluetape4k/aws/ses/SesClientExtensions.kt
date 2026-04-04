@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailResponse
 /**
  * [SendEmailRequest] 정보를 바탕으로 email을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.send(request)
  * response.messageId().shouldNotBeEmpty()
  * log.debug { "response=$response" }
@@ -28,7 +28,7 @@ fun SesClient.send(request: SendEmailRequest): SendEmailResponse =
 /**
  * [SendRawEmailRequest] 정보를 바탕으로 email을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendRaw(rawEmailRequest)
  * log.debug { "response=$response" }
  * ```
@@ -42,7 +42,7 @@ fun SesClient.sendRaw(request: SendRawEmailRequest): SendRawEmailResponse =
 /**
  * [SendTemplatedEmailRequest] 정보를 바탕으로 email을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendTemplated(templatedEmailRequest)
  * log.debug { "response=$response" }
  * ```
@@ -56,7 +56,7 @@ fun SesClient.sendTemplated(request: SendTemplatedEmailRequest): SendTemplatedEm
 /**
  * [SendBulkTemplatedEmailRequest] 정보를 바탕으로 email을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendBulkTemplated(bulkTemplatedEmailRequest)
  * log.debug { "response=$response" }
  * ```

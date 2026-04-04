@@ -11,7 +11,7 @@ import java.net.URI
 /**
  * [dynamoDbStreamsClient]를 빌드해주는 함수입니다.
  *
- * ```
+ * ```kotlin
  * val dynamoDbStreamsClient = DynamoDbStreamsClient {
  *     credentialsProvider(credentialsProvider)
  *     endpointOverride(endpoint)
@@ -31,7 +31,7 @@ inline fun dynamoDbStreamsClient(
 /**
  * [DynamoDbStreamsClient]를 빌드해주는 함수입니다.
  *
- * ```
+ * ```kotlin
  * val dynamoDbStreamsClient = dynamoDbStreamsClientOf(
  *    endpoint = endpoint,
  *    region = region,

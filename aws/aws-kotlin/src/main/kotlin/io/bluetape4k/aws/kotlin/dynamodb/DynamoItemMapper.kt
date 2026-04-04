@@ -29,7 +29,7 @@ fun interface DynamoItemMapper<T: Any> {
 /**
  * Iterable의 엔티티들을 DynamoDB 쓰기 (Put) 작업 요청인 [WriteRequest]의 컬렉션으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val writeRequests = items.buildWriteRequests(mapper)
  * ```
  */
@@ -46,7 +46,7 @@ fun <T: Any> Iterable<T>.buildWritePutRequests(mapper: DynamoItemMapper<T>): Lis
 /**
  * Iterable의 엔티티들을 DynamoDB 삭제 (Delete) 작업 요청인 [WriteRequest]의 컬렉션으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val writeRequests = items.buildWriteDeleteRequests(mapper)
  * ```
  */

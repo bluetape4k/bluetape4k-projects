@@ -9,6 +9,15 @@ import io.bluetape4k.support.requireNotEmpty
 /**
  * 제공된 queueUrl과 receiptHandle을 사용하여 [ChangeMessageVisibilityRequest] 를 생성합니다.
  *
+ * ```kotlin
+ * val request = changeMessageVisibilityRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     receiptHandle = "receiptHandle",
+ *     visibilityTimeout = 30
+ * )
+ * sqsClient.changeMessageVisibility(request)
+ * ```
+ *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
  * @param receiptHandle Visibility를 변경할 메시지와 연관된 영수증 핸들입니다.
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
@@ -36,9 +45,18 @@ inline fun changeMessageVisibilityRequestOf(
 /**
  * 제공된 id와 receiptHandle을 사용하여 [ChangeMessageVisibilityBatchRequestEntry] 를 생성합니다.
  *
+ * ```kotlin
+ * val entry = changeMessageVisibilityBatchRequestEntryOf(
+ *     id = "msg-001",
+ *     receiptHandle = "receiptHandle1",
+ *     visibilityTimeout = 30
+ * )
+ * ```
+ *
  * @param id 메시지의 식별자입니다.
  * @param receiptHandle Visibility를 변경할 메시지와 연관된 영수증 핸들입니다.
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
+ * @return [ChangeMessageVisibilityBatchRequestEntry] 인스턴스를 반환합니다.
  */
 inline fun changeMessageVisibilityBatchRequestEntryOf(
     id: String,
@@ -60,6 +78,14 @@ inline fun changeMessageVisibilityBatchRequestEntryOf(
 
 /**
  * 제공된 queueUrl과 entries를 사용하여 [ChangeMessageVisibilityBatchRequest] 를 생성합니다.
+ *
+ * ```kotlin
+ * val request = changeMessageVisibilityBatchRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     entries = listOf(changeMessageVisibilityBatchRequestEntryOf("id1", "receiptHandle1", 30))
+ * )
+ * sqsClient.changeMessageVisibilityBatch(request)
+ * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
@@ -85,6 +111,15 @@ inline fun changeMessageVisibilityBatchRequestOf(
 
 /**
  * 제공된 queueUrl과 entries를 사용하여 [ChangeMessageVisibilityBatchRequest] 를 생성합니다.
+ *
+ * ```kotlin
+ * val request = changeMessageVisibilityBatchRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     changeMessageVisibilityBatchRequestEntryOf("id1", "receiptHandle1", 30),
+ *     changeMessageVisibilityBatchRequestEntryOf("id2", "receiptHandle2", 60)
+ * )
+ * sqsClient.changeMessageVisibilityBatch(request)
+ * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.

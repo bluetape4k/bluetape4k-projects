@@ -22,10 +22,26 @@ object SqsClientFactory {
      */
     object Sync {
 
+        /**
+         * DSL 빌더로 [SqsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SqsClientFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SqsClientBuilder.() -> Unit,
         ): SqsClient = sqsClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SqsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SqsClientFactory.Sync.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI? = null,
             region: Region? = null,
@@ -46,10 +62,26 @@ object SqsClientFactory {
      */
     object Async {
 
+        /**
+         * DSL 빌더로 [SqsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SqsClientFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SqsAsyncClientBuilder.() -> Unit,
         ): SqsAsyncClient = sqsAsyncClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SqsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SqsClientFactory.Async.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI? = null,
             region: Region? = null,

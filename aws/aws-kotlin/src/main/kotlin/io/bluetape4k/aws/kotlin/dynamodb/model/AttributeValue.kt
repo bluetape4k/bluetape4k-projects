@@ -42,27 +42,111 @@ fun <T> T.toAttributeValue(): AttributeValue = when (this) {
 }
 
 
+/**
+ * [ByteArray]를 DynamoDB [AttributeValue.B]로 변환합니다.
+ *
+ * ```kotlin
+ * val av = byteArrayOf(1, 2, 3).toAttributeValue()   // AttributeValue.B(...)
+ * ```
+ */
 inline fun ByteArray.toAttributeValue(): AttributeValue = AttributeValue.B(this)
+
+/**
+ * [ByteBuffer]를 DynamoDB [AttributeValue.B]로 변환합니다.
+ *
+ * ```kotlin
+ * val buf = ByteBuffer.wrap(byteArrayOf(1, 2, 3))
+ * val av = buf.toAttributeValue()   // AttributeValue.B(...)
+ * ```
+ */
 inline fun ByteBuffer.toAttributeValue(): AttributeValue = AttributeValue.B(this.getAllBytes())
+
+/**
+ * [String]을 DynamoDB [AttributeValue.S]로 변환합니다.
+ *
+ * ```kotlin
+ * val av = "hello".toAttributeValue()   // AttributeValue.S("hello")
+ * ```
+ */
 inline fun String.toAttributeValue(): AttributeValue = AttributeValue.S(this)
+
+/**
+ * [Number]를 DynamoDB [AttributeValue.N]으로 변환합니다.
+ *
+ * ```kotlin
+ * val av = 42.toAttributeValue()   // AttributeValue.N("42")
+ * ```
+ */
 inline fun Number.toAttributeValue(): AttributeValue = AttributeValue.N(this.toString())
+
+/**
+ * [Boolean]을 DynamoDB [AttributeValue.Bool]으로 변환합니다.
+ *
+ * ```kotlin
+ * val av = true.toAttributeValue()   // AttributeValue.Bool(true)
+ * ```
+ */
 inline fun Boolean.toAttributeValue(): AttributeValue = AttributeValue.Bool(this)
 
+/**
+ * [ByteArray] 목록을 DynamoDB [AttributeValue.Bs]로 변환합니다.
+ *
+ * ```kotlin
+ * val av = listOf(byteArrayOf(1), byteArrayOf(2)).toAttributeValue()   // AttributeValue.Bs(...)
+ * ```
+ */
 @JvmName("toAttributeValueByteArrayList")
 inline fun Iterable<ByteArray>.toAttributeValue(): AttributeValue = AttributeValue.Bs(this.toList())
 
+/**
+ * [CharSequence] 목록을 DynamoDB [AttributeValue.Ss]로 변환합니다.
+ *
+ * ```kotlin
+ * val av = listOf("a", "b").toAttributeValue()   // AttributeValue.Ss(["a", "b"])
+ * ```
+ */
 @JvmName("toAttributeValueStringList")
 inline fun <T: CharSequence> Iterable<T>.toAttributeValue(): AttributeValue =
     AttributeValue.Ss(this.map { it.toString() })
 
+/**
+ * [Number] 목록을 DynamoDB [AttributeValue.Ns]로 변환합니다.
+ *
+ * ```kotlin
+ * val av = listOf(1, 2, 3).toAttributeValue()   // AttributeValue.Ns(["1", "2", "3"])
+ * ```
+ */
 @JvmName("toAttributeValueNumberList")
 fun <T: Number> Iterable<T>.toAttributeValue(): AttributeValue = AttributeValue.Ns(this.map { it.toString() })
 
+/**
+ * [InputStream]을 DynamoDB [AttributeValue.B]로 변환합니다.
+ *
+ * ```kotlin
+ * val stream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
+ * val av = stream.toAttributeValue()   // AttributeValue.B(...)
+ * ```
+ */
 inline fun InputStream.toAttributeValue(): AttributeValue =
     AttributeValue.B(this.toByteArray())
 
+/**
+ * [Iterable] 요소들을 DynamoDB [AttributeValue.L] 리스트로 변환합니다.
+ *
+ * ```kotlin
+ * val av = listOf("a", 1, true).toAttributeValue()   // AttributeValue.L(...)
+ * ```
+ */
 inline fun <T> Iterable<T>.toAttributeValue() = AttributeValue.L(this.map { it.toAttributeValue() })
 
+/**
+ * [Map]을 DynamoDB [AttributeValue.M]으로 변환합니다.
+ *
+ * ```kotlin
+ * val av = mapOf("name" to "Alice", "age" to 30).toAttributeValue()
+ * // (av as AttributeValue.M).value["name"] == AttributeValue.S("Alice")
+ * ```
+ */
 inline fun <K: Any, V> Map<K, V>.toAttributeValue(): AttributeValue.M =
     AttributeValue.M(this.entries.associate { it.key.toString() to it.value.toAttributeValue() })
 

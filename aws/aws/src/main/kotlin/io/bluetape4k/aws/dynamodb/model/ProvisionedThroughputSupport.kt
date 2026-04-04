@@ -5,7 +5,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
 /**
  * DynamoDB 테이블의 프로비저닝된 처리량 설정을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val throughput = provisionedThroughput {
  *    readCapacityUnits(10)
  *    writeCapacityUnits(5)
@@ -23,7 +23,7 @@ inline fun ProvisionedThroughput(
 /**
  * DynamoDB 테이블의 프로비저닝된 처리량 설정을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val throughput = provisionedThroughputOf(10, 5)
  * ```
  *

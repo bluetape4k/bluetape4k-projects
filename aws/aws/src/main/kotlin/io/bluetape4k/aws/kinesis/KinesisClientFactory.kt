@@ -24,6 +24,11 @@ object KinesisClientFactory {
 
         /**
          * DSL 빌더 블록으로 [KinesisClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = KinesisClientFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: KinesisClientBuilder.() -> Unit,
@@ -32,6 +37,11 @@ object KinesisClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [KinesisClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = KinesisClientFactory.Sync.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         fun create(
             endpointOverride: URI? = null,
@@ -50,6 +60,11 @@ object KinesisClientFactory {
 
         /**
          * DSL 빌더 블록으로 [KinesisAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = KinesisClientFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: KinesisAsyncClientBuilder.() -> Unit,
@@ -58,6 +73,11 @@ object KinesisClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [KinesisAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = KinesisClientFactory.Async.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         inline fun create(
             endpointOverride: URI? = null,

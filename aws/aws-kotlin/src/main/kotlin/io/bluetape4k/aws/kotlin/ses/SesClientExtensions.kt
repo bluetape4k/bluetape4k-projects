@@ -17,7 +17,7 @@ import aws.sdk.kotlin.services.ses.model.Template
 /**
  * [emailRequest]를 바탕으로 email 을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val request = SendEmailRequest {
  *      destination {
  *         toAddresses = listOf("user1@example.com", "user2@example.com")
@@ -50,7 +50,7 @@ suspend inline fun SesClient.send(emailRequest: SendEmailRequest): SendEmailResp
 /**
  * [rawEmailRequest]를 바탕으로 raw email 을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val request = SendRawEmailRequest {
  *     rawMessage {
  *         data = "From: noreply@example.com\nTo: user1@example.com\nSubject: Hello, world!\n\nHello, world!"
@@ -68,7 +68,7 @@ suspend inline fun SesClient.sendRaw(rawEmailRequest: SendRawEmailRequest): Send
 /**
  * [emailRequest]를 바탕으로 템플릿을 사용한 email 을 전송합니다.
  *
- * ```
+ * ```kotlin
  * val request = SendTemplatedEmailRequest {
  *    destination {
  *       toAddresses = listOf("user1@example.com", "user2@example.com")
@@ -96,7 +96,7 @@ suspend inline fun SesClient.sendTemplated(emailRequest: SendTemplatedEmailReque
 /**
  * [emailRequest]를 바탕으로 템플릿을 사용한 email 을 벌크로 전송합니다.
  *
- * ```
+ * ```kotlin
  * val request = SendBulkTemplatedEmailRequest {
  *      defaultTemplate {
  *          templateName = "default-template"
@@ -122,7 +122,7 @@ suspend inline fun SesClient.sendBulkTemplated(emailRequest: SendBulkTemplatedEm
 /**
  * 새로운 [Template]을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val template = Template {
  *      templateName = "template-name"
  *      subjectPart = "Hello, {{name}}"
@@ -141,7 +141,7 @@ suspend inline fun SesClient.createTemplate(template: Template): CreateTemplateR
 /**
  * 등록된 [Template] 를 [templateName]으로 찾아서 반환합니다.
  *
- * ```
+ * ```kotlin
  * val template = sesClient.getTemplate("template-name")
  * ```
  *

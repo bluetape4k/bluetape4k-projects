@@ -11,6 +11,17 @@ import java.lang.reflect.Method
 
 /**
  * Exposed Repository 메서드에 대한 메타데이터를 표현합니다.
+ *
+ * ```kotlin
+ * // ExposedQueryLookupStrategy 내부에서 자동 생성됩니다.
+ * val method = ExposedQueryMethod(
+ *     method     = UserRepository::class.java.getMethod("findByName", String::class.java),
+ *     metadata   = metadata,
+ *     factory    = projectionFactory,
+ * )
+ * val hasQuery = method.isAnnotatedQuery  // @Query 어노테이션 존재 여부
+ * val sql      = method.getAnnotatedQuery() // SQL 문자열 또는 null
+ * ```
  */
 class ExposedQueryMethod(
     method: Method,

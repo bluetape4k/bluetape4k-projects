@@ -18,6 +18,16 @@ internal const val MAX_WAIT_TIME_SECONDS = 20
 /**
  * queueUrl, maxNumber, waitTimeSeconds, attributeNames를 사용하여 ReceiveMessageRequest를 생성합니다.
  *
+ * ```kotlin
+ * val request = receiveMessageRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     maxNumberOfMessages = 5,
+ *     waitTimeSeconds = 10
+ * )
+ * val response = sqsClient.receiveMessage(request)
+ * val messages = response.messages
+ * ```
+ *
  * @param queueUrl 메시지를 수신할 Amazon SQS 큐의 URL입니다.
  * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 3입니다. 허용 범위는 1..10 입니다.
  * @param waitTimeSeconds 메시지가 없을 경우 대기할 시간(초)입니다. 기본값은 20초입니다. 허용 범위는 0..20 입니다.

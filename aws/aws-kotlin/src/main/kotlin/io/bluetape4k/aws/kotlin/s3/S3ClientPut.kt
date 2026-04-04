@@ -20,13 +20,11 @@ import io.bluetape4k.coroutines.flow.collect as collectAsync
 /**
  * [bucketName]의 [key]에 객체를 저장합니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.put("bucket-name", "key") {
  *    this.body = ByteStream.fromString("Hello, World!")
  *    this.contentType = "text/plain"
- *    this.contentLength = this.content.size.toLong()
  *    this.metadata = mapOf("key" to "value")
- *    this.acl = "public-read"
  *    this.cacheControl = "max-age=3600"
  * }
  * ```
@@ -51,8 +49,8 @@ suspend inline fun S3Client.put(
 /**
  * [bucketName]의 [key]에 [bytes]를 저장합니다.
  *
- * ```
- * val response = s3Client.putAsByteArray("bucket-name", "key", byteArrayOf(1, 2, 3, 4))
+ * ```kotlin
+ * val response = s3Client.putFromByteArray("bucket-name", "key", byteArrayOf(1, 2, 3, 4))
  * ```
  *
  * @param bucketName 버킷 이름
@@ -76,8 +74,8 @@ suspend inline fun S3Client.putFromByteArray(
 /**
  * [bucketName]의 [key]에 [text]를 저장합니다.
  *
- * ```
- * val response = s3Client.putAsString("bucket-name", "key", "Hello World!")
+ * ```kotlin
+ * val response = s3Client.putFromString("bucket-name", "key", "Hello World!")
  * ```
  * @param bucketName 버킷 이름
  * @param key 객체 키
@@ -100,7 +98,7 @@ suspend inline fun S3Client.putFromString(
 /**
  * [bucketName]의 [key]에 [file]의 정보를 저장합니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.putFromFile("bucket-name", "key", File("test.txt"))
  * ```
  * @param bucketName 버킷 이름
@@ -129,7 +127,7 @@ suspend inline fun S3Client.putFromFile(
 /**
  * [bucketName]의 [key]에 [filePath]의 파일 정보를 저장합니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.putFromPath("bucket-name", "key", Paths.get("test.txt"))
  * ```
  * @param bucketName 버킷 이름
@@ -158,7 +156,7 @@ suspend inline fun S3Client.putFromPath(
 /**
  * 여러 객체를 동시에 저장합니다.
  *
- * ```
+ * ```kotlin
  * val response = s3Client.putAll(concurrency = 10, putRequest1, putRequest2, putRequest3).toList()
  * ```
  *

@@ -14,6 +14,16 @@ import org.springframework.boot.actuate.endpoint.annotation.Selector
  *
  * - `GET /actuator/nearcache` : 모든 region 통계
  * - `GET /actuator/nearcache/{regionName}` : 특정 region 상세 통계
+ *
+ * ```kotlin
+ * // Spring Boot가 자동 등록합니다.
+ * // 직접 생성 예 (테스트 등):
+ * val endpoint = LettuceNearCacheActuatorEndpoint(entityManagerFactory)
+ * val allStats = endpoint.getAllRegionStats()
+ * // 예: {"io.example.User" -> RegionStats(localSize=42, localHitRate=0.95, ...)}
+ * val regionStats = endpoint.getRegionStats("io.example.User")
+ * // 예: RegionStats(regionName="io.example.User", localSize=42, ...)
+ * ```
  */
 @Endpoint(id = "nearcache")
 class LettuceNearCacheActuatorEndpoint(

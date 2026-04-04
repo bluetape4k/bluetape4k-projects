@@ -24,6 +24,11 @@ object CloudWatchLogsClientFactory {
 
         /**
          * DSL 빌더로 [CloudWatchLogsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = CloudWatchLogsClientFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: CloudWatchLogsClientBuilder.() -> Unit,
@@ -32,6 +37,11 @@ object CloudWatchLogsClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [CloudWatchLogsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = CloudWatchLogsClientFactory.Sync.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         fun create(
             endpointOverride: URI? = null,
@@ -50,6 +60,11 @@ object CloudWatchLogsClientFactory {
 
         /**
          * DSL 빌더로 [CloudWatchLogsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = CloudWatchLogsClientFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: CloudWatchLogsAsyncClientBuilder.() -> Unit,
@@ -58,6 +73,11 @@ object CloudWatchLogsClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [CloudWatchLogsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = CloudWatchLogsClientFactory.Async.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         inline fun create(
             endpointOverride: URI? = null,

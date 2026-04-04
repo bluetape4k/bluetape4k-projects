@@ -14,6 +14,25 @@ import org.springframework.context.annotation.Bean
  *
  * `spring-boot-actuate`가 classpath에 있을 때 [LettuceNearCacheActuatorEndpoint]를 등록한다.
  * `@ConditionalOnClass(Endpoint::class)`이 클래스 레벨에 있어, actuate가 없으면 이 클래스 자체가 로드되지 않는다.
+ *
+ * ```yaml
+ * # application.yml — Actuator endpoint 노출 설정
+ * management:
+ *   endpoints:
+ *     web:
+ *       exposure:
+ *         include: nearcache
+ * bluetape4k:
+ *   cache:
+ *     lettuce-near:
+ *       enabled: true
+ * ```
+ *
+ * ```kotlin
+ * // 활성화 후 HTTP 조회
+ * // GET /actuator/nearcache           → 모든 region 통계
+ * // GET /actuator/nearcache/{region}  → 특정 region 통계
+ * ```
  */
 @AutoConfiguration(after = [LettuceNearCacheHibernateAutoConfiguration::class])
 @ConditionalOnClass(Endpoint::class, LettuceNearCacheRegionFactory::class, EntityManagerFactory::class)

@@ -12,6 +12,15 @@ import org.springframework.data.mapping.model.SimpleTypeHolder
 /**
  * [ExposedPersistentProperty]의 기본 구현체입니다.
  * 프로퍼티 이름으로 Exposed Table의 Column을 검색합니다.
+ *
+ * ```kotlin
+ * // ExposedMappingContext가 내부적으로 생성합니다.
+ * val context = ExposedMappingContext()
+ * val entity = context.getRequiredPersistentEntity(User::class.java)
+ * entity.forEach { property ->
+ *     val column = property.getColumn() // Users.name, Users.email 등
+ * }
+ * ```
  */
 class DefaultExposedPersistentProperty(
     property: Property,

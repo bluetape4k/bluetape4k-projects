@@ -6,6 +6,12 @@ import org.springframework.data.mapping.PersistentEntity
 
 /**
  * Exposed DAO Entity를 Spring Data PersistentEntity로 표현합니다.
+ *
+ * ```kotlin
+ * val entity: ExposedPersistentEntity<User> = context.getRequiredPersistentEntity(User::class.java)
+ * val entityClass = entity.getEntityClass() // User.Companion (LongEntityClass<User>)
+ * val table = entity.getTable()             // Users
+ * ```
  */
 interface ExposedPersistentEntity<T : Any> : PersistentEntity<T, ExposedPersistentProperty> {
 

@@ -24,6 +24,11 @@ object StsClientFactory {
 
         /**
          * DSL 블록으로 [StsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = StsClientFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: StsClientBuilder.() -> Unit,
@@ -32,6 +37,11 @@ object StsClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [StsClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = StsClientFactory.Sync.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         fun create(
             endpointOverride: URI? = null,
@@ -50,6 +60,11 @@ object StsClientFactory {
 
         /**
          * DSL 블록으로 [StsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = StsClientFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
          */
         inline fun create(
             builder: StsAsyncClientBuilder.() -> Unit,
@@ -58,6 +73,11 @@ object StsClientFactory {
 
         /**
          * endpoint, region, credentials 기반으로 [StsAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = StsClientFactory.Async.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
          */
         inline fun create(
             endpointOverride: URI? = null,

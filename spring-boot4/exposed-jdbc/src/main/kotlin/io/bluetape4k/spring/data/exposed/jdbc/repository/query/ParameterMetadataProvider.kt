@@ -8,6 +8,11 @@ import org.springframework.data.repository.query.ParametersParameterAccessor
 /**
  * 메서드 파라미터에서 [ParameterAccessor]를 제공합니다.
  * Spring Data 4.x [AbstractQueryCreator]는 [ParameterAccessor]를 필요로 합니다.
+ *
+ * ```kotlin
+ * val provider = ParameterMetadataProvider.of(queryMethod.parameters, arrayOf("Alice", 25))
+ * val accessor = provider.accessor // ParameterAccessor 인스턴스
+ * ```
  */
 class ParameterMetadataProvider(
     val accessor: ParameterAccessor,

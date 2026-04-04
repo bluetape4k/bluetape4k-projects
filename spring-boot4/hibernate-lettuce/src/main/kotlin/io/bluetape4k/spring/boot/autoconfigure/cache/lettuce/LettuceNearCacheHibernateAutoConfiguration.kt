@@ -14,6 +14,27 @@ import org.springframework.context.annotation.Bean
  *
  * `application.yml`에서 `bluetape4k.cache.lettuce-near.*` 설정만으로
  * [LettuceNearCacheRegionFactory]가 Hibernate의 Region Factory로 등록된다.
+ *
+ * ```yaml
+ * # application.yml 최소 설정 예
+ * bluetape4k:
+ *   cache:
+ *     lettuce-near:
+ *       redis-uri: redis://localhost:6379
+ *       codec: lz4fory
+ *       local:
+ *         max-size: 10000
+ *         expire-after-write: 30m
+ *       redis-ttl:
+ *         default: 120s
+ * ```
+ *
+ * ```kotlin
+ * // Hibernate Entity에 캐시 활성화
+ * @Entity
+ * @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+ * class User(val name: String)
+ * ```
  */
 @AutoConfiguration
 @ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class)

@@ -14,6 +14,20 @@ import org.springframework.boot.actuate.endpoint.annotation.Selector
  *
  * - `GET /actuator/nearcache` : 모든 region 통계
  * - `GET /actuator/nearcache/{regionName}` : 특정 region 상세 통계
+ *
+ * ```kotlin
+ * // REST 응답 예시 (GET /actuator/nearcache)
+ * // {
+ * //   "io.example.domain.User": {
+ * //     "regionName": "io.example.domain.User",
+ * //     "localSize": 250,
+ * //     "localHitRate": 0.95,
+ * //     "l2HitCount": 1800,
+ * //     "l2MissCount": 200,
+ * //     "l2PutCount": 400
+ * //   }
+ * // }
+ * ```
  */
 @Endpoint(id = "nearcache")
 class LettuceNearCacheActuatorEndpoint(
@@ -22,6 +36,12 @@ class LettuceNearCacheActuatorEndpoint(
 
     /**
      * 모든 region의 통계 정보.
+     *
+     * ```kotlin
+     * // GET /actuator/nearcache
+     * val allStats: Map<String, RegionStats> = endpoint.getAllRegionStats()
+     * // allStats["io.example.domain.User"]?.localSize → 250
+     * ```
      */
     @ReadOperation
     fun getAllRegionStats(): Map<String, RegionStats> {
@@ -33,6 +53,13 @@ class LettuceNearCacheActuatorEndpoint(
 
     /**
      * 특정 region의 통계 정보.
+     *
+     * ```kotlin
+     * // GET /actuator/nearcache/io.example.domain.User
+     * val stats: RegionStats? = endpoint.getRegionStats("io.example.domain.User")
+     * // stats?.localHitRate → 0.95
+     * // stats?.l2HitCount   → 1800
+     * ```
      */
     @ReadOperation
     fun getRegionStats(@Selector regionName: String): RegionStats? {

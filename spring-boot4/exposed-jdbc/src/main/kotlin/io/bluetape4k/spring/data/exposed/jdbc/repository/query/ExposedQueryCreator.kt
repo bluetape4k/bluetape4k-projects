@@ -35,6 +35,17 @@ import org.springframework.data.repository.query.parser.PartTree
  * - `and(Part, S, Iterator<Any>)`: Part → 조건 생성 후 base와 AND 결합 (3-param)
  * - `or(S, S)`: 두 조건을 OR 결합
  * - `complete(S?, Sort)`: 최종 결과 반환
+ *
+ * ```kotlin
+ * // 아래 Repository 메서드명은 ExposedQueryCreator를 통해 자동 변환됩니다.
+ * interface UserRepository : ExposedJdbcRepository<User, Long> {
+ *     fun findByNameAndAge(name: String, age: Int): List<User>
+ *     // → Users.name eq name AND Users.age eq age
+ *
+ *     fun findByNameContainingOrAgeGreaterThan(keyword: String, age: Int): List<User>
+ *     // → Users.name LIKE "%keyword%" OR Users.age > age
+ * }
+ * ```
  */
 class ExposedQueryCreator(
     tree: PartTree,

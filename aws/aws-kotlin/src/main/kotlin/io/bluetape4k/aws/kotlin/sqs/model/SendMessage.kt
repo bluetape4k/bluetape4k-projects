@@ -9,10 +9,20 @@ import io.bluetape4k.support.requireNotEmpty
 /**
  * 제공된 queueUrl과 messageBody를 사용하여 SendMessageRequest를 생성합니다.
  *
+ * ```kotlin
+ * val request = sendMessageRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     messageBody = "Hello, World!",
+ *     delaySeconds = 0
+ * )
+ * sqsClient.sendMessage(request)
+ * ```
+ *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param messageBody 전송할 메시지의 본문입니다.
  * @param delaySeconds 메시지를 보내기 전 대기할 시간(초)입니다. 기본값은 null입니다.
  * @param builder SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
+ * @return [SendMessageRequest] 인스턴스를 반환합니다.
  */
 inline fun sendMessageRequestOf(
     queueUrl: String,
@@ -34,6 +44,13 @@ inline fun sendMessageRequestOf(
 
 /**
  * 제공된 id, messageBody, messageGroupId를 사용하여 SendMessageBatchRequestEntry를 생성합니다.
+ *
+ * ```kotlin
+ * val entry = sendMessageBatchRequestEntryOf(
+ *     id = "msg-001",
+ *     messageBody = "Hello, World!"
+ * )
+ * ```
  *
  * @param id 메시지의 식별자입니다.
  * @param messageBody 전송할 메시지의 본문입니다.
@@ -66,6 +83,14 @@ inline fun sendMessageBatchRequestEntryOf(
 /**
  * 제공된 queueUrl과 entries를 사용하여 SendMessageBatchRequest를 생성합니다.
  *
+ * ```kotlin
+ * val request = sendMessageBatchRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     entries = listOf(sendMessageBatchRequestEntryOf("id1", "Hello!"))
+ * )
+ * sqsClient.sendMessageBatch(request)
+ * ```
+ *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param entries SendMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return SendMessageBatchRequest 인스턴스를 반환합니다.
@@ -89,6 +114,15 @@ inline fun sendMessageBatchRequestOf(
 
 /**
  * 제공된 queueUrl과 entries를 사용하여 SendMessageBatchRequest를 생성합니다.
+ *
+ * ```kotlin
+ * val request = sendMessageBatchRequestOf(
+ *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
+ *     sendMessageBatchRequestEntryOf("id1", "Hello!"),
+ *     sendMessageBatchRequestEntryOf("id2", "World!")
+ * )
+ * sqsClient.sendMessageBatch(request)
+ * ```
  *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param entries SendMessageBatchRequestEntry 인스턴스의 배열입니다.

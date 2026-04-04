@@ -5,6 +5,11 @@ package io.bluetape4k.aws.dynamodb.query
  *
  * [comparisonOperator]는 Enhanced Query DSL에서 [software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional]
  * 생성 분기에 사용됩니다.
+ *
+ * ```kotlin
+ * val sk = SortKey(sortKeyName = "createdAt", comparisonOperator = Equals("2026-01-01"))
+ * // sk.sortKeyName == "createdAt"
+ * ```
  */
 data class SortKey(
     val sortKeyName: String = "sortKey",
@@ -13,6 +18,13 @@ data class SortKey(
 
 /**
  * SortKey 를 생성하기 위한 빌더 클래스
+ *
+ * ```kotlin
+ * val builder = SortKeyBuilder("createdAt")
+ * builder eq "2026-01-01"
+ * val sk = builder.build()
+ * // sk.sortKeyName == "createdAt"
+ * ```
  */
 class SortKeyBuilder(val keyName: String = "sortKey") {
     var comparator: DynamoComparator? = null

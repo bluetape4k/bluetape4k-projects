@@ -16,6 +16,11 @@ import java.lang.reflect.Method
  * - [QueryLookupStrategy.Key.USE_DECLARED_QUERY]: `@Query` 어노테이션 쿼리 사용
  * - [QueryLookupStrategy.Key.CREATE]: 메서드명에서 PartTree 쿼리 생성
  * - [QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND]: `@Query` 먼저, 없으면 메서드명 파생
+ *
+ * ```kotlin
+ * // ExposedJdbcRepositoryFactory 내부에서 자동 생성됩니다.
+ * val strategy = ExposedQueryLookupStrategy.create(QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND)
+ * ```
  */
 class ExposedQueryLookupStrategy(
     private val key: QueryLookupStrategy.Key,

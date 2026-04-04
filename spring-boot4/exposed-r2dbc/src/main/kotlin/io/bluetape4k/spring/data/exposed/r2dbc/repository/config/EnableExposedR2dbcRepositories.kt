@@ -11,8 +11,15 @@ import kotlin.reflect.KClass
  *
  * ```kotlin
  * @SpringBootApplication
- * @EnableExposedSuspendRepositories(basePackages = ["io.example.repository"])
+ * @EnableExposedR2dbcRepositories(basePackages = ["io.example.repository"])
  * class Application
+ *
+ * // 복수 패키지 + 커스텀 트랜잭션 매니저 예
+ * @EnableExposedR2dbcRepositories(
+ *     basePackages = ["io.example.user", "io.example.order"],
+ *     transactionManagerRef = "myTransactionManager",
+ * )
+ * class MultiSourceApplication
  * ```
  */
 @Target(AnnotationTarget.CLASS)

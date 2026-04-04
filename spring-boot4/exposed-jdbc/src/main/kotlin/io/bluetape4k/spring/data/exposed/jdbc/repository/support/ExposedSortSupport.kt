@@ -12,6 +12,12 @@ private val log = KotlinLogging.logger {}
 
 /**
  * Spring Data [Sort]를 Exposed [SortOrder] 쌍 배열로 변환합니다.
+ *
+ * ```kotlin
+ * val sort = Sort.by(Sort.Direction.ASC, "name").and(Sort.by(Sort.Direction.DESC, "age"))
+ * val orderBy = sort.toExposedOrderBy(Users) // [Users.name to SortOrder.ASC, Users.age to SortOrder.DESC]
+ * entityClass.all().orderBy(*orderBy)
+ * ```
  */
 fun Sort.toExposedOrderBy(table: Table): Array<Pair<Expression<*>, SortOrder>> {
     val result = mutableListOf<Pair<Expression<*>, SortOrder>>()

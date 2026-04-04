@@ -16,6 +16,11 @@ import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 조회된 아이템 또는 null
+ *
+ * ```kotlin
+ * val item = table.getItem(partitionValue = "user-1")
+ * // item?.id == "user-1"
+ * ```
  */
 suspend inline fun <T: Any> DynamoDbAsyncTable<T>.getItem(
     partitionValue: Any,
@@ -27,6 +32,11 @@ suspend inline fun <T: Any> DynamoDbAsyncTable<T>.getItem(
  * 아이템을 저장합니다.
  *
  * @param item 저장할 아이템
+ *
+ * ```kotlin
+ * table.putItem(myEntity)
+ * // table.getItem(partitionValue = myEntity.id) != null
+ * ```
  */
 suspend inline fun <T: Any> DynamoDbAsyncTable<T>.putItem(item: T) {
     putItem(item).await()
@@ -37,6 +47,11 @@ suspend inline fun <T: Any> DynamoDbAsyncTable<T>.putItem(item: T) {
  *
  * @param item 저장할 아이템
  * @param builder PutItemEnhancedRequest 빌더
+ *
+ * ```kotlin
+ * table.putItem(myEntity) { conditionExpression(expr) }
+ * // table.getItem(partitionValue = myEntity.id) != null
+ * ```
  */
 suspend inline fun <reified T: Any> DynamoDbAsyncTable<T>.putItem(
     item: T,
@@ -57,6 +72,11 @@ suspend inline fun <reified T: Any> DynamoDbAsyncTable<T>.putItem(
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 삭제된 아이템
+ *
+ * ```kotlin
+ * val deleted = table.deleteItem(partitionValue = "user-1")
+ * // deleted?.id == "user-1"
+ * ```
  */
 suspend inline fun <T: Any> DynamoDbAsyncTable<T>.deleteItem(
     partitionValue: Any,
@@ -67,7 +87,13 @@ suspend inline fun <T: Any> DynamoDbAsyncTable<T>.deleteItem(
  * 테이블을 전체 스캔합니다.
  *
  * @param builder ScanEnhancedRequest 빌더
- * @return 스캔 결과 리스트
+ * @return 스캔 결과 Flow
+ *
+ * ```kotlin
+ * val flow = table.scanAll()
+ * val items = flow.toList()
+ * // items.isNotEmpty() == true
+ * ```
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.scanAll(
     builder: ScanEnhancedRequest.Builder.() -> Unit = {},
@@ -81,7 +107,13 @@ inline fun <T: Any> DynamoDbAsyncTable<T>.scanAll(
  *
  * @param queryConditional 쿼리 조건
  * @param builder QueryEnhancedRequest 빌더
- * @return 쿼리 결과 리스트
+ * @return 쿼리 결과 Flow
+ *
+ * ```kotlin
+ * val flow = table.queryAll(QueryConditional.keyEqualTo(key))
+ * val items = flow.toList()
+ * // items.isNotEmpty() == true
+ * ```
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.queryAll(
     queryConditional: QueryConditional,
@@ -102,7 +134,13 @@ inline fun <T: Any> DynamoDbAsyncTable<T>.queryAll(
  *
  * @param partitionValue 파티션 키 값
  * @param builder QueryEnhancedRequest 빌더
- * @return 쿼리 결과 리스트
+ * @return 쿼리 결과 Flow
+ *
+ * ```kotlin
+ * val flow = table.queryByPartition("user-1")
+ * val items = flow.toList()
+ * // items.all { it.userId == "user-1" } == true
+ * ```
  */
 inline fun <T: Any> DynamoDbAsyncTable<T>.queryByPartition(
     partitionValue: String,
@@ -115,7 +153,12 @@ inline fun <T: Any> DynamoDbAsyncTable<T>.queryByPartition(
 /**
  * 모든 아이템을 조회합니다 (스캔).
  *
- * @return 모든 아이템 리스트
+ * @return 모든 아이템 Flow
+ *
+ * ```kotlin
+ * val items = table.findAll().toList()
+ * // items.isNotEmpty() == true
+ * ```
  */
 fun <T: Any> DynamoDbAsyncTable<T>.findAll(): Flow<T> = scanAll()
 
@@ -123,7 +166,12 @@ fun <T: Any> DynamoDbAsyncTable<T>.findAll(): Flow<T> = scanAll()
  * 특정 파티션의 모든 아이템을 조회합니다.
  *
  * @param partitionValue 파티션 키 값
- * @return 아이템 리스트
+ * @return 아이템 Flow
+ *
+ * ```kotlin
+ * val items = table.findByPartition("user-1").toList()
+ * // items.all { it.userId == "user-1" } == true
+ * ```
  */
 fun <T: Any> DynamoDbAsyncTable<T>.findByPartition(partitionValue: String): Flow<T> =
     queryByPartition(partitionValue)
@@ -134,6 +182,11 @@ fun <T: Any> DynamoDbAsyncTable<T>.findByPartition(partitionValue: String): Flow
  * @param partitionValue 파티션 키 값
  * @param sortValue 정렬 키 값 (옵션)
  * @return 존재하면 true
+ *
+ * ```kotlin
+ * val exists = table.exists(partitionValue = "user-1")
+ * // exists == true
+ * ```
  */
 suspend inline fun <T: Any> DynamoDbAsyncTable<T>.exists(
     partitionValue: Any,

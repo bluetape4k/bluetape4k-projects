@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 /**
  * Enhanced DynamoDB Query ([QueryEnhancedRequest]) 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val queryRequest = queryEnhancedRequest<DynamoDbEntity> {
  *    primaryKey("primaryKey") {
  *          equals("value")
@@ -39,7 +39,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * }
  * ```
  *
- * ```
+ * ```kotlin
  * val fromKey = dynamoDbKeyOf(partitionKey, updatedAtFrom.toString())
  * val toKey = dynamoDbKeyOf(partitionKey, updatedAtTo.toString())
  *

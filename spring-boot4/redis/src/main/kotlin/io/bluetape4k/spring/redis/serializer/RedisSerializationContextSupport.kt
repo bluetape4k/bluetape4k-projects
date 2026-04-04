@@ -7,7 +7,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 /**
  * Spring Data Redis용 [RedisSerializationContext]`<K, V>` 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * @Bean
  * fun reactiveRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<*, *> {
  *     val context = redisSerializationContext<ByteArray, ByteArray>(RedisSerializer.byteArray()) {
@@ -42,7 +42,7 @@ inline fun <K: Any, V: Any> redisSerializationContext(
 /**
  * Spring Data Redis용 [RedisSerializationContext]`<K, V>` 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * @Bean
  * fun reactiveRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<*, *> {
  *    val context = redisSerializationContextOf<String, ByteArray>(
@@ -79,7 +79,7 @@ inline fun <K: Any, V: Any> redisSerializationContextOf(
 /**
  * Spring Data Redis용 [RedisSerializationContext]`<String, V>` 를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * @Bean
  * fun reactiveRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, *> {
  *   val context = redisSerializationContextOf<ByteArray>(

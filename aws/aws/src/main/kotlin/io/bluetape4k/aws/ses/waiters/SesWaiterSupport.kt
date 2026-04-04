@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.ses.waiters.SesWaiter
 /**
  * [SesWaiter.Builder]를 이용하여 [sesWaiter] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val waiter = sesWaiter {
  *    client(sesClient)
  *    overrideConfiguration(waiterOverrideConfiguration)
@@ -39,7 +39,7 @@ fun sesWaiter(
 /**
  * [SesWaiter] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val waiter = sesWaiterOf(sesClient)
  * waiter.waitUntil(...)
  * ```

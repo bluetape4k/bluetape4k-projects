@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * [SendEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.send(request).await()
  * response.messageId().shouldNotBeEmpty()
  * log.debug { "response=$response" }
@@ -31,7 +31,7 @@ fun SesAsyncClient.sendAsync(
 /**
  * [SendRawEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendRaw(request).await()
  * response.messageId().shouldNotBeEmpty()
  * log.debug { "response=$response" }
@@ -48,7 +48,7 @@ fun SesAsyncClient.sendRawAsync(
 /**
  * [SendTemplatedEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendTemplated(request).await()
  * response.messageId().shouldNotBeEmpty()
  * log.debug { "response=$response" }
@@ -65,7 +65,7 @@ fun SesAsyncClient.sendTemplatedAsync(
 /**
  * [SendBulkTemplatedEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
  *
- * ```
+ * ```kotlin
  * val response = client.sendBulkTemplated(request).await()
  * response.messageId().shouldNotBeEmpty()
  * log.debug { "response=$response" }

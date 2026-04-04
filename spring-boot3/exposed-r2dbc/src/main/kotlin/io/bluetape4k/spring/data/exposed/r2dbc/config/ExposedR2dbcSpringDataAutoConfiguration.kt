@@ -12,6 +12,13 @@ import io.bluetape4k.spring.data.exposed.jdbc.config.ExposedSpringDataAutoConfig
 /**
  * 코루틴 기반 Spring Data Exposed 자동 설정입니다.
  * Phase 1의 [JdbcExposedSpringDataAutoConfiguration] 이후에 실행됩니다.
+ *
+ * ```kotlin
+ * // application.yml — R2DBC 드라이버와 Exposed R2DBC 모듈이 classpath에 있으면 자동 활성화됩니다.
+ * // spring:
+ * //   r2dbc:
+ * //     url: r2dbc:h2:mem:///test
+ * ```
  */
 @AutoConfiguration(after = [JdbcExposedSpringDataAutoConfiguration::class])
 @ConditionalOnClass(EntityClass::class)

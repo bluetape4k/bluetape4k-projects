@@ -18,6 +18,15 @@ import org.springframework.beans.factory.SmartInitializingSingleton
  * 등록 메트릭:
  * - `lettuce.nearcache.active.regions` : 활성 region 수
  * - `lettuce.nearcache.total.local.size` : 전체 로컬(Caffeine) 캐시 항목 수
+ *
+ * ```kotlin
+ * // Spring Boot 자동 설정으로 등록됩니다. 직접 생성 시:
+ * val binder = LettuceNearCacheMetricsBinder(entityManagerFactory, meterRegistry)
+ * binder.afterSingletonsInstantiated()
+ * // Prometheus 노출 예:
+ * // lettuce_nearcache_active_regions 3.0
+ * // lettuce_nearcache_total_local_size 750.0
+ * ```
  */
 class LettuceNearCacheMetricsBinder(
     private val entityManagerFactory: EntityManagerFactory,

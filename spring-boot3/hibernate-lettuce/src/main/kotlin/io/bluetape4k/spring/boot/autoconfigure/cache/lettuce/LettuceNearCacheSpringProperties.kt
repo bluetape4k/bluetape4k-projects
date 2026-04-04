@@ -6,23 +6,17 @@ import java.time.Duration
 /**
  * `application.yml` / `application.properties` 기반 Spring Boot 설정.
  *
- * ```yaml
- * bluetape4k:
- *   cache:
- *     lettuce-near:
- *       redis-uri: redis://localhost:6379
- *       codec: zstdfory
- *       use-resp3: true
- *       local:
- *         max-size: 10000
- *         expire-after-write: 30m
- *       redis-ttl:
- *         default: 120s
- *         regions:
- *           myEntity: 300s
- *       metrics:
- *         enabled: true
- *         enable-caffeine-stats: true
+ * ```kotlin
+ * // application.yml
+ * // bluetape4k.cache.lettuce-near.redis-uri: redis://localhost:6379
+ * // bluetape4k.cache.lettuce-near.codec: zstdfory
+ * // bluetape4k.cache.lettuce-near.use-resp3: true
+ * // bluetape4k.cache.lettuce-near.local.max-size: 10000
+ * // bluetape4k.cache.lettuce-near.local.expire-after-write: 30m
+ * // bluetape4k.cache.lettuce-near.redis-ttl.default: 120s
+ * // bluetape4k.cache.lettuce-near.redis-ttl.regions.myEntity: 300s
+ * // bluetape4k.cache.lettuce-near.metrics.enabled: true
+ * // bluetape4k.cache.lettuce-near.metrics.enable-caffeine-stats: true
  * ```
  */
 @ConfigurationProperties(prefix = "bluetape4k.cache.lettuce-near")

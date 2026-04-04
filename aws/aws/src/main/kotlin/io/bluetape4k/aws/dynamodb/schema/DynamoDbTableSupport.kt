@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
 /**
  * [DynamoDbAsyncTable]을 이용하여 Table을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client: DynamoDbClient
  *
  * override val table: DynamoDbTable<FoodDocument> by lazy {
@@ -68,7 +68,7 @@ fun <T: Any> DynamoDbTable<T>.putItems(items: Collection<T>) {
 /**
  * [CreateTableEnhancedRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = CreateTableEnhancedRequest {
  *    provisionedThroughput(provisionedThroughputOf(100, 100))
  *    localSecondaryIndices(localSecondaryIndices)
@@ -90,7 +90,7 @@ inline fun CreateTableEnhancedRequest(
 /**
  * [CreateTableEnhancedRequest]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = createTableEnhancedRequestOf(
  *    provisionedThroughput = provisionedThroughputOf(100, 100),
  *    localSecondaryIndices = localSecondaryIndices,

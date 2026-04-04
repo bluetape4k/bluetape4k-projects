@@ -22,10 +22,26 @@ object SesClientFactory {
      */
     object Sync {
 
+        /**
+         * DSL 빌더로 [SesClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesClientFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SesClientBuilder.() -> Unit,
         ): SesClient = sesClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SesClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesClientFactory.Sync.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI? = null,
             region: Region? = null,
@@ -48,10 +64,26 @@ object SesClientFactory {
      */
     object Async {
 
+        /**
+         * DSL 빌더로 [SesAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesClientFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SesAsyncClientBuilder.() -> Unit,
         ): SesAsyncClient = sesAsyncClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SesAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesClientFactory.Async.create(region = Region.AP_NORTHEAST_2)
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI? = null,
             region: Region? = null,

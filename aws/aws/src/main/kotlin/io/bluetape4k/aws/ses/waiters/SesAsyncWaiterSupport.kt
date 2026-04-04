@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService
 /**
  * [SesAsyncWaiter.Builder]를 이용하여 [sesAsyncWaiter] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val waiter = sesAsyncWaiter {
  *    client(sesAsyncClient)
  *    scheduledExecutorService(scheduledExecutorService)
@@ -41,7 +41,7 @@ fun sesAsyncWaiter(
 /**
  * [SesAsyncWaiter] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val waiter = sesAsyncWaiterOf(sesAsyncClient, scheduledExecutorService)
  * waiter.waitUntil(...)
  * ```

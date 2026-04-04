@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
 /**
  * [SendEmailRequest.Builder]를 사용하여 [SendEmailRequest] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = sendEmailRequest {
  *    source("xxx")
  *    destination(destinationOf("yyy"))
@@ -27,7 +27,7 @@ inline fun sendEmailRequest(
 /**
  * [SendEmailRequest] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = sendEmailRequestOf(
  *     source = "xxx",
  *     destination = destinationOf("yyy"),
@@ -68,7 +68,7 @@ inline fun sendEmailRequestOf(
 /**
  * [SendTemplatedEmailRequest.Builder]를 사용하여 [SendTemplatedEmailRequest] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = sendTemplatedEmailRequest {
  *    source("xxx")
  *    destination(destinationOf("yyy"))
@@ -87,7 +87,7 @@ inline fun sendTemplatedEmailRequest(
 /**
  * [SendTemplatedEmailRequest] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val request = sendTemplatedEmailRequestOf(
  *     source = "xxx",
  *     destination = destinationOf("yyy"),

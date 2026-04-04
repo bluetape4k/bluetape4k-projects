@@ -7,8 +7,8 @@ import io.bluetape4k.support.requireNotEmpty
 /**
  * S3 Object 를 삭제하는 [Delete] 객체를 생성합니다.
  *
- * ```
- * val delete = deleteOf("bucket", "key-1", "key-2")
+ * ```kotlin
+ * val delete = deleteOf("key-1", "key-2")
  * ```
  *
  * @param quiet [Boolean] 값으로, 삭제 결과를 요약할지 여부를 설정합니다.
@@ -26,8 +26,8 @@ inline fun deleteOf(
 /**
  * S3 Object 를 삭제하는 [Delete] 객체를 생성합니다.
  *
- * ```
- * val delete = deleteOf("bucket", "key-1", "key-2")
+ * ```kotlin
+ * val delete = deleteOf(listOf("key-1", "key-2"))
  * ```
  *
  * @param quiet [Boolean] 값으로, 삭제 결과를 요약할지 여부를 설정합니다.
@@ -45,8 +45,8 @@ inline fun deleteOf(
 /**
  * S3 Object 를 삭제하는 [Delete] 객체를 생성합니다.
  *
- * ```
- * val deleteKeys = listOf("bucket", "key-1", "key-2").map { it.toObjectIdentifier() }
+ * ```kotlin
+ * val deleteKeys = listOf("key-1", "key-2").map { it.toObjectIdentifier() }
  * val delete = deleteOf(deleteKeys, quiet = true)
  * ```
  *
@@ -73,8 +73,10 @@ inline fun deleteOf(
 /**
  * S3 Object 를 삭제하는 [Delete] 객체를 생성합니다.
  *
- * ```
- * val delete = deleteOf("bucket", "key-1", "key-2")
+ * ```kotlin
+ * val id1 = "key-1".toObjectIdentifier()
+ * val id2 = "key-2".toObjectIdentifier()
+ * val delete = deleteOf(id1, id2, quiet = false)
  * ```
  *
  * @param quiet [Boolean] 값으로, 삭제 결과를 요약할지 여부를 설정합니다.

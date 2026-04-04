@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 /**
  * [key]를 object identifier로 가지는 [ObjectIdentifier] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val identifier = objectIdentifierOf("key")
  * ```
  *
@@ -33,7 +33,7 @@ inline fun objectIdentifierOf(
 /**
  * 문자열을 object identifier로 가지는 [ObjectIdentifier] 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val identifier = "key".toObjectIdentifier()
  * ```
  *

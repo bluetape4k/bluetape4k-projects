@@ -9,6 +9,12 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectResponse
  * @property copyResult 복사 작업 결과
  * @property deleteResponse 삭제 작업 결과 (null 이면 삭제가 수행되지 않음)
  * @property isSuccess 전체 작업 성공 여부
+ *
+ * ```kotlin
+ * val result = s3Client.moveObject("bucket", "src/a.txt", "bucket", "archive/a.txt")
+ * // result.isSuccess == true
+ * // result.isPartialSuccess == false
+ * ```
  */
 data class MoveObjectResult(
     val copyResult: CopyObjectResult,

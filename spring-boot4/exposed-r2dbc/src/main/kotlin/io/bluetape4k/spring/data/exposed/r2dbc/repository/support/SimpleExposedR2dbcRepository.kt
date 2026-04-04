@@ -34,6 +34,19 @@ import org.springframework.stereotype.Repository
  *
  * Reflection 없이 Repository가 제공한 매핑 함수([toDomain], [toPersistValues])를 사용해
  * [IdTable] DSL 쿼리를 실행합니다.
+ *
+ * ```kotlin
+ * // ExposedR2dbcRepositoryFactory가 자동으로 생성합니다.
+ * // 직접 사용 예 (테스트 등):
+ * val repo = SimpleExposedR2dbcRepository<UserDto, Long>(
+ *     table              = Users,
+ *     toDomainMapper     = { row -> UserDto(row[Users.id].value, row[Users.name]) },
+ *     persistValuesProvider = { dto -> mapOf(Users.name to dto.name) },
+ *     idExtractor        = { dto -> dto.id.takeIf { it != 0L } },
+ * )
+ * val user = repo.save(UserDto(0, "Alice"))   // INSERT 후 DB 할당 ID 반영
+ * val page = repo.findAll(PageRequest.of(0, 10)) // 첫 페이지 10건
+ * ```
  */
 @Repository
 @Suppress("UNCHECKED_CAST")

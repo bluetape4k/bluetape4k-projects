@@ -24,10 +24,29 @@ object SesFactory {
      */
     object Sync {
 
+        /**
+         * DSL 빌더로 [SesClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesFactory.Sync.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SesClientBuilder.() -> Unit,
         ): SesClient = sesClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SesClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesFactory.Sync.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
@@ -50,11 +69,30 @@ object SesFactory {
      */
     object Async {
 
+        /**
+         * DSL 빌더로 [SesAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesFactory.Async.create { region(Region.AP_NORTHEAST_2) }
+         * // client != null
+         * ```
+         */
         inline fun create(
             builder: SesAsyncClientBuilder.() -> Unit,
         ): SesAsyncClient =
             sesAsyncClient(builder)
 
+        /**
+         * endpoint, region, credentials 기반으로 [SesAsyncClient]를 생성합니다.
+         *
+         * ```kotlin
+         * val client = SesFactory.Async.create(
+         *     endpointOverride = URI.create("http://localhost:4566"),
+         *     region = Region.AP_NORTHEAST_2
+         * )
+         * // client != null
+         * ```
+         */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,

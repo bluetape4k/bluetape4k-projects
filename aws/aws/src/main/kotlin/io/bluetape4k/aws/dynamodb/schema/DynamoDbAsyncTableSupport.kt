@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * [DynamoDbAsyncTable]을 이용하여 Table을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val client: DynamoDbEnhancedAsyncClient
  *
  * override val table: DynamoDbAsyncTable<FoodDocument> by lazy {
@@ -35,7 +35,7 @@ fun <T: Any> DynamoDbAsyncTable<T>.createTable(
 /**
  * [DynamoDbAsyncTable]에 여러 개의 Item을 저장합니다.
  *
- * ```
+ * ```kotlin
  * val client: DynamoDbEnhancedAsyncClient
  *
  * override val table: DynamoDbAsyncTable<FoodDocument> by lazy {
@@ -57,7 +57,7 @@ fun <T: Any> DynamoDbAsyncTable<T>.putItems(vararg items: T): CompletableFuture<
 /**
  * [DynamoDbAsyncTable]에 여러 개의 Item을 저장합니다.
  *
- * ```
+ * ```kotlin
  * val client: DynamoDbEnhancedAsyncClient
  *
  * override val table: DynamoDbAsyncTable<FoodDocument> by lazy {

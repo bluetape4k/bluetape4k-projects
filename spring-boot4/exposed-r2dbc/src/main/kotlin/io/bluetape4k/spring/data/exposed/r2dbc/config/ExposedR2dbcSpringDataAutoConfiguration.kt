@@ -12,6 +12,14 @@ import io.bluetape4k.spring.data.exposed.jdbc.config.ExposedSpringDataAutoConfig
 /**
  * 코루틴 기반 Spring Data Exposed 자동 설정입니다.
  * Phase 1의 [JdbcExposedSpringDataAutoConfiguration] 이후에 실행됩니다.
+ *
+ * ```kotlin
+ * // Spring Boot 자동 등록 — 별도 설정 불필요
+ * // @EnableExposedR2dbcRepositories 어노테이션과 함께 사용됩니다.
+ * @SpringBootApplication
+ * @EnableExposedR2dbcRepositories(basePackages = ["io.example.repository"])
+ * class Application
+ * ```
  */
 @AutoConfiguration(after = [JdbcExposedSpringDataAutoConfiguration::class])
 @ConditionalOnClass(EntityClass::class)

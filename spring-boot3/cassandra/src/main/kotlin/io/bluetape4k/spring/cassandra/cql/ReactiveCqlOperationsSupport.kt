@@ -205,84 +205,305 @@ suspend fun ReactiveCqlOperations.queryForResultSetSuspending(
     vararg args: Any,
 ): ReactiveResultSet = queryForResultSet(cql, *args).awaitSingle()
 
+/**
+ * [Statement]를 실행하고 각 [Row]를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForRows(statement).asFlow()`를 호출합니다.
+ * - 결과가 없으면 빈 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForRowsFlow(statement)
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> = queryForRows(statement).asFlow()
 
+/**
+ * CQL 문자열 실행 결과의 각 [Row]를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForRows(cql, *args).asFlow()`를 호출합니다.
+ * - 결과가 없으면 빈 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForRowsFlow("SELECT * FROM users")
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun ReactiveCqlOperations.queryForRowsFlow(
     cql: String,
     vararg args: Any,
 ): Flow<Row> = queryForRows(cql, *args).asFlow()
 
+/**
+ * CQL 문자열 [Flow]를 실행하고 각 실행 결과를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - `statementFlow`를 Publisher로 변환해 `execute`에 전달합니다.
+ * - 각 CQL 실행 결과(Boolean)를 순서대로 발행합니다.
+ *
+ * ```kotlin
+ * val results = reactiveCqlOperations.executeForFlow(flowOf("TRUNCATE users"))
+ * // results.toList().size >= 0
+ * ```
+ */
 fun ReactiveCqlOperations.executeForFlow(statementFlow: Flow<String>): Flow<Boolean> =
     execute(statementFlow.asPublisher()).asFlow()
 
+/**
+ * [Statement]를 실행하고 성공 여부를 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `execute(statement).awaitSingle()`을 호출합니다.
+ * - 실행 실패 예외는 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * val applied = reactiveCqlOperations.executeSuspending(statement)
+ * // applied == true
+ * ```
+ */
 suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Boolean = execute(statement).awaitSingle()
 
+/**
+ * [Statement] 실행 결과를 [ReactiveResultSet] 기반 변환기로 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - `rse`가 반환한 [Flow]를 Publisher로 변환해 `query`에 전달합니다.
+ * - 결과 Flow 요소 순서는 `rse` 구현에 위임됩니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForFlow(statement) { rs -> rs.rows().asFlow() }
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     statement: Statement<*>,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(statement) { rs -> rse(rs).asPublisher() }.asFlow()
 
+/**
+ * [Statement] 실행 결과를 [Row] 매퍼로 변환한 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `query(statement, rowMapper).asFlow()`를 호출합니다.
+ * - 결과 순서는 Cassandra 드라이버가 전달한 row 순서를 유지합니다.
+ *
+ * ```kotlin
+ * val names = reactiveCqlOperations.queryForFlow(statement) { row, _ -> row.getString("name") }
+ * // names.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     statement: Statement<*>,
     rowMapper: (Row, Int) -> T,
 ): Flow<T> = query(statement) { row, rowNum -> rowMapper(row, rowNum) }.asFlow()
 
+/**
+ * [Statement] 실행 결과를 단일 행 맵으로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForMap(statement).awaitSingle()`을 호출합니다.
+ * - 결과가 없거나 다중 행인 경우 예외 여부는 Spring Data Cassandra 규칙을 따릅니다.
+ *
+ * ```kotlin
+ * val row = reactiveCqlOperations.queryForMapSuspending(statement)
+ * // row["id"] != null
+ * ```
+ */
 suspend fun ReactiveCqlOperations.queryForMapSuspending(statement: Statement<*>): Map<String, Any?> =
     queryForMap(statement).awaitSingle()
 
+/**
+ * [Statement] 실행 결과를 지정 타입 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForFlux<T>(statement).asFlow()`를 호출합니다.
+ * - 결과가 없으면 빈 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val users = reactiveCqlOperations.queryForFlow<User>(statement)
+ * // users.toList().size >= 0
+ * ```
+ */
 inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>): Flow<T> =
     queryForFlux<T>(statement).asFlow()
 
+/**
+ * [Statement] 실행 결과를 `Map<String, Any?>` [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForFlux(statement).asFlow()`를 호출합니다.
+ * - 각 요소는 컬럼명 기준 key를 가진 맵입니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForMapFlow(statement)
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun ReactiveCqlOperations.queryForMapFlow(statement: Statement<*>): Flow<Map<String, Any?>> =
     queryForFlux(statement).asFlow()
 
+/**
+ * [Statement] 실행 결과를 [ReactiveResultSet]으로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `queryForResultSet(statement).awaitSingle()`을 호출합니다.
+ * - ResultSet 발행 실패 시 예외가 전파됩니다.
+ *
+ * ```kotlin
+ * val rs = reactiveCqlOperations.queryForResultSetSuspending(statement)
+ * // rs.availableRows() >= 0
+ * ```
+ */
 suspend fun ReactiveCqlOperations.queryForResultSetSuspending(statement: Statement<*>): ReactiveResultSet =
     queryForResultSet(statement).awaitSingle()
 
+/**
+ * [ReactivePreparedStatementCreator]와 액션으로 [Flow]를 실행합니다.
+ *
+ * ## 동작/계약
+ * - `action`이 반환한 [Flow]를 Publisher로 변환해 `execute`에 전달합니다.
+ * - 결과 Flow 요소 순서는 `action` 구현에 위임됩니다.
+ *
+ * ```kotlin
+ * val results = reactiveCqlOperations.executeForFlow(psc) { session, ps -> flowOf(ps.id.toString()) }
+ * // results.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.executeForFlow(
     psc: ReactivePreparedStatementCreator,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
 ): Flow<T> = execute(psc) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
 
+/**
+ * CQL 문자열과 액션으로 [Flow]를 실행합니다.
+ *
+ * ## 동작/계약
+ * - `action`이 반환한 [Flow]를 Publisher로 변환해 `execute`에 전달합니다.
+ *
+ * ```kotlin
+ * val results = reactiveCqlOperations.executeForFlow("SELECT * FROM users") { _, ps -> flowOf(ps.id.toString()) }
+ * // results.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.executeForFlow(
     cql: String,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
 ): Flow<T> = execute(cql) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
 
+/**
+ * CQL 문자열 실행 결과를 [ReactiveResultSet] 기반 변환기로 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - `rse`가 반환한 [Flow]를 Publisher로 변환해 `query`에 전달합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForFlow("SELECT * FROM users") { rs -> rs.rows().asFlow() }
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any?,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(cql, { rs -> rse(rs).asPublisher() }, *args).asFlow()
 
+/**
+ * CQL 문자열 실행 결과를 [Row] 매퍼로 변환한 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `query(cql, rowMapper, *args).asFlow()`를 호출합니다.
+ *
+ * ```kotlin
+ * val names = reactiveCqlOperations.queryForFlow("SELECT * FROM users") { row, _ -> row.getString("name") }
+ * // names.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any,
     rowMapper: (Row, Int) -> T,
 ): Flow<T> = query(cql, rowMapper, *args).asFlow()
 
+/**
+ * [ReactivePreparedStatementCreator]를 사용해 [ReactiveResultSet]을 [Flow]로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `rse`가 반환한 [Flow]를 Publisher로 변환합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForFlow(psc) { rs -> rs.rows().asFlow() }
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(psc) { rs -> rse(rs).asPublisher() }.asFlow()
 
+/**
+ * CQL 문자열과 [PreparedStatementBinder]를 사용해 [ReactiveResultSet]을 [Flow]로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `rse`가 반환한 [Flow]를 Publisher로 변환합니다.
+ * - [psb]가 `null`이면 바인딩 없이 실행합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForFlow("SELECT * FROM users", psb = null) { rs -> rs.rows().asFlow() }
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(cql, psb) { rs -> rse(rs).asPublisher() }.asFlow()
 
+/**
+ * [ReactivePreparedStatementCreator]와 [PreparedStatementBinder]를 사용해 [ReactiveResultSet]을 [Flow]로 변환합니다.
+ *
+ * ## 동작/계약
+ * - [psb]가 `null`이면 바인딩 없이 실행합니다.
+ *
+ * ```kotlin
+ * val rows = reactiveCqlOperations.queryForFlow(psc, psb = null) { rs -> rs.rows().asFlow() }
+ * // rows.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(psc, psb) { rs -> rse(rs).asPublisher() }.asFlow()
 
+/**
+ * [ReactivePreparedStatementCreator]와 [Row] 매퍼를 사용해 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `query(psc, rowMapper).asFlow()`를 호출합니다.
+ *
+ * ```kotlin
+ * val names = reactiveCqlOperations.queryForFlow(psc) { row, _ -> row.getString("name") }
+ * // names.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     rowMapper: (row: Row, rowNum: Int) -> T,
 ): Flow<T> = query(psc, rowMapper).asFlow()
 
+/**
+ * [ReactivePreparedStatementCreator]와 [PreparedStatementBinder] 및 [Row] 매퍼를 사용해 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - [psb]가 `null`이면 바인딩 없이 실행합니다.
+ *
+ * ```kotlin
+ * val names = reactiveCqlOperations.queryForFlow(psc, psb = null) { row, _ -> row.getString("name") }
+ * // names.toList().size >= 0
+ * ```
+ */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     psb: PreparedStatementBinder? = null,

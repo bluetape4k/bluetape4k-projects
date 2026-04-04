@@ -51,7 +51,7 @@ internal const val MAX_RECEIVE_MESSAGES = 10
 /**
  * [queueName]에 해당하는 큐를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.createQueue("my-queue")
  * ```
  *
@@ -75,7 +75,7 @@ suspend inline fun SqsClient.createQueue(
 /**
  * [queueName]에 해당하는 큐가 존재하지 않으면 큐를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queueUrl = sqsClient.ensureQueue("my-queue")
  * ```
  *
@@ -101,7 +101,7 @@ suspend inline fun SqsClient.ensureQueue(
  * 존재하지 않는 큐(`QueueDoesNotExist`/`ResourceNotFoundException`/HTTP `404`)만 `false`로 정규화하고,
  * 인증 실패/네트워크 오류 등 다른 예외는 그대로 전파합니다.
  *
- * ```
+ * ```kotlin
  * val exists = sqsClient.existsQueue("my-queue")
  * ```
  *
@@ -118,7 +118,7 @@ suspend inline fun SqsClient.existsQueue(queueName: String): Boolean =
 /**
  * [queueNamePrefix]를 접두사로 가지는 큐 목록을 반환합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.listQueues(queueNamePrefix = "my-queue")
  * val queueUrls = response.queueUrls
  * ```
@@ -148,7 +148,7 @@ suspend inline fun SqsClient.listQueues(
 /**
  * [queueName]에 해당하는 큐의 URL을 반환합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.getQueueUrl("my-queue")
  * val queueUrl = response.queueUrl
  * ```
@@ -171,7 +171,7 @@ suspend inline fun SqsClient.getQueueUrl(
 /**
  * [queueUrl]에 해당하는 큐를 삭제합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.deleteQueue("https://sqs.ap-northeast-2.amazonaws.com/123456789012/my-queue")
  * ```
  *
@@ -193,14 +193,13 @@ suspend inline fun SqsClient.deleteQueue(
 /**
  * AWS SQS 에 메시지를 보냅니다.
  *
- * ```
- * val response = sqsClient.send(
+ * ```kotlin
+ * val response = sqsClient.sendMessage(
  *      queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
  *      messageBody = "Hello, World!",
  *      delaySeconds = 10,
- * ) {
- *      messageAttributes = mapOf("key" to messageValueAttributeOf("value"))
- * }
+ * )
+ * ```
  *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param messageBody 전송할 메시지의 본문입니다. blank이면 [IllegalArgumentException]을 던집니다.
@@ -229,13 +228,13 @@ suspend inline fun SqsClient.sendMessage(
 /**
  * AWS SQS 에 배치로 메시지를 보냅니다.
  *
- * ```
+ * ```kotlin
  * val entry1 = SendMessageBatchRequestEntry { id="id1"; messageBody="Hello, World!" }
  * val entry2 = SendMessageBatchRequestEntry { id="id2"; messageBody="Hello, World!" }
  *
  * val queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue"
  *
- * val response = sqsClient.sendBatch(queueUrl, entry1, entry2)
+ * val response = sqsClient.sendMessageBatch(queueUrl, entry1, entry2)
  * ```
  *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
@@ -258,14 +257,14 @@ suspend inline fun SqsClient.sendMessageBatch(
 /**
  * AWS SQS 에 배치로 메시지를 보냅니다.
  *
- * ```
+ * ```kotlin
  * val entry1 = SendMessageBatchRequestEntry { id="id1"; messageBody="Hello, World!" }
  * val entry2 = SendMessageBatchRequestEntry { id="id2"; messageBody="Hello, World!" }
  * val entries = listOf(entry1, entry2)
  *
  * val queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue"
  *
- * val response = sqsClient.sendBatch(queueUrl, entries)
+ * val response = sqsClient.sendMessageBatch(queueUrl, entries)
  * ```
  *
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
@@ -288,8 +287,8 @@ suspend inline fun SqsClient.sendMessageBatch(
 /**
  * 제공된 queueUrl을 사용하여 Amazon SQS 큐에서 메시지를 수신합니다.
  *
- * ```
- * val response = sqsClient.receive(queueUrl, maxResults = 10)
+ * ```kotlin
+ * val response = sqsClient.receiveMessage(queueUrl, maxNumberOfMessages = 10)
  * val messages = response.messages
  * ```
  *
@@ -316,12 +315,12 @@ suspend inline fun SqsClient.receiveMessage(
 /**
  * [queueUrl]의 [receiptHandle]을 가진 메시지에 대해 Visibility를 변경합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.changeMessageVisibility(
  *     queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
  *     receiptHandle = "receiptHandle",
  *     visibilityTimeout = 10
- * ) {
+ * )
  * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
@@ -347,7 +346,7 @@ suspend inline fun SqsClient.changeMessageVisibility(
 /**
  * [queueUrl]의 [entries]에 대해 Batch 방식으로 Visibility를 변경합니다.
  *
- * ```
+ * ```kotlin
  * val entry1 = ChangeMessageVisibilityBatchRequestEntry {
  *     id = "id1"
  *     receiptHandle = "receiptHandle1"
@@ -360,7 +359,7 @@ suspend inline fun SqsClient.changeMessageVisibility(
  * }
  * val queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue"
  *
- * val response = sqsClient.changeVisibilityBatch(queueUrl, entry1, entry2)
+ * val response = sqsClient.changeMessageVisibilityBatch(queueUrl, entry1, entry2)
  * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
@@ -383,7 +382,7 @@ suspend inline fun SqsClient.changeMessageVisibilityBatch(
 /**
  * [queueUrl]의 [entries]에 대해 Batch 방식으로 Visibility를 변경합니다.
  *
- * ```
+ * ```kotlin
  * val entry1 = ChangeMessageVisibilityBatchRequestEntry {
  *     id = "id1"
  *     receiptHandle = "receiptHandle1"
@@ -396,7 +395,7 @@ suspend inline fun SqsClient.changeMessageVisibilityBatch(
  * }
  * val queueUrl = "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue"
  *
- * val response = sqsClient.changeVisibilityBatch(queueUrl, listOf(entry1, entry2))
+ * val response = sqsClient.changeMessageVisibilityBatch(queueUrl, listOf(entry1, entry2))
  * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
@@ -419,7 +418,7 @@ suspend inline fun SqsClient.changeMessageVisibilityBatch(
 /**
  * 제공된 queueUrl과 receiptHandle을 사용하여 메시지를 삭제합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.deleteMessage(
  *      "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
  *      "receiptHandle"
@@ -445,7 +444,7 @@ suspend inline fun SqsClient.deleteMessage(
 /**
  * 제공된 queueUrl과 entries를 사용하여 메시지를 배치로 삭제합니다.
  *
- * ```
+ * ```kotlin
  * val response = sqsClient.deleteMessageBatch(
  *     "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",
  *     deleteMessageBatchRequestEntryOf("id1", "receiptHandle1"),
@@ -473,11 +472,10 @@ suspend inline fun SqsClient.deleteMessageBatch(
 /**
  * 제공된 queueUrl과 entries를 사용하여 메시지를 배치로 삭제합니다.
  *
- * ```
+ * ```kotlin
  * val entries = listOf(
  *      deleteMessageBatchRequestEntryOf("id1", "receiptHandle1"),
  *      deleteMessageBatchRequestEntryOf("id2", "receiptHandle2"),
- *      ...
  * )
  * val response = sqsClient.deleteMessageBatch(
  *    "https://sqs.ap-northeast-2.amazonaws.com/123456789012/MyQueue",

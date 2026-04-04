@@ -31,6 +31,27 @@ import java.util.stream.Stream
 /**
  * [ExposedJdbcRepository]의 기본 CRUD 구현체입니다.
  * 모든 Exposed DAO 연산은 트랜잭션 내에서 실행됩니다.
+ *
+ * Exposed DAO 변경 감지(dirty-checking) 모델로 동작합니다.
+ * 트랜잭션 내에서 `EntityClass.new { }` 로 생성하거나 프로퍼티를 변경하면
+ * 커밋 시 자동으로 INSERT/UPDATE SQL이 실행됩니다.
+ *
+ * ```kotlin
+ * // 저장 (EntityClass.new {} 로 생성한 엔티티를 그대로 save()에 전달)
+ * transaction {
+ *     val user = User.new { name = "Alice"; age = 30 }
+ *     userRepository.save(user)  // INSERT 자동 실행
+ * }
+ *
+ * // 조회
+ * val user = userRepository.findById(1L).orElseThrow()
+ *
+ * // DSL 조건 조회
+ * val adults = userRepository.findAll { Users.age greaterEq 18 }
+ *
+ * // 페이징
+ * val page = userRepository.findAll(PageRequest.of(0, 10, Sort.by("name")))
+ * ```
  */
 
 /** Exposed Spring Boot Starter가 등록하는 SpringTransactionManager 빈 이름 */

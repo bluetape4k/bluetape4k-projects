@@ -15,6 +15,26 @@ import org.springframework.data.repository.query.QueryByExampleExecutor
  * [QueryByExampleExecutor]를 모두 지원합니다.
  *
  * Exposed DSL Op 직접 사용을 위한 확장 메서드도 제공합니다.
+ *
+ * ```kotlin
+ * @ExposedEntity
+ * class User(id: EntityID<Long>) : LongEntity(id) {
+ *     companion object : LongEntityClass<User>(Users)
+ *     var name by Users.name
+ *     var age  by Users.age
+ * }
+ *
+ * interface UserRepository : ExposedJdbcRepository<User, Long> {
+ *     override val table: IdTable<Long> get() = Users
+ *     override fun extractId(entity: User): Long? = if (entity.id.value == 0L) null else entity.id.value
+ *     fun findByName(name: String): List<User>
+ * }
+ *
+ * // 사용 예
+ * val adults = userRepository.findAll { Users.age greaterEq 18 }
+ * val count  = userRepository.count  { Users.age greaterEq 18 } // 18세 이상 수
+ * val exists = userRepository.exists { Users.name eq "Alice" }  // true/false
+ * ```
  */
 @NoRepositoryBean
 interface ExposedJdbcRepository<E: Entity<ID>, ID: Any>: ListCrudRepository<E, ID>,
@@ -42,11 +62,19 @@ interface ExposedJdbcRepository<E: Entity<ID>, ID: Any>: ListCrudRepository<E, I
 
     /**
      * 주어진 Exposed DSL 조건에 맞는 Entity 수를 반환합니다.
+     *
+     * ```kotlin
+     * val count = userRepository.count { Users.age greaterEq 18 } // 18세 이상 수
+     * ```
      */
     fun count(op: () -> Op<Boolean>): Long
 
     /**
      * 주어진 Exposed DSL 조건에 맞는 Entity가 존재하는지 확인합니다.
+     *
+     * ```kotlin
+     * val exists = userRepository.exists { Users.name eq "Alice" } // true 또는 false
+     * ```
      */
     fun exists(op: () -> Op<Boolean>): Boolean
 }

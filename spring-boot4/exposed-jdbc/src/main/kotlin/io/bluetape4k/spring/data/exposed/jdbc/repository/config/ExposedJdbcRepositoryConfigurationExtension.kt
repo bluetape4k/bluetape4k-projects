@@ -7,6 +7,12 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
 
 /**
  * Exposed Spring Data 모듈 설정 확장입니다.
+ *
+ * ```kotlin
+ * // Spring Data 내부 인프라에서 사용됩니다. 직접 인스턴스화할 필요 없습니다.
+ * // @EnableExposedJdbcRepositories 어노테이션이 자동으로 이 클래스를 사용합니다.
+ * // 모듈 이름: "EXPOSED", Factory Bean: ExposedJdbcRepositoryFactoryBean
+ * ```
  */
 class ExposedJdbcRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
 
