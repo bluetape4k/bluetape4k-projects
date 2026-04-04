@@ -1,0 +1,13 @@
+rules:
+  - name: "discount"
+    description: "할인 규칙"
+    priority: 1
+    condition: "amount > 1000"
+    actions:
+      - "discount = true"
+  - name: "freeShipping"
+    description: "무료 배송 규칙"
+    priority: 2
+    condition: "amount > 5000"
+    actions:
+      - "freeShipping = true"

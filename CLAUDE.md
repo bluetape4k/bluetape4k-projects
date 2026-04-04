@@ -184,6 +184,7 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `measured` | Type-safe units + measurements |
 | `money` | Money/currency types |
 | `mutiny` | Mutiny reactive extensions |
+| `states` | Kotlin DSL FSM — 동기(AtomicReference CAS) + 코루틴(Mutex+StateFlow), Guard 조건, clinic-appointment 패턴 |
 
 ### Testing (`testing/`)
 

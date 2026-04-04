@@ -255,6 +255,7 @@ object Libs {
     val kotlin_scripting_compiler_embeddable = kotlin("scripting-compiler-embeddable")
     val kotlin_scripting_compiler_impl_embeddable = kotlin("scripting-compiler-impl-embeddable")
     val kotlin_scripting_jvm = kotlin("scripting-jvm")
+    val kotlin_scripting_jvm_host = kotlin("scripting-jvm-host")
     val kotlin_script_runtime = kotlin("script-runtime")
     val kotlin_script_util = kotlin("scripting-util")
 
@@ -859,6 +860,9 @@ object Libs {
     // Hashing
     // https://mvnrepository.com/artifact/net.openhft/zero-allocation-hashing
     const val zero_allocation_hashing = "net.openhft:zero-allocation-hashing:2026.0"
+
+    // Typesafe (HOCON)
+    const val typesafe_config = "com.typesafe:config:1.4.3"  // https://mvnrepository.com/artifact/com.typesafe/config
 
     // MVEL
     const val mvel2 = "org.mvel:mvel2:2.5.2.Final"  // https://mvnrepository.com/artifact/org.mvel/mvel2
