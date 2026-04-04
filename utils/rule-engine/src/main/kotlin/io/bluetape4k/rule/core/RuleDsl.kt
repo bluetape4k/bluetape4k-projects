@@ -39,6 +39,12 @@ class RuleBuilder {
 
     /**
      * [Condition]을 설정합니다.
+     *
+     * ```kotlin
+     * val rule = rule {
+     *     condition(Condition { facts -> facts.get<Int>("age")!! >= 18 })
+     * }
+     * ```
      */
     fun condition(condition: Condition) {
         this.condition = condition
@@ -46,6 +52,12 @@ class RuleBuilder {
 
     /**
      * 람다로 [Condition]을 설정합니다.
+     *
+     * ```kotlin
+     * val rule = rule {
+     *     condition { facts -> facts.get<Int>("age")!! >= 18 }
+     * }
+     * ```
      */
     inline fun condition(crossinline evaluator: (Facts) -> Boolean) {
         this.condition = Condition { evaluator(it) }
@@ -53,6 +65,13 @@ class RuleBuilder {
 
     /**
      * [Action]을 추가합니다.
+     *
+     * ```kotlin
+     * val rule = rule {
+     *     condition { true }
+     *     action(Action { facts -> facts["done"] = true })
+     * }
+     * ```
      */
     fun action(action: Action) {
         this.actions.add(action)
@@ -60,6 +79,13 @@ class RuleBuilder {
 
     /**
      * 람다로 [Action]을 추가합니다.
+     *
+     * ```kotlin
+     * val rule = rule {
+     *     condition { true }
+     *     action { facts -> facts["result"] = "ok" }
+     * }
+     * ```
      */
     inline fun action(crossinline action: (Facts) -> Unit) {
         this.actions.add(Action { action(it) })
@@ -105,6 +131,12 @@ class SuspendRuleBuilder {
 
     /**
      * [SuspendCondition]을 설정합니다.
+     *
+     * ```kotlin
+     * val rule = suspendRule {
+     *     condition(SuspendCondition { facts -> facts.get<Int>("age")!! >= 18 })
+     * }
+     * ```
      */
     fun condition(condition: SuspendCondition) {
         this.condition = condition
@@ -112,6 +144,12 @@ class SuspendRuleBuilder {
 
     /**
      * 람다로 [SuspendCondition]을 설정합니다.
+     *
+     * ```kotlin
+     * val rule = suspendRule {
+     *     condition { facts -> facts.get<Int>("score")!! >= 60 }
+     * }
+     * ```
      */
     inline fun condition(crossinline evaluator: suspend (Facts) -> Boolean) {
         this.condition = SuspendCondition { evaluator(it) }
@@ -119,6 +157,13 @@ class SuspendRuleBuilder {
 
     /**
      * [SuspendAction]을 추가합니다.
+     *
+     * ```kotlin
+     * val rule = suspendRule {
+     *     condition { true }
+     *     action(SuspendAction { facts -> facts["done"] = true })
+     * }
+     * ```
      */
     fun action(action: SuspendAction) {
         this.actions.add(action)
@@ -126,6 +171,13 @@ class SuspendRuleBuilder {
 
     /**
      * 람다로 [SuspendAction]을 추가합니다.
+     *
+     * ```kotlin
+     * val rule = suspendRule {
+     *     condition { true }
+     *     action { facts -> facts["result"] = "ok" }
+     * }
+     * ```
      */
     inline fun action(crossinline action: suspend (Facts) -> Unit) {
         this.actions.add(SuspendAction { action(it) })
@@ -137,6 +189,18 @@ class SuspendRuleBuilder {
 
 /**
  * [DefaultSuspendRule]을 생성하는 DSL입니다.
+ *
+ * ```kotlin
+ * val asyncRule = suspendRule {
+ *     name = "asyncDiscount"
+ *     description = "비동기 할인 규칙"
+ *     priority = 1
+ *     condition { facts -> facts.get<Int>("amount")!! > 1000 }
+ *     action { facts -> facts["discount"] = true }
+ * }
+ * val engine = DefaultSuspendRuleEngine()
+ * engine.fire(suspendRuleSetOf(asyncRule), facts)
+ * ```
  */
 fun suspendRule(setup: SuspendRuleBuilder.() -> Unit): DefaultSuspendRule {
     return SuspendRuleBuilder().apply(setup).build()

@@ -8,6 +8,12 @@ import java.time.LocalTime
 /**
  * 하루 중의 시간단위의 범위를 나타냅니다. 1시 ~ 4시 (start=1, end=3:59:59:999_999_999)
  *
+ * ```kotlin
+ * val range = HourRangeInDay(9, 18)
+ * range.start // LocalTime.of(9, 0)
+ * range.end   // LocalTime.of(18, 0)
+ * ```
+ *
  * @property start 시간 범위의 시작 시각 (포함)
  * @property end 완료 시각 (포함)
  */

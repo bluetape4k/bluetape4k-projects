@@ -5,7 +5,7 @@ import kotlin.math.absoluteValue
 /**
  * 컬렉션의 Min, Max Value 를 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val (min, max) = sequenceOf(-1.0, 0.0, 1.0).minMax()  // min=-1.0, max=1.0
  * ```
  *

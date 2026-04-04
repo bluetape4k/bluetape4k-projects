@@ -7,6 +7,13 @@ import java.time.ZonedDateTime
 
 /**
  * 분 단위로 기간을 표현하는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = MinuteTimeRange(now, minuteCount = 30)
+ * range.minuteCount         // 30
+ * range.minuteOfHourOfEnd   // (now + 30min).minute
+ * ```
  */
 open class MinuteTimeRange(
     moment: ZonedDateTime = ZonedDateTime.now(),

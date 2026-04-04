@@ -6,6 +6,14 @@ import java.time.DayOfWeek
 
 /**
  * Calendar 탐색 시의 필터링을 할 조건을 표현하는 인터페이스입니다.
+ *
+ * ```kotlin
+ * val filter: ICalendarVisitorFilter = CalendarVisitorFilter()
+ * filter.addWorkingWeekdays() // 월~금 요일만 포함
+ * filter.addWorkingWeekends() // 토~일 요일만 포함
+ * filter.addYears(2024)       // 2024년만 포함
+ * filter.dayOfWeeks           // 설정된 요일 집합
+ * ```
  */
 interface ICalendarVisitorFilter: ValueObject {
 

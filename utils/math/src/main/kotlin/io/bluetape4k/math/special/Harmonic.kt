@@ -14,6 +14,12 @@ import kotlin.math.tan
 /**
  * Computes the `x`-th Harmonic number.
  *
+ * ```kotlin
+ * val result = harmonic(1)   // 1.0
+ * val result2 = harmonic(2)  // 1.5
+ * val result3 = harmonic(3)  // 1.8333...
+ * ```
+ *
  * @param x  The Harmonic number which needs to be computed.
  * @return   The t'th Harmonic number.
  */
@@ -21,6 +27,11 @@ fun harmonic(x: Int): Double = EULER_MASCHERONI + diGamma(x + 1.0)
 
 /**
  * Compute the generalized harmonic number of order n of m. (1 + 1/2^m + 1/3^m + ... + 1/n^m)
+ *
+ * ```kotlin
+ * val result = generalHarmonic(3, 1.0)   // 1 + 1/2 + 1/3 ≈ 1.833
+ * val result2 = generalHarmonic(2, 2.0)  // 1 + 1/4 = 1.25
+ * ```
  *
  * @param n Order parameter
  * @param m Power parameter
@@ -36,6 +47,11 @@ fun generalHarmonic(n: Int, m: Double): Double {
 
 /**
  * Computes the Digamma function which is mathematically defined as the derivative of the logarithm of the gamma function.
+ *
+ * ```kotlin
+ * val result = diGamma(1.0)   // -0.5772... (Euler-Mascheroni 상수)
+ * val result2 = diGamma(2.0)  // 0.4227...
+ * ```
  * This implementation is based on
  *     Jose Bernardo
  *     Algorithm AS 103:
@@ -100,6 +116,10 @@ fun diGamma(x: Double): Double {
  *
  * This implementation is based on the bisection method.
  *
+ * ```kotlin
+ * val result = diGammaInv(-0.5772)   // 약 1.0
+ * ```
+ *
  * @param p  The argument of the inverse digamma function.
  * @return   The positive solution to the inverse DiGamma function at `p`
  */
@@ -122,8 +142,13 @@ fun diGammaInv(p: Double): Double {
  * logit 함수를 계산합니다.
  * see: http://en.wikipedia.org/wiki/Logit
  *
+ * ```kotlin
+ * val result = logit(0.5)   // 0.0
+ * val result2 = logit(0.8)  // 1.3862...
+ * ```
+ *
  * @param p  The parameter for which to compute the logit function. This number should be between 0 and 1.
- * @return
+ * @return logit(p) = ln(p / (1-p))
  */
 fun logit(p: Double): Double {
     require(p in 0.0..1.0) { "p[$p] 값은 [0,1] 사이어야 합니다." }
@@ -134,8 +159,13 @@ fun logit(p: Double): Double {
  * Computes the logistic function.
  * see: http://en.wikipedia.org/wiki/Logistic
  *
- * @param p
- * @return
+ * ```kotlin
+ * val result = logistic(0.0)   // 0.5
+ * val result2 = logistic(2.0)  // 0.8807...
+ * ```
+ *
+ * @param p 입력값
+ * @return 로지스틱 함수 값 1 / (1 + e^(-p))
  */
 fun logistic(p: Double): Double {
     return 1.0 / (exp(-p) + 1.0)

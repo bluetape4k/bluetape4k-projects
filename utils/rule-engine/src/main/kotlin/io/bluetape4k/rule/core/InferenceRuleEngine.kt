@@ -36,6 +36,15 @@ class InferenceRuleEngine(
 
     /**
      * [RuleListener]를 등록합니다.
+     *
+     * ```kotlin
+     * val engine = InferenceRuleEngine()
+     * engine.registerRuleListener(object : RuleListener {
+     *     override fun afterEvaluate(rule: Rule, facts: Facts, evaluationResult: Boolean) {
+     *         println("Rule ${rule.name} → $evaluationResult")
+     *     }
+     * })
+     * ```
      */
     fun registerRuleListener(listener: RuleListener) {
         delegate.registerRuleListener(listener)
@@ -43,6 +52,15 @@ class InferenceRuleEngine(
 
     /**
      * [RuleEngineListener]를 등록합니다.
+     *
+     * ```kotlin
+     * val engine = InferenceRuleEngine()
+     * engine.registerRuleEngineListener(object : RuleEngineListener {
+     *     override fun beforeEvaluate(rules: Iterable<Rule>, facts: Facts) {
+     *         println("Inference cycle start")
+     *     }
+     * })
+     * ```
      */
     fun registerRuleEngineListener(listener: RuleEngineListener) {
         delegate.registerRuleEngineListener(listener)

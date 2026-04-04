@@ -96,6 +96,13 @@ class TemporalInterval<T> private constructor(
 
     /**
      * `start`를 기준으로 `duration`을 가지는 [TemporalInterval]을 빌드한다
+     *
+     * ```kotlin
+     * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31))
+     * val shorter = interval.withAmountAfterStart(Period.ofMonths(3))
+     * // shorter: 2024-01-01 ~ 2024-04-01
+     * ```
+     *
      * @param duration TemporalAmount
      * @return TemporalInterval
      */
@@ -104,6 +111,13 @@ class TemporalInterval<T> private constructor(
 
     /**
      * End 를 기준으로 지정한 `duration`을 가지는 [TemporalInterval]을 빌드한다
+     *
+     * ```kotlin
+     * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31))
+     * val shorter = interval.withAmountBeforeEnd(Period.ofMonths(3))
+     * // shorter: 2024-10-01 ~ 2024-12-31
+     * ```
+     *
      * @param duration TemporalAmount
      * @return TemporalInterval
      */

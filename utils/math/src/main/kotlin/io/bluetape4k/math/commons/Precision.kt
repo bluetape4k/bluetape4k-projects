@@ -3,11 +3,11 @@ package io.bluetape4k.math.commons
 /**
  * Double 수형의 근사값의 최소량을 나타내는 Epsilon 을 구합니다.
  *
- * ```
+ * ```kotlin
  * 1.00001.epsilon() == 0.00001
  * ```
  *
- * @return
+ * @return Double 값의 epsilon(최소 표현 단위)
  */
 fun Double.epsilon(): Double {
     if (this.isSpecialCase()) {
@@ -29,6 +29,10 @@ fun Double.epsilon(): Double {
 }
 
 /**
- * Double 수형의 근사값의 최소량을 나타내는 Epsilon 을 구합니다.
+ * Double 수형의 양의 epsilon(최소 표현 단위의 2배)을 구합니다.
+ *
+ * ```kotlin
+ * val eps = 1.0.positiveEpsilon()   // Double.epsilon() * 2
+ * ```
  */
 fun Double.positiveEpsilon(): Double = 2.0 * this.epsilon()

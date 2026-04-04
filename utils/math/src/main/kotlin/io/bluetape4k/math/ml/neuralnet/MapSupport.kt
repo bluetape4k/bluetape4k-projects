@@ -7,6 +7,13 @@ import org.apache.commons.math3.ml.neuralnet.twod.NeuronSquareMesh2D
 
 /**
  * Finds the neuron that best matches the given features.
+ *
+ * ```kotlin
+ * val neurons: List<Neuron> = network.neurons.toList()
+ * val best = neurons.findBest(features = doubleArrayOf(1.0, 2.0)) { a, b ->
+ *     DistanceMeasureMethod.Euclidean.compute(a, b)
+ * }
+ * ```
  */
 fun Iterable<Neuron>.findBest(features: DoubleArray, distance: (DoubleArray, DoubleArray) -> Double): Neuron {
     return MapUtils.findBest(features, this, distance)
@@ -29,6 +36,16 @@ fun Iterable<Neuron>.findBestAndSecondBest(
     return pair.first to pair.second
 }
 
+/**
+ * 뉴런들을 주어진 특징 벡터와의 거리 순으로 정렬합니다.
+ *
+ * ```kotlin
+ * val neurons: List<Neuron> = network.neurons.toList()
+ * val sorted = neurons.sort(features = doubleArrayOf(1.0, 2.0)) { a, b ->
+ *     DistanceMeasureMethod.Euclidean.compute(a, b)
+ * }
+ * ```
+ */
 fun Iterable<Neuron>.sort(
     features: DoubleArray,
     distance: (DoubleArray, DoubleArray) -> Double,
@@ -36,6 +53,16 @@ fun Iterable<Neuron>.sort(
     return MapUtils.sort(features, this, distance)
 }
 
+/**
+ * 뉴런들의 양자화 오차를 계산합니다.
+ *
+ * ```kotlin
+ * val neurons: List<Neuron> = network.neurons.toList()
+ * val error = neurons.computeQuantizationError(data = listOf(doubleArrayOf(1.0, 2.0))) { a, b ->
+ *     DistanceMeasureMethod.Euclidean.compute(a, b)
+ * }
+ * ```
+ */
 fun Iterable<Neuron>.computeQuantizationError(
     data: Iterable<DoubleArray>,
     distance: (DoubleArray, DoubleArray) -> Double,
@@ -43,10 +70,28 @@ fun Iterable<Neuron>.computeQuantizationError(
     return MapUtils.computeQuantizationError(data, this, distance)
 }
 
+/**
+ * 2D SOM의 U-Matrix를 계산합니다.
+ *
+ * ```kotlin
+ * val mesh: NeuronSquareMesh2D = ...
+ * val uMatrix = mesh.computeU { a, b -> DistanceMeasureMethod.Euclidean.compute(a, b) }
+ * ```
+ */
 fun NeuronSquareMesh2D.computeU(distance: (DoubleArray, DoubleArray) -> Double): Array<DoubleArray> {
     return MapUtils.computeU(this, distance)
 }
 
+/**
+ * 2D SOM의 Hit Histogram을 계산합니다.
+ *
+ * ```kotlin
+ * val mesh: NeuronSquareMesh2D = ...
+ * val histogram = mesh.computeHitHistogram(data = listOf(doubleArrayOf(1.0, 2.0))) { a, b ->
+ *     DistanceMeasureMethod.Euclidean.compute(a, b)
+ * }
+ * ```
+ */
 fun NeuronSquareMesh2D.computeHitHistogram(
     data: Iterable<DoubleArray>,
     distance: (DoubleArray, DoubleArray) -> Double,
@@ -54,6 +99,16 @@ fun NeuronSquareMesh2D.computeHitHistogram(
     return MapUtils.computeHitHistogram(data, this, distance)
 }
 
+/**
+ * SOM 네트워크의 위상 오차를 계산합니다.
+ *
+ * ```kotlin
+ * val network: Network = ...
+ * val error = network.computeTopographicError(data = listOf(doubleArrayOf(1.0, 2.0))) { a, b ->
+ *     DistanceMeasureMethod.Euclidean.compute(a, b)
+ * }
+ * ```
+ */
 fun Network.computeTopographicError(
     data: Iterable<DoubleArray>,
     distance: (DoubleArray, DoubleArray) -> Double,

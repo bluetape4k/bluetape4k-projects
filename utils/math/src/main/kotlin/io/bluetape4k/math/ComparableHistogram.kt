@@ -7,13 +7,17 @@ import java.io.Serializable
 
 
 /**
- * Histgram의 하나의 막대를 나타냅니다.
+ * Histogram의 하나의 막대(구간)를 나타냅니다.
  *
- * @param T
- * @param C
- * @property range
- * @property value
- * @constructor Create empty Bin
+ * ```kotlin
+ * val bin = Bin(range = DefaultClosedClosedRange(0, 10), value = listOf(1, 5, 8))
+ * val inBin = 5 in bin   // true
+ * ```
+ *
+ * @param T 값의 타입
+ * @param C 구간의 기준 타입 (Comparable)
+ * @property range 막대가 나타내는 구간
+ * @property value 해당 구간의 집계 값
  */
 data class Bin<out T: Any, in C: Comparable<C>>(
     val range: Range<in C>,
@@ -22,6 +26,17 @@ data class Bin<out T: Any, in C: Comparable<C>>(
     operator fun contains(key: C): Boolean = key in range
 }
 
+/**
+ * Histogram 전체를 나타내는 막대 모음.
+ *
+ * ```kotlin
+ * val model: BinModel<List<Int>, Int> = listOf(1, 3, 5, 7, 9).binByComparable(
+ *     incrementer = { it + 2 },
+ *     valueMapper = { it }
+ * )
+ * val bin = model[5]   // 5를 포함하는 구간의 Bin
+ * ```
+ */
 data class BinModel<out T: Any, in C: Comparable<C>>(
     val bins: List<Bin<T, C>>,
 ): Iterable<Bin<T, C>> by bins, Serializable {
@@ -29,6 +44,15 @@ data class BinModel<out T: Any, in C: Comparable<C>>(
     operator fun contains(key: C) = bins.any { key in it.range }
 }
 
+/**
+ * Sequence를 Comparable 기준으로 히스토그램 구간으로 분류합니다.
+ *
+ * ```kotlin
+ * val data = sequenceOf(1, 3, 5, 7, 9)
+ * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
+ * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
+ * ```
+ */
 inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
     incrementer: (C) -> C,
     valueMapper: (T) -> C,
@@ -36,6 +60,15 @@ inline fun <T: Any, C: Comparable<C>> Sequence<T>.binByComparable(
 ): BinModel<List<T>, C> =
     asIterable().binByComparable(incrementer, valueMapper, rangeStart)
 
+/**
+ * Iterable을 Comparable 기준으로 히스토그램 구간으로 분류합니다.
+ *
+ * ```kotlin
+ * val data = listOf(1, 3, 5, 7, 9)
+ * val model = data.binByComparable(incrementer = { it + 2 }, valueMapper = { it })
+ * // model 은 [1,3], [3,5], [5,7], [7,9] 구간의 BinModel
+ * ```
+ */
 inline fun <T: Any, C: Comparable<C>> Iterable<T>.binByComparable(
     incrementer: (C) -> C,
     valueMapper: (T) -> C,
@@ -46,8 +79,18 @@ inline fun <T: Any, C: Comparable<C>> Iterable<T>.binByComparable(
 /**
  * Histogram 을 만듭니다.
  *
- * @param T
- * @param C
+ * ```kotlin
+ * val data = listOf(1, 3, 5, 7, 9)
+ * val model = data.binByComparable(
+ *     incrementer = { it + 2 },
+ *     valueMapper = { it },
+ *     groupOp = { items -> items.size }
+ * )
+ * // model 은 구간별 항목 수를 담은 BinModel<Int, Int>
+ * ```
+ *
+ * @param T 원본 데이터 타입
+ * @param C 구간의 기준 타입 (Comparable)
  * @param incrementer   값 증가 값
  * @param valueMapper   Value mapper
  * @param groupOp       grouping operator (eg: count or max)

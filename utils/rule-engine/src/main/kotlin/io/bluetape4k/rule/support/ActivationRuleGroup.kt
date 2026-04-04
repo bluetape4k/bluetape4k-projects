@@ -10,6 +10,16 @@ import io.bluetape4k.rule.api.Rule
 
 /**
  * evaluation이 성공한 첫 번째 Rule만 실행하고, 나머지 Rule들은 무시합니다.
+ *
+ * ```kotlin
+ * val group = ActivationRuleGroup(name = "firstMatch")
+ * group.addRule(rule1) // priority 낮은 것 먼저 evaluate
+ * group.addRule(rule2)
+ * group.addRule(rule3)
+ * // rule1이 evaluate=true이면 rule1만 실행, rule2/rule3은 건너뜁니다.
+ * val engine = DefaultRuleEngine()
+ * engine.fire(ruleSetOf(group), facts)
+ * ```
  */
 class ActivationRuleGroup(
     name: String = DEFAULT_RULE_NAME,

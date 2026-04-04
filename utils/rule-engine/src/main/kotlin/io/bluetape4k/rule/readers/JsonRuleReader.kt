@@ -10,6 +10,21 @@ import java.io.Reader
 
 /**
  * JSON 형식의 Rule 정의를 읽어들이는 [RuleReader] 구현체입니다.
+ *
+ * ```kotlin
+ * val json = """
+ *   {
+ *     "name": "discountRule",
+ *     "description": "할인 규칙",
+ *     "priority": 1,
+ *     "condition": "amount > 1000",
+ *     "actions": ["discount = true"]
+ *   }
+ * """.trimIndent()
+ * val reader = JsonRuleReader()
+ * val definition = reader.read(json.reader())
+ * val rule = definition.toMvelRule()
+ * ```
  */
 class JsonRuleReader(
     private val mapper: ObjectMapper = ObjectMapper().registerKotlinModule(),

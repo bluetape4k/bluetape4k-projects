@@ -9,6 +9,16 @@ import java.time.ZonedDateTime
 
 /**
  * Time period 를 나타내는 최상위 인터페이스
+ *
+ * ```kotlin
+ * val period: ITimePeriod = TimeRange(
+ *     ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *     ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
+ * )
+ * period.hasPeriod  // true
+ * period.duration   // Duration.between(start, end)
+ * period.isMoment   // false
+ * ```
  */
 interface ITimePeriod: ValueObject, Comparable<ITimePeriod> {
 
@@ -68,26 +78,56 @@ interface ITimePeriod: ValueObject, Comparable<ITimePeriod> {
 
     /**
      * [newStart], [newEnd]로 기간을 다시 설정합니다.
+     *
+     * ```kotlin
+     * val period = TimeBlock()
+     * period.setup(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+     *              ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+     * ```
      */
     fun setup(newStart: ZonedDateTime? = MinPeriodTime, newEnd: ZonedDateTime? = MaxPeriodTime)
 
     /**
      * 현 기간에서 [offset] 만큼 이동한 새로운 기간을 생성합니다.
+     *
+     * ```kotlin
+     * val period = TimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7))
+     * val shifted = period.copy(Duration.ofDays(30)) // 30일 뒤로 이동한 새 기간
+     * ```
      */
     fun copy(offset: Duration = Duration.ZERO): ITimePeriod
 
     /**
      * 현 기간에서 [offset] 만큼 이동합니다.
+     *
+     * ```kotlin
+     * val period = TimeBlock(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7))
+     * period.move(Duration.ofDays(1)) // 1일 앞으로 이동
+     * ```
      */
     fun move(offset: Duration = Duration.ZERO)
 
     /**
      * 현 기간이 [other]과 같은지 여부
+     *
+     * ```kotlin
+     * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+     *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+     * val b = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+     *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+     * a.isSamePeriod(b) // true
+     * ```
      */
     fun isSamePeriod(other: ITimePeriod?): Boolean
 
     /**
-     * 기간을 초기화합니다.
+     * 기간을 초기화합니다. (AnyTime 상태로 리셋)
+     *
+     * ```kotlin
+     * val period = TimeBlock(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7))
+     * period.reset()
+     * period.isAnyTime // true
+     * ```
      */
     fun reset()
 }

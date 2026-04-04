@@ -8,6 +8,14 @@ import io.bluetape4k.rule.api.Facts
 /**
  * Kotlin Script를 이용한 [Condition] 구현체입니다.
  *
+ * ```kotlin
+ * val condition = KotlinScriptCondition(
+ *     "val amount = bindings[\"amount\"] as Int; amount > 1000"
+ * )
+ * val facts = Facts.of("amount" to 1500)
+ * condition.evaluate(facts) // true
+ * ```
+ *
  * @property script Kotlin 스크립트 코드
  */
 class KotlinScriptCondition(val script: String): Condition {

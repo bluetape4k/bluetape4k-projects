@@ -10,6 +10,16 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimePeriodContainer]의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val container = TimePeriodContainer()
+ * container.add(TimeRange(now, now.plusDays(3)))
+ * container.add(TimeRange(now.plusDays(2), now.plusDays(5)))
+ * container.start    // now
+ * container.end      // now + 5d
+ * container.duration // Duration.ofDays(5)
+ * ```
  */
 @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 open class TimePeriodContainer(

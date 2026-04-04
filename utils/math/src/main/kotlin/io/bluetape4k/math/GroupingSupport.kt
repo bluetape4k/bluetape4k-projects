@@ -4,6 +4,14 @@ package io.bluetape4k.math
  * Sequence에 대해 최종 집계를 손쉽게 하기 위해 `groupingBy` 함수를 이용하여 [Grouping] 을 사용하여 집계합니다.
  * @see [aggregateBy] 는 Group을 먼저 만들고, 집계함수를 수행하는데 이는 [Grouping]을 사용하는 것보다 비효율적이다 (Iterable vs Sequence 와 같다)
  *
+ * ```kotlin
+ * val data = sequenceOf("apple" to 1, "banana" to 2, "apple" to 3)
+ * val result = data.groupingAggregate(keySelector = { it.first }) { _, acc, elem, first ->
+ *     if (first) elem.second else acc!! + elem.second
+ * }
+ * // result == {"apple" -> 4, "banana" -> 2}
+ * ```
+ *
  * @param keySelector 집계 기준이 되는 Key 선택 함수
  * @param aggregator 집계 함수
  * @return Key 기준의 집계 값의 Map
@@ -18,8 +26,16 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingAggregate(
 }
 
 /**
- * Sequence에 대해 최종 집계를 손쉽게 하기 위해 `groupingBy` 함수를 이용하여 [Grouping] 을 사용하여 집계합니다.
+ * Iterable에 대해 최종 집계를 손쉽게 하기 위해 `groupingBy` 함수를 이용하여 [Grouping] 을 사용하여 집계합니다.
  * @see [aggregateBy] 는 Group을 먼저 만들고, 집계함수를 수행하는데 이는 [Grouping]을 사용하는 것보다 비효율적이다 (Iterable vs Sequence 와 같다)
+ *
+ * ```kotlin
+ * val data = listOf("apple" to 1, "banana" to 2, "apple" to 3)
+ * val result = data.groupingAggregate(keySelector = { it.first }) { _, acc, elem, first ->
+ *     if (first) elem.second else acc!! + elem.second
+ * }
+ * // result == {"apple" -> 4, "banana" -> 2}
+ * ```
  *
  * @param keySelector 집계 기준이 되는 Key 선택 함수
  * @param aggregator 집계 함수
@@ -35,6 +51,12 @@ inline fun <T: Any, K: Any, R: Any> Iterable<T>.groupingAggregate(
 /**
  * Key 기준으로 그룹핑된 값의 갯수를 계산합니다.
  *
+ * ```kotlin
+ * val data = sequenceOf("apple", "banana", "apple", "cherry")
+ * val result = data.groupingCount { it }
+ * // result == {"apple" -> 2, "banana" -> 1, "cherry" -> 1}
+ * ```
+ *
  * @param keySelector grouping 기준으로 사용할 key 선택자
  * @return key로 grouping 된 값들의 count를 집계한 값
  */
@@ -43,6 +65,12 @@ inline fun <T: Any, K: Any> Sequence<T>.groupingCount(crossinline keySelector: (
 
 /**
  * Key 기준으로 그룹핑된 값의 갯수를 계산합니다.
+ *
+ * ```kotlin
+ * val data = listOf("apple", "banana", "apple", "cherry")
+ * val result = data.groupingCount { it }
+ * // result == {"apple" -> 2, "banana" -> 1, "cherry" -> 1}
+ * ```
  *
  * @param keySelector grouping 기준으로 사용할 key 선택자
  * @return key로 grouping 된 값들의 count를 집계한 값
@@ -54,6 +82,14 @@ inline fun <T: Any, K: Any> Iterable<T>.groupingCount(crossinline keySelector: (
  * Groups elements from the [Grouping] source by key and applies [operation] to the elements of each group sequentially,
  * passing the previously accumulated value and the current element as arguments, and stores the results in a new map.
  * An initial value of accumulator is the same [initialValue] for each group.
+ *
+ * ```kotlin
+ * val data = sequenceOf("apple" to 3, "banana" to 5, "apple" to 7)
+ * val result = data.groupingFold(keySelector = { it.first }, initialValue = 0) { acc, elem ->
+ *     acc + elem.second
+ * }
+ * // result == {"apple" -> 10, "banana" -> 5}
+ * ```
  *
  * @param operation a function that is invoked on each element with the following parameters:
  *  - `accumulator`: the current value of the accumulator of the group;
@@ -76,6 +112,14 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingFold(
  * passing the previously accumulated value and the current element as arguments, and stores the results in a new map.
  * An initial value of accumulator is the same [initialValue] for each group.
  *
+ * ```kotlin
+ * val data = listOf("apple" to 3, "banana" to 5, "apple" to 7)
+ * val result = data.groupingFold(keySelector = { it.first }, initialValue = 0) { acc, elem ->
+ *     acc + elem.second
+ * }
+ * // result == {"apple" -> 10, "banana" -> 5}
+ * ```
+ *
  * @param operation a function that is invoked on each element with the following parameters:
  *  - `accumulator`: the current value of the accumulator of the group;
  *  - `element`: the element from the source being accumulated.
@@ -95,6 +139,14 @@ inline fun <T: Any, K: Any, R: Any> Iterable<T>.groupingFold(
  * passing the previously accumulated value and the current element as arguments,
  * and stores the results in a new map.
  * An initial value of accumulator is the first element of the group.
+ *
+ * ```kotlin
+ * val data = sequenceOf("apple" to 1, "banana" to 2, "apple" to 3)
+ * val result = data.groupingReduce(keySelector = { it.first }) { _, acc, elem ->
+ *     acc.first to (acc.second + elem.second)
+ * }
+ * // result == {"apple" -> ("apple" to 4), "banana" -> ("banana" to 2)}
+ * ```
  *
  * @param operation a function that is invoked on each subsequent element of the group with the following parameters:
  *  - `key`: the key of the group this element belongs to;
@@ -119,6 +171,14 @@ inline fun <T: S, K: Any, S: Any> Sequence<T>.groupingReduce(
  * passing the previously accumulated value and the current element as arguments,
  * and stores the results in a new map.
  * An initial value of accumulator is the first element of the group.
+ *
+ * ```kotlin
+ * val data = listOf("apple" to 1, "banana" to 2, "apple" to 3)
+ * val result = data.groupingReduce(keySelector = { it.first }) { _, acc, elem ->
+ *     acc.first to (acc.second + elem.second)
+ * }
+ * // result == {"apple" -> ("apple" to 4), "banana" -> ("banana" to 2)}
+ * ```
  *
  * @param operation a function that is invoked on each subsequent element of the group with the following parameters:
  *  - `key`: the key of the group this element belongs to;

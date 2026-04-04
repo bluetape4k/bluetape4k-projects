@@ -12,8 +12,13 @@ import kotlin.math.sqrt
 /**
  * Numerically stable exponential minus one, i.e. `x -> exp(x)-1``
  *
- * @param power
- * @return
+ * ```kotlin
+ * val result = exponentialMinusOne(0.0)    // 0.0 (exp(0) - 1 = 0)
+ * val result2 = exponentialMinusOne(1.0)   // 1.7182... (e - 1)
+ * ```
+ *
+ * @param power 지수값
+ * @return `exp(power) - 1` 수치적으로 안정된 값
  */
 fun exponentialMinusOne(power: Double): Double {
     val x = power.absoluteValue

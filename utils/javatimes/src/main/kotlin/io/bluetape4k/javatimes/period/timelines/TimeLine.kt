@@ -15,6 +15,16 @@ import java.time.ZonedDateTime
 /**
  * [ITimeLine]의 기본 구현체입니다.
  * [ITimePeriod] 컬렉션을 가지며, 이를 통해 여러 기간에 대한 Union, Intersection, Gap 등을 구할 수 있도록 합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val container = TimePeriodCollection()
+ * container.add(TimeRange(now, now.plusDays(3)))
+ * container.add(TimeRange(now.plusDays(2), now.plusDays(5)))
+ * val timeLine = TimeLine<ITimePeriod>(container)
+ * val combined = timeLine.combinePeriods()   // 겹치는 기간 합치기
+ * val gaps = timeLine.calculateGaps()        // 기간 사이 빈 간격
+ * ```
  */
 class TimeLine<T: ITimePeriod> private constructor(
     override val periods: ITimePeriodContainer,

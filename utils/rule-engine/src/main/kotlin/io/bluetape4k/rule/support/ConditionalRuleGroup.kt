@@ -12,7 +12,20 @@ import java.util.*
 
 /**
  * 우선순위가 가장 높은 Rule의 evaluation을 먼저 실행합니다.
- * 실패하면 모든 실행을 취소하고, 성공하��� 나머지 Rule 중 evaluation에 성공한 것들만 실행합니다.
+ * 실패하면 모든 실행을 취소하고, 성공하면 나머지 Rule 중 evaluation에 성공한 것들만 실행합니다.
+ *
+ * ```kotlin
+ * val gateRule = rule { name = "gate"; priority = 1; condition { true }; action { } }
+ * val subRule1 = rule { name = "sub1"; priority = 10; condition { true }; action { facts -> facts["s1"] = true } }
+ * val subRule2 = rule { name = "sub2"; priority = 20; condition { false }; action { } }
+ *
+ * val group = ConditionalRuleGroup(name = "conditional")
+ * group.addRule(gateRule)
+ * group.addRule(subRule1)
+ * group.addRule(subRule2)
+ * // gateRule(priority=1) evaluate 성공 → subRule1 실행, subRule2(evaluate=false) 건너뜀
+ * engine.fire(ruleSetOf(group), facts)
+ * ```
  */
 class ConditionalRuleGroup(
     name: String = DEFAULT_RULE_NAME,

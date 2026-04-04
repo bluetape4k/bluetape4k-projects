@@ -9,6 +9,11 @@ import java.time.ZonedDateTime
 
 /**
  * 월 단위의 범위를 나타내는 [MonthRange]의 컬렉션
+ *
+ * ```kotlin
+ * val months = MonthRangeCollection(2024, 1, 6) // 2024년 1월부터 6개월
+ * months.months().size // 6
+ * ```
  */
 open class MonthRangeCollection(
     startTime: ZonedDateTime = todayZonedDateTime(),
@@ -30,7 +35,23 @@ open class MonthRangeCollection(
         calendar: ITimeCalendar = TimeCalendar.Default,
     ): this(zonedDateTimeOf(year, monthOfYear, zoneId = zoneId), monthCount, calendar)
 
+    /**
+     * 컬렉션에 포함된 월 범위를 [Sequence]로 반환합니다.
+     *
+     * ```kotlin
+     * val months = MonthRangeCollection(2024, 1, 3) // 1월, 2월, 3월
+     * months.monthSequence().toList().size // 3
+     * ```
+     */
     fun monthSequence(): Sequence<MonthRange> = monthRanges(startDayOfStart, monthCount, calendar)
 
+    /**
+     * 컬렉션에 포함된 월 범위를 [List]로 반환합니다.
+     *
+     * ```kotlin
+     * val months = MonthRangeCollection(2024, 1, 4)
+     * months.months().map { it.monthOfYear } // [1, 2, 3, 4]
+     * ```
+     */
     fun months(): List<MonthRange> = monthSequence().toList()
 }

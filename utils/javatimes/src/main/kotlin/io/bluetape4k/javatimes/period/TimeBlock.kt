@@ -10,6 +10,14 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimeBlock]의 기본 구현채
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val block = TimeBlock(now, Duration.ofHours(2))
+ * block.start // now
+ * block.end   // now + 2h
+ * block.duration // Duration.ofHours(2)
+ * ```
  */
 open class TimeBlock(
     start: ZonedDateTime? = MinPeriodTime,

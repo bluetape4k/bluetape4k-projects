@@ -10,6 +10,11 @@ import kotlin.math.pow
 /**
  * 순열에서 조합을 구한다.
  *
+ * ```kotlin
+ * val result = combination(5, 2)   // 10
+ * val result2 = combination(4, 4)  // 1
+ * ```
+ *
  * @param n 모집단의 갯수
  * @param k 선택할 갯수
  * @return 조합
@@ -23,6 +28,11 @@ fun combination(n: Int, k: Int): Int {
 
 /**
  * 순열에서 조합을 구한다.
+ *
+ * ```kotlin
+ * val result = longCombination(10, 3)   // 120L
+ * val result2 = longCombination(5, 0)   // 1L
+ * ```
  *
  * @param n 모집단의 갯수
  * @param k 선택할 갯수 (주의: k가 17보다 크면 예외를 발생시킵니다)
@@ -63,6 +73,11 @@ fun longCombination(n: Int, k: Int): Long {
  * Counts the number of possible variations without repetition.
  * The order matters and each object can be chosen only once.
  *
+ * ```kotlin
+ * val result = variations(5, 2)   // 20.0
+ * val result2 = variations(3, 3)  // 6.0
+ * ```
+ *
  * @param n Number of elements in the set.
  * @param k Number of elements to choose from the set. Each element is chosen at most once.
  * @return Maximum number of distinct variations.
@@ -77,6 +92,11 @@ fun variations(n: Int, k: Int): Double {
 /**
  * Counts the number of possible variations with repetition.
  * The order matters and each object can be chosen more than once.
+ *
+ * ```kotlin
+ * val result = variationsWithRepetition(3, 2)   // 9.0
+ * val result2 = variationsWithRepetition(2, 3)  // 8.0
+ * ```
  *
  * @param n Number of elements in the set.
  * @param k Number of elements to choose from the set. Each element is chosen 0, 1 or multiple times.
@@ -93,6 +113,11 @@ fun variationsWithRepetition(n: Int, k: Int): Double {
  * Counts the number of possible combinations without repetition.
  * The order does not matter and each object can be chosen only once.
  *
+ * ```kotlin
+ * val result = combinations(5, 2)   // 10.0
+ * val result2 = combinations(4, 0)  // 1.0
+ * ```
+ *
  * @param n Number of elements in the set.
  * @param k Number of elements to choose from the set. Each element is chosen at most once.
  * @return Maximum number of combinations.
@@ -104,6 +129,11 @@ fun combinations(n: Int, k: Int): Double {
 /**
  * Counts the number of possible combinations with repetition.
  * The order does not matter and an object can be chosen more than once.
+ *
+ * ```kotlin
+ * val result = combinationsWithRepetition(3, 2)   // 6.0
+ * val result2 = combinationsWithRepetition(0, 0)  // 1.0
+ * ```
  *
  * @param n Number of elements in the set.
  * @param k Number of elements to choose from the set. Each element is chosen 0, 1 or multiple times.
@@ -122,6 +152,11 @@ fun combinationsWithRepetition(n: Int, k: Int): Double {
 
 /**
  * Counts the number of possible permutations (without repetition).
+ *
+ * ```kotlin
+ * val result = permutations(4)   // 24.0
+ * val result2 = permutations(0)  // 1.0
+ * ```
  *
  * @param n  Number of (distinguishable) elements in the set.
  * @return  Maximum number of permutations without repetition.

@@ -9,6 +9,12 @@ import io.bluetape4k.support.requireNotBlank
 /**
  * WGS84 [point]와 [numberOfChars]를 이용하여 [GeoHash] 를 생성합니다.
  *
+ * ```kotlin
+ * val point = WGS84Point(37.5665, 126.9780)
+ * val hash = geoHashWithCharacters(point, 5)
+ * // hash.toBase32().length == 5
+ * ```
+ *
  * @param point the WGS84 point
  * @param numberOfChars [GeoHash] 문자 수
  * @return 생성된 [GeoHash]
@@ -19,6 +25,11 @@ fun geoHashWithCharacters(point: WGS84Point, numberOfChars: Int): GeoHash {
 
 /**
  * WGS84 좌표와 [numberOfChars]를 이용하여 [GeoHash] 를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * // hash.toBase32().length == 5
+ * ```
  *
  * @param latitude 위도
  * @param longitude 경도
@@ -33,6 +44,12 @@ fun geoHashWithCharacters(latitude: Double, longitude: Double, numberOfChars: In
 /**
  * WGS84 [point]와 [numberOfBits]를 이용하여 [GeoHash] 를 생성합니다.
  *
+ * ```kotlin
+ * val point = WGS84Point(37.5665, 126.9780)
+ * val hash = geoHashWithBits(point, 25)
+ * // hash.significantBits() == 25
+ * ```
+ *
  * @param point the WGS84 point
  * @param numberOfBits [GeoHash] 비트 수
  */
@@ -42,6 +59,11 @@ fun geoHashWithBits(point: WGS84Point, numberOfBits: Int): GeoHash {
 
 /**
  * WGS84 좌표와 [numberOfBits]를 이용하여 [GeoHash] 를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithBits(37.5665, 126.9780, 25)
+ * // hash.significantBits() == 25
+ * ```
  *
  * @param latitude 위도
  * @param longitude 경도
@@ -57,6 +79,13 @@ fun geoHashWithBits(latitude: Double, longitude: Double, numberOfBits: Int): Geo
 
 /**
  * [binaryString]으로부터 [GeoHash]를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithBits(37.5665, 126.9780, 10)
+ * val binary = hash.toBinaryString()
+ * val restored = geoHashOfBinaryString(binary)
+ * // restored.significantBits() == hash.significantBits()
+ * ```
  */
 fun geoHashOfBinaryString(binaryString: String): GeoHash {
     val geohash = GeoHash()
@@ -77,6 +106,11 @@ fun geoHashOfBinaryString(binaryString: String): GeoHash {
 
 /**
  * [geohashStr]으로부터 [GeoHash]를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashOfString("ezs42")
+ * // hash.toBase32() == "ezs42"
+ * ```
  */
 fun geoHashOfString(geohashStr: String): GeoHash {
     geohashStr.requireNotBlank("geohashStr")
@@ -114,6 +148,12 @@ fun geoHashOfString(geohashStr: String): GeoHash {
 
 /**
  * [hashVal]로부터 [GeoHash]를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * val restored = geoHashOfLongValue(hash.longValue, hash.significantBits())
+ * // restored.toBase32() == hash.toBase32()
+ * ```
  */
 fun geoHashOfLongValue(hashVal: Long, significantBits: Int): GeoHash {
     val latitudeRange = doubleArrayOf(-90.0, 90.0)
@@ -142,6 +182,12 @@ fun geoHashOfLongValue(hashVal: Long, significantBits: Int): GeoHash {
 
 /**
  * [ord]로부터 [GeoHash]를 생성합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * val restored = geoHashOfOrd(hash.ord(), hash.significantBits)
+ * // restored.ord() == hash.ord()
+ * ```
  */
 fun geoHashOfOrd(ord: Long, significantBits: Byte): GeoHash {
     val insignificantBits = MAX_BIT_PRECISION - significantBits
@@ -151,6 +197,14 @@ fun geoHashOfOrd(ord: Long, significantBits: Byte): GeoHash {
 
 /**
  * [GeoHash]의 영역 정보를 설정합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * val latRange = doubleArrayOf(-90.0, 90.0)
+ * val lonRange = doubleArrayOf(-180.0, 180.0)
+ * hash.setBoundingBox(latRange, lonRange)
+ * // hash.boundingBox.southLatitude == -90.0
+ * ```
  *
  * @param latitudeRange 위도 범위
  * @param longitudeRange 경도 범위
@@ -173,6 +227,13 @@ internal fun GeoHash.divideRangeDecode(range: DoubleArray, b: Boolean): DoubleAr
 
 /**
  * [GeoHash]와 [other]의 스텝을 계산합니다.
+ *
+ * ```kotlin
+ * val hash1 = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * val hash2 = hash1.next(5)
+ * val steps = hash1.stepsBetween(hash2)
+ * // steps == 5L
+ * ```
  */
 fun GeoHash.stepsBetween(other: GeoHash): Long {
     require(this.significantBits == other.significantBits) {
@@ -184,7 +245,13 @@ fun GeoHash.stepsBetween(other: GeoHash): Long {
 /**
  * 현 위치의 8방위의 [GeoHash]를 반환합니다.
  *
- * N, NE, E, SE, S, SW, W, NW
+ * N, NE, E, SE, S, SW, W, NW 순서로 반환합니다.
+ *
+ * ```kotlin
+ * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+ * val adjacent = hash.getAdjacent()
+ * // adjacent.size == 8
+ * ```
  */
 fun GeoHash.getAdjacent(): Array<GeoHash> {
     val northern: GeoHash = getNorthernNeighbor()

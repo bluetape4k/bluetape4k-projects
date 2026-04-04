@@ -8,6 +8,13 @@ import java.time.ZonedDateTime
 
 /**
  * 시간 단위로 기간을 표현하는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = HourTimeRange(now, hourCount = 3)
+ * range.hourCount  // 3
+ * range.minutes()  // 3 * 60 = 180개의 MinuteRange
+ * ```
  */
 open class HourTimeRange(
     startTime: ZonedDateTime = ZonedDateTime.now(),

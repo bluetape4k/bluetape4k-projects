@@ -24,6 +24,14 @@ import java.time.ZonedDateTime
 
 /**
  * 달력의 여러 기간에서 근무 시간만으로 기간을 산정할 수 있는 클래스입니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.of(2024, 1, 8, 9, 0, 0, 0, ZoneOffset.UTC) // 월요일
+ * val dateAdd = CalendarDateAdd().apply {
+ *     addWorkingWeekdays() // 월~금 근무일만 계산
+ * }
+ * val result = dateAdd.add(start, Duration.ofDays(3)) // 3 근무일 후 = 1월 11일 (목요일)
+ * ```
  */
 open class CalendarDateAdd private constructor() : DateAdd() {
     companion object : KLogging() {

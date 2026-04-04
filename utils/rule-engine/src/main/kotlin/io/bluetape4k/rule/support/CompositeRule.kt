@@ -13,6 +13,14 @@ import java.util.*
 
 /**
  * 복수의 [Rule]을 조합하여 하나의 Rule로 표현할 수 있도록 하는 추상 클래스입니다.
+ *
+ * ```kotlin
+ * val composite = UnitRuleGroup(name = "allMustPass")
+ * composite.addRule(rule1)
+ * composite.addRule(rule2)
+ * // rule1과 rule2 모두 evaluate가 true여야 composite가 실행됩니다.
+ * engine.fire(ruleSetOf(composite), facts)
+ * ```
  */
 abstract class CompositeRule(
     name: String = DEFAULT_RULE_NAME,
@@ -33,6 +41,12 @@ abstract class CompositeRule(
     /**
      * Rule을 추가합니다. 어노테이션 기반 객체도 지원합니다.
      *
+     * ```kotlin
+     * val group = UnitRuleGroup("group")
+     * group.addRule(rule1)
+     * group.addRule(AnnotatedRule()) // 어노테이션 기반 객체도 지원
+     * ```
+     *
      * @param rule 추가할 Rule 또는 어노테이션 기반 객체
      */
     fun addRule(rule: Any) {
@@ -44,6 +58,12 @@ abstract class CompositeRule(
 
     /**
      * Rule을 제거합니다.
+     *
+     * ```kotlin
+     * val group = UnitRuleGroup("group")
+     * group.addRule(rule1)
+     * group.removeRule(rule1)
+     * ```
      *
      * @param rule 제거할 Rule 또는 어노테이션 기반 객체
      */

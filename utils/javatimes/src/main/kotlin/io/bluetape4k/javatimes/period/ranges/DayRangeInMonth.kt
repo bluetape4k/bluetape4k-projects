@@ -7,6 +7,15 @@ import io.bluetape4k.javatimes.MaxDaysPerMonth
 /**
  * 한달 동안의 날짜 간견을 나타냅니다.
  * (예: 5일부터 21일까지)
+ *
+ * ```kotlin
+ * val range = DayRangeInMonth(5, 21)
+ * range.startDayOfMonth // 5
+ * range.endDayOfMonth   // 21
+ * range.isSingleDay     // false
+ * range.hasInside(10)   // true
+ * range.hasInside(25)   // false
+ * ```
  */
 open class DayRangeInMonth(
     val startDayOfMonth: Int = 1,

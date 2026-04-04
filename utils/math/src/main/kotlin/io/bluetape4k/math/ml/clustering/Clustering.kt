@@ -8,6 +8,11 @@ import java.io.Serializable
 /**
  * Clustering 을 수행할 입력 데이터
  *
+ * ```kotlin
+ * val input = ClusterInput(item = "point1", location = doubleArrayOf(1.0, 2.0))
+ * val point = input.getPoint()   // [1.0, 2.0]
+ * ```
+ *
  * @property item Item
  * @property location n-dimentional point
  */
@@ -29,6 +34,11 @@ data class ClusterInput<out T: Any>(
 /**
  * Clustering 된 군집의 중심점과 군집 요소를 나타냅니다
  *
+ * ```kotlin
+ * val centroid = Centroid(center = doublePointOf(1.5, 2.5), points = listOf("a", "b"))
+ * val containsA = "a" in centroid   // true
+ * ```
+ *
  * @property center Cluster 의 중심 위치
  * @property points 해당 군집에 해당하는 요소 컬렉션
  */
@@ -42,6 +52,12 @@ data class Centroid<T: Any>(
 
 /**
  * 지정한 정보로부터 2차원 정보를 추출하여 kMeans Clustering 을 수행합니다.
+ *
+ * ```kotlin
+ * val points = listOf(0.0 to 0.0, 0.1 to 0.1, 5.0 to 5.0, 5.1 to 5.1)
+ * val clusters = points.kMeansCluster(k = 2)
+ * // clusters.size == 2
+ * ```
  */
 fun Iterable<Pair<Double, Double>>.kMeansCluster(
     k: Int,

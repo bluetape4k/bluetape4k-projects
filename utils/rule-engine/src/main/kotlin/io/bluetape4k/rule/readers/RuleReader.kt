@@ -10,6 +10,12 @@ import io.bluetape4k.rule.api.RuleDefinition
 /**
  * Rule 정의 소스로부터 [RuleDefinition]을 읽어들이는 인터페이스입니다.
  *
+ * ```kotlin
+ * val reader = JsonRuleReader()
+ * val definition = reader.read(File("rule.json").reader())
+ * val rule = definition.toMvelRule()
+ * ```
+ *
  * @param Source 소스 타입
  */
 interface RuleReader<Source> {
@@ -19,6 +25,11 @@ interface RuleReader<Source> {
     /**
      * 소스로부터 정보를 읽어 [RuleDefinition]을 빌드합니다.
      *
+     * ```kotlin
+     * val json = """{"name":"myRule","condition":"amount > 100","actions":["discount = true"]}"""
+     * val definition = JsonRuleReader().read(json.reader())
+     * ```
+     *
      * @param source Rule 정의 소스
      * @return [RuleDefinition]
      */
@@ -26,6 +37,12 @@ interface RuleReader<Source> {
 
     /**
      * 소스로부터 모든 정보를 읽어 [RuleDefinition]의 시퀀스를 반환합니다.
+     *
+     * ```kotlin
+     * val json = """{"rules":[{"name":"r1","condition":"x > 0","actions":["y = true"]}]}"""
+     * val definitions = JsonRuleReader().readAll(json.reader())
+     * definitions.forEach { println(it.name) }
+     * ```
      *
      * @param source Rule 정의 소스
      * @return [RuleDefinition] 시퀀스

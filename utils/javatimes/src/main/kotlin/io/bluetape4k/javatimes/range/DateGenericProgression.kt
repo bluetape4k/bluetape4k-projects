@@ -9,6 +9,13 @@ import java.util.*
 /**
  * [Date] 단위의 Progression을 생성합니다. ([DateGenericProgression])
  *
+ * ```kotlin
+ * val start = Date(0L)
+ * val end = Date(3 * 24 * 3600 * 1000L)
+ * val progression = dateProgressionOf(start, end, Duration.ofDays(1))
+ * progression.toList().size // 4 (0일, 1일, 2일, 3일 포함)
+ * ```
+ *
  * @param start        시작 Date
  * @param endInclusive 끝 Date
  * @param step         증감량 (기본값: 1ms)
@@ -31,6 +38,13 @@ fun <T: Date> dateProgressionOf(
 
 /**
  * [Date]를 요소로 하는 Progression 클래스입니다.
+ *
+ * ```kotlin
+ * val start = Date(0L)
+ * val end = Date(2 * 24 * 3600 * 1000L)
+ * val progression = DateGenericProgression(start, end, Duration.ofDays(1))
+ * progression.toList().size // 3 (0일, 1일, 2일 포함)
+ * ```
  *
  * @property first first value of progression
  * @property last  last value of progression

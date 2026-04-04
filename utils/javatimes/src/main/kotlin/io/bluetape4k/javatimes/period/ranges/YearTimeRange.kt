@@ -13,8 +13,12 @@ import java.time.ZonedDateTime
 /**
  * [startTime]이 속한 연도의 시작을 기준으로 [yearCount]만큼의 기간을 나타내는 클래스입니다.
  *
- * ```
+ * ```kotlin
  * val yearRange = YearTimeRange(2022, 3)  // 2022, 2023, 2024
+ * yearRange.year        // 2022
+ * yearRange.yearCount   // 3
+ * yearRange.months()    // 3 * 12 = 36개의 MonthRange
+ * yearRange.quarters()  // 3 * 4 = 12개의 QuarterRange
  * ```
  *
  * @param startTime 기준 시각 (해당 시각의 zone을 유지)

@@ -9,11 +9,19 @@ import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
 
 /**
- * Create [TemporalOpenedProgression] instance
+ * [TemporalOpenedProgression] 인스턴스를 생성합니다. 종료 값은 포함되지 않습니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 4, 0, 0)
+ * val progression = temporalOpenedProgression(start, end, Duration.ofDays(1))
+ * progression.toList() // [2024-01-01, 2024-01-02, 2024-01-03] (end 제외)
+ * ```
+ *
  * @param start T
  * @param endExclusive T
  * @param step TemporalAmount
- * @return TemporalClosedProgression<T>
+ * @return TemporalOpenedProgression<T>
  */
 fun <T> temporalOpenedProgression(
     start: T,
@@ -26,9 +34,16 @@ fun <T> temporalOpenedProgression(
 /**
  * [Temporal] 의 범위를 나타내지만, 마지막 요소를 제외한 Open 된 Range를 표현합니다. `( min <= x < max )` 와 같습니다.
  *
- * @param start
- * @param endExclusive
- * @param step
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 4, 0, 0)
+ * val progression = TemporalOpenedProgression.fromOpendRange(start, end, Duration.ofDays(1))
+ * progression.toList() // [2024-01-01, 2024-01-02, 2024-01-03]
+ * ```
+ *
+ * @param start 시작 시각 (포함)
+ * @param endExclusive 종료 시각 (제외)
+ * @param step 증가 단계
  */
 open class TemporalOpenedProgression<T> protected constructor(
     start: T,

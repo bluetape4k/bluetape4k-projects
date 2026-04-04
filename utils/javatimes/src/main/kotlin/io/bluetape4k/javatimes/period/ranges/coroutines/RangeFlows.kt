@@ -16,6 +16,13 @@ import java.time.ZonedDateTime
 /**
  * 지정한 시작 시각부터 [yearCount]만큼의 [YearRange]를 [Flow]로 반환합니다.
  *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfYearRange(now, 3).collect { year ->
+ *     println(year.start) // 2024, 2025, 2026 각 연도 시작
+ * }
+ * ```
+ *
  * @param startTime 시작 시각
  * @param yearCount 생성할 연도 범위 개수
  * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
@@ -38,6 +45,13 @@ fun flowOfYearRange(
 
 /**
  * 지정한 시작 시각부터 [monthCount]만큼의 [MonthRange]를 [Flow]로 반환합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfMonthRange(now, 3).collect { month ->
+ *     println(month.year to month.monthOfYear) // 1월, 2월, 3월 순서로 출력
+ * }
+ * ```
  *
  * @param startTime 시작 시각
  * @param monthCount 생성할 월 범위 개수
@@ -62,6 +76,13 @@ fun flowOfMonthRange(
 /**
  * 지정한 시작 시각부터 [weekCount]만큼의 [WeekRange]를 [Flow]로 반환합니다.
  *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfWeekRange(now, 4).collect { week ->
+ *     println(week.start) // 4주간 각 주의 시작 시각 출력
+ * }
+ * ```
+ *
  * @param startTime 시작 시각
  * @param weekCount 생성할 주 범위 개수
  * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
@@ -84,6 +105,13 @@ fun flowOfWeekRange(
 
 /**
  * 지정한 시작 시각부터 [dayCount]만큼의 [DayRange]를 [Flow]로 반환합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfDayRange(now, 7).collect { day ->
+ *     println(day.dayOfMonth) // 7일간 각 날짜 출력
+ * }
+ * ```
  *
  * @param startTime 시작 시각
  * @param dayCount 생성할 일 범위 개수
@@ -108,6 +136,13 @@ fun flowOfDayRange(
 /**
  * 지정한 시작 시각부터 [hourCount]만큼의 [HourRange]를 [Flow]로 반환합니다.
  *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfHourRange(now, 6).collect { hour ->
+ *     println(hour.start) // 6시간 각 시간의 시작 시각 출력
+ * }
+ * ```
+ *
  * @param startTime 시작 시각
  * @param hourCount 생성할 시간 범위 개수
  * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
@@ -129,6 +164,13 @@ fun flowOfHourRange(
 
 /**
  * 지정한 시작 시각부터 [minuteCount]만큼의 [MinuteRange]를 [Flow]로 반환합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * flowOfMinuteRange(now, 30).collect { minute ->
+ *     println(minute.start) // 30분간 각 분의 시작 시각 출력
+ * }
+ * ```
  *
  * @param startTime 시작 시각
  * @param minuteCount 생성할 분 범위 개수

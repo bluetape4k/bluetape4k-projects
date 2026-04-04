@@ -2,6 +2,12 @@ package io.bluetape4k.javatimes.period
 
 /**
  * Seek 검색 시 반환 값의 종류
+ *
+ * ```kotlin
+ * val mode = SeekBoundaryMode.FILL
+ * mode.isFill  // true
+ * mode.isNext  // false
+ * ```
  */
 enum class SeekBoundaryMode {
 

@@ -11,6 +11,12 @@ import org.apache.commons.math3.ml.distance.ManhattanDistance
 /**
  * 거리 측정 방법
  *
+ * ```kotlin
+ * val a = doubleArrayOf(0.0, 0.0)
+ * val b = doubleArrayOf(3.0, 4.0)
+ * val dist = DistanceMeasureMethod.Euclidean.compute(a, b)   // 5.0
+ * ```
+ *
  * @property measurer 거리 측정자
  */
 enum class DistanceMeasureMethod(val measurer: DistanceMeasure) {
@@ -22,7 +28,12 @@ enum class DistanceMeasureMethod(val measurer: DistanceMeasure) {
 
 
     /**
-     * 2차원 두 좌표의 거리를 계산합니다.
+     * 두 좌표 배열의 거리를 계산합니다.
+     *
+     * ```kotlin
+     * val dist = DistanceMeasureMethod.Euclidean.compute(doubleArrayOf(0.0, 0.0), doubleArrayOf(3.0, 4.0))
+     * // dist == 5.0
+     * ```
      *
      * @param a 시작점
      * @param b 끝 점
@@ -33,7 +44,13 @@ enum class DistanceMeasureMethod(val measurer: DistanceMeasure) {
     }
 
     /**
-     * 2차원 두 좌표의 거리를 계산합니다.
+     * 두 DoublePoint의 거리를 계산합니다.
+     *
+     * ```kotlin
+     * val a = doublePointOf(0.0, 0.0)
+     * val b = doublePointOf(3.0, 4.0)
+     * val dist = DistanceMeasureMethod.Euclidean.compute(a, b)   // 5.0
+     * ```
      *
      * @param a 시작점
      * @param b 끝 점

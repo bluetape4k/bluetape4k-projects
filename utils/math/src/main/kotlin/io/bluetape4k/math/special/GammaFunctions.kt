@@ -28,6 +28,10 @@ private val GammaDK = doubleArrayOf(
 /**
  * Returns the upper incomplete regularized gamma function
  *
+ * ```kotlin
+ * val result = gammaUpperRegularized(1.0, 0.5)   // ≈ 0.6065 (e^(-0.5))
+ * ```
+ *
  * @param a The argument for the gamma function.
  * @param x The lower integral limit.
  * @return The upper incomplete regularized gamma function.
@@ -109,6 +113,10 @@ fun gammaUpperRegularized(a: Double, x: Double): Double {
  * Returns the upper incomplete regularized gamma function
  * `P(a,x) = 1/Gamma(a) * int(exp(-t)t^(a-1),t=0..x) for real a > 0, x > 0.`
  *
+ * ```kotlin
+ * val result = gammaUpperIncomplete(2.0, 1.0)   // ≈ 0.7358 (2e^(-1))
+ * ```
+ *
  * @param a The argument for the gamma function.
  * @param x The lower integral limit.
  * @return The upper incomplete gamma function.
@@ -120,6 +128,10 @@ fun gammaUpperIncomplete(a: Double, x: Double): Double {
 /**
  * Returns the lower incomplete regularized gamma function
  * `P(a,x) = 1/Gamma(a) * int(exp(-t)t^(a-1),t=0..x) for real a > 0, x > 0.`
+ *
+ * ```kotlin
+ * val result = gammaLowerIncomplete(1.0, 1.0)   // ≈ 0.6321 (1 - e^(-1))
+ * ```
  *
  * @param a The argument for the gamma function.
  * @param x The upper integral limit.
@@ -138,6 +150,10 @@ private const val BigNumberInverse = 2.22044604925031308085e-16
  * Returns the lower incomplete gamma function
  *
  * `gamma(a,x) = int(exp(-t)t^(a-1),t=0..x) for real a > 0, x > 0.`
+ *
+ * ```kotlin
+ * val result = gammaLowerRegularized(1.0, 1.0)   // ≈ 0.6321 (1 - e^(-1))
+ * ```
  *
  * @param a The argument for the gamma function.
  * @param x The upper integral limit.
@@ -231,17 +247,33 @@ fun gammaLowerRegularized(a: Double, x: Double): Double {
 //
 
 /**
- * GammaLn function
+ * 각 원소에 LogGamma 함수를 적용한 배열을 반환합니다.
+ *
+ * ```kotlin
+ * val result = doubleArrayOf(1.0, 2.0, 3.0).gammaLn()
+ * // result == [0.0, 0.0, 0.6931...] (logGamma(1)=0, logGamma(2)=0, logGamma(3)=ln(2))
+ * ```
  */
 fun DoubleArray.gammaLn(): DoubleArray = DoubleArray(size) { logGamma(this@gammaLn[it]) }
 
 /**
- * GammaLn function
+ * 각 원소에 LogGamma 함수를 적용한 리스트를 반환합니다.
+ *
+ * ```kotlin
+ * val result = listOf(1.0, 2.0, 3.0).gammaLn()
+ * // result == [0.0, 0.0, 0.6931...] (logGamma(1)=0, logGamma(2)=0, logGamma(3)=ln(2))
+ * ```
  */
 fun Iterable<Double>.gammaLn(): List<Double> = map { logGamma(it) }
 
 /**
- * GammaLn function
+ * 각 원소에 선택자 함수를 적용한 후 LogGamma 함수를 계산합니다.
+ *
+ * ```kotlin
+ * data class Item(val value: Double)
+ * val result = listOf(Item(1.0), Item(2.0)).gammaLn { it.value }
+ * // result == [0.0, 0.0] (logGamma(1)=0, logGamma(2)=0)
+ * ```
  */
 inline fun <T> Iterable<T>.gammaLn(selector: (T) -> Double): List<Double> = map { logGamma(selector(it)) }
 
@@ -250,16 +282,32 @@ inline fun <T> Iterable<T>.gammaLn(selector: (T) -> Double): List<Double> = map 
 //
 
 /**
- * Gamma function
+ * 각 원소에 Gamma 함수를 적용한 배열을 반환합니다.
+ *
+ * ```kotlin
+ * val result = doubleArrayOf(1.0, 2.0, 3.0, 4.0).gamma()
+ * // result == [1.0, 1.0, 2.0, 6.0] (Γ(1)=1, Γ(2)=1, Γ(3)=2, Γ(4)=6)
+ * ```
  */
 fun DoubleArray.gamma(): DoubleArray = DoubleArray(size) { gamma(this@gamma[it]) } // map { gamma(it) }
 
 /**
- * Gamma function
+ * 각 원소에 Gamma 함수를 적용한 리스트를 반환합니다.
+ *
+ * ```kotlin
+ * val result = listOf(1.0, 2.0, 3.0, 4.0).gamma()
+ * // result == [1.0, 1.0, 2.0, 6.0] (Γ(1)=1, Γ(2)=1, Γ(3)=2, Γ(4)=6)
+ * ```
  */
 fun Iterable<Double>.gamma(): List<Double> = map { gamma(it) }
 
 /**
- * Gamma function
+ * 각 원소에 선택자 함수를 적용한 후 Gamma 함수를 계산합니다.
+ *
+ * ```kotlin
+ * data class Item(val value: Double)
+ * val result = listOf(Item(1.0), Item(3.0)).gamma { it.value }
+ * // result == [1.0, 2.0] (Γ(1)=1, Γ(3)=2)
+ * ```
  */
 inline fun <T> Iterable<T>.gamma(selector: (T) -> Double): List<Double> = map { gamma(selector(it)) }

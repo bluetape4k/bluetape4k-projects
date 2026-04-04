@@ -7,6 +7,12 @@ import io.bluetape4k.support.assertPositiveNumber
 
 /**
  * 적분 (Integrator) 을 수행합니다.
+ *
+ * ```kotlin
+ * val integrator = SimpsonIntegrator()
+ * val result = integrator.integrate(lower = 0.0, upper = 1.0) { x -> x * x }
+ * // result ≈ 0.3333 (∫x² dx from 0 to 1)
+ * ```
  */
 interface Integrator {
 
@@ -19,7 +25,13 @@ interface Integrator {
     val absoluteAccuracy: Double
 
     /**
-     * 함수의 [a, b] 구간을 적분합니다.
+     * 함수의 [lower, upper] 구간을 적분합니다.
+     *
+     * ```kotlin
+     * val integrator = SimpsonIntegrator()
+     * val result = integrator.integrate(lower = 0.0, upper = 1.0) { x -> x * x }
+     * // result ≈ 0.3333 (∫x² dx from 0 to 1)
+     * ```
      *
      * @param evaluator 적분할 함수
      * @param lower 시작 위치
@@ -28,6 +40,18 @@ interface Integrator {
      */
     fun integrate(lower: Double, upper: Double, evaluator: (Double) -> Double): Double
 
+    /**
+     * 데이터 배열로부터 보간 함수를 생성하여 적분합니다.
+     *
+     * ```kotlin
+     * val integrator = SimpsonIntegrator()
+     * val result = integrator.integrate(
+     *     xs = doubleArrayOf(0.0, 0.5, 1.0),
+     *     ys = doubleArrayOf(0.0, 0.25, 1.0)
+     * )
+     * // result ≈ 0.3333 (선형 보간 후 적분)
+     * ```
+     */
     fun integrate(
         xs: DoubleArray,
         ys: DoubleArray,
@@ -41,6 +65,17 @@ interface Integrator {
         return integrate(xs.first(), xs.last(), evaluator)
     }
 
+    /**
+     * (x, y) 쌍의 컬렉션으로부터 보간하여 적분합니다.
+     *
+     * ```kotlin
+     * val integrator = SimpsonIntegrator()
+     * val result = integrator.integrate(
+     *     xy = listOf(0.0 to 0.0, 0.5 to 0.25, 1.0 to 1.0)
+     * )
+     * // result ≈ 0.3333 (보간 후 적분)
+     * ```
+     */
     fun integrate(
         xy: Iterable<Pair<Double, Double>>,
         interpolator: Interpolator = DefaultInterpolator,

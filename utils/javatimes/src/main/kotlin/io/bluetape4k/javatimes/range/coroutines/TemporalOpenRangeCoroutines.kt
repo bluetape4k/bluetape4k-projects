@@ -14,6 +14,15 @@ import java.time.temporal.TemporalAmount
 
 /**
  * [TemporalOpenedProgression]을 [Flow]로 변환합니다.
+ *
+ * ```kotlin
+ * val progression = temporalOpenedProgression(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 4, 0, 0),
+ *     Duration.ofDays(1)
+ * )
+ * progression.asFlow().toList() // [2024-01-01, 2024-01-02, 2024-01-03]
+ * ```
  */
 fun <T> TemporalOpenedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
     sequence().forEach { emit(it) }
@@ -21,6 +30,13 @@ fun <T> TemporalOpenedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Com
 
 /**
  * [TemporalOpenedRange]를 [Flow]로 변환합니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 4, 0, 0)
+ * val range = start until end
+ * range.asFlow().toList() // 1ms 단계로 [start, end) 요소 방출
+ * ```
  */
 fun <T> TemporalOpenedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
     sequence().forEach { emit(it) }

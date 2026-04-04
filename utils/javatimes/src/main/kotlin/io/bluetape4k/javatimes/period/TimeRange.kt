@@ -8,6 +8,16 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimeRange]의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = TimeRange(now, now.plusDays(7))
+ * range.start    // now
+ * range.end      // now + 7d
+ * range.duration // Duration.ofDays(7)
+ * range.expandStartTo(now.minusDays(1)) // start = now - 1d
+ * range.shrinkEndTo(now.plusDays(3))    // end = now + 3d
+ * ```
  */
 open class TimeRange(
     start: ZonedDateTime? = MinPeriodTime,

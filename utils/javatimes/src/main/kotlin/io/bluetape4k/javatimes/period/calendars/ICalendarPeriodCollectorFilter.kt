@@ -9,6 +9,15 @@ import io.bluetape4k.javatimes.period.ranges.MonthRangeInYear
  * 달력 기간 수집 필터 인터페이스
  *
  * 특정 월, 일, 시간, 요일-시간 범위를 수집하기 위한 필터
+ *
+ * ```kotlin
+ * val filter: ICalendarPeriodCollectorFilter = CalendarPeriodCollectorFilter()
+ * filter.collectingMonths.add(MonthRangeInYear(1, 3)) // 1월~3월
+ * filter.collectingHours.add(HourRangeInDay(9, 18))   // 9시~18시
+ * filter.collectingDayOfWeekHours.add(
+ *     DayOfWeekHourRange(DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(12, 0))
+ * ) // 월요일 9시~12시
+ * ```
  */
 interface ICalendarPeriodCollectorFilter: ICalendarVisitorFilter {
 

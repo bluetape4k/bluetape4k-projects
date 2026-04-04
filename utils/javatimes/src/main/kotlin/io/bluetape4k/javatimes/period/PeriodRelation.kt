@@ -2,6 +2,14 @@ package io.bluetape4k.javatimes.period
 
 /**
  * Period 간의 관계를 나타냅니다.
+ *
+ * ```kotlin
+ * val period1 = TimeRange(start1, end1)
+ * val period2 = TimeRange(start2, end2)
+ * val relation = period1 relationWith period2
+ * // PeriodRelation.Before, After, ExactMatch, Inside, Enclosing 등
+ * val parsed = PeriodRelation.parse("After") // PeriodRelation.After
+ * ```
  */
 enum class PeriodRelation {
 

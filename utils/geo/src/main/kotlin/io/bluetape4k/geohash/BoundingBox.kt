@@ -103,7 +103,7 @@ data class BoundingBox(
     /**
      * BoundingBox가 주어진 좌표를 포함하는지 여부를 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * bbox.contains(wgs84PointOf(45.5, 120.5)).shouldBeTrue()
      * bbox.contains(wgs84PointOf(90.0, 90.0)).shouldBeFalse()
@@ -119,7 +119,7 @@ data class BoundingBox(
     /**
      * BoundingBox가 주어진 BoundingBox를 포함하는지 여부를 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * val bbox1 = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * val bbox2 = boundingBoxOf(45.0, 46.0, 121.0, 122.0)
@@ -153,7 +153,7 @@ data class BoundingBox(
     /**
      * BoundingBox의 중심 좌표를 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * bbox.getCenter()  // wgs84PointOf(45.5, 120.5)
      * ```
@@ -170,7 +170,7 @@ data class BoundingBox(
     /**
      * BoundingBox가 주어진 좌표를 포함하도록 확장합니다.
      *
-     * ```
+     * ```kotlin
      * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * bbox.expandToInclude(wgs84PointOf(45.5, 120.5))  // boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * bbox.expandToInclude(wgs84PointOf(90.0, 90.0))  // boundingBoxOf(45.0, 90.0, 120.0, 121.0)
@@ -206,7 +206,7 @@ data class BoundingBox(
     /**
      * BoundingBox가 주어진 BoundingBox를 포함하도록 확장합니다.
      *
-     * ```
+     * ```kotlin
      * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
      * val bbox1 = boundingBoxOf(45.5, 46.5, 120.5, 121.5)
      * bbox.expandToInclude(bbox1)  // boundingBoxOf(45.0, 46.5, 120.0, 121.5)

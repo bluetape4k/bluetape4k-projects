@@ -29,6 +29,12 @@ class KsuidGenerator(
 
     /**
      * KSUID를 생성합니다. [IdGenerator.nextId]와 동일합니다.
+     *
+     * ```kotlin
+     * val gen = KsuidGenerator()
+     * val id: String = gen.generate()
+     * // id.length == 27
+     * ```
      */
     fun generate(): String = generator.generate()
 }

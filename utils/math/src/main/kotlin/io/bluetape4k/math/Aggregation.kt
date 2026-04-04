@@ -1,17 +1,44 @@
 package io.bluetape4k.math
 
+/**
+ * 컬렉션에 대해 집계를 수행합니다.
+ *
+ * ```kotlin
+ * val result = sequenceOf("a" to 1, "b" to 2, "a" to 3)
+ *     .aggregateBy({ it.first }) { it.sumOf { p -> p.second } }
+ * // {"a"=4, "b"=2}
+ * ```
+ */
 inline fun <T: Any, K: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
     aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
+/**
+ * 컬렉션에 대해 집계를 수행합니다.
+ *
+ * ```kotlin
+ * val result = listOf("a" to 1, "b" to 2, "a" to 3)
+ *     .aggregateBy({ it.first }) { it.sumOf { p -> p.second } }
+ * // {"a"=4, "b"=2}
+ * ```
+ */
 inline fun <T: Any, K: Any, R> Iterable<T>.aggregateBy(
     keySelector: (T) -> K,
     aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
+/**
+ * 컬렉션에 대해 집계를 수행합니다.
+ *
+ * ```kotlin
+ * val result = listOf("a" to 1, "b" to 2, "a" to 3)
+ *     .aggregateBy({ it.first }, { it.second }) { it.sum() }
+ * // {"a"=4, "b"=2}
+ * ```
+ */
 inline fun <T: Any, K: Any, V: Any, R> Iterable<T>.aggregateBy(
     keySelector: (T) -> K,
     valueTransform: (T) -> V,

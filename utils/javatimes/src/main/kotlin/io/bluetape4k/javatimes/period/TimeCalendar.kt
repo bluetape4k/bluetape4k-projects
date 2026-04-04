@@ -13,6 +13,13 @@ import java.time.ZonedDateTime
 /**
  * 시간 단위의 달력을 나타내는 클래스
  *
+ * ```kotlin
+ * val calendar = TimeCalendar.Default
+ * val now = ZonedDateTime.now()
+ * val mappedStart = calendar.mapStart(now) // now + startOffset
+ * val mappedEnd = calendar.mapEnd(now)     // now + endOffset
+ * ```
+ *
  * @property config 달력 설정
  *
  * @see [ITimeCalendar]

@@ -9,6 +9,14 @@ import java.time.ZonedDateTime
 
 /**
  * 일 단위로 [dayCount] 만큼의 기간을 표현하는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = DayTimeRange(now, dayCount = 3)
+ * range.start    // 오늘 자정
+ * range.dayCount // 3
+ * range.hours()  // 3일 x 24시간 = 72개의 HourRange
+ * ```
  */
 open class DayTimeRange(
     startTime: ZonedDateTime = todayZonedDateTime(),

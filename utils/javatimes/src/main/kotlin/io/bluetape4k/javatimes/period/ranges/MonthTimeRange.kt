@@ -8,6 +8,14 @@ import java.time.ZonedDateTime
 
 /**
  * 월 단위로 [monthCount] 만큼의 기간을 표현하는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = MonthTimeRange(now, monthCount = 3)
+ * range.monthCount // 3
+ * range.days()     // 3개월간 모든 DayRange 목록
+ * range.hours()    // 3개월간 모든 HourRange 목록
+ * ```
  */
 open class MonthTimeRange(
     startTime: ZonedDateTime = todayZonedDateTime(),

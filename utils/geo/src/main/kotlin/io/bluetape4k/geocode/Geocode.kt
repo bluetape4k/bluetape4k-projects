@@ -80,6 +80,12 @@ data class Geocode(
      * ## 동작/계약
      * - 원본 객체를 변경하지 않고 새 인스턴스를 반환합니다.
      * - 반올림 규칙은 [roundingMode]를 따릅니다.
+     *
+     * ```kotlin
+     * val geocode = Geocode(37.5665, 126.9780)
+     * val rounded = geocode.round(2)
+     * // rounded.latitude.scale() == 2
+     * ```
      */
     fun round(scale: Int = DEFAULT_SCALE, roundingMode: RoundingMode = DefaultMathContext.roundingMode): Geocode {
         return this.copy(

@@ -4,6 +4,12 @@ import java.time.ZonedDateTime
 
 /**
  * 시작시각 ~ 완료시각의 기간을 표현하는 최상위 Interface
+ *
+ * ```kotlin
+ * val range: ITimeRange = TimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7))
+ * range.expandStartTo(ZonedDateTime.now().minusDays(1)) // 시작시각을 1일 앞으로
+ * range.shrinkEndTo(ZonedDateTime.now().plusDays(3))    // 종료시각을 3일 뒤로
+ * ```
  */
 interface ITimeRange: ITimePeriod {
 

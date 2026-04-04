@@ -63,11 +63,32 @@ fun hypot2(a: Double, b: Double): Double {
     return aa
 }
 
+/**
+ * 두 좌표 사이의 유클리드 거리를 계산합니다.
+ *
+ * ```kotlin
+ * val d = distance(0.0, 0.0, 3.0, 4.0)   // 5.0
+ * ```
+ */
 fun distance(x1: Double, y1: Double, x2: Double, y2: Double): Double =
     sqrt((x1 - x2).square() + (y1 - y2).square())
 
+/**
+ * 두 Point2D 간의 유클리드 거리를 계산합니다.
+ *
+ * ```kotlin
+ * val d = distance(Point2D.Double(0.0, 0.0), Point2D.Double(3.0, 4.0))   // 5.0
+ * ```
+ */
 fun distance(p1: Point2D, p2: Point2D): Double =
     distance(p1.x, p1.y, p2.x, p2.y)
 
+/**
+ * 두 Point 간의 유클리드 거리를 계산합니다.
+ *
+ * ```kotlin
+ * val d = distance(Point(0, 0), Point(3, 4))   // 5.0
+ * ```
+ */
 fun distance(p1: Point, p2: Point): Double =
     distance(p1.x.toDouble(), p1.y.toDouble(), p2.x.toDouble(), p2.y.toDouble())

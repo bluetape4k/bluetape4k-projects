@@ -5,6 +5,13 @@ import java.io.Serializable
 /**
  * Moment 정보
  *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val m = data.moment()
+ * // m.average == 3.0
+ * // m.variance ≈ 2.5
+ * ```
+ *
  * @property average  평균
  * @property avgDev   평균 편차
  * @property variance 분산
@@ -21,6 +28,12 @@ data class Moment(
 
 /**
  * 변량의 다양한 통계 정보를 한번에 계산합니다. ([Moment]의 요소를 계산합니다)
+ *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val m = data.moment()
+ * // m.average == 3.0, m.avgDev == 1.2, m.variance ≈ 2.5
+ * ```
  *
  * @return [Moment] 인스턴스
  */
@@ -67,12 +80,24 @@ fun Sequence<Double>.moment(): Moment {
 /**
  * 변량의 다양한 통계 정보를 한번에 계산합니다. ([Moment]의 요소를 계산합니다)
  *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val m = data.moment()
+ * // m.average == 3.0, m.variance ≈ 2.5
+ * ```
+ *
  * @return [Moment] 인스턴스
  */
 fun Iterable<Double>.moment(): Moment = this.asSequence().moment()
 
 /**
  * 변량의 다양한 통계 정보를 한번에 계산합니다. ([Moment]의 요소를 계산합니다)
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val m = data.moment()
+ * // m.average == 3.0, m.variance ≈ 2.5
+ * ```
  *
  * @return [Moment] 인스턴스
  */

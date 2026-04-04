@@ -16,6 +16,14 @@ import kotlin.concurrent.withLock
  * 시스템 시각이 lastTimestamp보다 커지기를 기다렸다가 machineId와 sequence를 reset한 값을 제공합니다.
  *
  * MAX_MACHINE_ID * MAX_SEQUENCE 값보더 더 많은 sequence를 생성하려면 최대 1 msec가 소요됩니다.
+ *
+ * ```kotlin
+ * val sequencer = GlobalSequencer()
+ * val sid: SnowflakeId = sequencer.nextSequence()
+ * // sid.value > 0L
+ * val sids: List<SnowflakeId> = sequencer.nextSequences(10).toList()
+ * // sids.size == 10
+ * ```
  */
 class GlobalSequencer: Sequencer {
 
@@ -40,12 +48,29 @@ class GlobalSequencer: Sequencer {
      * 시스템 시각이 lastTimestamp보다 커지기를 기다렸다가 machineId와 sequence를 reset한 값을 제공합니다.
      *
      * MAX_MACHINE_ID * MAX_SEQUENCE 값보더 더 많은 sequence를 생성하려면 최대 1 msec가 소요됩니다.
+     *
+     * ```kotlin
+     * val sequencer = GlobalSequencer()
+     * val sid: SnowflakeId = sequencer.nextSequence()
+     * // sid.value > 0L
+     * ```
      */
     override fun nextSequence(): SnowflakeId =
         lock.withLock {
             nextSequenceInternal()
         }
 
+    /**
+     * 지정한 개수만큼 [SnowflakeId]를 지연 생성합니다.
+     *
+     * ```kotlin
+     * val sequencer = GlobalSequencer()
+     * val sids: List<SnowflakeId> = sequencer.nextSequences(5).toList()
+     * // sids.size == 5
+     * ```
+     *
+     * @param size 생성할 SnowflakeId 수
+     */
     override fun nextSequences(size: Int): Sequence<SnowflakeId> =
         generateSequence { nextSequence() }.take(size)
 

@@ -27,12 +27,22 @@ class Facts private constructor(
 
         /**
          * 빈 [Facts] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val facts = Facts.empty()
+         * facts.isEmpty() // true
+         * ```
          */
         @JvmStatic
         fun empty(): Facts = Facts(ConcurrentHashMap())
 
         /**
          * 키-값 쌍으로 [Facts]를 생성합니다.
+         *
+         * ```kotlin
+         * val facts = Facts.of("name" to "alice", "age" to 30)
+         * facts.get<String>("name") // "alice"
+         * ```
          *
          * @param pairs 키-값 쌍
          * @return [Facts] 인스턴스
@@ -47,6 +57,12 @@ class Facts private constructor(
         /**
          * Map으로부터 [Facts]를 생성합니다.
          *
+         * ```kotlin
+         * val map = mapOf("score" to 95, "pass" to true)
+         * val facts = Facts.from(map)
+         * facts.get<Int>("score") // 95
+         * ```
+         *
          * @param map 데이터 Map
          * @return [Facts] 인스턴스
          */
@@ -58,6 +74,12 @@ class Facts private constructor(
 
     /**
      * Fact 값을 가져옵니다.
+     *
+     * ```kotlin
+     * val facts = Facts.of("age" to 25)
+     * val age: Int? = facts.get<Int>("age") // 25
+     * val unknown: String? = facts.get<String>("unknown") // null
+     * ```
      *
      * @param name Fact 이름
      * @return Fact 값, 없으면 null
@@ -71,6 +93,12 @@ class Facts private constructor(
     /**
      * Fact 값을 설정합니다.
      *
+     * ```kotlin
+     * val facts = Facts.empty()
+     * facts["score"] = 100
+     * facts.get<Int>("score") // 100
+     * ```
+     *
      * @param name Fact 이름
      * @param value Fact 값
      */
@@ -81,6 +109,12 @@ class Facts private constructor(
 
     /**
      * Fact를 추가합니다. (Map 호환)
+     *
+     * ```kotlin
+     * val facts = Facts.empty()
+     * facts.put("status", "active")
+     * facts.get<String>("status") // "active"
+     * ```
      *
      * @param name Fact 이름
      * @param value Fact 값
@@ -93,6 +127,13 @@ class Facts private constructor(
     /**
      * 여러 Fact를 한번에 추가합니다.
      *
+     * ```kotlin
+     * val facts = Facts.empty()
+     * facts.putAll("a" to 1, "b" to 2)
+     * facts.get<Int>("a") // 1
+     * facts.get<Int>("b") // 2
+     * ```
+     *
      * @param pairs 키-값 쌍
      */
     fun putAll(vararg pairs: Pair<String, Any?>) {
@@ -101,6 +142,12 @@ class Facts private constructor(
 
     /**
      * Fact를 제거합니다.
+     *
+     * ```kotlin
+     * val facts = Facts.of("age" to 20)
+     * val removed = facts.remove("age") // 20
+     * facts.containsKey("age") // false
+     * ```
      *
      * @param name Fact 이름
      * @return 제거된 값, 없으면 null
@@ -113,6 +160,12 @@ class Facts private constructor(
     /**
      * 해당 이름의 Fact가 존재하는지 확인합니다.
      *
+     * ```kotlin
+     * val facts = Facts.of("x" to 1)
+     * facts.containsKey("x") // true
+     * facts.containsKey("y") // false
+     * ```
+     *
      * @param name Fact 이름
      * @return 존재 여부
      */
@@ -120,16 +173,32 @@ class Facts private constructor(
 
     /**
      * Facts의 개수를 반환합니다.
+     *
+     * ```kotlin
+     * val facts = Facts.of("a" to 1, "b" to 2)
+     * facts.size // 2
+     * ```
      */
     val size: Int get() = facts.size
 
     /**
      * Facts가 비어있는지 확인합니다.
+     *
+     * ```kotlin
+     * Facts.empty().isEmpty() // true
+     * Facts.of("x" to 1).isEmpty() // false
+     * ```
      */
     fun isEmpty(): Boolean = facts.isEmpty()
 
     /**
      * 모든 Fact를 제거합니다.
+     *
+     * ```kotlin
+     * val facts = Facts.of("a" to 1)
+     * facts.clear()
+     * facts.isEmpty() // true
+     * ```
      */
     fun clear() {
         facts.clear()
@@ -137,6 +206,12 @@ class Facts private constructor(
 
     /**
      * 읽기 전용 Map으로 변환합니다.
+     *
+     * ```kotlin
+     * val facts = Facts.of("k" to "v")
+     * val map: Map<String, Any?> = facts.asMap()
+     * map["k"] // "v"
+     * ```
      *
      * @return 읽기 전용 Map
      */

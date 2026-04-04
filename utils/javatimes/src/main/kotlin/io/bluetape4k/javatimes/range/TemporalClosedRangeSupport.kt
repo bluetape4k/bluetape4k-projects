@@ -94,48 +94,118 @@ fun <T> TemporalClosedRange<T>.windowed(
     }
 }
 
+/**
+ * 기간을 년 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2020, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 0))
+ * val windows = range.windowedYears(2, 1).toList()
+ * // [[2020-01-01, 2021-01-01], [2021-01-01, 2022-01-01], ...]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedYears(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.YEARS)
 
+/**
+ * 기간을 월 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 6, 1, 0, 0))
+ * val windows = range.windowedMonths(2, 1).toList()
+ * // [[2024-01, 2024-02], [2024-02, 2024-03], ...]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedMonths(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.MONTHS)
 
+/**
+ * 기간을 주 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 3, 1, 0, 0))
+ * val windows = range.windowedWeeks(2, 1).toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedWeeks(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.WEEKS)
 
+/**
+ * 기간을 일 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 10, 0, 0))
+ * val windows = range.windowedDays(3, 1).toList()
+ * // [[2024-01-01, 2024-01-02, 2024-01-03], [2024-01-02, 2024-01-03, 2024-01-04], ...]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedDays(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.DAYS)
 
+/**
+ * 기간을 시간 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 5, 0))
+ * val windows = range.windowedHours(2, 1).toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedHours(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.HOURS)
 
+/**
+ * 기간을 분 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 30))
+ * val windows = range.windowedMinutes(5, 1).toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedMinutes(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.MINUTES)
 
+/**
+ * 기간을 초 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 0, 30))
+ * val windows = range.windowedSeconds(5, 1).toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedSeconds(
     size: Int,
     step: Int = 1,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
     windowed(size, step, ChronoUnit.SECONDS)
 
+/**
+ * 기간을 밀리초 단위로 [size] 크기의 슬라이딩 윈도우 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0, 0, 0),
+ *     LocalDateTime.of(2024, 1, 1, 0, 0, 0, 30_000_000)
+ * )
+ * val windows = range.windowedMillis(5, 1).toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.windowedMillis(
     size: Int,
     step: Int = 1,
@@ -270,26 +340,99 @@ fun <T> TemporalClosedRange<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair<T, T
     }
 }
 
+/**
+ * 기간을 년 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2022, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 0))
+ * val pairs = range.zipWithNextYear().toList()
+ * // [(2022-01-01, 2023-01-01), (2023-01-01, 2024-01-01)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextYear(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.YEARS)
 
+/**
+ * 기간을 월 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 4, 1, 0, 0))
+ * val pairs = range.zipWithNextMonth().toList()
+ * // [(2024-01-01, 2024-02-01), (2024-02-01, 2024-03-01), (2024-03-01, 2024-04-01)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextMonth(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.MONTHS)
 
+/**
+ * 기간을 주 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 2, 1, 0, 0))
+ * val pairs = range.zipWithNextWeek().toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextWeek(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.WEEKS)
 
+/**
+ * 기간을 일 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 4, 0, 0))
+ * val pairs = range.zipWithNextDay().toList()
+ * // [(2024-01-01, 2024-01-02), (2024-01-02, 2024-01-03), (2024-01-03, 2024-01-04)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextDay(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.DAYS)
 
+/**
+ * 기간을 시간 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 3, 0))
+ * val pairs = range.zipWithNextHour().toList()
+ * // [(00:00, 01:00), (01:00, 02:00), (02:00, 03:00)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextHour(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.HOURS)
 
+/**
+ * 기간을 분 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 3))
+ * val pairs = range.zipWithNextMinute().toList()
+ * // [(00:00, 00:01), (00:01, 00:02), (00:02, 00:03)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextMinute(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.MINUTES)
 
+/**
+ * 기간을 초 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(LocalDateTime.of(2024, 1, 1, 0, 0, 0), LocalDateTime.of(2024, 1, 1, 0, 0, 3))
+ * val pairs = range.zipWithNextSecond().toList()
+ * // [(00:00:00, 00:00:01), (00:00:01, 00:00:02), (00:00:02, 00:00:03)]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextSecond(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.SECONDS)
 
+/**
+ * 기간을 밀리초 단위의 인접한 두 시점 Pair의 Sequence로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0, 0, 0),
+ *     LocalDateTime.of(2024, 1, 1, 0, 0, 0, 3_000_000)
+ * )
+ * val pairs = range.zipWithNextMilli().toList()
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.zipWithNextMilli(): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> =
     zipWithNext(ChronoUnit.MILLIS)

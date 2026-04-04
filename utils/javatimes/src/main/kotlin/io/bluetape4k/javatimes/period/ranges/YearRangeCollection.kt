@@ -9,6 +9,11 @@ import java.time.ZonedDateTime
 
 /**
  * 여러 해 (years) 를 범위로 나타내는 클래스입니다.
+ *
+ * ```kotlin
+ * val years = YearRangeCollection(2022, 3) // 2022, 2023, 2024년 범위
+ * years.yearSequence().toList().size // 3
+ * ```
  */
 open class YearRangeCollection protected constructor(
     startTime: ZonedDateTime,

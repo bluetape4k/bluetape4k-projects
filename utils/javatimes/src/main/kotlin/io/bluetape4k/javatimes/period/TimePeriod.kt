@@ -15,6 +15,15 @@ import java.time.ZonedDateTime
 
 /**
  * 기본 [TimePeriod]
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val period = TimePeriod(now, now.plusDays(5))
+ * period.start    // now
+ * period.end      // now + 5d
+ * period.duration // Duration.ofDays(5)
+ * period.hasInside(now.plusDays(2)) // true
+ * ```
  */
 open class TimePeriod(
     private var _start: ZonedDateTime = MinPeriodTime,

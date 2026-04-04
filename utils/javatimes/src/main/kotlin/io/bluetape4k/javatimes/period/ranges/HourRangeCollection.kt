@@ -7,6 +7,11 @@ import java.time.ZonedDateTime
 
 /**
  * 시간 단위의 범위를 나타내는 [HourTimeRange]의 컬렉션
+ *
+ * ```kotlin
+ * val hours = HourRangeCollection(2024, 6, 15, 9, 8) // 2024-06-15 9시부터 8시간
+ * hours.hours().size // 8
+ * ```
  */
 open class HourRangeCollection(
     startTime: ZonedDateTime = ZonedDateTime.now(),

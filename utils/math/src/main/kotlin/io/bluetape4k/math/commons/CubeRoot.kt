@@ -2,6 +2,12 @@ package io.bluetape4k.math.commons
 
 /**
  * 3제곱근 계산
+ *
+ * ```kotlin
+ * val result = cubeRoot(27.0)    // 3.0
+ * val result2 = cubeRoot(-8.0)   // -2.0
+ * val result3 = cubeRoot(0.0)    // 0.0
+ * ```
  */
 fun cubeRoot(v: Double): Double {
     if (v.approximateEqual(0.0)) {

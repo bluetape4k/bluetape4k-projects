@@ -5,6 +5,17 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.math.integration.Integrator.Companion.DEFAULT_MAXEVAL
 import org.apache.commons.math3.analysis.integration.UnivariateIntegrator
 
+/**
+ * [Integrator] 인터페이스의 기본 구현체.
+ * Apache Commons Math의 [UnivariateIntegrator]를 감싸 Kotlin 람다 기반 API를 제공합니다.
+ *
+ * ```kotlin
+ * // 구체적인 구현 클래스를 통해 사용합니다.
+ * val integrator = SimpsonIntegrator()
+ * val result = integrator.integrate(lower = 0.0, upper = 1.0) { x -> x * x }
+ * // result ≈ 0.3333 (∫x² dx from 0 to 1)
+ * ```
+ */
 abstract class AbstractIntegrator: Integrator {
 
     companion object: KLogging()
@@ -18,7 +29,13 @@ abstract class AbstractIntegrator: Integrator {
         get() = apacheIntegrator.absoluteAccuracy
 
     /**
-     * 함수의 [lower, upper) 구간을 적분합니다.
+     * 함수의 [lower, upper] 구간을 적분합니다.
+     *
+     * ```kotlin
+     * val integrator = SimpsonIntegrator()
+     * val result = integrator.integrate(lower = 0.0, upper = 1.0) { x -> x * x }
+     * // result ≈ 0.3333 (∫x² dx from 0 to 1)
+     * ```
      *
      * @param evaluator 적분할 함수
      * @param lower 시작 위치

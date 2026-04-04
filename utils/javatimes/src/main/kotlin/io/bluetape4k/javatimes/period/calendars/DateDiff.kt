@@ -32,6 +32,17 @@ import kotlin.math.roundToLong
  *
  * 년, 분기, 월, 주, 일, 시, 분, 초 단위로 두 시각의 차이를 계산합니다.
  *
+ * ```kotlin
+ * val start = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val end   = ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val diff = DateDiff(start, end)
+ * diff.years   // 0
+ * diff.months  // 5
+ * diff.days    // 181
+ * diff.hours   // 4344
+ * diff.isEmpty // false
+ * ```
+ *
  * @param start 시작 시각
  * @param end 종료 시각 (기본값: 현재 시각)
  * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)

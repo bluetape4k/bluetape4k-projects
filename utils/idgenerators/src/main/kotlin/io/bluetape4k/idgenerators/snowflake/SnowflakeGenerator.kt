@@ -33,12 +33,26 @@ class SnowflakeGenerator(
     /**
      * Snowflake ID를 파싱합니다.
      *
+     * ```kotlin
+     * val gen = SnowflakeGenerator()
+     * val id: Long = gen.nextId()
+     * val parsed: SnowflakeId = gen.parse(id)
+     * // parsed.timestamp > 0L
+     * ```
+     *
      * @see Snowflake.parse
      */
     fun parse(id: Long): SnowflakeId = snowflake.parse(id)
 
     /**
      * 문자열 형태의 Snowflake ID를 파싱합니다.
+     *
+     * ```kotlin
+     * val gen = SnowflakeGenerator()
+     * val idStr: String = gen.nextIdAsString()
+     * val parsed: SnowflakeId = gen.parse(idStr)
+     * // parsed.sequence >= 0
+     * ```
      *
      * @see Snowflake.parse
      */

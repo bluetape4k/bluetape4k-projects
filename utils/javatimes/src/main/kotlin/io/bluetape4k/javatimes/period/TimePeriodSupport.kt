@@ -23,6 +23,13 @@ import java.time.temporal.Temporal
 
 /**
  * 두 개의 시각을 비교하여 더 작은 시각과 더 큰 시각 순서의 Pair를 반환합니다.
+ *
+ * ```kotlin
+ * val later = ZonedDateTime.of(2024, 6, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val earlier = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val (start, end) = adjustPeriod(later, earlier)
+ * // start = 2024-01-01, end = 2024-06-01
+ * ```
  */
 fun <T> adjustPeriod(
     left: T?,
@@ -31,6 +38,13 @@ fun <T> adjustPeriod(
 
 /**
  * 시작시각과 기간을 조정하여 시작시각과 Positive 기간을 반환합니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.of(2024, 6, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val negDuration = Duration.ofDays(-10)
+ * val (adjustedStart, positiveDuration) = adjustPeriod(start, negDuration)
+ * // adjustedStart = 2024-05-22, positiveDuration = Duration.ofDays(10)
+ * ```
  */
 fun adjustPeriod(
     start: ZonedDateTime,
@@ -42,7 +56,14 @@ fun adjustPeriod(
     }
 
 /**
- * [start]와 [end] 가 시간 순으로 되어 있는지 확인홥니다.
+ * [start]와 [end] 가 시간 순으로 되어 있는지 확인합니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val end = ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
+ * assertValidPeriod(start, end) // 정상
+ * // assertValidPeriod(end, start) // AssertionError 발생
+ * ```
  */
 fun assertValidPeriod(
     start: ZonedDateTime?,
@@ -84,21 +105,47 @@ fun <T : ITimePeriod> allItemsAreEquals(
 
 /**
  * [ZonedDateTime]과 [duration]을 이용하여 [TimeBlock]을 생성합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val block = now.toTimeBlock(Duration.ofHours(2))
+ * // block.start == now, block.end == now.plusHours(2)
+ * ```
  */
 fun ZonedDateTime.toTimeBlock(duration: Duration): ITimeBlock = TimeBlock(this, duration)
 
 /**
  * [ZonedDateTime]과 [end]를 이용하여 [TimeBlock]을 생성합니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.now()
+ * val end = start.plusDays(5)
+ * val block = start.toTimeBlock(end)
+ * // block.start == start, block.end == end
+ * ```
  */
 fun ZonedDateTime.toTimeBlock(end: ZonedDateTime): ITimeBlock = TimeBlock(this, end)
 
 /**
  * [ZonedDateTime]과 [duration]을 이용하여 [TimeRange]을 생성합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = now.toTimeRange(Duration.ofDays(7))
+ * // range.start == now, range.end == now.plusDays(7)
+ * ```
  */
 fun ZonedDateTime.toTimeRange(duration: Duration): ITimeRange = TimeRange(this, duration)
 
 /**
  * [ZonedDateTime]과 [end]를 이용하여 [TimeRange]을 생성합니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.now()
+ * val end = start.plusMonths(1)
+ * val range = start.toTimeRange(end)
+ * // range.start == start, range.end == end
+ * ```
  */
 fun ZonedDateTime.toTimeRange(end: ZonedDateTime): ITimeRange = TimeRange(this, end)
 
@@ -128,16 +175,34 @@ fun yearOf(
 
 /**
  * 현재 시각의 월과 기본 달력의 기준 월을 이용해 기준 연도를 계산합니다.
+ *
+ * ```kotlin
+ * val jan = ZonedDateTime.of(2024, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC)
+ * jan.yearOf() // 2024
+ * ```
  */
 fun ZonedDateTime.yearOf(): Int = yearOf(TimeCalendar.Default)
 
 /**
  * 현재 시각의 월과 [calendar]의 기준 월을 이용해 기준 연도를 계산합니다.
+ *
+ * ```kotlin
+ * val fiscalCalendar = object : TimeCalendar() {
+ *     override val baseMonth: Int = 4
+ * }
+ * val march = ZonedDateTime.of(2025, 3, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * march.yearOf(fiscalCalendar) // 2024 (3월은 회계연도 2024에 해당)
+ * ```
  */
 fun ZonedDateTime.yearOf(calendar: ITimeCalendar): Int = yearOf(year, monthValue, calendar)
 
 /**
  * [year] 부터 [yearCount] 만큼의 기간을 가진 [ITimeRange]를 생성합니다.
+ *
+ * ```kotlin
+ * val range = relativeYearPeriodOf(2024, 3)
+ * // range: 2024-01-01 ~ 2027-01-01 (3년 기간)
+ * ```
  */
 fun relativeYearPeriodOf(
     year: Int,
@@ -151,6 +216,12 @@ fun relativeYearPeriodOf(
 
 /**
  * 현 시각으로부터 [yearCount]만큼의 년 기간을 가진 [ITimeRange]를 생성합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = now.relativeYearPeriod(2)
+ * // range: 현재 연도 시작 ~ 2년 후 연도 시작
+ * ```
  */
 fun ZonedDateTime.relativeYearPeriod(yearCount: Int): ITimeRange {
     yearCount.assertZeroOrPositiveNumber("yearCount")
@@ -161,6 +232,12 @@ fun ZonedDateTime.relativeYearPeriod(yearCount: Int): ITimeRange {
 
 /**
  * 현 시각으로부터 분기 수([quarterCount]) 만큼의 분기 기간을 가진 [ITimeRange]를 생성합니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = now.relativeQuarterPeriod(2)
+ * // range: 현재 분기 시작 ~ 2분기 후
+ * ```
  */
 fun ZonedDateTime.relativeQuarterPeriod(quarterCount: Int = 1): ITimeRange {
     quarterCount.assertZeroOrPositiveNumber("quarterCount")
@@ -261,23 +338,54 @@ fun ZonedDateTime.relativeSecondPeriod(secondCount: Int = 1): TimeRange {
 
 /**
  * 현 기간이 [moment]를 포함하는지 여부
+ *
+ * ```kotlin
+ * val period = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                        ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val mid = ZonedDateTime.of(2024, 6, 15, 0, 0, 0, 0, ZoneOffset.UTC)
+ * period hasInsideWith mid // true
+ * ```
  */
 @Suppress("ConvertTwoComparisonsToRangeCheck")
 infix fun ITimePeriod.hasInsideWith(moment: ZonedDateTime): Boolean = start <= moment && moment <= end
 
 /**
  * 현 기간이 [that] 기간을 포함하는지 여부
+ *
+ * ```kotlin
+ * val outer = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                       ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val inner = TimeRange(ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                       ZonedDateTime.of(2024, 9, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * outer hasInsideWith inner // true
+ * ```
  */
 infix fun ITimePeriod.hasInsideWith(that: ITimePeriod): Boolean =
     this.hasInsideWith(that.start) && this.hasInsideWith(that.end)
 
 /**
- * [moment]가 현 기간의 내부에 완전히 포함되는지 여부
+ * [moment]가 현 기간의 내부에 완전히 포함되는지 여부 (경계 제외)
+ *
+ * ```kotlin
+ * val period = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                        ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val boundary = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * period hasPureInsideWith boundary // false (경계값)
+ * period hasPureInsideWith ZonedDateTime.of(2024, 6, 1, 0, 0, 0, 0, ZoneOffset.UTC) // true
+ * ```
  */
 infix fun ITimePeriod.hasPureInsideWith(moment: ZonedDateTime): Boolean = start < moment && moment < end
 
 /**
- * 두 기간 중 하나가 다른 기간에 완전히 포함되는지 여부
+ * 두 기간 중 하나가 다른 기간에 완전히 포함되는지 여부 (경계 제외)
+ *
+ * ```kotlin
+ * val outer = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                       ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val inner = TimeRange(ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                       ZonedDateTime.of(2024, 9, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * outer hasPureInsideWith inner // true
+ * ```
  */
 infix fun ITimePeriod.hasPureInsideWith(that: ITimePeriod): Boolean =
     hasPureInsideWith(that.start) && hasPureInsideWith(that.end)
@@ -342,18 +450,42 @@ infix fun ITimePeriod.relationWith(that: ITimePeriod): PeriodRelation =
 
 /**
  * 두 기간의 교집합 기간이 있는지 확인합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * a intersectWith b // true
+ * ```
  */
 infix fun ITimePeriod.intersectWith(that: ITimePeriod): Boolean =
     hasInsideWith(that.start) || hasInsideWith(that.end) || that.hasPureInsideWith(this)
 
 /**
  * 두 기간이 겹치는 기간이 있는지 확인합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * a overlapWith b // true
+ * ```
  */
 infix fun ITimePeriod.overlapWith(that: ITimePeriod): Boolean =
     this.relationWith(that) !in PeriodRelation.NotOverlappedRelations
 
 /**
  * 두 기간이 겹치는 기간을 계산하여 [ITimeBlock]으로 반환합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val block = a intersectBlock b // 2024-04-01 ~ 2024-06-30
+ * ```
  */
 infix fun ITimePeriod.intersectBlock(that: ITimePeriod): ITimeBlock? {
     var intersection: ITimeBlock? = null
@@ -369,6 +501,14 @@ infix fun ITimePeriod.intersectBlock(that: ITimePeriod): ITimeBlock? {
 
 /**
  * 두 기간이 겹치는 기간을 계산하여 [TimeRange]으로 반환합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val range = a intersectRange b // 2024-04-01 ~ 2024-06-30
+ * ```
  */
 infix fun ITimePeriod.intersectRange(that: ITimePeriod): TimeRange? {
     var intersection: TimeRange? = null
@@ -384,6 +524,14 @@ infix fun ITimePeriod.intersectRange(that: ITimePeriod): TimeRange? {
 
 /**
  * 두 기간의 합집합 기간을 계산하여 [ITimeBlock]으로 반환합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val union = a unionBlock b // 2024-01-01 ~ 2024-12-31
+ * ```
  */
 infix fun ITimePeriod.unionBlock(that: ITimePeriod): ITimeBlock {
     val start = this.start min that.start
@@ -394,6 +542,14 @@ infix fun ITimePeriod.unionBlock(that: ITimePeriod): ITimeBlock {
 
 /**
  * 두 기간의 합집합 기간을 계산하여 [TimeRange]으로 반환합니다.
+ *
+ * ```kotlin
+ * val a = TimeRange(ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val b = TimeRange(ZonedDateTime.of(2024, 4, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+ *                   ZonedDateTime.of(2024, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC))
+ * val union = a unionRange b // 2024-01-01 ~ 2024-12-31
+ * ```
  */
 infix fun ITimePeriod.unionRange(that: ITimePeriod): TimeRange {
     val start = this.start min that.start

@@ -29,9 +29,15 @@ object VincentyGeodesy: KLogging() {
     /**
      * Vincenty's formula를 사용 [point]를 [bearingInDegrees] 방향으로 [distanceInMeters] 만큼 이동한 [WGS84Point]를 반환합니다.
      *
+     * ```kotlin
+     * val start = WGS84Point(37.5665, 126.9780)
+     * val moved = VincentyGeodesy.moveInDirection(start, 90.0, 1000.0)
+     * // moved.longitude > start.longitude
+     * ```
+     *
      * @param point 시작 좌표
      * @param bearingInDegrees 각도 (0..360)
-     * @param distanceInMeters: 이동할 거리 (미터)
+     * @param distanceInMeters 이동할 거리 (미터)
      */
     fun moveInDirection(
         point: WGS84Point,
@@ -96,6 +102,13 @@ object VincentyGeodesy: KLogging() {
 
     /**
      * Vincenty's formula를 사용하여 두 [WGS84Point] 사이의 거리를 계산합니다.
+     *
+     * ```kotlin
+     * val a = WGS84Point(37.5665, 126.9780)
+     * val b = WGS84Point(37.5651, 126.9895)
+     * val distance = VincentyGeodesy.distanceInMeters(a, b)
+     * // distance > 0.0
+     * ```
      *
      * @param start 첫번째 WGS84 좌표
      * @param end 두번째 WGS84 좌표

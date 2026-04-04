@@ -10,6 +10,16 @@ import kotlin.math.absoluteValue
  *
  * 특정 일수만큼 이동하여 해당 일을 찾는 컨텍스트
  *
+ * ```kotlin
+ * val start = DayRange(ZonedDateTime.now())
+ * val context = DaySeekerContext(start, 5)
+ * context.startDay       // start
+ * context.remainingDays  // 5
+ * context.isFinished     // false
+ * context.processDay(start.nextDay()) // 남은 일수 -1
+ * context.remainingDays  // 4
+ * ```
+ *
  * @param startDay 시작 일
  * @param dayCount 탐색할 일수 (절댓값 사용)
  */

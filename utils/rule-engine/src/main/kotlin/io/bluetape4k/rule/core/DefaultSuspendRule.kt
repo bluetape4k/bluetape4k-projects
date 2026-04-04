@@ -14,6 +14,19 @@ import java.util.*
  * [SuspendCondition]과 [SuspendAction] 목록을 가지는 SuspendRule 구현체입니다.
  * 액션은 순차적으로 실행됩니다.
  *
+ * ```kotlin
+ * val rule = DefaultSuspendRule(
+ *     name = "asyncRule",
+ *     priority = 1,
+ *     condition = SuspendCondition { facts -> facts.get<Int>("value")!! > 0 },
+ *     actions = listOf(SuspendAction { facts -> facts["processed"] = true })
+ * )
+ * val facts = Facts.of("value" to 5)
+ * rule.evaluate(facts) // true
+ * rule.execute(facts)
+ * facts.get<Boolean>("processed") // true
+ * ```
+ *
  * @property condition 비동기 조건
  * @property actions 비동기 액션 목록
  */

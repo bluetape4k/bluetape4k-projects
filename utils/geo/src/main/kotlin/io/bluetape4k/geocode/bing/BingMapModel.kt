@@ -41,17 +41,41 @@ object BingMapModel {
         }
     }
 
+    /**
+     * Bing Maps API의 최상위 응답 모델입니다.
+     *
+     * ```kotlin
+     * val location = client.locations(37.5665, 126.9780)
+     * // location.statusCode == 200
+     * ```
+     */
     data class Location(
         val resourceSets: Array<ResourceSet> = emptyArray(),
         val statusCode: Int? = null,
         val statusDescription: String? = null,
     ): Serializable
 
+    /**
+     * Bing Maps API의 리소스 묶음 응답 모델입니다.
+     *
+     * ```kotlin
+     * val resourceSet = location.resourceSets.firstOrNull()
+     * // resourceSet?.estimatedTotal != null
+     * ```
+     */
     data class ResourceSet(
         val estimatedTotal: Int? = null,
         val resources: Array<Resource> = emptyArray(),
     ): Serializable
 
+    /**
+     * Bing Maps API의 단일 위치 리소스 모델입니다.
+     *
+     * ```kotlin
+     * val resource = resourceSet.resources.firstOrNull()
+     * // resource?.name != null
+     * ```
+     */
     data class Resource(
         val bbox: Array<Double> = emptyArray(),
         val name: String,
@@ -63,6 +87,14 @@ object BingMapModel {
         val matchCodes: Array<String>,
     ): Serializable
 
+    /**
+     * Bing Maps API의 위치 좌표 모델입니다.
+     *
+     * ```kotlin
+     * val point = resource.point
+     * // point.coordinates.size == 2
+     * ```
+     */
     data class Point(
         val type: String,
         val coordinates: Array<Double> = emptyArray(),
@@ -70,6 +102,14 @@ object BingMapModel {
         val usageTypes: Array<String> = emptyArray(),
     ): Serializable
 
+    /**
+     * Bing Maps API의 주소 컴포넌트 모델입니다.
+     *
+     * ```kotlin
+     * val address = resource.address
+     * // address.countryRegion != null
+     * ```
+     */
     data class Address(
         val addressLine: String? = null,
         val adminDistrict: String? = null,

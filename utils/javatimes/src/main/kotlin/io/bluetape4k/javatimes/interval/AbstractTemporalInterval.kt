@@ -10,6 +10,14 @@ import java.time.temporal.Temporal
 
 /**
  * JodaTime's AbstractInterval class 를 참고하여 구현하였습니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(
+ *     LocalDate.of(2024, 1, 1),
+ *     LocalDate.of(2024, 12, 31)
+ * )
+ * interval.abuts(temporalIntervalOf(LocalDate.of(2024, 12, 31), LocalDate.of(2025, 1, 1))) // true
+ * ```
  */
 abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T: Temporal, T: Comparable<T> {
 

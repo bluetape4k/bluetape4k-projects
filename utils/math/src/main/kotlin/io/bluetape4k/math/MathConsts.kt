@@ -5,6 +5,15 @@ import kotlin.math.log
 import kotlin.math.log10
 import kotlin.math.sqrt
 
+/**
+ * 수학 관련 상수 모음.
+ *
+ * ```kotlin
+ * val pi = MathConsts.Pi          // 3.14159...
+ * val ratio = MathConsts.goldenRatio  // 1.61803...
+ * val eps = MathConsts.EPSILON    // 1.0e-20
+ * ```
+ */
 object MathConsts {
 
     const val EPSILON: Double = 1.0e-20
@@ -94,5 +103,12 @@ object MathConsts {
      */
     val POW2: IntArray = intArrayOf(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768)
 
+    /**
+     * 2의 index승을 반환합니다.
+     *
+     * ```kotlin
+     * val result = MathConsts.pow2(3)   // 8 (2^3)
+     * ```
+     */
     fun pow2(index: Int): Int = POW2[index]
 }

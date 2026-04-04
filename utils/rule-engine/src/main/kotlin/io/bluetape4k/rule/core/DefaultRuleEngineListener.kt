@@ -10,6 +10,14 @@ import io.bluetape4k.rule.api.RuleEngineListener
 
 /**
  * 기본 [RuleEngineListener] 구현체입니다. 로그를 기록합니다.
+ *
+ * ```kotlin
+ * val engine = DefaultRuleEngine(RuleEngineConfig.DEFAULT)
+ * // DefaultRuleEngineListener는 DefaultRuleEngine 생성 시 자동으로 등록됩니다.
+ * // 추가 리스너가 필요한 경우 registerRuleEngineListener()를 사용하세요.
+ * val listener = DefaultRuleEngineListener(RuleEngineConfig.DEFAULT)
+ * engine.registerRuleEngineListener(listener)
+ * ```
  */
 class DefaultRuleEngineListener(
     val config: RuleEngineConfig = RuleEngineConfig.DEFAULT,

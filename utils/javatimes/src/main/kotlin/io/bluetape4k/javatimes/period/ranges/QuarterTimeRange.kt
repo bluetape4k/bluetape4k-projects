@@ -10,6 +10,15 @@ import java.time.ZonedDateTime
 
 /**
  * 분기 단위로 [quarterCount] 만큼의 기간을 표현하는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = QuarterTimeRange(now, quarterCount = 2)
+ * range.quarterCount            // 2
+ * range.quarterOfStart          // Quarter.Q1 (예: 1월 시작이면)
+ * range.isMultipleCalendarYears // false (같은 연도 내 2분기)
+ * range.months()                // 2분기 * 3개월 = 6개 MonthRange
+ * ```
  */
 open class QuarterTimeRange(
     startTime: ZonedDateTime = todayZonedDateTime(),

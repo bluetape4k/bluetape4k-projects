@@ -20,6 +20,13 @@ import java.time.ZonedDateTime
 
 /**
  * [calendar]가 적용된 기간을 나타내는 클래스입니다.
+ *
+ * ```kotlin
+ * val period = TimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusDays(7))
+ * val calRange = CalendarTimeRange(period, TimeCalendar.Default)
+ * calRange.startYear    // 시작 연도
+ * calRange.startDayOfWeek // 시작 요일
+ * ```
  */
 open class CalendarTimeRange protected constructor(
     val period: ITimePeriod,

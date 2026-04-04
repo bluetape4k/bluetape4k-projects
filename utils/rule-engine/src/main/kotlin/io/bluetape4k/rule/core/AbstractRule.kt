@@ -12,6 +12,19 @@ import java.util.*
  * [Rule]의 최상위 추상화 클래스입니다.
  * 이름(name)을 기준으로 equals/hashCode를 구현합니다.
  *
+ * ```kotlin
+ * class MyRule : AbstractRule(name = "myRule", priority = 1) {
+ *     override fun evaluate(facts: Facts): Boolean = facts.get<Int>("score")!! >= 60
+ *     override fun execute(facts: Facts) { facts["passed"] = true }
+ * }
+ *
+ * val rule = MyRule()
+ * val facts = Facts.of("score" to 80)
+ * rule.evaluate(facts) // true
+ * rule.execute(facts)
+ * facts.get<Boolean>("passed") // true
+ * ```
+ *
  * @property name Rule 이름
  * @property description Rule 설명
  * @property priority Rule 우선순위

@@ -72,6 +72,14 @@ class Hashids(
     /**
      * Long 수형을 인코딩해서 문자열로 만듭니다.
      *
+     * ```kotlin
+     * val hashids = Hashids("salt")
+     * val encoded = hashids.encode(1L, 2L, 3L)
+     * // encoded.isNotBlank() == true
+     * val decoded = hashids.decode(encoded)
+     * // decoded.toList() == listOf(1L, 2L, 3L)
+     * ```
+     *
      * @param numbers 인코드할 Long 숫자들
      * @return 인코딩된 문자열
      */
@@ -153,6 +161,13 @@ class Hashids(
 
     /**
      * 인코딩된 문자열을 디코딩해서 [LongArray]를 반환합니다.
+     *
+     * ```kotlin
+     * val hashids = Hashids("salt")
+     * val encoded = hashids.encode(42L)
+     * val decoded = hashids.decode(encoded)
+     * // decoded[0] == 42L
+     * ```
      *
      * @param hash 인코딩된 문자열
      * @return 디코딩된 [LongArray]

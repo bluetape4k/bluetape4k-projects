@@ -11,6 +11,19 @@ import io.bluetape4k.rule.api.Facts
 /**
  * 기본 [Condition]과 [Action] 목록을 가지는 Rule 구현체입니다.
  *
+ * ```kotlin
+ * val rule = DefaultRule(
+ *     name = "discountRule",
+ *     priority = 1,
+ *     condition = Condition { facts -> facts.get<Int>("amount")!! > 1000 },
+ *     actions = listOf(Action { facts -> facts["discount"] = true })
+ * )
+ * val facts = Facts.of("amount" to 1500)
+ * rule.evaluate(facts) // true
+ * rule.execute(facts)
+ * facts.get<Boolean>("discount") // true
+ * ```
+ *
  * @property condition 조건
  * @property actions 액션 목록
  */

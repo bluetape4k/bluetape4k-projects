@@ -169,18 +169,40 @@ fun <T> mutableTemporalIntervalOf(
 
 /**
  * [ReadableTemporalInterval]의 시작시각과 완료시각으로 [Duration]을 빌드합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(
+ *     Instant.ofEpochSecond(0),
+ *     Instant.ofEpochSecond(3600)
+ * )
+ * val duration = interval.toDuration() // Duration.ofHours(1)
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.toDuration(): Duration where T: Temporal, T: Comparable<T> =
     Duration.between(startInclusive, endExclusive)
 
 /**
  * [ReadableTemporalInterval]의 시작시각과 완료시각으로 Milliseconds 로 반환합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(
+ *     Instant.ofEpochSecond(0),
+ *     Instant.ofEpochSecond(3600)
+ * )
+ * val millis = interval.toDurationMillis() // 3_600_000L
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.toDurationMillis(): Long where T: Temporal, T: Comparable<T> =
     toDuration().toMillis()
 
 /**
  * [ReadableTemporalInterval]의 시작시각과 완료시각으로 [TemporalInterval]를 빌드합니다.
+ *
+ * ```kotlin
+ * val mutable = mutableTemporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31))
+ * val immutable = mutable.toInterval()
+ * // immutable: TemporalInterval<LocalDate>
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.toInterval(): TemporalInterval<T> where T: Temporal, T: Comparable<T> {
     return temporalIntervalOf(startInclusive, endExclusive, zoneId)
@@ -188,6 +210,12 @@ fun <T> ReadableTemporalInterval<T>.toInterval(): TemporalInterval<T> where T: T
 
 /**
  * [ReadableTemporalInterval]의 시작시각과 완료시각으로 [MutableTemporalInterval]를 빌드합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31))
+ * val mutable = interval.toMutableInterval()
+ * mutable.startInclusive = LocalDate.of(2024, 3, 1)
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.toMutableInterval(): MutableTemporalInterval<T> where T: Temporal, T: Comparable<T> {
     return mutableTemporalIntervalOf(startInclusive, endExclusive, zoneId)
@@ -303,6 +331,11 @@ fun <T> ReadableTemporalInterval<T>.flow(
 
 /**
  * 기간을 [ChronoUnit.MILLIS] 의 [step] 단계별로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(Instant.EPOCH, Instant.EPOCH.plusMillis(5))
+ * val milliList = interval.millis().toList() // [0ms, 1ms, 2ms, 3ms, 4ms]
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.millis(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.MILLIS)
@@ -310,6 +343,11 @@ fun <T> ReadableTemporalInterval<T>.millis(step: Int = 1): Sequence<T> where T: 
 
 /**
  * 기간을 [ChronoUnit.SECONDS] 의 [step] 단계별로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(Instant.EPOCH, Instant.EPOCH.plusSeconds(5))
+ * val seconds = interval.seconds().toList() // 5개 요소
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.seconds(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.SECONDS)
@@ -317,6 +355,11 @@ fun <T> ReadableTemporalInterval<T>.seconds(step: Int = 1): Sequence<T> where T:
 
 /**
  * 기간을 [ChronoUnit.MINUTES] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(Instant.EPOCH, Instant.EPOCH.plusSeconds(180))
+ * val minuteList = interval.minutes().toList() // 3개 요소 (0분, 1분, 2분)
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.minutes(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.MINUTES)
@@ -324,6 +367,11 @@ fun <T> ReadableTemporalInterval<T>.minutes(step: Int = 1): Sequence<T> where T:
 
 /**
  * 기간을 [ChronoUnit.HOURS] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(Instant.EPOCH, Instant.EPOCH.plusSeconds(7200))
+ * val hourList = interval.hours().toList() // 2개 요소 (0시, 1시)
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.hours(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.HOURS)
@@ -331,6 +379,11 @@ fun <T> ReadableTemporalInterval<T>.hours(step: Int = 1): Sequence<T> where T: T
 
 /**
  * 기간을 [ChronoUnit.DAYS] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 6))
+ * val dayList = interval.days().toList() // [2024-01-01, 2024-01-02, 2024-01-03, 2024-01-04, 2024-01-05]
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.days(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.DAYS)
@@ -338,6 +391,11 @@ fun <T> ReadableTemporalInterval<T>.days(step: Int = 1): Sequence<T> where T: Te
 
 /**
  * 기간을 [ChronoUnit.WEEKS] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 1))
+ * val weekList = interval.weeks().toList() // 주 단위로 나열된 리스트
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.weeks(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.WEEKS)
@@ -345,6 +403,11 @@ fun <T> ReadableTemporalInterval<T>.weeks(step: Int = 1): Sequence<T> where T: T
 
 /**
  * 기간을 [ChronoUnit.MONTHS] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1))
+ * val monthList = interval.months().toList() // [2024-01-01, 2024-02-01, ..., 2024-06-01]
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.months(months: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(months, ChronoUnit.MONTHS)
@@ -352,6 +415,11 @@ fun <T> ReadableTemporalInterval<T>.months(months: Int = 1): Sequence<T> where T
 
 /**
  * 기간을 [ChronoUnit.YEARS] 단위로 열거합니다.
+ *
+ * ```kotlin
+ * val interval = temporalIntervalOf(LocalDate.of(2020, 1, 1), LocalDate.of(2025, 1, 1))
+ * val yearList = interval.years().toList() // [2020-01-01, 2021-01-01, 2022-01-01, 2023-01-01, 2024-01-01]
+ * ```
  */
 fun <T> ReadableTemporalInterval<T>.years(step: Int = 1): Sequence<T> where T: Temporal, T: Comparable<T> {
     return sequence(step, ChronoUnit.YEARS)

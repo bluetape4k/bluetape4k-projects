@@ -4,11 +4,24 @@ import java.util.*
 
 /**
  * ULID를 Java [UUID]로 변환합니다.
+ *
+ * ```kotlin
+ * val ulid: ULID = ULID.nextULID()
+ * val uuid: UUID = ulid.toUUID()
+ * // uuid != null
+ * ```
  */
 fun ULID.toUUID(): UUID = UUID(this.mostSignificantBits, this.leastSignificantBits)
 
 /**
  * Java [UUID]를 ULID로 변환합니다.
+ *
+ * ```kotlin
+ * val uuid = UUID.randomUUID()
+ * val ulid: ULID = ULID.fromUUID(uuid)
+ * val restored: UUID = ulid.toUUID()
+ * // restored == uuid
+ * ```
  */
 fun ULID.Companion.fromUUID(uuid: UUID): ULID =
     ULID.fromByteArray(

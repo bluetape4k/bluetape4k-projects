@@ -11,6 +11,12 @@ import org.mvel2.MVEL
 /**
  * MVEL2 문법으로 표현하는 [Action] 구현체입니다.
  *
+ * ```kotlin
+ * val action = MvelAction("discount = true")
+ * val facts = Facts.of("amount" to 1500)
+ * action.execute(facts)
+ * ```
+ *
  * @property expression MVEL2 표현식
  */
 class MvelAction(val expression: String): Action {

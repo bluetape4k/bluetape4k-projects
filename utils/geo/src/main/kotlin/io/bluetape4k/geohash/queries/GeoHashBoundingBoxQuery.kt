@@ -16,6 +16,12 @@ import java.io.Serializable
 /**
  * 지정된 경계 상자를 기준으로 GeoHash로 표현된 지점을 검색하는 [GeoHashBoundingBoxQuery]를 생성합니다.
  *
+ * ```kotlin
+ * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
+ * val query = geoHashBoundingBoxQueryOf(bbox)
+ * // query.getSearchHashes().isNotEmpty() == true
+ * ```
+ *
  * @param bbox 경계 상자
  * @return GeoHashBoundingBoxQuery
  */
@@ -23,6 +29,12 @@ fun geoHashBoundingBoxQueryOf(bbox: BoundingBox): GeoHashBoundingBoxQuery = GeoH
 
 /**
  * 지정된 경계 상자를 기준으로 GeoHash로 표현된 지점을 검색하는 [GeoHashBoundingBoxQuery]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = geoHashBoundingBoxQueryOf(45.0, 46.0, 120.0, 121.0)
+ * val hashes = query.getSearchHashes()
+ * // hashes.isNotEmpty() == true
+ * ```
  *
  * @param southLatitude 남쪽 위도
  * @param northLatitude 북쪽 위도
@@ -40,6 +52,14 @@ fun geoHashBoundingBoxQueryOf(
 
 /**
  * 경계 상자의 면적으로 지정된 해시를 반환합니다.
+ *
+ * ```kotlin
+ * val bbox = boundingBoxOf(45.0, 46.0, 120.0, 121.0)
+ * val query = GeoHashBoundingBoxQuery(bbox)
+ * val point = WGS84Point(45.5, 120.5)
+ * val result = query.contains(point)
+ * // result == true
+ * ```
  *
  * @param bbox 경계 상자
  */

@@ -10,6 +10,13 @@ import io.bluetape4k.support.requireNotBlank
 /**
  * Kotlin Script를 이용한 [Action] 구현체입니다.
  *
+ * ```kotlin
+ * val action = KotlinScriptAction("bindings[\"discount\"] = true")
+ * val facts = Facts.of("amount" to 1500)
+ * action.execute(facts)
+ * facts.get<Boolean>("discount") // true
+ * ```
+ *
  * @property script Kotlin 스크립트 코드
  */
 class KotlinScriptAction private constructor(val script: String): Action {

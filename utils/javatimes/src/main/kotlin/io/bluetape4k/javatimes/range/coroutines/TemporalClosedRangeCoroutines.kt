@@ -14,18 +14,44 @@ import java.time.temporal.Temporal
 
 /**
  * [TemporalClosedProgression]를 Flow 로 변환합니다.
+ *
+ * ```kotlin
+ * val progression = temporalClosedProgressionOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 3, 0, 0),
+ *     Duration.ofDays(1)
+ * )
+ * progression.asFlow().toList() // [2024-01-01, 2024-01-02, 2024-01-03]
+ * ```
  */
 fun <T> TemporalClosedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
     sequence().asFlow()
 
 /**
  * [TemporalClosedRange]를 Flow 로 변환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 3, 0, 0)
+ * )
+ * range.asFlow().toList() // 1ms 단계로 모든 요소 방출
+ * ```
  */
 fun <T> TemporalClosedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
     sequence().asFlow()
 
 /**
  * [TemporalClosedRange]를 [size] 만큼의 크기로 이동하면서 window를 만들어서 emit 하는 [Flow]를 빌드합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 10, 0, 0)
+ * )
+ * range.windowedFlow(3, 1, ChronoUnit.DAYS).toList()
+ * // [[2024-01-01, 2024-01-02, 2024-01-03], [2024-01-02, ...], ...]
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.windowedFlow(
@@ -105,6 +131,18 @@ fun <T> TemporalClosedRange<T>.windowedFlowMillis(
 ): Flow<List<T>> where T: Temporal, T: Comparable<T> =
     windowedFlow(size, step, ChronoUnit.MILLIS)
 
+/**
+ * [TemporalClosedRange]를 지정 단위로 청크(chunk) 처리하여 [Flow]로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 10, 0, 0)
+ * )
+ * range.chunkedFlow(3, ChronoUnit.DAYS).toList()
+ * // [[2024-01-01, 2024-01-02, 2024-01-03], [2024-01-04, 2024-01-05, 2024-01-06], ...]
+ * ```
+ */
 fun <T> TemporalClosedRange<T>.chunkedFlow(
     size: Int,
     unit: ChronoUnit = ChronoUnit.YEARS,
@@ -150,6 +188,18 @@ fun <T> TemporalClosedRange<T>.chunkedFlowMillis(size: Int): Flow<List<T>> where
     chunkedFlow(size, ChronoUnit.MILLIS)
 
 
+/**
+ * [TemporalClosedRange]의 각 요소와 다음 요소를 지정 단위로 쌍으로 묶어 [Flow]로 반환합니다.
+ *
+ * ```kotlin
+ * val range = temporalClosedRangeOf(
+ *     LocalDateTime.of(2024, 1, 1, 0, 0),
+ *     LocalDateTime.of(2024, 1, 4, 0, 0)
+ * )
+ * range.zipWithNextFlow(ChronoUnit.DAYS).toList()
+ * // [(2024-01-01, 2024-01-02), (2024-01-02, 2024-01-03), (2024-01-03, 2024-01-04)]
+ * ```
+ */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.zipWithNextFlow(unit: ChronoUnit): Flow<Pair<T, T>> where T: Temporal, T: Comparable<T> {
     assert(unit in SupportChronoUnits) { "Not supoorted ChronoUnit. unit=$unit" }

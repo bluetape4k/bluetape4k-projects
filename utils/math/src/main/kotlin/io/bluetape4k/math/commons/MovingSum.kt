@@ -7,6 +7,12 @@ import io.bluetape4k.math.MathConsts.BLOCK_SIZE
 /**
  * 이동 합을 구합니다.
  *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.movingSum(blockSize = 3).toList()
+ * // result == [6.0, 9.0, 12.0]
+ * ```
+ *
  * @param blockSize sum 을 수행할 최대 요소 수 (기본: [BLOCK_SIZE])
  * @return Moving Sum
  */
@@ -70,6 +76,12 @@ fun Sequence<Double>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
 /**
  * 이동 합을 구합니다.
  *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.movingSum(blockSize = 3)
+ * // result == [6.0, 9.0, 12.0]
+ * ```
+ *
  * @param blockSize sum 을 수행할 최대 요소 수 (기본: [BLOCK_SIZE])
  * @return Moving Sum
  */
@@ -79,6 +91,12 @@ fun Iterable<Double>.movingSum(blockSize: Int = BLOCK_SIZE): List<Double> {
 
 /**
  * 이동 합을 구합니다.
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.movingSum(blockSize = 3)
+ * // result == [6.0, 9.0, 12.0]
+ * ```
  *
  * @param blockSize sum 을 수행할 최대 요소 수 (기본: [BLOCK_SIZE])
  * @return Moving Sum
@@ -90,6 +108,12 @@ fun DoubleArray.movingSum(blockSize: Int = BLOCK_SIZE): DoubleArray {
 
 /**
  * Moving Sum 을 계산합니다.
+ *
+ * ```kotlin
+ * val data = sequenceOf(1L, 2L, 3L, 4L, 5L)
+ * val result = data.movingSum(blockSize = 3).toList()
+ * // result == [6L, 9L, 12L]
+ * ```
  *
  * @param blockSize 합을 계산할 구간
  * @return 이동 합
@@ -122,6 +146,15 @@ fun Sequence<Long>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Long> {
     }
 }
 
+/**
+ * 이동 합을 구합니다.
+ *
+ * ```kotlin
+ * val data = listOf(1L, 2L, 3L, 4L, 5L)
+ * val result = data.movingSum(blockSize = 3)
+ * // result == [6L, 9L, 12L]
+ * ```
+ */
 @JvmName("movingSumOfLong")
 fun Iterable<Long>.movingSum(blockSize: Int = BLOCK_SIZE): List<Long> {
     return asSequence().movingSum(blockSize).toList()
@@ -129,6 +162,12 @@ fun Iterable<Long>.movingSum(blockSize: Int = BLOCK_SIZE): List<Long> {
 
 /**
  * 이동 합을 구합니다.
+ *
+ * ```kotlin
+ * val data = longArrayOf(1L, 2L, 3L, 4L, 5L)
+ * val result = data.movingSum(blockSize = 3)
+ * // result == [6L, 9L, 12L]
+ * ```
  *
  * @param blockSize sum 을 수행할 최대 요소 수 (기본: [BLOCK_SIZE])
  * @return Moving Sum

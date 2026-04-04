@@ -37,19 +37,60 @@ object Ksuid {
      * [IdGenerator]를 확장하여 KSUID 전용 편의 메서드를 추가합니다.
      */
     interface Generator : IdGenerator<String> {
-        /** 현재 시각으로 KSUID를 생성합니다. [nextId]와 동일합니다. */
+        /**
+         * 현재 시각으로 KSUID를 생성합니다. [nextId]와 동일합니다.
+         *
+         * ```kotlin
+         * val gen: Ksuid.Generator = Ksuid.Seconds
+         * val id: String = gen.generate()
+         * // id.length == 27
+         * ```
+         */
         fun generate(): String = nextId()
 
-        /** 지정한 [Instant]로 KSUID를 생성합니다. */
+        /**
+         * 지정한 [Instant]로 KSUID를 생성합니다.
+         *
+         * ```kotlin
+         * val gen: Ksuid.Generator = Ksuid.Seconds
+         * val id: String = gen.generate(Instant.now())
+         * // id.length == 27
+         * ```
+         */
         fun generate(instant: Instant): String
 
-        /** 지정한 [Date]로 KSUID를 생성합니다. */
+        /**
+         * 지정한 [Date]로 KSUID를 생성합니다.
+         *
+         * ```kotlin
+         * val gen: Ksuid.Generator = Ksuid.Seconds
+         * val id: String = gen.generate(Date())
+         * // id.length == 27
+         * ```
+         */
         fun generate(date: Date): String
 
-        /** 지정한 [LocalDateTime]으로 KSUID를 생성합니다. (UTC 기준) */
+        /**
+         * 지정한 [LocalDateTime]으로 KSUID를 생성합니다. (UTC 기준)
+         *
+         * ```kotlin
+         * val gen: Ksuid.Generator = Ksuid.Seconds
+         * val id: String = gen.generate(LocalDateTime.now())
+         * // id.length == 27
+         * ```
+         */
         fun generate(dt: LocalDateTime): String
 
-        /** KSUID를 파싱하여 시간, 타임스탬프, 페이로드 정보를 문자열로 반환합니다. */
+        /**
+         * KSUID를 파싱하여 시간, 타임스탬프, 페이로드 정보를 문자열로 반환합니다.
+         *
+         * ```kotlin
+         * val gen: Ksuid.Generator = Ksuid.Seconds
+         * val id: String = gen.generate()
+         * val info: String = gen.prettyString(id)
+         * // info.contains("Time") == true
+         * ```
+         */
         fun prettyString(ksuid: String): String
     }
 

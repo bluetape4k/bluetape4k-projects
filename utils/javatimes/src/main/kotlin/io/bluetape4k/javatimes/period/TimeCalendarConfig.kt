@@ -12,6 +12,14 @@ import java.util.*
 /**
  * 기간 설정을 위한 설정 정보를 제공합니다.
  *
+ * ```kotlin
+ * val config = TimeCalendarConfig.Default
+ * config.startOffset   // Duration.ZERO
+ * config.endOffset     // Duration.ofNanos(-1)
+ * config.firstDayOfWeek // DayOfWeek.MONDAY
+ * val emptyConfig = TimeCalendarConfig.EmptyOffset // start/end 모두 포함
+ * ```
+ *
  * @param locale 기간, 시간, 날짜 등의 로케일 정보를 제공합니다. 기본값은 시스템 로케일입니다.
  * @param startOffset 기간의 시작점을 설정합니다. 기본값은 0 나노초입니다. (startInclusive 를 구현하기 위해)
  * @param endOffset 기간의 종료점을 설정합니다. 기본값은 -1 나노초입니다. (endExclusive 를 구현하기 위해)

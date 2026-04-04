@@ -11,6 +11,12 @@ import java.io.Serializable
 /**
  * 지정된 중심 위치와 반경을 기준으로 GeoHash로 표현된 지점을 검색하는 [GeoHashCircleQuery]를 생성합니다.
  *
+ * ```kotlin
+ * val query = geoHashCircleQueryOf(37.5665, 126.9780, 500.0)
+ * val hashes = query.getSearchHashes()
+ * // hashes.isNotEmpty() == true
+ * ```
+ *
  * @param latitude 위도
  * @param longitude 경도
  * @param radius 반경 (단위: meter)
@@ -20,6 +26,13 @@ fun geoHashCircleQueryOf(latitude: Double, longitude: Double, radius: Double): G
 
 /**
  * 지정된 중심 위치와 반경을 기준으로 GeoHash로 표현된 지점을 검색하는 [GeoHashCircleQuery]를 생성합니다.
+ *
+ * ```kotlin
+ * val center = WGS84Point(37.5665, 126.9780)
+ * val query = geoHashCircleQueryOf(center, 500.0)
+ * val hashes = query.getSearchHashes()
+ * // hashes.isNotEmpty() == true
+ * ```
  *
  * @param center 중심 위치
  * @param radius 반경 (단위: meter)

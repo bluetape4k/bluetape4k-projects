@@ -8,6 +8,17 @@ import java.io.Serializable
 /**
  * Rule 정의 정보를 담는 DTO입니다. (YAML/JSON/HOCON에서 읽은 Rule 정보)
  *
+ * ```kotlin
+ * val def = RuleDefinition(
+ *     name = "discountRule",
+ *     description = "1000원 이상 구매 시 할인",
+ *     priority = 1,
+ *     condition = "amount > 1000",
+ *     actions = listOf("discount = true")
+ * )
+ * val rule = def.toMvelRule()
+ * ```
+ *
  * @property name Rule 이름
  * @property description Rule 설명
  * @property priority Rule 우선순위

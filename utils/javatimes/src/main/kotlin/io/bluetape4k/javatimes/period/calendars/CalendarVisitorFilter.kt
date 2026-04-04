@@ -13,6 +13,14 @@ import java.time.Month
 
 /**
  * Calendar 탐색 시의 필터링을 할 조건을 가지는 클래스입니다.
+ *
+ * ```kotlin
+ * val filter = CalendarVisitorFilter()
+ * filter.addWorkingWeekdays() // 월~금 요일만 포함
+ * filter.addYears(2024)       // 2024년만 필터링
+ * filter.addMonthOfYears(Month.JANUARY, Month.FEBRUARY) // 1월, 2월만 수집
+ * filter.dayOfWeeks // [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
+ * ```
  */
 open class CalendarVisitorFilter: AbstractValueObject(), ICalendarVisitorFilter, Serializable {
 

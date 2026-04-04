@@ -17,7 +17,19 @@ import java.time.Duration
 import java.time.ZonedDateTime
 
 /**
- * DateAdd
+ * 포함/제외 기간을 설정하여 시작 일자로부터 특정 기간 이후 또는 이전의 일자를 계산하는 클래스입니다.
+ *
+ * ```kotlin
+ * val start = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+ * val dateAdd = DateAdd().apply {
+ *     excludePeriods.add(TimeRange(
+ *         ZonedDateTime.of(2024, 1, 5, 0, 0, 0, 0, ZoneOffset.UTC),
+ *         ZonedDateTime.of(2024, 1, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+ *     ))
+ * }
+ * dateAdd.add(start, Duration.ofDays(4)) // 1월 5일 제외 → 1월 10일
+ * dateAdd.subtract(start.plusDays(20), Duration.ofDays(15)) // 제외 기간을 제외하고 이전 날짜 계산
+ * ```
  */
 open class DateAdd protected constructor() {
 

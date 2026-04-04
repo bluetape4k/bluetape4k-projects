@@ -6,6 +6,11 @@ import java.time.ZonedDateTime
 
 /**
  * 분 단위의 기간을 나타내는 [MinuteRange]의 컬렉션 클래스입니다.
+ *
+ * ```kotlin
+ * val minutes = MinuteRangeCollection(ZonedDateTime.of(2024, 6, 15, 9, 0, 0, 0, ZoneOffset.UTC), 30)
+ * minutes.minutes().size // 30 (9:00 ~ 9:29)
+ * ```
  */
 open class MinuteRangeCollection(
     startTime: ZonedDateTime = ZonedDateTime.now(),

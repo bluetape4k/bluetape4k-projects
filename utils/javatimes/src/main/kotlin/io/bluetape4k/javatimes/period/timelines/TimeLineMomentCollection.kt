@@ -6,6 +6,16 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimeLineMomentCollection] 의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val collection = TimeLineMomentCollection()
+ * val period = TimeRange(now, now.plusDays(1))
+ * collection.add(period)
+ * collection.find(now)?.startCount  // 1
+ * collection.minOrNull()?.moment    // now
+ * collection.maxOrNull()?.moment    // now + 1d
+ * ```
  */
 @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 open class TimeLineMomentCollection protected constructor(

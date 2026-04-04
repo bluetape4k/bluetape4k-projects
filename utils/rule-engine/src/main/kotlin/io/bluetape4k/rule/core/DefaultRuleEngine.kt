@@ -37,6 +37,16 @@ open class DefaultRuleEngine(
 
     /**
      * [RuleListener]를 등록합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * engine.registerRuleListener(object : RuleListener {
+     *     override fun beforeEvaluate(rule: Rule, facts: Facts): Boolean {
+     *         println("Evaluating: ${rule.name}")
+     *         return true
+     *     }
+     * })
+     * ```
      */
     fun registerRuleListener(listener: RuleListener) {
         _ruleListeners.add(listener)
@@ -44,6 +54,12 @@ open class DefaultRuleEngine(
 
     /**
      * [RuleListener]들을 등록합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * val listeners = listOf(listener1, listener2)
+     * engine.registerRuleListeners(listeners)
+     * ```
      */
     fun registerRuleListeners(listeners: Iterable<RuleListener>) {
         _ruleListeners.addAll(listeners)
@@ -51,6 +67,12 @@ open class DefaultRuleEngine(
 
     /**
      * 모든 [RuleListener]를 제거합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * engine.clearRuleListeners()
+     * engine.ruleListeners.isEmpty() // true
+     * ```
      */
     fun clearRuleListeners() {
         _ruleListeners.clear()
@@ -58,6 +80,15 @@ open class DefaultRuleEngine(
 
     /**
      * [RuleEngineListener]를 등록합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * engine.registerRuleEngineListener(object : RuleEngineListener {
+     *     override fun afterExecute(rules: Iterable<Rule>, facts: Facts) {
+     *         println("All rules done")
+     *     }
+     * })
+     * ```
      */
     fun registerRuleEngineListener(listener: RuleEngineListener) {
         _ruleEngineListeners.add(listener)
@@ -65,6 +96,11 @@ open class DefaultRuleEngine(
 
     /**
      * [RuleEngineListener]들을 등록합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * engine.registerRuleEngineListeners(listOf(listener1, listener2))
+     * ```
      */
     fun registerRuleEngineListeners(listeners: Iterable<RuleEngineListener>) {
         _ruleEngineListeners.addAll(listeners)
@@ -72,6 +108,12 @@ open class DefaultRuleEngine(
 
     /**
      * 모든 [RuleEngineListener]를 제거합니다.
+     *
+     * ```kotlin
+     * val engine = DefaultRuleEngine()
+     * engine.clearEngineListeners()
+     * engine.ruleEngineListeners.isEmpty() // true
+     * ```
      */
     fun clearEngineListeners() {
         _ruleEngineListeners.clear()

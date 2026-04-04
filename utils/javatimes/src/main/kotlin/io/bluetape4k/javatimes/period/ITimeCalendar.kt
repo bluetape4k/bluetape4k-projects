@@ -14,6 +14,15 @@ import java.time.temporal.WeekFields
 
 /**
  * 시간 단위의 달력을 나타내는 인터페이스
+ *
+ * ```kotlin
+ * val calendar: ITimeCalendar = TimeCalendar.Default
+ * val now = ZonedDateTime.now()
+ * calendar.year(now)        // 현재 연도
+ * calendar.monthOfYear(now) // 현재 월 (1-12)
+ * calendar.dayOfWeek(now)   // 현재 요일 (DayOfWeek)
+ * calendar.startOfWeek(now) // 이번 주 월요일 자정
+ * ```
  */
 interface ITimeCalendar: ITimePeriodMapper {
 

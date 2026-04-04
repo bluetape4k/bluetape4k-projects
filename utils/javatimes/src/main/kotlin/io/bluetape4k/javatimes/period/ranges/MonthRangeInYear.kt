@@ -8,6 +8,15 @@ import java.time.Month
 /**
  * 한 해에 속한 월의 범위를 나타내는 클래스
  *
+ * ```kotlin
+ * val range = MonthRangeInYear(Month.JANUARY, Month.JUNE)
+ * range.startMonthOfYear  // 1
+ * range.endMonthOfYear    // 6
+ * range.isSingleMonth     // false
+ * range.hasInside(Month.MARCH) // true
+ * range.hasInside(Month.JULY)  // false
+ * ```
+ *
  * @property startMonth 시작 월
  * @property endMonth 마지막 월
  */

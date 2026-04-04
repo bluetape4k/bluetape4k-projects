@@ -7,6 +7,12 @@ import java.util.concurrent.ArrayBlockingQueue
 /**
  * 표준 이동평균 (Standard Moving Average)
  *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.standardMovingAverage(blockSize = 3).toList()
+ * // result == [2.0, 3.0, 4.0]
+ * ```
+ *
  * @param blockSize 이동 평균을 계산하기 위한 항목 수 (최소 2)
  * @return 이동평균
  */
@@ -68,6 +74,12 @@ fun Sequence<Double>.standardMovingAverage(blockSize: Int = BLOCK_SIZE): Sequenc
 /**
  * 표준 이동평균 (Standard Moving Average)
  *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.standardMovingAverage(blockSize = 3)
+ * // result == [2.0, 3.0, 4.0]
+ * ```
+ *
  * @param blockSize 이동 평균을 계산하기 위한 항목 수 (최소 2)
  * @return 이동평균
  */
@@ -77,6 +89,12 @@ fun Iterable<Double>.standardMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleA
 
 /**
  * 표준 이동평균 (Standard Moving Average)
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.standardMovingAverage(blockSize = 3)
+ * // result == [2.0, 3.0, 4.0]
+ * ```
  *
  * @param blockSize 이동 평균을 계산하기 위한 항목 수 (최소 2)
  * @return 이동평균
@@ -88,8 +106,14 @@ fun DoubleArray.standardMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleArray 
 /**
  * 지수 방식으로 이동평균을 구합니다. (표준방식보다 부드러운 곡선을 만듭니다)
  *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.exponentialMovingAverage(blockSize = 3).toList()
+ * // result ≈ [2.0, 3.0, 4.0] (지수 가중 평균)
+ * ```
+ *
  * @param blockSize 이동 평균을 계산하기 위한 항목 수 (최소 2)
- * @return
+ * @return 지수 이동평균 시퀀스
  */
 fun Sequence<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
     assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
@@ -154,16 +178,40 @@ fun Sequence<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): Sequ
     }
 }
 
+/**
+ * 지수 방식으로 이동평균을 구합니다. (표준방식보다 부드러운 곡선을 만듭니다)
+ *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.exponentialMovingAverage(blockSize = 3)
+ * // result ≈ [2.0, 3.0, 4.0] (지수 가중 평균)
+ * ```
+ */
 fun Iterable<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): List<Double> {
     return asSequence().exponentialMovingAverage(blockSize).toList()
 }
 
+/**
+ * 지수 방식으로 이동평균을 구합니다. (표준방식보다 부드러운 곡선을 만듭니다)
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.expontentialMovingAverage(blockSize = 3)
+ * // result ≈ [2.0, 3.0, 4.0] (지수 가중 평균)
+ * ```
+ */
 fun DoubleArray.expontentialMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleArray {
     return asSequence().exponentialMovingAverage(blockSize).toDoubleArray()
 }
 
 /**
  * 누적 이동평균 (Cumulative Moving Average)
+ *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.cumulativeMovingAverage().toList()
+ * // result == [1.0, 1.5, 2.0, 2.5, 3.0]
+ * ```
  *
  * @return 누적 이동평균
  */
@@ -179,6 +227,12 @@ fun Sequence<Double>.cumulativeMovingAverage(): Sequence<Double> {
 /**
  * 누적 이동평균 (Cumulative Moving Average)
  *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.cumulativeMovingAverage()
+ * // result == [1.0, 1.5, 2.0, 2.5, 3.0]
+ * ```
+ *
  * @return 누적 이동평균
  */
 fun Iterable<Double>.cumulativeMovingAverage(): List<Double> {
@@ -188,6 +242,12 @@ fun Iterable<Double>.cumulativeMovingAverage(): List<Double> {
 /**
  * 누적 이동평균 (Cumulative Moving Average)
  *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.cumulativeMovingAverage()
+ * // result == [1.0, 1.5, 2.0, 2.5, 3.0]
+ * ```
+ *
  * @return 누적 이동평균
  */
 fun DoubleArray.cumulativeMovingAverage(): DoubleArray {
@@ -196,6 +256,12 @@ fun DoubleArray.cumulativeMovingAverage(): DoubleArray {
 
 /**
  * 지정한 시퀀스의 항목에 가중치를 준 이동평균을 계산합니다.
+ *
+ * ```kotlin
+ * val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.weightedMovingAverage(blockSize = 3) { i -> i.toDouble() }.toList()
+ * // result ≈ [2.33, 3.33, 4.33] (가중치 1, 2, 3 적용)
+ * ```
  *
  * @param blockSize  이동평균 계산 시 변량 수
  * @param weightingFunc 가중치 함수
@@ -231,6 +297,15 @@ inline fun Sequence<Double>.weightedMovingAverage(
     }
 }
 
+/**
+ * 지정한 컬렉션의 항목에 가중치를 준 이동평균을 계산합니다.
+ *
+ * ```kotlin
+ * val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.weightedMovingAverage(blockSize = 3) { i -> i.toDouble() }
+ * // result ≈ [2.33, 3.33, 4.33] (가중치 1, 2, 3 적용)
+ * ```
+ */
 inline fun Iterable<Double>.weightedMovingAverage(
     blockSize: Int = BLOCK_SIZE,
     crossinline weightingFunc: (Int) -> Double,
@@ -238,6 +313,15 @@ inline fun Iterable<Double>.weightedMovingAverage(
     return asSequence().weightedMovingAverage(blockSize, weightingFunc).toList()
 }
 
+/**
+ * 지정한 배열의 항목에 가중치를 준 이동평균을 계산합니다.
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val result = data.weightedMovingAverage(blockSize = 3) { i -> i.toDouble() }
+ * // result ≈ [2.33, 3.33, 4.33] (가중치 1, 2, 3 적용)
+ * ```
+ */
 inline fun DoubleArray.weightedMovingAverage(
     blockSize: Int = BLOCK_SIZE,
     crossinline weightingFunc: (Int) -> Double,

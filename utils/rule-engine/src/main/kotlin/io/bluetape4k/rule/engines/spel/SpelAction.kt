@@ -15,6 +15,12 @@ import org.springframework.expression.spel.support.StandardEvaluationContext
 /**
  * Spring Expression Language(SpEL)을 이용한 [Action] 구현체입니다.
  *
+ * ```kotlin
+ * val action = SpelAction("#amount > 0 ? (#discount = 10) : (#discount = 0)")
+ * val facts = Facts.of("amount" to 1500, "discount" to 0)
+ * action.execute(facts)
+ * ```
+ *
  * @property expression SpEL 표현식
  */
 class SpelAction private constructor(

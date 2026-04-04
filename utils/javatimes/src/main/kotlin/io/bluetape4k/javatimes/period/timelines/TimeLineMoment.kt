@@ -7,6 +7,14 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimeLineMoment]의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val moment = TimeLineMoment(now)
+ * moment.moment     // now
+ * moment.startCount // 이 시각에서 시작하는 기간 수
+ * moment.endCount   // 이 시각에서 종료하는 기간 수
+ * ```
  */
 open class TimeLineMoment(override val moment: ZonedDateTime): AbstractValueObject(), ITimeLineMoment {
 

@@ -8,6 +8,13 @@ import java.util.*
 /**
  * [UUID]를 HashIds 로 인코딩합니다.
  *
+ * ```kotlin
+ * val hashids = Hashids("salt")
+ * val uuid = UUID.randomUUID()
+ * val encoded = hashids.encodeUUID(uuid)
+ * // encoded.isNotBlank() == true
+ * ```
+ *
  * @param uuid 인코딩할 UUID
  * @return HashIds 로 인코딩된 문자열
  */
@@ -15,6 +22,14 @@ fun Hashids.encodeUUID(uuid: UUID): String = encode(*uuid.toLongArray())
 
 /**
  * HashIds 로 인코딩된 문자열을 [UUID]로 디코딩합니다.
+ *
+ * ```kotlin
+ * val hashids = Hashids("salt")
+ * val uuid = UUID.randomUUID()
+ * val encoded = hashids.encodeUUID(uuid)
+ * val decoded = hashids.decodeUUID(encoded)
+ * // decoded == uuid
+ * ```
  *
  * @param hash 디코딩할 HashIds 문자열
  * @return 디코딩된 UUID

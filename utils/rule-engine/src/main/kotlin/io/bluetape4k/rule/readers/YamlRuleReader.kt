@@ -10,6 +10,20 @@ import java.io.Reader
 
 /**
  * YAML 형식의 Rule 정의를 읽어들이는 [RuleReader] 구현체입니다.
+ *
+ * ```kotlin
+ * val yaml = """
+ *   name: discountRule
+ *   description: 할인 규칙
+ *   priority: 1
+ *   condition: "amount > 1000"
+ *   actions:
+ *     - "discount = true"
+ * """.trimIndent()
+ * val reader = YamlRuleReader()
+ * val definition = reader.read(yaml.reader())
+ * val rule = definition.toMvelRule()
+ * ```
  */
 class YamlRuleReader(
     private val mapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule(),

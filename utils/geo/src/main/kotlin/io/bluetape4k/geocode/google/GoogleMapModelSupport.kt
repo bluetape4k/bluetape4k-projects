@@ -54,22 +54,50 @@ fun GeocodingResult.toAddress(): GoogleAddress =
     )
 
 
-/** 국가명 컴포넌트를 조회합니다. */
+/**
+ * 국가명 컴포넌트를 조회합니다.
+ *
+ * ```kotlin
+ * val country = result.country
+ * // country == "South Korea"
+ * ```
+ */
 val GeocodingResult.country: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.COUNTRY) }?.longName
 
-/** 도시(행정구역 레벨1) 이름을 조회합니다. */
+/**
+ * 도시(행정구역 레벨1) 이름을 조회합니다.
+ *
+ * ```kotlin
+ * val city = result.city
+ * // city == "Seoul"
+ * ```
+ */
 val GeocodingResult.city: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.ADMINISTRATIVE_AREA_LEVEL_1) }?.longName
 
-/** 상세 주소 문자열을 조합해 반환합니다. */
+/**
+ * 상세 주소 문자열을 조합해 반환합니다.
+ *
+ * ```kotlin
+ * val detail = result.detailAddress
+ * // detail.isNotBlank()
+ * ```
+ */
 val GeocodingResult.detailAddress: String
     get() = addressComponents.find { it.types.contains(AddressComponentType.PREMISE) }?.longName + " " +
             addressComponents
                 .filter { it.types.contains(AddressComponentType.SUBLOCALITY) }
                 .joinToString(" ") { it.longName }
 
-/** 우편번호 컴포넌트를 조회합니다. */
+/**
+ * 우편번호 컴포넌트를 조회합니다.
+ *
+ * ```kotlin
+ * val zipCode = result.zipCode
+ * // zipCode == "06627"
+ * ```
+ */
 val GeocodingResult.zipCode: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.POSTAL_CODE) }?.longName
 

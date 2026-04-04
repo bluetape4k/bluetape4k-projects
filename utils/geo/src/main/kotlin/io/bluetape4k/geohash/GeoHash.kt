@@ -7,7 +7,13 @@ import java.io.Serializable
 import kotlin.math.ceil
 
 /**
- * GeoHash를 생성합니다.
+ * WGS84 좌표를 Base32 인코딩된 공간 해시로 변환하는 클래스입니다.
+ *
+ * ```kotlin
+ * val hash = GeoHash(37.5665, 126.9780, 25)
+ * val base32 = hash.toBase32()
+ * // base32 == "wydjx"
+ * ```
  */
 class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
@@ -35,6 +41,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
         /**
          * 위 경도로 [GeoHash]를 생성합니다.
+         *
+         * ```kotlin
+         * val hash = GeoHash(37.5665, 126.9780, 25)
+         * val base32 = hash.toBase32()
+         * // base32 == "wydjx"
+         * ```
          *
          * @param latitude 위도
          * @param longitude 경도
@@ -74,12 +86,36 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
     var significantBits: Byte = 0
         internal set
 
+    /**
+     * 유효 비트 수를 정수로 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithBits(37.5665, 126.9780, 25)
+     * val bits = hash.significantBits()
+     * // bits == 25
+     * ```
+     */
     fun significantBits(): Int = significantBits.toInt()
 
+    /**
+     * GeoHash의 비트 값을 Long으로 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val longVal = hash.longValue
+     * // longVal == hash.bits
+     * ```
+     */
     val longValue: Long get() = bits
 
     /**
      * [GeoHash]의 이웃 [GeoHash]를 반환합니다. (step = 1)
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val next = hash.next()
+     * // next.ord() == hash.ord() + 1
+     * ```
      */
     fun next(step: Int = 1): GeoHash {
         return geoHashOfOrd(ord() + step, significantBits)
@@ -87,9 +123,24 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 전 [GeoHash]를 반환합니다. (step = -1)
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val prev = hash.prev()
+     * // prev.ord() == hash.ord() - 1
+     * ```
      */
     fun prev(): GeoHash = next(-1)
 
+    /**
+     * GeoHash의 순서 값을 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val ord = hash.ord()
+     * // ord >= 0L
+     * ```
+     */
     fun ord(): Long {
         val insignificantBits = MAX_BIT_PRECISION - significantBits
         return bits ushr insignificantBits
@@ -97,6 +148,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 문자 정밀도를 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val precision = hash.getCharacterPrecision()
+     * // precision == 5
+     * ```
      */
     fun getCharacterPrecision(): Int {
         check(significantBits % 5 == 0) { "significant bits는 5의 배수이어야 합니다 [$significantBits]" }
@@ -106,6 +163,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * GeoHash 값을 `Base32` 인코딩 문자열로 반환한다 (정확도가 5의 배수여야 함).
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val base32 = hash.toBase32()
+     * // base32.length == 5
+     * ```
      */
     fun toBase32(): String {
         check(significantBits % 5 == 0) {
@@ -127,6 +190,13 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * GeoHash 가 [boundingBox] 내에 있는지 확인합니다.
+     *
+     * ```kotlin
+     * val parent = geoHashWithCharacters(37.5665, 126.9780, 4)
+     * val child = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val result = child.within(parent)
+     * // result == true
+     * ```
      */
     fun within(boundingBox: GeoHash): Boolean {
         return bits and boundingBox.mask() == boundingBox.bits
@@ -134,6 +204,13 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * GeoHash 가 [point]를 포함하는지 확인합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val point = WGS84Point(37.5665, 126.9780)
+     * val result = point in hash
+     * // result == true
+     * ```
      */
     operator fun contains(point: WGS84Point): Boolean {
         return boundingBox.contains(point)
@@ -184,6 +261,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 북쪽의 이웃 [GeoHash]를 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val north = hash.getNorthernNeighbor()
+     * // north.boundingBox.southLatitude >= hash.boundingBox.northLatitude
+     * ```
      */
     fun getNorthernNeighbor(): GeoHash {
         val latitudeBits = getRightAlignedLatitudeBits()
@@ -194,6 +277,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 남쪽의 이웃 [GeoHash]를 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val south = hash.getSouthernNeighbor()
+     * // south.boundingBox.northLatitude <= hash.boundingBox.southLatitude
+     * ```
      */
     fun getSouthernNeighbor(): GeoHash {
         val latitudeBits = getRightAlignedLatitudeBits()
@@ -204,6 +293,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 동쪽의 이웃 [GeoHash]를 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val east = hash.getEasternNeighbor()
+     * // east.boundingBox.westLongitude >= hash.boundingBox.eastLongitude
+     * ```
      */
     fun getEasternNeighbor(): GeoHash {
         val latitudeBits = getRightAlignedLatitudeBits()
@@ -214,6 +309,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     /**
      * 서쪽의 이웃 [GeoHash]를 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+     * val west = hash.getWesternNeighbor()
+     * // west.boundingBox.eastLongitude <= hash.boundingBox.westLongitude
+     * ```
      */
     fun getWesternNeighbor(): GeoHash {
         val latitudeBits = getRightAlignedLatitudeBits()
@@ -280,6 +381,15 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
         }
     }
 
+    /**
+     * GeoHash를 2진 문자열로 반환합니다.
+     *
+     * ```kotlin
+     * val hash = geoHashWithBits(37.5665, 126.9780, 10)
+     * val binary = hash.toBinaryString()
+     * // binary.length == 9
+     * ```
+     */
     fun toBinaryString(): String = buildString {
         var bitsCopy = bits
         repeat(significantBits - 1) {

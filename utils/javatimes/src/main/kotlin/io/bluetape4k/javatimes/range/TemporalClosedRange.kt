@@ -13,6 +13,14 @@ import java.time.temporal.Temporal
  * - 현재는 epoch-millis 기반 순회가 가능한 시간 타입을 대상으로 설계되어 있습니다.
  * - `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, `Timestamp` 계열 사용을 권장합니다.
  * - `LocalDate`는 지원하지 않습니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 5, 0, 0)
+ * val range = TemporalClosedRange(start, end)
+ * range.contains(LocalDateTime.of(2024, 1, 3, 0, 0)) // true
+ * range.contains(LocalDateTime.of(2024, 1, 5, 0, 0)) // true (inclusive)
+ * ```
  */
 class TemporalClosedRange<T>(
     start: T,

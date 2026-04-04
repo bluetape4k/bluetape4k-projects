@@ -28,6 +28,14 @@ object KotlinScriptEngine: KLogging() {
     /**
      * Kotlin 스크립트를 실행합니다.
      *
+     * ```kotlin
+     * val result = KotlinScriptEngine.evaluate(
+     *     "val x = bindings[\"x\"] as Int; x * 2",
+     *     mapOf("x" to 5)
+     * )
+     * // result == 10
+     * ```
+     *
      * @param script 실행할 Kotlin 스크립트
      * @param bindings 스크립트에 전달할 변수 맵
      * @return 스크립트 실행 결과

@@ -40,6 +40,14 @@ object BingMapService: KLogging() {
     const val BASE_URL = "https://dev.virtualearth.net"
     const val REST_V1 = "/REST/v1"
 
+    /**
+     * Bing Maps API Key를 반환합니다.
+     *
+     * ```kotlin
+     * val key = BingMapService.apiKey
+     * // key.isNotBlank() == true
+     * ```
+     */
     @JvmStatic
     val apiKey: String by lazy { Resourcex.getString("BingGeocodeApi.key") }
 

@@ -10,6 +10,16 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimePeriodChain] 의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val chain = TimePeriodChain()
+ * chain.add(TimeBlock(now, Duration.ofHours(2)))
+ * chain.add(TimeBlock(now.plusHours(2), Duration.ofHours(3)))
+ * chain.headOrNull()?.start // now
+ * chain.lastOrNull()?.end   // now + 5h
+ * chain.size // 2
+ * ```
  */
 open class TimePeriodChain: TimePeriodContainer(), ITimePeriodChain {
 

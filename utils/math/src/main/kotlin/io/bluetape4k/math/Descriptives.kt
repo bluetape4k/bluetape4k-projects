@@ -18,6 +18,12 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
  * more values are added than can be stored in the dataset, new values are
  * added in a "rolling" manner, with new values replacing the "oldest" values
  * in the dataset.
+ *
+ * ```kotlin
+ * val data = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val stats = data.descriptiveStatistics()
+ * // stats.mean == 3.0, stats.min == 1.0, stats.max == 5.0
+ * ```
  */
 interface Descriptives {
     /**

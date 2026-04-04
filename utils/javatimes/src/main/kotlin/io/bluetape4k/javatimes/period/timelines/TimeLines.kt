@@ -8,6 +8,15 @@ import io.bluetape4k.logging.KLogging
 
 /**
  * [ITimeLine]을 위한 유틸리티 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val collection = TimeLineMomentCollection()
+ * collection.add(TimeRange(now, now.plusDays(3)))
+ * collection.add(TimeRange(now.plusDays(2), now.plusDays(5)))
+ * val combined = TimeLines.combinePeriods(collection) // 하나의 연속된 기간으로 합치기
+ * val gaps = TimeLines.calculateGap(collection, TimeRange(now, now.plusDays(7))) // 빈 구간 계산
+ * ```
  */
 object TimeLines: KLogging() {
 

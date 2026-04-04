@@ -12,6 +12,19 @@ import java.io.Reader
 
 /**
  * HOCON 형식의 Rule 정의를 읽어들이는 [RuleReader] 구현체입니다.
+ *
+ * ```kotlin
+ * val hocon = """
+ *   name = discountRule
+ *   description = "할인 규칙"
+ *   priority = 1
+ *   condition = "amount > 1000"
+ *   actions = ["discount = true"]
+ * """.trimIndent()
+ * val reader = HoconRuleReader()
+ * val definition = reader.read(hocon.reader())
+ * val rule = definition.toMvelRule()
+ * ```
  */
 class HoconRuleReader: RuleReader<Reader> {
 

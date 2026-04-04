@@ -22,6 +22,15 @@ import io.bluetape4k.logging.trace
 
 /**
  * [filter]를 이용하여 [limits] 범위에서 원하는 기간을 찾습니다.
+ *
+ * ```kotlin
+ * val filter = CalendarPeriodCollectorFilter()
+ * filter.addDayOfWeeks(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY) // 주말만 수집
+ * val limits = TimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusMonths(1))
+ * val collector = CalendarPeriodCollector(filter, limits, SeekDirection.FORWARD)
+ * collector.collectDays()
+ * val weekends = collector.periods // 해당 월의 주말 기간 목록
+ * ```
  */
 class CalendarPeriodCollector private constructor(
     filter: CalendarPeriodCollectorFilter,

@@ -9,6 +9,12 @@ import java.time.ZonedDateTime
 
 /**
  * 여러 분기를 기간으로 나타내는 클래스입니다.
+ *
+ * ```kotlin
+ * val quarters = QuarterRangeCollection(2024, Quarter.Q1, 3) // 2024년 1~3분기
+ * quarters.quarters().size // 3
+ * quarters.quarterSequence().toList().map { it.quarter } // [Q1, Q2, Q3]
+ * ```
  */
 open class QuarterRangeCollection(
     startTime: ZonedDateTime = todayZonedDateTime(),

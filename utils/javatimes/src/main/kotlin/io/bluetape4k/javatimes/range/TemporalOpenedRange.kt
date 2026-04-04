@@ -15,6 +15,15 @@ import java.time.temporal.Temporal
  * - `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, `Timestamp` 계열 사용을 권장합니다.
  * - `LocalDate`는 지원하지 않습니다.
  *
+ * ```kotlin
+ * val start = Instant.ofEpochMilli(0L)
+ * val end   = Instant.ofEpochMilli(1000L)
+ * val range = TemporalOpenedRange(start, end)
+ * range.contains(Instant.ofEpochMilli(500L))  // true
+ * range.contains(Instant.ofEpochMilli(1000L)) // false (endExclusive)
+ * range.isEmpty() // false
+ * ```
+ *
  * @param T
  * @constructor
  *

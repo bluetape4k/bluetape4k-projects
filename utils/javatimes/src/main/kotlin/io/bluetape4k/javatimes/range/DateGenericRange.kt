@@ -7,8 +7,13 @@ import java.util.*
 /**
  * [Date] 를 요소로하는 [ClosedRange]`<T>` 구현체입니다.
  *
- * ```
+ * ```kotlin
  * val range = DateGenericRange(Date(0L), Date(1000L))
+ * range.start         // Date(0L)
+ * range.endInclusive  // Date(1000L)
+ * range.isEmpty()     // false
+ * range.contains(Date(500L)) // true
+ * range.contains(Date(2000L)) // false
  * ```
  *
  * @param start         start date

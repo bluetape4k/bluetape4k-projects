@@ -30,19 +30,40 @@ object Geoip : KLogging() {
     private const val GEO_CITY_DB = "GeoLite2-City.mmdb"
     private const val GEO_COUNTRY_DB = "GeoLite2-Country.mmdb"
 
-    /** ASN 데이터베이스 리더입니다. */
+    /**
+     * ASN 데이터베이스 리더입니다.
+     *
+     * ```kotlin
+     * val asnDb = Geoip.asnDatabase
+     * // asnDb != null
+     * ```
+     */
     @JvmStatic
     val asnDatabase: DatabaseReader by lazy {
         createDatabaseReader(GEO_ASN_DB)
     }
 
-    /** City 데이터베이스 리더입니다. */
+    /**
+     * City 데이터베이스 리더입니다.
+     *
+     * ```kotlin
+     * val cityDb = Geoip.cityDatabase
+     * // cityDb != null
+     * ```
+     */
     @JvmStatic
     val cityDatabase: DatabaseReader by lazy {
         createDatabaseReader(GEO_CITY_DB)
     }
 
-    /** Country 데이터베이스 리더입니다. */
+    /**
+     * Country 데이터베이스 리더입니다.
+     *
+     * ```kotlin
+     * val countryDb = Geoip.countryDatabase
+     * // countryDb != null
+     * ```
+     */
     @JvmStatic
     val countryDatabase: DatabaseReader by lazy {
         createDatabaseReader(GEO_COUNTRY_DB)

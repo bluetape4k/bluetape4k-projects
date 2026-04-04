@@ -5,6 +5,16 @@ import java.time.ZonedDateTime
 
 /**
  * [ITimePeriodCollection]의 기본 구현체
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val collection = TimePeriodCollection()
+ * collection.add(TimeRange(now, now.plusDays(3)))
+ * collection.add(TimeRange(now.plusDays(1), now.plusDays(5)))
+ * val target = TimeRange(now.plusDays(1), now.plusDays(2))
+ * collection.hasInsidePeriods(target)  // true
+ * collection.overlapPeriods(target).size // 2
+ * ```
  */
 open class TimePeriodCollection: TimePeriodContainer(), ITimePeriodCollection {
 

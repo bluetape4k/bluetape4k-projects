@@ -13,7 +13,20 @@ import io.bluetape4k.rule.annotation.Priority as PriorityAnnotation
 import io.bluetape4k.rule.annotation.Rule as RuleAnnotation
 
 /**
- * 어노테이션 기반 Rule 정의를 검증하는 클래스입��다.
+ * 어노테이션 기반 Rule 정의를 검증하는 클래스입니다.
+ *
+ * ```kotlin
+ * @Rule(name = "myRule")
+ * class MyRule {
+ *     @Condition
+ *     fun check(facts: Facts): Boolean = true
+ *     @Action
+ *     fun execute(facts: Facts) { }
+ * }
+ *
+ * val validator = RuleDefinitionValidator()
+ * validator.validate(MyRule()) // 유효하면 통과, 아니면 InvalidRuleDefinitionException 발생
+ * ```
  */
 class RuleDefinitionValidator {
 

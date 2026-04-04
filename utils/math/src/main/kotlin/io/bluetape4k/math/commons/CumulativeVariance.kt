@@ -4,6 +4,11 @@ import io.bluetape4k.collections.toDoubleArray
 
 /**
  * 시퀀스의 누적 분산을 계산합니다.
+ *
+ * ```kotlin
+ * val result = sequenceOf(1.0, 2.0, 3.0, 4.0).cumulativeVariance().toList()
+ * // [0.5, 1.0, 1.6666...]
+ * ```
  */
 fun <N: Number> Sequence<N>.cumulativeVariance(): Sequence<Double> {
     var n = 1
@@ -23,6 +28,11 @@ fun <N: Number> Sequence<N>.cumulativeVariance(): Sequence<Double> {
 
 /**
  * Collection의 누적 분산을 계산합니다.
+ *
+ * ```kotlin
+ * val result = listOf(1.0, 2.0, 3.0, 4.0).cumulativeVariance()
+ * // [0.5, 1.0, 1.6666...]
+ * ```
  */
 fun <N: Number> Iterable<N>.cumulativeVariance(
     destination: MutableList<Double> = mutableListOf(),
@@ -31,6 +41,14 @@ fun <N: Number> Iterable<N>.cumulativeVariance(
     return destination
 }
 
+/**
+ * DoubleArray의 누적 분산을 계산합니다.
+ *
+ * ```kotlin
+ * val result = doubleArrayOf(1.0, 2.0, 3.0, 4.0).cumulativeVariance()
+ * // [0.5, 1.0, 1.6666...]
+ * ```
+ */
 fun DoubleArray.cumulativeVariance(): DoubleArray {
     return asSequence().cumulativeVariance().toDoubleArray()
 }

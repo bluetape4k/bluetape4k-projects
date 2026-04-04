@@ -9,6 +9,12 @@ import org.apache.commons.math3.stat.ranking.TiesStrategy
  * 요소의 순위를 계산합니다.
  * 가장 높은 수가 rank = 0 입니다.
  *
+ * ```kotlin
+ * val data = sequenceOf(30.0, 10.0, 20.0)
+ * val result = data.ranking()
+ * // result == {30.0 -> 0, 10.0 -> 2, 20.0 -> 1}
+ * ```
+ *
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)
  * @param tiesStrategy 값이 같을 경우 순위 전략 (기본: 높은 순위로 지정)
  * @return 요소별 순위 정보
@@ -32,6 +38,12 @@ fun <T> Sequence<T>.ranking(
  * 요소의 순위를 계산합니다.
  * 가장 높은 수가 rank = 0 입니다.
  *
+ * ```kotlin
+ * val data = listOf(30.0, 10.0, 20.0)
+ * val result = data.ranking()
+ * // result == {30.0 -> 0, 10.0 -> 2, 20.0 -> 1}
+ * ```
+ *
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)
  * @param tiesStrategy 값이 같을 경우 순위 전략 (기본: 높은 순위로 지정)
  * @return 요소별 순위 정보
@@ -46,6 +58,13 @@ fun <T> Iterable<T>.ranking(
 /**
  * 요소들의 특정 값(V)을 기준으로 순위를 매깁니다.
  * 가장 높은 수가 rank = 0 입니다.
+ *
+ * ```kotlin
+ * data class Student(val name: String, val score: Double)
+ * val students = sequenceOf(Student("A", 90.0), Student("B", 70.0), Student("C", 80.0))
+ * val result = students.ranking { it.score }
+ * // result[Student("A", 90.0)] == 0 (1등)
+ * ```
  *
  * @param valueSelector 순위를 매길 값을 선택할 수 있도록 한다
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)
@@ -64,6 +83,13 @@ inline fun <T, V> Sequence<T>.ranking(
 /**
  * 요소들의 특정 값(V)을 기준으로 순위를 매깁니다.
  * 가장 높은 수가 rank = 0 입니다.
+ *
+ * ```kotlin
+ * data class Student(val name: String, val score: Double)
+ * val students = listOf(Student("A", 90.0), Student("B", 70.0), Student("C", 80.0))
+ * val result = students.ranking { it.score }
+ * // result[Student("A", 90.0)] == 0 (1등)
+ * ```
  *
  * @param valueSelector 순위를 매길 값을 선택할 수 있도록 한다
  * @param nanStrategy 값이 NaN 일 경우의 ranking 전략 (기본: 최소값으로 ranking)

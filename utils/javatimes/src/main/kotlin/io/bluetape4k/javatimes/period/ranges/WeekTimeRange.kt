@@ -8,6 +8,14 @@ import java.time.ZonedDateTime
 
 /**
  * [weekCount] 만큼의 주를 기간으로 나타내는 클래스입니다.
+ *
+ * ```kotlin
+ * val now = ZonedDateTime.now()
+ * val range = WeekTimeRange(now, weekCount = 2)
+ * range.weekCount // 2
+ * range.days()    // 2 * 7 = 14개의 DayRange
+ * range.year      // 현재 연도
+ * ```
  */
 open class WeekTimeRange(
     startTime: ZonedDateTime = ZonedDateTime.now(),

@@ -23,6 +23,15 @@ import io.bluetape4k.logging.trace
 /**
  * 특정 기간에 대한 필터링 정보를 기반으로 기간들을 필터링 할 수 있도록 특정 기간을 탐색하는 Visitor입니다.
  *
+ * ```kotlin
+ * val filter = CalendarPeriodCollectorFilter()
+ * filter.addDayOfWeeks(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
+ * val limits = TimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusMonths(1))
+ * val collector = CalendarPeriodCollector(filter, limits, SeekDirection.FORWARD)
+ * collector.collectDays() // 월요일, 금요일만 수집
+ * val periods = collector.periods
+ * ```
+ *
  * @see [io.bluetape4k.javatimes.period.calendars.CalendarVisitorFilter]
  * @see [io.bluetape4k.javatimes.period.calendars.seekers.DaySeeker]
  */

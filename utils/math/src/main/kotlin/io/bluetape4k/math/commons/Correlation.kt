@@ -5,6 +5,12 @@ import kotlin.math.sqrt
 /**
  * 두 차원의 변량들의 상관관계 계수를 계산합니다.
  *
+ * ```kotlin
+ * val x = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val y = sequenceOf(2.0, 4.0, 6.0, 8.0, 10.0)
+ * val r = x.correlationCoefficient(y)   // 1.0 (완전한 양의 상관관계)
+ * ```
+ *
  * @param that 두번째 변량 시퀀스
  * @return 두 변량 시퀀스의 상관관계 계수
  */
@@ -39,6 +45,12 @@ fun Sequence<Double>.correlationCoefficient(that: Sequence<Double>): Double {
 /**
  * 두 차원의 변량들의 상관관계 계수를 계산합니다.
  *
+ * ```kotlin
+ * val x = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val y = listOf(2.0, 4.0, 6.0, 8.0, 10.0)
+ * val r = x.correlationCoefficient(y)   // 1.0 (완전한 양의 상관관계)
+ * ```
+ *
  * @param that 두번째 변량 컬렉션
  * @return 두 변량 컬렉션의 상관관계 계수
  */
@@ -48,6 +60,12 @@ fun Iterable<Double>.correlationCoefficient(that: Iterable<Double>): Double {
 
 /**
  * 두 차원의 변량들의 상관관계 계수를 계산합니다.
+ *
+ * ```kotlin
+ * val x = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+ * val y = doubleArrayOf(2.0, 4.0, 6.0, 8.0, 10.0)
+ * val r = x.correlationCoefficient(y)   // 1.0 (완전한 양의 상관관계)
+ * ```
  *
  * @param that 두번째 변량 컬렉션
  * @return 두 변량 컬렉션의 상관관계 계수

@@ -6,6 +6,13 @@ import java.time.DayOfWeek
 
 /**
  * 특정 요일의 하루 동안의 시간 간격
+ *
+ * ```kotlin
+ * val range = DayOfWeekHourRange(DayOfWeek.MONDAY, 9, 18)
+ * range.dayOfWeek       // DayOfWeek.MONDAY
+ * range.start           // LocalTime.of(9, 0)
+ * range.end             // LocalTime.of(18, 0)
+ * ```
  */
 open class DayOfWeekHourRange(
     val dayOfWeek: DayOfWeek,

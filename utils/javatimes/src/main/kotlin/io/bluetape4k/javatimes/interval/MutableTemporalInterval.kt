@@ -8,6 +8,17 @@ import java.time.temporal.Temporal
 
 /**
  * Mutable [TemporalInterval]
+ *
+ * 시작 시각과 종료 시각을 변경할 수 있는 가변 시간 구간입니다.
+ *
+ * ```kotlin
+ * val interval = mutableTemporalIntervalOf(
+ *     LocalDate.of(2024, 1, 1),
+ *     LocalDate.of(2024, 12, 31)
+ * )
+ * interval.startInclusive = LocalDate.of(2024, 3, 1) // 시작 시각 변경
+ * interval.endExclusive = LocalDate.of(2024, 9, 30)  // 종료 시각 변경
+ * ```
  */
 class MutableTemporalInterval<T> private constructor(
     start: T,

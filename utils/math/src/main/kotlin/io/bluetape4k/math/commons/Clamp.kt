@@ -8,6 +8,11 @@ import java.math.BigDecimal
 /**
  * 현재 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
  *
+ * ```kotlin
+ * val result = 1.0000001.clamp(1.0, 1e-6)   // 1.0
+ * val result2 = 2.0.clamp(1.0, 1e-6)        // 2.0
+ * ```
+ *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
  * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
@@ -18,6 +23,10 @@ fun Double.clamp(destValue: Double, tolerance: Double = EPSILON): Double =
 
 /**
  * 현재 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ *
+ * ```kotlin
+ * val result = 1.0000001f.clamp(1.0f, 1e-6f)   // 1.0
+ * ```
  *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
@@ -30,6 +39,11 @@ fun Float.clamp(destValue: Float, tolerance: Float = FLOAT_EPSILON): Float =
 /**
  * 현재 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
  *
+ * ```kotlin
+ * val result = BigDecimal("1.0000001").clamp(BigDecimal("1.0"), BigDecimal("1e-6"))
+ * // BigDecimal("1.0")
+ * ```
+ *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
  * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
@@ -40,6 +54,11 @@ fun BigDecimal.clamp(destValue: BigDecimal, tolerance: BigDecimal = BIGDECIMAL_E
 
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ *
+ * ```kotlin
+ * val result = sequenceOf(1.0, 1.0000001, 2.0).clamp(1.0, 1e-6).toList()
+ * // [1.0, 1.0, 2.0]
+ * ```
  *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
@@ -52,6 +71,11 @@ fun Sequence<Double>.clamp(destValue: Double, tolerance: Double = EPSILON): Sequ
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
  *
+ * ```kotlin
+ * val result = listOf(1.0, 1.0000001, 2.0).clamp(1.0, 1e-6)
+ * // [1.0, 1.0, 2.0]
+ * ```
+ *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
  * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
@@ -62,6 +86,11 @@ fun Iterable<Double>.clamp(destValue: Double, tolerance: Double = EPSILON): List
 
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ *
+ * ```kotlin
+ * val result = sequenceOf(1.0f, 1.0000001f, 2.0f).clamp(1.0f, 1e-6f).toList()
+ * // [1.0, 1.0, 2.0]
+ * ```
  *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
@@ -74,6 +103,11 @@ fun Sequence<Float>.clamp(destValue: Float, tolerance: Float = FLOAT_EPSILON): S
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
  *
+ * ```kotlin
+ * val result = listOf(1.0f, 1.0000001f, 2.0f).clamp(1.0f, 1e-6f)
+ * // [1.0, 1.0, 2.0]
+ * ```
+ *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
  * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
@@ -84,6 +118,12 @@ fun Iterable<Float>.clamp(destValue: Float, tolerance: Float = FLOAT_EPSILON): L
 
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ *
+ * ```kotlin
+ * val result = sequenceOf(BigDecimal("1.0"), BigDecimal("1.0000001"))
+ *     .clamp(BigDecimal("1.0"), BigDecimal("1e-6")).toList()
+ * // [BigDecimal("1.0"), BigDecimal("1.0")]
+ * ```
  *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
@@ -99,6 +139,12 @@ fun Sequence<BigDecimal>.clamp(
 /**
  * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
  *
+ * ```kotlin
+ * val result = listOf(BigDecimal("1.0"), BigDecimal("1.0000001"))
+ *     .clamp(BigDecimal("1.0"), BigDecimal("1e-6"))
+ * // [BigDecimal("1.0"), BigDecimal("1.0")]
+ * ```
+ *
  * @param destValue 대체할 값
  * @param tolerance 오차범위
  * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
@@ -109,28 +155,43 @@ fun Iterable<BigDecimal>.clamp(destValue: BigDecimal, tolerance: BigDecimal = BI
 
 
 /**
- * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ * 값을 `range` 범위 내로 제한합니다. 범위를 벗어나면 경계값으로 대체됩니다.
  *
- * @param range clamp 상하한 값
- * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
+ * ```kotlin
+ * val result = 5.rangeClamp(1..3)   // 3
+ * val result2 = 2.rangeClamp(1..3)  // 2
+ * ```
+ *
+ * @param range clamp 상하한 범위
+ * @return 범위 내 값
  * @see approximateEqual
  */
 fun <T: Comparable<T>> T.rangeClamp(range: ClosedRange<T>): T = coerceIn(range)
 
 /**
- * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ * 시퀀스의 각 요소를 `range` 범위 내로 제한합니다.
  *
- * @param range clamp 상하한 값
- * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
+ * ```kotlin
+ * val result = sequenceOf(0, 2, 5).rangeClamp(1..3).toList()
+ * // [1, 2, 3]
+ * ```
+ *
+ * @param range clamp 상하한 범위
+ * @return 범위 내로 제한된 시퀀스
  * @see approximateEqual
  */
 fun <T: Comparable<T>> Sequence<T>.rangeClamp(range: ClosedRange<T>): Sequence<T> = map { it.coerceIn(range) }
 
 /**
- * 요소 값이 `destValue`와 오차범위 내에 있다면 `destValue`로 대체한다
+ * 컬렉션의 각 요소를 `range` 범위 내로 제한합니다.
  *
- * @param range clamp 상하한 값
- * @return 오차범위 내에 있다면 대체할 값, 아니면 현재 값을 반환
+ * ```kotlin
+ * val result = listOf(0, 2, 5).rangeClamp(1..3)
+ * // [1, 2, 3]
+ * ```
+ *
+ * @param range clamp 상하한 범위
+ * @return 범위 내로 제한된 리스트
  * @see approximateEqual
  */
 fun <T: Comparable<T>> Iterable<T>.rangeClamp(range: ClosedRange<T>): List<T> = map { it.coerceIn(range) }

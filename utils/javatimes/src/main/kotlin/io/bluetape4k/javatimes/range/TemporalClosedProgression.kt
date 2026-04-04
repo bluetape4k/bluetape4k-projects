@@ -11,7 +11,15 @@ import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
 
 /**
- * Create [TemporalClosedProgression] instance
+ * [TemporalClosedProgression] 인스턴스를 생성합니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 10, 0, 0)
+ * val progression = temporalClosedProgressionOf(start, end, Duration.ofDays(1))
+ * val list = progression.toList() // 10개 요소 (1일~10일 포함)
+ * ```
+ *
  * @param start T
  * @param endInclusive T
  * @param step TemporalAmount
@@ -27,6 +35,13 @@ fun <T> temporalClosedProgressionOf(
 
 /**
  * [Temporal] 의 범위를 나타내지만, 마지막 요소를 포함한 Closed Range를 표현합니다. `( min <= x <= max )` 와 같습니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.of(2024, 1, 1, 0, 0)
+ * val end = LocalDateTime.of(2024, 1, 3, 0, 0)
+ * val progression = TemporalClosedProgression.fromClosedRange(start, end, Duration.ofDays(1))
+ * progression.toList() // [2024-01-01, 2024-01-02, 2024-01-03]
+ * ```
  */
 open class TemporalClosedProgression<T> protected constructor(
     start: T,
@@ -64,8 +79,32 @@ open class TemporalClosedProgression<T> protected constructor(
 
     open val last: T = getProgressionLastElement(start, endInclusive, step.millis)
 
+    /**
+     * 진행이 비어있는지 여부를 반환합니다.
+     *
+     * ```kotlin
+     * val progression = TemporalClosedProgression.fromClosedRange(
+     *     LocalDateTime.of(2024, 1, 1, 0, 0),
+     *     LocalDateTime.of(2024, 1, 1, 0, 0),
+     *     Duration.ofDays(1)
+     * )
+     * progression.isEmpty() // false (시작==끝이면 하나의 요소)
+     * ```
+     */
     open fun isEmpty(): Boolean = if (step.isPositive) first > last else first < last
 
+    /**
+     * 진행을 [Sequence]로 변환합니다.
+     *
+     * ```kotlin
+     * val progression = temporalClosedProgressionOf(
+     *     LocalDateTime.of(2024, 1, 1, 0, 0),
+     *     LocalDateTime.of(2024, 1, 3, 0, 0),
+     *     Duration.ofDays(1)
+     * )
+     * progression.sequence().toList() // [2024-01-01, 2024-01-02, 2024-01-03]
+     * ```
+     */
     @Suppress("UNCHECKED_CAST")
     open fun sequence(): Sequence<T> = sequence seq@{
         fun canContinue(current: T): Boolean = when {
