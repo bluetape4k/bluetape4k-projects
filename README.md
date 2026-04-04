@@ -1,300 +1,286 @@
 # Bluetape4k Projects
 
-Kotlin 언어로 JVM 환경에서 개발할 때 사용할 공용 라이브러리
+Shared Kotlin/JVM library collection for backend development
+
+English | [한국어](./README.ko.md)
 
 ![Blue Tape](./doc/bluetape4k.png)
 
-KDoc 작성 지침: `doc/Kdoc_Instruction.md`
+KDoc writing guidelines: `doc/Kdoc_Instruction.md`
 
-## 소개
+## Introduction
 
-Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하는 기술, Coroutines 등 기존 라이브러리가 제공하지 않는 기능 들을 개발해 왔습니다.
+Bluetape4k was born out of real-world backend development with Kotlin — filling gaps that existing libraries leave open, especially around Coroutines, async I/O, and idiomatic Kotlin patterns.
 
-1. Kotlin 의 장점을 최대화 할 수 있는 추천할 만한 코딩 스타일을 제공할 수 있는 기능을 제공합니다.
-    - `bluetape4k-core` 의 assertions, required 같은 기능
-    - `bluetape4k-measured` 의 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 제공
+1. **Idiomatic Kotlin coding style** — utilities that help you write better Kotlin.
+    - Assertions and `required`-style helpers in `bluetape4k-core`
+    - Composable unit types (`Units`) and measurements (`Measure`) in `bluetape4k-measured`
 
-2. 기존 Java 라이브러리를 무지성으로 사용하지 않고, 좀 더 효과적으로 사용할 수 있도록 개선한 기능을 제공합니다.
-    - `bluetape4k-core` 의 LZ4, Zstd 등 압축 기능 개선
-    - `bluetape4k-redis` 의 lettuce, redisson 용 Codec 제공 (공식 Codec 보다 성능이 월등함)
+2. **Improved wrappers around Java libraries** — use proven libraries more effectively.
+    - Enhanced LZ4, Zstd compression in `bluetape4k-core`
+    - High-performance Lettuce/Redisson codecs in `bluetape4k-redis` (significantly faster than official codecs)
 
-3. 테스트를 좀 더 완성도 있게 하기 위한 기능을 제공합니다.
-    - `bluetape4k-junit5` 다양한 테스트 기법을 Junit5 기반으로 제공합니다.
-    - `bluetape4k-testcontainers` 다양한 서비스들을 테스트 환경에서 사용할 수 있도록 합니다.
+3. **Better testing infrastructure** — write more thorough, reliable tests.
+    - `bluetape4k-junit5`: diverse testing techniques on top of JUnit 5
+    - `bluetape4k-testcontainers`: Docker-based service containers for integration tests
 
-3. Kotlin Coroutines 등 Async/Non-Blocking 방식의 개발을 지원하는 기능을 제공합니다.
-    - `bluetape4k-coroutines` Coroutine 을 사용할 때 유용한 기능을 제공합니다.
-    - `bluetape4k-feigh`, `bluetape4k-retrofit2` 등은 HTTP 통신 시 async/non-blocking을 위해 Coroutines 을 사용하도록 합니다
+4. **Async/Non-Blocking development with Kotlin Coroutines**.
+    - `bluetape4k-coroutines`: utilities for writing coroutine-based code
+    - `bluetape4k-feign`, `bluetape4k-retrofit2`: HTTP clients with native Coroutines support
 
-4. AWS SDK 사용 시 성능을 위해 개선한 기능을 제공합니다.
-    - `bluetape4k-aws` AWS Java SDK v2 기반으로 DynamoDB, S3, SES, SNS, SQS, KMS, CloudWatch, Kinesis, STS 등을 Async/Non-Blocking 방식으로 사용할 수 있도록 합니다.
-    - S3 TransferManager를 활용한 대용량 파일 전송 성능 최적화를 제공합니다.
+5. **AWS SDK performance improvements**.
+    - `bluetape4k-aws`: AWS Java SDK v2 — DynamoDB, S3, SES, SNS, SQS, KMS, CloudWatch, Kinesis, STS with async/non-blocking APIs
+    - Optimized large file transfers via S3 TransferManager
 
-5. AWS Kotlin SDK 를 사용을 편리하게 하기 위한 기능을 제공합니다.
-    - `bluetape4k-aws-kotlin` AWS Kotlin SDK 기반으로 native `suspend` 함수를 기본 제공하여 Coroutines 환경에서 편리하게 사용할 수 있습니다.
+6. **Ergonomic AWS Kotlin SDK wrappers**.
+    - `bluetape4k-aws-kotlin`: native `suspend` functions built on the AWS Kotlin SDK — no `.await()` boilerplate needed
 
-6. MSA의 필수인 Resilience4j 에 대한 Kotlin Coroutines 지원을 강화했습니다.
-    - `bluetape4k-resilience4j` Resilience4j 를 사용할 때 Kotlin Coroutines 를 사용할 수 있도록 지원합니다.
-    - 또한 Coroutines 용 Cache를 추가하여, Coroutines 환경에서도 API 호출 결과를 캐싱할 수 있도록 지원합니다.
+7. **Resilience4j with Coroutines support** — essential for microservices.
+    - `bluetape4k-resilience4j`: full Coroutines integration for Resilience4j
+    - Coroutines-native cache to store API call results in async contexts
 
-7. Redis 를 댜양한 방식에서 사용할 수 있도록 지원합니다.
-    - `bluetape4k-redis`는 Lettuce, Redisson 용 고성능 Codec 을 제공합니다.
-    - Redisson의 다양한 Lock 기능을 Coroutines 환경에서도 사용할 수 있도록 지원합니다.
-    - Redis를 분산 캐시로만 사용하는 것이 아니라, Near Cache로 사용할 수 있도록 하여 더욱 성능을 높힐 수 있도록 합니다.
+8. **Redis at every level**.
+    - `bluetape4k-redis`: high-performance codecs for Lettuce and Redisson
+    - Coroutines-compatible distributed locking via Redisson
+    - Near Cache support to boost throughput beyond simple distributed caching
 
-그 외 현업에서 마주쳤던 많은 문제를 해결하는 과정에서 필요로 하는 기능 들을 제공합니다.
+Feel free to open an Issue if you need something that isn't here yet.
 
-앞으로도 필요한 기능들이 있다면 Issue 에 제안 주시기 바랍니다.
-
-## 기술 스택
+## Tech Stack
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
 - **Spring Boot**: 3.4.0+ / 4.0.0+
 - **Kotlin Exposed**: 1.0.0+
-- **데이터베이스**: H2, PostgreSQL, MySQL
+- **Databases**: H2, PostgreSQL, MySQL
 
-## 모듈 구조
+## Module Structure
 
-Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
+Bluetape4k is a multi-module Gradle project organized by domain.
 
-### Core 모듈 (`bluetape4k/`)
+### Core Modules (`bluetape4k/`)
 
-- **[core](./bluetape4k/core/README.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)
-- **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines 확장 (DeferredValue, Flow extensions, AsyncFlow)
-- **[logging](./bluetape4k/logging/README.md)**: 로깅 관련 기능
-- **bom**: Bill of Materials (의존성 관리)
+- **[core](./bluetape4k/core/README.md)**: Core utilities — assertions, required helpers, collections (BoundedStack, RingBuffer, PaginatedList, Permutation), wildcard pattern matching, XXHasher, and more
+- **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines extensions — DeferredValue, Flow extensions, AsyncFlow
+- **[logging](./bluetape4k/logging/README.md)**: Logging utilities
+- **bom**: Bill of Materials for dependency management
 
-### I/O 모듈 (`io/`)
+### I/O Modules (`io/`)
 
-- **[io](./io/io/README.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy, Zip), 직렬화(Kryo, Fory), ZIP 빌더/유틸리티, Okio 통합 (Tink 기반 암호화 Sink/Source 포함)
-- **[okio](./io/okio/README.md)**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
-- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)
-  **: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`,
-  `jackson3-binary/text` 통합됨)
-- **[json](./io/json/README.md)**: JSON 처리
-- **[csv](./io/csv/README.md)**: CSV 처리
-- **[feign](./io/feign/README.md)**: Feign HTTP 클라이언트 (Coroutines 지원)
-- **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP 클라이언트 (Coroutines 지원)
-- **[protobuf](./io/protobuf/README.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
-- **[grpc](./io/grpc/README.md)**: gRPC 서버/클라이언트 추상화 (`bluetape4k-protobuf` 포함)
-- ~~**[crypto](./io/crypto/README.md)**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`bluetape4k-tink`로 대체)
-- **[tink](./io/tink/README.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor (`TinkEncryptor`), Okio `TinkEncryptSink`/`TinkDecryptSource`
-- **[http](./io/http/README.md)**: HTTP 유틸리티
-- **[netty](./io/netty/README.md)**: Netty 통합
-- **[avro](./io/avro/README.md)**: Apache Avro
-- **[fastjson2](./io/fastjson2/README.md)**: FastJSON2
-- **[vertx](./io/vertx/README.md)**: Vert.x 단일 통합 모듈 — 핵심 기능, SQL 클라이언트, Resilience4j 통합 포함 (구 `vertx/core`,
-  `vertx/sqlclient`, `vertx/resilience4j` 통합됨)
+- **[io](./io/io/README.md)**: File I/O, compression (LZ4, Zstd, Snappy, Zip), serialization (Kryo, Fory), ZIP builder/utilities, Okio integration with Tink-based encrypt Sink/Source
+- **[okio](./io/okio/README.md)**: Okio-based I/O extensions — Buffer/Sink/Source utilities, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink encrypt Sink/Source
+- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)**: Jackson 2.x/3.x integration — binary (CBOR, Ion, Smile) and text (CSV, YAML, TOML) formats (merged from former `jackson-binary/text` and `jackson3-binary/text` modules)
+- **[json](./io/json/README.md)**: JSON processing utilities
+- **[csv](./io/csv/README.md)**: CSV processing utilities
+- **[feign](./io/feign/README.md)**: Feign HTTP client with Coroutines support
+- **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP client with Coroutines support
+- **[protobuf](./io/protobuf/README.md)**: Protobuf utilities — Timestamp/Duration/Money conversions, ProtobufSerializer
+- **[grpc](./io/grpc/README.md)**: gRPC server/client abstractions (includes `bluetape4k-protobuf`)
+- ~~**[crypto](./io/crypto/README.md)**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use `bluetape4k-tink` instead
+- **[tink](./io/tink/README.md)**: Modern encryption via Google Tink — AEAD, Deterministic AEAD, MAC, Digest, unified `TinkEncryptor`, Okio `TinkEncryptSink`/`TinkDecryptSource`
+- **[http](./io/http/README.md)**: HTTP utilities
+- **[netty](./io/netty/README.md)**: Netty integration
+- **[avro](./io/avro/README.md)**: Apache Avro support
+- **[fastjson2](./io/fastjson2/README.md)**: FastJSON2 integration
+- **[vertx](./io/vertx/README.md)**: Vert.x unified module — core, SQL client, Resilience4j integration (merged from former `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`)
 
-### AWS 모듈 (`aws/`)
+### AWS Modules (`aws/`)
 
-각 서비스마다 **3단계 API** 패턴 제공: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
+Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-- **bluetape4k-aws**: AWS Java SDK v2 기반 단일 통합 모듈 — DynamoDB, S3(TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS 포함. 각 서비스의 coroutines 확장 (`XxxAsyncClientCoroutinesExtensions.kt`) 제공
-- **bluetape4k-aws-kotlin**: AWS Kotlin SDK 기반 단일 통합 모듈 — native `suspend` 함수 기본 제공 (`.await()` 변환 불필요). DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS 포함. DSL 지원 (`metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}` 등)
+- **bluetape4k-aws**: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (`XxxAsyncClientCoroutinesExtensions.kt`)
+- **bluetape4k-aws-kotlin**: AWS Kotlin SDK — native `suspend` functions, no `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (`metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
 
-### 데이터 모듈 (`data/`)
+### Data Modules (`data/`)
 
-#### Exposed 모듈 (기능별 분리)
+#### Exposed Modules (split by function)
 
-- **[exposed](./data/exposed/README.md)**: umbrella 모듈 — `exposed-core` + `exposed-dao` + `exposed-jdbc` 묶음 (하위 호환)
-- **[exposed-core](./data/exposed-core/README.md)**: JDBC 없이 사용 가능한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, ID 생성 확장, `HasIdentifier`, `ExposedPage`
-- **[exposed-dao](./data/exposed-dao/README.md)**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable` 등)
-- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`
-- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
-- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson (분산 락)
-- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson (분산 락)
-- **[exposed-jackson2](./data/exposed-jackson2/README.md)/[jackson3](./data/exposed-jackson3/README.md)**: Exposed JSON 컬럼 지원 (Jackson 2.x/3.x)
-- **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: Exposed FastJSON2 JSON 컬럼 지원
-- **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Exposed Jasypt 암호화 컬럼
-- **[exposed-tink](./data/exposed-tink/README.md)**: Exposed 암호화 컬럼 (Google Tink AEAD/Deterministic AEAD)
-- **[exposed-measured](./data/exposed-measured/README.md)**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
-- **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: JDBC 기반 테스트 공통 인프라
-- **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: R2DBC 기반 테스트 공통 인프라
+- **[exposed](./data/exposed/README.md)**: Umbrella module — bundles `exposed-core` + `exposed-dao` + `exposed-jdbc` for backward compatibility
+- **[exposed-core](./data/exposed-core/README.md)**: Core features without JDBC — compressed/encrypted/serialized column types, ID generation extensions, `HasIdentifier`, `ExposedPage`
+- **[exposed-dao](./data/exposed-dao/README.md)**: DAO entity extensions — `EntityExtensions`, `StringEntity`, custom IdTables (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable`, etc.)
+- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC-specific — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`
+- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC reactive support (`ExposedR2dbcRepository`)
+- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson distributed locking
+- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson distributed locking
+- **[exposed-jackson2](./data/exposed-jackson2/README.md)/[jackson3](./data/exposed-jackson3/README.md)**: JSON column support for Exposed (Jackson 2.x/3.x)
+- **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: FastJSON2 JSON column support for Exposed
+- **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Jasypt-encrypted columns for Exposed
+- **[exposed-tink](./data/exposed-tink/README.md)**: Google Tink encrypted columns (AEAD/Deterministic AEAD)
+- **[exposed-measured](./data/exposed-measured/README.md)**: Query execution time measurement via Micrometer
+- **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: Shared test infrastructure for JDBC-based modules
+- **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: Shared test infrastructure for R2DBC-based modules
 
-#### 기타 데이터 모듈
+#### Other Data Modules
 
-- **[exposed-postgresql](./data/exposed-postgresql/README.md)**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(`POINT`/`POLYGON`), pgvector 벡터 검색(`VECTOR(n)`), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
-- **[exposed-mysql8](./data/exposed-mysql8/README.md)**: MySQL 8.0 전용 Exposed 확장 — GIS 공간 데이터(8종), JTS 기반 Geometry 컬럼, `ST_Contains`/`ST_Distance` 등 공간 함수; MySQL Internal Format WKB 변환
-- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC 통합 — `DuckDBDialect`(PostgreSQL 상속), `DuckDBDatabase` 팩토리(인메모리/파일/읽기전용), `suspendTransaction`, `queryFlow`
-- **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API 통합 — H2(PostgreSQL 모드)로 SQL 생성 후 BigQuery REST 실행, `BigQueryContext`(SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow`(Column 참조 타입 안전 접근), suspend/Flow API
-- **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis 캐시 — Read-through/Write-through/Write-behind, `AbstractJdbcLettuceRepository`, 코루틴 네이티브 `AbstractSuspendedJdbcLettuceRepository`
-- **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis 캐시 — 코루틴 네이티브 Read-through/Write-through/Write-behind, `AbstractR2dbcLettuceRepository`
-- **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM 통합
-- **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
-- **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
-- **[r2dbc](./data/r2dbc/README.md)**: R2DBC 지원
-- **[cassandra](./data/cassandra/README.md)**: Cassandra 드라이버
-- **[jdbc](./data/jdbc/README.md)**: JDBC 유틸리티
+- **[exposed-postgresql](./data/exposed-postgresql/README.md)**: PostgreSQL-specific Exposed extensions — PostGIS spatial data (`POINT`/`POLYGON`), pgvector vector search (`VECTOR(n)`), TSTZRANGE time-range column types; H2 fallback support
+- **[exposed-mysql8](./data/exposed-mysql8/README.md)**: MySQL 8.0-specific Exposed extensions — 8 GIS geometry types, JTS-based geometry columns, spatial functions (`ST_Contains`, `ST_Distance`, etc.); MySQL Internal Format WKB conversion
+- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC integration — `DuckDBDialect` (extends PostgreSQL dialect), `DuckDBDatabase` factory (in-memory/file/read-only), `suspendTransaction`, `queryFlow`
+- **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API integration — SQL generated via H2 (PostgreSQL mode) then executed on BigQuery REST; `BigQueryContext` (SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow` (type-safe column access), suspend/Flow API
+- **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis cache — Read-through/Write-through/Write-behind; `AbstractJdbcLettuceRepository`, coroutine-native `AbstractSuspendedJdbcLettuceRepository`
+- **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis cache — coroutine-native Read-through/Write-through/Write-behind; `AbstractR2dbcLettuceRepository`
+- **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
+- **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
+- **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver extensions — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
+- **[r2dbc](./data/r2dbc/README.md)**: R2DBC support
+- **[cassandra](./data/cassandra/README.md)**: Cassandra driver
+- **[jdbc](./data/jdbc/README.md)**: JDBC utilities
 
-### 인프라 모듈 (`infra/`)
+### Infrastructure Modules (`infra/`)
 
-- **[redis](./infra/redis/README.md)**: Lettuce/Redisson umbrella 모듈 (하위 호환)
-    - **[lettuce](./infra/lettuce/README.md)**: Lettuce 클라이언트, 고성능 Codec (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd),
-      `RedisFuture` → Coroutines 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Leader Election),
-      `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind),
-      **BloomFilter/CuckooFilter** (Lua 스크립트 기반, RedisBloom 불필요), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
-    - **[redisson](./infra/redisson/README.md)**: Redisson 클라이언트, Codec, Memorizer, NearCache (
-      `RLocalCachedMap`), Leader Election (Coroutines 지원)
-- **[kafka](./infra/kafka/README.md)**: Kafka 클라이언트
-- **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines Cache
+- **[redis](./infra/redis/README.md)**: Lettuce/Redisson umbrella module (backward compatible)
+    - **[lettuce](./infra/lettuce/README.md)**: Lettuce client, high-performance codecs (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd), `RedisFuture` → Coroutines adapters, distributed primitives (Lock, Semaphore, AtomicLong, Leader Election), `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind), **BloomFilter/CuckooFilter** (Lua-script based, no RedisBloom extension needed), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
+    - **[redisson](./infra/redisson/README.md)**: Redisson client, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (with Coroutines support)
+- **[kafka](./infra/kafka/README.md)**: Kafka client
+- **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
-- **[micrometer](./infra/micrometer/README.md)**: 메트릭
-- **[opentelemetry](./infra/opentelemetry/README.md)**: 분산 추적
+- **[micrometer](./infra/micrometer/README.md)**: Metrics
+- **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
 
-#### 캐시 모듈 (`infra/cache-*`)
+#### Cache Modules (`infra/cache-*`)
 
-플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
+A pluggable cache abstraction layer — swap backends without changing application code.
 
-- **[cache](./infra/cache/README.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](./infra/cache-core/README.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
-- **[cache-hazelcast](./infra/cache-hazelcast/README.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
-- **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
-- **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
+- **[cache](./infra/cache/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
+- **[cache-core](./infra/cache-core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
+- **[cache-hazelcast](./infra/cache-hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
+- **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
+- **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
 
-### Spring Boot 3 모듈 (`spring-boot3/`)
+### Spring Boot 3 Modules (`spring-boot3/`)
 
-- **[bluetape4k-spring-boot3](./spring-boot3/core/README.md)** (
-  `spring-boot3/core`): Spring Boot 3 기반 공통 기능 통합 모듈 — Spring core 유틸리티, WebFlux + Coroutines, Retrofit2 통합, 테스트 유틸리티 포함 (구
-  `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests` 통합됨)
-- **[data-redis](./spring-boot3/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
-  `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[bluetape4k-spring-boot3](./spring-boot3/core/README.md)** (`spring-boot3/core`): Spring Boot 3 unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2 integration, test utilities (merged from former `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests`)
+- **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[cassandra](./spring-boot3/cassandra/README.md)**: Spring Data Cassandra
-- **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive —
-  `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
+- **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
-- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc`): Exposed DAO 엔티티 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원
-- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc`): Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원
-- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모
-- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모
-- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce`): Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — Properties 바인딩, Micrometer Metrics, Actuator Endpoint
-- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC 통합 데모
+- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc`): Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support
+- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc`): Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support
+- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC integration demo
+- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux integration demo
+- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce`): Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — properties binding, Micrometer Metrics, Actuator Endpoint
+- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC integration demo
 
-> Spring Data JPA는 `data/hibernate` 모듈로 이동했습니다.
+> Spring Data JPA has moved to the `data/hibernate` module.
 
-### Spring Boot 4 모듈 (`spring-boot4/`)
+### Spring Boot 4 Modules (`spring-boot4/`)
 
-Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 가능합니다.
+Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 modules.
 
-> **BOM 적용 주의**: `dependencyManagement { imports }` 대신 `implementation(platform(...))` 방식으로 적용해야 KGP 2.3.x와 충돌 없이 빌드됩니다.
+> **BOM note**: Apply via `implementation(platform(...))` rather than `dependencyManagement { imports }` to avoid conflicts with KGP 2.3.x.
 
-- **[core](./spring-boot4/core/README.md)** (`bluetape4k-spring-boot4-core`): Spring Boot 4 기반 공통 기능 — WebFlux + Coroutines, RestClient DSL (`suspendGet`, `suspendPost` 등), Jackson 2 커스터마이저, Retrofit2 통합, WebTestClient 테스트 유틸리티
-- **[data-redis](./spring-boot4/data-redis/README.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[cassandra](./spring-boot4/cassandra/README.md)**: Spring Data Cassandra 코루틴 확장
-- **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC 코루틴 확장
-- **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra 사용 예제
-- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc`): Exposed DAO 엔티티 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 (Spring Boot 4 BOM)
-- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc`): Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 (Spring Boot 4 BOM)
-- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 (Spring Boot 4 BOM)
-- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4 BOM)
+- **[core](./spring-boot4/core/README.md)** (`bluetape4k-spring-boot4-core`): Spring Boot 4 common utilities — WebFlux + Coroutines, RestClient DSL (`suspendGet`, `suspendPost`, etc.), Jackson 2 customizer, Retrofit2 integration, WebTestClient test utilities
+- **[data-redis](./spring-boot4/redis/README.md)**: High-performance Spring Data Redis serialization — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[cassandra](./spring-boot4/cassandra/README.md)**: Spring Data Cassandra with Coroutines extensions
+- **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
+- **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
+- **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra usage example
+- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc`): Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support (Spring Boot 4 BOM)
+- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc`): Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support (Spring Boot 4 BOM)
+- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM)
+- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)
 - **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.md)** (`bluetape4k-spring-boot4-hibernate-lettuce`): Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
-- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot4-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC 통합 데모 (Spring Boot 4 BOM)
+- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot4-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)
 
-### 유틸리티 모듈 (`utils/`)
+### Utility Modules (`utils/`)
 
-- **[bluetape4k-geo](./utils/geo/README.md)** (
-  `utils/geo`): 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구 `utils/geocode`,
-  `utils/geohash`, `utils/geoip2` 통합됨)
-- **[bluetape4k-science](./utils/science/README.md)** (`utils/science`): GIS 공간 데이터 처리 — 좌표계 변환(BoundingBox/UTM/DMS, Proj4J), Shapefile 읽기(GeoTools 31.6 LGPL), JTS 기반 공간 기하학 연산, PostGIS DB 적재 파이프라인(SpatialLayerTable/SpatialFeatureTable/PoiTable)
-- **[idgenerators](./utils/idgenerators/README.md)**: ID 생성기 — `Uuid`(V1~V7 통일 API), `ULID`, `Ksuid`(Seconds/Millis), `Snowflakers` 통일 팩토리, `Flake`, `Hashids` 등 다양한 ID 생성 알고리즘 제공
-- **[images](./utils/images/README.md)**: 이미지 처리
-- **[javatimes](./utils/javatimes/README.md)**: 날짜/시간 유틸리티
-- **[jwt](./utils/jwt/README.md)**: JWT 처리
-- **[leader](./utils/leader/README.md)**: Leader 선출
-- **[math](./utils/math/README.md)**: 수학 유틸리티
-- **[measured](./utils/measured/README.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
-  복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
-- **[money](./utils/money/README.md)**: Money API
-- **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive 통합
-- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
+- **[bluetape4k-geo](./utils/geo/README.md)** (`utils/geo`): Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former `utils/geocode`, `utils/geohash`, `utils/geoip2`)
+- **[bluetape4k-science](./utils/science/README.md)** (`utils/science`): GIS spatial data processing — coordinate system conversions (BoundingBox/UTM/DMS, Proj4J), Shapefile reading (GeoTools 31.6 LGPL), JTS-based spatial geometry operations, PostGIS DB ingestion pipeline (SpatialLayerTable/SpatialFeatureTable/PoiTable)
+- **[idgenerators](./utils/idgenerators/README.md)**: ID generators — `Uuid` (V1–V7 unified API), `ULID`, `Ksuid` (Seconds/Millis), `Snowflakers` unified factory, `Flake`, `Hashids`, and more
+- **[images](./utils/images/README.md)**: Image processing utilities
+- **[javatimes](./utils/javatimes/README.md)**: Date/time utilities
+- **[jwt](./utils/jwt/README.md)**: JWT processing
+- **[leader](./utils/leader/README.md)**: Leader election
+- **[math](./utils/math/README.md)**: Math utilities
+- **[measured](./utils/measured/README.md)**: Composable unit types (`Units`) and measurements (`Measure`) — express composite units (`m/s`, `kg*m/s^2`) with full type safety
+- **[money](./utils/money/README.md)**: Money/currency API
+- **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive integration
+- ~~**units**~~: Unit value classes — **Deprecated**, merged into `bluetape4k-measured`
 
-### 테스트 모듈 (`testing/`)
+### Testing Modules (`testing/`)
 
-- **[junit5](./testing/junit5/README.md)**: JUnit 5 확장 및 유틸리티
-- **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
+- **[junit5](./testing/junit5/README.md)**: JUnit 5 extensions and utilities
+- **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers support (Redis, Kafka, databases, etc.)
 
-### Virtual Thread 모듈 (`virtualthread/`)
+### Virtual Thread Modules (`virtualthread/`)
 
-- **[virtualthread](./virtualthread/README.md)**: Java 21/25 Virtual Thread 지원
-    - **[api](./virtualthread/api/README.md)**: Virtual Thread API 및 ServiceLoader 기반 런타임 선택
-    - **[jdk21](./virtualthread/jdk21/README.md)**: Java 21 Virtual Thread 구현체
-    - **[jdk25](./virtualthread/jdk25/README.md)**: Java 25 Virtual Thread 구현체
+- **[virtualthread](./virtualthread/README.md)**: Java 21/25 Virtual Thread support
+    - **[api](./virtualthread/api/README.md)**: Virtual Thread API with ServiceLoader-based runtime selection
+    - **[jdk21](./virtualthread/jdk21/README.md)**: Java 21 Virtual Thread implementation
+    - **[jdk25](./virtualthread/jdk25/README.md)**: Java 25 Virtual Thread implementation
 
-### 기타 모듈
+### Other Modules
 
-- **[timefold](./timefold/solver-persistence-exposed/README.md)**: Timefold Solver + Exposed 통합
+- **[timefold](./timefold/solver-persistence-exposed/README.md)**: Timefold Solver + Exposed integration
 
-### 예제 모듈 (`examples/`)
+### Example Modules (`examples/`)
 
-라이브러리 사용 방법을 보여주는 예제 모듈입니다. 배포되지 않습니다.
+Demonstration modules showing library usage. Not published to Maven.
 
-- **[coroutines-demo](./examples/coroutines-demo/README.md)**: Kotlin Coroutines 사용 예제
-- **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL 사용 예제
-- **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson 사용 예제
-- **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread 사용 예제
+- **[coroutines-demo](./examples/coroutines-demo/README.md)**: Kotlin Coroutines usage examples
+- **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
+- **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
+- **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
 
-### 폐기된 모듈 (`x-obsoleted/`)
+### Obsolete Modules (`x-obsoleted/`)
 
-더 이상 유지보수되지 않는 모듈입니다. 빌드에서 제외되었으며 삭제될 예정입니다.
+No longer maintained. Excluded from the build and scheduled for removal.
 
-- ~~**vertx-coroutines**~~: Vert.x + Coroutines — `bluetape4k-vertx`로 통합됨
-- ~~**vertx-sqlclient**~~: Vert.x SQL Client — `bluetape4k-vertx`로 통합됨
-- ~~**vertx-webclient**~~: Vert.x Web Client — `bluetape4k-vertx`로 통합됨
-- ~~**mapstruct**~~: MapStruct 통합 — 미사용으로 폐기
-- ~~**bloomfilter**~~: Bloom Filter — 사용 빈도 낮아 폐기
-- ~~**captcha**~~: CAPTCHA 생성 — 사용 빈도 낮아 폐기
-- ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
-- ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
-- ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
-- ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
-- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
-- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
-- ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
-- ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
+- ~~**vertx-coroutines**~~: Vert.x + Coroutines — merged into `bluetape4k-vertx`
+- ~~**vertx-sqlclient**~~: Vert.x SQL Client — merged into `bluetape4k-vertx`
+- ~~**vertx-webclient**~~: Vert.x Web Client — merged into `bluetape4k-vertx`
+- ~~**mapstruct**~~: MapStruct integration — dropped, unused
+- ~~**bloomfilter**~~: Bloom Filter — dropped, low usage
+- ~~**captcha**~~: CAPTCHA generation — dropped, low usage
+- ~~**logback-kafka**~~: Logback Kafka Appender — dropped, low usage
+- ~~**nats**~~: NATS messaging — dropped, low usage
+- ~~**javers**~~: JaVers audit log — dropped, low usage
+- ~~**tokenizer**~~: Korean/Japanese morphological analyzer — dropped, low usage
+- ~~**ahocorasick**~~: Aho-Corasick string search — dropped, low usage
+- ~~**lingua**~~: Language detection — dropped, low usage
+- ~~**naivebayes**~~: Naive Bayes classifier — dropped, low usage
+- ~~**mutiny-examples**~~: Mutiny usage examples — dropped
 
-## 빌드 및 테스트
+## Building and Testing
 
-### 프로젝트 빌드
+### Build the Project
 
 ```bash
-# 전체 프로젝트 빌드
+# Full project build
 ./gradlew clean build
 
-# 특정 모듈만 빌드
+# Build a specific module
 ./gradlew :bluetape4k-coroutines:build
 
-# 테스트 제외하고 빌드
+# Build without running tests
 ./gradlew build -x test
 ```
 
-### 테스트 실행
+### Run Tests
 
 ```bash
-# 전체 테스트 실행
+# Run all tests
 ./gradlew test
 
-# 특정 모듈 테스트
+# Run tests for a specific module
 ./gradlew :bluetape4k-io:test
 
-# 특정 테스트 클래스 실행
+# Run a specific test class
 ./gradlew test --tests "io.bluetape4k.io.CompressorTest"
 
-# 상세 로그와 함께 테스트
+# Run with verbose output
 ./gradlew test --info
 ```
 
-### 코드 품질 검사
+### Code Quality
 
 ```bash
-# Detekt 정적 분석 실행
+# Run Detekt static analysis
 ./gradlew detekt
 ```
 
-## 배포 방법
+## Publishing
 
-버전 확인은 `gradle.properties` 파일에서 확인
+Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
@@ -302,80 +288,71 @@ baseVersion=1.5.0
 snapshotVersion=-SNAPSHOT
 ```
 
-### Maven Central SNAPSHOT 배포
+### Maven Central SNAPSHOT
 
 ```bash
-./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache
-```
-
-### Maven Central SNAPSHOT 배포
-
-```bash
-# 기본 병렬도(centralSnapshotsParallelism=8)로 SNAPSHOT 배포
+# Publish a SNAPSHOT with default parallelism (centralSnapshotsParallelism=8)
 ./gradlew publishAggregationToCentralSnapshots
 
-# 병렬도를 낮춰 서버 부담을 줄이고 싶을 때
+# Reduce parallelism to lower server load
 ./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots
 ```
 
-- 루트 집계 task는 `publishAggregationToCentralSnapshots` 입니다.
-- SNAPSHOT 배포는 release 와 달리 ZIP 1회 업로드가 아니라 file-by-file 업로드를 수행합니다.
-- 따라서 모듈 수가 많을수록 `PUT` 요청이 많이 발생하는 것이 정상입니다.
-- 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
-- Snapshot 저장소는 `https://central.sonatype.com/repository/maven-snapshots/` 입니다.
-- 병렬도는 `centralSnapshotsParallelism` property 로 조절할 수 있습니다. 기본값은 `8` 입니다.
+- The root aggregation task is `publishAggregationToCentralSnapshots`.
+- Unlike a RELEASE, SNAPSHOTs are uploaded file-by-file (not as a single ZIP), so many `PUT` requests are expected for large module counts.
+- Publishable targets exclude `workshop/**`, `examples/**`, and `-demo` modules.
+- Snapshot repository: `https://central.sonatype.com/repository/maven-snapshots/`
+- Adjust parallelism via the `centralSnapshotsParallelism` property (default: `8`).
 
-### Maven Central RELEASE 배포
+### Maven Central RELEASE
 
 ```bash
-# snapshotVersion을 제거하고 RELEASE 배포
+# Remove snapshotVersion to publish a RELEASE
 ./gradlew publishAggregationToCentralPortal -PsnapshotVersion= --no-daemon --no-configuration-cache
 ```
 
-- 루트 집계 task는 `publishAggregationToCentralPortal` 입니다.
-- RELEASE 배포는 NMCP aggregation ZIP 을 만들어 Central Portal Publisher API 로 업로드합니다.
-- SNAPSHOT과 달리 artifact 파일들을 개별 `PUT` 하지 않으므로 요청 수가 훨씬 적습니다.
-- 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
-- 동일 RELEASE 버전은 재배포할 수 없으므로 실패 시 `baseVersion`을 올려야 합니다.
+- The root aggregation task is `publishAggregationToCentralPortal`.
+- RELEASE publishing creates an NMCP aggregation ZIP and uploads it via the Central Portal Publisher API — far fewer requests than a SNAPSHOT.
+- Publishable targets exclude `workshop/**`, `examples/**`, and `-demo` modules.
+- The same RELEASE version cannot be republished; bump `baseVersion` before retrying after a failure.
 
-### 필수 설정 (`~/.gradle/gradle.properties`)
+### Required Configuration (`~/.gradle/gradle.properties`)
 
 ```properties
-# Sonatype Central Portal 계정
+# Sonatype Central Portal credentials
 central.user=your-central-portal-username
 central.password=your-central-portal-password
 
-# 권장: In-memory PGP signing
+# Recommended: in-memory PGP signing
 signingUseGpgCmd=false
 signingKeyId=YOUR_KEY_ID
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
 
-# Maven Central Snapshots 업로드 병렬도 (기본값: 8)
+# Maven Central Snapshots upload parallelism (default: 8)
 centralSnapshotsParallelism=8
 ```
 
-### 참고
+### Notes
 
-- 기존 `publishAggregationToCentralPortalSnapshots` 는 deprecated alias 이며,
-  `publishAggregationToCentralSnapshots` 사용을 권장합니다.
-- `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 같은 개별 task 직접 실행 대신 루트 집계 task 사용을 권장합니다.
-- SNAPSHOT이 느리거나 요청이 과도해 보이면 `centralSnapshotsParallelism` 값을 `4`, `8`, `12` 정도 범위에서 조절해 보세요.
-- RELEASE는 aggregation ZIP 업로드 경로를 사용하므로 SNAPSHOT과 동작 방식이 다릅니다.
+- `publishAggregationToCentralPortalSnapshots` is a deprecated alias — prefer `publishAggregationToCentralSnapshots`.
+- Use the root aggregation task rather than running individual tasks like `publishAllPublicationsToCentralPortalSnapshots` or `publishAllPublicationsToCentralSnapshots` directly.
+- If SNAPSHOTs are slow or generating too many requests, tune `centralSnapshotsParallelism` in the range of `4`–`12`.
+- RELEASE uses an aggregation ZIP upload path, so its behavior differs from SNAPSHOT.
 
-### 토큰 절약형 요약 명령
+### Token-Efficient Summary Commands
 
-AI 에이전트나 긴 터미널 세션에서 원시 `git`/Gradle 출력을 바로 열기 전에, 아래 요약 명령을 먼저 사용하는 것을 권장합니다.
+Before opening raw `git`/Gradle output in AI agent sessions or long terminal sessions, use these summary commands first:
 
 ```bash
-# 저장소 상태 요약
+# Repository status summary
 ./bin/repo-status
 
-# 파일별 diff 변경량 요약
+# Per-file diff change count summary
 ./bin/repo-diff
 
-# Gradle 테스트/빌드 로그 요약
+# Condensed Gradle test/build log
 ./bin/repo-test-summary -- ./gradlew :05-exposed-dml:01-dml:test
 ```
 
-기본 흐름은 "요약 먼저, 필요한 파일이나 태스크만 원본 출력 확인"입니다.
+The recommended workflow: **summarize first, then read raw output only for specific files or tasks.**

@@ -1,31 +1,32 @@
 # Module bluetape4k-exposed-jdbc
 
-JetBrains Exposed JDBC 계층을 위한 Repository 패턴, 트랜잭션 확장, 쿼리 유틸리티를 제공하는 모듈입니다.
-`bluetape4k-exposed-core`와 `bluetape4k-exposed-dao`를 기반으로 JDBC에 특화된 기능을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Provides the Repository pattern, transaction extensions, and query utilities for the JetBrains Exposed JDBC layer. Built on top of `bluetape4k-exposed-core` and `bluetape4k-exposed-dao`, it delivers JDBC-specific features.
 
-`bluetape4k-exposed-jdbc`는 다음을 제공합니다:
+## Overview
 
-- **Repository 패턴**: `JdbcRepository<ID, T, E>`, `SoftDeletedJdbcRepository<ID, T, E>` 인터페이스
-- **Coroutines 지원**: `SuspendedQuery` — suspend 함수로 JDBC 쿼리 실행
-- **Virtual Thread 트랜잭션**: JDK 21+ Virtual Thread 기반 트랜잭션 실행
-- **테이블/스키마 확장**: `ImplicitSelectAll`, `TableExtensions`, `SchemaUtilsExtensions`
+`bluetape4k-exposed-jdbc` provides:
 
-## 의존성 추가
+- **Repository pattern**: `JdbcRepository<ID, T, E>` and `SoftDeletedJdbcRepository<ID, T, E>` interfaces
+- **Coroutines support**: `SuspendedQuery` — run JDBC queries as suspend functions
+- **Virtual Thread transactions**: Transaction execution on JDK 21+ Virtual Threads
+- **Table/schema extensions**: `ImplicitSelectAll`, `TableExtensions`, `SchemaUtilsExtensions`
+
+## Adding Dependencies
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-exposed-jdbc:${version}")
 
-    // Coroutines 지원 시 (SuspendedQuery)
+    // For Coroutines support (SuspendedQuery)
     implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. JdbcRepository 구현
+### 1. Implementing JdbcRepository
 
 ```kotlin
 import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
@@ -64,18 +65,18 @@ class UserRepository: LongJdbcRepository<UserTable, UserRecord> {
     }
 }
 
-// 사용
+// Usage
 transaction {
     val repo = UserRepository()
-    val user = repo.save(UserRecord(name = "홍길동", email = "hong@example.com"))
+    val user = repo.save(UserRecord(name = "Hong Gildong", email = "hong@example.com"))
 
     val found = repo.findById(user.id)
     val page = repo.findPage(pageNumber = 0, pageSize = 20)
-    println("총 레코드: ${page.totalCount}, 총 페이지: ${page.totalPages}")
+    println("Total records: ${page.totalCount}, Total pages: ${page.totalPages}")
 }
 ```
 
-### 2. SoftDeletedJdbcRepository 구현
+### 2. Implementing SoftDeletedJdbcRepository
 
 ```kotlin
 import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
@@ -109,21 +110,21 @@ class PostRepository: LongSoftDeletedJdbcRepository<PostTable, PostRecord> {
 transaction {
     val repo = PostRepository()
 
-    // 논리 삭제
+    // Soft delete
     repo.softDeleteById(postId)
 
-    // 활성 레코드만 조회
+    // Query only active records
     val activePosts = repo.findActive()
 
-    // 삭제된 레코드만 조회
+    // Query only deleted records
     val deletedPosts = repo.findDeleted()
 
-    // 복원
+    // Restore
     repo.restoreById(postId)
 }
 ```
 
-### 3. Coroutines 기반 배치 조회 (SuspendedQuery)
+### 3. Coroutines-based batch query (SuspendedQuery)
 
 ```kotlin
 import io.bluetape4k.exposed.core.fetchBatchedResultFlow
@@ -131,7 +132,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 
-// 10개씩 배치로 읽어오는 Flow 기반 쿼리
+// Flow-based query that reads in batches of 10
 val allIds = UserTable
     .select(UserTable.id)
     .fetchBatchedResultFlow(batchSize = 10)
@@ -139,18 +140,18 @@ val allIds = UserTable
     .toList()
 ```
 
-### 4. Virtual Thread 트랜잭션
+### 4. Virtual Thread transactions
 
 ```kotlin
 import io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadJdbcTransaction
 import io.bluetape4k.exposed.jdbc.transactions.virtualThreadJdbcTransactionAsync
 
-// JDK 21+ Virtual Thread에서 동기 트랜잭션 실행
+// Run a synchronous transaction on a JDK 21+ Virtual Thread
 val count = newVirtualThreadJdbcTransaction {
     UserTable.selectAll().count()
 }
 
-// 여러 트랜잭션을 비동기 병렬 실행 후 대기
+// Run multiple transactions asynchronously in parallel
 val futures = List(10) { index ->
     virtualThreadJdbcTransactionAsync {
         UserTable.insert { it[name] = "user-$index" }
@@ -160,39 +161,39 @@ val futures = List(10) { index ->
 val results = futures.awaitAll()
 ```
 
-### 5. ExposedPage — 페이징 결과
+### 5. ExposedPage — paginated results
 
 ```kotlin
-// JdbcRepository.findPage() 사용
+// Using JdbcRepository.findPage()
 transaction {
     val repo = UserRepository()
     val page = repo.findPage(
         pageNumber = 0,
         pageSize = 20,
         sortOrder = SortOrder.ASC
-    ) { UserTable.name like "홍%" }
+    ) { UserTable.name like "Hong%" }
 
-    println("전체 수: ${page.totalCount}")
-    println("현재 페이지: ${page.pageNumber}")
-    println("전체 페이지: ${page.totalPages}")
-    println("마지막 페이지: ${page.isLast}")
+    println("Total count: ${page.totalCount}")
+    println("Current page: ${page.pageNumber}")
+    println("Total pages: ${page.totalPages}")
+    println("Is last page: ${page.isLast}")
     page.content.forEach { println(it) }
 }
 ```
 
-### 6. 배치 삽입 / Upsert
+### 6. Batch insert / Upsert
 
 ```kotlin
 transaction {
     val repo = UserRepository()
 
-    // 배치 삽입
+    // Batch insert
     val inserted = repo.batchInsert(userList) { user ->
         this[UserTable.name] = user.name
         this[UserTable.email] = user.email
     }
 
-    // 배치 Upsert
+    // Batch upsert
     val upserted = repo.batchUpsert(userList) { user ->
         this[UserTable.name] = user.name
         this[UserTable.email] = user.email
@@ -200,52 +201,52 @@ transaction {
 }
 ```
 
-## JdbcRepository 주요 메서드
+## JdbcRepository Key Methods
 
-| 메서드                                   | 설명                        |
-|---------------------------------------|---------------------------|
-| `count()`                             | 전체 레코드 수                  |
-| `countBy(predicate)`                  | 조건에 맞는 레코드 수              |
-| `existsById(id)`                      | ID로 존재 여부 확인              |
-| `existsBy(predicate)`                 | 조건으로 존재 여부 확인             |
-| `findById(id)`                        | ID로 단건 조회 (없으면 예외)        |
-| `findByIdOrNull(id)`                  | ID로 단건 조회 (없으면 null)      |
-| `findAll(limit, offset, ...)`         | 전체 조회 (페이징/정렬 지원)         |
-| `findWithFilters(...)`                | 다중 조건 AND 조합 조회           |
-| `findBy(...)`                         | `findWithFilters`의 alias  |
-| `findFirstOrNull(...)`                | 조건에 맞는 첫 번째 엔티티           |
-| `findLastOrNull(...)`                 | 조건에 맞는 마지막 엔티티            |
-| `findByField(field, value)`           | 특정 컬럼 값으로 조회              |
-| `findAllByIds(ids)`                   | 여러 ID로 일괄 조회              |
-| `findPage(pageNumber, pageSize, ...)` | 페이징 조회                    |
-| `deleteById(id)`                      | ID로 삭제                    |
-| `deleteByIdIgnore(id)`                | ID로 삭제 (예외 무시)            |
-| `deleteAll(op)`                       | 조건에 맞는 레코드 삭제             |
-| `deleteAllByIds(ids)`                 | 여러 ID로 일괄 삭제              |
-| `updateById(id, ...)`                 | ID로 수정                    |
-| `updateAll(predicate, ...)`           | 조건에 맞는 레코드 일괄 수정          |
-| `batchInsert(entities, ...)`          | 배치 삽입                     |
-| `batchUpsert(entities, ...)`          | 배치 Upsert                 |
+| Method                                  | Description                               |
+|-----------------------------------------|-------------------------------------------|
+| `count()`                               | Total record count                        |
+| `countBy(predicate)`                    | Count matching records                    |
+| `existsById(id)`                        | Check existence by ID                     |
+| `existsBy(predicate)`                   | Check existence by condition              |
+| `findById(id)`                          | Find by ID (throws if not found)          |
+| `findByIdOrNull(id)`                    | Find by ID (returns null if not found)    |
+| `findAll(limit, offset, ...)`           | Find all (supports paging and sorting)    |
+| `findWithFilters(...)`                  | Find with multiple AND conditions         |
+| `findBy(...)`                           | Alias for `findWithFilters`               |
+| `findFirstOrNull(...)`                  | First matching entity                     |
+| `findLastOrNull(...)`                   | Last matching entity                      |
+| `findByField(field, value)`             | Find by a specific column value           |
+| `findAllByIds(ids)`                     | Find multiple entities by IDs             |
+| `findPage(pageNumber, pageSize, ...)`   | Paginated query                           |
+| `deleteById(id)`                        | Delete by ID                              |
+| `deleteByIdIgnore(id)`                  | Delete by ID (ignore exceptions)          |
+| `deleteAll(op)`                         | Delete matching records                   |
+| `deleteAllByIds(ids)`                   | Delete multiple records by IDs            |
+| `updateById(id, ...)`                   | Update by ID                              |
+| `updateAll(predicate, ...)`             | Bulk update matching records              |
+| `batchInsert(entities, ...)`            | Batch insert                              |
+| `batchUpsert(entities, ...)`            | Batch upsert                              |
 
-## SoftDeletedJdbcRepository 추가 메서드
+## SoftDeletedJdbcRepository Additional Methods
 
-| 메서드                                         | 설명                       |
-|---------------------------------------------|--------------------------|
-| `softDeleteById(id)`                        | ID로 논리 삭제 (`isDeleted=true`) |
-| `restoreById(id)`                           | ID로 논리 삭제 복원             |
-| `countActive(predicate)`                    | 활성 레코드 수                 |
-| `countDeleted(predicate)`                   | 삭제된 레코드 수                |
-| `findActive(limit, offset, ...)`            | 활성 레코드만 조회               |
-| `findDeleted(limit, offset, ...)`           | 삭제된 레코드만 조회              |
-| `softDeleteAll(predicate)`                  | 조건에 맞는 레코드 일괄 논리 삭제      |
-| `restoreAll(predicate)`                     | 조건에 맞는 레코드 일괄 복원         |
-| `findActivePage(pageNumber, pageSize, ...)` | 활성 레코드 페이징 조회            |
+| Method                                          | Description                                        |
+|-------------------------------------------------|----------------------------------------------------|
+| `softDeleteById(id)`                            | Soft delete by ID (`isDeleted=true`)               |
+| `restoreById(id)`                               | Restore a soft-deleted record by ID                |
+| `countActive(predicate)`                        | Count active records                               |
+| `countDeleted(predicate)`                       | Count deleted records                              |
+| `findActive(limit, offset, ...)`                | Find only active records                           |
+| `findDeleted(limit, offset, ...)`               | Find only deleted records                          |
+| `softDeleteAll(predicate)`                      | Bulk soft delete matching records                  |
+| `restoreAll(predicate)`                         | Bulk restore matching records                      |
+| `findActivePage(pageNumber, pageSize, ...)`     | Paginated query of active records                  |
 
-## AuditableJdbcRepository (감사 추적 Repository)
+## AuditableJdbcRepository (Audit Tracking Repository)
 
-`AuditableJdbcRepository`는 UPDATE 시 `updatedAt`과 `updatedBy`를 자동으로 설정하는 감사 기능을 제공합니다.
+`AuditableJdbcRepository` automatically sets `updatedAt` and `updatedBy` on UPDATE operations.
 
-### 테이블 정의 (exposed-core)
+### Table definition (exposed-core)
 
 ```kotlin
 import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
@@ -253,11 +254,11 @@ import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
 object ArticleTable : AuditableLongIdTable("articles") {
     val title = varchar("title", 255)
     val content = text("content")
-    // createdBy, createdAt, updatedBy, updatedAt 자동 추가
+    // createdBy, createdAt, updatedBy, updatedAt are added automatically
 }
 ```
 
-### Repository 구현
+### Repository implementation
 
 ```kotlin
 import io.bluetape4k.exposed.jdbc.repository.LongAuditableJdbcRepository
@@ -282,9 +283,9 @@ class ArticleRepository : LongAuditableJdbcRepository<ArticleRecord, ArticleTabl
 }
 ```
 
-### auditedUpdateById — ID로 수정
+### auditedUpdateById — Update by ID
 
-UPDATE 시 `updatedAt`을 DB `CURRENT_TIMESTAMP`(UTC)로, `updatedBy`를 `UserContext.getCurrentUser()`로 자동 설정합니다.
+On UPDATE, automatically sets `updatedAt` to DB `CURRENT_TIMESTAMP` (UTC) and `updatedBy` to `UserContext.getCurrentUser()`.
 
 ```kotlin
 import io.bluetape4k.exposed.core.auditable.UserContext
@@ -294,35 +295,35 @@ transaction {
     UserContext.withUser("editor@example.com") {
         val repo = ArticleRepository()
 
-        // updatedBy="editor@example.com", updatedAt=DB현재시각 자동 설정
+        // updatedBy="editor@example.com", updatedAt set to current DB time
         val rows = repo.auditedUpdateById(1L) {
             it[ArticleTable.title] = "Updated Title"
         }
-        println("수정된 행: $rows")
+        println("Rows updated: $rows")
     }
 }
 ```
 
-### auditedUpdateAll — 조건으로 대량 수정
+### auditedUpdateAll — Bulk update by condition
 
-조건에 맞는 모든 레코드를 UPDATE하고 감사 필드를 자동 설정합니다.
+Updates all matching records and automatically sets audit fields.
 
 ```kotlin
 transaction {
     UserContext.withUser("batch-job") {
         val repo = ArticleRepository()
 
-        // title이 "Draft"인 모든 레코드 수정
-        // updatedBy="batch-job", updatedAt=DB현재시각 자동 설정
+        // Update all records where title = "Draft"
+        // updatedBy="batch-job", updatedAt set to current DB time
         val rows = repo.auditedUpdateAll(predicate = { ArticleTable.title eq "Draft" }) {
             it[ArticleTable.title] = "Published"
         }
-        println("수정된 행: $rows")
+        println("Rows updated: $rows")
     }
 }
 ```
 
-### 전체 사용 예시
+### Complete example
 
 ```kotlin
 import io.bluetape4k.exposed.core.auditable.UserContext
@@ -337,61 +338,61 @@ transaction {
             title = "Hello Auditable",
             content = "Tracking changes automatically",
         )
-        // INSERT 시 createdBy="alice", createdAt=DB현재시각 자동 설정
+        // INSERT: createdBy="alice", createdAt set to current DB time
         repo.save(newArticle)
     }
 
     // 2. SELECT
     val article = repo.findByIdOrNull(1L)
-    println("생성자: ${article?.createdBy}")  // "alice"
-    println("생성일: ${article?.createdAt}")   // DB 타임스탬프
+    println("Creator: ${article?.createdBy}")   // "alice"
+    println("Created at: ${article?.createdAt}") // DB timestamp
 
     // 3. UPDATE
     UserContext.withUser("bob") {
-        // updatedBy="bob", updatedAt=DB현재시각 자동 설정
+        // updatedBy="bob", updatedAt set to current DB time
         repo.auditedUpdateById(1L) {
             it[ArticleTable.title] = "Updated by Bob"
         }
     }
 
-    // 4. 수정 내역 확인
+    // 4. Verify the update
     val updated = repo.findByIdOrNull(1L)
-    println("수정자: ${updated?.updatedBy}")  // "bob"
-    println("수정일: ${updated?.updatedAt}")   // DB 타임스탬프 (생성일과 다름)
+    println("Modifier: ${updated?.updatedBy}")   // "bob"
+    println("Updated at: ${updated?.updatedAt}") // DB timestamp (different from createdAt)
 }
 ```
 
-### 중요 사항
+### Important notes
 
-- `auditedUpdateById()` 또는 `auditedUpdateAll()`을 반드시 사용하세요.
-- 일반 `JdbcRepository.updateById()`를 사용하면 감사 필드가 자동 설정되지 않습니다.
+- Always use `auditedUpdateById()` or `auditedUpdateAll()` for auditable entities.
+- Using the plain `JdbcRepository.updateById()` will not automatically set audit fields.
 
-### 편의 타입 별칭
+### Convenience type aliases
 
-| 인터페이스 | 기본키 타입 |
-|----------|-----------|
-| `IntAuditableJdbcRepository` | `Int` |
-| `LongAuditableJdbcRepository` | `Long` |
-| `UUIDAuditableJdbcRepository` | `java.util.UUID` |
+| Interface                      | Primary key type   |
+|--------------------------------|--------------------|
+| `IntAuditableJdbcRepository`   | `Int`              |
+| `LongAuditableJdbcRepository`  | `Long`             |
+| `UUIDAuditableJdbcRepository`  | `java.util.UUID`   |
 
-## 편의 타입 별칭 (일반 Repository)
+## Convenience Type Aliases (Standard Repository)
 
-| 인터페이스                             | 기본키 타입             |
-|-------------------------------------|------------------|
-| `IntJdbcRepository`                 | `Int`            |
-| `LongJdbcRepository`                | `Long`           |
-| `UuidJdbcRepository`                | `kotlin.uuid.Uuid` |
-| `UUIDJdbcRepository`                | `java.util.UUID` |
-| `StringJdbcRepository`              | `String`         |
-| `IntSoftDeletedJdbcRepository`      | `Int`            |
-| `LongSoftDeletedJdbcRepository`     | `Long`           |
-| `UuidSoftDeletedJdbcRepository`     | `kotlin.uuid.Uuid` |
-| `UUIDSoftDeletedJdbcRepository`     | `java.util.UUID` |
-| `StringSoftDeletedJdbcRepository`   | `String`         |
+| Interface                           | Primary key type      |
+|-------------------------------------|-----------------------|
+| `IntJdbcRepository`                 | `Int`                 |
+| `LongJdbcRepository`                | `Long`                |
+| `UuidJdbcRepository`                | `kotlin.uuid.Uuid`    |
+| `UUIDJdbcRepository`                | `java.util.UUID`      |
+| `StringJdbcRepository`              | `String`              |
+| `IntSoftDeletedJdbcRepository`      | `Int`                 |
+| `LongSoftDeletedJdbcRepository`     | `Long`                |
+| `UuidSoftDeletedJdbcRepository`     | `kotlin.uuid.Uuid`    |
+| `UUIDSoftDeletedJdbcRepository`     | `java.util.UUID`      |
+| `StringSoftDeletedJdbcRepository`   | `String`              |
 
-## 클래스 다이어그램
+## Class Diagrams
 
-### Repository 및 VirtualThread 트랜잭션 핵심 구조
+### Core Repository and VirtualThread Transaction Structure
 
 ```mermaid
 classDiagram
@@ -441,7 +442,7 @@ sequenceDiagram
     VT-->>Caller: T (result)
 ```
 
-### Repository 계층 구조
+### Repository Hierarchy
 
 ```mermaid
 classDiagram
@@ -521,9 +522,9 @@ SoftDeletedJdbcRepository <|-- IntSoftDeletedJdbcRepository
 JdbcRepository ..> ExposedPage: returns
 ```
 
-## 시퀀스 다이어그램
+## Sequence Diagrams
 
-### findById — 단건 조회
+### findById — Single record lookup
 
 ```mermaid
 sequenceDiagram
@@ -540,7 +541,7 @@ sequenceDiagram
     Repository -->> Client: entity E
 ```
 
-### save + findPage — 저장 후 페이징 조회
+### save + findPage — Save then paginate
 
 ```mermaid
 sequenceDiagram
@@ -566,7 +567,7 @@ sequenceDiagram
     Repository -->> Client: ExposedPage(content, totalCount, ...)
 ```
 
-### softDeleteById / restoreById — 논리 삭제 및 복원
+### softDeleteById / restoreById — Soft delete and restore
 
 ```mermaid
 sequenceDiagram
@@ -577,40 +578,40 @@ sequenceDiagram
     Client ->> Repository: softDeleteById(id)
     Repository ->> Exposed: table.update { isDeleted = true }
     Exposed ->> DB: UPDATE table SET is_deleted = true WHERE id = ?
-    DB -->> Client: (완료)
+    DB -->> Client: (done)
     Client ->> Repository: findActive()
     Repository ->> Exposed: findAll { isDeleted eq false }
     Exposed ->> DB: SELECT * FROM table WHERE is_deleted = false
     DB -->> Exposed: List~ResultRow~
     Exposed -->> Repository: List~ResultRow~
-    Repository -->> Client: List~E~ (활성 엔티티만)
+    Repository -->> Client: List~E~ (active entities only)
     Client ->> Repository: restoreById(id)
     Repository ->> Exposed: table.update { isDeleted = false }
     Exposed ->> DB: UPDATE table SET is_deleted = false WHERE id = ?
-    DB -->> Client: (완료)
+    DB -->> Client: (done)
 ```
 
-## 주요 파일/클래스 목록
+## Key Files and Classes
 
-| 파일                                                           | 설명                                |
-|--------------------------------------------------------------|-----------------------------------|
-| `jdbc/repository/JdbcRepository.kt`                          | JDBC Repository 기본 인터페이스         |
-| `jdbc/repository/SoftDeletedJdbcRepository.kt`               | Soft Delete 지원 Repository         |
-| `repository/ExposedRepository.kt`                            | (Deprecated) 구 Repository 인터페이스  |
-| `core/SuspendedQuery.kt`                                     | 커서 기반 배치 Flow 쿼리                 |
-| `jdbc/transactions/VirtualThreadJdbcTransaction.kt`          | Virtual Thread 기반 JDBC 트랜잭션       |
-| `core/transactions/VirtualThreadTransaction.kt`              | (Deprecated) 구 Virtual Thread 트랜잭션 |
-| `core/ImplicitSelectAll.kt`                                  | `SELECT *` 형태의 묵시적 전체 조회         |
-| `core/TableExtensions.kt`                                    | 테이블 메타데이터 확장 함수                  |
-| `core/SchemaUtilsExtensions.kt`                              | SchemaUtils 확장 함수                 |
+| File                                                         | Description                                   |
+|--------------------------------------------------------------|-----------------------------------------------|
+| `jdbc/repository/JdbcRepository.kt`                         | JDBC Repository base interface                |
+| `jdbc/repository/SoftDeletedJdbcRepository.kt`              | Soft Delete Repository                        |
+| `repository/ExposedRepository.kt`                           | (Deprecated) Legacy Repository interface      |
+| `core/SuspendedQuery.kt`                                     | Cursor-based batch Flow query                 |
+| `jdbc/transactions/VirtualThreadJdbcTransaction.kt`         | Virtual Thread-based JDBC transaction         |
+| `core/transactions/VirtualThreadTransaction.kt`             | (Deprecated) Legacy Virtual Thread transaction |
+| `core/ImplicitSelectAll.kt`                                  | Implicit `SELECT *` query                     |
+| `core/TableExtensions.kt`                                    | Table metadata extension functions            |
+| `core/SchemaUtilsExtensions.kt`                              | SchemaUtils extension functions               |
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-jdbc:test
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed JDBC](https://github.com/JetBrains/Exposed/wiki/DSL)
 - [bluetape4k-exposed-core](../exposed-core)

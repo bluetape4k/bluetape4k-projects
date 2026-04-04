@@ -1,21 +1,22 @@
 # Module bluetape4k-netty
 
-Netty 라이브러리를 사용할 때 필요한 확장 함수들을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Extension functions for working with the Netty framework.
 
-`bluetape4k-netty`는 [Netty](https://netty.io/) 프레임워크를 Kotlin 환경에서 더 편리하게 사용할 수 있도록 다양한 확장 함수와 유틸리티를 제공합니다. 특히
-`ByteBuf` 조작을 위한 풍부한 API를 포함하고 있습니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-netty` provides various extension functions and utilities for using the [Netty](https://netty.io/) framework more conveniently in Kotlin. It is particularly rich in API for `ByteBuf` manipulation.
 
-- **ByteBuf 확장 함수**: 바이트 읽기/쓰기 확장 함수
-- **Smart Number 인코딩**: 가변 길이 숫자 인코딩
-- **부호 없는 숫자 처리**: UByte, UShort, UInt, ULong 지원
-- **문자열 읽기/쓰기**: 널 종료 문자열 처리
-- **ByteBuf 유틸리티**: ReferenceCounted, Throwable 처리
+### Key Features
 
-## 의존성 추가
+- **ByteBuf extension functions**: Read/write extensions for ByteBuf
+- **Smart number encoding**: Variable-length number encoding
+- **Unsigned number support**: UByte, UShort, UInt, ULong
+- **String read/write**: Null-terminated string handling
+- **ByteBuf utilities**: ReferenceCounted and Throwable handling
+
+## Adding the Dependency
 
 ```kotlin
 dependencies {
@@ -24,169 +25,169 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. ByteBuf 읽기
+### 1. Reading from ByteBuf
 
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
 val buf: ByteBuf = Unpooled.buffer()
 
-// 기본 읽기
+// Basic reads
 val byte = buf.readByte()
 val short = buf.readShort()
 val int = buf.readInt()
 val long = buf.readLong()
 
-// 부호 없는 읽기
+// Unsigned reads
 val uByte: UByte = buf.readUByteNeg()
 val uShort: UShort = buf.readUShortAdd()
 val uInt: Long = buf.readUIntME()
 
-// Smart 인코딩 읽기
+// Smart encoding reads
 val smartShort: Short = buf.readShortSmart()
 val smartInt: Int = buf.readIntSmart()
 val smartUInt: Int = buf.readUIntSmart()
 
-// 가변 길이 읽기
+// Variable-length read
 val varInt: Int = buf.readVarInt()
 
-// 바이트 배열 읽기
+// Byte array reads
 val bytes: ByteArray = buf.getBytes()
 val reversed: ByteArray = buf.readBytesReversed(length)
 ```
 
-### 2. ByteBuf 쓰기
+### 2. Writing to ByteBuf
 
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
 val buf: ByteBuf = Unpooled.buffer()
 
-// 기본 쓰기
+// Basic writes
 buf.writeByte(0xFF)
 buf.writeShort(1000)
 buf.writeInt(100000)
 buf.writeLong(10000000000L)
 
-// Smart 인코딩 쓰기
+// Smart encoding writes
 buf.writeShortSmart(100)
 buf.writeIntSmart(10000)
 buf.writeUIntSmart(50000)
 
-// 가변 길이 쓰기
+// Variable-length write
 buf.writeVarInt(123456)
 
-// 문자열 쓰기 (널 종료)
+// String write (null-terminated)
 buf.writeString("Hello, World!")
 
-// 버전이 있는 문자열 쓰기
+// Versioned string write
 buf.writeVersionedString("Data", version = 1)
 
-// 바이트 배열 쓰기
+// Byte array writes
 buf.writeBytesReversed(byteArray)
 buf.writeBytesAdd(byteArray)
 ```
 
-### 3. 인덱스 기반 접근 (읽기 위치 이동 없음)
+### 3. Index-based Access (no reader index movement)
 
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
 val buf: ByteBuf = Unpooled.buffer()
 
-// 인덱스로 읽기
+// Read by index
 val byte = buf.getByte(index)
 val uByte = buf.getUByteAdd(index)
 val short = buf.getShortAdd(index)
 val medium = buf.getMediumLME(index)
 val smallLong = buf.getSmallLong(index)
 
-// 인덱스로 쓰기
+// Write by index
 buf.setByte(index, 0xFF)
 buf.setByteAdd(index, 128)
 buf.setMediumLME(index, value)
 ```
 
-### 4. 바이트 배열 변환
+### 4. Byte Array Conversion
 
 ```kotlin
 import io.bluetape4k.netty.buffer.*
 
-// ByteBuf에서 ByteArray로
+// ByteBuf to ByteArray
 val bytes = buf.getBytes(start = 0, length = buf.readableBytes(), copy = true)
 
-// 역순으로 읽기
+// Read in reverse order
 val reversed = buf.getBytesReversed()
 
-// Add 오프셋 적용하여 읽기
+// Read with add offset
 val added = buf.getBytesAdd(index, length)
 ```
 
-### 5. ReferenceCounted 지원
+### 5. ReferenceCounted Support
 
 ```kotlin
 import io.bluetape4k.netty.util.*
 
-// 안전한 release
+// Safe release
 buf.safeRelease()
 
-// retain 카운트 확인
+// Check retain count
 val count = buf.refCnt()
 ```
 
-## Smart 인코딩
+## Smart Encoding
 
-Smart 인코딩은 값의 크기에 따라 바이트 수를 최적화하는 가변 길이 인코딩 방식입니다.
+Smart encoding is a variable-length encoding that optimizes byte count based on the magnitude of the value.
 
-| 값 범위 | 인코딩 크기 |
-|------|--------|
-| 작은 값 | 1바이트   |
-| 중간 값 | 2바이트   |
-| 큰 값  | 4바이트   |
+| Value Range | Encoded Size |
+|-------------|--------------|
+| Small values | 1 byte |
+| Medium values | 2 bytes |
+| Large values | 4 bytes |
 
 ```kotlin
-// 작은 값: 1바이트
-buf.writeUShortSmart(100)  // 1바이트
+// Small value: 1 byte
+buf.writeUShortSmart(100)  // 1 byte
 
-// 중간 값: 2바이트
-buf.writeUShortSmart(300)  // 2바이트
+// Medium value: 2 bytes
+buf.writeUShortSmart(300)  // 2 bytes
 
-// 큰 값: 4바이트
-buf.writeUIntSmart(100000) // 4바이트
+// Large value: 4 bytes
+buf.writeUIntSmart(100000) // 4 bytes
 ```
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
 ### Buffer (buffer/)
 
-| 파일                              | 설명                    |
-|---------------------------------|-----------------------|
-| `ByteBufExtensions.kt`          | ByteBuf 확장 함수 (읽기/쓰기) |
-| `ByteBufUtilSupport.kt`         | ByteBufUtil 확장        |
-| `BitBuf.kt`, `BitBufImpl.kt`    | 비트 단위 버퍼              |
-| `Smart.kt`, `USmart.kt`         | Smart 인코딩 상수          |
-| `Medium.kt`, `UMedium.kt`       | 24비트 Medium 타입        |
-| `SmallLong.kt`, `USmallLong.kt` | 48비트 SmallLong 타입     |
+| File | Description |
+|------|-------------|
+| `ByteBufExtensions.kt` | ByteBuf extension functions (read/write) |
+| `ByteBufUtilSupport.kt` | ByteBufUtil extensions |
+| `BitBuf.kt`, `BitBufImpl.kt` | Bit-level buffer |
+| `Smart.kt`, `USmart.kt` | Smart encoding constants |
+| `Medium.kt`, `UMedium.kt` | 24-bit Medium type |
+| `SmallLong.kt`, `USmallLong.kt` | 48-bit SmallLong type |
 
 ### Util (util/)
 
-| 파일                           | 설명                  |
-|------------------------------|---------------------|
-| `ReferenceCountedSupport.kt` | ReferenceCounted 확장 |
-| `ThrowableUtilSupport.kt`    | Throwable 유틸리티      |
-| `StringUtilSupport.kt`       | 문자열 유틸리티            |
+| File | Description |
+|------|-------------|
+| `ReferenceCountedSupport.kt` | ReferenceCounted extensions |
+| `ThrowableUtilSupport.kt` | Throwable utilities |
+| `StringUtilSupport.kt` | String utilities |
 
 ### Transport
 
-| 파일                         | 설명          |
-|----------------------------|-------------|
-| `NettyTransportSupport.kt` | Netty 전송 지원 |
+| File | Description |
+|------|-------------|
+| `NettyTransportSupport.kt` | Netty transport support |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### ByteBuf 확장 API 구조
+### ByteBuf Extension API Structure
 
 ```mermaid
 classDiagram
@@ -224,26 +225,26 @@ classDiagram
         +refCnt() Int
     }
 
-    ByteBuf <-- ByteBufExtensions : 확장
-    ByteBuf <-- BitBuf : 래핑
-    ByteBuf <-- ReferenceCountedSupport : 확장
+    ByteBuf <-- ByteBufExtensions : extends
+    ByteBuf <-- BitBuf : wraps
+    ByteBuf <-- ReferenceCountedSupport : extends
 
 ```
 
-### Smart 인코딩 데이터 흐름
+### Smart Encoding Data Flow
 
 ```mermaid
 flowchart LR
-    subgraph 값 범위별 인코딩
-        V1["작은 값<br/>0 ~ 127"]
-        V2["중간 값<br/>128 ~ 32767"]
-        V3["큰 값<br/>32768+"]
+    subgraph Value ranges
+        V1["Small values<br/>0 ~ 127"]
+        V2["Medium values<br/>128 ~ 32767"]
+        V3["Large values<br/>32768+"]
     end
 
-    subgraph ByteBuf 인코딩
-        B1["1바이트<br/>0xxx xxxx"]
-        B2["2바이트<br/>1xxx xxxx xxxx xxxx"]
-        B3["4바이트<br/>(부호 확장)"]
+    subgraph ByteBuf encoding
+        B1["1 byte<br/>0xxx xxxx"]
+        B2["2 bytes<br/>1xxx xxxx xxxx xxxx"]
+        B3["4 bytes<br/>(sign-extended)"]
     end
 
     V1 -->|writeShortSmart / writeUShortSmart| B1
@@ -255,26 +256,26 @@ flowchart LR
     B3 -->|readIntSmart / readUIntSmart| V3
 ```
 
-### Netty 채널 파이프라인 처리 흐름
+### Netty Channel Pipeline Processing Flow
 
 ```mermaid
 flowchart TD
-    NET[네트워크 계층] -->|수신 바이트| CH[Channel]
-    CH --> P1[ChannelHandler 1<br/>바이트 디코딩]
-    P1 --> P2[ChannelHandler 2<br/>ByteBuf 확장 처리<br/>readVarInt / readShortSmart]
-    P2 --> P3[ChannelHandler 3<br/>비즈니스 로직]
-    P3 -->|응답 생성| W1[ChannelHandler<br/>writeVarInt / writeString]
-    W1 -->|인코딩| CH
-    CH -->|송신 바이트| NET
+    NET[Network layer] -->|Incoming bytes| CH[Channel]
+    CH --> P1[ChannelHandler 1<br/>Byte decoding]
+    P1 --> P2[ChannelHandler 2<br/>ByteBuf extension processing<br/>readVarInt / readShortSmart]
+    P2 --> P3[ChannelHandler 3<br/>Business logic]
+    P3 -->|Generate response| W1[ChannelHandler<br/>writeVarInt / writeString]
+    W1 -->|Encoding| CH
+    CH -->|Outgoing bytes| NET
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-netty:test
 ```
 
-## 참고
+## References
 
 - [Netty](https://netty.io/)
 - [Netty ByteBuf](https://netty.io/wiki/bytebuf-api.html)

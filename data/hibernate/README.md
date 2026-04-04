@@ -1,54 +1,56 @@
 # Module bluetape4k-hibernate
 
-Hibernate ORM/JPA 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A Kotlin extension library that eliminates boilerplate when working with Hibernate ORM and JPA.
 
-`bluetape4k-hibernate`는 [Hibernate ORM](https://hibernate.org/orm/)과 Jakarta Persistence API를 Kotlin 환경에서 더 편리하게 사용할 수 있도록 다양한 확장 함수와 유틸리티를 제공합니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-hibernate` provides a rich set of extension functions and utilities that make [Hibernate ORM](https://hibernate.org/orm/) and the Jakarta Persistence API more ergonomic in Kotlin.
 
-- **JPA 엔티티 베이스 클래스**: `IntJpaEntity`, `LongJpaEntity`, `UuidJpaEntity`, Tree 계열 엔티티
-- **EntityManager 확장**: `save`, `delete`, `findAs`, `countAll`, `deleteAll` 등
-- **Session/SessionFactory 확장**: 배치/리스너/세션 보조 기능
-- **Criteria/TypedQuery 확장**: `createQueryAs`, `attribute`, `long/int` 변환 유틸
-- **Querydsl 확장**: BooleanExpression 결합, 연산자 보조
-- **Converter 지원**: Locale/암복호화(Google Tink)/압축/직렬화 기반 converter
-- **StatelessSession 지원**: 트랜잭션 처리와 reified 헬퍼 제공
-- **Hibernate 6.6 기능 예시**: `@ConcreteProxy`와 embeddable inheritance 매핑 회귀 테스트 포함
-- **NaturalId 예시 포함**: `@NaturalId`와 `Session.bySimpleNaturalId(...)` 조회 패턴 제공
+### Key Features
 
-## 의존성 추가
+- **JPA Entity Base Classes**: `IntJpaEntity`, `LongJpaEntity`, `UuidJpaEntity`, and tree-structured entity variants
+- **EntityManager Extensions**: `save`, `delete`, `findAs`, `countAll`, `deleteAll`, and more
+- **Session/SessionFactory Extensions**: Batch operations, listener support, and session helpers
+- **Criteria/TypedQuery Extensions**: `createQueryAs`, `attribute`, `long/int` conversion utilities
+- **Querydsl Extensions**: BooleanExpression composition and operator helpers
+- **Converter Support**: Locale, encryption (Google Tink), compression, and serialization-based converters
+- **StatelessSession Support**: Transaction helpers and reified accessor functions
+- **Hibernate 6.6 Feature Examples**: Regression tests for `@ConcreteProxy` and embeddable inheritance mapping
+- **NaturalId Examples**: `@NaturalId` and `Session.bySimpleNaturalId(...)` lookup patterns
+
+## Dependency
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-hibernate:${version}")
 
-    // Hibernate (필요한 버전 선택)
+    // Hibernate (choose your version)
     implementation("org.hibernate.orm:hibernate-core:6.6.41")
 
-    // Querydsl (선택)
+    // Querydsl (optional)
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
 
-    // 암호화 Converter 사용 시 (Google Tink)
+    // Encryption converter (Google Tink)
     compileOnly("io.github.bluetape4k:bluetape4k-tink:${version}")
 
-    // JSON Converter 사용 시
+    // JSON converter
     compileOnly("io.github.bluetape4k:bluetape4k-jackson2:${version}")
 
-    // 직렬화 Converter 사용 시 (Kryo 또는 Apache Fory)
+    // Serialization converter (Kryo or Apache Fory)
     compileOnly("com.esotericsoftware:kryo:5.6.2")
     compileOnly("org.apache.fury:fury-kotlin:0.10.0")
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. JPA 엔티티 베이스 클래스
+### 1. JPA Entity Base Classes
 
-미리 정의된 추상 클래스를 상속받아 엔티티를 쉽게 정의할 수 있습니다.
+Extend predefined abstract classes to define entities quickly.
 
-![JPA 엔티티 베이스 클래스](./doc/jpa-entity-diagram.png)
+![JPA Entity Base Classes](./doc/jpa-entity-diagram.png)
 
 ```kotlin
 import io.bluetape4k.hibernate.model.LongJpaEntity
@@ -79,9 +81,9 @@ class Session: UuidJpaEntity() {
 }
 ```
 
-#### Tree 구조 엔티티
+#### Tree-Structured Entities
 
-계층형 데이터를 위한 Tree 엔티티 베이스 클래스를 제공합니다.
+Base classes are provided for hierarchical data.
 
 ```kotlin
 import io.bluetape4k.hibernate.model.LongJpaTreeEntity
@@ -93,90 +95,90 @@ class Category: LongJpaTreeEntity<Category>() {
     var description: String = ""
 }
 
-// 자식 추가/제거
+// Add/remove children
 val parent = Category()
 val child = Category()
-parent.addChildren(child)    // child.parent = parent 자동 설정
-parent.removeChildren(child) // child.parent = null 자동 설정
+parent.addChildren(child)    // Automatically sets child.parent = parent
+parent.removeChildren(child) // Automatically sets child.parent = null
 ```
 
-### 2. EntityManager 확장 함수
+### 2. EntityManager Extension Functions
 
-#### CRUD 작업
+#### CRUD Operations
 
 ```kotlin
 import io.bluetape4k.hibernate.*
 
-// 저장 (persist 또는 merge 자동 선택)
+// Save (automatically chooses persist or merge)
 val savedUser = em.save(user)
 
-// 삭제
+// Delete
 em.delete(user)
 em.deleteById<User>(1L)
 
-// 조회
+// Find
 val user = em.findAs<User>(1L)
 val user = em.findOne<User>(1L)
 val exists = em.exists<User>(1L)
 
-// 전체 조회
+// Find all
 val users = em.findAll(User::class.java)
 
-// 카운트
+// Count
 val count = em.countAll<User>()
 
-// 전체 삭제
+// Delete all
 val deletedCount = em.deleteAll<User>()
 ```
 
-#### Query 생성
+#### Query Creation
 
 ```kotlin
 import io.bluetape4k.hibernate.*
 
-// TypedQuery 생성
+// Create TypedQuery
 val query = em.newQuery<User>()
 val query = em.createQueryAs<User>("SELECT u FROM User u WHERE u.active = true")
 
-// 페이징 설정
+// Apply paging
 val pagedQuery = query.setPaging(firstResult = 0, maxResults = 10)
 ```
 
-#### Session 접근
+#### Session Access
 
 ```kotlin
 import io.bluetape4k.hibernate.*
 
-// Hibernate Session 가져오기
+// Get the Hibernate Session
 val session = em.currentSession()
 val session = em.asSession()
 
-// SessionFactory 가져오기
+// Get the SessionFactory
 val sessionFactory = em.sessionFactory()
 
-// JDBC Connection 가져오기
+// Get the JDBC Connection
 val connection = em.currentConnection()
 
-// 로드 여부 확인
+// Check loading state
 val isLoaded = em.isLoaded(user)
 val isPropertyLoaded = em.isLoaded(user, "orders")
 ```
 
-### 3. Criteria API 확장
+### 3. Criteria API Extensions
 
 ```kotlin
 import io.bluetape4k.hibernate.criteria.*
 
 val cb = em.criteriaBuilder
 
-// CriteriaQuery 생성
+// Create a CriteriaQuery
 val query = cb.createQueryAs<User>()
 val root = query.from<User>()
 
-// 속성 참조
+// Attribute reference
 val namePath = root.attribute(User::name)
 
-// Predicate 생성
+// Build predicates
 val predicate = cb.eq(root.get<String>("name"), "John")
 val predicate2 = cb.ne(root.get<Boolean>("active"), false)
 val inPredicate = cb.inValues(root.get<Long>("id")).apply {
@@ -189,56 +191,56 @@ query.where(predicate)
 val users = em.createQuery(query).resultList
 ```
 
-### 4. TypedQuery 확장
+### 4. TypedQuery Extensions
 
 ```kotlin
 import io.bluetape4k.hibernate.criteria.*
 
-// Long 결과 변환
+// Convert to Long results
 val longQuery = em.createQuery("SELECT u.id FROM User u WHERE u.active = true", java.lang.Long::class.java)
 val ids: LongArray = longQuery.longArray()
 val idList: List<Long> = longQuery.longList()
 val singleId: Long? = longQuery.longResult()
 
-// Int 결과 변환
+// Convert to Int results
 val intQuery = em.createQuery("SELECT COUNT(*) FROM User u", java.lang.Integer::class.java)
 val count: Int? = intQuery.intResult()
 
-// 단일 결과 (없으면 null)
+// Single result, or null if absent
 val typedQuery = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User::class.java)
 val user: User? = typedQuery.findOneOrNull()
 ```
 
-### 5. StatelessSession 지원
+### 5. StatelessSession Support
 
-대량 배치 작업에 적합한 StatelessSession을 지원합니다.
+StatelessSession is ideal for high-throughput batch operations.
 
 ```kotlin
 import io.bluetape4k.hibernate.stateless.*
 
-// SessionFactory 기반
+// Using SessionFactory
 sessionFactory.withStateless { stateless ->
     largeDataList.forEach { data ->
         stateless.insert(data)
     }
 }
 
-// EntityManager 기반
+// Using EntityManager
 em.withStateless { stateless ->
-    // reified 조회
+    // Reified lookup
     val entity = stateless.getAs<User>(userId)
 
-    // 쿼리 실행
+    // Run a query
     val results = stateless.createQueryAs<User>("FROM User WHERE active = true").list()
 
-    // Native 쿼리
+    // Native query
     val users = stateless.createNativeQueryAs<User>("SELECT * FROM users").list()
 }
 ```
 
-### 6. Hibernate 6.6 신규 매핑 예시
+### 6. Hibernate 6.6 Mapping Examples
 
-Hibernate 6.6 라인에서 유용한 기능인 `@ConcreteProxy`와 embeddable inheritance 예시를 테스트 자산으로 포함합니다.
+The library includes test assets demonstrating `@ConcreteProxy` and embeddable inheritance, both useful Hibernate 6.6 features.
 
 ```kotlin
 @Entity
@@ -253,11 +255,11 @@ open class PaymentDetail(
 )
 ```
 
-관련 예시는 테스트 코드에서 바로 확인할 수 있습니다.
+See the test code for working examples:
 - `mapping/inheritance/ConcreteProxyInheritanceTest`
 - `mapping/embeddable/EmbeddableInheritanceTest`
 
-### 7. NaturalId 조회 예시
+### 7. NaturalId Lookup Example
 
 ```kotlin
 @Entity
@@ -271,9 +273,9 @@ val session = em.unwrap(Session::class.java)
 val book = session.bySimpleNaturalId(Book::class.java).load("978-89-1234-567-8")
 ```
 
-관련 예시는 `mapping/naturalid/NaturalIdTest`에서 확인할 수 있습니다.
+See `mapping/naturalid/NaturalIdTest` for the full example.
 
-라이브러리 확장 함수로도 바로 조회할 수 있습니다.
+You can also use library extension functions for direct lookup:
 
 ```kotlin
 val session = em.currentSession()
@@ -281,33 +283,33 @@ val book1 = session.findBySimpleNaturalId<Book>("978-89-1234-567-8")
 val book2 = em.findBySimpleNaturalId<Book>("978-89-1234-567-8")
 ```
 
-### 6. Querydsl 확장
+### 8. Querydsl Extensions
 
 ```kotlin
 import io.bluetape4k.hibernate.querydsl.core.*
 
 val qUser = QUser.user
 
-// BooleanExpression 결합
+// Compose BooleanExpressions
 val predicate = qUser.active.eq(true)
     .and(qUser.email.endsWith("@example.com"))
     .and(qUser.createdAt.gt(LocalDate.of(2024, 1, 1)))
 
-// 쿼리 실행
+// Execute query
 val users = queryFactory
     .selectFrom(qUser)
     .where(predicate)
     .fetch()
 ```
 
-### 7. Converter 사용
+### 9. Converters
 
-다양한 AttributeConverter를 제공합니다.
+A variety of `AttributeConverter` implementations are provided.
 
-#### 직렬화 Converter
+#### Serialization Converters
 
-객체를 직렬화하여 ByteArray(Base64 인코딩)로 DB에 저장합니다.
-JDK / Kryo / Apache Fory 직렬화와 LZ4, Snappy, Zstd 압축을 조합할 수 있습니다.
+Serialize objects and store them as ByteArray (Base64-encoded) in the database.
+Supports JDK, Kryo, and Apache Fory serialization combined with LZ4, Snappy, or Zstd compression.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
@@ -317,29 +319,29 @@ class UserData {
     @Id
     var id: Long? = null
 
-    // JDK 직렬화 → Base64 인코딩 → ByteArray
+    // JDK serialization → Base64 → ByteArray
     @Convert(converter = JdkObjectAsByteArrayConverter::class)
     @Column(length = 4000)
     var metadata: Any? = null
 
-    // Kryo 직렬화 + LZ4 압축 → Base64 인코딩 → ByteArray
+    // Kryo serialization + LZ4 compression → Base64 → ByteArray
     @Convert(converter = LZ4KryoObjectAsByteArrayConverter::class)
     @Column(length = 4000)
     var largeData: Any? = null
 
-    // Apache Fory 직렬화 + Zstd 압축 → Base64 인코딩 → ByteArray
+    // Apache Fory serialization + Zstd compression → Base64 → ByteArray
     @Convert(converter = ZstdForyObjectAsByteArrayConverter::class)
     @Column(length = 4000)
     var compressedData: Any? = null
 }
 ```
 
-#### 암호화 Converter
+#### Encryption Converters
 
-[Google Tink](https://github.com/google/tink) 기반의 AES 암호화 컨버터를 제공합니다.
+AES encryption converters based on [Google Tink](https://github.com/google/tink).
 
-- `AESStringConverter`: AES-256-GCM (비결정적, 매번 다른 암호문)
-- `DeterministicAESStringConverter`: AES-256-SIV (결정적, 동일 평문 → 동일 암호문, WHERE 절 조회 가능)
+- `AESStringConverter`: AES-256-GCM (non-deterministic; ciphertext differs each time)
+- `DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter
@@ -350,19 +352,19 @@ class SecureData {
     @Id
     var id: Long? = null
 
-    // AES-256-GCM 암호화 (비결정적)
+    // AES-256-GCM encryption (non-deterministic)
     @Convert(converter = AESStringConverter::class)
     var creditCard: String? = null
 
-    // AES-256-SIV 결정적 암호화 (WHERE 절로 조회 가능)
+    // AES-256-SIV deterministic encryption (supports WHERE clause lookups)
     @Convert(converter = DeterministicAESStringConverter::class)
     var password: String? = null
 }
 ```
 
-#### 압축 Converter
+#### Compression Converters
 
-문자열을 압축하여 저장합니다. 지원 알고리즘: BZip2, Deflate, GZip, LZ4, Snappy, Zstd.
+Compress strings before storing. Supported algorithms: BZip2, Deflate, GZip, LZ4, Snappy, Zstd.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.ZstdStringConverter
@@ -373,19 +375,19 @@ class Document {
     @Id
     var id: Long? = null
 
-    // Zstd 압축 (높은 압축률)
+    // Zstd compression (high compression ratio)
     @Convert(converter = ZstdStringConverter::class)
     @Lob
     var content: String = ""
 
-    // LZ4 압축 (높은 속도)
+    // LZ4 compression (high speed)
     @Convert(converter = LZ4StringConverter::class)
     @Column(length = 8000)
     var summary: String = ""
 }
 ```
 
-#### 기타 Converter
+#### Miscellaneous Converters
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
@@ -395,11 +397,11 @@ class Event {
     @Id
     var id: Long? = null
 
-    // Locale -> BCP 47 language tag 문자열
+    // Locale → BCP 47 language tag string
     @Convert(converter = LocaleAsStringConverter::class)
     var locale: Locale = Locale.getDefault()
 
-    // Duration -> Timestamp (밀리초)
+    // Duration → Timestamp (milliseconds)
     @Convert(converter = DurationAsTimestampConverter::class)
     var duration: Duration = Duration.ZERO
 }
@@ -412,7 +414,7 @@ import io.bluetape4k.hibernate.converters.AbstractObjectAsJsonConverter
 
 data class Option(val name: String, val value: String): Serializable
 
-// 커스텀 JSON Converter 정의
+// Define a custom JSON converter
 class OptionAsJsonConverter: AbstractObjectAsJsonConverter<Option>(Option::class.java)
 
 @Entity
@@ -425,96 +427,96 @@ class Purchase {
 }
 ```
 
-## 주요 파일/클래스 목록
+## Key Files and Classes
 
 ### Model (model/)
 
-| 파일                     | 설명                |
-|------------------------|-------------------|
-| `JpaEntity.kt`         | JPA 엔티티 인터페이스     |
-| `AbstractJpaEntity.kt` | JPA 엔티티 추상 클래스    |
-| `IntJpaEntity.kt`      | Int ID 엔티티        |
-| `LongJpaEntity.kt`     | Long ID 엔티티       |
-| `UuidJpaEntity.kt`     | UUID (Timebased) 엔티티 |
-| `JpaTreeEntity.kt`     | Tree 구조 엔티티 인터페이스 |
-| `IntJpaTreeEntity.kt`  | Int ID Tree 엔티티   |
-| `LongJpaTreeEntity.kt` | Long ID Tree 엔티티  |
-| `TreeNodePosition.kt`  | Tree 노드 위치 값 객체   |
+| File                     | Description                        |
+|--------------------------|------------------------------------|
+| `JpaEntity.kt`           | JPA entity interface               |
+| `AbstractJpaEntity.kt`   | Abstract JPA entity base class     |
+| `IntJpaEntity.kt`        | Entity with Int ID                 |
+| `LongJpaEntity.kt`       | Entity with Long ID                |
+| `UuidJpaEntity.kt`       | Entity with time-based UUID ID     |
+| `JpaTreeEntity.kt`       | Tree-structured entity interface   |
+| `IntJpaTreeEntity.kt`    | Tree entity with Int ID            |
+| `LongJpaTreeEntity.kt`   | Tree entity with Long ID           |
+| `TreeNodePosition.kt`    | Value object for tree node position|
 
-### EntityManager 확장
+### EntityManager Extensions
 
-| 파일                               | 설명                      |
-|----------------------------------|-------------------------|
-| `EntityManagerSupport.kt`        | EntityManager 확장 함수     |
-| `EntityManagerFactorySupport.kt` | EntityManagerFactory 확장 |
+| File                               | Description                          |
+|------------------------------------|--------------------------------------|
+| `EntityManagerSupport.kt`          | EntityManager extension functions    |
+| `EntityManagerFactorySupport.kt`   | EntityManagerFactory extensions      |
 
-### Session 확장
+### Session Extensions
 
-| 파일                    | 설명                   |
-|-----------------------|----------------------|
-| `SessionSupport.kt`   | Hibernate Session 확장 |
-| `HibernateConsts.kt`  | Hibernate 기본 설정 상수   |
+| File                    | Description                      |
+|-------------------------|----------------------------------|
+| `SessionSupport.kt`     | Hibernate Session extensions     |
+| `HibernateConsts.kt`    | Hibernate default config constants|
 
 ### Criteria (criteria/)
 
-| 파일                     | 설명              |
-|------------------------|-----------------|
-| `CriteriaSupport.kt`   | Criteria API 확장 |
-| `TypedQuerySupport.kt` | TypedQuery 확장   |
+| File                     | Description               |
+|--------------------------|---------------------------|
+| `CriteriaSupport.kt`     | Criteria API extensions   |
+| `TypedQuerySupport.kt`   | TypedQuery extensions     |
 
 ### Stateless Session (stateless/)
 
-| 파일                              | 설명                     |
-|---------------------------------|------------------------|
-| `StatelessSesisonSupport.kt`    | withStateless 트랜잭션 래퍼  |
-| `StatelessSessionExtensions.kt` | StatelessSession reified 확장 함수 |
+| File                              | Description                              |
+|-----------------------------------|------------------------------------------|
+| `StatelessSesisonSupport.kt`      | `withStateless` transaction wrapper      |
+| `StatelessSessionExtensions.kt`   | Reified extension functions for StatelessSession |
 
 ### Querydsl (querydsl/)
 
-| 파일                                 | 설명                  |
-|------------------------------------|---------------------|
-| `core/ExpressionsSupport.kt`       | Expression 확장       |
-| `core/SimpleExpressionSupport.kt`  | SimpleExpression 확장 |
-| `core/StringExpressionsSupport.kt` | StringExpression 확장 |
-| `core/MathExpressionsSupport.kt`   | MathExpression 확장   |
-| `core/ProjectionsSupport.kt`       | Projections 확장      |
-| `jpa/JpaExpressionSupport.kt`      | JPA Expression 확장   |
+| File                                 | Description                   |
+|--------------------------------------|-------------------------------|
+| `core/ExpressionsSupport.kt`         | Expression extensions         |
+| `core/SimpleExpressionSupport.kt`    | SimpleExpression extensions   |
+| `core/StringExpressionsSupport.kt`   | StringExpression extensions   |
+| `core/MathExpressionsSupport.kt`     | MathExpression extensions     |
+| `core/ProjectionsSupport.kt`         | Projections extensions        |
+| `jpa/JpaExpressionSupport.kt`        | JPA Expression extensions     |
 
 ### Converters (converters/)
 
-| 파일                                 | 설명                                       |
-|------------------------------------|------------------------------------------|
-| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 문자열                     |
-| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                     |
-| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV 암호화      |
-| `CompressedStringConverter.kt`     | BZip2/Deflate/GZip/LZ4/Snappy/Zstd 압축  |
-| `ObjectAsByteArrayConverter.kt`    | Jdk/Kryo/Fory 직렬화 + 압축 → ByteArray   |
-| `ObjectAsBase64StringConverter.kt` | 객체 직렬화 → Base64 문자열                    |
-| `AbstractObjectAsJsonConverter.kt` | 객체 → JSON 문자열 변환 베이스 클래스               |
+| File                                 | Description                                          |
+|--------------------------------------|------------------------------------------------------|
+| `LocaleAsStringConverter.kt`         | Locale ↔ BCP 47 string                              |
+| `DurationAsTimestampConverter.kt`    | Duration ↔ Timestamp                                |
+| `EncryptedStringConverters.kt`       | Google Tink AES-GCM / AES-SIV encryption            |
+| `CompressedStringConverter.kt`       | BZip2/Deflate/GZip/LZ4/Snappy/Zstd compression     |
+| `ObjectAsByteArrayConverter.kt`      | JDK/Kryo/Fory serialization + compression → ByteArray|
+| `ObjectAsBase64StringConverter.kt`   | Object serialization → Base64 string                |
+| `AbstractObjectAsJsonConverter.kt`   | Base class for object → JSON string conversion      |
 
 ### Listeners (listeners/)
 
-| 파일                           | 설명                                        |
-|------------------------------|-------------------------------------------|
-| `HibernateEntityListener.kt` | PostCommit 이벤트 리스너 (insert/update/delete) |
-| `JpaEntityEventLogger.kt`    | Pre/Post JPA 이벤트 로깅 리스너                   |
+| File                           | Description                                           |
+|--------------------------------|-------------------------------------------------------|
+| `HibernateEntityListener.kt`   | PostCommit event listener (insert/update/delete)     |
+| `JpaEntityEventLogger.kt`      | Pre/Post JPA event logging listener                  |
 
-## 테스트
+## Testing
 
 ```bash
-# 모든 테스트 실행
+# Run all tests
 ./gradlew :bluetape4k-hibernate:test
 
-# 특정 테스트 실행
+# Run specific tests
 ./gradlew :bluetape4k-hibernate:test --tests "io.bluetape4k.hibernate.*"
 
-# Converter 단위 테스트
+# Run converter unit tests
 ./gradlew :bluetape4k-hibernate:test --tests "io.bluetape4k.hibernate.converter.*"
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Repository 클래스 구조
+### Repository Class Structure
 
 ```mermaid
 classDiagram
@@ -533,7 +535,7 @@ classDiagram
 
 ```
 
-### JPA 엔티티 클래스 계층 구조
+### JPA Entity Class Hierarchy
 
 ```mermaid
 classDiagram
@@ -588,40 +590,40 @@ classDiagram
     IntJpaEntity <|-- IntJpaTreeEntity
 ```
 
-### AttributeConverter 종류
+### AttributeConverter Types
 
 ```mermaid
 flowchart LR
-    subgraph 직렬화_Converter
+    subgraph Serialization_Converters
         A1[JdkObjectAsByteArrayConverter]
         A2[KryoObjectAsByteArrayConverter]
         A3[ForyObjectAsByteArrayConverter]
         A4[LZ4KryoObjectAsByteArrayConverter]
         A5[ZstdForyObjectAsByteArrayConverter]
     end
-    subgraph 암호화_Converter
+    subgraph Encryption_Converters
         B1[AESStringConverter<br/>AES-256-GCM]
         B2[DeterministicAESStringConverter<br/>AES-256-SIV]
     end
-    subgraph 압축_Converter
+    subgraph Compression_Converters
         C1[LZ4StringConverter]
         C2[ZstdStringConverter]
         C3[GZipStringConverter]
         C4[SnappyStringConverter]
     end
-    subgraph 기타_Converter
+    subgraph Misc_Converters
         D1[LocaleAsStringConverter]
         D2[DurationAsTimestampConverter]
         D3[AbstractObjectAsJsonConverter]
     end
 
-    E[DB 컬럼] <-->|변환| 직렬화_Converter
-    E <-->|변환| 암호화_Converter
-    E <-->|변환| 압축_Converter
-    E <-->|변환| 기타_Converter
+    E[DB Column] <-->|convert| Serialization_Converters
+    E <-->|convert| Encryption_Converters
+    E <-->|convert| Compression_Converters
+    E <-->|convert| Misc_Converters
 ```
 
-## 참고
+## References
 
 - [Hibernate ORM](https://hibernate.org/orm/)
 - [Hibernate ORM Documentation](https://docs.jboss.org/hibernate/orm/6.6/userguide/html_single/Hibernate_User_Guide.html)

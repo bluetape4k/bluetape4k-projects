@@ -1,19 +1,21 @@
 # Module bluetape4k-cache
 
-`bluetape4k-cache`는 캐시 관련 모듈을 한 번에 묶어 쓰기 위한 Umbrella 모듈입니다.
+English | [한국어](./README.ko.md)
 
-> 캐시 모듈이 10개에서 5개+umbrella로 통합되었습니다. 각 분산 캐시 모듈에 Near Cache 기능이 포함되어 있습니다.
+`bluetape4k-cache` is an umbrella module that bundles the cache-related modules together.
 
-## 모듈 구성
+> The cache modules were consolidated from 10 modules into 5 modules plus this umbrella. Each distributed cache module now includes near-cache functionality.
 
-| 모듈                           | 제공 기능                                                       |
-|------------------------------|-------------------------------------------------------------|
-| `bluetape4k-cache-core`      | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer     |
-| `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합)  |
-| `bluetape4k-cache-redisson`  | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합)    |
-| `bluetape4k-cache-lettuce`   | Lettuce(Redis) 분산 캐시 + Near Cache                           |
+## Module Composition
 
-## 설치
+| Module | Provided Functionality |
+|---|---|
+| `bluetape4k-cache-core` | JCache abstraction + Caffeine/Cache2k/Ehcache local caches + memorizer |
+| `bluetape4k-cache-hazelcast` | Hazelcast distributed cache + near cache (merged from former `cache-hazelcast-near`) |
+| `bluetape4k-cache-redisson` | Redisson distributed cache + near cache (merged from former `cache-redisson-near`) |
+| `bluetape4k-cache-lettuce` | Lettuce (Redis) distributed cache + near cache |
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -21,11 +23,11 @@ dependencies {
 }
 ```
 
-모든 Provider가 포함되므로, 특정 Provider만 필요한 경우 해당 모듈을 직접 의존하는 것을 권장합니다.
+Because this module pulls in every provider, it is usually better to depend directly on a provider module when you only need one.
 
-## 선택 의존 권장 예시
+## Recommended Selective Dependencies
 
-### 1. 로컬 캐시만 필요
+### 1. If You Only Need a Local Cache
 
 ```kotlin
 dependencies {
@@ -33,7 +35,7 @@ dependencies {
 }
 ```
 
-### 2. Redisson 분산 캐시 + Near Cache
+### 2. Redisson Distributed Cache + Near Cache
 
 ```kotlin
 dependencies {
@@ -41,7 +43,7 @@ dependencies {
 }
 ```
 
-### 3. Hazelcast 분산 캐시 + Near Cache
+### 3. Hazelcast Distributed Cache + Near Cache
 
 ```kotlin
 dependencies {
@@ -49,9 +51,9 @@ dependencies {
 }
 ```
 
-## 빠른 시작
+## Quick Start
 
-### 1. Caffeine 로컬 캐시
+### 1. Caffeine Local Cache
 
 ```kotlin
 import io.bluetape4k.cache.jcache.JCaching
@@ -60,7 +62,7 @@ val cache = JCaching.Caffeine.getOrCreate<String, Any>("users")
 cache.put("u:1", mapOf("name" to "debop"))
 ```
 
-### 2. Hazelcast Near Cache (코루틴)
+### 2. Hazelcast Near Cache (Coroutine)
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.hazelcast.coroutines.HazelcastNearSuspendCache
@@ -70,7 +72,7 @@ near.put("key", "value")
 val value = near.get("key")
 ```
 
-### 3. Redisson Near Cache (코루틴)
+### 3. Redisson Near Cache (Coroutine)
 
 ```kotlin
 import io.bluetape4k.cache.nearcache.redis.coroutines.RedissonNearSuspendCache
@@ -80,27 +82,27 @@ near.put("key", "value")
 val value = near.get("key")
 ```
 
-## 모듈 의존성 구조
+## Module Dependency Structure
 
 ```mermaid
 flowchart TD
-    A[bluetape4k-cache<br/>umbrella] --> B[bluetape4k-cache-core<br/>JCache 추상화 + 로컬 캐시]
-    A --> C[bluetape4k-cache-hazelcast<br/>Hazelcast 분산 캐시 + NearCache]
-    A --> D[bluetape4k-cache-redisson<br/>Redisson 분산 캐시 + NearCache]
-    A --> E[bluetape4k-cache-lettuce<br/>Lettuce Redis 분산 캐시 + NearCache]
+    A[bluetape4k-cache<br/>umbrella] --> B[bluetape4k-cache-core<br/>JCache abstraction + local cache]
+    A --> C[bluetape4k-cache-hazelcast<br/>Hazelcast distributed cache + NearCache]
+    A --> D[bluetape4k-cache-redisson<br/>Redisson distributed cache + NearCache]
+    A --> E[bluetape4k-cache-lettuce<br/>Lettuce Redis distributed cache + NearCache]
 
-    B --> B1[Caffeine 로컬 캐시]
-    B --> B2[Cache2k 로컬 캐시]
-    B --> B3[Ehcache 로컬 캐시]
-    B --> B4[NearCacheOperations 인터페이스]
-    B --> B5[SuspendNearCacheOperations 인터페이스]
+    B --> B1[Caffeine local cache]
+    B --> B2[Cache2k local cache]
+    B --> B3[Ehcache local cache]
+    B --> B4[NearCacheOperations interface]
+    B --> B5[SuspendNearCacheOperations interface]
 
     C --> C1[HazelcastNearCache]
     C --> C2[HazelcastSuspendNearCache]
 
-    D --> D1[RedissonNearCache<br/>RLocalCachedMap 기반]
+    D --> D1[RedissonNearCache<br/>based on RLocalCachedMap]
     D --> D2[RedissonSuspendNearCache]
-    D --> D3[RedissonResp3NearCache<br/>RESP3 하이브리드]
+    D --> D3[RedissonResp3NearCache<br/>RESP3 hybrid]
 
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
@@ -112,7 +114,7 @@ flowchart TD
     style E fill:#F44336
 ```
 
-## NearCache 통일 인터페이스 계층
+## Unified NearCache Interface Hierarchy
 
 ```mermaid
 classDiagram
@@ -147,15 +149,15 @@ classDiagram
     }
 
     class HazelcastSuspendNearCache {
-        Caffeine + IMap (코루틴)
+        Caffeine + IMap (coroutine)
     }
 
     class RedissonNearCache {
-        RLocalCachedMap (내장 pub/sub invalidation)
+        RLocalCachedMap (built-in pub/sub invalidation)
     }
 
     class RedissonSuspendNearCache {
-        RLocalCachedMap (코루틴)
+        RLocalCachedMap (coroutine)
     }
 
     class RedissonResp3NearCache {
@@ -167,7 +169,7 @@ classDiagram
     }
 
     class LettuceSuspendNearCache {
-        Caffeine + Redis RESP3 (코루틴)
+        Caffeine + Redis RESP3 (coroutine)
     }
 
     NearCacheOperations <|.. HazelcastNearCache
@@ -180,25 +182,25 @@ classDiagram
 
 ```
 
-## Near Cache 2-Tier 아키텍처
+## Near Cache 2-Tier Architecture
 
 ```mermaid
 flowchart LR
-    App[애플리케이션] -->|get| LocalCache[로컬 캐시<br/>Caffeine/Cache2k]
-    LocalCache -->|캐시 히트| App
-    LocalCache -->|캐시 미스| RemoteCache[원격 캐시<br/>Redis / Hazelcast]
-    RemoteCache -->|데이터 반환| LocalCache
+    App[Application] -->|get| LocalCache[Local cache<br/>Caffeine/Cache2k]
+    LocalCache -->|cache hit| App
+    LocalCache -->|cache miss| RemoteCache[Remote cache<br/>Redis / Hazelcast]
+    RemoteCache -->|return data| LocalCache
     App -->|put| RemoteCache
-    RemoteCache -->|Invalidation 전파| LocalCache
+    RemoteCache -->|propagate invalidation| LocalCache
 
     style LocalCache fill:#4CAF50
     style RemoteCache fill:#F44336
     style App fill:#2196F3
 ```
 
-## CachingProvider 자동 로딩 주의
+## Caution About Automatic `CachingProvider` Loading
 
-여러 모듈이 `META-INF/services/javax.cache.spi.CachingProvider`를 등록합니다. Umbrella 모듈 사용 시 Provider를 명시적으로 지정하세요:
+Multiple modules register `META-INF/services/javax.cache.spi.CachingProvider`. When using the umbrella module, specify the provider explicitly:
 
 ```kotlin
 import javax.cache.Caching
@@ -207,7 +209,7 @@ val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.redis.R
 val manager = provider.cacheManager
 ```
 
-Spring Boot에서는 `application.properties`로 지정:
+In Spring Boot, configure it through `application.properties`:
 
 ```properties
 spring.cache.jcache.provider=io.bluetape4k.cache.nearcache.redis.RedissonNearCachingProvider

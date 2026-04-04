@@ -1,56 +1,58 @@
 # Module bluetape4k-bloomfilter
 
-Bloom Filter는 특정 요소가 집합에 속하는지 여부를 검사하는데 사용하는 확률적 자료구조입니다.
+English | [한국어](./README.ko.md)
 
-## 특징
+A Bloom Filter is a probabilistic data structure used to test whether an element is a member of a set.
 
-- **확률적 자료구조**: 특정 요소가 집합에 속한다고 판단된 경우 실제로는 원소가 집합에 속하지 않는 **긍정 오류(false positive)**가 발생할 수 있습니다.
-- **부정 오류 없음**: 원소가 집합에 속하지 않는 것으로 판단되었는데 실제로는 원소가 집합에 속하는 **부정 오류는 절대 발생하지 않습니다**.
-- **원소 삭제 불가**: 집합에 원소를 추가하는 것은 가능하나, 기본 Bloom Filter에서는 원소를 삭제할 수 없습니다. (단, `MutableBloomFilter`는 삭제 가능)
-- **공간 효율성**: 매우 적은 메모리로 대량의 데이터를 표현할 수 있습니다.
+## Features
 
-**참고**: 집합 내 원소의 숫자가 증가할수록 긍정 오류 발생 확률도 증가합니다.
+- **Probabilistic data structure**: When an element is judged to belong to the set, it may in fact not — this is known as a **false positive**. However, false positives are bounded by the configured error rate.
+- **No false negatives**: If an element is judged not to belong to the set, it is guaranteed to be absent — **false negatives never occur**.
+- **No deletion (by default)**: Elements can be added to the set, but the basic Bloom Filter does not support removal. (Use `MutableBloomFilter` for deletion support.)
+- **Space-efficient**: Represents large datasets using very little memory.
+
+**Note**: As the number of elements in the set grows, the probability of false positives also increases.
 
 ![Bloom Filter](../doc/720px-Bloom_filter.svg.png)
 
-## 아키텍처
+## Architecture
 
-### 인터페이스 계층
+### Interface Hierarchy
 
 ```
-BloomFilter<T>              동기 API (add, contains, clear)
-├── MutableBloomFilter<T>   삭제 지원 (remove, approximateCount)
+BloomFilter<T>              Synchronous API (add, contains, clear)
+├── MutableBloomFilter<T>   Deletion support (remove, approximateCount)
 │
-SuspendBloomFilter<T>       코루틴 API (suspend add, contains, clear)
+SuspendBloomFilter<T>       Coroutines API (suspend add, contains, clear)
 ```
 
-### 구현체
+### Implementations
 
-| 구현체 | 백엔드 | 삭제 | 코루틴 |
+| Implementation | Backend | Deletion | Coroutines |
 |--------|--------|------|--------|
-| `InMemoryBloomFilter<T>` | `BitSet` (JVM 메모리) | X | X |
-| `InMemoryMutableBloomFilter` | 카운팅 버킷 (`LongArray`) | O | X |
-| `InMemorySuspendBloomFilter<T>` | `BitSet` (JVM 메모리) | X | O |
-| `RedissonBloomFilter<T>` | Redis `BitSet` (Redisson) | X | X |
-| `RedissonSuspendBloomFilter<T>` | Redis `BitSet` (비동기 Redisson) | X | O |
-| `LettuceBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce, Lua Script) | X | X |
-| `LettuceAsyncBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | X | X |
-| `LettuceSuspendBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | X | O |
+| `InMemoryBloomFilter<T>` | `BitSet` (JVM memory) | No | No |
+| `InMemoryMutableBloomFilter` | Counting buckets (`LongArray`) | Yes | No |
+| `InMemorySuspendBloomFilter<T>` | `BitSet` (JVM memory) | No | Yes |
+| `RedissonBloomFilter<T>` | Redis `BitSet` (Redisson) | No | No |
+| `RedissonSuspendBloomFilter<T>` | Redis `BitSet` (async Redisson) | No | Yes |
+| `LettuceBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce, Lua Script) | No | No |
+| `LettuceAsyncBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | No | No |
+| `LettuceSuspendBloomFilter<T>` | Redis `SETBIT/GETBIT` (Lettuce Async, Lua Script) | No | Yes |
 
-### 해싱 전략
+### Hashing Strategy
 
-- **알고리즘**: Murmur3 (zero-allocation-hashing 라이브러리)
-- **오프셋 계산**: 단일 해시 값으로부터 `k`개의 고유 오프셋을 파생
-- **지원 타입**: `Int`, `Long`, `String`, `ByteArray`, `Serializable` (그 외는 `toString()` 변환 후 해시)
+- **Algorithm**: Murmur3 (via the zero-allocation-hashing library)
+- **Offset derivation**: Derives `k` unique offsets from a single hash value
+- **Supported types**: `Int`, `Long`, `String`, `ByteArray`, `Serializable` (others are converted via `toString()` before hashing)
 
-## 활용 예시
+## Use Cases
 
-- **캐시 필터링**: DB 조회 전 Bloom Filter로 먼저 확인하여 불필요한 DB 조회 방지
-- **중복 이벤트 검사**: Event Sourcing 시스템에서 이벤트 중복 처리 방지
-- **알림 중복 방지**: 알림 서비스에서 중복 알림 발송 방지
-- **ID 중복 검사**: 분산 시스템에서 Time 기반 ID 생성 시 중복 방지
+- **Cache filtering**: Check the Bloom Filter before hitting the DB to avoid unnecessary queries
+- **Duplicate event detection**: Prevent duplicate event processing in Event Sourcing systems
+- **Notification deduplication**: Prevent sending duplicate notifications in alerting services
+- **ID deduplication**: Prevent collisions when generating time-based IDs in distributed systems
 
-## 의존성 추가
+## Dependency
 
 ```kotlin
 dependencies {
@@ -58,32 +60,32 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
 ### InMemoryBloomFilter
 
-메모리에 BitSet을 사용하는 Bloom Filter 구현체입니다.
+A Bloom Filter implementation backed by an in-memory `BitSet`.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.inmemory.InMemoryBloomFilter
 
 val bloomFilter = InMemoryBloomFilter<String>()
 
-// 요소 추가
+// Add elements
 val items = listOf("item1", "item2", "item3")
 items.forEach { bloomFilter.add(it) }
 
-// 포함 여부 검사
+// Check membership
 bloomFilter.contains("item1")  // true
-bloomFilter.contains("item4")  // false (또는 false positive)
+bloomFilter.contains("item4")  // false (or false positive)
 
-// 전체 검사
+// Check all elements
 items.all { bloomFilter.contains(it) }  // true
 ```
 
 ### InMemoryMutableBloomFilter
 
-요소 삭제가 가능한 Bloom Filter 구현체입니다.
+A Bloom Filter implementation that supports element removal.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.inmemory.InMemoryMutableBloomFilter
@@ -93,17 +95,17 @@ val bloomFilter = InMemoryMutableBloomFilter()
 bloomFilter.add("test-item")
 bloomFilter.contains("test-item")  // true
 
-// 요소 삭제
+// Remove element
 bloomFilter.remove("test-item")
 bloomFilter.contains("test-item")  // false
 
-// 대략적인 카운트 조회
+// Approximate count
 bloomFilter.approximateCount("test-item")  // 0
 ```
 
-### SuspendBloomFilter (Coroutines 지원)
+### SuspendBloomFilter (Coroutines Support)
 
-Coroutines 환경에서 사용할 수 있는 Bloom Filter입니다.
+A Bloom Filter for use in coroutine contexts.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.inmemory.InMemorySuspendBloomFilter
@@ -112,20 +114,20 @@ import kotlinx.coroutines.runBlocking
 val bloomFilter = InMemorySuspendBloomFilter<String>()
 
 runBlocking {
-    // 요소 추가 (suspend 함수)
+    // Add element (suspend function)
     bloomFilter.add("coroutine-item")
     
-    // 포함 여부 검사 (suspend 함수)
+    // Check membership (suspend function)
     bloomFilter.contains("coroutine-item")  // true
     
-    // 초기화 (suspend 함수)
+    // Clear (suspend function)
     bloomFilter.clear()
 }
 ```
 
 ### RedissonBloomFilter
 
-Redis를 사용하는 분산 환경용 Bloom Filter입니다.
+A distributed Bloom Filter backed by Redis via Redisson.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.redis.RedissonBloomFilter
@@ -137,14 +139,14 @@ val bloomFilter = RedissonBloomFilter<String>(
     bloomName = "my-bloom-filter"
 )
 
-// 사용법은 InMemoryBloomFilter와 동일
+// Same API as InMemoryBloomFilter
 bloomFilter.add("redis-item")
 bloomFilter.contains("redis-item")  // true
 ```
 
 ### RedissonSuspendBloomFilter
 
-Redis를 사용하는 Coroutines 지원 Bloom Filter입니다.
+A coroutines-enabled Bloom Filter backed by Redis via Redisson.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.redis.RedissonSuspendBloomFilter
@@ -162,7 +164,7 @@ runBlocking {
 
 ### LettuceBloomFilter
 
-Lettuce를 사용하는 분산 환경용 Bloom Filter입니다. Lua Script로 배치 비트 연산을 원자적으로 수행합니다.
+A distributed Bloom Filter backed by Redis via Lettuce. Batch bit operations are executed atomically using Lua scripts.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.redis.LettuceBloomFilter
@@ -175,14 +177,14 @@ val bloomFilter = LettuceBloomFilter<String>(
     bloomName = "my-lettuce-bloom-filter"
 )
 
-// 사용법은 InMemoryBloomFilter와 동일
+// Same API as InMemoryBloomFilter
 bloomFilter.add("lettuce-item")
 bloomFilter.contains("lettuce-item")  // true
 ```
 
 ### LettuceAsyncBloomFilter
 
-Lettuce 비동기 API를 사용하는 Bloom Filter입니다. 모든 연산이 `RedisFuture`를 반환합니다.
+A Bloom Filter using the Lettuce async API. All operations return a `RedisFuture`.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.redis.LettuceAsyncBloomFilter
@@ -192,18 +194,18 @@ val bloomFilter = LettuceAsyncBloomFilter<String>(
     bloomName = "my-async-bloom-filter"
 )
 
-// 비동기 추가
+// Async add
 val addFuture = bloomFilter.addAsync("async-item")
-addFuture.get()  // 완료 대기
+addFuture.get()  // Wait for completion
 
-// 비동기 포함 여부 검사
+// Async membership check
 val containsFuture = bloomFilter.containsAsync("async-item")
 val exists = containsFuture.get() == 1L  // true
 ```
 
 ### LettuceSuspendBloomFilter
 
-Lettuce를 사용하는 Coroutines 지원 Bloom Filter입니다.
+A coroutines-enabled Bloom Filter backed by Lettuce.
 
 ```kotlin
 import io.bluetape4k.bloomfilter.redis.LettuceSuspendBloomFilter
@@ -219,51 +221,50 @@ runBlocking {
 }
 ```
 
-## 고급 설정
+## Advanced Configuration
 
-### 최대 요소 수와 오류율 설정
+### Setting Maximum Elements and Error Rate
 
 ```kotlin
 val bloomFilter = InMemoryBloomFilter<String>(
-    maxNum = 100_000L,      // 최대 10만 개 요소
-    errorRate = 0.001       // 0.1% 오류율
+    maxNum = 100_000L,      // Up to 100,000 elements
+    errorRate = 0.001       // 0.1% error rate
 )
 
-// 자동 계산된 파라미터 확인
-println("Bit size: ${bloomFilter.m}")      // Bloom Filter 크기 (bit)
-println("Hash count: ${bloomFilter.k}")    // 해시 함수 개수
+// Check automatically calculated parameters
+println("Bit size: ${bloomFilter.m}")      // Bloom Filter size (bits)
+println("Hash count: ${bloomFilter.k}")    // Number of hash functions
 ```
 
-### False Positive 확률 계산
+### Calculating False Positive Probability
 
 ```kotlin
 val bloomFilter = InMemoryBloomFilter<String>()
 
-// n개 요소 추가 시 bit가 0일 확률
+// Probability of a bit being zero after n insertions
 val zeroProb = bloomFilter.getBitZeroProbability(n = 1000)
 
-// n개 요소 추가 시 false positive 확률
+// False positive probability after n insertions
 val fpProb = bloomFilter.getFalsePositiveProbability(n = 1000)
 
-// 원소당 bit 수
+// Bits per element
 val bitsPerElement = bloomFilter.getBitsPerElement(n = 1000)
 ```
 
-## 성능
+## Performance
 
-- **시간 복잡도**: O(k) - k는 해시 함수 개수 (보통 1~10)
-- **공간 복잡도**: O(m) - m은 Bloom Filter 크기 (bit)
-- **해싱 알고리즘**: Murmur3 해싱 사용
+- **Time complexity**: O(k) — k is the number of hash functions (typically 1–10)
+- **Space complexity**: O(m) — m is the Bloom Filter size in bits
+- **Hashing algorithm**: Murmur3
 
-## 주의사항
+## Caveats
 
-1. **False Positive**: Bloom Filter는 "존재하지 않는다"는 결과는 정확하지만, "존재한다"는 결과는 오류가 있을 수 있습니다.
-2. **삭제 제한**: 기본 Bloom Filter는 요소 삭제가 불가능합니다. 삭제가 필요하면 MutableBloomFilter를 사용하세요.
-3. **용량 계획**: 예상 요소 수와 허용 오류율을 고려하여 적절한 크기를 설정하세요.
+1. **False Positives**: A Bloom Filter guarantees no false negatives, but "present" results may occasionally be incorrect.
+2. **Deletion limitation**: The basic Bloom Filter does not support element removal. Use `MutableBloomFilter` if deletion is needed.
+3. **Capacity planning**: Configure the filter size based on the expected number of elements and the acceptable false positive rate.
 
-## 참고 자료
+## References
 
-- [Bloom Filter (Wikipedia)](https://ko.wikipedia.org/wiki/%EB%B8%94%EB%A3%B8_%ED%95%84%ED%84%B0)
-- [Bloom Filter (English Wikipedia)](https://en.wikipedia.org/wiki/Bloom_filter)
+- [Bloom Filter (Wikipedia)](https://en.wikipedia.org/wiki/Bloom_filter)
 - [Redisson](https://github.com/redisson/redisson)
 - [Lettuce](https://github.com/redis/lettuce)

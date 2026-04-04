@@ -1,10 +1,12 @@
 # bluetape4k-spring-boot4-exposed-jdbc-demo
 
-Exposed DAO + Spring Data JDBC Repository + Spring MVC 통합 데모 (Spring Boot 4.x)
+English | [한국어](./README.ko.md)
 
-## 개요
+Exposed DAO + Spring Data JDBC Repository + Spring MVC Integration Demo (Spring Boot 4.x)
 
-이 모듈은 **Exposed DAO 엔티티**를 Spring Data JDBC Repository로 감싸고, Spring MVC REST API로 노출하는 기본 패턴을 보여줍니다. Spring Boot 3.x 버전과 동일한 기능을 제공하며, **Spring Boot 4 BOM**을 사용합니다.
+## Overview
+
+This module demonstrates the fundamental pattern of wrapping **Exposed DAO entities** in a Spring Data JDBC Repository and exposing them through a Spring MVC REST API. It provides the same functionality as the Spring Boot 3.x version, using the **Spring Boot 4 BOM**.
 
 ## UML
 
@@ -54,7 +56,7 @@ classDiagram
     DataInitializer --> ProductJdbcRepository
 ```
 
-### 애플리케이션 구조 흐름
+### Application Structure Flow
 
 ```mermaid
 flowchart TD
@@ -74,33 +76,33 @@ flowchart TD
     Entity --> DB
 ```
 
-### 주요 특징
+### Key Characteristics
 
-- **Exposed DAO 엔티티 기반**: `ProductEntity`, `Products` 테이블 정의
-- **Spring Data JDBC Repository**: `ExposedJdbcRepository<E, ID>` 구현
-- **쿼리 메서드**: `findByName`, `findByPriceLessThan` 자동 생성
-- **Spring MVC REST API**: 표준 CRUD 엔드포인트
-- **트랜잭션 경계**: 요청 당 하나의 `transaction {}` 블록으로 DAO와 DTO 변환까지 처리
-- **자동 스키마 생성**: 애플리케이션 시작 시 테이블 자동 생성
-- **Spring Boot 4 호환**: Spring Boot 4.0+ 플랫폼 의존성 관리
+- **Exposed DAO entity-based**: `ProductEntity` and `Products` table definitions
+- **Spring Data JDBC Repository**: `ExposedJdbcRepository<E, ID>` implementation
+- **Query methods**: Auto-generated `findByName`, `findByPriceLessThan` methods
+- **Spring MVC REST API**: Standard CRUD endpoints
+- **Transaction boundary**: A single `transaction {}` block per request handles DAO operations through DTO conversion
+- **Automatic schema creation**: Tables created automatically on application startup
+- **Spring Boot 4 compatible**: Spring Boot 4.0+ platform dependency management
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 src/main/kotlin/io/bluetape4k/examples/exposed/mvc/
-├── DemoApplication.kt              # Spring Boot 애플리케이션
+├── DemoApplication.kt              # Spring Boot application
 ├── domain/
-│   └── ProductEntity.kt            # Exposed DAO 엔티티 + DTO
+│   └── ProductEntity.kt            # Exposed DAO entity + DTO
 ├── repository/
 │   └── ProductJdbcRepository.kt     # Spring Data JDBC Repository
 ├── controller/
-│   └── ProductController.kt         # REST API 컨트롤러
+│   └── ProductController.kt         # REST API controller
 └── config/
-    ├── DataInitializer.kt           # 초기 데이터 로더
-    └── ExposedConfig.kt             # Exposed JDBC 설정 (Spring Boot 4)
+    ├── DataInitializer.kt           # Initial data loader
+    └── ExposedConfig.kt             # Exposed JDBC configuration (Spring Boot 4)
 ```
 
-## 도메인 모델
+## Domain Model
 
 ### ProductEntity (Exposed DAO)
 
@@ -120,7 +122,7 @@ class ProductEntity(id: EntityID<Long>) : LongEntity(id) {
 }
 ```
 
-### ProductDto (전송 객체)
+### ProductDto (Transfer Object)
 
 ```kotlin
 data class ProductDto(
@@ -135,7 +137,7 @@ fun ProductEntity.toDto() = ProductDto(id.value, name, price, stock)
 
 ## Repository
 
-### ExposedJdbcRepository 구현
+### ExposedJdbcRepository Implementation
 
 ```kotlin
 interface ProductJdbcRepository: ExposedJdbcRepository<ProductEntity, Long> {
@@ -144,30 +146,30 @@ interface ProductJdbcRepository: ExposedJdbcRepository<ProductEntity, Long> {
 }
 ```
 
-`ExposedJdbcRepository`는 자동으로 PartTree 쿼리를 생성합니다. 메서드명 규칙을 따르면 별도의 구현이 필요 없습니다.
+`ExposedJdbcRepository` automatically generates PartTree queries. No additional implementation is required as long as you follow method naming conventions.
 
 ## REST API
 
-### 기본 CRUD
+### Basic CRUD
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/products` | 모든 상품 조회 |
-| GET | `/products/{id}` | 특정 상품 조회 |
-| POST | `/products` | 상품 생성 |
-| PUT | `/products/{id}` | 상품 수정 |
-| DELETE | `/products/{id}` | 상품 삭제 |
-| GET | `/products/search` | 이름으로 검색 (쿼리 파라미터 `name`) |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/products` | List all products |
+| GET | `/products/{id}` | Get a specific product |
+| POST | `/products` | Create a product |
+| PUT | `/products/{id}` | Update a product |
+| DELETE | `/products/{id}` | Delete a product |
+| GET | `/products/search` | Search by name (query param `name`) |
 
-### 요청/응답 예시
+### Request/Response Examples
 
-**모든 상품 조회**
+**List all products**
 
 ```bash
 curl http://localhost:8080/products
 ```
 
-응답:
+Response:
 ```json
 [
   {
@@ -185,7 +187,7 @@ curl http://localhost:8080/products
 ]
 ```
 
-**상품 생성**
+**Create a product**
 
 ```bash
 curl -X POST http://localhost:8080/products \
@@ -197,7 +199,7 @@ curl -X POST http://localhost:8080/products \
   }'
 ```
 
-응답 (201 Created):
+Response (201 Created):
 ```json
 {
   "id": 3,
@@ -207,7 +209,7 @@ curl -X POST http://localhost:8080/products \
 }
 ```
 
-**상품 수정**
+**Update a product**
 
 ```bash
 curl -X PUT http://localhost:8080/products/1 \
@@ -219,62 +221,62 @@ curl -X PUT http://localhost:8080/products/1 \
   }'
 ```
 
-**상품 삭제**
+**Delete a product**
 
 ```bash
 curl -X DELETE http://localhost:8080/products/1
 ```
 
-**이름으로 검색**
+**Search by name**
 
 ```bash
 curl "http://localhost:8080/products/search?name=Kotlin"
 ```
 
-## 실행 방법
+## Running the Application
 
-### 필수 사항
+### Prerequisites
 
 - Java 21+
 - Gradle 8.x+
 - Spring Boot 4.0+
 
-### 빌드
+### Build
 
 ```bash
 ./gradlew :spring-boot4:exposed-jdbc-demo:build
 ```
 
-### 애플리케이션 실행
+### Run the Application
 
 ```bash
 ./gradlew :spring-boot4:exposed-jdbc-demo:bootRun
 ```
 
-또는 JAR로 실행:
+Or run as a JAR:
 
 ```bash
 ./gradlew :spring-boot4:exposed-jdbc-demo:assemble
 java -jar spring-boot4/exposed-jdbc-demo/build/libs/exposed-spring-data-mvc-demo-*.jar
 ```
 
-### 기본 포트
+### Default Port
 
-애플리케이션은 기본 포트 `8080`에서 시작됩니다.
+The application starts on port `8080` by default.
 
-### 초기 데이터
+### Initial Data
 
-애플리케이션이 시작되면 자동으로 다음 3개의 샘플 상품이 생성됩니다.
+When the application starts, three sample products are automatically created:
 
 ```
-1. Kotlin Programming Book - $39.99 (100개 재고)
-2. Spring Boot Guide - $49.99 (50개 재고)
-3. Exposed ORM Tutorial - $29.99 (200개 재고)
+1. Kotlin Programming Book - $39.99 (100 in stock)
+2. Spring Boot Guide - $49.99 (50 in stock)
+3. Exposed ORM Tutorial - $29.99 (200 in stock)
 ```
 
-## 데이터베이스
+## Database
 
-기본적으로 **H2 인메모리 데이터베이스**를 사용합니다. `application.yml`에서 변경할 수 있습니다.
+The application uses an **H2 in-memory database** by default. This can be changed in `application.yml`.
 
 ### application.yml
 
@@ -289,7 +291,7 @@ spring:
     generate-ddl: true
 ```
 
-### PostgreSQL로 변경
+### Switching to PostgreSQL
 
 ```yaml
 spring:
@@ -300,33 +302,33 @@ spring:
     password: password
 ```
 
-그리고 `build.gradle.kts`에서:
+And in `build.gradle.kts`:
 
 ```kotlin
 runtimeOnly("org.postgresql:postgresql")
 ```
 
-## 테스트
+## Testing
 
-### 단위 테스트 실행
+### Run Unit Tests
 
 ```bash
 ./gradlew :spring-boot4:exposed-jdbc-demo:test
 ```
 
-### 통합 테스트
+### Integration Tests
 
-`ProductJdbcRepositoryTest`와 `ProductControllerTest`를 확인하세요.
+See `ProductJdbcRepositoryTest` and `ProductControllerTest`.
 
 ```bash
 ./gradlew :spring-boot4:exposed-jdbc-demo:test --tests "ProductControllerTest"
 ```
 
-## 핵심 패턴
+## Core Patterns
 
-### 트랜잭션 경계
+### Transaction Boundary
 
-모든 컨트롤러 메서드는 `transaction {}` 블록 내에서 실행되어 DAO 엔티티를 동작시킵니다.
+All controller methods run within a `transaction {}` block to operate on DAO entities.
 
 ```kotlin
 @GetMapping("/{id}")
@@ -338,15 +340,15 @@ fun findById(@PathVariable id: Long): ResponseEntity<ProductDto> {
 }
 ```
 
-### DAO에서 DTO로 변환
+### DAO to DTO Conversion
 
-트랜잭션 내에서 엔티티를 DTO로 변환하여 HTTP 응답으로 안전하게 반환합니다.
+Entities are converted to DTOs within the transaction for safe HTTP response serialization.
 
 ```kotlin
 fun ProductEntity.toDto() = ProductDto(id.value, name, price, stock)
 ```
 
-### 새 엔티티 생성
+### Creating New Entities
 
 ```kotlin
 @PostMapping
@@ -362,44 +364,44 @@ fun create(@RequestBody dto: ProductDto): ResponseEntity<ProductDto> {
 }
 ```
 
-## Spring Boot 4 마이그레이션
+## Migrating from Spring Boot 4
 
-Spring Boot 3.x에서 4.x로 마이그레이션하는 경우:
+When migrating from Spring Boot 3.x to 4.x:
 
-### BOM 변경
+### BOM Change
 
 `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    // Spring Boot 4 BOM 사용
+    // Use Spring Boot 4 BOM
     implementation(platform(Libs.spring_boot4_dependencies))
 
-    // 나머지 의존성은 동일
+    // Other dependencies remain the same
     implementation(project(":bluetape4k-spring-boot4-exposed-jdbc"))
     implementation(Libs.springBootStarter("web"))
 }
 ```
 
-### 의존성 차이
+### Dependency Differences
 
-Spring Boot 4는 기본적으로 다음 버전을 제공합니다:
+Spring Boot 4 provides the following versions by default:
 
 - Spring Framework 6.2+
 - Spring Boot 4.0+
 - Java 21+
 
-## 주의사항
+## Important Notes
 
-1. **Exposed DAO 엔티티는 트랜잭션 경계를 벗어나면 안 됨**: HTTP 응답 직렬화 시점에서 프록시 초기화 오류가 발생할 수 있으므로, 트랜잭션 내에서 DTO로 변환합니다.
+1. **Exposed DAO entities must not escape transaction boundaries**: Convert to DTOs within the transaction to avoid proxy initialization errors during HTTP response serialization.
 
-2. **Spring Data JDBC Repository 확장**: `ExposedJdbcRepository`를 상속하는 인터페이스에 메서드를 추가하면 PartTree 쿼리가 자동으로 생성됩니다.
+2. **Spring Data JDBC Repository extension**: Adding methods to interfaces extending `ExposedJdbcRepository` automatically generates PartTree queries.
 
-3. **로깅**: 기본 설정에서 `io.bluetape4k`와 `org.jetbrains.exposed` 패키지의 DEBUG 로그가 활성화되어 있습니다.
+3. **Logging**: DEBUG logs for the `io.bluetape4k` and `org.jetbrains.exposed` packages are enabled by default.
 
-4. **Spring Boot 4 플랫폼**: `dependencyManagement { imports }` 대신 `implementation(platform(...))` 사용합니다.
+4. **Spring Boot 4 platform**: Use `implementation(platform(...))` instead of `dependencyManagement { imports }`.
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
@@ -418,8 +420,8 @@ dependencies {
 }
 ```
 
-## 참고 자료
+## References
 
-- [Exposed ORM 공식 문서](https://github.com/JetBrains/Exposed)
-- [Spring Boot 4 마이그레이션 가이드](https://spring.io/blog/2023/09/06/spring-boot-4-0-m1-released)
-- [Spring Data JDBC 가이드](https://spring.io/projects/spring-data-jdbc)
+- [Exposed ORM Official Documentation](https://github.com/JetBrains/Exposed)
+- [Spring Boot 4 Migration Guide](https://spring.io/blog/2023/09/06/spring-boot-4-0-m1-released)
+- [Spring Data JDBC Guide](https://spring.io/projects/spring-data-jdbc)

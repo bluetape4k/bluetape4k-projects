@@ -1,97 +1,99 @@
 # Module Examples - Redisson
 
-[Redisson](https://github.com/redisson/redisson)을 Kotlin Coroutines와 함께 사용하는 분산 Redis 패턴 예제 모음입니다.
+English | [한국어](./README.ko.md)
 
-## 예제 목록
+A collection of examples demonstrating distributed Redis patterns using [Redisson](https://github.com/redisson/redisson) with Kotlin Coroutines.
 
-### 분산 락 (coroutines/locks/)
+## Examples
 
-| 예제 파일                      | 설명                 |
-|----------------------------|--------------------|
-| `LockExamples.kt`          | 기본 분산 락 (RLock)    |
-| `FairLockExamples.kt`      | 공정 락 (Fair Lock)   |
-| `ReadWriteLockExamples.kt` | 읽기/쓰기 락            |
-| `MultiLockExamples.kt`     | 다중 락 (여러 Redis 노드) |
-| `SemaphoreExamples.kt`     | 분산 세마포어            |
+### Distributed Locks (coroutines/locks/)
 
-### Redis 객체 (coroutines/objects/)
+| Example File               | Description                          |
+|----------------------------|--------------------------------------|
+| `LockExamples.kt`          | Basic distributed lock (RLock)       |
+| `FairLockExamples.kt`      | Fair lock                            |
+| `ReadWriteLockExamples.kt` | Read/write lock                      |
+| `MultiLockExamples.kt`     | Multi-lock (across Redis nodes)      |
+| `SemaphoreExamples.kt`     | Distributed semaphore                |
 
-| 예제 파일                     | 설명                         |
-|---------------------------|----------------------------|
-| `BucketExamples.kt`       | RBucket - 단일 값 저장          |
-| `BloomFilterExamples.kt`  | RBloomFilter - 확률적 멤버십 테스트 |
-| `HyperLogLogExamples.kt`  | RHyperLogLog - 카디널리티 추정    |
-| `GeoExamples.kt`          | RGeo - 지리적 위치 저장           |
-| `AtomicLongExamples.kt`   | RAtomicLong - 원자적 카운터      |
-| `RateLimiterExamples.kt`  | RRateLimiter - 속도 제한       |
-| `BinaryStreamExamples.kt` | RBinaryStream - 바이너리 데이터   |
-| `BatchExamples.kt`        | RBatch - 일괄 처리             |
-| `TopicExamples.kt`        | RTopic - Pub/Sub 메시징       |
+### Redis Objects (coroutines/objects/)
 
-### 컬렉션 (coroutines/collections/)
+| Example File              | Description                               |
+|---------------------------|-------------------------------------------|
+| `BucketExamples.kt`       | RBucket - single value storage            |
+| `BloomFilterExamples.kt`  | RBloomFilter - probabilistic membership   |
+| `HyperLogLogExamples.kt`  | RHyperLogLog - cardinality estimation     |
+| `GeoExamples.kt`          | RGeo - geospatial storage                 |
+| `AtomicLongExamples.kt`   | RAtomicLong - atomic counter              |
+| `RateLimiterExamples.kt`  | RRateLimiter - rate limiting              |
+| `BinaryStreamExamples.kt` | RBinaryStream - binary data storage       |
+| `BatchExamples.kt`        | RBatch - batch operations                 |
+| `TopicExamples.kt`        | RTopic - Pub/Sub messaging               |
 
-| 예제 파일                          | 설명                              |
-|--------------------------------|---------------------------------|
-| `QueueExamples.kt`             | RQueue - 분산 큐                   |
-| `DequeExamples.kt`             | RDeque - 분산 데크                  |
-| `BlockingDequeExamples.kt`     | RBlockingDeque - 블로킹 데크         |
-| `ReliableQueueExamples.kt`     | RReliableQueue - 신뢰성 큐          |
-| `PriorityQueueExamples.kt`     | RPriorityQueue - 우선순위 큐         |
-| `ScoredSortedSetExamples.kt`   | RScoredSortedSet - 점수 정렬 집합     |
-| `SortedSetExamples.kt`         | RSortedSet - 정렬 집합              |
-| `RingBufferExamples.kt`        | RRingBuffer - 링 버퍼              |
-| `StreamExamples.kt`            | RStream - Redis Streams         |
-| `LocalCachedMapExamples.kt`    | RLocalCachedMap - 로컬 캐시 맵       |
-| `SetMultimapCacheExamples.kt`  | RSetMultimapCache - 멀티맵 캐시      |
-| `ListMultimapCacheExamples.kt` | RListMultimapCache - 리스트 멀티맵 캐시 |
+### Collections (coroutines/collections/)
 
-### 캐시 전략 (coroutines/cachestrategy/)
+| Example File                   | Description                              |
+|--------------------------------|------------------------------------------|
+| `QueueExamples.kt`             | RQueue - distributed queue               |
+| `DequeExamples.kt`             | RDeque - distributed deque               |
+| `BlockingDequeExamples.kt`     | RBlockingDeque - blocking deque          |
+| `ReliableQueueExamples.kt`     | RReliableQueue - reliable queue          |
+| `PriorityQueueExamples.kt`     | RPriorityQueue - priority queue          |
+| `ScoredSortedSetExamples.kt`   | RScoredSortedSet - scored sorted set     |
+| `SortedSetExamples.kt`         | RSortedSet - sorted set                  |
+| `RingBufferExamples.kt`        | RRingBuffer - ring buffer                |
+| `StreamExamples.kt`            | RStream - Redis Streams                  |
+| `LocalCachedMapExamples.kt`    | RLocalCachedMap - locally cached map     |
+| `SetMultimapCacheExamples.kt`  | RSetMultimapCache - set multimap cache   |
+| `ListMultimapCacheExamples.kt` | RListMultimapCache - list multimap cache |
 
-| 예제 파일                           | 설명                      |
-|---------------------------------|-------------------------|
-| `CacheReadThroughExample.kt`    | Read-Through 캐시 패턴      |
-| `CacheWriteThroughExample.kt`   | Write-Through 캐시 패턴     |
-| `CacheWriteBehindExample.kt`    | Write-Behind 캐시 패턴      |
-| `CacheWriteBehindForIoTData.kt` | IoT 데이터 Write-Behind 예제 |
+### Cache Strategies (coroutines/cachestrategy/)
+
+| Example File                    | Description                        |
+|---------------------------------|------------------------------------|
+| `CacheReadThroughExample.kt`    | Read-Through cache pattern         |
+| `CacheWriteThroughExample.kt`   | Write-Through cache pattern        |
+| `CacheWriteBehindExample.kt`    | Write-Behind cache pattern         |
+| `CacheWriteBehindForIoTData.kt` | Write-Behind example for IoT data  |
 
 ### Read/Write Through (coroutines/readwritethrough/)
 
-| 예제 파일                        | 설명                     |
-|------------------------------|------------------------|
-| `MapReadWriteThroughTest.kt` | MapLoader/MapWriter 연동 |
+| Example File                 | Description                       |
+|------------------------------|-----------------------------------|
+| `MapReadWriteThroughTest.kt` | MapLoader/MapWriter integration   |
 
-## 주요 패턴 예시
+## Key Pattern Examples
 
-### 분산 락
+### Distributed Lock
 
 ```kotlin
 val lock = redisson.getLock("my-lock")
 
-// Coroutines 지원
+// Coroutines support
 lock.useLocked {
-    // 락이 걸린 상태로 실행
+    // Runs while the lock is held
     criticalSection()
 }
 ```
 
-### Read-Through 캐시
+### Read-Through Cache
 
 ```kotlin
 val map = redisson.getMapCache<String, User>("users")
 val config = MapCacheOptions.defaults<String, User>()
     .loader(MyMapLoader(userRepository))
 
-val user = map["user-1"]  // 캐시 미스 시 DB에서 자동 로드
+val user = map["user-1"]  // Automatically loaded from DB on cache miss
 ```
 
-### 분산 세마포어
+### Distributed Semaphore
 
 ```kotlin
 val semaphore = redisson.getSemaphore("rate-limiter")
 semaphore.trySetPermits(10)
 
 semaphore.useAcquired {
-    // 최대 10개 동시 실행
+    // Up to 10 concurrent executions
     limitedResource()
 }
 ```
@@ -106,26 +108,26 @@ bloomFilter.add("user@example.com")
 val exists = bloomFilter.contains("user@example.com")  // true
 ```
 
-## 실행 방법
+## How to Run
 
 ```bash
-# Redis 실행 (Docker)
+# Start Redis (Docker)
 docker run -d --name redis -p 6379:6379 redis:7
 
-# 모든 예제 실행
+# Run all examples
 ./gradlew :examples:redisson:test
 
-# 특정 카테고리만 실행
+# Run a specific category
 ./gradlew :examples:redisson:test --tests "*locks*"
 ./gradlew :examples:redisson:test --tests "*collections*"
 ```
 
-## 요구사항
+## Requirements
 
 - Redis 6.0+
 - Redisson 3.37+
 
-## 참고
+## References
 
 - [Redisson Wiki](https://github.com/redisson/redisson/wiki)
 - [Redisson Kotlin Coroutines](https://github.com/redisson/redisson/tree/master/redisson-kotlin)

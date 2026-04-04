@@ -1,10 +1,12 @@
 # Module bluetape4k-logging
 
-Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 아키텍처
+A library that makes SLF4J logging in Kotlin easier and more efficient.
 
-### 클래스 계층 다이어그램
+## Architecture
+
+### Class Hierarchy Diagram
 
 ```mermaid
 classDiagram
@@ -66,86 +68,86 @@ classDiagram
         +logger(name: String) Logger
     }
 
-    KLogging --> Logger : "정적 log 프로퍼티 (lazy)"
-    KLogging <|-- KLoggingChannel : 상속
-    KLoggingChannel --> LogEvent : "이벤트 발행"
-    KLoggingChannel --> Logger : "백그라운드 코루틴에서 기록"
-    KotlinLogging --> Logger : "팩토리 생성"
-    KLoggerFactory --> Logger : "생성"
-    KLogging ..> KLoggerFactory : "사용"
-    Logger ..> MDC : "일반 블로킹 컨텍스트"
-    Logger ..> CoroutineMDC : "코루틴 컨텍스트"
+    KLogging --> Logger : "static log property (lazy)"
+    KLogging <|-- KLoggingChannel : extends
+    KLoggingChannel --> LogEvent : "publishes events"
+    KLoggingChannel --> Logger : "writes in background coroutine"
+    KotlinLogging --> Logger : "factory creation"
+    KLoggerFactory --> Logger : "creates"
+    KLogging ..> KLoggerFactory : "uses"
+    Logger ..> MDC : "regular blocking context"
+    Logger ..> CoroutineMDC : "coroutine context"
 
 ```
 
 ---
 
-### 로깅 처리 흐름
+### Logging Processing Flow
 
 ```mermaid
 flowchart TD
-    subgraph Sync["KLogging (동기 로깅)"]
+    subgraph Sync["KLogging (Synchronous Logging)"]
         direction LR
-        A1["log.debug { msg }"]:::coreStyle -->|"레벨 활성화 시만 Lambda 실행"| SLF4J["SLF4J Logger"]:::utilStyle
+        A1["log.debug { msg }"]:::coreStyle -->|"Lambda executes only if level enabled"| SLF4J["SLF4J Logger"]:::utilStyle
         SLF4J --> APPENDER["Logback Appender<br/>(Console/File)"]:::serviceStyle
     end
 
-    subgraph Async["KLoggingChannel (비동기 로깅)"]
+    subgraph Async["KLoggingChannel (Asynchronous Logging)"]
         direction LR
-        B1["log.debug { msg }"]:::asyncStyle --> CHANNEL["MutableSharedFlow<br/>버퍼 64개 · SUSPEND 정책"]:::asyncStyle
-        CHANNEL -->|"별도 코루틴 (Dispatchers.IO)"| SLF4J2["SLF4J Logger"]:::utilStyle
+        B1["log.debug { msg }"]:::asyncStyle --> CHANNEL["MutableSharedFlow<br/>buffer 64 · SUSPEND policy"]:::asyncStyle
+        CHANNEL -->|"separate coroutine (Dispatchers.IO)"| SLF4J2["SLF4J Logger"]:::utilStyle
         SLF4J2 --> APPENDER2["Logback Appender"]:::serviceStyle
     end
 
-    subgraph MDCContext["MDC 컨텍스트"]
+    subgraph MDCContext["MDC Context"]
         direction LR
-        C1["withLoggingContext(pairs)"]:::serviceStyle --> TL["ThreadLocal MDC<br/>(블로킹 코드용)"]:::utilStyle
-        C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]:::asyncStyle
+        C1["withLoggingContext(pairs)"]:::serviceStyle --> TL["ThreadLocal MDC<br/>(for blocking code)"]:::utilStyle
+        C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(propagates to async blocks)"]:::asyncStyle
     end
 
 ```
 
 ---
 
-### KLoggingChannel 비동기 로깅 시퀀스
+### KLoggingChannel Async Logging Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션 코루틴
+    participant App as Application Coroutine
     participant CH as KLoggingChannel
-    participant SF as MutableSharedFlow (버퍼 64)
-    participant BG as 백그라운드 코루틴
+    participant SF as MutableSharedFlow (buffer 64)
+    participant BG as Background Coroutine
     participant SLF as SLF4J Logger
 
     App->>CH: log.debug { "Processing event: $id" }
-    CH->>CH: isDebugEnabled 확인
-    alt DEBUG 비활성화
-        CH-->>App: (Lambda 미실행, 즉시 반환)
-    else DEBUG 활성화
+    CH->>CH: check isDebugEnabled
+    alt DEBUG disabled
+        CH-->>App: (Lambda not executed, returns immediately)
+    else DEBUG enabled
         CH->>SF: emit(LogEvent(DEBUG, msg))
-        alt 버퍼 여유 있음
-            SF-->>App: 즉시 resume (non-blocking)
-        else 버퍼 꽉 참 (64개 초과)
-            SF-->>App: SUSPEND (BackPressure)
+        alt buffer has space
+            SF-->>App: resumes immediately (non-blocking)
+        else buffer full (>64)
+            SF-->>App: SUSPEND (backpressure)
         end
         BG->>SF: collect LogEvent
         BG->>SLF: log.debug(msg, error)
     end
 
-    Note over App,SLF: JVM 종료 시 Shutdown Hook → job.cancel()
+    Note over App,SLF: On JVM shutdown: Shutdown Hook → job.cancel()
 ```
 
-## 주요 기능
+## Features
 
-- **Lambda 기반 Lazy Logging**: 로그 레벨이 활성화되지 않으면 메시지를 생성하지 않아 성능 향상
-- **클래스 기반 로깅**: `KLogging`을 사용한 간편한 클래스 로거 정의
-- **함수 레벨 로깅**: Package 함수에서도 쉽게 사용 가능
-- **MDC 지원**: Slf4j MDC를 Kotlin 스타일로 간편하게 사용
-- **Coroutines 지원**: Coroutines 환경에서 MDC 컨텍스트 전파
-- **KLoggingChannel**: Coroutines Channel 기반 비동기 로깅 (고성능)
-- **에러 강조**: warn/error 로그에 자동으로 🔥 이모지 추가
+- **Lambda-based Lazy Logging**: Messages are not constructed unless the log level is enabled — improves performance
+- **Class-level Logging**: Simple static logger definition using `KLogging`
+- **Function-level Logging**: Works in top-level and package-level functions too
+- **MDC Support**: SLF4J MDC in idiomatic Kotlin style
+- **Coroutines Support**: MDC context propagation in coroutine environments
+- **KLoggingChannel**: High-performance async logging backed by a Coroutines channel
+- **Error Highlighting**: Automatically prepends 🔥 emoji to warn/error log messages
 
-## 의존성 추가
+## Installation
 
 ### Gradle (Kotlin DSL)
 
@@ -153,21 +155,21 @@ sequenceDiagram
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-logging:${version}")
 
-    // SLF4J 구현체 (Logback 사용 예시)
+    // SLF4J implementation (Logback example)
     implementation("ch.qos.logback:logback-classic:1.4.14")
 
-    // KLoggingChannel 사용 시 필요 (Coroutines)
+    // Required for KLoggingChannel (Coroutines)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    // MDC 사용 시
+    // Required for MDC in coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.10.2")
 }
 ```
 
-## 사용법
+## Usage
 
-### 1. 클래스에서 로깅하기
+### 1. Logging in a Class
 
-Companion object를 `KLogging()`으로 상속받으면 static 로거를 사용할 수 있습니다.
+Extend your companion object from `KLogging()` to get a static logger automatically.
 
 ```kotlin
 import io.bluetape4k.logging.KLogging
@@ -191,15 +193,15 @@ class UserService {
 }
 ```
 
-**특징:**
+**Highlights:**
 
-- `log` 프로퍼티가 자동으로 제공됨
-- Lambda 표현식으로 메시지 작성 (로그 레벨이 비활성화되면 실행되지 않음)
-- Exception과 함께 로깅 가능
+- The `log` property is provided automatically
+- Lambda expressions for messages (not evaluated when the log level is disabled)
+- Log with exceptions naturally
 
-### 2. Package 함수에서 로깅하기
+### 2. Logging in Package-Level Functions
 
-Top-level 함수나 package 함수에서는 다음과 같이 로거를 선언합니다.
+Declare a logger like this for top-level and package-level functions.
 
 ```kotlin
 import io.bluetape4k.logging.KotlinLogging
@@ -219,34 +221,34 @@ fun processData(data: String) {
 }
 ```
 
-**이름 있는 로거:**
+**Named loggers:**
 
-- `KotlinLogging.logger {}`: 호출된 위치 기반 자동 이름 지정
-- `KotlinLogging.logger("name")`: 명시적 이름 지정
+- `KotlinLogging.logger {}`: name inferred from the call site automatically
+- `KotlinLogging.logger("name")`: explicit name
 
-### 3. Lambda 기반 Lazy Logging
+### 3. Lambda-based Lazy Logging
 
-로그 메시지가 복잡하거나 계산 비용이 높을 때 유용합니다.
+Especially useful when log messages are complex or expensive to construct.
 
 ```kotlin
-// ❌ 나쁜 예: 로그 레벨이 비활성화되어도 문자열 연산 수행
+// ❌ Bad: string concatenation happens even when DEBUG is disabled
 log.debug("User details: " + user.toString() + ", Orders: " + orders.size)
 
-// ✅ 좋은 예: 로그 레벨이 활성화될 때만 실행
+// ✅ Good: lambda is only evaluated when the level is enabled
 log.debug { "User details: $user, Orders: ${orders.size}" }
 ```
 
-**성능 비교:**
+**Performance comparison:**
 
 ```kotlin
-// DEBUG 레벨이 비활성화된 경우
-log.debug("Heavy computation: " + expensiveCalculation())  // 항상 실행됨
-log.debug { "Heavy computation: ${expensiveCalculation()}" }  // 실행되지 않음!
+// When DEBUG level is disabled:
+log.debug("Heavy computation: " + expensiveCalculation())  // always executes
+log.debug { "Heavy computation: ${expensiveCalculation()}" }  // never executes!
 ```
 
-### 4. MDC (Mapped Diagnostic Context) 사용하기
+### 4. MDC (Mapped Diagnostic Context)
 
-분산 추적, 요청 ID, 사용자 ID 등을 로그에 포함시킬 수 있습니다.
+Include distributed tracing IDs, request IDs, user IDs, and more in every log entry.
 
 ```kotlin
 import io.bluetape4k.logging.withLoggingContext
@@ -254,7 +256,7 @@ import io.bluetape4k.logging.withLoggingContext
 fun handleRequest(requestId: String, userId: String) {
     withLoggingContext("requestId" to requestId, "userId" to userId) {
         log.info { "Processing request" }
-        // 로그: ... [requestId=abc-123][userId=user-456] Processing request
+        // log: ... [requestId=abc-123][userId=user-456] Processing request
 
         processBusinessLogic()
 
@@ -263,7 +265,7 @@ fun handleRequest(requestId: String, userId: String) {
 }
 ```
 
-**중첩된 MDC 컨텍스트:**
+**Nested MDC contexts:**
 
 ```kotlin
 withLoggingContext("traceId" to "trace-100", "spanId" to "span-200") {
@@ -278,10 +280,10 @@ withLoggingContext("traceId" to "trace-100", "spanId" to "span-200") {
     log.debug { "Back to outer context" }
     // MDC: traceId=trace-100, spanId=span-200
 }
-// MDC 자동으로 제거됨
+// MDC is cleared automatically
 ```
 
-**단일 Pair 사용:**
+**Single pair:**
 
 ```kotlin
 withLoggingContext("userId" to userId) {
@@ -289,9 +291,9 @@ withLoggingContext("userId" to userId) {
 }
 ```
 
-### 5. Coroutines에서 MDC 사용하기
+### 5. MDC in Coroutines
 
-Coroutines 환경에서 MDC 컨텍스트를 자동으로 전파합니다.
+MDC context is automatically propagated across coroutine boundaries.
 
 ```kotlin
 import io.bluetape4k.logging.coroutines.withCoroutineLoggingContext
@@ -304,7 +306,7 @@ suspend fun processOrder(orderId: String) = coroutineScope {
 
         val payment = async {
             log.debug { "Processing payment" }
-            // MDC가 async 블록에도 자동 전파됨
+            // MDC is automatically propagated to async blocks
             processPayment()
         }
 
@@ -321,22 +323,22 @@ suspend fun processOrder(orderId: String) = coroutineScope {
 }
 ```
 
-**주요 차이점:**
+**Key difference:**
 
-- `withLoggingContext`: 일반 블로킹 코드용
-- `withCoroutineLoggingContext`: Suspend 함수용, Coroutines 간 MDC 전파
+- `withLoggingContext`: for regular blocking code
+- `withCoroutineLoggingContext`: for suspend functions; propagates MDC across coroutines
 
-### 6. KLoggingChannel - 비동기 로깅 (Coroutines Channel)
+### 6. KLoggingChannel — Asynchronous Logging (Coroutines Channel)
 
-Coroutines 환경에서 로깅을 비동기적으로 처리하기 위한 채널 기반 로거입니다. `MutableSharedFlow`를 버퍼로 사용하여 로깅 성능을 최적화합니다.
+A channel-based logger for asynchronous log processing in coroutine environments. Uses `MutableSharedFlow` as a buffer to optimize logging throughput.
 
-#### 기본 사용법
+#### Basic Usage
 
 ```kotlin
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class EventProcessor {
-    companion object: KLoggingChannel()  // KLogging 대신 KLoggingChannel 사용
+    companion object: KLoggingChannel()  // use KLoggingChannel instead of KLogging
 
     suspend fun processEvent(event: Event) {
         log.debug { "Processing event: ${event.id}" }
@@ -367,45 +369,45 @@ class EventProcessor {
 #### KLogging vs KLoggingChannel
 
 ```kotlin
-// ❌ 일반 KLogging: suspend 함수에서 사용 가능하지만 동기식
+// ❌ Regular KLogging: works in suspend functions but is synchronous
 class SyncService {
     companion object: KLogging()
 
     suspend fun process() {
-        log.debug { "Processing..." }  // 동기적으로 로그 출력
+        log.debug { "Processing..." }  // logs synchronously
         delay(100)
     }
 }
 
-// ✅ KLoggingChannel: suspend 함수에 최적화, 비동기 로깅
+// ✅ KLoggingChannel: optimized for suspend functions, logs asynchronously
 class AsyncService {
     companion object: KLoggingChannel()
 
     suspend fun process() {
-        log.debug { "Processing..." }  // 비동기로 로그 전송
+        log.debug { "Processing..." }  // sends log asynchronously
         delay(100)
     }
 }
 ```
 
-#### 주요 특징
+#### Key Characteristics
 
-**1. 버퍼링**
+**1. Buffering**
 
-- `MutableSharedFlow`를 사용하여 64개의 로그 이벤트 버퍼링
-- 버퍼가 가득 차면 suspend (BackPressure 제어)
+- Buffers up to 64 log events using `MutableSharedFlow`
+- Suspends when the buffer is full (backpressure)
 
-**2. 비동기 처리**
+**2. Asynchronous Processing**
 
-- 로깅 작업이 별도의 Coroutine에서 처리됨
-- 메인 로직의 성능에 영향 최소화
+- Log writes happen in a separate coroutine
+- Minimal impact on main logic performance
 
-**3. 자동 리소스 관리**
+**3. Automatic Resource Management**
 
-- Shutdown Hook으로 종료 시 자동 정리
-- 모든 버퍼링된 로그 처리 후 종료
+- Shutdown Hook cleans up resources on JVM exit
+- Drains all buffered log events before terminating
 
-#### 실전 예시
+#### Real-World Example
 
 ```kotlin
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -454,7 +456,7 @@ class OrderProcessor {
 }
 ```
 
-#### 대용량 로깅 시나리오
+#### High-Volume Logging Scenario
 
 ```kotlin
 class DataImporter {
@@ -478,52 +480,52 @@ class DataImporter {
 }
 ```
 
-**성능 이점:**
+**Performance benefits:**
 
-- 로그 메시지가 채널로 전송되어 비동기 처리
-- 대량의 로그를 생성해도 메인 로직이 블록되지 않음
-- 버퍼링으로 로깅 I/O 최적화
+- Log messages are sent to the channel and processed asynchronously
+- Main logic is never blocked by heavy log output
+- Buffering optimizes logging I/O
 
-#### 언제 사용할까?
+#### When to Use
 
-**✅ KLoggingChannel 사용:**
+**✅ Use KLoggingChannel when:**
 
-- Coroutines 기반 서비스
-- 대량의 로그를 생성하는 경우
-- 로깅 성능이 중요한 경우
-- Flow 처리 등 스트림 데이터 처리
+- Building coroutine-based services
+- Generating large volumes of log output
+- Logging performance is critical
+- Processing streaming data with Flow
 
-**✅ 일반 KLogging 사용:**
+**✅ Use regular KLogging when:**
 
-- 일반 동기 코드
-- 로그 양이 적은 경우
-- 즉시 로그 출력이 필요한 경우
+- Writing ordinary synchronous code
+- Log volume is low
+- Immediate log output is required
 
-#### 주의사항
+#### Caveats
 
 ```kotlin
-// ⚠️ 애플리케이션 종료 시 버퍼의 로그가 모두 처리될 때까지 대기
-// Shutdown Hook이 자동으로 처리하지만, 강제 종료 시 일부 로그 유실 가능
+// ⚠️ On application shutdown, waits until all buffered logs are flushed
+// The Shutdown Hook handles this automatically, but forced termination may lose some logs
 
-// ✅ 중요한 로그는 명시적으로 flush
+// ✅ For critical logs, give the buffer time to drain
 suspend fun criticalOperation() {
     log.error { "Critical error occurred!" }
-    delay(100)  // 로그가 처리될 시간 제공
+    delay(100)  // allow time for the log to be processed
 }
 ```
 
-### 7. Logback 설정
+### 7. Logback Configuration
 
-MDC 값을 로그에 출력하려면 Logback 패턴에 추가해야 합니다.
+To include MDC values in log output, add them to the Logback pattern.
 
-#### logback.xml 예시
+#### logback.xml Example
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- MDC 항목을 %X{키} 형태로 추가 -->
+            <!-- Add MDC entries as %X{key} -->
             <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [requestId=%X{requestId}][userId=%X{userId}][%.24thread]
                 %logger{36}:%line: %msg%n%throwable
             </pattern>
@@ -531,7 +533,7 @@ MDC 값을 로그에 출력하려면 Logback 패턴에 추가해야 합니다.
         </encoder>
     </appender>
 
-    <!-- 특정 패키지의 로그 레벨 설정 -->
+    <!-- Set log levels per package -->
     <logger name="io.bluetape4k" level="DEBUG"/>
     <logger name="com.myapp" level="INFO"/>
 
@@ -541,29 +543,29 @@ MDC 값을 로그에 출력하려면 Logback 패턴에 추가해야 합니다.
 </configuration>
 ```
 
-**패턴 설명:**
+**Pattern explained:**
 
-- `%X{requestId}`: MDC의 `requestId` 값 출력
-- `%highlight(%-5level)`: 로그 레벨을 색상으로 강조
-- `%.24thread`: 스레드 이름 (최대 24자)
-- `%logger{36}`: 로거 이름 (최대 36자)
+- `%X{requestId}`: outputs the `requestId` MDC value
+- `%highlight(%-5level)`: colorizes the log level
+- `%.24thread`: thread name (up to 24 characters)
+- `%logger{36}`: logger name (up to 36 characters)
 
-### 8. 에러 로깅 (자동 이모지 추가)
+### 8. Error Logging (Automatic Emoji)
 
-warn과 error 레벨 로그에는 자동으로 🔥 이모지가 추가됩니다.
+Warn and error log entries automatically get a 🔥 emoji prepended.
 
 ```kotlin
 log.warn { "Connection timeout detected" }
-// 출력: 🔥Connection timeout detected
+// output: 🔥Connection timeout detected
 
 log.error(exception) { "Failed to process request" }
-// 출력: 🔥Failed to process request
+// output: 🔥Failed to process request
 // + exception stack trace
 ```
 
-이모지 덕분에 로그에서 에러를 시각적으로 빠르게 찾을 수 있습니다.
+The emoji makes errors visually easy to spot in log output.
 
-## 전체 예시
+## Complete Example
 
 ```kotlin
 import io.bluetape4k.logging.KLogging
@@ -612,7 +614,7 @@ class OrderService {
 }
 ```
 
-### KLoggingChannel 전체 예시
+### KLoggingChannel Complete Example
 
 ```kotlin
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -664,144 +666,144 @@ class EventStreamService {
 }
 ```
 
-## 모범 사례
+## Best Practices
 
-### 1. 로그 레벨 선택
+### 1. Choosing the Right Log Level
 
 ```kotlin
-// TRACE: 매우 상세한 디버깅 정보
+// TRACE: highly detailed debugging information
 log.trace { "Entering method with params: $params" }
 
-// DEBUG: 개발/디버깅 시 유용한 정보
+// DEBUG: useful information during development/debugging
 log.debug { "Processing ${items.size} items" }
 
-// INFO: 일반적인 정보성 메시지
+// INFO: general informational messages
 log.info { "Service started successfully" }
 
-// WARN: 경고 - 잠재적 문제
+// WARN: warning — potential issues
 log.warn { "Connection pool running low: ${pool.available}/${pool.total}" }
 
-// ERROR: 에러 - 처리 실패
+// ERROR: error — processing failure
 log.error(exception) { "Failed to process transaction" }
 ```
 
-### 2. 민감 정보 로깅 주의
+### 2. Handling Sensitive Data
 
 ```kotlin
-// ❌ 나쁜 예: 비밀번호 등 민감 정보 노출
+// ❌ Bad: exposes sensitive information like passwords
 log.debug { "User login: username=$username, password=$password" }
 
-// ✅ 좋은 예: 민감 정보 마스킹
+// ✅ Good: mask sensitive data
 log.debug { "User login: username=$username, password=***" }
 ```
 
-### 3. 구조화된 로깅
+### 3. Structured Logging
 
 ```kotlin
-// 일관된 형식으로 로깅
+// Log in a consistent format
 log.info { "action=user_login, userId=$userId, ip=$ipAddress, status=success" }
 log.error { "action=payment_failed, orderId=$orderId, amount=$amount, reason=${e.message}" }
 ```
 
-### 4. MDC 활용
+### 4. Using MDC Effectively
 
 ```kotlin
-// API 요청마다 고유 ID 부여
+// Assign a unique ID to every API request
 fun handleApiRequest(request: Request): Response {
     val requestId = UUID.randomUUID().toString()
 
     withLoggingContext("requestId" to requestId) {
         log.info { "API request received: ${request.path}" }
-        // 모든 하위 로그에 requestId가 자동 포함됨
+        // All nested log entries automatically include requestId
         return processRequest(request)
     }
 }
 ```
 
-### 5. KLogging vs KLoggingChannel 선택
+### 5. Choosing KLogging vs KLoggingChannel
 
 ```kotlin
-// ✅ 일반 서비스: KLogging
+// ✅ General services: KLogging
 class UserService {
     companion object: KLogging()
 
     fun createUser(user: User) {
         log.debug { "Creating user: ${user.id}" }
-        // 적은 양의 로그, 동기 처리
+        // low log volume, synchronous processing
     }
 }
 
-// ✅ Coroutines 고성능 서비스: KLoggingChannel
+// ✅ High-throughput coroutine services: KLoggingChannel
 class EventStreamProcessor {
     companion object: KLoggingChannel()
 
     suspend fun processStream(events: Flow<Event>) {
         events.collect { event ->
             log.trace { "Processing: ${event.id}" }
-            // 대량의 로그, 비동기 처리
+            // high log volume, asynchronous processing
         }
     }
 }
 
-// ❌ 피해야 할 패턴: Coroutines에서 과도한 동기 로깅
+// ❌ Avoid: excessive synchronous logging in coroutines
 class BadService {
     companion object: KLogging()
 
     suspend fun processMany(items: Flow<Item>) {
         items.collect { item ->
-            log.debug { "Item $item" }  // 수천 개의 로그 = 성능 저하
+            log.debug { "Item $item" }  // thousands of log entries = performance hit
         }
     }
 }
 ```
 
-## 성능 고려사항
+## Performance Considerations
 
-### Lambda vs String 비교
+### Lambda vs String Concatenation
 
 ```kotlin
-// 10,000번 호출 시 (DEBUG 레벨 비활성화)
-// String 연산: ~50ms (항상 실행)
+// 10,000 calls (DEBUG level disabled)
+// String concatenation: ~50ms (always executes)
 log.debug("Message: " + createExpensiveString())
 
-// Lambda: ~0ms (실행되지 않음)
+// Lambda: ~0ms (never executes)
 log.debug { "Message: ${createExpensiveString()}" }
 ```
 
-### MDC 오버헤드
+### MDC Overhead
 
-MDC는 ThreadLocal을 사용하므로 약간의 오버헤드가 있습니다:
+MDC uses ThreadLocal, which introduces a small overhead:
 
-- 필요한 경우에만 사용
-- 너무 많은 MDC 항목은 피하기 (5-10개 이하 권장)
+- Use only when needed
+- Keep the number of MDC entries small (5–10 recommended)
 
-### KLoggingChannel 성능
+### KLoggingChannel Performance
 
-**버퍼링 효과:**
+**Buffering effect:**
 
 ```kotlin
-// 대량 로그 생성 시 (10,000개)
-// KLogging: ~200ms (동기 I/O)
-// KLoggingChannel: ~50ms (비동기 버퍼링)
+// Generating 10,000 log entries
+// KLogging: ~200ms (synchronous I/O)
+// KLoggingChannel: ~50ms (async buffering)
 ```
 
-**메모리 사용:**
+**Memory usage:**
 
-- 버퍼 크기: 최대 64개 로그 이벤트
-- 각 이벤트: ~100-500 bytes
-- 총 메모리: ~6-32 KB (무시할 수준)
+- Buffer size: up to 64 log events
+- Per event: ~100–500 bytes
+- Total memory: ~6–32 KB (negligible)
 
-**권장 사용:**
+**Recommended use cases:**
 
-- ✅ Flow 처리에서 대량 로그 (초당 100+ 로그)
-- ✅ 실시간 이벤트 처리
-- ✅ 스트림 데이터 처리
-- ❌ 일반 REST API (오버헤드 불필요)
-- ❌ 배치 작업 (로그 양이 적음)
+- ✅ High-volume logging in Flow processing (100+ logs/sec)
+- ✅ Real-time event processing
+- ✅ Stream data processing
+- ❌ Ordinary REST APIs (unnecessary overhead)
+- ❌ Batch jobs (low log volume)
 
-## 참고 자료
+## References
 
-- [SLF4J 공식 문서](http://www.slf4j.org/)
-- [Logback 공식 문서](https://logback.qos.ch/)
+- [SLF4J Official Documentation](http://www.slf4j.org/)
+- [Logback Official Documentation](https://logback.qos.ch/)
 - [Kotlin Logging](https://github.com/oshai/kotlin-logging)
 - [Kotlin Coroutines + SLF4J MDC](https://github.com/Kotlin/kotlinx.coroutines/tree/master/integration/kotlinx-coroutines-slf4j)

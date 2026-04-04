@@ -1,22 +1,24 @@
 # Module bluetape4k-protobuf
 
-Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A Kotlin extension library for working with Google Protocol Buffers messages.
 
-`bluetape4k-protobuf`는 Protobuf 메시지의 변환, 직렬화, 타입 별칭 등 순수 Protobuf 유틸리티를 제공합니다. gRPC에 의존하지 않으므로 Protobuf 메시지만 사용하는 모듈에서 경량으로 활용할 수 있습니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-protobuf` provides pure Protobuf utilities for message conversion, serialization, and type aliasing. Because it has no dependency on gRPC, it can be used as a lightweight addition to any module that only needs Protobuf message handling.
 
-- **타입 별칭**: `ProtoMessage`, `ProtoAny`, `ProtoTimestamp`, `ProtoDuration`, `ProtoMoney` 등
-- **Timestamp 변환**: `Instant` ↔ `Timestamp`, RFC3339 파싱
-- **Duration 변환**: Java `Duration` ↔ Protobuf `Duration`, 비교/연산 연산자
-- **DateTime 변환**: `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf `Date`/`TimeOfDay`/`DateTime`
-- **Money 변환**: JavaMoney ↔ Protobuf `Money`
-- **메시지 유틸리티**: `Any` 기반 pack/unpack
-- **Protobuf 직렬화기**: `BinarySerializer` 구현체 (`ProtobufSerializer`)
+### Key Features
 
-## 의존성 추가
+- **Type aliases**: `ProtoMessage`, `ProtoAny`, `ProtoTimestamp`, `ProtoDuration`, `ProtoMoney`, etc.
+- **Timestamp conversion**: `Instant` ↔ `Timestamp`, RFC3339 parsing
+- **Duration conversion**: Java `Duration` ↔ Protobuf `Duration`, comparison and arithmetic operators
+- **DateTime conversion**: `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf `Date`/`TimeOfDay`/`DateTime`
+- **Money conversion**: JavaMoney ↔ Protobuf `Money`
+- **Message utilities**: pack/unpack based on `Any`
+- **Protobuf serializer**: `BinarySerializer` implementation (`ProtobufSerializer`)
+
+## Adding the Dependency
 
 ```kotlin
 dependencies {
@@ -24,9 +26,9 @@ dependencies {
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### 1. 타입 별칭
+### 1. Type Aliases
 
 ```kotlin
 import io.bluetape4k.protobuf.*
@@ -36,7 +38,7 @@ val any: ProtoAny = ProtoAny.pack(message)
 val empty: ProtoEmpty = PROTO_EMPTY
 ```
 
-### 2. Timestamp 변환
+### 2. Timestamp Conversion
 
 ```kotlin
 import io.bluetape4k.protobuf.*
@@ -46,7 +48,7 @@ val instant = timestamp.toInstant()
 val fromRfc3339 = "2024-01-01T00:00:00Z".toTimestamp()
 ```
 
-### 3. Duration 변환
+### 3. Duration Conversion
 
 ```kotlin
 import io.bluetape4k.protobuf.*
@@ -54,12 +56,12 @@ import io.bluetape4k.protobuf.*
 val protoDuration = java.time.Duration.ofMinutes(5).toProtoDuration()
 val javaDuration = protoDuration.toJavaDuration()
 
-// 비교 및 연산
+// Comparison and arithmetic
 val sum = duration1 + duration2
 val diff = duration1 - duration2
 ```
 
-### 4. Money 변환
+### 4. Money Conversion
 
 ```kotlin
 import io.bluetape4k.protobuf.*
@@ -70,7 +72,7 @@ val protoMoney = javaMoney.toProtoMoney()
 val backToJava = protoMoney.toJavaMoney()
 ```
 
-### 5. 메시지 Pack/Unpack
+### 5. Message Pack/Unpack
 
 ```kotlin
 import io.bluetape4k.protobuf.*
@@ -79,7 +81,7 @@ val bytes = packMessage(myMessage)
 val restored: MyMessage? = unpackMessage(bytes)
 ```
 
-### 6. ProtobufSerializer (BinarySerializer 구현)
+### 6. ProtobufSerializer (BinarySerializer Implementation)
 
 ```kotlin
 import io.bluetape4k.protobuf.serializers.ProtobufSerializer
@@ -89,27 +91,27 @@ val bytes = serializer.serialize(protoMessage)
 val message = serializer.deserialize<MyMessage>(bytes)
 ```
 
-추천 사용 방법:
+Recommended usage patterns:
 
-- 값이 모두 Protobuf 메시지라면 `packMessage` / `unpackMessage` 또는 각 메시지의 `parseFrom`을 직접 사용하는 편이 가장 단순합니다.
-- 캐시/세션/큐처럼 Protobuf 메시지와 일반 JVM 객체가 섞여 들어오는 저장소라면 `ProtobufSerializer`가 fallback serializer와 함께 더 유용합니다.
-- 서비스 간 wire protocol 자체는 gRPC/Protobuf 규약에 맡기고, `ProtobufSerializer`는 애플리케이션 내부 바이너리 저장/전달 경계에서 사용하는 편이 관리가 쉽습니다.
+- If all values are Protobuf messages, using `packMessage` / `unpackMessage` or each message's own `parseFrom` directly is the simplest approach.
+- For stores that mix Protobuf messages with general JVM objects (e.g., caches, sessions, queues), `ProtobufSerializer` paired with a fallback serializer is more practical.
+- Leave the service-to-service wire protocol to gRPC/Protobuf conventions, and use `ProtobufSerializer` at internal binary storage and delivery boundaries within the application.
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
-| 파일 | 설명 |
-|------|------|
-| `TypeAlias.kt` | Protobuf 메시지 타입 별칭 (`ProtoMessage`, `ProtoAny`, `ProtoMoney` 등) |
-| `TimestampSupport.kt` | `Instant`/`Date` ↔ `Timestamp` 변환, RFC3339 파싱 |
-| `DurationSupport.kt` | Java `Duration` ↔ Protobuf `Duration` 변환, 연산자 |
-| `DateTimeSupport.kt` | `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf 날짜/시간 변환 |
-| `MoneySupport.kt` | JavaMoney ↔ Protobuf `Money` 변환 |
-| `MessageSupport.kt` | `Any` 기반 메시지 pack/unpack 유틸리티 |
-| `serializers/ProtobufSerializer.kt` | `BinarySerializer` 구현체 (Protobuf + fallback 직렬화) |
+| File | Description |
+|------|-------------|
+| `TypeAlias.kt` | Protobuf message type aliases (`ProtoMessage`, `ProtoAny`, `ProtoMoney`, etc.) |
+| `TimestampSupport.kt` | `Instant`/`Date` ↔ `Timestamp` conversion, RFC3339 parsing |
+| `DurationSupport.kt` | Java `Duration` ↔ Protobuf `Duration` conversion and operators |
+| `DateTimeSupport.kt` | `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf date/time conversion |
+| `MoneySupport.kt` | JavaMoney ↔ Protobuf `Money` conversion |
+| `MessageSupport.kt` | `Any`-based message pack/unpack utilities |
+| `serializers/ProtobufSerializer.kt` | `BinarySerializer` implementation (Protobuf + fallback serialization) |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 타입 변환 클래스 구조
+### Type Conversion Class Structure
 
 ```mermaid
 classDiagram
@@ -162,11 +164,11 @@ classDiagram
 
 ```
 
-### Protobuf 타입 변환 흐름
+### Protobuf Type Conversion Flow
 
 ```mermaid
 flowchart LR
-    subgraph Java_Types["Java/Kotlin 타입"]
+    subgraph Java_Types["Java/Kotlin Types"]
         INS[java.time.Instant]
         DUR[java.time.Duration]
         LDT[LocalDateTime]
@@ -174,7 +176,7 @@ flowchart LR
         MSG[ProtoMessage]
     end
 
-    subgraph Proto_Types["Protobuf 타입"]
+    subgraph Proto_Types["Protobuf Types"]
         TS[google.protobuf.Timestamp]
         PD[google.protobuf.Duration]
         DT[google.type.DateTime]
@@ -182,7 +184,7 @@ flowchart LR
         ANY[google.protobuf.Any]
     end
 
-    subgraph 직렬화
+    subgraph Serialization
         BA[ByteArray]
     end
 
@@ -196,34 +198,34 @@ flowchart LR
     BA -->|ProtobufSerializer.deserialize| MSG
 ```
 
-### 직렬화 시퀀스
+### Serialization Sequence
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as 애플리케이션
+    participant App as Application
     participant S as ProtobufSerializer
-    participant P as Protobuf 런타임
+    participant P as Protobuf Runtime
 
-    Note over 앱,P: 직렬화
-    앱->>S: serialize(protoMessage)
+    Note over App,P: Serialization
+    App->>S: serialize(protoMessage)
     S->>P: message.toByteArray()
-    P-->>S: ByteArray (바이너리 Protobuf)
-    S-->>앱: ByteArray
+    P-->>S: ByteArray (binary Protobuf)
+    S-->>App: ByteArray
 
-    Note over 앱,P: 역직렬화
-    앱->>S: deserialize(bytes, MyMessage::class.java)
+    Note over App,P: Deserialization
+    App->>S: deserialize(bytes, MyMessage::class.java)
     S->>P: MyMessage.parseFrom(bytes)
-    P-->>S: MyMessage 객체
-    S-->>앱: MyMessage (실패 시 null)
+    P-->>S: MyMessage object
+    S-->>App: MyMessage (null on failure)
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-protobuf:test
 ```
 
-## 참고
+## References
 
 - [Protocol Buffers](https://protobuf.dev/)
 - [Protobuf Kotlin](https://protobuf.dev/getting-started/kotlintutorial/)

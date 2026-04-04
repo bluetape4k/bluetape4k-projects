@@ -1,10 +1,12 @@
 # Module bluetape4k-exposed-tests
 
-## 개요
+English | [한국어](./README.ko.md)
 
-[Exposed](https://github.com/JetBrains/Exposed) 기반 모듈 테스트를 위한 공통 테스트 인프라 모듈입니다. 다양한 데이터베이스(H2, MySQL, MariaDB, PostgreSQL)에 대한 통합 테스트를 쉽게 작성할 수 있도록 도와줍니다.
+## Overview
 
-## 의존성 추가
+A shared test infrastructure module for testing Exposed-based modules. It simplifies writing integration tests against multiple databases (H2, MySQL, MariaDB, PostgreSQL).
+
+## Adding Dependencies
 
 ```kotlin
 dependencies {
@@ -12,30 +14,30 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-- **공통 테스트 베이스**: `AbstractExposedTest`로 DB 테스트 기본 구조 제공
-- **다중 DB 지원**: H2, MySQL, MariaDB, PostgreSQL 테스트 지원
-- **Testcontainers 통합**: Docker 기반 실제 DB 테스트 지원
-- **동기/비동기 테스트**: 일반 JDBC 및 Coroutine 환경 모두 지원
-- **테이블/스키마 유틸**: 테스트용 엔티티/테이블 재사용
+- **Common test base**: `AbstractExposedTest` provides the foundation for DB tests
+- **Multi-database support**: Tests against H2, MySQL, MariaDB, and PostgreSQL
+- **Testcontainers integration**: Docker-based real database testing
+- **Sync and async tests**: Supports both plain JDBC and Coroutines environments
+- **Table/schema utilities**: Reusable test entities and tables
 
-## 지원 데이터베이스
+## Supported Databases
 
-| 데이터베이스           | TestDB       | Testcontainers |
-|------------------|--------------|----------------|
-| H2 v2            | `H2`         | ❌              |
-| H2 MySQL 모드      | `H2_MYSQL`   | ❌              |
-| H2 MariaDB 모드    | `H2_MARIADB` | ❌              |
-| H2 PostgreSQL 모드 | `H2_PSQL`    | ❌              |
-| MariaDB          | `MARIADB`    | ✅              |
-| MySQL 5.7        | `MYSQL_V5`   | ✅              |
-| MySQL 8.0        | `MYSQL_V8`   | ✅              |
-| PostgreSQL       | `POSTGRESQL` | ✅              |
+| Database            | TestDB       | Testcontainers |
+|---------------------|--------------|----------------|
+| H2 v2               | `H2`         | No             |
+| H2 MySQL mode       | `H2_MYSQL`   | No             |
+| H2 MariaDB mode     | `H2_MARIADB` | No             |
+| H2 PostgreSQL mode  | `H2_PSQL`    | No             |
+| MariaDB             | `MARIADB`    | Yes            |
+| MySQL 5.7           | `MYSQL_V5`   | Yes            |
+| MySQL 8.0           | `MYSQL_V8`   | Yes            |
+| PostgreSQL          | `POSTGRESQL` | Yes            |
 
-## 사용 예시
+## Usage Examples
 
-### 기본 테스트 작성
+### Writing a basic test
 
 ```kotlin
 import io.bluetape4k.exposed.tests.AbstractExposedTest
@@ -73,7 +75,7 @@ class UserRepositoryTest: AbstractExposedTest() {
 }
 ```
 
-### withDb - 테이블 없이 DB 연결만 필요한 경우
+### withDb — DB connection only (no tables)
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDB
@@ -83,14 +85,14 @@ import io.bluetape4k.exposed.tests.withDb
 @MethodSource(ENABLE_DIALECTS_METHOD)
 fun `should connect to database`(testDB: TestDB) {
     withDb(testDB) {
-        // 트랜잭션 내에서 실행
+        // Runs inside a transaction
         val isConnected = connection.isValid(5)
         assertTrue(isConnected)
     }
 }
 ```
 
-### withTables - 테이블 자동 생성/삭제
+### withTables — Auto create and drop tables
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDB
@@ -100,18 +102,18 @@ import io.bluetape4k.exposed.tests.withTables
 @MethodSource(ENABLE_DIALECTS_METHOD)
 fun `should create and drop tables`(testDB: TestDB) {
     withTables(testDB, Users, Orders) {
-        // 테스트 시작 전 테이블 자동 생성
-        // 테스트 종료 후 테이블 자동 삭제
+        // Tables are created before the test
+        // Tables are dropped after the test
 
         Users.insert { /* ... */ }
         Orders.insert { /* ... */ }
 
-        // 테스트 로직
+        // Test logic
     }
 }
 ```
 
-### Coroutine 환경 (비동기 테스트)
+### Coroutines environment (async tests)
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDB
@@ -126,7 +128,7 @@ class AsyncRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `should insert user in coroutine`(testDB: TestDB) = runBlocking {
         withTablesSuspending(testDB, Users) {
-            // suspend 함수 내에서 실행
+            // Runs inside a suspend function
             Users.insert {
                 it[name] = "John"
                 it[email] = "john@example.com"
@@ -139,14 +141,14 @@ class AsyncRepositoryTest: AbstractExposedTest() {
 }
 ```
 
-### 특정 DB만 테스트
+### Testing against a specific database only
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDB
 
 class PostgresOnlyTest: AbstractExposedTest() {
 
-    // PostgreSQL만 테스트
+    // Test only against PostgreSQL
     companion object {
         @JvmStatic
         fun databases() = TestDB.ALL_POSTGRES
@@ -156,13 +158,13 @@ class PostgresOnlyTest: AbstractExposedTest() {
     @MethodSource("databases")
     fun `postgres specific test`(testDB: TestDB) {
         withTables(testDB, Users) {
-            // PostgreSQL 전용 테스트
+            // PostgreSQL-specific test
         }
     }
 }
 ```
 
-### DB 그룹별 테스트
+### Testing against a group of databases
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDB
@@ -170,11 +172,11 @@ import io.bluetape4k.exposed.tests.TestDB
 class MySQLLikeTest: AbstractExposedTest() {
 
     companion object {
-        // MySQL + MariaDB + H2 MySQL 모드
+        // MySQL + MariaDB + H2 MySQL mode
         @JvmStatic
         fun databases() = TestDB.ALL_MYSQL_LIKE
 
-        // PostgreSQL + H2 PostgreSQL 모드
+        // PostgreSQL + H2 PostgreSQL mode
         @JvmStatic
         fun postgresDatabases() = TestDB.ALL_POSTGRES_LIKE
     }
@@ -183,27 +185,27 @@ class MySQLLikeTest: AbstractExposedTest() {
     @MethodSource("databases")
     fun `mysql compatible test`(testDB: TestDB) {
         withTables(testDB, Users) {
-            // MySQL 호환 DB 테스트
+            // MySQL-compatible DB test
         }
     }
 }
 ```
 
-## TestDB 설정
+## TestDB Configuration
 
 ```kotlin
 import io.bluetape4k.exposed.tests.TestDBConfig
 
-// Testcontainers 사용 여부
-TestDBConfig.useTestcontainers = true  // 기본값
+// Whether to use Testcontainers
+TestDBConfig.useTestcontainers = true  // default
 
-// 빠른 테스트를 위해 H2만 사용 (기본값: true)
+// Use only H2 for fast tests (default: true)
 TestDBConfig.useFastDB = true
 ```
 
-## 테스트용 스키마/데이터
+## Test Schemas and Data
 
-### MovieSchema (DAO 예시)
+### MovieSchema (DAO example)
 
 ```kotlin
 import io.bluetape4k.exposed.shared.entities.MovieSchema
@@ -214,7 +216,7 @@ class MovieTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `should query actors by movie`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            // 샘플 데이터가 미리 로드됨
+            // Sample data is pre-loaded
             val actors = ActorEntity.all()
             assertTrue(actors.isNotEmpty())
         }
@@ -222,86 +224,86 @@ class MovieTest: AbstractExposedTest() {
 }
 ```
 
-### 공유 테이블 스키마
+### Shared table schemas
 
-| 파일                               | 설명                             |
-|----------------------------------|--------------------------------|
-| `shared/entities/MovieSchema.kt` | Movie, Actor, ActorInMovie 테이블 |
-| `shared/entities/BoardSchema.kt` | Board 테이블                      |
-| `shared/entities/BlogSchema.kt`  | Blog 테이블                       |
-| `shared/mapping/PersonSchema.kt` | Person 매핑 테이블                  |
-| `shared/mapping/OrderSchema.kt`  | Order 매핑 테이블                   |
+| File                               | Description                               |
+|------------------------------------|-------------------------------------------|
+| `shared/entities/MovieSchema.kt`   | Movie, Actor, ActorInMovie tables         |
+| `shared/entities/BoardSchema.kt`   | Board table                               |
+| `shared/entities/BlogSchema.kt`    | Blog table                                |
+| `shared/mapping/PersonSchema.kt`   | Person mapping table                      |
+| `shared/mapping/OrderSchema.kt`    | Order mapping table                       |
 
-## Testcontainers 구성
+## Testcontainers Configuration
 
 ```kotlin
 import io.bluetape4k.exposed.tests.Containers
 
-// MariaDB 컨테이너
+// MariaDB container
 Containers.MariaDB
 
-// MySQL 5.7 컨테이너
+// MySQL 5.7 container
 Containers.MySQL5
 
-// MySQL 8.0 컨테이너
+// MySQL 8.0 container
 Containers.MySQL8
 
-// PostgreSQL 컨테이너
+// PostgreSQL container
 Containers.Postgres
 ```
 
-## 주요 기능 상세
+## Key Files
 
-| 파일                          | 설명                                     |
-|-----------------------------|----------------------------------------|
-| `AbstractExposedTest.kt`    | 테스트 기본 클래스                             |
-| `TestDB.kt`                 | 지원 DB 정의 및 연결 정보                       |
-| `TestDBConfig.kt`           | 테스트 환경 설정 (useTestcontainers, useFastDB) |
-| `Containers.kt`             | Testcontainers 컨테이너 관리                 |
-| `WithDB.kt`                 | DB 연결 유틸                               |
-| `WithTables.kt`             | 테이블 생성/삭제 유틸                           |
-| `WithSchemas.kt`            | Schema 유틸                              |
-| `WithAutoCommit.kt`         | AutoCommit 모드 유틸                       |
-| `WithDBSuspending.kt`       | Coroutine DB 연결 유틸                     |
-| `WithTablesSuspending.kt`   | Coroutine 테이블 유틸                       |
-| `WithSchemasSuspending.kt`  | Coroutine Schema 유틸                    |
-| `WithAutoCommitSuspending.kt` | Coroutine AutoCommit 유틸              |
-| `Assertions.kt`             | 테스트 어설션 유틸 (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
-| `TestSupports.kt`           | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest` 등) |
+| File                            | Description                                                                                           |
+|---------------------------------|-------------------------------------------------------------------------------------------------------|
+| `AbstractExposedTest.kt`        | Base test class                                                                                       |
+| `TestDB.kt`                     | Supported database definitions and connection info                                                    |
+| `TestDBConfig.kt`               | Test environment settings (`useTestcontainers`, `useFastDB`)                                          |
+| `Containers.kt`                 | Testcontainers container management                                                                   |
+| `WithDB.kt`                     | DB connection utilities                                                                               |
+| `WithTables.kt`                 | Table create/drop utilities                                                                           |
+| `WithSchemas.kt`                | Schema utilities                                                                                      |
+| `WithAutoCommit.kt`             | AutoCommit mode utilities                                                                             |
+| `WithDBSuspending.kt`           | Coroutines DB connection utilities                                                                    |
+| `WithTablesSuspending.kt`       | Coroutines table utilities                                                                            |
+| `WithSchemasSuspending.kt`      | Coroutines schema utilities                                                                           |
+| `WithAutoCommitSuspending.kt`   | Coroutines AutoCommit utilities                                                                       |
+| `Assertions.kt`                 | Test assertion utilities (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
+| `TestSupports.kt`               | Test support utilities (`inProperCase`, `currentDialectTest`, etc.)                                   |
 
-## 테스트 실행 옵션
+## Test Run Options
 
 ```bash
-# 빠른 테스트 (H2만)
+# Fast tests (H2 only)
 ./gradlew test -DuseFastDB=true
 
-# 전체 DB 테스트
+# Full database tests
 ./gradlew test
 
-# 특정 DB만 테스트
+# Test against a specific database only
 ./gradlew test -DtestDB=POSTGRESQL
 ```
 
-## 테스트 인프라 구조
+## Test Infrastructure Structure
 
 ```mermaid
 flowchart TD
-    subgraph 테스트_클래스
+    subgraph Test_Classes
         A[AbstractExposedTest] --> B[ParameterizedTest]
         B --> C[ENABLE_DIALECTS_METHOD]
     end
 
-    subgraph 지원_DB
+    subgraph Supported_DBs
         D[H2 / H2_MYSQL / H2_MARIADB / H2_PSQL]
         E[MariaDB - Testcontainers]
         F[MySQL 5.7 / 8.0 - Testcontainers]
         G[PostgreSQL - Testcontainers]
     end
 
-    subgraph 유틸_함수
-        H[withDb - DB 연결만]
-        I[withTables - 테이블 자동 생성/삭제]
-        J[withTablesSuspending - Coroutine 버전]
+    subgraph Utility_Functions
+        H[withDb - DB connection only]
+        I[withTables - auto create/drop tables]
+        J[withTablesSuspending - Coroutines version]
         K[withSchemas]
         L[withAutoCommit]
     end
@@ -315,7 +317,7 @@ flowchart TD
     A --> I
     A --> J
 
-    subgraph 공유_스키마
+    subgraph Shared_Schemas
         M[MovieSchema]
         N[BoardSchema]
         O[BlogSchema]
@@ -327,28 +329,28 @@ flowchart TD
     I --> N
 ```
 
-### 테스트 실행 흐름
+### Test execution flow
 
 ```mermaid
 sequenceDiagram
-    participant Test as 테스트 클래스
-    participant Infra as 테스트 인프라
+    participant Test as Test Class
+    participant Infra as Test Infrastructure
     participant TC as Testcontainers
-    participant DB as 데이터베이스
+    participant DB as Database
 
     Test->>Infra: withTables(testDB, Users, Orders)
-    Infra->>TC: Docker 컨테이너 시작 (실제 DB인 경우)
-    TC-->>Infra: 컨테이너 준비 완료
-    Infra->>DB: 커넥션 획득 + 테이블 생성
-    DB-->>Infra: 테이블 준비 완료
-    Infra->>Test: 트랜잭션 블록 실행
-    Test->>DB: CRUD 작업
-    DB-->>Test: 결과 반환
-    Infra->>DB: 테이블 삭제 + 롤백
+    Infra->>TC: Start Docker container (for real DBs)
+    TC-->>Infra: Container ready
+    Infra->>DB: Acquire connection + create tables
+    DB-->>Infra: Tables ready
+    Infra->>Test: Execute transaction block
+    Test->>DB: CRUD operations
+    DB-->>Test: Results
+    Infra->>DB: Drop tables + rollback
 ```
 
-## 참고 사항
+## Notes
 
-- `exposed-tests` 모듈은 Detekt 검사가 비활성화되어 있습니다
-- Testcontainers 사용 시 Docker가 필요합니다
-- 로컬 DB 사용 시 `TestDBConfig.useTestcontainers = false`로 설정
+- Detekt static analysis is disabled for the `exposed-tests` module
+- Docker is required when using Testcontainers
+- Set `TestDBConfig.useTestcontainers = false` when using a local database

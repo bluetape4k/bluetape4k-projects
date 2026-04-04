@@ -1,36 +1,38 @@
 # Module bluetape4k-timefold-solver-persistence-exposed
 
-[Timefold Solver](https://github.com/timefold/timefold-solver)의 Score 정보를 [Exposed](https://github.com/JetBrains/Exposed)를 이용하여 RDB에 저장/로드하기 위한 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A Kotlin library for persisting and loading [Timefold Solver](https://github.com/timefold/timefold-solver) Score data to and from relational databases using [Exposed](https://github.com/JetBrains/Exposed).
 
-이 모듈은 Timefold Solver의 다양한 Score 유형을 JetBrains Exposed ORM을 통해 관계형 데이터베이스에 투명하게 저장하고 조회할 수 있게 해주는 Kotlin 라이브러리입니다.
+## Overview
 
-### 주요 특징
+This module provides seamless integration between Timefold Solver's scoring system and JetBrains Exposed ORM, enabling transparent persistence and retrieval of various Score types in relational databases.
 
-- **모든 Timefold Score 유형 지원**: SimpleScore, HardSoftScore, BendableScore 등 12가지 Score 유형
-- **Exposed 통합**: Exposed의 `ColumnType`과 `ColumnTransformer`를 활용한 자연스러운 통합
-- **타입 안전성**: 컴파일 타임에 Score 타입 검증
-- **데이터베이스 독립성**: H2, MySQL, MariaDB, PostgreSQL 등 다양한 데이터베이스 지원
+### Key Features
 
-## 지원 Score 유형
+- **All Timefold Score types supported**: 12 score types including SimpleScore, HardSoftScore, and BendableScore
+- **Exposed integration**: Natural integration using Exposed's `ColumnType` and `ColumnTransformer`
+- **Type safety**: Score type validation at compile time
+- **Database independence**: Supports H2, MySQL, MariaDB, PostgreSQL, and more
 
-| Score 유형                        | 설명                      | DB 저장 형식                  |
-|---------------------------------|-------------------------|---------------------------|
-| `SimpleScore`                   | 단일 점수 값                 | Integer                   |
-| `SimpleLongScore`               | Long 타입 단일 점수           | BigInt                    |
-| `SimpleBigDecimalScore`         | BigDecimal 단일 점수        | VarChar                   |
-| `HardSoftScore`                 | Hard/Soft 2단계 점수        | VarChar (예: "100/-50")    |
-| `HardSoftLongScore`             | Long 타입 Hard/Soft 점수    | VarChar                   |
-| `HardSoftBigDecimalScore`       | BigDecimal Hard/Soft 점수 | VarChar                   |
-| `HardMediumSoftScore`           | Hard/Medium/Soft 3단계 점수 | VarChar (예: "100/50/-30") |
-| `HardMediumSoftLongScore`       | Long 타입 3단계 점수          | VarChar                   |
-| `HardMediumSoftBigDecimalScore` | BigDecimal 3단계 점수       | VarChar                   |
-| `BendableScore`                 | 가변적 Hard/Soft 레벨 점수     | VarChar                   |
-| `BendableLongScore`             | Long 타입 Bendable 점수     | VarChar                   |
-| `BendableBigDecimalScore`       | BigDecimal Bendable 점수  | VarChar                   |
+## Supported Score Types
 
-## 설치
+| Score Type                        | Description                         | DB Storage Format             |
+|---------------------------------|-------------------------------------|-------------------------------|
+| `SimpleScore`                   | Single score value                  | Integer                       |
+| `SimpleLongScore`               | Single score as Long                | BigInt                        |
+| `SimpleBigDecimalScore`         | Single score as BigDecimal          | VarChar                       |
+| `HardSoftScore`                 | Two-level Hard/Soft score           | VarChar (e.g., "100/-50")     |
+| `HardSoftLongScore`             | Hard/Soft score as Long             | VarChar                       |
+| `HardSoftBigDecimalScore`       | Hard/Soft score as BigDecimal       | VarChar                       |
+| `HardMediumSoftScore`           | Three-level Hard/Medium/Soft score  | VarChar (e.g., "100/50/-30")  |
+| `HardMediumSoftLongScore`       | Three-level score as Long           | VarChar                       |
+| `HardMediumSoftBigDecimalScore` | Three-level score as BigDecimal     | VarChar                       |
+| `BendableScore`                 | Flexible Hard/Soft level score      | VarChar                       |
+| `BendableLongScore`             | Bendable score as Long              | VarChar                       |
+| `BendableBigDecimalScore`       | Bendable score as BigDecimal        | VarChar                       |
+
+## Installation
 
 ### Gradle
 
@@ -50,22 +52,22 @@ dependencies {
 </dependency>
 ```
 
-## 사용법
+## Usage
 
-### 1. 테이블 정의
+### 1. Define Tables
 
 ```kotlin
 import io.bluetape4k.timefold.solver.exposed.api.score.buildin.*
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
-// HardSoftScore를 사용하는 테이블
+// Table using HardSoftScore
 object PlanningSolutions : IntIdTable("planning_solution") {
     val name = varchar("name", 255)
     val score = hardSoftScore("score")
     val createdAt = datetime("created_at")
 }
 
-// BendableScore를 사용하는 테이블
+// Table using BendableScore
 object BendablePlanningSolutions : IntIdTable("bendable_solution") {
     val name = varchar("name", 255)
     val score = bendableScore("score", length = 500)
@@ -73,7 +75,7 @@ object BendablePlanningSolutions : IntIdTable("bendable_solution") {
 }
 ```
 
-### 2. Entity 클래스 정의
+### 2. Define Entity Classes
 
 ```kotlin
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
@@ -89,20 +91,20 @@ class PlanningSolution(id: EntityID<Int>) : IntEntity(id) {
 }
 ```
 
-### 3. 데이터 삽입
+### 3. Insert Data
 
 ```kotlin
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 
 transaction {
-    // DSL 방식
+    // DSL style
     PlanningSolutions.insert {
         it[name] = "Vehicle Routing Solution"
         it[score] = HardSoftScore.of(100, -50)
         it[createdAt] = DateTime.now()
     }
     
-    // DAO 방식
+    // DAO style
     PlanningSolution.new {
         name = "Employee Scheduling Solution"
         score = HardSoftScore.of(200, -20)
@@ -111,22 +113,22 @@ transaction {
 }
 ```
 
-### 4. 데이터 조회
+### 4. Query Data
 
 ```kotlin
 transaction {
-    // 단일 조회
+    // Single record
     val solution = PlanningSolution.findById(1)
-    println("Score: ${solution?.score}")  // 출력: Score: 100hard/-50soft
+    println("Score: ${solution?.score}")  // Output: Score: 100hard/-50soft
     
-    // 조건 조회
+    // Conditional query
     val highScoreSolutions = PlanningSolution
         .find { PlanningSolutions.score greater HardSoftScore.of(50, 0) }
         .toList()
 }
 ```
 
-### 5. SimpleScore 사용 예시
+### 5. SimpleScore Example
 
 ```kotlin
 import io.bluetape4k.timefold.solver.exposed.api.score.buildin.simpleScore
@@ -134,7 +136,7 @@ import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore
 
 object SimpleScoreTable : IntIdTable() {
     val name = varchar("name", 255)
-    val score = simpleScore("score")  // Integer 컬럼으로 저장
+    val score = simpleScore("score")  // Stored as an Integer column
 }
 
 transaction {
@@ -145,7 +147,7 @@ transaction {
 }
 ```
 
-### 6. BendableScore 사용 예시
+### 6. BendableScore Example
 
 ```kotlin
 import io.bluetape4k.timefold.solver.exposed.api.score.buildin.bendableScore
@@ -157,7 +159,7 @@ object BendableScoreTable : IntIdTable() {
 }
 
 transaction {
-    // 2개의 Hard 레벨과 3개의 Soft 레벨을 가진 BendableScore
+    // BendableScore with 2 hard levels and 3 soft levels
     val bendableScore = BendableScore.of(
         intArrayOf(100, 50),      // hard levels
         intArrayOf(-30, -20, -10) // soft levels
@@ -170,9 +172,9 @@ transaction {
 }
 ```
 
-## 데이터베이스 스키마
+## Database Schema
 
-각 Score 유형별로 권장하는 데이터베이스 컬럼 타입:
+Recommended column types for each Score type:
 
 ```sql
 -- SimpleScore: INTEGER
@@ -186,18 +188,18 @@ CREATE TABLE planning_solution (
 CREATE TABLE planning_solution (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
-    score VARCHAR(255)  -- 예: "100/-50"
+    score VARCHAR(255)  -- e.g., "100/-50"
 );
 
--- BendableScore: VARCHAR(500) 이상 권장
+-- BendableScore: VARCHAR(500) or larger recommended
 CREATE TABLE planning_solution (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255),
-    score VARCHAR(500)  -- 예: "[100/50]hard/[-30/-20/-10]soft"
+    score VARCHAR(500)  -- e.g., "[100/50]hard/[-30/-20/-10]soft"
 );
 ```
 
-## Score 직렬화 형식
+## Score Serialization Format
 
 ### SimpleScore
 
@@ -223,30 +225,30 @@ CREATE TABLE planning_solution (
 [100/50]hard/[-30/-20]soft
 ```
 
-## 의존성
+## Dependencies
 
-### 필수 의존성
+### Required
 
-- `timefold-solver-core`: Timefold Solver 핵심 라이브러리
+- `timefold-solver-core`: Timefold Solver core library
 - `exposed-core`: JetBrains Exposed ORM
 
-### 테스트 의존성
+### Test
 
-- `timefold-solver-test`: Timefold Solver 테스트 유틸리티
-- `bluetape4k-exposed-tests`: Exposed 테스트 지원
+- `timefold-solver-test`: Timefold Solver test utilities
+- `bluetape4k-exposed-tests`: Exposed test support
 - Testcontainers (H2, MariaDB, MySQL, PostgreSQL)
 
-## 테스트
+## Running Tests
 
 ```bash
-# 모든 테스트 실행
+# Run all tests
 ./gradlew :bluetape4k-timefold-solver-persistence-exposed:test
 
-# 특정 테스트 클래스 실행
+# Run a specific test class
 ./gradlew :bluetape4k-timefold-solver-persistence-exposed:test --tests "HardSoftScoreTest"
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -311,7 +313,7 @@ classDiagram
 
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
 ```mermaid
 flowchart LR
@@ -323,17 +325,17 @@ flowchart LR
     end
 
     subgraph Module["bluetape4k-timefold-solver-persistence-exposed"]
-        CT["ColumnType 구현체<br/>(simpleScore, hardSoftScore, ...)"]
-        EXT["Exposed 확장 함수<br/>(Table.hardSoftScore() 등)"]
+        CT["ColumnType implementations<br/>(simpleScore, hardSoftScore, ...)"]
+        EXT["Exposed extension functions<br/>(Table.hardSoftScore(), etc.)"]
     end
 
     subgraph Exposed["JetBrains Exposed ORM"]
-        TABLE["IdTable 정의<br/>(val score = hardSoftScore(...))"]
+        TABLE["IdTable definition<br/>(val score = hardSoftScore(...))"]
         DAO["Entity (DAO)<br/>(var score by Table.score)"]
         DSL["DSL insert/update/select"]
     end
 
-    subgraph DB["RDB (H2/MySQL/PostgreSQL 등)"]
+    subgraph DB["RDB (H2/MySQL/PostgreSQL, etc.)"]
         INT["INTEGER<br/>(SimpleScore)"]
         VC["VARCHAR<br/>(HardSoftScore → '100/-50')"]
         VC2["VARCHAR<br/>(BendableScore → '[100]hard/[-30]soft')"]
@@ -344,34 +346,34 @@ flowchart LR
     Exposed --> DB
 ```
 
-## Score 직렬화 흐름
+## Score Serialization Flow
 
 ```mermaid
 sequenceDiagram
-    participant APP as 애플리케이션
+    participant APP as Application
     participant EXP as Exposed ORM
     participant CT as ScoreColumnType
-    participant DB as 데이터베이스
+    participant DB as Database
 
-    Note over APP,DB: 저장 (직렬화)
+    Note over APP,DB: Save (Serialization)
     APP->>EXP: entity.score = HardSoftScore.of(100, -50)
     EXP->>CT: valueToDb(score)
     CT->>CT: ScoreDefinition.formatScore(score)<br/>→ "100hard/-50soft"
     CT->>DB: INSERT ... score = '100hard/-50soft'
 
-    Note over APP,DB: 조회 (역직렬화)
+    Note over APP,DB: Load (Deserialization)
     APP->>EXP: PlanningSolution.findById(1)
     EXP->>DB: SELECT score FROM ...
     DB-->>CT: "100hard/-50soft"
     CT->>CT: ScoreDefinition.parseScore("100hard/-50soft")<br/>→ HardSoftScore.of(100, -50)
-    CT-->>APP: HardSoftScore 객체
+    CT-->>APP: HardSoftScore object
 ```
 
-## 참고
+## References
 
-- [Timefold Solver 공식 문서](https://timefold.ai/docs)
-- [Exposed 공식 문서](https://github.com/JetBrains/Exposed/wiki)
+- [Timefold Solver Official Docs](https://timefold.ai/docs)
+- [Exposed Official Docs](https://github.com/JetBrains/Exposed/wiki)
 
-## 라이선스
+## License
 
 Apache License 2.0

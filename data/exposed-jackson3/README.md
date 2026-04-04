@@ -1,19 +1,21 @@
 # Module bluetape4k-exposed-jackson3
 
-Exposed JSON/JSONB 컬럼을 Jackson 3로 직렬화/역직렬화하기 위한 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A module for serializing and deserializing Exposed JSON/JSONB columns using Jackson 3.
 
-`bluetape4k-exposed-jackson3`은 JetBrains Exposed의 JSON/JSONB 컬럼 타입을 [Jackson 3.x](https://github.com/FasterXML/jackson)로 직렬화/역직렬화하는 기능을 제공합니다. Jackson 3의 새로운 기능과 개선된 성능을 활용할 수 있습니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-exposed-jackson3` provides serialization and deserialization of JetBrains Exposed JSON/JSONB column types using [Jackson 3.x](https://github.com/FasterXML/jackson). It takes advantage of Jackson 3's new features and improved performance.
 
-- **Jackson3 컬럼 타입**: JSON/JSONB 컬럼 매핑
-- **Serializer 지원**: Jackson3 Serializer 구성
-- **JSON 함수/조건식**: JSON 조회식 작성 보조
-- **ResultRow 확장**: JSON 컬럼 값 읽기 유틸
+### Key Features
 
-## 의존성 추가
+- **Jackson 3 column types**: JSON/JSONB column mapping
+- **Serializer support**: Jackson 3 serializer configuration
+- **JSON functions/conditions**: Helpers for building JSON query expressions
+- **ResultRow extensions**: Utilities for reading JSON column values
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -22,38 +24,38 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. JSON 컬럼 정의
+### 1. Defining JSON Columns
 
 ```kotlin
 import io.bluetape4k.exposed.core.jackson3.jackson
 import io.bluetape4k.exposed.core.jackson3.jacksonb
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
-// 데이터 클래스
+// Data class
 data class UserSettings(
     val theme: String = "light",
     val notifications: Boolean = true,
     val language: String = "ko"
 )
 
-// 테이블 정의
+// Table definition
 object Users: IdTable<Long>("users") {
     val name = varchar("name", 100)
 
-    // JSON 컬럼 (문자열 기반)
+    // JSON column (string-based)
     val settings = jackson<UserSettings>("settings")
 
-    // JSONB 컬럼 (이진 포맷)
+    // JSONB column (binary format)
     val preferences = jacksonb<Map<String, Any>>("preferences")
 }
 ```
 
-### 2. JSON 컬럼 사용
+### 2. Using JSON Columns
 
 ```kotlin
-// 삽입
+// Insert
 Users.insert {
     it[name] = "John"
     it[settings] = UserSettings(
@@ -63,54 +65,54 @@ Users.insert {
     )
 }
 
-// 조회
+// Query
 val user = Users.selectAll().where { Users.id eq 1L }.single()
 val settings: UserSettings = user[Users.settings]
 ```
 
-### 3. JSON 조건식
+### 3. JSON Condition Expressions
 
 ```kotlin
 import io.bluetape4k.exposed.core.jackson3.*
 
-// JSON 경로로 검색
+// Search by JSON path
 val query = Users.selectAll()
     .where { Users.settings.jsonPath<String>("$.theme") eq "dark" }
 
-// JSON 포함 검색
+// Search by JSON containment
 val query2 = Users.selectAll()
     .where { Users.settings.jsonContains("language", "ko") }
 ```
 
 ## Jackson 2 vs Jackson 3
 
-| 특징      | Jackson 2               | Jackson 3       |
-|---------|-------------------------|-----------------|
-| 패키지     | `com.fasterxml.jackson` | `tools.jackson` |
-| Java 버전 | Java 8+                 | Java 17+        |
-| 성능      | 좋음                      | 개선됨             |
-| 권장      | 안정적                     | 최신 프로젝트         |
+| Feature | Jackson 2 | Jackson 3 |
+|---------|-----------|-----------|
+| Package | `com.fasterxml.jackson` | `tools.jackson` |
+| Java version | Java 8+ | Java 17+ |
+| Performance | Good | Improved |
+| Recommendation | Stable / established | New projects |
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
-| 파일                       | 설명                     |
-|--------------------------|------------------------|
-| `JacksonColumnType.kt`   | JSON 컬럼 타입 (문자열 기반)    |
-| `JacksonBColumnType.kt`  | JSONB 컬럼 타입 (이진 포맷)    |
-| `JacksonSerializer.kt`   | Jackson3 Serializer 구성 |
-| `JsonFunctions.kt`       | JSON 함수 확장             |
-| `JsonConditions.kt`      | JSON 조건식 확장            |
-| `ResultRowExtensions.kt` | ResultRow JSON 읽기 확장   |
+| File | Description |
+|------|-------------|
+| `JacksonColumnType.kt` | JSON column type (string-based) |
+| `JacksonBColumnType.kt` | JSONB column type (binary format) |
+| `JacksonSerializer.kt` | Jackson 3 serializer configuration |
+| `JsonFunctions.kt` | JSON function extensions |
+| `JsonConditions.kt` | JSON condition expression extensions |
+| `ResultRowExtensions.kt` | ResultRow JSON read extensions |
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-jackson3:test
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
-### 컬럼 타입 구조 (요약)
+### Column Type Structure (Summary)
 
 ```mermaid
 classDiagram
@@ -138,12 +140,12 @@ classDiagram
 
 ```
 
-### JSON 컬럼 타입 클래스 구조
+### JSON Column Type Class Structure
 
 ```mermaid
 classDiagram
     class ColumnType {
-        <<Exposed기반추상>>
+        <<Exposed base abstract>>
         +sqlType(): String
         +valueFromDB(value): T
         +notNullValueToDB(value): Any
@@ -174,14 +176,14 @@ classDiagram
 
     ColumnType <|-- JacksonColumnType
     ColumnType <|-- JacksonBColumnType
-    JacksonSerializer --> JacksonColumnType : ObjectMapper 제공
-    JacksonSerializer --> JacksonBColumnType : ObjectMapper 제공
-    JacksonColumnType --> JsonFunctions : 연동
-    ResultRowExtensions --> JacksonColumnType : 사용
-    ResultRowExtensions --> JacksonBColumnType : 사용
+    JacksonSerializer --> JacksonColumnType : provides ObjectMapper
+    JacksonSerializer --> JacksonBColumnType : provides ObjectMapper
+    JacksonColumnType --> JsonFunctions : integrates
+    ResultRowExtensions --> JacksonColumnType : uses
+    ResultRowExtensions --> JacksonBColumnType : uses
 ```
 
-### Jackson 2 vs Jackson 3 패키지 차이
+### Jackson 2 vs Jackson 3 Package Differences
 
 ```mermaid
 flowchart LR
@@ -193,13 +195,13 @@ flowchart LR
         A3["tools.jackson.*"]
         B3["jackson&lt;T&gt; / jacksonb&lt;T&gt;"]
     end
-    C[Kotlin 객체] -->|직렬화| Jackson2
-    C -->|직렬화| Jackson3
-    Jackson2 -->|역직렬화| C
-    Jackson3 -->|역직렬화| C
+    C[Kotlin Object] -->|serialize| Jackson2
+    C -->|serialize| Jackson3
+    Jackson2 -->|deserialize| C
+    Jackson3 -->|deserialize| C
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Jackson 3.x](https://github.com/FasterXML/jackson)

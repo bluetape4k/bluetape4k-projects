@@ -1,29 +1,31 @@
 # Module bluetape4k-vertx
 
-Vert.x 기반 비동기/Coroutines 개발을 위한 단일 통합 모듈입니다.
+English | [한국어](./README.ko.md)
 
-> 구 `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j` 모듈이 이 모듈로 통합되었습니다.
+A unified module for async and Coroutines-based development with Vert.x.
 
-## 제공 기능
+> The former `vertx/core`, `vertx/sqlclient`, and `vertx/resilience4j` modules have been merged into this single module.
 
-### Vert.x Core (구 `vertx/core`)
-- Vert.x Kotlin Coroutines 확장
-- Verticle 배포/관리 유틸리티
-- EventBus 코루틴 어댑터
-- `vertx_lang_kotlin_coroutines` 기반 suspend 지원
+## What's Included
 
-### Vert.x SQL Client (구 `vertx/sqlclient`)
-- `vertx-sql-client` + `vertx-sql-client-templates` 통합
-- MySQL / PostgreSQL 드라이버 내장
-- MyBatis Dynamic SQL 통합
-- JDBC 클라이언트 지원 (선택적)
-- Coroutines 기반 쿼리 실행
+### Vert.x Core (formerly `vertx/core`)
+- Vert.x Kotlin Coroutines extensions
+- Verticle deployment and management utilities
+- EventBus coroutine adapters
+- Suspend support based on `vertx_lang_kotlin_coroutines`
 
-### Resilience4j 통합 (구 `vertx/resilience4j`)
-- Vert.x + Resilience4j Circuit Breaker 통합
-- Resilience4j Micrometer 메트릭 연동 (선택적)
+### Vert.x SQL Client (formerly `vertx/sqlclient`)
+- `vertx-sql-client` + `vertx-sql-client-templates` integration
+- MySQL / PostgreSQL drivers included
+- MyBatis Dynamic SQL integration
+- JDBC client support (optional)
+- Coroutines-based query execution
 
-## 설치
+### Resilience4j Integration (formerly `vertx/resilience4j`)
+- Vert.x + Resilience4j Circuit Breaker integration
+- Resilience4j Micrometer metrics integration (optional)
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -31,37 +33,37 @@ dependencies {
 }
 ```
 
-서비스별 선택적 런타임 의존성:
+Optional runtime dependencies per service:
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-vertx:${bluetape4kVersion}")
 
-    // MySQL 사용 시
+    // For MySQL
     runtimeOnly(Libs.vertx_mysql_client)
 
-    // PostgreSQL 사용 시
+    // For PostgreSQL
     runtimeOnly(Libs.vertx_pg_client)
 }
 ```
 
-## 주요 의존성 구조
+## Dependency Structure
 
-| 범주 | 의존 방식 | 설명 |
-|------|-----------|------|
-| `vertx-core` | `api` | Vert.x 핵심 |
-| `vertx-lang-kotlin` | `api` | Kotlin 언어 지원 |
-| `vertx-lang-kotlin-coroutines` | `api` | Coroutines 지원 |
-| `vertx-sql-client` | `api` | SQL 클라이언트 추상화 |
-| `bluetape4k-resilience4j` | `api` | Resilience4j 통합 |
-| `vertx-mysql-client` | `implementation` | MySQL 드라이버 |
-| `vertx-pg-client` | `implementation` | PostgreSQL 드라이버 |
-| `vertx-web` | `compileOnly` | 선택적 Web 지원 |
-| `vertx-jdbc-client` | `compileOnly` | 선택적 JDBC |
+| Category | Scope | Description |
+|----------|-------|-------------|
+| `vertx-core` | `api` | Vert.x core |
+| `vertx-lang-kotlin` | `api` | Kotlin language support |
+| `vertx-lang-kotlin-coroutines` | `api` | Coroutines support |
+| `vertx-sql-client` | `api` | SQL client abstraction |
+| `bluetape4k-resilience4j` | `api` | Resilience4j integration |
+| `vertx-mysql-client` | `implementation` | MySQL driver |
+| `vertx-pg-client` | `implementation` | PostgreSQL driver |
+| `vertx-web` | `compileOnly` | Optional web support |
+| `vertx-jdbc-client` | `compileOnly` | Optional JDBC |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 모듈 의존성 구조
+### Module Dependency Structure
 
 ```mermaid
 flowchart TD
@@ -73,7 +75,7 @@ flowchart TD
         R4J[bluetape4k-resilience4j]
     end
 
-    subgraph 선택적 런타임
+    subgraph OptionalRuntime["Optional Runtime"]
         MYSQL[vertx-mysql-client]
         PG[vertx-pg-client]
         WEB[vertx-web]
@@ -89,11 +91,11 @@ flowchart TD
     bluetape4k-vertx -.->|compileOnly| JDBC
 ```
 
-### Vert.x 이벤트 루프 + Coroutines 처리 흐름
+### Vert.x Event Loop + Coroutines Processing Flow
 
 ```mermaid
 flowchart LR
-    subgraph 이벤트 루프["Vert.x 이벤트 루프"]
+    subgraph EventLoop["Vert.x Event Loop"]
         EL[Event Loop Thread]
         EB[EventBus]
         VER[Verticle<br/>CoroutineVerticle]
@@ -104,7 +106,7 @@ flowchart LR
         COR[CoroutineScope<br/>vertxDispatcher]
     end
 
-    subgraph SQL_Client["SQL 클라이언트"]
+    subgraph SQL_Client["SQL Client"]
         POOL[Connection Pool]
         QUERY[preparedQuery.execute]
         RS["RowSet&lt;Row&gt;"]
@@ -119,32 +121,32 @@ flowchart LR
     RS -->|await| COR
 ```
 
-### Circuit Breaker + Resilience4j 통합 흐름
+### Circuit Breaker + Resilience4j Integration Flow
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as Verticle (Coroutines)
+    participant App as Verticle (Coroutines)
     participant CB as CircuitBreaker<br/>(Resilience4j)
-    participant SVC as 원격 서비스
+    participant SVC as Remote Service
 
-    앱->>CB: cb.executeSuspend { remoteCall() }
-    CB->>CB: 상태 확인 (CLOSED/OPEN/HALF_OPEN)
+    App->>CB: cb.executeSuspend { remoteCall() }
+    CB->>CB: Check state (CLOSED/OPEN/HALF_OPEN)
 
-    alt CLOSED (정상)
-        CB->>SVC: 원격 호출
-        SVC-->>CB: 응답
-        CB-->>앱: 성공 결과
-    else OPEN (차단)
-        CB-->>앱: CallNotPermittedException
-    else HALF_OPEN (테스트)
-        CB->>SVC: 테스트 호출
-        SVC-->>CB: 성공/실패
-        CB->>CB: 상태 전환 (CLOSED/OPEN)
-        CB-->>앱: 결과 반환
+    alt CLOSED (normal)
+        CB->>SVC: Remote call
+        SVC-->>CB: Response
+        CB-->>App: Successful result
+    else OPEN (blocked)
+        CB-->>App: CallNotPermittedException
+    else HALF_OPEN (probing)
+        CB->>SVC: Test call
+        SVC-->>CB: Success / failure
+        CB->>CB: Transition state (CLOSED/OPEN)
+        CB-->>App: Return result
     end
 ```
 
-### Vert.x 핵심 컴포넌트 클래스 구조
+### Vert.x Core Component Class Structure
 
 ```mermaid
 classDiagram
@@ -180,14 +182,14 @@ classDiagram
         +getState() State
     }
 
-    CoroutineVerticle --> EventBus : 이벤트 수신/발행
-    CoroutineVerticle --> Pool : SQL 쿼리
+    CoroutineVerticle --> EventBus : publish / consume events
+    CoroutineVerticle --> Pool : SQL queries
     Pool --|> SqlClient
-    CoroutineVerticle --> CircuitBreaker : 장애 격리
+    CoroutineVerticle --> CircuitBreaker : fault isolation
 
 ```
 
-## 사용 예시
+## Usage Examples
 
 ### Verticle (Coroutines)
 

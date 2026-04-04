@@ -1,0 +1,996 @@
+# Module bluetape4k-core
+
+[English](./README.md) | 한국어
+
+Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bluetape4k 프로젝트의 모든 모듈이 의존하는 기본 기능들을 제공합니다.
+
+## 아키텍처
+
+### 모듈 구성 개요
+
+```mermaid
+flowchart TD
+    Core["bluetape4k-core"]:::coreStyle
+    Validation["RequireSupport<br/>Validation"]:::serviceStyle
+    Codec["Codec<br/>Base58/Base62/Hex/Url62"]:::serviceStyle
+    Extensions["Type Extensions"]:::utilStyle
+    Ranges["Ranges<br/>ClosedClosed/ClosedOpen<br/>OpenClosed/OpenOpen"]:::utilStyle
+    Collections["Collections<br/>BoundedStack/RingBuffer<br/>PaginatedList/Permutation"]:::utilStyle
+    Concurrent["Concurrent Utils<br/>VirtualThread/CompletableFuture"]:::asyncStyle
+    Functional["Functional Utils<br/>Currying/Decorator"]:::utilStyle
+    Time["Java Time DSL<br/>Duration/Period/Quarter"]:::serviceStyle
+    ValueObject["ValueObject<br/>AbstractValueObject"]:::coreStyle
+
+    Core --> Validation
+    Core --> Codec
+    Core --> Extensions
+    Core --> Ranges
+    Core --> Collections
+    Core --> Concurrent
+    Core --> Functional
+    Core --> Time
+    Core --> ValueObject
+
+```
+
+---
+
+### 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class ValueObject {
+        <<interface>>
+        +Serializable
+    }
+
+    class AbstractValueObject {
+        <<abstract>>
+        +equals(other) Boolean
+        +hashCode() Int
+        +equalProperties(other)* Boolean
+    }
+
+    class Range {
+        <<interface>>
+        +first: T
+        +last: T
+        +isStartInclusive: Boolean
+        +isEndInclusive: Boolean
+        +contains(value: T) Boolean
+        +isEmpty() Boolean
+    }
+
+    class ClosedClosedRange {
+        +isStartInclusive = true
+        +isEndInclusive = true
+    }
+
+    class ClosedOpenRange {
+        +isStartInclusive = true
+        +isEndInclusive = false
+    }
+
+    class OpenClosedRange {
+        +isStartInclusive = false
+        +isEndInclusive = true
+    }
+
+    class OpenOpenRange {
+        +isStartInclusive = false
+        +isEndInclusive = false
+    }
+
+    class StringEncoder {
+        <<interface>>
+        +encode(bytes: ByteArray) String
+        +decode(encoded: String) ByteArray
+    }
+
+    class Base64StringEncoder {
+        +encode(bytes) String
+        +decode(encoded) ByteArray
+    }
+
+    class HexStringEncoder {
+        +encode(bytes) String
+        +decode(encoded) ByteArray
+    }
+
+    class Base58 {
+        <<object>>
+        +encode(data: ByteArray) String
+        +decode(encoded: String) ByteArray
+    }
+
+    class Base62 {
+        <<object>>
+        +encode(number: Long) String
+        +decode(encoded: String) Long
+    }
+
+    class RequireSupport {
+        <<extensionFunctions>>
+        +requireNotNull(name)
+        +requireNotEmpty(name)
+        +requireNotBlank(name)
+        +requireGt(value, name)
+        +requireGe(value, name)
+        +requireLt(value, name)
+        +requireLe(value, name)
+    }
+
+    ValueObject <|.. AbstractValueObject
+    Range <|.. ClosedClosedRange
+    Range <|.. ClosedOpenRange
+    Range <|.. OpenClosedRange
+    Range <|.. OpenOpenRange
+    StringEncoder <|.. Base64StringEncoder
+    StringEncoder <|.. HexStringEncoder
+
+```
+
+---
+
+### Validation 체이닝 흐름
+
+```mermaid
+sequenceDiagram
+    participant C as 호출자
+    participant R as RequireSupport
+    participant V as 유효한 값
+
+    C->>R: username.requireNotBlank("username")
+    alt 빈 문자열 또는 null
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>C: username (non-null)
+    end
+
+    C->>R: .requireStartsWith("user_", "username")
+    alt 접두사 불일치
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>V: username (검증 완료)
+    end
+
+    C->>R: age.requireGe(18, "age")
+    alt 18 미만
+        R-->>C: IllegalArgumentException
+    else 유효
+        R->>C: age (체이닝 반환)
+    end
+```
+
+## 주요 기능
+
+- **Validation (RequireSupport)**: 파라미터 검증을 위한 Contract 기반 함수들
+- **Encoding/Decoding (Codec)**: Base58, Base62, Hex, URL62 등 다양한 인코딩
+- **Type Extensions**: 모든 기본 타입에 대한 Kotlin 스타일 확장 함수
+- **Ranges**: 다양한 Range 타입 (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
+- **Collections**: 컬렉션 유틸리티 (BoundedStack, RingBuffer, PaginatedList, Permutation 지연 평가 순열)
+- **Concurrent**: 동시성 처리 유틸리티
+- **Utils**: Wildcard 패턴 매칭, XXHasher 고속 해시
+- **Functional**: 함수형 프로그래밍 지원
+- **Java Time DSL**: `java.time` 기초 확장 함수 (Duration/Period DSL, Temporal 유틸리티, Quarter 등)
+
+## 의존성 추가
+
+### Gradle (Kotlin DSL)
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-core:${version}")
+}
+```
+
+## 주요 기능 상세
+
+### 1. Validation (RequireSupport)
+
+Kotlin Contract를 활용하여 타입 안전성을 보장하는 파라미터 검증 함수들입니다.
+
+#### Null 체크
+
+```kotlin
+import io.bluetape4k.support.requireNotNull
+import io.bluetape4k.support.requireNull
+
+fun processUser(user: User?) {
+    val validUser = user.requireNotNull("user")
+    // validUser는 non-null로 스마트 캐스팅됨
+    println(validUser.name)
+}
+
+fun ensureNoValue(value: String?) {
+    value.requireNull("value")
+    // value가 null이 아니면 IllegalArgumentException 발생
+}
+```
+
+#### 문자열 검증
+
+```kotlin
+import io.bluetape4k.support.requireNotEmpty
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireContains
+import io.bluetape4k.support.requireStartsWith
+import io.bluetape4k.support.requireEndsWith
+
+fun createUser(username: String?, email: String?) {
+    val validUsername = username.requireNotEmpty("username")
+    // username이 null이거나 empty면 예외 발생
+
+    val validEmail = email
+        .requireNotBlank("email")
+        .requireContains("@", "email")
+        .requireEndsWith(".com", "email")
+}
+```
+
+#### 숫자 비교 검증
+
+```kotlin
+import io.bluetape4k.support.requireGt
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLt
+import io.bluetape4k.support.requireLe
+import io.bluetape4k.support.requireEquals
+
+fun setAge(age: Int) {
+    age.requireGe(0, "age")
+        .requireLt(150, "age")
+}
+
+fun setQuantity(quantity: Int) {
+    quantity.requireGt(0, "quantity")  // 0보다 커야 함
+}
+
+fun validateScore(score: Double) {
+    score.requireGe(0.0, "score")
+        .requireLe(100.0, "score")
+}
+```
+
+**특징:**
+
+- Kotlin Contract 사용으로 스마트 캐스팅 지원
+- 체이닝 가능 (fluent API)
+- 명확한 에러 메시지 자동 생성
+
+### 2. Encoding/Decoding (Codec)
+
+다양한 인코딩 방식을 통일된 인터페이스로 제공합니다.
+
+#### Base64 인코딩
+
+```kotlin
+import io.bluetape4k.codec.encodeBase64String
+import io.bluetape4k.codec.decodeBase64
+
+val text = "Hello, World!"
+val encoded = text.encodeBase64String()  // "SGVsbG8sIFdvcmxkIQ=="
+val decoded = encoded.decodeBase64().decodeToString()  // "Hello, World!"
+
+// URL-safe Base64
+val urlSafe = text.encodeBase64UrlSafeString()
+```
+
+#### Base58 인코딩 (Bitcoin 스타일)
+
+```kotlin
+import io.bluetape4k.codec.Base58
+
+val data = "Hello".toByteArray()
+val encoded = Base58.encode(data)  // "9Ajdvzr"
+val decoded = Base58.decode(encoded).decodeToString()  // "Hello"
+```
+
+**사용 사례:**
+
+- Bitcoin 주소
+- 짧은 ID 생성
+- URL에 안전한 식별자
+
+#### Base62 인코딩
+
+```kotlin
+import io.bluetape4k.codec.Base62
+
+val number = 123456789L
+val encoded = Base62.encode(number)  // "8M0kX"
+val decoded = Base62.decode(encoded)  // 123456789
+```
+
+**사용 사례:**
+
+- 짧은 URL (Short URL)
+- ID 난독화
+- 파일명 생성
+
+#### Hex 인코딩
+
+```kotlin
+import io.bluetape4k.codec.encodeHexString
+import io.bluetape4k.codec.decodeHex
+
+val data = byteArrayOf(0x48, 0x65, 0x6C, 0x6C, 0x6F)
+val hex = data.encodeHexString()  // "48656c6c6f"
+val decoded = hex.decodeHex()  // [72, 101, 108, 108, 111]
+```
+
+#### URL62 인코딩
+
+```kotlin
+import io.bluetape4k.codec.Url62
+
+val url = "https://example.com/path?query=value"
+val encoded = Url62.encode(url)  // URL에 안전한 문자열
+val decoded = Url62.decode(encoded)  // 원본 URL
+```
+
+### 3. Type Extensions (Support)
+
+모든 기본 타입에 대한 유용한 확장 함수들을 제공합니다.
+
+#### Any Extensions
+
+```kotlin
+import io.bluetape4k.support.hashOf
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
+
+// 객체의 hashCode 계산
+val hash = hashOf(obj1, obj2, obj3)
+
+// 문자열 <-> ByteArray 변환
+val bytes = "Hello".toUtf8Bytes()
+val str = bytes.toUtf8String()
+```
+
+#### Boolean Extensions
+
+```kotlin
+import io.bluetape4k.support.ifTrue
+import io.bluetape4k.support.ifFalse
+import io.bluetape4k.support.not
+
+val isAdmin = true
+isAdmin.ifTrue { println("Admin access granted") }
+
+val isGuest = false
+isGuest.ifFalse { println("Not a guest") }
+```
+
+#### Number Extensions
+
+```kotlin
+import io.bluetape4k.support.coerceIn
+import io.bluetape4k.support.isEven
+import io.bluetape4k.support.isOdd
+
+val age = 25
+age.isOdd()  // true
+age.isEven()  // false
+
+val value = 150
+val bounded = value.coerceIn(0, 100)  // 100
+```
+
+#### String Extensions
+
+```kotlin
+import io.bluetape4k.support.between
+import io.bluetape4k.support.firstLine
+import io.bluetape4k.support.isWhitespace
+import io.bluetape4k.support.prefixIfAbsent
+import io.bluetape4k.support.trimWhitespace
+
+val text = "  Hello  "
+text.isWhitespace()  // false
+
+val trimmed = text.trimWhitespace()  // "Hello"
+val heading = "title\nbody".firstLine()  // "title"
+val token = "Bearer abc.def".between("Bearer ", ".")  // "abc"
+val namespaced = "version".prefixIfAbsent("bluetape4k.")  // "bluetape4k.version"
+```
+
+#### Array Extensions
+
+```kotlin
+import io.bluetape4k.support.toHexString
+import io.bluetape4k.support.isNullOrEmpty
+
+val array = byteArrayOf(1, 2, 3, 4)
+val hex = array.toHexString()  // "01020304"
+
+val empty = emptyArray<String>()
+empty.isNullOrEmpty()  // true
+```
+
+### 4. Ranges
+
+Java/Kotlin의 기본 Range는 ClosedRange만 지원하지만, 다양한 Range 타입을 제공합니다.
+
+```kotlin
+import io.bluetape4k.ranges.*
+
+// Closed-Closed Range: [1, 10] (1과 10 포함)
+val closedClosed = 1 rangeTo 10
+closedClosed.contains(1)   // true
+closedClosed.contains(10)  // true
+
+// Open-Open Range: (1, 10) (1과 10 제외)
+val openOpen = 1 rangeOpen 10
+openOpen.contains(1)   // false
+openOpen.contains(10)  // false
+
+// Closed-Open Range: [1, 10) (1 포함, 10 제외)
+val closedOpen = 1 rangeUntil 10
+closedOpen.contains(1)   // true
+closedOpen.contains(10)  // false
+
+// Open-Closed Range: (1, 10] (1 제외, 10 포함)
+val openClosed = 1 openRangeTo 10
+openClosed.contains(1)   // false
+openClosed.contains(10)  // true
+```
+
+**사용 사례:**
+
+- 수학적 구간 표현
+- 검증 범위 지정
+- 날짜/시간 범위
+
+### 5. Collections
+
+컬렉션 처리를 위한 다양한 유틸리티를 제공합니다.
+
+```kotlin
+import io.bluetape4k.collections.*
+
+// Immutable Empty Collections
+val emptyList = emptyList<String>()
+val emptySet = emptySet<Int>()
+val emptyMap = emptyMap<String, Int>()
+
+// Safe operations
+val list = listOf(1, 2, 3)
+val first = list.firstOrNull()  // 1
+val last = list.lastOrNull()    // 3
+
+// Chunking
+val chunked = (1..10).toList().chunked(3)
+// [[1,2,3], [4,5,6], [7,8,9], [10]]
+
+// Partitioning
+val (even, odd) = (1..10).toList().partition { it % 2 == 0 }
+// even = [2,4,6,8,10], odd = [1,3,5,7,9]
+```
+
+#### BoundedStack (크기 제한 스택)
+
+고정 크기 LIFO 스택입니다. 최대 크기 초과 시 가장 오래된 요소가 자동 제거됩니다. Thread-safe (`ReentrantLock`).
+
+```kotlin
+import io.bluetape4k.collections.BoundedStack
+
+val stack = BoundedStack<String>(maxSize = 3)
+stack.push("a")
+stack.push("b")
+stack.push("c")
+stack.push("d")  // "a"가 자동 제거됨
+
+stack.peek()  // "d"
+stack.pop()   // "d"
+stack.size    // 2
+```
+
+#### RingBuffer (원형 버퍼)
+
+고정 용량의 원형 버퍼입니다. 용량 초과 시 가장 오래된 요소를 덮어씁니다. Thread-safe (`ReentrantLock`).
+
+```kotlin
+import io.bluetape4k.collections.RingBuffer
+
+val buffer = RingBuffer<Int>(capacity = 3)
+buffer.add(1)
+buffer.add(2)
+buffer.add(3)
+buffer.add(4)  // 1이 덮어써짐
+
+buffer.next()  // 2 (가장 오래된 요소)
+buffer.toList()  // [3, 4]
+buffer.removeIf { it > 3 }  // 4 제거
+```
+
+#### PaginatedList (페이지네이션)
+
+페이징된 데이터를 표현하는 인터페이스입니다.
+
+```kotlin
+import io.bluetape4k.collections.PaginatedList
+import io.bluetape4k.collections.SimplePaginatedList
+
+val page = SimplePaginatedList(
+    contents = listOf("a", "b", "c"),
+    pageNo = 0,
+    pageSize = 10,
+    totalItemCount = 25L
+)
+page.totalPageCount  // 3
+page.contents        // ["a", "b", "c"]
+```
+
+#### Permutation (지연 평가 순열)
+
+함수형 지연 평가 시퀀스입니다. 무한 시퀀스를 메모리 효율적으로 처리하며, `map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`, `sorted` 등 풍부한 연산자를 제공합니다. Thread-safe (`Cons`의 tail 평가에 `ReentrantLock` + DCL 패턴 적용).
+
+```kotlin
+import io.bluetape4k.collections.permutations.*
+
+// 기본 생성
+val nums = permutationOf(1, 2, 3, 4, 5)
+val mapped = nums.map { it * 2 }  // [2, 4, 6, 8, 10]
+val filtered = nums.filter { it % 2 == 0 }  // [2, 4]
+
+// 무한 시퀀스
+val naturals = numbers(1)  // 1, 2, 3, 4, ...
+val firstTen = naturals.take(10)  // [1..10]
+
+// 지연 평가 cons 셀
+val fibonacci = cons(0) {
+    cons(1) {
+        iterate(0 to 1) { (a, b) -> b to (a + b) }
+            .map { it.second }
+    }
+}
+
+// Java Stream 호환
+val stream = nums.toStream()
+stream.filter { it > 2 }.count()  // 3
+```
+
+### 6. Lazy Initialization
+
+Thread-safe lazy initialization 패턴을 제공합니다.
+
+```kotlin
+import io.bluetape4k.support.lazy
+
+// Thread-safe lazy
+val expensive by lazy {
+    println("Computing expensive value...")
+    computeExpensiveValue()
+}
+
+// 사용 시에만 계산됨
+println(expensive)  // "Computing expensive value..." 출력 후 값 반환
+println(expensive)  // 이미 계산된 값 반환 (재계산 안 됨)
+```
+
+### 7. Value Objects
+
+불변 객체를 쉽게 만들기 위한 베이스 클래스입니다.
+
+```kotlin
+import io.bluetape4k.ValueObject
+import io.bluetape4k.AbstractValueObject
+
+data class Money(
+    val amount: BigDecimal,
+    val currency: String
+): AbstractValueObject() {
+    override fun equalProperties(other: Any): Boolean {
+        return other is Money &&
+                amount == other.amount &&
+                currency == other.currency
+    }
+}
+
+val money1 = Money(100.toBigDecimal(), "USD")
+val money2 = Money(100.toBigDecimal(), "USD")
+
+money1 == money2  // true
+money1.hashCode() == money2.hashCode()  // true
+```
+
+### 8. AutoCloseable Support
+
+Java의 `try-with-resources`를 Kotlin 스타일로 사용합니다.
+
+```kotlin
+import io.bluetape4k.support.closeSafe
+import io.bluetape4k.support.use
+
+// 자동 close (예외 무시)
+resource.closeSafe()
+
+// use 블록 (자동 close)
+FileInputStream("file.txt").use { stream ->
+    stream.read()
+}
+
+// 여러 리소스
+use(resource1, resource2) { r1, r2 ->
+    // 둘 다 자동으로 close됨
+}
+```
+
+## 전체 예시
+
+```kotlin
+import io.bluetape4k.support.*
+import io.bluetape4k.codec.*
+import io.bluetape4k.ranges.*
+
+class UserService {
+    fun createUser(
+        username: String?,
+        email: String?,
+        age: Int,
+        bio: String?
+    ): User {
+        // Validation
+        val validUsername = username
+            .requireNotBlank("username")
+            .requireStartsWith("user_", "username")
+
+        val validEmail = email
+            .requireNotBlank("email")
+            .requireContains("@", "email")
+
+        age.requireGe(18, "age")
+            .requireLt(100, "age")
+
+        bio?.requireLe(500, "bio length") { it.length }
+
+        // ID 생성 (Base62 인코딩)
+        val userId = Base62.encode(System.currentTimeMillis())
+
+        return User(
+            id = userId,
+            username = validUsername,
+            email = validEmail,
+            age = age,
+            bio = bio
+        )
+    }
+
+    fun validateAge(age: Int): Boolean {
+        val adultRange = 18 rangeUntil 65  // [18, 65)
+        return age in adultRange
+    }
+}
+
+// Usage
+val service = UserService()
+val user = service.createUser(
+    username = "user_john",
+    email = "john@example.com",
+    age = 25,
+    bio = "Software developer"
+)
+```
+
+## 모범 사례
+
+### 1. Validation 일관성
+
+```kotlin
+// ✅ 좋은 예: 메서드 시작 부분에서 모든 검증
+fun processOrder(orderId: String?, items: List<Item>?) {
+    val validOrderId = orderId.requireNotBlank("orderId")
+    val validItems = items.requireNotNull("items")
+    validItems.requireNotEmpty("items")
+
+    // 비즈니스 로직
+}
+
+// ❌ 나쁜 예: 검증이 흩어져 있음
+fun processOrder(orderId: String?, items: List<Item>?) {
+    val id = orderId!!  // 위험!
+    // ... some code
+    if (items == null) throw Exception()  // 일관성 없음
+}
+```
+
+### 2. 인코딩 선택
+
+```kotlin
+// Base64: 이진 데이터 전송
+val imageData = image.encodeBase64String()
+
+// Base58: Bitcoin 주소, 읽기 쉬운 ID
+val shortId = Base58.encode(uuid.toByteArray())
+
+// Base62: URL 단축, 숫자 ID 인코딩
+val shortUrl = Base62.encode(urlId)
+
+// Hex: 디버깅, 로그 출력
+val debug = data.toHexString()
+```
+
+### 3. Range 활용
+
+```kotlin
+// 날짜 범위 검증
+fun isWithinPeriod(date: LocalDate, start: LocalDate, end: LocalDate): Boolean {
+    val period = start rangeTo end
+    return date in period
+}
+
+// 점수 범위
+val passingScore = 60 rangeUntil 100  // [60, 100)
+val score = 75
+if (score in passingScore) {
+    println("Passed!")
+}
+```
+
+## 성능 고려사항
+
+### Validation 비용
+
+```kotlin
+// require 계열 함수는 인라인이므로 오버헤드 최소
+val name = username.requireNotBlank("username")  // ✅ 빠름
+
+// 복잡한 검증은 lazy 평가 고려
+val valid = data.validate {
+    expensiveValidation()
+}
+```
+
+### 인코딩 성능
+
+- **Base64**: 가장 빠름
+- **Hex**: 빠름
+- **Base58/Base62**: 중간 (BigInteger 연산)
+
+### 9. Java Time DSL (javatimes)
+
+`java.time` API를 Kotlin 스타일로 사용하기 위한 기초 확장 함수들을 제공합니다. 고급 기능(Interval, Period Framework, Temporal Range)은
+`bluetape4k-javatimes` 모듈을 참조하세요.
+
+#### Duration/Period DSL
+
+숫자 타입(Int, Long)에 대한 확장 함수로 직관적인 Duration/Period 생성을 지원합니다.
+
+```kotlin
+import io.bluetape4k.javatimes.*
+
+// Duration 생성
+val duration = 5.days() + 3.hours() + 30.minutes() + 45.seconds()
+// 밀리초/나노초 Duration
+val shortDuration = 100.millis() + 500.nanos()
+val weekDuration = 2.weeks()
+
+// Period 생성
+val period = 2.yearPeriod() + 6.monthPeriod() + 15.dayPeriod()
+val quarterPeriod = 2.quarterPeriod()  // 6개월
+
+// 산술 연산
+val doubled = 2 * 3.days()      // 6일
+val halved = 6.days() / 2       // 3일
+```
+
+#### Duration 유틸리티
+
+```kotlin
+// 다양한 단위로 Duration 생성
+val d1 = durationOfDay(1, 2, 3, 4, 5)  // 1일 2시간 3분 4초 5나노초
+val d2 = durationOfHour(2, 30, 15)     // 2시간 30분 15초
+val d3 = durationOfMinute(5, 30)       // 5분 30초
+val d4 = durationOfSecond(10, 500)     // 10초 500나노초
+
+// 포맷팅
+duration.formatHMS()   // "26:03:04.000"
+duration.formatISO()   // "P0Y0M1DT2H3M4.000S"
+
+// 속성
+duration.isNotPositive  // 0보다 작거나 같은지
+duration.isNotNegative  // 0보다 크거나 같은지
+duration.inMillis()     // 밀리초로 변환
+duration.inNanos()      // 나노초로 변환
+```
+
+#### Temporal 확장
+
+모든 `Temporal` 타입(Instant, LocalDate, LocalDateTime, ZonedDateTime 등)에 대한 확장 함수를 제공합니다.
+
+```kotlin
+val now = nowZonedDateTime()
+
+// 기간 연산
+now.add(3.days())       // 3일 후
+now.subtract(1.monthPeriod())  // 1달 전
+
+// 시작 시각
+now.startOfYear()       // 연초
+now.startOfMonth()      // 월초
+now.startOfWeek()       // 주 시작 (월요일)
+now.startOfDay()        // 당일 자정
+now.startOfHour()       // 정시
+now.startOfMinute()     // 분 시작
+now.startOfSecond()     // 초 시작
+
+// Temporal Adjusters
+now.firstOfMonth        // 월 첫째 날
+now.lastOfMonth         // 월 마지막 날
+now.firstOfYear         // 연 첫째 날
+now.lastOfYear          // 연 마지막 날
+now.next(DayOfWeek.FRIDAY)  // 다음 금요일
+now.previous(DayOfWeek.MONDAY)  // 지난 월요일
+
+// 비교
+val earlier = now.minus(1.days())
+val later = now.plus(1.days())
+val minTime = earlier min later  // 더 빠른 시각
+val maxTime = earlier max later  // 더 늦은 시각
+
+// Epoch 변환
+now.toEpochMillis()     // Epoch 밀리초
+now.toEpochDay()        // Epoch 일 수
+```
+
+#### 현재 시각 생성
+
+```kotlin
+// 현재 시각
+val instant = nowInstant()
+val localTime = nowLocalTime()
+val localDate = nowLocalDate()
+val localDateTime = nowLocalDateTime()
+val offsetDateTime = nowOffsetDateTime()
+val zonedDateTime = nowZonedDateTime()
+
+// UTC 기준
+val utcInstant = nowInstantUtc()
+val utcDateTime = nowLocalDateTimeUtc()
+
+// 오늘 (자정)
+val todayInstant = todayInstant()
+val todayLocalDate = todayLocalDate()
+val todayLocalDateTime = todayLocalDateTime()
+```
+
+#### 특정 시각 생성
+
+```kotlin
+// LocalDate
+val date = localDateOf(2024, 10, 14)
+val dateDefault = localDateOf(2024)  // 2024-01-01
+
+// LocalDateTime
+val dateTime = localDateTimeOf(2024, 10, 14, 15, 30, 45)
+val dateTimeDefault = localDateTimeOf(2024, 10)  // 2024-10-01T00:00:00
+
+// LocalTime
+val time = localTimeOf(15, 30, 45)  // 15:30:45
+
+// YearMonth, MonthDay
+val yearMonth = yearMonthOf(2024, Month.OCTOBER)
+val monthDay = monthDayOf(10, 14)
+```
+
+#### 시간 관련 상수 (TimeSpec)
+
+```kotlin
+// 시간 단위 변환 상수
+MillisPerSecond    // 1000
+MillisPerMinute    // 60,000
+MillisPerHour      // 3,600,000
+MillisPerDay       // 86,400,000
+
+NanosPerSecond     // 1,000,000,000
+NanosPerMinute     // 60,000,000,000
+NanosPerHour       // 3,600,000,000,000
+NanosPerDay        // 86,400,000,000,000
+
+// 달력 관련 상수
+MonthsPerYear      // 12
+QuartersPerYear    // 4
+MonthsPerQuarter   // 3
+DaysPerWeek        // 7
+HoursPerDay        // 24
+
+// 요일
+Weekdays           // [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
+Weekends           // [SATURDAY, SUNDAY]
+FirstDayOfWeek     // MONDAY
+
+// Duration 상수
+EmptyDuration      // Duration.ZERO
+MinDuration        // 0 nanos
+MaxDuration        // Long.MAX_VALUE seconds
+```
+
+#### Quarter (분기) 지원
+
+```kotlin
+val q1 = Quarter.Q1
+val q2 = Quarter.of(2)
+val q3 = Quarter.ofMonth(7)  // 7월 -> Q3
+
+// Quarter 연산
+q1.increment(2)   // Q1 + 2 = Q3
+q1.decrement(1)   // Q1 - 1 = Q4
+q1 + q2           // Quarter 합산
+
+// Quarter 정보
+q1.months         // [1, 2, 3]
+q1.startMonth     // 1
+q1.endMonth       // 3
+
+// YearQuarter (연도 + 분기)
+val yq = YearQuarter(2024, Quarter.Q1)
+yq.addQuarters(2)  // 2024-Q3
+yq.quarter         // Q1
+yq.year            // 2024
+```
+
+### 10. 유틸리티 (Utils)
+
+#### Wildcard (와일드카드 패턴 매칭)
+
+파일 경로 및 문자열에 대한 와일드카드 패턴 매칭을 지원합니다. `?` (단일 문자), `*` (여러 문자), `**` (디렉토리 트리), `\` (이스케이프)를 지원합니다.
+
+```kotlin
+import io.bluetape4k.utils.Wildcard
+
+// 단순 패턴 매칭
+Wildcard.match("hello.kt", "*.kt")          // true
+Wildcard.match("test", "te?t")              // true
+
+// 경로 패턴 매칭 (** 지원)
+Wildcard.matchPath("src/main/kotlin/Foo.kt", "**/kotlin/*.kt")  // true
+
+// 여러 패턴 중 하나라도 매칭
+Wildcard.matchOne("hello.kt", "*.java", "*.kt")  // true
+Wildcard.matchPathOne("src/test/Foo.kt", "**/main/**", "**/test/**")  // true
+```
+
+#### XXHasher (고속 해시)
+
+lz4-java의 XXHash 알고리즘을 사용한 고속 해시 계산기입니다. Thread-safe (`ThreadLocal` 적용).
+
+```kotlin
+import io.bluetape4k.utils.XXHasher
+
+// 다양한 타입의 해시값 계산
+val hash1 = XXHasher.hash("hello", 42, 3.14)
+val hash2 = XXHasher.hash(listOf(1, 2, 3))
+
+// null 안전
+val hash3 = XXHasher.hash(null, "world")
+
+// 같은 입력 → 같은 해시값 (결정적)
+XXHasher.hash("test") == XXHasher.hash("test")  // true
+```
+
+## KDoc 예제 커버리지
+
+> 기준일: 2026-04-04
+
+| 상태 | 파일 수 |
+|------|---------|
+| 예제 있음 | 119 / 157 (76%) |
+| 예제 없음 | 38 |
+
+**파일럿 적용 완료 (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`, `Wildcard`, `Range` — 총 7개 파일, 56개 `kotlin` 코드 블록 추가.
+
+### KDoc 예제 작성 가이드라인
+
+- 코드 블록: ` ```kotlin ` 언어 태그 필수
+- import 생략 (사용법에 집중)
+- 결과는 주석으로 표시: `// "result"`, `// [a, b, c]`
+- 클래스/인터페이스: 생성 + 핵심 메서드 조합 종합 예제
+- 메서드: 단일 호출 + 반환값 주석
+
+## 참고 자료
+
+- [Kotlin Contracts](https://kotlinlang.org/docs/whatsnew13.html#contracts)
+- [Kotlin Ranges](https://kotlinlang.org/docs/ranges.html)
+- [Apache Commons Codec](https://commons.apache.org/proper/commons-codec/)
+- [Java Time API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)

@@ -1,14 +1,16 @@
 # Module bluetape4k-spring-r2dbc
 
-Spring Data R2DBC를 Kotlin 코루틴에서 사용하기 편하게 확장한 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 주요 기능
+An extension library that makes Spring Data R2DBC more ergonomic to use with Kotlin coroutines.
 
-- **R2dbcEntityOperations 확장**: 코루틴 기반 CRUD 연산
-- **ReactiveInsert/Update/Delete/Select 확장**: 타입 안전한 코루틴 연산
-- **네이밍 규칙**: `XyzSuspending` 형식의 일관된 함수명
+## Key Features
 
-## 의존성 추가
+- **R2dbcEntityOperations extensions**: Coroutine-based CRUD operations
+- **ReactiveInsert/Update/Delete/Select extensions**: Type-safe coroutine operations
+- **Naming convention**: Consistent `XyzSuspending` function names
+
+## Adding the Dependency
 
 ```kotlin
 dependencies {
@@ -16,11 +18,11 @@ dependencies {
 }
 ```
 
-## 주요 기능 상세
+## Feature Details
 
-### 1. R2dbcEntityOperations 확장
+### 1. R2dbcEntityOperations Extensions
 
-#### ID로 단건 조회
+#### Find by ID
 
 ```kotlin
 import io.bluetape4k.spring.r2dbc.coroutines.*
@@ -29,33 +31,33 @@ import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 class PostService(private val operations: R2dbcEntityOperations) {
 
     suspend fun findById(id: Long): Post {
-        // ID로 조회 (없으면 예외)
+        // Find by ID (throws if not found)
         return operations.findOneByIdSuspending<Post>(id)
     }
 
     suspend fun findByIdOrNull(id: Long): Post? {
-        // ID로 조회 (없으면 null)
+        // Find by ID (returns null if not found)
         return operations.findOneByIdOrNullSuspending<Post>(id)
     }
 
     suspend fun findFirstById(id: Long): Post {
-        // ID로 첫 번째 결과 조회
+        // Find the first result by ID
         return operations.findFirstByIdSuspending<Post>(id)
     }
 
     suspend fun findFirstByIdOrNull(id: Long): Post? {
-        // ID로 첫 번째 결과 조회 (없으면 null)
+        // Find the first result by ID (returns null if not found)
         return operations.findFirstByIdOrNullSuspending<Post>(id)
     }
 
-    // 커스텀 ID 컬럼명 지정
+    // Specify a custom ID column name
     suspend fun findByPostId(postId: String): Post {
         return operations.findOneByIdSuspending<Post>(postId, "post_id")
     }
 }
 ```
 
-#### Query를 이용한 조회
+#### Query-Based Lookup
 
 ```kotlin
 import org.springframework.data.relational.core.query.Query
@@ -81,28 +83,28 @@ class PostService(private val operations: R2dbcEntityOperations) {
 }
 ```
 
-#### 전체 조회 및 건수
+#### Find All and Count
 
 ```kotlin
 class PostService(private val operations: R2dbcEntityOperations) {
 
-    // 전체 조회
+    // Find all
     fun findAll(): Flow<Post> {
         return operations.selectAllSuspending<Post>()
     }
 
-    // 전체 건수
+    // Count all
     suspend fun countAll(): Long {
         return operations.countAllSuspending<Post>()
     }
 
-    // 조건부 건수
+    // Conditional count
     suspend fun countByStatus(status: PostStatus): Long {
         val query = Query.query(Criteria.where("status").isEqual(status.name))
         return operations.countSuspending<Post>(query)
     }
 
-    // 존재 여부 확인
+    // Existence check
     suspend fun existsByAuthorId(authorId: Long): Boolean {
         val query = Query.query(Criteria.where("author_id").isEqual(authorId))
         return operations.existsSuspending<Post>(query)
@@ -112,7 +114,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 ---
 
-### 2. Insert 확장
+### 2. Insert Extensions
 
 ```kotlin
 import io.bluetape4k.spring.r2dbc.coroutines.*
@@ -126,7 +128,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
             createdAt = Instant.now()
         )
 
-        // 저장된 엔티티 반환
+        // Returns the saved entity
         return operations.insertSuspending(post)
     }
 
@@ -139,7 +141,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 ---
 
-### 3. Update 확장
+### 3. Update Extensions
 
 ```kotlin
 import org.springframework.data.relational.core.query.Query
@@ -166,7 +168,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 ---
 
-### 4. Delete 확장
+### 4. Delete Extensions
 
 ```kotlin
 class PostService(private val operations: R2dbcEntityOperations) {
@@ -189,19 +191,19 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 ---
 
-### 5. Flow 기반 스트리밍
+### 5. Flow-Based Streaming
 
-대량 데이터를 Flow로 스트리밍하여 메모리 효율적으로 처리합니다.
+Stream large datasets as a `Flow` for memory-efficient processing.
 
 ```kotlin
 class PostService(private val operations: R2dbcEntityOperations) {
 
-    // Flow로 스트리밍
+    // Stream as Flow
     fun streamAllPosts(): Flow<Post> {
         return operations.selectAllSuspending<Post>()
     }
 
-    // Flow 처리
+    // Process a Flow
     suspend fun exportAllPosts(): Int {
         var count = 0
         operations.selectAllSuspending<Post>()
@@ -212,7 +214,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
         return count
     }
 
-    // 배치 처리
+    // Batch processing
     fun processInBatches(batchSize: Int = 100): Flow<List<Post>> {
         return operations.selectAllSuspending<Post>()
             .chunked(batchSize)
@@ -222,13 +224,13 @@ class PostService(private val operations: R2dbcEntityOperations) {
 
 ---
 
-### 6. 네이밍 규칙
+### 6. Naming Convention
 
-코루틴 함수는 `XyzSuspending` 형식으로 제공됩니다.
+Coroutine functions follow the `XyzSuspending` naming pattern.
 
 ---
 
-### 7. 전체 예시
+### 7. Complete Example
 
 ```kotlin
 @Table("posts")
@@ -291,15 +293,15 @@ class PostRepository(
 
 ---
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :spring:r2dbc:test
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 핵심 클래스 다이어그램
+### Core Class Diagram
 
 ```mermaid
 classDiagram
@@ -351,24 +353,24 @@ classDiagram
     Post --> PostStatus
 ```
 
-### R2DBC + Coroutines 데이터 흐름
+### R2DBC + Coroutines Data Flow
 
 ```mermaid
 flowchart TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(XyzSuspending / Flow)"]
+    App["Application Code"] --> Ext["Coroutine Extension Functions<br/>(XyzSuspending / Flow)"]
     Ext --> ROps["R2dbcEntityOperations"]
     ROps --> R2DBC["Spring Data R2DBC"]
     R2DBC --> Driver["R2DBC Driver<br/>(H2 / PostgreSQL / MySQL)"]
-    Driver --> DB[("관계형 데이터베이스")]
+    Driver --> DB[("Relational Database")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
 ```
 
-### CRUD 연산 계층 구조
+### CRUD Operation Layer
 
 ```mermaid
 flowchart LR
-    Service["서비스 / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
+    Service["Service / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
     Service --> Insert["insertSuspending(entity)<br/>insertOrNullSuspending(entity)"]
     Service --> Update["updateSuspending(query, update)"]
     Service --> Delete["deleteSuspending(query)<br/>deleteAllSuspending()"]
@@ -378,34 +380,34 @@ flowchart LR
     Update --> ROps
     Delete --> ROps
     Count --> ROps
-    ROps --> DB[("데이터베이스")]
+    ROps --> DB[("Database")]
 ```
 
-### 코루틴 변환 시퀀스
+### Coroutine Conversion Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as XyzSuspending 확장
+    participant App as Application
+    participant Ext as XyzSuspending Extension
     participant Ops as R2dbcEntityOperations
-    participant DB as 데이터베이스
+    participant DB as Database
 
     App->>Ext: findOneByIdOrNullSuspending<Post>(id)
     Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
     Ops->>DB: SELECT * FROM posts WHERE id=?
-    DB-->>Ops: 행 데이터
+    DB-->>Ops: Row data
     Ops-->>Ext: Mono<Post>
-    Ext-->>App: Post? (suspend 반환)
+    Ext-->>App: Post? (suspend return)
 
     App->>Ext: selectAllSuspending<Post>()
     Ext->>Ops: select(Post::class) → Flux<Post>
     Ops->>DB: SELECT * FROM posts
-    DB-->>Ops: 행 스트림
+    DB-->>Ops: Row stream
     Ops-->>Ext: Flux<Post>
-    Ext-->>App: Flow<Post> (코루틴 스트림)
+    Ext-->>App: Flow<Post> (coroutine stream)
 ```
 
-## 참고
+## References
 
 - [Spring Data R2DBC Reference](https://docs.spring.io/spring-data/r2dbc/reference/)
 - [Kotlin Coroutines Support](https://docs.spring.io/spring-framework/reference/languages/kotlin/coroutines.html)

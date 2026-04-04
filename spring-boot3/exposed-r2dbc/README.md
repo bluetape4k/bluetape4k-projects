@@ -1,8 +1,10 @@
 # bluetape4k-spring-boot3-exposed-r2dbc
 
-**Exposed R2DBC DSL 기반 코루틴 Spring Data Repository (Spring Boot 3.5.x / Spring 6)**
+English | [한국어](./README.ko.md)
 
-Spring Boot 3와 Spring Data Reactive를 활용하여 Exposed R2DBC를 완전한 suspend 기반 코루틴 Repository로 제공합니다. 논블로킹 I/O와 백프레셔 지원으로 고성능 non-blocking 애플리케이션을 구축합니다.
+**Exposed R2DBC DSL-Based Coroutine Spring Data Repository (Spring Boot 3.5.x / Spring 6)**
+
+Provides Exposed R2DBC as a fully suspend-based coroutine Repository using Spring Boot 3 and Spring Data Reactive. Build high-performance non-blocking applications with non-blocking I/O and backpressure support.
 
 ## UML
 
@@ -54,7 +56,7 @@ classDiagram
     UserRepository --> User
 ```
 
-### 데이터 흐름 다이어그램
+### Data Flow Diagram
 
 ```mermaid
 flowchart LR
@@ -72,34 +74,34 @@ flowchart LR
     Driver --> DB
 ```
 
-## 설치
+## Installation
 
 ```gradle
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-spring-boot3-exposed-r2dbc:${version}")
 
-    // 코루틴 지원 (필수)
+    // Coroutines support (required)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${version}")
 }
 ```
 
-## 주요 기능
+## Key Features
 
-### 1. ExposedR2dbcRepository - Spring Data Coroutine 표준
+### 1. ExposedR2dbcRepository - Spring Data Coroutine Standard
 
 ```kotlin
 @NoRepositoryBean
 interface ExposedR2dbcRepository<R : Any, ID : Any> : CoroutineCrudRepository<R, ID>
 ```
 
-- **CoroutineCrudRepository**: suspend 기반 표준 CRUD 작업
-- **Flow 지원**: 대용량 데이터 스트리밍 (백프레셔 포함)
-- **페이징**: suspend 기반 페이징 조회
-- **Exposed DSL 통합**: R2DBC 조건 쿼리
+- **CoroutineCrudRepository**: Standard suspend-based CRUD operations
+- **Flow support**: Large-scale data streaming with backpressure
+- **Paging**: Suspend-based paged queries
+- **Exposed DSL integration**: Conditional R2DBC queries
 
-### 2. 도메인 객체 매핑
+### 2. Domain Object Mapping
 
-Row-to-Domain 변환을 인터페이스에서 정의:
+Define Row-to-Domain conversion directly in the interface:
 
 ```kotlin
 interface UserRepository : ExposedR2dbcRepository<User, Long> {
@@ -124,14 +126,14 @@ interface UserRepository : ExposedR2dbcRepository<User, Long> {
 }
 ```
 
-### 3. Suspend 기반 CRUD
+### 3. Suspend-Based CRUD
 
 ```kotlin
 interface UserRepository : ExposedR2dbcRepository<User, Long> {
-    // 자동 구현됨
+    // Automatically implemented
 }
 
-// 사용
+// Usage
 suspend fun getUser(id: Long): User? {
     return userRepository.findByIdOrNull(id)
 }
@@ -141,9 +143,9 @@ suspend fun saveUser(user: User): User {
 }
 ```
 
-### 4. Flow 스트리밍
+### 4. Flow Streaming
 
-대용량 데이터를 백프레셔와 함께 처리:
+Process large datasets with backpressure:
 
 ```kotlin
 suspend fun processAllUsers() {
@@ -153,20 +155,20 @@ suspend fun processAllUsers() {
         }
 }
 
-// 조건부 스트리밍
+// Conditional streaming
 userRepository.findAll { Users.age greaterEq 18 }
     .collect { adult ->
-        // 처리...
+        // process...
     }
 
-// row-by-row 스트리밍 (메모리 효율적)
+// Row-by-row streaming (memory-efficient)
 userRepository.streamAll()
     .collect { user ->
-        // 처리...
+        // process...
     }
 ```
 
-### 5. 페이징 조회
+### 5. Paged Queries
 
 ```kotlin
 suspend fun getUsersPage(pageNo: Int, pageSize: Int): Page<User> {
@@ -180,9 +182,9 @@ suspend fun getUsersSorted(): Page<User> {
 }
 ```
 
-### 6. Exposed DSL 조건
+### 6. Exposed DSL Conditions
 
-복잡한 조건은 DSL로 표현:
+Express complex conditions using DSL:
 
 ```kotlin
 val adults = userRepository.findAll { Users.age greaterEq 18 }.toList()
@@ -196,9 +198,9 @@ val count = userRepository.count { Users.age greaterEq 18 }
 val exists = userRepository.exists { Users.email eq "alice@example.com" }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### 엔티티 및 테이블 정의
+### Entity and Table Definition
 
 ```kotlin
 object Users : LongIdTable("users") {
@@ -215,7 +217,7 @@ data class User(
 ) : HasIdentifier<Long>
 ```
 
-### Repository 구현
+### Repository Implementation
 
 ```kotlin
 interface UserRepository : ExposedR2dbcRepository<User, Long> {
@@ -240,7 +242,7 @@ interface UserRepository : ExposedR2dbcRepository<User, Long> {
 }
 ```
 
-### Service 사용
+### Using the Service
 
 ```kotlin
 @Service
@@ -323,75 +325,75 @@ class UserController(
 }
 ```
 
-## 핵심 메서드
+## Core Methods
 
-### CRUD 작업
+### CRUD Operations
 
 ```kotlin
-// 저장
+// Save
 suspend fun save(entity: User): User
 
-// 조회
+// Find by ID
 suspend fun findByIdOrNull(id: Long): User?
 
-// 모두 조회
-suspend fun findAllAsList(): List<User>  // 메모리 로드
+// Find all (loads into memory)
+suspend fun findAllAsList(): List<User>
 
-// 스트림 조회 (백프레셔)
+// Stream all (with backpressure)
 fun findAll(): Flow<User>
 
-// 존재 확인
+// Existence check
 suspend fun existsById(id: Long): Boolean
 
-// 삭제
+// Delete
 suspend fun deleteById(id: Long)
 
-// 개수
+// Count
 suspend fun count(): Long
 ```
 
-### 페이징 및 정렬
+### Paging and Sorting
 
 ```kotlin
 suspend fun findAll(pageable: Pageable): Page<User>
 
-// 예제
+// Example
 val pageable = PageRequest.of(
-    0,  // 페이지 번호
-    20, // 페이지 크기
+    0,  // page number
+    20, // page size
     Sort.by("age").descending()
 )
 ```
 
-### Flow 및 스트리밍
+### Flow and Streaming
 
 ```kotlin
-// 일괄 로드 후 Flow 반환
+// Load all and return as Flow
 fun findAll(): Flow<User>
 
-// row-by-row 스트리밍 (메모리 효율적)
+// Row-by-row streaming (memory-efficient)
 fun streamAll(database: R2dbcDatabase? = null): Flow<User>
 
-// 조건부 스트리밍
+// Conditional streaming
 fun findAll(op: () -> Op<Boolean>): Flow<User>
 ```
 
-### 대량 작업
+### Bulk Operations
 
 ```kotlin
-// 여러 엔티티 저장
+// Save multiple entities
 suspend fun saveAll(entities: Iterable<User>): Flow<User>
 
-// Flow로 저장 (백프레셔)
+// Save as Flow (with backpressure)
 suspend fun saveAll(entityStream: Flow<User>): Flow<User>
 
-// 여러 개 삭제
+// Delete multiple
 suspend fun deleteAllById(ids: Iterable<Long>)
 ```
 
-## 테스트 작성
+## Writing Tests
 
-### Unit 테스트
+### Unit Tests
 
 ```kotlin
 @SpringBootTest
@@ -414,7 +416,6 @@ class UserRepositoryTest {
 
     @Test
     fun `findAll returns users`() = runTest {
-        // 테스트 데이터 준비
         suspendTransaction(r2dbcDatabase) {
             Users.deleteAll()
         }
@@ -440,18 +441,18 @@ class UserRepositoryTest {
 }
 ```
 
-## 의존성
+## Dependencies
 
-- **Spring Boot**: 3.5.x 이상
-- **Spring Data Reactive**: 3.4.x 이상
-- **Exposed**: 1.0.x 이상 (R2DBC 지원)
-- **Kotlin**: 2.0 이상
-- **Coroutines**: 1.8.x 이상
-- **R2DBC Driver**: H2, PostgreSQL, MySQL, MariaDB 등
+- **Spring Boot**: 3.5.x or later
+- **Spring Data Reactive**: 3.4.x or later
+- **Exposed**: 1.0.x or later (with R2DBC support)
+- **Kotlin**: 2.0 or later
+- **Coroutines**: 1.8.x or later
+- **R2DBC Driver**: H2, PostgreSQL, MySQL, MariaDB, etc.
 
-Spring Boot 3와 Spring 6 호환.
+Compatible with Spring Boot 3 and Spring 6.
 
-### 데이터베이스별 드라이버
+### Database-Specific Drivers
 
 ```gradle
 dependencies {
@@ -469,116 +470,116 @@ dependencies {
 }
 ```
 
-## 설정
+## Configuration
 
-### Spring Boot 자동 구성
+### Spring Boot Auto-Configuration
 
 ```properties
-# application.properties (H2 예시)
+# application.properties (H2 example)
 spring.r2dbc.url=r2dbc:h2:mem:///test
 spring.r2dbc.username=sa
 spring.r2dbc.password=
 ```
 
 ```properties
-# application.properties (PostgreSQL 예시)
+# application.properties (PostgreSQL example)
 spring.r2dbc.url=r2dbc:postgresql://localhost:5432/mydb
 spring.r2dbc.username=postgres
 spring.r2dbc.password=password
 ```
 
-### 명시적 구성
+### Explicit Configuration
 
 ```kotlin
 @Configuration
 @EnableExposedR2dbcRepositories(basePackages = ["com.example.repository"])
 class RepositoryConfig {
-    // 자동 구성 처리
+    // Handled by auto-configuration
 }
 ```
 
-## 주의사항
+## Caveats
 
-### Suspend 함수 사용
+### Using Suspend Functions
 
-Repository의 모든 조회/저장/삭제 메서드는 suspend 함수입니다:
+All Repository find/save/delete methods are suspend functions:
 
 ```kotlin
-// 반드시 코루틴 컨텍스트에서 호출
+// Must be called from a coroutine context
 suspend fun getUser(id: Long) = userRepository.findByIdOrNull(id)
 
-// Controller에서
+// In a Controller
 @GetMapping("/{id}")
 suspend fun get(@PathVariable id: Long): User? = getUser(id)
 ```
 
-### Flow 소비 방식
+### Consuming Flow
 
-`findAll()`과 `streamAll()`의 차이:
+The difference between `findAll()` and `streamAll()`:
 
 ```kotlin
-// findAll: 결과를 모두 메모리로 로드한 후 Flow 반환
-userRepository.findAll().toList()  // 메모리 사용량 증가
+// findAll: loads all results into memory, then returns as Flow
+userRepository.findAll().toList()  // Higher memory usage
 
-// streamAll: row-by-row 스트리밍, 백프레셔 지원
-userRepository.streamAll()  // 메모리 효율적
-    .collect { user -> /* 처리 */ }
+// streamAll: row-by-row streaming with backpressure support
+userRepository.streamAll()  // Memory-efficient
+    .collect { user -> /* process */ }
 ```
 
-### toDomain과 toPersistValues 구현 필수
+### Mandatory toDomain and toPersistValues Implementation
 
-Repository 인터페이스를 구현할 때 반드시 정의:
+Both must be defined when implementing the Repository interface:
 
 ```kotlin
 interface UserRepository : ExposedR2dbcRepository<User, Long> {
-    // 필수: row 변환
+    // Required: row conversion
     override fun toDomain(row: ResultRow): User
 
-    // 필수: 저장 값 정의
+    // Required: define values to persist
     override fun toPersistValues(domain: User): Map<Column<*>, Any?>
 }
 ```
 
-### ID 컬럼 제외
+### Exclude the ID Column
 
-`toPersistValues`에서 ID 컬럼은 반드시 제외:
+The ID column must be excluded from `toPersistValues`:
 
 ```kotlin
 override fun toPersistValues(domain: User): Map<Column<*>, Any?> =
     mapOf(
         Users.name to domain.name,
         Users.email to domain.email,
-        // Users.id는 제외 (자동 생성)
+        // Users.id is excluded (auto-generated)
     )
 ```
 
-### Transaction 범위
+### Transaction Scope
 
-R2DBC 기반 대체로 suspend 함수 내부에서 자동으로 처리됩니다. 복잡한 작업은 `suspendTransaction` 사용:
+R2DBC handles transactions automatically inside suspend functions. Use `suspendTransaction` for complex operations:
 
 ```kotlin
 suspend fun complexOperation() {
     suspendTransaction(r2dbcDatabase) {
         userRepository.save(user1)
         userRepository.save(user2)
-        // 트랜잭션 내 모두 성공 또는 모두 실패
+        // All succeed or all fail within the transaction
     }
 }
 ```
 
-## 성능 최적화
+## Performance Optimization
 
-### 대용량 스트리밍
+### Large-Scale Streaming
 
 ```kotlin
 userRepository.streamAll()
-    .buffer(256)  // 버퍼 크기 조정
+    .buffer(256)  // Adjust buffer size
     .collect { user ->
-        // 백프레셔 제어
+        // Backpressure control
     }
 ```
 
-### 배치 삽입
+### Batch Insert
 
 ```kotlin
 userRepository.saveAll(
@@ -589,9 +590,9 @@ userRepository.saveAll(
 ).toList()
 ```
 
-### 조건부 스트리밍
+### Conditional Streaming
 
-복잡한 조건은 DSL 사용:
+Use DSL for complex conditions:
 
 ```kotlin
 userRepository.findAll {
@@ -599,38 +600,38 @@ userRepository.findAll {
 }.toList()
 ```
 
-## 문제 해결
+## Troubleshooting
 
-### "suspend 함수를 블로킹 컨텍스트에서 호출 불가"
+### "Cannot call suspend function from blocking context"
 
-WebFlux 또는 코루틴 컨텍스트 필요:
+A WebFlux or coroutine context is required:
 
 ```kotlin
-// 잘못된 사용
+// Incorrect
 fun getUser(id: Long) {
-    val user = userRepository.findByIdOrNull(id)  // 컴파일 에러
+    val user = userRepository.findByIdOrNull(id)  // compile error
 }
 
-// 올바른 사용
+// Correct
 suspend fun getUser(id: Long) {
     val user = userRepository.findByIdOrNull(id)  // OK
 }
 
-// 또는
+// Or
 @GetMapping
 suspend fun getUser(): User? = userRepository.findByIdOrNull(1)
 ```
 
-### "Flow를 toList() 없이 사용"
+### "Using Flow without toList()"
 
-Response로 Stream 반환:
+Return a stream directly from the response:
 
 ```kotlin
 @GetMapping("/stream")
 fun getUsers(): Flow<User> = userRepository.findAll()
 ```
 
-또는 명시적으로 리스트 변환:
+Or explicitly convert to a list:
 
 ```kotlin
 @GetMapping
@@ -638,9 +639,9 @@ suspend fun getUsers(): List<User> =
     userRepository.findAll().toList()
 ```
 
-## 관련 모듈
+## Related Modules
 
-- **bluetape4k-exposed-r2dbc**: 핵심 Exposed R2DBC Repository 구현
-- **bluetape4k-spring-boot4-exposed-r2dbc**: Spring Boot 4.x 버전
-- **bluetape4k-spring-boot3-exposed-jdbc**: JDBC 기반 Repository (Spring Boot 3.x)
-- **bluetape4k-coroutines**: 코루틴 유틸리티
+- **bluetape4k-exposed-r2dbc**: Core Exposed R2DBC Repository implementation
+- **bluetape4k-spring-boot4-exposed-r2dbc**: Spring Boot 4.x version
+- **bluetape4k-spring-boot3-exposed-jdbc**: JDBC-based Repository (Spring Boot 3.x)
+- **bluetape4k-coroutines**: Coroutines utilities

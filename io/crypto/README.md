@@ -1,59 +1,61 @@
 # Module bluetape4k-crypto
 
-> **⚠️ Deprecated**: 이 모듈은 deprecated 되었습니다. 신규 개발에서는 [`bluetape4k-tink`](../tink/README.md)를 사용하세요.
+English | [한국어](./README.ko.md)
+
+> **⚠️ Deprecated**: This module is deprecated. Use [`bluetape4k-tink`](../tink/README.md) for new development.
 >
-> | `bluetape4k-crypto` | `bluetape4k-tink` 대체 |
+> | `bluetape4k-crypto` | `bluetape4k-tink` replacement |
 > |-----|------|
 > | `Digesters.SHA256` | `TinkDigesters.SHA256` |
 > | `Encryptors.AES` | `TinkEncryptors.AES256_GCM` |
 > | `Encryptors.DeterministicAES` | `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
 > | `"data".digest(Digesters.SHA256)` | `"data".tinkDigest(TinkDigesters.SHA256)` |
 > | `"data".encrypt(Encryptors.AES)` | `"data".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
-> | `CipherBuilder` | `TinkAead` 또는 JCA `Cipher` 직접 사용 |
-> | `Keccak256/384/512` | 대체 없음 (BouncyCastle 전용) |
+> | `CipherBuilder` | Use `TinkAead` or JCA `Cipher` directly |
+> | `Keccak256/384/512` | No replacement (BouncyCastle-only) |
 
-## 개요
+## Overview
 
-`bluetape4k-crypto`는 [Jasypt](http://www.jasypt.org/) 와 [BouncyCastle](https://www.bouncycastle.org/) 라이브러리를 Kotlin 환경에서 편리하게 사용할 수 있도록 래핑한 암호화 모듈입니다.
+`bluetape4k-crypto` is an encryption module that wraps [Jasypt](http://www.jasypt.org/) and [BouncyCastle](https://www.bouncycastle.org/) for convenient use in Kotlin.
 
-해시 다이제스트(Digest), 대칭형 암호화(Encryption), JCA Cipher 빌더를 제공하며, 멀티스레드 환경에서 안전하게 동작합니다.
+It provides hash digest, symmetric encryption, and a JCA Cipher builder, all of which are safe for use in multi-threaded environments.
 
-## 주요 기능
+## Key Features
 
-### 1. 해시 다이제스트 (Digest)
+### 1. Hash Digest
 
-SHA-256, SHA-512, MD5, Keccak 등 다양한 해시 알고리즘을 지원합니다.
+Supports various hashing algorithms including SHA-256, SHA-512, MD5, and Keccak.
 
 ```kotlin
 import io.bluetape4k.crypto.digest.Digesters
 
-// SHA-256 다이제스트
+// SHA-256 digest
 val digest = Digesters.SHA256.digest("Hello, World!")
 val matches = Digesters.SHA256.matches("Hello, World!", digest)  // true
 
-// Keccak-256 다이제스트 (블록체인에서 널리 사용)
+// Keccak-256 digest (widely used in blockchain)
 val keccakDigest = Digesters.KECCAK256.digest("Hello, World!")
 ```
 
-### 2. 대칭형 암호화 (Encryption)
+### 2. Symmetric Encryption
 
-AES, DES, TripleDES, RC2, RC4 등 PBE(Password Based Encryption) 알고리즘을 지원합니다.
+Supports PBE (Password Based Encryption) algorithms including AES, DES, TripleDES, RC2, and RC4.
 
 ```kotlin
 import io.bluetape4k.crypto.encrypt.Encryptors
 
-// AES-256 암호화/복호화
+// AES-256 encryption/decryption
 val encrypted = Encryptors.AES.encrypt("Hello, World!")
 val decrypted = Encryptors.AES.decrypt(encrypted)  // "Hello, World!"
 
-// 커스텀 비밀번호 사용
+// Using a custom password
 val encryptor = AES(password = "my-secret-password-12chars")
 val encrypted2 = encryptor.encrypt("Sensitive Data")
 ```
 
-### 3. 확장 함수
+### 3. Extension Functions
 
-Kotlin 스타일의 편의 확장 함수를 제공합니다.
+Kotlin-style convenience extension functions.
 
 ```kotlin
 import io.bluetape4k.crypto.digest.digest
@@ -61,23 +63,23 @@ import io.bluetape4k.crypto.digest.matchesDigest
 import io.bluetape4k.crypto.encrypt.encrypt
 import io.bluetape4k.crypto.encrypt.decrypt
 
-// Digest 확장 함수
+// Digest extension functions
 val digest = "Hello".digest(Digesters.SHA256)
 "Hello".matchesDigest(digest, Digesters.SHA256)  // true
 
-// Encrypt 확장 함수
+// Encrypt extension functions
 val encrypted = "Hello".encrypt(Encryptors.AES)
 val decrypted = encrypted.decrypt(Encryptors.AES)  // "Hello"
 
-// ByteArray 확장 함수
+// ByteArray extension functions
 val bytes = "Hello".toByteArray()
 val encryptedBytes = bytes.encrypt(Encryptors.AES)
 val decryptedBytes = encryptedBytes.decrypt(Encryptors.AES)
 ```
 
-### 4. JCA Cipher 빌더
+### 4. JCA Cipher Builder
 
-JCA(Java Cryptography Architecture) Cipher를 빌더 패턴으로 쉽게 구성할 수 있습니다.
+Build JCA (Java Cryptography Architecture) Cipher instances using a fluent builder pattern.
 
 ```kotlin
 import io.bluetape4k.crypto.cipher.CipherBuilder
@@ -98,41 +100,41 @@ val encrypted = encryptCipher.encrypt("Hello".toByteArray())
 val decrypted = decryptCipher.decrypt(encrypted)
 ```
 
-## 알고리즘 비교
+## Algorithm Comparison
 
-### Digest 알고리즘
+### Digest Algorithms
 
-| 알고리즘 | 해시 크기 | 보안 수준 | 권장 용도 |
-|---------|---------|---------|---------|
-| SHA-256 | 256비트 | 높음 | 범용 (권장) |
-| SHA-384 | 384비트 | 높음 | 높은 보안 요구 |
-| SHA-512 | 512비트 | 높음 | 최고 수준 보안 |
-| KECCAK-256 | 256비트 | 높음 | 블록체인, SHA-3 호환 |
-| KECCAK-384 | 384비트 | 높음 | SHA-3 호환 |
-| KECCAK-512 | 512비트 | 높음 | SHA-3 호환 |
-| SHA-1 | 160비트 | 낮음 | 레거시 호환만 |
-| MD5 | 128비트 | 낮음 | 체크섬 (비보안) |
+| Algorithm | Hash Size | Security Level | Recommended Use |
+|-----------|-----------|---------------|-----------------|
+| SHA-256 | 256-bit | High | General-purpose (recommended) |
+| SHA-384 | 384-bit | High | High-security requirements |
+| SHA-512 | 512-bit | High | Maximum security |
+| KECCAK-256 | 256-bit | High | Blockchain, SHA-3 compatible |
+| KECCAK-384 | 384-bit | High | SHA-3 compatible |
+| KECCAK-512 | 512-bit | High | SHA-3 compatible |
+| SHA-1 | 160-bit | Low | Legacy compatibility only |
+| MD5 | 128-bit | Low | Checksums (non-security) |
 
-### Encryption 알고리즘
+### Encryption Algorithms
 
-| 알고리즘 | PBE 알고리즘 | 보안 수준 | 권장 용도 |
-|---------|------------|---------|---------|
-| AES | PBEWITHHMACSHA256ANDAES_256 | 높음 | 범용 (권장) |
-| TripleDES | PBEWithMD5AndTripleDES | 보통 | 레거시 호환 |
-| DES | PBEWITHMD5ANDDES | 낮음 | 레거시 호환만 |
-| RC2 | PBEWITHSHA1ANDRC2_128 | 낮음 | 레거시 호환만 |
-| RC4 | PBEWITHSHA1ANDRC4_128 | 낮음 | 레거시 호환만 |
+| Algorithm | PBE Algorithm | Security Level | Recommended Use |
+|-----------|--------------|---------------|-----------------|
+| AES | PBEWITHHMACSHA256ANDAES_256 | High | General-purpose (recommended) |
+| TripleDES | PBEWithMD5AndTripleDES | Moderate | Legacy compatibility |
+| DES | PBEWITHMD5ANDDES | Low | Legacy compatibility only |
+| RC2 | PBEWITHSHA1ANDRC2_128 | Low | Legacy compatibility only |
+| RC4 | PBEWITHSHA1ANDRC4_128 | Low | Legacy compatibility only |
 
-## 스레드 안전성
+## Thread Safety
 
-- **Digester**: Jasypt `PooledByteDigester` 사용 (풀 크기: 8)
-- **Encryptor**: Jasypt `PooledPBEByteEncryptor` 사용 (풀 크기: 2 * CPU 수)
-- **CipherBuilder**: 호출 시마다 새로운 `Cipher` 인스턴스 생성
-- BouncyCastle 프로바이더 등록은 `ReentrantLock`으로 보호
+- **Digester**: Uses Jasypt `PooledByteDigester` (pool size: 8)
+- **Encryptor**: Uses Jasypt `PooledPBEByteEncryptor` (pool size: 2 × CPU count)
+- **CipherBuilder**: Creates a new `Cipher` instance on each call
+- BouncyCastle provider registration is protected by `ReentrantLock`
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 암호화 클래스 계층
+### Encryption Class Hierarchy
 
 ```mermaid
 classDiagram
@@ -184,33 +186,33 @@ classDiagram
 
 ```
 
-### 암호화/복호화 데이터 흐름
+### Encryption/Decryption Data Flow
 
 ```mermaid
 flowchart LR
-    subgraph 입력
-        P[평문<br/>Plaintext]
+    subgraph Input
+        P[Plaintext]
     end
 
-    subgraph Digest["해시 다이제스트 (단방향)"]
+    subgraph Digest["Hash Digest (one-way)"]
         D1[Jasypt<br/>PooledByteDigester]
         D2[BouncyCastle<br/>Keccak Provider]
     end
 
-    subgraph Encrypt["대칭 암호화 (양방향)"]
-        E1[PBE 암호화<br/>PooledPBEByteEncryptor]
+    subgraph Encrypt["Symmetric Encryption (two-way)"]
+        E1[PBE Encryption<br/>PooledPBEByteEncryptor]
         E2[JCA Cipher<br/>AES/CBC/PKCS5Padding]
     end
 
-    subgraph 출력
-        H[해시값<br/>Base64 문자열]
-        C[암호문<br/>ByteArray / Base64]
+    subgraph Output
+        H[Hash value<br/>Base64 string]
+        C[Ciphertext<br/>ByteArray / Base64]
     end
 
     P -->|SHA256/MD5/Keccak| D1 --> H
     P -->|Keccak256/384/512| D2 --> H
     P -->|AES/DES/TripleDES| E1 --> C
-    P -->|커스텀 변환| E2 --> C
+    P -->|Custom transformation| E2 --> C
     C -->|decrypt| E1
     C -->|decrypt| E2
 
@@ -223,7 +225,7 @@ flowchart LR
     style C fill:#FF9800
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
@@ -231,51 +233,51 @@ dependencies {
 }
 ```
 
-내부적으로 다음 라이브러리를 사용합니다:
+Internally uses the following libraries:
 
 - [Jasypt](http://www.jasypt.org/) - Java Simplified Encryption
 - [BouncyCastle](https://www.bouncycastle.org/) - bcprov, bcpkix
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.crypto
-├── CryptographySupport.kt              # 유틸리티 (randomBytes, BouncyCastle 등록)
+├── CryptographySupport.kt              # Utilities (randomBytes, BouncyCastle registration)
 ├── digest/
-│   ├── Digester.kt                      # Digester 인터페이스
-│   ├── AbstractDigester.kt              # 추상 구현 (PooledByteDigester 래핑)
-│   ├── Digesters.kt                     # 팩토리 싱글턴
-│   ├── DigesterExtensions.kt            # String/ByteArray 확장 함수
-│   ├── SHA256.kt, SHA384.kt, SHA512.kt  # SHA-2 계열
-│   ├── SHA1.kt, MD5.kt                  # 레거시 알고리즘
-│   └── Keccak256.kt, Keccak384.kt, Keccak512.kt  # Keccak 계열
+│   ├── Digester.kt                      # Digester interface
+│   ├── AbstractDigester.kt              # Abstract implementation (wraps PooledByteDigester)
+│   ├── Digesters.kt                     # Factory singleton
+│   ├── DigesterExtensions.kt            # String/ByteArray extension functions
+│   ├── SHA256.kt, SHA384.kt, SHA512.kt  # SHA-2 family
+│   ├── SHA1.kt, MD5.kt                  # Legacy algorithms
+│   └── Keccak256.kt, Keccak384.kt, Keccak512.kt  # Keccak family
 ├── encrypt/
-│   ├── Encryptor.kt                     # Encryptor 인터페이스
-│   ├── AbstractEncryptor.kt             # 추상 구현 (PooledPBEByteEncryptor 래핑)
-│   ├── Encryptors.kt                    # 팩토리 싱글턴
-│   ├── EncryptorExtensions.kt           # String/ByteArray 확장 함수
-│   ├── EncryptorSupport.kt              # 기본 비밀번호 설정
-│   ├── AES.kt                           # AES-256 (권장)
-│   ├── DES.kt, TripleDES.kt            # DES 계열
-│   └── RC2.kt, RC4.kt                  # RC 계열
+│   ├── Encryptor.kt                     # Encryptor interface
+│   ├── AbstractEncryptor.kt             # Abstract implementation (wraps PooledPBEByteEncryptor)
+│   ├── Encryptors.kt                    # Factory singleton
+│   ├── EncryptorExtensions.kt           # String/ByteArray extension functions
+│   ├── EncryptorSupport.kt              # Default password configuration
+│   ├── AES.kt                           # AES-256 (recommended)
+│   ├── DES.kt, TripleDES.kt            # DES family
+│   └── RC2.kt, RC4.kt                  # RC family
 └── cipher/
-    ├── CipherBuilder.kt                 # JCA Cipher 빌더
-    └── CipherExtensions.kt             # Cipher 확장 함수
+    ├── CipherBuilder.kt                 # JCA Cipher builder
+    └── CipherExtensions.kt             # Cipher extension functions
 ```
 
-## 테스트
+## Testing
 
 ```bash
-# 전체 테스트 실행
+# Run all tests
 ./gradlew :bluetape4k-crypto:test
 
-# 특정 테스트 실행
+# Run specific tests
 ./gradlew :bluetape4k-crypto:test --tests "io.bluetape4k.crypto.digest.DigesterTest"
 ./gradlew :bluetape4k-crypto:test --tests "io.bluetape4k.crypto.encrypt.EncryptorTest"
 ```
 
-## 참고
+## References
 
 - [Jasypt](http://www.jasypt.org/) - Java Simplified Encryption
-- [BouncyCastle](https://www.bouncycastle.org/) - 암호화 프로바이더
+- [BouncyCastle](https://www.bouncycastle.org/) - Cryptography provider
 - [JCA Reference Guide](https://docs.oracle.com/en/java/javase/21/security/java-cryptography-architecture-jca-reference-guide.html) - Java Cryptography Architecture

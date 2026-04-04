@@ -1,16 +1,18 @@
 # Module bluetape4k-r2dbc
 
-R2DBC(Reactive Relational Database Connectivity) 환경에서 코루틴과 Flow를 활용한 반응형 데이터 접근을 지원하는 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 특징
+A library that supports reactive data access using Coroutines and Flow in an R2DBC (Reactive Relational Database Connectivity) environment.
 
-- **Kotlin Coroutines/Flow 지원**: R2DBC의 Reactive 스트림을 Kotlin Flow로 변환
-- **DatabaseClient 확장**: 파라미터 바인딩, SQL 실행 보조 함수
-- **Query Builder**: 동적 쿼리 구성을 위한 간편한 빌더
-- **Transaction 지원**: R2DBC 트랜잭션 관리
-- **Spring Boot Auto Configuration**: Spring 환경 자동 구성
+## Features
 
-## 의존성 추가
+- **Kotlin Coroutines/Flow Support**: Converts R2DBC Reactive streams to Kotlin Flow
+- **DatabaseClient Extensions**: Parameter binding and SQL execution helpers
+- **Query Builder**: Convenient builder for composing dynamic queries
+- **Transaction Support**: R2DBC transaction management
+- **Spring Boot Auto Configuration**: Automatic configuration in a Spring environment
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -18,15 +20,15 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Core Features
 
-### 1. DatabaseClient SQL 실행
+### 1. Executing SQL with DatabaseClient
 
 ```kotlin
 import io.bluetape4k.r2dbc.support.*
 import kotlinx.coroutines.flow.toList
 
-// SELECT 쿼리 실행
+// Execute a SELECT query
 val users = databaseClient
     .sql("SELECT * FROM users WHERE active = :active")
     .bind("active", true)
@@ -40,7 +42,7 @@ val users = databaseClient
     }
     .toList()
 
-// 단일 결과 조회
+// Fetch a single result
 val user = databaseClient
     .sql("SELECT * FROM users WHERE id = :id")
     .bind("id", 1)
@@ -52,7 +54,7 @@ val user = databaseClient
         )
     }
 
-// 결과를 Map으로 조회
+// Fetch result as a Map
 val userMap = databaseClient
     .sql("SELECT * FROM users WHERE id = :id")
     .bind("id", 1)
@@ -60,10 +62,10 @@ val userMap = databaseClient
     .awaitSingleAsMap()
 ```
 
-### 2. 파라미터 바인딩
+### 2. Parameter Binding
 
 ```kotlin
-// Map으로 파라미터 바인딩
+// Bind parameters from a Map
 val parameters = mapOf(
     "username" to "john",
     "active" to true
@@ -75,7 +77,7 @@ val users = databaseClient
     .fetch()
     .flow { row, _ -> /* mapping */ }
 
-// 인덱스 기반 파라미터 바인딩
+// Index-based parameter binding
 val indexedParams = mapOf(
     1 to "john",
     2 to true
@@ -88,10 +90,10 @@ val users = databaseClient
     .flow { row, _ -> /* mapping */ }
 ```
 
-### 3. CRUD 연산
+### 3. CRUD Operations
 
 ```kotlin
-// INSERT 및 생성된 키 반환
+// INSERT and return generated key
 val generatedId = databaseClient
     .sqlInsert("INSERT INTO users (name, email) VALUES (:name, :email)")
     .bind("name", "John Doe")
@@ -115,12 +117,12 @@ val deletedRows = databaseClient
     .awaitRowsUpdated()
 ```
 
-### 4. Flow 및 코루틴 지원
+### 4. Flow and Coroutine Support
 
 ```kotlin
 import kotlinx.coroutines.flow.*
 
-// Flow로 결과 수집
+// Collect results as a Flow
 val userFlow: Flow<User> = databaseClient
     .sql("SELECT * FROM users")
     .fetch()
@@ -131,27 +133,26 @@ val userFlow: Flow<User> = databaseClient
         )
     }
 
-// Flow 변환
+// Transform the Flow
 val names = userFlow
     .map { it.name }
     .filter { it.startsWith("A") }
     .toList()
 
-// 리스트로 수집
+// Collect into a List
 val users = databaseClient
     .sql("SELECT * FROM users")
     .fetch()
     .awaitList { row, _ -> /* mapping */ }
 ```
 
-### 5. 트랜잭션 관리
+### 5. Transaction Management
 
 ```kotlin
 import io.bluetape4k.r2dbc.support.withTransactionSuspend
 
-// 트랜잭션 내에서 실행
+// Execute within a transaction
 databaseClient.withTransactionSuspend { tx ->
-    // 트랜잭션 내에서 여러 작업 수행
     databaseClient
         .sql("INSERT INTO accounts (user_id, balance) VALUES (:userId, :balance)")
         .bind("userId", 1)
@@ -174,7 +175,7 @@ databaseClient.withTransactionSuspend { tx ->
 ```kotlin
 import io.bluetape4k.r2dbc.query.QueryBuilder
 
-// 동적 쿼리 구성
+// Compose a dynamic query
 val query = QueryBuilder().build {
     select("SELECT * FROM users")
     parameter("active", true)
@@ -186,7 +187,7 @@ val query = QueryBuilder().build {
     limit(10)
 }
 
-// 쿼리 실행
+// Execute the query
 val users = databaseClient
     .sql(query.sql)
     .bindMap(query.parameters)
@@ -194,14 +195,14 @@ val users = databaseClient
     .flow { row, _ -> /* mapping */ }
 ```
 
-### 7. R2dbcClient 사용
+### 7. Using R2dbcClient
 
 ```kotlin
 import io.bluetape4k.r2dbc.R2dbcClient
 import io.bluetape4k.r2dbc.core.execute
 
-// R2dbcClient로 쿼리 실행
-val r2dbcClient: R2dbcClient = TODO() // 주입
+// Execute a query with R2dbcClient
+val r2dbcClient: R2dbcClient = TODO() // injected
 
 val users = r2dbcClient
     .execute<User>("SELECT * FROM users WHERE active = :active")
@@ -209,22 +210,22 @@ val users = r2dbcClient
     .fetch()
     .flow()
 
-// Query 객체로 실행
+// Execute with a Query object
 val query = QueryBuilder().build { /* ... */ }
 val results = r2dbcClient.execute<User>(query).fetch()
 ```
 
-### 8. 카운트 및 존재 여부 확인
+### 8. Count and Existence Check
 
 ```kotlin
-// 카운트
+// Count
 val count = databaseClient
     .sql("SELECT COUNT(*) FROM users WHERE active = :active")
     .bind("active", true)
     .fetch()
     .awaitCount()
 
-// 존재 여부
+// Check existence
 val exists = databaseClient
     .sql("SELECT 1 FROM users WHERE id = :id")
     .bind("id", 1)
@@ -244,7 +245,7 @@ spring:
 ```
 
 ```kotlin
-// R2dbcClient 자동 주입
+// R2dbcClient auto-injection
 @Service
 class UserService(
     private val r2dbcClient: R2dbcClient
@@ -258,7 +259,7 @@ class UserService(
 }
 ```
 
-## 테스트 지원
+## Test Support
 
 ```kotlin
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
@@ -268,7 +269,7 @@ import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
 class UserRepositoryTest: AbstractR2dbcTest() {
 
     @Test
-    fun `사용자 조회 테스트`() = runSuspendIO {
+    fun `user lookup test`() = runSuspendIO {
         val user = client.databaseClient
             .sql("SELECT * FROM users WHERE username = :username")
             .bind("username", "jsmith")
@@ -285,9 +286,9 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 }
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 확장 함수 API 개요
+### Extension Function API Overview
 
 ```mermaid
 classDiagram
@@ -305,7 +306,7 @@ classDiagram
 
 ```
 
-### 주요 API 구조
+### Core API Structure
 
 ```mermaid
 classDiagram
@@ -342,32 +343,32 @@ classDiagram
         +execute~T~(query): ExecuteSpec~T~
     }
 
-    DatabaseClientExtensions --> BindSpecExtensions : 파라미터 바인딩
-    QueryBuilder --> Query : 생성
-    R2dbcClient --> DatabaseClientExtensions : 위임
-    R2dbcClient --> QueryBuilder : 사용
+    DatabaseClientExtensions --> BindSpecExtensions : parameter binding
+    QueryBuilder --> Query : creates
+    R2dbcClient --> DatabaseClientExtensions : delegates
+    R2dbcClient --> QueryBuilder : uses
 ```
 
-### R2DBC 쿼리 실행 흐름
+### R2DBC Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant R2DBC as DatabaseClient 확장
+    participant App as Application
+    participant R2DBC as DatabaseClient Extension
     participant Spring as Spring R2DBC
-    participant DB as 데이터베이스
+    participant DB as Database
 
     App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
     R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
-    Spring->>DB: R2DBC 쿼리 실행 (논블로킹)
+    Spring->>DB: R2DBC query (non-blocking)
     DB-->>Spring: Flux~Row~
     Spring-->>R2DBC: Flux~Row~
-    R2DBC-->>App: Flow~T~ (코루틴 변환)
+    R2DBC-->>App: Flow~T~ (coroutine conversion)
 
-    Note over App,DB: 모든 I/O가 논블로킹, 코루틴 컨텍스트에서 실행
+    Note over App,DB: All I/O is non-blocking, executed in coroutine context
 ```
 
-### JDBC vs R2DBC 비교
+### JDBC vs R2DBC Comparison
 
 ```mermaid
 flowchart LR
@@ -375,26 +376,26 @@ flowchart LR
         A1[DataSource] --> A2[Connection]
         A2 --> A3[PreparedStatement]
         A3 --> A4[ResultSet]
-        A4 --> A5[동기 처리]
+        A4 --> A5[Synchronous]
     end
     subgraph R2DBC
         B1[ConnectionFactory] --> B2[Connection]
         B2 --> B3[Statement]
         B3 --> B4["Result / Flux&lt;Row&gt;"]
-        B4 -->|asFlow| B5["Flow&lt;T&gt; 비동기"]
+        B4 -->|asFlow| B5["Flow&lt;T&gt; Async"]
     end
 
     style JDBC fill:#f9f0e0
     style R2DBC fill:#e0f0f9
 ```
 
-## 참고 자료
+## References
 
-- [R2DBC 공식 문서](https://r2dbc.io/)
+- [R2DBC Official Documentation](https://r2dbc.io/)
 - [Spring Data R2DBC](https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/)
 - [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)
 - [Kotlin Flow](https://kotlinlang.org/docs/flow.html)
 
-## 라이선스
+## License
 
 Apache License 2.0

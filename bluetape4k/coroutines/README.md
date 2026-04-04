@@ -1,5 +1,7 @@
 # Module `bluetape4k-coroutines`
 
+English | [한국어](./README.ko.md)
+
 `bluetape4k-coroutines` provides higher-level coroutine utilities used across the Bluetape4k modules.
 
 It focuses on:
@@ -119,9 +121,9 @@ Useful entry points:
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
 
-## 아키텍처
+## Architecture
 
-### 클래스 다이어그램
+### Class Diagram
 
 ```mermaid
 classDiagram
@@ -210,45 +212,45 @@ classDiagram
 
 ---
 
-### DeferredValue 사용 흐름
+### DeferredValue Usage Flow
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant DV as DeferredValue
-    participant Co as 코루틴 (백그라운드)
+    participant Co as Coroutine (background)
 
     C->>DV: deferredValueOf(block)
-    DV->>Co: 즉시 코루틴 시작 (eager)
+    DV->>Co: starts coroutine immediately (eager)
 
     C->>DV: .map(transform)
-    DV-->>C: 새 DeferredValue (doubled) 반환
+    DV-->>C: returns new DeferredValue (doubled)
 
     C->>DV: doubled.await()
-    DV->>Co: 결과 대기 (suspend)
+    DV->>Co: suspends waiting for result
     Co-->>DV: 42
     DV-->>C: 42
 
-    Note over C,Co: value 프로퍼티는 블로킹 접근 (비추천)
+    Note over C,Co: value property is blocking access (not recommended)
     C->>DV: doubled.value
-    DV-->>C: 42 (스레드 블록)
+    DV-->>C: 42 (blocks thread)
 ```
 
 ---
 
-## Flow 연산자 다이어그램
+## Flow Operator Diagrams
 
-### 1. Flow 확장 함수 카테고리 개요
+### 1. Flow Extension Categories
 
 ```mermaid
 flowchart TD
     FlowExt["Flow Extensions<br/>io.bluetape4k.coroutines.flow.extensions"]
-    FlowExt --> Batch["배치 / 윈도우"]
-    FlowExt --> Parallel["병렬 처리"]
-    FlowExt --> Temporal["시간 기반 제어"]
-    FlowExt --> Gate["게이트 / 필터"]
-    FlowExt --> Combine["결합 / 병합"]
-    FlowExt --> Accumulate["누적 / 변환"]
+    FlowExt --> Batch["Batch / Window"]
+    FlowExt --> Parallel["Parallel Processing"]
+    FlowExt --> Temporal["Time-Based Control"]
+    FlowExt --> Gate["Gate / Filter"]
+    FlowExt --> Combine["Combine / Merge"]
+    FlowExt --> Accumulate["Accumulate / Transform"]
     FlowExt --> Async["AsyncFlow"]
     Batch --> chunked["chunked(n)"]
     Batch --> windowed["windowed(size, step)"]
@@ -274,9 +276,9 @@ flowchart TD
 
 ---
 
-### 2. `chunked(n)` — 고정 크기 청크
+### 2. `chunked(n)` — Fixed-Size Chunks
 
-입력 요소를 `n`개씩 묶어 `List`로 방출합니다. 마지막 불완전 청크도 방출(`partialWindow=true` 기본값).
+Groups input elements into `List`s of size `n`. Emits the final partial chunk as well (`partialWindow=true` by default).
 
 ```mermaid
 sequenceDiagram
@@ -289,15 +291,15 @@ sequenceDiagram
     C ->> R: emit([1, 2, 3])
     S ->> C: emit(4)
     S ->> C: emit(5)
-    Note over C: 소스 완료, partialWindow=true
+    Note over C: source complete, partialWindow=true
     C ->> R: emit([4, 5])
 ```
 
 ---
 
-### 3. `windowed(size, step)` — 슬라이딩 윈도우
+### 3. `windowed(size, step)` — Sliding Window
 
-`size` 크기 윈도우를 `step`씩 이동하며 방출합니다.
+Emits windows of size `size`, advancing by `step` each time.
 
 ```mermaid
 sequenceDiagram
@@ -308,20 +310,20 @@ sequenceDiagram
     S ->> W: emit(2)
     S ->> W: emit(3)
     W ->> R: emit([1, 2, 3])
-    Note over W: step=2이므로 앞 2개 버림 → 버퍼=[3]
+    Note over W: step=2, drop first 2 → buffer=[3]
     S ->> W: emit(4)
     S ->> W: emit(5)
     W ->> R: emit([3, 4, 5])
-    Note over W: step=2이므로 앞 2개 버림 → 버퍼=[5]
-    Note over S: 소스 완료, partialWindow=false
-    Note over W: 불완전 윈도우 버림
+    Note over W: step=2, drop first 2 → buffer=[5]
+    Note over S: source complete, partialWindow=false
+    Note over W: partial window discarded
 ```
 
 ---
 
-### 4. `sliding(n)` / `bufferedSliding(n)` — 1칸씩 이동하는 윈도우
+### 4. `sliding(n)` / `bufferedSliding(n)` — One-Step Sliding Window
 
-`sliding`은 `windowed(size, step=1)`과 동일합니다. `bufferedSliding`은 버퍼를 유지하며 매 요소마다 스냅샷을 방출합니다.
+`sliding` is equivalent to `windowed(size, step=1)`. `bufferedSliding` maintains a buffer and emits a snapshot on every element.
 
 ```mermaid
 sequenceDiagram
@@ -330,7 +332,7 @@ sequenceDiagram
     participant BS as bufferedSliding(2)
     S ->> SL: emit(1)
     S ->> SL: emit(2)
-    SL -->> SL: 윈도우=[1,2] 가득 참
+    SL -->> SL: window=[1,2] full
     SL ->> SL: emit([1, 2])
     S ->> SL: emit(3)
     SL ->> SL: emit([2, 3])
@@ -340,15 +342,15 @@ sequenceDiagram
     BS ->> BS: emit([1, 2])
     S ->> BS: emit(3)
     BS ->> BS: emit([2, 3])
-    Note over BS: 소스 완료 후 버퍼 비움
+    Note over BS: source complete, drain buffer
     BS ->> BS: emit([3])
 ```
 
 ---
 
-### 5. `mapParallel(parallelism)` — 병렬 변환
+### 5. `mapParallel(parallelism)` — Parallel Transformation
 
-`parallelism` 수만큼 동시에 변환 함수를 실행합니다. 결과 순서는 보장되지 않습니다.
+Runs the transform function on up to `parallelism` elements concurrently. Result order is not guaranteed.
 
 ```mermaid
 sequenceDiagram
@@ -358,25 +360,25 @@ sequenceDiagram
     S ->> MP: emit(1)
     S ->> MP: emit(2)
     S ->> MP: emit(3)
-    Note over MP: 코루틴 3개 동시 실행
-    par 병렬 변환
+    Note over MP: 3 coroutines running concurrently
+    par parallel transform
         MP -->> MP: transform(1) → 10
     and
         MP -->> MP: transform(2) → 20
     and
         MP -->> MP: transform(3) → 30
     end
-    MP ->> R: emit(10 or 20 or 30, 도착 순서)
+    MP ->> R: emit(10 or 20 or 30, arrival order)
     MP ->> R: emit(...)
     MP ->> R: emit(...)
-    Note over R: 결과 순서는 실행 속도에 따라 달라짐
+    Note over R: result order depends on execution speed
 ```
 
 ---
 
-### 6. `concatMapEager { }` — 순서 보장 eager 병렬 수집
+### 6. `concatMapEager { }` — Order-Preserving Eager Parallel Collection
 
-inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 유지합니다.
+Starts inner Flows eagerly and concurrently, but **emits results in source order**.
 
 ```mermaid
 sequenceDiagram
@@ -385,13 +387,13 @@ sequenceDiagram
     participant R as Collector
     S ->> CM: emit(1) → transform → flowOf(1, 10)
     S ->> CM: emit(2) → transform → flowOf(2, 20)
-    Note over CM: inner Flow 2개 동시 수집 시작
-    par eager 수집
-        CM -->> CM: 큐A에 1, 10 적재
+    Note over CM: start collecting 2 inner Flows concurrently
+    par eager collection
+        CM -->> CM: queue A receives 1, 10
     and
-        CM -->> CM: 큐B에 2, 20 적재
+        CM -->> CM: queue B receives 2, 20
     end
-    Note over CM: source 순서(A→B)로 큐 비움
+    Note over CM: drain queues in source order (A→B)
     CM ->> R: emit(1)
     CM ->> R: emit(10)
     CM ->> R: emit(2)
@@ -400,9 +402,9 @@ sequenceDiagram
 
 ---
 
-### 7. `bufferingDebounce(timeout)` — 디바운스 배치
+### 7. `bufferingDebounce(timeout)` — Debounced Batching
 
-`timeout` 동안 들어온 값을 버퍼링해 한 번에 `List`로 방출합니다. 연속 입력이 오면 타임아웃을 갱신합니다.
+Buffers values arriving within `timeout` and emits them together as a `List`. Resets the timeout on each new arrival.
 
 ```mermaid
 sequenceDiagram
@@ -412,11 +414,11 @@ sequenceDiagram
     S ->> BD: emit(A) [t=0ms]
     S ->> BD: emit(B) [t=50ms]
     S ->> BD: emit(C) [t=80ms]
-    Note over BD: timeout 재계산 중...
-    Note over BD: t=280ms, timeout 만료
+    Note over BD: resetting timeout...
+    Note over BD: t=280ms, timeout expired
     BD ->> R: emit([A, B, C])
     S ->> BD: emit(D) [t=400ms]
-    Note over S: 소스 완료
+    Note over S: source complete
     BD ->> R: emit([D])
 ```
 
@@ -424,32 +426,32 @@ sequenceDiagram
 
 ### 8. `throttleLeading` / `throttleTrailing` / `throttleBoth` — Throttle
 
-고정 윈도우 내에서 첫 요소(leading), 마지막 요소(trailing), 또는 둘 다(both)를 방출합니다.
+Within a fixed window, emits the first element (leading), last element (trailing), or both.
 
 ```mermaid
 sequenceDiagram
-    participant S as Source (매 200ms 방출)
+    participant S as Source (emits every 200ms)
     participant TL as throttleLeading(500ms)
     participant TT as throttleTrailing(500ms)
-    Note over S, TT: 입력: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
-    S ->> TL: emit(1) [0ms] — 윈도우 시작
-    Note over TL: 2, 3 무시
-    S ->> TL: emit(4) [600ms] — 새 윈도우
-    Note over TL: 5 무시
-    S ->> TL: emit(7) [1200ms] — 새 윈도우
-    Note over TL: 결과: [1, 4, 7, ...]
-    S ->> TT: emit(1) [0ms] — 버퍼 시작
+    Note over S, TT: input: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
+    S ->> TL: emit(1) [0ms] — window starts
+    Note over TL: 2, 3 ignored
+    S ->> TL: emit(4) [600ms] — new window
+    Note over TL: 5 ignored
+    S ->> TL: emit(7) [1200ms] — new window
+    Note over TL: result: [1, 4, 7, ...]
+    S ->> TT: emit(1) [0ms] — buffering starts
     S ->> TT: emit(2) [200ms]
     S ->> TT: emit(3) [400ms]
-    Note over TT: 500ms 윈도우 종료 → 마지막=3 방출
+    Note over TT: 500ms window ends → emit last=3
     TT -->> TT: emit(3)
     S ->> TT: emit(4) [600ms]
-    Note over TT: 결과: [3, 6, 9, ...]
+    Note over TT: result: [3, 6, 9, ...]
 ```
 
 ---
 
-### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — 게이트 제어
+### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — Gate Control
 
 ```mermaid
 sequenceDiagram
@@ -458,21 +460,21 @@ sequenceDiagram
     participant TU as takeUntil
     participant SU as skipUntil
     participant R as Collector
-    Note over S, R: takeUntil: notifier 첫 이벤트 전까지만 방출
+    Note over S, R: takeUntil: emit only until the first notifier event
     S ->> TU: emit(1)
     TU ->> R: emit(1)
     S ->> TU: emit(2)
     TU ->> R: emit(2)
-    N ->> TU: emit(signal) ← 중단 트리거
-    Note over TU: 이후 값 차단
+    N ->> TU: emit(signal) ← stop trigger
+    Note over TU: subsequent values blocked
     S ->> TU: emit(3)
-    Note over TU: 차단됨 (방출 안 함)
-    Note over S, R: skipUntil: notifier 첫 이벤트 이후부터 방출
+    Note over TU: blocked (not emitted)
+    Note over S, R: skipUntil: emit only after the first notifier event
     S ->> SU: emit(A)
-    Note over SU: 게이트 닫힘, 버림
+    Note over SU: gate closed, discarded
     S ->> SU: emit(B)
-    Note over SU: 버림
-    N ->> SU: emit(signal) ← 게이트 오픈
+    Note over SU: discarded
+    N ->> SU: emit(signal) ← gate opens
     S ->> SU: emit(C)
     SU ->> R: emit(C)
     S ->> SU: emit(D)
@@ -481,9 +483,9 @@ sequenceDiagram
 
 ---
 
-### 10. `merge(flows)` — 비순서 병합
+### 10. `merge(flows)` — Unordered Merge
 
-여러 Flow를 동시 수집해 도착 순서대로 방출합니다.
+Collects multiple Flows concurrently and emits values in arrival order.
 
 ```mermaid
 sequenceDiagram
@@ -492,25 +494,25 @@ sequenceDiagram
     participant M as merge()
     participant R as Collector
 
-    par 동시 수집
+    par concurrent collection
         F1 ->> M: emit(1)
         F2 ->> M: emit(X)
         F1 ->> M: emit(2)
         F2 ->> M: emit(Y)
     end
-    Note over M: 도착 순서대로 큐에 적재
-    M ->> R: emit(1 or X, 도착 순서)
+    Note over M: queued in arrival order
+    M ->> R: emit(1 or X, arrival order)
     M ->> R: emit(X or 1, ...)
     M ->> R: emit(2 or Y, ...)
     M ->> R: emit(Y or 2, ...)
-    Note over R: 개별 Flow 내부 순서(1→2, X→Y)는 유지됨
+    Note over R: per-flow order (1→2, X→Y) is preserved
 ```
 
 ---
 
-### 11. `pairwise()` / `zipWithNext()` — 인접 쌍
+### 11. `pairwise()` / `zipWithNext()` — Adjacent Pairs
 
-인접한 두 요소를 `Pair`로 묶거나 변환 함수를 적용합니다. `zipWithNext`는 `pairwise`의 별칭입니다.
+Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext` is an alias for `pairwise`.
 
 ```mermaid
 sequenceDiagram
@@ -518,7 +520,7 @@ sequenceDiagram
     participant P as pairwise()
     participant R as Collector
     S ->> P: emit(1)
-    Note over P: 버퍼=[1], 쌍 미완성
+    Note over P: buffer=[1], pair incomplete
     S ->> P: emit(2)
     P ->> R: emit((1, 2))
     S ->> P: emit(3)
@@ -529,16 +531,16 @@ sequenceDiagram
 
 ---
 
-### 12. `scanWith(initial) { }` — 지연 초기값 누적
+### 12. `scanWith(initial) { }` — Lazy Initial Value Accumulation
 
-collect 시점에 `initialSupplier`를 호출해 초기값을 생성한 뒤 누적 결과를 방출합니다.
+Calls `initialSupplier` at collect time to produce the seed, then emits each accumulated result.
 
 ```mermaid
 sequenceDiagram
     participant S as Flow Source
     participant SW as scanWith({ 0 }) { acc, v -> acc + v }
     participant R as Collector
-    Note over SW: collect 시작 → initialSupplier() 호출 → acc=0
+    Note over SW: collect starts → initialSupplier() called → acc=0
     SW ->> R: emit(0)
     S ->> SW: emit(1)
     SW ->> R: emit(1)
@@ -550,29 +552,29 @@ sequenceDiagram
 
 ---
 
-### 13. `AsyncFlow` — 순서 보장 비동기 변환
+### 13. `AsyncFlow` — Order-Preserving Async Transformation
 
-각 요소를 `Deferred`로 비동기 시작하지만, **결과 방출 순서는 입력 순서를 유지**합니다. `mapParallel`과 달리 순서가 보장됩니다.
+Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike `mapParallel`, output order is guaranteed.
 
 ```mermaid
 sequenceDiagram
     participant S as Flow Source
     participant AF as Flow.async { }
     participant R as Collector
-    S ->> AF: emit(1) → LazyDeferred 시작
-    S ->> AF: emit(2) → LazyDeferred 시작
-    S ->> AF: emit(3) → LazyDeferred 시작
-    Note over AF: 3개 Deferred 동시 실행 중
-    par 비동기 계산
-        AF -->> AF: Deferred(1) 완료
-        AF -->> AF: Deferred(3) 완료 (더 빠를 수도 있음)
-        AF -->> AF: Deferred(2) 완료
+    S ->> AF: emit(1) → LazyDeferred started
+    S ->> AF: emit(2) → LazyDeferred started
+    S ->> AF: emit(3) → LazyDeferred started
+    Note over AF: 3 Deferreds running concurrently
+    par async computation
+        AF -->> AF: Deferred(1) complete
+        AF -->> AF: Deferred(3) complete (may finish first)
+        AF -->> AF: Deferred(2) complete
     end
-    Note over AF: 입력 순서대로 await()
+    Note over AF: await() in input order
     AF ->> R: emit(result_1)
     AF ->> R: emit(result_2)
     AF ->> R: emit(result_3)
-    Note over R: 항상 1→2→3 순서 유지
+    Note over R: always 1→2→3 order
 ```
 
 ---

@@ -1,32 +1,33 @@
 # Module bluetape4k-fastjson2
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-fastjson2`는 [Fastjson2](https://github.com/alibaba/fastjson2) 라이브러리를 Kotlin 확장 함수로 래핑하여 제공하는 모듈입니다.
+## Overview
 
-JSONB(바이너리 JSON) 형식을 활용한 고성능 직렬화와, JSON 문자열/`InputStream`/`JSONObject`/
-`JSONArray` 등 다양한 데이터 소스에 대한 타입 안전한 역직렬화 확장 함수를 제공합니다.
+`bluetape4k-fastjson2` is a module that wraps the [Fastjson2](https://github.com/alibaba/fastjson2) library as Kotlin extension functions.
 
-## 주요 기능
+It provides high-performance serialization using JSONB (binary JSON) format, as well as type-safe deserialization extension functions for various data sources including JSON strings, `InputStream`, `JSONObject`, and `JSONArray`.
+
+## Key Features
 
 ### 1. FastjsonSerializer
 
-`JsonSerializer` 인터페이스를 구현하며, 바이트 배열에는 JSONB, 문자열에는 표준 JSON을 사용합니다.
+Implements the `JsonSerializer` interface, using JSONB for byte arrays and standard JSON for strings.
 
 ```kotlin
 import io.bluetape4k.fastjson2.FastjsonSerializer
 
 val serializer = FastjsonSerializer()
 
-// JSONB 바이너리 직렬화/역직렬화 (고성능)
+// JSONB binary serialization/deserialization (high-performance)
 val bytes = serializer.serialize(user)
 val restored = serializer.deserialize<User>(bytes)
 
-// JSON 문자열 직렬화/역직렬화
+// JSON string serialization/deserialization
 val jsonText = serializer.serializeAsString(user)
 val restored2 = serializer.deserializeFromString<User>(jsonText)
 
-// 실패 시 JsonSerializationException
+// Throws JsonSerializationException on failure
 try {
     serializer.deserialize<User>(byteArrayOf(1, 2, 3))
 } catch (e: JsonSerializationException) {
@@ -34,95 +35,95 @@ try {
 }
 ```
 
-`FastjsonSerializer` 실패 정책:
+`FastjsonSerializer` failure policy:
 
-- `serialize(null)`은 빈 `ByteArray`, `serializeAsString(null)`은 빈 문자열을 반환합니다.
-- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
-- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+- `serialize(null)` returns an empty `ByteArray`; `serializeAsString(null)` returns an empty string.
+- `deserialize(null)` / `deserializeFromString(null)` returns `null`.
+- All other serialization/deserialization failures throw `JsonSerializationException`.
 
-### 2. JSON 문자열 확장 함수
+### 2. JSON String Extension Functions
 
-JSON 문자열을 다양한 타입으로 변환하는 확장 함수를 제공합니다.
+Extension functions to convert JSON strings to various types.
 
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
-// 객체 → JSON 문자열
+// Object → JSON string
 val json = user.toJsonString()
 
-// JSON 문자열 → 객체
+// JSON string → object
 val user = json.readValueOrNull<User>()
 
-// JSON 배열 문자열 → List
+// JSON array string → List
 val users = jsonArrayString.readValueAsList<User>()
 
-// JSON 문자열 → JSONObject
+// JSON string → JSONObject
 val jsonObject = json.readAsJSONObject()
 ```
 
-### 3. JSONB 바이너리 확장 함수
+### 3. JSONB Binary Extension Functions
 
-Fastjson2의 JSONB(바이너리 JSON) 형식으로 직렬화/역직렬화합니다. 텍스트 JSON 대비 성능과 압축률이 우수합니다.
+Serializes/deserializes using Fastjson2's JSONB (binary JSON) format, which offers better performance and compression than text JSON.
 
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
-// 객체 → JSONB 바이트 배열
+// Object → JSONB byte array
 val bytes = user.toJsonBytes()
 
-// JSONB 바이트 배열 → 객체
+// JSONB byte array → object
 val restored = bytes.readBytesOrNull<User>()
 
-// InputStream → 객체
+// InputStream → object
 val user = inputStream.readBytesOrNull<User>()
 ```
 
-### 4. JSONArray 확장 함수
+### 4. JSONArray Extension Functions
 
-`JSONArray`에서 타입 안전하게 데이터를 추출합니다.
+Type-safe data extraction from `JSONArray`.
 
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
 val jsonArray: JSONArray = JSONArray()
 
-// 전체를 특정 타입으로 변환
+// Convert entire array to a specific type
 val data = jsonArray.readValueOrNull<MyData>()
 
-// 특정 인덱스 요소를 타입으로 변환
+// Convert element at a specific index
 val user = jsonArray.readValueOrNull<User>(0)
 
-// List 또는 Array로 변환
+// Convert to List or Array
 val users = jsonArray.readList<User>()
 val userArray = jsonArray.readArray<User>()
 ```
 
-### 5. JSONObject 확장 함수
+### 5. JSONObject Extension Functions
 
-`JSONObject`에서 타입 안전하게 데이터를 추출합니다.
+Type-safe data extraction from `JSONObject`.
 
 ```kotlin
 import io.bluetape4k.fastjson2.extensions.*
 
 val jsonObject: JSONObject = JSONObject()
 
-// 전체를 특정 타입으로 변환
+// Convert entire object to a specific type
 val user = jsonObject.readValueOrNull<User>()
 
-// 특정 키의 값을 타입으로 변환
+// Convert value at a specific key
 val user = jsonObject.readValueOrNull<User>("key")
 ```
 
-## JSONB vs JSON 비교
+## JSONB vs JSON Comparison
 
-| 형식           | 속도 | 크기 | 가독성 | 용도              |
-|--------------|----|----|-----|-----------------|
-| JSONB (바이너리) | 빠름 | 작음 | 불가  | 내부 직렬화, 캐시, RPC |
-| JSON (텍스트)   | 보통 | 보통 | 가능  | API 응답, 로깅, 디버깅 |
+| Format | Speed | Size | Readability | Use Case |
+|--------|-------|------|-------------|----------|
+| JSONB (binary) | Fast | Small | No | Internal serialization, cache, RPC |
+| JSON (text) | Moderate | Medium | Yes | API responses, logging, debugging |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 클래스 구조
+### Class Structure
 
 ```mermaid
 classDiagram
@@ -170,66 +171,66 @@ classDiagram
     }
 
     JsonSerializer <|.. FastjsonSerializer
-    FastjsonSerializer ..> JSONBExtensions : 내부 사용
+    FastjsonSerializer ..> JSONBExtensions : used internally
 
 ```
 
-### JSON vs JSONB 직렬화 흐름
+### JSON vs JSONB Serialization Flow
 
 ```mermaid
 flowchart LR
-    OBJ[Kotlin 객체]
+    OBJ[Kotlin object]
 
-    subgraph JSON["JSON 텍스트 (가독성)"]
+    subgraph JSON["JSON Text (human-readable)"]
         JS[toJsonString<br/>serializeAsString]
         JD[readValueOrNull<br/>deserializeFromString]
         JSTR[JSON String]
     end
 
-    subgraph JSONB["JSONB 바이너리 (고성능)"]
+    subgraph JSONB["JSONB Binary (high-performance)"]
         BS[toJsonBytes<br/>serialize]
         BD[readBytesOrNull<br/>deserialize]
         BARR[ByteArray]
     end
 
-    OBJ -->|직렬화| JS --> JSTR
-    JSTR -->|역직렬화| JD --> OBJ
+    OBJ -->|serialize| JS --> JSTR
+    JSTR -->|deserialize| JD --> OBJ
 
-    OBJ -->|직렬화| BS --> BARR
-    BARR -->|역직렬화| BD --> OBJ
+    OBJ -->|serialize| BS --> BARR
+    BARR -->|deserialize| BD --> OBJ
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-fastjson2"))
 
-    // 자동 포함됨
+    // Included automatically
     // api("com.alibaba.fastjson2:fastjson2")
     // api("com.alibaba.fastjson2:fastjson2-kotlin")
 }
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.fastjson2
-├── FastjsonSerializer.kt              # JsonSerializer 구현체
+├── FastjsonSerializer.kt              # JsonSerializer implementation
 └── extensions/
-    ├── JSONExtensions.kt              # String, InputStream 확장 함수
-    ├── JSONBExtensions.kt             # JSONB 바이너리 확장 함수
-    ├── JSONArrayExtensions.kt         # JSONArray 확장 함수
-    └── JSONObjectExtensions.kt        # JSONObject 확장 함수
+    ├── JSONExtensions.kt              # String, InputStream extension functions
+    ├── JSONBExtensions.kt             # JSONB binary extension functions
+    ├── JSONArrayExtensions.kt         # JSONArray extension functions
+    └── JSONObjectExtensions.kt        # JSONObject extension functions
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-fastjson2:test
 ```
 
-## 참고
+## References
 
 - [Fastjson2](https://github.com/alibaba/fastjson2)
 - [JSONB Specification](https://github.com/alibaba/fastjson2/wiki/jsonb_format_cn)

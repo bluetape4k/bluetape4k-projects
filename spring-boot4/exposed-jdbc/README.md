@@ -1,8 +1,10 @@
 # bluetape4k-spring-boot4-exposed-jdbc
 
-**Exposed DAO Entity 기반 Spring Data JDBC Repository (Spring Boot 4.0.x / Spring 7)**
+English | [한국어](./README.ko.md)
 
-Spring Boot 4와 Spring Data를 활용하여 Exposed DAO 엔티티를 관리하는 고성능 Repository 구현입니다. PartTree 메서드 이름 쿼리와 `@Query` 어노테이션을 통한 Exposed DSL 지원을 제공합니다.
+**Exposed DAO Entity-based Spring Data JDBC Repository (Spring Boot 4.0.x / Spring 7)**
+
+A high-performance Repository implementation for managing Exposed DAO entities using Spring Boot 4 and Spring Data. Supports PartTree method-name queries and Exposed DSL via the `@Query` annotation.
 
 ## UML
 
@@ -55,7 +57,7 @@ classDiagram
     UserEntity --> UserTable
 ```
 
-### 쿼리 처리 흐름
+### Query Processing Flow
 
 ```mermaid
 flowchart LR
@@ -75,7 +77,7 @@ flowchart LR
     DSL --> DB
 ```
 
-## 설치
+## Installation
 
 ```gradle
 dependencies {
@@ -84,9 +86,9 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-### 1. ExposedJdbcRepository - Spring Data 표준 인터페이스
+### 1. ExposedJdbcRepository - Spring Data Standard Interface
 
 ```kotlin
 @NoRepositoryBean
@@ -96,18 +98,18 @@ interface ExposedJdbcRepository<E: Entity<ID>, ID: Any>:
     QueryByExampleExecutor<E>
 ```
 
-- **ListCrudRepository**: `save`, `findById`, `findAll`, `delete`, `deleteById` 등
-- **ListPagingAndSortingRepository**: 페이징, 정렬 지원
-- **QueryByExampleExecutor**: 예제 기반 쿼리
-- **Exposed DSL 확장**: `findAll { op }`, `count { op }`, `exists { op }`
+- **ListCrudRepository**: `save`, `findById`, `findAll`, `delete`, `deleteById`, etc.
+- **ListPagingAndSortingRepository**: Pagination and sorting support
+- **QueryByExampleExecutor**: Query by example
+- **Exposed DSL extensions**: `findAll { op }`, `count { op }`, `exists { op }`
 
-### 2. PartTree 쿼리 자동 생성
+### 2. Automatic PartTree Query Generation
 
-메서드 이름에 따라 자동으로 Exposed DSL 쿼리 생성:
+Queries are automatically generated from method names:
 
 ```kotlin
 interface UserRepository : ExposedJdbcRepository<User, Long> {
-    // 자동 쿼리 생성
+    // Automatically generated queries
     fun findByName(name: String): List<User>
     fun findByAgeGreaterThan(age: Int): List<User>
     fun findByEmailContaining(keyword: String): List<User>
@@ -121,7 +123,7 @@ interface UserRepository : ExposedJdbcRepository<User, Long> {
 }
 ```
 
-### 3. @Query 어노테이션 - 직접 SQL 작성
+### 3. @Query Annotation - Write SQL Directly
 
 ```kotlin
 interface UserRepository : ExposedJdbcRepository<User, Long> {
@@ -136,7 +138,7 @@ interface UserRepository : ExposedJdbcRepository<User, Long> {
 }
 ```
 
-### 4. 자동 구성 (Auto Configuration)
+### 4. Auto Configuration
 
 ```kotlin
 @Configuration
@@ -144,7 +146,7 @@ interface UserRepository : ExposedJdbcRepository<User, Long> {
 class RepositoryConfig
 ```
 
-또는 Spring Boot 자동 구성 사용:
+Or use Spring Boot auto-configuration:
 
 ```kotlin
 // application.properties
@@ -152,9 +154,9 @@ spring.data.exposed-jdbc.repositories.enabled=true
 spring.data.exposed-jdbc.repositories.base-packages=com.example.repository
 ```
 
-## 사용 예시
+## Usage Examples
 
-### 엔티티 정의
+### Entity Definition
 
 ```kotlin
 object Users : LongIdTable("users") {
@@ -173,7 +175,7 @@ class User(id: EntityID<Long>) : LongEntity(id) {
 }
 ```
 
-### Repository 정의
+### Repository Definition
 
 ```kotlin
 interface UserRepository : ExposedJdbcRepository<User, Long> {
@@ -183,7 +185,7 @@ interface UserRepository : ExposedJdbcRepository<User, Long> {
 }
 ```
 
-### Service 사용
+### Service Usage
 
 ```kotlin
 @Service
@@ -219,7 +221,7 @@ class UserService(
 }
 ```
 
-### REST Controller 예제
+### REST Controller Example
 
 ```kotlin
 @RestController
@@ -250,31 +252,31 @@ class UserController(
 }
 ```
 
-## Exposed DSL 확장 메서드
+## Exposed DSL Extension Methods
 
-Repository 인터페이스에서 추가 메서드 사용:
+Additional methods available in the Repository interface:
 
 ```kotlin
 val userRepository: UserRepository = TODO()
 
-// DSL 조건으로 조회
+// Query with DSL condition
 val activeUsers = userRepository.findAll { Users.age greaterEq 18 }
 
-// DSL 조건으로 개수 세기
+// Count with DSL condition
 val adultCount = userRepository.count { Users.age greaterEq 18 }
 
-// DSL 조건으로 존재 확인
+// Check existence with DSL condition
 val hasAdults = userRepository.exists { Users.age greaterEq 18 }
 ```
 
-## 의존성
+## Dependencies
 
-- **Spring Boot**: 4.0.x 이상
-- **Spring Data**: 3.4.x 이상
-- **Exposed**: 1.0.x 이상
-- **Kotlin**: 2.0 이상
+- **Spring Boot**: 4.0.x or later
+- **Spring Data**: 3.4.x or later
+- **Exposed**: 1.0.x or later
+- **Kotlin**: 2.0 or later
 
-### Spring Boot 4 BOM 사용
+### Spring Boot 4 BOM
 
 ```gradle
 dependencies {
@@ -282,18 +284,18 @@ dependencies {
 }
 ```
 
-주의: `dependencyManagement` 플러그인은 Kotlin Gradle Plugin과 호환성 문제가 있으므로 `platform()`을 사용합니다.
+Note: Use `platform()` instead of the `dependencyManagement` plugin, which has compatibility issues with the Kotlin Gradle Plugin.
 
-## 주의사항
+## Important Notes
 
-### 트랜잭션 처리
+### Transaction Handling
 
-Exposed DAO 엔티티 생성/수정은 `transaction` 블록 내에서만 가능합니다:
+Exposed DAO entities must be created and modified within a `transaction` block:
 
 ```kotlin
 @Transactional
 fun createUser(name: String, email: String): User {
-    return transaction {  // Spring 트랜잭션과 Exposed 트랜잭션 통합
+    return transaction {  // Integrates Spring and Exposed transactions
         User.new {
             this.name = name
             this.email = email
@@ -302,50 +304,50 @@ fun createUser(name: String, email: String): User {
 }
 ```
 
-### PartTree 쿼리 제약
+### PartTree Query Limitations
 
-지원하는 키워드:
-- **비교**: `GreaterThan`, `LessThan`, `Between`, `In`, `Contains`
-- **정렬**: `OrderBy`
-- **집계**: `count`, `exists`
-- **삭제**: `deleteBy`
-- **페이징**: `Top`, `First`
+Supported keywords:
+- **Comparison**: `GreaterThan`, `LessThan`, `Between`, `In`, `Contains`
+- **Sorting**: `OrderBy`
+- **Aggregation**: `count`, `exists`
+- **Deletion**: `deleteBy`
+- **Paging**: `Top`, `First`
 
-지원하지 않는 패턴:
-- 복잡한 OR/AND 조합 → `@Query` 또는 DSL 메서드 사용
-- 조인 → Exposed DSL 직접 사용
+Unsupported patterns:
+- Complex OR/AND combinations → use `@Query` or DSL methods
+- Joins → use Exposed DSL directly
 
-### @Query 플레이스홀더
+### @Query Placeholders
 
-- `?1`, `?2`, ... : 메서드 파라미터 순서 (1-indexed)
-- 중복 플레이스홀더 지원: `?1 OR ?1`
-- 플레이스홀더 건너뛰기 미지원: `?1`과 `?3` 동시 사용 불가
+- `?1`, `?2`, ... : Method parameters by position (1-indexed)
+- Repeated placeholders supported: `?1 OR ?1`
+- Skipping placeholders not supported: cannot use `?1` and `?3` simultaneously
 
-## 멀티 데이터베이스
+## Multi-Database Support
 
-동일한 Repository 패턴으로 H2, PostgreSQL, MySQL, MariaDB 지원:
+Supports H2, PostgreSQL, MySQL, and MariaDB with the same Repository pattern:
 
 ```properties
-# application.properties (MySQL 예시)
+# application.properties (MySQL example)
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb
 spring.datasource.username=root
 spring.datasource.password=password
 ```
 
 ```properties
-# application.properties (PostgreSQL 예시)
+# application.properties (PostgreSQL example)
 spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
 ```
 
-## 성능 최적화
+## Performance Optimization
 
-### 페이징 쿼리
+### Paginated Queries
 
 ```kotlin
 val page = userRepository.findAll(PageRequest.of(0, 10, Sort.by("age").descending()))
 ```
 
-### 배치 작업
+### Batch Operations
 
 ```kotlin
 val users = listOf(
@@ -355,9 +357,9 @@ val users = listOf(
 userRepository.saveAll(users)
 ```
 
-### DSL 직접 사용
+### Direct DSL Usage
 
-복잡한 조건은 DSL 메서드 사용:
+For complex conditions, use DSL methods:
 
 ```kotlin
 val users = userRepository.findAll {
@@ -365,16 +367,16 @@ val users = userRepository.findAll {
 }
 ```
 
-## 문제 해결
+## Troubleshooting
 
-### "Repository 빈이 생성되지 않음"
+### "Repository bean not created"
 
 ```kotlin
 @EnableExposedJdbcRepositories(basePackages = ["com.example.repository"])
 class AppConfig
 ```
 
-또는 자동 구성 확인:
+Or check auto-configuration:
 
 ```properties
 # application.properties
@@ -382,31 +384,31 @@ spring.data.exposed-jdbc.repositories.enabled=true
 spring.data.exposed-jdbc.repositories.base-packages=com.example.repository
 ```
 
-### "PartTree 쿼리 해석 오류"
+### "PartTree query parsing error"
 
-더 간단한 메서드 이름 사용 또는 `@Query` 어노테이션 사용:
+Use simpler method names or the `@Query` annotation:
 
 ```kotlin
-// 복잡한 메서드 이름 대신
+// Instead of a complex method name
 @Query("SELECT * FROM users WHERE age > ?1 AND status = ?2")
 fun findActiveAdults(age: Int, status: String): List<User>
 ```
 
 ### "LazyInitializationException"
 
-응답 객체 구성 시 트랜잭션 끝나기 전에 모든 연관 데이터 로드:
+Load all associated data before the transaction ends when building response objects:
 
 ```kotlin
 @Transactional(readOnly = true)
 fun getUser(id: Long): UserDto {
     val user = userRepository.findById(id).get()
-    // 이 시점에서 모든 lazy 로딩 발생
+    // All lazy loading happens here
     return user.toDto()
 }
 ```
 
-## 관련 모듈
+## Related Modules
 
-- **bluetape4k-exposed-jdbc**: 핵심 Exposed JDBC Repository 구현
-- **bluetape4k-spring-boot3-exposed-jdbc**: Spring Boot 3.x 버전
-- **bluetape4k-spring-boot4-exposed-r2dbc**: R2DBC 코루틴 Repository
+- **bluetape4k-exposed-jdbc**: Core Exposed JDBC Repository implementation
+- **bluetape4k-spring-boot3-exposed-jdbc**: Spring Boot 3.x version
+- **bluetape4k-spring-boot4-exposed-r2dbc**: R2DBC coroutine Repository

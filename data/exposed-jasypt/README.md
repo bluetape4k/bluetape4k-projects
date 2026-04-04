@@ -1,18 +1,20 @@
 # Module bluetape4k-exposed-jasypt
 
-Exposed 컬럼 암복호화를 Jasypt로 처리하기 위한 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A module for encrypting and decrypting Exposed column values using Jasypt.
 
-`bluetape4k-exposed-jasypt`는 JetBrains Exposed의 컬럼 값을 [Jasypt](http://www.jasypt.org/) 라이브러리를 통해 암호화하여 저장하는 기능을 제공합니다. 결정적 암호화(Deterministic Encryption)를 사용하여 동일한 평문은 항상 동일한 암호문으로 변환됩니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-exposed-jasypt` provides transparent encryption of JetBrains Exposed column values using the [Jasypt](http://www.jasypt.org/) library. It uses deterministic encryption, so the same plaintext always produces the same ciphertext.
 
-- **결정적 암호화 컬럼 타입**: 동일 입력에 동일 암호문 생성
-- **문자열/바이너리 암호화**: `VARCHAR`, `BINARY` 컬럼 지원
-- **검색/인덱스 활용 가능**: 조건절 사용 및 인덱스 생성 가능
+### Key Features
 
-## 의존성 추가
+- **Deterministic encrypted column types**: Same input always produces the same ciphertext
+- **String and binary encryption**: Supports `VARCHAR` and `BINARY` columns
+- **Searchable / indexable**: Encrypted columns can be used in WHERE clauses and have indexes
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -21,9 +23,9 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. 암호화 컬럼 정의
+### 1. Defining Encrypted Columns
 
 ```kotlin
 import io.bluetape4k.exposed.core.jasypt.jasyptVarChar
@@ -34,14 +36,14 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 object Users: IdTable<Long>("users") {
     val name = varchar("name", 100)
 
-    // Jasypt 암호화 VARCHAR 컬럼
+    // Jasypt-encrypted VARCHAR column
     val ssn = jasyptVarChar(
         name = "ssn",
         colLength = 512,
         encryptor = Encryptors.Jasypt
     )
 
-    // Jasypt 암호화 BINARY 컬럼
+    // Jasypt-encrypted BINARY column
     val privateKey = jasyptBinary(
         name = "private_key",
         colLength = 1024,
@@ -50,36 +52,36 @@ object Users: IdTable<Long>("users") {
 }
 ```
 
-### 2. 암호화 컬럼 사용
+### 2. Using Encrypted Columns
 
 ```kotlin
-// 삽입 시 자동 암호화
+// Automatically encrypted on insert
 Users.insert {
     it[name] = "John Doe"
-    it[ssn] = "123-45-6789"  // 자동으로 암호화되어 저장
+    it[ssn] = "123-45-6789"  // encrypted automatically before storage
 }
 
-// 조회 시 자동 복호화
+// Automatically decrypted on read
 val user = Users.selectAll().where { Users.id eq 1L }.single()
-val ssn = user[Users.ssn]  // 자동으로 복호화됨
+val ssn = user[Users.ssn]  // decrypted automatically
 
-// 검색 가능 (결정적 암호화이므로)
+// Searchable (because deterministic encryption is used)
 val userBySsn = Users.selectAll()
     .where { Users.ssn eq "123-45-6789" }
     .single()
 ```
 
-## 결정적 암호화 특징
+## Deterministic Encryption Trade-offs
 
-| 장점              | 단점                        |
-|-----------------|---------------------------|
-| WHERE 절에서 검색 가능 | 동일 평문 → 동일 암호문 (패턴 분석 가능) |
-| 인덱스 생성 가능       | 보안 요구사항에 따라 부적합할 수 있음     |
-| 정렬 가능           |                           |
+| Advantage | Disadvantage |
+|-----------|-------------|
+| Searchable via WHERE clause | Same plaintext → same ciphertext (pattern analysis possible) |
+| Supports indexes | May not meet high-security requirements |
+| Supports sorting | |
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
-### 컬럼 타입 구조 (요약)
+### Column Type Structure (Summary)
 
 ```mermaid
 classDiagram
@@ -99,7 +101,7 @@ classDiagram
 
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -163,13 +165,13 @@ classDiagram
     JasyptBlobTransformer --> Encryptor
 ```
 
-## 암복호화 시퀀스 다이어그램
+## Encryption / Decryption Sequence Diagrams
 
-### DB 저장 시 자동 암호화
+### Automatic Encryption on DB Insert
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Col as JasyptVarCharColumnType
     participant Tx as StringJasyptEncryptionTransformer
     participant Enc as Encryptor (Jasypt)
@@ -178,30 +180,30 @@ sequenceDiagram
     App->>Col: insert { it[ssn] = "123-45-6789" }
     Col->>Tx: unwrap("123-45-6789")
     Tx->>Enc: encrypt("123-45-6789")
-    Note over Enc: 결정적 암호화<br/>동일 입력 → 동일 암호문
-    Enc-->>Tx: "ENC(xyz...)" (암호문)
+    Note over Enc: Deterministic encryption<br/>same input → same ciphertext
+    Enc-->>Tx: "ENC(xyz...)" (ciphertext)
     Tx-->>Col: "ENC(xyz...)"
     Col->>DB: INSERT ... VALUES ('ENC(xyz...)')
 ```
 
-### DB 조회 및 조건 검색
+### DB Read and Conditional Search
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Col as JasyptVarCharColumnType
     participant Tx as StringJasyptEncryptionTransformer
     participant Enc as Encryptor (Jasypt)
     participant DB as Database
 
-    Note over App,DB: 조건 검색 (결정적 암호화이므로 가능)
+    Note over App,DB: Conditional search (possible because of deterministic encryption)
     App->>Col: where { ssn eq "123-45-6789" }
     Col->>Tx: unwrap("123-45-6789")
     Tx->>Enc: encrypt("123-45-6789")
-    Enc-->>Col: "ENC(xyz...)" (항상 동일)
+    Enc-->>Col: "ENC(xyz...)" (always the same)
     Col->>DB: WHERE ssn = 'ENC(xyz...)'
 
-    Note over App,DB: 조회 결과 복호화
+    Note over App,DB: Decrypting query results
     DB-->>Col: "ENC(xyz...)"
     Col->>Tx: wrap("ENC(xyz...)")
     Tx->>Enc: decrypt("ENC(xyz...)")
@@ -210,29 +212,29 @@ sequenceDiagram
     Col-->>App: row[Users.ssn] == "123-45-6789"
 ```
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
-| 파일                           | 설명                |
-|------------------------------|-------------------|
-| `JasyptVarCharColumnType.kt` | VARCHAR 암호화 컬럼 타입 |
-| `JasyptBinaryColumnType.kt`  | BINARY 암호화 컬럼 타입  |
-| `Tables.kt`                  | 테이블 확장 함수         |
+| File | Description |
+|------|-------------|
+| `JasyptVarCharColumnType.kt` | Encrypted VARCHAR column type |
+| `JasyptBinaryColumnType.kt` | Encrypted BINARY column type |
+| `Tables.kt` | Table extension functions |
 
-## 주의사항
+## Notes
 
-1. **보안 고려사항**: 결정적 암호화는 인덱스/검색에 유리하지만, 동일한 평문이 항상 동일한 암호문으로 변환되므로 높은 보안이 필요한 경우에는 적합하지 않을 수 있습니다.
+1. **Security considerations**: Deterministic encryption is advantageous for indexing and searching, but since the same plaintext always maps to the same ciphertext, it may not be appropriate for high-security requirements.
 
-2. **컬럼 길이**: 암호화 후 평문보다 길어지므로 충분한 컬럼 길이를 지정해야 합니다.
+2. **Column length**: Encrypted values are longer than the original plaintext, so allocate sufficient column length.
 
-3. **키 관리**: 암호화 키는 안전하게 관리해야 합니다.
+3. **Key management**: Encryption keys must be managed securely.
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-jasypt:test
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Jasypt](http://www.jasypt.org/)

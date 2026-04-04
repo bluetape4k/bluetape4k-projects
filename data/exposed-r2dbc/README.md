@@ -1,41 +1,42 @@
 # Module bluetape4k-exposed-r2dbc
 
-Exposed R2DBC 환경에서 사용할 수 있는 확장 함수와 Repository 패턴을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Provides extension functions and the Repository pattern for use with Exposed in R2DBC environments.
 
-`bluetape4k-exposed-r2dbc`는 JetBrains Exposed의 R2DBC(Reactive Relational Database Connectivity) 드라이버를 사용하여
-비동기/반응형 데이터베이스 작업을 수행할 수 있는 확장 기능을 제공합니다. Kotlin Coroutines와 완벽하게 호환됩니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-exposed-r2dbc` builds on the JetBrains Exposed R2DBC (Reactive Relational Database Connectivity) driver to deliver extensions for asynchronous, reactive database operations. Fully compatible with Kotlin Coroutines.
 
-- **Repository 패턴**: `R2dbcRepository<ID, T, E>`, `SoftDeletedR2dbcRepository<ID, T, E>` 인터페이스
-- **Flow 기반 조회**: `findAll`, `findBy`, `findByField` 등이 `Flow<E>` 반환
-- **Batch Insert 지원**: 충돌 무시 배치 삽입(`BatchInsertOnConflictDoNothing`) 패턴
-  - PostgreSQL 계열은 특정 `id` 컬럼에 고정하지 않고 `ON CONFLICT DO NOTHING`으로 동작
-- **Coroutines 친화 API**: 모든 단건 조회/변경 연산이 `suspend` 함수
-- **Soft Delete 지원**: `SoftDeletedR2dbcRepository`
-- **가상 스레드 트랜잭션**: `virtualThreadTransaction` — Java 21 Virtual Thread 기반 R2DBC 트랜잭션 실행
-- **R2DBC Readable 확장**: `Readable.getString`, `Readable.getLong` 등 타입 안전 컬럼 값 조회 확장 함수
-- **SELECT \* 지원**: `ImplicitQuery` / `FieldSet.selectImplicitAll()` — `SELECT *` SQL 생성
-- **테이블 메타데이터 조회**: `Table.suspendColumnMetadata()`, `suspendIndexes()` 등 비동기 메타데이터 API
+### Key Features
 
-## 의존성 추가
+- **Repository pattern**: `R2dbcRepository<ID, T, E>` and `SoftDeletedR2dbcRepository<ID, T, E>` interfaces
+- **Flow-based queries**: `findAll`, `findBy`, `findByField`, and others return `Flow<E>`
+- **Batch insert support**: `BatchInsertOnConflictDoNothing` pattern
+  - For PostgreSQL-compatible databases, uses `ON CONFLICT DO NOTHING` without pinning to a specific `id` column
+- **Coroutines-friendly API**: All single-record lookup and mutation operations are `suspend` functions
+- **Soft delete support**: `SoftDeletedR2dbcRepository`
+- **Virtual Thread transactions**: `virtualThreadTransaction` — run R2DBC transactions on Java 21 Virtual Threads
+- **R2DBC Readable extensions**: Type-safe column value accessors such as `Readable.getString` and `Readable.getLong`
+- **SELECT \* support**: `ImplicitQuery` / `FieldSet.selectImplicitAll()` — generates `SELECT *` SQL
+- **Async table metadata**: `Table.suspendColumnMetadata()`, `suspendIndexes()`, and other async metadata APIs
+
+## Adding Dependencies
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-exposed-r2dbc:${version}")
 
-    // R2DBC 드라이버 (예시)
+    // R2DBC driver (examples)
     implementation("org.postgresql:r2dbc-postgresql:1.0.5.RELEASE")
-    // 또는
+    // or
     implementation("io.r2dbc:r2dbc-h2:1.0.0.RELEASE")
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. R2dbcRepository 구현
+### 1. Implementing R2dbcRepository
 
 ```kotlin
 import io.bluetape4k.exposed.r2dbc.repository.LongR2dbcRepository
@@ -73,20 +74,20 @@ class ActorRepository : LongR2dbcRepository<ActorTable, ActorRecord> {
     }
 }
 
-// 사용 예시
+// Usage
 suspendTransaction {
     val repo = ActorRepository()
     val saved = repo.save(ActorRecord(firstName = "Johnny", lastName = "Depp"))
 
-    val found = repo.findById(saved.id)                              // suspend, 없으면 예외
-    val foundOrNull = repo.findByIdOrNull(saved.id)                  // suspend, 없으면 null
+    val found = repo.findById(saved.id)                              // suspend, throws if not found
+    val foundOrNull = repo.findByIdOrNull(saved.id)                  // suspend, returns null if not found
     val all = repo.findAll(limit = 10).toList()                      // Flow<E>
     val byName = repo.findBy { ActorTable.lastName eq "Depp" }.toList()
     val page = repo.findPage(pageNumber = 0, pageSize = 20)          // suspend
 }
 ```
 
-### 2. SoftDeletedR2dbcRepository 구현
+### 2. Implementing SoftDeletedR2dbcRepository
 
 ```kotlin
 import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
@@ -117,36 +118,36 @@ class ContactRepository : LongSoftDeletedR2dbcRepository<ContactTable, ContactRe
 suspendTransaction {
     val repo = ContactRepository()
 
-    // 논리 삭제
+    // Soft delete
     repo.softDeleteById(1L)
 
-    // 활성 레코드만 조회 (isDeleted = false)
+    // Query only active records (isDeleted = false)
     val active = repo.findActive().toList()
 
-    // 삭제된 레코드만 조회
+    // Query only deleted records
     val deleted = repo.findDeleted().toList()
 
-    // 복원
+    // Restore
     repo.restoreById(1L)
 
-    // 활성 레코드 페이징
+    // Paginated active records
     val page = repo.findActivePage(pageNumber = 0, pageSize = 20)
 }
 ```
 
-### 3. 배치 삽입 / Upsert
+### 3. Batch insert / Upsert
 
 ```kotlin
 suspendTransaction {
     val repo = ActorRepository()
 
-// 배치 삽입
+    // Batch insert
     val inserted = repo.batchInsert(actorList) { actor ->
         this[ActorTable.firstName] = actor.firstName
         this[ActorTable.lastName]  = actor.lastName
     }
 
-    // 배치 Upsert
+    // Batch upsert
     val upserted = repo.batchUpsert(actorList) { actor ->
         this[ActorTable.firstName] = actor.firstName
         this[ActorTable.lastName]  = actor.lastName
@@ -154,53 +155,52 @@ suspendTransaction {
 }
 ```
 
-`BatchInsertOnConflictDoNothing`는 PostgreSQL 계열에서 conflict target을 특정 컬럼으로 고정하지 않으므로,
-`id`가 아닌 unique 컬럼 또는 unique index를 사용하는 테이블에도 그대로 적용할 수 있습니다.
+Because `BatchInsertOnConflictDoNothing` does not pin the conflict target to a specific column on PostgreSQL-compatible databases, it works with tables that use unique columns or indexes other than `id`.
 
-## R2dbcRepository 주요 메서드
+## R2dbcRepository Key Methods
 
-| 메서드                                   | suspend 여부 | 반환 타입          | 설명                     |
-|---------------------------------------|------------|----------------|------------------------|
-| `count()`                             | suspend    | `Long`         | 전체 레코드 수               |
-| `countBy(predicate)`                  | suspend    | `Long`         | 조건에 맞는 레코드 수           |
-| `existsById(id)`                      | suspend    | `Boolean`      | ID로 존재 여부 확인           |
-| `existsBy(predicate)`                 | suspend    | `Boolean`      | 조건으로 존재 여부 확인          |
-| `findById(id)`                        | suspend    | `E`            | ID로 단건 조회 (없으면 예외)     |
-| `findByIdOrNull(id)`                  | suspend    | `E?`           | ID로 단건 조회 (없으면 null)   |
-| `findAll(limit, offset, ...)`         | —          | `Flow<E>`      | 전체 조회 (페이징/정렬 지원)      |
-| `findWithFilters(...)`                | —          | `Flow<E>`      | 다중 조건 AND 조합 조회        |
-| `findBy(...)`                         | —          | `Flow<E>`      | `findWithFilters`의 alias |
-| `findFirstOrNull(...)`                | suspend    | `E?`           | 조건에 맞는 첫 번째 엔티티        |
-| `findLastOrNull(...)`                 | suspend    | `E?`           | 조건에 맞는 마지막 엔티티         |
-| `findByField(field, value)`           | —          | `Flow<E>`      | 특정 컬럼 값으로 조회           |
-| `findByFieldOrNull(field, value)`     | suspend    | `E?`           | 특정 컬럼 값으로 첫 번째 조회      |
-| `findAllByIds(ids)`                   | —          | `Flow<E>`      | 여러 ID로 일괄 조회           |
-| `findPage(pageNumber, pageSize, ...)` | suspend    | `ExposedPage<E>` | 페이징 조회               |
-| `deleteById(id)`                      | suspend    | `Int`          | ID로 삭제                |
-| `deleteAll(op)`                       | suspend    | `Int`          | 조건에 맞는 레코드 삭제          |
-| `deleteAllByIds(ids)`                 | suspend    | `Int`          | 여러 ID로 일괄 삭제           |
-| `updateById(id, ...)`                 | suspend    | `Int`          | ID로 수정                |
-| `updateAll(predicate, ...)`           | suspend    | `Int`          | 조건에 맞는 레코드 일괄 수정       |
-| `batchInsert(entities, ...)`          | suspend    | `List<E>`      | 배치 삽입                 |
-| `batchUpsert(entities, ...)`          | suspend    | `List<E>`      | 배치 Upsert             |
+| Method                                  | Suspend | Return type      | Description                               |
+|-----------------------------------------|---------|------------------|-------------------------------------------|
+| `count()`                               | yes     | `Long`           | Total record count                        |
+| `countBy(predicate)`                    | yes     | `Long`           | Count matching records                    |
+| `existsById(id)`                        | yes     | `Boolean`        | Check existence by ID                     |
+| `existsBy(predicate)`                   | yes     | `Boolean`        | Check existence by condition              |
+| `findById(id)`                          | yes     | `E`              | Find by ID (throws if not found)          |
+| `findByIdOrNull(id)`                    | yes     | `E?`             | Find by ID (returns null if not found)    |
+| `findAll(limit, offset, ...)`           | no      | `Flow<E>`        | Find all (supports paging and sorting)    |
+| `findWithFilters(...)`                  | no      | `Flow<E>`        | Find with multiple AND conditions         |
+| `findBy(...)`                           | no      | `Flow<E>`        | Alias for `findWithFilters`               |
+| `findFirstOrNull(...)`                  | yes     | `E?`             | First matching entity                     |
+| `findLastOrNull(...)`                   | yes     | `E?`             | Last matching entity                      |
+| `findByField(field, value)`             | no      | `Flow<E>`        | Find by a specific column value           |
+| `findByFieldOrNull(field, value)`       | yes     | `E?`             | First result matching a specific column   |
+| `findAllByIds(ids)`                     | no      | `Flow<E>`        | Find multiple entities by IDs             |
+| `findPage(pageNumber, pageSize, ...)`   | yes     | `ExposedPage<E>` | Paginated query                           |
+| `deleteById(id)`                        | yes     | `Int`            | Delete by ID                              |
+| `deleteAll(op)`                         | yes     | `Int`            | Delete matching records                   |
+| `deleteAllByIds(ids)`                   | yes     | `Int`            | Delete multiple records by IDs            |
+| `updateById(id, ...)`                   | yes     | `Int`            | Update by ID                              |
+| `updateAll(predicate, ...)`             | yes     | `Int`            | Bulk update matching records              |
+| `batchInsert(entities, ...)`            | yes     | `List<E>`        | Batch insert                              |
+| `batchUpsert(entities, ...)`            | yes     | `List<E>`        | Batch upsert                              |
 
-## SoftDeletedR2dbcRepository 추가 메서드
+## SoftDeletedR2dbcRepository Additional Methods
 
-| 메서드                                         | suspend 여부 | 반환 타입          | 설명                       |
-|---------------------------------------------|------------|----------------|--------------------------|
-| `softDeleteById(id)`                        | suspend    | `Unit`         | ID로 논리 삭제 (`isDeleted=true`) |
-| `restoreById(id)`                           | suspend    | `Unit`         | ID로 논리 삭제 복원             |
-| `countActive(predicate)`                    | suspend    | `Long`         | 활성 레코드 수                 |
-| `countDeleted(predicate)`                   | suspend    | `Long`         | 삭제된 레코드 수                |
-| `findActive(limit, offset, ...)`            | —          | `Flow<E>`      | 활성 레코드만 조회               |
-| `findDeleted(limit, offset, ...)`           | —          | `Flow<E>`      | 삭제된 레코드만 조회              |
-| `softDeleteAll(predicate)`                  | suspend    | `Int`          | 조건에 맞는 레코드 일괄 논리 삭제      |
-| `restoreAll(predicate)`                     | suspend    | `Int`          | 조건에 맞는 레코드 일괄 복원         |
-| `findActivePage(pageNumber, pageSize, ...)` | suspend    | `ExposedPage<E>` | 활성 레코드 페이징 조회          |
+| Method                                          | Suspend | Return type      | Description                                        |
+|-------------------------------------------------|---------|------------------|----------------------------------------------------|
+| `softDeleteById(id)`                            | yes     | `Unit`           | Soft delete by ID (`isDeleted=true`)               |
+| `restoreById(id)`                               | yes     | `Unit`           | Restore a soft-deleted record by ID                |
+| `countActive(predicate)`                        | yes     | `Long`           | Count active records                               |
+| `countDeleted(predicate)`                       | yes     | `Long`           | Count deleted records                              |
+| `findActive(limit, offset, ...)`                | no      | `Flow<E>`        | Find only active records                           |
+| `findDeleted(limit, offset, ...)`               | no      | `Flow<E>`        | Find only deleted records                          |
+| `softDeleteAll(predicate)`                      | yes     | `Int`            | Bulk soft delete matching records                  |
+| `restoreAll(predicate)`                         | yes     | `Int`            | Bulk restore matching records                      |
+| `findActivePage(pageNumber, pageSize, ...)`     | yes     | `ExposedPage<E>` | Paginated query of active records                  |
 
-## 다이어그램
+## Diagrams
 
-### R2dbcRepository 핵심 구조
+### Core R2dbcRepository Structure
 
 ```mermaid
 classDiagram
@@ -223,7 +223,7 @@ classDiagram
 
 ```
 
-### R2dbcRepository 계층
+### R2dbcRepository Hierarchy
 
 ```mermaid
 classDiagram
@@ -272,13 +272,13 @@ classDiagram
     SoftDeletedR2dbcRepository <|-- LongSoftDeletedR2dbcRepository
 ```
 
-### suspend 트랜잭션 흐름
+### suspend Transaction Flow
 
-`suspendTransaction` 블록 내에서 `R2dbcRepository`를 통해 CRUD 연산이 수행되는 흐름입니다.
+How CRUD operations are executed through `R2dbcRepository` inside a `suspendTransaction` block.
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant T as suspendTransaction
     participant R as R2dbcRepository
     participant DB as R2DBC Database
@@ -302,14 +302,14 @@ sequenceDiagram
     R-->>T: Int
 
     deactivate T
-    T-->>C: 결과 반환
+    T-->>C: Result returned
 ```
 
-### SoftDelete 트랜잭션 흐름
+### SoftDelete Transaction Flow
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant T as suspendTransaction
     participant R as SoftDeletedR2dbcRepository
     participant DB as R2DBC Database
@@ -331,37 +331,37 @@ sequenceDiagram
     DB-->>R: Unit
 
     deactivate T
-    T-->>C: 결과 반환
+    T-->>C: Result returned
 ```
 
-## 편의 타입 별칭
+## Convenience Type Aliases
 
-| 인터페이스                              | 기본키 타입           |
-|------------------------------------|------------------|
-| `IntR2dbcRepository`               | `Int`            |
-| `LongR2dbcRepository`              | `Long`           |
-| `UuidR2dbcRepository`              | `kotlin.uuid.Uuid` |
-| `UUIDR2dbcRepository`              | `java.util.UUID` |
-| `StringR2dbcRepository`            | `String`         |
-| `IntSoftDeletedR2dbcRepository`    | `Int`            |
-| `LongSoftDeletedR2dbcRepository`   | `Long`           |
-| `UuidSoftDeletedR2dbcRepository`   | `kotlin.uuid.Uuid` |
-| `UUIDSoftDeletedR2dbcRepository`   | `java.util.UUID` |
-| `StringSoftDeletedR2dbcRepository` | `String`         |
+| Interface                              | Primary key type      |
+|----------------------------------------|-----------------------|
+| `IntR2dbcRepository`                   | `Int`                 |
+| `LongR2dbcRepository`                  | `Long`                |
+| `UuidR2dbcRepository`                  | `kotlin.uuid.Uuid`    |
+| `UUIDR2dbcRepository`                  | `java.util.UUID`      |
+| `StringR2dbcRepository`                | `String`              |
+| `IntSoftDeletedR2dbcRepository`        | `Int`                 |
+| `LongSoftDeletedR2dbcRepository`       | `Long`                |
+| `UuidSoftDeletedR2dbcRepository`       | `kotlin.uuid.Uuid`    |
+| `UUIDSoftDeletedR2dbcRepository`       | `java.util.UUID`      |
+| `StringSoftDeletedR2dbcRepository`     | `String`              |
 
-## 가상 스레드 트랜잭션
+## Virtual Thread Transactions
 
-Java 21 Virtual Thread 기반으로 R2DBC 트랜잭션을 실행합니다.
+Run R2DBC transactions on Java 21 Virtual Threads.
 
 ```kotlin
 import io.bluetape4k.exposed.r2dbc.virtualThreadTransaction
 
-// 기본 VirtualThreadExecutor 사용
+// Using the default VirtualThreadExecutor
 val count = virtualThreadTransaction(db = database) {
     UserTable.selectAll().count()
 }
 
-// 커스텀 Executor 사용
+// Using a custom Executor
 val executor = Executors.newSingleThreadExecutor()
 val result = virtualThreadTransaction(executor = executor, db = database) {
     UserTable.insert { it[name] = "Alice" }
@@ -369,35 +369,35 @@ val result = virtualThreadTransaction(executor = executor, db = database) {
 }
 ```
 
-## R2DBC Readable 컬럼 값 조회
+## R2DBC Readable Column Value Access
 
-`io.r2dbc.spi.Readable`에 대해 타입 안전 컬럼 값 조회 확장 함수를 제공합니다.
+Type-safe column value accessor extensions for `io.r2dbc.spi.Readable`.
 
 ```kotlin
 import io.bluetape4k.exposed.r2dbc.getString
 import io.bluetape4k.exposed.r2dbc.getLong
 import io.bluetape4k.exposed.r2dbc.getLocalDate
 
-// 인덱스 기반 조회
+// Index-based access
 val name: String = readable.getString(0)
 val id: Long = readable.getLong(1)
 
-// 컬럼명 기반 조회 (null 가능)
+// Column-name-based access (nullable)
 val nickname: String? = readable.getStringOrNull("nickname")
 val birthday: LocalDate? = readable.getLocalDateOrNull("birthday")
 
-// ExposedBlob 조회 (suspend 함수)
+// ExposedBlob access (suspend function)
 val blob: ExposedBlob = readable.getExposedBlob("data")
 val blobOrNull: ExposedBlob? = readable.getExposedBlobOrNull("data")
 ```
 
-지원 타입: `String`, `Boolean`, `Char`, `Byte`, `Short`, `Int`, `Long`, `Float`, `Double`,
+Supported types: `String`, `Boolean`, `Char`, `Byte`, `Short`, `Int`, `Long`, `Float`, `Double`,
 `BigDecimal`, `ByteArray`, `Date`, `Timestamp`, `Instant`, `LocalDate`, `LocalTime`,
 `LocalDateTime`, `OffsetDateTime`, `UUID`, `ExposedBlob`
 
-## SELECT * 지원
+## SELECT * Support
 
-명시적 컬럼 목록 대신 `SELECT *`을 생성하는 `ImplicitQuery`를 제공합니다.
+`ImplicitQuery` generates `SELECT *` instead of an explicit column list.
 
 ```kotlin
 import io.bluetape4k.exposed.r2dbc.selectImplicitAll
@@ -408,27 +408,27 @@ val rows = ActorTable.selectImplicitAll()
     .toList()
 ```
 
-## 주요 파일/클래스 목록
+## Key Files and Classes
 
-| 파일                                                    | 설명                                   |
-|-------------------------------------------------------|--------------------------------------|
-| `repository/R2dbcRepository.kt`                       | R2DBC Repository 기본 인터페이스             |
-| `repository/SoftDeletedR2dbcRepository.kt`            | Soft Delete R2DBC Repository         |
-| `repository/ExposedR2dbcRepository.kt`                | (Deprecated) 구 Repository 인터페이스       |
-| `TableExtensions.kt`                                  | 테이블 메타데이터 비동기 확장 함수                  |
-| `QueryExtensions.kt`                                  | Flow/Query 확장 함수 (`forEach`, `any` 등) |
-| `ReadableExtensions.kt`                               | R2DBC Readable 타입 안전 컬럼 값 조회 확장      |
-| `ImplicitSelectAll.kt`                                | `SELECT *` Query 구현 (`ImplicitQuery`) |
-| `virtualThreadTransaction.kt`                         | Java 21 Virtual Thread 기반 트랜잭션 실행    |
-| `statements/BatchInsertOnConflictDoNothing.kt`        | ON CONFLICT DO NOTHING 배치 삽입        |
+| File                                                  | Description                                             |
+|-------------------------------------------------------|---------------------------------------------------------|
+| `repository/R2dbcRepository.kt`                       | R2DBC Repository base interface                         |
+| `repository/SoftDeletedR2dbcRepository.kt`            | Soft Delete R2DBC Repository                            |
+| `repository/ExposedR2dbcRepository.kt`                | (Deprecated) Legacy Repository interface                |
+| `TableExtensions.kt`                                  | Async table metadata extension functions                |
+| `QueryExtensions.kt`                                  | Flow/Query extensions (`forEach`, `any`, etc.)          |
+| `ReadableExtensions.kt`                               | Type-safe R2DBC Readable column value accessors         |
+| `ImplicitSelectAll.kt`                                | `SELECT *` query (`ImplicitQuery`)                      |
+| `virtualThreadTransaction.kt`                         | Java 21 Virtual Thread-based transaction execution      |
+| `statements/BatchInsertOnConflictDoNothing.kt`        | ON CONFLICT DO NOTHING batch insert                     |
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-r2dbc:test
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed R2DBC](https://github.com/JetBrains/Exposed)
 - [R2DBC Specification](https://r2dbc.io/)

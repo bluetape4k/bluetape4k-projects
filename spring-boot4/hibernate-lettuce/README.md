@@ -1,8 +1,10 @@
 # bluetape4k-spring-boot4-hibernate-lettuce
 
-Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 Auto-Configuration**.
+English | [한국어](./README.ko.md)
 
-`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달된다.
+**Spring Boot 4 Auto-Configuration** for Hibernate 7 **2nd Level Cache** (Lettuce Near Cache).
+
+Simply add `bluetape4k.cache.lettuce-near.*` settings to your `application.yml` and Hibernate Second Level Cache activates automatically — no additional code required. Millisecond-based durations (e.g., `500ms`) are passed through directly to Hibernate configuration.
 
 ## UML
 
@@ -41,7 +43,7 @@ classDiagram
     LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory
 ```
 
-### Auto-Configuration 활성화 흐름
+### Auto-Configuration Activation Flow
 
 ```mermaid
 flowchart TD
@@ -61,65 +63,65 @@ flowchart TD
     L2 --> DB
 ```
 
-## Spring Boot 4 고유 사항
+## Spring Boot 4-Specific Notes
 
-Spring Boot 4에서는 패키지명이 변경되었습니다:
+Package names have changed in Spring Boot 4:
 
 | Spring Boot 3 | Spring Boot 4 |
 |---|---|
 | `org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer` | `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer` |
 
-또한 Spring Boot 4 BOM을 명시적으로 사용해야 합니다:
+The Spring Boot 4 BOM must also be applied explicitly:
 
 ```kotlin
 // build.gradle.kts
 dependencies {
-    // Spring Boot 4 BOM (dependencyManagement 대신 platform 사용)
+    // Spring Boot 4 BOM (use platform instead of dependencyManagement)
     implementation(platform(Libs.spring_boot4_dependencies))
 
     implementation(project(":bluetape4k-spring-boot4-hibernate-lettuce"))
 
-    // Hibernate 명시적 추가 필요
+    // Hibernate must be declared explicitly
     compileOnly(Libs.springBoot("hibernate"))
 
     // Spring Boot Starters
     implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator 엔드포인트 (선택)
-    implementation(Libs.micrometer_core)                 // Micrometer 메트릭 (선택)
+    implementation(Libs.springBootStarter("actuator"))   // Actuator endpoint (optional)
+    implementation(Libs.micrometer_core)                 // Micrometer metrics (optional)
 }
 ```
 
-## 특징
+## Features
 
-- 의존성 추가 + `application.yml` 설정만으로 2nd Level Cache 활성화
-- `@ConditionalOnClass` / `@ConditionalOnProperty` 기반 안전한 자동 구성
-- **Actuator** 엔드포인트 (`GET /actuator/nearcache`) — region별 캐시 통계
-- **Micrometer** 메트릭 (`lettuce.nearcache.*`) — region count, local size
-- L1 (Caffeine) + L2 (Redis) **Two-Tier** 캐싱 아키텍처
+- 2nd Level Cache enabled with just a dependency + `application.yml` configuration
+- Safe auto-configuration using `@ConditionalOnClass` / `@ConditionalOnProperty`
+- **Actuator** endpoint (`GET /actuator/nearcache`) — per-region cache statistics
+- **Micrometer** metrics (`lettuce.nearcache.*`) — region count, local size
+- **Two-tier** caching architecture: L1 (Caffeine) + L2 (Redis)
 
-## 의존성 (Spring Boot 4)
+## Dependencies (Spring Boot 4)
 
 ```kotlin
 // build.gradle.kts
 dependencies {
-    // Spring Boot 4 BOM (필수)
+    // Spring Boot 4 BOM (required)
     implementation(platform(Libs.spring_boot4_dependencies))
 
     implementation(project(":bluetape4k-spring-boot4-hibernate-lettuce"))
 
     // Spring Boot Starters
     implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))   // Actuator 엔드포인트 (선택)
-    implementation(Libs.micrometer_core)                 // Micrometer 메트릭 (선택)
+    implementation(Libs.springBootStarter("actuator"))   // Actuator endpoint (optional)
+    implementation(Libs.micrometer_core)                 // Micrometer metrics (optional)
 
-    // Hibernate (명시적 선언)
+    // Hibernate (explicit declaration)
     compileOnly(Libs.springBoot("hibernate"))
 }
 ```
 
-## 빠른 시작
+## Quick Start
 
-### 1. 의존성 추가 후 application.yml 설정
+### 1. Add the dependency and configure application.yml
 
 ```yaml
 bluetape4k:
@@ -149,7 +151,7 @@ management:
                 include: health, info, metrics, nearcache
 ```
 
-### 2. Entity에 캐시 어노테이션 추가
+### 2. Annotate your entities for caching
 
 ```kotlin
 @Entity
@@ -172,51 +174,51 @@ data class Product(
 )
 ```
 
-### 3. 실행 — 자동 설정 완료
+### 3. Run — auto-configuration takes care of the rest
 
-Hibernate properties가 자동으로 주입되어 2nd Level Cache가 활성화된다. 추가 코드 불필요.
+Hibernate properties are injected automatically and 2nd Level Cache is activated. No additional code required.
 
-## 설정 옵션 전체 목록
+## Full Configuration Options
 
 ```yaml
 bluetape4k:
     cache:
         lettuce-near:
-            # 활성화 여부 (기본: true)
+            # Enable/disable (default: true)
             enabled: true
 
-            # Redis 연결 URI
+            # Redis connection URI
             redis-uri: redis://localhost:6379
 
-            # 직렬화 코덱 (기본: lz4fory)
-            # 선택지: lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk
+            # Serialization codec (default: lz4fory)
+            # Options: lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk
             codec: lz4fory
 
-            # RESP3 CLIENT TRACKING 활성화 (Redis 6+ 필요, 기본: true)
+            # Enable RESP3 CLIENT TRACKING (requires Redis 6+, default: true)
             use-resp3: true
 
-            # L1 (Caffeine) 설정
+            # L1 (Caffeine) settings
             local:
-                max-size: 10000                    # 최대 항목 수
-                expire-after-write: 30m            # 쓰기 후 만료 시간
+                max-size: 10000                    # Maximum number of entries
+                expire-after-write: 30m            # Expire after write
 
             # Redis TTL
             redis-ttl:
-                default: 120s                      # 기본 TTL
+                default: 120s                      # Default TTL
                 regions:
-                    # Region별 TTL 오버라이드 (점 포함 키는 대괄호 표기)
+                    # Per-region TTL override (use brackets for keys with dots)
                     "[io.bluetape4k.examples.cache.lettuce.domain.Product]": 300s
                     "[io.bluetape4k.examples.cache.lettuce.domain.Order]": 600s
 
-            # Metrics / 통계
+            # Metrics / statistics
             metrics:
-                enabled: true                           # Metrics 수집 활성화
-                enable-caffeine-stats: true             # Caffeine CacheStats 수집
+                enabled: true                           # Enable metrics collection
+                enable-caffeine-stats: true             # Collect Caffeine CacheStats
 ```
 
-### 설정값 → Hibernate properties 매핑
+### Configuration → Hibernate properties mapping
 
-| Spring 설정                            | Hibernate property                                 |
+| Spring Configuration                   | Hibernate property                                 |
 |--------------------------------------|----------------------------------------------------|
 | `redis-uri`                          | `hibernate.cache.lettuce.redis_uri`                |
 | `codec`                              | `hibernate.cache.lettuce.codec`                    |
@@ -228,23 +230,23 @@ bluetape4k:
 | `metrics.enabled=true`               | `hibernate.generate_statistics=true`               |
 | `metrics.enable-caffeine-stats=true` | `hibernate.cache.lettuce.local.record_stats=true`  |
 
-## Auto-Configuration 클래스
+## Auto-Configuration Classes
 
-| 클래스                                          | 조건                                                                   | 역할                                 |
-|----------------------------------------------|----------------------------------------------------------------------|------------------------------------|
-| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | `HibernatePropertiesCustomizer` 등록 |
-| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                  | `LettuceNearCacheMetricsBinder` 등록 |
-| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | `/actuator/nearcache` 엔드포인트 등록 |
+| Class                                          | Condition                                                              | Role                                  |
+|----------------------------------------------|------------------------------------------------------------------------|---------------------------------------|
+| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath   | Registers `HibernatePropertiesCustomizer` |
+| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                    | Registers `LettuceNearCacheMetricsBinder` |
+| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean        | Registers `/actuator/nearcache` endpoint  |
 
-## Actuator 엔드포인트
+## Actuator Endpoint
 
-### 전체 Region 통계 조회
+### Retrieve Statistics for All Regions
 
 ```bash
 GET /actuator/nearcache
 ```
 
-응답 예시:
+Example response:
 
 ```json
 {
@@ -262,19 +264,19 @@ GET /actuator/nearcache
 }
 ```
 
-### 특정 Region 상세 조회
+### Retrieve Details for a Specific Region
 
 ```bash
 GET /actuator/nearcache/{regionName}
 ```
 
-예시:
+Example:
 
 ```bash
 GET /actuator/nearcache/product
 ```
 
-응답:
+Response:
 
 ```json
 {
@@ -290,22 +292,22 @@ GET /actuator/nearcache/product
 }
 ```
 
-## Micrometer 메트릭
+## Micrometer Metrics
 
-`metrics.enabled=true` 설정 시 다음 Gauge가 등록된다.
+When `metrics.enabled=true`, the following Gauges are registered:
 
-| 메트릭                              | 설명                 |
-|----------------------------------|---------------------|
-| `lettuce.nearcache.region.count` | 활성 Region 수        |
-| `lettuce.nearcache.local.size`   | 전체 L1 캐시 항목 수 (추정) |
+| Metric                             | Description                           |
+|----------------------------------|---------------------------------------|
+| `lettuce.nearcache.region.count` | Number of active regions              |
+| `lettuce.nearcache.local.size`   | Estimated total L1 cache entry count  |
 
 ```bash
-# Micrometer 메트릭 조회 (JSON)
+# Retrieve Micrometer metrics (JSON)
 GET /actuator/metrics/lettuce.nearcache.region.count
 GET /actuator/metrics/lettuce.nearcache.local.size
 ```
 
-응답 예시:
+Example response:
 
 ```json
 {
@@ -320,55 +322,55 @@ GET /actuator/metrics/lettuce.nearcache.local.size
 }
 ```
 
-## 비활성화
+## Disabling
 
-Auto-configuration을 완전히 비활성화하려면:
+To completely disable auto-configuration:
 
 ```yaml
 bluetape4k:
     cache:
         lettuce-near:
-            enabled: false   # HibernatePropertiesCustomizer, MetricsBinder, Endpoint 모두 비활성화
+            enabled: false   # Disables HibernatePropertiesCustomizer, MetricsBinder, and Endpoint
 ```
 
-## 테스트 실행
+## Running Tests
 
-### 단위 테스트 (Redis/DB 없음)
+### Unit Tests (no Redis/DB required)
 
 ```bash
 ./gradlew :bluetape4k-spring-boot4-hibernate-lettuce:test
 ```
 
-`ApplicationContextRunner`로 실제 Redis/DB 없이 설정 테스트를 수행한다.
+Uses `ApplicationContextRunner` to test configuration without a real Redis or database instance.
 
-### 통합 테스트 (Testcontainers)
+### Integration Tests (Testcontainers)
 
-통합 테스트는 Testcontainers를 통해 Redis + H2를 자동으로 관리한다.
+Integration tests automatically manage Redis + H2 via Testcontainers.
 
 ```bash
 ./gradlew :bluetape4k-spring-boot4-hibernate-lettuce:test -i
 ```
 
-## 관련 모듈
+## Related Modules
 
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache 코어 구현
+- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache core implementation
 - [`bluetape4k-hibernate-cache-lettuce`](../../infra/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
-- [`bluetape4k-spring-boot4-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.md) — 실제 사용 예제
+- [`bluetape4k-spring-boot4-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.md) — Usage example
 
-## Spring Boot 3과의 차이점
+## Differences from Spring Boot 3
 
-| 항목 | Spring Boot 3 | Spring Boot 4 |
+| Aspect | Spring Boot 3 | Spring Boot 4 |
 |---|---|---|
-| `HibernatePropertiesCustomizer` 패키지 | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure` |
-| BOM 설정 | `dependencyManagement { imports }` | `implementation(platform(Libs.spring_boot4_dependencies))` |
-| Hibernate 명시적 추가 | 불필요 | `compileOnly(Libs.springBoot("hibernate"))` |
+| `HibernatePropertiesCustomizer` package | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure` |
+| BOM configuration | `dependencyManagement { imports }` | `implementation(platform(Libs.spring_boot4_dependencies))` |
+| Explicit Hibernate dependency | Not required | `compileOnly(Libs.springBoot("hibernate"))` |
 
-## 패키지 정보
+## Package Information
 
 - **Group**: `io.github.bluetape4k`
 - **Artifact**: `bluetape4k-spring-boot4-hibernate-lettuce`
 - **Package**: `io.bluetape4k.spring.boot.autoconfigure.cache.lettuce`
 
-## 라이센스
+## License
 
 Apache License 2.0

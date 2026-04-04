@@ -1,17 +1,18 @@
 # Module Vert.x Sql Client Example
 
-> **⚠️ Obsolete**: 이 모듈은 `bluetape4k-vertx`로 통합되었습니다. 빌드에서 완전 제외되었습니다.
+English | [한국어](./README.ko.md)
 
-[Vert.x Sql Client](https://vertx.io/docs/vertx-sql-client/java/) 와
-[MyBatis Dynamic SQL](https://mybatis.org/mybatis-dynamic-sql/docs/introduction.html) 을 사용하여 Async/Non-Blocking 방식으로 데이터베이스를 사용하는 예제입니다.
+> **⚠️ Obsolete**: This module has been merged into `bluetape4k-vertx` and fully excluded from the build.
 
-이 방식은 MyBatis의 SQL Mapper 기능과 Vert.x의 Sql Client를 조합하여 사용하는 방식입니다.
+An example of using [Vert.x Sql Client](https://vertx.io/docs/vertx-sql-client/java/) together with [MyBatis Dynamic SQL](https://mybatis.org/mybatis-dynamic-sql/docs/introduction.html) to access a database in an async/non-blocking fashion.
 
-## Mapping with Vert.x data objects
+This approach combines MyBatis's SQL Mapper capabilities with the Vert.x SQL Client.
 
-Vert SqlClient 의 RowMapper 를 사용하지 않고, Rows 를 바로 DTO 에 매핑할 수 있다 dataobject 폴더의 UserDataObject 구현을 참고
+## Mapping with Vert.x Data Objects
 
-1. `io.vertx:vertx-codegen:4.3.1:processor` 를 dependency 에 추가한다
+Instead of using the Vert.x SqlClient `RowMapper`, you can map rows directly to DTOs. See the `UserDataObject` implementation in the `dataobject` folder for reference.
+
+1. Add `io.vertx:vertx-codegen:4.3.1:processor` to your dependencies:
 
 ```
 compileOnly(Libs.vertx_codegen)
@@ -19,7 +20,7 @@ kapt(Libs.vertx_codegen)
 kaptTest(Libs.vertx_codegen)
 ```
 
-2. module에 package-info.java 를 추가한다
+2. Add a `package-info.java` to the module:
 
 [package-info.java](src/main/java/io/bluetape4k/workshop/sqlclient/package-info.java)
 
@@ -30,5 +31,5 @@ package io.bluetape4k.workshop.sqlclient;
 import io.vertx.codegen.annotations.ModuleGen;
 ```
 
-참고 자료:
+Reference:
 [Mapping with Vert.x data objects](https://vertx.io/docs/vertx-sql-client-templates/java/#_mapping_with_vert_x_data_objects)

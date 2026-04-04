@@ -1,39 +1,41 @@
 # Module bluetape4k-jackson3
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-jackson3`은 [Jackson 3.x](https://github.com/FasterXML/jackson) 라이브러리를 Kotlin DSL과 확장 함수로 래핑하여 제공하는 모듈입니다.
+## Overview
 
-Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서, Jackson 3.x의 새로운 API와 패키지 구조(`tools.jackson.*`)를 따릅니다.
+`bluetape4k-jackson3` is a module that wraps the [Jackson 3.x](https://github.com/FasterXML/jackson) library with Kotlin DSL and extension functions.
+
+It provides the same feature set as Jackson 2.x (`bluetape4k-jackson2`), while following the new Jackson 3.x API and package structure (`tools.jackson.*`).
 
 ## Jackson 2.x vs 3.x
 
-| 항목            | Jackson 2.x                             | Jackson 3.x                            |
-|---------------|-----------------------------------------|----------------------------------------|
-| 패키지           | `com.fasterxml.jackson.*`               | `tools.jackson.*`                      |
-| 모듈            | bluetape4k-jackson2                      | bluetape4k-jackson3                    |
-| Module SPI    | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
-| 타입 정보         | `activateDefaultTyping()` 지원            | 제거됨                                    |
-| JsonMapper 빌드 | `JsonMapper.builder()`                  | `jsonMapper { }` (kotlinModule 내장)     |
+| Item | Jackson 2.x | Jackson 3.x |
+|------|-------------|-------------|
+| Package | `com.fasterxml.jackson.*` | `tools.jackson.*` |
+| Module | bluetape4k-jackson2 | bluetape4k-jackson3 |
+| Module SPI | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
+| Type info | `activateDefaultTyping()` supported | Removed |
+| JsonMapper build | `JsonMapper.builder()` | `jsonMapper { }` (kotlin module built-in) |
 
-## 주요 기능
+## Key Features
 
 ### 1. JsonMapper DSL
 
 ```kotlin
 import io.bluetape4k.jackson3.*
 
-// DSL 방식
+// DSL style
 val mapper = jsonMapper {
     findAndAddModules()
     enable(JsonReadFeature.ALLOW_TRAILING_COMMA)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 }
 
-// 기본 구성된 JsonMapper (Kotlin 모듈 포함)
+// Pre-configured JsonMapper (includes the Kotlin module)
 val defaultMapper = Jackson.defaultJsonMapper
 
-// Pretty-print 출력
+// Pretty-print output
 val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
 ```
 
@@ -44,15 +46,15 @@ import io.bluetape4k.jackson3.JacksonSerializer
 
 val serializer = JacksonSerializer()
 
-// 바이트 배열 직렬화/역직렬화
+// Byte array serialization / deserialization
 val bytes = serializer.serialize(user)
 val restored = serializer.deserialize<User>(bytes)
 
-// 문자열 직렬화/역직렬화
+// String serialization / deserialization
 val jsonText = serializer.serializeAsString(user)
 val restored2 = serializer.deserializeFromString<User>(jsonText)
 
-// 실패 시 JsonSerializationException
+// Throws JsonSerializationException on failure
 try {
     serializer.deserialize<User>("{not-json".toByteArray())
 } catch (e: JsonSerializationException) {
@@ -60,63 +62,63 @@ try {
 }
 ```
 
-`JacksonSerializer` 실패 정책:
+`JacksonSerializer` failure policy:
 
-- `serialize(null)`은 빈 `ByteArray`를 반환합니다.
-- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
-- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+- `serialize(null)` returns an empty `ByteArray`.
+- `deserialize(null)` / `deserializeFromString(null)` returns `null`.
+- All other serialization / deserialization failures throw `JsonSerializationException`.
 
-### 3. ObjectMapper 확장 함수
+### 3. ObjectMapper Extension Functions
 
 ```kotlin
 import io.bluetape4k.jackson3.*
 
 val mapper = Jackson.defaultJsonMapper
 
-// 다양한 소스에서 역직렬화 (실패 시 null)
+// Deserialize from various sources (null on failure)
 val user = mapper.readValueOrNull<User>(jsonString)
 val user2 = mapper.readValueOrNull<User>(inputStream)
 val user3 = mapper.readValueOrNull<User>(byteArray)
 val user4 = mapper.readValueOrNull<User>(file)
-val user5 = mapper.readValueOrNull<User>(path)  // Path 지원
+val user5 = mapper.readValueOrNull<User>(path)  // Path support
 
-// 직렬화 확장 함수
+// Serialization extensions
 val json = mapper.writeAsString(user)
 val bytes = mapper.writeAsBytes(user)
 val prettyJson = mapper.prettyWriteAsString(user)
 
-// 등록된 모듈 조회
+// Retrieve registered module names
 val moduleNames = mapper.registeredModuleNames()
 ```
 
-### 4. 비동기 JSON 파싱
+### 4. Async JSON Parsing
 
 ```kotlin
 import io.bluetape4k.jackson3.async.*
 
-// 콜백 기반 비동기 파싱
+// Callback-based async parsing
 val parser = AsyncJsonParser { root ->
-    println("완성된 노드: $root")
+    println("Completed node: $root")
 }
 parser.consume(chunk1)
 parser.consume(chunk2)
 
-// 코루틴 기반 파싱
+// Coroutine-based parsing
 val suspendParser = SuspendJsonParser { root ->
-    processNode(root)  // suspend 가능
+    processNode(root)  // suspendable
 }
 suspendParser.consume(byteArrayFlow)
 ```
 
-언제 어떤 파서를 쓰면 좋은지:
+When to use each parser:
 
-- `AsyncJsonParser`: Netty, WebSocket, TCP, 메시지 리스너처럼 `ByteArray` 청크를 콜백으로 받는 push 스타일 코드
-- `SuspendJsonParser`: `Flow<ByteArray>` 기반 파이프라인, `WebClient`/파일/브로커 스트림처럼 suspend 후처리가 필요한 코드
-- 두 파서 모두 연속된 여러 JSON 루트와 루트 스칼라 JSON(`"text"`, `123`, `true`, `null`)를 처리할 수 있습니다.
+- `AsyncJsonParser`: push-style code that receives `ByteArray` chunks via callbacks — Netty, WebSocket, TCP, message listeners, etc.
+- `SuspendJsonParser`: `Flow<ByteArray>`-based pipelines where post-processing must be suspendable — `WebClient`, file streams, broker streams, etc.
+- Both parsers handle multiple consecutive JSON roots and scalar JSON roots (`"text"`, `123`, `true`, `null`).
 
-### 4-1. WebClient 스트리밍 예제
+### 4-1. WebClient Streaming Example
 
-`HttpbinHttp2Server`의 `/stream/3` 응답을 `WebClient`로 받아 루트 JSON 객체 3개를 순차 처리하는 예제입니다.
+Consuming a `/stream/3` response from `HttpbinHttp2Server` via `WebClient` and processing three root JSON objects sequentially.
 
 ```kotlin
 import io.bluetape4k.jackson3.async.SuspendJsonParser
@@ -132,7 +134,7 @@ val webClient = WebClient.builder()
     .build()
 
 val parser = SuspendJsonParser { root ->
-    println(root["url"].asText())   // /stream/3 응답의 각 JSON 객체 처리
+    println(root["url"].asText())   // process each JSON object from /stream/3
 }
 
 val chunkFlow = webClient.get()
@@ -151,25 +153,25 @@ val chunkFlow = webClient.get()
 parser.consume(chunkFlow)
 ```
 
-이미 청크를 콜백으로 받고 있다면 같은 시나리오에서도 `AsyncJsonParser`가 더 자연스럽습니다.
+If you are already receiving chunks via callbacks, `AsyncJsonParser` is more natural for the same scenario.
 
-### 5. UUID Base62 인코딩
+### 5. UUID Base62 Encoding
 
 ```kotlin
 import io.bluetape4k.jackson3.uuid.JsonUuidEncoder
 import io.bluetape4k.jackson3.uuid.JsonUuidEncoderType
 
 data class User(
-    @field:JsonUuidEncoder                              // Base62 (기본)
+    @field:JsonUuidEncoder                              // Base62 (default)
     val userId: UUID,
-    @field:JsonUuidEncoder(JsonUuidEncoderType.PLAIN)   // 원본 UUID
+    @field:JsonUuidEncoder(JsonUuidEncoderType.PLAIN)   // original UUID
     val plainId: UUID,
 )
 ```
 
-### 6. 필드 암호화 (@JsonEncrypt / @JsonTinkEncrypt)
+### 6. Field Encryption (@JsonEncrypt / @JsonTinkEncrypt)
 
-#### Jasypt 기반 (`@JsonEncrypt`) — Deprecated
+#### Jasypt-based (`@JsonEncrypt`) — Deprecated
 
 ```kotlin
 import io.bluetape4k.jackson3.crypto.JsonEncrypt
@@ -177,19 +179,19 @@ import io.bluetape4k.jackson3.crypto.JsonEncryptModule
 
 data class User(
     val username: String,
-    @get:JsonEncrypt          // AES 기본 암호화 (Jasypt)
+    @get:JsonEncrypt          // AES encryption via Jasypt
     val password: String,
 )
 
-// JsonEncryptModule 등록 필요
+// JsonEncryptModule must be registered
 val mapper = Jackson.createDefaultJsonMapper().rebuild()
     .addModule(JsonEncryptModule())
     .build()
 ```
 
-#### Google Tink 기반 (`@JsonTinkEncrypt`) — 권장
+#### Google Tink-based (`@JsonTinkEncrypt`) — Recommended
 
-`bluetape4k-tink` 의존성이 필요하며, `JsonTinkEncryptModule`을 매퍼에 등록해야 합니다.
+Requires the `bluetape4k-tink` dependency and explicit registration of `JsonTinkEncryptModule`.
 
 ```kotlin
 import io.bluetape4k.jackson3.crypto.JsonTinkEncrypt
@@ -198,46 +200,46 @@ import io.bluetape4k.jackson3.crypto.TinkEncryptAlgorithm
 
 data class User(
     val username: String,
-    @get:JsonTinkEncrypt                                               // AES256-GCM (기본값)
+    @get:JsonTinkEncrypt                                               // AES256-GCM (default)
     val password: String,
-    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // DB 검색 가능한 결정적 암호화
+    @get:JsonTinkEncrypt(TinkEncryptAlgorithm.DETERMINISTIC_AES256_SIV) // deterministic encryption for DB search
     val mobile: String,
 )
 
-// JsonTinkEncryptModule 등록 필요
+// JsonTinkEncryptModule must be registered
 val mapper = Jackson.createDefaultJsonMapper().rebuild()
     .addModule(JsonTinkEncryptModule())
     .build()
 
-// 직렬화: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
-// 역직렬화 시 자동 복호화
+// Serialized: { "username": "debop", "password": "AXYzK1...", "mobile": "BVp0..." }
+// Automatically decrypted on deserialization
 ```
 
-지원 알고리즘:
+Supported algorithms:
 
-| `TinkEncryptAlgorithm` | 설명 |
-|------------------------|------|
-| `AES256_GCM` | AES256-GCM 비결정적 암호화 — 범용, 기본값 |
-| `AES128_GCM` | AES128-GCM 비결정적 암호화 — 성능 우선 |
-| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — HW AES 가속 없는 환경 |
-| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — 큰 nonce(192bit) |
-| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능 |
+| `TinkEncryptAlgorithm` | Description |
+|------------------------|-------------|
+| `AES256_GCM` | AES256-GCM non-deterministic — general purpose, default |
+| `AES128_GCM` | AES128-GCM non-deterministic — performance-focused |
+| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — for environments without hardware AES acceleration |
+| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — large nonce (192-bit) |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV deterministic — searchable in DB |
 
-### 7. 필드 마스킹 (@JsonMasker)
+### 7. Field Masking (@JsonMasker)
 
 ```kotlin
 import io.bluetape4k.jackson3.mask.JsonMasker
 
 data class User(
     val name: String,
-    @field:JsonMasker("***")    // 커스텀 마스킹 문자열
+    @field:JsonMasker("***")    // custom masking string
     val mobile: String,
 )
 ```
 
-Jackson 3.x에서는 `JsonMaskerModule`을 통해 `JsonMaskerAnnotationInterospector`가 자동 등록됩니다.
+In Jackson 3.x, `JsonMaskerAnnotationInterospector` is automatically registered via `JsonMaskerModule`.
 
-### 8. JsonNode 확장 함수
+### 8. JsonNode Extension Functions
 
 ```kotlin
 import io.bluetape4k.jackson3.*
@@ -249,68 +251,68 @@ objectNode.addBoolean(true, "active")
 objectNode.addNull("description")
 ```
 
-## 바이너리 / 텍스트 포맷 지원
+## Binary / Text Format Support
 
-> 구 `bluetape4k-jackson3-binary`, `bluetape4k-jackson3-text` 모듈이 이 모듈에 통합되었습니다.
+> The former `bluetape4k-jackson3-binary` and `bluetape4k-jackson3-text` modules have been merged into this module.
 
-바이너리 및 텍스트 포맷은 `compileOnly`로 선언되어 있으므로 사용할 포맷의 의존성을 런타임에 추가해야 합니다.
+Binary and text formats are declared as `compileOnly` dependencies, so you must add the desired format's dependency at runtime.
 
-| 포맷 | 종류 | 런타임 의존성 |
-|------|------|--------------|
-| CBOR | 바이너리 | `jackson3-dataformat-cbor` |
-| Ion | 바이너리 | `jackson3-dataformat-ion` |
-| Smile | 바이너리 | `jackson3-dataformat-smile` |
-| Avro | 바이너리 | `jackson3-dataformat-avro` |
-| Protobuf | 바이너리 | `jackson3-dataformat-protobuf` |
-| YAML | 텍스트 | `jackson3-dataformat-yaml` |
-| CSV | 텍스트 | `jackson3-dataformat-csv` |
-| TOML | 텍스트 | `jackson3-dataformat-toml` |
-| Properties | 텍스트 | `jackson3-dataformat-properties` |
+| Format | Type | Runtime Dependency |
+|--------|------|--------------------|
+| CBOR | Binary | `jackson3-dataformat-cbor` |
+| Ion | Binary | `jackson3-dataformat-ion` |
+| Smile | Binary | `jackson3-dataformat-smile` |
+| Avro | Binary | `jackson3-dataformat-avro` |
+| Protobuf | Binary | `jackson3-dataformat-protobuf` |
+| YAML | Text | `jackson3-dataformat-yaml` |
+| CSV | Text | `jackson3-dataformat-csv` |
+| TOML | Text | `jackson3-dataformat-toml` |
+| Properties | Text | `jackson3-dataformat-properties` |
 
-### CBOR 직렬화 예시
+### CBOR Serialization Example
 
 ```kotlin
 import tools.jackson.dataformat.cbor.CBORFactory
 import tools.jackson.databind.ObjectMapper
 
 val cborMapper = ObjectMapper(CBORFactory())
-val bytes = cborMapper.writeValueAsBytes(user)      // 바이너리 직렬화
-val restored = cborMapper.readValue<User>(bytes)    // 역직렬화
+val bytes = cborMapper.writeValueAsBytes(user)      // binary serialization
+val restored = cborMapper.readValue<User>(bytes)    // deserialization
 ```
 
-### YAML 직렬화 예시
+### YAML Serialization Example
 
 ```kotlin
 import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.databind.ObjectMapper
 
 val yamlMapper = ObjectMapper(YAMLFactory())
-val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
-val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
+val yaml = yamlMapper.writeValueAsString(user)      // YAML serialization
+val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Jackson 2.x vs 3.x 모듈 비교
+### Jackson 2.x vs 3.x Module Comparison
 
 ```mermaid
 flowchart LR
     subgraph JK2["bluetape4k-jackson2 (Jackson 2.x)"]
         M2[com.fasterxml.jackson.*]
         MOD2[Module SPI:<br/>com.fasterxml.jackson.databind.Module]
-        TK2["@JsonTinkEncrypt<br/>→ 자동 등록"]
+        TK2["@JsonTinkEncrypt<br/>→ auto-registered"]
     end
 
     subgraph JK3["bluetape4k-jackson3 (Jackson 3.x)"]
         M3[tools.jackson.*]
         MOD3[Module SPI:<br/>tools.jackson.databind.JacksonModule]
-        TK3["@JsonTinkEncrypt<br/>→ JsonTinkEncryptModule 수동 등록"]
+        TK3["@JsonTinkEncrypt<br/>→ manual JsonTinkEncryptModule registration"]
     end
 
-    JK2 -->|동일 기능, 다른 패키지| JK3
+    JK2 -->|same features, different package| JK3
 ```
 
-### 클래스 구조
+### Class Structure
 
 ```mermaid
 classDiagram
@@ -350,105 +352,105 @@ classDiagram
     }
 
     JsonSerializer <|.. JacksonSerializer
-    JacksonSerializer --> Jackson : 사용
-    Jackson --> JsonEncryptModule : 등록
-    Jackson --> JsonTinkEncryptModule : 등록
-    Jackson --> JsonMaskerModule : 등록
-    Jackson --> JsonUuidModule : 등록
+    JacksonSerializer --> Jackson : uses
+    Jackson --> JsonEncryptModule : registers
+    Jackson --> JsonTinkEncryptModule : registers
+    Jackson --> JsonMaskerModule : registers
+    Jackson --> JsonUuidModule : registers
 
 ```
 
-### Jackson 3.x 모듈 등록 흐름
+### Jackson 3.x Module Registration Flow
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as 애플리케이션
+    participant App as Application
     participant J as Jackson
     participant M as JsonMapper.Builder
-    participant MOD as JacksonModule들
+    participant MOD as JacksonModules
 
-    앱->>J: Jackson.createDefaultJsonMapper()
+    App->>J: Jackson.createDefaultJsonMapper()
     J->>M: jsonMapper { findAndAddModules() }
-    M->>MOD: JsonTinkEncryptModule 등록
-    M->>MOD: JsonMaskerModule 등록
-    M->>MOD: JsonUuidModule 등록
-    MOD-->>M: Introspector / Serializer / Deserializer 연결
-    M-->>J: JsonMapper 생성
-    J-->>앱: 구성된 ObjectMapper
+    M->>MOD: Register JsonTinkEncryptModule
+    M->>MOD: Register JsonMaskerModule
+    M->>MOD: Register JsonUuidModule
+    MOD-->>M: Wire Introspector / Serializer / Deserializer
+    M-->>J: Build JsonMapper
+    J-->>App: Configured ObjectMapper
 
-    앱->>J: mapper.writeValueAsString(obj)
-    J->>MOD: @JsonTinkEncrypt 필드 탐지
-    MOD-->>J: 암호화된 값
-    J-->>앱: JSON 문자열
+    App->>J: mapper.writeValueAsString(obj)
+    J->>MOD: Detect @JsonTinkEncrypt fields
+    MOD-->>J: Encrypted value
+    J-->>App: JSON string
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-jackson3"))
 
-    // 바이너리 포맷 (필요한 것만 추가)
+    // Binary formats (add only what you need)
     implementation("tools.jackson.dataformat:jackson-dataformat-cbor3")
     implementation("tools.jackson.dataformat:jackson-dataformat-smile3")
 
-    // 텍스트 포맷 (필요한 것만 추가)
+    // Text formats (add only what you need)
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml3")
     implementation("tools.jackson.dataformat:jackson-dataformat-csv3")
     implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
 
-    // 암호화 (선택적)
-    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
-    implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
+    // Encryption (optional)
+    implementation(project(":bluetape4k-crypto"))  // for @JsonEncrypt (Jasypt)
+    implementation(project(":bluetape4k-tink"))    // for @JsonTinkEncrypt (Google Tink)
 }
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.jackson3
-├── Jackson.kt                    # 기본 JsonMapper 싱글턴
-├── JacksonSerializer.kt          # JsonSerializer 구현체
-├── JsonMapperSupport.kt          # ObjectMapper 확장 함수
-├── JsonNodeExtensions.kt         # JsonNode 확장 함수
-├── JsonGeneratorExtensions.kt    # JsonGenerator 확장 함수
-├── async/                        # 비동기 JSON 파싱
-│   ├── AsyncJsonParser.kt        # 콜백 기반 비동기 파서
-│   └── SuspendJsonParser.kt      # 코루틴 기반 파서
-├── crypto/                                       # 필드 암호화
-│   ├── JsonEncrypt.kt                            # @JsonEncrypt 어노테이션 (Jasypt, Deprecated)
-│   ├── JsonEncryptModule.kt                      # Jasypt Module 등록
+├── Jackson.kt                    # Default JsonMapper singleton
+├── JacksonSerializer.kt          # JsonSerializer implementation
+├── JsonMapperSupport.kt          # ObjectMapper extension functions
+├── JsonNodeExtensions.kt         # JsonNode extension functions
+├── JsonGeneratorExtensions.kt    # JsonGenerator extension functions
+├── async/                        # Async JSON parsing
+│   ├── AsyncJsonParser.kt        # Callback-based async parser
+│   └── SuspendJsonParser.kt      # Coroutine-based parser
+├── crypto/                                       # Field encryption
+│   ├── JsonEncrypt.kt                            # @JsonEncrypt annotation (Jasypt, Deprecated)
+│   ├── JsonEncryptModule.kt                      # Jasypt Module registration
 │   ├── JsonEncryptAnnotationInterospector.kt     # Jasypt Introspector
-│   ├── JsonEncryptSerializer.kt                  # Jasypt 암호화 직렬화기
-│   ├── JsonEncryptDeserializer.kt                # Jasypt 복호화 역직렬화기
-│   ├── JsonEncryptors.kt                         # Encryptor 캐시 관리
-│   ├── TinkEncryptAlgorithm.kt                   # Tink 알고리즘 enum
-│   ├── JsonTinkEncrypt.kt                        # @JsonTinkEncrypt 어노테이션 (Google Tink)
-│   ├── JsonTinkEncryptModule.kt                  # Tink Module 등록
+│   ├── JsonEncryptSerializer.kt                  # Jasypt encryption serializer
+│   ├── JsonEncryptDeserializer.kt                # Jasypt decryption deserializer
+│   ├── JsonEncryptors.kt                         # Encryptor cache management
+│   ├── TinkEncryptAlgorithm.kt                   # Tink algorithm enum
+│   ├── JsonTinkEncrypt.kt                        # @JsonTinkEncrypt annotation (Google Tink)
+│   ├── JsonTinkEncryptModule.kt                  # Tink Module registration
 │   ├── JsonTinkEncryptAnnotationIntrospector.kt  # Tink Introspector
-│   ├── JsonTinkEncryptSerializer.kt              # Tink 암호화 직렬화기
-│   └── JsonTinkEncryptDeserializer.kt            # Tink 복호화 역직렬화기
-├── mask/                         # 필드 마스킹
-│   ├── JsonMasker.kt             # @JsonMasker 어노테이션
-│   ├── JsonMaskerModule.kt       # Jackson 3.x Module 등록
+│   ├── JsonTinkEncryptSerializer.kt              # Tink encryption serializer
+│   └── JsonTinkEncryptDeserializer.kt            # Tink decryption deserializer
+├── mask/                         # Field masking
+│   ├── JsonMasker.kt             # @JsonMasker annotation
+│   ├── JsonMaskerModule.kt       # Jackson 3.x Module registration
 │   ├── JsonMaskerAnnotationInterospector.kt
-│   └── JsonMaskerSerializer.kt   # 마스킹 직렬화기
-└── uuid/                         # UUID 인코딩
-    ├── JsonUuidEncoder.kt        # @JsonUuidEncoder 어노테이션
-    ├── JsonUuidEncoderType.kt    # BASE62 / PLAIN 열거형
-    ├── JsonUuidModule.kt         # Jackson 3.x Module 등록
-    ├── JsonUuidBase62Serializer.kt   # UUID → Base62 직렬화
-    ├── JsonUuidBase62Deserializer.kt # Base62 → UUID 역직렬화
+│   └── JsonMaskerSerializer.kt   # Masking serializer
+└── uuid/                         # UUID encoding
+    ├── JsonUuidEncoder.kt        # @JsonUuidEncoder annotation
+    ├── JsonUuidEncoderType.kt    # BASE62 / PLAIN enum
+    ├── JsonUuidModule.kt         # Jackson 3.x Module registration
+    ├── JsonUuidBase62Serializer.kt   # UUID → Base62 serializer
+    ├── JsonUuidBase62Deserializer.kt # Base62 → UUID deserializer
     └── JsonUuidEncoderAnnotationInterospector.kt
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-jackson3:test
 ```
 
-## 참고
+## References
 
 - [Jackson 3.x](https://github.com/FasterXML/jackson)
 - [Jackson 3.x Release Notes](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)

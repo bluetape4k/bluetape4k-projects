@@ -1,17 +1,19 @@
 # Module bluetape4k-cassandra
 
-[Apache Cassandra](https://cassandra.apache.org/) Java Driver를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 특징
+A Kotlin extension library that makes it easier to use the [Apache Cassandra](https://cassandra.apache.org/) Java Driver.
 
-- **Session 확장**: `CqlSession`, `AsyncCqlSession` 생성 및 관리를 위한 DSL
-- **Coroutines 지원**: `suspend` 함수를 이용한 비동기 쿼리 실행
-- **Row/Gettable/Settable 확장**: 타입 안전한 값 조회/설정
-- **QueryBuilder 확장**: CQL 빌더 작성 편의 함수
-- **Statement 지원**: SimpleStatement, BoundStatement, BatchStatement 생성 DSL
-- **Admin 유틸**: Keyspace 생성/삭제, 버전 확인 등 관리 작업 지원
+## Features
 
-## 의존성 추가
+- **Session Extensions**: DSL for creating and managing `CqlSession` and `AsyncCqlSession`
+- **Coroutines Support**: Asynchronous query execution via `suspend` functions
+- **Row/Gettable/Settable Extensions**: Type-safe value access and mutation
+- **QueryBuilder Extensions**: Convenience functions for building CQL queries
+- **Statement Support**: DSL for creating SimpleStatement, BoundStatement, and BatchStatement
+- **Admin Utilities**: Keyspace creation/deletion, version checks, and other administrative tasks
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -19,15 +21,15 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Core Features
 
-### 1. CqlSession 생성
+### 1. Creating a CqlSession
 
 ```kotlin
 import io.bluetape4k.cassandra.*
 import java.net.InetSocketAddress
 
-// DSL 방식으로 Session 생성
+// Create a session using DSL
 val session = cqlSession {
     addContactPoint(InetSocketAddress("localhost", 9042))
     withLocalDatacenter("datacenter1")
@@ -35,24 +37,24 @@ val session = cqlSession {
     withAuthCredentials("username", "password")
 }
 
-// 간편한 Session 생성
+// Convenience factory function
 val session2 = cqlSessionOf(
     contactPoint = InetSocketAddress("localhost", 9042),
     localDatacenter = "datacenter1",
     keyspaceName = "my_keyspace"
 )
 
-// Session 사용 후 닫기
-session.use { /* 작업 수행 */ }
+// Auto-close after use
+session.use { /* perform operations */ }
 ```
 
-### 2. 비동기 쿼리 (Coroutines)
+### 2. Asynchronous Queries (Coroutines)
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*
 import kotlinx.coroutines.flow.*
 
-// suspend 함수로 쿼리 실행
+// Execute a query using suspend functions
 suspend fun fetchUsers(): List<User> {
     val result = session.executeSuspending("SELECT * FROM users")
     return result.map { row ->
@@ -64,7 +66,7 @@ suspend fun fetchUsers(): List<User> {
     }.toList()
 }
 
-// Named parameter 사용
+// Using named parameters
 suspend fun fetchUserById(id: Int): User? {
     val result = session.executeSuspending(
         "SELECT * FROM users WHERE id = :id",
@@ -78,7 +80,7 @@ suspend fun fetchUserById(id: Int): User? {
     }
 }
 
-// PreparedStatement 생성
+// Prepare and execute a statement
 suspend fun prepareAndExecute() {
     val prepared = session.prepareSuspending("SELECT * FROM users WHERE id = :id")
     val bound = prepared.bind(123)
@@ -86,69 +88,69 @@ suspend fun prepareAndExecute() {
 }
 ```
 
-### 3. Row 데이터 조회
+### 3. Row Data Access
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*
 
-// Row를 Map으로 변환
+// Convert a Row to a Map
 val row = result.one()
 val dataMap: Map<Int, Any?> = row.toMap()
 val namedMap: Map<String, Any?> = row.toNamedMap()
 val cqlIdMap: Map<CqlIdentifier, Any?> = row.toCqlIdentifierMap()
 
-// 빈 문자열 기본값
+// Access with empty string fallback
 val name = row.getStringOrEmpty("name")
 val nameByIndex = row.getStringOrEmpty(0)
 
-// 변환 함수 적용
+// Apply transformation functions
 val stringValues = row.map { value -> value?.toString() ?: "" }
 val namedStringValues = row.mapWithName { it?.toString() }
 ```
 
-### 4. Gettable/Settable 지원
+### 4. Gettable/Settable Support
 
 ```kotlin
 import io.bluetape4k.cassandra.data.*
 
-// Row, UdtValue, TupleValue 등에서 타입 안전하게 값 조회
+// Type-safe value access from Row, UdtValue, TupleValue, etc.
 val name: String? = row.getValue<String>("name")
 val age: Int? = row.getValue<Int>("age")
 val tags: MutableList<String>? = row.getList<String>("tags")
 val metadata: MutableMap<String, String>? = row.getMap<String, String>("metadata")
 
-// 인덱스 기반 조회
+// Index-based access
 val firstName: String? = row.getValue<String>(0)
 val scores: MutableList<Int>? = row.getList<Int>(1)
 
-// CqlIdentifier 기반 조회
+// CqlIdentifier-based access
 val value = row.getValue(CqlIdentifier.fromCql("column_name"))
 
-// 동적 타입 조회
+// Dynamic type access
 val value: Any? = row.getObject("column_name", String::class)
 ```
 
-### 5. Statement 생성
+### 5. Building Statements
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*
 
-// SimpleStatement 생성
+// Create a SimpleStatement
 val simple = statementOf("SELECT * FROM users")
 
-// 파라미터가 있는 Statement
+// Statement with positional parameters
 val withParams = statementOf(
     "SELECT * FROM users WHERE age > ? AND status = ?",
     18, "active"
 )
 
-// Named parameter Statement
+// Statement with named parameters
 val namedParams = statementOf(
     "SELECT * FROM users WHERE age > :min_age AND status = :status",
     mapOf("min_age" to 18, "status" to "active")
 )
 
-// Builder 패턴
+// Builder pattern
 val statement = simpleStatementOf("SELECT * FROM users") {
     setKeyspace("my_keyspace")
     setPageSize(100)
@@ -156,7 +158,7 @@ val statement = simpleStatementOf("SELECT * FROM users") {
     setTimeout(Duration.ofSeconds(5))
 }
 
-// BoundStatement 생성
+// Create a BoundStatement
 val prepared = session.prepare("INSERT INTO users (id, name, email) VALUES (?, ?, ?)")
 val bound = boundStatementOf(prepared.bind()) {
     setInt("id", 1)
@@ -171,19 +173,19 @@ val batch = batchStatementOf(BatchType.LOGGED) {
     add(statement3)
 }
 
-// 또는 기존 Statement에서
+// Or build from an existing batch
 val batch2 = batchStatementOf(existingBatch) {
     addAll(listOf(statement4, statement5))
 }
 ```
 
-### 6. QueryBuilder 확장
+### 6. QueryBuilder Extensions
 
 ```kotlin
 import io.bluetape4k.cassandra.querybuilder.*
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.*
 
-// BindMarker 생성
+// Create BindMarkers
 val nameMarker = "name".bindMarker()
 val idMarker = CqlIdentifier.fromCql("id").bindMarker()
 
@@ -194,93 +196,93 @@ val rawSnippet = "ttl(?)".raw()
 val addressUdt = "address".udt()
 val addressUdt2 = CqlIdentifier.fromCql("address").udt()
 
-// SELECT 구문
+// SELECT statement
 val select = selectFrom("users")
     .column("id")
     .column("name")
     .whereColumn("age").isGreaterThan(bindMarker("min_age"))
     .build()
 
-// INSERT 구문
+// INSERT statement
 val insert = insertInto("users")
     .value("id", bindMarker("id"))
     .value("name", bindMarker("name"))
     .ifNotExists()
     .build()
 
-// UPDATE 구문
+// UPDATE statement
 val update = update("users")
     .setColumn("name", bindMarker("name"))
     .whereColumn("id").isEqualTo(bindMarker("id"))
     .ifColumn("version").isEqualTo(bindMarker("version"))
     .build()
 
-// DELETE 구문
+// DELETE statement
 val delete = deleteFrom("users")
     .whereColumn("id").isEqualTo(bindMarker("id"))
     .ifColumn("status").isEqualTo(literal("inactive"))
     .build()
 ```
 
-### 7. Cassandra 관리 (Admin)
+### 7. Cassandra Administration
 
 ```kotlin
 import io.bluetape4k.cassandra.CassandraAdmin
 
-// Keyspace 생성
+// Create a keyspace
 val created = CassandraAdmin.createKeyspace(
     session = session,
     keyspace = "my_keyspace",
     replicationFactor = 3
 )
 
-// Keyspace 삭제
+// Drop a keyspace
 val dropped = CassandraAdmin.dropKeyspace(session, "my_keyspace")
 
-// Cassandra 버전 확인
+// Check Cassandra version
 val version = CassandraAdmin.getReleaseVersion(session)
 println("Cassandra version: $version")
 ```
 
-### 8. 문자열 처리 유틸리티
+### 8. String Utilities
 
 ```kotlin
 import io.bluetape4k.cassandra.*
 
-// Single quote 이스케이프
+// Single-quote escaping
 val quoted = "Simpson's family".quote()  // 'Simpson''s family'
 val unquoted = "'Simpson''s family'".unquote()  // Simpson's family
 
-// Double quote 이스케이프
+// Double-quote escaping
 val doubleQuoted = "<div class=\"content\">".doubleQuote()  // <div class=""content"">
 val unDoubleQuoted = """<div class=""content"">""".unDoubleQuote()  // <div class="content">
 
-// Quote 상태 확인
+// Check quote state
 val isQuoted = "'test'".isQuoted()  // true
 val isDoubleQuoted = """"test"""".isDoubleQuoted()  // true
 val needsQuotes = "test column".needsDoubleQuotes()  // true
 ```
 
-### 9. CqlIdentifier 지원
+### 9. CqlIdentifier Support
 
 ```kotlin
 import io.bluetape4k.cassandra.CqlIdentifierSupport
 
-// 문자열을 CqlIdentifier로 변환
+// Convert a string to a CqlIdentifier
 val id = "my_column".toCqlIdentifier()
 val id2 = CqlIdentifier.fromCql("my_column")
 
-// Quote가 필요한 경우 자동 처리
+// Automatically handles quoting when necessary
 val idWithSpace = "my column".toCqlIdentifier()  // "my column"
 ```
 
-### 10. 비동기 ResultSet 처리
+### 10. Asynchronous ResultSet Processing
 
 ```kotlin
 import io.bluetape4k.cassandra.cql.*
 import kotlinx.coroutines.flow.*
 
-// AsyncResultSet을 Flow로 변환
+// Convert an AsyncResultSet to a Flow
 suspend fun fetchAllUsers(): Flow<User> {
     val result = session.executeSuspending("SELECT * FROM users")
     return result.rowsFlow()
@@ -292,7 +294,7 @@ suspend fun fetchAllUsers(): Flow<User> {
         }
 }
 
-// 페이징 처리
+// Paged result processing
 suspend fun fetchWithPaging() {
     var result = session.executeSuspending("SELECT * FROM large_table")
     
@@ -306,7 +308,7 @@ suspend fun fetchWithPaging() {
 }
 ```
 
-## 테스트 지원
+## Test Support
 
 ```kotlin
 import io.bluetape4k.cassandra.AbstractCassandraTest
@@ -314,11 +316,11 @@ import io.bluetape4k.cassandra.AbstractCassandraTest
 class MyCassandraTest: AbstractCassandraTest() {
     
     @Test
-    fun `사용자 조회 테스트`() {
-        // Keyspace 생성
+    fun `fetch user test`() {
+        // Create keyspace
         CassandraAdmin.createKeyspace(session, "test_keyspace")
         
-        // 테이블 생성
+        // Create table
         session.execute("""
             CREATE TABLE IF NOT EXISTS test_keyspace.users (
                 id int PRIMARY KEY,
@@ -327,13 +329,13 @@ class MyCassandraTest: AbstractCassandraTest() {
             )
         """.trimIndent())
         
-        // 데이터 삽입
+        // Insert data
         session.execute(
             "INSERT INTO test_keyspace.users (id, name, email) VALUES (?, ?, ?)",
             1, "John", "john@example.com"
         )
         
-        // 데이터 조회
+        // Query data
         val result = session.execute("SELECT * FROM test_keyspace.users WHERE id = ?", 1)
         val row = result.one()!!
         
@@ -343,24 +345,24 @@ class MyCassandraTest: AbstractCassandraTest() {
 }
 ```
 
-## 예제
+## Examples
 
-더 많은 예제는 `src/test/kotlin/io/bluetape4k/cassandra` 패키지에서 확인할 수 있습니다:
+More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` package:
 
-- `examples/`: 기본 사용 예제
-  - `BasicExamples.kt`: 기본 CRUD 작업
-  - `datatypes/`: 다양한 데이터 타입 처리 (Blob, Tuple, UDT, Custom Codec)
-  - `json/`: JSON 데이터 처리
-- `querybuilder/`: QueryBuilder 사용 예제
-  - `SelectFromStatementExamples.kt`: SELECT 구문
-  - `InsertIntoStatementExamples.kt`: INSERT 구문
-  - `UpateStatementExamples.kt`: UPDATE 구문
-  - `DeleteFromStatementExamples.kt`: DELETE 구문
-  - `schema/`: 스키마 관리 예제 (Keyspace, Table, Index, UDT 등)
+- `examples/`: Basic usage examples
+  - `BasicExamples.kt`: Basic CRUD operations
+  - `datatypes/`: Various data type handling (Blob, Tuple, UDT, Custom Codec)
+  - `json/`: JSON data handling
+- `querybuilder/`: QueryBuilder usage examples
+  - `SelectFromStatementExamples.kt`: SELECT statements
+  - `InsertIntoStatementExamples.kt`: INSERT statements
+  - `UpateStatementExamples.kt`: UPDATE statements
+  - `DeleteFromStatementExamples.kt`: DELETE statements
+  - `schema/`: Schema management examples (Keyspace, Table, Index, UDT, etc.)
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 확장 함수 API 개요
+### Extension Function API Overview
 
 ```mermaid
 classDiagram
@@ -373,7 +375,7 @@ classDiagram
 
 ```
 
-### 주요 API 구조
+### Core API Structure
 
 ```mermaid
 classDiagram
@@ -408,24 +410,24 @@ classDiagram
         +String.udt(): UserDefinedType
     }
     CqlSession <|-- AsyncCqlSession
-    CqlSessionExtensions --> CqlSession : 확장
-    CassandraAdmin --> CqlSession : 사용
-    StatementBuilders --> CqlSession : 생성된 Statement 전달
-    QueryBuilderExtensions --> StatementBuilders : 사용
+    CqlSessionExtensions --> CqlSession : extends
+    CassandraAdmin --> CqlSession : uses
+    StatementBuilders --> CqlSession : delivers statements
+    QueryBuilderExtensions --> StatementBuilders : uses
 ```
 
-### 비동기 쿼리 실행 흐름
+### Asynchronous Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as CqlSession 확장
+    participant App as Application
+    participant Ext as CqlSession Extension
     participant Session as CqlSession
     participant DB as Cassandra
 
     App->>Ext: executeSuspending(query)
     Ext->>Session: executeAsync(statement)
-    Session->>DB: CQL 실행
+    Session->>DB: Execute CQL
     DB-->>Session: AsyncResultSet
     Session-->>Ext: CompletionStage
     Ext-->>App: suspend (Flow<Row>)
@@ -433,13 +435,13 @@ sequenceDiagram
     Ext-->>App: Flow<Row>
 ```
 
-## 참고 자료
+## References
 
-- [Apache Cassandra 공식 문서](https://cassandra.apache.org/doc/latest/)
-- [DataStax Java Driver 문서](https://docs.datastax.com/en/developer/java-driver/latest/)
+- [Apache Cassandra Official Documentation](https://cassandra.apache.org/doc/latest/)
+- [DataStax Java Driver Documentation](https://docs.datastax.com/en/developer/java-driver/latest/)
 - [CQL Query Builder](https://docs.datastax.com/en/developer/java-driver/latest/manual/query_builder/)
 - [Driver Mapper](https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/)
 
-## 라이선스
+## License
 
 Apache License 2.0

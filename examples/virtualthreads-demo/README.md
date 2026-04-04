@@ -1,55 +1,57 @@
 # Module Examples - Java 21 Virtual Threads
 
-Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다.
+English | [한국어](./README.ko.md)
 
-## 예제 목록
+A collection of examples covering best practices and rules for using Java 21 Virtual Threads effectively.
 
-### Virtual Threads 사용 규칙
+## Examples
 
-| 예제 파일                                              | 규칙         | 설명                          |
-|----------------------------------------------------|------------|-----------------------------|
-| `Rule2RunBlockingSynchronousCode.kt`               | **Rule 2** | 동기 코드를 비동기 방식으로 실행          |
-| `Rule3DoNotPooledVirtualThreads.kt`                | **Rule 3** | Virtual Thread 풀링 금지        |
-| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`     | **Rule 4** | 고정 스레드 풀 대신 Semaphore 사용    |
-| `Rule5UseThreadLocalCarefully.kt`                  | **Rule 5** | ThreadLocal 신중하게 사용         |
-| `Rule6UseSynchronizedBlocksAndMethodsCarefully.kt` | **Rule 6** | synchronized 블록/메서드 신중하게 사용 |
+### Virtual Thread Usage Rules
 
-## 주요 학습 포인트
+| Example File                                           | Rule       | Description                                          |
+|--------------------------------------------------------|------------|------------------------------------------------------|
+| `Rule2RunBlockingSynchronousCode.kt`                   | **Rule 2** | Run blocking synchronous code asynchronously         |
+| `Rule3DoNotPooledVirtualThreads.kt`                    | **Rule 3** | Never pool Virtual Threads                           |
+| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`         | **Rule 4** | Use Semaphore instead of a fixed thread pool         |
+| `Rule5UseThreadLocalCarefully.kt`                      | **Rule 5** | Use ThreadLocal with caution                         |
+| `Rule6UseSynchronizedBlocksAndMethodsCarefully.kt`     | **Rule 6** | Use synchronized blocks and methods with caution     |
 
-### Rule 2: 동기 코드 실행 방식 선택
+## Key Learning Points
+
+### Rule 2: Choosing How to Run Synchronous Code
 
 ```kotlin
-// CPU 집약적 작업 → Platform Thread + CompletableFuture
+// CPU-intensive work → Platform Thread + CompletableFuture
 CompletableFuture.supplyAsync { cpuIntensiveTask() }
 
-// I/O 집약적 작업 → Virtual Thread
+// I/O-intensive work → Virtual Thread
 Executors.newVirtualThreadPerTaskExecutor().use { executor ->
     executor.submit { ioTask() }
 }
 
-// 또는 Kotlin Coroutines + Virtual Thread Dispatcher
+// Or Kotlin Coroutines + Virtual Thread Dispatcher
 runSuspendTest(Dispatchers.VT) {
     async { ioTaskAwait() }
 }
 ```
 
-### Rule 3: Virtual Thread 풀링 금지
+### Rule 3: Never Pool Virtual Threads
 
 ```kotlin
-// ❌ 잘못된 방식
-val pool = Executors.newFixedThreadPool(100)  // Virtual Thread 풀 생성 금지
+// ❌ Wrong approach
+val pool = Executors.newFixedThreadPool(100)  // Do not pool Virtual Threads
 
-// ✅ 올바른 방식
+// ✅ Correct approach
 val executor = Executors.newVirtualThreadPerTaskExecutor()
 ```
 
-### Rule 4: Semaphore로 동시성 제어
+### Rule 4: Control Concurrency with Semaphore
 
 ```kotlin
-// ❌ 잘못된 방식
+// ❌ Wrong approach
 val pool = Executors.newFixedThreadPool(10)
 
-// ✅ 올바른 방식
+// ✅ Correct approach
 val semaphore = Semaphore(10)
 Executors.newVirtualThreadPerTaskExecutor().use { executor ->
     semaphore.acquire()
@@ -57,30 +59,30 @@ Executors.newVirtualThreadPerTaskExecutor().use { executor ->
 }
 ```
 
-### Rule 5: ThreadLocal 주의사항
+### Rule 5: ThreadLocal Caution
 
-Virtual Thread는 많이 생성될 수 있으므로 ThreadLocal 메모리 사용에 주의해야 합니다.
+Because Virtual Threads can be created in large numbers, be mindful of memory usage when using ThreadLocal.
 
-### Rule 6: synchronized 블록 주의
+### Rule 6: Synchronized Block Caution
 
-synchronized 블록은 Virtual Thread를 차단(pinning)할 수 있습니다.
+`synchronized` blocks can cause Virtual Thread pinning, which blocks the underlying carrier thread.
 
-## 실행 방법
+## How to Run
 
 ```bash
-# 모든 예제 실행 (Java 21+ 필요)
+# Run all examples (requires Java 21+)
 ./gradlew :examples:virtualthreads:test
 
-# 특정 규칙 예제만 실행
+# Run a specific rule example
 ./gradlew :examples:virtualthreads:test --tests "*Rule2*"
 ```
 
-## 요구사항
+## Requirements
 
-- Java 21 이상
-- `--enable-preview` 플래그 (Java 21에서 필요할 수 있음)
+- Java 21 or later
+- `--enable-preview` flag (may be required on Java 21)
 
-## 참고
+## References
 
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 - [Virtual Threads - Baeldung](https://www.baeldung.com/java-virtual-thread)

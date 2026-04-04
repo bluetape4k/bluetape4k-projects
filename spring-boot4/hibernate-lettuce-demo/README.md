@@ -1,10 +1,12 @@
 # bluetape4k-spring-boot4-hibernate-lettuce-demo
 
-Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache** 데모 애플리케이션.
+English | [한국어](./README.ko.md)
 
-`bluetape4k-spring-boot4-hibernate-lettuce` 모듈의 auto-configuration을 사용해 zero-code로 Hibernate 2nd Level Cache를 활성화하는 예제이다.
+Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache** demo application.
 
-## UML 다이어그램
+An example of enabling Hibernate 2nd Level Cache with zero additional code using the auto-configuration from the `bluetape4k-spring-boot4-hibernate-lettuce` module.
+
+## UML Diagram
 
 ```mermaid
 classDiagram
@@ -43,7 +45,7 @@ classDiagram
     ProductRepository --> HibernateSessionFactory
 ```
 
-## 아키텍처
+## Architecture
 
 ```
 Client HTTP Request
@@ -66,7 +68,7 @@ Hibernate Session Factory
 │ ├─ TTL: 120s (default)                      │
 │ ├─ RESP3 CLIENT TRACKING                    │
 │ ├─ Codec: LZ4+Fory                          │
-│ └─ Region별 TTL 설정 가능                    │
+│ └─ Per-region TTL configuration             │
 └─────────────────────────────────────────────┘
        ↓
 H2 Database
@@ -89,9 +91,9 @@ flowchart TD
     Repo --> DB
 ```
 
-## 도메인 모델
+## Domain Model
 
-### Product 엔티티
+### Product Entity
 
 ```kotlin
 @Entity
@@ -114,29 +116,29 @@ data class Product(
 )
 ```
 
-- `@Cacheable`: JPA 2nd Level Cache 활성화
-- `@Cache(NONSTRICT_READ_WRITE)`: 낙관적 락 기반 업데이트 전략
-- `region = "product"`: Redis 키 prefix (`product::*`)
+- `@Cacheable`: Enables JPA 2nd Level Cache
+- `@Cache(NONSTRICT_READ_WRITE)`: Optimistic lock-based update strategy
+- `region = "product"`: Redis key prefix (`product::*`)
 
 ## REST API
 
-### 상품 API (`/api/products`)
+### Product API (`/api/products`)
 
-| 메서드      | 경로                   | 설명                 | 캐시 동작         |
-|----------|----------------------|--------------------|-----------------|
-| `GET`    | `/api/products`      | 전체 상품 조회           | 캐시 적용 안 함    |
-| `GET`    | `/api/products/{id}` | ID로 상품 조회          | L1/L2 Hit/Miss  |
-| `POST`   | `/api/products`      | 상품 생성              | L1 + L2에 저장   |
-| `PUT`    | `/api/products/{id}` | 상품 수정              | L1 + L2 갱신    |
-| `DELETE` | `/api/products/{id}` | 상품 삭제              | L1 + L2 제거    |
+| Method   | Path                 | Description           | Cache Behavior         |
+|----------|----------------------|-----------------------|------------------------|
+| `GET`    | `/api/products`      | List all products     | Cache not applied      |
+| `GET`    | `/api/products/{id}` | Get product by ID     | L1/L2 Hit/Miss         |
+| `POST`   | `/api/products`      | Create a product      | Stored in L1 + L2      |
+| `PUT`    | `/api/products/{id}` | Update a product      | L1 + L2 updated        |
+| `DELETE` | `/api/products/{id}` | Delete a product      | Removed from L1 + L2   |
 
-#### 예시: 상품 조회 (캐시 활용)
+#### Example: Get product (cache in action)
 
 ```bash
-# 첫 번째 요청: DB에서 조회 (L1 Miss, L2 Miss)
+# First request: fetched from DB (L1 Miss, L2 Miss)
 curl http://localhost:8080/api/products/1
 
-# 응답 (200 OK)
+# Response (200 OK)
 {
   "id": 1,
   "name": "Laptop",
@@ -144,11 +146,11 @@ curl http://localhost:8080/api/products/1
   "price": 999.99
 }
 
-# 두 번째 요청: L1 캐시에서 즉시 응답 (L1 Hit)
+# Second request: served from L1 cache immediately (L1 Hit)
 curl http://localhost:8080/api/products/1
 ```
 
-#### 예시: 상품 생성
+#### Example: Create a product
 
 ```bash
 curl -X POST http://localhost:8080/api/products \
@@ -159,7 +161,7 @@ curl -X POST http://localhost:8080/api/products \
     "price": 29.99
   }'
 
-# 응답 (200 OK) - 자동으로 L1 + L2 캐시에 저장됨
+# Response (200 OK) - automatically stored in L1 + L2 cache
 {
   "id": 2,
   "name": "Mouse",
@@ -168,7 +170,7 @@ curl -X POST http://localhost:8080/api/products \
 }
 ```
 
-#### 예시: 상품 수정 (캐시 갱신)
+#### Example: Update a product (cache refresh)
 
 ```bash
 curl -X PUT http://localhost:8080/api/products/1 \
@@ -180,7 +182,7 @@ curl -X PUT http://localhost:8080/api/products/1 \
     "id": 1
   }'
 
-# 응답 (200 OK) - L1 + L2 캐시 모두 갱신됨
+# Response (200 OK) - both L1 + L2 caches are updated
 {
   "id": 1,
   "name": "Gaming Laptop",
@@ -189,28 +191,28 @@ curl -X PUT http://localhost:8080/api/products/1 \
 }
 ```
 
-#### 예시: 상품 삭제 (캐시 제거)
+#### Example: Delete a product (cache eviction)
 
 ```bash
 curl -X DELETE http://localhost:8080/api/products/1
 
-# 응답 (204 No Content) - L1 + L2 캐시에서 모두 제거됨
+# Response (204 No Content) - removed from both L1 + L2 caches
 ```
 
-### 캐시 관리 API (`/api/cache`)
+### Cache Management API (`/api/cache`)
 
-| 메서드      | 경로                          | 설명                            | 동작                            |
-|----------|-----------------------------|-------------------------------|-------------------------------|
-| `GET`    | `/api/cache/stats`          | 리전별 캐시 통계                | L1 크기, hit/miss 수 조회       |
-| `DELETE` | `/api/cache/evict`          | 전체 리전 L1 캐시 비우기         | L1만 제거 (L2는 유지)            |
-| `DELETE` | `/api/cache/evict/{region}` | 특정 리전 L1 캐시 비우기         | 해당 region L1만 제거 (L2는 유지) |
+| Method   | Path                        | Description                         | Action                                 |
+|----------|-----------------------------|-------------------------------------|----------------------------------------|
+| `GET`    | `/api/cache/stats`          | Per-region cache statistics         | Retrieve L1 size, hit/miss counts      |
+| `DELETE` | `/api/cache/evict`          | Evict all region L1 caches          | L1 only (L2 unaffected)               |
+| `DELETE` | `/api/cache/evict/{region}` | Evict L1 cache for a specific region | That region's L1 only (L2 unaffected) |
 
-#### 예시: 캐시 통계 조회
+#### Example: Retrieve cache statistics
 
 ```bash
 curl http://localhost:8080/api/cache/stats
 
-# 응답 (200 OK)
+# Response (200 OK)
 {
   "product": {
     "regionName": "product",
@@ -222,35 +224,35 @@ curl http://localhost:8080/api/cache/stats
 }
 ```
 
-#### 예시: 특정 region L1 캐시 비우기
+#### Example: Evict L1 cache for a specific region
 
 ```bash
-# L1(Caffeine) 캐시만 제거 (Redis L2는 유지)
+# Evict only L1 (Caffeine) cache; Redis L2 is unaffected
 curl -X DELETE http://localhost:8080/api/cache/evict/product
 
-# 응답 (204 No Content)
+# Response (204 No Content)
 ```
 
-#### 예시: 전체 L1 캐시 비우기
+#### Example: Evict all L1 caches
 
 ```bash
 curl -X DELETE http://localhost:8080/api/cache/evict
 
-# 응답 (204 No Content)
+# Response (204 No Content)
 ```
 
-> **주의**: 이 엔드포인트들은 L1(Caffeine)만 비운다. Redis L2는 영향받지 않는다.
+> **Note**: These endpoints only evict the L1 (Caffeine) cache. Redis L2 is not affected.
 
-### Actuator 엔드포인트
+### Actuator Endpoint
 
-Spring Boot Actuator에서 제공하는 `/actuator/nearcache` 엔드포인트.
+The `/actuator/nearcache` endpoint provided by Spring Boot Actuator.
 
-#### 모든 Region 통계
+#### All Region Statistics
 
 ```bash
 curl http://localhost:8080/actuator/nearcache
 
-# 응답 (200 OK)
+# Response (200 OK)
 {
   "product": {
     "regionName": "product",
@@ -266,12 +268,12 @@ curl http://localhost:8080/actuator/nearcache
 }
 ```
 
-#### 특정 Region 상세 조회
+#### Specific Region Details
 
 ```bash
 curl http://localhost:8080/actuator/nearcache/product
 
-# 응답 (200 OK)
+# Response (200 OK)
 {
   "regionName": "product",
   "localSize": 42,
@@ -285,7 +287,7 @@ curl http://localhost:8080/actuator/nearcache/product
 }
 ```
 
-## 애플리케이션 설정
+## Application Configuration
 
 ### application.yml
 
@@ -314,7 +316,7 @@ bluetape4k:
   cache:
     lettuce-near:
       redis-uri: redis://localhost:6379
-      codec: lz4fory                            # LZ4 압축 + Fory 직렬화
+      codec: lz4fory                            # LZ4 compression + Fory serialization
       use-resp3: true                           # RESP3 + CLIENT TRACKING
       local:
         max-size: 10000
@@ -322,7 +324,7 @@ bluetape4k:
       redis-ttl:
         default: 120s
         regions:
-          product: 300s                         # product region TTL 5분
+          product: 300s                         # product region TTL: 5 minutes
       metrics:
         enabled: true
         enable-caffeine-stats: true
@@ -337,17 +339,17 @@ management:
       show-details: always
 ```
 
-## 테스트 실행
+## Running Tests
 
-### 단위 테스트
+### Unit Tests
 
 ```bash
 ./gradlew :bluetape4k-spring-boot4-hibernate-lettuce-demo:test
 ```
 
-테스트는 Testcontainers를 사용하여 Redis를 자동으로 관리한다.
+Tests automatically manage Redis using Testcontainers.
 
-### 테스트 예시
+### Test Examples
 
 ```kotlin
 @SpringBootTest
@@ -366,34 +368,34 @@ class DemoApplicationTest {
     }
 
     @Test
-    fun `상품 조회 시 2LC 캐시 활용`() {
+    fun `product retrieval uses 2LC cache`() {
         // Given
         val product = Product(name = "Laptop", price = 999.99)
         val saved = productRepository.save(product)
 
-        // When (첫 번째 조회)
+        // When (first retrieval)
         val result1 = productRepository.findById(saved.id!!).get()
 
-        // Then (DB에서 조회)
+        // Then (fetched from DB)
         assertThat(result1.name).isEqualTo("Laptop")
 
-        // When (두 번째 조회)
+        // When (second retrieval)
         val result2 = productRepository.findById(saved.id).get()
 
-        // Then (L1 캐시에서 즉시 응답 - DB 쿼리 없음)
+        // Then (served from L1 cache — no DB query)
         assertThat(result2.name).isEqualTo("Laptop")
     }
 }
 ```
 
-## 테스트 항목
+## Test Coverage
 
-- `ProductControllerTest`: REST API 엔드포인트 테스트
-- `CacheControllerTest`: 캐시 관리 API 테스트
-- `CachingIntegrationTest`: 2LC + Lettuce Near Cache 통합 테스트
-- `LettuceNearCacheStatsTest`: Actuator 엔드포인트 테스트
+- `ProductControllerTest`: REST API endpoint tests
+- `CacheControllerTest`: Cache management API tests
+- `CachingIntegrationTest`: 2LC + Lettuce Near Cache integration tests
+- `LettuceNearCacheStatsTest`: Actuator endpoint tests
 
-## 의존성 (Spring Boot 4)
+## Dependencies (Spring Boot 4)
 
 ```kotlin
 // build.gradle.kts
@@ -407,7 +409,7 @@ dependencies {
     implementation(Libs.springBootStarter("actuator"))
     runtimeOnly(Libs.h2_database)
 
-    // Hibernate (명시적 선언)
+    // Hibernate (explicit declaration)
     compileOnly(Libs.springBoot("hibernate"))
 
     testImplementation(Libs.springBootStarter("test"))
@@ -416,24 +418,24 @@ dependencies {
 }
 ```
 
-## Spring Boot 4 고유 사항
+## Spring Boot 4-Specific Notes
 
-- **BOM**: `implementation(platform(Libs.spring_boot4_dependencies))` 필수
-- **Hibernate**: `compileOnly(Libs.springBoot("hibernate"))` 추가 필요
-- **패키지명**: `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
+- **BOM**: `implementation(platform(Libs.spring_boot4_dependencies))` required
+- **Hibernate**: `compileOnly(Libs.springBoot("hibernate"))` must be added
+- **Package name**: `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
 
-## 패키지 정보
+## Package Information
 
 - **Group**: `io.github.bluetape4k`
 - **Artifact**: `bluetape4k-spring-boot4-hibernate-lettuce-demo`
 - **Package**: `io.bluetape4k.examples.cache.lettuce`
 
-## 관련 모듈
+## Related Modules
 
-- [`bluetape4k-spring-boot4-hibernate-lettuce`](../hibernate-lettuce/README.md) — Auto-Configuration 모듈
+- [`bluetape4k-spring-boot4-hibernate-lettuce`](../hibernate-lettuce/README.md) — Auto-Configuration module
 - [`bluetape4k-hibernate-cache-lettuce`](../../infra/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache 코어
+- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache core
 
-## 라이센스
+## License
 
 Apache License 2.0

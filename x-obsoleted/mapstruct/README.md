@@ -1,14 +1,16 @@
 # Module Examples - MapStruct
 
-> **⚠️ Obsolete**: 이 모듈은 미사용으로 폐기되었습니다. 빌드에서 완전 제외되었습니다.
+English | [한국어](./README.ko.md)
 
-[MapStruct](http://mapstruct.org/)를 Kotlin에서 사용하는 매핑 예제입니다.
+> **⚠️ Obsolete**: This module is no longer in use and has been fully excluded from the build.
 
-## 예제 목록
+Examples of using [MapStruct](http://mapstruct.org/) with Kotlin.
 
-### 기본 매핑 (PersonConverterTest.kt)
+## Examples
 
-Entity와 DTO 간의 기본적인 매핑 패턴을 학습합니다.
+### Basic Mapping (PersonConverterTest.kt)
+
+Demonstrates the basic pattern for mapping between entities and DTOs.
 
 ```kotlin
 @Mapper
@@ -18,9 +20,9 @@ interface PersonMapper {
 }
 ```
 
-### 필드 매핑 (FieldMappingExample.kt)
+### Field Mapping (FieldMappingExample.kt)
 
-서로 다른 필드명을 가진 객체 간의 매핑 방법을 학습합니다.
+Demonstrates how to map objects with different field names.
 
 ```kotlin
 @Mapper
@@ -31,20 +33,20 @@ interface FieldMapper {
 }
 ```
 
-## 주요 학습 포인트
+## Key Learning Points
 
-1. **@Mapper 인터페이스**: MapStruct가 자동으로 구현체 생성
-2. **@Mapping**: 필드명이 다를 때 매핑 규칙 정의
-3. **커스텀 매핑**: 복잡한 변환 로직 구현
-4. **컬렉션 매핑**: List, Set 등 컬렉션 변환
+1. **@Mapper interface**: MapStruct automatically generates the implementation
+2. **@Mapping**: Defines mapping rules when field names differ
+3. **Custom mapping**: Implementing complex transformation logic
+4. **Collection mapping**: Converting `List`, `Set`, and other collection types
 
-## 실행 방법
+## Running the Examples
 
 ```bash
 ./gradlew :examples:mapstruct:test
 ```
 
-## 참고
+## References
 
-- [MapStruct 공식 문서](http://mapstruct.org/)
-- [MapStruct Kotlin 지원](https://mapstruct.org/faq/#can-i-use-mapstruct-together-with-kotlin)
+- [MapStruct Official Documentation](http://mapstruct.org/)
+- [MapStruct Kotlin Support](https://mapstruct.org/faq/#can-i-use-mapstruct-together-with-kotlin)

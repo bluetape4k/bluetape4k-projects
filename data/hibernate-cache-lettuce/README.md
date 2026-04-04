@@ -1,23 +1,25 @@
 # infra-hibernate-cache-lettuce
 
-Hibernate 7 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 + Redis L2) 기반.
-`hibernate.cache.lettuce.*` Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다.
+English | [한국어](./README.ko.md)
 
-> Near Cache 코어는 `bluetape4k-projects` 의 `bluetape4k-cache-lettuce` 모듈을 사용한다.
-> Spring Boot 4와 통합하려면 [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.md) 참조.
+Hibernate 7 **2nd Level Cache** implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2).
+Simply configure `hibernate.cache.lettuce.*` properties and Near Cache is automatically applied to all regions.
 
-## 아키텍처
+> The Near Cache core uses the `bluetape4k-cache-lettuce` module from `bluetape4k-projects`.
+> For Spring Boot 4 integration, see [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.md).
 
-### Near Cache 2-Tier 구조
+## Architecture
+
+### Near Cache 2-Tier Structure
 
 ```mermaid
 flowchart LR
     A[Hibernate 2nd Level Cache] --> B{LettuceNearCacheRegionFactory}
-    B --> C[L1: Caffeine\n로컬 인메모리]
+    B --> C[L1: Caffeine\nLocal In-Memory]
     B --> D[L2: Redis\nLettuce RESP3\nClient Tracking]
-    C --> E[캐시 히트 즉시 반환]
-    D --> F[원격 캐시 동기화]
-    F --> G[DB 쿼리 최소화]
+    C --> E[Instant cache hit]
+    D --> F[Remote cache sync]
+    F --> G[Minimizes DB queries]
 
     style A fill:#607D8B
     style B fill:#9C27B0
@@ -28,17 +30,17 @@ flowchart LR
     style G fill:#4CAF50
 ```
 
-### 레이어 구조
+### Layer Structure
 
 ```mermaid
 flowchart TD
     Hibernate["Hibernate ORM"]
-    Factory["LettuceNearCacheRegionFactory<br/>RegionFactoryTemplate 구현"]
+    Factory["LettuceNearCacheRegionFactory<br/>Implements RegionFactoryTemplate"]
     Region["EntityRegion / CollectionRegion<br/>QueryResultsRegion"]
-    Storage["LettuceNearCacheStorageAccess<br/>DomainDataStorageAccess 구현<br/>key: {regionName}::{key}"]
+    Storage["LettuceNearCacheStorageAccess<br/>Implements DomainDataStorageAccess<br/>key: {regionName}::{key}"]
     NearCache["LettuceNearCache<br/>2-tier cache"]
-    L1["Caffeine (L1)<br/>로컬 인메모리"]
-    L2["Redis (L2, Lettuce)<br/>분산 캐시 + CLIENT TRACKING"]
+    L1["Caffeine (L1)<br/>Local In-Memory"]
+    L2["Redis (L2, Lettuce)<br/>Distributed Cache + CLIENT TRACKING"]
 
     Hibernate --> Factory
     Factory --> Region
@@ -48,65 +50,65 @@ flowchart TD
     NearCache --> L2
 ```
 
-- **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
-- **키 prefix**: `{regionName}::{key}` 형식으로 Redis 키 충돌 방지
-- **AccessType**: `NONSTRICT_READ_WRITE` 권장 (분산 캐시에서 soft-lock 불필요)
+- **Region Isolation**: Each region gets its own `LettuceNearCache` instance
+- **Key Prefix**: Redis key collision is prevented using the `{regionName}::{key}` format
+- **AccessType**: `NONSTRICT_READ_WRITE` is recommended (soft-locking is unnecessary in a distributed cache)
 
-## 최근 변경
+## Recent Changes
 
-- `LettuceNearCacheStorageAccess.evictData()`를 region local-only clear에서 **local + Redis clearAll**로 변경
-- 테스트에서 `session.get()`을 `session.find()`로 교체해 Hibernate deprecated API 제거
-- One-To-Many / Many-To-One / Many-To-Many 관계 엔티티 캐시 시나리오 테스트 추가
+- Changed `LettuceNearCacheStorageAccess.evictData()` from region local-only clear to **local + Redis clearAll**
+- Replaced `session.get()` with `session.find()` in tests to remove deprecated Hibernate API usage
+- Added cache scenario tests for One-To-Many, Many-To-One, and Many-To-Many relationships
 
-## 의존성
+## Dependencies
 
 ```kotlin
 // build.gradle.kts
 dependencies {
     implementation(project(":hibernate-cache-lettuce"))
 
-    // 런타임 직렬화 (필수 - bluetape4k-io의 optional 의존성이므로 명시 필요)
+    // Runtime serialization (required — must be declared explicitly since bluetape4k-io uses optional dependencies)
     implementation(Libs.fory_kotlin)  // Apache Fory
-    implementation(Libs.lz4_java)     // LZ4 압축
+    implementation(Libs.lz4_java)     // LZ4 compression
 }
 ```
 
-## 설정
+## Configuration
 
 ### Hibernate Properties
 
 ```properties
-# Region Factory 등록 (필수)
+# Register the Region Factory (required)
 hibernate.cache.region.factory_class=io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
 hibernate.cache.use_second_level_cache=true
 
-# Redis 연결
+# Redis connection
 hibernate.cache.lettuce.redis_uri=redis://localhost:6379
 
-# 직렬화 코덱 (lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk)
+# Serialization codec (lz4fory | fory | kryo | lz4kryo | lz4jdk | gzipfory | zstdfory | jdk)
 hibernate.cache.lettuce.codec=lz4fory
 
-# RESP3 + CLIENT TRACKING 활성화 (Redis 6+ 필요)
+# Enable RESP3 + CLIENT TRACKING (requires Redis 6+)
 hibernate.cache.lettuce.use_resp3=true
 
-# L1 (Caffeine) 설정
+# L1 (Caffeine) settings
 hibernate.cache.lettuce.local.max_size=10000
 hibernate.cache.lettuce.local.expire_after_write=30m
 
-# Redis TTL (기본, ms/s/m/h 단위 지원)
+# Redis TTL (default; supports ms/s/m/h units)
 hibernate.cache.lettuce.redis_ttl.default=120s
 
-# Region별 TTL 오버라이드
+# Per-region TTL overrides
 hibernate.cache.lettuce.redis_ttl.io.example.Product=300s
 hibernate.cache.lettuce.redis_ttl.io.example.Order=600s
 
-# timestamps region은 query cache invalidation 정확성을 위해 TTL 비활성화
+# TTL is disabled for the timestamps region to maintain query cache invalidation accuracy
 
-# Caffeine 통계 수집 (Metrics 연동 시 활성화)
+# Enable Caffeine statistics collection (activate when integrating Metrics)
 hibernate.cache.lettuce.local.record_stats=false
 ```
 
-### application.yml (Spring Boot 없이 직접 사용)
+### application.yml (when used without Spring Boot)
 
 ```yaml
 spring:
@@ -127,10 +129,10 @@ spring:
               default: 120s
 ```
 
-지원 codec 값은 `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, `zstd*` 계열이며,
-오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
+Supported codec values include the `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, and `zstd*` families.
+Typos or unsupported codec names cause an immediate exception rather than silently falling back to a default.
 
-## Entity 설정
+## Entity Configuration
 
 ```kotlin
 @Entity
@@ -144,7 +146,7 @@ class Product(
 )
 ```
 
-### 컬렉션 캐싱
+### Collection Caching
 
 ```kotlin
 @OneToMany(mappedBy = "category")
@@ -152,11 +154,11 @@ class Product(
 val products: MutableList<Product> = mutableListOf()
 ```
 
-`NONSTRICT_READ_WRITE`를 권장한다. 분산 Redis 환경에서는 soft-lock 기반의 `READ_WRITE`가 추가 overhead를 발생시키기 때문이다.
+`NONSTRICT_READ_WRITE` is recommended because soft-lock-based `READ_WRITE` introduces additional overhead in a distributed Redis environment.
 
-## 동작 방식
+## How It Works
 
-#### getFromCache / putIntoCache 흐름
+#### getFromCache / putIntoCache Flow
 
 ```mermaid
 sequenceDiagram
@@ -184,42 +186,42 @@ sequenceDiagram
     Storage->>L2: SET regionName::key value
 ```
 
-| 연산                        | 동작                                                        |
-|---------------------------|-----------------------------------------------------------|
-| `getFromCache`            | L1(Caffeine) hit → 즉시 반환 / miss → Redis GET → L1 populate |
-| `putIntoCache`            | L1 + L2 동시 write-through                                  |
-| `evictData(key)`          | L1 + L2 해당 key 삭제                                         |
-| `evictData()` (region 전체) | L1 + L2 전체 제거 (`clearAll()`)                              |
-| 외부 Redis 변경 감지            | RESP3 CLIENT TRACKING push → L1 자동 무효화                    |
+| Operation                   | Behavior                                                        |
+|-----------------------------|-----------------------------------------------------------------|
+| `getFromCache`              | L1 (Caffeine) hit → return immediately; miss → Redis GET → populate L1 |
+| `putIntoCache`              | Write-through to both L1 and L2 simultaneously                 |
+| `evictData(key)`            | Delete the key from both L1 and L2                             |
+| `evictData()` (entire region) | Remove all entries from L1 and L2 (`clearAll()`)             |
+| External Redis change detection | RESP3 CLIENT TRACKING push → automatic L1 invalidation    |
 
-## 지원 코덱
+## Supported Codecs
 
-| 코덱 이름 | 설명 | 압축 |
-|-----------|------|------|
-| `lz4fory` | LZ4 + Apache Fory **(기본값)** | LZ4 |
-| `fory` | Apache Fory | - |
-| `gzipfory` | GZip + Apache Fory | GZip |
-| `zstdfory` | Zstd + Apache Fory | Zstd |
-| `kryo` | Kryo | - |
-| `lz4kryo` | LZ4 + Kryo | LZ4 |
-| `jdk` | Java 직렬화 | - |
-| `lz4jdk` | LZ4 + Java 직렬화 | LZ4 |
+| Codec Name | Description              | Compression |
+|------------|--------------------------|-------------|
+| `lz4fory`  | LZ4 + Apache Fory **(default)** | LZ4    |
+| `fory`     | Apache Fory              | -           |
+| `gzipfory` | GZip + Apache Fory       | GZip        |
+| `zstdfory` | Zstd + Apache Fory       | Zstd        |
+| `kryo`     | Kryo                     | -           |
+| `lz4kryo`  | LZ4 + Kryo               | LZ4         |
+| `jdk`      | Java serialization       | -           |
+| `lz4jdk`   | LZ4 + Java serialization | LZ4         |
 
-## TTL 단위
+## TTL Units
 
-`ms` (밀리초) · `s` (초) · `m` (분) · `h` (시간) · (없음 = 초)
+`ms` (milliseconds) · `s` (seconds) · `m` (minutes) · `h` (hours) · (no suffix = seconds)
 
-## 테스트 실행
+## Running Tests
 
 ```bash
 ./gradlew :hibernate-cache-lettuce:test
 ```
 
-Testcontainers로 Redis 7+를 자동 실행하며 H2 인메모리 DB를 사용한다.
+Redis 7+ is automatically started via Testcontainers; an H2 in-memory database is used.
 
-## 주의 사항
+## Notes
 
-- **timestamps region TTL 비활성화**:
-  `default-update-timestamps-region`은 query cache invalidation 계약 때문에 Redis TTL을 적용하지 않는다.
-- **H2 버전**: Hibernate 7은 H2 v2 (`com.h2database:h2:2.x`) 필요.
-- **Redis 6+**: `use_resp3=true` (기본값) 사용 시 필요. 하위 버전은 `use_resp3=false` 설정.
+- **Disable TTL for the timestamps region**:
+  Redis TTL is not applied to `default-update-timestamps-region` in order to preserve the query cache invalidation contract.
+- **H2 Version**: Hibernate 7 requires H2 v2 (`com.h2database:h2:2.x`).
+- **Redis 6+**: Required when `use_resp3=true` (the default). For older Redis versions, set `use_resp3=false`.

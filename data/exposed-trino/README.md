@@ -1,38 +1,40 @@
 # Module bluetape4k-exposed-trino
 
-JetBrains Exposed ORM과 Trino JDBC를 통합하는 모듈입니다. PostgreSQL Dialect 기반으로 Trino에서 Exposed DSL을 사용하고, 코루틴 기반 suspend 트랜잭션과 Flow 쿼리를 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A module that integrates JetBrains Exposed ORM with Trino JDBC. Built on PostgreSQL Dialect, it enables using the Exposed DSL with Trino and provides coroutine-based suspend transactions and Flow queries.
 
-`bluetape4k-exposed-trino`는 다음을 제공합니다:
+## Overview
 
-- **TrinoDialect**: `PostgreSQLDialect` 상속, Exposed ORM과 Trino 호환 (ALTER COLUMN TYPE / multiple generated keys 비활성화)
-- **TrinoDialectMetadata**: `getImportedKeys` 미지원 우회 (FK 제약 캐싱 no-op)
-- **TrinoConnectionWrapper**: Trino JDBC `prepareStatement` 오버로드 호환 래퍼, 실제 JDBC 연결을 `autoCommit=true`로 고정
-- **TrinoDatabase**: JDBC URL 또는 호스트/포트/카탈로그/스키마 기반 연결 팩토리 (`object`)
-- **suspendTransaction**: `Dispatchers.IO`에서 블로킹 JDBC를 suspend 함수로 래핑
-- **queryFlow**: 트랜잭션 안에서 결과를 materialize 한 뒤 `Flow<T>`로 emit
-- **TrinoTable**: Trino DDL에서 unsupported PRIMARY KEY / NULL 구문을 제거하는 테이블 베이스 클래스
-- **@TrinoUnsupported**: Trino 미지원 기능 마커 어노테이션
+`bluetape4k-exposed-trino` provides:
 
-## 의존성 추가
+- **TrinoDialect**: Extends `PostgreSQLDialect` for Exposed ORM compatibility with Trino (disables ALTER COLUMN TYPE / multiple generated keys)
+- **TrinoDialectMetadata**: Bypasses unsupported `getImportedKeys` (FK constraint caching no-op)
+- **TrinoConnectionWrapper**: Compatibility wrapper for Trino JDBC `prepareStatement` overloads; forces the underlying JDBC connection to `autoCommit=true`
+- **TrinoDatabase**: Connection factory based on JDBC URL or host/port/catalog/schema (`object`)
+- **suspendTransaction**: Wraps blocking JDBC calls in a suspend function using `Dispatchers.IO`
+- **queryFlow**: Materializes results inside a transaction and emits them as a `Flow<T>`
+- **TrinoTable**: Base table class that strips unsupported PRIMARY KEY / NULL syntax from Trino DDL
+- **@TrinoUnsupported**: Marker annotation for Trino-unsupported features
+
+## Dependency
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-exposed-trino"))
-    // 또는 Maven 좌표
+    // or Maven coordinates
     implementation("io.github.bluetape4k:bluetape4k-exposed-trino:${version}")
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. Trino 데이터베이스 연결
+### 1. Connecting to Trino
 
 ```kotlin
 import io.bluetape4k.exposed.trino.TrinoDatabase
 
-// 호스트/포트/카탈로그/스키마로 연결
+// Connect using host/port/catalog/schema
 val db = TrinoDatabase.connect(
     host = "trino-coordinator",
     port = 8080,
@@ -41,14 +43,14 @@ val db = TrinoDatabase.connect(
     user = "analyst",
 )
 
-// 또는 JDBC URL 직접 지정
+// Or specify a JDBC URL directly
 val db = TrinoDatabase.connect(
     jdbcUrl = "jdbc:trino://localhost:8080/memory/default",
     user = "trino",
 )
 ```
 
-### 2. 동기 트랜잭션
+### 2. Synchronous Transaction
 
 ```kotlin
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -64,10 +66,10 @@ transaction(db) {
 }
 ```
 
-> DDL을 Exposed에서 생성할 때는 일반 `Table` 대신 `TrinoTable` 상속을 권장합니다.
-> Trino Memory 커넥터는 PRIMARY KEY / CONSTRAINT 구문을 지원하지 않으므로 기본 `Table`의 DDL을 그대로 쓰면 실패할 수 있습니다.
+> When generating DDL from Exposed, prefer extending `TrinoTable` over the standard `Table`.
+> The Trino Memory connector does not support PRIMARY KEY / CONSTRAINT syntax, so using a plain `Table`'s DDL may fail.
 
-### 3. suspend 트랜잭션
+### 3. Suspend Transaction
 
 ```kotlin
 import io.bluetape4k.exposed.trino.suspendTransaction
@@ -77,7 +79,7 @@ val rows = suspendTransaction(db) {
 }
 ```
 
-Virtual Thread 디스패처와 함께 사용:
+Using a Virtual Thread dispatcher:
 
 ```kotlin
 import java.util.concurrent.Executors
@@ -89,7 +91,7 @@ val rows = suspendTransaction(db, vtDispatcher) {
 }
 ```
 
-### 4. Flow 쿼리
+### 4. Flow Query
 
 ```kotlin
 import io.bluetape4k.exposed.trino.queryFlow
@@ -101,62 +103,62 @@ queryFlow(db) {
 }
 ```
 
-> `queryFlow`는 JDBC `ResultSet` 수명과 Exposed 트랜잭션 경계를 안전하게 유지하기 위해
-> 트랜잭션 안에서 결과를 `List`로 materialize 한 뒤 emit 합니다.
-> API는 `Flow`이지만, 진정한 row-by-row 스트리밍 커서는 아닙니다.
-> 매우 큰 결과셋은 페이지네이션 또는 전용 배치 전략을 별도로 고려해야 합니다.
+> To safely manage JDBC `ResultSet` lifetimes and Exposed transaction boundaries,
+> `queryFlow` materializes results into a `List` inside the transaction before emitting.
+> The API surface is `Flow`, but it is not a true row-by-row streaming cursor.
+> For very large result sets, consider a separate pagination or dedicated batch strategy.
 
-## ⚠️ 트랜잭션 동작 주의사항
+## ⚠️ Transaction Behavior Warning
 
-Trino는 ACID 트랜잭션을 지원하지 않습니다. `transaction {}` 블록을 사용할 수 있지만, 아래 표를 참고하여 동작 차이를 반드시 인지하세요.
+Trino does not support ACID transactions. While `transaction {}` blocks can be used, be sure to understand the behavioral differences in the table below.
 
-| 동작 | Trino | 일반 RDBMS |
-|------|-------|-----------|
-| 원자성 | ❌ 미보장 | ✅ 보장 |
-| Rollback | ❌ no-op | ✅ 동작 |
-| Nested transaction | ⚠️ 호출 허용, 원자성 없음 | ✅ 지원 |
-| Savepoint | ❌ 미지원 | ✅ 지원 |
-| autocommit 모드 | 항상 ON (변경 불가) | ON/OFF 전환 가능 |
+| Behavior | Trino | Standard RDBMS |
+|----------|-------|----------------|
+| Atomicity | ❌ Not guaranteed | ✅ Guaranteed |
+| Rollback | ❌ no-op | ✅ Works |
+| Nested transaction | ⚠️ Calls allowed, no atomicity | ✅ Supported |
+| Savepoint | ❌ Not supported | ✅ Supported |
+| Autocommit mode | Always ON (cannot be changed) | Can be toggled ON/OFF |
 
-**실질적 영향**:
-- `transaction {}` 블록 내 다중 DML 실행 시, 중간 실패가 발생하면 앞선 DML은 **롤백되지 않습니다**.
-- 쓰기 블록에서는 부분 반영(partial write) 위험을 항상 고려해야 합니다.
-- 읽기 전용 쿼리(`SELECT`)는 일반적으로 안전하게 사용 가능합니다.
+**Practical impact**:
+- If a failure occurs mid-way through multiple DML operations in a `transaction {}` block, previously executed DML statements are **not rolled back**.
+- Write blocks always carry the risk of partial writes.
+- Read-only queries (`SELECT`) are generally safe to use.
 
-## 지원/미지원 기능
+## Supported / Unsupported Features
 
-### Trino 일반 계약 (범용)
+### General Trino Contract
 
-| 기능 | 지원 여부 | 비고 |
-|------|-----------|------|
-| SELECT / JOIN / 집계 | ✅ | 표준 SQL |
-| INSERT / UPDATE / DELETE | ⚠️ 커넥터 의존 | 모듈은 Exposed DSL을 제공하지만 실제 지원 범위는 커넥터가 결정 |
-| CREATE TABLE / DROP TABLE | ⚠️ 커넥터 의존 | 테스트는 Memory 커넥터 기준으로 검증 |
-| DDL via SchemaUtils | ⚠️ 커넥터 의존 | `TrinoTable` 사용 권장 |
-| 윈도우 함수 (GROUPS 모드) | ✅ | `supportsWindowFrameGroupsMode = true` |
-| 트랜잭션 원자성 | ❌ | autocommit 전용 |
+| Feature | Supported | Notes |
+|---------|-----------|-------|
+| SELECT / JOIN / Aggregation | ✅ | Standard SQL |
+| INSERT / UPDATE / DELETE | ⚠️ Connector-dependent | This module provides the Exposed DSL; actual support depends on the connector |
+| CREATE TABLE / DROP TABLE | ⚠️ Connector-dependent | Tests verified against the Memory connector |
+| DDL via SchemaUtils | ⚠️ Connector-dependent | Prefer `TrinoTable` |
+| Window functions (GROUPS mode) | ✅ | `supportsWindowFrameGroupsMode = true` |
+| Transaction atomicity | ❌ | Autocommit only |
 | Rollback | ❌ | no-op |
-| Savepoint | ❌ | 미지원 |
+| Savepoint | ❌ | Not supported |
 | ALTER COLUMN TYPE | ❌ | `supportsColumnTypeChange = false` |
 | Multiple generated keys | ❌ | `supportsMultipleGeneratedKeys = false` |
-| FK 제약 메타데이터 조회 | ❌ | `getImportedKeys` 미지원 → no-op |
+| FK constraint metadata lookup | ❌ | `getImportedKeys` not supported → no-op |
 
-### Memory 커넥터 테스트 범위 (테스트 환경 한정)
+### Memory Connector Test Coverage (test environment only)
 
-Testcontainers를 통한 Trino Memory 커넥터 환경에서 검증된 기능입니다.
+Features verified in a Trino Memory connector environment via Testcontainers.
 
-| 기능 | 검증 여부 | 비고 |
-|------|-----------|------|
-| CREATE/DROP TABLE | ✅ | Memory 커넥터 |
-| INSERT 단건/다건 | ✅ | |
+| Feature | Verified | Notes |
+|---------|----------|-------|
+| CREATE/DROP TABLE | ✅ | Memory connector |
+| Single/batch INSERT | ✅ | |
 | SELECT / WHERE / ORDER BY | ✅ | |
-| COUNT / 집계 함수 | ✅ | |
+| COUNT / Aggregation functions | ✅ | |
 | suspendTransaction | ✅ | Dispatchers.IO |
-| queryFlow | ✅ | materialize 후 emit |
-| TrinoConnectionWrapper 호환 | ✅ | prepareStatement 오버로드 |
-| JDBC 드라이버 자동 등록 | ✅ | TrinoDatabase 접근 시 init{} |
+| queryFlow | ✅ | Materialized before emit |
+| TrinoConnectionWrapper compatibility | ✅ | prepareStatement overloads |
+| Automatic JDBC driver registration | ✅ | init{} block on TrinoDatabase access |
 
-## 핵심 API 다이어그램
+## Core API Diagram
 
 ```mermaid
 classDiagram
@@ -198,25 +200,25 @@ classDiagram
     TrinoConnectionWrapper ..|> Connection
 ```
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
-| 파일 | 설명 |
-|------|------|
-| `TrinoDatabase.kt` | 연결 팩토리 (호스트/포트/카탈로그 또는 JDBC URL) |
-| `TrinoConnectionWrapper.kt` | Trino JDBC 호환 Connection 래퍼 (실제 JDBC 연결을 autocommit=true로 고정) |
-| `TrinoExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 함수 |
-| `TrinoTable.kt` | Trino unsupported DDL 구문(PRIMARY KEY, 명시적 NULL) 제거 |
-| `TrinoUnsupported.kt` | Trino 미지원 기능 마커 어노테이션 |
-| `dialect/TrinoDialect.kt` | PostgreSQLDialect 상속 Trino 다이얼렉트 |
-| `dialect/TrinoDialectMetadata.kt` | FK 제약 캐싱 no-op 구현 |
+| File | Description |
+|------|-------------|
+| `TrinoDatabase.kt` | Connection factory (host/port/catalog or JDBC URL) |
+| `TrinoConnectionWrapper.kt` | Trino JDBC-compatible Connection wrapper (forces autocommit=true) |
+| `TrinoExtensions.kt` | `suspendTransaction` and `queryFlow` extension functions |
+| `TrinoTable.kt` | Strips unsupported DDL syntax (PRIMARY KEY, explicit NULL) for Trino |
+| `TrinoUnsupported.kt` | Marker annotation for Trino-unsupported features |
+| `dialect/TrinoDialect.kt` | Trino dialect extending PostgreSQLDialect |
+| `dialect/TrinoDialectMetadata.kt` | FK constraint caching no-op implementation |
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-trino:test
 ```
 
-핵심 회귀 테스트 예:
+Core regression test examples:
 
 ```bash
 ./gradlew :bluetape4k-exposed-trino:test --tests "io.bluetape4k.exposed.trino.TrinoConnectionWrapperTest"
@@ -224,20 +226,20 @@ classDiagram
 ./gradlew :bluetape4k-exposed-trino:test --tests "io.bluetape4k.exposed.trino.TrinoTransactionAtomicityTest"
 ```
 
-## Phase 2 로드맵
+## Phase 2 Roadmap
 
-다음 기능은 이후 릴리즈에서 추가될 예정입니다.
+The following features are planned for future releases.
 
-| 기능 | 설명 |
-|------|------|
-| `connect(dataSource)` | `javax.sql.DataSource` 기반 연결 팩토리 (커넥션 풀 통합) |
-| `exposed-bigquery-trino` | BigQuery → Trino → Exposed 파이프라인 통합 모듈 |
-| 배치 INSERT 최적화 | Trino Bulk Insert 커넥터 지원 |
-| 결과셋 스트리밍 | 진정한 row-by-row 커서 스트리밍 (Trino Arrow Flight 기반) |
+| Feature | Description |
+|---------|-------------|
+| `connect(dataSource)` | `javax.sql.DataSource`-based connection factory (connection pool integration) |
+| `exposed-bigquery-trino` | Integrated pipeline module: BigQuery → Trino → Exposed |
+| Batch INSERT optimization | Support for Trino Bulk Insert connectors |
+| Result set streaming | True row-by-row cursor streaming (Trino Arrow Flight-based) |
 
-## 참고
+## References
 
 - [Trino](https://trino.io/)
 - [Trino JDBC Driver](https://trino.io/docs/current/client/jdbc.html)
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
-- [bluetape4k-exposed-duckdb](../exposed-duckdb/README.md) — 유사한 in-process 분석 DB 통합 참고
+- [bluetape4k-exposed-duckdb](../exposed-duckdb/README.md) — Similar in-process analytics DB integration reference

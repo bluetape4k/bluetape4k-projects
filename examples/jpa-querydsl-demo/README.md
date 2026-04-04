@@ -1,27 +1,29 @@
 # Module Examples - JPA & Querydsl
 
-JPA와 Querydsl을 사용한 데이터베이스 쿼리 패턴을 학습하는 예제 모음입니다.
+English | [한국어](./README.ko.md)
 
-## 예제 목록
+A collection of examples for learning database query patterns using JPA and Querydsl.
 
-### Querydsl 기본 (examples/)
+## Examples
 
-| 예제 파일                 | 설명                |
-|-----------------------|-------------------|
-| `QuerydslExamples.kt` | Querydsl 기본 쿼리 패턴 |
+### Querydsl Basics (examples/)
 
-### 주요 쿼리 패턴
+| Example File          | Description                        |
+|-----------------------|------------------------------------|
+| `QuerydslExamples.kt` | Basic Querydsl query patterns      |
 
-#### 기본 조회
+### Common Query Patterns
+
+#### Basic Queries
 
 ```kotlin
-// 단건 조회
+// Single record lookup
 val member = queryFactory
     .selectFrom(qmember)
     .where(qmember.name.eq("member-1"))
     .fetchOne()
 
-// 복수 조건 (AND)
+// Multiple conditions (AND)
 val members = queryFactory
     .selectFrom(qmember)
     .where(
@@ -34,20 +36,20 @@ val members = queryFactory
 #### JPQL vs Querydsl
 
 ```kotlin
-// JPQL 직접 사용
+// Using JPQL directly
 val member = entityManager
     .createQuery("select m from Member m where m.name = :name", Member::class.java)
     .setParameter("name", "member-1")
     .singleResult
 
-// Querydsl 사용
+// Using Querydsl
 val member = queryFactory
     .selectFrom(qmember)
     .where(qmember.name.eq("member-1"))
     .fetchOne()
 ```
 
-#### 프로젝션 (DTO 조회)
+#### Projections (DTO Queries)
 
 ```kotlin
 // Projections.bean
@@ -69,7 +71,7 @@ val dto = queryFactory
     .fetch()
 ```
 
-#### 동적 쿼리
+#### Dynamic Queries
 
 ```kotlin
 // BooleanBuilder
@@ -83,7 +85,7 @@ val members = queryFactory
     .fetch()
 ```
 
-#### 서브쿼리
+#### Subqueries
 
 ```kotlin
 // JPAExpressions
@@ -97,44 +99,44 @@ val members = queryFactory
     .fetch()
 ```
 
-## 도메인 모델
+## Domain Model
 
-### Entity (domain/model/)
+### Entities (domain/model/)
 
-| 엔티티      | 설명                       |
-|----------|--------------------------|
-| `Member` | 회원 엔티티 (name, age, team) |
-| `Team`   | 팀 엔티티 (name, members)    |
+| Entity   | Description                          |
+|----------|--------------------------------------|
+| `Member` | Member entity (name, age, team)      |
+| `Team`   | Team entity (name, members)          |
 
-### DTO (domain/dto/)
+### DTOs (domain/dto/)
 
-| DTO                     | 설명          |
-|-------------------------|-------------|
-| `MemberDto`             | 회원 DTO      |
-| `TeamDto`               | 팀 DTO       |
-| `MemberTeamDto`         | 회원+팀 조인 DTO |
-| `MemberSearchCondition` | 검색 조건       |
+| DTO                     | Description                 |
+|-------------------------|-----------------------------|
+| `MemberDto`             | Member DTO                  |
+| `TeamDto`               | Team DTO                    |
+| `MemberTeamDto`         | Member + Team join DTO      |
+| `MemberSearchCondition` | Search condition object     |
 
-### Repository (domain/repository/)
+### Repositories (domain/repository/)
 
-| Repository               | 설명           |
-|--------------------------|--------------|
-| `MemberRepository`       | 회원 리포지토리     |
-| `TeamRepository`         | 팀 리포지토리      |
-| `MemberRepositoryCustom` | 커스텀 쿼리 인터페이스 |
-| `MemberRepositoryImpl`   | Querydsl 구현체 |
+| Repository               | Description                     |
+|--------------------------|---------------------------------|
+| `MemberRepository`       | Member repository               |
+| `TeamRepository`         | Team repository                 |
+| `MemberRepositoryCustom` | Custom query interface          |
+| `MemberRepositoryImpl`   | Querydsl implementation         |
 
-## 실행 방법
+## How to Run
 
 ```bash
-# 모든 예제 실행
+# Run all examples
 ./gradlew :examples:jpa-querydsl:test
 
-# Querydsl 예제만 실행
+# Run only Querydsl examples
 ./gradlew :examples:jpa-querydsl:test --tests "*QuerydslExamples*"
 ```
 
-## 참고
+## References
 
 - [Querydsl Reference](http://querydsl.com/static/querydsl/latest/reference/html_single/)
 - [Spring Data JPA + Querydsl](https://spring.io/projects/spring-data-jpa)

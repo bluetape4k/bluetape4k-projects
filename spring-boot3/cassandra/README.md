@@ -1,15 +1,17 @@
 # Module bluetape4k-spring-cassandra
 
-`bluetape4k-spring-cassandra`는 Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장과 편의 DSL, 스키마 유틸을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 주요 기능
+`bluetape4k-spring-cassandra` provides Kotlin coroutine extensions, convenience DSLs, and schema utilities commonly needed for Spring Data Cassandra development.
 
-- `ReactiveSession`/`ReactiveCassandraOperations`/`AsyncCassandraOperations` 코루틴 확장
-- CQL 옵션(`QueryOptions`, `WriteOptions` 등) DSL 헬퍼
-- 스키마 생성/트렁케이트 유틸 (`SchemaGenerator`)
-- Calendar/Period 기반 테스트 유틸 및 예제
+## Key Features
 
-## 설치
+- Coroutine extensions for `ReactiveSession`, `ReactiveCassandraOperations`, and `AsyncCassandraOperations`
+- DSL helpers for CQL options (`QueryOptions`, `WriteOptions`, etc.)
+- Schema creation and truncation utilities (`SchemaGenerator`)
+- Test utilities and examples based on Calendar/Period
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -17,13 +19,13 @@ dependencies {
 }
 ```
 
-## 코루틴 확장 예시
+## Coroutine Extension Example
 
 ```kotlin
 val result = reactiveSession.executeSuspending("SELECT * FROM users WHERE id = ?", id)
 ```
 
-## 옵션 DSL 예시
+## Options DSL Example
 
 ```kotlin
 val options = writeOptions {
@@ -32,9 +34,9 @@ val options = writeOptions {
 }
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 핵심 클래스 다이어그램
+### Core Class Diagram
 
 ```mermaid
 classDiagram
@@ -72,40 +74,40 @@ classDiagram
     ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
 ```
 
-### Cassandra 데이터 접근 계층
+### Cassandra Data Access Layer
 
 ```mermaid
 flowchart TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(bluetape4k-spring-cassandra)"]
-    Ext --> ROps["ReactiveCassandraOperations<br/>코루틴 확장"]
-    Ext --> RSession["ReactiveSession<br/>코루틴 확장"]
-    Ext --> AOps["AsyncCassandraOperations<br/>코루틴 확장"]
+    App["Application Code"] --> Ext["Coroutine Extension Functions<br/>(bluetape4k-spring-cassandra)"]
+    Ext --> ROps["ReactiveCassandraOperations<br/>Coroutine Extensions"]
+    Ext --> RSession["ReactiveSession<br/>Coroutine Extensions"]
+    Ext --> AOps["AsyncCassandraOperations<br/>Coroutine Extensions"]
     DSL["WriteOptions / QueryOptions DSL<br/>writeOptions { ttl / timestamp }"] --> ROps
     ROps --> Driver["Cassandra Reactive Driver"]
     RSession --> Driver
     AOps --> Driver
     Driver --> Cassandra[("Apache Cassandra")]
-    SchemaGen["SchemaGenerator<br/>스키마 생성 / 트렁케이트"] --> ROps
+    SchemaGen["SchemaGenerator<br/>Schema Creation / Truncation"] --> ROps
 ```
 
-### 코루틴 변환 흐름
+### Coroutine Conversion Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as 코루틴 확장
+    participant App as Application
+    participant Ext as Coroutine Extension
     participant Ops as ReactiveCassandraOperations
     participant DB as Apache Cassandra
 
     App->>Ext: executeSuspending(cql, args)
     Ext->>Ops: execute(statement) → Mono/Flux
-    Ops->>DB: CQL 쿼리 전송
+    Ops->>DB: Send CQL query
     DB-->>Ops: ReactiveResultSet
     Ops-->>Ext: Mono<ReactiveResultSet>
-    Ext-->>App: suspend 결과 반환 (코루틴)
+    Ext-->>App: Return suspend result (coroutine)
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-spring-cassandra:test

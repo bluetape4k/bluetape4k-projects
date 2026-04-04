@@ -1,12 +1,14 @@
 # Module bluetape4k-mutiny
 
-## 개요
+English | [한국어](./README.ko.md)
 
-[SmallRye Mutiny](https://smallrye.io/smallrye-mutiny/) 반응형 라이브러리를 Kotlin에서 더 쉽게 사용할 수 있도록 확장 함수와 유틸리티를 제공합니다.
+## Overview
 
-Mutiny는 이벤트 기반 반응형 프로그래밍을 위한 라이브러리로, `Uni`(0 또는 1개의 아이템)와 `Multi`(0개 이상의 아이템 스트림) 두 가지 주요 타입을 제공합니다.
+Provides extension functions and utilities that make the [SmallRye Mutiny](https://smallrye.io/smallrye-mutiny/) reactive library easier to use in Kotlin.
 
-## 의존성 추가
+Mutiny is an event-driven reactive programming library with two main types: `Uni` (0 or 1 item) and `Multi` (a stream of 0 or more items).
+
+## Adding the Dependency
 
 ```kotlin
 dependencies {
@@ -14,44 +16,44 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-- **Uni 생성**: 다양한 소스에서 Uni 생성
-- **Multi 생성**: 컬렉션, 시퀀스, 스트림에서 Multi 생성
-- **Coroutine 연동**: suspend 함수와 Uni 변환
-- **Kotlin 친화적 API**: 확장 함수 제공
+- **Create `Uni`**: create `Uni` from various sources
+- **Create `Multi`**: create `Multi` from collections, sequences, and streams
+- **Coroutine interop**: convert suspend functions and coroutine blocks into `Uni`
+- **Kotlin-friendly API**: extension functions for idiomatic usage
 
-## 사용 예시
+## Usage Examples
 
-### Uni 생성
+### Create `Uni`
 
 ```kotlin
 import io.bluetape4k.mutiny.*
 import io.smallrye.mutiny.Uni
 
-// 값으로부터 Uni 생성
+// create Uni from a value
 val uni1: Uni<String> = uniOf("Hello")
 
-// Supplier로부터 Uni 생성
+// create Uni from a supplier
 val uni2: Uni<Int> = uniOf { 42 }
 
-// null Uni 생성
+// create null Uni
 val nullUni: Uni<String> = nullUni()
 
-// void Uni 생성
+// create void Uni
 val voidUni: Uni<Void> = voidUni()
 
-// 실패 Uni 생성
+// create failure Uni
 val failureUni: Uni<String> = uniFailureOf(RuntimeException("Error"))
 
-// CompletableFuture/CompletionStage에서 변환
+// convert from CompletableFuture / CompletionStage
 val futureUni: Uni<String> = CompletableFuture.completedFuture("Hello").asUni()
 
-// 상태와 매퍼로 생성
+// create from state and mapper
 val uni3: Uni<String> = uniOf("World") { state -> "Hello, $state!" }
 ```
 
-### Uni 변환
+### Transform `Uni`
 
 ```kotlin
 import io.bluetape4k.mutiny.*
@@ -59,111 +61,111 @@ import java.time.Duration
 
 val uni = uniOf("Hello")
 
-// 각 아이템 처리
+// process each item
 uni.onEach { item ->
     println("Processing: $item")
 }
 
-// CompletableFuture로 변환
+// convert to CompletableFuture
 val future = uni.subscribeAsCompletionStage()
 
-// 대기 및 결과 획득
+// wait and get the result
 val result = uni.await().atMost(Duration.ofSeconds(5))
 ```
 
-### Multi 생성
+### Create `Multi`
 
 ```kotlin
 import io.bluetape4k.mutiny.*
 import io.smallrye.mutiny.Multi
 
-// vararg로부터 Multi 생성
+// create Multi from varargs
 val multi1: Multi<Int> = multiOf(1, 2, 3, 4, 5)
 
-// 범위로부터 Multi 생성
+// create Multi from a range
 val multi2: Multi<Int> = multiRangeOf(0, 100)
 
-// 컬렉션에서 변환
+// convert from a collection
 val list = listOf("a", "b", "c")
 val multi3: Multi<String> = list.asMulti()
 
-// 시퀀스에서 변환
+// convert from a sequence
 val sequence = sequenceOf(1, 2, 3)
 val multi4: Multi<Int> = sequence.asMulti()
 
-// Stream에서 변환
+// convert from a Stream
 val stream = Stream.of("x", "y", "z")
 val multi5: Multi<String> = stream.asMulti()
 
-// 배열에서 변환
+// convert from an array
 val array = intArrayOf(1, 2, 3, 4, 5)
 val multi6: Multi<Int> = array.asMulti()
 
-// 진행(Progression)에서 변환
+// convert from a progression
 val range = 1..10
 val multi7: Multi<Int> = range.asMulti()
 ```
 
-### Multi 변환
+### Transform `Multi`
 
 ```kotlin
 import io.bluetape4k.mutiny.*
 
 val multi = multiOf(1, 2, 3, 4, 5)
 
-// 각 아이템 처리
+// process each item
 multi.onEach { item ->
     println("Item: $item")
 }
 
-// 변환
+// transform
 val transformed = multi.map { it * 2 }
 
-// 필터링
+// filter
 val filtered = multi.filter { it % 2 == 0 }
 
-// 수집
+// collect
 val list = multi.collect().asList().await().indefinitely()
 ```
 
-### Coroutine 연동
+### Coroutine Interop
 
 ```kotlin
 import io.bluetape4k.mutiny.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-// CoroutineScope에서 Uni 생성
+// create Uni from a CoroutineScope
 fun CoroutineScope.fetchData(): Uni<String> = asUni {
-    // suspend 함수 실행
+    // run suspend function
     delay(100)
     "Data from coroutine"
 }
 
-// 사용
+// usage
 val scope = CoroutineScope(Dispatchers.IO)
 val uni = scope.fetchData()
 val result = uni.await().indefinitely()
 ```
 
-### Uni와 Multi 변환
+### Convert Between `Uni` and `Multi`
 
 ```kotlin
 import io.bluetape4k.mutiny.*
 import io.smallrye.mutiny.Uni
 
-// Uni를 반복하여 Multi 생성
+// repeat a Uni to create a Multi
 val uni: Uni<Int> = uniOf { (0..100).random() }
 val multi = uni.toMulti()
-    .repeat().atMost(5)  // 최대 5회 반복
+    .repeat().atMost(5)  // repeat up to 5 times
 
-// Uni 리스트를 Multi로 변환
+// convert a list of Uni into a Multi
 val unis = listOf(uniOf(1), uniOf(2), uniOf(3))
 val multiFromUnis = Multi.createFrom().iterable(unis)
     .onItem().transformToUniAndConcatenate { it }
 ```
 
-### 에러 처리
+### Error Handling
 
 ```kotlin
 import io.bluetape4k.mutiny.*
@@ -173,19 +175,19 @@ val uni = uniOf {
     "Success"
 }
 
-// 에러 시 기본값 반환
+// return a default value on failure
 val result = uni.onFailure().recoverWithItem("Default")
 
-// 에러 시 대체 Uni 실행
+// run a fallback Uni on failure
 val result2 = uni.onFailure().recoverWithUni {
     uniOf("Fallback")
 }
 
-// 재시도
+// retry
 val result3 = uni.onFailure().retry().atMost(3)
 ```
 
-### 비동기 작업 체이닝
+### Chain Asynchronous Work
 
 ```kotlin
 import io.bluetape4k.mutiny.*
@@ -198,7 +200,7 @@ fun calculateTotal(orders: List<Order>): Uni<BigDecimal> = uniOf {
     orders.map { it.amount }.fold(BigDecimal.ZERO) { acc, amount -> acc + amount }
 }
 
-// 체이닝
+// chaining
 val totalAmount = fetchUser(1)
     .flatMap { user -> fetchOrders(user) }
     .flatMap { orders -> calculateTotal(orders) }
@@ -207,24 +209,24 @@ val totalAmount = fetchUser(1)
 val result = totalAmount.await().indefinitely()
 ```
 
-## Uni vs Multi
+## `Uni` vs `Multi`
 
-| 특징         | Uni              | Multi          |
-|------------|------------------|----------------|
-| 아이템 수      | 0 또는 1           | 0개 이상          |
-| 사용 예시      | 단일 결과 조회, RPC 호출 | 스트림 처리, 이벤트 소스 |
-| 완료         | 아이템 방출 후 즉시 완료   | 모든 아이템 방출 후 완료 |
-| Reactor 대응 | Mono             | Flux           |
+| Feature | Uni | Multi |
+|---|---|---|
+| Item count | 0 or 1 | 0 or more |
+| Use case | single result lookup, RPC call | stream processing, event source |
+| Completion | completes immediately after emitting an item | completes after emitting all items |
+| Reactor equivalent | Mono | Flux |
 
-## 주요 기능 상세
+## Feature Details
 
-| 파일                    | 설명                   |
-|-----------------------|----------------------|
-| `UniSupport.kt`       | Uni 생성 및 변환 확장 함수    |
-| `MultiSupport.kt`     | Multi 생성 및 변환 확장 함수  |
-| `CoroutineSupport.kt` | Coroutine과 Mutiny 연동 |
+| File | Description |
+|---|---|
+| `UniSupport.kt` | extensions for creating and converting `Uni` |
+| `MultiSupport.kt` | extensions for creating and converting `Multi` |
+| `CoroutineSupport.kt` | interop between coroutines and Mutiny |
 
-## Mutiny 타입 다이어그램
+## Mutiny Type Diagram
 
 ```mermaid
 classDiagram
@@ -269,16 +271,16 @@ classDiagram
 
 ```
 
-## Mutiny 처리 흐름
+## Mutiny Processing Flow
 
 ```mermaid
 flowchart TD
-    subgraph Mutiny핵심타입["Mutiny 핵심 타입"]
-        UNI["Uni&lt;T&gt;<br/>0 또는 1개 아이템<br/>(Reactor Mono 대응)"]
-        MULTI["Multi&lt;T&gt;<br/>0개 이상의 아이템 스트림<br/>(Reactor Flux 대응)"]
+    subgraph MutinyCoreTypes["Mutiny core types"]
+        UNI["Uni&lt;T&gt;<br/>0 or 1 item<br/>(equivalent to Reactor Mono)"]
+        MULTI["Multi&lt;T&gt;<br/>stream of 0 or more items<br/>(equivalent to Reactor Flux)"]
     end
 
-    subgraph Uni생성["Uni 생성"]
+    subgraph UniCreation["Create Uni"]
         UV["uniOf(value)"]
         US["uniOf { supplier }"]
         UN["nullUni()"]
@@ -287,7 +289,7 @@ flowchart TD
         UCORO["CoroutineScope.asUni { suspend }"]
     end
 
-    subgraph Multi생성["Multi 생성"]
+    subgraph MultiCreation["Create Multi"]
         MV["multiOf(1, 2, 3)"]
         MR["multiRangeOf(0, 100)"]
         ML["List.asMulti()"]
@@ -295,7 +297,7 @@ flowchart TD
         MSTR["Stream.asMulti()"]
     end
 
-    subgraph 변환및처리["변환 및 처리"]
+    subgraph TransformAndProcess["Transform and process"]
         MAP["map { }"]
         FLT["filter { }"]
         FM["flatMap { }"]
@@ -326,7 +328,7 @@ flowchart TD
     MULTI --> OE
 ```
 
-## Coroutine 연동 흐름
+## Coroutine Interop Flow
 
 ```mermaid
 sequenceDiagram
@@ -334,19 +336,19 @@ sequenceDiagram
     participant UNI as "Uni~T~"
     participant SUB as Subscriber
 
-    CS->>UNI: asUni { suspend 블록 }
-    Note over UNI: 별도 코루틴에서 실행
+    CS->>UNI: asUni { suspend block }
+    Note over UNI: executed in a separate coroutine
     UNI->>SUB: onItem(result)
     SUB->>SUB: await().atMost(5.seconds)
 ```
 
-## Mutiny vs 다른 반응형 라이브러리
+## Mutiny vs Other Reactive Libraries
 
-| 라이브러리           | 특징                           |
-|-----------------|------------------------------|
-| **Mutiny**      | 이벤트 기반, 명시적 비동기, Quarkus 친화적 |
-| **Reactor**     | Netty 기반, Spring WebFlux 기본  |
-| **RxJava**      | Observable 패턴, 안드로이드 친화적     |
-| **Kotlin Flow** | Coroutine 기반, Kotlin 네이티브    |
+| Library | Characteristics |
+|---|---|
+| **Mutiny** | event-driven, explicit async model, Quarkus-friendly |
+| **Reactor** | Netty-based, default for Spring WebFlux |
+| **RxJava** | Observable pattern, Android-friendly |
+| **Kotlin Flow** | coroutine-based, Kotlin-native |
 
-Mutiny는 이벤트 구동 방식으로, 명시적인 비동기 처리를 선호하고 Quarkus 생태계와 함께 사용할 때 적합합니다.
+Mutiny is well suited to event-driven programming, explicit asynchronous handling, and use within the Quarkus ecosystem.

@@ -1,22 +1,24 @@
 # Module Examples - Vert.x with Kotlin Coroutines
 
-> **⚠️ Obsolete**: 이 모듈은 `bluetape4k-vertx`로 통합되었습니다. 빌드에서 완전 제외되었습니다.
+English | [한국어](./README.ko.md)
 
-Vert.x를 Kotlin Coroutines와 함께 사용하는 예제입니다.
+> **⚠️ Obsolete**: This module has been merged into `bluetape4k-vertx` and fully excluded from the build.
 
-## 예제 목록
+Examples of using Vert.x with Kotlin Coroutines.
 
-### Movie Rating 예제 (movierating/)
+## Examples
 
-| 파일                          | 설명                         |
-|-----------------------------|----------------------------|
-| `MovieRatingVerticle.kt`    | HTTP API를 제공하는 Verticle 구현 |
-| `Main.kt`                   | 애플리케이션 진입점                 |
-| `MovieRatingVerticeTest.kt` | Verticle 테스트               |
+### Movie Rating Example (movierating/)
 
-## 주요 학습 포인트
+| File                          | Description                               |
+|-----------------------------|-------------------------------------------|
+| `MovieRatingVerticle.kt`    | A Verticle exposing an HTTP API           |
+| `Main.kt`                   | Application entry point                   |
+| `MovieRatingVerticeTest.kt` | Tests for the Verticle                    |
 
-### Verticle 구현
+## Key Learning Points
+
+### Implementing a Verticle
 
 ```kotlin
 class MovieRatingVerticle : CoroutineVerticle() {
@@ -42,16 +44,16 @@ class MovieRatingVerticle : CoroutineVerticle() {
 }
 ```
 
-### Coroutines로 비동기 처리
+### Async Processing with Coroutines
 
 ```kotlin
-// await()를 사용하여 Future를 suspend 함수처럼 사용
+// Use await() to treat a Future as a suspend function
 val result = vertx.executeBlocking<String> { promise ->
     promise.complete(blockingOperation())
 }.await()
 ```
 
-### 테스트
+### Testing
 
 ```kotlin
 @Test
@@ -69,14 +71,13 @@ fun `should return movie rating`(vertx: Vertx, testContext: VertxTestContext) = 
 }
 ```
 
-## 실행 방법
+## Running the Examples
 
 ```bash
-# 예제 테스트 실행
 ./gradlew :examples:vertx-coroutines:test
 ```
 
-## 참고
+## References
 
 - [Vert.x Kotlin Coroutines](https://vertx.io/docs/vertx-lang-kotlin-coroutines/kotlin/)
 - bluetape4k-vertx-core

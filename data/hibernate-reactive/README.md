@@ -1,16 +1,18 @@
 # Module bluetape4k-hibernate-reactive
 
-Hibernate Reactive(Mutiny/Stage) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 주요 기능
+A Kotlin extension library that eliminates boilerplate when working with Hibernate Reactive (Mutiny/Stage).
 
-- **EntityManagerFactory 변환**: JPA `EntityManagerFactory` -> `Mutiny/Stage SessionFactory`
-- **Coroutine 친화 SessionFactory API**: `withSessionSuspending`, `withTransactionSuspending`
-- **Mutiny Session 확장**: `findAs/getAs/create*QueryAs/createEntityGraphAs` 등 reified 함수
-- **Stage Session 확장**: Mutiny와 동일한 패턴의 reified 함수
-- **StatelessSession 지원**: 트랜잭션/조회/쿼리 보조 API 제공
+## Key Features
 
-## 의존성 추가
+- **EntityManagerFactory Conversion**: JPA `EntityManagerFactory` → `Mutiny/Stage SessionFactory`
+- **Coroutine-Friendly SessionFactory API**: `withSessionSuspending`, `withTransactionSuspending`
+- **Mutiny Session Extensions**: Reified functions such as `findAs`, `getAs`, `create*QueryAs`, `createEntityGraphAs`
+- **Stage Session Extensions**: Reified functions following the same patterns as the Mutiny API
+- **StatelessSession Support**: Transaction, lookup, and query helper APIs
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -18,9 +20,9 @@ dependencies {
 }
 ```
 
-## 주요 기능 상세
+## Feature Details
 
-### 1. SessionFactory 변환
+### 1. SessionFactory Conversion
 
 - `mutiny/EntityManagerFactorySupport.kt`
 - `stage/EntityManagerFactorySupport.kt`
@@ -44,7 +46,7 @@ val count = sf.withTransactionSuspending { session, _ ->
 }
 ```
 
-### 3. Mutiny Session / StatelessSession 확장
+### 3. Mutiny Session / StatelessSession Extensions
 
 - `mutiny/SessionSupport.kt`
 - `mutiny/StatelessSessionSupport.kt`
@@ -59,7 +61,7 @@ sf.withStatelessSessionSuspending { session ->
 }
 ```
 
-### 4. Stage Session / StatelessSession 확장
+### 4. Stage Session / StatelessSession Extensions
 
 - `stage/SessionSupport.kt`
 - `stage/StatelessSessionSupport.kt`
@@ -70,14 +72,14 @@ sf.withSessionSuspending { session ->
 }
 ```
 
-### 5. 예제 테스트
+### 5. Example Tests
 
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/*`
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/*`
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Reactive Repository 클래스 구조
+### Reactive Repository Class Structure
 
 ```mermaid
 classDiagram
@@ -91,29 +93,29 @@ classDiagram
 
 ```
 
-### Hibernate Reactive API 구조
+### Hibernate Reactive API Structure
 
 ```mermaid
 flowchart TD
-    A[EntityManagerFactory<br/>JPA 표준] -->|asMutinySessionFactory| B[Mutiny.SessionFactory]
+    A[EntityManagerFactory<br/>JPA Standard] -->|asMutinySessionFactory| B[Mutiny.SessionFactory]
     A -->|asStageSessionFactory| C[Stage.SessionFactory]
 
     subgraph Mutiny_API["Mutiny API (SmallRye)"]
         B --> D[withSessionSuspending]
         B --> E[withTransactionSuspending]
         B --> F[withStatelessSessionSuspending]
-        D --> G[Mutiny.Session 확장<br/>findAs / getAs<br/>createSelectionQueryAs]
-        F --> H[Mutiny.StatelessSession 확장<br/>getAs / createQueryAs]
+        D --> G[Mutiny.Session extensions<br/>findAs / getAs<br/>createSelectionQueryAs]
+        F --> H[Mutiny.StatelessSession extensions<br/>getAs / createQueryAs]
     end
 
     subgraph Stage_API["Stage API (CompletionStage)"]
         C --> I[withSessionSuspending]
         C --> J[withTransactionSuspending]
-        I --> K[Stage.Session 확장<br/>findAs / getAs]
+        I --> K[Stage.Session extensions<br/>findAs / getAs]
     end
 
-    subgraph Coroutines["Coroutines 연결"]
-        L[awaitSuspending] --> M[suspend 함수로 변환]
+    subgraph Coroutines["Coroutines Bridge"]
+        L[awaitSuspending] --> M[Converts to suspend function]
         N[await] --> M
     end
 
@@ -122,7 +124,7 @@ flowchart TD
     K --> N
 ```
 
-### 세션 유형 비교
+### Session Type Comparison
 
 ```mermaid
 classDiagram
@@ -130,29 +132,29 @@ classDiagram
         +withSession(block): Uni~T~
         +withTransaction(block): Uni~T~
         +withStatelessSession(block): Uni~T~
-        +withSessionSuspending(block): T  ← 확장
-        +withTransactionSuspending(block): T  ← 확장
+        +withSessionSuspending(block): T  ← extension
+        +withTransactionSuspending(block): T  ← extension
     }
     class StageSessionFactory {
         +withSession(block): CompletionStage~T~
         +withTransaction(block): CompletionStage~T~
-        +withSessionSuspending(block): T  ← 확장
+        +withSessionSuspending(block): T  ← extension
     }
     class MutinySession {
         +find(cls, id): Uni~T~
-        +findAs(id): Uni~T~  ← reified 확장
+        +findAs(id): Uni~T~  ← reified extension
         +persist(entity): Uni~Void~
     }
     class StageSession {
         +find(cls, id): CompletionStage~T~
-        +findAs(id): CompletionStage~T~  ← reified 확장
+        +findAs(id): CompletionStage~T~  ← reified extension
     }
 
-    MutinySessionFactory --> MutinySession : 생성
-    StageSessionFactory --> StageSession : 생성
+    MutinySessionFactory --> MutinySession : creates
+    StageSessionFactory --> StageSession : creates
 ```
 
-## 참고
+## References
 
 - [Hibernate Reactive](https://hibernate.org/reactive/)
 - [Mutiny](https://smallrye.io/smallrye-mutiny/)

@@ -1,10 +1,12 @@
 # bluetape4k-spring-boot4-exposed-r2dbc-demo
 
-Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4.x)
+English | [한국어](./README.ko.md)
 
-## 개요
+Exposed R2DBC + suspend Repository + Spring WebFlux Integration Demo (Spring Boot 4.x)
 
-이 모듈은 **Exposed R2DBC**를 Spring Data Repository로 감싸고, Spring WebFlux REST API로 비동기 논블로킹으로 노출하는 패턴을 보여줍니다. Spring Boot 3.x 버전과 동일한 기능을 제공하며, **Spring Boot 4 BOM**을 사용합니다.
+## Overview
+
+This module demonstrates the pattern of wrapping **Exposed R2DBC** in a Spring Data Repository and exposing it as an async, non-blocking Spring WebFlux REST API. It provides the same functionality as the Spring Boot 3.x version, using the **Spring Boot 4 BOM**.
 
 ## UML
 
@@ -55,7 +57,7 @@ classDiagram
     DataInitializer --> ProductR2dbcRepository
 ```
 
-### 애플리케이션 구조 흐름
+### Application Structure Flow
 
 ```mermaid
 flowchart TD
@@ -75,35 +77,35 @@ flowchart TD
     R2DBC --> DB
 ```
 
-### 주요 특징
+### Key Characteristics
 
-- **Exposed R2DBC 기반**: `ProductDto`, `Products` 테이블 정의
-- **suspend 함수**: 모든 Repository와 Controller 메서드가 Kotlin 코루틴 `suspend` 함수
-- **ExposedR2dbcRepository**: DTO 중심의 매핑 구현
-- **Spring WebFlux**: 비동기 논블로킹 REST API
-- **코루틴**: `suspendTransaction`으로 R2DBC 데이터베이스 액세스
-- **자동 스키마 생성**: 애플리케이션 준비 완료 후 비동기 초기화
-- **Spring Boot 4 호환**: Spring Boot 4.0+ 플랫폼 의존성 관리
+- **Exposed R2DBC-based**: `ProductDto` and `Products` table definitions
+- **Suspend functions**: All Repository and Controller methods are Kotlin coroutine `suspend` functions
+- **ExposedR2dbcRepository**: DTO-centric mapping implementation
+- **Spring WebFlux**: Async non-blocking REST API
+- **Coroutines**: R2DBC database access via `suspendTransaction`
+- **Automatic schema creation**: Async initialization after the application is ready
+- **Spring Boot 4 compatible**: Spring Boot 4.0+ platform dependency management
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 src/main/kotlin/io/bluetape4k/examples/exposed/webflux/
-├── WebfluxDemoApplication.kt       # Spring Boot 애플리케이션
+├── WebfluxDemoApplication.kt       # Spring Boot application
 ├── domain/
-│   └── ProductEntity.kt            # DTO + Products 테이블
+│   └── ProductEntity.kt            # DTO + Products table
 ├── repository/
 │   └── ProductR2dbcRepository.kt    # suspend CRUD Repository
 ├── controller/
-│   └── ProductController.kt         # 비동기 REST API
+│   └── ProductController.kt         # Async REST API
 └── config/
-    ├── ExposedR2dbcConfig.kt        # R2DBC 데이터베이스 설정
-    └── DataInitializer.kt           # 비동기 초기 데이터 로더
+    ├── ExposedR2dbcConfig.kt        # R2DBC database configuration
+    └── DataInitializer.kt           # Async data initializer
 ```
 
-## 도메인 모델
+## Domain Model
 
-### Products (Exposed R2DBC 테이블)
+### Products (Exposed R2DBC Table)
 
 ```kotlin
 object Products : LongIdTable("webflux_products") {
@@ -124,11 +126,11 @@ data class ProductDto(
 ) : HasIdentifier<Long>
 ```
 
-`HasIdentifier<Long>` 인터페이스를 구현하여 Repository에서 ID 추출이 가능합니다.
+Implements `HasIdentifier<Long>` so the Repository can extract the ID.
 
 ## Repository
 
-### ExposedR2dbcRepository 구현
+### ExposedR2dbcRepository Implementation
 
 ```kotlin
 interface ProductR2dbcRepository: ExposedR2dbcRepository<ProductDto, Long> {
@@ -153,7 +155,7 @@ interface ProductR2dbcRepository: ExposedR2dbcRepository<ProductDto, Long> {
 }
 ```
 
-모든 Repository 메서드는 `suspend` 함수입니다:
+All Repository methods are `suspend` functions:
 
 ```kotlin
 suspend fun findAll(): List<ProductDto>
@@ -164,27 +166,27 @@ suspend fun deleteById(id: Long)
 
 ## REST API
 
-### 기본 CRUD
+### Basic CRUD
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/products` | 모든 상품 조회 (비동기) |
-| GET | `/products/{id}` | 특정 상품 조회 (비동기) |
-| POST | `/products` | 상품 생성 (비동기) |
-| PUT | `/products/{id}` | 상품 수정 (비동기) |
-| DELETE | `/products/{id}` | 상품 삭제 (비동기) |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/products` | List all products (async) |
+| GET | `/products/{id}` | Get a specific product (async) |
+| POST | `/products` | Create a product (async) |
+| PUT | `/products/{id}` | Update a product (async) |
+| DELETE | `/products/{id}` | Delete a product (async) |
 
-모든 엔드포인트는 `suspend` 함수이며, Spring WebFlux가 자동으로 코루틴을 처리합니다.
+All endpoints are `suspend` functions; Spring WebFlux handles coroutines automatically.
 
-### 요청/응답 예시
+### Request/Response Examples
 
-**모든 상품 조회 (비동기)**
+**List all products (async)**
 
 ```bash
 curl http://localhost:8080/products
 ```
 
-응답:
+Response:
 ```json
 [
   {
@@ -202,7 +204,7 @@ curl http://localhost:8080/products
 ]
 ```
 
-**상품 생성 (비동기)**
+**Create a product (async)**
 
 ```bash
 curl -X POST http://localhost:8080/products \
@@ -214,7 +216,7 @@ curl -X POST http://localhost:8080/products \
   }'
 ```
 
-응답 (201 Created):
+Response (201 Created):
 ```json
 {
   "id": 3,
@@ -224,7 +226,7 @@ curl -X POST http://localhost:8080/products \
 }
 ```
 
-**상품 수정 (비동기)**
+**Update a product (async)**
 
 ```bash
 curl -X PUT http://localhost:8080/products/1 \
@@ -236,56 +238,56 @@ curl -X PUT http://localhost:8080/products/1 \
   }'
 ```
 
-**상품 삭제 (비동기)**
+**Delete a product (async)**
 
 ```bash
 curl -X DELETE http://localhost:8080/products/1
 ```
 
-## 실행 방법
+## Running the Application
 
-### 필수 사항
+### Prerequisites
 
 - Java 21+
 - Gradle 8.x+
 - Spring Boot 4.0+
 
-### 빌드
+### Build
 
 ```bash
 ./gradlew :spring-boot4:exposed-r2dbc-demo:build
 ```
 
-### 애플리케이션 실행
+### Run the Application
 
 ```bash
 ./gradlew :spring-boot4:exposed-r2dbc-demo:bootRun
 ```
 
-또는 JAR로 실행:
+Or run as a JAR:
 
 ```bash
 ./gradlew :spring-boot4:exposed-r2dbc-demo:assemble
 java -jar spring-boot4/exposed-r2dbc-demo/build/libs/exposed-r2dbc-spring-data-webflux-demo-*.jar
 ```
 
-### 기본 포트
+### Default Port
 
-애플리케이션은 기본 포트 `8080`에서 시작됩니다.
+The application starts on port `8080` by default.
 
-### 초기 데이터
+### Initial Data
 
-애플리케이션이 준비 완료(`ApplicationReadyEvent`)한 후 비동기로 다음 3개의 샘플 상품이 생성됩니다.
+After the application is ready (`ApplicationReadyEvent`), three sample products are asynchronously created:
 
 ```
-1. Kotlin Coroutines Book - $39.99 (100개 재고)
-2. Spring WebFlux Guide - $49.99 (50개 재고)
-3. Reactive Programming - $29.99 (200개 재고)
+1. Kotlin Coroutines Book - $39.99 (100 in stock)
+2. Spring WebFlux Guide - $49.99 (50 in stock)
+3. Reactive Programming - $29.99 (200 in stock)
 ```
 
-## 데이터베이스
+## Database
 
-기본적으로 **H2 R2DBC 인메모리 데이터베이스**를 사용합니다. `application.yml`에서 변경할 수 있습니다.
+The application uses an **H2 R2DBC in-memory database** by default. This can be changed in `application.yml`.
 
 ### application.yml
 
@@ -300,7 +302,7 @@ spring:
     password:
 ```
 
-### PostgreSQL로 변경
+### Switching to PostgreSQL
 
 ```yaml
 spring:
@@ -315,34 +317,34 @@ spring:
     password: password
 ```
 
-그리고 `build.gradle.kts`에서:
+And in `build.gradle.kts`:
 
 ```kotlin
 implementation("org.postgresql:r2dbc-postgresql")
 runtimeOnly("org.postgresql:postgresql")
 ```
 
-## 테스트
+## Testing
 
-### 단위 테스트 실행
+### Run Unit Tests
 
 ```bash
 ./gradlew :spring-boot4:exposed-r2dbc-demo:test
 ```
 
-### 코루틴 테스트
+### Coroutine Tests
 
-모든 테스트는 `runTest { ... }` 블록 내에서 실행되어 코루틴을 지원합니다.
+All tests run within `runTest { ... }` blocks to support coroutines.
 
 ```bash
 ./gradlew :spring-boot4:exposed-r2dbc-demo:test --tests "ProductControllerTest"
 ```
 
-## 핵심 패턴
+## Core Patterns
 
-### suspend 함수 기반
+### Suspend Function-based
 
-모든 Repository와 Controller 메서드는 `suspend` 함수입니다.
+All Repository and Controller methods are `suspend` functions.
 
 ```kotlin
 @GetMapping("/{id}")
@@ -351,11 +353,11 @@ suspend fun findById(@PathVariable id: Long): ProductDto =
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: $id")
 ```
 
-Spring WebFlux가 자동으로 코루틴을 처리합니다.
+Spring WebFlux handles coroutines automatically.
 
 ### suspendTransaction
 
-R2DBC 데이터베이스 액세스는 `suspendTransaction`으로 감싸집니다.
+R2DBC database access is wrapped with `suspendTransaction`.
 
 ```kotlin
 @PutMapping("/{id}")
@@ -367,9 +369,9 @@ suspend fun update(@PathVariable id: Long, @RequestBody dto: ProductDto): Produc
     }
 ```
 
-### 비동기 초기화
+### Async Initialization
 
-데이터 초기화는 `ApplicationReadyEvent`에서 별도 코루틴으로 실행되어 시작 스레드를 막지 않습니다.
+Data initialization runs in a separate coroutine on `ApplicationReadyEvent`, avoiding blocking the startup thread.
 
 ```kotlin
 @Component
@@ -385,9 +387,9 @@ class DataInitializer(private val r2dbcDatabase: R2dbcDatabase) {
 }
 ```
 
-## DTO 매핑
+## DTO Mapping
 
-Repository 메서드는 DTO 중심이므로 Row -> DTO 변환을 구현해야 합니다.
+Repository methods are DTO-centric, so you must implement Row -> DTO conversion.
 
 ```kotlin
 override fun toDomain(row: ResultRow): ProductDto =
@@ -406,45 +408,43 @@ override fun toPersistValues(domain: ProductDto): Map<Column<*>, Any?> =
     )
 ```
 
-## Spring Boot 4 마이그레이션
+## Migrating from Spring Boot 3 to Spring Boot 4
 
-Spring Boot 3.x에서 4.x로 마이그레이션하는 경우:
-
-### BOM 변경
+### BOM Change
 
 `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    // Spring Boot 4 BOM 사용
+    // Use Spring Boot 4 BOM
     implementation(platform(Libs.spring_boot4_dependencies))
 
-    // 나머지 의존성은 동일
+    // Other dependencies remain the same
     implementation(project(":bluetape4k-spring-boot4-exposed-r2dbc"))
     implementation(Libs.springBootStarter("webflux"))
 }
 ```
 
-### 의존성 차이
+### Dependency Differences
 
-Spring Boot 4는 기본적으로 다음 버전을 제공합니다:
+Spring Boot 4 provides the following versions by default:
 
 - Spring Framework 6.2+
 - Spring WebFlux 6.2+
 - Spring Boot 4.0+
 - Java 21+
 
-## 주의사항
+## Important Notes
 
-1. **runBlocking 금지**: suspend 함수에서 `runBlocking`을 사용하면 안 됩니다. Spring WebFlux가 자동으로 처리합니다.
+1. **No runBlocking in suspend functions**: Spring WebFlux handles this automatically.
 
-2. **R2DBC 드라이버**: 선택한 데이터베이스의 R2DBC 드라이버가 클래스패스에 있어야 합니다.
+2. **R2DBC driver**: The R2DBC driver for your target database must be on the classpath.
 
-3. **suspendTransaction 필수**: 트랜잭션이 필요한 경우 `suspendTransaction`을 사용합니다.
+3. **Use suspendTransaction**: Use `suspendTransaction` when a transaction is required.
 
-4. **Spring Boot 4 플랫폼**: `dependencyManagement { imports }` 대신 `implementation(platform(...))` 사용합니다.
+4. **Spring Boot 4 platform**: Use `implementation(platform(...))` instead of `dependencyManagement { imports }`.
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
@@ -459,10 +459,10 @@ dependencies {
 }
 ```
 
-## 참고 자료
+## References
 
-- [Exposed R2DBC 문서](https://github.com/JetBrains/Exposed)
-- [Spring Boot 4 마이그레이션 가이드](https://spring.io/blog/2023/09/06/spring-boot-4-0-m1-released)
-- [Spring WebFlux 가이드](https://spring.io/projects/spring-webflux)
-- [Kotlin 코루틴 공식 문서](https://kotlinlang.org/docs/coroutines-overview.html)
-- [R2DBC 사양](https://r2dbc.io/)
+- [Exposed R2DBC Documentation](https://github.com/JetBrains/Exposed)
+- [Spring Boot 4 Migration Guide](https://spring.io/blog/2023/09/06/spring-boot-4-0-m1-released)
+- [Spring WebFlux Guide](https://spring.io/projects/spring-webflux)
+- [Kotlin Coroutines Official Documentation](https://kotlinlang.org/docs/coroutines-overview.html)
+- [R2DBC Specification](https://r2dbc.io/)

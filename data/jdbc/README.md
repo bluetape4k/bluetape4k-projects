@@ -1,60 +1,61 @@
 # Module bluetape4k-jdbc
 
-JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
-Kotlin의 힘을 활용하여 타입 안전하고 간결한 데이터베이스 코드를 작성할 수 있습니다.
+English | [한국어](./README.ko.md)
 
-## 특징
+A Kotlin extension library that eliminates boilerplate when working with JDBC (Java Database Connectivity).
+Leverage Kotlin's expressive power to write type-safe, concise database code.
 
-- **타입 안전한 ResultSet 처리**: Nullable 확장 함수 제공
-- **간결한 Connection 관리**: `use` 패턴과 DSL 지원
-- **트랜잭션 지원**: 선언적 트랜잭션 관리
-- **배치 처리**: 대량 데이터 삽입 지원
-- **객체 매핑**: ResultSet을 객체로 쉽게 변환
+## Features
 
-## 의존성 추가
+- **Type-Safe ResultSet Access**: Nullable extension functions for safe value retrieval
+- **Concise Connection Management**: `use`-pattern and DSL support
+- **Transaction Support**: Declarative transaction management
+- **Batch Processing**: High-throughput bulk insert support
+- **Object Mapping**: Easily convert ResultSet rows to objects
+
+## Dependency
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-jdbc:${version}")
-    // 사용하는 데이터베이스 드라이버 추가 (예: H2, MySQL, PostgreSQL 등)
+    // Add your database driver (e.g., H2, MySQL, PostgreSQL)
     implementation("com.h2database:h2:${h2Version}")
 }
 ```
 
-## 주요 기능
+## Core Features
 
-### 1. DataSource/Connection 관리
+### 1. DataSource/Connection Management
 
-DataSource에서 Connection을 획득하고 작업을 수행합니다.
+Acquire and use a Connection from a DataSource.
 
 ```kotlin
 import io.bluetape4k.jdbc.sql.*
 import javax.sql.DataSource
 
-// DataSource 생성 (예: HikariCP, Apache DBCP 등)
+// Create a DataSource (e.g., HikariCP, Apache DBCP)
 val dataSource: DataSource = createDataSource()
 
-// Connection 획득 및 사용
+// Acquire and use a Connection
 dataSource.withConnect { conn ->
-    // Connection 사용
     val result = conn.runQuery("SELECT * FROM users") { rs ->
-        // ResultSet 처리
+        // Process ResultSet
     }
 }
 ```
 
-### 2. Statement 실행
+### 2. Executing Statements
 
-간편한 Statement 생성과 실행:
+Simple statement creation and execution:
 
 ```kotlin
-// Statement 생성 및 사용
+// Create and use a Statement
 dataSource.withStatement { stmt ->
     val rs = stmt.executeQuery("SELECT * FROM users")
-    // ResultSet 처리
+    // Process ResultSet
 }
 
-// Connection에서 직접 사용
+// Use directly from a Connection
 dataSource.connection.use { conn ->
     conn.withStatement { stmt ->
         stmt.executeUpdate("INSERT INTO users (name) VALUES ('Alice')")
@@ -62,9 +63,9 @@ dataSource.connection.use { conn ->
 }
 ```
 
-### 3. ResultSet 처리
+### 3. ResultSet Processing
 
-타입 안전한 ResultSet 조회:
+Type-safe result retrieval:
 
 ```kotlin
 dataSource.runQuery("SELECT * FROM users") { rs ->
@@ -81,62 +82,62 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
     users
 }
 
-// 컬럼명으로 접근
+// Access by column name
 val name: String? = rs.getStringOrNull("name")
 val age: Int? = rs.getIntOrNull("age")
 
-// 인덱스로 접근
+// Access by index
 val firstColumn: String? = rs.getStringOrNull(1)
 ```
 
-### 4. 인덱스/레이블 기반 조회 연산자
+### 4. Index/Label Operator Access
 
-편리한 연산자 오버로딩:
+Convenient operator overloading:
 
 ```kotlin
 dataSource.runQuery("SELECT id, name FROM users") { rs ->
     while (rs.next()) {
-        val id = rs["id"] as? Long    // 레이블로 접근
-        val name = rs[2] as? String   // 인덱스로 접근 (1부터 시작)
+        val id = rs["id"] as? Long    // Access by label
+        val name = rs[2] as? String   // Access by index (1-based)
         println("User: $id - $name")
     }
 }
 ```
 
-### 5. 객체 매핑
+### 5. Object Mapping
 
-ResultSet을 객체로 쉽게 변환:
+Easily convert ResultSet rows to objects:
 
 ```kotlin
 data class User(val id: Int, val name: String, val email: String)
 
-// 첫 번째 행 매핑
+// Map the first row
 val user = dataSource.runQuery("SELECT * FROM users WHERE id = 1") { rs ->
     rs.mapFirst { row ->
         User(row.getInt("id"), row.getString("name"), row.getString("email"))
     }
 }
 
-// 단일 행 매핑 (결과가 0개 또는 2개 이상이면 예외)
+// Map a single row (throws if 0 or 2+ rows are returned)
 val singleUser = dataSource.runQuery("SELECT * FROM users WHERE id = 1") { rs ->
     rs.mapSingle { row ->
         User(row.getInt("id"), row.getString("name"), row.getString("email"))
     }
 }
 
-// 리스트로 변환
+// Convert to a List
 val users = dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.toList { row ->
         User(row.getInt("id"), row.getString("name"), row.getString("email"))
     }
 }
 
-// Set으로 변환
+// Convert to a Set
 val uniqueNames = dataSource.runQuery("SELECT name FROM users") { rs ->
     rs.toSet { it.getString("name") }
 }
 
-// Map으로 변환
+// Convert to a Map
 val userMap = dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.toMap(
         keyMapper = { it.getInt("id") },
@@ -144,7 +145,7 @@ val userMap = dataSource.runQuery("SELECT * FROM users") { rs ->
     )
 }
 
-// 그룹화
+// Group rows
 val usersByStatus = dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.groupBy(
         keyMapper = { it.getString("status") },
@@ -153,32 +154,32 @@ val usersByStatus = dataSource.runQuery("SELECT * FROM users") { rs ->
 }
 ```
 
-### 6. ResultSet 순회
+### 6. ResultSet Iteration
 
-Iterator 및 Sequence 지원:
+Iterator and Sequence support:
 
 ```kotlin
-// Iterator 사용
+// Using an Iterator
 val rs = statement.executeQuery("SELECT * FROM users")
 for (row in rs) {
     println(row.getString("name"))
 }
 
-// Sequence 사용
+// Using a Sequence
 val users = dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.sequence { row ->
         User(row.getInt("id"), row.getString("name"), row.getString("email"))
     }.toList()
 }
 
-// forEach 사용
+// Using forEach
 dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.forEach { row ->
         println("User: ${row.getString("name")}")
     }
 }
 
-// forEachIndexed 사용
+// Using forEachIndexed
 dataSource.runQuery("SELECT * FROM users") { rs ->
     rs.forEachIndexed { index, row ->
         println("$index: ${row.getString("name")}")
@@ -186,22 +187,22 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 }
 ```
 
-### 7. PreparedStatement 지원
+### 7. PreparedStatement Support
 
-PreparedStatement 생성 및 파라미터 바인딩:
+PreparedStatement creation and parameter binding:
 
 ```kotlin
-// 파라미터가 있는 쿼리 실행
+// Execute a parameterized query
 dataSource.withConnect { conn ->
     conn.executeQuery(
         "SELECT * FROM users WHERE age > ? AND status = ?",
         18, "active"
     ) { rs ->
-        // ResultSet 처리
+        // Process ResultSet
     }
 }
 
-// 업데이트 실행
+// Execute an update
 val affectedRows = dataSource.withConnect { conn ->
     conn.executeUpdate(
         "UPDATE users SET name = ? WHERE id = ?",
@@ -209,7 +210,7 @@ val affectedRows = dataSource.withConnect { conn ->
     )
 }
 
-// 생성된 키 반환
+// Return generated keys
 val generatedId = dataSource.withConnect { conn ->
     conn.executeUpdateWithGeneratedKeys(
         "INSERT INTO users (name, email) VALUES (?, ?)",
@@ -219,23 +220,23 @@ val generatedId = dataSource.withConnect { conn ->
     }
 }
 
-// DSL 스타일
+// DSL style
 dataSource.withConnect { conn ->
     conn.preparedStatement("SELECT * FROM users WHERE id = ?") { stmt ->
         stmt.setLong(1, userId)
         stmt.executeQuery().use { rs ->
-            // ResultSet 처리
+            // Process ResultSet
         }
     }
 }
 ```
 
-### 8. 배치 처리
+### 8. Batch Processing
 
-대량 데이터 삽입:
+Bulk data insertion:
 
 ```kotlin
-// 배치 INSERT
+// Batch INSERT
 val paramsList = listOf(
     listOf("User1", "user1@example.com"),
     listOf("User2", "user2@example.com"),
@@ -250,7 +251,7 @@ val results = dataSource.withConnect { conn ->
     )
 }
 
-// 대량 배치 (Long 반환)
+// Large batch (returns Long)
 val largeResults = dataSource.withConnect { conn ->
     conn.executeLargeBatch(
         "INSERT INTO users (name, email) VALUES (?, ?)",
@@ -259,91 +260,91 @@ val largeResults = dataSource.withConnect { conn ->
     )
 }
 
-// DataSource에서 직접 실행
+// Execute directly from a DataSource
 val batchResults = dataSource.executeBatch(
     "INSERT INTO users (name, email) VALUES (?, ?)",
     paramsList
 )
 ```
 
-### 9. 트랜잭션 관리
+### 9. Transaction Management
 
-선언적 트랜잭션 관리:
+Declarative transaction management:
 
 ```kotlin
-// 기본 트랜잭션
+// Basic transaction
 dataSource.withTransaction { conn ->
     conn.executeUpdate("INSERT INTO accounts (user_id, balance) VALUES (?, ?)", 1, 1000)
     conn.executeUpdate("INSERT INTO logs (message) VALUES (?)", "Account created")
-    // 자동으로 커밋됨
+    // Automatically committed
 }
 
-// 읽기 전용 트랜잭션
+// Read-only transaction
 dataSource.withReadOnlyTransaction { conn ->
     conn.runQuery("SELECT * FROM users") { rs ->
-        // 읽기 작업만 수행
+        // Perform read-only operations
     }
 }
 
-// 격리 수준 지정
+// Specify isolation level
 dataSource.withTransaction(Connection.TRANSACTION_SERIALIZABLE) { conn ->
     conn.runQuery("SELECT * FROM accounts WHERE id = 1 FOR UPDATE") { rs ->
-        // 직렬화 가능한 격리 수준으로 조회
+        // Query under serializable isolation
     }
 }
 
-// Connection에서 직접 사용
+// Use directly from a Connection
 dataSource.connection.use { conn ->
     conn.withTransaction { connection ->
         connection.executeUpdate("INSERT INTO users (name) VALUES (?)", "Alice")
         connection.executeUpdate("INSERT INTO users (name) VALUES (?)", "Bob")
-        // 자동으로 커밋
+        // Automatically committed
     }
 }
 
-// 롤백 예시
+// Rollback example
 try {
     dataSource.withTransaction { conn ->
         conn.executeUpdate("INSERT INTO users (name) VALUES (?)", "Temp User")
         throw RuntimeException("Something went wrong")
-        // 예외 발생 시 자동 롤백
+        // Automatically rolled back on exception
     }
 } catch (e: Exception) {
-    // 롤백됨
+    // Transaction was rolled back
 }
 ```
 
-### 10. Connection 속성 임시 변경
+### 10. Temporarily Changing Connection Properties
 
-Connection의 속성을 임시로 변경하여 작업:
+Temporarily modify connection properties for a block of code:
 
 ```kotlin
 dataSource.connection.use { conn ->
-    // Auto-commit 임시 변경
+    // Temporarily disable auto-commit
     conn.withAutoCommit(false) { connection ->
-        // auto-commit이 비활성화된 상태에서 작업
+        // Work with auto-commit disabled
     }
 
-    // 읽기 전용 모드
+    // Read-only mode
     conn.withReadOnly { connection ->
-        // 읽기 전용 모드에서 작업
+        // Work in read-only mode
     }
 
-    // 격리 수준 임시 변경
+    // Temporarily change isolation level
     conn.withIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED) { connection ->
-        // 지정된 격리 수준에서 작업
+        // Work at the specified isolation level
     }
 
-    // Holdability 임시 변경
+    // Temporarily change holdability
     conn.withHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT) { connection ->
-        // 지정된 holdability로 작업
+        // Work with the specified holdability
     }
 }
 ```
 
-### 11. ResultSetGetColumnTokens
+### 11. Token-Based Column Access
 
-token 기반 타입 안전한 값 조회:
+Type-safe column access using tokens:
 
 ```kotlin
 dataSource.runQuery("SELECT * FROM users") { rs ->
@@ -359,73 +360,73 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 }
 ```
 
-### 12. 단일 값 조회
+### 12. Single Value Retrieval
 
-집계 쿼리 등에서 단일 값 조회:
+Retrieve a single value from aggregate queries:
 
 ```kotlin
-// Int 조회
+// Int
 val count = dataSource.runQuery("SELECT COUNT(*) FROM users") { rs ->
     rs.singleInt()
 }
 
-// Long 조회
+// Long
 val maxId = dataSource.runQuery("SELECT MAX(id) FROM users") { rs ->
     rs.singleLong()
 }
 
-// Double 조회
+// Double
 val avgAge = dataSource.runQuery("SELECT AVG(age) FROM users") { rs ->
     rs.singleDouble()
 }
 
-// String 조회
+// String
 val name = dataSource.runQuery("SELECT name FROM users WHERE id = 1") { rs ->
     rs.singleString()
 }
 
-// BigDecimal 조회
+// BigDecimal
 val totalAmount = dataSource.runQuery("SELECT SUM(amount) FROM orders") { rs ->
     rs.singleBigDecimal()
 }
 ```
 
-### 13. ResultSet 메타데이터
+### 13. ResultSet Metadata
 
 ```kotlin
 dataSource.runQuery("SELECT * FROM users") { rs ->
-    // 컬럼명 목록
+    // Column names
     val columns = rs.columnNames
     println(columns) // ["id", "name", "email", ...]
 
-    // 컬럼 레이블(별칭) 목록
+    // Column labels (aliases)
     val labels = rs.columnLabels
 
-    // 컬럼 수
+    // Column count
     val columnCount = rs.columnCount
 }
 ```
 
-### 14. 필터링 및 검색
+### 14. Filtering and Searching
 
 ```kotlin
 dataSource.runQuery("SELECT * FROM users") { rs ->
-    // all: 모든 행이 조건 만족
+    // all: true if every row satisfies the predicate
     val allAdults = rs.all { it.getInt("age") >= 18 }
 
-    // any: 하나라도 조건 만족
+    // any: true if at least one row satisfies the predicate
     val hasAdmin = rs.any { it.getString("role") == "admin" }
 
-    // none: 조건 만족하는 행 없음
+    // none: true if no row satisfies the predicate
     val noInactive = rs.none { it.getString("status") == "inactive" }
 
-    // filterMap: 조건에 맞는 행만 매핑
+    // filterMap: map only matching rows
     val adultUsers = rs.filterMap(
         predicate = { it.getInt("age") >= 18 },
         mapper = { User(it.getInt("id"), it.getString("name"), it.getString("email")) }
     )
 
-    // firstOrNull: 조건 만족하는 첫 행
+    // firstOrNull: first matching row, or null
     val firstAdmin = rs.firstOrNull(
         predicate = { it.getString("role") == "admin" },
         mapper = { User(it.getInt("id"), it.getString("name"), it.getString("email")) }
@@ -433,7 +434,7 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 }
 ```
 
-### 15. 유틸리티 함수
+### 15. Utility Functions
 
 ```kotlin
 // isEmpty / isNotEmpty
@@ -449,14 +450,14 @@ dataSource.runQuery("SELECT * FROM users") { rs ->
 }
 ```
 
-## 테스트
+## Testing
 
-모듈은 H2 데이터베이스를 사용한 테스트를 포함하고 있습니다.
+The module includes tests that use an H2 database.
 
 ```kotlin
 class MyJdbcTest : AbstractJdbcTest() {
     @Test
-    fun `사용자 조회 테스트`() {
+    fun `user lookup test`() {
         val user = dataSource.executeQuery(
             "SELECT * FROM users WHERE name = ?",
             "Alice"
@@ -472,9 +473,9 @@ class MyJdbcTest : AbstractJdbcTest() {
 }
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 확장 함수 API 개요
+### Extension Function API Overview
 
 ```mermaid
 classDiagram
@@ -493,7 +494,7 @@ classDiagram
 
 ```
 
-### 주요 API 구조
+### Core API Structure
 
 ```mermaid
 classDiagram
@@ -530,19 +531,19 @@ classDiagram
         +ResultSet.columnNames: List~String~
     }
 
-    DataSourceExtensions --> ConnectionExtensions : 위임
-    ConnectionExtensions --> ResultSetExtensions : ResultSet 전달
+    DataSourceExtensions --> ConnectionExtensions : delegates
+    ConnectionExtensions --> ResultSetExtensions : passes ResultSet
 ```
 
-### JDBC 쿼리 실행 흐름
+### JDBC Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant DS as DataSource 확장
-    participant Conn as Connection 확장
+    participant App as Application
+    participant DS as DataSource Extension
+    participant Conn as Connection Extension
     participant PS as PreparedStatement
-    participant DB as 데이터베이스
+    participant DB as Database
 
     App->>DS: withConnect { conn -> ... }
     DS->>Conn: executeQuery(sql, params) { rs -> ... }
@@ -551,17 +552,17 @@ sequenceDiagram
     PS->>DB: executeQuery()
     DB-->>PS: ResultSet
     PS-->>Conn: ResultSet
-    Conn-->>App: ResultSet 처리 결과
+    Conn-->>App: Processed result
 
-    Note over DS,DB: withTransaction 사용 시 자동 커밋/롤백 처리
+    Note over DS,DB: withTransaction handles auto commit/rollback
 ```
 
-## 참고 자료
+## References
 
-- [JDBC 공식 문서](https://docs.oracle.com/javase/tutorial/jdbc/)
-- [Kotlin Use 함수](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/use.html)
-- [HikariCP](https://github.com/brettwooldridge/HikariCP) - 고성능 JDBC 커넥션 풀
+- [JDBC Official Documentation](https://docs.oracle.com/javase/tutorial/jdbc/)
+- [Kotlin use Function](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/use.html)
+- [HikariCP](https://github.com/brettwooldridge/HikariCP) — High-performance JDBC connection pool
 
-## 라이선스
+## License
 
 Apache License 2.0

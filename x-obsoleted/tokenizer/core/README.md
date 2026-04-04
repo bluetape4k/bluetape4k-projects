@@ -1,159 +1,161 @@
 # Module bluetape4k-tokenizer-core
 
-tokenizer/core 모듈은 형태소 분석 및 금칙어 처리를 위한 기본 인프라를 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+The `tokenizer/core` module provides the foundational infrastructure for morphological analysis and blocked-word (profanity) filtering.
 
-이 모듈은 한국어/일본어 등 다양한 언어에 대한 형태소 분석을 위한 기반 클래스와 유틸리티를 제공합니다.
+## Overview
 
-### 주요 특징
+This module provides base classes and utilities for morphological analysis across various languages such as Korean and Japanese.
 
-- **통신 모델**: 형태소 분석 및 금칙어 처리를 위한 요청/응답 모델
-- **사전 관리**: CharArray 기반의 고성능 사전 데이터 구조
-- **유니코드 지원**: Unicode code point 처리 유틸리티
-- **압축 지원**: GZIP 압축된 사전 파일 로드 지원
+### Key Features
 
-## 모듈 구조
+- **Communication models**: Request/response models for tokenization and blocked-word processing
+- **Dictionary management**: High-performance `CharArray`-based dictionary data structures
+- **Unicode support**: Utilities for working with Unicode code points
+- **Compression support**: Load GZIP-compressed dictionary files
+
+## Module Structure
 
 ```
 tokenizer/core/
-├── model/          # API 요청/응답 모델
-├── utils/          # 유틸리티 클래스
-└── exceptions/     # 예외 클래스
+├── model/          # API request/response models
+├── utils/          # Utility classes
+└── exceptions/     # Exception classes
 ```
 
-## 주요 컴포넌트
+## Key Components
 
-### 1. Model 패키지
+### 1. Model Package
 
 #### BlockwordOptions
 
-금칙어 처리를 위한 옵션을 설정합니다.
+Configures options for blocked-word processing.
 
 ```kotlin
 val options = blockwordOptionsOf(
-    mask = "*",                    // 마스킹 문자
-    locale = Locale.KOREAN,        // 로케일
-    severity = Severity.MIDDLE,    // 심각도 수준
+    mask = "*",                    // Masking character
+    locale = Locale.KOREAN,        // Locale
+    severity = Severity.MIDDLE,    // Severity level
 )
 ```
 
 #### BlockwordRequest/Response
 
 ```kotlin
-// 요청 생성
+// Create a request
 val request = blockwordRequestOf(
-    text = "금칙어가 포함된 텍스트",
+    text = "Text containing a blocked word",
     options = options,
 )
 
-// 응답 생성
+// Create a response
 val response = blockwordResponseOf(
     original = request.text,
-    masked = "***가 포함된 텍스트",
-    words = listOf("금칙어"),
+    masked = "*** containing a blocked word",
+    words = listOf("blocked word"),
 )
 ```
 
 #### TokenizeRequest/Response
 
 ```kotlin
-// 형태소 분석 요청
+// Tokenization request
 val request = tokenizeRequestOf(
-    text = "형태소 분석할 텍스트",
+    text = "Text to tokenize",
     options = tokenizeOptionsOf(Locale.KOREAN),
 )
 
-// 응답
+// Response
 val response = tokenizeResponseOf(
     original = request.text,
-    tokens = listOf("형태소", "분석할", "텍스트"),
+    tokens = listOf("Text", "to", "tokenize"),
 )
 ```
 
 #### Severity
 
-금칙어 심각도 수준을 정의합니다.
+Defines severity levels for blocked words.
 
 ```kotlin
 enum class Severity(val level: Int) {
-    LOW(1),     // 낮은 수준
-    MIDDLE(2),  // 중간 수준
-    HIGH(3),    // 높은 수준
+    LOW(1),     // Low severity
+    MIDDLE(2),  // Medium severity
+    HIGH(3),    // High severity
 }
 ```
 
-### 2. Utils 패키지
+### 2. Utils Package
 
 #### CharArraySet
 
-CharArray 기반의 고성능 Set 구현체입니다.
+A high-performance `Set` implementation backed by `CharArray`.
 
 ```kotlin
 val set = CharArraySet(1000)
 
-// 추가
+// Add
 set.add("word")
 set.add(charArrayOf('w', 'o', 'r', 'd'))
 
-// 조회
+// Lookup
 if (set.contains("word")) {
     // ...
 }
 
-// 삭제 (실제로 제거된 경우에만 true)
+// Remove (returns true only if actually removed)
 set.remove("word")
 set.removeAll(listOf("a", "b"))
 
-// 수정 불가능한 Set
+// Unmodifiable set
 val unmodifiable = CharArraySet.unmodifiableSet(set)
 ```
 
 #### CharArrayMap
 
-CharArray 키를 사용하는 고성능 Map 구현체입니다.
+A high-performance `Map` implementation with `CharArray` keys.
 
 ```kotlin
 val map = CharArrayMap<String>(1000)
 
-// 추가
+// Put
 map["key"] = "value"
 map[charArrayOf('k', 'e', 'y')] = "value"
 
-// 조회
+// Get
 val value = map["key"]
 val value = map[charArrayOf('k', 'e', 'y')]
 val value = map.get("key")
 val value2 = map.get(charArrayOf('k', 'e', 'y'), 0, 3)
 
-// 수정 불가능한 Map
+// Unmodifiable map
 val unmodifiable = CharArrayMap.unmodifiableMap(map)
 ```
 
 #### CharacterUtils
 
-유니코드 문자 처리 유틸리티입니다.
+Utility for working with Unicode characters.
 
 ```kotlin
 val charUtils = CharacterUtils.getInstance()
 
-// Code point 조회
+// Get code point
 val codePoint = charUtils.codePointAt("Text", 0)
 val codePoint = charUtils.codePointAt(charArray, offset, limit)
 
-// Code point 개수
-val count = charUtils.codePointCount("한글 텍스트")
+// Count code points
+val count = charUtils.codePointCount("Hello text")
 
-// 대소문자 변환
+// Case conversion
 val buffer = "HELLO".toCharArray()
 charUtils.toLowerCase(buffer, 0, buffer.size)
 
-// Code points 변환
+// Convert to code points
 val src = "Hello".toCharArray()
 val dest = IntArray(src.size)
 val count = charUtils.toCodePoints(src, 0, src.size, dest, 0)
 
-// Character 버퍼
+// Character buffer
 val buffer = CharacterUtils.newCharacterBuffer(1024)
 val reader = StringReader("text")
 val filled = charUtils.fill(buffer, reader, 100)
@@ -161,49 +163,49 @@ val filled = charUtils.fill(buffer, reader, 100)
 
 #### DictionaryProvider
 
-사전 파일을 로드하는 유틸리티입니다.
+Utility for loading dictionary files.
 
 ```kotlin
-// 일반 파일 로드
+// Load a plain text file
 DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt")
     .forEach { line ->
-        // 처리
+        // process
     }
 
-// GZIP 압축 파일 로드
+// Load a GZIP-compressed file
 DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt.gz")
     .forEach { line ->
-        // 처리
+        // process
     }
 
-// CharArraySet으로 로드 (suspend)
+// Load into a CharArraySet (suspend)
 val set = DictionaryProvider.readWords("dictionary/noun/nouns.txt")
 
-// 빈도수 맵 로드
+// Load a frequency map
 val freqMap = DictionaryProvider.readWordFreqs("dictionary/freq/freq.txt")
 ```
 
-### 3. Exceptions 패키지
+### 3. Exceptions Package
 
 ```kotlin
-// 토크나이저 관련 예외
+// Tokenizer-related exception
 try {
-    // tokenizer 작업
+    // tokenizer operation
 } catch (e: TokenizerException) {
-    // 예외 처리
+    // handle exception
 }
 
-// 잘못된 요청 예외
+// Invalid request exception
 try {
-    // 요청 처리
+    // process request
 } catch (e: InvalidTokenizeRequestException) {
-    // 예외 처리
+    // handle exception
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### 금칙어 처리
+### Blocked-Word Processing
 
 ```kotlin
 fun processBlockword(text: String): BlockwordResponse {
@@ -214,7 +216,6 @@ fun processBlockword(text: String): BlockwordResponse {
 
     val request = blockwordRequestOf(text, options)
 
-    // 금칙어 검출 및 마스킹 처리
     val detectedWords = detectBlockwords(request.text)
     val maskedText = maskWords(request.text, detectedWords, request.options.mask)
 
@@ -226,13 +227,12 @@ fun processBlockword(text: String): BlockwordResponse {
 }
 ```
 
-### 형태소 분석
+### Morphological Analysis
 
 ```kotlin
 fun tokenize(text: String): TokenizeResponse {
     val request = tokenizeRequestOf(text)
 
-    // 형태소 분석 수행
     val tokens = performTokenization(request.text)
 
     return tokenizeResponseOf(
@@ -242,17 +242,15 @@ fun tokenize(text: String): TokenizeResponse {
 }
 ```
 
-### 사전 구축
+### Building a Dictionary
 
 ```kotlin
 suspend fun buildDictionary(): CharArraySet {
     val dictionary = CharArraySet(10_000)
 
-    // 명사 사전 로드
     DictionaryProvider.readWords("dictionary/noun/nouns.txt")
         .forEach { dictionary.add(it) }
 
-    // 동사 사전 로드
     DictionaryProvider.readWords("dictionary/verb/verb.txt")
         .forEach { dictionary.add(it) }
 
@@ -260,7 +258,7 @@ suspend fun buildDictionary(): CharArraySet {
 }
 ```
 
-## 의존성
+## Dependency
 
 ```kotlin
 dependencies {
@@ -268,24 +266,24 @@ dependencies {
 }
 ```
 
-### 전이 의존성
+### Transitive Dependencies
 
 - bluetape4k-logging
 - bluetape4k-core
 
-## 테스트
+## Testing
 
 ```bash
-# 모든 테스트 실행
+# Run all tests
 ./gradlew :bluetape4k-tokenizer-core:test
 
-# 특정 테스트 클래스 실행
+# Run a specific test class
 ./gradlew :bluetape4k-tokenizer-core:test \
     --tests "io.bluetape4k.tokenizer.utils.CharArrayMapTest"
 ```
 
-## 참고
+## Notes
 
-- 모든 API는 Kotlin 코루틴을 지원합니다 (suspend 함수)
-- 사전 파일은 `src/main/resources/dictionary` 경로에 위치해야 합니다
-- GZIP 압축 사전 파일은 `.gz` 확장자로 끝나야 자동으로 인식됩니다
+- All APIs support Kotlin coroutines (suspend functions)
+- Dictionary files must be placed under `src/main/resources/dictionary`
+- GZIP-compressed dictionary files must have a `.gz` extension to be recognized automatically

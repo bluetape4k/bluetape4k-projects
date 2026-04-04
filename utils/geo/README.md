@@ -1,92 +1,94 @@
 # Module bluetape4k-geo
 
-지리 정보 처리를 위한 단일 통합 모듈입니다. Geocode, GeoHash, GeoIP2 기능을 제공합니다.
+English | [한국어](./README.ko.md)
 
-> 구 `utils/geocode`, `utils/geohash`, `utils/geoip2` 모듈이 이 모듈로 통합되었습니다.
+A unified module for geographic information processing. Provides Geocode, GeoHash, and GeoIP2 functionality.
 
-## 제공 기능
+> The former `utils/geocode`, `utils/geohash`, and `utils/geoip2` modules have been consolidated into this single module.
 
-### Geocode (구 `utils/geocode`)
-- Google Maps Services 기반 주소 ↔ 좌표 변환
-- Bing Maps API 연동 지원
-- Feign HTTP 클라이언트 기반 비동기 요청
-- Coroutines 확장 (선택적)
+## Features
+
+### Geocode (formerly `utils/geocode`)
+- Address ↔ coordinate conversion via Google Maps Services
+- Bing Maps API integration support
+- Asynchronous requests via Feign HTTP client
+- Coroutines extension (optional)
 
 ### GeoHash
-- 위도/경도 좌표를 Base32 문자열로 인코딩
-- GeoHash 디코딩 및 이웃 셀 계산
-- 반경 내 GeoHash 목록 생성
-- 정밀도 제어 (1~12자리)
+- Encode latitude/longitude coordinates as Base32 strings
+- GeoHash decoding and neighbor cell computation
+- Generate a list of GeoHashes within a given radius
+- Precision control (1–12 characters)
 
-### GeoIP2 (구 `utils/geoip2`)
-- MaxMind GeoIP2 데이터베이스 기반 IP → 지리 정보 변환
-- City, Country, ASN 조회 지원
-- Coroutines 확장 (선택적)
+### GeoIP2 (formerly `utils/geoip2`)
+- IP → geographic information lookup using the MaxMind GeoIP2 database
+- City, Country, and ASN queries
+- Coroutines extension (optional)
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
 ```mermaid
 flowchart TD
-    subgraph bluetape4k-geo["bluetape4k-geo (통합 모듈)"]
+    subgraph bluetape4k-geo["bluetape4k-geo (unified module)"]
         direction TB
-        GC["Geocode<br/>(구 utils/geocode)"]
-        GH["GeoHash<br/>(구 utils/geohash)"]
-        GI["GeoIP2<br/>(구 utils/geoip2)"]
+        GC["Geocode<br/>(formerly utils/geocode)"]
+        GH["GeoHash<br/>(formerly utils/geohash)"]
+        GI["GeoIP2<br/>(formerly utils/geoip2)"]
     end
 
     GC -->|"Google Maps API"| GOOGLE["Google Maps Services"]
     GC -->|"Bing Maps API"| BING["Bing Maps API"]
-    GC -->|"HTTP 클라이언트"| FEIGN["Feign (Coroutines 지원)"]
+    GC -->|"HTTP client"| FEIGN["Feign (Coroutines support)"]
 
-    GH -->|"Base32 인코딩"| COORD["위도/경도 ↔ GeoHash 문자열"]
-    GH --> NEIGHBOR["이웃 셀 계산<br/>(neighbors)"]
-    GH --> RADIUS["반경 내 셀 목록<br/>(precision 1~12)"]
+    GH -->|"Base32 encoding"| COORD["Lat/Lon ↔ GeoHash string"]
+    GH --> NEIGHBOR["Neighbor cell computation<br/>(neighbors)"]
+    GH --> RADIUS["Cells within radius<br/>(precision 1~12)"]
 
     GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
-    GI --> IPINFO["IP → 국가/도시/위도경도"]
+    GI --> IPINFO["IP → Country / City / Coordinates"]
 ```
 
-## 설치
+## Installation
 
-각 기능은 `compileOnly`로 선언되어 있으므로, 사용할 라이브러리를 런타임 의존성으로 추가해야 합니다.
+Each feature is declared as `compileOnly`, so you need to add the relevant libraries as runtime dependencies.
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
 
-    // Geocode (Google Maps) 사용 시
+    // For Geocode (Google Maps)
     implementation("com.google.maps:google-maps-services:2.2.0")
     implementation(Libs.feign_core)
     implementation(Libs.feign_kotlin)
     implementation(Libs.feign_jackson)
 
-    // GeoIP2 사용 시
+    // For GeoIP2
     implementation("com.maxmind.geoip2:geoip2:5.0.2")
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### GeoHash 인코딩/디코딩
+### GeoHash Encoding/Decoding
 
 ```kotlin
 import io.bluetape4k.geo.geohash.GeoHash
 
-// 좌표 → GeoHash (12자리 최대 정밀도)
+// Coordinates → GeoHash (precision 9)
 val hash = GeoHash.encode(latitude = 37.5665, longitude = 126.9780, precision = 9)
-// 예: "wydm9mufd"
+// e.g. "wydm9mufd"
 
-// GeoHash → 좌표
+// GeoHash → coordinates
 val point = GeoHash.decode("wydm9mufd")
 println("lat=${point.latitude}, lon=${point.longitude}")
 
-// 이웃 GeoHash
+// Neighbor GeoHashes
 val neighbors = GeoHash.neighbors("wydm9mufd")
 ```
 
-`GeoHashCircleQuery` 제약:
-- 반경(`radius`)은 meter 단위이며 0 이상이어야 합니다.
-- 음수 반경은 `IllegalArgumentException`으로 즉시 거부됩니다.
+`GeoHashCircleQuery` constraints:
+- `radius` is in meters and must be non-negative.
+- A negative radius is immediately rejected with `IllegalArgumentException`.
 
 ### Geocode (Google Maps)
 
@@ -95,11 +97,11 @@ import io.bluetape4k.geo.geocode.google.GoogleGeocoder
 
 val geocoder = GoogleGeocoder(apiKey = "YOUR_API_KEY")
 
-// 주소 → 좌표
-val result = geocoder.geocode("서울특별시 중구 세종대로 110")
+// Address → coordinates
+val result = geocoder.geocode("Seoul City Hall, Jung-gu, Seoul")
 println("lat=${result.latitude}, lon=${result.longitude}")
 
-// 좌표 → 주소 (역지오코딩)
+// Coordinates → address (reverse geocoding)
 val address = geocoder.reverseGeocode(latitude = 37.5665, longitude = 126.9780)
 ```
 
@@ -109,17 +111,17 @@ val address = geocoder.reverseGeocode(latitude = 37.5665, longitude = 126.9780)
 import io.bluetape4k.geo.geoip2.GeoIp2Support
 import java.net.InetAddress
 
-// MaxMind GeoIP2 데이터베이스 경로 지정
+// Specify the path to the MaxMind GeoIP2 database
 val reader = GeoIp2Support.cityReader("/path/to/GeoLite2-City.mmdb")
 
 val cityResponse = reader.city(InetAddress.getByName("8.8.8.8"))
-println("국가: ${cityResponse.country.name}")
-println("도시: ${cityResponse.city.name}")
-println("위도: ${cityResponse.location.latitude}")
-println("경도: ${cityResponse.location.longitude}")
+println("Country: ${cityResponse.country.name}")
+println("City: ${cityResponse.city.name}")
+println("Latitude: ${cityResponse.location.latitude}")
+println("Longitude: ${cityResponse.location.longitude}")
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram

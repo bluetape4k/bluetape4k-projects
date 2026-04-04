@@ -1,31 +1,33 @@
 # Module bluetape4k-grpc
 
-gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A Kotlin extension library for implementing gRPC servers and clients.
 
-`bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. Protobuf 유틸리티는 [`bluetape4k-protobuf`](../protobuf/README.md) 모듈로 분리되었습니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-grpc` provides abstract classes and extension functions that make it easy to implement [gRPC](https://grpc.io/) servers and clients in Kotlin. Protobuf utilities are split into the separate [`bluetape4k-protobuf`](../protobuf/README.md) module.
 
-- **gRPC 서버 추상화**: 서버 시작/중지/상태 관리
-- **gRPC 클라이언트 추상화**: 채널 관리 및 호출
-- **In-process 서버/클라이언트**: 테스트용 인메모리 통신
-- **인터셉터 지원**: 서버 인터셉터 보조
-- **입력 검증**: host/target/name 은 blank를 허용하지 않고 port 는 `1..65535` 범위를 즉시 검증
+### Key Features
 
-## 의존성 추가
+- **gRPC server abstraction**: Start/stop/status management
+- **gRPC client abstraction**: Channel management and calls
+- **In-process server/client**: In-memory communication for testing
+- **Interceptor support**: Server interceptor helpers
+- **Input validation**: host/target/name must be non-blank; port must be in the `1..65535` range — validated immediately
+
+## Adding the Dependency
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
-    // bluetape4k-protobuf가 전이적으로 포함됩니다
+    // bluetape4k-protobuf is included transitively
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. gRPC 서버 구현
+### 1. Implementing a gRPC Server
 
 ```kotlin
 import io.bluetape4k.grpc.AbstractGrpcServer
@@ -35,7 +37,7 @@ class MyGrpcServer(
 ): AbstractGrpcServer() {
 
     override fun start() {
-        // 서버 시작 로직
+        // Server start logic
         server = ServerBuilder.forPort(port)
             .addService(MyService())
             .build()
@@ -51,13 +53,13 @@ class MyGrpcServer(
     }
 }
 
-// 사용
+// Usage
 val server = MyGrpcServer(50051)
 server.start()
 server.blockUntilShutdown()
 ```
 
-### 2. gRPC 클라이언트 구현
+### 2. Implementing a gRPC Client
 
 ```kotlin
 import io.bluetape4k.grpc.AbstractGrpcClient
@@ -87,13 +89,13 @@ class MyGrpcClient(
 }
 ```
 
-### 3. In-process 서버/클라이언트 (테스트용)
+### 3. In-process Server/Client (for Testing)
 
 ```kotlin
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessServer
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessClient
 
-// 테스트용 서버
+// Test server
 class TestGrpcServer: AbstractGrpcInprocessServer("test-server") {
     override fun start() {
         server = InProcessServerBuilder.forName(serverName)
@@ -103,7 +105,7 @@ class TestGrpcServer: AbstractGrpcInprocessServer("test-server") {
     }
 }
 
-// 테스트용 클라이언트
+// Test client
 class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
     override fun connect() {
         channel = InProcessChannelBuilder.forName(serverName).build()
@@ -112,34 +114,34 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 }
 ```
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
 ### gRPC Core
 
-| 파일                         | 설명                |
-|----------------------------|-------------------|
-| `GrpcServer.kt`            | gRPC 서버 인터페이스     |
-| `AbstractGrpcServer.kt`    | gRPC 서버 추상 클래스    |
-| `AbstractGrpcClient.kt`    | gRPC 클라이언트 추상 클래스 |
-| `ServerSupport.kt`         | 서버 확장 함수          |
-| `ManagedChannelSupport.kt` | 채널 확장 함수          |
+| File | Description |
+|------|-------------|
+| `GrpcServer.kt` | gRPC server interface |
+| `AbstractGrpcServer.kt` | gRPC server abstract class |
+| `AbstractGrpcClient.kt` | gRPC client abstract class |
+| `ServerSupport.kt` | Server extension functions |
+| `ManagedChannelSupport.kt` | Channel extension functions |
 
 ### In-process (inprocess/)
 
-| 파일                               | 설명         |
-|----------------------------------|------------|
-| `AbstractGrpcInprocessServer.kt` | 인메모리 서버    |
-| `AbstractGrpcInprocessClient.kt` | 인메모리 클라이언트 |
+| File | Description |
+|------|-------------|
+| `AbstractGrpcInprocessServer.kt` | In-memory server |
+| `AbstractGrpcInprocessClient.kt` | In-memory client |
 
 ### Interceptor (interceptor/)
 
-| 파일                            | 설명         |
-|-------------------------------|------------|
-| `ServerInterceptorSupport.kt` | 서버 인터셉터 확장 |
+| File | Description |
+|------|-------------|
+| `ServerInterceptorSupport.kt` | Server interceptor extensions |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 클래스 계층
+### Class Hierarchy
 
 ```mermaid
 classDiagram
@@ -181,7 +183,7 @@ classDiagram
 
 ```
 
-### gRPC 서버-클라이언트 통신 시퀀스
+### gRPC Server-Client Communication Sequence
 
 ```mermaid
 sequenceDiagram
@@ -191,55 +193,55 @@ sequenceDiagram
     participant SVC as ServiceImpl
 
     C->>CH: ManagedChannelBuilder.forAddress(host, port)
-    CH->>S: TCP 연결 수립
-    S->>SVC: 서비스 등록
+    CH->>S: Establish TCP connection
+    S->>SVC: Register service
 
     C->>CH: stub.doSomething(request)
-    CH->>S: HTTP/2 요청 전송
-    S->>SVC: 메서드 호출
-    SVC-->>S: 응답 생성
-    S-->>CH: HTTP/2 응답
-    CH-->>C: Response 반환
+    CH->>S: Send HTTP/2 request
+    S->>SVC: Invoke method
+    SVC-->>S: Generate response
+    S-->>CH: HTTP/2 response
+    CH-->>C: Return Response
 
     C->>CH: channel.shutdown()
-    CH->>S: 연결 종료
+    CH->>S: Close connection
 ```
 
-### In-process 테스트 시퀀스
+### In-process Test Sequence
 
 ```mermaid
 sequenceDiagram
-    participant T as 테스트 코드
+    participant T as Test code
     participant IS as InprocessServer
     participant IC as InprocessClient
     participant SVC as ServiceImpl
 
     T->>IS: InProcessServerBuilder.forName("test-server")
-    IS->>SVC: 서비스 등록 및 시작
+    IS->>SVC: Register and start service
     T->>IC: InProcessChannelBuilder.forName("test-server")
-    IC->>IS: 인메모리 채널 연결
+    IC->>IS: Connect via in-memory channel
 
     T->>IC: stub.call(request)
-    IC->>IS: 인메모리 전송 (네트워크 없음)
-    IS->>SVC: 메서드 호출
-    SVC-->>IC: 응답
-    IC-->>T: Response 반환
+    IC->>IS: In-memory transport (no network)
+    IS->>SVC: Invoke method
+    SVC-->>IC: Response
+    IC-->>T: Return Response
 
     T->>IS: server.shutdown()
     T->>IC: channel.shutdown()
 ```
 
-## 관련 모듈
+## Related Modules
 
-- **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
+- **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf utilities (Timestamp/Duration/Money conversion, ProtobufSerializer)
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-grpc:test
 ```
 
-## 참고
+## References
 
 - [gRPC](https://grpc.io/)
 - [gRPC Kotlin](https://grpc.io/docs/languages/kotlin/)

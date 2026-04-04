@@ -1,104 +1,106 @@
 # Module Examples - Kotlin Coroutines
 
-Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 예제 모음입니다.
+English | [한국어](./README.ko.md)
 
-## 예제 목록
+A collection of examples for learning the features and usage patterns of Kotlin Coroutines.
 
-### 기초 가이드 (guide/)
+## Examples
 
-| 예제 파일                         | 설명                                |
-|-------------------------------|-----------------------------------|
-| `CoroutineExamples.kt`        | 코루틴 기본: coroutineScope, launch    |
-| `CoroutineBuilderExamples.kt` | 코루틴 빌더: launch, async, produce    |
-| `CoroutineContextExamples.kt` | CoroutineContext 이해와 활용           |
-| `SuspendExamples.kt`          | suspend 함수 기본                     |
-| `MDCContextExamples.kt`       | MDC(Mapped Diagnostic Context) 연동 |
+### Basics (guide/)
 
-### Flow 예제 (flow/)
+| Example File                  | Description                                      |
+|-------------------------------|--------------------------------------------------|
+| `CoroutineExamples.kt`        | Coroutine basics: coroutineScope, launch         |
+| `CoroutineBuilderExamples.kt` | Coroutine builders: launch, async, produce       |
+| `CoroutineContextExamples.kt` | Understanding and using CoroutineContext         |
+| `SuspendExamples.kt`          | Basics of suspend functions                      |
+| `MDCContextExamples.kt`       | Integration with MDC (Mapped Diagnostic Context) |
 
-| 예제 파일                      | 설명                               |
-|----------------------------|----------------------------------|
-| `FlowBasicExamples.kt`     | Flow 기본 생성과 수집                   |
-| `FlowBuilderExamples.kt`   | flowOf, asFlow, channelFlow 등 빌더 |
-| `FlowOperatorExamples.kt`  | map, filter, transform 등 연산자     |
-| `FlowLifecycleExamples.kt` | onStart, onCompletion, onEach    |
-| `SharedFlowExamples.kt`    | SharedFlow로 이벤트 버스 구현            |
-| `StateFlowExamples.kt`     | StateFlow로 상태 관리                 |
-| `ChannelFlowExamples.kt`   | channelFlow와 콜드/핫 플로우            |
-| `CallbackFlowExamples.kt`  | 콜백 기반 API를 Flow로 변환              |
+### Flow Examples (flow/)
 
-### Channel 예제 (channels/)
+| Example File               | Description                                          |
+|----------------------------|------------------------------------------------------|
+| `FlowBasicExamples.kt`     | Basic Flow creation and collection                   |
+| `FlowBuilderExamples.kt`   | Builders: flowOf, asFlow, channelFlow, etc.          |
+| `FlowOperatorExamples.kt`  | Operators: map, filter, transform, etc.              |
+| `FlowLifecycleExamples.kt` | Lifecycle hooks: onStart, onCompletion, onEach       |
+| `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow            |
+| `StateFlowExamples.kt`     | State management with StateFlow                      |
+| `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                       |
+| `CallbackFlowExamples.kt`  | Converting callback-based APIs to Flow               |
 
-| 예제 파일                | 설명                           |
-|----------------------|------------------------------|
-| `ChannelExamples.kt` | Channel 기본: produce, consume |
-| `ActorExamples.kt`   | Actor 패턴으로 상태 관리             |
+### Channel Examples (channels/)
 
-### 코루틴 취소 (cancellation/)
+| Example File         | Description                          |
+|----------------------|--------------------------------------|
+| `ChannelExamples.kt` | Channel basics: produce, consume     |
+| `ActorExamples.kt`   | State management with the Actor pattern |
 
-| 예제 파일                     | 설명               |
-|---------------------------|------------------|
-| `CancellationExamples.kt` | 협력적 취소, 취소 예외 처리 |
+### Cancellation (cancellation/)
 
-### 코루틴 컨텍스트 (context/)
+| Example File              | Description                                   |
+|---------------------------|-----------------------------------------------|
+| `CancellationExamples.kt` | Cooperative cancellation and exception handling |
 
-| 예제 파일                             | 설명                      |
-|-----------------------------------|-------------------------|
-| `CoroutineContextExamples.kt`     | 커스텀 CoroutineContext 구현 |
-| `CounterCoroutineContext.kt`      | 카운터 컨텍스트 예제             |
-| `UuidProviderCoroutineContext.kt` | UUID 제공 컨텍스트            |
+### Coroutine Context (context/)
 
-### 빌더 (builders/)
+| Example File                      | Description                          |
+|-----------------------------------|--------------------------------------|
+| `CoroutineContextExamples.kt`     | Implementing a custom CoroutineContext |
+| `CounterCoroutineContext.kt`      | Counter context example               |
+| `UuidProviderCoroutineContext.kt` | UUID-providing context                |
 
-| 예제 파일                                | 설명         |
-|--------------------------------------|------------|
-| `CoroutineBuilderExamples.kt`        | 커스텀 코루틴 빌더 |
-| `CoroutineContextBuilderExamples.kt` | 컨텍스트 빌더 패턴 |
+### Builders (builders/)
 
-### 디스패처 (dispatchers/)
+| Example File                         | Description             |
+|--------------------------------------|-------------------------|
+| `CoroutineBuilderExamples.kt`        | Custom coroutine builders |
+| `CoroutineContextBuilderExamples.kt` | Context builder patterns  |
 
-| 예제 파일                   | 설명                                 |
-|-------------------------|------------------------------------|
-| `DispatcherExamples.kt` | Default, IO, Unconfined, Main 디스패처 |
+### Dispatchers (dispatchers/)
 
-### 예외 처리 (exceptions/)
+| Example File            | Description                                    |
+|-------------------------|------------------------------------------------|
+| `DispatcherExamples.kt` | Default, IO, Unconfined, and Main dispatchers  |
 
-| 예제 파일                          | 설명                                   |
-|--------------------------------|--------------------------------------|
-| `ExceptionHandlingExamples.kt` | CoroutineExceptionHandler, try-catch |
+### Exception Handling (exceptions/)
 
-### 스코프 (scope/)
+| Example File                   | Description                                   |
+|--------------------------------|-----------------------------------------------|
+| `ExceptionHandlingExamples.kt` | CoroutineExceptionHandler and try-catch usage |
 
-| 예제 파일                       | 설명                                          |
-|-----------------------------|---------------------------------------------|
-| `CoroutineScopeExamples.kt` | lifecycleScope, viewModelScope, customScope |
+### Scope (scope/)
 
-### 테스트 (tests/)
+| Example File                | Description                                          |
+|-----------------------------|------------------------------------------------------|
+| `CoroutineScopeExamples.kt` | lifecycleScope, viewModelScope, and custom scopes    |
 
-| 예제 파일                | 설명                 |
-|----------------------|--------------------|
-| `TurbineExamples.kt` | Turbine으로 Flow 테스트 |
+### Testing (tests/)
 
-## 실행 방법
+| Example File         | Description                   |
+|----------------------|-------------------------------|
+| `TurbineExamples.kt` | Testing Flow with Turbine     |
+
+## How to Run
 
 ```bash
-# 모든 예제 테스트 실행
+# Run all example tests
 ./gradlew :examples:coroutines:test
 
-# 특정 예제만 실행
+# Run specific examples
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.guide.*"
 ./gradlew :examples:coroutines:test --tests "io.bluetape4k.examples.coroutines.flow.*"
 ```
 
-## 주요 학습 포인트
+## Key Learning Points
 
-1. **CoroutineScope**: 구조적 동시성의 핵심
-2. **suspend 함수**: 비동기 코드를 동기처럼 작성
-3. **Flow**: 리액티브 스트림의 Kotlin 구현
-4. **Channel**: 코루틴 간 통신
-5. **예외 처리**: SupervisorJob, CoroutineExceptionHandler
+1. **CoroutineScope**: The foundation of structured concurrency
+2. **Suspend functions**: Writing async code that reads like synchronous code
+3. **Flow**: Kotlin's implementation of reactive streams
+4. **Channel**: Communication between coroutines
+5. **Exception handling**: SupervisorJob and CoroutineExceptionHandler
 
-## 참고
+## References
 
 - [Kotlin Coroutines Guide](https://kotlinlang.org/docs/coroutines-guide.html)
 - [Kotlin Flow](https://kotlinlang.org/docs/flow.html)

@@ -1,40 +1,42 @@
 # Module bluetape4k-spring-boot3
 
-Spring Boot 3 기반 공통 기능 통합 모듈입니다.
+English | [한국어](./README.ko.md)
 
-> 구 `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests` 모듈이 이 모듈로 통합되었습니다.
+An integrated module for common functionality based on Spring Boot 3.
 
-## 제공 기능
+> The former `spring/core`, `spring/webflux`, `spring/retrofit2`, and `spring/tests` modules have been consolidated into this single module.
 
-### Spring Core 유틸리티 (구 `spring/core`)
+## Features
 
-- BeanFactory 확장 함수
-- `ToStringCreator` 지원 유틸리티
-- Spring Boot AutoConfiguration 지원
-- Jakarta Annotation API 통합
+### Spring Core Utilities (formerly `spring/core`)
 
-### Spring WebFlux + Coroutines (구 `spring/webflux`)
+- BeanFactory extension functions
+- `ToStringCreator` support utilities
+- Spring Boot AutoConfiguration support
+- Jakarta Annotation API integration
 
-- Coroutines 기반 WebFlux 핸들러 유틸리티
-- `WebTestClient` 확장 함수
-- Reactor ↔ Coroutines 변환 지원
-- Netty 기반 HTTP 서버 통합
+### Spring WebFlux + Coroutines (formerly `spring/webflux`)
 
-### Retrofit2 통합 (구 `spring/retrofit2`)
+- Coroutines-based WebFlux handler utilities
+- `WebTestClient` extension functions
+- Reactor ↔ Coroutines conversion support
+- Netty-based HTTP server integration
 
-- Spring Boot + Retrofit2 자동 구성
-- OkHttp3 클라이언트 통합
-- Apache HttpClient5 통합
-- Coroutines suspend 함수 지원 (`retrofit2-adapter-java8`)
-- Jackson 직렬화/역직렬화 컨버터
+### Retrofit2 Integration (formerly `spring/retrofit2`)
 
-### 테스트 유틸리티 (구 `spring/tests`)
+- Spring Boot + Retrofit2 auto-configuration
+- OkHttp3 client integration
+- Apache HttpClient5 integration
+- Coroutines suspend function support (`retrofit2-adapter-java8`)
+- Jackson serialization/deserialization converters
 
-- Spring Boot Test 기반 통합 테스트 지원
-- `WebTestClient` 테스트 확장
-- Testcontainers 통합
+### Test Utilities (formerly `spring/tests`)
 
-## 설치
+- Spring Boot Test-based integration test support
+- `WebTestClient` test extensions
+- Testcontainers integration
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -42,36 +44,36 @@ dependencies {
 }
 ```
 
-서비스별 선택적 의존성:
+Optional service-specific dependencies:
 
 ```kotlin
 dependencies {
-    // Retrofit2 사용 시
+    // For Retrofit2 usage
     implementation("io.github.bluetape4k:bluetape4k-spring-boot3:${bluetape4kVersion}")
     runtimeOnly(Libs.retrofit2)
 
-    // Resilience4j 사용 시 (compileOnly이므로 런타임에 추가 필요)
+    // For Resilience4j usage (declared compileOnly, so add at runtime)
     implementation(Libs.resilience4j_all)
 }
 ```
 
-## 주요 의존성 구조
+## Key Dependency Structure
 
-| 범주                            | 의존 방식         | 설명                      |
-|-------------------------------|---------------|-------------------------|
-| `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines 필수 |
-| `bluetape4k-retrofit2`        | `api`         | Retrofit2 통합            |
-| `bluetape4k-coroutines`       | `api`         | Coroutines 지원           |
-| `bluetape4k-netty`            | `api`         | Netty 통합                |
-| `bluetape4k-micrometer`       | `api`         | 메트릭                     |
-| `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
-| `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
+| Category                        | Scope         | Description                      |
+|---------------------------------|---------------|----------------------------------|
+| `spring-boot-starter-webflux`   | `api`         | WebFlux + Coroutines (required)  |
+| `bluetape4k-retrofit2`          | `api`         | Retrofit2 integration            |
+| `bluetape4k-coroutines`         | `api`         | Coroutines support               |
+| `bluetape4k-netty`              | `api`         | Netty integration                |
+| `bluetape4k-micrometer`         | `api`         | Metrics                          |
+| `spring-boot-starter-web`       | `compileOnly` | Optional servlet support         |
+| `resilience4j-*`                | `compileOnly` | Optional Resilience4j            |
 
-## 사용 예시
+## Usage Examples
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 핵심 컴포넌트 클래스 다이어그램
+### Core Component Class Diagram
 
 ```mermaid
 classDiagram
@@ -105,15 +107,15 @@ classDiagram
     WebTestClientExt --> DispatcherHandler : test
 ```
 
-### Spring WebFlux + Coroutines 요청 흐름
+### Spring WebFlux + Coroutines Request Flow
 
 ```mermaid
 flowchart LR
-    Client["HTTP 클라이언트"] --> Netty["Netty HTTP 서버"]
+    Client["HTTP Client"] --> Netty["Netty HTTP Server"]
     Netty --> WebFlux["Spring WebFlux<br/>DispatcherHandler"]
-    WebFlux --> Handler["Coroutines 핸들러<br/>suspend fun / Flow"]
-    Handler --> Service["서비스 계층"]
-    Service --> DB[("데이터베이스 / 외부 API")]
+    WebFlux --> Handler["Coroutines Handler<br/>suspend fun / Flow"]
+    Handler --> Service["Service Layer"]
+    Service --> DB[("Database / External API")]
     DB --> Service
     Service --> Handler
     Handler --> WebFlux
@@ -121,31 +123,31 @@ flowchart LR
     Netty --> Client
 ```
 
-### Retrofit2 통합 구조
+### Retrofit2 Integration Structure
 
 ```mermaid
 flowchart TD
-    App["애플리케이션"] --> RetrofitBean["Retrofit Bean<br/>@Bean retrofit.create<T>()"]
+    App["Application"] --> RetrofitBean["Retrofit Bean<br/>@Bean retrofit.create<T>()"]
     RetrofitBean --> Retrofit2["Retrofit2"]
-    Retrofit2 --> OkHttp["OkHttp3 클라이언트"]
+    Retrofit2 --> OkHttp["OkHttp3 Client"]
     Retrofit2 --> HttpClient5["Apache HttpClient5"]
-    Retrofit2 --> Jackson["Jackson 직렬화/역직렬화"]
-    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>suspend 함수 지원"]
-    OkHttp --> ExternalAPI["외부 REST API"]
+    Retrofit2 --> Jackson["Jackson Serialization"]
+    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>suspend function support"]
+    OkHttp --> ExternalAPI["External REST API"]
     HttpClient5 --> ExternalAPI
 ```
 
-### WebTestClient 테스트 구조
+### WebTestClient Test Structure
 
 ```mermaid
 flowchart LR
-    Test["@SpringBootTest<br/>통합 테스트"] --> WTC["WebTestClient"]
-    WTC --> Controller["REST 컨트롤러<br/>Coroutines"]
-    Controller --> Service["서비스 계층"]
-    TC["Testcontainers<br/>DB / Redis 등"] -.->|"@DynamicPropertySource"| Test
+    Test["@SpringBootTest<br/>Integration Test"] --> WTC["WebTestClient"]
+    WTC --> Controller["REST Controller<br/>Coroutines"]
+    Controller --> Service["Service Layer"]
+    TC["Testcontainers<br/>DB / Redis etc."] -.->|"@DynamicPropertySource"| Test
 ```
 
-### WebFlux 컨트롤러 (Coroutines)
+### WebFlux Controller (Coroutines)
 
 ```kotlin
 import org.springframework.web.bind.annotation.*
@@ -164,7 +166,7 @@ class UserController(private val service: UserService) {
 }
 ```
 
-### Retrofit2 클라이언트 등록
+### Registering a Retrofit2 Client
 
 ```kotlin
 import retrofit2.Retrofit
@@ -179,14 +181,14 @@ class RetrofitConfig {
 }
 ```
 
-### WebTestClient 테스트
+### WebTestClient Test
 
 ```kotlin
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerTest(@Autowired val client: WebTestClient) {
 
     @Test
-    fun `사용자 목록 조회`() {
+    fun `fetch user list`() {
         client.get().uri("/users")
             .exchange()
             .expectStatus().isOk

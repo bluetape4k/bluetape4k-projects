@@ -1,40 +1,42 @@
 # Module bluetape4k-exposed-bigquery
 
-JetBrains Exposed DSL로 SQL을 생성하고 Google BigQuery REST API로 실행하는 모듈입니다. JDBC 드라이버 없이 `google-api-services-bigquery-v2`를 사용하며, H2(PostgreSQL 모드)를 SQL 생성 전용으로 사용합니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A module that generates SQL using JetBrains Exposed DSL and executes it via the Google BigQuery REST API. It uses `google-api-services-bigquery-v2` without a JDBC driver and employs H2 (PostgreSQL mode) solely for SQL generation.
 
-`bluetape4k-exposed-bigquery`는 다음을 제공합니다:
+## Overview
 
-- **BigQueryContext**: Exposed DSL → SQL(H2 PostgreSQL 모드) 변환 후 BigQuery REST API 실행
-  - SELECT, INSERT, UPDATE, DELETE, CREATE TABLE DDL 지원
-  - suspend/Flow 비동기 API 포함
-- **BigQueryQueryExecutor**: Exposed `Query` → BigQuery 실행, 페이지네이션 자동 처리
-- **BigQueryResultRow**: Column 참조로 타입 안전한 행 접근 (Long, BigDecimal, Instant 등)
-  - 컬럼 이름 조회 시 대소문자 무시
-  - `"null"` 문자열과 BigQuery null sentinel을 Kotlin `null`로 변환
-- **BigQueryDialect**: `PostgreSQLDialect` 상속, BigQuery 제약사항 override
+`bluetape4k-exposed-bigquery` provides:
 
-## 모듈 포지셔닝
+- **BigQueryContext**: Converts Exposed DSL to SQL (via H2 in PostgreSQL mode), then executes it against the BigQuery REST API
+  - Supports SELECT, INSERT, UPDATE, DELETE, and CREATE TABLE DDL
+  - Includes suspend/Flow async APIs
+- **BigQueryQueryExecutor**: Executes Exposed `Query` objects against BigQuery with automatic pagination
+- **BigQueryResultRow**: Type-safe row access via column references (Long, BigDecimal, Instant, etc.)
+  - Case-insensitive column name lookup
+  - Converts `"null"` strings and BigQuery null sentinels to Kotlin `null`
+- **BigQueryDialect**: Extends `PostgreSQLDialect` with BigQuery-specific overrides
 
-`bluetape4k-exposed-bigquery` 는 JDBC 드라이버 기반 ORM 모듈이 아닙니다. Exposed DSL을 SQL 생성기로 재사용하고, 실제 실행은 BigQuery REST API가 담당합니다.
+## Module Positioning
 
-- BigQuery REST API 실행이 필요하면 이 모듈을 사용합니다.
-- JDBC 트랜잭션 일관성이나 Trino connector 기반 실행이 필요하면 `bluetape4k-exposed-trino` 또는 후속 `exposed-bigquery-trino`을 사용해야 합니다.
-- `sqlGenDb` 는 SQL 문자열 생성 전용 내부 구현이며, 애플리케이션 데이터 저장소가 아닙니다.
+`bluetape4k-exposed-bigquery` is not a JDBC-driver-based ORM module. It reuses the Exposed DSL as a SQL generator while delegating actual execution to the BigQuery REST API.
 
-## 포지셔닝
+- Use this module when you need to execute queries via the BigQuery REST API.
+- For JDBC transaction consistency or Trino connector-based execution, use `bluetape4k-exposed-trino` or the upcoming `exposed-bigquery-trino`.
+- `sqlGenDb` is an internal implementation for SQL string generation only — it is not an application data store.
 
-| 지원 | 미지원 |
-|------|--------|
-| SELECT/filter/order/group/aggregate | DAO 완전 호환 |
-| INSERT/UPDATE/DELETE DML | JDBC 트랜잭션 의미론 |
-| CREATE TABLE DDL (타입 변환 포함) | `transaction {}` 원자성 / rollback |
-| 대용량 결과셋 (`pageToken` 자동 처리) | SchemaUtils 전체 자동화 |
-| suspend/Flow 비동기 API | SERIAL/SEQUENCE auto-increment |
-| Column 기반 타입 변환 | ALTER COLUMN TYPE |
+## Capabilities
 
-## 의존성 추가
+| Supported | Not Supported |
+|-----------|---------------|
+| SELECT/filter/order/group/aggregate | Full DAO compatibility |
+| INSERT/UPDATE/DELETE DML | JDBC transaction semantics |
+| CREATE TABLE DDL (with type mapping) | `transaction {}` atomicity / rollback |
+| Large result sets (automatic `pageToken` handling) | Full SchemaUtils automation |
+| suspend/Flow async API | SERIAL/SEQUENCE auto-increment |
+| Column-based type conversion | ALTER COLUMN TYPE |
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -42,15 +44,15 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. BigQueryContext 생성
+### 1. Creating a BigQueryContext
 
 ```kotlin
 import io.bluetape4k.exposed.bigquery.BigQueryContext
 import com.google.api.services.bigquery.Bigquery
 
-// 팩토리로 생성 (H2 sqlGenDb 자동 설정)
+// Create via factory (H2 sqlGenDb is configured automatically)
 val context = BigQueryContext.create(
     bigquery = bigqueryClient,
     projectId = "my-project",
@@ -58,11 +60,11 @@ val context = BigQueryContext.create(
 )
 ```
 
-### 2. SELECT 쿼리
+### 2. SELECT Queries
 
 ```kotlin
 with(context) {
-    // 동기
+    // Synchronous
     val rows = Events.selectAll()
         .where { Events.region eq "kr" }
         .withBigQuery()
@@ -71,20 +73,20 @@ with(context) {
     val region: String = rows[0][Events.region]
     val userId: Long   = rows[0][Events.userId]
 
-    // suspend
+    // Suspend
     val rows = Events.selectAll().withBigQuery().toListSuspending()
 
-    // Flow (대용량 결과셋)
+    // Flow (for large result sets)
     Events.selectAll().withBigQuery().toFlow().collect { row -> println(row) }
 }
 ```
 
-### 2.1 결과 소비 방식 선택
+### 2.1 Choosing a Result Consumption Strategy
 
 - `toList()` / `toListSuspending()`:
-  전체 결과를 메모리에 적재합니다. 중소 규모 조회, 단건/소량 후처리에 적합합니다.
+  Loads all results into memory. Suitable for small to medium result sets and single/batch post-processing.
 - `toFlow()`:
-  BigQuery `pageToken` 을 따라가며 페이지 단위로 조회 후 각 행을 순차 emit 합니다. 큰 결과셋을 다룰 때 권장합니다.
+  Follows BigQuery `pageToken` pagination and emits rows sequentially. Recommended for large result sets.
 
 ### 3. DML (INSERT / UPDATE / DELETE)
 
@@ -104,9 +106,9 @@ with(context) {
     // DELETE
     Events.execDelete(Events.region eq "us")
 
-    // suspend 버전
-    Events.execInsertSuspending { /* 삽입 로직 */ }
-    Events.execUpdateSuspending(where) { /* 업데이트 로직 */ }
+    // Suspend variants
+    Events.execInsertSuspending { /* insert logic */ }
+    Events.execUpdateSuspending(where) { /* update logic */ }
     Events.execDeleteSuspending(where)
 }
 ```
@@ -115,13 +117,13 @@ with(context) {
 
 ```kotlin
 with(context) {
-    // Exposed Table 정의에서 DDL 자동 생성 후 BigQuery에서 실행
-    // BIGINT → INT64, VARCHAR(n) → STRING, DECIMAL → NUMERIC 자동 변환
+    // Automatically generates DDL from the Exposed Table definition and executes it in BigQuery
+    // BIGINT → INT64, VARCHAR(n) → STRING, DECIMAL → NUMERIC are converted automatically
     Events.execCreateTable()
 }
 ```
 
-### 5. 원시 SQL
+### 5. Raw SQL
 
 ```kotlin
 with(context) {
@@ -130,31 +132,30 @@ with(context) {
 }
 ```
 
-## 타입 변환
+## Type Mapping
 
-BigQuery REST API 응답 → Kotlin 타입 변환:
+BigQuery REST API response → Kotlin type conversion:
 
-| BigQuery 타입 | Kotlin 타입 |
+| BigQuery Type | Kotlin Type |
 |--------------|------------|
 | INT64 | `Long` |
 | STRING | `String` |
 | NUMERIC | `BigDecimal` |
-| TIMESTAMP | `Instant` (초 단위 float 문자열 자동 변환) |
+| TIMESTAMP | `Instant` (auto-converted from float string in seconds) |
 | nullable | `null` |
 
-`BigQueryResultRow`는 입력 키와 조회 키를 모두 소문자로 정규화하므로 `row["REGION"]`, `row["region"]` 모두 동일하게 동작합니다.
-또한 nullable 컬럼에서 내려오는 `"null"` / `"NULL"` 문자열과 null sentinel 값은 Kotlin `null`로 처리합니다.
+`BigQueryResultRow` normalizes all keys to lowercase, so both `row["REGION"]` and `row["region"]` work identically. `"null"` / `"NULL"` strings and null sentinel values from nullable columns are treated as Kotlin `null`.
 
-## 트랜잭션 및 일관성 주의사항
+## Transaction and Consistency Notes
 
-이 모듈은 BigQuery REST API를 사용하므로 JDBC 트랜잭션 의미론을 제공하지 않습니다.
+This module uses the BigQuery REST API and does not provide JDBC transaction semantics.
 
-- `sqlGenDb` 에서 호출하는 `transaction {}` 는 SQL 문자열 생성용 Exposed 내부 구현입니다.
-- 실제 BigQuery 쓰기 작업은 REST API 호출 단위로 수행됩니다.
-- 여러 DML을 순차 호출할 때는 부분 반영 가능성을 애플리케이션에서 감안해야 합니다.
-- RDBMS 수준 rollback, savepoint, nested transaction 원자성은 기대하면 안 됩니다.
+- The `transaction {}` blocks called on `sqlGenDb` are internal Exposed implementations for SQL string generation only.
+- Actual BigQuery write operations are performed per REST API call.
+- When calling multiple DML operations sequentially, your application must account for the possibility of partial writes.
+- Do not expect RDBMS-level rollback, savepoints, or nested transaction atomicity.
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
 ```mermaid
 classDiagram
@@ -196,20 +197,20 @@ classDiagram
     BigQueryDialect --|> PostgreSQLDialect
 ```
 
-## 주요 파일/클래스 목록
+## Key Files / Classes
 
-| 파일 | 설명 |
-|------|------|
-| `BigQueryContext.kt` | SQL 생성 + BigQuery REST 실행 컨텍스트, DML/DDL 및 페이지 조회 공통 로직 포함 |
-| `BigQueryQueryExecutor.kt` | Exposed Query → BigQuery 실행기, 전체 적재/Flow 조회 API 제공 |
-| `BigQueryQueryExecutor.kt` (BigQueryResultRow) | Column 참조 타입 안전 행 접근 |
-| `dialect/BigQueryDialect.kt` | PostgreSQLDialect 상속 BigQuery 다이얼렉트 |
+| File | Description |
+|------|-------------|
+| `BigQueryContext.kt` | SQL generation + BigQuery REST execution context; includes common DML/DDL and paginated query logic |
+| `BigQueryQueryExecutor.kt` | Executes Exposed Query objects against BigQuery; provides full-load and Flow-based query APIs |
+| `BigQueryQueryExecutor.kt` (BigQueryResultRow) | Type-safe row access via column references |
+| `dialect/BigQueryDialect.kt` | BigQuery dialect extending PostgreSQLDialect |
 
-## 테스트
+## Testing
 
-BigQuery 에뮬레이터(`goccy/bigquery-emulator`) 기반 통합 테스트를 제공합니다.
+Integration tests are provided using the BigQuery emulator (`goccy/bigquery-emulator`).
 
-로컬 에뮬레이터를 직접 실행하면 Testcontainers 없이 빠르게 테스트할 수 있습니다:
+Running the local emulator directly allows you to test quickly without Testcontainers:
 
 ```bash
 brew install goccy/bigquery-emulator/bigquery-emulator
@@ -218,16 +219,16 @@ bigquery-emulator --project=test --dataset=testdb --port=9050
 ./gradlew :bluetape4k-exposed-bigquery:test
 ```
 
-에뮬레이터가 없으면 Testcontainers Docker 컨테이너가 자동 시작됩니다.
+If the emulator is not available, a Testcontainers Docker container starts automatically.
 
-회귀 테스트 예:
+Regression test examples:
 
 ```bash
 ./gradlew :bluetape4k-exposed-bigquery:test --tests "io.bluetape4k.exposed.bigquery.BigQueryResultRowTest"
 ./gradlew :bluetape4k-exposed-bigquery:test --tests "io.bluetape4k.exposed.bigquery.query.SelectQueryTest"
 ```
 
-## 참고
+## References
 
 - [Google BigQuery REST API](https://cloud.google.com/bigquery/docs/reference/rest)
 - [goccy/bigquery-emulator](https://github.com/goccy/bigquery-emulator)

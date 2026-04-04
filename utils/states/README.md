@@ -1,18 +1,20 @@
 # bluetape4k-states
 
-Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 및 코루틴 FSM을 모두 지원하며, Guard 조건과 StateFlow 기반 상태 관찰 기능을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 주요 특징
+A Kotlin DSL-based finite state machine (FSM) library. It supports both synchronous and coroutine-based FSMs, along with guard conditions and `StateFlow`-based state observation.
 
-- **타입 안전 DSL**: `stateMachine {}`, `suspendStateMachine {}` DSL로 간결하게 FSM 정의
-- **동기 FSM**: `AtomicReference` CAS 기반 Thread-Safe 상태 전이
-- **코루틴 FSM**: `Mutex` + `StateFlow` 기반 suspend 전이 및 상태 관찰
-- **Guard 조건**: 전이 전 조건 검증 지원
-- **clinic-appointment 패턴**: Map 기반 전이 + suspend 콜백 패턴 채택
+## Key Features
+
+- **Type-safe DSL**: concise FSM definitions with `stateMachine {}` and `suspendStateMachine {}`
+- **Synchronous FSM**: thread-safe state transitions based on `AtomicReference` CAS
+- **Coroutine FSM**: suspend transitions and state observation based on `Mutex` + `StateFlow`
+- **Guard conditions**: validate conditions before transitions
+- **clinic-appointment pattern**: adopts a map-based transition model plus suspend callback pattern
 
 ## Quick Start
 
-### 의존성
+### Dependency
 
 ```kotlin
 dependencies {
@@ -20,7 +22,7 @@ dependencies {
 }
 ```
 
-### 동기 FSM
+### Synchronous FSM
 
 ```kotlin
 val orderFsm = stateMachine<OrderState, OrderEvent> {
@@ -42,7 +44,7 @@ val result = orderFsm.transition(OrderEvent.Pay())
 // result.currentState == PAID
 ```
 
-### 코루틴 FSM
+### Coroutine FSM
 
 ```kotlin
 val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
@@ -53,18 +55,18 @@ val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
     transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
 
     onTransition { prev, event, next ->
-        println("상태 전이: $prev --> $next")
+        println("State transition: $prev --> $next")
     }
 }
 
-// StateFlow 관찰
-launch { suspendFsm.stateFlow.collect { state -> println("현재 상태: $state") } }
+// observe StateFlow
+launch { suspendFsm.stateFlow.collect { state -> println("Current state: $state") } }
 
-// suspend 전이
+// suspend transition
 val result = suspendFsm.transition(AppointmentEvent.Request())
 ```
 
-### Guard 조건
+### Guard Conditions
 
 ```kotlin
 val fsm = stateMachine<State, Event> {
@@ -76,9 +78,9 @@ val fsm = stateMachine<State, Event> {
 }
 ```
 
-## 인터페이스 계층
+## Interface Hierarchy
 
-### 클래스 다이어그램
+### Class Diagram
 
 ```mermaid
 classDiagram
@@ -156,11 +158,11 @@ classDiagram
     SuspendStateMachine ..> StateMachineException : throws
 ```
 
-> `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
+> `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common `BaseStateMachine`.
 
 ---
 
-### DSL 빌더 구조
+### DSL Builder Structure
 
 ```mermaid
 classDiagram
@@ -195,41 +197,41 @@ classDiagram
 
 ---
 
-## 상태 전이 다이어그램 예시
+## Example State Transition Diagrams
 
-### 1. 회전문 (Turnstile) — 단순 FSM
+### 1. Turnstile - Simple FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Locked : 초기 상태
+    [*] --> Locked : initial state
 
-    Locked --> Unlocked : Coin (동전 투입)
-    Unlocked --> Locked : Push (통과)
-    Locked --> Locked : Push (잠긴 상태에서 통과 시도)
-    Unlocked --> Unlocked : Coin (이미 열린 상태에서 동전 투입)
+    Locked --> Unlocked : Coin
+    Unlocked --> Locked : Push
+    Locked --> Locked : Push while locked
+    Unlocked --> Unlocked : Coin while already unlocked
 ```
 
-### 2. 주문 (Order) — 단방향 FSM
+### 2. Order - One-Way FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CREATED : 주문 생성
+    [*] --> CREATED : order created
 
-    CREATED --> PAID : Pay (결제)
-    CREATED --> CANCELLED : Cancel (취소)
-    PAID --> SHIPPED : Ship (배송 시작)
-    SHIPPED --> DELIVERED : Deliver (배송 완료)
+    CREATED --> PAID : Pay
+    CREATED --> CANCELLED : Cancel
+    PAID --> SHIPPED : Ship
+    SHIPPED --> DELIVERED : Deliver
 
     DELIVERED --> [*]
     CANCELLED --> [*]
 ```
 
-### 3. 예약 (Appointment) — 복잡한 FSM (clinic-appointment)
+### 3. Appointment - Complex FSM (`clinic-appointment`)
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> PENDING : 예약 생성
+    [*] --> PENDING : appointment created
 
     PENDING --> REQUESTED : Request
     PENDING --> CANCELLED : Cancel
@@ -260,9 +262,9 @@ stateDiagram-v2
 
 ---
 
-## 상태 전이 시퀀스 다이어그램
+## State Transition Sequence Diagrams
 
-### 동기 FSM 전이 흐름
+### Synchronous FSM Transition Flow
 
 ```mermaid
 sequenceDiagram
@@ -275,26 +277,26 @@ sequenceDiagram
     Caller->>DefaultStateMachine: transition(event)
     DefaultStateMachine->>AtomicReference: get() → previousState
     DefaultStateMachine->>DefaultStateMachine: finalStates.contains(previousState)?
-    alt 최종 상태
+    alt final state
         DefaultStateMachine-->>Caller: throw StateMachineException
     end
     DefaultStateMachine->>TransitionMap: get(TransitionKey(previousState, event::class))
-    alt 전이 없음
+    alt no transition
         DefaultStateMachine-->>Caller: throw StateMachineException
     end
     DefaultStateMachine->>DefaultStateMachine: guard?.invoke(previousState, event)?
-    alt Guard 실패
+    alt guard failed
         DefaultStateMachine-->>Caller: throw StateMachineException
     end
     DefaultStateMachine->>AtomicReference: compareAndSet(previousState, nextState)
-    alt CAS 실패 (동시 전이 충돌)
+    alt CAS failure (concurrent transition conflict)
         DefaultStateMachine-->>Caller: throw StateMachineException
     end
     DefaultStateMachine->>OnTransitionCallback: invoke(previous, event, next)
     DefaultStateMachine-->>Caller: TransitionResult(previous, event, next)
 ```
 
-### 코루틴 FSM 전이 흐름 (SuspendStateMachine)
+### Coroutine FSM Transition Flow (`SuspendStateMachine`)
 
 ```mermaid
 sequenceDiagram
@@ -306,20 +308,20 @@ sequenceDiagram
 
     Caller->>SuspendStateMachine: transition(event) [suspend]
     SuspendStateMachine->>Mutex: withLock { ... }
-    Note over Mutex: 동시 전이 직렬화
+    Note over Mutex: concurrent transitions are serialized
 
     Mutex->>MutableStateFlow: value → previousState
-    SuspendStateMachine->>SuspendStateMachine: finalStates / transitions 검증
-    SuspendStateMachine->>SuspendStateMachine: guard 조건 확인
+    SuspendStateMachine->>SuspendStateMachine: validate finalStates / transitions
+    SuspendStateMachine->>SuspendStateMachine: check guard condition
     SuspendStateMachine->>MutableStateFlow: value = nextState
-    Note over MutableStateFlow: StateFlow 구독자에게 자동 방출
+    Note over MutableStateFlow: automatically emitted to StateFlow subscribers
     SuspendStateMachine->>OnTransitionCallback: invoke(previous, event, next)
     SuspendStateMachine-->>Caller: TransitionResult(previous, event, next)
 ```
 
 ---
 
-## 패키지 구조
+## Package Structure
 
 ```mermaid
 graph TD
@@ -341,11 +343,11 @@ graph TD
     COR --> SSM[SuspendStateMachine.kt]
 ```
 
-## clinic-appointment 마이그레이션 가이드
+## `clinic-appointment` Migration Guide
 
-기존 `AppointmentStateMachine` (Map 기반 직접 구현)을 `suspendStateMachine` DSL로 대체할 수 있습니다:
+An existing `AppointmentStateMachine` implemented directly with maps can be replaced with the `suspendStateMachine` DSL:
 
-**Before** (직접 구현):
+**Before** (direct implementation):
 ```kotlin
 class AppointmentStateMachine {
     private val transitions: Map<Pair<State, Class<out Event>>, State> = buildMap { ... }
@@ -361,20 +363,20 @@ val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
 
     transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
     transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
-    // ... 나머지 전이 등록
+    // ... register the remaining transitions
 }
 
-// 사용
+// usage
 val result = fsm.transition(AppointmentEvent.Request())
 println(result.currentState) // REQUESTED
 
-// StateFlow 관찰 (신규 기능)
+// observe StateFlow (new feature)
 launch { fsm.stateFlow.collect { state -> updateUI(state) } }
 ```
 
-**개선점**:
-- 상태와 전이를 DSL로 선언적 정의
-- `StateFlow` 기반 상태 관찰 내장
-- Guard 조건 지원
-- `TransitionResult`로 전이 이력 추적
-- `Mutex` 기반 동시성 안전 보장
+**Improvements**:
+- declarative definition of states and transitions through DSL
+- built-in state observation through `StateFlow`
+- support for guard conditions
+- transition-history tracking through `TransitionResult`
+- concurrency safety guaranteed by `Mutex`

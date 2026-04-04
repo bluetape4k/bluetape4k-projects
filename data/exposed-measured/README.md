@@ -1,9 +1,10 @@
 # Module bluetape4k-exposed-measured
 
-Exposed에서 `bluetape4k-measured` 타입(`Measure<T>`, `Temperature`, `TemperatureDelta`)을
-`DOUBLE` 컬럼으로 저장/조회하기 위한 Custom ColumnType 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 지원 컬럼
+A custom ColumnType module for storing and retrieving `bluetape4k-measured` types (`Measure<T>`, `Temperature`, `TemperatureDelta`) as `DOUBLE` columns in Exposed.
+
+## Supported Columns
 
 - `measure(name, baseUnit)`
 - `length(name)`, `mass(name)`, `area(name)`, `volume(name)`
@@ -11,7 +12,7 @@ Exposed에서 `bluetape4k-measured` 타입(`Measure<T>`, `Temperature`, `Tempera
 - `energy(name)`, `power(name)`
 - `temperature(name)`, `temperatureDelta(name)`
 
-## 예제
+## Example
 
 ```kotlin
 object ProductTable: Table("products") {
@@ -22,7 +23,7 @@ object ProductTable: Table("products") {
 }
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -74,15 +75,15 @@ classDiagram
     TemperatureColumnType ..> Temperature : stores as Kelvin DOUBLE
 ```
 
-## 쿼리 실행 흐름
+## Query Execution Flow
 
 ```mermaid
 flowchart LR
-    A[SQL 쿼리 실행] --> B{MeasuredTransaction}
-    B --> C[Micrometer Timer 시작]
-    C --> D[실제 DB 쿼리]
-    D --> E[Timer 종료 + 태그 기록]
-    E --> F[결과 반환]
+    A[SQL query executed] --> B{MeasuredTransaction}
+    B --> C[Start Micrometer Timer]
+    C --> D[Actual DB query]
+    D --> E[Stop Timer + record tags]
+    E --> F[Return result]
 
     style A fill:#607D8B
     style B fill:#9C27B0
@@ -92,21 +93,21 @@ flowchart LR
     style F fill:#4CAF50
 ```
 
-## 저장/조회 시퀀스 다이어그램
+## Storage / Retrieval Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Col as MeasureColumnType~Length~
     participant DB as Database
 
-    Note over App,DB: 저장 — 기준 단위(meter)로 변환하여 DOUBLE 저장
+    Note over App,DB: Store — converts to base unit (meters) and saves as DOUBLE
     App->>Col: insert { it[width] = 1500.millimeters() }
     Col->>Col: notNullValueToDB(value in Length.meters)
-    Note over Col: Measure(1500mm) → 1.5 (meter 기준)
+    Note over Col: Measure(1500mm) → 1.5 (in meters)
     Col->>DB: INSERT ... VALUES (1.5)
 
-    Note over App,DB: 조회 — DOUBLE을 Measure 타입으로 복원
+    Note over App,DB: Retrieve — restores DOUBLE back to Measure type
     App->>DB: SELECT width FROM products WHERE id = 1
     DB-->>Col: 1.5 (Double)
     Col->>Col: fromBaseValue(1.5) → Measure(1.5, meters)

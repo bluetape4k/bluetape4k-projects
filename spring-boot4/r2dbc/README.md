@@ -1,16 +1,18 @@
 # Module bluetape4k-spring-boot4-r2dbc
 
-Spring Data R2DBC를 Kotlin Coroutines 기반으로 사용하기 편하게 확장한 라이브러리입니다 (Spring Boot 4.x).
+English | [한국어](./README.ko.md)
 
-> Spring Boot 3 모듈(`bluetape4k-spring-r2dbc`)과 동일한 기능을 Spring Boot 4.x API로 제공합니다.
+An extension library that makes Spring Data R2DBC easier to use with Kotlin Coroutines (Spring Boot 4.x).
 
-## 주요 기능
+> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-r2dbc`), adapted to the Spring Boot 4.x API.
 
-- **R2dbcEntityOperations 확장**: 코루틴 기반 CRUD 연산
-- **ReactiveInsert/Update/Delete/Select 확장**: 타입 안전한 코루틴 연산
-- **네이밍 규칙**: `XyzSuspending` 형식의 일관된 함수명
+## Key Features
 
-## 설치
+- **R2dbcEntityOperations extensions**: Coroutines-based CRUD operations
+- **ReactiveInsert/Update/Delete/Select extensions**: Type-safe coroutine operations
+- **Naming convention**: Consistent `XyzSuspending` function naming
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -18,9 +20,9 @@ dependencies {
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### R2dbcEntityOperations 확장
+### R2dbcEntityOperations Extensions
 
 ```kotlin
 import io.bluetape4k.spring4.r2dbc.coroutines.*
@@ -52,7 +54,7 @@ class PostService(private val operations: R2dbcEntityOperations) {
 }
 ```
 
-### Repository 예시
+### Repository Example
 
 ```kotlin
 @Table("posts")
@@ -83,35 +85,35 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 }
 ```
 
-### 네이밍 규칙
+### Naming Convention
 
-코루틴 함수는 `XyzSuspending` 형식으로 제공됩니다.
+Coroutine functions follow the `XyzSuspending` naming pattern.
 
-| 함수                                    | 반환 타입     | 설명                   |
-|---------------------------------------|-----------|----------------------|
-| `findOneByIdSuspending<T>(id)`        | `T`       | ID로 단건 조회            |
-| `findOneByIdOrNullSuspending<T>(id)`  | `T?`      | ID로 단건 조회 (없으면 null) |
-| `selectAllSuspending<T>()`            | `Flow<T>` | 전체 조회                |
-| `selectSuspending<T>(query)`          | `Flow<T>` | 조건 조회                |
-| `selectOneSuspending<T>(query)`       | `T`       | 단건 조회                |
-| `selectOneOrNullSuspending<T>(query)` | `T?`      | 단건 조회 (없으면 null)     |
-| `insertSuspending(entity)`            | `T`       | 삽입                   |
-| `updateSuspending<T>(query, update)`  | `Int`     | 업데이트                 |
-| `deleteSuspending<T>(query)`          | `Int`     | 삭제                   |
-| `deleteAllSuspending<T>()`            | `Int`     | 전체 삭제                |
-| `countAllSuspending<T>()`             | `Long`    | 전체 건수                |
-| `countSuspending<T>(query)`           | `Long`    | 조건부 건수               |
-| `existsSuspending<T>(query)`          | `Boolean` | 존재 여부                |
+| Function                                | Return Type | Description                         |
+|----------------------------------------|-------------|-------------------------------------|
+| `findOneByIdSuspending<T>(id)`         | `T`         | Find by ID                          |
+| `findOneByIdOrNullSuspending<T>(id)`   | `T?`        | Find by ID (null if not found)      |
+| `selectAllSuspending<T>()`             | `Flow<T>`   | Select all records                  |
+| `selectSuspending<T>(query)`           | `Flow<T>`   | Select by query                     |
+| `selectOneSuspending<T>(query)`        | `T`         | Select single record                |
+| `selectOneOrNullSuspending<T>(query)`  | `T?`        | Select single record (null if none) |
+| `insertSuspending(entity)`             | `T`         | Insert                              |
+| `updateSuspending<T>(query, update)`   | `Int`       | Update                              |
+| `deleteSuspending<T>(query)`           | `Int`       | Delete                              |
+| `deleteAllSuspending<T>()`             | `Int`       | Delete all                          |
+| `countAllSuspending<T>()`              | `Long`      | Total count                         |
+| `countSuspending<T>(query)`            | `Long`      | Conditional count                   |
+| `existsSuspending<T>(query)`           | `Boolean`   | Check existence                     |
 
-## 빌드 및 테스트
+## Build and Test
 
 ```bash
 ./gradlew :bluetape4k-spring-boot4-r2dbc:test
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 핵심 클래스 구조
+### Core Class Structure
 
 ```mermaid
 classDiagram
@@ -154,24 +156,24 @@ classDiagram
     R2dbcConfig --> PostRepository : inject
 ```
 
-### R2DBC + Coroutines 데이터 흐름
+### R2DBC + Coroutines Data Flow
 
 ```mermaid
 flowchart TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(XyzSuspending / Flow)"]
+    App["Application Code"] --> Ext["Coroutine Extension Functions<br/>(XyzSuspending / Flow)"]
     Ext --> ROps["R2dbcEntityOperations"]
     ROps --> R2DBC["Spring Data R2DBC"]
     R2DBC --> Driver["R2DBC Driver<br/>(H2 / PostgreSQL / MySQL)"]
-    Driver --> DB[("관계형 데이터베이스")]
+    Driver --> DB[("Relational Database")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
 ```
 
-### CRUD 연산 계층 구조
+### CRUD Operation Hierarchy
 
 ```mermaid
 flowchart LR
-    Service["서비스 / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
+    Service["Service / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
     Service --> Insert["insertSuspending(entity)<br/>insertOrNullSuspending(entity)"]
     Service --> Update["updateSuspending(query, update)"]
     Service --> Delete["deleteSuspending(query)<br/>deleteAllSuspending()"]
@@ -181,34 +183,34 @@ flowchart LR
     Update --> ROps
     Delete --> ROps
     Count --> ROps
-    ROps --> DB[("데이터베이스")]
+    ROps --> DB[("Database")]
 ```
 
-### 코루틴 변환 시퀀스
+### Coroutine Conversion Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as XyzSuspending 확장
+    participant App as Application
+    participant Ext as XyzSuspending Extension
     participant Ops as R2dbcEntityOperations
-    participant DB as 데이터베이스
+    participant DB as Database
 
     App->>Ext: findOneByIdOrNullSuspending<Post>(id)
     Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
     Ops->>DB: SELECT * FROM posts WHERE id=?
-    DB-->>Ops: 행 데이터
+    DB-->>Ops: Row data
     Ops-->>Ext: Mono<Post>
-    Ext-->>App: Post? (suspend 반환)
+    Ext-->>App: Post? (suspend return)
 
     App->>Ext: selectAllSuspending<Post>()
     Ext->>Ops: select(Post::class) → Flux<Post>
     Ops->>DB: SELECT * FROM posts
-    DB-->>Ops: 행 스트림
+    DB-->>Ops: Row stream
     Ops-->>Ext: Flux<Post>
-    Ext-->>App: Flow<Post> (코루틴 스트림)
+    Ext-->>App: Flow<Post> (coroutine stream)
 ```
 
-## 참고
+## References
 
-- [Spring Data R2DBC 공식 문서](https://docs.spring.io/spring-data/r2dbc/reference/)
+- [Spring Data R2DBC Official Documentation](https://docs.spring.io/spring-data/r2dbc/reference/)
 - [Kotlin Coroutines Support](https://docs.spring.io/spring-framework/reference/languages/kotlin/coroutines.html)

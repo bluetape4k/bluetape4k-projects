@@ -1,8 +1,10 @@
 # Module bluetape4k-exposed-mysql8
 
-MySQL 8.0+ 공간 데이터(GIS)를 JetBrains Exposed ORM에서 사용할 수 있게 해주는 모듈입니다.
+English | [한국어](./README.ko.md)
 
-JTS(Java Topology Suite)를 사용하여 8가지 geometry 타입을 지원하며, 거리 계산, 공간 관계(포함, 교차 등), 넓이/길이 측정 등의 공간 함수를 제공합니다.
+A module that enables MySQL 8.0+ spatial data (GIS) in JetBrains Exposed ORM.
+
+It supports 8 geometry types using JTS (Java Topology Suite) and provides spatial functions for distance calculation, spatial relationships (containment, intersection, etc.), and area/length measurements.
 
 ## UML
 
@@ -30,7 +32,7 @@ classDiagram
     GeometryColumnType <|-- GeoGeometryColumnType
 ```
 
-## 확장 함수 다이어그램
+## Extension Function Diagram
 
 ```mermaid
 classDiagram
@@ -54,30 +56,30 @@ classDiagram
 
 ```
 
-## 개요
+## Overview
 
-- **Geometry 타입**: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (기본)
-- **좌표계**: WGS84 (SRID 4326) 기본값
-- **공간 함수**: 9개 관계 함수 + 4개 측정 함수 + 3개 속성 함수
-- **MySQL 전용**: `MysqlDialect` 사용 시에만 동작
-- **직렬화 경로**:
-  - PreparedStatement 바인딩은 MySQL Internal Format (`4byte SRID LE + WKB`) 사용
-  - SQL literal 경로는 `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')` 사용
+- **Geometry types**: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (generic)
+- **Coordinate system**: WGS84 (SRID 4326) by default
+- **Spatial functions**: 9 relationship functions + 4 measurement functions + 3 property functions
+- **MySQL only**: Works exclusively with `MysqlDialect`
+- **Serialization path**:
+  - PreparedStatement binding uses MySQL Internal Format (`4-byte SRID LE + WKB`)
+  - SQL literal path uses `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')`
 
-## 지원하는 Geometry 타입
+## Supported Geometry Types
 
-| 타입 | JTS 클래스 | 설명 |
-|------|-----------|------|
-| POINT | `Point` | 단일 좌표 |
-| LINESTRING | `LineString` | 선분 |
-| POLYGON | `Polygon` | 폐곡선 영역 |
-| MULTIPOINT | `MultiPoint` | 다중 점 |
-| MULTILINESTRING | `MultiLineString` | 다중 선분 |
-| MULTIPOLYGON | `MultiPolygon` | 다중 폐곡선 영역 |
-| GEOMETRYCOLLECTION | `GeometryCollection` | 혼합 geometry 컬렉션 |
-| GEOMETRY | `Geometry` | 범용(모든 타입 허용) |
+| Type | JTS Class | Description |
+|------|-----------|-------------|
+| POINT | `Point` | Single coordinate |
+| LINESTRING | `LineString` | Line segment |
+| POLYGON | `Polygon` | Closed area |
+| MULTIPOINT | `MultiPoint` | Multiple points |
+| MULTILINESTRING | `MultiLineString` | Multiple line segments |
+| MULTIPOLYGON | `MultiPolygon` | Multiple closed areas |
+| GEOMETRYCOLLECTION | `GeometryCollection` | Mixed geometry collection |
+| GEOMETRY | `Geometry` | Generic (any type) |
 
-## Table 확장 함수
+## Table Extension Functions
 
 ```kotlin
 object Locations : LongIdTable("locations") {
@@ -89,35 +91,35 @@ object Locations : LongIdTable("locations") {
     val path = geoMultiLineString("path")           // MULTILINESTRING
     val zones = geoMultiPolygon("zones")            // MULTIPOLYGON
     val collection = geoGeometryCollection("coll")  // GEOMETRYCOLLECTION
-    val geom = geoGeometry("geom")                  // GEOMETRY (범용)
+    val geom = geoGeometry("geom")                  // GEOMETRY (generic)
 }
 ```
 
-모든 확장 함수는 기본 SRID 4326(WGS84)을 사용합니다. 다른 SRID가 필요한 경우 두 번째 인자로 명시할 수 있습니다.
+All extension functions use SRID 4326 (WGS84) by default. You can specify a different SRID as the second argument.
 
 ```kotlin
 val point = geoPoint("location", srid = 3857)  // Web Mercator
 ```
 
-## WGS84 좌표 생성 헬퍼
+## WGS84 Coordinate Helpers
 
-**좌표 순서 규약**: longitude(경도, X축) 먼저, latitude(위도, Y축) 두 번째
+**Coordinate order convention**: longitude (X-axis) first, latitude (Y-axis) second
 
 ```kotlin
 // Point
 val seoul = wgs84Point(lng = 126.9780, lat = 37.5665)
 val busan = wgs84Point(lng = 129.0756, lat = 35.1796)
 
-// Polygon (자동으로 닫힘 — 첫 좌표 = 마지막 좌표)
+// Polygon (auto-closed — first coordinate equals last coordinate)
 val korea = wgs84Polygon(
     126.0 to 37.0,
     129.0 to 37.0,
     129.0 to 33.0,
     126.0 to 33.0,
-    126.0 to 37.0  // 또는 자동 닫힘
+    126.0 to 37.0  // or auto-closed
 )
 
-// 직사각형 Polygon
+// Rectangular Polygon
 val area = wgs84Rectangle(
     minLng = 126.0, minLat = 37.0,
     maxLng = 128.0, maxLat = 38.0
@@ -125,9 +127,9 @@ val area = wgs84Rectangle(
 
 // LineString
 val route = wgs84LineString(
-    126.9780 to 37.5665,  // 서울
-    127.1086 to 37.2171,  // 경기도
-    127.1086 to 36.4405   // 충청도
+    126.9780 to 37.5665,  // Seoul
+    127.1086 to 37.2171,  // Gyeonggi
+    127.1086 to 36.4405   // Chungcheong
 )
 
 // MultiPoint, MultiLineString, MultiPolygon
@@ -136,198 +138,198 @@ val lines = wgs84MultiLineString(route1, route2)
 val areas = wgs84MultiPolygon(area1, area2)
 ```
 
-## 공간 관계 함수
+## Spatial Relationship Functions
 
-9가지 공간 술어(predicate) 함수를 제공합니다. 모두 `Op<Boolean>`을 반환하여 WHERE 절에서 사용할 수 있습니다.
+Nine spatial predicate functions are provided. All return `Op<Boolean>` and can be used in WHERE clauses.
 
 ```kotlin
-// ST_Contains — A가 B를 완전히 포함하는가?
+// ST_Contains — Does A fully contain B?
 Locations.selectAll()
     .where { Locations.area.stContains(Locations.point) }
     .toList()
 
-// ST_Within — A가 B 내부에 있는가?
+// ST_Within — Is A inside B?
 Locations.selectAll()
     .where { Locations.point.stWithin(Locations.area) }
     .toList()
 
-// ST_Intersects — A와 B가 교차하는가? (포함 포함)
+// ST_Intersects — Do A and B intersect? (includes containment)
 Locations.selectAll()
     .where { Locations.area.stIntersects(otherGeom) }
     .toList()
 
-// ST_Disjoint — A와 B가 완전히 분리되어 있는가?
+// ST_Disjoint — Are A and B completely separate?
 Locations.selectAll()
     .where { Locations.point.stDisjoint(otherPoint) }
     .toList()
 
-// ST_Overlaps — A와 B가 부분적으로 겹치는가? (완전 포함 제외)
+// ST_Overlaps — Do A and B partially overlap? (excludes full containment)
 Locations.selectAll()
     .where { Locations.area.stOverlaps(otherArea) }
     .toList()
 
-// ST_Touches — A와 B가 경계에서만 접촉하는가?
+// ST_Touches — Do A and B touch only at their boundaries?
 Locations.selectAll()
     .where { Locations.line.stTouches(otherLine) }
     .toList()
 
-// ST_Crosses — A가 B를 교차하는가? (선과 면의 교차 판정)
+// ST_Crosses — Does A cross B? (e.g., a line crossing a polygon)
 Locations.selectAll()
     .where { Locations.line.stCrosses(otherLine) }
     .toList()
 
-// ST_Equals — A와 B가 동일한가?
+// ST_Equals — Are A and B geometrically equal?
 Locations.selectAll()
     .where { Locations.point.stEquals(otherPoint) }
     .toList()
 
-// ST_DWithin — A가 B로부터 distance(미터) 이내에 있는가?
+// ST_DWithin — Is A within distance (meters) of B?
 Locations.selectAll()
     .where { Locations.point.stDWithin(otherPoint, distance = 5_000.0) }
     .toList()
 ```
 
-## 공간 측정 함수
+## Spatial Measurement Functions
 
-거리, 길이, 넓이를 계산하는 함수들입니다. 모두 `Expression<Double>`을 반환합니다.
+Functions for computing distances, lengths, and areas. All return `Expression<Double>`.
 
 ```kotlin
-// ST_Distance — 두 geometry 간의 평면 거리 (미터, SRID 4326)
+// ST_Distance — Planar distance between two geometries (meters, SRID 4326)
 val distExpr = Locations.point1.stDistance(Locations.point2)
 val distance = Locations.select(distExpr).single()[distExpr]  // Double
 
-// ST_Distance_Sphere — 두 geometry 간의 구면 거리 (미터, 지구 곡면 고려)
+// ST_Distance_Sphere — Spherical distance (meters, accounts for Earth's curvature)
 val distSpherExpr = Locations.point1.stDistanceSphere(Locations.point2)
 val distSphere = Locations.select(distSpherExpr).single()[distSpherExpr]  // Double
 
-// ST_Length — LineString 또는 MultiLineString의 길이 (미터)
+// ST_Length — Length of a LineString or MultiLineString (meters)
 val lengthExpr = Locations.line.stLength()
 val length = Locations.select(lengthExpr).single()[lengthExpr]  // Double
 
-// ST_Area — Polygon 또는 MultiPolygon의 넓이 (제곱미터)
+// ST_Area — Area of a Polygon or MultiPolygon (square meters)
 val areaExpr = Locations.area.stArea()
 val area = Locations.select(areaExpr).single()[areaExpr]  // Double
 ```
 
-## 공간 속성 함수
+## Spatial Property Functions
 
-Geometry의 메타데이터를 반환하는 함수들입니다.
+Functions that return geometry metadata.
 
 ```kotlin
-// ST_AsText — WKT(Well-Known Text) 문자열
+// ST_AsText — WKT (Well-Known Text) string
 val textExpr = Locations.point.stAsText()
-val text = Locations.select(textExpr).single()[textExpr]  // String, e.g. "POINT(126.978 37.5665)"
+val text = Locations.select(textExpr).single()[textExpr]  // e.g. "POINT(126.978 37.5665)"
 
-// ST_SRID — SRID 값 반환
+// ST_SRID — Returns the SRID value
 val sridExpr = Locations.point.stSrid()
-val srid = Locations.select(sridExpr).single()[sridExpr]  // Int, e.g. 4326
+val srid = Locations.select(sridExpr).single()[sridExpr]  // e.g. 4326
 
-// ST_GeometryType — Geometry 타입명 반환
+// ST_GeometryType — Returns the geometry type name
 val typeExpr = Locations.point.stGeometryType()
-val typeName = Locations.select(typeExpr).single()[typeExpr]  // String, e.g. "POINT"
+val typeName = Locations.select(typeExpr).single()[typeExpr]  // e.g. "POINT"
 ```
 
-## 사용 예제
+## Usage Examples
 
-### 기본 CRUD
+### Basic CRUD
 
 ```kotlin
 transaction(db) {
-    // 생성
+    // Create
     Locations.insert {
-        it[name] = "서울"
+        it[name] = "Seoul"
         it[point] = wgs84Point(lng = 126.9780, lat = 37.5665)
         it[area] = wgs84Rectangle(126.0, 37.0, 127.5, 38.0)
     }
 
-    // 조회
+    // Read
     Locations.selectAll()
-        .where { Locations.name eq "서울" }
+        .where { Locations.name eq "Seoul" }
         .singleOrNull()
 
-    // 수정
-    Locations.update({ Locations.name eq "서울" }) {
+    // Update
+    Locations.update({ Locations.name eq "Seoul" }) {
         it[point] = wgs84Point(126.9780, 37.5665)
     }
 
-    // 삭제
-    Locations.deleteWhere { name eq "서울" }
+    // Delete
+    Locations.deleteWhere { name eq "Seoul" }
 }
 ```
 
-### 공간 조건으로 필터링
+### Filtering by Spatial Condition
 
 ```kotlin
 transaction(db) {
     val zone = wgs84Rectangle(126.0, 37.0, 127.0, 38.0)
 
-    // zone 내의 모든 포인트 조회
+    // Find all points within the zone
     val pointsInZone = Locations.selectAll()
         .where { Locations.point.stWithin(zone) }
         .toList()
 
-    // zone과 겹치는 모든 영역 조회
+    // Find all areas overlapping the zone
     val overlappingAreas = Locations.selectAll()
         .where { Locations.area.stIntersects(zone) }
         .toList()
 }
 ```
 
-### 거리 기반 검색
+### Distance-Based Search
 
 ```kotlin
 transaction(db) {
     val myLocation = wgs84Point(126.9780, 37.5665)
 
-    // 내 위치로부터 5km 이내의 장소들
+    // Places within 5km of my location
     val nearby = Locations.selectAll()
         .where { Locations.point.stDWithin(myLocation, distance = 5_000.0) }
         .toList()
 }
 ```
 
-### 거리 정렬
+### Sorting by Distance
 
 ```kotlin
 transaction(db) {
     val myLocation = wgs84Point(126.9780, 37.5665)
     val distExpr = Locations.point.stDistance(myLocation)
 
-    // 거리 순 정렬
+    // Sort by distance
     val sorted = Locations.select(Locations.id, Locations.name, distExpr)
         .orderBy(distExpr to SortOrder.ASC)
         .toList()
 
     sorted.forEach { row ->
         val distance = row[distExpr]
-        println("장소: ${row[Locations.name]}, 거리: ${distance.toInt()}m")
+        println("Place: ${row[Locations.name]}, Distance: ${distance.toInt()}m")
     }
 }
 ```
 
-### 넓이 계산
+### Area Calculation
 
 ```kotlin
 transaction(db) {
     val areas = Locations.select(Locations.name, Locations.area.stArea())
         .map { row ->
             val areaValue = row[Locations.area.stArea()]  // m²
-            Pair(row[Locations.name], areaValue / 1_000_000)  // km²로 변환
+            Pair(row[Locations.name], areaValue / 1_000_000)  // Convert to km²
         }
 }
 ```
 
-## 테이블 선언 주의사항
+## Table Declaration Notes
 
-Geometry 컬럼을 포함한 테이블은 **반드시 트랜잭션 내에서만** 인스턴스화되어야 합니다.
+Tables with geometry columns **must only be instantiated inside a transaction**.
 
 ```kotlin
-// ❌ 금지 — object 선언 불가 (dialect 체크가 컴파일 타임에 수행)
+// ❌ Prohibited — cannot use object declaration (dialect check runs at instantiation time)
 object Locations : LongIdTable("locations") {
     val point = geoPoint("point")  // IllegalStateException!
 }
 
-// ✅ 올바름 — 트랜잭션 내에서 class로 선언
+// ✅ Correct — declare as a class and instantiate inside a transaction
 class Locations : LongIdTable("locations") {
     val point = geoPoint("point")
 }
@@ -335,61 +337,61 @@ class Locations : LongIdTable("locations") {
 transaction(db) {
     val table = Locations()
     SchemaUtils.create(table)
-    // 사용...
+    // use...
 }
 ```
 
-## 기술 요건
+## Technical Requirements
 
-| 항목 | 버전 |
-|------|------|
+| Item | Version |
+|------|---------|
 | **MySQL** | 8.0+ (Testcontainers: `mysql:8.0`) |
-| **JTS Core** | 1.20.0 이상 |
-| **Exposed** | v1 (Jetbrains) |
-| **SRID** | 4326 (WGS84, 기본값) |
+| **JTS Core** | 1.20.0 or later |
+| **Exposed** | v1 (JetBrains) |
+| **SRID** | 4326 (WGS84, default) |
 
-## 의존성
+## Dependency
 
 ```kotlin
 testImplementation(project(":bluetape4k-exposed-mysql8"))
 ```
 
-모듈이 제공하는 의존성:
+Dependencies provided by this module:
 - `org.jetbrains.exposed:exposed-core`
 - `org.jetbrains.exposed:exposed-dao`
 - `org.jetbrains.exposed:exposed-jdbc`
 - `org.locationtech.jts:jts-core`
 
-## 주의사항
+## Notes
 
-### MySQL Dialect 전용
+### MySQL Dialect Only
 
-모든 확장 함수는 `MysqlDialect` 사용 시에만 동작합니다. 다른 DBMS에서 호출 시 `IllegalStateException`이 발생합니다.
+All extension functions work exclusively with `MysqlDialect`. Calling them with any other DBMS will throw an `IllegalStateException`.
 
 ```kotlin
-// PostgreSQL 등에서 사용 불가
-val point = geoPoint("location")  // IllegalStateException: geoPoint는 MySQL dialect에서만 지원됩니다.
+// Cannot use with PostgreSQL or other databases
+val point = geoPoint("location")  // IllegalStateException: geoPoint is only supported with MySQL dialect
 ```
 
-### 미지원 함수
+### Unsupported Functions
 
-MySQL의 `ST_Centroid()`, `ST_Envelope()` 등 일부 공간 함수는 geographic SRID(4326)에서 `ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` 오류를 발생시킵니다. 이 모듈은 이러한 함수를 제공하지 않습니다.
+Some MySQL spatial functions such as `ST_Centroid()` and `ST_Envelope()` throw `ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` when used with a geographic SRID (4326). This module does not expose those functions.
 
-### 좌표 순서
+### Coordinate Order
 
-WGS84(SRID 4326)은 axis-order가 **longitude-latitude(경도-위도)**입니다. 모든 헬퍼 함수는 이 순서를 따릅니다.
+WGS84 (SRID 4326) uses **longitude-latitude** axis order. All helper functions follow this convention.
 
 ```kotlin
-// ✅ 올바름
+// ✅ Correct
 wgs84Point(lng = 126.9780, lat = 37.5665)
 
-// ❌ 잘못됨 (위도 먼저 사용하면 보정 불가)
+// ❌ Wrong (swapping latitude and longitude cannot be corrected automatically)
 wgs84Point(lng = 37.5665, lat = 126.9780)
 ```
 
-## 테스트 패턴
+## Test Pattern
 
-테스트는 Testcontainers를 사용하여 MySQL 8.0을 자동으로 시작합니다.
+Tests use Testcontainers to automatically start MySQL 8.0.
 
 ```kotlin
 abstract class AbstractMySqlGisTest : AbstractExposedTest() {
@@ -426,14 +428,14 @@ abstract class AbstractMySqlGisTest : AbstractExposedTest() {
 }
 ```
 
-핵심 회귀 테스트:
+Core regression tests:
 
 ```bash
 ./gradlew :bluetape4k-exposed-mysql8:test --tests "io.bluetape4k.exposed.mysql8.gis.GeometryColumnTypeTest"
 ./gradlew :bluetape4k-exposed-mysql8:test --tests "io.bluetape4k.exposed.mysql8.gis.MySqlWkbUtilsTest"
 ```
 
-## 참조
+## References
 
 - [JTS Topology Suite](https://github.com/locationtech/jts)
 - [MySQL GIS Functions](https://dev.mysql.com/doc/refman/8.0/en/spatial-function-reference.html)

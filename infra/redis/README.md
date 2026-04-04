@@ -1,20 +1,22 @@
 # bluetape4k-redis
 
-Lettuce와 Redisson 두 Redis 클라이언트를 함께 제공하는 **umbrella 모듈**입니다. 기존 코드가 `bluetape4k-redis`를 의존하던 경우 변경 없이 계속 사용할 수 있습니다.
+English | [한국어](./README.ko.md)
 
-## 모듈 구조
+An **umbrella module** that bundles both the Lettuce and Redisson Redis clients. Existing code depending on `bluetape4k-redis` continues to work without modification.
+
+## Module Structure
 
 ```
 infra/redis (umbrella)
-├── infra/lettuce      — Lettuce 클라이언트, 고성능 Codec, RedisFuture → Coroutines 어댑터
-└── infra/redisson     — Redisson 클라이언트, Codec, Memorizer, NearCache, Leader Election
+├── infra/lettuce      — Lettuce client, high-performance codecs, RedisFuture → Coroutines adapter
+└── infra/redisson     — Redisson client, codecs, Memorizer, NearCache, Leader Election
 ```
 
-Spring Data Redis 직렬화가 필요하면 `spring/data-redis` 모듈을 별도로 사용하세요.
+For Spring Data Redis serialization, use the `spring/data-redis` module separately.
 
-## 의존성
+## Dependency
 
-### 전체 포함 (umbrella)
+### Full Bundle (umbrella)
 
 ```kotlin
 dependencies {
@@ -22,14 +24,14 @@ dependencies {
 }
 ```
 
-### 필요한 클라이언트만 선택
+### Selective Client Dependencies
 
 ```kotlin
 dependencies {
-    // Lettuce만 사용
+    // Lettuce only
     implementation("io.github.bluetape4k:bluetape4k-lettuce:$bluetape4kVersion")
 
-    // Redisson만 사용
+    // Redisson only
     implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
     // Spring Data Redis Serializer
@@ -37,16 +39,16 @@ dependencies {
 }
 ```
 
-## 하위 모듈 상세
+## Submodule Details
 
 ### [bluetape4k-lettuce](../lettuce/README.md)
 
-Lettuce 기반 고성능 Redis 클라이언트 확장입니다.
+High-performance Redis client extension based on Lettuce.
 
-- `LettuceClients` — `RedisClient` / `StatefulRedisConnection` 팩토리 및 커넥션 캐싱
-- `LettuceBinaryCodecs` — 직렬화(Jdk/Kryo/Fory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 Codec
-- `LettuceProtobufCodecs` — Protobuf 기반 Codec
-- `RedisFuture.awaitSuspending()` — `RedisFuture` → suspend 함수 변환
+- `LettuceClients` — `RedisClient` / `StatefulRedisConnection` factory with connection caching
+- `LettuceBinaryCodecs` — Codec combinations: serializers (Jdk/Kryo/Fory) × compression (GZip/LZ4/Snappy/Zstd)
+- `LettuceProtobufCodecs` — Protobuf-based codecs
+- `RedisFuture.awaitSuspending()` — Converts `RedisFuture` to a suspend function
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.LettuceClients
@@ -55,11 +57,11 @@ import io.bluetape4k.redis.lettuce.awaitSuspending
 
 val client = LettuceClients.clientOf("redis://localhost:6379")
 
-// Coroutines 명령
+// Coroutine commands
 val commands = LettuceClients.coroutinesCommands(client)
 val value = commands.get("key")
 
-// 고성능 Codec으로 객체 저장
+// Store objects with high-performance codec
 val codec = LettuceBinaryCodecs.lz4Fory<MyData>()
 val typedCommands = LettuceClients.commands(client, codec)
 typedCommands.set("data:1", MyData(id = 1))
@@ -72,30 +74,30 @@ LettuceClients.shutdown(client)
 
 ### [bluetape4k-redisson](../redisson/README.md)
 
-Redisson 기반 분산 Redis 확장입니다.
+Distributed Redis extension based on Redisson.
 
-- `redissonClient {}` DSL — `RedissonClient` 생성
-- `RedissonCodecs` — 직렬화(Kryo5/Fory/Jdk/Protobuf) × 압축(GZip/LZ4/Snappy/Zstd) Codec
-- `RFuture.awaitSuspending()` — `RFuture` → suspend 함수 변환
-- `RedissonMemorizer` / `AsyncRedissonMemorizer` / `RedissonSuspendMemorizer` — Redis 기반 함수 결과 메모이제이션
-- `RedissonNearCache` — `RLocalCachedMap` 기반 2-tier Near Cache
-- `RedissonLeaderElection` / `RedissonLeaderGroupElection` — 분산 리더 선출 (Coroutines 지원)
+- `redissonClient {}` DSL — Creates a `RedissonClient`
+- `RedissonCodecs` — Codec combinations: serializers (Kryo5/Fory/Jdk/Protobuf) × compression (GZip/LZ4/Snappy/Zstd)
+- `RFuture.awaitSuspending()` — Converts `RFuture` to a suspend function
+- `RedissonMemorizer` / `AsyncRedissonMemorizer` / `RedissonSuspendMemorizer` — Redis-based function result memoization
+- `RedissonNearCache` — 2-tier Near Cache based on `RLocalCachedMap`
+- `RedissonLeaderElection` / `RedissonLeaderGroupElection` — Distributed leader election (with Coroutines support)
 
 ```kotlin
 import io.bluetape4k.redis.redisson.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.memorizer.memorizer
 
-// 클라이언트 생성
+// Create client
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
     codec = RedissonCodecs.LZ4Fory
 }
 
-// Memorizer — 함수 결과를 Redis에 캐싱
+// Memorizer — caches function results in Redis
 val map = client.getMap<Int, Int>("squares")
 val memorizer = map.memorizer { key -> key * key }
-val result = memorizer(7)   // 49, Redis에 저장
+val result = memorizer(7)   // 49, stored in Redis
 
 // Leader Election
 val election = RedissonLeaderElection(client, "batch-lock")
@@ -104,31 +106,31 @@ election.runIfLeader {
 }
 ```
 
-## 모듈 의존성 구조
+## Module Dependency Structure
 
 ```mermaid
 flowchart TD
-    A[bluetape4k-redis<br/>umbrella] --> B[bluetape4k-lettuce<br/>Lettuce 클라이언트]
-    A --> C[bluetape4k-redisson<br/>Redisson 클라이언트]
+    A[bluetape4k-redis<br/>umbrella] --> B[bluetape4k-lettuce<br/>Lettuce client]
+    A --> C[bluetape4k-redisson<br/>Redisson client]
 
-    B --> B1[LettuceClients<br/>연결 팩토리 / 캐싱]
-    B --> B2["LettuceBinaryCodecs<br/>직렬화 × 압축 Codec"]
-    B --> B3[RedisFuture.awaitSuspending<br/>Coroutines 어댑터]
+    B --> B1[LettuceClients<br/>Connection factory / caching]
+    B --> B2["LettuceBinaryCodecs<br/>Serializer × compression codecs"]
+    B --> B3[RedisFuture.awaitSuspending<br/>Coroutines adapter]
     B --> B4[LettuceLoadedMap<br/>Read-through / Write-through]
-    B --> B5[LettuceSuspendedLoadedMap<br/>suspend 버전]
+    B --> B5[LettuceSuspendedLoadedMap<br/>Suspend variant]
 
-    C --> C1[redissonClient DSL<br/>클라이언트 생성]
+    C --> C1[redissonClient DSL<br/>Client creation]
     C --> C2["RedissonCodecs<br/>Fory/Kryo5 × LZ4/Zstd"]
-    C --> C3[RedissonLeaderElection<br/>분산 리더 선출]
+    C --> C3[RedissonLeaderElection<br/>Distributed leader election]
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
-    C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
+    C --> C5[RedissonMemoizer<br/>Function result memoization]
 
     style A fill:#F44336
     style B fill:#2196F3
     style C fill:#9C27B0
 ```
 
-## 핵심 클래스 다이어그램
+## Core Class Diagram
 
 ```mermaid
 classDiagram
@@ -195,8 +197,11 @@ classDiagram
 
 ## Spring Data Redis
 
-별도 모듈 [bluetape4k-spring-data-redis](../../spring/data-redis/README.md)에서
-`RedisTemplate` / `ReactiveRedisTemplate` 설정용 고성능 Serializer를 제공합니다.
+The following separate modules provide high-performance serializers for configuring
+`RedisTemplate` / `ReactiveRedisTemplate`.
+
+- [bluetape4k-spring-boot3-redis](../../spring-boot3/redis/README.md)
+- [bluetape4k-spring-boot4-redis](../../spring-boot4/redis/README.md)
 
 ```kotlin
 import io.bluetape4k.redis.spring.serializer.RedisBinarySerializers
@@ -216,21 +221,21 @@ fun reactiveRedisTemplate(
 }
 ```
 
-## 테스트
+## Testing
 
 ```bash
-# 전체 redis 모듈 테스트
+# Run all redis module tests
 ./gradlew :bluetape4k-redis:test
 
-# 하위 모듈 개별 테스트
+# Run submodule tests individually
 ./gradlew :bluetape4k-lettuce:test
 ./gradlew :bluetape4k-redisson:test
 ```
 
-테스트에는 Redis 서버가 필요하며, [Testcontainers](../../testing/testcontainers)를 통해 자동 구성됩니다.
+Tests require a Redis server, which is automatically provisioned via [Testcontainers](../../testing/testcontainers).
 
-## 참고 자료
+## References
 
-- [Lettuce 공식 문서](https://lettuce.io/core/release/reference/)
+- [Lettuce Official Documentation](https://lettuce.io/core/release/reference/)
 - [Redisson Wiki](https://github.com/redisson/redisson/wiki)
-- [Spring Data Redis 문서](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)
+- [Spring Data Redis Documentation](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)

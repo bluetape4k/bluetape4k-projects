@@ -1,16 +1,18 @@
 # Module bluetape4k-opentelemetry
 
-[OpenTelemetry](https://opentelemetry.io/)는 클라우드 네이티브 소프트웨어를 위한 관측 가능성 프레임워크입니다. 이 모듈은 OpenTelemetry를 Kotlin에서 더욱 쉽고 편리하게 사용할 수 있도록 하는 확장 함수와 유틸리티를 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 특징
+[OpenTelemetry](https://opentelemetry.io/) is an observability framework for cloud-native software. This module provides Kotlin extension functions and utilities that make it easier and more idiomatic to use OpenTelemetry on the JVM.
 
-- **Kotlin 확장 함수**: OpenTelemetry Java SDK를 코틀린스럽게 사용
-- **Coroutines 지원**: `suspend` 함수와 코루틴 컨텍스트 전파
-- **Span 관리**: 자동 리소스 관리를 위한 `use` 패턴
-- **DSL 제공**: Attributes, TracerProvider, MeterProvider 설정을 위한 DSL
-- **Spring Boot 통합**: Spring Boot Starter 지원
+## Features
 
-## 의존성
+- **Kotlin extension functions**: Use the OpenTelemetry Java SDK in a Kotlin-idiomatic way
+- **Coroutines support**: Propagate `suspend` function context and coroutine context
+- **Span management**: `use` pattern for automatic resource cleanup
+- **DSL support**: DSLs for configuring Attributes, TracerProvider, and MeterProvider
+- **Spring Boot integration**: Spring Boot Starter support
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -18,63 +20,63 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-### 1. OpenTelemetry SDK 설정
+### 1. OpenTelemetry SDK Setup
 
 ```kotlin
 import io.bluetape4k.opentelemetry.*
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.metrics.SdkMeterProvider
 
-// OpenTelemetry SDK 생성
+// Build an OpenTelemetry SDK instance
 val openTelemetry = openTelemetrySdk {
   setTracerProvider(tracerProvider)
   setMeterProvider(meterProvider)
   setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
 }
 
-// 글로벌 OpenTelemetry로 등록
+// Register as the global OpenTelemetry instance
 val globalOtel = openTelemetrySdkGlobal {
   setTracerProvider(tracerProvider)
   setMeterProvider(meterProvider)
 }
 
-// 글로벌 인스턴스 접근
+// Access the global instance
 val otel = globalOpenTelemetry
 ```
 
-### 2. Tracer 생성 및 Span 관리
+### 2. Creating Tracers and Managing Spans
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
 import io.opentelemetry.api.trace.SpanKind
 import java.time.Duration
 
-// Tracer 생성
+// Create a Tracer
 val tracer = openTelemetry.tracer("my-service") {
   setInstrumentationVersion("1.0.0")
 }
 
-// Span 수동 생성 및 관리
+// Manually create and manage a Span
 val span = tracer.startSpan("my-operation") {
   setSpanKind(SpanKind.INTERNAL)
   setAttribute("custom.attribute", "value")
 }
 
-// use 패턴으로 자동 관리 (try-finally 자동 처리)
+// Automatic lifecycle management via the use pattern (try-finally handled internally)
 span.use { currentSpan ->
-  // Span 컨텍스트 내에서 작업 수행
+  // Work inside the Span context
   currentSpan.addEvent("Processing started")
   doWork()
-}  // Span이 자동으로 종료됨
+}  // Span ends automatically
 
-// SpanBuilder에서 직접 생성
+// Start and use a Span directly from a SpanBuilder
 tracer.spanBuilder("my-operation").useSpan { span ->
   doWork()
 }
 
-// 일반 예외는 span에 기록한 뒤 원본 예외 타입을 유지한 채 다시 던짐
+// Exceptions are recorded on the span; the original exception type is rethrown as-is
 tracer.spanBuilder("failing-operation").useSpan { span ->
   runCatching { doWork() }
     .onFailure {
@@ -83,12 +85,13 @@ tracer.spanBuilder("failing-operation").useSpan { span ->
     }
 }
 
-// 하위 호환용 인자이며, 현재 구현은 span 종료 시각을 인위적으로 미루지 않음
-span.use(waitTimeout = 5000) { /* 작업 */ }
-span.use(Duration.ofSeconds(5)) { /* 작업 */ }
+// These timeout arguments are kept for backwards compatibility;
+// the current implementation does not artificially delay the span end time
+span.use(waitTimeout = 5000) { /* work */ }
+span.use(Duration.ofSeconds(5)) { /* work */ }
 ```
 
-### 3. Coroutines 지원
+### 3. Coroutines Support
 
 ```kotlin
 import io.bluetape4k.opentelemetry.coroutines.*
@@ -97,49 +100,49 @@ import kotlinx.coroutines.delay
 suspend fun coroutineExample() {
   val tracer = openTelemetry.getTracer("my-service")
 
-  // 코루틴에서 Span 사용
+  // Use a Span inside a coroutine
   tracer.spanBuilder("async-operation").useSpanSuspending { span ->
     span.addEvent("Before delay")
     delay(1000)
     span.addEvent("After delay")
-  }  // Span이 자동으로 종료됨
+  }  // Span ends automatically
 
-  // 기존 Span을 코루틴 컨텍스트에서 사용
+  // Use an existing Span in a coroutine context
   val span = tracer.spanBuilder("parent").startSpan()
   span.useSuspending { currentSpan ->
     withContext(Dispatchers.IO) {
-      // Span 컨텍스트가 전파됨
+      // Span context is propagated
       doAsyncWork()
     }
   }
 }
 
-// 명시적 Span Context 전파
+// Explicit Span context propagation
 suspend fun withExplicitContext() {
   val span = tracer.spanBuilder("operation").startSpan()
   withSpanContext(span) { currentSpan ->
-    // Span Context가 설정된 상태에서 실행
+    // Runs with the Span context active
     doWork()
   }
 }
 
-// deprecated 된 useSuspendSpan 대신 useSpanSuspending 사용 권장
+// Prefer useSpanSuspending over the deprecated useSuspendSpan
 tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
   doAsyncWork()
 }
 ```
 
-### 4. Attributes 관리
+### 4. Attributes Management
 
 ```kotlin
 import io.bluetape4k.opentelemetry.common.*
 
-// AttributeKey 생성
+// Create AttributeKeys
 val userIdKey = "user.id".toAttributeKey()
 val countKey = longAttributeKeyOf("request.count")
 val tagsKey = "tags".toStringArrayAttributeKey()
 
-// Attributes 빌더
+// Build Attributes using the DSL
 val attributes = attributes {
   put("service.name", "my-service")
   put("service.version", "1.0.0")
@@ -148,11 +151,11 @@ val attributes = attributes {
   put("tags", listOf("tag1", "tag2"))
 }
 
-// 간편한 Attributes 생성
+// Concise Attributes creation
 val attrs1 = attributesOf("key", "value")
 val attrs2 = attributesOf(userIdKey, "user123", countKey, 10L)
 
-// Map에서 Attributes 변환
+// Convert a Map to Attributes
 val map = mapOf(
   "key1" to "value1",
   "count" to 42L,
@@ -161,29 +164,29 @@ val map = mapOf(
 val fromMap = map.toAttributes()
 ```
 
-### 5. Context 관리
+### 5. Context Management
 
 ```kotlin
 import io.bluetape4k.opentelemetry.*
 
-// 현재 Context 가져오기
+// Get the current context
 val currentContext = currentOtelContext()
 
-// Root Context
+// Get the root context
 val rootContext = rootOtelContext()
 
-// Context 내에서 작업 실행
+// Run work within a context
 val result = currentContext.withCurrent {
-  // Context가 설정된 상태에서 실행
+  // Runs with the context active
   doWork()
 }
 
-// Context에서 Span 가져오기
+// Retrieve a Span from a context
 val span = currentContext.getSpan()
 val spanOrNull = currentContext.getSpanOrNull()
 ```
 
-### 6. TracerProvider 설정
+### 6. TracerProvider Configuration
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
@@ -192,44 +195,44 @@ import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.semconv.ServiceAttributes
 import io.opentelemetry.exporter.logging.LoggingSpanExporter
 
-// SdkTracerProvider 생성
+// Create an SdkTracerProvider
 val tracerProvider = sdkTracerProvider {
   addSpanProcessor(simpleSpanProcessorOf(LoggingSpanExporter.create()))
   setResource(Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, "my-service")))
 }
 
-// SpanProcessor 생성
+// Create SpanProcessors
 val simpleProcessor = simpleSpanProcessorOf(LoggingSpanExporter.create())
 val batchProcessor = batchSpanProcessorOf(LoggingSpanExporter.create()) {
   setScheduleDelay(java.time.Duration.ofMillis(250))
 }
 ```
 
-### 7. Metrics 지원
+### 7. Metrics Support
 
 ```kotlin
 import io.bluetape4k.opentelemetry.*
 import io.bluetape4k.opentelemetry.metrics.*
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader
 
-// Meter 생성
+// Create a Meter
 val meter = openTelemetry.meter("my-service") {
   setInstrumentationVersion("1.0.0")
 }
 
-// SdkMeterProvider 생성
+// Create an SdkMeterProvider
 val meterProvider = sdkMeterProvider {
   registerMetricReader(InMemoryMetricReader.create())
 }
 
-// MetricReader/Exporter
+// MetricReader / Exporter
 val inMemoryReader = inMemoryMetricReaderOf()
 val loggingReader = periodicMetricReader(loggingMetricExporterOf()) {
   setInterval(java.time.Duration.ofSeconds(5))
 }
 ```
 
-### 8. SpanExporter 설정
+### 8. SpanExporter Configuration
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
@@ -239,16 +242,16 @@ import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 // Logging SpanExporter
 val loggingExporter = loggingSpanExporterOf()
 
-// 여러 Exporter 조합
+// Combine multiple Exporters
 val compositeExporter = spanExporterOf(
   LoggingSpanExporter.create(),
   OtlpGrpcSpanExporter.builder().build()
 )
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### OpenTelemetry 핵심 클래스 구조
+### Core Class Structure
 
 ```mermaid
 classDiagram
@@ -309,13 +312,13 @@ classDiagram
 
 ```
 
-### OpenTelemetry 구성 요소
+### Component Overview
 
 ```mermaid
 flowchart TD
-    App[애플리케이션] --> Tracer[Tracer<br/>Span 생성/관리]
-    App --> Meter[Meter<br/>메트릭 수집]
-    App --> Logger[Logger<br/>로그 수집]
+    App[Application] --> Tracer[Tracer<br/>Span creation/management]
+    App --> Meter[Meter<br/>Metrics collection]
+    App --> Logger[Logger<br/>Log collection]
 
     Tracer --> TP[TracerProvider<br/>SdkTracerProvider]
     Meter --> MP[MeterProvider<br/>SdkMeterProvider]
@@ -329,7 +332,7 @@ flowchart TD
     SE --> OTLP[OTLP gRPC/HTTP]
     SE --> LogExp[Logging Exporter]
     ME --> OTLP
-    ME --> InMem[InMemory Exporter<br/>테스트용]
+    ME --> InMem[InMemory Exporter<br/>for testing]
 
     OTLP --> Jaeger[Jaeger]
     OTLP --> Zipkin[Zipkin]
@@ -345,42 +348,42 @@ flowchart TD
     style ME fill:#607D8B
 ```
 
-### Span 생명주기 (Coroutines 환경)
+### Span Lifecycle in a Coroutine Context
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Builder as SpanBuilder
     participant Span as Span
     participant Context as CoroutineContext
-    participant Child as 하위 작업
+    participant Child as Child Work
 
     App->>+Builder: tracer.spanBuilder("operation")
     App->>Builder: useSpanSuspending { ... }
     Builder->>+Span: startSpan()
     Span->>+Context: makeCurrent() / withContext
-    Note over Context: Span Context 코루틴에 전파
-    Context->>+Child: 하위 코루틴 실행
-    Note over Child: withContext(Dispatchers.IO)<br/>에서도 Context 유지
-    Child-->>-Context: 결과 반환
-    Context-->>-Span: 블록 종료
+    Note over Context: Span context propagated to coroutine
+    Context->>+Child: Launch child coroutine
+    Note over Child: Context remains active inside<br/>withContext(Dispatchers.IO)
+    Child-->>-Context: Return result
+    Context-->>-Span: Block exits
     Span->>Span: end()
-    Span-->>-Builder: Span 종료
-    Builder-->>-App: 결과 반환
+    Span-->>-Builder: Span finished
+    Builder-->>-App: Return result
 ```
 
-### 분산 추적 전파 흐름
+### Distributed Trace Propagation
 
 ```mermaid
 flowchart LR
-    ServiceA[서비스 A<br/>Parent Span] -->|HTTP Header<br/>traceparent: 00-traceId-spanId-01| ServiceB[서비스 B<br/>Child Span]
-    ServiceB -->|propagate| ServiceC[서비스 C<br/>Child Span]
+    ServiceA[Service A<br/>Parent Span] -->|HTTP Header<br/>traceparent: 00-traceId-spanId-01| ServiceB[Service B<br/>Child Span]
+    ServiceB -->|propagate| ServiceC[Service C<br/>Child Span]
 
     ServiceA -->|export| Collector[OTel Collector]
     ServiceB -->|export| Collector
     ServiceC -->|export| Collector
 
-    Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
+    Collector -->|store| Backend[Jaeger / Zipkin<br/>Distributed tracing backend]
 
     style ServiceA fill:#2196F3
     style ServiceB fill:#FF9800
@@ -389,9 +392,9 @@ flowchart LR
     style Collector fill:#607D8B
 ```
 
-## 테스트 전략
+## Testing Strategy
 
-### 단위 테스트
+### Unit Tests
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.*
@@ -412,7 +415,7 @@ class MyServiceTest {
   }
 
   @Test
-  fun `span이 올바르게 생성되는지 확인`() {
+  fun `verify that a span is created correctly`() {
     // given
     val service = MyService(tracer)
 
@@ -427,31 +430,31 @@ class MyServiceTest {
 }
 ```
 
-### 테스트 환경별 권장 설정
+### Recommended Setup by Environment
 
-| 환경     | Agent | Exporter               | 검증 수준                  |
-|--------|-------|------------------------|------------------------|
-| 운영/통합  | ON    | GlobalOpenTelemetry 사용 | 트레이스 연결 확인             |
-| 단위 테스트 | OFF   | InMemorySpanExporter   | 상세 검증 (parentSpanId 등) |
-| 통합 테스트 | ON    | Logging/OTLP           | 트레이스 생성 확인             |
+| Environment    | Agent | Exporter               | Verification Level                  |
+|----------------|-------|------------------------|-------------------------------------|
+| Production/Integration | ON  | GlobalOpenTelemetry | Verify trace linkage              |
+| Unit tests     | OFF   | InMemorySpanExporter   | Detailed checks (parentSpanId, etc.)|
+| Integration tests | ON | Logging/OTLP           | Verify trace creation               |
 
 ## OpenTelemetry Java Agent
 
-Java Agent를 사용하여 애플리케이션을 자동으로 계측할 수 있습니다:
+You can instrument your application automatically using the Java Agent:
 
 ```bash
-# Agent 다운로드
+# Download the agent
 curl -L -o opentelemetry-javaagent.jar \
   https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
 
-# 애플리케이션 실행
+# Run the application
 java -javaagent:opentelemetry-javaagent.jar \
   -Dotel.service.name=my-service \
   -Dotel.traces.exporter=otlp \
   -jar my-application.jar
 ```
 
-Gradle Task로 Agent 다운로드:
+Download the agent via a Gradle task:
 
 ```kotlin
 tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadAgent") {
@@ -461,21 +464,21 @@ tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadAgent") {
 }
 ```
 
-## 예제
+## Examples
 
-더 많은 예제는 `src/test/kotlin/io/bluetape4k/opentelemetry/examples` 패키지에서 확인할 수 있습니다:
+More examples are available in the `src/test/kotlin/io/bluetape4k/opentelemetry/examples` package:
 
-- `logging/`: Logging Exporter 예제
-- `metrics/`: Metrics 수집 예제
-- `javaagent/`: Java Agent 통합 예제 (Spring Boot)
+- `logging/`: Logging Exporter examples
+- `metrics/`: Metrics collection examples
+- `javaagent/`: Java Agent integration examples (Spring Boot)
 
-## 참고 자료
+## References
 
-- [OpenTelemetry 공식 문서](https://opentelemetry.io/docs/)
+- [OpenTelemetry Official Documentation](https://opentelemetry.io/docs/)
 - [OpenTelemetry Java SDK](https://github.com/open-telemetry/opentelemetry-java)
 - [OpenTelemetry Kotlin Extension](https://github.com/open-telemetry/opentelemetry-java/tree/main/extensions/kotlin)
 - [OpenTelemetry Spring Boot Starter](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/spring/spring-boot-autoconfigure)
 
-## 라이선스
+## License
 
 Apache License 2.0

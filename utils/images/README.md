@@ -1,11 +1,12 @@
 # Module bluetape4k-images
 
-## 개요
+English | [한국어](./README.ko.md)
 
-JPG, PNG, GIF, WebP 등의 이미지를 로드, 변환, 크기 조절, 분할, 필터 적용 등의 조작을 지원하는 라이브러리입니다.
-[Scrimage](https://github.com/sksamuel/scrimage) 라이브러리를 기반으로 하며, Coroutines를 활용한 비동기 이미지 처리를 제공합니다.
+## Overview
 
-## 의존성 추가
+A library for loading, converting, resizing, splitting, and applying filters to images in formats such as JPG, PNG, GIF, and WebP. Built on the [Scrimage](https://github.com/sksamuel/scrimage) library with asynchronous image processing via Coroutines.
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -13,43 +14,43 @@ dependencies {
 }
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagram
 
 ```mermaid
 flowchart LR
-    subgraph 입력["입력 소스"]
+    subgraph Input["Input Sources"]
         BA[ByteArray]
         IS[InputStream]
         FILE[File / Path]
     end
 
-    subgraph 이미지처리["이미지 처리 (Scrimage 기반)"]
+    subgraph Processing["Image Processing (Scrimage-based)"]
         II["ImmutableImage<br/>(immutableImageOf)"]
         BI["BufferedImage<br/>(bufferedImageOf)"]
     end
 
-    subgraph 조작["이미지 조작"]
-        SC["크기 조절<br/>(ImageScaler)"]
-        SP["이미지 분할<br/>(ImageSplitter)"]
-        WM["워터마크<br/>(WatermarkFilter)"]
-        CP["캡션<br/>(CaptionFilter)"]
-        PD["패딩<br/>(PaddingSupport)"]
+    subgraph Operations["Image Operations"]
+        SC["Resize<br/>(ImageScaler)"]
+        SP["Split<br/>(ImageSplitter)"]
+        WM["Watermark<br/>(WatermarkFilter)"]
+        CP["Caption<br/>(CaptionFilter)"]
+        PD["Padding<br/>(PaddingSupport)"]
     end
 
-    subgraph 출력["비동기 저장 (Coroutines)"]
-        JPG["SuspendJpegWriter<br/>(손실 압축)"]
-        PNG["SuspendPngWriter<br/>(무손실)"]
-        WEBP["SuspendWebpWriter<br/>(최고 압축)"]
-        GIF["SuspendGifWriter<br/>(애니메이션)"]
-        ANIM["SuspendGif2WebpWriter<br/>(GIF→WebP 변환)"]
+    subgraph Output["Async Output (Coroutines)"]
+        JPG["SuspendJpegWriter<br/>(lossy)"]
+        PNG["SuspendPngWriter<br/>(lossless)"]
+        WEBP["SuspendWebpWriter<br/>(best compression)"]
+        GIF["SuspendGifWriter<br/>(animated)"]
+        ANIM["SuspendGif2WebpWriter<br/>(GIF→WebP)"]
     end
 
-    입력 --> 이미지처리
-    이미지처리 --> 조작
-    조작 --> 출력
+    Input --> Processing
+    Processing --> Operations
+    Operations --> Output
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -91,66 +92,66 @@ classDiagram
 
 ```
 
-## 주요 기능
+## Features
 
-### 이미지 포맷 지원
+### Supported Image Formats
 
-| 포맷   | 파일 사이즈 (예시) | 처리 시간 (예시) | 특징            |
-|------|-------------|------------|---------------|
-| PNG  | 6.45 MB     | 569 ms     | 무손실, 투명도 지원   |
-| GIF  | 1.21 MB     | 2,888 ms   | 애니메이션 지원      |
-| JPG  | 417 kB      | 157 ms     | 빠른 처리, 손실 압축  |
-| WEBP | 181 kB      | 913 ms     | 최고 압축률, 최신 포맷 |
+| Format | File Size (example) | Processing Time (example) | Notes                   |
+|--------|---------------------|---------------------------|-------------------------|
+| PNG    | 6.45 MB             | 569 ms                    | Lossless, transparency  |
+| GIF    | 1.21 MB             | 2,888 ms                  | Animation support       |
+| JPG    | 417 kB              | 157 ms                    | Fast, lossy             |
+| WEBP   | 181 kB              | 913 ms                    | Best compression, modern|
 
-- **동적 생성**: JPG가 가장 빠름 (실시간 처리용)
-- **정적 파일**: WebP가 가장 효율적 (저장 공간 절약)
+- **Dynamic generation**: JPG is fastest (for real-time processing)
+- **Static files**: WebP is most efficient (saves storage)
 
-## 사용 예시
+## Usage Examples
 
-### ImmutableImage 로드
+### Loading ImmutableImage
 
 ```kotlin
 import io.bluetape4k.images.*
 
-// ByteArray에서 로드
+// Load from ByteArray
 val image = immutableImageOf(byteArray)
 
-// InputStream에서 로드
+// Load from InputStream
 val image = immutableImageOf(inputStream)
 
-// 파일에서 로드
+// Load from File
 val image = immutableImageOf(File("image.jpg"))
 
-// Path에서 로드
+// Load from Path
 val image = immutableImageOf(Paths.get("image.jpg"))
 
-// Coroutines 환경에서 비동기 로드
+// Async load in a coroutine context
 val image = suspendImmutableImageOf(File("image.jpg"))
 val image = suspendLoadImage(Paths.get("image.jpg"))
 ```
 
-### BufferedImage 로드/저장
+### Loading and Saving BufferedImage
 
 ```kotlin
 import io.bluetape4k.images.*
 
-// 다양한 소스에서 로드
+// Load from various sources
 val image = bufferedImageOf(inputStream)
 val image = bufferedImageOf(File("image.jpg"))
 val image = bufferedImageOf(byteArray)
 
-// 새 이미지 생성
+// Create a new blank image
 val image = bufferedImageOf(200, 100)
 
-// 저장
+// Save
 image.write(ImageFormat.JPG, File("output.jpg"))
 image.write(ImageFormat.PNG, outputStream)
 
-// ByteArray 변환
+// Convert to ByteArray
 val bytes = image.toByteArray("png")
 ```
 
-### 이미지 저장 (Coroutines)
+### Saving Images (Coroutines)
 
 ```kotlin
 import io.bluetape4k.images.*
@@ -158,42 +159,42 @@ import io.bluetape4k.images.coroutines.*
 
 val image = immutableImageOf(File("input.png"))
 
-// JPEG로 저장 (80% 품질)
+// Save as JPEG (80% quality)
 image.suspendWrite(SuspendJpegWriter(compression = 80), Paths.get("output.jpg"))
 
-// PNG로 저장 (최대 압축)
+// Save as PNG (maximum compression)
 image.suspendWrite(SuspendPngWriter.MaxCompression, Paths.get("output.png"))
 
-// WebP로 저장
+// Save as WebP
 image.suspendWrite(SuspendWebpWriter.Default, Paths.get("output.webp"))
 
-// ByteArray로 변환
+// Convert to ByteArray
 val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
 ```
 
-### 이미지 크기 조절
+### Resizing Images
 
 ```kotlin
 import io.bluetape4k.images.scaler.*
 import java.awt.image.BufferedImage
 
-// 비율로 조절
-val scaled = bufferedImage.scale(0.5)  // 50% 크기
+// Scale by ratio
+val scaled = bufferedImage.scale(0.5)  // 50%
 
-// 절대 크기로 조절 (비율 유지)
+// Scale to absolute dimensions (maintain aspect ratio)
 val scaled = bufferedImage.scale(width = 200, height = 200, proportional = true)
 
-// 절대 크기로 조절 (비율 무시)
+// Scale to absolute dimensions (ignore aspect ratio)
 val scaled = bufferedImage.scale(width = 200, height = 200, proportional = false)
 
-// X, Y 축 비율로 조절
+// Scale by X/Y ratio
 val scaled = bufferedImage.scale(xScale = 0.5, yScale = 0.5)
 ```
 
-### 이미지 분할
+### Splitting Images
 
-높이가 큰 이미지(예: 상품 상세 이미지)를 지정된 높이로 분할합니다.
+Splits a tall image (e.g., product detail pages) into chunks of the specified height.
 
 ```kotlin
 import io.bluetape4k.images.splitter.ImageSplitter
@@ -201,14 +202,14 @@ import io.bluetape4k.images.ImageFormat
 
 val splitter = ImageSplitter(maxHeight = 2048)
 
-// 기본 분할
+// Basic split
 val splitImages: Flow<ByteArray> = splitter.split(
     input = inputStream,
     format = ImageFormat.JPG,
     splitHeight = 1024
 )
 
-// 분할 + 압축
+// Split and compress
 val compressedImages: Flow<ByteArray> = splitter.splitAndCompress(
     input = inputStream,
     format = ImageFormat.JPG,
@@ -216,13 +217,12 @@ val compressedImages: Flow<ByteArray> = splitter.splitAndCompress(
     writer = SuspendJpegWriter(compression = 80)
 )
 
-// 결과 처리
 splitImages.collect { bytes ->
-    // 분할된 이미지 처리
+    // handle each chunk
 }
 ```
 
-### 워터마크 추가
+### Adding a Watermark
 
 ```kotlin
 import io.bluetape4k.images.filters.*
@@ -230,7 +230,7 @@ import com.sksamuel.scrimage.ImmutableImage
 
 val image = ImmutableImage.loader().fromFile(File("photo.jpg"))
 
-// 커버 워터마크 (전체 덮기)
+// Full-cover watermark
 val watermarked = image.filter(
     watermarkFilterOf(
         text = "© bluetape4k",
@@ -240,7 +240,7 @@ val watermarked = image.filter(
     )
 )
 
-// 스탬프 워터마크
+// Stamp watermark
 val stamped = image.filter(
     watermarkFilterOf(
         text = "© bluetape4k",
@@ -249,7 +249,7 @@ val stamped = image.filter(
     )
 )
 
-// 특정 위치에 워터마크
+// Watermark at a specific position
 val positioned = image.filter(
     watermarkFilterOf(
         text = "© bluetape4k",
@@ -260,7 +260,7 @@ val positioned = image.filter(
 )
 ```
 
-### 캡션 추가
+### Adding a Caption
 
 ```kotlin
 import io.bluetape4k.images.filters.*
@@ -278,28 +278,26 @@ val captioned = image.filter(
 )
 ```
 
-### 패딩 추가
+### Adding Padding
 
 ```kotlin
 import io.bluetape4k.images.filters.*
 
-// 상하좌우 동일 패딩
+// Uniform padding on all sides
 val padding = paddingOf(20)
 
-// 개별 패딩 지정
+// Individual padding per side
 val padding = paddingOf(top = 10, right = 20, bottom = 10, left = 20)
 ```
 
-### 그래픽 작업
+### Graphics Operations
 
 ```kotlin
 import io.bluetape4k.images.*
 import java.awt.Color
 
-// 새 이미지 생성
 val image = bufferedImageOf(200, 100)
 
-// 그래픽 작업
 image.useGraphics { graphics ->
     graphics.color = Color.RED
     graphics.fillRect(0, 0, 100, 100)
@@ -307,7 +305,6 @@ image.useGraphics { graphics ->
     graphics.drawString("Hello, World!", 10, 50)
 }
 
-// ImmutableImage로 그래픽 작업
 val immutableImage = immutableImageOf(File("input.jpg"))
 immutableImage.useGraphics { graphics ->
     graphics.color = Color.BLUE
@@ -315,7 +312,7 @@ immutableImage.useGraphics { graphics ->
 }
 ```
 
-### 애니메이션 GIF → WebP 변환
+### Converting Animated GIF to WebP
 
 ```kotlin
 import io.bluetape4k.images.coroutines.animated.*
@@ -323,88 +320,67 @@ import com.sksamuel.scrimage.nio.AnimatedGif
 
 val gif = AnimatedGif.fromFile(File("animation.gif"))
 
-// WebP로 변환
+// Convert to WebP
 gif.suspendWrite(SuspendGif2WebpWriter.Default, Paths.get("animation.webp"))
 
-// ByteArray로 변환
+// Convert to ByteArray
 val webpBytes = gif.suspendBytes(SuspendGif2WebpWriter.Default)
 ```
 
-## 이미지 Writer 옵션
+## Image Writer Options
 
 ### SuspendJpegWriter
 
 ```kotlin
-// 기본 (80% 품질)
-SuspendJpegWriter.Default
-
-// 커스텀 품질
-SuspendJpegWriter(compression = 90)
-
-// 프로그레시브 JPEG
-SuspendJpegWriter(compression = 80, progressive = true)
-
-// 메타데이터에서 압축 정보 사용
-SuspendJpegWriter.CompressionFromMetaData
+SuspendJpegWriter.Default                              // 80% quality
+SuspendJpegWriter(compression = 90)                    // Custom quality
+SuspendJpegWriter(compression = 80, progressive = true) // Progressive JPEG
+SuspendJpegWriter.CompressionFromMetaData              // Use compression from metadata
 ```
 
 ### SuspendPngWriter
 
 ```kotlin
-// 최대 압축 (느림)
-SuspendPngWriter.MaxCompression  // level 9
-
-// 최소 압축 (빠름)
-SuspendPngWriter.MinCompression  // level 1
-
-// 압축 없음 (가장 빠름)
-SuspendPngWriter.NoCompression  // level 0
+SuspendPngWriter.MaxCompression  // level 9 (slowest)
+SuspendPngWriter.MinCompression  // level 1 (fastest)
+SuspendPngWriter.NoCompression   // level 0 (no compression)
 ```
 
 ### SuspendWebpWriter
 
 ```kotlin
-// 기본
 SuspendWebpWriter.Default
-
-// 최대 무손실 압축 (배치 작업용)
 SuspendWebpWriter.MaxLosslessCompression
 
-// 커스텀 옵션
 SuspendWebpWriter(
-    z = 9,           // 압축 레벨 (0-9)
-    q = 75,          // 품질 (0-100)
-    m = 4,           // 압축 방법 (0-6)
+    z = 9,           // compression level (0-9)
+    q = 75,          // quality (0-100)
+    m = 4,           // compression method (0-6)
     lossless = false,
     noAlpha = false
 )
 ```
 
-## 주요 기능 상세
+## Key Files
 
-| 파일                                                   | 설명                            |
-|------------------------------------------------------|-------------------------------|
-| `ImmutableImageSupport.kt`                           | ImmutableImage 생성, 저장, 그래픽 작업 |
-| `BufferedImageSupport.kt`                            | BufferedImage 생성, 저장, 그래픽 작업  |
-| `ImageFormat.kt`                                     | 지원 이미지 포맷 열거형                 |
-| `WriteContextExtensions.kt`                          | 쓰기 컨텍스트 확장 함수                 |
-| `IIORegistryUtils.kt`                                | ImageIO 레지스트리 유틸리티            |
-| `scaler/ImageScaler.kt`                              | 이미지 크기 조절                     |
-| `splitter/ImageSplitter.kt`                          | 이미지 분할                        |
-| `filters/WatermarkFilterSupport.kt`                  | 워터마크 필터                       |
-| `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
-| `filters/PaddingSupport.kt`                          | 패딩 필터                         |
-| `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
-| `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
-| `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
-| `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
-| `coroutines/SuspendImageWriter.kt`                   | 비동기 이미지 Writer 인터페이스          |
-| `coroutines/SuspendJpegWriter.kt`                    | 비동기 JPEG Writer               |
-| `coroutines/SuspendPngWriter.kt`                     | 비동기 PNG Writer                |
-| `coroutines/SuspendGifWriter.kt`                     | 비동기 GIF Writer                |
-| `coroutines/SuspendWebpWriter.kt`                    | 비동기 WebP Writer               |
-| `coroutines/SuspendWriteContext.kt`                  | 비동기 쓰기 컨텍스트                   |
-| `coroutines/animated/SuspendAnimatedImageWriter.kt`  | 비동기 애니메이션 Writer              |
-| `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP 변환 Writer          |
-| `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif 확장 함수             |
-| `coroutines/animated/SuspendAnimatedWriteContext.kt` | 애니메이션 쓰기 컨텍스트                 |
+| File                                                 | Description                               |
+|------------------------------------------------------|-------------------------------------------|
+| `ImmutableImageSupport.kt`                           | Create, save, and draw on ImmutableImage  |
+| `BufferedImageSupport.kt`                            | Create, save, and draw on BufferedImage   |
+| `ImageFormat.kt`                                     | Supported image format enum               |
+| `WriteContextExtensions.kt`                          | Write context extensions                  |
+| `IIORegistryUtils.kt`                                | ImageIO registry utilities                |
+| `scaler/ImageScaler.kt`                              | Image resizing                            |
+| `splitter/ImageSplitter.kt`                          | Image splitting                           |
+| `filters/WatermarkFilterSupport.kt`                  | Watermark filter                          |
+| `filters/CaptionFilterSupport.kt`                    | Caption filter                            |
+| `filters/PaddingSupport.kt`                          | Padding filter                            |
+| `filters/WatermarkFilterType.kt`                     | Watermark type (COVER/STAMP)              |
+| `fonts/FontSupport.kt`                               | Font utilities                            |
+| `coroutines/SuspendImageWriter.kt`                   | Async image writer interface              |
+| `coroutines/SuspendJpegWriter.kt`                    | Async JPEG writer                         |
+| `coroutines/SuspendPngWriter.kt`                     | Async PNG writer                          |
+| `coroutines/SuspendGifWriter.kt`                     | Async GIF writer                          |
+| `coroutines/SuspendWebpWriter.kt`                    | Async WebP writer                         |
+| `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP conversion writer             |
+| `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif extensions                    |

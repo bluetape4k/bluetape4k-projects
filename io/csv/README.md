@@ -1,14 +1,16 @@
 # Module bluetape4k-csv
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-csv`는 [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) 라이브러리를 Kotlin 환경에서 편리하게 사용할 수 있도록 래핑한 모듈입니다.
+## Overview
 
-CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/`SuspendRecordWriter`)도 지원합니다.
+`bluetape4k-csv` is a Kotlin-friendly wrapper around the [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) library.
 
-## 주요 기능
+It provides `RecordReader`/`RecordWriter` interfaces for reading and writing CSV and TSV formats, along with async versions based on Kotlin Coroutines (`SuspendRecordReader`/`SuspendRecordWriter`).
 
-### 1. CSV 읽기
+## Key Features
+
+### 1. Reading CSV
 
 ```kotlin
 import io.bluetape4k.csv.CsvRecordReader
@@ -19,7 +21,7 @@ val items: Sequence<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders
 }
 ```
 
-### 2. CSV 쓰기
+### 2. Writing CSV
 
 ```kotlin
 import io.bluetape4k.csv.CsvRecordWriter
@@ -31,26 +33,26 @@ writer.writeRow(listOf("Bob", 30))
 writer.close()
 ```
 
-### 3. TSV 읽기/쓰기
+### 3. TSV Reading/Writing
 
-CSV와 동일한 API로 TSV 포맷을 지원합니다.
+TSV format is supported with the same API as CSV.
 
 ```kotlin
 import io.bluetape4k.csv.TsvRecordReader
 import io.bluetape4k.csv.TsvRecordWriter
 
-// 읽기
+// Reading
 val reader = TsvRecordReader()
 val records = reader.read(inputStream)
 
-// 쓰기
+// Writing
 val writer = TsvRecordWriter(outputWriter)
 writer.writeHeaders("name", "age")
 writer.writeRow(listOf("Alice", 20))
 writer.close()
 ```
 
-### 4. File/InputStream 확장 함수
+### 4. File/InputStream Extension Functions
 
 ```kotlin
 import io.bluetape4k.csv.readAsCsvRecords
@@ -58,39 +60,39 @@ import io.bluetape4k.csv.readAsTsvRecords
 import io.bluetape4k.csv.writeCsvRecords
 import io.bluetape4k.csv.writeTsvRecords
 
-// File에서 직접 읽기
+// Read directly from a File
 val csvRecords = File("data.csv").readAsCsvRecords()
 val tsvRecords = File("data.tsv").readAsTsvRecords()
 
-// File에서 transform으로 읽기
+// Read from a File with a transform
 val items = File("data.csv").readAsCsvRecords(skipHeader = true) { record ->
     Item(record.getString("name"), record.getInt("age"))
 }
 
-// InputStream에서 읽기
+// Read from an InputStream
 val records = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true)
 
-// InputStream에서 transform으로 읽기
+// Read from an InputStream with a transform
 val items2 = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
     Item(record.getString("name"), record.getInt("age"))
 }
 
-// File에 직접 쓰기
+// Write directly to a File
 File("output.csv").writeCsvRecords(
     headers = listOf("name", "age"),
     rows = listOf(listOf("Alice", 20), listOf("Bob", 30))
 )
 
-// File에 엔티티를 변환하여 쓰기
+// Write entities to a File with a transform
 File("output.csv").writeCsvRecords(
     headers = listOf("name", "age"),
     entities = people,
 ) { person -> listOf(person.name, person.age) }
 ```
 
-### 5. Coroutines 비동기 읽기
+### 5. Coroutines Async Reading
 
-Kotlin Flow 기반으로 CSV/TSV 데이터를 비동기로 읽어들입니다.
+Reads CSV/TSV data asynchronously using Kotlin Flow.
 
 ```kotlin
 import io.bluetape4k.csv.coroutines.SuspendCsvRecordReader
@@ -103,9 +105,9 @@ val items: Flow<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders = t
 items.collect { item -> println(item) }
 ```
 
-### 6. Coroutines 비동기 쓰기
+### 6. Coroutines Async Writing
 
-Flow를 포함한 다양한 데이터 소스에서 비동기 쓰기를 지원합니다.
+Supports async writing from various data sources including Flow.
 
 ```kotlin
 import io.bluetape4k.csv.coroutines.SuspendCsvRecordWriter
@@ -114,31 +116,31 @@ val writer = SuspendCsvRecordWriter(outputWriter)
 writer.writeHeaders("name", "age")
 writer.writeRow(listOf("Alice", 20))
 
-// Flow를 통한 대량 쓰기
+// Bulk write via Flow
 val dataFlow: Flow<List<Any>> = flowOf(listOf("Bob", 30), listOf("Charlie", 25))
 writer.writeAll(dataFlow)
 writer.close()
 ```
 
-## 동기 vs 비동기 API 비교
+## Sync vs Async API Comparison
 
-| 기능 | 동기 (Sequence) | 비동기 (Flow) |
-|------|----------------|--------------|
-| CSV 읽기 | `CsvRecordReader` | `SuspendCsvRecordReader` |
-| CSV 쓰기 | `CsvRecordWriter` | `SuspendCsvRecordWriter` |
-| TSV 읽기 | `TsvRecordReader` | `SuspendTsvRecordReader` |
-| TSV 쓰기 | `TsvRecordWriter` | `SuspendTsvRecordWriter` |
-| 반환 타입 | `Sequence<T>` | `Flow<T>` |
-| 쓰기 함수 | 일반 함수 | `suspend` 함수 |
+| Feature | Sync (Sequence) | Async (Flow) |
+|---------|-----------------|--------------|
+| CSV reading | `CsvRecordReader` | `SuspendCsvRecordReader` |
+| CSV writing | `CsvRecordWriter` | `SuspendCsvRecordWriter` |
+| TSV reading | `TsvRecordReader` | `SuspendTsvRecordReader` |
+| TSV writing | `TsvRecordWriter` | `SuspendTsvRecordWriter` |
+| Return type | `Sequence<T>` | `Flow<T>` |
+| Write functions | Regular functions | `suspend` functions |
 
-## 기본 파서 설정
+## Default Parser Settings
 
-모든 파서/Writer는 다음 기본 설정을 사용합니다:
+All parsers and writers use the following defaults:
 
-- **컬럼당 최대 문자 수**: 100,000자
-- **값 트리밍**: 활성화 (파서만)
+- **Max characters per column**: 100,000
+- **Value trimming**: Enabled (parsers only)
 
-커스텀 설정이 필요하면 `CsvParserSettings`/`TsvParserSettings`를 직접 전달할 수 있습니다.
+You can pass custom `CsvParserSettings`/`TsvParserSettings` when needed:
 
 ```kotlin
 val customSettings = CsvParserSettings().apply {
@@ -148,9 +150,9 @@ val customSettings = CsvParserSettings().apply {
 val reader = CsvRecordReader(customSettings)
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 클래스 구조
+### Class Structure
 
 ```mermaid
 classDiagram
@@ -191,29 +193,29 @@ classDiagram
 
 ```
 
-### CSV/TSV 처리 흐름
+### CSV/TSV Processing Flow
 
 ```mermaid
 flowchart TD
-    subgraph 입력 소스
+    subgraph Input Sources
         F[File]
         IS[InputStream]
         STR[String]
     end
 
-    subgraph 동기 처리
+    subgraph Sync Processing
         CR[CsvRecordReader<br/>TsvRecordReader]
         CW[CsvRecordWriter<br/>TsvRecordWriter]
         SEQ["Sequence&lt;T&gt;"]
     end
 
-    subgraph 비동기 처리
+    subgraph Async Processing
         SCR[SuspendCsvRecordReader<br/>SuspendTsvRecordReader]
         SCW[SuspendCsvRecordWriter<br/>SuspendTsvRecordWriter]
         FL["Flow&lt;T&gt;"]
     end
 
-    subgraph 출력
+    subgraph Output
         OF[OutputFile]
         OW[OutputWriter]
     end
@@ -225,53 +227,53 @@ flowchart TD
     F --> SCR --> FL
     IS --> SCR
 
-    SEQ -->|transform| 앱[애플리케이션]
-    FL -->|collect| 앱
+    SEQ -->|transform| App[Application]
+    FL -->|collect| App
 
-    앱 -->|entities| CW --> OF
-    앱 -->|Flow entities| SCW --> OW
+    App -->|entities| CW --> OF
+    App -->|Flow entities| SCW --> OW
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-csv"))
 
-    // Coroutines 비동기 API 사용 시
+    // Required for Coroutines async API
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 }
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.csv
-├── CvsParserDefaults.kt              # CSV/TSV 파서 기본 설정
-├── RecordReader.kt                   # 읽기 인터페이스 (Sequence 기반)
-├── RecordWriter.kt                   # 쓰기 인터페이스
-├── CsvRecordReader.kt                # CSV 읽기 구현체
-├── CsvRecordWriter.kt                # CSV 쓰기 구현체
-├── TsvRecordReader.kt                # TSV 읽기 구현체
-├── TsvRecordWriter.kt                # TSV 쓰기 구현체
-├── RecordReaderSupport.kt            # File/InputStream 읽기 확장 함수
-├── RecordWriterSupport.kt            # File 쓰기 확장 함수
-└── coroutines/                       # Coroutines 비동기 지원
-    ├── SuspendRecordReader.kt        # 비동기 읽기 인터페이스 (Flow 기반)
-    ├── SuspendRecordWriter.kt        # 비동기 쓰기 인터페이스
-    ├── SuspendCsvRecordReader.kt     # 비동기 CSV 읽기 구현체
-    ├── SuspendCsvRecordWriter.kt     # 비동기 CSV 쓰기 구현체
-    ├── SuspendTsvRecordReader.kt     # 비동기 TSV 읽기 구현체
-    └── SuspendTsvRecordWriter.kt     # 비동기 TSV 쓰기 구현체
+├── CvsParserDefaults.kt              # Default CSV/TSV parser settings
+├── RecordReader.kt                   # Read interface (Sequence-based)
+├── RecordWriter.kt                   # Write interface
+├── CsvRecordReader.kt                # CSV reader implementation
+├── CsvRecordWriter.kt                # CSV writer implementation
+├── TsvRecordReader.kt                # TSV reader implementation
+├── TsvRecordWriter.kt                # TSV writer implementation
+├── RecordReaderSupport.kt            # File/InputStream read extension functions
+├── RecordWriterSupport.kt            # File write extension functions
+└── coroutines/                       # Coroutines async support
+    ├── SuspendRecordReader.kt        # Async read interface (Flow-based)
+    ├── SuspendRecordWriter.kt        # Async write interface
+    ├── SuspendCsvRecordReader.kt     # Async CSV reader implementation
+    ├── SuspendCsvRecordWriter.kt     # Async CSV writer implementation
+    ├── SuspendTsvRecordReader.kt     # Async TSV reader implementation
+    └── SuspendTsvRecordWriter.kt     # Async TSV writer implementation
 ```
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-csv:test
 ```
 
-## 참고
+## References
 
 - [Univocity Parsers](https://github.com/uniVocity/univocity-parsers)
 - [CSV (RFC 4180)](https://datatracker.ietf.org/doc/html/rfc4180)

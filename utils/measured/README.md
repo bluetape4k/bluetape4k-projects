@@ -1,32 +1,33 @@
 # Module bluetape4k-measured
 
-`bluetape4k-measured`는 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
-복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현하기 위한 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 핵심 개념
+`bluetape4k-measured` represents compound units such as `m/s` and `kg*m/s^2` in a type-safe way, based on composable unit types (`Units`) and measured values (`Measure`).
 
-- `Units`: 단위의 정의(접미사, 기준 단위 대비 배율)
-- `Measure<T: Units>`: 값 + 단위
-- `UnitsProduct`, `UnitsRatio`, `InverseUnits`: 복합 단위 표현
+## Core Concepts
 
-## 제공 단위
+- `Units`: a unit definition, including suffix and ratio relative to the base unit
+- `Measure<T: Units>`: value + unit
+- `UnitsProduct`, `UnitsRatio`, `InverseUnits`: representations of compound units
 
-- 길이: `Length`
-- 시간: `Time`
-- 질량: `Mass`
-- 부피: `Volume`
-- 온도: `Temperature` / `TemperatureDelta`
-- 각도: `Angle`
-- 면적: `Area`
-- 저장용량: `Storage`
-- 디지털 크기: `BinarySize`
-- 주파수: `Frequency`
-- 에너지/전력: `Energy`, `Power`
-- 운동량 단위 유틸: `MotionUnits`, `Velocity`, `Acceleration`
-- 그래픽 길이: `GraphicsLength`
-- 압력: `Pressure`
+## Provided Units
 
-## 빠른 예제
+- Length: `Length`
+- Time: `Time`
+- Mass: `Mass`
+- Volume: `Volume`
+- Temperature: `Temperature` / `TemperatureDelta`
+- Angle: `Angle`
+- Area: `Area`
+- Storage capacity: `Storage`
+- Digital size: `BinarySize`
+- Frequency: `Frequency`
+- Energy / Power: `Energy`, `Power`
+- Motion-unit utilities: `MotionUnits`, `Velocity`, `Acceleration`
+- Graphics length: `GraphicsLength`
+- Pressure: `Pressure`
+
+## Quick Example
 
 ```kotlin
 import io.bluetape4k.measured.*
@@ -41,13 +42,13 @@ println(distance `as` meters) // 50.0 m
 println(distance.toHuman())    // 50.0 m
 ```
 
-## 테스트
+## Test
 
 ```bash
 ./gradlew :bluetape4k-measured:test
 ```
 
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -101,15 +102,15 @@ classDiagram
     Units <|-- Time
     Units <|-- Mass
     Measure --> Units
-    UnitsRatio --|> Measure : 복합 단위
-    UnitsProduct --|> Measure : 복합 단위
+    UnitsRatio --|> Measure : compound unit
+    UnitsProduct --|> Measure : compound unit
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
 
 
 ```
 
-## 단위 조합 흐름
+## Unit Composition Flow
 
 ```mermaid
 flowchart LR
@@ -124,9 +125,9 @@ flowchart LR
     D --> R
 ```
 
-## units 호환 어댑터
+## Compatibility Adapter for `units`
 
-`bluetape4k-units`에서 `bluetape4k-measured`로 점진 전환할 수 있도록 호환 확장 함수를 제공합니다.
+Compatibility extension functions are available so you can migrate gradually from `bluetape4k-units` to `bluetape4k-measured`.
 
 ```kotlin
 import io.bluetape4k.measured.*

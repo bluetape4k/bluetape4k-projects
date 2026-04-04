@@ -1,11 +1,12 @@
 # Module bluetape4k-virtualthread-jdk21
 
-Java 21 Virtual Thread 구현체 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Java 21 virtual-thread implementation module.
 
-이 모듈은
-`bluetape4k-virtualthread-api`가 정의한 인터페이스를 Java 21 기준으로 구현합니다. ServiceLoader를 통해 런타임에 자동으로 로드되며, JDK 21 이상 환경에서 활성화됩니다.
+## Overview
+
+This module implements the interfaces defined by `bluetape4k-virtualthread-api` for Java 21. It is loaded automatically through `ServiceLoader` and becomes active on JDK 21 or newer.
 
 ## UML
 
@@ -27,11 +28,11 @@ classDiagram
     ServiceLoader --> Jdk21StructuredTaskScopeProvider
 ```
 
-## 주요 구현체
+## Main Implementations
 
-### Jdk21VirtualThreadRuntime
+### `Jdk21VirtualThreadRuntime`
 
-Java 21의 Virtual Thread API를 사용하여 `VirtualThreadRuntime` 인터페이스를 구현합니다.
+Implements the `VirtualThreadRuntime` interface using the Java 21 Virtual Thread API.
 
 ```java
 public final class Jdk21VirtualThreadRuntime implements VirtualThreadRuntime {
@@ -42,7 +43,7 @@ public final class Jdk21VirtualThreadRuntime implements VirtualThreadRuntime {
 
     @Override
     public int getPriority() {
-        return 21;  // JDK 25 구현체보다 낮은 우선순위
+        return 21;  // lower priority than the JDK 25 implementation
     }
 
     @Override
@@ -62,9 +63,9 @@ public final class Jdk21VirtualThreadRuntime implements VirtualThreadRuntime {
 }
 ```
 
-### Jdk21StructuredTaskScopeProvider
+### `Jdk21StructuredTaskScopeProvider`
 
-Java 21의 `StructuredTaskScope` API를 사용하여 구조화된 동시성을 지원합니다.
+Provides structured concurrency by using Java 21's `StructuredTaskScope` API.
 
 ```kotlin
 class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
@@ -80,7 +81,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAll) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnFailure 래퍼 구현
+        // wrapper around StructuredTaskScope.ShutdownOnFailure
     }
 
     override fun <T> withAny(
@@ -88,14 +89,14 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnSuccess 래퍼 구현
+        // wrapper around StructuredTaskScope.ShutdownOnSuccess
     }
 }
 ```
 
-## ServiceLoader 설정
+## `ServiceLoader` Configuration
 
-이 모듈은 다음 ServiceLoader 설정 파일을 포함합니다:
+This module contains the following `ServiceLoader` configuration files:
 
 *src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
 
@@ -109,9 +110,9 @@ io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21VirtualThreadRuntime
 io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21StructuredTaskScopeProvider
 ```
 
-## 빌드 설정
+## Build Configuration
 
-이 모듈은 Java 21 Toolchain을 사용하여 빌드됩니다.
+This module is built with the Java 21 toolchain.
 
 ```kotlin
 java {
@@ -129,9 +130,9 @@ tasks.withType<JavaCompile>().configureEach {
 }
 ```
 
-## 의존성
+## Dependencies
 
-### 프로젝트 의존성
+### Project Dependencies
 
 ```kotlin
 dependencies {
@@ -144,37 +145,37 @@ dependencies {
 }
 ```
 
-### Gradle 사용 예시
+### Gradle Usage Example
 
 ```kotlin
 dependencies {
-    // API 모듈
+    // API module
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
-    // JDK 21 구현체 (JDK 21 환경에서 사용)
+    // JDK 21 implementation (for JDK 21 environments)
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
 }
 ```
 
-## 사용 예시
+## Usage Example
 
-이 모듈은 런타임에 자동으로 로드되므로, API 모듈만 사용하면 됩니다.
+Because this module is loaded automatically at runtime, application code only needs to use the API module.
 
 ```kotlin
 import io.bluetape4k.concurrent.virtualthread.VirtualThreads
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 
 fun main() {
-    // JDK 21 환경에서 실행 시 자동으로 Jdk21VirtualThreadRuntime 사용
+    // When running on JDK 21, Jdk21VirtualThreadRuntime is selected automatically
     println("Runtime: ${VirtualThreads.runtimeName()}") // "jdk21"
 
-    // Virtual Thread Executor 생성
+    // Create a Virtual Thread executor
     val executor = VirtualThreads.executorService()
     executor.submit {
         println("Running on: ${Thread.currentThread()}")
     }
 
-    // Structured Concurrency 사용
+    // Use structured concurrency
     val results = StructuredTaskScopes.all(
         name = "parallel-tasks",
         factory = VirtualThreads.threadFactory()
@@ -189,7 +190,7 @@ fun main() {
 }
 ```
 
-## 테스트
+## Tests
 
 ```kotlin
 class Jdk21VirtualThreadRuntimeTest {
@@ -223,39 +224,39 @@ class Jdk21VirtualThreadRuntimeTest {
 }
 ```
 
-## JDK 버전 호환성
+## JDK Version Compatibility
 
-| JDK 버전    | 지원 여부 | 활성화 조건                          |
-|-----------|-------|---------------------------------|
-| JDK 17 이하 | ❌     | `isSupported()` returns `false` |
-| JDK 21    | ✅     | 자동 활성화 (JDK 25 구현체 없을 시)        |
-| JDK 25    | ✅     | JDK 25 구현체가 우선 선택됨              |
+| JDK Version | Supported | Activation Condition |
+|---|---|---|
+| JDK 17 or lower | ❌ | `isSupported()` returns `false` |
+| JDK 21 | ✅ | activated automatically if the JDK 25 implementation is absent |
+| JDK 25 | ✅ | the JDK 25 implementation is selected first |
 
-## 주의사항
+## Caution
 
-### Classpath 충돌 방지
+### Avoid Classpath Conflicts
 
-JDK 21 환경에서 JDK 25 구현체를 함께 포함하면 클래스 버전 충돌이 발생할 수 있습니다.
+If you include the JDK 25 implementation in a JDK 21 environment, you can get a class-version conflict.
 
 ```kotlin
-// ❌ 잘못된 사용 (JDK 21 환경)
+// ❌ incorrect usage on JDK 21
 dependencies {
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
-    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version") // 충돌 가능
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version") // may conflict
 }
 
-// ✅ 올바른 사용
+// ✅ correct usage
 dependencies {
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
 }
 ```
 
-### 배포 전략
+### Deployment Strategy
 
-프로덕션 배포 시 런타임 JDK 버전에 맞는 구현체만 포함하세요:
+For production deployments, include only the implementation that matches the runtime JDK version:
 
 ```kotlin
-// Gradle 조건부 의존성
+// Gradle conditional dependency
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
@@ -267,7 +268,7 @@ dependencies {
 }
 ```
 
-## 참고 자료
+## References
 
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 - [JEP 462: Structured Concurrency (Second Preview)](https://openjdk.org/jeps/462)

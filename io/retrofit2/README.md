@@ -1,41 +1,42 @@
 # Module bluetape4k-retrofit2
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-retrofit2`는 [Retrofit2](https://square.github.io/retrofit/)를 Kotlin DSL과 Coroutines로 확장하여 제공하는 모듈입니다.
+## Overview
 
-OkHttp 기본 전송 외에 Apache HC5, Vert.x, AsyncHttpClient 등 다양한 HTTP 전송 계층을 지원하며, Kotlin
-`Result` 타입 기반의 에러 핸들링과 Reactive Streams 어댑터를 자동 감지하여 등록합니다.
+`bluetape4k-retrofit2` is a module that extends [Retrofit2](https://square.github.io/retrofit/) with Kotlin DSL and Coroutines support.
 
-## 주요 기능
+Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5, Vert.x, and AsyncHttpClient. It also provides error handling via Kotlin's `Result` type and automatically detects and registers Reactive Streams adapters.
+
+## Key Features
 
 ### 1. Retrofit Builder DSL
 
-Kotlin DSL로 간편하게 Retrofit 인스턴스를 구성합니다.
+Build a Retrofit instance concisely using Kotlin DSL.
 
 ```kotlin
 import io.bluetape4k.retrofit2.*
 
-// DSL 방식
+// DSL style
 val retrofit = retrofit("https://api.github.com", defaultJsonConverterFactory) {
     callFactory(okhttp3Client())
     addCallAdapterFactory(ResultCallAdapterFactory())
 }
 
-// 팩토리 함수 방식 (CallAdapter 자동 감지)
+// Factory function style (auto-detects CallAdapters)
 val retrofit = retrofitOf(
     baseUrl = "https://api.github.com",
     callFactory = okhttp3Client(),
     converterFactory = defaultJsonConverterFactory,
 )
 
-// 서비스 인터페이스 생성
+// Create a service interface
 val api = retrofit.service<GitHubApi>()
 ```
 
-### 2. Result 패턴 지원
+### 2. Result Pattern Support
 
-`ResultCallAdapterFactory`를 통해 API 응답을 Kotlin `Result` 타입으로 안전하게 래핑합니다.
+`ResultCallAdapterFactory` wraps API responses safely in Kotlin's `Result` type.
 
 ```kotlin
 interface GitHubApi {
@@ -46,7 +47,7 @@ interface GitHubApi {
     suspend fun getUserRepos(@Path("username") username: String): Result<List<Repo>>
 }
 
-// Result 패턴으로 에러 핸들링
+// Error handling with the Result pattern
 val result = api.getUser("octocat")
 result.onSuccess { user ->
     println("User: ${user.name}")
@@ -55,9 +56,9 @@ result.onSuccess { user ->
 }
 ```
 
-### 3. Coroutines 지원
+### 3. Coroutines Support
 
-suspend 함수를 선언하면 자동으로 Coroutines 환경에서 비동기 요청을 수행합니다.
+Declare suspend functions and async requests are automatically made in a coroutines context.
 
 ```kotlin
 interface HttpbinApi {
@@ -68,7 +69,7 @@ interface HttpbinApi {
     suspend fun post(@Body body: Map<String, Any>): HttpbinResponse
 }
 
-// Coroutines 환경에서 병렬 요청
+// Parallel requests in a coroutines context
 suspend fun fetchMultiple(api: HttpbinApi) = coroutineScope {
     val response1 = async { api.get() }
     val response2 = async { api.get() }
@@ -76,41 +77,41 @@ suspend fun fetchMultiple(api: HttpbinApi) = coroutineScope {
 }
 ```
 
-추천 사용 방법:
+Recommended usage:
 
-- 새 API 설계에서는 가능하면 `suspend fun` 또는 `suspend fun ...: Result<T>` 형태를 우선 사용합니다.
-- 기존 Java 호출부와의 호환이나 명시적 취소/콜백 브리지가 필요할 때만 `Call<T>` + `executeAsync()`를 선택하는 편이 단순합니다.
-- Resilience4j `Retry`와 함께 사용할 때는 이 모듈의 `executeAsync(retry)` / `suspendExecute(retry)`를 사용하면 내부적으로 `clone()`된 새 `Call`로 재시도합니다.
-- `ResultCallAdapterFactory`는 HTTP 오류를 `Result.failure(HttpException)`로 정규화하므로, 비즈니스 레이어에서 예외 대신 `Result` 중심으로 합성할 때 특히 유용합니다.
+- For new API designs, prefer `suspend fun` or `suspend fun ...: Result<T>` wherever possible.
+- Use `Call<T>` + `executeAsync()` only when compatibility with existing Java callers or explicit cancellation/callback bridging is needed.
+- When using Resilience4j `Retry`, use this module's `executeAsync(retry)` / `suspendExecute(retry)` — they retry with a `clone()`d `Call` internally.
+- `ResultCallAdapterFactory` normalizes HTTP errors to `Result.failure(HttpException)`, making it especially useful when composing the business layer around `Result` instead of exceptions.
 
-### 4. 다양한 HTTP 전송 계층 (CallFactory)
+### 4. Multiple HTTP Backends (CallFactory)
 
-OkHttp3 외에 다양한 HTTP 클라이언트를 `Call.Factory`로 사용할 수 있습니다.
+Use HTTP clients other than OkHttp3 as a `Call.Factory`.
 
-| CallFactory       | 기반 라이브러리                | 특성                  |
-|-------------------|-------------------------|---------------------|
-| OkHttpClient (기본) | OkHttp3                 | 경량, HTTP/2, 범용      |
-| Hc5CallFactory    | Apache HttpComponents 5 | 풍부한 설정, 엔터프라이즈 환경   |
-| VertxCallFactory  | Vert.x                  | 이벤트 루프 기반, 고성능      |
-| AhcCallFactory    | AsyncHttpClient         | Netty 기반, 대량 비동기 요청 |
+| CallFactory | Underlying Library | Characteristics |
+|-------------|-------------------|-----------------|
+| OkHttpClient (default) | OkHttp3 | Lightweight, HTTP/2, general purpose |
+| Hc5CallFactory | Apache HttpComponents 5 | Rich configuration, enterprise environments |
+| VertxCallFactory | Vert.x | Event-loop based, high performance |
+| AhcCallFactory | AsyncHttpClient | Netty-based, high-volume async requests |
 
 ```kotlin
-// Apache HC5 기반 Retrofit
+// Retrofit with Apache HC5
 val retrofit = retrofitOf(
     baseUrl = "https://api.example.com",
     callFactory = Hc5CallFactory(httpClient),
 )
 
-// Vert.x 기반 Retrofit
+// Retrofit with Vert.x
 val retrofit = retrofitOf(
     baseUrl = "https://api.example.com",
     callFactory = VertxCallFactory(vertxClient),
 )
 ```
 
-### 5. Reactive Streams 어댑터 자동 감지
+### 5. Reactive Streams Adapter Auto-Detection
 
-클래스패스에 존재하는 Reactive 라이브러리의 어댑터를 자동으로 등록합니다.
+Automatically registers adapters for Reactive libraries found on the classpath.
 
 - **RxJava2**: `RxJava2CallAdapterFactory`
 - **RxJava3**: `RxJava3CallAdapterFactory`
@@ -135,24 +136,24 @@ interface GitHubReactorApi {
 
 ### 6. Converter Factory
 
-Jackson 기반의 JSON 변환을 기본 제공하며, Scalars 변환도 지원합니다.
+Provides Jackson-based JSON conversion out of the box, with Scalars conversion also supported.
 
 ```kotlin
-// 기본 Jackson Converter (bluetape4k-jackson2 기반)
+// Default Jackson Converter (based on bluetape4k-jackson2)
 val jsonFactory = defaultJsonConverterFactory
 
-// 커스텀 ObjectMapper 사용
+// Custom ObjectMapper
 val customFactory = jacksonConverterFactoryOf(customObjectMapper)
 
-// Scalars Converter (String, primitive 타입)
+// Scalars Converter (String, primitive types)
 val scalarsFactory = defaultScalarsConverterFactory
 ```
 
-## API 정의 예시
+## API Definition Examples
 
 ```kotlin
 interface HttpbinApi {
-    // 동기 호출
+    // Synchronous call
     @GET("get")
     fun get(): Call<HttpbinResponse>
 
@@ -160,11 +161,11 @@ interface HttpbinApi {
     @GET("get")
     suspend fun getSuspend(): HttpbinResponse
 
-    // Result 패턴
+    // Result pattern
     @GET("get")
     suspend fun getResult(): Result<HttpbinResponse>
 
-    // Path/Query 파라미터
+    // Path / Query parameters
     @GET("anything/{path}")
     suspend fun anything(
         @Path("path") path: String,
@@ -177,23 +178,23 @@ interface HttpbinApi {
 }
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-retrofit2"))
 
-    // 선택적 의존성
-    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson 변환
-    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars 변환
-    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 어댑터
-    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor 어댑터
+    // Optional dependencies
+    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson conversion
+    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars conversion
+    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 adapter
+    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor adapter
 }
 ```
 
-## 클래스 구조
+## Class Structure
 
-### Retrofit2 + Result 패턴 통합 구조
+### Retrofit2 + Result Pattern Integration
 
 ```mermaid
 classDiagram
@@ -235,7 +236,7 @@ classDiagram
     }
 
     CallAdapter <|.. ResultCallAdapterFactory
-    ResultCallAdapterFactory ..> ResultCall : 생성
+    ResultCallAdapterFactory ..> ResultCall : creates
     Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
     Retrofit --> Hc5CallFactory : callFactory
     Retrofit --> VertxCallFactory : callFactory
@@ -243,46 +244,46 @@ classDiagram
 
 ```
 
-### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
+### Suspend Function HTTP Request Flow (Result Pattern)
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant API as Retrofit 인터페이스(suspend fun)
+    participant App as Application
+    participant API as Retrofit Interface (suspend fun)
     participant RC as ResultCall
-    participant CF as Call.Factory(e.g. Hc5CallFactory)
-    participant Server as HTTP 서버
+    participant CF as Call.Factory (e.g. Hc5CallFactory)
+    participant Server as HTTP Server
 
     App->>API: suspend fun getUser(): Result~User~
     API->>RC: enqueue(callback)
     RC->>CF: delegate.enqueue(resultCallback)
-    CF->>Server: HTTP 요청 (비동기)
-    Server-->>CF: HTTP 응답
-    alt 2xx 성공
+    CF->>Server: HTTP request (async)
+    Server-->>CF: HTTP response
+    alt 2xx success
         CF-->>RC: onResponse (body != null)
         RC-->>API: Result.success(body)
-    else 4xx/5xx 실패
+    else 4xx/5xx failure
         CF-->>RC: onResponse (isSuccessful == false)
         RC-->>API: Result.failure(HttpException)
-    else 네트워크 오류
+    else network error
         CF-->>RC: onFailure(throwable)
         RC-->>API: Result.failure(IOException)
     end
     API-->>App: Result~User~
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.retrofit2
-├── RetrofitSupport.kt               # Retrofit Builder DSL 및 팩토리 함수
-├── RetrofitCallSupport.kt           # Call 확장 함수
-├── SuspendRetrofitCallSupport.kt    # Suspend Call 확장 함수
-├── ExceptionSupport.kt              # 예외 처리 유틸리티
-├── result/                          # Result 패턴
-│   ├── ResultCall.kt                # Result 래핑 Call 구현체
-│   └── ResultCallAdapterFactory.kt  # Result CallAdapter 팩토리
-└── clients/                         # HTTP 전송 계층
+├── RetrofitSupport.kt               # Retrofit Builder DSL and factory functions
+├── RetrofitCallSupport.kt           # Call extension functions
+├── SuspendRetrofitCallSupport.kt    # Suspend Call extension functions
+├── ExceptionSupport.kt              # Exception handling utilities
+├── result/                          # Result pattern
+│   ├── ResultCall.kt                # Result-wrapping Call implementation
+│   └── ResultCallAdapterFactory.kt  # Result CallAdapter factory
+└── clients/                         # HTTP transport backends
     ├── hc5/                         # Apache HC5 CallFactory
     │   ├── Hc5CallFactory.kt
     │   └── Hc5OkHttp3Support.kt
@@ -293,14 +294,14 @@ io.bluetape4k.retrofit2
         └── AhcCallFactorySupport.kt
 ```
 
-## 테스트
+## Testing
 
 ```bash
-# Retrofit2 모듈 테스트 실행
+# Run Retrofit2 module tests
 ./gradlew :bluetape4k-retrofit2:test
 ```
 
-## 참고
+## References
 
 - [Retrofit](https://square.github.io/retrofit/)
 - [OkHttp](https://square.github.io/okhttp/)

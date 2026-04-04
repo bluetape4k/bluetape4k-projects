@@ -1,18 +1,20 @@
 # Module bluetape4k-micrometer
 
-Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A module that provides application performance measurement and observability features using Micrometer and the Observation API.
 
-이 모듈은 [Micrometer](https://micrometer.io/)와 Spring Boot의 Observation API를 확장하여 다음 기능을 제공합니다:
+## Overview
 
-- **Timer 확장**: Suspend 함수 및 Kotlin Flow에 대한 실행 시간 측정
-- **Observation 확장**: Coroutine 환경에서의 관찰 기능 지원
-- **Retrofit2 메트릭**: HTTP 클라이언트 호출 메트릭 자동 수집
-- **Cache2k 메트릭**: 캐시 성능 메트릭 수집
-- **KeyValue 유틸리티**: Micrometer KeyValue 생성을 위한 확장 함수
+This module extends [Micrometer](https://micrometer.io/) and Spring Boot's Observation API with the following capabilities:
 
-## 의존성
+- **Timer extensions**: Measure execution time for suspend functions and Kotlin Flow
+- **Observation extensions**: Observation support in coroutine contexts
+- **Retrofit2 metrics**: Automatic metric collection for HTTP client calls
+- **Cache2k metrics**: Cache performance metric collection
+- **KeyValue utilities**: Extension functions for creating Micrometer KeyValues
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -20,11 +22,11 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-### 1. Timer 확장 (TimerExtensions)
+### 1. Timer Extensions
 
-#### Suspend 함수 실행 시간 측정
+#### Measuring Execution Time of Suspend Functions
 
 ```kotlin
 import io.bluetape4k.micrometer.instrument.recordSuspend
@@ -33,13 +35,13 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 val registry = SimpleMeterRegistry()
 val timer = registry.timer("api.call")
 
-// Suspend 함수의 실행 시간 측정
+// Measure execution time of a suspend function
 val result = timer.recordSuspend {
-    fetchUserData(userId)  // suspend 함수
+    fetchUserData(userId)  // suspend function
 }
 ```
 
-#### Flow 실행 시간 측정
+#### Measuring Flow Execution Time
 
 ```kotlin
 import io.bluetape4k.micrometer.instrument.withTimer
@@ -51,15 +53,15 @@ val flow = flow {
     emit(fetchData())
 }.withTimer(timer)
     .collect { data ->
-        // 처리 로직
+        // Processing logic
     }
 ```
 
-`withTimer`는 수집 단위로 시간을 재므로, 같은 Flow를 여러 번 수집하거나 예외로 종료되는 경우에도 collect 1회당 1개의 측정값만 남깁니다.
+`withTimer` measures time per collection, so even if the same Flow is collected multiple times or terminates with an exception, only one measurement is recorded per `collect` call.
 
-### 2. Observation 확장
+### 2. Observation Extensions
 
-#### 기본 Observation 사용
+#### Basic Observation Usage
 
 ```kotlin
 import io.bluetape4k.micrometer.observation.withObservation
@@ -72,7 +74,7 @@ val result = withObservation("user.service.getUser", registry) {
 }
 ```
 
-#### Observation 컨텍스트 사용
+#### Using Observation Context
 
 ```kotlin
 import io.bluetape4k.micrometer.observation.withObservationContext
@@ -84,7 +86,7 @@ observation.withObservationContext { context ->
 }
 ```
 
-#### Coroutine 환경에서 Observation 사용
+#### Using Observation in a Coroutine Context
 
 ```kotlin
 import io.bluetape4k.micrometer.observation.coroutines.withObservationContext
@@ -94,37 +96,37 @@ withObservationContext("async.operation", registry) {
     val observation = currentObservationInContext()
     observation?.highCardinalityKeyValue("operation.id", generateId())
 
-    // 비동기 작업 수행
+    // Perform async work
     delay(100)
     performAsyncWork()
 }
 ```
 
-`withObservationContextSuspending` 와 `observeSuspending` 계열 확장 함수는 suspend 블록이 끝날 때 Observation scope 를 정리하고 `stop()` 까지 호출합니다. 시작되지 않은 `Observation` 을 직접 넘겨도 내부에서 `start()` 후 실행하며, 예외가 발생해도 현재 Observation 이 남지 않도록 정리됩니다.
+The `withObservationContextSuspending` and `observeSuspending` extension functions clean up the Observation scope and call `stop()` when the suspend block ends. Passing an unstarted `Observation` is fine — it is started internally before execution — and the observation is always cleaned up even if an exception is thrown.
 
-#### ObservationRegistry 생성
+#### Creating ObservationRegistry
 
 ```kotlin
 import io.bluetape4k.micrometer.observation.observationRegistryOf
 import io.bluetape4k.micrometer.observation.simpleObservationRegistryOf
 
-// 커스텀 핸들러가 있는 Registry
+// Registry with a custom handler
 val registry = observationRegistryOf { ctx ->
     log.debug { "Observation: ${ctx.name}" }
-    true  // 계속 처리
+    true  // Continue processing
 }
 
-// 간단한 Registry
+// Simple registry
 val simpleRegistry = simpleObservationRegistryOf { ctx ->
     log.trace { "Context: $ctx" }
 }
 ```
 
-### 3. Retrofit2 메트릭
+### 3. Retrofit2 Metrics
 
-Retrofit2 HTTP 호출의 실행 시간과 결과를 자동으로 수집합니다.
+Automatically collects execution time and outcomes for Retrofit2 HTTP calls.
 
-#### 기본 사용법
+#### Basic Usage
 
 ```kotlin
 import io.bluetape4k.micrometer.instrument.retrofit2.MicrometerRetrofitMetricsFactory
@@ -142,34 +144,34 @@ val retrofit = Retrofit.Builder()
 
 val apiService = retrofit.create(ApiService::class.java)
 
-// 이제 모든 API 호출이 자동으로 메트릭 수집됨
+// All API calls are now automatically measured
 val users = apiService.getUsers().execute()
 ```
 
-#### 수집되는 메트릭
+#### Collected Metrics
 
-| 태그            | 설명         | 예시                                  |
-|---------------|------------|-------------------------------------|
-| `method`      | HTTP 메서드   | GET, POST, PUT, DELETE              |
-| `uri`         | 요청 URI     | /users/{id}                         |
-| `base_url`    | 기본 URL     | https://api.example.com             |
-| `status_code` | HTTP 상태 코드 | 200, 404, 500                       |
-| `outcome`     | 결과 분류      | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
-| `coroutines`  | 코루틴 사용 여부  | true, false                         |
-| `exception`   | 전송/디코딩 예외  | IOException, SocketTimeoutException |
+| Tag           | Description       | Example                             |
+|---------------|-------------------|-------------------------------------|
+| `method`      | HTTP method       | GET, POST, PUT, DELETE              |
+| `uri`         | Request URI       | /users/{id}                         |
+| `base_url`    | Base URL          | https://api.example.com             |
+| `status_code` | HTTP status code  | 200, 404, 500                       |
+| `outcome`     | Outcome category  | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
+| `coroutines`  | Coroutine usage   | true, false                         |
+| `exception`   | Transport/decode exception | IOException, SocketTimeoutException |
 
-#### 퍼센타일
+#### Percentiles
 
-다음 퍼센타일이 자동으로 수집됩니다: 50%, 70%, 90%, 95%, 97%, 99%
+The following percentiles are automatically collected: 50%, 70%, 90%, 95%, 97%, 99%
 
-#### 예외 및 재시도 동작
+#### Exception and Retry Behavior
 
-- HTTP 응답이 없는 전송 예외는 `outcome=UNKNOWN`, `status_code=IO_ERROR`, `exception=<예외 타입>` 태그로 기록됩니다.
-- `Call.clone()` 으로 생성한 재시도 호출도 계측 래퍼를 유지하므로 동일한 메트릭 정책이 적용됩니다.
+- Transport exceptions without an HTTP response are tagged with `outcome=UNKNOWN`, `status_code=IO_ERROR`, and `exception=<exception type>`.
+- Retry calls created with `Call.clone()` retain the instrumentation wrapper, so the same metric policy applies.
 
-### 4. Cache2k 메트릭
+### 4. Cache2k Metrics
 
-Cache2k 캐시의 성능 메트릭을 Micrometer에 노출합니다.
+Exposes Cache2k cache performance metrics to Micrometer.
 
 ```kotlin
 import io.bluetape4k.micrometer.instrument.cache.Cache2kCacheMetrics
@@ -183,53 +185,53 @@ val cache: Cache<String, User> = Cache2kBuilder.of(String::class.java, User::cla
 val registry = SimpleMeterRegistry()
 val tags = Tags.of("service", "user-service")
 
-// 캐시 메트릭 등록
+// Register cache metrics
 Cache2kCacheMetrics.monitor(registry, cache, tags)
 ```
 
-#### 수집되는 메트릭
+#### Collected Metrics
 
-| 메트릭 이름                    | 타입              | 설명                     |
-|---------------------------|-----------------|------------------------|
-| `cache.size`              | Gauge           | 현재 캐시 크기               |
-| `cache.gets`              | FunctionCounter | 캐시 조회 횟수 (hit/miss 태그) |
-| `cache.puts`              | FunctionCounter | 캐시 저장 횟수               |
-| `cache.evictions`         | FunctionCounter | 캐시 제거 횟수               |
-| `cache.load.duration`     | TimeGauge       | 캐시 로딩 시간               |
-| `cache.cleared.timestamp` | Gauge           | 마지막 캐시 클리어 시각          |
-| `cache.load`              | FunctionCounter | 로딩 성공/실패 횟수            |
-| `cache.expired.count`     | FunctionCounter | 만료된 엔트리 수              |
+| Metric Name               | Type            | Description                        |
+|---------------------------|-----------------|------------------------------------|
+| `cache.size`              | Gauge           | Current cache size                 |
+| `cache.gets`              | FunctionCounter | Cache lookup count (hit/miss tags) |
+| `cache.puts`              | FunctionCounter | Cache put count                    |
+| `cache.evictions`         | FunctionCounter | Cache eviction count               |
+| `cache.load.duration`     | TimeGauge       | Cache loading time                 |
+| `cache.cleared.timestamp` | Gauge           | Last cache clear timestamp         |
+| `cache.load`              | FunctionCounter | Load success/failure count         |
+| `cache.expired.count`     | FunctionCounter | Expired entry count                |
 
-### 5. KeyValue 유틸리티
+### 5. KeyValue Utilities
 
-Micrometer KeyValue 생성을 위한 확장 함수들을 제공합니다.
+Extension functions for creating Micrometer KeyValues.
 
 ```kotlin
 import io.bluetape4k.micrometer.common.keyValueOf
 import io.bluetape4k.micrometer.common.keyValuesOf
 
-// 단일 KeyValue 생성
+// Single KeyValue
 val kv1 = keyValueOf("key", "value")
 
-// 값 검증과 함께 생성
+// With value validation
 val kv2 = keyValueOf("count", 150) { it > 100 }
 
-// 여러 KeyValue 생성
+// Multiple KeyValues
 val kvs1 = keyValuesOf("k1", "v1", "k2", "v2")
 
-// Pair로 생성
+// From Pairs
 val kvs2 = keyValuesOf("key1" to "value1", "key2" to "value2")
 
-// Map으로 생성
+// From Map
 val kvs3 = keyValueOf(mapOf("x" to "1", "y" to "2"))
 
-// KeyValue 컬렉션으로 생성
+// From a collection of KeyValues
 val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### 핵심 클래스 구조
+### Core Class Structure
 
 ```mermaid
 classDiagram
@@ -280,11 +282,11 @@ classDiagram
 
 ```
 
-### 메트릭 수집 흐름
+### Metric Collection Flow
 
 ```mermaid
 flowchart TD
-    App[애플리케이션] --> TE[Timer Extensions<br/>recordSuspend / withTimer]
+    App[Application] --> TE[Timer Extensions<br/>recordSuspend / withTimer]
     App --> OE[Observation Extensions<br/>withObservation]
     App --> RM[Retrofit2 Metrics<br/>MicrometerRetrofitMetricsFactory]
     App --> CM[Cache2k Metrics<br/>Cache2kCacheMetrics]
@@ -310,44 +312,44 @@ flowchart TD
     style CM fill:#607D8B
 ```
 
-### Retrofit2 메트릭 수집 시퀀스
+### Retrofit2 Metric Collection Sequence
 
 ```mermaid
 sequenceDiagram
-    participant Client as 클라이언트
+    participant Client as Client
     participant Retrofit as Retrofit2
     participant Metrics as MicrometerRetrofitMetricsFactory
-    participant API as 외부 API
+    participant API as External API
     participant Registry as MeterRegistry
 
-    Client->>+Retrofit: API 호출
-    Retrofit->>+Metrics: 계측 래퍼 Call 생성
-    Metrics->>+API: HTTP 요청
-    API-->>-Metrics: HTTP 응답
-    Metrics->>Registry: Timer 기록<br/>(method, uri, status_code, outcome)
-    Metrics-->>-Retrofit: 응답 반환
-    Retrofit-->>-Client: 결과 반환
+    Client->>+Retrofit: API call
+    Retrofit->>+Metrics: Create instrumented Call wrapper
+    Metrics->>+API: HTTP request
+    API-->>-Metrics: HTTP response
+    Metrics->>Registry: Record timer<br/>(method, uri, status_code, outcome)
+    Metrics-->>-Retrofit: Return response
+    Retrofit-->>-Client: Return result
 ```
 
-### Coroutine Observation 흐름
+### Coroutine Observation Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Obs as withObservationContext
     participant Registry as ObservationRegistry
-    participant Work as 비동기 작업
+    participant Work as Async Work
 
     App->>+Obs: withObservationContext("operation", registry)
     Obs->>Registry: Observation.start()
-    Obs->>+Work: 코루틴 블록 실행
-    Note over Work: suspend 함수 / delay 등
-    Work-->>-Obs: 결과 반환
+    Obs->>+Work: Execute coroutine block
+    Note over Work: suspend functions / delay, etc.
+    Work-->>-Obs: Return result
     Obs->>Registry: Observation.stop()
-    Obs-->>-App: 결과 반환
+    Obs-->>-App: Return result
 ```
 
-## 아키텍처
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -362,40 +364,40 @@ sequenceDiagram
 │  │              Instrumentation Modules                  │   │
 │  ├────────────────────┬──────────────────────────────────┤   │
 │  │  Retrofit2 Metrics │       Cache2k Metrics            │   │
-│  │  - HTTP 호출 측정   │  - 캐시 히트/미스 측정            │   │
-│  │  - 응답 시간 기록   │  - 로딩 시간 측정                 │   │
-│  │  - 상태 코드 태그   │  - 만료/제거 카운트               │   │
+│  │  - HTTP call timing│  - Cache hit/miss measurement    │   │
+│  │  - Response time   │  - Load time measurement        │   │
+│  │  - Status code tag │  - Expiry/eviction count        │   │
 │  └────────────────────┴──────────────────────────────────┘   │
 ├─────────────────────────────────────────────────────────────┤
 │                    Micrometer Core                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 테스트
+## Testing
 
-모든 기능에 대한 테스트가 포함되어 있습니다:
+Tests are included for all features:
 
 ```bash
-# 모든 테스트 실행
+# Run all tests
 ./gradlew :bluetape4k-micrometer:test
 
-# 특정 테스트 클래스 실행
+# Run a specific test class
 ./gradlew :bluetape4k-micrometer:test --tests "io.bluetape4k.micrometer.instrument.TimerExtensionsTest"
 
-# Retrofit 계측 지원 테스트 실행
+# Run Retrofit instrumentation support tests
 ./gradlew :bluetape4k-micrometer:test --tests "io.bluetape4k.micrometer.instrument.retrofit2.RetrofitMetricsSupportTest"
 ```
 
-## 참고사항
+## Notes
 
-- Kotlin 2.3 이상 필요
-- Java 21 이상 필요
-- Micrometer 1.13.x 이상 필요
-- Coroutines 환경에서는 `runSuspendIO`를 사용하여 실제 시간 측정 필요 (runTest는 시간을 에뮬레이션함)
+- Requires Kotlin 2.3 or later
+- Requires Java 21 or later
+- Requires Micrometer 1.13.x or later
+- In coroutine tests, use `runSuspendIO` for real wall-clock timing (`runTest` emulates time)
 
-## 관련 모듈
+## Related Modules
 
-- `bluetape4k-core`: 핵심 유틸리티
-- `bluetape4k-coroutines`: Coroutines 지원
-- `bluetape4k-retrofit2`: Retrofit2 통합
-- `bluetape4k-cache`: Cache2k 통합
+- `bluetape4k-core`: Core utilities
+- `bluetape4k-coroutines`: Coroutines support
+- `bluetape4k-retrofit2`: Retrofit2 integration
+- `bluetape4k-cache`: Cache2k integration

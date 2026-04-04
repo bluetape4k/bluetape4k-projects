@@ -1,58 +1,60 @@
 # bluetape4k-redisson
 
-Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. DSL 방식의 클라이언트 생성, 고성능 Codec, Kotlin Coroutines 지원, 분산 리더 선출, NearCache 기능을 제공합니다.
+English | [한국어](./README.ko.md)
 
-## 주요 기능
+A Kotlin extension module for the Redisson Redis client, providing DSL-based client creation, high-performance codecs, Kotlin Coroutines support, distributed leader election, and NearCache functionality.
 
-| 기능 | 설명 |
-|------|------|
-| `RedissonClientSupport` | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리, YAML 설정 로드 |
-| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL 확장 함수 |
-| `RedissonClientCoroutine` | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수 |
-| `RFutureSupport` | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
-| `RedissonCodecs` | 직렬화(Fory/Kryo5) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록 |
-| `RedissonLeaderElection` | `RLock` 기반 단일 리더 선출 (동기 / 비동기) |
-| `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines) |
-| `RedissonLeaderGroupElection` | `RSemaphore` 기반 복수(N개) 동시 리더 선출 |
-| `RedissonNearCache` | `RLocalCachedMap` 기반 2-tier Near Cache |
+## Features
 
-`RedissonCacheConfig`/`RedissonNearCacheConfig` 사용 시:
-- `maxSize`, `nearCacheMaxSize`, `writeBehindBatchSize`는 음수일 수 없고, 배치 크기는 0보다 커야 합니다.
-- `timeToLive`, `maxIdle`, `nearCacheTtl`, `nearCacheMaxIdleTime`은 지정 시 음수일 수 없으며, near cache TTL/idle은 0보다 커야 합니다.
+| Feature | Description |
+|---------|-------------|
+| `RedissonClientSupport` | DSL-based `RedissonClient` / `RedissonReactiveClient` factory, YAML config loading |
+| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL extension functions |
+| `RedissonClientCoroutine` | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions |
+| `RFutureSupport` | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
+| `RedissonCodecs` | Codec combinations: serializers (Fory/Kryo5) × compression (LZ4/Zstd/Snappy/GZip) |
+| `RedissonLeaderElection` | `RLock`-based single-leader election (sync / async) |
+| `RedissonSuspendLeaderElection` | `RLock`-based single-leader election (Coroutines) |
+| `RedissonLeaderGroupElection` | `RSemaphore`-based group election for N concurrent leaders |
+| `RedissonNearCache` | 2-tier Near Cache based on `RLocalCachedMap` |
 
-## 의존성
+When using `RedissonCacheConfig` / `RedissonNearCacheConfig`:
+- `maxSize`, `nearCacheMaxSize`, and `writeBehindBatchSize` must not be negative; batch size must be greater than 0.
+- `timeToLive`, `maxIdle`, `nearCacheTtl`, and `nearCacheMaxIdleTime` must not be negative when specified; near cache TTL/idle must be greater than 0.
+
+## Dependency
 
 ```kotlin
 // build.gradle.kts
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-redisson:$bluetape4kVersion")
 
-    // Codec 선택적 의존성 (사용하는 항목만 추가)
-    runtimeOnly("org.apache.fury:fury-kotlin")        // Fory 직렬화
-    runtimeOnly("com.esotericsoftware:kryo")           // Kryo5 직렬화
-    runtimeOnly("org.lz4:lz4-java")                   // LZ4 압축
-    runtimeOnly("com.github.luben:zstd-jni")          // Zstd 압축
-    runtimeOnly("org.xerial.snappy:snappy-java")       // Snappy 압축
-    runtimeOnly("org.apache.commons:commons-compress") // GZip 압축
+    // Optional codec dependencies (add only what you need)
+    runtimeOnly("org.apache.fury:fury-kotlin")        // Fory serialization
+    runtimeOnly("com.esotericsoftware:kryo")           // Kryo5 serialization
+    runtimeOnly("org.lz4:lz4-java")                   // LZ4 compression
+    runtimeOnly("com.github.luben:zstd-jni")          // Zstd compression
+    runtimeOnly("org.xerial.snappy:snappy-java")       // Snappy compression
+    runtimeOnly("org.apache.commons:commons-compress") // GZip compression
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### 1. RedissonClient 생성
+### 1. Creating a RedissonClient
 
-#### DSL 방식
+#### DSL Style
 
 ```kotlin
 import io.bluetape4k.redis.redisson.redissonClient
 import io.bluetape4k.redis.redisson.redissonReactiveClient
 
-// 단일 서버
+// Single server
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
 }
 
-// Reactive 클라이언트
+// Reactive client
 val reactive = redissonReactiveClient {
     useSingleServer().address = "redis://localhost:6379"
 }
@@ -60,22 +62,22 @@ val reactive = redissonReactiveClient {
 client.shutdown()
 ```
 
-#### YAML 설정 파일 방식
+#### YAML Configuration File
 
 ```kotlin
 import io.bluetape4k.redis.redisson.configFromYamlOf
 import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 
-// InputStream, String, File, URL 모두 지원
+// Supports InputStream, String, File, and URL
 val config = configFromYamlOf(
     input = File("redisson.yaml").inputStream(),
-    codec = RedissonCodecs.Default,  // 선택적 Codec 지정 (기본: RedissonCodecs.Default)
+    codec = RedissonCodecs.Default,  // Optional codec (default: RedissonCodecs.Default)
 )
 val client = redissonClientOf(config)
 ```
 
-`redisson.yaml` 예시:
+Example `redisson.yaml`:
 
 ```yaml
 singleServerConfig:
@@ -86,17 +88,17 @@ singleServerConfig:
 
 ---
 
-### 2. Codec
+### 2. Codecs
 
-`io.bluetape4k.redis.redisson.codec` 패키지에서 고성능 Codec을 제공합니다.
+High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec` package.
 
-| 상수 | 직렬화 | 압축 | 설명 |
-|------|--------|------|------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4 | 기본값. 빠른 속도와 압축 균형 |
-| `RedissonCodecs.Fory` | Fory | 없음 | Fory 직렬화만 사용 |
-| `RedissonCodecs.Kryo5` | Kryo5 | 없음 | Kryo5 직렬화만 사용 |
-| `RedissonCodecs.LZ4` | Default | LZ4 | LZ4 압축 래핑 |
-| `RedissonCodecs.Zstd` | Default | Zstd | 높은 압축률 |
+| Constant | Serializer | Compression | Description |
+|----------|------------|-------------|-------------|
+| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4 | Default. Balances speed and compression |
+| `RedissonCodecs.Fory` | Fory | None | Fory serialization only |
+| `RedissonCodecs.Kryo5` | Kryo5 | None | Kryo5 serialization only |
+| `RedissonCodecs.LZ4` | Default | LZ4 | LZ4 compression wrapper |
+| `RedissonCodecs.Zstd` | Default | Zstd | High compression ratio |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -105,25 +107,25 @@ import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
-    codec = RedissonCodecs.Default   // Fory + LZ4 조합
+    codec = RedissonCodecs.Default   // Fory + LZ4 combination
 }
 
-// 직접 조합도 가능
+// You can also compose codecs manually
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
 ```
 
-Codec 클래스:
+Codec classes:
 
-- `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec(Kryo5)으로 자동 전환
-- `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
-- `ZstdCodec` — Zstd 압축 래퍼
-- `GzipCodec` — GZip 압축 래퍼
+- `ForyCodec` — Apache Fory serialization. Automatically falls back to Kryo5 on serialization failure.
+- `Lz4Codec` — LZ4 compression wrapper around an `innerCodec`.
+- `ZstdCodec` — Zstd compression wrapper.
+- `GzipCodec` — GZip compression wrapper.
 
 ---
 
 ### 3. Batch / Transaction
 
-#### Batch — 네트워크 왕복 최소화
+#### Batch — Minimizing Network Round-Trips
 
 ```kotlin
 import io.bluetape4k.redis.redisson.withBatch
@@ -135,7 +137,7 @@ val result = client.withBatch {
 }
 ```
 
-#### Transaction — 원자적 실행
+#### Transaction — Atomic Execution
 
 ```kotlin
 import io.bluetape4k.redis.redisson.withTransaction
@@ -143,15 +145,15 @@ import io.bluetape4k.redis.redisson.withTransaction
 client.withTransaction {
     getBucket<String>("account:balance").set("1000")
     getMap<String, Int>("ledger").put("tx-001", 500)
-    // 블록 정상 종료 시 자동 commit, 예외 발생 시 자동 rollback
+    // Auto-commits on normal exit, auto-rollbacks on exception
 }
 ```
 
-> **주의**: Coroutine 환경에서는 스레드 전환으로 트랜잭션이 깨질 수 있습니다. 아래 Coroutine 버전을 사용하세요.
+> **Note**: Thread switches in coroutine environments can break transactions. Use the coroutine variants below instead.
 
 ---
 
-### 4. Coroutine 지원
+### 4. Coroutine Support
 
 #### withSuspendedBatch / withSuspendedTransaction
 
@@ -159,41 +161,41 @@ client.withTransaction {
 import io.bluetape4k.redis.redisson.coroutines.withSuspendedBatch
 import io.bluetape4k.redis.redisson.coroutines.withSuspendedTransaction
 
-// suspend Batch
+// Suspend Batch
 val result = client.withSuspendedBatch {
     getBucket<String>("key1").setAsync("value1")
     getAtomicLong("counter").incrementAndGetAsync()
 }
 
-// suspend Transaction
+// Suspend Transaction
 client.withSuspendedTransaction {
     getBucket<String>("key").set("value")
-    // 정상 종료 시 commitAsync().await(), 예외 시 rollbackAsync().await()
+    // Calls commitAsync().await() on success, rollbackAsync().await() on exception
 }
 ```
 
-#### RFuture Coroutine 변환
+#### Converting RFuture to Coroutines
 
 ```kotlin
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import io.bluetape4k.redis.redisson.coroutines.sequence
 
-// 여러 RFuture를 suspend로 일괄 대기
+// Await multiple RFutures as suspend
 val rfutures: List<RFuture<String>> = ids.map { rmap.getAsync(it) }
 val results: List<String> = rfutures.awaitAll()   // suspend
 
-// CompletableFuture로 변환 후 일괄 처리 (blocking)
+// Convert to CompletableFuture for batch processing (blocking)
 val future: CompletableFuture<List<String>> = rfutures.sequence()
 val values: List<String> = future.get()
 ```
 
 ---
 
-### 5. Leader Election — 분산 리더 선출
+### 5. Leader Election — Distributed Leader Election
 
-#### 동기 버전
+#### Synchronous Version
 
-`RLock`을 기반으로 분산 환경에서 단 하나의 프로세스/스레드만 작업을 수행하도록 리더를 선출합니다.
+Uses `RLock` to ensure that only one process or thread executes a task in a distributed environment.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElection
@@ -207,22 +209,22 @@ val options = LeaderElectionOptions(
 val election = RedissonLeaderElection(client, options)
 
 val result = election.runIfLeader("batch-job") {
-    // 리더로 선출된 프로세스만 실행
+    // Only the elected leader runs this
     processBatch()
 }
 
-// RedissonClient 확장 함수로도 사용 가능
+// Also available as a RedissonClient extension function
 val result2 = client.runIfLeader("batch-job") {
     processBatch()
 }
 
-// 비동기 (CompletableFuture)
+// Async (CompletableFuture)
 val future = client.runAsyncIfLeader("batch-job") {
     CompletableFuture.supplyAsync { processBatch() }
 }
 ```
 
-#### Coroutine 버전
+#### Coroutine Version
 
 ```kotlin
 import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
@@ -234,38 +236,38 @@ val result = election.runIfLeader("batch-job") {
     processData()
 }
 
-// RedissonClient 확장 함수로도 사용 가능
+// Also available as a RedissonClient extension function
 val result2 = client.suspendRunIfLeader("batch-job") {
     processData()
 }
 ```
 
-> **코루틴 Lock ID**: Redisson Lock은 스레드 ID 기반입니다. 코루틴 환경에서는 스레드가 전환되면 락이 깨질 수 있으므로, `RedissonSuspendLeaderElection`은 `RAtomicLong`으로 코루틴 세션마다 고유 ID를 발급하여 이 문제를 해결합니다.
+> **Coroutine Lock ID**: Redisson Lock is thread-ID-based. In a coroutine environment, thread switches can break the lock. `RedissonSuspendLeaderElection` solves this by issuing a unique ID per coroutine session using `RAtomicLong`.
 
-#### 그룹 리더 선출 — 최대 N개 동시 실행
+#### Group Leader Election — Up to N Concurrent Leaders
 
-`RSemaphore` 기반으로 최대 N개 프로세스가 동시에 작업을 수행합니다.
+Uses `RSemaphore` to allow up to N processes to run concurrently.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection
 import io.bluetape4k.leader.LeaderGroupElectionOptions
 
 val options = LeaderGroupElectionOptions(
-    maxLeaders = 3,                       // 최대 3개 동시 실행
+    maxLeaders = 3,                       // Up to 3 concurrent leaders
     waitTime = Duration.ofSeconds(5),
 )
 val groupElection = RedissonLeaderGroupElection(client, options)
 
-// 최대 3개 프로세스/스레드가 동시에 실행
+// Up to 3 processes/threads run concurrently
 val result = groupElection.runIfLeader("parallel-job") {
     processChunk()
 }
 
-// 상태 조회
+// Check state
 val state = groupElection.state("parallel-job")
 println("active=${state.activeCount}, available=${state.availableSlots}")
 
-// 비동기 실행
+// Async execution
 val future = groupElection.runAsyncIfLeader("parallel-job") {
     CompletableFuture.supplyAsync { processChunk() }
 }
@@ -275,7 +277,7 @@ val future = groupElection.runAsyncIfLeader("parallel-job") {
 
 ### 6. NearCache
 
-Redisson `RLocalCachedMap` 기반 2-tier Near Cache입니다. 로컬 캐시 우선 조회 후 없으면 Redis에서 조회합니다.
+A 2-tier Near Cache based on Redisson's `RLocalCachedMap`. Lookups check the local cache first and fall back to Redis on a miss.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.nearcache.RedissonNearCache
@@ -285,16 +287,16 @@ val config = RedisCacheConfig()
 val nearCache = RedissonNearCache<String, Any>("my-cache", client, config)
 
 nearCache.put("key", "value")
-val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
+val value = nearCache.get("key")   // Checks local cache first
 ```
 
-> JCache 기반의 고급 NearCache (RESP3 하이브리드, Resilient write-behind 등)는 `bluetape4k-cache-redisson` 모듈을 사용하세요.
+> For advanced NearCache features (RESP3 hybrid, resilient write-behind, etc.), use the `bluetape4k-cache-redisson` module.
 
 ---
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Codec 계층 구조
+### Codec Hierarchy
 
 ```mermaid
 classDiagram
@@ -356,69 +358,69 @@ classDiagram
 
 ```
 
-### 분산 리더 선출 시퀀스
+### Distributed Leader Election Sequence
 
 ```mermaid
 sequenceDiagram
-    participant P1 as 프로세스 1
-    participant P2 as 프로세스 2
+    participant P1 as Process 1
+    participant P2 as Process 2
     participant Redis as Redis (RLock)
-    participant Job as 배치 작업
+    participant Job as Batch Job
 
     P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
     P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
-    Redis-->>P1: Lock 획득 성공
-    Redis-->>P2: Lock 획득 실패 (대기 or 포기)
+    Redis-->>P1: Lock acquired
+    Redis-->>P2: Lock failed (waiting or giving up)
 
     P1->>+Job: runIfLeader { processBatch() }
-    Note over P1,Job: 리더로 선출된 P1만 실행
-    Job-->>-P1: 작업 완료
+    Note over P1,Job: Only P1 (the elected leader) runs this
+    Job-->>-P1: Work complete
     P1->>Redis: unlock()
-    Redis-->>-P1: Lock 해제
+    Redis-->>-P1: Lock released
 
-    P2->>Redis: 다음 라운드에서 재시도
+    P2->>Redis: Retry in the next round
 ```
 
-### NearCache 2-Tier 캐시 흐름
+### NearCache 2-Tier Cache Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Local as 로컬 캐시<br/>(RLocalCachedMap)
-    participant Redis as Redis<br/>(원격 저장소)
-    participant Other as 다른 노드
+    participant App as Application
+    participant Local as Local Cache<br/>(RLocalCachedMap)
+    participant Redis as Redis<br/>(Remote Store)
+    participant Other as Other Node
 
     App->>+Local: get("key")
-    alt 로컬 캐시 히트
-        Local-->>App: 값 즉시 반환
-    else 로컬 캐시 미스
+    alt Local cache hit
+        Local-->>App: Return value immediately
+    else Local cache miss
         Local->>+Redis: GET "key"
-        Redis-->>-Local: 값 반환
-        Local->>Local: 로컬 캐시에 저장
-        Local-->>-App: 값 반환
+        Redis-->>-Local: Return value
+        Local->>Local: Store in local cache
+        Local-->>-App: Return value
     end
 
     App->>Redis: put("key", newValue)
-    Redis->>Local: Invalidation 전파
-    Redis->>Other: Invalidation 전파 (Pub/Sub)
-    Other->>Other: 로컬 캐시 무효화
+    Redis->>Local: Propagate invalidation
+    Redis->>Other: Propagate invalidation (Pub/Sub)
+    Other->>Other: Invalidate local cache
 ```
 
-### Batch / Transaction 처리 흐름
+### Batch / Transaction Processing Flow
 
 ```mermaid
 flowchart TD
-    App[애플리케이션] -->|withBatch| Batch[RBatch]
+    App[Application] -->|withBatch| Batch[RBatch]
     Batch -->|setAsync| Op1[bucket.setAsync]
     Batch -->|incrementAndGetAsync| Op2[atomicLong.incrementAsync]
     Batch -->|putAsync| Op3[map.putAsync]
-    Op1 & Op2 & Op3 -->|execute| Redis[Redis<br/>파이프라인 실행]
+    Op1 & Op2 & Op3 -->|execute| Redis[Redis<br/>Pipeline execution]
     Redis -->|BatchResult| App
 
-    App2[코루틴 환경] -->|withSuspendedTransaction| Tx[RTransaction]
-    Tx -->|set/put 작업| TxOps[트랜잭션 연산]
-    TxOps -->|성공 시 commitAsync| Redis
-    TxOps -->|예외 시 rollbackAsync| Redis
+    App2[Coroutine context] -->|withSuspendedTransaction| Tx[RTransaction]
+    Tx -->|set/put operations| TxOps[Transaction ops]
+    TxOps -->|on success: commitAsync| Redis
+    TxOps -->|on exception: rollbackAsync| Redis
 
     style App fill:#2196F3
     style App2 fill:#9C27B0
@@ -431,16 +433,16 @@ flowchart TD
     style TxOps fill:#607D8B
 ```
 
-## Redis 버전 요구사항
+## Redis Version Requirements
 
-| 기능 | 최소 Redis 버전 |
-|------|----------------|
-| 기본 기능 (Client, Batch, Transaction, Leader) | Redis 5.0+ |
+| Feature | Minimum Redis Version |
+|---------|-----------------------|
+| Core features (Client, Batch, Transaction, Leader) | Redis 5.0+ |
 | RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+ |
 
-## 빌드 및 테스트
+## Build and Testing
 
-테스트 실행 시 Redis 서버가 필요합니다. Testcontainers를 통해 자동 구성됩니다.
+A Redis server is required to run tests. It is automatically provisioned via Testcontainers.
 
 ```bash
 ./gradlew :bluetape4k-redisson:test

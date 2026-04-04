@@ -1,20 +1,22 @@
 # Module bluetape4k-avro
 
-## 개요
+English | [한국어](./README.ko.md)
 
-Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모듈입니다.
+## Overview
 
-다양한 압축 코덱(Zstandard, Snappy, Deflate 등)을 지원하며, Base64 문자열 변환, 리스트 직렬화, 스키마 진화(Schema Evolution)를 포함한 완전한 Avro 직렬화 솔루션을 제공합니다.
+A module providing a high-level API for Apache Avro serialization and deserialization.
 
-## Serializer 종류
+It supports various compression codecs (Zstandard, Snappy, Deflate, etc.) and offers a complete Avro serialization solution including Base64 string conversion, list serialization, and Schema Evolution.
 
-용도에 따라 3가지 Serializer를 제공합니다:
+## Serializer Types
+
+Three serializers are available depending on your use case:
 
 ### AvroGenericRecordSerializer
 
-- Avro `GenericRecord` 기반의 범용 직렬화
-- 스키마 정보만으로 동작하므로 코드 생성이 필요 없음
-- 스키마가 런타임에 결정되는 동적 시나리오에 적합
+- General-purpose serialization based on Avro `GenericRecord`
+- Works with schema information alone — no code generation required
+- Suitable for dynamic scenarios where the schema is determined at runtime
 
 ```kotlin
 val serializer = DefaultAvroGenericRecordSerializer()
@@ -26,29 +28,29 @@ val deserialized = serializer.deserialize(schema, bytes)
 
 ### AvroSpecificRecordSerializer
 
-- Avro 스키마(.avdl, .avsc)로부터 코드 생성된 `SpecificRecord` 기반 직렬화
-- 컴파일 타임 타입 안전성 보장
-- 단일 객체 및 리스트 직렬화/역직렬화 지원
-- 스키마 진화(Schema Evolution) 지원
+- Serialization based on `SpecificRecord` generated from Avro schema files (.avdl, .avsc)
+- Guarantees compile-time type safety
+- Supports single-object and list serialization/deserialization
+- Supports Schema Evolution
 
 ```kotlin
 val serializer = DefaultAvroSpecificRecordSerializer()
 
-// 단일 객체
+// Single object
 val bytes = serializer.serialize(employee)
 val deserialized = serializer.deserialize<Employee>(bytes)
 
-// 리스트
+// List
 val listBytes = serializer.serializeList(employees)
 val list = serializer.deserializeList<Employee>(listBytes)
 ```
 
 ### AvroReflectSerializer
 
-- Reflection 기반 직렬화로 코드 생성 없이 사용 가능
-- 기존 POJO/데이터 클래스를 변경 없이 Avro로 직렬화
-- 클래스별 스키마 캐시를 사용해 반복 직렬화 시 Reflection 오버헤드를 줄임
-- 편의성이 높지만 Reflection 오버헤드로 SpecificRecord보다 성능이 낮을 수 있음
+- Reflection-based serialization — no code generation required
+- Serializes existing POJOs/data classes to Avro without modification
+- Uses a per-class schema cache to reduce reflection overhead on repeated serialization
+- Convenient but may be slower than SpecificRecord due to reflection overhead
 
 ```kotlin
 val serializer = DefaultAvroReflectSerializer()
@@ -57,67 +59,66 @@ val bytes = serializer.serialize(employee)
 val deserialized = serializer.deserialize<Employee>(bytes)
 ```
 
-`DefaultAvroReflectSerializer`는 역직렬화에 `ReflectDatumReader`를 사용합니다.  
-손상된 바이트 배열 또는 잘못된 Base64 문자열 입력 시 예외를 외부로 전파하지 않고 `null`을 반환합니다.
+`DefaultAvroReflectSerializer` uses `ReflectDatumReader` for deserialization. When given a corrupted byte array or an invalid Base64 string, it returns `null` instead of propagating an exception.
 
-## 압축 코덱 지원
+## Compression Codec Support
 
-미리 정의된 `CodecFactory` 상수를 제공하여 간편하게 압축 방식을 선택할 수 있습니다:
+Pre-defined `CodecFactory` constants for easy codec selection:
 
-| 상수                      | 알고리즘              | 특성                        |
-|-------------------------|-------------------|---------------------------|
-| `DEFAULT_CODEC_FACTORY` | Deflate (Avro 기본 레벨) | Avro 기본값과 동일한 범용 압축       |
-| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨) | Zstd 균형형 압축               |
-| `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1) | LZ4/Snappy 수준의 빠른 속도      |
-| `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)  | 최대 압축률, 장기 보관용            |
-| `NULL_CODEC_FACTORY`    | 없음                | 압축 없이 최대 속도               |
-| `DEFLATE_CODEC_FACTORY` | Deflate (레벨 6)    | 표준 압축, 높은 호환성             |
-| `SNAPPY_CODEC_FACTORY`  | Snappy            | 빠른 압축/복원, Hadoop/Kafka 호환 |
-| `BZIP2_CODEC_FACTORY`   | BZip2             | 높은 압축률, 느린 처리             |
-| `XZ_CODEC_FACTORY`      | XZ (레벨 6)       | 아카이브 지향 압축                 |
+| Constant | Algorithm | Characteristics |
+|----------|-----------|----------------|
+| `DEFAULT_CODEC_FACTORY` | Deflate (Avro default level) | Same as Avro default; general-purpose compression |
+| `ZSTD_CODEC_FACTORY` | Zstandard (default level) | Balanced Zstd compression |
+| `FAST_CODEC_FACTORY` | Zstandard (level -1) | LZ4/Snappy-level speed |
+| `ARCHIVE_CODEC_FACTORY` | Zstandard (level 9) | Maximum compression ratio for long-term storage |
+| `NULL_CODEC_FACTORY` | None | Maximum speed, no compression |
+| `DEFLATE_CODEC_FACTORY` | Deflate (level 6) | Standard compression, high compatibility |
+| `SNAPPY_CODEC_FACTORY` | Snappy | Fast compression/decompression, Hadoop/Kafka compatible |
+| `BZIP2_CODEC_FACTORY` | BZip2 | High compression ratio, slower processing |
+| `XZ_CODEC_FACTORY` | XZ (level 6) | Archive-oriented compression |
 
-문자열 기반으로 코덱을 생성할 수도 있습니다:
+You can also create a codec from a string:
 
 ```kotlin
 val codec = codecFactoryOf("snappy")
 val serializer = DefaultAvroSpecificRecordSerializer(codec)
 ```
 
-## 성능/안정성 운영 가이드
+## Performance and Reliability Guide
 
-- 고성능 온라인 처리: `FAST_CODEC_FACTORY` 또는 `SNAPPY_CODEC_FACTORY`
-- Avro 기본값 호환: `DEFAULT_CODEC_FACTORY`
-- 균형형 Zstd: `ZSTD_CODEC_FACTORY`
-- 저장 공간 최적화: `ARCHIVE_CODEC_FACTORY`, `BZIP2_CODEC_FACTORY`, `XZ_CODEC_FACTORY`
-- 실패 허용 정책: 본 모듈의 serializer 기본 구현은 역직렬화 실패 시 `null` 또는 `emptyList()`로 안전 실패합니다.
-- 대규모 트래픽 경로에서는 `SpecificRecord`를 우선 사용하고, `Reflect`는 유연성이 필요한 구간에 제한적으로 적용하는 것을 권장합니다.
+- High-performance online processing: `FAST_CODEC_FACTORY` or `SNAPPY_CODEC_FACTORY`
+- Avro default compatibility: `DEFAULT_CODEC_FACTORY`
+- Balanced Zstd: `ZSTD_CODEC_FACTORY`
+- Storage optimization: `ARCHIVE_CODEC_FACTORY`, `BZIP2_CODEC_FACTORY`, `XZ_CODEC_FACTORY`
+- Failure policy: The default serializer implementations in this module fail safely, returning `null` or `emptyList()` on deserialization failure.
+- For high-traffic paths, prefer `SpecificRecord`; use `Reflect` only where flexibility is required.
 
-## Base64 문자열 변환
+## Base64 String Conversion
 
-모든 Serializer는 Base64 문자열 변환을 지원합니다:
+All serializers support Base64 string conversion:
 
 ```kotlin
-val text = serializer.serializeAsString(employee)       // Base64 인코딩
-val obj = serializer.deserializeFromString<Employee>(text) // Base64 디코딩
+val text = serializer.serializeAsString(employee)          // Base64 encode
+val obj = serializer.deserializeFromString<Employee>(text) // Base64 decode
 ```
 
-## 스키마 진화 (Schema Evolution)
+## Schema Evolution
 
-`SpecificRecordSerializer`와 `ReflectSerializer`는 스키마 진화를 지원합니다. Writer 스키마와 Reader 스키마가 다르더라도, 호환 가능한 경우 정상적으로 역직렬화합니다:
+`SpecificRecordSerializer` and `ReflectSerializer` support Schema Evolution. Even when the writer schema and reader schema differ, deserialization succeeds as long as the schemas are compatible:
 
 ```kotlin
-// V1으로 직렬화 -> V2로 역직렬화 (새 필드는 기본값 사용)
+// Serialized with V1 -> Deserialized as V2 (new fields use default values)
 val bytes = serializer.serialize(itemV1)
 val itemV2 = serializer.deserialize<ItemV2>(bytes)
 
-// V2로 직렬화 -> V1으로 역직렬화 (제거된 필드는 무시)
+// Serialized with V2 -> Deserialized as V1 (removed fields are ignored)
 val bytes = serializer.serialize(itemV2)
 val itemV1 = serializer.deserialize<ItemV1>(bytes)
 ```
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Serializer 클래스 계층
+### Serializer Class Hierarchy
 
 ```mermaid
 classDiagram
@@ -168,56 +169,56 @@ classDiagram
 
 ```
 
-### Avro 직렬화/역직렬화 흐름
+### Avro Serialization/Deserialization Flow
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as 애플리케이션
+    participant App as Application
     participant S as AvroSerializer
     participant C as CodecFactory
-    participant A as Avro 런타임
+    participant A as Avro Runtime
 
-    Note over 앱,A: 직렬화 흐름
-    앱->>S: serialize(record)
-    S->>C: 압축 코덱 선택 (Zstd/Snappy/Deflate)
-    S->>A: DatumWriter로 인코딩
-    A-->>S: 압축된 ByteArray
-    S-->>앱: ByteArray
+    Note over App,A: Serialization flow
+    App->>S: serialize(record)
+    S->>C: Select compression codec (Zstd/Snappy/Deflate)
+    S->>A: Encode with DatumWriter
+    A-->>S: Compressed ByteArray
+    S-->>App: ByteArray
 
-    Note over 앱,A: 역직렬화 흐름 (스키마 진화 포함)
-    앱->>S: deserialize(bytes)
-    S->>A: Writer Schema + Reader Schema 비교
-    A->>A: 필드 호환성 검증
-    A-->>S: 역직렬화된 객체
-    S-->>앱: T (실패 시 null 반환)
+    Note over App,A: Deserialization flow (with Schema Evolution)
+    App->>S: deserialize(bytes)
+    S->>A: Compare Writer Schema + Reader Schema
+    A->>A: Validate field compatibility
+    A-->>S: Deserialized object
+    S-->>App: T (returns null on failure)
 ```
 
-### 압축 코덱 선택 가이드
+### Compression Codec Selection Guide
 
 ```mermaid
 flowchart TD
-    시작([직렬화 시작]) --> 용도{사용 목적?}
-    용도 -->|고성능 온라인 처리| FAST[FAST_CODEC_FACTORY<br/>Zstd 레벨 -1]
-    용도 -->|Kafka/Hadoop 호환| SNAPPY[SNAPPY_CODEC_FACTORY]
-    용도 -->|Avro 기본값 호환| DEFAULT[DEFAULT_CODEC_FACTORY<br/>Deflate 기본]
-    용도 -->|균형형 압축| ZSTD[ZSTD_CODEC_FACTORY<br/>Zstd 기본]
-    용도 -->|장기 보관/최대 압축| ARCHIVE[ARCHIVE_CODEC_FACTORY<br/>Zstd 레벨 9]
-    용도 -->|압축 없이 최대 속도| NULL[NULL_CODEC_FACTORY]
-    FAST --> 직렬화([ByteArray 출력])
-    SNAPPY --> 직렬화
-    DEFAULT --> 직렬화
-    ZSTD --> 직렬화
-    ARCHIVE --> 직렬화
-    NULL --> 직렬화
+    Start([Start Serialization]) --> Purpose{Use case?}
+    Purpose -->|High-performance online| FAST[FAST_CODEC_FACTORY<br/>Zstd level -1]
+    Purpose -->|Kafka/Hadoop compatible| SNAPPY[SNAPPY_CODEC_FACTORY]
+    Purpose -->|Avro default compatible| DEFAULT[DEFAULT_CODEC_FACTORY<br/>Deflate default]
+    Purpose -->|Balanced compression| ZSTD[ZSTD_CODEC_FACTORY<br/>Zstd default]
+    Purpose -->|Long-term storage/max compression| ARCHIVE[ARCHIVE_CODEC_FACTORY<br/>Zstd level 9]
+    Purpose -->|Maximum speed, no compression| NULL[NULL_CODEC_FACTORY]
+    FAST --> Output([ByteArray output])
+    SNAPPY --> Output
+    DEFAULT --> Output
+    ZSTD --> Output
+    ARCHIVE --> Output
+    NULL --> Output
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-avro"))
 
-    // 추가 압축 코덱 (선택)
+    // Additional compression codecs (optional)
     runtimeOnly("org.xerial.snappy:snappy-java")
     runtimeOnly("com.github.luben:zstd-jni")
     runtimeOnly("org.lz4:lz4-java")
@@ -225,15 +226,15 @@ dependencies {
 }
 ```
 
-## 회귀 테스트 실행
+## Running Tests
 
-`io/avro` 모듈만 빠르게 검증할 때:
+To quickly validate only the `io/avro` module:
 
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-avro:test
 ```
 
-모듈 빌드/테스트를 함께 검증할 때:
+To validate the module build and tests together:
 
 ```bash
 ./bin/repo-test-summary -- ./gradlew :bluetape4k-avro:build

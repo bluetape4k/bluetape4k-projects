@@ -1,22 +1,23 @@
 # Module bluetape4k-exposed-jdbc-redisson
 
-Exposed JDBC와 Redisson 캐시를 결합해 Read-Through/Write-Through 캐시 패턴을 구성하는 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Combines Exposed JDBC with Redisson caching to implement Read-Through/Write-Through cache patterns.
 
-`bluetape4k-exposed-jdbc-redisson`은 JetBrains Exposed ORM과 [Redisson](https://github.com/redisson/redisson) Redis 클라이언트를 통합하여,
-데이터베이스 조회 결과를 Redis에 캐싱하는 패턴을 쉽게 구현할 수 있도록 지원합니다.
+## Overview
 
-### 주요 기능
+`bluetape4k-exposed-jdbc-redisson` integrates JetBrains Exposed ORM with the [Redisson](https://github.com/redisson/redisson) Redis client, making it easy to cache database query results in Redis.
 
-- **MapLoader/MapWriter 지원**: Redisson Read-Through/Write-Through 캐시 연동
-  - `loadAllKeys()`는 PK 오름차순으로 안정적으로 순회
-- **Repository 추상화**: 캐시 + DB 접근 공통 패턴 (`JdbcRedissonRepository`, `SuspendedJdbcRedissonRepository`)
-- **동기/코루틴 구현 제공**: 운영 환경에 맞는 방식 선택
-- **Near Cache 지원**: Local Cache + Redis 2-Tier 캐시
-- **Write-Behind 지원**: 비동기 DB 반영 패턴
+### Key Features
 
-## 의존성 추가
+- **MapLoader/MapWriter support**: Integration with Redisson Read-Through/Write-Through caching
+  - `loadAllKeys()` iterates reliably in ascending primary key order
+- **Repository abstraction**: Common cache + DB access patterns (`JdbcRedissonRepository`, `SuspendedJdbcRedissonRepository`)
+- **Sync and Coroutines implementations**: Choose the right approach for your environment
+- **Near Cache support**: Two-tier Local Cache + Redis caching
+- **Write-Behind support**: Asynchronous DB persistence pattern
+
+## Adding Dependencies
 
 ```kotlin
 dependencies {
@@ -25,11 +26,11 @@ dependencies {
 }
 ```
 
-## 기본 사용법
+## Basic Usage
 
-### 1. JdbcRedissonRepository (동기) 구현
+### 1. Implementing JdbcRedissonRepository (synchronous)
 
-`AbstractJdbcRedissonRepository`를 상속하여 동기 방식의 캐시 Repository를 구현합니다.
+Extend `AbstractJdbcRedissonRepository` to implement a synchronous cache Repository.
 
 ```kotlin
 import io.bluetape4k.exposed.core.HasIdentifier
@@ -41,7 +42,7 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.update
 import org.redisson.api.RedissonClient
 
-// 엔티티 (java.io.Serializable 필수)
+// Entity (must implement java.io.Serializable)
 data class UserRecord(
     override val id: Long,
     val name: String,
@@ -69,40 +70,40 @@ class UserRedissonRepository(
         email = this[UserTable.email],
     )
 
-    // Write-Through 모드 시 구현 필요
+    // Required for Write-Through mode
     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
         statement[UserTable.name]  = entity.name
         statement[UserTable.email] = entity.email
     }
 }
 
-// 사용 (Read-Through)
+// Usage (Read-Through)
 val repo = UserRedissonRepository(redissonClient, RedisCacheConfig.READ_ONLY)
 
-// 캐시에서 조회 (미스 시 DB에서 자동 로드)
+// Retrieve from cache (auto-loads from DB on miss)
 val user = repo[1L]
 
-// ID 존재 여부 확인 (캐시 미스 시 DB Read-Through)
+// Check existence by ID (DB Read-Through on cache miss)
 val exists = repo.exists(1L)
 
-// DB에서 직접 조회 (캐시 우회)
+// Bypass cache and query DB directly
 val freshUser = repo.findByIdFromDb(1L)
 
-// 여러 엔티티 일괄 조회
+// Batch retrieval of multiple entities
 val users = repo.getAll(listOf(1L, 2L, 3L))
 
-// DB 조회 후 캐시에 저장
+// Load from DB and store in cache
 val allUsers = repo.findAll(limit = 100)
 
-// 캐시 무효화
+// Invalidate cache
 repo.invalidate(1L)
 repo.invalidateAll()
-repo.invalidateByPattern("*홍*")  // 패턴으로 무효화
+repo.invalidateByPattern("*John*")  // Invalidate by pattern
 ```
 
-### 2. SuspendedJdbcRedissonRepository (코루틴) 구현
+### 2. Implementing SuspendedJdbcRedissonRepository (Coroutines)
 
-`AbstractSuspendedJdbcRedissonRepository`를 상속하여 코루틴 방식의 캐시 Repository를 구현합니다.
+Extend `AbstractSuspendedJdbcRedissonRepository` to implement a coroutine-based cache Repository.
 
 ```kotlin
 import io.bluetape4k.exposed.redisson.repository.AbstractSuspendedJdbcRedissonRepository
@@ -126,55 +127,55 @@ class SuspendedUserRedissonRepository(
     )
 }
 
-// 사용 (suspend 함수)
+// Usage (suspend functions)
 val repo = SuspendedUserRedissonRepository(redissonClient, RedisCacheConfig.READ_ONLY)
 
-val user = repo.get(1L)                          // 캐시 조회 (미스 시 DB Read-Through)
-val exists = repo.exists(1L)                     // 존재 여부 확인
-val fresh = repo.findByIdFromDb(1L)              // DB 직접 조회 (캐시 우회)
-val all = repo.findAll(limit = 100)              // DB 조회 후 캐시 저장
-val batch = repo.getAll(listOf(1L, 2L, 3L))     // 여러 엔티티 일괄 조회
-repo.put(user!!)                                 // 캐시 저장
-repo.putAll(batch)                               // 일괄 캐시 저장
-repo.invalidate(1L)                              // 캐시 무효화
-repo.invalidateAll()                             // 전체 캐시 무효화 (Boolean 반환)
-repo.invalidateByPattern("user:*")               // 패턴으로 무효화
+val user = repo.get(1L)                          // Cache lookup (DB Read-Through on miss)
+val exists = repo.exists(1L)                     // Check existence
+val fresh = repo.findByIdFromDb(1L)              // Bypass cache, query DB directly
+val all = repo.findAll(limit = 100)              // Load from DB, populate cache
+val batch = repo.getAll(listOf(1L, 2L, 3L))     // Batch retrieval
+repo.put(user!!)                                 // Store in cache
+repo.putAll(batch)                               // Batch store in cache
+repo.invalidate(1L)                              // Invalidate single entry
+repo.invalidateAll()                             // Invalidate all (returns Boolean)
+repo.invalidateByPattern("user:*")               // Invalidate by pattern
 ```
 
-### 3. 캐시 패턴 설정
+### 3. Cache pattern configuration
 
 ```kotlin
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.redisson.api.map.WriteMode
 
-// Read-Through Only (기본) — 캐시 미스 시 DB에서 자동 로드
+// Read-Through Only (default) — auto-loads from DB on cache miss
 val readOnlyConfig = RedisCacheConfig.READ_ONLY
 
-// Read-Through + Near Cache — 로컬 캐시 + Redis 2단계 캐시
+// Read-Through + Near Cache — two-tier Local Cache + Redis
 val readOnlyNearCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
-// Read-Through + Write-Through — 캐시 저장 즉시 DB에도 동기 반영
+// Read-Through + Write-Through — synchronously persists to DB on cache write
 val writeThroughConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
 // Read-Through + Write-Through + Near Cache
 val writeThroughNearCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-// Read-Through + Write-Behind — 캐시 저장 후 비동기로 DB에 반영
+// Read-Through + Write-Behind — asynchronously persists to DB after cache write
 val writeBehindConfig = RedisCacheConfig.WRITE_BEHIND
 
 // Read-Through + Write-Behind + Near Cache
 val writeBehindNearCacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
-// invalidate 시 DB에서도 삭제하는 설정 (deleteFromDBOnInvalidate=true)
-// ⚠️ 주의: 프로덕션 환경에서 신중하게 사용하세요.
+// Also delete from DB on invalidate (deleteFromDBOnInvalidate=true)
+// ⚠️ Use with caution in production.
 val deleteFromDbConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
     deleteFromDBOnInvalidate = true,
 )
 ```
 
-### 4. Write-Through / Write-Behind Repository 구현
+### 4. Write-Through / Write-Behind Repository implementation
 
-Write-Through/Write-Behind 모드에서는 `doUpdateEntity`와 `doInsertEntity`를 추가로 구현합니다.
+In Write-Through/Write-Behind mode, also implement `doUpdateEntity` and `doInsertEntity`.
 
 ```kotlin
 class UserWriteThroughRepository(
@@ -192,13 +193,13 @@ class UserWriteThroughRepository(
         email = this[UserTable.email],
     )
 
-    // 기존 레코드 UPDATE 시 호출
+    // Called on UPDATE of an existing record
     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
         statement[UserTable.name]  = entity.name
         statement[UserTable.email] = entity.email
     }
 
-    // 신규 레코드 INSERT 시 호출 (client-side ID인 경우)
+    // Called on INSERT of a new record (for client-side IDs)
     override fun doInsertEntity(statement: BatchInsertStatement, entity: UserRecord) {
         statement[UserTable.id]    = EntityID(entity.id, UserTable)
         statement[UserTable.name]  = entity.name
@@ -206,17 +207,17 @@ class UserWriteThroughRepository(
     }
 }
 
-// Write-Through 사용 예
+// Write-Through usage
 val repo = UserWriteThroughRepository(redissonClient)
 transaction {
-    val user = UserRecord(id = 0, name = "홍길동", email = "hong@example.com")
-    repo.put(user)                   // 캐시 저장 + DB 동기 반영
-    repo.putAll(listOf(user))        // 일괄 캐시 저장 + DB 동기 반영
-    repo.invalidate(user.id)         // 캐시 제거 (deleteFromDBOnInvalidate=true 면 DB도 삭제)
+    val user = UserRecord(id = 0, name = "Hong Gildong", email = "hong@example.com")
+    repo.put(user)                   // Write to cache + synchronously persist to DB
+    repo.putAll(listOf(user))        // Batch write to cache + DB
+    repo.invalidate(user.id)         // Remove from cache (also deletes from DB if deleteFromDBOnInvalidate=true)
 }
 ```
 
-## 아키텍처 개요
+## Architecture Overview
 
 ```mermaid
 classDiagram
@@ -236,9 +237,9 @@ classDiagram
 
 ```
 
-## 클래스 다이어그램
+## Class Diagrams
 
-### 동기 Repository 계층 구조
+### Synchronous Repository Hierarchy
 
 ```mermaid
 classDiagram
@@ -310,7 +311,7 @@ classDiagram
     EntityMapWriter~ID_E~ <|-- ExposedEntityMapWriter~ID_E~
 ```
 
-### 코루틴(Suspend) Repository 계층 구조
+### Coroutines (Suspend) Repository Hierarchy
 
 ```mermaid
 classDiagram
@@ -385,11 +386,11 @@ classDiagram
     SuspendedEntityMapWriter~ID_E~ <|-- SuspendedExposedEntityMapWriter~ID_E~
 ```
 
-## 캐시 패턴
+## Cache Patterns
 
-### Read-Through (동기)
+### Read-Through (synchronous)
 
-캐시 미스 시 `ExposedEntityMapLoader`가 DB에서 자동 로드합니다.
+On a cache miss, `ExposedEntityMapLoader` automatically loads from the DB.
 
 ```mermaid
 sequenceDiagram
@@ -408,15 +409,15 @@ sequenceDiagram
         RMap->>Loader: load(id) [Read-Through]
         Loader->>DB: SELECT WHERE id=?
         DB-->>Loader: ResultRow
-        Loader-->>RMap: entity (캐시에 저장)
+        Loader-->>RMap: entity (stored in cache)
         RMap-->>Repo: entity
         Repo-->>Client: entity
     end
 ```
 
-### Write-Through (동기)
+### Write-Through (synchronous)
 
-`put()` 호출 시 `ExposedEntityMapWriter`가 DB에 즉시 동기 반영합니다.
+On `put()`, `ExposedEntityMapWriter` immediately and synchronously persists to the DB.
 
 ```mermaid
 sequenceDiagram
@@ -428,23 +429,23 @@ sequenceDiagram
     Client ->> Repo: put(entity)
     Repo ->> RMap: RMap.fastPut(id, entity)
     RMap ->> Writer: write(map) [Write-Through]
-    Writer ->> DB: SELECT id (존재 여부 확인)
+    Writer ->> DB: SELECT id (check existence)
     DB -->> Writer: existIds
-    alt 기존 레코드
+    alt Existing record
         Writer ->> DB: UPDATE SET ... WHERE id=?
         DB -->> Writer: OK
-    else 신규 레코드 (non-autoInc ID)
+    else New record (non-autoInc ID)
         Writer ->> DB: batchInsert(entities)
         DB -->> Writer: OK
     end
-    Writer -->> RMap: 완료
+    Writer -->> RMap: done
     RMap -->> Repo: OK
-    Repo -->> Client: 완료
+    Repo -->> Client: done
 ```
 
-### Write-Behind (동기)
+### Write-Behind (synchronous)
 
-`put()` 호출 즉시 응답하고, 이후 `ExposedEntityMapWriter`가 비동기로 DB에 배치 반영합니다.
+On `put()`, immediately returns and then `ExposedEntityMapWriter` asynchronously batch-persists to the DB.
 
 ```mermaid
 sequenceDiagram
@@ -456,18 +457,18 @@ sequenceDiagram
 
     Client->>Repo: put(entity)
     Repo->>RMap: RMap.fastPut(id, entity)
-    RMap-->>Repo: OK (즉시 반환)
-    Repo-->>Client: 완료
+    RMap-->>Repo: OK (returns immediately)
+    Repo-->>Client: done
 
-    Note over RMap,DB: Write-Behind: Redisson이 비동기 배치로 DB 반영
-    RMap->>Writer: write(map) [비동기]
+    Note over RMap,DB: Write-Behind: Redisson asynchronously batch-persists to DB
+    RMap->>Writer: write(map) [async]
     Writer->>DB: batchInsert(entities)
     DB-->>Writer: OK
 ```
 
-### Read-Through (Suspend 코루틴)
+### Read-Through (Suspend Coroutines)
 
-`SuspendedJdbcRedissonRepository`는 모든 연산을 `suspend` 함수로 제공합니다.
+`SuspendedJdbcRedissonRepository` exposes all operations as `suspend` functions.
 
 ```mermaid
 sequenceDiagram
@@ -487,13 +488,13 @@ sequenceDiagram
         Note over Loader,DB: suspendedTransactionAsync(Dispatchers.IO)
         Loader->>DB: SELECT WHERE id=?
         DB-->>Loader: ResultRow
-        Loader-->>RMap: entity (캐시에 저장)
+        Loader-->>RMap: entity (stored in cache)
         RMap-->>Repo: entity
         Repo-->>Client: entity
     end
 ```
 
-### Write-Through (Suspend 코루틴)
+### Write-Through (Suspend Coroutines)
 
 ```mermaid
 sequenceDiagram
@@ -506,22 +507,22 @@ sequenceDiagram
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()
     RMap->>Writer: writeAsync(map) [Write-Through]
-    Note over Writer,DB: CoroutineScope(Dispatchers.IO) 내에서 실행
-    Writer->>DB: SELECT id (존재 여부 확인)
+    Note over Writer,DB: Runs inside CoroutineScope(Dispatchers.IO)
+    Writer->>DB: SELECT id (check existence)
     DB-->>Writer: existIds
-    alt 기존 레코드
+    alt Existing record
         Writer->>DB: UPDATE SET ... WHERE id=?
         DB-->>Writer: OK
-    else 신규 레코드 (non-autoInc ID)
+    else New record (non-autoInc ID)
         Writer->>DB: batchInsert(entities)
         DB-->>Writer: OK
     end
-    Writer-->>RMap: 완료
+    Writer-->>RMap: done
     RMap-->>Repo: true
     Repo-->>Client: true
 ```
 
-### Write-Behind (Suspend 코루틴)
+### Write-Behind (Suspend Coroutines)
 
 ```mermaid
 sequenceDiagram
@@ -533,71 +534,71 @@ sequenceDiagram
 
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()
-    RMap-->>Repo: true (즉시 반환)
+    RMap-->>Repo: true (returns immediately)
     Repo-->>Client: true
 
-    Note over RMap,DB: Write-Behind: Redisson이 비동기 배치로 DB 반영
-    RMap->>Writer: writeAsync(map) [비동기]
-    Note over Writer,DB: CoroutineScope(Dispatchers.IO) 내에서 실행
+    Note over RMap,DB: Write-Behind: Redisson asynchronously batch-persists to DB
+    RMap->>Writer: writeAsync(map) [async]
+    Note over Writer,DB: Runs inside CoroutineScope(Dispatchers.IO)
     Writer->>DB: batchInsert(entities)
     DB-->>Writer: OK
 ```
 
-## JdbcRedissonRepository / SuspendedJdbcRedissonRepository 주요 메서드
+## JdbcRedissonRepository / SuspendedJdbcRedissonRepository Key Methods
 
-`JdbcRedissonRepository`는 동기 방식, `SuspendedJdbcRedissonRepository`는 동일 API를 `suspend` 함수로 제공합니다.
+`JdbcRedissonRepository` uses synchronous calls; `SuspendedJdbcRedissonRepository` exposes the same API as `suspend` functions.
 
-| 메서드                                    | 설명                               |
-|----------------------------------------|----------------------------------|
-| `exists(id)`                           | 캐시에 해당 ID 존재 여부 확인 (미스 시 DB Read-Through) |
-| `get(id)` / `cache[id]`               | 캐시에서 엔티티 조회 (Read-Through)       |
-| `getAll(ids, batchSize)`               | 캐시에서 여러 엔티티 일괄 조회               |
-| `findByIdFromDb(id)`                   | DB에서 직접 조회 (캐시 우회)               |
-| `findAllFromDb(ids)`                   | DB에서 여러 엔티티 직접 조회 (캐시 우회)       |
-| `findAll(limit, offset, sortBy, where)`| DB 조회 후 결과를 캐시에 저장하여 반환          |
-| `put(entity)`                          | 캐시에 저장 (Write-Through/Behind 모드 시 DB에도 반영) |
-| `putAll(entities, batchSize)`          | 캐시에 일괄 저장                       |
-| `invalidate(ids)`                      | 캐시에서 제거 (`deleteFromDBOnInvalidate=true` 시 DB도 삭제) |
-| `invalidateAll()`                      | 캐시 전체 비우기                       |
-| `invalidateByPattern(pattern, count)`  | 패턴에 맞는 키 캐시 제거                  |
+| Method                                    | Description                                                                  |
+|-------------------------------------------|------------------------------------------------------------------------------|
+| `exists(id)`                              | Check whether the ID exists in cache (DB Read-Through on miss)               |
+| `get(id)` / `cache[id]`                  | Retrieve entity from cache (Read-Through)                                    |
+| `getAll(ids, batchSize)`                  | Batch retrieve multiple entities from cache                                  |
+| `findByIdFromDb(id)`                      | Bypass cache and query DB directly                                           |
+| `findAllFromDb(ids)`                      | Bypass cache and batch query DB directly                                     |
+| `findAll(limit, offset, sortBy, where)`   | Load from DB and store results in cache                                      |
+| `put(entity)`                             | Store in cache (also persists to DB in Write-Through/Behind mode)            |
+| `putAll(entities, batchSize)`             | Batch store in cache                                                         |
+| `invalidate(ids)`                         | Remove from cache (also deletes from DB if `deleteFromDBOnInvalidate=true`)  |
+| `invalidateAll()`                         | Clear all cache entries                                                      |
+| `invalidateByPattern(pattern, count)`     | Remove cache entries matching a pattern                                      |
 
-> **참고**: `SuspendedJdbcRedissonRepository`의 `invalidateAll()`은 `Boolean`을 반환합니다.
+> **Note**: `SuspendedJdbcRedissonRepository.invalidateAll()` returns `Boolean`.
 
-## 주요 파일/클래스 목록
+## Key Files and Classes
 
 ### Repository (repository/)
 
-| 파일                                                   | 설명                               |
-|------------------------------------------------------|----------------------------------|
-| `JdbcRedissonRepository.kt`                          | 동기식 캐시 Repository 인터페이스          |
-| `AbstractJdbcRedissonRepository.kt`                  | 동기식 캐시 Repository 추상 클래스         |
-| `SuspendedJdbcRedissonRepository.kt`                 | 코루틴 캐시 Repository 인터페이스          |
-| `AbstractSuspendedJdbcRedissonRepository.kt`         | 코루틴 캐시 Repository 추상 클래스         |
-| `ExposedCacheRepository.kt`                          | (Deprecated) 구 동기식 Repository 인터페이스 |
-| `AbstractExposedCacheRepository.kt`                  | (Deprecated) 구 동기식 추상 클래스        |
-| `SuspendedExposedCacheRepository.kt`                 | (Deprecated) 구 코루틴 Repository 인터페이스 |
-| `AbstractSuspendedExposedCacheRepository.kt`         | (Deprecated) 구 코루틴 추상 클래스        |
+| File                                                   | Description                                        |
+|--------------------------------------------------------|----------------------------------------------------|
+| `JdbcRedissonRepository.kt`                            | Synchronous cache Repository interface             |
+| `AbstractJdbcRedissonRepository.kt`                    | Synchronous cache Repository abstract class        |
+| `SuspendedJdbcRedissonRepository.kt`                   | Coroutines cache Repository interface              |
+| `AbstractSuspendedJdbcRedissonRepository.kt`           | Coroutines cache Repository abstract class         |
+| `ExposedCacheRepository.kt`                            | (Deprecated) Legacy synchronous Repository         |
+| `AbstractExposedCacheRepository.kt`                    | (Deprecated) Legacy synchronous abstract class     |
+| `SuspendedExposedCacheRepository.kt`                   | (Deprecated) Legacy Coroutines Repository          |
+| `AbstractSuspendedExposedCacheRepository.kt`           | (Deprecated) Legacy Coroutines abstract class      |
 
 ### Map (map/)
 
-| 파일                                     | 설명                     |
-|----------------------------------------|------------------------|
-| `EntityMapLoader.kt`                   | 동기식 MapLoader 인터페이스     |
-| `EntityMapWriter.kt`                   | 동기식 MapWriter 인터페이스     |
-| `ExposedEntityMapLoader.kt`            | Exposed JDBC 기반 MapLoader |
-| `ExposedEntityMapWriter.kt`            | Exposed JDBC 기반 MapWriter |
-| `SuspendedEntityMapLoader.kt`          | 코루틴 MapLoader 인터페이스     |
-| `SuspendedEntityMapWriter.kt`          | 코루틴 MapWriter 인터페이스     |
-| `SuspendedExposedEntityMapLoader.kt`   | 코루틴 MapLoader 구현체       |
-| `SuspendedExposedEntityMapWriter.kt`   | 코루틴 MapWriter 구현체       |
+| File                                     | Description                              |
+|------------------------------------------|------------------------------------------|
+| `EntityMapLoader.kt`                     | Synchronous MapLoader interface          |
+| `EntityMapWriter.kt`                     | Synchronous MapWriter interface          |
+| `ExposedEntityMapLoader.kt`              | Exposed JDBC-based MapLoader             |
+| `ExposedEntityMapWriter.kt`              | Exposed JDBC-based MapWriter             |
+| `SuspendedEntityMapLoader.kt`            | Coroutines MapLoader interface           |
+| `SuspendedEntityMapWriter.kt`            | Coroutines MapWriter interface           |
+| `SuspendedExposedEntityMapLoader.kt`     | Coroutines MapLoader implementation      |
+| `SuspendedExposedEntityMapWriter.kt`     | Coroutines MapWriter implementation      |
 
-## 테스트
+## Testing
 
 ```bash
 ./gradlew :bluetape4k-exposed-jdbc-redisson:test
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Redisson](https://github.com/redisson/redisson)

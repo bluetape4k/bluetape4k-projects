@@ -1,10 +1,12 @@
 # Module bluetape4k-idgenerators
 
-## 개요
+English | [한국어](./README.ko.md)
 
-분산 환경에서 Unique한 ID 값을 다양한 방식으로 생성하는 라이브러리입니다. UUID(V1~V7), ULID, KSUID, Snowflake, Flake, Hashids 등 다양한 ID 생성 알고리즘을 통일된 API(`Uuid`, `ULID`, `Ksuid`, `Snowflakers`)로 제공합니다.
+## Overview
 
-## 의존성 추가
+A library for generating unique IDs in distributed environments using a variety of algorithms. It provides UUID (V1–V7), ULID, KSUID, Snowflake, Flake, and Hashids through a unified API (`Uuid`, `ULID`, `Ksuid`, `Snowflakers`).
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -12,80 +14,80 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Supported Algorithms
 
-| 알고리즘                | 타입        | 길이     | 정렬 가능 | 특징                 |
-|---------------------|-----------|--------|-------|--------------------|
-| **Snowflake**       | Long      | 19자리   | O     | Twitter 스타일, 분산 환경 |
-| **GlobalSnowflake** | Long      | 19자리   | O     | 중앙집중식, 높은 처리량      |
-| **UUID v7**         | UUID      | 36자리   | O     | Unix epoch timestamp + random (권장) |
-| **UUID v6**         | UUID      | 36자리   | O     | 재정렬 timestamp, DB PK 최적화        |
-| **UUID v1**         | UUID      | 36자리   | O     | MAC + Gregorian timestamp           |
-| **UUID v4**         | UUID      | 36자리   | X     | 완전 랜덤 (SecureRandom)             |
-| **ULID**            | String    | 26자리   | O     | Crockford Base32, 단조 증가 보장      |
-| **KSUID Seconds**   | String    | 27자리   | O     | 초 기반, Base62                      |
-| **KSUID Millis**    | String    | 27자리   | O     | 밀리초 기반, Base62                   |
-| **Flake**           | ByteArray | 128bit | O     | Boundary 스타일       |
-| **Hashids**         | String    | 가변     | X     | Long/UUID → 문자열    |
+| Algorithm           | Type      | Length  | Sortable | Notes                              |
+|---------------------|-----------|---------|----------|------------------------------------|
+| **Snowflake**       | Long      | 19 digits | Yes    | Twitter-style, distributed         |
+| **GlobalSnowflake** | Long      | 19 digits | Yes    | Centralized, high throughput       |
+| **UUID v7**         | UUID      | 36 chars  | Yes    | Unix epoch + random (recommended)  |
+| **UUID v6**         | UUID      | 36 chars  | Yes    | Reordered timestamp, optimized for DB PKs |
+| **UUID v1**         | UUID      | 36 chars  | Yes    | MAC + Gregorian timestamp          |
+| **UUID v4**         | UUID      | 36 chars  | No     | Fully random (SecureRandom)        |
+| **ULID**            | String    | 26 chars  | Yes    | Crockford Base32, monotonic        |
+| **KSUID Seconds**   | String    | 27 chars  | Yes    | Second-based, Base62               |
+| **KSUID Millis**    | String    | 27 chars  | Yes    | Millisecond-based, Base62          |
+| **Flake**           | ByteArray | 128 bit   | Yes    | Boundary-style                     |
+| **Hashids**         | String    | Variable  | No     | Encode Long/UUID to short string   |
 
-## 사용 예시
+## Usage Examples
 
-### Snowflake (Twitter 스타일)
+### Snowflake (Twitter-style)
 
-분산 환경에서 기계별로 고유한 ID 생성
+Generate unique IDs per machine in a distributed environment.
 
 ```kotlin
 import io.bluetape4k.idgenerators.snowflake.*
 
-// Snowflakers 싱글턴 직접 사용
+// Use Snowflakers singletons directly
 val id1: Long = Snowflakers.Default.nextId()
 val id2: Long = Snowflakers.Global.nextId()
 
-// 팩토리 함수로 새 인스턴스 생성
+// Create a new instance via factory
 val snowflake = Snowflakers.default(machineId = 5)
 val globalSnowflake = Snowflakers.global()
 
-// SnowflakeGenerator 어댑터 (IdGenerator<Long> 인터페이스)
-val gen = SnowflakeGenerator()                     // 기본: DefaultSnowflake
-val genGlobal = SnowflakeGenerator(Snowflakers.Global) // GlobalSnowflake 사용
+// SnowflakeGenerator adapter (IdGenerator<Long> interface)
+val gen = SnowflakeGenerator()                         // default: DefaultSnowflake
+val genGlobal = SnowflakeGenerator(Snowflakers.Global) // using GlobalSnowflake
 val id3: Long = gen.nextId()
 val parsed = gen.parse(id3)
 ```
 
-### UUID (통합 API)
+### UUID (Unified API)
 
-UUID v1~v7을 `Uuid` object의 통일된 인터페이스로 제공합니다.
+UUID v1 through v7 are exposed through a single unified interface via the `Uuid` object.
 
-#### 기본 사용 (권장)
+#### Basic Usage (Recommended)
 
 ```kotlin
 import io.bluetape4k.idgenerators.uuid.Uuid
 
-// UUID v7 (권장 — Unix epoch + random, DB PK 최적)
+// UUID v7 (recommended — Unix epoch + random, optimal for DB PKs)
 val id: UUID = Uuid.V7.nextId()
-val base62: String = Uuid.V7.nextBase62()   // 22자리 URL-safe Base62
+val base62: String = Uuid.V7.nextBase62()   // 22-char URL-safe Base62
 
-// UUID v6 (재정렬 timestamp, DB 정렬 최적화)
+// UUID v6 (reordered timestamp, optimized for DB sorting)
 val id6: UUID = Uuid.V6.nextId()
 
 // UUID v1 (MAC + Gregorian timestamp)
 val id1: UUID = Uuid.V1.nextId()
 
-// UUID v4 (완전 랜덤)
+// UUID v4 (fully random)
 val id4: UUID = Uuid.V4.nextId()
 
-// UUID v5 (랜덤 name 입력 기반 SHA-1)
+// UUID v5 (SHA-1 name-based)
 val id5: UUID = Uuid.V5.nextId()
 ```
 
-#### 복수 생성
+#### Bulk Generation
 
 ```kotlin
 val ids: Sequence<UUID> = Uuid.V7.nextUUIDs(10)
 val base62s: Sequence<String> = Uuid.V7.nextBase62s(10)
 ```
 
-#### 커스텀 Random
+#### Custom Random
 
 ```kotlin
 import java.security.SecureRandom
@@ -95,43 +97,41 @@ val gen2 = Uuid.epochRandom(SecureRandom())  // V7 with custom Random
 val id: UUID = gen.nextId()
 ```
 
-#### 결정론적 UUID (name-based)
+#### Deterministic UUID (name-based)
 
 ```kotlin
 val gen = Uuid.namebased("my-service-namespace")
 val id1: UUID = gen.nextId()
 val id2: UUID = gen.nextId()
-// id1 == id2 (동일 name → 항상 동일 UUID)
+// id1 == id2 (same name always produces the same UUID)
 ```
 
-#### UuidGenerator 어댑터 (IdGenerator<UUID> 인터페이스)
+#### UuidGenerator Adapter (IdGenerator<UUID> interface)
 
 ```kotlin
-val gen = UuidGenerator()              // 기본: V7
-val gen2 = UuidGenerator(Uuid.V1)     // V1 전략 교체
+val gen = UuidGenerator()              // default: V7
+val gen2 = UuidGenerator(Uuid.V1)     // swap to V1 strategy
 val id: UUID = gen.nextUUID()
 val idString: String = gen.nextIdAsString()  // Base62
 ```
 
 ### ULID (Universally Unique Lexicographically Sortable Identifier)
 
-Kotlin 기반 **ULID (Universally Unique Lexicographically Sortable Identifier)** 구현체.
+A Kotlin implementation of **ULID**. Unlike UUID, it is a time-based, lexicographically sortable 128-bit identifier represented as a 26-character Crockford Base32 string.
 
-UUID와 달리 시간 기반으로 정렬 가능한 128비트 식별자를 제공한다. Crockford Base32 인코딩으로 26자 문자열 표현을 사용한다.
-
-#### ULID 구조
+#### ULID Structure
 
 ```
  01ARZ3NDEKTSV4RRFFQ69G5FAV
 
  |------------|------------|
   Timestamp    Randomness
-   48bits       80bits
+   48 bits      80 bits
 ```
 
-- **Timestamp (48비트)**: Unix timestamp (밀리초) — 사전순 정렬 보장
-- **Randomness (80비트)**: 암호학적 난수 — 충돌 방지
-- **인코딩**: Crockford Base32 (26자, 대소문자 무관)
+- **Timestamp (48 bits)**: Unix timestamp in milliseconds — guarantees lexicographic ordering
+- **Randomness (80 bits)**: Cryptographically secure random — collision-resistant
+- **Encoding**: Crockford Base32 (26 chars, case-insensitive)
 
 ```mermaid
 classDiagram
@@ -164,43 +164,43 @@ classDiagram
     Monotonic <|-- StatefulMonotonic
 ```
 
-#### 제공 API
+#### API Reference
 
-##### `ULID` 인터페이스
+##### `ULID` Interface
 
-| 구성요소                     | 설명                        |
-|--------------------------|---------------------------|
-| `ULID`                   | ULID 값 인터페이스 (Comparable) |
-| `ULID.Factory`           | ULID 생성 팩토리               |
-| `ULID.Monotonic`         | 단조 증가(Monotonic) 생성기      |
-| `ULID.StatefulMonotonic` | 상태 보존 단조 증가 생성기           |
+| Component                | Description                             |
+|--------------------------|-----------------------------------------|
+| `ULID`                   | ULID value interface (Comparable)       |
+| `ULID.Factory`           | ULID generation factory                 |
+| `ULID.Monotonic`         | Monotonically increasing generator      |
+| `ULID.StatefulMonotonic` | Stateful monotonically increasing generator |
 
-##### Companion 메서드 (기본 팩토리)
+##### Companion Methods (Default Factory)
 
 ```kotlin
-// 랜덤 ULID 문자열 생성
+// Generate a random ULID string
 val ulidString: String = ULID.randomULID()
 
-// ULID 값 객체 생성
+// Generate a ULID value object
 val ulid: ULID = ULID.nextULID()
 
-// 문자열 파싱
+// Parse from string
 val parsed: ULID = ULID.parseULID("01ARZ3NDEKTSV4RRFFQ69G5FAV")
 
-// ByteArray로부터 복원
+// Restore from ByteArray
 val fromBytes: ULID = ULID.fromByteArray(bytes)
 ```
 
-##### 커스텀 Random 팩토리
+##### Custom Random Factory
 
 ```kotlin
 val factory: ULID.Factory = ULID.factory(random = SecureRandom())
 val ulid = factory.nextULID()
 ```
 
-##### 단조 증가 (Monotonic)
+##### Monotonic Mode
 
-같은 밀리초 내에서 생성된 ULID의 순서를 보장한다 (랜덤 비트 최하위 비트를 1씩 증가).
+Guarantees ordering within the same millisecond by incrementing the least significant random bit.
 
 ```kotlin
 val monotonic: ULID.Monotonic = ULID.monotonic()
@@ -213,16 +213,16 @@ repeat(1000) {
 }
 ```
 
-###### Strict 모드 (오버플로우 감지)
+###### Strict Mode (Overflow Detection)
 
 ```kotlin
 val next: ULID? = monotonic.nextULIDStrict(previous)
-// 같은 밀리초 내에서 랜덤 비트가 오버플로우되면 null 반환
+// Returns null if the random bits overflow within the same millisecond
 ```
 
-##### 상태 보존 단조 증가 (StatefulMonotonic)
+##### Stateful Monotonic
 
-이전 값을 내부에 유지하므로 매 호출마다 이전 값을 넘길 필요가 없다.
+Maintains the previous value internally so you don't need to pass it on every call.
 
 ```kotlin
 val stateful: ULID.StatefulMonotonic = ULID.statefulMonotonic()
@@ -234,9 +234,9 @@ val c = stateful.nextULID()
 check(a < b && b < c)
 ```
 
-#### UUID 변환
+#### UUID Conversion
 
-Kotlin `kotlin.uuid.Uuid` 및 Java `java.util.UUID`와 상호 변환을 지원한다.
+Interconversion with both Kotlin `kotlin.uuid.Uuid` and Java `java.util.UUID` is supported.
 
 ```kotlin
 // ULID → Kotlin Uuid
@@ -252,14 +252,14 @@ val javaUuid: java.util.UUID = ulid.toJavaUUID()
 val fromJava: ULID = ULID.fromJavaUUID(javaUuid)
 ```
 
-#### 생성기 선택 가이드
+#### Generator Selection Guide
 
 ```mermaid
 flowchart TD
-    Start(["ULID 생성 필요"])
-    Q1{"같은 ms 내<br/>순서 보장 필요?"}
-    Q2{"이전 값을<br/>직접 관리?"}
-    Basic["ULID.nextULID()<br/>기본 랜덤 팩토리"]
+    Start(["Need a ULID"])
+    Q1{"Need ordering<br/>within same ms?"}
+    Q2{"Manage previous<br/>value yourself?"}
+    Basic["ULID.nextULID()<br/>Default random factory"]
     Mono["ULID.monotonic()<br/>nextULID(previous)"]
     State["ULID.statefulMonotonic()<br/>nextULID()"]
 
@@ -270,159 +270,156 @@ flowchart TD
     Q2 -->|No| State
 ```
 
-#### ULID vs UUID 비교
+#### ULID vs UUID Comparison
 
-| 특성    | ULID                   | UUID v4       |
-|-------|------------------------|---------------|
-| 정렬 가능 | ✅ 시간 기반 사전순 정렬         | ❌             |
-| 표현 길이 | 26자 (Crockford Base32) | 36자 (UUID 형식) |
-| 단조 증가 | ✅ Monotonic 지원         | ❌             |
-| 충돌 확률 | 동일 ms 내 1.21e+24       | 5.3e+36       |
-| 이진 크기 | 16바이트                  | 16바이트         |
+| Property      | ULID                         | UUID v4       |
+|---------------|------------------------------|---------------|
+| Sortable      | Yes (time-based lexicographic) | No          |
+| String length | 26 chars (Crockford Base32)  | 36 chars (UUID format) |
+| Monotonic     | Yes (Monotonic support)      | No            |
+| Collision probability | 1.21e+24 within same ms | 5.3e+36  |
+| Binary size   | 16 bytes                     | 16 bytes      |
 
 ### KSUID (K-Sortable Unique ID)
 
-시간 기반 정렬 가능, URL Safe, Base62 인코딩 (27자리)
+Time-based sortable, URL-safe, Base62 encoded (27 characters).
 
-#### 초(seconds) 기반 — Ksuid.Seconds
+#### Second-based — Ksuid.Seconds
 
 ```kotlin
 import io.bluetape4k.idgenerators.ksuid.Ksuid
 
-// KSUID 생성 (27자리)
-val id: String = Ksuid.Seconds.generate()   // 예: "0ujtsYcgvSTl8PAuAdqWYSMnLOv"
+// Generate a KSUID (27 chars)
+val id: String = Ksuid.Seconds.generate()   // e.g. "0ujtsYcgvSTl8PAuAdqWYSMnLOv"
 
-// 특정 시각으로 생성
+// Generate at a specific time
 val atTime = Ksuid.Seconds.generate(Instant.now())
 val atDate = Ksuid.Seconds.generate(Date())
 val atDateTime = Ksuid.Seconds.generate(LocalDateTime.now())
 
-// 여러 개 생성
+// Generate multiple
 val ids: Sequence<String> = Ksuid.Seconds.nextIds(10)
 
-// 파싱
+// Parse
 val pretty = Ksuid.Seconds.prettyString(id)
-// Time = 2024-01-15T10:30:45Z[UTC]
-// Timestamp = 1705315845
-// Payload = a1b2c3d4e5f6...
 ```
 
-#### 밀리초(milliseconds) 기반 — Ksuid.Millis
+#### Millisecond-based — Ksuid.Millis
 
 ```kotlin
-// 밀리초 정밀도의 타임스탬프 사용
+// Uses millisecond-precision timestamp
 val id: String = Ksuid.Millis.generate()
 val atTime = Ksuid.Millis.generate(Instant.now())
 ```
 
-#### KsuidGenerator 어댑터 (IdGenerator<String> 인터페이스)
+#### KsuidGenerator Adapter (IdGenerator<String> interface)
 
 ```kotlin
-val gen = KsuidGenerator()                   // 기본: Ksuid.Seconds
-val genMillis = KsuidGenerator(Ksuid.Millis) // 밀리초 전략 교체
+val gen = KsuidGenerator()                   // default: Ksuid.Seconds
+val genMillis = KsuidGenerator(Ksuid.Millis) // switch to millis strategy
 val id: String = gen.nextId()
 val ids: Sequence<String> = gen.nextIds(10)
 ```
 
-### Flake (Boundary 스타일)
+### Flake (Boundary-style)
 
-128bit ID, MAC 주소 기반 노드 식별
+128-bit ID with MAC-address-based node identification.
 
 ```kotlin
 import io.bluetape4k.idgenerators.flake.Flake
 
 val flake = Flake()
 
-// ByteArray로 생성 (16 bytes = 128 bits)
+// Generate as ByteArray (16 bytes = 128 bits)
 val id: ByteArray = flake.nextId()
 
-// Base62 문자열로 생성
-val idString: String = flake.nextIdAsString()  // 예: "AmknwjEj6DWnSOpkRM"
+// Generate as Base62 string
+val idString: String = flake.nextIdAsString()  // e.g. "AmknwjEj6DWnSOpkRM"
 
-// Hex 문자열로 변환
-val hexString = Flake.asHexString(id)  // 예: "0000019265902e57beab72881e400000"
+// Convert to hex string
+val hexString = Flake.asHexString(id)  // e.g. "0000019265902e57beab72881e400000"
 
-// 컴포넌트 분해
+// Decompose components
 val components = Flake.asComponentString(id)  // "timestamp-nodeId-sequence"
 ```
 
-### Hashids (YouTube 스타일 Short URL)
+### Hashids (YouTube-style Short URLs)
 
-숫자/UUID를 짧은 문자열로 인코딩
+Encode numbers or UUIDs as short strings.
 
 ```kotlin
 import io.bluetape4k.idgenerators.hashids.Hashids
 import io.bluetape4k.idgenerators.hashids.encodeUUID
 import io.bluetape4k.idgenerators.hashids.decodeUUID
 
-// 기본 설정
+// Default configuration
 val hashids = Hashids(salt = "my secret salt")
 
-// Long 인코딩
+// Encode a Long
 val encoded = hashids.encode(123456789L)  // "abc123XYZ"
 
-// 여러 Long 인코딩
-val encoded2 = hashids.encode(1L, 2L, 3L)  // "xyz789"
+// Encode multiple Longs
+val encoded2 = hashids.encode(1L, 2L, 3L)
 
-// 음수 지원
+// Negative numbers supported
 val encoded3 = hashids.encode(1L, -1L)
 
-// 큰 수 지원 (Long.MAX_VALUE)
+// Large numbers supported (Long.MAX_VALUE)
 val encoded4 = hashids.encode(Long.MAX_VALUE)
 
-// 디코딩
+// Decode
 val decoded = hashids.decode(encoded)  // longArrayOf(123456789)
 
-// UUID 인코딩/디코딩
+// UUID encoding/decoding
 val uuid = UUID.randomUUID()
 val encodedUuid = hashids.encodeUUID(uuid)
 val decodedUuid = hashids.decodeUUID(encodedUuid)
 // decodedUuid == uuid
 ```
 
-### Hashids 커스텀 설정
+### Custom Hashids Configuration
 
 ```kotlin
 import io.bluetape4k.idgenerators.hashids.Hashids
 
-// 최소 길이 지정
+// Specify minimum length and custom alphabet
 val hashids = Hashids(
     salt = "my salt",
-    minHashLength = 10,  // 최소 10자리
-    customAlphabet = "0123456789abcdef"  // 16진수 알파벳
+    minHashLength = 10,
+    customAlphabet = "0123456789abcdef"
 )
 
-val encoded = hashids.encode(1234567L)  // "b332db5" (최소 10자리가 되도록 패딩)
+val encoded = hashids.encode(1234567L)
 ```
 
-### Base62 UUID 인코딩
+### Base62 UUID Encoding
 
 ```kotlin
 import java.util.UUID
 
-// UUID를 Base62로 인코딩 (36자리 → 22자리)
+// Encode UUID as Base62 (36 chars → 22 chars)
 val uuid = UUID.randomUUID()
 val encoded = uuid.toBase62String()  // "QLfDyyhZrm9uVtDzQcs4R"
 
-// Base62를 UUID로 디코딩
-val decoded = encoded.toBase62Uuid()  // 원본 UUID
+// Decode Base62 back to UUID
+val decoded = encoded.toBase62Uuid()
 ```
 
-## ID 생성기 선택 가이드
+## Generator Selection Guide
 
-| 요구사항           | 추천 알고리즘         |
-|----------------|-----------------|
-| 분산 환경, 기계별 구분  | Snowflake (`Snowflakers.Default`) |
-| 중앙집중식 ID 서비스   | GlobalSnowflake (`Snowflakers.Global`) |
-| DB 기본키, 정렬 필요     | UUID v7 (`Uuid.V7`)     |
-| 완전 랜덤, 보안         | UUID v4 (`Uuid.V4`)     |
-| 단조 증가, 문자열 ID     | ULID (`UlidGenerator`)  |
-| URL Safe, 초 정밀도    | KSUID Seconds (`Ksuid.Seconds`) |
-| URL Safe, 밀리초 정밀도 | KSUID Millis (`Ksuid.Millis`)   |
-| 128bit, 높은 유일성 | Flake           |
-| Short URL, 난독화 | Hashids         |
+| Requirement                        | Recommended Algorithm                     |
+|------------------------------------|-------------------------------------------|
+| Distributed env, per-machine IDs   | Snowflake (`Snowflakers.Default`)         |
+| Centralized ID service             | GlobalSnowflake (`Snowflakers.Global`)    |
+| DB primary key, needs sorting      | UUID v7 (`Uuid.V7`)                       |
+| Fully random, security-focused     | UUID v4 (`Uuid.V4`)                       |
+| Monotonic, string ID               | ULID (`UlidGenerator`)                    |
+| URL-safe, second precision         | KSUID Seconds (`Ksuid.Seconds`)           |
+| URL-safe, millisecond precision    | KSUID Millis (`Ksuid.Millis`)             |
+| 128-bit, high uniqueness           | Flake                                     |
+| Short URL, obfuscation             | Hashids                                   |
 
-## Snowflake 구조
+## Snowflake Bit Layout
 
 ```
 | 1 bit |     41 bits      |   10 bits   |   12 bits   |
@@ -430,40 +427,11 @@ val decoded = encoded.toBase62Uuid()  // 원본 UUID
 |  0    | milliseconds since epoch |  0-1023   |   0-4095   |
 ```
 
-- **timestamp**: 41 bits, 약 69년간 유일성 보장
-- **machineId**: 10 bits, 최대 1024개 기계
-- **sequence**: 12 bits, millisecond당 최대 4096개 ID
+- **timestamp**: 41 bits, unique for approximately 69 years
+- **machineId**: 10 bits, supports up to 1,024 machines
+- **sequence**: 12 bits, up to 4,096 IDs per millisecond
 
-## 주요 기능 상세
-
-| 파일                               | 설명                    |
-|----------------------------------|-----------------------|
-| `IdGenerator.kt`                 | ID 생성기 인터페이스          |
-| `LongIdGenerator.kt`             | Long 타입 ID 생성기        |
-| `snowflake/Snowflake.kt`         | Snowflake 인터페이스       |
-| `snowflake/DefaultSnowflake.kt`  | Twitter 스타일 Snowflake |
-| `snowflake/GlobalSnowflake.kt`   | 중앙집중식 Snowflake       |
-| `snowflake/Snowflakers.kt`       | Snowflake 싱글턴 및 팩토리  |
-| `snowflake/SnowflakeGenerator.kt`| Snowflake 어댑터 클래스    |
-| `snowflake/SnowflakeSupport.kt`  | Snowflake 유틸리티        |
-| `snowflake/SnowflakeId.kt`       | Snowflake ID 파싱 결과    |
-| `uuid/Uuid.kt`                   | UUID 통합 생성기 (V1/V4/V5/V6/V7)    |
-| `uuid/UuidGenerator.kt`          | UUID 어댑터 클래스                    |
-| `uuid/TimebasedUuidGenerator.kt` | (deprecated) 시간 기반 UUID 생성기    |
-| `uuid/RandomUuidGenerator.kt`    | (deprecated) 랜덤 UUID 생성기        |
-| `uuid/NamebasedUuidGenerator.kt` | (deprecated) 이름 기반 UUID 생성기    |
-| `ulid/ULID.kt`                   | ULID 인터페이스 및 싱글턴    |
-| `ulid/UlidGenerator.kt`          | ULID 어댑터 클래스         |
-| `ksuid/Ksuid.kt`                 | KSUID 통합 생성기 (Seconds/Millis)   |
-| `ksuid/KsuidGenerator.kt`        | KSUID 어댑터 클래스                  |
-| `ksuid/KsuidMillis.kt`           | (deprecated) 밀리초 KSUID — `Ksuid.Millis` 사용 권장 |
-| `flake/Flake.kt`                 | Flake ID 생성기          |
-| `hashids/Hashids.kt`             | Hashids 알고리즘          |
-| `hashids/HashidsSupport.kt`      | Hashids 확장 함수         |
-| `utils/node/NodeIdentifier.kt`   | 노드 식별자 인터페이스          |
-| `MachineIdSupport.kt`            | 기계 ID 생성 유틸리티         |
-
-## 클래스 다이어그램
+## Class Diagram
 
 ```mermaid
 classDiagram
@@ -546,19 +514,11 @@ classDiagram
 
 ```
 
-## Snowflake ID 비트 구조
-
-```mermaid
-block-beta
-    columns 4
-    A["sign<br/>(1 bit)"] B["timestamp<br/>(41 bits)<br/>~69년 범위"] C["machineId<br/>(10 bits)<br/>최대 1024대"] D["sequence<br/>(12 bits)<br/>밀리초당 4096개"]
-```
-
-## 참고 자료
+## References
 
 - [Twitter Snowflake](https://developer.twitter.com/en/docs/basics/twitter-ids)
 - [A brief history of the UUID](https://segment.com/blog/a-brief-history-of-the-uuid/)
-- [ULID](https://github.com/ulid/spec)
+- [ULID Spec](https://github.com/ulid/spec)
 - [KSUID](https://github.com/ksuid/ksuid)
 - [Boundary Flake](https://github.com/boundary/flake)
 - [Hashids](https://hashids.org)

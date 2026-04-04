@@ -1,5 +1,7 @@
 # Supabase PostgreSQL Guide
 
+English | [한국어](./README.ko.md)
+
 Reference documentation for PostgreSQL best practices in Supabase projects.
 
 ## Source

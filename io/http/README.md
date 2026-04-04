@@ -1,38 +1,40 @@
 # Module bluetape4k-http
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-http`는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확장 함수와 DSL로 통합하여 제공하는 모듈입니다.
+## Overview
 
-Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, AsyncHttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
+`bluetape4k-http` integrates multiple HTTP client libraries through Kotlin extension functions and DSLs.
 
-## 주요 기능
+It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, and AsyncHttpClient, with built-in support for Kotlin Coroutines and Virtual Threads.
+
+## Key Features
 
 ### 1. Apache HttpComponents 5 (HC5)
 
-Apache HttpClient 5를 Kotlin DSL과 Coroutines로 래핑하여 동기/비동기 HTTP 통신을 지원합니다.
+Wraps Apache HttpClient 5 with Kotlin DSL and Coroutines for both synchronous and asynchronous HTTP communication.
 
-**지원 기능:**
+**Supported features:**
 
-- Classic HttpClient (동기 방식)
-- Async HttpClient (비동기, Coroutines 통합)
-- HTTP/2 지원 (httpcore5-h2)
-- 캐싱 HttpClient (In-Memory, JCache)
-- Connection Pool 관리
-- SSL/TLS 설정
+- Classic HttpClient (synchronous)
+- Async HttpClient (asynchronous, Coroutines integration)
+- HTTP/2 support (httpcore5-h2)
+- Caching HttpClient (In-Memory, JCache)
+- Connection pool management
+- SSL/TLS configuration
 - Fluent API
 
 ```kotlin
 import io.bluetape4k.http.hc5.async.*
 
-// Async HttpClient 생성
+// Create an async HttpClient
 val client = httpAsyncClient {
     setConnectionManager(cm)
     setMaxConnTotal(100)
     setMaxConnPerRoute(10)
 }
 
-// Coroutines 환경에서 비동기 요청
+// Async request in a Coroutines context
 val request = SimpleHttpRequest.get("https://httpbin.org/get")
 val response: SimpleHttpResponse = client.executeSuspending(request)
 ```
@@ -42,25 +44,25 @@ val response: SimpleHttpResponse = client.executeSuspending(request)
 ```kotlin
 import io.bluetape4k.http.hc5.classic.*
 
-// Classic HttpClient 생성
+// Create a classic HttpClient
 val client = httpClient {
     setConnectionManager(poolingConnectionManager())
 }
 
-// 동기 요청
+// Synchronous request
 val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
 ```
 
-**캐싱 HttpClient:**
+**Caching HttpClient:**
 
 ```kotlin
 import io.bluetape4k.http.hc5.cache.*
 
-// In-Memory 캐시를 사용하는 HttpClient
+// HttpClient with in-memory cache
 val cacheStorage = InMemoryHttpCacheStorage.createObjectCache()
 val cachingClient = cachingHttpClient(cacheStorage)
 
-// Async 캐싱 클라이언트 (JCache 기반)
+// Async caching client (JCache-based)
 val asyncCachingClient = cachingHttpAsyncClient {
     setHttpCacheStorage(JavaCacheHttpCacheStorage.createObjectCache(jcache))
 }
@@ -68,15 +70,15 @@ val asyncCachingClient = cachingHttpAsyncClient {
 
 ### 2. OkHttp3
 
-Square의 OkHttp3 클라이언트를 Kotlin DSL로 간편하게 생성하고 사용할 수 있습니다.
+Square's OkHttp3 client made convenient with a Kotlin DSL.
 
-**지원 기능:**
+**Supported features:**
 
-- Virtual Thread 기반 Dispatcher 기본 사용
-- Connection Pool 관리
-- 로깅/캐싱 Interceptor
-- MockWebServer 유틸리티
-- Coroutines 확장
+- Virtual Thread-based Dispatcher by default
+- Connection pool management
+- Logging/caching interceptors
+- MockWebServer utilities
+- Coroutines extensions
 
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
@@ -84,7 +86,7 @@ import io.bluetape4k.logging.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
-// Virtual Thread 기반 OkHttpClient 생성
+// Create a Virtual Thread-based OkHttpClient
 val client = okhttp3Client {
     addInterceptor(LoggingInterceptor(log))
     addNetworkInterceptor(CachingResponseInterceptor())
@@ -96,17 +98,17 @@ val request = okhttp3RequestOf("https://httpbin.org/get") {
     header("Accept", "application/json")
 }
 
-// Coroutines 환경에서 비동기 요청
+// Async request in a Coroutines context
 val response = client.executeSuspending(request)
 ```
 
-`executeSuspending` 계약:
-- 코루틴이 취소되면 내부 OkHttp `Call`도 함께 취소됩니다.
-- 성공 시 `Response`를 그대로 반환하고, 실패 시 원인 예외를 전파합니다.
+`executeSuspending` contract:
+- When the coroutine is cancelled, the underlying OkHttp `Call` is also cancelled.
+- Returns `Response` on success and propagates the cause exception on failure.
 
 ### 3. Vert.x HttpClient
 
-Eclipse Vert.x의 비동기 HttpClient를 Kotlin Coroutines와 통합합니다.
+Integrates Eclipse Vert.x's async HttpClient with Kotlin Coroutines.
 
 ```kotlin
 import io.bluetape4k.http.vertx.*
@@ -121,7 +123,7 @@ val vertxClient = vertxHttpClientOf(options)
 
 ### 4. AsyncHttpClient (AHC)
 
-Netty 기반의 AsyncHttpClient를 Kotlin Coroutines로 래핑합니다.
+Wraps Netty-based AsyncHttpClient with Kotlin Coroutines.
 
 ```kotlin
 import io.bluetape4k.http.ahc.*
@@ -131,31 +133,31 @@ val client = asyncHttpClientOf {
     setMaxConnectionsPerHost(10)
 }
 
-// Coroutines 환경에서 비동기 요청
+// Async request in a Coroutines context
 val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 ```
 
-## HTTP 클라이언트 비교
+## HTTP Client Comparison
 
-| 클라이언트             | 프로토콜             | 특성                    | 용도            |
-|-------------------|------------------|-----------------------|---------------|
-| HC5 Classic       | HTTP/1.1         | 안정적, 풍부한 설정           | 동기 API 호출     |
-| HC5 Async         | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합    | 고성능 비동기 통신    |
-| OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
-| Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
-| AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty 기반, 고성능         | 대량 비동기 요청     |
+| Client | Protocol | Characteristics | Use Case |
+|--------|----------|----------------|----------|
+| HC5 Classic | HTTP/1.1 | Stable, rich configuration | Synchronous API calls |
+| HC5 Async | HTTP/1.1, HTTP/2 | Async, Coroutines integration | High-performance async |
+| OkHttp3 | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client |
+| Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based | Vert.x ecosystem integration |
+| AsyncHttpClient | HTTP/1.1, HTTP/2 | Netty-based, high-performance | High-volume async requests |
 
-## Coroutines 지원
+## Coroutines Support
 
-모든 비동기 HTTP 클라이언트는 `executeSuspending` 확장 함수를 통해 Coroutines 환경에서 자연스럽게 사용할 수 있습니다.
+All async HTTP clients support natural use in Coroutines contexts via the `executeSuspending` extension function.
 
 ```kotlin
 import kotlinx.coroutines.*
 
 suspend fun fetchData() = coroutineScope {
-    val client = httpAsyncClient { /* 설정 */ }
+    val client = httpAsyncClient { /* configuration */ }
 
-    // 병렬 요청
+    // Parallel requests
     val response1 = async { client.executeSuspending(request1) }
     val response2 = async { client.executeSuspending(request2) }
 
@@ -163,22 +165,22 @@ suspend fun fetchData() = coroutineScope {
 }
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-http"))
 
-    // 선택적 의존성 (필요한 것만 추가)
+    // Optional (add only what you need)
     implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
     implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
     implementation("io.vertx:vertx-core")                    // Vert.x
 }
 ```
 
-## 클래스 구조
+## Class Structure
 
-### HTTP 클라이언트 계층 (HC5)
+### HTTP Client Hierarchy (HC5)
 
 ```mermaid
 classDiagram
@@ -190,24 +192,24 @@ classDiagram
     }
 
     class HttpAsyncClientCoroutines {
-        <<확장함수>>
+        <<extension functions>>
         +executeSuspending(request) SimpleHttpResponse
     }
 
     class CachingHttpAsyncClientBuilder {
-        <<DSL빌더>>
+        <<DSL builder>>
         +setHttpCacheStorage(storage)
         +build() CloseableHttpAsyncClient
     }
 
 
-    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
-    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
-    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
+    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : uses
+    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : uses
+    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : extends
 
 ```
 
-### OkHttp3 클라이언트 계층
+### OkHttp3 Client Hierarchy
 
 ```mermaid
 classDiagram
@@ -229,56 +231,56 @@ classDiagram
     }
 
     class OkHttpClientExtensionsCoroutines {
-        <<확장함수>>
+        <<extension functions>>
         +executeSuspending(request) Response
     }
 
     OkHttpClient --> LoggingInterceptor : addInterceptor
     OkHttpClient --> CachingRequestInterceptor : addInterceptor
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
-    OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
+    OkHttpClient <.. OkHttpClientExtensionsCoroutines : extends
 
 ```
 
-### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
+### Async HTTP Request Flow (HC5 Async + Coroutines)
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
+    participant App as Application
     participant Ext as executeSuspending()
     participant HC5 as CloseableHttpAsyncClient
-    participant Server as HTTP 서버
+    participant Server as HTTP Server
 
     App->>Ext: suspend fun executeSuspending(request)
     Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP 요청 (비동기)
-    Server-->>HC5: HTTP 응답
+    HC5->>Server: HTTP request (async)
+    Server-->>HC5: HTTP response
     HC5-->>Ext: FutureCallback.completed(response)
     Ext-->>App: SimpleHttpResponse
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.http
 ├── hc5/                    # Apache HttpComponents 5
-│   ├── async/              # 비동기 클라이언트, Coroutines 통합
-│   ├── cache/              # 캐싱 클라이언트 (In-Memory, JCache)
-│   ├── classic/            # 동기 클라이언트
-│   ├── entity/             # Entity/Multipart 빌더
-│   ├── fluent/             # Fluent API 확장
-│   ├── http/               # Request/Response 빌더, Config
-│   ├── http2/              # HTTP/2 설정
-│   ├── protocol/           # HttpClientContext 확장
-│   ├── reactor/            # IOReactor 설정
-│   ├── routing/            # 라우팅 유틸리티
-│   └── ssl/                # SSL/TLS 설정
+│   ├── async/              # Async client, Coroutines integration
+│   ├── cache/              # Caching client (In-Memory, JCache)
+│   ├── classic/            # Sync client
+│   ├── entity/             # Entity/Multipart builders
+│   ├── fluent/             # Fluent API extensions
+│   ├── http/               # Request/Response builder, config
+│   ├── http2/              # HTTP/2 configuration
+│   ├── protocol/           # HttpClientContext extensions
+│   ├── reactor/            # IOReactor configuration
+│   ├── routing/            # Routing utilities
+│   └── ssl/                # SSL/TLS configuration
 ├── okhttp3/                # OkHttp3
-│   ├── OkHttp3Support.kt   # 클라이언트/Request/Response DSL
+│   ├── OkHttp3Support.kt   # Client/Request/Response DSL
 │   ├── LoggingInterceptor.kt
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
-│   └── mock/               # MockWebServer 유틸리티
+│   └── mock/               # MockWebServer utilities
 ├── ahc/                    # AsyncHttpClient
 │   ├── AsyncHttpClientSupport.kt
 │   └── CoroutineSupport.kt
@@ -286,17 +288,17 @@ io.bluetape4k.http
     └── VertxHttpClientSupport.kt
 ```
 
-## 테스트
+## Testing
 
 ```bash
-# HTTP 모듈 테스트 실행
+# Run HTTP module tests
 ./gradlew :bluetape4k-http:test
 ```
 
-## 참고
+## References
 
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
 - [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client)
-- [httpbin.org](https://httpbin.org/) - HTTP 테스트용 API
+- [httpbin.org](https://httpbin.org/) - HTTP testing API

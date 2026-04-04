@@ -1,10 +1,12 @@
 # Module bluetape4k-logback-kafka
 
-## 개요
+English | [한국어](./README.ko.md)
 
-로그 정보를 Apache Kafka로 직접 전송하는 Logback Appender를 제공합니다. 운영 환경에서 로그를 중앙 집중화하여 ELK Stack이나 다른 로그 분석 시스템으로 전송할 수 있습니다.
+## Overview
 
-## 의존성 추가
+Provides a Logback Appender that ships log events directly to Apache Kafka. Centralizes logs in production environments for forwarding to the ELK Stack or other log analysis systems.
+
+## Dependency
 
 ```kotlin
 dependencies {
@@ -12,44 +14,44 @@ dependencies {
 }
 ```
 
-## 주요 기능
+## Key Features
 
-- **KafkaAppender**: Logback 이벤트를 Kafka로 전송
-- **다양한 KeyProvider**: 로그 기반 Partition Key 생성 (Hostname, ThreadName, LoggerName 등)
-- **비동기 Exporter**: Kafka 전송 실패 시 대체 Appender 지원
-- **Kafka 로그 무한 루프 방지**: Kafka 클라이언트 로그를 별도 처리
+- **KafkaAppender**: Sends Logback events to Kafka
+- **Multiple KeyProviders**: Partition key generation based on hostname, thread name, logger name, and more
+- **Async Exporter**: Fallback appender support for Kafka delivery failures
+- **Infinite loop prevention**: Kafka client logs are handled separately to avoid log feedback loops
 
-## Logback 설정
+## Logback Configuration
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- Kafka Appender -->
     <appender name="Kafka" class="io.bluetape4k.logback.kafka.KafkaAppender">
-        <!-- 로그 포맷 설정 -->
+        <!-- Log format -->
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [${HOSTNAME}] %level [%thread] %logger: %msg%n%throwable</pattern>
         </encoder>
 
-        <!-- Kafka 설정 -->
+        <!-- Kafka settings -->
         <bootstrapServers>localhost:9092</bootstrapServers>
         <topic>application-logs</topic>
         <appendTimestamp>true</appendTimestamp>
         <acks>1</acks>
 
-        <!-- Kafka Producer 추가 설정 -->
+        <!-- Additional Kafka Producer settings -->
         <producerConfig>linger.ms=100</producerConfig>
         <producerConfig>batch.size=16384</producerConfig>
         <producerConfig>compression.type=gzip</producerConfig>
 
-        <!-- Partition Key Provider (기본: NullKafkaKeyProvider) -->
+        <!-- Partition Key Provider (default: NullKafkaKeyProvider) -->
         <keyProvider class="io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider"/>
 
-        <!-- Exporter (기본: DefaultKafkaExporter) -->
+        <!-- Exporter (default: DefaultKafkaExporter) -->
         <exporter class="io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter"/>
     </appender>
 
-    <!-- Console Appender (개발용) -->
+    <!-- Console Appender (for development) -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [${HOSTNAME}] %highlight(%-5level) [%blue(%.24t)] %yellow(%logger{36}):%line:
@@ -59,7 +61,7 @@ dependencies {
         </encoder>
     </appender>
 
-    <!-- 특정 로거에 Kafka Appender 적용 -->
+    <!-- Apply Kafka Appender to specific loggers -->
     <logger name="com.example" level="INFO" additivity="false">
         <appender-ref ref="Kafka"/>
     </logger>
@@ -70,86 +72,85 @@ dependencies {
 </configuration>
 ```
 
-## Key Provider 옵션
+## Key Provider Options
 
-| KeyProvider                   | 설명                        | 사용 예시         |
-|-------------------------------|---------------------------|---------------|
-| `NullKafkaKeyProvider`        | Key 없음 (기본값, 라운드로빈 분배)    | 파티션 분산        |
-| `HostnameKafkaKeyProvider`    | 호스트명을 Key로 사용             | 서버별 로그 분리     |
-| `ThreadNameKafkaKeyProvider`  | 스레드명을 Key로 사용             | 스레드별 로그 분리    |
-| `LoggerNameKafkaKeyProvider`  | 로거명을 Key로 사용              | 로거별 로그 분리     |
-| `ContextNameKafkaKeyProvider` | Logback Context명을 Key로 사용 | 애플리케이션별 로그 분리 |
+| KeyProvider                   | Description                                   | Use Case                        |
+|-------------------------------|-----------------------------------------------|---------------------------------|
+| `NullKafkaKeyProvider`        | No key (default, round-robin distribution)    | Even partition spread           |
+| `HostnameKafkaKeyProvider`    | Uses hostname as key                          | Separate logs by server         |
+| `ThreadNameKafkaKeyProvider`  | Uses thread name as key                       | Separate logs by thread         |
+| `LoggerNameKafkaKeyProvider`  | Uses logger name as key                       | Separate logs by logger         |
+| `ContextNameKafkaKeyProvider` | Uses Logback context name as key              | Separate logs by application    |
 
 ```xml
-<!-- 호스트명으로 Partitioning -->
+<!-- Partition by hostname -->
 <keyProvider class="io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider"/>
 
-        <!-- 스레드명으로 Partitioning -->
+<!-- Partition by thread name -->
 <keyProvider class="io.bluetape4k.logback.kafka.keyprovider.ThreadNameKafkaKeyProvider"/>
 
-        <!-- 로거명으로 Partitioning -->
+<!-- Partition by logger name -->
 <keyProvider class="io.bluetape4k.logback.kafka.keyprovider.LoggerNameKafkaKeyProvider"/>
 ```
 
-## Kafka Producer 설정
+## Kafka Producer Settings
 
-| 설정                 | 설명             | 기본값            |
-|--------------------|----------------|----------------|
-| `bootstrapServers` | Kafka 브로커 주소   | localhost:9092 |
-| `topic`            | 로그 전송 토픽       | (필수)           |
-| `acks`             | 메시지 확인 수준      | 1              |
-| `appendTimestamp`  | 타임스탬프 추가 여부    | false          |
-| `producerConfig`   | 추가 Producer 설정 | -              |
+| Setting              | Description              | Default        |
+|--------------------|--------------------------|----------------|
+| `bootstrapServers` | Kafka broker address     | localhost:9092 |
+| `topic`            | Log destination topic    | (required)     |
+| `acks`             | Message acknowledgement  | 1              |
+| `appendTimestamp`  | Append timestamp to logs | false          |
+| `producerConfig`   | Additional producer config | -             |
 
-### 권장 설정
+### Recommended Configurations
 
 ```xml
-<!-- 고처리량 설정 -->
+<!-- High-throughput -->
 <producerConfig>linger.ms=10</producerConfig>
 <producerConfig>batch.size=32768</producerConfig>
 <producerConfig>compression.type=lz4</producerConfig>
 
-        <!-- 저지연 설정 -->
+<!-- Low-latency -->
 <producerConfig>linger.ms=0</producerConfig>
 <producerConfig>acks=0</producerConfig>
 
-        <!-- 신뢰성 설정 -->
+<!-- High-reliability -->
 <producerConfig>acks=all</producerConfig>
 <producerConfig>retries=3</producerConfig>
 <producerConfig>enable.idempotence=true</producerConfig>
 ```
 
-## Exporter 옵션
+## Exporter Options
 
-| Exporter                     | 설명                 |
-|------------------------------|--------------------|
-| `DefaultKafkaExporter`       | 비동기 Kafka 전송 (기본값) |
-| `NoopExportExceptionHandler` | 전송 실패 시 무시         |
+| Exporter                     | Description                          |
+|------------------------------|--------------------------------------|
+| `DefaultKafkaExporter`       | Async Kafka delivery (default)       |
+| `NoopExportExceptionHandler` | Silently ignores delivery failures   |
 
 ```xml
-
 <exporter class="io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter"/>
 ```
 
-## 주요 기능 상세
+## Key Files
 
-| 파일                                           | 설명                 |
-|----------------------------------------------|--------------------|
-| `KafkaAppender.kt`                           | Kafka 로그 Appender  |
-| `AbstractKafkaAppender.kt`                   | Appender 기본 구현     |
-| `keyprovider/KafkaKeyProvider.kt`            | Key Provider 인터페이스 |
-| `keyprovider/NullKafkaKeyProvider.kt`        | Key 없음             |
-| `keyprovider/HostnameKafkaKeyProvider.kt`    | 호스트명 Key           |
-| `keyprovider/ThreadNameKafkaKeyProvider.kt`  | 스레드명 Key           |
-| `keyprovider/LoggerNameKafkaKeyProvider.kt`  | 로거명 Key            |
-| `keyprovider/ContextNameKafkaKeyProvider.kt` | Context명 Key       |
-| `exporter/KafkaExporter.kt`                  | Exporter 인터페이스     |
-| `exporter/DefaultKafkaExporter.kt`           | 기본 비동기 Exporter    |
-| `exporter/ExportExceptionHandler.kt`         | 전송 실패 처리기          |
+| File                                           | Description                    |
+|----------------------------------------------|--------------------------------|
+| `KafkaAppender.kt`                           | Kafka log appender             |
+| `AbstractKafkaAppender.kt`                   | Base appender implementation   |
+| `keyprovider/KafkaKeyProvider.kt`            | Key provider interface         |
+| `keyprovider/NullKafkaKeyProvider.kt`        | No key                         |
+| `keyprovider/HostnameKafkaKeyProvider.kt`    | Hostname-based key             |
+| `keyprovider/ThreadNameKafkaKeyProvider.kt`  | Thread name-based key          |
+| `keyprovider/LoggerNameKafkaKeyProvider.kt`  | Logger name-based key          |
+| `keyprovider/ContextNameKafkaKeyProvider.kt` | Context name-based key         |
+| `exporter/KafkaExporter.kt`                  | Exporter interface             |
+| `exporter/DefaultKafkaExporter.kt`           | Default async exporter         |
+| `exporter/ExportExceptionHandler.kt`         | Delivery failure handler       |
 
-## 주의사항
+## Notes
 
-- Kafka 브로커 장애 시 로그 유실 가능성이 있습니다.
-- `acks=all` 설정으로 신뢰성을 높일 수 있습니다.
-- 대량 로그 전송 시 `linger.ms`와 `batch.size`를 조정하세요.
-- Kafka 클라이언트 자체의 로그는 무한 루프 방지를 위해 별도 처리됩니다.
+- Log loss is possible if the Kafka broker is unavailable.
+- Use `acks=all` to improve reliability.
+- Tune `linger.ms` and `batch.size` for high-volume log shipping.
+- Kafka client logs are handled separately to prevent infinite feedback loops.

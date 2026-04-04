@@ -1,87 +1,89 @@
 # Module Examples - Mutiny
 
-> **⚠️ Deprecated**: 이 모듈은 예제성 모듈로 deprecated 되었으며 빌드에서 제외되었습니다.
+English | [한국어](./README.ko.md)
 
-[Mutiny](https://smallrye.io/smallrye-mutiny/)는 Reactive Programming을 위한 SmallRye 라이브러리입니다. 이 프로젝트는 Mutiny를 사용하는 다양한 예제를 제공합니다.
+> **⚠️ Deprecated**: This example module has been deprecated and excluded from the build.
 
-## 예제 목록
+[Mutiny](https://smallrye.io/smallrye-mutiny/) is a SmallRye library for Reactive Programming. This project provides a variety of examples demonstrating how to use Mutiny.
 
-### 기초 예제
+## Examples
 
-| 예제 파일                              | 설명                  |
-|------------------------------------|---------------------|
-| `01_Basic_Uni.kt`                  | Uni 기본: 단일 값 비동기 처리 |
-| `02_Basic_Multi.kt`                | Multi 기본: 스트림 처리    |
-| `03_Groups.kt`                     | 그룹화 및 배치 처리         |
-| `04_Composition_Transformation.kt` | 조합 및 변환 연산자         |
-| `05_Failures.kt`                   | 실패 처리 및 복구          |
-| `06_Backpressure.kt`               | 배압(Backpressure) 관리 |
-| `07_Threading.kt`                  | 스레딩 모델과 스케줄러        |
-| `08_Multi_CustomOperator.kt`       | 커스텀 연산자 구현          |
+### Core Examples
 
-### Backpressure 예제 (backpressure/)
+| File                                   | Description                             |
+|------------------------------------|----------------------------------------|
+| `01_Basic_Uni.kt`                  | Uni basics: single-value async processing |
+| `02_Basic_Multi.kt`                | Multi basics: stream processing          |
+| `03_Groups.kt`                     | Grouping and batch processing            |
+| `04_Composition_Transformation.kt` | Composition and transformation operators |
+| `05_Failures.kt`                   | Failure handling and recovery            |
+| `06_Backpressure.kt`               | Backpressure management                  |
+| `07_Threading.kt`                  | Threading model and schedulers           |
+| `08_Multi_CustomOperator.kt`       | Implementing custom operators            |
 
-| 예제 파일                 | 설명          |
-|-----------------------|-------------|
-| `01_Drop.kt`          | 초과 항목 드롭 전략 |
-| `02_Buffer.kt`        | 버퍼링 전략      |
-| `03_Visual_Drop.kt`   | 드롭 전략 시각화   |
-| `04_Visual_Buffer.kt` | 버퍼 전략 시각화   |
+### Backpressure Examples (backpressure/)
 
-## 주요 학습 포인트
+| File                      | Description              |
+|-----------------------|--------------------------|
+| `01_Drop.kt`          | Drop strategy for overflow |
+| `02_Buffer.kt`        | Buffering strategy         |
+| `03_Visual_Drop.kt`   | Visual demo: drop strategy |
+| `04_Visual_Buffer.kt` | Visual demo: buffer strategy |
 
-### Uni (단일 비동기 값)
+## Key Learning Points
+
+### Uni (Single Async Value)
 
 ```kotlin
-// Uni 생성
+// Create a Uni
 val uni = Uni.createFrom().item("Hello")
 
-// 변환
+// Transform
 uni.map { it.uppercase() }
     .flatMap { processAsync(it) }
 
-// 구독
+// Subscribe
 uni.subscribe().with(
     { item -> println(item) },
     { failure -> println(failure.message) }
 )
 ```
 
-### Multi (스트림)
+### Multi (Stream)
 
 ```kotlin
-// Multi 생성
+// Create a Multi
 val multi = Multi.createFrom().items(1, 2, 3, 4, 5)
 
-// 변환
+// Transform
 multi.filter { it % 2 == 0 }
      .map { it * 2 }
 
-// 구독
+// Subscribe
 multi.subscribe().with { item -> println(item) }
 ```
 
 ### Backpressure
 
 ```kotlin
-// Drop 전략
+// Drop strategy
 multi.onOverflow().drop()
 
-// Buffer 전략
+// Buffer strategy
 multi.onOverflow().buffer(100)
 ```
 
-## 실행 방법
+## Running the Examples
 
 ```bash
-# 모든 예제 실행
+# Run all examples
 ./gradlew :examples:mutiny:test
 
-# 특정 예제만 실행
+# Run a specific example
 ./gradlew :examples:mutiny:test --tests "*01_Basic*"
 ```
 
-## 참고
+## References
 
-- [Mutiny 공식 문서](https://smallrye.io/smallrye-mutiny/)
+- [Mutiny Official Documentation](https://smallrye.io/smallrye-mutiny/)
 - [Mutiny Getting Started](https://smallrye.io/smallrye-mutiny/getting-started/)

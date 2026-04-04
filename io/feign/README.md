@@ -1,21 +1,23 @@
 # Module bluetape4k-feign
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-feign`은 [OpenFeign](https://github.com/OpenFeign/feign)을 Kotlin DSL과 Coroutines로 확장하여 제공하는 모듈입니다.
+## Overview
 
-선언적 HTTP 클라이언트 정의를 통해 REST API 호출을 인터페이스 메서드처럼 사용할 수 있으며, Apache HC5, Vert.x 등 다양한 HTTP 전송 계층을 플러그인 방식으로 교체할 수 있습니다.
+`bluetape4k-feign` extends [OpenFeign](https://github.com/OpenFeign/feign) with a Kotlin DSL and Coroutines support.
 
-## 주요 기능
+It allows REST API calls to be declared as interface methods, and supports pluggable HTTP transport layers including Apache HC5 and Vert.x.
+
+## Key Features
 
 ### 1. Feign Builder DSL
 
-Kotlin DSL로 간편하게 Feign 클라이언트를 구성합니다.
+Configure Feign clients easily using a Kotlin DSL.
 
 ```kotlin
 import io.bluetape4k.feign.*
 
-// DSL 방식
+// DSL style
 val api = feignBuilder {
     client(ApacheHttp5Client())
     encoder(JacksonEncoder())
@@ -23,56 +25,56 @@ val api = feignBuilder {
     logLevel(Logger.Level.BASIC)
 }.client<GitHubApi>("https://api.github.com")
 
-// 팩토리 함수 방식 (기본 사용)
+// Factory function style (basic usage)
 val api = feignBuilderOf(
     client = ApacheHttp5Client(),
     encoder = JacksonEncoder(),
     decoder = JacksonDecoder(),
 ).client<GitHubApi>("https://api.github.com")
 
-// 팩토리 함수 방식 + 추가 설정 (builder 람다 활용)
+// Factory function + additional configuration (using builder lambda)
 val api = feignBuilderOf(
     client = ApacheHttp5Client(),
     encoder = JacksonEncoder(),
     decoder = JacksonDecoder(),
 ) {
-    // 추가 Feign.Builder 설정 적용
+    // Apply additional Feign.Builder settings
     retryer(Retryer.Default())
     errorDecoder(MyErrorDecoder())
 }.client<GitHubApi>("https://api.github.com")
 ```
 
-`feignBuilderOf` 계약:
-- 기본값으로 `Encoder.Default()`와 `Decoder.Default()`를 적용합니다.
-- `builder: Feign.Builder.() -> Unit = {}` 파라미터로 추가 설정을 인라인으로 지정할 수 있습니다.
-- `inline fun`으로 구현되어 람다 호출 오버헤드가 없습니다.
-- 기존에 오탈자로 제공되던 `feingBuilderOf`는 제거되었습니다. `feignBuilderOf`를 사용하세요.
+`feignBuilderOf` contract:
+- Applies `Encoder.Default()` and `Decoder.Default()` as defaults.
+- The `builder: Feign.Builder.() -> Unit = {}` parameter allows inline additional configuration.
+- Implemented as an `inline fun` to eliminate lambda call overhead.
+- The previously misspelled `feingBuilderOf` has been removed. Use `feignBuilderOf`.
 
-### 2. Coroutines 지원
+### 2. Coroutines Support
 
-`CoroutineFeign`을 활용하여 suspend 함수 기반의 비동기 API 호출을 지원합니다.
+Supports async API calls via `suspend` functions using `CoroutineFeign`.
 
 ```kotlin
 import io.bluetape4k.feign.coroutines.*
 
-// Coroutine Feign 클라이언트 생성
+// Create a Coroutine Feign client
 val api = coroutineFeignBuilderOf<Unit>(
     asyncClient = AsyncApacheHttp5Client(httpAsyncClientOf()),
     encoder = JacksonEncoder(),
     decoder = JacksonDecoder(),
 ).client<GitHubApi>("https://api.github.com")
 
-// suspend 함수로 호출
+// Call using suspend function
 suspend fun getUser(username: String): User {
     return api.getUser(username)
 }
 ```
 
-**동적 URL 지원:**
+**Dynamic URL support:**
 
 ```kotlin
 interface GitHubApi {
-    // 첫 번째 인자로 URI를 전달하면 동적 URL 사용 가능
+    // Pass URI as the first argument to use a dynamic URL
     @RequestLine("GET /users/{username}")
     fun getUser(host: URI, @Param("username") username: String): User
 }
@@ -81,17 +83,17 @@ val api = feignBuilderOf(client = ApacheHttp5Client()).client<GitHubApi>()
 val user = api.getUser(URI("https://api.github.com"), "octocat")
 ```
 
-`bodyAsReader()` 계약:
-- 응답 body가 없으면 `IllegalStateException("Response body is null.")`를 던집니다.
+`bodyAsReader()` contract:
+- Throws `IllegalStateException("Response body is null.")` when the response body is absent.
 
-### 3. 다양한 HTTP 전송 계층
+### 3. HTTP Transport Layer Options
 
-| 클라이언트                  | 특성                 | 용도            |
-|------------------------|--------------------|---------------|
-| ApacheHttp5Client      | 안정적, 풍부한 설정        | 동기 API 호출     |
-| AsyncApacheHttp5Client | 비동기, Coroutines 통합 | 고성능 비동기 통신    |
-| VertxHttpClient        | 이벤트 루프 기반, 경량      | Vert.x 생태계 통합 |
-| AsyncVertxHttpClient   | Vert.x 비동기 클라이언트   | Vert.x 비동기 통신 |
+| Client | Characteristics | Use Case |
+|--------|----------------|----------|
+| ApacheHttp5Client | Stable, rich configuration | Synchronous API calls |
+| AsyncApacheHttp5Client | Async, Coroutines integration | High-performance async communication |
+| VertxHttpClient | Event loop-based, lightweight | Vert.x ecosystem integration |
+| AsyncVertxHttpClient | Vert.x async client | Vert.x async communication |
 
 ```mermaid
 classDiagram
@@ -112,26 +114,26 @@ classDiagram
         +execute(request, options, callback)
     }
 
-    FeignClient --> ApacheHttp5Client : 동기 전송
-    FeignClient --> AsyncApacheHttp5Client : 비동기 전송
-    FeignClient --> VertxHttpClient : Vert.x 동기
-    FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
+    FeignClient --> ApacheHttp5Client : sync transport
+    FeignClient --> AsyncApacheHttp5Client : async transport
+    FeignClient --> VertxHttpClient : Vert.x sync
+    FeignClient --> AsyncVertxHttpClient : Vert.x async
 
 ```
 
 ```kotlin
-// Vert.x 기반 Feign 클라이언트
+// Vert.x-based Feign client
 val api = feignBuilderOf(
     client = VertxHttpClient(vertx),
 ).client<MyApi>("https://api.example.com")
 ```
 
-### 4. 커스텀 Encoder/Decoder
+### 4. Custom Encoder/Decoder
 
-Jackson, Fastjson2 등 다양한 직렬화 라이브러리를 Encoder/Decoder로 사용할 수 있습니다.
+Use various serialization libraries such as Jackson and Fastjson2 as Encoder/Decoder.
 
 ```kotlin
-// Jackson (기본 권장)
+// Jackson (recommended default)
 val builder = feignBuilderOf(
     client = ApacheHttp5Client(),
     encoder = JacksonEncoder(),
@@ -146,9 +148,9 @@ val builder = feignBuilderOf(
 )
 ```
 
-### 5. Resilience4j 통합
+### 5. Resilience4j Integration
 
-Feign 클라이언트에 Circuit Breaker, Retry 등 Resilience4j 패턴을 적용할 수 있습니다.
+Apply Resilience4j patterns such as Circuit Breaker and Retry to Feign clients.
 
 ```kotlin
 import io.github.resilience4j.feign.Resilience4jFeign
@@ -160,7 +162,7 @@ val decoratedBuilder = Resilience4jFeign.builder(feignBuilderOf(
 ))
 ```
 
-## API 정의 예시
+## API Definition Examples
 
 ```kotlin
 interface HttpbinApi {
@@ -186,22 +188,22 @@ interface HttpbinCoroutineApi {
 }
 ```
 
-## 의존성
+## Dependencies
 
 ```kotlin
 dependencies {
     implementation(project(":bluetape4k-feign"))
 
-    // 선택적 의존성
+    // Optional dependencies
     implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder
-    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 클라이언트
-    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j 통합
+    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 client
+    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j integration
 }
 ```
 
-## 클래스 구조
+## Class Structure
 
-### Feign + Coroutines 통합 구조
+### Feign + Coroutines Integration
 
 ```mermaid
 classDiagram
@@ -249,9 +251,9 @@ classDiagram
     }
 
     CoroutineFeign *-- CoroutineBuilder
-    CoroutineBuilder --> AsyncClient : 설정
-    CoroutineBuilder --> Encoder : 설정
-    CoroutineBuilder --> Decoder : 설정
+    CoroutineBuilder --> AsyncClient : configures
+    CoroutineBuilder --> Encoder : configures
+    CoroutineBuilder --> Decoder : configures
     Encoder <|.. JacksonEncoder2
     Decoder <|.. JacksonDecoder2
     Encoder <|.. FeignFastjsonEncoder
@@ -259,59 +261,59 @@ classDiagram
 
 ```
 
-### suspend 함수 기반 HTTP 요청 흐름
+### Suspend Function HTTP Request Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant API as Feign 인터페이스(suspend fun)
+    participant App as Application
+    participant API as Feign interface (suspend fun)
     participant CB as CoroutineFeign.CoroutineBuilder
     participant AC as AsyncClient
     participant Codec as JacksonDecoder2
-    participant Server as HTTP 서버
+    participant Server as HTTP Server
 
     App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: MyApi 프록시 반환
+    CB-->>App: Return MyApi proxy
 
     App->>API: suspend fun someApi()
-    API->>AC: 비동기 HTTP 요청
-    AC->>Server: HTTP 요청
-    Server-->>AC: HTTP 응답
+    API->>AC: Async HTTP request
+    AC->>Server: HTTP request
+    Server-->>AC: HTTP response
     AC-->>API: Response
     API->>Codec: decode(response, type)
-    Codec-->>API: 역직렬화된 객체
-    API-->>App: 결과 반환
+    Codec-->>API: Deserialized object
+    API-->>App: Return result
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.feign
-├── FeignBuilderSupport.kt           # Feign Builder DSL 및 팩토리 함수
-├── FeignRequestSupport.kt           # Request 유틸리티
-├── FeignResponseSupport.kt          # Response 유틸리티
-├── clients/                         # HTTP 전송 계층
-│   └── vertx/                       # Vert.x 기반 클라이언트
-│       ├── VertxHttpClient.kt       # 동기 Vert.x 클라이언트
-│       ├── AsyncVertxHttpClient.kt  # 비동기 Vert.x 클라이언트
-│       └── VertxFeignSupport.kt     # Vert.x 유틸리티
+├── FeignBuilderSupport.kt           # Feign Builder DSL and factory functions
+├── FeignRequestSupport.kt           # Request utilities
+├── FeignResponseSupport.kt          # Response utilities
+├── clients/                         # HTTP transport layer
+│   └── vertx/                       # Vert.x-based clients
+│       ├── VertxHttpClient.kt       # Sync Vert.x client
+│       ├── AsyncVertxHttpClient.kt  # Async Vert.x client
+│       └── VertxFeignSupport.kt     # Vert.x utilities
 ├── codec/                           # Encoder/Decoder
-│   ├── JacksonEncoder2.kt           # 개선된 Jackson Encoder
-│   ├── JacksonDecoder2.kt           # 개선된 Jackson Decoder
+│   ├── JacksonEncoder2.kt           # Enhanced Jackson Encoder
+│   ├── JacksonDecoder2.kt           # Enhanced Jackson Decoder
 │   ├── FeignFastjsonEncoder.kt      # Fastjson2 Encoder
 │   └── FeignFastjsonDecoder.kt      # Fastjson2 Decoder
-└── coroutines/                      # Coroutines 지원
+└── coroutines/                      # Coroutines support
     └── FeignCoroutineBuilderSupport.kt  # CoroutineFeign Builder DSL
 ```
 
-## 테스트
+## Testing
 
 ```bash
-# Feign 모듈 테스트 실행
+# Run Feign module tests
 ./gradlew :bluetape4k-feign:test
 ```
 
-## 참고
+## References
 
 - [OpenFeign/feign](https://github.com/OpenFeign/feign)
 - [Feign Kotlin](https://github.com/OpenFeign/feign/tree/master/kotlin)

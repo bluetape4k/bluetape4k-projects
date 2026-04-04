@@ -1,107 +1,108 @@
 # Module bluetape4k-exposed
 
-`bluetape4k-exposed-core`, `bluetape4k-exposed-dao`, `bluetape4k-exposed-jdbc` 세 모듈을 하나로 묶는 **하위 호환 Umbrella 모듈**입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+A **backward-compatible umbrella module** that bundles `bluetape4k-exposed-core`, `bluetape4k-exposed-dao`, and `bluetape4k-exposed-jdbc` together.
 
-기존에 `bluetape4k-exposed` 단일 모듈을 사용하던 코드는 **변경 없이** 계속 동작합니다. 신규 프로젝트에서는 실제로 필요한 하위 모듈만 직접 참조하는 것을 권장합니다.
+## Overview
+
+Existing code that depends on the single `bluetape4k-exposed` module continues to work **without any changes**. For new projects, we recommend referencing only the specific sub-modules you actually need.
 
 ```text
 bluetape4k-exposed  (umbrella)
-├── bluetape4k-exposed-core   ← 핵심 컬럼 타입, 확장 함수 (JDBC 불필요)
-├── bluetape4k-exposed-dao    ← DAO 엔티티, ID 테이블 전략
-└── bluetape4k-exposed-jdbc   ← JDBC Repository, 트랜잭션, 쿼리 확장
+├── bluetape4k-exposed-core   ← Core column types and extension functions (no JDBC dependency)
+├── bluetape4k-exposed-dao    ← DAO entities and ID table strategies
+└── bluetape4k-exposed-jdbc   ← JDBC Repository, transactions, and query extensions
 ```
 
-## 의존성 추가
+## Adding Dependencies
 
-### 기존 코드 (변경 없이 사용)
+### Existing Code (no changes required)
 
 ```kotlin
 dependencies {
-    // 기존과 동일하게 사용 가능
+    // Works exactly as before
     implementation("io.github.bluetape4k:bluetape4k-exposed:${version}")
 }
 ```
 
-### 신규 코드 (최소 의존 권장)
+### New Code (prefer minimal dependencies)
 
-- R2DBC, Jackson, 암호화/압축 컬럼 타입 등 → `bluetape4k-exposed-core`
-- DAO Entity, 커스텀 IdTable (KSUID 등) → `bluetape4k-exposed-dao`
-- JDBC Repository, 쿼리, 트랜잭션 → `bluetape4k-exposed-jdbc`
-- 기존 코드와 하위 호환 → `bluetape4k-exposed` (이 모듈)
+- R2DBC, Jackson, encrypted/compressed column types, etc. → `bluetape4k-exposed-core`
+- DAO entities, custom IdTable (KSUID, etc.) → `bluetape4k-exposed-dao`
+- JDBC Repository, queries, transactions → `bluetape4k-exposed-jdbc`
+- Backward compatibility with existing code → `bluetape4k-exposed` (this module)
 
 ```kotlin
-// 예: R2DBC 모듈에서는 core만 사용
+// Example: use only core in an R2DBC module
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-exposed-core:${version}")
 }
 ```
 
 ```kotlin
-// 예: JDBC Repository가 필요한 경우
+// Example: when a JDBC Repository is needed
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-exposed-jdbc:${version}")
-    // exposed-jdbc는 core + dao를 전이 의존성으로 포함
+    // exposed-jdbc transitively includes core + dao
 }
 ```
 
-## 하위 모듈 상세
+## Sub-Module Details
 
 ### bluetape4k-exposed-core
 
-- JDBC 의존 없이 사용 가능한 기반 모듈
-- 압축(LZ4/Snappy/Zstd), 암호화, 직렬화(Kryo/Fory) 컬럼 타입
-- 클라이언트 측 ID 생성 확장 (`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`)
-- `HasIdentifier<ID>`, `ExposedPage<T>` 공통 인터페이스
+- Foundation module usable without a JDBC dependency
+- Compressed (LZ4/Snappy/Zstd), encrypted, and serialized (Kryo/Fory) column types
+- Client-side ID generation extensions (`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`)
+- Common interfaces: `HasIdentifier<ID>`, `ExposedPage<T>`
 - `BatchInsertOnConflictDoNothing`
 
-- 자세한 내용: `bluetape4k-exposed-core` 모듈 README 참조
+See the `bluetape4k-exposed-core` module README for details.
 
 ### bluetape4k-exposed-dao
 
-- `idEquals`, `idHashCode`, `entityToStringBuilder` 등 DAO Entity 보조
-- `StringEntity` / `StringEntityClass` (String PK 지원)
-- 커스텀 IdTable: `KsuidTable`, `KsuidMillisTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `TimebasedUUIDBase62Table`,
-  `SoftDeletedIdTable`
+- DAO Entity helpers: `idEquals`, `idHashCode`, `entityToStringBuilder`
+- `StringEntity` / `StringEntityClass` (String primary key support)
+- Custom IdTables: `KsuidTable`, `KsuidMillisTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `TimebasedUUIDBase62Table`, `SoftDeletedIdTable`
 
-- 자세한 내용: `bluetape4k-exposed-dao` 모듈 README 참조
+See the `bluetape4k-exposed-dao` module README for details.
 
 ### bluetape4k-exposed-jdbc
 
-- `ExposedRepository<T, ID>` — CRUD, 페이징, 배치 삽입/Upsert
-- `SoftDeletedRepository<T, ID>` — Soft Delete 지원
-- `suspendedQuery { }` — Coroutines 기반 JDBC 쿼리
-- `virtualThreadTransaction { }` — JDK 21+ Virtual Thread 트랜잭션
+- `ExposedRepository<T, ID>` — CRUD, pagination, batch insert/upsert
+- `SoftDeletedRepository<T, ID>` — Soft delete support
+- `suspendedQuery { }` — Coroutines-based JDBC queries
+- `virtualThreadTransaction { }` — JDK 21+ Virtual Thread transactions
 - `SchemaUtilsExtensions`, `TableExtensions`, `ImplicitSelectAll`
 
-- 자세한 내용: `bluetape4k-exposed-jdbc` 모듈 README 참조
+See the `bluetape4k-exposed-jdbc` module README for details.
 
-## 테스트
+## Testing
 
 ```bash
-# 개별 모듈 테스트
+# Test individual modules
 ./gradlew :bluetape4k-exposed-core:test
 ./gradlew :bluetape4k-exposed-dao:test
 ./gradlew :bluetape4k-exposed-jdbc:test
 ```
 
-## 모듈 의존성 구조
+## Module Dependency Graph
 
 ```mermaid
 flowchart TD
-    E[exposed\numbrella] --> EC[exposed-core\n컬럼 타입 + Auditable]
+    E[exposed\numbrella] --> EC[exposed-core\nColumn Types + Auditable]
     E --> ED[exposed-dao\nDAO Entity + IdTable]
     E --> EJ[exposed-jdbc\nJDBC Repository\n+ VirtualThread]
     E --> ER[exposed-r2dbc\nR2DBC Repository\n+ Flow/suspend]
 
-    EC --> EJK[exposed-jackson3\nJSONB 컬럼]
+    EC --> EJK[exposed-jackson3\nJSONB Columns]
     EC --> EP[exposed-postgresql\nPostGIS + pgvector]
-    EC --> EM[exposed-mysql8\nGIS 타입]
-    EJ --> EJL[exposed-jdbc-lettuce\nJDBC + Lettuce 캐시]
-    EJ --> EJR[exposed-jdbc-redisson\nJDBC + Redisson 캐시]
-    ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce 캐시]
-    ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson 캐시]
+    EC --> EM[exposed-mysql8\nGIS Types]
+    EJ --> EJL[exposed-jdbc-lettuce\nJDBC + Lettuce Cache]
+    EJ --> EJR[exposed-jdbc-redisson\nJDBC + Redisson Cache]
+    ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce Cache]
+    ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson Cache]
 
     style E fill:#607D8B
     style EC fill:#9C27B0
@@ -117,7 +118,7 @@ flowchart TD
     style ERR fill:#F44336
 ```
 
-## 참고
+## References
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - bluetape4k-exposed-core

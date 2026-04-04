@@ -1,6 +1,8 @@
 # Module Examples - Cassandra & Spring Data Cassandra
 
-Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다.
+English | [한국어](./README.ko.md)
+
+A comprehensive set of examples demonstrating Apache Cassandra and Spring Data Cassandra.
 
 ## UML
 
@@ -20,67 +22,67 @@ flowchart TD
     Reactive --> Template
 ```
 
-## 예제 목록
+## Example List
 
-### 기본 (basic/)
+### Basic (basic/)
 
-| 예제 파일                                 | 설명                         |
-|---------------------------------------|----------------------------|
-| `BasicUserRepositoryTest.kt`          | 기본 Repository 사용법          |
-| `CassandraOperationsTest.kt`          | CassandraOperations로 쿼리 실행 |
-| `CoroutineCassandraOperationsTest.kt` | Coroutines 기반 비동기 쿼리       |
+| Example File                          | Description                              |
+|---------------------------------------|------------------------------------------|
+| `BasicUserRepositoryTest.kt`          | Basic Repository usage                   |
+| `CassandraOperationsTest.kt`          | Running queries with CassandraOperations |
+| `CoroutineCassandraOperationsTest.kt` | Async queries using Coroutines           |
 
 ### Kotlin DSL (kotlin/)
 
-| 예제 파일                     | 설명                        |
-|---------------------------|---------------------------|
-| `PersonRepositoryTest.kt` | Kotlin DSL로 Repository 정의 |
-| `TemplateTest.kt`         | CassandraTemplate 사용법     |
+| Example File              | Description                              |
+|---------------------------|------------------------------------------|
+| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL    |
+| `TemplateTest.kt`         | Using CassandraTemplate                  |
 
 ### Reactive (reactive/)
 
-| 예제 파일                              | 설명                    |
-|------------------------------------|-----------------------|
-| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
-| `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
+| Example File                           | Description              |
+|----------------------------------------|--------------------------|
+| `ReactivePersonRepositoryTest.kt`      | Reactive Repository      |
+| `CoroutinePersonRepositoryTest.kt`     | Coroutines Repository    |
 
-### 멀티테넌시 (multitenancy/)
+### Multi-tenancy (multitenancy/)
 
-| 예제 파일                       | 설명                |
-|-----------------------------|-------------------|
-| `keyspace/`                 | Keyspace 기반 멀티테넌시 |
-| `row/RowMultitenantTest.kt` | Row-Level 멀티테넌시   |
+| Example File                | Description                  |
+|-----------------------------|------------------------------|
+| `keyspace/`                 | Keyspace-based multi-tenancy |
+| `row/RowMultitenantTest.kt` | Row-Level multi-tenancy      |
 
-### 감사 (auditing/)
+### Auditing (auditing/)
 
-| 예제 파일                | 설명                          |
-|----------------------|-----------------------------|
-| `AuditingTest.kt`    | @CreatedBy, @LastModifiedBy |
-| `reactive/auditing/` | Reactive 환경 감사              |
+| Example File         | Description                     |
+|----------------------|---------------------------------|
+| `AuditingTest.kt`    | @CreatedBy, @LastModifiedBy     |
+| `reactive/auditing/` | Auditing in a Reactive context  |
 
-### 도메인 모델 (domain/model/)
+### Domain Model (domain/model/)
 
-| 모델                    | 설명              |
-|-----------------------|-----------------|
-| `User.kt`             | 기본 사용자 엔티티      |
-| `Person.kt`           | Embedded 타입 예제  |
-| `AllPossibleTypes.kt` | Cassandra 타입 매핑 |
-| `VersionedEntity.kt`  | 낙관적 잠금          |
+| Model                   | Description                  |
+|-------------------------|------------------------------|
+| `User.kt`               | Basic user entity            |
+| `Person.kt`             | Embedded type example        |
+| `AllPossibleTypes.kt`   | Cassandra type mapping       |
+| `VersionedEntity.kt`    | Optimistic locking           |
 
-### 기타 기능
+### Other Features
 
-| 예제                   | 설명              |
-|----------------------|-----------------|
-| `udt/`               | 사용자 정의 타입 (UDT) |
-| `optimisticlocking/` | 낙관적 잠금 패턴       |
-| `projection/`        | 프로젝션 쿼리         |
-| `convert/`           | 커스텀 컨버터         |
-| `event/`             | 도메인 이벤트         |
-| `streamnullable/`    | Nullable 스트림 처리 |
+| Example              | Description               |
+|----------------------|---------------------------|
+| `udt/`               | User Defined Types (UDT)  |
+| `optimisticlocking/` | Optimistic locking pattern |
+| `projection/`        | Projection queries        |
+| `convert/`           | Custom converters         |
+| `event/`             | Domain events             |
+| `streamnullable/`    | Nullable stream handling  |
 
-## 주요 학습 포인트
+## Key Learning Points
 
-### Entity 정의
+### Entity Definition
 
 ```kotlin
 @Table
@@ -99,7 +101,7 @@ interface UserRepository : CassandraRepository<User, UUID> {
 }
 ```
 
-### Coroutines 지원
+### Coroutines Support
 
 ```kotlin
 interface CoroutinePersonRepository : CoroutineCrudRepository<Person, UUID> {
@@ -107,17 +109,17 @@ interface CoroutinePersonRepository : CoroutineCrudRepository<Person, UUID> {
 }
 ```
 
-## 실행 방법
+## How to Run
 
 ```bash
-# Cassandra Docker 실행
+# Start Cassandra via Docker
 docker run -d --name cassandra -p 9042:9042 cassandra:4
 
-# 모든 예제 실행
+# Run all examples
 ./gradlew :examples:cassandra:test
 ```
 
-## 참고
+## References
 
 - [Spring Data Cassandra](https://spring.io/projects/spring-data-cassandra)
 - [Apache Cassandra](https://cassandra.apache.org/)

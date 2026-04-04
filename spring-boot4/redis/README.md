@@ -1,22 +1,24 @@
 # bluetape4k-spring-boot4-redis
 
-Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축 조합으로 대체할 수 있는 모듈입니다 (Spring Boot 4.x).
+English | [한국어](./README.ko.md)
 
-`RedisTemplate` / `ReactiveRedisTemplate` 설정 시 Serializer와 `RedisSerializationContext`를 간편하게 구성할 수 있습니다.
+A module that replaces Spring Data Redis's serialization layer with high-performance binary serialization and compression combinations (Spring Boot 4.x).
 
-> Spring Boot 3 모듈(`bluetape4k-spring-boot3-redis`)과 동일한 기능을 Spring Boot 4.x API로 제공합니다.
+Provides a convenient way to configure `Serializer` and `RedisSerializationContext` when setting up `RedisTemplate` / `ReactiveRedisTemplate`.
 
-## 주요 기능
+> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-boot3-redis`), adapted to the Spring Boot 4.x API.
 
-| 클래스 / 함수                           | 설명                                                       |
-|------------------------------------|----------------------------------------------------------|
-| `RedisBinarySerializer`            | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현          |
-| `RedisCompressSerializer`          | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>`       |
-| `RedisBinarySerializers`           | 직렬화(Jdk/Kryo/Fory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
-| `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                    |
-| `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                            |
+## Key Features
 
-## 설치
+| Class / Function                    | Description                                                                |
+|------------------------------------|----------------------------------------------------------------------------|
+| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`         |
+| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`       |
+| `RedisBinarySerializers`           | Singleton factory combining serializers (Jdk/Kryo/Fory) × compressors (GZip/LZ4/Snappy/Zstd) |
+| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                              |
+| `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly             |
+
+## Installation
 
 ```kotlin
 dependencies {
@@ -24,9 +26,9 @@ dependencies {
 }
 ```
 
-## 사용 예시
+## Usage Examples
 
-### ReactiveRedisTemplate 설정 (DSL 방식)
+### ReactiveRedisTemplate Configuration (DSL approach)
 
 ```kotlin
 @Configuration
@@ -47,7 +49,7 @@ class RedisConfig {
 }
 ```
 
-### ReactiveRedisTemplate 설정 (편의 함수 방식)
+### ReactiveRedisTemplate Configuration (convenience function approach)
 
 ```kotlin
 @Bean
@@ -61,7 +63,7 @@ fun reactiveRedisTemplate(
 }
 ```
 
-### RedisTemplate 설정
+### RedisTemplate Configuration
 
 ```kotlin
 @Bean
@@ -76,33 +78,33 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 }
 ```
 
-## Serializer 목록
+## Serializer Reference
 
-### 직렬화 (객체 → ByteArray)
+### Object Serializers (Object → ByteArray)
 
-| 상수                                  | 직렬화 엔진 | 압축     |
-|-------------------------------------|--------|--------|
-| `RedisBinarySerializers.Jdk`        | JDK    | 없음     |
-| `RedisBinarySerializers.Kryo`       | Kryo   | 없음     |
-| `RedisBinarySerializers.Fory`       | Fory   | 없음     |
-| `RedisBinarySerializers.LZ4Fory`    | Fory   | LZ4    |
-| `RedisBinarySerializers.LZ4Kryo`    | Kryo   | LZ4    |
-| `RedisBinarySerializers.ZstdFory`   | Fory   | Zstd   |
-| `RedisBinarySerializers.SnappyFory` | Fory   | Snappy |
-| `RedisBinarySerializers.GzipFory`   | Fory   | GZip   |
+| Constant                            | Serialization Engine | Compression |
+|-------------------------------------|----------------------|-------------|
+| `RedisBinarySerializers.Jdk`        | JDK                  | None        |
+| `RedisBinarySerializers.Kryo`       | Kryo                 | None        |
+| `RedisBinarySerializers.Fory`       | Fory                 | None        |
+| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         |
+| `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         |
+| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        |
+| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      |
+| `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        |
 
-### 압축 전용 (ByteArray → ByteArray)
+### Compression-only (ByteArray → ByteArray)
 
-| 상수                              | 압축 알고리즘 |
-|---------------------------------|---------|
-| `RedisBinarySerializers.LZ4`    | LZ4     |
-| `RedisBinarySerializers.Zstd`   | Zstd    |
-| `RedisBinarySerializers.Snappy` | Snappy  |
-| `RedisBinarySerializers.Gzip`   | GZip    |
+| Constant                        | Compression Algorithm |
+|---------------------------------|-----------------------|
+| `RedisBinarySerializers.LZ4`    | LZ4                   |
+| `RedisBinarySerializers.Zstd`   | Zstd                  |
+| `RedisBinarySerializers.Snappy` | Snappy                |
+| `RedisBinarySerializers.Gzip`   | GZip                  |
 
-## 아키텍처 다이어그램
+## Architecture Diagrams
 
-### Redis Serializer 클래스 계층
+### Redis Serializer Class Hierarchy
 
 ```mermaid
 classDiagram
@@ -135,25 +137,25 @@ classDiagram
 
     RedisSerializer <|.. RedisBinarySerializer
     RedisSerializer <|.. RedisCompressSerializer
-    RedisBinarySerializers --> RedisBinarySerializer : 생성
-    RedisBinarySerializers --> RedisCompressSerializer : 생성
+    RedisBinarySerializers --> RedisBinarySerializer : creates
+    RedisBinarySerializers --> RedisCompressSerializer : creates
 ```
 
-### ReactiveRedisTemplate 직렬화 흐름
+### ReactiveRedisTemplate Serialization Flow
 
 ```mermaid
 flowchart LR
-    App["애플리케이션"] --> Template["ReactiveRedisTemplate<br/>(String, Any)"]
+    App["Application"] --> Template["ReactiveRedisTemplate<br/>(String, Any)"]
     Template --> Context["RedisSerializationContext<br/>redisSerializationContext { }"]
-    Context --> KeySer["키 Serializer<br/>RedisSerializer.string()"]
-    Context --> ValSer["값 Serializer<br/>RedisBinarySerializers.LZ4Fory"]
-    ValSer --> Fory["Fory 직렬화"]
-    ValSer --> LZ4["LZ4 압축"]
+    Context --> KeySer["Key Serializer<br/>RedisSerializer.string()"]
+    Context --> ValSer["Value Serializer<br/>RedisBinarySerializers.LZ4Fory"]
+    ValSer --> Fory["Fory Serialization"]
+    ValSer --> LZ4["LZ4 Compression"]
     LZ4 --> Redis[("Redis")]
     KeySer --> Redis
 ```
 
-## 빌드 및 테스트
+## Build and Test
 
 ```bash
 ./gradlew :bluetape4k-spring-boot4-redis:test

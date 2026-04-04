@@ -1,32 +1,33 @@
 # Module bluetape4k-okio
 
-## 개요
+English | [한국어](./README.ko.md)
 
-`bluetape4k-okio`는 Square의 [Okio](https://square.github.io/okio/) 라이브러리를 기반으로 한 고성능 I/O 확장 모듈입니다.
-Okio의 `Source`/`Sink` 추상화 위에 압축, 암호화, Base64 인코딩, NIO 채널 통합, Kotlin Coroutines 비동기 I/O 등을 제공합니다.
+## Overview
 
-## 주요 기능
+`bluetape4k-okio` is a high-performance I/O extension module built on Square's [Okio](https://square.github.io/okio/) library. On top of Okio's `Source`/`Sink` abstractions, it provides compression, encryption, Base64 encoding, NIO channel integration, and Kotlin Coroutines async I/O.
 
-### 1. Buffer / ByteString 유틸리티
+## Key Features
 
-Okio `Buffer`와 `ByteString` 생성을 위한 팩토리 함수와 확장 함수를 제공합니다.
+### 1. Buffer / ByteString Utilities
+
+Factory functions and extension functions for creating Okio `Buffer` and `ByteString` instances.
 
 ```kotlin
 import io.bluetape4k.okio.*
 
-// Buffer 생성
+// Creating Buffers
 val buffer = bufferOf("Hello, Okio!")
 val buffer2 = bufferOf(byteArrayOf(1, 2, 3))
 val buffer3 = bufferOf(inputStream)
 
-// ByteString 생성
+// Creating ByteStrings
 val byteString = byteStringOf("Hello")
 val byteString2 = byteStringOf(byteArrayOf(1, 2, 3))
 ```
 
-### 2. Source / Sink 확장
+### 2. Source / Sink Extensions
 
-`InputStream`/`OutputStream`을 Okio `Source`/`Sink`로 변환하는 어댑터를 제공합니다.
+Adapters to convert `InputStream`/`OutputStream` into Okio `Source`/`Sink`.
 
 ```kotlin
 import io.bluetape4k.okio.*
@@ -38,9 +39,9 @@ val source = inputStream.asSource()
 val sink = outputStream.asSink()
 ```
 
-### 3. NIO 채널 지원
+### 3. NIO Channel Support
 
-Java NIO `ReadableByteChannel`/`WritableByteChannel`/`FileChannel`을 Okio와 통합합니다.
+Integrates Java NIO `ReadableByteChannel`/`WritableByteChannel`/`FileChannel` with Okio.
 
 ```kotlin
 import io.bluetape4k.okio.channels.*
@@ -54,57 +55,57 @@ val fileSource = FileChannelSource(fileChannel)
 val fileSink = FileChannelSink(fileChannel)
 ```
 
-### 4. 압축 스트림
+### 4. Compression Streams
 
-`bluetape4k-io`의 `Compressor`/`StreamingCompressor`를 Okio Sink/Source로 래핑하여 스트리밍 압축/해제를 지원합니다.
+Wraps `bluetape4k-io`'s `Compressor`/`StreamingCompressor` as Okio Sink/Source for streaming compression.
 
 ```kotlin
 import io.bluetape4k.okio.compress.*
 import io.bluetape4k.io.compressor.Compressors
 
-// 압축 Sink (close 시점에 압축 확정)
+// Compression Sink (compression is finalized on close)
 val compressSink = sink.asCompressSink(Compressors.LZ4)
 compressSink.use { cs ->
     cs.write(buffer, buffer.size)
 }
 
-// 복원 Source
+// Decompression Source
 val decompressSource = source.asDecompressSource(Compressors.LZ4)
 decompressSource.use { ds ->
     ds.read(outputBuffer, Long.MAX_VALUE)
 }
 
-// StreamingCompressor 사용 (대용량 스트리밍)
+// Using StreamingCompressor (for large-scale streaming)
 val streamingSink = sink.asCompressSink(Compressors.Streaming.Zstd)
 val streamingSource = source.asDecompressSource(Compressors.Streaming.Zstd)
 ```
 
-**주의사항:**
-- `CompressableSink`는 `close()` 시점에 압축 결과가 확정됩니다. 반드시 `close()` 또는 `use {}`를 사용하세요.
-- `StreamingCompressSink`도 footer/finalize 기록을 위해 `close()`가 필요합니다.
+**Important notes:**
+- `CompressableSink` finalizes compression at `close()`. Always use `close()` or `use {}`.
+- `StreamingCompressSink` also requires `close()` to write the footer/finalize bytes.
 
-### 5. Tink 암호화 (권장)
+### 5. Tink Encryption (Recommended)
 
-Google Tink AEAD 기반 암호화 Sink/Source를 제공합니다.
+Provides encryption Sink/Source based on Google Tink AEAD.
 
 ```kotlin
 import io.bluetape4k.okio.tink.*
 import io.bluetape4k.tink.encrypt.TinkEncryptors
 
-// 암호화 Sink
+// Encryption Sink
 val encryptSink = sink.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
 encryptSink.write(buffer, buffer.size)
 
-// 복호화 Source
+// Decryption Source
 val decryptSource = source.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
 val result = Buffer()
 decryptSource.read(result, Long.MAX_VALUE)
 ```
 
-**암호화 + 압축 조합:**
+**Encryption + Compression combined:**
 
 ```kotlin
-// 압축 → 암호화
+// Compress then encrypt
 val combinedSink = sink
     .asTinkEncryptSink(TinkEncryptors.AES256_GCM)
     .asCompressSink(Compressors.Zstd)
@@ -112,31 +113,31 @@ val combinedSink = sink
 combinedSink.use { it.write(buffer, buffer.size) }
 ```
 
-### 6. Base64 인코딩/디코딩
+### 6. Base64 Encoding/Decoding
 
-Okio Sink/Source 기반 Base64 인코딩/디코딩을 제공합니다.
+Okio Sink/Source-based Base64 encoding and decoding.
 
 ```kotlin
 import io.bluetape4k.okio.base64.*
 
-// Base64 인코딩 Sink
+// Base64 encoding Sink
 val encodeSink = ApacheBase64Sink(delegate)
 encodeSink.write(buffer, buffer.size)
 
-// Base64 디코딩 Source
+// Base64 decoding Source
 val decodeSource = ApacheBase64Source(delegate)
 decodeSource.read(outputBuffer, Long.MAX_VALUE)
 ```
 
-### 7. Kotlin Coroutines 비동기 I/O
+### 7. Kotlin Coroutines Async I/O
 
-Okio Source/Sink를 Kotlin Coroutines `suspend` 함수로 래핑하여 비동기 I/O를 제공합니다.
+Wraps Okio Source/Sink as Kotlin Coroutines `suspend` functions for async I/O.
 
 ```kotlin
 import io.bluetape4k.okio.coroutines.*
 import java.nio.file.Paths
 
-// Suspended 파일 읽기
+// Suspended file read
 suspend fun readFileAsync(path: String): ByteArray {
     val source = SuspendedFileChannelSource(Paths.get(path))
     val buffer = Buffer()
@@ -144,7 +145,7 @@ suspend fun readFileAsync(path: String): ByteArray {
     return buffer.readByteArray()
 }
 
-// Suspended 파일 쓰기
+// Suspended file write
 suspend fun writeFileAsync(path: String, data: ByteArray) {
     val sink = SuspendedFileChannelSink(Paths.get(path))
     val buffer = Buffer().write(data)
@@ -154,19 +155,19 @@ suspend fun writeFileAsync(path: String, data: ByteArray) {
     }
 }
 
-// Suspended Socket 통신
+// Suspended socket communication
 val socketSource = SuspendedSocketChannelSource(socketChannel)
 val socketSink = SuspendedSocketChannelSink(socketChannel)
 ```
 
-**Suspended Pipe (생산자-소비자 패턴):**
+**Suspended Pipe (producer-consumer pattern):**
 
 ```kotlin
 import io.bluetape4k.okio.coroutines.*
 
 val pipe = SuspendedPipe()
 
-// 생산자
+// Producer
 launch {
     pipe.sink.use { sink ->
         sink.write(Buffer().writeUtf8("Hello"))
@@ -174,7 +175,7 @@ launch {
     }
 }
 
-// 소비자
+// Consumer
 launch {
     pipe.source.use { source ->
         val buffer = Buffer()
@@ -183,7 +184,7 @@ launch {
 }
 ```
 
-## 의존성 추가
+## Adding the Dependency
 
 ### Gradle (Kotlin DSL)
 
@@ -191,47 +192,47 @@ launch {
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-okio:${version}")
 
-    // 필수 (자동 포함)
+    // Required (included automatically)
     // io.github.bluetape4k:bluetape4k-io
     // com.squareup.okio:okio
 
-    // 선택적 의존성 (필요한 기능에 따라 추가)
-    implementation("io.github.bluetape4k:bluetape4k-tink:${version}")        // Tink 암호화
-    implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")  // Coroutines 비동기 I/O
+    // Optional (add based on features needed)
+    implementation("io.github.bluetape4k:bluetape4k-tink:${version}")        // Tink encryption
+    implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")  // Coroutines async I/O
     implementation("commons-codec:commons-codec:1.17.0")                     // Base64
 }
 ```
 
-## 모듈 구조
+## Module Structure
 
 ```
 io.bluetape4k.okio
-├── BufferSupport.kt            # Buffer 팩토리 (bufferOf)
-├── ByteStringSupport.kt        # ByteString 팩토리 (byteStringOf)
-├── SinkSupport.kt              # Sink 확장 함수
-├── SourceSupport.kt            # Source 확장 함수
-├── InputStreamSource.kt        # InputStream → Source 어댑터
-├── OutputStreamSink.kt         # OutputStream → Sink 어댑터
-├── channels/                   # NIO 채널 통합
+├── BufferSupport.kt            # Buffer factory (bufferOf)
+├── ByteStringSupport.kt        # ByteString factory (byteStringOf)
+├── SinkSupport.kt              # Sink extension functions
+├── SourceSupport.kt            # Source extension functions
+├── InputStreamSource.kt        # InputStream → Source adapter
+├── OutputStreamSink.kt         # OutputStream → Sink adapter
+├── channels/                   # NIO channel integration
 │   ├── FileChannelSink.kt
 │   ├── FileChannelSource.kt
 │   ├── ByteChannelSink.kt
 │   └── ByteChannelSource.kt
-├── compress/                   # 압축 스트림
-│   ├── CompressableSink.kt     # Compressor 기반 압축 Sink
-│   ├── DecompressableSource.kt # Compressor 기반 복원 Source
-│   ├── SinkWithCompressor.kt   # 레거시 호환 압축 Sink
-│   ├── SourceWithCompressor.kt # 레거시 호환 복원 Source
-│   └── Compressable.kt         # 압축 인터페이스
-├── tink/                       # Tink AEAD 암호화 (권장)
+├── compress/                   # Compression streams
+│   ├── CompressableSink.kt     # Compressor-based compression Sink
+│   ├── DecompressableSource.kt # Compressor-based decompression Source
+│   ├── SinkWithCompressor.kt   # Legacy-compatible compression Sink
+│   ├── SourceWithCompressor.kt # Legacy-compatible decompression Source
+│   └── Compressable.kt         # Compression interface
+├── tink/                       # Tink AEAD encryption (recommended)
 │   ├── TinkEncryptSink.kt
 │   └── TinkDecryptSource.kt
-├── base64/                     # Base64 인코딩/디코딩
+├── base64/                     # Base64 encoding/decoding
 │   ├── ApacheBase64Sink.kt
 │   ├── ApacheBase64Source.kt
 │   ├── OkioBase64Sink.kt
 │   └── OkioBase64Source.kt
-└── coroutines/                 # Kotlin Coroutines 비동기 I/O
+└── coroutines/                 # Kotlin Coroutines async I/O
     ├── SuspendedSource.kt
     ├── SuspendedSink.kt
     ├── SuspendedFileChannelSource.kt
@@ -239,14 +240,14 @@ io.bluetape4k.okio
     ├── SuspendedSocketChannelSource.kt
     ├── SuspendedSocketChannelSink.kt
     ├── SuspendedPipe.kt
-    └── [Buffered 구현체 등]
+    └── [Buffered implementations, etc.]
 ```
 
-## 클래스 구조
+## Class Structure
 
-### Sink / Source 어댑터 계층
+### Sink / Source Adapter Hierarchy
 
-Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
+Compression, encryption, and Base64 encoding are layered on top of Okio's `Sink`/`Source` abstractions using the decorator pattern.
 
 ```mermaid
 classDiagram
@@ -350,9 +351,9 @@ classDiagram
 
 ```
 
-### NIO 채널 어댑터 계층
+### NIO Channel Adapter Hierarchy
 
-Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
+Converts Java NIO `FileChannel`/`ByteChannel` to Okio `Sink`/`Source`.
 
 ```mermaid
 classDiagram
@@ -393,9 +394,9 @@ classDiagram
 
 ```
 
-### Coroutines 비동기 I/O 계층
+### Coroutines Async I/O Hierarchy
 
-Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
+Async Sink/Source abstraction based on Kotlin Coroutines `suspend` functions.
 
 ```mermaid
 classDiagram
@@ -489,9 +490,9 @@ classDiagram
 
 ```
 
-### 압축 팩토리 (Compressable)
+### Compression Factory (Compressable)
 
-`Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
+The `Compressable` object provides a convenient way to create compression/decompression Sink/Source for various algorithms.
 
 ```mermaid
 classDiagram
@@ -528,15 +529,15 @@ classDiagram
 
 ```
 
-## 시퀀스 다이어그램
+## Sequence Diagrams
 
-### 압축 Sink (One-Shot) — compress on close
+### Compression Sink (One-Shot) — compress on close
 
-`CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
+`CompressableSink` accumulates all data in an internal buffer and compresses everything at `close()`.
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant CS as CompressableSink
     participant PB as plainBuffer
     participant Comp as Compressor
@@ -544,7 +545,7 @@ sequenceDiagram
 
     C->>CS: write(data, byteCount)
     CS->>PB: write(data, byteCount)
-    Note over PB: 내부 버퍼에 축적
+    Note over PB: Accumulated in internal buffer
 
     C->>CS: write(data2, byteCount2)
     CS->>PB: write(data2, byteCount2)
@@ -559,48 +560,48 @@ sequenceDiagram
     CS->>D: close()
 ```
 
-### 압축 Sink (Streaming) — compress incrementally
+### Compression Sink (Streaming) — compress incrementally
 
-`StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
+`StreamingCompressSink` compresses data immediately as it arrives, making it ideal for large-scale streaming.
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant SS as StreamingCompressSink
     participant CS as compressingStream
     participant D as delegate Sink
 
-    Note over SS: 초기화 시 compressor.compressing(delegate.outputStream()) 생성
+    Note over SS: On init, creates compressor.compressing(delegate.outputStream())
 
     C->>SS: write(data, byteCount)
     SS->>CS: write(bytes, 0, size)
-    CS->>D: 압축된 청크 기록
+    CS->>D: Write compressed chunk
 
     C->>SS: write(data2, byteCount2)
     SS->>CS: write(bytes, 0, size)
-    CS->>D: 압축된 청크 기록
+    CS->>D: Write compressed chunk
 
     C->>SS: close()
     SS->>CS: close()
-    Note over CS: footer/finalize 기록
-    CS->>D: 최종 청크 기록
+    Note over CS: Write footer/finalize
+    CS->>D: Write final chunk
     SS->>D: close()
 ```
 
-### 복원 Source (One-Shot) — decompress on first read
+### Decompression Source (One-Shot) — decompress on first read
 
-`DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
+`DecompressableSource` decompresses and caches all data on the first `read()` call.
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant DS as DecompressableSource
     participant DB as decodedBuffer
     participant Comp as Compressor
     participant D as delegate Source
 
     C->>DS: read(sink, byteCount)
-    alt 첫 번째 read (decodedReady == false)
+    alt First read (decodedReady == false)
         DS->>D: readByteArray()
         D-->>DS: compressedBytes
         DS->>Comp: decompress(compressedBytes)
@@ -609,16 +610,16 @@ sequenceDiagram
         Note over DS: decodedReady = true
     end
     DS->>DB: read(sink, min(byteCount, remaining))
-    DB-->>C: 복원된 데이터
+    DB-->>C: Decompressed data
 ```
 
-### Tink 암호화 + 압축 조합 흐름
+### Tink Encryption + Compression Combined Flow
 
-`Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
+Compression followed by encryption using chained Sink decorators.
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
+    participant C as Caller
     participant CS as CompressableSink
     participant ES as TinkEncryptSink
     participant D as delegate Sink
@@ -626,7 +627,7 @@ sequenceDiagram
     Note over C: sink.asTinkEncryptSink(encryptor).asCompressSink(compressor)
 
     C->>CS: write(plainData)
-    Note over CS: 내부 버퍼에 축적
+    Note over CS: Accumulated in internal buffer
 
     C->>CS: close()
     CS->>CS: compress(plainData)
@@ -634,12 +635,12 @@ sequenceDiagram
     ES->>ES: encrypt(compressedData)
     ES->>D: write(encryptedData)
     ES->>D: flush()
-    D-->>C: 압축 + 암호화된 데이터 기록 완료
+    D-->>C: Compressed + encrypted data written
 ```
 
-### Coroutines 비동기 파일 I/O 흐름
+### Coroutines Async File I/O Flow
 
-`AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
+Non-blocking file I/O using `AsynchronousFileChannel`.
 
 ```mermaid
 sequenceDiagram
@@ -651,15 +652,15 @@ sequenceDiagram
 
     C->>BS: write(buffer) [suspend]
     BS->>RS: write(buffer) [suspend]
-    RS->>RS: buffer에 축적
+    RS->>RS: Accumulate in buffer
     C->>BS: emit() [suspend]
     BS->>RS: emit() [suspend]
     RS->>FS: write(buffer, byteCount) [suspend]
     FS->>CH: write(ByteBuffer, position)
-    Note over FS,CH: CompletionHandler → suspendCoroutine 변환
+    Note over FS,CH: CompletionHandler → suspendCoroutine conversion
     CH-->>FS: bytesWritten
-    FS-->>RS: 완료
-    RS-->>C: 완료
+    FS-->>RS: Complete
+    RS-->>C: Complete
 
     C->>BS: close() [suspend]
     BS->>RS: close() [suspend]
@@ -669,11 +670,11 @@ sequenceDiagram
     FS->>CH: close()
 ```
 
-## 라이선스
+## License
 
 Apache License 2.0
 
-## 참고
+## References
 
 - [Okio Documentation](https://square.github.io/okio/)
 - [Google Tink](https://developers.google.com/tink)

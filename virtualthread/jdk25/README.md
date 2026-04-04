@@ -1,13 +1,14 @@
 # Module bluetape4k-virtualthread-jdk25
 
-Java 25 Virtual Thread 구현체 모듈입니다.
+English | [한국어](./README.ko.md)
 
-## 개요
+Java 25 virtual-thread implementation module.
 
-이 모듈은
-`bluetape4k-virtualthread-api`가 정의한 인터페이스를 Java 25 기준으로 구현합니다. ServiceLoader를 통해 런타임에 자동으로 로드되며, JDK 25 이상 환경에서 활성화됩니다.
+## Overview
 
-JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK 25 환경에서는 이 구현체가 자동으로 선택됩니다.
+This module implements the interfaces defined by `bluetape4k-virtualthread-api` for Java 25. It is loaded automatically through `ServiceLoader` and becomes active on JDK 25 or newer.
+
+Because it has a higher priority than the JDK 21 implementation (`priority = 25`), this implementation is selected automatically in JDK 25 environments.
 
 ## UML
 
@@ -54,11 +55,11 @@ classDiagram
 
 ```
 
-## 주요 구현체
+## Main Implementations
 
-### Jdk25VirtualThreadRuntime
+### `Jdk25VirtualThreadRuntime`
 
-Java 25의 Virtual Thread API를 사용하여 `VirtualThreadRuntime` 인터페이스를 구현합니다.
+Implements the `VirtualThreadRuntime` interface using the Java 25 Virtual Thread API.
 
 ```java
 public final class Jdk25VirtualThreadRuntime implements VirtualThreadRuntime {
@@ -69,7 +70,7 @@ public final class Jdk25VirtualThreadRuntime implements VirtualThreadRuntime {
 
     @Override
     public int getPriority() {
-        return 25;  // JDK 21 구현체보다 높은 우선순위
+        return 25;  // higher priority than the JDK 21 implementation
     }
 
     @Override
@@ -89,9 +90,9 @@ public final class Jdk25VirtualThreadRuntime implements VirtualThreadRuntime {
 }
 ```
 
-### Jdk25StructuredTaskScopeProvider
+### `Jdk25StructuredTaskScopeProvider`
 
-Java 25의 `StructuredTaskScope` API를 사용하여 구조화된 동시성을 지원합니다.
+Provides structured concurrency by using Java 25's `StructuredTaskScope` API.
 
 ```kotlin
 class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
@@ -107,7 +108,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAll) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnFailure 래퍼 구현
+        // wrapper around StructuredTaskScope.ShutdownOnFailure
     }
 
     override fun <T> withAny(
@@ -115,14 +116,14 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T
     ): T {
-        // StructuredTaskScope.ShutdownOnSuccess 래퍼 구현
+        // wrapper around StructuredTaskScope.ShutdownOnSuccess
     }
 }
 ```
 
-## ServiceLoader 설정
+## `ServiceLoader` Configuration
 
-이 모듈은 다음 ServiceLoader 설정 파일을 포함합니다:
+This module contains the following `ServiceLoader` configuration files:
 
 *src/main/resources/META-INF/services/io.bluetape4k.concurrent.virtualthread.VirtualThreadRuntime*
 
@@ -136,9 +137,9 @@ io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25VirtualThreadRuntime
 io.bluetape4k.concurrent.virtualthread.jdk25.Jdk25StructuredTaskScopeProvider
 ```
 
-## 빌드 설정
+## Build Configuration
 
-이 모듈은 Java 25 Toolchain을 사용하여 빌드됩니다.
+This module is built with the Java 25 toolchain.
 
 ```kotlin
 java {
@@ -156,9 +157,9 @@ tasks.withType<JavaCompile>().configureEach {
 }
 ```
 
-## 의존성
+## Dependencies
 
-### 프로젝트 의존성
+### Project Dependencies
 
 ```kotlin
 dependencies {
@@ -171,37 +172,37 @@ dependencies {
 }
 ```
 
-### Gradle 사용 예시
+### Gradle Usage Example
 
 ```kotlin
 dependencies {
-    // API 모듈
+    // API module
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
-    // JDK 25 구현체 (JDK 25 환경에서 사용)
+    // JDK 25 implementation (for JDK 25 environments)
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 ```
 
-## 사용 예시
+## Usage Example
 
-이 모듈은 런타임에 자동으로 로드되므로, API 모듈만 사용하면 됩니다.
+Because this module is loaded automatically at runtime, application code only needs to use the API module.
 
 ```kotlin
 import io.bluetape4k.concurrent.virtualthread.VirtualThreads
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 
 fun main() {
-    // JDK 25 환경에서 실행 시 자동으로 Jdk25VirtualThreadRuntime 사용
+    // When running on JDK 25, Jdk25VirtualThreadRuntime is selected automatically
     println("Runtime: ${VirtualThreads.runtimeName()}") // "jdk25"
 
-    // Virtual Thread Executor 생성
+    // Create a Virtual Thread executor
     val executor = VirtualThreads.executorService()
     executor.submit {
         println("Running on: ${Thread.currentThread()}")
     }
 
-    // Structured Concurrency 사용
+    // Use structured concurrency
     val results = StructuredTaskScopes.all(
         name = "parallel-tasks",
         factory = VirtualThreads.threadFactory()
@@ -219,25 +220,25 @@ fun main() {
 }
 ```
 
-## JDK 25의 개선사항
+## Improvements in JDK 25
 
-Java 25에서는 Virtual Thread와 Structured Concurrency에 다음과 같은 개선사항이 포함될 수 있습니다:
+Java 25 may include the following improvements for Virtual Threads and Structured Concurrency:
 
-### Virtual Thread 성능 최적화
+### Virtual Thread Performance Optimizations
 
-- Carrier Thread 스케줄링 개선
-- Pinning 감소 및 최적화
-- 메모리 사용량 최적화
+- improved carrier-thread scheduling
+- reduced pinning and better pinning optimizations
+- optimized memory usage
 
-### Structured Concurrency 안정화
+### Structured Concurrency Stabilization
 
-- API 안정화 (Preview에서 Final로 전환 가능)
-- 더 나은 예외 처리 및 에러 전파
-- Scoped Values 통합 개선
+- API stabilization, possibly moving from preview to final
+- better exception handling and error propagation
+- improved integration with scoped values
 
-**참고**: Java 25 전용 최적화가 필요한 경우, 이 클래스에서 구현할 수 있습니다.
+**Note**: If Java 25-specific optimizations are needed, they can be implemented in this class.
 
-## 테스트
+## Tests
 
 ```kotlin
 class Jdk25VirtualThreadRuntimeTest {
@@ -277,52 +278,52 @@ class Jdk25VirtualThreadRuntimeTest {
 }
 ```
 
-## JDK 버전 호환성
+## JDK Version Compatibility
 
-| JDK 버전    | 지원 여부 | 활성화 조건                          |
-|-----------|-------|---------------------------------|
-| JDK 17 이하 | ❌     | `isSupported()` returns `false` |
-| JDK 21    | ⚠️    | 클래스 버전 충돌 가능 (권장하지 않음)          |
-| JDK 25    | ✅     | 자동 활성화 (최우선 선택)                 |
+| JDK Version | Supported | Activation Condition |
+|---|---|---|
+| JDK 17 or lower | ❌ | `isSupported()` returns `false` |
+| JDK 21 | ⚠️ | class-version conflict is possible, not recommended |
+| JDK 25 | ✅ | activated automatically, selected with highest priority |
 
-## 우선순위 기반 선택
+## Priority-Based Selection
 
-ServiceLoader는 여러 구현체가 있을 경우, 우선순위가 높은 것을 선택합니다:
+When multiple implementations are present, `ServiceLoader` selects the one with the highest priority:
 
 ```kotlin
-// JDK 25 환경에서 두 구현체가 모두 classpath에 있을 경우
+// When both implementations are on the classpath in a JDK 25 environment
 VirtualThreads.runtimeName() // "jdk25" (priority 25 > 21)
 
-// 우선순위 비교
-Jdk25VirtualThreadRuntime.priority = 25  // ← 선택됨
+// Priority comparison
+Jdk25VirtualThreadRuntime.priority = 25  // ← selected
 Jdk21VirtualThreadRuntime.priority = 21
 ```
 
-## 주의사항
+## Caution
 
-### JDK 버전과 구현체 매칭
+### Match the JDK Version with the Implementation
 
-JDK 25 환경이 아닌 곳에서 이 모듈을 포함하면 불필요한 의존성이 추가됩니다.
+Including this module outside a JDK 25 environment adds an unnecessary dependency.
 
 ```kotlin
-// ✅ 올바른 사용 (JDK 25 환경)
+// ✅ correct usage (JDK 25 environment)
 dependencies {
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 
-// ⚠️ 권장하지 않음 (JDK 21 환경에서 JDK 25 모듈 포함)
-// JDK 21에서는 isSupported()가 false를 반환하여 사용되지 않음
+// ⚠️ not recommended (including the JDK 25 module on JDK 21)
+// On JDK 21, isSupported() returns false, so it will not be used
 dependencies {
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 ```
 
-### 배포 전략
+### Deployment Strategy
 
-프로덕션 배포 시 런타임 JDK 버전에 맞는 구현체만 포함하세요:
+For production deployments, include only the implementation that matches the runtime JDK version:
 
 ```kotlin
-// Gradle 조건부 의존성
+// Gradle conditional dependency
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
@@ -334,29 +335,29 @@ dependencies {
 }
 ```
 
-## 마이그레이션 가이드
+## Migration Guide
 
-### JDK 21에서 JDK 25로 업그레이드
+### Upgrading from JDK 21 to JDK 25
 
 ```kotlin
-// 1. build.gradle.kts 의존성 변경
+// 1. Change the build.gradle.kts dependency
 dependencies {
     // runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
     runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 
-// 2. JDK 25 설치 및 JAVA_HOME 변경
+// 2. Install JDK 25 and change JAVA_HOME
 
-// 3. 애플리케이션 재빌드 및 테스트
+// 3. Rebuild and test the application
     // ./gradlew clean build
 
-// 4. 런타임 확인
+// 4. Verify the runtime
         VirtualThreads.runtimeName() // "jdk25"
 ```
 
-코드 변경은 필요 없습니다! API 모듈을 사용하는 모든 코드는 그대로 동작합니다.
+No code changes are required. Any code that uses the API module continues to work as-is.
 
-## 참고 자료
+## References
 
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 - [JEP 462: Structured Concurrency (Second Preview)](https://openjdk.org/jeps/462)
