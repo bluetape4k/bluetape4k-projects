@@ -28,9 +28,9 @@ docs/superpowers/plans/{YYYY-MM-DD}-{기능명}-plan.md     ← Plan
 
 | 상태      | 건수 |
 |---------|----|
-| ✅ 완료    | 26 |
+| ✅ 완료    | 28 |
 | ⏳ 구현 대기 | 0  |
-| 합계      | 26 |
+| 합계      | 28 |
 
 ---
 
@@ -38,6 +38,8 @@ docs/superpowers/plans/{YYYY-MM-DD}-{기능명}-plan.md     ← Plan
 
 | 날짜         | 기능                                         | Spec                                                                   | Plan                                                                | 상태 | 완료 커밋                                                                                                                                                                                                                                           |
 |------------|--------------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------|----|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2026-04-04 | 전체 모듈 KDoc 예제 추가 (75개 모듈, ~1,865 파일)      | [design](specs/2026-04-04-kdoc-examples-all-modules-design.md)         | [plan](plans/2026-04-04-kdoc-examples-all-modules-plan.md)          | ✅  | [`a363c0063`](https://github.com/bluetape4k/bluetape4k-projects/commit/a363c0063) [`bb4e65407`](https://github.com/bluetape4k/bluetape4k-projects/commit/bb4e65407) [`6606b696d`](https://github.com/bluetape4k/bluetape4k-projects/commit/6606b696d) [`96dc4f603`](https://github.com/bluetape4k/bluetape4k-projects/commit/96dc4f603) |
+| 2026-04-04 | bluetape4k-core·io KDoc 예제 파일럿 (204개 파일)   | —                                                                      | [plan](plans/2026-04-04-kdoc-examples-plan.md)                      | ✅  | [`4352efcd0`](https://github.com/bluetape4k/bluetape4k-projects/commit/4352efcd0)                                                                                                                                                               |
 | 2026-04-04 | bluetape4k-rule-engine (DSL/MVEL/SpEL/Script) | [design](specs/2026-04-04-rule-engine-states-design.md)             | [plan](plans/2026-04-04-rule-engine-states-plan.md)                 | ✅  | [`69de83742`](https://github.com/bluetape4k/bluetape4k-projects/commit/69de83742)                                                                                                                                                               |
 | 2026-04-04 | bluetape4k-states (FSM — 동기/코루틴)            | [design](specs/2026-04-04-rule-engine-states-design.md)                | [plan](plans/2026-04-04-rule-engine-states-plan.md)                 | ✅  | [`3e9be7d25`](https://github.com/bluetape4k/bluetape4k-projects/commit/3e9be7d25)                                                                                                                                                               |
 | 2026-04-03 | testcontainers 리팩토링 (계약 강화/키 통일)           | [design](specs/2026-04-03-testcontainers-design.md)                    | [plan](plans/2026-04-03-testcontainers-plan.md)                     | ✅  | [`cc0d7204`](https://github.com/bluetape4k/bluetape4k-projects/commit/cc0d7204) [`e32e8c4b`](https://github.com/bluetape4k/bluetape4k-projects/commit/e32e8c4b)                                                                                 |
