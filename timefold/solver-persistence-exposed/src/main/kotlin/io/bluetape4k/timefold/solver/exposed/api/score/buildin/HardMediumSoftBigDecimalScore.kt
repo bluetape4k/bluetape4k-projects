@@ -47,6 +47,15 @@ fun Table.hardMediumSoftBigDecimalScore(
  *
  * Kotlin String 타입과 [HardMediumSoftBigDecimalScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = HardMediumSoftBigDecimalScoreColumnType(255)
+ * val score = HardMediumSoftBigDecimalScore.of(
+ *     BigDecimal("100.5"), BigDecimal("50.3"), BigDecimal("-30.1")
+ * )
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == score.toString()
+ * ```
+ *
  * @property length 문자열 최대 길이
  */
 class HardMediumSoftBigDecimalScoreColumnType(
@@ -61,10 +70,28 @@ class HardMediumSoftBigDecimalScoreColumnType(
  *
  * [unwrap] 메서드는 [HardMediumSoftBigDecimalScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [HardMediumSoftBigDecimalScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = HardMediumSoftBigDecimalScoreTransformer()
+ * val score = HardMediumSoftBigDecimalScore.of(
+ *     BigDecimal("100.5"), BigDecimal("50.3"), BigDecimal("-30.1")
+ * )
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class HardMediumSoftBigDecimalScoreTransformer: ColumnTransformer<String, HardMediumSoftBigDecimalScore> {
     /**
      * [HardMediumSoftBigDecimalScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardMediumSoftBigDecimalScore.of(
+     *     BigDecimal("100.5"), BigDecimal("50.3"), BigDecimal("-30.1")
+     * )
+     * val raw = HardMediumSoftBigDecimalScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [HardMediumSoftBigDecimalScore] 인스턴스
      * @return "hard/medium/soft" 형태의 문자열 (예: "100.5/50.3/-30.1")
@@ -73,6 +100,15 @@ class HardMediumSoftBigDecimalScoreTransformer: ColumnTransformer<String, HardMe
 
     /**
      * 데이터베이스 String 값을 [HardMediumSoftBigDecimalScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardMediumSoftBigDecimalScore.of(
+     *     BigDecimal("100.5"), BigDecimal("50.3"), BigDecimal("-30.1")
+     * )
+     * val raw = score.toString()
+     * val restored = HardMediumSoftBigDecimalScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열 (예: "100.5/50.3/-30.1")
      * @return 생성된 [HardMediumSoftBigDecimalScore] 인스턴스

@@ -38,6 +38,13 @@ fun Table.simpleScore(name: String): Column<SimpleScore> = registerColumn(name, 
  * [SimpleScore]를 위한 Exposed ColumnType 구현체입니다.
  *
  * Kotlin Int 타입과 [SimpleScore] 간의 변환을 처리합니다.
+ *
+ * ```kotlin
+ * val columnType = SimpleScoreColumnType()
+ * val score = SimpleScore.of(42)
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == 42
+ * ```
  */
 class SimpleScoreColumnType: ColumnWithTransform<Int, SimpleScore>(IntegerColumnType(), SimpleScoreTransformer())
 
@@ -46,10 +53,22 @@ class SimpleScoreColumnType: ColumnWithTransform<Int, SimpleScore>(IntegerColumn
  *
  * [unwrap] 메서드는 [SimpleScore]를 Int로 변환하고,
  * [wrap] 메서드는 Int를 [SimpleScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = SimpleScoreTransformer()
+ * val score = SimpleScore.of(100)
+ * val raw = transformer.unwrap(score)    // 100
+ * val restored = transformer.wrap(raw)  // SimpleScore.of(100)
+ * ```
  */
 class SimpleScoreTransformer: ColumnTransformer<Int, SimpleScore> {
     /**
      * [SimpleScore]를 데이터베이스 Int 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val raw = SimpleScoreTransformer().unwrap(SimpleScore.of(77))
+     * // raw == 77
+     * ```
      *
      * @param value 변환할 [SimpleScore] 인스턴스
      * @return 점수의 Int 값
@@ -58,6 +77,11 @@ class SimpleScoreTransformer: ColumnTransformer<Int, SimpleScore> {
 
     /**
      * 데이터베이스 Int 값을 [SimpleScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = SimpleScoreTransformer().wrap(77)
+     * // score == SimpleScore.of(77)
+     * ```
      *
      * @param value 데이터베이스에서 읽은 Int 값
      * @return 생성된 [SimpleScore] 인스턴스

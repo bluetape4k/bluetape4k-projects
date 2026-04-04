@@ -46,6 +46,13 @@ fun Table.bendableLongScore(
  *
  * Kotlin String 타입과 [BendableLongScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = BendableLongScoreColumnType(255)
+ * val score = BendableLongScore.of(longArrayOf(100L, 50L), longArrayOf(-30L, -20L))
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == score.toString()
+ * ```
+ *
  * @property limit 문자열 최대 길이
  */
 class BendableLongScoreColumnType(
@@ -57,10 +64,24 @@ class BendableLongScoreColumnType(
  *
  * [unwrap] 메서드는 [BendableLongScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [BendableLongScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = BendableLongScoreTransformer()
+ * val score = BendableLongScore.of(longArrayOf(100L, 50L), longArrayOf(-30L, -20L))
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class BendableLongScoreTransformer: ColumnTransformer<String, BendableLongScore> {
     /**
      * [BendableLongScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = BendableLongScore.of(longArrayOf(100L, 50L), longArrayOf(-30L, -20L))
+     * val raw = BendableLongScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [BendableLongScore] 인스턴스
      * @return `[hard]/[soft]` 형태의 문자열
@@ -69,6 +90,13 @@ class BendableLongScoreTransformer: ColumnTransformer<String, BendableLongScore>
 
     /**
      * 데이터베이스 String 값을 [BendableLongScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = BendableLongScore.of(longArrayOf(100L, 50L), longArrayOf(-30L, -20L))
+     * val raw = score.toString()
+     * val restored = BendableLongScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열
      * @return 생성된 [BendableLongScore] 인스턴스

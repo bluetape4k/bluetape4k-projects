@@ -46,6 +46,16 @@ fun Table.bendableBigDecimalScore(
  *
  * Kotlin String 타입과 [BendableBigDecimalScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = BendableBigDecimalScoreColumnType(255)
+ * val score = BendableBigDecimalScore.of(
+ *     arrayOf(BigDecimal("100.5"), BigDecimal("50.3")),
+ *     arrayOf(BigDecimal("-30.1"), BigDecimal("-20.2"))
+ * )
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == score.toString()
+ * ```
+ *
  * @property limit 문자열 최대 길이
  */
 class BendableBigDecimalScoreColumnType(
@@ -57,10 +67,30 @@ class BendableBigDecimalScoreColumnType(
  *
  * [unwrap] 메서드는 [BendableBigDecimalScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [BendableBigDecimalScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = BendableBigDecimalScoreTransformer()
+ * val score = BendableBigDecimalScore.of(
+ *     arrayOf(BigDecimal("100.5"), BigDecimal("50.3")),
+ *     arrayOf(BigDecimal("-30.1"), BigDecimal("-20.2"))
+ * )
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class BendableBigDecimalScoreTransformer: ColumnTransformer<String, BendableBigDecimalScore> {
     /**
      * [BendableBigDecimalScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = BendableBigDecimalScore.of(
+     *     arrayOf(BigDecimal("100.5"), BigDecimal("50.3")),
+     *     arrayOf(BigDecimal("-30.1"), BigDecimal("-20.2"))
+     * )
+     * val raw = BendableBigDecimalScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [BendableBigDecimalScore] 인스턴스
      * @return `[hard]/[soft]` 형태의 문자열
@@ -69,6 +99,16 @@ class BendableBigDecimalScoreTransformer: ColumnTransformer<String, BendableBigD
 
     /**
      * 데이터베이스 String 값을 [BendableBigDecimalScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = BendableBigDecimalScore.of(
+     *     arrayOf(BigDecimal("100.5"), BigDecimal("50.3")),
+     *     arrayOf(BigDecimal("-30.1"), BigDecimal("-20.2"))
+     * )
+     * val raw = score.toString()
+     * val restored = BendableBigDecimalScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열
      * @return 생성된 [BendableBigDecimalScore] 인스턴스

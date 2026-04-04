@@ -43,6 +43,13 @@ fun Table.hardSoftBigDecimalScore(
  *
  * Kotlin String 타입과 [HardSoftBigDecimalScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = HardSoftBigDecimalScoreColumnType(255)
+ * val score = HardSoftBigDecimalScore.of(BigDecimal("100.5"), BigDecimal("-50.3"))
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == score.toString()
+ * ```
+ *
  * @property length 문자열 최대 길이
  */
 class HardSoftBigDecimalScoreColumnType(
@@ -57,10 +64,24 @@ class HardSoftBigDecimalScoreColumnType(
  *
  * [unwrap] 메서드는 [HardSoftBigDecimalScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [HardSoftBigDecimalScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = HardSoftBigDecimalScoreTransformer()
+ * val score = HardSoftBigDecimalScore.of(BigDecimal("100.5"), BigDecimal("-50.3"))
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class HardSoftBigDecimalScoreTransformer: ColumnTransformer<String, HardSoftBigDecimalScore> {
     /**
      * [HardSoftBigDecimalScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardSoftBigDecimalScore.of(BigDecimal("100.5"), BigDecimal("-50.3"))
+     * val raw = HardSoftBigDecimalScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [HardSoftBigDecimalScore] 인스턴스
      * @return "hard/soft" 형태의 문자열 (예: "100.5/-50.3")
@@ -69,6 +90,13 @@ class HardSoftBigDecimalScoreTransformer: ColumnTransformer<String, HardSoftBigD
 
     /**
      * 데이터베이스 String 값을 [HardSoftBigDecimalScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardSoftBigDecimalScore.of(BigDecimal("100.5"), BigDecimal("-50.3"))
+     * val raw = score.toString()
+     * val restored = HardSoftBigDecimalScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열 (예: "100.5/-50.3")
      * @return 생성된 [HardSoftBigDecimalScore] 인스턴스

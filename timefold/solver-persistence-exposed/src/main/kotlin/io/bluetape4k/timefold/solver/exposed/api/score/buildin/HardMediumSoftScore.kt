@@ -43,6 +43,13 @@ fun Table.hardMediumSoftScore(
  *
  * Kotlin String 타입과 [HardMediumSoftScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = HardMediumSoftScoreColumnType(255)
+ * val score = HardMediumSoftScore.of(100, 50, -30)
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == score.toString()
+ * ```
+ *
  * @property length 문자열 최대 길이
  */
 class HardMediumSoftScoreColumnType(
@@ -54,10 +61,24 @@ class HardMediumSoftScoreColumnType(
  *
  * [unwrap] 메서드는 [HardMediumSoftScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [HardMediumSoftScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = HardMediumSoftScoreTransformer()
+ * val score = HardMediumSoftScore.of(100, 50, -30)
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class HardMediumSoftScoreTransformer: ColumnTransformer<String, HardMediumSoftScore> {
     /**
      * [HardMediumSoftScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardMediumSoftScore.of(100, 50, -30)
+     * val raw = HardMediumSoftScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [HardMediumSoftScore] 인스턴스
      * @return "hard/medium/soft" 형태의 문자열 (예: "100/50/-30")
@@ -66,6 +87,13 @@ class HardMediumSoftScoreTransformer: ColumnTransformer<String, HardMediumSoftSc
 
     /**
      * 데이터베이스 String 값을 [HardMediumSoftScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = HardMediumSoftScore.of(100, 50, -30)
+     * val raw = score.toString()
+     * val restored = HardMediumSoftScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열 (예: "100/50/-30")
      * @return 생성된 [HardMediumSoftScore] 인스턴스

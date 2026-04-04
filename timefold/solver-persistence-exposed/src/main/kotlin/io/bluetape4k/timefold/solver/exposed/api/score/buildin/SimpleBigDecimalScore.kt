@@ -43,6 +43,13 @@ fun Table.simpleBigDecimalScore(
  *
  * Kotlin String 타입과 [SimpleBigDecimalScore] 간의 변환을 처리합니다.
  *
+ * ```kotlin
+ * val columnType = SimpleBigDecimalScoreColumnType(255)
+ * val score = SimpleBigDecimalScore.of(BigDecimal("99.5"))
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == "0.0big[99.5/0]" (Timefold 직렬화 형태)
+ * ```
+ *
  * @property length 문자열 최대 길이
  */
 class SimpleBigDecimalScoreColumnType(
@@ -57,10 +64,24 @@ class SimpleBigDecimalScoreColumnType(
  *
  * [unwrap] 메서드는 [SimpleBigDecimalScore]를 문자열로 변환하고,
  * [wrap] 메서드는 문자열을 파싱하여 [SimpleBigDecimalScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = SimpleBigDecimalScoreTransformer()
+ * val score = SimpleBigDecimalScore.of(BigDecimal("100.5"))
+ * val raw = transformer.unwrap(score)
+ * val restored = transformer.wrap(raw)
+ * // restored == score
+ * ```
  */
 class SimpleBigDecimalScoreTransformer: ColumnTransformer<String, SimpleBigDecimalScore> {
     /**
      * [SimpleBigDecimalScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val score = SimpleBigDecimalScore.of(BigDecimal("100.5"))
+     * val raw = SimpleBigDecimalScoreTransformer().unwrap(score)
+     * // raw == score.toString()
+     * ```
      *
      * @param value 변환할 [SimpleBigDecimalScore] 인스턴스
      * @return BigDecimal 값의 문자열 표현
@@ -69,6 +90,13 @@ class SimpleBigDecimalScoreTransformer: ColumnTransformer<String, SimpleBigDecim
 
     /**
      * 데이터베이스 String 값을 [SimpleBigDecimalScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = SimpleBigDecimalScore.of(BigDecimal("100.5"))
+     * val raw = score.toString()
+     * val restored = SimpleBigDecimalScoreTransformer().wrap(raw)
+     * // restored == score
+     * ```
      *
      * @param value 데이터베이스에서 읽은 문자열
      * @return 생성된 [SimpleBigDecimalScore] 인스턴스

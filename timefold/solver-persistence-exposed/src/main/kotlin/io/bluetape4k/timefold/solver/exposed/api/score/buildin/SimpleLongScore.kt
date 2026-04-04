@@ -38,6 +38,13 @@ fun Table.simpleLongScore(name: String): Column<SimpleLongScore> = registerColum
  * [SimpleLongScore]를 위한 Exposed ColumnType 구현체입니다.
  *
  * Kotlin Long 타입과 [SimpleLongScore] 간의 변환을 처리합니다.
+ *
+ * ```kotlin
+ * val columnType = SimpleLongScoreColumnType()
+ * val score = SimpleLongScore.of(1_000_000L)
+ * val raw = columnType.notNullValueToDB(score)
+ * // raw == 1000000L
+ * ```
  */
 class SimpleLongScoreColumnType:
     ColumnWithTransform<Long, SimpleLongScore>(LongColumnType(), SimpleLongScoreTransformer())
@@ -47,10 +54,22 @@ class SimpleLongScoreColumnType:
  *
  * [unwrap] 메서드는 [SimpleLongScore]를 Long으로 변환하고,
  * [wrap] 메서드는 Long을 [SimpleLongScore]로 변환합니다.
+ *
+ * ```kotlin
+ * val transformer = SimpleLongScoreTransformer()
+ * val score = SimpleLongScore.of(100L)
+ * val raw = transformer.unwrap(score)    // 100L
+ * val restored = transformer.wrap(raw)  // SimpleLongScore.of(100L)
+ * ```
  */
 class SimpleLongScoreTransformer: ColumnTransformer<Long, SimpleLongScore> {
     /**
      * [SimpleLongScore]를 데이터베이스 Long 값으로 변환합니다.
+     *
+     * ```kotlin
+     * val raw = SimpleLongScoreTransformer().unwrap(SimpleLongScore.of(77L))
+     * // raw == 77L
+     * ```
      *
      * @param value 변환할 [SimpleLongScore] 인스턴스
      * @return 점수의 Long 값
@@ -59,6 +78,11 @@ class SimpleLongScoreTransformer: ColumnTransformer<Long, SimpleLongScore> {
 
     /**
      * 데이터베이스 Long 값을 [SimpleLongScore]로 변환합니다.
+     *
+     * ```kotlin
+     * val score = SimpleLongScoreTransformer().wrap(77L)
+     * // score == SimpleLongScore.of(77L)
+     * ```
      *
      * @param value 데이터베이스에서 읽은 Long 값
      * @return 생성된 [SimpleLongScore] 인스턴스
