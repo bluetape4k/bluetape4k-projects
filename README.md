@@ -88,8 +88,8 @@ Bluetape4k is a multi-module Gradle project organized by domain.
 
 Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-- **bluetape4k-aws**: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (`XxxAsyncClientCoroutinesExtensions.kt`)
-- **bluetape4k-aws-kotlin**: AWS Kotlin SDK — native `suspend` functions, no `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (`metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
+- **[bluetape4k-aws](./aws/aws/README.md)**: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (`XxxAsyncClientCoroutinesExtensions.kt`)
+- **[bluetape4k-aws-kotlin](./aws/aws-kotlin/README.md)**: AWS Kotlin SDK — native `suspend` functions, no `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (`metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
 
 ### Data Modules (`data/`)
 
@@ -116,6 +116,7 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 - **[exposed-mysql8](./data/exposed-mysql8/README.md)**: MySQL 8.0-specific Exposed extensions — 8 GIS geometry types, JTS-based geometry columns, spatial functions (`ST_Contains`, `ST_Distance`, etc.); MySQL Internal Format WKB conversion
 - **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC integration — `DuckDBDialect` (extends PostgreSQL dialect), `DuckDBDatabase` factory (in-memory/file/read-only), `suspendTransaction`, `queryFlow`
 - **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API integration — SQL generated via H2 (PostgreSQL mode) then executed on BigQuery REST; `BigQueryContext` (SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow` (type-safe column access), suspend/Flow API
+- **[exposed-trino](./data/exposed-trino/README.md)**: Trino JDBC integration — `TrinoDialect`, catalog/schema-aware connection support, coroutine-friendly query helpers, and distributed SQL query workflows for analytics use cases
 - **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis cache — Read-through/Write-through/Write-behind; `AbstractJdbcLettuceRepository`, coroutine-native `AbstractSuspendedJdbcLettuceRepository`
 - **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis cache — coroutine-native Read-through/Write-through/Write-behind; `AbstractR2dbcLettuceRepository`
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
@@ -151,6 +152,7 @@ A pluggable cache abstraction layer — swap backends without changing applicati
 - **[bluetape4k-spring-boot3](./spring-boot3/core/README.md)** (`spring-boot3/core`): Spring Boot 3 unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2 integration, test utilities (merged from former `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests`)
 - **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[cassandra](./spring-boot3/cassandra/README.md)**: Spring Data Cassandra
+- **[cassandra-demo](./spring-boot3/cassandra-demo/README.md)**: Cassandra usage example with Spring Boot 3
 - **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
 - **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc`): Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support
@@ -194,6 +196,8 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[measured](./utils/measured/README.md)**: Composable unit types (`Units`) and measurements (`Measure`) — express composite units (`m/s`, `kg*m/s^2`) with full type safety
 - **[money](./utils/money/README.md)**: Money/currency API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive integration
+- **[states](./utils/states/README.md)**: Kotlin DSL-based finite state machine library — sync/coroutine FSMs, guards, and `StateFlow` observation
+- **[rule-engine](./utils/rule-engine/README.md)**: Lightweight Kotlin rule engine — DSL rules, annotation-based rules, script engines, and coroutine execution
 - ~~**units**~~: Unit value classes — **Deprecated**, merged into `bluetape4k-measured`
 
 ### Testing Modules (`testing/`)
@@ -220,6 +224,10 @@ Demonstration modules showing library usage. Not published to Maven.
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
+
+### Guides (`guides/`)
+
+- **[supabase-postgres](./guides/supabase-postgres/README.md)**: Guide for connecting Supabase PostgreSQL with the Bluetape4k stack and related data modules
 
 ### Obsolete Modules (`x-obsoleted/`)
 
