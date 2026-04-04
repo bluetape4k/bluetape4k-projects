@@ -37,6 +37,15 @@ abstract class AbstractLocalLeaderGroupElection(
 
     /**
      * [lockName]에 대한 [Semaphore]를 반환합니다. 없으면 `Semaphore(maxLeaders, fair=true)`를 생성합니다.
+     *
+     * ```kotlin
+     * val semaphore = getSemaphore("batch-job")
+     * semaphore.acquire()
+     * try { /* 임계 영역 */ } finally { semaphore.release() }
+     * ```
+     *
+     * @param lockName 락 이름 (blank 불가)
+     * @return 해당 lockName에 대한 [Semaphore] 인스턴스
      */
     protected fun getSemaphore(lockName: String): Semaphore {
         lockName.requireNotBlank("lockName")
@@ -45,6 +54,15 @@ abstract class AbstractLocalLeaderGroupElection(
 
     /**
      * [lockName]의 슬롯을 획득한 상태에서 [action]을 실행하고, 완료 시 슬롯을 반환합니다.
+     *
+     * ```kotlin
+     * val result = withPermit("batch-job") { "done" }
+     * // result == "done"
+     * ```
+     *
+     * @param lockName 락 이름
+     * @param action 슬롯을 획득한 상태에서 실행할 작업
+     * @return [action] 실행 결과
      */
     protected inline fun <T> withPermit(lockName: String, action: () -> T): T {
         val semaphore = getSemaphore(lockName)
@@ -58,18 +76,44 @@ abstract class AbstractLocalLeaderGroupElection(
 
     /**
      * [lockName]에 대해 현재 활성(실행 중인) 리더 수를 반환합니다.
+     *
+     * ```kotlin
+     * val count = activeCount("batch-job")
+     * // count == 0  (아무도 실행 중이 아닐 때)
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 현재 활성 리더 수 (근사값)
      */
     override fun activeCount(lockName: String): Int =
         maxLeaders - getSemaphore(lockName).availablePermits()
 
     /**
      * [lockName]에 대해 새 리더를 수용할 수 있는 남은 슬롯 수를 반환합니다.
+     *
+     * ```kotlin
+     * val slots = availableSlots("batch-job")
+     * // slots == maxLeaders  (아무도 실행 중이 아닐 때)
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 사용 가능한 슬롯 수 (근사값)
      */
     override fun availableSlots(lockName: String): Int =
         getSemaphore(lockName).availablePermits()
 
     /**
      * [lockName]에 대한 현재 [LeaderGroupState] 스냅샷을 반환합니다.
+     *
+     * ```kotlin
+     * val state = state("batch-job")
+     * // state.maxLeaders == maxLeaders
+     * // state.activeCount == 0
+     * // state.isEmpty == true
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 현재 리더 그룹 상태 스냅샷
      */
     override fun state(lockName: String): LeaderGroupState =
         LeaderGroupState(lockName, maxLeaders, activeCount(lockName))

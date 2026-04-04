@@ -11,6 +11,14 @@ import kotlin.math.sqrt
 /**
  * WGS84 위경도 좌표를 나타내는 데이터 클래스입니다.
  *
+ * ```kotlin
+ * val seoul = GeoLocation(37.5665, 126.9780)
+ * val newYork = GeoLocation(40.7128, -74.0060)
+ * val distance = seoul.distanceTo(newYork)
+ * println(distance) // 약 11_038_000.0 (미터)
+ * println(seoul < newYork) // true (위도 기준)
+ * ```
+ *
  * @param latitude  위도 (-90.0 ~ 90.0)
  * @param longitude 경도 (-180.0 ~ 180.0)
  */
@@ -39,6 +47,16 @@ data class GeoLocation(
 
     /**
      * Haversine 공식으로 두 위치 사이의 거리(미터)를 계산합니다.
+     *
+     * ```kotlin
+     * val seoul = GeoLocation(37.5665, 126.9780)
+     * val newYork = GeoLocation(40.7128, -74.0060)
+     * val distance = seoul.distanceTo(newYork)
+     * println(distance) // 약 11_038_000.0 (미터, 11,038km)
+     *
+     * val same = seoul.distanceTo(seoul)
+     * println(same) // 0.0
+     * ```
      *
      * @param other 대상 위치
      * @return 두 위치 사이의 거리 (미터)

@@ -64,15 +64,30 @@ fun Number.metersPerSecondSquared(): Measure<Acceleration> = this * MotionUnits.
 
 /**
  * 속도를 m/s 값으로 반환합니다.
+ *
+ * ```kotlin
+ * val speed = 36.kilometersPerHour()
+ * // speed.inMetersPerSecond() == 10.0
+ * ```
  */
 fun Measure<Velocity>.inMetersPerSecond(): Double = this `in` MotionUnits.metersPerSecond
 
 /**
  * 속도를 km/h 값으로 반환합니다.
+ *
+ * ```kotlin
+ * val speed = 10.metersPerSecond()
+ * // speed.inKilometersPerHour() == 36.0
+ * ```
  */
 fun Measure<Velocity>.inKilometersPerHour(): Double = this `in` MotionUnits.kilometersPerHour
 
 /**
  * 가속도를 m/s^2 값으로 반환합니다.
+ *
+ * ```kotlin
+ * val accel = 9.8.metersPerSecondSquared()
+ * // accel.inMetersPerSecondSquared() == 9.8
+ * ```
  */
 fun Measure<Acceleration>.inMetersPerSecondSquared(): Double = this `in` MotionUnits.metersPerSecondSquared

@@ -46,6 +46,24 @@ class DefaultStateMachine<S : Any, E : Any>(
     override val currentState: S
         get() = _currentState.get()
 
+    /**
+     * 주어진 이벤트로 상태 전이를 수행합니다.
+     *
+     * ```kotlin
+     * val fsm = stateMachine<OrderState, OrderEvent> {
+     *     initialState = OrderState.CREATED
+     *     finalStates = setOf(OrderState.DELIVERED)
+     *     transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
+     * }
+     * val result = fsm.transition(OrderEvent.Pay())
+     * // result.previousState == OrderState.CREATED
+     * // result.currentState == OrderState.PAID
+     * ```
+     *
+     * @param event 전이를 발생시킬 이벤트
+     * @return 전이 결과 ([TransitionResult])
+     * @throws StateMachineException 허용되지 않는 전이이거나 guard 조건 실패, 또는 동시 CAS 충돌 시
+     */
     override fun transition(event: E): TransitionResult<S, E> {
         val previous = _currentState.get()
 
@@ -85,12 +103,44 @@ class DefaultStateMachine<S : Any, E : Any>(
         )
     }
 
+    /**
+     * 현재 상태에서 주어진 이벤트로 전이 가능한지 확인합니다.
+     *
+     * ```kotlin
+     * val fsm = stateMachine<OrderState, OrderEvent> {
+     *     initialState = OrderState.CREATED
+     *     finalStates = setOf(OrderState.DELIVERED)
+     *     transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
+     * }
+     * fsm.canTransition(OrderEvent.Pay())   // true
+     * fsm.canTransition(OrderEvent.Ship())  // false
+     * ```
+     *
+     * @param event 확인할 이벤트
+     * @return 전이 가능하면 true, 등록되지 않은 전이이거나 guard 조건 실패 시 false
+     */
     override fun canTransition(event: E): Boolean {
         val key = TransitionKey(currentState, event::class.java)
         val target = transitions[key] ?: return false
         return target.guard?.invoke(currentState, event) ?: true
     }
 
+    /**
+     * 현재 상태에서 허용된 이벤트 클래스 목록을 반환합니다.
+     *
+     * ```kotlin
+     * val fsm = stateMachine<OrderState, OrderEvent> {
+     *     initialState = OrderState.CREATED
+     *     finalStates = setOf(OrderState.DELIVERED)
+     *     transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
+     *     transition(OrderState.CREATED, on<OrderEvent.Cancel>(), to = OrderState.CANCELLED)
+     * }
+     * val events = fsm.allowedEvents()
+     * // events == setOf(OrderEvent.Pay::class.java, OrderEvent.Cancel::class.java)
+     * ```
+     *
+     * @return 현재 상태에서 허용된 이벤트 클래스 집합
+     */
     override fun allowedEvents(): Set<Class<out E>> {
         return transitions.keys
             .filter { it.state == currentState }

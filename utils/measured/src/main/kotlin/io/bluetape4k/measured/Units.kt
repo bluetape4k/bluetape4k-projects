@@ -137,20 +137,66 @@ class Measure<T: Units>(
      */
     infix fun <A: T> `in`(other: A): Double = if (units == other) amount else amount * (units.ratio / other.ratio)
 
+    /**
+     * 두 측정값을 더합니다.
+     *
+     * ## 동작/계약
+     * - 더 작은 단위로 맞춘 뒤 수치를 합산합니다.
+     *
+     * ```kotlin
+     * val sum = 500.meters() + 1.kilometers()
+     * // sum `in` Length.meters == 1500.0
+     * ```
+     */
     operator fun plus(other: Measure<T>): Measure<T> {
         val resultUnit = minOf(units, other.units)
         return Measure((this `in` resultUnit) + (other `in` resultUnit), resultUnit)
     }
 
+    /**
+     * 두 측정값의 차이를 계산합니다.
+     *
+     * ## 동작/계약
+     * - 더 작은 단위로 맞춘 뒤 수치를 뺍니다.
+     *
+     * ```kotlin
+     * val diff = 2.kilometers() - 500.meters()
+     * // diff `in` Length.meters == 1500.0
+     * ```
+     */
     operator fun minus(other: Measure<T>): Measure<T> {
         val resultUnit = minOf(units, other.units)
         return Measure((this `in` resultUnit) - (other `in` resultUnit), resultUnit)
     }
 
+    /**
+     * 측정값의 부호를 반전합니다.
+     *
+     * ```kotlin
+     * val neg = -10.meters()
+     * // neg.amount == -10.0
+     * ```
+     */
     operator fun unaryMinus(): Measure<T> = Measure(-amount, units)
 
+    /**
+     * 측정값을 스칼라 수치로 곱합니다.
+     *
+     * ```kotlin
+     * val doubled = 5.meters() * 2
+     * // doubled `in` Length.meters == 10.0
+     * ```
+     */
     operator fun times(other: Number): Measure<T> = amount * other.toDouble() * units
 
+    /**
+     * 측정값을 스칼라 수치로 나눕니다.
+     *
+     * ```kotlin
+     * val half = 10.meters() / 2
+     * // half `in` Length.meters == 5.0
+     * ```
+     */
     operator fun div(other: Number): Measure<T> = amount / other.toDouble() * units
 
     /**

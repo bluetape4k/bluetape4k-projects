@@ -14,6 +14,16 @@ import javax.cache.Cache
 /**
  * JWT 파싱된 정보 [JwtReader]를 Java Cache에 캐싱하여 반복적인 Parsing 시간을 절약합니다.
  *
+ * ```kotlin
+ * val delegate = JwtProviderFactory.default()
+ * val cache: Cache<String, JwtReaderDto> = // JCache 구현체
+ * val provider = JCacheJwtProvider(delegate, cache)
+ * val jwt = delegate.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+ * val reader = provider.tryParse(jwt)
+ * // reader != null
+ * // reader!!.claim<String>("userId") == "alice"
+ * ```
+ *
  * @property cache    JwtReaderDto를 저장할 Javax Cache
  * @property delegate JWT 를 파싱하는 [JwtProvider] 인스턴스
  */

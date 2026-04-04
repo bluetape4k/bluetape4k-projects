@@ -14,11 +14,23 @@ object IIORegistryUtils {
 
     /**
      * Read를 지원하는 Image Format Names
+     *
+     * ```kotlin
+     * val names = IIORegistryUtils.imageReaderFormatNames
+     * // names.contains("jpg") == true
+     * // names.contains("png") == true
+     * ```
      */
     val imageReaderFormatNames: Set<String> by lazy { getReadImageFormatNames() }
 
     /**
      * Write 를 지원하는 Image Format Names
+     *
+     * ```kotlin
+     * val names = IIORegistryUtils.imageWriterFormatNames
+     * // names.contains("png") == true
+     * // names.contains("gif") == true
+     * ```
      */
     val imageWriterFormatNames: Set<String> by lazy { getWriteImageFormatNames() }
 
@@ -29,6 +41,11 @@ object IIORegistryUtils {
     /**
      * 등록된 모든 [ImageReaderSpi] 목록을 반환합니다.
      *
+     * ```kotlin
+     * val spis = IIORegistryUtils.getImageReaderSpis()
+     * // spis.isNotEmpty() == true
+     * ```
+     *
      * @return [ImageReaderSpi] 목록
      */
     fun getImageReaderSpis(): List<ImageReaderSpi> {
@@ -38,6 +55,11 @@ object IIORegistryUtils {
     /**
      * 등록된 모든 [ImageWriterSpi] 목록을 반환합니다.
      *
+     * ```kotlin
+     * val spis = IIORegistryUtils.getImageWriterSpis()
+     * // spis.isNotEmpty() == true
+     * ```
+     *
      * @return [ImageWriterSpi] 목록
      */
     fun getImageWriterSpis(): List<ImageWriterSpi> {
@@ -46,6 +68,11 @@ object IIORegistryUtils {
 
     /**
      * Read를 지원하는 Image Format Names
+     *
+     * ```kotlin
+     * val names = IIORegistryUtils.getReadImageFormatNames()
+     * // names.contains("JPEG") == true
+     * ```
      */
     fun getReadImageFormatNames(): Set<String> {
         return getImageReaderSpis().flatMap { it.formatNames.toSet() }.toSet()
@@ -53,6 +80,11 @@ object IIORegistryUtils {
 
     /**
      * Write 를 지원하는 Image Format Names
+     *
+     * ```kotlin
+     * val names = IIORegistryUtils.getWriteImageFormatNames()
+     * // names.contains("PNG") == true
+     * ```
      */
     fun getWriteImageFormatNames(): Set<String> {
         return getImageWriterSpis().flatMap { it.formatNames.toSet() }.toSet()

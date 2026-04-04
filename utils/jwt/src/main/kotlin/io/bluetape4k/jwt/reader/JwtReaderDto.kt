@@ -10,6 +10,15 @@ import java.io.Serializable
  * - [claims]는 JWT 클레임의 키-값 맵입니다.
  * - [digest]는 JWT 서명의 바이트 배열입니다 (jjwt 0.12.x+).
  *
+ * ```kotlin
+ * val provider = JwtProviderFactory.default()
+ * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+ * val reader = provider.parse(jwt)
+ * val dto = reader.toDto()
+ * // dto.claims["userId"] == "alice"
+ * // dto.headers.containsKey("kid") == true
+ * ```
+ *
  * @property headers JWT 헤더 맵
  * @property claims JWT 클레임 맵
  * @property digest JWT 서명 바이트 배열

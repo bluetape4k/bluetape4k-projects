@@ -6,6 +6,18 @@ import java.io.Serializable
 /**
  * NetCDF 변수 정보를 담는 데이터 클래스입니다.
  *
+ * ```kotlin
+ * val varInfo = NetCdfVariableInfo(
+ *     name = "temperature",
+ *     dataType = "float",
+ *     shape = listOf(24, 90, 180),
+ *     attributes = mapOf("units" to "K", "long_name" to "Air Temperature")
+ * )
+ * println(varInfo.name)            // "temperature"
+ * println(varInfo.shape)           // [24, 90, 180]
+ * println(varInfo.attributes["units"]) // "K"
+ * ```
+ *
  * @param name       변수 이름
  * @param dataType   데이터 타입 (float, double 등)
  * @param shape      차원별 크기 목록
@@ -25,6 +37,16 @@ data class NetCdfVariableInfo(
 /**
  * NetCDF 차원 정보를 담는 데이터 클래스입니다.
  *
+ * ```kotlin
+ * val timeDim = NetCdfDimensionInfo(name = "time", length = 24, isUnlimited = true)
+ * println(timeDim.name)        // "time"
+ * println(timeDim.length)      // 24
+ * println(timeDim.isUnlimited) // true
+ *
+ * val latDim = NetCdfDimensionInfo(name = "lat", length = 90, isUnlimited = false)
+ * println(latDim.isUnlimited)  // false
+ * ```
+ *
  * @param name        차원 이름 (time, lat, lon 등)
  * @param length      차원 길이
  * @param isUnlimited 무제한 차원 여부
@@ -41,6 +63,20 @@ data class NetCdfDimensionInfo(
 
 /**
  * NetCDF 파일 메타데이터 레코드를 담는 데이터 클래스입니다.
+ *
+ * ```kotlin
+ * val record = NetCdfFileRecord(
+ *     filename = "era5_2023.nc",
+ *     filePath = "/data/era5_2023.nc",
+ *     fileSize = 104_857_600L,
+ *     variables = listOf(NetCdfVariableInfo("temperature", "float", listOf(24, 90, 180), emptyMap())),
+ *     dimensions = mapOf("time" to 24, "lat" to 90, "lon" to 180),
+ *     globalAttrs = mapOf("source" to "ERA5", "institution" to "ECMWF")
+ * )
+ * println(record.filename)              // "era5_2023.nc"
+ * println(record.dimensions["time"])    // 24
+ * println(record.globalAttrs["source"]) // "ERA5"
+ * ```
  *
  * @param id          기본키 (자동 생성)
  * @param filename    파일 이름

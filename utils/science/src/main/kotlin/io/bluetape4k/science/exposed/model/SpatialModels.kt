@@ -7,6 +7,22 @@ import java.io.Serializable
 /**
  * 공간 레이어 레코드를 담는 데이터 클래스입니다.
  *
+ * ```kotlin
+ * val layer = SpatialLayerRecord(
+ *     name = "korea_regions",
+ *     description = "대한민국 행정구역 레이어",
+ *     sourceFile = "/data/korea.shp",
+ *     srid = 4326,
+ *     geometryType = "MultiPolygon",
+ *     bboxMinX = 124.0, bboxMinY = 33.0,
+ *     bboxMaxX = 131.0, bboxMaxY = 38.9,
+ *     recordCount = 17
+ * )
+ * println(layer.name)         // "korea_regions"
+ * println(layer.srid)         // 4326
+ * println(layer.recordCount)  // 17
+ * ```
+ *
  * @param id           기본키 (자동 생성)
  * @param name         레이어 이름
  * @param description  레이어 설명
@@ -39,6 +55,20 @@ data class SpatialLayerRecord(
 
 /**
  * 공간 피처 레코드를 담는 데이터 클래스입니다.
+ *
+ * ```kotlin
+ * val gf = GeometryFactory()
+ * val point = gf.createPoint(Coordinate(126.9780, 37.5665))
+ * val feature = SpatialFeatureRecord(
+ *     layerId = 1L,
+ *     featureType = "Point",
+ *     geom = point,
+ *     properties = mapOf("NAME" to "서울시청", "CATEGORY" to "GOVERNMENT"),
+ *     name = "서울시청"
+ * )
+ * println(feature.featureType)            // "Point"
+ * println(feature.properties["CATEGORY"]) // "GOVERNMENT"
+ * ```
  *
  * @param id          기본키 (자동 생성)
  * @param layerId     소속 레이어 ID

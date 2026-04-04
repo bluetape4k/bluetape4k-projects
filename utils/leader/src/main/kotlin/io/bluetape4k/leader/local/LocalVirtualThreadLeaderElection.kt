@@ -38,6 +38,12 @@ class LocalVirtualThreadLeaderElection(
      * - [action] 예외 발생 시에도 락이 안전하게 해제됩니다.
      * - 동일 스레드에서 동일 `lockName`으로 중첩 호출(재진입)이 가능합니다.
      *
+     * ```kotlin
+     * val election = LocalVirtualThreadLeaderElection()
+     * val result = election.runAsyncIfLeader("job-lock") { "done" }.await()
+     * // result == "done"
+     * ```
+     *
      * @param lockName 리더 선출에 사용할 락 이름
      * @param action 리더 획득 성공 시 실행할 작업
      * @return [action] 실행 결과를 담은 [VirtualFuture]

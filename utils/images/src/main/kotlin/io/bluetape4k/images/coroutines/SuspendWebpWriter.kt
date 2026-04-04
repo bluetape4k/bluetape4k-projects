@@ -11,10 +11,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
  *
  * **NOTE: 동적인 처리 시에는 사용하지 않는 것을 추천합니다.**
  *
- * ```
+ * ```kotlin
  * val writer = SuspendWebpWriter()
  * val image = immutableImageOf(File("image.webp"))
  * writer.write(image, File("output.webp"))
+ * // output.webp 파일 생성됨
  * ```
  */
 class SuspendWebpWriter(

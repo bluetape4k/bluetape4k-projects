@@ -28,21 +28,41 @@ open class Area(
 
 /**
  * 숫자를 제곱밀리미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1_000_000.millimeters2()
+ * // value `in` Area.meters2 == 1.0
+ * ```
  */
 fun Number.millimeters2(): Measure<Area> = this * Area.millimeters2
 
 /**
  * 숫자를 제곱센티미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 10_000.centimeters2()
+ * // value `in` Area.meters2 == 1.0
+ * ```
  */
 fun Number.centimeters2(): Measure<Area> = this * Area.centimeters2
 
 /**
  * 숫자를 제곱미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.meters2()
+ * // value `in` Area.centimeters2 == 10000.0
+ * ```
  */
 fun Number.meters2(): Measure<Area> = this * Area.meters2
 
 /**
  * 숫자를 제곱킬로미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kilometers2()
+ * // value `in` Area.meters2 == 1000000.0
+ * ```
  */
 fun Number.kilometers2(): Measure<Area> = this * Area.kilometers2
 

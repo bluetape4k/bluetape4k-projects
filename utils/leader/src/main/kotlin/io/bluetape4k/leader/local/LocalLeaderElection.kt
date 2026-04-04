@@ -31,6 +31,12 @@ class LocalLeaderElection(
      * 다른 스레드가 동일 [lockName]의 락을 보유 중이면 해제될 때까지 블로킹됩니다.
      * 동일 스레드에서 재진입 시 즉시 락을 획득합니다.
      *
+     * ```kotlin
+     * val election = LocalLeaderElection()
+     * val result = election.runIfLeader("job-lock") { 42 }
+     * // result == 42
+     * ```
+     *
      * @param lockName 리더 선출에 사용할 락 이름
      * @param action 리더 획득 성공 시 실행할 동기 작업
      * @return [action] 실행 결과
@@ -43,6 +49,14 @@ class LocalLeaderElection(
      *
      * [action]이 반환하는 [CompletableFuture]가 완료될 때까지 락을 보유합니다.
      * 다른 스레드가 동일 [lockName]의 락을 보유 중이면 [executor] 스레드가 블로킹됩니다.
+     *
+     * ```kotlin
+     * val election = LocalLeaderElection()
+     * val result = election.runAsyncIfLeader("job-lock") {
+     *     CompletableFuture.completedFuture("async-ok")
+     * }.join()
+     * // result == "async-ok"
+     * ```
      *
      * @param lockName 리더 선출에 사용할 락 이름
      * @param executor 비동기 실행에 사용할 [Executor]

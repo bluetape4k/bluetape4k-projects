@@ -38,26 +38,51 @@ open class Pressure(
 
 /**
  * 숫자를 파스칼 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 101325.pascal()
+ * // value `in` Pressure.atmosphere == 1.0
+ * ```
  */
 fun Number.pascal(): Measure<Pressure> = this * Pressure.pascal
 
 /**
  * 숫자를 헥토파스칼 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1013.25.hectoPascal()
+ * // value `in` Pressure.atmosphere == 1.0
+ * ```
  */
 fun Number.hectoPascal(): Measure<Pressure> = this * Pressure.hectoPascal
 
 /**
  * 숫자를 킬로파스칼 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 100.kiloPascal()
+ * // value `in` Pressure.bar == 1.0
+ * ```
  */
 fun Number.kiloPascal(): Measure<Pressure> = this * Pressure.kiloPascal
 
 /**
  * 숫자를 메가파스칼 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.megaPascal()
+ * // value `in` Pressure.kiloPascal == 1000.0
+ * ```
  */
 fun Number.megaPascal(): Measure<Pressure> = this * Pressure.megaPascal
 
 /**
  * 숫자를 바 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.bar()
+ * // value `in` Pressure.pascal == 100000.0
+ * ```
  */
 fun Number.bar(): Measure<Pressure> = this * Pressure.bar
 
@@ -76,5 +101,10 @@ fun Number.atm(): Measure<Pressure> = this * Pressure.atmosphere
 
 /**
  * 숫자를 psi 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 14.696.psi()
+ * // value `in` Pressure.atmosphere == 1.0 (근사값)
+ * ```
  */
 fun Number.psi(): Measure<Pressure> = this * Pressure.psi

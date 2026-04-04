@@ -8,6 +8,14 @@ import java.io.OutputStream
 
 /**
  * [AnimatedImageWriter] 를 Coroutines 를 이용하여 비동기 방식으로 처리할 수 있도록 한다.
+ *
+ * ```kotlin
+ * val writer: SuspendAnimatedImageWriter = SuspendGif2WebpWriter.Default
+ * val gif: AnimatedGif = AnimatedGif.fromFile(File("animation.gif"))
+ * val bos = ByteArrayOutputStream()
+ * writer.suspendWrite(gif, bos)
+ * // bos.size() > 0
+ * ```
  */
 interface SuspendAnimatedImageWriter: AnimatedImageWriter {
 

@@ -13,6 +13,15 @@ import java.util.*
  *
  * ## 동작/계약
  * - 헤더, 클레임, 서명 정보를 DTO에 복사합니다.
+ *
+ * ```kotlin
+ * val provider = JwtProviderFactory.default()
+ * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+ * val reader = provider.parse(jwt)
+ * val dto = reader.toDto()
+ * // dto.claims["userId"] == "alice"
+ * // dto.headers["kid"] != null
+ * ```
  */
 fun JwtReader.toDto(): JwtReaderDto {
     return JwtReaderDto(
@@ -27,6 +36,15 @@ fun JwtReader.toDto(): JwtReaderDto {
  *
  * ## 동작/계약
  * - 내부 jjwt 구현체(`DefaultJws`, `DefaultJwsHeader`, `DefaultClaims`)를 사용합니다.
+ *
+ * ```kotlin
+ * val provider = JwtProviderFactory.default()
+ * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+ * val reader = provider.parse(jwt)
+ * val dto = reader.toDto()
+ * val restored = dto.toJwtReader()
+ * // restored.claim<String>("userId") == "alice"
+ * ```
  */
 fun JwtReaderDto.toJwtReader(): JwtReader {
     val digestBytes = digest ?: byteArrayOf()
@@ -46,6 +64,14 @@ fun JwtReaderDto.toJwtReader(): JwtReader {
  *
  * ## 동작/계약
  * - 만료되었다면 [ExpiredJwtException]을 발생시킵니다.
+ *
+ * ```kotlin
+ * val provider = JwtProviderFactory.default()
+ * val jwt = provider.compose { expirationAfterSeconds = 3600 }
+ * val reader = provider.parse(jwt)
+ * reader.checkExpired() // 만료되지 않았으면 아무 일도 없음
+ * // 만료된 경우: throws ExpiredJwtException
+ * ```
  *
  * @throws ExpiredJwtException JWT가 만료된 경우
  */

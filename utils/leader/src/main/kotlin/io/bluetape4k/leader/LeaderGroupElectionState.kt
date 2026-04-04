@@ -19,6 +19,12 @@ interface LeaderGroupElectionState {
     /**
      * [lockName]에 대해 현재 활성(실행 중인) 리더 수를 반환합니다.
      *
+     * ```kotlin
+     * val election = LocalLeaderGroupElection(maxLeaders = 3)
+     * val count = election.activeCount("batch-job")
+     * // count == 0  (아무도 실행 중이 아닐 때)
+     * ```
+     *
      * @param lockName 조회할 락 이름
      * @return 현재 활성 리더 수 (근사값)
      */
@@ -27,6 +33,12 @@ interface LeaderGroupElectionState {
     /**
      * [lockName]에 대해 새 리더를 수용할 수 있는 남은 슬롯 수를 반환합니다.
      *
+     * ```kotlin
+     * val election = LocalLeaderGroupElection(maxLeaders = 3)
+     * val slots = election.availableSlots("batch-job")
+     * // slots == 3  (아무도 실행 중이 아닐 때)
+     * ```
+     *
      * @param lockName 조회할 락 이름
      * @return 사용 가능한 슬롯 수 (근사값)
      */
@@ -34,6 +46,14 @@ interface LeaderGroupElectionState {
 
     /**
      * [lockName]에 대한 현재 [LeaderGroupState]를 반환합니다.
+     *
+     * ```kotlin
+     * val election = LocalLeaderGroupElection(maxLeaders = 3)
+     * val state = election.state("batch-job")
+     * // state.maxLeaders == 3
+     * // state.activeCount == 0
+     * // state.isEmpty == true
+     * ```
      *
      * @param lockName 조회할 락 이름
      * @return 현재 리더 그룹 상태 스냅샷

@@ -39,6 +39,13 @@ interface KeyChainRepository {
      *
      * ## 동작/계약
      * - 구현체가 비어 있는 경우 내부 정책에 따라 새 키를 생성하거나 예외를 던질 수 있습니다.
+     *
+     * ```kotlin
+     * val repository = InMemoryKeyChainRepository()
+     * repository.forcedRotate(KeyChain())
+     * val current = repository.current()
+     * // current.id.isNotBlank() == true
+     * ```
      */
     fun current(): KeyChain
 
@@ -47,6 +54,16 @@ interface KeyChainRepository {
      *
      * ## 동작/계약
      * - 해당 `kid`가 없으면 `null`을 반환합니다.
+     *
+     * ```kotlin
+     * val repository = InMemoryKeyChainRepository()
+     * val keyChain = KeyChain()
+     * repository.forcedRotate(keyChain)
+     * val found = repository.findOrNull(keyChain.id)
+     * // found != null
+     * val notFound = repository.findOrNull("unknown-kid")
+     * // notFound == null
+     * ```
      */
     fun findOrNull(kid: String): KeyChain?
 
@@ -79,6 +96,13 @@ interface KeyChainRepository {
 
     /**
      * 저장된 모든 KeyChain을 삭제합니다. NOTE: 테스트 시에만 사용하세요
+     *
+     * ```kotlin
+     * val repository = InMemoryKeyChainRepository()
+     * repository.forcedRotate(KeyChain())
+     * repository.deleteAll()
+     * // repository.findOrNull("any-kid") == null
+     * ```
      */
     fun deleteAll()
 }

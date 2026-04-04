@@ -23,7 +23,17 @@ class JwtReader(
     internal val jws: Jws<Claims>,
 ): Claims by jws.payload, Serializable {
 
-    /** JWT header의 `kid` 값입니다. */
+    /**
+     * JWT header의 `kid` 값입니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.fixed(kid = "my-key")
+     * val jwt = provider.compose { expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * val kid = reader.kid
+     * // kid == "my-key"
+     * ```
+     */
     val kid: String?
         get() = header<String>("kid")
 
@@ -32,6 +42,14 @@ class JwtReader(
      *
      * ## 동작/계약
      * - `exp` 클레임이 없으면 [Long.MAX_VALUE]를 반환합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose { expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * val ttl = reader.expiredTtl
+     * // ttl > System.currentTimeMillis()
+     * ```
      */
     val expiredTtl: Long
         get() = expiration?.time ?: Long.MAX_VALUE
@@ -41,6 +59,14 @@ class JwtReader(
      *
      * ## 동작/계약
      * - `exp`가 없으면 `false`입니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose { expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * val expired = reader.isExpired
+     * // expired == false
+     * ```
      */
     val isExpired: Boolean
         get() = expiredTtl <= System.currentTimeMillis()
@@ -52,7 +78,13 @@ class JwtReader(
      * - [key]가 공백이면 검증 예외가 발생합니다.
      *
      * ```kotlin
-     * val author = reader.header<String>("x-author")
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose {
+     *     header("x-author", "debop")
+     *     expirationAfterMinutes = 60
+     * }
+     * val reader = provider.parse(jwt)
+     * val author = reader.header("x-author")
      * // author == "debop"
      * ```
      */
@@ -67,6 +99,17 @@ class JwtReader(
      *
      * ## 동작/계약
      * - 타입이 맞지 않으면 `null`을 반환합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose {
+     *     header("x-author", "debop")
+     *     expirationAfterMinutes = 60
+     * }
+     * val reader = provider.parse(jwt)
+     * val author = reader.header<String>("x-author")
+     * // author == "debop"
+     * ```
      */
     @JvmName("getHeaderInline")
     inline fun <reified T: Any> header(key: String): T? {
@@ -78,6 +121,14 @@ class JwtReader(
      *
      * ## 동작/계약
      * - [name]이 공백이면 검증 예외가 발생합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * val userId = reader.claim("userId")
+     * // userId == "alice"
+     * ```
      */
     @JvmName("getClaim")
     fun claim(name: String): Any? {

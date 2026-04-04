@@ -20,12 +20,36 @@ data class LeaderGroupState(
     val maxLeaders: Int,
     val activeCount: Int,
 ) {
-    /** 새 리더를 수용할 수 있는 남은 슬롯 수 */
+    /**
+     * 새 리더를 수용할 수 있는 남은 슬롯 수.
+     *
+     * ```kotlin
+     * val state = LeaderGroupState(lockName = "job", maxLeaders = 3, activeCount = 1)
+     * val slots = state.availableSlots
+     * // slots == 2
+     * ```
+     */
     val availableSlots: Int get() = maxLeaders - activeCount
 
-    /** 최대 리더 수에 도달하여 추가 선출이 불가한지 여부 */
+    /**
+     * 최대 리더 수에 도달하여 추가 선출이 불가한지 여부.
+     *
+     * ```kotlin
+     * val state = LeaderGroupState(lockName = "job", maxLeaders = 3, activeCount = 3)
+     * val full = state.isFull
+     * // full == true
+     * ```
+     */
     val isFull: Boolean get() = activeCount >= maxLeaders
 
-    /** 현재 활성 리더가 없는지 여부 */
+    /**
+     * 현재 활성 리더가 없는지 여부.
+     *
+     * ```kotlin
+     * val state = LeaderGroupState(lockName = "job", maxLeaders = 3, activeCount = 0)
+     * val empty = state.isEmpty
+     * // empty == true
+     * ```
+     */
     val isEmpty: Boolean get() = activeCount == 0
 }

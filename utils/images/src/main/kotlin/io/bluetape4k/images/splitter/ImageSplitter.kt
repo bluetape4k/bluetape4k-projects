@@ -39,6 +39,13 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
          *
          * - [maxHeight]가 [DEFAULT_MIN_HEIGHT]보다 작으면 [DEFAULT_MIN_HEIGHT]로 보정됩니다.
          *
+         * ```kotlin
+         * val splitter = ImageSplitter(1024)
+         * // splitter.defaultMaxHeight == 1024
+         * val defaultSplitter = ImageSplitter()
+         * // defaultSplitter.defaultMaxHeight == 2048
+         * ```
+         *
          * @param maxHeight 분할 기준 최대 높이 (기본값: [DEFAULT_MAX_HEIGHT])
          * @return [ImageSplitter] 인스턴스
          */
@@ -51,12 +58,13 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
     /**
      * [input] 이미지를 [format] 으로 변환하고 [splitHeight] 만큼 분할하여 [ByteArray] 로 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val splitter = ImageSplitter()
-     * val input: InputStream = ...
-     * val format = ImageFormat.JPG
-     * val splitHeight = 1024
-     * val images: Flow<ByteArray> = splitter.split(input, format, splitHeight)
+     * val input: InputStream = File("long-image.jpg").inputStream()
+     * val images: Flow<ByteArray> = splitter.split(input, ImageFormat.JPG, splitHeight = 1024)
+     * images.collect { chunk ->
+     *     // chunk.isNotEmpty() == true
+     * }
      * ```
      *
      * @param input         원본 이미지 정보
@@ -99,12 +107,18 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
     /**
      * [input] 이미지를 [format] 으로 변환하고 [splitHeight] 만큼 분할하여 [ByteArray] 로 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val splitter = ImageSplitter()
-     * val input: InputStream = ...
-     * val format = ImageFormat.JPG
-     * val splitHeight = 1024
-     * val images: Flow<ByteArray> = splitter.splitAndCompress(input, format, splitHeight)
+     * val input: InputStream = File("long-image.jpg").inputStream()
+     * val images: Flow<ByteArray> = splitter.splitAndCompress(
+     *     input,
+     *     ImageFormat.JPG,
+     *     splitHeight = 1024,
+     *     writer = SuspendJpegWriter.Default
+     * )
+     * images.collect { chunk ->
+     *     // chunk.isNotEmpty() == true
+     * }
      * ```
      *
      * @param input         원본 이미지 정보

@@ -54,6 +54,13 @@ class JwtComposer(
      * - 설정된 알고리즘은 [compose] 시 `zip` 헤더와 함께 적용됩니다.
      * - 알고리즘이 없으면 비압축 JWT를 생성합니다.
      *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain())
+     * composer.setCompressionAlgorithm(JwtCodecs.Gzip)
+     * val jwt = composer.compose()
+     * // jwt.isNotBlank() == true
+     * ```
+     *
      * @param algorithm JWT payload 압축에 사용할 [CompressionAlgorithm]
      */
     fun setCompressionAlgorithm(algorithm: CompressionAlgorithm) {
@@ -66,6 +73,14 @@ class JwtComposer(
      * ## 동작/계약
      * - [key]는 공백이 아니어야 하며 위반 시 예외가 발생합니다.
      * - 예약 헤더 키는 무시됩니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain())
+     *     .header("x-author", "debop")
+     *     .header("x-service", "bluetape4k")
+     * val jwt = composer.compose()
+     * // JwtProvider.parse(jwt).header<String>("x-author") == "debop"
+     * ```
      *
      * @param key  Header Key
      * @param value Header value
@@ -85,6 +100,15 @@ class JwtComposer(
      * - [name]은 공백이 아니어야 합니다.
      * - `check=true`일 때 예약 클레임(`exp`,`iat`,`nbf`)은 예외를 던집니다.
      *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain())
+     *     .claim("userId", "alice")
+     *     .claim("role", "admin")
+     *     .expirationAfterMinutes(60L)
+     * val jwt = composer.compose()
+     * // JwtProvider.parse(jwt).claim<String>("userId") == "alice"
+     * ```
+     *
      * @param name claim name
      * @param value claim value
      * @param check validation
@@ -102,42 +126,146 @@ class JwtComposer(
         claims[name] = value
     }
 
-    /** JWT ID(`jti`) 클레임을 설정합니다. */
+    /**
+     * JWT ID(`jti`) 클레임을 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).id("req-001")
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).id == "req-001"
+     * ```
+     */
     fun id(jti: String) = claim(Claims.ID, jti)
-    /** 발급자(`iss`) 클레임을 설정합니다. */
+
+    /**
+     * 발급자(`iss`) 클레임을 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).issuer("bluetape4k")
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).issuer == "bluetape4k"
+     * ```
+     */
     fun issuer(iss: String) = claim(Claims.ISSUER, iss)
-    /** 주체(`sub`) 클레임을 설정합니다. */
+
+    /**
+     * 주체(`sub`) 클레임을 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).subject("alice")
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).subject == "alice"
+     * ```
+     */
     fun subject(sub: String) = claim(Claims.SUBJECT, sub)
-    /** 수신자(`aud`) 클레임을 설정합니다. */
+
+    /**
+     * 수신자(`aud`) 클레임을 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).audience("service-a")
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).audience == setOf("service-a")
+     * ```
+     */
     fun audience(aud: String) = claim(Claims.AUDIENCE, aud)
 
-    /** `nbf` 클레임을 [Date]로 설정합니다. */
+    /**
+     * `nbf` 클레임을 [Date]로 설정합니다.
+     *
+     * ```kotlin
+     * val nbf = Date()
+     * val composer = JwtComposer(KeyChain()).notBefore(nbf)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).notBefore.time == nbf.time / 1000 * 1000
+     * ```
+     */
     fun notBefore(nbfDate: Date) =
         claim(Claims.NOT_BEFORE, nbfDate.epochSeconds, false)
 
-    /** `nbf` 클레임을 밀리초 타임스탬프로 설정합니다. */
+    /**
+     * `nbf` 클레임을 밀리초 타임스탬프로 설정합니다.
+     *
+     * ```kotlin
+     * val nbfMillis = System.currentTimeMillis()
+     * val composer = JwtComposer(KeyChain()).notBefore(nbfMillis)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).notBefore != null
+     * ```
+     */
     fun notBefore(nbfTimestamp: Long) =
         claim(Claims.NOT_BEFORE, nbfTimestamp.millisToSeconds(), false)
 
-    /** 만료(`exp`) 클레임을 [Date]로 설정합니다. */
+    /**
+     * 만료(`exp`) 클레임을 [Date]로 설정합니다.
+     *
+     * ```kotlin
+     * val exp = Date(System.currentTimeMillis() + 3600_000L)
+     * val composer = JwtComposer(KeyChain()).expiration(exp)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).expiration.time > System.currentTimeMillis()
+     * ```
+     */
     fun expiration(exp: Date) =
         claim(Claims.EXPIRATION, exp.epochSeconds, false)
 
-    /** 현재 시각 기준 [seconds]초 뒤 만료되도록 설정합니다. */
+    /**
+     * 현재 시각 기준 [seconds]초 뒤 만료되도록 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).expirationAfterSeconds(3600L)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).expiration.time > System.currentTimeMillis()
+     * ```
+     */
     fun expirationAfterSeconds(seconds: Long) =
         claim(Claims.EXPIRATION, Date().epochSeconds + seconds, false)
 
-    /** 현재 시각 기준 [minutes]분 뒤 만료되도록 설정합니다. */
+    /**
+     * 현재 시각 기준 [minutes]분 뒤 만료되도록 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).expirationAfterMinutes(60L)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).expiration.time > System.currentTimeMillis()
+     * ```
+     */
     fun expirationAfterMinutes(minutes: Long) =
         expirationAfterSeconds(minutes * 60)
 
-    /** 현재 시각 기준 [days]일 뒤 만료되도록 설정합니다. */
+    /**
+     * 현재 시각 기준 [days]일 뒤 만료되도록 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).expirationAfterDays(7L)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).expiration.time > System.currentTimeMillis()
+     * ```
+     */
     fun expirationAfterDays(days: Long) =
         expirationAfterSeconds(days * 24 * 60 * 60)
 
-    /** 발급 시각(`iat`) 클레임을 설정합니다. */
+    /**
+     * 발급 시각(`iat`) 클레임을 설정합니다.
+     *
+     * ```kotlin
+     * val iat = Date()
+     * val composer = JwtComposer(KeyChain()).issuedAt(iat)
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).issuedAt.time == iat.time / 1000 * 1000
+     * ```
+     */
     fun issuedAt(iat: Date) = claim(Claims.ISSUED_AT, iat.epochSeconds, false)
-    /** 발급 시각(`iat`)을 현재 시각으로 설정합니다. */
+
+    /**
+     * 발급 시각(`iat`)을 현재 시각으로 설정합니다.
+     *
+     * ```kotlin
+     * val composer = JwtComposer(KeyChain()).issuedAtNow()
+     * val jwt = composer.compose()
+     * // provider.parse(jwt).issuedAt != null
+     * ```
+     */
     fun issuedAtNow() = issuedAt(Date())
 
     /**

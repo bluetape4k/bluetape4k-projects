@@ -35,6 +35,18 @@ class LocalVirtualThreadLeaderGroupElection private constructor(
 
     companion object: KLogging() {
 
+        /**
+         * [LeaderGroupElectionOptions]을 이용해 [LocalVirtualThreadLeaderGroupElection] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val election = LocalVirtualThreadLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+         * val result = election.runAsyncIfLeader("batch-job") { "done" }.await()
+         * // result == "done"
+         * ```
+         *
+         * @param options 리더 그룹 선출 옵션. 기본값은 [LeaderGroupElectionOptions.Default]
+         * @return [VirtualThreadLeaderGroupElection] 구현체 인스턴스
+         */
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): VirtualThreadLeaderGroupElection =
@@ -45,6 +57,12 @@ class LocalVirtualThreadLeaderGroupElection private constructor(
 
     /**
      * [lockName]의 슬롯을 Virtual Thread에서 획득하고 [action]을 실행합니다.
+     *
+     * ```kotlin
+     * val election = LocalVirtualThreadLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val result = election.runAsyncIfLeader("batch-job") { 42 }.await()
+     * // result == 42
+     * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param action 슬롯 획득 성공 시 실행할 작업

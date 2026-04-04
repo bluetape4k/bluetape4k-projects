@@ -41,6 +41,12 @@ class LocalSuspendLeaderElection(
      *
      * 다른 코루틴이 동일 [lockName]의 [Mutex]를 보유 중이면 해제될 때까지 suspend됩니다.
      *
+     * ```kotlin
+     * val election = LocalSuspendLeaderElection()
+     * val result = election.runIfLeader("job-lock") { "done" }
+     * // result == "done"
+     * ```
+     *
      * @param lockName 리더 선출에 사용할 락 이름
      * @param action 리더 획득 성공 시 실행할 suspend 작업
      * @return [action] 실행 결과

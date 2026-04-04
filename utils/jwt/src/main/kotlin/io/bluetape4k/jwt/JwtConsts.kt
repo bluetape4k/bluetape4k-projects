@@ -45,6 +45,14 @@ object JwtConsts {
     /**
      * 알고리즘 ID로 [SignatureAlgorithm]을 조회합니다.
      *
+     * ```kotlin
+     * val alg = JwtConsts.signatureAlgorithmForId("RS256")
+     * // alg.id == "RS256"
+     *
+     * val alg512 = JwtConsts.signatureAlgorithmForId("RS512")
+     * // alg512.id == "RS512"
+     * ```
+     *
      * @param algorithmId 알고리즘 식별자 (예: "RS256")
      * @return 해당하는 [SignatureAlgorithm] 인스턴스
      * @throws IllegalArgumentException 지원하지 않는 알고리즘인 경우

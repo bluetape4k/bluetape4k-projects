@@ -31,6 +31,13 @@ object JwtProviderFactory: KLogging() {
     /**
      * [DefaultJwtProvider]를 생성합니다.
      *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * // reader.claim<String>("userId") == "alice"
+     * ```
+     *
      * @param signatureAlgorithm  RSA 공개키 기반의 암호화 알고리즘 (기본은 RSA 256)
      * @param keyChainRepository  KeyChain Repository
      * @return [DefaultJwtProvider] instance
@@ -44,6 +51,14 @@ object JwtProviderFactory: KLogging() {
 
     /**
      * [FixedJwtProvider]를 생성합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.fixed(kid = "my-key")
+     * val jwt = provider.compose { subject = "alice"; expirationAfterMinutes = 60 }
+     * val reader = provider.parse(jwt)
+     * // reader.subject == "alice"
+     * // reader.kid == "my-key"
+     * ```
      *
      * @param kid KeyChain 의 Id (jwt header에 kid 로 제공됩니다)
      * @param signatureAlgorithm   RSA 공개키 기반의 암호화 알고리즘 (기본은 RSA 256)
@@ -63,6 +78,16 @@ object JwtProviderFactory: KLogging() {
     /**
      * JWT 의 파싱된 정보인 [io.bluetape4k.jwt.reader.JwtReader]를 캐싱하는 [JCacheJwtProvider] 인스턴스를 생성합니다.
      *
+     * ```kotlin
+     * val delegate = JwtProviderFactory.default()
+     * val cache: Cache<String, JwtReaderDto> = // JCache 구현체
+     * val provider = JwtProviderFactory.jcached(delegate, cache)
+     * val jwt = delegate.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+     * val reader = provider.tryParse(jwt)
+     * // reader != null
+     * // reader!!.claim<String>("userId") == "alice"
+     * ```
+     *
      * @param delegate [JwtProvider] 인스턴스
      * @param cache [JwtReaderDto]를 저장하는 JCache
      */
@@ -75,6 +100,16 @@ object JwtProviderFactory: KLogging() {
 
     /**
      * JWT 의 파싱된 정보를 Redisson RMapCache에 캐싱하는 [RedissonJwtProvider] 인스턴스를 생성합니다.
+     *
+     * ```kotlin
+     * val delegate = JwtProviderFactory.default()
+     * val cache: RMapCache<String, JwtReaderDto> = // Redisson RMapCache
+     * val provider = JwtProviderFactory.redissonCached(delegate, cache)
+     * val jwt = delegate.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+     * val reader = provider.tryParse(jwt)
+     * // reader != null
+     * // reader!!.claim<String>("userId") == "alice"
+     * ```
      *
      * @param delegate [JwtProvider] 인스턴스
      * @param cache Redisson [RMapCache] 인스턴스

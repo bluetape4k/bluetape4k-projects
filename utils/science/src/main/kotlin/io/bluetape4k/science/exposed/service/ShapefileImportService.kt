@@ -19,6 +19,18 @@ import java.io.File
  * JTS [org.locationtech.jts.geom.Geometry]를 PostGIS Geometry로 변환하여 저장합니다.
  * 모든 DB 작업은 Virtual Thread에서 실행되어 플랫폼 스레드를 차지하지 않습니다.
  *
+ * ```kotlin
+ * val layerRepo = SpatialLayerRepository()
+ * val featureRepo = SpatialFeatureRepository()
+ * val service = ShapefileImportService(layerRepo, featureRepo)
+ * val count = service.importShapefile(
+ *     file = File("korea_regions.shp"),
+ *     layerName = "korea_regions",
+ *     batchSize = 500
+ * )
+ * println(count) // 임포트된 피처 수 (예: 250)
+ * ```
+ *
  * @param layerRepo   공간 레이어 Repository
  * @param featureRepo 공간 피처 Repository
  */
@@ -34,6 +46,16 @@ class ShapefileImportService(
      * 동일한 이름의 레이어가 이미 존재하면 [IllegalArgumentException]이 발생합니다.
      * 피처는 [batchSize] 단위로 배치 삽입되며, 배치마다 독립 트랜잭션이 열립니다.
      * Virtual Thread에서 실행되므로 JDBC 블로킹 I/O가 플랫폼 스레드를 차지하지 않습니다.
+     *
+     * ```kotlin
+     * val service = ShapefileImportService(layerRepo, featureRepo)
+     * val count = service.importShapefile(
+     *     file = File("korea_regions.shp"),
+     *     layerName = "korea_regions"
+     * )
+     * println(count) // 임포트된 피처 수 (예: 250)
+     * // service.importShapefile(file, "korea_regions") // throws IllegalArgumentException
+     * ```
      *
      * @param file      .shp 확장자 파일
      * @param layerName 레이어 이름

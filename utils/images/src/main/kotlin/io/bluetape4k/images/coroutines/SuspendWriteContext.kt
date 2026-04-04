@@ -36,6 +36,14 @@ class SuspendWriteContext(
     /**
      * 이미지를 인코딩하여 [ByteArray]로 반환합니다.
      *
+     * ```kotlin
+     * val writer = SuspendJpegWriter.Default
+     * val image = immutableImageOf(File("photo.jpg"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val bytes = context.bytes()
+     * // bytes.isNotEmpty() == true
+     * ```
+     *
      * @return 인코딩된 이미지 데이터
      */
     suspend fun bytes(): ByteArray {
@@ -48,6 +56,14 @@ class SuspendWriteContext(
     /**
      * 이미지를 인코딩하여 [ByteArrayInputStream]으로 반환합니다.
      *
+     * ```kotlin
+     * val writer = SuspendPngWriter.MaxCompression
+     * val image = immutableImageOf(File("photo.png"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val stream = context.stream()
+     * // stream.available() > 0
+     * ```
+     *
      * @return 인코딩된 이미지 데이터를 담은 [ByteArrayInputStream]
      */
     suspend fun stream(): ByteArrayInputStream {
@@ -56,6 +72,14 @@ class SuspendWriteContext(
 
     /**
      * 이미지를 인코딩하여 [path] 경로 문자열에 저장합니다.
+     *
+     * ```kotlin
+     * val writer = SuspendJpegWriter.Default
+     * val image = immutableImageOf(File("photo.jpg"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val saved = context.write("/tmp/output.jpg")
+     * // saved.toFile().exists() == true
+     * ```
      *
      * @param path 저장할 파일 경로 문자열
      * @return 저장된 파일의 [Path]
@@ -66,6 +90,14 @@ class SuspendWriteContext(
 
     /**
      * 이미지를 인코딩하여 [file]에 저장합니다.
+     *
+     * ```kotlin
+     * val writer = SuspendPngWriter.MaxCompression
+     * val image = immutableImageOf(File("photo.png"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val saved = context.write(File("/tmp/output.png"))
+     * // saved.exists() == true
+     * ```
      *
      * @param file 저장할 대상 [File]
      * @return 저장된 [File]
@@ -78,6 +110,14 @@ class SuspendWriteContext(
     /**
      * 이미지를 인코딩하여 [path]에 저장합니다.
      *
+     * ```kotlin
+     * val writer = SuspendJpegWriter.Default
+     * val image = immutableImageOf(File("photo.jpg"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val saved = context.write(Path.of("/tmp/output.jpg"))
+     * // saved.toFile().exists() == true
+     * ```
+     *
      * @param path 저장할 파일 [Path]
      * @return 저장된 파일의 [Path]
      */
@@ -88,6 +128,15 @@ class SuspendWriteContext(
 
     /**
      * 이미지를 인코딩하여 [out]에 씁니다.
+     *
+     * ```kotlin
+     * val writer = SuspendPngWriter.NoCompression
+     * val image = immutableImageOf(File("photo.png"))
+     * val context = SuspendWriteContext(writer, image, image.metadata)
+     * val bos = ByteArrayOutputStream()
+     * context.write(bos)
+     * // bos.size() > 0
+     * ```
      *
      * @param out 쓰기 대상 [OutputStream]
      */

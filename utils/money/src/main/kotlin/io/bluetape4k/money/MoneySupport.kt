@@ -6,7 +6,7 @@ import javax.money.CurrencyUnit
 /**
  * [currency] 통화단위를 가지는 [amount] 금액의 [Money]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val won = moneyOf(1024L, currencyOf("KRW"))      // 1,024 KRW
  * val dollar = moneyOf(1.05, currencyOf("USD"))    // 1.05 USD
  * ```
@@ -20,7 +20,7 @@ fun moneyOf(amount: Number, currency: CurrencyUnit = DefaultCurrencyUnit): Money
 /**
  * [currencyCode] 통화단위를 가지는 [amount] 금액의 [Money]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val won = moneyOf(1024L, "KRW")      // 1,024 KRW
  * val dollar = moneyOf(1.05, "USD")    // 1.05 USD
  * ```
@@ -34,7 +34,7 @@ fun moneyOf(amount: Number, currencyCode: String): Money = Money.of(amount, curr
 /**
  * 숫자를 해당 통화단위의 [Money] 인스턴스로 생성합니다.
  *
- * ```
+ * ```kotlin
  * val won = 1024L.toMoney(currencyOf("KRW"))  // 1,024 KRW
  * val dollar = 1.05.toMoney(currencyOf("USD"))  // 1.05 USD
  * ```
@@ -46,7 +46,7 @@ fun Number.toMoney(currency: CurrencyUnit = DefaultCurrencyUnit): Money = moneyO
 /**
  * 숫자를 해당 통화단위의 [Money] 인스턴스로 생성합니다.
  *
- * ```
+ * ```kotlin
  * val won = 1024L.toMoney("KRW")  // 1,024 KRW
  * val dollar = 1.05.toMoney("USD")  // 1.05 USD
  * ```
@@ -59,7 +59,7 @@ fun Number.toMoney(currencyCode: String): Money = moneyOf(this, currencyCode)
 /**
  * 숫자를 원화로 표현하는 [Money]로 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val won = 1024L.inKRW()  // 1,024 KRW
  * ```
  */
@@ -68,7 +68,7 @@ fun Number.inKRW(): Money = toMoney(KRW)
 /**
  * 숫자를 US Dollar 로 표현하는 [Money]로 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val dollar = 1.05.inUSD()  // 1.05 USD
  * ```
  */
@@ -77,7 +77,7 @@ fun Number.inUSD(): Money = toMoney(USD)
 /**
  * 숫자를 EURO 화로 표현하는 [Money]로 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val usd = 1.05.inEUR()  // 1.05 EUR
  * ```
  */

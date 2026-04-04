@@ -26,6 +26,14 @@ abstract class AbstractLocalLeaderElection(
 
     /**
      * [lockName]에 대한 [ReentrantLock]을 반환합니다. 없으면 새로 생성합니다.
+     *
+     * ```kotlin
+     * val lock = getLock("job-lock")
+     * lock.withLock { /* 임계 영역 */ }
+     * ```
+     *
+     * @param lockName 락 이름 (blank 불가)
+     * @return 해당 lockName에 대한 [ReentrantLock] 인스턴스
      */
     protected fun getLock(lockName: String): ReentrantLock {
         lockName.requireNotBlank("lockName")
@@ -34,6 +42,15 @@ abstract class AbstractLocalLeaderElection(
 
     /**
      * [lockName]의 락을 획득한 상태에서 [action]을 실행합니다.
+     *
+     * ```kotlin
+     * val result = withLeaderLock("job-lock") { "done" }
+     * // result == "done"
+     * ```
+     *
+     * @param lockName 락 이름
+     * @param action 락을 획득한 상태에서 실행할 작업
+     * @return [action] 실행 결과
      */
     protected inline fun <T> withLeaderLock(lockName: String, action: () -> T): T =
         getLock(lockName).withLock(action)

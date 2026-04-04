@@ -27,6 +27,14 @@ object ShapefileReaderSupport : KLogging()
  * GeoTools [ShapefileReader]와 [DbaseFileReader]를 사용하여 도형 및 속성 정보를 읽습니다.
  * 공개 API에 GeoTools 타입을 노출하지 않습니다.
  *
+ * ```kotlin
+ * val shape = loadShape(File("korea_regions.shp"))
+ * println(shape.size)                   // 레코드 수 (예: 250)
+ * println(shape.header.shapeType)       // 5 (Polygon)
+ * val names = shape.records.mapNotNull { it.attributes["NAME"] }
+ * println(names.first())                // 예: "서울특별시"
+ * ```
+ *
  * @param file    .shp 확장자 파일
  * @param charset DBF 파일 인코딩 (기본값: UTF-8)
  * @return 읽어들인 [Shape] 객체
@@ -78,6 +86,13 @@ fun loadShape(file: File, charset: Charset = Charsets.UTF_8): Shape {
  * .shp 파일을 비동기로 읽어 [Shape] 객체로 반환합니다.
  *
  * 파일 I/O를 [Dispatchers.IO]에서 수행합니다.
+ *
+ * ```kotlin
+ * // suspend 함수 또는 코루틴 스코프 내에서 사용
+ * val shape = loadShapeAsync(File("korea_regions.shp"))
+ * println(shape.size)            // 레코드 수 (예: 250)
+ * println(shape.isEmpty)         // false
+ * ```
  *
  * @param file    .shp 확장자 파일
  * @param charset DBF 파일 인코딩 (기본값: UTF-8)

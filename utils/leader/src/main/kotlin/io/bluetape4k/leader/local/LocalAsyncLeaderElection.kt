@@ -35,6 +35,14 @@ class LocalAsyncLeaderElection(
      * - [action] 실패(예외 또는 future 실패) 시에도 락을 안전하게 해제합니다.
      * - 다른 스레드가 동일 [lockName]의 락을 보유 중이면 [executor] 스레드가 블로킹됩니다.
      *
+     * ```kotlin
+     * val election = LocalAsyncLeaderElection()
+     * val result = election.runAsyncIfLeader("job-lock") {
+     *     CompletableFuture.completedFuture("done")
+     * }.join()
+     * // result == "done"
+     * ```
+     *
      * @param lockName 리더 선출에 사용할 락 이름
      * @param executor 비동기 실행에 사용할 [Executor]
      * @param action 리더 획득 성공 시 실행할 비동기 작업

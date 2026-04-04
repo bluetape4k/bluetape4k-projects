@@ -8,6 +8,18 @@ import io.bluetape4k.exposed.postgresql.postgis.geoPoint
  * 관심 지점(Point of Interest)을 저장하는 Exposed 테이블입니다.
  *
  * 이름, 카테고리, PostGIS POINT 위치, JSONB 속성을 관리합니다.
+ *
+ * ```kotlin
+ * // 테이블 생성 및 데이터 삽입
+ * transaction {
+ *     SchemaUtils.create(PoiTable)
+ *     PoiTable.insertAndGetId {
+ *         it[name] = "서울시청"
+ *         it[category] = "GOVERNMENT"
+ *         it[properties] = mapOf("address" to "서울특별시 중구")
+ *     }
+ * }
+ * ```
  */
 object PoiTable : AuditableLongIdTable("poi") {
 

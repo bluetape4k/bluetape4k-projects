@@ -14,6 +14,14 @@ inline fun <T> ImageOutputStream.using(block: (ImageOutputStream) -> T): T =
 /**
  * Coroutines 환경에서 [ImageOutputStream]을 안전하게 사용하고 자동으로 닫습니다.
  *
+ * ```kotlin
+ * val ios: ImageOutputStream = ImageIO.createImageOutputStream(File("output.png"))
+ * ios.useSuspending { stream ->
+ *     ImageIO.write(image, "png", stream)
+ * }
+ * // output.png 파일에 이미지가 저장됨
+ * ```
+ *
  * @param block 출력 스트림을 사용하는 블록
  */
 suspend inline fun <T> ImageOutputStream.useSuspending(

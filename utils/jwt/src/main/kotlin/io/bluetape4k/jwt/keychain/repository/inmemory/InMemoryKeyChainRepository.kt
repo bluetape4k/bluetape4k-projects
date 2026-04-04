@@ -14,6 +14,14 @@ import java.util.concurrent.ConcurrentLinkedDeque
  * [KeyChain] 정보를 In memory에 저장하고, rotated key chain을 관리합니다.
  * 단 분산환경에서는 사용하지 못합니다.
  *
+ * ```kotlin
+ * val repository = InMemoryKeyChainRepository()
+ * val keyChain = KeyChain()
+ * repository.forcedRotate(keyChain)
+ * val current = repository.current()
+ * // current.id == keyChain.id
+ * ```
+ *
  * @property capacity  rotated key chain 의 최대 저장 갯수 (기본값은 DEFAULT_CAPACITY (10))
  */
 class InMemoryKeyChainRepository private constructor(

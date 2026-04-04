@@ -6,6 +6,16 @@ import java.io.Serializable
 /**
  * 도(Degree)와 분(Decimal Minutes)으로 좌표를 표현하는 클래스입니다.
  *
+ * ```kotlin
+ * val dm = DM(degree = 37, minute = 33.99)
+ * println(dm.degree) // 37
+ * println(dm.minute) // 33.99
+ *
+ * val a = DM(37, 30.0)
+ * val b = DM(37, 45.0)
+ * println(a < b) // true
+ * ```
+ *
  * @param degree 도 (정수 부분)
  * @param minute 분 (소수 포함)
  */

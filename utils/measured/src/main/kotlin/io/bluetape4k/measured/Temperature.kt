@@ -33,16 +33,45 @@ enum class TemperatureUnit(val suffix: String) {
  */
 @JvmInline
 value class TemperatureDelta(val kelvin: Double) {
-    /** Kelvin 온도 차이입니다. */
+    /**
+     * Kelvin 온도 차이입니다.
+     *
+     * ```kotlin
+     * val delta = 10.celsiusDelta()
+     * // delta.inKelvin() == 10.0
+     * ```
+     */
     fun inKelvin(): Double = kelvin
 
-    /** Celsius 온도 차이입니다. */
+    /**
+     * Celsius 온도 차이입니다.
+     *
+     * ```kotlin
+     * val delta = 10.kelvinDelta()
+     * // delta.inCelsius() == 10.0
+     * ```
+     */
     fun inCelsius(): Double = kelvin
 
-    /** Fahrenheit 온도 차이입니다. */
+    /**
+     * Fahrenheit 온도 차이입니다.
+     *
+     * ```kotlin
+     * val delta = 10.celsiusDelta()
+     * // delta.inFahrenheit() == 18.0
+     * ```
+     */
     fun inFahrenheit(): Double = kelvin * 9.0 / 5.0
 
-    /** 사람이 읽기 쉬운 형식으로 온도 차이를 반환합니다. */
+    /**
+     * 사람이 읽기 쉬운 형식으로 온도 차이를 반환합니다.
+     *
+     * ```kotlin
+     * val delta = 5.celsiusDelta()
+     * // delta.toHuman() == "5.0 °C"
+     * // delta.toHuman(TemperatureUnit.KELVIN) == "5.0 K"
+     * ```
+     */
     fun toHuman(unit: TemperatureUnit = TemperatureUnit.CELSIUS): String =
         when (unit) {
             TemperatureUnit.KELVIN     -> "${inKelvin()} ${TemperatureUnit.KELVIN.suffix}"
@@ -67,16 +96,45 @@ value class TemperatureDelta(val kelvin: Double) {
  * ```
  */
 class Temperature private constructor(private val kelvin: Double): Comparable<Temperature> {
-    /** Kelvin 온도로 변환합니다. */
+    /**
+     * Kelvin 온도로 변환합니다.
+     *
+     * ```kotlin
+     * val t = 25.celsius()
+     * // t.inKelvin() == 298.15
+     * ```
+     */
     fun inKelvin(): Double = kelvin
 
-    /** Celsius 온도로 변환합니다. */
+    /**
+     * Celsius 온도로 변환합니다.
+     *
+     * ```kotlin
+     * val t = 298.15.kelvin()
+     * // t.inCelsius() == 25.0
+     * ```
+     */
     fun inCelsius(): Double = kelvin - 273.15
 
-    /** Fahrenheit 온도로 변환합니다. */
+    /**
+     * Fahrenheit 온도로 변환합니다.
+     *
+     * ```kotlin
+     * val t = 100.celsius()
+     * // t.inFahrenheit() == 212.0
+     * ```
+     */
     fun inFahrenheit(): Double = (kelvin - 273.15) * 9.0 / 5.0 + 32.0
 
-    /** 지정 단위로 사람이 읽기 쉬운 문자열을 반환합니다. */
+    /**
+     * 지정 단위로 사람이 읽기 쉬운 문자열을 반환합니다.
+     *
+     * ```kotlin
+     * val t = 25.celsius()
+     * // t.toHuman() == "25.0 °C"
+     * // t.toHuman(TemperatureUnit.KELVIN) == "298.15 K"
+     * ```
+     */
     fun toHuman(unit: TemperatureUnit = TemperatureUnit.CELSIUS): String =
         when (unit) {
             TemperatureUnit.KELVIN     -> "${inKelvin()} ${TemperatureUnit.KELVIN.suffix}"
@@ -84,13 +142,34 @@ class Temperature private constructor(private val kelvin: Double): Comparable<Te
             TemperatureUnit.FAHRENHEIT -> "${inFahrenheit()} ${TemperatureUnit.FAHRENHEIT.suffix}"
         }
 
-    /** 온도 차이를 더합니다. */
+    /**
+     * 온도 차이를 더합니다.
+     *
+     * ```kotlin
+     * val t = 20.celsius() + 5.celsiusDelta()
+     * // t.inCelsius() == 25.0
+     * ```
+     */
     operator fun plus(delta: TemperatureDelta): Temperature = fromKelvin(kelvin + delta.kelvin)
 
-    /** 온도 차이를 뺍니다. */
+    /**
+     * 온도 차이를 뺍니다.
+     *
+     * ```kotlin
+     * val t = 20.celsius() - 5.celsiusDelta()
+     * // t.inCelsius() == 15.0
+     * ```
+     */
     operator fun minus(delta: TemperatureDelta): Temperature = fromKelvin(kelvin - delta.kelvin)
 
-    /** 두 절대 온도의 차이를 계산합니다. */
+    /**
+     * 두 절대 온도의 차이를 계산합니다.
+     *
+     * ```kotlin
+     * val delta = 30.celsius() - 20.celsius()
+     * // delta.inCelsius() == 10.0
+     * ```
+     */
     operator fun minus(other: Temperature): TemperatureDelta = TemperatureDelta(kelvin - other.kelvin)
 
     override fun compareTo(other: Temperature): Int = kelvin.compareTo(other.kelvin)
@@ -102,15 +181,36 @@ class Temperature private constructor(private val kelvin: Double): Comparable<Te
     override fun hashCode(): Int = kelvin.hashCode()
 
     companion object {
-        /** Kelvin 값으로 절대 온도를 생성합니다. */
+        /**
+         * Kelvin 값으로 절대 온도를 생성합니다.
+         *
+         * ```kotlin
+         * val t = Temperature.fromKelvin(273.15)
+         * // t.inCelsius() == 0.0
+         * ```
+         */
         @JvmStatic
         fun fromKelvin(value: Double): Temperature = Temperature(value)
 
-        /** Celsius 값으로 절대 온도를 생성합니다. */
+        /**
+         * Celsius 값으로 절대 온도를 생성합니다.
+         *
+         * ```kotlin
+         * val t = Temperature.fromCelsius(100.0)
+         * // t.inKelvin() == 373.15
+         * ```
+         */
         @JvmStatic
         fun fromCelsius(value: Double): Temperature = Temperature(value + 273.15)
 
-        /** Fahrenheit 값으로 절대 온도를 생성합니다. */
+        /**
+         * Fahrenheit 값으로 절대 온도를 생성합니다.
+         *
+         * ```kotlin
+         * val t = Temperature.fromFahrenheit(212.0)
+         * // t.inCelsius() == 100.0
+         * ```
+         */
         @JvmStatic
         fun fromFahrenheit(value: Double): Temperature = Temperature((value - 32.0) * 5.0 / 9.0 + 273.15)
     }
@@ -157,15 +257,33 @@ fun Number.fahrenheit(): Temperature = Temperature.fromFahrenheit(this.toDouble(
 
 /**
  * 숫자를 Kelvin 온도 차이로 변환합니다.
+ *
+ * ```kotlin
+ * val delta = 10.kelvinDelta()
+ * // delta.inKelvin() == 10.0
+ * // delta.inCelsius() == 10.0
+ * ```
  */
 fun Number.kelvinDelta(): TemperatureDelta = TemperatureDelta(this.toDouble())
 
 /**
  * 숫자를 Celsius 온도 차이로 변환합니다.
+ *
+ * ```kotlin
+ * val delta = 5.celsiusDelta()
+ * // delta.inKelvin() == 5.0
+ * // delta.inFahrenheit() == 9.0
+ * ```
  */
 fun Number.celsiusDelta(): TemperatureDelta = TemperatureDelta(this.toDouble())
 
 /**
  * 숫자를 Fahrenheit 온도 차이로 변환합니다.
+ *
+ * ```kotlin
+ * val delta = 18.fahrenheitDelta()
+ * // delta.inCelsius() == 10.0
+ * // delta.inKelvin() == 10.0
+ * ```
  */
 fun Number.fahrenheitDelta(): TemperatureDelta = TemperatureDelta(this.toDouble() * 5.0 / 9.0)

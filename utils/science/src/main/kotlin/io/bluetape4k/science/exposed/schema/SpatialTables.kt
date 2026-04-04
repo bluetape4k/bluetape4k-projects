@@ -9,6 +9,22 @@ import io.bluetape4k.exposed.postgresql.postgis.geoGeometry
  *
  * Shapefile 등 공간 데이터 소스를 레이어 단위로 관리하며,
  * 경계 사각형(bbox)과 레코드 수 등의 요약 정보를 포함합니다.
+ *
+ * ```kotlin
+ * // 레이어 삽입
+ * transaction {
+ *     SpatialLayerTable.insertAndGetId {
+ *         it[name] = "korea_regions"
+ *         it[srid] = 4326
+ *         it[geometryType] = "MultiPolygon"
+ *         it[bboxMinX] = 124.0
+ *         it[bboxMinY] = 33.0
+ *         it[bboxMaxX] = 131.0
+ *         it[bboxMaxY] = 38.9
+ *         it[recordCount] = 17
+ *     }
+ * }
+ * ```
  */
 object SpatialLayerTable : AuditableLongIdTable("spatial_layers") {
 
@@ -48,6 +64,17 @@ object SpatialLayerTable : AuditableLongIdTable("spatial_layers") {
  *
  * 각 피처는 하나의 [SpatialLayerTable] 레이어에 속하며,
  * PostGIS `GEOMETRY` 컬럼에 도형을 저장하고 속성은 JSONB로 관리합니다.
+ *
+ * ```kotlin
+ * // 피처 조회 예시
+ * transaction {
+ *     SpatialFeatureTable
+ *         .selectAll()
+ *         .where { SpatialFeatureTable.featureType eq "Point" }
+ *         .map { it[SpatialFeatureTable.name] }
+ *         .forEach { println(it) } // 예: "서울시청"
+ * }
+ * ```
  */
 object SpatialFeatureTable : AuditableLongIdTable("spatial_features") {
 

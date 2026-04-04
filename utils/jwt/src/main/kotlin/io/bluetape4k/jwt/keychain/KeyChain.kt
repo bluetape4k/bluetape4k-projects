@@ -64,11 +64,27 @@ class KeyChain private constructor(
         }
     }
 
-    /** 키체인 만료 시각(epoch millis)입니다. */
+    /**
+     * 키체인 만료 시각(epoch millis)입니다.
+     *
+     * ```kotlin
+     * val keyChain = KeyChain()
+     * val expiredAt = keyChain.expiredAt
+     * // expiredAt > System.currentTimeMillis()
+     * ```
+     */
     val expiredAt: Long
         get() = createdAt + expiredTtl
 
-    /** 현재 시각 기준 만료 여부입니다. */
+    /**
+     * 현재 시각 기준 만료 여부입니다.
+     *
+     * ```kotlin
+     * val keyChain = KeyChain()
+     * val expired = keyChain.isExpired
+     * // expired == false  (기본 TTL: 365일)
+     * ```
+     */
     val isExpired: Boolean
         get() = expiredTtl > 0 && expiredAt < System.currentTimeMillis()
 

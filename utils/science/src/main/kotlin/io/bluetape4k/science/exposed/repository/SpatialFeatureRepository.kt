@@ -20,6 +20,18 @@ import org.locationtech.jts.io.WKTWriter
  * [SpatialLayerTable] 기반 JDBC Repository 입니다.
  *
  * 공간 레이어 메타데이터를 조회/저장합니다.
+ *
+ * ```kotlin
+ * val repo = SpatialLayerRepository()
+ * transaction {
+ *     val layer = SpatialLayerRecord(name = "korea_regions", srid = 4326, recordCount = 17)
+ *     val saved = repo.save(layer)
+ *     println(saved.id) // 예: 1 (자동 생성)
+ *
+ *     val found = repo.findByName("korea_regions")
+ *     println(found?.name) // "korea_regions"
+ * }
+ * ```
  */
 class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
 
@@ -44,6 +56,16 @@ class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
     /**
      * 공간 레이어 레코드를 저장하고, 생성된 ID가 포함된 레코드를 반환합니다.
      *
+     * ```kotlin
+     * val repo = SpatialLayerRepository()
+     * transaction {
+     *     val layer = SpatialLayerRecord(name = "seoul_districts", srid = 4326)
+     *     val saved = repo.save(layer)
+     *     println(saved.id)   // 예: 1 (자동 생성)
+     *     println(saved.name) // "seoul_districts"
+     * }
+     * ```
+     *
      * @param record 저장할 레이어 레코드
      * @return 생성된 ID가 설정된 [SpatialLayerRecord]
      */
@@ -66,6 +88,16 @@ class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
     /**
      * 레이어 이름으로 조회합니다.
      *
+     * ```kotlin
+     * val repo = SpatialLayerRepository()
+     * transaction {
+     *     val found = repo.findByName("korea_regions")
+     *     println(found?.name)        // "korea_regions"
+     *     println(found?.recordCount) // 예: 17
+     *     println(repo.findByName("nonexistent")) // null
+     * }
+     * ```
+     *
      * @param layerName 레이어 이름
      * @return 레이어 레코드 또는 null
      */
@@ -82,6 +114,22 @@ class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
  * [SpatialFeatureTable] 기반 JDBC Repository 입니다.
  *
  * 공간 피처(도형 + 속성)를 조회/저장합니다.
+ *
+ * ```kotlin
+ * val layerRepo = SpatialLayerRepository()
+ * val featureRepo = SpatialFeatureRepository()
+ * transaction {
+ *     val layer = layerRepo.save(SpatialLayerRecord(name = "poi", srid = 4326))
+ *     val gf = GeometryFactory()
+ *     val point = gf.createPoint(Coordinate(126.9780, 37.5665))
+ *     val feature = SpatialFeatureRecord(
+ *         layerId = layer.id, featureType = "Point",
+ *         geom = point, name = "서울시청"
+ *     )
+ *     val saved = featureRepo.save(feature)
+ *     println(saved.id) // 예: 1 (자동 생성)
+ * }
+ * ```
  */
 class SpatialFeatureRepository : LongJdbcRepository<SpatialFeatureRecord> {
 
@@ -123,6 +171,20 @@ class SpatialFeatureRepository : LongJdbcRepository<SpatialFeatureRecord> {
 
     /**
      * 공간 피처 레코드를 저장하고, 생성된 ID가 포함된 레코드를 반환합니다.
+     *
+     * ```kotlin
+     * val repo = SpatialFeatureRepository()
+     * transaction {
+     *     val gf = GeometryFactory()
+     *     val point = gf.createPoint(Coordinate(126.9780, 37.5665))
+     *     val feature = SpatialFeatureRecord(
+     *         layerId = 1L, featureType = "Point", geom = point
+     *     )
+     *     val saved = repo.save(feature)
+     *     println(saved.id)          // 예: 1 (자동 생성)
+     *     println(saved.featureType) // "Point"
+     * }
+     * ```
      *
      * @param record 저장할 피처 레코드
      * @return 생성된 ID가 설정된 [SpatialFeatureRecord]

@@ -39,6 +39,18 @@ class LocalSuspendLeaderGroupElection private constructor(
 ): SuspendLeaderGroupElection {
 
     companion object: KLogging() {
+        /**
+         * [LeaderGroupElectionOptions]을 이용해 [LocalSuspendLeaderGroupElection] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val election = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+         * val result = election.runIfLeader("batch-job") { "done" }
+         * // result == "done"
+         * ```
+         *
+         * @param options 리더 그룹 선출 옵션. 기본값은 [LeaderGroupElectionOptions.Default]
+         * @return [LocalSuspendLeaderGroupElection] 인스턴스
+         */
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): LocalSuspendLeaderGroupElection =
@@ -60,18 +72,47 @@ class LocalSuspendLeaderGroupElection private constructor(
      * [lockName]에 대해 현재 활성(실행 중인) 리더 수를 반환합니다.
      *
      * `maxLeaders - availablePermits`로 계산하므로 근사값입니다.
+     *
+     * ```kotlin
+     * val election = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val count = election.activeCount("batch-job")
+     * // count == 0  (아무도 실행 중이 아닐 때)
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 현재 활성 리더 수 (근사값)
      */
     override fun activeCount(lockName: String): Int =
         maxLeaders - getSemaphore(lockName).availablePermits
 
     /**
      * [lockName]에 대해 새 리더를 수용할 수 있는 남은 슬롯 수를 반환합니다.
+     *
+     * ```kotlin
+     * val election = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val slots = election.availableSlots("batch-job")
+     * // slots == 3  (아무도 실행 중이 아닐 때)
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 사용 가능한 슬롯 수 (근사값)
      */
     override fun availableSlots(lockName: String): Int =
         getSemaphore(lockName).availablePermits
 
     /**
      * [lockName]에 대한 현재 [LeaderGroupState] 스냅샷을 반환합니다.
+     *
+     * ```kotlin
+     * val election = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val state = election.state("batch-job")
+     * // state.maxLeaders == 3
+     * // state.activeCount == 0
+     * // state.isEmpty == true
+     * ```
+     *
+     * @param lockName 조회할 락 이름
+     * @return 현재 리더 그룹 상태 스냅샷
      */
     override fun state(lockName: String): LeaderGroupState =
         LeaderGroupState(lockName, maxLeaders, activeCount(lockName))
@@ -81,6 +122,12 @@ class LocalSuspendLeaderGroupElection private constructor(
      *
      * - 슬롯이 가득 찬 경우 빈 슬롯이 생길 때까지 코루틴이 suspend됩니다.
      * - [action] 예외 발생 시에도 슬롯은 반드시 반환됩니다.
+     *
+     * ```kotlin
+     * val election = LocalSuspendLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val result = election.runIfLeader("batch-job") { "done" }
+     * // result == "done"
+     * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param action 슬롯 획득 성공 시 실행할 suspend 작업

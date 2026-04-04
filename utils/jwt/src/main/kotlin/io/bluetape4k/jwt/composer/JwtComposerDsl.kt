@@ -70,6 +70,14 @@ class JwtComposerDsl(keyChain: KeyChain) {
 
     /**
      * 발급 시각을 현재 시각으로 설정합니다.
+     *
+     * ```kotlin
+     * val jwt = composeJwt(KeyChain()) {
+     *     issuedAtNow()
+     *     expirationAfterMinutes = 60
+     * }
+     * // jwt.isNotBlank() == true
+     * ```
      */
     fun issuedAtNow() = apply {
         composer.issuedAtNow()
@@ -80,6 +88,14 @@ class JwtComposerDsl(keyChain: KeyChain) {
 
     /**
      * JWT Header 를 추가합니다.
+     *
+     * ```kotlin
+     * val jwt = composeJwt(KeyChain()) {
+     *     header("x-author", "debop")
+     *     expirationAfterMinutes = 60
+     * }
+     * // provider.parse(jwt).header<String>("x-author") == "debop"
+     * ```
      *
      * @param key  Header Key
      * @param value Header value
@@ -93,6 +109,15 @@ class JwtComposerDsl(keyChain: KeyChain) {
 
     /**
      * JWT Claim 을 추가합니다.
+     *
+     * ```kotlin
+     * val jwt = composeJwt(KeyChain()) {
+     *     claim("userId", "alice")
+     *     claim("role", "admin")
+     *     expirationAfterMinutes = 60
+     * }
+     * // provider.parse(jwt).claim<String>("userId") == "alice"
+     * ```
      *
      * @param name claim name
      * @param value claim value
@@ -112,6 +137,16 @@ class JwtComposerDsl(keyChain: KeyChain) {
 
     /**
      * DSL 설정을 반영하여 JWT 문자열을 생성합니다.
+     *
+     * ```kotlin
+     * val dsl = JwtComposerDsl(KeyChain()).apply {
+     *     subject = "alice"
+     *     issuer = "bluetape4k"
+     *     expirationAfterMinutes = 60
+     * }
+     * val jwt = dsl.compose()
+     * // jwt.count { it == '.' } == 2
+     * ```
      *
      * @return 생성된 JWT 문자열
      */

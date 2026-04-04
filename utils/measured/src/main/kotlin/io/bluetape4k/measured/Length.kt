@@ -32,16 +32,31 @@ open class Length(
 
 /**
  * 숫자를 밀리미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 500.millimeters()
+ * // value `in` Length.meters == 0.5
+ * ```
  */
 fun Number.millimeters(): Measure<Length> = this * Length.millimeters
 
 /**
  * 숫자를 센티미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 100.centimeters()
+ * // value `in` Length.meters == 1.0
+ * ```
  */
 fun Number.centimeters(): Measure<Length> = this * Length.centimeters
 
 /**
  * 숫자를 미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.meters()
+ * // value `in` Length.kilometers == 0.001
+ * ```
  */
 fun Number.meters(): Measure<Length> = this * Length.meters
 
@@ -60,15 +75,30 @@ fun Number.kilometers(): Measure<Length> = this * Length.kilometers
 
 /**
  * 숫자를 인치 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.inches()
+ * // value `in` Length.centimeters == 2.54
+ * ```
  */
 fun Number.inches(): Measure<Length> = this * Length.inches
 
 /**
  * 숫자를 피트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.feet()
+ * // value `in` Length.centimeters == 30.48
+ * ```
  */
 fun Number.feet(): Measure<Length> = this * Length.feet
 
 /**
  * 숫자를 마일 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.miles()
+ * // value `in` Length.kilometers == 1.609344
+ * ```
  */
 fun Number.miles(): Measure<Length> = this * Length.miles

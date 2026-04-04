@@ -23,6 +23,16 @@ import java.util.concurrent.TimeUnit
  * JWT 파싱된 정보[JwtReader]를 Redis에 캐싱하여 반복적인 Parsing 시간을 절약합니다.
  * Redisson의 경우 캐시 엔트리의 유효기간을 따로 설정할 수 있습니다.
  *
+ * ```kotlin
+ * val delegate = JwtProviderFactory.default()
+ * val redisson: RedissonClient = // ...
+ * val provider = RedissonJwtProvider(delegate, redisson)
+ * val jwt = delegate.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+ * val reader = provider.tryParse(jwt)
+ * // reader != null
+ * // reader!!.claim<String>("userId") == "alice"
+ * ```
+ *
  * @property cache Redisson [RMapCache] 인스턴스
  * @property ttl   캐시 엔트리의 유효기간 (기본값: 3일)
  * @property delegate [JwtProvider] 인스턴스

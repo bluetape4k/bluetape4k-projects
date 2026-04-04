@@ -48,45 +48,90 @@ open class BinarySize(
 
 /**
  * 숫자를 byte 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1000.binaryBytes()
+ * // value `in` BinarySize.kiloBytes == 1.0
+ * ```
  */
 fun Number.binaryBytes(): Measure<BinarySize> = this * BinarySize.bytes
 
 /**
  * 숫자를 kilobyte(10진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kilobytes10()
+ * // value `in` BinarySize.bytes == 1000.0
+ * ```
  */
 fun Number.kilobytes10(): Measure<BinarySize> = this * BinarySize.kiloBytes
 
 /**
  * 숫자를 megabyte(10진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.megabytes10()
+ * // value `in` BinarySize.kiloBytes == 1000.0
+ * ```
  */
 fun Number.megabytes10(): Measure<BinarySize> = this * BinarySize.megaBytes
 
 /**
  * 숫자를 gigabyte(10진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.gigabytes10()
+ * // value `in` BinarySize.megaBytes == 1000.0
+ * ```
  */
 fun Number.gigabytes10(): Measure<BinarySize> = this * BinarySize.gigaBytes
 
 /**
  * 숫자를 kibibyte(2진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kibiBytes()
+ * // value `in` BinarySize.bytes == 1024.0
+ * ```
  */
 fun Number.kibiBytes(): Measure<BinarySize> = this * BinarySize.kibiBytes
 
 /**
  * 숫자를 mebibyte(2진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.mebiBytes()
+ * // value `in` BinarySize.kibiBytes == 1024.0
+ * ```
  */
 fun Number.mebiBytes(): Measure<BinarySize> = this * BinarySize.mebiBytes
 
 /**
  * 숫자를 gibibyte(2진) 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.gibiBytes()
+ * // value `in` BinarySize.mebiBytes == 1024.0
+ * ```
  */
 fun Number.gibiBytes(): Measure<BinarySize> = this * BinarySize.gibiBytes
 
 /**
  * 숫자를 bit 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 8.bits()
+ * // value `in` BinarySize.bytes == 1.0
+ * ```
  */
 fun Number.bits(): Measure<BinarySize> = this * BinarySize.bits
 
 /**
  * 숫자를 kilobit 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kiloBits()
+ * // value `in` BinarySize.bits == 1000.0
+ * ```
  */
 fun Number.kiloBits(): Measure<BinarySize> = this * BinarySize.kiloBits

@@ -27,6 +27,15 @@ abstract class AbstractJwtProvider: JwtProvider {
     /**
      * [JwtComposer]를 생성합니다.
      *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val composer = provider.composer()
+     * composer.claim("userId", "alice")
+     * composer.expirationAfterMinutes(60L)
+     * val jwt = composer.compose()
+     * // jwt.isNotBlank() == true
+     * ```
+     *
      * @param keyChain 사용할 키체인. `null`이면 [currentKeyChain]을 사용합니다.
      * @return [JwtComposer] 인스턴스
      */
@@ -38,6 +47,17 @@ abstract class AbstractJwtProvider: JwtProvider {
 
     /**
      * DSL 블록으로 JWT 문자열을 생성합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose {
+     *     subject = "alice"
+     *     issuer = "bluetape4k"
+     *     claim("role", "admin")
+     *     expirationAfterMinutes = 60
+     * }
+     * // jwt.count { it == '.' } == 2
+     * ```
      *
      * @param keyChain 사용할 키체인. `null`이면 [currentKeyChain]을 사용합니다.
      * @param builder JWT 구성 DSL 블록

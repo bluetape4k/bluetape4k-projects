@@ -29,26 +29,51 @@ open class Volume(
 
 /**
  * 숫자를 세제곱밀리미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1_000_000_000.cubicMillimeters()
+ * // value `in` Volume.cubicMeters == 1.0
+ * ```
  */
 fun Number.cubicMillimeters(): Measure<Volume> = this * Volume.cubicMillimeters
 
 /**
  * 숫자를 세제곱센티미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1000.cubicCentimeters()
+ * // value `in` Volume.liters == 1.0
+ * ```
  */
 fun Number.cubicCentimeters(): Measure<Volume> = this * Volume.cubicCentimeters
 
 /**
  * 숫자를 밀리리터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1000.milliliters()
+ * // value `in` Volume.liters == 1.0
+ * ```
  */
 fun Number.milliliters(): Measure<Volume> = this * Volume.milliliters
 
 /**
  * 숫자를 리터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 2.liters()
+ * // value `in` Volume.milliliters == 2000.0
+ * ```
  */
 fun Number.liters(): Measure<Volume> = this * Volume.liters
 
 /**
  * 숫자를 세제곱미터 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.cubicMeters()
+ * // value `in` Volume.liters == 1000.0
+ * ```
  */
 fun Number.cubicMeters(): Measure<Volume> = this * Volume.cubicMeters
 
@@ -69,6 +94,14 @@ operator fun Measure<Area>.times(other: Measure<Length>): Measure<Volume> =
 
 /**
  * 길이와 면적을 곱해 부피를 계산합니다.
+ *
+ * ## 동작/계약
+ * - 길이(`m`)와 면적(`m^2`)을 곱해 `m^3`를 반환합니다.
+ *
+ * ```kotlin
+ * val volume = 2.meters() * 10.meters2()
+ * // volume `in` Volume.cubicMeters == 20.0
+ * ```
  */
 @JvmName("lengthTimesAreaToVolume")
 operator fun Measure<Length>.times(other: Measure<Area>): Measure<Volume> = other * this
@@ -90,6 +123,14 @@ operator fun Measure<Volume>.div(other: Measure<Area>): Measure<Length> =
 
 /**
  * 부피를 길이로 나눠 면적을 계산합니다.
+ *
+ * ## 동작/계약
+ * - `m^3 / m = m^2` 규칙으로 면적을 복원합니다.
+ *
+ * ```kotlin
+ * val area = 20.cubicMeters() / 4.meters()
+ * // area `in` Area.meters2 == 5.0
+ * ```
  */
 @JvmName("volumeDivLengthToArea")
 operator fun Measure<Volume>.div(other: Measure<Length>): Measure<Area> =

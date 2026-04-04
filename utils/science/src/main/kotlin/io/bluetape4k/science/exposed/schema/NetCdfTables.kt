@@ -12,6 +12,23 @@ import org.jetbrains.exposed.v1.javatime.timestamp
  * NetCDF 파일 메타데이터를 저장하는 Exposed 테이블입니다.
  *
  * 파일 경로, 크기, 변수/차원 정보, 전역 속성, 시공간 범위 등을 관리합니다.
+ *
+ * ```kotlin
+ * // 테이블 생성
+ * SchemaUtils.create(NetCdfFileTable)
+ *
+ * // 레코드 삽입
+ * transaction {
+ *     NetCdfFileTable.insertAndGetId {
+ *         it[filename] = "era5_2023.nc"
+ *         it[filePath] = "/data/era5_2023.nc"
+ *         it[fileSize] = 104_857_600L
+ *         it[variables] = emptyList()
+ *         it[dimensions] = mapOf("time" to 24, "lat" to 90, "lon" to 180)
+ *         it[globalAttrs] = mapOf("source" to "ERA5")
+ *     }
+ * }
+ * ```
  */
 object NetCdfFileTable : AuditableLongIdTable("netcdf_files") {
 
@@ -48,6 +65,19 @@ object NetCdfFileTable : AuditableLongIdTable("netcdf_files") {
  *
  * 각 행은 특정 파일의 특정 변수에 대한 하나의 격자 셀 값을 나타냅니다.
  * 감사(Auditable) 컬럼은 필요하지 않으므로 일반 [LongIdTable]을 사용합니다.
+ *
+ * ```kotlin
+ * // 격자 값 삽입
+ * transaction {
+ *     NetCdfGridValueTable.insert {
+ *         it[fileId] = fileRecord.id
+ *         it[variableName] = "temperature"
+ *         it[timeIdx] = 0
+ *         it[levelIdx] = 0
+ *         it[value] = 293.15  // 20°C in Kelvin
+ *     }
+ * }
+ * ```
  */
 object NetCdfGridValueTable : LongIdTable("netcdf_grid_values") {
 

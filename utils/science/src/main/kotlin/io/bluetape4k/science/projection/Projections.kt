@@ -22,6 +22,14 @@ private fun UtmZone.southernHemisphereSuffix(): String =
 /**
  * UTM 좌표(easting, northing)를 WGS84 위경도 [GeoLocation]으로 변환합니다.
  *
+ * ```kotlin
+ * val zone = UtmZone(52, 'S')
+ * // 서울의 UTM Zone 52S 좌표 (approx)
+ * val location = utmToWgs84(easting = 316_673.0, northing = 4_161_629.0, utmZone = zone)
+ * println(location.latitude)  // 약 37.5665
+ * println(location.longitude) // 약 126.9780
+ * ```
+ *
  * @param easting  UTM Easting (미터)
  * @param northing UTM Northing (미터)
  * @param utmZone  변환할 UTM Zone
@@ -44,6 +52,13 @@ fun utmToWgs84(easting: Double, northing: Double, utmZone: UtmZone): GeoLocation
 /**
  * WGS84 위경도 [GeoLocation]을 UTM 좌표(easting, northing)로 변환합니다.
  *
+ * ```kotlin
+ * val seoul = GeoLocation(37.5665, 126.9780)
+ * val (easting, northing) = wgs84ToUtm(seoul)
+ * println(easting)  // 약 316_673.0 (미터)
+ * println(northing) // 약 4_161_629.0 (미터)
+ * ```
+ *
  * @param location WGS84 위경도 좌표
  * @return Pair(easting, northing) — UTM 좌표 (미터)
  */
@@ -64,6 +79,13 @@ fun wgs84ToUtm(location: GeoLocation): Pair<Double, Double> {
 
 /**
  * 소스 CRS에서 대상 CRS로 좌표를 변환합니다.
+ *
+ * ```kotlin
+ * // WGS84(EPSG:4326) → UTM Zone 52N(EPSG:32652)
+ * val (x, y) = transform("EPSG:4326", "EPSG:32652", lon = 126.9780, lat = 37.5665)
+ * println(x) // 약 316_673.0 (easting, 미터)
+ * println(y) // 약 4_161_629.0 (northing, 미터)
+ * ```
  *
  * @param sourceCrs 소스 좌표계 EPSG 코드 (예: "EPSG:4326")
  * @param targetCrs 대상 좌표계 EPSG 코드 (예: "EPSG:32652")

@@ -55,51 +55,101 @@ open class Power(
 
 /**
  * 숫자를 줄 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 3600.joules()
+ * // value `in` Energy.wattHours == 1.0
+ * ```
  */
 fun Number.joules(): Measure<Energy> = this * Energy.joules
 
 /**
  * 숫자를 킬로줄 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kiloJoules()
+ * // value `in` Energy.joules == 1000.0
+ * ```
  */
 fun Number.kiloJoules(): Measure<Energy> = this * Energy.kiloJoules
 
 /**
  * 숫자를 메가줄 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.megaJoules()
+ * // value `in` Energy.kiloJoules == 1000.0
+ * ```
  */
 fun Number.megaJoules(): Measure<Energy> = this * Energy.megaJoules
 
 /**
  * 숫자를 와트시 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.wattHours()
+ * // value `in` Energy.joules == 3600.0
+ * ```
  */
 fun Number.wattHours(): Measure<Energy> = this * Energy.wattHours
 
 /**
  * 숫자를 킬로와트시 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kiloWattHours()
+ * // value `in` Energy.joules == 3600000.0
+ * ```
  */
 fun Number.kiloWattHours(): Measure<Energy> = this * Energy.kiloWattHours
 
 /**
  * 숫자를 와트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1000.watts()
+ * // value `in` Power.kiloWatts == 1.0
+ * ```
  */
 fun Number.watts(): Measure<Power> = this * Power.watts
 
 /**
  * 숫자를 밀리와트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1000.milliWatts()
+ * // value `in` Power.watts == 1.0
+ * ```
  */
 fun Number.milliWatts(): Measure<Power> = this * Power.milliWatts
 
 /**
  * 숫자를 킬로와트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.kiloWatts()
+ * // value `in` Power.watts == 1000.0
+ * ```
  */
 fun Number.kiloWatts(): Measure<Power> = this * Power.kiloWatts
 
 /**
  * 숫자를 메가와트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.megaWatts()
+ * // value `in` Power.kiloWatts == 1000.0
+ * ```
  */
 fun Number.megaWatts(): Measure<Power> = this * Power.megaWatts
 
 /**
  * 숫자를 기가와트 단위 측정값으로 변환합니다.
+ *
+ * ```kotlin
+ * val value = 1.gigaWatts()
+ * // value `in` Power.megaWatts == 1000.0
+ * ```
  */
 fun Number.gigaWatts(): Measure<Power> = this * Power.gigaWatts
 
@@ -120,6 +170,14 @@ operator fun Measure<Power>.times(other: Measure<Time>): Measure<Energy> =
 
 /**
  * 시간과 전력을 곱해 에너지를 계산합니다.
+ *
+ * ## 동작/계약
+ * - `s * W = J` 규칙으로 계산해 [Energy.joules] 단위로 반환합니다.
+ *
+ * ```kotlin
+ * val energy = 3.hours() * 2.kiloWatts()
+ * // energy `in` Energy.kiloWattHours == 6.0
+ * ```
  */
 @JvmName("timeTimesPowerToEnergy")
 operator fun Measure<Time>.times(other: Measure<Power>): Measure<Energy> = other * this

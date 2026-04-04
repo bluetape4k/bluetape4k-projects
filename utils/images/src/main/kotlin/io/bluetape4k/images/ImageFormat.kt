@@ -27,6 +27,15 @@ enum class ImageFormat {
          * ## 동작/계약
          * - 앞뒤 공백을 제거한 뒤 enum 이름과 대소문자 무시 비교합니다.
          * - 매칭 실패 시 `null`을 반환합니다.
+         *
+         * ```kotlin
+         * val png = ImageFormat.parse("PNG")
+         * // png == ImageFormat.PNG
+         * val jpg = ImageFormat.parse("jpg")
+         * // jpg == ImageFormat.JPG
+         * val unknown = ImageFormat.parse("tiff")
+         * // unknown == null
+         * ```
          */
         @JvmStatic
         fun parse(formatName: String): ImageFormat? {

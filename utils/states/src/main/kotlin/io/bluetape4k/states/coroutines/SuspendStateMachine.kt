@@ -57,6 +57,24 @@ class SuspendStateMachine<S : Any, E : Any>(
     override val currentState: S
         get() = _stateFlow.value
 
+    /**
+     * 주어진 이벤트로 상태 전이를 수행합니다 (suspend).
+     *
+     * ```kotlin
+     * val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
+     *     initialState = AppointmentState.PENDING
+     *     finalStates = setOf(AppointmentState.COMPLETED)
+     *     transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
+     * }
+     * val result = fsm.transition(AppointmentEvent.Request())
+     * // result.previousState == AppointmentState.PENDING
+     * // result.currentState == AppointmentState.REQUESTED
+     * ```
+     *
+     * @param event 전이를 발생시킬 이벤트
+     * @return 전이 결과 ([TransitionResult])
+     * @throws StateMachineException 허용되지 않는 전이이거나 guard 조건 실패 시
+     */
     override suspend fun transition(event: E): TransitionResult<S, E> = mutex.withLock {
         val previous = _stateFlow.value
 
@@ -91,12 +109,44 @@ class SuspendStateMachine<S : Any, E : Any>(
         )
     }
 
+    /**
+     * 현재 상태에서 주어진 이벤트로 전이 가능한지 확인합니다.
+     *
+     * ```kotlin
+     * val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
+     *     initialState = AppointmentState.PENDING
+     *     finalStates = setOf(AppointmentState.COMPLETED)
+     *     transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
+     * }
+     * fsm.canTransition(AppointmentEvent.Request())  // true
+     * fsm.canTransition(AppointmentEvent.Cancel())   // false
+     * ```
+     *
+     * @param event 확인할 이벤트
+     * @return 전이 가능하면 true, 등록되지 않은 전이이거나 guard 조건 실패 시 false
+     */
     override fun canTransition(event: E): Boolean {
         val key = TransitionKey(currentState, event::class.java)
         val target = transitions[key] ?: return false
         return target.guard?.invoke(currentState, event) ?: true
     }
 
+    /**
+     * 현재 상태에서 허용된 이벤트 클래스 목록을 반환합니다.
+     *
+     * ```kotlin
+     * val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
+     *     initialState = AppointmentState.PENDING
+     *     finalStates = setOf(AppointmentState.COMPLETED)
+     *     transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
+     *     transition(AppointmentState.PENDING, on<AppointmentEvent.Cancel>(), to = AppointmentState.CANCELLED)
+     * }
+     * val events = fsm.allowedEvents()
+     * // events == setOf(AppointmentEvent.Request::class.java, AppointmentEvent.Cancel::class.java)
+     * ```
+     *
+     * @return 현재 상태에서 허용된 이벤트 클래스 집합
+     */
     override fun allowedEvents(): Set<Class<out E>> {
         return transitions.keys
             .filter { it.state == currentState }

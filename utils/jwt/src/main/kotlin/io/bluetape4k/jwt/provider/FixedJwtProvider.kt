@@ -25,6 +25,14 @@ class FixedJwtProvider private constructor(
         /**
          * [FixedJwtProvider] 인스턴스를 생성합니다.
          *
+         * ```kotlin
+         * val provider = FixedJwtProvider(kid = "fixed-key")
+         * val jwt = provider.compose { subject = "alice"; expirationAfterMinutes = 60 }
+         * val reader = provider.parse(jwt)
+         * // reader.subject == "alice"
+         * // reader.kid == "fixed-key"
+         * ```
+         *
          * @param signatureAlgorithm 서명 알고리즘 (기본: RS256)
          * @param keyPair 서명에 사용할 키쌍
          * @param kid 키체인 식별자

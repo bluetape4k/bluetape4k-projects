@@ -30,6 +30,13 @@ data class KeyChainDto(
 
 /**
  * [KeyChain]을 [KeyChainDto]로 변환합니다.
+ *
+ * ```kotlin
+ * val keyChain = KeyChain()
+ * val dto = keyChain.toDto()
+ * // dto.algorithmName == "RS256"
+ * // dto.id == keyChain.id
+ * ```
  */
 fun KeyChain.toDto(): KeyChainDto =
     KeyChainDto(
@@ -44,6 +51,14 @@ fun KeyChain.toDto(): KeyChainDto =
 
 /**
  * [KeyChainDto]를 [KeyChain]으로 변환합니다.
+ *
+ * ```kotlin
+ * val keyChain = KeyChain()
+ * val dto = keyChain.toDto()
+ * val restored = dto.toKeyChain()
+ * // restored == keyChain
+ * // restored.algorithm.id == "RS256"
+ * ```
  */
 fun KeyChainDto.toKeyChain(): KeyChain =
     KeyChain(

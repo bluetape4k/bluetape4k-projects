@@ -8,6 +8,18 @@ import java.io.Serializable
 /**
  * Shapefile 헤더 정보를 담는 데이터 클래스입니다.
  *
+ * ```kotlin
+ * val header = ShapeHeader(
+ *     fileCode = 9994,
+ *     fileLength = 1024,
+ *     version = 1000,
+ *     shapeType = 1,
+ *     bbox = BoundingBox(minLat = 33.0, minLon = 124.0, maxLat = 38.9, maxLon = 131.0)
+ * )
+ * println(header.fileCode)  // 9994
+ * println(header.shapeType) // 1 (Point)
+ * ```
+ *
  * @param fileCode   파일 코드 (보통 9994)
  * @param fileLength 파일 길이 (16비트 워드 단위)
  * @param version    버전 (보통 1000)
@@ -29,6 +41,13 @@ data class ShapeHeader(
 
 /**
  * Shapefile의 DBF 속성 필드 정의를 담는 데이터 클래스입니다.
+ *
+ * ```kotlin
+ * val attr = ShapeAttribute(name = "NAME", type = 'C', length = 80, decimal = 0)
+ * println(attr.name)   // "NAME"
+ * println(attr.type)   // C (문자열 타입)
+ * println(attr.length) // 80
+ * ```
  *
  * @param name    필드 이름
  * @param type    필드 유형 문자 (C=문자, N=숫자, D=날짜, L=논리 등)
@@ -66,6 +85,14 @@ data class ShapeRecord(
 
 /**
  * Shapefile 전체 데이터(헤더, 레코드 목록, 속성 정의)를 담는 클래스입니다.
+ *
+ * ```kotlin
+ * val shape = loadShape(File("regions.shp"))
+ * println(shape.size)    // 레코드 수 (예: 250)
+ * println(shape.isEmpty) // false
+ * val nameAttr = shape.attributes.firstOrNull { it.name == "NAME" }
+ * println(nameAttr?.type) // C
+ * ```
  *
  * @param header     Shapefile 헤더
  * @param records    레코드 목록

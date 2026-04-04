@@ -34,25 +34,89 @@ interface JwtProvider {
      *
      * ## 동작/계약
      * - 기본 구현은 [KeyChain] 생성자를 그대로 위임합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val keyChain = provider.createKeyChain()
+     * // keyChain.algorithm.id == "RS256"
+     * // keyChain.id.isNotBlank() == true
+     * ```
      */
     fun createKeyChain(): KeyChain = KeyChain(signatureAlgorithm)
 
-    /** 현재 서명에 사용하는 키체인을 반환합니다. */
+    /**
+     * 현재 서명에 사용하는 키체인을 반환합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val current = provider.currentKeyChain()
+     * // current.id.isNotBlank() == true
+     * ```
+     */
     fun currentKeyChain(): KeyChain
 
-    /** 저장소 정책에 따라 키체인 회전을 수행합니다. */
+    /**
+     * 저장소 정책에 따라 키체인 회전을 수행합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val rotated = provider.rotate()
+     * // rotated == true || rotated == false
+     * ```
+     */
     fun rotate(): Boolean
 
-    /** 현재 키체인을 강제로 교체합니다. */
+    /**
+     * 현재 키체인을 강제로 교체합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val rotated = provider.forcedRotate()
+     * // rotated == true
+     * ```
+     */
     fun forcedRotate(): Boolean
 
-    /** `kid`로 키체인을 조회합니다. */
+    /**
+     * `kid`로 키체인을 조회합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val current = provider.currentKeyChain()
+     * val found = provider.findKeyChain(current.id)
+     * // found != null
+     * val notFound = provider.findKeyChain("unknown-kid")
+     * // notFound == null
+     * ```
+     */
     fun findKeyChain(kid: String): KeyChain?
 
-    /** JWT 조합기 객체를 생성합니다. */
+    /**
+     * JWT 조합기 객체를 생성합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val composer = provider.composer()
+     * composer.subject("alice").expirationAfterMinutes(60L)
+     * val jwt = composer.compose()
+     * // jwt.isNotBlank() == true
+     * ```
+     */
     fun composer(keyChain: KeyChain? = null): JwtComposer
 
-    /** DSL로 JWT를 구성해 문자열을 반환합니다. */
+    /**
+     * DSL로 JWT를 구성해 문자열을 반환합니다.
+     *
+     * ```kotlin
+     * val provider = JwtProviderFactory.default()
+     * val jwt = provider.compose {
+     *     subject = "alice"
+     *     claim("role", "user")
+     *     expirationAfterMinutes = 30
+     * }
+     * // provider.parse(jwt).subject == "alice"
+     * ```
+     */
     fun compose(keyChain: KeyChain? = null, builder: JwtComposerDsl.() -> Unit): String
 
     /**

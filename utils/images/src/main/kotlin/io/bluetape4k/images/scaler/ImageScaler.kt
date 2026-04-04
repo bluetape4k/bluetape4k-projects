@@ -9,9 +9,13 @@ import java.awt.image.BufferedImage
 /**
  * 이미지를 지정된 [width], [height] 크기로 Scaling 한다
  *
- * ```
- * val scaled = image.scale(100, 100)
- * val proportionalScaled = image.scale(100, 100, proportional = true)
+ * ```kotlin
+ * val image = bufferedImageOf(800, 600)
+ * val scaled = image.scale(400, 300)
+ * // scaled.width == 400
+ * // scaled.height == 300
+ * val proportionalScaled = image.scale(400, 400, proportional = true)
+ * // proportionalScaled.width == 400 (비율 유지)
  * ```
  *
  * @param width        Scaled image의 width
@@ -33,8 +37,11 @@ fun BufferedImage.scale(width: Int, height: Int, proportional: Boolean = true): 
 /**
  * 원본 이미지를 [ratio] 만큼 scaling 을 수행합니다.
  *
- * ```
+ * ```kotlin
+ * val image = bufferedImageOf(800, 600)
  * val scaled = image.scale(0.5)
+ * // scaled.width == 400
+ * // scaled.height == 300
  * ```
  *
  * @param ratio scaling 할 비율
@@ -54,8 +61,11 @@ fun BufferedImage.scale(ratio: Double): BufferedImage {
 /**
  * 이미지를 [xScale], [yScale] 비율에 따라 Scaling 한다
  *
- * ```
- * val scaled = image.scale(0.5, 0.5)
+ * ```kotlin
+ * val image = bufferedImageOf(800, 600)
+ * val scaled = image.scale(0.5, 0.75)
+ * // scaled.width == 400
+ * // scaled.height == 450
  * ```
  *
  * @param xScale x 축에 대한 scaling 비율

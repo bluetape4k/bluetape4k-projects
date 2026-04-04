@@ -32,31 +32,80 @@ open class Angle(
             override val spaceBetweenMagnitude: Boolean = false
         }
 
-        /** 사인 함수를 수행합니다. */
+        /**
+         * 사인 함수를 수행합니다.
+         *
+         * ```kotlin
+         * val result = Angle.sin(90.degrees())
+         * // result == 1.0
+         * ```
+         */
         @JvmStatic
         fun sin(angle: Measure<Angle>): Double = sin(angle `in` radians)
 
-        /** 코사인 함수를 수행합니다. */
+        /**
+         * 코사인 함수를 수행합니다.
+         *
+         * ```kotlin
+         * val result = Angle.cos(0.degrees())
+         * // result == 1.0
+         * ```
+         */
         @JvmStatic
         fun cos(angle: Measure<Angle>): Double = cos(angle `in` radians)
 
-        /** 탄젠트 함수를 수행합니다. */
+        /**
+         * 탄젠트 함수를 수행합니다.
+         *
+         * ```kotlin
+         * val result = Angle.tan(45.degrees())
+         * // result == 1.0
+         * ```
+         */
         @JvmStatic
         fun tan(angle: Measure<Angle>): Double = tan(angle `in` radians)
 
-        /** 아크사인을 라디안 각도로 반환합니다. */
+        /**
+         * 아크사인을 라디안 각도로 반환합니다.
+         *
+         * ```kotlin
+         * val angle = Angle.asin(1.0)
+         * // angle `in` Angle.degrees == 90.0
+         * ```
+         */
         @JvmStatic
         fun asin(value: Double): Measure<Angle> = kotlin.math.asin(value) * radians
 
-        /** 아크코사인을 라디안 각도로 반환합니다. */
+        /**
+         * 아크코사인을 라디안 각도로 반환합니다.
+         *
+         * ```kotlin
+         * val angle = Angle.acos(1.0)
+         * // angle `in` Angle.degrees == 0.0
+         * ```
+         */
         @JvmStatic
         fun acos(value: Double): Measure<Angle> = kotlin.math.acos(value) * radians
 
-        /** 아크탄젠트를 라디안 각도로 반환합니다. */
+        /**
+         * 아크탄젠트를 라디안 각도로 반환합니다.
+         *
+         * ```kotlin
+         * val angle = Angle.atan(1.0)
+         * // angle `in` Angle.degrees == 45.0
+         * ```
+         */
         @JvmStatic
         fun atan(value: Double): Measure<Angle> = kotlin.math.atan(value) * radians
 
-        /** atan2 결과를 라디안 각도로 반환합니다. */
+        /**
+         * atan2 결과를 라디안 각도로 반환합니다.
+         *
+         * ```kotlin
+         * val angle = Angle.atan2(1.0, 1.0)
+         * // angle `in` Angle.degrees == 45.0
+         * ```
+         */
         @JvmStatic
         fun atan2(y: Double, x: Double): Measure<Angle> = kotlin.math.atan2(y, x) * radians
     }

@@ -15,6 +15,14 @@ import java.io.OutputStream
  * - [ImageWriter]를 확장하여 `suspend` 함수 기반의 비동기 쓰기를 지원합니다.
  * - 내부적으로 [Dispatchers.IO] 컨텍스트에서 blocking I/O를 수행합니다.
  *
+ * ```kotlin
+ * val writer: SuspendImageWriter = SuspendPngWriter.MaxCompression
+ * val image = immutableImageOf(File("photo.png"))
+ * val bos = ByteArrayOutputStream()
+ * writer.suspendWrite(image, bos)
+ * // bos.size() > 0
+ * ```
+ *
  * @see SuspendJpegWriter
  * @see SuspendPngWriter
  * @see SuspendGifWriter
@@ -24,6 +32,14 @@ interface SuspendImageWriter: ImageWriter {
 
     /**
      * Coroutines 방식으로 [image]를 [out]에 씁니다.
+     *
+     * ```kotlin
+     * val writer = SuspendJpegWriter.Default
+     * val image = immutableImageOf(File("photo.jpg"))
+     * val bos = ByteArrayOutputStream()
+     * writer.suspendWrite(image, image.metadata, bos)
+     * // bos.size() > 0
+     * ```
      *
      * @param image   쓸 이미지
      * @param metadata 이미지의 메타데이터 ([ImageMetadata])
@@ -38,6 +54,14 @@ interface SuspendImageWriter: ImageWriter {
     /**
      * Coroutines 방식으로 [image]를 [out]에 씁니다.
      *
+     * ```kotlin
+     * val writer = SuspendPngWriter.MaxCompression
+     * val image = immutableImageOf(File("photo.png"))
+     * val bos = ByteArrayOutputStream()
+     * writer.suspendWrite(image, bos)
+     * // bos.size() > 0
+     * ```
+     *
      * @param image  쓸 이미지
      * @param out    쓰기 대상 [OutputStream]
      */
@@ -47,6 +71,14 @@ interface SuspendImageWriter: ImageWriter {
 
     /**
      * [image]를 [out]에 씁니다.
+     *
+     * ```kotlin
+     * val writer = SuspendGifWriter.Default
+     * val image = immutableImageOf(File("photo.gif"))
+     * val bos = ByteArrayOutputStream()
+     * writer.write(image, bos)
+     * // bos.size() > 0
+     * ```
      *
      * @param image  쓸 이미지
      * @param out    쓰기용 [OutputStream]

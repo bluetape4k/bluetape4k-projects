@@ -6,8 +6,12 @@ import java.io.ByteArrayOutputStream
 /**
  * [WriteContext]를 [ByteArray]로 변환합니다.
  *
- * ```
- * val bytes = writeContext.toByteArray()
+ * ```kotlin
+ * val writer = SuspendJpegWriter.Default
+ * val image = immutableImageOf(File("photo.jpg"))
+ * val context = image.forWriter(writer)
+ * val bytes = context.toByteArray()
+ * // bytes.isNotEmpty() == true
  * ```
  *
  * @return [ByteArray]

@@ -9,10 +9,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 /**
  * Coroutines 방식으로 PNG 파일을 생성하는 [SuspendImageWriter] 입니다.
  *
- * ```
+ * ```kotlin
  * val writer = SuspendPngWriter()
  * val image = immutableImageOf(File("image.png"))
  * writer.write(image, File("output.png"))
+ * // output.png 파일 생성됨
  * ```
  *
  * @param compressionLevel 압축 레벨 (0: 무압축, 9: 최대 압축, 기본값 9)

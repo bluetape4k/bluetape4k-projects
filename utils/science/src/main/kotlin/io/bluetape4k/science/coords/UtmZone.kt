@@ -11,6 +11,16 @@ import java.io.Serializable
  *
  * 예: 서울은 52S(126~132°E, 32~40°N) 또는 52T(40~48°N) 구역에 해당합니다.
  *
+ * ```kotlin
+ * val zone = UtmZone(52, 'S')
+ * println(zone.longitudeZone) // 52
+ * println(zone.latitudeZone)  // S
+ * println(zone.toString())    // 52S
+ *
+ * val newYorkZone = UtmZone(18, 'T')
+ * println(newYorkZone < zone) // true
+ * ```
+ *
  * @param longitudeZone 경도 구역 번호 (1~60)
  * @param latitudeZone  위도 구역 문자 (C~X, I·O 제외)
  */

@@ -33,6 +33,18 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
 
     companion object: KLogging() {
 
+        /**
+         * [LeaderGroupElectionOptions]을 이용해 [LocalLeaderGroupElection] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val election = LocalLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+         * val result = election.runIfLeader("batch-job") { "done" }
+         * // result == "done"
+         * ```
+         *
+         * @param options 리더 그룹 선출 옵션. 기본값은 [LeaderGroupElectionOptions.Default]
+         * @return [LeaderGroupElection] 구현체 인스턴스
+         */
         operator fun invoke(options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default): LeaderGroupElection =
             options
                 .also { it.maxLeaders.requirePositiveNumber("maxLeaders") }
@@ -41,6 +53,12 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
 
     /**
      * [lockName]의 슬롯을 획득하고 [action]을 동기로 실행합니다.
+     *
+     * ```kotlin
+     * val election = LocalLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val result = election.runIfLeader("batch-job") { "done" }
+     * // result == "done"
+     * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param action 슬롯 획득 성공 시 실행할 동기 작업
@@ -52,6 +70,14 @@ class LocalLeaderGroupElection private constructor(options: LeaderGroupElectionO
 
     /**
      * [lockName]의 슬롯을 [executor]에서 획득하고 비동기 [action]을 실행합니다.
+     *
+     * ```kotlin
+     * val election = LocalLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val result = election.runAsyncIfLeader("batch-job") {
+     *     CompletableFuture.completedFuture(42)
+     * }.join()
+     * // result == 42
+     * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param executor 비동기 실행에 사용할 [Executor]. 기본값은 [VirtualThreadExecutor]

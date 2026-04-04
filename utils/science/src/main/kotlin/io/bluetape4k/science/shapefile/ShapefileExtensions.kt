@@ -9,6 +9,13 @@ import org.locationtech.jts.geom.Point
  *
  * Point 타입이 아닌 도형은 무시합니다.
  *
+ * ```kotlin
+ * val shape = loadShape(File("points.shp"))
+ * val locations = shape.toGeoLocations()
+ * println(locations.size)         // Point 레코드 수 (예: 100)
+ * println(locations.first().latitude)  // 예: 37.5665
+ * ```
+ *
  * @return Point 도형의 [GeoLocation] 목록
  */
 fun Shape.toGeoLocations(): List<GeoLocation> =
@@ -29,6 +36,13 @@ fun Shape.toGeoLocations(): List<GeoLocation> =
  * 레코드의 도형 중심점(centroid)이 [bbox] 내에 있는 경우만 포함합니다.
  * bbox가 null인 레코드는 제외됩니다.
  *
+ * ```kotlin
+ * val shape = loadShape(File("korea.shp"))
+ * val seoulBbox = BoundingBox(minLat = 37.4, minLon = 126.7, maxLat = 37.7, maxLon = 127.2)
+ * val seoulFeatures = shape.filterByBoundingBox(seoulBbox)
+ * println(seoulFeatures.size) // 서울 영역 내 레코드 수
+ * ```
+ *
  * @param bbox 필터링할 경계 사각형
  * @return 필터링된 [Shape]
  */
@@ -45,6 +59,13 @@ fun Shape.filterByBoundingBox(bbox: BoundingBox): Shape {
 /**
  * 레코드의 특정 속성 값으로 필터링한 [Shape]를 반환합니다.
  *
+ * ```kotlin
+ * val shape = loadShape(File("cities.shp"))
+ * // "TYPE" 속성이 "CAPITAL"인 레코드만 추출
+ * val capitals = shape.filterByAttribute("TYPE") { it == "CAPITAL" }
+ * println(capitals.size) // 수도 레코드 수
+ * ```
+ *
  * @param attributeName 속성 이름
  * @param predicate     속성 값 필터 조건
  * @return 필터링된 [Shape]
@@ -59,6 +80,12 @@ fun Shape.filterByAttribute(attributeName: String, predicate: (Any?) -> Boolean)
 /**
  * 레코드 목록에서 특정 속성의 고유 값 집합을 반환합니다.
  *
+ * ```kotlin
+ * val shape = loadShape(File("regions.shp"))
+ * val types = shape.distinctAttributeValues("TYPE")
+ * println(types) // 예: [POLYGON, MULTIPOLYGON]
+ * ```
+ *
  * @param attributeName 속성 이름
  * @return 고유 속성 값 집합
  */
@@ -69,6 +96,15 @@ fun Shape.distinctAttributeValues(attributeName: String): Set<Any?> =
  * 전체 레코드를 포괄하는 [BoundingBox]를 계산합니다.
  *
  * 레코드가 없으면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val shape = loadShape(File("korea.shp"))
+ * val bbox = shape.computeBoundingBox()
+ * println(bbox?.minLat) // 예: 33.1 (제주도 남단)
+ * println(bbox?.maxLat) // 예: 38.6 (최북단)
+ * println(bbox?.minLon) // 예: 124.6
+ * println(bbox?.maxLon) // 예: 131.9
+ * ```
  *
  * @return 전체 경계 사각형 또는 null
  */

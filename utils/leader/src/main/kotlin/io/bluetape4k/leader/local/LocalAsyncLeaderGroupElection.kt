@@ -33,6 +33,20 @@ class LocalAsyncLeaderGroupElection private constructor(
 ): AbstractLocalLeaderGroupElection(options), AsyncLeaderGroupElection {
 
     companion object: KLogging() {
+        /**
+         * [LeaderGroupElectionOptions]을 이용해 [LocalAsyncLeaderGroupElection] 인스턴스를 생성합니다.
+         *
+         * ```kotlin
+         * val election = LocalAsyncLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+         * val result = election.runAsyncIfLeader("batch-job") {
+         *     CompletableFuture.completedFuture("done")
+         * }.join()
+         * // result == "done"
+         * ```
+         *
+         * @param options 리더 그룹 선출 옵션. 기본값은 [LeaderGroupElectionOptions.Default]
+         * @return [AsyncLeaderGroupElection] 구현체 인스턴스
+         */
         operator fun invoke(
             options: LeaderGroupElectionOptions = LeaderGroupElectionOptions.Default,
         ): AsyncLeaderGroupElection =
@@ -43,6 +57,14 @@ class LocalAsyncLeaderGroupElection private constructor(
 
     /**
      * [lockName]의 슬롯을 [executor]에서 획득하고 비동기 [action]을 실행합니다.
+     *
+     * ```kotlin
+     * val election = LocalAsyncLeaderGroupElection(LeaderGroupElectionOptions(maxLeaders = 3))
+     * val result = election.runAsyncIfLeader("batch-job") {
+     *     CompletableFuture.completedFuture(42)
+     * }.join()
+     * // result == 42
+     * ```
      *
      * @param lockName 리더 그룹 선출에 사용할 락 이름
      * @param executor 비동기 실행에 사용할 [Executor]

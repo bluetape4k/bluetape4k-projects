@@ -20,6 +20,15 @@ import org.redisson.api.RedissonClient
  * JWT 토큰 발급에 사용된 [KeyChain]을 Redis에 저장하여, 분산환경에서 [KeyChain]을 공유하고, rotate 시에 전파되도록 합니다.
  * 또한 rotate로 인해 key chain이 변경된 경우에도 토큰 파싱이 가능하도록 저장합니다.
  *
+ * ```kotlin
+ * val redisson: RedissonClient = // ...
+ * val repository = RedisKeyChainRepository(redisson)
+ * val keyChain = KeyChain()
+ * repository.forcedRotate(keyChain)
+ * val current = repository.current()
+ * // current.id == keyChain.id
+ * ```
+ *
  * @property keyChainStore  [KeyChain]을 저장하는 Redisson의 RDeque
  * @property capacity rotated key chain 의 최대 저장 갯수 (기본값은 [KeyChainRepository.DEFAULT_CAPACITY] (10))
  */

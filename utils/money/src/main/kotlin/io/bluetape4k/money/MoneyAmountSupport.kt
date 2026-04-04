@@ -15,7 +15,7 @@ import javax.money.convert.MonetaryConversions
 /**
  * 통화량을 나타내는 [MonetaryAmount]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * monetaryAmountOf(100, "KRW")        // 100 원
  * monetaryAmountOf(1.05, "USD")       // USD 1.05
  * ```
@@ -30,7 +30,7 @@ fun monetaryAmountOf(number: Number, currencyCode: String): MonetaryAmount =
 /**
  * 통화량을 나타내는 [MonetaryAmount]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * monetaryAmountOf(100, "KRW")        // 100 원
  * monetaryAmountOf(1.05, "USD")       // USD 1.05
  * ```
@@ -45,7 +45,7 @@ fun monetaryAmountOf(number: Number, currency: CurrencyUnit = DefaultCurrencyUni
 /**
  * 통화량을 나타내는 [MonetaryAmount]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * monetaryAmountOf(100, "KRW")        // 100 원
  * monetaryAmountOf(1.05, "USD")       // USD 1.05
  * ```
@@ -58,6 +58,11 @@ fun Number.toMonetaryAmount(currency: CurrencyUnit = DefaultCurrencyUnit): Monet
 
 /**
  * 통화량을 나타내는 [MonetaryAmount]를 빌드합니다.
+ *
+ * ```kotlin
+ * val krw = 1024.toMonetaryAmount("KRW")   // KRW 1024
+ * val usd = 9.99.toMonetaryAmount("USD")   // USD 9.99
+ * ```
  *
  * @param currencyCode  통화단위 코드 ("KRW", "USD", "EUR")
  * @return 통화량([MonetaryAmount]) instance
@@ -167,39 +172,69 @@ inline fun <reified T: Number> MonetaryAmount.numberValue(): T = number.numberVa
 
 /**
  * 금액을 [Int] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(100, "KRW")
+ * val v: Int = m.intValue  // 100
+ * ```
  */
 val MonetaryAmount.intValue: Int get() = numberValue()
 
 /**
  * 금액을 [Long] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(50000L, "KRW")
+ * val v: Long = m.longValue  // 50000L
+ * ```
  */
 val MonetaryAmount.longValue: Long get() = numberValue()
 
 /**
  * 금액을 [Float] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(1.5, "USD")
+ * val v: Float = m.floatValue  // 1.5f
+ * ```
  */
 val MonetaryAmount.floatValue: Float get() = numberValue()
 
 /**
  * 금액을 [Double] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(12.5, "USD")
+ * val v: Double = m.doubleValue  // 12.5
+ * ```
  */
 val MonetaryAmount.doubleValue: Double get() = numberValue()
 
 /**
  * 금액을 [BigDecimal] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(9.99, "USD")
+ * val v: BigDecimal = m.bigDecimalValue  // BigDecimal(9.99)
+ * ```
  */
 val MonetaryAmount.bigDecimalValue: BigDecimal get() = numberValue()
 
 /**
  * 금액을 [BigInteger] 값으로 가져옵니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(1000, "KRW")
+ * val v: BigInteger = m.bigIntValue  // BigInteger(1000)
+ * ```
  */
 val MonetaryAmount.bigIntValue: BigInteger get() = numberValue()
 
 /**
  * [MonetaryAmount] 수형의 금액을 반올림합니다.
  *
- * ```
- * 1.05L.inUSD().round()        // USD 1.05 를 반올림
+ * ```kotlin
+ * 1.05.inUSD().round()        // USD 1.05 를 반올림
  * ```
  */
 fun <T: MonetaryAmount> T.round(rounding: MonetaryRounding = Monetary.getRounding(this.currency)): T =
@@ -207,14 +242,19 @@ fun <T: MonetaryAmount> T.round(rounding: MonetaryRounding = Monetary.getRoundin
 
 /**
  * 기본 반올림 규칙에 의해 [MonetaryAmount] 수형의 금액을 반올림합니다.
+ *
+ * ```kotlin
+ * val m = moneyOf(1.005, "USD")
+ * val rounded = m.defaultRound()  // USD 1.01 (기본 반올림 적용)
+ * ```
  */
 fun <T: MonetaryAmount> T.defaultRound(): T = this.with(Monetary.getDefaultRounding()) as T
 
 /**
  * EU의 오늘자 환율 정보를 이용하여 @receiver 의 금액을 대상 금액으로 환전합니다
  *
- * ```
- * 1.05L.inUSD().convertTo("KRW")        // USD 1.05 를 원화로 환전
+ * ```kotlin
+ * 1.05.inUSD().convertTo("KRW")        // USD 1.05 를 원화로 환전
  * ```
  *
  * @param T
@@ -227,8 +267,8 @@ fun <T: MonetaryAmount> T.convertTo(currencyCode: String): T =
 /**
  * 오늘자 환율 정보를 이용하여 [T]의 금액을 대상 금액으로 환전합니다
  *
- * ```
- * 1.05L.inUSD().convertTo(currencyOf("KRW"))        // USD 1.05 를 원화로 환전
+ * ```kotlin
+ * 1.05.inUSD().convertTo(currencyOf("KRW"))        // USD 1.05 를 원화로 환전
  * ```
  *
  * @param T 통화량 수형

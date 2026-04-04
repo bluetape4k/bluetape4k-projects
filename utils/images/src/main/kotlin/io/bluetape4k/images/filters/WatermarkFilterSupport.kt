@@ -11,6 +11,16 @@ import java.awt.Font
 /**
  * [type]에 따라 COVER/STAMP 용 Watermark 용 [Filter]를 생성합니다.
  *
+ * ```kotlin
+ * val filter = watermarkFilterOf(
+ *     text = "© bluetape4k",
+ *     type = WatermarkFilterType.COVER,
+ *     alpha = 0.15
+ * )
+ * val watermarked = image.filter(filter)
+ * // watermarked.width > 0
+ * ```
+ *
  * @see WatermarkCoverFilter
  * @see WatermarkStampFilter
  *
@@ -36,6 +46,17 @@ fun watermarkFilterOf(
 
 /**
  * (x,y) 위치에 워터마크를 그리는 [WatermarkFilter]를 생성합니다.
+ *
+ * ```kotlin
+ * val filter = watermarkFilterOf(
+ *     text = "© bluetape4k",
+ *     x = 10,
+ *     y = 10,
+ *     alpha = 0.2
+ * )
+ * val watermarked = image.filter(filter)
+ * // watermarked.width > 0
+ * ```
  *
  * @param text          워터마크 텍스트
  * @param x             x 좌표

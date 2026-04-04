@@ -32,6 +32,13 @@ class DefaultJwtProvider private constructor(
         /**
          * [DefaultJwtProvider] 인스턴스를 생성합니다.
          *
+         * ```kotlin
+         * val provider = DefaultJwtProvider()
+         * val jwt = provider.compose { claim("userId", "alice"); expirationAfterMinutes = 60 }
+         * val reader = provider.parse(jwt)
+         * // reader.claim<String>("userId") == "alice"
+         * ```
+         *
          * @param signatureAlgorithm 서명 알고리즘 (기본: RS256)
          * @param keyChainRepository 키체인 저장소 (기본: 인메모리)
          * @return [DefaultJwtProvider] 인스턴스
