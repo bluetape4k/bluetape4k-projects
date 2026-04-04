@@ -21,6 +21,16 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - 일반 예외는 span에 기록하고 `ERROR` 상태로 바꾼 뒤 원본 예외를 그대로 다시 던집니다.
  * - [CancellationException]은 취소 의미를 보존하기 위해 span 상태를 바꾸지 않고 그대로 전파합니다.
  * - `waitTimeout`은 하위 호환용 인자이며, 현재 구현은 trace duration 왜곡을 막기 위해 즉시 종료합니다.
+ *
+ * ```kotlin
+ * val tracer = NoopOpenTelemetry.getTracer("example")
+ * val span = tracer.spanBuilder("my-op").startSpan()
+ * val result = span.useSuspending { s ->
+ *     s.setAttribute("key", "value")
+ *     "done"
+ * }
+ * // result == "done"
+ * ```
  */
 suspend inline fun <T> Span.useSuspending(
     waitTimeout: Long? = null,
@@ -35,6 +45,14 @@ suspend inline fun <T> Span.useSuspending(
  * [Duration] 기반 overload 입니다.
  *
  * `waitDuration` 역시 하위 호환용 인자이며 종료 시각을 미래로 밀어 쓰지 않습니다.
+ *
+ * ```kotlin
+ * val span = NoopOpenTelemetry.getTracer("example").spanBuilder("op").startSpan()
+ * val result = span.useSuspending(Duration.ofSeconds(1)) { s ->
+ *     "done"
+ * }
+ * // result == "done"
+ * ```
  */
 suspend inline fun <T> Span.useSuspending(
     waitDuration: Duration,
@@ -44,6 +62,15 @@ suspend inline fun <T> Span.useSuspending(
 
 /**
  * 새로운 [Span]을 생성해 Coroutines 환경에서 실행합니다.
+ *
+ * ```kotlin
+ * val tracer = NoopOpenTelemetry.getTracer("example")
+ * val result = tracer.spanBuilder("my-op").useSpanSuspending { span ->
+ *     span.setAttribute("key", "value")
+ *     "done"
+ * }
+ * // result == "done"
+ * ```
  */
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,

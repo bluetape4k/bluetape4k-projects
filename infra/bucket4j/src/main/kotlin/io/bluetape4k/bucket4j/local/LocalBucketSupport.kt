@@ -7,7 +7,7 @@ import io.github.bucket4j.local.LocalBucketBuilder
 /**
  * [LocalBucket] instance 빌드를 위한 DSL 빌더
  *
- * ```
+ * ```kotlin
  * val bucket = localBucket {
  *    addLimit {
  *      it.capacity(10).refillIntervally(10, 10.seconds.toJavaDuration())
@@ -27,8 +27,9 @@ inline fun localBucket(builder: LocalBucketBuilder.() -> Unit): LocalBucket =
 /**
  * 바이너리 스냅샷으로부터 [LocalBucket]을 복원합니다.
  *
- * ```
+ * ```kotlin
  * val bucket = localBucketOf(bytes)
+ * // bucket의 상태가 bytes로부터 복원됨
  * ```
  *
  * @param bytes binary snapshot
@@ -40,9 +41,10 @@ fun localBucketOf(bytes: ByteArray): LocalBucket =
 /**
  * JSON 스냅샷으로부터 [LocalBucket]를 복원합니다.
  *
- * ```
+ * ```kotlin
  * val snapshot = mapOf(...)
  * val bucket = localBucketOf(snapshot)
+ * // bucket의 상태가 snapshot으로부터 복원됨
  * ```
  *
  * @param snapshot JSON 으로부터 역직렬화한 Map 객체

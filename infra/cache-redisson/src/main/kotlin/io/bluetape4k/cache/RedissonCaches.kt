@@ -42,10 +42,17 @@ object RedissonCaches: KLogging() {
     /**
      * RedissonClient로 [JCache]를 생성하거나 재사용합니다.
      *
+     * ```kotlin
+     * val cache = RedissonCaches.jcache<String, String>(redisson, "my-cache")
+     * cache.put("k", "v")
+     * val value = cache.get("k")
+     * // value == "v"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
-     * @param cacheName 캐시 이름
      * @param redisson Redisson 클라이언트
+     * @param cacheName 캐시 이름
      * @param configuration JCache 설정
      * @return [JCache] 인스턴스
      */
@@ -60,6 +67,14 @@ object RedissonCaches: KLogging() {
 
     /**
      * Redisson [Config]로 [JCache]를 생성하거나 재사용합니다.
+     *
+     * ```kotlin
+     * val config = Config().apply { useSingleServer().setAddress("redis://127.0.0.1:6379") }
+     * val cache = RedissonCaches.jcache<String, String>("my-cache", config)
+     * cache.put("k", "v")
+     * val value = cache.get("k")
+     * // value == "v"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -84,10 +99,17 @@ object RedissonCaches: KLogging() {
     /**
      * RedissonClient로 [RedissonSuspendJCache]를 생성하거나 재사용합니다.
      *
+     * ```kotlin
+     * val cache = RedissonCaches.suspendJCache<String, String>(redisson, "users")
+     * cache.put("u1", "Alice")
+     * val value = cache.get("u1")
+     * // value == "Alice"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
-     * @param cacheName 캐시 이름
      * @param redisson Redisson 클라이언트
+     * @param cacheName 캐시 이름
      * @param configuration JCache 설정
      * @return [RedissonSuspendJCache] 인스턴스
      */
@@ -99,6 +121,14 @@ object RedissonCaches: KLogging() {
 
     /**
      * Redisson [Config]로 [RedissonSuspendJCache]를 생성하거나 재사용합니다.
+     *
+     * ```kotlin
+     * val config = Config().apply { useSingleServer().setAddress("redis://127.0.0.1:6379") }
+     * val cache = RedissonCaches.suspendJCache<String, String>("scores", config)
+     * cache.put("u1", "100")
+     * val value = cache.get("u1")
+     * // value == "100"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -118,6 +148,14 @@ object RedissonCaches: KLogging() {
     /**
      * 기존 [JCache] 인스턴스로 [NearJCache]를 생성합니다.
      *
+     * ```kotlin
+     * val backCache = RedissonCaches.jcache<String, String>(redisson, "back")
+     * val near = RedissonCaches.nearJCache(backCache)
+     * near.put("k", "v")
+     * val value = near.get("k")
+     * // value == "v"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
      * @param backCache 백엔드 JCache
@@ -131,6 +169,13 @@ object RedissonCaches: KLogging() {
 
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [NearJCache]를 반환합니다.
+     *
+     * ```kotlin
+     * val near = RedissonCaches.nearJCache<String, String>("products", redisson)
+     * near.put("p1", "Widget")
+     * val name = near.get("p1")
+     * // name == "Widget"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -160,6 +205,15 @@ object RedissonCaches: KLogging() {
     /**
      * Front/Back [SuspendJCache]를 직접 지정해 [SuspendNearJCache]를 생성합니다.
      *
+     * ```kotlin
+     * val front = CaffeineSuspendJCache<String, String>()
+     * val back = RedissonSuspendJCache<String, String>("data", redisson)
+     * val near = RedissonCaches.suspendNearJCache(front, back)
+     * near.put("k", "v")
+     * val value = near.get("k")
+     * // value == "v"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
      * @param frontSuspendJCache 프론트 SuspendCache
@@ -174,6 +228,13 @@ object RedissonCaches: KLogging() {
     /**
      * RedissonClient로 백엔드 캐시를 생성하고 [SuspendNearJCache]를 반환합니다.
      * 프론트 캐시는 기본적으로 Caffeine을 사용합니다.
+     *
+     * ```kotlin
+     * val near = RedissonCaches.suspendNearJCache<String, String>("sessions", redisson)
+     * near.put("s1", "token-abc")
+     * val token = near.get("s1")
+     * // token == "token-abc"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -204,6 +265,13 @@ object RedissonCaches: KLogging() {
     /**
      * Redisson [RLocalCachedMap][org.redisson.api.RLocalCachedMap] 기반 [NearCacheOperations]를 생성합니다.
      *
+     * ```kotlin
+     * val near = RedissonCaches.nearCache<String>(redisson)
+     * near.put("key", "value")
+     * val value = near.get("key")
+     * // value == "value"
+     * ```
+     *
      * @param V 값 타입
      * @param redisson Redisson 클라이언트
      * @param config Near Cache 설정
@@ -218,6 +286,13 @@ object RedissonCaches: KLogging() {
 
     /**
      * Redisson [RLocalCachedMap][org.redisson.api.RLocalCachedMap] 기반 [SuspendNearCacheOperations]를 생성합니다.
+     *
+     * ```kotlin
+     * val near = RedissonCaches.suspendNearCache<String>(redisson)
+     * near.put("key", "value")
+     * val value = near.get("key")
+     * // value == "value"
+     * ```
      *
      * @param V 값 타입
      * @param redisson Redisson 클라이언트

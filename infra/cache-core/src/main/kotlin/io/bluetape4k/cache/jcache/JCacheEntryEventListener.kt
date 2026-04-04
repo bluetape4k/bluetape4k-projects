@@ -12,6 +12,18 @@ import javax.cache.event.CacheEntryUpdatedListener
 /**
  * Back cache에서 entry 변화가 발생하면, event를 발행하고, 이를 [targetCache]에 반영하도록 하는 Listener 입니다.
  *
+ * ```kotlin
+ * val frontCache: JCache<String, Int> = JCaching.Caffeine.getOrCreate("front")
+ * val backCache: JCache<String, Int> = JCaching.Caffeine.getOrCreate("back")
+ * val listener = JCacheEntryEventListener(frontCache)
+ * val listenerCfg = MutableCacheEntryListenerConfiguration(
+ *     { listener }, null, false, false
+ * )
+ * backCache.registerCacheEntryListener(listenerCfg)
+ * backCache.put("hello", 5)
+ * // frontCache에 "hello" -> 5 가 자동으로 동기화됨
+ * ```
+ *
  * @property targetCache [javax.cache.event.CacheEntryEvent]가 반영될 Local Cache
  */
 class JCacheEntryEventListener<K, V>(

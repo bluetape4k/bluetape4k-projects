@@ -208,6 +208,13 @@ class RedissonSuspendNearCache<V : Any>(
 /**
  * [RedissonClient]로 [SuspendNearCacheOperations]를 생성하는 팩토리 함수입니다.
  *
+ * ```kotlin
+ * val cache = redissonSuspendNearCacheOf<String>(redisson, RedissonNearCacheConfig(cacheName = "data"))
+ * cache.put("key", "value")
+ * val value = cache.get("key")
+ * // value == "value"
+ * ```
+ *
  * @param V 값 타입
  * @param redisson Redisson 클라이언트
  * @param config Near Cache 설정

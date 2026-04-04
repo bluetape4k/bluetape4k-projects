@@ -14,7 +14,7 @@ import io.github.bucket4j.local.SynchronizationStrategy
  * - 기본 구현은 lock-free synchronization 전략과 millisecond precision을 사용합니다.
  * - 같은 key를 재조회하면 동일한 로컬 버킷 상태를 공유합니다.
  *
- * ```
+ * ```kotlin
  * val bucketProvider = LocalBucketProvider(bucketConfiguration)
  * val key = randomKey()
  * val bucket = bucketProvider.resolveBucket(key)

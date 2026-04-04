@@ -45,7 +45,15 @@ return 1"""
     /** 해시 함수 수입니다. `k = round(m / n * ln2)` */
     val k: Int = (m.toDouble() / options.expectedInsertions * ln(2.0)).roundToInt().coerceAtLeast(1)
 
-    /** 필터 메타데이터를 초기화합니다. */
+    /**
+     * 필터 메타데이터를 초기화합니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceSuspendBloomFilter(connection, "my-bloom")
+     * val initialized = bloomFilter.tryInit()
+     * // initialized == true
+     * ```
+     */
     suspend fun tryInit(): Boolean {
         val initialized = asyncCommands.hsetnx(configKey, "k", k.toString()).awaitSuspending()
         if (initialized) {
@@ -71,7 +79,15 @@ return 1"""
         return false
     }
 
-    /** 원소를 필터에 기록합니다. */
+    /**
+     * 원소를 필터에 기록합니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceSuspendBloomFilter(connection, "my-bloom")
+     * bloomFilter.tryInit()
+     * bloomFilter.add("hello")
+     * ```
+     */
     suspend fun add(element: String) {
         val positions = hashPositions(element)
         asyncCommands.eval<Long>(
@@ -82,7 +98,17 @@ return 1"""
         ).awaitSuspending()
     }
 
-    /** 원소의 존재 가능성을 조회합니다. */
+    /**
+     * 원소의 존재 가능성을 조회합니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceSuspendBloomFilter(connection, "my-bloom")
+     * bloomFilter.tryInit()
+     * bloomFilter.add("hello")
+     * val exists = bloomFilter.contains("hello")
+     * // exists == true
+     * ```
+     */
     suspend fun contains(element: String): Boolean {
         val positions = hashPositions(element)
         return asyncCommands.eval<Long>(

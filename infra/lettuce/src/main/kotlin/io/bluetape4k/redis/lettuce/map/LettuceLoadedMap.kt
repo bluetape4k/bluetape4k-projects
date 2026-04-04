@@ -26,6 +26,21 @@ import java.util.concurrent.TimeUnit
  * - **Write-behind**: [MapWriter]를 통해 DB에 비동기로 쓰고 Redis는 즉시 갱신한다.
  * - **NONE**: Redis만 사용하고 DB 쓰기를 하지 않는다.
  *
+ * ```kotlin
+ * val loader = object : MapLoader<String, MyData> {
+ *     override fun load(key: String): MyData? = db.findByKey(key)
+ *     override fun loadAllKeys(): Iterable<String> = db.findAllKeys()
+ * }
+ * val writer = object : MapWriter<String, MyData> {
+ *     override fun write(map: Map<String, MyData>) { db.upsertAll(map) }
+ *     override fun delete(keys: Collection<String>) { db.deleteAll(keys) }
+ * }
+ * val map = LettuceLoadedMap<String, MyData>(redisClient, loader, writer)
+ * val value = map["key"]      // Redis 미스 시 DB 로드 (Read-through)
+ * map["key"] = myData         // Redis + DB에 즉시 쓰기 (Write-through)
+ * map.delete("key")           // Redis + DB에서 삭제
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  * @param client Lettuce [RedisClient]
@@ -84,6 +99,19 @@ class LettuceLoadedMap<K: Any, V: Any>(
 
     private fun redisKey(key: K): String = "${config.keyPrefix}:${keySerializer(key)}"
 
+    /**
+     * 키에 해당하는 값을 반환합니다.
+     * Redis 미스 시 [MapLoader]를 통해 DB에서 로드합니다.
+     *
+     * ```kotlin
+     * val value = map["key"]
+     * // Redis에 있으면 캐시에서, 없으면 DB에서 로드
+     * // 값이 없으면 null
+     * ```
+     *
+     * @param key 조회할 키
+     * @return 값 (없으면 null)
+     */
     operator fun get(key: K): V? {
         val redisKey = redisKey(key)
         val cached = runCatching { commands.get(redisKey) }.getOrNull()
@@ -95,6 +123,19 @@ class LettuceLoadedMap<K: Any, V: Any>(
         return value
     }
 
+    /**
+     * 키-값 쌍을 저장합니다.
+     * [LettuceCacheConfig.writeMode]에 따라 Write-through 또는 Write-behind로 DB에도 반영합니다.
+     *
+     * ```kotlin
+     * map["key"] = myData
+     * // WriteMode.WRITE_THROUGH: Redis + DB에 즉시 반영
+     * // WriteMode.WRITE_BEHIND: Redis 즉시 반영, DB는 비동기
+     * ```
+     *
+     * @param key 저장할 키
+     * @param value 저장할 값
+     */
     operator fun set(
         key: K,
         value: V,
@@ -148,17 +189,46 @@ class LettuceLoadedMap<K: Any, V: Any>(
         return result
     }
 
+    /**
+     * 키를 Redis 및 DB에서 삭제합니다.
+     *
+     * ```kotlin
+     * map.delete("key")
+     * val value = map["key"]
+     * // value == null
+     * ```
+     *
+     * @param key 삭제할 키
+     */
     fun delete(key: K) {
         if (config.writeMode != WriteMode.NONE) writer?.delete(listOf(key))
         commands.del(redisKey(key))
     }
 
+    /**
+     * 여러 키를 Redis 및 DB에서 일괄 삭제합니다.
+     *
+     * ```kotlin
+     * map.deleteAll(listOf("key1", "key2"))
+     * ```
+     *
+     * @param keys 삭제할 키 컬렉션
+     */
     fun deleteAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
         if (config.writeMode != WriteMode.NONE) writer?.delete(keys)
         commands.del(*keys.map { redisKey(it) }.toTypedArray())
     }
 
+    /**
+     * keyPrefix에 해당하는 모든 Redis 항목을 삭제합니다.
+     *
+     * ```kotlin
+     * map.clear()
+     * val value = map["key"]
+     * // value == null (전체 삭제 후)
+     * ```
+     */
     fun clear() {
         val pattern = "${config.keyPrefix}:*"
         val scanArgs = ScanArgs.Builder.matches(pattern).limit(100)

@@ -41,8 +41,16 @@ object HazelcastCaches : KLogging() {
     /**
      * 이름과 설정으로 Hazelcast [JCache]를 생성하거나 재사용합니다.
      *
+     * ```kotlin
+     * val cache = HazelcastCaches.jcache<String, String>(hazelcastInstance, "my-cache")
+     * cache.put("k", "v")
+     * val value = cache.get("k")
+     * // value == "v"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
      * @param cacheName 캐시 이름
      * @param configuration JCache 설정 (기본값: [MutableConfiguration])
      * @return [JCache] 인스턴스
@@ -63,8 +71,16 @@ object HazelcastCaches : KLogging() {
     /**
      * 이름으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
      *
+     * ```kotlin
+     * val cache = HazelcastCaches.suspendJCache<String, String>(hazelcastInstance, "users")
+     * cache.put("u1", "Alice")
+     * val value = cache.get("u1")
+     * // value == "Alice"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
+     * @param hazelcastInstance Hazelcast 인스턴스
      * @param cacheName 캐시 이름
      * @return [HazelcastSuspendJCache] 인스턴스
      */
@@ -75,6 +91,14 @@ object HazelcastCaches : KLogging() {
 
     /**
      * 이름과 설정으로 Hazelcast [SuspendJCache]를 생성하거나 재사용합니다.
+     *
+     * ```kotlin
+     * val config = MutableConfiguration<String, String>().apply { setTypes(String::class.java, String::class.java) }
+     * val cache = HazelcastCaches.suspendJCache(hazelcastInstance, "scores", config)
+     * cache.put("u1", "100")
+     * val score = cache.get("u1")
+     * // score == "100"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -96,6 +120,14 @@ object HazelcastCaches : KLogging() {
     /**
      * [HazelcastNearCacheConfig]로 [HazelcastNearCache]를 생성합니다.
      *
+     * ```kotlin
+     * val config = HazelcastNearCacheConfig(cacheName = "products")
+     * val near = HazelcastCaches.nearCache<String>(hazelcastInstance, config)
+     * near.put("p1", "Widget")
+     * val name = near.get("p1")
+     * // name == "Widget"
+     * ```
+     *
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
      * @param config Near Cache 설정
@@ -108,6 +140,16 @@ object HazelcastCaches : KLogging() {
 
     /**
      * DSL 블록으로 [HazelcastNearCache]를 생성합니다.
+     *
+     * ```kotlin
+     * val near = HazelcastCaches.nearCache<String>(hazelcastInstance) {
+     *     cacheName = "orders"
+     *     maxLocalSize = 2_000
+     * }
+     * near.put("o1", "pending")
+     * val status = near.get("o1")
+     * // status == "pending"
+     * ```
      *
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
@@ -122,6 +164,14 @@ object HazelcastCaches : KLogging() {
     /**
      * [HazelcastNearCacheConfig]로 [HazelcastSuspendNearCache]를 생성합니다.
      *
+     * ```kotlin
+     * val config = HazelcastNearCacheConfig(cacheName = "sessions")
+     * val near = HazelcastCaches.suspendNearCache<String>(hazelcastInstance, config)
+     * near.put("s1", "token")
+     * val token = near.get("s1")
+     * // token == "token"
+     * ```
+     *
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
      * @param config Near Cache 설정
@@ -134,6 +184,16 @@ object HazelcastCaches : KLogging() {
 
     /**
      * DSL 블록으로 [HazelcastSuspendNearCache]를 생성합니다.
+     *
+     * ```kotlin
+     * val near = HazelcastCaches.suspendNearCache<String>(hazelcastInstance) {
+     *     cacheName = "inventory"
+     *     maxLocalSize = 3_000
+     * }
+     * near.put("i1", "in-stock")
+     * val status = near.get("i1")
+     * // status == "in-stock"
+     * ```
      *
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
@@ -152,6 +212,15 @@ object HazelcastCaches : KLogging() {
     /**
      * DSL 블록으로 Hazelcast 기반 [NearJCache]를 생성합니다.
      *
+     * ```kotlin
+     * val near = HazelcastCaches.nearJCache<String, String>(hazelcastInstance) {
+     *     cacheName = "catalog"
+     * }
+     * near.put("c1", "Widget")
+     * val name = near.get("c1")
+     * // name == "Widget"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
@@ -168,6 +237,14 @@ object HazelcastCaches : KLogging() {
 
     /**
      * [NearJCacheConfig]로 Hazelcast 기반 [NearJCache]를 생성합니다.
+     *
+     * ```kotlin
+     * val config = NearJCacheConfig<String, String>(cacheName = "catalog")
+     * val near = HazelcastCaches.nearJCache<String, String>(hazelcastInstance, config)
+     * near.put("c1", "Widget")
+     * val name = near.get("c1")
+     * // name == "Widget"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -200,6 +277,15 @@ object HazelcastCaches : KLogging() {
     /**
      * DSL 블록으로 Hazelcast 기반 [SuspendNearJCache]를 생성합니다.
      *
+     * ```kotlin
+     * val near = HazelcastCaches.suspendNearJCache<String, String>(hazelcastInstance) {
+     *     cacheName = "sessions"
+     * }
+     * near.put("s1", "token-abc")
+     * val token = near.get("s1")
+     * // token == "token-abc"
+     * ```
+     *
      * @param K 키 타입
      * @param V 값 타입
      * @param hazelcastInstance Hazelcast 인스턴스
@@ -216,6 +302,14 @@ object HazelcastCaches : KLogging() {
 
     /**
      * [NearJCacheConfig]로 Hazelcast 기반 [SuspendNearJCache]를 생성합니다.
+     *
+     * ```kotlin
+     * val config = NearJCacheConfig<String, String>(cacheName = "sessions")
+     * val near = HazelcastCaches.suspendNearJCache<String, String>(hazelcastInstance, config)
+     * near.put("s1", "token-xyz")
+     * val token = near.get("s1")
+     * // token == "token-xyz"
+     * ```
      *
      * @param K 키 타입
      * @param V 값 타입

@@ -53,6 +53,15 @@ inline fun <reified K, reified V> jcacheConfiguration(
 /**
  * JCache Configuration 을 빌드합니다.
  *
+ * ```kotlin
+ * val config = jcacheConfigurationOf<String, Int>(
+ *     isStatisticsEnabled = true,
+ *     expiryPolicyFactory = { EternalExpiryPolicy.factoryOf() }
+ * )
+ * val cacheManager = jcacheManager<CaffeineCachingProvider>()
+ * val cache = cacheManager.create<String, Int>("myCache", config)
+ * ```
+ *
  * @param K     key type
  * @param V     value type
  * @param cacheLoaderFactory cache loader factory (default: null)
@@ -89,6 +98,15 @@ inline fun <reified K, reified V> jcacheConfigurationOf(
 
 /**
  * JCache에 대한 기본 설정
+ *
+ * ```kotlin
+ * val config = getDefaultJCacheConfiguration<String, Int>()
+ * val cacheManager = jcacheManager<CaffeineCachingProvider>()
+ * val cache = cacheManager.create<String, Int>("myCache", config)
+ * cache.put("hello", 5)
+ * val value = cache.get("hello")
+ * // value == 5
+ * ```
  */
 inline fun <reified K, reified V> getDefaultJCacheConfiguration(): CompleteConfiguration<K, V> =
     jcacheConfiguration {
@@ -98,7 +116,7 @@ inline fun <reified K, reified V> getDefaultJCacheConfiguration(): CompleteConfi
 /**
  * 원하는 수형의 [CachingProvider] 를 로드합니다.
  *
- * ```
+ * ```kotlin
  * val provider = jcachingProvider<CaffeineCachingProvider>()
  * val provider = jcachingProvider<EhcacheCachingProvider>()
  * val provider = jcachingProvider<RedissonCachingProvider>()
@@ -130,7 +148,7 @@ fun jcachingProviderOf(qualifiedName: String): CachingProvider {
 /**
  * 지정한 [CachingProvider]의 [CacheManager]를 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val cacheManager = jcacheManager<CaffeineCachingProvider>()
  * val cacheManager = jcacheManager<EhcacheCachingProvider>()
  * val cacheManager = jcacheManager<RedissonCachingProvider>()
@@ -146,7 +164,7 @@ inline fun <reified P: CachingProvider> jcacheManager(): javax.cache.CacheManage
 /**
  * 지정한 [qualifiedName]에 해당하는 [CachingProvider]의 [CacheManager]를 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val cacheManager = jcacheManager("com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider")
  * val cacheManager = jcacheManager("org.cache2k.jcache.provider.Cache2kCachingProvider")
  * val cacheManager = jcacheManager("org.ehcache.jsr107.EhcacheCachingProvider")
@@ -164,7 +182,7 @@ fun jcacheManagerOf(qualifiedName: String): javax.cache.CacheManager =
 /**
  * [cacheName]에 해당하는 cache를 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.getCache("my-cache", String::class.java, Any::class.java)
  * ```
  *
@@ -179,7 +197,7 @@ inline fun <reified K, reified V> javax.cache.CacheManager.get(cacheName: String
 /**
  * [cacheName]에 해당하는 [Cache]를 생성합니다. 기존에 존재하면, 예외를 발생시킵니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.create("my-cache", String::class.java, Any::class.java)
  * ```
  *
@@ -198,7 +216,7 @@ inline fun <reified K, reified V> javax.cache.CacheManager.create(
 /**
  * [cacheName]을 가지는 Cache를 가져옵니다. 없다면 새로 생성해서 반환합니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.getOrCreate<String, Any>("my-cache")
  * ```
  *
@@ -219,7 +237,7 @@ inline fun <reified K, reified V> javax.cache.CacheManager.getOrCreate(
 /**
  * 캐시에서 값을 가져옵니다. 캐시에 값이 없다면, [valueSupplier]를 통해 값을 얻어, 캐싱한 후 반환합니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.getOrCreate<String, Any>("my-cache")
  * val value = cache.getOrPut("key") { "value" }
  * ```
@@ -243,7 +261,7 @@ inline fun <K, V> javax.cache.Cache<K, V>.getOrPut(
 /**
  * Cache 조회 시, `front cache` <- `back cache` 순서로 조회되도록 read through를 수행합니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.getOrCreate<String, Any>("my-cache")
  * val cacheLoader = cache.cacheLoader()
  * cacheLoader.load("key")  // return value
@@ -270,6 +288,15 @@ fun <K, V> javax.cache.Cache<K, V>.cacheLoader(): CacheLoader<K, V> {
 
 /**
  * Cache 저장 시, `front cache` -> `back cache` 순서로 적용되도록 write through를 수행합니다.
+ *
+ * ```kotlin
+ * val backCache = cacheManager.getOrCreate<String, Int>("backCache")
+ * val writer = backCache.cacheWriter()
+ * // writer.write()로 front cache → back cache 동기화
+ * writer.write(SimpleEntry("hello", 5))
+ * val value = backCache.get("hello")
+ * // value == 5
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 fun <K, V> javax.cache.Cache<K, V>.cacheWriter(): CacheWriter<K, V> =
@@ -304,7 +331,7 @@ fun <K, V> javax.cache.Cache<K, V>.cacheWriter(): CacheWriter<K, V> =
  * @param C  cache configuration type (eg. CompleteConfiguration<K, V>)
  * @return cache configuration
  *
- * ```
+ * ```kotlin
  * val config = cache.getConfiguration<Any, Any, CompleteConfiguration<Any, Any>>()
  * ```
  */

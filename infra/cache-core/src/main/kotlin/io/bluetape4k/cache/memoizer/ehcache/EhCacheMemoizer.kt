@@ -7,6 +7,20 @@ import kotlin.concurrent.withLock
 
 /**
  * Ehcache를 이용하여 [EhCacheMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true)
+ * val cache = cacheManager.createCache(
+ *     "myCache",
+ *     CacheConfigurationBuilder.newCacheConfigurationBuilder(
+ *         String::class.java, Int::class.javaObjectType,
+ *         ResourcePoolsBuilder.heap(1000)
+ *     )
+ * )
+ * val memo = cache.memoizer { key -> key.length }
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 fun <T : Any, R : Any> org.ehcache.Cache<T, R>.memoizer(
     evaluator: (T) -> R,
@@ -14,12 +28,40 @@ fun <T : Any, R : Any> org.ehcache.Cache<T, R>.memoizer(
 
 /**
  * 함수를 Ehcache 기반 [EhCacheMemoizer]로 감쌉니다.
+ *
+ * ```kotlin
+ * val cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true)
+ * val cache = cacheManager.createCache(
+ *     "myCache",
+ *     CacheConfigurationBuilder.newCacheConfigurationBuilder(
+ *         String::class.java, Int::class.javaObjectType,
+ *         ResourcePoolsBuilder.heap(1000)
+ *     )
+ * )
+ * val memo = ({ key: String -> key.length }).withMemoizer(cache)
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: org.ehcache.Cache<T, R>): EhCacheMemoizer<T, R> =
     EhCacheMemoizer(cache, this)
 
 /**
  * Ehcache를 이용하여 메소드의 실행 결과를 기억하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ *
+ * ```kotlin
+ * val cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true)
+ * val cache = cacheManager.createCache(
+ *     "myCache",
+ *     CacheConfigurationBuilder.newCacheConfigurationBuilder(
+ *         String::class.java, Int::class.javaObjectType,
+ *         ResourcePoolsBuilder.heap(1000)
+ *     )
+ * )
+ * val memo = EhCacheMemoizer(cache) { key -> key.length }
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 class EhCacheMemoizer<T : Any, R : Any>(
     private val cache: org.ehcache.Cache<T, R>,

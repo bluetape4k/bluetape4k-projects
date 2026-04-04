@@ -56,6 +56,15 @@ open class LettuceMap<V: Any>(
     /**
      * 지정한 필드의 값을 반환합니다.
      *
+     * ```kotlin
+     * val map = LettuceMap<Int>(connection, "my-map")
+     * map.put("hello", 5)
+     * val value = map.get("hello")
+     * // value == 5
+     * val missing = map.get("notexist")
+     * // missing == null
+     * ```
+     *
      * @param field 조회할 필드명
      * @return 필드 값 (존재하지 않으면 null)
      */
@@ -64,6 +73,14 @@ open class LettuceMap<V: Any>(
 
     /**
      * 필드에 값을 설정합니다.
+     *
+     * ```kotlin
+     * val map = LettuceMap<Int>(connection, "my-map")
+     * val isNew = map.put("hello", 5)
+     * // isNew == true  (새 필드)
+     * val isNew2 = map.put("hello", 10)
+     * // isNew2 == false (기존 필드 갱신)
+     * ```
      *
      * @param field 설정할 필드명
      * @param value 설정할 값
@@ -109,6 +126,15 @@ open class LettuceMap<V: Any>(
 
     /**
      * 지정한 필드를 삭제합니다.
+     *
+     * ```kotlin
+     * val map = LettuceMap<Int>(connection, "my-map")
+     * map.put("hello", 5)
+     * val count = map.remove("hello")
+     * // count == 1
+     * val count2 = map.remove("notexist")
+     * // count2 == 0
+     * ```
      *
      * @param field 삭제할 필드명
      * @return 삭제된 필드 수
@@ -181,6 +207,13 @@ open class LettuceMap<V: Any>(
     /**
      * 여러 필드의 값을 한번에 조회합니다.
      * 존재하지 않는 필드는 null 값으로 반환됩니다.
+     *
+     * ```kotlin
+     * val map = LettuceMap<Int>(connection, "my-map")
+     * map.putAll(mapOf("a" to 1, "b" to 2))
+     * val result = map.getAll(listOf("a", "b", "c"))
+     * // result == {"a" to 1, "b" to 2, "c" to null}
+     * ```
      *
      * @param fields 조회할 필드명 컬렉션
      * @return 필드명 → 값 Map (없는 필드는 null)

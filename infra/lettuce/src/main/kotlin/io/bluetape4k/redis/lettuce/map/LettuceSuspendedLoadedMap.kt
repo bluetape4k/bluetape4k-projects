@@ -35,6 +35,21 @@ import java.io.Closeable
  * - **Write-behind**: [SuspendedMapWriter]를 통해 DB에 비동기로 쓰고 Redis는 즉시 갱신한다.
  * - **NONE**: Redis만 사용하고 DB 쓰기를 하지 않는다.
  *
+ * ```kotlin
+ * val loader = object : SuspendedMapLoader<String, MyData> {
+ *     override suspend fun load(key: String): MyData? = db.findByKey(key)
+ *     override suspend fun loadAllKeys(): List<String> = db.findAllKeys()
+ * }
+ * val writer = object : SuspendedMapWriter<String, MyData> {
+ *     override suspend fun write(map: Map<String, MyData>) { db.upsertAll(map) }
+ *     override suspend fun delete(keys: Collection<String>) { db.deleteAll(keys) }
+ * }
+ * val map = LettuceSuspendedLoadedMap<String, MyData>(redisClient, loader, writer)
+ * val value = map.get("key")  // Redis 미스 시 DB 로드 (Read-through)
+ * map.set("key", myData)      // Redis + DB에 즉시 쓰기 (Write-through)
+ * map.delete("key")           // Redis + DB에서 삭제
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  * @param client Lettuce [RedisClient]
@@ -84,6 +99,15 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
 
     /**
      * 캐시에서 값을 조회한다. 캐시 미스 시 [SuspendedMapLoader]를 통해 DB에서 로드한다.
+     *
+     * ```kotlin
+     * val value = map.get("key")
+     * // Redis에 있으면 캐시에서, 없으면 DB에서 로드
+     * // 값이 없으면 null
+     * ```
+     *
+     * @param key 조회할 키
+     * @return 값 (없으면 null)
      */
     suspend fun get(key: K): V? {
         val redisKey = redisKey(key)
@@ -98,6 +122,15 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
 
     /**
      * 캐시에 값을 저장한다. [config.writeMode]에 따라 DB에도 반영한다.
+     *
+     * ```kotlin
+     * map.set("key", myData)
+     * // WriteMode.WRITE_THROUGH: Redis + DB에 즉시 반영
+     * // WriteMode.WRITE_BEHIND: Redis 즉시 반영, DB는 비동기
+     * ```
+     *
+     * @param key 저장할 키
+     * @param value 저장할 값
      */
     suspend fun set(
         key: K,

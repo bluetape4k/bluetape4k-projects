@@ -13,7 +13,7 @@ import io.lettuce.core.cluster.RedisClusterClient
  * - [builder]에서 client-side config, expiration strategy, execution strategy를 설정할 수 있습니다.
  * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
- * ```
+ * ```kotlin
  * val redisClient = RedisClient.create("redis://localhost:6379")
  * val proxyManager = lettuceBasedProxyManagerOf(redisClient) {
  *    withClientSideConfig(
@@ -50,7 +50,7 @@ inline fun lettuceBasedProxyManagerOf(
  * - [builder]에서 client-side config, expiration strategy, execution strategy를 설정할 수 있습니다.
  * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
- * ```
+ * ```kotlin
  * val redisClusterClient = RedisClusterClient.create("redis://localhost:6379")
  * val proxyManager = lettuceBasedProxyManagerOf(redisClient) {
  *    withClientSideConfig(

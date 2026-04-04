@@ -54,6 +54,14 @@ return 1"""
      *
      * 이미 초기화된 필터를 같은 파라미터로 다시 초기화하면 `false`를 반환하고,
      * 다른 파라미터로 재초기화하려고 하면 [IllegalStateException]을 던집니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceBloomFilter(connection, "my-bloom")
+     * val initialized = bloomFilter.tryInit()
+     * // initialized == true (최초 초기화)
+     * val again = bloomFilter.tryInit()
+     * // again == false (이미 초기화됨)
+     * ```
      */
     fun tryInit(): Boolean {
         val initialized = commands.hsetnx(configKey, "k", k.toString())
@@ -80,14 +88,35 @@ return 1"""
         return false
     }
 
-    /** 원소를 필터에 기록합니다. */
+    /**
+     * 원소를 필터에 기록합니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceBloomFilter(connection, "my-bloom")
+     * bloomFilter.tryInit()
+     * bloomFilter.add("hello")
+     * bloomFilter.add("world")
+     * ```
+     */
     fun add(element: String) {
         val positions = hashPositions(element)
         commands.eval<Long>(ADD_SCRIPT, ScriptOutputType.INTEGER, arrayOf(filterName), *positions)
         log.debug { "BloomFilter add: name=$filterName, element=$element" }
     }
 
-    /** 원소의 존재 가능성을 조회합니다. */
+    /**
+     * 원소의 존재 가능성을 조회합니다.
+     *
+     * ```kotlin
+     * val bloomFilter = LettuceBloomFilter(connection, "my-bloom")
+     * bloomFilter.tryInit()
+     * bloomFilter.add("hello")
+     * val exists = bloomFilter.contains("hello")
+     * // exists == true
+     * val notExists = bloomFilter.contains("unknown")
+     * // notExists == false (오탐 가능성 있음)
+     * ```
+     */
     fun contains(element: String): Boolean {
         val positions = hashPositions(element)
         return commands.eval<Long>(

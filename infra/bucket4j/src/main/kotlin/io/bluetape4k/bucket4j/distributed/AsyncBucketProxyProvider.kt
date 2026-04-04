@@ -18,7 +18,7 @@ import io.github.bucket4j.distributed.proxy.AsyncProxyManager
  * - 실제 원격 bucket key는 [keyPrefix] + `key`를 UTF-8 바이트 배열로 직렬화해 구성합니다.
  * - resolve 시점에는 proxy 생성/조회만 수행하고, 잔여 토큰 조회 같은 추가 비동기 호출은 하지 않습니다.
  *
- * ```
+ * ```kotlin
  * class UserBasedAsyncBucketProvider(
  *    asyncProxyManager: AsyncProxyManager<ByteArray>,
  *    bucketConfiguration: BucketConfiguration,

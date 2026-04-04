@@ -10,7 +10,7 @@ import java.util.concurrent.Executor
 /**
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *
- * ```
+ * ```kotlin
  * val result = redisAsyncCommands.get("key").awaitSuspending()
  * ```
  */
@@ -19,7 +19,7 @@ suspend inline fun <T> RedisFuture<T>.awaitSuspending(): T = await()
 /**
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *
- * ```
+ * ```kotlin
  * val result = redisAsyncCommands.get("key").suspendAwait()
  * ```
  */
@@ -33,7 +33,7 @@ suspend inline fun <T> RedisFuture<T>.suspendAwait(): T = await()
 /**
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *
- * ```
+ * ```kotlin
  * val result = redisAsyncCommands.get("key").coAwait()
  * ```
  */
@@ -46,7 +46,7 @@ suspend inline fun <T> RedisFuture<T>.coAwait(): T = await()
 /**
  * [RedisFuture]`<T>` 컬렉션의 모든 요소들이 완료될 때까지 대기합니다.
  *
- * ```
+ * ```kotlin
  * val results = listOf(
  *      redisAsyncCommands.get("key1"),
  *      redisAsyncCommands.get("key2")
@@ -61,7 +61,7 @@ suspend inline fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when
 /**
  * [RedisFuture]`<T>` 컬렉션의 모든 요소들이 [CompletableFuture]`<List<T>>`로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<List<T>> = listOf(
  *      redisAsyncCommands.get("key1"),
  *      redisAsyncCommands.get("key2")

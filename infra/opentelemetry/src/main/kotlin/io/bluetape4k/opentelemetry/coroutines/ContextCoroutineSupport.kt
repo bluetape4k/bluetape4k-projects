@@ -12,6 +12,13 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * Current Coroutine Context와 Opentelemetry [Context] 하에서 [block]을 실행합니다.
  *
+ * ```kotlin
+ * val result = withOtelContext {
+ *     "executed-with-otel-context"
+ * }
+ * // result == "executed-with-otel-context"
+ * ```
+ *
  * @param T [block]의 실행 결과 타입입니다.
  * @param block 실행할 코드 블록입니다.
  * @return [block]의 실행 결과입니다.
@@ -26,6 +33,14 @@ suspend inline fun <T> withOtelContext(
 
 /**
  * Current Coroutine Context와 Current Opentelemetry [Context] 하에서 [block]을 실행합니다.
+ *
+ * ```kotlin
+ * val ctx = currentOtelContext()
+ * val result = ctx.withOtelContext {
+ *     "executed-with-otel-context"
+ * }
+ * // result == "executed-with-otel-context"
+ * ```
  *
  * @param T [block]의 실행 결과 타입입니다.
  * @param block 실행할 코드 블록입니다.

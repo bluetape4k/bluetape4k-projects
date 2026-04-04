@@ -14,6 +14,15 @@ import java.nio.ByteBuffer
  * Lettuce [RedisCodec] 구현체
  * Value 를 [BinarySerializer]를 이용하여 직렬화/역직렬화합니다. (압축 기능도 제공합니다)
  *
+ * ```kotlin
+ * val codec = LettuceBinaryCodec<MyData>(BinarySerializers.LZ4Kryo)
+ * val client = RedisClient.create("redis://localhost:6379")
+ * val connection = client.connect(codec)
+ * connection.sync().set("key", myData)
+ * val value = connection.sync().get("key")
+ * // value == myData
+ * ```
+ *
  * @param V value type
  * @property serializer [BinarySerializer] 인스턴스
  */

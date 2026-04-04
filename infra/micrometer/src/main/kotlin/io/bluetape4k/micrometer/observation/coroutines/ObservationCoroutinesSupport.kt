@@ -43,6 +43,15 @@ suspend fun currentObservationInContext(): Observation? =
  * - 블록이 끝나면 Observation scope 를 닫고 `stop()`을 호출합니다.
  * - 시작되지 않은 Observation을 전달해도 내부에서 `start()` 후 실행합니다.
  *
+ * ```kotlin
+ * val registry = ObservationRegistry.create()
+ * val observation = Observation.createNotStarted("my-op", registry)
+ * val result = observation.observeSuspending { ctx ->
+ *     "observed-result"
+ * }
+ * // result == "observed-result"
+ * ```
+ *
  * @param T 결과 타입
  * @param block Observation 컨텍스트를 받아 실행할 suspend 블록
  * @return 블록 결과 또는 `null`
@@ -56,6 +65,16 @@ suspend inline fun <T: Any> Observation.observeSuspending(
 
 /**
  * [observeSuspending] 결과를 [Result] 로 감싸 예외를 호출자에게 위임하지 않습니다.
+ *
+ * ```kotlin
+ * val registry = ObservationRegistry.create()
+ * val observation = Observation.createNotStarted("my-op", registry)
+ * val result = observation.tryObserveSuspending { ctx ->
+ *     "observed-result"
+ * }
+ * // result.isSuccess == true
+ * // result.getOrNull() == "observed-result"
+ * ```
  *
  * @param T 결과 타입
  * @param block Observation 컨텍스트를 받아 실행할 suspend 블록
@@ -72,6 +91,14 @@ suspend inline fun <T: Any> Observation.tryObserveSuspending(
 
 /**
  * 이름을 기준으로 새 [Observation]을 만들고 suspend 블록을 실행합니다.
+ *
+ * ```kotlin
+ * val registry = ObservationRegistry.create()
+ * val result = withObservationSuspending("user.fetch", registry) {
+ *     "user-data"
+ * }
+ * // result == "user-data"
+ * ```
  *
  * @param T 결과 타입
  * @param name Observation 이름
@@ -90,6 +117,15 @@ suspend inline fun <T: Any> withObservationSuspending(
 
 /**
  * [withObservationSuspending] 결과를 [Result] 로 감싸 반환합니다.
+ *
+ * ```kotlin
+ * val registry = ObservationRegistry.create()
+ * val result = tryWithObservationSuspending("user.fetch", registry) {
+ *     "user-data"
+ * }
+ * // result.isSuccess == true
+ * // result.getOrNull() == "user-data"
+ * ```
  *
  * @param T 결과 타입
  * @param name Observation 이름

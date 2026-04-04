@@ -8,6 +8,17 @@ import java.time.Duration
 /**
  * Lettuce Near Cache (2-tier cache) 설정.
  *
+ * ```kotlin
+ * val config = LettuceNearCacheConfig<String, String>(
+ *     cacheName = "my-cache",
+ *     maxLocalSize = 5_000,
+ *     redisTtl = Duration.ofMinutes(10),
+ *     recordStats = true,
+ * )
+ * val redisKey = config.redisKey("user:123")
+ * // redisKey == "my-cache:user:123"
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  */
@@ -38,6 +49,12 @@ data class LettuceNearCacheConfig<K: Any, V: Any>(
      *
      * key에는 ':'를 포함할 수 있다. invalidation 수신 시 startsWith + removePrefix 방식으로
      * cacheName prefix만 제거하므로 key의 ':' 문자는 그대로 보존된다.
+     *
+     * ```kotlin
+     * val config = LettuceNearCacheConfig<String, String>(cacheName = "orders")
+     * val rkey = config.redisKey("user:123")
+     * // rkey == "orders:user:123"
+     * ```
      */
     @Suppress("NOTHING_TO_INLINE")
     inline fun redisKey(key: String): String = "${cacheName}:${key}"
@@ -45,12 +62,33 @@ data class LettuceNearCacheConfig<K: Any, V: Any>(
 
 /**
  * [LettuceNearCacheConfig] DSL 빌더.
+ *
+ * ```kotlin
+ * val config = lettuceNearCacheConfig<String, String> {
+ *     cacheName = "products"
+ *     maxLocalSize = 2_000
+ *     redisTtl = Duration.ofMinutes(5)
+ * }
+ * // config.cacheName == "products"
+ * // config.maxLocalSize == 2000L
+ * ```
  */
 inline fun <K: Any, V: Any> lettuceNearCacheConfig(
     block: LettuceNearCacheConfigBuilder<K, V>.() -> Unit,
 ): LettuceNearCacheConfig<K, V> =
     LettuceNearCacheConfigBuilder<K, V>().apply(block).build()
 
+/**
+ * [LettuceNearCacheConfig] 설정 빌더 클래스.
+ *
+ * ```kotlin
+ * val builder = LettuceNearCacheConfigBuilder<String, String>()
+ * builder.cacheName = "sessions"
+ * builder.redisTtl = Duration.ofHours(1)
+ * val config = builder.build()
+ * // config.cacheName == "sessions"
+ * ```
+ */
 class LettuceNearCacheConfigBuilder<K: Any, V: Any> {
     var cacheName: String = "lettuce-near-cache"
     var maxLocalSize: Long = 10_000

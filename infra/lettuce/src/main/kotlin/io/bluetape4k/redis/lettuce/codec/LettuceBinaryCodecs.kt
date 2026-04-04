@@ -7,12 +7,36 @@ import io.bluetape4k.io.serializer.BinarySerializers
  * 다양한 Serializer/Compressor 조합의 [LettuceBinaryCodec] 팩토리 모음.
  *
  * Protobuf 기반 Codec은 [io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs]를 사용하세요.
+ *
+ * ```kotlin
+ * // 기본 LZ4+Fory 코덱 사용
+ * val codec = LettuceBinaryCodecs.default<MyData>()
+ * val connection = redisClient.connect(codec)
+ * connection.sync().set("key", myData)
+ *
+ * // Kryo + Snappy 조합 사용
+ * val snappyKryoCodec = LettuceBinaryCodecs.snappyKryo<MyData>()
+ * ```
  */
 object LettuceBinaryCodecs {
 
+    /**
+     * 지정된 [BinarySerializer]를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.codec<MyData>(BinarySerializers.Kryo)
+     * ```
+     */
     fun <V: Any> codec(serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
 
+    /**
+     * 기본 코덱(LZ4 + Fory)을 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.default<MyData>()
+     * ```
+     */
     fun <V: Any> default(): LettuceBinaryCodec<V> = lz4Fory()
 
     /**

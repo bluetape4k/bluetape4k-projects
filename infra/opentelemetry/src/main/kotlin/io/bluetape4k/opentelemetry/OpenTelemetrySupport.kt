@@ -67,6 +67,14 @@ fun openTelemetryOf(propagators: ContextPropagators): OpenTelemetry =
 
 /**
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드합니다.
+ *
+ * ```kotlin
+ * val sdk = openTelemetrySdk {
+ *     setTracerProvider(sdkTracerProvider { })
+ *     setMeterProvider(sdkMeterProvider { })
+ * }
+ * // sdk != null
+ * ```
  */
 inline fun openTelemetrySdk(
     builder: OpenTelemetrySdkBuilder.() -> Unit,
@@ -75,6 +83,13 @@ inline fun openTelemetrySdk(
 
 /**
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드하고 Global OpenTelemetry 로 지정합니다.
+ *
+ * ```kotlin
+ * val sdk = openTelemetrySdkGlobal {
+ *     setTracerProvider(sdkTracerProvider { })
+ * }
+ * // globalOpenTelemetry != NoopOpenTelemetry
+ * ```
  */
 inline fun openTelemetrySdkGlobal(
     builder: OpenTelemetrySdkBuilder.() -> Unit,
@@ -83,6 +98,14 @@ inline fun openTelemetrySdkGlobal(
 
 /**
  * [OpenTelemetrySdk]를 생성합니다.
+ *
+ * ```kotlin
+ * val sdk = openTelemetrySdkOf(
+ *     tracerProvider = sdkTracerProvider { },
+ *     meterProvider = sdkMeterProvider { },
+ * )
+ * // sdk != null
+ * ```
  *
  * @param tracerProvider [SdkTracerProvider]
  * @param meterProvider [SdkMeterProvider]
@@ -107,6 +130,14 @@ fun openTelemetrySdkOf(
 /**
  * [TracerBuilder]를 이용하여 [Tracer] 인스턴스를 빌드합니다.
  *
+ * ```kotlin
+ * val otel = NoopOpenTelemetry
+ * val tracer = otel.tracer("com.example.service") {
+ *     setInstrumentationVersion("1.0.0")
+ * }
+ * // tracer != null
+ * ```
+ *
  * @param tracerName tracer 이름
  * @param builder tracer 빌딩 블록
  * @return [Tracer] 인스턴스
@@ -121,6 +152,14 @@ inline fun OpenTelemetry.tracer(
 
 /**
  * [MeterBuilder]를 이용하여 [Meter] 인스턴스를 빌드합니다.
+ *
+ * ```kotlin
+ * val otel = NoopOpenTelemetry
+ * val meter = otel.meter("com.example.metrics") {
+ *     setInstrumentationVersion("1.0.0")
+ * }
+ * // meter != null
+ * ```
  *
  * @param meterName meter 이름
  * @param builder meter 빌딩 블록

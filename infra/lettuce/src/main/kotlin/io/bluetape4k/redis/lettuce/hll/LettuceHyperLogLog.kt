@@ -22,23 +22,66 @@ class LettuceHyperLogLog<V: Any>(
 
     private val commands: RedisCommands<String, V> = connection.sync()
 
-    /** 원소를 추가하고 구조가 변경되었는지 반환합니다. */
+    /**
+     * 원소를 추가하고 구조가 변경되었는지 반환합니다.
+     *
+     * ```kotlin
+     * val hll = LettuceHyperLogLog(connection, "my-hll")
+     * val changed = hll.add("hello", "world")
+     * // changed == true
+     * val notChanged = hll.add("hello")  // 이미 추가된 원소
+     * // notChanged == false
+     * ```
+     */
     fun add(vararg elements: V): Boolean {
         val changed = commands.pfadd(name, *elements) == 1L
         log.debug { "HyperLogLog add: name=$name, changed=$changed" }
         return changed
     }
 
-    /** 현재 근사 카디널리티를 반환합니다. */
+    /**
+     * 현재 근사 카디널리티를 반환합니다.
+     *
+     * ```kotlin
+     * val hll = LettuceHyperLogLog(connection, "my-hll")
+     * hll.add("a", "b", "c")
+     * val count = hll.count()
+     * // count == 3 (근사값)
+     * ```
+     */
     fun count(): Long = commands.pfcount(name)
 
-    /** 현재 HLL과 다른 HLL들의 합산 근사 카디널리티를 반환합니다. */
+    /**
+     * 현재 HLL과 다른 HLL들의 합산 근사 카디널리티를 반환합니다.
+     *
+     * ```kotlin
+     * val hll1 = LettuceHyperLogLog(connection, "hll-1")
+     * val hll2 = LettuceHyperLogLog(connection, "hll-2")
+     * hll1.add("a", "b")
+     * hll2.add("c", "d")
+     * val total = hll1.countWith(hll2)
+     * // total ≈ 4
+     * ```
+     */
     fun countWith(vararg others: LettuceHyperLogLog<V>): Long {
         val keys = arrayOf(name) + others.map { it.name }.toTypedArray()
         return commands.pfcount(*keys)
     }
 
-    /** 현재 HLL과 다른 HLL들을 [destName]으로 병합합니다. */
+    /**
+     * 현재 HLL과 다른 HLL들을 [destName]으로 병합합니다.
+     *
+     * ```kotlin
+     * val hll1 = LettuceHyperLogLog(connection, "hll-1")
+     * val hll2 = LettuceHyperLogLog(connection, "hll-2")
+     * hll1.add("a", "b")
+     * hll2.add("c", "d")
+     * hll1.mergeWith("hll-merged", hll2)
+     * val merged = LettuceHyperLogLog(connection, "hll-merged")
+     * val count = merged.count()
+     * // count ≈ 4
+     * ```
+     */
     fun mergeWith(destName: String, vararg others: LettuceHyperLogLog<V>) {
         val sourceKeys = arrayOf(name) + others.map { it.name }.toTypedArray()
         commands.pfmerge(destName, *sourceKeys)

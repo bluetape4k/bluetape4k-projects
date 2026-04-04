@@ -16,6 +16,11 @@ import javax.cache.configuration.MutableConfiguration
  * - Redis 8 이상에서는 `HSETEX`를 우선 사용하되 hash key `EXPIRE`도 함께 갱신합니다.
  * - Redis 7 이하에서는 `HSET/HMSET + EXPIRE` fallback 경로를 사용합니다.
  * - `null`이면 만료를 사용하지 않습니다.
+ *
+ * ```kotlin
+ * val config = lettuceCacheConfigOf<String, String>(ttlSeconds = 300)
+ * // config.ttlSeconds == 300L
+ * ```
  */
 class LettuceCacheConfig<K: Any, V: Any>(
     /** Redis hash key 전체에 적용할 TTL(초). `null`이면 만료를 사용하지 않습니다. */
@@ -38,6 +43,12 @@ class LettuceCacheConfig<K: Any, V: Any>(
  * [LettuceCacheConfig] 인스턴스를 생성하는 간편 DSL 함수입니다.
  *
  * 생성된 설정은 [LettuceCacheManager.createCache] 또는 [LettuceJCaching.getOrCreate]에 전달할 수 있습니다.
+ *
+ * ```kotlin
+ * val config = lettuceCacheConfigOf<String, String>(ttlSeconds = 60)
+ * // config.ttlSeconds == 60L
+ * // config.keyType == String::class.java
+ * ```
  */
 inline fun <reified K: Any, reified V: Any> lettuceCacheConfigOf(
     ttlSeconds: Long? = null,

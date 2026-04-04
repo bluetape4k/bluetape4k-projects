@@ -14,7 +14,7 @@ val defaultCache2kManager: CacheManager by lazy { CacheManager.getInstance() }
 /**
  * [Cache2kBuilder]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val cache = cache2k<String, Int> {
  *    name = "myCache"
  *    entryCapacity = 1000
@@ -45,7 +45,7 @@ inline fun <reified K: Any, reified V: Any> cache2k(
 /**
  * [Cache2kConfig]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val config = cache2kConfiguration<String, Int>("myCache") {
  *     entryCapacity = 1000
  *     expireAfterWrite = 5.minutes
@@ -82,7 +82,7 @@ inline fun <reified K: Any, reified V: Any> cache2kConfiguration(
 /**
  * [CacheManager]에서 [cacheName]에 해당하는 Cache를 가져온다. 없으면 null을 반환한다.
  *
- * ```
+ * ```kotlin
  * val cache = getCache2k<String, Int>("myCache")
  * cache.put("hello", 5)
  * val value = cache.get("hello")
@@ -101,7 +101,7 @@ inline fun <reified K: Any, reified V: Any> getCache2k(cacheName: String): Cache
 /**
  * [CacheManager]에서 [cacheName]에 해당하는 Cache를 가져온다. 만약 없다면 새롭게 생성해서 반환한다.
  *
- * ```
+ * ```kotlin
  * val cache = getOrCreateCache2k<String, Int>("myCache") {
  *     entryCapacity = 1000
  *     expireAfterWrite = 5.minutes

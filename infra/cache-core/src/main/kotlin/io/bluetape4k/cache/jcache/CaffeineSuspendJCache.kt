@@ -16,7 +16,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
 /**
  * Caffeine 기반의 [com.github.benmanes.caffeine.cache.AsyncCache]를 이용하는 Coroutines 기반의 [SuspendJCache] 구현체입니다.
  *
- * ```
+ * ```kotlin
  * val coCache = CaffeineCoCache<String, Any> {
  *     expireAfterWrite(Duration.ofSeconds(60))
  *     maximumSize(100_000)
@@ -36,6 +36,19 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
 class CaffeineSuspendJCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): SuspendJCache<K, V> {
 
     companion object: KLoggingChannel() {
+        /**
+         * Caffeine AsyncCache 설정을 DSL로 지정하여 [CaffeineSuspendJCache]를 생성합니다.
+         *
+         * ```kotlin
+         * val cache = CaffeineSuspendJCache<String, Int> {
+         *     maximumSize(1000)
+         *     expireAfterWrite(Duration.ofMinutes(10))
+         * }
+         * cache.put("hello", 5)
+         * val value = cache.get("hello")
+         * // value == 5
+         * ```
+         */
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             builder: Caffeine<Any, Any>.() -> Unit = {},

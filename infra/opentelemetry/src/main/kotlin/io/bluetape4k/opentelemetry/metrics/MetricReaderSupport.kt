@@ -10,20 +10,38 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader
  * [InMemoryMetricReader] 를 생성합니다.
  *
  * [io.opentelemetry.sdk.metrics.data.AggregationTemporality.CUMULATIVE]
+ *
+ * ```kotlin
+ * val reader = inMemoryMetricReaderOf()
+ * val metrics = reader.collectAllMetrics()
+ * // metrics.isEmpty() == true (초기 상태)
+ * ```
  */
 fun inMemoryMetricReaderOf(): InMemoryMetricReader = InMemoryMetricReader.create()
 
 /**
  * Metric의 변화량을 읽어오는 [InMemoryMetricReader] 를 생성합니다.
  *
+ * ```kotlin
+ * val reader = inMemoryMetricReaderDeltaOf()
+ * // reader != null (DELTA 집계 방식)
+ * ```
+ *
  * @see [InMemoryMetricReader.createDelta]
  * @see [io.opentelemetry.sdk.metrics.data.AggregationTemporality.DELTA]
- *
  */
 fun inMemoryMetricReaderDeltaOf(): InMemoryMetricReader = InMemoryMetricReader.createDelta()
 
 /**
  * 주기적으로 Metric 정보를 읽어서 [exporter] 로 내보내는 [io.opentelemetry.sdk.metrics.export.MetricReader] 를 생성한다.
+ *
+ * ```kotlin
+ * val exporter = inMemoryMetricExporterOf()
+ * val reader = periodicMetricReader(exporter) {
+ *     setInterval(java.time.Duration.ofSeconds(10))
+ * }
+ * // reader != null
+ * ```
  *
  * @param exporter Metric 정보를 내보내는 [MetricExporter]
  * @param builder [PeriodicMetricReaderBuilder] 를 설정하는 람다입니다.

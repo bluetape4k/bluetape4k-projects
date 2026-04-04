@@ -6,6 +6,15 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
 
 /**
  * Caffeine 기반 [LettuceLocalCache] 구현.
+ *
+ * ```kotlin
+ * val config = LettuceNearCacheConfig<String, String>(cacheName = "local", maxLocalSize = 1000)
+ * val cache = LettuceCaffeineLocalCache(config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * cache.close()
+ * ```
  */
 class LettuceCaffeineLocalCache<K: Any, V: Any>(private val config: LettuceNearCacheConfig<K, V>):
     LettuceLocalCache<K, V> {

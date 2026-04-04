@@ -7,6 +7,14 @@ import io.opentelemetry.api.common.AttributesBuilder
 /**
  * [Attributes] 인스턴스를 빌드합니다.
  *
+ * ```kotlin
+ * val attrs = attributes {
+ *     put("service.name", "my-service")
+ *     put("service.version", "1.0.0")
+ * }
+ * // attrs.size() == 2
+ * ```
+ *
  * @param builder Attributes 빌더
  * @return [Attributes] 인스턴스
  */
@@ -18,6 +26,12 @@ inline fun attributes(
 
 /**
  * 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val attrs = attributesOf("http.method", "GET")
+ * // attrs.get(stringAttributeKeyOf("http.method")) == "GET"
+ * ```
+ *
  * @param key 속성 키
  * @param value 속성 값
  * @return [Attributes] 인스턴스
@@ -26,6 +40,13 @@ fun attributesOf(key: String, value: String): Attributes = Attributes.of(key.toA
 
 /**
  * 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val key = longAttributeKeyOf("http.status_code")
+ * val attrs = attributesOf(key, 200L)
+ * // attrs.get(key) == 200L
+ * ```
+ *
  * @param key 속성 키
  * @param value 속성 값
  * @return [Attributes] 인스턴스
@@ -37,6 +58,13 @@ fun <T: Any> attributesOf(
 
 /**
  * 2개의 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val methodKey = stringAttributeKeyOf("http.method")
+ * val statusKey = longAttributeKeyOf("http.status_code")
+ * val attrs = attributesOf(methodKey, "GET", statusKey, 200L)
+ * // attrs.size() == 2
+ * ```
  */
 fun <T: Any, U: Any> attributesOf(
     key1: AttributeKey<T>, value1: T,
@@ -46,6 +74,14 @@ fun <T: Any, U: Any> attributesOf(
 
 /**
  * 3개의 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val k1 = stringAttributeKeyOf("service")
+ * val k2 = stringAttributeKeyOf("env")
+ * val k3 = longAttributeKeyOf("version")
+ * val attrs = attributesOf(k1, "api", k2, "prod", k3, 2L)
+ * // attrs.size() == 3
+ * ```
  */
 fun <T: Any, U: Any, V: Any> attributesOf(
     key1: AttributeKey<T>, value1: T,
@@ -56,6 +92,16 @@ fun <T: Any, U: Any, V: Any> attributesOf(
 
 /**
  * 4개의 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val attrs = attributesOf(
+ *     stringAttributeKeyOf("a"), "1",
+ *     stringAttributeKeyOf("b"), "2",
+ *     stringAttributeKeyOf("c"), "3",
+ *     longAttributeKeyOf("d"), 4L,
+ * )
+ * // attrs.size() == 4
+ * ```
  */
 fun <T: Any, U: Any, V: Any, W: Any> attributesOf(
     key1: AttributeKey<T>, value1: T,
@@ -67,6 +113,17 @@ fun <T: Any, U: Any, V: Any, W: Any> attributesOf(
 
 /**
  * 5개의 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val attrs = attributesOf(
+ *     stringAttributeKeyOf("a"), "1",
+ *     stringAttributeKeyOf("b"), "2",
+ *     stringAttributeKeyOf("c"), "3",
+ *     stringAttributeKeyOf("d"), "4",
+ *     longAttributeKeyOf("e"), 5L,
+ * )
+ * // attrs.size() == 5
+ * ```
  */
 fun <T: Any, U: Any, V: Any, W: Any, X: Any> attributesOf(
     key1: AttributeKey<T>, value1: T,
@@ -79,6 +136,18 @@ fun <T: Any, U: Any, V: Any, W: Any, X: Any> attributesOf(
 
 /**
  * 6개의 키-값 쌍으로 [Attributes]를 생성합니다.
+ *
+ * ```kotlin
+ * val attrs = attributesOf(
+ *     stringAttributeKeyOf("a"), "1",
+ *     stringAttributeKeyOf("b"), "2",
+ *     stringAttributeKeyOf("c"), "3",
+ *     stringAttributeKeyOf("d"), "4",
+ *     stringAttributeKeyOf("e"), "5",
+ *     longAttributeKeyOf("f"), 6L,
+ * )
+ * // attrs.size() == 6
+ * ```
  */
 fun <T: Any, U: Any, V: Any, W: Any, X: Any, Y: Any> attributesOf(
     key1: AttributeKey<T>, value1: T,
@@ -93,6 +162,11 @@ fun <T: Any, U: Any, V: Any, W: Any, X: Any, Y: Any> attributesOf(
 /**
  * [Map]을 [Attributes]로 변환합니다.
  * 숫자, 부울, 문자열 외에도 primitive array, iterable, sequence 등을 안정적으로 처리합니다.
+ *
+ * ```kotlin
+ * val attrs = mapOf("service" to "api", "version" to 2L).toAttributes()
+ * // attrs.size() == 2
+ * ```
  */
 fun Map<*, *>.toAttributes(): Attributes = attributes {
     forEach { (key, value) ->

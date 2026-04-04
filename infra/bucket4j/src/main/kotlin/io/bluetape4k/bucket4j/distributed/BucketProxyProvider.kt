@@ -17,7 +17,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
  * - 실제 원격 bucket key는 [keyPrefix] + `key`를 UTF-8 바이트 배열로 직렬화해 구성합니다.
  * - resolve 시점에는 bucket 생성/조회만 수행하고, 잔여 토큰 조회 같은 추가 원격 호출은 하지 않습니다.
  *
- * ```
+ * ```kotlin
  * class UserBasedBucketProvider(
  *    proxyManager: ProxyManager<ByteArray>,
  *    bucketConfiguration: BucketConfiguration,
@@ -27,7 +27,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
  *     companion object: KLogging()
  *
  *     override fun getBucketKey(key: String): ByteArray {
- *          return "$tokenPrefix$key".toUtf8Bytes()
+ *          return "$keyPrefix$key".toUtf8Bytes()
  *     }
  * }
  * ```

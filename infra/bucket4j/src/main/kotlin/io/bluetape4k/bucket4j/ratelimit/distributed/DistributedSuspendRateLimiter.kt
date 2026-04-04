@@ -19,7 +19,7 @@ import kotlinx.coroutines.future.await
  * - 소비 결과와 잔여 토큰은 `ConsumptionProbe` 한 번의 조회 결과로 해석합니다.
  * - 코루틴 취소는 `ERROR`로 감싸지 않고 그대로 전파합니다.
  *
- * ```
+ * ```kotlin
  * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
  * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
@@ -47,6 +47,13 @@ class DistributedSuspendRateLimiter(
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 즉시 소비 시도합니다. 결과는 [RateLimitResult]로 반환됩니다.
+     *
+     * ```kotlin
+     * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
+     * val result = rateLimiter.consume("user-42", 1L)
+     * // result.isConsumed == true (토큰 여유가 있는 경우)
+     * // result.remainingTokens >= 0
+     * ```
      *
      * @param key      Rate Limit 적용 대상 Key
      * @param numToken 소비할 토큰 수

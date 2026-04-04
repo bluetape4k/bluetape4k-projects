@@ -6,6 +6,14 @@ import org.apache.kafka.common.header.Headers
 
 /**
  * [BinarySerializer]를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = KryoKafkaCodec()
+ * val data = listOf("a", "b", "c")
+ * val bytes = codec.serialize("topic", null, data)
+ * val restored = codec.deserialize("topic", null, bytes)
+ * // restored == listOf("a", "b", "c")
+ * ```
  */
 abstract class BinaryKafkaCodec(
     private val serializer: BinarySerializer,
@@ -21,62 +29,146 @@ abstract class BinaryKafkaCodec(
 }
 
 /**
- * [BinarySerializers.Jdk]를 이용한 Kafka Codec
+ * JDK 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = JdkKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.Jdk)
 
 /**
- * [BinarySerializers.Kryo]를 이용한 Kafka Codec
+ * Kryo 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = KryoKafkaCodec()
+ * val bytes = codec.serialize("topic", null, 42)
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == 42
+ * ```
  */
 class KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.Kryo)
 
 /**
- * [BinarySerializers.Fory]를 이용한 Kafka Codec
+ * Fory 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = ForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
 
 /**
- * [BinarySerializers.LZ4Jdk]를 이용한 Kafka Codec
+ * LZ4 압축 + JDK 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = LZ4JdkKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class LZ4JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Jdk)
 
 /**
- * [BinarySerializers.LZ4Kryo]를 이용한 Kafka Codec
+ * LZ4 압축 + Kryo 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = LZ4KryoKafkaCodec()
+ * val bytes = codec.serialize("topic", null, listOf(1, 2, 3))
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == listOf(1, 2, 3)
+ * ```
  */
 class LZ4KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Kryo)
 
 /**
- * [BinarySerializers.LZ4Fory]를 이용한 Kafka Codec
+ * LZ4 압축 + Fory 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = LZ4ForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
 
 /**
- * [BinarySerializers.SnappyJdk]를 이용한 Kafka Codec
+ * Snappy 압축 + JDK 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = SnappyJdkKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class SnappyJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyJdk)
 
 /**
- * [BinarySerializers.SnappyKryo]를 이용한 Kafka Codec
+ * Snappy 압축 + Kryo 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = SnappyKryoKafkaCodec()
+ * val bytes = codec.serialize("topic", null, mapOf("k" to "v"))
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result is a Map with k -> v
+ * ```
  */
 class SnappyKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyKryo)
 
 /**
- * [BinarySerializers.SnappyFory]를 이용한 Kafka Codec
+ * Snappy 압축 + Fory 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = SnappyForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
 
 
 /**
- * [BinarySerializers.ZstdJdk]를 이용한 Kafka Codec
+ * Zstd 압축 + JDK 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = ZstdJdkKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class ZstdJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdJdk)
 
 /**
- * [BinarySerializers.ZstdKryo]를 이용한 Kafka Codec
+ * Zstd 압축 + Kryo 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = ZstdKryoKafkaCodec()
+ * val bytes = codec.serialize("topic", null, listOf("a", "b"))
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == listOf("a", "b")
+ * ```
  */
 class ZstdKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdKryo)
 
 /**
- * [BinarySerializers.ZstdFory]를 이용한 Kafka Codec
+ * Zstd 압축 + Fory 직렬화를 이용한 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = ZstdForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
  */
 class ZstdForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdFory)

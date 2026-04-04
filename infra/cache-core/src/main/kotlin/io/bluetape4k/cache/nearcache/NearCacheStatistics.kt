@@ -7,6 +7,15 @@ package io.bluetape4k.cache.nearcache
  * 구현체는 Caffeine [com.github.benmanes.caffeine.cache.stats.CacheStats]에서
  * 로컬 통계를 매핑하고, [java.util.concurrent.atomic.AtomicLong] 카운터로
  * 백엔드 통계를 추적합니다.
+ *
+ * ```kotlin
+ * val cache: NearCacheOperations<String> = lettuceNearCacheOf(redisClient, codec, config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * val stats: NearCacheStatistics = cache.stats()
+ * // stats.localHits >= 0
+ * // stats.hitRate between 0.0 and 1.0
+ * ```
  */
 interface NearCacheStatistics {
     /** 로컬 캐시 히트 수 */
@@ -35,6 +44,14 @@ interface NearCacheStatistics {
  * [NearCacheStatistics]의 기본 구현체.
  *
  * 불변 스냅샷으로, 통계 조회 시점의 값을 캡처합니다.
+ *
+ * ```kotlin
+ * val stats = DefaultNearCacheStatistics(
+ *     localHits = 10, localMisses = 2, localSize = 8,
+ *     backHits = 1, backMisses = 1
+ * )
+ * // stats.hitRate == (10 + 1).toDouble() / (10 + 1 + 1) == 0.916...
+ * ```
  */
 data class DefaultNearCacheStatistics(
     override val localHits: Long = 0,

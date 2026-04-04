@@ -19,7 +19,7 @@ import kotlinx.coroutines.CancellationException
  * - 내부적으로 `tryConsumeAndReturnRemaining`을 사용해 소비 결과와 잔여 토큰을 한 번에 계산합니다.
  * - `CancellationException`은 그대로 전파하고, 그 외 런타임 오류는 [RateLimitResult.error]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val rateLimiter = LocalSuspendRateLimiter(bucketProvider)
  * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
@@ -47,6 +47,13 @@ class LocalSuspendRateLimiter(
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 즉시 소비 시도합니다. 결과는 [RateLimitResult]로 반환됩니다.
+     *
+     * ```kotlin
+     * val rateLimiter = LocalSuspendRateLimiter(bucketProvider)
+     * val result = rateLimiter.consume("user-42", 1L)
+     * // result.isConsumed == true (토큰 여유가 있는 경우)
+     * // result.remainingTokens >= 0
+     * ```
      *
      * @param key      Rate Limit 적용 대상 Key
      * @param numToken 소비할 토큰 수

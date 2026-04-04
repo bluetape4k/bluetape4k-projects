@@ -6,6 +6,15 @@ import javax.cache.management.CacheStatisticsMXBean
 
 /**
  * [NearCache]의 통계 정보를 제공하는 [CacheStatisticsMXBean] 구현체입니다.
+ *
+ * ```kotlin
+ * val mxBean = NearJCacheStatisticsMXBean()
+ * mxBean.addHits(10)
+ * mxBean.addMisses(2)
+ * mxBean.addPuts(12)
+ * val hitPct = mxBean.cacheHitPercentage
+ * // hitPct == (10 * 100f) / (10 + 2) ≈ 83.33f
+ * ```
  */
 open class NearJCacheStatisticsMXBean: CacheStatisticsMXBean {
 

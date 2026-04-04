@@ -7,6 +7,11 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
 
 /**
  * [LoggingSpanExporter]를 생성합니다.
+ *
+ * ```kotlin
+ * val exporter = loggingSpanExporterOf()
+ * // exporter != null
+ * ```
  */
 fun loggingSpanExporterOf(): LoggingSpanExporter = LoggingSpanExporter.create()
 
@@ -16,6 +21,12 @@ fun loggingSpanExporterOf(): LoggingSpanExporter = LoggingSpanExporter.create()
  * [io.opentelemetry.sdk.trace.export.SimpleSpanProcessor] 또는
  * [io.opentelemetry.sdk.trace.export.BatchSpanProcessor]와 같은 동일한
  * [io.opentelemetry.sdk.trace.SpanProcessor]를 사용하여 여러 백엔드로 내보내는 데 사용할 수 있습니다.
+ *
+ * ```kotlin
+ * val loggingExporter = loggingSpanExporterOf()
+ * val compositeExporter = spanExporterOf(loggingExporter)
+ * // compositeExporter != null
+ * ```
  */
 fun spanExporterOf(vararg exporters: SpanExporter): SpanExporter =
     SpanExporter.composite(*exporters)

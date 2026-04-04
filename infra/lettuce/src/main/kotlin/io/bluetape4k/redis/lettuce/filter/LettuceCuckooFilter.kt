@@ -11,6 +11,17 @@ import io.lettuce.core.api.sync.RedisCommands
  *
  * 삽입 중 kick-out 재배치가 실패하면 Lua undo-log로 기존 버킷 상태를 복구합니다.
  *
+ * ```kotlin
+ * val filter = LettuceCuckooFilter(connection, "my-filter", CuckooFilterOptions(capacity = 1000))
+ * filter.tryInit()
+ * filter.insert("apple")
+ * val exists = filter.contains("apple")
+ * // exists == true
+ * filter.delete("apple")
+ * val count = filter.count()
+ * // count == 0
+ * ```
+ *
  * @property connection `StringCodec` 기반 Redis 연결
  * @property filterName Redis 키 prefix
  * @property options Cuckoo Filter 구성 옵션
@@ -72,7 +83,14 @@ class LettuceCuckooFilter(
         return false
     }
 
-    /** 원소를 삽입하고 성공 여부를 반환합니다. */
+    /**
+     * 원소를 삽입하고 성공 여부를 반환합니다.
+     *
+     * ```kotlin
+     * val ok = filter.insert("apple")
+     * // ok == true
+     * ```
+     */
     fun insert(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return commands.eval<Long>(
@@ -88,7 +106,17 @@ class LettuceCuckooFilter(
         ) == 1L
     }
 
-    /** 원소가 존재하는지 검사합니다. */
+    /**
+     * 원소가 존재하는지 검사합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * val exists = filter.contains("apple")
+     * // exists == true
+     * val notExists = filter.contains("banana")
+     * // notExists == false
+     * ```
+     */
     fun contains(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return commands.eval<Long>(
@@ -101,7 +129,17 @@ class LettuceCuckooFilter(
         ) == 1L
     }
 
-    /** 원소를 삭제하고 성공 여부를 반환합니다. */
+    /**
+     * 원소를 삭제하고 성공 여부를 반환합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * val deleted = filter.delete("apple")
+     * // deleted == true
+     * val notDeleted = filter.delete("apple")
+     * // notDeleted == false (이미 삭제됨)
+     * ```
+     */
     fun delete(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return commands.eval<Long>(
@@ -114,7 +152,16 @@ class LettuceCuckooFilter(
         ) == 1L
     }
 
-    /** 현재 저장된 원소 수를 반환합니다. */
+    /**
+     * 현재 저장된 원소 수를 반환합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * filter.insert("banana")
+     * val count = filter.count()
+     * // count == 2
+     * ```
+     */
     fun count(): Long = commands.hget(configKey, "count")?.toLongOrNull() ?: 0L
 
     override fun close() = connection.close()

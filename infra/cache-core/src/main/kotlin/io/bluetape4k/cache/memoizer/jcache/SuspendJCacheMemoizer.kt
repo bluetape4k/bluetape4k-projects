@@ -8,6 +8,15 @@ import kotlinx.coroutines.sync.withLock
 
 /**
  * JCache를 사용하는 suspend memoizer를 생성합니다.
+ *
+ * ```kotlin
+ * val cachingProvider = Caching.getCachingProvider()
+ * val cacheManager = cachingProvider.cacheManager
+ * val cache = cacheManager.getCache<String, Int>("myCache")
+ * val memo = cache.suspendMemoizer { key -> key.length }
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 fun <T: Any, R: Any> javax.cache.Cache<T, R>.suspendMemoizer(
     evaluator: suspend (T) -> R,
@@ -16,6 +25,15 @@ fun <T: Any, R: Any> javax.cache.Cache<T, R>.suspendMemoizer(
 
 /**
  * suspend 함수를 JCache 기반 memoizer로 감쌉니다.
+ *
+ * ```kotlin
+ * val cachingProvider = Caching.getCachingProvider()
+ * val cacheManager = cachingProvider.cacheManager
+ * val cache = cacheManager.getCache<String, Int>("myCache")
+ * val memo = (suspend { key: String -> key.length }).withSuspendMemoizer(cache)
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(
     jcache: javax.cache.Cache<T, R>,
@@ -24,6 +42,15 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(
 
 /**
  * [javax.cache.Cache]를 저장소로 사용하는 [SuspendMemoizer] 구현체입니다.
+ *
+ * ```kotlin
+ * val cachingProvider = Caching.getCachingProvider()
+ * val cacheManager = cachingProvider.cacheManager
+ * val cache = cacheManager.getCache<String, Int>("myCache")
+ * val memo = SuspendJCacheMemoizer(cache) { key -> key.length }
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 class SuspendJCacheMemoizer<T: Any, R: Any>(
     private val jcache: javax.cache.Cache<T, R>,

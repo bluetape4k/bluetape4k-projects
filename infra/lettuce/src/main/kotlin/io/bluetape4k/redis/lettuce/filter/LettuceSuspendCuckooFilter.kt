@@ -11,6 +11,17 @@ import io.lettuce.core.api.async.RedisAsyncCommands
  * 삭제를 지원하는 Redis 기반 Cuckoo Filter 코루틴 구현입니다.
  *
  * 동기 구현과 동일하게 undo-log 기반 Lua 스크립트로 삽입 실패 시 기존 상태를 복구합니다.
+ *
+ * ```kotlin
+ * val filter = LettuceSuspendCuckooFilter(connection, "my-filter")
+ * filter.tryInit()
+ * filter.insert("apple")
+ * val exists = filter.contains("apple")
+ * // exists == true
+ * filter.delete("apple")
+ * val count = filter.count()
+ * // count == 0
+ * ```
  */
 class LettuceSuspendCuckooFilter(
     private val connection: StatefulRedisConnection<String, String>,
@@ -65,7 +76,14 @@ class LettuceSuspendCuckooFilter(
         return false
     }
 
-    /** 원소를 삽입하고 성공 여부를 반환합니다. */
+    /**
+     * 원소를 삽입하고 성공 여부를 반환합니다.
+     *
+     * ```kotlin
+     * val ok = filter.insert("apple")
+     * // ok == true
+     * ```
+     */
     suspend fun insert(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return asyncCommands.eval<Long>(
@@ -81,7 +99,17 @@ class LettuceSuspendCuckooFilter(
         ).awaitSuspending() == 1L
     }
 
-    /** 원소가 존재하는지 검사합니다. */
+    /**
+     * 원소가 존재하는지 검사합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * val exists = filter.contains("apple")
+     * // exists == true
+     * val notExists = filter.contains("banana")
+     * // notExists == false
+     * ```
+     */
     suspend fun contains(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return asyncCommands.eval<Long>(
@@ -94,7 +122,15 @@ class LettuceSuspendCuckooFilter(
         ).awaitSuspending() == 1L
     }
 
-    /** 원소를 삭제하고 성공 여부를 반환합니다. */
+    /**
+     * 원소를 삭제하고 성공 여부를 반환합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * val deleted = filter.delete("apple")
+     * // deleted == true
+     * ```
+     */
     suspend fun delete(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
         return asyncCommands.eval<Long>(
@@ -107,7 +143,16 @@ class LettuceSuspendCuckooFilter(
         ).awaitSuspending() == 1L
     }
 
-    /** 현재 저장된 원소 수를 반환합니다. */
+    /**
+     * 현재 저장된 원소 수를 반환합니다.
+     *
+     * ```kotlin
+     * filter.insert("apple")
+     * filter.insert("banana")
+     * val count = filter.count()
+     * // count == 2
+     * ```
+     */
     suspend fun count(): Long = asyncCommands.hget(configKey, "count").awaitSuspending()?.toLongOrNull() ?: 0L
 
     override fun close() = connection.close()

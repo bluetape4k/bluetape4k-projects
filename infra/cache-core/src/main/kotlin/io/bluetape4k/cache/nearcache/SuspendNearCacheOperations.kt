@@ -9,6 +9,16 @@ package io.bluetape4k.cache.nearcache
  * [AutoCloseable]을 구현하지 않습니다. `AutoCloseable.close()`는 non-suspend이므로
  * `suspend fun close()`와 시그니처가 충돌합니다. 대신 [close]를 직접 선언합니다.
  *
+ * ```kotlin
+ * // LettuceSuspendNearCache는 SuspendNearCacheOperations를 구현
+ * val cache: SuspendNearCacheOperations<String> = lettuceSuspendNearCacheOf(redisClient, codec, config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * cache.remove("hello")
+ * cache.close()
+ * ```
+ *
  * @param V 캐시 값 타입 (키는 String 고정)
  * @see NearCacheOperations blocking 버전
  * @see ResilientSuspendNearCacheDecorator retry + failure strategy Decorator

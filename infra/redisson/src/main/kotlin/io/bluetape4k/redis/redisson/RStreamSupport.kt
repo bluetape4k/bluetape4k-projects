@@ -26,10 +26,30 @@ fun <K, V> streamAddArgsOf(
     value: V,
 ): StreamAddArgs<K, V> = StreamAddArgs.entry(key, value)
 
-/** Pair vararg로 [StreamAddArgs]를 생성합니다. */
+/**
+ * Pair vararg로 [StreamAddArgs]를 생성합니다.
+ *
+ * ```kotlin
+ * val args = streamAddArgsOf("k1" to "v1", "k2" to "v2")
+ * // args != null
+ * ```
+ *
+ * @param args 키-값 Pair 목록
+ * @return 엔트리가 담긴 [StreamAddArgs]
+ */
 fun <K, V> streamAddArgsOf(vararg args: Pair<K, V>): StreamAddArgs<K, V> = StreamAddArgs.entries(args.toMap())
 
-/** Map으로 [StreamAddArgs]를 생성합니다. */
+/**
+ * Map으로 [StreamAddArgs]를 생성합니다.
+ *
+ * ```kotlin
+ * val args = streamAddArgsOf(mapOf("k1" to "v1", "k2" to "v2"))
+ * // args != null
+ * ```
+ *
+ * @param args 키-값 맵
+ * @return 엔트리가 담긴 [StreamAddArgs]
+ */
 fun <K, V> streamAddArgsOf(args: Map<K, V>): StreamAddArgs<K, V> = StreamAddArgs.entries(args)
 
 /**

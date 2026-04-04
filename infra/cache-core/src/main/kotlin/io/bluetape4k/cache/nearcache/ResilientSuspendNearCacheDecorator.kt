@@ -13,6 +13,14 @@ import io.github.resilience4j.retry.RetryConfig
  * delegate의 모든 연산에 resilience4j [Retry]를 적용합니다.
  * delegate의 write-through 원자성을 유지하며, write-behind는 사용하지 않습니다.
  *
+ * ```kotlin
+ * val cache = lettuceSuspendNearCacheOf<String>(redisClient, codec, config)
+ *     .withResilience { retryMaxAttempts = 3 }
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * ```
+ *
  * @param V 캐시 값 타입
  * @param delegate 감쌀 SuspendNearCacheOperations 구현체
  * @param config Resilience 설정
@@ -169,6 +177,15 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
 
 /**
  * [SuspendNearCacheOperations]에 Resilience Decorator를 적용합니다.
+ *
+ * ```kotlin
+ * val config = NearCacheResilienceConfig(retryMaxAttempts = 3)
+ * val cache = lettuceSuspendNearCacheOf<String>(redisClient, codec, nearCacheConfig)
+ *     .withResilience(config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * ```
  */
 fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
     config: NearCacheResilienceConfig,
@@ -177,6 +194,17 @@ fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
 
 /**
  * [SuspendNearCacheOperations]에 Resilience Decorator를 DSL로 적용합니다.
+ *
+ * ```kotlin
+ * val cache = lettuceSuspendNearCacheOf<String>(redisClient, codec, nearCacheConfig)
+ *     .withResilience {
+ *         retryMaxAttempts = 5
+ *         getFailureStrategy = GetFailureStrategy.PROPAGATE_EXCEPTION
+ *     }
+ * cache.put("key", "value")
+ * val result = cache.get("key")
+ * // result == "value"
+ * ```
  */
 inline fun <V: Any> SuspendNearCacheOperations<V>.withResilience(
     block: NearCacheResilienceConfigBuilder.() -> Unit,

@@ -10,6 +10,13 @@ import kotlin.coroutines.resumeWithException
 /**
  * [CompletableResultCode]가 완료될 때까지 현재 코루틴을 중단합니다.
  *
+ * ```kotlin
+ * val resultCode = CompletableResultCode()
+ * resultCode.succeed()
+ * val completed = resultCode.await()
+ * // completed.isSuccess == true
+ * ```
+ *
  * @return [CompletableResultCode] 자신을 반환합니다.
  * @throws CompletionException 작업이 실패한 경우
  */

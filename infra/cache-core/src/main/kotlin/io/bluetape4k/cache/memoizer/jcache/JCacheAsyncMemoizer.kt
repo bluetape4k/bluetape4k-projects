@@ -7,6 +7,15 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * JCache를 이용하는 [JCacheAsyncMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val cachingProvider = Caching.getCachingProvider()
+ * val cacheManager = cachingProvider.cacheManager
+ * val cache = cacheManager.getCache<String, Int>("myCache")
+ * val memo = cache.asyncMemoizer { key -> CompletableFuture.completedFuture(key.length) }
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  */
 fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemoizer(
     evaluator: (T) -> CompletableFuture<R>,
@@ -15,6 +24,15 @@ fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemoizer(
 
 /**
  * JCache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ *
+ * ```kotlin
+ * val cachingProvider = Caching.getCachingProvider()
+ * val cacheManager = cachingProvider.cacheManager
+ * val cache = cacheManager.getCache<String, Int>("myCache")
+ * val memo = JCacheAsyncMemoizer(cache) { key -> CompletableFuture.completedFuture(key.length) }
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  *
  * ## Virtual Thread 안전성
  * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이

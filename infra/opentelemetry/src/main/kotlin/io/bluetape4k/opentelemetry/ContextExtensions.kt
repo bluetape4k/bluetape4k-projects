@@ -5,6 +5,11 @@ import io.opentelemetry.context.Context
 
 /**
  * 현 [io.opentelemetry.context.Scope]에 연관된 [Context]를 반환합니다.
+ *
+ * ```kotlin
+ * val ctx = currentOtelContext()
+ * // ctx === Context.current()
+ * ```
  */
 fun currentOtelContext(): Context = Context.current()
 
@@ -16,11 +21,24 @@ fun currentOtelContext(): Context = Context.current()
  *
  * Only use this method if you are absolutely sure you need to disregard the current [Context]
  * - this almost always is only a workaround hiding an underlying context propagation issue.
+ *
+ * ```kotlin
+ * val root = rootOtelContext()
+ * // root === Context.root()
+ * ```
  */
 fun rootOtelContext(): Context = Context.root()
 
 /**
  * Current Opentelemetry [Context] 하에서 [action]을 실행합니다.
+ *
+ * ```kotlin
+ * val ctx = currentOtelContext()
+ * val result = ctx.withCurrent {
+ *     "executed-in-otel-scope"
+ * }
+ * // result == "executed-in-otel-scope"
+ * ```
  *
  * @param T [action]의 실행 결과 타입입니다.
  * @param action 실행할 코드 블록입니다.
@@ -34,6 +52,12 @@ inline fun <T> Context.withCurrent(action: () -> T): T {
  * Otel current scope의 [Span]을 반환합니다. 만약 Span이 존재하지 않다면,
  * [io.opentelemetry.api.trace.PropagatedSpan.INVALID]을 반환합니다.
  *
+ * ```kotlin
+ * val ctx = currentOtelContext()
+ * val span = ctx.getSpan()
+ * // span.spanContext.isValid == false (활성 Span이 없을 때)
+ * ```
+ *
  * @see [io.opentelemetry.api.trace.Span]
  * @see [io.opentelemetry.api.trace.PropagatedSpan.INVALID]
  */
@@ -41,5 +65,11 @@ fun Context.getSpan(): Span = Span.fromContext(this)
 
 /**
  * Otel current scope의 [Span]을 반환합니다. 만약 Span이 존재하지 않다면, null 을 반환합니다.
+ *
+ * ```kotlin
+ * val ctx = currentOtelContext()
+ * val span = ctx.getSpanOrNull()
+ * // span == null (활성 Span이 없을 때)
+ * ```
  */
 fun Context.getSpanOrNull(): Span? = Span.fromContextOrNull(this)

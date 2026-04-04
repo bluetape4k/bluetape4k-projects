@@ -77,15 +77,18 @@ private const val LOCK_ID_NAME_PREFIX = "$LibraryName:lock-id"
  * Coroutines 환경에서 Lock을 사용하고자 한다면, Unique 한 Lock Id를 제공해야 합니다.
  * 만약 이때 Lock Id를 제공하지 않으면, 제대로 Unlock을 할 수 없습니다.
  *
- * ```
+ * ```kotlin
  * val lockId = redisson.getLockId("lock-name")
- * val lock = redisson.getLock(lockId)
- * lock.lock()
+ * val lock = redisson.getLock("lock-name")
+ * val acquired = lock.tryLockAsync(3000L, 10000L, TimeUnit.MILLISECONDS, lockId).await()
  * try {
- *    // do something
+ *     // 리더 작업 수행
  * } finally {
- *   lock.unlock(lockId)
+ *     if (lock.isHeldByThread(lockId)) {
+ *         lock.unlockAsync(lockId).await()
+ *     }
  * }
+ * // lockId > 0
  * ```
  *
  * @param lockName Redisson Lock 이름

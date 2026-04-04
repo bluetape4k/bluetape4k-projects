@@ -6,6 +6,12 @@ package io.bluetape4k.cache.nearcache.jcache
  * [ResilientNearJCache] 및 [ResilientSuspendNearJCache]의 write queue/channel에 큐잉되어
  * consumer가 순차적으로 back cache에 반영한다.
  *
+ * ```kotlin
+ * val cmd: BackJCacheCommand<String, Int> = BackJCacheCommand.Put("hello", 5)
+ * val removeCmd: BackJCacheCommand<String, Int> = BackJCacheCommand.Remove("hello")
+ * val clearCmd: BackJCacheCommand<String, Int> = BackJCacheCommand.ClearBack()
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  */

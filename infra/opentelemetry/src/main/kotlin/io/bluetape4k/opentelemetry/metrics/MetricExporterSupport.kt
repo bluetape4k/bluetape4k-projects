@@ -7,6 +7,11 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricExporter
 /**
  * In Memory 에 metrics 측정 값을 내보내는 [InMemoryMetricExporter] 를 생성한다.
  *
+ * ```kotlin
+ * val exporter = inMemoryMetricExporterOf()
+ * // exporter.finishedMetricItems.isEmpty() == true (초기 상태)
+ * ```
+ *
  * @param aggregationTemporality Meter 집계 방식 (default: [AggregationTemporality.CUMULATIVE])
  * @return [InMemoryMetricExporter] instance
  */
@@ -18,6 +23,11 @@ fun inMemoryMetricExporterOf(
 
 /**
  * Logger에 metrics 측정 값을 내보내는 [LoggingMetricExporter] 를 생성한다.
+ *
+ * ```kotlin
+ * val exporter = loggingMetricExporterOf()
+ * // exporter != null
+ * ```
  *
  * @param aggregationTemporality Meter 집계 방식 (default: [AggregationTemporality.CUMULATIVE])
  * @return [LoggingMetricExporter] instance

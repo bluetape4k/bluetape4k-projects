@@ -8,6 +8,19 @@ import java.time.Duration
 /**
  * [LettuceLoadedMap] 동작을 제어하는 설정.
  *
+ * ```kotlin
+ * val config = LettuceCacheConfig(
+ *     writeMode = WriteMode.WRITE_THROUGH,
+ *     ttl = Duration.ofMinutes(10),
+ *     nearCacheEnabled = true,
+ *     nearCacheMaxSize = 5_000,
+ * )
+ * val map = LettuceLoadedMap<String, MyData>(redisClient, loader, writer, config)
+ * // 사전 정의 상수 사용
+ * val readOnly = LettuceCacheConfig.READ_ONLY
+ * val writeBehind = LettuceCacheConfig.WRITE_BEHIND
+ * ```
+ *
  * @param writeMode 쓰기 전략 ([WriteMode])
  * @param writeBehindBatchSize Write-Behind 배치 크기
  * @param writeBehindDelay Write-Behind 플러시 주기

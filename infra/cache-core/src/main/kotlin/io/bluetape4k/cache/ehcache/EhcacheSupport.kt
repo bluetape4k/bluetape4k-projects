@@ -26,7 +26,7 @@ val DefaultEhCacheCacheManager: CacheManager by lazy {
  *
  * 참고: [Ehcache Code Samples](https://www.ehcache.org/documentation/2.8/code-samples.html)
  *
- * ```
+ * ```kotlin
  * val cacheManager = ehcacheManager { }
  * val cache = cacheManager.getOrCreateCache<String, String>("default") {
  *    this.heap(10_000, EntryUnit.ENTRIES)
@@ -57,7 +57,7 @@ inline fun ehcacheManager(
 /**
  * [CacheManager] 에서 [Cache]`<K, V>` 를 생성하거나 가져옵니다.
  *
- * ```
+ * ```kotlin
  * val cache = cacheManager.getOrCreateCache<String, String>("default") {
  *   this.heap(10_000, EntryUnit.ENTRIES)
  *   this.offheap(32, MemoryUnit.MB)

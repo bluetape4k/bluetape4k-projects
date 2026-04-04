@@ -15,6 +15,17 @@ import javax.cache.expiry.Duration
  * NearCache는 로컬 캐시(Front Cache)와 원격 캐시(Back Cache)를 함께 사용하는 2-Tier 캐시 패턴입니다.
  * 이 설정 클래스는 두 캐시 간의 동작 방식을 제어합니다.
  *
+ * ```kotlin
+ * val config = NearJCacheConfig<String, Int>(
+ *     cacheName = "my-near-cache",
+ *     isSynchronous = true
+ * )
+ * val nearCache = NearJCache(backCache, config)
+ * nearCache.put("hello", 5)
+ * val value = nearCache.get("hello")
+ * // value == 5
+ * ```
+ *
  * @param K 캐시 키 타입
  * @param V 캐시 값 타입
  * @property cacheManagerFactory Front Cache를 위한 [CacheManager] 팩토리 (기본: Caffeine)
@@ -54,6 +65,11 @@ data class NearJCacheConfig<K: Any, V: Any>(
          * Front Cache의 기본 설정을 생성합니다.
          *
          * 접근 기준 30분 만료 정책을 사용합니다.
+         *
+         * ```kotlin
+         * val frontConfig = NearJCacheConfig.getDefaultFrontCacheConfiguration<String, Int>()
+         * val config = NearJCacheConfig<String, Int>(frontCacheConfiguration = frontConfig)
+         * ```
          *
          * @param K 캐시 키 타입
          * @param V 캐시 값 타입

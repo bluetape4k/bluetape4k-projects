@@ -3,6 +3,15 @@ package io.bluetape4k.redis.lettuce.filter
 /**
  * Bloom Filter 구성 옵션입니다.
  *
+ * ```kotlin
+ * val opts = BloomFilterOptions(expectedInsertions = 500_000L, falseProbability = 0.01)
+ * val bloomFilter = LettuceBloomFilter(connection, "my-bloom", opts)
+ * bloomFilter.tryInit()
+ * bloomFilter.add("hello")
+ * val exists = bloomFilter.contains("hello")
+ * // exists == true
+ * ```
+ *
  * @property expectedInsertions 예상 삽입 원소 수
  * @property falseProbability 허용 오탐률. `(0, 1)` 범위의 배타 구간만 허용합니다.
  */

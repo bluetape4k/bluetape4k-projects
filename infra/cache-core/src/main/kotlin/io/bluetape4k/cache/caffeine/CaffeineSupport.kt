@@ -16,7 +16,7 @@ import java.util.concurrent.Executor
 /**
  * [CaffeineSpec] 을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val spec = caffeineSpecOf("maximumSize=1000,expireAfterWrite=5m")
  * val cache = spec.toBuilder().build<String, Int>()
  *
@@ -33,7 +33,7 @@ fun caffeineSpecOf(specification: String): CaffeineSpec =
 /**
  * [Caffeine]`<Any, Any>` 을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val cache = caffeine {
  *    maximumSize(1000)
  *    expireAfterWrite(5, TimeUnit.MINUTES)
@@ -52,6 +52,15 @@ inline fun caffeine(
 /**
  * `executor` 가 `VirtualThreadExecutor`인 [Caffeine]`<Any, Any>` 빌드합니다.
  *
+ * ```kotlin
+ * val caffeine = caffeineWithVirtualThread {
+ *     maximumSize(1000)
+ *     expireAfterWrite(5, TimeUnit.MINUTES)
+ *     recordStats()
+ * }
+ * val cache: Cache<String, Int> = caffeine.cache()
+ * ```
+ *
  * @param builder Caffeine builder method
  * @return [caffeine] instance
  */
@@ -65,7 +74,7 @@ inline fun caffeineWithVirtualThread(
 /**
  * Caffeine Cache인 [Cache]`<K, V>` 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *     maximumSize(1000)
  *     expireAfterWrite(5, TimeUnit.MINUTES)
@@ -82,7 +91,7 @@ fun <K: Any, V: Any> Caffeine<Any, Any>.cache(): Cache<K, V> = build()
 /**
  * Caffeine [LoadingCache]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *    maximumSize(1000)
  *    expireAfterWrite(5, TimeUnit.MINUTES)
@@ -104,7 +113,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.loadingCache(
 /**
  * Caffeine [AsyncCache]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *      maximumSize(1000)
  *      expireAfterWrite(5, TimeUnit.MINUTES)
@@ -126,7 +135,7 @@ fun <K: Any, V: Any> Caffeine<Any, Any>.asyncCache(): AsyncCache<K, V> = buildAs
 /**
  * Caffeine [AsyncLoadingCache]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *    maximumSize(1000)
  *    expireAfterWrite(5, TimeUnit.MINUTES)
@@ -152,7 +161,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
 /**
  * Caffeine [AsyncLoadingCache]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *    maximumSize(1000)
  *    expireAfterWrite(5, TimeUnit.MINUTES)
@@ -180,7 +189,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
 /**
  * Coroutines Suspend 함수를 이용하여 비동기로 캐시 값을 로딩하는 [AsyncLoadingCache]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val caffeine = caffeine<Any, Any> {
  *      maximumSize(1000)
  *      expireAfterWrite(5, TimeUnit.MINUTES)
@@ -214,7 +223,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.suspendLoadingCache(
 /**
  * [AsyncCache]에 값이 없으면 [loader]를 이용하여 값을 채우고, 반환합니다.
  *
- * ```
+ * ```kotlin
  * val cache = caffeine<Any, Any> {
  *   maximumSize(1000)
  *   expireAfterWrite(5, TimeUnit.MINUTES)
@@ -249,7 +258,7 @@ inline fun <K: Any, V: Any> AsyncCache<K, V>.suspendGet(
 /**
  * [AsyncCache]에 값이 없으면 [loader]를 이용하여 값을 채우고, 반환합니다.
  *
- * ```
+ * ```kotlin
  * val cache = caffeine<Any, Any> {
  *   maximumSize(1000)
  *   expireAfterWrite(5, TimeUnit.MINUTES)

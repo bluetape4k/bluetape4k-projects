@@ -35,15 +35,15 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
 
     companion object: KLoggingChannel() {
         /**
-         * RedissonClient 인스턴스로 [LettuceSuspendJCache]를 생성합니다.
+         * [RedisClient] 인스턴스로 [LettuceSuspendJCache]를 생성합니다.
          *
          * ## 동작/계약
          * - [cacheName]이 blank면 `requireNotBlank("cacheName")`로 `IllegalArgumentException`이 발생합니다.
-         * - 기존 캐시가 있으면 재사용하고 없으면 [configuration]을 감싼 Redisson 설정으로 생성합니다.
-         * - 반환 객체는 동일 캐시 이름을 공유하는 JCache 인스턴스를 래핑합니다.
+         * - 기존 캐시가 있으면 재사용하고 없으면 [configuration]으로 새 [LettuceJCache]를 생성합니다.
+         * - 반환 객체는 동일 캐시 이름을 공유하는 [LettuceJCache] 인스턴스를 래핑합니다.
          *
          * ```kotlin
-         * val cache = RedissonSuspendCache("users", redisson, MutableConfiguration<String, String>())
+         * val cache = LettuceSuspendJCache<String>("users", redisClient, MutableConfiguration<String, String>())
          * // cache.isClosed() == false
          * ```
          */

@@ -15,7 +15,7 @@ import org.redisson.command.CommandAsyncExecutor
  * - 호출마다 새 [RedissonBasedProxyManager]를 생성합니다.
  * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
- * ```
+ * ```kotlin
  * val redisson = Redisson.create()
  * val proxyManager = redissonBasedProxyManagerOf(redisson) {
  *    withClientSideConfig(
@@ -58,7 +58,7 @@ inline fun redissonBasedProxyManagerOf(
  * - 호출마다 새 [RedissonBasedProxyManager]를 생성합니다.
  * - key 직렬화 타입은 `ByteArray`로 고정됩니다.
  *
- * ```
+ * ```kotlin
  * val redisson = Redisson.create()
  * val proxyManager = redissonBasedProxyManagerOf(redisson) {
  *    withClientSideConfig(

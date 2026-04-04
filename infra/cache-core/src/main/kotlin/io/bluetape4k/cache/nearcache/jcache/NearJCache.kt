@@ -103,6 +103,20 @@ class NearJCache<K: Any, V: Any>(
         runCatching { frontCache.clear() }
     }
 
+    /**
+     * Front Cache와 Back Cache 모두 비웁니다.
+     *
+     * 단, Back Cache를 공유한 다른 NearCache 인스턴스에는 전파되지 않습니다.
+     * 전파가 필요한 경우 `removeAll()`을 사용하세요.
+     *
+     * ```kotlin
+     * val nearCache = NearJCache(frontCache, backCache, config)
+     * nearCache.put("hello", 5)
+     * nearCache.clearAllCache()
+     * val value = nearCache.getDeeply("hello")
+     * // value == null
+     * ```
+     */
     fun clearAllCache() {
         log.debug {
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
@@ -134,6 +148,14 @@ class NearJCache<K: Any, V: Any>(
      * Front Cache에서 값을 우선 조회하고, 없으면 Back Cache까지 조회합니다.
      *
      * Back Cache에서 값을 찾은 경우 Front Cache에 채워 넣어 이후 조회를 빠르게 처리합니다.
+     *
+     * ```kotlin
+     * val nearCache = NearJCache(frontCache, backCache, config)
+     * nearCache.put("hello", 5)
+     * nearCache.clear()  // front만 비움
+     * val value = nearCache.getDeeply("hello")
+     * // value == 5  (back cache에서 조회 후 front에 채워 넣음)
+     * ```
      *
      * @param key 조회할 캐시 키
      * @return 조회된 값, 없으면 `null`
@@ -244,6 +266,18 @@ class NearJCache<K: Any, V: Any>(
         }
     }
 
+    /**
+     * 여러 키를 vararg 형식으로 일괄 삭제합니다.
+     *
+     * ```kotlin
+     * val nearCache = NearJCache(frontCache, backCache, config)
+     * nearCache.put("key1", 1)
+     * nearCache.put("key2", 2)
+     * nearCache.removeAll("key1", "key2")
+     * val v1 = nearCache.getDeeply("key1")
+     * // v1 == null
+     * ```
+     */
     fun removeAll(vararg keys: K) {
         removeAll(keys.toSet())
     }

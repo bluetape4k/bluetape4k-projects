@@ -9,12 +9,27 @@ import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder
 
 /**
  * 아무 일도 하지 않는 [Span] 만을 생성하는 [TracerProvider] 입니다.
+ *
+ * ```kotlin
+ * val provider = noopTraceProvider
+ * val tracer = provider.get("my-tracer")
+ * // tracer != null
+ * ```
  */
 @JvmField
 val noopTraceProvider: TracerProvider = TracerProvider.noop()
 
 /**
  * [SdkTracerProvider]를 생성합니다.
+ *
+ * ```kotlin
+ * val exporter = loggingSpanExporterOf()
+ * val processor = simpleSpanProcessorOf(exporter)
+ * val provider = sdkTracerProvider {
+ *     addSpanProcessor(processor)
+ * }
+ * // provider != null
+ * ```
  *
  * @param builder [SdkTracerProviderBuilder]를 설정하는 람다
  * @return [SdkTracerProvider] 인스턴스
@@ -38,22 +53,16 @@ inline fun sdkTracerProvider(
  *
  * 사용 예:
  *
- * ```
- * class MyClass(otel: OpenTelemetry) {
- *   val tracer: Tracer = otel.getTracer("com.example.rpc")
- *
- *   fun doWork(parent: Span) {
- *     val childSpan = tracer.startSpan("MyChildSpan") {
- *          setParent(Context.current().with(parent))
- *     }
- *     childSpan.addEvent("my event");
- *     try {
- *       doSomeWork(childSpan); // 스택 아래로 새 스팬을 수동으로 전파합니다.
- *     } finally {
- *       // 예외가 발생하더라도 스팬을 확실히 종료합니다.
- *       childSpan.end();  // 수동으로 스팬을 종료합니다.
- *     }
- *   }
+ * ```kotlin
+ * val tracer = NoopOpenTelemetry.getTracer("com.example.rpc")
+ * val childSpan = tracer.startSpan("MyChildSpan") {
+ *     setAttribute("key", "value")
+ * }
+ * childSpan.addEvent("my event")
+ * try {
+ *     // 스택 아래로 새 스팬을 수동으로 전파합니다.
+ * } finally {
+ *     childSpan.end()   // 수동으로 스팬을 종료합니다.
  * }
  * ```
  *

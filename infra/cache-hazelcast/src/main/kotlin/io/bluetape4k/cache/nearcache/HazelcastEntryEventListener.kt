@@ -14,6 +14,13 @@ import io.bluetape4k.logging.debug
  * [com.hazelcast.map.IMap.addEntryListener]로 등록되며, 클라이언트 JVM에서 실행되어
  * non-serializable 객체(Caffeine front cache 등)를 캡처해도 직렬화 오류가 발생하지 않는다.
  *
+ * ```kotlin
+ * val localCache = CaffeineHazelcastLocalCache<String>(config)
+ * val listener = HazelcastEntryEventListener(localCache)
+ * imap.addEntryListener(listener, true)
+ * // IMap 변경 시 localCache 자동 무효화
+ * ```
+ *
  * @param V 값 타입 (키는 항상 String)
  */
 class HazelcastEntryEventListener<V : Any>(

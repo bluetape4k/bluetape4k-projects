@@ -9,12 +9,26 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * InMemory를 이용하여 [InMemorySuspendMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val memo = (suspend { key: String -> key.length }).suspendMemoizer()
+ * val result = memo("hello")
+ * // result == 5
+ * val result2 = memo("hello")  // 캐시에서 즉시 반환
+ * // result2 == 5
+ * ```
  */
 fun <T: Any, R: Any> (suspend (T) -> R).suspendMemoizer(): InMemorySuspendMemoizer<T, R> =
     InMemorySuspendMemoizer(this)
 
 /**
  * 로컬 메모리에 suspend evaluator 실행 결과를 저장합니다.
+ *
+ * ```kotlin
+ * val memo = InMemorySuspendMemoizer<String, Int> { key -> key.length }
+ * val result = memo("hello")
+ * // result == 5
+ * ```
  */
 class InMemorySuspendMemoizer<in T: Any, out R: Any>(
     private val evaluator: suspend (T) -> R,

@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.nanoseconds
  * [BlockingBucket](https://bucket4j.com/8.2.0/toc.html#blocking-bucket)과 의미론적으로 동등한 인터페이스를 구현합니다.
  * Bucket4j의 블로킹 동작은 CPU 블로킹을 하지만, [SuspendLocalBucket]은 대신 `delay`를  하여 코루틴 컨텍스트에서 안전하게 사용할 수 있습니다.
  *
- * ```
+ * ```kotlin
  *  val bucket = SuspendLocalBucket {
  *      addBandwidth {
  *          BandwidthBuilder.builder()
@@ -36,8 +36,8 @@ import kotlin.time.Duration.Companion.nanoseconds
  *     }
  * }
  *
- * // 5개를 보유하고 있다
- * bucket.tryConsume(5L + 1L, 10.milliseconds).shouldBeFalse()
+ * // 초과 소비 시도 -> false
+ * bucket.tryConsume(5L + 1L, 10.milliseconds.toJavaDuration()) // false
  * ```
  *
  *
@@ -104,6 +104,12 @@ class SuspendLocalBucket private constructor(
     /**
      * 코루틴 컨텍스트에서 사용하는 tryConsume
      *
+     * ```kotlin
+     * val bucket = SuspendLocalBucket { addBandwidth { Bandwidth.simple(10, Duration.ofSeconds(1)) } }
+     * val consumed = bucket.tryConsume(1L, Duration.ofMillis(100))
+     * // consumed == true (토큰 여유가 있는 경우)
+     * ```
+     *
      * @param tokensToConsume 소비할 토큰 수
      * @param maxWaitTime 최대 대기 시간
      * @return 최대 대기 시간까지 요청한 토큰을 받을 수 없다면 false를 반환한다
@@ -128,7 +134,13 @@ class SuspendLocalBucket private constructor(
     }
 
     /**
-     * 코루틴 컨텍스트에서 사용하는 consume 함수
+     * 코루틴 컨텍스트에서 사용하는 consume 함수.
+     * 토큰이 채워질 때까지 대기합니다. 예약 오버플로우 시 예외가 발생합니다.
+     *
+     * ```kotlin
+     * val bucket = SuspendLocalBucket { addBandwidth { Bandwidth.simple(10, Duration.ofSeconds(1)) } }
+     * bucket.consume(1L) // 토큰 1개 소비, 부족 시 채워질 때까지 delay
+     * ```
      *
      * @param tokensToConsume 소비할 Token 수
      */

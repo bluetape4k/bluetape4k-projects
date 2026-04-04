@@ -30,6 +30,20 @@ object LettuceClients : KLogging() {
     @JvmField
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
 
+    /**
+     * Redis 연결 정보를 담는 [RedisURI]를 생성합니다.
+     *
+     * ```kotlin
+     * val uri = LettuceClients.getRedisURI(host = "localhost", port = 6379)
+     * val client = RedisClient.create(uri)
+     * val conn = client.connect()
+     * ```
+     *
+     * @param host Redis 서버 호스트 (기본값: "localhost")
+     * @param port Redis 서버 포트 (기본값: 6379)
+     * @param timeoutInMillis 연결 타임아웃 밀리초
+     * @return [RedisURI] 인스턴스
+     */
     fun getRedisURI(
         host: String = LettuceConst.DEFAULT_HOST,
         port: Int = LettuceConst.DEFAULT_PORT,
@@ -45,7 +59,7 @@ object LettuceClients : KLogging() {
     /**
      * [RedisClient] 인스턴스를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val client = LettuceClients.clientOf("redis://localhost:6379")
      * ```
      *
@@ -57,7 +71,7 @@ object LettuceClients : KLogging() {
     /**
      * [RedisClient] 인스턴스를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val client = LettuceClients.clientOf(RedisURI.create("redis://localhost:6379"))
      * ```
      *
@@ -69,7 +83,7 @@ object LettuceClients : KLogging() {
     /**
      * [RedisClient] 인스턴스를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val client = LettuceClients.clientOf(ClientResources.create())
      * ```
      *
@@ -81,7 +95,7 @@ object LettuceClients : KLogging() {
     /**
      * [RedisClient] 인스턴스를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val client = LettuceClients.clientOf("localhost", 6379, 3000)
      * ```
      *
@@ -99,7 +113,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
      *
-     * ```
+     * ```kotlin
      * val connection = LettuceClients.connect(client)
      * ```
      */
@@ -108,7 +122,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]와 [codec]를 이용하여 [StatefulRedisConnection]을 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val connection = LettuceClients.connect(client, StringCodec.UTF8)
      * ```
      */
@@ -120,7 +134,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]를 이용하여 [RedisCommands]`<String, String>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val commands = LettuceClients.commands(client)
      * ```
      */
@@ -129,7 +143,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]와 [codec]를 이용하여 [RedisCommands]`<String, V>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val commands = LettuceClients.commands(client, StringCodec.UTF8)
      * ```
      */
@@ -141,7 +155,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]를 이용하여 [RedisAsyncCommands]`<String, String>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val asyncCommands = LettuceClients.asyncCommands(client)
      * ```
      */
@@ -150,7 +164,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val asyncCommands = LettuceClients.asyncCommands(client, StringCodec.UTF8)
      * ```
      */
@@ -162,7 +176,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]를 이용하여 [RedisCoroutinesCommands]`<String, String>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val coroutinesCommands = LettuceClients.coroutinesCommands(client)
      * ```
      */
@@ -173,7 +187,7 @@ object LettuceClients : KLogging() {
     /**
      * [client]와 [codec]를 이용하여 [RedisCoroutinesCommands]`<String, V>` 를 생성합니다.
      *
-     * ```
+     * ```kotlin
      * val coroutinesCommands = LettuceClients.coroutinesCommands(client, StringCodec.UTF8)
      * ```
      */

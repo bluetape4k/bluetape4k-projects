@@ -74,6 +74,13 @@ class LettuceLock(
     /**
      * 지정된 대기 시간 내에 락 획득을 시도합니다.
      *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * if (lock.tryLock(waitTime = Duration.ofSeconds(2))) {
+     *     try { doWork() } finally { lock.unlock() }
+     * }
+     * ```
+     *
      * @param waitTime 락 획득 대기 시간 (기본값: 즉시 시도)
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
      * @return 락 획득 성공 여부
@@ -106,6 +113,12 @@ class LettuceLock(
     /**
      * 락을 획득할 때까지 블로킹합니다.
      *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * lock.lock()
+     * try { doWork() } finally { lock.unlock() }
+     * ```
+     *
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
      * @throws InterruptedException 대기 중 인터럽트 발생 시
      */
@@ -128,6 +141,12 @@ class LettuceLock(
     /**
      * 보유 중인 락을 해제합니다.
      *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * lock.lock()
+     * try { doWork() } finally { lock.unlock() }
+     * ```
+     *
      * @throws IllegalStateException 락을 보유하지 않은 경우
      */
     fun unlock() {
@@ -147,6 +166,14 @@ class LettuceLock(
 
     /**
      * 지정된 대기 시간 내에 락 획득을 비동기로 시도합니다.
+     *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * val acquired = lock.tryLockAsync(waitTime = Duration.ofSeconds(2)).join()
+     * if (acquired) {
+     *     try { doWork() } finally { lock.unlockAsync().join() }
+     * }
+     * ```
      *
      * @param waitTime 락 획득 대기 시간 (기본값: 즉시 시도)
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
@@ -185,6 +212,12 @@ class LettuceLock(
     /**
      * 락을 획득할 때까지 비동기로 대기합니다.
      *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * lock.lockAsync().join()
+     * try { doWork() } finally { lock.unlockAsync().join() }
+     * ```
+     *
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
      * @param maxWaitTime 최대 대기 시간 (기본값: 5분). 이 시간을 초과하면 예외 발생.
      * @return 완료를 나타내는 CompletableFuture
@@ -222,6 +255,12 @@ class LettuceLock(
 
     /**
      * 보유 중인 락을 비동기로 해제합니다.
+     *
+     * ```kotlin
+     * val lock = LettuceLock(connection, "my-lock")
+     * lock.lockAsync().join()
+     * try { doWork() } finally { lock.unlockAsync().join() }
+     * ```
      *
      * @return 완료를 나타내는 CompletableFuture
      */

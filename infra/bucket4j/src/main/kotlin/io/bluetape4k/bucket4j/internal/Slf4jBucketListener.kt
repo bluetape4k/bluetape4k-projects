@@ -10,7 +10,7 @@ import kotlinx.atomicfu.atomic
  *
  * Token 소비, 거부, 지연, 대기, 인터럽트 이벤트를 SLF4J Logger로 출력합니다.
  *
- * ```
+ * ```kotlin
  * val bucket = Bucket4j.builder()
  *    .addLimit(Bandwidth.classic(5, Refill.intervally(5, Duration.ofSeconds(1))))
  *    .addListener(Slf4jBucketListener())

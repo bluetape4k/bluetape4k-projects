@@ -30,17 +30,56 @@ fun configFromYamlOf(
     return Config.fromYAML(input).apply { this.codec = codec }
 }
 
-/** YAML 문자열로 Redisson [Config]를 생성하고 codec을 설정합니다. */
+/**
+ * YAML 문자열로 Redisson [Config]를 생성하고 codec을 설정합니다.
+ *
+ * ```kotlin
+ * val yaml = """
+ *     singleServerConfig:
+ *       address: "redis://127.0.0.1:6379"
+ * """.trimIndent()
+ * val config = configFromYamlOf(yaml)
+ * // config.codec != null
+ * ```
+ *
+ * @param content YAML 형식의 Redisson 설정 문자열
+ * @param codec 적용할 Codec (기본값: [RedissonCodecs.Default])
+ * @return 설정이 적용된 [Config]
+ */
 fun configFromYamlOf(content: String, codec: Codec = RedissonCodecs.Default): Config {
     return Config.fromYAML(content).apply { this.codec = codec }
 }
 
-/** YAML 파일로 Redisson [Config]를 생성하고 codec을 설정합니다. */
+/**
+ * YAML 파일로 Redisson [Config]를 생성하고 codec을 설정합니다.
+ *
+ * ```kotlin
+ * val file = File("redisson.yaml")
+ * val config = configFromYamlOf(file)
+ * // config.codec != null
+ * ```
+ *
+ * @param file YAML 설정 파일
+ * @param codec 적용할 Codec (기본값: [RedissonCodecs.Default])
+ * @return 설정이 적용된 [Config]
+ */
 fun configFromYamlOf(file: File, codec: Codec = RedissonCodecs.Default): Config {
     return Config.fromYAML(file).apply { this.codec = codec }
 }
 
-/** YAML URL로 Redisson [Config]를 생성하고 codec을 설정합니다. */
+/**
+ * YAML URL로 Redisson [Config]를 생성하고 codec을 설정합니다.
+ *
+ * ```kotlin
+ * val url = URL("file:///etc/redisson/config.yaml")
+ * val config = configFromYamlOf(url)
+ * // config.codec != null
+ * ```
+ *
+ * @param url YAML 설정 파일의 URL
+ * @param codec 적용할 Codec (기본값: [RedissonCodecs.Default])
+ * @return 설정이 적용된 [Config]
+ */
 fun configFromYamlOf(url: URL, codec: Codec = RedissonCodecs.Default): Config {
     return Config.fromYAML(url).apply { this.codec = codec }
 }
@@ -61,7 +100,20 @@ inline fun redissonClient(block: Config.() -> Unit): RedissonClient {
     return redissonClientOf(Config().apply(block))
 }
 
-/** 전달된 [config]로 [RedissonClient]를 생성합니다. */
+/**
+ * 전달된 [config]로 [RedissonClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val config = Config().apply {
+ *     useSingleServer().setAddress(RedissonConst.DEFAULT_URL)
+ * }
+ * val client = redissonClientOf(config)
+ * // client != null
+ * ```
+ *
+ * @param config Redisson 설정
+ * @return 생성된 [RedissonClient]
+ */
 fun redissonClientOf(config: Config): RedissonClient {
     return Redisson.create(config)
 }
@@ -82,7 +134,20 @@ inline fun redissonReactiveClient(block: Config.() -> Unit): RedissonReactiveCli
     return redissonReactiveClientOf(Config().apply(block))
 }
 
-/** 전달된 [config]로 [RedissonReactiveClient]를 생성합니다. */
+/**
+ * 전달된 [config]로 [RedissonReactiveClient]를 생성합니다.
+ *
+ * ```kotlin
+ * val config = Config().apply {
+ *     useSingleServer().setAddress(RedissonConst.DEFAULT_URL)
+ * }
+ * val reactiveClient = redissonReactiveClientOf(config)
+ * // reactiveClient != null
+ * ```
+ *
+ * @param config Redisson 설정
+ * @return 생성된 [RedissonReactiveClient]
+ */
 fun redissonReactiveClientOf(config: Config): RedissonReactiveClient {
     return redissonClientOf(config).reactive()
 }

@@ -17,7 +17,7 @@ import io.bluetape4k.logging.warn
  * - 내부적으로 `tryConsumeAndReturnRemaining`을 사용해 소비 여부와 잔여 토큰 수를 한 번에 계산합니다.
  * - 입력 검증 실패는 예외로 처리하고, 버킷 조회/소비 중 런타임 오류는 [RateLimitResult.error]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val bucketProvider by lazy {
  *     LocalBucketProvider(defaultBucketConfiguration)
  * }
@@ -33,10 +33,10 @@ import io.bluetape4k.logging.warn
  * // 5개 소모, 5개 남음
  * result.status shouldBeEqualTo RateLimitStatus.CONSUMED
  * result.consumedTokens shouldBeEqualTo token
- * result.availableTokens shouldBeEqualTo (AbstractCoRateLimiterTest.INITIAL_CAPACITY - token)
+ * result.availableTokens shouldBeEqualTo (INITIAL_CAPACITY - token)
  *
  * // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
- * val result2 = rateLimiter.consume(key, AbstractCoRateLimiterTest.INITIAL_CAPACITY)
+ * val result2 = rateLimiter.consume(key, INITIAL_CAPACITY)
  * result2.status shouldBeEqualTo RateLimitStatus.REJECTED
  * result2.consumedTokens shouldBeEqualTo 0
  * result2.availableTokens shouldBeEqualTo result.availableTokens
@@ -58,6 +58,13 @@ open class LocalRateLimiter(
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 소비합니다. 결과는 [RateLimitResult]로 반환됩니다.
+     *
+     * ```kotlin
+     * val rateLimiter = LocalRateLimiter(bucketProvider)
+     * val result = rateLimiter.consume("user-42", 1L)
+     * // result.isConsumed == true (토큰 여유가 있는 경우)
+     * // result.remainingTokens >= 0
+     * ```
      *
      * @param key      Rate Limit 적용 대상 Key
      * @param numToken 소비할 토큰 수

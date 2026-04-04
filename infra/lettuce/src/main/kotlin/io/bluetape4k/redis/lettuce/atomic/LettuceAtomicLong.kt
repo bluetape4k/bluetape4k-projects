@@ -87,12 +87,25 @@ end"""
     /**
      * 현재 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceAtomicLong(connection, "my-counter", initialValue = 5L)
+     * val value = counter.get()
+     * // value == 5
+     * ```
+     *
      * @return 현재 Long 값
      */
     fun get(): Long = syncCommands.get(key)?.toLong() ?: initialValue
 
     /**
      * 값을 설정합니다.
+     *
+     * ```kotlin
+     * val counter = LettuceAtomicLong(connection, "my-counter")
+     * counter.set(42L)
+     * val value = counter.get()
+     * // value == 42
+     * ```
      *
      * @param value 설정할 값
      */
@@ -118,6 +131,14 @@ end"""
     /**
      * 값을 1 증가시키고 증가된 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceAtomicLong(connection, "my-counter", initialValue = 0L)
+     * val v1 = counter.incrementAndGet()
+     * // v1 == 1
+     * val v2 = counter.incrementAndGet()
+     * // v2 == 2
+     * ```
+     *
      * @return 증가된 값
      */
     fun incrementAndGet(): Long = syncCommands.incr(key) ?: 1L
@@ -125,12 +146,24 @@ end"""
     /**
      * 값을 1 감소시키고 감소된 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceAtomicLong(connection, "my-counter", initialValue = 5L)
+     * val v = counter.decrementAndGet()
+     * // v == 4
+     * ```
+     *
      * @return 감소된 값
      */
     fun decrementAndGet(): Long = syncCommands.decr(key) ?: -1L
 
     /**
      * 값에 delta를 더하고 더해진 값을 반환합니다.
+     *
+     * ```kotlin
+     * val counter = LettuceAtomicLong(connection, "my-counter", initialValue = 0L)
+     * val v = counter.addAndGet(5L)
+     * // v == 5
+     * ```
      *
      * @param delta 더할 값
      * @return 더해진 값

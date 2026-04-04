@@ -8,6 +8,16 @@ import org.apache.kafka.common.header.Headers
 
 /**
  * Kafka 키나 메시지를 JSON으로 직렬화/역직렬화하는 Kafka Codec
+ *
+ * ```kotlin
+ * val codec = JacksonKafkaCodec()
+ * val data = mapOf("id" to 1, "name" to "debop")
+ * val bytes = codec.serialize("my-topic", null, data)
+ * val result = codec.deserialize("my-topic", null, bytes)
+ * // result is a Map with id=1, name="debop"
+ * ```
+ *
+ * @param mapper Jackson [JsonMapper] 인스턴스
  */
 class JacksonKafkaCodec(
     private val mapper: JsonMapper = Jackson.defaultJsonMapper,

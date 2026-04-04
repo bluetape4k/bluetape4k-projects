@@ -23,6 +23,16 @@ object JCaching: KLogging() {
 
         /**
          * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
+         *
+         * ```kotlin
+         * val cache = JCaching.Cache2k.getOrCreate<String, Int>("myCache")
+         * cache.put("hello", 5)
+         * val value = cache.get("hello")
+         * // value == 5
+         * ```
+         *
+         * @param name 캐시 이름
+         * @param configuration 캐시 설정
          */
         inline fun <reified K, reified V> getOrCreate(
             name: String,
@@ -43,7 +53,7 @@ object JCaching: KLogging() {
         /**
          * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
          *
-         * ```
+         * ```kotlin
          * val cache = JCaching.Caffeine.getOrCreate<String, String>("default") {
          *    this.withExpiryPolicy(TouchedExpiryPolicy(Duration.ONE_MINUTE))
          *    this.withValueSerializer(StringSerializer())
@@ -73,6 +83,16 @@ object JCaching: KLogging() {
 
         /**
          * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
+         *
+         * ```kotlin
+         * val cache = JCaching.EhCache.getOrCreate<String, Int>("myCache")
+         * cache.put("hello", 5)
+         * val value = cache.get("hello")
+         * // value == 5
+         * ```
+         *
+         * @param name 캐시 이름
+         * @param configuration 캐시 설정
          */
         inline fun <reified K, reified V> getOrCreate(
             name: String,

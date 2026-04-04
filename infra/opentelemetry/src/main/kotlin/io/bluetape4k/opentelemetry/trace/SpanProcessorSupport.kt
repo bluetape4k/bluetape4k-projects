@@ -9,6 +9,12 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
 /**
  * [SimpleSpanProcessor]를 생성합니다.
  *
+ * ```kotlin
+ * val exporter = loggingSpanExporterOf()
+ * val processor = simpleSpanProcessorOf(exporter)
+ * // processor != null
+ * ```
+ *
  * @param exporter 내보낼 [SpanExporter]
  * @return [SpanProcessor] 인스턴스
  */
@@ -18,6 +24,14 @@ fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
 
 /**
  * [BatchSpanProcessor]를 생성합니다.
+ *
+ * ```kotlin
+ * val exporter = loggingSpanExporterOf()
+ * val processor = batchSpanProcessorOf(exporter) {
+ *     setMaxExportBatchSize(512)
+ * }
+ * // processor != null
+ * ```
  *
  * @param exporter 내보낼 [SpanExporter]
  * @param builder [BatchSpanProcessorBuilder]를 설정하는 람다

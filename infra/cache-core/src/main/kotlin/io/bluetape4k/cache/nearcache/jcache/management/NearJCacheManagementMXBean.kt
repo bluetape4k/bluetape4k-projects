@@ -8,6 +8,15 @@ import javax.cache.management.CacheMXBean
  *
  * NOTE: Configuration 정보를 얻기 위한 getConfiguration 에서 CapturedType 문제가 있어
  * 현재는 안전한 기본값을 반환합니다. 추후 Java 클래스로 재작성하여 완전히 구현해야 합니다.
+ *
+ * ```kotlin
+ * val nearCache: NearJCache<String, Int> = NearJCache(backCache)
+ * val mxBean = NearJCacheManagementMXBean(nearCache)
+ * val keyType = mxBean.keyType
+ * // keyType == "java.lang.Object"
+ * val isStatisticsEnabled = mxBean.isStatisticsEnabled
+ * // isStatisticsEnabled == false
+ * ```
  */
 class NearJCacheManagementMXBean(
     private val cache: NearJCache<*, *>,

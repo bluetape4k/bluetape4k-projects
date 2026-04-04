@@ -179,6 +179,12 @@ data class RedissonCacheConfig(
      * - [ttl]이 필요한 경우 엔트리별 만료 API(`RMap.put(key, value, ttl, unit)`)를 사용하세요.
      * - [maxSize]가 필요한 경우 로컬 캐시 크기 제한([nearCacheMaxSize])이나 별도 정책을 적용하세요.
      *
+     * ```kotlin
+     * val config = RedissonCacheConfig.READ_WRITE_THROUGH
+     * val opts = config.toMapOptions<String, User>("users")
+     * // opts.writeMode == WriteMode.WRITE_THROUGH
+     * ```
+     *
      * @param name Redis 맵 이름
      * @return 설정이 적용된 [MapOptions] 인스턴스
      * @throws IllegalArgumentException [ttl], [maxSize], [deleteFromDBOnInvalidate]가 기본값이 아닌 경우
@@ -201,6 +207,12 @@ data class RedissonCacheConfig(
      * - 로컬 캐시 만료는 [nearCacheTtl], [nearCacheMaxIdleTime]으로 제어하세요.
      * - 로컬 캐시 크기는 [nearCacheMaxSize]로 제어하세요.
      * - [nearCacheEnabled]가 `false`인 경우 로컬 캐시 크기가 0으로 설정되어 로컬 캐싱이 비활성화됩니다.
+     *
+     * ```kotlin
+     * val config = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
+     * val opts = config.toLocalCachedMapOptions<String, User>("users")
+     * // opts.cacheSize > 0 (nearCacheEnabled == true)
+     * ```
      *
      * @param name Redis 맵 이름
      * @return 설정이 적용된 [LocalCachedMapOptions] 인스턴스

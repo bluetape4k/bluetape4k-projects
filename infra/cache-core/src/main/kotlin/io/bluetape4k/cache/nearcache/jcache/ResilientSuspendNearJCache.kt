@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
  * - **retry**: consumer에서 resilience4j [Retry]로 재시도 (지수 백오프 옵션)
  * - **get graceful degradation**: back cache GET 실패 시 front 값 반환 또는 null
  *
- * ```
+ * ```kotlin
  * Application (suspend)
  *     |
  * [ResilientSuspendNearCache]
@@ -42,6 +42,15 @@ import java.util.concurrent.ConcurrentHashMap
  * Caffeine        |
  * (즉시반영)   Consumer Coroutine
  *              (withRetry + backCache.put/remove)
+ * ```
+ *
+ * ```kotlin
+ * val config = ResilientNearJCacheConfig<String, Int>(retryMaxAttempts = 3)
+ * val nearCache = ResilientSuspendNearJCache(backSuspendCache, config)
+ * nearCache.put("hello", 5)
+ * val value = nearCache.get("hello")
+ * // value == 5
+ * nearCache.close()
  * ```
  *
  * @param K 키 타입

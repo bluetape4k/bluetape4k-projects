@@ -9,6 +9,16 @@ package io.bluetape4k.cache.nearcache
  * 키는 [String]으로 고정됩니다. 모든 분산 캐시 백엔드에서 키는 결국 String으로 직렬화되므로,
  * 제네릭 키는 복잡성만 추가합니다.
  *
+ * ```kotlin
+ * // Lettuce NearCache 예시 (LettuceNearCache는 NearCacheOperations를 구현)
+ * val cache: NearCacheOperations<String> = lettuceNearCacheOf(redisClient, codec, config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * cache.remove("hello")
+ * cache.close()
+ * ```
+ *
  * @param V 캐시 값 타입
  * @see SuspendNearCacheOperations suspend 버전
  * @see ResilientNearCacheDecorator retry + failure strategy Decorator

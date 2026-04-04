@@ -7,6 +7,14 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * InMemory를 이용하여 [InMemoryAsyncMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val memo = ({ key: String -> CompletableFuture.completedFuture(key.length) }).asyncMemoizer()
+ * val result = memo("hello").join()
+ * // result == 5
+ * val result2 = memo("hello").join()  // 캐시에서 즉시 반환
+ * // result2 == 5
+ * ```
  */
 fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemoizer(): InMemoryAsyncMemoizer<T, R> =
     InMemoryAsyncMemoizer(this)

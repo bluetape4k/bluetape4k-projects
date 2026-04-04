@@ -15,7 +15,7 @@ import io.github.bucket4j.TimeMeter
  * - 기본 구현은 millisecond time meter와 64-bit math를 사용합니다.
  * - 소비 대기 자체는 [SuspendLocalBucket]이 `delay`로 처리하므로 호출 스레드를 블로킹하지 않습니다.
  *
- * ```
+ * ```kotlin
  * val bucketProvider = LocalSuspendBucketProvider(bucketConfiguration)
  * val key = randomKey()
  * val bucket = bucketProvider.resolveBucket(key)

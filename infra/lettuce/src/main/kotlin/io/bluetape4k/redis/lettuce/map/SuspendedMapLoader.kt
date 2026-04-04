@@ -5,6 +5,15 @@ package io.bluetape4k.redis.lettuce.map
  *
  * Read-through 캐시 패턴에서 캐시 미스 시 DB에서 값을 로드하는 인터페이스.
  *
+ * ```kotlin
+ * val loader = object : SuspendedMapLoader<String, Int> {
+ *     override suspend fun load(key: String): Int? = db.findByKey(key)
+ *     override suspend fun loadAllKeys(): List<String> = db.findAllKeys()
+ * }
+ * val map = LettuceSuspendedLoadedMap(connection, config, loader, writer)
+ * val value = map.get("hello")   // DB에서 로드
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  */

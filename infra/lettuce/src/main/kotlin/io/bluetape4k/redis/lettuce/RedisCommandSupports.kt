@@ -55,6 +55,13 @@ object RedisCommandSupports: KLogging() {
     /**
      * `HSETEX` 명령어 지원 여부를 확인합니다. (Redis 8.0+)
      *
+     * ```kotlin
+     * if (RedisCommandSupports.supportsHSetEx(redisClient)) {
+     *     // Redis 8.0+ HSETEX 사용 가능
+     *     commands.hsetex(key, ttl, args, map)
+     * }
+     * ```
+     *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */
     fun supportsHSetEx(redisClient: RedisClient): Boolean = supports(redisClient, "HSETEX")
@@ -62,12 +69,26 @@ object RedisCommandSupports: KLogging() {
     /**
      * `LMPOP` 명령어 지원 여부를 확인합니다. (Redis 7.0+)
      *
+     * ```kotlin
+     * if (RedisCommandSupports.supportsLMPop(redisClient)) {
+     *     // Redis 7.0+ LMPOP 사용 가능
+     *     commands.lmpop(LMPopArgs.Builder.left().count(10), "mylist")
+     * }
+     * ```
+     *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */
     fun supportsLMPop(redisClient: RedisClient): Boolean = supports(redisClient, "LMPOP")
 
     /**
      * `WAITAOF` 명령어 지원 여부를 확인합니다. (Redis 7.2+)
+     *
+     * ```kotlin
+     * if (RedisCommandSupports.supportsWaitAof(redisClient)) {
+     *     // Redis 7.2+ WAITAOF 사용 가능
+     *     commands.waitaof(1, 0, 0)
+     * }
+     * ```
      *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */

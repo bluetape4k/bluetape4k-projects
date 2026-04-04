@@ -10,6 +10,11 @@ import java.time.Duration
 
 /**
  * no-op operation을 위한 invalid [SpanContext]
+ *
+ * ```kotlin
+ * val ctx = InvalidSpanContext
+ * // ctx.isValid == false
+ * ```
  */
 @JvmField
 val InvalidSpanContext: SpanContext = SpanContext.getInvalid()
@@ -21,6 +26,15 @@ val InvalidSpanContext: SpanContext = SpanContext.getInvalid()
  * - 일반 예외는 span에 `exception` 이벤트와 `ERROR` 상태를 남긴 뒤 원본 예외를 그대로 다시 던집니다.
  * - [CancellationException]은 취소 의미를 보존하기 위해 오류로 기록하지 않고 그대로 전파합니다.
  * - `waitTimeout`은 하위 호환을 위해 유지되며, 현재 구현은 trace duration 왜곡을 피하기 위해 span을 즉시 종료합니다.
+ *
+ * ```kotlin
+ * val tracer = NoopOpenTelemetry.getTracer("example")
+ * val result = tracer.spanBuilder("my-span").startSpan().use { span ->
+ *     span.setAttribute("key", "value")
+ *     "done"
+ * }
+ * // result == "done"
+ * ```
  *
  * @param waitTimeout 하위 호환을 위해 남겨둔 종료 대기 시간 인자입니다. 현재 구현은 trace duration 왜곡을 막기 위해 즉시 종료합니다.
  * @param block 실행할 코드 블록

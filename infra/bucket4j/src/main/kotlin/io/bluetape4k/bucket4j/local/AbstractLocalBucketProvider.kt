@@ -55,10 +55,32 @@ abstract class AbstractLocalBucketProvider<T : LocalBucket>(
      */
     protected abstract fun createBucket(): T
 
+    /**
+     * [key]에 key prefix를 결합하여 캐시 키를 반환합니다.
+     *
+     * ```kotlin
+     * val provider = LocalBucketProvider(bucketConfiguration, keyPrefix = "app.rate.")
+     * val cacheKey = provider.getBucketKey("user-42")
+     * // cacheKey == "app.rate.user-42"
+     * ```
+     *
+     * @param key 원본 키
+     * @return prefix가 적용된 캐시 키
+     */
     protected open fun getBucketKey(key: String): String = "$keyPrefix$key"
 
     /**
      * [key]에 해당하는 [LocalBucket]을 제공합니다.
+     *
+     * ```kotlin
+     * val config = BucketConfiguration.builder()
+     *     .addLimit(Bandwidth.classic(10, Refill.intervally(10, Duration.ofSeconds(1))))
+     *     .build()
+     * val provider = LocalBucketProvider(config)
+     * val bucket = provider.resolveBucket("user-42")
+     * val result = bucket.tryConsumeAndReturnRemaining(1)
+     * // result.remainingTokens == 9
+     * ```
      *
      * @param key Custom Key
      * @return [LocalBucket] 인스턴스

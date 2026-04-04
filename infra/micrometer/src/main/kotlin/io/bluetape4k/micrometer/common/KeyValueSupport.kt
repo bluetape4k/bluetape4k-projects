@@ -9,6 +9,8 @@ import io.micrometer.common.KeyValues
  *
  * ```kotlin
  * val kv = keyValueOf("key1", "value1")
+ * // kv.key == "key1"
+ * // kv.value == "value1"
  * ```
  *
  * @param key 키 이름 (비어있을 수 없음)
@@ -29,6 +31,8 @@ fun keyValueOf(
  *
  * ```kotlin
  * val kv = keyValueOf("key1", 123) { it > 100 }
+ * // kv.key == "key1"
+ * // kv.value == "123"
  * ```
  *
  * @param T 값의 타입
@@ -52,6 +56,7 @@ fun <T: Any> keyValueOf(
  *
  * ```kotlin
  * val kvs = keyValuesOf("key1", "value1", "key2", "value2")
+ * // kvs.size() == 2
  * ```
  *
  * @param keyValues 키-값 쌍의 가변 인자 (짝수 개수여야 함)
@@ -68,6 +73,13 @@ fun keyValuesOf(vararg keyValues: String): KeyValues {
 /**
  * [KeyValue] 컬렉션으로 [KeyValues]를 생성합니다.
  *
+ * ```kotlin
+ * val kv1 = keyValueOf("k1", "v1")
+ * val kv2 = keyValueOf("k2", "v2")
+ * val kvs = keyValueOf(listOf(kv1, kv2))
+ * // kvs.size() == 2
+ * ```
+ *
  * @param keyValues KeyValue 컬렉션
  * @return 생성된 [KeyValues] 인스턴스
  */
@@ -75,6 +87,13 @@ fun keyValueOf(keyValues: Iterable<KeyValue>): KeyValues = KeyValues.of(keyValue
 
 /**
  * 가변 인자 [KeyValue]로 [KeyValues]를 생성합니다.
+ *
+ * ```kotlin
+ * val kv1 = keyValueOf("k1", "v1")
+ * val kv2 = keyValueOf("k2", "v2")
+ * val kvs = keyValuesOf(kv1, kv2)
+ * // kvs.size() == 2
+ * ```
  *
  * @param keyValues KeyValue 가변 인자
  * @return 생성된 [KeyValues] 인스턴스
@@ -86,6 +105,7 @@ fun keyValuesOf(vararg keyValues: KeyValue): KeyValues = KeyValues.of(*keyValues
  *
  * ```kotlin
  * val kvs = keyValuesOf("key1" to "value1", "key2" to "value2")
+ * // kvs.size() == 2
  * ```
  *
  * @param keyValues 키-값 쌍의 가변 인자
@@ -99,6 +119,7 @@ fun keyValuesOf(vararg keyValues: Pair<String, String>): KeyValues =
  *
  * ```kotlin
  * val kvs = keyValueOf(mapOf("key1" to "value1", "key2" to "value2"))
+ * // kvs.size() == 2
  * ```
  *
  * @param keyValues 키-값 쌍의 Map

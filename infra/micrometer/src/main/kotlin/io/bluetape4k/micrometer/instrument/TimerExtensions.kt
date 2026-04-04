@@ -10,10 +10,13 @@ import java.util.concurrent.TimeUnit
  * Suspend 함수의 실행 시간을 측정하는 Timer 확장 함수입니다.
  *
  * ```kotlin
+ * val registry = SimpleMeterRegistry()
  * val timer = registry.timer("api.call")
  * val result = timer.recordSuspend {
- *     api.fetchData()  // suspend 함수
+ *     "response-data"   // suspend 함수 결과
  * }
+ * // result == "response-data"
+ * // timer.count() == 1L
  * ```
  *
  * @param T 반환 타입
@@ -45,11 +48,12 @@ internal suspend inline fun <T> Timer.recordSuspendInternal(block: suspend () ->
  * Flow가 시작될 때 타이머를 시작하고, 완료될 때 경과 시간을 기록합니다.
  *
  * ```kotlin
+ * val registry = SimpleMeterRegistry()
  * val timer = registry.timer("flow.processing")
- * val flow = dataFlow.withTimer(timer)
- *     .collect { data ->
- *         // 처리 로직
- *     }
+ * val items = mutableListOf<Int>()
+ * flowOf(1, 2, 3).withTimer(timer).collect { items.add(it) }
+ * // items == listOf(1, 2, 3)
+ * // timer.count() == 1L
  * ```
  *
  * @param T Flow의 요소 타입

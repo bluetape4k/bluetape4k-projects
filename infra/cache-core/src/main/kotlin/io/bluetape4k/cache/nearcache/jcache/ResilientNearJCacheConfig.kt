@@ -10,6 +10,14 @@ import java.time.Duration
  *
  * JCache 기반 back cache와 raw Caffeine front cache를 사용하는 Resilient NearCache 설정.
  *
+ * ```kotlin
+ * val config = ResilientNearJCacheConfig<String, Int>(
+ *     cacheName = "my-resilient-cache",
+ *     maxLocalSize = 5000,
+ *     retryMaxAttempts = 5
+ * )
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  * @param maxLocalSize 로컬(Caffeine) 캐시 최대 크기
@@ -43,6 +51,15 @@ data class ResilientNearJCacheConfig<K: Any, V: Any>(
 
 /**
  * [ResilientNearJCacheConfig] DSL 빌더.
+ *
+ * ```kotlin
+ * val config = resilientNearJCacheConfig<String, Int> {
+ *     cacheName = "my-resilient-cache"
+ *     maxLocalSize = 5000
+ *     retryMaxAttempts = 5
+ *     retryExponentialBackoff = true
+ * }
+ * ```
  */
 inline fun <K: Any, V: Any> resilientNearJCacheConfig(
     block: ResilientNearJCacheConfigBuilder<K, V>.() -> Unit,

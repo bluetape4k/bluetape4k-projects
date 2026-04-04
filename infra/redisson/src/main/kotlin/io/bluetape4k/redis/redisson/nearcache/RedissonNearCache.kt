@@ -63,6 +63,18 @@ class RedissonNearCache<K: Any, V: Any> private constructor(
          *
          * 로컬 캐시와 원격 백엔드 캐시가 동일한 이름/코덱을 사용하도록 맞춰,
          * destroy 시 로컬 near cache 인스턴스만 정리해도 원격 데이터는 보존됩니다.
+         *
+         * ```kotlin
+         * val options = LocalCachedMapOptions.name<String, User>("users")
+         *     .cacheSize(1000)
+         *     .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+         * val nearCache = RedissonNearCache(redisson, options)
+         * // nearCache != null
+         * ```
+         *
+         * @param redisson Redisson 클라이언트
+         * @param options [LocalCachedMapOptions] 설정
+         * @return [RedissonNearCache] 인스턴스
          */
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(

@@ -9,6 +9,13 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Caffeine Cache를 이용하는 [CaffeineAsyncMemoizer]를 생성합니다.
  *
+ * ```kotlin
+ * val cache = Caffeine.newBuilder().maximumSize(1000).build<String, Int>()
+ * val memo = cache.asyncMemoizer { key -> CompletableFuture.completedFuture(key.length) }
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
+ *
  * @param T cache key type
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
@@ -19,6 +26,13 @@ fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
 
 /**
  * 비동기 함수를 Caffeine Cache 기반 [CaffeineAsyncMemoizer]로 감쌉니다.
+ *
+ * ```kotlin
+ * val cache = Caffeine.newBuilder().maximumSize(1000).build<String, Int>()
+ * val memo = ({ key: String -> CompletableFuture.completedFuture(key.length) }).withAsyncMemoizer(cache)
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  */
 fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
     cache: Cache<T, R>,
@@ -26,6 +40,13 @@ fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
 
 /**
  * Caffeine Cache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ *
+ * ```kotlin
+ * val cache = Caffeine.newBuilder().maximumSize(1000).build<String, Int>()
+ * val memo = CaffeineAsyncMemoizer(cache) { key -> CompletableFuture.completedFuture(key.length) }
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  *
  * ## Virtual Thread 안전성
  * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이

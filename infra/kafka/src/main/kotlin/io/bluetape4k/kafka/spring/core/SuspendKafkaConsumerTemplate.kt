@@ -83,11 +83,27 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
 
     /**
      * 레코드를 수동 acknowledgment 방식으로 수신합니다.
+     *
+     * ```kotlin
+     * val consumer = SuspendKafkaConsumerTemplate(receiverOptions)
+     * consumer.receive().collect { record ->
+     *     println("Received: ${record.value()}")
+     *     record.receiverOffset().acknowledge()
+     * }
+     * ```
      */
     fun receive(): Flow<ReceiverRecord<K, V>> = receiver.receive().asFlow()
 
     /**
      * 레코드를 자동 acknowledgment 방식으로 수신합니다.
+     *
+     * ```kotlin
+     * val consumer = SuspendKafkaConsumerTemplate(receiverOptions)
+     * consumer.receiveAutoAck().collect { record ->
+     *     println("Received: ${record.value()}")
+     *     // offset은 자동으로 커밋됨
+     * }
+     * ```
      */
     fun receiveAutoAck(): Flow<ConsumerRecord<K, V>> = receiver.receiveAutoAck().concatMap { it }.asFlow()
 
@@ -174,6 +190,18 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
      */
     suspend fun subscription(): Set<String> = doOnConsumer { it.subscription() }
 
+    /**
+     * 지정한 파티션의 offset으로 이동합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * consumer.seek(partition, 100L)
+     * // 이후 poll은 offset 100부터 시작됩니다
+     * ```
+     *
+     * @param partition 이동할 파티션
+     * @param offset 이동할 offset
+     */
     suspend fun seek(
         partition: TopicPartition,
         offset: Long,
@@ -201,18 +229,52 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
         return offset
     }
 
+    /**
+     * 지정한 파티션들의 offset을 처음으로 이동합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * consumer.seekToBeginning(partition)
+     * // 이후 poll은 파티션의 처음 offset부터 시작됩니다
+     * ```
+     *
+     * @param partitions 처음으로 이동할 파티션 목록
+     */
     suspend fun seekToBeginning(vararg partitions: TopicPartition) {
         doOnConsumer { consumer ->
             consumer.seekToBeginning(partitions.asList())
         }
     }
 
+    /**
+     * 지정한 파티션들의 offset을 끝으로 이동합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * consumer.seekToEnd(partition)
+     * // 이후 poll은 파티션의 끝 offset부터 시작됩니다
+     * ```
+     *
+     * @param partitions 끝으로 이동할 파티션 목록
+     */
     suspend fun seekToEnd(vararg partitions: TopicPartition) {
         doOnConsumer { consumer ->
             consumer.seekToEnd(partitions.asList())
         }
     }
 
+    /**
+     * 지정한 파티션의 현재 fetch position을 반환합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * val pos = consumer.partition(partition)
+     * // pos는 다음 fetch 할 offset
+     * ```
+     *
+     * @param partition 조회할 파티션
+     * @return 현재 position (다음 fetch할 offset)
+     */
     suspend fun partition(partition: TopicPartition): Long = doOnConsumer { it.position(partition) }
 
     /**
@@ -220,6 +282,18 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
      */
     suspend fun position(partition: TopicPartition): Long = doOnConsumer { it.position(partition) }
 
+    /**
+     * 지정한 파티션들의 커밋된 offset 정보를 반환합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * val committed = consumer.committed(setOf(partition))
+     * // committed[partition]?.offset() 이 마지막으로 커밋된 offset
+     * ```
+     *
+     * @param partitions 조회할 파티션 집합
+     * @return 파티션별 커밋 정보 맵
+     */
     suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata> =
         doOnConsumer {
             it.committed(partitions)
@@ -259,22 +333,98 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
             offsets
         }
 
+    /**
+     * 지정한 토픽의 파티션 정보를 반환합니다.
+     *
+     * ```kotlin
+     * val partitions = consumer.partitionsFromConsumerFor("my-topic")
+     * // partitions.size가 파티션 수
+     * ```
+     *
+     * @param topic 조회할 토픽 이름
+     * @return 파티션 정보 목록
+     */
     suspend fun partitionsFromConsumerFor(topic: String): List<PartitionInfo> = doOnConsumer { it.partitionsFor(topic) }
 
+    /**
+     * 현재 일시 정지된 파티션 집합을 반환합니다.
+     *
+     * ```kotlin
+     * val paused = consumer.paused()
+     * // paused에 일시 정지된 파티션이 포함됨
+     * ```
+     *
+     * @return 일시 정지된 파티션 집합
+     */
     suspend fun paused(): Set<TopicPartition> = doOnConsumer { it.paused() }
 
+    /**
+     * 지정한 파티션들을 일시 정지합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * consumer.pause(partition)
+     * // 이후 poll에서 해당 파티션은 레코드를 반환하지 않습니다
+     * ```
+     *
+     * @param partitions 일시 정지할 파티션 목록
+     */
     suspend fun pause(vararg partitions: TopicPartition) {
         doOnConsumer { it.pause(partitions.asList()) }
     }
 
+    /**
+     * 일시 정지된 파티션들을 재개합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * consumer.resume(partition)
+     * // 이후 poll에서 해당 파티션이 다시 레코드를 반환합니다
+     * ```
+     *
+     * @param partitions 재개할 파티션 목록
+     */
     suspend fun resume(vararg partitions: TopicPartition) {
         doOnConsumer { it.resume(partitions.asList()) }
     }
 
+    /**
+     * Consumer 의 메트릭 정보를 반환합니다.
+     *
+     * ```kotlin
+     * val metrics = consumer.metricsFromConsumer()
+     * val fetchRate = metrics.entries.find { it.key.name() == "fetch-rate" }?.value?.metricValue()
+     * ```
+     *
+     * @return 메트릭 이름과 값의 맵
+     */
     suspend fun metricsFromConsumer(): Map<MetricName, Metric> = doOnConsumer { it.metrics() }
 
+    /**
+     * Consumer가 접근 가능한 모든 토픽 목록을 반환합니다.
+     *
+     * ```kotlin
+     * val topics = consumer.listTopics()
+     * // topics.keys에 토픽 이름 목록이 포함됨
+     * ```
+     *
+     * @return 토픽 이름과 파티션 정보 목록의 맵
+     */
     suspend fun listTopics(): Map<String, List<PartitionInfo>> = doOnConsumer { it.listTopics() }
 
+    /**
+     * 지정한 timestamp에 해당하는 파티션별 offset 정보를 반환합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * val ts = System.currentTimeMillis() - 60_000
+     * val offsets = consumer.offsetsForTimes(mapOf(partition to ts))
+     * // offsets[partition]?.offset() 이 ts 시점의 offset
+     * ```
+     *
+     * @param timestampsToSearch 파티션별 timestamp 맵
+     * @return 파티션별 offset 정보 맵
+     */
     suspend fun offsetsForTimes(
         timestampsToSearch: Map<TopicPartition, Long>,
     ): Map<TopicPartition, OffsetAndTimestamp> =
@@ -282,11 +432,35 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
             it.offsetsForTimes(timestampsToSearch)
         }
 
+    /**
+     * 지정한 파티션들의 처음 offset을 반환합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * val offsets = consumer.beginningOffsets(partition)
+     * // offsets[partition] 이 처음 offset
+     * ```
+     *
+     * @param partitions 조회할 파티션 목록
+     * @return 파티션별 처음 offset 맵
+     */
     suspend fun beginningOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> =
         doOnConsumer {
             it.beginningOffsets(partitions.asList())
         }
 
+    /**
+     * 지정한 파티션들의 끝 offset을 반환합니다.
+     *
+     * ```kotlin
+     * val partition = TopicPartition("my-topic", 0)
+     * val offsets = consumer.endOffsets(partition)
+     * // offsets[partition] 이 끝 offset (다음에 쓸 위치)
+     * ```
+     *
+     * @param partitions 조회할 파티션 목록
+     * @return 파티션별 끝 offset 맵
+     */
     suspend fun endOffsets(vararg partitions: TopicPartition): Map<TopicPartition, Long> =
         doOnConsumer {
             it.endOffsets(partitions.asList())

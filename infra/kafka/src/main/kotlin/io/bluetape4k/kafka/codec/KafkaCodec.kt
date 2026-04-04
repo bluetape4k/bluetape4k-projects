@@ -15,6 +15,13 @@ import java.io.Closeable
 /**
  * Kafka 의 [Serializer], [Deserializer] 기능을 한번에 제공하는 Codec 입니다.
  *
+ * ```kotlin
+ * val codec = KafkaCodecs.String
+ * val serialized = codec.serialize("my-topic", "hello")
+ * val deserialized = codec.deserialize("my-topic", serialized)
+ * // deserialized == "hello"
+ * ```
+ *
  * @param T 메시지 Value 의 수형
  */
 interface KafkaCodec<T> :
@@ -43,6 +50,18 @@ interface KafkaCodec<T> :
     }
 }
 
+/**
+ * [KafkaCodec]의 기본 추상 구현체입니다.
+ *
+ * 직렬화 시 헤더에 Value 타입 정보를 기록하고, 역직렬화 시 이를 참조합니다.
+ *
+ * ```kotlin
+ * val codec = JacksonKafkaCodec()
+ * val serialized = codec.serialize("my-topic", mapOf("key" to "value"))
+ * val deserialized = codec.deserialize("my-topic", serialized)
+ * // deserialized is a Map with key -> value
+ * ```
+ */
 abstract class AbstractKafkaCodec<T> : KafkaCodec<T> {
     companion object : KLogging() {
         const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"

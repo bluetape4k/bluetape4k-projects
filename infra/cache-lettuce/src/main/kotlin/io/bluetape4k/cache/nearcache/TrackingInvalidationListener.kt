@@ -25,6 +25,14 @@ import java.nio.ByteBuffer
  * - `CLIENT TRACKING ON NOLOOP`: 자신이 쓴 키는 invalidation을 받지 않는다.
  * - `PushMessage.getContent()`: content[0] = type ByteBuffer, content[1] = keys List<ByteBuffer> or null
  *
+ * ```kotlin
+ * val listener = TrackingInvalidationListener(frontCache, connection, "my-cache")
+ * listener.start()   // CLIENT TRACKING 활성화
+ * // ... 다른 Redis 클라이언트가 "my-cache:key1" 키를 수정하면
+ * // frontCache.invalidate("key1") 가 자동으로 호출됨
+ * listener.close()   // CLIENT TRACKING 비활성화
+ * ```
+ *
  * @param V 값 타입
  */
 class TrackingInvalidationListener<V : Any>(

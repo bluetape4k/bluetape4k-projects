@@ -11,6 +11,15 @@ import java.time.Duration
  * JCache front와 별도로 순수 Caffeine 기반으로 구현하여
  * JCache 오버헤드 없이 고성능 로컬 캐싱을 제공한다.
  *
+ * ```kotlin
+ * val localCache: ResilientLocalJCache<String, Int> =
+ *     CaffeineResilientLocalJCache(maxLocalSize = 5000)
+ * localCache.put("hello", 5)
+ * val value = localCache.get("hello")
+ * // value == 5
+ * localCache.remove("hello")
+ * ```
+ *
  * @param K 키 타입
  * @param V 값 타입
  */
@@ -41,6 +50,16 @@ interface ResilientLocalJCache<K: Any, V: Any>: AutoCloseable {
 
 /**
  * [ResilientNearJCacheConfig]를 사용하는 Caffeine 기반 [ResilientLocalJCache] 구현.
+ *
+ * ```kotlin
+ * val localCache = CaffeineResilientLocalJCache<String, Int>(
+ *     maxLocalSize = 5000,
+ *     frontExpireAfterWrite = Duration.ofMinutes(10)
+ * )
+ * localCache.put("hello", 5)
+ * val value = localCache.get("hello")
+ * // value == 5
+ * ```
  *
  * @param K 키 타입
  * @param V 값 타입

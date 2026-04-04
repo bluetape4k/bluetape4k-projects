@@ -7,10 +7,13 @@ import io.micrometer.observation.ObservationRegistry
  * Observation을 시작하고 [block]을 실행한 후 Observation을 중지합니다.
  *
  * ```kotlin
- * val observation = registry.start("my.observation")
- * val result = observation.observe {
- *     someOperation()
+ * val registry = ObservationRegistry.create()
+ * val observation = Observation.createNotStarted("my.observation", registry)
+ * val result = observation.tryObserve {
+ *     42
  * }
+ * // result.isSuccess == true
+ * // result.getOrNull() == 42
  * ```
  *
  * @param T 반환 타입
@@ -32,9 +35,11 @@ inline fun <T> Observation.tryObserve(
  * Observation을 사용하여 코드 블록의 실행을 추적하고, 성능 메트릭과 분산 추적 정보를 수집합니다.
  *
  * ```kotlin
+ * val registry = ObservationRegistry.create()
  * val result = withObservation("user.service.getUser", registry) {
- *     userService.findById(userId)
+ *     "user-data"
  * }
+ * // result == "user-data"
  * ```
  *
  * @param T 반환 타입
@@ -57,10 +62,13 @@ inline fun <T> withObservation(
  * Observation의 생명주기(시작, 스코프 열기, 예외 처리, 중지)를 자동으로 관리합니다.
  *
  * ```kotlin
- * observation.withObservationContext { context ->
- *     context.put("user.id", userId)
- *     processUser(userId)
+ * val registry = ObservationRegistry.create()
+ * val observation = Observation.createNotStarted("my-op", registry)
+ * val result = observation.withObservationContext { context ->
+ *     context.put("user.id", "123")
+ *     "processed"
  * }
+ * // result == "processed"
  * ```
  *
  * @param T 반환 타입

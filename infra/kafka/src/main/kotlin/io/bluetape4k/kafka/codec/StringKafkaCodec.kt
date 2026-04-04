@@ -6,6 +6,13 @@ import java.nio.charset.Charset
 
 /**
  * Kafka 메시지의 Key 와 Value의 타입이 문자열인 경우에 사용하는 [KafkaCodec] 입니다.
+ *
+ * ```kotlin
+ * val codec = StringKafkaCodec()
+ * val bytes = codec.serialize("my-topic", "hello")
+ * val result = codec.deserialize("my-topic", bytes)
+ * // result == "hello"
+ * ```
  */
 class StringKafkaCodec : AbstractKafkaCodec<String>() {
     companion object : KLogging() {

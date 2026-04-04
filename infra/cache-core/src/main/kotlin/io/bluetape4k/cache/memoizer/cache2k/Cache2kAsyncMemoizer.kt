@@ -11,6 +11,13 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Cache2k Cache를 이용하여 [AsyncMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val cache = cache2k<String, Int> { entryCapacity = 1000 }.build()
+ * val memo = cache.asyncMemoizer { key -> CompletableFuture.completedFuture(key.length) }
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  */
 fun <T: Any, R: Any> Cache<T, R>.asyncMemoizer(
     asyncEvaluator: (T) -> CompletableFuture<R>,
@@ -19,6 +26,13 @@ fun <T: Any, R: Any> Cache<T, R>.asyncMemoizer(
 
 /**
  * Cache2k Cache를 이용하여 [AsyncMemoizer]를 생성합니다.
+ *
+ * ```kotlin
+ * val cache = cache2k<String, Int> { entryCapacity = 1000 }.build()
+ * val memo = ({ key: String -> CompletableFuture.completedFuture(key.length) }).withMemoizer(cache)
+ * val result = memo("hello").join()
+ * // result == 5
+ * ```
  */
 fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withMemoizer(cache: Cache<T, R>): AsyncMemoizer<T, R> =
     Cache2kAsyncMemoizer(cache, this)

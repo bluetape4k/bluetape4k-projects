@@ -24,6 +24,15 @@ import io.lettuce.core.codec.RedisCodec
 /**
  * 동기(Blocking) Lettuce Near Cache를 생성한다.
  *
+ * ```kotlin
+ * val config = LettuceNearCacheConfig<String, String>(cacheName = "users")
+ * val cache: NearCacheOperations<String> = lettuceNearCacheOf(redisClient, config = config)
+ * cache.put("u:1", "Alice")
+ * val value = cache.get("u:1")
+ * // value == "Alice"
+ * cache.close()
+ * ```
+ *
  * @param redisClient Lettuce Redis 클라이언트
  * @param codec Redis 키/값 직렬화 Codec
  * @param config Near Cache 설정
@@ -37,6 +46,15 @@ fun <V: Any> lettuceNearCacheOf(
 
 /**
  * Coroutine(Suspend) Lettuce Near Cache를 생성한다.
+ *
+ * ```kotlin
+ * val config = LettuceNearCacheConfig<String, String>(cacheName = "orders")
+ * val cache: SuspendNearCacheOperations<String> = lettuceSuspendNearCacheOf(redisClient, config = config)
+ * cache.put("o:1", "order-data")
+ * val value = cache.get("o:1")
+ * // value == "order-data"
+ * cache.close()
+ * ```
  *
  * @param redisClient Lettuce Redis 클라이언트
  * @param codec Redis 키/값 직렬화 Codec

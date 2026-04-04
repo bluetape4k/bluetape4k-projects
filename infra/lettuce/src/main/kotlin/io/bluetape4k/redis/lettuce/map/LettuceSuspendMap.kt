@@ -42,6 +42,15 @@ open class LettuceSuspendMap<V: Any>(
     /**
      * 지정한 필드의 값을 코루틴으로 반환합니다.
      *
+     * ```kotlin
+     * val suspendMap = LettuceSuspendMap<Int>(connection, "my-map")
+     * suspendMap.put("hello", 5)
+     * val value = suspendMap.get("hello")
+     * // value == 5
+     * val missing = suspendMap.get("notexist")
+     * // missing == null
+     * ```
+     *
      * @param field 조회할 필드명
      * @return 필드 값 (존재하지 않으면 null)
      */
@@ -140,6 +149,13 @@ open class LettuceSuspendMap<V: Any>(
     /**
      * 여러 필드의 값을 코루틴으로 조회합니다.
      * 존재하지 않는 필드는 null 값으로 반환됩니다.
+     *
+     * ```kotlin
+     * val suspendMap = LettuceSuspendMap<Int>(connection, "my-map")
+     * suspendMap.putAll(mapOf("a" to 1, "b" to 2))
+     * val result = suspendMap.getAll(listOf("a", "b", "c"))
+     * // result == {"a" to 1, "b" to 2, "c" to null}
+     * ```
      *
      * @param fields 조회할 필드명 컬렉션
      * @return 필드명 → 값 Map (없는 필드는 null)

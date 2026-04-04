@@ -114,6 +114,13 @@ return v"""
     /**
      * 즉시 허가 획득을 시도합니다.
      *
+     * ```kotlin
+     * val semaphore = LettuceSemaphore(connection, "my-sem", totalPermits = 3)
+     * semaphore.initialize()
+     * val acquired = semaphore.tryAcquire()
+     * // acquired == true
+     * ```
+     *
      * @param permits 획득할 허가 수 (기본값: 1)
      * @return 획득 성공 여부
      */
@@ -132,6 +139,17 @@ return v"""
     /**
      * 허가를 획득할 때까지 지정된 시간 동안 대기합니다.
      *
+     * ```kotlin
+     * val semaphore = LettuceSemaphore(connection, "my-sem", totalPermits = 3)
+     * semaphore.initialize()
+     * semaphore.acquire()  // 허가 획득 대기
+     * try {
+     *     doWork()
+     * } finally {
+     *     semaphore.release()
+     * }
+     * ```
+     *
      * @param permits 획득할 허가 수 (기본값: 1)
      * @param waitTime 최대 대기 시간 (기본값: 30초)
      * @throws IllegalStateException 지정된 시간 내에 허가를 획득하지 못한 경우
@@ -149,6 +167,17 @@ return v"""
 
     /**
      * 허가를 반납합니다.
+     *
+     * ```kotlin
+     * semaphore.acquire()
+     * try {
+     *     doWork()
+     * } finally {
+     *     semaphore.release()
+     *     val remaining = semaphore.availablePermits()
+     *     // remaining == totalPermits (반납 후 복원)
+     * }
+     * ```
      *
      * @param permits 반납할 허가 수 (기본값: 1)
      */

@@ -52,6 +52,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(message: Message
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
  *
+ * ```kotlin
+ * val kafkaTemplate: KafkaTemplate<String, String> = ...
+ * val result = kafkaTemplate.suspendSend("my-topic", "hello")
+ * // result.recordMetadata.topic() == "my-topic"
+ * ```
+ *
  * @param topic 발송할 토픽
  * @param value 발송할 값
  * @return [SendResult] 발송 결과
@@ -68,6 +74,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, v
 
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
+ *
+ * ```kotlin
+ * val kafkaTemplate: KafkaTemplate<String, String> = ...
+ * val result = kafkaTemplate.suspendSend("my-topic", "my-key", "hello")
+ * // result.recordMetadata.topic() == "my-topic"
+ * ```
  *
  * @param topic 발송할 토픽
  * @param key 발송할 키
@@ -86,6 +98,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, k
 
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
+ *
+ * ```kotlin
+ * val kafkaTemplate: KafkaTemplate<String, String> = ...
+ * val result = kafkaTemplate.suspendSend("my-topic", partition = 0, key = "my-key", value = "hello")
+ * // result.recordMetadata.partition() == 0
+ * ```
  *
  * @param topic 발송할 토픽
  * @param partition 발송할 파티션
@@ -115,6 +133,18 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
 
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
+ *
+ * ```kotlin
+ * val kafkaTemplate: KafkaTemplate<String, String> = ...
+ * val result = kafkaTemplate.suspendSend(
+ *     topic = "my-topic",
+ *     partition = 0,
+ *     timestamp = System.currentTimeMillis(),
+ *     key = "my-key",
+ *     value = "hello"
+ * )
+ * // result.recordMetadata.partition() == 0
+ * ```
  *
  * @param topic 발송할 토픽
  * @param partition 발송할 파티션

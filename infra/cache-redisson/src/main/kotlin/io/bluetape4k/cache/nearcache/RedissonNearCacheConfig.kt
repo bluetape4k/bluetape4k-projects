@@ -12,6 +12,16 @@ import java.time.Duration
  * `RLocalCachedMap`은 Redisson 내장 2-tier 캐시로, 자동 로컬 캐시 + 분산 캐시 + invalidation을 제공합니다.
  * Lettuce RESP3 하이브리드 없이도 client-side caching이 동작합니다.
  *
+ * ```kotlin
+ * val config = RedissonNearCacheConfig(
+ *     cacheName = "products",
+ *     maxLocalSize = 5_000,
+ *     timeToLive = Duration.ofMinutes(30),
+ *     syncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE
+ * )
+ * // config.cacheName == "products"
+ * ```
+ *
  * @param cacheName 캐시 이름 (Redis map 이름으로 사용됨)
  * @param maxLocalSize 로컬 캐시 최대 항목 수
  * @param timeToLive Redis 저장 TTL (null이면 만료 없음). 지정하면 0보다 커야 한다.
@@ -82,6 +92,16 @@ class RedissonNearCacheConfigBuilder {
 
     /**
      * 설정값을 검증하고 [RedissonNearCacheConfig]를 생성합니다.
+     *
+     * ```kotlin
+     * val builder = RedissonNearCacheConfigBuilder().apply {
+     *     cacheName = "my-cache"
+     *     maxLocalSize = 2_000
+     *     timeToLive = Duration.ofMinutes(15)
+     * }
+     * val config = builder.build()
+     * // config.cacheName == "my-cache"
+     * ```
      *
      * @return 빌드된 [RedissonNearCacheConfig] 인스턴스
      * @throws IllegalArgumentException cacheName이 blank이거나 maxLocalSize가 0 이하인 경우

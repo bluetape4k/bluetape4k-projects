@@ -20,6 +20,18 @@ import javax.cache.event.CacheEntryUpdatedListener
  * JCache 이벤트 콜백은 동기식으로 호출되므로, `runBlocking` 대신 전용 [kotlinx.coroutines.CoroutineScope]에서
  * `launch`를 사용하여 스레드 풀 고갈과 데드락을 방지합니다.
  *
+ * ```kotlin
+ * val frontCache = CaffeineSuspendJCache<String, Int> { maximumSize(1000) }
+ * val backCache = CaffeineSuspendJCache<String, Int> { maximumSize(10000) }
+ * val listener = SuspendJCacheEntryEventListener(frontCache)
+ * val listenerCfg = MutableCacheEntryListenerConfiguration(
+ *     { listener }, null, false, false
+ * )
+ * backCache.registerCacheEntryListener(listenerCfg)
+ * backCache.put("hello", 5)
+ * // frontCache에 "hello" -> 5 가 코루틴으로 비동기 동기화됨
+ * ```
+ *
  * @param K 캐시 키 타입
  * @param V 캐시 값 타입
  * @property targetCache 이벤트를 반영할 Front Cache

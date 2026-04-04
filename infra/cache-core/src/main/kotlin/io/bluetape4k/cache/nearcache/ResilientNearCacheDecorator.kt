@@ -161,6 +161,15 @@ class ResilientNearCacheDecorator<V: Any>(
 /**
  * [NearCacheOperations]에 Resilience Decorator를 적용합니다.
  *
+ * ```kotlin
+ * val config = NearCacheResilienceConfig(retryMaxAttempts = 3)
+ * val cache = lettuceNearCacheOf<String>(redisClient, codec, nearCacheConfig)
+ *     .withResilience(config)
+ * cache.put("hello", "world")
+ * val value = cache.get("hello")
+ * // value == "world"
+ * ```
+ *
  * @param config Resilience 설정
  */
 fun <V: Any> NearCacheOperations<V>.withResilience(config: NearCacheResilienceConfig): NearCacheOperations<V> =

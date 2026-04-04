@@ -66,6 +66,13 @@ class LettuceSuspendLock(
     /**
      * 지정된 대기 시간 내에 락 획득을 코루틴으로 시도합니다.
      *
+     * ```kotlin
+     * val lock = LettuceSuspendLock(connection, "my-lock")
+     * if (lock.tryLock(waitTime = Duration.ofSeconds(2))) {
+     *     try { doWork() } finally { lock.unlock() }
+     * }
+     * ```
+     *
      * @param waitTime 락 획득 대기 시간 (기본값: 즉시 시도)
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
      * @return 락 획득 성공 여부
@@ -97,6 +104,12 @@ class LettuceSuspendLock(
 
     /**
      * 락을 획득할 때까지 코루틴으로 대기합니다.
+     *
+     * ```kotlin
+     * val lock = LettuceSuspendLock(connection, "my-lock")
+     * lock.lock()
+     * try { doWork() } finally { lock.unlock() }
+     * ```
      *
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
      * @param maxWaitTime 최대 대기 시간 (기본값: 5분)
@@ -132,6 +145,12 @@ class LettuceSuspendLock(
      *
      * 토큰을 원자적으로 클리어한 뒤 Lua 스크립트로 해제하여,
      * 네트워크 오류 시에도 재시도로 다른 인스턴스의 락을 해제하는 것을 방지합니다.
+     *
+     * ```kotlin
+     * val lock = LettuceSuspendLock(connection, "my-lock")
+     * lock.lock()
+     * try { doWork() } finally { lock.unlock() }
+     * ```
      *
      * @throws IllegalStateException 락을 보유하지 않은 경우
      */

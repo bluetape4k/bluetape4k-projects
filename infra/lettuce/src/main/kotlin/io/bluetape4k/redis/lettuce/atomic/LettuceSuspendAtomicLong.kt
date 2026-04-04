@@ -78,6 +78,12 @@ end"""
     /**
      * 현재 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter", initialValue = 5L)
+     * val value = counter.get()
+     * // value == 5
+     * ```
+     *
      * @return 현재 Long 값
      */
     suspend fun get(): Long =
@@ -85,6 +91,13 @@ end"""
 
     /**
      * 값을 설정합니다.
+     *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter")
+     * counter.set(42L)
+     * val value = counter.get()
+     * // value == 42
+     * ```
      *
      * @param value 설정할 값
      */
@@ -108,6 +121,14 @@ end"""
     /**
      * 값을 1 증가시키고 증가된 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter", initialValue = 0L)
+     * val v1 = counter.incrementAndGet()
+     * // v1 == 1
+     * val v2 = counter.incrementAndGet()
+     * // v2 == 2
+     * ```
+     *
      * @return 증가된 값
      */
     suspend fun incrementAndGet(): Long =
@@ -116,6 +137,12 @@ end"""
     /**
      * 값을 1 감소시키고 감소된 값을 반환합니다.
      *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter", initialValue = 5L)
+     * val v = counter.decrementAndGet()
+     * // v == 4
+     * ```
+     *
      * @return 감소된 값
      */
     suspend fun decrementAndGet(): Long =
@@ -123,6 +150,12 @@ end"""
 
     /**
      * 값에 delta를 더하고 더해진 값을 반환합니다.
+     *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter", initialValue = 0L)
+     * val v = counter.addAndGet(5L)
+     * // v == 5
+     * ```
      *
      * @param delta 더할 값
      * @return 더해진 값
@@ -166,6 +199,14 @@ end"""
 
     /**
      * 현재 값이 expect와 같으면 update로 변경합니다.
+     *
+     * ```kotlin
+     * val counter = LettuceSuspendAtomicLong(connection, "my-counter", initialValue = 0L)
+     * val ok = counter.compareAndSet(0L, 10L)
+     * // ok == true
+     * val fail = counter.compareAndSet(0L, 20L)
+     * // fail == false (현재 값은 10이므로)
+     * ```
      *
      * @param expect 예상 값
      * @param update 새로운 값

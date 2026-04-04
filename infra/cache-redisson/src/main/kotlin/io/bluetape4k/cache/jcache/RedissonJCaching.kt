@@ -11,6 +11,13 @@ import javax.cache.configuration.MutableConfiguration
 
 /**
  * [Redisson](https://redisson.org/) 를 사용하는 [javax.cache.Cache]`<K, V>`를 제공하는 object 입니다.
+ *
+ * ```kotlin
+ * val cache = RedissonJCaching.getOrCreate<String, String>("users", redisson)
+ * cache.put("key", "value")
+ * val value = cache.get("key")
+ * // value == "value"
+ * ```
  */
 object RedissonJCaching: KLogging() {
 
@@ -22,14 +29,17 @@ object RedissonJCaching: KLogging() {
     /**
      * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
      *
-     * ```
-     * val redisson: RedissonClient = ...
-     * val cache = JRedissonCaching.getOrCreate<String, String>("default", redisson)
+     * ```kotlin
+     * val cache = RedissonJCaching.getOrCreate<String, String>("default", redisson)
+     * cache.put("greeting", "hello")
+     * val result = cache.get("greeting")
+     * // result == "hello"
      * ```
      *
      * @param cacheName 캐시 이름
      * @param redisson Redisson 클라이언트
      * @param configuration 캐시 설정
+     * @return [JCache] 인스턴스
      */
     inline fun <reified K, reified V> getOrCreate(
         cacheName: String,
@@ -43,14 +53,18 @@ object RedissonJCaching: KLogging() {
     /**
      * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
      *
-     * ```
-     * val redissonConfig: org.redisson.config.Config = ...
-     * val cache = JRedissonCaching.getOrCreate<String, String>("default", redissonConfig)
+     * ```kotlin
+     * val redissonConfig = Config().apply { useSingleServer().setAddress("redis://127.0.0.1:6379") }
+     * val cache = RedissonJCaching.getOrCreate<String, String>("default", redissonConfig)
+     * cache.put("key", "value")
+     * val result = cache.get("key")
+     * // result == "value"
      * ```
      *
      * @param cacheName 캐시 이름
      * @param redissonConfig Redisson 설정
      * @param configuration 캐시 설정
+     * @return [JCache] 인스턴스
      */
     inline fun <reified K, reified V> getOrCreate(
         cacheName: String,
@@ -64,13 +78,19 @@ object RedissonJCaching: KLogging() {
     /**
      * [CacheManager] 에서 [JCache]`<K, V>` 를 생성하거나 가져옵니다.
      *
-     * ```
-     * val cache = JRedissonCaching.getOrCreateCache<String, String>("default", redisson)
+     * `getOrCreate`와 달리 reified 타입 파라미터 없이 사용할 수 있습니다.
+     *
+     * ```kotlin
+     * val cache = RedissonJCaching.getOrCreateCache<String, String>("default", redisson)
+     * cache.put("foo", "bar")
+     * val result = cache.get("foo")
+     * // result == "bar"
      * ```
      *
      * @param cacheName 캐시 이름
      * @param redisson Redisson 클라이언트
      * @param configuration 캐시 설정
+     * @return [JCache] 인스턴스
      */
     fun <K, V> getOrCreateCache(
         cacheName: String,
