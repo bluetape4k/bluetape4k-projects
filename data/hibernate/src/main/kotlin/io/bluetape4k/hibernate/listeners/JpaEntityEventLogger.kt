@@ -14,7 +14,7 @@ import jakarta.persistence.PreUpdate
  * JPA Entity 변화에 대한 Listener 입니다.
  * [PostLoad], [PrePersist], [PostPersist], [PreUpdate], [PostUpdate], [PreRemove], [PostRemove] 를 구현합니다.
  *
- * ```
+ * ```kotlin
  * @Entity
  * @EntityListeners(JpaEntityEventLogger::class)
  * class Entity {
@@ -27,6 +27,7 @@ import jakarta.persistence.PreUpdate
  *    var deletedAt: LocalDateTime? = null
  *    var deleted: Boolean = false
  * }
+ * ```
  */
 open class JpaEntityEventLogger {
 

@@ -15,6 +15,13 @@ import java.time.Instant
  *
  * PostgreSQL에서는 `TSTZRANGE` 네이티브 타입을, 그 외 DB에서는 `VARCHAR(120)`를 사용한다.
  *
+ * ```kotlin
+ * object EventTable: LongIdTable("events") {
+ *     val period = tstzRange("period")
+ * }
+ * // EventTable.period.name == "period"
+ * ```
+ *
  * @param name 컬럼 이름
  * @return [TimestampRange] 타입의 [Column]
  */
@@ -87,6 +94,12 @@ class TstzRangeAdjacentOp(
  *
  * **PostgreSQL 전용**: 다른 dialect에서 호출하면 [IllegalStateException]이 발생한다.
  *
+ * ```kotlin
+ * val query = EventTable.selectAll()
+ *     .where { EventTable.period.overlaps(OtherTable.period) }
+ * // SQL: ... WHERE events.period && other_table.period
+ * ```
+ *
  * @param other 비교할 TSTZRANGE 컬럼
  * @return `&&` 연산 결과를 나타내는 [Op]<[Boolean]>
  * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
@@ -100,6 +113,13 @@ fun Column<TimestampRange>.overlaps(other: Column<TimestampRange>): Op<Boolean> 
  * 이 TSTZRANGE 컬럼이 특정 [Instant]를 포함하는지 확인하는 `@>` 연산자.
  *
  * **PostgreSQL 전용**: 다른 dialect에서 호출하면 [IllegalStateException]이 발생한다.
+ *
+ * ```kotlin
+ * val now = Instant.now()
+ * val active = EventTable.selectAll()
+ *     .where { EventTable.period.contains(now.asLiteral()) }
+ * // SQL: ... WHERE events.period @> now()::timestamptz
+ * ```
  *
  * @param instant 포함 여부를 확인할 timestamp [Expression]
  * @return `@>` 연산 결과를 나타내는 [Op]<[Boolean]>
@@ -115,6 +135,12 @@ fun Column<TimestampRange>.contains(instant: Expression<Instant>): Op<Boolean> {
  *
  * **PostgreSQL 전용**: 다른 dialect에서 호출하면 [IllegalStateException]이 발생한다.
  *
+ * ```kotlin
+ * val results = EventTable.selectAll()
+ *     .where { EventTable.period.containsRange(SubTable.period) }
+ * // SQL: ... WHERE events.period @> sub_table.period
+ * ```
+ *
  * @param other 포함 여부를 확인할 TSTZRANGE 컬럼
  * @return `@>` 연산 결과를 나타내는 [Op]<[Boolean]>
  * @throws IllegalStateException PostgreSQL이 아닌 dialect에서 호출 시
@@ -128,6 +154,12 @@ fun Column<TimestampRange>.containsRange(other: Column<TimestampRange>): Op<Bool
  * 이 TSTZRANGE 컬럼이 다른 TSTZRANGE 컬럼과 인접한지 확인하는 `-|-` 연산자.
  *
  * **PostgreSQL 전용**: 다른 dialect에서 호출하면 [IllegalStateException]이 발생한다.
+ *
+ * ```kotlin
+ * val results = EventTable.selectAll()
+ *     .where { EventTable.period.isAdjacentTo(NextTable.period) }
+ * // SQL: ... WHERE events.period -|- next_table.period
+ * ```
  *
  * @param other 인접 여부를 확인할 TSTZRANGE 컬럼
  * @return `-|-` 연산 결과를 나타내는 [Op]<[Boolean]>

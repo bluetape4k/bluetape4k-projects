@@ -35,12 +35,33 @@ class TinkAeadBlobTransformer(private val encryptor: TinkAead):
     ColumnTransformer<ExposedBlob, ByteArray> {
     companion object: KLogging()
 
-    /** 평문 바이트 배열을 암호화된 [ExposedBlob]으로 변환합니다. */
+    /**
+     * 평문 바이트 배열을 암호화된 [ExposedBlob]으로 변환합니다.
+     *
+     * ```kotlin
+     * val transformer = TinkAeadBlobTransformer(TinkAeads.AES256_GCM)
+     * val blob = transformer.unwrap("tink-aead-blob-source".toByteArray())
+     * // blob is ExposedBlob
+     * ```
+     *
+     * @param value 암호화할 평문 바이트 배열입니다.
+     */
     override fun unwrap(value: ByteArray): ExposedBlob {
         return encryptor.encrypt(value).toExposedBlob()
     }
 
-    /** DB에서 읽은 [ExposedBlob]을 복호화해 원본 바이트 배열로 변환합니다. */
+    /**
+     * DB에서 읽은 [ExposedBlob]을 복호화해 원본 바이트 배열로 변환합니다.
+     *
+     * ```kotlin
+     * val transformer = TinkAeadBlobTransformer(TinkAeads.AES256_GCM)
+     * val source = "tink-aead-blob-source".toByteArray()
+     * val restored = transformer.wrap(transformer.unwrap(source))
+     * // restored.contentEquals(source) == true
+     * ```
+     *
+     * @param value 복호화할 [ExposedBlob]입니다.
+     */
     override fun wrap(value: ExposedBlob): ByteArray {
         return encryptor.decrypt(value.bytes)
     }

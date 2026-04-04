@@ -6,6 +6,12 @@ import org.springframework.r2dbc.connection.R2dbcTransactionManager
 /**
  * [connectionFactory]를 사용하는 [R2dbcTransactionManager]를 생성합니다.
  *
+ * ```kotlin
+ * val tm = r2dbcTransactionManagerOf(connectionFactory)
+ * val operator = TransactionalOperator.create(tm)
+ * // operator != null
+ * ```
+ *
  * @param connectionFactory 트랜잭션을 관리할 [ConnectionFactory]
  * @return [R2dbcTransactionManager] 인스턴스
  */

@@ -75,6 +75,13 @@ class LettuceNearCacheRegionFactory : RegionFactoryTemplate() {
     /**
      * 현재 관리 중인 모든 region의 [LettuceNearCache] 인스턴스 맵을 반환한다.
      * Spring Boot Auto-Configuration에서 Metrics/Actuator 연동 시 사용된다.
+     *
+     * ```kotlin
+     * val factory = LettuceNearCacheRegionFactory()
+     * // factory 초기화 후
+     * val caches = factory.getCaches()
+     * // caches.keys.contains("io.bluetape4k.domain.MyEntity") == true
+     * ```
      */
     fun getCaches(): Map<String, LettuceNearCache<Any>> = Collections.unmodifiableMap(caches)
 

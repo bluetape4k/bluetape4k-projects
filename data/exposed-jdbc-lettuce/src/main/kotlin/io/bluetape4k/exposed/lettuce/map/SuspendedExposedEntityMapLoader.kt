@@ -10,6 +10,14 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 /**
  * Exposed JDBC DSL을 사용해 DB에서 엔티티를 로드하는 [SuspendedEntityMapLoader] 구현체.
  *
+ * ```kotlin
+ * val loader = SuspendedExposedEntityMapLoader(
+ *     table = ActorTable,
+ *     toEntity = { row -> ActorRecord(id = row[ActorTable.id].value, name = row[ActorTable.name]) }
+ * )
+ * val actor = runBlocking { loader.load(1L) }  // suspend 컨텍스트에서 DB 조회
+ * ```
+ *
  * @param ID PK 타입
  * @param E 반환 엔티티(DTO) 타입
  * @param table Exposed [IdTable]

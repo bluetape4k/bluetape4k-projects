@@ -14,6 +14,13 @@ import java.net.InetAddress
  *
  * PostgreSQL에서는 `INET` 네이티브 타입을, 그 외 DB에서는 `VARCHAR(45)`를 사용한다.
  *
+ * ```kotlin
+ * object Hosts : Table("hosts") {
+ *     val ip = inetAddress("ip")
+ * }
+ * // Hosts.ip != null
+ * ```
+ *
  * @param name 컬럼 이름
  * @return [InetAddress] 타입의 [Column]
  */
@@ -24,6 +31,13 @@ fun Table.inetAddress(name: String): Column<InetAddress> =
  * CIDR 표기법 문자열을 저장하는 컬럼을 테이블에 등록한다.
  *
  * PostgreSQL에서는 `CIDR` 네이티브 타입을, 그 외 DB에서는 `VARCHAR(50)`를 사용한다.
+ *
+ * ```kotlin
+ * object Networks : Table("networks") {
+ *     val network = cidr("network")
+ * }
+ * // Networks.network != null
+ * ```
  *
  * @param name 컬럼 이름
  * @return [String] 타입의 [Column]
@@ -38,6 +52,11 @@ fun Table.cidr(name: String): Column<String> =
  * PostgreSQL 전용이며 다른 dialect에서는 사용할 수 없다.
  *
  * SQL: `left_expr << right_expr`
+ *
+ * ```kotlin
+ * // PostgreSQL 전용: ip가 "192.168.0.0/24" 네트워크에 포함되는지 조회
+ * Hosts.selectAll().where { Hosts.ip.isContainedBy(stringLiteral("192.168.0.0/24")) }
+ * ```
  */
 class InetContainedByOp(
     expr1: Expression<*>,

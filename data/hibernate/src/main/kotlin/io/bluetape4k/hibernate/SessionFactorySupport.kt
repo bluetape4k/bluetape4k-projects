@@ -52,6 +52,11 @@ fun <T> SessionFactory.registEventListener(
  * ## 동작/계약
  * - `SessionFactoryImpl`로 캐스팅 가능한 경우에만 service registry에서 반환합니다.
  * - Hibernate 구현체가 아니면 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val registry = sessionFactory.getEventListenerRegistry()
+ * // registry != null (Hibernate 구현체인 경우)
+ * ```
  */
 fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
     return (this as? SessionFactoryImpl)?.serviceRegistry?.getService(EventListenerRegistry::class.java)
@@ -62,6 +67,11 @@ fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
  *
  * ## 동작/계약
  * - metamodel 조회 실패 시 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val name = sessionFactory.getEntityName(User::class.java)
+ * // name == "User" 또는 null
+ * ```
  */
 fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
     return this.metamodel.entity(entityClass)?.name
@@ -69,6 +79,11 @@ fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
 
 /**
  * [T] 수형에 대한 `Entity Name`을 가져옵니다. 없으면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val name = sessionFactory.getEntityName<User>()
+ * // name == "User" 또는 null
+ * ```
  */
 inline fun <reified T> SessionFactory.getEntityName(): String? {
     return getEntityName(T::class.java)

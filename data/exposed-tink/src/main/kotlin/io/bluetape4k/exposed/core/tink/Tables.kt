@@ -95,6 +95,15 @@ fun Table.tinkAeadBinary(
  * - 등록되는 컬럼 타입은 [TinkAeadBlobColumnType]이며 DB에는 암호문 BLOB이 저장되고 조회 시 복호화된 바이트를 제공합니다.
  * - [name]이 blank면 `IllegalArgumentException`이 발생합니다.
  *
+ * ```kotlin
+ * object T1: IntIdTable("blob_secret_table") {
+ *     val data = tinkAeadBlob("data").nullable()
+ * }
+ * val id = T1.insertAndGetId { it[data] = "민감한 데이터".toByteArray() }
+ * val row = T1.selectAll().where { T1.id eq id }.single()
+ * // row[T1.data]!!.toString(Charsets.UTF_8) == "민감한 데이터"
+ * ```
+ *
  * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
  * @param encryptor 사용할 Tink AEAD 암/복호화 인스턴스입니다.
  */
@@ -192,6 +201,16 @@ fun Table.tinkDaeadBinary(
  * ## 동작/계약
  * - 등록되는 컬럼 타입은 [TinkDaeadBlobColumnType]이며 DB에는 암호문 BLOB이 저장되고 조회 시 복호화된 바이트를 제공합니다.
  * - [name]이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * object T1: IntIdTable("searchable_blob_table") {
+ *     val data = tinkDaeadBlob("data").nullable()
+ * }
+ * val bytes = "검색가능한 데이터".toByteArray()
+ * val id = T1.insertAndGetId { it[data] = bytes }
+ * val row = T1.selectAll().where { T1.id eq id }.single()
+ * // row[T1.data]!!.toString(Charsets.UTF_8) == "검색가능한 데이터"
+ * ```
  *
  * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
  * @param encryptor 사용할 Tink Deterministic AEAD 암/복호화 인스턴스입니다.

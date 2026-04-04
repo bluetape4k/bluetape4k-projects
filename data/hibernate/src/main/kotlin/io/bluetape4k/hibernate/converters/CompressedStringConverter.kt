@@ -8,7 +8,7 @@ import jakarta.persistence.Converter
 /**
  * 문자열을 압축해서 문자열로 저장하는 JPA Converter 의 추상 클래스입니다.
  *
- * ```
+ * ```kotlin
  * @Entity
  * class Purchase {
  *    @Id
@@ -18,6 +18,7 @@ import jakarta.persistence.Converter
  *    @Convert(converter=DeflateStringConverter::class)
  *    var description: String? = null
  * }
+ * ```
  */
 @Converter
 abstract class AbstractCompressedStringConverter(

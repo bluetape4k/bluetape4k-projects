@@ -10,6 +10,14 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 /**
  * Exposed DSL을 사용해 DB에서 엔티티를 로드하는 [EntityMapLoader] 구현체.
  *
+ * ```kotlin
+ * val loader = ExposedEntityMapLoader(
+ *     table = ActorTable,
+ *     toEntity = { row -> ActorRecord(id = row[ActorTable.id].value, name = row[ActorTable.name]) }
+ * )
+ * val actor = loader.load(1L)  // DB에서 조회
+ * ```
+ *
  * @param ID PK 타입
  * @param E 반환 엔티티(DTO) 타입
  * @param table Exposed [IdTable]

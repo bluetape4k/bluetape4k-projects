@@ -8,6 +8,15 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  *
  * 서브클래스는 [loadById]와 [loadAllIds]를 구현한다.
  *
+ * ```kotlin
+ * class MyLoader : EntityMapLoader<Long, MyEntity>() {
+ *     override fun loadById(id: Long): MyEntity? =
+ *         MyTable.selectAll().where { MyTable.id eq id }.singleOrNull()?.toMyEntity()
+ *     override fun loadAllIds(): Iterable<Long> =
+ *         MyTable.select(MyTable.id).map { it[MyTable.id].value }
+ * }
+ * ```
+ *
  * @param ID 키 타입
  * @param E 엔티티 타입
  */

@@ -29,6 +29,14 @@ data class TimestampRange(
     /**
      * [instant]이 이 범위 안에 포함되는지 확인한다.
      *
+     * ```kotlin
+     * val range = TimestampRange(Instant.parse("2024-01-01T00:00:00Z"), Instant.parse("2024-12-31T23:59:59Z"))
+     * val mid = Instant.parse("2024-06-15T12:00:00Z")
+     * val before = Instant.parse("2023-12-31T23:59:59Z")
+     * // range.contains(mid) == true
+     * // range.contains(before) == false
+     * ```
+     *
      * @param instant 확인할 시각
      * @return 범위에 포함되면 `true`
      */
@@ -40,6 +48,14 @@ data class TimestampRange(
 
     /**
      * 이 범위가 [other] 범위와 겹치는지 확인한다.
+     *
+     * ```kotlin
+     * val r1 = TimestampRange(Instant.parse("2024-01-01T00:00:00Z"), Instant.parse("2024-06-30T23:59:59Z"))
+     * val r2 = TimestampRange(Instant.parse("2024-04-01T00:00:00Z"), Instant.parse("2024-12-31T23:59:59Z"))
+     * val r3 = TimestampRange(Instant.parse("2025-01-01T00:00:00Z"), Instant.parse("2025-12-31T23:59:59Z"))
+     * // r1.overlaps(r2) == true
+     * // r1.overlaps(r3) == false
+     * ```
      *
      * @param other 비교할 다른 범위
      * @return 두 범위가 겹치면 `true`

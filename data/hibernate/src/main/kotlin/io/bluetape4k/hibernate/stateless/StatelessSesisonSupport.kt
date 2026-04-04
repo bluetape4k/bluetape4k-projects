@@ -10,7 +10,7 @@ import org.hibernate.StatelessSession
  *
  * 참고: [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
  *
- * ```
+ * ```kotlin
  * sessionFactory.withStateless { stateless ->
  *     repeat(ENTITY_COUNT) {
  *         val master = createMaster("master-$it")
@@ -61,7 +61,7 @@ inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?)
  *
  * 참고: [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
  *
- * ```
+ * ```kotlin
  * entityManager.withStateless { stateless ->
  *     repeat(ENTITY_COUNT) {
  *         val master = createMaster("master-$it")

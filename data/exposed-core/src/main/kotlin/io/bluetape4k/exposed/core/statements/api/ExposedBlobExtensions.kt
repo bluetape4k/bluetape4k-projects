@@ -18,17 +18,52 @@ import java.io.InputStream
  */
 fun String.toExposedBlob(): ExposedBlob = ExposedBlob(toByteArray())
 
-/** 바이트 배열을 [ExposedBlob]으로 감쌉니다. */
+/**
+ * 바이트 배열을 [ExposedBlob]으로 감쌉니다.
+ *
+ * ```kotlin
+ * val blob = byteArrayOf(1, 2, 3).toExposedBlob()
+ * // blob.bytes.size == 3
+ * ```
+ */
 fun ByteArray.toExposedBlob(): ExposedBlob = ExposedBlob(this)
 
-/** 입력 스트림 전체를 읽어 [ExposedBlob]으로 변환합니다. */
+/**
+ * 입력 스트림 전체를 읽어 [ExposedBlob]으로 변환합니다.
+ *
+ * ```kotlin
+ * val blob = "hello".byteInputStream().toExposedBlob()
+ * // blob.bytes.isNotEmpty()
+ * ```
+ */
 fun InputStream.toExposedBlob(): ExposedBlob = ExposedBlob(this)
 
-/** blob 바이트를 UTF-8 문자열로 디코딩합니다. */
+/**
+ * blob 바이트를 UTF-8 문자열로 디코딩합니다.
+ *
+ * ```kotlin
+ * val text = "hello".toExposedBlob().toUtf8String()
+ * // text == "hello"
+ * ```
+ */
 fun ExposedBlob.toUtf8String(): String = bytes.toUtf8String()
 
-/** blob 바이트를 읽는 [InputStream]을 반환합니다. */
+/**
+ * blob 바이트를 읽는 [InputStream]을 반환합니다.
+ *
+ * ```kotlin
+ * val stream = "hello".toExposedBlob().toInputStream()
+ * // stream.available() > 0
+ * ```
+ */
 fun ExposedBlob.toInputStream(): InputStream = bytes.inputStream()
 
-/** blob 바이트 배열을 반환합니다. */
+/**
+ * blob 바이트 배열을 반환합니다.
+ *
+ * ```kotlin
+ * val bytes = "hello".toExposedBlob().toByteArray()
+ * // bytes.size == 5
+ * ```
+ */
 fun ExposedBlob.toByteArray(): ByteArray = bytes

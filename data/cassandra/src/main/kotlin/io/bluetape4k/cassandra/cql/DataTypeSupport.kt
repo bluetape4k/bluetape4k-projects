@@ -9,12 +9,23 @@ import com.datastax.oss.driver.api.core.type.UserDefinedType
 
 /**
  * Cassandra [DataType]이 Collection Type인지 확인합니다. ([ListType], [SetType], [MapType])
+ *
+ * ```kotlin
+ * val listType = DataTypes.listOf(DataTypes.TEXT)
+ * val isCollection = listType.isCollectionType
+ * // isCollection == true
+ * ```
  */
 val DataType.isCollectionType: Boolean
     get() = this is ListType || this is SetType || this is MapType
 
 /**
  * Cassandra [DataType]이 Non-Frozen UDT인지 확인합니다.
+ *
+ * ```kotlin
+ * val isNonFrozen = someUdtType.isNonFrozenUdt
+ * // isNonFrozen == true (UDT이고 frozen이 아닌 경우)
+ * ```
  */
 val DataType.isNonFrozenUdt: Boolean
     get() = this is UserDefinedType && !this.isFrozen
@@ -22,6 +33,12 @@ val DataType.isNonFrozenUdt: Boolean
 
 /**
  * Cassandra [DataType]을 Freeze 할 수 있는지 확인하고, Freeze 할 수 있다면 Freeze 합니다.
+ *
+ * ```kotlin
+ * val listOfList = DataTypes.listOf(DataTypes.listOf(DataTypes.TEXT))
+ * val frozen = listOfList.potentiallyFreeze()
+ * // frozen은 내부 리스트가 freeze된 타입
+ * ```
  */
 fun DataType.potentiallyFreeze(): DataType {
     when (this) {

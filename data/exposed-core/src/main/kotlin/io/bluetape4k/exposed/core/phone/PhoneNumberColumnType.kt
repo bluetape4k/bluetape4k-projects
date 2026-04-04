@@ -14,6 +14,12 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  *
  * DB에는 E.164 형식 문자열로 저장하고, 읽을 때는 [PhoneNumber] 객체로 변환한다.
  *
+ * ```kotlin
+ * val transformer = PhoneNumberTransformer("KR")
+ * val phone = transformer.wrap("+821012345678")
+ * // phone.countryCode == 82
+ * ```
+ *
  * @property defaultRegion 기본 국가 코드 (예: "KR", "US")
  */
 class PhoneNumberTransformer(
@@ -58,6 +64,13 @@ class PhoneNumberTransformer(
  *
  * **의존성**: `com.googlecode.libphonenumber:libphonenumber`가 런타임에 필요하다.
  *
+ * ```kotlin
+ * object Contacts : Table("contacts") {
+ *     val phone = registerColumn<PhoneNumber>("phone", PhoneNumberColumnType("KR"))
+ * }
+ * // Contacts.phone.columnType is PhoneNumberColumnType
+ * ```
+ *
  * @property defaultRegion 전화번호 파싱 시 사용할 기본 국가 코드 (기본값: "KR")
  */
 class PhoneNumberColumnType(
@@ -71,6 +84,13 @@ class PhoneNumberColumnType(
  * 읽을 때도 E.164 형식 문자열 그대로 반환한다.
  *
  * **의존성**: `com.googlecode.libphonenumber:libphonenumber`가 런타임에 필요하다.
+ *
+ * ```kotlin
+ * object Contacts : Table("contacts") {
+ *     val phone = registerColumn<String>("phone", PhoneNumberStringColumnType("KR"))
+ * }
+ * // Contacts.phone.columnType is PhoneNumberStringColumnType
+ * ```
  *
  * @property defaultRegion 전화번호 파싱 시 사용할 기본 국가 코드 (기본값: "KR")
  */

@@ -32,6 +32,23 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  * - [UpdateStatement.updateEntity]: UPDATE 컬럼 매핑
  * - [BatchInsertStatement.insertEntity]: INSERT 컬럼 매핑
  *
+ * ```kotlin
+ * class ActorSuspendedRepository(client: RedisClient) :
+ *     AbstractSuspendedJdbcLettuceRepository<Long, ActorRecord>(client) {
+ *     override val table = ActorTable
+ *     override fun ResultRow.toEntity() = ActorRecord(
+ *         id = this[ActorTable.id].value,
+ *         name = this[ActorTable.name],
+ *     )
+ *     override fun UpdateStatement.updateEntity(entity: ActorRecord) {
+ *         this[ActorTable.name] = entity.name
+ *     }
+ *     override fun BatchInsertStatement.insertEntity(entity: ActorRecord) {
+ *         this[ActorTable.name] = entity.name
+ *     }
+ * }
+ * ```
+ *
  * @param ID PK 타입
  * @param E 엔티티(DTO) 타입
  * @param client Lettuce [RedisClient]

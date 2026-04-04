@@ -17,6 +17,16 @@ import java.time.Duration
 /**
  * Exposed JDBC DSL을 사용해 DB에 엔티티를 upsert/delete하는 [SuspendedEntityMapWriter] 구현체.
  *
+ * ```kotlin
+ * val writer = SuspendedExposedEntityMapWriter(
+ *     table = ActorTable,
+ *     writeMode = WriteMode.WRITE_THROUGH,
+ *     updateEntity = { stmt, e -> stmt[ActorTable.name] = e.name },
+ *     insertEntity = { stmt, e -> stmt[ActorTable.name] = e.name }
+ * )
+ * runBlocking { writer.write(mapOf(1L to ActorRecord(id = 1L, name = "Alice"))) }
+ * ```
+ *
  * @param ID PK 타입
  * @param E 엔티티(DTO) 타입
  * @param table Exposed [IdTable]

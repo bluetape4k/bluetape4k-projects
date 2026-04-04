@@ -15,11 +15,26 @@ const val SRID_WGS84: Int = 4326
  * MySQL Internal Geometry Format 변환 유틸리티.
  *
  * MySQL 8.0은 공간 데이터를 `[4바이트 SRID (LE)] + [표준 WKB]` 형식으로 저장한다.
+ *
+ * ```kotlin
+ * val point = wgs84Point(126.9779, 37.5665)
+ * val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(point, SRID_WGS84)
+ * val restored = MySqlWkbUtils.parseMySqlInternalGeometry(bytes)
+ * // restored.srid == 4326
+ * // (restored as Point).x == 126.9779
+ * ```
  */
 object MySqlWkbUtils: KLogging() {
 
     /**
      * MySQL Internal Geometry Format ByteArray -> JTS Geometry 변환.
+     *
+     * ```kotlin
+     * val point = wgs84Point(126.9779, 37.5665)
+     * val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(point)
+     * val parsed = MySqlWkbUtils.parseMySqlInternalGeometry(bytes)
+     * // (parsed as Point).x == 126.9779
+     * ```
      *
      * @param bytes MySQL Internal Format (4바이트 LE SRID + WKB). 최소 5바이트 이상이어야 한다.
      * @return JTS Geometry (SRID 설정됨)
@@ -37,6 +52,12 @@ object MySqlWkbUtils: KLogging() {
 
     /**
      * JTS Geometry -> MySQL Internal Geometry Format ByteArray 변환.
+     *
+     * ```kotlin
+     * val point = wgs84Point(126.9779, 37.5665)
+     * val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(point, SRID_WGS84)
+     * // bytes.size == 4 + WKB size (최소 21 bytes for Point)
+     * ```
      *
      * @param geometry JTS Geometry
      * @param srid SRID (기본값: 4326)

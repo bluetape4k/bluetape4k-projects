@@ -12,6 +12,13 @@ typealias TimebasedUUIDBase62EntityID = EntityID<String>
 
 /**
  * UUIDv7 Base62 문자열 PK를 사용하는 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: TimebasedUUIDBase62EntityID) : TimebasedUUIDBase62Entity(id) {
+ *     companion object : TimebasedUUIDBase62EntityClass<MyEntity>(MyTable)
+ *     var name by MyTable.name
+ * }
+ * ```
  */
 open class TimebasedUUIDBase62Entity(id: TimebasedUUIDBase62EntityID): StringEntity(id)
 
@@ -40,6 +47,13 @@ open class TimebasedUUIDBase62EntityClass<out E: TimebasedUUIDBase62Entity>(
 
 /**
  * MySQL용 Base62 UUID 테이블을 사용하는 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: TimebasedUUIDBase62EntityID) : TimebasedUUIDBase62EntityMySql(id) {
+ *     companion object : TimebasedUUIDBase62EntityClassMySql<MyEntity>(MyTableMySql)
+ *     var name by MyTableMySql.name
+ * }
+ * ```
  */
 open class TimebasedUUIDBase62EntityMySql(id: TimebasedUUIDBase62EntityID): StringEntity(id)
 

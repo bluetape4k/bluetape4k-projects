@@ -11,6 +11,13 @@ import org.jetbrains.exposed.v1.core.Table
  *
  * **의존성**: `com.googlecode.libphonenumber:libphonenumber`가 런타임에 필요하다.
  *
+ * ```kotlin
+ * object Contacts : Table("contacts") {
+ *     val phone = phoneNumber("phone")
+ * }
+ * // Contacts.phone != null
+ * ```
+ *
  * @param name 컬럼 이름
  * @param defaultRegion 전화번호 파싱 시 사용할 기본 국가 코드 (기본값: "KR")
  * @return [PhoneNumber] 타입의 [Column]
@@ -25,6 +32,13 @@ fun Table.phoneNumber(name: String, defaultRegion: String = "KR"): Column<PhoneN
  * 읽을 때도 E.164 형식 문자열 그대로 반환한다.
  *
  * **의존성**: `com.googlecode.libphonenumber:libphonenumber`가 런타임에 필요하다.
+ *
+ * ```kotlin
+ * object Contacts : Table("contacts") {
+ *     val phone = phoneNumberString("phone")
+ * }
+ * // Contacts.phone != null
+ * ```
  *
  * @param name 컬럼 이름
  * @param defaultRegion 전화번호 파싱 시 사용할 기본 국가 코드 (기본값: "KR")

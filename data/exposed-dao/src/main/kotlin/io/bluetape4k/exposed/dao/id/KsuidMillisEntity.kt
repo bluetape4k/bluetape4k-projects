@@ -10,6 +10,13 @@ typealias KsuidMillisEntityID = EntityID<String>
 
 /**
  * 밀리초 기반 KSUID 문자열 PK를 사용하는 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: KsuidMillisEntityID) : KsuidMillisEntity(id) {
+ *     companion object : KsuidMillisEntityClass<MyEntity>(MyTable)
+ *     var name by MyTable.name
+ * }
+ * ```
  */
 open class KsuidMillisEntity(id: KsuidMillisEntityID): StringEntity(id)
 

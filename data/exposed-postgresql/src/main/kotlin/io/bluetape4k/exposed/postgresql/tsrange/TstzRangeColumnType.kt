@@ -20,6 +20,19 @@ import java.time.temporal.ChronoField
  * range literal 포맷: `[2024-01-01T00:00:00Z,2024-12-31T23:59:59Z)`
  * - `[` = lowerInclusive=true, `(` = lowerInclusive=false
  * - `]` = upperInclusive=true, `)` = upperInclusive=false
+ *
+ * ```kotlin
+ * object EventTable: LongIdTable("events") {
+ *     val period = tstzRange("period")
+ * }
+ * val range = TimestampRange(
+ *     Instant.parse("2024-01-01T00:00:00Z"),
+ *     Instant.parse("2024-12-31T23:59:59Z")
+ * )
+ * val id = EventTable.insertAndGetId { it[period] = range }
+ * val row = EventTable.selectAll().where { EventTable.id eq id }.single()
+ * // row[EventTable.period].start == Instant.parse("2024-01-01T00:00:00Z")
+ * ```
  */
 class TstzRangeColumnType : ColumnType<TimestampRange>() {
 

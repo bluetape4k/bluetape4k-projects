@@ -8,7 +8,7 @@ import java.time.Duration
 /**
  * Java Time [Duration]을 [Timestamp]로 변환해서 저장하는 Converter
  *
- * ```
+ * ```kotlin
  *
  * @Convert(converter=DurationAsTimestampConverter::class)
  * var duration:Duration? = null

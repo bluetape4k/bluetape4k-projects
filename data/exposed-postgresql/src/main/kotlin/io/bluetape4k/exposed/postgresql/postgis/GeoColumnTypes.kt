@@ -16,6 +16,17 @@ import org.jetbrains.exposed.v1.core.vendors.currentDialect
  * SRID 4326 (WGS 84) 좌표계를 사용한다.
  *
  * 좌표 순서: `Point(x=경도, y=위도)`
+ *
+ * ```kotlin
+ * object PlaceTable: LongIdTable("places") {
+ *     val location = geoPoint("location")
+ * }
+ * val point = Point(126.9779, 37.5665)  // 서울 시청 (경도, 위도)
+ * point.srid = 4326
+ * val id = PlaceTable.insertAndGetId { it[location] = point }
+ * val row = PlaceTable.selectAll().where { PlaceTable.id eq id }.single()
+ * // row[PlaceTable.location].x == 126.9779
+ * ```
  */
 class GeoPointColumnType: ColumnType<Point>() {
 
@@ -66,6 +77,13 @@ class GeoPointColumnType: ColumnType<Point>() {
  *
  * PostgreSQL + PostGIS 확장이 활성화된 환경에서만 사용 가능하다.
  * SRID 4326 (WGS 84) 좌표계를 사용한다.
+ *
+ * ```kotlin
+ * object ZoneTable: LongIdTable("zones") {
+ *     val area = geoPolygon("area")
+ * }
+ * // ZoneTable.area.columnType is GeoPolygonColumnType
+ * ```
  */
 class GeoPolygonColumnType: ColumnType<Polygon>() {
 
@@ -119,6 +137,13 @@ class GeoPolygonColumnType: ColumnType<Polygon>() {
  * SRID 4326 (WGS 84) 좌표계를 사용한다.
  *
  * SQL 타입: `GEOMETRY(GEOMETRY, 4326)`
+ *
+ * ```kotlin
+ * object ShapeTable: LongIdTable("shapes") {
+ *     val shape = geoGeometry("shape")
+ * }
+ * // ShapeTable.shape.columnType is GeoGeometryColumnType
+ * ```
  */
 class GeoGeometryColumnType: ColumnType<Geometry>() {
 

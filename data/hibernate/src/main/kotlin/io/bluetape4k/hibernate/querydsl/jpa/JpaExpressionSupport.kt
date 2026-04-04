@@ -7,6 +7,14 @@ import com.querydsl.core.types.dsl.ComparableExpression
 import com.querydsl.core.types.dsl.StringExpression
 import com.querydsl.jpa.JPAExpressions
 
+/**
+ * [BeanPath]를 서브타입 [U]로 다운캐스팅하는 표현식을 반환합니다 (JPA `TREAT` 함수).
+ *
+ * ```kotlin
+ * val animalPath: BeanPath<Animal> = ...
+ * val dogPath: DogPath = animalPath.treat<DogPath, Animal>()
+ * ```
+ */
 inline fun <reified U: BeanPath<out T>, T: Any> BeanPath<out T>.treat(): U =
     JPAExpressions.treat(this, U::class.java)
 

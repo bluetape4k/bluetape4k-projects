@@ -12,6 +12,13 @@ typealias TimebasedUUIDEntityID = EntityID<UUID>
 
 /**
  * UUIDv7(time-based UUID) PK를 사용하는 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: TimebasedUUIDEntityID) : TimebasedUUIDEntity(id) {
+ *     companion object : TimebasedUUIDEntityClass<MyEntity>(MyTable)
+ *     var name by MyTable.name
+ * }
+ * ```
  */
 open class TimebasedUUIDEntity(id: TimebasedUUIDEntityID): UUIDEntity(id)
 

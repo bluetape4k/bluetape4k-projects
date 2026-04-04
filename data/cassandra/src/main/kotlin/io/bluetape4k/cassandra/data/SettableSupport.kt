@@ -12,6 +12,11 @@ import com.datastax.oss.driver.api.core.data.SettableByName
 /**
  * [CqlIdentifier]를 사용하여 [SettableById]에 reified 타입 값을 설정합니다.
  *
+ * ```kotlin
+ * val nameId = CqlIdentifier.fromInternal("name")
+ * udtValue.setValue(nameId, "Alice")
+ * ```
+ *
  * @param id 컬럼 식별자
  * @param value 설정할 값
  * @return 설정된 [SettableById] 인스턴스
@@ -23,6 +28,11 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setValue(
 
 /**
  * [CqlIdentifier]를 사용하여 [SettableById]에 리스트 값을 설정합니다.
+ *
+ * ```kotlin
+ * val tagsId = CqlIdentifier.fromInternal("tags")
+ * udtValue.setList(tagsId, listOf("admin", "user"))
+ * ```
  *
  * @param id 컬럼 식별자
  * @param values 설정할 리스트 값
@@ -36,6 +46,11 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setList(
 /**
  * [CqlIdentifier]를 사용하여 [SettableById]에 세트 값을 설정합니다.
  *
+ * ```kotlin
+ * val rolesId = CqlIdentifier.fromInternal("roles")
+ * udtValue.setSet(rolesId, setOf("admin", "user"))
+ * ```
+ *
  * @param id 컬럼 식별자
  * @param values 설정할 세트 값
  * @return 설정된 [SettableById] 인스턴스
@@ -47,6 +62,11 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setSet(
 
 /**
  * [CqlIdentifier]를 사용하여 [SettableById]에 맵 값을 설정합니다.
+ *
+ * ```kotlin
+ * val propsId = CqlIdentifier.fromInternal("props")
+ * udtValue.setMap(propsId, mapOf("key" to "value"))
+ * ```
  *
  * @param id 컬럼 식별자
  * @param values 설정할 맵 값
@@ -64,6 +84,10 @@ inline fun <T : SettableById<T>, reified K, reified V> SettableById<T>.setMap(
 /**
  * 인덱스를 사용하여 [SettableByIndex]에 reified 타입 값을 설정합니다.
  *
+ * ```kotlin
+ * tupleValue.setValue(0, "Alice")
+ * ```
+ *
  * @param index 컬럼 인덱스
  * @param value 설정할 값
  * @return 설정된 [SettableByIndex] 인스턴스
@@ -75,6 +99,10 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setValue(
 
 /**
  * 인덱스를 사용하여 [SettableByIndex]에 리스트 값을 설정합니다.
+ *
+ * ```kotlin
+ * tupleValue.setList(1, listOf("admin", "user"))
+ * ```
  *
  * @param index 컬럼 인덱스
  * @param values 설정할 리스트 값
@@ -88,6 +116,10 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setList(
 /**
  * 인덱스를 사용하여 [SettableByIndex]에 세트 값을 설정합니다.
  *
+ * ```kotlin
+ * tupleValue.setSet(2, setOf("a", "b"))
+ * ```
+ *
  * @param index 컬럼 인덱스
  * @param values 설정할 세트 값
  * @return 설정된 [SettableByIndex] 인스턴스
@@ -99,6 +131,10 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setSet(
 
 /**
  * 인덱스를 사용하여 [SettableByIndex]에 맵 값을 설정합니다.
+ *
+ * ```kotlin
+ * tupleValue.setMap(3, mapOf("key" to "value"))
+ * ```
  *
  * @param index 컬럼 인덱스
  * @param values 설정할 맵 값
@@ -116,6 +152,10 @@ inline fun <T : SettableByIndex<T>, reified K, reified V> SettableByIndex<T>.set
 /**
  * 컬럼 이름을 사용하여 [SettableByName]에 reified 타입 값을 설정합니다.
  *
+ * ```kotlin
+ * boundStatement.setValue("name", "Alice")
+ * ```
+ *
  * @param name 컬럼 이름
  * @param value 설정할 값 (nullable)
  * @return 설정된 [SettableByName] 인스턴스
@@ -127,6 +167,10 @@ inline fun <T : SettableByName<T>, reified V : Any> SettableByName<T>.setValue(
 
 /**
  * 컬럼 이름을 사용하여 [SettableByName]에 리스트 값을 설정합니다.
+ *
+ * ```kotlin
+ * boundStatement.setList("tags", listOf("admin", "user"))
+ * ```
  *
  * @param name 컬럼 이름
  * @param values 설정할 리스트 값
@@ -140,6 +184,10 @@ inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setList(
 /**
  * 컬럼 이름을 사용하여 [SettableByName]에 세트 값을 설정합니다.
  *
+ * ```kotlin
+ * boundStatement.setSet("roles", setOf("admin", "user"))
+ * ```
+ *
  * @param name 컬럼 이름
  * @param values 설정할 세트 값
  * @return 설정된 [SettableByName] 인스턴스
@@ -151,6 +199,10 @@ inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setSet(
 
 /**
  * 컬럼 이름을 사용하여 [SettableByName]에 맵 값을 설정합니다.
+ *
+ * ```kotlin
+ * boundStatement.setMap("props", mapOf("key" to "value"))
+ * ```
  *
  * @param name 컬럼 이름
  * @param values 설정할 맵 값

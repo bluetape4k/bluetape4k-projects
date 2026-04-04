@@ -47,6 +47,11 @@ fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
  *
  * ## 동작/계약
  * - 내부적으로 Hibernate `find`를 호출합니다.
+ *
+ * ```kotlin
+ * val user: User? = session.findAs<User>(1L)
+ * // user == null 또는 User 인스턴스
+ * ```
  */
 inline fun <reified T: Any> Session.findAs(id: Serializable): T? = find(T::class.java, id)
 
@@ -56,6 +61,10 @@ inline fun <reified T: Any> Session.findAs(id: Serializable): T? = find(T::class
  * ## 동작/계약
  * - 내부적으로 Hibernate `getReference`를 호출합니다.
  * - 즉시 DB 조회가 일어나지 않을 수 있으며, 접근 시점에 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val userRef: User = session.getReferenceAs<User>(1L)
+ * ```
  */
 inline fun <reified T: Any> Session.getReferenceAs(id: Serializable): T = getReference(T::class.java, id)
 
@@ -101,24 +110,42 @@ inline fun <reified T : Any> Session.findByNaturalId(
 
 /**
  * HQL/JPQL 문자열과 결과 수형을 받아 [Query]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = session.createQueryAs("FROM User WHERE name = :name", User::class)
+ * query.setParameter("name", "Alice")
+ * ```
  */
 fun <T: Any> Session.createQueryAs(queryString: String, resultClass: KClass<T>): Query<T> =
     createQuery(queryString, resultClass.java)
 
 /**
  * HQL/JPQL 문자열과 reified 타입으로 [Query]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = session.createQueryAs<User>("FROM User WHERE name = :name")
+ * query.setParameter("name", "Alice")
+ * ```
  */
 inline fun <reified T> Session.createQueryAs(queryString: String): Query<T> =
     createQuery(queryString, T::class.java)
 
 /**
  * Native SQL 문자열과 결과 수형을 받아 [Query]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = session.createNativeQueryAs("SELECT * FROM users WHERE name = ?", User::class)
+ * ```
  */
 fun <T: Any> Session.createNativeQueryAs(queryString: String, resultClass: KClass<T>): Query<T> =
     createNativeQuery(queryString, resultClass.java)
 
 /**
  * Native SQL 문자열과 reified 타입으로 [Query]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = session.createNativeQueryAs<User>("SELECT * FROM users WHERE id = ?")
+ * ```
  */
 inline fun <reified T> Session.createNativeQueryAs(queryString: String): Query<T> =
     createNativeQuery(queryString, T::class.java)

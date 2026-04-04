@@ -9,6 +9,15 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  *
  * Blocking JDBC I/O를 [Dispatchers.IO]에서 안전하게 실행한다.
  *
+ * ```kotlin
+ * class MyLoader : SuspendedEntityMapLoader<Long, MyEntity>() {
+ *     override fun loadById(id: Long): MyEntity? =
+ *         MyTable.selectAll().where { MyTable.id eq id }.singleOrNull()?.toMyEntity()
+ *     override fun loadAllIds(): List<Long> =
+ *         MyTable.select(MyTable.id).map { it[MyTable.id].value }
+ * }
+ * ```
+ *
  * @param ID 키 타입
  * @param E 엔티티 타입
  */

@@ -6,7 +6,7 @@ import jakarta.persistence.EntityManagerFactory
 /**
  * 새로운 [EntityManager] 를 생성하여, Transaction 하에서 DB 작업을 수행하고, [EntityManager]는 소멸시킵니다.
  *
- * ```
+ * ```kotlin
  * val newEntity = entityManagerFactory.withNewEntityManager { em ->
  *    val entity = em.find(Entity::class.java, id)
  *    entity.name = "new name"

@@ -8,7 +8,7 @@ import jakarta.persistence.Converter
 /**
  * 문자열을 암호화해서 문자열로 저장하는 JPA Converter 입니다.
  *
- * ```
+ * ```kotlin
  * @Entity
  * class User {
  *      @Id
@@ -18,6 +18,7 @@ import jakarta.persistence.Converter
  *      @Convert(converter=AESStringConverter::class)
  *      var password: String? = null
  * }
+ * ```
  */
 @Converter
 abstract class EncryptedStringConverter(

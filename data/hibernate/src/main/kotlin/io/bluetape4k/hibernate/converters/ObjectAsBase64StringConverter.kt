@@ -10,7 +10,7 @@ import jakarta.persistence.Converter
 /**
  * 객체를 바이너리 직렬화를 통해 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
  *
- * ```
+ * ```kotlin
  * @Entity
  * class User {
  *     @Id
@@ -21,8 +21,9 @@ import jakarta.persistence.Converter
  *     @Convert(converter=JdkObjectAsBase64StringConverter::class)
  *     var data: Any? = null
  * }
+ * ```
  *
- * @property serializer 바이너리 직렬화 
+ * @property serializer 바이너리 직렬화
  */
 @Converter
 abstract class AbstractObjectAsBase64StringConverter(

@@ -104,6 +104,11 @@ inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> = newQuery(T::cla
 
 /**
  * JPQL 문자열과 결과 수형을 받아 [TypedQuery]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = entityManager.createQueryAs("SELECT u FROM User u WHERE u.name = :name", User::class)
+ * query.setParameter("name", "Alice")
+ * ```
  */
 fun <T : Any> EntityManager.createQueryAs(
     queryString: String,
@@ -112,6 +117,11 @@ fun <T : Any> EntityManager.createQueryAs(
 
 /**
  * JPQL 문자열과 reified 타입으로 [TypedQuery]를 생성합니다.
+ *
+ * ```kotlin
+ * val query = entityManager.createQueryAs<User>("SELECT u FROM User u WHERE u.name = :name")
+ * query.setParameter("name", "Alice")
+ * ```
  */
 inline fun <reified T> EntityManager.createQueryAs(queryString: String): TypedQuery<T> =
     createQuery(queryString, T::class.java)
@@ -140,6 +150,11 @@ fun <X> TypedQuery<X>.setPaging(
 /**
  * [entity]가 Load 된 Persistence Object 인지 판단합니다.
  *
+ * ```kotlin
+ * val loaded = entityManager.isLoaded(user)
+ * // loaded == true (프록시가 아닌 경우)
+ * ```
+ *
  * @param entity 대상 entity
  * @return proxy 가 아니라면 true
  */
@@ -148,6 +163,11 @@ fun EntityManager.isLoaded(entity: Any?): Boolean =
 
 /**
  * [entity]의 [property] 속성이 Proxy가 아닌, Load 된 Persistence Object 인지 판단합니다.
+ *
+ * ```kotlin
+ * val ordersLoaded = entityManager.isLoaded(user, "orders")
+ * // ordersLoaded == true (지연 로딩이 초기화된 경우)
+ * ```
  *
  * @param entity 대상 entity
  * @param property entity manager 에 load 된 객체인지 검사할 속성
@@ -206,6 +226,10 @@ inline fun <reified T> EntityManager.deleteById(id: Serializable) {
  * ## 동작/계약
  * - `getReference(T::class.java, id)`로 위임합니다.
  * - 프록시 초기화 시점에 엔티티가 존재하지 않으면 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val userRef: User = entityManager.getReference<User>(1L)
+ * ```
  */
 inline fun <reified T> EntityManager.getReference(id: Serializable): T = getReference(T::class.java, id)
 
@@ -215,6 +239,11 @@ inline fun <reified T> EntityManager.getReference(id: Serializable): T = getRefe
  * ## 동작/계약
  * - `getReference` 호출을 `runCatching`으로 감싸 예외 발생 시 `Result.failure`를 반환합니다.
  * - 성공 시 `Result.success(entity)`를 반환합니다.
+ *
+ * ```kotlin
+ * val result = entityManager.tryGetReference<User>(1L)
+ * result.getOrNull()?.let { ... }
+ * ```
  */
 inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T> =
     runCatching { getReference(T::class.java, id) }
@@ -224,6 +253,10 @@ inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T
  *
  * ## 동작/계약
  * - 내부적으로 JPA `find`를 호출합니다.
+ *
+ * ```kotlin
+ * val user: User? = entityManager.findAs<User>(1L)
+ * ```
  */
 inline fun <reified T> EntityManager.findAs(id: Serializable): T? = find(T::class.java, id)
 
@@ -266,6 +299,10 @@ inline fun <reified T : Any> EntityManager.findByNaturalId(
  *
  * ## 동작/계약
  * - [findAs]와 동일한 동작의 별칭입니다.
+ *
+ * ```kotlin
+ * val user: User? = entityManager.findOne<User>(1L)
+ * ```
  */
 inline fun <reified T> EntityManager.findOne(id: Serializable): T? = find(T::class.java, id)
 
@@ -274,6 +311,11 @@ inline fun <reified T> EntityManager.findOne(id: Serializable): T? = find(T::cla
  *
  * ## 동작/계약
  * - [findOne] 결과가 `null`인지로 존재 여부를 판단합니다.
+ *
+ * ```kotlin
+ * val exists = entityManager.exists<User>(1L)
+ * // exists == true 또는 false
+ * ```
  */
 inline fun <reified T> EntityManager.exists(id: Serializable): Boolean = findOne<T>(id) != null
 
@@ -282,6 +324,10 @@ inline fun <reified T> EntityManager.exists(id: Serializable): Boolean = findOne
  *
  * ## 동작/계약
  * - 조건 없는 criteria 기반 전체 조회를 수행합니다.
+ *
+ * ```kotlin
+ * val users: List<User> = entityManager.findAll(User::class.java)
+ * ```
  */
 fun <T> EntityManager.findAll(clazz: Class<T>): List<T> = newQuery(clazz).resultList
 
@@ -291,6 +337,11 @@ fun <T> EntityManager.findAll(clazz: Class<T>): List<T> = newQuery(clazz).result
  * ## 동작/계약
  * - 엔티티명을 찾아 `"select count(*) from ..."` JPQL을 실행합니다.
  * - 결과는 Number로 받아 `Long`으로 변환합니다.
+ *
+ * ```kotlin
+ * val count = entityManager.countAll<User>()
+ * // count == 100L
+ * ```
  */
 inline fun <reified T> EntityManager.countAll(): Long {
     val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
@@ -303,6 +354,11 @@ inline fun <reified T> EntityManager.countAll(): Long {
  *
  * ## 동작/계약
  * - `"delete from ..."` JPQL bulk update를 실행합니다.
+ *
+ * ```kotlin
+ * val deleted = entityManager.deleteAll<User>()
+ * // deleted == 삭제된 행 수
+ * ```
  */
 inline fun <reified T> EntityManager.deleteAll(): Int {
     val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
@@ -315,6 +371,10 @@ inline fun <reified T> EntityManager.deleteAll(): Int {
  *
  * ## 동작/계약
  * - Hibernate 내부 API(`SessionImpl -> jdbcCoordinator`)를 통해 물리 커넥션을 조회합니다.
+ *
+ * ```kotlin
+ * val conn = entityManager.currentConnection()
+ * ```
  */
 fun EntityManager.currentConnection(): Connection =
     currentSessionImpl()

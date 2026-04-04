@@ -13,6 +13,13 @@ import java.net.InetAddress
  *
  * - IPv4: 최대 15자 (`255.255.255.255`)
  * - IPv6: 최대 45자 (`0000:0000:0000:0000:0000:ffff:255.255.255.255`)
+ *
+ * ```kotlin
+ * object Hosts : Table("hosts") {
+ *     val ip = inetAddress("ip")
+ * }
+ * // Hosts.ip.columnType is InetAddressColumnType
+ * ```
  */
 class InetAddressColumnType : ColumnType<InetAddress>() {
 
@@ -60,6 +67,13 @@ class InetAddressColumnType : ColumnType<InetAddress>() {
  * 그 외 DB(H2 등)에서는 `VARCHAR(50)`으로 fallback한다.
  *
  * CIDR 형식: `<네트워크 주소>/<프리픽스 길이>` (예: `"10.0.0.0/8"`, `"2001:db8::/32"`)
+ *
+ * ```kotlin
+ * object Networks : Table("networks") {
+ *     val network = cidr("network")
+ * }
+ * // Networks.network.columnType is CidrColumnType
+ * ```
  */
 class CidrColumnType : ColumnType<String>() {
 

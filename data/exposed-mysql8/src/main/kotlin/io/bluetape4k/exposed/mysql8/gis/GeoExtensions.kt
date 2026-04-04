@@ -16,6 +16,15 @@ import org.locationtech.jts.geom.Polygon
 /**
  * MySQL 8.0 POINT 컬럼을 테이블에 등록한다.
  *
+ * ```kotlin
+ * object PlaceTable: LongIdTable("places") {
+ *     val location = geoPoint("location")
+ * }
+ * val point = wgs84Point(126.9779, 37.5665)  // 서울 시청 (경도, 위도)
+ * val id = PlaceTable.insertAndGetId { it[location] = point }
+ * // PlaceTable.location.name == "location"
+ * ```
+ *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
  * @return [Point] 타입의 [Column]
@@ -28,6 +37,13 @@ fun Table.geoPoint(name: String, srid: Int = SRID_WGS84): Column<Point> {
 
 /**
  * MySQL 8.0 POLYGON 컬럼을 테이블에 등록한다.
+ *
+ * ```kotlin
+ * object ZoneTable: LongIdTable("zones") {
+ *     val area = geoPolygon("area")
+ * }
+ * // ZoneTable.area.name == "area"
+ * ```
  *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
@@ -42,6 +58,13 @@ fun Table.geoPolygon(name: String, srid: Int = SRID_WGS84): Column<Polygon> {
 /**
  * MySQL 8.0 LINESTRING 컬럼을 테이블에 등록한다.
  *
+ * ```kotlin
+ * object RouteTable: LongIdTable("routes") {
+ *     val path = geoLineString("path")
+ * }
+ * // RouteTable.path.name == "path"
+ * ```
+ *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
  * @return [LineString] 타입의 [Column]
@@ -54,6 +77,13 @@ fun Table.geoLineString(name: String, srid: Int = SRID_WGS84): Column<LineString
 
 /**
  * MySQL 8.0 MULTIPOINT 컬럼을 테이블에 등록한다.
+ *
+ * ```kotlin
+ * object ClusterTable: LongIdTable("clusters") {
+ *     val points = geoMultiPoint("points")
+ * }
+ * // ClusterTable.points.name == "points"
+ * ```
  *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
@@ -68,6 +98,13 @@ fun Table.geoMultiPoint(name: String, srid: Int = SRID_WGS84): Column<MultiPoint
 /**
  * MySQL 8.0 MULTIPOLYGON 컬럼을 테이블에 등록한다.
  *
+ * ```kotlin
+ * object RegionTable: LongIdTable("regions") {
+ *     val zones = geoMultiPolygon("zones")
+ * }
+ * // RegionTable.zones.name == "zones"
+ * ```
+ *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
  * @return [MultiPolygon] 타입의 [Column]
@@ -80,6 +117,13 @@ fun Table.geoMultiPolygon(name: String, srid: Int = SRID_WGS84): Column<MultiPol
 
 /**
  * MySQL 8.0 MULTILINESTRING 컬럼을 테이블에 등록한다.
+ *
+ * ```kotlin
+ * object NetworkTable: LongIdTable("network") {
+ *     val lines = geoMultiLineString("lines")
+ * }
+ * // NetworkTable.lines.name == "lines"
+ * ```
  *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
@@ -94,6 +138,13 @@ fun Table.geoMultiLineString(name: String, srid: Int = SRID_WGS84): Column<Multi
 /**
  * MySQL 8.0 GEOMETRY 범용 컬럼을 테이블에 등록한다.
  *
+ * ```kotlin
+ * object ShapeTable: LongIdTable("shapes") {
+ *     val shape = geoGeometry("shape")
+ * }
+ * // ShapeTable.shape.name == "shape"
+ * ```
+ *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)
  * @return [Geometry] 타입의 [Column]
@@ -106,6 +157,13 @@ fun Table.geoGeometry(name: String, srid: Int = SRID_WGS84): Column<Geometry> {
 
 /**
  * MySQL 8.0 GEOMETRYCOLLECTION 컬럼을 테이블에 등록한다.
+ *
+ * ```kotlin
+ * object MapTable: LongIdTable("maps") {
+ *     val features = geoGeometryCollection("features")
+ * }
+ * // MapTable.features.name == "features"
+ * ```
  *
  * @param name 컬럼 이름
  * @param srid SRID (기본값: 4326 WGS84)

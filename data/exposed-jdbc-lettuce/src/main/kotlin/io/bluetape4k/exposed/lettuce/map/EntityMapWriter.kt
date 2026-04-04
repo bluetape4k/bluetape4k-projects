@@ -10,6 +10,17 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  *
  * 서브클래스는 [writeEntities]와 [deleteEntities]를 구현한다.
  *
+ * ```kotlin
+ * class MyWriter : EntityMapWriter<Long, MyEntity>() {
+ *     override fun writeEntities(map: Map<Long, MyEntity>) {
+ *         map.forEach { (id, entity) -> MyTable.upsert { it[name] = entity.name } }
+ *     }
+ *     override fun deleteEntities(keys: Collection<Long>) {
+ *         MyTable.deleteWhere { MyTable.id inList keys }
+ *     }
+ * }
+ * ```
+ *
  * @param ID 키 타입
  * @param E 엔티티(DTO) 타입
  * @param retryConfig Resilience4j [RetryConfig]

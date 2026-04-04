@@ -21,6 +21,12 @@ import org.locationtech.jts.geom.Polygon
  *
  * MySQL dialect 전용.
  *
+ * ```kotlin
+ * val containsQuery = ZoneTable.selectAll()
+ *     .where { ZoneTable.area.stContains(PointTable.location) }
+ * // SQL: ... WHERE ST_Contains(zones.area, point_table.location)
+ * ```
+ *
  * @param other 포함 여부를 확인할 대상 geometry 컬럼
  * @return 포함 여부 [Op]
  * @throws IllegalStateException MySQL이 아닌 dialect에서 호출 시
@@ -140,6 +146,12 @@ fun Column<out Geometry>.stEquals(other: Column<out Geometry>): Op<Boolean> {
  *
  * MySQL dialect 전용.
  *
+ * ```kotlin
+ * val nearbyPlaces = PlaceTable.selectAll()
+ *     .where { PlaceTable.location.stDWithin(myLocationColumn, 1000.0) }
+ * // SQL: ... WHERE ST_Distance(places.location, my_location) <= 1000.0
+ * ```
+ *
  * @param other 비교 대상 geometry 컬럼
  * @param distance 최대 거리 (미터 단위, SRID 4326 기준)
  * @return 거리 조건 [Op]
@@ -160,6 +172,15 @@ fun Column<out Geometry>.stDWithin(other: Column<out Geometry>, distance: Double
  * geodetic(지구 타원체 기반) 거리 계산. SRID 4326 전용.
  *
  * MySQL dialect 전용.
+ *
+ * ```kotlin
+ * val distanceExpr = PlaceTable.location.stDistance(OtherPlace.location)
+ * val results = PlaceTable
+ *     .select(PlaceTable.id, distanceExpr)
+ *     .orderBy(distanceExpr)
+ *     .limit(10)
+ *     .toList()
+ * ```
  *
  * @param other 비교 대상 geometry 컬럼
  * @return 거리 표현식 (미터 단위)
@@ -250,6 +271,12 @@ fun Column<out MultiPolygon>.stArea(): Expression<Double> {
  * MySQL `ST_AsText` 함수를 사용하여 geometry를 WKT 문자열로 반환한다.
  *
  * MySQL dialect 전용.
+ *
+ * ```kotlin
+ * val wktExpr = PlaceTable.location.stAsText()
+ * val results = PlaceTable.select(PlaceTable.id, wktExpr).toList()
+ * // results[0][wktExpr] == "POINT(126.9779 37.5665)"
+ * ```
  *
  * @return WKT 문자열 표현식
  * @throws IllegalStateException MySQL이 아닌 dialect에서 호출 시

@@ -35,12 +35,34 @@ class TinkDaeadBlobTransformer(private val encryptor: TinkDeterministicAead):
     ColumnTransformer<ExposedBlob, ByteArray> {
     companion object: KLogging()
 
-    /** 평문 바이트 배열을 결정적으로 암호화한 [ExposedBlob]으로 변환합니다. */
+    /**
+     * 평문 바이트 배열을 결정적으로 암호화한 [ExposedBlob]으로 변환합니다.
+     *
+     * ```kotlin
+     * val transformer = TinkDaeadBlobTransformer(TinkDaeads.AES256_SIV)
+     * val blob1 = transformer.unwrap("deterministic-source".toByteArray())
+     * val blob2 = transformer.unwrap("deterministic-source".toByteArray())
+     * // blob1.bytes.contentEquals(blob2.bytes) == true (결정적 암호화)
+     * ```
+     *
+     * @param value 암호화할 평문 바이트 배열입니다.
+     */
     override fun unwrap(value: ByteArray): ExposedBlob {
         return encryptor.encryptDeterministically(value).toExposedBlob()
     }
 
-    /** DB에서 읽은 [ExposedBlob]을 복호화해 원본 바이트 배열로 변환합니다. */
+    /**
+     * DB에서 읽은 [ExposedBlob]을 복호화해 원본 바이트 배열로 변환합니다.
+     *
+     * ```kotlin
+     * val transformer = TinkDaeadBlobTransformer(TinkDaeads.AES256_SIV)
+     * val source = "tink-daead-blob-source".toByteArray()
+     * val restored = transformer.wrap(transformer.unwrap(source))
+     * // restored.contentEquals(source) == true
+     * ```
+     *
+     * @param value 복호화할 [ExposedBlob]입니다.
+     */
     override fun wrap(value: ExposedBlob): ByteArray {
         return encryptor.decryptDeterministically(value.bytes)
     }

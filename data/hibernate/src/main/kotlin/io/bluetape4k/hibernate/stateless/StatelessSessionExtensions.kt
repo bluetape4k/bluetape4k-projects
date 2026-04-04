@@ -8,12 +8,20 @@ import org.hibernate.query.SelectionQuery
 
 /**
  * 엔티티 타입 [T]와 식별자 id로 엔티티를 조회합니다.
+ *
+ * ```kotlin
+ * val user: User = statelessSession.getAs<User>(1L)
+ * ```
  */
 inline fun <reified T> StatelessSession.getAs(id: java.io.Serializable): T =
     get(T::class.java, id)
 
 /**
  * 엔티티 타입 [T]와 식별자 id로 엔티티를 lock mode와 함께 조회합니다.
+ *
+ * ```kotlin
+ * val user: User = statelessSession.getAs<User>(1L, LockMode.PESSIMISTIC_WRITE)
+ * ```
  */
 inline fun <reified T> StatelessSession.getAs(id: java.io.Serializable, lockMode: LockMode): T =
     get(T::class.java, id, lockMode)
@@ -58,42 +66,73 @@ inline fun <reified T> StatelessSession.getAs(
 
 /**
  * 결과 타입 [R]의 HQL/JPQL 조회 쿼리를 생성합니다.
+ *
+ * ```kotlin
+ * val query = statelessSession.createQueryAs<User>("FROM User WHERE name = :name")
+ * query.setParameter("name", "Alice")
+ * val users = query.list()
+ * ```
  */
 inline fun <reified R> StatelessSession.createQueryAs(queryString: String): SelectionQuery<R> =
     createQuery(queryString, R::class.java)
 
 /**
  * 결과 타입 [R]의 selection query를 생성합니다.
+ *
+ * ```kotlin
+ * val query = statelessSession.createSelectionQueryAs<User>("FROM User")
+ * ```
  */
 inline fun <reified R> StatelessSession.createSelectionQueryAs(queryString: String): SelectionQuery<R> =
     createSelectionQuery(queryString, R::class.java)
 
 /**
  * 결과 타입 [R]의 named query를 생성합니다.
+ *
+ * ```kotlin
+ * val query = statelessSession.createNamedQueryAs<User>("User.findByName")
+ * ```
  */
 inline fun <reified R> StatelessSession.createNamedQueryAs(queryName: String): SelectionQuery<R> =
     createNamedQuery(queryName, R::class.java)
 
 /**
  * 결과 타입 [R]의 native query를 생성합니다.
+ *
+ * ```kotlin
+ * val query = statelessSession.createNativeQueryAs<User>("SELECT * FROM users WHERE id = ?")
+ * ```
  */
 inline fun <reified R> StatelessSession.createNativeQueryAs(queryString: String): SelectionQuery<R> =
     createNativeQuery(queryString, R::class.java)
 
 /**
  * 엔티티 타입 [T]의 EntityGraph를 새로 생성합니다.
+ *
+ * ```kotlin
+ * val graph = statelessSession.createEntityGraphAs<User>()
+ * graph.addAttributeNodes("orders")
+ * ```
  */
 inline fun <reified T> StatelessSession.createEntityGraphAs(): EntityGraph<T> =
     createEntityGraph(T::class.java)
 
 /**
  * 그래프 이름으로 엔티티 타입 [T]의 EntityGraph를 생성합니다.
+ *
+ * ```kotlin
+ * val graph = statelessSession.createEntityGraphAs<User>("user.withOrders")
+ * ```
  */
 inline fun <reified T> StatelessSession.createEntityGraphAs(graphName: String): EntityGraph<T> =
     createEntityGraph(T::class.java, graphName)
 
 /**
  * 그래프 이름으로 엔티티 타입 [T]의 EntityGraph를 조회합니다.
+ *
+ * ```kotlin
+ * val graph = statelessSession.getEntityGraphAs<User>("user.withOrders")
+ * ```
  */
 inline fun <reified T> StatelessSession.getEntityGraphAs(graphName: String): EntityGraph<T> =
     @Suppress("UNCHECKED_CAST")

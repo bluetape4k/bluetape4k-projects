@@ -89,23 +89,43 @@ fun Column<Long>.snowflakeIdGenerated(): Column<Long> = snowflakeGenerated()
 
 /**
  * Long 컬럼의 기본값을 Snowflake ID(`Snowflakers.Global.nextId()`)로 설정합니다.
+ *
+ * ```kotlin
+ * val id = long("id").snowflakeGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 @JvmName("snowflakeGeneratedLong")
 fun Column<Long>.snowflakeGenerated(): Column<Long> = clientDefault { Snowflakers.Global.nextId() }
 
 /**
  * 문자열 컬럼의 기본값을 Snowflake ID 문자열(`nextIdAsString`)로 설정합니다.
+ *
+ * ```kotlin
+ * val id = varchar("id", 20).snowflakeGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 @JvmName("snowflakeGeneratedString")
 fun Column<String>.snowflakeGenerated(): Column<String> = clientDefault { Snowflakers.Global.nextIdAsString() }
 
 /**
  * 문자열 컬럼의 기본값을 KSUID(`Ksuid.Seconds.nextId()`)로 설정합니다.
+ *
+ * ```kotlin
+ * val id = varchar("id", 27).ksuidGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 fun Column<String>.ksuidGenerated(): Column<String> = clientDefault { Ksuid.Seconds.nextId() }
 
 /**
  * 문자열 컬럼의 기본값을 밀리초 기반 KSUID(`Ksuid.Millis.nextId()`)로 설정합니다.
+ *
+ * ```kotlin
+ * val id = varchar("id", 27).ksuidMillisGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 fun Column<String>.ksuidMillisGenerated(): Column<String> = clientDefault { Ksuid.Millis.nextId() }
 
@@ -240,12 +260,22 @@ fun IColumnType<*>.getLanguageType(): KClass<*>? =
 
 /**
  * 컬럼의 `columnType`을 기준으로 Kotlin 런타임 타입을 반환합니다.
+ *
+ * ```kotlin
+ * val type = column.getLanguageType()
+ * // type == Long::class (LongIdTable의 경우)
+ * ```
  */
 @JvmName("getColumnLanguageType")
 fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
 
 /**
  * `EntityID` 컬럼의 내부 식별자 타입을 기준으로 Kotlin 런타임 타입을 반환합니다.
+ *
+ * ```kotlin
+ * val type = table.id.getLanguageType()
+ * // type == Long::class (LongIdTable의 경우)
+ * ```
  */
 @JvmName("getEntityColumnLanguageType")
 fun <ID : Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()

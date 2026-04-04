@@ -5,12 +5,20 @@ import com.querydsl.jpa.Conversions
 
 /**
  * [Expression]을 JPA에서 사용할 수 있도록 변환합니다.
+ *
+ * ```kotlin
+ * val jpaExpr = nameExpr.convert()
+ * ```
  */
 fun <T> Expression<T>.convert(): Expression<T> =
     Conversions.convert(this)
 
 /**
  * [Expression]을 Native Query에서 사용할 수 있도록 변환합니다.
+ *
+ * ```kotlin
+ * val nativeExpr = nameExpr.convertForNativeQuery()
+ * ```
  */
 fun <T> Expression<T>.convertForNativeQuery(): Expression<T> =
     Conversions.convertForNativeQuery(this)

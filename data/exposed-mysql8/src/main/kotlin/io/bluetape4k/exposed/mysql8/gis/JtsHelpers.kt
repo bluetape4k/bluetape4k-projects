@@ -15,11 +15,22 @@ import org.locationtech.jts.geom.PrecisionModel
  *
  * 좌표 순서 규약: **longitude(경도, X축) 먼저, latitude(위도, Y축) 두 번째**.
  * MySQL 8.0 SRID 4326에서 axis-order=long-lat으로 저장/조회된다.
+ *
+ * ```kotlin
+ * val point = WGS84_FACTORY.createPoint(Coordinate(126.9779, 37.5665))
+ * // point.srid == 4326
+ * ```
  */
 val WGS84_FACTORY: GeometryFactory = GeometryFactory(PrecisionModel(), SRID_WGS84)
 
 /**
  * WGS84 Point를 생성한다.
+ *
+ * ```kotlin
+ * val point = wgs84Point(126.9779, 37.5665)  // 서울 시청 (경도, 위도)
+ * // point.x == 126.9779
+ * // point.y == 37.5665
+ * ```
  *
  * @param lng 경도 (X축, -180 ~ 180)
  * @param lat 위도 (Y축, -90 ~ 90)
@@ -29,6 +40,17 @@ fun wgs84Point(lng: Double, lat: Double): Point =
 
 /**
  * WGS84 Polygon을 생성한다.
+ *
+ * ```kotlin
+ * val polygon = wgs84Polygon(
+ *     126.97 to 37.56,
+ *     126.99 to 37.56,
+ *     126.99 to 37.57,
+ *     126.97 to 37.57,
+ *     126.97 to 37.56,
+ * )
+ * // polygon.numPoints == 5
+ * ```
  *
  * @param points (lng, lat) 좌표 쌍 목록. 자동으로 닫힘 (첫 좌표 = 마지막 좌표).
  */
@@ -42,6 +64,12 @@ fun wgs84Polygon(vararg points: Pair<Double, Double>): Polygon {
 
 /**
  * WGS84 직사각형 Polygon을 생성한다.
+ *
+ * ```kotlin
+ * val rect = wgs84Rectangle(126.97, 37.56, 126.99, 37.58)
+ * // rect.numPoints == 5
+ * // rect.isValid == true
+ * ```
  *
  * @param minLng 최소 경도
  * @param minLat 최소 위도
@@ -60,6 +88,15 @@ fun wgs84Rectangle(minLng: Double, minLat: Double, maxLng: Double, maxLat: Doubl
 /**
  * WGS84 LineString을 생성한다.
  *
+ * ```kotlin
+ * val line = wgs84LineString(
+ *     126.97 to 37.56,
+ *     126.98 to 37.57,
+ *     126.99 to 37.58,
+ * )
+ * // line.numPoints == 3
+ * ```
+ *
  * @param points (lng, lat) 좌표 쌍 목록
  */
 fun wgs84LineString(vararg points: Pair<Double, Double>): LineString {
@@ -69,18 +106,48 @@ fun wgs84LineString(vararg points: Pair<Double, Double>): LineString {
 
 /**
  * WGS84 MultiPoint를 생성한다.
+ *
+ * ```kotlin
+ * val mp = wgs84MultiPoint(
+ *     wgs84Point(126.97, 37.56),
+ *     wgs84Point(126.98, 37.57),
+ * )
+ * // mp.numGeometries == 2
+ * ```
+ *
+ * @param points 포함할 [Point] 목록
  */
 fun wgs84MultiPoint(vararg points: Point): MultiPoint =
     WGS84_FACTORY.createMultiPoint(points)
 
 /**
  * WGS84 MultiPolygon을 생성한다.
+ *
+ * ```kotlin
+ * val mp = wgs84MultiPolygon(
+ *     wgs84Rectangle(126.97, 37.56, 126.98, 37.57),
+ *     wgs84Rectangle(126.99, 37.58, 127.00, 37.59),
+ * )
+ * // mp.numGeometries == 2
+ * ```
+ *
+ * @param polygons 포함할 [Polygon] 목록
  */
 fun wgs84MultiPolygon(vararg polygons: Polygon): MultiPolygon =
     WGS84_FACTORY.createMultiPolygon(polygons)
 
 /**
  * WGS84 MultiLineString을 생성한다.
+ *
+ * ```kotlin
+ * val mls = wgs84MultiLineString(
+ *     wgs84LineString(126.97 to 37.56, 126.98 to 37.57),
+ *     wgs84LineString(126.99 to 37.58, 127.00 to 37.59),
+ * )
+ * // mls.numGeometries == 2
+ * ```
+ *
+ * @param lineStrings 포함할 [LineString] 목록
  */
 fun wgs84MultiLineString(vararg lineStrings: LineString): MultiLineString =
     WGS84_FACTORY.createMultiLineString(lineStrings)

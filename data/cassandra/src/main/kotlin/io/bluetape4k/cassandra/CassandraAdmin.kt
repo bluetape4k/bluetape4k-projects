@@ -12,6 +12,18 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 
+/**
+ * Cassandra keyspace 관리 및 버전 조회 유틸리티 객체입니다.
+ *
+ * ```kotlin
+ * val session = CqlSession.builder()
+ *     .addContactPoint(InetSocketAddress("localhost", 9042))
+ *     .withLocalDatacenter("datacenter1")
+ *     .build()
+ * CassandraAdmin.createKeyspace(session, "myKeyspace")
+ * // keyspace 생성 후 session 사용
+ * ```
+ */
 object CassandraAdmin: KLogging() {
 
     private const val DEFAULT_KEYSPACE = LibraryName
@@ -19,6 +31,11 @@ object CassandraAdmin: KLogging() {
 
     /**
      * 새로운 [keyspace]를 생성합니다.
+     *
+     * ```kotlin
+     * val applied = CassandraAdmin.createKeyspace(session, "myKeyspace", 1)
+     * // applied == true (최초 생성 시)
+     * ```
      *
      * @param session Cassandra session
      * @param keyspace 생성할 keyspace 이름 (기본값: [DEFAULT_KEYSPACE])
@@ -45,6 +62,11 @@ object CassandraAdmin: KLogging() {
     /**
      * [keyspace]를 삭제합니다.
      *
+     * ```kotlin
+     * val applied = CassandraAdmin.dropKeyspace(session, "myKeyspace")
+     * // applied == true (존재하는 keyspace 삭제 시)
+     * ```
+     *
      * @param session Cassandra session
      * @param keyspace 삭제할 keyspace 이름
      * @return 삭제 성공 여부
@@ -61,6 +83,12 @@ object CassandraAdmin: KLogging() {
 
     /**
      * Cassandra의 release version을 가져옵니다.
+     *
+     * ```kotlin
+     * val version = CassandraAdmin.getReleaseVersion(session)
+     * // version != null
+     * // version.toString().startsWith("4") == true
+     * ```
      *
      * @param session Cassandra session
      * @return Cassandra release version or null

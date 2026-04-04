@@ -130,6 +130,12 @@ data class LettuceNearCacheProperties(
     /**
      * [BinarySerializers]를 사용해 [LettuceBinaryCodec]을 직접 생성.
      * [io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs]는 protobuf 의존성 문제로 사용하지 않음.
+     *
+     * ```kotlin
+     * val props = LettuceNearCacheProperties(codec = "lz4fory")
+     * val codec = props.createCodec()
+     * // codec != null
+     * ```
      */
     fun createCodec(): LettuceBinaryCodec<Any> = when (codec.lowercase()) {
         "jdk"        -> LettuceBinaryCodecs.jdk()
@@ -150,6 +156,18 @@ data class LettuceNearCacheProperties(
         else         -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
     }
 
+    /**
+     * 지정한 [regionName]에 대한 [LettuceNearCacheConfig]를 빌드합니다.
+     *
+     * ```kotlin
+     * val props = LettuceNearCacheProperties()
+     * val config = props.buildNearCacheConfig("myRegion")
+     * // config.cacheName == "myRegion"
+     * ```
+     *
+     * @param regionName 캐시 region 이름
+     * @return 해당 region의 [LettuceNearCacheConfig] 인스턴스
+     */
     fun buildNearCacheConfig(regionName: String): LettuceNearCacheConfig<String, Any> {
         val ttl = resolveRedisTtl(regionName)
         return LettuceNearCacheConfig(

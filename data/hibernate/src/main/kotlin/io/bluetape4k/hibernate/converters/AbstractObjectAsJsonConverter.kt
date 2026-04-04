@@ -12,7 +12,7 @@ import jakarta.persistence.Converter
 /**
  * Object를 JSON 포맷으로 렌더링된 문자열로 저장하고, 로드 시에는 원래 Object로 변환하는 Converter 입니다.
  *
- * ```
+ * ```kotlin
  * data class Option(val name:String, val value:String): Serializable
  *
  * class OptionAsJsonConverter: AbstractObjectAsJsonConverter<Option>(Option::class.java)

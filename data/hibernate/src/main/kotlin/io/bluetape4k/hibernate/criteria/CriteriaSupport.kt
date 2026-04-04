@@ -44,25 +44,46 @@ inline fun <reified T: Any> CriteriaBuilder.createQueryAs(): CriteriaQuery<T> = 
 
 /**
  * `equal` 용 [Predicate]를 생성합니다.
+ *
+ * ```kotlin
+ * val pred = builder.eq(root.get<String>("name"), "Alice")
+ * ```
  */
 fun CriteriaBuilder.eq(x: Expression<*>, y: Any?): Predicate = this.equal(x, y)
 
 /**
  * `equal` 용 [Predicate]를 생성합니다.
+ *
+ * ```kotlin
+ * val pred = builder.eq(root.get<String>("name"), otherExpr)
+ * ```
  */
 fun CriteriaBuilder.eq(x: Expression<*>, y: Expression<*>): Predicate = this.equal(x, y)
 
 /**
  * `notEqual` 용 [Predicate]를 생성합니다.
+ *
+ * ```kotlin
+ * val pred = builder.ne(root.get<String>("status"), "DELETED")
+ * ```
  */
 fun CriteriaBuilder.ne(x: Expression<*>, y: Any?): Predicate = this.notEqual(x, y)
 
 /**
  * `notEqual` 용 [Predicate]를 생성합니다.
+ *
+ * ```kotlin
+ * val pred = builder.ne(root.get<String>("name"), otherExpr)
+ * ```
  */
 fun CriteriaBuilder.ne(x: Expression<*>, y: Expression<*>): Predicate = this.notEqual(x, y)
 
 /**
  * `in` 용 [CriteriaBuilder.In]를 생성합니다.
+ *
+ * ```kotlin
+ * val inClause = builder.inValues(root.get<String>("status"))
+ * inClause.value("ACTIVE").value("PENDING")
+ * ```
  */
 fun <T> CriteriaBuilder.inValues(expr: Expression<out T>): CriteriaBuilder.In<T> = this.`in`(expr)

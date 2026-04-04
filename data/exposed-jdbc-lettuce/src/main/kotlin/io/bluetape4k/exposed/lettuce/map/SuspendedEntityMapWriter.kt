@@ -13,6 +13,17 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  * Blocking JDBC I/O를 [Dispatchers.IO]에서 안전하게 실행하며,
  * Resilience4j retry를 코루틴 네이티브로 지원한다.
  *
+ * ```kotlin
+ * class MyWriter : SuspendedEntityMapWriter<Long, MyEntity>() {
+ *     override fun writeEntities(map: Map<Long, MyEntity>) {
+ *         map.forEach { (_, e) -> MyTable.upsert { it[name] = e.name } }
+ *     }
+ *     override fun deleteEntities(keys: Collection<Long>) {
+ *         MyTable.deleteWhere { MyTable.id inList keys }
+ *     }
+ * }
+ * ```
+ *
  * @param ID 키 타입
  * @param E 엔티티(DTO) 타입
  * @param retryConfig Resilience4j [RetryConfig] (기본: 3회 재시도)

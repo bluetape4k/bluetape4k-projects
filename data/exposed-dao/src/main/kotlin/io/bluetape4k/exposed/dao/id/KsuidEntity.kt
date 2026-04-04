@@ -11,6 +11,13 @@ typealias KsuidEntityID = EntityID<String>
 
 /**
  * [KsuidEntityID]를 사용하는 문자열 기반 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: KsuidEntityID) : KsuidEntity(id) {
+ *     companion object : KsuidEntityClass<MyEntity>(MyTable)
+ *     var name by MyTable.name
+ * }
+ * ```
  */
 open class KsuidEntity(id: KsuidEntityID): StringEntity(id)
 

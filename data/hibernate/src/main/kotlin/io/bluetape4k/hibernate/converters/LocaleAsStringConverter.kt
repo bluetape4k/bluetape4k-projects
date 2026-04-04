@@ -7,7 +7,7 @@ import java.util.*
 /**
  * [Locale] 정보를 문자열로 변환해서 저장하는 Converter
  *
- * ```
+ * ```kotlin
  * @Entity
  * class User {
  *      @Id

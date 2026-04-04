@@ -10,7 +10,7 @@ import jakarta.persistence.Converter
 /**
  * 객체를 직렬화하여 Base64 인코딩을 거쳐 ByteArray 로 변환해서 DB에 저장합니다.
  *
- * ```
+ * ```kotlin
  * @Entity
  * class User {
  *    @Id
@@ -21,6 +21,7 @@ import jakarta.persistence.Converter
  *    @Convert(converter=JdkObjectAsByteArrayConverter::class)
  *    var data: Any? = null
  * }
+ * ```
  *
  * @property serializer 바이너리 직렬화
  */

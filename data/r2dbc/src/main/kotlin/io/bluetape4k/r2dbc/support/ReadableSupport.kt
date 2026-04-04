@@ -51,16 +51,66 @@ import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.util.*
 
+/**
+ * reified 타입 [T]로 인덱스 기반 컬럼 값을 조회합니다. null이면 예외를 발생시킵니다.
+ *
+ * ```kotlin
+ * val name = row.getAs<String>(1)
+ * // name == "Alice"
+ * ```
+ */
 inline fun <reified T: Any> Readable.getAs(index: Int): T =
     getAsOrNull(index) ?: error("Column[$index] is null or unsupported type.")
 
+/**
+ * reified 타입 [T]로 컬럼 이름 기반 값을 조회합니다. null이면 예외를 발생시킵니다.
+ *
+ * ```kotlin
+ * val name = row.getAs<String>("name")
+ * // name == "Alice"
+ * ```
+ */
 inline fun <reified T: Any> Readable.getAs(name: String): T =
     getAsOrNull(name) ?: error("Column[$name] is null or unsupported type.")
 
+/**
+ * reified 타입 [T]로 인덱스 기반 컬럼 값을 조회합니다. null이면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val name = row.getAsOrNull<String>(1)
+ * // name == "Alice" (또는 null)
+ * ```
+ */
 inline fun <reified T: Any> Readable.getAsOrNull(index: Int): T? = get(index, T::class.java)
+
+/**
+ * reified 타입 [T]로 컬럼 이름 기반 값을 조회합니다. null이면 null을 반환합니다.
+ *
+ * ```kotlin
+ * val name = row.getAsOrNull<String>("name")
+ * // name == "Alice" (또는 null)
+ * ```
+ */
 inline fun <reified T: Any> Readable.getAsOrNull(name: String): T? = get(name, T::class.java)
 
+/**
+ * 인덱스 기반으로 Boolean 컬럼 값을 조회합니다.
+ *
+ * ```kotlin
+ * val active = row.boolean(3)
+ * // active == true
+ * ```
+ */
 inline fun Readable.boolean(index: Int): Boolean = getAs(index)
+
+/**
+ * 컬럼 이름으로 Boolean 값을 조회합니다.
+ *
+ * ```kotlin
+ * val active = row.boolean("active")
+ * // active == true
+ * ```
+ */
 inline fun Readable.boolean(name: String): Boolean = getAs(name)
 inline fun Readable.booleanOrNull(index: Int): Boolean? = get(index).asBooleanOrNull()
 inline fun Readable.booleanOrNull(name: String): Boolean? = get(name).asBooleanOrNull()
@@ -80,12 +130,46 @@ inline fun Readable.short(name: String): Short = getAs(name)
 inline fun Readable.shortOrNull(index: Int): Short? = get(index).asShortOrNull()
 inline fun Readable.shortOrNull(name: String): Short? = get(name).asShortOrNull()
 
+/**
+ * 인덱스 기반으로 Int 컬럼 값을 조회합니다.
+ *
+ * ```kotlin
+ * val age = row.int(2)
+ * // age == 30
+ * ```
+ */
 inline fun Readable.int(index: Int): Int = getAs(index)
+
+/**
+ * 컬럼 이름으로 Int 값을 조회합니다.
+ *
+ * ```kotlin
+ * val age = row.int("age")
+ * // age == 30
+ * ```
+ */
 inline fun Readable.int(name: String): Int = getAs(name)
 inline fun Readable.intOrNull(index: Int): Int? = get(index).asIntOrNull()
 inline fun Readable.intOrNull(name: String): Int? = get(name).asIntOrNull()
 
+/**
+ * 인덱스 기반으로 Long 컬럼 값을 조회합니다.
+ *
+ * ```kotlin
+ * val id = row.long(0)
+ * // id == 1L
+ * ```
+ */
 inline fun Readable.long(index: Int): Long = get(index).asLong()
+
+/**
+ * 컬럼 이름으로 Long 값을 조회합니다.
+ *
+ * ```kotlin
+ * val id = row.long("id")
+ * // id == 1L
+ * ```
+ */
 inline fun Readable.long(name: String): Long = get(name).asLong()
 inline fun Readable.longOrNull(index: Int): Long? = get(index).asLongOrNull()
 inline fun Readable.longOrNull(name: String): Long? = get(name).asLongOrNull()

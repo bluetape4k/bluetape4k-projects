@@ -16,6 +16,13 @@ import org.jetbrains.exposed.v1.core.vendors.currentDialect
 /**
  * PostGIS POINT 컬럼을 테이블에 등록한다.
  *
+ * ```kotlin
+ * object PlaceTable: LongIdTable("places") {
+ *     val location = geoPoint("location")
+ * }
+ * // PlaceTable.location.name == "location"
+ * ```
+ *
  * @param name 컬럼 이름
  * @return [Point] 타입의 [Column]
  */
@@ -24,6 +31,13 @@ fun Table.geoPoint(name: String): Column<Point> =
 
 /**
  * PostGIS POLYGON 컬럼을 테이블에 등록한다.
+ *
+ * ```kotlin
+ * object ZoneTable: LongIdTable("zones") {
+ *     val area = geoPolygon("area")
+ * }
+ * // ZoneTable.area.name == "area"
+ * ```
  *
  * @param name 컬럼 이름
  * @return [Polygon] 타입의 [Column]
@@ -35,6 +49,13 @@ fun Table.geoPolygon(name: String): Column<Polygon> =
  * PostGIS generic GEOMETRY 컬럼을 테이블에 등록한다.
  *
  * POINT, POLYGON, LINESTRING, MULTIPOLYGON 등 모든 Geometry 하위 타입을 저장할 수 있다.
+ *
+ * ```kotlin
+ * object ShapeTable: LongIdTable("shapes") {
+ *     val shape = geoGeometry("shape")
+ * }
+ * // ShapeTable.shape.name == "shape"
+ * ```
  *
  * @param name 컬럼 이름
  * @return [Geometry] 타입의 [Column]

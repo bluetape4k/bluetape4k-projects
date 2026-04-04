@@ -6,18 +6,30 @@ import com.querydsl.core.types.FactoryExpressionUtils
 
 /**
  * [Expression] 리스트를 감싸서 [FactoryExpression]으로 만듭니다.
+ *
+ * ```kotlin
+ * val factory = listOf(nameExpr, emailExpr).wrap()
+ * ```
  */
 fun List<Expression<*>>.wrap(): FactoryExpression<*> =
     FactoryExpressionUtils.wrap(this)
 
 /**
  * [FactoryExpression]을 [conversions]로 감싸서 [FactoryExpression]으로 만듭니다.
+ *
+ * ```kotlin
+ * val wrapped = constructorExpr.wrap(listOf(nameExpr, emailExpr))
+ * ```
  */
 fun <T> FactoryExpression<T>.wrap(conversions: List<Expression<*>>): FactoryExpression<T> =
     FactoryExpressionUtils.wrap(this, conversions)
 
 /**
- * [FactoryExpression]을 감싸서 [FactoryExpression]으로 만듭니다.
+ * [FactoryExpression]을 감싸서 null-safe [FactoryExpression]으로 만듭니다.
+ *
+ * ```kotlin
+ * val wrapped = constructorExpr.wrap()
+ * ```
  */
 fun <T> FactoryExpression<T>.wrap(): FactoryExpression<T> =
     FactoryExpressionUtils.wrap(this)

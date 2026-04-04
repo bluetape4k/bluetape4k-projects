@@ -10,6 +10,13 @@ typealias SnowflakeIdEntityID = EntityID<Long>
 
 /**
  * Snowflake Long PK를 사용하는 DAO 엔티티입니다.
+ *
+ * ```kotlin
+ * class MyEntity(id: SnowflakeIdEntityID) : SnowflakeIdEntity(id) {
+ *     companion object : SnowflakeIdEntityClass<MyEntity>(MyTable)
+ *     var name by MyTable.name
+ * }
+ * ```
  */
 open class SnowflakeIdEntity(id: SnowflakeIdEntityID): LongEntity(id)
 
