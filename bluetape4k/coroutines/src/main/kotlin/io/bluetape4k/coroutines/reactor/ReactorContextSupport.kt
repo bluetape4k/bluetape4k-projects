@@ -28,6 +28,11 @@ suspend inline fun currentReactiveContext(): Context? =
  * - `ReactorContext` 요소가 있으면 내부 `context`를 반환합니다.
  * - 없으면 `null`을 반환합니다.
  *
+ * ```kotlin
+ * val ctx = coroutineContext.getReactiveContext()
+ * // ctx == null 또는 Reactor Context
+ * ```
+ *
  * @receiver 조회 대상 코루틴 컨텍스트입니다.
  */
 fun CoroutineContext.getReactiveContext(): Context? =
@@ -59,6 +64,11 @@ fun <T: Any> Context.getOrNull(key: Any): T? {
  * - Reactor 컨텍스트가 없거나 키가 없으면 `null`을 반환합니다.
  * - 값 타입이 기대 타입과 다르면 `ClassCastException`이 발생할 수 있습니다.
  *
+ * ```kotlin
+ * val traceId: String? = getReactorContextValueOrNull("traceId")
+ * // traceId == null (Reactor 컨텍스트 없을 때)
+ * ```
+ *
  * @param key 조회할 키입니다.
  */
 suspend inline fun <T: Any> getReactorContextValueOrNull(key: Any): T? =
@@ -70,6 +80,11 @@ suspend inline fun <T: Any> getReactorContextValueOrNull(key: Any): T? =
  * ## 동작/계약
  * - Reactor 컨텍스트가 없거나 키가 없으면 `null`을 반환합니다.
  * - 값 타입이 기대 타입과 다르면 `ClassCastException`이 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val traceId: String? = coroutineContext.getReactorContextValueOrNull("traceId")
+ * // traceId == null (Reactor 컨텍스트 없을 때)
+ * ```
  *
  * @param key 조회할 키입니다.
  */

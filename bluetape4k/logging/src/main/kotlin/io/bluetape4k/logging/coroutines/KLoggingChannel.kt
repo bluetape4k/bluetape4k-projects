@@ -83,41 +83,75 @@ open class KLoggingChannel: KLogging() {
     /**
      * 로그 이벤트를 내부 채널에 발행합니다.
      *
+     * ```kotlin
+     * send(LogEvent(Level.INFO, "직접 이벤트 발행"))
+     * ```
+     *
      * @param event 발행할 로그 이벤트입니다.
      */
     suspend fun send(event: LogEvent) {
         sharedFlow.emit(event)
     }
 
-    /** TRACE 활성화 시 이벤트를 채널에 발행합니다. */
+    /**
+     * TRACE 활성화 시 이벤트를 채널에 발행합니다.
+     *
+     * ```kotlin
+     * trace { "TRACE 이벤트" }
+     * ```
+     */
     suspend inline fun trace(error: Throwable? = null, msg: () -> Any?) {
         if (log.isTraceEnabled) {
             send(LogEvent(Level.TRACE, logMessageSafe(msg = msg), error))
         }
     }
 
-    /** DEBUG 활성화 시 이벤트를 채널에 발행합니다. */
+    /**
+     * DEBUG 활성화 시 이벤트를 채널에 발행합니다.
+     *
+     * ```kotlin
+     * debug { "DEBUG 이벤트" }
+     * ```
+     */
     suspend inline fun debug(error: Throwable? = null, msg: () -> Any?) {
         if (log.isDebugEnabled) {
             send(LogEvent(Level.DEBUG, logMessageSafe(msg = msg), error))
         }
     }
 
-    /** INFO 활성화 시 이벤트를 채널에 발행합니다. */
+    /**
+     * INFO 활성화 시 이벤트를 채널에 발행합니다.
+     *
+     * ```kotlin
+     * info { "INFO 이벤트" }
+     * ```
+     */
     suspend inline fun info(error: Throwable? = null, msg: () -> Any?) {
         if (log.isInfoEnabled) {
             send(LogEvent(Level.INFO, logMessageSafe(msg = msg), error))
         }
     }
 
-    /** WARN 활성화 시 이벤트를 채널에 발행합니다. */
+    /**
+     * WARN 활성화 시 이벤트를 채널에 발행합니다.
+     *
+     * ```kotlin
+     * warn { "WARN 이벤트" }
+     * ```
+     */
     suspend inline fun warn(error: Throwable? = null, msg: () -> Any?) {
         if (log.isWarnEnabled) {
             send(LogEvent(Level.WARN, logMessageSafe(msg = msg), error))
         }
     }
 
-    /** ERROR 활성화 시 이벤트를 채널에 발행합니다. */
+    /**
+     * ERROR 활성화 시 이벤트를 채널에 발행합니다.
+     *
+     * ```kotlin
+     * error(exception) { "ERROR 이벤트" }
+     * ```
+     */
     suspend inline fun error(error: Throwable? = null, msg: () -> Any?) {
         if (log.isErrorEnabled) {
             send(LogEvent(Level.ERROR, logMessageSafe(msg = msg), error))
@@ -126,6 +160,12 @@ open class KLoggingChannel: KLogging() {
 
     /**
      * 비동기 채널에 전달되는 로그 이벤트 모델입니다.
+     *
+     * ```kotlin
+     * val event = LogEvent(Level.INFO, "서버 시작", null)
+     * // event.level == Level.INFO
+     * // event.msg == "서버 시작"
+     * ```
      *
      * @property level 로그 레벨입니다.
      * @property msg 로그 메시지입니다.

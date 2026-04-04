@@ -13,6 +13,12 @@ import org.slf4j.MDC
  * - 내부적으로 `mapOf(pair)` 오버로드에 위임합니다.
  * - `restorePrevious`는 MDC 복원 전략에 동일하게 전달됩니다.
  *
+ * ```kotlin
+ * withCoroutineLoggingContext("traceId" to "t-1") {
+ *   // MDC에 traceId=t-1 적용된 상태로 실행
+ * }
+ * ```
+ *
  * @param pair MDC에 적용할 키-값입니다.
  * @param restorePrevious 기존 MDC 값을 복원할지 여부입니다.
  * @param block MDC가 적용된 코루틴 블록입니다.
@@ -30,6 +36,12 @@ suspend inline fun <T> withCoroutineLoggingContext(
  * ## 동작/계약
  * - 내부적으로 `pairs.toMap()`으로 변환해 map 오버로드에 위임합니다.
  * - 중복 키가 있으면 마지막 값이 적용됩니다.
+ *
+ * ```kotlin
+ * withCoroutineLoggingContext("traceId" to "t-1", "userId" to "u-42") {
+ *   // MDC에 traceId, userId 적용된 상태로 실행
+ * }
+ * ```
  *
  * @param pairs MDC에 적용할 키-값 목록입니다.
  * @param restorePrevious 기존 MDC 값을 복원할지 여부입니다.
