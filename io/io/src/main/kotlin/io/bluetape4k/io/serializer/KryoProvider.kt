@@ -13,10 +13,36 @@ import io.bluetape4k.logging.debug
 import org.objenesis.strategy.StdInstantiatorStrategy
 
 /**
- * Kryo는 Thread Safe 하지 않습니다. 그래서 Kryo 인스턴스를 Pool 에서 관리합니다.
- */
-/**
- * `KryoProvider` 싱글톤/유틸리티입니다.
+ * Kryo 인스턴스를 Pool 방식으로 관리하는 싱글톤 유틸리티입니다.
+ *
+ * Kryo는 Thread-Safe하지 않으므로 직접 공유하면 안 됩니다. `KryoProvider`는 [Pool]을 이용해
+ * 스레드마다 Kryo / Input / Output 인스턴스를 안전하게 대여(obtain) · 반납(free)합니다.
+ *
+ * ```kotlin
+ * // Kryo 직렬화
+ * val kryo = KryoProvider.obtainKryo()
+ * val output = KryoProvider.obtainOutput()
+ * try {
+ *     kryo.writeClassAndObject(output, myObject)
+ *     val bytes = output.toBytes()
+ *     println(bytes.size) // 직렬화된 바이트 크기
+ * } finally {
+ *     KryoProvider.releaseOutput(output)
+ *     KryoProvider.releaseKryo(kryo)
+ * }
+ *
+ * // Kryo 역직렬화
+ * val kryo2 = KryoProvider.obtainKryo()
+ * val input = KryoProvider.obtainInput()
+ * try {
+ *     input.setBuffer(bytes)
+ *     val restored = kryo2.readClassAndObject(input)
+ *     println(restored) // 원본 객체
+ * } finally {
+ *     KryoProvider.releaseInput(input)
+ *     KryoProvider.releaseKryo(kryo2)
+ * }
+ * ```
  */
 object KryoProvider: KLogging() {
 
@@ -59,36 +85,54 @@ object KryoProvider: KLogging() {
     }
 
     /**
-     * I/O 직렬화에서 `obtainKryo` 함수를 제공합니다.
+     * Pool에서 [Kryo] 인스턴스를 대여합니다.
+     *
+     * 사용 후 반드시 [releaseKryo]로 반납해야 합니다.
+     *
+     * @return Pool에서 대여한 [Kryo] 인스턴스
      */
     fun obtainKryo(): Kryo = kryoPool.obtain()
 
     /**
-     * I/O 직렬화에서 `obtainInput` 함수를 제공합니다.
+     * Pool에서 [Input] 인스턴스를 대여합니다.
+     *
+     * 사용 후 반드시 [releaseInput]으로 반납해야 합니다.
+     *
+     * @return Pool에서 대여한 [Input] 인스턴스
      */
     fun obtainInput(): Input = inputPool.obtain()
 
     /**
-     * I/O 직렬화에서 `obtainOutput` 함수를 제공합니다.
+     * Pool에서 [Output] 인스턴스를 대여합니다.
+     *
+     * 사용 후 반드시 [releaseOutput]으로 반납해야 합니다.
+     *
+     * @return Pool에서 대여한 [Output] 인스턴스
      */
     fun obtainOutput(): Output = outputPool.obtain()
 
     /**
-     * I/O 직렬화에서 `releaseKryo` 함수를 제공합니다.
+     * 사용이 끝난 [Kryo] 인스턴스를 Pool에 반납합니다.
+     *
+     * @param kryo 반납할 [Kryo] 인스턴스
      */
     fun releaseKryo(kryo: Kryo) {
         kryoPool.free(kryo)
     }
 
     /**
-     * I/O 직렬화에서 `releaseInput` 함수를 제공합니다.
+     * 사용이 끝난 [Input] 인스턴스를 Pool에 반납합니다.
+     *
+     * @param input 반납할 [Input] 인스턴스
      */
     fun releaseInput(input: Input) {
         inputPool.free(input)
     }
 
     /**
-     * I/O 직렬화에서 `releaseOutput` 함수를 제공합니다.
+     * 사용이 끝난 [Output] 인스턴스를 Pool에 반납합니다.
+     *
+     * @param output 반납할 [Output] 인스턴스
      */
     fun releaseOutput(output: Output) {
         outputPool.free(output)

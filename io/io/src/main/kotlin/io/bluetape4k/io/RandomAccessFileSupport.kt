@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
 /**
  * [RandomAccessFile] 정보를 읽어서 [ByteBuffer]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val file = RandomAccessFile("test.txt", "r")
  * val buffer = ByteBuffer.allocate(file.length().toInt())
  * file.readTo(buffer)
@@ -44,7 +44,7 @@ fun RandomAccessFile.readTo(dstBuffer: ByteBuffer, limit: Int = dstBuffer.remain
 /**
  * [RandomAccessFile]의 내용이 [other]와 같은지 확인합니다.
  *
- * ```
+ * ```kotlin
  * val file1 = RandomAccessFile("test1.txt", "r")
  * val file2 = RandomAccessFile("test2.txt", "r")
  * val matched = file1.contentEquals(file2)
@@ -59,7 +59,7 @@ fun RandomAccessFile.contentEquals(other: RandomAccessFile): Boolean {
 /**
  * [RandomAccessFile]을 읽어서 ByteArray로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val file = RandomAccessFile("test.txt", "r")
  * val data = file.read(0, file.length().toInt())
  * ```
@@ -76,7 +76,7 @@ fun RandomAccessFile.read(position: Long = 0, length: Int = length().toInt()): B
 /**
  * [RandomAccessFile]의 position을 리셋합니다.
  *
- * ```
+ * ```kotlin
  * val file = RandomAccessFile("test.txt", "r")
  * file.reset()
  * ```

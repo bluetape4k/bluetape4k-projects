@@ -3,6 +3,15 @@ package io.bluetape4k.ranges
 
 /**
  * 상, 하한 모두 포함되지 않는 범위를 표현합니다. (`startExclusive < x < endExclusive`)
+ *
+ * 예제:
+ * ```kotlin
+ * val range = openOpenRangeOf(1, 5) // (1..5)
+ * range.contains(1) // false — 하한 미포함
+ * range.contains(5) // false — 상한 미포함
+ * range.contains(3) // true  — 내부 값
+ * range.contains(0) // false — 하한 미만
+ * ```
  */
 interface OpenOpenRange<T: Comparable<T>>: Range<T> {
 
@@ -39,6 +48,16 @@ interface OpenOpenRange<T: Comparable<T>>: Range<T> {
 /**
  * 상, 하한 모두 포함되지 않는 범위를 표현합니다. (`startExclusive < x < endExclusive`)
  *
+ * 예제:
+ * ```kotlin
+ * val range = DefaultOpenOpenRange(1, 5)
+ * range.toString()    // "(1..5)"
+ * range.isEmpty()     // false
+ * range.contains(1)   // false — 하한 미포함
+ * range.contains(5)   // false — 상한 미포함
+ * DefaultOpenOpenRange(3, 3).isEmpty() // true  — startExclusive >= endExclusive
+ * ```
+ *
  * @param T
  * @property startExclusive 하한 (미포함)
  * @property endExclusive   상한 (미포함)
@@ -53,8 +72,17 @@ data class DefaultOpenOpenRange<T: Comparable<T>>(
 /**
  * [OpenOpenRange]를 생성하는 팩토리 함수입니다.
  *
+ * 예제:
+ * ```kotlin
+ * val range = openOpenRangeOf(1, 5) // (1..5)
+ * range.contains(1) // false — 하한 미포함
+ * range.contains(5) // false — 상한 미포함
+ * range.contains(3) // true
+ * ```
+ *
  * @param start 하한 (미포함)
  * @param end 상한 (미포함)
+ * @return (start, end) 범위를 나타내는 [OpenOpenRange]
  */
 fun <T: Comparable<T>> openOpenRangeOf(start: T, end: T): OpenOpenRange<T> =
     DefaultOpenOpenRange(start, end)

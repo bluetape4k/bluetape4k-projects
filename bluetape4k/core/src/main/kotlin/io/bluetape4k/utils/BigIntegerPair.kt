@@ -5,6 +5,23 @@ import java.math.BigInteger
 
 /**
  * 두 개의 64-bit 정수를 하나의 [BigInteger] 값으로 결합/복원하는 유틸리티입니다.
+ *
+ * 두 개의 `Long` 또는 `BigInteger` 값(hi, lo)을 단일 `BigInteger`로 인코딩하거나,
+ * 반대로 디코딩하는 용도로 사용합니다. 분산 시스템에서 복합 키를 단일 숫자로 표현할 때 유용합니다.
+ *
+ * ```kotlin
+ * import java.math.BigInteger
+ *
+ * val hi = BigInteger.valueOf(12345L)
+ * val lo = BigInteger.valueOf(67890L)
+ *
+ * // 두 값을 하나의 BigInteger로 결합
+ * val combined = pair(hi, lo)
+ *
+ * // 결합된 값을 원래의 (hi, lo) 쌍으로 복원
+ * val (restoredHi, restoredLo) = unpair(combined)
+ * // restoredHi == hi, restoredLo == lo
+ * ```
  */
 @Suppress("NOTHING_TO_INLINE")
 object BigIntegerPair {

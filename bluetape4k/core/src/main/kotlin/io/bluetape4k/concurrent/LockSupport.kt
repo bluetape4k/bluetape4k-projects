@@ -9,7 +9,7 @@ import kotlin.time.Duration
 /**
  * [CountDownLatch]를 이용하여 `operation`을 수행하고, 대기합니다.
  *
- * ```
+ * ```kotlin
  * val result = withLatch {
  *    // do something
  *    countDown()
@@ -31,7 +31,7 @@ inline fun <T> withLatch(count: Int = 1, crossinline operation: CountDownLatch.(
 /**
  * [CountDownLatch]를 이용하여 `operation`을 수행하고, 대기합니다.
  *
- * ```
+ * ```kotlin
  * val result = withLatch(5.seconds) {
  *    // do something
  *    countDown()

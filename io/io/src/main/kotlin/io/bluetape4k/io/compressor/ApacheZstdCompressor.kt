@@ -12,13 +12,20 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Compress 라이브러리의 Zstd 알고리즘을 사용한 Compressor (내부적으로 zstd-jni 라이브러리 사용)
  *
- * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, World!".toByteArray()
+ * val compressed = Compressors.ApacheZstd.compress(data)
+ * val restored = Compressors.ApacheZstd.decompress(compressed)
+ * // restored contentEquals data == true
+ * ```
  *
+ * 압축 레벨을 지정하려면 직접 인스턴스화하세요:
+ * ```kotlin
+ * val compressor = ApacheZstdCompressor(level = 10)
  * ```
- * val compressor = ApacheZstdCompressor()
- * val compressed = compressor.compress("Hello, World!".toByteArray())
- * val plain = compressor.decompress(compressed)
- * ```
+ *
+ * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
  *
  * @property level 압축 레벨 (기본값: [DEFAULT_LEVEL])
  *

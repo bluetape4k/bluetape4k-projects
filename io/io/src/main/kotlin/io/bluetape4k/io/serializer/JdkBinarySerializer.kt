@@ -41,7 +41,16 @@ class JdkBinarySerializer(
     }
 
     /**
-     * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
+     * [ObjectOutputStream]을 사용하여 [graph]를 직렬화하고 [ByteArray]로 반환합니다.
+     *
+     * ```kotlin
+     * val serializer = JdkBinarySerializer()
+     * val bytes = serializer.serialize("Hello, World!")
+     * // bytes 는 JDK ObjectOutputStream 포맷의 바이트 배열
+     * ```
+     *
+     * @param graph 직렬화할 객체 (non-null)
+     * @return 직렬화된 [ByteArray]
      */
     override fun doSerialize(graph: Any): ByteArray {
         val output = ByteArrayOutputStream(bufferSize)
@@ -55,9 +64,19 @@ class JdkBinarySerializer(
     }
 
     /**
-     * I/O 직렬화에서 `doDeserialize` 함수를 제공합니다.
-     *
+     * [ObjectInputStream]을 사용하여 [bytes]를 역직렬화하고 객체를 반환합니다.
      * [objectInputFilter]가 설정된 경우 역직렬화 전에 필터를 적용합니다.
+     *
+     * ```kotlin
+     * val filter = ObjectInputFilter.Config.createFilter("java.*;kotlin.*;!*")
+     * val serializer = JdkBinarySerializer(objectInputFilter = filter)
+     * val bytes = serializer.serialize("Hello, World!")
+     * val text = serializer.deserialize<String>(bytes)  // text="Hello, World!"
+     * ```
+     *
+     * @param T 역직렬화할 객체 수형
+     * @param bytes 역직렬화할 [ByteArray]
+     * @return 역직렬화한 객체, 또는 null
      */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {

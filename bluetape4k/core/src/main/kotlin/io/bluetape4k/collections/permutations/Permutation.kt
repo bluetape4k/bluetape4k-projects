@@ -9,14 +9,39 @@ import kotlin.collections.AbstractList
  * [AbstractList]와 [Sequence]를 동시에 구현하여 리스트처럼 인덱스 접근이 가능하면서도
  * 무한 시퀀스를 표현할 수 있습니다. tail은 필요 시점에 평가되어 메모리 효율적인 연산을 제공합니다.
  *
+ * ```kotlin
+ * val perm = permutationOf(1, 2, 3)
+ * val head = perm.head                          // 1
+ * val doubled = perm.map { it * 2 }            // [2, 4, 6]
+ * val evens = perm.filter { it % 2 == 0 }      // [2]
+ * val first2 = perm.take(2).toList()           // [1, 2]
+ * val rest = perm.drop(1).toList()             // [2, 3]
+ * val zipped = perm.zip(permutationOf(10, 20, 30)) { a, b -> a + b }
+ * val zipList = zipped.toList()                // [11, 22, 33]
+ * ```
+ *
  * @param E 요소 타입
  */
 abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
-    /** 순열의 첫 번째 요소 */
+    /**
+     * 순열의 첫 번째 요소입니다.
+     *
+     * ```kotlin
+     * val perm = permutationOf(10, 20, 30)
+     * val h = perm.head   // 10
+     * ```
+     */
     abstract val head: E
 
-    /** 첫 번째 요소를 제외한 나머지 순열 */
+    /**
+     * 첫 번째 요소를 제외한 나머지 순열입니다.
+     *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3)
+     * val t = perm.tail.toList()   // [2, 3]
+     * ```
+     */
     abstract val tail: Permutation<E>
 
     /** tail이 이미 평가되었는지 여부 */
@@ -24,6 +49,12 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     /**
      * 두 순열을 연결합니다.
+     *
+     * ```kotlin
+     * val a = permutationOf(1, 2)
+     * val b = permutationOf(3, 4)
+     * val combined = (a + b).toList()   // [1, 2, 3, 4]
+     * ```
      *
      * @param other 뒤에 연결할 순열
      * @return 연결된 새 순열
@@ -49,6 +80,14 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     /**
      * 각 요소에 [mapper]를 적용한 새 순열을 반환합니다.
+     *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3)
+     * val doubled = perm.map { it * 2 }.toList()   // [2, 4, 6]
+     *
+     * val chars = permutationOf('a', 'b', 'c')
+     * val upper = chars.map(Char::uppercaseChar).toList()   // ['A', 'B', 'C']
+     * ```
      *
      * @param mapper 변환 함수
      * @return 변환된 순열
@@ -103,6 +142,11 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
     /**
      * [predicate] 조건을 만족하는 요소만 포함하는 순열을 반환합니다.
      *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3, 4, 5)
+     * val evens = perm.filter { it % 2 == 0 }.toList()   // [2, 4]
+     * ```
+     *
      * @param predicate 필터 조건
      * @return 필터링된 순열
      */
@@ -110,6 +154,12 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     /**
      * 각 요소를 [Iterable]로 변환하고 평탄화한 순열을 반환합니다.
+     *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3)
+     * val flat = perm.flatMap { listOf(it, it * 10) }.toList()
+     * // [1, 10, 2, 20, 3, 30]
+     * ```
      *
      * @param mapper 변환 함수
      * @return 평탄화된 순열
@@ -129,12 +179,22 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
      * 순열의 모든 요소를 리스트로 변환합니다.
      * 무한 순열에서는 사용하지 마세요.
      *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3)
+     * val list = perm.toList()   // [1, 2, 3]
+     * ```
+     *
      * @return 요소 리스트
      */
     open fun toList(): List<E> = mutableListOf<E>().also { it.addAll(this.force()) }
 
     /**
      * 최대 [maxSize]개의 요소만 포함하는 순열을 반환합니다.
+     *
+     * ```kotlin
+     * val naturals = numbers(1)                   // 무한 순열 1, 2, 3, ...
+     * val first5 = naturals.take(5).toList()      // [1, 2, 3, 4, 5]
+     * ```
      *
      * @param maxSize 최대 요소 수 (0 이상)
      * @return 제한된 순열
@@ -148,6 +208,11 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     /**
      * 앞에서 [startInclusive]개의 요소를 건너뛴 순열을 반환합니다.
+     *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3, 4, 5)
+     * val rest = perm.drop(2).toList()   // [3, 4, 5]
+     * ```
      *
      * @param startInclusive 건너뛸 요소 수 (0 이상)
      * @return 건너뛴 후의 순열
@@ -278,6 +343,17 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
         return minSoFar
     }
 
+    /**
+     * 순열의 요소 개수입니다.
+     * 무한 순열에서는 사용하지 마세요.
+     *
+     * ```kotlin
+     * val perm = permutationOf(1, 2, 3)
+     * val n = perm.size          // 3
+     * val empty = emptyPermutation<Int>()
+     * val isZero = empty.size    // 0
+     * ```
+     */
     override val size: Int
         get() {
             var count = 0
@@ -319,6 +395,18 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     /**
      * 두 순열의 요소를 하나씩 짝지어 [zipper]로 결합한 순열을 반환합니다.
+     * 두 순열 중 짧은 쪽 길이에 맞춰 결합이 끝납니다.
+     *
+     * ```kotlin
+     * val a = permutationOf(1, 2, 3)
+     * val b = permutationOf(10, 20, 30)
+     * val sums = a.zip(b) { x, y -> x + y }.toList()   // [11, 22, 33]
+     *
+     * val names = permutationOf("Alice", "Bob")
+     * val scores = permutationOf(90, 85, 70)
+     * val pairs = names.zip(scores) { n, s -> "$n:$s" }.toList()
+     * // ["Alice:90", "Bob:85"]
+     * ```
      *
      * @param second 두 번째 순열
      * @param zipper 결합 함수

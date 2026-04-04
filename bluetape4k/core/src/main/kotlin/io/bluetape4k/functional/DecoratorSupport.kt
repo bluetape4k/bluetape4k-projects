@@ -2,6 +2,14 @@ package io.bluetape4k.functional
 
 /**
  * Decorator 타입을 나타냅니다.
+ *
+ * 주어진 함수를 감싸 부가 동작을 추가하는 고차 함수 타입입니다.
+ *
+ * ```kotlin
+ * val italic: Decorator<String> = { f -> "<i>${f()}</i>" }
+ * val bold: Decorator<String> = { f -> "<b>${f()}</b>" }
+ * // decorateWith(italic, bold) { "hello" } == "<b><i>hello</i></b>"
+ * ```
  */
 typealias Decorator<T> = (() -> T) -> T // (T) -> T
 

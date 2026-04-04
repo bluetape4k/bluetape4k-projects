@@ -4,7 +4,16 @@ import io.bluetape4k.support.emptyByteArray
 import java.util.*
 
 /**
- * 문자열을 Url safe Base64 형태로 인코딩/디코딩 합니다
+ * 문자열을 Url safe Base64 형태로 인코딩/디코딩 합니다.
+ *
+ * Java 표준 [java.util.Base64.getUrlEncoder]/[java.util.Base64.getUrlDecoder] 를 사용하여
+ * URL-safe Base64 방식으로 인코딩/디코딩합니다.
+ *
+ * ```kotlin
+ * val encoder = Base64StringEncoder()
+ * val encoded = encoder.encode("Hello, World!".toUtf8Bytes())   // "SGVsbG8sIFdvcmxkIQ=="
+ * val decoded = encoder.decode(encoded).toUtf8String()           // "Hello, World!"
+ * ```
  */
 class Base64StringEncoder: StringEncoder {
 

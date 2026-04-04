@@ -3,7 +3,7 @@ package io.bluetape4k.support
 /**
  * [IntArray]에서 [target]의 첫 번째 인덱스를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3)
  * val index = array.indexOf(2)
  * ```
@@ -31,7 +31,7 @@ fun IntArray.indexOf(target: Int, start: Int = 0, end: Int = size - 1): Int {
 /**
  * [IntArray]에서 [target]의 첫 번째 인덱스를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4, 5)
  * val index = array.indexOf(intArrayOf(3, 4))  // 2
  * ```
@@ -64,7 +64,7 @@ fun IntArray.indexOf(target: IntArray, start: Int = 0, end: Int = size - 1): Int
 /**
  * [IntArray]에서 [target]의 마지막 인덱스를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 2)
  * array.lastIndexOf(2)  // 3
  * ```
@@ -91,7 +91,7 @@ fun IntArray.lastIndexOf(target: Int, start: Int = 0, end: Int = size - 1): Int 
 /**
  * [IntArray]에서 [target]의 첫 번째 인덱스를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4, 3, 4, 2)
  * val index = array.lastIndexOf(intArrayOf(3, 4))  // 4
  * ```
@@ -124,7 +124,7 @@ fun IntArray.lastIndexOf(target: IntArray, start: Int = 0, end: Int = size - 1):
 /**
  * [IntArray]의 크기가 [minCapacity]보다 작으면 [padding]만큼 더 확장한 새로운 [IntArray]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3)
  * val newArray = array.ensureCapacity(5, 2) // [1, 2, 3, 0, 0]
  * ```
@@ -151,7 +151,7 @@ fun IntArray.ensureCapacity(minCapacity: Int, padding: Int): IntArray {
 /**
  * [arrays] 들을 모두 결합하여 새로운 [IntArray]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array1 = intArrayOf(1, 2)
  * val array2 = intArrayOf(3, 4)
  * concat(array1, array2) // [1, 2, 3, 4]
@@ -174,7 +174,7 @@ fun concat(vararg arrays: IntArray): IntArray {
 /**
  * [IntArray]를 [fromIndex]부터 [toIndex]까지 역순으로 변경한 새로운 [IntArray]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4)
  * val reversed = array.reverseTo(1, 3)
  * // reversed.contentToString() == [1, 4, 3, 2]
@@ -199,7 +199,7 @@ fun IntArray.reverseTo(fromIndex: Int = 0, toIndex: Int = size - 1): IntArray {
 /**
  * [IntArray]를 [fromIndex]부터 [toIndex]까지 역순으로 변경합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4)
  * array.reverse(1, 3)  // [1, 4, 3, 2]
  * ```
@@ -229,7 +229,7 @@ fun IntArray.reverseThis(fromIndex: Int = 0, toIndex: Int = size - 1) {
 /**
  * [IntArray]를 [distance]만큼 회전한 새로운 [IntArray]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4)
  * val rotated = array.rotateTo(2)  // [3, 4, 1, 2]
  * val rotated2 = array.rotateTo(-1) // [2, 3, 4, 1]
@@ -255,7 +255,7 @@ fun IntArray.rotateTo(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1
 /**
  * [IntArray]를 [distance]만큼 회전합니다.
  *
- * ```
+ * ```kotlin
  * val array = intArrayOf(1, 2, 3, 4)
  * array.rotate(2)  // [3, 4, 1, 2]
  * array.rotate(-1) // [2, 3, 4, 1]

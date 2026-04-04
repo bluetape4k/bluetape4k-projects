@@ -12,7 +12,7 @@ import kotlin.collections.ArrayDeque
 /**
  * [ArrayBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = arrayBlockingQueueOf<String>(10)  // 크기가 10인 큐 생성
  * ```
  *
@@ -31,7 +31,7 @@ fun <E: Any> arrayBlockingQueueOf(
 /**
  * [ArrayDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = arrayDequeOf<String>(10)  // 크기가 10인 덱 생성
  * ```
  *
@@ -42,7 +42,7 @@ fun <E> arrayDequeOf(initialCapacity: Int): ArrayDeque<E> = ArrayDeque(initialCa
 /**
  * [ArrayDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = arrayDequeOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -56,7 +56,7 @@ fun <E> arrayDequeOf(collections: Collection<E>): ArrayDeque<E> = ArrayDeque(col
 /**
  * [ConcurrentLinkedQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = concurrentLinkedQueueOf<String>()  // 빈 큐 생성
  * ```
  *
@@ -67,7 +67,7 @@ fun <E: Any> concurrentLinkedQueueOf(): ConcurrentLinkedQueue<E> = ConcurrentLin
 /**
  * [ConcurrentLinkedQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = concurrentLinkedQueueOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -80,7 +80,7 @@ fun <E: Any> concurrentLinkedQueueOf(collections: Collection<E>): ConcurrentLink
 /**
  * [LinkedBlockingDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = linkedBlockingDequeOf<String>(10)  // 크기가 10인 덱 생성
  * ```
  *
@@ -93,7 +93,7 @@ fun <E: Any> linkedBlockingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
 /**
  * [LinkedBlockingDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = linkedBlockingDequeOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -107,7 +107,7 @@ fun <E: Any> linkedBlockingDequeOf(collections: Collection<E>): LinkedBlockingDe
 /**
  * [LinkedBlockingDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = linkedBlokcingDequeOf<String>(10)  // 크기가 10인 덱 생성
  * ```
  *
@@ -124,7 +124,7 @@ fun <E: Any> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
 /**
  * [LinkedBlockingDeque]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val deque = linkedBlokcingDequeOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -142,7 +142,7 @@ fun <E: Any> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDe
 /**
  * [LinkedBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = linkedBlockingQueueOf<String>(10)  // 크기가 10인 큐 생성
  * ```
  *
@@ -155,7 +155,7 @@ fun <E: Any> linkedBlockingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
 /**
  * [LinkedBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = linkedBlockingQueueOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -169,7 +169,7 @@ fun <E: Any> linkedBlockingQueueOf(collections: Collection<E>): LinkedBlockingQu
 /**
  * [LinkedBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = linkedBlokcingQueueOf<String>(10)  // 크기가 10인 큐 생성
  * ```
  *
@@ -186,7 +186,7 @@ fun <E: Any> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockin
 /**
  * [LinkedBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = linkedBlokcingQueueOf(listOf("a", "b", "c"))  // a, b, c
  * ```
  *
@@ -204,7 +204,7 @@ fun <E: Any> linkedBlokcingQueueOf(collections: Collection<E>): LinkedBlockingQu
 /**
  * [PriorityBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = priorityBlockingQueueOf<String>(10)  // 크기가 10인 큐 생성
  * ```
  *
@@ -219,7 +219,7 @@ fun <E: Comparable<E>> priorityBlockingQueueOf(
 /**
  * [PriorityBlockingQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = priorityBlockingQueueOf<String>(10, Comparator.reverseOrder())  // 크기가 10인 큐 생성
  * ```
  *
@@ -236,7 +236,7 @@ fun <E: Comparable<E>> priorityBlockingQueueOf(
 /**
  * [PriorityQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = priorityQueueOf<String>(10)  // 크기가 10인 큐 생성
  * ```
  *
@@ -251,7 +251,7 @@ fun <E: Comparable<E>> priorityQueueOf(
 /**
  * [PriorityQueue]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val queue = priorityQueueOf<String>(10, Comparator.reverseOrder())  // 크기가 10인 큐 생성
  * ```
  *
@@ -271,7 +271,7 @@ fun <E: Comparable<E>> priorityQueueOf(
  * `BlockingQueue`에서 각 삽입 작업은 다른 스레드에 의한 대응하는 제거 작업을 기다려야 하며 그 반대도 마찬가지입니다.
  * 동기 큐([SynchronousQueue])는 내부 용량이 없습니다. 심지어 하나의 용량도 없습니다.
  *
- * ```
+ * ```kotlin
  * val queue = synchronousQueueOf<String>()  // 빈 큐 생성
  * queue.put("a")
  * queue.put("b")

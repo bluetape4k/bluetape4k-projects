@@ -19,7 +19,7 @@ val EPOCH: Instant = Instant.EPOCH
 /**
  * [epochMillis]를 가지는 [Instant]를 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf() // 현재 시간
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * ```
@@ -33,7 +33,7 @@ fun instantOf(epochMillis: Long = System.currentTimeMillis()): Instant =
 /**
  * [Instant]를 [LocalDate]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val localDate = instant.toLocalDate() // 2021-03-01
  * ```
@@ -44,7 +44,7 @@ fun Instant.toLocalDate(): LocalDate =
 /**
  * [Instant]를 [LocalDateTime]으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val localDateTime = instant.toLocalDateTime() // 2021-03-01T00:00:00
  * ```
@@ -59,7 +59,7 @@ fun Instant.toLocalDateTime(zoneId: ZoneId = ZoneOffset.UTC): LocalDateTime =
 /**
  * [Instant]를 [OffsetDateTime]으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val offsetDateTime = instant.toOffsetDateTime() // 2021-03-01T00:00:00Z
  * ```
@@ -74,7 +74,7 @@ fun Instant.toOffsetDateTime(zoneId: ZoneId = ZoneOffset.UTC): OffsetDateTime =
 /**
  * [Instant]를 [ZonedDateTime]으로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val zonedDateTime = instant.toZonedDateTime() // 2021-03-01T00:00:00Z
  * ```
@@ -89,7 +89,7 @@ fun Instant.toZonedDateTime(zoneId: ZoneId = ZoneOffset.UTC): ZonedDateTime =
 /**
  * [Instant]를 [Date]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val date = instant.toDate() // 2021-03-01T00:00:00Z
  * ```
@@ -99,7 +99,7 @@ fun Instant.toDate(): Date = Date.from(this)
 /**
  * [Instant]를 [Calendar]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val calendar = instant.toCalendar() // 2021-03-01T00:00:00Z
  * ```
@@ -117,7 +117,7 @@ fun Instant.toCalendar(timeZone: TimeZone = UtcTimeZone): Calendar =
 /**
  * [Instant]에 설정값을 지정하여 새로운 Instant를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val instant = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val newInstant = instant.with(year = 2022, monthOfYear = 2, dayOfMonth = 1) // 2022-02-01T00:00:00Z
  * ```
@@ -156,7 +156,7 @@ fun Instant.with(
 /**
  * 두 [Instant] 중 작은 값을 반환한다. 둘 중 null이 있으면 null이 아닌 값을 반환한다
  *
- * ```
+ * ```kotlin
  * val instant1 = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val instant2 = instantOf(1614556800059) // 2021-03-01T00:00:59Z
  * val minInstant = instant1 min instant2 // 2021-03-01T00:00:00Z
@@ -176,7 +176,7 @@ infix fun Instant?.min(that: Instant?): Instant? = when {
 /**
  * 두 [Instant] 중 큰 값을 반환한다. 둘 중 null이 있으면 null이 아닌 값을 반환한다
  *
- * ```
+ * ```kotlin
  * val instant1 = instantOf(1614556800000) // 2021-03-01T00:00:00Z
  * val instant2 = instantOf(1614556800059) // 2021-03-01T00:00:59Z
  * val maxInstant = instant1 max instant2 // 2021-03-01T00:00:59Z

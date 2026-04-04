@@ -10,7 +10,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Blocking 방식으로 수행합니다.
  *
- * ```
+ * ```kotlin
  * val result = runVirtualBlocking {
  *      // Virtual Thread 를 Coroutines Context 로 사용합니다.
  *      delay(1000)
@@ -20,11 +20,10 @@ import kotlin.coroutines.EmptyCoroutineContext
  * // result == 42
  * ```
  *
- * @param T
- * @param context
- * @param block
- * @receiver
- * @return
+ * @param T 반환할 타입
+ * @param context 추가 코루틴 컨텍스트 (기본값: [EmptyCoroutineContext])
+ * @param block Virtual Thread Dispatcher 위에서 실행할 suspend 블록
+ * @return [block]의 실행 결과
  */
 fun <T> runVirtualBlocking(
     context: CoroutineContext = EmptyCoroutineContext,
@@ -34,24 +33,24 @@ fun <T> runVirtualBlocking(
 /**
  * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Non-Blocking 방식으로 수행합니다.
  *
- * ```
- * val task = async {
- *    withVirtualContext {
- *      // Virtual Thread 에서 동기/비동기 코드를 실행됩니다.
- *      Thread.sleep(1000)
- *      log.debug { "Job $it is done" }
- *      42
- *    }
+ * ```kotlin
+ * val result = runBlocking {
+ *     val task = async {
+ *         withVirtualContext {
+ *             // Virtual Thread 에서 동기/비동기 코드를 실행됩니다.
+ *             Thread.sleep(1000)
+ *             42
+ *         }
+ *     }
+ *     task.await() // 42
  * }
- *
- * task.await() // 42
+ * // result == 42
  * ```
  *
  * @param T 반환할 타입
- * @param context 코루틴 컨텍스트
- * @param block 실행할 코루틴 블록
- * @receiver
- * @return
+ * @param context 추가 코루틴 컨텍스트 (기본값: [EmptyCoroutineContext])
+ * @param block Virtual Thread Dispatcher 위에서 실행할 suspend 블록
+ * @return [block]의 실행 결과
  */
 suspend fun <T> withVirtualContext(
     context: CoroutineContext = EmptyCoroutineContext,

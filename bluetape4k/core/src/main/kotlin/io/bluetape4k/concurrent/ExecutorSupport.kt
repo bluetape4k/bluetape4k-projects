@@ -12,7 +12,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ForkJoinPool
 
 /**
- * [ForkJoinPool.commonPool]을 사용하는 [ExecutorService]
+ * [ForkJoinPool.commonPool]을 사용하는 [ExecutorService].
+ *
+ * ```kotlin
+ * val future = CompletableFuture.supplyAsync({ 42 }, ForkJoinExecutor)
+ * val result = future.get()  // 42
+ * ```
  */
 object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
 
@@ -30,7 +35,13 @@ object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
 object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTaskExecutor()
 
 /**
- * Direct executor
+ * 호출 스레드에서 즉시 실행하는 동기 [Executor].
+ *
+ * ```kotlin
+ * var ran = false
+ * DirectExecutor.execute { ran = true }
+ * ran  // true
+ * ```
  */
 object DirectExecutor: Executor {
     override fun execute(command: Runnable) = command.run()
@@ -41,7 +52,7 @@ private val log by lazy { KotlinLogging.logger {} }
 /**
  * [task] 을 WorkStealingPool 을 이용하여 병렬로 수행합니다.
  *
- * ```
+ * ```kotlin
  * val future = withWorkStealingPool<Long>(4) {
  *      Thread.sleep(100L)
  *      42L
@@ -75,13 +86,12 @@ fun <T> withWorkStealingPool(
 /**
  * 복수개의 [tasks] 을 WorkStealingPool 을 이용하여 병렬로 수행합니다.
  *
+ * ```kotlin
+ * val tasks: List<() -> Int> = List(4) { index -> { index * 2 } }
+ * val future: CompletableFuture<List<Int>> = withWorkStealingPool(parallelism = 4, tasks = tasks)
+ * val results = future.get()  // [0, 2, 4, 6]
  * ```
- * val tasks = List(10) {
- *      Thread.sleep(100)
- *      it
- * }
- * val future: CompletableFuture<List<Int>> = withWorkStealingPool<Long>(4, tasks)
- * ```
+ *
  * @param parallelism Int 병렬 처리할 수
  * @param tasks WorkStealingPool 에서 실행할 [Callable]의 컬렉션
  */

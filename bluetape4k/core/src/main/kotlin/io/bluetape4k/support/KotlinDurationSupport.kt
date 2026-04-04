@@ -8,6 +8,15 @@ import kotlin.time.toKotlinDuration
 
 /**
  * [kotlin.time.Duration]에서 milliseconds를 제외한 나노초 값(0..999_999)을 반환합니다.
+ *
+ * ```kotlin
+ * val duration = 1500.milliseconds + 123456.nanoseconds
+ * duration.nanosOfMillis  // 123456
+ *
+ * 2.seconds.nanosOfMillis  // 0
+ * ```
+ *
+ * @return 밀리초 단위를 제외한 나노초 부분 (0..999_999)
  */
 val Duration.nanosOfMillis: Int
     get() = abs((inWholeNanoseconds % 1_000_000).toInt())
@@ -16,7 +25,7 @@ val Duration.nanosOfMillis: Int
 /**
  * [kotlin.time.Duration] 동안 sleep 합니다.
  *
- * ```
+ * ```kotlin
  * 1.seconds.sleep()
  * ```
  */

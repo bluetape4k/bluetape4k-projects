@@ -3,7 +3,7 @@ package io.bluetape4k.support
 /**
  * 루트 예외 메시지에 [message]를 앞에 추가한 메시지를 만듭니다.
  *
- * ```
+ * ```kotlin
  * val ex = IllegalStateException("Something went wrong")
  * val message = ex.buildMessage("Failed to do something")
  * // Failed to do something; nested exception is java.lang.IllegalStateException: Something went wrong
@@ -24,7 +24,7 @@ fun Throwable?.buildMessage(message: String?): String? {
 /**
  * [Throwable]의 가장 내부적인 원인(근본 원인)을 검색합니다.
  *
- * ```
+ * ```kotlin
  * try {
  *    // ...
  *    throw new IllegalArgumentException("Something went wrong", new IllegalStateException("Something went wrong"))
@@ -54,7 +54,7 @@ fun Throwable.getRootCause(): Throwable? {
  *
  * 근본 원인이 없는 경우 원래 예외로 되돌아간다는 점에서 [getRootCause]와 다릅니다.
  *
- * ```
+ * ```kotlin
  * try {
  *   // ...
  *   throw new IllegalArgumentException("Something went wrong", new IllegalStateException("Something went wrong"))
@@ -66,7 +66,7 @@ fun Throwable.getRootCause(): Throwable? {
  * }
  * ```
  *
- * ```
+ * ```kotlin
  * try {
  *     // ...
  *     throw new IllegalArgumentException("Something went wrong")

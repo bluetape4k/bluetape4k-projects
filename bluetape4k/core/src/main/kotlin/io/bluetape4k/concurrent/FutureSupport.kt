@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 /**
  * [Future] 인스턴스를 [CompletionStage] 로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val future: Future<Long> = Executors.newSingleThreadExecutor().submit { 42L }
  * val stage: CompletionStage<Long> = future.asCompletionStage()
  * ```
@@ -28,7 +28,7 @@ fun <T> Future<T>.asCompletionStage(): CompletionStage<T> = when (this@asComplet
 /**
  * [Future] 인스턴스를 [CompletableFuture] 로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val future: Future<Long> = Executors.newSingleThreadExecutor().submit { 42L }
  * val completableFuture: CompletableFuture<Long> = future.asCompletableFuture()
  * ```

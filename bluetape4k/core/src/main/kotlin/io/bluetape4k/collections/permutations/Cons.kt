@@ -9,6 +9,13 @@ import kotlin.concurrent.withLock
  * [tailFunc]는 최초 tail 접근 시 한 번만 평가되며, 이후에는 캐싱된 결과를 반환합니다.
  * [ReentrantLock]과 DCL(Double-Checked Locking) 패턴으로 스레드 안전성을 보장합니다.
  *
+ * 예제:
+ * ```kotlin
+ * val perm = cons(1) { cons(2) { cons(3) { emptyPermutation() } } }
+ * perm.head // 1
+ * perm.tail.head // 2 (첫 tail 접근 시 평가됨)
+ * ```
+ *
  * @param E 요소 타입
  * @param head 순열의 첫 번째 요소
  * @param tailFunc tail을 지연 생성하는 함수

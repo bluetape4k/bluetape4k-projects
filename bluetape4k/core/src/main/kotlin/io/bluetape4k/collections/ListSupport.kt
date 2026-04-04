@@ -3,9 +3,10 @@ package io.bluetape4k.collections
 /**
  * IntRange를 List<Int>로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val range = 1..5
  * val list = intRangeOf(range) // [1, 2, 3, 4, 5]
+ * ```
  *
  * @param range IntRange
  * @return List<Int>

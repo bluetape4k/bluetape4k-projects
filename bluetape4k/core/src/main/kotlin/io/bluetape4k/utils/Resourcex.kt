@@ -18,7 +18,7 @@ object Resourcex: KLogging() {
     /**
      * 리소스 파일을 읽어드리는 [InputStream]을 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val is:InputStream = Resourcex.getInputStream("files/Utf8Samples.txt")
      * val text = is.toString(Charsets.UTF_8)
      *
@@ -44,7 +44,7 @@ object Resourcex: KLogging() {
     /**
      * 리소스 파일을 읽어 문자열로 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val text:String = Resourcex.getString("files/Utf8Samples.txt")
      * ```
      *
@@ -65,7 +65,7 @@ object Resourcex: KLogging() {
     /**
      * 리소스 파일을 읽어 [ByteArray]로 반환합니다. 파일이 없으면 [emptyByteArray] 을 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val bytes:ByteArray = Resourcex.getBytes("files/Utf8Samples.txt")
      * ```
      *

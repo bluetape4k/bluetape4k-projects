@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * BZip2 알고리즘을 사용한 Compressor
  *
- * ```
- * val compressor = BZip2Compressor()
- * val compressed = compressor.compress("Hello, World!".toByteArray())
- * val plain = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, World!".toByteArray()
+ * val compressed = Compressors.BZip2.compress(data)
+ * val restored = Compressors.BZip2.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @param bufferSize 내부 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])

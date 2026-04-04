@@ -10,20 +10,26 @@ import java.util.concurrent.ThreadFactory
  *
  * 참고: Kotlin Coroutines 의 [kotlinx.coroutines.coroutineScope]와 작업 방식은 같다.
  *
- * ```
- * val result = structuredTaskScope { scope ->
- *     val result1 = scope.fork { ... }
- *     val result2 = scope.fork { ... }
+ * ```kotlin
+ * data class Result(val a: Int, val b: String)
+ *
+ * val result = structuredTaskScopeAll { scope ->
+ *     val subtask1 = scope.fork { Thread.sleep(100); 42 }
+ *     val subtask2 = scope.fork { Thread.sleep(200); "hello" }
  *
  *     scope.join().throwIfFailed()
  *
- *     Result(result1, result2)
+ *     Result(subtask1.get(), subtask2.get())
  * }
+ * // result == Result(a=42, b="hello")
  * ```
- * @param T
- * @param block
- * @receiver
- * @return
+ *
+ * @param T 반환할 타입
+ * @param name StructuredTaskScope 이름 (디버깅용, 기본값: null)
+ * @param factory Virtual Thread 팩토리
+ * @param block scope 를 인자로 받아 서브 작업을 fork하고 결과를 반환하는 블록
+ * @return [block]의 실행 결과
+ * @throws Exception 서브 작업 중 하나라도 실패하면 해당 예외를 던진다
  */
 fun <T> structuredTaskScopeAll(
     name: String? = null,
@@ -41,7 +47,7 @@ fun <T> structuredTaskScopeAll(
  *
  * 병렬 프로그래밍의 투기적 실행 (여러개를 동시에 실행하고, 첫번째 결과를 취하고, 나머지 작업은 버린다) 또는 ML 의 앙상블 기법과 같다.
  *
- * ```
+ * ```kotlin
  * val result = structuredTaskScopeAny<String> { scope ->
  *     scope.fork {
  *          Thread.sleep(100)
@@ -56,13 +62,14 @@ fun <T> structuredTaskScopeAll(
  *     scope.result { ExecutionException(it) }
  * }
  * // 먼저 완료되는 작업의 결과를 반환한다.
- * // result is "result1"
+ * // result == "result1"
  * ```
  *
- * @param T
- * @param block
- * @receiver
- * @return
+ * @param T 반환할 타입
+ * @param name StructuredTaskScope 이름 (디버깅용, 기본값: null)
+ * @param factory Virtual Thread 팩토리
+ * @param block scope 를 인자로 받아 서브 작업을 fork하고 첫 번째 성공 결과를 반환하는 블록
+ * @return 가장 먼저 완료된 서브 작업의 결과
  */
 fun <T> structuredTaskScopeAny(
     name: String? = null,

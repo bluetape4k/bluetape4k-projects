@@ -10,13 +10,22 @@ import org.apache.commons.compress.compressors.zstandard.ZstdUtils
 /**
  * zstd-jni 라이브러리를 사용하여 Zstd 알고리즘을 활용한 압축기
  *
- * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
+ * 높은 압축률과 빠른 속도를 동시에 제공하여 대용량 데이터 압축이나 네트워크 전송 최적화에 적합합니다.
  *
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, Zstd!".toByteArray()
+ * val compressed = Compressors.Zstd.compress(data)
+ * val restored = Compressors.Zstd.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
- * val compressor = ZstdCompressor()
- * val compressed = compressor.compress("Hello, Zstd!")
- * val decompressed = compressor.decompress(compressed)  // "Hello, Zstd!"
+ *
+ * 압축 레벨을 지정하려면 직접 인스턴스화하세요:
+ * ```kotlin
+ * val compressor = ZstdCompressor(level = 10)
  * ```
+ *
+ * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
  *
  * @property level 압축 레벨
  */

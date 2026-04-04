@@ -37,7 +37,7 @@ const val MINIMAL_BLOCK_SIZE = 512
 /**
  * [InputStream]을 읽어 [Writer]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val writer = StringWriter()
  * inputStream.copyTo(writer)
@@ -55,7 +55,7 @@ fun InputStream.copyTo(out: Writer, cs: Charset = UTF_8, bufferSize: Int = DEFAU
 /**
  * [InputStream]을 읽어 [OutputStream]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val outputStream = ByteArrayOutputStream()
  * inputStream.copyTo(outputStream)
@@ -85,7 +85,7 @@ fun InputStream.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE)
 /**
  * [ReadableByteChannel]을 읽어 [WritableByteChannel]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val channel = FileChannel.open(Paths.get("hello.txt"), StandardOpenOption.READ)
  * val outputChannel = FileChannel.open(Paths.get("world.txt"), StandardOpenOption.WRITE, StandardOpenOption.CREATE)
  * channel.copyTo(outputChannel)
@@ -122,7 +122,7 @@ fun ReadableByteChannel.copyTo(out: WritableByteChannel, bufferSize: Int = DEFAU
 /**
  * [Reader]를 읽어 [OutputStream]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val reader = StringReader("Hello, World!")
  * val outputStream = ByteArrayOutputStream()
  * reader.copyTo(outputStream)
@@ -146,7 +146,7 @@ fun Reader.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE, cs: 
 /**
  * [Reader]를 읽어 문자열로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val reader = StringReader("Hello, World!")
  * val text = reader.copyToString()
  * println(text) // Hello, World!
@@ -165,7 +165,7 @@ fun Reader.copyToString(bufferSize: Int = DEFAULT_BUFFER_SIZE): String {
 /**
  * [ByteArray]를 읽어들이는 [InputStream]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello, World!".toByteArray()
  * val inputStream = byteArray.toInputStream()
  * val text = inputStream.toString()
@@ -177,7 +177,7 @@ fun ByteArray.toInputStream(): InputStream = ByteArrayInputStream(this).buffered
 /**
  * [String]를 읽어들이는 [InputStream]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val text = "Hello, World!"
  * val inputStream = text.toInputStream()
  * val text = inputStream.toString()
@@ -189,7 +189,7 @@ fun String.toInputStream(cs: Charset = UTF_8): InputStream = toByteArray(cs).toI
 /**
  * [InputStream]를 읽어 [ByteArrayOutputStream]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val outputStream = inputStream.toOutputStream()
  * println(outputStream.toString()) // Hello, World!
@@ -203,7 +203,7 @@ fun InputStream.toOutputStream(blockSize: Int = DEFAULT_BLOCK_SIZE): ByteArrayOu
 /**
  * [ByteArray]를 읽어 [ByteArrayOutputStream]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello, World!".toByteArray()
  * val outputStream = byteArray.toOutputStream()
  * println(outputStream.toString()) // Hello, World!
@@ -215,7 +215,7 @@ fun ByteArray.toOutputStream(blockSize: Int = DEFAULT_BLOCK_SIZE): ByteArrayOutp
 /**
  * [String]를 읽어 [ByteArrayOutputStream]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val text = "Hello, World!"
  * val outputStream = text.toOutputStream()
  * println(outputStream.toString()) // Hello, World!
@@ -227,7 +227,7 @@ fun String.toOutputStream(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SI
 /**
  * [InputStream]의 available한 부분을 읽어 [ByteArray]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val bytes = inputStream.availableBytes()
  * println(bytes.toString()) // Hello, World!
@@ -238,7 +238,7 @@ fun InputStream.availableBytes(): ByteArray = toByteArray()
 /**
  * [InputStream]을 읽어 [ByteArray]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val bytes = inputStream.toByteArray()
  * println(bytes.toString()) // Hello, World!
@@ -250,7 +250,7 @@ fun InputStream.toByteArray(blockSize: Int = DEFAULT_BLOCK_SIZE): ByteArray =
 /**
  * [InputStream]을 읽어 [CharArray]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val chars = inputStream.toCharArray()
  * println(chars.toString()) // Hello, World!
@@ -262,7 +262,7 @@ fun InputStream.toCharArray(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_
 /**
  * [InputStream]을 읽어 [ByteBuffer]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val buffer = inputStream.toByteBuffer()
  * println(buffer.toString()) // Hello, World!
@@ -274,7 +274,7 @@ fun InputStream.toByteBuffer(blockSize: Int = DEFAULT_BLOCK_SIZE): ByteBuffer =
 /**
  * [InputStream]을 읽어 문자열로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val text = inputStream.toString()
  * println(text) // Hello, World!
@@ -287,7 +287,7 @@ fun InputStream.toString(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SIZ
 /**
  * [InputStream]을 읽어 UTF-8 문자열로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val text = inputStream.toUtf8String()
  * println(text) // Hello, World!
@@ -299,7 +299,7 @@ fun InputStream.toUtf8String(blockSize: Int = DEFAULT_BLOCK_SIZE): String = toBy
 /**
  * [InputStream]을 라인 단위로 읽어 문자열 컬렉션으로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello\nWorld!".toByteArray())
  * val lines = inputStream.toStringList()
  * println(lines) // [Hello, World!]
@@ -315,7 +315,7 @@ fun InputStream.toStringList(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK
 /**
  * [InputStream]을 라인 단위로 읽어 UTF-8 문자열 컬렉션으로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello\nWorld!".toByteArray())
  * val lines = inputStream.toUtf8StringList()
  * println(lines) // [Hello, World!]
@@ -331,7 +331,7 @@ fun InputStream.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<Stri
 /**
  * [InputStream]을 라인 단위로 읽어 문자열 시퀀스로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello\nWorld!".toByteArray())
  * val lines = inputStream.toLineSequence()
  * println(lines.toList()) // [Hello, World!]
@@ -351,7 +351,7 @@ fun InputStream.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLO
 /**
  * [InputStream]을 라인 단위로 읽어 UTF-8 문자열의 시퀀스로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello\nWorld!".toByteArray())
  * val lines = inputStream.toUtf8LineSequence()
  * println(lines.toList()) // [Hello, World!]
@@ -371,7 +371,7 @@ fun InputStream.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequenc
 /**
  * [ByteArray]를 라인 단위로 읽어 문자열 컬렉션으로 변홥합니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello\nWorld!".toByteArray()
  * val lines = byteArray.toStringList()
  * println(lines) // [Hello, World!]
@@ -383,7 +383,7 @@ fun ByteArray.toStringList(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_S
 /**
  * [ByteArray]를 라인 단위로 읽어 UTF-8 문자열 컬렉션으로 변홥합니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello\nWorld!".toByteArray()
  * val lines = byteArray.toUtf8StringList()
  * println(lines) // [Hello, World!]
@@ -395,7 +395,7 @@ fun ByteArray.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<String
 /**
  * [ByteArray]를 라인 단위로 읽어 문자열 시퀀스로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello\nWorld!".toByteArray()
  * val lines = byteArray.toLineSequence()
  * println(lines.toList()) // [Hello, World!]
@@ -407,7 +407,7 @@ fun ByteArray.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK
 /**
  * [ByteArray]를 라인 단위로 읽어 UTF-8 문자열 시퀀스로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val byteArray = "Hello\nWorld!".toByteArray()
  * val lines = byteArray.toUtf8LineSequence()
  * println(lines.toList()) // [Hello, World!]
@@ -419,7 +419,7 @@ fun ByteArray.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<
 /**
  * [InputStream]을 읽어 [dst]에 씁니다.
  *
- * ```
+ * ```kotlin
  * val inputStream = ByteArrayInputStream("Hello, World!".toByteArray())
  * val buffer = ByteBuffer.allocate(1024)
  * val readCount = inputStream.putTo(buffer)

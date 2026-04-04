@@ -34,6 +34,15 @@ object Networkx: KLogging() {
 
     /**
      * [ip] address 문자열이 IP4 형식의 문자열인가?
+     *
+     * ```kotlin
+     * Networkx.isIpv4Address("192.168.0.1")  // true
+     * Networkx.isIpv4Address("256.0.0.1")    // false
+     * Networkx.isIpv4Address("not-an-ip")    // false
+     * ```
+     *
+     * @param ip 검사할 IP 주소 문자열
+     * @return IPv4 형식이면 true, 아니면 false
      */
     fun isIpv4Address(ip: String): Boolean = ipToOptionInt(ip) != null
 
@@ -138,6 +147,14 @@ object Networkx: KLogging() {
 
     /**
      * [InetAddress]가 IPv4인 경우 정수 표현으로 변환합니다.
+     *
+     * ```kotlin
+     * val addr = InetAddress.getByName("192.168.0.1")
+     * Networkx.inetAddressToInt(addr)  // 0xC0A80001 = 3232235521
+     * ```
+     *
+     * @param inetAddress IPv4 주소
+     * @throws IllegalArgumentException IPv4가 아닌 경우
      */
     @JvmStatic
     fun inetAddressToInt(inetAddress: InetAddress): Int {
@@ -173,6 +190,16 @@ object Networkx: KLogging() {
      * 전체/부분 IPv4 문자열을 `(networkIp, netmask)` 블록으로 변환합니다.
      *
      * `prefixLen`이 null이고 부분 IP를 전달하면 `arr.size * 8`을 prefix 길이로 간주합니다.
+     *
+     * ```kotlin
+     * val (net, mask) = Networkx.ipToIpBlock("192.168.0.0", 24)
+     * // net  = 0xC0A80000
+     * // mask = 0xFFFFFF00
+     * ```
+     *
+     * @param ip IPv4 주소 (전체 또는 부분)
+     * @param prefixLen 서브넷 마스크 길이 (0–32), null이면 자동 결정
+     * @return (networkIp, netmask) 쌍
      */
     @JvmStatic
     fun ipToIpBlock(ip: String, prefixLen: Int?): Pair<Int, Int> {
@@ -189,6 +216,16 @@ object Networkx: KLogging() {
 
     /**
      * CIDR 표기(`x.x.x.x/n`)를 `(networkIp, netmask)` 블록으로 변환합니다.
+     *
+     * ```kotlin
+     * val (net, mask) = Networkx.cidrToIpBlock("10.0.0.0/8")
+     * // net  = 0x0A000000
+     * // mask = 0xFF000000
+     * ```
+     *
+     * @param cidr CIDR 형식의 문자열 (예: "192.168.0.0/24")
+     * @return (networkIp, netmask) 쌍
+     * @throws IllegalArgumentException 유효하지 않은 CIDR 형식인 경우
      */
     fun cidrToIpBlock(cidr: String): Pair<Int, Int> {
         val arr = cidr.split('/')
@@ -203,6 +240,18 @@ object Networkx: KLogging() {
 
     /**
      * 정수 IP가 지정한 IP 블록에 포함되는지 확인합니다.
+     *
+     * ```kotlin
+     * val block = Networkx.cidrToIpBlock("192.168.0.0/24")
+     * val ip    = Networkx.ipToInt("192.168.0.10")
+     * Networkx.isIpInBlock(ip, block)  // true
+     * val ip2   = Networkx.ipToInt("10.0.0.1")
+     * Networkx.isIpInBlock(ip2, block) // false
+     * ```
+     *
+     * @param ip 검사할 정수 IP
+     * @param ipBlock (networkIp, netmask) 쌍
+     * @return 블록에 포함되면 true
      */
     fun isIpInBlock(ip: Int, ipBlock: Pair<Int, Int>): Boolean {
         return (ipBlock.second and ip) == ipBlock.first
@@ -210,18 +259,51 @@ object Networkx: KLogging() {
 
     /**
      * 정수 IP가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     *
+     * ```kotlin
+     * val blocks = listOf(
+     *     Networkx.cidrToIpBlock("10.0.0.0/8"),
+     *     Networkx.cidrToIpBlock("192.168.0.0/24"),
+     * )
+     * val ip = Networkx.ipToInt("192.168.0.5")
+     * Networkx.isIpInBlocks(ip, blocks)  // true
+     * ```
+     *
+     * @param ip 검사할 정수 IP
+     * @param ipBlocks 검사 대상 IP 블록 목록
+     * @return 하나라도 포함되면 true
      */
     fun isIpInBlocks(ip: Int, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         ipBlocks.any { isIpInBlock(ip, it) }
 
     /**
      * 문자열 IPv4가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     *
+     * ```kotlin
+     * val blocks = listOf(Networkx.cidrToIpBlock("192.168.0.0/24"))
+     * Networkx.isIpInBlocks("192.168.0.100", blocks)  // true
+     * Networkx.isIpInBlocks("172.16.0.1",    blocks)  // false
+     * ```
+     *
+     * @param ip 검사할 IPv4 문자열
+     * @param ipBlocks 검사 대상 IP 블록 목록
+     * @return 하나라도 포함되면 true
      */
     fun isIpInBlocks(ip: String, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         isIpInBlocks(ipToInt(ip), ipBlocks)
 
     /**
      * [InetAddress]가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     *
+     * ```kotlin
+     * val blocks = listOf(Networkx.cidrToIpBlock("10.0.0.0/8"))
+     * val addr   = InetAddress.getByName("10.20.30.40")
+     * Networkx.isInetAddressInBlocks(addr, blocks)  // true
+     * ```
+     *
+     * @param inetAddress 검사할 InetAddress
+     * @param ipBlocks 검사 대상 IP 블록 목록
+     * @return 하나라도 포함되면 true
      */
     fun isInetAddressInBlocks(inetAddress: InetAddress, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         isIpInBlocks(inetAddressToInt(inetAddress), ipBlocks)

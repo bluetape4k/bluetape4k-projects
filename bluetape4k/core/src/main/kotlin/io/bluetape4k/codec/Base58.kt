@@ -93,6 +93,14 @@ object Base58: KLogging() {
 
     /**
      * 주어진 문자열을 base58 문자열로 인코딩합니다.
+     *
+     * ```kotlin
+     * val encoded = Base58.encode("Hello, World!")   // "JxF12TrwUP45BMd"
+     * val decoded = Base58.decodeAsString(encoded)   // "Hello, World!"
+     * ```
+     *
+     * @param source 인코딩할 문자열
+     * @return Base58로 인코딩된 문자열
      */
     fun encode(source: String) = encode(source.toUtf8Bytes())
 
@@ -147,6 +155,10 @@ object Base58: KLogging() {
     /**
      * Base58로 인코딩된 문자열을 디코딩해서 문자열로 반환합니다.
      *
+     * ```kotlin
+     * val decoded = Base58.decodeAsString("JxF12TrwUP45BMd")   // "Hello, World!"
+     * ```
+     *
      * @param source 디코딩할 base58 인코딩 문자열
      * @return Base58로 디코딩된 문자열
      */
@@ -179,12 +191,22 @@ object Base58: KLogging() {
 /**
  * Base58 알고리즘을 이용하여 [ByteArray] 값을 문자열로 인코딩합니다.
  *
+ * ```kotlin
+ * val encoded = "Hello, World!".toUtf8Bytes().encodeBase58()   // "JxF12TrwUP45BMd"
+ * val decoded = encoded.decodeBase58().toUtf8String()           // "Hello, World!"
+ * ```
+ *
  * @return Base58로 인코딩된 문자열
  */
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
 
 /**
  * Base58 알고리즘을 이용하여 [String] 값을 인코딩합니다.
+ *
+ * ```kotlin
+ * val encoded = "Hello, World!".encodeBase58()   // "JxF12TrwUP45BMd"
+ * val decoded = encoded.decodeBase58AsString()    // "Hello, World!"
+ * ```
  *
  * @return Base58로 인코딩된 문자열
  */
@@ -193,12 +215,21 @@ fun String.encodeBase58(): String = Base58.encode(this.toUtf8Bytes())
 /**
  * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [ByteArray] 값을 반환합니다.
  *
+ * ```kotlin
+ * val decoded = "JxF12TrwUP45BMd".decodeBase58()               // ByteArray
+ * val original = decoded.toUtf8String()                          // "Hello, World!"
+ * ```
+ *
  * @return Base58로 디코딩된 바이트 배열
  */
 fun String.decodeBase58(): ByteArray = Base58.decode(this)
 
 /**
  * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [String] 값을 반환합니다.
+ *
+ * ```kotlin
+ * val original = "JxF12TrwUP45BMd".decodeBase58AsString()   // "Hello, World!"
+ * ```
  *
  * @return Base58로 디코딩된 문자열
  */

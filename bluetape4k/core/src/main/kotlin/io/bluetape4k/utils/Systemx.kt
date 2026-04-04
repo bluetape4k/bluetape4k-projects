@@ -3,7 +3,30 @@ package io.bluetape4k.utils
 import java.util.*
 
 /**
- * System Property 를 제공해주는 Object
+ * JVM 시스템 속성(System Property)과 환경 변수(Environment Variable)를 편리하게 조회하는 유틸리티 객체입니다.
+ *
+ * Java 버전, OS 정보, 사용자 정보, 파일 경로 등의 시스템 정보를 lazy 프로퍼티로 제공하며,
+ * 시스템 속성 키를 문자열 상수로 정의하여 오타 없이 사용할 수 있습니다.
+ *
+ * ```kotlin
+ * // OS 및 Java 버전 확인
+ * println(Systemx.osName)           // 예: "Mac OS X"
+ * println(Systemx.javaVersion)      // 예: "21"
+ * println(Systemx.availableProcessors) // 예: 8
+ *
+ * // 시스템 속성 조회
+ * val userDir = Systemx.getProp(Systemx.USER_DIR)  // 현재 디렉토리
+ *
+ * // 환경 변수 조회
+ * val home = Systemx.getenv("HOME")  // /Users/username
+ *
+ * // OS 타입 분기
+ * if (Systemx.isMac) {
+ *     println("macOS에서 실행 중")
+ * } else if (Systemx.isUnix) {
+ *     println("Unix/Linux에서 실행 중")
+ * }
+ * ```
  */
 object Systemx {
 

@@ -8,10 +8,12 @@ import java.util.zip.GZIPOutputStream
 /**
  * JDK GZip 알고리즘을 이용한 압축/복원
  *
- * ```
- * val compressor = GZipCompressor()
- * val compressed = compressor.compress("Hello, GZip!")
- * val decompressed = compressor.decompress(compressed)  // "Hello, GZip!"
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, GZip!".toByteArray()
+ * val compressed = Compressors.GZip.compress(data)
+ * val restored = Compressors.GZip.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [GZIPOutputStream]

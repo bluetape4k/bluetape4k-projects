@@ -967,6 +967,25 @@ val hash3 = XXHasher.hash(null, "world")
 XXHasher.hash("test") == XXHasher.hash("test")  // true
 ```
 
+## KDoc 예제 커버리지
+
+> 기준일: 2026-04-04
+
+| 상태 | 파일 수 |
+|------|---------|
+| 예제 있음 | 119 / 157 (76%) |
+| 예제 없음 | 38 |
+
+**파일럿 적용 완료 (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`, `Wildcard`, `Range` — 총 7개 파일, 56개 `kotlin` 코드 블록 추가.
+
+### KDoc 예제 작성 가이드라인
+
+- 코드 블록: ` ```kotlin ` 언어 태그 필수
+- import 생략 (사용법에 집중)
+- 결과는 주석으로 표시: `// "result"`, `// [a, b, c]`
+- 클래스/인터페이스: 생성 + 핵심 메서드 조합 종합 예제
+- 메서드: 단일 호출 + 반환값 주석
+
 ## 참고 자료
 
 - [Kotlin Contracts](https://kotlinlang.org/docs/whatsnew13.html#contracts)

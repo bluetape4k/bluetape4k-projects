@@ -9,6 +9,16 @@ import kotlin.concurrent.withLock
  * 최대 [maxSize]개의 요소를 저장할 수 있으며, 초과 시 가장 오래된 요소가 덮어씌워집니다.
  * 모든 변경/읽기 연산은 [ReentrantLock]으로 보호되어 thread-safe 합니다.
  *
+ * 예제:
+ * ```kotlin
+ * val buffer = RingBuffer<String>(maxSize = 3)
+ * buffer.add("a")
+ * buffer.add("b")
+ * buffer.add("c")
+ * buffer.add("d")  // "a"가 제거되고 "d" 추가
+ * buffer.toList()  // ["b", "c", "d"]
+ * ```
+ *
  * @param E 요소 타입
  * @param maxSize 버퍼의 최대 크기 (1 이상)
  */
@@ -28,17 +38,42 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * 버퍼에 저장된 요소의 수를 반환합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 4)
+     * buffer.addAll(1, 2, 3)
+     * buffer.size  // 3
+     * ```
      */
     val size: Int get() = lock.withLock { _size }
 
     /**
      * 버퍼가 비어 있는지 여부를 반환합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 4)
+     * buffer.isEmpty  // true
+     * buffer.add(1)
+     * buffer.isEmpty  // false
+     * ```
      */
     val isEmpty: Boolean get() = lock.withLock { _size == 0 }
 
     /**
      * 버퍼에 [item]을 추가합니다.
      * 버퍼가 가득 찬 경우, 가장 오래된 요소가 덮어씌워집니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 3)
+     * buffer.add("a")
+     * buffer.add("b")
+     * buffer.add("c")
+     * buffer.add("d")  // "a"가 제거되고 "d" 추가 (overflow)
+     * buffer.toList()  // ["b", "c", "d"]
+     * ```
      *
      * @param item 추가할 요소
      * @return 항상 true
@@ -58,6 +93,15 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
     /**
      * 여러 요소를 순서대로 추가합니다.
      *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 4)
+     * buffer.addAll(1, 2, 3)
+     * buffer.toList()  // [1, 2, 3]
+     * buffer.addAll(4, 5)  // maxSize 초과 시 오래된 요소 제거
+     * buffer.toList()  // [2, 3, 4, 5]
+     * ```
+     *
      * @param elements 추가할 요소들
      * @return 항상 true
      */
@@ -68,6 +112,13 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * 컬렉션의 모든 요소를 순서대로 추가합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 3)
+     * buffer.addAll(listOf("a", "b", "c", "d"))  // maxSize 초과 시 오래된 요소 제거
+     * buffer.toList()  // ["b", "c", "d"]
+     * ```
      *
      * @param elements 추가할 요소 컬렉션
      * @return 항상 true
@@ -80,6 +131,15 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
     /**
      * 지정한 [index] 위치의 요소를 반환합니다.
      * index 0이 가장 오래된 (먼저 추가된) 요소입니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 4)
+     * buffer.addAll(listOf("a", "b", "c"))
+     * buffer[0]  // "a" (가장 오래된 요소)
+     * buffer[2]  // "c" (가장 최근 요소)
+     * buffer[3]  // IndexOutOfBoundsException 발생
+     * ```
      *
      * @param index 0부터 시작하는 인덱스
      * @throws IndexOutOfBoundsException [index]가 범위를 벗어나는 경우
@@ -95,6 +155,14 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
     /**
      * 지정한 [index] 위치의 요소를 [elem]으로 교체합니다.
      *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 4)
+     * buffer.addAll(listOf("a", "b", "c"))
+     * buffer[1] = "x"
+     * buffer.toList()  // ["a", "x", "c"]
+     * ```
+     *
      * @param index 교체할 위치
      * @param elem 새 요소
      * @throws IndexOutOfBoundsException [index]가 범위를 벗어나는 경우
@@ -108,6 +176,17 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * 버퍼의 앞에서 [n]개의 요소를 제거합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 5)
+     * buffer.addAll(1, 2, 3, 4, 5)
+     * buffer.drop(2)
+     * buffer.toList()  // [3, 4, 5]
+     *
+     * buffer.drop(10)  // n >= size이면 전체 제거
+     * buffer.isEmpty   // true
+     * ```
      *
      * @param n 제거할 요소 수
      * @return 이 버퍼 자신
@@ -124,6 +203,15 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * [predicate] 조건을 만족하는 요소를 제거합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 6)
+     * buffer.addAll(listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+     * buffer.toList()        // [4, 5, 6, 7, 8, 9]
+     * buffer.removeIf { it % 3 == 0 }  // 3의 배수 제거
+     * buffer.toList()        // [4, 5, 7, 8]
+     * ```
      *
      * @param predicate 제거 조건
      * @return 하나 이상 제거되었으면 true
@@ -153,6 +241,15 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
     /**
      * 버퍼의 가장 앞(오래된) 요소를 제거하고 반환합니다.
      *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 4)
+     * buffer.addAll(listOf("a", "b", "c"))
+     * buffer.next()   // "a" (제거 후 반환)
+     * buffer.next()   // "b"
+     * buffer.size     // 1
+     * ```
+     *
      * @return 제거된 요소
      * @throws NoSuchElementException 버퍼가 비어 있는 경우
      */
@@ -171,6 +268,16 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * 버퍼의 모든 요소를 제거합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 4)
+     * buffer.addAll(listOf("a", "b", "c"))
+     * buffer.size     // 3
+     * buffer.clear()
+     * buffer.size     // 0
+     * buffer.isEmpty  // true
+     * ```
      */
     fun clear(): Unit = lock.withLock {
         clearInternal()
@@ -178,6 +285,16 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
 
     /**
      * 버퍼의 요소를 순서대로 (오래된 순) [List]로 반환합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 5)
+     * buffer.addAll(1, 2, 3, 4, 5)
+     * buffer.toList()  // [1, 2, 3, 4, 5]
+     *
+     * buffer.add(6)    // overflow: 1 제거
+     * buffer.toList()  // [2, 3, 4, 5, 6]
+     * ```
      *
      * @return 요소 리스트
      */

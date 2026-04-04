@@ -19,6 +19,26 @@ import java.time.temporal.WeekFields
  * [ZonedDateTime] 을 생성합니다.
  *
  * 기본 [zoneId]는 UTC입니다.
+ *
+ * ```kotlin
+ * // UTC 기준 특정 시각 생성
+ * val utc = zonedDateTimeOf(2024, 3, 15, 9, 30, 0)
+ * // 2024-03-15T09:30:00Z
+ *
+ * // 서울 시간대로 생성
+ * val seoul = zonedDateTimeOf(2024, 3, 15, 9, 30, 0, zoneId = ZoneId.of("Asia/Seoul"))
+ * // 2024-03-15T09:30:00+09:00[Asia/Seoul]
+ * ```
+ *
+ * @param year 년도
+ * @param monthOfYear 월 (1..12, 기본값 1)
+ * @param dayOfMonth 일 (1..31, 기본값 1)
+ * @param hourOfDay 시 (0..23, 기본값 0)
+ * @param minuteOfHour 분 (0..59, 기본값 0)
+ * @param secondOfMinute 초 (0..59, 기본값 0)
+ * @param nanoOfSecond 나노초 (0..999999999, 기본값 0)
+ * @param zoneId 시간대 (기본값 UTC)
+ * @return 생성된 [ZonedDateTime]
  */
 fun zonedDateTimeOf(
     year: Int,
@@ -36,6 +56,22 @@ fun zonedDateTimeOf(
  * [localDate], [localTime]을 이용하여 [ZonedDateTime] 을 생성합니다.
  *
  * 기본 zone은 UTC입니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.of(2024, 6, 1)
+ * val time = LocalTime.of(12, 0, 0)
+ *
+ * val zdt = zonedDateTimeOf(date, time)
+ * // 2024-06-01T12:00:00Z
+ *
+ * val zdtSeoul = zonedDateTimeOf(date, time, ZoneId.of("Asia/Seoul"))
+ * // 2024-06-01T12:00:00+09:00[Asia/Seoul]
+ * ```
+ *
+ * @param localDate 날짜 (기본값 Unix epoch 시작일)
+ * @param localTime 시각 (기본값 자정)
+ * @param zoned 시간대 (기본값 UTC)
+ * @return 생성된 [ZonedDateTime]
  */
 fun zonedDateTimeOf(
     localDate: LocalDate = LocalDate.ofEpochDay(0),
@@ -46,36 +82,74 @@ fun zonedDateTimeOf(
 
 /**
  * ISO 8601 기준으로 해당 년도의 Week의 수를 반환합니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 1)
+ * zdt.weekyear // 2024
+ * ```
  */
 val ZonedDateTime.weekyear: Int get() = this[WeekFields.ISO.weekBasedYear()]
 
 /**
  * ISO 8601 기준으로 해당 년도의 몇 번째 Week인지를 반환합니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 8)
+ * zdt.weekOfWeekyear // 2 (해당 년도의 2번째 주)
+ * ```
  */
 val ZonedDateTime.weekOfWeekyear: Int get() = this[WeekFields.ISO.weekOfWeekBasedYear()]
 
 /**
  * ISO 8601 기준으로 해당 월의 몇 번째 주인지를 반환합니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 8)
+ * zdt.weekOfMonth // 2 (해당 월의 2번째 주)
+ * ```
  */
 val ZonedDateTime.weekOfMonth: Int get() = this[WeekFields.ISO.weekOfMonth()]
 
 /**
  * [ZonedDateTime]의 Day 이후의 값을 초 단위로 반환합니다. (Hour, Minute, Second)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 1, 1, 30, 45)
+ * zdt.secondsOfDay // 1 * 3600 + 30 * 60 + 45 = 5445
+ * ```
  */
 val ZonedDateTime.secondsOfDay: Int get() = this[ChronoField.SECOND_OF_DAY]
 
 /**
  * [ZonedDateTime]의 Day 이후의 값을 밀리초 단위로 반환합니다. (Hour, Minute, Second, Millis)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 1, 0, 0, 1)
+ * zdt.millisOfDay // 1000
+ * ```
  */
 val ZonedDateTime.millisOfDay: Int get() = this[ChronoField.MILLI_OF_DAY]
 
 /**
  * [ZonedDateTime]의 Day 이후의 값을 마이크로초 단위로 반환합니다. (Hour, Minute, Second, Millis, Nanos)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 1, 0, 0, 1)
+ * zdt.nanoOfDay // 1_000_000_000L
+ * ```
  */
 val ZonedDateTime.nanoOfDay: Long get() = this.getLong(ChronoField.NANO_OF_DAY)
 
 /**
  * [ZonedDateTime]을 UTC 기준의 [Instant]로 변환합니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 1, 1, 0, 0, 0, zoneId = ZoneId.of("Asia/Seoul"))
+ * val instant = zdt.toUtcInstant()
+ * // 2023-12-31T15:00:00Z (UTC 기준 -9시간)
+ * ```
+ *
+ * @return UTC 기준 [Instant]
  */
 fun ZonedDateTime.toUtcInstant(): Instant =
     toInstant()
@@ -83,47 +157,114 @@ fun ZonedDateTime.toUtcInstant(): Instant =
 //fun ZonedDateTime.startOfYear(): ZonedDateTime = zonedDateTimeOf(year, 1, 1)
 /**
  * [ZonedDateTime]의 해당 년도의 마지막 시각을 반환합니다. (예: 12월 31일 23:59:59.999999999)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 6, 15)
+ * zdt.endOfYear() // 2024-12-31T23:59:59.999999999Z
+ * ```
+ *
+ * @return 해당 년도의 마지막 나노초 시각
  */
 fun ZonedDateTime.endOfYear(): ZonedDateTime = endOfYear(year, zone)
 
 /**
  * [ZonedDateTime]의 해당 분기의 시작 시각을 반환합니다. (예: 4월 1일 00:00:00.000000000)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 5, 20)   // 5월 → Q2
+ * zdt.startOfQuarter() // 2024-04-01T00:00:00Z
+ * ```
+ *
+ * @return 해당 분기 첫날 자정 시각
  */
 fun ZonedDateTime.startOfQuarter(): ZonedDateTime = startOfQuarter(year, monthValue, zone)
 
 /**
  * [ZonedDateTime]의 해당 분기의 마지막 시각을 반환합니다. (예: 6월 30일 23:59:59.999999999)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 5, 20)   // 5월 → Q2
+ * zdt.endOfQuarter() // 2024-06-30T23:59:59.999999999Z
+ * ```
+ *
+ * @return 해당 분기 마지막 나노초 시각
  */
 fun ZonedDateTime.endOfQuarter(): ZonedDateTime = endOfQuarter(year, monthValue, zone)
 
 /**
  * [ZonedDateTime]의 해당 월의 시작 시각을 반환합니다. (예: 4월 1일 00:00:00.000000000)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 15, 10, 30)
+ * zdt.startOfMonth() // 2024-04-01T00:00:00Z
+ * ```
+ *
+ * @return 해당 월 첫날 자정 시각
  */
 fun ZonedDateTime.startOfMonth(): ZonedDateTime = withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS)
 
 /**
  * [ZonedDateTime]의 해당 월의 마지막 시각을 반환합니다. (예: 4월 30일 23:59:59.999999999)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 15, 10, 30)
+ * zdt.endOfMonth() // 2024-04-30T23:59:59.999999999Z
+ * ```
+ *
+ * @return 해당 월 마지막 나노초 시각
  */
 fun ZonedDateTime.endOfMonth(): ZonedDateTime = startOfMonth().plusMonths(1).minusNanos(1)
 
 /**
  * [ZonedDateTime]의 해당 주의 시작 시각을 반환합니다. (예: 4월 3일 00:00:00.000000000)
+ *
+ * ISO 8601 기준 주 시작은 월요일(MONDAY)입니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 4) // 목요일
+ * zdt.startOfWeek() // 2024-04-01T00:00:00Z (월요일)
+ * ```
+ *
+ * @return 해당 주 월요일 자정 시각
  */
 fun ZonedDateTime.startOfWeek(): ZonedDateTime =
     startOfDay().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
 /**
  * [ZonedDateTime]의 해당 주의 마지막 시각을 반환합니다. (예: 4월 10일 23:59:59.999999999)
+ *
+ * ISO 8601 기준 주 마지막은 일요일(SUNDAY)입니다.
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 4) // 목요일
+ * zdt.endOfWeek() // 2024-04-07T23:59:59.999999999Z (일요일)
+ * ```
+ *
+ * @return 해당 주 일요일 마지막 나노초 시각
  */
 fun ZonedDateTime.endOfWeek(): ZonedDateTime = startOfWeek().plusDays(DaysPerWeek.toLong()).minusNanos(1)
 
 /**
  * [ZonedDateTime]의 해당 일의 시작 시각을 반환합니다. (예: 4월 3일 00:00:00.000000000)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 3, 15, 30, 45)
+ * zdt.startOfDay() // 2024-04-03T00:00:00Z
+ * ```
+ *
+ * @return 해당 일 자정 시각
  */
 fun ZonedDateTime.startOfDay(): ZonedDateTime = truncatedTo(ChronoUnit.DAYS)
 
 /**
  * [ZonedDateTime]의 해당 일의 마지막 시각을 반환합니다. (예: 4월 3일 23:59:59.999999999)
+ *
+ * ```kotlin
+ * val zdt = zonedDateTimeOf(2024, 4, 3, 15, 30, 45)
+ * zdt.endOfDay() // 2024-04-03T23:59:59.999999999Z
+ * ```
+ *
+ * @return 해당 일 마지막 나노초 시각
  */
 fun ZonedDateTime.endOfDay(): ZonedDateTime = startOfDay().plusDays(1).minusNanos(1)
 
@@ -281,6 +422,15 @@ fun ZonedDateTime.prevDayOfWeek(): ZonedDateTime = this.minusWeeks(1)
 
 /**
  * 두 개의 [ZonedDateTime] 중 더 작은 값을 반환합니다
+ *
+ * ```kotlin
+ * val a = zonedDateTimeOf(2024, 1, 1)
+ * val b = zonedDateTimeOf(2024, 6, 1)
+ * (a min b) // 2024-01-01T00:00:00Z
+ * (null min b) // b
+ * ```
+ *
+ * @return 더 작은 [ZonedDateTime], 둘 다 null이면 null
  */
 infix fun ZonedDateTime?.min(that: ZonedDateTime?): ZonedDateTime? = when {
     this == null -> that
@@ -291,6 +441,15 @@ infix fun ZonedDateTime?.min(that: ZonedDateTime?): ZonedDateTime? = when {
 
 /**
  * 두 개의 [ZonedDateTime] 중 더 큰 값을 반환합니다
+ *
+ * ```kotlin
+ * val a = zonedDateTimeOf(2024, 1, 1)
+ * val b = zonedDateTimeOf(2024, 6, 1)
+ * (a max b) // 2024-06-01T00:00:00Z
+ * (null max a) // a
+ * ```
+ *
+ * @return 더 큰 [ZonedDateTime], 둘 다 null이면 null
  */
 infix fun ZonedDateTime?.max(that: ZonedDateTime?): ZonedDateTime? = when {
     this == null -> that
@@ -301,12 +460,34 @@ infix fun ZonedDateTime?.max(that: ZonedDateTime?): ZonedDateTime? = when {
 
 /**
  * [ZonedDateTime]가 [that]과 같은지 여부를 반환합니다.
+ *
+ * 시간대가 다르더라도 동일한 시각을 가리키면 `true`를 반환합니다.
+ *
+ * ```kotlin
+ * val utc   = zonedDateTimeOf(2024, 1, 1, 0, 0, 0, zoneId = ZoneOffset.UTC)
+ * val odt   = OffsetDateTime.of(2024, 1, 1, 9, 0, 0, 0, ZoneOffset.ofHours(9))
+ * utc.equalTo(odt) // true (UTC 00:00 == KST 09:00)
+ * ```
+ *
+ * @param that 비교할 [OffsetDateTime]
+ * @return 동일한 시각이면 `true`
  */
 fun ZonedDateTime.equalTo(that: OffsetDateTime): Boolean =
     this.toOffsetDateTime().isEqual(that)
 
 /**
  * [ZonedDateTime]가 [that]과 초 단위까지 같은지 여부를 반환합니다.
+ *
+ * 나노초 이하 차이를 무시하고 초 단위까지 동일하면 `true`를 반환합니다.
+ *
+ * ```kotlin
+ * val a = zonedDateTimeOf(2024, 1, 1, 12, 0, 30, 100)
+ * val b = zonedDateTimeOf(2024, 1, 1, 12, 0, 30, 999)
+ * a.equalToSeconds(b) // true (나노초 차이 무시)
+ * ```
+ *
+ * @param that 비교할 [ZonedDateTime]
+ * @return 초 단위까지 동일하면 `true`, 어느 한쪽이 null이면 `false`
  */
 fun ZonedDateTime?.equalToSeconds(that: ZonedDateTime?): Boolean = when {
     (this == null || that == null) -> false
@@ -315,6 +496,17 @@ fun ZonedDateTime?.equalToSeconds(that: ZonedDateTime?): Boolean = when {
 
 /**
  * [ZonedDateTime]가 [that]과 밀리초 단위까지 같은지 여부를 반환합니다.
+ *
+ * 밀리초 이하(마이크로초·나노초) 차이를 무시하고 밀리초 단위까지 동일하면 `true`를 반환합니다.
+ *
+ * ```kotlin
+ * val a = zonedDateTimeOf(2024, 1, 1, 12, 0, 30, 123_000_000)
+ * val b = zonedDateTimeOf(2024, 1, 1, 12, 0, 30, 123_999_999)
+ * a.equalToMillis(b) // true (마이크로초·나노초 차이 무시)
+ * ```
+ *
+ * @param that 비교할 [ZonedDateTime]
+ * @return 밀리초 단위까지 동일하면 `true`, 어느 한쪽이 null이면 `false`
  */
 fun ZonedDateTime?.equalToMillis(that: ZonedDateTime?): Boolean = when {
     (this == null || that == null) -> false

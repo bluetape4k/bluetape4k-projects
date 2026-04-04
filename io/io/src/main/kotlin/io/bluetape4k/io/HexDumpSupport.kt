@@ -7,7 +7,7 @@ import java.io.OutputStream
 /**
  * [ByteArray] 정보를 Hex Dump 형식으로 [out] 에 출력합니다.
  *
- * ```
+ * ```kotlin
  * val bytes = byteArrayOf(0x01, 0x02, 0x03, 0x04)
  * val dump = bytes.hexDump()
  * println(dump)
@@ -32,7 +32,7 @@ fun ByteArray.hexDump(
 /**
  * [ByteArray] 정보를 Hex Dump 형식으로 [out] 에 출력합니다.
  *
- * ```
+ * ```kotlin
  * val bytes = byteArrayOf(0x01, 0x02, 0x03, 0x04)
  * val out = ByteArrayOutputStream()
  * bytes.hexDump(out)

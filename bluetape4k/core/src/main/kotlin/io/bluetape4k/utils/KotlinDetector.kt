@@ -13,12 +13,22 @@ import kotlin.reflect.jvm.kotlinFunction
 
 /**
  * Kotlin 관련 유틸리티 클래스
+ *
+ * ```kotlin
+ * val present = KotlinDetector.isKotlinPresent          // true (Kotlin 런타임이 클래스패스에 있으면)
+ * val isKt = KotlinDetector.isKotlinType(String::class.java) // true
+ * val isJava = KotlinDetector.isKotlinType(java.util.Date::class.java) // false
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 object KotlinDetector: KLogging() {
 
     /**
      * Kotlin 언어로 정의된 수형에 대한 Kotlin Metadata Annotation 을 반환합니다.
+     *
+     * ```kotlin
+     * val meta = KotlinDetector.kotlinMetadata  // kotlin.Metadata 클래스, 없으면 null
+     * ```
      */
     val kotlinMetadata: Class<out Annotation>? by lazy {
         runCatching {
@@ -28,6 +38,12 @@ object KotlinDetector: KLogging() {
 
     /**
      * 현 프로세스에서 Kotlin을 사용할 수 있는지 알려준다
+     *
+     * ```kotlin
+     * if (KotlinDetector.isKotlinPresent) {
+     *     // Kotlin 런타임 사용 가능
+     * }
+     * ```
      */
     inline val isKotlinPresent: Boolean
         get() = kotlinMetadata != null

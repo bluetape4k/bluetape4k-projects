@@ -1,7 +1,18 @@
 package io.bluetape4k
 
 /**
- * 정렬 방향
+ * 정렬 방향을 나타내는 열거형입니다.
+ *
+ * ```kotlin
+ * // 오름차순 정렬 방향 사용
+ * val dir = SortDirection.ASC
+ * println(dir.direction) // 1
+ *
+ * // 정수 값으로 방향 결정
+ * val asc = SortDirection.of(1)   // SortDirection.ASC
+ * val desc = SortDirection.of(-1) // SortDirection.DESC
+ * val alsoDesc = SortDirection.of(0) // SortDirection.DESC (0 이하는 내림차순)
+ * ```
  *
  * @property direction 방향 값 (1: 오름차순, -1: 내림차순)
  */

@@ -89,10 +89,12 @@ fun Path.combineSafe(relativePath: Path): Path {
 }
 
 /**
- * Remove all redundant `.` and `..` path elements. Leading `..` are also considered redundant.
+ * 경로에서 `.`과 `..` 등 중복된 요소를 제거한 정규화된 [Path]를 반환합니다.
+ * 절대 경로인 경우 루트를 기준으로 상대화한 뒤 정규화합니다.
  *
- * ```
- * Paths.get("/home/user/../test.txt").normalize() // "/home/user/test.txt"
+ * ```kotlin
+ * Paths.get("/home/user/../docs/./report.txt").normalizeAndRelativize()
+ * // → "home/docs/report.txt"
  * ```
  */
 fun Path.normalizeAndRelativize(): Path =
@@ -112,8 +114,20 @@ private fun Path.dropLeadingTopDirs(): Path {
 }
 
 /**
- * Append a [relativePath] safely that means that adding any extra `..` path elements will not let
- * access anything out of the reference directory (unless you have symbolic or hard links or multiple mount points)
+ * [relativePath]를 현재 [File] 디렉토리에 안전하게 결합합니다.
+ * `..`가 포함된 상대 경로는 [InvalidPathException]을 발생시켜 디렉토리 탈출을 방지합니다.
+ *
+ * ```kotlin
+ * val base = File("/var/data")
+ * val safe = base.combineSafe(Paths.get("reports/2024/report.csv"))
+ * // → File("/var/data/reports/2024/report.csv")
+ *
+ * // 디렉토리 탈출 시도 → InvalidPathException 발생
+ * // base.combineSafe(Paths.get("../secret.txt"))
+ * ```
+ *
+ * @param relativePath 결합할 상대 경로
+ * @throws InvalidPathException 상대 경로가 `..`로 시작하거나 절대 경로인 경우
  */
 fun File.combineSafe(relativePath: Path): File {
     val normalized = relativePath.normalizeAndRelativize()

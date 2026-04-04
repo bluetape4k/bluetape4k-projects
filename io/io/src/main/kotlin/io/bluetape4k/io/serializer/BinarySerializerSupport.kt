@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 /**
  * 객체를 Binary 방식으로 직렬화를 하여 [ByteBuffer]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val serializer = JdkBinarySerializer()
  * val buffer = serializer.serializeAsByteBuffer("Hello, World!")
  * ```
@@ -20,7 +20,7 @@ fun BinarySerializer.serializeAsByteBuffer(graph: Any?): ByteBuffer =
 /**
  * 직렬화된 [buffer]를 읽어 대상 객체로 역직렬화합니다.
  *
- * ```
+ * ```kotlin
  * val serializer = JdkBinarySerializer()
  * val buffer = serializer.serializeAsByteBuffer("Hello, World!")
  * val text = serializer.deserialize<String>(buffer)  // text="Hello, World!"
@@ -36,7 +36,7 @@ fun <T: Any> BinarySerializer.deserialize(buffer: ByteBuffer): T? =
 /**
  * 객체를 Binary 방식으로 직렬화를 하여 [okio.Buffer]로 반환합니다.
  *
- * ```
+ * ```kotlin
  * val serializer = JdkBinarySerializer()
  * val buffer = serializer.serializeAsOkioBuffer("Hello, World!")
  * ```
@@ -50,7 +50,7 @@ fun BinarySerializer.serializeAsOkioBuffer(graph: Any?): okio.Buffer =
 /**
  * 직렬화된 [buffer]를 읽어 대상 객체로 역직렬화합니다.
  *
- * ```
+ * ```kotlin
  * val serializer = JdkBinarySerializer()
  * val buffer = serializer.serializeAsOkioBuffer("Hello, World!")
  * val text = serializer.deserialize<String>(buffer)  // text="Hello, World!"

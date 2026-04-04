@@ -6,6 +6,15 @@ package io.bluetape4k.collections.permutations
  * 순열의 요소를 순차적으로 순회합니다. 변경 불가능한(immutable) 순열의 특성상
  * [remove] 연산은 지원하지 않습니다.
  *
+ * 예제:
+ * ```kotlin
+ * val perm = permutationOf(1, 2, 3)
+ * val iter = PermutationIterator(perm)
+ * while (iter.hasNext()) {
+ *   println(iter.next())  // 1, 2, 3 출력
+ * }
+ * ```
+ *
  * @param E 요소 타입
  * @param underlying 순회할 순열
  */

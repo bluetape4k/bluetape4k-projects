@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Commons Compress 라이브러리의 [DeflateCompressorOutputStream]을 이용한 Deflate 압축기
  *
- * ```
- * val compressor = ApacheDeflateCompressor()
- * val compressed = compressor.compress("Hello, World!".toByteArray())
- * val plain = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, World!".toByteArray()
+ * val compressed = Compressors.ApacheDeflate.compress(data)
+ * val restored = Compressors.ApacheDeflate.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [DeflateCompressorOutputStream]

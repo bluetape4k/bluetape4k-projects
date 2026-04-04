@@ -10,18 +10,17 @@ import java.util.concurrent.atomic.AtomicReference
  */
 object FutureUtils {
 
-    // TODO: 이건 VirtualThreadUtils 로 이동 
+    // TODO: 이건 VirtualThreadUtils 로 이동
     /**
      * [futures] 중 가장 먼저 terminal state(성공/실패/취소)로 완료되는 것을 반환하고, 나머지 futures 는 취소합니다.
      *
-     * ```
-     * val future1 = async { delay(1000); 1 }
-     * val future2 = async { delay(2000); 2 }
-     * val future3 = async { delay(3000); 3 }
-     * val first = firstCompleted(listOf(future1, future2, future3))    // 1
+     * ```kotlin
+     * val f1 = futureOf { Thread.sleep(300); 1 }
+     * val f2 = futureOf { Thread.sleep(100); 2 }
+     * val f3 = futureOf { Thread.sleep(200); 3 }
+     * val result = firstCompleted(listOf(f1, f2, f3)).get()  // 2 (가장 먼저 완료)
      * ```
      *
-     * @param V
      * @param futures [CompletableFuture]의 컬렉션
      * @return 가장 먼저 완료된 [CompletableFuture]
      */
@@ -47,6 +46,16 @@ object FutureUtils {
      * [futures] 중 가장 먼저 성공한 것을 반환하고, 나머지 futures 는 취소합니다.
      *
      * 모든 future가 실패/취소되면 첫 번째 예외를 반환합니다.
+     *
+     * ```kotlin
+     * val f1 = futureOf { throw RuntimeException("fail") }
+     * val f2 = futureOf { 2 }
+     * val f3 = futureOf { 3 }
+     * val result = firstSucceeded(listOf(f1, f2, f3)).get()  // 2 또는 3 (먼저 성공한 것)
+     * ```
+     *
+     * @param futures [CompletableFuture]의 컬렉션
+     * @return 가장 먼저 성공한 [CompletableFuture]
      */
     fun <V> firstSucceeded(futures: Iterable<CompletableFuture<V>>): CompletableFuture<V> {
         val futureList = futures.toList()
@@ -78,7 +87,7 @@ object FutureUtils {
     /**
      * `List<CompletableFuture>`을 `CompletableFuture<List>` 로 변환합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *    futureOf { 1 },
      *    futureOf { 2 },
@@ -107,12 +116,13 @@ object FutureUtils {
 
     /**
      * [futures] 중에 가장 먼저 완료되는 결과를 반환하는 [CompletableFuture]를 생성합니다.
+     * 성공/실패 여부와 관계없이 가장 먼저 terminal state에 도달한 future의 결과를 반환합니다.
      *
-     * ```
-     * val future1 = async { delay(1000); 1 }
-     * val future2 = async { delay(2000); 2 }
-     * val future3 = async { delay(3000); 3 }
-     * val first = anyOf(listOf(future1, future2, future3))    // 1
+     * ```kotlin
+     * val f1 = futureOf { Thread.sleep(300); 1 }
+     * val f2 = futureOf { Thread.sleep(100); 2 }
+     * val f3 = futureOf { Thread.sleep(200); 3 }
+     * val result = anyOf(listOf(f1, f2, f3)).get()  // 2 (가장 먼저 완료)
      * ```
      *
      * @param futures 결과를 기다리는 CompletableFuture 컬렉션
@@ -128,7 +138,7 @@ object FutureUtils {
     /**
      * `CompletableFuture` 컬렉션에서 성공한 결과들만 반환하도록 합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *   futureOf { 1 },
      *   futureOf { throw RuntimeException() },
@@ -158,7 +168,7 @@ object FutureUtils {
     /**
      * [iterator]의 결과를 이용하여 [op] 함수를 이용하여 결과값을 계산합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },
@@ -185,7 +195,7 @@ object FutureUtils {
     /**
      * [futures]의 결과를 이용하여 [op] 함수를 이용하여 결과값을 계산합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },
@@ -211,7 +221,7 @@ object FutureUtils {
     /**
      * [iterator]의 결과를 이용하여 [op] 함수를 이용하여 결과값을 계산합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },
@@ -236,7 +246,7 @@ object FutureUtils {
     /**
      * [futures]의 결과를 이용하여 [op] 함수를 이용하여 결과값을 계산합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },
@@ -260,7 +270,7 @@ object FutureUtils {
     /**
      * [futures]의 결과를 [action] 함수를 이용하여 변환합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },
@@ -289,7 +299,7 @@ object FutureUtils {
     /**
      * [futures]의 결과를 [combiner] 함수를 이용하여 결합한 값을 반환합니다.
      *
-     * ```
+     * ```kotlin
      * val futures = listOf(
      *  futureOf { 1 },
      *  futureOf { 2 },

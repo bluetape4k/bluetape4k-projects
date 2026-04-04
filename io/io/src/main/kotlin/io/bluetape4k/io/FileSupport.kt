@@ -189,7 +189,13 @@ fun File.moveAsync(dest: File): CompletableFuture<Void> =
     CompletableFuture.runAsync({ this@moveAsync.move(dest) }, VirtualThreadExecutor)
 
 /**
- * 파일이 존재하면, 삭제합니다.
+ * 파일이 존재하면 삭제합니다. 파일이 없으면 아무 작업도 수행하지 않습니다.
+ *
+ * ```kotlin
+ * val file = File.createTempFile("temp", ".txt")
+ * file.deleteIfExists() // 파일이 있으면 삭제
+ * file.exists() // false
+ * ```
  */
 fun File.deleteIfExists() {
     if (this.exists()) {

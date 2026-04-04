@@ -5,7 +5,15 @@ import java.util.*
 
 
 /**
- * 문자열을 16진법 (Hex Decimal) 문자로 인코딩/디코딩 합니다
+ * 문자열을 16진법 (Hex Decimal) 문자로 인코딩/디코딩 합니다.
+ *
+ * Java 표준 [java.util.HexFormat] 을 사용하여 바이트 배열을 16진수 문자열로 변환합니다.
+ *
+ * ```kotlin
+ * val encoder = HexStringEncoder()
+ * val encoded = encoder.encode("Hello, World!".toUtf8Bytes())   // "48656c6c6f2c20576f726c6421"
+ * val decoded = encoder.decode(encoded).toUtf8String()           // "Hello, World!"
+ * ```
  */
 class HexStringEncoder: StringEncoder {
 

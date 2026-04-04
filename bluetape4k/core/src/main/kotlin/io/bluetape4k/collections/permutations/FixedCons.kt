@@ -6,6 +6,13 @@ package io.bluetape4k.collections.permutations
  * [Cons]와 달리 tail이 생성 시점에 이미 결정되어 있으므로
  * 동기화가 필요 없고, [isTailDefined]는 항상 true입니다.
  *
+ * 예제:
+ * ```kotlin
+ * val perm = cons(1, cons(2, cons(3, emptyPermutation())))
+ * perm.head // 1
+ * perm.tail.head // 2 (tail이 이미 정의됨)
+ * ```
+ *
  * @param E 요소 타입
  * @param head 순열의 첫 번째 요소
  * @param tail 나머지 순열

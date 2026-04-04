@@ -6,7 +6,7 @@ import java.net.URLConnection
 /**
  * URL의 컨텐츠를 다운로드 받아 ByteArray로 읽어옵니다.
  *
- * ```
+ * ```kotlin
  * val url = URL("https://www.google.com")
  * val bytes = url.toByteArray()
  * ```
@@ -19,7 +19,7 @@ fun URL.toByteArray(): ByteArray = openStream().use { it.toByteArray() }
 /**
  * [URLConnection]의 컨텐츠 정보를 다운로드 받아 ByteArray로 읽어옵니다.
  *
- * ```
+ * ```kotlin
  * val url = URL("https://www.google.com")
  * val connection = url.openConnection()
  * val bytes = connection.toByteArray()

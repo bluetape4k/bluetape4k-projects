@@ -7,7 +7,7 @@ import java.util.*
 /**
  * [Base62] 를 이용하여 [UUID]를 문자열로 encoding/decoding 합니다.
  *
- * ```
+ * ```kotlin
  * val uuid = UUID.randomUUID()      // uuid=24738134-9d88-6645-4ec8-d63aa2031015
  * val encoded = Url62.encode(uuid)  // encoded=16mVan3wbAXR6tQwIbfS5d
  * ```
@@ -17,7 +17,7 @@ object Url62 {
     /**
      * Base62 알고리즘을 이용하여 encoding 합니다.
      *
-     * ```
+     * ```kotlin
      * val uuid = UUID.randomUUID()      // uuid=24738134-9d88-6645-4ec8-d63aa2031015
      * val encoded = Url62.encode(uuid)  // 16mVan3wbAXR6tQwIbfS5d
      * ```
@@ -30,7 +30,7 @@ object Url62 {
     /**
      * Base62로 인코딩된 문자열을 디코딩하여 UUID로 변환합니다
      *
-     * ```
+     * ```kotlin
      * val encoded = "16mVan3wbAXR6tQwIbfS5d"
      * val decoded = Url62.decode(encoded)  // 24738134-9d88-6645-4ec8-d63aa2031015
      * ```
@@ -44,7 +44,7 @@ object Url62 {
 /**
  * [UUID] 를 Base62로 인코딩합니다.
  *
- * ```
+ * ```kotlin
  * val uuid = UUID.randomUUID()      // uuid=24738134-9d88-6645-4ec8-d63aa2031015
  * val encoded = uuid.encodeUrl62()  // encoded=16mVan3wbAXR6tQwIbfS5d
  * ```
@@ -54,7 +54,7 @@ fun UUID.encodeUrl62(): String = Url62.encode(this)
 /**
  * Base62로 인코딩된 문자열을 [UUID]로 디코딩합니다.
  *
- * ```
+ * ```kotlin
  * val encoded = "16mVan3wbAXR6tQwIbfS5d"
  * val decoded = encoded.decodeUrl62()  // 24738134-9d88-6645-4ec8-d63aa2031015
  * ```

@@ -36,6 +36,11 @@ object Base62: KLogging() {
     /**
      * Base62 알고리즘을 이용하여 [BigInteger] 값을 문자열로 인코딩합니다.
      *
+     * ```kotlin
+     * val encoded = Base62.encode(BigInteger.valueOf(123456789L))   // "8M0kX"
+     * val decoded = Base62.decode(encoded)                           // 123456789
+     * ```
+     *
      * @param number 인코딩할 [BigInteger] 값
      * @return Base62로 인코딩된 문자열
      */
@@ -55,6 +60,16 @@ object Base62: KLogging() {
 
     /**
      * Base62 알고리즘으로 인코딩된 문자열을 디코딩하여 [BigInteger] 값을 반환합니다.
+     *
+     * ```kotlin
+     * val decoded = Base62.decode("8M0kX")   // BigInteger(123456789)
+     * val uuid = Base62.decode("3lO7ysTzNOGrjT4vadTPio").toUuid()
+     * ```
+     *
+     * @param text 디코딩할 Base62 인코딩 문자열
+     * @param bitLimit 허용할 최대 비트 수 (기본값: 128). 초과 시 [IllegalArgumentException] 발생
+     * @return Base62로 디코딩된 [BigInteger] 값
+     * @throws IllegalArgumentException 잘못된 문자가 포함된 경우 또는 bitLimit 초과 시
      */
     fun decode(text: String, bitLimit: Int = DEFAULT_BIT_LIMIT): BigInteger {
         text.requireNotBlank("text")
@@ -78,12 +93,25 @@ object Base62: KLogging() {
 /**
  * Base62 알고리즘을 이용하여 숫자를 문자열로 인코딩합니다.
  *
+ * ```kotlin
+ * val encoded = 123456789L.encodeBase62()   // "8M0kX"
+ * val decoded = encoded.decodeBase62()       // BigInteger(123456789)
+ * ```
+ *
  * @return Base62로 인코딩된 문자열
  */
 fun <T: Number> T.encodeBase62(): String = Base62.encode(this.toBigInt())
 
 /**
  * Base62 알고리즘으로 인코딩된 문자열을 디코딩하여 [BigInteger] 값을 반환합니다.
+ *
+ * ```kotlin
+ * val decoded = "8M0kX".decodeBase62()   // BigInteger(123456789)
+ * val num = decoded.toLong()              // 123456789
+ * ```
+ *
+ * @param bitLimit 허용할 최대 비트 수 (기본값: 128). 초과 시 [IllegalArgumentException] 발생
+ * @return Base62로 디코딩된 [BigInteger] 값
  */
 fun String.decodeBase62(bitLimit: Int = DEFAULT_BIT_LIMIT): BigInteger =
     Base62.decode(this, bitLimit)

@@ -7,7 +7,7 @@ import java.nio.charset.Charset
 /**
  * [OutputStream]에 [data]를 씁니다.
  *
- * ```
+ * ```kotlin
  * val file = File("test.txt")
  * file.outputStream().use { stream ->
  *    stream.write("Hello, World!")
@@ -26,7 +26,7 @@ fun OutputStream.write(data: String, cs: Charset = Charsets.UTF_8) {
 /**
  * [OutputStream]에 [data]를 씁니다.
  *
- * ```
+ * ```kotlin
  * val file = File("test.txt")
  * file.outputStream().use { stream ->
  *    stream.write(StringBuffer("Hello, World!"))

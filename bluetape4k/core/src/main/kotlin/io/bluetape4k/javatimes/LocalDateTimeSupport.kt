@@ -14,7 +14,7 @@ import java.util.*
 /**
  * [LocalDateTime]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val localDateTime1 = localDateTimeOf(2021, 3, 1) // 2021-03-01T00:00:00
  * val localDateTime2 = localDateTimeOf(2021, 3, 1, 12, 30) // 2021-03-01T12:30:00
  * ```
@@ -41,7 +41,7 @@ fun localDateTimeOf(
 /**
  * [LocalDateTime]을 [Date]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDateTime = localDateTimeOf(2021, 3, 1) // 2021-03-01T00:00:00
  * val date = localDateTime.toDate() // 2021-03-01T00:00:00
  * ```
@@ -51,7 +51,7 @@ fun LocalDateTime.toDate(): Date = Date.from(toInstant())
 /**
  * [LocalDateTime]을 [Instant]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDateTime = localDateTimeOf(2021, 3, 1) // 2021-03-01T00:00:00
  * val instant = localDateTime.toInstant() // 2021-03-01T00:00:00
  * ```
@@ -62,7 +62,7 @@ fun LocalDateTime.toInstant(): Instant = toZonedDateTime(ZoneOffset.UTC).toInsta
 /**
  * [LocalDateTime]을 [OffsetDateTime]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDateTime = localDateTimeOf(2021, 3, 1) // 2021-03-01T00:00:00
  * val offsetDateTime = localDateTime.toOffsetDateTime() // 2021-03-01T00:00:00+00:00
  * ```
@@ -75,7 +75,7 @@ fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = ZoneOffset.UTC): OffsetD
 /**
  * [LocalDateTime]을 [ZonedDateTime]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDateTime = localDateTimeOf(2021, 3, 1) // 2021-03-01T00:00:00
  * val zonedDateTime = localDateTime.toZonedDateTime() // 2021-03-01T00:00:00+00:00
  * ```
@@ -94,7 +94,7 @@ fun LocalDateTime.toZonedDateTime(zoneId: ZoneId = ZoneOffset.UTC): ZonedDateTim
 /**
  * [LocalDate]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val localDate1 = localDateOf(2021, 3, 1) // 2021-03-01
  * val localDate2 = localDateOf(2021, 3) // 2021-03-01
  * val localDate3 = localDateOf(2021) // 2021-01-01
@@ -113,7 +113,7 @@ fun localDateOf(
 /**
  * [LocalDate]을 [Date]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDate = localDateOf(2021, 3, 1) // 2021-03-01
  * val date = localDate.toDate() // 2021-03-01
  * ```
@@ -123,7 +123,7 @@ fun LocalDate.toDate(): Date = Date.from(toInstant())
 /**
  * [LocalDate]을 [Instant]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localDate = localDateOf(2021, 3, 1) // 2021-03-01
  * val instant = localDate.toInstant() // 2021-03-01
  * ```
@@ -137,7 +137,7 @@ fun LocalDate.toInstant(): Instant = atStartOfDay(ZoneOffset.UTC).toInstant()
 /**
  * 두 [LocalDate]의 기간을 계산합니다.
  *
- * ```
+ * ```kotlin
  * val start = localDateOf(2021, 3, 1) // 2021-03-01
  * val end = localDateOf(2021, 3, 31) // 2021-03-31
  * val period = start.between(end) // P30D
@@ -148,7 +148,7 @@ fun LocalDate.between(endExclusive: LocalDate): Period = Period.between(this, en
 /**
  * [LocalTime]을 빌드합니다.
  *
- * ```
+ * ```kotlin
  * val localTime1 = localTimeOf(0, 0) // 00:00:00
  * val localTime2 = localTimeOf(12, 30) // 12:30:00
  * ```
@@ -169,7 +169,7 @@ fun localTimeOf(
 /**
  * [LocalTime]을 [Instant]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val localTime = localTimeOf(0, 0) // 00:00:00
  * val instant = localTime.toInstant() // 1970-01-01T00:00:00Z
  * ```

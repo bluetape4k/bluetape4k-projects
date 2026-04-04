@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Commons Compress 라이브러리의 [GzipCompressorOutputStream]을 이용한 GZip 압축기
  *
- * ```
- * val compressor = ApacheGZipCompressor()
- * val compressed = compressor.compress("Hello, World!".toByteArray())
- * val plain = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, World!".toByteArray()
+ * val compressed = Compressors.ApacheGZip.compress(data)
+ * val restored = Compressors.ApacheGZip.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [GzipCompressorOutputStream]

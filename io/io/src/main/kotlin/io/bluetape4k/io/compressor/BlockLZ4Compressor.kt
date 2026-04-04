@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Compress 라이브러리의 Block LZ4 알고리즘을 사용한 Compressor
  *
- * ```
- * val compressor = BlockLZ4Compressor()
- * val compressed = compressor.compress("Hello, World!".toByteArray())
- * val plain = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, World!".toByteArray()
+ * val compressed = Compressors.BlockLZ4.compress(data)
+ * val restored = Compressors.BlockLZ4.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [BlockLZ4CompressorInputStream]

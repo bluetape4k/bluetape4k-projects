@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Commons Compress FramedLZ4 알고리즘을 이용한 압축기
  *
- * ```
- * val compressor = FramedLZ4Compressor()
- * val compressed = compressor.compress("Hello, FramedLZ4!")
- * val decompressed = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, FramedLZ4!".toByteArray()
+ * val compressed = Compressors.FramedLZ4.compress(data)
+ * val restored = Compressors.FramedLZ4.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [FramedLZ4CompressorInputStream]

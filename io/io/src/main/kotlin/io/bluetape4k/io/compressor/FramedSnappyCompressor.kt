@@ -8,10 +8,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Apache Commons Compress의 Framed Snappy 알고리즘을 사용한 Compressor
  *
- * ```
- * val compressor = FramedSnappyCompressor()
- * val compressed = compressor.compress("Hello, FramedSnappy!")
- * val decompressed = compressor.decompress(compressed)
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, FramedSnappy!".toByteArray()
+ * val compressed = Compressors.FramedSnappy.compress(data)
+ * val restored = Compressors.FramedSnappy.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [FramedSnappyCompressorOutputStream]

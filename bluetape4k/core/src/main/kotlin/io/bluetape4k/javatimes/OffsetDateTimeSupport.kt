@@ -12,7 +12,7 @@ import java.time.ZoneOffset
  *
  * 기본값은 시스템 로컬 오프셋입니다. UTC 기준이 필요하면 ZoneOffset.UTC를 명시적으로 전달하세요.
  *
- * ```
+ * ```kotlin
  * val offsetDateTime = offsetDateTimeOf(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
  * ```
  */
@@ -42,7 +42,7 @@ fun offsetDateTimeOf(
  *
  * 기본값은 시스템 로컬 오프셋입니다. UTC 기준이 필요하면 ZoneOffset.UTC를 명시적으로 전달하세요.
  *
- * ```
+ * ```kotlin
  * val localDate = LocalDate.of(2021, 1, 1)
  * val localTime = LocalTime.of(0, 0, 0, 0)
  * val offset = ZoneOffset.UTC
@@ -63,7 +63,7 @@ fun offsetDateTimeOf(
 /**
  * [OffsetTime]을 생성합니다.
  *
- * ```
+ * ```kotlin
  * val offsetTime = offsetTimeOf(12, 59, 59, 100000, ZoneOffset.UTC)
  * ```
  */
@@ -79,7 +79,7 @@ fun offsetTimeOf(
 /**
  * [OffsetTime]을 [Instant]로 변환합니다.
  *
- * ```
+ * ```kotlin
  * val offsetTime = offsetTimeOf(12, 59, 59, 100000, ZoneOffset.UTC)
  * val instant = offsetTime.toInstant()  // 1970-01-01 기준 Instant
  * ```

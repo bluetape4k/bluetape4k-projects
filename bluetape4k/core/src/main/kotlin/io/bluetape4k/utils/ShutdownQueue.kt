@@ -35,6 +35,13 @@ object ShutdownQueue: KLogging() {
 
     /**
      * JVM 종료 시 자동으로 정리할 객체를 등록합니다.
+     *
+     * ```kotlin
+     * val resource = SomeResource().apply { open() }
+     * ShutdownQueue.register(resource)  // JVM 종료 시 resource.close() 자동 호출
+     * ```
+     *
+     * @param closeable JVM 종료 시 정리할 [AutoCloseable] 객체
      */
     fun register(closeable: AutoCloseable) {
         if (!registered.add(closeable)) return

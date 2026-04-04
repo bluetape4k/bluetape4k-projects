@@ -48,6 +48,20 @@ class ToStringBuilder private constructor(
 
     private fun Any?.asString(): String = this?.toString() ?: "<null>"
 
+    /**
+     * 프로퍼티를 추가합니다.
+     *
+     * ```kotlin
+     * val builder = ToStringBuilder("Person")
+     *     .add("name", "Alice")
+     *     .add("age", 30)
+     * builder.toString()  // "Person(name=Alice,age=30)"
+     * ```
+     *
+     * @param name  프로퍼티 이름
+     * @param value 프로퍼티 값 (null 이면 `<null>` 으로 표시)
+     * @return 현재 [ToStringBuilder] 인스턴스 (체이닝용)
+     */
     fun add(
         name: String,
         value: Any?,
@@ -56,6 +70,18 @@ class ToStringBuilder private constructor(
         cachedToString = null
     }
 
+    /**
+     * 최대 [limit]개의 프로퍼티만 포함하는 문자열을 반환합니다.
+     *
+     * ```kotlin
+     * val builder = ToStringBuilder("Item")
+     *     .add("a", 1).add("b", 2).add("c", 3)
+     * builder.toString(2)  // "Item(a=1,b=2, ...and 1 more)"
+     * ```
+     *
+     * @param limit 포함할 최대 프로퍼티 수
+     * @return 제한된 문자열 표현
+     */
     fun toString(limit: Int): String = toStringValue(limit)
 
     override fun toString(): String = toStringValue(-1)

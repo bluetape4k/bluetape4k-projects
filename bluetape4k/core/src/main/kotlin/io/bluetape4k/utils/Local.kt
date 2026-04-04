@@ -28,11 +28,25 @@ object Local : KLogging() {
 
     /**
      * 현재 스레드의 로컬 저장소 스냅샷을 반환합니다.
+     *
+     * ```kotlin
+     * Local["user"] = "alice"
+     * val snapshot = Local.save()   // 현재 상태 저장
+     * Local["user"] = "bob"
+     * Local.restore(snapshot)
+     * val user = Local["user"]      // "alice"
+     * ```
      */
     fun save(): java.util.HashMap<Any, Any?> = storage.clone() as java.util.HashMap<Any, Any?>
 
     /**
      * [save]로 보관한 저장소를 현재 스레드에 복원합니다.
+     *
+     * ```kotlin
+     * val snapshot = Local.save()
+     * Local["key"] = "changed"
+     * Local.restore(snapshot)       // 이전 상태로 복원
+     * ```
      */
     fun restore(saved: java.util.HashMap<Any, Any?>) {
         threadLocal.set(saved)
@@ -53,6 +67,16 @@ object Local : KLogging() {
         }
     }
 
+    /**
+     * 현재 스레드의 로컬 저장소를 모두 비웁니다.
+     *
+     * ```kotlin
+     * Local["a"] = 1
+     * Local["b"] = 2
+     * Local.clearAll()
+     * val a = Local["a"]  // null
+     * ```
+     */
     fun clearAll() {
         log.debug { "Clear local storage." }
         storage.clear()
@@ -60,6 +84,11 @@ object Local : KLogging() {
 
     /**
      * 키가 없으면 [defaultValue] 결과를 저장하고 반환합니다.
+     *
+     * ```kotlin
+     * val value = Local.getOrPut("count") { 0 }  // 0 (처음에는 없으므로 저장 후 반환)
+     * val same  = Local.getOrPut("count") { 99 } // 0 (이미 존재하므로 기존 값 반환)
+     * ```
      */
     fun <T : Any> getOrPut(
         key: Any,
@@ -68,6 +97,12 @@ object Local : KLogging() {
 
     /**
      * 키를 제거하고 기존 값을 반환합니다.
+     *
+     * ```kotlin
+     * Local["name"] = "alice"
+     * val removed = Local.remove<String>("name")  // "alice"
+     * val gone    = Local["name"]                 // null
+     * ```
      */
     fun <T : Any> remove(key: Any): T? = storage.remove(key) as? T
 }

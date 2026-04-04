@@ -10,10 +10,12 @@ import java.util.zip.ZipOutputStream
 /**
  * JDK ZIP 알고리즘을 이용한 압축/복원
  *
- * ```
- * val compressor = ZipCompressor()
- * val compressed = compressor.compress("Hello, Zip!")
- * val decompressed = compressor.decompress(compressed)  // "Hello, Zip!"
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, Zip!".toByteArray()
+ * val compressed = Compressors.Zip.compress(data)
+ * val restored = Compressors.Zip.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [ZipOutputStream]

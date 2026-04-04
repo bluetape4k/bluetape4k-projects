@@ -10,6 +10,17 @@ import java.nio.ByteBuffer
  *
  * [StreamingXXHash32]가 상태를 가지므로 [ThreadLocal]을 사용하여 thread-safety를 보장합니다.
  *
+ * ```kotlin
+ * // 단일 값 해시
+ * val hash1 = XXHasher.hash("hello")          // 결정적(deterministic) Int 값
+ *
+ * // 복합 값 해시 — 여러 필드를 결합한 복합 키
+ * val hash2 = XXHasher.hash("user", 42L, true) // 순서에 민감
+ *
+ * // null 포함
+ * val hash3 = XXHasher.hash(null, "world")    // null은 0으로 처리됨
+ * ```
+ *
  * @see [lz4-java](https://github.com/jpountz/lz4-java)
  */
 object XXHasher {

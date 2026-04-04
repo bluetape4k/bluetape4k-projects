@@ -12,7 +12,7 @@ import kotlin.time.Duration
  * 참고: [Asynchronous timeouts with CompletableFutures in Java 8 and Java 9](http://iteratrlearning.com/java9/2016/09/13/java9-timeouts-completablefutures.html)
  *
  * Timeout 전에 완료될 때:
- * ```
+ * ```kotlin
  * val future = asyncRunWithTimeout(1000) {
  *     Thread.sleep(100)
  * }
@@ -20,7 +20,7 @@ import kotlin.time.Duration
  * ```
  *
  * Timeout 이 걸릴 때:
- * ```
+ * ```kotlin
  * assertFailsWith<ExecutionException> {
  *     asyncRunWithTimeout(500) {
  *         Thread.sleep(1000)
@@ -51,7 +51,7 @@ inline fun <T> asyncRunWithTimeout(
  * 참고: [Asynchronous timeouts with CompletableFutures in Java 8 and Java 9](http://iteratrlearning.com/java9/2016/09/13/java9-timeouts-completablefutures.html)
  *
  * Timeout 전에 완료될 때:
- * ```
+ * ```kotlin
  * val future = asyncRunWithTimeout(1000) {
  *     Thread.sleep(100)
  * }
@@ -59,7 +59,7 @@ inline fun <T> asyncRunWithTimeout(
  * ```
  *
  * Timeout 이 걸릴 때:
- * ```
+ * ```kotlin
  * assertFailsWith<ExecutionException> {
  *     asyncRunWithTimeout(500) {
  *         Thread.sleep(1000)
@@ -78,7 +78,7 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeoutMillis] 시간 내에 종료되지 않으면 null 을 반환합니다.
  *
  * Timeout 전에 완료될 때:
- * ```
+ * ```kotlin
  * val result = withTimeoutOrNull(1000) {
  *     Thread.sleep(100)
  *     42
@@ -87,7 +87,7 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  * ```
  *
  * Timeout 이 걸릴 때:
- * ```
+ * ```kotlin
  * val result = withTimeoutOrNull(500) {
  *     Thread.sleep(1000)
  *     42
@@ -108,7 +108,7 @@ inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: (
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeout] 시간 내에 종료되지 않으면 null 을 반환합니다.
  *
  * Timeout 전에 완료될 때:
- * ```
+ * ```kotlin
  * val result = withTimeoutOrNull(1000.milliseconds) {
  *     Thread.sleep(100)
  *     42
@@ -117,7 +117,7 @@ inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: (
  * ```
  *
  * Timeout 이 걸릴 때:
- * ```
+ * ```kotlin
  * val result = withTimeoutOrNull(500.milliseconds) {
  *     Thread.sleep(1000)
  *     42

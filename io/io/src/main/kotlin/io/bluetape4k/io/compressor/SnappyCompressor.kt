@@ -5,12 +5,15 @@ import org.xerial.snappy.Snappy
 /**
  * Snappy 알고리즘을 사용한 Compressor
  *
- * Snappy 가 Apache Commons Compress 의 FramedSnappyCompressorOutputStream 보다 훨씬 빠르다. (대략 2배 빠르다)
+ * Apache Commons Compress의 FramedSnappyCompressorOutputStream보다 훨씬 빠릅니다 (약 2배).
+ * 낮은 지연 시간이 중요한 경우에 권장됩니다.
  *
- * ```
- * val compressor = SnappyCompressor()
- * val compressed = compressor.compress("Hello, Snappy!")
- * val decompressed = compressor.decompress(compressed)  // "Hello, Snappy!"
+ * 팩토리를 통한 사용을 권장합니다:
+ * ```kotlin
+ * val data = "Hello, Snappy!".toByteArray()
+ * val compressed = Compressors.Snappy.compress(data)
+ * val restored = Compressors.Snappy.decompress(compressed)
+ * // restored contentEquals data == true
  * ```
  *
  * @see [FramedSnappyCompressor]

@@ -5,6 +5,13 @@ package io.bluetape4k.collections.permutations
  *
  * 빈 순열을 표현하며, 모든 연산은 빈 순열을 반환하거나 예외를 발생시킵니다.
  *
+ * 예제:
+ * ```kotlin
+ * val empty = Nil.instance<Int>()
+ * empty.isEmpty() // true
+ * empty.head // NoSuchElementException 발생
+ * ```
+ *
  * @param T 요소 타입
  */
 class Nil<T>: Permutation<T>() {

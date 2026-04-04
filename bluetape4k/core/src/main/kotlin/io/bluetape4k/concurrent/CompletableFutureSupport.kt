@@ -12,7 +12,7 @@ import kotlin.time.Duration
 /**
  * 지정한 block을 비동기로 실행하고, [CompletableFuture]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf {
  *      Thread.sleep(1000)
  *      42
@@ -33,6 +33,11 @@ inline fun <V> futureOf(
 /**
  * 실행을 동기 방식으로 수행하지만, [CompletableFuture]로 변환합니다.
  *
+ * ```kotlin
+ * val future: CompletableFuture<Int> = immediateFutureOf { 42 }
+ * val result = future.get()   // 42
+ * ```
+ *
  * @param block 비동기로 수행할 코드 블럭
  * @return CompletableFuture<V>
  */
@@ -42,7 +47,7 @@ inline fun <V> immediateFutureOf(crossinline block: () -> V): CompletableFuture<
 /**
  * [value] 값을 가진 [CompletableFuture]를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val future:CompletableFuture<Int> = completableFutureOf(42)
  * val result = future.get()  // 42
  * ```
@@ -52,6 +57,14 @@ inline fun <V> completableFutureOf(value: V): CompletableFuture<V> =
 
 /**
  * [cause] 예외를 가진 [CompletableFuture]를 생성합니다.
+ *
+ * ```kotlin
+ * val future: CompletableFuture<Int> = failedCompletableFutureOf(RuntimeException("fail"))
+ * future.isCompletedExceptionally  // true
+ * ```
+ *
+ * @param cause 예외 인스턴스
+ * @return 실패 상태의 CompletableFuture<V>
  */
 inline fun <V> failedCompletableFutureOf(cause: Throwable): CompletableFuture<V> =
     CompletableFuture.failedFuture(cause)
@@ -59,7 +72,7 @@ inline fun <V> failedCompletableFutureOf(cause: Throwable): CompletableFuture<V>
 /**
  * 비동기 작업 수행에 timeout 을 적용합니다.
  *
- * ```
+ * ```kotlin
  * val future:CompletableFuture<Unit> = futureWithTimeout(Duration.ofSeconds(1)) {
  *   // 1초 이내에 종료되지 않으면 실패로 간주하고, 작업을 중단합니다.
  *   // coroutines task()
@@ -77,7 +90,7 @@ inline fun <V> futureWithTimeout(timeout: Duration, crossinline block: () -> V):
 /**
  * 비동기 작업 수행에 timeout 을 적용합니다.
  *
- * ```
+ * ```kotlin
  * val future:CompletableFuture<Unit> = futureWithTimeout(1000L) {
  *   // 1초 이내에 종료되지 않으면 실패로 간주하고, 작업을 중단합니다.
  *   // coroutines task()
@@ -107,7 +120,7 @@ inline fun <V> futureWithTimeout(
 /**
  * [CompletableFuture]가 완료되면 결과 값을 [mapper]를 이용하여 변환한 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val name: Long = completableFutureOf("1234").map { it.toLong() }
  * ```
  */
@@ -121,7 +134,7 @@ inline fun <V, R> CompletableFuture<V>.map(
 /**
  * [CompletableFuture]가 완료되면 결과 값을 [mapper]를 이용하여 변환한 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val name: Long = completableFutureOf("123").flatMap { futureOf { it.toLong() } }
  * ```
  *
@@ -138,7 +151,7 @@ inline fun <V, R> CompletableFuture<V>.flatMap(
 /**
  * [CompletableFuture]가 완료되면 결과 값을 [handler]를 이용하여 변환한 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val name: Long = completableFutureOf("123").handle { value, error -> value?.toLong() ?: 0 }
  * ```
  *
@@ -156,7 +169,7 @@ inline fun <V, R> CompletableFuture<V>.mapResult(
 /**
  * `CompletableFuture<CompletableFuture<V>>`를 `CompletableFuture<V>`로 평탄화합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<CompletableFuture<Int>> = futureOf { futureOf { 42 } }
  * val result: CompletableFuture<Int> = future.flatten()
  * ```
@@ -186,7 +199,7 @@ fun <V> CompletableFuture<out CompletableFuture<V>>.dereference(
 /**
  * `CompletableFuture<V>`를 `CompletableFuture<CompletableFuture<V>>`로 감싸서 반환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { 42 }
  * val wrapped: CompletableFuture<CompletableFuture<Int>> = future.wrap()
  * ```
@@ -203,7 +216,7 @@ fun <V> CompletableFuture<V>.wrap(
 /**
  * `CompletableFuture<V>` 완료되면 결과를 [predicate]를 통해 검증하고, 검증에 실패하면 예외를 발생시킵니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { 42 }
  * val result: CompletableFuture<Int> = future.filter { it > 10 }
  * ```
@@ -225,7 +238,7 @@ inline fun <V> CompletableFuture<V>.filter(
 /**
  * `CompletableFuture<A>` 와 `CompletableFuture<B>` 를 결합하여 `CompletableFuture<R>` 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { 42 }
  * val other: CompletableFuture<String> = futureOf { "Hello" }
  * val result: CompletableFuture<String> = future.zip(other) { a, b -> "$a $b" }
@@ -247,7 +260,7 @@ inline fun <A, B, R> CompletableFuture<A>.zip(
 /**
  * `CompletableFuture<A>` 와 `CompletionStage<B>` 를 결합하여 `CompletableFuture<Pair<A, B>>` 를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { 42 }
  * val other: CompletableFuture<String> = futureOf { "Hello" }
  * val result: CompletableFuture<Pair<Int, String>> = future.zip(other)
@@ -270,7 +283,7 @@ fun <A, B> CompletableFuture<A>.zip(
 /**
  * 예외가 발생하면 보상하는 함수를 통한 결과 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { throw RuntimeException("error") }
  * val result: CompletableFuture<Int> = future.recover { 42 }
  * val value: Int = result.get()  // 42
@@ -289,7 +302,7 @@ inline fun <V> CompletableFuture<V>.recover(
 /**
  * 예외가 발생하면 보상하는 함수를 통한 결과 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { throw RuntimeException("error") }
  * val result: CompletableFuture<Int> = future.recoverWith { futureOf { 42 } }
  * val value: Int = result.get()  // 42
@@ -324,7 +337,7 @@ inline fun <V> CompletableFuture<V>.recoverWith(
 /**
  * [CompletableFuture]가 예외를 발생 시킬 시에, 예외를 매핑한 후 예외를 발생시킵니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { throw RuntimeException("error") }
  * val result: CompletableFuture<Int> = future.mapError { IllegalArgumentException("error") }
  * val value: Int = result.get()  // throw IllegalArgumentException("error")
@@ -348,7 +361,7 @@ inline fun <V, reified E: Throwable> CompletableFuture<V>.mapError(
 /**
  * 예외가 발생하면 보상하는 함수를 통한 결과 값을 반환하도록 합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { throw RuntimeException("error") }
  * val result: CompletableFuture<Int> = future.fallbackTo { futureOf { 42 } }
  * val value: Int = result.get()  // 42
@@ -372,7 +385,7 @@ inline fun <V> CompletableFuture<V>.fallbackTo(
 /**
  * [CompletableFuture]가 실패하면 [errorHandler]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * futureOf { throw RuntimeException("error") }
  *    .onFailure { error -> log.error(error) }
  *    .get()  // throw RuntimeException("error")
@@ -399,7 +412,7 @@ inline fun <V> CompletableFuture<V>.onFailure(
 /**
  * [CompletableFuture]가 완료되면 [successHandler]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * futureOf { 42 }
  *   .onSuccess { result -> log.info(result) }
  *   .get()  // 42
@@ -422,7 +435,7 @@ inline fun <V> CompletableFuture<V>.onSuccess(
 /**
  * [CompletableFuture]가 완료되면 [successHandler]를 실행하고, 실패하면 [failureHandler]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * futureOf { 42 }
  *  .onComplete(
  *    successHandler = { result -> log.info(result) },
@@ -453,7 +466,7 @@ inline fun <V> CompletableFuture<V>.onComplete(
 /**
  * [CompletableFuture]가 완료되면 [completionHandler]를 실행합니다.
  *
- * ```
+ * ```kotlin
  * futureOf { 42 }
  *   .onComplete { result, error -> log.info(result) }
  *   .get()  // 42
@@ -475,12 +488,25 @@ inline fun <V> CompletableFuture<V>.onComplete(
 
 /**
  * [CompletableFuture] 가 실패한 것인지 확인합니다.
+ *
+ * ```kotlin
+ * val future: CompletableFuture<Int> = failedCompletableFutureOf(RuntimeException("fail"))
+ * future.isFailed  // true
+ * ```
  */
 val <V> CompletableFuture<V>.isFailed: Boolean get() = this.isCompletedExceptionally
 
 /**
  * [CompletableFuture] 가 성공한 것인지 확인합니다.
  * 완료되었으며, 예외 없이 정상적으로 완료되고, 취소되지 않은 경우에만 `true`를 반환합니다.
+ *
+ * ```kotlin
+ * val future: CompletableFuture<Int> = completableFutureOf(42)
+ * future.isSuccess  // true
+ *
+ * val failed: CompletableFuture<Int> = failedCompletableFutureOf(RuntimeException("fail"))
+ * failed.isSuccess  // false
+ * ```
  */
 val <V> CompletableFuture<V>.isSuccess: Boolean
     get() = this.isDone && !this.isCompletedExceptionally && !this.isCancelled
@@ -488,7 +514,7 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
 /**
  * 제한된 사간([duration]) ]안에 [CompletableFuture]의 결과값을 반환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
  * val result: Int = future.join(2.seconds)  // 42
  * ```
@@ -508,7 +534,7 @@ fun <V> CompletableFuture<V>.join(duration: Duration): V {
 /**
  * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, [defaultValue]를 반환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
  * val result: Int = future.join(2.seconds, 0)  // 42
  * ```
@@ -524,7 +550,7 @@ fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V =
 /**
  * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, null을 반환합니다.
  *
- * ```
+ * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
  * val result: Int? = future.joinOrNull(2.seconds)  // 42
  * ```

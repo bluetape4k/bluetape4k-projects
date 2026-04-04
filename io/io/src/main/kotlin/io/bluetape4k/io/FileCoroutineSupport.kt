@@ -23,12 +23,13 @@ suspend inline fun Path.readAllBytesSuspending(): ByteArray =
 /**
  * Coroutine 방식으로 [File]의 모든 바이트를 읽어옵니다.
  *
- * ```
+ * ```kotlin
  * runBlocking {
  *     val file = File("path/to/file")
- *     val bytes = file.suspendReadAllBytes()
+ *     val bytes = file.readAllBytesSuspending()
  *     println(bytes.size)
  * }
+ * ```
  *
  * @return ByteArray 파일의 모든 바이트
  */
@@ -66,7 +67,19 @@ suspend fun Path.suspendReadAllLines(charset: Charset = Charsets.UTF_8): List<St
     readAllLinesSuspending(charset)
 
 /**
- * I/O 처리에서 `suspendWrite` 함수를 제공합니다.
+ * [File]에 [bytes]를 코루틴(suspend) 방식으로 씁니다.
+ *
+ * ```kotlin
+ * runBlocking {
+ *     val file = File.createTempFile("test", ".bin")
+ *     val written = file.writeSuspending(byteArrayOf(1, 2, 3))
+ *     println(written) // 3
+ * }
+ * ```
+ *
+ * @param bytes 파일에 쓸 [ByteArray]
+ * @param append 기존 파일에 추가할 것인가 여부 (기본값: false)
+ * @return 파일에 쓴 바이트 수
  */
 suspend inline fun File.writeSuspending(bytes: ByteArray, append: Boolean = false): Long =
     toPath().writeAsync(bytes, append).await()
@@ -100,7 +113,20 @@ suspend fun Path.suspendWrite(bytes: ByteArray, append: Boolean = false): Long =
     writeSuspending(bytes, append)
 
 /**
- * I/O 처리에서 `suspendWriteLines` 함수를 제공합니다.
+ * [File]에 [lines]를 코루틴(suspend) 방식으로 씁니다.
+ *
+ * ```kotlin
+ * runBlocking {
+ *     val file = File.createTempFile("test", ".txt")
+ *     val written = file.writeLinesSuspending(listOf("Hello", "World"))
+ *     println(written) // 쓰여진 바이트 수 출력
+ * }
+ * ```
+ *
+ * @param lines 파일에 쓸 라인 목록
+ * @param append 기존 파일에 추가할 것인가 여부 (기본값: false)
+ * @param charset 문자 인코딩 방식 (기본값: UTF-8)
+ * @return 파일에 쓴 바이트 수
  */
 suspend inline fun File.writeLinesSuspending(
     lines: Iterable<String>,

@@ -14,11 +14,25 @@ import io.bluetape4k.utils.Wildcard.matchPath
  * - `**`: 경로 매칭 시 깊은 트리 와일드카드 (Ant 스타일)
  *
  * 재귀적 매칭을 사용하며, Linux/Windows 와일드카드와 동일하게 동작합니다.
+ *
+ * ```kotlin
+ * Wildcard.match("hello", "h?llo")               // true  — ? 는 임의의 한 문자
+ * Wildcard.match("hello", "h*o")                 // true  — * 는 임의의 0개 이상의 문자
+ * Wildcard.matchPath("src/main/Foo.kt", "**")    // true  — ** 는 깊은 트리 매칭
+ * ```
  */
 object Wildcard {
 
     /**
      * 문자열이 와일드카드 패턴에 매칭되는지 검사합니다.
+     *
+     * ```kotlin
+     * Wildcard.match("hello", "hello")    // true  — 정확한 일치
+     * Wildcard.match("hello", "hell?")    // true  — ? 가 'o' 한 문자에 매칭
+     * Wildcard.match("hello", "h*o")      // true  — * 가 'ell' 에 매칭
+     * Wildcard.match("hello", "world")    // false — 불일치
+     * Wildcard.match("h*llo", "h\\*llo") // true  — 이스케이프로 * 를 리터럴로 해석
+     * ```
      *
      * @param string 검사할 입력 문자열
      * @param pattern 와일드카드 패턴
@@ -34,6 +48,12 @@ object Wildcard {
      *
      * 동일한 문자열을 많이 비교할 때 성능 최적화에 유용합니다.
      *
+     * ```kotlin
+     * Wildcard.equalsOrMatch("hello", "hello") // true  — 완전 동일
+     * Wildcard.equalsOrMatch("hello", "h*")    // true  — 와일드카드 매칭
+     * Wildcard.equalsOrMatch("hello", "world") // false — 불일치
+     * ```
+     *
      * @param string 검사할 입력 문자열
      * @param pattern 와일드카드 패턴
      * @return 동일하거나 매칭되면 `true`
@@ -48,6 +68,13 @@ object Wildcard {
 
     /**
      * 여러 패턴 중 하나라도 매칭되는 패턴의 인덱스를 반환합니다.
+     *
+     * ```kotlin
+     * val patterns = listOf("*.java", "*.kt", "*.py")
+     * Wildcard.matchOne("hello.kt", patterns)  // 1  — "*.kt" 패턴 (인덱스 1) 에 매칭
+     * Wildcard.matchOne("test", listOf("t*"))  // 0  — "t*" 패턴 (인덱스 0) 에 매칭
+     * Wildcard.matchOne("hello.rs", patterns)  // -1 — 매칭되는 패턴 없음
+     * ```
      *
      * @param src 검사할 입력 문자열
      * @param patterns 와일드카드 패턴 목록
@@ -70,6 +97,18 @@ object Wildcard {
      * 경로와 패턴을 경로 구분자(`/`, `\`)로 토큰화한 뒤 매칭합니다.
      * `**`는 Ant 스타일의 깊은 트리 와일드카드로 동작합니다.
      *
+     * ```kotlin
+     * // 정확한 경로 일치
+     * Wildcard.matchPath("src/main/Test.kt", "src/main/Test.kt")   // true
+     * // ? 가 단일 문자 매칭
+     * Wildcard.matchPath("src/main/Test.kt", "src/m?in/Test.kt")   // true
+     * // ** 가 여러 경로 세그먼트를 포함한 경로 매칭
+     * Wildcard.matchPath("src/main/kotlin/Test.kt", "**")           // true
+     * Wildcard.matchPath("a/b/c", "a/b/c")                         // true
+     * // 경로 불일치
+     * Wildcard.matchPath("src/main/Test.kt", "build/main/Test.kt") // false
+     * ```
+     *
      * @param path 검사할 경로 문자열
      * @param pattern 와일드카드 패턴
      * @return 매칭되면 `true`, 아니면 `false`
@@ -83,6 +122,15 @@ object Wildcard {
 
     /**
      * 여러 경로 패턴 중 하나라도 매칭되는 패턴의 인덱스를 반환합니다.
+     *
+     * ```kotlin
+     * val patterns = listOf("src/main", "src/test")
+     * Wildcard.matchPathOne("src/test/Foo.kt", patterns)         // -1 — 완전 일치 없음
+     *
+     * val patterns2 = listOf("src/main/Foo.kt", "src/test/Foo.kt")
+     * Wildcard.matchPathOne("src/test/Foo.kt", patterns2)        // 1  — 인덱스 1 에 매칭
+     * Wildcard.matchPathOne("build/Foo.class", patterns2)        // -1 — 매칭 없음
+     * ```
      *
      * @param path 검사할 경로 문자열
      * @param patterns 경로 와일드카드 패턴 목록

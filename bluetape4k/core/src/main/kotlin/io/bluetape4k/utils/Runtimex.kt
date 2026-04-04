@@ -21,48 +21,80 @@ object Runtimex : KLogging() {
 
     /**
      * 사용 가능한 프로세서 수
+     *
+     * ```kotlin
+     * val cpus = Runtimex.availableProcessors  // 예: 8
+     * ```
      */
     @JvmField
     val availableProcessors = runtime.availableProcessors()
 
     /**
-     * 현재 JVM의 메모리 사용량 정보를 조회합니다.
+     * 현재 JVM에 할당된 총 메모리 크기(바이트)를 조회합니다.
+     *
+     * ```kotlin
+     * val total = Runtimex.totalMemory  // 예: 268435456 (256 MB)
+     * ```
      */
     val totalMemory: Long
         get() = runtime.totalMemory()
 
     /**
-     * 현재 JVM의 최대 메모리 사용량 정보를 조회합니다.
+     * 현재 JVM이 사용할 수 있는 최대 메모리 크기(바이트)를 조회합니다.
+     *
+     * ```kotlin
+     * val max = Runtimex.maxMemory  // -Xmx 설정값
+     * ```
      */
     val maxMemory: Long
         get() = runtime.maxMemory()
 
     /**
-     * 사용 가능한 메모리 정보를 조회합니다.
+     * JVM이 추가 할당 가능한 메모리(바이트)를 조회합니다.
+     *
+     * ```kotlin
+     * val avail = Runtimex.availableMemory  // freeMemory + (maxMemory - totalMemory)
+     * ```
      */
     val availableMemory: Long
         get() = freeMemory + (maxMemory - totalMemory)
 
     /**
-     * 사용 가능한 메모리의 백분율 정보를 조회합니다.
+     * 사용 가능한 메모리의 백분율을 조회합니다.
+     *
+     * ```kotlin
+     * val pct = Runtimex.availableMemoryPercent  // 예: 75.0 (75%)
+     * ```
      */
     val availableMemoryPercent: Double
         get() = availableMemory.toDouble() * 100.0 / runtime.maxMemory()
 
     /**
-     * 사용 가능한 메모리의 백분율 정보를 조회합니다.
+     * JVM GC 후 즉시 사용 가능한 여유 메모리(바이트)를 조회합니다.
+     *
+     * ```kotlin
+     * val free = Runtimex.freeMemory  // 현재 힙 여유 메모리
+     * ```
      */
     val freeMemory: Long
         get() = runtime.freeMemory()
 
     /**
-     * 사용 가능한 메모리의 백분율 정보를 조회합니다.
+     * 여유 메모리 비율(0.0 ~ 1.0)을 조회합니다.
+     *
+     * ```kotlin
+     * val ratio = Runtimex.freeMemoryPercent  // 예: 0.4 (40%)
+     * ```
      */
     val freeMemoryPercent: Double
         get() = freeMemory.toDouble() / runtime.totalMemory()
 
     /**
-     * 사용 중인 메모리 정보를 조회합니다.
+     * 현재 사용 중인 메모리(바이트)를 조회합니다.
+     *
+     * ```kotlin
+     * val used = Runtimex.usedMemory  // totalMemory - freeMemory
+     * ```
      */
     val usedMemory: Long
         get() = totalMemory - freeMemory
@@ -70,7 +102,11 @@ object Runtimex : KLogging() {
     private const val TWO_GIGA = 2_000_000_000
 
     /**
-     * 메모리를 정리합니다.
+     * 가비지 컬렉션을 유도하여 메모리를 정리합니다.
+     *
+     * ```kotlin
+     * Runtimex.compactMemory()  // System.gc() 호출로 GC 유도
+     * ```
      */
     fun compactMemory() {
         try {
@@ -86,19 +122,27 @@ object Runtimex : KLogging() {
     }
 
     /**
-     * [clazz]의 위치를 조회합니다.
+     * [clazz]가 로드된 JAR 또는 디렉토리의 URL을 조회합니다.
+     *
+     * ```kotlin
+     * val url = Runtimex.classLocation(String::class.java)
+     * // 예: file:/usr/lib/jvm/java-21/lib/rt.jar
+     * ```
+     *
+     * @param clazz 위치를 조회할 클래스
+     * @return 클래스 소스의 [URL]
      */
     fun classLocation(clazz: Class<*>): URL = clazz.protectionDomain.codeSource.location
 
     /**
      * JVM 종료 시에 실행될 Cleanup code 를 추가합니다.
      *
-     * ```
+     * ```kotlin
      * Runtimex.addShutdownHook {
-     *    log.info { "Shutdown hook is called." }
-     *    // Do something...
-     *    log.info { "Shutdown hook is finished." }
+     *     println("JVM 종료 중 — 자원 정리")
+     *     // 예: 커넥션 풀 해제, 임시 파일 삭제 등
      * }
+     * ```
      *
      * @param block VM 종료 시에 실행될 코드 블럭
      */
@@ -117,7 +161,17 @@ object Runtimex : KLogging() {
     }
 
     /**
-     * Process 실행 시 결과를 [ProcessResult] 정보에 담아 반환합니다.
+     * 이미 시작된 [Process]의 표준 출력과 에러를 캡처하고 종료를 기다려 결과를 반환합니다.
+     *
+     * ```kotlin
+     * val pb = ProcessBuilder("echo", "hello")
+     * val result = Runtimex.run(pb.start())
+     * // result.exitCode == 0
+     * // result.out 에 "out>hello\n" 포함
+     * ```
+     *
+     * @param process 실행 중인 프로세스
+     * @return [ProcessResult] (종료 코드 + 출력 문자열)
      */
     fun run(process: Process): ProcessResult =
         ByteArrayOutputStream().use { bos ->
