@@ -8,6 +8,38 @@
 
 ### Added
 
+#### utils/workflow — Kotlin DSL 워크플로 모듈 추가 ([`685e25a4d`](https://github.com/bluetape4k/bluetape4k-projects/commit/685e25a4d))
+
+j-easy/easy-flows에서 영감을 받아 Kotlin 2.3 + 코루틴 + Virtual Threads로 완전 재작성한 워크플로 엔진입니다.
+
+**API**
+- `WorkStatus`: `COMPLETED` / `FAILED` / `PARTIAL` / `CANCELLED` / `ABORTED` (5종)
+- `WorkReport` sealed interface: `Success` / `Failure` / `PartialSuccess` / `Cancelled` / `Aborted`
+- `WorkContext`: `ConcurrentHashMap` 기반, `compute()` 원자적 read-modify-write 지원
+- `RetryPolicy`: 지수 백오프, `maxAttempts`(총 시도 횟수), `maxRetries` 편의 프로퍼티
+- `ParallelPolicy`: `ALL`(ShutdownOnFailure) / `ANY`(ShutdownOnSuccess)
+- `ErrorStrategy`: `STOP`(return) / `CONTINUE`(continue) — `ABORTED`는 ErrorStrategy 무관 break
+
+**동기 플로우 5종 (Virtual Threads)**
+- `SequentialWorkFlow`: 순차 실행, `CONTINUE` 전략 시 `PartialSuccess` 반환
+- `ParallelWorkFlow`: `StructuredTaskScopes` 기반, `joinUntil(deadline)` 타임아웃, ALL/ANY 정책
+- `ConditionalWorkFlow`: predicate 기반 then/otherwise 분기
+- `RepeatWorkFlow`: `repeatWhile` / `until` 조건 + `maxIterations` 상한
+- `RetryWorkFlow`: 지수 백오프 재시도
+
+**코루틴 플로우 5종 (suspend)**
+- `SuspendSequentialFlow` / `SuspendParallelFlow` / `SuspendConditionalFlow` / `SuspendRepeatFlow` / `SuspendRetryFlow`
+- `SuspendParallelFlow` ANY 정책: Channel 기반 첫 성공 즉시 반환
+- `workReportFlow()` / `executeAsFlow()`: Flow 스트리밍 지원
+
+**DSL**
+- `sequentialFlow {}` / `parallelFlow {}` / `conditionalFlow {}` / `repeatFlow {}` / `retryFlow {}`
+- `suspendSequentialFlow {}` 등 코루틴 변형 전체 제공
+- `parallelAllFlow {}` / `parallelAnyFlow {}` + nested `parallelAll` / `parallelAny`
+- 단일 루트 강제: `require(rootWork == null)`
+
+**테스트**: 173개 전체 통과, 주문처리 실무 예제 2개 (동기/코루틴)
+
 #### utils/states — 코루틴 기반 유한 상태 머신(FSM) 모듈 추가 ([`3e9be7d25`](https://github.com/bluetape4k/bluetape4k-projects/commit/3e9be7d25))
 
 - `BaseStateMachine` / `StateMachine` / `SuspendStateMachineInterface` 3계층 인터페이스 (시그니처 충돌 방지)
@@ -60,6 +92,7 @@
 
 ### Fixed
 
+- `virtualthread/api` — `StructuredTaskScopeAll.joinUntil(Instant)` 메서드 추가, `Jdk21AllScope` 구현: `ParallelWorkFlow` 타임아웃이 실제로 동작하지 않던 문제 수정 ([`685e25a4d`](https://github.com/bluetape4k/bluetape4k-projects/commit/685e25a4d))
 - `WireMockServer.resetAll()`: Apache HttpClient 5 stale 커넥션으로 인한 `NoHttpResponseException` 발생 시 클라이언트 재생성 후 1회 재시도 ([`c4adae7d`](https://github.com/bluetape4k/bluetape4k-projects/commit/c4adae7d))
 - `ZooKeeperServer`: Curator 연결 타임아웃 안정화 — `RetryOneTime(1000)` + `blockUntilConnected(10s)` 추가 (IPv6→IPv4 폴백 대응) ([`0d05542d`](https://github.com/bluetape4k/bluetape4k-projects/commit/0d05542d))
 - `ToxiproxyServer`: `useDefaultPort` 시 `exposeCustomPorts()` 누락 수정, KDoc 프로퍼티 키 `control.port` → `control-port` ([`a46226b8`](https://github.com/bluetape4k/bluetape4k-projects/commit/a46226b8))
