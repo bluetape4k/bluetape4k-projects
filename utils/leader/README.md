@@ -1,79 +1,206 @@
-# Module bluetape4k-leader
+# bluetape4k-leader
 
 English | [한국어](./README.ko.md)
 
-## Overview
+Prevents duplicate execution of the same task across multiple processes or threads in a distributed environment. Only the elected
+**leader** instance executes the task — all others skip it.
 
-Provides leader election functionality to prevent duplicate execution of the same task across multiple processes or threads in a distributed environment.
+## Use Cases
 
-Only the elected leader instance executes the task, which prevents duplicate runs in scheduled jobs, batch processing, and similar scenarios.
+### Single Leader (`LeaderElection`) — only 1 concurrent execution
 
-## Dependency
+| Scenario             | Why it helps                                                           |
+|----------------------|------------------------------------------------------------------------|
+| Scheduled jobs       | Prevent the same job from running on multiple instances simultaneously |
+| Cache refresh        | Run cache update logic on only one instance at a time                  |
+| Notifications        | Prevent duplicate alerts from being sent                               |
+| Data synchronization | Prevent duplicate sync jobs with external systems                      |
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-leader:${version}")
-}
+### Group Leader (`LeaderGroupElection`) — up to N concurrent executions
+
+| Scenario                  | Why it helps                                                                        |
+|---------------------------|-------------------------------------------------------------------------------------|
+| Parallel batch processing | Split large datasets into N chunks, process concurrently with concurrency control   |
+| Rate limiting             | Limit concurrent outbound API calls to a backend or external service                |
+| Worker pool management    | Allow only a fixed number of workers to run a task at the same time                 |
+| Resource protection       | Control concurrency for tasks that consume limited resources (DB connections, etc.) |
+
+## Architecture
+
+### Concept Overview — Single Leader
+
+```mermaid
+flowchart LR
+    subgraph Instances["Distributed Instances"]
+        I1["Instance 1"]
+        I2["Instance 2"]
+        I3["Instance 3"]
+    end
+
+    I1 -->|"runIfLeader(lockName)"| LE[LeaderElection]
+    I2 -->|"runIfLeader(lockName)"| LE
+    I3 -->|"runIfLeader(lockName)"| LE
+
+    LE -->|"lock acquired"| L["Leader\n(executes task)"]
+    LE -->|"lock failed"| S["Non-Leader\n(returns null)"]
+
+    L --> R["Result T"]
+    S --> N["null (skipped)"]
 ```
 
-## Interface Hierarchy
+### Concept Overview — Group Leader (Semaphore)
 
-### Single Leader Election (only 1 concurrent execution per lockName)
+```mermaid
+flowchart LR
+    subgraph Instances["5 Instances"]
+        I1["Instance 1"] & I2["Instance 2"] & I3["Instance 3"] & I4["Instance 4"] & I5["Instance 5"]
+    end
 
-```
-AsyncLeaderElection          VirtualThreadLeaderElection  SuspendLeaderElection
-       ↑                                                   (independent coroutine tier)
-LeaderElection
-```
+    I1 & I2 & I3 & I4 & I5 -->|"runIfLeader(lockName)"| GE["LeaderGroupElection\n(maxLeaders = 3)"]
 
-- **`AsyncLeaderElection`**: BASE — async leader election (returns `CompletableFuture`)
-- **`LeaderElection`**: extends `AsyncLeaderElection` — adds synchronous `runIfLeader`
-- **`VirtualThreadLeaderElection`**: independent — Virtual Thread-based async (returns `VirtualFuture`)
-- **`SuspendLeaderElection`**: independent — coroutine-based (`suspend fun`)
-
-### Group Leader Election (up to N concurrent executions per lockName, Semaphore-based)
-
-```
-LeaderGroupElectionState  (maxLeaders, activeCount, availableSlots, state)
-         ↑
-AsyncLeaderGroupElection   VirtualThreadLeaderGroupElection  SuspendLeaderGroupElection
-         ↑                       (LeaderGroupElectionState)    (LeaderGroupElectionState)
-LeaderGroupElection
+    GE -->|"slot acquired (3 win)"| L["Leaders\n(execute concurrently)"]
+    GE -->|"slot unavailable (2 lose)"| S["Non-Leaders\n(return null)"]
 ```
 
-- **`LeaderGroupElectionState`**: common state query interface
-- **`AsyncLeaderGroupElection`**: BASE — async group election (returns `CompletableFuture`)
-- **`LeaderGroupElection`**: extends `AsyncLeaderGroupElection` — adds synchronous `runIfLeader`
-- **`VirtualThreadLeaderGroupElection`**: independent — Virtual Thread-based (returns `VirtualFuture`)
-- **`SuspendLeaderGroupElection`**: independent — coroutine-based (`suspend fun`)
+### Class Diagram — Single Leader
 
-### Local Implementations
+```mermaid
+classDiagram
+    class AsyncLeaderElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, block): CompletableFuture~T?~
+    }
 
-**Single leader:**
+    class LeaderElection {
+        <<interface>>
+        +runIfLeader(lockName, block): T?
+    }
 
-| Implementation | Interface | Synchronization |
-|----------------|-----------|-----------------|
-| `LocalLeaderElection` | `LeaderElection` | `ReentrantLock` (reentrant) |
-| `LocalAsyncLeaderElection` | `AsyncLeaderElection` | `ReentrantLock` + `CompletableFuture` |
-| `LocalVirtualThreadLeaderElection` | `VirtualThreadLeaderElection` | `ReentrantLock` + Virtual Thread |
-| `LocalSuspendLeaderElection` | `SuspendLeaderElection` | Kotlin `Mutex` (non-reentrant) |
+    class VirtualThreadLeaderElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, block): VirtualFuture~T?~
+    }
 
-**Group leader:**
+    class SuspendLeaderElection {
+        <<interface>>
+        +runIfLeader(lockName, block): T?
+    }
 
-| Implementation | Interface | Synchronization |
-|----------------|-----------|-----------------|
-| `LocalLeaderGroupElection` | `LeaderGroupElection` | `java.util.concurrent.Semaphore` |
-| `LocalAsyncLeaderGroupElection` | `AsyncLeaderGroupElection` | `java.util.concurrent.Semaphore` + `CompletableFuture` |
-| `LocalVirtualThreadLeaderGroupElection` | `VirtualThreadLeaderGroupElection` | `java.util.concurrent.Semaphore` + Virtual Thread |
-| `LocalSuspendLeaderGroupElection` | `SuspendLeaderGroupElection` | `kotlinx.coroutines.sync.Semaphore` |
+    class LocalLeaderElection {
+        -lock: ReentrantLock
+        +runIfLeader(lockName, block): T?
+    }
+
+    class LocalAsyncLeaderElection {
+        -lock: ReentrantLock
+        +runAsyncIfLeader(lockName, block): CompletableFuture~T?~
+    }
+
+    class LocalVirtualThreadLeaderElection {
+        -lock: ReentrantLock
+        +runAsyncIfLeader(lockName, block): VirtualFuture~T?~
+    }
+
+    class LocalSuspendLeaderElection {
+        -mutex: Mutex
+        +runIfLeader(lockName, block): T?
+    }
+
+    AsyncLeaderElection <|-- LeaderElection
+    LeaderElection <|.. LocalLeaderElection
+    AsyncLeaderElection <|.. LocalAsyncLeaderElection
+    VirtualThreadLeaderElection <|.. LocalVirtualThreadLeaderElection
+    SuspendLeaderElection <|.. LocalSuspendLeaderElection
+```
+
+### Class Diagram — Group Leader
+
+```mermaid
+classDiagram
+    class LeaderGroupElectionState {
+        <<interface>>
+        +maxLeaders: Int
+        +activeCount(lockName): Int
+        +availableSlots(lockName): Int
+        +isFull(lockName): Boolean
+        +isEmpty(lockName): Boolean
+    }
+
+    class AsyncLeaderGroupElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, block): CompletableFuture~T?~
+    }
+
+    class LeaderGroupElection {
+        <<interface>>
+        +runIfLeader(lockName, block): T?
+    }
+
+    class VirtualThreadLeaderGroupElection {
+        <<interface>>
+        +runAsyncIfLeader(lockName, block): VirtualFuture~T?~
+    }
+
+    class SuspendLeaderGroupElection {
+        <<interface>>
+        +runIfLeader(lockName, block): T?
+    }
+
+    class LocalLeaderGroupElection {
+        -semaphore: java.util.concurrent.Semaphore
+    }
+
+    class LocalAsyncLeaderGroupElection {
+        -semaphore: java.util.concurrent.Semaphore
+    }
+
+    class LocalVirtualThreadLeaderGroupElection {
+        -semaphore: java.util.concurrent.Semaphore
+    }
+
+    class LocalSuspendLeaderGroupElection {
+        -semaphore: kotlinx.coroutines.sync.Semaphore
+    }
+
+    LeaderGroupElectionState <|.. AsyncLeaderGroupElection
+    AsyncLeaderGroupElection <|-- LeaderGroupElection
+    LeaderGroupElection <|.. LocalLeaderGroupElection
+    AsyncLeaderGroupElection <|.. LocalAsyncLeaderGroupElection
+    VirtualThreadLeaderGroupElection <|.. LocalVirtualThreadLeaderGroupElection
+    SuspendLeaderGroupElection <|.. LocalSuspendLeaderGroupElection
+```
+
+### Execution Sequence — Single Leader
+
+```mermaid
+sequenceDiagram
+    participant I1 as Instance 1
+    participant I2 as Instance 2
+    participant LE as LeaderElection
+    participant Lock as Lock (ReentrantLock / Mutex)
+    participant Task
+
+    I1->>LE: runIfLeader("job-lock") { task }
+    I2->>LE: runIfLeader("job-lock") { task }
+
+    LE->>Lock: tryLock("job-lock")
+    Lock-->>LE: acquired → I1 is leader
+    Lock-->>LE: not acquired → I2 is not leader
+
+    LE->>Task: execute block (I1 only)
+    Task-->>LE: result T
+
+    LE-->>I1: result T
+    LE-->>I2: null (skipped)
+
+    LE->>Lock: unlock("job-lock")
+```
 
 ## Usage Examples
 
-### Synchronous (LeaderElection)
+### Synchronous (`LeaderElection`)
 
 ```kotlin
-import io.bluetape4k.leader.LeaderElection
-
 class MyScheduler(private val leaderElection: LeaderElection) {
 
     fun executeTask() {
@@ -90,12 +217,9 @@ class MyScheduler(private val leaderElection: LeaderElection) {
 }
 ```
 
-### Asynchronous (AsyncLeaderElection)
+### Asynchronous (`AsyncLeaderElection`)
 
 ```kotlin
-import io.bluetape4k.leader.AsyncLeaderElection
-import java.util.concurrent.CompletableFuture
-
 class MyAsyncService(private val leaderElection: AsyncLeaderElection) {
 
     fun executeAsyncTask(): CompletableFuture<String?> {
@@ -106,13 +230,9 @@ class MyAsyncService(private val leaderElection: AsyncLeaderElection) {
 }
 ```
 
-### Coroutine-based (SuspendLeaderElection)
+### Coroutine (`SuspendLeaderElection`)
 
 ```kotlin
-import io.bluetape4k.leader.coroutines.SuspendLeaderElection
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
 class MyCoroutineService(private val leaderElection: SuspendLeaderElection) {
 
     suspend fun executeSuspendTask(): String? {
@@ -125,11 +245,9 @@ class MyCoroutineService(private val leaderElection: SuspendLeaderElection) {
 }
 ```
 
-### Virtual Thread (VirtualThreadLeaderElection)
+### Virtual Thread (`VirtualThreadLeaderElection`)
 
 ```kotlin
-import io.bluetape4k.leader.local.LocalVirtualThreadLeaderElection
-
 val election = LocalVirtualThreadLeaderElection()
 
 val future = election.runAsyncIfLeader("job-lock") {
@@ -139,11 +257,9 @@ val future = election.runAsyncIfLeader("job-lock") {
 val result = future.await()
 ```
 
-### Group Leader Election — up to N concurrent executions
+### Group Leader — up to N concurrent executions
 
 ```kotlin
-import io.bluetape4k.leader.local.LocalLeaderGroupElection
-
 // Synchronous — up to 3 threads concurrently
 val election = LocalLeaderGroupElection(maxLeaders = 3)
 
@@ -151,20 +267,15 @@ val result = election.runIfLeader("batch-job") {
     processChunk()  // acquires slot → executes → releases slot automatically
 }
 
-// State query (LeaderGroupElectionState interface)
+// State query
 val state = election.state("batch-job")
 println("Active leaders: ${state.activeCount} / ${state.maxLeaders}")
 println("Available slots: ${state.availableSlots}")
-println("Full: ${state.isFull}, Empty: ${state.isEmpty}")
 ```
 
 ### Spring Boot Integration
 
 ```kotlin
-import io.bluetape4k.leader.LeaderElection
-import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
-
 @Component
 class ScheduledTaskRunner(private val leaderElection: LeaderElection) {
 
@@ -185,18 +296,10 @@ class ScheduledTaskRunner(private val leaderElection: LeaderElection) {
 }
 ```
 
-## Use Cases
+## Dependency
 
-### Single Leader (LeaderElection)
-
-1. **Scheduled jobs**: Prevent the same job from running on multiple instances simultaneously
-2. **Cache refresh**: Run cache update logic on only one instance at a time
-3. **Notifications**: Prevent duplicate alerts from being sent
-4. **Data synchronization**: Prevent duplicate sync jobs with external systems
-
-### Group Leader (LeaderGroupElection)
-
-1. **Parallel batch processing**: Split large datasets into N chunks and process concurrently with concurrency control
-2. **Rate limiting**: Limit concurrent outbound API calls
-3. **Worker pool management**: Allow only a fixed number of workers to execute a task at the same time
-4. **Resource protection**: Control concurrency for tasks that use limited resources such as DB connections
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-leader:${version}")
+}
+```

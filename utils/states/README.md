@@ -4,81 +4,31 @@ English | [한국어](./README.ko.md)
 
 A Kotlin DSL-based finite state machine (FSM) library. It supports both synchronous and coroutine-based FSMs, along with guard conditions and `StateFlow`-based state observation.
 
-## Key Features
+## Architecture
 
-- **Type-safe DSL**: concise FSM definitions with `stateMachine {}` and `suspendStateMachine {}`
-- **Synchronous FSM**: thread-safe state transitions based on `AtomicReference` CAS
-- **Coroutine FSM**: suspend transitions and state observation based on `Mutex` + `StateFlow`
-- **Guard conditions**: validate conditions before transitions
-- **clinic-appointment pattern**: adopts a map-based transition model plus suspend callback pattern
+### Concept Overview
 
-## Quick Start
+How states, events, and the state machine interact:
 
-### Dependency
+```mermaid
+flowchart LR
+    subgraph DSL["DSL Definition"]
+        S["States\n(enum / sealed)"]
+        E["Events\n(sealed class)"]
+        T["Transitions\nfrom → on<Event> → to"]
+        G["Guard Conditions\n(optional predicate)"]
+    end
 
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-states"))
-}
+    User -->|" stateMachine { ... } "| DSL
+    DSL -->|" build() "| SM[StateMachine]
+    SM -->|" transition(event) "| TR["TransitionResult\n(prev, event, current)"]
+    SM -.->|" stateFlow (suspend) "| SF["StateFlow\n(observable state)"]
+    TR -->|" onTransition callback "| CB["Side-effect Logic"]
 ```
 
-### Synchronous FSM
-
-```kotlin
-val orderFsm = stateMachine<OrderState, OrderEvent> {
-    initialState = OrderState.CREATED
-    finalStates = setOf(OrderState.DELIVERED, OrderState.CANCELLED)
-
-    transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
-    transition(OrderState.PAID, on<OrderEvent.Ship>(), to = OrderState.SHIPPED)
-    transition(OrderState.SHIPPED, on<OrderEvent.Deliver>(), to = OrderState.DELIVERED)
-    transition(OrderState.CREATED, on<OrderEvent.Cancel>(), to = OrderState.CANCELLED)
-
-    onTransition { prev, event, next ->
-        println("$prev --[$event]--> $next")
-    }
-}
-
-val result = orderFsm.transition(OrderEvent.Pay())
-// result.previousState == CREATED
-// result.currentState == PAID
-```
-
-### Coroutine FSM
-
-```kotlin
-val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
-    initialState = AppointmentState.PENDING
-    finalStates = setOf(AppointmentState.COMPLETED, AppointmentState.CANCELLED)
-
-    transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
-    transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
-
-    onTransition { prev, event, next ->
-        println("State transition: $prev --> $next")
-    }
-}
-
-// observe StateFlow
-launch { suspendFsm.stateFlow.collect { state -> println("Current state: $state") } }
-
-// suspend transition
-val result = suspendFsm.transition(AppointmentEvent.Request())
-```
-
-### Guard Conditions
-
-```kotlin
-val fsm = stateMachine<State, Event> {
-    initialState = State.PENDING
-
-    transition(State.PENDING, on<ApproveEvent>(), to = State.APPROVED) {
-        guard { state, event -> (event as ApproveEvent).approvedBy != null }
-    }
-}
-```
-
-## Interface Hierarchy
+A `StateMachine` holds a set of typed **transitions** (from-state + event-type → to-state).  
+Each transition can have an optional **guard condition** that must pass before the state changes.  
+`SuspendStateMachine` adds a `StateFlow` so consumers can reactively observe state changes.
 
 ### Class Diagram
 
@@ -160,8 +110,6 @@ classDiagram
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common `BaseStateMachine`.
 
----
-
 ### DSL Builder Structure
 
 ```mermaid
@@ -195,11 +143,17 @@ classDiagram
     SuspendStateMachineBuilder ..> SuspendStateMachine : builds
 ```
 
----
+## Key Features
 
-## Example State Transition Diagrams
+- **Type-safe DSL**: concise FSM definitions with `stateMachine {}` and `suspendStateMachine {}`
+- **Synchronous FSM**: thread-safe state transitions based on `AtomicReference` CAS
+- **Coroutine FSM**: suspend transitions and state observation based on `Mutex` + `StateFlow`
+- **Guard conditions**: validate conditions before transitions
+- **clinic-appointment pattern**: adopts a map-based transition model plus suspend callback pattern
 
-### 1. Turnstile - Simple FSM
+## Example State Diagrams
+
+### 1. Turnstile — Simple FSM
 
 ```mermaid
 stateDiagram-v2
@@ -211,7 +165,7 @@ stateDiagram-v2
     Unlocked --> Unlocked : Coin while already unlocked
 ```
 
-### 2. Order - One-Way FSM
+### 2. Order — One-Way FSM
 
 ```mermaid
 stateDiagram-v2
@@ -226,7 +180,7 @@ stateDiagram-v2
     CANCELLED --> [*]
 ```
 
-### 3. Appointment - Complex FSM (`clinic-appointment`)
+### 3. Appointment — Complex FSM (`clinic-appointment`)
 
 ```mermaid
 stateDiagram-v2
@@ -260,7 +214,71 @@ stateDiagram-v2
     RESCHEDULED --> [*]
 ```
 
----
+## Quick Start
+
+### Dependency
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-states"))
+}
+```
+
+### Synchronous FSM
+
+```kotlin
+val orderFsm = stateMachine<OrderState, OrderEvent> {
+    initialState = OrderState.CREATED
+    finalStates = setOf(OrderState.DELIVERED, OrderState.CANCELLED)
+
+    transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
+    transition(OrderState.PAID, on<OrderEvent.Ship>(), to = OrderState.SHIPPED)
+    transition(OrderState.SHIPPED, on<OrderEvent.Deliver>(), to = OrderState.DELIVERED)
+    transition(OrderState.CREATED, on<OrderEvent.Cancel>(), to = OrderState.CANCELLED)
+
+    onTransition { prev, event, next ->
+        println("$prev --[$event]--> $next")
+    }
+}
+
+val result = orderFsm.transition(OrderEvent.Pay())
+// result.previousState == CREATED
+// result.currentState == PAID
+```
+
+### Coroutine FSM
+
+```kotlin
+val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
+    initialState = AppointmentState.PENDING
+    finalStates = setOf(AppointmentState.COMPLETED, AppointmentState.CANCELLED)
+
+    transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
+    transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
+
+    onTransition { prev, event, next ->
+        println("State transition: $prev --> $next")
+    }
+}
+
+// observe StateFlow
+launch { suspendFsm.stateFlow.collect { state -> println("Current state: $state") } }
+
+// suspend transition
+val result = suspendFsm.transition(AppointmentEvent.Request())
+```
+
+### Guard Conditions
+
+```kotlin
+val fsm = stateMachine<State, Event> {
+    initialState = State.PENDING
+
+    transition(State.PENDING, on<ApproveEvent>(), to = State.APPROVED) {
+        guard { state, event -> (event as ApproveEvent).approvedBy != null }
+    }
+}
+```
 
 ## State Transition Sequence Diagrams
 
@@ -317,30 +335,6 @@ sequenceDiagram
     Note over MutableStateFlow: automatically emitted to StateFlow subscribers
     SuspendStateMachine->>OnTransitionCallback: invoke(previous, event, next)
     SuspendStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
-
----
-
-## Package Structure
-
-```mermaid
-graph TD
-    M[bluetape4k-states] --> API[api/]
-    M --> CORE[core/]
-    M --> COR[coroutines/]
-
-    API --> BSM[BaseStateMachine.kt]
-    API --> SM[StateMachine.kt]
-    API --> SSMI[SuspendStateMachineInterface.kt]
-    API --> TR[TransitionResult.kt]
-    API --> EX[StateMachineException.kt]
-
-    CORE --> TK[TransitionKey.kt]
-    CORE --> TT[TransitionTarget.kt]
-    CORE --> DSM[DefaultStateMachine.kt]
-    CORE --> DSL[StateMachineDsl.kt]
-
-    COR --> SSM[SuspendStateMachine.kt]
 ```
 
 ## `clinic-appointment` Migration Guide

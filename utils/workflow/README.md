@@ -4,16 +4,67 @@
 
 A Kotlin DSL-based workflow orchestration library with support for sync, coroutine-based, and Virtual Thread execution models. Define complex workflows declaratively using composable flow builders.
 
-## Overview
+For additional reference, see [easy-flows](https://github.com/j-easy/easy-flows).
 
-`bluetape4k-workflow` provides a type-safe DSL for building workflows with multiple execution strategies:
-- **Sequential flows**: execute tasks one after another with error handling strategies
-- **Parallel flows**: execute tasks concurrently (Virtual Threads for sync, `coroutineScope` for suspend)
-- **Conditional flows**: branch execution based on predicates
-- **Repeat flows**: loop task execution with configurable conditions
-- **Retry flows**: automatically retry failed tasks with exponential backoff
+## Architecture
 
-For additional reference, see [easy-flows](https://github.com/amigoscode/easy-flows).
+### Concept Overview
+
+How work units, context, and flows relate:
+
+```mermaid
+flowchart LR
+    subgraph Flows["Flow Types"]
+        SF["Sequential\n(ordered)"]
+        PF["Parallel\n(concurrent)"]
+        CF["Conditional\n(branching)"]
+        RF["Repeat\n(looping)"]
+        RT["Retry\n(backoff)"]
+    end
+
+    User -->|" defines "| W["Work / SuspendWork\n(lambda: ctx → WorkReport)"]
+    User -->|" composes "| Flows
+    W -->|" assembled into "| Flows
+    Flows -->|" execute(ctx) "| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
+    WR -->|" reads/writes "| WC["WorkContext\n(shared mutable map)"]
+```
+
+A `Work` unit is a named lambda that receives a `WorkContext` and returns a `WorkReport`.  
+Flows compose multiple work units into an execution strategy.  
+`WorkContext` carries shared state across all tasks in a workflow run.
+
+### WorkReport States
+
+```mermaid
+stateDiagram-v2
+    [*] --> Running: execute(ctx)
+    Running --> Success: task completed normally
+    Running --> Failure: exception thrown (STOP)
+    Running --> PartialSuccess: some failed (CONTINUE)
+    Running --> Aborted: task called WorkReport.Aborted
+    Running --> Cancelled: timeout / coroutine cancel
+    Success --> [*]
+    Failure --> [*]
+    PartialSuccess --> [*]
+    Aborted --> [*]
+    Cancelled --> [*]
+```
+
+### Execution Model
+
+```mermaid
+flowchart TD
+    A[Choose Execution Model] --> B{async needed?}
+    B -->|yes| C["SuspendWork\nsuspendSequentialFlow\nsuspendParallelFlow\nsuspendRepeatFlow"]
+    B -->|no| D["Work\nsequentialFlow\nparallelFlow\nconditionalFlow\nrepeatFlow\nretryFlow"]
+    C --> E{flow type}
+    D --> E
+    E --> F[Sequential]
+    E --> G[Parallel]
+    E --> H[Conditional]
+    E --> I[Repeat]
+    E --> J[Retry]
+```
 
 ## Key Features
 
@@ -81,6 +132,16 @@ val report = suspendWork.execute(ctx)
 
 Execute tasks in order; error handling controlled by `ErrorStrategy`:
 
+```mermaid
+flowchart LR
+    S([Start]) --> W1[Work 1] --> W2[Work 2] --> W3[Work 3] --> E([COMPLETED])
+    W1 -. " failure + STOP " .-> F([FAILED])
+    W2 -. " failure + STOP " .-> F
+    W1 -. " failure + CONTINUE " .-> W2
+    W2 -. " failure + CONTINUE " .-> W3
+    W3 -. " any failure " .-> P([PARTIAL])
+```
+
 ```kotlin
 // Sync version
 val flow = sequentialFlow("order-processing") {
@@ -113,6 +174,11 @@ val report = flow.execute(WorkContext())
 
 Execute tasks concurrently:
 
+```mermaid
+flowchart LR
+    S([Start]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
+```
+
 ```kotlin
 // Sync (Virtual Threads)
 val flow = parallelFlow("fetch-data") {
@@ -134,6 +200,15 @@ val report = flow.execute(WorkContext())
 
 Branch execution based on a predicate:
 
+```mermaid
+flowchart LR
+    S([Start]) --> C{condition?}
+    C -->|true| T[then]
+    C -->|false| O[otherwise]
+    T --> E([Done])
+    O --> E
+```
+
 ```kotlin
 val flow = conditionalFlow("check-valid") {
     condition { ctx -> ctx.get<Boolean>("valid") == true }
@@ -147,6 +222,16 @@ val report = flow.execute(ctx)
 ### Repeat Flow
 
 Execute a task repeatedly until a condition is met:
+
+```mermaid
+flowchart LR
+    S([Start]) --> W[Work]
+    W -->|success| C{repeatWhile\ntrue?}
+    C -->|yes| W
+    C -->|no| E([COMPLETED])
+    W -. ABORTED .-> A([ABORTED])
+    W -. FAILED .-> F([FAILED])
+```
 
 ```kotlin
 // Sync
@@ -173,6 +258,16 @@ val report = flow.execute(WorkContext())
 ### Retry Flow
 
 Automatically retry failed tasks with exponential backoff:
+
+```mermaid
+flowchart LR
+    S([Start]) --> W[Work]
+    W -->|success| E([COMPLETED])
+    W -->|failure| R{attempts\nleft?}
+    R -->|yes| D[backoff delay]
+    D --> W
+    R -->|no| F([FAILED])
+```
 
 ```kotlin
 val flow = retryFlow("call-api") {
@@ -269,9 +364,3 @@ dependencies {
     implementation(project(":bluetape4k-workflow"))
 }
 ```
-
-## Architecture
-
-- **sync**: `sequentialFlow {}`, `parallelFlow {}`, `conditionalFlow {}`, `repeatFlow {}`, `retryFlow {}` using `Work`
-- **coroutine**: `suspendSequentialFlow {}`, `suspendParallelFlow {}`, etc. using `SuspendWork`
-- **common**: `WorkReport`, `WorkStatus`, `ErrorStrategy`, `RetryPolicy`, `WorkContext`

@@ -1,29 +1,136 @@
-# Module bluetape4k-javatimes
+# bluetape4k-javatimes
 
 English | [한국어](./README.ko.md)
 
-An advanced time-operations library for the Java Time API (java.time). Supports complex time-related tasks including Temporal Intervals, a Period Framework, and Temporal Ranges.
+An advanced time-operations library for the Java Time API (java.time). Supports Joda-Time-style Temporal Intervals, a Period Framework (TimeBlock/TimeRange/DateAdd/DateDiff), Calendar Ranges, and Kotlin-range-style Temporal Ranges.
 
-## Overview
+> **Note**: Basic DSL (`5.days()`, `3.hours()`, etc.) and Temporal extension functions are in `bluetape4k-core` (
+`io.bluetape4k.javatimes`). This module builds on top of core.
 
-`bluetape4k-javatimes` builds on top of the foundational time DSL in `bluetape4k-core` (`io.bluetape4k.javatimes` package) to provide higher-level time operations: Joda-Time-style Intervals, business-day calculations, calendar ranges, and Flow-based time-series processing.
+## Architecture
 
-> **Note**: Basic extension functions for Duration/Period DSL, Instant/LocalDateTime/ZonedDateTime creation, and Quarters are included in `bluetape4k-core` (`io.bluetape4k.javatimes`) and can be used with just the core dependency.
+### Feature Overview
 
-## Dependency
+```mermaid
+flowchart TD
+    subgraph CORE["bluetape4k-core (always available)"]
+        DSL["Duration/Period DSL\n5.days()  3.hours()  2.yearPeriod()"]
+        EXT["Temporal Extensions\nstartOfYear()  toEpochMillis()  nowInstant()"]
+    end
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-javatimes:${bluetape4kVersion}")
+    subgraph JT["bluetape4k-javatimes"]
+        INT["Temporal Interval\n(interval/)"]
+        PER["Period Framework\n(period/)"]
+        CAL["Calendar Ranges\n(period/ranges/)"]
+        RNG["Temporal Range\n(range/)"]
+    end
 
-    // Optional coroutines support
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-}
+    JT -->|depends on| CORE
+
+    INT --> |"contains()\noverlaps()\nwindowed / chunked"| IntOp(["Interval Operations"])
+    PER --> |"TimeBlock / TimeRange\nDateAdd / DateDiff\nPeriodRelation"| PerOp(["Period Operations"])
+    CAL --> |"YearRange → MonthRange\n→ WeekRange → DayRange\n→ HourRange → MinuteRange"| CalOp(["Calendar Queries"])
+    RNG --> |"start..end\nstep()  asFlow()\nwindowedFlowMonths()"| RngOp(["Range + Flow"])
 ```
 
-## Core Features (provided by bluetape4k-core)
+### Class Hierarchy — Period Framework
 
-The following features are in `bluetape4k-core`'s `io.bluetape4k.javatimes` package and are available with just the core dependency. Since `javatimes` depends on `core`, they are always available.
+```mermaid
+classDiagram
+    class TimePeriod {
+        <<interface>>
+        +start: ZonedDateTime
+        +end: ZonedDateTime
+        +duration: Duration
+        +contains(dt): Boolean
+        +overlaps(other): Boolean
+        +relationWith(other): PeriodRelation
+    }
+
+    class TimeBlock {
+        +start: ZonedDateTime
+        +duration: Duration
+        +move(duration)
+        +expandBy(duration)
+    }
+
+    class TimeRange {
+        +start: ZonedDateTime
+        +end: ZonedDateTime
+        +move(duration)
+        +expandBy(duration)
+    }
+
+    class CalendarTimeRange {
+        +calendar: TimeCalendar
+        +unmappedStart: ZonedDateTime
+        +unmappedEnd: ZonedDateTime
+    }
+
+    class YearRange { +year: Int }
+    class MonthRange { +monthOfYear: Int }
+    class WeekRange { +weekOfYear: Int }
+    class DayRange
+    class HourRange
+    class MinuteRange
+
+    class DateAdd {
+        +excludePeriods: List~TimeRange~
+        +add(start, duration): ZonedDateTime
+        +subtract(start, duration): ZonedDateTime
+    }
+
+    class DateDiff {
+        +years: Int
+        +months: Int
+        +days: Int
+        +hours: Int
+        +minutes: Int
+        +seconds: Int
+    }
+
+    class TemporalInterval {
+        +start: Instant
+        +end: Instant
+        +toDuration(): Duration
+        +contains(instant): Boolean
+        +overlaps(other): Boolean
+        +windowedDays(size, step): List
+        +chunkMonths(size): List
+    }
+
+    TimePeriod <|-- TimeBlock
+    TimePeriod <|-- TimeRange
+    TimeRange <|-- CalendarTimeRange
+    CalendarTimeRange <|-- YearRange
+    CalendarTimeRange <|-- MonthRange
+    CalendarTimeRange <|-- WeekRange
+    CalendarTimeRange <|-- DayRange
+    CalendarTimeRange <|-- HourRange
+    CalendarTimeRange <|-- MinuteRange
+    DateAdd ..> TimeRange : uses excludePeriods
+```
+
+### PeriodRelation — How Two Periods Relate
+
+```mermaid
+flowchart LR
+    subgraph rel["PeriodRelation (A vs B)"]
+        direction TB
+        R1["Before:         A──┤  ├──B"]
+        R2["StartTouching:  A──┤B──┤"]
+        R3["Overlap:        A──┤──B┤"]
+        R4["Inside:         ├─A─┤  (inside B)"]
+        R5["ExactMatch:     A ═══ B"]
+        R6["Covers:         A covers B entirely"]
+        R7["After:          B──┤  ├──A"]
+    end
+```
+
+## Core Features (from `bluetape4k-core`)
+
+The following are in `bluetape4k-core`'s `io.bluetape4k.javatimes` package and always available since
+`javatimes` depends on `core`.
 
 - **Duration/Period DSL**: `5.days()`, `3.hours()`, `2.yearPeriod()`, etc.
 - **Duration utilities**: `durationOfDay()`, `formatHMS()`, `formatISO()`, etc.
@@ -32,110 +139,78 @@ The following features are in `bluetape4k-core`'s `io.bluetape4k.javatimes` pack
 - **TemporalAccessor formatting**: `toIsoInstantString()`, `toIsoDateString()`, etc.
 - **Quarter support**: `Quarter.Q1`, `YearQuarter(2024, Quarter.Q1)`, etc.
 
-See the `bluetape4k-core` module README for details.
+## Features
 
-## Features (this module)
-
-### Temporal Interval (interval/)
+### Temporal Interval (`interval/`)
 
 Joda-Time-style time interval support.
 
 ```kotlin
-// Create an interval
 val start = nowInstant()
 val end = start + 1.days()
 val interval = temporalIntervalOf(start, end)
 
-// Create from a Duration
-val interval2 = temporalIntervalOf(start, 2.hours())
-
-// Check containment
-val someInstant = start + 30.minutes()
-interval.contains(someInstant)  // true
-
-// Check overlap
-val otherInterval = temporalIntervalOf(start + 12.hours(), end + 12.hours())
-interval.overlaps(otherInterval)  // true
-
-// Convert to Duration
+interval.contains(start + 30.minutes())          // true
+interval.overlaps(temporalIntervalOf(start + 12.hours(), end + 12.hours()))  // true
 val duration = interval.toDuration()
 
-// Windowed (sliding window)
-interval.windowedYears(3, 1)    // 3-year window, move 1 year at a time
-interval.windowedMonths(6, 1)   // 6-month window, move 1 month at a time
-interval.windowedDays(7, 1)     // 7-day window, move 1 day at a time
+// Sliding window
+interval.windowedYears(3, 1)    // 3-year window, step 1 year
+interval.windowedMonths(6, 1)   // 6-month window, step 1 month
+interval.windowedDays(7, 1)     // 7-day window, step 1 day
 
-// Chunked (fixed partitions)
-interval.chunkYears(1)          // split into 1-year chunks
-interval.chunkMonths(3)         // split into quarterly chunks
-interval.chunkDays(1)           // split into daily chunks
+// Fixed chunks
+interval.chunkYears(1)          // 1-year chunks
+interval.chunkMonths(3)         // quarterly chunks
+interval.chunkDays(1)           // daily chunks
 ```
 
-### Period Framework (period/)
+### Period Framework (`period/`)
 
-A framework for complex period computations and relationships.
-
-#### TimePeriod, TimeBlock, TimeRange
+#### TimeBlock and TimeRange
 
 ```kotlin
-// TimeBlock: defined by a start time and duration
+// TimeBlock: defined by start + duration
 val block = TimeBlock(start, 2.hours())
 
-// TimeRange: defined by a start and end time
+// TimeRange: defined by start + end
 val range = TimeRange(start, end)
 
-// Period manipulation
-block.move(1.hours())        // shift by 1 hour
-range.expandBy(30.minutes()) // expand by 30 minutes
+block.move(1.hours())         // shift forward 1 hour
+range.expandBy(30.minutes())  // expand by 30 minutes
 
-// Period relationship
 val relation = block.relationWith(otherBlock)
 // PeriodRelation: Before, After, StartTouching, EndTouching,
-//                 ExactMatch, Inside, Covers, Overlap, etc.
+//                 ExactMatch, Inside, Covers, Overlap, ...
 ```
 
 #### DateAdd — Business Day Calculations
 
-Supports business day calculations that exclude weekends and holidays.
-
 ```kotlin
 val dateAdd = DateAdd().apply {
-    excludePeriods += TimeRange(start.startOfDay(), (start + 2.days()).startOfDay())
     excludePeriods += TimeRange(holiday.startOfDay(), (holiday + 1.days()).startOfDay())
 }
 
-// Calculate excluding the specified periods
-dateAdd.add(start, 5.days())
-dateAdd.subtract(start, 3.days())
+dateAdd.add(today, 10.days())       // 10 business days from today
+dateAdd.subtract(today, 3.days())   // 3 business days before today
 ```
 
 #### DateDiff — Period Difference
 
 ```kotlin
 val dateDiff = DateDiff(start, end)
-
 dateDiff.years    // difference in years
 dateDiff.months   // difference in months
 dateDiff.days     // difference in days
 dateDiff.hours    // difference in hours
-dateDiff.minutes  // difference in minutes
-dateDiff.seconds  // difference in seconds
 ```
 
 #### TimeCalendar / TimeCalendarConfig
 
-`TimeCalendar` encapsulates "calendar rules" such as start/end time mapping and the first day of the week. `TimeCalendarConfig` exposes three values:
-
-- `startOffset`: offset applied when mapping the period start time
-- `endOffset`: offset applied when mapping the period end time
-- `firstDayOfWeek`: the start of the week for weekly calculations
-
-The default configuration applies `0ns` to the start and `-1ns` to the end, representing the `[start, end)` half-open interval. Use `TimeCalendarConfig.EmptyOffset` or `TimeCalendar.EmptyOffset` for a fully inclusive range.
+`TimeCalendar` encapsulates calendar rules: start/end offset and the first day of the week.  
+Default: `0ns` start offset, `-1ns` end offset → `[start, end)` half-open interval.
 
 ```kotlin
-import java.time.DayOfWeek
-import java.time.Duration
-
 val calendar = TimeCalendar(
     TimeCalendarConfig(
         startOffset = Duration.ofHours(1),
@@ -144,125 +219,90 @@ val calendar = TimeCalendar(
     )
 )
 
-val range = CalendarTimeRange(
-    TimeRange(
-        zonedDateTimeOf(2024, 4, 1, 9, 0),
-        zonedDateTimeOf(2024, 4, 1, 18, 0),
-    ),
-    calendar,
-)
-
+val range =
+    CalendarTimeRange(TimeRange(zonedDateTimeOf(2024, 4, 1, 9, 0), zonedDateTimeOf(2024, 4, 1, 18, 0)), calendar)
 range.start         // 2024-04-01T10:00...
 range.end           // 2024-04-01T17:59:59.999999999...
 range.unmappedStart // 2024-04-01T09:00...
-range.unmappedEnd   // 2024-04-01T18:00...
 ```
 
-To reflect a custom base month for fiscal-year calculations, override `baseMonth` in a custom calendar:
+Custom fiscal year (override `baseMonth`):
 
 ```kotlin
 val fiscalCalendar = object : TimeCalendar(TimeCalendarConfig()) {
     override val baseMonth: Int = 4
 }
-
 yearOf(2024, 3, fiscalCalendar)  // 2023
 yearOf(2024, 4, fiscalCalendar)  // 2024
-zonedDateTimeOf(2024, 3, 1).yearOf(fiscalCalendar)  // 2023
 ```
 
-### Calendar Ranges (period/ranges/)
+### Calendar Ranges (`period/ranges/`)
 
-Range objects aligned to calendar units.
+Ranges aligned to calendar units.
 
 ```kotlin
 val now = nowZonedDateTime()
+val yearRange = YearRange(now)       // entire year
+val monthRange = MonthRange(now)      // entire month
+val weekRange = WeekRange(now)       // Mon–Sun
+val dayRange = DayRange(now)        // 00:00–23:59
+val hourRange = HourRange(now)       // :00–:59
+val minuteRange = MinuteRange(now)     // :00–:59
 
-val yearRange   = YearRange(now)     // entire year
-val monthRange  = MonthRange(now)    // entire month
-val weekRange   = WeekRange(now)     // entire week (Mon–Sun)
-val dayRange    = DayRange(now)      // entire day (00:00–23:59)
-val hourRange   = HourRange(now)     // current hour (:00–:59)
-val minuteRange = MinuteRange(now)   // current minute (:00–:59)
-
-yearRange.year              // year number
-monthRange.monthOfYear      // month number
-weekRange.weekOfYear        // week-of-year number
-
-// Collections of consecutive ranges
-val months = MonthRangeCollection(now, 6)    // 6 months from now
-val days   = DayRangeCollection(now, 30)     // 30 days from now
-
-months.forEach { monthRange ->
-    println("${monthRange.year}-${monthRange.monthOfYear}")
-}
+// Consecutive range collections
+val months = MonthRangeCollection(now, 6)  // 6 months from now
+val days = DayRangeCollection(now, 30)   // 30 days from now
 ```
 
-#### Coroutines Support (period/ranges/coroutines/)
-
-Flow-based calendar range operations.
+Flow-based calendar ranges (`period/ranges/coroutines/`):
 
 ```kotlin
-import kotlinx.coroutines.flow.*
+flowOfYearRange(startTime, 5)       // 5 yearly ranges as Flow
+    .collect { println(it.year) }
 
-flowOfYearRange(startTime, 5)      // 5 yearly ranges
-    .collect { yearRange -> println(yearRange.year) }
-
-flowOfMonthRange(startTime, 12)    // 12 monthly ranges
-    .collect { monthRange -> println("${monthRange.year}-${monthRange.monthOfYear}") }
-
-flowOfDayRange(startTime, 30)      // 30 daily ranges
-    .collect { dayRange -> println(dayRange.start) }
-
-flowOfHourRange(startTime, 24)     // 24 hourly ranges
-flowOfMinuteRange(startTime, 60)   // 60 minute ranges
+flowOfMonthRange(startTime, 12)     // 12 monthly ranges as Flow
+flowOfDayRange(startTime, 30)       // 30 daily ranges as Flow
+flowOfHourRange(startTime, 24)
+flowOfMinuteRange(startTime, 60)
 ```
 
-### Temporal Range (range/)
+### Temporal Range (`range/`)
 
-Kotlin Range-style temporal ranges.
-
-> Note: Generic temporal ranges currently support types with epoch-millis-based iteration: `Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`, and `Timestamp`. `LocalDate`, `LocalTime`, and `OffsetTime` are not supported.
-
-```kotlin
-val start = zonedDateTimeOf(2024, 1, 1)
-val end   = zonedDateTimeOf(2024, 12, 31)
-val range = start..end
-
-// Iterate with a step
-range.step(1.monthPeriod()).forEach { time -> println(time) }
-range.step(1.weekPeriod()).forEach  { time -> println(time) }
-
-// Windowed
-range.windowedYears(3, 1)    // 3-year window, step 1 year
-range.windowedMonths(6, 2)   // 6-month window, step 2 months
-range.windowedDays(7, 1)     // 7-day window, step 1 day
-
-// Chunked
-range.chunkedYears(1)        // 1-year chunks
-range.chunkedMonths(3)       // quarterly chunks
-range.chunkedDays(7)         // weekly chunks
-
-// ZipWithNext
-range.zipWithNextYear()      // (2024, 2025), (2025, 2026), ...
-range.zipWithNextMonth()     // adjacent month pairs
-range.zipWithNextDay()       // adjacent day pairs
-```
-
-#### Coroutines Support (range/coroutines/)
+Kotlin `..` range syntax for temporal types (`Instant`, `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime`, `Date`,
+`Timestamp`).
 
 ```kotlin
 val range = zonedDateTimeOf(2024, 1, 1)..zonedDateTimeOf(2024, 12, 31)
 
-range.asFlow().collect { time -> println(time) }
+// Step-based iteration
+range.step(1.monthPeriod()).forEach { println(it) }
+
+// Windowed
+range.windowedMonths(6, 2)   // 6-month window, step 2 months
+range.windowedDays(7, 1)     // 7-day window, step 1 day
+
+// Chunked
+range.chunkedMonths(3)        // quarterly chunks
+range.chunkedDays(7)          // weekly chunks
+
+// Zip with next
+range.zipWithNextMonth()      // adjacent month pairs
+range.zipWithNextDay()        // adjacent day pairs
+```
+
+Flow-based temporal range (`range/coroutines/`):
+
+```kotlin
+range.asFlow().collect { println(it) }
 
 range.windowedFlowMonths(3)
     .collect { (start, end) -> println("$start ~ $end") }
 
 range.chunkedFlowDays(7)
-    .collect { weekRange -> println("Week: ${weekRange.first} ~ ${weekRange.last}") }
+    .collect { week -> println("Week: ${week.first()} ~ ${week.last()}") }
 
 range.zipWithNextFlowDays()
-    .collect { (day1, day2) -> println("$day1 -> $day2") }
+    .collect { (d1, d2) -> println("$d1 -> $d2") }
 ```
 
 ## Usage Examples
@@ -270,9 +310,7 @@ range.zipWithNextFlowDays()
 ### Business Day Calculation
 
 ```kotlin
-val today = todayZonedDateTime()
 val dateAdd = DateAdd()
-
 val holidays = listOf(
     zonedDateTimeOf(2024, 1, 1),
     zonedDateTimeOf(2024, 2, 10),
@@ -282,15 +320,13 @@ holidays.forEach { holiday ->
     dateAdd.excludePeriods += TimeRange(holiday.startOfDay(), (holiday + 1.days()).startOfDay())
 }
 
-val after10BusinessDays = dateAdd.add(today, 10.days())
+val after10BusinessDays = dateAdd.add(todayZonedDateTime(), 10.days())
 ```
 
 ### Monthly Statistics Aggregation
 
 ```kotlin
-val startDate = zonedDateTimeOf(2024, 1, 1)
-
-val monthlyStats = MonthRangeCollection(startDate, 12)
+val monthlyStats = MonthRangeCollection(zonedDateTimeOf(2024, 1, 1), 12)
     .map { monthRange ->
         MonthlyReport(
             year = monthRange.year,
@@ -305,15 +341,15 @@ val monthlyStats = MonthRangeCollection(startDate, 12)
 ```kotlin
 val range = zonedDateTimeOf(2024, 1, 1)..zonedDateTimeOf(2024, 12, 31)
 
-// Process data in weekly chunks
+// Weekly chunks
 range.chunkedFlowDays(7)
-    .map { weekDays -> processWeeklyData(weekDays.first(), weekDays.last()) }
-    .collect { result -> println(result) }
+    .map { week -> processWeeklyData(week.first(), week.last()) }
+    .collect { println(it) }
 
 // 3-month moving average
 range.windowedFlowMonths(3)
     .map { (start, end) -> calculateMovingAverage(start, end) }
-    .collect { avg -> println(avg) }
+    .collect { println(it) }
 ```
 
 ### Overlap Detection
@@ -326,7 +362,7 @@ when (meeting1.relationWith(meeting2)) {
     PeriodRelation.Overlap -> println("Meetings overlap")
     PeriodRelation.Before  -> println("meeting1 comes first")
     PeriodRelation.After   -> println("meeting1 comes later")
-    else                   -> println("Other relation")
+    else -> println("Other relation: ${meeting1.relationWith(meeting2)}")
 }
 ```
 
@@ -342,3 +378,14 @@ when (meeting1.relationWith(meeting2)) {
 - [Java Time API Documentation](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)
 - [Joda-Time](https://www.joda.org/joda-time/) — design inspiration
 - [kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime) — Kotlin multiplatform time library
+
+## Dependency
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-javatimes:${bluetape4kVersion}")
+
+    // Optional coroutines support
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
+}
+```

@@ -4,81 +4,31 @@
 
 Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 및 코루틴 FSM을 모두 지원하며, Guard 조건과 StateFlow 기반 상태 관찰 기능을 제공합니다.
 
-## 주요 특징
+## 아키텍처
 
-- **타입 안전 DSL**: `stateMachine {}`, `suspendStateMachine {}` DSL로 간결하게 FSM 정의
-- **동기 FSM**: `AtomicReference` CAS 기반 Thread-Safe 상태 전이
-- **코루틴 FSM**: `Mutex` + `StateFlow` 기반 suspend 전이 및 상태 관찰
-- **Guard 조건**: 전이 전 조건 검증 지원
-- **clinic-appointment 패턴**: Map 기반 전이 + suspend 콜백 패턴 채택
+### 개념 개요
 
-## Quick Start
+상태, 이벤트, 상태 머신이 어떻게 상호 작용하는지:
 
-### 의존성
+```mermaid
+flowchart LR
+    subgraph DSL["DSL 정의"]
+        S["States\n(enum / sealed)"]
+        E["Events\n(sealed class)"]
+        T["Transitions\nfrom → on<Event> → to"]
+        G["Guard 조건\n(선택적 Predicate)"]
+    end
 
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-states"))
-}
+    User -->|"stateMachine { ... }"| DSL
+    DSL -->|"build()"| SM[StateMachine]
+    SM -->|"transition(event)"| TR["TransitionResult\n(prev, event, current)"]
+    SM -.->|"stateFlow (suspend)"| SF["StateFlow\n(관찰 가능한 상태)"]
+    TR -->|"onTransition 콜백"| CB["부수 효과 로직"]
 ```
 
-### 동기 FSM
-
-```kotlin
-val orderFsm = stateMachine<OrderState, OrderEvent> {
-    initialState = OrderState.CREATED
-    finalStates = setOf(OrderState.DELIVERED, OrderState.CANCELLED)
-
-    transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
-    transition(OrderState.PAID, on<OrderEvent.Ship>(), to = OrderState.SHIPPED)
-    transition(OrderState.SHIPPED, on<OrderEvent.Deliver>(), to = OrderState.DELIVERED)
-    transition(OrderState.CREATED, on<OrderEvent.Cancel>(), to = OrderState.CANCELLED)
-
-    onTransition { prev, event, next ->
-        println("$prev --[$event]--> $next")
-    }
-}
-
-val result = orderFsm.transition(OrderEvent.Pay())
-// result.previousState == CREATED
-// result.currentState == PAID
-```
-
-### 코루틴 FSM
-
-```kotlin
-val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
-    initialState = AppointmentState.PENDING
-    finalStates = setOf(AppointmentState.COMPLETED, AppointmentState.CANCELLED)
-
-    transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
-    transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
-
-    onTransition { prev, event, next ->
-        println("상태 전이: $prev --> $next")
-    }
-}
-
-// StateFlow 관찰
-launch { suspendFsm.stateFlow.collect { state -> println("현재 상태: $state") } }
-
-// suspend 전이
-val result = suspendFsm.transition(AppointmentEvent.Request())
-```
-
-### Guard 조건
-
-```kotlin
-val fsm = stateMachine<State, Event> {
-    initialState = State.PENDING
-
-    transition(State.PENDING, on<ApproveEvent>(), to = State.APPROVED) {
-        guard { state, event -> (event as ApproveEvent).approvedBy != null }
-    }
-}
-```
-
-## 인터페이스 계층
+`StateMachine`은 타입화된 **전이 규칙** (출발 상태 + 이벤트 타입 → 도착 상태) 집합을 보유합니다.  
+각 전이는 상태 변경 전에 검사되는 선택적 **Guard 조건**을 가질 수 있습니다.  
+`SuspendStateMachine`은 `StateFlow`를 추가로 제공하여 상태 변화를 반응형으로 관찰할 수 있습니다.
 
 ### 클래스 다이어그램
 
@@ -160,8 +110,6 @@ classDiagram
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
 
----
-
 ### DSL 빌더 구조
 
 ```mermaid
@@ -195,7 +143,13 @@ classDiagram
     SuspendStateMachineBuilder ..> SuspendStateMachine : builds
 ```
 
----
+## 주요 특징
+
+- **타입 안전 DSL**: `stateMachine {}`, `suspendStateMachine {}` DSL로 간결하게 FSM 정의
+- **동기 FSM**: `AtomicReference` CAS 기반 Thread-Safe 상태 전이
+- **코루틴 FSM**: `Mutex` + `StateFlow` 기반 suspend 전이 및 상태 관찰
+- **Guard 조건**: 전이 전 조건 검증 지원
+- **clinic-appointment 패턴**: Map 기반 전이 + suspend 콜백 패턴 채택
 
 ## 상태 전이 다이어그램 예시
 
@@ -260,7 +214,71 @@ stateDiagram-v2
     RESCHEDULED --> [*]
 ```
 
----
+## Quick Start
+
+### 의존성
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-states"))
+}
+```
+
+### 동기 FSM
+
+```kotlin
+val orderFsm = stateMachine<OrderState, OrderEvent> {
+    initialState = OrderState.CREATED
+    finalStates = setOf(OrderState.DELIVERED, OrderState.CANCELLED)
+
+    transition(OrderState.CREATED, on<OrderEvent.Pay>(), to = OrderState.PAID)
+    transition(OrderState.PAID, on<OrderEvent.Ship>(), to = OrderState.SHIPPED)
+    transition(OrderState.SHIPPED, on<OrderEvent.Deliver>(), to = OrderState.DELIVERED)
+    transition(OrderState.CREATED, on<OrderEvent.Cancel>(), to = OrderState.CANCELLED)
+
+    onTransition { prev, event, next ->
+        println("$prev --[$event]--> $next")
+    }
+}
+
+val result = orderFsm.transition(OrderEvent.Pay())
+// result.previousState == CREATED
+// result.currentState == PAID
+```
+
+### 코루틴 FSM
+
+```kotlin
+val suspendFsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
+    initialState = AppointmentState.PENDING
+    finalStates = setOf(AppointmentState.COMPLETED, AppointmentState.CANCELLED)
+
+    transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
+    transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
+
+    onTransition { prev, event, next ->
+        println("상태 전이: $prev --> $next")
+    }
+}
+
+// StateFlow 관찰
+launch { suspendFsm.stateFlow.collect { state -> println("현재 상태: $state") } }
+
+// suspend 전이
+val result = suspendFsm.transition(AppointmentEvent.Request())
+```
+
+### Guard 조건
+
+```kotlin
+val fsm = stateMachine<State, Event> {
+    initialState = State.PENDING
+
+    transition(State.PENDING, on<ApproveEvent>(), to = State.APPROVED) {
+        guard { state, event -> (event as ApproveEvent).approvedBy != null }
+    }
+}
+```
 
 ## 상태 전이 시퀀스 다이어그램
 
@@ -317,30 +335,6 @@ sequenceDiagram
     Note over MutableStateFlow: StateFlow 구독자에게 자동 방출
     SuspendStateMachine->>OnTransitionCallback: invoke(previous, event, next)
     SuspendStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
-
----
-
-## 패키지 구조
-
-```mermaid
-graph TD
-    M[bluetape4k-states] --> API[api/]
-    M --> CORE[core/]
-    M --> COR[coroutines/]
-
-    API --> BSM[BaseStateMachine.kt]
-    API --> SM[StateMachine.kt]
-    API --> SSMI[SuspendStateMachineInterface.kt]
-    API --> TR[TransitionResult.kt]
-    API --> EX[StateMachineException.kt]
-
-    CORE --> TK[TransitionKey.kt]
-    CORE --> TT[TransitionTarget.kt]
-    CORE --> DSM[DefaultStateMachine.kt]
-    CORE --> DSL[StateMachineDsl.kt]
-
-    COR --> SSM[SuspendStateMachine.kt]
 ```
 
 ## clinic-appointment 마이그레이션 가이드

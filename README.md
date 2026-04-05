@@ -67,29 +67,39 @@ Bluetape4k is a multi-module Gradle project organized by domain.
 
 ### I/O Modules (`io/`)
 
-- **[io](./io/io/README.md)**: File I/O, compression (LZ4, Zstd, Snappy, Zip), serialization (Kryo, Fory), ZIP builder/utilities, Okio integration with Tink-based encrypt Sink/Source
-- **[okio](./io/okio/README.md)**: Okio-based I/O extensions — Buffer/Sink/Source utilities, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink encrypt Sink/Source
-- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)**: Jackson 2.x/3.x integration — binary (CBOR, Ion, Smile) and text (CSV, YAML, TOML) formats (merged from former `jackson-binary/text` and `jackson3-binary/text` modules)
-- **[json](./io/json/README.md)**: JSON processing utilities
-- **[csv](./io/csv/README.md)**: CSV processing utilities
-- **[feign](./io/feign/README.md)**: Feign HTTP client with Coroutines support
-- **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP client with Coroutines support
-- **[protobuf](./io/protobuf/README.md)**: Protobuf utilities — Timestamp/Duration/Money conversions, ProtobufSerializer
-- **[grpc](./io/grpc/README.md)**: gRPC server/client abstractions (includes `bluetape4k-protobuf`)
-- ~~**[crypto](./io/crypto/README.md)**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use `bluetape4k-tink` instead
-- **[tink](./io/tink/README.md)**: Modern encryption via Google Tink — AEAD, Deterministic AEAD, MAC, Digest, unified `TinkEncryptor`, Okio `TinkEncryptSink`/`TinkDecryptSource`
-- **[http](./io/http/README.md)**: HTTP utilities
-- **[netty](./io/netty/README.md)**: Netty integration
 - **[avro](./io/avro/README.md)**: Apache Avro support
+- **[csv](./io/csv/README.md)**: CSV processing utilities
 - **[fastjson2](./io/fastjson2/README.md)**: FastJSON2 integration
+- **[feign](./io/feign/README.md)**: Feign HTTP client with Coroutines support
+- **[grpc](./io/grpc/README.md)**: gRPC server/client abstractions (includes `bluetape4k-protobuf`)
+- **[http](./io/http/README.md)**: HTTP utilities
+- **[io](./io/io/README.md)
+  **: File I/O, compression (LZ4, Zstd, Snappy, Zip), serialization (Kryo, Fory), ZIP builder/utilities
+- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)
+  **: Jackson 2.x/3.x integration — binary (CBOR, Ion, Smile) and text (CSV, YAML, TOML) formats (merged from former
+  `jackson-binary/text` and `jackson3-binary/text` modules)
+- **[json](./io/json/README.md)**: JSON processing utilities
+- **[netty](./io/netty/README.md)**: Netty integration
+- **[okio](./io/okio/README.md)
+  **: Okio-based I/O extensions — Buffer/Sink/Source utilities, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink encrypt Sink/Source
+- **[protobuf](./io/protobuf/README.md)**: Protobuf utilities — Timestamp/Duration/Money conversions, ProtobufSerializer
+- **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP client with Coroutines support
+- **[tink](./io/tink/README.md)**: Modern encryption via Google Tink — AEAD, Deterministic AEAD, MAC, Digest, unified
+  `TinkEncryptor`, Okio `TinkEncryptSink`/`TinkDecryptSource`
 - **[vertx](./io/vertx/README.md)**: Vert.x unified module — core, SQL client, Resilience4j integration (merged from former `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`)
+- ~~**[crypto](./io/crypto/README.md)**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use
+  `bluetape4k-tink` instead
 
 ### AWS Modules (`aws/`)
 
 Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-- **[bluetape4k-aws](./aws/aws/README.md)**: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (`XxxAsyncClientCoroutinesExtensions.kt`)
-- **[bluetape4k-aws-kotlin](./aws/aws-kotlin/README.md)**: AWS Kotlin SDK — native `suspend` functions, no `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (`metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
+- **[aws](./aws/aws/README.md)
+  **: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (
+  `XxxAsyncClientCoroutinesExtensions.kt`)
+- **[aws-kotlin](./aws/aws-kotlin/README.md)**: AWS Kotlin SDK — native `suspend` functions, no
+  `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (
+  `metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
 
 ### Data Modules (`data/`)
 
@@ -98,44 +108,53 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 - **[exposed](./data/exposed/README.md)**: Umbrella module — bundles `exposed-core` + `exposed-dao` + `exposed-jdbc` for backward compatibility
 - **[exposed-core](./data/exposed-core/README.md)**: Core features without JDBC — compressed/encrypted/serialized column types, ID generation extensions, `HasIdentifier`, `ExposedPage`
 - **[exposed-dao](./data/exposed-dao/README.md)**: DAO entity extensions — `EntityExtensions`, `StringEntity`, custom IdTables (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable`, etc.)
-- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC-specific — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`
-- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC reactive support (`ExposedR2dbcRepository`)
-- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson distributed locking
-- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson distributed locking
-- **[exposed-jackson2](./data/exposed-jackson2/README.md)/[jackson3](./data/exposed-jackson3/README.md)**: JSON column support for Exposed (Jackson 2.x/3.x)
 - **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: FastJSON2 JSON column support for Exposed
+- **[exposed-jackson2](./data/exposed-jackson2/README.md)/[jackson3](./data/exposed-jackson3/README.md)
+  **: JSON column support for Exposed (Jackson 2.x/3.x)
 - **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Jasypt-encrypted columns for Exposed
-- **[exposed-tink](./data/exposed-tink/README.md)**: Google Tink encrypted columns (AEAD/Deterministic AEAD)
-- **[exposed-measured](./data/exposed-measured/README.md)**: Query execution time measurement via Micrometer
+- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC-specific — `ExposedRepository`, `SoftDeletedRepository`,
+  `SuspendedQuery`, `VirtualThreadTransaction`
+- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson distributed locking
 - **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: Shared test infrastructure for JDBC-based modules
+- **[exposed-measured](./data/exposed-measured/README.md)**: Query execution time measurement via Micrometer
+- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC reactive support (`ExposedR2dbcRepository`)
+- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson distributed locking
 - **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: Shared test infrastructure for R2DBC-based modules
+- **[exposed-tink](./data/exposed-tink/README.md)**: Google Tink encrypted columns (AEAD/Deterministic AEAD)
 
 #### Other Data Modules
 
-- **[exposed-postgresql](./data/exposed-postgresql/README.md)**: PostgreSQL-specific Exposed extensions — PostGIS spatial data (`POINT`/`POLYGON`), pgvector vector search (`VECTOR(n)`), TSTZRANGE time-range column types; H2 fallback support
-- **[exposed-mysql8](./data/exposed-mysql8/README.md)**: MySQL 8.0-specific Exposed extensions — 8 GIS geometry types, JTS-based geometry columns, spatial functions (`ST_Contains`, `ST_Distance`, etc.); MySQL Internal Format WKB conversion
-- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC integration — `DuckDBDialect` (extends PostgreSQL dialect), `DuckDBDatabase` factory (in-memory/file/read-only), `suspendTransaction`, `queryFlow`
+- **[cassandra](./data/cassandra/README.md)**: Cassandra driver
 - **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API integration — SQL generated via H2 (PostgreSQL mode) then executed on BigQuery REST; `BigQueryContext` (SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow` (type-safe column access), suspend/Flow API
-- **[exposed-trino](./data/exposed-trino/README.md)**: Trino JDBC integration — `TrinoDialect`, catalog/schema-aware connection support, coroutine-friendly query helpers, and distributed SQL query workflows for analytics use cases
+- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC integration —
+  `DuckDBDialect` (extends PostgreSQL dialect), `DuckDBDatabase` factory (in-memory/file/read-only),
+  `suspendTransaction`, `queryFlow`
 - **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis cache — Read-through/Write-through/Write-behind; `AbstractJdbcLettuceRepository`, coroutine-native `AbstractSuspendedJdbcLettuceRepository`
+- **[exposed-mysql8](./data/exposed-mysql8/README.md)
+  **: MySQL 8.0-specific Exposed extensions — 8 GIS geometry types, JTS-based geometry columns, spatial functions (
+  `ST_Contains`, `ST_Distance`, etc.); MySQL Internal Format WKB conversion
+- **[exposed-postgresql](./data/exposed-postgresql/README.md)
+  **: PostgreSQL-specific Exposed extensions — PostGIS spatial data (`POINT`/`POLYGON`), pgvector vector search (
+  `VECTOR(n)`), TSTZRANGE time-range column types; H2 fallback support
 - **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis cache — coroutine-native Read-through/Write-through/Write-behind; `AbstractR2dbcLettuceRepository`
+- **[exposed-trino](./data/exposed-trino/README.md)**: Trino JDBC integration —
+  `TrinoDialect`, catalog/schema-aware connection support, coroutine-friendly query helpers, and distributed SQL query workflows for analytics use cases
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
 - **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
+- **[jdbc](./data/jdbc/README.md)**: JDBC utilities
 - **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver extensions — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
 - **[r2dbc](./data/r2dbc/README.md)**: R2DBC support
-- **[cassandra](./data/cassandra/README.md)**: Cassandra driver
-- **[jdbc](./data/jdbc/README.md)**: JDBC utilities
 
 ### Infrastructure Modules (`infra/`)
 
 - **[redis](./infra/redis/README.md)**: Lettuce/Redisson umbrella module (backward compatible)
     - **[lettuce](./infra/lettuce/README.md)**: Lettuce client, high-performance codecs (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd), `RedisFuture` → Coroutines adapters, distributed primitives (Lock, Semaphore, AtomicLong, Leader Election), `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind), **BloomFilter/CuckooFilter** (Lua-script based, no RedisBloom extension needed), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
     - **[redisson](./infra/redisson/README.md)**: Redisson client, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (with Coroutines support)
-- **[kafka](./infra/kafka/README.md)**: Kafka client
-- **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
+- **[kafka](./infra/kafka/README.md)**: Kafka client
 - **[micrometer](./infra/micrometer/README.md)**: Metrics
 - **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
+- **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
 
 #### Cache Modules (`infra/cache-*`)
 
@@ -149,18 +168,27 @@ A pluggable cache abstraction layer — swap backends without changing applicati
 
 ### Spring Boot 3 Modules (`spring-boot3/`)
 
-- **[bluetape4k-spring-boot3](./spring-boot3/core/README.md)** (`spring-boot3/core`): Spring Boot 3 unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2 integration, test utilities (merged from former `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests`)
-- **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[core](./spring-boot3/core/README.md)
+  **: Spring Boot 3 unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2 integration, test utilities (merged from former
+  `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests`)
 - **[cassandra](./spring-boot3/cassandra/README.md)**: Spring Data Cassandra
 - **[cassandra-demo](./spring-boot3/cassandra-demo/README.md)**: Cassandra usage example with Spring Boot 3
+- **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization —
+  `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)
+  **: Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support
+- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.md)
+  **: Exposed DAO + Spring Data JDBC + Spring MVC integration demo
+- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.md)
+  **: Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support
+- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.md)
+  **: Exposed R2DBC + suspend Repository + Spring WebFlux integration demo
+- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)
+  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — properties binding, Micrometer Metrics, Actuator Endpoint
+- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)
+  **: Hibernate Lettuce NearCache + Spring MVC integration demo
 - **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
-- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc`): Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support
-- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc`): Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support
-- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC integration demo
-- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot3-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux integration demo
-- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce`): Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — properties binding, Micrometer Metrics, Actuator Endpoint
-- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot3-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC integration demo
 
 > Spring Data JPA has moved to the `data/hibernate` module.
 
@@ -170,23 +198,32 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 
 > **BOM note**: Apply via `implementation(platform(...))` rather than `dependencyManagement { imports }` to avoid conflicts with KGP 2.3.x.
 
-- **[core](./spring-boot4/core/README.md)** (`bluetape4k-spring-boot4-core`): Spring Boot 4 common utilities — WebFlux + Coroutines, RestClient DSL (`suspendGet`, `suspendPost`, etc.), Jackson 2 customizer, Retrofit2 integration, WebTestClient test utilities
-- **[data-redis](./spring-boot4/redis/README.md)**: High-performance Spring Data Redis serialization — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[core](./spring-boot4/core/README.md)**: Spring Boot 4 common utilities — WebFlux + Coroutines, RestClient DSL (
+  `suspendGet`, `suspendPost`, etc.), Jackson 2 customizer, Retrofit2 integration, WebTestClient test utilities
 - **[cassandra](./spring-boot4/cassandra/README.md)**: Spring Data Cassandra with Coroutines extensions
+- **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra usage example
+- **[data-redis](./spring-boot4/redis/README.md)**: High-performance Spring Data Redis serialization —
+  `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.md)
+  **: Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support (Spring Boot 4 BOM)
+- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.md)
+  **: Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM)
+- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.md)
+  **: Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support (Spring Boot 4 BOM)
+- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.md)
+  **: Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)
+- **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.md)
+  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
+- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)
+  **: Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)
 - **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
-- **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra usage example
-- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc`): Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support (Spring Boot 4 BOM)
-- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc`): Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support (Spring Boot 4 BOM)
-- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-jdbc-demo`): Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM)
-- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.md)** (`bluetape4k-spring-boot4-exposed-r2dbc-demo`): Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)
-- **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.md)** (`bluetape4k-spring-boot4-hibernate-lettuce`): Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
-- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)** (`bluetape4k-spring-boot4-hibernate-lettuce-demo`): Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)
 
 ### Utility Modules (`utils/`)
 
-- **[bluetape4k-geo](./utils/geo/README.md)** (`utils/geo`): Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former `utils/geocode`, `utils/geohash`, `utils/geoip2`)
-- **[bluetape4k-science](./utils/science/README.md)** (`utils/science`): GIS spatial data processing — coordinate system conversions (BoundingBox/UTM/DMS, Proj4J), Shapefile reading (GeoTools 31.6 LGPL), JTS-based spatial geometry operations, PostGIS DB ingestion pipeline (SpatialLayerTable/SpatialFeatureTable/PoiTable)
+- **[geo](./utils/geo/README.md)
+  **: Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former
+  `utils/geocode`, `utils/geohash`, `utils/geoip2`)
 - **[idgenerators](./utils/idgenerators/README.md)**: ID generators — `Uuid` (V1–V7 unified API), `ULID`, `Ksuid` (Seconds/Millis), `Snowflakers` unified factory, `Flake`, `Hashids`, and more
 - **[images](./utils/images/README.md)**: Image processing utilities
 - **[javatimes](./utils/javatimes/README.md)**: Date/time utilities
@@ -196,9 +233,14 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[measured](./utils/measured/README.md)**: Composable unit types (`Units`) and measurements (`Measure`) — express composite units (`m/s`, `kg*m/s^2`) with full type safety
 - **[money](./utils/money/README.md)**: Money/currency API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive integration
+- **[rule-engine](./utils/rule-engine/README.md)
+  **: Lightweight Kotlin rule engine — DSL rules, annotation-based rules, script engines, and coroutine execution
+- **[science](./utils/science/README.md)
+  **: GIS spatial data processing — coordinate system conversions (BoundingBox/UTM/DMS, Proj4J), Shapefile reading (GeoTools 31.6 LGPL), JTS-based spatial geometry operations, PostGIS DB ingestion pipeline (SpatialLayerTable/SpatialFeatureTable/PoiTable)
 - **[states](./utils/states/README.md)**: Kotlin DSL-based finite state machine library — sync/coroutine FSMs, guards, and `StateFlow` observation
-- **[rule-engine](./utils/rule-engine/README.md)**: Lightweight Kotlin rule engine — DSL rules, annotation-based rules, script engines, and coroutine execution
-- ~~**units**~~: Unit value classes — **Deprecated**, merged into `bluetape4k-measured`
+- **[workflow](./utils/workflow/README.md)
+  **: Kotlin DSL workflow orchestration — Sequential/Parallel/Conditional/Repeat/Retry flows, sync (Virtual Threads) + coroutine (suspend/Flow), ABORTED/CANCELLED/PartialSuccess support
+- ~~**units**~~: Unit value classes — **Deprecated**, merged into `measured`
 
 ### Testing Modules (`testing/`)
 
@@ -224,10 +266,6 @@ Demonstration modules showing library usage. Not published to Maven.
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
-
-### Guides (`guides/`)
-
-- **[supabase-postgres](./guides/supabase-postgres/README.md)**: Guide for connecting Supabase PostgreSQL with the Bluetape4k stack and related data modules
 
 ### Obsolete Modules (`x-obsoleted/`)
 

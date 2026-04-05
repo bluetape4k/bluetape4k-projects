@@ -4,16 +4,70 @@
 
 Kotlin DSL 기반 워크플로우 오케스트레이션 라이브러리입니다. 동기, 코루틴, Virtual Thread 실행 모델을 지원하며 선언적 DSL로 복잡한 워크플로우를 구성할 수 있습니다.
 
-## 개요
+추가 참고: [easy-flows](https://github.com/j-easy/easy-flows)
 
-`bluetape4k-workflow`는 다양한 실행 전략을 지원하는 타입 안전한 DSL 워크플로우 빌더입니다:
-- **순차 흐름**: 작업을 순서대로 실행하며 에러 처리 전략 제공
-- **병렬 흐름**: 작업 동시 실행 (동기: Virtual Threads, suspend: `coroutineScope`)
-- **조건 흐름**: Predicate 기반 분기 실행
-- **반복 흐름**: 조건부 반복 실행
-- **재시도 흐름**: 지수 백오프로 자동 재시도
+## 아키텍처
 
-추가 참고: [easy-flows](https://github.com/amigoscode/easy-flows)
+### 개념 개요
+
+Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
+
+```mermaid
+flowchart LR
+    subgraph Flows["플로우 타입"]
+        SF["Sequential\n(순차)"]
+        PF["Parallel\n(병렬)"]
+        CF["Conditional\n(조건 분기)"]
+        RF["Repeat\n(반복)"]
+        RT["Retry\n(재시도)"]
+    end
+
+    User -->|"정의"| W["Work / SuspendWork\n(lambda: ctx → WorkReport)"]
+    User -->|"조합"| Flows
+    W -->|"조립"| Flows
+    Flows -->|"execute(ctx)"| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
+    WR -->|"읽기/쓰기"| WC["WorkContext\n(공유 Mutable Map)"]
+```
+
+`Work` 단위는 `WorkContext`를 받아 `WorkReport`를 반환하는 이름 있는 람다입니다.  
+플로우는 여러 Work 단위를 실행 전략으로 조합합니다.  
+`WorkContext`는 워크플로우 실행 동안 모든 작업 간 공유 상태를 전달합니다.
+
+### WorkReport 상태
+
+```mermaid
+stateDiagram-v2
+    [*] --> Running : execute(ctx)
+
+    Running --> Success : 작업 정상 완료
+    Running --> Failure : 예외 발생 (STOP)
+    Running --> PartialSuccess : 일부 실패 (CONTINUE)
+    Running --> Aborted : WorkReport.Aborted 반환
+    Running --> Cancelled : 타임아웃 / 코루틴 취소
+
+    Success --> [*]
+    Failure --> [*]
+    PartialSuccess --> [*]
+    Aborted --> [*]
+    Cancelled --> [*]
+```
+
+### 실행 모델 선택
+
+```mermaid
+flowchart TD
+    A[실행 모델 선택] --> B{비동기 필요?}
+    B -->|yes| C["SuspendWork\nsuspendSequentialFlow\nsuspendParallelFlow\nsuspendRepeatFlow"]
+    B -->|no| D["Work\nsequentialFlow\nparallelFlow\nconditionalFlow\nrepeatFlow\nretryFlow"]
+
+    C --> E{플로우 타입}
+    D --> E
+    E --> F[Sequential]
+    E --> G[Parallel]
+    E --> H[Conditional]
+    E --> I[Repeat]
+    E --> J[Retry]
+```
 
 ## 주요 특징
 
@@ -81,6 +135,16 @@ val report = suspendWork.execute(ctx)
 
 작업을 순서대로 실행; 에러 처리는 `ErrorStrategy` 제어:
 
+```mermaid
+flowchart LR
+    S([시작]) --> W1[Work 1] --> W2[Work 2] --> W3[Work 3] --> E([COMPLETED])
+    W1 -. "실패 + STOP" .-> F([FAILED])
+    W2 -. "실패 + STOP" .-> F
+    W1 -. "실패 + CONTINUE" .-> W2
+    W2 -. "실패 + CONTINUE" .-> W3
+    W3 -. "실패 누적" .-> P([PARTIAL])
+```
+
 ```kotlin
 // 동기 버전
 val flow = sequentialFlow("order-processing") {
@@ -113,6 +177,11 @@ val report = flow.execute(WorkContext())
 
 작업 동시 실행:
 
+```mermaid
+flowchart LR
+    S([시작]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
+```
+
 ```kotlin
 // 동기 (Virtual Threads)
 val flow = parallelFlow("fetch-data") {
@@ -134,6 +203,15 @@ val report = flow.execute(WorkContext())
 
 Predicate 기반 분기 실행:
 
+```mermaid
+flowchart LR
+    S([시작]) --> C{condition?}
+    C -->|true| T[then]
+    C -->|false| O[otherwise]
+    T --> E([완료])
+    O --> E
+```
+
 ```kotlin
 val flow = conditionalFlow("check-valid") {
     condition { ctx -> ctx.get<Boolean>("valid") == true }
@@ -147,6 +225,16 @@ val report = flow.execute(ctx)
 ### 반복 흐름
 
 조건이 참인 동안 작업 반복:
+
+```mermaid
+flowchart LR
+    S([시작]) --> W[Work]
+    W -->|success| C{repeatWhile\ntrue?}
+    C -->|yes| W
+    C -->|no| E([COMPLETED])
+    W -. ABORTED .-> A([ABORTED])
+    W -. FAILED .-> F([FAILED])
+```
 
 ```kotlin
 // 동기
@@ -173,6 +261,16 @@ val report = flow.execute(WorkContext())
 ### 재시도 흐름
 
 실패한 작업을 지수 백오프로 자동 재시도:
+
+```mermaid
+flowchart LR
+    S([시작]) --> W[Work]
+    W -->|success| E([COMPLETED])
+    W -->|failure| R{재시도\n가능?}
+    R -->|yes| D[백오프 대기]
+    D --> W
+    R -->|no| F([FAILED])
+```
 
 ```kotlin
 val flow = retryFlow("call-api") {
@@ -269,9 +367,3 @@ dependencies {
     implementation(project(":bluetape4k-workflow"))
 }
 ```
-
-## 아키텍처
-
-- **동기**: `sequentialFlow {}`, `parallelFlow {}`, `conditionalFlow {}`, `repeatFlow {}`, `retryFlow {}`은 `Work` 사용
-- **코루틴**: `suspendSequentialFlow {}`, `suspendParallelFlow {}` 등은 `SuspendWork` 사용
-- **공통**: `WorkReport`, `WorkStatus`, `ErrorStrategy`, `RetryPolicy`, `WorkContext`

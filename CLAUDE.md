@@ -8,11 +8,14 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 
 ## Development Guidelines
 
+- **README diagrams
+  **: Every module README must include Mermaid UML diagrams (class, sequence, or flowchart) so readers can understand the design at a glance before reading code
 - **KDoc**: Required for all public classes, interfaces, and extension methods — written in **Korean**
 - **Commit messages**: Korean, with prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
 - **Kotlin**: 2.3+, use extensions and DSLs wherever possible
 - **Stack**: Java 21 · Kotlin 2.3 · Spring Boot 3.4+ · Exposed 1.0+ · H2 / PostgreSQL / MySQL
 - **Testing**: JUnit 5 + MockK + Kluent; examples must be production-quality and runnable
+- **Formatting**: IntelliJ IDEA formatter + `.editorconfig` — **ktlint is NOT used** (conflicts with project style)
 
 ## Build Commands
 
@@ -345,3 +348,5 @@ snapshotVersion=-SNAPSHOT   # empty for RELEASE
 - **atomicfu**: `kotlinx-atomicfu` plugin, `jvmVariant = "VH"` — use only as class-level properties (not method-local)
 - **Detekt**: disabled for `exposed-jdbc-tests`
 - **Jacoco**: commented out (enable when needed)
+- **virtualthread-api changes**: when adding/changing interfaces in `virtualthread/api`, always update **both**
+  `jdk21` and `jdk25` implementations in the same commit — never leave one behind
