@@ -93,6 +93,7 @@ j-easy/easy-flows에서 영감을 받아 Kotlin 2.3 + 코루틴 + Virtual Thread
 ### Fixed
 
 - `virtualthread/api` — `StructuredTaskScopeAll.joinUntil(Instant)` 메서드 추가, `Jdk21AllScope` 구현: `ParallelWorkFlow` 타임아웃이 실제로 동작하지 않던 문제 수정 ([`685e25a4d`](https://github.com/bluetape4k/bluetape4k-projects/commit/685e25a4d))
+- `virtualthread/jdk25` — `Jdk25AllScope.joinUntil(Instant)` 구현: JDK 25 `StructuredTaskScope`에 `joinUntil` 없음 → 스케줄러로 스레드 인터럽트 후 `TimeoutException` 변환
 - `WireMockServer.resetAll()`: Apache HttpClient 5 stale 커넥션으로 인한 `NoHttpResponseException` 발생 시 클라이언트 재생성 후 1회 재시도 ([`c4adae7d`](https://github.com/bluetape4k/bluetape4k-projects/commit/c4adae7d))
 - `ZooKeeperServer`: Curator 연결 타임아웃 안정화 — `RetryOneTime(1000)` + `blockUntilConnected(10s)` 추가 (IPv6→IPv4 폴백 대응) ([`0d05542d`](https://github.com/bluetape4k/bluetape4k-projects/commit/0d05542d))
 - `ToxiproxyServer`: `useDefaultPort` 시 `exposeCustomPorts()` 누락 수정, KDoc 프로퍼티 키 `control.port` → `control-port` ([`a46226b8`](https://github.com/bluetape4k/bluetape4k-projects/commit/a46226b8))

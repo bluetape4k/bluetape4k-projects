@@ -7,9 +7,14 @@ import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.Callable
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.function.Function
 
 /**
@@ -161,6 +166,25 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         override fun join(): StructuredTaskScopeAll {
             delegate.join()
+            return this
+        }
+
+        override fun joinUntil(deadline: Instant): StructuredTaskScopeAll {
+            val remaining = Duration.between(Instant.now(), deadline)
+            if (remaining.isNegative || remaining.isZero) {
+                throw TimeoutException("Deadline already passed")
+            }
+            val ownerThread = Thread.currentThread()
+            val scheduler = ScheduledThreadPoolExecutor(1) { r -> Thread(r, "jdk25-scope-timeout") }
+            scheduler.schedule({ ownerThread.interrupt() }, remaining.toMillis(), TimeUnit.MILLISECONDS)
+            try {
+                delegate.join()
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                throw TimeoutException("joinUntil deadline exceeded")
+            } finally {
+                scheduler.shutdownNow()
+            }
             return this
         }
 
