@@ -20,7 +20,7 @@ docs/superpowers/specs/{YYYY-MM-DD}-{기능명}-design.md   ← Spec
 docs/superpowers/plans/{YYYY-MM-DD}-{기능명}-plan.md     ← Plan
 ```
 
-작성 후 **이달 월별 파일**(`docs/superpowers/index/YYYY-MM.md`)의 테이블에 **맨 위 행으로** 추가하고,
+작성 후 **이달 월별 파일**(`docs/superpowers/index/YYYY-MM.md`)의 테이블에 **맨 아래 행으로** 추가하고 (시간순),
 완료 시 git 커밋 해시를 기록합니다.
 매월 초 새 파일을 생성하고 이 허브의 월별 보관 목록에 추가합니다.
 
