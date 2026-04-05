@@ -8,6 +8,160 @@ English | [한국어](./README.ko.md)
 
 It allows REST API calls to be declared as interface methods, and supports pluggable HTTP transport layers including Apache HC5 and Vert.x.
 
+## Architecture
+
+### Overall Architecture: Feign + Coroutines Integration
+
+```mermaid
+flowchart TD
+    subgraph Application
+        APP[Application Code]
+        API[Feign Interface\nsuspend fun / fun]
+    end
+
+    subgraph bluetape4k-feign
+        FB[feignBuilderOf DSL]
+        CFB[coroutineFeignBuilderOf DSL]
+        PROXY[Feign Proxy\nCoroutineFeign]
+    end
+
+    subgraph Transport["HTTP Transport Layer"]
+        AHC5[AsyncApacheHttp5Client]
+        HC5[ApacheHttp5Client]
+        VTX[VertxHttpClient / AsyncVertxHttpClient]
+    end
+
+    subgraph Codec
+        JE[JacksonEncoder2]
+        JD[JacksonDecoder2]
+        FE[FeignFastjsonEncoder]
+        FD[FeignFastjsonDecoder]
+    end
+
+    subgraph Resilience
+        R4J[Resilience4jFeign\nCircuitBreaker / Retry]
+    end
+
+    APP --> API
+    API --> PROXY
+    FB --> PROXY
+    CFB --> PROXY
+    PROXY --> Transport
+    PROXY --> Codec
+    PROXY --> R4J
+    AHC5 --> SERVER[(HTTP Server)]
+    HC5 --> SERVER
+    VTX --> SERVER
+```
+
+### Class Hierarchy: Feign + Coroutines
+
+```mermaid
+classDiagram
+    class CoroutineFeign {
+        <<feign_kotlin>>
+    }
+
+    class CoroutineBuilder {
+        +client(asyncClient) CoroutineBuilder
+        +encoder(encoder) CoroutineBuilder
+        +decoder(decoder) CoroutineBuilder
+        +options(options) CoroutineBuilder
+        +logLevel(level) CoroutineBuilder
+        +target(type, url) T
+    }
+
+    class AsyncClient {
+        <<interface>>
+    }
+
+    class Encoder {
+        <<interface>>
+    }
+
+    class Decoder {
+        <<interface>>
+    }
+
+    class JacksonEncoder2 {
+        -mapper: JsonMapper
+        +encode(object, bodyType, template)
+    }
+
+    class JacksonDecoder2 {
+        -mapper: JsonMapper
+        +decode(response, type) Any?
+    }
+
+    class FeignFastjsonEncoder {
+        +encode(object, bodyType, template)
+    }
+
+    class FeignFastjsonDecoder {
+        +decode(response, type) Any?
+    }
+
+    CoroutineFeign *-- CoroutineBuilder
+    CoroutineBuilder --> AsyncClient : configures
+    CoroutineBuilder --> Encoder : configures
+    CoroutineBuilder --> Decoder : configures
+    Encoder <|.. JacksonEncoder2
+    Decoder <|.. JacksonDecoder2
+    Encoder <|.. FeignFastjsonEncoder
+    Decoder <|.. FeignFastjsonDecoder
+```
+
+### HTTP Transport Layer Options
+
+```mermaid
+classDiagram
+    class FeignClient {
+        <<interface>>
+        +target(type, url) T
+    }
+    class ApacheHttp5Client {
+        +execute(request, options) Response
+    }
+    class AsyncApacheHttp5Client {
+        +execute(request, options, callback)
+    }
+    class VertxHttpClient {
+        +execute(request, options) Response
+    }
+    class AsyncVertxHttpClient {
+        +execute(request, options, callback)
+    }
+
+    FeignClient --> ApacheHttp5Client : sync transport
+    FeignClient --> AsyncApacheHttp5Client : async transport
+    FeignClient --> VertxHttpClient : Vert.x sync
+    FeignClient --> AsyncVertxHttpClient : Vert.x async
+```
+
+### Suspend Function HTTP Request Flow
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant API as Feign interface (suspend fun)
+    participant CB as CoroutineFeign.CoroutineBuilder
+    participant AC as AsyncClient
+    participant Codec as JacksonDecoder2
+    participant Server as HTTP Server
+
+    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
+    CB-->>App: Return MyApi proxy
+
+    App->>API: suspend fun someApi()
+    API->>AC: Async HTTP request
+    AC->>Server: HTTP request
+    Server-->>AC: HTTP response
+    AC-->>API: Response
+    API->>Codec: decode(response, type)
+    Codec-->>API: Deserialized object
+    API-->>App: Return result
+```
+
 ## Key Features
 
 ### 1. Feign Builder DSL
@@ -95,32 +249,6 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 | VertxHttpClient | Event loop-based, lightweight | Vert.x ecosystem integration |
 | AsyncVertxHttpClient | Vert.x async client | Vert.x async communication |
 
-```mermaid
-classDiagram
-    class FeignClient {
-        <<interface>>
-        +target(type, url) T
-    }
-    class ApacheHttp5Client {
-        +execute(request, options) Response
-    }
-    class AsyncApacheHttp5Client {
-        +execute(request, options, callback)
-    }
-    class VertxHttpClient {
-        +execute(request, options) Response
-    }
-    class AsyncVertxHttpClient {
-        +execute(request, options, callback)
-    }
-
-    FeignClient --> ApacheHttp5Client : sync transport
-    FeignClient --> AsyncApacheHttp5Client : async transport
-    FeignClient --> VertxHttpClient : Vert.x sync
-    FeignClient --> AsyncVertxHttpClient : Vert.x async
-
-```
-
 ```kotlin
 // Vert.x-based Feign client
 val api = feignBuilderOf(
@@ -162,7 +290,9 @@ val decoratedBuilder = Resilience4jFeign.builder(feignBuilderOf(
 ))
 ```
 
-## API Definition Examples
+## Usage Examples
+
+### API Definition
 
 ```kotlin
 interface HttpbinApi {
@@ -188,103 +318,6 @@ interface HttpbinCoroutineApi {
 }
 ```
 
-## Dependencies
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-feign"))
-
-    // Optional dependencies
-    implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder
-    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 client
-    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j integration
-}
-```
-
-## Class Structure
-
-### Feign + Coroutines Integration
-
-```mermaid
-classDiagram
-    class CoroutineFeign {
-        <<feign_kotlin>>
-    }
-
-    class CoroutineBuilder {
-        +client(asyncClient) CoroutineBuilder
-        +encoder(encoder) CoroutineBuilder
-        +decoder(decoder) CoroutineBuilder
-        +options(options) CoroutineBuilder
-        +logLevel(level) CoroutineBuilder
-        +target(type, url) T
-    }
-
-    class AsyncClient {
-        <<interface>>
-    }
-
-    class Encoder {
-        <<interface>>
-    }
-
-    class Decoder {
-        <<interface>>
-    }
-
-    class JacksonEncoder2 {
-        -mapper: JsonMapper
-        +encode(object, bodyType, template)
-    }
-
-    class JacksonDecoder2 {
-        -mapper: JsonMapper
-        +decode(response, type) Any?
-    }
-
-    class FeignFastjsonEncoder {
-        +encode(object, bodyType, template)
-    }
-
-    class FeignFastjsonDecoder {
-        +decode(response, type) Any?
-    }
-
-    CoroutineFeign *-- CoroutineBuilder
-    CoroutineBuilder --> AsyncClient : configures
-    CoroutineBuilder --> Encoder : configures
-    CoroutineBuilder --> Decoder : configures
-    Encoder <|.. JacksonEncoder2
-    Decoder <|.. JacksonDecoder2
-    Encoder <|.. FeignFastjsonEncoder
-    Decoder <|.. FeignFastjsonDecoder
-
-```
-
-### Suspend Function HTTP Request Flow
-
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant API as Feign interface (suspend fun)
-    participant CB as CoroutineFeign.CoroutineBuilder
-    participant AC as AsyncClient
-    participant Codec as JacksonDecoder2
-    participant Server as HTTP Server
-
-    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: Return MyApi proxy
-
-    App->>API: suspend fun someApi()
-    API->>AC: Async HTTP request
-    AC->>Server: HTTP request
-    Server-->>AC: HTTP response
-    AC-->>API: Response
-    API->>Codec: decode(response, type)
-    Codec-->>API: Deserialized object
-    API-->>App: Return result
-```
-
 ## Module Structure
 
 ```
@@ -304,6 +337,19 @@ io.bluetape4k.feign
 │   └── FeignFastjsonDecoder.kt      # Fastjson2 Decoder
 └── coroutines/                      # Coroutines support
     └── FeignCoroutineBuilderSupport.kt  # CoroutineFeign Builder DSL
+```
+
+## Dependencies
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-feign"))
+
+    // Optional dependencies
+    implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder
+    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 client
+    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j integration
+}
 ```
 
 ## Testing

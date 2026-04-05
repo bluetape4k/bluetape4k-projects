@@ -6,80 +6,87 @@ An integrated module for GIS coordinate conversion, Shapefile processing, JTS ge
 
 It includes coordinate transforms based on Proj4J, GeoTools-backed Shapefile parsing, JTS spatial geometry operations, and database pipelines built on Exposed + PostGIS.
 
-## Core Features
+## Architecture
 
-### Coordinate Primitive Types (`coords` package)
+### Module Overview
 
-**GeoLocation** — WGS84 latitude and longitude coordinates
-- latitude: -90 to 90, longitude: -180 to 180
-- distance calculation with the Haversine formula
-- predefined locations such as `SEOUL`, `NEW_YORK`, and `TOKYO`
+```mermaid
+flowchart TD
+    Science["bluetape4k-science"]
 
-**BoundingBox** — rectangular bounding area
-- check whether coordinates are contained
-- intersection and union calculation
-- calculate center point, width, and height
+    subgraph Coords["coords — Coordinate Primitives"]
+        GeoLocation["GeoLocation\nWGS84 lat/lon"]
+        BoundingBox["BoundingBox\nbounding rectangle"]
+        DMS["DM / DMS\ndegree-minute-second"]
+        UtmZone["UtmZone\nUTM coordinate system"]
+        Vector["Vector\n2D/3D"]
+    end
 
-**DM / DMS** — degree-minute / degree-minute-second notation
-- parse formats such as `37°33'59.4"N`
-- convert to and from `GeoLocation`
+    subgraph Projection["projection — CRS Transforms"]
+        Projections["Projections\nwgs84ToUtm / utmToWgs84\ntransform(EPSG)"]
+        CrsRegistry["CrsRegistry\nEPSG cache"]
+    end
 
-**UtmZone** — UTM coordinate system
-- automatic zone detection from latitude/longitude through `utmZoneOf()`
-- Easting / Northing conversion
+    subgraph Shapefile["shapefile — Shapefile I/O"]
+        LoadShape["loadShape() sync"]
+        LoadShapeAsync["loadShapeAsync() async"]
+        ShapeModels["ShapeModels\nShape / ShapeRecord"]
+    end
 
-**Vector** — 2D / 3D vector operations
+    subgraph Geometry["geometry — JTS Operations"]
+        GeomOps["GeometryOperations\nintersection / union / buffer\nsimplify / distance"]
+        PolyExt["PolygonExtensions\narea / perimeter"]
+    end
 
-**CoordConverters** — coordinate conversion utilities
-- decimal degrees ↔ DM / DMS conversion
-- coordinate normalization
+    subgraph Exposed["exposed — PostGIS Pipeline"]
+        Schema["schema/\nSpatialLayerTable\nSpatialFeatureTable"]
+        Models["model/\nSpatialLayerRecord\nSpatialFeatureRecord"]
+        Repos["repository/\nSpatialLayerRepository\nSpatialFeatureRepository"]
+        Service["service/\nShapefileImportService"]
+    end
 
-### Coordinate Transformation and Projection (`projection` package)
+    Science --> Coords
+    Science --> Projection
+    Science --> Shapefile
+    Science --> Geometry
+    Science --> Exposed
 
-**Projections** — transforms based on Proj4J
-- `wgs84ToUtm()` — WGS84 → UTM
-- `utmToWgs84()` — UTM → WGS84
-- `transform()` — arbitrary coordinate transforms between EPSG codes
+    Coords --> Projection
+    Projection --> Shapefile
+    Shapefile --> Exposed
+    Geometry --> Exposed
+```
 
-**CrsRegistry** — CRS registry
-- supports EPSG codes and Proj4 strings
-- improves performance through instance caching
+---
 
-### Shapefile Reading (`shapefile` package)
+### Coordinate Transformation Flow
 
-**ShapefileReader / loadShape()** — synchronous Shapefile reading
-- automatically handles `.shp`, `.shx`, and `.dbf` files
-- returns geometry plus attributes together
-- supports UTF-8 and custom charsets
+```mermaid
+flowchart TD
+    A[WGS84 GeoLocation\nlat, lon] -->|wgs84ToUtm| B[UTM Zone detection\nutmZoneOf]
+    B --> C{Southern hemisphere?}
+    C -->|latBand < N| D[proj4: +south]
+    C -->|latBand >= N| E[proj4: northern]
+    D --> F[BasicCoordinateTransform]
+    E --> F
+    F --> G[UTM coordinates\neasting, northing]
 
-**loadShapeAsync()** — asynchronous reading
-- coroutine-based, using `Dispatchers.IO`
-- optimized for large files
+    G -->|utmToWgs84| H[UtmZone input]
+    H --> I{latitudeZone < N?}
+    I -->|Yes| J[proj4: +south]
+    I -->|No| K[proj4: northern]
+    J --> L[BasicCoordinateTransform]
+    K --> L
+    L --> M[WGS84 GeoLocation]
 
-**ShapeModels** — type-safe models
-- `Shape`: file metadata
-- `ShapeRecord`: geometry + attributes
-- `ShapeHeader`: file header information
-- does not expose GeoTools types in the public API
+    style A fill:#4CAF50
+    style G fill:#2196F3
+    style M fill:#4CAF50
+```
 
-**Supported geometry types**
-- Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
+---
 
-### Spatial Geometry Operations (`geometry` package)
-
-**GeometryOperations** — JTS-based operations
-- intersection, union, and difference
-- buffer generation with a specified distance
-- distance calculation
-- simplification with the Douglas-Peucker algorithm
-- envelope (minimum bounding rectangle)
-- containment checks
-
-**PolygonExtensions** — polygon extensions
-- area calculation
-- perimeter calculation
-
-### PostGIS Database Pipeline (`exposed` package)
+### PostGIS Database Pipeline Class Diagram
 
 ```mermaid
 classDiagram
@@ -155,93 +162,245 @@ classDiagram
     ShapefileImportService --> SpatialLayerRepository : delegates
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
-
-
 ```
 
-**Schema** — Exposed table definitions
-- `SpatialLayerTable` / `SpatialFeatureTable` — storage for spatial data
-- `PoiTable` — points of interest
-- `NetCdfFileTable` / `NetCdfGridValueTable` — NetCDF metadata (Phase 4)
+---
 
-**Models** — serializable data classes
-- `SpatialLayerRecord` / `SpatialFeatureRecord` — spatial data
-- `NetCdfVariableInfo`, `NetCdfDimensionInfo`, `NetCdfFileRecord` — NetCDF (Phase 4)
+### Shapefile Import Sequence
 
-**Repository** — JDBC repositories
-- `SpatialLayerRepository` — layer management
-- `SpatialFeatureRepository` — feature CRUD and spatial search
-- `NetCdfRepository` — NetCDF catalog (Phase 4)
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant SIS as ShapefileImportService
+    participant LR as SpatialLayerRepository
+    participant FR as SpatialFeatureRepository
+    participant VT as VirtualThread
+    participant DB as PostgreSQL/PostGIS
 
-**Service** — business logic
-- `ShapefileImportService.importShapefile()` — batch import based on virtual threads
-- `NetCdfCatalogService` — NetCDF file registration (Phase 4)
+    Caller->>SIS: importShapefile(file, layerName, batchSize)
+    SIS->>SIS: loadShape(file)
 
-## Architecture
+    SIS->>VT: newVirtualThreadJdbcTransaction
+    VT->>LR: findByName(layerName)
+    LR->>DB: SELECT
+    DB-->>LR: null (no duplicate)
+    VT->>LR: save(SpatialLayerRecord)
+    LR->>DB: INSERT spatial_layers
+    DB-->>LR: layerRecord (id)
+    VT-->>SIS: layerRecord
 
-```
-coords (coordinate primitive types)
-  ├─ GeoLocation (latitude / longitude)
-  ├─ BoundingBox (bounding rectangle)
-  ├─ DM / DMS (degree-minute / degree-minute-second)
-  ├─ UtmZone (UTM coordinate system)
-  └─ Vector (vector)
-    │
-    └─→ projection (coordinate transformation)
-          ├─ Projections (based on Proj4J)
-          │  ├─ wgs84ToUtm()
-          │  ├─ utmToWgs84()
-          │  └─ transform() [EPSG]
-          └─ CrsRegistry (caching)
-              │
-              ├─→ shapefile (Shapefile reading)
-              │     ├─ loadShape() [sync]
-              │     ├─ loadShapeAsync() [async]
-              │     └─ ShapeModels
-              │          │
-              │          └─→ exposed (PostGIS pipeline)
-              │                ├─ schema/ (tables)
-              │                ├─ model/ (serialized data)
-              │                ├─ repository/ (JDBC)
-              │                └─ service/ (business logic)
-              │
-              └─→ geometry (JTS geometry operations)
-                    ├─ GeometryOperations
-                    │  ├─ intersection()
-                    │  ├─ buffer()
-                    │  ├─ simplify()
-                    │  └─ distance()
-                    └─ PolygonExtensions
-                         │
-                         └─→ exposed (database loading)
+    loop Per batch (batchSize=1000)
+        SIS->>VT: newVirtualThreadJdbcTransaction
+        VT->>DB: batchInsert spatial_features
+        DB-->>VT: inserted rows
+        VT-->>SIS: batch complete
+    end
+
+    SIS-->>Caller: totalInserted count
 ```
 
-## Installation and Dependencies
+---
 
-`bluetape4k-science` declares optional, feature-specific dependencies through `compileOnly`. Add only the libraries you actually need at runtime.
+## Key Features
 
-### Basic Installation
+- **Coordinate Primitives**: `GeoLocation` (WGS84), `BoundingBox`, `DM/DMS`, `UtmZone`, `Vector`
+- **Coordinate Transforms**: Proj4J-based WGS84 ↔ UTM and arbitrary EPSG code transformations via `CrsRegistry`
+- **Shapefile I/O**: Synchronous and async Shapefile reading; type-safe `ShapeModels` without exposing GeoTools types
+- **JTS Geometry**: `GeometryOperations` — intersection, union, difference, buffer, simplify, distance
+- **PostGIS Pipeline**: `SpatialLayerTable/Repository` + `SpatialFeatureTable/Repository` +
+  `ShapefileImportService` backed by Virtual Threads
+
+## Usage Examples
+
+### Coordinate Primitives
+
+**GeoLocation — WGS84 latitude/longitude**
 
 ```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
+import io.bluetape4k.science.coords.GeoLocation
+
+val seoul = GeoLocation(latitude = 37.5665, longitude = 126.9780)
+val tokyo = GeoLocation(latitude = 35.6762, longitude = 139.6503)
+
+// Haversine distance (meters)
+val distanceMeters = seoul.distanceTo(tokyo)
+val distanceKm = distanceMeters / 1000.0
+println("Seoul↔Tokyo: $distanceKm km")
+
+// Predefined locations
+val newYork = GeoLocation.NEW_YORK
+val london = GeoLocation.LONDON
+```
+
+**BoundingBox — rectangular boundary**
+
+```kotlin
+import io.bluetape4k.science.coords.BoundingBox
+
+val seoulArea = BoundingBox(
+    minLat = 37.4, maxLat = 37.6,
+    minLon = 126.8, maxLon = 127.0
+)
+
+if (seoulArea.contains(seoul)) {
+    println("Seoul City Hall is within the area")
+}
+
+println("Center: ${seoulArea.center}")
+println("Width: ${seoulArea.widthKm} km")
+println("Height: ${seoulArea.heightKm} km")
+```
+
+**DMS — degree-minute-second notation**
+
+```kotlin
+import io.bluetape4k.science.coords.DMS
+
+val dms = DMS.parse("37°33'59.4\"N")
+val decimal = dms.toDecimal()  // 37.5665
+println("DMS → decimal: $decimal")
+
+val dmsStr = DMS(degree = 37, minute = 33, second = 59.4, direction = 'N').toString()
+println("Decimal → DMS: $dmsStr")
+```
+
+**UtmZone — UTM coordinate system**
+
+```kotlin
+import io.bluetape4k.science.coords.utmZoneOf
+
+val zone = utmZoneOf(37.5665, 126.9780)
+println("Seoul: UTM Zone ${zone.longitudeZone}${zone.hemisphere}")  // 52S
+
+val bbox = zone.boundingBox()
+println("Zone boundary: $bbox")
+```
+
+### Coordinate Transformation
+
+**WGS84 ↔ UTM**
+
+```kotlin
+import io.bluetape4k.science.projection.wgs84ToUtm
+import io.bluetape4k.science.projection.utmToWgs84
+import io.bluetape4k.science.coords.UtmZone
+
+val seoul = GeoLocation(37.5665, 126.9780)
+val (easting, northing) = wgs84ToUtm(seoul)
+println("WGS84(37.5665, 126.9780) → UTM($easting, $northing)")
+
+val zone = UtmZone(longitudeZone = 52, hemisphere = 'S')
+val restored = utmToWgs84(easting, northing, zone)
+println("UTM → WGS84: $restored")
+```
+
+**EPSG code transformation**
+
+```kotlin
+import io.bluetape4k.science.projection.transform
+
+// EPSG:4326 (WGS84) → EPSG:5179 (Korea 2000 Central Belt)
+val (transformedX, transformedY) = transform(
+    x = 126.9780,
+    y = 37.5665,
+    sourceEpsg = 4326,
+    targetEpsg = 5179
+)
+println("EPSG:4326 → EPSG:5179: ($transformedX, $transformedY)")
+```
+
+### Shapefile Reading
+
+**Synchronous**
+
+```kotlin
+import io.bluetape4k.science.shapefile.loadShape
+import java.io.File
+
+val shapeFile = File("/data/provinces.shp")
+val shape = loadShape(shapeFile, charset = Charsets.UTF_8)
+
+println("Type: ${shape.shapeType}, Records: ${shape.recordCount}")
+
+shape.records.forEach { record ->
+    println("Geometry: ${record.geometry.geometryType}")
+    println("Attributes: ${record.attributes}")
 }
 ```
 
-## Package Structure
+**Asynchronous (Coroutines)**
 
-- `coords`: coordinate primitives and coordinate notation helpers
-- `projection`: CRS registry and coordinate transforms
-- `shapefile`: sync and async Shapefile loading
-- `geometry`: JTS-based spatial operations
-- `exposed`: PostGIS persistence pipeline
+```kotlin
+import io.bluetape4k.science.shapefile.loadShapeAsync
+import java.io.File
 
-## Main API Usage Examples
+suspend fun processLargeShapefile() {
+    val shapeFile = File("/data/large_dataset.shp")
 
-- coordinate transforms between WGS84 and UTM
-- reading large Shapefiles synchronously or asynchronously
-- geometry operations before persistence
-- importing spatial datasets into PostgreSQL / PostGIS through Exposed repositories and services
+    // Processes on Dispatchers.IO
+    val shape = loadShapeAsync(shapeFile)
+
+    shape.records.forEach { record ->
+        // process geometry
+    }
+}
+```
+
+### JTS Geometry Operations
+
+```kotlin
+import io.bluetape4k.science.geometry.GeometryOperations
+import org.locationtech.jts.io.WKTReader
+
+val wkt = WKTReader()
+
+val poly1 = wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
+val poly2 = wkt.read("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
+
+// Intersection
+val intersection = GeometryOperations.intersection(poly1, poly2)
+
+// Union
+val union = GeometryOperations.union(poly1, poly2)
+
+// Buffer (100m radius)
+val buffered = GeometryOperations.buffer(poly1, 100.0)
+
+// Simplify (Douglas-Peucker, tolerance=1.0)
+val simplified = GeometryOperations.simplify(poly1, 1.0)
+
+// Distance
+val distance = GeometryOperations.distance(poly1, poly2)
+println("Distance: $distance m")
+```
+
+### PostGIS Database Pipeline
+
+```kotlin
+import io.bluetape4k.science.exposed.service.ShapefileImportService
+import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
+import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
+import org.jetbrains.exposed.sql.Database
+import java.io.File
+
+val database = Database.connect(
+    url = "jdbc:postgresql://localhost:5432/gis_db",
+    driver = "org.postgresql.Driver",
+    user = "postgres",
+    password = "password"
+)
+
+val layerRepo = SpatialLayerRepository()
+val featureRepo = SpatialFeatureRepository()
+val service = ShapefileImportService(layerRepo, featureRepo)
+
+val shapeFile = File("/data/harbors.shp")
+val importedCount = service.importShapefile(
+    file = shapeFile,
+    layerName = "harbors-2024"
+)
+println("Imported: $importedCount records")
+```
 
 ## Tests (Testcontainers + PostGIS)
 
@@ -249,9 +408,10 @@ Integration tests can be run with Testcontainers-backed PostgreSQL / PostGIS env
 
 ## Performance Optimization
 
-- cache CRS instances through `CrsRegistry`
-- use `loadShapeAsync()` for large files
-- process imports in batches through the PostGIS pipeline
+- Cache CRS instances through `CrsRegistry`
+- Use `loadShapeAsync()` for large files
+- Process imports in batches through the PostGIS pipeline
+- Use PostGIS GIST/BRIN spatial indexes for range queries
 
 ## Phase 4: NetCDF Support (Planned)
 
@@ -263,10 +423,49 @@ Planned support includes NetCDF metadata cataloging and grid-value persistence t
 - `data/exposed-jdbc`
 - `testing/testcontainers`
 
-## API Summary
+## Installation and Dependencies
 
-- coordinate primitives and conversions
-- CRS registry and projection transforms
-- sync / async Shapefile loading
-- JTS geometry helpers
-- PostGIS loading pipeline and repositories
+`bluetape4k-science` declares optional, feature-specific dependencies through
+`compileOnly`. Add only the libraries you actually need at runtime.
+
+### Basic Installation
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
+}
+```
+
+### Feature-specific Dependencies
+
+**Coordinate transformation (Proj4J)**
+
+```kotlin
+implementation(Libs.proj4j)
+implementation(Libs.proj4j_epsg)
+```
+
+**Shapefile reading (GeoTools — LGPL)**
+
+```kotlin
+// repositories block
+maven(url = "https://repo.osgeo.org/repository/release/") { name = "OSGeo Release" }
+
+// dependencies
+implementation(Libs.geotools_shapefile)
+implementation(Libs.geotools_referencing)
+implementation(Libs.geotools_epsg_hsql)
+```
+
+**Spatial geometry (JTS)**
+
+```kotlin
+implementation(Libs.jts_core)
+```
+
+**PostGIS database**
+
+```kotlin
+implementation("io.github.bluetape4k:bluetape4k-exposed-postgresql:${bluetape4kVersion}")
+implementation(Libs.postgis_jdbc)
+```

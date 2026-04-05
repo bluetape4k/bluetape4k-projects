@@ -6,6 +6,119 @@ A unified integration module built on the AWS Kotlin SDK. Provides native `suspe
 
 > For the AWS Java SDK v2 based module, use `bluetape4k-aws`.
 
+## Architecture
+
+### Java SDK v2 vs Kotlin SDK Comparison
+
+```mermaid
+flowchart LR
+    subgraph JAVA["bluetape4k-aws\n(Java SDK v2)"]
+        JA["DynamoDbAsyncClient\n.getItem(request)"]
+        JB[".thenApply { result }"]
+        JC["CompletableFuture.await()\n→ suspend conversion"]
+        JA --> JB --> JC
+    end
+
+    subgraph KOTLIN["bluetape4k-aws-kotlin\n(Kotlin SDK)"]
+        KA["DynamoDbClient\n.getItem { ... }"]
+        KB["native suspend\nuse directly without conversion"]
+        KA --> KB
+    end
+
+    style JAVA fill:#dbeafe
+    style KOTLIN fill:#dcfce7
+```
+
+### Client Creation Pattern
+
+```mermaid
+flowchart TD
+    subgraph Factory["AwsClientFactory (bluetape4k DSL)"]
+        OF["xxxClientOf(endpointUrl, region)\nDirect client creation\n(must call close())"]
+        WF["withXxxClient { }\nOne-shot usage\n(close() auto-called)"]
+    end
+
+    subgraph Clients["AWS Kotlin SDK Clients"]
+        DDB["DynamoDbClient\nnative suspend"]
+        S3["S3Client\nnative suspend"]
+        SQS["SqsClient\nnative suspend"]
+        SNS["SnsClient\nnative suspend"]
+        CW["CloudWatchClient\nnative suspend"]
+        KMS["KmsClient\nnative suspend"]
+        KIN["KinesisClient\nnative suspend"]
+        STS["StsClient\nnative suspend"]
+    end
+
+    Factory --> Clients
+```
+
+### DSL-Supported Services
+
+```mermaid
+flowchart TD
+    MOD["bluetape4k-aws-kotlin\n(single module based on Kotlin SDK)"]
+
+    subgraph DSL["bluetape4k DSL Provided"]
+        CW["metricDatum { }\n(CloudWatch)"]
+        CWL["inputLogEvent { }\n(CloudWatch Logs)"]
+        KIN["putRecordRequestOf()\n(Kinesis)"]
+        STS["stsClientOf()\n(STS)"]
+    end
+
+    subgraph NATIVE["Native suspend (no wrapping needed)"]
+        DDB["DynamoDbClient\n.getItem { }"]
+        S3["S3Client\n.putObject { }"]
+        SQS["SqsClient\n.sendMessage { }"]
+        SNS["SnsClient\n.publish { }"]
+    end
+
+    MOD --> DSL
+    MOD --> NATIVE
+```
+
+### Client Pattern Class Diagram
+
+```mermaid
+classDiagram
+    class DynamoDbClient {
+        +getItem(block) GetItemResponse
+        +putItem(block) PutItemResponse
+        +scan(block) ScanResponse
+        +query(block) QueryResponse
+        +close()
+    }
+    class SqsClient {
+        +sendMessage(block) SendMessageResponse
+        +receiveMessage(block) ReceiveMessageResponse
+        +deleteMessage(block) DeleteMessageResponse
+        +close()
+    }
+    class S3Client {
+        +getObject(block) GetObjectResponse
+        +putObject(block) PutObjectResponse
+        +listObjects(block) ListObjectsResponse
+        +close()
+    }
+    class CloudWatchClient {
+        +putMetricData(block) PutMetricDataResponse
+        +getMetricData(block) GetMetricDataResponse
+        +close()
+    }
+    class AwsClientFactory {
+        +dynamoDbClientOf(endpointUrl, region) DynamoDbClient
+        +withDynamoDbClient(block) T
+        +sqsClientOf(endpointUrl, region) SqsClient
+        +withSqsClient(block) T
+        +s3ClientOf(region) S3Client
+        +withS3Client(block) T
+    }
+
+    AwsClientFactory --> DynamoDbClient : creates
+    AwsClientFactory --> SqsClient : creates
+    AwsClientFactory --> S3Client : creates
+    AwsClientFactory --> CloudWatchClient : creates
+```
+
 ## Supported Services
 
 | Service | Key Features |
@@ -28,22 +141,6 @@ A unified integration module built on the AWS Kotlin SDK. Provides native `suspe
 | Coroutines | requires `.await()` conversion | native `suspend` built in |
 | DSL support | limited | rich DSL builders |
 | Performance | CRT/Netty NIO choice | CRT / OkHttp choice |
-
-## Installation
-
-AWS Kotlin SDK services are declared as `compileOnly` dependencies, so you need to add the runtime dependencies for the services you use.
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-aws-kotlin:${bluetape4kVersion}")
-
-    // Add only the services you need
-    implementation("aws.sdk.kotlin:dynamodb:${awsKotlinSdkVersion}")
-    implementation("aws.sdk.kotlin:s3:${awsKotlinSdkVersion}")
-    implementation("aws.sdk.kotlin:sqs:${awsKotlinSdkVersion}")
-    // ... add other services as needed
-}
-```
 
 ## Client Creation Patterns
 
@@ -164,95 +261,6 @@ suspend fun putRecord(client: KinesisClient, streamName: String, data: ByteArray
 }
 ```
 
-## Client Pattern Class Diagram
-
-```mermaid
-classDiagram
-    class DynamoDbClient {
-        +getItem(block) GetItemResponse
-        +putItem(block) PutItemResponse
-        +scan(block) ScanResponse
-        +query(block) QueryResponse
-        +close()
-    }
-    class SqsClient {
-        +sendMessage(block) SendMessageResponse
-        +receiveMessage(block) ReceiveMessageResponse
-        +deleteMessage(block) DeleteMessageResponse
-        +close()
-    }
-    class S3Client {
-        +getObject(block) GetObjectResponse
-        +putObject(block) PutObjectResponse
-        +listObjects(block) ListObjectsResponse
-        +close()
-    }
-    class CloudWatchClient {
-        +putMetricData(block) PutMetricDataResponse
-        +getMetricData(block) GetMetricDataResponse
-        +close()
-    }
-    class AwsClientFactory {
-        +dynamoDbClientOf(endpointUrl, region) DynamoDbClient
-        +withDynamoDbClient(block) T
-        +sqsClientOf(endpointUrl, region) SqsClient
-        +withSqsClient(block) T
-        +s3ClientOf(region) S3Client
-        +withS3Client(block) T
-    }
-
-    AwsClientFactory --> DynamoDbClient : creates
-    AwsClientFactory --> SqsClient : creates
-    AwsClientFactory --> S3Client : creates
-    AwsClientFactory --> CloudWatchClient : creates
-
-```
-
-## Java SDK v2 vs Kotlin SDK Comparison Diagram
-
-```mermaid
-flowchart LR
-    subgraph JAVA["bluetape4k-aws<br/>(Java SDK v2)"]
-        JA["DynamoDbAsyncClient<br/>.getItem(request)"]
-        JB[".thenApply { result }"]
-        JC["CompletableFuture.await()<br/>→ suspend conversion"]
-        JA --> JB --> JC
-    end
-
-    subgraph KOTLIN["bluetape4k-aws-kotlin<br/>(Kotlin SDK)"]
-        KA["DynamoDbClient<br/>.getItem { ... }"]
-        KB["native suspend<br/>use directly without conversion"]
-        KA --> KB
-    end
-
-    style JAVA fill:#dbeafe
-    style KOTLIN fill:#dcfce7
-```
-
-## DSL-Supported Services
-
-```mermaid
-flowchart TD
-    MOD["bluetape4k-aws-kotlin<br/>(single module based on Kotlin SDK)"]
-
-    subgraph DSL["bluetape4k DSL Provided"]
-        CW["metricDatum { }<br/>(CloudWatch)"]
-        CWL["inputLogEvent { }<br/>(CloudWatch Logs)"]
-        KIN["putRecordRequestOf()<br/>(Kinesis)"]
-        STS["stsClientOf()<br/>(STS)"]
-    end
-
-    subgraph NATIVE["Native suspend (no wrapping needed)"]
-        DDB["DynamoDbClient<br/>.getItem { }"]
-        S3["S3Client<br/>.putObject { }"]
-        SQS["SqsClient<br/>.sendMessage { }"]
-        SNS["SnsClient<br/>.publish { }"]
-    end
-
-    MOD --> DSL
-    MOD --> NATIVE
-```
-
 ## Test Environment
 
 Integration testing with LocalStack is supported:
@@ -265,5 +273,28 @@ class SqsTest {
         val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack"))
             .withServices(LocalStackContainer.Service.SQS)
     }
+}
+```
+
+## Adding the Dependency
+
+AWS Kotlin SDK services are declared as
+`compileOnly` dependencies, so you need to add the runtime dependencies for the services you use.
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-aws-kotlin:${bluetape4kVersion}")
+
+    // Add only the services you need
+    implementation("aws.sdk.kotlin:dynamodb:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:s3:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:sqs:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:sns:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:kms:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:cloudwatch:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:cloudwatchlogs:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:kinesis:${awsKotlinSdkVersion}")
+    implementation("aws.sdk.kotlin:sts:${awsKotlinSdkVersion}")
+    // ... add other services as needed
 }
 ```

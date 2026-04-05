@@ -6,26 +6,9 @@
 
 > 구 `utils/geocode`, `utils/geohash`, `utils/geoip2` 모듈이 이 모듈로 통합되었습니다.
 
-## 제공 기능
+## 아키텍처
 
-### Geocode (구 `utils/geocode`)
-- Google Maps Services 기반 주소 ↔ 좌표 변환
-- Bing Maps API 연동 지원
-- Feign HTTP 클라이언트 기반 비동기 요청
-- Coroutines 확장 (선택적)
-
-### GeoHash
-- 위도/경도 좌표를 Base32 문자열로 인코딩
-- GeoHash 디코딩 및 이웃 셀 계산
-- 반경 내 GeoHash 목록 생성
-- 정밀도 제어 (1~12자리)
-
-### GeoIP2 (구 `utils/geoip2`)
-- MaxMind GeoIP2 데이터베이스 기반 IP → 지리 정보 변환
-- City, Country, ASN 조회 지원
-- Coroutines 확장 (선택적)
-
-## 아키텍처 다이어그램
+### 모듈 구성
 
 ```mermaid
 flowchart TD
@@ -48,24 +31,91 @@ flowchart TD
     GI --> IPINFO["IP → 국가/도시/위도경도"]
 ```
 
-## 설치
+### 클래스 다이어그램
 
-각 기능은 `compileOnly`로 선언되어 있으므로, 사용할 라이브러리를 런타임 의존성으로 추가해야 합니다.
+```mermaid
+classDiagram
+    class GeoHashUtils {
+        +encode(lat, lon, precision) String
+        +decode(hash) GeoPoint
+        +neighbors(hash) List~String~
+    }
+    class GeoHashCircleQuery {
+        +radiusMeters: Double
+        +centerHash: String
+        +getHashes() List~String~
+    }
+    class GeoPoint {
+        +latitude: Double
+        +longitude: Double
+    }
+    class GoogleGeocoder {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class BingGeocoder {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class GeoIp2Support {
+        +cityReader(path) DatabaseReader
+        +countryReader(path) DatabaseReader
+    }
+    class CityResponse {
+        +country: Country
+        +city: City
+        +location: Location
+    }
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
-
-    // Geocode (Google Maps) 사용 시
-    implementation("com.google.maps:google-maps-services:2.2.0")
-    implementation(Libs.feign_core)
-    implementation(Libs.feign_kotlin)
-    implementation(Libs.feign_jackson)
-
-    // GeoIP2 사용 시
-    implementation("com.maxmind.geoip2:geoip2:5.0.2")
-}
+    GeoHashCircleQuery --> GeoHashUtils : uses
+    GeoHashUtils --> GeoPoint : returns
+    GoogleGeocoder --> GeoPoint : returns
+    BingGeocoder --> GeoPoint : returns
+    GeoIp2Support --> CityResponse : returns
 ```
+
+### GeoHash 인코딩/디코딩 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant GH as GeoHashUtils
+    participant Grid as GeoHash 격자
+
+    App->>GH: encode(lat=37.5665, lon=126.9780, precision=9)
+    GH->>Grid: Base32 셀로 분할
+    Grid-->>GH: "wydm9mufd"
+    GH-->>App: 해시 문자열
+
+    App->>GH: decode("wydm9mufd")
+    GH->>Grid: 역방향 경계 박스 조회
+    Grid-->>GH: GeoPoint(37.5665, 126.9780)
+    GH-->>App: GeoPoint
+
+    App->>GH: neighbors("wydm9mufd")
+    GH-->>App: 인접 8개 해시 목록
+```
+
+## 제공 기능
+
+### Geocode (구 `utils/geocode`)
+- Google Maps Services 기반 주소 ↔ 좌표 변환
+- Bing Maps API 연동 지원
+- Feign HTTP 클라이언트 기반 비동기 요청
+- Coroutines 확장 (선택적)
+
+### GeoHash
+- 위도/경도 좌표를 Base32 문자열로 인코딩
+- GeoHash 디코딩 및 이웃 셀 계산
+- 반경 내 GeoHash 목록 생성
+- 정밀도 제어 (1~12자리)
+
+### GeoIP2 (구 `utils/geoip2`)
+- MaxMind GeoIP2 데이터베이스 기반 IP → 지리 정보 변환
+- City, Country, ASN 조회 지원
+- Coroutines 확장 (선택적)
 
 ## 사용 예시
 
@@ -74,7 +124,7 @@ dependencies {
 ```kotlin
 import io.bluetape4k.geo.geohash.GeoHash
 
-// 좌표 → GeoHash (12자리 최대 정밀도)
+// 좌표 → GeoHash (9자리 정밀도)
 val hash = GeoHash.encode(latitude = 37.5665, longitude = 126.9780, precision = 9)
 // 예: "wydm9mufd"
 
@@ -121,48 +171,21 @@ println("위도: ${cityResponse.location.latitude}")
 println("경도: ${cityResponse.location.longitude}")
 ```
 
-## 클래스 다이어그램
+## 설치
 
-```mermaid
-classDiagram
-    class GeoHashUtils {
-        +encode(lat, lon, precision) String
-        +decode(hash) GeoPoint
-        +neighbors(hash) List~String~
-    }
-    class GeoHashCircleQuery {
-        +radiusMeters: Double
-        +centerHash: String
-        +getHashes() List~String~
-    }
-    class GeoPoint {
-        +latitude: Double
-        +longitude: Double
-    }
-    class GoogleGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class BingGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class GeoIp2Support {
-        +cityReader(path) DatabaseReader
-        +countryReader(path) DatabaseReader
-    }
-    class CityResponse {
-        +country: Country
-        +city: City
-        +location: Location
-    }
+각 기능은 `compileOnly`로 선언되어 있으므로, 사용할 라이브러리를 런타임 의존성으로 추가해야 합니다.
 
-    GeoHashCircleQuery --> GeoHashUtils : uses
-    GeoHashUtils --> GeoPoint : returns
-    GoogleGeocoder --> GeoPoint : returns
-    BingGeocoder --> GeoPoint : returns
-    GeoIp2Support --> CityResponse : returns
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
 
+    // Geocode (Google Maps) 사용 시
+    implementation("com.google.maps:google-maps-services:2.2.0")
+    implementation(Libs.feign_core)
+    implementation(Libs.feign_kotlin)
+    implementation(Libs.feign_jackson)
+
+    // GeoIP2 사용 시
+    implementation("com.maxmind.geoip2:geoip2:5.0.2")
+}
 ```

@@ -8,6 +8,126 @@ English | [한국어](./README.ko.md)
 
 Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5, Vert.x, and AsyncHttpClient. It also provides error handling via Kotlin's `Result` type and automatically detects and registers Reactive Streams adapters.
 
+## Architecture
+
+### Overall Architecture: Retrofit2 + Coroutines + Result Pattern
+
+```mermaid
+flowchart TD
+    subgraph Application["Application"]
+        APP[Application Code]
+        API[Retrofit Interface\nsuspend fun / Result~T~]
+    end
+
+    subgraph bluetape4k-retrofit2
+        RB[retrofitOf DSL]
+        RCA[ResultCallAdapterFactory]
+        RC[ResultCall]
+        RX[Reactive Adapters\nRxJava2/3 / Reactor]
+    end
+
+    subgraph CallFactory["Call.Factory (HTTP Backend)"]
+        OKH[OkHttpClient\ndefault]
+        HC5[Hc5CallFactory\nApache HC5]
+        VTX[VertxCallFactory\nVert.x]
+        AHC[AhcCallFactory\nAsyncHttpClient]
+    end
+
+    subgraph Converter["Converter Factory"]
+        JCF[jacksonConverterFactoryOf\nJSON]
+        SCF[defaultScalarsConverterFactory\nScalars]
+    end
+
+    APP --> API
+    API --> RB
+    RB --> RCA
+    RCA --> RC
+    RB --> CallFactory
+    RB --> Converter
+    RB --> RX
+    OKH --> SERVER[(HTTP Server)]
+    HC5 --> SERVER
+    VTX --> SERVER
+    AHC --> SERVER
+```
+
+### Retrofit2 + Result Pattern Integration
+
+```mermaid
+classDiagram
+    class Retrofit {
+        <<Retrofit2>>
+        +create(serviceClass) T
+        +baseUrl() HttpUrl
+    }
+
+    class CallAdapter {
+        <<interface>>
+        +responseType() Type
+        +adapt(call) T
+    }
+
+    class ResultCallAdapterFactory {
+        +get(returnType, annotations, retrofit) CallAdapter?
+    }
+
+    class ResultCall {
+        -delegate: Call~T~
+        +execute() Response~Result~T~~
+        +enqueue(callback)
+        +clone() Call~Result~T~~
+    }
+
+    class Hc5CallFactory {
+        -asyncClient: CloseableHttpAsyncClient
+        +newCall(request) Call
+        +close()
+    }
+
+    class VertxCallFactory {
+        +newCall(request) Call
+    }
+
+    class AhcCallFactory {
+        +newCall(request) Call
+    }
+
+    CallAdapter <|.. ResultCallAdapterFactory
+    ResultCallAdapterFactory ..> ResultCall : creates
+    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
+    Retrofit --> Hc5CallFactory : callFactory
+    Retrofit --> VertxCallFactory : callFactory
+    Retrofit --> AhcCallFactory : callFactory
+```
+
+### Suspend Function HTTP Request Flow (Result Pattern)
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant API as Retrofit Interface (suspend fun)
+    participant RC as ResultCall
+    participant CF as Call.Factory (e.g. Hc5CallFactory)
+    participant Server as HTTP Server
+
+    App->>API: suspend fun getUser(): Result~User~
+    API->>RC: enqueue(callback)
+    RC->>CF: delegate.enqueue(resultCallback)
+    CF->>Server: HTTP request (async)
+    Server-->>CF: HTTP response
+    alt 2xx success
+        CF-->>RC: onResponse (body != null)
+        RC-->>API: Result.success(body)
+    else 4xx/5xx failure
+        CF-->>RC: onResponse (isSuccessful == false)
+        RC-->>API: Result.failure(HttpException)
+    else network error
+        CF-->>RC: onFailure(throwable)
+        RC-->>API: Result.failure(IOException)
+    end
+    API-->>App: Result~User~
+```
+
 ## Key Features
 
 ### 1. Retrofit Builder DSL
@@ -149,7 +269,7 @@ val customFactory = jacksonConverterFactoryOf(customObjectMapper)
 val scalarsFactory = defaultScalarsConverterFactory
 ```
 
-## API Definition Examples
+## Usage Examples
 
 ```kotlin
 interface HttpbinApi {
@@ -178,100 +298,6 @@ interface HttpbinApi {
 }
 ```
 
-## Dependencies
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-retrofit2"))
-
-    // Optional dependencies
-    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson conversion
-    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars conversion
-    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 adapter
-    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor adapter
-}
-```
-
-## Class Structure
-
-### Retrofit2 + Result Pattern Integration
-
-```mermaid
-classDiagram
-    class Retrofit {
-        <<Retrofit2>>
-        +create(serviceClass) T
-        +baseUrl() HttpUrl
-    }
-
-    class CallAdapter {
-        <<interface>>
-        +responseType() Type
-        +adapt(call) T
-    }
-
-    class ResultCallAdapterFactory {
-        +get(returnType, annotations, retrofit) CallAdapter?
-    }
-
-    class ResultCall {
-        -delegate: Call~T~
-        +execute() Response~Result~T~~
-        +enqueue(callback)
-        +clone() Call~Result~T~~
-    }
-
-    class Hc5CallFactory {
-        -asyncClient: CloseableHttpAsyncClient
-        +newCall(request) Call
-        +close()
-    }
-
-    class VertxCallFactory {
-        +newCall(request) Call
-    }
-
-    class AhcCallFactory {
-        +newCall(request) Call
-    }
-
-    CallAdapter <|.. ResultCallAdapterFactory
-    ResultCallAdapterFactory ..> ResultCall : creates
-    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
-    Retrofit --> Hc5CallFactory : callFactory
-    Retrofit --> VertxCallFactory : callFactory
-    Retrofit --> AhcCallFactory : callFactory
-
-```
-
-### Suspend Function HTTP Request Flow (Result Pattern)
-
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant API as Retrofit Interface (suspend fun)
-    participant RC as ResultCall
-    participant CF as Call.Factory (e.g. Hc5CallFactory)
-    participant Server as HTTP Server
-
-    App->>API: suspend fun getUser(): Result~User~
-    API->>RC: enqueue(callback)
-    RC->>CF: delegate.enqueue(resultCallback)
-    CF->>Server: HTTP request (async)
-    Server-->>CF: HTTP response
-    alt 2xx success
-        CF-->>RC: onResponse (body != null)
-        RC-->>API: Result.success(body)
-    else 4xx/5xx failure
-        CF-->>RC: onResponse (isSuccessful == false)
-        RC-->>API: Result.failure(HttpException)
-    else network error
-        CF-->>RC: onFailure(throwable)
-        RC-->>API: Result.failure(IOException)
-    end
-    API-->>App: Result~User~
-```
-
 ## Module Structure
 
 ```
@@ -292,6 +318,20 @@ io.bluetape4k.retrofit2
     │   └── VertxOkHttp3Support.kt
     └── ahc/                         # AsyncHttpClient CallFactory
         └── AhcCallFactorySupport.kt
+```
+
+## Dependencies
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-retrofit2"))
+
+    // Optional dependencies
+    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson conversion
+    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars conversion
+    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 adapter
+    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor adapter
+}
 ```
 
 ## Testing

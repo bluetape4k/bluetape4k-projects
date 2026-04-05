@@ -12,116 +12,30 @@
 - 재사용 가능한 `CoroutineScope` 구현체
 - 선택적 Reactor 컨텍스트 조회 헬퍼
 
-## 설치
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")
-}
-```
-
-선택적 통합:
-
-- Reactor 헬퍼는 `reactor-core`와 `kotlinx-coroutines-reactor` 필요
-- 가상 스레드 스코프는 가상 스레드를 지원하는 런타임 필요
-
-## DeferredValue
-
-하나의 eager 비동기 연산에 블로킹/suspend 양쪽 접근 경로가 필요할 때 `DeferredValue`를 사용합니다.
-
-```kotlin
-import io.bluetape4k.coroutines.deferredValueOf
-import io.bluetape4k.coroutines.flatMap
-import io.bluetape4k.coroutines.map
-import kotlinx.coroutines.delay
-
-val source = deferredValueOf {
-    delay(100)
-    21
-}
-
-val doubled = source.map { it * 2 }
-val tripled = source.flatMap { deferredValueOf { it * 3 } }
-```
-
-동작 특성:
-
-- `await()`는 코루틴 내부에서 권장되는 API
-- `value`는 완료될 때까지 호출 스레드를 블록
-- `map` / `flatMap`은 새 `DeferredValue` 인스턴스를 생성하며 소스를 변경하지 않음
-
-## Deferred 헬퍼
-
-일반 `Deferred`용 헬퍼는 `io.bluetape4k.coroutines.support`에 있습니다.
-
-```kotlin
-import io.bluetape4k.coroutines.support.awaitAny
-import io.bluetape4k.coroutines.support.awaitAnyAndCancelOthers
-import io.bluetape4k.coroutines.support.zip
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-
-suspend fun deferredExample() = coroutineScope {
-    val user = async { delay(20); "john" }
-    val age = async { delay(10); 30 }
-
-    val combined = zip(user, age) { name, years -> "$name:$years" }.await()
-    val firstFinished = awaitAny(user, age)
-    val winner = listOf(user, age).awaitAnyAndCancelOthers()
-
-    Triple(combined, firstFinished, winner)
-}
-```
-
-동작 특성:
-
-- `awaitAny(...)`는 가장 먼저 완료된 결과를 반환하거나 예외를 다시 던짐
-- `awaitAnyAndCancelOthers()`는 승자가 실패 또는 취소될 때 나머지도 취소
-- `map`, `mapAll`, `concatMap`은 기존 `Deferred`로부터 새로운 `Deferred` 값을 파생
-
-## Flow 확장
-
-Flow 연산자는 `io.bluetape4k.coroutines.flow.extensions`에 있습니다.
-
-업스트림 순서를 유지하면서 비동기 처리가 필요한 경우 `io.bluetape4k.coroutines.flow.async`를 사용합니다.
-
-```kotlin
-import io.bluetape4k.coroutines.flow.async
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.toList
-
-suspend fun orderedAsync() =
-    (1..4).asFlow()
-        .async(Dispatchers.IO) { it * 100 }
-        .toList()
-```
-
-```kotlin
-import io.bluetape4k.coroutines.flow.extensions.chunked
-import io.bluetape4k.coroutines.flow.extensions.mapParallel
-import io.bluetape4k.coroutines.flow.extensions.windowed
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.toList
-
-suspend fun flowExample() {
-    val chunks = (1..9).asFlow().chunked(3).toList()
-    val windows = (1..5).asFlow().windowed(size = 3, step = 1).toList()
-    val mapped = (1..4).asFlow().mapParallel(parallelism = 2) { it * 10 }.toList()
-}
-```
-
-주요 진입점:
-
-- `chunked`, `windowed`, `sliding`
-- `mapParallel`
-- `bufferUntilChanged`
-- `takeUntil`, `skipUntil`
-- `amb`, `race`, `withLatestFrom`
-- `groupBy`, `publish`, `replay`
-
 ## 아키텍처
+
+### 모듈 구성 개요
+
+```mermaid
+flowchart TD
+    Coroutines["bluetape4k-coroutines"]
+
+    DeferredValue["DeferredValue<br/>Eager 비동기 래퍼<br/>map / flatMap / await"]
+    DeferredHelpers["Deferred 헬퍼<br/>zip / awaitAny<br/>awaitAnyAndCancelOthers"]
+    FlowExt["Flow 확장<br/>chunked / windowed / sliding<br/>mapParallel / throttle / gate"]
+    AsyncFlow["AsyncFlow<br/>순서 보장<br/>비동기 변환"]
+    Scopes["CoroutineScope 구현체<br/>Default / IO<br/>ThreadPool / VirtualThread"]
+    Reactor["Reactor 컨텍스트 헬퍼<br/>currentReactiveContext<br/>Context.getOrNull"]
+
+    Coroutines --> DeferredValue
+    Coroutines --> DeferredHelpers
+    Coroutines --> FlowExt
+    Coroutines --> AsyncFlow
+    Coroutines --> Scopes
+    Coroutines --> Reactor
+```
+
+---
 
 ### 클래스 다이어그램
 
@@ -237,6 +151,146 @@ sequenceDiagram
 ```
 
 ---
+
+## 주요 기능
+
+- **DeferredValue**: Eager 비동기 연산 래퍼, suspend(`await()`)와 블로킹(`value`) 접근 모두 지원
+- **Deferred 헬퍼**: `zip`, `awaitAny`, `awaitAnyAndCancelOthers`로 여러 `Deferred` 값 조합
+- **Flow 확장**: 배치 처리, 윈도잉, 병렬 매핑, 스로틀링, 게이트 제어, 병합 등 풍부한 연산자
+- **AsyncFlow**: `Deferred`를 내부적으로 활용한 순서 보장 비동기 변환
+- **CoroutineScope 구현체**: Default, IO, ThreadPool, VirtualThread 디스패처용 즉시 사용 가능한 스코프
+- **Reactor 컨텍스트 헬퍼**: 코루틴 내부에서 Reactor `Context` 값 읽기
+
+## 사용 예시
+
+### DeferredValue
+
+하나의 eager 비동기 연산에 블로킹/suspend 양쪽 접근 경로가 필요할 때 `DeferredValue`를 사용합니다.
+
+```kotlin
+import io.bluetape4k.coroutines.deferredValueOf
+import io.bluetape4k.coroutines.flatMap
+import io.bluetape4k.coroutines.map
+import kotlinx.coroutines.delay
+
+val source = deferredValueOf {
+    delay(100)
+    21
+}
+
+val doubled = source.map { it * 2 }
+val tripled = source.flatMap { deferredValueOf { it * 3 } }
+```
+
+동작 특성:
+
+- `await()`는 코루틴 내부에서 권장되는 API
+- `value`는 완료될 때까지 호출 스레드를 블록
+- `map` / `flatMap`은 새 `DeferredValue` 인스턴스를 생성하며 소스를 변경하지 않음
+
+### Deferred 헬퍼
+
+일반 `Deferred`용 헬퍼는 `io.bluetape4k.coroutines.support`에 있습니다.
+
+```kotlin
+import io.bluetape4k.coroutines.support.awaitAny
+import io.bluetape4k.coroutines.support.awaitAnyAndCancelOthers
+import io.bluetape4k.coroutines.support.zip
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+
+suspend fun deferredExample() = coroutineScope {
+    val user = async { delay(20); "john" }
+    val age = async { delay(10); 30 }
+
+    val combined = zip(user, age) { name, years -> "$name:$years" }.await()
+    val firstFinished = awaitAny(user, age)
+    val winner = listOf(user, age).awaitAnyAndCancelOthers()
+
+    Triple(combined, firstFinished, winner)
+}
+```
+
+동작 특성:
+
+- `awaitAny(...)`는 가장 먼저 완료된 결과를 반환하거나 예외를 다시 던짐
+- `awaitAnyAndCancelOthers()`는 승자가 실패 또는 취소될 때 나머지도 취소
+- `map`, `mapAll`, `concatMap`은 기존 `Deferred`로부터 새로운 `Deferred` 값을 파생
+
+### Flow 확장
+
+Flow 연산자는 `io.bluetape4k.coroutines.flow.extensions`에 있습니다.
+
+업스트림 순서를 유지하면서 비동기 처리가 필요한 경우 `io.bluetape4k.coroutines.flow.async`를 사용합니다.
+
+```kotlin
+import io.bluetape4k.coroutines.flow.async
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
+
+suspend fun orderedAsync() =
+    (1..4).asFlow()
+        .async(Dispatchers.IO) { it * 100 }
+        .toList()
+```
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.chunked
+import io.bluetape4k.coroutines.flow.extensions.mapParallel
+import io.bluetape4k.coroutines.flow.extensions.windowed
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
+
+suspend fun flowExample() {
+    val chunks = (1..9).asFlow().chunked(3).toList()
+    val windows = (1..5).asFlow().windowed(size = 3, step = 1).toList()
+    val mapped = (1..4).asFlow().mapParallel(parallelism = 2) { it * 10 }.toList()
+}
+```
+
+주요 진입점:
+
+- `chunked`, `windowed`, `sliding`
+- `mapParallel`
+- `bufferUntilChanged`
+- `takeUntil`, `skipUntil`
+- `amb`, `race`, `withLatestFrom`
+- `groupBy`, `publish`, `replay`
+
+### CoroutineScope 구현체
+
+```kotlin
+import io.bluetape4k.coroutines.DefaultCoroutineScope
+import io.bluetape4k.coroutines.IoCoroutineScope
+import io.bluetape4k.coroutines.ThreadPoolCoroutineScope
+import io.bluetape4k.coroutines.VirtualThreadCoroutineScope
+
+val defaultScope = DefaultCoroutineScope()
+val ioScope = IoCoroutineScope()
+val poolScope = ThreadPoolCoroutineScope(poolSize = 4, name = "worker")
+val vtScope = VirtualThreadCoroutineScope()
+```
+
+- `DefaultCoroutineScope`: `Dispatchers.Default + SupervisorJob`
+- `IoCoroutineScope`: `Dispatchers.IO + SupervisorJob`
+- `ThreadPoolCoroutineScope`: 고정 크기 풀, 명시적 `close()` 필요
+- `VirtualThreadCoroutineScope`: 가상 스레드 디스패처 기반 스코프
+
+### Reactor 컨텍스트 헬퍼
+
+Reactor 전용 헬퍼는 `io.bluetape4k.coroutines.reactor`에 있습니다.
+
+```kotlin
+import io.bluetape4k.coroutines.reactor.currentReactiveContext
+import io.bluetape4k.coroutines.reactor.getOrNull
+
+suspend fun traceId(): String? =
+    currentReactiveContext()?.getOrNull("traceId")
+```
+
+이 API들은 Reactor `Context`를 읽습니다. Reactor 퍼블리셔를 생성하거나 `Flow`/`Mono`/`Flux`를 브릿지하지 않습니다.
 
 ## Flow 연산자 다이어그램
 
@@ -579,39 +633,6 @@ sequenceDiagram
 
 ---
 
-## CoroutineScope 구현체
-
-```kotlin
-import io.bluetape4k.coroutines.DefaultCoroutineScope
-import io.bluetape4k.coroutines.IoCoroutineScope
-import io.bluetape4k.coroutines.ThreadPoolCoroutineScope
-import io.bluetape4k.coroutines.VirtualThreadCoroutineScope
-
-val defaultScope = DefaultCoroutineScope()
-val ioScope = IoCoroutineScope()
-val poolScope = ThreadPoolCoroutineScope(poolSize = 4, name = "worker")
-val vtScope = VirtualThreadCoroutineScope()
-```
-
-- `DefaultCoroutineScope`: `Dispatchers.Default + SupervisorJob`
-- `IoCoroutineScope`: `Dispatchers.IO + SupervisorJob`
-- `ThreadPoolCoroutineScope`: 고정 크기 풀, 명시적 `close()` 필요
-- `VirtualThreadCoroutineScope`: 가상 스레드 디스패처 기반 스코프
-
-## Reactor 컨텍스트 헬퍼
-
-Reactor 전용 헬퍼는 `io.bluetape4k.coroutines.reactor`에 있습니다.
-
-```kotlin
-import io.bluetape4k.coroutines.reactor.currentReactiveContext
-import io.bluetape4k.coroutines.reactor.getOrNull
-
-suspend fun traceId(): String? =
-    currentReactiveContext()?.getOrNull("traceId")
-```
-
-이 API들은 Reactor `Context`를 읽습니다. Reactor 퍼블리셔를 생성하거나 `Flow`/`Mono`/`Flux`를 브릿지하지 않습니다.
-
 ## 대표 테스트
 
 - `src/test/kotlin/io/bluetape4k/coroutines/DeferredValueTest.kt`
@@ -623,3 +644,16 @@ suspend fun traceId(): String? =
 ```bash
 ./gradlew :bluetape4k-coroutines:test
 ```
+
+## 설치
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")
+}
+```
+
+선택적 통합:
+
+- Reactor 헬퍼는 `reactor-core`와 `kotlinx-coroutines-reactor` 필요
+- 가상 스레드 스코프는 가상 스레드를 지원하는 런타임 필요

@@ -8,6 +8,160 @@
 
 선언적 HTTP 클라이언트 정의를 통해 REST API 호출을 인터페이스 메서드처럼 사용할 수 있으며, Apache HC5, Vert.x 등 다양한 HTTP 전송 계층을 플러그인 방식으로 교체할 수 있습니다.
 
+## 아키텍처
+
+### 전체 아키텍처: Feign + Coroutines 통합
+
+```mermaid
+flowchart TD
+    subgraph Application["애플리케이션"]
+        APP[애플리케이션 코드]
+        API[Feign 인터페이스\nsuspend fun / fun]
+    end
+
+    subgraph bluetape4k-feign
+        FB[feignBuilderOf DSL]
+        CFB[coroutineFeignBuilderOf DSL]
+        PROXY[Feign 프록시\nCoroutineFeign]
+    end
+
+    subgraph Transport["HTTP 전송 계층"]
+        AHC5[AsyncApacheHttp5Client]
+        HC5[ApacheHttp5Client]
+        VTX[VertxHttpClient / AsyncVertxHttpClient]
+    end
+
+    subgraph Codec["코덱"]
+        JE[JacksonEncoder2]
+        JD[JacksonDecoder2]
+        FE[FeignFastjsonEncoder]
+        FD[FeignFastjsonDecoder]
+    end
+
+    subgraph Resilience["복원력"]
+        R4J[Resilience4jFeign\nCircuitBreaker / Retry]
+    end
+
+    APP --> API
+    API --> PROXY
+    FB --> PROXY
+    CFB --> PROXY
+    PROXY --> Transport
+    PROXY --> Codec
+    PROXY --> R4J
+    AHC5 --> SERVER[(HTTP 서버)]
+    HC5 --> SERVER
+    VTX --> SERVER
+```
+
+### 클래스 계층: Feign + Coroutines 통합 구조
+
+```mermaid
+classDiagram
+    class CoroutineFeign {
+        <<feign_kotlin>>
+    }
+
+    class CoroutineBuilder {
+        +client(asyncClient) CoroutineBuilder
+        +encoder(encoder) CoroutineBuilder
+        +decoder(decoder) CoroutineBuilder
+        +options(options) CoroutineBuilder
+        +logLevel(level) CoroutineBuilder
+        +target(type, url) T
+    }
+
+    class AsyncClient {
+        <<interface>>
+    }
+
+    class Encoder {
+        <<interface>>
+    }
+
+    class Decoder {
+        <<interface>>
+    }
+
+    class JacksonEncoder2 {
+        -mapper: JsonMapper
+        +encode(object, bodyType, template)
+    }
+
+    class JacksonDecoder2 {
+        -mapper: JsonMapper
+        +decode(response, type) Any?
+    }
+
+    class FeignFastjsonEncoder {
+        +encode(object, bodyType, template)
+    }
+
+    class FeignFastjsonDecoder {
+        +decode(response, type) Any?
+    }
+
+    CoroutineFeign *-- CoroutineBuilder
+    CoroutineBuilder --> AsyncClient : 설정
+    CoroutineBuilder --> Encoder : 설정
+    CoroutineBuilder --> Decoder : 설정
+    Encoder <|.. JacksonEncoder2
+    Decoder <|.. JacksonDecoder2
+    Encoder <|.. FeignFastjsonEncoder
+    Decoder <|.. FeignFastjsonDecoder
+```
+
+### HTTP 전송 계층 옵션
+
+```mermaid
+classDiagram
+    class FeignClient {
+        <<interface>>
+        +target(type, url) T
+    }
+    class ApacheHttp5Client {
+        +execute(request, options) Response
+    }
+    class AsyncApacheHttp5Client {
+        +execute(request, options, callback)
+    }
+    class VertxHttpClient {
+        +execute(request, options) Response
+    }
+    class AsyncVertxHttpClient {
+        +execute(request, options, callback)
+    }
+
+    FeignClient --> ApacheHttp5Client : 동기 전송
+    FeignClient --> AsyncApacheHttp5Client : 비동기 전송
+    FeignClient --> VertxHttpClient : Vert.x 동기
+    FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
+```
+
+### suspend 함수 기반 HTTP 요청 흐름
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant API as Feign 인터페이스(suspend fun)
+    participant CB as CoroutineFeign.CoroutineBuilder
+    participant AC as AsyncClient
+    participant Codec as JacksonDecoder2
+    participant Server as HTTP 서버
+
+    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
+    CB-->>App: MyApi 프록시 반환
+
+    App->>API: suspend fun someApi()
+    API->>AC: 비동기 HTTP 요청
+    AC->>Server: HTTP 요청
+    Server-->>AC: HTTP 응답
+    AC-->>API: Response
+    API->>Codec: decode(response, type)
+    Codec-->>API: 역직렬화된 객체
+    API-->>App: 결과 반환
+```
+
 ## 주요 기능
 
 ### 1. Feign Builder DSL
@@ -95,32 +249,6 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 | VertxHttpClient        | 이벤트 루프 기반, 경량      | Vert.x 생태계 통합 |
 | AsyncVertxHttpClient   | Vert.x 비동기 클라이언트   | Vert.x 비동기 통신 |
 
-```mermaid
-classDiagram
-    class FeignClient {
-        <<interface>>
-        +target(type, url) T
-    }
-    class ApacheHttp5Client {
-        +execute(request, options) Response
-    }
-    class AsyncApacheHttp5Client {
-        +execute(request, options, callback)
-    }
-    class VertxHttpClient {
-        +execute(request, options) Response
-    }
-    class AsyncVertxHttpClient {
-        +execute(request, options, callback)
-    }
-
-    FeignClient --> ApacheHttp5Client : 동기 전송
-    FeignClient --> AsyncApacheHttp5Client : 비동기 전송
-    FeignClient --> VertxHttpClient : Vert.x 동기
-    FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
-
-```
-
 ```kotlin
 // Vert.x 기반 Feign 클라이언트
 val api = feignBuilderOf(
@@ -162,7 +290,9 @@ val decoratedBuilder = Resilience4jFeign.builder(feignBuilderOf(
 ))
 ```
 
-## API 정의 예시
+## 사용 예시
+
+### API 정의
 
 ```kotlin
 interface HttpbinApi {
@@ -188,103 +318,6 @@ interface HttpbinCoroutineApi {
 }
 ```
 
-## 의존성
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-feign"))
-
-    // 선택적 의존성
-    implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder
-    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 클라이언트
-    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j 통합
-}
-```
-
-## 클래스 구조
-
-### Feign + Coroutines 통합 구조
-
-```mermaid
-classDiagram
-    class CoroutineFeign {
-        <<feign_kotlin>>
-    }
-
-    class CoroutineBuilder {
-        +client(asyncClient) CoroutineBuilder
-        +encoder(encoder) CoroutineBuilder
-        +decoder(decoder) CoroutineBuilder
-        +options(options) CoroutineBuilder
-        +logLevel(level) CoroutineBuilder
-        +target(type, url) T
-    }
-
-    class AsyncClient {
-        <<interface>>
-    }
-
-    class Encoder {
-        <<interface>>
-    }
-
-    class Decoder {
-        <<interface>>
-    }
-
-    class JacksonEncoder2 {
-        -mapper: JsonMapper
-        +encode(object, bodyType, template)
-    }
-
-    class JacksonDecoder2 {
-        -mapper: JsonMapper
-        +decode(response, type) Any?
-    }
-
-    class FeignFastjsonEncoder {
-        +encode(object, bodyType, template)
-    }
-
-    class FeignFastjsonDecoder {
-        +decode(response, type) Any?
-    }
-
-    CoroutineFeign *-- CoroutineBuilder
-    CoroutineBuilder --> AsyncClient : 설정
-    CoroutineBuilder --> Encoder : 설정
-    CoroutineBuilder --> Decoder : 설정
-    Encoder <|.. JacksonEncoder2
-    Decoder <|.. JacksonDecoder2
-    Encoder <|.. FeignFastjsonEncoder
-    Decoder <|.. FeignFastjsonDecoder
-
-```
-
-### suspend 함수 기반 HTTP 요청 흐름
-
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant API as Feign 인터페이스(suspend fun)
-    participant CB as CoroutineFeign.CoroutineBuilder
-    participant AC as AsyncClient
-    participant Codec as JacksonDecoder2
-    participant Server as HTTP 서버
-
-    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: MyApi 프록시 반환
-
-    App->>API: suspend fun someApi()
-    API->>AC: 비동기 HTTP 요청
-    AC->>Server: HTTP 요청
-    Server-->>AC: HTTP 응답
-    AC-->>API: Response
-    API->>Codec: decode(response, type)
-    Codec-->>API: 역직렬화된 객체
-    API-->>App: 결과 반환
-```
-
 ## 모듈 구조
 
 ```
@@ -304,6 +337,19 @@ io.bluetape4k.feign
 │   └── FeignFastjsonDecoder.kt      # Fastjson2 Decoder
 └── coroutines/                      # Coroutines 지원
     └── FeignCoroutineBuilderSupport.kt  # CoroutineFeign Builder DSL
+```
+
+## 의존성
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-feign"))
+
+    // 선택적 의존성
+    implementation("io.github.openfeign:feign-jackson")      // Jackson Encoder/Decoder
+    implementation("io.github.openfeign:feign-hc5")          // Apache HC5 클라이언트
+    implementation("io.github.resilience4j:resilience4j-feign") // Resilience4j 통합
+}
 ```
 
 ## 테스트

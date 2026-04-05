@@ -8,6 +8,124 @@
 
 Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, AsyncHttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
 
+## 아키텍처
+
+### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
+
+```mermaid
+flowchart TD
+    subgraph Application["애플리케이션"]
+        APP[애플리케이션 코드]
+        CO[Coroutines\nsuspend fun]
+    end
+
+    subgraph bluetape4k-http
+        EXT[executeSuspending\n확장 함수]
+        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / asyncHttpClientOf]
+    end
+
+    subgraph Backends["HTTP 클라이언트 백엔드"]
+        HC5A[HC5 Async\nhttpAsyncClient]
+        HC5C[HC5 Classic\nhttpClient]
+        HC5CA[HC5 캐싱\ncachingHttpAsyncClient]
+        OKH[OkHttp3\nokhttp3Client]
+        AHC[AsyncHttpClient\nasyncHttpClientOf]
+        VTX[Vert.x HttpClient\nvertxHttpClientOf]
+    end
+
+    APP --> CO
+    CO --> EXT
+    EXT --> DSL
+    DSL --> HC5A
+    DSL --> HC5C
+    DSL --> HC5CA
+    DSL --> OKH
+    DSL --> AHC
+    DSL --> VTX
+    HC5A --> SERVER[(HTTP 서버)]
+    HC5C --> SERVER
+    HC5CA --> SERVER
+    OKH --> SERVER
+    AHC --> SERVER
+    VTX --> SERVER
+```
+
+### HTTP 클라이언트 계층 (HC5)
+
+```mermaid
+classDiagram
+    class CloseableHttpAsyncClient {
+        <<ApacheHC5>>
+        +execute(request, callback) Future
+        +start()
+        +close()
+    }
+
+    class HttpAsyncClientCoroutines {
+        <<확장함수>>
+        +executeSuspending(request) SimpleHttpResponse
+    }
+
+    class CachingHttpAsyncClientBuilder {
+        <<DSL빌더>>
+        +setHttpCacheStorage(storage)
+        +build() CloseableHttpAsyncClient
+    }
+
+    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
+    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
+    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
+```
+
+### OkHttp3 클라이언트 계층
+
+```mermaid
+classDiagram
+    class OkHttpClient {
+        <<OkHttp3>>
+        +newCall(request) Call
+    }
+
+    class LoggingInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingRequestInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingResponseInterceptor {
+        +intercept(chain) Response
+    }
+
+    class OkHttpClientExtensionsCoroutines {
+        <<확장함수>>
+        +executeSuspending(request) Response
+    }
+
+    OkHttpClient --> LoggingInterceptor : addInterceptor
+    OkHttpClient --> CachingRequestInterceptor : addInterceptor
+    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
+    OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
+```
+
+### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant Ext as executeSuspending()
+    participant HC5 as CloseableHttpAsyncClient
+    participant Server as HTTP 서버
+
+    App->>Ext: suspend fun executeSuspending(request)
+    Ext->>HC5: execute(request, FutureCallback)
+    HC5->>Server: HTTP 요청 (비동기)
+    Server-->>HC5: HTTP 응답
+    HC5-->>Ext: FutureCallback.completed(response)
+    Ext-->>App: SimpleHttpResponse
+```
+
 ## 주요 기능
 
 ### 1. Apache HttpComponents 5 (HC5)
@@ -165,100 +283,6 @@ suspend fun fetchData() = coroutineScope {
 }
 ```
 
-## 의존성
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-http"))
-
-    // 선택적 의존성 (필요한 것만 추가)
-    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
-    implementation("io.vertx:vertx-core")                    // Vert.x
-}
-```
-
-## 클래스 구조
-
-### HTTP 클라이언트 계층 (HC5)
-
-```mermaid
-classDiagram
-    class CloseableHttpAsyncClient {
-        <<ApacheHC5>>
-        +execute(request, callback) Future
-        +start()
-        +close()
-    }
-
-    class HttpAsyncClientCoroutines {
-        <<확장함수>>
-        +executeSuspending(request) SimpleHttpResponse
-    }
-
-    class CachingHttpAsyncClientBuilder {
-        <<DSL빌더>>
-        +setHttpCacheStorage(storage)
-        +build() CloseableHttpAsyncClient
-    }
-
-
-    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
-    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
-    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
-
-```
-
-### OkHttp3 클라이언트 계층
-
-```mermaid
-classDiagram
-    class OkHttpClient {
-        <<OkHttp3>>
-        +newCall(request) Call
-    }
-
-    class LoggingInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingRequestInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingResponseInterceptor {
-        +intercept(chain) Response
-    }
-
-    class OkHttpClientExtensionsCoroutines {
-        <<확장함수>>
-        +executeSuspending(request) Response
-    }
-
-    OkHttpClient --> LoggingInterceptor : addInterceptor
-    OkHttpClient --> CachingRequestInterceptor : addInterceptor
-    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
-    OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
-
-```
-
-### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
-
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as executeSuspending()
-    participant HC5 as CloseableHttpAsyncClient
-    participant Server as HTTP 서버
-
-    App->>Ext: suspend fun executeSuspending(request)
-    Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP 요청 (비동기)
-    Server-->>HC5: HTTP 응답
-    HC5-->>Ext: FutureCallback.completed(response)
-    Ext-->>App: SimpleHttpResponse
-```
-
 ## 모듈 구조
 
 ```
@@ -286,6 +310,19 @@ io.bluetape4k.http
 │   └── CoroutineSupport.kt
 └── vertx/                  # Vert.x HttpClient
     └── VertxHttpClientSupport.kt
+```
+
+## 의존성
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-http"))
+
+    // 선택적 의존성 (필요한 것만 추가)
+    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
+    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
+    implementation("io.vertx:vertx-core")                    // Vert.x
+}
 ```
 
 ## 테스트

@@ -8,7 +8,134 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 `bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. Protobuf 유틸리티는 [`bluetape4k-protobuf`](../protobuf/README.ko.md) 모듈로 분리되었습니다.
 
-### 주요 기능
+## 아키텍처
+
+### 클래스 계층
+
+```mermaid
+classDiagram
+    class GrpcServer {
+        <<interface>>
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcServer {
+        #server: Server?
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcClient {
+        #channel: ManagedChannel?
+        +connect()
+        +close()
+    }
+
+    class AbstractGrpcInprocessServer {
+        #serverName: String
+        +start()
+        +stop()
+    }
+
+    class AbstractGrpcInprocessClient {
+        #serverName: String
+        +connect()
+        +close()
+    }
+
+    GrpcServer <|.. AbstractGrpcServer
+    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
+    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
+```
+
+### 컴포넌트 개요
+
+```mermaid
+flowchart TD
+    subgraph bluetape4k-grpc
+        subgraph Server["서버 측"]
+            GS[GrpcServer 인터페이스]
+            AGS[AbstractGrpcServer]
+            AGIS[AbstractGrpcInprocessServer]
+            SI[ServerInterceptorSupport]
+            SS[ServerSupport]
+        end
+
+        subgraph Client["클라이언트 측"]
+            AGC[AbstractGrpcClient]
+            AGIC[AbstractGrpcInprocessClient]
+            MCS[ManagedChannelSupport]
+        end
+    end
+
+    subgraph External["외부 / gRPC 런타임"]
+        SB[ServerBuilder]
+        MCB[ManagedChannelBuilder]
+        IPSB[InProcessServerBuilder]
+        IPCB[InProcessChannelBuilder]
+    end
+
+    GS <|.. AGS
+    AGS <|-- AGIS
+    AGC <|-- AGIC
+    AGS --> SB
+    AGIS --> IPSB
+    AGC --> MCB
+    AGIC --> IPCB
+```
+
+### gRPC 서버-클라이언트 통신 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant C as GrpcClient
+    participant CH as ManagedChannel
+    participant S as GrpcServer
+    participant SVC as ServiceImpl
+
+    C->>CH: ManagedChannelBuilder.forAddress(host, port)
+    CH->>S: TCP 연결 수립
+    S->>SVC: 서비스 등록
+
+    C->>CH: stub.doSomething(request)
+    CH->>S: HTTP/2 요청 전송
+    S->>SVC: 메서드 호출
+    SVC-->>S: 응답 생성
+    S-->>CH: HTTP/2 응답
+    CH-->>C: Response 반환
+
+    C->>CH: channel.shutdown()
+    CH->>S: 연결 종료
+```
+
+### In-process 테스트 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant T as 테스트 코드
+    participant IS as InprocessServer
+    participant IC as InprocessClient
+    participant SVC as ServiceImpl
+
+    T->>IS: InProcessServerBuilder.forName("test-server")
+    IS->>SVC: 서비스 등록 및 시작
+    T->>IC: InProcessChannelBuilder.forName("test-server")
+    IC->>IS: 인메모리 채널 연결
+
+    T->>IC: stub.call(request)
+    IC->>IS: 인메모리 전송 (네트워크 없음)
+    IS->>SVC: 메서드 호출
+    SVC-->>IC: 응답
+    IC-->>T: Response 반환
+
+    T->>IS: server.shutdown()
+    T->>IC: channel.shutdown()
+```
+
+## 주요 기능
 
 - **gRPC 서버 추상화**: 서버 시작/중지/상태 관리
 - **gRPC 클라이언트 추상화**: 채널 관리 및 호출
@@ -16,16 +143,7 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 - **인터셉터 지원**: 서버 인터셉터 보조
 - **입력 검증**: host/target/name 은 blank를 허용하지 않고 port 는 `1..65535` 범위를 즉시 검증
 
-## 의존성 추가
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
-    // bluetape4k-protobuf가 전이적으로 포함됩니다
-}
-```
-
-## 기본 사용법
+## 사용 예시
 
 ### 1. gRPC 서버 구현
 
@@ -139,101 +257,18 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 |-------------------------------|------------|
 | `ServerInterceptorSupport.kt` | 서버 인터셉터 확장 |
 
-## 아키텍처 다이어그램
-
-### 클래스 계층
-
-```mermaid
-classDiagram
-    class GrpcServer {
-        <<interface>>
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcServer {
-        #server: Server?
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcClient {
-        #channel: ManagedChannel?
-        +connect()
-        +close()
-    }
-
-    class AbstractGrpcInprocessServer {
-        #serverName: String
-        +start()
-        +stop()
-    }
-
-    class AbstractGrpcInprocessClient {
-        #serverName: String
-        +connect()
-        +close()
-    }
-
-    GrpcServer <|.. AbstractGrpcServer
-    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
-    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
-
-```
-
-### gRPC 서버-클라이언트 통신 시퀀스
-
-```mermaid
-sequenceDiagram
-    participant C as GrpcClient
-    participant CH as ManagedChannel
-    participant S as GrpcServer
-    participant SVC as ServiceImpl
-
-    C->>CH: ManagedChannelBuilder.forAddress(host, port)
-    CH->>S: TCP 연결 수립
-    S->>SVC: 서비스 등록
-
-    C->>CH: stub.doSomething(request)
-    CH->>S: HTTP/2 요청 전송
-    S->>SVC: 메서드 호출
-    SVC-->>S: 응답 생성
-    S-->>CH: HTTP/2 응답
-    CH-->>C: Response 반환
-
-    C->>CH: channel.shutdown()
-    CH->>S: 연결 종료
-```
-
-### In-process 테스트 시퀀스
-
-```mermaid
-sequenceDiagram
-    participant T as 테스트 코드
-    participant IS as InprocessServer
-    participant IC as InprocessClient
-    participant SVC as ServiceImpl
-
-    T->>IS: InProcessServerBuilder.forName("test-server")
-    IS->>SVC: 서비스 등록 및 시작
-    T->>IC: InProcessChannelBuilder.forName("test-server")
-    IC->>IS: 인메모리 채널 연결
-
-    T->>IC: stub.call(request)
-    IC->>IS: 인메모리 전송 (네트워크 없음)
-    IS->>SVC: 메서드 호출
-    SVC-->>IC: 응답
-    IC-->>T: Response 반환
-
-    T->>IS: server.shutdown()
-    T->>IC: channel.shutdown()
-```
-
 ## 관련 모듈
 
 - **[bluetape4k-protobuf](../protobuf/README.ko.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
+    // bluetape4k-protobuf가 전이적으로 포함됩니다
+}
+```
 
 ## 테스트
 

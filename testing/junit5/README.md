@@ -4,17 +4,270 @@ English | [한국어](./README.ko.md)
 
 An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 
+## Architecture
+
+### Extension Component Overview
+
+```mermaid
+flowchart TD
+    JU5["bluetape4k-junit5\n(JUnit 5 Extension Suite)"]
+
+    subgraph Execution["Execution Management"]
+        SW["StopwatchExtension\n(Execution Time Measurement)"]
+        TF["TempFolderExtension\n(Temp Files/Directories)"]
+        OC["OutputCapturer\n(stdout/stderr Capture)"]
+        SP["SystemProperty\n(Property Setup/Restore)"]
+    end
+
+    subgraph TestData["Test Data"]
+        FV["FakeValueExtension\n(Data Faker Injection)"]
+        RV["RandomValueExtension\n(Random Object Generation)"]
+        FS["FieldSource\n(Parameterized Test Arguments)"]
+    end
+
+    subgraph Async["Async/Concurrency Testing"]
+        MT["MultithreadingTester\n(Platform Threads)"]
+        SJT["SuspendedJobTester\n(Coroutines)"]
+        STST["StructuredTaskScopeTester\n(Virtual Threads)"]
+        AW["suspendUntil / awaitSuspending\n(Awaitility + Coroutines)"]
+    end
+
+    subgraph Report["Reporting"]
+        MR["Mermaid Gantt Report\n(Test Timeline)"]
+    end
+
+    JU5 --> Execution
+    JU5 --> TestData
+    JU5 --> Async
+    JU5 --> Report
+```
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    class StopwatchExtension {
+        +beforeEach(context)
+        +afterEach(context)
+    }
+    class TempFolderExtension {
+        +beforeEach(context)
+        +afterEach(context)
+        +resolveParameter(context) TempFolder
+    }
+    class TempFolder {
+        +root: File
+        +rootPath: String
+        +createFile(name) File
+        +createDirectory(name) File
+        +close()
+    }
+    class OutputCapturer {
+        +capture() String
+        +expect(block)
+    }
+    class FakeValueExtension {
+        +beforeEach(context)
+        +resolveParameter(context) Any
+    }
+    class Fakers {
+        +randomString(min, max) String
+        +fixedString(length) String
+        +numberString(pattern) String
+        +randomUuid() String
+    }
+    class MultithreadingTester {
+        +workers(n) MultithreadingTester
+        +rounds(n) MultithreadingTester
+        +add(block) MultithreadingTester
+        +run()
+    }
+    class SuspendedJobTester {
+        +workers(n) SuspendedJobTester
+        +rounds(n) SuspendedJobTester
+        +add(block) SuspendedJobTester
+        +run()
+    }
+    class StructuredTaskScopeTester {
+        +rounds(n) StructuredTaskScopeTester
+        +add(block) StructuredTaskScopeTester
+        +run()
+    }
+
+    TempFolderExtension --> TempFolder : provides
+    MultithreadingTester --> SuspendedJobTester : similar API
+    StructuredTaskScopeTester --> SuspendedJobTester : similar API
+```
+
 ## Key Features
 
-- `StopwatchExtension`
-- `TempFolderExtension`
-- output-capture helpers
-- random-data and fake-data injection
-- system-property helpers
-- Awaitility + coroutine helpers
-- stress-testing utilities
-- parameter-source extensions
-- Mermaid-based reporting
+- `StopwatchExtension` — measure and log test execution time
+- `TempFolderExtension` — provide temp directories/files, auto-deleted after the test
+- Output capture helpers — capture `System.out`/`System.err` for assertion
+- Random/Faker data injection — inject fake or randomized objects into test fields/parameters
+- System property helpers — set properties before a test and restore them after
+- Awaitility + coroutine helpers — `suspendUntil` / `awaitSuspending`
+- Stress-testing utilities — `MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`
+- Parameter-source extensions — `FieldSource` for parameterized tests
+- Mermaid-based reporting — Gantt timeline of test execution
+
+## Usage Examples
+
+### StopwatchExtension
+
+```kotlin
+@ExtendWith(StopwatchExtension::class)
+class MyTest {
+    @Test
+    fun `measure execution time`() {
+        // Logs: Starting test: [measure execution time]
+        // ...
+        // Logs: Completed test: [measure execution time] took 123 msecs.
+    }
+}
+
+// Or use the annotation shortcut
+@StopwatchTest
+fun `annotated stopwatch test`() { }
+```
+
+### TempFolderExtension
+
+```kotlin
+@ExtendWith(TempFolderExtension::class)
+class FileProcessingTest {
+    lateinit var tempFolder: TempFolder
+
+    @BeforeEach
+    fun setup(tempFolder: TempFolder) {
+        this.tempFolder = tempFolder
+    }
+
+    @Test
+    fun `file processing test`() {
+        val inputFile = tempFolder.createFile("input.txt")
+        inputFile.writeText("test data")
+        val outputDir = tempFolder.createDirectory("output")
+        processFile(inputFile, outputDir)
+    }
+}
+```
+
+### OutputCapture
+
+```kotlin
+@OutputCapture
+class OutputCaptureTest {
+    @Test
+    fun `capture stdout`(capturer: OutputCapturer) {
+        println("Hello, Console!")
+        capturer.capture() shouldContain "Hello, Console!"
+    }
+}
+```
+
+### FakeValue / Fakers
+
+```kotlin
+@ExtendWith(FakeValueExtension::class)
+class FakeValueTest {
+    @FakeValue(provider = "name.fullName")
+    private lateinit var fullName: String
+
+    @Test
+    fun `injected fake value`() {
+        println(fullName)  // e.g. "John Doe"
+    }
+}
+
+// Fakers utility
+val randomText = Fakers.randomString(10, 20)
+val phone = Fakers.numberString("010-####-####")
+```
+
+### Stress Testing
+
+```kotlin
+// Platform threads
+MultithreadingTester()
+    .workers(Runtime.getRuntime().availableProcessors())
+    .rounds(100)
+    .add { counter.incrementAndGet() }
+    .run()
+
+// Coroutines
+SuspendedJobTester()
+    .workers(16)
+    .rounds(100)
+    .add { delay(10); results.add(1) }
+    .run()
+
+// Virtual Threads (Java 21+)
+StructuredTaskScopeTester()
+    .rounds(1000)
+    .add { processRequest() }
+    .run()
+```
+
+### Coroutine Test Helpers
+
+```kotlin
+@Test
+fun `basic suspend test`() = runSuspendTest {
+    val result = someSuspendFunction()
+    result shouldBe "expected"
+}
+
+@Test
+fun `io dispatcher test`() = runSuspendIO {
+    val data = readFromFile()
+    processData(data)
+}
+```
+
+### SystemProperty
+
+```kotlin
+@SystemProperty(name = "app.environment", value = "test")
+class SystemPropertyTest {
+    @Test
+    fun `system property set`() {
+        System.getProperty("app.environment") shouldBe "test"
+    }
+}
+```
+
+### FieldSource (Parameterized Test)
+
+```kotlin
+class FieldSourceTest {
+    val isBlankArguments = listOf(
+        argumentOf(null, true),
+        argumentOf("", true),
+        argumentOf("not blank", false)
+    )
+
+    @ParameterizedTest
+    @FieldSource("isBlankArguments")
+    fun `isBlank test`(input: String?, expected: Boolean) {
+        input.isNullOrBlank() shouldBe expected
+    }
+}
+```
+
+### Mermaid Report
+
+```bash
+# Extract Mermaid Gantt timeline from test output
+./gradlew :testing:junit5:test | awk 'f||/^gantt$/{f=1; print}' > gantt.mermaid
+```
+
+## Best Practices
+
+- Use `TempFolderExtension` instead of ad hoc file paths in tests.
+- Capture stdout/stderr when assertions depend on console output.
+- Prefer `FakeValue` / `Fakers` providers for sample values instead of hardcoded data.
+- Use the provided stress-testing helpers for concurrency-heavy tests — they maintain a stable worker pool regardless of round count.
 
 ## Adding the Dependency
 
@@ -24,37 +277,8 @@ dependencies {
 }
 ```
 
-## Detailed Features
-
-The main extension groups are:
-
-- stopwatch-based execution-time measurement
-- temporary folders and files for filesystem tests
-- stdout / stderr capture
-- Faker-based data generation and injection
-- system-property setup and restoration
-- coroutine-friendly waiting helpers
-- stress-testing helpers for threads, virtual threads, and coroutines
-
-The Korean README keeps the full walkthrough and examples for each extension, including code samples for `TempFolder`, `OutputCapture`, `FakeValue`, and `Fakers`.
-
-## Best Practices
-
-- Use the temp-folder extension instead of ad hoc file paths.
-- Capture stdout/stderr when assertions depend on console output.
-- Prefer fake-data providers for sample values instead of hardcoding large datasets.
-- Reuse the provided stress-testing helpers for concurrency-heavy tests.
-
-## Class Diagram
-
-The Korean README includes the full class diagram for the extension set, helper types, and lifecycle integration points in JUnit 5.
-
-## Extension Composition Diagram
-
-It also includes an extension-composition diagram showing how test methods, injected arguments, temp resources, captured output, and utility helpers fit together.
-
 ## References
 
-- JUnit 5
-- Awaitility
-- Data Faker
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [Awaitility](https://github.com/awaitility/awaitility)
+- [Data Faker](https://www.datafaker.net/)

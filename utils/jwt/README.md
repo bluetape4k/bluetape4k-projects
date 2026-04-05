@@ -2,19 +2,116 @@
 
 English | [한국어](./README.ko.md)
 
-## Overview
-
 A library for creating and parsing [JSON Web Tokens (JWT)](https://jwt.io/). Built on [jjwt 0.13.x](https://github.com/jwtk/jjwt), it provides a Kotlin-friendly API and KeyChain management.
 
-## Dependency
+## Architecture
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-jwt:${version}")
-}
+### JWT Create and Verify Flow
+
+```mermaid
+flowchart TD
+    subgraph Create["JWT Creation"]
+        APP["Application"]
+        COMP["JwtComposer<br/>(Builder / DSL)"]
+        KC["KeyChain<br/>(RSA KeyPair + kid)"]
+        JWT_STR["JWT String<br/>(header.payload.signature)"]
+    end
+
+    subgraph Verify["JWT Parsing & Verification"]
+        PARSE["JwtProvider.parse(jwt)"]
+        REPO["KeyChainRepository<br/>(InMemory / Redis)"]
+        READER["JwtReader<br/>(claims, headers, expiry)"]
+    end
+
+    subgraph Rotate["Key Rotation"]
+        ROT["rotate() / forcedRotate()"]
+        NEWKC["New KeyChain"]
+        OLDKC["Old KeyChain (kept in repo)"]
+    end
+
+    APP --> COMP
+    COMP --> KC
+    KC --> JWT_STR
+
+    JWT_STR --> PARSE
+    PARSE --> REPO
+    REPO -->|"lookup by kid"| KC
+    PARSE --> READER
+
+    ROT --> NEWKC
+    NEWKC --> REPO
+    OLDKC --> REPO
 ```
 
-## Features
+### Class Diagram
+
+```mermaid
+classDiagram
+    class JwtProvider {
+        +composer() JwtComposer
+        +parse(jwt) JwtReader
+        +rotate()
+        +forcedRotate()
+    }
+    class JwtComposer {
+        +header(name, value) JwtComposer
+        +claim(name, value) JwtComposer
+        +issuer(iss) JwtComposer
+        +subject(sub) JwtComposer
+        +expirationAfterMinutes(min) JwtComposer
+        +setCompressionAlgorithm(alg) JwtComposer
+        +compose() String
+    }
+    class JwtReader {
+        +kid: String
+        +issuer: String
+        +subject: String
+        +expiration: Date
+        +isExpired: Boolean
+        +expiredTtl: Long
+        +claim(name) T
+        +header(name) T
+    }
+    class KeyChain {
+        +id: String
+        +algorithm: SignatureAlgorithm
+        +keyPair: KeyPair
+        +createdAt: Long
+        +expiredTtl: Long
+        +isExpired: Boolean
+    }
+    class KeyChainRepository {
+        <<interface>>
+        +current() KeyChain
+        +findOrNull(kid) KeyChain?
+        +rotate(newKeyChain) Boolean
+        +forcedRotate(newKeyChain) Boolean
+    }
+    class InMemoryKeyChainRepository
+    class RedisKeyChainRepository
+
+    JwtProvider --> JwtComposer : creates
+    JwtProvider --> JwtReader : creates
+    JwtProvider --> KeyChainRepository : uses
+    JwtComposer --> KeyChain : signs with
+    JwtReader --> KeyChain : verifies with
+    KeyChainRepository <|-- InMemoryKeyChainRepository
+    KeyChainRepository <|-- RedisKeyChainRepository
+```
+
+### JWT Token Structure
+
+```
+header.            payload.                 signature
+{                  {                        HMACSHA256(
+  "alg": "RS256",    "sub": "user-auth",      base64UrlEncode(header) + "." +
+  "typ": "JWT",      "iss": "bluetape4k",     base64UrlEncode(payload),
+  "kid": "abc123"    "exp": 1234567890,       privateKey
+}                    "iat": 1234567800      )
+                   }
+```
+
+## Key Features
 
 - **JWT creation**: Builder pattern and Kotlin DSL support
 - **JWT parsing**: Extract claims from verified tokens
@@ -241,6 +338,14 @@ val jwtProvider = JwtProviderFactory.default(
 3. **HTTPS required**: JWTs must be transmitted over an encrypted connection
 4. **No sensitive data**: Never include passwords, credit card numbers, etc. in JWTs
 5. **Distributed environments**: Share KeyChains via Redis/MongoDB
+
+## Dependency
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-jwt:${version}")
+}
+```
 
 ## References
 

@@ -6,413 +6,7 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-io` is a high-performance I/O utility library for Kotlin. It provides simple and efficient tools for file handling, compression, serialization, async I/O, and more.
 
-## Key Features
-
-### 1. Compression (Compressor)
-
-A unified interface for multiple compression algorithms.
-
-**Supported Algorithms:**
-
-- **LZ4**: Ultra-fast compression/decompression (ideal for real-time processing)
-- **Snappy**: High-speed compression (developed by Google)
-- **Zstd**: Balanced compression ratio and speed
-- **GZip**: General-purpose compression (excellent compatibility)
-- **Deflate**: The algorithm underlying GZip
-- **BZip2**: High compression ratio (slower speed)
-- **Zip**: ZIP format compression/decompression (suited for file archives)
-
-```kotlin
-import io.bluetape4k.io.compressor.Compressors
-
-// Basic usage
-val plainData = "Hello, World!".toByteArray()
-val compressed = Compressors.LZ4.compress(plainData)
-val decompressed = Compressors.LZ4.decompress(compressed)
-
-// Direct string compression (Base64-encoded output)
-val compressedStr = Compressors.Zstd.compress("Large text data...")
-val originalStr = Compressors.Zstd.decompress(compressedStr)
-
-// ByteBuffer support
-val buffer = ByteBuffer.wrap(plainData)
-val compressedBuffer = Compressors.Snappy.compress(buffer)
-
-// InputStream support
-val inputStream = File("large-file.txt").inputStream()
-val compressedStream = Compressors.GZip.compress(inputStream)
-```
-
-**StreamingCompressor (for large-scale streaming):**
-
-```kotlin
-import io.bluetape4k.io.compressor.Compressors
-
-val source = File("large-file.txt").inputStream()
-val compressedOut = File("large-file.txt.zst").outputStream()
-
-// Stream-based compression/decompression
-Compressors.Streaming.Zstd.compress(source, compressedOut)
-
-val restoredOut = File("large-file-restored.txt").outputStream()
-Compressors.Streaming.Zstd.decompress(
-    File("large-file.txt.zst").inputStream(),
-    restoredOut
-)
-```
-
-**Algorithm Selection Guide:**
-
-- **Real-time processing**: LZ4, Snappy (speed over ratio)
-- **Network transfer**: Zstd, GZip (balanced speed and ratio)
-- **Storage optimization**: BZip2, Zstd (ratio over speed)
-- **File archives**: Zip (preserves directory structure)
-
-**ZIP File Builder (ZipBuilder):**
-
-Create in-memory or file-based ZIP archives using a builder pattern.
-
-```kotlin
-import io.bluetape4k.io.compressor.ZipBuilder
-
-// In-memory ZIP
-val zipBytes = ZipBuilder()
-    .addContent("hello.txt", "Hello, World!")
-    .addContent("data/config.json", """{"key": "value"}""")
-    .toBytes()
-
-// File-based ZIP
-val zipFile = ZipBuilder()
-    .addFile(File("document.pdf"))
-    .addFolder(File("images/"))
-    .toZipFile(File("archive.zip"))
-```
-
-**ZIP File Utilities (ZipFileSupport):**
-
-Top-level functions for gzip, zlib, zip/unzip operations. Built-in Zip Slip attack prevention is included.
-
-```kotlin
-import io.bluetape4k.io.compressor.*
-
-// gzip/ungzip
-val gzipped = gzip(File("data.txt"))       // creates data.txt.gz
-val original = ungzip(gzipped)              // restores data.txt
-
-// zip/unzip (with directory support)
-zip(File("project/"), File("project.zip"))
-unzip(File("project.zip"), File("output/"))
-
-// Pattern-filtered unzip (wildcard support)
-unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
-```
-
-### 2. Serialization (BinarySerializer)
-
-Multiple implementations for serializing and deserializing objects to/from binary.
-
-`BinarySerializer` failure policy:
-
-- `serialize(null)` returns an empty byte array.
-- `deserialize(null/empty)` returns `null`.
-- All other serialization/deserialization failures throw `BinarySerializationException`.
-
-**Supported Serializers:**
-
-- **Jdk**: Java standard serialization (best compatibility)
-- **Kryo**: Fast and efficient binary serialization
-- **Fory**: Kotlin-optimized serialization based on Apache Fory
-- **Compressable**: Serialization combined with compression (e.g., LZ4Kryo, ZstdFory)
-
-```kotlin
-import io.bluetape4k.io.serializer.BinarySerializers
-
-data class User(val id: Long, val name: String, val email: String)
-
-// Kryo serialization (fast)
-val serializer = BinarySerializers.Kryo
-val user = User(1L, "John Doe", "john@example.com")
-val bytes = serializer.serialize(user)
-val restored = serializer.deserialize<User>(bytes)
-
-// Throws BinarySerializationException on failure
-try {
-    serializer.deserialize<User>(byteArrayOf(1, 2, 3))
-} catch (e: BinarySerializationException) {
-    // handle
-}
-
-// Serialization + compression (saves storage space)
-val compressedSerializer = BinarySerializers.LZ4Kryo
-val compressedBytes = compressedSerializer.serialize(user)
-// 50-70% smaller than uncompressed
-
-// Fory serialization (modern, high-performance)
-val forySerializer = BinarySerializers.Fory
-val foryBytes = forySerializer.serialize(user)
-```
-
-`BinarySerializerSupport.deserialize(ByteBuffer)` reads only from the current `position` to the `remaining` limit of the `ByteBuffer`, so sliced or partial buffers (e.g., with skipped headers) can be deserialized directly.
-
-**Serializer Selection Guide:**
-
-- **Compatibility first**: Jdk (works in all Java environments)
-- **Performance first**: Kryo, Fory (3–10x faster)
-- **Storage savings**: LZ4Kryo, ZstdFory (with compression)
-
-### 3. Okio Integration
-
-Okio-based I/O features (Source/Sink, compression streams, encryption streams, Coroutines async I/O, etc.) are provided in the separate [`bluetape4k-okio`](../okio/README.md) module.
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-okio:${version}")
-}
-```
-
-### 4. File Utilities (FileSupport)
-
-Convenient extension functions for file handling.
-
-```kotlin
-import io.bluetape4k.io.*
-import java.io.File
-import java.nio.file.Paths
-
-// Async file copy
-val source = File("source.txt")
-val target = File("target.txt")
-source.copyToAsync(target).thenAccept {
-    println("Copy completed: ${it.absolutePath}")
-}
-
-// Async file move
-source.moveAsync(target).thenAccept {
-    println("Move completed")
-}
-
-// Async file read
-val path = Paths.get("large-file.txt")
-path.readAllBytesAsync().thenAccept { bytes ->
-    println("Read ${bytes.size} bytes")
-}
-
-// Async file write
-val lines = listOf("Line 1", "Line 2", "Line 3")
-path.writeLinesAsync(lines).thenAccept { bytesWritten ->
-    println("Wrote $bytesWritten bytes")
-}
-
-// Line-by-line streaming (memory efficient)
-File("huge-file.txt").readLineSequence().forEach { line ->
-    processLine(line)
-}
-
-// Create directory
-val dir = createDirectory("temp/sub/folder")
-
-// Temporary directory (auto-deleted on exit)
-val tempDir = createTempDirectory(deleteAtExit = true)
-
-// Recursively delete directory
-File("temp").deleteDirectoryRecursively()
-```
-
-### 5. Result-Pattern File Utilities (FileSupportResult)
-
-A safe file API that returns `Result<T>` instead of throwing exceptions. Functions follow the `tryXXXX` naming convention.
-
-```kotlin
-import io.bluetape4k.io.*
-import java.io.File
-import java.nio.file.Paths
-
-// Create directory (returns Result)
-tryCreateDirectory("/tmp/mydir").fold(
-    onSuccess = { dir -> println("Created: ${dir.absolutePath}") },
-    onFailure = { error -> logger.error("Failed", error) }
-)
-
-// Create file (returns Result)
-val result = tryCreateFile("/tmp/mydir/file.txt")
-if (result.isSuccess) {
-    println("File created: ${result.getOrThrow().absolutePath}")
-}
-
-// Read file (returns Result)
-val path = Paths.get("data.bin")
-path.tryReadAllBytes().onSuccess { bytes ->
-    println("Read ${bytes.size} bytes")
-}
-
-// Write file (returns Result)
-path.tryWriteBytes("Hello".toByteArray()).onSuccess { size ->
-    println("Wrote $size bytes")
-}
-
-// Async copy (CompletableFuture<Result<File>>)
-val source = File("source.txt")
-source.tryCopyToAsync(File("target.txt")).thenAccept { result ->
-    result.onSuccess { copied -> println("Copied: ${copied.name}") }
-    result.onFailure { error -> println("Failed: ${error.message}") }
-}
-
-// Async move (CompletableFuture<Result<File>>)
-source.tryMoveAsync(File("target.txt")).thenAccept { result ->
-    result.fold(
-        onSuccess = { println("Moved successfully") },
-        onFailure = { println("Move failed: ${it.message}") }
-    )
-}
-
-// Async read (CompletableFuture<Result<ByteArray>>)
-path.tryReadAllBytesAsync().thenAccept { result ->
-    result.onSuccess { bytes -> println("Read ${bytes.size} bytes") }
-}
-```
-
-**Result Pattern API Reference:**
-
-| Function | Return Type | Description |
-|----------|-------------|-------------|
-| `tryCreateDirectory(path)` | `Result<File>` | Create directory |
-| `tryCreateFile(path)` | `Result<File>` | Create file |
-| `File.tryDeleteRecursively()` | `Result<Boolean>` | Recursive delete |
-| `File.tryDeleteIfExists()` | `Result<Boolean>` | Delete file |
-| `Path.tryReadAllBytes()` | `Result<ByteArray>` | Read bytes |
-| `Path.tryWriteBytes(bytes)` | `Result<Long>` | Write bytes |
-| `Path.tryReadAllLines()` | `Result<List<String>>` | Read lines |
-| `Path.tryWriteLines(lines)` | `Result<Long>` | Write lines |
-| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>` | Async copy |
-| `File.tryMoveAsync(target)` | `CompletableFuture<Result<File>>` | Async move |
-| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | Async read |
-| `Path.tryWriteAsync(bytes)` | `CompletableFuture<Result<Long>>` | Async write |
-
-## Adding the Dependency
-
-### Gradle (Kotlin DSL)
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-io:${version}")
-
-    // Optional dependencies (add only what you need)
-
-    // Compression algorithms
-    implementation("org.lz4:lz4-java:1.8.0")              // LZ4
-    implementation("org.xerial.snappy:snappy-java:1.1.10.8") // Snappy
-    implementation("com.github.luben:zstd-jni:1.5.7-6")     // Zstd
-    implementation("org.apache.commons:commons-compress:1.26.0") // BZip2, GZip
-
-    // Serialization
-    implementation("com.esotericsoftware:kryo:5.6.2")     // Kryo
-    implementation("org.apache.fury:fury-kotlin:0.14.1")     // Fory
-}
-```
-
-### Maven
-
-```xml
-<dependency>
-    <groupId>io.github.bluetape4k</groupId>
-    <artifactId>bluetape4k-io</artifactId>
-    <version>${bluetape4k.version}</version>
-</dependency>
-
-<!-- Optional dependencies -->
-<dependency>
-    <groupId>org.lz4</groupId>
-    <artifactId>lz4-java</artifactId>
-    <version>1.8.0</version>
-</dependency>
-```
-
-## Benchmark Results
-
-### Serialization Performance Comparison
-
-Throughput for serializing/deserializing a collection of 20 `SimpleData` objects.
-
-**Without byte array fields:**
-
-| Library | ops/s   | Notes |
-|---------|---------|-------|
-| Fory    | 305,821 | Best performance |
-| Kryo    | 81,823  | Recommended for general use |
-| Jackson | 39,510  | JSON-based |
-| Jdk     | 22,249  | Java standard |
-
-**With byte array fields (4096 bytes):**
-
-| Library | ops/s  | Notes |
-|---------|--------|-------|
-| Fory    | 59,192 | Best performance |
-| Kryo    | 29,329 | Recommended for general use |
-| Jdk     | 8,431  | Java standard |
-| Jackson | 4,323  | Disadvantaged for binary data |
-
-> Fory is approximately 3x faster than Kryo.
-> Jackson is the slowest when byte arrays are involved.
-
-### Compression Performance Comparison
-
-Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.txt`).
-
-| Algorithm | ops/s | Characteristics |
-|-----------|-------|-----------------|
-| Snappy  | 8,073 | Fastest speed |
-| LZ4     | 6,769 | Great for real-time processing |
-| Zstd    | 5,103 | Balanced speed and ratio (recommended) |
-| GZip    | 1,195 | Excellent compatibility |
-| Deflate | 1,084 | GZip-based |
-
-**Serializer Selection Guide:**
-
-| Method | Speed | Size | Compatibility | Recommended Use |
-|--------|-------|------|---------------|-----------------|
-| Fory | 5–10x | 40% | Moderate | Internal systems requiring maximum performance |
-| Kryo | 3–5x | 50% | Good | General-purpose (most recommended) |
-| Jdk | 1x | 100% | Best | When external compatibility is required |
-
-**Compression Selection Guide:**
-
-- **Real-time processing**: LZ4, Snappy (speed over ratio)
-- **Network transfer**: Zstd, GZip (balanced)
-- **Storage optimization**: BZip2, Zstd (ratio over speed)
-
-## Virtual Threads Support (Java 21+)
-
-Supports lightweight async processing using Virtual Threads.
-
-```kotlin
-import io.bluetape4k.io.*
-
-// Async execution via Virtual Thread
-val future = file.copyToAsync(target)
-future.thenAccept { copiedFile ->
-    println("Copied: ${copiedFile.name}")
-}
-
-// CompletableFuture composition
-val readFuture = path.readAllBytesAsync()
-val writeFuture = readFuture.thenCompose { bytes ->
-    processedPath.writeAsync(bytes)
-}
-```
-
-## Testing
-
-The project includes comprehensive tests:
-
-```bash
-# Run all tests
-./gradlew :bluetape4k-io:test
-
-# Run benchmarks (measure compression/serialization performance)
-./gradlew :bluetape4k-io:benchmark
-```
-
-## Class Structure
+## Architecture
 
 ### Compressor Hierarchy
 
@@ -461,7 +55,6 @@ classDiagram
     AbstractCompressor <|-- ApacheDeflateCompressor
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
-
 ```
 
 ### BinarySerializer Hierarchy
@@ -507,7 +100,6 @@ classDiagram
     AbstractBinarySerializer <|-- ForyBinarySerializer
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
-
 ```
 
 ### compress/decompress Flow
@@ -566,6 +158,275 @@ sequenceDiagram
     end
 ```
 
+## Key Features
+
+### 1. Compression (Compressor)
+
+A unified interface for multiple compression algorithms.
+
+**Supported Algorithms:**
+
+- **LZ4**: Ultra-fast compression/decompression (ideal for real-time processing)
+- **Snappy**: High-speed compression (developed by Google)
+- **Zstd**: Balanced compression ratio and speed
+- **GZip**: General-purpose compression (excellent compatibility)
+- **Deflate**: The algorithm underlying GZip
+- **BZip2**: High compression ratio (slower speed)
+- **Zip**: ZIP format compression/decompression (suited for file archives)
+
+**Algorithm Selection Guide:**
+
+- **Real-time processing**: LZ4, Snappy (speed over ratio)
+- **Network transfer**: Zstd, GZip (balanced speed and ratio)
+- **Storage optimization**: BZip2, Zstd (ratio over speed)
+- **File archives**: Zip (preserves directory structure)
+
+### 2. Serialization (BinarySerializer)
+
+Multiple implementations for serializing and deserializing objects to/from binary.
+
+`BinarySerializer` failure policy:
+
+- `serialize(null)` returns an empty byte array.
+- `deserialize(null/empty)` returns `null`.
+- All other serialization/deserialization failures throw `BinarySerializationException`.
+
+**Supported Serializers:**
+
+- **Jdk**: Java standard serialization (best compatibility)
+- **Kryo**: Fast and efficient binary serialization
+- **Fory**: Kotlin-optimized serialization based on Apache Fory
+- **Compressable**: Serialization combined with compression (e.g., LZ4Kryo, ZstdFory)
+
+**Serializer Selection Guide:**
+
+- **Compatibility first**: Jdk (works in all Java environments)
+- **Performance first**: Kryo, Fory (3–10x faster)
+- **Storage savings**: LZ4Kryo, ZstdFory (with compression)
+
+### 3. File Utilities (FileSupport)
+
+Convenient extension functions for file handling.
+
+### 4. Result-Pattern File Utilities (FileSupportResult)
+
+A safe file API that returns `Result<T>` instead of throwing exceptions. Functions follow the
+`tryXXXX` naming convention.
+
+### 5. Virtual Threads Support (Java 21+)
+
+Supports lightweight async processing using Virtual Threads.
+
+## Usage Examples
+
+### Compression
+
+```kotlin
+import io.bluetape4k.io.compressor.Compressors
+
+// Basic usage
+val plainData = "Hello, World!".toByteArray()
+val compressed = Compressors.LZ4.compress(plainData)
+val decompressed = Compressors.LZ4.decompress(compressed)
+
+// Direct string compression (Base64-encoded output)
+val compressedStr = Compressors.Zstd.compress("Large text data...")
+val originalStr = Compressors.Zstd.decompress(compressedStr)
+
+// ByteBuffer support
+val buffer = ByteBuffer.wrap(plainData)
+val compressedBuffer = Compressors.Snappy.compress(buffer)
+
+// InputStream support
+val inputStream = File("large-file.txt").inputStream()
+val compressedStream = Compressors.GZip.compress(inputStream)
+```
+
+**StreamingCompressor (for large-scale streaming):**
+
+```kotlin
+import io.bluetape4k.io.compressor.Compressors
+
+val source = File("large-file.txt").inputStream()
+val compressedOut = File("large-file.txt.zst").outputStream()
+
+// Stream-based compression/decompression
+Compressors.Streaming.Zstd.compress(source, compressedOut)
+
+val restoredOut = File("large-file-restored.txt").outputStream()
+Compressors.Streaming.Zstd.decompress(
+    File("large-file.txt.zst").inputStream(),
+    restoredOut
+)
+```
+
+**ZIP File Builder (ZipBuilder):**
+
+```kotlin
+import io.bluetape4k.io.compressor.ZipBuilder
+
+// In-memory ZIP
+val zipBytes = ZipBuilder()
+    .addContent("hello.txt", "Hello, World!")
+    .addContent("data/config.json", """{"key": "value"}""")
+    .toBytes()
+
+// File-based ZIP
+val zipFile = ZipBuilder()
+    .addFile(File("document.pdf"))
+    .addFolder(File("images/"))
+    .toZipFile(File("archive.zip"))
+```
+
+**ZIP File Utilities (ZipFileSupport):**
+
+```kotlin
+import io.bluetape4k.io.compressor.*
+
+// gzip/ungzip
+val gzipped = gzip(File("data.txt"))       // creates data.txt.gz
+val original = ungzip(gzipped)              // restores data.txt
+
+// zip/unzip (with directory support)
+zip(File("project/"), File("project.zip"))
+unzip(File("project.zip"), File("output/"))
+
+// Pattern-filtered unzip (wildcard support)
+unzip(File("project.zip"), File("output/"), "*.kt", "*.xml")
+```
+
+### Serialization
+
+```kotlin
+import io.bluetape4k.io.serializer.BinarySerializers
+
+data class User(val id: Long, val name: String, val email: String)
+
+// Kryo serialization (fast)
+val serializer = BinarySerializers.Kryo
+val user = User(1L, "John Doe", "john@example.com")
+val bytes = serializer.serialize(user)
+val restored = serializer.deserialize<User>(bytes)
+
+// Throws BinarySerializationException on failure
+try {
+    serializer.deserialize<User>(byteArrayOf(1, 2, 3))
+} catch (e: BinarySerializationException) {
+    // handle
+}
+
+// Serialization + compression (saves storage space)
+val compressedSerializer = BinarySerializers.LZ4Kryo
+val compressedBytes = compressedSerializer.serialize(user)
+// 50-70% smaller than uncompressed
+
+// Fory serialization (modern, high-performance)
+val forySerializer = BinarySerializers.Fory
+val foryBytes = forySerializer.serialize(user)
+```
+
+### File Utilities
+
+```kotlin
+import io.bluetape4k.io.*
+import java.io.File
+import java.nio.file.Paths
+
+// Async file copy
+val source = File("source.txt")
+val target = File("target.txt")
+source.copyToAsync(target).thenAccept {
+    println("Copy completed: ${it.absolutePath}")
+}
+
+// Async file read
+val path = Paths.get("large-file.txt")
+path.readAllBytesAsync().thenAccept { bytes ->
+    println("Read ${bytes.size} bytes")
+}
+
+// Line-by-line streaming (memory efficient)
+File("huge-file.txt").readLineSequence().forEach { line ->
+    processLine(line)
+}
+```
+
+### Result-Pattern File Utilities
+
+```kotlin
+import io.bluetape4k.io.*
+import java.io.File
+import java.nio.file.Paths
+
+// Create directory (returns Result)
+tryCreateDirectory("/tmp/mydir").fold(
+    onSuccess = { dir -> println("Created: ${dir.absolutePath}") },
+    onFailure = { error -> logger.error("Failed", error) }
+)
+
+// Read file (returns Result)
+val path = Paths.get("data.bin")
+path.tryReadAllBytes().onSuccess { bytes ->
+    println("Read ${bytes.size} bytes")
+}
+```
+
+**Result Pattern API Reference:**
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `tryCreateDirectory(path)` | `Result<File>` | Create directory |
+| `tryCreateFile(path)` | `Result<File>` | Create file |
+| `File.tryDeleteRecursively()` | `Result<Boolean>` | Recursive delete |
+| `File.tryDeleteIfExists()` | `Result<Boolean>` | Delete file |
+| `Path.tryReadAllBytes()` | `Result<ByteArray>` | Read bytes |
+| `Path.tryWriteBytes(bytes)` | `Result<Long>` | Write bytes |
+| `Path.tryReadAllLines()` | `Result<List<String>>` | Read lines |
+| `Path.tryWriteLines(lines)` | `Result<Long>` | Write lines |
+| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>` | Async copy |
+| `File.tryMoveAsync(target)` | `CompletableFuture<Result<File>>` | Async move |
+| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | Async read |
+| `Path.tryWriteAsync(bytes)` | `CompletableFuture<Result<Long>>` | Async write |
+
+## Benchmark Results
+
+### Serialization Performance Comparison
+
+Throughput for serializing/deserializing a collection of 20 `SimpleData` objects.
+
+**Without byte array fields:**
+
+| Library | ops/s   | Notes |
+|---------|---------|-------|
+| Fory    | 305,821 | Best performance |
+| Kryo    | 81,823  | Recommended for general use |
+| Jackson | 39,510  | JSON-based |
+| Jdk     | 22,249  | Java standard |
+
+**With byte array fields (4096 bytes):**
+
+| Library | ops/s  | Notes |
+|---------|--------|-------|
+| Fory    | 59,192 | Best performance |
+| Kryo    | 29,329 | Recommended for general use |
+| Jdk     | 8,431  | Java standard |
+| Jackson | 4,323  | Disadvantaged for binary data |
+
+> Fory is approximately 3x faster than Kryo.
+> Jackson is the slowest when byte arrays are involved.
+
+### Compression Performance Comparison
+
+Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.txt`).
+
+| Algorithm | ops/s | Characteristics |
+|-----------|-------|-----------------|
+| Snappy  | 8,073 | Fastest speed |
+| LZ4     | 6,769 | Great for real-time processing |
+| Zstd    | 5,103 | Balanced speed and ratio (recommended) |
+| GZip    | 1,195 | Excellent compatibility |
+| Deflate | 1,084 | GZip-based |
+
 ## Module Structure
 
 ```
@@ -590,24 +451,44 @@ io.bluetape4k.io
 └── [other extension functions]
 ```
 
-## KDoc Example Coverage
+## Adding the Dependency
 
-> As of: 2026-04-04
+### Gradle (Kotlin DSL)
 
-| Status | File Count |
-|--------|-----------|
-| With examples | 45 / 47 (96%) |
-| Without examples | 2 |
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-io:${version}")
 
-**Pilot completed (2026-04-04)**: `Compressors`, `BinarySerializers`, `ZipFileSupport` — 3 files, 64 `kotlin` code blocks added.
+    // Optional dependencies (add only what you need)
 
-### KDoc Example Guidelines
+    // Compression algorithms
+    implementation("org.lz4:lz4-java:1.8.0")              // LZ4
+    implementation("org.xerial.snappy:snappy-java:1.1.10.8") // Snappy
+    implementation("com.github.luben:zstd-jni:1.5.7-6")     // Zstd
+    implementation("org.apache.commons:commons-compress:1.26.0") // BZip2, GZip
 
-- Code blocks: ` ```kotlin ` language tag required
-- Omit imports (focus on usage)
-- Show results as comments
-- For object/registries: include algorithm selection guide + compress→decompress round-trip example
-- For individual properties: provide a single usage example
+    // Serialization
+    implementation("com.esotericsoftware:kryo:5.6.2")     // Kryo
+    implementation("org.apache.fury:fury-kotlin:0.14.1")     // Fory
+}
+```
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>io.github.bluetape4k</groupId>
+    <artifactId>bluetape4k-io</artifactId>
+    <version>${bluetape4k.version}</version>
+</dependency>
+
+<!-- Optional dependencies -->
+<dependency>
+    <groupId>org.lz4</groupId>
+    <artifactId>lz4-java</artifactId>
+    <version>1.8.0</version>
+</dependency>
+```
 
 ## License
 

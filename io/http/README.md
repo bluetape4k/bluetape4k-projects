@@ -8,6 +8,124 @@ English | [한국어](./README.ko.md)
 
 It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, and AsyncHttpClient, with built-in support for Kotlin Coroutines and Virtual Threads.
 
+## Architecture
+
+### Overall Architecture: Multi-Backend HTTP Client
+
+```mermaid
+flowchart TD
+    subgraph Application["Application"]
+        APP[Application Code]
+        CO[Coroutines\nsuspend fun]
+    end
+
+    subgraph bluetape4k-http
+        EXT[executeSuspending\nextension functions]
+        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / asyncHttpClientOf]
+    end
+
+    subgraph Backends["HTTP Client Backends"]
+        HC5A[HC5 Async\nhttpAsyncClient]
+        HC5C[HC5 Classic\nhttpClient]
+        HC5CA[HC5 Caching\ncachingHttpAsyncClient]
+        OKH[OkHttp3\nokhttp3Client]
+        AHC[AsyncHttpClient\nasyncHttpClientOf]
+        VTX[Vert.x HttpClient\nvertxHttpClientOf]
+    end
+
+    APP --> CO
+    CO --> EXT
+    EXT --> DSL
+    DSL --> HC5A
+    DSL --> HC5C
+    DSL --> HC5CA
+    DSL --> OKH
+    DSL --> AHC
+    DSL --> VTX
+    HC5A --> SERVER[(HTTP Server)]
+    HC5C --> SERVER
+    HC5CA --> SERVER
+    OKH --> SERVER
+    AHC --> SERVER
+    VTX --> SERVER
+```
+
+### HTTP Client Hierarchy (HC5)
+
+```mermaid
+classDiagram
+    class CloseableHttpAsyncClient {
+        <<ApacheHC5>>
+        +execute(request, callback) Future
+        +start()
+        +close()
+    }
+
+    class HttpAsyncClientCoroutines {
+        <<extension functions>>
+        +executeSuspending(request) SimpleHttpResponse
+    }
+
+    class CachingHttpAsyncClientBuilder {
+        <<DSL builder>>
+        +setHttpCacheStorage(storage)
+        +build() CloseableHttpAsyncClient
+    }
+
+    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : uses
+    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : uses
+    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : extends
+```
+
+### OkHttp3 Client Hierarchy
+
+```mermaid
+classDiagram
+    class OkHttpClient {
+        <<OkHttp3>>
+        +newCall(request) Call
+    }
+
+    class LoggingInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingRequestInterceptor {
+        +intercept(chain) Response
+    }
+
+    class CachingResponseInterceptor {
+        +intercept(chain) Response
+    }
+
+    class OkHttpClientExtensionsCoroutines {
+        <<extension functions>>
+        +executeSuspending(request) Response
+    }
+
+    OkHttpClient --> LoggingInterceptor : addInterceptor
+    OkHttpClient --> CachingRequestInterceptor : addInterceptor
+    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
+    OkHttpClient <.. OkHttpClientExtensionsCoroutines : extends
+```
+
+### Async HTTP Request Flow (HC5 Async + Coroutines)
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant Ext as executeSuspending()
+    participant HC5 as CloseableHttpAsyncClient
+    participant Server as HTTP Server
+
+    App->>Ext: suspend fun executeSuspending(request)
+    Ext->>HC5: execute(request, FutureCallback)
+    HC5->>Server: HTTP request (async)
+    Server-->>HC5: HTTP response
+    HC5-->>Ext: FutureCallback.completed(response)
+    Ext-->>App: SimpleHttpResponse
+```
+
 ## Key Features
 
 ### 1. Apache HttpComponents 5 (HC5)
@@ -165,100 +283,6 @@ suspend fun fetchData() = coroutineScope {
 }
 ```
 
-## Dependencies
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-http"))
-
-    // Optional (add only what you need)
-    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
-    implementation("io.vertx:vertx-core")                    // Vert.x
-}
-```
-
-## Class Structure
-
-### HTTP Client Hierarchy (HC5)
-
-```mermaid
-classDiagram
-    class CloseableHttpAsyncClient {
-        <<ApacheHC5>>
-        +execute(request, callback) Future
-        +start()
-        +close()
-    }
-
-    class HttpAsyncClientCoroutines {
-        <<extension functions>>
-        +executeSuspending(request) SimpleHttpResponse
-    }
-
-    class CachingHttpAsyncClientBuilder {
-        <<DSL builder>>
-        +setHttpCacheStorage(storage)
-        +build() CloseableHttpAsyncClient
-    }
-
-
-    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : uses
-    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : uses
-    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : extends
-
-```
-
-### OkHttp3 Client Hierarchy
-
-```mermaid
-classDiagram
-    class OkHttpClient {
-        <<OkHttp3>>
-        +newCall(request) Call
-    }
-
-    class LoggingInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingRequestInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingResponseInterceptor {
-        +intercept(chain) Response
-    }
-
-    class OkHttpClientExtensionsCoroutines {
-        <<extension functions>>
-        +executeSuspending(request) Response
-    }
-
-    OkHttpClient --> LoggingInterceptor : addInterceptor
-    OkHttpClient --> CachingRequestInterceptor : addInterceptor
-    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
-    OkHttpClient <.. OkHttpClientExtensionsCoroutines : extends
-
-```
-
-### Async HTTP Request Flow (HC5 Async + Coroutines)
-
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant Ext as executeSuspending()
-    participant HC5 as CloseableHttpAsyncClient
-    participant Server as HTTP Server
-
-    App->>Ext: suspend fun executeSuspending(request)
-    Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP request (async)
-    Server-->>HC5: HTTP response
-    HC5-->>Ext: FutureCallback.completed(response)
-    Ext-->>App: SimpleHttpResponse
-```
-
 ## Module Structure
 
 ```
@@ -286,6 +310,19 @@ io.bluetape4k.http
 │   └── CoroutineSupport.kt
 └── vertx/                  # Vert.x HttpClient
     └── VertxHttpClientSupport.kt
+```
+
+## Dependencies
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-http"))
+
+    // Optional (add only what you need)
+    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
+    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
+    implementation("io.vertx:vertx-core")                    // Vert.x
+}
 ```
 
 ## Testing

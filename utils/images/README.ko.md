@@ -2,20 +2,12 @@
 
 [English](./README.md) | 한국어
 
-## 개요
-
 JPG, PNG, GIF, WebP 등의 이미지를 로드, 변환, 크기 조절, 분할, 필터 적용 등의 조작을 지원하는 라이브러리입니다.
 [Scrimage](https://github.com/sksamuel/scrimage) 라이브러리를 기반으로 하며, Coroutines를 활용한 비동기 이미지 처리를 제공합니다.
 
-## 의존성 추가
+## 아키텍처
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-images:${version}")
-}
-```
-
-## 아키텍처 다이어그램
+### 처리 파이프라인
 
 ```mermaid
 flowchart LR
@@ -51,7 +43,7 @@ flowchart LR
     조작 --> 출력
 ```
 
-## 클래스 다이어그램
+### 클래스 다이어그램
 
 ```mermaid
 classDiagram
@@ -90,7 +82,6 @@ classDiagram
     ImmutableImage --> SuspendPngWriter : output
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
-
 ```
 
 ## 주요 기능
@@ -106,6 +97,35 @@ classDiagram
 
 - **동적 생성**: JPG가 가장 빠름 (실시간 처리용)
 - **정적 파일**: WebP가 가장 효율적 (저장 공간 절약)
+
+### 주요 파일
+
+| 파일                                                   | 설명                            |
+|------------------------------------------------------|-------------------------------|
+| `ImmutableImageSupport.kt`                           | ImmutableImage 생성, 저장, 그래픽 작업 |
+| `BufferedImageSupport.kt`                            | BufferedImage 생성, 저장, 그래픽 작업  |
+| `ImageFormat.kt`                                     | 지원 이미지 포맷 열거형                 |
+| `WriteContextExtensions.kt`                          | 쓰기 컨텍스트 확장 함수                 |
+| `IIORegistryUtils.kt`                                | ImageIO 레지스트리 유틸리티            |
+| `scaler/ImageScaler.kt`                              | 이미지 크기 조절                     |
+| `splitter/ImageSplitter.kt`                          | 이미지 분할                        |
+| `filters/WatermarkFilterSupport.kt`                  | 워터마크 필터                       |
+| `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
+| `filters/PaddingSupport.kt`                          | 패딩 필터                         |
+| `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
+| `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
+| `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
+| `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
+| `coroutines/SuspendImageWriter.kt`                   | 비동기 이미지 Writer 인터페이스          |
+| `coroutines/SuspendJpegWriter.kt`                    | 비동기 JPEG Writer               |
+| `coroutines/SuspendPngWriter.kt`                     | 비동기 PNG Writer                |
+| `coroutines/SuspendGifWriter.kt`                     | 비동기 GIF Writer                |
+| `coroutines/SuspendWebpWriter.kt`                    | 비동기 WebP Writer               |
+| `coroutines/SuspendWriteContext.kt`                  | 비동기 쓰기 컨텍스트                   |
+| `coroutines/animated/SuspendAnimatedImageWriter.kt`  | 비동기 애니메이션 Writer              |
+| `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP 변환 Writer          |
+| `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif 확장 함수             |
+| `coroutines/animated/SuspendAnimatedWriteContext.kt` | 애니메이션 쓰기 컨텍스트                 |
 
 ## 사용 예시
 
@@ -382,31 +402,10 @@ SuspendWebpWriter(
 )
 ```
 
-## 주요 기능 상세
+## 의존성 추가
 
-| 파일                                                   | 설명                            |
-|------------------------------------------------------|-------------------------------|
-| `ImmutableImageSupport.kt`                           | ImmutableImage 생성, 저장, 그래픽 작업 |
-| `BufferedImageSupport.kt`                            | BufferedImage 생성, 저장, 그래픽 작업  |
-| `ImageFormat.kt`                                     | 지원 이미지 포맷 열거형                 |
-| `WriteContextExtensions.kt`                          | 쓰기 컨텍스트 확장 함수                 |
-| `IIORegistryUtils.kt`                                | ImageIO 레지스트리 유틸리티            |
-| `scaler/ImageScaler.kt`                              | 이미지 크기 조절                     |
-| `splitter/ImageSplitter.kt`                          | 이미지 분할                        |
-| `filters/WatermarkFilterSupport.kt`                  | 워터마크 필터                       |
-| `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
-| `filters/PaddingSupport.kt`                          | 패딩 필터                         |
-| `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
-| `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
-| `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
-| `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
-| `coroutines/SuspendImageWriter.kt`                   | 비동기 이미지 Writer 인터페이스          |
-| `coroutines/SuspendJpegWriter.kt`                    | 비동기 JPEG Writer               |
-| `coroutines/SuspendPngWriter.kt`                     | 비동기 PNG Writer                |
-| `coroutines/SuspendGifWriter.kt`                     | 비동기 GIF Writer                |
-| `coroutines/SuspendWebpWriter.kt`                    | 비동기 WebP Writer               |
-| `coroutines/SuspendWriteContext.kt`                  | 비동기 쓰기 컨텍스트                   |
-| `coroutines/animated/SuspendAnimatedImageWriter.kt`  | 비동기 애니메이션 Writer              |
-| `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP 변환 Writer          |
-| `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif 확장 함수             |
-| `coroutines/animated/SuspendAnimatedWriteContext.kt` | 애니메이션 쓰기 컨텍스트                 |
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-images:${version}")
+}
+```

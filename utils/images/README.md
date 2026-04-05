@@ -2,19 +2,11 @@
 
 English | [한국어](./README.ko.md)
 
-## Overview
-
 A library for loading, converting, resizing, splitting, and applying filters to images in formats such as JPG, PNG, GIF, and WebP. Built on the [Scrimage](https://github.com/sksamuel/scrimage) library with asynchronous image processing via Coroutines.
 
-## Dependency
+## Architecture
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-images:${version}")
-}
-```
-
-## Architecture Diagram
+### Processing Pipeline
 
 ```mermaid
 flowchart LR
@@ -50,7 +42,7 @@ flowchart LR
     Operations --> Output
 ```
 
-## Class Diagram
+### Class Diagram
 
 ```mermaid
 classDiagram
@@ -89,10 +81,9 @@ classDiagram
     ImmutableImage --> SuspendPngWriter : output
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
-
 ```
 
-## Features
+## Key Features
 
 ### Supported Image Formats
 
@@ -105,6 +96,30 @@ classDiagram
 
 - **Dynamic generation**: JPG is fastest (for real-time processing)
 - **Static files**: WebP is most efficient (saves storage)
+
+### Key Files
+
+| File                                           | Description                              |
+|------------------------------------------------|------------------------------------------|
+| `ImmutableImageSupport.kt`                     | Create, save, and draw on ImmutableImage |
+| `BufferedImageSupport.kt`                      | Create, save, and draw on BufferedImage  |
+| `ImageFormat.kt`                               | Supported image format enum              |
+| `WriteContextExtensions.kt`                    | Write context extensions                 |
+| `IIORegistryUtils.kt`                          | ImageIO registry utilities               |
+| `scaler/ImageScaler.kt`                        | Image resizing                           |
+| `splitter/ImageSplitter.kt`                    | Image splitting                          |
+| `filters/WatermarkFilterSupport.kt`            | Watermark filter                         |
+| `filters/CaptionFilterSupport.kt`              | Caption filter                           |
+| `filters/PaddingSupport.kt`                    | Padding filter                           |
+| `filters/WatermarkFilterType.kt`               | Watermark type (COVER/STAMP)             |
+| `fonts/FontSupport.kt`                         | Font utilities                           |
+| `coroutines/SuspendImageWriter.kt`             | Async image writer interface             |
+| `coroutines/SuspendJpegWriter.kt`              | Async JPEG writer                        |
+| `coroutines/SuspendPngWriter.kt`               | Async PNG writer                         |
+| `coroutines/SuspendGifWriter.kt`               | Async GIF writer                         |
+| `coroutines/SuspendWebpWriter.kt`              | Async WebP writer                        |
+| `coroutines/animated/SuspendGif2WebpWriter.kt` | GIF → WebP conversion writer             |
+| `coroutines/animated/AnimatedGifExtensions.kt` | AnimatedGif extensions                   |
 
 ## Usage Examples
 
@@ -361,26 +376,10 @@ SuspendWebpWriter(
 )
 ```
 
-## Key Files
+## Dependency
 
-| File                                                 | Description                               |
-|------------------------------------------------------|-------------------------------------------|
-| `ImmutableImageSupport.kt`                           | Create, save, and draw on ImmutableImage  |
-| `BufferedImageSupport.kt`                            | Create, save, and draw on BufferedImage   |
-| `ImageFormat.kt`                                     | Supported image format enum               |
-| `WriteContextExtensions.kt`                          | Write context extensions                  |
-| `IIORegistryUtils.kt`                                | ImageIO registry utilities                |
-| `scaler/ImageScaler.kt`                              | Image resizing                            |
-| `splitter/ImageSplitter.kt`                          | Image splitting                           |
-| `filters/WatermarkFilterSupport.kt`                  | Watermark filter                          |
-| `filters/CaptionFilterSupport.kt`                    | Caption filter                            |
-| `filters/PaddingSupport.kt`                          | Padding filter                            |
-| `filters/WatermarkFilterType.kt`                     | Watermark type (COVER/STAMP)              |
-| `fonts/FontSupport.kt`                               | Font utilities                            |
-| `coroutines/SuspendImageWriter.kt`                   | Async image writer interface              |
-| `coroutines/SuspendJpegWriter.kt`                    | Async JPEG writer                         |
-| `coroutines/SuspendPngWriter.kt`                     | Async PNG writer                          |
-| `coroutines/SuspendGifWriter.kt`                     | Async GIF writer                          |
-| `coroutines/SuspendWebpWriter.kt`                    | Async WebP writer                         |
-| `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP conversion writer             |
-| `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif extensions                    |
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-images:${version}")
+}
+```

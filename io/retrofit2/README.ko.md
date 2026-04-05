@@ -9,6 +9,126 @@
 OkHttp 기본 전송 외에 Apache HC5, Vert.x, AsyncHttpClient 등 다양한 HTTP 전송 계층을 지원하며, Kotlin
 `Result` 타입 기반의 에러 핸들링과 Reactive Streams 어댑터를 자동 감지하여 등록합니다.
 
+## 아키텍처
+
+### 전체 아키텍처: Retrofit2 + Coroutines + Result 패턴
+
+```mermaid
+flowchart TD
+    subgraph Application["애플리케이션"]
+        APP[애플리케이션 코드]
+        API[Retrofit 인터페이스\nsuspend fun / Result~T~]
+    end
+
+    subgraph bluetape4k-retrofit2
+        RB[retrofitOf DSL]
+        RCA[ResultCallAdapterFactory]
+        RC[ResultCall]
+        RX[리액티브 어댑터\nRxJava2/3 / Reactor]
+    end
+
+    subgraph CallFactory["Call.Factory (HTTP 백엔드)"]
+        OKH[OkHttpClient\n기본값]
+        HC5[Hc5CallFactory\nApache HC5]
+        VTX[VertxCallFactory\nVert.x]
+        AHC[AhcCallFactory\nAsyncHttpClient]
+    end
+
+    subgraph Converter["Converter Factory"]
+        JCF[jacksonConverterFactoryOf\nJSON]
+        SCF[defaultScalarsConverterFactory\nScalars]
+    end
+
+    APP --> API
+    API --> RB
+    RB --> RCA
+    RCA --> RC
+    RB --> CallFactory
+    RB --> Converter
+    RB --> RX
+    OKH --> SERVER[(HTTP 서버)]
+    HC5 --> SERVER
+    VTX --> SERVER
+    AHC --> SERVER
+```
+
+### Retrofit2 + Result 패턴 통합 구조
+
+```mermaid
+classDiagram
+    class Retrofit {
+        <<Retrofit2>>
+        +create(serviceClass) T
+        +baseUrl() HttpUrl
+    }
+
+    class CallAdapter {
+        <<interface>>
+        +responseType() Type
+        +adapt(call) T
+    }
+
+    class ResultCallAdapterFactory {
+        +get(returnType, annotations, retrofit) CallAdapter?
+    }
+
+    class ResultCall {
+        -delegate: Call~T~
+        +execute() Response~Result~T~~
+        +enqueue(callback)
+        +clone() Call~Result~T~~
+    }
+
+    class Hc5CallFactory {
+        -asyncClient: CloseableHttpAsyncClient
+        +newCall(request) Call
+        +close()
+    }
+
+    class VertxCallFactory {
+        +newCall(request) Call
+    }
+
+    class AhcCallFactory {
+        +newCall(request) Call
+    }
+
+    CallAdapter <|.. ResultCallAdapterFactory
+    ResultCallAdapterFactory ..> ResultCall : 생성
+    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
+    Retrofit --> Hc5CallFactory : callFactory
+    Retrofit --> VertxCallFactory : callFactory
+    Retrofit --> AhcCallFactory : callFactory
+```
+
+### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
+
+```mermaid
+sequenceDiagram
+    participant App as 애플리케이션
+    participant API as Retrofit 인터페이스(suspend fun)
+    participant RC as ResultCall
+    participant CF as Call.Factory(e.g. Hc5CallFactory)
+    participant Server as HTTP 서버
+
+    App->>API: suspend fun getUser(): Result~User~
+    API->>RC: enqueue(callback)
+    RC->>CF: delegate.enqueue(resultCallback)
+    CF->>Server: HTTP 요청 (비동기)
+    Server-->>CF: HTTP 응답
+    alt 2xx 성공
+        CF-->>RC: onResponse (body != null)
+        RC-->>API: Result.success(body)
+    else 4xx/5xx 실패
+        CF-->>RC: onResponse (isSuccessful == false)
+        RC-->>API: Result.failure(HttpException)
+    else 네트워크 오류
+        CF-->>RC: onFailure(throwable)
+        RC-->>API: Result.failure(IOException)
+    end
+    API-->>App: Result~User~
+```
+
 ## 주요 기능
 
 ### 1. Retrofit Builder DSL
@@ -150,7 +270,7 @@ val customFactory = jacksonConverterFactoryOf(customObjectMapper)
 val scalarsFactory = defaultScalarsConverterFactory
 ```
 
-## API 정의 예시
+## 사용 예시
 
 ```kotlin
 interface HttpbinApi {
@@ -179,100 +299,6 @@ interface HttpbinApi {
 }
 ```
 
-## 의존성
-
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-retrofit2"))
-
-    // 선택적 의존성
-    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson 변환
-    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars 변환
-    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 어댑터
-    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor 어댑터
-}
-```
-
-## 클래스 구조
-
-### Retrofit2 + Result 패턴 통합 구조
-
-```mermaid
-classDiagram
-    class Retrofit {
-        <<Retrofit2>>
-        +create(serviceClass) T
-        +baseUrl() HttpUrl
-    }
-
-    class CallAdapter {
-        <<interface>>
-        +responseType() Type
-        +adapt(call) T
-    }
-
-    class ResultCallAdapterFactory {
-        +get(returnType, annotations, retrofit) CallAdapter?
-    }
-
-    class ResultCall {
-        -delegate: Call~T~
-        +execute() Response~Result~T~~
-        +enqueue(callback)
-        +clone() Call~Result~T~~
-    }
-
-    class Hc5CallFactory {
-        -asyncClient: CloseableHttpAsyncClient
-        +newCall(request) Call
-        +close()
-    }
-
-    class VertxCallFactory {
-        +newCall(request) Call
-    }
-
-    class AhcCallFactory {
-        +newCall(request) Call
-    }
-
-    CallAdapter <|.. ResultCallAdapterFactory
-    ResultCallAdapterFactory ..> ResultCall : 생성
-    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
-    Retrofit --> Hc5CallFactory : callFactory
-    Retrofit --> VertxCallFactory : callFactory
-    Retrofit --> AhcCallFactory : callFactory
-
-```
-
-### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
-
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant API as Retrofit 인터페이스(suspend fun)
-    participant RC as ResultCall
-    participant CF as Call.Factory(e.g. Hc5CallFactory)
-    participant Server as HTTP 서버
-
-    App->>API: suspend fun getUser(): Result~User~
-    API->>RC: enqueue(callback)
-    RC->>CF: delegate.enqueue(resultCallback)
-    CF->>Server: HTTP 요청 (비동기)
-    Server-->>CF: HTTP 응답
-    alt 2xx 성공
-        CF-->>RC: onResponse (body != null)
-        RC-->>API: Result.success(body)
-    else 4xx/5xx 실패
-        CF-->>RC: onResponse (isSuccessful == false)
-        RC-->>API: Result.failure(HttpException)
-    else 네트워크 오류
-        CF-->>RC: onFailure(throwable)
-        RC-->>API: Result.failure(IOException)
-    end
-    API-->>App: Result~User~
-```
-
 ## 모듈 구조
 
 ```
@@ -293,6 +319,20 @@ io.bluetape4k.retrofit2
     │   └── VertxOkHttp3Support.kt
     └── ahc/                         # AsyncHttpClient CallFactory
         └── AhcCallFactorySupport.kt
+```
+
+## 의존성
+
+```kotlin
+dependencies {
+    implementation(project(":bluetape4k-retrofit2"))
+
+    // 선택적 의존성
+    implementation("com.squareup.retrofit2:converter-jackson")       // Jackson 변환
+    implementation("com.squareup.retrofit2:converter-scalars")       // Scalars 변환
+    implementation("com.squareup.retrofit2:adapter-rxjava3")         // RxJava3 어댑터
+    implementation("com.jakewharton.retrofit:retrofit2-reactor-adapter") // Reactor 어댑터
+}
 ```
 
 ## 테스트

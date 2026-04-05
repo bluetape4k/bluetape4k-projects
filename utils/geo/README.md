@@ -6,26 +6,9 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 
 > The former `utils/geocode`, `utils/geohash`, and `utils/geoip2` modules have been consolidated into this single module.
 
-## Features
+## Architecture
 
-### Geocode (formerly `utils/geocode`)
-- Address ↔ coordinate conversion via Google Maps Services
-- Bing Maps API integration support
-- Asynchronous requests via Feign HTTP client
-- Coroutines extension (optional)
-
-### GeoHash
-- Encode latitude/longitude coordinates as Base32 strings
-- GeoHash decoding and neighbor cell computation
-- Generate a list of GeoHashes within a given radius
-- Precision control (1–12 characters)
-
-### GeoIP2 (formerly `utils/geoip2`)
-- IP → geographic information lookup using the MaxMind GeoIP2 database
-- City, Country, and ASN queries
-- Coroutines extension (optional)
-
-## Architecture Diagram
+### Module Overview
 
 ```mermaid
 flowchart TD
@@ -48,24 +31,94 @@ flowchart TD
     GI --> IPINFO["IP → Country / City / Coordinates"]
 ```
 
-## Installation
+### Class Diagram
 
-Each feature is declared as `compileOnly`, so you need to add the relevant libraries as runtime dependencies.
+```mermaid
+classDiagram
+    class GeoHashUtils {
+        +encode(lat, lon, precision) String
+        +decode(hash) GeoPoint
+        +neighbors(hash) List~String~
+    }
+    class GeoHashCircleQuery {
+        +radiusMeters: Double
+        +centerHash: String
+        +getHashes() List~String~
+    }
+    class GeoPoint {
+        +latitude: Double
+        +longitude: Double
+    }
+    class GoogleGeocoder {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class BingGeocoder {
+        +apiKey: String
+        +geocode(address) GeoPoint
+        +reverseGeocode(lat, lon) String
+    }
+    class GeoIp2Support {
+        +cityReader(path) DatabaseReader
+        +countryReader(path) DatabaseReader
+    }
+    class CityResponse {
+        +country: Country
+        +city: City
+        +location: Location
+    }
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
-
-    // For Geocode (Google Maps)
-    implementation("com.google.maps:google-maps-services:2.2.0")
-    implementation(Libs.feign_core)
-    implementation(Libs.feign_kotlin)
-    implementation(Libs.feign_jackson)
-
-    // For GeoIP2
-    implementation("com.maxmind.geoip2:geoip2:5.0.2")
-}
+    GeoHashCircleQuery --> GeoHashUtils : uses
+    GeoHashUtils --> GeoPoint : returns
+    GoogleGeocoder --> GeoPoint : returns
+    BingGeocoder --> GeoPoint : returns
+    GeoIp2Support --> CityResponse : returns
 ```
+
+### GeoHash Encoding/Decoding Flow
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant GH as GeoHashUtils
+    participant Grid as GeoHash Grid
+
+    App->>GH: encode(lat=37.5665, lon=126.9780, precision=9)
+    GH->>Grid: divide into Base32 cells
+    Grid-->>GH: "wydm9mufd"
+    GH-->>App: hash string
+
+    App->>GH: decode("wydm9mufd")
+    GH->>Grid: reverse lookup bounding box
+    Grid-->>GH: GeoPoint(37.5665, 126.9780)
+    GH-->>App: GeoPoint
+
+    App->>GH: neighbors("wydm9mufd")
+    GH-->>App: List of 8 adjacent hashes
+```
+
+## Key Features
+
+### Geocode (formerly `utils/geocode`)
+
+- Address ↔ coordinate conversion via Google Maps Services
+- Bing Maps API integration support
+- Asynchronous requests via Feign HTTP client
+- Coroutines extension (optional)
+
+### GeoHash
+
+- Encode latitude/longitude coordinates as Base32 strings
+- GeoHash decoding and neighbor cell computation
+- Generate a list of GeoHashes within a given radius
+- Precision control (1–12 characters)
+
+### GeoIP2 (formerly `utils/geoip2`)
+
+- IP → geographic information lookup using the MaxMind GeoIP2 database
+- City, Country, and ASN queries
+- Coroutines extension (optional)
 
 ## Usage Examples
 
@@ -121,48 +174,21 @@ println("Latitude: ${cityResponse.location.latitude}")
 println("Longitude: ${cityResponse.location.longitude}")
 ```
 
-## Class Diagram
+## Installation
 
-```mermaid
-classDiagram
-    class GeoHashUtils {
-        +encode(lat, lon, precision) String
-        +decode(hash) GeoPoint
-        +neighbors(hash) List~String~
-    }
-    class GeoHashCircleQuery {
-        +radiusMeters: Double
-        +centerHash: String
-        +getHashes() List~String~
-    }
-    class GeoPoint {
-        +latitude: Double
-        +longitude: Double
-    }
-    class GoogleGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class BingGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class GeoIp2Support {
-        +cityReader(path) DatabaseReader
-        +countryReader(path) DatabaseReader
-    }
-    class CityResponse {
-        +country: Country
-        +city: City
-        +location: Location
-    }
+Each feature is declared as `compileOnly`, so you need to add the relevant libraries as runtime dependencies.
 
-    GeoHashCircleQuery --> GeoHashUtils : uses
-    GeoHashUtils --> GeoPoint : returns
-    GoogleGeocoder --> GeoPoint : returns
-    BingGeocoder --> GeoPoint : returns
-    GeoIp2Support --> CityResponse : returns
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-geo:${bluetape4kVersion}")
 
+    // For Geocode (Google Maps)
+    implementation("com.google.maps:google-maps-services:2.2.0")
+    implementation(Libs.feign_core)
+    implementation(Libs.feign_kotlin)
+    implementation(Libs.feign_jackson)
+
+    // For GeoIP2
+    implementation("com.maxmind.geoip2:geoip2:5.0.2")
+}
 ```

@@ -2,19 +2,110 @@
 
 English | [한국어](./README.ko.md)
 
-## Overview
-
 A library providing a wide range of mathematical capabilities including statistical operations, interpolation, integration, equation solving, and clustering — built on Apache Commons Math3.
 
-## Dependency
+## Architecture
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-math:${version}")
-}
+### Feature Structure
+
+```mermaid
+flowchart TD
+    subgraph Statistics["Statistics"]
+        DS["descriptives()<br/>Descriptive stats (mean/variance/stddev)"]
+        HG["Histogram<br/>(Double/BigDecimal/Comparable)"]
+        MA["Moving Average / Moving Sum"]
+        AG["aggregateBy()<br/>Aggregate by key"]
+    end
+
+    subgraph Interpolation["Interpolation"]
+        LIN["linearInterpolatorOf()"]
+        SPL["splineInterpolatorOf()"]
+        LOE["loessInterpolatorOf()"]
+        AKI["akimaSplineInterpolatorOf()"]
+    end
+
+    subgraph Integration["Integration"]
+        ROM["rombergIntegratorOf()"]
+        SIM["simpsonIntegratorOf()"]
+        TRP["trapezoidIntegratorOf()"]
+        MID["midPointIntegratorOf()"]
+    end
+
+    subgraph Equation["Equation Solving"]
+        BIS["bisectionEquatorOf()"]
+        BRN["brentEquatorOf()"]
+        SEC["secantEquatorOf()"]
+    end
+
+    subgraph Random["Random"]
+        RF["randomFirst()"]
+        RD["randomDistinct(n)"]
+        WC["weightedCoinFlip(p)"]
+        WD["WeightedDice"]
+    end
+
+    subgraph ML["Machine Learning"]
+        KM["K-Means Clustering"]
+        DM["Distance Metrics<br/>(Euclidean/Cosine)"]
+    end
+
+    MATH["bluetape4k-math<br/>(based on Apache Commons Math3)"]
+    MATH --> Statistics
+    MATH --> Interpolation
+    MATH --> Integration
+    MATH --> Equation
+    MATH --> Random
+    MATH --> ML
 ```
 
-## Features
+### Class Diagram
+
+```mermaid
+classDiagram
+    class Descriptives {
+        <<interface>>
+        +mean: Double
+        +variance: Double
+        +standardDeviation: Double
+        +skewness: Double
+        +kurtosis: Double
+        +min: Double
+        +max: Double
+        +percentile(p) Double
+    }
+    class DoubleStatistics {
+        +descriptives() Descriptives
+        +aggregateBy(keySelector, valueTransform, aggregator)
+    }
+    class Histogram {
+        +add(value)
+        +binCount: Int
+        +bins: List~Bin~
+    }
+    class Interpolator {
+        <<interface>>
+        +interpolate(x) Double
+    }
+    class LinearInterpolator {
+        +interpolate(x) Double
+    }
+    class SplineInterpolator {
+        +interpolate(x) Double
+    }
+    class Integrator {
+        <<interface>>
+        +integrate(f, a, b) Double
+    }
+    class WeightedDice {
+        +roll() T
+    }
+
+    Descriptives <|.. DoubleStatistics
+    Interpolator <|.. LinearInterpolator
+    Interpolator <|.. SplineInterpolator
+```
+
+## Key Features
 
 ### Statistics and Descriptive Statistics
 
@@ -235,121 +326,29 @@ combinations(10, 3)  // 120
 permutations(5, 3)   // 60
 ```
 
-## Class Diagram
-
-```mermaid
-classDiagram
-    class Descriptives {
-        <<interface>>
-        +mean: Double
-        +variance: Double
-        +standardDeviation: Double
-        +skewness: Double
-        +kurtosis: Double
-        +min: Double
-        +max: Double
-        +percentile(p) Double
-    }
-    class DoubleStatistics {
-        +descriptives() Descriptives
-        +aggregateBy(keySelector, valueTransform, aggregator)
-    }
-    class Histogram {
-        +add(value)
-        +binCount: Int
-        +bins: List~Bin~
-    }
-    class Interpolator {
-        <<interface>>
-        +interpolate(x) Double
-    }
-    class LinearInterpolator {
-        +interpolate(x) Double
-    }
-    class SplineInterpolator {
-        +interpolate(x) Double
-    }
-    class Integrator {
-        <<interface>>
-        +integrate(f, a, b) Double
-    }
-    class WeightedDice {
-        +roll() T
-    }
-
-    Descriptives <|.. DoubleStatistics
-    Interpolator <|.. LinearInterpolator
-    Interpolator <|.. SplineInterpolator
-
-```
-
-## Feature Structure Diagram
-
-```mermaid
-flowchart TD
-    subgraph Statistics["Statistics"]
-        DS["descriptives()<br/>Descriptive stats (mean/variance/stddev)"]
-        HG["Histogram<br/>(Double/BigDecimal/Comparable)"]
-        MA["Moving Average / Moving Sum"]
-        AG["aggregateBy()<br/>Aggregate by key"]
-    end
-
-    subgraph Interpolation["Interpolation"]
-        LIN["linearInterpolatorOf()"]
-        SPL["splineInterpolatorOf()"]
-        LOE["loessInterpolatorOf()"]
-        AKI["akimaSplineInterpolatorOf()"]
-    end
-
-    subgraph Integration["Integration"]
-        ROM["rombergIntegratorOf()"]
-        SIM["simpsonIntegratorOf()"]
-        TRP["trapezoidIntegratorOf()"]
-        MID["midPointIntegratorOf()"]
-    end
-
-    subgraph Equation["Equation Solving"]
-        BIS["bisectionEquatorOf()"]
-        BRN["brentEquatorOf()"]
-        SEC["secantEquatorOf()"]
-    end
-
-    subgraph Random["Random"]
-        RF["randomFirst()"]
-        RD["randomDistinct(n)"]
-        WC["weightedCoinFlip(p)"]
-        WD["WeightedDice"]
-    end
-
-    subgraph ML["Machine Learning"]
-        KM["K-Means Clustering"]
-        DM["Distance Metrics<br/>(Euclidean/Cosine)"]
-    end
-
-    MATH["bluetape4k-math<br/>(based on Apache Commons Math3)"]
-    MATH --> Statistics
-    MATH --> Interpolation
-    MATH --> Integration
-    MATH --> Equation
-    MATH --> Random
-    MATH --> ML
-```
-
 ## Key Files
 
-| File                        | Description                                              |
-|---------------------------|-------------------------------------------------|
-| `Aggregation.kt`          | Collection aggregation functions                         |
-| `Descriptives.kt`         | Descriptive statistics interface                         |
-| `DoubleStatistics.kt`     | Double statistics                                        |
-| `BigDecimalStatistics.kt` | BigDecimal statistics                                    |
-| `DoubleHistogram.kt`      | Double histogram                                         |
-| `RandomSupport.kt`        | Random sampling                                          |
-| `interpolation/*.kt`      | Interpolation algorithms (Linear, Spline, Loess, Akima)  |
+| File                      | Description                                                    |
+|---------------------------|----------------------------------------------------------------|
+| `Aggregation.kt`          | Collection aggregation functions                               |
+| `Descriptives.kt`         | Descriptive statistics interface                               |
+| `DoubleStatistics.kt`     | Double statistics                                              |
+| `BigDecimalStatistics.kt` | BigDecimal statistics                                          |
+| `DoubleHistogram.kt`      | Double histogram                                               |
+| `RandomSupport.kt`        | Random sampling                                                |
+| `interpolation/*.kt`      | Interpolation algorithms (Linear, Spline, Loess, Akima)        |
 | `integration/*.kt`        | Integration algorithms (Romberg, Simpson, Trapezoid, MidPoint) |
-| `equation/*.kt`           | Equation solvers (Bisection, Brent, Secant, Ridders)     |
-| `special/*.kt`            | Special functions (Gamma, Beta, Factorial)               |
-| `linear/*.kt`             | Linear algebra (Matrix, Vector)                          |
-| `ml/clustering/*.kt`      | Clustering algorithms                                    |
-| `ml/distance/*.kt`        | Distance metrics                                         |
-| `commons/*.kt`            | Apache Commons Math utilities                            |
+| `equation/*.kt`           | Equation solvers (Bisection, Brent, Secant, Ridders)           |
+| `special/*.kt`            | Special functions (Gamma, Beta, Factorial)                     |
+| `linear/*.kt`             | Linear algebra (Matrix, Vector)                                |
+| `ml/clustering/*.kt`      | Clustering algorithms                                          |
+| `ml/distance/*.kt`        | Distance metrics                                               |
+| `commons/*.kt`            | Apache Commons Math utilities                                  |
+
+## Dependency
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-math:${version}")
+}
+```

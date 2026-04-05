@@ -8,7 +8,134 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 `bluetape4k-grpc` provides abstract classes and extension functions that make it easy to implement [gRPC](https://grpc.io/) servers and clients in Kotlin. Protobuf utilities are split into the separate [`bluetape4k-protobuf`](../protobuf/README.md) module.
 
-### Key Features
+## Architecture
+
+### Class Hierarchy
+
+```mermaid
+classDiagram
+    class GrpcServer {
+        <<interface>>
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcServer {
+        #server: Server?
+        +start()
+        +stop()
+        +blockUntilShutdown()
+    }
+
+    class AbstractGrpcClient {
+        #channel: ManagedChannel?
+        +connect()
+        +close()
+    }
+
+    class AbstractGrpcInprocessServer {
+        #serverName: String
+        +start()
+        +stop()
+    }
+
+    class AbstractGrpcInprocessClient {
+        #serverName: String
+        +connect()
+        +close()
+    }
+
+    GrpcServer <|.. AbstractGrpcServer
+    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
+    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
+```
+
+### Component Overview
+
+```mermaid
+flowchart TD
+    subgraph bluetape4k-grpc
+        subgraph Server["Server Side"]
+            GS[GrpcServer interface]
+            AGS[AbstractGrpcServer]
+            AGIS[AbstractGrpcInprocessServer]
+            SI[ServerInterceptorSupport]
+            SS[ServerSupport]
+        end
+
+        subgraph Client["Client Side"]
+            AGC[AbstractGrpcClient]
+            AGIC[AbstractGrpcInprocessClient]
+            MCS[ManagedChannelSupport]
+        end
+    end
+
+    subgraph External["External / gRPC Runtime"]
+        SB[ServerBuilder]
+        MCB[ManagedChannelBuilder]
+        IPSB[InProcessServerBuilder]
+        IPCB[InProcessChannelBuilder]
+    end
+
+    GS <|.. AGS
+    AGS <|-- AGIS
+    AGC <|-- AGIC
+    AGS --> SB
+    AGIS --> IPSB
+    AGC --> MCB
+    AGIC --> IPCB
+```
+
+### gRPC Server-Client Communication Sequence
+
+```mermaid
+sequenceDiagram
+    participant C as GrpcClient
+    participant CH as ManagedChannel
+    participant S as GrpcServer
+    participant SVC as ServiceImpl
+
+    C->>CH: ManagedChannelBuilder.forAddress(host, port)
+    CH->>S: Establish TCP connection
+    S->>SVC: Register service
+
+    C->>CH: stub.doSomething(request)
+    CH->>S: Send HTTP/2 request
+    S->>SVC: Invoke method
+    SVC-->>S: Generate response
+    S-->>CH: HTTP/2 response
+    CH-->>C: Return Response
+
+    C->>CH: channel.shutdown()
+    CH->>S: Close connection
+```
+
+### In-process Test Sequence
+
+```mermaid
+sequenceDiagram
+    participant T as Test code
+    participant IS as InprocessServer
+    participant IC as InprocessClient
+    participant SVC as ServiceImpl
+
+    T->>IS: InProcessServerBuilder.forName("test-server")
+    IS->>SVC: Register and start service
+    T->>IC: InProcessChannelBuilder.forName("test-server")
+    IC->>IS: Connect via in-memory channel
+
+    T->>IC: stub.call(request)
+    IC->>IS: In-memory transport (no network)
+    IS->>SVC: Invoke method
+    SVC-->>IC: Response
+    IC-->>T: Return Response
+
+    T->>IS: server.shutdown()
+    T->>IC: channel.shutdown()
+```
+
+## Key Features
 
 - **gRPC server abstraction**: Start/stop/status management
 - **gRPC client abstraction**: Channel management and calls
@@ -16,16 +143,7 @@ A Kotlin extension library for implementing gRPC servers and clients.
 - **Interceptor support**: Server interceptor helpers
 - **Input validation**: host/target/name must be non-blank; port must be in the `1..65535` range — validated immediately
 
-## Adding the Dependency
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
-    // bluetape4k-protobuf is included transitively
-}
-```
-
-## Basic Usage
+## Usage Examples
 
 ### 1. Implementing a gRPC Server
 
@@ -139,101 +257,18 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 |------|-------------|
 | `ServerInterceptorSupport.kt` | Server interceptor extensions |
 
-## Architecture Diagrams
-
-### Class Hierarchy
-
-```mermaid
-classDiagram
-    class GrpcServer {
-        <<interface>>
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcServer {
-        #server: Server?
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcClient {
-        #channel: ManagedChannel?
-        +connect()
-        +close()
-    }
-
-    class AbstractGrpcInprocessServer {
-        #serverName: String
-        +start()
-        +stop()
-    }
-
-    class AbstractGrpcInprocessClient {
-        #serverName: String
-        +connect()
-        +close()
-    }
-
-    GrpcServer <|.. AbstractGrpcServer
-    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
-    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
-
-```
-
-### gRPC Server-Client Communication Sequence
-
-```mermaid
-sequenceDiagram
-    participant C as GrpcClient
-    participant CH as ManagedChannel
-    participant S as GrpcServer
-    participant SVC as ServiceImpl
-
-    C->>CH: ManagedChannelBuilder.forAddress(host, port)
-    CH->>S: Establish TCP connection
-    S->>SVC: Register service
-
-    C->>CH: stub.doSomething(request)
-    CH->>S: Send HTTP/2 request
-    S->>SVC: Invoke method
-    SVC-->>S: Generate response
-    S-->>CH: HTTP/2 response
-    CH-->>C: Return Response
-
-    C->>CH: channel.shutdown()
-    CH->>S: Close connection
-```
-
-### In-process Test Sequence
-
-```mermaid
-sequenceDiagram
-    participant T as Test code
-    participant IS as InprocessServer
-    participant IC as InprocessClient
-    participant SVC as ServiceImpl
-
-    T->>IS: InProcessServerBuilder.forName("test-server")
-    IS->>SVC: Register and start service
-    T->>IC: InProcessChannelBuilder.forName("test-server")
-    IC->>IS: Connect via in-memory channel
-
-    T->>IC: stub.call(request)
-    IC->>IS: In-memory transport (no network)
-    IS->>SVC: Invoke method
-    SVC-->>IC: Response
-    IC-->>T: Return Response
-
-    T->>IS: server.shutdown()
-    T->>IC: channel.shutdown()
-```
-
 ## Related Modules
 
 - **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf utilities (Timestamp/Duration/Money conversion, ProtobufSerializer)
+
+## Dependencies
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-grpc:${version}")
+    // bluetape4k-protobuf is included transitively
+}
+```
 
 ## Testing
 

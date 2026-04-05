@@ -2,16 +2,107 @@
 
 [English](./README.md) | 한국어
 
-## 개요
-
 Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방정식 해법, 클러스터링 등 다양한 수학 기능을 제공하는 라이브러리입니다.
 
-## 의존성 추가
+## 아키텍처
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-math:${version}")
-}
+### 기능 구조
+
+```mermaid
+flowchart TD
+    subgraph 통계["통계"]
+        DS["descriptives()<br/>기술통계 (평균/분산/표준편차)"]
+        HG["Histogram<br/>(Double/BigDecimal/Comparable)"]
+        MA["이동평균 / 이동합"]
+        AG["aggregateBy()<br/>키 기반 집계"]
+    end
+
+    subgraph 보간["보간"]
+        LIN["linearInterpolatorOf()"]
+        SPL["splineInterpolatorOf()"]
+        LOE["loessInterpolatorOf()"]
+        AKI["akimaSplineInterpolatorOf()"]
+    end
+
+    subgraph 적분["적분"]
+        ROM["rombergIntegratorOf()"]
+        SIM["simpsonIntegratorOf()"]
+        TRP["trapezoidIntegratorOf()"]
+        MID["midPointIntegratorOf()"]
+    end
+
+    subgraph 방정식["방정식 해법"]
+        BIS["bisectionEquatorOf()"]
+        BRN["brentEquatorOf()"]
+        SEC["secantEquatorOf()"]
+    end
+
+    subgraph 랜덤["랜덤"]
+        RF["randomFirst()"]
+        RD["randomDistinct(n)"]
+        WC["weightedCoinFlip(p)"]
+        WD["WeightedDice"]
+    end
+
+    subgraph ML["머신러닝"]
+        KM["K-Means 클러스터링"]
+        DM["거리 측정<br/>(Euclidean/Cosine)"]
+    end
+
+    MATH["bluetape4k-math<br/>(Apache Commons Math3 기반)"]
+    MATH --> 통계
+    MATH --> 보간
+    MATH --> 적분
+    MATH --> 방정식
+    MATH --> 랜덤
+    MATH --> ML
+```
+
+### 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class Descriptives {
+        <<interface>>
+        +mean: Double
+        +variance: Double
+        +standardDeviation: Double
+        +skewness: Double
+        +kurtosis: Double
+        +min: Double
+        +max: Double
+        +percentile(p) Double
+    }
+    class DoubleStatistics {
+        +descriptives() Descriptives
+        +aggregateBy(keySelector, valueTransform, aggregator)
+    }
+    class Histogram {
+        +add(value)
+        +binCount: Int
+        +bins: List~Bin~
+    }
+    class Interpolator {
+        <<interface>>
+        +interpolate(x) Double
+    }
+    class LinearInterpolator {
+        +interpolate(x) Double
+    }
+    class SplineInterpolator {
+        +interpolate(x) Double
+    }
+    class Integrator {
+        <<interface>>
+        +integrate(f, a, b) Double
+    }
+    class WeightedDice {
+        +roll() T
+    }
+
+    Descriptives <|.. DoubleStatistics
+    Interpolator <|.. LinearInterpolator
+    Interpolator <|.. SplineInterpolator
 ```
 
 ## 주요 기능
@@ -235,7 +326,7 @@ combinations(10, 3)  // 120
 permutations(5, 3)   // 60
 ```
 
-## 주요 기능 상세
+## 주요 파일
 
 | 파일                        | 설명                                              |
 |---------------------------|-------------------------------------------------|
@@ -253,3 +344,11 @@ permutations(5, 3)   // 60
 | `ml/clustering/*.kt`      | 클러스터링 알고리즘                                      |
 | `ml/distance/*.kt`        | 거리 측정 방법                                        |
 | `commons/*.kt`            | Apache Commons Math 유틸리티                        |
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-math:${version}")
+}
+```

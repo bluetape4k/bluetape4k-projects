@@ -2,17 +2,114 @@
 
 [English](./README.md) | 한국어
 
-## 개요
-
 [JSON Web Token (JWT)](https://jwt.io/)을 생성하고 파싱하는 라이브러리입니다.
 [jjwt 0.13.x](https://github.com/jwtk/jjwt) 라이브러리를 기반으로 Kotlin 친화적인 API와 KeyChain 관리 기능을 제공합니다.
 
-## 의존성 추가
+## 아키텍처
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-jwt:${version}")
-}
+### JWT 생성 및 검증 흐름
+
+```mermaid
+flowchart TD
+    subgraph 생성["JWT 생성"]
+        APP["애플리케이션"]
+        COMP["JwtComposer<br/>(Builder / DSL)"]
+        KC["KeyChain<br/>(RSA KeyPair + kid)"]
+        JWT_STR["JWT 문자열<br/>(header.payload.signature)"]
+    end
+
+    subgraph 검증["JWT 파싱 및 검증"]
+        PARSE["JwtProvider.parse(jwt)"]
+        REPO["KeyChainRepository<br/>(InMemory / Redis)"]
+        READER["JwtReader<br/>(claims, headers, expiry)"]
+    end
+
+    subgraph 회전["키 회전"]
+        ROT["rotate() / forcedRotate()"]
+        NEWKC["새 KeyChain"]
+        OLDKC["이전 KeyChain (저장소 유지)"]
+    end
+
+    APP --> COMP
+    COMP --> KC
+    KC --> JWT_STR
+
+    JWT_STR --> PARSE
+    PARSE --> REPO
+    REPO -->|"kid로 조회"| KC
+    PARSE --> READER
+
+    ROT --> NEWKC
+    NEWKC --> REPO
+    OLDKC --> REPO
+```
+
+### 클래스 다이어그램
+
+```mermaid
+classDiagram
+    class JwtProvider {
+        +composer() JwtComposer
+        +parse(jwt) JwtReader
+        +rotate()
+        +forcedRotate()
+    }
+    class JwtComposer {
+        +header(name, value) JwtComposer
+        +claim(name, value) JwtComposer
+        +issuer(iss) JwtComposer
+        +subject(sub) JwtComposer
+        +expirationAfterMinutes(min) JwtComposer
+        +setCompressionAlgorithm(alg) JwtComposer
+        +compose() String
+    }
+    class JwtReader {
+        +kid: String
+        +issuer: String
+        +subject: String
+        +expiration: Date
+        +isExpired: Boolean
+        +expiredTtl: Long
+        +claim(name) T
+        +header(name) T
+    }
+    class KeyChain {
+        +id: String
+        +algorithm: SignatureAlgorithm
+        +keyPair: KeyPair
+        +createdAt: Long
+        +expiredTtl: Long
+        +isExpired: Boolean
+    }
+    class KeyChainRepository {
+        <<interface>>
+        +current() KeyChain
+        +findOrNull(kid) KeyChain?
+        +rotate(newKeyChain) Boolean
+        +forcedRotate(newKeyChain) Boolean
+    }
+    class InMemoryKeyChainRepository
+    class RedisKeyChainRepository
+
+    JwtProvider --> JwtComposer : creates
+    JwtProvider --> JwtReader : creates
+    JwtProvider --> KeyChainRepository : uses
+    JwtComposer --> KeyChain : signs with
+    JwtReader --> KeyChain : verifies with
+    KeyChainRepository <|-- InMemoryKeyChainRepository
+    KeyChainRepository <|-- RedisKeyChainRepository
+```
+
+### JWT 토큰 구조
+
+```
+header.            payload.                 signature
+{                  {                        HMACSHA256(
+  "alg": "RS256",    "sub": "user-auth",      base64UrlEncode(header) + "." +
+  "typ": "JWT",      "iss": "bluetape4k",     base64UrlEncode(payload),
+  "kid": "abc123"    "exp": 1234567890,       privateKey
+}                    "iat": 1234567800      )
+                   }
 ```
 
 ## 주요 기능
@@ -255,22 +352,10 @@ val jwtProvider = JwtProviderFactory.default(
 
 ### 지원 압축 알고리즘
 
-| 알고리즘           | 설명                            |
-|----------------|-------------------------------|
-| `JwtCodecs.Deflate` | Deflate 압축 (`Jwts.ZIP.DEF`)   |
-| `JwtCodecs.Gzip`    | GZIP 압축 (`Jwts.ZIP.GZIP`)     |
-
-## JWT 구조
-
-```
-header.            payload.                 signature
-{                  {                        HMACSHA256(
-  "alg": "RS256",    "sub": "user-auth",      base64UrlEncode(header) + "." +
-  "typ": "JWT",      "iss": "bluetape4k",     base64UrlEncode(payload),
-  "kid": "abc123"    "exp": 1234567890,       privateKey
-}                    "iat": 1234567800      )
-                   }
-```
+| 알고리즘                | 설명                          |
+|---------------------|-----------------------------|
+| `JwtCodecs.Deflate` | Deflate 압축 (`Jwts.ZIP.DEF`) |
+| `JwtCodecs.Gzip`    | GZIP 압축 (`Jwts.ZIP.GZIP`)   |
 
 ## KeyChain 구조
 
@@ -294,6 +379,14 @@ class KeyChain(
 3. **HTTPS 필수**: JWT는 네트워크에서 암호화되어야 함
 4. **민감 정보 제외**: JWT에 비밀번호, 신용카드 등 민감 정보 포함 금지
 5. **분산 환경**: Redis/MongoDB로 KeyChain 공유
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-jwt:${version}")
+}
+```
 
 ## 참고 자료
 
