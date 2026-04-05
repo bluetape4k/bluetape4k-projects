@@ -23,6 +23,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Fair Lock
@@ -54,7 +55,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 if (locked) {
                     lockCounter.incrementAndGet()
                 }
-                delay(10)
+                delay(timeMillis = 10)
                 lock.unlockAsync(lockId).await()
             }
         }
@@ -171,7 +172,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 log.debug { "코루틴 $index: FairLock 획득 시도" }
                 val lockFuture = fairLock.tryLockAsync(10, 60, TimeUnit.SECONDS, lockId)
                 // Netty 이벤트 루프가 Redis로 실제 명령을 전송할 시간 부여
-                delay(30L)
+                delay(30L.milliseconds)
                 requestFlushed[index].complete(Unit)
 
                 lockFuture.await().shouldBeTrue()
@@ -180,7 +181,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                     val order = counter.incrementAndGet()
                     executionOrder.add(index)
                     log.debug { "코루틴 $index: FairLock 획득 성공 (순서: $order)" }
-                    delay(100)
+                    delay(100.milliseconds)
                 } finally {
                     log.debug { "코루틴 $index: FairLock 해제" }
                     fairLock.unlockAsync(lockId).await()
