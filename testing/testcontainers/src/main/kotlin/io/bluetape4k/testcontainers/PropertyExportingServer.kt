@@ -98,6 +98,7 @@ interface PropertyExportingServer {
         val prefix = "$SERVER_PREFIX.$propertyNamespace"
         properties().forEach { (key, value) ->
             System.setProperty("$prefix.$key", value)
+            println("$prefix.$key=$value")
         }
     }
 }
