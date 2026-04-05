@@ -38,6 +38,7 @@ interface StructuredSubtask<T> {
  *
  * ## 동작/계약
  * - [fork]로 추가한 작업들을 [join] 이후 [throwIfFailed]로 일괄 실패 검사할 수 있습니다.
+ * - 타임아웃이 필요하면 [joinUntil]을 사용하세요. 데드라인 초과 시 `TimeoutException`이 발생합니다.
  * - [close]는 리소스 정리 및 미완료 작업 취소를 수행할 수 있으므로 `use` 블록 사용을 권장합니다.
  *
  * ```kotlin
@@ -55,6 +56,12 @@ interface StructuredTaskScopeAll: AutoCloseable {
     fun <T> fork(task: () -> T): StructuredSubtask<T>
     /** 등록된 subtask 완료를 대기합니다. */
     fun join(): StructuredTaskScopeAll
+    /**
+     * 지정한 데드라인까지 subtask 완료를 대기합니다.
+     * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
+     * 기본 구현은 타임아웃 없이 [join]을 호출합니다.
+     */
+    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll = join()
     /** 실패한 subtask가 있으면 [handler]를 호출한 뒤 예외를 전파합니다. */
     fun throwIfFailed(handler: (e: Throwable) -> Unit = {}): StructuredTaskScopeAll
     /** scope 자원을 정리합니다. */

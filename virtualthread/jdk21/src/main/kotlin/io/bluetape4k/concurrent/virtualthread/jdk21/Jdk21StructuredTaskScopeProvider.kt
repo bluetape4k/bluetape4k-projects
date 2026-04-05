@@ -138,6 +138,11 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
+        override fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll {
+            delegate.joinUntil(deadline)
+            return this
+        }
+
         override fun throwIfFailed(handler: (e: Throwable) -> Unit): StructuredTaskScopeAll {
             delegate.throwIfFailed {
                 handler(it)

@@ -185,6 +185,7 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `money` | Money/currency types |
 | `mutiny` | Mutiny reactive extensions |
 | `states` | Kotlin DSL FSM — 동기(AtomicReference CAS) + 코루틴(Mutex+StateFlow), Guard 조건, clinic-appointment 패턴 |
+| `workflow` | Kotlin DSL Workflow — Sequential/Parallel/Conditional/Repeat/Retry 플로우, 동기(Virtual Threads) + 코루틴(suspend/Flow), ABORTED(break)/CANCELLED/PartialSuccess 지원 |
 
 ### Testing (`testing/`)
 
