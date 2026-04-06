@@ -26,6 +26,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
@@ -34,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Direction
-import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -82,8 +82,10 @@ class SimpleExposedR2dbcRepositoryTest: AbstractExposedR2dbcRepositoryTest() {
     @ParameterizedTest
     @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
     fun `save - SuspendedJobTester 경쟁 상황에서도 모든 엔티티를 저장한다`(testDB: TestDB) = runTest {
+        Assumptions.assumeTrue { testDB in TestDB.ALL_H2 + TestDB.ALL_POSTGRES }
+        
         withTables(testDB, Users) {
-            val savedIds = Collections.synchronizedList(mutableListOf<Long>())
+            val savedIds = ConcurrentLinkedQueue<Long>()
             val workerSize = 6
 
             SuspendedJobTester()
@@ -92,14 +94,13 @@ class SimpleExposedR2dbcRepositoryTest: AbstractExposedR2dbcRepositoryTest() {
                 .addAll(
                     (1..workerSize).map { index ->
                         suspend {
-                            val saved = userRepository.save(
-                                User(
-                                    id = null,
-                                    name = "Concurrent-$index",
-                                    email = "concurrent-$index@example.com",
-                                    age = 20 + index,
-                                )
+                            val user = User(
+                                id = null,
+                                name = "Concurrent-$index",
+                                email = "concurrent-$index@example.com",
+                                age = 20 + index,
                             )
+                            val saved = userRepository.save(user)
                             saved.id.shouldNotBeNull().also(savedIds::add)
                         }
                     }

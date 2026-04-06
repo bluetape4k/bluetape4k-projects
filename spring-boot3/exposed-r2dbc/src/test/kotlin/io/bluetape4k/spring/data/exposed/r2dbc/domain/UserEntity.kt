@@ -19,5 +19,5 @@ data class User(
         const val serialVersionID = 1L
     }
 
-    fun withId(newId: Long): User = copy(id = newId)
+    fun withId(newId: Long?): User = copy(id = newId)
 }
