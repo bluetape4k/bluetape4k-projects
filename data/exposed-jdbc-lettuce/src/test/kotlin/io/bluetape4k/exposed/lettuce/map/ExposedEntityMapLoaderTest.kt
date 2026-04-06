@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.lettuce.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -13,20 +12,21 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import kotlin.test.assertFailsWith
 
 /**
  * [ExposedEntityMapLoader] 단위 테스트.
  */
-class ExposedEntityMapLoaderTest : AbstractExposedTest() {
-    companion object : KLogging()
+class ExposedEntityMapLoaderTest: AbstractExposedTest() {
+    companion object: KLogging()
 
     private data class LoaderEntity(
-        override val id: Long,
+        val id: Long,
         val name: String,
-    ) : HasIdentifier<Long>
+    ): Serializable
 
-    private object LoaderTable : LongIdTable("lettuce_loader_test") {
+    private object LoaderTable: LongIdTable("lettuce_loader_test") {
         val name = varchar("name", 64)
     }
 

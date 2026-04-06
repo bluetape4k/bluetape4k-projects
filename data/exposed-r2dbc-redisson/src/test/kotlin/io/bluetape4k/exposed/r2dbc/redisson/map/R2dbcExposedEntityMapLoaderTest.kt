@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
@@ -10,15 +9,16 @@ import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.r2dbc.insert
+import java.io.Serializable
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class R2dbcExposedEntityMapLoaderTest: AbstractExposedR2dbcTest() {
 
     private data class LoaderEntity(
-        override val id: Long,
+        val id: Long,
         val name: String,
-    ): HasIdentifier<Long>
+    ): Serializable
 
     private object LoaderTable: LongIdTable("r2dbc_redisson_loader_test") {
         val name = varchar("name", 64)

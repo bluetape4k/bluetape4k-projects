@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.codecs
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserTable
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.toUserRecord
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
@@ -106,10 +105,9 @@ class ExposedEntityRedissonCodecTest: AbstractExposedR2dbcTest() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <ID: Any, T: HasIdentifier<ID>> Codec.verifyCodec(origin: T) {
+    private fun <T: Any> Codec.verifyCodec(origin: T) {
         val buf = valueEncoder.encode(origin)
         val actual = valueDecoder.decode(buf, State()) as? T
-        actual!!.id shouldBeEqualTo origin.id
-        // actual shouldBeEqualTo origin
+        actual shouldBeEqualTo origin
     }
 }

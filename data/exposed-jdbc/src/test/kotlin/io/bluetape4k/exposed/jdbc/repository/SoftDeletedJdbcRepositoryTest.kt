@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.jdbc.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
@@ -19,6 +18,7 @@ import org.jetbrains.exposed.v1.dao.LongEntityClass
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 
 class SoftDeletedJdbcRepositoryTest: AbstractExposedTest() {
 
@@ -47,8 +47,8 @@ class SoftDeletedJdbcRepositoryTest: AbstractExposedTest() {
     data class ContactRecord(
         val name: String,
         val isDeleted: Boolean,
-        override val id: Long = 0L,
-    ): HasIdentifier<Long> {
+        val id: Long = 0L,
+    ): Serializable {
         fun withId(id: Long) = copy(id = id)
     }
 

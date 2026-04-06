@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.lettuce.map
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -15,20 +14,21 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import kotlin.test.assertFailsWith
 
 /**
  * [ExposedEntityMapWriter] 단위 테스트.
  */
-class ExposedEntityMapWriterTest : AbstractExposedTest() {
-    companion object : KLogging()
+class ExposedEntityMapWriterTest: AbstractExposedTest() {
+    companion object: KLogging()
 
     private data class WriterEntity(
-        override val id: Long,
+        val id: Long,
         val name: String,
-    ) : HasIdentifier<Long>
+    ): Serializable
 
-    private object WriterTable : LongIdTable("lettuce_writer_test") {
+    private object WriterTable: LongIdTable("lettuce_writer_test") {
         val name = varchar("name", 64)
     }
 

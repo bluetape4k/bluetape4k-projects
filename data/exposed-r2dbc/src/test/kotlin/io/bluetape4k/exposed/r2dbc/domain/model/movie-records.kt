@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.domain.model
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import java.io.Serializable
 
 
@@ -8,11 +7,11 @@ import java.io.Serializable
  * 영화 정보를 나타내는 DTO
  */
 data class MovieRecord(
-    override val id: Long,
+    val id: Long,
     val name: String,
     val producerName: String,
     val releaseDate: String,
-): HasIdentifier<Long> {
+): Serializable {
     fun withId(id: Long) = copy(id = id)
 }
 
@@ -20,11 +19,11 @@ data class MovieRecord(
  * 영화 배우 정보를 담는 DTO
  */
 data class ActorRecord(
-    override val id: Long,
+    val id: Long,
     val firstName: String,
     val lastName: String,
     val birthday: String? = null,
-): HasIdentifier<Long> {
+): Serializable {
     fun withId(id: Long) = copy(id = id)
 }
 

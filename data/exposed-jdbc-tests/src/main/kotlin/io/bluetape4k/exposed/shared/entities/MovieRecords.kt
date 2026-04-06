@@ -13,8 +13,8 @@ data class MovieRecord(
     val name: String,
     val producerName: String,
     val releaseDate: String,
-    override val id: Long = 0L,
-): HasIdentifier<Long> {
+    val id: Long = 0L,
+): Serializable {
     fun withId(id: Long) = copy(id = id)
 }
 
@@ -25,8 +25,8 @@ data class ActorRecord(
     val firstName: String,
     val lastName: String,
     val birthday: String? = null,
-    override val id: Long = 0L,
-): HasIdentifier<Long> {
+    val id: Long = 0L,
+): Serializable {
     fun withId(id: Long) = copy(id = id)
 }
 
@@ -55,8 +55,8 @@ data class MovieWithActorRecord(
     val producerName: String,
     val releaseDate: String,
     val actors: List<ActorRecord> = emptyList<ActorRecord>(),
-    override val id: Long = 0L,
-): HasIdentifier<Long>
+    val id: Long = 0L,
+): Serializable
 
 /**
  * 영화 제목과 영화를 제작한 배우의 이름을 나타내는 DTO

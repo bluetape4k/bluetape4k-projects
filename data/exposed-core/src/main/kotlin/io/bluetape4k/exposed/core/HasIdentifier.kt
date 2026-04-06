@@ -14,6 +14,7 @@ package io.bluetape4k.exposed.core
  * // User(null).id == null  // 미저장 상태
  * ```
  */
+@Deprecated("Implement Serializable instead", replaceWith = ReplaceWith("Serializable"))
 interface HasIdentifier<ID: Any>: java.io.Serializable {
     /** 엔티티의 고유 식별자입니다. `null`이면 아직 저장되지 않은 상태입니다. */
     val id: ID?

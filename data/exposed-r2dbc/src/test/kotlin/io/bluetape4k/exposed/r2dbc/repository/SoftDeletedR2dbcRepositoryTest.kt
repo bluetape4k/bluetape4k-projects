@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
@@ -17,6 +16,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 
 class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
@@ -33,8 +33,8 @@ class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     data class ContactRecord(
         val name: String,
         val isDeleted: Boolean,
-        override val id: Long = 0L,
-    ): HasIdentifier<Long>
+        val id: Long = 0L,
+    ): Serializable
 
     fun ResultRow.toContactRecord(): ContactRecord = ContactRecord(
         id = this[ContactTable.id].value,

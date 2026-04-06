@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.domain
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
@@ -20,18 +19,19 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
+import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-object UserSchema : KLoggingChannel() {
+object UserSchema: KLoggingChannel() {
     private val faker = Fakers.faker
 
     /**
      * Auto Incremented ID 를 가진 [LongIdTable]을 구현한 `IdTable<Long>` 테이블입니다.
      */
-    object UserTable : LongIdTable("users") {
+    object UserTable: LongIdTable("users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -41,13 +41,13 @@ object UserSchema : KLoggingChannel() {
     }
 
     data class UserRecord(
-        override val id: Long = 0L,
+        val id: Long = 0L,
         val firstName: String,
         val lastName: String,
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ) : HasIdentifier<Long> {
+    ): Serializable {
         fun withId(id: Long) = copy(id = id)
     }
 
@@ -124,7 +124,7 @@ object UserSchema : KLoggingChannel() {
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDTable]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialsTable : TimebasedUUIDTable("user_credentials") {
+    object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -134,13 +134,13 @@ object UserSchema : KLoggingChannel() {
     }
 
     data class UserCredentialsRecord(
-        override val id: UUID,
+        val id: UUID,
         val loginId: String,
         val email: String,
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ) : HasIdentifier<UUID> {
+    ): Serializable {
         fun withId(id: UUID) = copy(id = id)
     }
 
