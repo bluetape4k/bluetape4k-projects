@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 
-@PublishedApi
 internal val logger by lazy { KotlinLogging.logger(LibraryName) }
 
 /**
@@ -31,9 +30,9 @@ internal val logger by lazy { KotlinLogging.logger(LibraryName) }
  * @param tag 로그 메시지에 포함할 태그입니다.
  * @param log 출력에 사용할 SLF4J Logger입니다.
  */
-@Suppress("IMPLICIT_CAST_TO_ANY")
+@Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
 fun <F: Flow<T>, T> F.log(tag: Any, log: org.slf4j.Logger = logger): F {
-    this
+    return this
         .onStart {
             log.debug { "[$tag] \uD83D\uDE80" }
         }
@@ -56,7 +55,5 @@ fun <F: Flow<T>, T> F.log(tag: Any, log: org.slf4j.Logger = logger): F {
                     else -> log.debug(it) { "[$tag] 🔥" }
                 }
             }
-        }
-
-    return this
+        } as F
 }

@@ -217,6 +217,7 @@ suspend fun <E> ReceiveChannel<E>.debounce(
 ): ReceiveChannel<E> = coroutineScope {
     val self = this@debounce
     require(!waitDuration.isNegative()) { "waitDuration must be zero or positive value." }
+
     produce(context, Channel.BUFFERED) {
         val producer = this@produce
         val waitMillis = waitDuration.inWholeMilliseconds
@@ -225,7 +226,7 @@ suspend fun <E> ReceiveChannel<E>.debounce(
             val currentTime = System.currentTimeMillis()
             if (currentTime < nextTime) {
                 // 지연시키기
-                delay(minOf(nextTime - currentTime, waitMillis))
+                delay(timeMillis = minOf(nextTime - currentTime, waitMillis))
                 var mostRecent = received
                 // channel에 요소가 있다면 가장 최신의 요소를 얻기 위해 계속 수신합니다. (중간 요소들은 모두 무시됩니다)
                 while (true) {

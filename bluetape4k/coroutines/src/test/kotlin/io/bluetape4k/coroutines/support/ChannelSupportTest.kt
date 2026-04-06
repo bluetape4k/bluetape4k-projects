@@ -1,10 +1,10 @@
 package io.bluetape4k.coroutines.support
 
-import io.bluetape4k.coroutines.channels.toFastList
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -33,12 +33,12 @@ class ChannelSupportTest {
         yield()
 
         val distinct = channel.distinctUntilChanged()
-        distinct.toFastList() shouldBeEqualTo listOf(1, 2, 3, 1)
+        distinct.toList() shouldBeEqualTo listOf(1, 2, 3, 1)
     }
 
     @Test
     fun `distinct until changed keeps first null value`() = runTest {
-        val channel = produce<String?> {
+        val channel = produce {
             send(null)
             send(null)
             send("a")
@@ -47,7 +47,7 @@ class ChannelSupportTest {
         }
 
         val distinct = channel.distinctUntilChanged()
-        distinct.toFastList() shouldBeEqualTo listOf<String?>(null, "a", null)
+        distinct.toList() shouldBeEqualTo listOf(null, "a", null)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -66,14 +66,14 @@ class ChannelSupportTest {
             a.toInt() == b.toInt()
         }
 
-        distinct.toFastList() shouldBeEqualTo listOf(1.1, 2.1, 3.1, 1.2)
+        distinct.toList() shouldBeEqualTo listOf(1.1, 2.1, 3.1, 1.2)
     }
 
     @Test
     fun `distinct until changed by equal operator with empty channel`() = runTest {
         val channel = produce<Int> { }
         val distinct = channel.distinctUntilChanged { a, b -> a == b }
-        distinct.toFastList() shouldBeEqualTo emptyList()
+        distinct.toList() shouldBeEqualTo emptyList()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -113,29 +113,29 @@ class ChannelSupportTest {
             send(6)
         }
 
-        concat(channel1, channel2).toFastList() shouldBeEqualTo listOf(1, 2, 3, 4, 5, 6)
+        concat(channel1, channel2).toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5, 6)
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `debounce channel elements`() = runSuspendTest(Dispatchers.Default) {
+    fun `debounce channel elements`() = runSuspendDefault {
         val channel = produce {
             send(1)
-            delay(50)
+            delay(50.milliseconds)
             send(2)
-            delay(10)
+            delay(10.milliseconds)
             send(3)
-            delay(150)
+            delay(150.milliseconds)
             send(4)
-            delay(10)
+            delay(10.milliseconds)
             send(5)
         }
 
-        val debounced = channel.debounce(100.milliseconds).toFastList()
+        val debounced = channel.debounce(100.milliseconds).toList()
         debounced shouldBeEqualTo listOf(1, 3, 4, 5)
     }
 
     @Test
-    fun `debounce는 음수 지연시간을 허용하지 않는다`() = runTest {
+    fun `debounce는 음수 지연시간을 허용하지 않는다`() = runSuspendDefault {
         val channel = produce {
             send(1)
         }

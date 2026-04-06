@@ -30,7 +30,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
@@ -50,7 +50,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeLessOrEqualTo windowedSize
                     windowedCounter.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCounter.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
@@ -70,7 +70,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeEqualTo windowedSize
                     windowedCounter.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCounter.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4
@@ -94,12 +94,12 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
-            windowed.first().toFastList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last().toFastList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
+            windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+            windowed.last().toList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
         }
 
         @Test
@@ -115,12 +115,12 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCount.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
-            windowed.first().toFastList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last().toFastList() shouldBeEqualTo listOf(20)
+            windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+            windowed.last().toList() shouldBeEqualTo listOf(20)
         }
 
         @Test
@@ -136,12 +136,12 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toFastList()
+                .toList()
 
             windowedCount.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4
-            windowed.first().toFastList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last().toFastList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
+            windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+            windowed.last().toList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
         }
     }
 }

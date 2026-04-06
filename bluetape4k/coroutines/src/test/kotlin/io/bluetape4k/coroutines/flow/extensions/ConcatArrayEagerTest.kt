@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class ConcatArrayEagerTest: AbstractFlowTest() {
 
@@ -23,7 +24,7 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
 
         val flow1 = flowRangeOf(1, 5).log("#1")
             .onStart {
-                delay(200)
+                delay(200.milliseconds)
                 state1.set(1)
             }
 
@@ -46,7 +47,7 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
     @Test
     fun `concat with take`() = runTest {
         concatArrayEager(
-            flowRangeOf(1, 5).onStart { delay(100) }.log("#1"),
+            flowRangeOf(1, 5).onStart { delay(100.milliseconds) }.log("#1"),
             flowRangeOf(6, 5).log("#2"),
         )
             .take(6)
@@ -60,7 +61,7 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
         concatArrayEager(
             flowRangeOf(1, 5).log("#1")
                 .onEach {
-                    delay(200)
+                    delay(200.milliseconds)
                     counter.incrementAndGet()
                 }
         )
@@ -73,7 +74,7 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
     @Test
     fun `concat list of flows`() = runTest {
         listOf(
-            flowRangeOf(1, 5).onStart { delay(100) }.log("#1"),
+            flowRangeOf(1, 5).onStart { delay(100.milliseconds) }.log("#1"),
             flowRangeOf(6, 5).log("#2"),
         )
             .concatFlows()
@@ -84,7 +85,7 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
     @Test
     fun `concat flow of flows`() = runTest {
         flowOf(
-            flowRangeOf(1, 5).onStart { delay(100) }.log("#1"),
+            flowRangeOf(1, 5).onStart { delay(100.milliseconds) }.log("#1"),
             flowRangeOf(6, 5).log("#2"),
         )
             .concatFlows()

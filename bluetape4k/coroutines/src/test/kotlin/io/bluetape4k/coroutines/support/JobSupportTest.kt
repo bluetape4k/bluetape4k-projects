@@ -11,6 +11,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class JobSupportTest {
 
@@ -33,9 +34,9 @@ class JobSupportTest {
 
     @Test
     fun `jobs joinAny`() = runTest {
-        val job1 = launch { delay(1000); log.debug { "Job 1" } }
-        val job2 = launch { delay(2000); log.debug { "Job 2" } }
-        val job3 = launch { delay(3000); log.debug { "Job 3" } }
+        val job1 = launch { delay(1000.milliseconds); log.debug { "Job 1" } }
+        val job2 = launch { delay(2000.milliseconds); log.debug { "Job 2" } }
+        val job3 = launch { delay(3000.milliseconds); log.debug { "Job 3" } }
 
         // 처음 완료된 값이 나오면 끝낸다.
         joinAny(job1, job2, job3)
@@ -47,9 +48,9 @@ class JobSupportTest {
 
     @Test
     fun `collection of job joinAny`() = runTest {
-        val job1 = launch { delay(1000); log.debug { "Job 1" } }
-        val job2 = launch { delay(2000); log.debug { "Job 2" } }
-        val job3 = launch { delay(3000); log.debug { "Job 3" } }
+        val job1 = launch { delay(1000.milliseconds); log.debug { "Job 1" } }
+        val job2 = launch { delay(2000.milliseconds); log.debug { "Job 2" } }
+        val job3 = launch { delay(3000.milliseconds); log.debug { "Job 3" } }
 
         val jobs = listOf(job1, job2, job3)
 
@@ -63,9 +64,9 @@ class JobSupportTest {
 
     @Test
     fun `collection of job joinAny and cancel others`() = runTest {
-        val job1 = launch { delay(1000); log.debug { "Job 1" } }
-        val job2 = launch { delay(2000); log.debug { "Job 2" } }
-        val job3 = launch { delay(3000); log.debug { "Job 3" } }
+        val job1 = launch { delay(1000.milliseconds); log.debug { "Job 1" } }
+        val job2 = launch { delay(2000.milliseconds); log.debug { "Job 2" } }
+        val job3 = launch { delay(3000.milliseconds); log.debug { "Job 3" } }
 
         val jobs = listOf(job1, job2, job3)
 
