@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.exposed.webflux.controller
 
-import io.bluetape4k.examples.exposed.webflux.domain.ProductDto
+import io.bluetape4k.examples.exposed.webflux.domain.ProductRecord
 import io.bluetape4k.examples.exposed.webflux.repository.ProductR2dbcRepository
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.springframework.http.HttpStatus
@@ -25,21 +25,21 @@ class ProductController(
 ) {
 
     @GetMapping
-    suspend fun findAll(): List<ProductDto> =
+    suspend fun findAll(): List<ProductRecord> =
         productRepository.findAllAsList()
 
     @GetMapping("/{id}")
-    suspend fun findById(@PathVariable id: Long): ProductDto =
+    suspend fun findById(@PathVariable id: Long): ProductRecord =
         productRepository.findByIdOrNull(id)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: $id")
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun create(@RequestBody dto: ProductDto): ProductDto =
+    suspend fun create(@RequestBody dto: ProductRecord): ProductRecord =
         productRepository.save(dto.copy(id = null))
 
     @PutMapping("/{id}")
-    suspend fun update(@PathVariable id: Long, @RequestBody dto: ProductDto): ProductDto =
+    suspend fun update(@PathVariable id: Long, @RequestBody dto: ProductRecord): ProductRecord =
         suspendTransaction {
             val existing = productRepository.findByIdOrNull(id)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: $id")

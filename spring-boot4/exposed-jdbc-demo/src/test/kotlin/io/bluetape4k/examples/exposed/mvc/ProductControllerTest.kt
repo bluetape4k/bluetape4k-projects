@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.exposed.mvc
 
-import io.bluetape4k.examples.exposed.mvc.domain.ProductDto
+import io.bluetape4k.examples.exposed.mvc.domain.ProductRecord
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -40,20 +40,20 @@ class ProductControllerTest {
         val response = client.get()
             .uri("/products")
             .retrieve()
-            .toEntity<List<ProductDto>>()
+            .toEntity<List<ProductRecord>>()
         response.statusCode shouldBeEqualTo HttpStatus.OK
         response.body.shouldNotBeNull()
     }
 
     @Test
     fun `POST product creates new entity`() {
-        val dto = ProductDto(name = "Test Product", price = BigDecimal("19.99"), stock = 10)
+        val dto = ProductRecord(name = "Test Product", price = BigDecimal("19.99"), stock = 10)
         val response = client.post()
             .uri("/products")
             .contentType(MediaType.APPLICATION_JSON)
             .body(dto)
             .retrieve()
-            .toEntity<ProductDto>()
+            .toEntity<ProductRecord>()
         response.statusCode shouldBeEqualTo HttpStatus.CREATED
         response.body?.id.shouldNotBeNull()
         response.body?.name shouldBeEqualTo "Test Product"
@@ -61,25 +61,25 @@ class ProductControllerTest {
 
     @Test
     fun `GET product by id returns entity`() {
-        val dto = ProductDto(name = "Find Me", price = BigDecimal("9.99"), stock = 5)
+        val dto = ProductRecord(name = "Find Me", price = BigDecimal("9.99"), stock = 5)
         val created = client.post().uri("/products")
             .contentType(MediaType.APPLICATION_JSON).body(dto)
-            .retrieve().toEntity<ProductDto>().body!!
+            .retrieve().toEntity<ProductRecord>().body!!
 
         val response = client.get()
             .uri("/products/${created.id}")
             .retrieve()
-            .toEntity<ProductDto>()
+            .toEntity<ProductRecord>()
         response.statusCode shouldBeEqualTo HttpStatus.OK
         response.body?.name shouldBeEqualTo "Find Me"
     }
 
     @Test
     fun `PUT product updates entity`() {
-        val dto = ProductDto(name = "Original", price = BigDecimal("5.00"), stock = 1)
+        val dto = ProductRecord(name = "Original", price = BigDecimal("5.00"), stock = 1)
         val created = client.post().uri("/products")
             .contentType(MediaType.APPLICATION_JSON).body(dto)
-            .retrieve().toEntity<ProductDto>().body!!
+            .retrieve().toEntity<ProductRecord>().body!!
 
         val updated = dto.copy(name = "Updated", price = BigDecimal("10.00"))
         val response = client.put()
@@ -87,17 +87,17 @@ class ProductControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .body(updated)
             .retrieve()
-            .toEntity<ProductDto>()
+            .toEntity<ProductRecord>()
         response.statusCode shouldBeEqualTo HttpStatus.OK
         response.body?.name shouldBeEqualTo "Updated"
     }
 
     @Test
     fun `DELETE product removes entity`() {
-        val dto = ProductDto(name = "To Delete", price = BigDecimal("1.00"), stock = 1)
+        val dto = ProductRecord(name = "To Delete", price = BigDecimal("1.00"), stock = 1)
         val created = client.post().uri("/products")
             .contentType(MediaType.APPLICATION_JSON).body(dto)
-            .retrieve().toEntity<ProductDto>().body!!
+            .retrieve().toEntity<ProductRecord>().body!!
 
         val deleteResponse = client.delete()
             .uri("/products/${created.id}")
@@ -112,7 +112,7 @@ class ProductControllerTest {
             client.get()
                 .uri("/products/999999")
                 .retrieve()
-                .toEntity<ProductDto>()
+                .toEntity<ProductRecord>()
         }.exceptionOrNull() as? HttpClientErrorException
 
         response.shouldNotBeNull()
@@ -121,7 +121,7 @@ class ProductControllerTest {
 
     @Test
     fun `GET products search by name returns filtered list`() {
-        val dto = ProductDto(name = "SearchableProduct", price = BigDecimal("15.00"), stock = 3)
+        val dto = ProductRecord(name = "SearchableProduct", price = BigDecimal("15.00"), stock = 3)
         client.post().uri("/products")
             .contentType(MediaType.APPLICATION_JSON).body(dto)
             .retrieve().toBodilessEntity()
@@ -129,7 +129,7 @@ class ProductControllerTest {
         val response = client.get()
             .uri("/products/search?name=SearchableProduct")
             .retrieve()
-            .toEntity<List<ProductDto>>()
+            .toEntity<List<ProductRecord>>()
         response.statusCode shouldBeEqualTo HttpStatus.OK
         response.body!!.any { it.name == "SearchableProduct" }.shouldBeTrue()
     }

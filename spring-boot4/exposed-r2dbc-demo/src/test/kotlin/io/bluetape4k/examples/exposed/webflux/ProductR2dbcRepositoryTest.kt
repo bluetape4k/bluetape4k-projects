@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.exposed.webflux
 
-import io.bluetape4k.examples.exposed.webflux.domain.ProductDto
+import io.bluetape4k.examples.exposed.webflux.domain.ProductRecord
 import io.bluetape4k.examples.exposed.webflux.domain.Products
 import io.bluetape4k.examples.exposed.webflux.repository.ProductR2dbcRepository
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -44,9 +44,9 @@ class ProductR2dbcRepositoryTest {
         suspendTransaction(r2dbcDatabase) { Products.deleteAll() }
     }
 
-    private suspend fun createProduct(name: String, price: String, stock: Int): ProductDto =
+    private suspend fun createProduct(name: String, price: String, stock: Int): ProductRecord =
         productRepository.save(
-            ProductDto(id = null, name = name, price = BigDecimal(price), stock = stock)
+            ProductRecord(id = null, name = name, price = BigDecimal(price), stock = stock)
         )
 
     @Test
@@ -152,8 +152,8 @@ class ProductR2dbcRepositoryTest {
     @Test
     fun `saveAll with Iterable saves all entities`() = runTest {
         val dtos = listOf(
-            ProductDto(id = null, name = "Book A", price = BigDecimal("10.00"), stock = 10),
-            ProductDto(id = null, name = "Book B", price = BigDecimal("20.00"), stock = 20),
+            ProductRecord(id = null, name = "Book A", price = BigDecimal("10.00"), stock = 10),
+            ProductRecord(id = null, name = "Book B", price = BigDecimal("20.00"), stock = 20),
         )
         val saved = productRepository.saveAll(dtos).toList()
         saved shouldHaveSize 2
@@ -164,8 +164,8 @@ class ProductR2dbcRepositoryTest {
     @Test
     fun `saveAll with Flow saves all entities`() = runTest {
         val dtoFlow = listOf(
-            ProductDto(id = null, name = "Book A", price = BigDecimal("10.00"), stock = 10),
-            ProductDto(id = null, name = "Book B", price = BigDecimal("20.00"), stock = 20),
+            ProductRecord(id = null, name = "Book A", price = BigDecimal("10.00"), stock = 10),
+            ProductRecord(id = null, name = "Book B", price = BigDecimal("20.00"), stock = 20),
         ).asFlow()
         val saved = productRepository.saveAll(dtoFlow).toList()
         saved shouldHaveSize 2
@@ -206,7 +206,7 @@ class ProductR2dbcRepositoryTest {
 
     @Test
     fun `extractId returns null for new entity`() = runTest {
-        val newProduct = ProductDto(id = null, name = "New", price = BigDecimal("9.99"), stock = 1)
+        val newProduct = ProductRecord(id = null, name = "New", price = BigDecimal("9.99"), stock = 1)
         productRepository.extractId(newProduct).shouldBeNull()
     }
 
