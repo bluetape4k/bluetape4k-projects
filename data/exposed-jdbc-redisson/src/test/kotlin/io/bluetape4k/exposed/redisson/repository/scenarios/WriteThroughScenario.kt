@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
-    companion object : KLogging()
+    companion object: KLogging()
 
     fun createNewEntity(): E
 
@@ -82,7 +82,7 @@ interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
                     entity,
                     updatedEntities.find {
                         repository.extractId(it) ==
-                            repository.extractId(entity)
+                                repository.extractId(entity)
                     }!!
                 )
             }

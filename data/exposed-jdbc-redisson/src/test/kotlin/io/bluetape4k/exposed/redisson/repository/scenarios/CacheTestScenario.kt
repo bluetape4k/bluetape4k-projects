@@ -8,12 +8,8 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 
 interface CacheTestScenario<ID: Any, E: Any> {
-    companion object: KLogging() {
-        @JvmStatic
-        fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()
 
-        const val ENABLE_DIALECTS_METHOD = "enableDialects"
-    }
+    companion object: KLogging()
 
     /**
      * 테스트에 사용할 캐시 설정
@@ -38,6 +34,9 @@ interface CacheTestScenario<ID: Any, E: Any> {
      */
     fun getExistingId(): ID
 
+    /**
+     * DB에 존재하는 복수 샘플 ID를 반환한다
+     */
     fun getExistingIds(): List<ID>
 
     /**
@@ -45,9 +44,11 @@ interface CacheTestScenario<ID: Any, E: Any> {
      */
     fun getNonExistentId(): ID
 
+    /**
+     * 테스트마다 기존 캐시를 비웁니다.
+     */
     @BeforeEach
-    fun setup() {
-        // 테스트마다 기존 캐시를 비웁니다.
+    fun beforeEach() {
         repository.invalidateAll()
     }
 }

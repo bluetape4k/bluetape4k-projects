@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
 interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 
@@ -108,10 +108,10 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
                 val entities = repository.findAll()
                 entities.shouldNotBeEmpty()
                 entities.size shouldBeEqualTo
-                    repository.table
-                        .selectAll()
-                        .count()
-                        .toInt()
+                        repository.table
+                            .selectAll()
+                            .count()
+                            .toInt()
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 delay(DEFAULT_DELAY)
@@ -168,7 +168,7 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
 
                 val invalidated =
                     repository.invalidateByPattern("*1*") +
-                        ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
+                            ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
                 invalidated shouldBeGreaterThan 0
             }

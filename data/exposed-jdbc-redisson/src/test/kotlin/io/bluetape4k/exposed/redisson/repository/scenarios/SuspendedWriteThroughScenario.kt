@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 500L
     }
 
@@ -105,7 +105,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
                         entity,
                         updatedEntities.find {
                             repository.extractId(it) ==
-                                repository.extractId(entity)
+                                    repository.extractId(entity)
                         }!!
                     )
                 }
@@ -144,7 +144,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(timeMillis = DEFAULT_DELAY)
                 }
 
                 val newCount = repository.table.selectAll().count()

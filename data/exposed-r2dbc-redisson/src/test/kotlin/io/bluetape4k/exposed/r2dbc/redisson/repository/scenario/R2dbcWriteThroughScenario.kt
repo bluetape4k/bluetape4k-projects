@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 
@@ -105,7 +105,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
                         entity,
                         updatedEntities.find {
                             repository.extractId(it) ==
-                                repository.extractId(entity)
+                                    repository.extractId(entity)
                         }!!
                     )
                 }
@@ -124,7 +124,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
                         entity,
                         entitiesFromCache.find {
                             repository.extractId(it) ==
-                                repository.extractId(entity)
+                                    repository.extractId(entity)
                         }!!
                     )
                 }

@@ -12,11 +12,6 @@ import kotlin.coroutines.CoroutineContext
 
 interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     companion object : KLoggingChannel() {
-        @JvmStatic
-        fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()
-
-        const val ENABLE_DIALECTS_METHOD = "enableDialects"
-
         val DefaultCacheDispatcher = Dispatchers.IO
     }
 
@@ -52,7 +47,7 @@ interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     suspend fun getNonExistentId(): ID
 
     @BeforeEach
-    fun setup() {
+    fun beforeEach() {
         // 테스트마다 기존 캐시를 비웁니다.
         runBlocking(DefaultCacheDispatcher) {
             repository.invalidateAll()

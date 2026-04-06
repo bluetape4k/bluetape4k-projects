@@ -18,11 +18,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.time.delay
 import java.io.Closeable
 
 /**
@@ -236,7 +236,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 batch.add(next)
             }
             flushBatch(batch)
-            delay(config.writeBehindDelay.toMillis())
+            delay(config.writeBehindDelay)
         }
     }
 

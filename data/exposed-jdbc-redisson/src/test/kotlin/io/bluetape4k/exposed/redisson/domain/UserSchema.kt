@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.redisson.domain
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
@@ -31,18 +30,19 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-object UserSchema : KLogging() {
+object UserSchema: KLogging() {
     private val faker = Fakers.faker
 
     /**
      * Auto Incremented ID 를 가진 [org.jetbrains.exposed.v1.core.dao.id.LongIdTable]을 구현한 `IdTable<Long>` 테이블입니다.
      */
-    object UserTable : LongIdTable("users") {
+    object UserTable: LongIdTable("users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -53,9 +53,9 @@ object UserSchema : KLogging() {
 
     class UserEntity(
         id: EntityID<Long>,
-    ) : LongEntity(id) {
+    ): LongEntity(id) {
         // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
-        companion object : LongEntityClass<UserEntity>(UserTable)
+        companion object: LongEntityClass<UserEntity>(UserTable)
 
         var firstName by UserTable.firstName
         var lastName by UserTable.lastName
@@ -77,13 +77,13 @@ object UserSchema : KLogging() {
     }
 
     data class UserRecord(
-        override val id: Long,
+        val id: Long,
         val firstName: String,
         val lastName: String,
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ) : HasIdentifier<Long> {
+    ): Serializable {
         fun withId(id: Long) = copy(id = id)
     }
 
@@ -106,6 +106,24 @@ object UserSchema : KLogging() {
             createdAt = this.createdAt,
             updatedAt = this.updatedAt
         )
+
+
+    private val lastUserId = atomic(1000L)
+
+    fun newUserRecord(): UserRecord =
+        UserRecord(
+            id = lastUserId.getAndIncrement(),
+            firstName = faker.name().firstName(),
+            lastName = faker.name().lastName(),
+            email = Base58.randomString(4) + "." + faker.internet().emailAddress()
+        )
+
+    fun findUserById(id: Long): UserRecord? =
+        UserTable
+            .selectAll()
+            .where { UserTable.id eq id }
+            .singleOrNull()
+            ?.toUserRecord()
 
     fun withUserTable(
         testDB: TestDB,
@@ -164,27 +182,11 @@ object UserSchema : KLogging() {
         }
     }
 
-    private val lastUserId = atomic(1000L)
-
-    fun newUserRecord(): UserRecord =
-        UserRecord(
-            id = lastUserId.getAndIncrement(),
-            firstName = faker.name().firstName(),
-            lastName = faker.name().lastName(),
-            email = Base58.randomString(4) + "." + faker.internet().emailAddress()
-        )
-
-    fun findUserById(id: Long): UserRecord? =
-        UserTable
-            .selectAll()
-            .where { UserTable.id eq id }
-            .singleOrNull()
-            ?.toUserRecord()
 
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDBase62Table]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialsTable : TimebasedUUIDTable("user_credentials") {
+    object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -195,9 +197,9 @@ object UserSchema : KLogging() {
 
     class UserCredentialsEntity(
         id: EntityID<UUID>,
-    ) : TimebasedUUIDEntity(id) {
+    ): TimebasedUUIDEntity(id) {
         // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
-        companion object : TimebasedUUIDEntityClass<UserCredentialsEntity>(UserCredentialsTable)
+        companion object: TimebasedUUIDEntityClass<UserCredentialsEntity>(UserCredentialsTable)
 
         var loginId by UserCredentialsTable.loginId
         var email by UserCredentialsTable.email
@@ -218,13 +220,15 @@ object UserSchema : KLogging() {
     }
 
     data class UserCredentialsRecord(
-        override val id: UUID,
+        val id: UUID,
         val loginId: String,
         val email: String,
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ) : HasIdentifier<UUID>
+    ): Serializable {
+        fun withId(newId: UUID) = copy(id = newId)
+    }
 
     fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(

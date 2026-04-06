@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.redisson
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
@@ -18,6 +19,13 @@ import org.redisson.api.RedissonClient
 abstract class AbstractRedissonTest: AbstractExposedTest() {
 
     companion object: KLogging() {
+        /**
+         * DB 간의 간섭 때문에 하나의 DB에 대해서만 테스트합니다.
+         */
+        @JvmStatic
+        fun enableDialects() = setOf(TestDB.POSTGRESQL) // TestDB.enabledDialects()
+
+        const val ENABLE_DIALECTS_METHOD = "enableDialects"
 
         @JvmStatic
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }
@@ -38,6 +46,7 @@ abstract class AbstractRedissonTest: AbstractExposedTest() {
         @JvmStatic
         protected fun newRedisson(): RedissonClient {
             val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
+                address = redis.url,
                 connectionPoolSize = 256,
                 minimumIdleSize = 12,
                 threads = 24,

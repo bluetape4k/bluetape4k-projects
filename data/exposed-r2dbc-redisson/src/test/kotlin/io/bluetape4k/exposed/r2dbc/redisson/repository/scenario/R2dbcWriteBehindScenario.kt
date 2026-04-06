@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface R2dbcWriteBehindScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     suspend fun createNewEntity(): E
 

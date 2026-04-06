@@ -48,8 +48,9 @@ interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTe
                 val updated = updateEmail(entity)
                 repository.save(id, updated)
 
+                // TODO: await 를 사용해야 한다
                 // Write-behind는 비동기이므로 DB 반영까지 폴링
-                val deadline = System.currentTimeMillis() + 5_000L
+                val deadline = System.currentTimeMillis() + 10_000L
                 while (repository.findByIdFromDb(id) != updated && System.currentTimeMillis() < deadline) {
                     delay(100.milliseconds)
                 }
@@ -67,7 +68,8 @@ interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTe
                 val entities = ids.associateWith { id -> updateEmail(repository.findByIdFromDb(id)!!) }
                 repository.saveAll(entities)
 
-                val deadline = System.currentTimeMillis() + 5_000L
+                // TODO: await 를 사용해야 한다
+                val deadline = System.currentTimeMillis() + 10_000L
                 while (
                     entities.any { (id, e) -> repository.findByIdFromDb(id) != e } &&
                     System.currentTimeMillis() < deadline

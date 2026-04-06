@@ -12,12 +12,6 @@ import kotlin.coroutines.CoroutineContext
 
 interface R2dbcCacheTestScenario<ID: Any, E: Any> {
     companion object : KLoggingChannel() {
-        @JvmStatic
-        fun enableDialects() =
-            setOf(TestDB.H2) // setOf(TestDB.MYSQL_V8) // setOf(TestDB.POSTGRESQL) //  TestDB.enabledDialects()
-
-        const val ENABLE_DIALECTS_METHOD = "enableDialects"
-
         val DefaultCacheDispatcher = Dispatchers.IO
     }
 

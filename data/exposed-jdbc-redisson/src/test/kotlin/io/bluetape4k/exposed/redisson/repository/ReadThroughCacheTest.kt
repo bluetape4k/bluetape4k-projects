@@ -20,11 +20,10 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class ReadThroughCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
-    abstract class AutoIncIdReadThrough :
-        AbstractRedissonTest(),
-        ReadThroughScenario<kotlin.Long, UserRecord> {
+    abstract class AutoIncIdReadThrough: AbstractRedissonTest(),
+                                         ReadThroughScenario<Long, UserRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
@@ -50,7 +49,7 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadThroughRemteCache : AutoIncIdReadThrough() {
+    inner class AutoIncIdReadThroughRemoteCache: AutoIncIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
         override val repository by lazy {
             UserCacheRepository(
@@ -62,7 +61,7 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadThroughNearCache : AutoIncIdReadThrough() {
+    inner class AutoIncIdReadThroughNearCache: AutoIncIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
         override val repository by lazy {
             UserCacheRepository(
@@ -73,7 +72,7 @@ class ReadThroughCacheTest {
         }
     }
 
-    abstract class ClientGeneratedIdReadThrough :
+    abstract class ClientGeneratedIdReadThrough:
         AbstractRedissonTest(),
         ReadThroughScenario<UUID, UserCredentialsRecord> {
         override fun withEntityTable(
@@ -101,7 +100,7 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCache : ClientGeneratedIdReadThrough() {
+    inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
         override val repository by lazy {
             UserCredentialCacheRepository(
@@ -113,7 +112,7 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCache : ClientGeneratedIdReadThrough() {
+    inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
         override val repository by lazy {
             UserCredentialCacheRepository(

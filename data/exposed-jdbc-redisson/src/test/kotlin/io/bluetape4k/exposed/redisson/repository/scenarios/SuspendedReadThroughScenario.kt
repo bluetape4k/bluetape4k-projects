@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
 interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 
@@ -110,13 +110,13 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
                 val entities = repository.findAll()
                 entities.shouldNotBeEmpty()
                 entities.size shouldBeEqualTo
-                    repository.table
-                        .selectAll()
-                        .count()
-                        .toInt()
+                        repository.table
+                            .selectAll()
+                            .count()
+                            .toInt()
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-                delay(DEFAULT_DELAY)
+                delay(timeMillis = DEFAULT_DELAY)
             }
         }
 
@@ -164,14 +164,14 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
             withSuspendedEntityTable(testDB) {
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(timeMillis = DEFAULT_DELAY)
                 }
 
                 repository.getAll(getExistingIds())
 
                 val invalidated =
                     repository.invalidateByPattern("*1*") +
-                        ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
+                            ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
                 invalidated shouldBeGreaterThan 0
             }

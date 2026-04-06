@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
+import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeGreaterThan
@@ -12,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
-    companion object : KLogging()
+    companion object: KLogging()
 
     fun createNewEntity(): E
 
@@ -24,7 +25,7 @@ interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
         }
 
     @ParameterizedTest
-    @MethodSource(CacheTestScenario.ENABLE_DIALECTS_METHOD)
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) {
         withEntityTable(testDB) {
             val entities = createNewEntities(1000)

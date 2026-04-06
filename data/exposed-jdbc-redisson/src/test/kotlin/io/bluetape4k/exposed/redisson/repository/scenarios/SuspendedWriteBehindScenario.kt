@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
+import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -15,7 +16,7 @@ import java.time.Duration
 
 @Suppress("DEPRECATION")
 interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     suspend fun createNewEntity(): E
 
@@ -27,7 +28,7 @@ interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScena
         }
 
     @ParameterizedTest
-    @MethodSource(CacheTestScenario.ENABLE_DIALECTS_METHOD)
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) =
         runSuspendIO {
             withSuspendedEntityTable(testDB) {
