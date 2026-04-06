@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.support.requireNotEmpty
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -25,14 +24,24 @@ import kotlinx.coroutines.selects.select
  * @param coroutineStart 반환 `Deferred`의 시작 모드입니다.
  * @param zipper 두 결과를 결합하는 함수입니다.
  */
-inline fun <T1, T2, R> CoroutineScope.zip(
+suspend inline fun <T1, T2, R> zip(
     src1: Deferred<T1>,
     src2: Deferred<T2>,
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
-    crossinline zipper: (T1, T2) -> R,
-): Deferred<R> = async(start = coroutineStart) {
-    zipper(src1.await(), src2.await())
+    crossinline zipper: suspend (T1, T2) -> R,
+): Deferred<R> = coroutineScope {
+    async(start = coroutineStart) {
+        zipper(src1.await(), src2.await())
+    }
 }
+
+suspend inline fun <T1, T2, R> Deferred<T1>.zipWith(
+    other: Deferred<T2>,
+    coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
+    crossinline zipper: suspend (T1, T2) -> R
+): Deferred<R> =
+    zip(this, other, coroutineStart, zipper)
+
 
 /**
  * `Deferred` 완료 값을 변환하는 새 `Deferred`를 생성합니다.

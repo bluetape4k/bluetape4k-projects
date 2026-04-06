@@ -26,6 +26,15 @@ class DeferredSupportTest {
     }
 
     @Test
+    fun `zipWith은 두 deferred 결과를 결합한다`() = runTest {
+        val d1 = async { 10 }
+        val d2 = async { 20 }
+
+        val zipped = d1.zipWith(d2) { a, b -> a + b }
+        zipped.await() shouldBeEqualTo 30
+    }
+
+    @Test
     fun `map, mapAll, concatMap은 deferred 결과를 변환한다`() = runTest {
         val source: Deferred<List<Int>> = async { listOf(1, 2, 3) }
 
