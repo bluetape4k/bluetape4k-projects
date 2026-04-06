@@ -51,6 +51,8 @@ dependencies {
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다 
     api(Libs.httpclient5)
     api(Libs.httpclient5_cache)
+    api(Libs.httpcore5)
+    api(Libs.httpcore5_h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
@@ -69,10 +71,6 @@ dependencies {
     compileOnly(project(":bluetape4k-fastjson2"))
     compileOnly(Libs.fastjson2)
     compileOnly(Libs.fastjson2_kotlin)
-
-    // Gson
-//    compileOnly(Libs.gson)
-//    compileOnly(Libs.gson_javatime_serializers)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))

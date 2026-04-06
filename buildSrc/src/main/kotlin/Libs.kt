@@ -107,7 +107,8 @@ object Versions {
     const val avro = "1.12.1"       // https://mvnrepository.com/artifact/org.apache.avro/avro
 
     const val feign = "13.11"         // https://mvnrepository.com/artifact/io.github.openfeign/feign-core
-    const val httpclient5 = "5.6"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    const val httpclient5 = "5.5.2"   // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    const val httpcore5 = "5.3.6"     // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     const val okhttp3 = "5.3.2"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     const val okio = "3.17.0"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
@@ -668,6 +669,11 @@ object Libs {
     const val httpclient5_cache = "org.apache.httpcomponents.client5:httpclient5-cache:${Versions.httpclient5}"
     const val httpclient5_fluent = "org.apache.httpcomponents.client5:httpclient5-fluent:${Versions.httpclient5}"
     const val httpclient5_testing = "org.apache.httpcomponents.client5:httpclient5-testing:${Versions.httpclient5}"
+
+    const val httpcore5 = "org.apache.httpcomponents.core5:httpcore5:${Versions.httpcore5}"
+    const val httpcore5_h2 = "org.apache.httpcomponents.core5:httpcore5-h2:${Versions.httpcore5}"
+    const val httpcore5_reactive = "org.apache.httpcomponents.core5:httpcore5-reactive:${Versions.httpcore5}"
+    const val httpcore5_testing = "org.apache.httpcomponents.core5:httpcore5-testing:${Versions.httpcore5}"
 
     // OpenFeign
     fun feign(module: String) = "io.github.openfeign:feign-$module:${Versions.feign}"

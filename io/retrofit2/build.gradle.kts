@@ -34,8 +34,11 @@ dependencies {
     testImplementation(Libs.okhttp3_mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
+    // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다
     implementation(Libs.httpclient5)
     implementation(Libs.httpclient5_cache)
+    implementation(Libs.httpcore5)
+    implementation(Libs.httpcore5_h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))

@@ -29,6 +29,12 @@ dependencies {
     api(Libs.httpclient5_fluent)
     testImplementation(Libs.httpclient5_testing)
 
+    // Apache HttpComponent Core 5
+    api(Libs.httpcore5)
+    implementation(Libs.httpcore5_h2)
+    implementation(Libs.httpcore5_reactive)
+    testImplementation(Libs.httpcore5_testing)
+
     compileOnly(project(":bluetape4k-cache-core"))
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)

@@ -16,6 +16,8 @@ dependencies {
     api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
+
+    // R2DBC - ReadableExtensions
     compileOnly(Libs.r2dbc_spi)
 
     // Database Drivers
