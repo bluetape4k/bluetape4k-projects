@@ -42,6 +42,14 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=  # RELEASE
 ```
 
+## 코드 변경 후
+
+- [ ] 컴파일 + 테스트 실행
+- [ ] `docs/testlogs/YYYY-MM.md` 현재 달 파일 맨 위에 결과 기록 (doc-only 변경 제외)
+- [ ] 모듈 변경 시: `README.md` **및** `README.ko.md` 동기화 업데이트
+- [ ] superpowers 작업 완료 시: `docs/superpowers/index/YYYY-MM.md` 항목 추가 → `docs/superpowers/INDEX.md` 건수 갱신
+- [ ] spec/plan 새로 작성 시: `/wiki-update` 실행
+
 ## Token-Efficient Workflow
 
 Prefer `./bin/repo-*` scripts over raw git/gradle output. Summarize first; read raw output only for specific files or tasks.
