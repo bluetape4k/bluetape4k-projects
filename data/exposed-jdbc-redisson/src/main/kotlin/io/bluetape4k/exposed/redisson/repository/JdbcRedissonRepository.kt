@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.cache.JdbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.JdbcRedisRepository
 import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
@@ -29,7 +29,7 @@ import java.io.Serializable
  * @param E 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입
  */
-interface JdbcRedissonRepository<ID: Any, E: Serializable>: JdbcCacheRepository<ID, E> {
+interface JdbcRedissonRepository<ID: Any, E: Serializable>: JdbcRedisRepository<ID, E> {
     companion object {
         const val DEFAULT_BATCH_SIZE = 500
     }

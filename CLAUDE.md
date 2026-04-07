@@ -100,7 +100,9 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.), `AuditableEntity` + `AuditableEntityClass` (감사 추적) |
 | `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `AuditableJdbcRepository` (감사 추적) |
 | `exposed-r2dbc` | Reactive `ExposedR2dbcRepository` |
-| `exposed-redis-api` | 공통 캐시 인터페이스 (`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`, `R2dbcCacheRepository`) + testFixtures 시나리오 |
+| `exposed-cache` | 공통 캐시 인터페이스 (`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`, `R2dbcCacheRepository`, `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository`) + `LocalCacheConfig` + testFixtures 시나리오 |
+| `exposed-jdbc-caffeine` | JDBC + Caffeine 로컬 캐시 (sync + suspend, Read/Write-through/behind, H2 only) |
+| `exposed-r2dbc-caffeine` | R2DBC + Caffeine AsyncCache (suspend, Read/Write-through/behind, H2 only) |
 | `exposed-jdbc-lettuce` | JDBC + Lettuce Redis cache (sync + suspend, Read/Write-through/behind) |
 | `exposed-r2dbc-lettuce` | R2DBC + Lettuce Redis cache (suspend, no `runBlocking`) |
 | `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` | Same pattern with Redisson |

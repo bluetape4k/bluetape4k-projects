@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.exposed.cache.R2dbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.R2dbcRedisRepository
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
@@ -23,7 +23,7 @@ interface R2dbcCacheTestScenario<ID: Any, E: java.io.Serializable> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: R2dbcCacheRepository<ID, E>
+    val repository: R2dbcRedisRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

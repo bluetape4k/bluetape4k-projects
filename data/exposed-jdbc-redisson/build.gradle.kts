@@ -13,9 +13,9 @@ dependencies {
     implementation(Libs.exposed_kotlin_datetime)
 
     api(project(":bluetape4k-exposed-jdbc"))
-    api(project(":bluetape4k-exposed-redis-api"))
+    api(project(":bluetape4k-exposed-cache"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
-    testImplementation(testFixtures(project(":bluetape4k-exposed-redis-api")))
+    testImplementation(testFixtures(project(":bluetape4k-exposed-cache")))
 
     // Redisson
     api(project(":bluetape4k-redisson"))

@@ -6,7 +6,7 @@ dependencies {
     api(project(":bluetape4k-cache-lettuce"))
     api(project(":bluetape4k-lettuce"))
     api(project(":bluetape4k-exposed-jdbc"))
-    api(project(":bluetape4k-exposed-redis-api"))
+    api(project(":bluetape4k-exposed-cache"))
     api(project(":bluetape4k-resilience4j"))
     api(Libs.resilience4j_retry)
 
@@ -31,7 +31,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
-    testImplementation(testFixtures(project(":bluetape4k-exposed-redis-api")))
+    testImplementation(testFixtures(project(":bluetape4k-exposed-cache")))
 
     testImplementation(Libs.h2_v2)
     testImplementation(Libs.hikaricp)

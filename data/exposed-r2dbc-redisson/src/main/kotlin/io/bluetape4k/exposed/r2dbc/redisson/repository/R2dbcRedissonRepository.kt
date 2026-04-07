@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.exposed.cache.R2dbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.R2dbcRedisRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.map
@@ -39,7 +39,7 @@ import java.io.Serializable
  * @param E Entity Type   분산 캐시(Redisson) 저장을 위해 [Serializable] 구현이 필수입니다.
  * @param ID Entity ID Type
  */
-interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcCacheRepository<ID, E> {
+interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedisRepository<ID, E> {
     companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }

@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.cache.SuspendedJdbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.SuspendJdbcRedisRepository
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
@@ -30,7 +30,7 @@ import java.io.Serializable
  * @param E 엔티티 타입. Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID 엔티티의 식별자 타입
  */
-interface SuspendedJdbcRedissonRepository<ID: Any, E: Serializable>: SuspendedJdbcCacheRepository<ID, E> {
+interface SuspendedJdbcRedissonRepository<ID: Any, E: Serializable>: SuspendJdbcRedisRepository<ID, E> {
     companion object {
         const val DEFAULT_BATCH_SIZE = 500
     }
