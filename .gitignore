@@ -107,5 +107,3 @@ out/
 **/cache-ignite2/ignite/
 .worktrees/
 
-# qmd search index
-.wiki/.qmd/
