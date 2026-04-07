@@ -1,6 +1,5 @@
-package io.bluetape4k.exposed.core.jasypt
+package io.bluetape4k.exposed.core.tink
 
-import io.bluetape4k.crypto.encrypt.Encryptors
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
@@ -10,6 +9,7 @@ import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import io.bluetape4k.tink.daead.TinkDaeads
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -22,13 +22,13 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class JasyptColumnTypeDaoTest: AbstractExposedTest() {
+class TinkColumnTypeDaoTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
-    object T1: IntIdTable() {
-        val varchar = jasyptVarChar("varchar", 255, Encryptors.DeterministicAES).index()
-        val binary = jasyptBinary("binary", 255, Encryptors.DeterministicRC4)
+    object T1: IntIdTable("tink_dao_t1") {
+        val varchar = tinkDaeadVarChar("varchar", 512, TinkDaeads.AES256_SIV).index()
+        val binary = tinkDaeadBinary("binary", 512, TinkDaeads.AES256_SIV)
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {
@@ -41,7 +41,7 @@ class JasyptColumnTypeDaoTest: AbstractExposedTest() {
         override fun hashCode(): Int = idHashCode()
         override fun toString(): String = entityToStringBuilder()
             .add("varchar", varchar)
-            .add("binary", binary)
+            .add("binary", binary.toUtf8String())
             .toString()
     }
 
@@ -96,10 +96,10 @@ class JasyptColumnTypeDaoTest: AbstractExposedTest() {
             e1.binary shouldBeEqualTo insertedBinary
 
             /**
-             * Jasypt 암호화는 항상 같은 결과를 반환하므로, WHERE 절로 검색이 가능합니다.
+             * Tink DAEAD(결정적 암호화)는 항상 같은 결과를 반환하므로, WHERE 절로 검색이 가능합니다.
              * ```sql
              * -- Postgres
-             * SELECT t1.id, t1."varchar", t1."binary" FROM t1 WHERE t1."varchar" = xHJZumy4xB5idgnKqmp2pQ==
+             * SELECT t1.id, t1."varchar", t1."binary" FROM tink_dao_t1 WHERE tink_dao_t1."varchar" = '<암호문>'
              * ```
              */
             T1.selectAll().where { T1.varchar eq insertedVarchar }.single().let {
@@ -115,7 +115,7 @@ class JasyptColumnTypeDaoTest: AbstractExposedTest() {
             /**
              * ```sql
              * -- Postgres
-             * SELECT t1.id, t1."varchar", t1."binary" FROM t1 WHERE t1."binary" = [B@20040c6e
+             * SELECT t1.id, t1."varchar", t1."binary" FROM tink_dao_t1 WHERE tink_dao_t1."binary" = '<암호문 바이트>'
              * ```
              */
             T1.selectAll().where { T1.binary eq insertedBinary }.single().let {
