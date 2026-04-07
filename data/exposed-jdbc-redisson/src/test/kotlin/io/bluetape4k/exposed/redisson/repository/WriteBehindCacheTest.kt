@@ -59,8 +59,7 @@ class WriteBehindCacheTest {
         override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "write-behind:remote:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "write-behind:remote:users")
             )
         }
     }
@@ -72,8 +71,7 @@ class WriteBehindCacheTest {
         override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "write-behind:near:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "write-behind:near:users")
             )
         }
     }
@@ -114,8 +112,7 @@ class WriteBehindCacheTest {
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
-                "write-behind:remote:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "write-behind:remote:user-credentials")
             )
         }
     }
@@ -127,8 +124,7 @@ class WriteBehindCacheTest {
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
-                "write-behind:near:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "write-behind:near:user-credentials")
             )
         }
     }

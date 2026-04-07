@@ -58,8 +58,7 @@ class R2dbcReadThroughCacheTest {
         override val repository: R2dbcRedissonRepository<Long, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:remote:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:remote:users")
             )
         }
     }
@@ -71,8 +70,7 @@ class R2dbcReadThroughCacheTest {
         override val repository: R2dbcRedissonRepository<Long, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:near:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:near:users")
             )
         }
     }
@@ -112,8 +110,7 @@ class R2dbcReadThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:remote:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:remote:user-credentials")
             )
         }
     }
@@ -124,8 +121,7 @@ class R2dbcReadThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:near:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:near:user-credentials")
             )
         }
     }

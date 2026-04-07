@@ -47,9 +47,8 @@ import java.time.Duration
  * ```kotlin
  * class UserCacheRepository(
  *     redissonClient: RedissonClient,
- *     cacheName: String,
  *     config: RedisCacheConfig,
- * ): AbstractJdbcRedissonRepository<Long, UserRecord>(redissonClient, cacheName, config) {
+ * ): AbstractJdbcRedissonRepository<Long, UserRecord>(redissonClient, config) {
  *     override val table = UserTable
  *     override fun ResultRow.toEntity() = toUserRecord()
  *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
@@ -61,18 +60,18 @@ import java.time.Duration
  * @param ID 엔티티 ID 타입
  * @param E 엔티티 타입. Redis 저장 시 직렬화 문제로 인해 반드시 Serializable data class를 사용해야 합니다.
  * @param redissonClient Redisson 클라이언트
- * @param cacheName Redis 캐시 이름
- * @param config 캐시 설정 ([RedissonCacheConfig])
+ * @param config 캐시 설정 ([RedissonCacheConfig]). 캐시 이름은 [RedissonCacheConfig.name]으로 지정합니다.
  */
 abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
     val redissonClient: RedissonClient,
-    override val cacheName: String,
     protected val config: RedissonCacheConfig,
 ): JdbcRedissonRepository<ID, E> {
 
     companion object: KLogging() {
         const val DEFAULT_BATCH_SIZE = JdbcCacheRepository.DEFAULT_BATCH_SIZE
     }
+
+    override val cacheName: String get() = config.name
 
     override val cacheMode: CacheMode
         get() = if (config.isNearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE

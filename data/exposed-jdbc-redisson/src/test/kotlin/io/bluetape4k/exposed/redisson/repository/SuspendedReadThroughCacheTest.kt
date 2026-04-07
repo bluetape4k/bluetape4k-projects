@@ -57,11 +57,10 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadThroughRemteCache : SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:users")
         override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
-                "suspended:read-through:remote:users",
                 config = cacheConfig
             )
         }
@@ -69,12 +68,11 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadThroughNearCache : SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:users")
 
         override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
-                "suspended:read-through:near:users",
                 config = cacheConfig
             )
         }
@@ -113,11 +111,10 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughRemoteCache : SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:user-credentials")
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
-                "suspended:read-through:remote:user-credentials",
                 config = cacheConfig
             )
         }
@@ -125,11 +122,10 @@ class SuspendedReadThroughCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadThroughNearCache : SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
+        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:user-credentials")
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
-                "suspended:read-through:near:user-credentials",
                 config = cacheConfig
             )
         }

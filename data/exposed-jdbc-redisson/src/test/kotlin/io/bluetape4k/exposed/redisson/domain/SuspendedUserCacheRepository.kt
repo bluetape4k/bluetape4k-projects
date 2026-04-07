@@ -14,11 +14,9 @@ import java.time.Instant
 
 class SuspendedUserCacheRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:remote:suspended:users",
-    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
+    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:suspended:users"),
 ) : AbstractSuspendedJdbcRedissonRepository<Long, UserRecord>(
         redissonClient,
-        cacheName,
         config
     ) {
     companion object : KLoggingChannel()

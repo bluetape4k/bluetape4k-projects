@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.ExMapOptions
 import org.redisson.api.options.LocalCachedMapOptions
@@ -11,6 +12,7 @@ import java.time.Duration
 /**
  * Redis 캐시 설정을 위한 클래스입니다.
  *
+ * @property name Redis 캐시 이름. 공백일 수 없다.
  * @property cacheMode 캐시 모드 (읽기 전용, 쓰기 전용, 읽기/쓰기 모두 등)
  * @property writeMode 쓰기 모드 (WRITE_THROUGH, WRITE_BEHIND)
  * @property deleteFromDBOnInvalidate 캐시 무효화 시 DB에서도 삭제할지 여부. 옵션 변환 단계에서는 적용되지 않고 애플리케이션 계층에서 처리해야 합니다.
@@ -29,6 +31,7 @@ import java.time.Duration
  * @property writeRetryInterval 쓰기 재시도 간격
  */
 data class RedissonCacheConfig(
+    val name: String = "cache",
     val cacheMode: CacheMode = CacheMode.READ_WRITE,
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
     val deleteFromDBOnInvalidate: Boolean = false,
@@ -48,6 +51,7 @@ data class RedissonCacheConfig(
     val writeRetryInterval: Duration = Duration.ofMillis(100),
 ) {
     init {
+        name.requireNotBlank("name")
         require(maxSize >= 0) { "maxSize must be greater than or equal to 0. maxSize=$maxSize" }
         require(nearCacheMaxSize >= 0) {
             "nearCacheMaxSize must be greater than or equal to 0. nearCacheMaxSize=$nearCacheMaxSize"

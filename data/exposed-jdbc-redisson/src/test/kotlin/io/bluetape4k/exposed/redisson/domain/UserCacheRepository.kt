@@ -15,11 +15,9 @@ import java.time.Instant
 
 class UserCacheRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:remote:users",
-    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
+    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:users"),
 ) : AbstractJdbcRedissonRepository<Long, UserRecord>(
         redissonClient,
-        cacheName,
         config
     ) {
     companion object : KLogging()

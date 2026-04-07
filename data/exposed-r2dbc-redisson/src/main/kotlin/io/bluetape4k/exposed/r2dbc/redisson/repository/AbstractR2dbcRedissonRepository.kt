@@ -53,18 +53,18 @@ import java.time.Duration
  * @param ID Entity ID Type
  *
  * @param redissonClient Redisson Client
- * @param cacheName Redis Cache Name
- * @param config RedissonCacheConfig
+ * @param config RedissonCacheConfig. 캐시 이름은 [RedissonCacheConfig.name]으로 지정합니다.
  */
 abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
     val redissonClient: RedissonClient,
-    override val cacheName: String,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ) : R2dbcRedissonRepository<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = R2dbcRedissonRepository.DEFAULT_BATCH_SIZE
     }
+
+    override val cacheName: String get() = config.name
 
     /**
      * 캐시 저장 방식 (원격 전용 또는 NearCache)

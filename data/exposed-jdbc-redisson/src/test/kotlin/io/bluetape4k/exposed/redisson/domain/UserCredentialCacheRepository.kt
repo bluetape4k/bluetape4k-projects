@@ -15,11 +15,9 @@ import java.util.*
 
 class UserCredentialCacheRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:user-credentials",
-    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
+    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:user-credentials"),
 ) : AbstractJdbcRedissonRepository<UUID, UserCredentialsRecord>(
         redissonClient,
-        cacheName,
         config
     ) {
     companion object : KLogging()

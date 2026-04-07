@@ -2,15 +2,15 @@ package io.bluetape4k.exposed.cache.scenarios
 
 import java.io.Serializable
 
-import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.core.autoIncColumnType
-import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -52,7 +52,7 @@ interface R2dbcWriteBehindScenario<ID: Any, E: Serializable>: R2dbcCacheTestScen
      * @return 전체 레코드 수
      */
     suspend fun getAllCountFromDB(): Long =
-        newSuspendedTransaction {
+        suspendTransaction {
             repository.table.selectAll().count()
         }
 
@@ -63,7 +63,7 @@ interface R2dbcWriteBehindScenario<ID: Any, E: Serializable>: R2dbcCacheTestScen
         Assumptions.assumeTrue(repository.table.id.autoIncColumnType == null) {
             "AutoInc 테이블은 Write-Behind로 신규 엔티티를 DB에 삽입하지 않아 이 테스트를 건너뜁니다"
         }
-        withSuspendedEntityTable(testDB) {
+        withR2dbcEntityTable(testDB) {
             val entities = createNewEntities(1000)
             val entityMap = entities.associateBy { repository.extractId(it) }
             repository.putAll(entityMap)

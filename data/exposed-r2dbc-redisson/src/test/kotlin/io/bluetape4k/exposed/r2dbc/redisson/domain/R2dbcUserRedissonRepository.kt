@@ -13,11 +13,9 @@ import java.time.Instant
 
 class R2dbcUserRedissonRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:remote:r2dbc:users",
-    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
+    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:r2dbc:users"),
 ): AbstractR2dbcRedissonRepository<Long, UserSchema.UserRecord>(
     redissonClient,
-    cacheName,
     config
 ) {
     companion object: KLoggingChannel()

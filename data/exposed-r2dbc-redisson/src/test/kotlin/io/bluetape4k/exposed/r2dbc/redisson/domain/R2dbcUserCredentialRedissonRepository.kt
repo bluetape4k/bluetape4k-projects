@@ -14,11 +14,9 @@ import java.util.*
 
 class R2dbcUserCredentialRedissonRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:remote:r2dbc:users",
-    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH,
+    config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:r2dbc:user-credentials"),
 ) : AbstractR2dbcRedissonRepository<UUID, UserSchema.UserCredentialsRecord>(
         redissonClient,
-        cacheName,
         config
     ) {
     companion object : KLoggingChannel()

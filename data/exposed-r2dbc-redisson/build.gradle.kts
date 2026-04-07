@@ -15,6 +15,7 @@ dependencies {
     api(project(":bluetape4k-exposed-r2dbc"))
     api(project(":bluetape4k-exposed-redis-api"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
+    testImplementation(testFixtures(project(":bluetape4k-exposed-redis-api")))
 
     // Redisson
     api(project(":bluetape4k-redisson"))

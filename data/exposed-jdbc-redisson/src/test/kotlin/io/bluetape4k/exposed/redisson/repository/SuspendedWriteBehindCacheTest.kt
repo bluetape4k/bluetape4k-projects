@@ -57,12 +57,11 @@ class SuspendedWriteBehindCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadWriteBehindRemoteCache : SuspendedAutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND.copy(name = "suspended:write-behind:remote:users")
 
         override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
-                "suspended:write-behind:remote:users",
                 config = cacheConfig
             )
         }
@@ -70,12 +69,11 @@ class SuspendedWriteBehindCacheTest {
 
     @Nested
     inner class SuspendedAutoIncIdReadWriteBehindNearCache : SuspendedAutoIncIdReadWriteBehind() {
-        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE.copy(name = "suspended:write-behind:near:users")
 
         override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
-                "suspended:write-behind:near:users",
                 config = cacheConfig
             )
         }
@@ -112,12 +110,11 @@ class SuspendedWriteBehindCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadBehindRemoteCache : SuspendedClientGeneratedIdReadWriteBehind() {
-        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND.copy(name = "suspended:write-behind:remote:user-credentials")
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
-                "suspended:write-behind:remote:user-credentials",
                 config = cacheConfig
             )
         }
@@ -125,12 +122,11 @@ class SuspendedWriteBehindCacheTest {
 
     @Nested
     inner class SuspendedClientGeneratedIdReadBehindNearCache : SuspendedClientGeneratedIdReadWriteBehind() {
-        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
+        override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE.copy(name = "suspended:write-behind:near:user-credentials")
 
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
-                "suspended:write-behind:near:user-credentials",
                 config = cacheConfig
             )
         }

@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.cache.scenarios
 
 import java.io.Serializable
 
-import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -11,7 +11,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.autoIncColumnType
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -62,7 +62,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Serializable>: R2dbcCacheTestSce
     fun `put - 캐시에 저장하면 DB에도 저장된다`(testDB: TestDB) = runTest {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
-        withSuspendedEntityTable(testDB) {
+        withR2dbcEntityTable(testDB) {
             val id = getExistingId()
 
             // 캐시에서 조회한 값
@@ -92,7 +92,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Serializable>: R2dbcCacheTestSce
     fun `putAll - 캐시에 저장하면 DB에도 저장된다`(testDB: TestDB) = runTest {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
-        withSuspendedEntityTable(testDB) {
+        withR2dbcEntityTable(testDB) {
             val ids = getExistingIds()
 
             // 캐시에서 조회한 값
@@ -140,7 +140,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Serializable>: R2dbcCacheTestSce
     fun `putAll - 새 엔티티 추가 시 AutoInc Id는 DB 저장 안 하고 Client 생성 Id는 DB에 저장된다`(testDB: TestDB) = runTest {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
-        withSuspendedEntityTable(testDB) {
+        withR2dbcEntityTable(testDB) {
             val prevCount = repository.table.selectAll().count()
             val newEntities = List(5) { createNewEntity() }
             val newMap = newEntities.associateBy { repository.extractId(it) }
@@ -164,7 +164,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Serializable>: R2dbcCacheTestSce
     fun `invalidate - 캐시 invalidate 시 DB에 영향을 줄 수 있다`(testDB: TestDB) = runTest {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
-        withSuspendedEntityTable(testDB) {
+        withR2dbcEntityTable(testDB) {
             val id = getExistingId()
 
             // 먼저 캐시에 로드

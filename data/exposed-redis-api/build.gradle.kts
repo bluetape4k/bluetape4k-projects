@@ -29,6 +29,8 @@ dependencies {
 
     testFixturesImplementation(project(":bluetape4k-junit5"))
     testFixturesImplementation(project(":bluetape4k-exposed-jdbc-tests"))
+    testFixturesImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
+    testFixturesCompileOnly(Libs.exposed_r2dbc)
 
     testFixturesImplementation(Libs.kotlinx_coroutines_core)
     testFixturesImplementation(Libs.kotlinx_coroutines_test)

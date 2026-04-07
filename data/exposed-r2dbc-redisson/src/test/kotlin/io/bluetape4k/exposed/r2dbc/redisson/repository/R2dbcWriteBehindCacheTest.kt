@@ -66,8 +66,7 @@ class R2dbcWriteBehindCacheTest {
         override val repository by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:write-behind:remote:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:write-behind:remote:users")
             )
         }
     }
@@ -79,8 +78,7 @@ class R2dbcWriteBehindCacheTest {
         override val repository by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:write-behind:near:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:write-behind:near:users")
             )
         }
     }
@@ -122,8 +120,7 @@ class R2dbcWriteBehindCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:write-behind:remote:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:write-behind:remote:user-credentials")
             )
         }
     }
@@ -135,8 +132,7 @@ class R2dbcWriteBehindCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:write-behind:near:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:write-behind:near:user-credentials")
             )
         }
     }

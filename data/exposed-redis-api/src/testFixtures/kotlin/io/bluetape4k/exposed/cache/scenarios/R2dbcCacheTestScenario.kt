@@ -5,11 +5,11 @@ import java.io.Serializable
 import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.cache.R2dbcCacheRepository
-import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
@@ -49,10 +49,10 @@ interface R2dbcCacheTestScenario<ID: Any, E: Serializable> {
      * @param context 코루틴 컨텍스트 (기본값: [DefaultCacheDispatcher])
      * @param statement suspend 테스트 로직
      */
-    suspend fun withSuspendedEntityTable(
+    suspend fun withR2dbcEntityTable(
         testDB: TestDB,
         context: CoroutineContext = DefaultCacheDispatcher,
-        statement: suspend JdbcTransaction.() -> Unit,
+        statement: suspend R2dbcTransaction.() -> Unit,
     )
 
     /**

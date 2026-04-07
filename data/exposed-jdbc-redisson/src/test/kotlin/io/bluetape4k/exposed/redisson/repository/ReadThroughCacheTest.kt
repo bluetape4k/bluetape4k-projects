@@ -54,8 +54,7 @@ class ReadThroughCacheTest {
         override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "read-through:remote:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "read-through:remote:users")
             )
         }
     }
@@ -66,8 +65,7 @@ class ReadThroughCacheTest {
         override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "read-through:near:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "read-through:near:users")
             )
         }
     }
@@ -105,8 +103,7 @@ class ReadThroughCacheTest {
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
-                "read-through:remote:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "read-through:remote:user-credentials")
             )
         }
     }
@@ -117,8 +114,7 @@ class ReadThroughCacheTest {
         override val repository by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
-                "read-through:near:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "read-through:near:user-credentials")
             )
         }
     }

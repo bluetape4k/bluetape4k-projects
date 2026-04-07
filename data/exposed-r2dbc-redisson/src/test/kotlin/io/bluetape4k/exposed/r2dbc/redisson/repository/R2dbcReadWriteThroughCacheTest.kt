@@ -81,8 +81,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-write-through:remote:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-write-through:remote:users")
             )
         }
     }
@@ -94,8 +93,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository: R2dbcRedissonRepository<Long, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-write-through:remote:delete-db:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-write-through:remote:delete-db:users")
             )
         }
     }
@@ -107,8 +105,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository: R2dbcRedissonRepository<Long, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-write-through:near:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-write-through:near:users")
             )
         }
     }
@@ -121,8 +118,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository: R2dbcRedissonRepository<Long, UserRecord> by lazy {
             R2dbcUserRedissonRepository(
                 redissonClient,
-                "r2dbc:read-write-through:near:delete-db:users",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-write-through:near:delete-db:users")
             )
         }
     }
@@ -176,8 +172,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:remote:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:remote:user-credentials")
             )
         }
     }
@@ -190,8 +185,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:remote:delete-db:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:remote:delete-db:user-credentials")
             )
         }
     }
@@ -203,8 +197,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:near:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:near:user-credentials")
             )
         }
     }
@@ -218,8 +211,7 @@ class R2dbcReadWriteThroughCacheTest {
         override val repository by lazy {
             R2dbcUserCredentialRedissonRepository(
                 redissonClient,
-                "r2dbc:read-through:near:delete-db:user-credentials",
-                config = cacheConfig
+                config = cacheConfig.copy(name = "r2dbc:read-through:near:delete-db:user-credentials")
             )
         }
     }
