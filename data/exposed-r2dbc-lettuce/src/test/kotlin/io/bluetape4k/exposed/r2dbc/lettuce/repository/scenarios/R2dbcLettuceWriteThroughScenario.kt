@@ -9,14 +9,15 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 
 /**
  * Write-through 캐시 전략 R2DBC Lettuce 시나리오.
  *
- * - save() 시 Redis와 DB를 즉시 갱신
- * - delete() 시 Redis와 DB를 모두 삭제
+ * - put() 시 Redis와 DB를 즉시 갱신
+ * - invalidate() 시 Redis와 DB를 모두 삭제
  */
-interface R2dbcLettuceWriteThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTestScenario<ID, E> {
+interface R2dbcLettuceWriteThroughScenario<ID: Any, E: Serializable>: R2DbcLettuceJCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
@@ -24,31 +25,31 @@ interface R2dbcLettuceWriteThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheT
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `save - 캐시와 DB 모두에 즉시 반영된다`(testDB: TestDB) =
+    fun `put - 캐시와 DB 모두에 즉시 반영된다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val id = getExistingId()
                 val entity = repository.findByIdFromDb(id).shouldNotBeNull()
                 val updated = updateEmail(entity)
-                repository.save(id, updated)
+                repository.put(id, updated)
 
-                repository.findById(id) shouldBeEqualTo updated
+                repository.get(id) shouldBeEqualTo updated
                 repository.findByIdFromDb(id) shouldBeEqualTo updated
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `saveAll - Map 일괄 저장 후 캐시와 DB 모두 반영된다`(testDB: TestDB) =
+    fun `putAll - Map 일괄 저장 후 캐시와 DB 모두 반영된다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds()
-                val entities = repository.findAll(ids)
+                val entities = repository.getAll(ids)
                 val updated = entities.mapValues { (_, v) -> updateEmail(v) }
-                repository.saveAll(updated)
+                repository.putAll(updated)
 
                 updated.forEach { (id, entity) ->
-                    repository.findById(id) shouldBeEqualTo entity
+                    repository.get(id) shouldBeEqualTo entity
                     repository.findByIdFromDb(id) shouldBeEqualTo entity
                 }
             }
@@ -56,29 +57,29 @@ interface R2dbcLettuceWriteThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheT
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `delete - 캐시와 DB 모두에서 삭제된다`(testDB: TestDB) =
+    fun `invalidate - 캐시와 DB 모두에서 삭제된다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val id = getExistingId()
-                repository.save(id, repository.findByIdFromDb(id)!!)
-                repository.delete(id)
+                repository.put(id, repository.findByIdFromDb(id)!!)
+                repository.invalidate(id)
 
-                repository.findById(id).shouldBeNull()
+                repository.get(id).shouldBeNull()
                 repository.findByIdFromDb(id).shouldBeNull()
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `deleteAll - 복수 ID를 한번에 삭제한다`(testDB: TestDB) =
+    fun `invalidateAll - 복수 ID를 한번에 삭제한다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds()
-                ids.forEach { id -> repository.save(id, repository.findByIdFromDb(id)!!) }
-                repository.deleteAll(ids)
+                ids.forEach { id -> repository.put(id, repository.findByIdFromDb(id)!!) }
+                repository.invalidateAll(ids)
 
                 ids.forEach { id ->
-                    repository.findById(id).shouldBeNull()
+                    repository.get(id).shouldBeNull()
                     repository.findByIdFromDb(id).shouldBeNull()
                 }
             }

@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.r2dbc.redisson.AbstractR2dbcRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -20,7 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
+interface R2dbcReadThroughScenario<ID: Any, E: java.io.Serializable>: R2dbcCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
@@ -41,7 +40,7 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
                 entityFromCAche.shouldNotBeNull()
                 entityFromCAche shouldBeEqualTo entityFromDB
 
-                repository.exists(id).shouldBeTrue()
+                repository.containsKey(id).shouldBeTrue()
             }
         }
 
@@ -53,10 +52,10 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
                 val ids = getExistingIds()
 
                 // 캐시에 없다면, Read through로 DB에서 로드합니다. DB에도 없다면 false를 반환합니다.
-                ids.all { repository.exists(it) }.shouldBeTrue()
+                ids.all { repository.containsKey(it) }.shouldBeTrue()
 
                 // 캐시, DB 모두에 존재하지 않는 ID
-                repository.exists(getNonExistentId()).shouldBeFalse()
+                repository.containsKey(getNonExistentId()).shouldBeFalse()
             }
         }
 
@@ -73,7 +72,7 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
                 entityFromCache.shouldNotBeNull()
 
                 // 캐시에서 삭제 (Read Through Only 인 경우에는 DB에는 영향을 주지 않음)
-                repository.invalidate(*getExistingIds().toVarargArray())
+                repository.invalidateAll(getExistingIds())
 
                 // 다시 조회하면 DB에서 로드
                 val reloadedEntity = repository.get(id)
@@ -124,21 +123,10 @@ interface R2dbcReadThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
         runTest {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds() + getNonExistentId()
-                val entities = repository.getAll(ids, batchSize = 2)
+                val entities = repository.getAll(ids)
                 entities.shouldNotBeEmpty()
 
                 entities.size shouldBeEqualTo getExistingIds().size
-            }
-        }
-
-    @ParameterizedTest
-    @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `getAll - batchSize 는 0보다 커야 한다`(testDB: TestDB) =
-        runTest {
-            withR2dbcEntityTable(testDB) {
-                assertFailsWith<IllegalArgumentException> {
-                    repository.getAll(getExistingIds(), batchSize = 0)
-                }
             }
         }
 

@@ -30,6 +30,7 @@ import java.util.*
  *
  * - AutoIncrement Long ID 테이블 ([UserTable]) 과
  * - Client-generated UUID ID 테이블 ([UserCredentialsTable]) 에 대해 각각 검증한다.
+ * - Remote 캐시와 NearCache 변형을 포함한 4-variant @Nested 구조.
  * - `writeBehindDelay = 500ms`로 설정하여 테스트 시 빠른 flush를 유도한다.
  */
 class R2dbcLettuceWriteBehindCacheTest {
@@ -39,7 +40,10 @@ class R2dbcLettuceWriteBehindCacheTest {
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncIdWriteBehind:
+    /**
+     * Auto-increment Long ID ([UserTable]) 기반 Write-behind 테스트 추상 클래스.
+     */
+    abstract class R2dbcAutoIncIdWriteBehind:
         AbstractR2dbcLettuceTest(),
         R2dbcLettuceWriteBehindScenario<Long, UserRecord> {
         companion object: KLoggingChannel()
@@ -73,13 +77,26 @@ class R2dbcLettuceWriteBehindCacheTest {
             entity.copy(email = Base58.randomString(4) + "." + faker.internet().emailAddress())
     }
 
+    /**
+     * Auto-increment Long ID — Remote 캐시 (NearCache 미사용).
+     */
     @Nested
-    inner class AutoIncIdWriteBehindTest: AutoIncIdWriteBehind() {
+    inner class R2dbcAutoIncIdWriteBehindRemoteCache: R2dbcAutoIncIdWriteBehind() {
+        override val config =
+            LettuceCacheConfig(
+                writeMode = WriteMode.WRITE_BEHIND,
+                writeBehindDelay = Duration.ofMillis(500),
+                writeBehindBatchSize = 10,
+                keyPrefix = "r2dbc:write-behind:auto-inc:remote:test"
+            )
         override val repository by lazy { R2dbcUserLettuceRepository(redisClient, config) }
     }
 
+    /**
+     * Auto-increment Long ID — NearCache 활성화.
+     */
     @Nested
-    inner class AutoIncIdWriteBehindNearCacheTest: AutoIncIdWriteBehind() {
+    inner class R2dbcAutoIncIdWriteBehindNearCache: R2dbcAutoIncIdWriteBehind() {
         override val config =
             LettuceCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE.copy(
                 writeBehindDelay = Duration.ofMillis(500),
@@ -94,7 +111,10 @@ class R2dbcLettuceWriteBehindCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGeneratedIdWriteBehind:
+    /**
+     * Client-generated UUID ID ([UserCredentialsTable]) 기반 Write-behind 테스트 추상 클래스.
+     */
+    abstract class R2dbcClientGeneratedIdWriteBehind:
         AbstractR2dbcLettuceTest(),
         R2dbcLettuceWriteBehindScenario<UUID, UserCredentialsRecord> {
         companion object: KLoggingChannel()
@@ -134,13 +154,26 @@ class R2dbcLettuceWriteBehindCacheTest {
             entity.copy(email = Base58.randomString(4) + "." + faker.internet().emailAddress())
     }
 
+    /**
+     * Client-generated UUID ID — Remote 캐시 (NearCache 미사용).
+     */
     @Nested
-    inner class ClientGeneratedIdWriteBehindTest: ClientGeneratedIdWriteBehind() {
+    inner class R2dbcClientGeneratedIdWriteBehindRemoteCache: R2dbcClientGeneratedIdWriteBehind() {
+        override val config =
+            LettuceCacheConfig(
+                writeMode = WriteMode.WRITE_BEHIND,
+                writeBehindDelay = Duration.ofMillis(500),
+                writeBehindBatchSize = 10,
+                keyPrefix = "r2dbc:write-behind:client-uuid:remote:test"
+            )
         override val repository by lazy { R2dbcUserCredentialLettuceRepository(redisClient, config) }
     }
 
+    /**
+     * Client-generated UUID ID — NearCache 활성화.
+     */
     @Nested
-    inner class ClientGeneratedIdWriteBehindNearCacheTest: ClientGeneratedIdWriteBehind() {
+    inner class R2dbcClientGeneratedIdWriteBehindNearCache: R2dbcClientGeneratedIdWriteBehind() {
         override val config =
             LettuceCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE.copy(
                 writeBehindDelay = Duration.ofMillis(500),

@@ -7,6 +7,7 @@ import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.junit.jupiter.api.BeforeEach
+import java.io.Serializable
 
 /**
  * R2DBC Lettuce 캐시 테스트 시나리오 베이스 인터페이스.
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach
  * - `@BeforeEach`에서 캐시를 비운다.
  * - 서브 인터페이스(Read-through / Write-through / Write-behind)가 테스트 메서드를 추가한다.
  */
-interface R2DbcLettuceJCacheTestScenario<ID: Any, E: Any> {
+interface R2DbcLettuceJCacheTestScenario<ID: Any, E: Serializable> {
     companion object: KLoggingChannel() {
         @JvmStatic
         fun enableDialects() = setOf(TestDB.H2)
@@ -47,6 +48,6 @@ interface R2DbcLettuceJCacheTestScenario<ID: Any, E: Any> {
 
     @BeforeEach
     fun clearCacheBeforeEach() {
-        runTest { repository.clearCache() }
+        runTest { repository.clear() }
     }
 }

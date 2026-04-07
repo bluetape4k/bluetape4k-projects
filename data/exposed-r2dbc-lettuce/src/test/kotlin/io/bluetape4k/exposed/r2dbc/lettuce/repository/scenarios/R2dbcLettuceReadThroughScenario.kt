@@ -9,19 +9,20 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 
 /**
  * Read-through 캐시 전략 R2DBC Lettuce 시나리오.
  *
  * - 캐시 미스 시 DB에서 로드 후 Redis에 적재
- * - delete 시 Redis에서만 삭제 (Read-only 모드에서 DB 영향 없음)
+ * - invalidate 시 Redis에서만 삭제 (Read-only 모드에서 DB 영향 없음)
  */
-interface R2dbcLettuceReadThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTestScenario<ID, E> {
+interface R2dbcLettuceReadThroughScenario<ID: Any, E: Serializable>: R2DbcLettuceJCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     /**
      * [getNonExistentId]에 해당하는 엔티티를 생성한다 (DB에는 저장하지 않음).
-     * `delete` 시나리오에서 캐시만 존재하는 상태를 만들기 위해 사용한다.
+     * `invalidate` 시나리오에서 캐시만 존재하는 상태를 만들기 위해 사용한다.
      */
     suspend fun buildEntityForId(id: ID): E
 
@@ -33,8 +34,8 @@ interface R2dbcLettuceReadThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTe
                 val id = getExistingId()
                 val fromDb = repository.findByIdFromDb(id).shouldNotBeNull()
 
-                repository.clearCache()
-                val fromCache = repository.findById(id).shouldNotBeNull()
+                repository.clear()
+                val fromCache = repository.get(id).shouldNotBeNull()
                 fromCache shouldBeEqualTo fromDb
             }
         }
@@ -44,55 +45,55 @@ interface R2dbcLettuceReadThroughScenario<ID: Any, E: Any>: R2DbcLettuceJCacheTe
     fun `findById - DB에 없는 ID는 null을 반환한다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
-                repository.findById(getNonExistentId()).shouldBeNull()
+                repository.get(getNonExistentId()).shouldBeNull()
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `findAll - 여러 ID 일괄 조회 시 캐시 미스 키를 DB에서 Read-through한다`(testDB: TestDB) =
+    fun `getAll - 여러 ID 일괄 조회 시 캐시 미스 키를 DB에서 Read-through한다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds()
-                val result = repository.findAll(ids)
+                val result = repository.getAll(ids)
                 result.size shouldBeEqualTo ids.size
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `findAll - 존재하지 않는 ID는 결과에 포함되지 않는다`(testDB: TestDB) =
+    fun `getAll - 존재하지 않는 ID는 결과에 포함되지 않는다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds() + listOf(getNonExistentId())
-                val result = repository.findAll(ids)
+                val result = repository.getAll(ids)
                 result.size shouldBeEqualTo getExistingIds().size
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `clearCache - 캐시를 비운 후 재조회하면 DB에서 다시 Read-through한다`(testDB: TestDB) =
+    fun `clear - 캐시를 비운 후 재조회하면 DB에서 다시 Read-through한다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val id = getExistingId()
-                repository.findById(id)
-                repository.clearCache()
+                repository.get(id)
+                repository.clear()
 
-                repository.findById(id).shouldNotBeNull()
+                repository.get(id).shouldNotBeNull()
             }
         }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `delete - 캐시 엔트리를 삭제하면 findById는 null을 반환한다`(testDB: TestDB) =
+    fun `invalidate - 캐시 엔트리를 삭제하면 get은 null을 반환한다`(testDB: TestDB) =
         runTest {
             withR2dbcEntityTable(testDB) {
                 val id = getNonExistentId()
-                repository.save(id, buildEntityForId(id))
-                repository.delete(id)
+                repository.put(id, buildEntityForId(id))
+                repository.invalidate(id)
 
-                repository.findById(id).shouldBeNull()
+                repository.get(id).shouldBeNull()
             }
         }
 }

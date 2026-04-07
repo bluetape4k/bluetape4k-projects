@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.lettuce.map
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.bluetape4k.support.requirePositiveNumber
 import io.github.resilience4j.retry.RetryConfig
+import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
@@ -70,8 +71,10 @@ class ExposedEntityMapWriter<ID: Any, E: Any>(
             table.update({ table.id eq id }) { updateEntity(it, map[id]!!) }
         }
 
+        // AutoInc 테이블의 경우 DB가 ID를 할당하므로 클라이언트 지정 ID로 삽입하지 않는다
+        val isAutoInc = table.id.autoIncColumnType != null
         val newIds = map.keys - existingIds
-        if (newIds.isNotEmpty()) {
+        if (newIds.isNotEmpty() && !isAutoInc) {
             newIds.chunked(chunkSize).forEach { chunk ->
                 table.batchInsert(chunk) { id -> insertEntity(this, map[id]!!) }
             }

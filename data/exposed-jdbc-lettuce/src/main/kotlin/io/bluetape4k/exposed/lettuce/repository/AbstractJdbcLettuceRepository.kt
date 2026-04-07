@@ -1,9 +1,12 @@
 package io.bluetape4k.exposed.lettuce.repository
 
+import io.bluetape4k.exposed.cache.CacheMode
+import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapLoader
 import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapWriter
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
+import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.lettuce.core.RedisClient
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
@@ -16,6 +19,7 @@ import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.io.Serializable
 
 /**
  * Exposed DSL + Lettuce Redis 캐시를 결합한 추상 레포지토리.
@@ -48,19 +52,29 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractJdbcLettuceRepository<ID: Any, E: Any>(
+abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
     client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ) : JdbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
 
-    abstract fun ResultRow.toEntity(): E
+    abstract override fun ResultRow.toEntity(): E
 
     abstract fun UpdateStatement.updateEntity(entity: E)
 
     abstract fun BatchInsertStatement.insertEntity(entity: E)
 
     open fun serializeKey(id: ID): String = id.toString()
+
+    // JdbcCacheRepository 프로퍼티 구현
+    override val cacheName: String get() = config.keyPrefix
+    override val cacheMode: CacheMode get() =
+        if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+    override val cacheWriteMode: CacheWriteMode get() = when (config.writeMode) {
+        WriteMode.NONE -> CacheWriteMode.READ_ONLY
+        WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
+        WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
+    }
 
     protected val cache: LettuceLoadedMap<ID, E> by lazy {
         LettuceLoadedMap(
@@ -115,9 +129,11 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Any>(
     // 캐시 기반 조회 (Read-through)
     // -------------------------------------------------------------------------
 
-    override fun findById(id: ID): E? = cache[id]
+    override fun containsKey(id: ID): Boolean = get(id) != null
 
-    override fun findAll(ids: Collection<ID>): Map<ID, E> = cache.getAll(ids.toSet())
+    override fun get(id: ID): E? = cache[id]
+
+    override fun getAll(ids: Collection<ID>): Map<ID, E> = cache.getAll(ids.toSet())
 
     override fun findAll(
         limit: Int?,
@@ -148,7 +164,7 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Any>(
      * 엔티티에서 ID를 추출한다.
      * 기본 구현은 [table]을 통한 DB 재조회이며, 서브클래스에서 직접 오버라이드 권장.
      */
-    protected open fun extractId(entity: E): ID {
+    override fun extractId(entity: E): ID {
         error(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
                 "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
@@ -159,34 +175,34 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Any>(
     // 쓰기
     // -------------------------------------------------------------------------
 
-    override fun save(
+    override fun put(
         id: ID,
         entity: E,
     ) {
         cache[id] = entity
     }
 
-    override fun saveAll(entities: Map<ID, E>) {
+    override fun putAll(entities: Map<ID, E>, batchSize: Int) {
         entities.forEach { (id, entity) -> cache[id] = entity }
     }
 
     // -------------------------------------------------------------------------
-    // 삭제
+    // 삭제 (캐시 무효화)
     // -------------------------------------------------------------------------
 
-    override fun delete(id: ID) {
-        cache.delete(id)
+    override fun invalidate(id: ID) {
+        cache.evict(id)
     }
 
-    override fun deleteAll(ids: Collection<ID>) {
-        cache.deleteAll(ids)
+    override fun invalidateAll(ids: Collection<ID>) {
+        cache.evictAll(ids)
     }
 
     // -------------------------------------------------------------------------
     // 캐시 관리
     // -------------------------------------------------------------------------
 
-    override fun clearCache() {
+    override fun clear() {
         cache.clear()
     }
 

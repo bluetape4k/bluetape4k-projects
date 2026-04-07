@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -22,7 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
+interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
@@ -43,7 +42,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
                 entityFromCAche.shouldNotBeNull()
                 entityFromCAche shouldBeEqualTo entityFromDB
 
-                repository.exists(id).shouldBeTrue()
+                repository.containsKey(id).shouldBeTrue()
             }
         }
 
@@ -55,10 +54,10 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
                 val ids = getExistingIds()
 
                 // 캐시에 없다면, Read through로 DB에서 로드합니다. DB에도 없다면 false를 반환합니다.
-                ids.all { repository.exists(it) }.shouldBeTrue()
+                ids.all { repository.containsKey(it) }.shouldBeTrue()
 
                 // 캐시, DB 모두에 존재하지 않는 ID
-                repository.exists(getNonExistentId()).shouldBeFalse()
+                repository.containsKey(getNonExistentId()).shouldBeFalse()
             }
         }
 
@@ -75,7 +74,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
                 entityFromCache.shouldNotBeNull()
 
                 // 캐시에서 삭제 (Read Through Only 인 경우에는 DB에는 영향을 주지 않음)
-                repository.invalidate(*getExistingIds().toVarargArray())
+                repository.invalidateAll(getExistingIds())
 
                 // 다시 조회하면 DB에서 로드
                 val reloadedEntity = repository.get(id)
@@ -127,7 +126,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
             Assumptions.assumeTrue { testDB != TestDB.MYSQL_V5 }
             withSuspendedEntityTable(testDB) {
                 val ids = getExistingIds() + getNonExistentId()
-                val entities = repository.getAll(ids, batchSize = 2)
+                val entities = repository.getAll(ids)
                 entities.shouldNotBeEmpty()
 
                 entities.size shouldBeEqualTo getExistingIds().size
@@ -149,7 +148,8 @@ interface SuspendedReadThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScena
         runSuspendIO {
             withSuspendedEntityTable(testDB) {
                 assertFailsWith<IllegalArgumentException> {
-                    repository.getAll(getExistingIds(), batchSize = 0)
+                    (repository as io.bluetape4k.exposed.redisson.repository.AbstractSuspendedJdbcRedissonRepository<ID, E>)
+                        .getAll(getExistingIds(), batchSize = 0)
                 }
             }
         }

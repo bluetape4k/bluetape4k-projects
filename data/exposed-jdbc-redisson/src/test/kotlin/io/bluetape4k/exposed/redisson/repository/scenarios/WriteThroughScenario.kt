@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
+interface WriteThroughScenario<ID: Any, E: java.io.Serializable>: CacheTestScenario<ID, E> {
     companion object: KLogging()
 
     fun createNewEntity(): E
@@ -41,7 +41,7 @@ interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
 
             // 캐시에 갱신된 값 저장 -> DB에도 저장
             val updatedEntity = updateEntityEmail(entity)
-            repository.put(updatedEntity)
+            repository.put(repository.extractId(updatedEntity), updatedEntity)
 
             // 캐시에서 조회한 값
             val entityFromCache = repository.get(id)
@@ -66,18 +66,18 @@ interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
             val ids = getExistingIds()
 
             // 캐시에서 조회한 값
-            val entities = repository.getAll(ids)
-            entities.shouldNotBeEmpty()
-            entities shouldHaveSize ids.size
+            val entitiesMap = repository.getAll(ids)
+            entitiesMap.shouldNotBeEmpty()
+            entitiesMap.size shouldBeEqualTo ids.size
 
             // 캐시에 갱신된 값 저장 -> DB에도 저장
-            val updatedEntities = entities.map { updateEntityEmail(it) }
-            repository.putAll(updatedEntities)
+            val updatedEntities = entitiesMap.values.map { updateEntityEmail(it) }
+            repository.putAll(updatedEntities.associateBy { repository.extractId(it) })
 
             // 캐시에서 조회한 값
-            val entitiesFromCache = repository.getAll(ids)
-            entitiesFromCache.shouldNotBeNull()
-            entitiesFromCache.forEach { entity ->
+            val entitiesFromCacheMap = repository.getAll(ids)
+            entitiesFromCacheMap.shouldNotBeNull()
+            entitiesFromCacheMap.values.forEach { entity ->
                 assertSameEntityWithoutUpdatedAt(
                     entity,
                     updatedEntities.find {
@@ -94,7 +94,7 @@ interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
             entitiesFromDB.forEach { entity ->
                 assertSameEntityWithoutUpdatedAt(
                     entity,
-                    entitiesFromCache.find {
+                    entitiesFromCacheMap.values.find {
                         repository.extractId(it) == repository.extractId(entity)
                     }!!
                 )
@@ -111,7 +111,7 @@ interface WriteThroughScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
         withEntityTable(testDB) {
             val prevCount = repository.table.selectAll().count()
             val newEntities = List(5) { createNewEntity() }
-            repository.putAll(newEntities)
+            repository.putAll(newEntities.associateBy { repository.extractId(it) })
 
             val newCount = repository.table.selectAll().count()
 

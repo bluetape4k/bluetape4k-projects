@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 @Suppress("DEPRECATION")
-interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteBehindScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     suspend fun createNewEntity(): E
@@ -33,7 +33,7 @@ interface SuspendedWriteBehindScenario<ID: Any, E: Any>: SuspendedCacheTestScena
         runSuspendIO {
             withSuspendedEntityTable(testDB) {
                 val entities = createNewEntities(1000)
-                repository.putAll(entities)
+                repository.putAll(entities.associateBy { repository.extractId(it) })
 
                 await
                     .atMost(Duration.ofSeconds(30))

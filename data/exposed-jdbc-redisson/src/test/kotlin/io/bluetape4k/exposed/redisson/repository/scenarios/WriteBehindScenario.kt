@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
+interface WriteBehindScenario<ID: Any, E: java.io.Serializable>: CacheTestScenario<ID, E> {
     companion object: KLogging()
 
     fun createNewEntity(): E
@@ -29,7 +29,7 @@ interface WriteBehindScenario<ID: Any, E: Any>: CacheTestScenario<ID, E> {
     fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) {
         withEntityTable(testDB) {
             val entities = createNewEntities(1000)
-            repository.putAll(entities)
+            repository.putAll(entities.associateBy { repository.extractId(it) })
 
             await
                 .atMost(Duration.ofSeconds(30))

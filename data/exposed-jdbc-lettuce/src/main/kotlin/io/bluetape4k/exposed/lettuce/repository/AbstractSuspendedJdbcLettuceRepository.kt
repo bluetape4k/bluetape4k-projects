@@ -2,10 +2,13 @@ package io.bluetape4k.exposed.lettuce.repository
 
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.exposed.cache.CacheMode
+import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapLoader
 import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapWriter
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
+import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.lettuce.core.RedisClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -20,6 +23,7 @@ import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import java.io.Serializable
 
 /**
  * Exposed JDBC + Lettuce Redis 캐시를 결합한 suspend(코루틴) 기반 추상 레포지토리.
@@ -54,19 +58,29 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
+abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
     private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ): SuspendedJdbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
 
-    abstract fun ResultRow.toEntity(): E
+    abstract override fun ResultRow.toEntity(): E
 
     abstract fun UpdateStatement.updateEntity(entity: E)
 
     abstract fun BatchInsertStatement.insertEntity(entity: E)
 
     open fun serializeKey(id: ID): String = id.toString()
+
+    // SuspendedJdbcCacheRepository 프로퍼티 구현
+    override val cacheName: String get() = config.keyPrefix
+    override val cacheMode: CacheMode get() =
+        if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+    override val cacheWriteMode: CacheWriteMode get() = when (config.writeMode) {
+        WriteMode.NONE -> CacheWriteMode.READ_ONLY
+        WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
+        WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
+    }
 
     /** [config.nearCacheEnabled]가 true일 때 Caffeine 로컬 캐시(front) */
     protected val nearCache: LettuceSuspendNearCache<E>? by lazy {
@@ -145,14 +159,16 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     // 캐시 기반 조회 (Read-through)
     // -------------------------------------------------------------------------
 
-    override suspend fun findById(id: ID): E? {
+    override suspend fun containsKey(id: ID): Boolean = get(id) != null
+
+    override suspend fun get(id: ID): E? {
         nearCache?.get(serializeKey(id))?.let { return it }
         val value = cache.get(id) ?: return null
         nearCache?.put(serializeKey(id), value)
         return value
     }
 
-    override suspend fun findAll(ids: Collection<ID>): Map<ID, E> {
+    override suspend fun getAll(ids: Collection<ID>): Map<ID, E> {
         val nc = nearCache ?: return cache.getAll(ids.toSet())
         val result = mutableMapOf<ID, E>()
         val missedIds = mutableListOf<ID>()
@@ -200,7 +216,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
      * 엔티티에서 ID를 추출한다.
      * 기본 구현은 에러를 던지며, [findAll] with where 사용 시 서브클래스에서 오버라이드해야 한다.
      */
-    protected open fun extractId(entity: E): ID {
+    override fun extractId(entity: E): ID {
         error(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
                     "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
@@ -211,7 +227,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     // 쓰기
     // -------------------------------------------------------------------------
 
-    override suspend fun save(
+    override suspend fun put(
         id: ID,
         entity: E,
     ) {
@@ -219,7 +235,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
         nearCache?.put(serializeKey(id), entity)
     }
 
-    override suspend fun saveAll(entities: Map<ID, E>) {
+    override suspend fun putAll(entities: Map<ID, E>, batchSize: Int) {
         entities.forEach { (id, entity) ->
             cache.set(id, entity)
             nearCache?.put(serializeKey(id), entity)
@@ -227,16 +243,16 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     }
 
     // -------------------------------------------------------------------------
-    // 삭제
+    // 삭제 (캐시 무효화)
     // -------------------------------------------------------------------------
 
-    override suspend fun delete(id: ID) {
-        cache.delete(id)
+    override suspend fun invalidate(id: ID) {
+        cache.evict(id)
         nearCache?.remove(serializeKey(id))
     }
 
-    override suspend fun deleteAll(ids: Collection<ID>) {
-        cache.deleteAll(ids)
+    override suspend fun invalidateAll(ids: Collection<ID>) {
+        cache.evictAll(ids)
         nearCache?.removeAll(ids.map { serializeKey(it) }.toSet())
     }
 
@@ -244,7 +260,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Any>(
     // 캐시 관리
     // -------------------------------------------------------------------------
 
-    override suspend fun clearCache() {
+    override suspend fun clear() {
         nearCache?.clearAll()
         cache.clear()
     }

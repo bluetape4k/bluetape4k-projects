@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.exposed.cache.R2dbcRedissonCacheRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -15,15 +16,17 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.redisson.api.RMap
+import java.io.Serializable
 
 /**
  * Exposed R2DBC와 Redisson `RMap`을 결합한 비동기 캐시 리포지토리 계약입니다.
  *
+ * [R2dbcRedissonCacheRepository]를 확장하며 Redisson RMap 기반의 캐시 조작 기능을 제공합니다.
+ *
  * ## 동작/계약
- * - `get/exists/getAll`은 캐시 중심 API이며 read-through 설정 시 캐시 미스에서 DB loader가 동작합니다.
+ * - `get/containsKey/getAll`은 캐시 중심 API이며 read-through 설정 시 캐시 미스에서 DB loader가 동작합니다.
  * - `findByIdFromDb/findAllFromDb`는 항상 DB를 직접 조회하며 캐시를 우회합니다.
- * - `put/putAll/invalidate`는 캐시 반영 API이고 DB 반영 여부는 writer 설정에 따라 달라집니다.
- * - `batchSize`, `count`는 0보다 커야 하며 위반 시 [IllegalArgumentException]이 발생합니다.
+ * - `put/putAll/invalidate/clear`는 캐시 반영 API이고 DB 반영 여부는 writer 설정에 따라 달라집니다.
  *
  * ```kotlin
  * val id = getExistingId()
@@ -32,23 +35,18 @@ import org.redisson.api.RMap
  * // fromCache == fromDb
  * ```
  *
- * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable Record를 사용해 주세요.
+ * @param E Entity Type   분산 캐시(Redisson) 저장을 위해 [Serializable] 구현이 필수입니다.
  * @param ID Entity ID Type
  */
-interface R2dbcRedissonRepository<ID: Any, E: Any> {
+interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedissonCacheRepository<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }
 
     /**
-     * 캐시 이름을 반환합니다.
-     */
-    val cacheName: String
-
-    /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
-    val table: IdTable<ID>
+    override val table: IdTable<ID>
 
     /**
      * 엔티티에서 ID를 추출합니다.
@@ -56,12 +54,12 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param entity 엔티티
      * @return 엔티티의 ID
      */
-    fun extractId(entity: E): ID
+    override fun extractId(entity: E): ID
 
     /**
      * ResultRow를 엔티티로 변환합니다.
      */
-    suspend fun ResultRow.toEntity(): E
+    override suspend fun ResultRow.toEntity(): E
 
     /**
      * Redisson의 RMap 캐시 객체를 반환합니다.
@@ -74,7 +72,7 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param id 엔티티의 식별자
      * @return 존재 여부
      */
-    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).await()
+    override suspend fun containsKey(id: ID): Boolean = cache.containsKeyAsync(id).await()
 
     /**
      * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
@@ -82,7 +80,7 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun findByIdFromDb(id: ID): E? =
+    override suspend fun findByIdFromDb(id: ID): E? =
         suspendTransaction {
             table
                 .selectAll()
@@ -94,31 +92,26 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
     /**
      * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
      *
-     * @param ids 엔티티 식별자 목록
-     * @return 조회된 엔티티 리스트
-     */
-    suspend fun findAllFromDb(vararg ids: ID): List<E> =
-        suspendTransaction {
-            table
-                .selectAll()
-                .where { table.id inList ids.toList() }
-                .map { it.toEntity() }
-                .toList()
-        }
-
-    /**
-     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
-     *
      * @param ids 엔티티 식별자 컬렉션
      * @return 조회된 엔티티 리스트
      */
-    suspend fun findAllFromDb(ids: Collection<ID>): List<E> =
+    override suspend fun findAllFromDb(ids: Collection<ID>): List<E> =
         suspendTransaction {
             table
                 .selectAll()
                 .where { table.id inList ids }
                 .map { it.toEntity() }
                 .toList()
+        }
+
+    /**
+     * DB에서 전체 레코드 수를 조회합니다.
+     *
+     * @return 전체 레코드 수
+     */
+    override suspend fun countFromDb(): Long =
+        suspendTransaction {
+            table.selectAll().count()
         }
 
     /**
@@ -131,12 +124,12 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param where 조회 조건
      * @return 조회된 엔티티 리스트
      */
-    suspend fun findAll(
-        limit: Int? = null,
-        offset: Long? = null,
-        sortBy: Expression<*> = table.id,
-        sortOrder: SortOrder = SortOrder.ASC,
-        where: () -> Op<Boolean> = { Op.TRUE },
+    override suspend fun findAll(
+        limit: Int?,
+        offset: Long?,
+        sortBy: Expression<*>,
+        sortOrder: SortOrder,
+        where: () -> Op<Boolean>,
     ): List<E>
 
     /**
@@ -145,56 +138,63 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun get(id: ID): E? = cache.getAsync(id).await()
+    override suspend fun get(id: ID): E? = cache.getAsync(id).await()
 
     /**
-     * 여러 ID로 캐시에서 엔티티 목록을 조회합니다.
+     * 여러 ID로 캐시에서 엔티티 맵을 조회합니다.
      *
      * @param ids 엔티티 식별자 컬렉션
-     * @param batchSize 배치 크기
-     * @return 조회된 엔티티 리스트
+     * @return ID를 키, 엔티티를 값으로 하는 맵
      */
-    suspend fun getAll(
-        ids: Collection<ID>,
-        batchSize: Int = DEFAULT_BATCH_SIZE,
-    ): List<E>
+    override suspend fun getAll(ids: Collection<ID>): Map<ID, E>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
+     * @param id 엔티티의 식별자
      * @param entity 저장할 엔티티
-     * @return 저장 성공 여부
      */
-    suspend fun put(entity: E): Boolean? = cache.fastPutAsync(extractId(entity), entity).await()
+    override suspend fun put(id: ID, entity: E) {
+        cache.fastPutAsync(id, entity).await()
+    }
 
     /**
      * 여러 엔티티를 캐시에 저장합니다.
      *
-     * @param entities 저장할 엔티티 컬렉션
+     * @param entities 식별자를 키, 엔티티를 값으로 하는 맵
      * @param batchSize 배치 크기
      */
-    suspend fun putAll(
-        entities: Collection<E>,
-        batchSize: Int = DEFAULT_BATCH_SIZE,
-    ) {
+    override suspend fun putAll(entities: Map<ID, E>, batchSize: Int) {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
-        cache.putAllAsync(entities.associateBy { extractId(it) }, batchSize).await()
+        @Suppress("UNCHECKED_CAST")
+        cache.putAllAsync(entities as Map<ID, E?>, batchSize).await()
     }
 
     /**
      * 주어진 ID의 엔티티를 캐시에서 제거합니다.
      *
-     * @param ids 삭제할 엔티티 식별자 목록
-     * @return 삭제된 엔티티 개수
+     * @param id 삭제할 엔티티 식별자
      */
-    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).await()
+    override suspend fun invalidate(id: ID) {
+        cache.fastRemoveAsync(id).await()
+    }
+
+    /**
+     * 여러 ID의 엔티티를 캐시에서 제거합니다.
+     *
+     * @param ids 삭제할 엔티티 식별자 목록
+     */
+    override suspend fun invalidateAll(ids: Collection<ID>) {
+        if (ids.isEmpty()) return
+        ids.forEach { id -> cache.fastRemoveAsync(id).await() }
+    }
 
     /**
      * 캐시의 모든 엔티티를 제거합니다.
-     *
-     * @return 성공 여부
      */
-    suspend fun invalidateAll(): Boolean = cache.clearAsync().await()
+    override suspend fun clear() {
+        cache.clearAsync().await()
+    }
 
     /**
      * 패턴에 맞는 키의 엔티티를 캐시에서 제거합니다.
@@ -203,15 +203,17 @@ interface R2dbcRedissonRepository<ID: Any, E: Any> {
      * @param count 최대 삭제 개수
      * @return 삭제된 엔티티 개수
      */
-    suspend fun invalidateByPattern(
+    override suspend fun invalidateByPattern(
         patterns: String,
-        count: Int = DEFAULT_BATCH_SIZE,
+        count: Int,
     ): Long {
         require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
         if (keys.isEmpty()) {
             return 0
         }
-        return cache.fastRemoveAsync(*keys.toTypedArray()).await()
+        var removed = 0L
+        keys.forEach { key -> removed += cache.fastRemoveAsync(key).await() }
+        return removed
     }
 }

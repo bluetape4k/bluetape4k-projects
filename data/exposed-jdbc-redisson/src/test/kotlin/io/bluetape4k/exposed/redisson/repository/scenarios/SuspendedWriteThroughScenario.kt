@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScenario<ID, E> {
+interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 500L
     }
@@ -50,7 +50,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
 
                 // 캐시에 갱신된 값 저장 -> DB에도 저장
                 val updatedEntity = updateEntityEmail(entity)
-                repository.put(updatedEntity)
+                repository.put(repository.extractId(updatedEntity), updatedEntity)
 
                 // 캐시에서 조회한 값
                 val entityFromCache = repository.get(id)
@@ -89,18 +89,18 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
                 }
 
                 // 캐시에서 조회한 값
-                val entities = repository.getAll(ids)
-                entities.shouldNotBeEmpty()
-                entities shouldHaveSize ids.size
+                val entitiesMap = repository.getAll(ids)
+                entitiesMap.shouldNotBeEmpty()
+                entitiesMap.size shouldBeEqualTo ids.size
 
                 // 캐시에 갱신된 값 저장 -> DB에도 저장
-                val updatedEntities = entities.map { updateEntityEmail(it) }
-                repository.putAll(updatedEntities)
+                val updatedEntities = entitiesMap.values.map { updateEntityEmail(it) }
+                repository.putAll(updatedEntities.associateBy { repository.extractId(it) })
 
                 // 캐시에서 조회한 값
-                val entitiesFromCache = repository.getAll(ids)
-                entitiesFromCache.shouldNotBeNull()
-                entitiesFromCache.forEach { entity ->
+                val entitiesFromCacheMap = repository.getAll(ids)
+                entitiesFromCacheMap.shouldNotBeNull()
+                entitiesFromCacheMap.values.forEach { entity ->
                     assertSameEntityWithoutAudit(
                         entity,
                         updatedEntities.find {
@@ -122,7 +122,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
                 entitiesFromDB.forEach { entity ->
                     assertSameEntityWithoutAudit(
                         entity,
-                        entitiesFromCache.find {
+                        entitiesFromCacheMap.values.find {
                             repository.extractId(it) == repository.extractId(entity)
                         }!!
                     )
@@ -140,7 +140,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: Any>: SuspendedCacheTestScen
             withSuspendedEntityTable(testDB) {
                 val prevCount = repository.table.selectAll().count()
                 val newEntities = List(5) { createNewEntity() }
-                repository.putAll(newEntities)
+                repository.putAll(newEntities.associateBy { repository.extractId(it) })
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {

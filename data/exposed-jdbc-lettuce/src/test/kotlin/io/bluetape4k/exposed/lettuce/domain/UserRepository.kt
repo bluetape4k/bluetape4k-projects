@@ -32,6 +32,8 @@ class UserRepository(
             createdAt = this[UserTable.createdAt]
         )
 
+    override fun extractId(entity: UserRecord): Long = entity.id
+
     override fun UpdateStatement.updateEntity(entity: UserRecord) {
         this[UserTable.firstName] = entity.firstName
         this[UserTable.lastName] = entity.lastName

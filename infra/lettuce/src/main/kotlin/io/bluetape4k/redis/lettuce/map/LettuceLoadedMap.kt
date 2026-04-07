@@ -221,6 +221,25 @@ class LettuceLoadedMap<K: Any, V: Any>(
     }
 
     /**
+     * Redis 캐시에서만 해당 키를 제거합니다 (DB에는 영향 없음).
+     *
+     * @param key 캐시에서 제거할 키
+     */
+    fun evict(key: K) {
+        commands.del(redisKey(key))
+    }
+
+    /**
+     * Redis 캐시에서만 여러 키를 제거합니다 (DB에는 영향 없음).
+     *
+     * @param keys 캐시에서 제거할 키 컬렉션
+     */
+    fun evictAll(keys: Collection<K>) {
+        if (keys.isEmpty()) return
+        commands.del(*keys.map { redisKey(it) }.toTypedArray())
+    }
+
+    /**
      * keyPrefix에 해당하는 모든 Redis 항목을 삭제합니다.
      *
      * ```kotlin

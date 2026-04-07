@@ -1,5 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.exposed.cache.CacheMode
+import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcExposedEntityMapLoader
@@ -28,36 +30,57 @@ import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
+import java.io.Serializable
 import java.time.Duration
 
 /**
  * R2DBC 기반 read-through/write-through 캐시 저장소를 구현하기 위한 추상 베이스 클래스입니다.
  *
+ * [R2dbcRedissonRepository]를 구현하며, [RedissonCacheConfig]에 따라 캐시 모드와 쓰기 전략을 결정합니다.
+ *
  * ## 동작/계약
  * - 캐시 모드에 따라 loader/writer를 조합해 `RMapCache` 또는 `RLocalCachedMap`을 생성합니다.
  * - [findAll]은 DB 조회 결과를 캐시에 동기화하고 반환합니다.
- * - [getAll]은 [batchSize] 단위로 캐시를 조회하며, `batchSize <= 0`이면 [IllegalArgumentException]이 발생합니다.
+ * - [getAll]은 [DEFAULT_BATCH_SIZE] 단위로 캐시를 조회하며, 결과를 `Map<ID, E>`로 반환합니다.
  *
  * ```kotlin
- * class UserRepo(...): AbstractR2dbcRedissonRepository<Long, UserTable, UserRecord>(...) { ... }
+ * class UserRepo(...): AbstractR2dbcRedissonRepository<Long, UserRecord>(...) { ... }
  * val entities = repo.findAll(limit = 10)
  * // entities.size <= 10
  * ```
  *
- * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable Record를 사용해 주세요.
+ * @param E Entity Type      분산 캐시(Redisson) 저장을 위해 [Serializable] 구현이 필수입니다.
  * @param ID Entity ID Type
  *
  * @param redissonClient Redisson Client
  * @param cacheName Redis Cache Name
- * @param config ExposedRedisCacheConfig
+ * @param config RedissonCacheConfig
  */
-abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Any>(
+abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ) : R2dbcRedissonRepository<ID, E> {
-    companion object : KLoggingChannel()
+    companion object : KLoggingChannel() {
+        const val DEFAULT_BATCH_SIZE = R2dbcRedissonRepository.DEFAULT_BATCH_SIZE
+    }
+
+    /**
+     * 캐시 저장 방식 (원격 전용 또는 NearCache)
+     */
+    override val cacheMode: CacheMode
+        get() = if (config.isNearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+
+    /**
+     * 캐시 쓰기 전략 (READ_ONLY, WRITE_THROUGH, WRITE_BEHIND)
+     */
+    override val cacheWriteMode: CacheWriteMode
+        get() = when {
+            config.isReadOnly -> CacheWriteMode.READ_ONLY
+            config.isWriteBehind -> CacheWriteMode.WRITE_BEHIND
+            else -> CacheWriteMode.WRITE_THROUGH
+        }
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [R2dbcEntityMapLoader] 입니다.
@@ -95,20 +118,17 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Any>(
      * Read Through Only 라면 null을 반환합니다.
      */
     protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, E>? by lazy {
-        when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY -> {
-                null
-            }
-            RedissonCacheConfig.CacheMode.READ_WRITE -> {
-                R2dbcExposedEntityMapWriter(
-                    scope = scope,
-                    entityTable = table,
-                    updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                    batchInsertBody = { entity -> doInsertEntity(this, entity) },
-                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
-                    writeMode = config.writeMode // Write Through 모드
-                )
-            }
+        if (config.isReadOnly) {
+            null
+        } else {
+            R2dbcExposedEntityMapWriter(
+                scope = scope,
+                entityTable = table,
+                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
+                batchInsertBody = { entity -> doInsertEntity(this, entity) },
+                deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,
+                writeMode = config.writeMode
+            )
         }
     }
 
@@ -203,27 +223,23 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Any>(
     }
 
     /**
-     * 주어진 ID 목록을 배치 단위로 캐시에서 조회합니다.
+     * 주어진 ID 목록을 배치 단위로 캐시에서 조회하고, `Map<ID, E>`로 반환합니다.
      *
      * @param ids 조회할 엔티티 ID 목록
-     * @param batchSize 한 번에 조회할 배치 크기
-     * @return 조회된 엔티티 목록
+     * @return ID를 키, 엔티티를 값으로 하는 맵
      */
-    override suspend fun getAll(
-        ids: Collection<ID>,
-        batchSize: Int,
-    ): List<E> {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
-        if (ids.isEmpty()) return emptyList()
+    override suspend fun getAll(ids: Collection<ID>): Map<ID, E> {
+        if (ids.isEmpty()) return emptyMap()
         return ids
-            .chunked(batchSize)
+            .chunked(DEFAULT_BATCH_SIZE)
             .flatMap { chunk ->
                 log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=$chunk" }
                 cache
                     .getAllAsync(chunk.toSet())
                     .await()
-                    .values
-                    .filterNotNull()
+                    .entries
+                    .mapNotNull { (k, v) -> if (v != null) k to v else null }
             }
+            .toMap()
     }
 }

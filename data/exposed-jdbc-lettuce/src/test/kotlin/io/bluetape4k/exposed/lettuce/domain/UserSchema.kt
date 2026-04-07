@@ -2,20 +2,23 @@ package io.bluetape4k.exposed.lettuce.domain
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.deleteAll
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * exposed-jdbc-lettuce 통합 테스트용 User 도메인 스키마.
@@ -58,19 +61,62 @@ object UserSchema {
     /**
      * [UserTable]을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행한다 (JDBC 동기 버전).
      */
-    fun withUserTable(statement: () -> Unit) {
-        transaction {
-            SchemaUtils.create(UserTable)
-            UserTable.deleteAll()
-            repeat(3) {
-                UserTable.insert {
-                    it[firstName] = faker.name().firstName()
-                    it[lastName] = faker.name().lastName()
-                    it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
-                }
+    fun withUserTable(
+        testDB: TestDB,
+        statement: JdbcTransaction.() -> Unit,
+    ) {
+        withTables(testDB, UserTable) {
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
             }
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            }
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            }
+
+            commit()
+
+            statement()
         }
-        statement()
+    }
+
+    /**
+     * [UserTable]을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행한다 (suspend 버전).
+     */
+    suspend fun withSuspendedUserTable(
+        testDB: TestDB,
+        context: CoroutineContext = Dispatchers.IO,
+        statement: suspend JdbcTransaction.() -> Unit,
+    ) {
+        withTablesSuspending(testDB, UserTable, context = context, dropTables = false) {
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            }
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            }
+            UserTable.insert {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            }
+
+            commit()
+
+            statement()
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -103,46 +149,85 @@ object UserSchema {
     /**
      * [UserCredentialsTable]을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행한다 (JDBC 동기 버전).
      */
-    fun withUserCredentialsTable(statement: () -> Unit) {
-        transaction {
-            SchemaUtils.create(UserCredentialsTable)
-            UserCredentialsTable.deleteAll()
-            repeat(3) {
-                UserCredentialsTable.insertAndGetId {
-                    it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
-                    it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
-                    it[lastLoginAt] = Instant.now().minusSeconds(3600)
-                }
+    fun withUserCredentialsTable(
+        testDB: TestDB,
+        statement: JdbcTransaction.() -> Unit,
+    ) {
+        withTables(testDB, UserCredentialsTable) {
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(3600)
             }
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(7200)
+            }
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(86400)
+            }
+
+            commit()
+
+            statement()
         }
-        statement()
+    }
+
+    /**
+     * [UserCredentialsTable]을 생성하고 초기 데이터를 삽입한 뒤 [statement]를 실행한다 (suspend 버전).
+     */
+    suspend fun withSuspendedUserCredentialsTable(
+        testDB: TestDB,
+        context: CoroutineContext = Dispatchers.IO,
+        statement: suspend JdbcTransaction.() -> Unit,
+    ) {
+        withTablesSuspending(testDB, UserCredentialsTable, context = context, dropTables = false) {
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(3600)
+            }
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(7200)
+            }
+            UserCredentialsTable.insert {
+                it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+                it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+                it[lastLoginAt] = Instant.now().minusSeconds(86400)
+            }
+
+            commit()
+
+            statement()
+        }
     }
 
     /** DB에서 [UserTable]의 모든 레코드를 조회한다. */
-    fun loadAllUsers(): List<UserRecord> =
-        transaction {
-            UserTable.selectAll().map { row ->
-                UserRecord(
-                    id = row[UserTable.id].value,
-                    firstName = row[UserTable.firstName],
-                    lastName = row[UserTable.lastName],
-                    email = row[UserTable.email],
-                    createdAt = row[UserTable.createdAt]
-                )
-            }
+    fun findAllUsers(): List<UserRecord> =
+        UserTable.selectAll().map { row ->
+            UserRecord(
+                id = row[UserTable.id].value,
+                firstName = row[UserTable.firstName],
+                lastName = row[UserTable.lastName],
+                email = row[UserTable.email],
+                createdAt = row[UserTable.createdAt]
+            )
         }
 
     /** DB에서 [UserCredentialsTable]의 모든 레코드를 조회한다. */
-    fun loadAllUserCredentials(): List<UserCredentialsRecord> =
-        transaction {
-            UserCredentialsTable.selectAll().map { row ->
-                UserCredentialsRecord(
-                    id = row[UserCredentialsTable.id].value,
-                    loginId = row[UserCredentialsTable.loginId],
-                    email = row[UserCredentialsTable.email],
-                    lastLoginAt = row[UserCredentialsTable.lastLoginAt],
-                    createdAt = row[UserCredentialsTable.createdAt]
-                )
-            }
+    fun findAllUserCredentials(): List<UserCredentialsRecord> =
+        UserCredentialsTable.selectAll().map { row ->
+            UserCredentialsRecord(
+                id = row[UserCredentialsTable.id].value,
+                loginId = row[UserCredentialsTable.loginId],
+                email = row[UserCredentialsTable.email],
+                lastLoginAt = row[UserCredentialsTable.lastLoginAt],
+                createdAt = row[UserCredentialsTable.createdAt]
+            )
         }
 }

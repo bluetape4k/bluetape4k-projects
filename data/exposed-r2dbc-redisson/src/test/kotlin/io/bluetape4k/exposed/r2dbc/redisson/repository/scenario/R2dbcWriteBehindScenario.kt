@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteBehindScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteBehindScenario<ID: Any, E: java.io.Serializable>: R2dbcCacheTestScenario<ID, E> {
     companion object: KLoggingChannel()
 
     suspend fun createNewEntity(): E
@@ -33,7 +33,7 @@ interface R2dbcWriteBehindScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
         runTest {
             withR2dbcEntityTable(testDB) {
                 val entities = createNewEntities(1000)
-                repository.putAll(entities)
+                repository.putAll(entities.associateBy { repository.extractId(it) })
 
                 await
                     .atMost(Duration.ofSeconds(30))
@@ -52,7 +52,7 @@ interface R2dbcWriteBehindScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, 
         runTest {
             withR2dbcEntityTable(testDB) {
                 val entity = createNewEntity()
-                repository.put(entity)
+                repository.put(repository.extractId(entity), entity)
 
                 // Write-Behind는 비동기이므로 잠시 대기 후 DB에서 확인
                 await

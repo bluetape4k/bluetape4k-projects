@@ -7,8 +7,10 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -28,8 +30,11 @@ class ExposedEntityMapWriterTest: AbstractExposedTest() {
         val name: String,
     ): Serializable
 
-    private object WriterTable: LongIdTable("lettuce_writer_test") {
+    // 클라이언트 생성 ID 테이블 (AutoInc 아님) — Writer 삽입 동작을 직접 테스트하기 위해 사용
+    private object WriterTable : IdTable<Long>("lettuce_writer_test") {
+        override val id: Column<EntityID<Long>> = long("id").entityId()
         val name = varchar("name", 64)
+        override val primaryKey = PrimaryKey(id)
     }
 
     private fun ResultRow.toWriterEntity(): WriterEntity =

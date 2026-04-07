@@ -208,6 +208,25 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     }
 
     /**
+     * Redis 캐시에서만 해당 키를 제거한다 (DB에는 영향 없음).
+     *
+     * @param key 캐시에서 제거할 키
+     */
+    suspend fun evict(key: K) {
+        asyncCommands.del(redisKey(key)).await()
+    }
+
+    /**
+     * Redis 캐시에서만 여러 키를 제거한다 (DB에는 영향 없음).
+     *
+     * @param keys 캐시에서 제거할 키 컬렉션
+     */
+    suspend fun evictAll(keys: Collection<K>) {
+        if (keys.isEmpty()) return
+        asyncCommands.del(*keys.map { redisKey(it) }.toTypedArray()).await()
+    }
+
+    /**
      * 이 맵의 모든 Redis 키를 삭제한다.
      */
     suspend fun clear() {

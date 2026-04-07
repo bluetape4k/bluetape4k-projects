@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.redisson.repository.SuspendedJdbcRedissonRepository
+import io.bluetape4k.exposed.cache.SuspendedJdbcRedissonCacheRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface SuspendedCacheTestScenario<ID: Any, E: Any> {
+interface SuspendedCacheTestScenario<ID: Any, E: java.io.Serializable> {
     companion object : KLoggingChannel() {
         val DefaultCacheDispatcher = Dispatchers.IO
     }
@@ -23,7 +23,7 @@ interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: SuspendedJdbcRedissonRepository<ID, E>
+    val repository: SuspendedJdbcRedissonCacheRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수
@@ -50,7 +50,7 @@ interface SuspendedCacheTestScenario<ID: Any, E: Any> {
     fun beforeEach() {
         // 테스트마다 기존 캐시를 비웁니다.
         runBlocking(DefaultCacheDispatcher) {
-            repository.invalidateAll()
+            repository.clear()
         }
     }
 }

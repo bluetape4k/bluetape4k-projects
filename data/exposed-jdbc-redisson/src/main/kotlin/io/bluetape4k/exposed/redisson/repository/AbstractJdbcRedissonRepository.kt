@@ -1,5 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.exposed.cache.CacheMode
+import io.bluetape4k.exposed.cache.CacheWriteMode
+import io.bluetape4k.exposed.cache.JdbcCacheRepository
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
@@ -11,11 +14,12 @@ import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
-import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -25,6 +29,7 @@ import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
+import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -44,7 +49,7 @@ import java.time.Duration
  *     redissonClient: RedissonClient,
  *     cacheName: String,
  *     config: RedisCacheConfig,
- * ): AbstractJdbcRedissonRepository<Long, UserTable, UserRecord>(redissonClient, cacheName, config) {
+ * ): AbstractJdbcRedissonRepository<Long, UserRecord>(redissonClient, cacheName, config) {
  *     override val table = UserTable
  *     override fun ResultRow.toEntity() = toUserRecord()
  *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
@@ -54,19 +59,30 @@ import java.time.Duration
  * ```
  *
  * @param ID 엔티티 ID 타입
- * @param T 엔티티 테이블 타입 ([IdTable] 하위 타입)
  * @param E 엔티티 타입. Redis 저장 시 직렬화 문제로 인해 반드시 Serializable data class를 사용해야 합니다.
  * @param redissonClient Redisson 클라이언트
  * @param cacheName Redis 캐시 이름
  * @param config 캐시 설정 ([RedissonCacheConfig])
  */
-abstract class AbstractJdbcRedissonRepository<ID: Any, E: Any>(
+abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     protected val config: RedissonCacheConfig,
 ): JdbcRedissonRepository<ID, E> {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        const val DEFAULT_BATCH_SIZE = JdbcCacheRepository.DEFAULT_BATCH_SIZE
+    }
+
+    override val cacheMode: CacheMode
+        get() = if (config.isNearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+
+    override val cacheWriteMode: CacheWriteMode
+        get() = when {
+            config.isReadOnly -> CacheWriteMode.READ_ONLY
+            config.writeMode == org.redisson.api.map.WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
+            else -> CacheWriteMode.WRITE_THROUGH
+        }
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
@@ -178,6 +194,45 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Any>(
     }
 
     /**
+     * DB에서 직접 단건 엔티티를 조회합니다 (캐시 우회).
+     *
+     * @param id 엔티티 식별자
+     * @return 엔티티 또는 null
+     */
+    override fun findByIdFromDb(id: ID): E? =
+        transaction {
+            table
+                .selectAll()
+                .where { table.id eq id }
+                .singleOrNull()
+                ?.toEntity()
+        }
+
+    /**
+     * DB에서 직접 여러 엔티티를 조회합니다 (캐시 우회).
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     * @return 엔티티 리스트
+     */
+    override fun findAllFromDb(ids: Collection<ID>): List<E> =
+        transaction {
+            table
+                .selectAll()
+                .where { table.id inList ids }
+                .map { it.toEntity() }
+        }
+
+    /**
+     * DB에서 전체 레코드 수를 조회합니다 (캐시 우회).
+     *
+     * @return 전체 레코드 수
+     */
+    override fun countFromDb(): Long =
+        transaction {
+            table.selectAll().count()
+        }
+
+    /**
      * DB에서 조건에 맞는 엔티티 목록을 조회하고, 조회된 엔티티들을 캐시에 저장합니다.
      *
      * @param limit 조회할 최대 개수 (nullable)
@@ -214,24 +269,37 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Any>(
     }
 
     /**
+     * 주어진 ID 목록을 DEFAULT_BATCH_SIZE 단위로 나누어 캐시에서 엔티티를 조회합니다.
+     *
+     * @param ids 조회할 엔티티의 ID 목록
+     * @return ID를 키, 엔티티를 값으로 하는 맵
+     */
+    override fun getAll(
+        ids: Collection<ID>,
+    ): Map<ID, E> = getAll(ids, DEFAULT_BATCH_SIZE)
+
+    /**
      * 주어진 ID 목록을 batchSize 단위로 나누어 캐시에서 엔티티를 조회합니다.
      *
      * @param ids 조회할 엔티티의 ID 목록
      * @param batchSize 한 번에 조회할 배치 크기
-     * @return 조회된 엔티티 목록
+     * @return ID를 키, 엔티티를 값으로 하는 맵
      */
-    override fun getAll(
+    fun getAll(
         ids: Collection<ID>,
         batchSize: Int,
-    ): List<E> {
-        batchSize.requirePositiveNumber("batchSize")
+    ): Map<ID, E> {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
 
-        if (ids.isEmpty()) return emptyList()
+        if (ids.isEmpty()) return emptyMap()
         val chunkedIds = ids.chunked(batchSize)
 
         return chunkedIds.flatMap { chunk ->
             log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-            cache.getAll(chunk.toSet()).values.filterNotNull()
-        }
+            @Suppress("UNCHECKED_CAST")
+            cache.getAll(chunk.toSet()).entries
+                .filter { it.value != null }
+                .map { it.key to it.value!! }
+        }.toMap()
     }
 }

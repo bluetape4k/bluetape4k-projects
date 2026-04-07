@@ -30,6 +30,7 @@ import java.util.*
  *
  * - AutoIncrement Long ID 테이블 ([UserTable]) 과
  * - Client-generated UUID ID 테이블 ([UserCredentialsTable]) 에 대해 각각 검증한다.
+ * - Remote 캐시와 NearCache 변형을 포함한 4-variant @Nested 구조.
  */
 class R2dbcLettuceWriteThroughCacheTest {
     companion object: KLoggingChannel()
@@ -38,7 +39,10 @@ class R2dbcLettuceWriteThroughCacheTest {
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncIdReadWriteThrough:
+    /**
+     * Auto-increment Long ID ([UserTable]) 기반 Read+Write-through 테스트 추상 클래스.
+     */
+    abstract class R2dbcAutoIncIdReadWriteThrough:
         AbstractR2dbcLettuceTest(),
         R2dbcLettuceReadThroughScenario<Long, UserRecord>,
         R2dbcLettuceWriteThroughScenario<Long, UserRecord> {
@@ -73,13 +77,21 @@ class R2dbcLettuceWriteThroughCacheTest {
             entity.copy(email = Base58.randomString(4) + "." + faker.internet().emailAddress())
     }
 
+    /**
+     * Auto-increment Long ID — Remote 캐시 (NearCache 미사용).
+     */
     @Nested
-    inner class AutoIncIdReadWriteThroughTest: AutoIncIdReadWriteThrough() {
+    inner class R2dbcAutoIncIdReadWriteThroughRemoteCache: R2dbcAutoIncIdReadWriteThrough() {
+        override val config =
+            LettuceCacheConfig.READ_WRITE_THROUGH.copy(keyPrefix = "r2dbc:write-through:remote:users")
         override val repository by lazy { R2dbcUserLettuceRepository(redisClient, config) }
     }
 
+    /**
+     * Auto-increment Long ID — NearCache 활성화.
+     */
     @Nested
-    inner class AutoIncIdReadWriteThroughNearCacheTest: AutoIncIdReadWriteThrough() {
+    inner class R2dbcAutoIncIdReadWriteThroughNearCache: R2dbcAutoIncIdReadWriteThrough() {
         override val config =
             LettuceCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
                 nearCacheName = "r2dbc-lettuce-users-write-near"
@@ -91,7 +103,10 @@ class R2dbcLettuceWriteThroughCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGeneratedIdReadWriteThrough:
+    /**
+     * Client-generated UUID ID ([UserCredentialsTable]) 기반 Read+Write-through 테스트 추상 클래스.
+     */
+    abstract class R2dbcClientGeneratedIdReadWriteThrough:
         AbstractR2dbcLettuceTest(),
         R2dbcLettuceReadThroughScenario<UUID, UserCredentialsRecord>,
         R2dbcLettuceWriteThroughScenario<UUID, UserCredentialsRecord> {
@@ -132,13 +147,21 @@ class R2dbcLettuceWriteThroughCacheTest {
             entity.copy(email = Base58.randomString(4) + "." + faker.internet().emailAddress())
     }
 
+    /**
+     * Client-generated UUID ID — Remote 캐시 (NearCache 미사용).
+     */
     @Nested
-    inner class ClientGeneratedIdReadWriteThroughTest: ClientGeneratedIdReadWriteThrough() {
+    inner class R2dbcClientGeneratedIdReadWriteThroughRemoteCache: R2dbcClientGeneratedIdReadWriteThrough() {
+        override val config =
+            LettuceCacheConfig.READ_WRITE_THROUGH.copy(keyPrefix = "r2dbc:write-through:remote:user-credentials")
         override val repository by lazy { R2dbcUserCredentialLettuceRepository(redisClient, config) }
     }
 
+    /**
+     * Client-generated UUID ID — NearCache 활성화.
+     */
     @Nested
-    inner class ClientGeneratedIdReadWriteThroughNearCacheTest: ClientGeneratedIdReadWriteThrough() {
+    inner class R2dbcClientGeneratedIdReadWriteThroughNearCache: R2dbcClientGeneratedIdReadWriteThrough() {
         override val config =
             LettuceCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
                 nearCacheName = "r2dbc-lettuce-cred-write-near"

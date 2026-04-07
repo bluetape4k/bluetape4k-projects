@@ -58,7 +58,7 @@ class SuspendedReadThroughCacheTest {
     @Nested
     inner class SuspendedAutoIncIdReadThroughRemteCache : SuspendedAutoIncIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-through:remote:users",
@@ -71,7 +71,7 @@ class SuspendedReadThroughCacheTest {
     inner class SuspendedAutoIncIdReadThroughNearCache : SuspendedAutoIncIdReadThrough() {
         override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-through:near:users",

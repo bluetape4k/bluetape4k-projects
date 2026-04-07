@@ -14,6 +14,7 @@ dependencies {
     implementation(Libs.exposed_kotlin_datetime)
 
     api(project(":bluetape4k-exposed-jdbc"))
+    api(project(":bluetape4k-exposed-redis-api"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     // Redisson

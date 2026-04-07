@@ -1,13 +1,13 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.redisson.repository.JdbcRedissonRepository
+import io.bluetape4k.exposed.cache.JdbcRedissonCacheRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 
-interface CacheTestScenario<ID: Any, E: Any> {
+interface CacheTestScenario<ID: Any, E: java.io.Serializable> {
 
     companion object: KLogging()
 
@@ -19,7 +19,7 @@ interface CacheTestScenario<ID: Any, E: Any> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: JdbcRedissonRepository<ID, E>
+    val repository: JdbcRedissonCacheRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수
@@ -49,6 +49,6 @@ interface CacheTestScenario<ID: Any, E: Any> {
      */
     @BeforeEach
     fun beforeEach() {
-        repository.invalidateAll()
+        repository.clear()
     }
 }

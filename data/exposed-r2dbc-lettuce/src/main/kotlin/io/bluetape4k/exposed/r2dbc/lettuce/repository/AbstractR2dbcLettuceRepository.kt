@@ -2,10 +2,14 @@ package io.bluetape4k.exposed.r2dbc.lettuce.repository
 
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
+import io.bluetape4k.exposed.cache.CacheMode
+import io.bluetape4k.exposed.cache.CacheWriteMode
+import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.exposed.r2dbc.lettuce.map.R2dbcExposedEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.lettuce.map.R2dbcExposedEntityMapWriter
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
+import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.lettuce.core.RedisClient
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -22,6 +26,7 @@ import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import java.io.Serializable
 
 /**
  * Exposed R2DBC + Lettuce Redis 캐시를 결합한 추상 레포지토리.
@@ -35,18 +40,18 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
  * - [BatchInsertStatement.insertEntity]: INSERT 컬럼 매핑
  *
  * @param ID PK 타입
- * @param E 엔티티(DTO) 타입
+ * @param E 엔티티(DTO) 타입. 분산 캐시 저장을 위해 [Serializable] 구현 필수.
  * @param client Lettuce [RedisClient]
  * @param config [LettuceCacheConfig] 설정
  */
-abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
+abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Serializable>(
     private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ): R2dbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
 
     /** [ResultRow]를 엔티티 [E]로 변환하는 suspend 함수 */
-    abstract suspend fun ResultRow.toEntity(): E
+    abstract override suspend fun ResultRow.toEntity(): E
 
     /** 기존 엔티티 UPDATE 시 컬럼 매핑 */
     abstract fun UpdateStatement.updateEntity(entity: E)
@@ -56,6 +61,26 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
 
     /** 엔티티 ID를 Redis 키 문자열로 직렬화한다 (기본: toString()) */
     open fun serializeKey(id: ID): String = id.toString()
+
+    // -------------------------------------------------------------------------
+    // R2dbcCacheRepository 필수 프로퍼티 구현
+    // -------------------------------------------------------------------------
+
+    /** Redis 캐시 이름 (키 접두사로 사용) */
+    override val cacheName: String
+        get() = config.keyPrefix
+
+    /** 캐시 저장 방식 */
+    override val cacheMode: CacheMode
+        get() = if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+
+    /** 캐시 쓰기 전략 */
+    override val cacheWriteMode: CacheWriteMode
+        get() = when (config.writeMode) {
+            WriteMode.NONE -> CacheWriteMode.READ_ONLY
+            WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
+            WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
+        }
 
     /** [config.nearCacheEnabled]가 true일 때 Caffeine 로컬 캐시(front) */
     protected val nearCache: LettuceSuspendNearCache<E>? by lazy {
@@ -125,14 +150,16 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
     // 캐시 기반 조회 (Read-through)
     // -------------------------------------------------------------------------
 
-    override suspend fun findById(id: ID): E? {
+    override suspend fun containsKey(id: ID): Boolean = get(id) != null
+
+    override suspend fun get(id: ID): E? {
         nearCache?.get(serializeKey(id))?.let { return it }
         val value = cache.get(id) ?: return null
         nearCache?.put(serializeKey(id), value)
         return value
     }
 
-    override suspend fun findAll(ids: Collection<ID>): Map<ID, E> {
+    override suspend fun getAll(ids: Collection<ID>): Map<ID, E> {
         val nc = nearCache ?: return cache.getAll(ids.toSet())
         val result = mutableMapOf<ID, E>()
         val missedIds = mutableListOf<ID>()
@@ -181,7 +208,7 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
      * 엔티티에서 ID를 추출한다.
      * [findAll] (where 조건 버전) 사용 시 서브클래스에서 override 필요.
      */
-    protected open fun extractId(entity: E): ID =
+    override fun extractId(entity: E): ID =
         error(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
                     "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
@@ -191,7 +218,7 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
     // 쓰기 (캐시 + DB)
     // -------------------------------------------------------------------------
 
-    override suspend fun save(
+    override suspend fun put(
         id: ID,
         entity: E,
     ) {
@@ -199,7 +226,7 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
         nearCache?.put(serializeKey(id), entity)
     }
 
-    override suspend fun saveAll(entities: Map<ID, E>) {
+    override suspend fun putAll(entities: Map<ID, E>, batchSize: Int) {
         entities.forEach { (id, entity) ->
             cache.set(id, entity)
             nearCache?.put(serializeKey(id), entity)
@@ -210,12 +237,12 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
     // 삭제
     // -------------------------------------------------------------------------
 
-    override suspend fun delete(id: ID) {
+    override suspend fun invalidate(id: ID) {
         cache.delete(id)
         nearCache?.remove(serializeKey(id))
     }
 
-    override suspend fun deleteAll(ids: Collection<ID>) {
+    override suspend fun invalidateAll(ids: Collection<ID>) {
         cache.deleteAll(ids)
         nearCache?.removeAll(ids.map { serializeKey(it) }.toSet())
     }
@@ -224,7 +251,7 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Any>(
     // 캐시 관리
     // -------------------------------------------------------------------------
 
-    override suspend fun clearCache() {
+    override suspend fun clear() {
         nearCache?.clearAll()
         cache.clear()
     }

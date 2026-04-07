@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID, E> {
+interface R2dbcWriteThroughScenario<ID: Any, E: java.io.Serializable>: R2dbcCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
@@ -50,7 +50,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
 
                 // 캐시에 갱신된 값 저장 -> DB에도 저장
                 val updatedEntity = updateEntityEmail(entity)
-                repository.put(updatedEntity)
+                repository.put(repository.extractId(updatedEntity), updatedEntity)
 
                 // 캐시에서 조회한 값
                 val entityFromCache = repository.get(id)
@@ -89,24 +89,21 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
                 }
 
                 // 캐시에서 조회한 값
-                val entities = repository.getAll(ids)
-                entities.shouldNotBeEmpty()
-                entities shouldHaveSize ids.size
+                val entityMap = repository.getAll(ids)
+                entityMap.shouldNotBeEmpty()
+                entityMap.size shouldBeEqualTo ids.size
 
                 // 캐시에 갱신된 값 저장 -> DB에도 저장
-                val updatedEntities = entities.map { updateEntityEmail(it) }
-                repository.putAll(updatedEntities)
+                val updatedEntityMap = entityMap.mapValues { (_, v) -> updateEntityEmail(v) }
+                repository.putAll(updatedEntityMap)
 
                 // 캐시에서 조회한 값
-                val entitiesFromCache = repository.getAll(ids)
-                entitiesFromCache.shouldNotBeNull()
-                entitiesFromCache.forEach { entity ->
+                val entityMapFromCache = repository.getAll(ids)
+                entityMapFromCache.shouldNotBeNull()
+                entityMapFromCache.forEach { (id, entity) ->
                     assertSameEntityWithoutAudit(
                         entity,
-                        updatedEntities.find {
-                            repository.extractId(it) ==
-                                    repository.extractId(entity)
-                        }!!
+                        updatedEntityMap[id]!!
                     )
                 }
 
@@ -116,16 +113,13 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
                 }
 
                 // DB에서 조회한 값
-                val entitiesFromDB = repository.findAllFromDb(ids).toList()
+                val entitiesFromDB = repository.findAllFromDb(ids)
                 entitiesFromDB.shouldNotBeEmpty() shouldHaveSize ids.size
 
                 entitiesFromDB.forEach { entity ->
                     assertSameEntityWithoutAudit(
                         entity,
-                        entitiesFromCache.find {
-                            repository.extractId(it) ==
-                                    repository.extractId(entity)
-                        }!!
+                        entityMapFromCache[repository.extractId(entity)]!!
                     )
                 }
             }
@@ -141,7 +135,7 @@ interface R2dbcWriteThroughScenario<ID: Any, E: Any>: R2dbcCacheTestScenario<ID,
             withR2dbcEntityTable(testDB) {
                 val prevCount = repository.table.selectAll().count()
                 val newEntities = List(5) { createNewEntity() }
-                repository.putAll(newEntities)
+                repository.putAll(newEntities.associateBy { repository.extractId(it) })
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {

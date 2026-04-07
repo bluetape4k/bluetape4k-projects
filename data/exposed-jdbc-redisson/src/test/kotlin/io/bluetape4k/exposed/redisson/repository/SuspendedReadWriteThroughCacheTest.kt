@@ -75,7 +75,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCache : SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:users",
@@ -88,7 +88,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCacheWithDeleteDB : SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:delete-db:users",
@@ -101,7 +101,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughNearCache : SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:users",
@@ -115,7 +115,7 @@ class SuspendedReadWriteThroughCacheTest {
         override val cacheConfig =
             RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedJdbcRedissonRepository<Long, UserRecord> by lazy {
+        override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:delete-db:users",
