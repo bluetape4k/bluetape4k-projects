@@ -8,14 +8,12 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 
 ## Development Guidelines
 
-- **README diagrams
-  **: Every module README must include Mermaid UML diagrams (class, sequence, or flowchart) so readers can understand the design at a glance before reading code
-- **KDoc**: Required for all public classes, interfaces, and extension methods — written in **Korean**
-- **Commit messages**: Korean, with prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
-- **Kotlin**: 2.3+, use extensions and DSLs wherever possible
-- **Stack**: Java 21 · Kotlin 2.3 · Spring Boot 3.4+ · Exposed 1.0+ · H2 / PostgreSQL / MySQL
-- **Testing**: JUnit 5 + MockK + Kluent; examples must be production-quality and runnable
-- **Formatting**: IntelliJ IDEA formatter + `.editorconfig` — **ktlint is NOT used** (conflicts with project style)
+- [ ] **README 다이어그램**: 모든 모듈 README에 Mermaid UML 다이어그램(class/sequence/flowchart) 포함
+- [ ] **KDoc**: 모든 public 클래스·인터페이스·확장 함수에 **한국어** KDoc 필수
+- [ ] **커밋 메시지**: 한국어 + 접두사 (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
+- [ ] **Kotlin**: 2.3+, extension·DSL 최대 활용
+- [ ] **테스트**: JUnit 5 + MockK + Kluent; 예제는 실행 가능한 production 품질
+- [ ] **포맷**: IntelliJ IDEA formatter + `.editorconfig` — **ktlint 사용 금지** (프로젝트 스타일 충돌)
 
 ## Build Commands
 
@@ -225,20 +223,16 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 
 ## Kotlin Edit Workflow (MANDATORY)
 
-Follow this sequence on every `.kt` file edit — no exceptions.
+`.kt` 파일 편집 시 **예외 없이** 아래 순서를 따른다.
 
-### Before modifying a class
-1. Run `ide_find_references` or `get_impact_radius_tool` to map affected files.
+### 클래스 수정 전
+- [ ] `ide_find_references` 또는 `get_impact_radius_tool` 로 영향받는 파일 파악
 
-### After every `.kt` edit
-1. `ide_diagnostics` — catch import errors and `@Deprecated` warnings immediately.
-2. If import errors → `ide_optimize_imports` to fix.
-3. If `@Deprecated` warnings → apply `lsp_code_actions` Quick Fix to replace with non-deprecated API. Never leave deprecated usage in the code.
-4. Only run build/compile after the above steps pass cleanly.
-
-### Why
-- Skipping step 1 causes cascading failures across callers.
-- Skipping steps 2–3 leads to repeated compile-fix cycles that waste tokens and time.
+### 모든 `.kt` 편집 후
+- [ ] `ide_diagnostics` — import 오류·`@Deprecated` 경고 즉시 확인
+- [ ] import 오류 → `ide_optimize_imports` 로 수정
+- [ ] `@Deprecated` 경고 → `lsp_code_actions` Quick Fix 적용 — 절대 deprecated 사용 방치 금지
+- [ ] 위 단계 통과 후에만 빌드/컴파일 실행
 
 ## Key Design Patterns
 
@@ -262,9 +256,9 @@ data class SpatialLayerRecord(
 }
 ```
 
-- `Serializable` 구현 필수 (Lettuce/Redisson 캐시 직렬화)
-- `companion object : KLogging()` + `private const val serialVersionUID = 1L` 필수
-- `exposed.model` 패키지에 위치
+- [ ] `Serializable` 구현 필수 (Lettuce/Redisson 캐시 직렬화)
+- [ ] `companion object : KLogging()` + `private const val serialVersionUID = 1L` 필수
+- [ ] `exposed.model` 패키지에 위치
 
 ### Repository Generic Pattern
 
@@ -339,15 +333,13 @@ snapshotVersion=-SNAPSHOT   # empty for RELEASE
 
 ## Git Workflow
 
-- Branch: `develop`
-- Commits: Korean + prefix (`feat: ...`, `fix: ...`)
+- [ ] Branch: `develop`
+- [ ] Commits: 한국어 + 접두사 (`feat: ...`, `fix: ...`)
 
 ## Important Notes
 
-- **Library source extraction**: When extracting jar sources for reference, use `.claude/lib-sources/<library-name>/` — never extract into the project source tree or `/tmp/`
-- **Publishing**: GitHub Packages Maven; `workshop/` and `examples/` are excluded
-- **atomicfu**: `kotlinx-atomicfu` plugin, `jvmVariant = "VH"` — use only as class-level properties (not method-local)
-- **Detekt**: disabled for `exposed-jdbc-tests`
-- **Jacoco**: commented out (enable when needed)
-- **virtualthread-api changes**: when adding/changing interfaces in `virtualthread/api`, always update **both**
-  `jdk21` and `jdk25` implementations in the same commit — never leave one behind
+- [ ] **jar 소스 추출**: `.claude/lib-sources/<라이브러리명>/` 사용 — 프로젝트 소스 트리나 `/tmp/` 추출 금지
+- [ ] **Publishing**: GitHub Packages Maven; `workshop/`·`examples/` 제외
+- [ ] **atomicfu**: 클래스 프로퍼티에서만 사용 — 메서드 로컬 사용 금지
+- [ ] **Detekt**: `exposed-jdbc-tests` 에서 비활성화됨
+- [ ] **virtualthread-api 변경**: `virtualthread/api` 인터페이스 추가·변경 시 `jdk21` + `jdk25` 동시 수정 필수 — 하나만 수정 금지
