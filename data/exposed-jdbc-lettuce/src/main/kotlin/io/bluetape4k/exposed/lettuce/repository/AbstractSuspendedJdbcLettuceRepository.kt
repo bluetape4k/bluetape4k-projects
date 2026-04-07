@@ -99,7 +99,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
         }
     }
 
-    protected val cache: LettuceSuspendedLoadedMap<ID, E> by lazy {
+    override val cache: LettuceSuspendedLoadedMap<ID, E> by lazy {
         LettuceSuspendedLoadedMap(
             client = client,
             loader =
@@ -254,6 +254,10 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
     override suspend fun invalidateAll(ids: Collection<ID>) {
         cache.evictAll(ids)
         nearCache?.removeAll(ids.map { serializeKey(it) }.toSet())
+    }
+
+    override suspend fun invalidateByPattern(patterns: String, count: Int): Long {
+        return cache.invalidateByPattern(patterns, count.toLong())
     }
 
     // -------------------------------------------------------------------------

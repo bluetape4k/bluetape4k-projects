@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.exposed.cache.R2dbcRedissonCacheRepository
+import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -21,7 +21,7 @@ import java.io.Serializable
 /**
  * Exposed R2DBC와 Redisson `RMap`을 결합한 비동기 캐시 리포지토리 계약입니다.
  *
- * [R2dbcRedissonCacheRepository]를 확장하며 Redisson RMap 기반의 캐시 조작 기능을 제공합니다.
+ * [R2dbcCacheRepository]를 확장하며 Redisson RMap 기반의 캐시 조작 기능을 제공합니다.
  *
  * ## 동작/계약
  * - `get/containsKey/getAll`은 캐시 중심 API이며 read-through 설정 시 캐시 미스에서 DB loader가 동작합니다.
@@ -38,7 +38,7 @@ import java.io.Serializable
  * @param E Entity Type   분산 캐시(Redisson) 저장을 위해 [Serializable] 구현이 필수입니다.
  * @param ID Entity ID Type
  */
-interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedissonCacheRepository<ID, E> {
+interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcCacheRepository<ID, E> {
     companion object : KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }

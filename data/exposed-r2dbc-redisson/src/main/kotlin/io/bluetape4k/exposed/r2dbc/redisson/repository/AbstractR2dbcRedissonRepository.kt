@@ -90,28 +90,16 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
     }
 
     /**
-     * [R2dbcEntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [R2dbcEntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 extension 함수입니다.
+     * Write-Read 모드에서는 반드시 재정의해야 합니다.
      */
-    protected open fun doUpdateEntity(
-        statement: UpdateStatement,
-        entity: E,
-    ) {
-        if (config.isReadWrite) {
-            error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
-        }
-    }
+    abstract fun UpdateStatement.updateEntity(entity: E)
 
     /**
-     * [R2dbcEntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [R2dbcEntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 extension 함수입니다.
+     * Write-Read 모드에서는 반드시 재정의해야 합니다.
      */
-    protected open fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: E,
-    ) {
-        if (config.isReadWrite) {
-            error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
-        }
-    }
+    abstract fun BatchInsertStatement.insertEntity(entity: E)
 
     /**
      * Write Through 모드라면 [R2dbcEntityMapWriter]를 생성하여 제공합니다.
@@ -124,8 +112,8 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
             R2dbcExposedEntityMapWriter(
                 scope = scope,
                 entityTable = table,
-                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                batchInsertBody = { entity -> doInsertEntity(this, entity) },
+                updateBody = { stmt, entity -> with(this@AbstractR2dbcRedissonRepository) { stmt.updateEntity(entity) } },
+                batchInsertBody = { entity -> val stmt = this; with(this@AbstractR2dbcRedissonRepository) { stmt.insertEntity(entity) } },
                 deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,
                 writeMode = config.writeMode
             )

@@ -75,9 +75,9 @@ class UserR2dbcRedissonRepository(
     )
 
     // Write-Through 모드 시 구현 필요
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
-        statement[UserTable.name]  = entity.name
-        statement[UserTable.email] = entity.email
+    override fun UpdateStatement.updateEntity(entity: UserRecord) {
+        this[UserTable.name]  = entity.name
+        this[UserTable.email] = entity.email
     }
 }
 
@@ -183,8 +183,8 @@ class AbstractR2dbcRedissonRepository~ID_E~ {
 #r2dbcEntityMapWriter: R2dbcEntityMapWriter~ID, E~ ?
 #createLocalCacheMap(): RLocalCachedMap
 #createMapCache(): RMapCache
-#doUpdateEntity(stmt, entity)
-#doInsertEntity(stmt, entity)
+#UpdateStatement.updateEntity(entity)
+#BatchInsertStatement.insertEntity(entity)
 +findAll(...): List~E~ [suspend]
 +getAll(ids, batchSize): List~E~ [suspend]
 }

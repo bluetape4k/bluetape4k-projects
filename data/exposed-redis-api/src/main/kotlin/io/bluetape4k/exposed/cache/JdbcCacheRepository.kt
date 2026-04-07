@@ -181,6 +181,17 @@ interface JdbcCacheRepository<ID: Any, E: Serializable>: Closeable {
     fun invalidateAll(ids: Collection<ID>)
 
     /**
+     * 패턴에 맞는 캐시 키를 무효화합니다 (캐시만 제거, DB 영향 없음).
+     *
+     * Redis SCAN 명령으로 `${cacheName}:${patterns}` 형식의 키를 검색하여 삭제합니다.
+     *
+     * @param patterns 캐시 키 패턴 (예: "*user*", "prefix:*")
+     * @param count 한 번에 스캔할 키 수 (기본값: [DEFAULT_BATCH_SIZE])
+     * @return 무효화된 캐시 항목 수
+     */
+    fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long
+
+    /**
      * 캐시의 모든 항목을 제거합니다 (DB에는 영향 없음).
      */
     fun clear()

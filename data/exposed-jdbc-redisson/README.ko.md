@@ -72,9 +72,9 @@ class UserRedissonRepository(
     )
 
     // Write-Through 모드 시 구현 필요
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
-        statement[UserTable.name]  = entity.name
-        statement[UserTable.email] = entity.email
+    override fun UpdateStatement.updateEntity(entity: UserRecord) {
+        this[UserTable.name]  = entity.name
+        this[UserTable.email] = entity.email
     }
 }
 
@@ -176,7 +176,7 @@ val deleteFromDbConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
 
 ### 4. Write-Through / Write-Behind Repository 구현
 
-Write-Through/Write-Behind 모드에서는 `doUpdateEntity`와 `doInsertEntity`를 추가로 구현합니다.
+Write-Through/Write-Behind 모드에서는 `UpdateStatement.updateEntity`와 `BatchInsertStatement.insertEntity`를 추가로 구현합니다.
 
 ```kotlin
 class UserWriteThroughRepository(
@@ -195,16 +195,16 @@ class UserWriteThroughRepository(
     )
 
     // 기존 레코드 UPDATE 시 호출
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
-        statement[UserTable.name]  = entity.name
-        statement[UserTable.email] = entity.email
+    override fun UpdateStatement.updateEntity(entity: UserRecord) {
+        this[UserTable.name]  = entity.name
+        this[UserTable.email] = entity.email
     }
 
     // 신규 레코드 INSERT 시 호출 (client-side ID인 경우)
-    override fun doInsertEntity(statement: BatchInsertStatement, entity: UserRecord) {
-        statement[UserTable.id]    = EntityID(entity.id, UserTable)
-        statement[UserTable.name]  = entity.name
-        statement[UserTable.email] = entity.email
+    override fun BatchInsertStatement.insertEntity(entity: UserRecord) {
+        this[UserTable.id]    = EntityID(entity.id, UserTable)
+        this[UserTable.name]  = entity.name
+        this[UserTable.email] = entity.email
     }
 }
 
@@ -273,8 +273,8 @@ classDiagram
         #mapWriter: EntityMapWriter~ID, E~?
         #createLocalCacheMap(): RLocalCachedMap
         #createMapCache(): RMapCache
-        #doUpdateEntity(stmt, entity)
-        #doInsertEntity(stmt, entity)
+        #UpdateStatement.updateEntity(entity)
+        #BatchInsertStatement.insertEntity(entity)
         +findAll(...): List~E~
         +getAll(ids, batchSize): List~E~
     }
@@ -346,8 +346,8 @@ classDiagram
         #suspendedMapWriter: SuspendedEntityMapWriter~ID, E~?
         #createLocalCacheMap(): RLocalCachedMap
         #createMapCache(): RMapCache
-        #doUpdateEntity(stmt, entity)
-        #doInsertEntity(stmt, entity)
+        #UpdateStatement.updateEntity(entity)
+        #BatchInsertStatement.insertEntity(entity)
         +findAll(...): List~E~ [suspend]
         +getAll(ids, batchSize): List~E~ [suspend]
     }

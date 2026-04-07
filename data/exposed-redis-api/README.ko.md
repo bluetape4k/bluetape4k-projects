@@ -11,7 +11,7 @@ Exposed ORM을 위한 Redis (Lettuce & Redisson) 기반 통합 캐시 저장소 
 - **동기 JDBC**: `JdbcCacheRepository<ID, E>` — 차단형 JDBC 캐시 저장소
 - **코루틴 기반 JDBC**: `SuspendedJdbcCacheRepository<ID, E>` — suspend 친화적 JDBC 캐시
 - **반응형 R2DBC**: `R2dbcCacheRepository<ID, E>` — 완전 비차단 반응형 캐시
-- **Redisson 확장**: `invalidateByPattern()`을 통한 패턴 기반 캐시 무효화
+- **패턴 기반 무효화**: `invalidateByPattern()`이 3개 기본 인터페이스 모두에 내장됨
 - **캐시 전략**: Read-Through, Write-Through (WRITE_THROUGH), Write-Behind (WRITE_BEHIND), Read-Only (READ_ONLY)
 - **캐시 모드**: REMOTE (Redis 전용) 또는 NEAR_CACHE (L1 로컬 + L2 Redis)
 
@@ -46,6 +46,7 @@ classDiagram
         +putAll(entities: Map~ID, E~)
         +invalidate(id: ID)
         +invalidateAll(ids)
+        +invalidateByPattern(patterns: String, count: Int): Long
         +clear()
     }
     
@@ -61,6 +62,7 @@ classDiagram
         +suspend putAll(entities: Map~ID, E~)
         +suspend invalidate(id: ID)
         +suspend invalidateAll(ids)
+        +suspend invalidateByPattern(patterns: String, count: Int): Long
         +suspend clear()
     }
     
@@ -77,24 +79,9 @@ classDiagram
         +suspend putAll(entities: Map~ID, E~)
         +suspend invalidate(id: ID)
         +suspend invalidateAll(ids)
+        +suspend invalidateByPattern(patterns: String, count: Int): Long
         +suspend clear()
     }
-    
-    class JdbcRedissonCacheRepository {
-        +invalidateByPattern(pattern: String): Long
-    }
-    
-    class SuspendedJdbcRedissonCacheRepository {
-        +suspend invalidateByPattern(pattern: String): Long
-    }
-    
-    class R2dbcRedissonCacheRepository {
-        +suspend invalidateByPattern(pattern: String): Long
-    }
-    
-    JdbcRedissonCacheRepository --|> JdbcCacheRepository
-    SuspendedJdbcRedissonCacheRepository --|> SuspendedJdbcCacheRepository
-    R2dbcRedissonCacheRepository --|> R2dbcCacheRepository
 ```
 
 ## 인터페이스 계층 구조
@@ -118,18 +105,16 @@ classDiagram
    - Reactive Streams 기반
    - 고 동시성 시나리오에 최적
 
-### Redisson 확장
+### 패턴 기반 무효화
 
-Redisson 전용 인터페이스는 핵심 인터페이스를 확장하여 패턴 기반 캐시 무효화를 제공합니다:
+3개 기본 인터페이스 모두에 `invalidateByPattern()`이 내장되어 있습니다 (Lettuce, Redisson 공통):
 
-- **JdbcRedissonCacheRepository<ID, E>** extends `JdbcCacheRepository<ID, E>`
-- **SuspendedJdbcRedissonCacheRepository<ID, E>** extends `SuspendedJdbcCacheRepository<ID, E>`
-- **R2dbcRedissonCacheRepository<ID, E>** extends `R2dbcCacheRepository<ID, E>`
-
-세 인터페이스 모두 다음을 제공합니다:
 ```kotlin
+// JdbcCacheRepository, SuspendedJdbcCacheRepository, R2dbcCacheRepository 모두 지원
 fun/suspend invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long
 ```
+
+Redis SCAN 명령으로 `${cacheName}:${patterns}` 형식의 키를 검색하여 일괄 삭제합니다.
 
 ## 캐시 모드
 
@@ -322,24 +307,16 @@ repo.invalidate(1L)
 repo.close()
 ```
 
-### 패턴 기반 무효화 (Redisson)
+### 패턴 기반 무효화
+
+Lettuce, Redisson 구현 모두에서 사용 가능합니다:
 
 ```kotlin
-// Redisson 구현
-class UserRedissonCacheRepository : 
-    SuspendedJdbcRedissonCacheRepository<Long, UserRecord> {
-    
-    // ... 핵심 메서드 구현 ...
-    
-    // Redisson 전용 패턴 무효화
-    suspend fun invalidateUserCache() {
-        // "user:*" 패턴과 일치하는 모든 캐시 키 무효화
-        invalidateByPattern("user:*")
-    }
+// 모든 구현체에서 동작: Lettuce 또는 Redisson
+suspend fun invalidateUserCache(repo: SuspendedJdbcCacheRepository<Long, UserRecord>) {
+    // "user:*" 패턴과 일치하는 모든 캐시 키 무효화
+    repo.invalidateByPattern("user:*", count = 100)
 }
-
-// 사용
-repo.invalidateByPattern("user:*", count = 100)  // 모든 사용자 캐시 키 무효화
 ```
 
 ## 핵심 개념

@@ -11,7 +11,7 @@ Unified cache repository API interfaces for Exposed ORM with Redis (Lettuce & Re
 - **Synchronous JDBC**: `JdbcCacheRepository<ID, E>` — blocking JDBC cache repository
 - **Coroutine-based JDBC**: `SuspendedJdbcCacheRepository<ID, E>` — suspend-friendly JDBC cache
 - **Reactive R2DBC**: `R2dbcCacheRepository<ID, E>` — fully non-blocking reactive cache
-- **Redisson extensions**: Pattern-based cache invalidation via `invalidateByPattern()`
+- **Pattern-based invalidation**: `invalidateByPattern()` built into all three base interfaces
 - **Cache strategies**: Read-Through, Write-Through (WRITE_THROUGH), Write-Behind (WRITE_BEHIND), Read-Only (READ_ONLY)
 - **Cache modes**: REMOTE (Redis-only) or NEAR_CACHE (L1 local + L2 Redis)
 
@@ -46,6 +46,7 @@ classDiagram
         +putAll(entities: Map~ID, E~)
         +invalidate(id: ID)
         +invalidateAll(ids)
+        +invalidateByPattern(patterns: String, count: Int): Long
         +clear()
     }
     
@@ -61,6 +62,7 @@ classDiagram
         +suspend putAll(entities: Map~ID, E~)
         +suspend invalidate(id: ID)
         +suspend invalidateAll(ids)
+        +suspend invalidateByPattern(patterns: String, count: Int): Long
         +suspend clear()
     }
     
@@ -77,24 +79,9 @@ classDiagram
         +suspend putAll(entities: Map~ID, E~)
         +suspend invalidate(id: ID)
         +suspend invalidateAll(ids)
+        +suspend invalidateByPattern(patterns: String, count: Int): Long
         +suspend clear()
     }
-    
-    class JdbcRedissonCacheRepository {
-        +invalidateByPattern(pattern: String): Long
-    }
-    
-    class SuspendedJdbcRedissonCacheRepository {
-        +suspend invalidateByPattern(pattern: String): Long
-    }
-    
-    class R2dbcRedissonCacheRepository {
-        +suspend invalidateByPattern(pattern: String): Long
-    }
-    
-    JdbcRedissonCacheRepository --|> JdbcCacheRepository
-    SuspendedJdbcRedissonCacheRepository --|> SuspendedJdbcCacheRepository
-    R2dbcRedissonCacheRepository --|> R2dbcCacheRepository
 ```
 
 ## Interface Hierarchy
@@ -118,18 +105,16 @@ classDiagram
    - Built on top of Reactive Streams
    - Best for high-concurrency scenarios
 
-### Redisson Extensions
+### Pattern-Based Invalidation
 
-Redisson-specific interfaces extend the core interfaces with pattern-based cache invalidation:
+All three base interfaces include `invalidateByPattern()` for Redis SCAN-based bulk cache removal:
 
-- **JdbcRedissonCacheRepository<ID, E>** extends `JdbcCacheRepository<ID, E>`
-- **SuspendedJdbcRedissonCacheRepository<ID, E>** extends `SuspendedJdbcCacheRepository<ID, E>`
-- **R2dbcRedissonCacheRepository<ID, E>** extends `R2dbcCacheRepository<ID, E>`
-
-All three provide:
 ```kotlin
+// Available on JdbcCacheRepository, SuspendedJdbcCacheRepository, R2dbcCacheRepository
 fun/suspend invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long
 ```
+
+Searches keys matching `${cacheName}:${patterns}` and deletes them in batches.
 
 ## Cache Modes
 
@@ -322,24 +307,16 @@ repo.invalidate(1L)
 repo.close()
 ```
 
-### Pattern-Based Invalidation (Redisson)
+### Pattern-Based Invalidation
+
+Available on all repository implementations (Lettuce and Redisson):
 
 ```kotlin
-// Redisson implementation
-class UserRedissonCacheRepository : 
-    SuspendedJdbcRedissonCacheRepository<Long, UserRecord> {
-    
-    // ... implement core methods ...
-    
-    // Redisson-specific pattern invalidation
-    suspend fun invalidateUserCache() {
-        // Invalidate all cache keys matching pattern "user:*"
-        invalidateByPattern("user:*")
-    }
+// Works with any implementation: Lettuce or Redisson
+suspend fun invalidateUserCache(repo: SuspendedJdbcCacheRepository<Long, UserRecord>) {
+    // Invalidate all cache keys matching pattern "user:*"
+    repo.invalidateByPattern("user:*", count = 100)
 }
-
-// Usage
-repo.invalidateByPattern("user:*", count = 100)  // Invalidates all user cache keys
 ```
 
 ## Key Concepts

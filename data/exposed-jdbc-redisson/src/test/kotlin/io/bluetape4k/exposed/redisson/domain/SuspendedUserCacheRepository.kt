@@ -27,24 +27,18 @@ class SuspendedUserCacheRepository(
 
     override fun extractId(entity: UserRecord): Long = entity.id
 
-    override fun doUpdateEntity(
-        statement: UpdateStatement,
-        entity: UserRecord,
-    ) {
-        statement[table.firstName] = entity.firstName
-        statement[table.lastName] = entity.lastName
-        statement[table.email] = entity.email
-        statement[table.updatedAt] = Instant.now()
+    override fun UpdateStatement.updateEntity(entity: UserRecord) {
+        this[table.firstName] = entity.firstName
+        this[table.lastName] = entity.lastName
+        this[table.email] = entity.email
+        this[table.updatedAt] = Instant.now()
     }
 
-    override fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: UserRecord,
-    ) {
+    override fun BatchInsertStatement.insertEntity(entity: UserRecord) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        statement[table.id] = entity.id
-        statement[table.firstName] = entity.firstName
-        statement[table.lastName] = entity.lastName
-        statement[table.email] = entity.email
+        this[UserTable.id] = entity.id
+        this[UserTable.firstName] = entity.firstName
+        this[UserTable.lastName] = entity.lastName
+        this[UserTable.email] = entity.email
     }
 }

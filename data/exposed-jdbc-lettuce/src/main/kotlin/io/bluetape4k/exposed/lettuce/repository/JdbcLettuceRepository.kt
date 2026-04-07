@@ -1,10 +1,14 @@
 package io.bluetape4k.exposed.lettuce.repository
 
 import io.bluetape4k.exposed.cache.JdbcCacheRepository
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
+import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import java.io.Serializable
 
 /**
@@ -23,20 +27,64 @@ import java.io.Serializable
  */
 interface JdbcLettuceRepository<ID: Any, E: Serializable>: JdbcCacheRepository<ID, E> {
 
+    companion object : KLogging() {
+        const val DEFAULT_BATCH_SIZE = 500
+    }
+
+    /**
+     * 엔티티가 매핑되는 Exposed의 IdTable.
+     */
+    override val table: IdTable<ID>
+
+    /**
+     * [ResultRow]를 엔티티 [E]로 변환합니다.
+     */
+    override fun ResultRow.toEntity(): E
+
+    /**
+     * 엔티티에서 식별자를 추출합니다.
+     */
+    override fun extractId(entity: E): ID
+
     /**
      * Lettuce 캐시 동작 설정.
      */
     val config: LettuceCacheConfig
 
-    // -------------------------------------------------------------------------
-    // DB 페이징 쿼리 (JdbcCacheRepository 재선언)
-    // -------------------------------------------------------------------------
+    /**
+     * Lettuce 기반 Read-through / Write-through 캐시 맵.
+     */
+    val cache: LettuceLoadedMap<ID, E>
 
     /**
-     * DB에서 조건에 맞는 엔티티 목록을 조회한 뒤 캐시에 적재합니다.
+     * 캐시에 해당 ID가 존재하는지 확인합니다.
      *
-     * @param limit 최대 조회 개수 (null이면 무제한)
-     * @param offset 조회 시작 위치 (null이면 0)
+     * @param id 엔티티 식별자
+     * @return 존재 여부
+     */
+    override fun containsKey(id: ID): Boolean = get(id) != null
+
+    /**
+     * 캐시에서 ID로 엔티티를 조회합니다 (캐시 미스 시 DB Read-through).
+     *
+     * @param id 엔티티 식별자
+     * @return 조회된 엔티티 또는 null
+     */
+    override fun get(id: ID): E? = cache[id]
+
+    /**
+     * 여러 ID에 해당하는 엔티티를 캐시에서 일괄 조회합니다.
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     * @return ID를 키, 엔티티를 값으로 하는 맵
+     */
+    override fun getAll(ids: Collection<ID>): Map<ID, E> = cache.getAll(ids.toSet())
+
+    /**
+     * 조건에 맞는 엔티티를 페이징하여 조회합니다.
+     *
+     * @param limit 최대 조회 건수 (null이면 전체)
+     * @param offset 건너뛸 레코드 수 (null이면 0)
      * @param sortBy 정렬 기준 컬럼
      * @param sortOrder 정렬 순서
      * @param where 조회 조건
@@ -49,4 +97,62 @@ interface JdbcLettuceRepository<ID: Any, E: Serializable>: JdbcCacheRepository<I
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<E>
+
+    /**
+     * 엔티티를 캐시에 저장합니다 (Write-through 시 DB에도 반영).
+     *
+     * @param id 엔티티 식별자
+     * @param entity 저장할 엔티티
+     */
+    override fun put(id: ID, entity: E) {
+        cache[id] = entity
+    }
+
+    /**
+     * 여러 엔티티를 캐시에 일괄 저장합니다.
+     *
+     * @param entities 식별자를 키, 엔티티를 값으로 하는 맵
+     * @param batchSize 배치 크기
+     */
+    override fun putAll(entities: Map<ID, E>, batchSize: Int) {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        entities.forEach { (id, entity) -> cache[id] = entity }
+    }
+
+    /**
+     * 지정한 ID의 엔티티를 캐시에서 제거합니다.
+     *
+     * @param id 엔티티 식별자
+     */
+    override fun invalidate(id: ID) {
+        cache.evict(id)
+    }
+
+    /**
+     * 여러 ID의 엔티티를 캐시에서 제거합니다.
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     */
+    override fun invalidateAll(ids: Collection<ID>) {
+        cache.evictAll(ids)
+    }
+
+    /**
+     * 패턴에 맞는 키를 가진 엔티티를 캐시에서 제거합니다.
+     *
+     * @param patterns 키 패턴
+     * @param count 최대 제거 개수
+     * @return 제거된 엔티티 수
+     */
+    override fun invalidateByPattern(patterns: String, count: Int): Long {
+        require(count > 0) { "count must be greater than 0. count=$count" }
+        return cache.invalidateByPattern(patterns, count.toLong())
+    }
+
+    /**
+     * 캐시를 모두 비웁니다.
+     */
+    override fun clear() {
+        cache.clear()
+    }
 }

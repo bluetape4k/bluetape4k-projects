@@ -227,6 +227,28 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     }
 
     /**
+     * 패턴에 일치하는 키를 Redis SCAN으로 찾아 삭제합니다.
+     *
+     * @param patterns 키 패턴 (예: "*user*", "prefix:*")
+     * @param count 한 번에 스캔할 키 수
+     * @return 삭제된 항목 수
+     */
+    suspend fun invalidateByPattern(patterns: String, count: Long = 100L): Long {
+        val keyPattern = "${config.keyPrefix}:$patterns"
+        val scanArgs = ScanArgs.Builder.matches(keyPattern).limit(count)
+        var cursor: ScanCursor = ScanCursor.INITIAL
+        var deleted = 0L
+        do {
+            val scanResult = asyncCommands.scan(cursor, scanArgs).await()
+            if (scanResult.keys.isNotEmpty()) {
+                deleted += asyncCommands.del(*scanResult.keys.toTypedArray()).await()
+            }
+            cursor = scanResult
+        } while (!cursor.isFinished)
+        return deleted
+    }
+
+    /**
      * 이 맵의 모든 Redis 키를 삭제한다.
      */
     suspend fun clear() {

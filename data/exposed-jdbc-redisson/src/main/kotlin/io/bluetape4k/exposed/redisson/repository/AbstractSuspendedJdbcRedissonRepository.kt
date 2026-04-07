@@ -42,13 +42,13 @@ import java.time.Duration
  * Exposed JDBC와 Redisson을 결합한 코루틴 기반 비동기 캐시 Repository의 추상 기반 클래스입니다.
  *
  * ## 사용 방법
- * 이 클래스를 상속하고 [table], [ResultRow.toEntity], [doUpdateEntity], [doInsertEntity]를 구현하세요.
- * Read-Only 모드에서는 [doUpdateEntity]/[doInsertEntity] 구현이 불필요합니다.
+ * 이 클래스를 상속하고 [table], [ResultRow.toEntity], [UpdateStatement.updateEntity], [BatchInsertStatement.insertEntity]를 구현하세요.
+ * Read-Only 모드에서는 [UpdateStatement.updateEntity]/[BatchInsertStatement.insertEntity] 구현이 불필요합니다.
  *
  * ## 동작/계약
  * - [config]의 `cacheMode`가 [RedissonCacheConfig.CacheMode.READ_ONLY]이면 suspendedMapWriter를 생성하지 않습니다.
  * - [config]의 `isNearCacheEnabled`가 true이면 `RLocalCachedMap`, 그렇지 않으면 `RMapCache`를 사용합니다.
- * - [doUpdateEntity]와 [doInsertEntity]는 Write-Through/Write-Behind 모드에서만 호출되며, Read-Only 모드에서 호출 시 오류가 발생합니다.
+ * - [UpdateStatement.updateEntity]와 [BatchInsertStatement.insertEntity]는 Write-Through/Write-Behind 모드에서만 호출됩니다.
  * - DB 조회 및 캐시 저장은 [scope]의 코루틴 컨텍스트에서 실행됩니다.
  *
  * ```kotlin
@@ -58,8 +58,8 @@ import java.time.Duration
  * ): AbstractSuspendedJdbcRedissonRepository<Long, UserRecord>(redissonClient, config) {
  *     override val table = UserTable
  *     override fun ResultRow.toEntity() = toUserRecord()
- *     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {
- *         statement[UserTable.email] = entity.email
+ *     override fun UpdateStatement.updateEntity(entity: UserRecord) {
+ *         this[UserTable.email] = entity.email
  *     }
  * }
  * ```
@@ -99,28 +99,16 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
     }
 
     /**
-     * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 extension 함수입니다.
+     * Write-Read 모드에서는 반드시 재정의해야 합니다.
      */
-    protected open fun doUpdateEntity(
-        statement: UpdateStatement,
-        entity: E,
-    ) {
-        if (config.isReadWrite) {
-            error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
-        }
-    }
+    abstract fun UpdateStatement.updateEntity(entity: E)
 
     /**
-     * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 extension 함수입니다.
+     * Write-Read 모드에서는 반드시 재정의해야 합니다.
      */
-    protected open fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: E,
-    ) {
-        if (config.isReadWrite) {
-            error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
-        }
-    }
+    abstract fun BatchInsertStatement.insertEntity(entity: E)
 
     /**
      * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
@@ -135,8 +123,8 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
                 SuspendedExposedEntityMapWriter(
                     scope = scope,
                     entityTable = table,
-                    updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                    batchInsertBody = { entity -> doInsertEntity(this, entity) },
+                    updateBody = { stmt, entity -> with(this@AbstractSuspendedJdbcRedissonRepository) { stmt.updateEntity(entity) } },
+                    batchInsertBody = { entity -> val stmt = this; with(this@AbstractSuspendedJdbcRedissonRepository) { stmt.insertEntity(entity) } },
                     deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
                     writeMode = config.writeMode // Write Through 모드
                 )

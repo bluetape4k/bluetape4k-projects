@@ -29,27 +29,18 @@ class SuspendedUserCredentialCacheRepository(
 
     override fun extractId(entity: UserCredentialsRecord): UUID = entity.id
 
-    override fun doUpdateEntity(
-        statement: UpdateStatement,
-        entity: UserCredentialsRecord,
-    ) {
-        statement[table.loginId] = entity.loginId
-        statement[table.email] = entity.email
-        statement[table.lastLoginAt] = entity.lastLoginAt
-        statement[table.updatedAt] = Instant.now()
+    override fun UpdateStatement.updateEntity(entity: UserCredentialsRecord) {
+        this[table.loginId] = entity.loginId
+        this[table.email] = entity.email
+        this[table.lastLoginAt] = entity.lastLoginAt
+        this[table.updatedAt] = Instant.now()
     }
 
-    override fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: UserCredentialsRecord,
-    ) {
+    override fun BatchInsertStatement.insertEntity(entity: UserCredentialsRecord) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        if (table.id.autoIncColumnType == null) {
-            statement[table.id] = entity.id
-        }
-        statement[table.id] = entity.id
-        statement[table.loginId] = entity.loginId
-        statement[table.email] = entity.email
-        statement[table.lastLoginAt] = entity.lastLoginAt
+        this[UserCredentialsTable.id] = entity.id
+        this[UserCredentialsTable.loginId] = entity.loginId
+        this[UserCredentialsTable.email] = entity.email
+        this[UserCredentialsTable.lastLoginAt] = entity.lastLoginAt
     }
 }

@@ -26,23 +26,20 @@ class R2dbcUserRedissonRepository(
 
     override fun extractId(entity: UserSchema.UserRecord): Long = entity.id
 
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserSchema.UserRecord) {
-        statement[table.firstName] = entity.firstName
-        statement[table.lastName] = entity.lastName
-        statement[table.email] = entity.email
-        statement[table.updatedAt] = Instant.now()
+    override fun UpdateStatement.updateEntity(entity: UserSchema.UserRecord) {
+        this[table.firstName] = entity.firstName
+        this[table.lastName] = entity.lastName
+        this[table.email] = entity.email
+        this[table.updatedAt] = Instant.now()
     }
 
-    override fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: UserSchema.UserRecord,
-    ) {
+    override fun BatchInsertStatement.insertEntity(entity: UserSchema.UserRecord) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        if (table.id.autoIncColumnType == null) {
-            statement[table.id] = entity.id
+        if (UserSchema.UserTable.id.autoIncColumnType == null) {
+            this[UserSchema.UserTable.id] = entity.id
         }
-        statement[table.firstName] = entity.firstName
-        statement[table.lastName] = entity.lastName
-        statement[table.email] = entity.email
+        this[UserSchema.UserTable.firstName] = entity.firstName
+        this[UserSchema.UserTable.lastName] = entity.lastName
+        this[UserSchema.UserTable.email] = entity.email
     }
 }

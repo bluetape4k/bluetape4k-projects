@@ -27,27 +27,18 @@ class R2dbcUserCredentialRedissonRepository(
 
     override fun extractId(entity: UserSchema.UserCredentialsRecord): UUID = entity.id
 
-    override fun doUpdateEntity(
-        statement: UpdateStatement,
-        entity: UserSchema.UserCredentialsRecord,
-    ) {
-        statement[table.loginId] = entity.loginId
-        statement[table.email] = entity.email
-        statement[table.lastLoginAt] = entity.lastLoginAt
-        statement[table.updatedAt] = Instant.now()
+    override fun UpdateStatement.updateEntity(entity: UserSchema.UserCredentialsRecord) {
+        this[table.loginId] = entity.loginId
+        this[table.email] = entity.email
+        this[table.lastLoginAt] = entity.lastLoginAt
+        this[table.updatedAt] = Instant.now()
     }
 
-    override fun doInsertEntity(
-        statement: BatchInsertStatement,
-        entity: UserSchema.UserCredentialsRecord,
-    ) {
+    override fun BatchInsertStatement.insertEntity(entity: UserSchema.UserCredentialsRecord) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        if (table.id.autoIncColumnType == null) {
-            statement[table.id] = entity.id
-        }
-        statement[table.id] = entity.id
-        statement[table.loginId] = entity.loginId
-        statement[table.email] = entity.email
-        statement[table.lastLoginAt] = entity.lastLoginAt
+        this[UserSchema.UserCredentialsTable.id] = entity.id
+        this[UserSchema.UserCredentialsTable.loginId] = entity.loginId
+        this[UserSchema.UserCredentialsTable.email] = entity.email
+        this[UserSchema.UserCredentialsTable.lastLoginAt] = entity.lastLoginAt
     }
 }

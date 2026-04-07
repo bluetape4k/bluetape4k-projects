@@ -76,7 +76,7 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
         WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
     }
 
-    protected val cache: LettuceLoadedMap<ID, E> by lazy {
+    override val cache: LettuceLoadedMap<ID, E> by lazy {
         LettuceLoadedMap(
             client = client,
             loader =
@@ -129,12 +129,6 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
     // 캐시 기반 조회 (Read-through)
     // -------------------------------------------------------------------------
 
-    override fun containsKey(id: ID): Boolean = get(id) != null
-
-    override fun get(id: ID): E? = cache[id]
-
-    override fun getAll(ids: Collection<ID>): Map<ID, E> = cache.getAll(ids.toSet())
-
     override fun findAll(
         limit: Int?,
         offset: Long?,
@@ -169,41 +163,6 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
                 "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
         )
-    }
-
-    // -------------------------------------------------------------------------
-    // 쓰기
-    // -------------------------------------------------------------------------
-
-    override fun put(
-        id: ID,
-        entity: E,
-    ) {
-        cache[id] = entity
-    }
-
-    override fun putAll(entities: Map<ID, E>, batchSize: Int) {
-        entities.forEach { (id, entity) -> cache[id] = entity }
-    }
-
-    // -------------------------------------------------------------------------
-    // 삭제 (캐시 무효화)
-    // -------------------------------------------------------------------------
-
-    override fun invalidate(id: ID) {
-        cache.evict(id)
-    }
-
-    override fun invalidateAll(ids: Collection<ID>) {
-        cache.evictAll(ids)
-    }
-
-    // -------------------------------------------------------------------------
-    // 캐시 관리
-    // -------------------------------------------------------------------------
-
-    override fun clear() {
-        cache.clear()
     }
 
     override fun close() = cache.close()

@@ -240,6 +240,28 @@ class LettuceLoadedMap<K: Any, V: Any>(
     }
 
     /**
+     * 패턴에 일치하는 키를 Redis SCAN으로 찾아 삭제합니다.
+     *
+     * @param patterns 키 패턴 (예: "*user*", "prefix:*")
+     * @param count 한 번에 스캔할 키 수
+     * @return 삭제된 항목 수
+     */
+    fun invalidateByPattern(patterns: String, count: Long = 100L): Long {
+        val keyPattern = "${config.keyPrefix}:$patterns"
+        val scanArgs = ScanArgs.Builder.matches(keyPattern).limit(count)
+        var cursor: ScanCursor = ScanCursor.INITIAL
+        var deleted = 0L
+        do {
+            val scanResult = commands.scan(cursor, scanArgs)
+            if (scanResult.keys.isNotEmpty()) {
+                deleted += commands.del(*scanResult.keys.toTypedArray())
+            }
+            cursor = scanResult
+        } while (!cursor.isFinished)
+        return deleted
+    }
+
+    /**
      * keyPrefix에 해당하는 모든 Redis 항목을 삭제합니다.
      *
      * ```kotlin
