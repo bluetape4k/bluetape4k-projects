@@ -14,6 +14,7 @@ import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -276,7 +277,7 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
         ids: Collection<ID>,
         batchSize: Int,
     ): Map<ID, E> {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        batchSize.requirePositiveNumber("batchSize")
 
         if (ids.isEmpty()) return emptyMap()
         val chunkedIds = ids.chunked(batchSize)

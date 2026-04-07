@@ -113,7 +113,7 @@ interface JdbcRedissonRepository<ID: Any, E: Serializable>: JdbcCacheRepository<
      * @param batchSize 배치 크기
      */
     override fun putAll(entities: Map<ID, E>, batchSize: Int) {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        batchSize.requirePositiveNumber("batchSize")
         cache.putAll(entities, batchSize)
     }
 

@@ -17,6 +17,7 @@ import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
@@ -290,7 +291,7 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
         ids: Collection<ID>,
         batchSize: Int,
     ): Map<ID, E> {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        batchSize.requirePositiveNumber("batchSize")
         if (ids.isEmpty()) {
             return emptyMap()
         }

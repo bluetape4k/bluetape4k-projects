@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.r2dbc.redisson.repository
 
 import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
@@ -165,7 +166,7 @@ interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcCacheRepositor
      * @param batchSize 배치 크기
      */
     override suspend fun putAll(entities: Map<ID, E>, batchSize: Int) {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        batchSize.requirePositiveNumber("batchSize")
         @Suppress("UNCHECKED_CAST")
         cache.putAllAsync(entities as Map<ID, E?>, batchSize).await()
     }
@@ -207,7 +208,7 @@ interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcCacheRepositor
         patterns: String,
         count: Int,
     ): Long {
-        require(count > 0) { "count must be greater than 0. count=$count" }
+        count.requirePositiveNumber("count")
         val keys = cache.keySet(patterns, count)
         if (keys.isEmpty()) {
             return 0

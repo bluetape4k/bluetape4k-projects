@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.r2dbc.lettuce.repository
 
 import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
 import org.jetbrains.exposed.v1.core.Expression
@@ -114,7 +115,7 @@ interface R2dbcLettuceRepository<ID: Any, E: Serializable>: R2dbcCacheRepository
      * @param batchSize 배치 크기
      */
     override suspend fun putAll(entities: Map<ID, E>, batchSize: Int) {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        batchSize.requirePositiveNumber("batchSize")
         entities.forEach { (id, entity) -> cache.set(id, entity) }
     }
 
@@ -144,7 +145,7 @@ interface R2dbcLettuceRepository<ID: Any, E: Serializable>: R2dbcCacheRepository
      * @return 제거된 엔티티 수
      */
     override suspend fun invalidateByPattern(patterns: String, count: Int): Long {
-        require(count > 0) { "count must be greater than 0. count=$count" }
+        count.requirePositiveNumber("count")
         return cache.invalidateByPattern(patterns, count.toLong())
     }
 

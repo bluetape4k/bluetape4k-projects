@@ -1,7 +1,10 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.ExMapOptions
 import org.redisson.api.options.LocalCachedMapOptions
@@ -52,29 +55,15 @@ data class RedissonCacheConfig(
 ) {
     init {
         name.requireNotBlank("name")
-        require(maxSize >= 0) { "maxSize must be greater than or equal to 0. maxSize=$maxSize" }
-        require(nearCacheMaxSize >= 0) {
-            "nearCacheMaxSize must be greater than or equal to 0. nearCacheMaxSize=$nearCacheMaxSize"
-        }
-        require(writeBehindBatchSize > 0) {
-            "writeBehindBatchSize must be greater than 0. writeBehindBatchSize=$writeBehindBatchSize"
-        }
-        require(writeBehindDelay >= 0) {
-            "writeBehindDelay must be greater than or equal to 0. writeBehindDelay=$writeBehindDelay"
-        }
-        require(writeRetryAttempts >= 0) {
-            "writeRetryAttempts must be greater than or equal to 0. writeRetryAttempts=$writeRetryAttempts"
-        }
-        require(!writeRetryInterval.isNegative) {
-            "writeRetryInterval must be greater than or equal to 0. writeRetryInterval=$writeRetryInterval"
-        }
-        require(!ttl.isNegative) { "ttl must be greater than or equal to 0. ttl=$ttl" }
-        require(
-            !nearCacheTtl.isNegative
-        ) { "nearCacheTtl must be greater than or equal to 0. nearCacheTtl=$nearCacheTtl" }
-        require(!nearCacheMaxIdleTime.isNegative) {
-            "nearCacheMaxIdleTime must be greater than or equal to 0. nearCacheMaxIdleTime=$nearCacheMaxIdleTime"
-        }
+        maxSize.requireZeroOrPositiveNumber("maxSize")
+        nearCacheMaxSize.requireZeroOrPositiveNumber("nearCacheMaxSize")
+        writeBehindBatchSize.requirePositiveNumber("writeBehindBatchSize")
+        writeBehindDelay.requireZeroOrPositiveNumber("writeBehindDelay")
+        writeRetryAttempts.requireZeroOrPositiveNumber("writeRetryAttempts")
+        writeRetryInterval.requireGe(Duration.ZERO, "writeRetryInterval")
+        ttl.requireGe(Duration.ZERO, "ttl")
+        nearCacheTtl.requireGe(Duration.ZERO, "nearCacheTtl")
+        nearCacheMaxIdleTime.requireGe(Duration.ZERO, "nearCacheMaxIdleTime")
     }
 
     val isReadOnly: Boolean
@@ -233,13 +222,13 @@ data class RedissonCacheConfig(
     }
 
     private fun validateUnsupportedMapSettings() {
-        require(ttl.isZero) {
+        check(ttl.isZero) {
             "ttl is not applied by Redisson MapOptions/LocalCachedMapOptions. Use per-entry expiration or map cache APIs instead. ttl=$ttl"
         }
-        require(maxSize == 0) {
+        check(maxSize == 0) {
             "maxSize is not applied by Redisson MapOptions/LocalCachedMapOptions. Use a bounded local cache or custom eviction policy instead. maxSize=$maxSize"
         }
-        require(!deleteFromDBOnInvalidate) {
+        check(!deleteFromDBOnInvalidate) {
             "deleteFromDBOnInvalidate is an application-level invalidation policy and is not applied by Redisson MapOptions/LocalCachedMapOptions."
         }
     }
