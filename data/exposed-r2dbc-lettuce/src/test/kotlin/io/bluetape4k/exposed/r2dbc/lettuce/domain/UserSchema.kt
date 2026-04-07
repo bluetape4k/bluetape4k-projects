@@ -171,9 +171,9 @@ object UserSchema : KLoggingChannel() {
         statement: suspend R2dbcTransaction.() -> Unit,
     ) {
         withTables(testDB, UserCredentialsTable) {
-            insertUserCredentials("debop")
-            insertUserCredentials("midoogi")
-            insertUserCredentials(faker.credentials().username())
+            insertUserCredentials(faker.internet().domainWord() + "_" + Base58.randomString(6))
+            insertUserCredentials(faker.internet().domainWord() + "_" + Base58.randomString(6))
+            insertUserCredentials(faker.internet().domainWord() + "_" + Base58.randomString(6))
             commit()
             statement()
         }

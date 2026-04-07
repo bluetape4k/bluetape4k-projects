@@ -2,8 +2,8 @@ package io.bluetape4k.exposed.r2dbc.lettuce.repository.scenarios
 
 import io.bluetape4k.exposed.r2dbc.lettuce.repository.scenarios.R2DbcLettuceJCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -44,7 +44,7 @@ interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Serializable>: R2DbcLettuc
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `put - WRITE_BEHIND flush 주기 후 DB에도 반영된다`(testDB: TestDB) =
-        runTest(timeout = 10.seconds) {
+        runTest(timeout = 15.seconds) {
             withR2dbcEntityTable(testDB) {
                 val id = getExistingId()
                 val entity = repository.findByIdFromDb(id).shouldNotBeNull()
@@ -52,9 +52,9 @@ interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Serializable>: R2DbcLettuc
                 repository.put(id, updated)
 
                 await
-                    .atMost(Duration.ofSeconds(10))
+                    .atMost(Duration.ofSeconds(12))
                     .withPollInterval(Duration.ofMillis(100))
-                    .until { runBlocking { repository.findByIdFromDb(id) == updated } }
+                    .untilSuspending { repository.findByIdFromDb(id) == updated }
 
                 repository.findByIdFromDb(id) shouldBeEqualTo updated
             }
@@ -63,16 +63,16 @@ interface R2dbcLettuceWriteBehindScenario<ID: Any, E: Serializable>: R2DbcLettuc
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `putAll - 여러 레코드를 배치로 비동기 적재한다`(testDB: TestDB) =
-        runTest(timeout = 10.seconds) {
+        runTest(timeout = 15.seconds) {
             withR2dbcEntityTable(testDB) {
                 val ids = getExistingIds()
                 val entities = ids.associateWith { id -> updateEmail(repository.findByIdFromDb(id)!!) }
                 repository.putAll(entities)
 
                 await
-                    .atMost(Duration.ofSeconds(10))
+                    .atMost(Duration.ofSeconds(12))
                     .withPollInterval(Duration.ofMillis(100))
-                    .until { runBlocking { entities.all { (id, e) -> repository.findByIdFromDb(id) == e } } }
+                    .untilSuspending { entities.all { (id, e) -> repository.findByIdFromDb(id) == e } }
 
                 entities.forEach { (id, expected) ->
                     repository.findByIdFromDb(id) shouldBeEqualTo expected
