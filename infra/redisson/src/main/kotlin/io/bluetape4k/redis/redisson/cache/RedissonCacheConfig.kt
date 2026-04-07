@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.support.requireEquals
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
@@ -222,13 +223,11 @@ data class RedissonCacheConfig(
     }
 
     private fun validateUnsupportedMapSettings() {
-        check(ttl.isZero) {
-            "ttl is not applied by Redisson MapOptions/LocalCachedMapOptions. Use per-entry expiration or map cache APIs instead. ttl=$ttl"
-        }
-        check(maxSize == 0) {
-            "maxSize is not applied by Redisson MapOptions/LocalCachedMapOptions. Use a bounded local cache or custom eviction policy instead. maxSize=$maxSize"
-        }
-        check(!deleteFromDBOnInvalidate) {
+        // requireEquals: caller가 Redisson에서 지원하지 않는 설정을 사용하면 IllegalArgumentException
+        ttl.requireEquals(Duration.ZERO, "ttl")  // Use per-entry expiration or map cache APIs instead
+        maxSize.requireEquals(0, "maxSize")       // Use a bounded local cache or custom eviction policy instead
+        // boolean false 체크: requireXxx 확장함수 없음 → stdlib require() 사용 (IAE 유지)
+        require(!deleteFromDBOnInvalidate) {
             "deleteFromDBOnInvalidate is an application-level invalidation policy and is not applied by Redisson MapOptions/LocalCachedMapOptions."
         }
     }
