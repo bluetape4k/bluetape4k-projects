@@ -16,7 +16,7 @@ import java.io.Serializable
  * [JsonSerializationException]의 생성자, 메시지, 원인(cause), 직렬화 가능성을 검증합니다.
  */
 class JsonSerializationExceptionTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `기본 생성자로 예외 생성 시 메시지와 원인이 null`() {
@@ -78,7 +78,7 @@ class JsonSerializationExceptionTest {
     fun `하위 클래스로 확장 가능함`() {
         class CustomJsonException(
             message: String,
-        ) : JsonSerializationException(message)
+        ): JsonSerializationException(message)
 
         val ex = CustomJsonException("커스텀 예외")
         ex.shouldBeInstanceOf<JsonSerializationException>()

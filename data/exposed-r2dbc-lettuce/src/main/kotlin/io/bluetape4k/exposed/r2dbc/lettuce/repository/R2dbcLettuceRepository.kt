@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.r2dbc.lettuce.repository
 
 import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -27,7 +27,7 @@ import java.io.Serializable
  */
 interface R2dbcLettuceRepository<ID: Any, E: Serializable>: R2dbcCacheRepository<ID, E> {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }
 

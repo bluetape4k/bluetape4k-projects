@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GreeterServiceTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val PROCESS_NAME = "greeter.service"
     }
 

@@ -137,7 +137,7 @@ data class SimplePaginatedList<out T>(
     override val pageNo: Int = 0,
     override val pageSize: Int = 10,
     override val totalItemCount: Long,
-) : PaginatedList<T>, Serializable {
+): PaginatedList<T>, Serializable {
 
     /**
      * 전체 페이지 수를 계산합니다.

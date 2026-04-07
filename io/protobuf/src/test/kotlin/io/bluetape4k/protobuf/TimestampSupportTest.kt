@@ -9,7 +9,7 @@ import java.time.Instant
 import java.util.*
 
 class TimestampSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `PROTO_TIMESTAMP_MIN 상수는 최소값을 가진다`() {

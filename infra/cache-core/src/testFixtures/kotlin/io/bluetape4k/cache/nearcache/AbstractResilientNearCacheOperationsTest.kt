@@ -18,7 +18,7 @@ import java.time.Duration
  * }
  * ```
  */
-abstract class AbstractResilientNearCacheOperationsTest<V: Any> : AbstractNearCacheOperationsTest<V>() {
+abstract class AbstractResilientNearCacheOperationsTest<V: Any>: AbstractNearCacheOperationsTest<V>() {
 
     companion object: KLogging()
 

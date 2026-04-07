@@ -6,7 +6,8 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-jackson2` is a module that wraps the [Jackson 2.x](https://github.com/FasterXML/jackson) library with Kotlin DSL and extension functions.
 
-It provides convenient access to the Jackson ecosystem in Kotlin, covering default `JsonMapper` configuration, `ObjectMapper` extensions, async JSON parsing, UUID Base62 encoding, field-level encryption, and field masking.
+It provides convenient access to the Jackson ecosystem in Kotlin, covering default `JsonMapper` configuration,
+`ObjectMapper` extensions, async JSON parsing, UUID Base62 encoding, field-level encryption, and field masking.
 
 ## Architecture
 

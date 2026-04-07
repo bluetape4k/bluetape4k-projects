@@ -51,7 +51,7 @@ import java.sql.DriverManager
  * 여러 트랜잭션이 같은 인메모리 상태를 공유해야 하면 파일 기반 DB를 사용하거나,
  * 테스트처럼 `DuckDBConnection.duplicate()` 기반 공유 연결을 사용해야 합니다.
  */
-object DuckDBDatabase : KLogging() {
+object DuckDBDatabase: KLogging() {
 
     /**
      * DuckDB JDBC 드라이버 클래스명.

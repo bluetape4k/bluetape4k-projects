@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcExposedEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcExposedEntityMapWriter
+import io.bluetape4k.exposed.r2dbc.redisson.repository.AbstractR2dbcRedissonRepository.Companion.DEFAULT_BATCH_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -59,8 +60,8 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
     val redissonClient: RedissonClient,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-) : R2dbcRedissonRepository<ID, E> {
-    companion object : KLoggingChannel() {
+): R2dbcRedissonRepository<ID, E> {
+    companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = R2dbcRedissonRepository.DEFAULT_BATCH_SIZE
     }
 
@@ -79,7 +80,7 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
         get() = when {
             config.isReadOnly -> CacheWriteMode.READ_ONLY
             config.isWriteBehind -> CacheWriteMode.WRITE_BEHIND
-            else -> CacheWriteMode.WRITE_THROUGH
+            else              -> CacheWriteMode.WRITE_THROUGH
         }
 
     /**
@@ -113,7 +114,9 @@ abstract class AbstractR2dbcRedissonRepository<ID: Any, E: Serializable>(
                 scope = scope,
                 entityTable = table,
                 updateBody = { stmt, entity -> with(this@AbstractR2dbcRedissonRepository) { stmt.updateEntity(entity) } },
-                batchInsertBody = { entity -> val stmt = this; with(this@AbstractR2dbcRedissonRepository) { stmt.insertEntity(entity) } },
+                batchInsertBody = { entity ->
+                    val stmt = this; with(this@AbstractR2dbcRedissonRepository) { stmt.insertEntity(entity) }
+                },
                 deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,
                 writeMode = config.writeMode
             )

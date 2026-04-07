@@ -29,8 +29,8 @@ import kotlin.test.assertFailsWith
 /**
  * 코루틴 환경에서 다양한 쿼리를 수행합니다.
  */
-class SuspendedQueryTest : AbstractExposedTest() {
-    private object ProductTable : IntIdTable("products") {
+class SuspendedQueryTest: AbstractExposedTest() {
+    private object ProductTable: IntIdTable("products") {
         val name = varchar("name", 255)
         val price = integer("price")
     }
@@ -91,7 +91,7 @@ class SuspendedQueryTest : AbstractExposedTest() {
             }
         }
 
-    private object ItemTable : SnowflakeIdTable("snowflake_items") {
+    private object ItemTable: SnowflakeIdTable("snowflake_items") {
         val name = varchar("name", 255)
         val price = integer("price")
     }
@@ -150,7 +150,7 @@ class SuspendedQueryTest : AbstractExposedTest() {
             }
         }
 
-    private object StringIdTable : Table("string_id_items") {
+    private object StringIdTable: Table("string_id_items") {
         val id = varchar("id", 64)
         val name = varchar("name", 255)
     }

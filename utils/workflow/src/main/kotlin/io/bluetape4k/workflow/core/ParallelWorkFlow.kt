@@ -49,9 +49,9 @@ class ParallelWorkFlow(
     private val policy: ParallelPolicy = ParallelPolicy.ALL,
     private val timeout: Duration = 1.minutes,
     private val flowName: String = "parallel-flow",
-) : WorkFlow {
+): WorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun execute(context: WorkContext): WorkReport {
         log.debug { "$flowName 시작. works=${works.size}, policy=$policy, timeout=$timeout" }
@@ -167,4 +167,4 @@ class ParallelWorkFlow(
  * [java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess]는 정상 반환만 "성공"으로 간주하므로,
  * 실패/중단/취소 결과를 예외로 전환하여 scope가 계속 다음 성공을 기다리도록 합니다.
  */
-internal class WorkNotSuccessException(val report: WorkReport) : Exception("Work not successful: ${report.status}")
+internal class WorkNotSuccessException(val report: WorkReport): Exception("Work not successful: ${report.status}")

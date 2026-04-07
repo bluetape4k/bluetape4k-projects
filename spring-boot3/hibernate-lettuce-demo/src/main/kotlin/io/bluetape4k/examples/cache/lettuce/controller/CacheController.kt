@@ -65,7 +65,7 @@ class CacheController(private val entityManagerFactory: EntityManagerFactory) {
         return runCatching {
             val sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor::class.java)
             sessionFactory.serviceRegistry.getService(RegionFactory::class.java)
-                as? LettuceNearCacheRegionFactory
+                    as? LettuceNearCacheRegionFactory
         }.getOrNull()
     }
 }

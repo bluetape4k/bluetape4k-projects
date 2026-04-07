@@ -46,31 +46,31 @@ open class ExposedEntityMapWriter<ID: Any, E: Any>(
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
     writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-) : EntityMapWriter<ID, E>(
-        writeToDB = { map: Map<ID, E> ->
-            when (writeMode) {
-                WriteMode.WRITE_THROUGH -> {
-                    writeThrough(map, entityTable, updateBody, batchInsertBody)
-                }
-                WriteMode.WRITE_BEHIND -> {
-                    writeBehind(map, entityTable, batchInsertBody)
-                }
+): EntityMapWriter<ID, E>(
+    writeToDB = { map: Map<ID, E> ->
+        when (writeMode) {
+            WriteMode.WRITE_THROUGH -> {
+                writeThrough(map, entityTable, updateBody, batchInsertBody)
             }
-        },
-        deleteFromDB = { ids ->
-            if (deleteFromDBOnInvalidate) {
-                log.debug {
-                    "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}"
-                }
-
-                // Map Key가 String Codec 인데, UUID로 변환을 못함
-                @Suppress("UNCHECKED_CAST")
-                val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
-                entityTable.deleteWhere { entityTable.id inList idsToDelete }
+            WriteMode.WRITE_BEHIND  -> {
+                writeBehind(map, entityTable, batchInsertBody)
             }
         }
-    ) {
-    companion object : KLogging() {
+    },
+    deleteFromDB = { ids ->
+        if (deleteFromDBOnInvalidate) {
+            log.debug {
+                "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}"
+            }
+
+            // Map Key가 String Codec 인데, UUID로 변환을 못함
+            @Suppress("UNCHECKED_CAST")
+            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
+            entityTable.deleteWhere { entityTable.id inList idsToDelete }
+        }
+    }
+) {
+    companion object: KLogging() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
         private fun <K: Any, V: Any> writeThrough(
@@ -131,7 +131,7 @@ open class ExposedEntityMapWriter<ID: Any, E: Any>(
         if (deleteFromDBOnInvalidate) {
             log.warn {
                 "⚠️ 주의! deleteFromDBOnInvalidate=true로 설정되었습니다. " +
-                    "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
+                        "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
             }
         }
         this.deleteFromDBOnInvalidate = deleteFromDBOnInvalidate

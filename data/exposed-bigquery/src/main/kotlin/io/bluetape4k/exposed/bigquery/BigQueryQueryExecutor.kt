@@ -93,7 +93,7 @@ class BigQueryResultRow(private val data: Map<String, Any?>) {
             is JavaInstantColumnType ->
                 // BigQuery REST API: TIMESTAMP = 초 단위 float 문자열 (예: "1.704067200E9")
                 Instant.ofEpochMilli((s.toDouble() * 1000).toLong())
-            else ->
+            else                 ->
                 column.columnType.valueFromDB(s)
         } as T?
     }

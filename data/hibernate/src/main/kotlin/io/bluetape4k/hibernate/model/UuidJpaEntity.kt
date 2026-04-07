@@ -10,7 +10,7 @@ import java.util.*
  * [UUID] 수형의 Identifier를 가지는 JPA Entity의 추상 클래스입니다.
  */
 @MappedSuperclass
-abstract class UuidJpaEntity : AbstractJpaEntity<UUID>() {
+abstract class UuidJpaEntity: AbstractJpaEntity<UUID>() {
     /**
      * Timebased UUID를 사용하여 Identifier를 생성합니다.
      */

@@ -14,7 +14,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class SuspendSequentialFlowTest : AbstractWorkflowTest() {
+class SuspendSequentialFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `전체 성공 - Success 반환`() = runTest {

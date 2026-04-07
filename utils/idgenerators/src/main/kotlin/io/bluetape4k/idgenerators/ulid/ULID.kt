@@ -21,7 +21,7 @@ import kotlin.random.Random
  * // parsed.timestamp > 0L
  * ```
  */
-interface ULID : Comparable<ULID> {
+interface ULID: Comparable<ULID> {
     /**
      * ULID의 상위 64비트 (타임스탬프 + 랜덤 상위 비트)
      *
@@ -173,7 +173,7 @@ interface ULID : Comparable<ULID> {
             timestamp: Long = currentTimeMillis(),
         ): ULID?
 
-        companion object : Monotonic by DefaultMonotonic
+        companion object: Monotonic by DefaultMonotonic
     }
 
     /**
@@ -188,7 +188,7 @@ interface ULID : Comparable<ULID> {
      * // ulid2 > ulid1
      * ```
      */
-    interface StatefulMonotonic : Factory {
+    interface StatefulMonotonic: Factory {
         /**
          * 단조 증가가 불가능한 경우 null을 반환합니다.
          *
@@ -200,7 +200,7 @@ interface ULID : Comparable<ULID> {
         fun nextULIDStrict(timestamp: Long = currentTimeMillis()): ULID?
     }
 
-    companion object : Factory by ULIDFactory.Default {
+    companion object: Factory by ULIDFactory.Default {
         /**
          * 커스텀 [Random]을 사용하는 [Factory]를 생성합니다.
          *

@@ -20,11 +20,11 @@ import java.time.Duration
  * @property bucketConfiguration [BucketConfiguration] 인스턴스
  * @property keyPrefix Bucket Key Prefix
  */
-abstract class AbstractLocalBucketProvider<T : LocalBucket>(
+abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     protected val bucketConfiguration: BucketConfiguration,
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val DEFAULT_KEY_PREFIX = "bluetape4k.rate-limit.key."
 
         /** 버킷 캐시의 최대 엔트리 수 */

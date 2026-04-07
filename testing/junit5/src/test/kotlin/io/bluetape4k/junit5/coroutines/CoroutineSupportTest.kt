@@ -14,7 +14,7 @@ import kotlin.test.assertFailsWith
  * [runSuspendTest], [runSuspendIO], [runSuspendDefault], [runSuspendVT] 함수 검증 테스트
  */
 class CoroutineSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `runSuspendTest - suspend 블록을 동기 실행한다`() {

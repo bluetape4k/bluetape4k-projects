@@ -14,7 +14,7 @@ import java.math.BigDecimal
 class ItemRepository(
     client: RedisClient,
     config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : AbstractJdbcLettuceRepository<Long, ItemDto>(client, config) {
+): AbstractJdbcLettuceRepository<Long, ItemDto>(client, config) {
     override val table: IdTable<Long> = ItemTable
 
     override fun ResultRow.toEntity(): ItemDto =

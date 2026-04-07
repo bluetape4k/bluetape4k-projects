@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
-class SuspendWorkflowDslTest : AbstractWorkflowTest() {
+class SuspendWorkflowDslTest: AbstractWorkflowTest() {
 
     // ──────────────────────────────────────────────────
     // suspendSequentialFlow DSL

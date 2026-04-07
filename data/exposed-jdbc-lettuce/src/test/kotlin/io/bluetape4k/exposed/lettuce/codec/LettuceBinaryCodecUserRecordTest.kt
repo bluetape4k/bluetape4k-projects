@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource
  *       [UserRecord] 같은 data class는 [java.io.Serializable]을 구현하여 정상 동작한다.
  */
 class LettuceBinaryCodecUserRecordTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Suppress("unused")
     private fun getLettuceBinaryCodecs(): List<LettuceBinaryCodec<UserRecord>> =

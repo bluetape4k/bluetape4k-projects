@@ -9,7 +9,6 @@ import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.currentCoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 
@@ -44,9 +43,9 @@ class SuspendRetryFlow(
     private val work: SuspendWork,
     private val retryPolicy: RetryPolicy = RetryPolicy.DEFAULT,
     private val flowName: String = "suspend-retry-flow",
-) : SuspendWorkFlow {
+): SuspendWorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override suspend fun execute(context: WorkContext): WorkReport {
         val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName

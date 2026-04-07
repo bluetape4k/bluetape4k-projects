@@ -25,7 +25,7 @@ import java.math.BigDecimal
 @Component
 class DataInitializer(
     private val r2dbcDatabase: R2dbcDatabase,
-) : AutoCloseable {
+): AutoCloseable {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

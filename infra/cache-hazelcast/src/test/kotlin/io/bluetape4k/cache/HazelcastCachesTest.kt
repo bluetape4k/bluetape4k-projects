@@ -89,8 +89,9 @@ class HazelcastCachesTest {
     @Test
     fun `suspendNearCache withResilience - ResilientSuspendNearCacheDecorator 인스턴스 반환`() = runTest {
         val config = HazelcastNearCacheConfig(cacheName = randomName())
-        val cache: SuspendNearCacheOperations<String> = HazelcastCaches.suspendNearCache<String>(hazelcastClient, config)
-            .withResilience { retryMaxAttempts = 3 }
+        val cache: SuspendNearCacheOperations<String> =
+            HazelcastCaches.suspendNearCache<String>(hazelcastClient, config)
+                .withResilience { retryMaxAttempts = 3 }
         try {
             cache.shouldBeInstanceOf<ResilientSuspendNearCacheDecorator<*>>()
         } finally {

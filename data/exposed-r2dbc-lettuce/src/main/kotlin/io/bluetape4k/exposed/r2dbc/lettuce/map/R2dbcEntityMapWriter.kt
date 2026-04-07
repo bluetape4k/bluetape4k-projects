@@ -26,7 +26,7 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
  * @see SuspendedMapWriter
  * @see R2dbcExposedEntityMapWriter
  */
-abstract class R2dbcEntityMapWriter<ID : Any, E : Any>(
+abstract class R2dbcEntityMapWriter<ID: Any, E: Any>(
     retryConfig: RetryConfig = RetryConfig.ofDefaults(),
 ): SuspendedMapWriter<ID, E> {
     private val retry = Retry.of("exposed-r2dbc-lettuce-writer", retryConfig)

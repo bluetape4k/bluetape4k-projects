@@ -11,7 +11,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class UlidGeneratorTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
 

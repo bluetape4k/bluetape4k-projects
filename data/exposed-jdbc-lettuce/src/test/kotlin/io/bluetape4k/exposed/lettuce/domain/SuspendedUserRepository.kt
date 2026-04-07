@@ -22,7 +22,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 class SuspendedUserRepository(
     client: RedisClient,
     config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : AbstractSuspendedJdbcLettuceRepository<Long, UserRecord>(client, config) {
+): AbstractSuspendedJdbcLettuceRepository<Long, UserRecord>(client, config) {
     override val table: IdTable<Long> = UserTable
 
     override fun ResultRow.toEntity(): UserRecord =

@@ -34,7 +34,7 @@ import java.time.temporal.Temporal
 fun <T> adjustPeriod(
     left: T?,
     right: T?,
-): Pair<T?, T?> where T : Temporal, T : Comparable<T> = Pair(left min right, left max right)
+): Pair<T?, T?> where T: Temporal, T: Comparable<T> = Pair(left min right, left max right)
 
 /**
  * 시작시각과 기간을 조정하여 시작시각과 Positive 기간을 반환합니다.
@@ -88,7 +88,7 @@ fun assertValidPeriod(
  * @param right 비교할 두 번째 기간들
  * @return 모두 같으면 true, 아니면 false
  */
-fun <T : ITimePeriod> allItemsAreEquals(
+fun <T: ITimePeriod> allItemsAreEquals(
     left: Iterable<T>,
     right: Iterable<T>,
 ): Boolean {
@@ -170,7 +170,7 @@ fun yearOf(
     when {
         monthOfYear !in 1..12 -> throw IllegalArgumentException("Invalid monthOfYear[$monthOfYear]")
         monthOfYear < calendar.baseMonth -> year - 1
-        else -> year
+        else                  -> year
     }
 
 /**
@@ -402,29 +402,29 @@ infix fun ITimePeriod.hasPureInsideWith(that: ITimePeriod): Boolean =
  */
 infix fun ITimePeriod.relationWith(that: ITimePeriod): PeriodRelation =
     when {
-        this.start > that.end -> {
+        this.start > that.end    -> {
             PeriodRelation.After
         }
-        this.end < that.start -> {
+        this.end < that.start    -> {
             PeriodRelation.Before
         }
-        this.isSamePeriod(that) -> {
+        this.isSamePeriod(that)  -> {
             PeriodRelation.ExactMatch
         }
-        this.start == that.end -> {
+        this.start == that.end   -> {
             PeriodRelation.StartTouching
         }
-        this.end == that.start -> {
+        this.end == that.start   -> {
             PeriodRelation.EndTouching
         }
         this.hasInsideWith(that) -> {
             when {
                 this.start == that.start -> PeriodRelation.EnclosingStartTouching
                 this.end == that.end -> PeriodRelation.EnclosingEndTouching
-                else -> PeriodRelation.Enclosing
+                else                 -> PeriodRelation.Enclosing
             }
         }
-        else -> {
+        else                     -> {
             val isInsideStart = that.hasInsideWith(this.start)
             val isInsideEnd = that.hasInsideWith(this.end)
             when {
@@ -432,16 +432,16 @@ infix fun ITimePeriod.relationWith(that: ITimePeriod): PeriodRelation =
                     when {
                         this.start == that.start -> PeriodRelation.InsideStartTouching
                         this.end == that.end -> PeriodRelation.InsideEndTouching
-                        else -> PeriodRelation.Inside
+                        else                 -> PeriodRelation.Inside
                     }
                 }
-                isInsideStart -> {
+                isInsideStart                -> {
                     PeriodRelation.StartInside
                 }
-                isInsideEnd -> {
+                isInsideEnd                  -> {
                     PeriodRelation.EndInside
                 }
-                else -> {
+                else                         -> {
                     PeriodRelation.NoRelation
                 }
             }

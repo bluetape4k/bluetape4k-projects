@@ -1,19 +1,19 @@
 spring:
-  application:
-    name: exposed-r2dbc-spring-data-webflux-demo
-  datasource:
-    url: jdbc:h2:mem:webfluxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  r2dbc:
-    url: r2dbc:h2:mem:///webfluxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=LEGACY
-    username: sa
-    password:
-  exposed:
-    generate-ddl: true
+    application:
+        name: exposed-r2dbc-spring-data-webflux-demo
+    datasource:
+        url: jdbc:h2:mem:webfluxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        driver-class-name: org.h2.Driver
+        username: sa
+        password:
+    r2dbc:
+        url: r2dbc:h2:mem:///webfluxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=LEGACY
+        username: sa
+        password:
+    exposed:
+        generate-ddl: true
 
 logging:
-  level:
-    io.bluetape4k: DEBUG
-    org.jetbrains.exposed: DEBUG
+    level:
+        io.bluetape4k: DEBUG
+        org.jetbrains.exposed: DEBUG

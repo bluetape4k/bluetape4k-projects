@@ -170,13 +170,13 @@ suspend fun deleteById(id: Long)
 
 ### 기본 CRUD
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/products` | 모든 상품 조회 (비동기) |
-| GET | `/products/{id}` | 특정 상품 조회 (비동기) |
-| POST | `/products` | 상품 생성 (비동기) |
-| PUT | `/products/{id}` | 상품 수정 (비동기) |
-| DELETE | `/products/{id}` | 상품 삭제 (비동기) |
+| 메서드    | 경로               | 설명             |
+|--------|------------------|----------------|
+| GET    | `/products`      | 모든 상품 조회 (비동기) |
+| GET    | `/products/{id}` | 특정 상품 조회 (비동기) |
+| POST   | `/products`      | 상품 생성 (비동기)    |
+| PUT    | `/products/{id}` | 상품 수정 (비동기)    |
+| DELETE | `/products/{id}` | 상품 삭제 (비동기)    |
 
 모든 엔드포인트는 `suspend` 함수이며, Spring WebFlux가 자동으로 코루틴을 처리합니다.
 
@@ -189,6 +189,7 @@ curl http://localhost:8080/products
 ```
 
 응답:
+
 ```json
 [
   {
@@ -219,6 +220,7 @@ curl -X POST http://localhost:8080/products \
 ```
 
 응답 (201 Created):
+
 ```json
 {
   "id": 3,

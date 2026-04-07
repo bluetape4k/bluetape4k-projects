@@ -117,9 +117,9 @@ open class TimeBlock(
 
     private fun refreshDuration() {
         _duration = when {
-            hasPeriod               -> Duration.between(start, end)
+            hasPeriod -> Duration.between(start, end)
             _duration == MaxDuration -> MaxDuration
-            else                    -> EmptyDuration
+            else      -> EmptyDuration
         }
     }
 

@@ -17,7 +17,7 @@ import java.io.File
 
 class ShapefileReaderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun testResource(path: String): File {
         val url = javaClass.classLoader.getResource(path)

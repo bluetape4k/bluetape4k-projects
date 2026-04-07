@@ -24,7 +24,6 @@ import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
@@ -75,8 +74,8 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
     val redissonClient: RedissonClient,
     private val config: RedissonCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-) : SuspendedJdbcRedissonRepository<ID, E> {
-    companion object : KLoggingChannel() {
+): SuspendedJdbcRedissonRepository<ID, E> {
+    companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = SuspendedJdbcCacheRepository.DEFAULT_BATCH_SIZE
     }
 
@@ -89,7 +88,7 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
         get() = when {
             config.isReadOnly -> CacheWriteMode.READ_ONLY
             config.writeMode == org.redisson.api.map.WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
-            else -> CacheWriteMode.WRITE_THROUGH
+            else              -> CacheWriteMode.WRITE_THROUGH
         }
 
     /**
@@ -117,15 +116,24 @@ abstract class AbstractSuspendedJdbcRedissonRepository<ID: Any, E: Serializable>
      */
     protected val suspendedMapWriter: SuspendedEntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY -> {
+            RedissonCacheConfig.CacheMode.READ_ONLY  -> {
                 null
             }
             RedissonCacheConfig.CacheMode.READ_WRITE -> {
                 SuspendedExposedEntityMapWriter(
                     scope = scope,
                     entityTable = table,
-                    updateBody = { stmt, entity -> with(this@AbstractSuspendedJdbcRedissonRepository) { stmt.updateEntity(entity) } },
-                    batchInsertBody = { entity -> val stmt = this; with(this@AbstractSuspendedJdbcRedissonRepository) { stmt.insertEntity(entity) } },
+                    updateBody = { stmt, entity ->
+                        with(this@AbstractSuspendedJdbcRedissonRepository) {
+                            stmt.updateEntity(
+                                entity
+                            )
+                        }
+                    },
+                    batchInsertBody = { entity ->
+                        val stmt =
+                            this; with(this@AbstractSuspendedJdbcRedissonRepository) { stmt.insertEntity(entity) }
+                    },
                     deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
                     writeMode = config.writeMode // Write Through 모드
                 )

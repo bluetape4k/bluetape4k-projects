@@ -15,11 +15,11 @@ import java.time.Instant
 class SuspendedUserCacheRepository(
     redissonClient: RedissonClient,
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:suspended:users"),
-) : AbstractSuspendedJdbcRedissonRepository<Long, UserRecord>(
-        redissonClient,
-        config
-    ) {
-    companion object : KLoggingChannel()
+): AbstractSuspendedJdbcRedissonRepository<Long, UserRecord>(
+    redissonClient,
+    config
+) {
+    companion object: KLoggingChannel()
 
     override val table: UserTable = UserTable
 

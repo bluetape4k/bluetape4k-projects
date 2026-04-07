@@ -23,8 +23,10 @@ interface KeyChainRepository {
     companion object: KLogging() {
         /** 기본 보관 개수입니다. */
         const val DEFAULT_CAPACITY = 10
+
         /** 최소 보관 개수입니다. */
         const val MIN_CAPACITY = 2
+
         /** 최대 보관 개수입니다. */
         const val MAX_CAPACITY = 1000
     }

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
  *
  * PreparedStatement 관련 확장 함수들의 테스트를 제공합니다.
  */
-class PreparedStatementExtensionsTest : AbstractJdbcSqlTest() {
+class PreparedStatementExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `preparedStatement DSL 사용`() {
         dataSource.withConnect { conn ->

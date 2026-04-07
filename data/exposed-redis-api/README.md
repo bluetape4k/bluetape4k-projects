@@ -89,21 +89,21 @@ classDiagram
 ### Core Interfaces
 
 1. **JdbcCacheRepository<ID, E>** — Synchronous JDBC cache
-   - Blocking operations
-   - Used with traditional JDBC transactions
-   - Suitable for non-coroutine environments
+    - Blocking operations
+    - Used with traditional JDBC transactions
+    - Suitable for non-coroutine environments
 
 2. **SuspendedJdbcCacheRepository<ID, E>** — Coroutine-based JDBC cache
-   - All operations are `suspend` functions
-   - Uses `suspendedTransactionAsync` internally
-   - Ideal for Kotlin coroutine-based applications
-   - No `runBlocking()` needed
+    - All operations are `suspend` functions
+    - Uses `suspendedTransactionAsync` internally
+    - Ideal for Kotlin coroutine-based applications
+    - No `runBlocking()` needed
 
 3. **R2dbcCacheRepository<ID, E>** — Reactive R2DBC cache
-   - Fully non-blocking reactive cache
-   - `ResultRow.toEntity()` is a suspend function
-   - Built on top of Reactive Streams
-   - Best for high-concurrency scenarios
+    - Fully non-blocking reactive cache
+    - `ResultRow.toEntity()` is a suspend function
+    - Built on top of Reactive Streams
+    - Best for high-concurrency scenarios
 
 ### Pattern-Based Invalidation
 
@@ -119,6 +119,7 @@ Searches keys matching `${cacheName}:${patterns}` and deletes them in batches.
 ## Cache Modes
 
 ### REMOTE
+
 Uses only Redis as a cache layer. No local (near) cache.
 
 ```
@@ -128,6 +129,7 @@ Uses only Redis as a cache layer. No local (near) cache.
 ```
 
 ### NEAR_CACHE
+
 Two-tier caching: Local (L1, e.g., Caffeine) + Redis (L2).
 
 ```
@@ -140,12 +142,15 @@ Two-tier caching: Local (L1, e.g., Caffeine) + Redis (L2).
 ## Cache Write Strategies
 
 ### READ_ONLY
+
 Reads are cached (Read-Through), but writes are **not** synced to cache.
 
 ### WRITE_THROUGH
+
 Synchronous write: Cache and DB are updated together. Ensures consistency but may introduce write latency.
 
 ### WRITE_BEHIND
+
 Asynchronous write: Data is written to cache first, then asynchronously to DB. Better write performance but risk of data loss on failure.
 
 ## Adding Dependencies
@@ -322,6 +327,7 @@ suspend fun invalidateUserCache(repo: SuspendedJdbcCacheRepository<Long, UserRec
 ## Key Concepts
 
 ### Serialization Requirement
+
 All entity classes must implement `Serializable` for distributed cache storage:
 
 ```kotlin
@@ -336,11 +342,13 @@ data class ProductRecord(
 ```
 
 ### Cache vs. DB Operations
+
 - **Cache-backed**: `get()`, `getAll()`, `put()`, `putAll()` — cache-first operations
 - **DB-only**: `findByIdFromDb()`, `findAllFromDb()`, `countFromDb()` — bypass cache
 - **Cache invalidation**: `invalidate()`, `invalidateAll()`, `clear()` — cache-only (DB unchanged)
 
 ### Batch Processing
+
 Default batch size is `500`. Override when inserting large datasets:
 
 ```kotlin

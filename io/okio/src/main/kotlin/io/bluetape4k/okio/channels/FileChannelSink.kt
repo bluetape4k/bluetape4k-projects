@@ -41,8 +41,8 @@ fun FileChannel.asSink(timeout: Timeout = Timeout.NONE) = FileChannelSink(this, 
 class FileChannelSink(
     private val channel: FileChannel,
     private val timeout: Timeout = Timeout.NONE,
-) : Sink {
-    companion object : KLogging()
+): Sink {
+    companion object: KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 기록하는 `write` 함수를 제공합니다.

@@ -13,7 +13,7 @@ Provides extension functions and the Repository pattern for use with Exposed in 
 - **Repository pattern**: `R2dbcRepository<ID, T, E>` and `SoftDeletedR2dbcRepository<ID, T, E>` interfaces
 - **Flow-based queries**: `findAll`, `findBy`, `findByField`, and others return `Flow<E>`
 - **Batch insert support**: `BatchInsertOnConflictDoNothing` pattern
-  - For PostgreSQL-compatible databases, uses `ON CONFLICT DO NOTHING` without pinning to a specific `id` column
+    - For PostgreSQL-compatible databases, uses `ON CONFLICT DO NOTHING` without pinning to a specific `id` column
 - **Coroutines-friendly API**: All single-record lookup and mutation operations are `suspend` functions
 - **Soft delete support**: `SoftDeletedR2dbcRepository`
 - **Virtual Thread transactions**: `virtualThreadTransaction` — run R2DBC transactions on Java 21 Virtual Threads
@@ -155,48 +155,50 @@ suspendTransaction {
 }
 ```
 
-Because `BatchInsertOnConflictDoNothing` does not pin the conflict target to a specific column on PostgreSQL-compatible databases, it works with tables that use unique columns or indexes other than `id`.
+Because
+`BatchInsertOnConflictDoNothing` does not pin the conflict target to a specific column on PostgreSQL-compatible databases, it works with tables that use unique columns or indexes other than
+`id`.
 
 ## R2dbcRepository Key Methods
 
-| Method                                  | Suspend | Return type      | Description                               |
-|-----------------------------------------|---------|------------------|-------------------------------------------|
-| `count()`                               | yes     | `Long`           | Total record count                        |
-| `countBy(predicate)`                    | yes     | `Long`           | Count matching records                    |
-| `existsById(id)`                        | yes     | `Boolean`        | Check existence by ID                     |
-| `existsBy(predicate)`                   | yes     | `Boolean`        | Check existence by condition              |
-| `findById(id)`                          | yes     | `E`              | Find by ID (throws if not found)          |
-| `findByIdOrNull(id)`                    | yes     | `E?`             | Find by ID (returns null if not found)    |
-| `findAll(limit, offset, ...)`           | no      | `Flow<E>`        | Find all (supports paging and sorting)    |
-| `findWithFilters(...)`                  | no      | `Flow<E>`        | Find with multiple AND conditions         |
-| `findBy(...)`                           | no      | `Flow<E>`        | Alias for `findWithFilters`               |
-| `findFirstOrNull(...)`                  | yes     | `E?`             | First matching entity                     |
-| `findLastOrNull(...)`                   | yes     | `E?`             | Last matching entity                      |
-| `findByField(field, value)`             | no      | `Flow<E>`        | Find by a specific column value           |
-| `findByFieldOrNull(field, value)`       | yes     | `E?`             | First result matching a specific column   |
-| `findAllByIds(ids)`                     | no      | `Flow<E>`        | Find multiple entities by IDs             |
-| `findPage(pageNumber, pageSize, ...)`   | yes     | `ExposedPage<E>` | Paginated query                           |
-| `deleteById(id)`                        | yes     | `Int`            | Delete by ID                              |
-| `deleteAll(op)`                         | yes     | `Int`            | Delete matching records                   |
-| `deleteAllByIds(ids)`                   | yes     | `Int`            | Delete multiple records by IDs            |
-| `updateById(id, ...)`                   | yes     | `Int`            | Update by ID                              |
-| `updateAll(predicate, ...)`             | yes     | `Int`            | Bulk update matching records              |
-| `batchInsert(entities, ...)`            | yes     | `List<E>`        | Batch insert                              |
-| `batchUpsert(entities, ...)`            | yes     | `List<E>`        | Batch upsert                              |
+| Method                                | Suspend | Return type      | Description                             |
+|---------------------------------------|---------|------------------|-----------------------------------------|
+| `count()`                             | yes     | `Long`           | Total record count                      |
+| `countBy(predicate)`                  | yes     | `Long`           | Count matching records                  |
+| `existsById(id)`                      | yes     | `Boolean`        | Check existence by ID                   |
+| `existsBy(predicate)`                 | yes     | `Boolean`        | Check existence by condition            |
+| `findById(id)`                        | yes     | `E`              | Find by ID (throws if not found)        |
+| `findByIdOrNull(id)`                  | yes     | `E?`             | Find by ID (returns null if not found)  |
+| `findAll(limit, offset, ...)`         | no      | `Flow<E>`        | Find all (supports paging and sorting)  |
+| `findWithFilters(...)`                | no      | `Flow<E>`        | Find with multiple AND conditions       |
+| `findBy(...)`                         | no      | `Flow<E>`        | Alias for `findWithFilters`             |
+| `findFirstOrNull(...)`                | yes     | `E?`             | First matching entity                   |
+| `findLastOrNull(...)`                 | yes     | `E?`             | Last matching entity                    |
+| `findByField(field, value)`           | no      | `Flow<E>`        | Find by a specific column value         |
+| `findByFieldOrNull(field, value)`     | yes     | `E?`             | First result matching a specific column |
+| `findAllByIds(ids)`                   | no      | `Flow<E>`        | Find multiple entities by IDs           |
+| `findPage(pageNumber, pageSize, ...)` | yes     | `ExposedPage<E>` | Paginated query                         |
+| `deleteById(id)`                      | yes     | `Int`            | Delete by ID                            |
+| `deleteAll(op)`                       | yes     | `Int`            | Delete matching records                 |
+| `deleteAllByIds(ids)`                 | yes     | `Int`            | Delete multiple records by IDs          |
+| `updateById(id, ...)`                 | yes     | `Int`            | Update by ID                            |
+| `updateAll(predicate, ...)`           | yes     | `Int`            | Bulk update matching records            |
+| `batchInsert(entities, ...)`          | yes     | `List<E>`        | Batch insert                            |
+| `batchUpsert(entities, ...)`          | yes     | `List<E>`        | Batch upsert                            |
 
 ## SoftDeletedR2dbcRepository Additional Methods
 
-| Method                                          | Suspend | Return type      | Description                                        |
-|-------------------------------------------------|---------|------------------|----------------------------------------------------|
-| `softDeleteById(id)`                            | yes     | `Unit`           | Soft delete by ID (`isDeleted=true`)               |
-| `restoreById(id)`                               | yes     | `Unit`           | Restore a soft-deleted record by ID                |
-| `countActive(predicate)`                        | yes     | `Long`           | Count active records                               |
-| `countDeleted(predicate)`                       | yes     | `Long`           | Count deleted records                              |
-| `findActive(limit, offset, ...)`                | no      | `Flow<E>`        | Find only active records                           |
-| `findDeleted(limit, offset, ...)`               | no      | `Flow<E>`        | Find only deleted records                          |
-| `softDeleteAll(predicate)`                      | yes     | `Int`            | Bulk soft delete matching records                  |
-| `restoreAll(predicate)`                         | yes     | `Int`            | Bulk restore matching records                      |
-| `findActivePage(pageNumber, pageSize, ...)`     | yes     | `ExposedPage<E>` | Paginated query of active records                  |
+| Method                                      | Suspend | Return type      | Description                          |
+|---------------------------------------------|---------|------------------|--------------------------------------|
+| `softDeleteById(id)`                        | yes     | `Unit`           | Soft delete by ID (`isDeleted=true`) |
+| `restoreById(id)`                           | yes     | `Unit`           | Restore a soft-deleted record by ID  |
+| `countActive(predicate)`                    | yes     | `Long`           | Count active records                 |
+| `countDeleted(predicate)`                   | yes     | `Long`           | Count deleted records                |
+| `findActive(limit, offset, ...)`            | no      | `Flow<E>`        | Find only active records             |
+| `findDeleted(limit, offset, ...)`           | no      | `Flow<E>`        | Find only deleted records            |
+| `softDeleteAll(predicate)`                  | yes     | `Int`            | Bulk soft delete matching records    |
+| `restoreAll(predicate)`                     | yes     | `Int`            | Bulk restore matching records        |
+| `findActivePage(pageNumber, pageSize, ...)` | yes     | `ExposedPage<E>` | Paginated query of active records    |
 
 ## Diagrams
 
@@ -336,18 +338,18 @@ sequenceDiagram
 
 ## Convenience Type Aliases
 
-| Interface                              | Primary key type      |
-|----------------------------------------|-----------------------|
-| `IntR2dbcRepository`                   | `Int`                 |
-| `LongR2dbcRepository`                  | `Long`                |
-| `UuidR2dbcRepository`                  | `kotlin.uuid.Uuid`    |
-| `UUIDR2dbcRepository`                  | `java.util.UUID`      |
-| `StringR2dbcRepository`                | `String`              |
-| `IntSoftDeletedR2dbcRepository`        | `Int`                 |
-| `LongSoftDeletedR2dbcRepository`       | `Long`                |
-| `UuidSoftDeletedR2dbcRepository`       | `kotlin.uuid.Uuid`    |
-| `UUIDSoftDeletedR2dbcRepository`       | `java.util.UUID`      |
-| `StringSoftDeletedR2dbcRepository`     | `String`              |
+| Interface                          | Primary key type   |
+|------------------------------------|--------------------|
+| `IntR2dbcRepository`               | `Int`              |
+| `LongR2dbcRepository`              | `Long`             |
+| `UuidR2dbcRepository`              | `kotlin.uuid.Uuid` |
+| `UUIDR2dbcRepository`              | `java.util.UUID`   |
+| `StringR2dbcRepository`            | `String`           |
+| `IntSoftDeletedR2dbcRepository`    | `Int`              |
+| `LongSoftDeletedR2dbcRepository`   | `Long`             |
+| `UuidSoftDeletedR2dbcRepository`   | `kotlin.uuid.Uuid` |
+| `UUIDSoftDeletedR2dbcRepository`   | `java.util.UUID`   |
+| `StringSoftDeletedR2dbcRepository` | `String`           |
 
 ## Virtual Thread Transactions
 
@@ -410,17 +412,17 @@ val rows = ActorTable.selectImplicitAll()
 
 ## Key Files and Classes
 
-| File                                                  | Description                                             |
-|-------------------------------------------------------|---------------------------------------------------------|
-| `repository/R2dbcRepository.kt`                       | R2DBC Repository base interface                         |
-| `repository/SoftDeletedR2dbcRepository.kt`            | Soft Delete R2DBC Repository                            |
-| `repository/ExposedR2dbcRepository.kt`                | (Deprecated) Legacy Repository interface                |
-| `TableExtensions.kt`                                  | Async table metadata extension functions                |
-| `QueryExtensions.kt`                                  | Flow/Query extensions (`forEach`, `any`, etc.)          |
-| `ReadableExtensions.kt`                               | Type-safe R2DBC Readable column value accessors         |
-| `ImplicitSelectAll.kt`                                | `SELECT *` query (`ImplicitQuery`)                      |
-| `virtualThreadTransaction.kt`                         | Java 21 Virtual Thread-based transaction execution      |
-| `statements/BatchInsertOnConflictDoNothing.kt`        | ON CONFLICT DO NOTHING batch insert                     |
+| File                                           | Description                                        |
+|------------------------------------------------|----------------------------------------------------|
+| `repository/R2dbcRepository.kt`                | R2DBC Repository base interface                    |
+| `repository/SoftDeletedR2dbcRepository.kt`     | Soft Delete R2DBC Repository                       |
+| `repository/ExposedR2dbcRepository.kt`         | (Deprecated) Legacy Repository interface           |
+| `TableExtensions.kt`                           | Async table metadata extension functions           |
+| `QueryExtensions.kt`                           | Flow/Query extensions (`forEach`, `any`, etc.)     |
+| `ReadableExtensions.kt`                        | Type-safe R2DBC Readable column value accessors    |
+| `ImplicitSelectAll.kt`                         | `SELECT *` query (`ImplicitQuery`)                 |
+| `virtualThreadTransaction.kt`                  | Java 21 Virtual Thread-based transaction execution |
+| `statements/BatchInsertOnConflictDoNothing.kt` | ON CONFLICT DO NOTHING batch insert                |
 
 ## Testing
 

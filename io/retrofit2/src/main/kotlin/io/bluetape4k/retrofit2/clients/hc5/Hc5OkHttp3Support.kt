@@ -136,7 +136,7 @@ internal fun SimpleHttpResponse.bodyPlainBytes(): ByteArray {
                 rawBytes.copyOf()
             }
         }
-        else -> {
+        else                   -> {
             rawBytes.copyOf()
         }
     }

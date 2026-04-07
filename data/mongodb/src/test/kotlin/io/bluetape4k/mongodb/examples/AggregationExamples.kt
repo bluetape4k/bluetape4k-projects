@@ -32,9 +32,9 @@ import kotlin.time.Duration.Companion.seconds
  * `pipeline {}` DSL로 파이프라인 스테이지를 구성하고,
  * 네이티브 `aggregate()` 함수로 실행합니다.
  */
-class AggregationExamples : AbstractMongoTest() {
+class AggregationExamples: AbstractMongoTest() {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val COLLECTION_NAME = "agg_examples"
     }
 

@@ -11,7 +11,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 
-class Example1_PlatformAndVirtualThread: AbstractVirtualThreadTest(){
+class Example1_PlatformAndVirtualThread: AbstractVirtualThreadTest() {
 
     companion object: KLoggingChannel() {
         private const val THREAD_SIZE = 100_000

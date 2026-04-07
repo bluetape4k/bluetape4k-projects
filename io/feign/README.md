@@ -199,6 +199,7 @@ val api = feignBuilderOf(
 ```
 
 `feignBuilderOf` contract:
+
 - Applies `Encoder.Default()` and `Decoder.Default()` as defaults.
 - The `builder: Feign.Builder.() -> Unit = {}` parameter allows inline additional configuration.
 - Implemented as an `inline fun` to eliminate lambda call overhead.
@@ -238,16 +239,17 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 ```
 
 `bodyAsReader()` contract:
+
 - Throws `IllegalStateException("Response body is null.")` when the response body is absent.
 
 ### 3. HTTP Transport Layer Options
 
-| Client | Characteristics | Use Case |
-|--------|----------------|----------|
-| ApacheHttp5Client | Stable, rich configuration | Synchronous API calls |
+| Client                 | Characteristics               | Use Case                             |
+|------------------------|-------------------------------|--------------------------------------|
+| ApacheHttp5Client      | Stable, rich configuration    | Synchronous API calls                |
 | AsyncApacheHttp5Client | Async, Coroutines integration | High-performance async communication |
-| VertxHttpClient | Event loop-based, lightweight | Vert.x ecosystem integration |
-| AsyncVertxHttpClient | Vert.x async client | Vert.x async communication |
+| VertxHttpClient        | Event loop-based, lightweight | Vert.x ecosystem integration         |
+| AsyncVertxHttpClient   | Vert.x async client           | Vert.x async communication           |
 
 ```kotlin
 // Vert.x-based Feign client

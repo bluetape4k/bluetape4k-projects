@@ -76,8 +76,8 @@ inline fun <T> RedissonClient.runIfLeaderGroup(
 class RedissonLeaderGroupElection private constructor(
     private val redissonClient: RedissonClient,
     options: LeaderGroupElectionOptions,
-) : LeaderGroupElection {
-    companion object : KLogging() {
+): LeaderGroupElection {
+    companion object: KLogging() {
         /**
          * [RedissonLeaderGroupElection] 인스턴스를 생성합니다.
          *

@@ -6,7 +6,8 @@ English | [한국어](./README.ko.md)
 
 Provides extension functions and utilities that make the [SmallRye Mutiny](https://smallrye.io/smallrye-mutiny/) reactive library easier to use in Kotlin.
 
-Mutiny is an event-driven reactive programming library with two main types: `Uni` (0 or 1 item) and `Multi` (a stream of 0 or more items).
+Mutiny is an event-driven reactive programming library with two main types: `Uni` (0 or 1 item) and
+`Multi` (a stream of 0 or more items).
 
 ## Adding the Dependency
 
@@ -211,20 +212,20 @@ val result = totalAmount.await().indefinitely()
 
 ## `Uni` vs `Multi`
 
-| Feature | Uni | Multi |
-|---|---|---|
-| Item count | 0 or 1 | 0 or more |
-| Use case | single result lookup, RPC call | stream processing, event source |
-| Completion | completes immediately after emitting an item | completes after emitting all items |
-| Reactor equivalent | Mono | Flux |
+| Feature            | Uni                                          | Multi                              |
+|--------------------|----------------------------------------------|------------------------------------|
+| Item count         | 0 or 1                                       | 0 or more                          |
+| Use case           | single result lookup, RPC call               | stream processing, event source    |
+| Completion         | completes immediately after emitting an item | completes after emitting all items |
+| Reactor equivalent | Mono                                         | Flux                               |
 
 ## Feature Details
 
-| File | Description |
-|---|---|
-| `UniSupport.kt` | extensions for creating and converting `Uni` |
-| `MultiSupport.kt` | extensions for creating and converting `Multi` |
-| `CoroutineSupport.kt` | interop between coroutines and Mutiny |
+| File                  | Description                                    |
+|-----------------------|------------------------------------------------|
+| `UniSupport.kt`       | extensions for creating and converting `Uni`   |
+| `MultiSupport.kt`     | extensions for creating and converting `Multi` |
+| `CoroutineSupport.kt` | interop between coroutines and Mutiny          |
 
 ## Mutiny Type Diagram
 
@@ -344,11 +345,11 @@ sequenceDiagram
 
 ## Mutiny vs Other Reactive Libraries
 
-| Library | Characteristics |
-|---|---|
-| **Mutiny** | event-driven, explicit async model, Quarkus-friendly |
-| **Reactor** | Netty-based, default for Spring WebFlux |
-| **RxJava** | Observable pattern, Android-friendly |
-| **Kotlin Flow** | coroutine-based, Kotlin-native |
+| Library         | Characteristics                                      |
+|-----------------|------------------------------------------------------|
+| **Mutiny**      | event-driven, explicit async model, Quarkus-friendly |
+| **Reactor**     | Netty-based, default for Spring WebFlux              |
+| **RxJava**      | Observable pattern, Android-friendly                 |
+| **Kotlin Flow** | coroutine-based, Kotlin-native                       |
 
 Mutiny is well suited to event-driven programming, explicit asynchronous handling, and use within the Quarkus ecosystem.

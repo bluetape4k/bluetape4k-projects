@@ -69,16 +69,16 @@ class RuleProxy(private val target: Any): InvocationHandler {
 
         return method?.let {
             when (it.name) {
-                "getName" -> ruleName
+                "getName"     -> ruleName
                 "getDescription" -> ruleDescription
                 "getPriority" -> rulePriority
-                "compareTo" -> compareToMethod(args)
-                "evaluate" -> evaluateMethod(args)
-                "execute" -> executeMethod(args)
-                "equals" -> equalsMethod(args)
-                "hashCode" -> hashCodeMethod()
-                "toString" -> toStringMethod()
-                else -> {
+                "compareTo"   -> compareToMethod(args)
+                "evaluate"    -> evaluateMethod(args)
+                "execute"     -> executeMethod(args)
+                "equals"      -> equalsMethod(args)
+                "hashCode"    -> hashCodeMethod()
+                "toString"    -> toStringMethod()
+                else          -> {
                     log.warn { "Not supported method in RuleProxy. method=${it.name}" }
                     null
                 }
@@ -100,13 +100,13 @@ class RuleProxy(private val target: Any): InvocationHandler {
         } catch (e: NoSuchFactException) {
             log.warn(e) {
                 "Rule '${targetClass.name}' has been evaluated to false " +
-                "due to a declared but missing fact '${e.missingFact}' in $facts"
+                        "due to a declared but missing fact '${e.missingFact}' in $facts"
             }
             false
         } catch (e: IllegalArgumentException) {
             throw RuleException(
                 "Type of injected facts in method '${conditionMethod?.name}' " +
-                "in rule '${targetClass.name}' do not match config types."
+                        "in rule '${targetClass.name}' do not match config types."
             )
         }
     }
@@ -167,7 +167,8 @@ class RuleProxy(private val target: Any): InvocationHandler {
 
     private fun hashCodeMethod(): Int = Objects.hash(ruleName, ruleDescription, rulePriority)
 
-    private fun toStringMethod(): String = "Rule(name='$ruleName', priority=$rulePriority, description='$ruleDescription')"
+    private fun toStringMethod(): String =
+        "Rule(name='$ruleName', priority=$rulePriority, description='$ruleDescription')"
 
     private fun compareTo(other: Rule): Int {
         val priorityComparison = rulePriority.compareTo(other.priority)

@@ -23,10 +23,10 @@ import java.time.Instant
  * INSERT 시 감사 필드 자동 설정, [UserContext.withUser] 컨텍스트 전파,
  * [AuditableJdbcRepository.auditedUpdateById] 및 [AuditableJdbcRepository.auditedUpdateAll] 동작을 검증합니다.
  */
-class AuditableJdbcRepositoryTest : AbstractExposedTest() {
+class AuditableJdbcRepositoryTest: AbstractExposedTest() {
 
     // 테이블 정의
-    object ActorTable : AuditableLongIdTable("auditable_actors") {
+    object ActorTable: AuditableLongIdTable("auditable_actors") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
     }
@@ -40,10 +40,10 @@ class AuditableJdbcRepositoryTest : AbstractExposedTest() {
         override val updatedBy: String? = null,
         override val updatedAt: Instant? = null,
         val id: Long = 0L,
-    ) : Auditable
+    ): Auditable
 
     // Repository 구현
-    object ActorRepository : LongAuditableJdbcRepository<ActorRecord, ActorTable> {
+    object ActorRepository: LongAuditableJdbcRepository<ActorRecord, ActorTable> {
         override val table = ActorTable
 
         override fun extractId(entity: ActorRecord) = entity.id

@@ -27,9 +27,9 @@ import kotlin.time.Duration.Companion.seconds
  * MongoDB Kotlin Coroutine Driver + bluetape4k-mongodb 확장함수를 활용한
  * 기본 CRUD 통합 예제입니다.
  */
-class BasicCrudExamples : AbstractMongoTest() {
+class BasicCrudExamples: AbstractMongoTest() {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val COLLECTION_NAME = "crud_examples"
     }
 

@@ -101,18 +101,21 @@ sequenceDiagram
 ## 제공 기능
 
 ### Geocode (구 `utils/geocode`)
+
 - Google Maps Services 기반 주소 ↔ 좌표 변환
 - Bing Maps API 연동 지원
 - Feign HTTP 클라이언트 기반 비동기 요청
 - Coroutines 확장 (선택적)
 
 ### GeoHash
+
 - 위도/경도 좌표를 Base32 문자열로 인코딩
 - GeoHash 디코딩 및 이웃 셀 계산
 - 반경 내 GeoHash 목록 생성
 - 정밀도 제어 (1~12자리)
 
 ### GeoIP2 (구 `utils/geoip2`)
+
 - MaxMind GeoIP2 데이터베이스 기반 IP → 지리 정보 변환
 - City, Country, ASN 조회 지원
 - Coroutines 확장 (선택적)
@@ -137,6 +140,7 @@ val neighbors = GeoHash.neighbors("wydm9mufd")
 ```
 
 `GeoHashCircleQuery` 제약:
+
 - 반경(`radius`)은 meter 단위이며 0 이상이어야 합니다.
 - 음수 반경은 `IllegalArgumentException`으로 즉시 거부됩니다.
 

@@ -53,7 +53,7 @@ class LettuceSuspendLeaderGroupElection(
 
     private fun getSemaphore(lockName: String): LettuceSemaphore {
         lockName.requireNotBlank("lockName")
-        
+
         val semaphore = LettuceSemaphore(connection, lockName, maxLeaders)
         semaphore.initialize()
         return semaphore

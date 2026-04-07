@@ -15,4 +15,4 @@ package io.bluetape4k.states.api
 open class StateMachineException(
     message: String? = null,
     cause: Throwable? = null,
-) : RuntimeException(message, cause)
+): RuntimeException(message, cause)

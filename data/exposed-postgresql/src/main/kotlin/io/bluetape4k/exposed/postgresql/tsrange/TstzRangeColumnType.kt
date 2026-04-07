@@ -34,9 +34,9 @@ import java.time.temporal.ChronoField
  * // row[EventTable.period].start == Instant.parse("2024-01-01T00:00:00Z")
  * ```
  */
-class TstzRangeColumnType : ColumnType<TimestampRange>() {
+class TstzRangeColumnType: ColumnType<TimestampRange>() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /**
          * PostgreSQL JDBC 드라이버가 반환하는 timestamp+tz 포맷 파서.
          *

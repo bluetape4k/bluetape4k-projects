@@ -22,7 +22,7 @@ import kotlin.concurrent.withLock
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> org.ehcache.Cache<T, R>.memoizer(
+fun <T: Any, R: Any> org.ehcache.Cache<T, R>.memoizer(
     evaluator: (T) -> R,
 ): EhCacheMemoizer<T, R> = EhCacheMemoizer(this, evaluator)
 
@@ -43,7 +43,7 @@ fun <T : Any, R : Any> org.ehcache.Cache<T, R>.memoizer(
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: org.ehcache.Cache<T, R>): EhCacheMemoizer<T, R> =
+fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: org.ehcache.Cache<T, R>): EhCacheMemoizer<T, R> =
     EhCacheMemoizer(cache, this)
 
 /**
@@ -63,11 +63,11 @@ fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: org.ehcache.Cache<T, R>): 
  * // result == 5
  * ```
  */
-class EhCacheMemoizer<T : Any, R : Any>(
+class EhCacheMemoizer<T: Any, R: Any>(
     private val cache: org.ehcache.Cache<T, R>,
     private val evaluator: (T) -> R,
-) : Memoizer<T, R> {
-    companion object : KLogging()
+): Memoizer<T, R> {
+    companion object: KLogging()
 
     private val lock = ReentrantLock()
 

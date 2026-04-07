@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test
 /**
  * [JacksonIteratorDecoder2]의 JSON 배열 스트리밍 디코딩 동작을 검증합니다.
  */
-class JacksonIteratorDecoder2Test : AbstractFeignTest() {
-    companion object : KLogging()
+class JacksonIteratorDecoder2Test: AbstractFeignTest() {
+    companion object: KLogging()
 
     private val decoder = JacksonIteratorDecoder2.INSTANCE
 
@@ -39,7 +39,7 @@ class JacksonIteratorDecoder2Test : AbstractFeignTest() {
             }
 
         val iteratorType =
-            object : java.lang.reflect.ParameterizedType {
+            object: java.lang.reflect.ParameterizedType {
                 override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
 
                 override fun getRawType() = Iterator::class.java
@@ -66,7 +66,7 @@ class JacksonIteratorDecoder2Test : AbstractFeignTest() {
             }
 
         val iteratorType =
-            object : java.lang.reflect.ParameterizedType {
+            object: java.lang.reflect.ParameterizedType {
                 override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
 
                 override fun getRawType() = Iterator::class.java
@@ -91,7 +91,7 @@ class JacksonIteratorDecoder2Test : AbstractFeignTest() {
             }
 
         val iteratorType =
-            object : java.lang.reflect.ParameterizedType {
+            object: java.lang.reflect.ParameterizedType {
                 override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
 
                 override fun getRawType() = Iterator::class.java

@@ -55,7 +55,7 @@ import java.io.Serializable
 abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
     client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : JdbcLettuceRepository<ID, E> {
+): JdbcLettuceRepository<ID, E> {
     abstract override val table: IdTable<ID>
 
     abstract override fun ResultRow.toEntity(): E
@@ -68,13 +68,15 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
 
     // JdbcCacheRepository 프로퍼티 구현
     override val cacheName: String get() = config.keyPrefix
-    override val cacheMode: CacheMode get() =
-        if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
-    override val cacheWriteMode: CacheWriteMode get() = when (config.writeMode) {
-        WriteMode.NONE -> CacheWriteMode.READ_ONLY
-        WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
-        WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
-    }
+    override val cacheMode: CacheMode
+        get() =
+            if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+    override val cacheWriteMode: CacheWriteMode
+        get() = when (config.writeMode) {
+            WriteMode.NONE          -> CacheWriteMode.READ_ONLY
+            WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
+            WriteMode.WRITE_BEHIND  -> CacheWriteMode.WRITE_BEHIND
+        }
 
     override val cache: LettuceLoadedMap<ID, E> by lazy {
         LettuceLoadedMap(
@@ -161,7 +163,7 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
     override fun extractId(entity: E): ID {
         error(
             "findAll(where) 사용 시 extractId(entity)를 오버라이드하거나 " +
-                "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
+                    "엔티티에서 ID를 추출하는 방법을 제공해야 합니다."
         )
     }
 

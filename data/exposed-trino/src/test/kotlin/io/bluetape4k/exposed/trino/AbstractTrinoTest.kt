@@ -46,7 +46,7 @@ import java.sql.SQLException
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractTrinoTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
         val trino: TrinoServer by lazy { TrinoServer.Launcher.trino }
 
@@ -87,7 +87,7 @@ abstract class AbstractTrinoTest {
 
         internal fun Throwable.isNoNodesAvailable(): Boolean =
             (this is SQLException && message?.contains("No nodes available") == true) ||
-                cause?.isNoNodesAvailable() == true
+                    cause?.isNoNodesAvailable() == true
     }
 
     /**

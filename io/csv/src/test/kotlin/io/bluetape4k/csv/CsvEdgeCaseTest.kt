@@ -26,7 +26,7 @@ import kotlin.text.Charsets.UTF_8
  * - 왕복 정확성 (쓰기 후 다시 읽어 값 일치 검증)
  */
 class CsvEdgeCaseTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: File

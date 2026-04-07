@@ -37,11 +37,11 @@ import java.util.*
  * @param entityType 엔티티 클래스 (생략 시 Exposed 자동 추론)
  * @param entityCtor 엔티티 생성자 (생략 시 Exposed 자동 추론)
  */
-abstract class AuditableIntEntityClass<E : AuditableIntEntity>(
+abstract class AuditableIntEntityClass<E: AuditableIntEntity>(
     table: AuditableIntIdTable,
     entityType: Class<E>? = null,
     entityCtor: ((EntityID<Int>) -> E)? = null,
-) : EntityClass<Int, E>(table, entityType, entityCtor)
+): EntityClass<Int, E>(table, entityType, entityCtor)
 
 /**
  * [AuditableLongIdTable] 기반 엔티티를 관리하는 DAO `EntityClass` 추상 클래스입니다.
@@ -73,11 +73,11 @@ abstract class AuditableIntEntityClass<E : AuditableIntEntity>(
  * @param entityType 엔티티 클래스 (생략 시 Exposed 자동 추론)
  * @param entityCtor 엔티티 생성자 (생략 시 Exposed 자동 추론)
  */
-abstract class AuditableLongEntityClass<E : AuditableLongEntity>(
+abstract class AuditableLongEntityClass<E: AuditableLongEntity>(
     table: AuditableLongIdTable,
     entityType: Class<E>? = null,
     entityCtor: ((EntityID<Long>) -> E)? = null,
-) : EntityClass<Long, E>(table, entityType, entityCtor)
+): EntityClass<Long, E>(table, entityType, entityCtor)
 
 /**
  * [AuditableUUIDTable] 기반 엔티티를 관리하는 DAO `EntityClass` 추상 클래스입니다.
@@ -109,8 +109,8 @@ abstract class AuditableLongEntityClass<E : AuditableLongEntity>(
  * @param entityType 엔티티 클래스 (생략 시 Exposed 자동 추론)
  * @param entityCtor 엔티티 생성자 (생략 시 Exposed 자동 추론)
  */
-abstract class AuditableUUIDEntityClass<E : AuditableUUIDEntity>(
+abstract class AuditableUUIDEntityClass<E: AuditableUUIDEntity>(
     table: AuditableUUIDTable,
     entityType: Class<E>? = null,
     entityCtor: ((EntityID<UUID>) -> E)? = null,
-) : EntityClass<UUID, E>(table, entityType, entityCtor)
+): EntityClass<UUID, E>(table, entityType, entityCtor)

@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 /**
  * 테스트용 suspend 기반 User Repository 입니다.
  */
-interface UserR2dbcRepository : ExposedR2dbcRepository<User, Long> {
+interface UserR2dbcRepository: ExposedR2dbcRepository<User, Long> {
 
     override val table: Users get() = Users
 

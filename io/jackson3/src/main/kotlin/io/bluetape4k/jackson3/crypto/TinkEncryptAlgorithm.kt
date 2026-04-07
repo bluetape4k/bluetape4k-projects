@@ -36,9 +36,9 @@ enum class TinkEncryptAlgorithm {
      * @return 미리 구성된 [TinkEncryptor] 인스턴스
      */
     fun getEncryptor(): TinkEncryptor = when (this) {
-        AES256_GCM -> TinkEncryptors.AES256_GCM
-        AES128_GCM -> TinkEncryptors.AES128_GCM
-        CHACHA20_POLY1305 -> TinkEncryptors.CHACHA20_POLY1305
+        AES256_GCM         -> TinkEncryptors.AES256_GCM
+        AES128_GCM         -> TinkEncryptors.AES128_GCM
+        CHACHA20_POLY1305  -> TinkEncryptors.CHACHA20_POLY1305
         XCHACHA20_POLY1305 -> TinkEncryptors.XCHACHA20_POLY1305
         DETERMINISTIC_AES256_SIV -> TinkEncryptors.DETERMINISTIC_AES256_SIV
     }

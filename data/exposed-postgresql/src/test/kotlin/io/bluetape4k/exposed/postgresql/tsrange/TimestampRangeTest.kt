@@ -14,7 +14,7 @@ import java.time.Instant
  */
 class TimestampRangeTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val start = Instant.parse("2024-01-01T00:00:00Z")
     private val end = Instant.parse("2024-12-31T23:59:59Z")

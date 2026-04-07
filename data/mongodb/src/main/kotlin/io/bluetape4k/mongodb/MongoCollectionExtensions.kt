@@ -20,7 +20,7 @@ import org.bson.conversions.Bson
  * @param filter 검색 조건
  * @return 첫 번째 일치 문서 또는 `null`
  */
-suspend fun <T : Any> MongoCollection<T>.findFirst(filter: Bson): T? =
+suspend fun <T: Any> MongoCollection<T>.findFirst(filter: Bson): T? =
     find(filter).limit(1).firstOrNull()
 
 /**
@@ -29,7 +29,7 @@ suspend fun <T : Any> MongoCollection<T>.findFirst(filter: Bson): T? =
  * @param filter 검색 조건
  * @return 첫 번째 일치 문서 또는 `null`
  */
-suspend fun <T : Any> MongoCollection<T>.findFirstOrNull(filter: Bson): T? =
+suspend fun <T: Any> MongoCollection<T>.findFirstOrNull(filter: Bson): T? =
     findFirst(filter)
 
 /**
@@ -42,7 +42,7 @@ suspend fun <T : Any> MongoCollection<T>.findFirstOrNull(filter: Bson): T? =
  * @param filter 검색 조건
  * @return 일치 문서가 하나 이상 존재하면 `true`
  */
-suspend fun <T : Any> MongoCollection<T>.exists(filter: Bson): Boolean =
+suspend fun <T: Any> MongoCollection<T>.exists(filter: Bson): Boolean =
     countDocuments(filter) > 0
 
 /**
@@ -59,7 +59,7 @@ suspend fun <T : Any> MongoCollection<T>.exists(filter: Bson): Boolean =
  * @param update 적용할 업데이트 명세
  * @return [UpdateResult] 업서트 결과
  */
-suspend fun <T : Any> MongoCollection<T>.upsert(filter: Bson, update: Bson): UpdateResult =
+suspend fun <T: Any> MongoCollection<T>.upsert(filter: Bson, update: Bson): UpdateResult =
     updateOne(filter, update, UpdateOptions().upsert(true))
 
 /**
@@ -84,7 +84,7 @@ suspend fun <T : Any> MongoCollection<T>.upsert(filter: Bson, update: Bson): Upd
  * @param sort 정렬 조건
  * @return 조건에 맞는 문서의 [Flow]
  */
-fun <T : Any> MongoCollection<T>.findAsFlow(
+fun <T: Any> MongoCollection<T>.findAsFlow(
     filter: Bson = Filters.empty(),
     skip: Int? = null,
     limit: Int? = null,

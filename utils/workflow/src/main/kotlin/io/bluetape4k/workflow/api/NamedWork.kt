@@ -19,7 +19,7 @@ package io.bluetape4k.workflow.api
 class NamedWork(
     val name: String,
     private val delegate: Work,
-) : Work {
+): Work {
     override fun execute(context: WorkContext): WorkReport = delegate.execute(context)
     override fun toString(): String = "NamedWork($name)"
 }

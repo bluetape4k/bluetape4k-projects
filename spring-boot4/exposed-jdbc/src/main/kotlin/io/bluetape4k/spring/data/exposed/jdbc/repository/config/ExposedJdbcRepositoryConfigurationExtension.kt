@@ -14,7 +14,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
  * // 모듈 이름: "EXPOSED", Factory Bean: ExposedJdbcRepositoryFactoryBean
  * ```
  */
-class ExposedJdbcRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
+class ExposedJdbcRepositoryConfigurationExtension: RepositoryConfigurationExtensionSupport() {
 
     override fun getModuleName(): String = "EXPOSED"
 

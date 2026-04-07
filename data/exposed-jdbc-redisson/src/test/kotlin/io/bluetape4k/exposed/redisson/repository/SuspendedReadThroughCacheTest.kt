@@ -22,12 +22,12 @@ import kotlin.coroutines.CoroutineContext
 
 @Suppress("DEPRECATION")
 class SuspendedReadThroughCacheTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
-    abstract class SuspendedAutoIncIdReadThrough :
+    abstract class SuspendedAutoIncIdReadThrough:
         AbstractRedissonTest(),
         SuspendedReadThroughScenario<Long, UserRecord> {
-        companion object : KLoggingChannel()
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -56,8 +56,9 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class SuspendedAutoIncIdReadThroughRemteCache : SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:users")
+    inner class SuspendedAutoIncIdReadThroughRemteCache: SuspendedAutoIncIdReadThrough() {
+        override val cacheConfig: RedissonCacheConfig =
+            RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:users")
         override val repository by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
@@ -67,8 +68,9 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class SuspendedAutoIncIdReadThroughNearCache : SuspendedAutoIncIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:users")
+    inner class SuspendedAutoIncIdReadThroughNearCache: SuspendedAutoIncIdReadThrough() {
+        override val cacheConfig: RedissonCacheConfig =
+            RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:users")
 
         override val repository by lazy {
             SuspendedUserCacheRepository(
@@ -78,7 +80,7 @@ class SuspendedReadThroughCacheTest {
         }
     }
 
-    abstract class SuspendedClientGeneratedIdReadThrough :
+    abstract class SuspendedClientGeneratedIdReadThrough:
         AbstractRedissonTest(),
         SuspendedReadThroughScenario<UUID, UserCredentialsRecord> {
         override suspend fun withSuspendedEntityTable(
@@ -110,8 +112,9 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class SuspendedClientGeneratedIdReadThroughRemoteCache : SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:user-credentials")
+    inner class SuspendedClientGeneratedIdReadThroughRemoteCache: SuspendedClientGeneratedIdReadThrough() {
+        override val cacheConfig: RedissonCacheConfig =
+            RedissonCacheConfig.READ_ONLY.copy(name = "suspended:read-through:remote:user-credentials")
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
@@ -121,8 +124,9 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class SuspendedClientGeneratedIdReadThroughNearCache : SuspendedClientGeneratedIdReadThrough() {
-        override val cacheConfig: RedissonCacheConfig = RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:user-credentials")
+    inner class SuspendedClientGeneratedIdReadThroughNearCache: SuspendedClientGeneratedIdReadThrough() {
+        override val cacheConfig: RedissonCacheConfig =
+            RedissonCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(name = "suspended:read-through:near:user-credentials")
         override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,

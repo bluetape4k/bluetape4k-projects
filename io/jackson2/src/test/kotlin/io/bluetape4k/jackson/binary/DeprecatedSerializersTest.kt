@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
  */
 @Suppress("DEPRECATION")
 class DeprecatedSerializersTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val cborSerializer = CborJsonSerializer()
     private val ionSerializer = IonJsonSerializer()

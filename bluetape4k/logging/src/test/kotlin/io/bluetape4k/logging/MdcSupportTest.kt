@@ -16,7 +16,7 @@ import kotlin.test.assertFailsWith
  * ```
  */
 class MdcSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @AfterEach
     fun cleanupMdc() {

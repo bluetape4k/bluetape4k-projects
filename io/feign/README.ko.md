@@ -199,6 +199,7 @@ val api = feignBuilderOf(
 ```
 
 `feignBuilderOf` 계약:
+
 - 기본값으로 `Encoder.Default()`와 `Decoder.Default()`를 적용합니다.
 - `builder: Feign.Builder.() -> Unit = {}` 파라미터로 추가 설정을 인라인으로 지정할 수 있습니다.
 - `inline fun`으로 구현되어 람다 호출 오버헤드가 없습니다.
@@ -238,6 +239,7 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 ```
 
 `bodyAsReader()` 계약:
+
 - 응답 body가 없으면 `IllegalStateException("Response body is null.")`를 던집니다.
 
 ### 3. 다양한 HTTP 전송 계층

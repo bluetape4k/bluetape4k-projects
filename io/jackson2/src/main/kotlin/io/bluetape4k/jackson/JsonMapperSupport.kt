@@ -14,7 +14,7 @@ import java.io.StringWriter
 import java.net.URL
 import kotlin.use
 
-private object JsonMapperSupportLogger : KLogging()
+private object JsonMapperSupportLogger: KLogging()
 
 /**
  * [JsonMapper.Builder] DSL로 [JsonMapper]를 생성합니다.
@@ -46,7 +46,7 @@ inline fun jsonMapper(
  * // typeRef.type == List<String> TypeReference
  * ```
  */
-inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object : TypeReference<T>() {}
+inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object: TypeReference<T>() {}
 
 /**
  * JSON 문자열을 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -67,7 +67,8 @@ inline fun <reified T> ObjectMapper.readValueOrNull(content: String): T? =
  * // value?.get("id") == 1
  * ```
  */
-inline fun <reified T> ObjectMapper.readValueOrNull(input: Reader): T? = runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
+inline fun <reified T> ObjectMapper.readValueOrNull(input: Reader): T? =
+    runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
  * [InputStream]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -102,7 +103,8 @@ inline fun <reified T> ObjectMapper.readValueOrNull(
  * // value != null (파일이 올바른 JSON인 경우)
  * ```
  */
-inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? = runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
+inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? =
+    runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
  * [URL]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -139,7 +141,8 @@ inline fun <reified T> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
  * // user?.name == "debop"
  * ```
  */
-inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? = runCatching { convertValue(from, jacksonTypeRef<T>()) }.getOrNull()
+inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
+    runCatching { convertValue(from, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
  * [TreeNode]를 reified 타입 [T]로 변환합니다. 실패 시 null을 반환합니다.
@@ -151,7 +154,8 @@ inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? = runCatch
  * // user?.id == 1
  * ```
  */
-inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? = runCatching { treeToValue(node, T::class.java) }.getOrNull()
+inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? =
+    runCatching { treeToValue(node, T::class.java) }.getOrNull()
 
 /**
  * 객체를 JSON 문자열로 직렬화합니다.
@@ -165,7 +169,7 @@ inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? = runC
  * // json == "{\"id\":1}"
  * ```
  */
-fun <T : Any> ObjectMapper.writeAsString(graph: T?): String? = graph?.run { writeValueAsString(graph) }
+fun <T: Any> ObjectMapper.writeAsString(graph: T?): String? = graph?.run { writeValueAsString(graph) }
 
 /**
  * [JsonNode]를 JSON 문자열로 직렬화합니다.
@@ -199,7 +203,7 @@ fun ObjectMapper.writeAsString(jsonNode: JsonNode): String =
  * // bytes?.isNotEmpty() == true
  * ```
  */
-fun <T : Any> ObjectMapper.writeAsBytes(graph: T?): ByteArray? = graph?.run { writeValueAsBytes(graph) }
+fun <T: Any> ObjectMapper.writeAsBytes(graph: T?): ByteArray? = graph?.run { writeValueAsBytes(graph) }
 
 /**
  * 객체를 pretty-print JSON 문자열로 직렬화합니다.
@@ -213,7 +217,7 @@ fun <T : Any> ObjectMapper.writeAsBytes(graph: T?): ByteArray? = graph?.run { wr
  * // json?.contains("\n") == true
  * ```
  */
-fun <T : Any> ObjectMapper.prettyWriteAsString(graph: T?): String? =
+fun <T: Any> ObjectMapper.prettyWriteAsString(graph: T?): String? =
     graph?.run { writerWithDefaultPrettyPrinter().writeValueAsString(graph) }
 
 /**
@@ -228,7 +232,7 @@ fun <T : Any> ObjectMapper.prettyWriteAsString(graph: T?): String? =
  * // bytes?.isNotEmpty() == true
  * ```
  */
-fun <T : Any> ObjectMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
+fun <T: Any> ObjectMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
     graph?.run { writerWithDefaultPrettyPrinter().writeValueAsBytes(graph) }
 
 /**

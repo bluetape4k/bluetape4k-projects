@@ -82,17 +82,18 @@ flowchart TD
 
 워크 실행의 5가지 가능한 결과:
 
-| Status | Type | 비유 | 설명 |
-|--------|------|------|------|
-| `COMPLETED` | `Success` | 정상 반환 | 작업 성공, 컨텍스트 유지 |
-| `FAILED` | `Failure` | 예외 발생 | 작업 실패, 에러 발생; 흐름 중단 (STOP) |
-| `PARTIAL` | `PartialSuccess` | 부분 반환 | 하나 이상 실패했으나 흐름 계속 (CONTINUE) |
-| `ABORTED` | `Aborted` | `break` 문 | 작업이 워크플로 즉시 중단 요청 |
-| `CANCELLED` | `Cancelled` | 외부 인터럽트 | 타임아웃 또는 코루틴 취소 발생 |
+| Status      | Type             | 비유        | 설명                           |
+|-------------|------------------|-----------|------------------------------|
+| `COMPLETED` | `Success`        | 정상 반환     | 작업 성공, 컨텍스트 유지               |
+| `FAILED`    | `Failure`        | 예외 발생     | 작업 실패, 에러 발생; 흐름 중단 (STOP)   |
+| `PARTIAL`   | `PartialSuccess` | 부분 반환     | 하나 이상 실패했으나 흐름 계속 (CONTINUE) |
+| `ABORTED`   | `Aborted`        | `break` 문 | 작업이 워크플로 즉시 중단 요청            |
+| `CANCELLED` | `Cancelled`      | 외부 인터럽트   | 타임아웃 또는 코루틴 취소 발생            |
 
 ### 제어 흐름 비유
 
 WorkReport 결과는 while 루프 제어 흐름에 대응됩니다:
+
 ```
 while (condition) {
     val result = doWork()
@@ -109,7 +110,9 @@ while (condition) {
 ## 핵심 API
 
 ### WorkContext
+
 작업 간 상태 공유를 위한 Mutable Map:
+
 ```kotlin
 val ctx = WorkContext()
 ctx["key"] = value
@@ -118,7 +121,9 @@ val default = ctx.getOrDefault("key", defaultValue)
 ```
 
 ### Work & SuspendWork
+
 동기 또는 suspend 단일 작업 실행:
+
 ```kotlin
 // 동기
 val work = Work("task-name") { ctx -> WorkReport.Success(ctx) }

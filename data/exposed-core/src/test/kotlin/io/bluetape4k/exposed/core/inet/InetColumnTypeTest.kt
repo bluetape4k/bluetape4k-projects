@@ -20,11 +20,11 @@ import java.net.InetAddress
  *
  * H2 및 PostgreSQL 다이얼렉트에서 IPv4/IPv6 주소 및 CIDR 블록 저장/조회를 검증한다.
  */
-class InetColumnTypeTest : AbstractExposedTest() {
+class InetColumnTypeTest: AbstractExposedTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    object NetworkTable : LongIdTable("inet_networks") {
+    object NetworkTable: LongIdTable("inet_networks") {
         val ip = inetAddress("ip")
         val network = cidr("network")
     }

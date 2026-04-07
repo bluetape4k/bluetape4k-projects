@@ -14,8 +14,8 @@ import java.nio.charset.Charset
  * // result == "hello"
  * ```
  */
-class StringKafkaCodec : AbstractKafkaCodec<String>() {
-    companion object : KLogging() {
+class StringKafkaCodec: AbstractKafkaCodec<String>() {
+    companion object: KLogging() {
         @JvmField
         val DefaultEncoding = Charsets.UTF_8
 

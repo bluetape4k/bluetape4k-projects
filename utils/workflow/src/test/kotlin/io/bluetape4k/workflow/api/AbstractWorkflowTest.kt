@@ -5,7 +5,7 @@ import kotlin.time.Duration
 
 abstract class AbstractWorkflowTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     protected val context = WorkContext()
 

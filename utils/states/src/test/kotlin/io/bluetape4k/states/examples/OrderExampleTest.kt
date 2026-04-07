@@ -18,15 +18,21 @@ import org.junit.jupiter.api.assertThrows
  */
 class OrderExampleTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class OrderState { CREATED, PAID, SHIPPED, DELIVERED, CANCELLED }
+    enum class OrderState {
+        CREATED,
+        PAID,
+        SHIPPED,
+        DELIVERED,
+        CANCELLED
+    }
 
     sealed class OrderEvent {
-        data object Pay : OrderEvent()
-        data object Ship : OrderEvent()
-        data object Deliver : OrderEvent()
-        data class Cancel(val reason: String = "") : OrderEvent()
+        data object Pay: OrderEvent()
+        data object Ship: OrderEvent()
+        data object Deliver: OrderEvent()
+        data class Cancel(val reason: String = ""): OrderEvent()
     }
 
     private fun createOrderFsm() = stateMachine<OrderState, OrderEvent> {

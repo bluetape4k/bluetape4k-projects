@@ -10,7 +10,12 @@ import kotlin.test.assertFailsWith
 class RandomSupportTest {
 
     enum class Dice {
-        ONE, TWO, THREE, FOUR, FIVE, SIX
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX
     }
 
     @Test

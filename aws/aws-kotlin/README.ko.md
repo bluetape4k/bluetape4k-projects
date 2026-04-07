@@ -8,26 +8,26 @@ AWS Kotlin SDK 기반 단일 통합 모듈입니다. native `suspend` 함수를 
 
 ## 제공 서비스
 
-| 서비스 | 주요 기능 |
-|--------|----------|
-| **DynamoDB** | 테이블 CRUD, 스캔/쿼리, DSL 빌더 |
-| **S3** | 객체 업로드/다운로드, 멀티파트, 버킷 관리 |
-| **SES / SESv2** | 이메일 발송, 템플릿 메일 |
-| **SNS** | 토픽 발행, SMS, 구독 관리 |
-| **SQS** | 메시지 발송/수신/삭제, FIFO 큐 |
-| **KMS** | 암호화 키 관리, 데이터 키 생성 |
-| **CloudWatch** | 메트릭 발행/조회, DSL(`metricDatum {}`) |
-| **CloudWatch Logs** | 로그 이벤트 전송, DSL(`inputLogEvent {}`) |
-| **Kinesis** | 스트림 레코드 전송, DSL(`putRecordRequestOf {}`) |
-| **STS** | AssumeRole, CallerIdentity, DSL(`stsClientOf {}`) |
+| 서비스                 | 주요 기능                                             |
+|---------------------|---------------------------------------------------|
+| **DynamoDB**        | 테이블 CRUD, 스캔/쿼리, DSL 빌더                           |
+| **S3**              | 객체 업로드/다운로드, 멀티파트, 버킷 관리                          |
+| **SES / SESv2**     | 이메일 발송, 템플릿 메일                                    |
+| **SNS**             | 토픽 발행, SMS, 구독 관리                                 |
+| **SQS**             | 메시지 발송/수신/삭제, FIFO 큐                              |
+| **KMS**             | 암호화 키 관리, 데이터 키 생성                                |
+| **CloudWatch**      | 메트릭 발행/조회, DSL(`metricDatum {}`)                  |
+| **CloudWatch Logs** | 로그 이벤트 전송, DSL(`inputLogEvent {}`)                |
+| **Kinesis**         | 스트림 레코드 전송, DSL(`putRecordRequestOf {}`)          |
+| **STS**             | AssumeRole, CallerIdentity, DSL(`stsClientOf {}`) |
 
 ## Java SDK v2 vs Kotlin SDK 비교
 
-| 항목 | `bluetape4k-aws` (Java SDK) | `bluetape4k-aws-kotlin` (Kotlin SDK) |
-|------|----------------------------|--------------------------------------|
-| Coroutines | `.await()` 변환 필요 | native `suspend` 기본 제공 |
-| DSL 지원 | 제한적 | 풍부한 DSL 빌더 |
-| 성능 | CRT/Netty NIO 선택 | CRT / OkHttp 선택 |
+| 항목         | `bluetape4k-aws` (Java SDK) | `bluetape4k-aws-kotlin` (Kotlin SDK) |
+|------------|-----------------------------|--------------------------------------|
+| Coroutines | `.await()` 변환 필요            | native `suspend` 기본 제공               |
+| DSL 지원     | 제한적                         | 풍부한 DSL 빌더                           |
+| 성능         | CRT/Netty NIO 선택            | CRT / OkHttp 선택                      |
 
 ## 설치
 

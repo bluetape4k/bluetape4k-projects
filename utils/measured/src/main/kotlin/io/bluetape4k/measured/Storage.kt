@@ -23,15 +23,32 @@ open class Storage(
     companion object {
         private const val KILO: Double = 1024.0
 
-        @JvmField val bytes: Storage = Storage("B")
-        @JvmField val kiloBytes: Storage = Storage("KB", KILO)
-        @JvmField val megaBytes: Storage = Storage("MB", KILO.pow(2))
-        @JvmField val gigaBytes: Storage = Storage("GB", KILO.pow(3))
-        @JvmField val teraBytes: Storage = Storage("TB", KILO.pow(4))
-        @JvmField val petaBytes: Storage = Storage("PB", KILO.pow(5))
-        @JvmField val exaBytes: Storage = Storage("EB", KILO.pow(6))
-        @JvmField val zettaBytes: Storage = Storage("ZB", KILO.pow(7))
-        @JvmField val yottaBytes: Storage = Storage("YB", KILO.pow(8))
+        @JvmField
+        val bytes: Storage = Storage("B")
+
+        @JvmField
+        val kiloBytes: Storage = Storage("KB", KILO)
+
+        @JvmField
+        val megaBytes: Storage = Storage("MB", KILO.pow(2))
+
+        @JvmField
+        val gigaBytes: Storage = Storage("GB", KILO.pow(3))
+
+        @JvmField
+        val teraBytes: Storage = Storage("TB", KILO.pow(4))
+
+        @JvmField
+        val petaBytes: Storage = Storage("PB", KILO.pow(5))
+
+        @JvmField
+        val exaBytes: Storage = Storage("EB", KILO.pow(6))
+
+        @JvmField
+        val zettaBytes: Storage = Storage("ZB", KILO.pow(7))
+
+        @JvmField
+        val yottaBytes: Storage = Storage("YB", KILO.pow(8))
     }
 }
 

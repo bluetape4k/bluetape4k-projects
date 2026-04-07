@@ -47,7 +47,7 @@ class MeasureColumnType<T: Units>(
     override fun valueFromDB(value: Any): Measure<T>? = when (value) {
         is Measure<*> -> value as Measure<T>
         is Number -> fromBaseValue(value.toDouble())
-        else -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
     }
 
     override fun notNullValueToDB(value: Measure<T>): Any = value `in` baseUnit
@@ -77,7 +77,7 @@ class TemperatureColumnType: ColumnType<Temperature>() {
     override fun valueFromDB(value: Any): Temperature? = when (value) {
         is Temperature -> value
         is Number -> Temperature.fromKelvin(value.toDouble())
-        else -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
     }
 
     override fun notNullValueToDB(value: Temperature): Any = value.inKelvin()
@@ -107,7 +107,7 @@ class TemperatureDeltaColumnType: ColumnType<TemperatureDelta>() {
     override fun valueFromDB(value: Any): TemperatureDelta? = when (value) {
         is TemperatureDelta -> value
         is Number -> TemperatureDelta(value.toDouble())
-        else -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
     }
 
     override fun notNullValueToDB(value: TemperatureDelta): Any = value.inKelvin()

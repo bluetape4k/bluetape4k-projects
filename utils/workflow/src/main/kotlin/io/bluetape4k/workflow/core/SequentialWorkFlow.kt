@@ -38,9 +38,9 @@ class SequentialWorkFlow(
     private val works: List<Work>,
     private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP,
     private val flowName: String = "sequential-flow",
-) : WorkFlow {
+): WorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun execute(context: WorkContext): WorkReport {
         log.debug { "$flowName 시작. works=${works.size}, errorStrategy=$errorStrategy" }

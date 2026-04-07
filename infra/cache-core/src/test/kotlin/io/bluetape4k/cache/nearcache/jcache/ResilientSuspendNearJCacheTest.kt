@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.seconds
  * [runSuspendIO]를 사용해 IO Dispatcher에서 실제 시간으로 실행하여 write-behind consumer를 검증한다.
  */
 class ResilientSuspendNearJCacheTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
 
         private fun randomKey(): String = Uuid.V7.nextIdAsString()

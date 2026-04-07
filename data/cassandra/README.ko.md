@@ -350,15 +350,15 @@ class MyCassandraTest: AbstractCassandraTest() {
 더 많은 예제는 `src/test/kotlin/io/bluetape4k/cassandra` 패키지에서 확인할 수 있습니다:
 
 - `examples/`: 기본 사용 예제
-  - `BasicExamples.kt`: 기본 CRUD 작업
-  - `datatypes/`: 다양한 데이터 타입 처리 (Blob, Tuple, UDT, Custom Codec)
-  - `json/`: JSON 데이터 처리
+    - `BasicExamples.kt`: 기본 CRUD 작업
+    - `datatypes/`: 다양한 데이터 타입 처리 (Blob, Tuple, UDT, Custom Codec)
+    - `json/`: JSON 데이터 처리
 - `querybuilder/`: QueryBuilder 사용 예제
-  - `SelectFromStatementExamples.kt`: SELECT 구문
-  - `InsertIntoStatementExamples.kt`: INSERT 구문
-  - `UpateStatementExamples.kt`: UPDATE 구문
-  - `DeleteFromStatementExamples.kt`: DELETE 구문
-  - `schema/`: 스키마 관리 예제 (Keyspace, Table, Index, UDT 등)
+    - `SelectFromStatementExamples.kt`: SELECT 구문
+    - `InsertIntoStatementExamples.kt`: INSERT 구문
+    - `UpateStatementExamples.kt`: UPDATE 구문
+    - `DeleteFromStatementExamples.kt`: DELETE 구문
+    - `schema/`: 스키마 관리 예제 (Keyspace, Table, Index, UDT 등)
 
 ## 아키텍처 다이어그램
 

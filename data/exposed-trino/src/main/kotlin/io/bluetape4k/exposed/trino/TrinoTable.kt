@@ -26,7 +26,7 @@ import org.jetbrains.exposed.v1.core.Table
  * - Exposed ORM의 관계 참조(FK 등)를 위해 [primaryKey]는 정의할 수 있으나,
  *   실제 DDL에는 포함되지 않습니다.
  */
-open class TrinoTable(name: String = "") : Table(name) {
+open class TrinoTable(name: String = ""): Table(name) {
 
     override fun createStatement(): List<String> =
         super.createStatement().map { sql -> sql.sanitizeForTrino() }

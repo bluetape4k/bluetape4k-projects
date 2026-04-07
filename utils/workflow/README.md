@@ -69,7 +69,8 @@ flowchart TD
 ## Key Features
 
 - **Multi-execution model**: sync (Virtual Threads), coroutine (suspend), and hybrid workflows
-- **Type-safe DSL**: declarative workflow definitions with `workflow {}`, `sequentialFlow {}`, `suspendWorkflow {}`, etc.
+- **Type-safe DSL**: declarative workflow definitions with `workflow {}`, `sequentialFlow {}`,
+  `suspendWorkflow {}`, etc.
 - **Composable**: nest flows within flows for arbitrary complexity
 - **Error strategies**: `STOP` (fail fast) or `CONTINUE` (partial success)
 - **Retry with backoff**: exponential backoff policy for resilience
@@ -79,17 +80,18 @@ flowchart TD
 
 Five possible outcomes for work execution:
 
-| Status | Type | Analogy | Description |
-|--------|------|---------|-------------|
-| `COMPLETED` | `Success` | Normal return | Task succeeded, context preserved |
-| `FAILED` | `Failure` | Exception thrown | Task failed with error; flow stops (STOP strategy) |
-| `PARTIAL` | `PartialSuccess` | Partial return | One+ tasks failed but flow continued (CONTINUE strategy) |
-| `ABORTED` | `Aborted` | `break` statement | Task requested immediate workflow termination |
-| `CANCELLED` | `Cancelled` | External interrupt | Timeout or coroutine cancellation occurred |
+| Status      | Type             | Analogy            | Description                                              |
+|-------------|------------------|--------------------|----------------------------------------------------------|
+| `COMPLETED` | `Success`        | Normal return      | Task succeeded, context preserved                        |
+| `FAILED`    | `Failure`        | Exception thrown   | Task failed with error; flow stops (STOP strategy)       |
+| `PARTIAL`   | `PartialSuccess` | Partial return     | One+ tasks failed but flow continued (CONTINUE strategy) |
+| `ABORTED`   | `Aborted`        | `break` statement  | Task requested immediate workflow termination            |
+| `CANCELLED` | `Cancelled`      | External interrupt | Timeout or coroutine cancellation occurred               |
 
 ### Control Flow Analogy
 
 WorkReport results map to while-loop control flow:
+
 ```
 while (condition) {
     val result = doWork()
@@ -106,7 +108,9 @@ while (condition) {
 ## Core API
 
 ### WorkContext
+
 A mutable map for sharing state between tasks:
+
 ```kotlin
 val ctx = WorkContext()
 ctx["key"] = value
@@ -115,7 +119,9 @@ val default = ctx.getOrDefault("key", defaultValue)
 ```
 
 ### Work & SuspendWork
+
 Execute a single synchronous or suspend task:
+
 ```kotlin
 // Sync
 val work = Work("task-name") { ctx -> WorkReport.Success(ctx) }

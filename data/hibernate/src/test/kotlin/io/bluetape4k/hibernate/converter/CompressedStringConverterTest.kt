@@ -35,12 +35,12 @@ class CompressedStringConverterTest {
 
         private const val SAMPLE_TEXT =
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-                "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
+                    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
 
         private const val KOREAN_TEXT =
             "한국어 텍스트를 압축하고 복원하는 테스트입니다. " +
-                "압축 알고리즘마다 성능과 압축률이 다르지만, 모두 원본 데이터를 정확히 복원해야 합니다."
+                    "압축 알고리즘마다 성능과 압축률이 다르지만, 모두 원본 데이터를 정확히 복원해야 합니다."
     }
 
     @ParameterizedTest(name = "{0} - 문자열을 압축하고 복원한다")

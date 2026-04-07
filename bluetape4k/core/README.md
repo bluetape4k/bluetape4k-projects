@@ -470,7 +470,8 @@ val (even, odd) = (1..10).toList().partition { it % 2 == 0 }
 
 #### BoundedStack (Capacity-Limited Stack)
 
-A fixed-size LIFO stack. When the maximum size is exceeded, the oldest element is automatically removed. Thread-safe (`ReentrantLock`).
+A fixed-size LIFO stack. When the maximum size is exceeded, the oldest element is automatically removed. Thread-safe (
+`ReentrantLock`).
 
 ```kotlin
 import io.bluetape4k.collections.BoundedStack
@@ -488,7 +489,8 @@ stack.size    // 2
 
 #### RingBuffer (Circular Buffer)
 
-A fixed-capacity circular buffer. When capacity is exceeded, the oldest element is overwritten. Thread-safe (`ReentrantLock`).
+A fixed-capacity circular buffer. When capacity is exceeded, the oldest element is overwritten. Thread-safe (
+`ReentrantLock`).
 
 ```kotlin
 import io.bluetape4k.collections.RingBuffer
@@ -524,7 +526,9 @@ page.contents        // ["a", "b", "c"]
 
 #### Permutation (Lazy Evaluation Sequences)
 
-A functional lazy-evaluation sequence. Handles infinite sequences with memory efficiency and provides rich operators: `map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`, `sorted`, and more. Thread-safe (`ReentrantLock` + DCL pattern on `Cons` tail evaluation).
+A functional lazy-evaluation sequence. Handles infinite sequences with memory efficiency and provides rich operators:
+`map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`, `sorted`, and more. Thread-safe (
+`ReentrantLock` + DCL pattern on `Cons` tail evaluation).
 
 ```kotlin
 import io.bluetape4k.collections.permutations.*
@@ -750,7 +754,9 @@ val valid = data.validate {
 
 ### 9. Java Time DSL (javatimes)
 
-Provides foundational extension functions for the `java.time` API in idiomatic Kotlin style. For advanced features (Interval, Period Framework, Temporal Range), see the `bluetape4k-javatimes` module.
+Provides foundational extension functions for the
+`java.time` API in idiomatic Kotlin style. For advanced features (Interval, Period Framework, Temporal Range), see the
+`bluetape4k-javatimes` module.
 
 #### Duration/Period DSL
 
@@ -933,7 +939,8 @@ yq.year            // 2024
 
 #### Wildcard (Pattern Matching)
 
-Wildcard pattern matching for file paths and strings. Supports `?` (single character), `*` (multiple characters), `**` (directory tree), and `\` (escape).
+Wildcard pattern matching for file paths and strings. Supports `?` (single character), `*` (multiple characters),
+`**` (directory tree), and `\` (escape).
 
 ```kotlin
 import io.bluetape4k.utils.Wildcard
@@ -972,12 +979,13 @@ XXHasher.hash("test") == XXHasher.hash("test")  // true
 
 > As of: 2026-04-04
 
-| Status | File Count |
-|--------|------------|
+| Status       | File Count      |
+|--------------|-----------------|
 | Has examples | 119 / 157 (76%) |
-| No examples | 38 |
+| No examples  | 38              |
 
-**Pilot completed (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`, `Wildcard`, `Range` — 7 files, 56 `kotlin` code blocks added.
+**Pilot completed (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`,
+`Wildcard`, `Range` — 7 files, 56 `kotlin` code blocks added.
 
 ### KDoc Example Guidelines
 

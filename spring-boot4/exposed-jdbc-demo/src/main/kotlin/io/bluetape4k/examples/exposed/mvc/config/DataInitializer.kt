@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 
 @Component
-class DataInitializer : ApplicationRunner {
+class DataInitializer: ApplicationRunner {
 
     override fun run(args: ApplicationArguments) {
         transaction {

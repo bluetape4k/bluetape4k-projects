@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class WriteBehindCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
-    abstract class AutoIncIdReadWriteBehind :
+    abstract class AutoIncIdReadWriteBehind:
         AbstractRedissonTest(),
         WriteBehindScenario<Long, UserRecord> {
         override fun withEntityTable(
@@ -53,7 +53,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteBehindRemoteCache : AutoIncIdReadWriteBehind() {
+    inner class AutoIncIdReadWriteBehindRemoteCache: AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
@@ -65,7 +65,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteBehindNearCache : AutoIncIdReadWriteBehind() {
+    inner class AutoIncIdReadWriteBehindNearCache: AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -76,7 +76,7 @@ class WriteBehindCacheTest {
         }
     }
 
-    abstract class ClientGeneratedIdReadWriteBehind :
+    abstract class ClientGeneratedIdReadWriteBehind:
         AbstractRedissonTest(),
         WriteBehindScenario<UUID, UserCredentialsRecord> {
         override fun withEntityTable(
@@ -106,7 +106,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadBehindRemoteCache : ClientGeneratedIdReadWriteBehind() {
+    inner class ClientGeneratedIdReadBehindRemoteCache: ClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
@@ -118,7 +118,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadBehindNearCache : ClientGeneratedIdReadWriteBehind() {
+    inner class ClientGeneratedIdReadBehindNearCache: ClientGeneratedIdReadWriteBehind() {
         override val cacheConfig = RedissonCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {

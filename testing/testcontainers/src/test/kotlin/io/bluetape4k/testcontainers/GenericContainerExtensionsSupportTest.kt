@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class GenericContainerExtensionsSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `resolvePortBindings 는 중복 포트를 제거한다`() {

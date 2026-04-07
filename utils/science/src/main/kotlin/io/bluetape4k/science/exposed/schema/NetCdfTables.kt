@@ -30,7 +30,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
  * }
  * ```
  */
-object NetCdfFileTable : AuditableLongIdTable("netcdf_files") {
+object NetCdfFileTable: AuditableLongIdTable("netcdf_files") {
 
     /** 파일 이름 */
     val filename = varchar("filename", 255)
@@ -79,7 +79,7 @@ object NetCdfFileTable : AuditableLongIdTable("netcdf_files") {
  * }
  * ```
  */
-object NetCdfGridValueTable : LongIdTable("netcdf_grid_values") {
+object NetCdfGridValueTable: LongIdTable("netcdf_grid_values") {
 
     /** 소속 NetCDF 파일 외래키 */
     val fileId = reference("file_id", NetCdfFileTable)

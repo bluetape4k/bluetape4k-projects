@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 A unified module for geographic information processing. Provides Geocode, GeoHash, and GeoIP2 functionality.
 
-> The former `utils/geocode`, `utils/geohash`, and `utils/geoip2` modules have been consolidated into this single module.
+> The former `utils/geocode`, `utils/geohash`, and
+`utils/geoip2` modules have been consolidated into this single module.
 
 ## Architecture
 
@@ -140,6 +141,7 @@ val neighbors = GeoHash.neighbors("wydm9mufd")
 ```
 
 `GeoHashCircleQuery` constraints:
+
 - `radius` is in meters and must be non-negative.
 - A negative radius is immediately rejected with `IllegalArgumentException`.
 

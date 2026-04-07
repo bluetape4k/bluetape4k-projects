@@ -23,9 +23,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
-class MultiDbExposedR2dbcRepositoryTest : AbstractExposedR2dbcTest() {
+class MultiDbExposedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         init {
             TestDBConfig.useFastDB = false  // H2 + PostgreSQL + MySQL_V8 모두 테스트
         }

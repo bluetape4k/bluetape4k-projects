@@ -204,44 +204,44 @@ transaction {
 
 ## JdbcRepository 주요 메서드
 
-| 메서드                                   | 설명                        |
-|---------------------------------------|---------------------------|
-| `count()`                             | 전체 레코드 수                  |
-| `countBy(predicate)`                  | 조건에 맞는 레코드 수              |
-| `existsById(id)`                      | ID로 존재 여부 확인              |
-| `existsBy(predicate)`                 | 조건으로 존재 여부 확인             |
-| `findById(id)`                        | ID로 단건 조회 (없으면 예외)        |
-| `findByIdOrNull(id)`                  | ID로 단건 조회 (없으면 null)      |
-| `findAll(limit, offset, ...)`         | 전체 조회 (페이징/정렬 지원)         |
-| `findWithFilters(...)`                | 다중 조건 AND 조합 조회           |
-| `findBy(...)`                         | `findWithFilters`의 alias  |
-| `findFirstOrNull(...)`                | 조건에 맞는 첫 번째 엔티티           |
-| `findLastOrNull(...)`                 | 조건에 맞는 마지막 엔티티            |
-| `findByField(field, value)`           | 특정 컬럼 값으로 조회              |
-| `findAllByIds(ids)`                   | 여러 ID로 일괄 조회              |
-| `findPage(pageNumber, pageSize, ...)` | 페이징 조회                    |
-| `deleteById(id)`                      | ID로 삭제                    |
-| `deleteByIdIgnore(id)`                | ID로 삭제 (예외 무시)            |
-| `deleteAll(op)`                       | 조건에 맞는 레코드 삭제             |
-| `deleteAllByIds(ids)`                 | 여러 ID로 일괄 삭제              |
-| `updateById(id, ...)`                 | ID로 수정                    |
-| `updateAll(predicate, ...)`           | 조건에 맞는 레코드 일괄 수정          |
-| `batchInsert(entities, ...)`          | 배치 삽입                     |
-| `batchUpsert(entities, ...)`          | 배치 Upsert                 |
+| 메서드                                   | 설명                       |
+|---------------------------------------|--------------------------|
+| `count()`                             | 전체 레코드 수                 |
+| `countBy(predicate)`                  | 조건에 맞는 레코드 수             |
+| `existsById(id)`                      | ID로 존재 여부 확인             |
+| `existsBy(predicate)`                 | 조건으로 존재 여부 확인            |
+| `findById(id)`                        | ID로 단건 조회 (없으면 예외)       |
+| `findByIdOrNull(id)`                  | ID로 단건 조회 (없으면 null)     |
+| `findAll(limit, offset, ...)`         | 전체 조회 (페이징/정렬 지원)        |
+| `findWithFilters(...)`                | 다중 조건 AND 조합 조회          |
+| `findBy(...)`                         | `findWithFilters`의 alias |
+| `findFirstOrNull(...)`                | 조건에 맞는 첫 번째 엔티티          |
+| `findLastOrNull(...)`                 | 조건에 맞는 마지막 엔티티           |
+| `findByField(field, value)`           | 특정 컬럼 값으로 조회             |
+| `findAllByIds(ids)`                   | 여러 ID로 일괄 조회             |
+| `findPage(pageNumber, pageSize, ...)` | 페이징 조회                   |
+| `deleteById(id)`                      | ID로 삭제                   |
+| `deleteByIdIgnore(id)`                | ID로 삭제 (예외 무시)           |
+| `deleteAll(op)`                       | 조건에 맞는 레코드 삭제            |
+| `deleteAllByIds(ids)`                 | 여러 ID로 일괄 삭제             |
+| `updateById(id, ...)`                 | ID로 수정                   |
+| `updateAll(predicate, ...)`           | 조건에 맞는 레코드 일괄 수정         |
+| `batchInsert(entities, ...)`          | 배치 삽입                    |
+| `batchUpsert(entities, ...)`          | 배치 Upsert                |
 
 ## SoftDeletedJdbcRepository 추가 메서드
 
-| 메서드                                         | 설명                       |
-|---------------------------------------------|--------------------------|
+| 메서드                                         | 설명                           |
+|---------------------------------------------|------------------------------|
 | `softDeleteById(id)`                        | ID로 논리 삭제 (`isDeleted=true`) |
-| `restoreById(id)`                           | ID로 논리 삭제 복원             |
-| `countActive(predicate)`                    | 활성 레코드 수                 |
-| `countDeleted(predicate)`                   | 삭제된 레코드 수                |
-| `findActive(limit, offset, ...)`            | 활성 레코드만 조회               |
-| `findDeleted(limit, offset, ...)`           | 삭제된 레코드만 조회              |
-| `softDeleteAll(predicate)`                  | 조건에 맞는 레코드 일괄 논리 삭제      |
-| `restoreAll(predicate)`                     | 조건에 맞는 레코드 일괄 복원         |
-| `findActivePage(pageNumber, pageSize, ...)` | 활성 레코드 페이징 조회            |
+| `restoreById(id)`                           | ID로 논리 삭제 복원                 |
+| `countActive(predicate)`                    | 활성 레코드 수                     |
+| `countDeleted(predicate)`                   | 삭제된 레코드 수                    |
+| `findActive(limit, offset, ...)`            | 활성 레코드만 조회                   |
+| `findDeleted(limit, offset, ...)`           | 삭제된 레코드만 조회                  |
+| `softDeleteAll(predicate)`                  | 조건에 맞는 레코드 일괄 논리 삭제          |
+| `restoreAll(predicate)`                     | 조건에 맞는 레코드 일괄 복원             |
+| `findActivePage(pageNumber, pageSize, ...)` | 활성 레코드 페이징 조회                |
 
 ## AuditableJdbcRepository (감사 추적 Repository)
 
@@ -370,26 +370,26 @@ transaction {
 
 ### 편의 타입 별칭
 
-| 인터페이스 | 기본키 타입 |
-|----------|-----------|
-| `IntAuditableJdbcRepository` | `Int` |
-| `LongAuditableJdbcRepository` | `Long` |
+| 인터페이스                         | 기본키 타입           |
+|-------------------------------|------------------|
+| `IntAuditableJdbcRepository`  | `Int`            |
+| `LongAuditableJdbcRepository` | `Long`           |
 | `UUIDAuditableJdbcRepository` | `java.util.UUID` |
 
 ## 편의 타입 별칭 (일반 Repository)
 
 | 인터페이스                             | 기본키 타입             |
-|-------------------------------------|------------------|
-| `IntJdbcRepository`                 | `Int`            |
-| `LongJdbcRepository`                | `Long`           |
-| `UuidJdbcRepository`                | `kotlin.uuid.Uuid` |
-| `UUIDJdbcRepository`                | `java.util.UUID` |
-| `StringJdbcRepository`              | `String`         |
-| `IntSoftDeletedJdbcRepository`      | `Int`            |
-| `LongSoftDeletedJdbcRepository`     | `Long`           |
-| `UuidSoftDeletedJdbcRepository`     | `kotlin.uuid.Uuid` |
-| `UUIDSoftDeletedJdbcRepository`     | `java.util.UUID` |
-| `StringSoftDeletedJdbcRepository`   | `String`         |
+|-----------------------------------|--------------------|
+| `IntJdbcRepository`               | `Int`              |
+| `LongJdbcRepository`              | `Long`             |
+| `UuidJdbcRepository`              | `kotlin.uuid.Uuid` |
+| `UUIDJdbcRepository`              | `java.util.UUID`   |
+| `StringJdbcRepository`            | `String`           |
+| `IntSoftDeletedJdbcRepository`    | `Int`              |
+| `LongSoftDeletedJdbcRepository`   | `Long`             |
+| `UuidSoftDeletedJdbcRepository`   | `kotlin.uuid.Uuid` |
+| `UUIDSoftDeletedJdbcRepository`   | `java.util.UUID`   |
+| `StringSoftDeletedJdbcRepository` | `String`           |
 
 ## 클래스 다이어그램
 
@@ -594,17 +594,17 @@ sequenceDiagram
 
 ## 주요 파일/클래스 목록
 
-| 파일                                                           | 설명                                |
-|--------------------------------------------------------------|-----------------------------------|
-| `jdbc/repository/JdbcRepository.kt`                          | JDBC Repository 기본 인터페이스         |
-| `jdbc/repository/SoftDeletedJdbcRepository.kt`               | Soft Delete 지원 Repository         |
-| `repository/ExposedRepository.kt`                            | (Deprecated) 구 Repository 인터페이스  |
-| `core/SuspendedQuery.kt`                                     | 커서 기반 배치 Flow 쿼리                 |
-| `jdbc/transactions/VirtualThreadJdbcTransaction.kt`          | Virtual Thread 기반 JDBC 트랜잭션       |
-| `core/transactions/VirtualThreadTransaction.kt`              | (Deprecated) 구 Virtual Thread 트랜잭션 |
-| `core/ImplicitSelectAll.kt`                                  | `SELECT *` 형태의 묵시적 전체 조회         |
-| `core/TableExtensions.kt`                                    | 테이블 메타데이터 확장 함수                  |
-| `core/SchemaUtilsExtensions.kt`                              | SchemaUtils 확장 함수                 |
+| 파일                                                  | 설명                                 |
+|-----------------------------------------------------|------------------------------------|
+| `jdbc/repository/JdbcRepository.kt`                 | JDBC Repository 기본 인터페이스           |
+| `jdbc/repository/SoftDeletedJdbcRepository.kt`      | Soft Delete 지원 Repository          |
+| `repository/ExposedRepository.kt`                   | (Deprecated) 구 Repository 인터페이스    |
+| `core/SuspendedQuery.kt`                            | 커서 기반 배치 Flow 쿼리                   |
+| `jdbc/transactions/VirtualThreadJdbcTransaction.kt` | Virtual Thread 기반 JDBC 트랜잭션        |
+| `core/transactions/VirtualThreadTransaction.kt`     | (Deprecated) 구 Virtual Thread 트랜잭션 |
+| `core/ImplicitSelectAll.kt`                         | `SELECT *` 형태의 묵시적 전체 조회           |
+| `core/TableExtensions.kt`                           | 테이블 메타데이터 확장 함수                    |
+| `core/SchemaUtilsExtensions.kt`                     | SchemaUtils 확장 함수                  |
 
 ## 테스트
 

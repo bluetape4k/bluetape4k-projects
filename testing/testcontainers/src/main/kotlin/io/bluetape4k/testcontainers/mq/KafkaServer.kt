@@ -113,10 +113,12 @@ class KafkaServer private constructor(
         put("url", url)
         put("bootstrap-servers", bootstrapServers)
         put("bound-port-numbers", boundPortNumbers.joinToString(","))
-    }.withCompatKeys(mapOf(
-        "bootstrap-servers" to "bootstrapServers",
-        "bound-port-numbers" to "boundPortNumbers",
-    ))
+    }.withCompatKeys(
+        mapOf(
+            "bootstrap-servers" to "bootstrapServers",
+            "bound-port-numbers" to "boundPortNumbers",
+        )
+    )
 
     init {
         addExposedPorts(PORT)

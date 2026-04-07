@@ -45,6 +45,7 @@ enum class TestDB(
             defaultIsolationLevel = java.sql.Connection.TRANSACTION_READ_COMMITTED
         }
     ),
+
     /**
      * H2 데이터베이스를 MySQL 호환 모드로 실행합니다.
      *
@@ -65,6 +66,7 @@ enum class TestDB(
                 }
         }
     ),
+
     /**
      * H2 데이터베이스를 MariaDB 호환 모드로 실행합니다.
      *

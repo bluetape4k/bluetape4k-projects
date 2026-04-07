@@ -26,8 +26,8 @@ import org.redisson.api.map.MapWriter
 open class EntityMapWriter<ID: Any, E: Any>(
     private val writeToDB: (map: Map<ID, E>) -> Unit,
     private val deleteFromDB: (ids: Collection<ID>) -> Unit,
-) : MapWriter<ID, E> {
-    companion object : KLogging()
+): MapWriter<ID, E> {
+    companion object: KLogging()
 
     /**
      * 캐시 변경 사항을 DB에 Write-Through/Write-Behind 방식으로 반영합니다.

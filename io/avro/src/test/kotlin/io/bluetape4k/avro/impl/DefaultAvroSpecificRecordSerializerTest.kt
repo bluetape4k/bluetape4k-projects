@@ -33,8 +33,8 @@ import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
  * 다양한 시나리오를 다양한 [CodecFactory]로 테스트합니다.
  */
 @RandomizedTest
-class DefaultAvroSpecificRecordSerializerTest : AbstractAvroTest() {
-    companion object : KLogging()
+class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
+    companion object: KLogging()
 
     private fun serializers(): List<Arguments> =
         listOf(
@@ -50,7 +50,7 @@ class DefaultAvroSpecificRecordSerializerTest : AbstractAvroTest() {
             Arguments.of(it.first, it.second)
         }
 
-    private inline fun <reified T : SpecificRecord> AvroSpecificRecordSerializer.verifySerialization(avroObject: T) {
+    private inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.verifySerialization(avroObject: T) {
         val bytes = serialize(avroObject)!!
         bytes.shouldNotBeEmpty()
 

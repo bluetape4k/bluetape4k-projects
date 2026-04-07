@@ -35,8 +35,10 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     companion object: KLoggingChannel() {
         /** provider 식별 이름입니다. */
         const val PROVIDER_NAME = "jdk21-structured-task-scope"
+
         /** 지원 기준 JDK feature 버전입니다. */
         const val JAVA_VERSION = 21
+
         /** provider 우선순위 값입니다. */
         const val PRIORITY = JAVA_VERSION
     }

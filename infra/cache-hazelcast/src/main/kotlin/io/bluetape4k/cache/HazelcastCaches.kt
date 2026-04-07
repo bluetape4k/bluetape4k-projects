@@ -33,7 +33,7 @@ import javax.cache.configuration.MutableConfiguration
  * val near  = HazelcastCaches.nearCache<String>(hazelcast) { cacheName = "my-near" }
  * ```
  */
-object HazelcastCaches : KLogging() {
+object HazelcastCaches: KLogging() {
     // ─────────────────────────────────────────────
     // JCache
     // ─────────────────────────────────────────────
@@ -55,7 +55,7 @@ object HazelcastCaches : KLogging() {
      * @param configuration JCache 설정 (기본값: [MutableConfiguration])
      * @return [JCache] 인스턴스
      */
-    inline fun <reified K : Any, reified V : Any> jcache(
+    inline fun <reified K: Any, reified V: Any> jcache(
         hazelcastInstance: HazelcastInstance,
         cacheName: String,
         configuration: Configuration<K, V> =
@@ -133,7 +133,7 @@ object HazelcastCaches : KLogging() {
      * @param config Near Cache 설정
      * @return [HazelcastNearCache] 인스턴스
      */
-    fun <V : Any> nearCache(
+    fun <V: Any> nearCache(
         hazelcastInstance: HazelcastInstance,
         config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
     ): NearCacheOperations<V> = HazelcastNearCache(hazelcastInstance, config)
@@ -156,7 +156,7 @@ object HazelcastCaches : KLogging() {
      * @param block [HazelcastNearCacheConfigBuilder] DSL 블록
      * @return [HazelcastNearCache] 인스턴스
      */
-    fun <V : Any> nearCache(
+    fun <V: Any> nearCache(
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
     ): NearCacheOperations<V> = nearCache(hazelcastInstance, hazelcastNearCacheConfig(block))
@@ -177,7 +177,7 @@ object HazelcastCaches : KLogging() {
      * @param config Near Cache 설정
      * @return [HazelcastSuspendNearCache] 인스턴스
      */
-    fun <V : Any> suspendNearCache(
+    fun <V: Any> suspendNearCache(
         hazelcastInstance: HazelcastInstance,
         config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
     ): SuspendNearCacheOperations<V> = HazelcastSuspendNearCache(hazelcastInstance, config)
@@ -200,7 +200,7 @@ object HazelcastCaches : KLogging() {
      * @param block [HazelcastNearCacheConfigBuilder] DSL 블록
      * @return [HazelcastSuspendNearCache] 인스턴스
      */
-    fun <V : Any> suspendNearCache(
+    fun <V: Any> suspendNearCache(
         hazelcastInstance: HazelcastInstance,
         block: HazelcastNearCacheConfigBuilder.() -> Unit,
     ): SuspendNearCacheOperations<V> = suspendNearCache(hazelcastInstance, hazelcastNearCacheConfig(block))

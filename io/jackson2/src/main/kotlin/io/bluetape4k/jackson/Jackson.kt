@@ -48,7 +48,7 @@ object Jackson: KLogging() {
      */
     @Deprecated(
         "allowIfBaseType(Any::class.java)는 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
-            "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",
+                "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",
         ReplaceWith("Jackson.createTypedJsonMapper()")
     )
     val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
@@ -61,7 +61,7 @@ object Jackson: KLogging() {
      */
     @Deprecated(
         "typedJsonMapper와 함께 deprecated됩니다. " +
-            "createTypedJsonMapper(...).writerWithDefaultPrettyPrinter() 를 사용하세요.",
+                "createTypedJsonMapper(...).writerWithDefaultPrettyPrinter() 를 사용하세요.",
         ReplaceWith("Jackson.createTypedJsonMapper().writerWithDefaultPrettyPrinter()")
     )
     val prettyTypedJsonWriter: ObjectWriter by lazy {

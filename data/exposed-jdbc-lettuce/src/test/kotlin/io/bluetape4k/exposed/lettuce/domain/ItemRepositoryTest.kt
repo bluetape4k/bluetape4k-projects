@@ -24,7 +24,7 @@ import java.math.BigDecimal
 import java.util.*
 
 class ItemRepositoryTest: AbstractJdbcLettuceTest() {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private lateinit var repo: ItemRepository
 

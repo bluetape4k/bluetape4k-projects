@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
  *
  * 각 포맷의 직렬화 → 역직렬화 왕복(roundtrip)과 엣지 케이스를 검증합니다.
  */
-class JacksonTextSerializerTest : AbstractJacksonTextTest() {
+class JacksonTextSerializerTest: AbstractJacksonTextTest() {
     // ─── CSV ─────────────────────────────────────────────────────────────────
 
     @Nested

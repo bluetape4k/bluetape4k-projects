@@ -362,33 +362,33 @@ HasIdentifier <.. ExposedPage: content 항목에 적용 가능
 
 ## 주요 파일/클래스 목록
 
-| 파일                                                 | 설명                     |
-|----------------------------------------------------|------------------------|
-| `HasIdentifier.kt`                                 | ID를 가진 엔티티 공통 인터페이스    |
-| `ColumnExtensions.kt`                              | 클라이언트 측 ID 자동 생성 확장 함수 |
-| `ExposedColumnSupports.kt`                         | 컬럼 타입 관련 지원 함수         |
-| `ResultRowExtensions.kt`                           | ResultRow 처리 확장 함수     |
-| `BatchInsertOnConflictDoNothing.kt`                | 중복 무시 배치 삽입            |
-| `statements/api/ExposedBlobExtensions.kt`          | ExposedBlob 유틸 함수      |
-| `compress/CompressedBinaryColumnType.kt`           | 압축 Binary 컬럼 타입        |
-| `compress/CompressedBlobColumnType.kt`             | 압축 Blob 컬럼 타입          |
-| `encrypt/EncryptedVarCharColumnType.kt`            | 암호화 VarChar 컬럼 타입      |
-| `encrypt/EncryptedBinaryColumnType.kt`             | 암호화 Binary 컬럼 타입       |
-| `encrypt/EncryptedBlobColumnType.kt`               | 암호화 Blob 컬럼 타입         |
-| `serializable/BinarySerializedBinaryColumnType.kt` | 직렬화 Binary 컬럼 타입       |
-| `serializable/BinarySerializedBlobColumnType.kt`   | 직렬화 Blob 컬럼 타입         |
-| `ExposedPage.kt`                                   | 페이징 결과 데이터 클래스         |
-| `dao/id/KsuidTable.kt`                             | KSUID 기본키 테이블             |
-| `dao/id/KsuidMillisTable.kt`                       | KsuidMillis 기본키 테이블       |
-| `dao/id/UlidTable.kt`                              | ULID 기본키 테이블              |
-| `dao/id/SnowflakeIdTable.kt`                       | Snowflake Long 기본키 테이블    |
-| `dao/id/TimebasedUUIDTable.kt`                     | UUIDv7 기본키 테이블            |
-| `dao/id/TimebasedUUIDBase62Table.kt`               | UUIDv7 Base62 기본키 테이블     |
-| `dao/id/SoftDeletedIdTable.kt`                     | 소프트 삭제 기본키 테이블          |
-| `inet/InetColumnTypes.kt`                          | IPv4/IPv6, CIDR 컬럼 타입     |
+| 파일                                                 | 설명                                     |
+|----------------------------------------------------|----------------------------------------|
+| `HasIdentifier.kt`                                 | ID를 가진 엔티티 공통 인터페이스                    |
+| `ColumnExtensions.kt`                              | 클라이언트 측 ID 자동 생성 확장 함수                 |
+| `ExposedColumnSupports.kt`                         | 컬럼 타입 관련 지원 함수                         |
+| `ResultRowExtensions.kt`                           | ResultRow 처리 확장 함수                     |
+| `BatchInsertOnConflictDoNothing.kt`                | 중복 무시 배치 삽입                            |
+| `statements/api/ExposedBlobExtensions.kt`          | ExposedBlob 유틸 함수                      |
+| `compress/CompressedBinaryColumnType.kt`           | 압축 Binary 컬럼 타입                        |
+| `compress/CompressedBlobColumnType.kt`             | 압축 Blob 컬럼 타입                          |
+| `encrypt/EncryptedVarCharColumnType.kt`            | 암호화 VarChar 컬럼 타입                      |
+| `encrypt/EncryptedBinaryColumnType.kt`             | 암호화 Binary 컬럼 타입                       |
+| `encrypt/EncryptedBlobColumnType.kt`               | 암호화 Blob 컬럼 타입                         |
+| `serializable/BinarySerializedBinaryColumnType.kt` | 직렬화 Binary 컬럼 타입                       |
+| `serializable/BinarySerializedBlobColumnType.kt`   | 직렬화 Blob 컬럼 타입                         |
+| `ExposedPage.kt`                                   | 페이징 결과 데이터 클래스                         |
+| `dao/id/KsuidTable.kt`                             | KSUID 기본키 테이블                          |
+| `dao/id/KsuidMillisTable.kt`                       | KsuidMillis 기본키 테이블                    |
+| `dao/id/UlidTable.kt`                              | ULID 기본키 테이블                           |
+| `dao/id/SnowflakeIdTable.kt`                       | Snowflake Long 기본키 테이블                 |
+| `dao/id/TimebasedUUIDTable.kt`                     | UUIDv7 기본키 테이블                         |
+| `dao/id/TimebasedUUIDBase62Table.kt`               | UUIDv7 Base62 기본키 테이블                  |
+| `dao/id/SoftDeletedIdTable.kt`                     | 소프트 삭제 기본키 테이블                         |
+| `inet/InetColumnTypes.kt`                          | IPv4/IPv6, CIDR 컬럼 타입                  |
 | `inet/InetExtensions.kt`                           | inetAddress, cidr, isContainedBy 확장 함수 |
-| `phone/PhoneNumberColumnType.kt`                   | 전화번호 컬럼 타입 (E.164 정규화)  |
-| `phone/PhoneNumberExtensions.kt`                   | phoneNumber, phoneNumberString 확장 함수 |
+| `phone/PhoneNumberColumnType.kt`                   | 전화번호 컬럼 타입 (E.164 정규화)                 |
+| `phone/PhoneNumberExtensions.kt`                   | phoneNumber, phoneNumberString 확장 함수   |
 
 ## Auditable (감사 추적)
 
@@ -474,20 +474,20 @@ object ArticleTable : AuditableLongIdTable("articles") {
 
 #### 2. 컬럼 동작
 
-| 컬럼 | INSERT 시 | UPDATE 시 | 비고 |
-|-----|----------|----------|------|
-| `created_by` | `UserContext.getCurrentUser()` 자동 설정 | 변경 없음 | 기본값: "system" |
-| `created_at` | DB `CURRENT_TIMESTAMP` 자동 설정 | 변경 없음 | UTC, nullable |
-| `updated_by` | null | `UserContext.getCurrentUser()` 설정 | Repository에서 관리 |
-| `updated_at` | null | DB `CURRENT_TIMESTAMP` 설정 | Repository에서 관리 |
+| 컬럼           | INSERT 시                             | UPDATE 시                          | 비고              |
+|--------------|--------------------------------------|-----------------------------------|-----------------|
+| `created_by` | `UserContext.getCurrentUser()` 자동 설정 | 변경 없음                             | 기본값: "system"   |
+| `created_at` | DB `CURRENT_TIMESTAMP` 자동 설정         | 변경 없음                             | UTC, nullable   |
+| `updated_by` | null                                 | `UserContext.getCurrentUser()` 설정 | Repository에서 관리 |
+| `updated_at` | null                                 | DB `CURRENT_TIMESTAMP` 설정         | Repository에서 관리 |
 
 #### 3. 구체 테이블 클래스
 
-| 클래스 | 기본키 타입 | 사용 시기 |
-|--------|----------|----------|
-| `AuditableIntIdTable` | `Int` (자동증가) | 소규모 데이터셋 |
-| `AuditableLongIdTable` | `Long` (자동증가) | 대규모 데이터셋, 분산환경 |
-| `AuditableUUIDTable` | `java.util.UUID` (client-side 생성) | 분산 환경 |
+| 클래스                    | 기본키 타입                            | 사용 시기          |
+|------------------------|-----------------------------------|----------------|
+| `AuditableIntIdTable`  | `Int` (자동증가)                      | 소규모 데이터셋       |
+| `AuditableLongIdTable` | `Long` (자동증가)                     | 대규모 데이터셋, 분산환경 |
+| `AuditableUUIDTable`   | `java.util.UUID` (client-side 생성) | 분산 환경          |
 
 #### 4. 완전한 예시
 

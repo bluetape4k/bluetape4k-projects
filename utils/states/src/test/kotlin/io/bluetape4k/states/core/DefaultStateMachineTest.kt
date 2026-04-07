@@ -11,13 +11,19 @@ import org.junit.jupiter.api.assertThrows
 
 class DefaultStateMachineTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class State { A, B, C, FINAL }
+    enum class State {
+        A,
+        B,
+        C,
+        FINAL
+    }
+
     sealed class Event {
-        data object GoB : Event()
-        data object GoC : Event()
-        data object GoFinal : Event()
+        data object GoB: Event()
+        data object GoC: Event()
+        data object GoFinal: Event()
     }
 
     private fun createFsm() = stateMachine<State, Event> {

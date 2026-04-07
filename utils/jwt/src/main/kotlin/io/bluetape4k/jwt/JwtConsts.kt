@@ -24,10 +24,13 @@ object JwtConsts {
 
     /** JWT header의 type 키입니다. */
     const val HEADER_TYPE_KEY = "typ"
+
     /** JWT header의 type 값(`JWT`)입니다. */
     const val HEADER_TYPE_VALUE = "JWT"
+
     /** JWT header의 key id 키입니다. */
     const val HEADER_KEY_ID = "kid"
+
     /** JWT header의 signature algorithm 키입니다. */
     const val HEADER_ALGORITHM = "alg"
 
@@ -36,6 +39,7 @@ object JwtConsts {
 
     /** 기본 인메모리 키체인 저장소입니다. */
     val DefaultKeyChainRepository by lazy { InMemoryKeyChainRepository() }
+
     /** 기본 JWT 서명 알고리즘입니다. */
     val DefaultSignatureAlgorithm: SignatureAlgorithm = Jwts.SIG.RS256
 

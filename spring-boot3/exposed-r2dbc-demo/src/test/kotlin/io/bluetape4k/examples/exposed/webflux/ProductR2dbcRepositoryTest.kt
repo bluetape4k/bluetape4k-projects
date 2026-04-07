@@ -31,7 +31,7 @@ import java.math.BigDecimal
 )
 class ProductR2dbcRepositoryTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Autowired
     private lateinit var productRepository: ProductR2dbcRepository

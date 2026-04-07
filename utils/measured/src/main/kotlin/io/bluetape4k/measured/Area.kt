@@ -19,10 +19,17 @@ open class Area(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val millimeters2: Area = Area("mm^2", 1.0e-6)
-        @JvmField val centimeters2: Area = Area("cm^2", 1.0e-4)
-        @JvmField val meters2: Area = Area("m^2")
-        @JvmField val kilometers2: Area = Area("km^2", 1.0e6)
+        @JvmField
+        val millimeters2: Area = Area("mm^2", 1.0e-6)
+
+        @JvmField
+        val centimeters2: Area = Area("cm^2", 1.0e-4)
+
+        @JvmField
+        val meters2: Area = Area("m^2")
+
+        @JvmField
+        val kilometers2: Area = Area("km^2", 1.0e6)
     }
 }
 

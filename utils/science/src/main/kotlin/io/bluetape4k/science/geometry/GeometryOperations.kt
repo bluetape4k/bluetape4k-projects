@@ -88,10 +88,14 @@ fun angleBetween(p1: Point, p2: Point): Double {
  * @return 교차점 또는 null
  */
 fun getIntersectPoint(p1: Point, p2: Point, p3: Point, p4: Point): Point? {
-    val x1 = p1.x; val y1 = p1.y
-    val x2 = p2.x; val y2 = p2.y
-    val x3 = p3.x; val y3 = p3.y
-    val x4 = p4.x; val y4 = p4.y
+    val x1 = p1.x;
+    val y1 = p1.y
+    val x2 = p2.x;
+    val y2 = p2.y
+    val x3 = p3.x;
+    val y3 = p3.y
+    val x4 = p4.x;
+    val y4 = p4.y
 
     val under = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
     if (under == 0.0) return null

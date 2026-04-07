@@ -16,11 +16,11 @@ import java.util.*
 class UserCredentialCacheRepository(
     redissonClient: RedissonClient,
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:user-credentials"),
-) : AbstractJdbcRedissonRepository<UUID, UserCredentialsRecord>(
-        redissonClient,
-        config
-    ) {
-    companion object : KLogging()
+): AbstractJdbcRedissonRepository<UUID, UserCredentialsRecord>(
+    redissonClient,
+    config
+) {
+    companion object: KLogging()
 
     override val table: UserCredentialsTable = UserCredentialsTable
 

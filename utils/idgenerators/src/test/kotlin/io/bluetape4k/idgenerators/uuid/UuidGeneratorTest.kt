@@ -19,7 +19,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class UuidGeneratorTest {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
         private const val CONCURRENCY_COUNT = 5_000

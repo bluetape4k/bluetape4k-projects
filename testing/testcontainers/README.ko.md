@@ -182,28 +182,28 @@ flowchart TD
 
 ### 서버별 export 키
 
-| 서버 | namespace | 주요 키 |
-|------|-----------|---------|
-| PostgreSQLServer | `postgresql` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| PostgisServer | `postgis` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| PgvectorServer | `pgvector` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| MySQL8Server | `mysql` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| MariaDBServer | `mariadb` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| CockroachServer | `cockroach` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| ClickHouseServer | `clickhouse` | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name` |
-| TrinoServer | `trino` | `jdbc-url`, `username` |
-| RedisServer | `redis` | `host`, `port`, `url` |
-| MongoDBServer | `mongo` | `host`, `port`, `url` |
-| ElasticsearchServer | `elasticsearch` | `host`, `port`, `url` |
-| KafkaServer | `kafka` | `host`, `port`, `url`, `bootstrap-servers`, `bound-port-numbers` |
-| RedpandaServer | `redpanda` | `host`, `port`, `url`, `admin-port`, `schema-registry-port`, `rest-proxy-port` |
-| NatsServer | `nats` | `host`, `port`, `url`, `cluster-port`, `monitor-port` |
-| PulsarServer | `pulsar` | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port` |
-| RabbitMQServer | `rabbitmq` | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url` |
-| LocalStackServer | `localstack` | `host`, `port`, `url` |
-| PrometheusServer | `prometheus` | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port` |
-| ConsulServer | `consul` | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port` |
-| JaegerServer | `jaeger` | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| 서버                  | namespace       | 주요 키                                                                                |
+|---------------------|-----------------|-------------------------------------------------------------------------------------|
+| PostgreSQLServer    | `postgresql`    | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| PostgisServer       | `postgis`       | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| PgvectorServer      | `pgvector`      | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| MySQL8Server        | `mysql`         | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| MariaDBServer       | `mariadb`       | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| CockroachServer     | `cockroach`     | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| ClickHouseServer    | `clickhouse`    | `jdbc-url`, `driver-class-name`, `username`, `password`, `database-name`            |
+| TrinoServer         | `trino`         | `jdbc-url`, `username`                                                              |
+| RedisServer         | `redis`         | `host`, `port`, `url`                                                               |
+| MongoDBServer       | `mongo`         | `host`, `port`, `url`                                                               |
+| ElasticsearchServer | `elasticsearch` | `host`, `port`, `url`                                                               |
+| KafkaServer         | `kafka`         | `host`, `port`, `url`, `bootstrap-servers`, `bound-port-numbers`                    |
+| RedpandaServer      | `redpanda`      | `host`, `port`, `url`, `admin-port`, `schema-registry-port`, `rest-proxy-port`      |
+| NatsServer          | `nats`          | `host`, `port`, `url`, `cluster-port`, `monitor-port`                               |
+| PulsarServer        | `pulsar`        | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port`              |
+| RabbitMQServer      | `rabbitmq`      | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`      |
+| LocalStackServer    | `localstack`    | `host`, `port`, `url`                                                               |
+| PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
+| ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
+| JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
 
 ## 사용 예
 

@@ -33,9 +33,9 @@ class RepeatWorkFlow(
     private val repeatPredicate: (WorkReport) -> Boolean,
     private val maxIterations: Int = Int.MAX_VALUE,
     private val flowName: String = "repeat-flow",
-) : WorkFlow {
+): WorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun execute(context: WorkContext): WorkReport {
         val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName

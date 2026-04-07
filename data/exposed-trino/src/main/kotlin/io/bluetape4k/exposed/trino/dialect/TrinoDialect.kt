@@ -16,9 +16,9 @@ import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
  * - 다중 generated key 미지원
  * - `WINDOW FRAME GROUPS` 지원
  */
-class TrinoDialect : PostgreSQLDialect(name = dialectName) {
+class TrinoDialect: PostgreSQLDialect(name = dialectName) {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /** Exposed에 등록할 Trino 방언 이름입니다. */
         const val dialectName: String = "trino"
     }

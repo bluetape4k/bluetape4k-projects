@@ -8,8 +8,8 @@ import org.bson.Document
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 
-class MongoDatabaseExtensionsTest : AbstractMongoTest() {
-    companion object : KLoggingChannel()
+class MongoDatabaseExtensionsTest: AbstractMongoTest() {
+    companion object: KLoggingChannel()
 
     @Test
     fun `getCollectionOf reified 타입으로 컬렉션 획득`() =

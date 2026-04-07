@@ -40,7 +40,7 @@ import java.io.Serializable
  * @param ID Entity ID Type
  */
 interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcCacheRepository<ID, E> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 500
     }
 

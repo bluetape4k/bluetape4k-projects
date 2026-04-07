@@ -86,6 +86,7 @@ val StandardNumberTypes: Set<KClass<out Number>> = java.util.Collections.unmodif
  * ```
  */
 const val defaultNumberFormatPattern = "#,##0.#"
+
 /**
  * 소수점 자리를 표현하는 기본 포맷
  *

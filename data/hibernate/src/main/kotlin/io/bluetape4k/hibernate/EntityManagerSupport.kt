@@ -110,7 +110,7 @@ inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> = newQuery(T::cla
  * query.setParameter("name", "Alice")
  * ```
  */
-fun <T : Any> EntityManager.createQueryAs(
+fun <T: Any> EntityManager.createQueryAs(
     queryString: String,
     resultClass: KClass<T>,
 ): TypedQuery<T> = createQuery(queryString, resultClass.java)
@@ -185,7 +185,7 @@ fun EntityManager.isLoaded(
  * - `isPersisted && !contains(entity)`이면 `merge`, 그 외에는 `persist`를 수행합니다.
  * - 반환값은 병합 결과 또는 입력 엔티티입니다.
  */
-fun <T : JpaEntity<*>> EntityManager.save(entity: T): T =
+fun <T: JpaEntity<*>> EntityManager.save(entity: T): T =
     if (entity.isPersisted && !contains(entity)) {
         merge(entity)
     } else {
@@ -200,7 +200,7 @@ fun <T : JpaEntity<*>> EntityManager.save(entity: T): T =
  * - 영속 상태가 아니면 `merge` 후 삭제합니다.
  * - `isPersisted == false`이면 아무 작업도 하지 않습니다.
  */
-fun <T : JpaEntity<*>> EntityManager.delete(entity: T) {
+fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
     if (entity.isPersisted) {
         if (!contains(entity)) {
             remove(merge(entity))
@@ -266,7 +266,7 @@ inline fun <reified T> EntityManager.findAs(id: Serializable): T? = find(T::clas
  * ## 동작/계약
  * - 내부적으로 현재 Hibernate [Session]을 구해 [Session.findBySimpleNaturalId]에 위임합니다.
  */
-inline fun <reified T : Any> EntityManager.findBySimpleNaturalId(naturalId: Any): T? =
+inline fun <reified T: Any> EntityManager.findBySimpleNaturalId(naturalId: Any): T? =
     currentSession().findBySimpleNaturalId<T>(naturalId)
 
 /**
@@ -276,7 +276,7 @@ inline fun <reified T : Any> EntityManager.findBySimpleNaturalId(naturalId: Any)
  * - [naturalIdValues]는 비어 있을 수 없고, 각 속성명은 blank일 수 없습니다.
  * - 내부적으로 현재 Hibernate [Session]을 구해 [Session.findByNaturalId]에 위임합니다.
  */
-inline fun <reified T : Any> EntityManager.findByNaturalId(
+inline fun <reified T: Any> EntityManager.findByNaturalId(
     naturalIdValues: Map<String, Any?>,
 ): T? {
     naturalIdValues.requireNotEmpty("naturalIdValues")
@@ -290,7 +290,7 @@ inline fun <reified T : Any> EntityManager.findByNaturalId(
  * ## 동작/계약
  * - [findByNaturalId]의 pair 오버로드입니다.
  */
-inline fun <reified T : Any> EntityManager.findByNaturalId(
+inline fun <reified T: Any> EntityManager.findByNaturalId(
     vararg naturalIdValues: Pair<String, Any?>,
 ): T? = findByNaturalId(naturalIdValues.toMap())
 

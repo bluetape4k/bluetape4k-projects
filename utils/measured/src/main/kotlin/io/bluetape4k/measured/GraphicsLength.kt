@@ -1,5 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.GraphicsLength.Companion.pixels
+
+
 /**
  * 그래픽/디스플레이 좌표계 길이 단위를 나타냅니다.
  *
@@ -18,7 +21,8 @@ open class GraphicsLength(
 ): Units(suffix, ratio) {
     companion object {
         /** 픽셀 단위입니다. */
-        @JvmField val pixels: GraphicsLength = GraphicsLength("px")
+        @JvmField
+        val pixels: GraphicsLength = GraphicsLength("px")
     }
 }
 

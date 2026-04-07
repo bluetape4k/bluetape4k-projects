@@ -36,7 +36,7 @@ object Ksuid {
      *
      * [IdGenerator]를 확장하여 KSUID 전용 편의 메서드를 추가합니다.
      */
-    interface Generator : IdGenerator<String> {
+    interface Generator: IdGenerator<String> {
         /**
          * 현재 시각으로 KSUID를 생성합니다. [nextId]와 동일합니다.
          *
@@ -105,7 +105,7 @@ object Ksuid {
      * id.length == 27
      * ```
      */
-    object Seconds : Generator, KLogging() {
+    object Seconds: Generator, KLogging() {
         private const val EPOCH_SECONDS = 1_400_000_000L
 
         const val TIMESTAMP_LEN = 4
@@ -172,7 +172,7 @@ object Ksuid {
      * id.length == 27
      * ```
      */
-    object Millis : Generator, KLogging() {
+    object Millis: Generator, KLogging() {
         private const val EPOCH_MILLIS = 1_400_000_000_000L
 
         const val TIMESTAMP_LEN = 8

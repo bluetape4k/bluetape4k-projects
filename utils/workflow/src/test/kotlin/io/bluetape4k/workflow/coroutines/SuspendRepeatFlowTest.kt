@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
-class SuspendRepeatFlowTest : AbstractWorkflowTest() {
+class SuspendRepeatFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `maxIterations 횟수만큼 반복 후 Success 반환`() = runTest {

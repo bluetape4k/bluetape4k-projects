@@ -42,51 +42,51 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: Any>(
     scope: CoroutineScope = defaultMapLoaderCoroutineScope,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,
-) : SuspendedEntityMapLoader<ID, E>(
-        loadByIdFromDB = { id: ID ->
-            entityTable
-                .selectAll()
-                .where { entityTable.id eq id }
-                .singleOrNull()
-                ?.toEntity()
-        },
-        loadAllIdsFromDB = { channel ->
-            var rowCount = 0
-            var offset = 0L
+): SuspendedEntityMapLoader<ID, E>(
+    loadByIdFromDB = { id: ID ->
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
+    },
+    loadAllIdsFromDB = { channel ->
+        var rowCount = 0
+        var offset = 0L
 
-            try {
-                while (true) {
-                    val rows =
-                        entityTable
-                            .select(entityTable.id)
-                            .orderBy(entityTable.id, SortOrder.ASC)
-                            .limit(batchSize)
-                            .offset(offset)
-                            .toList()
+        try {
+            while (true) {
+                val rows =
+                    entityTable
+                        .select(entityTable.id)
+                        .orderBy(entityTable.id, SortOrder.ASC)
+                        .limit(batchSize)
+                        .offset(offset)
+                        .toList()
 
-                    if (rows.isEmpty()) {
-                        break
-                    }
-
-                    rows.forEach { row ->
-                        val id = row[entityTable.id].value
-                        channel.trySend(id).onFailure { cause ->
-                            throw IllegalStateException("채널 전송 실패. id=$id", cause)
-                        }
-                        rowCount += 1
-                    }
-                    log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount, offset=$offset" }
-                    offset += batchSize.toLong()
+                if (rows.isEmpty()) {
+                    break
                 }
-                log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
-            } catch (cause: Throwable) {
-                log.error(cause) { "DB에서 모든 ID 로딩 중 오류 발생" }
-                throw cause
+
+                rows.forEach { row ->
+                    val id = row[entityTable.id].value
+                    channel.trySend(id).onFailure { cause ->
+                        throw IllegalStateException("채널 전송 실패. id=$id", cause)
+                    }
+                    rowCount += 1
+                }
+                log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount, offset=$offset" }
+                offset += batchSize.toLong()
             }
-        },
-        scope = scope
-    ) {
-    companion object : KLoggingChannel() {
+            log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
+        } catch (cause: Throwable) {
+            log.error(cause) { "DB에서 모든 ID 로딩 중 오류 발생" }
+            throw cause
+        }
+    },
+    scope = scope
+) {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
     }
 

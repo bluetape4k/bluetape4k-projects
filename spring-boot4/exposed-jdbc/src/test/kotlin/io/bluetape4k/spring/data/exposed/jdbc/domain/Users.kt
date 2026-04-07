@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.dao.LongEntity
 import org.jetbrains.exposed.v1.dao.LongEntityClass
 
-object Users : LongIdTable("users") {
+object Users: LongIdTable("users") {
     val name = varchar("name", 255)
     val email = varchar("email", 255).uniqueIndex()
     val age = integer("age")

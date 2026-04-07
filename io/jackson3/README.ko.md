@@ -13,7 +13,7 @@ Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서
 | 항목            | Jackson 2.x                             | Jackson 3.x                            |
 |---------------|-----------------------------------------|----------------------------------------|
 | 패키지           | `com.fasterxml.jackson.*`               | `tools.jackson.*`                      |
-| 모듈            | bluetape4k-jackson2                      | bluetape4k-jackson3                    |
+| 모듈            | bluetape4k-jackson2                     | bluetape4k-jackson3                    |
 | Module SPI    | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
 | 타입 정보         | `activateDefaultTyping()` 지원            | 제거됨                                    |
 | JsonMapper 빌드 | `JsonMapper.builder()`                  | `jsonMapper { }` (kotlinModule 내장)     |
@@ -217,13 +217,13 @@ val mapper = Jackson.createDefaultJsonMapper().rebuild()
 
 지원 알고리즘:
 
-| `TinkEncryptAlgorithm` | 설명 |
-|------------------------|------|
-| `AES256_GCM` | AES256-GCM 비결정적 암호화 — 범용, 기본값 |
-| `AES128_GCM` | AES128-GCM 비결정적 암호화 — 성능 우선 |
-| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — HW AES 가속 없는 환경 |
-| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — 큰 nonce(192bit) |
-| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능 |
+| `TinkEncryptAlgorithm`     | 설명                                   |
+|----------------------------|--------------------------------------|
+| `AES256_GCM`               | AES256-GCM 비결정적 암호화 — 범용, 기본값        |
+| `AES128_GCM`               | AES128-GCM 비결정적 암호화 — 성능 우선          |
+| `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — HW AES 가속 없는 환경  |
+| `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — 큰 nonce(192bit) |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV 결정적 암호화 — DB 검색 가능        |
 
 ### 7. 필드 마스킹 (@JsonMasker)
 
@@ -257,17 +257,17 @@ objectNode.addNull("description")
 
 바이너리 및 텍스트 포맷은 `compileOnly`로 선언되어 있으므로 사용할 포맷의 의존성을 런타임에 추가해야 합니다.
 
-| 포맷 | 종류 | 런타임 의존성 |
-|------|------|--------------|
-| CBOR | 바이너리 | `jackson3-dataformat-cbor` |
-| Ion | 바이너리 | `jackson3-dataformat-ion` |
-| Smile | 바이너리 | `jackson3-dataformat-smile` |
-| Avro | 바이너리 | `jackson3-dataformat-avro` |
-| Protobuf | 바이너리 | `jackson3-dataformat-protobuf` |
-| YAML | 텍스트 | `jackson3-dataformat-yaml` |
-| CSV | 텍스트 | `jackson3-dataformat-csv` |
-| TOML | 텍스트 | `jackson3-dataformat-toml` |
-| Properties | 텍스트 | `jackson3-dataformat-properties` |
+| 포맷         | 종류   | 런타임 의존성                          |
+|------------|------|----------------------------------|
+| CBOR       | 바이너리 | `jackson3-dataformat-cbor`       |
+| Ion        | 바이너리 | `jackson3-dataformat-ion`        |
+| Smile      | 바이너리 | `jackson3-dataformat-smile`      |
+| Avro       | 바이너리 | `jackson3-dataformat-avro`       |
+| Protobuf   | 바이너리 | `jackson3-dataformat-protobuf`   |
+| YAML       | 텍스트  | `jackson3-dataformat-yaml`       |
+| CSV        | 텍스트  | `jackson3-dataformat-csv`        |
+| TOML       | 텍스트  | `jackson3-dataformat-toml`       |
+| Properties | 텍스트  | `jackson3-dataformat-properties` |
 
 ### CBOR 직렬화 예시
 

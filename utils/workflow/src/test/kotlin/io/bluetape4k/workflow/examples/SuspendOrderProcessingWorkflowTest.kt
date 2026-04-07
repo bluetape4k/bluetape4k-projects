@@ -3,7 +3,6 @@ package io.bluetape4k.workflow.examples
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.workflow.api.SuspendWork
-import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import io.bluetape4k.workflow.api.workContext
 import io.bluetape4k.workflow.coroutines.suspendSequentialFlow
@@ -52,7 +51,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class SuspendOrderProcessingWorkflowTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ──────────────────────────────────────────────────────────────────────────
     // Step ① 주문 유효성 검사

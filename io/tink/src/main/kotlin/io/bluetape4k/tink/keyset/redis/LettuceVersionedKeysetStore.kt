@@ -26,7 +26,7 @@ class LettuceVersionedKeysetStore(
     keyringName: String,
     private val keyTemplate: KeyTemplate,
     private val clock: Clock = Clock.systemUTC(),
-) : VersionedKeysetStore {
+): VersionedKeysetStore {
 
     private val keyringName = keyringName.requireNotBlank("keyringName")
     private val commands get() = connection.sync()

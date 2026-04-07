@@ -47,7 +47,7 @@ class LettuceSuspendLeaderElection(
 
     override suspend fun <T> runIfLeader(lockName: String, action: suspend () -> T): T {
         lockName.requireNotBlank("lockName")
-        
+
         val lock = LettuceSuspendLock(connection, lockName, options.leaseTime)
         val acquired = lock.tryLock(options.waitTime, options.leaseTime)
         if (!acquired) {

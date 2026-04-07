@@ -27,8 +27,8 @@ import org.redisson.api.map.MapLoader
 open class EntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: (ID) -> E?,
     private val loadAllIdsFromDB: () -> Collection<ID>,
-) : MapLoader<ID, E> {
-    companion object : KLogging() {
+): MapLoader<ID, E> {
+    companion object: KLogging() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000 // 30 seconds
     }
 

@@ -112,15 +112,16 @@ queryFlow(db) {
 
 Trino는 ACID 트랜잭션을 지원하지 않습니다. `transaction {}` 블록을 사용할 수 있지만, 아래 표를 참고하여 동작 차이를 반드시 인지하세요.
 
-| 동작 | Trino | 일반 RDBMS |
-|------|-------|-----------|
-| 원자성 | ❌ 미보장 | ✅ 보장 |
-| Rollback | ❌ no-op | ✅ 동작 |
-| Nested transaction | ⚠️ 호출 허용, 원자성 없음 | ✅ 지원 |
-| Savepoint | ❌ 미지원 | ✅ 지원 |
-| autocommit 모드 | 항상 ON (변경 불가) | ON/OFF 전환 가능 |
+| 동작                 | Trino            | 일반 RDBMS     |
+|--------------------|------------------|--------------|
+| 원자성                | ❌ 미보장            | ✅ 보장         |
+| Rollback           | ❌ no-op          | ✅ 동작         |
+| Nested transaction | ⚠️ 호출 허용, 원자성 없음 | ✅ 지원         |
+| Savepoint          | ❌ 미지원            | ✅ 지원         |
+| autocommit 모드      | 항상 ON (변경 불가)    | ON/OFF 전환 가능 |
 
 **실질적 영향**:
+
 - `transaction {}` 블록 내 다중 DML 실행 시, 중간 실패가 발생하면 앞선 DML은 **롤백되지 않습니다**.
 - 쓰기 블록에서는 부분 반영(partial write) 위험을 항상 고려해야 합니다.
 - 읽기 전용 쿼리(`SELECT`)는 일반적으로 안전하게 사용 가능합니다.
@@ -129,34 +130,34 @@ Trino는 ACID 트랜잭션을 지원하지 않습니다. `transaction {}` 블록
 
 ### Trino 일반 계약 (범용)
 
-| 기능 | 지원 여부 | 비고 |
-|------|-----------|------|
-| SELECT / JOIN / 집계 | ✅ | 표준 SQL |
-| INSERT / UPDATE / DELETE | ⚠️ 커넥터 의존 | 모듈은 Exposed DSL을 제공하지만 실제 지원 범위는 커넥터가 결정 |
-| CREATE TABLE / DROP TABLE | ⚠️ 커넥터 의존 | 테스트는 Memory 커넥터 기준으로 검증 |
-| DDL via SchemaUtils | ⚠️ 커넥터 의존 | `TrinoTable` 사용 권장 |
-| 윈도우 함수 (GROUPS 모드) | ✅ | `supportsWindowFrameGroupsMode = true` |
-| 트랜잭션 원자성 | ❌ | autocommit 전용 |
-| Rollback | ❌ | no-op |
-| Savepoint | ❌ | 미지원 |
-| ALTER COLUMN TYPE | ❌ | `supportsColumnTypeChange = false` |
-| Multiple generated keys | ❌ | `supportsMultipleGeneratedKeys = false` |
-| FK 제약 메타데이터 조회 | ❌ | `getImportedKeys` 미지원 → no-op |
+| 기능                        | 지원 여부     | 비고                                       |
+|---------------------------|-----------|------------------------------------------|
+| SELECT / JOIN / 집계        | ✅         | 표준 SQL                                   |
+| INSERT / UPDATE / DELETE  | ⚠️ 커넥터 의존 | 모듈은 Exposed DSL을 제공하지만 실제 지원 범위는 커넥터가 결정 |
+| CREATE TABLE / DROP TABLE | ⚠️ 커넥터 의존 | 테스트는 Memory 커넥터 기준으로 검증                  |
+| DDL via SchemaUtils       | ⚠️ 커넥터 의존 | `TrinoTable` 사용 권장                       |
+| 윈도우 함수 (GROUPS 모드)        | ✅         | `supportsWindowFrameGroupsMode = true`   |
+| 트랜잭션 원자성                  | ❌         | autocommit 전용                            |
+| Rollback                  | ❌         | no-op                                    |
+| Savepoint                 | ❌         | 미지원                                      |
+| ALTER COLUMN TYPE         | ❌         | `supportsColumnTypeChange = false`       |
+| Multiple generated keys   | ❌         | `supportsMultipleGeneratedKeys = false`  |
+| FK 제약 메타데이터 조회            | ❌         | `getImportedKeys` 미지원 → no-op            |
 
 ### Memory 커넥터 테스트 범위 (테스트 환경 한정)
 
 Testcontainers를 통한 Trino Memory 커넥터 환경에서 검증된 기능입니다.
 
-| 기능 | 검증 여부 | 비고 |
-|------|-----------|------|
-| CREATE/DROP TABLE | ✅ | Memory 커넥터 |
-| INSERT 단건/다건 | ✅ | |
-| SELECT / WHERE / ORDER BY | ✅ | |
-| COUNT / 집계 함수 | ✅ | |
-| suspendTransaction | ✅ | Dispatchers.IO |
-| queryFlow | ✅ | materialize 후 emit |
-| TrinoConnectionWrapper 호환 | ✅ | prepareStatement 오버로드 |
-| JDBC 드라이버 자동 등록 | ✅ | TrinoDatabase 접근 시 init{} |
+| 기능                        | 검증 여부 | 비고                        |
+|---------------------------|-------|---------------------------|
+| CREATE/DROP TABLE         | ✅     | Memory 커넥터                |
+| INSERT 단건/다건              | ✅     |                           |
+| SELECT / WHERE / ORDER BY | ✅     |                           |
+| COUNT / 집계 함수             | ✅     |                           |
+| suspendTransaction        | ✅     | Dispatchers.IO            |
+| queryFlow                 | ✅     | materialize 후 emit        |
+| TrinoConnectionWrapper 호환 | ✅     | prepareStatement 오버로드     |
+| JDBC 드라이버 자동 등록           | ✅     | TrinoDatabase 접근 시 init{} |
 
 ## 핵심 API 다이어그램
 
@@ -202,15 +203,15 @@ classDiagram
 
 ## 주요 파일/클래스 목록
 
-| 파일 | 설명 |
-|------|------|
-| `TrinoDatabase.kt` | 연결 팩토리 (호스트/포트/카탈로그 또는 JDBC URL) |
-| `TrinoConnectionWrapper.kt` | Trino JDBC 호환 Connection 래퍼 (실제 JDBC 연결을 autocommit=true로 고정) |
-| `TrinoExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 함수 |
-| `TrinoTable.kt` | Trino unsupported DDL 구문(PRIMARY KEY, 명시적 NULL) 제거 |
-| `TrinoUnsupported.kt` | Trino 미지원 기능 마커 어노테이션 |
-| `dialect/TrinoDialect.kt` | PostgreSQLDialect 상속 Trino 다이얼렉트 |
-| `dialect/TrinoDialectMetadata.kt` | FK 제약 캐싱 no-op 구현 |
+| 파일                                | 설명                                                            |
+|-----------------------------------|---------------------------------------------------------------|
+| `TrinoDatabase.kt`                | 연결 팩토리 (호스트/포트/카탈로그 또는 JDBC URL)                              |
+| `TrinoConnectionWrapper.kt`       | Trino JDBC 호환 Connection 래퍼 (실제 JDBC 연결을 autocommit=true로 고정) |
+| `TrinoExtensions.kt`              | `suspendTransaction`, `queryFlow` 확장 함수                       |
+| `TrinoTable.kt`                   | Trino unsupported DDL 구문(PRIMARY KEY, 명시적 NULL) 제거            |
+| `TrinoUnsupported.kt`             | Trino 미지원 기능 마커 어노테이션                                         |
+| `dialect/TrinoDialect.kt`         | PostgreSQLDialect 상속 Trino 다이얼렉트                              |
+| `dialect/TrinoDialectMetadata.kt` | FK 제약 캐싱 no-op 구현                                             |
 
 ## 테스트
 
@@ -230,12 +231,12 @@ classDiagram
 
 다음 기능은 이후 릴리즈에서 추가될 예정입니다.
 
-| 기능 | 설명 |
-|------|------|
-| `connect(dataSource)` | `javax.sql.DataSource` 기반 연결 팩토리 (커넥션 풀 통합) |
-| `exposed-bigquery-trino` | BigQuery → Trino → Exposed 파이프라인 통합 모듈 |
-| 배치 INSERT 최적화 | Trino Bulk Insert 커넥터 지원 |
-| 결과셋 스트리밍 | 진정한 row-by-row 커서 스트리밍 (Trino Arrow Flight 기반) |
+| 기능                       | 설명                                             |
+|--------------------------|------------------------------------------------|
+| `connect(dataSource)`    | `javax.sql.DataSource` 기반 연결 팩토리 (커넥션 풀 통합)    |
+| `exposed-bigquery-trino` | BigQuery → Trino → Exposed 파이프라인 통합 모듈         |
+| 배치 INSERT 최적화            | Trino Bulk Insert 커넥터 지원                       |
+| 결과셋 스트리밍                 | 진정한 row-by-row 커서 스트리밍 (Trino Arrow Flight 기반) |
 
 ## 참고
 

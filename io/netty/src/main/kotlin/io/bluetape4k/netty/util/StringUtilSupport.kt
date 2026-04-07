@@ -11,7 +11,7 @@ import io.netty.util.internal.StringUtil
  * // sb.toString() == "ab"
  * ```
  */
-fun <T : Appendable> T.byteToHexStringPadded(value: Int): T = StringUtil.byteToHexStringPadded(this, value)
+fun <T: Appendable> T.byteToHexStringPadded(value: Int): T = StringUtil.byteToHexStringPadded(this, value)
 
 /**
  * Netty 처리 타입 변환을 위한 `toHexStringPadded` 함수를 제공합니다.
@@ -35,7 +35,7 @@ fun ByteArray.toHexStringPadded(
  * // sb.toString() == "ab"
  * ```
  */
-fun <T : Appendable> ByteArray.toHexStringPaddedAs(
+fun <T: Appendable> ByteArray.toHexStringPaddedAs(
     dest: T,
     offset: Int = 0,
     length: Int = size,
@@ -50,7 +50,7 @@ fun <T : Appendable> ByteArray.toHexStringPaddedAs(
  * // sb.toString() == "ab"
  * ```
  */
-fun <T : Appendable> T.byteToHexString(value: Int): T = StringUtil.byteToHexStringPadded(this, value)
+fun <T: Appendable> T.byteToHexString(value: Int): T = StringUtil.byteToHexStringPadded(this, value)
 
 /**
  * Netty 처리 타입 변환을 위한 `toHexString` 함수를 제공합니다.
@@ -74,7 +74,7 @@ fun ByteArray.toHexString(
  * // sb.toString() == "ab"
  * ```
  */
-fun <T : Appendable> ByteArray.toHexStringAs(
+fun <T: Appendable> ByteArray.toHexStringAs(
     dest: T,
     offset: Int = 0,
     length: Int = size,
@@ -211,4 +211,4 @@ fun CharSequence.trimOws(): CharSequence = StringUtil.trimOws(this)
  * // joined == "a,b,c"
  * ```
  */
-fun <T : CharSequence> Iterable<T>.join(separator: CharSequence = ","): CharSequence = StringUtil.join(separator, this)
+fun <T: CharSequence> Iterable<T>.join(separator: CharSequence = ","): CharSequence = StringUtil.join(separator, this)

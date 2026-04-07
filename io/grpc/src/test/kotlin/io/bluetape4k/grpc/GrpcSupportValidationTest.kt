@@ -57,24 +57,24 @@ class GrpcSupportValidationTest {
     @Test
     fun `inprocess client 는 blank name 을 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
-            object : AbstractGrpcInprocessClient(" ") { }
+            object: AbstractGrpcInprocessClient(" ") {}
         }
     }
 
     @Test
     fun `inprocess client 는 invalid address port 를 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
-            object : AbstractGrpcInprocessClient("localhost", 0) { }
+            object: AbstractGrpcInprocessClient("localhost", 0) {}
         }
     }
 
     @Test
     fun `inprocess server 는 blank name 과 invalid port 를 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
-            object : AbstractGrpcInprocessServer(" ", GreeterService()) { }
+            object: AbstractGrpcInprocessServer(" ", GreeterService()) {}
         }
         assertFailsWith<IllegalArgumentException> {
-            object : AbstractGrpcInprocessServer(0, GreeterService()) { }
+            object: AbstractGrpcInprocessServer(0, GreeterService()) {}
         }
     }
 }

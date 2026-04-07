@@ -20,29 +20,59 @@ open class BinarySize(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val bytes: BinarySize = BinarySize("B")
+        @JvmField
+        val bytes: BinarySize = BinarySize("B")
 
         // SI (10^3)
-        @JvmField val kiloBytes: BinarySize = BinarySize("kB", 1_000.0)
-        @JvmField val megaBytes: BinarySize = BinarySize("MB", 1_000.0 * kiloBytes.ratio)
-        @JvmField val gigaBytes: BinarySize = BinarySize("GB", 1_000.0 * megaBytes.ratio)
-        @JvmField val teraBytes: BinarySize = BinarySize("TB", 1_000.0 * gigaBytes.ratio)
-        @JvmField val petaBytes: BinarySize = BinarySize("PB", 1_000.0 * teraBytes.ratio)
+        @JvmField
+        val kiloBytes: BinarySize = BinarySize("kB", 1_000.0)
+
+        @JvmField
+        val megaBytes: BinarySize = BinarySize("MB", 1_000.0 * kiloBytes.ratio)
+
+        @JvmField
+        val gigaBytes: BinarySize = BinarySize("GB", 1_000.0 * megaBytes.ratio)
+
+        @JvmField
+        val teraBytes: BinarySize = BinarySize("TB", 1_000.0 * gigaBytes.ratio)
+
+        @JvmField
+        val petaBytes: BinarySize = BinarySize("PB", 1_000.0 * teraBytes.ratio)
 
         // IEC (2^10)
-        @JvmField val kibiBytes: BinarySize = BinarySize("KiB", 1_024.0)
-        @JvmField val mebiBytes: BinarySize = BinarySize("MiB", 1_024.0 * kibiBytes.ratio)
-        @JvmField val gibiBytes: BinarySize = BinarySize("GiB", 1_024.0 * mebiBytes.ratio)
-        @JvmField val tebiBytes: BinarySize = BinarySize("TiB", 1_024.0 * gibiBytes.ratio)
-        @JvmField val pebiBytes: BinarySize = BinarySize("PiB", 1_024.0 * tebiBytes.ratio)
+        @JvmField
+        val kibiBytes: BinarySize = BinarySize("KiB", 1_024.0)
+
+        @JvmField
+        val mebiBytes: BinarySize = BinarySize("MiB", 1_024.0 * kibiBytes.ratio)
+
+        @JvmField
+        val gibiBytes: BinarySize = BinarySize("GiB", 1_024.0 * mebiBytes.ratio)
+
+        @JvmField
+        val tebiBytes: BinarySize = BinarySize("TiB", 1_024.0 * gibiBytes.ratio)
+
+        @JvmField
+        val pebiBytes: BinarySize = BinarySize("PiB", 1_024.0 * tebiBytes.ratio)
 
         // bit
-        @JvmField val bits: BinarySize = BinarySize("bit", 1.0 / 8.0)
-        @JvmField val kiloBits: BinarySize = BinarySize("kbit", 1_000.0 * bits.ratio)
-        @JvmField val megaBits: BinarySize = BinarySize("Mbit", 1_000.0 * kiloBits.ratio)
-        @JvmField val gigaBits: BinarySize = BinarySize("Gbit", 1_000.0 * megaBits.ratio)
-        @JvmField val teraBits: BinarySize = BinarySize("Tbit", 1_000.0 * gigaBits.ratio)
-        @JvmField val petaBits: BinarySize = BinarySize("Pbit", 1_000.0 * teraBits.ratio)
+        @JvmField
+        val bits: BinarySize = BinarySize("bit", 1.0 / 8.0)
+
+        @JvmField
+        val kiloBits: BinarySize = BinarySize("kbit", 1_000.0 * bits.ratio)
+
+        @JvmField
+        val megaBits: BinarySize = BinarySize("Mbit", 1_000.0 * kiloBits.ratio)
+
+        @JvmField
+        val gigaBits: BinarySize = BinarySize("Gbit", 1_000.0 * megaBits.ratio)
+
+        @JvmField
+        val teraBits: BinarySize = BinarySize("Tbit", 1_000.0 * gigaBits.ratio)
+
+        @JvmField
+        val petaBits: BinarySize = BinarySize("Pbit", 1_000.0 * teraBits.ratio)
     }
 }
 

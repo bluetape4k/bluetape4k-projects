@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-`bluetape4k-cache-hazelcast` provides a Hazelcast-based JCache provider, coroutine-friendly cache implementations, and a **Caffeine + Hazelcast IMap 2-tier near cache**.
+`bluetape4k-cache-hazelcast` provides a Hazelcast-based JCache provider, coroutine-friendly cache implementations, and a
+**Caffeine + Hazelcast IMap 2-tier near cache**.
 
 > The former `bluetape4k-cache-hazelcast-near` module was merged into this module.
 
@@ -35,9 +36,11 @@ dependencies {
 
 ## JCache-Based NearCache (`nearcache.jcache` package)
 
-`NearJCache<K,V>` and `SuspendNearJCache<K,V>` directly implement the JCache interface with a Caffeine(front) + Hazelcast IMap(back) structure.
+`NearJCache<K,V>` and
+`SuspendNearJCache<K,V>` directly implement the JCache interface with a Caffeine(front) + Hazelcast IMap(back) structure.
 
-The Korean README includes the full class diagrams and listener-related notes, including why `SuspendNearJCache` uses `withoutListener(front, back)` for the Hazelcast client case.
+The Korean README includes the full class diagrams and listener-related notes, including why `SuspendNearJCache` uses
+`withoutListener(front, back)` for the Hazelcast client case.
 
 ## Class Structure
 

@@ -36,11 +36,11 @@ import java.util.*
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class HazelcastNearCache<V : Any>(
+class HazelcastNearCache<V: Any>(
     hazelcastInstance: HazelcastInstance,
     private val config: HazelcastNearCacheConfig = HazelcastNearCacheConfig(),
-) : NearCacheOperations<V> {
-    companion object : KLogging()
+): NearCacheOperations<V> {
+    companion object: KLogging()
 
     private val closed = atomic(false)
     override val isClosed: Boolean by closed

@@ -17,7 +17,10 @@ class AnySupportTest {
 
     companion object: KLogging()
 
-    enum class TestEnum { FIRST, SECOND }
+    enum class TestEnum {
+        FIRST,
+        SECOND
+    }
 
     @Test
     fun `Any 를 Optional로 변환하기`() {

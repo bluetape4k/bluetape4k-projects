@@ -50,7 +50,7 @@ fun boundingBoxGeoHashIteratorOf(
  */
 class BoundingBoxGeoHashIterator(
     val boundingBox: TwoGeoHashBoundingBox,
-) : Iterator<GeoHash> {
+): Iterator<GeoHash> {
     private var current: GeoHash? = boundingBox.southWestCorner
 
     override fun hasNext(): Boolean = current != null

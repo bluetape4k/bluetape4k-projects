@@ -42,8 +42,8 @@ suspend inline fun <T: Any> withTimeoutOrNull(
         )
 
         timeout.timeoutNanos() != 0L -> timeout.timeoutNanos()
-        timeout.hasDeadline() -> timeout.deadlineNanoTime() - now
-        else -> throw AssertionError("Unexpected Timeout state")
+        timeout.hasDeadline()        -> timeout.deadlineNanoTime() - now
+        else                         -> throw AssertionError("Unexpected Timeout state")
     }
 
     if (waitNanos <= 0L) {

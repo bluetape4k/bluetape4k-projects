@@ -6,7 +6,9 @@ Java 21 virtual-thread implementation module.
 
 ## Overview
 
-This module implements the interfaces defined by `bluetape4k-virtualthread-api` for Java 21. It is loaded automatically through `ServiceLoader` and becomes active on JDK 21 or newer.
+This module implements the interfaces defined by
+`bluetape4k-virtualthread-api` for Java 21. It is loaded automatically through
+`ServiceLoader` and becomes active on JDK 21 or newer.
 
 ## UML
 
@@ -226,11 +228,11 @@ class Jdk21VirtualThreadRuntimeTest {
 
 ## JDK Version Compatibility
 
-| JDK Version | Supported | Activation Condition |
-|---|---|---|
-| JDK 17 or lower | ❌ | `isSupported()` returns `false` |
-| JDK 21 | ✅ | activated automatically if the JDK 25 implementation is absent |
-| JDK 25 | ✅ | the JDK 25 implementation is selected first |
+| JDK Version     | Supported | Activation Condition                                           |
+|-----------------|-----------|----------------------------------------------------------------|
+| JDK 17 or lower | ❌         | `isSupported()` returns `false`                                |
+| JDK 21          | ✅         | activated automatically if the JDK 25 implementation is absent |
+| JDK 25          | ✅         | the JDK 25 implementation is selected first                    |
 
 ## Caution
 

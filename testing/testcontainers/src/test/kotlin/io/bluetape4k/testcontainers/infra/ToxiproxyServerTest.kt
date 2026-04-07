@@ -70,7 +70,8 @@ class ToxiproxyServerTest: AbstractContainerTest() {
                                     "redis:${RedisServer.PORT}",
                                 )
                                 val proxyPort = toxiproxy.getMappedPort(8666)
-                                val redisClient = RedisServer.Launcher.LettuceLib.getRedisClient(toxiproxy.host, proxyPort)
+                                val redisClient =
+                                    RedisServer.Launcher.LettuceLib.getRedisClient(toxiproxy.host, proxyPort)
 
                                 try {
                                     redisClient.connect().use { connection ->

@@ -23,11 +23,11 @@ import java.util.*
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-class ExposedJdbcRepositoryFactory : RepositoryFactorySupport() {
+class ExposedJdbcRepositoryFactory: RepositoryFactorySupport() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    override fun <T : Any, ID : Any> getEntityInformation(domainClass: Class<T>): EntityInformation<T, ID> =
+    override fun <T: Any, ID: Any> getEntityInformation(domainClass: Class<T>): EntityInformation<T, ID> =
         ExposedEntityInformationImpl(domainClass as Class<Entity<Any>>) as EntityInformation<T, ID>
 
     override fun getTargetRepository(information: RepositoryInformation): Any {

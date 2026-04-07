@@ -12,8 +12,8 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
-class JSONObjectExtensionsTest : AbstractFastjson2Test() {
-    companion object : KLogging()
+class JSONObjectExtensionsTest: AbstractFastjson2Test() {
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `parse object`() {

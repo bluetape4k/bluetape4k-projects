@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-`bluetape4k-measured` represents compound units such as `m/s` and `kg*m/s^2` in a type-safe way, based on composable unit types (`Units`) and measured values (`Measure`).
+`bluetape4k-measured` represents compound units such as `m/s` and
+`kg*m/s^2` in a type-safe way, based on composable unit types (`Units`) and measured values (`Measure`).
 
 ## Core Concepts
 
@@ -127,7 +128,8 @@ flowchart LR
 
 ## Compatibility Adapter for `units`
 
-Compatibility extension functions are available so you can migrate gradually from `bluetape4k-units` to `bluetape4k-measured`.
+Compatibility extension functions are available so you can migrate gradually from `bluetape4k-units` to
+`bluetape4k-measured`.
 
 ```kotlin
 import io.bluetape4k.measured.*

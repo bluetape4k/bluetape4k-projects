@@ -7,8 +7,8 @@ import kotlinx.atomicfu.atomic
 internal class ULIDStatefulMonotonic(
     private val factory: ULID.Factory,
     private val monotonic: ULID.Monotonic,
-) : ULID.StatefulMonotonic {
-    companion object : KLogging()
+): ULID.StatefulMonotonic {
+    companion object: KLogging()
 
     private val previousRef = atomic<ULID?>(null)
 

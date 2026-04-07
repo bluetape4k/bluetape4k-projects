@@ -21,7 +21,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
-class PartTreeExposedJdbcQueryTest : AbstractExposedJdbcRepositoryTest() {
+class PartTreeExposedJdbcQueryTest: AbstractExposedJdbcRepositoryTest() {
 
     @Autowired
     private lateinit var userJdbcRepository: UserJdbcRepository

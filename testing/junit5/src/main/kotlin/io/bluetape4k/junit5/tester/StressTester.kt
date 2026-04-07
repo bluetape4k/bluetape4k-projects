@@ -19,8 +19,10 @@ interface StressTester<SELF> {
     companion object {
         /** worker당 기본 반복 횟수입니다. */
         const val DEFAULT_ROUNDS_PER_WORKER: Int = 2
+
         /** 허용하는 최소 worker당 반복 횟수입니다. */
         const val MIN_ROUNDS_PER_WORKER: Int = 1
+
         /** 허용하는 최대 worker당 반복 횟수입니다. */
         const val MAX_ROUNDS_PER_WORKER: Int = 1_000_000
     }
@@ -54,8 +56,10 @@ interface WorkerStressTester<SELF>: StressTester<SELF> {
     companion object {
         /** 기본 worker 수입니다. */
         const val DEFAULT_WORKER_SIZE: Int = 16
+
         /** 허용하는 최소 worker 수입니다. */
         const val MIN_WORKER_SIZE: Int = 1
+
         /** 허용하는 최대 worker 수입니다. */
         const val MAX_WORKER_SIZE: Int = 2000
     }

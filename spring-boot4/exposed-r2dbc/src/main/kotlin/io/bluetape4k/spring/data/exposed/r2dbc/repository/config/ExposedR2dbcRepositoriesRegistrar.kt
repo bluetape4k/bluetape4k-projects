@@ -11,7 +11,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
  * // 직접 사용할 일은 없으며 Spring 내부 인프라에서만 사용됩니다.
  * ```
  */
-class ExposedR2dbcRepositoriesRegistrar : RepositoryBeanDefinitionRegistrarSupport() {
+class ExposedR2dbcRepositoriesRegistrar: RepositoryBeanDefinitionRegistrarSupport() {
 
     override fun getAnnotation(): Class<out Annotation> =
         EnableExposedR2dbcRepositories::class.java

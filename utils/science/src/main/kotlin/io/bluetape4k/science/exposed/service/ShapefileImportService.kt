@@ -38,7 +38,7 @@ class ShapefileImportService(
     private val layerRepo: SpatialLayerRepository,
     private val featureRepo: SpatialFeatureRepository,
 ) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * Shapefile을 읽어 DB에 임포트합니다.

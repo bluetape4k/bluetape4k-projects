@@ -15,7 +15,7 @@ import org.testcontainers.containers.wait.strategy.Wait
  * bigquery-emulator --project=test --dataset=testdb --port=9050
  * ```
  */
-object BigQueryEmulator : KLogging() {
+object BigQueryEmulator: KLogging() {
 
     const val PROJECT_ID = "test"
     const val DATASET = "testdb"

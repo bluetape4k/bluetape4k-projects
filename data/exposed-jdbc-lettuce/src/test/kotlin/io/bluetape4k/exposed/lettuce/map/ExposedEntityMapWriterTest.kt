@@ -31,7 +31,7 @@ class ExposedEntityMapWriterTest: AbstractExposedTest() {
     ): Serializable
 
     // 클라이언트 생성 ID 테이블 (AutoInc 아님) — Writer 삽입 동작을 직접 테스트하기 위해 사용
-    private object WriterTable : IdTable<Long>("lettuce_writer_test") {
+    private object WriterTable: IdTable<Long>("lettuce_writer_test") {
         override val id: Column<EntityID<Long>> = long("id").entityId()
         val name = varchar("name", 64)
         override val primaryKey = PrimaryKey(id)

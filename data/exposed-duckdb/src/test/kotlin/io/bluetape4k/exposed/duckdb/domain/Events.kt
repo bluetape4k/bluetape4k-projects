@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 /**
  * 이벤트 테이블 정의 (DuckDB 테스트용).
  */
-object Events : Table("events") {
+object Events: Table("events") {
     val eventId = long("event_id")
     val userId = long("user_id")
     val eventType = varchar("event_type", 50)

@@ -13,7 +13,7 @@ import io.bluetape4k.utils.Local
  * PeriodContext.Current.calendar = TimeCalendar.EmptyOffset
  * ```
  */
-open class PeriodContext : AbstractValueObject() {
+open class PeriodContext: AbstractValueObject() {
     companion object {
         @JvmField
         val TIME_CALENDAR_KEY: String = PeriodContext::class.java.name + ".current"

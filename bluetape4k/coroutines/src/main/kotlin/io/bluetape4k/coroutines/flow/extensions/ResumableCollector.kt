@@ -84,7 +84,7 @@ class ResumableCollector<T>: Resumable() {
      *
      * ## 동작/계약
      * - consumer가 준비될 때까지 대기한 뒤 완료 플래그를 설정합니다.
- * - `drain`은 남은 값을 처리한 뒤 정상 종료합니다.
+     * - `drain`은 남은 값을 처리한 뒤 정상 종료합니다.
      * - 수신 객체 내부 상태(done)를 변경합니다.
      *
      * ```kotlin

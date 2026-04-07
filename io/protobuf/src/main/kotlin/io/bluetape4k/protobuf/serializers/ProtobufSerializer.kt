@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class ProtobufSerializer(
     private val fallback: BinarySerializer = BinarySerializers.Jdk,
-) : AbstractBinarySerializer() {
+): AbstractBinarySerializer() {
     companion object {
         private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
     }
@@ -38,7 +38,7 @@ class ProtobufSerializer(
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> doDeserialize(bytes: ByteArray): T? {
+    override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         if (bytes.isNullOrEmpty()) {
             return null
         }

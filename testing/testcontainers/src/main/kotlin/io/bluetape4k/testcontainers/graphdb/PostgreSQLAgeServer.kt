@@ -102,7 +102,8 @@ class PostgreSQLAgeServer private constructor(
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "jdbc-url", "username", "password", "database")
+    override fun propertyKeys(): Set<String> =
+        setOf("host", "port", "url", "jdbc-url", "username", "password", "database")
 
     override fun properties(): Map<String, String> = buildMap {
         put("host", host)

@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs, coroutine support (`SuspendRule`), and annotation-based rule definitions.
+A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern and adds Kotlin DSLs, coroutine support (
+`SuspendRule`), and annotation-based rule definitions.
 
 ## Architecture
 

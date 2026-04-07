@@ -33,13 +33,13 @@ typealias AnyMessage = com.google.protobuf.Any
  */
 class RedissonProtobufCodec(
     private val fallbackCodec: Codec = RedissonCodecs.Jdk,
-) : BaseCodec() {
+): BaseCodec() {
     // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
     @Suppress("UNUSED_PARAMETER")
-    constructor(classLoader: ClassLoader) : this()
-    constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec) : this(copy(classLoader, codec.fallbackCodec))
+    constructor(classLoader: ClassLoader): this()
+    constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec): this(copy(classLoader, codec.fallbackCodec))
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val classCache = ConcurrentHashMap<String, Class<Message>>()
     }
 

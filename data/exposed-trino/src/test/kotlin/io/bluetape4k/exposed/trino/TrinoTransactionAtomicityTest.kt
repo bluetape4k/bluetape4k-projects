@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
  * 각 DML 문은 autocommit 으로 즉시 반영됩니다.
  * 이 테스트는 해당 특성에 따른 부분 반영 및 nested transaction 동작을 명시적으로 검증합니다.
  */
-class TrinoTransactionAtomicityTest : AbstractTrinoTest() {
+class TrinoTransactionAtomicityTest: AbstractTrinoTest() {
 
     @Test
     fun `정상 흐름 - INSERT 2건 모두 반영`() = withEventsTable {

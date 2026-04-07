@@ -16,11 +16,11 @@ import java.net.InetAddress
 /**
  * PostgreSQL 전용 INET/CIDR 네이티브 타입 및 `<<` 연산자 테스트.
  */
-class InetPostgresTest : AbstractExposedTest() {
+class InetPostgresTest: AbstractExposedTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    object PgNetworkTable : LongIdTable("pg_inet_networks") {
+    object PgNetworkTable: LongIdTable("pg_inet_networks") {
         val ip = inetAddress("ip")
         val network = cidr("network")
     }

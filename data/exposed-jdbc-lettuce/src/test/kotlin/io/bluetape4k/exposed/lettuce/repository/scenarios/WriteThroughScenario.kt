@@ -5,7 +5,6 @@ import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest.Companion.ENABLE_DI
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -17,11 +16,11 @@ import org.junit.jupiter.params.provider.MethodSource
  * - put() 시 캐시와 DB를 동시에 갱신
  * - invalidate() 시 캐시와 DB를 모두 삭제
  */
-interface WriteThroughScenario<ID : Any, E : java.io.Serializable> :
+interface WriteThroughScenario<ID: Any, E: java.io.Serializable>:
     JdbcWriteThroughScenario<ID, E>,
     CacheTestScenario<ID, E> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
     fun updateEmail(entity: E): E

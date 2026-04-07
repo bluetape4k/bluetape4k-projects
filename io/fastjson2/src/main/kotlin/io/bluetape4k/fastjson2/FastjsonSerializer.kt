@@ -89,7 +89,7 @@ class FastjsonSerializer: JsonSerializer {
      * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
-        if(bytes.isNullOrEmpty()) {
+        if (bytes.isNullOrEmpty()) {
             return null
         }
         return try {

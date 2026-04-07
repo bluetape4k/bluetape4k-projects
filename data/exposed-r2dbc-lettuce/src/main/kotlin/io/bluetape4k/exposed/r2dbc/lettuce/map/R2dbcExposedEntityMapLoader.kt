@@ -39,7 +39,7 @@ class R2dbcExposedEntityMapLoader<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val toEntity: suspend ResultRow.() -> E,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
-) : R2dbcEntityMapLoader<ID, E>() {
+): R2dbcEntityMapLoader<ID, E>() {
     companion object {
         private const val DEFAULT_BATCH_SIZE = 1000
     }

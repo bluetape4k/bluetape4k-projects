@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 /**
  * [TrinoDatabase] 연결 팩토리 및 [TrinoDialect] 기본 동작을 검증하는 테스트.
  */
-class TrinoDatabaseTest : AbstractTrinoTest() {
+class TrinoDatabaseTest: AbstractTrinoTest() {
 
     @Test
     fun `db dialect 는 TrinoDialect 인스턴스이다`() {

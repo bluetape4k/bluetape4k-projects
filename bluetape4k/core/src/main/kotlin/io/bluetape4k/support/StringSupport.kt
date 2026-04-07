@@ -560,7 +560,8 @@ fun CharSequence?.deleteChars(vararg chars: Char): String =
  * ```
  */
 @Deprecated("use mapAsString", replaceWith = ReplaceWith("mapAsString(defaultValue)"))
-fun <T : Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> = map { it.asString(defaultValue) }
+fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
+    map { it.asString(defaultValue) }
 
 /**
  * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
@@ -574,7 +575,8 @@ fun <T : Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): Lis
  * listOf(1, 2, 3).mapAsString() // listOf("1", "2", "3")
  * ```
  */
-fun <T : Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> = map { it.asString(defaultValue) }
+fun <T: Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> =
+    map { it.asString(defaultValue) }
 
 /**
  * 시퀀스의 각 요소를 문자열로 변환하여 시퀀스로 반환합니다.
@@ -588,7 +590,8 @@ fun <T : Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List
  * sequenceOf(1, 2, 3).mapAsString().toList() // listOf("1", "2", "3")
  * ```
  */
-fun <T : Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> = map { it.asString(defaultValue) }
+fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> =
+    map { it.asString(defaultValue) }
 
 /**
  * 문자열을 [n]번 반복한 새로운 문자열을 반환합니다.
@@ -661,7 +664,7 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
             when {
                 systemLineSeparatorIndex < 0 -> newlineIndex
                 newlineIndex < 0 -> systemLineSeparatorIndex
-                else -> minOf(systemLineSeparatorIndex, newlineIndex)
+                else             -> minOf(systemLineSeparatorIndex, newlineIndex)
             }
         } else {
             indexOf(lineSeparator)
@@ -974,7 +977,7 @@ fun String.toDashedString(delimiter: String = "-"): String =
             when {
                 index == 0 -> append(char.lowercaseChar())
                 char.isUpperCase() -> append(delimiter).append(char.lowercaseChar())
-                else -> append(char)
+                else       -> append(char)
             }
         }
     }
@@ -1126,8 +1129,8 @@ inline fun CharSequence.commonSuffix(other: CharSequence): String = commonSuffix
 
 internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean =
     index >= 0 && index <= (length - 2) &&
-        Character.isHighSurrogate(this[index]) &&
-        Character.isLowSurrogate(this[index + 1])
+            Character.isHighSurrogate(this[index]) &&
+            Character.isLowSurrogate(this[index + 1])
 
 /**
  * 두 문자열을 대소문자 구분 없이 비교합니다.

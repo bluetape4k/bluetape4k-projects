@@ -7,7 +7,6 @@ import io.bluetape4k.exposed.redisson.repository.AbstractSuspendedJdbcRedissonRe
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.redisson.api.RedissonClient
@@ -17,11 +16,11 @@ import java.util.*
 class SuspendedUserCredentialCacheRepository(
     redissonClient: RedissonClient,
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:suspended:user-credentials"),
-) : AbstractSuspendedJdbcRedissonRepository<UUID, UserCredentialsRecord>(
-        redissonClient,
-        config
-    ) {
-    companion object : KLoggingChannel()
+): AbstractSuspendedJdbcRedissonRepository<UUID, UserCredentialsRecord>(
+    redissonClient,
+    config
+) {
+    companion object: KLoggingChannel()
 
     override val table: UserCredentialsTable = UserCredentialsTable
 

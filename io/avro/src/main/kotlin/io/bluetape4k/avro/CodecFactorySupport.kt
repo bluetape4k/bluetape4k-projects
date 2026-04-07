@@ -164,13 +164,13 @@ val XZ_CODEC_FACTORY: CodecFactory by lazy {
  */
 fun codecFactoryOf(name: String): CodecFactory =
     when (name.lowercase().trim()) {
-        "null", "none" -> NULL_CODEC_FACTORY
-        "deflate" -> DEFLATE_CODEC_FACTORY
-        "snappy" -> SNAPPY_CODEC_FACTORY
+        "null", "none"      -> NULL_CODEC_FACTORY
+        "deflate"           -> DEFLATE_CODEC_FACTORY
+        "snappy"            -> SNAPPY_CODEC_FACTORY
         "zstd", "zstandard" -> ZSTD_CODEC_FACTORY
-        "zstd-fast" -> FAST_CODEC_FACTORY
+        "zstd-fast"         -> FAST_CODEC_FACTORY
         "zstd-archive", "archive" -> ARCHIVE_CODEC_FACTORY
-        "bzip2" -> BZIP2_CODEC_FACTORY
-        "xz" -> XZ_CODEC_FACTORY
-        else -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
+        "bzip2"             -> BZIP2_CODEC_FACTORY
+        "xz"                -> XZ_CODEC_FACTORY
+        else                -> throw IllegalArgumentException("지원하지 않는 Avro 코덱입니다: $name")
     }

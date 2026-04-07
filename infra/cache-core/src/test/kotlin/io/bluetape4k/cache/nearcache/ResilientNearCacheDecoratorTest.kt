@@ -18,7 +18,7 @@ import java.time.Duration
  * MockK로 [NearCacheOperations]를 mock하여 retry 및 failure strategy를 검증합니다.
  */
 class ResilientNearCacheDecoratorTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val delegate = mockk<NearCacheOperations<String>>(relaxed = true)
 

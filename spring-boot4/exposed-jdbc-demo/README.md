@@ -6,7 +6,9 @@ Exposed DAO + Spring Data JDBC Repository + Spring MVC Integration Demo (Spring 
 
 ## Overview
 
-This module demonstrates the fundamental pattern of wrapping **Exposed DAO entities** in a Spring Data JDBC Repository and exposing them through a Spring MVC REST API. It provides the same functionality as the Spring Boot 3.x version, using the **Spring Boot 4 BOM**.
+This module demonstrates the fundamental pattern of wrapping **Exposed DAO entities
+** in a Spring Data JDBC Repository and exposing them through a Spring MVC REST API. It provides the same functionality as the Spring Boot 3.x version, using the
+**Spring Boot 4 BOM**.
 
 ## UML
 
@@ -152,14 +154,14 @@ interface ProductJdbcRepository: ExposedJdbcRepository<ProductEntity, Long> {
 
 ### Basic CRUD
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/products` | List all products |
-| GET | `/products/{id}` | Get a specific product |
-| POST | `/products` | Create a product |
-| PUT | `/products/{id}` | Update a product |
-| DELETE | `/products/{id}` | Delete a product |
-| GET | `/products/search` | Search by name (query param `name`) |
+| Method | Path               | Description                         |
+|--------|--------------------|-------------------------------------|
+| GET    | `/products`        | List all products                   |
+| GET    | `/products/{id}`   | Get a specific product              |
+| POST   | `/products`        | Create a product                    |
+| PUT    | `/products/{id}`   | Update a product                    |
+| DELETE | `/products/{id}`   | Delete a product                    |
+| GET    | `/products/search` | Search by name (query param `name`) |
 
 ### Request/Response Examples
 
@@ -170,6 +172,7 @@ curl http://localhost:8080/products
 ```
 
 Response:
+
 ```json
 [
   {
@@ -200,6 +203,7 @@ curl -X POST http://localhost:8080/products \
 ```
 
 Response (201 Created):
+
 ```json
 {
   "id": 3,
@@ -393,9 +397,11 @@ Spring Boot 4 provides the following versions by default:
 
 ## Important Notes
 
-1. **Exposed DAO entities must not escape transaction boundaries**: Convert to DTOs within the transaction to avoid proxy initialization errors during HTTP response serialization.
+1. **Exposed DAO entities must not escape transaction boundaries
+   **: Convert to DTOs within the transaction to avoid proxy initialization errors during HTTP response serialization.
 
-2. **Spring Data JDBC Repository extension**: Adding methods to interfaces extending `ExposedJdbcRepository` automatically generates PartTree queries.
+2. **Spring Data JDBC Repository extension**: Adding methods to interfaces extending
+   `ExposedJdbcRepository` automatically generates PartTree queries.
 
 3. **Logging**: DEBUG logs for the `io.bluetape4k` and `org.jetbrains.exposed` packages are enabled by default.
 

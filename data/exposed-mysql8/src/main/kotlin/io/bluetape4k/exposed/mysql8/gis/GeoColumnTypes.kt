@@ -74,7 +74,7 @@ class GeometryColumnType<T: Geometry>(
         val geometry = when (value) {
             is ByteArray -> MySqlWkbUtils.parseMySqlInternalGeometry(value)
             is Geometry -> value
-            else -> error("지원하지 않는 타입: ${value::class.simpleName}")
+            else        -> error("지원하지 않는 타입: ${value::class.simpleName}")
         }
         // "GEOMETRY" 범용 컬럼은 타입 검증 건너뜀
         if (geometryType.uppercase() != "GEOMETRY") {

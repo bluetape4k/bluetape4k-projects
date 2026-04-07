@@ -20,13 +20,26 @@ open class Length(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val millimeters: Length = Length("mm", 0.001)
-        @JvmField val centimeters: Length = Length("cm", 0.01)
-        @JvmField val meters: Length = Length("m")
-        @JvmField val kilometers: Length = Length("km", 1_000.0)
-        @JvmField val inches: Length = Length("in", 0.0254)
-        @JvmField val feet: Length = Length("ft", 0.3048)
-        @JvmField val miles: Length = Length("mi", 1_609.344)
+        @JvmField
+        val millimeters: Length = Length("mm", 0.001)
+
+        @JvmField
+        val centimeters: Length = Length("cm", 0.01)
+
+        @JvmField
+        val meters: Length = Length("m")
+
+        @JvmField
+        val kilometers: Length = Length("km", 1_000.0)
+
+        @JvmField
+        val inches: Length = Length("in", 0.0254)
+
+        @JvmField
+        val feet: Length = Length("ft", 0.3048)
+
+        @JvmField
+        val miles: Length = Length("mi", 1_609.344)
     }
 }
 

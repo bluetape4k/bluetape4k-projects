@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
  * @param kclass 값의 타입 클래스
  * @return 해당 컬럼의 값 또는 `null`
  */
-fun <V : Any> GettableById.getValue(
+fun <V: Any> GettableById.getValue(
     id: CqlIdentifier,
     kclass: KClass<V>,
 ): V? = get(id, kclass.java)
@@ -51,7 +51,7 @@ fun <V : Any> GettableById.getValue(
  * @param id 컬럼 식별자
  * @return 해당 컬럼의 값 또는 `null`
  */
-inline fun <reified V : Any> GettableById.getValue(id: CqlIdentifier): V? = get(id, V::class.java)
+inline fun <reified V: Any> GettableById.getValue(id: CqlIdentifier): V? = get(id, V::class.java)
 
 /**
  * [CqlIdentifier]를 사용하여 [GettableById]에서 리스트 값을 가져옵니다.
@@ -65,7 +65,7 @@ inline fun <reified V : Any> GettableById.getValue(id: CqlIdentifier): V? = get(
  * @param id 컬럼 식별자
  * @return 해당 컬럼의 리스트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableById.getList(id: CqlIdentifier): MutableList<V>? = getList(id, V::class.java)
+inline fun <reified V: Any> GettableById.getList(id: CqlIdentifier): MutableList<V>? = getList(id, V::class.java)
 
 /**
  * [CqlIdentifier]를 사용하여 [GettableById]에서 세트 값을 가져옵니다.
@@ -79,7 +79,7 @@ inline fun <reified V : Any> GettableById.getList(id: CqlIdentifier): MutableLis
  * @param id 컬럼 식별자
  * @return 해당 컬럼의 세트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableById.getSet(id: CqlIdentifier): MutableSet<V>? = getSet(id, V::class.java)
+inline fun <reified V: Any> GettableById.getSet(id: CqlIdentifier): MutableSet<V>? = getSet(id, V::class.java)
 
 /**
  * [CqlIdentifier]를 사용하여 [GettableById]에서 맵 값을 가져옵니다.
@@ -126,7 +126,7 @@ fun GettableById.getObject(
  * @param kclass 값의 타입 클래스
  * @return 해당 인덱스의 값 또는 `null`
  */
-fun <V : Any> GettableByIndex.getValue(
+fun <V: Any> GettableByIndex.getValue(
     index: Int,
     kclass: KClass<V>,
 ): V? = get(index, kclass.java)
@@ -142,7 +142,7 @@ fun <V : Any> GettableByIndex.getValue(
  * @param index 컬럼 인덱스
  * @return 해당 인덱스의 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByIndex.getValue(index: Int): V? = get(index, V::class.java)
+inline fun <reified V: Any> GettableByIndex.getValue(index: Int): V? = get(index, V::class.java)
 
 /**
  * 인덱스를 사용하여 [GettableByIndex]에서 리스트 값을 가져옵니다.
@@ -155,7 +155,7 @@ inline fun <reified V : Any> GettableByIndex.getValue(index: Int): V? = get(inde
  * @param index 컬럼 인덱스
  * @return 해당 인덱스의 리스트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByIndex.getList(index: Int): MutableList<V>? = getList(index, V::class.java)
+inline fun <reified V: Any> GettableByIndex.getList(index: Int): MutableList<V>? = getList(index, V::class.java)
 
 /**
  * 인덱스를 사용하여 [GettableByIndex]에서 세트 값을 가져옵니다.
@@ -168,7 +168,7 @@ inline fun <reified V : Any> GettableByIndex.getList(index: Int): MutableList<V>
  * @param index 컬럼 인덱스
  * @return 해당 인덱스의 세트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByIndex.getSet(index: Int): MutableSet<V>? = getSet(index, V::class.java)
+inline fun <reified V: Any> GettableByIndex.getSet(index: Int): MutableSet<V>? = getSet(index, V::class.java)
 
 /**
  * 인덱스를 사용하여 [GettableByIndex]에서 맵 값을 가져옵니다.
@@ -200,30 +200,30 @@ fun GettableByIndex.getObject(
         return null
     }
     return when (requireType) {
-        String::class -> getString(index)
-        Boolean::class -> getBoolean(index)
-        Byte::class -> getByte(index)
-        Short::class -> getShort(index)
-        Int::class -> getInt(index)
-        Long::class -> getLong(index)
-        Float::class -> getFloat(index)
-        Double::class -> getDouble(index)
+        String::class     -> getString(index)
+        Boolean::class    -> getBoolean(index)
+        Byte::class       -> getByte(index)
+        Short::class      -> getShort(index)
+        Int::class        -> getInt(index)
+        Long::class       -> getLong(index)
+        Float::class      -> getFloat(index)
+        Double::class     -> getDouble(index)
         BigDecimal::class -> getBigDecimal(index)
         BigInteger::class -> getBigInteger(index)
-        LocalDate::class -> getLocalDate(index)
-        LocalTime::class -> getLocalTime(index)
-        Date::class -> Date.from(getInstant(index))
-        Timestamp::class -> Timestamp(getInstant(index)!!.toEpochMilli())
-        Instant::class -> getInstant(index)
+        LocalDate::class  -> getLocalDate(index)
+        LocalTime::class  -> getLocalTime(index)
+        Date::class       -> Date.from(getInstant(index))
+        Timestamp::class  -> Timestamp(getInstant(index)!!.toEpochMilli())
+        Instant::class    -> getInstant(index)
         ByteBuffer::class -> getByteBuffer(index)
-        ByteArray::class -> getByteBuffer(index)?.getBytes()
+        ByteArray::class  -> getByteBuffer(index)?.getBytes()
         InetAddress::class -> getInetAddress(index)
         CqlDuration::class -> getCqlDuration(index)
-        Token::class -> getToken(index)
+        Token::class      -> getToken(index)
         TupleValue::class -> getTupleValue(index)
-        UdtValue::class -> getUdtValue(index)
-        UUID::class -> getUuid(index)
-        else -> get(index, requireType.java)
+        UdtValue::class   -> getUdtValue(index)
+        UUID::class       -> getUuid(index)
+        else              -> get(index, requireType.java)
     }
 }
 
@@ -239,7 +239,7 @@ fun GettableByIndex.getObject(
  * @param kclass 값의 타입 클래스
  * @return 해당 컬럼의 값 또는 `null`
  */
-fun <V : Any> GettableByName.getValue(
+fun <V: Any> GettableByName.getValue(
     name: String,
     kclass: KClass<V>,
 ): V? = get(name, kclass.java)
@@ -255,7 +255,7 @@ fun <V : Any> GettableByName.getValue(
  * @param name 컬럼 이름
  * @return 해당 컬럼의 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByName.getValue(name: String): V? = get(name, V::class.java)
+inline fun <reified V: Any> GettableByName.getValue(name: String): V? = get(name, V::class.java)
 
 /**
  * 컬럼 이름을 사용하여 [GettableByName]에서 리스트 값을 가져옵니다.
@@ -268,7 +268,7 @@ inline fun <reified V : Any> GettableByName.getValue(name: String): V? = get(nam
  * @param name 컬럼 이름
  * @return 해당 컬럼의 리스트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByName.getList(name: String): MutableList<V>? = getList(name, V::class.java)
+inline fun <reified V: Any> GettableByName.getList(name: String): MutableList<V>? = getList(name, V::class.java)
 
 /**
  * 컬럼 이름을 사용하여 [GettableByName]에서 세트 값을 가져옵니다.
@@ -281,7 +281,7 @@ inline fun <reified V : Any> GettableByName.getList(name: String): MutableList<V
  * @param name 컬럼 이름
  * @return 해당 컬럼의 세트 값 또는 `null`
  */
-inline fun <reified V : Any> GettableByName.getSet(name: String): MutableSet<V>? = getSet(name, V::class.java)
+inline fun <reified V: Any> GettableByName.getSet(name: String): MutableSet<V>? = getSet(name, V::class.java)
 
 /**
  * 컬럼 이름을 사용하여 [GettableByName]에서 맵 값을 가져옵니다.

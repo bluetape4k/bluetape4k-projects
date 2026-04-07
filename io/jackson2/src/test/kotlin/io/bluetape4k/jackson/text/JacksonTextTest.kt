@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test
 /**
  * [JacksonText] object의 모든 포맷(CSV/Props/TOML/YAML) singleton 및 왕복(serde) 테스트.
  */
-class JacksonTextTest : AbstractJacksonTextTest() {
-    companion object : KLogging()
+class JacksonTextTest: AbstractJacksonTextTest() {
+    companion object: KLogging()
 
     // ── Singleton 동일성 ──────────────────────────────────────────────────────
 

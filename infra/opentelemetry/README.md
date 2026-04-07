@@ -432,11 +432,11 @@ class MyServiceTest {
 
 ### Recommended Setup by Environment
 
-| Environment    | Agent | Exporter               | Verification Level                  |
-|----------------|-------|------------------------|-------------------------------------|
-| Production/Integration | ON  | GlobalOpenTelemetry | Verify trace linkage              |
-| Unit tests     | OFF   | InMemorySpanExporter   | Detailed checks (parentSpanId, etc.)|
-| Integration tests | ON | Logging/OTLP           | Verify trace creation               |
+| Environment            | Agent | Exporter             | Verification Level                   |
+|------------------------|-------|----------------------|--------------------------------------|
+| Production/Integration | ON    | GlobalOpenTelemetry  | Verify trace linkage                 |
+| Unit tests             | OFF   | InMemorySpanExporter | Detailed checks (parentSpanId, etc.) |
+| Integration tests      | ON    | Logging/OTLP         | Verify trace creation                |
 
 ## OpenTelemetry Java Agent
 

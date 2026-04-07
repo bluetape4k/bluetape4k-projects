@@ -524,7 +524,8 @@ page.contents        // ["a", "b", "c"]
 
 #### Permutation (지연 평가 순열)
 
-함수형 지연 평가 시퀀스입니다. 무한 시퀀스를 메모리 효율적으로 처리하며, `map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`, `sorted` 등 풍부한 연산자를 제공합니다. Thread-safe (`Cons`의 tail 평가에 `ReentrantLock` + DCL 패턴 적용).
+함수형 지연 평가 시퀀스입니다. 무한 시퀀스를 메모리 효율적으로 처리하며, `map`, `filter`, `flatMap`, `take`, `drop`, `zip`, `scan`, `distinct`,
+`sorted` 등 풍부한 연산자를 제공합니다. Thread-safe (`Cons`의 tail 평가에 `ReentrantLock` + DCL 패턴 적용).
 
 ```kotlin
 import io.bluetape4k.collections.permutations.*
@@ -973,12 +974,13 @@ XXHasher.hash("test") == XXHasher.hash("test")  // true
 
 > 기준일: 2026-04-04
 
-| 상태 | 파일 수 |
-|------|---------|
+| 상태    | 파일 수            |
+|-------|-----------------|
 | 예제 있음 | 119 / 157 (76%) |
-| 예제 없음 | 38 |
+| 예제 없음 | 38              |
 
-**파일럿 적용 완료 (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`, `Wildcard`, `Range` — 총 7개 파일, 56개 `kotlin` 코드 블록 추가.
+**파일럿 적용 완료 (2026-04-04)**: `RingBuffer`, `BoundedStack`, `StringEncoder`, `PaginatedList`, `KotlinDelegates`,
+`Wildcard`, `Range` — 총 7개 파일, 56개 `kotlin` 코드 블록 추가.
 
 ### KDoc 예제 작성 가이드라인
 

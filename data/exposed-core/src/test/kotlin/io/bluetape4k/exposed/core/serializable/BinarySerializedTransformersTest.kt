@@ -11,7 +11,7 @@ class BinarySerializedTransformersTest {
     private data class SamplePayload(
         val name: String,
         val age: Int,
-    ) : Serializable
+    ): Serializable
 
     // --- BinarySerializedBinaryTransformer ---
 
@@ -146,7 +146,7 @@ class BinarySerializedTransformersTest {
             val id: Long,
             val name: String,
             val scores: List<Int>,
-        ) : Serializable
+        ): Serializable
 
         val source = ComplexPayload(id = 1L, name = "복잡한 객체", scores = listOf(10, 20, 30))
         val transformer = BinarySerializedBinaryTransformer<ComplexPayload>(BinarySerializers.LZ4Fory)
@@ -163,7 +163,7 @@ class BinarySerializedTransformersTest {
             val id: Long,
             val name: String,
             val scores: List<Int>,
-        ) : Serializable
+        ): Serializable
 
         val source = ComplexPayload(id = 2L, name = "blob 복잡한 객체", scores = listOf(1, 2, 3))
         val transformer = BinarySerializedBlobTransformer<ComplexPayload>(BinarySerializers.LZ4Fory)

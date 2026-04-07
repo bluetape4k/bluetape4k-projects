@@ -15,7 +15,7 @@ import java.nio.CharBuffer
 /**
  * [ByteBufUtilSupport]의 기능을 검증하는 테스트 클래스입니다.
  */
-class ByteBufUtilSupportTest : AbstractNettyTest() {
+class ByteBufUtilSupportTest: AbstractNettyTest() {
     @Test
     fun `hexDump은 ByteBuf를 16진수 문자열로 변환한다`() {
         val bytes = byteArrayOf(0x01, 0x02, 0x03, 0x04)
@@ -134,7 +134,7 @@ class ByteBufUtilSupportTest : AbstractNettyTest() {
     @Test
     fun `Int swap은 바이트 순서를 뒤집는다`() {
         val value = 0x01020304
-        value.swap() shouldBeEqualTo 0x04030201.toInt()
+        value.swap() shouldBeEqualTo 0x04030201
     }
 
     @Test

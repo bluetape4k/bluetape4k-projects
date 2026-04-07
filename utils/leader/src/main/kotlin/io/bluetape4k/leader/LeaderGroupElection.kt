@@ -25,7 +25,7 @@ package io.bluetape4k.leader
  * println(election.state("batch-job"))  // LeaderGroupState(activeCount=2, ...)
  * ```
  */
-interface LeaderGroupElection : AsyncLeaderGroupElection {
+interface LeaderGroupElection: AsyncLeaderGroupElection {
 
     /**
      * 슬롯을 획득하여 리더로 선출되면 [action]을 실행합니다.

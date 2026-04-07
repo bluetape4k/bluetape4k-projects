@@ -19,7 +19,7 @@ import kotlin.concurrent.withLock
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> Cache<T, R>.memoizer(evaluator: (T) -> R): JCacheMemoizer<T, R> = JCacheMemoizer(this, evaluator)
+fun <T: Any, R: Any> Cache<T, R>.memoizer(evaluator: (T) -> R): JCacheMemoizer<T, R> = JCacheMemoizer(this, evaluator)
 
 /**
  * 함수를 JCache 기반 [JCacheMemoizer]로 감쌉니다.
@@ -33,7 +33,7 @@ fun <T : Any, R : Any> Cache<T, R>.memoizer(evaluator: (T) -> R): JCacheMemoizer
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: javax.cache.Cache<T, R>): JCacheMemoizer<T, R> =
+fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: javax.cache.Cache<T, R>): JCacheMemoizer<T, R> =
     JCacheMemoizer(cache, this)
 
 /**
@@ -48,11 +48,11 @@ fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: javax.cache.Cache<T, R>): 
  * // result == 5
  * ```
  */
-class JCacheMemoizer<in T : Any, out R : Any>(
+class JCacheMemoizer<in T: Any, out R: Any>(
     private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: (T) -> R,
-) : Memoizer<T, R> {
-    companion object : KLogging()
+): Memoizer<T, R> {
+    companion object: KLogging()
 
     private val lock = ReentrantLock()
 

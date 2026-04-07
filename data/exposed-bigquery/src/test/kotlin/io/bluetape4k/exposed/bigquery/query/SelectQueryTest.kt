@@ -26,9 +26,9 @@ import java.time.Instant
  * H2(PostgreSQL 모드)로 SQL을 생성한 뒤 REST API로 에뮬레이터에 전달합니다.
  * 결과는 [io.bluetape4k.exposed.bigquery.BigQueryResultRow]로 반환되며 Column 참조로 타입 안전하게 접근합니다.
  */
-class SelectQueryTest : AbstractBigQueryTest() {
+class SelectQueryTest: AbstractBigQueryTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun insertFixtures() {
         val fixtures = listOf(

@@ -11,7 +11,7 @@ class AsyncIteratorSupportTest {
 
     @Test
     fun `toList 는 AsyncIterator 의 모든 값을 순서대로 수집한다`() = runSuspendIO {
-        val iterator = object : AsyncIterator<Int> {
+        val iterator = object: AsyncIterator<Int> {
             private val values = listOf(1, 2, 3).iterator()
             private var nextValue: Int? = null
 

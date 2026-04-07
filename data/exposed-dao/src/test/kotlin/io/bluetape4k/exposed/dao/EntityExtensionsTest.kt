@@ -21,7 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.LocalDate
 
-class EntityExtensionsTest : AbstractExposedTest() {
+class EntityExtensionsTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAO 방식으로 Post 생성하기`(testDB: TestDB) {

@@ -18,7 +18,7 @@ package io.bluetape4k.states.api
  * @param S 상태 타입
  * @param E 이벤트 타입
  */
-interface StateMachine<S : Any, E : Any> : BaseStateMachine<S, E> {
+interface StateMachine<S: Any, E: Any>: BaseStateMachine<S, E> {
 
     /**
      * 주어진 이벤트로 상태 전이를 수행합니다.

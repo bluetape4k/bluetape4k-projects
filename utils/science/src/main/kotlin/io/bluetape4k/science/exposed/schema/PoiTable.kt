@@ -21,7 +21,7 @@ import io.bluetape4k.exposed.postgresql.postgis.geoPoint
  * }
  * ```
  */
-object PoiTable : AuditableLongIdTable("poi") {
+object PoiTable: AuditableLongIdTable("poi") {
 
     /** POI 이름 */
     val name = varchar("name", 255)

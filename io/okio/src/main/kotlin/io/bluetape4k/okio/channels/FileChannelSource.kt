@@ -44,8 +44,8 @@ fun FileChannel.asSource(timeout: Timeout = Timeout.NONE) = FileChannelSource(th
 class FileChannelSource(
     private val channel: FileChannel,
     private val timeout: Timeout = Timeout.NONE,
-) : Source {
-    companion object : KLogging()
+): Source {
+    companion object: KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 읽어오는 `read` 함수를 제공합니다.

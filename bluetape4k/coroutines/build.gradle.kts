@@ -18,7 +18,7 @@ dependencies {
     implementation(Libs.eclipse_collections)
     implementation(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
-    
+
     // Test Fixture
     compileOnly(Libs.kluent)
     compileOnly(Libs.kotlin_test_junit5)

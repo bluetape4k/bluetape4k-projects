@@ -4,12 +4,11 @@ import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.time.Duration.Companion.milliseconds
 
-class WorkAdapterTest : AbstractWorkflowTest() {
+class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `Work SAM 변환`() {

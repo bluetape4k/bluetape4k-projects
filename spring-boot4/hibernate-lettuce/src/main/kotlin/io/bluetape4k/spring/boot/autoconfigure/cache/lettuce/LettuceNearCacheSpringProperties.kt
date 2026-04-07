@@ -37,7 +37,7 @@ data class LettuceNearCacheSpringProperties(
 ) {
     /**
      * Caffeine L1 캐시의 최대 항목 수와 만료 정책이다.
-         *
+     *
      * `maxSize`는 항목 개수 기준이며, `expireAfterWrite`는 마지막 쓰기 이후 TTL이다.
      */
     data class LocalProperties(

@@ -43,8 +43,8 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
-) : MapLoaderAsync<ID, E> {
-    companion object : KLoggingChannel() {
+): MapLoaderAsync<ID, E> {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000 // 30 seconds
         private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L // 60 seconds
 
@@ -94,7 +94,7 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             }
         }
 
-        return object : AsyncIterator<ID> {
+        return object: AsyncIterator<ID> {
             private var pendingReceive: CompletableFuture<ChannelResult<ID>>? = null
 
             private fun ensurePending(): CompletableFuture<ChannelResult<ID>> =

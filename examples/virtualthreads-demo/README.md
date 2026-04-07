@@ -8,13 +8,13 @@ A collection of examples covering best practices and rules for using Java 21 Vir
 
 ### Virtual Thread Usage Rules
 
-| Example File                                           | Rule       | Description                                          |
-|--------------------------------------------------------|------------|------------------------------------------------------|
-| `Rule2RunBlockingSynchronousCode.kt`                   | **Rule 2** | Run blocking synchronous code asynchronously         |
-| `Rule3DoNotPooledVirtualThreads.kt`                    | **Rule 3** | Never pool Virtual Threads                           |
-| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`         | **Rule 4** | Use Semaphore instead of a fixed thread pool         |
-| `Rule5UseThreadLocalCarefully.kt`                      | **Rule 5** | Use ThreadLocal with caution                         |
-| `Rule6UseSynchronizedBlocksAndMethodsCarefully.kt`     | **Rule 6** | Use synchronized blocks and methods with caution     |
+| Example File                                       | Rule       | Description                                      |
+|----------------------------------------------------|------------|--------------------------------------------------|
+| `Rule2RunBlockingSynchronousCode.kt`               | **Rule 2** | Run blocking synchronous code asynchronously     |
+| `Rule3DoNotPooledVirtualThreads.kt`                | **Rule 3** | Never pool Virtual Threads                       |
+| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`     | **Rule 4** | Use Semaphore instead of a fixed thread pool     |
+| `Rule5UseThreadLocalCarefully.kt`                  | **Rule 5** | Use ThreadLocal with caution                     |
+| `Rule6UseSynchronizedBlocksAndMethodsCarefully.kt` | **Rule 6** | Use synchronized blocks and methods with caution |
 
 ## Key Learning Points
 

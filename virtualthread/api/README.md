@@ -6,7 +6,8 @@ An API module that abstracts virtual-thread features so they can be used indepen
 
 ## Overview
 
-Virtual Threads, officially introduced in Java 21, are much lighter-weight than traditional platform threads. This module automatically selects the JDK 21 or JDK 25 virtual-thread implementation at runtime through `ServiceLoader`.
+Virtual Threads, officially introduced in Java 21, are much lighter-weight than traditional platform threads. This module automatically selects the JDK 21 or JDK 25 virtual-thread implementation at runtime through
+`ServiceLoader`.
 
 ## Key Features
 
@@ -117,7 +118,8 @@ io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21StructuredTaskScopeProvider
 - JDK 21 implementation: `priority = 21`
 - Platform Thread fallback: `priority = Int.MIN_VALUE`
 
-At runtime, the implementation with the highest priority among those that return `true` from `isSupported()` is selected.
+At runtime, the implementation with the highest priority among those that return `true` from
+`isSupported()` is selected.
 
 ## Dependency
 

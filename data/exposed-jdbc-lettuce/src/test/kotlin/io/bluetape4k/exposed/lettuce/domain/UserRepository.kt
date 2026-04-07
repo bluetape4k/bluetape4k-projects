@@ -20,7 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 class UserRepository(
     client: RedisClient,
     config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : AbstractJdbcLettuceRepository<Long, UserRecord>(client, config) {
+): AbstractJdbcLettuceRepository<Long, UserRecord>(client, config) {
     override val table: IdTable<Long> = UserTable
 
     override fun ResultRow.toEntity(): UserRecord =

@@ -8,9 +8,11 @@ A module that integrates JetBrains Exposed ORM with Trino JDBC. Built on Postgre
 
 `bluetape4k-exposed-trino` provides:
 
-- **TrinoDialect**: Extends `PostgreSQLDialect` for Exposed ORM compatibility with Trino (disables ALTER COLUMN TYPE / multiple generated keys)
+- **TrinoDialect**: Extends
+  `PostgreSQLDialect` for Exposed ORM compatibility with Trino (disables ALTER COLUMN TYPE / multiple generated keys)
 - **TrinoDialectMetadata**: Bypasses unsupported `getImportedKeys` (FK constraint caching no-op)
-- **TrinoConnectionWrapper**: Compatibility wrapper for Trino JDBC `prepareStatement` overloads; forces the underlying JDBC connection to `autoCommit=true`
+- **TrinoConnectionWrapper**: Compatibility wrapper for Trino JDBC
+  `prepareStatement` overloads; forces the underlying JDBC connection to `autoCommit=true`
 - **TrinoDatabase**: Connection factory based on JDBC URL or host/port/catalog/schema (`object`)
 - **suspendTransaction**: Wraps blocking JDBC calls in a suspend function using `Dispatchers.IO`
 - **queryFlow**: Materializes results inside a transaction and emits them as a `Flow<T>`
@@ -110,18 +112,21 @@ queryFlow(db) {
 
 ## ⚠️ Transaction Behavior Warning
 
-Trino does not support ACID transactions. While `transaction {}` blocks can be used, be sure to understand the behavioral differences in the table below.
+Trino does not support ACID transactions. While
+`transaction {}` blocks can be used, be sure to understand the behavioral differences in the table below.
 
-| Behavior | Trino | Standard RDBMS |
-|----------|-------|----------------|
-| Atomicity | ❌ Not guaranteed | ✅ Guaranteed |
-| Rollback | ❌ no-op | ✅ Works |
-| Nested transaction | ⚠️ Calls allowed, no atomicity | ✅ Supported |
-| Savepoint | ❌ Not supported | ✅ Supported |
-| Autocommit mode | Always ON (cannot be changed) | Can be toggled ON/OFF |
+| Behavior           | Trino                          | Standard RDBMS        |
+|--------------------|--------------------------------|-----------------------|
+| Atomicity          | ❌ Not guaranteed               | ✅ Guaranteed          |
+| Rollback           | ❌ no-op                        | ✅ Works               |
+| Nested transaction | ⚠️ Calls allowed, no atomicity | ✅ Supported           |
+| Savepoint          | ❌ Not supported                | ✅ Supported           |
+| Autocommit mode    | Always ON (cannot be changed)  | Can be toggled ON/OFF |
 
 **Practical impact**:
-- If a failure occurs mid-way through multiple DML operations in a `transaction {}` block, previously executed DML statements are **not rolled back**.
+
+- If a failure occurs mid-way through multiple DML operations in a
+  `transaction {}` block, previously executed DML statements are **not rolled back**.
 - Write blocks always carry the risk of partial writes.
 - Read-only queries (`SELECT`) are generally safe to use.
 
@@ -129,34 +134,34 @@ Trino does not support ACID transactions. While `transaction {}` blocks can be u
 
 ### General Trino Contract
 
-| Feature | Supported | Notes |
-|---------|-----------|-------|
-| SELECT / JOIN / Aggregation | ✅ | Standard SQL |
-| INSERT / UPDATE / DELETE | ⚠️ Connector-dependent | This module provides the Exposed DSL; actual support depends on the connector |
-| CREATE TABLE / DROP TABLE | ⚠️ Connector-dependent | Tests verified against the Memory connector |
-| DDL via SchemaUtils | ⚠️ Connector-dependent | Prefer `TrinoTable` |
-| Window functions (GROUPS mode) | ✅ | `supportsWindowFrameGroupsMode = true` |
-| Transaction atomicity | ❌ | Autocommit only |
-| Rollback | ❌ | no-op |
-| Savepoint | ❌ | Not supported |
-| ALTER COLUMN TYPE | ❌ | `supportsColumnTypeChange = false` |
-| Multiple generated keys | ❌ | `supportsMultipleGeneratedKeys = false` |
-| FK constraint metadata lookup | ❌ | `getImportedKeys` not supported → no-op |
+| Feature                        | Supported              | Notes                                                                         |
+|--------------------------------|------------------------|-------------------------------------------------------------------------------|
+| SELECT / JOIN / Aggregation    | ✅                      | Standard SQL                                                                  |
+| INSERT / UPDATE / DELETE       | ⚠️ Connector-dependent | This module provides the Exposed DSL; actual support depends on the connector |
+| CREATE TABLE / DROP TABLE      | ⚠️ Connector-dependent | Tests verified against the Memory connector                                   |
+| DDL via SchemaUtils            | ⚠️ Connector-dependent | Prefer `TrinoTable`                                                           |
+| Window functions (GROUPS mode) | ✅                      | `supportsWindowFrameGroupsMode = true`                                        |
+| Transaction atomicity          | ❌                      | Autocommit only                                                               |
+| Rollback                       | ❌                      | no-op                                                                         |
+| Savepoint                      | ❌                      | Not supported                                                                 |
+| ALTER COLUMN TYPE              | ❌                      | `supportsColumnTypeChange = false`                                            |
+| Multiple generated keys        | ❌                      | `supportsMultipleGeneratedKeys = false`                                       |
+| FK constraint metadata lookup  | ❌                      | `getImportedKeys` not supported → no-op                                       |
 
 ### Memory Connector Test Coverage (test environment only)
 
 Features verified in a Trino Memory connector environment via Testcontainers.
 
-| Feature | Verified | Notes |
-|---------|----------|-------|
-| CREATE/DROP TABLE | ✅ | Memory connector |
-| Single/batch INSERT | ✅ | |
-| SELECT / WHERE / ORDER BY | ✅ | |
-| COUNT / Aggregation functions | ✅ | |
-| suspendTransaction | ✅ | Dispatchers.IO |
-| queryFlow | ✅ | Materialized before emit |
-| TrinoConnectionWrapper compatibility | ✅ | prepareStatement overloads |
-| Automatic JDBC driver registration | ✅ | init{} block on TrinoDatabase access |
+| Feature                              | Verified | Notes                                |
+|--------------------------------------|----------|--------------------------------------|
+| CREATE/DROP TABLE                    | ✅        | Memory connector                     |
+| Single/batch INSERT                  | ✅        |                                      |
+| SELECT / WHERE / ORDER BY            | ✅        |                                      |
+| COUNT / Aggregation functions        | ✅        |                                      |
+| suspendTransaction                   | ✅        | Dispatchers.IO                       |
+| queryFlow                            | ✅        | Materialized before emit             |
+| TrinoConnectionWrapper compatibility | ✅        | prepareStatement overloads           |
+| Automatic JDBC driver registration   | ✅        | init{} block on TrinoDatabase access |
 
 ## Core API Diagram
 
@@ -202,15 +207,15 @@ classDiagram
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `TrinoDatabase.kt` | Connection factory (host/port/catalog or JDBC URL) |
-| `TrinoConnectionWrapper.kt` | Trino JDBC-compatible Connection wrapper (forces autocommit=true) |
-| `TrinoExtensions.kt` | `suspendTransaction` and `queryFlow` extension functions |
-| `TrinoTable.kt` | Strips unsupported DDL syntax (PRIMARY KEY, explicit NULL) for Trino |
-| `TrinoUnsupported.kt` | Marker annotation for Trino-unsupported features |
-| `dialect/TrinoDialect.kt` | Trino dialect extending PostgreSQLDialect |
-| `dialect/TrinoDialectMetadata.kt` | FK constraint caching no-op implementation |
+| File                              | Description                                                          |
+|-----------------------------------|----------------------------------------------------------------------|
+| `TrinoDatabase.kt`                | Connection factory (host/port/catalog or JDBC URL)                   |
+| `TrinoConnectionWrapper.kt`       | Trino JDBC-compatible Connection wrapper (forces autocommit=true)    |
+| `TrinoExtensions.kt`              | `suspendTransaction` and `queryFlow` extension functions             |
+| `TrinoTable.kt`                   | Strips unsupported DDL syntax (PRIMARY KEY, explicit NULL) for Trino |
+| `TrinoUnsupported.kt`             | Marker annotation for Trino-unsupported features                     |
+| `dialect/TrinoDialect.kt`         | Trino dialect extending PostgreSQLDialect                            |
+| `dialect/TrinoDialectMetadata.kt` | FK constraint caching no-op implementation                           |
 
 ## Testing
 
@@ -230,12 +235,12 @@ Core regression test examples:
 
 The following features are planned for future releases.
 
-| Feature | Description |
-|---------|-------------|
-| `connect(dataSource)` | `javax.sql.DataSource`-based connection factory (connection pool integration) |
-| `exposed-bigquery-trino` | Integrated pipeline module: BigQuery → Trino → Exposed |
-| Batch INSERT optimization | Support for Trino Bulk Insert connectors |
-| Result set streaming | True row-by-row cursor streaming (Trino Arrow Flight-based) |
+| Feature                   | Description                                                                   |
+|---------------------------|-------------------------------------------------------------------------------|
+| `connect(dataSource)`     | `javax.sql.DataSource`-based connection factory (connection pool integration) |
+| `exposed-bigquery-trino`  | Integrated pipeline module: BigQuery → Trino → Exposed                        |
+| Batch INSERT optimization | Support for Trino Bulk Insert connectors                                      |
+| Result set streaming      | True row-by-row cursor streaming (Trino Arrow Flight-based)                   |
 
 ## References
 

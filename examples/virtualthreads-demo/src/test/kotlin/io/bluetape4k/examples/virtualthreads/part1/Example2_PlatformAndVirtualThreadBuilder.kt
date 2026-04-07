@@ -8,7 +8,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
-class Example2_PlatformAndVirtualThreadBuilder : AbstractVirtualThreadTest(){
+class Example2_PlatformAndVirtualThreadBuilder: AbstractVirtualThreadTest() {
 
     companion object: KLoggingChannel()
 

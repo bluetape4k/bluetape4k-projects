@@ -24,9 +24,9 @@ import java.util.*
  * [getRepository] 를 직접 오버라이드합니다.
  */
 @Suppress("UNCHECKED_CAST")
-class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
+class ExposedR2dbcRepositoryFactory: RepositoryFactorySupport() {
 
-    override fun <T : Any, ID : Any> getEntityInformation(domainClass: Class<T>): EntityInformation<T, ID> =
+    override fun <T: Any, ID: Any> getEntityInformation(domainClass: Class<T>): EntityInformation<T, ID> =
         @Suppress("UNCHECKED_CAST")
         StaticEntityInformation(domainClass, Any::class.java as Class<ID>) as EntityInformation<T, ID>
 
@@ -48,7 +48,10 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
      * Spring Data 의 프록시 인터셉터 체인(트랜잭션 래핑, 코루틴 변환 등)을 완전히 우회하여
      * [SimpleExposedR2dbcRepository] 에 직접 위임하는 JDK 프록시를 반환합니다.
      */
-    override fun <T : Any> getRepository(repositoryInterface: Class<T>, fragments: RepositoryComposition.RepositoryFragments): T {
+    override fun <T: Any> getRepository(
+        repositoryInterface: Class<T>,
+        fragments: RepositoryComposition.RepositoryFragments
+    ): T {
         val impl = createRepositoryImplementation(repositoryInterface)
         return createDirectProxy(repositoryInterface, impl) as T
     }
@@ -80,7 +83,7 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
                     "toString" -> "ExposedSuspendRepository(${repositoryInterface.simpleName})"
                     "hashCode" -> System.identityHashCode(proxy)
                     "equals" -> proxy === args?.firstOrNull()
-                    else -> null
+                    else     -> null
                 }
             }
 
@@ -109,8 +112,8 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
     private fun resolveMapper(repositoryInterface: Class<*>): RepositoryMapper {
         val toDomainMethod = repositoryInterface.methods.firstOrNull {
             it.name == "toDomain" &&
-                it.parameterCount == 1 &&
-                it.parameterTypes[0] == ResultRow::class.java
+                    it.parameterCount == 1 &&
+                    it.parameterTypes[0] == ResultRow::class.java
         } ?: error("${repositoryInterface.name} must override toDomain(ResultRow)")
 
         val toPersistValuesMethod = repositoryInterface.methods.firstOrNull {
@@ -127,7 +130,8 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
 
         val defaultMethodProxy = createDefaultMethodProxy(repositoryInterface)
         val toDomainHandle = bindDefaultMethodHandle(repositoryInterface, toDomainMethod, defaultMethodProxy)
-        val toPersistValuesHandle = bindDefaultMethodHandle(repositoryInterface, toPersistValuesMethod, defaultMethodProxy)
+        val toPersistValuesHandle =
+            bindDefaultMethodHandle(repositoryInterface, toPersistValuesMethod, defaultMethodProxy)
         val tableGetterHandle = bindDefaultMethodHandle(repositoryInterface, tableGetterMethod, defaultMethodProxy)
         val extractIdHandle = bindDefaultMethodHandle(repositoryInterface, extractIdMethod, defaultMethodProxy)
 
@@ -150,8 +154,8 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
         }.getOrElse { e ->
             throw IllegalStateException(
                 "Cannot bind default method '${method.name}' on ${repositoryInterface.name}. " +
-                    "Ensure the interface is accessible and the method has a default implementation. " +
-                    "If running on Java 9+, the module may need '--add-opens' flags.",
+                        "Ensure the interface is accessible and the method has a default implementation. " +
+                        "If running on Java 9+, the module may need '--add-opens' flags.",
                 e,
             )
         }
@@ -165,13 +169,13 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
                         "toString" -> "DefaultMethodProxy(${repositoryInterface.name})"
                         "hashCode" -> System.identityHashCode(proxy)
                         "equals" -> proxy === args?.firstOrNull()
-                        else -> null
+                        else     -> null
                     }
 
-                method.isDefault ->
+                method.isDefault                         ->
                     InvocationHandler.invokeDefault(proxy, method, *(args ?: emptyArray()))
 
-                else -> error("Method '${method.name}' must provide a default implementation in ${repositoryInterface.name}")
+                else                                     -> error("Method '${method.name}' must provide a default implementation in ${repositoryInterface.name}")
             }
         }
 
@@ -189,10 +193,10 @@ class ExposedR2dbcRepositoryFactory : RepositoryFactorySupport() {
         val extractId: (Any) -> Any?,
     )
 
-    private class StaticEntityInformation<T : Any, ID : Any>(
+    private class StaticEntityInformation<T: Any, ID: Any>(
         domainClass: Class<T>,
         private val idType: Class<ID>,
-    ) : AbstractEntityInformation<T, ID>(domainClass) {
+    ): AbstractEntityInformation<T, ID>(domainClass) {
 
         override fun getId(entity: T): ID? = null
 

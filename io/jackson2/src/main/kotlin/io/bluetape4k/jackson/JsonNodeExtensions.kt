@@ -28,7 +28,7 @@ fun JsonNode.createNode(fieldName: String?): JsonNode =
     when (this) {
         is ObjectNode -> putObject(fieldName)
         is ArrayNode -> addObject()
-        else -> nodeFactory.objectNode()
+        else         -> nodeFactory.objectNode()
     }
 
 /**
@@ -49,7 +49,7 @@ fun JsonNode.createArray(fieldName: String?): JsonNode =
     when (this) {
         is ObjectNode -> putArray(fieldName)
         is ArrayNode -> addArray()
-        else -> nodeFactory.arrayNode()
+        else         -> nodeFactory.arrayNode()
     }
 
 /**
@@ -79,25 +79,25 @@ fun <T> JsonNode.addValue(
     }
     val node =
         when (value) {
-            null -> nodeFactory.nullNode()
-            is Boolean -> nodeFactory.booleanNode(value)
-            is Char -> nodeFactory.textNode(value.toString())
-            is Byte -> nodeFactory.numberNode(value)
-            is Short -> nodeFactory.numberNode(value)
-            is Int -> nodeFactory.numberNode(value)
-            is Long -> nodeFactory.numberNode(value)
-            is Double -> nodeFactory.numberNode(value)
-            is Float -> nodeFactory.numberNode(value)
+            null         -> nodeFactory.nullNode()
+            is Boolean   -> nodeFactory.booleanNode(value)
+            is Char      -> nodeFactory.textNode(value.toString())
+            is Byte      -> nodeFactory.numberNode(value)
+            is Short     -> nodeFactory.numberNode(value)
+            is Int       -> nodeFactory.numberNode(value)
+            is Long      -> nodeFactory.numberNode(value)
+            is Double    -> nodeFactory.numberNode(value)
+            is Float     -> nodeFactory.numberNode(value)
             is BigDecimal -> nodeFactory.numberNode(value)
             is BigInteger -> nodeFactory.numberNode(value)
-            is String -> nodeFactory.textNode(value)
+            is String    -> nodeFactory.textNode(value)
             is ByteArray -> nodeFactory.binaryNode(value)
-            else -> throw IllegalArgumentException("Unsupported value type: ${value::class}")
+            else         -> throw IllegalArgumentException("Unsupported value type: ${value::class}")
         }
     when (this) {
         is ObjectNode -> replace(fieldName, node)
         is ArrayNode -> add(node)
-        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
+        else         -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -220,6 +220,6 @@ fun JsonNode.addNull(fieldName: String?) =
         when (this) {
             is ObjectNode -> putNull(fieldName)
             is ArrayNode -> addNull()
-            else -> throw JsonException("Unknown json node type. ${this.nodeType}")
+            else         -> throw JsonException("Unknown json node type. ${this.nodeType}")
         }
     }

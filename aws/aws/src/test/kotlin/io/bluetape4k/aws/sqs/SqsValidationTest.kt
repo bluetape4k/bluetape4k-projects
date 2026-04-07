@@ -41,7 +41,10 @@ class SqsValidationTest: AbstractSqsTest() {
             client.sendBatch(queueUrl, entries = emptyList<SendMessageBatchRequestEntry>())
         }
         assertThrows<IllegalArgumentException> {
-            client.changeMessageVisibilityBatch(queueUrl, entries = emptyList<ChangeMessageVisibilityBatchRequestEntry>())
+            client.changeMessageVisibilityBatch(
+                queueUrl,
+                entries = emptyList<ChangeMessageVisibilityBatchRequestEntry>()
+            )
         }
         assertThrows<IllegalArgumentException> {
             client.deleteMessageBatch(queueUrl, entries = emptyList<DeleteMessageBatchRequestEntry>())
@@ -51,7 +54,10 @@ class SqsValidationTest: AbstractSqsTest() {
             asyncClient.sendBatchAsync(queueUrl, entries = emptyList<SendMessageBatchRequestEntry>())
         }
         assertThrows<IllegalArgumentException> {
-            asyncClient.changeMessageVisibilityBatchAsync(queueUrl, entries = emptyList<ChangeMessageVisibilityBatchRequestEntry>())
+            asyncClient.changeMessageVisibilityBatchAsync(
+                queueUrl,
+                entries = emptyList<ChangeMessageVisibilityBatchRequestEntry>()
+            )
         }
         assertThrows<IllegalArgumentException> {
             asyncClient.deleteMessageBatchAsync(queueUrl, entries = emptyList<DeleteMessageBatchRequestEntry>())

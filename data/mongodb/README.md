@@ -4,7 +4,9 @@ English | [한국어](./README.ko.md)
 
 An extension library that makes the [MongoDB Kotlin Coroutine Driver](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/) more convenient to use.
 
-Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspend` functions and `Flow`, this module focuses exclusively on **genuinely missing convenience features** without adding unnecessary wrappers.
+Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspend` functions and
+`Flow`, this module focuses exclusively on **genuinely missing convenience features
+** without adding unnecessary wrappers.
 
 ## Features
 
@@ -56,7 +58,8 @@ val names: List<String> = database.listCollectionNamesList()
 
 ### 3. Collection Convenience Functions
 
-Since native operations like `insertOne()`, `updateOne()`, and `deleteOne()` are already `suspend` functions, this module only adds frequently-used composite patterns.
+Since native operations like `insertOne()`, `updateOne()`, and `deleteOne()` are already
+`suspend` functions, this module only adds frequently-used composite patterns.
 
 ```kotlin
 import io.bluetape4k.mongodb.*
@@ -107,7 +110,8 @@ val age: Int? = doc.getAs<Int>("age")
 
 ### 5. Aggregation Pipeline DSL
 
-Since the native `aggregate(pipeline)` function already returns `AggregateFlow<T>` (which implements `Flow<T>`), this module only provides a **stage composition DSL**.
+Since the native `aggregate(pipeline)` function already returns `AggregateFlow<T>` (which implements
+`Flow<T>`), this module only provides a **stage composition DSL**.
 
 ```kotlin
 import io.bluetape4k.mongodb.aggregation.*
@@ -161,16 +165,17 @@ class MyMongoTest : AbstractMongoTest() {
 }
 ```
 
-`AbstractMongoTest` automatically starts a [MongoDBServer](../testing/testcontainers) Testcontainer and provides a Kotlin Coroutine driver-based `MongoClient` and `MongoDatabase`.
+`AbstractMongoTest` automatically starts a [MongoDBServer](../testing/testcontainers) Testcontainer and provides a Kotlin Coroutine driver-based
+`MongoClient` and `MongoDatabase`.
 
 ## Intentionally Excluded (already provided by the native driver)
 
-| Excluded Item | Reason |
-|---|---|
-| `insertOne/Many/updateOne/deleteOne` wrappers | Native CRUD operations are already `suspend` |
-| Filter/Sort/Update/Projection string DSL | The KProperty-based DSL in `mongodb-driver-kotlin-extensions` is more type-safe |
-| `createIndex/dropIndex` wrappers | Already `suspend` |
-| `aggregateAsFlow()` | Native `aggregate()` already returns `AggregateFlow<T>` (= `Flow`) |
+| Excluded Item                                 | Reason                                                                          |
+|-----------------------------------------------|---------------------------------------------------------------------------------|
+| `insertOne/Many/updateOne/deleteOne` wrappers | Native CRUD operations are already `suspend`                                    |
+| Filter/Sort/Update/Projection string DSL      | The KProperty-based DSL in `mongodb-driver-kotlin-extensions` is more type-safe |
+| `createIndex/dropIndex` wrappers              | Already `suspend`                                                               |
+| `aggregateAsFlow()`                           | Native `aggregate()` already returns `AggregateFlow<T>` (= `Flow`)              |
 
 ## Architecture Diagrams
 

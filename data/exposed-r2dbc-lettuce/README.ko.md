@@ -14,8 +14,8 @@ Exposed R2DBC와 Lettuce Redis 캐시를 결합한 코루틴 네이티브 Read-t
 - **NearCache 지원**: Caffeine 로컬 캐시(front) + Redis(back) 2-tier 캐시 (옵션)
 - **코루틴 레포지토리**: `R2dbcLettuceRepository` / `AbstractR2dbcLettuceRepository`
 - **MapLoader / MapWriter**: Lettuce `LettuceSuspendedLoadedMap` 연동을 위한 R2DBC 기반 구현체
-  - `loadAllKeys()`는 PK 오름차순으로 안정적으로 순회
-  - writer의 `chunkSize`/loader의 `batchSize`는 0보다 커야 함
+    - `loadAllKeys()`는 PK 오름차순으로 안정적으로 순회
+    - writer의 `chunkSize`/loader의 `batchSize`는 0보다 커야 함
 
 ## 의존성 추가
 

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
  * [SchemaUtils]를 사용하여 Trino memory 커넥터에서 테이블 DDL(생성/삭제)이
  * 정상 동작하는지 검증하는 테스트.
  */
-class SchemaUtilsTest : AbstractTrinoTest() {
+class SchemaUtilsTest: AbstractTrinoTest() {
 
     @Test
     fun `SchemaUtils create Events 테이블 생성 성공`() {

@@ -49,7 +49,7 @@ open class JacksonColumnType<T: Any>(
         return when (value) {
             is String -> deserialize(value)
             is ByteArray -> deserialize(value.toUtf8String())
-            else -> value as? T ?: error("Unexpected value $value of type ${value::class.qualifiedName}")
+            else      -> value as? T ?: error("Unexpected value $value of type ${value::class.qualifiedName}")
         }
     }
 
@@ -59,7 +59,7 @@ open class JacksonColumnType<T: Any>(
             val castType = if (usesBinaryFormat) "jsonb" else "json"
             "?::$castType"
         }
-        else -> super.parameterMarker(value)
+        else                          -> super.parameterMarker(value)
     }
 
     override fun notNullValueToDB(value: T): Any = serilaize(value)

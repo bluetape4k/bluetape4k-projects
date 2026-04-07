@@ -8,7 +8,7 @@ import org.testcontainers.containers.ContainerState
 /**
  * Testcontainers를 사용하는 Server의 기본 정보를 제공합니다.
  */
-interface GenericServer : ContainerState {
+interface GenericServer: ContainerState {
     /**
      * Server의 기본 포트를 제공합니다.
      */
@@ -45,7 +45,7 @@ internal const val SERVER_PREFIX = "testcontainers"
  * // testcontainers.redis.host/port/url/ssl 속성이 등록됨
  * ```
  */
-fun <T : GenericServer> T.writeToSystemProperties(
+fun <T: GenericServer> T.writeToSystemProperties(
     name: String,
     extraProps: Map<String, Any?> = emptyMap(),
 ) {

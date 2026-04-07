@@ -34,9 +34,9 @@ class ConditionalWorkFlow(
     private val thenWork: Work,
     private val otherwiseWork: Work? = null,
     private val flowName: String = "conditional-flow",
-) : WorkFlow {
+): WorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun execute(context: WorkContext): WorkReport {
         log.debug { "$flowName 시작" }

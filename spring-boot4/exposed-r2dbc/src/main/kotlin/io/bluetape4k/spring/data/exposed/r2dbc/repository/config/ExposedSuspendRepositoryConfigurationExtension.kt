@@ -15,7 +15,7 @@ import org.springframework.data.repository.core.RepositoryMetadata
  * // 모듈 이름: "SUSPEND_EXPOSED", Factory Bean: ExposedR2dbcRepositoryFactoryBean
  * ```
  */
-class ExposedSuspendRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
+class ExposedSuspendRepositoryConfigurationExtension: RepositoryConfigurationExtensionSupport() {
 
     override fun getModuleName(): String = "SUSPEND_EXPOSED"
 

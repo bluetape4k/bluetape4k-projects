@@ -25,12 +25,12 @@ import org.redisson.client.codec.Codec
  * @param config Near Cache 설정
  * @param codec Redisson 직렬화 Codec
  */
-class RedissonSuspendNearCache<V : Any>(
+class RedissonSuspendNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
     private val codec: Codec = RedissonCodecs.LZ4Fory,
-) : SuspendNearCacheOperations<V> {
-    companion object : KLogging()
+): SuspendNearCacheOperations<V> {
+    companion object: KLogging()
 
     override val cacheName: String get() = config.cacheName
 
@@ -221,7 +221,7 @@ class RedissonSuspendNearCache<V : Any>(
  * @param codec Redisson 직렬화 Codec
  * @return [SuspendNearCacheOperations] 인스턴스
  */
-fun <V : Any> redissonSuspendNearCacheOf(
+fun <V: Any> redissonSuspendNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
     codec: Codec = RedissonCodecs.LZ4Fory,

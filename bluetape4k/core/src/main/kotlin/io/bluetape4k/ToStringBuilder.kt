@@ -18,7 +18,7 @@ import java.io.Serializable
  */
 class ToStringBuilder private constructor(
     private val className: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
 

@@ -17,7 +17,7 @@ import io.bluetape4k.redis.lettuce.map.WriteMode
  */
 @Suppress("DEPRECATION")
 interface SuspendedCacheTestScenario<ID: Any, E: java.io.Serializable>: SuspendedJdbcCacheTestScenario<ID, E> {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /** 테스트 대상 suspend 레포지토리 (SuspendedJdbcLettuceRepository는 SuspendedJdbcCacheRepository를 구현하므로 공변 오버라이드) */
     override val repository: SuspendedJdbcLettuceRepository<ID, E>
@@ -28,7 +28,7 @@ interface SuspendedCacheTestScenario<ID: Any, E: java.io.Serializable>: Suspende
     /** 캐시 쓰기 전략 — config.writeMode에서 파생 */
     override val cacheWriteMode: CacheWriteMode
         get() = when (config.writeMode) {
-            WriteMode.NONE -> CacheWriteMode.READ_ONLY
+            WriteMode.NONE         -> CacheWriteMode.READ_ONLY
             WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
             WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
         }

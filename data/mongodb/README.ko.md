@@ -4,8 +4,7 @@
 
 [MongoDB Kotlin Coroutine Driver](https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/)를 더욱 편리하게 사용할 수 있도록 하는 확장 라이브러리입니다.
 
-MongoDB Kotlin Coroutine Driver(v5.x)는 이미 네이티브 `suspend` 함수와 `Flow`를 제공하므로,
-이 모듈은 **불필요한 래핑 없이** 진짜 부족한 편의 기능에만 집중합니다.
+MongoDB Kotlin Coroutine Driver(v5.x)는 이미 네이티브 `suspend` 함수와 `Flow`를 제공하므로, 이 모듈은 **불필요한 래핑 없이** 진짜 부족한 편의 기능에만 집중합니다.
 
 ## 특징
 
@@ -57,8 +56,7 @@ val names: List<String> = database.listCollectionNamesList()
 
 ### 3. Collection 편의 함수
 
-네이티브 `insertOne()`, `updateOne()`, `deleteOne()` 등은 이미 `suspend` 함수이므로
-이 모듈은 자주 쓰이는 복합 패턴만 추가합니다.
+네이티브 `insertOne()`, `updateOne()`, `deleteOne()` 등은 이미 `suspend` 함수이므로 이 모듈은 자주 쓰이는 복합 패턴만 추가합니다.
 
 ```kotlin
 import io.bluetape4k.mongodb.*
@@ -109,8 +107,7 @@ val age: Int? = doc.getAs<Int>("age")
 
 ### 5. Aggregation Pipeline DSL
 
-네이티브 `aggregate(pipeline)` 함수가 이미 `AggregateFlow<T>`(`Flow<T>` 구현체)를 반환하므로,
-이 모듈은 파이프라인 스테이지 **구성 DSL**만 제공합니다.
+네이티브 `aggregate(pipeline)` 함수가 이미 `AggregateFlow<T>`(`Flow<T>` 구현체)를 반환하므로, 이 모듈은 파이프라인 스테이지 **구성 DSL**만 제공합니다.
 
 ```kotlin
 import io.bluetape4k.mongodb.aggregation.*
@@ -164,17 +161,17 @@ class MyMongoTest : AbstractMongoTest() {
 }
 ```
 
-`AbstractMongoTest`는 [MongoDBServer](../testing/testcontainers) Testcontainer를 자동으로
-시작하고, Kotlin Coroutine 드라이버 기반의 `MongoClient`와 `MongoDatabase`를 제공합니다.
+`AbstractMongoTest`는 [MongoDBServer](../testing/testcontainers) Testcontainer를 자동으로 시작하고, Kotlin Coroutine 드라이버 기반의
+`MongoClient`와 `MongoDatabase`를 제공합니다.
 
 ## 제외한 항목 (네이티브 드라이버가 이미 제공)
 
-| 제외 항목 | 이유 |
-|---|---|
-| `insertOne/Many/updateOne/deleteOne` 래퍼 | 네이티브 CRUD가 이미 `suspend` |
-| Filter/Sort/Update/Projection 문자열 DSL | `mongodb-driver-kotlin-extensions`의 KProperty 기반 DSL이 더 타입 안전 |
-| `createIndex/dropIndex` 래퍼 | 이미 `suspend` |
-| `aggregateAsFlow()` | 네이티브 `aggregate()`가 이미 `AggregateFlow<T>` (= `Flow`) 반환 |
+| 제외 항목                                   | 이유                                                            |
+|-----------------------------------------|---------------------------------------------------------------|
+| `insertOne/Many/updateOne/deleteOne` 래퍼 | 네이티브 CRUD가 이미 `suspend`                                       |
+| Filter/Sort/Update/Projection 문자열 DSL   | `mongodb-driver-kotlin-extensions`의 KProperty 기반 DSL이 더 타입 안전 |
+| `createIndex/dropIndex` 래퍼              | 이미 `suspend`                                                  |
+| `aggregateAsFlow()`                     | 네이티브 `aggregate()`가 이미 `AggregateFlow<T>` (= `Flow`) 반환       |
 
 ## 아키텍처 다이어그램
 

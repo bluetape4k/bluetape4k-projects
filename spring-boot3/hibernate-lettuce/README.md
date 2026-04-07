@@ -4,7 +4,9 @@ English | [한국어](./README.ko.md)
 
 **Spring Boot 3 Auto-Configuration** for Hibernate 7 **2nd Level Cache** (Lettuce Near Cache).
 
-Simply add `bluetape4k.cache.lettuce-near.*` settings to `application.yml` and Hibernate Second Level Cache is activated automatically — no extra code required. Millisecond-precision durations (e.g. `500ms`) are passed through to Hibernate configuration as-is.
+Simply add `bluetape4k.cache.lettuce-near.*` settings to
+`application.yml` and Hibernate Second Level Cache is activated automatically — no extra code required. Millisecond-precision durations (e.g.
+`500ms`) are passed through to Hibernate configuration as-is.
 
 ## UML
 
@@ -185,25 +187,25 @@ bluetape4k:
 
 ### Configuration to Hibernate Property Mapping
 
-| Spring Setting                         | Hibernate Property                                 |
-|----------------------------------------|----------------------------------------------------|
-| `redis-uri`                            | `hibernate.cache.lettuce.redis_uri`                |
-| `codec`                                | `hibernate.cache.lettuce.codec`                    |
-| `use-resp3`                            | `hibernate.cache.lettuce.use_resp3`                |
-| `local.max-size`                       | `hibernate.cache.lettuce.local.max_size`           |
-| `local.expire-after-write`             | `hibernate.cache.lettuce.local.expire_after_write` |
-| `redis-ttl.default`                    | `hibernate.cache.lettuce.redis_ttl.default`        |
-| `redis-ttl.regions[name]`              | `hibernate.cache.lettuce.redis_ttl.{name}`         |
-| `metrics.enabled=true`                 | `hibernate.generate_statistics=true`               |
-| `metrics.enable-caffeine-stats=true`   | `hibernate.cache.lettuce.local.record_stats=true`  |
+| Spring Setting                       | Hibernate Property                                 |
+|--------------------------------------|----------------------------------------------------|
+| `redis-uri`                          | `hibernate.cache.lettuce.redis_uri`                |
+| `codec`                              | `hibernate.cache.lettuce.codec`                    |
+| `use-resp3`                          | `hibernate.cache.lettuce.use_resp3`                |
+| `local.max-size`                     | `hibernate.cache.lettuce.local.max_size`           |
+| `local.expire-after-write`           | `hibernate.cache.lettuce.local.expire_after_write` |
+| `redis-ttl.default`                  | `hibernate.cache.lettuce.redis_ttl.default`        |
+| `redis-ttl.regions[name]`            | `hibernate.cache.lettuce.redis_ttl.{name}`         |
+| `metrics.enabled=true`               | `hibernate.generate_statistics=true`               |
+| `metrics.enable-caffeine-stats=true` | `hibernate.cache.lettuce.local.record_stats=true`  |
 
 ## Auto-Configuration Classes
 
-| Class                                          | Condition                                                            | Role                                      |
-|------------------------------------------------|----------------------------------------------------------------------|-------------------------------------------|
-| `LettuceNearCacheHibernateAutoConfiguration`   | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | Registers `HibernatePropertiesCustomizer` |
-| `LettuceNearCacheMetricsAutoConfiguration`     | `MeterRegistry` on classpath + Bean present                          | Registers `LettuceNearCacheMetricsBinder` |
-| `LettuceNearCacheActuatorAutoConfiguration`    | `Endpoint` (actuator) on classpath + `EntityManagerFactory` Bean     | Registers `/actuator/nearcache` endpoint  |
+| Class                                        | Condition                                                            | Role                                      |
+|----------------------------------------------|----------------------------------------------------------------------|-------------------------------------------|
+| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | Registers `HibernatePropertiesCustomizer` |
+| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean present                          | Registers `LettuceNearCacheMetricsBinder` |
+| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuator) on classpath + `EntityManagerFactory` Bean     | Registers `/actuator/nearcache` endpoint  |
 
 ## Actuator Endpoint
 
@@ -263,10 +265,10 @@ Response:
 
 When `metrics.enabled=true`, the following gauges are registered:
 
-| Metric                              | Description                             |
-|-------------------------------------|-----------------------------------------|
-| `lettuce.nearcache.region.count`    | Number of active regions                |
-| `lettuce.nearcache.local.size`      | Estimated total L1 cache entry count    |
+| Metric                           | Description                          |
+|----------------------------------|--------------------------------------|
+| `lettuce.nearcache.region.count` | Number of active regions             |
+| `lettuce.nearcache.local.size`   | Estimated total L1 cache entry count |
 
 ```bash
 # Query Micrometer metrics (JSON)

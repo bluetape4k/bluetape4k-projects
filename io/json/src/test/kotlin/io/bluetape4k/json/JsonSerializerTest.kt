@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
  * 이 테스트에서는 인터페이스가 제공하는 기본 메서드의 null/빈값 처리 계약을 검증합니다.
  */
 class JsonSerializerTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 테스트용 최소 구현체.
@@ -23,14 +23,14 @@ class JsonSerializerTest {
      * - [deserialize]: null/빈배열 → null, 그 외 → 바이트를 String으로 복원
      */
     private val serializer: JsonSerializer =
-        object : JsonSerializer {
+        object: JsonSerializer {
             override fun serialize(graph: Any?): ByteArray {
                 if (graph == null) return ByteArray(0)
                 return "\"$graph\"".toByteArray(Charsets.UTF_8)
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun <T : Any> deserialize(
+            override fun <T: Any> deserialize(
                 bytes: ByteArray?,
                 clazz: Class<T>,
             ): T? {

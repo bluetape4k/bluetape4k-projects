@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class LoggingInterceptorTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private lateinit var client: OkHttpClient

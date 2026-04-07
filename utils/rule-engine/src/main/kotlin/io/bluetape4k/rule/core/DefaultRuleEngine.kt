@@ -27,7 +27,8 @@ open class DefaultRuleEngine(
     companion object: KLogging()
 
     private val _ruleListeners = CopyOnWriteArrayList<RuleListener>(listOf(DefaultRuleListener()))
-    private val _ruleEngineListeners = CopyOnWriteArrayList<RuleEngineListener>(listOf(DefaultRuleEngineListener(config)))
+    private val _ruleEngineListeners =
+        CopyOnWriteArrayList<RuleEngineListener>(listOf(DefaultRuleEngineListener(config)))
 
     override val ruleListeners: List<RuleListener>
         get() = _ruleListeners.toList()
@@ -135,7 +136,7 @@ open class DefaultRuleEngine(
             if (priority > config.priorityThreshold) {
                 log.info {
                     "Rule priority threshold[${config.priorityThreshold}] exceeded at rule '$name' " +
-                    "with priority=$priority, next rules will be skipped."
+                            "with priority=$priority, next rules will be skipped."
                 }
                 return
             }

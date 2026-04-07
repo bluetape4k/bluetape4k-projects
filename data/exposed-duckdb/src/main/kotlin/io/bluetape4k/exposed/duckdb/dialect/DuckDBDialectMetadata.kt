@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.vendors.PostgreSQLDialectMetadata
  * 기본 메타데이터 해석은 [PostgreSQLDialectMetadata]를 재사용하되,
  * DuckDB JDBC가 지원하지 않는 메타데이터 조회는 안전하게 우회합니다.
  */
-class DuckDBDialectMetadata : PostgreSQLDialectMetadata() {
+class DuckDBDialectMetadata: PostgreSQLDialectMetadata() {
 
     /**
      * DuckDB JDBC 1.1.3은 [java.sql.DatabaseMetaData.getImportedKeys]를 지원하지 않습니다.

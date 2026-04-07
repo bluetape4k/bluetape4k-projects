@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
  */
 class RegisterSystemPropertiesTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val NAMESPACE = "mock"
         private val FULL_PREFIX = "$SERVER_PREFIX.$NAMESPACE"
     }
@@ -26,7 +26,7 @@ class RegisterSystemPropertiesTest {
      */
     private inner class MockServer(
         override val propertyNamespace: String = NAMESPACE,
-    ) : PropertyExportingServer {
+    ): PropertyExportingServer {
         override fun propertyKeys() = setOf("host", "port", "url")
         override fun properties() = mapOf(
             "host" to "localhost",
@@ -143,7 +143,7 @@ class RegisterSystemPropertiesTest {
     @Test
     fun `네임스페이스가 다른 두 서버는 서로 간섭하지 않는다`() {
         val server1 = MockServer(propertyNamespace = "mock-1")
-        val server2 = object : PropertyExportingServer {
+        val server2 = object: PropertyExportingServer {
             override val propertyNamespace = "mock-2"
             override fun propertyKeys() = setOf("host")
             override fun properties() = mapOf("host" to "remote-host")

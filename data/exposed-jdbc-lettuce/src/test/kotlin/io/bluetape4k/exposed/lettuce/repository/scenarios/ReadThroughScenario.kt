@@ -19,11 +19,11 @@ import org.junit.jupiter.params.provider.MethodSource
  * - 캐시 미스 시 DB에서 로드 후 캐시에 적재
  * - 캐시 삭제(invalidate) 시 DB에는 영향 없음 (ReadOnly 모드)
  */
-interface ReadThroughScenario<ID : Any, E : java.io.Serializable> :
+interface ReadThroughScenario<ID: Any, E: java.io.Serializable>:
     JdbcReadThroughScenario<ID, E>,
     CacheTestScenario<ID, E> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

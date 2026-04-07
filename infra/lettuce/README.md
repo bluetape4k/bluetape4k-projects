@@ -2,46 +2,50 @@
 
 English | [한국어](./README.ko.md)
 
-A Kotlin extension module for the Lettuce Redis client, providing high-performance binary codecs and `RedisFuture` → Coroutines adapters.
+A Kotlin extension module for the Lettuce Redis client, providing high-performance binary codecs and
+`RedisFuture` → Coroutines adapters.
 
 ## Features
 
-| Feature                             | Description                                                                                        |
-|-------------------------------------|----------------------------------------------------------------------------------------------------|
-| `LettuceClients`                    | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`               |
-| `LettuceBinaryCodec<V>`             | High-performance generic value serialization codec based on `BinarySerializer`                     |
-| `LettuceBinaryCodecs`               | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)    |
-| `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`) |
-| `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)  |
-| `LettuceProtobufCodecs`             | Protobuf-based codec factory (requires `bluetape4k-protobuf`)                                      |
-| `RedisFuture` extensions            | `awaitSuspending()` — converts `RedisFuture` to a suspend function                                |
-| `LettuceMap<V>`                     | Generic distributed hash map (sync + async). Coroutine variant: `LettuceSuspendMap<V>`            |
-| `LettuceSuspendMap<V>`              | Generic distributed hash map (suspend-only). Supports `LettuceBinaryCodec<V>`                     |
-| `LettuceStringMap`                  | Distributed hash map for String values (sync + async)                                              |
-| `LettuceSuspendStringMap`           | Distributed hash map for String values (suspend-only)                                              |
-| `LettuceAtomicLong`                 | Distributed AtomicLong (sync + async). Coroutine variant: `LettuceSuspendAtomicLong`              |
-| `LettuceSuspendAtomicLong`          | Distributed AtomicLong (suspend-only)                                                              |
-| `LettuceSemaphore`                  | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                |
-| `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                               |
-| `LettuceLock`                       | Distributed mutex lock (sync + async). Coroutine variant: `LettuceSuspendLock`                    |
-| `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                              |
-| `LettuceLeaderElection`             | Distributed single-leader election (sync + async). Coroutine variant: `LettuceSuspendLeaderElection` |
-| `LettuceSuspendLeaderElection`      | Distributed single-leader election (suspend-only)                                                  |
+| Feature                             | Description                                                                                                                                  |
+|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `LettuceClients`                    | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`                                                         |
+| `LettuceBinaryCodec<V>`             | High-performance generic value serialization codec based on `BinarySerializer`                                                               |
+| `LettuceBinaryCodecs`               | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)                                                |
+| `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                                       |
+| `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                                         |
+| `LettuceProtobufCodecs`             | Protobuf-based codec factory (requires `bluetape4k-protobuf`)                                                                                |
+| `RedisFuture` extensions            | `awaitSuspending()` — converts `RedisFuture` to a suspend function                                                                           |
+| `LettuceMap<V>`                     | Generic distributed hash map (sync + async). Coroutine variant: `LettuceSuspendMap<V>`                                                       |
+| `LettuceSuspendMap<V>`              | Generic distributed hash map (suspend-only). Supports `LettuceBinaryCodec<V>`                                                                |
+| `LettuceStringMap`                  | Distributed hash map for String values (sync + async)                                                                                        |
+| `LettuceSuspendStringMap`           | Distributed hash map for String values (suspend-only)                                                                                        |
+| `LettuceAtomicLong`                 | Distributed AtomicLong (sync + async). Coroutine variant: `LettuceSuspendAtomicLong`                                                         |
+| `LettuceSuspendAtomicLong`          | Distributed AtomicLong (suspend-only)                                                                                                        |
+| `LettuceSemaphore`                  | Distributed semaphore (sync + async). Coroutine variant: `LettuceSuspendSemaphore`                                                           |
+| `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
+| `LettuceLock`                       | Distributed mutex lock (sync + async). Coroutine variant: `LettuceSuspendLock`                                                               |
+| `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                                                                        |
+| `LettuceLeaderElection`             | Distributed single-leader election (sync + async). Coroutine variant: `LettuceSuspendLeaderElection`                                         |
+| `LettuceSuspendLeaderElection`      | Distributed single-leader election (suspend-only)                                                                                            |
 | `LettuceLeaderGroupElection`        | Distributed group leader election — allows up to N concurrent leaders (sync + async). Coroutine variant: `LettuceSuspendLeaderGroupElection` |
-| `LettuceSuspendLeaderGroupElection` | Distributed group leader election (suspend-only)                                                   |
-| `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>` |
-| `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                |
-| `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`             |
-| `LettuceSuspendBloomFilter`         | Redis BitSet-based Bloom Filter (suspend-only)                                                     |
-| `LettuceCuckooFilter`               | Redis-based Cuckoo Filter with deletion support (sync). Coroutine variant: `LettuceSuspendCuckooFilter` |
-| `LettuceSuspendCuckooFilter`        | Redis-based Cuckoo Filter with deletion support (suspend-only)                                     |
+| `LettuceSuspendLeaderGroupElection` | Distributed group leader election (suspend-only)                                                                                             |
+| `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`                               |
+| `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                                          |
+| `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                                       |
+| `LettuceSuspendBloomFilter`         | Redis BitSet-based Bloom Filter (suspend-only)                                                                                               |
+| `LettuceCuckooFilter`               | Redis-based Cuckoo Filter with deletion support (sync). Coroutine variant: `LettuceSuspendCuckooFilter`                                      |
+| `LettuceSuspendCuckooFilter`        | Redis-based Cuckoo Filter with deletion support (suspend-only)                                                                               |
 
 `LettuceCacheConfig` constraints:
-- `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, and `nearCacheMaxSize` must be greater than 0.
+
+- `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, and
+  `nearCacheMaxSize` must be greater than 0.
 - `ttl` and `nearCacheTtl` must be greater than 0 when specified.
 - `keyPrefix` and `nearCacheName` must not be blank.
 
-> **Memoizer** has been moved to the `bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../cache-lettuce/README.md) for details.
+> **Memoizer** has been moved to the
+`bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../cache-lettuce/README.md) for details.
 
 ## Dependency
 
@@ -99,10 +103,10 @@ commands.set("user:1", User(1L, "Alice"))
 val user = commands.get("user:1") // User(id=1, name="Alice")
 ```
 
-
 ### Primitive Type Codecs (LettuceIntCodec / LettuceLongCodec)
 
-Use these for efficiently storing Int and Long primitive types in Redis. They are binary-compatible with Redisson's `IntegerCodec` / `LongCodec`.
+Use these for efficiently storing Int and Long primitive types in Redis. They are binary-compatible with Redisson's
+`IntegerCodec` / `LongCodec`.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
@@ -146,16 +150,16 @@ val results = listOf(
 
 ## Codec Combinations
 
-| Factory Method        | Serializer | Compression |
-|-----------------------|------------|-------------|
-| `jdk()`               | JDK        | None        |
-| `kryo()`              | Kryo       | None        |
-| `fory()`              | Fory       | None        |
-| `lz4Fory()` *(default)* | Fory     | LZ4         |
-| `lz4Kryo()`           | Kryo       | LZ4         |
-| `zstdFory()`          | Fory       | Zstd        |
-| `snappyFory()`        | Fory       | Snappy      |
-| `gzipFory()`          | Fory       | GZip        |
+| Factory Method          | Serializer | Compression |
+|-------------------------|------------|-------------|
+| `jdk()`                 | JDK        | None        |
+| `kryo()`                | Kryo       | None        |
+| `fory()`                | Fory       | None        |
+| `lz4Fory()` *(default)* | Fory       | LZ4         |
+| `lz4Kryo()`             | Kryo       | LZ4         |
+| `zstdFory()`            | Fory       | Zstd        |
+| `snappyFory()`          | Fory       | Snappy      |
+| `gzipFory()`            | Fory       | GZip        |
 
 ### Primitive Codecs
 
@@ -194,7 +198,8 @@ suspendMap.put("p2", Product(2L, "Gadget"))
 
 > **Why String is the default**: Lettuce's default codec is `StringCodec.UTF8`.
 > While `LettuceMap<V>` supports binary codecs for simple HGET/HSET operations,
-> `LettuceAtomicLong` and `LettuceSemaphore` rely on Redis's `INCR`/`DECR` commands which require decimal string encoding,
+> `LettuceAtomicLong` and `LettuceSemaphore` rely on Redis's `INCR`/
+`DECR` commands which require decimal string encoding,
 > so they must use `StatefulRedisConnection<String, String>`.
 
 ### LettuceAtomicLong — Distributed AtomicLong
@@ -304,7 +309,8 @@ suspendElection.runIfLeader("my-group-lock") {
 
 ## Memoizer (Caching Function Results in Redis)
 
-> The Memoizer lives in the `bluetape4k-cache-lettuce` module. See [cache-lettuce README](../cache-lettuce/README.md#memoizer) for detailed usage.
+> The Memoizer lives in the
+`bluetape4k-cache-lettuce` module. See [cache-lettuce README](../cache-lettuce/README.md#memoizer) for detailed usage.
 
 ```kotlin
 // build.gradle.kts
@@ -526,8 +532,8 @@ Reinitializing a Bloom Filter or Cuckoo Filter under the same name with differen
 
 ## Build and Testing
 
-A Redis server (default: `localhost:6379`) is required to run tests.
-It is automatically provisioned via Docker through [Testcontainers](../testing/testcontainers).
+A Redis server (default:
+`localhost:6379`) is required to run tests. It is automatically provisioned via Docker through [Testcontainers](../testing/testcontainers).
 
 ```bash
 ./gradlew :bluetape4k-lettuce:test

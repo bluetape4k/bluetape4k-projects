@@ -30,12 +30,12 @@ fun Table.compressedBlob(
 /** `BLOB` + 압축 변환기를 결합한 컬럼 타입입니다. */
 class CompressedBlobColumnType(
     compressor: Compressor,
-) : ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
+): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
 
 /** `ByteArray` <-> `ExposedBlob` 압축/복원 변환기입니다. */
 class CompressedBlobTransformer(
     private val compressor: Compressor,
-) : ColumnTransformer<ExposedBlob, ByteArray> {
+): ColumnTransformer<ExposedBlob, ByteArray> {
     /** 엔티티 값을 압축 blob으로 변환합니다. */
     override fun unwrap(value: ByteArray): ExposedBlob =
         try {

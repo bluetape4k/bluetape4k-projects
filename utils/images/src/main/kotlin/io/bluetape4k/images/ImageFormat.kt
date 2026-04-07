@@ -18,7 +18,10 @@ import io.bluetape4k.images.ImageFormat.Companion.parse
  * ```
  */
 enum class ImageFormat {
-    GIF, JPG, PNG, WEBP;
+    GIF,
+    JPG,
+    PNG,
+    WEBP;
 
     companion object {
         /**

@@ -65,7 +65,7 @@ class RabbitMQServer private constructor(
         ): RabbitMQServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
-            
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return RabbitMQServer(imageName, useDefaultPort, reuse)
         }

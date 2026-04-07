@@ -6,7 +6,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class KotlinUuidSupportTest : AbstractULIDTest() {
+class KotlinUuidSupportTest: AbstractULIDTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `test ULID to UUID round-trip`() {
         val ulid = ULID.nextULID()

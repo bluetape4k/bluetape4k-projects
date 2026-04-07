@@ -108,7 +108,8 @@ classDiagram
     SuspendStateMachine ..> StateMachineException : throws
 ```
 
-> `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
+> `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
+`fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
 
 ### DSL 빌더 구조
 
@@ -342,6 +343,7 @@ sequenceDiagram
 기존 `AppointmentStateMachine` (Map 기반 직접 구현)을 `suspendStateMachine` DSL로 대체할 수 있습니다:
 
 **Before** (직접 구현):
+
 ```kotlin
 class AppointmentStateMachine {
     private val transitions: Map<Pair<State, Class<out Event>>, State> = buildMap { ... }
@@ -350,6 +352,7 @@ class AppointmentStateMachine {
 ```
 
 **After** (bluetape4k-states DSL):
+
 ```kotlin
 val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
     initialState = AppointmentState.PENDING
@@ -369,6 +372,7 @@ launch { fsm.stateFlow.collect { state -> updateUI(state) } }
 ```
 
 **개선점**:
+
 - 상태와 전이를 DSL로 선언적 정의
 - `StateFlow` 기반 상태 관찰 내장
 - Guard 조건 지원

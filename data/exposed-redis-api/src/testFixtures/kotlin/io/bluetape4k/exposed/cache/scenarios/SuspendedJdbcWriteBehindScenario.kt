@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.cache.scenarios
 
-import java.io.Serializable
-
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
@@ -14,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTrans
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 import java.time.Duration
 
 /**

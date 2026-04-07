@@ -57,7 +57,10 @@ fun ByteArray.digest(digester: Digester): ByteArray =
  */
 @Deprecated(
     message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
-    replaceWith = ReplaceWith("this.matchesTinkDigest(digest, digester)", "io.bluetape4k.tink.digest.matchesTinkDigest"),
+    replaceWith = ReplaceWith(
+        "this.matchesTinkDigest(digest, digester)",
+        "io.bluetape4k.tink.digest.matchesTinkDigest"
+    ),
 )
 fun String.matchesDigest(digest: String, digester: Digester): Boolean =
     digester.matches(this, digest)
@@ -80,7 +83,10 @@ fun String.matchesDigest(digest: String, digester: Digester): Boolean =
  */
 @Deprecated(
     message = "io.bluetape4k.tink.digest.TinkDigesterExtensions를 사용하세요.",
-    replaceWith = ReplaceWith("this.matchesTinkDigest(digest, digester)", "io.bluetape4k.tink.digest.matchesTinkDigest"),
+    replaceWith = ReplaceWith(
+        "this.matchesTinkDigest(digest, digester)",
+        "io.bluetape4k.tink.digest.matchesTinkDigest"
+    ),
 )
 fun ByteArray.matchesDigest(digest: ByteArray, digester: Digester): Boolean =
     digester.matches(this, digest)

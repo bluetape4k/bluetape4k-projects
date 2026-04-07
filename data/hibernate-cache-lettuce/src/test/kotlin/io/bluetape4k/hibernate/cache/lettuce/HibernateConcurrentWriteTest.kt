@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * 동시 쓰기 충돌 및 NONSTRICT_READ_WRITE 최종 일관성 테스트.
  */
-class HibernateConcurrentWriteTest : AbstractHibernateNearCacheTest() {
+class HibernateConcurrentWriteTest: AbstractHibernateNearCacheTest() {
     @BeforeEach
     fun reset() {
         sessionFactory.cache.evictAllRegions()

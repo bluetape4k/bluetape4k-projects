@@ -12,9 +12,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class InsertTest : AbstractTrinoTest() {
+class InsertTest: AbstractTrinoTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `insert - 단건 INSERT 후 count 검증`() = withEventsTable {

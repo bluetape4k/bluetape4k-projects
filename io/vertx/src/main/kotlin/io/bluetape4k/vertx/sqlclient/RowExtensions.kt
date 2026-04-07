@@ -42,7 +42,7 @@ fun Row.hasColumn(columnName: String): Boolean = hasColumn(getColumnIndex(column
  * // name == "Alice" 또는 null (컬럼이 없거나 타입 불일치)
  * ```
  */
-inline fun <reified T : Any> Row.valueAs(columnName: String): T? = getValue(columnName) as? T
+inline fun <reified T: Any> Row.valueAs(columnName: String): T? = getValue(columnName) as? T
 
 /**
  * 지정한 컬럼이 존재하면 값을 반환하고, 없으면 null을 반환합니다.
@@ -202,7 +202,7 @@ fun Row.getArrayOfJsonsOrNull(columnName: String): Array<Any>? =
  * // id == 42L 또는 null (컬럼 없는 경우)
  * ```
  */
-inline fun <reified T : Any> Row.getOrNull(columnName: String): T? =
+inline fun <reified T: Any> Row.getOrNull(columnName: String): T? =
     if (hasColumn(columnName)) get(T::class.java, columnName) else null
 
 /**

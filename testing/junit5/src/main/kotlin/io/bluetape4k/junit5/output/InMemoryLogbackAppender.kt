@@ -66,7 +66,7 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
             if (++attempts >= maxAttempts) {
                 throw IllegalStateException(
                     "SLF4J 바인딩이 Logback이 아닙니다. InMemoryLogbackAppender는 Logback 환경에서만 사용할 수 있습니다. " +
-                        "현재 바인딩: ${logger.javaClass.name}"
+                            "현재 바인딩: ${logger.javaClass.name}"
                 )
             }
             Thread.sleep(1)

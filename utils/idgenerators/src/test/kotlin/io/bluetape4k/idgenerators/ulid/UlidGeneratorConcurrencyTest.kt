@@ -13,7 +13,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class UlidGeneratorConcurrencyTest {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = 10_000
     }

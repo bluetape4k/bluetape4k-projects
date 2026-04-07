@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.lettuce
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.exposed.lettuce.AbstractJdbcLettuceTest.Companion.redisClient
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.faker.Fakers
@@ -20,8 +21,8 @@ import io.lettuce.core.RedisClient
  * [redisClient]는 JVM 종료 시 [io.bluetape4k.utils.ShutdownQueue]를 통해 한 번만 shutdown된다.
  * 테스트 클래스에서 직접 `redisClient.shutdown()`을 호출하지 말 것.
  */
-abstract class AbstractJdbcLettuceTest : AbstractExposedTest() {
-    companion object : KLogging() {
+abstract class AbstractJdbcLettuceTest: AbstractExposedTest() {
+    companion object: KLogging() {
 
         @JvmStatic
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }

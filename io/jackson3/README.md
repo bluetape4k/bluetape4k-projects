@@ -6,17 +6,18 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-jackson3` is a module that wraps the [Jackson 3.x](https://github.com/FasterXML/jackson) library with Kotlin DSL and extension functions.
 
-It provides the same feature set as Jackson 2.x (`bluetape4k-jackson2`), while following the new Jackson 3.x API and package structure (`tools.jackson.*`).
+It provides the same feature set as Jackson 2.x (
+`bluetape4k-jackson2`), while following the new Jackson 3.x API and package structure (`tools.jackson.*`).
 
 ## Jackson 2.x vs 3.x
 
-| Item | Jackson 2.x | Jackson 3.x |
-|------|-------------|-------------|
-| Package | `com.fasterxml.jackson.*` | `tools.jackson.*` |
-| Module | bluetape4k-jackson2 | bluetape4k-jackson3 |
-| Module SPI | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
-| Type info | `activateDefaultTyping()` supported | Removed |
-| JsonMapper build | `JsonMapper.builder()` | `jsonMapper { }` (kotlin module built-in) |
+| Item             | Jackson 2.x                             | Jackson 3.x                               |
+|------------------|-----------------------------------------|-------------------------------------------|
+| Package          | `com.fasterxml.jackson.*`               | `tools.jackson.*`                         |
+| Module           | bluetape4k-jackson2                     | bluetape4k-jackson3                       |
+| Module SPI       | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule`    |
+| Type info        | `activateDefaultTyping()` supported     | Removed                                   |
+| JsonMapper build | `JsonMapper.builder()`                  | `jsonMapper { }` (kotlin module built-in) |
 
 ## Key Features
 
@@ -112,13 +113,16 @@ suspendParser.consume(byteArrayFlow)
 
 When to use each parser:
 
-- `AsyncJsonParser`: push-style code that receives `ByteArray` chunks via callbacks — Netty, WebSocket, TCP, message listeners, etc.
-- `SuspendJsonParser`: `Flow<ByteArray>`-based pipelines where post-processing must be suspendable — `WebClient`, file streams, broker streams, etc.
+- `AsyncJsonParser`: push-style code that receives
+  `ByteArray` chunks via callbacks — Netty, WebSocket, TCP, message listeners, etc.
+- `SuspendJsonParser`: `Flow<ByteArray>`-based pipelines where post-processing must be suspendable —
+  `WebClient`, file streams, broker streams, etc.
 - Both parsers handle multiple consecutive JSON roots and scalar JSON roots (`"text"`, `123`, `true`, `null`).
 
 ### 4-1. WebClient Streaming Example
 
-Consuming a `/stream/3` response from `HttpbinHttp2Server` via `WebClient` and processing three root JSON objects sequentially.
+Consuming a `/stream/3` response from `HttpbinHttp2Server` via
+`WebClient` and processing three root JSON objects sequentially.
 
 ```kotlin
 import io.bluetape4k.jackson3.async.SuspendJsonParser
@@ -217,13 +221,13 @@ val mapper = Jackson.createDefaultJsonMapper().rebuild()
 
 Supported algorithms:
 
-| `TinkEncryptAlgorithm` | Description |
-|------------------------|-------------|
-| `AES256_GCM` | AES256-GCM non-deterministic — general purpose, default |
-| `AES128_GCM` | AES128-GCM non-deterministic — performance-focused |
-| `CHACHA20_POLY1305` | ChaCha20-Poly1305 — for environments without hardware AES acceleration |
-| `XCHACHA20_POLY1305` | XChaCha20-Poly1305 — large nonce (192-bit) |
-| `DETERMINISTIC_AES256_SIV` | AES256-SIV deterministic — searchable in DB |
+| `TinkEncryptAlgorithm`     | Description                                                            |
+|----------------------------|------------------------------------------------------------------------|
+| `AES256_GCM`               | AES256-GCM non-deterministic — general purpose, default                |
+| `AES128_GCM`               | AES128-GCM non-deterministic — performance-focused                     |
+| `CHACHA20_POLY1305`        | ChaCha20-Poly1305 — for environments without hardware AES acceleration |
+| `XCHACHA20_POLY1305`       | XChaCha20-Poly1305 — large nonce (192-bit)                             |
+| `DETERMINISTIC_AES256_SIV` | AES256-SIV deterministic — searchable in DB                            |
 
 ### 7. Field Masking (@JsonMasker)
 
@@ -255,19 +259,20 @@ objectNode.addNull("description")
 
 > The former `bluetape4k-jackson3-binary` and `bluetape4k-jackson3-text` modules have been merged into this module.
 
-Binary and text formats are declared as `compileOnly` dependencies, so you must add the desired format's dependency at runtime.
+Binary and text formats are declared as
+`compileOnly` dependencies, so you must add the desired format's dependency at runtime.
 
-| Format | Type | Runtime Dependency |
-|--------|------|--------------------|
-| CBOR | Binary | `jackson3-dataformat-cbor` |
-| Ion | Binary | `jackson3-dataformat-ion` |
-| Smile | Binary | `jackson3-dataformat-smile` |
-| Avro | Binary | `jackson3-dataformat-avro` |
-| Protobuf | Binary | `jackson3-dataformat-protobuf` |
-| YAML | Text | `jackson3-dataformat-yaml` |
-| CSV | Text | `jackson3-dataformat-csv` |
-| TOML | Text | `jackson3-dataformat-toml` |
-| Properties | Text | `jackson3-dataformat-properties` |
+| Format     | Type   | Runtime Dependency               |
+|------------|--------|----------------------------------|
+| CBOR       | Binary | `jackson3-dataformat-cbor`       |
+| Ion        | Binary | `jackson3-dataformat-ion`        |
+| Smile      | Binary | `jackson3-dataformat-smile`      |
+| Avro       | Binary | `jackson3-dataformat-avro`       |
+| Protobuf   | Binary | `jackson3-dataformat-protobuf`   |
+| YAML       | Text   | `jackson3-dataformat-yaml`       |
+| CSV        | Text   | `jackson3-dataformat-csv`        |
+| TOML       | Text   | `jackson3-dataformat-toml`       |
+| Properties | Text   | `jackson3-dataformat-properties` |
 
 ### CBOR Serialization Example
 

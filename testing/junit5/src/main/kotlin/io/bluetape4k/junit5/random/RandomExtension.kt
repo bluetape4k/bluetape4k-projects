@@ -33,13 +33,13 @@ class RandomExtension: TestInstancePostProcessor, ParameterResolver {
         private val randomizer: EnhancedRandom by lazy(LazyThreadSafetyMode.NONE) { DefaultEnhancedRandom }
 
         private fun resolve(targetType: Class<*>, annotation: RandomValue): Any = when {
-            targetType.isAssignableFrom(Set::class.java) ->
+            targetType.isAssignableFrom(Set::class.java)      ->
                 randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).asSequence().toSet()
 
             targetType.isAssignableFrom(List::class.java) || targetType.isAssignableFrom(Collection::class.java) ->
                 randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).toList()
 
-            targetType.isAssignableFrom(Stream::class.java) ->
+            targetType.isAssignableFrom(Stream::class.java)   ->
                 randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes)
 
             targetType.isAssignableFrom(Sequence::class.java) ->
@@ -51,11 +51,11 @@ class RandomExtension: TestInstancePostProcessor, ParameterResolver {
             targetType.isAssignableFrom(Iterable::class.java) ->
                 randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).toList()
 
-            targetType.isAssignableFrom(String::class.java) ->
+            targetType.isAssignableFrom(String::class.java)   ->
                 randomizer.nextObject(String::class.java, *annotation.excludes).toString()
             // Fakers.randomString(2, 256)
 
-            else ->
+            else                                              ->
                 randomizer.nextObject(targetType, *annotation.excludes)
         }
     }

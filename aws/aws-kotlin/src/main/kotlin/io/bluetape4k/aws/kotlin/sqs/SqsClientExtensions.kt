@@ -510,14 +510,14 @@ internal fun Throwable.isMissingQueueError(): Boolean =
             val errorCode = sdkErrorMetadata.errorCode
             val statusCode = sdkErrorMetadata.protocolResponse.statusCode()?.value
             errorCode in
-                setOf(
-                    "QueueDoesNotExist",
-                    "AWS.SimpleQueueService.NonExistentQueue",
-                    "ResourceNotFoundException",
-                    "NotFound"
-                ) || statusCode == 404
+                    setOf(
+                        "QueueDoesNotExist",
+                        "AWS.SimpleQueueService.NonExistentQueue",
+                        "ResourceNotFoundException",
+                        "NotFound"
+                    ) || statusCode == 404
         }
-        else -> {
+        else                -> {
             false
         }
     }

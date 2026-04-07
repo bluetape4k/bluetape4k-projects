@@ -6,7 +6,9 @@ Exposed R2DBC + suspend Repository + Spring WebFlux Integration Demo (Spring Boo
 
 ## Overview
 
-This module demonstrates the pattern of wrapping **Exposed R2DBC** in a Spring Data Repository and exposing it as an async, non-blocking Spring WebFlux REST API. It provides the same functionality as the Spring Boot 3.x version, using the **Spring Boot 4 BOM**.
+This module demonstrates the pattern of wrapping **Exposed R2DBC
+** in a Spring Data Repository and exposing it as an async, non-blocking Spring WebFlux REST API. It provides the same functionality as the Spring Boot 3.x version, using the
+**Spring Boot 4 BOM**.
 
 ## UML
 
@@ -168,13 +170,13 @@ suspend fun deleteById(id: Long)
 
 ### Basic CRUD
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/products` | List all products (async) |
-| GET | `/products/{id}` | Get a specific product (async) |
-| POST | `/products` | Create a product (async) |
-| PUT | `/products/{id}` | Update a product (async) |
-| DELETE | `/products/{id}` | Delete a product (async) |
+| Method | Path             | Description                    |
+|--------|------------------|--------------------------------|
+| GET    | `/products`      | List all products (async)      |
+| GET    | `/products/{id}` | Get a specific product (async) |
+| POST   | `/products`      | Create a product (async)       |
+| PUT    | `/products/{id}` | Update a product (async)       |
+| DELETE | `/products/{id}` | Delete a product (async)       |
 
 All endpoints are `suspend` functions; Spring WebFlux handles coroutines automatically.
 
@@ -187,6 +189,7 @@ curl http://localhost:8080/products
 ```
 
 Response:
+
 ```json
 [
   {
@@ -217,6 +220,7 @@ curl -X POST http://localhost:8080/products \
 ```
 
 Response (201 Created):
+
 ```json
 {
   "id": 3,

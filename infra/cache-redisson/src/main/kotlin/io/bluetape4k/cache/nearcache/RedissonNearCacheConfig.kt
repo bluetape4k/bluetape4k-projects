@@ -85,7 +85,8 @@ class RedissonNearCacheConfigBuilder {
     var syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE
 
     /** 재연결 시 로컬 캐시 처리 전략. 기본값: [LocalCachedMapOptions.ReconnectionStrategy.CLEAR] */
-    var reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.CLEAR
+    var reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy =
+        LocalCachedMapOptions.ReconnectionStrategy.CLEAR
 
     /** 로컬 캐시 퇴거 정책. 기본값: [LocalCachedMapOptions.EvictionPolicy.LRU] */
     var evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU

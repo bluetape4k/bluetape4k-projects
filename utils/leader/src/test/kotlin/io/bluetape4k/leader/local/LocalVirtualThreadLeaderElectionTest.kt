@@ -12,7 +12,7 @@ import kotlin.random.Random
 
 class LocalVirtualThreadLeaderElectionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val election = LocalVirtualThreadLeaderElection()
 

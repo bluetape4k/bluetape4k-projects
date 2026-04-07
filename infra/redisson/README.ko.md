@@ -6,19 +6,20 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 
 ## 주요 기능
 
-| 기능 | 설명 |
-|------|------|
-| `RedissonClientSupport` | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리, YAML 설정 로드 |
-| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL 확장 함수 |
-| `RedissonClientCoroutine` | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수 |
-| `RFutureSupport` | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
-| `RedissonCodecs` | 직렬화(Fory/Kryo5) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록 |
-| `RedissonLeaderElection` | `RLock` 기반 단일 리더 선출 (동기 / 비동기) |
-| `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines) |
-| `RedissonLeaderGroupElection` | `RSemaphore` 기반 복수(N개) 동시 리더 선출 |
-| `RedissonNearCache` | `RLocalCachedMap` 기반 2-tier Near Cache |
+| 기능                              | 설명                                                                              |
+|---------------------------------|---------------------------------------------------------------------------------|
+| `RedissonClientSupport`         | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리, YAML 설정 로드              |
+| `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL 확장 함수                                  |
+| `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수            |
+| `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
+| `RedissonCodecs`                | 직렬화(Fory/Kryo5) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록                          |
+| `RedissonLeaderElection`        | `RLock` 기반 단일 리더 선출 (동기 / 비동기)                                                  |
+| `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines)                                                |
+| `RedissonLeaderGroupElection`   | `RSemaphore` 기반 복수(N개) 동시 리더 선출                                                 |
+| `RedissonNearCache`             | `RLocalCachedMap` 기반 2-tier Near Cache                                          |
 
 `RedissonCacheConfig`/`RedissonNearCacheConfig` 사용 시:
+
 - `maxSize`, `nearCacheMaxSize`, `writeBehindBatchSize`는 음수일 수 없고, 배치 크기는 0보다 커야 합니다.
 - `timeToLive`, `maxIdle`, `nearCacheTtl`, `nearCacheMaxIdleTime`은 지정 시 음수일 수 없으며, near cache TTL/idle은 0보다 커야 합니다.
 
@@ -92,13 +93,13 @@ singleServerConfig:
 
 `io.bluetape4k.redis.redisson.codec` 패키지에서 고성능 Codec을 제공합니다.
 
-| 상수 | 직렬화 | 압축 | 설명 |
-|------|--------|------|------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4 | 기본값. 빠른 속도와 압축 균형 |
-| `RedissonCodecs.Fory` | Fory | 없음 | Fory 직렬화만 사용 |
-| `RedissonCodecs.Kryo5` | Kryo5 | 없음 | Kryo5 직렬화만 사용 |
-| `RedissonCodecs.LZ4` | Default | LZ4 | LZ4 압축 래핑 |
-| `RedissonCodecs.Zstd` | Default | Zstd | 높은 압축률 |
+| 상수                       | 직렬화                    | 압축   | 설명                |
+|--------------------------|------------------------|------|-------------------|
+| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형 |
+| `RedissonCodecs.Fory`    | Fory                   | 없음   | Fory 직렬화만 사용      |
+| `RedissonCodecs.Kryo5`   | Kryo5                  | 없음   | Kryo5 직렬화만 사용     |
+| `RedissonCodecs.LZ4`     | Default                | LZ4  | LZ4 압축 래핑         |
+| `RedissonCodecs.Zstd`    | Default                | Zstd | 높은 압축률            |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -242,7 +243,8 @@ val result2 = client.suspendRunIfLeader("batch-job") {
 }
 ```
 
-> **코루틴 Lock ID**: Redisson Lock은 스레드 ID 기반입니다. 코루틴 환경에서는 스레드가 전환되면 락이 깨질 수 있으므로, `RedissonSuspendLeaderElection`은 `RAtomicLong`으로 코루틴 세션마다 고유 ID를 발급하여 이 문제를 해결합니다.
+> **코루틴 Lock ID**: Redisson Lock은 스레드 ID 기반입니다. 코루틴 환경에서는 스레드가 전환되면 락이 깨질 수 있으므로, `RedissonSuspendLeaderElection`은
+`RAtomicLong`으로 코루틴 세션마다 고유 ID를 발급하여 이 문제를 해결합니다.
 
 #### 그룹 리더 선출 — 최대 N개 동시 실행
 
@@ -435,10 +437,10 @@ flowchart TD
 
 ## Redis 버전 요구사항
 
-| 기능 | 최소 Redis 버전 |
-|------|----------------|
-| 기본 기능 (Client, Batch, Transaction, Leader) | Redis 5.0+ |
-| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+ |
+| 기능                                                    | 최소 Redis 버전 |
+|-------------------------------------------------------|-------------|
+| 기본 기능 (Client, Batch, Transaction, Leader)            | Redis 5.0+  |
+| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+  |
 
 ## 빌드 및 테스트
 

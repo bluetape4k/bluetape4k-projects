@@ -15,7 +15,7 @@ import org.springframework.data.repository.core.EntityInformation
  * val isNew       = info.isNew(user) // true = 아직 INSERT 전, false = 기존 엔티티
  * ```
  */
-interface ExposedEntityInformation<E : Entity<ID>, ID : Any> : EntityInformation<E, ID> {
+interface ExposedEntityInformation<E: Entity<ID>, ID: Any>: EntityInformation<E, ID> {
 
     /** 이 Entity의 [EntityClass] 인스턴스 */
     val entityClass: EntityClass<ID, E>

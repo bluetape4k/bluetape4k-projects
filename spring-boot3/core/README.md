@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 An integrated module for common functionality based on Spring Boot 3.
 
-> The former `spring/core`, `spring/webflux`, `spring/retrofit2`, and `spring/tests` modules have been consolidated into this single module.
+> The former `spring/core`, `spring/webflux`, `spring/retrofit2`, and
+`spring/tests` modules have been consolidated into this single module.
 
 ## Features
 
@@ -59,15 +60,15 @@ dependencies {
 
 ## Key Dependency Structure
 
-| Category                        | Scope         | Description                      |
-|---------------------------------|---------------|----------------------------------|
-| `spring-boot-starter-webflux`   | `api`         | WebFlux + Coroutines (required)  |
-| `bluetape4k-retrofit2`          | `api`         | Retrofit2 integration            |
-| `bluetape4k-coroutines`         | `api`         | Coroutines support               |
-| `bluetape4k-netty`              | `api`         | Netty integration                |
-| `bluetape4k-micrometer`         | `api`         | Metrics                          |
-| `spring-boot-starter-web`       | `compileOnly` | Optional servlet support         |
-| `resilience4j-*`                | `compileOnly` | Optional Resilience4j            |
+| Category                      | Scope         | Description                     |
+|-------------------------------|---------------|---------------------------------|
+| `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines (required) |
+| `bluetape4k-retrofit2`        | `api`         | Retrofit2 integration           |
+| `bluetape4k-coroutines`       | `api`         | Coroutines support              |
+| `bluetape4k-netty`            | `api`         | Netty integration               |
+| `bluetape4k-micrometer`       | `api`         | Metrics                         |
+| `spring-boot-starter-web`     | `compileOnly` | Optional servlet support        |
+| `resilience4j-*`              | `compileOnly` | Optional Resilience4j           |
 
 ## Usage Examples
 

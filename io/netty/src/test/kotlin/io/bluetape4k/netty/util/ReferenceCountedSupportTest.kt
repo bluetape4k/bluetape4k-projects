@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 /**
  * [ReferenceCountedSupport]의 기능을 검증하는 테스트 클래스입니다.
  */
-class ReferenceCountedSupportTest : AbstractNettyTest() {
+class ReferenceCountedSupportTest: AbstractNettyTest() {
     @Test
     fun `use 블록 실행 후 ByteBuf가 릴리즈된다`() {
         val buf = ByteBufAllocator.DEFAULT.buffer(16)

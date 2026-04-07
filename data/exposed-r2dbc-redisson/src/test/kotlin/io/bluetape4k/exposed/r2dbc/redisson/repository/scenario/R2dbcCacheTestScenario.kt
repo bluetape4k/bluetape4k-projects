@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
 interface R2dbcCacheTestScenario<ID: Any, E: java.io.Serializable> {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         val DefaultCacheDispatcher = Dispatchers.IO
     }
 

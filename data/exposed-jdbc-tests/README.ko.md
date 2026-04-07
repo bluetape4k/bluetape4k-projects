@@ -254,22 +254,22 @@ Containers.Postgres
 
 ## 주요 기능 상세
 
-| 파일                          | 설명                                     |
-|-----------------------------|----------------------------------------|
-| `AbstractExposedTest.kt`    | 테스트 기본 클래스                             |
-| `TestDB.kt`                 | 지원 DB 정의 및 연결 정보                       |
-| `TestDBConfig.kt`           | 테스트 환경 설정 (useTestcontainers, useFastDB) |
-| `Containers.kt`             | Testcontainers 컨테이너 관리                 |
-| `WithDB.kt`                 | DB 연결 유틸                               |
-| `WithTables.kt`             | 테이블 생성/삭제 유틸                           |
-| `WithSchemas.kt`            | Schema 유틸                              |
-| `WithAutoCommit.kt`         | AutoCommit 모드 유틸                       |
-| `WithDBSuspending.kt`       | Coroutine DB 연결 유틸                     |
-| `WithTablesSuspending.kt`   | Coroutine 테이블 유틸                       |
-| `WithSchemasSuspending.kt`  | Coroutine Schema 유틸                    |
-| `WithAutoCommitSuspending.kt` | Coroutine AutoCommit 유틸              |
-| `Assertions.kt`             | 테스트 어설션 유틸 (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
-| `TestSupports.kt`           | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest` 등) |
+| 파일                            | 설명                                                                                                                      |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `AbstractExposedTest.kt`      | 테스트 기본 클래스                                                                                                              |
+| `TestDB.kt`                   | 지원 DB 정의 및 연결 정보                                                                                                        |
+| `TestDBConfig.kt`             | 테스트 환경 설정 (useTestcontainers, useFastDB)                                                                                |
+| `Containers.kt`               | Testcontainers 컨테이너 관리                                                                                                  |
+| `WithDB.kt`                   | DB 연결 유틸                                                                                                                |
+| `WithTables.kt`               | 테이블 생성/삭제 유틸                                                                                                            |
+| `WithSchemas.kt`              | Schema 유틸                                                                                                               |
+| `WithAutoCommit.kt`           | AutoCommit 모드 유틸                                                                                                        |
+| `WithDBSuspending.kt`         | Coroutine DB 연결 유틸                                                                                                      |
+| `WithTablesSuspending.kt`     | Coroutine 테이블 유틸                                                                                                        |
+| `WithSchemasSuspending.kt`    | Coroutine Schema 유틸                                                                                                     |
+| `WithAutoCommitSuspending.kt` | Coroutine AutoCommit 유틸                                                                                                 |
+| `Assertions.kt`               | 테스트 어설션 유틸 (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
+| `TestSupports.kt`             | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest` 등)                                                                      |
 
 ## 테스트 실행 옵션
 

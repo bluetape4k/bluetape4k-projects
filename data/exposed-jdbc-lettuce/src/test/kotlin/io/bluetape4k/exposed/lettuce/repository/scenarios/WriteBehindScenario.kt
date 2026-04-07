@@ -19,11 +19,11 @@ import java.time.Duration
  * - [JdbcWriteBehindScenario]를 확장하여 testFixtures의 @ParameterizedTest 시나리오도 포함
  * - put() 시 캐시에는 즉시 반영, DB는 비동기로 적재
  */
-interface WriteBehindScenario<ID : Any, E : java.io.Serializable> :
+interface WriteBehindScenario<ID: Any, E: java.io.Serializable>:
     JdbcWriteBehindScenario<ID, E>,
     CacheTestScenario<ID, E> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
     fun updateEmail(entity: E): E

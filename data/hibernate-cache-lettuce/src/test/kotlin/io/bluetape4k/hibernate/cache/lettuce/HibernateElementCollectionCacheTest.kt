@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 /**
  * @ElementCollection 캐시 테스트.
  */
-class HibernateElementCollectionCacheTest : AbstractHibernateNearCacheTest() {
+class HibernateElementCollectionCacheTest: AbstractHibernateNearCacheTest() {
     @BeforeEach
     fun reset() {
         sessionFactory.cache.evictAllRegions()

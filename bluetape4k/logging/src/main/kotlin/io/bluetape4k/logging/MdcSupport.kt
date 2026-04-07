@@ -27,7 +27,7 @@ inline fun <T> withLoggingContext(
 ): T = when {
     pair.second == null -> block()
     !restorePrevious -> MDC.putCloseable(pair.first, pair.second.toString()).use { block() }
-    else -> {
+    else             -> {
         val prevValue = MDC.get(pair.first)
         try {
             MDC.putCloseable(pair.first, pair.second.toString()).use { block() }

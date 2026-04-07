@@ -39,12 +39,12 @@ class DuckDBConnectionWrapperTest {
                 lastSql.set(args[0] as String)
                 statement
             }
-            "isClosed" -> false
-            "close" -> Unit
-            "unwrap" -> null
+            "isClosed"     -> false
+            "close"        -> Unit
+            "unwrap"       -> null
             "isWrapperFor" -> false
-            "toString" -> "proxyConnection"
-            else -> throw UnsupportedOperationException("Unexpected method: ${method.name}")
+            "toString"     -> "proxyConnection"
+            else           -> throw UnsupportedOperationException("Unexpected method: ${method.name}")
         }
     } as Connection
 
@@ -53,12 +53,12 @@ class DuckDBConnectionWrapperTest {
         arrayOf(PreparedStatement::class.java),
     ) { _, method, _ ->
         when (method.name) {
-            "close" -> Unit
+            "close"    -> Unit
             "isClosed" -> false
-            "unwrap" -> null
+            "unwrap"   -> null
             "isWrapperFor" -> false
             "toString" -> "proxyPreparedStatement"
-            else -> throw UnsupportedOperationException("Unexpected method: ${method.name}")
+            else       -> throw UnsupportedOperationException("Unexpected method: ${method.name}")
         }
     } as PreparedStatement
 }

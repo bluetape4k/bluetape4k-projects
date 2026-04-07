@@ -35,8 +35,8 @@ abstract class Units(
         if (other !is Units) return false
 
         return suffix == other.suffix &&
-            ratio == other.ratio &&
-            spaceBetweenMagnitude == other.spaceBetweenMagnitude
+                ratio == other.ratio &&
+                spaceBetweenMagnitude == other.spaceBetweenMagnitude
     }
 
     override fun hashCode(): Int {
@@ -244,7 +244,7 @@ class Measure<T: Units>(
     fun toHuman(): String {
         @Suppress("UNCHECKED_CAST")
         return when (units) {
-            is Length -> toHumanBy(
+            is Length    -> toHumanBy(
                 listOf(
                     Length.millimeters,
                     Length.centimeters,
@@ -253,7 +253,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Mass -> toHumanBy(
+            is Mass      -> toHumanBy(
                 listOf(
                     Mass.grams,
                     Mass.kilograms,
@@ -261,7 +261,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Time -> toHumanBy(
+            is Time      -> toHumanBy(
                 listOf(
                     Time.milliseconds,
                     Time.seconds,
@@ -270,7 +270,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Area -> toHumanBy(
+            is Area      -> toHumanBy(
                 listOf(
                     Area.millimeters2,
                     Area.centimeters2,
@@ -279,7 +279,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Volume -> toHumanBy(
+            is Volume    -> toHumanBy(
                 listOf(
                     Volume.cubicMillimeters,
                     Volume.cubicCentimeters,
@@ -289,7 +289,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Storage -> toHumanBy(
+            is Storage   -> toHumanBy(
                 listOf(
                     Storage.bytes,
                     Storage.kiloBytes,
@@ -321,7 +321,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Energy -> toHumanBy(
+            is Energy    -> toHumanBy(
                 listOf(
                     Energy.joules,
                     Energy.kiloJoules,
@@ -331,7 +331,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Power -> toHumanBy(
+            is Power     -> toHumanBy(
                 listOf(
                     Power.milliWatts,
                     Power.watts,
@@ -341,7 +341,7 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Pressure -> toHumanBy(
+            is Pressure  -> toHumanBy(
                 listOf(
                     Pressure.pascal,
                     Pressure.hectoPascal,
@@ -354,12 +354,12 @@ class Measure<T: Units>(
                 ) as List<T>
             )
 
-            is Angle -> {
+            is Angle     -> {
                 val degree = (((this as Measure<Angle>) `in` Angle.degrees) % 360.0 + 360.0) % 360.0
                 formatHuman(degree, Angle.degrees)
             }
 
-            else -> formatHuman(amount, units)
+            else         -> formatHuman(amount, units)
         }
     }
 

@@ -22,7 +22,7 @@ import io.bluetape4k.tink.registerTink
  * // decrypted == "Hello, World!"
  * ```
  */
-object TinkAeads : KLogging() {
+object TinkAeads: KLogging() {
 
     init {
         registerTink()

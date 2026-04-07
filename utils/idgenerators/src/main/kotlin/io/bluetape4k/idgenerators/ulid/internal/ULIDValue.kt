@@ -7,9 +7,9 @@ import java.io.Serializable
 data class ULIDValue(
     override val mostSignificantBits: Long,
     override val leastSignificantBits: Long,
-) : ULID,
-    Serializable {
-    companion object : KLogging() {
+): ULID,
+   Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 
@@ -31,7 +31,7 @@ data class ULIDValue(
             (mostSignificantBits and Mask16Bits) != Mask16Bits -> {
                 ULIDValue(mostSignificantBits + 1, 0)
             }
-            else -> {
+            else                               -> {
                 ULIDValue(mostSignificantBits and TimestampMsbMask, 0)
             }
         }

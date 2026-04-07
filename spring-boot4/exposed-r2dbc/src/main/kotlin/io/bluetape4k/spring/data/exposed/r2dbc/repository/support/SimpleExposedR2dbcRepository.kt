@@ -50,14 +50,14 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 @Suppress("UNCHECKED_CAST")
-class SimpleExposedR2dbcRepository<R : Any, ID : Any>(
+class SimpleExposedR2dbcRepository<R: Any, ID: Any>(
     override val table: IdTable<ID>,
     private val toDomainMapper: (ResultRow) -> R,
     private val persistValuesProvider: (R) -> Map<Column<*>, Any?>,
     private val idExtractor: (R) -> ID?,
-) : ExposedR2dbcRepository<R, ID> {
+): ExposedR2dbcRepository<R, ID> {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     override fun extractId(entity: R): ID? = idExtractor(entity)
 
@@ -65,12 +65,12 @@ class SimpleExposedR2dbcRepository<R : Any, ID : Any>(
 
     override fun toPersistValues(domain: R): Map<Column<*>, Any?> = persistValuesProvider(domain)
 
-    override suspend fun <S : R> save(entity: S): S {
+    override suspend fun <S: R> save(entity: S): S {
         val persisted = inTransaction { persist(entity) }
         return (persisted as? S) ?: entity
     }
 
-    override fun <S : R> saveAll(entities: Iterable<S>): Flow<S> = flow {
+    override fun <S: R> saveAll(entities: Iterable<S>): Flow<S> = flow {
         val results = mutableListOf<S>()
         inTransaction {
             for (entity in entities) {
@@ -80,7 +80,7 @@ class SimpleExposedR2dbcRepository<R : Any, ID : Any>(
         emitAll(results.asFlow())
     }
 
-    override fun <S : R> saveAll(entityStream: Flow<S>): Flow<S> = flow {
+    override fun <S: R> saveAll(entityStream: Flow<S>): Flow<S> = flow {
         val results = mutableListOf<S>()
         inTransaction {
             entityStream.collect { entity ->
@@ -165,7 +165,7 @@ class SimpleExposedR2dbcRepository<R : Any, ID : Any>(
         deleteAllById(entities.mapNotNull { extractId(it) })
     }
 
-    override suspend fun <S : R> deleteAll(entityStream: Flow<S>) {
+    override suspend fun <S: R> deleteAll(entityStream: Flow<S>) {
         inTransaction {
             val ids = mutableListOf<ID>()
             entityStream.collect { entity ->

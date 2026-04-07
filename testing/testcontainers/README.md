@@ -382,7 +382,9 @@ spring:
 ## Recent Stability Improvements
 
 - `GenericContainer.exposeCustomPorts(...)` now creates port bindings even when `hostConfig` starts empty.
-- `GenericServer.writeToSystemProperties(...)` registers default and additional properties in a stable, consistent order.
+-
+
+`GenericServer.writeToSystemProperties(...)` registers default and additional properties in a stable, consistent order.
 - `KafkaServer.Launcher` creates fresh serializer/deserializer instances per use to avoid reuse after `close()`.
 - `TiDBServer` is deprecated because Testcontainers 2.x does not support it reliably. Use `MySQL8Server` instead.
 

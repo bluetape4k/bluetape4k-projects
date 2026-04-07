@@ -24,15 +24,15 @@ dependencies {
 
 ## Supported Databases
 
-| Database | TestDB | R2DBC Driver |
-|---|---|---|
-| H2 | `H2` | `r2dbc-h2` |
-| H2 MySQL mode | `H2_MYSQL` | `r2dbc-h2` |
-| H2 MariaDB mode | `H2_MARIADB` | `r2dbc-h2` |
-| H2 PostgreSQL mode | `H2_PSQL` | `r2dbc-h2` |
-| MariaDB | `MARIADB` | `r2dbc-mariadb` |
-| MySQL 8.0 | `MYSQL_V8` | `r2dbc-mysql` |
-| PostgreSQL | `POSTGRESQL` | `r2dbc-postgresql` |
+| Database           | TestDB       | R2DBC Driver       |
+|--------------------|--------------|--------------------|
+| H2                 | `H2`         | `r2dbc-h2`         |
+| H2 MySQL mode      | `H2_MYSQL`   | `r2dbc-h2`         |
+| H2 MariaDB mode    | `H2_MARIADB` | `r2dbc-h2`         |
+| H2 PostgreSQL mode | `H2_PSQL`    | `r2dbc-h2`         |
+| MariaDB            | `MARIADB`    | `r2dbc-mariadb`    |
+| MySQL 8.0          | `MYSQL_V8`   | `r2dbc-mysql`      |
+| PostgreSQL         | `POSTGRESQL` | `r2dbc-postgresql` |
 
 ## Usage Examples
 
@@ -199,21 +199,21 @@ object TestDBConfig {
 }
 ```
 
-If `useFastDB = true` (default), `enabledDialects()` returns only H2.
-Set `useFastDB = false` when full database coverage is required. Docker is needed in that case.
+If `useFastDB = true` (default), `enabledDialects()` returns only H2. Set
+`useFastDB = false` when full database coverage is required. Docker is needed in that case.
 
 ## Test Schema and Data
 
 ### Shared Table Schemas
 
-| File | Description |
-|---|---|
-| `shared/entities/BoardSchema.kt` | `Board` table |
-| `shared/mapping/PersonSchema.kt` | `Person` mapping table |
-| `shared/mapping/OrderSchema.kt` | `Order` mapping table |
-| `shared/samples/BankSchema.kt` | bank account table |
-| `shared/samples/UserCities.kt` | user-city relation table |
-| `shared/dml/DMLTestData.kt` | DML test data |
+| File                             | Description              |
+|----------------------------------|--------------------------|
+| `shared/entities/BoardSchema.kt` | `Board` table            |
+| `shared/mapping/PersonSchema.kt` | `Person` mapping table   |
+| `shared/mapping/OrderSchema.kt`  | `Order` mapping table    |
+| `shared/samples/BankSchema.kt`   | bank account table       |
+| `shared/samples/UserCities.kt`   | user-city relation table |
+| `shared/dml/DMLTestData.kt`      | DML test data            |
 
 ## Testcontainers Configuration
 
@@ -232,28 +232,28 @@ Containers.Postgres
 
 ## JDBC vs R2DBC Test Comparison
 
-| Feature | exposed-tests | exposed-r2dbc-tests |
-|---|---|---|
-| API | JDBC | R2DBC |
-| Execution model | synchronous / asynchronous | coroutine-native |
-| `withDb` | `withDb` | `suspend fun withDb` |
-| `withTables` | `withTables` | `suspend fun withTables` |
-| Transaction | `JdbcTransaction` | `R2dbcTransaction` |
+| Feature         | exposed-tests              | exposed-r2dbc-tests      |
+|-----------------|----------------------------|--------------------------|
+| API             | JDBC                       | R2DBC                    |
+| Execution model | synchronous / asynchronous | coroutine-native         |
+| `withDb`        | `withDb`                   | `suspend fun withDb`     |
+| `withTables`    | `withTables`               | `suspend fun withTables` |
+| Transaction     | `JdbcTransaction`          | `R2dbcTransaction`       |
 
 ## Feature Details
 
-| File | Description |
-|---|---|
-| `AbstractExposedR2dbcTest.kt` | base class for R2DBC tests |
-| `TestDB.kt` | definitions of supported R2DBC databases |
-| `TestDBConfig.kt` | test-environment settings (`useTestcontainers`, `useFastDB`) |
-| `Containers.kt` | Testcontainers management |
-| `withDb.kt` | R2DBC DB connection utility |
-| `withTables.kt` | R2DBC table utility |
-| `withAutoCommit.kt` | AutoCommit mode utility |
-| `withSchemas.kt` | schema utility |
-| `Assertions.kt` | assertion helpers for tests (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`, `expectExceptionSuspending`) |
-| `TestSupports.kt` | test helper utilities (`inProperCase`, `currentDialectTest`, `insertAndSuspending`, and more) |
+| File                          | Description                                                                                                                                                           |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AbstractExposedR2dbcTest.kt` | base class for R2DBC tests                                                                                                                                            |
+| `TestDB.kt`                   | definitions of supported R2DBC databases                                                                                                                              |
+| `TestDBConfig.kt`             | test-environment settings (`useTestcontainers`, `useFastDB`)                                                                                                          |
+| `Containers.kt`               | Testcontainers management                                                                                                                                             |
+| `withDb.kt`                   | R2DBC DB connection utility                                                                                                                                           |
+| `withTables.kt`               | R2DBC table utility                                                                                                                                                   |
+| `withAutoCommit.kt`           | AutoCommit mode utility                                                                                                                                               |
+| `withSchemas.kt`              | schema utility                                                                                                                                                        |
+| `Assertions.kt`               | assertion helpers for tests (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`, `expectExceptionSuspending`) |
+| `TestSupports.kt`             | test helper utilities (`inProperCase`, `currentDialectTest`, `insertAndSuspending`, and more)                                                                         |
 
 ## Example R2DBC Connection Strings
 

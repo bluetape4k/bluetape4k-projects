@@ -46,13 +46,13 @@ class ExposedEntityMapWriter<ID: Any, E: Any>(
     private val chunkSize: Int = 1000,
     retryAttempts: Int = 3,
     retryInterval: Duration = Duration.ofMillis(100),
-) : EntityMapWriter<ID, E>(
-        RetryConfig
-            .custom<Any>()
-            .maxAttempts(retryAttempts)
-            .waitDuration(retryInterval)
-            .build()
-    ) {
+): EntityMapWriter<ID, E>(
+    RetryConfig
+        .custom<Any>()
+        .maxAttempts(retryAttempts)
+        .waitDuration(retryInterval)
+        .build()
+) {
     init {
         chunkSize.requirePositiveNumber("chunkSize")
     }

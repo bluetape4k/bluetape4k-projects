@@ -74,7 +74,7 @@ class MySQL5Server private constructor(
             val imageName = DockerImageName.parse(image)
                 .withTag(tag)
                 .asCompatibleSubstituteFor("mysql")
-            
+
             return invoke(imageName, useDefaultPort, reuse, username, password, configuration)
         }
 

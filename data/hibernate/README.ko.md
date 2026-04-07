@@ -256,6 +256,7 @@ open class PaymentDetail(
 ```
 
 관련 예시는 테스트 코드에서 바로 확인할 수 있습니다.
+
 - `mapping/inheritance/ConcreteProxyInheritanceTest`
 - `mapping/embeddable/EmbeddableInheritanceTest`
 
@@ -308,8 +309,7 @@ val users = queryFactory
 
 #### 직렬화 Converter
 
-객체를 직렬화하여 ByteArray(Base64 인코딩)로 DB에 저장합니다.
-JDK / Kryo / Apache Fory 직렬화와 LZ4, Snappy, Zstd 압축을 조합할 수 있습니다.
+객체를 직렬화하여 ByteArray(Base64 인코딩)로 DB에 저장합니다. JDK / Kryo / Apache Fory 직렬화와 LZ4, Snappy, Zstd 압축을 조합할 수 있습니다.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
@@ -431,17 +431,17 @@ class Purchase {
 
 ### Model (model/)
 
-| 파일                     | 설명                |
-|------------------------|-------------------|
-| `JpaEntity.kt`         | JPA 엔티티 인터페이스     |
-| `AbstractJpaEntity.kt` | JPA 엔티티 추상 클래스    |
-| `IntJpaEntity.kt`      | Int ID 엔티티        |
-| `LongJpaEntity.kt`     | Long ID 엔티티       |
+| 파일                     | 설명                   |
+|------------------------|----------------------|
+| `JpaEntity.kt`         | JPA 엔티티 인터페이스        |
+| `AbstractJpaEntity.kt` | JPA 엔티티 추상 클래스       |
+| `IntJpaEntity.kt`      | Int ID 엔티티           |
+| `LongJpaEntity.kt`     | Long ID 엔티티          |
 | `UuidJpaEntity.kt`     | UUID (Timebased) 엔티티 |
-| `JpaTreeEntity.kt`     | Tree 구조 엔티티 인터페이스 |
-| `IntJpaTreeEntity.kt`  | Int ID Tree 엔티티   |
-| `LongJpaTreeEntity.kt` | Long ID Tree 엔티티  |
-| `TreeNodePosition.kt`  | Tree 노드 위치 값 객체   |
+| `JpaTreeEntity.kt`     | Tree 구조 엔티티 인터페이스    |
+| `IntJpaTreeEntity.kt`  | Int ID Tree 엔티티      |
+| `LongJpaTreeEntity.kt` | Long ID Tree 엔티티     |
+| `TreeNodePosition.kt`  | Tree 노드 위치 값 객체      |
 
 ### EntityManager 확장
 
@@ -452,10 +452,10 @@ class Purchase {
 
 ### Session 확장
 
-| 파일                    | 설명                   |
-|-----------------------|----------------------|
-| `SessionSupport.kt`   | Hibernate Session 확장 |
-| `HibernateConsts.kt`  | Hibernate 기본 설정 상수   |
+| 파일                   | 설명                   |
+|----------------------|----------------------|
+| `SessionSupport.kt`  | Hibernate Session 확장 |
+| `HibernateConsts.kt` | Hibernate 기본 설정 상수   |
 
 ### Criteria (criteria/)
 
@@ -466,9 +466,9 @@ class Purchase {
 
 ### Stateless Session (stateless/)
 
-| 파일                              | 설명                     |
-|---------------------------------|------------------------|
-| `StatelessSesisonSupport.kt`    | withStateless 트랜잭션 래퍼  |
+| 파일                              | 설명                             |
+|---------------------------------|--------------------------------|
+| `StatelessSesisonSupport.kt`    | withStateless 트랜잭션 래퍼          |
 | `StatelessSessionExtensions.kt` | StatelessSession reified 확장 함수 |
 
 ### Querydsl (querydsl/)
@@ -484,15 +484,15 @@ class Purchase {
 
 ### Converters (converters/)
 
-| 파일                                 | 설명                                       |
-|------------------------------------|------------------------------------------|
-| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 문자열                     |
-| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                     |
-| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV 암호화      |
-| `CompressedStringConverter.kt`     | BZip2/Deflate/GZip/LZ4/Snappy/Zstd 압축  |
-| `ObjectAsByteArrayConverter.kt`    | Jdk/Kryo/Fory 직렬화 + 압축 → ByteArray   |
-| `ObjectAsBase64StringConverter.kt` | 객체 직렬화 → Base64 문자열                    |
-| `AbstractObjectAsJsonConverter.kt` | 객체 → JSON 문자열 변환 베이스 클래스               |
+| 파일                                 | 설명                                    |
+|------------------------------------|---------------------------------------|
+| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 문자열                   |
+| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                  |
+| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV 암호화     |
+| `CompressedStringConverter.kt`     | BZip2/Deflate/GZip/LZ4/Snappy/Zstd 압축 |
+| `ObjectAsByteArrayConverter.kt`    | Jdk/Kryo/Fory 직렬화 + 압축 → ByteArray    |
+| `ObjectAsBase64StringConverter.kt` | 객체 직렬화 → Base64 문자열                   |
+| `AbstractObjectAsJsonConverter.kt` | 객체 → JSON 문자열 변환 베이스 클래스              |
 
 ### Listeners (listeners/)
 

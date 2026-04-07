@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService
  * @param supplier Vert.x [Future]를 생성하는 함수
  * @return [Future] 객체
  */
-inline fun <T, F : Future<T>> TimeLimiter.executeVertxFuture(
+inline fun <T, F: Future<T>> TimeLimiter.executeVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
     crossinline supplier: () -> F,
 ): Future<T> = decorateVertxFuture(scheduler, supplier).invoke()
@@ -38,7 +38,7 @@ inline fun <T, F : Future<T>> TimeLimiter.executeVertxFuture(
  * @param supplier Vert.x [Future]를 생성하는 함수
  * @return [supplier] 를 [TimeLimiter]로 decorate 한 함수
  */
-inline fun <T, F : Future<T>> TimeLimiter.decorateVertxFuture(
+inline fun <T, F: Future<T>> TimeLimiter.decorateVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
     crossinline supplier: () -> F,
 ): () -> Future<T> =

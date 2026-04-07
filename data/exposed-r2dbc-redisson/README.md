@@ -6,12 +6,13 @@ Combines Exposed R2DBC with Redisson caching to implement asynchronous Read-Thro
 
 ## Overview
 
-`bluetape4k-exposed-r2dbc-redisson` integrates Exposed R2DBC (asynchronous) with the [Redisson](https://github.com/redisson/redisson) Redis client, making it easy to cache database query results in Redis within an async environment. All interfaces are based on `suspend` functions and are fully compatible with Kotlin Coroutines.
+`bluetape4k-exposed-r2dbc-redisson` integrates Exposed R2DBC (asynchronous) with the [Redisson](https://github.com/redisson/redisson) Redis client, making it easy to cache database query results in Redis within an async environment. All interfaces are based on
+`suspend` functions and are fully compatible with Kotlin Coroutines.
 
 ### Key Features
 
 - **Async MapLoader/MapWriter support**: Integration with Redisson `AsyncMapLoader`/`AsyncMapWriter`
-  - `loadAllKeys()` iterates reliably in ascending primary key order
+    - `loadAllKeys()` iterates reliably in ascending primary key order
 - **Repository abstraction**: Common cache + DB access pattern (`R2dbcRedissonRepository`)
 - **Coroutines-native**: All operations are `suspend` functions
 - **Near Cache support**: Two-tier Local Cache + Redis caching
@@ -304,53 +305,53 @@ sequenceDiagram
 
 ## R2dbcRedissonRepository Key Methods
 
-| Method                                    | Description                                             |
-|-------------------------------------------|---------------------------------------------------------|
-| `exists(id)`                              | Check ID existence in cache (suspend)                   |
-| `get(id)`                                 | Retrieve entity from cache, load from DB on miss (suspend) |
-| `getAll(ids, batchSize)`                  | Batch retrieve from cache (suspend)                     |
-| `findByIdFromDb(id)`                      | Bypass cache, query DB directly (suspend)               |
-| `findAllFromDb(ids)`                      | Bypass cache, batch query DB (suspend)                  |
-| `findAll(limit, offset, sortBy, where)`   | Load from DB and sync cache (suspend)                   |
-| `put(entity)`                             | Store in cache (suspend)                                |
-| `putAll(entities, batchSize)`             | Batch store in cache (suspend)                          |
-| `invalidate(vararg ids)`                  | Remove from cache (suspend)                             |
-| `invalidateAll()`                         | Clear all cache entries (suspend)                       |
-| `invalidateByPattern(pattern, count)`     | Remove cache entries matching a pattern (suspend)       |
+| Method                                  | Description                                                |
+|-----------------------------------------|------------------------------------------------------------|
+| `exists(id)`                            | Check ID existence in cache (suspend)                      |
+| `get(id)`                               | Retrieve entity from cache, load from DB on miss (suspend) |
+| `getAll(ids, batchSize)`                | Batch retrieve from cache (suspend)                        |
+| `findByIdFromDb(id)`                    | Bypass cache, query DB directly (suspend)                  |
+| `findAllFromDb(ids)`                    | Bypass cache, batch query DB (suspend)                     |
+| `findAll(limit, offset, sortBy, where)` | Load from DB and sync cache (suspend)                      |
+| `put(entity)`                           | Store in cache (suspend)                                   |
+| `putAll(entities, batchSize)`           | Batch store in cache (suspend)                             |
+| `invalidate(vararg ids)`                | Remove from cache (suspend)                                |
+| `invalidateAll()`                       | Clear all cache entries (suspend)                          |
+| `invalidateByPattern(pattern, count)`   | Remove cache entries matching a pattern (suspend)          |
 
 ## Cache Configuration Constants (`RedisCacheConfig`)
 
 Commonly used cache mode constants are provided as named constants.
 
-| Constant                                             | Description                              |
-|------------------------------------------------------|------------------------------------------|
-| `RedisCacheConfig.READ_ONLY`                         | Read-Through only (remote cache)         |
-| `RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE`         | Read-Through + Near Cache                |
-| `RedisCacheConfig.READ_WRITE_THROUGH`                | Read-Through + Write-Through             |
-| `RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE`| Read-Write-Through + Near Cache          |
-| `RedisCacheConfig.WRITE_BEHIND`                      | Write-Behind (remote cache)              |
-| `RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE`      | Write-Behind + Near Cache                |
+| Constant                                              | Description                      |
+|-------------------------------------------------------|----------------------------------|
+| `RedisCacheConfig.READ_ONLY`                          | Read-Through only (remote cache) |
+| `RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE`          | Read-Through + Near Cache        |
+| `RedisCacheConfig.READ_WRITE_THROUGH`                 | Read-Through + Write-Through     |
+| `RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE` | Read-Write-Through + Near Cache  |
+| `RedisCacheConfig.WRITE_BEHIND`                       | Write-Behind (remote cache)      |
+| `RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE`       | Write-Behind + Near Cache        |
 
 ## Key Files and Classes
 
 ### Repository (repository/)
 
-| File                                      | Description                                         |
-|-------------------------------------------|-----------------------------------------------------|
-| `R2dbcRedissonRepository.kt`              | R2DBC async cache Repository interface              |
-| `AbstractR2dbcRedissonRepository.kt`      | R2DBC async cache Repository abstract class         |
-| `R2dbcCacheRepository.kt`                 | (Deprecated) Legacy R2DBC cache Repository          |
-| `AbstractR2dbcCacheRepository.kt`         | (Deprecated) Legacy R2DBC cache abstract class      |
+| File                                 | Description                                    |
+|--------------------------------------|------------------------------------------------|
+| `R2dbcRedissonRepository.kt`         | R2DBC async cache Repository interface         |
+| `AbstractR2dbcRedissonRepository.kt` | R2DBC async cache Repository abstract class    |
+| `R2dbcCacheRepository.kt`            | (Deprecated) Legacy R2DBC cache Repository     |
+| `AbstractR2dbcCacheRepository.kt`    | (Deprecated) Legacy R2DBC cache abstract class |
 
 ### Map (map/)
 
-| File                                    | Description                                                             |
-|-----------------------------------------|-------------------------------------------------------------------------|
-| `R2dbcEntityMapLoader.kt`               | R2DBC async MapLoader base implementation (`MapLoaderAsync`)            |
-| `R2dbcEntityMapWriter.kt`               | R2DBC async MapWriter base implementation (`MapWriterAsync`)            |
-| `R2dbcExposedEntityMapLoader.kt`        | Exposed IdTable-based MapLoader implementation                          |
-| `R2dbcExposedEntityMapWriter.kt`        | Exposed IdTable-based MapWriter implementation (Write-Through/Behind)   |
-| `AsyncIteratorSupport.kt`               | Extension to collect a Redisson `AsyncIterator` into a `List`           |
+| File                             | Description                                                           |
+|----------------------------------|-----------------------------------------------------------------------|
+| `R2dbcEntityMapLoader.kt`        | R2DBC async MapLoader base implementation (`MapLoaderAsync`)          |
+| `R2dbcEntityMapWriter.kt`        | R2DBC async MapWriter base implementation (`MapWriterAsync`)          |
+| `R2dbcExposedEntityMapLoader.kt` | Exposed IdTable-based MapLoader implementation                        |
+| `R2dbcExposedEntityMapWriter.kt` | Exposed IdTable-based MapWriter implementation (Write-Through/Behind) |
+| `AsyncIteratorSupport.kt`        | Extension to collect a Redisson `AsyncIterator` into a `List`         |
 
 ## Testing
 

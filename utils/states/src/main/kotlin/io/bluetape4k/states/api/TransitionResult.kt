@@ -18,11 +18,11 @@ import java.io.Serializable
  * @property event 전이를 발생시킨 이벤트
  * @property currentState 전이 이후 현재 상태
  */
-data class TransitionResult<S : Any, E : Any>(
+data class TransitionResult<S: Any, E: Any>(
     val previousState: S,
     val event: E,
     val currentState: S,
-) : Serializable {
+): Serializable {
 
     companion object {
         private const val serialVersionUID = 1L

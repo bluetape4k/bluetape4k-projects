@@ -14,4 +14,4 @@ package io.bluetape4k.workflow.api
  * }
  * ```
  */
-interface WorkFlow : Work
+interface WorkFlow: Work

@@ -215,14 +215,14 @@ USD.isCurrencyConversionAvailable    // true
 
 ## 주요 파일
 
-| 파일                             | 설명                                  |
-|--------------------------------|-------------------------------------|
+| 파일                             | 설명                                      |
+|--------------------------------|-----------------------------------------|
 | `CurrencySupport.kt`           | 통화 단위 생성 및 캐시 (KRW, USD, EUR, CNY, JPY) |
-| `MoneySupport.kt`              | Money 인스턴스 생성 확장 함수                 |
-| `FastMoneySupport.kt`          | FastMoney 인스턴스 생성 확장 함수             |
-| `MoneyAmountSupport.kt`        | 산술 연산자, 값 추출, 반올림, 환전, 합산 확장 함수   |
-| `CurrencyConverter.kt`         | 환율 변환기 (ECB, IMF 데이터 사용)            |
-| `CurrencyConversionSupport.kt` | 환전 가능 여부 확인 확장 함수                  |
+| `MoneySupport.kt`              | Money 인스턴스 생성 확장 함수                     |
+| `FastMoneySupport.kt`          | FastMoney 인스턴스 생성 확장 함수                 |
+| `MoneyAmountSupport.kt`        | 산술 연산자, 값 추출, 반올림, 환전, 합산 확장 함수         |
+| `CurrencyConverter.kt`         | 환율 변환기 (ECB, IMF 데이터 사용)                |
+| `CurrencyConversionSupport.kt` | 환전 가능 여부 확인 확장 함수                       |
 
 ## Money vs FastMoney
 

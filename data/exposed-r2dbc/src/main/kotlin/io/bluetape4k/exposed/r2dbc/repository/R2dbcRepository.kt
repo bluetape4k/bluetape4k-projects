@@ -323,7 +323,7 @@ interface R2dbcRepository<ID: Any, E: Any> {
      * 엔티티를 삭제합니다.
      */
     suspend fun delete(entity: E): Int = deleteById(extractId(entity))
-    
+
     /**
      * ID로 엔티티를 삭제합니다.
      * @param id 삭제할 엔티티의 ID
@@ -453,7 +453,7 @@ interface R2dbcRepository<ID: Any, E: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <D : Any> batchUpsert(
+    suspend fun <D: Any> batchUpsert(
         entities: Iterable<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -489,7 +489,7 @@ interface R2dbcRepository<ID: Any, E: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <D : Any> batchUpsert(
+    suspend fun <D: Any> batchUpsert(
         entities: Sequence<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -552,14 +552,14 @@ interface R2dbcRepository<ID: Any, E: Any> {
  *
  * @param E 엔티티 타입
  */
-interface IntR2dbcRepository<E : Any> : R2dbcRepository<Int, E>
+interface IntR2dbcRepository<E: Any>: R2dbcRepository<Int, E>
 
 /**
  * [Long] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
  * @param E 엔티티 타입
  */
-interface LongR2dbcRepository<E : Any> : R2dbcRepository<Long, E>
+interface LongR2dbcRepository<E: Any>: R2dbcRepository<Long, E>
 
 /**
  * Kotlin [kotlin.uuid.Uuid] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
@@ -567,18 +567,18 @@ interface LongR2dbcRepository<E : Any> : R2dbcRepository<Long, E>
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidR2dbcRepository<E : Any> : R2dbcRepository<Uuid, E>
+interface UuidR2dbcRepository<E: Any>: R2dbcRepository<Uuid, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
  * @param E 엔티티 타입
  */
-interface UUIDR2dbcRepository<E : Any> : R2dbcRepository<UUID, E>
+interface UUIDR2dbcRepository<E: Any>: R2dbcRepository<UUID, E>
 
 /**
  * [String] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
  *
  * @param E 엔티티 타입
  */
-interface StringR2dbcRepository<E : Any> : R2dbcRepository<String, E>
+interface StringR2dbcRepository<E: Any>: R2dbcRepository<String, E>

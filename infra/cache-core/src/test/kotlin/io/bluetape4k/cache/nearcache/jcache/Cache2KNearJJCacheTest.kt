@@ -9,7 +9,7 @@ import javax.cache.expiry.EternalExpiryPolicy
 class Cache2KNearJJCacheTest: AbstractNearJCacheTest() {
 
     companion object: KLogging()
-    
+
     override val backCache: JCache<String, Any> = JCaching.Cache2k.getOrCreate(
         name = "back-cache-" + randomKey(),
         configuration = jcacheConfiguration {

@@ -21,8 +21,8 @@ import kotlin.system.measureTimeMillis
  * 대량의 데이터 삽입 시에는 Stateless 가 Stateful 보다 최소 3배 정도 빠르다
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class StatelessSessionTest : AbstractJpaTest() {
-    companion object : KLogging() {
+class StatelessSessionTest: AbstractJpaTest() {
+    companion object: KLogging() {
         private const val COUNT = 10 // 1_000
         private const val DETAIL_COUNT = 10 // 1_000
         private const val REPEAT_COUNT = 3
@@ -58,7 +58,7 @@ class StatelessSessionTest : AbstractJpaTest() {
     }
 
     @Nested
-    inner class WithSession : AbstractJpaTest() {
+    inner class WithSession: AbstractJpaTest() {
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with session`() {
             val elapsed =
@@ -89,7 +89,7 @@ class StatelessSessionTest : AbstractJpaTest() {
     }
 
     @Nested
-    inner class WithStateless : AbstractJpaTest() {
+    inner class WithStateless: AbstractJpaTest() {
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with stateless`() {
             val elapsed =

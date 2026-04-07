@@ -9,7 +9,7 @@ import java.time.Instant
 
 class BigQueryResultRowTest {
 
-    private object ResultRowTable : Table("result_row_test") {
+    private object ResultRowTable: Table("result_row_test") {
         val region = varchar("region", 32)
         val amount = decimal("amount", 10, 2).nullable()
         val occurredAt = timestamp("occurred_at")

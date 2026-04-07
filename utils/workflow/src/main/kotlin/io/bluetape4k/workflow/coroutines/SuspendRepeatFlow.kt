@@ -8,10 +8,9 @@ import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.currentCoroutineContext
-import kotlin.coroutines.coroutineContext
-import kotlin.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlin.time.Duration
 
 /**
  * 조건이 만족하는 동안 작업을 반복 실행하는 코루틴 워크플로입니다.
@@ -50,9 +49,9 @@ class SuspendRepeatFlow(
     private val maxIterations: Int = Int.MAX_VALUE,
     private val repeatDelay: Duration = Duration.ZERO,
     private val flowName: String = "suspend-repeat-flow",
-) : SuspendWorkFlow {
+): SuspendWorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override suspend fun execute(context: WorkContext): WorkReport {
         val workName = (work as? NamedSuspendWork)?.name ?: work.javaClass.simpleName

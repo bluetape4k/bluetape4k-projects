@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
+fun <T: Any, R: Any> Cache<T, R>.asyncMemoizer(
     evaluator: (T) -> CompletableFuture<R>,
 ): EhCacheAsyncMemoizer<T, R> = EhCacheAsyncMemoizer(this, evaluator)
 
@@ -44,7 +44,7 @@ fun <T : Any, R : Any> Cache<T, R>.asyncMemoizer(
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
+fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
     cache: Cache<T, R>,
 ): EhCacheAsyncMemoizer<T, R> = EhCacheAsyncMemoizer(cache, this)
 
@@ -69,11 +69,11 @@ fun <T : Any, R : Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
  * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이
  * Virtual Thread 환경에서도 안전하게 동작합니다.
  */
-class EhCacheAsyncMemoizer<T : Any, R : Any>(
+class EhCacheAsyncMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
     private val evaluator: (T) -> CompletableFuture<R>,
-) : AsyncMemoizer<T, R> {
-    companion object : KLoggingChannel()
+): AsyncMemoizer<T, R> {
+    companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
 

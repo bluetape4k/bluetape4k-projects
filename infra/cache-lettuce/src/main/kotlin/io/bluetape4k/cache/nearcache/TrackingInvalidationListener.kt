@@ -35,12 +35,12 @@ import java.nio.ByteBuffer
  *
  * @param V 값 타입
  */
-class TrackingInvalidationListener<V : Any>(
+class TrackingInvalidationListener<V: Any>(
     private val frontCache: LettuceLocalCache<String, V>,
     private val connection: StatefulRedisConnection<String, V>,
     private val cacheName: String,
-) : AutoCloseable {
-    companion object : KLogging() {
+): AutoCloseable {
+    companion object: KLogging() {
         private val trackingEnabled = TrackingArgs.Builder.enabled().noloop()
         private val trackingDisabled = TrackingArgs.Builder.enabled(false)
     }
@@ -73,7 +73,7 @@ class TrackingInvalidationListener<V : Any>(
         val prefix = "$cacheName:"
         val keys =
             when (keysRaw) {
-                is List<*> -> {
+                is List<*>   -> {
                     keysRaw.filterNotNull().mapNotNull { item ->
                         decodeToFullKey(item)?.let { if (it.startsWith(prefix)) it.removePrefix(prefix) else null }
                     }
@@ -90,7 +90,7 @@ class TrackingInvalidationListener<V : Any>(
                     )?.let { if (it.startsWith(prefix)) listOf(it.removePrefix(prefix)) else emptyList() }
                         ?: emptyList()
                 }
-                else -> {
+                else         -> {
                     emptyList()
                 }
             }
@@ -106,8 +106,8 @@ class TrackingInvalidationListener<V : Any>(
             when (item) {
                 is ByteBuffer -> StringCodec.UTF8.decodeKey(item.duplicate())
                 is ByteArray -> String(item, Charsets.UTF_8)
-                is String -> item
-                else -> null
+                is String    -> item
+                else         -> null
             }
         } catch (e: Exception) {
             log.warn(e) { "Failed to decode invalidation key from $item" }

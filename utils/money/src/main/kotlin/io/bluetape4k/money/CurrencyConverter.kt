@@ -37,10 +37,13 @@ object CurrencyConvertor: KLogging() {
 
     /** 원화 기준 변환기입니다. */
     val KRWConversion: CurrencyConversion by lazy { getConversion(KRW) }
+
     /** 미국 달러 기준 변환기입니다. */
     val USDConversion: CurrencyConversion by lazy { getConversion(USD) }
+
     /** 유로 기준 변환기입니다. */
     val EURConversion: CurrencyConversion by lazy { getConversion(EUR) }
+
     /** 엔화 기준 변환기입니다. */
     val JPYConversion: CurrencyConversion by lazy { getConversion(JPY) }
 

@@ -13,7 +13,11 @@ import io.bluetape4k.support.requireInRange
  */
 enum class CollectKind {
 
-    Year, Month, Day, Hour, Minute;
+    Year,
+    Month,
+    Day,
+    Hour,
+    Minute;
 
     val value: Int = ordinal
 

@@ -104,7 +104,7 @@ data class BoundingBox(
      */
     fun contains(other: BoundingBox): Boolean =
         other.minLat >= minLat && other.maxLat <= maxLat &&
-        other.minLon >= minLon && other.maxLon <= maxLon
+                other.minLon >= minLon && other.maxLon <= maxLon
 
     /**
      * 주어진 [BoundingBox]와 이 경계 영역이 겹치는지 여부를 반환합니다.
@@ -121,7 +121,7 @@ data class BoundingBox(
      */
     fun intersects(other: BoundingBox): Boolean =
         minLat <= other.maxLat && maxLat >= other.minLat &&
-        minLon <= other.maxLon && maxLon >= other.minLon
+                minLon <= other.maxLon && maxLon >= other.minLon
 
     /**
      * 이 경계 영역과 주어진 [BoundingBox]를 모두 포함하는 최소 경계 영역을 반환합니다.
@@ -174,10 +174,10 @@ data class BoundingBox(
      * @param other 비교할 경계 영역
      */
     fun relationTo(other: BoundingBox): BoundingBoxRelation = when {
-        contains(other) -> BoundingBoxRelation.CONTAINS
+        contains(other)   -> BoundingBoxRelation.CONTAINS
         other.contains(this) -> BoundingBoxRelation.WITHIN
         intersects(other) -> BoundingBoxRelation.INTERSECTS
-        else -> BoundingBoxRelation.DISJOINT
+        else              -> BoundingBoxRelation.DISJOINT
     }
 
     override fun compareTo(other: BoundingBox): Int {

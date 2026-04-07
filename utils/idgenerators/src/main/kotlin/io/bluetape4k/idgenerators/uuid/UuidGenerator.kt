@@ -26,8 +26,8 @@ import java.util.*
  */
 class UuidGenerator(
     private val generator: Uuid.Generator = Uuid.V7,
-) : IdGenerator<UUID> by generator {
-    companion object : KLogging()
+): IdGenerator<UUID> by generator {
+    companion object: KLogging()
 
     /**
      * UUID 값 객체를 직접 생성합니다.

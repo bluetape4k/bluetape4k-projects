@@ -25,7 +25,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Cities : Table() {
+    object Cities: Table() {
         val id = integer("city_id").autoIncrement()
         val name = varchar("name", 50)
 
@@ -46,7 +46,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Users : Table() {
+    object Users: Table() {
         val id = varchar("id", 10)
         val name = varchar("name", 50)
         val cityId = optReference("city_id", Cities.id)
@@ -73,7 +73,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object UserData : Table() {
+    object UserData: Table() {
         val userId = reference("user_id", Users.id)
         val comment = varchar("comment", 30)
         val value = integer("value")
@@ -91,7 +91,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object Sales : Table() {
+    object Sales: Table() {
         val year = integer("year")
         val month = integer("month")
         val product = varchar("product", 30).nullable()
@@ -107,7 +107,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object SomeAmounts : Table() {
+    object SomeAmounts: Table() {
         val amount = decimal("amount", 8, 2)
     }
 
@@ -351,7 +351,7 @@ object DMLTestData {
      * ALTER TABLE orgs ADD CONSTRAINT orgs_uid_unique UNIQUE (uid)
      * ```
      */
-    object Orgs : IntIdTable() {
+    object Orgs: IntIdTable() {
         val uid =
             varchar("uid", 36)
                 .clientDefault { Uuid.V7.nextIdAsString() }
@@ -372,7 +372,7 @@ object DMLTestData {
      * )
      * ```
      */
-    object OrgMemberships : IntIdTable() {
+    object OrgMemberships: IntIdTable() {
         val orgId = reference("org", Orgs.uid)
     }
 }

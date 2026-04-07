@@ -82,7 +82,7 @@ class BigQueryContext(
     val sqlGenDb: Database,
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val DEFAULT_QUERY_TIMEOUT_MS = 30_000L
 
         /**
@@ -150,7 +150,7 @@ class BigQueryContext(
      * }
      * ```
      */
-    fun <T : Table> T.execInsert(body: T.(InsertStatement<Number>) -> Unit): QueryResponse {
+    fun <T: Table> T.execInsert(body: T.(InsertStatement<Number>) -> Unit): QueryResponse {
         val stmt = InsertStatement<Number>(this)
         body(stmt)
         val sql = transaction(sqlGenDb) { stmt.expandSql(this) }
@@ -158,7 +158,7 @@ class BigQueryContext(
     }
 
     /** Exposed INSERT DSL을 BigQuery에서 비동기로 실행합니다. */
-    suspend fun <T : Table> T.execInsertSuspending(body: T.(InsertStatement<Number>) -> Unit): QueryResponse =
+    suspend fun <T: Table> T.execInsertSuspending(body: T.(InsertStatement<Number>) -> Unit): QueryResponse =
         withContext(dispatcher) { execInsert(body) }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ class BigQueryContext(
      * }
      * ```
      */
-    fun <T : Table> T.execUpdate(
+    fun <T: Table> T.execUpdate(
         where: Op<Boolean>,
         body: T.(UpdateStatement) -> Unit,
     ): QueryResponse {
@@ -183,7 +183,7 @@ class BigQueryContext(
     }
 
     /** Exposed UPDATE DSL을 BigQuery에서 비동기로 실행합니다. */
-    suspend fun <T : Table> T.execUpdateSuspending(
+    suspend fun <T: Table> T.execUpdateSuspending(
         where: Op<Boolean>,
         body: T.(UpdateStatement) -> Unit,
     ): QueryResponse = withContext(dispatcher) { execUpdate(where, body) }
@@ -199,14 +199,14 @@ class BigQueryContext(
      * }
      * ```
      */
-    fun <T : Table> T.execDelete(where: Op<Boolean>): QueryResponse {
+    fun <T: Table> T.execDelete(where: Op<Boolean>): QueryResponse {
         val stmt = DeleteStatement(this, where = where)
         val sql = transaction(sqlGenDb) { stmt.expandSql(this) }
         return runRawQuery(sql)
     }
 
     /** Exposed DELETE DSL을 BigQuery에서 비동기로 실행합니다. */
-    suspend fun <T : Table> T.execDeleteSuspending(where: Op<Boolean>): QueryResponse =
+    suspend fun <T: Table> T.execDeleteSuspending(where: Op<Boolean>): QueryResponse =
         withContext(dispatcher) { execDelete(where) }
 
     // ── DDL ──────────────────────────────────────────────────────────────────

@@ -13,9 +13,9 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class TrinoExtensionsTest : AbstractTrinoTest() {
+class TrinoExtensionsTest: AbstractTrinoTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val CREATED_AT: Instant = Instant.parse("2024-06-01T00:00:00Z")
 
         private val FIXTURES = listOf(

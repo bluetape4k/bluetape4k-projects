@@ -14,7 +14,6 @@ import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.Instant
 import java.util.*
@@ -33,7 +32,7 @@ object UserSchema {
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    object UserTable : LongIdTable("lettuce_users") {
+    object UserTable: LongIdTable("lettuce_users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
         val email = varchar("email", 255)
@@ -46,7 +45,7 @@ object UserSchema {
         val lastName: String,
         val email: String,
         val createdAt: Instant = Instant.now(),
-    ) : java.io.Serializable
+    ): java.io.Serializable
 
     private val lastUserId = atomic(10_000L)
 
@@ -123,7 +122,7 @@ object UserSchema {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    object UserCredentialsTable : TimebasedUUIDTable("lettuce_user_credentials") {
+    object UserCredentialsTable: TimebasedUUIDTable("lettuce_user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -136,7 +135,7 @@ object UserSchema {
         val email: String,
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
-    ) : java.io.Serializable
+    ): java.io.Serializable
 
     fun newUserCredentialsRecord(): UserCredentialsRecord =
         UserCredentialsRecord(

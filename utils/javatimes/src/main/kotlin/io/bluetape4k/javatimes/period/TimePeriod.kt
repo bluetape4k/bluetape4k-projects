@@ -29,15 +29,15 @@ open class TimePeriod(
     private var _start: ZonedDateTime = MinPeriodTime,
     private var _end: ZonedDateTime = MaxPeriodTime,
     override val readonly: Boolean = false,
-) : AbstractValueObject(),
-    ITimePeriod {
-    companion object : KLogging() {
+): AbstractValueObject(),
+   ITimePeriod {
+    companion object: KLogging() {
         val AnyTime: TimePeriod = TimePeriod(readonly = true)
     }
 
-    constructor(src: ITimePeriod, readonly: Boolean = src.readonly) : this(src.start, src.end, readonly)
+    constructor(src: ITimePeriod, readonly: Boolean = src.readonly): this(src.start, src.end, readonly)
 
-    constructor(start: ZonedDateTime, duration: Duration, readonly: Boolean = false) : this(
+    constructor(start: ZonedDateTime, duration: Duration, readonly: Boolean = false): this(
         start,
         start + duration,
         readonly
@@ -127,9 +127,9 @@ open class TimePeriod(
 
     override fun equalProperties(other: Any): Boolean =
         other is ITimePeriod &&
-            start == other.start &&
-            end == other.end &&
-            readonly == other.readonly
+                start == other.start &&
+                end == other.end &&
+                readonly == other.readonly
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 

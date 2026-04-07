@@ -34,7 +34,7 @@ object Uuid {
      * [IdGenerator]를 확장하여 UUID 전용 편의 메서드를 추가합니다.
      * 모든 문자열 반환 메서드는 URL-safe Base62 인코딩([Url62])을 사용합니다.
      */
-    interface Generator : IdGenerator<UUID> {
+    interface Generator: IdGenerator<UUID> {
         /**
          * 다음 UUID를 생성합니다. [nextId]와 동일합니다.
          *
@@ -90,7 +90,7 @@ object Uuid {
      * // id.version() == 1
      * ```
      */
-    object V1 : Generator {
+    object V1: Generator {
         private val generator by lazy { Generators.timeBasedGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -108,7 +108,7 @@ object Uuid {
      * // id.version() == 4
      * ```
      */
-    object V4 : Generator {
+    object V4: Generator {
         private val generator by lazy { Generators.randomBasedGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -127,7 +127,7 @@ object Uuid {
      * // id.version() == 5
      * ```
      */
-    object V5 : Generator {
+    object V5: Generator {
         private val namebasedGenerator by lazy { Generators.nameBasedGenerator() }
         private val randomGenerator by lazy { Generators.randomBasedGenerator() }
 
@@ -146,7 +146,7 @@ object Uuid {
      * // id.version() == 6
      * ```
      */
-    object V6 : Generator {
+    object V6: Generator {
         private val generator by lazy { Generators.timeBasedReorderedGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -164,7 +164,7 @@ object Uuid {
      * // id.version() == 7
      * ```
      */
-    object V7 : Generator {
+    object V7: Generator {
         private val generator by lazy { Generators.timeBasedEpochGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -215,7 +215,7 @@ object Uuid {
 
     private class RandomGenerator(
         random: Random,
-    ) : Generator {
+    ): Generator {
         private val generator by lazy { Generators.randomBasedGenerator(random) }
 
         override fun nextId(): UUID = generator.generate()
@@ -225,7 +225,7 @@ object Uuid {
 
     private class EpochRandomGenerator(
         random: Random,
-    ) : Generator {
+    ): Generator {
         private val generator by lazy { Generators.timeBasedEpochGenerator(random) }
 
         override fun nextId(): UUID = generator.generate()
@@ -235,7 +235,7 @@ object Uuid {
 
     private class NamebasedGenerator(
         private val name: String,
-    ) : Generator {
+    ): Generator {
         private val namebasedGenerator by lazy { Generators.nameBasedGenerator() }
 
         override fun nextId(): UUID = namebasedGenerator.generate(name)

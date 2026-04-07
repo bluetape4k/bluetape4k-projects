@@ -120,7 +120,7 @@ interface SuspendCache<K, V> {
     /**
      * 캐시 이벤트 소비자를 등록할 수 있는 EventPublisher입니다.
      */
-    interface EventPublisher : io.github.resilience4j.core.EventPublisher<CacheEvent> {
+    interface EventPublisher: io.github.resilience4j.core.EventPublisher<CacheEvent> {
         /** 캐시 히트 이벤트 소비자를 등록합니다. */
         fun onCacheHit(eventConsumer: EventConsumer<CacheEvent>): EventPublisher
 

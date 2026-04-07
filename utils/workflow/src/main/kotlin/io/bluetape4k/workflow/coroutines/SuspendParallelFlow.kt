@@ -49,9 +49,9 @@ class SuspendParallelFlow(
     private val works: List<SuspendWork>,
     private val policy: ParallelPolicy = ParallelPolicy.ALL,
     private val flowName: String = "suspend-parallel-flow",
-) : SuspendWorkFlow {
+): SuspendWorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override suspend fun execute(context: WorkContext): WorkReport {
         log.debug { "$flowName 시작. works=${works.size}, policy=$policy" }

@@ -63,12 +63,12 @@ fun Query.fetchBatchedResultFlow(
 open class SuspendedQuery(
     set: FieldSet,
     where: Op<Boolean>? = null,
-) : Query(set, where) {
+): Query(set, where) {
 
     constructor(
         sourceQuery: Query,
         where: Op<Boolean>? = null,
-    ) : this(set = sourceQuery.set, where = sourceQuery.where?.and(where ?: Op.TRUE) ?: where)
+    ): this(set = sourceQuery.set, where = sourceQuery.where?.and(where ?: Op.TRUE) ?: where)
 
     /**
      * 결과를 `batchSize` 단위로 끊어 [Flow]로 방출합니다.
@@ -107,8 +107,8 @@ open class SuspendedQuery(
         val columnType = cursorColumn.columnType
         require(
             columnType is IntegerColumnType ||
-                columnType is LongColumnType ||
-                columnType is EntityIDColumnType<*>
+                    columnType is LongColumnType ||
+                    columnType is EntityIDColumnType<*>
         ) {
             "Batched select only supports Int/Long id columns. (column=${cursorColumn.name})"
         }
@@ -120,9 +120,9 @@ open class SuspendedQuery(
         fun toLong(autoIncVal: Any): Long =
             when (autoIncVal) {
                 is EntityID<*> -> toLong(autoIncVal.value)
-                is Int -> autoIncVal.toLong()
+                is Int  -> autoIncVal.toLong()
                 is Long -> autoIncVal
-                else -> throw IllegalArgumentException(
+                else    -> throw IllegalArgumentException(
                     "Batched select only supports Int/Long id but was ${autoIncVal::class.qualifiedName}"
                 )
             }
@@ -141,33 +141,33 @@ open class SuspendedQuery(
                         this@SuspendedQuery.copy().adjustWhere {
                             lastOffset?.let { lastOffset ->
                                 whereOp and
-                                    if (fetchInAscendingOrder) {
-                                        when (cursorColumn.columnType) {
-                                            is EntityIDColumnType<*> -> {
-                                                (cursorColumn as? Column<EntityID<Long>>)?.let {
-                                                    (it greater lastOffset)
-                                                } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
-                                                    (it greater lastOffset.toInt())
-                                                } ?: (cursorColumn greater lastOffset)
+                                        if (fetchInAscendingOrder) {
+                                            when (cursorColumn.columnType) {
+                                                is EntityIDColumnType<*> -> {
+                                                    (cursorColumn as? Column<EntityID<Long>>)?.let {
+                                                        (it greater lastOffset)
+                                                    } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
+                                                        (it greater lastOffset.toInt())
+                                                    } ?: (cursorColumn greater lastOffset)
+                                                }
+                                                else                     -> {
+                                                    (cursorColumn greater lastOffset)
+                                                }
                                             }
-                                            else -> {
-                                                (cursorColumn greater lastOffset)
+                                        } else {
+                                            when (cursorColumn.columnType) {
+                                                is EntityIDColumnType<*> -> {
+                                                    (cursorColumn as? Column<EntityID<Long>>)?.let {
+                                                        (it less lastOffset)
+                                                    } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
+                                                        (it less lastOffset.toInt())
+                                                    } ?: (cursorColumn less lastOffset)
+                                                }
+                                                else                     -> {
+                                                    (cursorColumn less lastOffset)
+                                                }
                                             }
                                         }
-                                    } else {
-                                        when (cursorColumn.columnType) {
-                                            is EntityIDColumnType<*> -> {
-                                                (cursorColumn as? Column<EntityID<Long>>)?.let {
-                                                    (it less lastOffset)
-                                                } ?: (cursorColumn as? Column<EntityID<Int>>)?.let {
-                                                    (it less lastOffset.toInt())
-                                                } ?: (cursorColumn less lastOffset)
-                                            }
-                                            else -> {
-                                                (cursorColumn less lastOffset)
-                                            }
-                                        }
-                                    }
                             } ?: whereOp
                         }
                     val results = query.iterator().toList()

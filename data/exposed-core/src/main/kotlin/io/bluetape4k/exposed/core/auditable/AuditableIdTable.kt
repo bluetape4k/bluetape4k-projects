@@ -27,7 +27,7 @@ import java.time.Instant
  * }
  * ```
  */
-abstract class AuditableIdTable<ID : Any>(name: String = "") : IdTable<ID>(name) {
+abstract class AuditableIdTable<ID: Any>(name: String = ""): IdTable<ID>(name) {
 
     /**
      * 레코드를 생성한 사용자명 컬럼입니다.

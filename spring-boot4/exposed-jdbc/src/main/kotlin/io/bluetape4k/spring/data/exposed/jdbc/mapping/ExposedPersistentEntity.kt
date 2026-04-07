@@ -13,7 +13,7 @@ import org.springframework.data.mapping.PersistentEntity
  * val table = entity.getTable()             // Users
  * ```
  */
-interface ExposedPersistentEntity<T : Any> : PersistentEntity<T, ExposedPersistentProperty> {
+interface ExposedPersistentEntity<T: Any>: PersistentEntity<T, ExposedPersistentProperty> {
 
     /**
      * 이 Entity의 companion object에서 추출한 [EntityClass] 인스턴스 (없으면 null)

@@ -18,9 +18,9 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
  * //   → ExposedR2dbcRepositoryFactory.getRepository(UserRepository::class.java)
  * ```
  */
-class ExposedR2dbcRepositoryFactoryBean<T : Repository<E, ID>, E : Any, ID : Any>(
+class ExposedR2dbcRepositoryFactoryBean<T: Repository<E, ID>, E: Any, ID: Any>(
     repositoryInterface: Class<out T>,
-) : RepositoryFactoryBeanSupport<T, E, ID>(repositoryInterface) {
+): RepositoryFactoryBeanSupport<T, E, ID>(repositoryInterface) {
 
     override fun createRepositoryFactory(): RepositoryFactorySupport =
         ExposedR2dbcRepositoryFactory()

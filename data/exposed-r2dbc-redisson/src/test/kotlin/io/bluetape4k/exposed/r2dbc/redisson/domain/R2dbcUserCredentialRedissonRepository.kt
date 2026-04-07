@@ -5,7 +5,6 @@ import io.bluetape4k.exposed.r2dbc.redisson.repository.AbstractR2dbcRedissonRepo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.redisson.api.RedissonClient
@@ -15,11 +14,11 @@ import java.util.*
 class R2dbcUserCredentialRedissonRepository(
     redissonClient: RedissonClient,
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:r2dbc:user-credentials"),
-) : AbstractR2dbcRedissonRepository<UUID, UserSchema.UserCredentialsRecord>(
-        redissonClient,
-        config
-    ) {
-    companion object : KLoggingChannel()
+): AbstractR2dbcRedissonRepository<UUID, UserSchema.UserCredentialsRecord>(
+    redissonClient,
+    config
+) {
+    companion object: KLoggingChannel()
 
     override val table: UserSchema.UserCredentialsTable = UserSchema.UserCredentialsTable
 

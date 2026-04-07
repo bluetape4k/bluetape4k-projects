@@ -13,8 +13,8 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
-class JSONArrayExtensionsTest : AbstractFastjson2Test() {
-    companion object : KLogging()
+class JSONArrayExtensionsTest: AbstractFastjson2Test() {
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `read value as list for json array`() {

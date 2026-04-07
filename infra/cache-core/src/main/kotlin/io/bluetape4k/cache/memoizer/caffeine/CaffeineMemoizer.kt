@@ -20,7 +20,7 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
-fun <T : Any, R : Any> Cache<T, R>.memoizer(
+fun <T: Any, R: Any> Cache<T, R>.memoizer(
     evaluator: (T) -> R,
 ): CaffeineMemoizer<T, R> = CaffeineMemoizer(this, evaluator)
 
@@ -34,7 +34,7 @@ fun <T : Any, R : Any> Cache<T, R>.memoizer(
  * // result == 5
  * ```
  */
-fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): CaffeineMemoizer<T, R> =
+fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): CaffeineMemoizer<T, R> =
     CaffeineMemoizer(cache, this)
 
 /**
@@ -50,11 +50,11 @@ fun <T : Any, R : Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): CaffeineMemo
  * @property cache 실행한 값을 저장할 Cache
  * @property evaluator 캐시 값을 생성하는 메소드
  */
-class CaffeineMemoizer<T : Any, R : Any>(
+class CaffeineMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
     private val evaluator: (T) -> R,
-) : Memoizer<T, R> {
-    companion object : KLogging()
+): Memoizer<T, R> {
+    companion object: KLogging()
 
     private val lock = ReentrantLock()
 

@@ -32,8 +32,8 @@ import io.bluetape4k.logging.trace
  */
 class UlidGenerator(
     factory: ULID.Factory = ULID,
-) : IdGenerator<String> {
-    companion object : KLogging()
+): IdGenerator<String> {
+    companion object: KLogging()
 
     private val statefulMonotonic: ULID.StatefulMonotonic =
         ULID.statefulMonotonic(factory)

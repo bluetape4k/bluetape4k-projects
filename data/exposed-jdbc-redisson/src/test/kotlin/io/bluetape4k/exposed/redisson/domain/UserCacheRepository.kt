@@ -16,11 +16,11 @@ import java.time.Instant
 class UserCacheRepository(
     redissonClient: RedissonClient,
     config: RedissonCacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(name = "exposed:remote:users"),
-) : AbstractJdbcRedissonRepository<Long, UserRecord>(
-        redissonClient,
-        config
-    ) {
-    companion object : KLogging()
+): AbstractJdbcRedissonRepository<Long, UserRecord>(
+    redissonClient,
+    config
+) {
+    companion object: KLogging()
 
     override val table: UserTable = UserTable
 

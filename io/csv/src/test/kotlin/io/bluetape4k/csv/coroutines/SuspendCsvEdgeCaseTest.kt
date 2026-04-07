@@ -26,7 +26,7 @@ import kotlin.text.Charsets.UTF_8
  * - 파일 기반 왕복 정확성
  */
 class SuspendCsvEdgeCaseTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @TempDir
     lateinit var tempDir: File

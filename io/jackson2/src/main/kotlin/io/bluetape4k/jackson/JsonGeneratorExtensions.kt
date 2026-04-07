@@ -117,15 +117,15 @@ fun JsonGenerator.writeNumber(fieldName: String, value: Number) = apply {
 
     writeField(fieldName) {
         when (value) {
-            is Byte -> writeNumber(value.toInt())
-            is Short -> writeNumber(value)
-            is Int -> writeNumber(value)
-            is Long -> writeNumber(value)
-            is Float -> writeNumber(value)
+            is Byte   -> writeNumber(value.toInt())
+            is Short  -> writeNumber(value)
+            is Int    -> writeNumber(value)
+            is Long   -> writeNumber(value)
+            is Float  -> writeNumber(value)
             is Double -> writeNumber(value)
             is BigDecimal -> writeNumber(value)
             is BigInteger -> writeNumber(value)
-            else -> writeObject(value)
+            else      -> writeObject(value)
         }
     }
 }

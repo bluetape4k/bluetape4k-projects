@@ -14,7 +14,7 @@ class BoardSchema {
      * ALTER TABLE board ADD CONSTRAINT board_name_unique UNIQUE ("name");
      * ```
      */
-    object Boards : IntIdTable("board") {
+    object Boards: IntIdTable("board") {
         val name = varchar("name", 255).uniqueIndex()
     }
 
@@ -45,7 +45,7 @@ class BoardSchema {
      *          ON DELETE RESTRICT ON UPDATE RESTRICT;
      * ```
      */
-    object Posts : LongIdTable("posts") {
+    object Posts: LongIdTable("posts") {
         val boardId = optReference("board_id", Boards.id)
         val parentId = optReference("parent_id", this)
         val categoryId = optReference("category_uniqueId", Categories.uniqueId).uniqueIndex()
@@ -64,7 +64,7 @@ class BoardSchema {
      *      ADD CONSTRAINT categories_uniqueid_unique UNIQUE ("uniqueId");
      * ```
      */
-    object Categories : IntIdTable("categories") {
+    object Categories: IntIdTable("categories") {
         val uniqueId =
             varchar("uniqueId", 22)
                 .clientDefault { Uuid.V7.nextIdAsString() }

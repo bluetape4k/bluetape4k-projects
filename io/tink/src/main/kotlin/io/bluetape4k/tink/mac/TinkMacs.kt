@@ -17,7 +17,7 @@ import io.bluetape4k.tink.registerTink
  * // valid == true
  * ```
  */
-object TinkMacs : KLogging() {
+object TinkMacs: KLogging() {
 
     init {
         registerTink()

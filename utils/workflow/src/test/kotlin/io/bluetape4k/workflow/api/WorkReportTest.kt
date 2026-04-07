@@ -5,10 +5,9 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-class WorkReportTest : AbstractWorkflowTest() {
+class WorkReportTest: AbstractWorkflowTest() {
 
     @Test
     fun `Success 생성 및 프로퍼티`() {
@@ -175,11 +174,11 @@ class WorkReportTest : AbstractWorkflowTest() {
 
         val statuses = reports.map { report ->
             when (report) {
-                is WorkReport.Success -> WorkStatus.COMPLETED
-                is WorkReport.Failure -> WorkStatus.FAILED
+                is WorkReport.Success   -> WorkStatus.COMPLETED
+                is WorkReport.Failure   -> WorkStatus.FAILED
                 is WorkReport.PartialSuccess -> WorkStatus.PARTIAL
                 is WorkReport.Cancelled -> WorkStatus.CANCELLED
-                is WorkReport.Aborted -> WorkStatus.ABORTED
+                is WorkReport.Aborted   -> WorkStatus.ABORTED
             }
         }
 

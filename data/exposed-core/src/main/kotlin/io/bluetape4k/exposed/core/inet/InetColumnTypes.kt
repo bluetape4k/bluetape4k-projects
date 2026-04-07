@@ -21,7 +21,7 @@ import java.net.InetAddress
  * // Hosts.ip.columnType is InetAddressColumnType
  * ```
  */
-class InetAddressColumnType : ColumnType<InetAddress>() {
+class InetAddressColumnType: ColumnType<InetAddress>() {
 
     /**
      * DB SQL 타입을 반환한다.
@@ -75,7 +75,7 @@ class InetAddressColumnType : ColumnType<InetAddress>() {
  * // Networks.network.columnType is CidrColumnType
  * ```
  */
-class CidrColumnType : ColumnType<String>() {
+class CidrColumnType: ColumnType<String>() {
 
     /**
      * DB SQL 타입을 반환한다.

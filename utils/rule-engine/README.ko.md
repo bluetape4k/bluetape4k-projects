@@ -349,12 +349,12 @@ val mvelRules = definitions.map { it.toMvelRule() }
 
 ## 설정 옵션
 
-| 옵션 | 설명 | 기본값 |
-|------|------|--------|
-| `skipOnFirstAppliedRule` | 첫 번째 성공 Rule 이후 중단 | `false` |
-| `skipOnFirstFailedRule` | 첫 번째 실패 Rule 이후 중단 | `false` |
-| `skipOnFirstNonTriggeredRule` | 첫 번째 미트리거 Rule 이후 중단 | `false` |
-| `priorityThreshold` | 이 값 초과 우선순위 Rule 무시 | `Int.MAX_VALUE` |
+| 옵션                            | 설명                   | 기본값             |
+|-------------------------------|----------------------|-----------------|
+| `skipOnFirstAppliedRule`      | 첫 번째 성공 Rule 이후 중단   | `false`         |
+| `skipOnFirstFailedRule`       | 첫 번째 실패 Rule 이후 중단   | `false`         |
+| `skipOnFirstNonTriggeredRule` | 첫 번째 미트리거 Rule 이후 중단 | `false`         |
+| `priorityThreshold`           | 이 값 초과 우선순위 Rule 무시  | `Int.MAX_VALUE` |
 
 ## 의존성
 

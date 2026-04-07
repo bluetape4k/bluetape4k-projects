@@ -4,7 +4,9 @@ English | [한국어](./README.ko.md)
 
 ## Overview
 
-`bluetape4k-okio` is a high-performance I/O extension module built on Square's [Okio](https://square.github.io/okio/) library. On top of Okio's `Source`/`Sink` abstractions, it provides compression, encryption, Base64 encoding, NIO channel integration, and Kotlin Coroutines async I/O.
+`bluetape4k-okio` is a high-performance I/O extension module built on Square's [Okio](https://square.github.io/okio/) library. On top of Okio's
+`Source`/
+`Sink` abstractions, it provides compression, encryption, Base64 encoding, NIO channel integration, and Kotlin Coroutines async I/O.
 
 ## Key Features
 
@@ -81,6 +83,7 @@ val streamingSource = source.asDecompressSource(Compressors.Streaming.Zstd)
 ```
 
 **Important notes:**
+
 - `CompressableSink` finalizes compression at `close()`. Always use `close()` or `use {}`.
 - `StreamingCompressSink` also requires `close()` to write the footer/finalize bytes.
 
@@ -247,7 +250,8 @@ io.bluetape4k.okio
 
 ### Sink / Source Adapter Hierarchy
 
-Compression, encryption, and Base64 encoding are layered on top of Okio's `Sink`/`Source` abstractions using the decorator pattern.
+Compression, encryption, and Base64 encoding are layered on top of Okio's `Sink`/
+`Source` abstractions using the decorator pattern.
 
 ```mermaid
 classDiagram
@@ -492,7 +496,8 @@ classDiagram
 
 ### Compression Factory (Compressable)
 
-The `Compressable` object provides a convenient way to create compression/decompression Sink/Source for various algorithms.
+The
+`Compressable` object provides a convenient way to create compression/decompression Sink/Source for various algorithms.
 
 ```mermaid
 classDiagram

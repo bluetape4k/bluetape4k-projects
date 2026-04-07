@@ -62,8 +62,8 @@ inline fun <reified T: Any> ResultRow.getFastjsonOrNull(
     return when (value) {
         is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
-        is T -> value
-        else -> serializer.deserializeFromString<T>(value.toString())
+        is T      -> value
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 
@@ -104,9 +104,9 @@ fun ResultRow.getFastjsonObjectOrNull(expression: Expression<*>): JSONObject? {
     val value = anyValueOrNull(expression) ?: return null
     return when (value) {
         is JSONObject -> value
-        is String -> JSON.parseObject(value)
+        is String    -> JSON.parseObject(value)
         is ByteArray -> JSON.parseObject(value)
-        else -> JSON.parseObject(value.toString())
+        else         -> JSON.parseObject(value.toString())
     }
 }
 
@@ -149,6 +149,6 @@ fun ResultRow.getFastjsonArrayOrNull(expression: Expression<*>): JSONArray? {
         is JSONArray -> value
         is String -> JSON.parseArray(value)
         is ByteArray -> JSON.parseArray(value)
-        else -> JSON.parseArray(value.toString())
+        else      -> JSON.parseArray(value.toString())
     }
 }

@@ -7,7 +7,7 @@ import java.util.*
 data class Box(
     val x: Int,
     val y: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -15,7 +15,7 @@ data class Box(
 
 data class Container(
     val boxes: List<Box>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -25,7 +25,7 @@ data class Container(
 data class Point(
     val x: Int,
     val y: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -33,19 +33,19 @@ data class Point(
 
 data class Points(
     val p: List<Point>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
 
-    constructor(vararg points: Point) : this(points.toList())
+    constructor(vararg points: Point): this(points.toList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])
 data class Rectangle(
     val topLeft: Point,
     val bottomRight: Point,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -62,7 +62,7 @@ data class FiveMinuteUser(
     var verified: Boolean,
     var gender: Gender,
     var userImage: ByteArray,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -91,7 +91,7 @@ data class FiveMinuteUser(
 data class IdDesc(
     var id: String,
     val desc: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -100,7 +100,7 @@ data class IdDesc(
 data class Outer(
     val name: Name,
     val age: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -109,7 +109,7 @@ data class Outer(
 data class Name(
     val first: String,
     val last: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -117,7 +117,7 @@ data class Name(
 
 data class Database(
     val dataSource: DataSource,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }
@@ -129,7 +129,7 @@ data class DataSource(
     val username: String,
     val password: String,
     val properties: Set<String>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID = 1L
     }

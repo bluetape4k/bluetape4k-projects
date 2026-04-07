@@ -10,16 +10,16 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 
-class SpatialFunctionTest : AbstractMySqlGisTest() {
+class SpatialFunctionTest: AbstractMySqlGisTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    class GeoFuncPointTable : LongIdTable("func_points") {
+    class GeoFuncPointTable: LongIdTable("func_points") {
         val name = varchar("name", 255)
         val location = geoPoint("location")
     }
 
-    class GeoFuncPolygonTable : LongIdTable("func_polygons") {
+    class GeoFuncPolygonTable: LongIdTable("func_polygons") {
         val name = varchar("name", 255)
         val polyA = geoPolygon("poly_a")
         val polyB = geoPolygon("poly_b")

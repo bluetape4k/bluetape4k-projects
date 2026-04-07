@@ -6,7 +6,8 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-json` is a module that defines a common interface for JSON serialization and deserialization.
 
-It provides the `JsonSerializer` interface so that various JSON libraries (Jackson, Fastjson2, etc.) can be used through a single API, along with convenience extension functions that leverage Kotlin's reified types.
+It provides the
+`JsonSerializer` interface so that various JSON libraries (Jackson, Fastjson2, etc.) can be used through a single API, along with convenience extension functions that leverage Kotlin's reified types.
 
 ## Architecture
 

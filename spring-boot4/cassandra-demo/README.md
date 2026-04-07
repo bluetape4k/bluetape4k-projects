@@ -22,7 +22,8 @@ flowchart TD
     Reactive --> Template
 ```
 
-> Provides the same examples as the Spring Boot 3 demo (`spring-boot3/cassandra-demo`), adapted to the Spring Boot 4.x API.
+> Provides the same examples as the Spring Boot 3 demo (
+`spring-boot3/cassandra-demo`), adapted to the Spring Boot 4.x API.
 
 ## Example List
 
@@ -36,17 +37,17 @@ flowchart TD
 
 ### Kotlin DSL (kotlin/)
 
-| Example File              | Description                              |
-|---------------------------|------------------------------------------|
-| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL    |
-| `TemplateTest.kt`         | Using CassandraTemplate                  |
+| Example File              | Description                           |
+|---------------------------|---------------------------------------|
+| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL |
+| `TemplateTest.kt`         | Using CassandraTemplate               |
 
 ### Reactive (reactive/)
 
-| Example File                           | Description                 |
-|----------------------------------------|-----------------------------|
-| `ReactivePersonRepositoryTest.kt`      | Reactive Repository         |
-| `CoroutinePersonRepositoryTest.kt`     | Coroutines Repository       |
+| Example File                       | Description           |
+|------------------------------------|-----------------------|
+| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
+| `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
 
 ### Auditing (auditing/)
 

@@ -4,19 +4,21 @@ English | [한국어](./README.ko.md)
 
 A module that replaces Spring Data Redis's serialization layer with high-performance binary serialization and compression combinations (Spring Boot 4.x).
 
-Provides a convenient way to configure `Serializer` and `RedisSerializationContext` when setting up `RedisTemplate` / `ReactiveRedisTemplate`.
+Provides a convenient way to configure `Serializer` and `RedisSerializationContext` when setting up `RedisTemplate` /
+`ReactiveRedisTemplate`.
 
-> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-boot3-redis`), adapted to the Spring Boot 4.x API.
+> Provides the same functionality as the Spring Boot 3 module (
+`bluetape4k-spring-boot3-redis`), adapted to the Spring Boot 4.x API.
 
 ## Key Features
 
-| Class / Function                    | Description                                                                |
-|------------------------------------|----------------------------------------------------------------------------|
-| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`         |
-| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`       |
+| Class / Function                   | Description                                                                                  |
+|------------------------------------|----------------------------------------------------------------------------------------------|
+| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`                           |
+| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`                         |
 | `RedisBinarySerializers`           | Singleton factory combining serializers (Jdk/Kryo/Fory) × compressors (GZip/LZ4/Snappy/Zstd) |
-| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                              |
-| `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly             |
+| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                |
+| `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly                               |
 
 ## Installation
 

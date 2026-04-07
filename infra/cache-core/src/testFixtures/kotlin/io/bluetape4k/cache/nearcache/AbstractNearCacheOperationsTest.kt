@@ -25,8 +25,8 @@ import org.junit.jupiter.api.parallel.ExecutionMode
  * @param V 캐시 값 타입
  */
 @Execution(ExecutionMode.SAME_THREAD)
-abstract class AbstractNearCacheOperationsTest<V : Any> {
-    companion object : KLogging() {
+abstract class AbstractNearCacheOperationsTest<V: Any> {
+    companion object: KLogging() {
         private const val TEST_SIZE = 3
 
         @JvmStatic

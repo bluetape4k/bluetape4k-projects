@@ -12,6 +12,7 @@ class ProjectionsTest {
         const val EPSILON = 1e-4
         val SEOUL = GeoLocation(37.5665, 126.9780)
         val NEW_YORK = GeoLocation(40.7128, -74.0060)
+
         // 남반구 테스트 좌표
         val SYDNEY = GeoLocation(-33.8688, 151.2093)    // 시드니 (밴드 H, 남반구)
         val SAO_PAULO = GeoLocation(-23.5505, -46.6333) // 상파울루 (밴드 K, 남반구)

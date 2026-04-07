@@ -18,7 +18,7 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
-    private object CompositeKeyTester : Table("batch_insert_composite_tester") {
+    private object CompositeKeyTester: Table("batch_insert_composite_tester") {
         val tenantId = varchar("tenant_id", 20)
         val naturalKey = varchar("natural_key", 20)
         val payload = varchar("payload", 50)

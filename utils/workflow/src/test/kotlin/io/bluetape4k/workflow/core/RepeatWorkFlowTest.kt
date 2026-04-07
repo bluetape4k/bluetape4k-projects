@@ -9,7 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class RepeatWorkFlowTest : AbstractWorkflowTest() {
+class RepeatWorkFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `repeatWhile 성공 조건 - N회 반복 후 종료`() {

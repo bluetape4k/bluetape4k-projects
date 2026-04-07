@@ -226,7 +226,9 @@ fun <T> Iterable<CompletionStage<T>>.firstSucceeded(): CompletableFuture<T> {
             } else {
                 firstError.compareAndSet(null, error)
                 if (remaining.decrementAndGet() == 0) {
-                    promise.completeExceptionally(firstError.get() ?: IllegalStateException("All CompletionStages failed."))
+                    promise.completeExceptionally(
+                        firstError.get() ?: IllegalStateException("All CompletionStages failed.")
+                    )
                 }
             }
         }

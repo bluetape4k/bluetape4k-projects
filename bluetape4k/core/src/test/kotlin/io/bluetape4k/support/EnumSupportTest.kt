@@ -14,7 +14,11 @@ class EnumSupportTest: AbstractCoreTest() {
 
     companion object: KLogging()
 
-    enum class Color { RED, GREEN, BLUE }
+    enum class Color {
+        RED,
+        GREEN,
+        BLUE
+    }
 
     private val expectedNameMap = mapOf("RED" to Color.RED, "GREEN" to Color.GREEN, "BLUE" to Color.BLUE)
     private val expectedList = Color.entries.toList()

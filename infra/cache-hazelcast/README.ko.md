@@ -2,30 +2,32 @@
 
 [English](./README.md) | 한국어
 
-`bluetape4k-cache-hazelcast`는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Hazelcast IMap 2-Tier Near Cache**를 제공합니다.
+`bluetape4k-cache-hazelcast`는 Hazelcast 기반 JCache Provider, Coroutines 캐시 구현, 그리고 **Caffeine + Hazelcast IMap 2-Tier
+Near Cache**를 제공합니다.
 
 > 기존 `bluetape4k-cache-hazelcast-near` 모듈이 이 모듈에 통합되었습니다.
 
 ## 제공 기능
 
-| 클래스 | 설명 |
-|---|---|
-| `HazelcastJCaching` | Hazelcast JCache Provider |
-| `HazelcastSuspendCache` | JCache 기반 코루틴 캐시 |
-| `HazelcastNearCache<V>` | Caffeine(front) + IMap(back) 2-Tier Near Cache (동기, write-through) |
-| `HazelcastSuspendNearCache<V>` | Near Cache 코루틴 구현 (write-through) |
-| `ResilientHazelcastNearCache<V>` | write-behind + retry + graceful degradation 동기 구현 |
-| `ResilientHazelcastSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현 |
-| `HazelcastNearCacheConfig` | Near Cache 설정 data class + DSL 빌더 |
-| `ResilientHazelcastNearCacheConfig` | Resilient NearCache 추가 설정 (retry, queue 등) |
-| `HazelcastLocalCache<V>` | front cache 추상 인터페이스 |
-| `CaffeineHazelcastLocalCache<V>` | Caffeine 기반 LocalCache 구현 |
-| `HazelcastEntryEventListener` | IMap EntryListener 기반 invalidation 리스너 |
-| `HazelcastMemoizer<K,V>` | IMap 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스) |
-| `AsyncHazelcastMemoizer<K,V>` | IMap.getAsync() 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스) |
-| `SuspendHazelcastMemoizer<K,V>` | IMap.getAsync().await() 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스) |
+| 클래스                                     | 설명                                                                 |
+|-----------------------------------------|--------------------------------------------------------------------|
+| `HazelcastJCaching`                     | Hazelcast JCache Provider                                          |
+| `HazelcastSuspendCache`                 | JCache 기반 코루틴 캐시                                                   |
+| `HazelcastNearCache<V>`                 | Caffeine(front) + IMap(back) 2-Tier Near Cache (동기, write-through) |
+| `HazelcastSuspendNearCache<V>`          | Near Cache 코루틴 구현 (write-through)                                  |
+| `ResilientHazelcastNearCache<V>`        | write-behind + retry + graceful degradation 동기 구현                  |
+| `ResilientHazelcastSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현                 |
+| `HazelcastNearCacheConfig`              | Near Cache 설정 data class + DSL 빌더                                  |
+| `ResilientHazelcastNearCacheConfig`     | Resilient NearCache 추가 설정 (retry, queue 등)                         |
+| `HazelcastLocalCache<V>`                | front cache 추상 인터페이스                                               |
+| `CaffeineHazelcastLocalCache<V>`        | Caffeine 기반 LocalCache 구현                                          |
+| `HazelcastEntryEventListener`           | IMap EntryListener 기반 invalidation 리스너                             |
+| `HazelcastMemoizer<K,V>`                | IMap 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스)                      |
+| `AsyncHazelcastMemoizer<K,V>`           | IMap.getAsync() 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스)              |
+| `SuspendHazelcastMemoizer<K,V>`         | IMap.getAsync().await() 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스)    |
 
 `HazelcastNearCacheConfig` 제약:
+
 - `cacheName`은 공백일 수 없습니다.
 - `maxLocalSize`는 0보다 커야 합니다.
 - `frontExpireAfterWrite`, `frontExpireAfterAccess`는 지정 시 0보다 커야 합니다.
@@ -418,21 +420,21 @@ cache.close()
 | 옵션                       | 기본값                      | 설명                                |
 |--------------------------|--------------------------|-----------------------------------|
 | `cacheName`              | `"hazelcast-near-cache"` | 캐시(IMap) 이름                       |
-| `maxLocalSize`           | `10_000`                 | Caffeine 최대 항목 수                   |
+| `maxLocalSize`           | `10_000`                 | Caffeine 최대 항목 수                  |
 | `frontExpireAfterWrite`  | `30분`                    | 로컬 캐시 write 후 만료 시간               |
 | `frontExpireAfterAccess` | `null`                   | 로컬 캐시 access 후 만료 시간 (null이면 비활성) |
-| `recordStats`            | `false`                  | Caffeine 통계 수집 여부                  |
+| `recordStats`            | `false`                  | Caffeine 통계 수집 여부                 |
 
 ## ResilientHazelcastNearCacheConfig 옵션
 
-| 옵션 | 기본값 | 설명 |
-|---|---|---|
-| `base` | `HazelcastNearCacheConfig()` | 기본 NearCache 설정 |
-| `writeQueueCapacity` | `1024` | write-behind 큐 최대 용량 |
-| `retryMaxAttempts` | `3` | IMap 쓰기 최대 재시도 횟수 |
-| `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
-| `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
-| `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | IMap GET 실패 시 동작 전략 |
+| 옵션                        | 기본값                          | 설명                   |
+|---------------------------|------------------------------|----------------------|
+| `base`                    | `HazelcastNearCacheConfig()` | 기본 NearCache 설정      |
+| `writeQueueCapacity`      | `1024`                       | write-behind 큐 최대 용량 |
+| `retryMaxAttempts`        | `3`                          | IMap 쓰기 최대 재시도 횟수    |
+| `retryWaitDuration`       | `500ms`                      | 재시도 대기 시간            |
+| `retryExponentialBackoff` | `true`                       | 지수 백오프 사용 여부         |
+| `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`       | IMap GET 실패 시 동작 전략  |
 
 ### 7. HazelcastMemoizer — 함수 결과 Hazelcast 캐싱
 

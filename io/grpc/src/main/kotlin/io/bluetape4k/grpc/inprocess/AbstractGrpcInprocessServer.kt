@@ -33,14 +33,14 @@ import kotlin.concurrent.withLock
 abstract class AbstractGrpcInprocessServer(
     builder: InProcessServerBuilder,
     vararg services: BindableService,
-) : GrpcServer {
-    constructor(name: String, vararg services: BindableService) :
-        this(InProcessServerBuilder.forName(name.requireNotBlank("name")), *services)
+): GrpcServer {
+    constructor(name: String, vararg services: BindableService):
+            this(InProcessServerBuilder.forName(name.requireNotBlank("name")), *services)
 
-    constructor(port: Int, vararg services: BindableService) :
-        this(InProcessServerBuilder.forPort(port.requireInRange(1, 65535, "port")), *services)
+    constructor(port: Int, vararg services: BindableService):
+            this(InProcessServerBuilder.forPort(port.requireInRange(1, 65535, "port")), *services)
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val server: Server by lazy {
         builder.apply { services.forEach { addService(it) } }.build()

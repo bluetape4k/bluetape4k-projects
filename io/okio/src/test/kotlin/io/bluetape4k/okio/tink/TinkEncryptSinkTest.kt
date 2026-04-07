@@ -57,7 +57,10 @@ class TinkEncryptSinkTest: AbstractTinkEncryptTest() {
         encryptSink.write(source, byteCount)
 
         source.size shouldBeEqualTo plainBytes.size.toLong() - byteCount
-        TinkEncryptors.AES256_GCM.decrypt(sink.readByteArray()) shouldBeEqualTo plainBytes.copyOfRange(0, byteCount.toInt())
+        TinkEncryptors.AES256_GCM.decrypt(sink.readByteArray()) shouldBeEqualTo plainBytes.copyOfRange(
+            0,
+            byteCount.toInt()
+        )
     }
 
     @Test

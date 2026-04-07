@@ -4,7 +4,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import java.util.*
 
-class JavaUUIDSupportTest : AbstractULIDTest() {
+class JavaUUIDSupportTest: AbstractULIDTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `test ULID to UUID round-trip`() {
         val ulid = ULID.nextULID()

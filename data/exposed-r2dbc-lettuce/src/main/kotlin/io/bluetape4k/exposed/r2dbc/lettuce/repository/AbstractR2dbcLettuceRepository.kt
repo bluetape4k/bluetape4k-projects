@@ -4,7 +4,6 @@ import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.cache.nearcache.LettuceSuspendNearCache
 import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
-import io.bluetape4k.exposed.cache.R2dbcCacheRepository
 import io.bluetape4k.exposed.r2dbc.lettuce.map.R2dbcExposedEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.lettuce.map.R2dbcExposedEntityMapWriter
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig

@@ -8,10 +8,13 @@ A foundation module that provides core column types, extension functions, and co
 
 `bluetape4k-exposed-core` provides:
 
-- **Custom column types**: Binary/Blob columns backed by compression (LZ4/Snappy/Zstd), encryption, and serialization (Kryo/Fory)
+- **Custom column types
+  **: Binary/Blob columns backed by compression (LZ4/Snappy/Zstd), encryption, and serialization (Kryo/Fory)
 - **Network column types**: IPv4/IPv6 addresses (`inetAddress`), CIDR blocks (`cidr`), PostgreSQL `<<` operator
-- **Phone number column types**: E.164-normalized storage (`phoneNumber`, `phoneNumberString`) based on Google libphonenumber
-- **Column extension functions**: Client-side ID generation (`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`, `ulidGenerated`, etc.)
+- **Phone number column types**: E.164-normalized storage (`phoneNumber`,
+  `phoneNumberString`) based on Google libphonenumber
+- **Column extension functions**: Client-side ID generation (`timebasedGenerated`, `snowflakeGenerated`,
+  `ksuidGenerated`, `ulidGenerated`, etc.)
 - **ResultRow extensions**: Helpers like `getOrNull` and `toMap`
 - **Blob extensions**: Utility functions for `ExposedBlob`
 - **Batch insert**: `BatchInsertOnConflictDoNothing` (ignore-duplicate batch insert)
@@ -362,37 +365,38 @@ HasIdentifier <.. ExposedPage: applicable to content items
 
 ## Key Files and Classes
 
-| File                                               | Description                                      |
-|----------------------------------------------------|--------------------------------------------------|
-| `HasIdentifier.kt`                                 | Common interface for entities with an ID         |
+| File                                               | Description                                        |
+|----------------------------------------------------|----------------------------------------------------|
+| `HasIdentifier.kt`                                 | Common interface for entities with an ID           |
 | `ColumnExtensions.kt`                              | Client-side ID auto-generation extension functions |
-| `ExposedColumnSupports.kt`                         | Column type support utilities                    |
-| `ResultRowExtensions.kt`                           | ResultRow processing extensions                  |
-| `BatchInsertOnConflictDoNothing.kt`                | Ignore-duplicate batch insert                    |
-| `statements/api/ExposedBlobExtensions.kt`          | ExposedBlob utility functions                    |
-| `compress/CompressedBinaryColumnType.kt`           | Compressed Binary column type                    |
-| `compress/CompressedBlobColumnType.kt`             | Compressed Blob column type                      |
-| `encrypt/EncryptedVarCharColumnType.kt`            | Encrypted VarChar column type                    |
-| `encrypt/EncryptedBinaryColumnType.kt`             | Encrypted Binary column type                     |
-| `encrypt/EncryptedBlobColumnType.kt`               | Encrypted Blob column type                       |
-| `serializable/BinarySerializedBinaryColumnType.kt` | Serialized Binary column type                    |
-| `serializable/BinarySerializedBlobColumnType.kt`   | Serialized Blob column type                      |
-| `ExposedPage.kt`                                   | Paginated result data class                      |
-| `dao/id/KsuidTable.kt`                             | KSUID primary key table                          |
-| `dao/id/KsuidMillisTable.kt`                       | KsuidMillis primary key table                    |
-| `dao/id/UlidTable.kt`                              | ULID primary key table                           |
-| `dao/id/SnowflakeIdTable.kt`                       | Snowflake Long primary key table                 |
-| `dao/id/TimebasedUUIDTable.kt`                     | UUIDv7 primary key table                         |
-| `dao/id/TimebasedUUIDBase62Table.kt`               | UUIDv7 Base62-encoded primary key table          |
-| `dao/id/SoftDeletedIdTable.kt`                     | Soft-delete primary key table                    |
-| `inet/InetColumnTypes.kt`                          | IPv4/IPv6 and CIDR column types                  |
-| `inet/InetExtensions.kt`                           | `inetAddress`, `cidr`, `isContainedBy` extensions |
-| `phone/PhoneNumberColumnType.kt`                   | Phone number column type (E.164 normalization)   |
-| `phone/PhoneNumberExtensions.kt`                   | `phoneNumber`, `phoneNumberString` extensions    |
+| `ExposedColumnSupports.kt`                         | Column type support utilities                      |
+| `ResultRowExtensions.kt`                           | ResultRow processing extensions                    |
+| `BatchInsertOnConflictDoNothing.kt`                | Ignore-duplicate batch insert                      |
+| `statements/api/ExposedBlobExtensions.kt`          | ExposedBlob utility functions                      |
+| `compress/CompressedBinaryColumnType.kt`           | Compressed Binary column type                      |
+| `compress/CompressedBlobColumnType.kt`             | Compressed Blob column type                        |
+| `encrypt/EncryptedVarCharColumnType.kt`            | Encrypted VarChar column type                      |
+| `encrypt/EncryptedBinaryColumnType.kt`             | Encrypted Binary column type                       |
+| `encrypt/EncryptedBlobColumnType.kt`               | Encrypted Blob column type                         |
+| `serializable/BinarySerializedBinaryColumnType.kt` | Serialized Binary column type                      |
+| `serializable/BinarySerializedBlobColumnType.kt`   | Serialized Blob column type                        |
+| `ExposedPage.kt`                                   | Paginated result data class                        |
+| `dao/id/KsuidTable.kt`                             | KSUID primary key table                            |
+| `dao/id/KsuidMillisTable.kt`                       | KsuidMillis primary key table                      |
+| `dao/id/UlidTable.kt`                              | ULID primary key table                             |
+| `dao/id/SnowflakeIdTable.kt`                       | Snowflake Long primary key table                   |
+| `dao/id/TimebasedUUIDTable.kt`                     | UUIDv7 primary key table                           |
+| `dao/id/TimebasedUUIDBase62Table.kt`               | UUIDv7 Base62-encoded primary key table            |
+| `dao/id/SoftDeletedIdTable.kt`                     | Soft-delete primary key table                      |
+| `inet/InetColumnTypes.kt`                          | IPv4/IPv6 and CIDR column types                    |
+| `inet/InetExtensions.kt`                           | `inetAddress`, `cidr`, `isContainedBy` extensions  |
+| `phone/PhoneNumberColumnType.kt`                   | Phone number column type (E.164 normalization)     |
+| `phone/PhoneNumberExtensions.kt`                   | `phoneNumber`, `phoneNumberString` extensions      |
 
 ## Auditable (Audit Tracking)
 
-The `Auditable` interface and `AuditableIdTable` automatically track the creator, creation time, modifier, and modification time for every entity.
+The `Auditable` interface and
+`AuditableIdTable` automatically track the creator, creation time, modifier, and modification time for every entity.
 
 ### Auditable Interface
 
@@ -474,20 +478,20 @@ object ArticleTable : AuditableLongIdTable("articles") {
 
 #### 2. Column behavior
 
-| Column       | On INSERT                           | On UPDATE                           | Notes                     |
-|--------------|-------------------------------------|-------------------------------------|---------------------------|
-| `created_by` | Set to `UserContext.getCurrentUser()` | Unchanged                          | Default: "system"         |
-| `created_at` | Set to DB `CURRENT_TIMESTAMP`       | Unchanged                           | UTC, nullable             |
-| `updated_by` | null                                | Set to `UserContext.getCurrentUser()` | Managed by Repository   |
-| `updated_at` | null                                | Set to DB `CURRENT_TIMESTAMP`       | Managed by Repository     |
+| Column       | On INSERT                             | On UPDATE                             | Notes                 |
+|--------------|---------------------------------------|---------------------------------------|-----------------------|
+| `created_by` | Set to `UserContext.getCurrentUser()` | Unchanged                             | Default: "system"     |
+| `created_at` | Set to DB `CURRENT_TIMESTAMP`         | Unchanged                             | UTC, nullable         |
+| `updated_by` | null                                  | Set to `UserContext.getCurrentUser()` | Managed by Repository |
+| `updated_at` | null                                  | Set to DB `CURRENT_TIMESTAMP`         | Managed by Repository |
 
 #### 3. Concrete table classes
 
-| Class                  | Primary key type                        | When to use                    |
-|------------------------|-----------------------------------------|--------------------------------|
-| `AuditableIntIdTable`  | `Int` (auto-increment)                  | Small datasets                 |
-| `AuditableLongIdTable` | `Long` (auto-increment)                 | Large datasets, distributed    |
-| `AuditableUUIDTable`   | `java.util.UUID` (client-side generated) | Distributed environments      |
+| Class                  | Primary key type                         | When to use                 |
+|------------------------|------------------------------------------|-----------------------------|
+| `AuditableIntIdTable`  | `Int` (auto-increment)                   | Small datasets              |
+| `AuditableLongIdTable` | `Long` (auto-increment)                  | Large datasets, distributed |
+| `AuditableUUIDTable`   | `java.util.UUID` (client-side generated) | Distributed environments    |
 
 #### 4. Complete example
 

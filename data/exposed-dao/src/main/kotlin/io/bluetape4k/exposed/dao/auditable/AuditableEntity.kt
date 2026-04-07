@@ -47,9 +47,9 @@ import java.time.Instant
  * @param ID 엔티티 식별자 타입
  * @param id 엔티티 식별자
  */
-abstract class AuditableEntity<ID : Any>(id: EntityID<ID>) : Entity<ID>(id), Auditable {
+abstract class AuditableEntity<ID: Any>(id: EntityID<ID>): Entity<ID>(id), Auditable {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     abstract override var createdBy: String
     abstract override var createdAt: Instant?

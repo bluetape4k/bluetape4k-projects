@@ -56,7 +56,7 @@ dependencies {
 
     // Fallback codec
     // compileOnly(Libs.fory_kotlin)
-    
+
     // Money (MoneySupport.kt)
     compileOnly(project(":bluetape4k-money"))
 

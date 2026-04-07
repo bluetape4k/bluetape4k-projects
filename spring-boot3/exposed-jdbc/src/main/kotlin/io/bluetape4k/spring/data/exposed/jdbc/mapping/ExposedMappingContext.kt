@@ -16,10 +16,10 @@ import org.springframework.data.util.TypeInformation
  * // persistentEntity.getTable()       → Users
  * ```
  */
-class ExposedMappingContext :
+class ExposedMappingContext:
     AbstractMappingContext<DefaultExposedPersistentEntity<*>, ExposedPersistentProperty>() {
 
-    override fun <T : Any> createPersistentEntity(
+    override fun <T: Any> createPersistentEntity(
         typeInformation: TypeInformation<T>,
     ): DefaultExposedPersistentEntity<T> =
         DefaultExposedPersistentEntity(typeInformation)

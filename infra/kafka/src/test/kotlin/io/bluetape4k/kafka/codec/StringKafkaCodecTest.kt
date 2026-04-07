@@ -11,8 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource
 /**
  * [StringKafkaCodec]에 대한 테스트 클래스입니다.
  */
-class StringKafkaCodecTest : AbstractKafkaTest() {
-    companion object : KLoggingChannel()
+class StringKafkaCodecTest: AbstractKafkaTest() {
+    companion object: KLoggingChannel()
 
     private val codec = StringKafkaCodec()
 

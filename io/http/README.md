@@ -221,6 +221,7 @@ val response = client.executeSuspending(request)
 ```
 
 `executeSuspending` contract:
+
 - When the coroutine is cancelled, the underlying OkHttp `Call` is also cancelled.
 - Returns `Response` on success and propagates the cause exception on failure.
 
@@ -257,13 +258,13 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 
 ## HTTP Client Comparison
 
-| Client | Protocol | Characteristics | Use Case |
-|--------|----------|----------------|----------|
-| HC5 Classic | HTTP/1.1 | Stable, rich configuration | Synchronous API calls |
-| HC5 Async | HTTP/1.1, HTTP/2 | Async, Coroutines integration | High-performance async |
-| OkHttp3 | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client |
-| Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based | Vert.x ecosystem integration |
-| AsyncHttpClient | HTTP/1.1, HTTP/2 | Netty-based, high-performance | High-volume async requests |
+| Client            | Protocol         | Characteristics                     | Use Case                     |
+|-------------------|------------------|-------------------------------------|------------------------------|
+| HC5 Classic       | HTTP/1.1         | Stable, rich configuration          | Synchronous API calls        |
+| HC5 Async         | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
+| OkHttp3           | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client  |
+| Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem integration |
+| AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty-based, high-performance       | High-volume async requests   |
 
 ## Coroutines Support
 

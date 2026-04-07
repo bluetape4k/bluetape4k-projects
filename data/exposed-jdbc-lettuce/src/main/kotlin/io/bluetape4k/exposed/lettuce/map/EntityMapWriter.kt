@@ -25,9 +25,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * @param E 엔티티(DTO) 타입
  * @param retryConfig Resilience4j [RetryConfig]
  */
-abstract class EntityMapWriter<ID : Any, E : Any>(
+abstract class EntityMapWriter<ID: Any, E: Any>(
     retryConfig: RetryConfig = RetryConfig.ofDefaults(),
-) : MapWriter<ID, E> {
+): MapWriter<ID, E> {
     private val retry = Retry.of("exposed-lettuce-writer", retryConfig)
 
     override fun write(map: Map<ID, E>) = Retry.decorateRunnable(retry) { transaction { writeEntities(map) } }.run()

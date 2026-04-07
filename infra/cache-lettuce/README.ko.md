@@ -16,10 +16,10 @@ dependencies {
 
 ### Memoizer (함수 결과 Redis 캐싱)
 
-| 클래스 | 설명 |
-|---|---|
-| `LettuceMemoizer<K, V>` | `LettuceMap<V>` 기반 동기 메모이제이션 (`Memoizer<K,V>` 인터페이스) |
-| `LettuceAsyncMemoizer<K, V>` | `LettuceMap<V>` 기반 비동기 메모이제이션 (`AsyncMemoizer<K,V>` 인터페이스) |
+| 클래스                            | 설명                                                               |
+|--------------------------------|------------------------------------------------------------------|
+| `LettuceMemoizer<K, V>`        | `LettuceMap<V>` 기반 동기 메모이제이션 (`Memoizer<K,V>` 인터페이스)             |
+| `LettuceAsyncMemoizer<K, V>`   | `LettuceMap<V>` 기반 비동기 메모이제이션 (`AsyncMemoizer<K,V>` 인터페이스)       |
 | `LettuceSuspendMemoizer<K, V>` | `LettuceMap<V>` 기반 suspend 메모이제이션 (`SuspendMemoizer<K,V>` 인터페이스) |
 
 ```kotlin
@@ -64,19 +64,20 @@ val suspendResult = suspendMemoizer(5L)  // 120L
 
 Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통한 자동 invalidation을 지원합니다.
 
-| 클래스 | 설명 |
-|---|---|
-| `LettuceNearCache<V>` | 동기(Blocking) 2-Tier 캐시 (write-through) |
-| `LettuceSuspendNearCache<V>` | Coroutines(suspend) 2-Tier 캐시 (write-through) |
-| `ResilientLettuceNearCache<V>` | write-behind + retry + graceful degradation 동기 구현 |
-| `ResilientLettuceSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현 |
-| `LettuceNearCacheConfig<K, V>` | NearCache 설정 data class + DSL 빌더 |
-| `ResilientLettuceNearCacheConfig<K, V>` | Resilient NearCache 추가 설정 (retry, queue 등) |
-| `LocalCache<K, V>` | front cache 추상 인터페이스 |
-| `CaffeineLocalCache<K, V>` | Caffeine 기반 LocalCache 구현 |
-| `TrackingInvalidationListener<V>` | RESP3 CLIENT TRACKING push 리스너 |
+| 클래스                                     | 설명                                                 |
+|-----------------------------------------|----------------------------------------------------|
+| `LettuceNearCache<V>`                   | 동기(Blocking) 2-Tier 캐시 (write-through)             |
+| `LettuceSuspendNearCache<V>`            | Coroutines(suspend) 2-Tier 캐시 (write-through)      |
+| `ResilientLettuceNearCache<V>`          | write-behind + retry + graceful degradation 동기 구현  |
+| `ResilientLettuceSuspendNearCache<V>`   | write-behind + retry + graceful degradation 코루틴 구현 |
+| `LettuceNearCacheConfig<K, V>`          | NearCache 설정 data class + DSL 빌더                   |
+| `ResilientLettuceNearCacheConfig<K, V>` | Resilient NearCache 추가 설정 (retry, queue 등)         |
+| `LocalCache<K, V>`                      | front cache 추상 인터페이스                               |
+| `CaffeineLocalCache<K, V>`              | Caffeine 기반 LocalCache 구현                          |
+| `TrackingInvalidationListener<V>`       | RESP3 CLIENT TRACKING push 리스너                     |
 
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
+
 - 배치 크기, 큐 크기, 재시도 횟수, local cache 크기는 0보다 커야 합니다.
 - TTL은 지정 시 0보다 커야 합니다.
 - 캐시 이름과 key prefix는 공백일 수 없습니다.
@@ -504,14 +505,14 @@ cache.close()
 
 ## ResilientLettuceNearCacheConfig 옵션
 
-| 옵션 | 기본값 | 설명 |
-|---|---|---|
-| `base` | `LettuceNearCacheConfig()` | 기본 NearCache 설정 |
-| `writeQueueCapacity` | `1024` | write-behind 큐 최대 용량 |
-| `retryMaxAttempts` | `3` | Redis 쓰기 최대 재시도 횟수 |
-| `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
-| `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
-| `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | Redis GET 실패 시 동작 전략 |
+| 옵션                        | 기본값                        | 설명                   |
+|---------------------------|----------------------------|----------------------|
+| `base`                    | `LettuceNearCacheConfig()` | 기본 NearCache 설정      |
+| `writeQueueCapacity`      | `1024`                     | write-behind 큐 최대 용량 |
+| `retryMaxAttempts`        | `3`                        | Redis 쓰기 최대 재시도 횟수   |
+| `retryWaitDuration`       | `500ms`                    | 재시도 대기 시간            |
+| `retryExponentialBackoff` | `true`                     | 지수 백오프 사용 여부         |
+| `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`     | Redis GET 실패 시 동작 전략 |
 
 ## LettuceNearCacheConfig 옵션
 

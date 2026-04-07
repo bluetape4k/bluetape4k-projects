@@ -8,6 +8,9 @@ import com.esotericsoftware.kryo.serializers.EnumNameSerializer
 import com.esotericsoftware.kryo.serializers.JavaSerializer
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
 import com.esotericsoftware.kryo.util.Pool
+import io.bluetape4k.io.serializer.KryoProvider.releaseInput
+import io.bluetape4k.io.serializer.KryoProvider.releaseKryo
+import io.bluetape4k.io.serializer.KryoProvider.releaseOutput
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.objenesis.strategy.StdInstantiatorStrategy

@@ -13,8 +13,8 @@ class ReadableExtensionsTest {
     private class FakeReadable(
         private val valuesByIndex: Map<Int, Any?> = emptyMap(),
         private val valuesByName: Map<String, Any?> = emptyMap(),
-    ) : Readable {
-        override fun <T : Any?> get(
+    ): Readable {
+        override fun <T: Any?> get(
             index: Int,
             type: Class<T>,
         ): T? {
@@ -24,7 +24,7 @@ class ReadableExtensionsTest {
             return value as T
         }
 
-        override fun <T : Any?> get(
+        override fun <T: Any?> get(
             name: String,
             type: Class<T>,
         ): T? {

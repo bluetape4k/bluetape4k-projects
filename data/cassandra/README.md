@@ -350,15 +350,15 @@ class MyCassandraTest: AbstractCassandraTest() {
 More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` package:
 
 - `examples/`: Basic usage examples
-  - `BasicExamples.kt`: Basic CRUD operations
-  - `datatypes/`: Various data type handling (Blob, Tuple, UDT, Custom Codec)
-  - `json/`: JSON data handling
+    - `BasicExamples.kt`: Basic CRUD operations
+    - `datatypes/`: Various data type handling (Blob, Tuple, UDT, Custom Codec)
+    - `json/`: JSON data handling
 - `querybuilder/`: QueryBuilder usage examples
-  - `SelectFromStatementExamples.kt`: SELECT statements
-  - `InsertIntoStatementExamples.kt`: INSERT statements
-  - `UpateStatementExamples.kt`: UPDATE statements
-  - `DeleteFromStatementExamples.kt`: DELETE statements
-  - `schema/`: Schema management examples (Keyspace, Table, Index, UDT, etc.)
+    - `SelectFromStatementExamples.kt`: SELECT statements
+    - `InsertIntoStatementExamples.kt`: INSERT statements
+    - `UpateStatementExamples.kt`: UPDATE statements
+    - `DeleteFromStatementExamples.kt`: DELETE statements
+    - `schema/`: Schema management examples (Keyspace, Table, Index, UDT, etc.)
 
 ## Architecture Diagrams
 

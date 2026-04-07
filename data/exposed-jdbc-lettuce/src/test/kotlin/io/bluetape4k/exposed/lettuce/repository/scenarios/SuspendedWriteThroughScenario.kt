@@ -6,7 +6,6 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -18,11 +17,11 @@ import org.junit.jupiter.params.provider.MethodSource
  * - put() 시 캐시와 DB를 동시에 갱신
  * - invalidate() 시 캐시와 DB를 모두 삭제
  */
-interface SuspendedWriteThroughScenario<ID : Any, E : java.io.Serializable> :
+interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>:
     SuspendedJdbcWriteThroughScenario<ID, E>,
     SuspendedCacheTestScenario<ID, E> {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /** 기존 엔티티의 이메일을 수정한 복사본을 반환한다 */
     suspend fun updateEmail(entity: E): E

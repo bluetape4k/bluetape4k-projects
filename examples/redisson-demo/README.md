@@ -8,27 +8,27 @@ A collection of examples demonstrating distributed Redis patterns using [Redisso
 
 ### Distributed Locks (coroutines/locks/)
 
-| Example File               | Description                          |
-|----------------------------|--------------------------------------|
-| `LockExamples.kt`          | Basic distributed lock (RLock)       |
-| `FairLockExamples.kt`      | Fair lock                            |
-| `ReadWriteLockExamples.kt` | Read/write lock                      |
-| `MultiLockExamples.kt`     | Multi-lock (across Redis nodes)      |
-| `SemaphoreExamples.kt`     | Distributed semaphore                |
+| Example File               | Description                     |
+|----------------------------|---------------------------------|
+| `LockExamples.kt`          | Basic distributed lock (RLock)  |
+| `FairLockExamples.kt`      | Fair lock                       |
+| `ReadWriteLockExamples.kt` | Read/write lock                 |
+| `MultiLockExamples.kt`     | Multi-lock (across Redis nodes) |
+| `SemaphoreExamples.kt`     | Distributed semaphore           |
 
 ### Redis Objects (coroutines/objects/)
 
-| Example File              | Description                               |
-|---------------------------|-------------------------------------------|
-| `BucketExamples.kt`       | RBucket - single value storage            |
-| `BloomFilterExamples.kt`  | RBloomFilter - probabilistic membership   |
-| `HyperLogLogExamples.kt`  | RHyperLogLog - cardinality estimation     |
-| `GeoExamples.kt`          | RGeo - geospatial storage                 |
-| `AtomicLongExamples.kt`   | RAtomicLong - atomic counter              |
-| `RateLimiterExamples.kt`  | RRateLimiter - rate limiting              |
-| `BinaryStreamExamples.kt` | RBinaryStream - binary data storage       |
-| `BatchExamples.kt`        | RBatch - batch operations                 |
-| `TopicExamples.kt`        | RTopic - Pub/Sub messaging               |
+| Example File              | Description                             |
+|---------------------------|-----------------------------------------|
+| `BucketExamples.kt`       | RBucket - single value storage          |
+| `BloomFilterExamples.kt`  | RBloomFilter - probabilistic membership |
+| `HyperLogLogExamples.kt`  | RHyperLogLog - cardinality estimation   |
+| `GeoExamples.kt`          | RGeo - geospatial storage               |
+| `AtomicLongExamples.kt`   | RAtomicLong - atomic counter            |
+| `RateLimiterExamples.kt`  | RRateLimiter - rate limiting            |
+| `BinaryStreamExamples.kt` | RBinaryStream - binary data storage     |
+| `BatchExamples.kt`        | RBatch - batch operations               |
+| `TopicExamples.kt`        | RTopic - Pub/Sub messaging              |
 
 ### Collections (coroutines/collections/)
 
@@ -49,18 +49,18 @@ A collection of examples demonstrating distributed Redis patterns using [Redisso
 
 ### Cache Strategies (coroutines/cachestrategy/)
 
-| Example File                    | Description                        |
-|---------------------------------|------------------------------------|
-| `CacheReadThroughExample.kt`    | Read-Through cache pattern         |
-| `CacheWriteThroughExample.kt`   | Write-Through cache pattern        |
-| `CacheWriteBehindExample.kt`    | Write-Behind cache pattern         |
-| `CacheWriteBehindForIoTData.kt` | Write-Behind example for IoT data  |
+| Example File                    | Description                       |
+|---------------------------------|-----------------------------------|
+| `CacheReadThroughExample.kt`    | Read-Through cache pattern        |
+| `CacheWriteThroughExample.kt`   | Write-Through cache pattern       |
+| `CacheWriteBehindExample.kt`    | Write-Behind cache pattern        |
+| `CacheWriteBehindForIoTData.kt` | Write-Behind example for IoT data |
 
 ### Read/Write Through (coroutines/readwritethrough/)
 
-| Example File                 | Description                       |
-|------------------------------|-----------------------------------|
-| `MapReadWriteThroughTest.kt` | MapLoader/MapWriter integration   |
+| Example File                 | Description                     |
+|------------------------------|---------------------------------|
+| `MapReadWriteThroughTest.kt` | MapLoader/MapWriter integration |
 
 ## Key Pattern Examples
 

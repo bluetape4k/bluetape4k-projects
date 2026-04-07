@@ -9,7 +9,6 @@ import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.currentCoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.ensureActive
 
 /**
@@ -46,9 +45,9 @@ class SuspendSequentialFlow(
     private val works: List<SuspendWork>,
     private val errorStrategy: ErrorStrategy = ErrorStrategy.STOP,
     private val flowName: String = "suspend-sequential-flow",
-) : SuspendWorkFlow {
+): SuspendWorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override suspend fun execute(context: WorkContext): WorkReport {
         log.debug { "$flowName 시작. works=${works.size}, errorStrategy=$errorStrategy" }

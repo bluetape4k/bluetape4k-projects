@@ -35,8 +35,8 @@ open class R2dbcEntityMapWriter<ID: Any, E: Any>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,
-) : MapWriterAsync<ID, E> {
-    companion object : KLoggingChannel() {
+): MapWriterAsync<ID, E> {
+    companion object: KLoggingChannel() {
         protected val defaultMapWriterCoroutineScope =
             CoroutineScope(Dispatchers.IO + CoroutineName("R2dbc-Writer"))
     }

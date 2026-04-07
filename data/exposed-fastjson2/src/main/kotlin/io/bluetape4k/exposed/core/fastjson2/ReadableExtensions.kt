@@ -76,8 +76,8 @@ inline fun <reified T: Any> Readable.getFastjsonOrNull(
     return when (value) {
         is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
-        is T -> value
-        else -> serializer.deserializeFromString<T>(value.toString())
+        is T      -> value
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 
@@ -105,8 +105,8 @@ inline fun <reified T: Any> Readable.getFastjsonOrNull(
     return when (value) {
         is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
-        is T -> value
-        else -> serializer.deserializeFromString<T>(value.toString())
+        is T      -> value
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 
@@ -165,9 +165,9 @@ fun Readable.getFastjsonObjectOrNull(index: Int): JSONObject? {
     val value = get(index) ?: return null
     return when (value) {
         is JSONObject -> value
-        is String -> JSON.parseObject(value)
+        is String    -> JSON.parseObject(value)
         is ByteArray -> JSON.parseObject(value)
-        else -> JSON.parseObject(value.toString())
+        else         -> JSON.parseObject(value.toString())
     }
 }
 
@@ -190,9 +190,9 @@ fun Readable.getFastjsonObjectOrNull(name: String): JSONObject? {
     val value = get(name) ?: return null
     return when (value) {
         is JSONObject -> value
-        is String -> JSON.parseObject(value)
+        is String    -> JSON.parseObject(value)
         is ByteArray -> JSON.parseObject(value)
-        else -> JSON.parseObject(value.toString())
+        else         -> JSON.parseObject(value.toString())
     }
 }
 
@@ -253,7 +253,7 @@ fun Readable.getFastjsonArrayOrNull(index: Int): JSONArray? {
         is JSONArray -> value
         is String -> JSON.parseArray(value)
         is ByteArray -> JSON.parseArray(value)
-        else -> JSON.parseArray(value.toString())
+        else      -> JSON.parseArray(value.toString())
     }
 }
 
@@ -278,6 +278,6 @@ fun Readable.getFastjsonArrayOrNull(name: String): JSONArray? {
         is JSONArray -> value
         is String -> JSON.parseArray(value)
         is ByteArray -> JSON.parseArray(value)
-        else -> JSON.parseArray(value.toString())
+        else      -> JSON.parseArray(value.toString())
     }
 }

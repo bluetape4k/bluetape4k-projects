@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 **Exposed DAO Entity-based Spring Data JDBC Repository (Spring Boot 4.0.x / Spring 7)**
 
-A high-performance Repository implementation for managing Exposed DAO entities using Spring Boot 4 and Spring Data. Supports PartTree method-name queries and Exposed DSL via the `@Query` annotation.
+A high-performance Repository implementation for managing Exposed DAO entities using Spring Boot 4 and Spring Data. Supports PartTree method-name queries and Exposed DSL via the
+`@Query` annotation.
 
 ## UML
 
@@ -284,7 +285,8 @@ dependencies {
 }
 ```
 
-Note: Use `platform()` instead of the `dependencyManagement` plugin, which has compatibility issues with the Kotlin Gradle Plugin.
+Note: Use `platform()` instead of the
+`dependencyManagement` plugin, which has compatibility issues with the Kotlin Gradle Plugin.
 
 ## Important Notes
 
@@ -307,6 +309,7 @@ fun createUser(name: String, email: String): User {
 ### PartTree Query Limitations
 
 Supported keywords:
+
 - **Comparison**: `GreaterThan`, `LessThan`, `Between`, `In`, `Contains`
 - **Sorting**: `OrderBy`
 - **Aggregation**: `count`, `exists`
@@ -314,6 +317,7 @@ Supported keywords:
 - **Paging**: `Top`, `First`
 
 Unsupported patterns:
+
 - Complex OR/AND combinations → use `@Query` or DSL methods
 - Joins → use Exposed DSL directly
 

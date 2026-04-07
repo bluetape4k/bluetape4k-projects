@@ -12,8 +12,8 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-abstract class AbstractFeignCodecTest : AbstractFeignTest() {
-    companion object : KLogging()
+abstract class AbstractFeignCodecTest: AbstractFeignTest() {
+    companion object: KLogging()
 
     abstract val encoder: feign.codec.Encoder
     abstract val decoder: feign.codec.Decoder

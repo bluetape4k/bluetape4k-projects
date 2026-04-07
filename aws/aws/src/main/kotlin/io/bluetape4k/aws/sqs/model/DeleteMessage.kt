@@ -135,7 +135,7 @@ fun deleteMessageBatchRequestEntryOf(
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
     receiptHandle.requireNotBlank("receiptHandle")
-    
+
     return deleteMessageBatchRequestEntry {
         id(id)
         receiptHandle(receiptHandle)

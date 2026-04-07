@@ -118,7 +118,7 @@ class MariaDBServer private constructor(
             withConfigurationOverride(configuration)
         }
         addExposedPorts(PORT)
-        
+
         withUsername(username)
         withPassword(password)
         withReuse(reuse)

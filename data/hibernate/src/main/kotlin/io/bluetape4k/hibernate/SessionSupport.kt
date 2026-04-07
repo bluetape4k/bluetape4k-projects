@@ -75,7 +75,7 @@ inline fun <reified T: Any> Session.getReferenceAs(id: Serializable): T = getRef
  * - Hibernate `bySimpleNaturalId(...).load(...)`에 위임합니다.
  * - `@NaturalId`가 하나인 엔티티에 사용합니다.
  */
-inline fun <reified T : Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
+inline fun <reified T: Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
     bySimpleNaturalId(T::class.java).load(naturalId)
 
 /**
@@ -85,7 +85,7 @@ inline fun <reified T : Any> Session.findBySimpleNaturalId(naturalId: Any): T? =
  * - [naturalIdValues]는 비어 있을 수 없고, 각 속성명은 blank일 수 없습니다.
  * - Hibernate `byNaturalId(...).using(...).load()`에 위임합니다.
  */
-inline fun <reified T : Any> Session.findByNaturalId(
+inline fun <reified T: Any> Session.findByNaturalId(
     naturalIdValues: Map<String, Any?>,
 ): T? {
     naturalIdValues.requireNotEmpty("naturalIdValues")
@@ -104,7 +104,7 @@ inline fun <reified T : Any> Session.findByNaturalId(
  * ## 동작/계약
  * - [findByNaturalId]의 pair 오버로드입니다.
  */
-inline fun <reified T : Any> Session.findByNaturalId(
+inline fun <reified T: Any> Session.findByNaturalId(
     vararg naturalIdValues: Pair<String, Any?>,
 ): T? = findByNaturalId(naturalIdValues.toMap())
 

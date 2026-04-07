@@ -6,7 +6,8 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 ## Overview
 
-`bluetape4k-grpc` provides abstract classes and extension functions that make it easy to implement [gRPC](https://grpc.io/) servers and clients in Kotlin. Protobuf utilities are split into the separate [`bluetape4k-protobuf`](../protobuf/README.md) module.
+`bluetape4k-grpc` provides abstract classes and extension functions that make it easy to implement [gRPC](https://grpc.io/) servers and clients in Kotlin. Protobuf utilities are split into the separate [
+`bluetape4k-protobuf`](../protobuf/README.md) module.
 
 ## Architecture
 
@@ -236,30 +237,31 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 
 ### gRPC Core
 
-| File | Description |
-|------|-------------|
-| `GrpcServer.kt` | gRPC server interface |
-| `AbstractGrpcServer.kt` | gRPC server abstract class |
-| `AbstractGrpcClient.kt` | gRPC client abstract class |
-| `ServerSupport.kt` | Server extension functions |
+| File                       | Description                 |
+|----------------------------|-----------------------------|
+| `GrpcServer.kt`            | gRPC server interface       |
+| `AbstractGrpcServer.kt`    | gRPC server abstract class  |
+| `AbstractGrpcClient.kt`    | gRPC client abstract class  |
+| `ServerSupport.kt`         | Server extension functions  |
 | `ManagedChannelSupport.kt` | Channel extension functions |
 
 ### In-process (inprocess/)
 
-| File | Description |
-|------|-------------|
+| File                             | Description      |
+|----------------------------------|------------------|
 | `AbstractGrpcInprocessServer.kt` | In-memory server |
 | `AbstractGrpcInprocessClient.kt` | In-memory client |
 
 ### Interceptor (interceptor/)
 
-| File | Description |
-|------|-------------|
+| File                          | Description                   |
+|-------------------------------|-------------------------------|
 | `ServerInterceptorSupport.kt` | Server interceptor extensions |
 
 ## Related Modules
 
-- **[bluetape4k-protobuf](../protobuf/README.md)**: Protobuf utilities (Timestamp/Duration/Money conversion, ProtobufSerializer)
+- **[bluetape4k-protobuf](../protobuf/README.md)
+  **: Protobuf utilities (Timestamp/Duration/Money conversion, ProtobufSerializer)
 
 ## Dependencies
 

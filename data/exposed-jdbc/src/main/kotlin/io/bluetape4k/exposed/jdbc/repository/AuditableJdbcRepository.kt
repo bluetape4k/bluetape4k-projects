@@ -61,7 +61,7 @@ import java.util.*
  * }
  * ```
  */
-interface AuditableJdbcRepository<ID : Any, E : Any, T : AuditableIdTable<ID>> : JdbcRepository<ID, E> {
+interface AuditableJdbcRepository<ID: Any, E: Any, T: AuditableIdTable<ID>>: JdbcRepository<ID, E> {
 
     override val table: T
 
@@ -136,7 +136,7 @@ interface AuditableJdbcRepository<ID : Any, E : Any, T : AuditableIdTable<ID>> :
  * @param E 엔티티 타입
  * @param T [AuditableIntIdTable] 구현체
  */
-interface IntAuditableJdbcRepository<E : Any, T : AuditableIntIdTable> : AuditableJdbcRepository<Int, E, T>
+interface IntAuditableJdbcRepository<E: Any, T: AuditableIntIdTable>: AuditableJdbcRepository<Int, E, T>
 
 /**
  * `Long` 기본키를 사용하는 [AuditableJdbcRepository]의 편의 인터페이스입니다.
@@ -144,7 +144,7 @@ interface IntAuditableJdbcRepository<E : Any, T : AuditableIntIdTable> : Auditab
  * @param E 엔티티 타입
  * @param T [AuditableLongIdTable] 구현체
  */
-interface LongAuditableJdbcRepository<E : Any, T : AuditableLongIdTable> : AuditableJdbcRepository<Long, E, T>
+interface LongAuditableJdbcRepository<E: Any, T: AuditableLongIdTable>: AuditableJdbcRepository<Long, E, T>
 
 /**
  * `java.util.UUID` 기본키를 사용하는 [AuditableJdbcRepository]의 편의 인터페이스입니다.
@@ -152,4 +152,4 @@ interface LongAuditableJdbcRepository<E : Any, T : AuditableLongIdTable> : Audit
  * @param E 엔티티 타입
  * @param T [AuditableUUIDTable] 구현체
  */
-interface UUIDAuditableJdbcRepository<E : Any, T : AuditableUUIDTable> : AuditableJdbcRepository<UUID, E, T>
+interface UUIDAuditableJdbcRepository<E: Any, T: AuditableUUIDTable>: AuditableJdbcRepository<UUID, E, T>

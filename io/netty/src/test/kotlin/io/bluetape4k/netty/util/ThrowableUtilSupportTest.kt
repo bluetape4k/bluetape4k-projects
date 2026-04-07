@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 /**
  * [ThorowableUtilSupport]의 기능을 검증하는 테스트 클래스입니다.
  */
-class ThrowableUtilSupportTest : AbstractNettyTest() {
+class ThrowableUtilSupportTest: AbstractNettyTest() {
     @Test
     fun `stackTraceToString은 스택 트레이스 문자열을 반환한다`() {
         val ex = RuntimeException("테스트 예외 메시지")

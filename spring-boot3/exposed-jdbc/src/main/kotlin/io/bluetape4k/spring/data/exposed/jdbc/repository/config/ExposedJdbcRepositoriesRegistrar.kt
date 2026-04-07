@@ -16,7 +16,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
  * class Application
  * ```
  */
-class ExposedJdbcRepositoriesRegistrar : RepositoryBeanDefinitionRegistrarSupport() {
+class ExposedJdbcRepositoriesRegistrar: RepositoryBeanDefinitionRegistrarSupport() {
 
     override fun getAnnotation(): Class<out Annotation> =
         EnableExposedJdbcRepositories::class.java

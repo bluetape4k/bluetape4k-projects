@@ -26,7 +26,7 @@ import io.bluetape4k.exposed.postgresql.postgis.geoGeometry
  * }
  * ```
  */
-object SpatialLayerTable : AuditableLongIdTable("spatial_layers") {
+object SpatialLayerTable: AuditableLongIdTable("spatial_layers") {
 
     /** 레이어 이름 (유일 인덱스) */
     val name = varchar("name", 255).uniqueIndex()
@@ -76,7 +76,7 @@ object SpatialLayerTable : AuditableLongIdTable("spatial_layers") {
  * }
  * ```
  */
-object SpatialFeatureTable : AuditableLongIdTable("spatial_features") {
+object SpatialFeatureTable: AuditableLongIdTable("spatial_features") {
 
     /** 소속 레이어 외래키 */
     val layerId = reference("layer_id", SpatialLayerTable)

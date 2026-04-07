@@ -37,9 +37,9 @@ class RetryWorkFlow(
     private val work: Work,
     private val retryPolicy: RetryPolicy = RetryPolicy.DEFAULT,
     private val flowName: String = "retry-flow",
-) : WorkFlow {
+): WorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun execute(context: WorkContext): WorkReport {
         val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName

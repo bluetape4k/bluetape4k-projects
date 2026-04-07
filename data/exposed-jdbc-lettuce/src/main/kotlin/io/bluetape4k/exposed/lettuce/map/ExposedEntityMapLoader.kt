@@ -28,7 +28,7 @@ class ExposedEntityMapLoader<ID: Any, E: Any>(
     private val table: IdTable<ID>,
     private val toEntity: (ResultRow) -> E,
     private val batchSize: Int = 1000,
-) : EntityMapLoader<ID, E>() {
+): EntityMapLoader<ID, E>() {
     init {
         require(batchSize > 0) { "batchSize는 0보다 커야 합니다. batchSize=$batchSize" }
     }

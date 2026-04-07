@@ -34,7 +34,7 @@ object TimebasedUuid {
      * ```
      */
     @Deprecated("Uuid.V1 을 사용하세요", ReplaceWith("Uuid.V1"), DeprecationLevel.WARNING)
-    object Default : IdGenerator<UUID> {
+    object Default: IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -55,7 +55,7 @@ object TimebasedUuid {
      * ```
      */
     @Deprecated("Uuid.V6 을 사용하세요", ReplaceWith("Uuid.V6"), DeprecationLevel.WARNING)
-    object Reordered : IdGenerator<UUID> {
+    object Reordered: IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedReorderedGenerator() }
 
         override fun nextId(): UUID = generator.generate()
@@ -76,7 +76,7 @@ object TimebasedUuid {
      * ```
      */
     @Deprecated("Uuid.V7 을 사용하세요", ReplaceWith("Uuid.V7"), DeprecationLevel.WARNING)
-    object Epoch : IdGenerator<UUID> {
+    object Epoch: IdGenerator<UUID> {
         private val generator by lazy { Generators.timeBasedEpochGenerator() }
 
         override fun nextId(): UUID = generator.generate()

@@ -22,7 +22,7 @@ package io.bluetape4k.states.core
  * @property state 전이 대상 상태
  * @property guard 전이 전에 평가되는 guard 조건 (null이면 항상 통과)
  */
-data class TransitionTarget<S : Any, E : Any>(
+data class TransitionTarget<S: Any, E: Any>(
     val state: S,
     val guard: ((S, E) -> Boolean)? = null,
 )

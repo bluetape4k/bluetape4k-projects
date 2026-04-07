@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.lettuce.repository
 
 import io.bluetape4k.exposed.cache.JdbcCacheRepository
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -28,7 +28,7 @@ import java.io.Serializable
  */
 interface JdbcLettuceRepository<ID: Any, E: Serializable>: JdbcCacheRepository<ID, E> {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val DEFAULT_BATCH_SIZE = 500
     }
 

@@ -566,7 +566,7 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
      */
     open fun startsWith(iterator: Iterator<E>): Boolean {
         return !iterator.hasNext() ||
-               ((head?.equals(iterator.next()) ?: false) && tail.startsWith(iterator))
+                ((head?.equals(iterator.next()) ?: false) && tail.startsWith(iterator))
     }
 
     /**

@@ -6,7 +6,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
-class ConditionalWorkFlowTest : AbstractWorkflowTest() {
+class ConditionalWorkFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `predicate true - thenWork 실행`() {

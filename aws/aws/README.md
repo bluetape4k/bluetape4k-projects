@@ -93,18 +93,18 @@ classDiagram
 
 ## Supported Services
 
-| Service | Key Features |
-|---------|-------------|
-| **DynamoDB** | Table CRUD, Enhanced Client, Coroutines extensions |
-| **S3** | Object upload/download, TransferManager (large files), Coroutines extensions |
-| **SES** | Email sending, Coroutines extensions |
-| **SNS** | Topic publishing, SMS, push notifications, Coroutines extensions |
-| **SQS** | Message send/receive/delete, Coroutines extensions |
-| **KMS** | Encryption key management, data encryption/decryption, Coroutines extensions |
-| **CloudWatch** | Metric publishing/querying, Coroutines extensions |
-| **CloudWatch Logs** | Log group/stream management, event publishing, Coroutines extensions |
-| **Kinesis** | Stream record send/receive, Coroutines extensions |
-| **STS** | AssumeRole, CallerIdentity, SessionToken, Coroutines extensions |
+| Service             | Key Features                                                                 |
+|---------------------|------------------------------------------------------------------------------|
+| **DynamoDB**        | Table CRUD, Enhanced Client, Coroutines extensions                           |
+| **S3**              | Object upload/download, TransferManager (large files), Coroutines extensions |
+| **SES**             | Email sending, Coroutines extensions                                         |
+| **SNS**             | Topic publishing, SMS, push notifications, Coroutines extensions             |
+| **SQS**             | Message send/receive/delete, Coroutines extensions                           |
+| **KMS**             | Encryption key management, data encryption/decryption, Coroutines extensions |
+| **CloudWatch**      | Metric publishing/querying, Coroutines extensions                            |
+| **CloudWatch Logs** | Log group/stream management, event publishing, Coroutines extensions         |
+| **Kinesis**         | Stream record send/receive, Coroutines extensions                            |
+| **STS**             | AssumeRole, CallerIdentity, SessionToken, Coroutines extensions              |
 
 ## Three-Tier API Pattern
 

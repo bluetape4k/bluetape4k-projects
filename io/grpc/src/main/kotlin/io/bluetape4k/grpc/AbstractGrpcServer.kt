@@ -31,11 +31,11 @@ import kotlin.concurrent.withLock
 abstract class AbstractGrpcServer(
     protected val builder: ServerBuilder<*>,
     protected val services: List<BindableService>,
-) : GrpcServer {
-    constructor(port: Int, vararg services: BindableService) :
-        this(ServerBuilder.forPort(port), services.toList())
+): GrpcServer {
+    constructor(port: Int, vararg services: BindableService):
+            this(ServerBuilder.forPort(port), services.toList())
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     protected val server: Server by lazy { createServer() }
 

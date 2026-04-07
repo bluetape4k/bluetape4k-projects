@@ -27,11 +27,11 @@ class VertxHttpClient private constructor(
          *
          * ## 동작/계약
          * - 전달한 [vertxClient]를 그대로 사용합니다.
- *
- * ```kotlin
- * val client = VertxHttpClient()
- * // client != null
- * ```
+         *
+         * ```kotlin
+         * val client = VertxHttpClient()
+         * // client != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): VertxHttpClient {

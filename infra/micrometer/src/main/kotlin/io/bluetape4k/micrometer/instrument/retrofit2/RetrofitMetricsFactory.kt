@@ -39,15 +39,15 @@ open class RetrofitMetricsFactory(
             annotations
                 .firstNotNullOfOrNull { annotation ->
                     when (annotation) {
-                        is GET -> annotation.value
-                        is POST -> annotation.value
-                        is PUT -> annotation.value
+                        is GET    -> annotation.value
+                        is POST   -> annotation.value
+                        is PUT    -> annotation.value
                         is DELETE -> annotation.value
-                        is PATCH -> annotation.value
+                        is PATCH  -> annotation.value
                         is OPTIONS -> annotation.value
-                        is HEAD -> annotation.value
-                        is HTTP -> annotation.path
-                        else -> null
+                        is HEAD   -> annotation.value
+                        is HTTP   -> annotation.path
+                        else      -> null
                     }
                 }
                 ?: throw UnsupportedOperationException("No Retrofit Annotation is provided.")

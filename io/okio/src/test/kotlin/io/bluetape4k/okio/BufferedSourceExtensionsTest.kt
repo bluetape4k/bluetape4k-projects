@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
-class BufferedSourceExtensionsTest : AbstractOkioTest() {
+class BufferedSourceExtensionsTest: AbstractOkioTest() {
     @Test
     fun `readUtf8Lines returns all lines in order`() {
         val source = bufferOf("a\nb\nc\n").asBufferedSource()

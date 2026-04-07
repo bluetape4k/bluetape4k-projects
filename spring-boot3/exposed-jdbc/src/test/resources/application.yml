@@ -1,17 +1,17 @@
 spring:
-  application:
-    name: spring-data-exposed-test
+    application:
+        name: spring-data-exposed-test
 
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    datasource:
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        driver-class-name: org.h2.Driver
+        username: sa
+        password:
 
-  exposed:
-    generate-ddl: false
+    exposed:
+        generate-ddl: false
 
 logging:
-  level:
-    org.jetbrains.exposed: DEBUG
-    io.bluetape4k.spring.data.exposed: DEBUG
+    level:
+        org.jetbrains.exposed: DEBUG
+        io.bluetape4k.spring.data.exposed: DEBUG

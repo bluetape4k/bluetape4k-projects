@@ -2,8 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-Hibernate 7 **2nd Level Cache** implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2).
-Simply configure `hibernate.cache.lettuce.*` properties and Near Cache is automatically applied to all regions.
+Hibernate 7 **2nd Level Cache** implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure
+`hibernate.cache.lettuce.*` properties and Near Cache is automatically applied to all regions.
 
 > The Near Cache core uses the `bluetape4k-cache-lettuce` module from `bluetape4k-projects`.
 > For Spring Boot 4 integration, see [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.md).
@@ -129,8 +129,8 @@ spring:
               default: 120s
 ```
 
-Supported codec values include the `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, and `zstd*` families.
-Typos or unsupported codec names cause an immediate exception rather than silently falling back to a default.
+Supported codec values include the `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, and
+`zstd*` families. Typos or unsupported codec names cause an immediate exception rather than silently falling back to a default.
 
 ## Entity Configuration
 
@@ -154,7 +154,8 @@ class Product(
 val products: MutableList<Product> = mutableListOf()
 ```
 
-`NONSTRICT_READ_WRITE` is recommended because soft-lock-based `READ_WRITE` introduces additional overhead in a distributed Redis environment.
+`NONSTRICT_READ_WRITE` is recommended because soft-lock-based
+`READ_WRITE` introduces additional overhead in a distributed Redis environment.
 
 ## How It Works
 
@@ -186,26 +187,26 @@ sequenceDiagram
     Storage->>L2: SET regionName::key value
 ```
 
-| Operation                   | Behavior                                                        |
-|-----------------------------|-----------------------------------------------------------------|
-| `getFromCache`              | L1 (Caffeine) hit → return immediately; miss → Redis GET → populate L1 |
-| `putIntoCache`              | Write-through to both L1 and L2 simultaneously                 |
-| `evictData(key)`            | Delete the key from both L1 and L2                             |
-| `evictData()` (entire region) | Remove all entries from L1 and L2 (`clearAll()`)             |
-| External Redis change detection | RESP3 CLIENT TRACKING push → automatic L1 invalidation    |
+| Operation                       | Behavior                                                               |
+|---------------------------------|------------------------------------------------------------------------|
+| `getFromCache`                  | L1 (Caffeine) hit → return immediately; miss → Redis GET → populate L1 |
+| `putIntoCache`                  | Write-through to both L1 and L2 simultaneously                         |
+| `evictData(key)`                | Delete the key from both L1 and L2                                     |
+| `evictData()` (entire region)   | Remove all entries from L1 and L2 (`clearAll()`)                       |
+| External Redis change detection | RESP3 CLIENT TRACKING push → automatic L1 invalidation                 |
 
 ## Supported Codecs
 
-| Codec Name | Description              | Compression |
-|------------|--------------------------|-------------|
-| `lz4fory`  | LZ4 + Apache Fory **(default)** | LZ4    |
-| `fory`     | Apache Fory              | -           |
-| `gzipfory` | GZip + Apache Fory       | GZip        |
-| `zstdfory` | Zstd + Apache Fory       | Zstd        |
-| `kryo`     | Kryo                     | -           |
-| `lz4kryo`  | LZ4 + Kryo               | LZ4         |
-| `jdk`      | Java serialization       | -           |
-| `lz4jdk`   | LZ4 + Java serialization | LZ4         |
+| Codec Name | Description                     | Compression |
+|------------|---------------------------------|-------------|
+| `lz4fory`  | LZ4 + Apache Fory **(default)** | LZ4         |
+| `fory`     | Apache Fory                     | -           |
+| `gzipfory` | GZip + Apache Fory              | GZip        |
+| `zstdfory` | Zstd + Apache Fory              | Zstd        |
+| `kryo`     | Kryo                            | -           |
+| `lz4kryo`  | LZ4 + Kryo                      | LZ4         |
+| `jdk`      | Java serialization              | -           |
+| `lz4jdk`   | LZ4 + Java serialization        | LZ4         |
 
 ## TTL Units
 
@@ -222,6 +223,7 @@ Redis 7+ is automatically started via Testcontainers; an H2 in-memory database i
 ## Notes
 
 - **Disable TTL for the timestamps region**:
-  Redis TTL is not applied to `default-update-timestamps-region` in order to preserve the query cache invalidation contract.
+  Redis TTL is not applied to
+  `default-update-timestamps-region` in order to preserve the query cache invalidation contract.
 - **H2 Version**: Hibernate 7 requires H2 v2 (`com.h2database:h2:2.x`).
 - **Redis 6+**: Required when `use_resp3=true` (the default). For older Redis versions, set `use_resp3=false`.

@@ -59,7 +59,7 @@ artifacts {
 
 dependencies {
     testImplementation(platform(Libs.junit_bom))
-    
+
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
@@ -67,7 +67,7 @@ dependencies {
     api(Libs.jakarta_persistence_api)
     kapt(Libs.jakarta_persistence_api)
     api(Libs.jakarta_transaction_api)
-    
+
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
 

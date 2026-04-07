@@ -151,14 +151,14 @@ interface ProductJdbcRepository: ExposedJdbcRepository<ProductEntity, Long> {
 
 ### 기본 CRUD
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/products` | 모든 상품 조회 |
-| GET | `/products/{id}` | 특정 상품 조회 |
-| POST | `/products` | 상품 생성 |
-| PUT | `/products/{id}` | 상품 수정 |
-| DELETE | `/products/{id}` | 상품 삭제 |
-| GET | `/products/search` | 이름으로 검색 (쿼리 파라미터 `name`) |
+| 메서드    | 경로                 | 설명                       |
+|--------|--------------------|--------------------------|
+| GET    | `/products`        | 모든 상품 조회                 |
+| GET    | `/products/{id}`   | 특정 상품 조회                 |
+| POST   | `/products`        | 상품 생성                    |
+| PUT    | `/products/{id}`   | 상품 수정                    |
+| DELETE | `/products/{id}`   | 상품 삭제                    |
+| GET    | `/products/search` | 이름으로 검색 (쿼리 파라미터 `name`) |
 
 ### 요청/응답 예시
 
@@ -169,6 +169,7 @@ curl http://localhost:8080/products
 ```
 
 응답:
+
 ```json
 [
   {
@@ -199,6 +200,7 @@ curl -X POST http://localhost:8080/products \
 ```
 
 응답 (201 Created):
+
 ```json
 {
   "id": 3,

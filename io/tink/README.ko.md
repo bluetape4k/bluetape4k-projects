@@ -171,15 +171,15 @@ val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
 
 ## 알고리즘 선택 가이드
 
-| 사용 목적           | 권장 알고리즘                | 클래스                                         |
-|-----------------|------------------------|--------------------------------------------|
-| 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM` |
+| 사용 목적           | 권장 알고리즘                | 클래스                                                                  |
+|-----------------|------------------------|----------------------------------------------------------------------|
+| 범용 암호화          | AES-256-GCM            | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM`                 |
 | 하드웨어 AES 없는 환경  | XChaCha20-Poly1305     | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
-| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
-| 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`                      |
-| 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG`            |
-| 범용 해시          | SHA-256                | `TinkDigesters.SHA256`                      |
-| 최고 수준 해시        | SHA-512                | `TinkDigesters.SHA512`                      |
+| DB 컬럼 검색 가능 암호화 | AES-256-SIV            | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV`  |
+| 데이터 무결성 검증      | HMAC-SHA256            | `TinkMacs.HMAC_SHA256`                                               |
+| 고보안 무결성 검증      | HMAC-SHA512 (512비트 태그) | `TinkMacs.HMAC_SHA512_512BITTAG`                                     |
+| 범용 해시           | SHA-256                | `TinkDigesters.SHA256`                                               |
+| 최고 수준 해시        | SHA-512                | `TinkDigesters.SHA512`                                               |
 
 ## 주의 사항
 
@@ -213,8 +213,8 @@ val keysetJson = outputStream.toString()
 
 ### Redis 기반 키 로테이션
 
-`bluetape4k-tink`는 versioned keyset 추상화와 envelope 암호화 래퍼를 제공합니다.
-실제 Redis 저장은 `bluetape4k-lettuce`의 `LettuceVersionedKeysetStore`를 사용합니다.
+`bluetape4k-tink`는 versioned keyset 추상화와 envelope 암호화 래퍼를 제공합니다. 실제 Redis 저장은 `bluetape4k-lettuce`의
+`LettuceVersionedKeysetStore`를 사용합니다.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.tink.LettuceVersionedKeysetStore
@@ -382,25 +382,25 @@ sequenceDiagram
 
 > **`bluetape4k-crypto`는 @Deprecated 되었습니다.** 신규 개발에서는 `bluetape4k-tink`를 사용하세요.
 
-| 항목       | `bluetape4k-crypto` (Deprecated) | `bluetape4k-tink`              |
-|----------|----------------------------------|--------------------------------|
-| 기반 라이브러리 | Jasypt + BouncyCastle            | Google Tink + JDK              |
-| 암호화 방식   | PBE (Password-Based)             | AEAD (인증 암호화)                  |
-| 인증       | 없음 (AES-CBC)                     | 내장 (GCM/Poly1305/SIV)          |
-| 결정적 암호화  | 불가                               | AES-SIV로 지원                    |
+| 항목       | `bluetape4k-crypto` (Deprecated) | `bluetape4k-tink`               |
+|----------|----------------------------------|---------------------------------|
+| 기반 라이브러리 | Jasypt + BouncyCastle            | Google Tink + JDK               |
+| 암호화 방식   | PBE (Password-Based)             | AEAD (인증 암호화)                   |
+| 인증       | 없음 (AES-CBC)                     | 내장 (GCM/Poly1305/SIV)           |
+| 결정적 암호화  | 불가                               | AES-SIV로 지원                     |
 | MAC      | 별도                               | HMAC-SHA256/512 내장              |
-| 해시       | BouncyCastle 필요                  | JDK MessageDigest (추가 의존성 없음)  |
+| 해시       | BouncyCastle 필요                  | JDK MessageDigest (추가 의존성 없음)   |
 | 통합 인터페이스 | 없음                               | `TinkEncryptor` (AEAD/DAEAD 통합) |
-| 의존성      | Jasypt + BouncyCastle            | Google Tink만                   |
+| 의존성      | Jasypt + BouncyCastle            | Google Tink만                    |
 
 ### 마이그레이션 가이드
 
-| `bluetape4k-crypto` | `bluetape4k-tink` |
-|-----|------|
-| `Digesters.SHA256.digest(data)` | `TinkDigesters.SHA256.digest(data)` |
-| `Digesters.SHA256.matches(data, hash)` | `TinkDigesters.SHA256.matches(data, hash)` |
-| `"hello".digest(Digesters.SHA256)` | `"hello".tinkDigest(TinkDigesters.SHA256)` |
-| `Encryptors.AES.encrypt(data)` | `TinkEncryptors.AES256_GCM.encrypt(data)` |
-| `Encryptors.AES.decrypt(data)` | `TinkEncryptors.AES256_GCM.decrypt(data)` |
-| `"hello".encrypt(Encryptors.AES)` | `"hello".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
-| `Encryptors.DeterministicAES` | `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
+| `bluetape4k-crypto`                    | `bluetape4k-tink`                                |
+|----------------------------------------|--------------------------------------------------|
+| `Digesters.SHA256.digest(data)`        | `TinkDigesters.SHA256.digest(data)`              |
+| `Digesters.SHA256.matches(data, hash)` | `TinkDigesters.SHA256.matches(data, hash)`       |
+| `"hello".digest(Digesters.SHA256)`     | `"hello".tinkDigest(TinkDigesters.SHA256)`       |
+| `Encryptors.AES.encrypt(data)`         | `TinkEncryptors.AES256_GCM.encrypt(data)`        |
+| `Encryptors.AES.decrypt(data)`         | `TinkEncryptors.AES256_GCM.decrypt(data)`        |
+| `"hello".encrypt(Encryptors.AES)`      | `"hello".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
+| `Encryptors.DeterministicAES`          | `TinkEncryptors.DETERMINISTIC_AES256_SIV`        |

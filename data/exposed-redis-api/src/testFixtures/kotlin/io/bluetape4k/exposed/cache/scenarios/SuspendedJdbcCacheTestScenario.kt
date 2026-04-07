@@ -1,16 +1,16 @@
 package io.bluetape4k.exposed.cache.scenarios
 
-import java.io.Serializable
-
 import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.cache.SuspendedJdbcCacheRepository
+import io.bluetape4k.exposed.cache.scenarios.SuspendedJdbcCacheTestScenario.Companion.DefaultCacheDispatcher
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
+import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 
 /**

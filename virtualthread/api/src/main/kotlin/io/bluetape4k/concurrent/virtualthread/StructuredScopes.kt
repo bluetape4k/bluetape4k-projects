@@ -27,8 +27,10 @@ import java.util.concurrent.ThreadFactory
 interface StructuredSubtask<T> {
     /** subtask 성공 결과를 반환합니다. */
     fun get(): T
+
     /** subtask 현재 상태를 반환합니다. */
     fun state(): StructuredTaskScope.Subtask.State
+
     /** subtask 실패 원인을 반환하고, 실패하지 않았으면 `null`을 반환합니다. */
     fun exceptionOrNull(): Throwable?
 }
@@ -54,16 +56,20 @@ interface StructuredSubtask<T> {
 interface StructuredTaskScopeAll: AutoCloseable {
     /** 새 subtask를 scope에 등록합니다. */
     fun <T> fork(task: () -> T): StructuredSubtask<T>
+
     /** 등록된 subtask 완료를 대기합니다. */
     fun join(): StructuredTaskScopeAll
+
     /**
      * 지정한 데드라인까지 subtask 완료를 대기합니다.
      * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
      * 기본 구현은 타임아웃 없이 [join]을 호출합니다.
      */
     fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll = join()
+
     /** 실패한 subtask가 있으면 [handler]를 호출한 뒤 예외를 전파합니다. */
     fun throwIfFailed(handler: (e: Throwable) -> Unit = {}): StructuredTaskScopeAll
+
     /** scope 자원을 정리합니다. */
     override fun close()
 }
@@ -87,10 +93,13 @@ interface StructuredTaskScopeAll: AutoCloseable {
 interface StructuredTaskScopeAny<T>: AutoCloseable {
     /** 새 subtask를 scope에 등록합니다. */
     fun <V: T> fork(task: () -> V): StructuredSubtask<V>
+
     /** 등록된 subtask 완료를 대기합니다. */
     fun join(): StructuredTaskScopeAny<T>
+
     /** 첫 성공 결과를 반환하거나 실패 시 [mapper]로 예외를 변환해 던집니다. */
     fun result(mapper: (Throwable) -> RuntimeException): T
+
     /** scope 자원을 정리합니다. */
     override fun close()
 }
@@ -110,6 +119,7 @@ interface StructuredTaskScopeAny<T>: AutoCloseable {
 interface StructuredTaskScopeProvider {
     /** provider 식별 이름입니다. */
     val providerName: String
+
     /** provider 선택 우선순위입니다. */
     val priority: Int
 

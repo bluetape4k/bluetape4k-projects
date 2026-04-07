@@ -21,18 +21,41 @@ open class Pressure(
 ): Units(suffix, ratio) {
     companion object {
         /** 파스칼을 기준 단위로 사용합니다. */
-        @JvmField val pascal: Pressure = Pressure("Pa")
-        @JvmField val hectoPascal: Pressure = Pressure("hPa", 100.0)
-        @JvmField val kiloPascal: Pressure = Pressure("kPa", 1_000.0)
-        @JvmField val megaPascal: Pressure = Pressure("MPa", 1_000_000.0)
-        @JvmField val gigaPascal: Pressure = Pressure("GPa", 1_000_000_000.0)
-        @JvmField val bar: Pressure = Pressure("bar", 100_000.0)
-        @JvmField val deciBar: Pressure = Pressure("dbar", 10_000.0)
-        @JvmField val milliBar: Pressure = Pressure("mbar", 100.0)
-        @JvmField val atmosphere: Pressure = Pressure("atm", 101_325.0)
-        @JvmField val psi: Pressure = Pressure("psi", 6_894.757)
-        @JvmField val torr: Pressure = Pressure("torr", 101_325.0 / 760.0)
-        @JvmField val mmHg: Pressure = Pressure("mmHg", 101_325.0 / 760.0)
+        @JvmField
+        val pascal: Pressure = Pressure("Pa")
+
+        @JvmField
+        val hectoPascal: Pressure = Pressure("hPa", 100.0)
+
+        @JvmField
+        val kiloPascal: Pressure = Pressure("kPa", 1_000.0)
+
+        @JvmField
+        val megaPascal: Pressure = Pressure("MPa", 1_000_000.0)
+
+        @JvmField
+        val gigaPascal: Pressure = Pressure("GPa", 1_000_000_000.0)
+
+        @JvmField
+        val bar: Pressure = Pressure("bar", 100_000.0)
+
+        @JvmField
+        val deciBar: Pressure = Pressure("dbar", 10_000.0)
+
+        @JvmField
+        val milliBar: Pressure = Pressure("mbar", 100.0)
+
+        @JvmField
+        val atmosphere: Pressure = Pressure("atm", 101_325.0)
+
+        @JvmField
+        val psi: Pressure = Pressure("psi", 6_894.757)
+
+        @JvmField
+        val torr: Pressure = Pressure("torr", 101_325.0 / 760.0)
+
+        @JvmField
+        val mmHg: Pressure = Pressure("mmHg", 101_325.0 / 760.0)
     }
 }
 

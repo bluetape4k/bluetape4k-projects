@@ -20,9 +20,9 @@ data class TimestampRange(
     val end: Instant,
     val lowerInclusive: Boolean = true,
     val upperInclusive: Boolean = false,
-) : Serializable {
+): Serializable {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 

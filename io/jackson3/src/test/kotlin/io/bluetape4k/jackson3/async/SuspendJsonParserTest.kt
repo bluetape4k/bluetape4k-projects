@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
 class SuspendJsonParserTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     data class Model(
         val stringValue: String? = null,
@@ -33,7 +33,7 @@ class SuspendJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ) : Serializable {
+    ): Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }

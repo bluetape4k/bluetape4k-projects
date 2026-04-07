@@ -352,9 +352,9 @@ internal fun Term.asCql(): String = buildString { appendTo(this) }
 fun Any?.literal(): Term =
     when (this) {
         is List<*> -> ListTerm(map { it.literal() })
-        is Set<*> -> SetTerm(map { it.literal() })
+        is Set<*>  -> SetTerm(map { it.literal() })
         is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k.literal() to v.literal() })
-        else -> QueryBuilder.literal(this)
+        else       -> QueryBuilder.literal(this)
     }
 
 /**
@@ -373,9 +373,9 @@ fun Any?.literal(): Term =
 fun Any?.literal(codecRegistry: CodecRegistry): Term =
     when (this) {
         is List<*> -> ListTerm(map { it.literal(codecRegistry) })
-        is Set<*> -> SetTerm(map { it.literal(codecRegistry) })
+        is Set<*>  -> SetTerm(map { it.literal(codecRegistry) })
         is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k.literal(codecRegistry) to v.literal(codecRegistry) })
-        else -> QueryBuilder.literal(this, codecRegistry)
+        else       -> QueryBuilder.literal(this, codecRegistry)
     }
 
 /**
@@ -391,12 +391,12 @@ fun Any?.literal(codecRegistry: CodecRegistry): Term =
  * @return 변환된 [Term]
  */
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> T.literal(codec: TypeCodec<out T>): Term =
+fun <T: Any> T.literal(codec: TypeCodec<out T>): Term =
     when (this) {
         is List<*> -> ListTerm(map { it!!.literal(codec) })
-        is Set<*> -> SetTerm(map { it!!.literal(codec) })
+        is Set<*>  -> SetTerm(map { it!!.literal(codec) })
         is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k!!.literal(codec) to v!!.literal(codec) })
-        else -> QueryBuilder.literal(this, codec as TypeCodec<T>)
+        else       -> QueryBuilder.literal(this, codec as TypeCodec<T>)
     }
 
 /**
@@ -412,7 +412,7 @@ fun <T : Any> T.literal(codec: TypeCodec<out T>): Term =
  */
 class ListTerm(
     private val components: Collection<Term>,
-) : Term {
+): Term {
     override fun appendTo(builder: StringBuilder) {
         if (components.isEmpty()) {
             builder.append("[]")
@@ -437,7 +437,7 @@ class ListTerm(
  */
 class SetTerm(
     private val components: Collection<Term>,
-) : Term {
+): Term {
     override fun appendTo(builder: StringBuilder) {
         if (components.isEmpty()) {
             builder.append("{}")
@@ -462,7 +462,7 @@ class SetTerm(
  */
 class MapTerm(
     private val components: Map<Term, Term>,
-) : Term {
+): Term {
     override fun appendTo(builder: StringBuilder) {
         if (components.isEmpty()) {
             builder.append("{}")

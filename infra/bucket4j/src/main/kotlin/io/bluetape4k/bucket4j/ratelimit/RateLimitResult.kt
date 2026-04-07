@@ -18,8 +18,10 @@ import java.io.Serializable
 enum class RateLimitStatus {
     /** 요청 토큰이 정상 소비됨 */
     CONSUMED,
+
     /** 토큰 부족으로 소비 거절됨 */
     REJECTED,
+
     /** 처리 중 오류가 발생함 */
     ERROR
 }

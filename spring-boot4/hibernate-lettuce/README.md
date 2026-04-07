@@ -4,7 +4,9 @@ English | [한국어](./README.ko.md)
 
 **Spring Boot 4 Auto-Configuration** for Hibernate 7 **2nd Level Cache** (Lettuce Near Cache).
 
-Simply add `bluetape4k.cache.lettuce-near.*` settings to your `application.yml` and Hibernate Second Level Cache activates automatically — no additional code required. Millisecond-based durations (e.g., `500ms`) are passed through directly to Hibernate configuration.
+Simply add `bluetape4k.cache.lettuce-near.*` settings to your
+`application.yml` and Hibernate Second Level Cache activates automatically — no additional code required. Millisecond-based durations (e.g.,
+`500ms`) are passed through directly to Hibernate configuration.
 
 ## UML
 
@@ -67,8 +69,8 @@ flowchart TD
 
 Package names have changed in Spring Boot 4:
 
-| Spring Boot 3 | Spring Boot 4 |
-|---|---|
+| Spring Boot 3                                                                  | Spring Boot 4                                                                    |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | `org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer` | `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer` |
 
 The Spring Boot 4 BOM must also be applied explicitly:
@@ -218,7 +220,7 @@ bluetape4k:
 
 ### Configuration → Hibernate properties mapping
 
-| Spring Configuration                   | Hibernate property                                 |
+| Spring Configuration                 | Hibernate property                                 |
 |--------------------------------------|----------------------------------------------------|
 | `redis-uri`                          | `hibernate.cache.lettuce.redis_uri`                |
 | `codec`                              | `hibernate.cache.lettuce.codec`                    |
@@ -232,11 +234,11 @@ bluetape4k:
 
 ## Auto-Configuration Classes
 
-| Class                                          | Condition                                                              | Role                                  |
-|----------------------------------------------|------------------------------------------------------------------------|---------------------------------------|
-| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath   | Registers `HibernatePropertiesCustomizer` |
-| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                    | Registers `LettuceNearCacheMetricsBinder` |
-| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean        | Registers `/actuator/nearcache` endpoint  |
+| Class                                        | Condition                                                            | Role                                      |
+|----------------------------------------------|----------------------------------------------------------------------|-------------------------------------------|
+| `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | Registers `HibernatePropertiesCustomizer` |
+| `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                  | Registers `LettuceNearCacheMetricsBinder` |
+| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | Registers `/actuator/nearcache` endpoint  |
 
 ## Actuator Endpoint
 
@@ -296,10 +298,10 @@ Response:
 
 When `metrics.enabled=true`, the following Gauges are registered:
 
-| Metric                             | Description                           |
-|----------------------------------|---------------------------------------|
-| `lettuce.nearcache.region.count` | Number of active regions              |
-| `lettuce.nearcache.local.size`   | Estimated total L1 cache entry count  |
+| Metric                           | Description                          |
+|----------------------------------|--------------------------------------|
+| `lettuce.nearcache.region.count` | Number of active regions             |
+| `lettuce.nearcache.local.size`   | Estimated total L1 cache entry count |
 
 ```bash
 # Retrieve Micrometer metrics (JSON)
@@ -359,11 +361,11 @@ Integration tests automatically manage Redis + H2 via Testcontainers.
 
 ## Differences from Spring Boot 3
 
-| Aspect | Spring Boot 3 | Spring Boot 4 |
-|---|---|---|
-| `HibernatePropertiesCustomizer` package | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure` |
-| BOM configuration | `dependencyManagement { imports }` | `implementation(platform(Libs.spring_boot4_dependencies))` |
-| Explicit Hibernate dependency | Not required | `compileOnly(Libs.springBoot("hibernate"))` |
+| Aspect                                  | Spring Boot 3                                    | Spring Boot 4                                              |
+|-----------------------------------------|--------------------------------------------------|------------------------------------------------------------|
+| `HibernatePropertiesCustomizer` package | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure`         |
+| BOM configuration                       | `dependencyManagement { imports }`               | `implementation(platform(Libs.spring_boot4_dependencies))` |
+| Explicit Hibernate dependency           | Not required                                     | `compileOnly(Libs.springBoot("hibernate"))`                |
 
 ## Package Information
 

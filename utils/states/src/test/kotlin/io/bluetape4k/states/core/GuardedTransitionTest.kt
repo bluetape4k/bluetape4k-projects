@@ -10,12 +10,17 @@ import org.junit.jupiter.api.assertThrows
 
 class GuardedTransitionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class State { PENDING, APPROVED, REJECTED }
+    enum class State {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
     sealed class Event {
-        data class Approve(val approvedBy: String?) : Event()
-        data object Reject : Event()
+        data class Approve(val approvedBy: String?): Event()
+        data object Reject: Event()
     }
 
     @Test

@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 
-class CustomerRepositoryTest : AbstractFoodApplicationTest() {
-    companion object : KLoggingChannel() {
+class CustomerRepositoryTest: AbstractFoodApplicationTest() {
+    companion object: KLoggingChannel() {
         private fun createCustomer(): CustomerDocument =
             CustomerDocument(
                 customerId = Uuid.V7.nextIdAsString(),

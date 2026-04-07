@@ -87,12 +87,12 @@ classDiagram
 
 ### Supported Image Formats
 
-| Format | File Size (example) | Processing Time (example) | Notes                   |
-|--------|---------------------|---------------------------|-------------------------|
-| PNG    | 6.45 MB             | 569 ms                    | Lossless, transparency  |
-| GIF    | 1.21 MB             | 2,888 ms                  | Animation support       |
-| JPG    | 417 kB              | 157 ms                    | Fast, lossy             |
-| WEBP   | 181 kB              | 913 ms                    | Best compression, modern|
+| Format | File Size (example) | Processing Time (example) | Notes                    |
+|--------|---------------------|---------------------------|--------------------------|
+| PNG    | 6.45 MB             | 569 ms                    | Lossless, transparency   |
+| GIF    | 1.21 MB             | 2,888 ms                  | Animation support        |
+| JPG    | 417 kB              | 157 ms                    | Fast, lossy              |
+| WEBP   | 181 kB              | 913 ms                    | Best compression, modern |
 
 - **Dynamic generation**: JPG is fastest (for real-time processing)
 - **Static files**: WebP is most efficient (saves storage)

@@ -27,7 +27,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
  * ```
  */
 @NoRepositoryBean
-interface ExposedR2dbcRepository<R : Any, ID : Any> : CoroutineCrudRepository<R, ID> {
+interface ExposedR2dbcRepository<R: Any, ID: Any>: CoroutineCrudRepository<R, ID> {
 
     /** 이 Repository가 사용하는 Exposed [IdTable]. */
     val table: IdTable<ID>
@@ -35,9 +35,9 @@ interface ExposedR2dbcRepository<R : Any, ID : Any> : CoroutineCrudRepository<R,
     /** 도메인 객체 [entity]에서 ID를 추출합니다. 신규 엔티티는 null을 반환합니다. */
     fun extractId(entity: R): ID?
 
-    override suspend fun <S : R> save(entity: S): S
-    override fun <S : R> saveAll(entities: Iterable<S>): Flow<S>
-    override fun <S : R> saveAll(entityStream: Flow<S>): Flow<S>
+    override suspend fun <S: R> save(entity: S): S
+    override fun <S: R> saveAll(entities: Iterable<S>): Flow<S>
+    override fun <S: R> saveAll(entityStream: Flow<S>): Flow<S>
 
     /** [CoroutineCrudRepository.findById] 와 동일하나 명시적 nullable 이름을 제공합니다. */
     suspend fun findByIdOrNull(id: ID): R?
@@ -64,7 +64,7 @@ interface ExposedR2dbcRepository<R : Any, ID : Any> : CoroutineCrudRepository<R,
     override suspend fun delete(entity: R)
     override suspend fun deleteAllById(ids: Iterable<ID>)
     override suspend fun deleteAll(entities: Iterable<R>)
-    override suspend fun <S : R> deleteAll(entityStream: Flow<S>)
+    override suspend fun <S: R> deleteAll(entityStream: Flow<S>)
     override suspend fun deleteAll()
 
     /**

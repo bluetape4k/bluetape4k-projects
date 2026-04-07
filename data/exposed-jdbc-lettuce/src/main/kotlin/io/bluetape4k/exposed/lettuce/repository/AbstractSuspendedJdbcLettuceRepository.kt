@@ -74,13 +74,15 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
 
     // SuspendedJdbcCacheRepository 프로퍼티 구현
     override val cacheName: String get() = config.keyPrefix
-    override val cacheMode: CacheMode get() =
-        if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
-    override val cacheWriteMode: CacheWriteMode get() = when (config.writeMode) {
-        WriteMode.NONE -> CacheWriteMode.READ_ONLY
-        WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
-        WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
-    }
+    override val cacheMode: CacheMode
+        get() =
+            if (config.nearCacheEnabled) CacheMode.NEAR_CACHE else CacheMode.REMOTE
+    override val cacheWriteMode: CacheWriteMode
+        get() = when (config.writeMode) {
+            WriteMode.NONE          -> CacheWriteMode.READ_ONLY
+            WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
+            WriteMode.WRITE_BEHIND  -> CacheWriteMode.WRITE_BEHIND
+        }
 
     /** [config.nearCacheEnabled]가 true일 때 Caffeine 로컬 캐시(front) */
     protected val nearCache: LettuceSuspendNearCache<E>? by lazy {

@@ -39,7 +39,7 @@ fun Table.tstzRange(name: String): Column<TimestampRange> =
 class TstzRangeOverlapsOp(
     expr1: Expression<*>,
     expr2: Expression<*>,
-) : ComparisonOp(expr1, expr2, "&&")
+): ComparisonOp(expr1, expr2, "&&")
 
 /**
  * PostgreSQL `@>` 연산자를 나타내는 SQL 표현식 (range가 instant를 포함).
@@ -52,7 +52,7 @@ class TstzRangeOverlapsOp(
 class TstzRangeContainsInstantOp(
     private val rangeExpr: Expression<TimestampRange>,
     private val instantExpr: Expression<Instant>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder {
             append(rangeExpr)
@@ -74,7 +74,7 @@ class TstzRangeContainsInstantOp(
 class TstzRangeContainsRangeOp(
     expr1: Expression<*>,
     expr2: Expression<*>,
-) : ComparisonOp(expr1, expr2, "@>")
+): ComparisonOp(expr1, expr2, "@>")
 
 /**
  * PostgreSQL `-|-` 연산자를 나타내는 SQL 표현식.
@@ -87,7 +87,7 @@ class TstzRangeContainsRangeOp(
 class TstzRangeAdjacentOp(
     expr1: Expression<*>,
     expr2: Expression<*>,
-) : ComparisonOp(expr1, expr2, "-|-")
+): ComparisonOp(expr1, expr2, "-|-")
 
 /**
  * 이 TSTZRANGE 컬럼이 다른 TSTZRANGE 컬럼과 겹치는지 확인하는 `&&` 연산자.

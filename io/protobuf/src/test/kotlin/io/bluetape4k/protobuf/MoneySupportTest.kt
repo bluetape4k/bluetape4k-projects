@@ -7,7 +7,7 @@ import org.javamoney.moneta.Money
 import org.junit.jupiter.api.Test
 
 class MoneySupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `toJavaMoney - ProtoMoney를 JavaMoney로 변환한다`() {

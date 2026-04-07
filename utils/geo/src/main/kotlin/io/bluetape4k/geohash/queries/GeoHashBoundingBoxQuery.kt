@@ -65,9 +65,9 @@ fun geoHashBoundingBoxQueryOf(
  */
 class GeoHashBoundingBoxQuery(
     private val bbox: BoundingBox,
-) : GeoHashQuery,
-    Serializable {
-    companion object : KLogging()
+): GeoHashQuery,
+   Serializable {
+    companion object: KLogging()
 
     // there can be up to 8 hashes since it can be 2 separate queries
     private val searchHashes = ArrayList<GeoHash>(8)

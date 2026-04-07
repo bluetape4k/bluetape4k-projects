@@ -27,7 +27,7 @@ import java.math.BigDecimal
 @Transactional
 class ProductJdbcRepositoryTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Autowired
     private lateinit var productJdbcRepository: ProductJdbcRepository

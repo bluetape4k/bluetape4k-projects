@@ -29,4 +29,4 @@ import java.util.*
  *
  * @param id `UUID` 타입 엔티티 식별자
  */
-abstract class AuditableUUIDEntity(id: EntityID<UUID>) : AuditableEntity<UUID>(id)
+abstract class AuditableUUIDEntity(id: EntityID<UUID>): AuditableEntity<UUID>(id)

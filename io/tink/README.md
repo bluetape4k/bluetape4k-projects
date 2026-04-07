@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 An idiomatic Kotlin wrapper around Google [Tink](https://github.com/google/tink) cryptography library.
 
-It operates independently of the legacy `bluetape4k-crypto` (Jasypt-based PBE) and exposes modern authenticated encryption (AEAD) algorithms through a safe, Kotlin-friendly API.
+It operates independently of the legacy
+`bluetape4k-crypto` (Jasypt-based PBE) and exposes modern authenticated encryption (AEAD) algorithms through a safe, Kotlin-friendly API.
 
 ## Features
 
@@ -126,8 +127,7 @@ val ok = "important data".verifyTinkMac(tag2, mac)  // true
 
 ### Digest — Hash Digest
 
-Uses only the JDK `MessageDigest` — no BouncyCastle required.
-Replaces `Digesters` from `bluetape4k-crypto`.
+Uses only the JDK `MessageDigest` — no BouncyCastle required. Replaces `Digesters` from `bluetape4k-crypto`.
 
 ```kotlin
 import io.bluetape4k.tink.digest.TinkDigesters
@@ -147,8 +147,8 @@ val hash2 = "Hello, World!".tinkDigest(TinkDigesters.SHA256)
 
 ### Encrypt — Unified Encryption Interface
 
-The `TinkEncryptor` interface unifies non-deterministic AEAD and deterministic DAEAD encryption.
-Replaces `Encryptors` from `bluetape4k-crypto`.
+The `TinkEncryptor` interface unifies non-deterministic AEAD and deterministic DAEAD encryption. Replaces
+`Encryptors` from `bluetape4k-crypto`.
 
 ```kotlin
 import io.bluetape4k.tink.encrypt.TinkEncryptors
@@ -171,26 +171,31 @@ val dec = enc.tinkDecrypt(TinkEncryptors.CHACHA20_POLY1305)
 
 ## Algorithm Selection Guide
 
-| Use Case | Recommended Algorithm | Class |
-|----------|-----------------------|-------|
-| General encryption | AES-256-GCM | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM` |
-| No hardware AES acceleration | XChaCha20-Poly1305 | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
-| Searchable DB column encryption | AES-256-SIV | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
-| Data integrity verification | HMAC-SHA256 | `TinkMacs.HMAC_SHA256` |
-| High-security integrity verification | HMAC-SHA512 (512-bit tag) | `TinkMacs.HMAC_SHA512_512BITTAG` |
-| General-purpose hash | SHA-256 | `TinkDigesters.SHA256` |
-| Highest-strength hash | SHA-512 | `TinkDigesters.SHA512` |
+| Use Case                             | Recommended Algorithm     | Class                                                                |
+|--------------------------------------|---------------------------|----------------------------------------------------------------------|
+| General encryption                   | AES-256-GCM               | `TinkAeads.AES256_GCM` / `TinkEncryptors.AES256_GCM`                 |
+| No hardware AES acceleration         | XChaCha20-Poly1305        | `TinkAeads.XCHACHA20_POLY1305` / `TinkEncryptors.XCHACHA20_POLY1305` |
+| Searchable DB column encryption      | AES-256-SIV               | `TinkDaeads.AES256_SIV` / `TinkEncryptors.DETERMINISTIC_AES256_SIV`  |
+| Data integrity verification          | HMAC-SHA256               | `TinkMacs.HMAC_SHA256`                                               |
+| High-security integrity verification | HMAC-SHA512 (512-bit tag) | `TinkMacs.HMAC_SHA512_512BITTAG`                                     |
+| General-purpose hash                 | SHA-256                   | `TinkDigesters.SHA256`                                               |
+| Highest-strength hash                | SHA-512                   | `TinkDigesters.SHA512`                                               |
 
 ## Important Notes
 
 ### AEAD vs Deterministic AEAD
 
-- **AEAD** (`TinkAeads`): Uses a random nonce on every encryption — even identical plaintexts produce different ciphertexts. **Recommended for general data protection.**
-- **Deterministic AEAD** (`TinkDaeads`): Same plaintext always produces the same ciphertext. Pattern leakage is possible, so **use only for DB fields that require searching.**
+- **AEAD** (
+  `TinkAeads`): Uses a random nonce on every encryption — even identical plaintexts produce different ciphertexts. *
+  *Recommended for general data protection.**
+- **Deterministic AEAD** (
+  `TinkDaeads`): Same plaintext always produces the same ciphertext. Pattern leakage is possible, so **use only for DB
+  fields that require searching.**
 
 ### Key Management
 
-The singleton instances of `TinkAeads`, `TinkDaeads`, and `TinkMacs` use **ephemeral keys that reside in memory for the lifetime of the application**. If decryption must survive a restart, serialize and persist the keys securely.
+The singleton instances of `TinkAeads`, `TinkDaeads`, and `TinkMacs` use **ephemeral keys that reside in memory for the
+lifetime of the application**. If decryption must survive a restart, serialize and persist the keys securely.
 
 ```kotlin
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -207,13 +212,13 @@ val keysetJson = outputStream.toString()
 
 ### String Ciphertext Format
 
-The return value of `encrypt(String)` is a **standard Base64**-encoded ciphertext.
-The input to `decrypt(String)` must be in the same Base64 format.
+The return value of `encrypt(String)` is a **standard Base64**-encoded ciphertext. The input to
+`decrypt(String)` must be in the same Base64 format.
 
 ### Redis-Based Key Rotation
 
-`bluetape4k-tink` provides a versioned keyset abstraction and envelope encryption wrapper.
-Actual Redis storage uses `LettuceVersionedKeysetStore` from `bluetape4k-lettuce`.
+`bluetape4k-tink` provides a versioned keyset abstraction and envelope encryption wrapper. Actual Redis storage uses
+`LettuceVersionedKeysetStore` from `bluetape4k-lettuce`.
 
 ```kotlin
 import io.bluetape4k.redis.lettuce.tink.LettuceVersionedKeysetStore
@@ -381,25 +386,25 @@ sequenceDiagram
 
 > **`bluetape4k-crypto` is `@Deprecated`.** Use `bluetape4k-tink` for all new development.
 
-| Item | `bluetape4k-crypto` (Deprecated) | `bluetape4k-tink` |
-|------|----------------------------------|-------------------|
-| Underlying library | Jasypt + BouncyCastle | Google Tink + JDK |
-| Encryption scheme | PBE (Password-Based) | AEAD (Authenticated Encryption) |
-| Authentication | None (AES-CBC) | Built-in (GCM/Poly1305/SIV) |
-| Deterministic encryption | Not supported | Supported via AES-SIV |
-| MAC | Separate | HMAC-SHA256/512 built-in |
-| Hash | Requires BouncyCastle | JDK MessageDigest (no extra dependency) |
-| Unified interface | None | `TinkEncryptor` (AEAD/DAEAD unified) |
-| Dependencies | Jasypt + BouncyCastle | Google Tink only |
+| Item                     | `bluetape4k-crypto` (Deprecated) | `bluetape4k-tink`                       |
+|--------------------------|----------------------------------|-----------------------------------------|
+| Underlying library       | Jasypt + BouncyCastle            | Google Tink + JDK                       |
+| Encryption scheme        | PBE (Password-Based)             | AEAD (Authenticated Encryption)         |
+| Authentication           | None (AES-CBC)                   | Built-in (GCM/Poly1305/SIV)             |
+| Deterministic encryption | Not supported                    | Supported via AES-SIV                   |
+| MAC                      | Separate                         | HMAC-SHA256/512 built-in                |
+| Hash                     | Requires BouncyCastle            | JDK MessageDigest (no extra dependency) |
+| Unified interface        | None                             | `TinkEncryptor` (AEAD/DAEAD unified)    |
+| Dependencies             | Jasypt + BouncyCastle            | Google Tink only                        |
 
 ### Migration Guide
 
-| `bluetape4k-crypto` | `bluetape4k-tink` |
-|---------------------|-------------------|
-| `Digesters.SHA256.digest(data)` | `TinkDigesters.SHA256.digest(data)` |
-| `Digesters.SHA256.matches(data, hash)` | `TinkDigesters.SHA256.matches(data, hash)` |
-| `"hello".digest(Digesters.SHA256)` | `"hello".tinkDigest(TinkDigesters.SHA256)` |
-| `Encryptors.AES.encrypt(data)` | `TinkEncryptors.AES256_GCM.encrypt(data)` |
-| `Encryptors.AES.decrypt(data)` | `TinkEncryptors.AES256_GCM.decrypt(data)` |
-| `"hello".encrypt(Encryptors.AES)` | `"hello".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
-| `Encryptors.DeterministicAES` | `TinkEncryptors.DETERMINISTIC_AES256_SIV` |
+| `bluetape4k-crypto`                    | `bluetape4k-tink`                                |
+|----------------------------------------|--------------------------------------------------|
+| `Digesters.SHA256.digest(data)`        | `TinkDigesters.SHA256.digest(data)`              |
+| `Digesters.SHA256.matches(data, hash)` | `TinkDigesters.SHA256.matches(data, hash)`       |
+| `"hello".digest(Digesters.SHA256)`     | `"hello".tinkDigest(TinkDigesters.SHA256)`       |
+| `Encryptors.AES.encrypt(data)`         | `TinkEncryptors.AES256_GCM.encrypt(data)`        |
+| `Encryptors.AES.decrypt(data)`         | `TinkEncryptors.AES256_GCM.decrypt(data)`        |
+| `"hello".encrypt(Encryptors.AES)`      | `"hello".tinkEncrypt(TinkEncryptors.AES256_GCM)` |
+| `Encryptors.DeterministicAES`          | `TinkEncryptors.DETERMINISTIC_AES256_SIV`        |

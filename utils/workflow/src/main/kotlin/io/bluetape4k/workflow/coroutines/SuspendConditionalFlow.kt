@@ -32,9 +32,9 @@ class SuspendConditionalFlow(
     private val thenWork: SuspendWork,
     private val otherwiseWork: SuspendWork? = null,
     private val flowName: String = "suspend-conditional-flow",
-) : SuspendWorkFlow {
+): SuspendWorkFlow {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override suspend fun execute(context: WorkContext): WorkReport {
         val condition = runCatching { predicate(context) }

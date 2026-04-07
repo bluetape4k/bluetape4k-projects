@@ -40,8 +40,8 @@ fun ReadableByteChannel.asSource(timeout: Timeout = Timeout.NONE): ByteChannelSo
 class ByteChannelSource(
     private val channel: ReadableByteChannel,
     private val timeout: Timeout = Timeout.NONE,
-) : Source {
-    companion object : KLogging()
+): Source {
+    companion object: KLogging()
 
     /**
      * Okio 채널 I/O에서 데이터를 읽어오는 `read` 함수를 제공합니다.
@@ -74,7 +74,7 @@ class ByteChannelSource(
                     -1L
                 }
 
-                else -> {
+                else     -> {
                     cursor.resizeBuffer(oldSize)
                     0L
                 }

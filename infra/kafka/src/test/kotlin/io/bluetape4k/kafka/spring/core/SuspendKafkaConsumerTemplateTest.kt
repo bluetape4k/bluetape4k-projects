@@ -151,7 +151,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         val timestamp = 1_700_000_000_000L
 
         every { consumer.offsetsForTimes(mapOf(partition to timestamp)) } returns
-            mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
+                mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
         every { consumer.seek(partition, 42L) } answers { Unit }
         stubDoOnConsumer(receiver, consumer)
 

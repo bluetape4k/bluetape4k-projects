@@ -66,17 +66,17 @@ val deserialized = serializer.deserialize<Employee>(bytes)
 
 미리 정의된 `CodecFactory` 상수를 제공하여 간편하게 압축 방식을 선택할 수 있습니다:
 
-| 상수                      | 알고리즘              | 특성                        |
-|-------------------------|-------------------|---------------------------|
+| 상수                      | 알고리즘                 | 특성                        |
+|-------------------------|----------------------|---------------------------|
 | `DEFAULT_CODEC_FACTORY` | Deflate (Avro 기본 레벨) | Avro 기본값과 동일한 범용 압축       |
-| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨) | Zstd 균형형 압축               |
-| `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1) | LZ4/Snappy 수준의 빠른 속도      |
-| `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)  | 최대 압축률, 장기 보관용            |
-| `NULL_CODEC_FACTORY`    | 없음                | 압축 없이 최대 속도               |
-| `DEFLATE_CODEC_FACTORY` | Deflate (레벨 6)    | 표준 압축, 높은 호환성             |
-| `SNAPPY_CODEC_FACTORY`  | Snappy            | 빠른 압축/복원, Hadoop/Kafka 호환 |
-| `BZIP2_CODEC_FACTORY`   | BZip2             | 높은 압축률, 느린 처리             |
-| `XZ_CODEC_FACTORY`      | XZ (레벨 6)       | 아카이브 지향 압축                 |
+| `ZSTD_CODEC_FACTORY`    | Zstandard (기본 레벨)    | Zstd 균형형 압축               |
+| `FAST_CODEC_FACTORY`    | Zstandard (레벨 -1)    | LZ4/Snappy 수준의 빠른 속도      |
+| `ARCHIVE_CODEC_FACTORY` | Zstandard (레벨 9)     | 최대 압축률, 장기 보관용            |
+| `NULL_CODEC_FACTORY`    | 없음                   | 압축 없이 최대 속도               |
+| `DEFLATE_CODEC_FACTORY` | Deflate (레벨 6)       | 표준 압축, 높은 호환성             |
+| `SNAPPY_CODEC_FACTORY`  | Snappy               | 빠른 압축/복원, Hadoop/Kafka 호환 |
+| `BZIP2_CODEC_FACTORY`   | BZip2                | 높은 압축률, 느린 처리             |
+| `XZ_CODEC_FACTORY`      | XZ (레벨 6)            | 아카이브 지향 압축                |
 
 문자열 기반으로 코덱을 생성할 수도 있습니다:
 

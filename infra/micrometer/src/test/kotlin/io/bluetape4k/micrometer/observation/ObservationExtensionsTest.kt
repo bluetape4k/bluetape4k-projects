@@ -14,7 +14,7 @@ class ObservationExtensionsTest {
             observationConfig().observationHandler(handler)
         }
 
-    private class RecordingObservationHandler : ObservationHandler<Observation.Context> {
+    private class RecordingObservationHandler: ObservationHandler<Observation.Context> {
         var started = 0
         var stopped = 0
         var errors = 0

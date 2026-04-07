@@ -32,12 +32,12 @@ import kotlinx.coroutines.flow.buffer
  * @param retry Resilience4j [Retry] 정책 (기본: "dynamo-batch" 기본 설정)
  * @param maxUnprocessedRetry 미처리 항목 재시도 최대 횟수 (기본: 10)
  */
-class DynamoDbBatchExecutor<T : Any>(
+class DynamoDbBatchExecutor<T: Any>(
     private val client: DynamoDbClient,
     private val retry: Retry = Retry.ofDefaults("dynamo-batch"),
     private val maxUnprocessedRetry: Int = 10,
-) : CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
-    companion object : KLoggingChannel()
+): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+    companion object: KLoggingChannel()
 
     /**
      * 테이블 이름과 [WriteRequest]를 묶는 배치 작업 단위입니다.

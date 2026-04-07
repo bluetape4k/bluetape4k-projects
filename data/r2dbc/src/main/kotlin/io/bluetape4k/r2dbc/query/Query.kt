@@ -20,7 +20,7 @@ import java.io.Serializable
 data class Query(
     val sqlBuffer: StringBuilder,
     val parameters: Map<String, Any?>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

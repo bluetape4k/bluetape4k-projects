@@ -19,9 +19,9 @@ import org.springframework.data.repository.core.support.TransactionalRepositoryF
  * //   → ExposedJdbcRepositoryFactory.getRepository(UserRepository::class.java)
  * ```
  */
-class ExposedJdbcRepositoryFactoryBean<T : Repository<E, ID>, E : Any, ID : Any>(
+class ExposedJdbcRepositoryFactoryBean<T: Repository<E, ID>, E: Any, ID: Any>(
     repositoryInterface: Class<out T>,
-) : TransactionalRepositoryFactoryBeanSupport<T, E, ID>(repositoryInterface) {
+): TransactionalRepositoryFactoryBeanSupport<T, E, ID>(repositoryInterface) {
 
     override fun doCreateRepositoryFactory(): RepositoryFactorySupport =
         ExposedJdbcRepositoryFactory()

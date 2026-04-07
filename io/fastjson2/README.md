@@ -6,7 +6,8 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-fastjson2` is a module that wraps the [Fastjson2](https://github.com/alibaba/fastjson2) library as Kotlin extension functions.
 
-It provides high-performance serialization using JSONB (binary JSON) format, as well as type-safe deserialization extension functions for various data sources including JSON strings, `InputStream`, `JSONObject`, and `JSONArray`.
+It provides high-performance serialization using JSONB (binary JSON) format, as well as type-safe deserialization extension functions for various data sources including JSON strings,
+`InputStream`, `JSONObject`, and `JSONArray`.
 
 ## Key Features
 
@@ -116,10 +117,10 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ## JSONB vs JSON Comparison
 
-| Format | Speed | Size | Readability | Use Case |
-|--------|-------|------|-------------|----------|
-| JSONB (binary) | Fast | Small | No | Internal serialization, cache, RPC |
-| JSON (text) | Moderate | Medium | Yes | API responses, logging, debugging |
+| Format         | Speed    | Size   | Readability | Use Case                           |
+|----------------|----------|--------|-------------|------------------------------------|
+| JSONB (binary) | Fast     | Small  | No          | Internal serialization, cache, RPC |
+| JSON (text)    | Moderate | Medium | Yes         | API responses, logging, debugging  |
 
 ## Architecture Diagrams
 

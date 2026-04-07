@@ -21,7 +21,7 @@ import com.datastax.oss.driver.api.core.data.SettableByName
  * @param value 설정할 값
  * @return 설정된 [SettableById] 인스턴스
  */
-inline fun <T : SettableById<T>, reified V> SettableById<T>.setValue(
+inline fun <T: SettableById<T>, reified V> SettableById<T>.setValue(
     id: CqlIdentifier,
     value: V,
 ): T = set(id, value, V::class.java)
@@ -38,7 +38,7 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setValue(
  * @param values 설정할 리스트 값
  * @return 설정된 [SettableById] 인스턴스
  */
-inline fun <T : SettableById<T>, reified V> SettableById<T>.setList(
+inline fun <T: SettableById<T>, reified V> SettableById<T>.setList(
     id: CqlIdentifier,
     values: List<V>,
 ): T = setList(id, values, V::class.java)
@@ -55,7 +55,7 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setList(
  * @param values 설정할 세트 값
  * @return 설정된 [SettableById] 인스턴스
  */
-inline fun <T : SettableById<T>, reified V> SettableById<T>.setSet(
+inline fun <T: SettableById<T>, reified V> SettableById<T>.setSet(
     id: CqlIdentifier,
     values: Set<V>,
 ): T = setSet(id, values, V::class.java)
@@ -72,7 +72,7 @@ inline fun <T : SettableById<T>, reified V> SettableById<T>.setSet(
  * @param values 설정할 맵 값
  * @return 설정된 [SettableById] 인스턴스
  */
-inline fun <T : SettableById<T>, reified K, reified V> SettableById<T>.setMap(
+inline fun <T: SettableById<T>, reified K, reified V> SettableById<T>.setMap(
     id: CqlIdentifier,
     values: Map<K, V>,
 ): T = setMap(id, values, K::class.java, V::class.java)
@@ -92,7 +92,7 @@ inline fun <T : SettableById<T>, reified K, reified V> SettableById<T>.setMap(
  * @param value 설정할 값
  * @return 설정된 [SettableByIndex] 인스턴스
  */
-inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setValue(
+inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setValue(
     index: Int,
     value: V,
 ): T = set(index, value, V::class.java)
@@ -108,7 +108,7 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setValue(
  * @param values 설정할 리스트 값
  * @return 설정된 [SettableByIndex] 인스턴스
  */
-inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setList(
+inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setList(
     index: Int,
     values: List<V>,
 ): T = setList(index, values, V::class.java)
@@ -124,7 +124,7 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setList(
  * @param values 설정할 세트 값
  * @return 설정된 [SettableByIndex] 인스턴스
  */
-inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setSet(
+inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setSet(
     index: Int,
     values: Set<V>,
 ): T = setSet(index, values, V::class.java)
@@ -140,7 +140,7 @@ inline fun <T : SettableByIndex<T>, reified V> SettableByIndex<T>.setSet(
  * @param values 설정할 맵 값
  * @return 설정된 [SettableByIndex] 인스턴스
  */
-inline fun <T : SettableByIndex<T>, reified K, reified V> SettableByIndex<T>.setMap(
+inline fun <T: SettableByIndex<T>, reified K, reified V> SettableByIndex<T>.setMap(
     index: Int,
     values: Map<K, V>,
 ): T = setMap(index, values, K::class.java, V::class.java)
@@ -160,7 +160,7 @@ inline fun <T : SettableByIndex<T>, reified K, reified V> SettableByIndex<T>.set
  * @param value 설정할 값 (nullable)
  * @return 설정된 [SettableByName] 인스턴스
  */
-inline fun <T : SettableByName<T>, reified V : Any> SettableByName<T>.setValue(
+inline fun <T: SettableByName<T>, reified V: Any> SettableByName<T>.setValue(
     name: String,
     value: V?,
 ): T = set(name, value, V::class.java)
@@ -176,7 +176,7 @@ inline fun <T : SettableByName<T>, reified V : Any> SettableByName<T>.setValue(
  * @param values 설정할 리스트 값
  * @return 설정된 [SettableByName] 인스턴스
  */
-inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setList(
+inline fun <T: SettableByName<T>, reified V> SettableByName<T>.setList(
     name: String,
     values: List<V>,
 ): T = setList(name, values, V::class.java)
@@ -192,7 +192,7 @@ inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setList(
  * @param values 설정할 세트 값
  * @return 설정된 [SettableByName] 인스턴스
  */
-inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setSet(
+inline fun <T: SettableByName<T>, reified V> SettableByName<T>.setSet(
     name: String,
     values: Set<V>,
 ): T = setSet(name, values, V::class.java)
@@ -208,7 +208,7 @@ inline fun <T : SettableByName<T>, reified V> SettableByName<T>.setSet(
  * @param values 설정할 맵 값
  * @return 설정된 [SettableByName] 인스턴스
  */
-inline fun <T : SettableByName<T>, reified K, reified V> SettableByName<T>.setMap(
+inline fun <T: SettableByName<T>, reified K, reified V> SettableByName<T>.setMap(
     name: String,
     values: Map<K, V>,
 ): T = setMap(name, values, K::class.java, V::class.java)

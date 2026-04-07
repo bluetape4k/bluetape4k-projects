@@ -2,8 +2,7 @@
 
 [English](./README.md) | 한국어
 
-JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다.
-Kotlin의 힘을 활용하여 타입 안전하고 간결한 데이터베이스 코드를 작성할 수 있습니다.
+JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브러리입니다. Kotlin의 힘을 활용하여 타입 안전하고 간결한 데이터베이스 코드를 작성할 수 있습니다.
 
 ## 특징
 

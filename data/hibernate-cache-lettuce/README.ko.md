@@ -129,8 +129,8 @@ spring:
               default: 120s
 ```
 
-지원 codec 값은 `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`, `zstd*` 계열이며,
-오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
+지원 codec 값은 `jdk`, `kryo`, `fory`, `gzip*`, `lz4*`, `snappy*`,
+`zstd*` 계열이며, 오타나 미지원 codec 이름은 기본값으로 대체하지 않고 즉시 예외로 실패합니다.
 
 ## Entity 설정
 
@@ -196,16 +196,16 @@ sequenceDiagram
 
 ## 지원 코덱
 
-| 코덱 이름 | 설명 | 압축 |
-|-----------|------|------|
-| `lz4fory` | LZ4 + Apache Fory **(기본값)** | LZ4 |
-| `fory` | Apache Fory | - |
-| `gzipfory` | GZip + Apache Fory | GZip |
-| `zstdfory` | Zstd + Apache Fory | Zstd |
-| `kryo` | Kryo | - |
-| `lz4kryo` | LZ4 + Kryo | LZ4 |
-| `jdk` | Java 직렬화 | - |
-| `lz4jdk` | LZ4 + Java 직렬화 | LZ4 |
+| 코덱 이름      | 설명                          | 압축   |
+|------------|-----------------------------|------|
+| `lz4fory`  | LZ4 + Apache Fory **(기본값)** | LZ4  |
+| `fory`     | Apache Fory                 | -    |
+| `gzipfory` | GZip + Apache Fory          | GZip |
+| `zstdfory` | Zstd + Apache Fory          | Zstd |
+| `kryo`     | Kryo                        | -    |
+| `lz4kryo`  | LZ4 + Kryo                  | LZ4  |
+| `jdk`      | Java 직렬화                    | -    |
+| `lz4jdk`   | LZ4 + Java 직렬화              | LZ4  |
 
 ## TTL 단위
 

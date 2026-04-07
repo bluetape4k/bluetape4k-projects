@@ -9,12 +9,16 @@ A wrapper and utility module for building application-level rate limiters using 
 - **Custom key-based limiting**: Control by `userId`, `apiKey`, `tenantId`, or any key — not just IP addresses
 - **Local and distributed support**: In-memory (`Local*`) and Redis-based distributed (`Distributed*`) implementations
 - **Sync and coroutine APIs**: `RateLimiter` and `SuspendRateLimiter`
-- **Immediate consume contract**: `SuspendRateLimiter.consume` attempts consumption immediately without waiting and returns `CONSUMED` or `REJECTED`
-- **Probe-based result calculation**: Derives consumption outcome and remaining tokens from a single `ConsumptionProbe` query, avoiding extra token lookups
+- **Immediate consume contract**:
+  `SuspendRateLimiter.consume` attempts consumption immediately without waiting and returns `CONSUMED` or `REJECTED`
+- **Probe-based result calculation**: Derives consumption outcome and remaining tokens from a single
+  `ConsumptionProbe` query, avoiding extra token lookups
 - **Bucket configuration DSL**: `bucketConfiguration { ... }` and `addBandwidth { ... }` helpers
 - **Redis ProxyManager helpers**: `*ProxyManagerOf` utilities for Lettuce and Redisson
-- **Standardized result state**: `RateLimitResult(status, consumedTokens, availableTokens)` consistently represents consumed, rejected, and error outcomes
-- **Built-in request validation**: Rejects blank keys, tokens <= 0, and requests exceeding the policy maximum (`MAX_TOKENS_PER_REQUEST`) upfront
+- **Standardized result state**:
+  `RateLimitResult(status, consumedTokens, availableTokens)` consistently represents consumed, rejected, and error outcomes
+- **Built-in request validation**: Rejects blank keys, tokens <= 0, and requests exceeding the policy maximum (
+  `MAX_TOKENS_PER_REQUEST`) upfront
 
 ## Class Structure
 
@@ -182,10 +186,13 @@ sequenceDiagram
 `bluetape4k-bucket4j` focuses on eliminating boilerplate when using Bucket4j directly.
 
 - **Standardized key-based bucket resolution**: `LocalBucketProvider`, `BucketProxyProvider`, `AsyncBucketProxyProvider`
-- **RateLimiter abstraction**: Swap between local and distributed implementations via the same `consume(key, token)` call
-- **Coroutine-friendly implementations**: `SuspendLocalBucket`, `LocalSuspendRateLimiter`, `DistributedSuspendRateLimiter`
+- **RateLimiter abstraction**: Swap between local and distributed implementations via the same
+  `consume(key, token)` call
+- **Coroutine-friendly implementations**: `SuspendLocalBucket`, `LocalSuspendRateLimiter`,
+  `DistributedSuspendRateLimiter`
 - **Simplified Redis initialization**: `lettuceBasedProxyManagerOf`, `redissonBasedProxyManagerOf`
-- **Minimized extra remote calls**: Distributed and local rate limiters do not issue additional `availableTokens` queries to build results
+- **Minimized extra remote calls**: Distributed and local rate limiters do not issue additional
+  `availableTokens` queries to build results
 
 ## Dependency
 
@@ -259,18 +266,24 @@ when (result.status) {
 }
 ```
 
-> Note: `SuspendRateLimiter.consume` attempts immediate consumption internally without waiting. When tokens are insufficient, `REJECTED` is returned immediately. Retry/backoff logic is the caller's responsibility.
+> Note:
+`SuspendRateLimiter.consume` attempts immediate consumption internally without waiting. When tokens are insufficient,
+`REJECTED` is returned immediately. Retry/backoff logic is the caller's responsibility.
 
 ## Public API Contract Notes
 
 - Both `RateLimiter.consume` and `SuspendRateLimiter.consume` validate `key` and `numToken` first.
   `key` must not be blank, and `numToken` must be in the range `1..MAX_TOKENS_PER_REQUEST`.
-- `DistributedRateLimiter` and `DistributedSuspendRateLimiter` derive the consumption outcome and remaining tokens from a single `ConsumptionProbe`, so no extra Redis round-trips are made to build results.
-- `BucketProxyProvider` and `AsyncBucketProxyProvider` namespace bucket keys using a default prefix.
-  In production, if multiple rate limiting policies share the same Redis instance, it is safer to use distinct prefixes.
+- `DistributedRateLimiter` and
+  `DistributedSuspendRateLimiter` derive the consumption outcome and remaining tokens from a single
+  `ConsumptionProbe`, so no extra Redis round-trips are made to build results.
+- `BucketProxyProvider` and
+  `AsyncBucketProxyProvider` namespace bucket keys using a default prefix. In production, if multiple rate limiting policies share the same Redis instance, it is safer to use distinct prefixes.
 - `LocalBucketProvider` and `LocalSuspendBucketProvider` reuse the same bucket state for the same key.
-- `SuspendLocalBucket.tryConsume(maxWaitTime)` suspends the coroutine with `delay` when waiting is needed, and propagates `CancellationException` unchanged on cancellation.
-- `RateLimitResult.error(cause)` preserves the exception message in `errorMessage` so that higher layers can reuse it for logging or metric tagging.
+- `SuspendLocalBucket.tryConsume(maxWaitTime)` suspends the coroutine with
+  `delay` when waiting is needed, and propagates `CancellationException` unchanged on cancellation.
+- `RateLimitResult.error(cause)` preserves the exception message in
+  `errorMessage` so that higher layers can reuse it for logging or metric tagging.
 
 ## Spring Boot Configuration
 
@@ -291,13 +304,17 @@ class RateLimitConfig {
 }
 ```
 
-Inject `RateLimiter` into a WebFlux/WebMVC filter or interceptor and call `consume(key)` to apply application-level rate limiting policies.
+Inject `RateLimiter` into a WebFlux/WebMVC filter or interceptor and call
+`consume(key)` to apply application-level rate limiting policies.
 
 ## Implementation Notes
 
 - `SuspendLocalBucket` uses `delay` when waiting, making it coroutine-friendly.
 - If the coroutine is cancelled while waiting, the interrupt event is recorded and cancellation is propagated as-is.
-- `LocalSuspendRateLimiter` and `DistributedSuspendRateLimiter` propagate `CancellationException` unchanged rather than converting it to `ERROR`.
-- An unusually large `maxWaitTime` that overflows during nanosecond conversion is handled with an `IllegalArgumentException`.
+- `LocalSuspendRateLimiter` and `DistributedSuspendRateLimiter` propagate
+  `CancellationException` unchanged rather than converting it to `ERROR`.
+- An unusually large `maxWaitTime` that overflows during nanosecond conversion is handled with an
+  `IllegalArgumentException`.
 - `AbstractLocalBucketProvider` does not accept blank keys.
-- `BucketProxyProvider` and `AsyncBucketProxyProvider` do not read remaining tokens at bucket resolution time, preventing unnecessary remote calls.
+- `BucketProxyProvider` and
+  `AsyncBucketProxyProvider` do not read remaining tokens at bucket resolution time, preventing unnecessary remote calls.

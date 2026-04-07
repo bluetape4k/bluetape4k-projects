@@ -240,7 +240,8 @@ em.withStateless { stateless ->
 
 ### 6. Hibernate 6.6 Mapping Examples
 
-The library includes test assets demonstrating `@ConcreteProxy` and embeddable inheritance, both useful Hibernate 6.6 features.
+The library includes test assets demonstrating
+`@ConcreteProxy` and embeddable inheritance, both useful Hibernate 6.6 features.
 
 ```kotlin
 @Entity
@@ -256,6 +257,7 @@ open class PaymentDetail(
 ```
 
 See the test code for working examples:
+
 - `mapping/inheritance/ConcreteProxyInheritanceTest`
 - `mapping/embeddable/EmbeddableInheritanceTest`
 
@@ -308,8 +310,7 @@ A variety of `AttributeConverter` implementations are provided.
 
 #### Serialization Converters
 
-Serialize objects and store them as ByteArray (Base64-encoded) in the database.
-Supports JDK, Kryo, and Apache Fory serialization combined with LZ4, Snappy, or Zstd compression.
+Serialize objects and store them as ByteArray (Base64-encoded) in the database. Supports JDK, Kryo, and Apache Fory serialization combined with LZ4, Snappy, or Zstd compression.
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.*
@@ -341,7 +342,9 @@ class UserData {
 AES encryption converters based on [Google Tink](https://github.com/google/tink).
 
 - `AESStringConverter`: AES-256-GCM (non-deterministic; ciphertext differs each time)
-- `DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
+-
+
+`DeterministicAESStringConverter`: AES-256-SIV (deterministic; same plaintext → same ciphertext, supports WHERE clause lookups)
 
 ```kotlin
 import io.bluetape4k.hibernate.converters.AESStringConverter
@@ -431,75 +434,75 @@ class Purchase {
 
 ### Model (model/)
 
-| File                     | Description                        |
-|--------------------------|------------------------------------|
-| `JpaEntity.kt`           | JPA entity interface               |
-| `AbstractJpaEntity.kt`   | Abstract JPA entity base class     |
-| `IntJpaEntity.kt`        | Entity with Int ID                 |
-| `LongJpaEntity.kt`       | Entity with Long ID                |
-| `UuidJpaEntity.kt`       | Entity with time-based UUID ID     |
-| `JpaTreeEntity.kt`       | Tree-structured entity interface   |
-| `IntJpaTreeEntity.kt`    | Tree entity with Int ID            |
-| `LongJpaTreeEntity.kt`   | Tree entity with Long ID           |
-| `TreeNodePosition.kt`    | Value object for tree node position|
+| File                   | Description                         |
+|------------------------|-------------------------------------|
+| `JpaEntity.kt`         | JPA entity interface                |
+| `AbstractJpaEntity.kt` | Abstract JPA entity base class      |
+| `IntJpaEntity.kt`      | Entity with Int ID                  |
+| `LongJpaEntity.kt`     | Entity with Long ID                 |
+| `UuidJpaEntity.kt`     | Entity with time-based UUID ID      |
+| `JpaTreeEntity.kt`     | Tree-structured entity interface    |
+| `IntJpaTreeEntity.kt`  | Tree entity with Int ID             |
+| `LongJpaTreeEntity.kt` | Tree entity with Long ID            |
+| `TreeNodePosition.kt`  | Value object for tree node position |
 
 ### EntityManager Extensions
 
-| File                               | Description                          |
-|------------------------------------|--------------------------------------|
-| `EntityManagerSupport.kt`          | EntityManager extension functions    |
-| `EntityManagerFactorySupport.kt`   | EntityManagerFactory extensions      |
+| File                             | Description                       |
+|----------------------------------|-----------------------------------|
+| `EntityManagerSupport.kt`        | EntityManager extension functions |
+| `EntityManagerFactorySupport.kt` | EntityManagerFactory extensions   |
 
 ### Session Extensions
 
-| File                    | Description                      |
-|-------------------------|----------------------------------|
-| `SessionSupport.kt`     | Hibernate Session extensions     |
-| `HibernateConsts.kt`    | Hibernate default config constants|
+| File                 | Description                        |
+|----------------------|------------------------------------|
+| `SessionSupport.kt`  | Hibernate Session extensions       |
+| `HibernateConsts.kt` | Hibernate default config constants |
 
 ### Criteria (criteria/)
 
-| File                     | Description               |
-|--------------------------|---------------------------|
-| `CriteriaSupport.kt`     | Criteria API extensions   |
-| `TypedQuerySupport.kt`   | TypedQuery extensions     |
+| File                   | Description             |
+|------------------------|-------------------------|
+| `CriteriaSupport.kt`   | Criteria API extensions |
+| `TypedQuerySupport.kt` | TypedQuery extensions   |
 
 ### Stateless Session (stateless/)
 
-| File                              | Description                              |
-|-----------------------------------|------------------------------------------|
-| `StatelessSesisonSupport.kt`      | `withStateless` transaction wrapper      |
-| `StatelessSessionExtensions.kt`   | Reified extension functions for StatelessSession |
+| File                            | Description                                      |
+|---------------------------------|--------------------------------------------------|
+| `StatelessSesisonSupport.kt`    | `withStateless` transaction wrapper              |
+| `StatelessSessionExtensions.kt` | Reified extension functions for StatelessSession |
 
 ### Querydsl (querydsl/)
 
-| File                                 | Description                   |
-|--------------------------------------|-------------------------------|
-| `core/ExpressionsSupport.kt`         | Expression extensions         |
-| `core/SimpleExpressionSupport.kt`    | SimpleExpression extensions   |
-| `core/StringExpressionsSupport.kt`   | StringExpression extensions   |
-| `core/MathExpressionsSupport.kt`     | MathExpression extensions     |
-| `core/ProjectionsSupport.kt`         | Projections extensions        |
-| `jpa/JpaExpressionSupport.kt`        | JPA Expression extensions     |
+| File                               | Description                 |
+|------------------------------------|-----------------------------|
+| `core/ExpressionsSupport.kt`       | Expression extensions       |
+| `core/SimpleExpressionSupport.kt`  | SimpleExpression extensions |
+| `core/StringExpressionsSupport.kt` | StringExpression extensions |
+| `core/MathExpressionsSupport.kt`   | MathExpression extensions   |
+| `core/ProjectionsSupport.kt`       | Projections extensions      |
+| `jpa/JpaExpressionSupport.kt`      | JPA Expression extensions   |
 
 ### Converters (converters/)
 
-| File                                 | Description                                          |
-|--------------------------------------|------------------------------------------------------|
-| `LocaleAsStringConverter.kt`         | Locale ↔ BCP 47 string                              |
-| `DurationAsTimestampConverter.kt`    | Duration ↔ Timestamp                                |
-| `EncryptedStringConverters.kt`       | Google Tink AES-GCM / AES-SIV encryption            |
-| `CompressedStringConverter.kt`       | BZip2/Deflate/GZip/LZ4/Snappy/Zstd compression     |
-| `ObjectAsByteArrayConverter.kt`      | JDK/Kryo/Fory serialization + compression → ByteArray|
-| `ObjectAsBase64StringConverter.kt`   | Object serialization → Base64 string                |
-| `AbstractObjectAsJsonConverter.kt`   | Base class for object → JSON string conversion      |
+| File                               | Description                                           |
+|------------------------------------|-------------------------------------------------------|
+| `LocaleAsStringConverter.kt`       | Locale ↔ BCP 47 string                                |
+| `DurationAsTimestampConverter.kt`  | Duration ↔ Timestamp                                  |
+| `EncryptedStringConverters.kt`     | Google Tink AES-GCM / AES-SIV encryption              |
+| `CompressedStringConverter.kt`     | BZip2/Deflate/GZip/LZ4/Snappy/Zstd compression        |
+| `ObjectAsByteArrayConverter.kt`    | JDK/Kryo/Fory serialization + compression → ByteArray |
+| `ObjectAsBase64StringConverter.kt` | Object serialization → Base64 string                  |
+| `AbstractObjectAsJsonConverter.kt` | Base class for object → JSON string conversion        |
 
 ### Listeners (listeners/)
 
-| File                           | Description                                           |
-|--------------------------------|-------------------------------------------------------|
-| `HibernateEntityListener.kt`   | PostCommit event listener (insert/update/delete)     |
-| `JpaEntityEventLogger.kt`      | Pre/Post JPA event logging listener                  |
+| File                         | Description                                      |
+|------------------------------|--------------------------------------------------|
+| `HibernateEntityListener.kt` | PostCommit event listener (insert/update/delete) |
+| `JpaEntityEventLogger.kt`    | Pre/Post JPA event logging listener              |
 
 ## Testing
 

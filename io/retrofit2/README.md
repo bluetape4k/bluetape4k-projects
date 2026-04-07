@@ -6,7 +6,8 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-retrofit2` is a module that extends [Retrofit2](https://square.github.io/retrofit/) with Kotlin DSL and Coroutines support.
 
-Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5, Vert.x, and AsyncHttpClient. It also provides error handling via Kotlin's `Result` type and automatically detects and registers Reactive Streams adapters.
+Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5, Vert.x, and AsyncHttpClient. It also provides error handling via Kotlin's
+`Result` type and automatically detects and registers Reactive Streams adapters.
 
 ## Architecture
 
@@ -200,20 +201,24 @@ suspend fun fetchMultiple(api: HttpbinApi) = coroutineScope {
 Recommended usage:
 
 - For new API designs, prefer `suspend fun` or `suspend fun ...: Result<T>` wherever possible.
-- Use `Call<T>` + `executeAsync()` only when compatibility with existing Java callers or explicit cancellation/callback bridging is needed.
-- When using Resilience4j `Retry`, use this module's `executeAsync(retry)` / `suspendExecute(retry)` — they retry with a `clone()`d `Call` internally.
-- `ResultCallAdapterFactory` normalizes HTTP errors to `Result.failure(HttpException)`, making it especially useful when composing the business layer around `Result` instead of exceptions.
+- Use `Call<T>` +
+  `executeAsync()` only when compatibility with existing Java callers or explicit cancellation/callback bridging is needed.
+- When using Resilience4j `Retry`, use this module's `executeAsync(retry)` / `suspendExecute(retry)` — they retry with a
+  `clone()`d `Call` internally.
+- `ResultCallAdapterFactory` normalizes HTTP errors to
+  `Result.failure(HttpException)`, making it especially useful when composing the business layer around
+  `Result` instead of exceptions.
 
 ### 4. Multiple HTTP Backends (CallFactory)
 
 Use HTTP clients other than OkHttp3 as a `Call.Factory`.
 
-| CallFactory | Underlying Library | Characteristics |
-|-------------|-------------------|-----------------|
-| OkHttpClient (default) | OkHttp3 | Lightweight, HTTP/2, general purpose |
-| Hc5CallFactory | Apache HttpComponents 5 | Rich configuration, enterprise environments |
-| VertxCallFactory | Vert.x | Event-loop based, high performance |
-| AhcCallFactory | AsyncHttpClient | Netty-based, high-volume async requests |
+| CallFactory            | Underlying Library      | Characteristics                             |
+|------------------------|-------------------------|---------------------------------------------|
+| OkHttpClient (default) | OkHttp3                 | Lightweight, HTTP/2, general purpose        |
+| Hc5CallFactory         | Apache HttpComponents 5 | Rich configuration, enterprise environments |
+| VertxCallFactory       | Vert.x                  | Event-loop based, high performance          |
+| AhcCallFactory         | AsyncHttpClient         | Netty-based, high-volume async requests     |
 
 ```kotlin
 // Retrofit with Apache HC5

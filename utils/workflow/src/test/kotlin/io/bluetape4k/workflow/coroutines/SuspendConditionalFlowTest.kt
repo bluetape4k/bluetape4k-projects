@@ -1,7 +1,6 @@
 package io.bluetape4k.workflow.coroutines
 
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
-import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.test.runTest
@@ -9,7 +8,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
-class SuspendConditionalFlowTest : AbstractWorkflowTest() {
+class SuspendConditionalFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `predicate true - thenWork 실행`() = runTest {

@@ -2,7 +2,9 @@
 
 English | [한국어](./README.ko.md)
 
-A unified integration module built on the AWS Kotlin SDK. Provides native `suspend` functions out of the box, so you can use it directly in coroutine environments without any `.await()` conversion.
+A unified integration module built on the AWS Kotlin SDK. Provides native
+`suspend` functions out of the box, so you can use it directly in coroutine environments without any
+`.await()` conversion.
 
 > For the AWS Java SDK v2 based module, use `bluetape4k-aws`.
 
@@ -121,26 +123,26 @@ classDiagram
 
 ## Supported Services
 
-| Service | Key Features |
-|---------|-------------|
-| **DynamoDB** | Table CRUD, scan/query, DSL builders |
-| **S3** | Object upload/download, multipart, bucket management |
-| **SES / SESv2** | Email sending, templated email |
-| **SNS** | Topic publishing, SMS, subscription management |
-| **SQS** | Message send/receive/delete, FIFO queues |
-| **KMS** | Encryption key management, data key generation |
-| **CloudWatch** | Metric publishing/querying, DSL (`metricDatum {}`) |
-| **CloudWatch Logs** | Log event publishing, DSL (`inputLogEvent {}`) |
-| **Kinesis** | Stream record publishing, DSL (`putRecordRequestOf {}`) |
-| **STS** | AssumeRole, CallerIdentity, DSL (`stsClientOf {}`) |
+| Service             | Key Features                                            |
+|---------------------|---------------------------------------------------------|
+| **DynamoDB**        | Table CRUD, scan/query, DSL builders                    |
+| **S3**              | Object upload/download, multipart, bucket management    |
+| **SES / SESv2**     | Email sending, templated email                          |
+| **SNS**             | Topic publishing, SMS, subscription management          |
+| **SQS**             | Message send/receive/delete, FIFO queues                |
+| **KMS**             | Encryption key management, data key generation          |
+| **CloudWatch**      | Metric publishing/querying, DSL (`metricDatum {}`)      |
+| **CloudWatch Logs** | Log event publishing, DSL (`inputLogEvent {}`)          |
+| **Kinesis**         | Stream record publishing, DSL (`putRecordRequestOf {}`) |
+| **STS**             | AssumeRole, CallerIdentity, DSL (`stsClientOf {}`)      |
 
 ## Java SDK v2 vs Kotlin SDK Comparison
 
-| Aspect | `bluetape4k-aws` (Java SDK) | `bluetape4k-aws-kotlin` (Kotlin SDK) |
-|--------|-----------------------------|--------------------------------------|
-| Coroutines | requires `.await()` conversion | native `suspend` built in |
-| DSL support | limited | rich DSL builders |
-| Performance | CRT/Netty NIO choice | CRT / OkHttp choice |
+| Aspect      | `bluetape4k-aws` (Java SDK)    | `bluetape4k-aws-kotlin` (Kotlin SDK) |
+|-------------|--------------------------------|--------------------------------------|
+| Coroutines  | requires `.await()` conversion | native `suspend` built in            |
+| DSL support | limited                        | rich DSL builders                    |
+| Performance | CRT/Netty NIO choice           | CRT / OkHttp choice                  |
 
 ## Client Creation Patterns
 
@@ -176,7 +178,8 @@ withSqsClient(endpointUrl, region, credentialsProvider) { client ->
 
 > **[!NOTE]**
 > AWS Kotlin SDK clients hold internal HTTP connection pools and threads, so `close()` must always be called after use.
-> The `withXxxClient { }` block ensures resources are released automatically even on coroutine cancellation or exceptions.
+> The
+`withXxxClient { }` block ensures resources are released automatically even on coroutine cancellation or exceptions.
 > If you create a long-lived client directly, call `close()` explicitly when the application shuts down.
 
 ## Usage Examples

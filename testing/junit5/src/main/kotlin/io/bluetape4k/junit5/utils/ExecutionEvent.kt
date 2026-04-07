@@ -39,12 +39,16 @@ data class ExecutionEvent(
     enum class EventType {
         /** 동적 테스트가 등록됨 */
         DYNAMIC_TEST_REGISTERED,
+
         /** 테스트가 스킵됨 */
         SKIPPED,
+
         /** 테스트 실행이 시작됨 */
         STARTED,
+
         /** 테스트 실행이 종료됨 */
         FINISHED,
+
         /** 리포팅 엔트리가 발행됨 */
         REPORTING_ENTRY_PUBLISHED
     }

@@ -46,22 +46,28 @@ class JwtComposerDsl(keyChain: KeyChain) {
 
     /** JWT ID (`jti`) 클레임입니다. */
     var id: String? = null
+
     /** JWT 발급자(`iss`) 클레임입니다. */
     var issuer: String? = null
+
     /** JWT 주제(`sub`) 클레임입니다. */
     var subject: String? = null
+
     /** JWT 대상(`aud`) 클레임입니다. */
     var audience: String? = null
 
     /** JWT 활성화 시각(`nbf`) 클레임입니다. */
     var notBefore: Date? = null
+
     /** JWT 활성화 시각을 초 단위로 지정합니다. [notBefore]와 함께 사용하지 마세요. */
     var notBeforeInSeconds: Long? = null
 
     /** JWT 만료 시각(`exp`) 클레임입니다. */
     var expiration: Date? = null
+
     /** 현재 시각 기준 만료까지의 시간(초)입니다. [expiration]과 함께 사용하지 마세요. */
     var expirationAfterSeconds: Long? = null
+
     /** 현재 시각 기준 만료까지의 시간(분)입니다. [expiration]과 함께 사용하지 마세요. */
     var expirationAfterMinutes: Long? = null
 

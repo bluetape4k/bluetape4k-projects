@@ -20,18 +20,18 @@ import java.util.*
 import kotlin.test.assertFailsWith
 
 @TempFolderTest
-class OkioChannelsTest : AbstractOkioTest() {
-    companion object : KLogging() {
+class OkioChannelsTest: AbstractOkioTest() {
+    companion object: KLogging() {
         private const val QUOTE: String = (
-            "John, the kind of control you're attempting simply is... it's not " +
-                "possible. If there is one thing the history of evolution has " +
-                "taught us it's that life will not be contained. Life breaks " +
-                "free, it expands to new territories and crashes through " +
-                "barriers, painfully, maybe even dangerously, but, uh... well, " +
-                "there it is." +
-                "동해물과 백두산이 마르고 닳도록" +
-                "하느님이 보우하사 우리나라 만세"
-        )
+                "John, the kind of control you're attempting simply is... it's not " +
+                        "possible. If there is one thing the history of evolution has " +
+                        "taught us it's that life will not be contained. Life breaks " +
+                        "free, it expands to new territories and crashes through " +
+                        "barriers, painfully, maybe even dangerously, but, uh... well, " +
+                        "there it is." +
+                        "동해물과 백두산이 마르고 닳도록" +
+                        "하느님이 보우하사 우리나라 만세"
+                )
 
         private val r = EnumSet.of(StandardOpenOption.READ)
         private val w = EnumSet.of(StandardOpenOption.WRITE)

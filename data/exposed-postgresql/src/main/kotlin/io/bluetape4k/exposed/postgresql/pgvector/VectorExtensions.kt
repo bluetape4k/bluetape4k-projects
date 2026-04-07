@@ -130,7 +130,7 @@ class VectorDistanceOp(
     private val left: Expression<FloatArray>,
     private val right: Expression<FloatArray>,
     private val operator: String,
-) : ExpressionWithColumnType<Double>() {
+): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
 
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {

@@ -19,7 +19,7 @@ import java.io.Serializable
 @Table(name = "articles")
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-class Article : Serializable {
+class Article: Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null

@@ -76,7 +76,9 @@ object FutureUtils {
                 } else {
                     firstError.compareAndSet(null, error)
                     if (remaining.decrementAndGet() == 0) {
-                        promise.completeExceptionally(firstError.get() ?: IllegalStateException("All CompletableFutures failed."))
+                        promise.completeExceptionally(
+                            firstError.get() ?: IllegalStateException("All CompletableFutures failed.")
+                        )
                     }
                 }
             }

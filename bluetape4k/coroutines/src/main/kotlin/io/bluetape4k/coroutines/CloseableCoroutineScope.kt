@@ -26,10 +26,10 @@ import java.io.Closeable
  * // scope.scopeClosed == true
  * ```
  */
-abstract class CloseableCoroutineScope :
+abstract class CloseableCoroutineScope:
     CoroutineScope,
     Closeable {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val _closed = atomic(false)
     private val _cancelled = atomic(false)

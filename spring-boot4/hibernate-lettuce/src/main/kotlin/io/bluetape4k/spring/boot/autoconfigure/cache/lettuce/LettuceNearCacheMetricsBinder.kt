@@ -33,8 +33,8 @@ import org.springframework.beans.factory.SmartInitializingSingleton
 class LettuceNearCacheMetricsBinder(
     private val entityManagerFactory: EntityManagerFactory,
     private val meterRegistry: MeterRegistry,
-) : SmartInitializingSingleton {
-    companion object : KLogging()
+): SmartInitializingSingleton {
+    companion object: KLogging()
 
     override fun afterSingletonsInstantiated() {
         runCatching {

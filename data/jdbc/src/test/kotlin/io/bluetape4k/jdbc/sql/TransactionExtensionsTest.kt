@@ -14,7 +14,7 @@ import java.sql.Connection
  *
  * 데이터베이스 트랜잭션 관련 확장 함수들의 테스트를 제공합니다.
  */
-class TransactionExtensionsTest : AbstractJdbcSqlTest() {
+class TransactionExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `withTransaction - 트랜잭션 내에서 작업 수행 후 자동 커밋`() {
         dataSource.withTransaction { conn ->

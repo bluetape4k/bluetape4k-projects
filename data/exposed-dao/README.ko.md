@@ -363,15 +363,15 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 
 ## ID 전략 비교
 
-| IdTable                    | PK 타입    | 길이  | 특징                |
-|----------------------------|----------|-----|-------------------|
-| `KsuidTable`               | `String` | 27자 | 시간 정렬, URL-safe   |
-| `KsuidMillisTable`         | `String` | 27자 | 밀리초 정밀도 KSUID     |
-| `UlidTable`                | `String` | 26자 | StatefulMonotonic ULID |
-| `SnowflakeIdTable`         | `Long`   | -   | 분산 환경, 고성능        |
-| `TimebasedUUIDTable`       | `UUID`   | 36자 | UUID v7 기반 시간 정렬 ID |
-| `TimebasedUUIDBase62Table` | `String` | 최대 24자 | UUID v7을 Base62로 인코딩 |
-| `SoftDeletedIdTable`       | 제네릭      | -   | `isDeleted` 컬럼 포함 |
+| IdTable                    | PK 타입    | 길이     | 특징                     |
+|----------------------------|----------|--------|------------------------|
+| `KsuidTable`               | `String` | 27자    | 시간 정렬, URL-safe        |
+| `KsuidMillisTable`         | `String` | 27자    | 밀리초 정밀도 KSUID          |
+| `UlidTable`                | `String` | 26자    | StatefulMonotonic ULID |
+| `SnowflakeIdTable`         | `Long`   | -      | 분산 환경, 고성능             |
+| `TimebasedUUIDTable`       | `UUID`   | 36자    | UUID v7 기반 시간 정렬 ID    |
+| `TimebasedUUIDBase62Table` | `String` | 최대 24자 | UUID v7을 Base62로 인코딩   |
+| `SoftDeletedIdTable`       | 제네릭      | -      | `isDeleted` 컬럼 포함      |
 
 ## AuditableEntity (감사 추적 DAO)
 
@@ -383,10 +383,10 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 
 #### 자동 설정 동작
 
-| 상황 | 자동 설정 필드 | 비고 |
-|-----|-------------|------|
+| 상황            | 자동 설정 필드    | 비고                                                              |
+|---------------|-------------|-----------------------------------------------------------------|
 | 신규 엔티티 INSERT | `createdBy` | `createdAt`은 테이블의 DB `defaultExpression(CurrentTimestamp)`으로 설정 |
-| 기존 엔티티 UPDATE | `updatedBy` | `updatedAt`은 Repository의 `auditedUpdateById()` 호출 시 설정 |
+| 기존 엔티티 UPDATE | `updatedBy` | `updatedAt`은 Repository의 `auditedUpdateById()` 호출 시 설정          |
 
 ```mermaid
 sequenceDiagram
@@ -471,9 +471,9 @@ transaction {
 
 ### 구체 엔티티/EntityClass 타입
 
-| 기본키 | Entity | EntityClass |
-|-------|--------|------------|
-| `Int` | `AuditableIntEntity` | `AuditableIntEntityClass` |
+| 기본키    | Entity                | EntityClass                |
+|--------|-----------------------|----------------------------|
+| `Int`  | `AuditableIntEntity`  | `AuditableIntEntityClass`  |
 | `Long` | `AuditableLongEntity` | `AuditableLongEntityClass` |
 | `UUID` | `AuditableUUIDEntity` | `AuditableUUIDEntityClass` |
 

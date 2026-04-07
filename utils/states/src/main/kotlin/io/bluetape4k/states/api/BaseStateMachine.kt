@@ -16,7 +16,7 @@ package io.bluetape4k.states.api
  * @param S 상태 타입
  * @param E 이벤트 타입
  */
-interface BaseStateMachine<S : Any, E : Any> {
+interface BaseStateMachine<S: Any, E: Any> {
 
     /**
      * 현재 상태를 반환합니다.

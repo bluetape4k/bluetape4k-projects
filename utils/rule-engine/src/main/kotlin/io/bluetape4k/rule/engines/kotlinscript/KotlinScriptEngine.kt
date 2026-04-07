@@ -64,7 +64,7 @@ object KotlinScriptEngine: KLogging() {
 
         return when (val rv = evalResult.returnValue) {
             is ResultValue.Value -> rv.value
-            is ResultValue.Unit -> Unit
+            is ResultValue.Unit  -> Unit
             is ResultValue.Error -> throw RuleException("Kotlin script error: ${rv.error.message}", rv.error)
             is ResultValue.NotEvaluated -> null
         }

@@ -30,16 +30,16 @@ import kotlin.coroutines.CoroutineContext
  * - 각 ID 유형에 대해 Remote 캐시와 NearCache 두 가지 설정으로 테스트한다.
  */
 class SuspendedReadThroughCacheTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     // -------------------------------------------------------------------------
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncSuspendedReadThrough :
+    abstract class AutoIncSuspendedReadThrough:
         AbstractJdbcLettuceTest(),
         SuspendedReadThroughScenario<Long, UserRecord> {
-        companion object : KLoggingChannel()
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -70,13 +70,13 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncSuspendedReadThroughRemoteCache : AutoIncSuspendedReadThrough() {
+    inner class AutoIncSuspendedReadThroughRemoteCache: AutoIncSuspendedReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY
         override val repository by lazy { SuspendedUserRepository(redisClient, config) }
     }
 
     @Nested
-    inner class AutoIncSuspendedReadThroughNearCache : AutoIncSuspendedReadThrough() {
+    inner class AutoIncSuspendedReadThroughNearCache: AutoIncSuspendedReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-users-srt-near"
         )
@@ -87,10 +87,10 @@ class SuspendedReadThroughCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGenIdSuspendedReadThrough :
+    abstract class ClientGenIdSuspendedReadThrough:
         AbstractJdbcLettuceTest(),
         SuspendedReadThroughScenario<UUID, UserCredentialsRecord> {
-        companion object : KLoggingChannel()
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -121,13 +121,13 @@ class SuspendedReadThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGenIdSuspendedReadThroughRemoteCache : ClientGenIdSuspendedReadThrough() {
+    inner class ClientGenIdSuspendedReadThroughRemoteCache: ClientGenIdSuspendedReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY
         override val repository by lazy { SuspendedUserCredentialRepository(redisClient, config) }
     }
 
     @Nested
-    inner class ClientGenIdSuspendedReadThroughNearCache : ClientGenIdSuspendedReadThrough() {
+    inner class ClientGenIdSuspendedReadThroughNearCache: ClientGenIdSuspendedReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-cred-srt-near"
         )

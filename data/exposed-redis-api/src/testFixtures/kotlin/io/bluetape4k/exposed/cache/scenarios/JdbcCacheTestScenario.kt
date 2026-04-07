@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.cache.scenarios
 
-import java.io.Serializable
-
 import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.cache.JdbcCacheRepository
@@ -9,6 +7,7 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
+import java.io.Serializable
 
 /**
  * [JdbcCacheRepository] 기반 캐시 테스트의 공통 시나리오 인터페이스입니다.

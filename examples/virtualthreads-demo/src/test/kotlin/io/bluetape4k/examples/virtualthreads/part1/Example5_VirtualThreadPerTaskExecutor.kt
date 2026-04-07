@@ -8,7 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
-class Example5_VirtualThreadPerTaskExecutor : AbstractVirtualThreadTest(){
+class Example5_VirtualThreadPerTaskExecutor: AbstractVirtualThreadTest() {
 
     companion object: KLoggingChannel()
 

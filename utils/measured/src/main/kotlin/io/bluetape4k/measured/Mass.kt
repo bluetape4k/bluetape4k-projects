@@ -1,5 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.Mass.Companion.grams
+
+
 /**
  * 질량 단위를 나타냅니다.
  *
@@ -17,9 +20,14 @@ open class Mass(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val grams: Mass = Mass("g")
-        @JvmField val kilograms: Mass = Mass("kg", 1_000.0)
-        @JvmField val tons: Mass = Mass("ton", 1_000_000.0)
+        @JvmField
+        val grams: Mass = Mass("g")
+
+        @JvmField
+        val kilograms: Mass = Mass("kg", 1_000.0)
+
+        @JvmField
+        val tons: Mass = Mass("ton", 1_000_000.0)
     }
 }
 

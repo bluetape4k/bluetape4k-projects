@@ -27,8 +27,8 @@ import io.bluetape4k.logging.KLogging
  */
 class SnowflakeGenerator(
     private val snowflake: Snowflake = Snowflakers.Default,
-) : IdGenerator<Long> by snowflake {
-    companion object : KLogging()
+): IdGenerator<Long> by snowflake {
+    companion object: KLogging()
 
     /**
      * Snowflake ID를 파싱합니다.

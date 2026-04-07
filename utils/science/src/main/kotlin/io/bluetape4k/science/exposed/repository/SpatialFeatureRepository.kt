@@ -33,7 +33,7 @@ import org.locationtech.jts.io.WKTWriter
  * }
  * ```
  */
-class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
+class SpatialLayerRepository: LongJdbcRepository<SpatialLayerRecord> {
 
     override val table = SpatialLayerTable
 
@@ -131,7 +131,7 @@ class SpatialLayerRepository : LongJdbcRepository<SpatialLayerRecord> {
  * }
  * ```
  */
-class SpatialFeatureRepository : LongJdbcRepository<SpatialFeatureRecord> {
+class SpatialFeatureRepository: LongJdbcRepository<SpatialFeatureRecord> {
 
     companion object: KLogging()
 

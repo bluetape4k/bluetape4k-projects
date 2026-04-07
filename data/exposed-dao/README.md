@@ -8,7 +8,8 @@ Provides entity extensions, String-based entities, and IdTable implementations w
 
 `bluetape4k-exposed-dao` provides:
 
-- **DAO extension functions**: Helpers for common Entity implementations such as `idEquals`, `idHashCode`, and `entityToStringBuilder`
+- **DAO extension functions**: Helpers for common Entity implementations such as `idEquals`, `idHashCode`, and
+  `entityToStringBuilder`
 - **StringEntity**: DAO entities with a `String` primary key
 - **Custom IdTables**: Various ID strategies including KSUID, ULID, Snowflake, Timebased UUID, and Soft Delete
 - Built on `bluetape4k-exposed-core`, isolating features needed only in the DAO layer
@@ -349,17 +350,17 @@ TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 
 ## Key Files and Classes
 
-| File                                   | Description                                                              |
-|----------------------------------------|--------------------------------------------------------------------------|
-| `EntityExtensions.kt`                  | Entity helpers: `idEquals`, `idHashCode`, `entityToStringBuilder`        |
-| `StringEntity.kt`                      | Entity/EntityClass with a String primary key                             |
-| `dao/id/KsuidTable.kt`                 | KSUID PK IdTable                                                         |
-| `dao/id/KsuidMillisTable.kt`           | KSUID Millis PK IdTable                                                  |
-| `dao/id/UlidTable.kt`                  | ULID PK IdTable                                                          |
-| `dao/id/SnowflakeIdTable.kt`           | Snowflake Long PK IdTable                                                |
-| `dao/id/TimebasedUUIDTable.kt`         | Timebased UUID PK IdTable                                                |
-| `dao/id/TimebasedUUIDBase62Table.kt`   | Timebased UUID Base62-encoded PK IdTable                                 |
-| `dao/id/SoftDeletedIdTable.kt`         | Soft Delete IdTable with an `isDeleted` column                           |
+| File                                 | Description                                                       |
+|--------------------------------------|-------------------------------------------------------------------|
+| `EntityExtensions.kt`                | Entity helpers: `idEquals`, `idHashCode`, `entityToStringBuilder` |
+| `StringEntity.kt`                    | Entity/EntityClass with a String primary key                      |
+| `dao/id/KsuidTable.kt`               | KSUID PK IdTable                                                  |
+| `dao/id/KsuidMillisTable.kt`         | KSUID Millis PK IdTable                                           |
+| `dao/id/UlidTable.kt`                | ULID PK IdTable                                                   |
+| `dao/id/SnowflakeIdTable.kt`         | Snowflake Long PK IdTable                                         |
+| `dao/id/TimebasedUUIDTable.kt`       | Timebased UUID PK IdTable                                         |
+| `dao/id/TimebasedUUIDBase62Table.kt` | Timebased UUID Base62-encoded PK IdTable                          |
+| `dao/id/SoftDeletedIdTable.kt`       | Soft Delete IdTable with an `isDeleted` column                    |
 
 ## ID Strategy Comparison
 
@@ -383,10 +384,10 @@ Overrides `flush()` to automatically set `createdBy` and `updatedBy`.
 
 #### Automatic field assignment
 
-| Situation             | Auto-set field | Notes                                                                      |
-|-----------------------|----------------|----------------------------------------------------------------------------|
-| New entity INSERT     | `createdBy`    | `createdAt` is set by the table's DB `defaultExpression(CurrentTimestamp)` |
-| Existing entity UPDATE | `updatedBy`   | `updatedAt` is set when `auditedUpdateById()` is called on the Repository  |
+| Situation              | Auto-set field | Notes                                                                      |
+|------------------------|----------------|----------------------------------------------------------------------------|
+| New entity INSERT      | `createdBy`    | `createdAt` is set by the table's DB `defaultExpression(CurrentTimestamp)` |
+| Existing entity UPDATE | `updatedBy`    | `updatedAt` is set when `auditedUpdateById()` is called on the Repository  |
 
 ```mermaid
 sequenceDiagram
@@ -471,11 +472,11 @@ transaction {
 
 ### Concrete entity and EntityClass types
 
-| Primary key | Entity                 | EntityClass                 |
-|-------------|------------------------|-----------------------------|
-| `Int`       | `AuditableIntEntity`   | `AuditableIntEntityClass`   |
-| `Long`      | `AuditableLongEntity`  | `AuditableLongEntityClass`  |
-| `UUID`      | `AuditableUUIDEntity`  | `AuditableUUIDEntityClass`  |
+| Primary key | Entity                | EntityClass                |
+|-------------|-----------------------|----------------------------|
+| `Int`       | `AuditableIntEntity`  | `AuditableIntEntityClass`  |
+| `Long`      | `AuditableLongEntity` | `AuditableLongEntityClass` |
+| `UUID`      | `AuditableUUIDEntity` | `AuditableUUIDEntityClass` |
 
 ## Testing
 

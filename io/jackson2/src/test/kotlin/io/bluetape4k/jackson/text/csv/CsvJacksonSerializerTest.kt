@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test
 /**
  * [io.bluetape4k.jackson.text.CsvJacksonSerializer] 및 [JacksonText.Csv] 통합 테스트.
  */
-class CsvJacksonSerializerTest : AbstractJacksonTextTest() {
-    companion object : KLogging()
+class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
+    companion object: KLogging()
 
     private val csvMapper = JacksonText.Csv.defaultMapper
     private val csvSerializer = JacksonText.Csv.defaultSerializer

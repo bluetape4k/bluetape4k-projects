@@ -22,7 +22,7 @@ import javax.sql.DataSource
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [JdbcConfiguration::class])
 abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val SELECT_ACTORS = "SELECT * FROM Actors"
 
         const val SELECT = "SELECT * FROM test_bean"

@@ -83,7 +83,7 @@ class SimpleExposedR2dbcRepositoryTest: AbstractExposedR2dbcRepositoryTest() {
     @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
     fun `save - SuspendedJobTester 경쟁 상황에서도 모든 엔티티를 저장한다`(testDB: TestDB) = runTest {
         Assumptions.assumeTrue { testDB in TestDB.ALL_H2 + TestDB.ALL_POSTGRES }
-        
+
         withTables(testDB, Users) {
             val savedIds = ConcurrentLinkedQueue<Long>()
             val workerSize = 6

@@ -13,7 +13,7 @@ import java.math.BigDecimal
  * 애플리케이션 시작 시 초기 데이터를 생성하는 컴포넌트.
  */
 @Component
-class DataInitializer : ApplicationRunner {
+class DataInitializer: ApplicationRunner {
 
     override fun run(args: ApplicationArguments) {
         transaction {

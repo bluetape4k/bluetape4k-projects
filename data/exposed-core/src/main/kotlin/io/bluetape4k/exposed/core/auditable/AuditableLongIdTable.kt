@@ -22,7 +22,7 @@ import org.jetbrains.exposed.v1.core.dao.id.EntityID
 abstract class AuditableLongIdTable(
     name: String = "",
     columnName: String = "id",
-) : AuditableIdTable<Long>(name) {
+): AuditableIdTable<Long>(name) {
 
     /**
      * 자동 증가 `Long` 기본 키 컬럼입니다.

@@ -166,9 +166,9 @@ val email = tinkDaeadVarChar("email", 512).index()
 val ssn = tinkDaeadVarChar("ssn", 128)
 ```
 
-기본 `tinkAeadVarChar(...)/tinkDaeadVarChar(...)` 길이 `255`는 짧은 토큰/식별자에는 충분하지만,
-이메일처럼 길이가 긴 문자열은 암호화 후 Base64 확장으로 부족할 수 있습니다.
-검색 가능 컬럼이나 사용자 입력이 긴 컬럼에는 `512` 이상을 명시적으로 권장합니다.
+기본 `tinkAeadVarChar(...)/tinkDaeadVarChar(...)` 길이
+`255`는 짧은 토큰/식별자에는 충분하지만, 이메일처럼 길이가 긴 문자열은 암호화 후 Base64 확장으로 부족할 수 있습니다. 검색 가능 컬럼이나 사용자 입력이 긴 컬럼에는
+`512` 이상을 명시적으로 권장합니다.
 
 ## 실전 사용 예시
 
@@ -278,7 +278,8 @@ classDiagram
 
 ## 주의사항
 
-1. **AEAD는 검색 불가**: `tinkAeadVarChar`/`tinkAeadBinary`는 매번 다른 암호문을 생성하므로 `WHERE col = value` 조건 검색이 동작하지 않습니다. 검색이 필요하면 `tinkDaead*`를 사용하세요.
+1. **AEAD는 검색 불가**: `tinkAeadVarChar`/`tinkAeadBinary`는 매번 다른 암호문을 생성하므로 `WHERE col = value` 조건 검색이 동작하지 않습니다. 검색이 필요하면
+   `tinkDaead*`를 사용하세요.
 
 2. **컬럼 길이**: 암호화 후 데이터가 늘어나므로 원본 최대 길이의 약 2배 이상으로 설정하세요.
 
@@ -286,7 +287,8 @@ classDiagram
 
 4. **키 교체**: Tink는 키 교체(Key Rotation)를 지원합니다. 정기적인 키 교체로 보안을 강화할 수 있습니다.
 
-5. **DAEAD의 패턴 노출**: Deterministic AEAD도 동일 평문 → 동일 암호문이므로, 값의 분포/패턴이 노출될 수 있습니다. 유일값(이메일, 주민번호)에는 적합하지만 자주 반복되는 값에는 주의하세요.
+5. **DAEAD의 패턴 노출
+   **: Deterministic AEAD도 동일 평문 → 동일 암호문이므로, 값의 분포/패턴이 노출될 수 있습니다. 유일값(이메일, 주민번호)에는 적합하지만 자주 반복되는 값에는 주의하세요.
 
 ## 테스트
 

@@ -29,13 +29,13 @@ import java.util.*
  * - Remote Cache 및 Near Cache 두 가지 설정을 모두 테스트한다.
  */
 class WriteThroughCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     // -------------------------------------------------------------------------
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncIdWriteThrough :
+    abstract class AutoIncIdWriteThrough:
         AbstractJdbcLettuceTest(),
         WriteThroughScenario<Long, UserRecord> {
 
@@ -66,13 +66,13 @@ class WriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdWriteThroughRemoteCache : AutoIncIdWriteThrough() {
+    inner class AutoIncIdWriteThroughRemoteCache: AutoIncIdWriteThrough() {
         override val config = LettuceCacheConfig.READ_WRITE_THROUGH
         override val repository by lazy { UserRepository(redisClient, config) }
     }
 
     @Nested
-    inner class AutoIncIdWriteThroughNearCache : AutoIncIdWriteThrough() {
+    inner class AutoIncIdWriteThroughNearCache: AutoIncIdWriteThrough() {
         override val config = LettuceCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-users-wt-near"
         )
@@ -83,7 +83,7 @@ class WriteThroughCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGeneratedIdWriteThrough :
+    abstract class ClientGeneratedIdWriteThrough:
         AbstractJdbcLettuceTest(),
         WriteThroughScenario<UUID, UserCredentialsRecord> {
 
@@ -114,13 +114,13 @@ class WriteThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdWriteThroughRemoteCache : ClientGeneratedIdWriteThrough() {
+    inner class ClientGeneratedIdWriteThroughRemoteCache: ClientGeneratedIdWriteThrough() {
         override val config = LettuceCacheConfig.READ_WRITE_THROUGH
         override val repository by lazy { UserCredentialRepository(redisClient, config) }
     }
 
     @Nested
-    inner class ClientGeneratedIdWriteThroughNearCache : ClientGeneratedIdWriteThrough() {
+    inner class ClientGeneratedIdWriteThroughNearCache: ClientGeneratedIdWriteThrough() {
         override val config = LettuceCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-cred-wt-near"
         )

@@ -150,13 +150,13 @@ class SuspendJsonParser(
     private fun buildTree(token: JsonToken): JsonNode? {
         try {
             when (token) {
-                JsonToken.FIELD_NAME -> {
+                JsonToken.FIELD_NAME         -> {
                     requireNotEmptyStack()
                     currentFieldName = parser.currentName()
                     return null
                 }
 
-                JsonToken.START_OBJECT -> {
+                JsonToken.START_OBJECT       -> {
                     val fieldName = getCurrentFieldName()
                     stack.push(
                         stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
@@ -165,7 +165,7 @@ class SuspendJsonParser(
                     return null
                 }
 
-                JsonToken.START_ARRAY -> {
+                JsonToken.START_ARRAY        -> {
                     val fieldName = getCurrentFieldName()
                     stack.push(
                         stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
@@ -180,7 +180,7 @@ class SuspendJsonParser(
                     return if (stack.isEmpty) current else null
                 }
 
-                JsonToken.VALUE_NUMBER_INT -> {
+                JsonToken.VALUE_NUMBER_INT   -> {
                     return if (stack.isEmpty) {
                         buildScalarNode(token)
                     } else {
@@ -189,7 +189,7 @@ class SuspendJsonParser(
                     }
                 }
 
-                JsonToken.VALUE_STRING -> {
+                JsonToken.VALUE_STRING       -> {
                     return if (stack.isEmpty) {
                         buildScalarNode(token)
                     } else {
@@ -207,7 +207,7 @@ class SuspendJsonParser(
                     }
                 }
 
-                JsonToken.VALUE_NULL -> {
+                JsonToken.VALUE_NULL         -> {
                     return if (stack.isEmpty) {
                         buildScalarNode(token)
                     } else {
@@ -216,7 +216,7 @@ class SuspendJsonParser(
                     }
                 }
 
-                JsonToken.VALUE_TRUE -> {
+                JsonToken.VALUE_TRUE         -> {
                     return if (stack.isEmpty) {
                         buildScalarNode(token)
                     } else {
@@ -225,7 +225,7 @@ class SuspendJsonParser(
                     }
                 }
 
-                JsonToken.VALUE_FALSE -> {
+                JsonToken.VALUE_FALSE        -> {
                     return if (stack.isEmpty) {
                         buildScalarNode(token)
                     } else {
@@ -234,7 +234,7 @@ class SuspendJsonParser(
                     }
                 }
 
-                else -> error("Unknown json token $token")
+                else                         -> error("Unknown json token $token")
             }
         } catch (e: Exception) {
             log.error(e) { "JSON 파싱 오류: ${e.message}" }
@@ -250,11 +250,11 @@ class SuspendJsonParser(
 
     private fun buildScalarNode(token: JsonToken): ValueNode = when (token) {
         JsonToken.VALUE_NUMBER_INT -> JsonNodeFactory.instance.numberNode(parser.longValue)
-        JsonToken.VALUE_STRING -> JsonNodeFactory.instance.textNode(parser.valueAsString)
+        JsonToken.VALUE_STRING     -> JsonNodeFactory.instance.textNode(parser.valueAsString)
         JsonToken.VALUE_NUMBER_FLOAT -> JsonNodeFactory.instance.numberNode(parser.doubleValue)
-        JsonToken.VALUE_NULL -> JsonNodeFactory.instance.nullNode()
-        JsonToken.VALUE_TRUE -> JsonNodeFactory.instance.booleanNode(true)
-        JsonToken.VALUE_FALSE -> JsonNodeFactory.instance.booleanNode(false)
-        else -> error("Unsupported scalar token $token")
+        JsonToken.VALUE_NULL       -> JsonNodeFactory.instance.nullNode()
+        JsonToken.VALUE_TRUE       -> JsonNodeFactory.instance.booleanNode(true)
+        JsonToken.VALUE_FALSE      -> JsonNodeFactory.instance.booleanNode(false)
+        else                       -> error("Unsupported scalar token $token")
     }
 }

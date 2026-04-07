@@ -18,8 +18,8 @@ import kotlin.time.toJavaDuration
 /**
  * Lettuce 의 [RedisClient] 등을 생성해주는 유틸리티 클래스입니다.
  */
-object LettuceClients : KLogging() {
-    private data class CodecConnectionKey<V : Any>(
+object LettuceClients: KLogging() {
+    private data class CodecConnectionKey<V: Any>(
         val client: RedisClient,
         val codec: RedisCodec<String, V>,
     )
@@ -126,7 +126,7 @@ object LettuceClients : KLogging() {
      * val connection = LettuceClients.connect(client, StringCodec.UTF8)
      * ```
      */
-    fun <V : Any> connect(
+    fun <V: Any> connect(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): StatefulRedisConnection<String, V> = connection(client, codec)
@@ -147,7 +147,7 @@ object LettuceClients : KLogging() {
      * val commands = LettuceClients.commands(client, StringCodec.UTF8)
      * ```
      */
-    fun <V : Any> commands(
+    fun <V: Any> commands(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): RedisCommands<String, V> = connect(client, codec).sync()
@@ -168,7 +168,7 @@ object LettuceClients : KLogging() {
      * val asyncCommands = LettuceClients.asyncCommands(client, StringCodec.UTF8)
      * ```
      */
-    fun <V : Any> asyncCommands(
+    fun <V: Any> asyncCommands(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): RedisAsyncCommands<String, V> = connect(client, codec).async()
@@ -192,7 +192,7 @@ object LettuceClients : KLogging() {
      * ```
      */
     @OptIn(ExperimentalLettuceCoroutinesApi::class)
-    fun <V : Any> coroutinesCommands(
+    fun <V: Any> coroutinesCommands(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): RedisCoroutinesCommands<String, V> = connect(client, codec).coroutines()
@@ -219,7 +219,7 @@ object LettuceClients : KLogging() {
         }!!
 
     @Suppress("UNCHECKED_CAST")
-    private fun <V : Any> connection(
+    private fun <V: Any> connection(
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): StatefulRedisConnection<String, V> {

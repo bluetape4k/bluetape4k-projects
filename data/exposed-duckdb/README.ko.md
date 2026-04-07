@@ -70,8 +70,7 @@ transaction(db) {
 }
 ```
 
-읽기 전용 연결은 기존 파일 데이터를 안정적으로 조회하는 용도에 적합하며, 쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다.
-쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다.
+읽기 전용 연결은 기존 파일 데이터를 안정적으로 조회하는 용도에 적합하며, 쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다. 쓰기 시도는 드라이버/파일 잠금 조합에 따라 예외나 대기 상태를 유발할 수 있으므로 피하는 편이 안전합니다.
 
 ### 3. suspend 트랜잭션
 
@@ -131,13 +130,13 @@ classDiagram
 
 ## 주요 파일/클래스 목록
 
-| 파일 | 설명 |
-|------|------|
-| `DuckDBDatabase.kt` | 연결 팩토리 (인메모리/파일/읽기전용) |
-| `DuckDBConnectionWrapper.kt` | JDBC 1.1.3 generated-key 오버로드 호환 래퍼 |
-| `DuckDBExtensions.kt` | `suspendTransaction`, `queryFlow` 확장 함수 |
-| `dialect/DuckDBDialect.kt` | PostgreSQLDialect 상속 DuckDB 다이얼렉트 |
-| `dialect/DuckDBDialectMetadata.kt` | FK 제약 캐싱 no-op 구현 |
+| 파일                                 | 설명                                      |
+|------------------------------------|-----------------------------------------|
+| `DuckDBDatabase.kt`                | 연결 팩토리 (인메모리/파일/읽기전용)                   |
+| `DuckDBConnectionWrapper.kt`       | JDBC 1.1.3 generated-key 오버로드 호환 래퍼     |
+| `DuckDBExtensions.kt`              | `suspendTransaction`, `queryFlow` 확장 함수 |
+| `dialect/DuckDBDialect.kt`         | PostgreSQLDialect 상속 DuckDB 다이얼렉트       |
+| `dialect/DuckDBDialectMetadata.kt` | FK 제약 캐싱 no-op 구현                       |
 
 ## 테스트
 

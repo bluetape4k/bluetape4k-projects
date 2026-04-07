@@ -18,7 +18,6 @@ import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
@@ -81,7 +80,7 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
         get() = when {
             config.isReadOnly -> CacheWriteMode.READ_ONLY
             config.writeMode == org.redisson.api.map.WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
-            else -> CacheWriteMode.WRITE_THROUGH
+            else              -> CacheWriteMode.WRITE_THROUGH
         }
 
     /**
@@ -109,14 +108,16 @@ abstract class AbstractJdbcRedissonRepository<ID: Any, E: Serializable>(
      */
     protected val mapWriter: EntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedissonCacheConfig.CacheMode.READ_ONLY -> {
+            RedissonCacheConfig.CacheMode.READ_ONLY  -> {
                 null
             }
             RedissonCacheConfig.CacheMode.READ_WRITE -> {
                 ExposedEntityMapWriter(
                     entityTable = table,
                     updateBody = { stmt, entity -> with(this@AbstractJdbcRedissonRepository) { stmt.updateEntity(entity) } },
-                    batchInsertBody = { entity -> val stmt = this; with(this@AbstractJdbcRedissonRepository) { stmt.insertEntity(entity) } },
+                    batchInsertBody = { entity ->
+                        val stmt = this; with(this@AbstractJdbcRedissonRepository) { stmt.insertEntity(entity) }
+                    },
                     deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate, // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
                     writeMode = config.writeMode // Write Through 모드
                 )

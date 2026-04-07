@@ -27,7 +27,7 @@ import java.util.*
     ReplaceWith("Uuid.V5"),
     DeprecationLevel.WARNING
 )
-class NamebasedUuidGenerator : IdGenerator<UUID> {
+class NamebasedUuidGenerator: IdGenerator<UUID> {
     private val namebasedUuid = Generators.nameBasedGenerator()
     private val randomUuid =
         Generators.randomBasedGenerator(SecureRandom())

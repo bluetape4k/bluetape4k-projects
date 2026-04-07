@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.serializer.BinarySerializers.Jdk
 
 /**
  * 다양한 [BinarySerializer]를 제공합니다.

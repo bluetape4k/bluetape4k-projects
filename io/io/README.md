@@ -373,20 +373,20 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 **Result Pattern API Reference:**
 
-| Function | Return Type | Description |
-|----------|-------------|-------------|
-| `tryCreateDirectory(path)` | `Result<File>` | Create directory |
-| `tryCreateFile(path)` | `Result<File>` | Create file |
-| `File.tryDeleteRecursively()` | `Result<Boolean>` | Recursive delete |
-| `File.tryDeleteIfExists()` | `Result<Boolean>` | Delete file |
-| `Path.tryReadAllBytes()` | `Result<ByteArray>` | Read bytes |
-| `Path.tryWriteBytes(bytes)` | `Result<Long>` | Write bytes |
-| `Path.tryReadAllLines()` | `Result<List<String>>` | Read lines |
-| `Path.tryWriteLines(lines)` | `Result<Long>` | Write lines |
-| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>` | Async copy |
-| `File.tryMoveAsync(target)` | `CompletableFuture<Result<File>>` | Async move |
-| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | Async read |
-| `Path.tryWriteAsync(bytes)` | `CompletableFuture<Result<Long>>` | Async write |
+| Function                      | Return Type                            | Description      |
+|-------------------------------|----------------------------------------|------------------|
+| `tryCreateDirectory(path)`    | `Result<File>`                         | Create directory |
+| `tryCreateFile(path)`         | `Result<File>`                         | Create file      |
+| `File.tryDeleteRecursively()` | `Result<Boolean>`                      | Recursive delete |
+| `File.tryDeleteIfExists()`    | `Result<Boolean>`                      | Delete file      |
+| `Path.tryReadAllBytes()`      | `Result<ByteArray>`                    | Read bytes       |
+| `Path.tryWriteBytes(bytes)`   | `Result<Long>`                         | Write bytes      |
+| `Path.tryReadAllLines()`      | `Result<List<String>>`                 | Read lines       |
+| `Path.tryWriteLines(lines)`   | `Result<Long>`                         | Write lines      |
+| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>`      | Async copy       |
+| `File.tryMoveAsync(target)`   | `CompletableFuture<Result<File>>`      | Async move       |
+| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | Async read       |
+| `Path.tryWriteAsync(bytes)`   | `CompletableFuture<Result<Long>>`      | Async write      |
 
 ## Benchmark Results
 
@@ -396,20 +396,20 @@ Throughput for serializing/deserializing a collection of 20 `SimpleData` objects
 
 **Without byte array fields:**
 
-| Library | ops/s   | Notes |
-|---------|---------|-------|
-| Fory    | 305,821 | Best performance |
+| Library | ops/s   | Notes                       |
+|---------|---------|-----------------------------|
+| Fory    | 305,821 | Best performance            |
 | Kryo    | 81,823  | Recommended for general use |
-| Jackson | 39,510  | JSON-based |
-| Jdk     | 22,249  | Java standard |
+| Jackson | 39,510  | JSON-based                  |
+| Jdk     | 22,249  | Java standard               |
 
 **With byte array fields (4096 bytes):**
 
-| Library | ops/s  | Notes |
-|---------|--------|-------|
-| Fory    | 59,192 | Best performance |
-| Kryo    | 29,329 | Recommended for general use |
-| Jdk     | 8,431  | Java standard |
+| Library | ops/s  | Notes                         |
+|---------|--------|-------------------------------|
+| Fory    | 59,192 | Best performance              |
+| Kryo    | 29,329 | Recommended for general use   |
+| Jdk     | 8,431  | Java standard                 |
 | Jackson | 4,323  | Disadvantaged for binary data |
 
 > Fory is approximately 3x faster than Kryo.
@@ -419,13 +419,13 @@ Throughput for serializing/deserializing a collection of 20 `SimpleData` objects
 
 Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.txt`).
 
-| Algorithm | ops/s | Characteristics |
-|-----------|-------|-----------------|
-| Snappy  | 8,073 | Fastest speed |
-| LZ4     | 6,769 | Great for real-time processing |
-| Zstd    | 5,103 | Balanced speed and ratio (recommended) |
-| GZip    | 1,195 | Excellent compatibility |
-| Deflate | 1,084 | GZip-based |
+| Algorithm | ops/s | Characteristics                        |
+|-----------|-------|----------------------------------------|
+| Snappy    | 8,073 | Fastest speed                          |
+| LZ4       | 6,769 | Great for real-time processing         |
+| Zstd      | 5,103 | Balanced speed and ratio (recommended) |
+| GZip      | 1,195 | Excellent compatibility                |
+| Deflate   | 1,084 | GZip-based                             |
 
 ## Module Structure
 

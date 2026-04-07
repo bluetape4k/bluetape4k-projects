@@ -28,7 +28,7 @@ import java.lang.reflect.Method
  */
 class ExposedQueryLookupStrategy(
     private val key: QueryLookupStrategy.Key,
-) : QueryLookupStrategy {
+): QueryLookupStrategy {
 
     companion object: KLogging() {
         fun create(key: QueryLookupStrategy.Key): ExposedQueryLookupStrategy = ExposedQueryLookupStrategy(key)
@@ -56,7 +56,7 @@ class ExposedQueryLookupStrategy(
                 DeclaredExposedQuery(queryMethod, entityInformation)
             }
 
-            QueryLookupStrategy.Key.CREATE -> {
+            QueryLookupStrategy.Key.CREATE             -> {
                 PartTreeExposedQuery(queryMethod, entityInformation)
             }
 

@@ -34,17 +34,17 @@ flowchart TD
 
 ### Kotlin DSL (kotlin/)
 
-| Example File              | Description                              |
-|---------------------------|------------------------------------------|
-| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL    |
-| `TemplateTest.kt`         | Using CassandraTemplate                  |
+| Example File              | Description                           |
+|---------------------------|---------------------------------------|
+| `PersonRepositoryTest.kt` | Defining a Repository with Kotlin DSL |
+| `TemplateTest.kt`         | Using CassandraTemplate               |
 
 ### Reactive (reactive/)
 
-| Example File                           | Description              |
-|----------------------------------------|--------------------------|
-| `ReactivePersonRepositoryTest.kt`      | Reactive Repository      |
-| `CoroutinePersonRepositoryTest.kt`     | Coroutines Repository    |
+| Example File                       | Description           |
+|------------------------------------|-----------------------|
+| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
+| `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
 
 ### Multi-tenancy (multitenancy/)
 
@@ -55,30 +55,30 @@ flowchart TD
 
 ### Auditing (auditing/)
 
-| Example File         | Description                     |
-|----------------------|---------------------------------|
-| `AuditingTest.kt`    | @CreatedBy, @LastModifiedBy     |
-| `reactive/auditing/` | Auditing in a Reactive context  |
+| Example File         | Description                    |
+|----------------------|--------------------------------|
+| `AuditingTest.kt`    | @CreatedBy, @LastModifiedBy    |
+| `reactive/auditing/` | Auditing in a Reactive context |
 
 ### Domain Model (domain/model/)
 
-| Model                   | Description                  |
-|-------------------------|------------------------------|
-| `User.kt`               | Basic user entity            |
-| `Person.kt`             | Embedded type example        |
-| `AllPossibleTypes.kt`   | Cassandra type mapping       |
-| `VersionedEntity.kt`    | Optimistic locking           |
+| Model                 | Description            |
+|-----------------------|------------------------|
+| `User.kt`             | Basic user entity      |
+| `Person.kt`           | Embedded type example  |
+| `AllPossibleTypes.kt` | Cassandra type mapping |
+| `VersionedEntity.kt`  | Optimistic locking     |
 
 ### Other Features
 
-| Example              | Description               |
-|----------------------|---------------------------|
-| `udt/`               | User Defined Types (UDT)  |
+| Example              | Description                |
+|----------------------|----------------------------|
+| `udt/`               | User Defined Types (UDT)   |
 | `optimisticlocking/` | Optimistic locking pattern |
-| `projection/`        | Projection queries        |
-| `convert/`           | Custom converters         |
-| `event/`             | Domain events             |
-| `streamnullable/`    | Nullable stream handling  |
+| `projection/`        | Projection queries         |
+| `convert/`           | Custom converters          |
+| `event/`             | Domain events              |
+| `streamnullable/`    | Nullable stream handling   |
 
 ## Key Learning Points
 

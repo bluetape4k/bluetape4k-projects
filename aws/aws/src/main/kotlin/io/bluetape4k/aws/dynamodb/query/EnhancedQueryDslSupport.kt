@@ -52,13 +52,13 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * @param builder Enhanced Query Builder DSL
  * @return [QueryEnhancedRequest] 인스턴스
  */
-inline fun <T : DynamoDbEntity> queryEnhancedRequest(
+inline fun <T: DynamoDbEntity> queryEnhancedRequest(
     builder: EnhancedQueryBuilderKt<T>.() -> Unit,
 ): QueryEnhancedRequest = EnhancedQueryBuilderKt<T>().apply(builder).build()
 
 @DynamoDslMarker
-class EnhancedQueryBuilderKt<T : Any> {
-    companion object : KLogging()
+class EnhancedQueryBuilderKt<T: Any> {
+    companion object: KLogging()
 
     var primaryKey: PrimaryKey? = null
     var sortKey: SortKey? = null
@@ -84,12 +84,12 @@ class EnhancedQueryBuilderKt<T : Any> {
                 sortKey?.let { sk: SortKey ->
 
                     when (sk.comparisonOperator) {
-                        is BeginsWith -> {
+                        is BeginsWith       -> {
                             QueryConditional.sortBeginsWith(
                                 keyOf(pk.equals.right, sk.comparisonOperator.right)
                             )
                         }
-                        is GreaterThan -> {
+                        is GreaterThan      -> {
                             QueryConditional.sortGreaterThan(
                                 keyOf(pk.equals.right, sk.comparisonOperator.right)
                             )
@@ -99,7 +99,7 @@ class EnhancedQueryBuilderKt<T : Any> {
                                 keyOf(pk.equals.right, sk.comparisonOperator.right)
                             )
                         }
-                        is LessThan -> {
+                        is LessThan         -> {
                             QueryConditional.sortLessThan(
                                 keyOf(pk.equals.right, sk.comparisonOperator.right)
                             )
@@ -109,13 +109,13 @@ class EnhancedQueryBuilderKt<T : Any> {
                                 keyOf(pk.equals.right, sk.comparisonOperator.right)
                             )
                         }
-                        is Between -> {
+                        is Between          -> {
                             QueryConditional.sortBetween(
                                 keyOf(sk.sortKeyName, sk.comparisonOperator.left.toString()),
                                 keyOf(sk.sortKeyName, sk.comparisonOperator.right.toString())
                             )
                         }
-                        else -> {
+                        else                -> {
                             throw UnsupportedOperationException("Unknown comparison operator: ${sk.comparisonOperator}")
                         }
                     }
@@ -135,7 +135,7 @@ class EnhancedQueryBuilderKt<T : Any> {
 }
 
 /** 파티션 키 DSL을 설정합니다. */
-inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
+inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
     builder: PrimaryKeyBuilder.() -> Unit,
 ) {
@@ -143,7 +143,7 @@ inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
 }
 
 /** 정렬 키 DSL을 설정합니다. */
-inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
+inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
     builder: SortKeyBuilder.() -> Unit,
 ) {
@@ -151,7 +151,7 @@ inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
 }
 
 /** 필터 조건 DSL을 설정합니다. */
-inline fun <T : DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
+inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
     builder: RootFilterBuilder.() -> Unit,
 ) {
     filtering = RootFilterBuilder().apply(builder).build()

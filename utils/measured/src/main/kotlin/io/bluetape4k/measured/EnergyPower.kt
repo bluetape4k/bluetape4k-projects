@@ -20,11 +20,20 @@ open class Energy(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val joules: Energy = Energy("J")
-        @JvmField val kiloJoules: Energy = Energy("kJ", 1.0e3)
-        @JvmField val megaJoules: Energy = Energy("MJ", 1.0e6)
-        @JvmField val wattHours: Energy = Energy("Wh", 3_600.0)
-        @JvmField val kiloWattHours: Energy = Energy("kWh", 3_600_000.0)
+        @JvmField
+        val joules: Energy = Energy("J")
+
+        @JvmField
+        val kiloJoules: Energy = Energy("kJ", 1.0e3)
+
+        @JvmField
+        val megaJoules: Energy = Energy("MJ", 1.0e6)
+
+        @JvmField
+        val wattHours: Energy = Energy("Wh", 3_600.0)
+
+        @JvmField
+        val kiloWattHours: Energy = Energy("kWh", 3_600_000.0)
     }
 }
 
@@ -45,11 +54,20 @@ open class Power(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val watts: Power = Power("W")
-        @JvmField val milliWatts: Power = Power("mW", 1.0e-3)
-        @JvmField val kiloWatts: Power = Power("kW", 1.0e3)
-        @JvmField val megaWatts: Power = Power("MW", 1.0e6)
-        @JvmField val gigaWatts: Power = Power("GW", 1.0e9)
+        @JvmField
+        val watts: Power = Power("W")
+
+        @JvmField
+        val milliWatts: Power = Power("mW", 1.0e-3)
+
+        @JvmField
+        val kiloWatts: Power = Power("kW", 1.0e3)
+
+        @JvmField
+        val megaWatts: Power = Power("MW", 1.0e6)
+
+        @JvmField
+        val gigaWatts: Power = Power("GW", 1.0e9)
     }
 }
 

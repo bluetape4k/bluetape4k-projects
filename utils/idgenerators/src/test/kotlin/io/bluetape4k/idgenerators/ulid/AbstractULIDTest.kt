@@ -13,7 +13,7 @@ import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldBeLessOrEqualTo
 
 abstract class AbstractULIDTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 5
     }
 

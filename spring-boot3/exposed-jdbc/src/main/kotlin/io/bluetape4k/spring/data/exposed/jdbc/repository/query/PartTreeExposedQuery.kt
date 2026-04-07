@@ -31,10 +31,10 @@ import org.springframework.data.repository.query.parser.PartTree
  * }
  * ```
  */
-class PartTreeExposedQuery<E : Entity<ID>, ID : Any>(
+class PartTreeExposedQuery<E: Entity<ID>, ID: Any>(
     private val queryMethod: ExposedQueryMethod,
     private val entityInformation: ExposedEntityInformation<E, ID>,
-) : RepositoryQuery {
+): RepositoryQuery {
 
     companion object: KLogging()
 
@@ -54,19 +54,19 @@ class PartTreeExposedQuery<E : Entity<ID>, ID : Any>(
             .and(parameters.firstInstanceOrNull<Sort>() ?: Sort.unsorted())
 
         return when {
-            partTree.isDelete -> executeDelete(op)
+            partTree.isDelete          -> executeDelete(op)
             partTree.isCountProjection -> entityClass.find { op }.count()
             partTree.isExistsProjection -> !entityClass.find { op }.empty()
-            partTree.isLimiting -> executeLimiting(op, partTree.maxResults, sort)
-            isPageQuery() -> executePageQuery(op, pageable, sort)
-            isSliceQuery() -> executeSliceQuery(op, pageable, sort)
-            isSingleResult() -> entityClass.find { op }.let { query ->
+            partTree.isLimiting        -> executeLimiting(op, partTree.maxResults, sort)
+            isPageQuery()              -> executePageQuery(op, pageable, sort)
+            isSliceQuery()             -> executeSliceQuery(op, pageable, sort)
+            isSingleResult()           -> entityClass.find { op }.let { query ->
                 if (sort.isSorted) {
                     query.orderBy(*sort.toExposedOrderBy(entityInformation.table))
                 }
                 query.firstOrNull()
             }
-            else -> entityClass.find { op }.let { query ->
+            else                       -> entityClass.find { op }.let { query ->
                 if (sort.isSorted) {
                     query.orderBy(*sort.toExposedOrderBy(entityInformation.table))
                 }
@@ -119,10 +119,10 @@ class PartTreeExposedQuery<E : Entity<ID>, ID : Any>(
 
     private fun isSingleResult(): Boolean =
         !queryMethod.isCollectionQuery &&
-            !queryMethod.isStreamQuery &&
-            !queryMethod.isPageQuery &&
-            !queryMethod.isSliceQuery
+                !queryMethod.isStreamQuery &&
+                !queryMethod.isPageQuery &&
+                !queryMethod.isSliceQuery
 
-    private inline fun <reified T : Any> Array<out Any>.firstInstanceOrNull(): T? =
+    private inline fun <reified T: Any> Array<out Any>.firstInstanceOrNull(): T? =
         firstOrNull { it is T } as? T
 }

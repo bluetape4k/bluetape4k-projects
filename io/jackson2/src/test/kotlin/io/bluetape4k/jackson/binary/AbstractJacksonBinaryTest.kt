@@ -19,7 +19,7 @@ import java.util.*
  */
 @RandomizedTest
 abstract class AbstractJacksonBinaryTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         @JvmStatic
         val faker = Fakers.faker
 
@@ -239,7 +239,7 @@ abstract class AbstractJacksonBinaryTest {
     }
 
     // NOTE: TypeReference 를 사용하려면 reified 이어야 합니다.
-    protected inline fun <reified T : Any> assertBinarySerialization(input: T) {
+    protected inline fun <reified T: Any> assertBinarySerialization(input: T) {
         val output = binaryJacksonSerializer.serialize(input)
         output.size shouldBeGreaterThan 0
         val actual = binaryJacksonSerializer.deserialize<T>(output).shouldNotBeNull()

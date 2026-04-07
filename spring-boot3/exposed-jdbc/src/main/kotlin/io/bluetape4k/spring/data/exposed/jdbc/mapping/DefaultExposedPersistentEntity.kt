@@ -18,10 +18,10 @@ import kotlin.reflect.full.companionObjectInstance
  * val table = entity.getTable()              // Users (IdTable<Long>)
  * ```
  */
-class DefaultExposedPersistentEntity<T : Any>(
+class DefaultExposedPersistentEntity<T: Any>(
     typeInformation: TypeInformation<T>,
-) : BasicPersistentEntity<T, ExposedPersistentProperty>(typeInformation),
-    ExposedPersistentEntity<T> {
+): BasicPersistentEntity<T, ExposedPersistentProperty>(typeInformation),
+   ExposedPersistentEntity<T> {
 
     private val entityClassInstance: EntityClass<*, *>? by lazy {
         runCatching {

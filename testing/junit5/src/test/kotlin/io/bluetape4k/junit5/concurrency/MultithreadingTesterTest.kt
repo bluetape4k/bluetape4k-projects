@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import kotlin.system.measureTimeMillis
 
 class MultithreadingTesterTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val LARGE_ROUNDS = 2_000
     }
 
@@ -164,7 +164,7 @@ class MultithreadingTesterTest {
         block2.count shouldBeEqualTo 3
     }
 
-    private class CountingTask : () -> Unit {
+    private class CountingTask: () -> Unit {
         private val counter = atomic(0)
         val count: Int by counter
 

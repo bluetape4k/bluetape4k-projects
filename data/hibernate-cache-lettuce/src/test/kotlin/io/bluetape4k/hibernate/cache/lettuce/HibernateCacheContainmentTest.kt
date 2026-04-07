@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 /**
  * Cache containsEntity / containsCollection / 명시적 Region eviction 테스트.
  */
-class HibernateCacheContainmentTest : AbstractHibernateNearCacheTest() {
+class HibernateCacheContainmentTest: AbstractHibernateNearCacheTest() {
     @BeforeEach
     fun resetAll() {
         sessionFactory.cache.evictAllRegions()

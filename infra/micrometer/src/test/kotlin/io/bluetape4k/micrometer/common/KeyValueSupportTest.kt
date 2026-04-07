@@ -9,10 +9,10 @@ class KeyValueSupportTest {
     fun `keyValuesOf should enforce even number of arguments and valid keys`() {
         val keyValues = keyValuesOf("alpha", "1", "beta", "2")
         keyValues.toList().associate { it.key to it.value } shouldBeEqualTo
-            mapOf(
-                "alpha" to "1",
-                "beta" to "2"
-            )
+                mapOf(
+                    "alpha" to "1",
+                    "beta" to "2"
+                )
 
         assertFailsWith<IllegalArgumentException> {
             keyValuesOf("only-key")
@@ -35,10 +35,10 @@ class KeyValueSupportTest {
         val pairs = arrayOf("first" to "1", "second" to "2")
         val result = keyValuesOf(*pairs)
         result.toList().associate { it.key to it.value } shouldBeEqualTo
-            mapOf(
-                "first" to "1",
-                "second" to "2"
-            )
+                mapOf(
+                    "first" to "1",
+                    "second" to "2"
+                )
     }
 
     @Test

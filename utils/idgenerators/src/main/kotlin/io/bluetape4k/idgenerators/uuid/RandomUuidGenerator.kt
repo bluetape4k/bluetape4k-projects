@@ -28,7 +28,7 @@ import java.util.*
 )
 class RandomUuidGenerator(
     random: Random = Random(System.currentTimeMillis()),
-) : IdGenerator<UUID> {
+): IdGenerator<UUID> {
     // VERSION 4
     private val generator = Generators.randomBasedGenerator(random)
 

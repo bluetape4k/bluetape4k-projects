@@ -23,8 +23,8 @@ import kotlin.text.dropLast
 import kotlin.text.takeLast
 
 @RandomizedTest
-class StringSupportTest : AbstractCoreTest() {
-    companion object : KLogging() {
+class StringSupportTest: AbstractCoreTest() {
+    companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }
 
@@ -406,11 +406,11 @@ class StringSupportTest : AbstractCoreTest() {
         str.mask() shouldBeEqualTo expected
 
         str.mask('#') shouldBeEqualTo
-            buildString {
-                repeat(str.length) {
-                    append("#")
+                buildString {
+                    repeat(str.length) {
+                        append("#")
+                    }
                 }
-            }
     }
 
     @Test

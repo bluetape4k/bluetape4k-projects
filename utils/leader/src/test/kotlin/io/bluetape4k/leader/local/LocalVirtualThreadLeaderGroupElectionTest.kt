@@ -19,7 +19,7 @@ import kotlin.random.Random
 
 class LocalVirtualThreadLeaderGroupElectionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val maxLeaders = 3
     private val options = LeaderGroupElectionOptions(maxLeaders)

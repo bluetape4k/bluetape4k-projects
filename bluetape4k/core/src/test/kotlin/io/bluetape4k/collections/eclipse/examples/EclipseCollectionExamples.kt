@@ -185,7 +185,12 @@ class EclipseCollectionExamples {
     }
 
     enum class PetType {
-        CAT, DOG, HAMSTER, TURTLE, BIRD, SNAKE
+        CAT,
+        DOG,
+        HAMSTER,
+        TURTLE,
+        BIRD,
+        SNAKE
     }
 
     data class Pet(val type: PetType, val name: String, val age: Int)

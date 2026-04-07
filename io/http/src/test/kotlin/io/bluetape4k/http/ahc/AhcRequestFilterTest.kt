@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
  * [AttachHeaderRequestFilter], [DynamicAttachHandlerRequest], [requestFilter] DSL 에 대한 단위 테스트입니다.
  */
 class AhcRequestFilterTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 테스트용 더미 FilterContext를 생성합니다.

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class DocumentExtensionsTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Test
     fun `documentOf 키-값 쌍으로 Document 생성`() {

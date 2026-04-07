@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 
 class YearQuarterTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `YearQuarter 생성 - 년도와 분기로 생성`() {

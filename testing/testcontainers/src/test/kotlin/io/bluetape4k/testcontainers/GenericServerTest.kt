@@ -13,7 +13,7 @@ import kotlin.test.assertFailsWith
  * [writeToSystemProperties] 확장 함수에 대한 단위 테스트입니다.
  */
 class GenericServerTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val TEST_SERVER_NAME = "test-generic-server"
     }
 

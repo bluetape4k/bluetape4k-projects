@@ -41,11 +41,11 @@ enum class Outcome(
         fun fromHttpStatus(statusCode: Int): Outcome =
             when (statusCode / 100) {
                 INFORMATION.code -> INFORMATION
-                SUCCESS.code -> SUCCESS
+                SUCCESS.code     -> SUCCESS
                 REDIRECTION.code -> REDIRECTION
                 CLIENT_ERROR.code -> CLIENT_ERROR
                 SERVER_ERROR.code -> SERVER_ERROR
-                else -> UNKNOWN
+                else             -> UNKNOWN
             }
     }
 }

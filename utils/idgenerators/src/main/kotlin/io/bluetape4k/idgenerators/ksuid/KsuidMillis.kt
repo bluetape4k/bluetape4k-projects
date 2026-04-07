@@ -23,7 +23,7 @@ import java.util.*
     replaceWith = ReplaceWith("Ksuid.Millis", "io.bluetape4k.idgenerators.ksuid.Ksuid"),
     level = DeprecationLevel.WARNING
 )
-object KsuidMillis : IdGenerator<String> {
+object KsuidMillis: IdGenerator<String> {
     const val TIMESTAMP_LEN = Ksuid.Millis.TIMESTAMP_LEN
     const val PAYLOAD_LEN = Ksuid.Millis.PAYLOAD_LEN
     const val MAX_ENCODED_LEN = Ksuid.Millis.MAX_ENCODED_LEN

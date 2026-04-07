@@ -8,7 +8,7 @@ data class HttpbinGetResponse(
     val headers: Map<String, String>,
     val origin: String,
     val url: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -24,7 +24,7 @@ data class HttpbinPostResponse(
     val json: Map<String, Any>?,
     val origin: String,
     val url: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -41,7 +41,7 @@ data class HttpbinAnythingResponse(
     val method: String,
     val origin: String,
     val url: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -50,7 +50,7 @@ data class HttpbinAnythingResponse(
 /** `/cookies` 계열 엔드포인트가 반환하는 쿠키 맵입니다. */
 data class HttpBinCookiesResponse(
     val cookies: Map<String, String>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -59,7 +59,7 @@ data class HttpBinCookiesResponse(
 /** `/uuid`와 같이 단일 식별자를 받는 응답입니다. */
 data class HttpbinUuidResponse(
     val uuid: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

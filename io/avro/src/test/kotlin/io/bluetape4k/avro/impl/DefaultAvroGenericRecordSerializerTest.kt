@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource
  * 다양한 [CodecFactory]를 사용한 파라미터화 테스트를 통해
  * 모든 코덱에서 정상 동작하는지 확인합니다.
  */
-class DefaultAvroGenericRecordSerializerTest : AbstractAvroTest() {
-    companion object : KLogging()
+class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
+    companion object: KLogging()
 
     private fun serializers(): List<Arguments> =
         listOf(

@@ -25,7 +25,7 @@ import java.io.InputStream
  * - [GeoIP2 Java API](https://maxmind.github.io/GeoIP2-java/)
  * - [Download GeoIP Databases](https://www.maxmind.com/en/accounts/379741/geoip/downloads)
  */
-object Geoip : KLogging() {
+object Geoip: KLogging() {
     private const val GEO_ASN_DB = "GeoLite2-ASN.mmdb"
     private const val GEO_CITY_DB = "GeoLite2-City.mmdb"
     private const val GEO_COUNTRY_DB = "GeoLite2-Country.mmdb"

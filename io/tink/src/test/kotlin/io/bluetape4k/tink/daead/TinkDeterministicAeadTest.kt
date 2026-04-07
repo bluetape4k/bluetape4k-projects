@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
 class TinkDeterministicAeadTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val daead = TinkDeterministicAead(daeadKeysetHandle())
 
@@ -103,7 +103,8 @@ class TinkDeterministicAeadTest {
     fun `변조된 암호문으로 decryptDeterministically시 예외 발생`() {
         val plaintext = "변조 테스트".toByteArray()
         val ciphertext = daead.encryptDeterministically(plaintext)
-        val tampered = ciphertext.copyOf().apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+        val tampered = ciphertext.copyOf()
+            .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
         assertThrows<GeneralSecurityException> {
             daead.decryptDeterministically(tampered)

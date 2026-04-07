@@ -2,19 +2,21 @@
 
 English | [한국어](./README.ko.md)
 
-A module that generates SQL using JetBrains Exposed DSL and executes it via the Google BigQuery REST API. It uses `google-api-services-bigquery-v2` without a JDBC driver and employs H2 (PostgreSQL mode) solely for SQL generation.
+A module that generates SQL using JetBrains Exposed DSL and executes it via the Google BigQuery REST API. It uses
+`google-api-services-bigquery-v2` without a JDBC driver and employs H2 (PostgreSQL mode) solely for SQL generation.
 
 ## Overview
 
 `bluetape4k-exposed-bigquery` provides:
 
-- **BigQueryContext**: Converts Exposed DSL to SQL (via H2 in PostgreSQL mode), then executes it against the BigQuery REST API
-  - Supports SELECT, INSERT, UPDATE, DELETE, and CREATE TABLE DDL
-  - Includes suspend/Flow async APIs
+- **BigQueryContext
+  **: Converts Exposed DSL to SQL (via H2 in PostgreSQL mode), then executes it against the BigQuery REST API
+    - Supports SELECT, INSERT, UPDATE, DELETE, and CREATE TABLE DDL
+    - Includes suspend/Flow async APIs
 - **BigQueryQueryExecutor**: Executes Exposed `Query` objects against BigQuery with automatic pagination
 - **BigQueryResultRow**: Type-safe row access via column references (Long, BigDecimal, Instant, etc.)
-  - Case-insensitive column name lookup
-  - Converts `"null"` strings and BigQuery null sentinels to Kotlin `null`
+    - Case-insensitive column name lookup
+    - Converts `"null"` strings and BigQuery null sentinels to Kotlin `null`
 - **BigQueryDialect**: Extends `PostgreSQLDialect` with BigQuery-specific overrides
 
 ## Module Positioning
@@ -22,19 +24,20 @@ A module that generates SQL using JetBrains Exposed DSL and executes it via the 
 `bluetape4k-exposed-bigquery` is not a JDBC-driver-based ORM module. It reuses the Exposed DSL as a SQL generator while delegating actual execution to the BigQuery REST API.
 
 - Use this module when you need to execute queries via the BigQuery REST API.
-- For JDBC transaction consistency or Trino connector-based execution, use `bluetape4k-exposed-trino` or the upcoming `exposed-bigquery-trino`.
+- For JDBC transaction consistency or Trino connector-based execution, use `bluetape4k-exposed-trino` or the upcoming
+  `exposed-bigquery-trino`.
 - `sqlGenDb` is an internal implementation for SQL string generation only — it is not an application data store.
 
 ## Capabilities
 
-| Supported | Not Supported |
-|-----------|---------------|
-| SELECT/filter/order/group/aggregate | Full DAO compatibility |
-| INSERT/UPDATE/DELETE DML | JDBC transaction semantics |
-| CREATE TABLE DDL (with type mapping) | `transaction {}` atomicity / rollback |
-| Large result sets (automatic `pageToken` handling) | Full SchemaUtils automation |
-| suspend/Flow async API | SERIAL/SEQUENCE auto-increment |
-| Column-based type conversion | ALTER COLUMN TYPE |
+| Supported                                          | Not Supported                         |
+|----------------------------------------------------|---------------------------------------|
+| SELECT/filter/order/group/aggregate                | Full DAO compatibility                |
+| INSERT/UPDATE/DELETE DML                           | JDBC transaction semantics            |
+| CREATE TABLE DDL (with type mapping)               | `transaction {}` atomicity / rollback |
+| Large result sets (automatic `pageToken` handling) | Full SchemaUtils automation           |
+| suspend/Flow async API                             | SERIAL/SEQUENCE auto-increment        |
+| Column-based type conversion                       | ALTER COLUMN TYPE                     |
 
 ## Dependency
 
@@ -136,15 +139,16 @@ with(context) {
 
 BigQuery REST API response → Kotlin type conversion:
 
-| BigQuery Type | Kotlin Type |
-|--------------|------------|
-| INT64 | `Long` |
-| STRING | `String` |
-| NUMERIC | `BigDecimal` |
-| TIMESTAMP | `Instant` (auto-converted from float string in seconds) |
-| nullable | `null` |
+| BigQuery Type | Kotlin Type                                             |
+|---------------|---------------------------------------------------------|
+| INT64         | `Long`                                                  |
+| STRING        | `String`                                                |
+| NUMERIC       | `BigDecimal`                                            |
+| TIMESTAMP     | `Instant` (auto-converted from float string in seconds) |
+| nullable      | `null`                                                  |
 
-`BigQueryResultRow` normalizes all keys to lowercase, so both `row["REGION"]` and `row["region"]` work identically. `"null"` / `"NULL"` strings and null sentinel values from nullable columns are treated as Kotlin `null`.
+`BigQueryResultRow` normalizes all keys to lowercase, so both `row["REGION"]` and `row["region"]` work identically.
+`"null"` / `"NULL"` strings and null sentinel values from nullable columns are treated as Kotlin `null`.
 
 ## Transaction and Consistency Notes
 
@@ -199,12 +203,12 @@ classDiagram
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `BigQueryContext.kt` | SQL generation + BigQuery REST execution context; includes common DML/DDL and paginated query logic |
-| `BigQueryQueryExecutor.kt` | Executes Exposed Query objects against BigQuery; provides full-load and Flow-based query APIs |
-| `BigQueryQueryExecutor.kt` (BigQueryResultRow) | Type-safe row access via column references |
-| `dialect/BigQueryDialect.kt` | BigQuery dialect extending PostgreSQLDialect |
+| File                                           | Description                                                                                         |
+|------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `BigQueryContext.kt`                           | SQL generation + BigQuery REST execution context; includes common DML/DDL and paginated query logic |
+| `BigQueryQueryExecutor.kt`                     | Executes Exposed Query objects against BigQuery; provides full-load and Flow-based query APIs       |
+| `BigQueryQueryExecutor.kt` (BigQueryResultRow) | Type-safe row access via column references                                                          |
+| `dialect/BigQueryDialect.kt`                   | BigQuery dialect extending PostgreSQLDialect                                                        |
 
 ## Testing
 

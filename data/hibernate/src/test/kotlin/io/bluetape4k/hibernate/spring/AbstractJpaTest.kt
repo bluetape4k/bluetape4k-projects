@@ -55,7 +55,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
     excludeAutoConfiguration = [FlywayAutoConfiguration::class]
 )
 abstract class AbstractJpaTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         // @DataJpaTest 는 H2 를 사용합니다. @SprintBootTest 로 직접적으로 사용하려면 MySQLServer를 생성해야 합니다.
         //        val mysql: MySQLServer by lazy {
         //            MySQLServer(useDefaultPort = true).apply {

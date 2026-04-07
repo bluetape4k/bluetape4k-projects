@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 @OutputCapture
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractNearJCacheTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         protected const val TEST_SIZE = 3
 
         protected val awaitTimeout = 5.seconds

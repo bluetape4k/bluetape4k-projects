@@ -24,16 +24,16 @@ dependencies {
 
 ## Supported Databases
 
-| Database            | TestDB       | Testcontainers |
-|---------------------|--------------|----------------|
-| H2 v2               | `H2`         | No             |
-| H2 MySQL mode       | `H2_MYSQL`   | No             |
-| H2 MariaDB mode     | `H2_MARIADB` | No             |
-| H2 PostgreSQL mode  | `H2_PSQL`    | No             |
-| MariaDB             | `MARIADB`    | Yes            |
-| MySQL 5.7           | `MYSQL_V5`   | Yes            |
-| MySQL 8.0           | `MYSQL_V8`   | Yes            |
-| PostgreSQL          | `POSTGRESQL` | Yes            |
+| Database           | TestDB       | Testcontainers |
+|--------------------|--------------|----------------|
+| H2 v2              | `H2`         | No             |
+| H2 MySQL mode      | `H2_MYSQL`   | No             |
+| H2 MariaDB mode    | `H2_MARIADB` | No             |
+| H2 PostgreSQL mode | `H2_PSQL`    | No             |
+| MariaDB            | `MARIADB`    | Yes            |
+| MySQL 5.7          | `MYSQL_V5`   | Yes            |
+| MySQL 8.0          | `MYSQL_V8`   | Yes            |
+| PostgreSQL         | `POSTGRESQL` | Yes            |
 
 ## Usage Examples
 
@@ -226,13 +226,13 @@ class MovieTest: AbstractExposedTest() {
 
 ### Shared table schemas
 
-| File                               | Description                               |
-|------------------------------------|-------------------------------------------|
-| `shared/entities/MovieSchema.kt`   | Movie, Actor, ActorInMovie tables         |
-| `shared/entities/BoardSchema.kt`   | Board table                               |
-| `shared/entities/BlogSchema.kt`    | Blog table                                |
-| `shared/mapping/PersonSchema.kt`   | Person mapping table                      |
-| `shared/mapping/OrderSchema.kt`    | Order mapping table                       |
+| File                             | Description                       |
+|----------------------------------|-----------------------------------|
+| `shared/entities/MovieSchema.kt` | Movie, Actor, ActorInMovie tables |
+| `shared/entities/BoardSchema.kt` | Board table                       |
+| `shared/entities/BlogSchema.kt`  | Blog table                        |
+| `shared/mapping/PersonSchema.kt` | Person mapping table              |
+| `shared/mapping/OrderSchema.kt`  | Order mapping table               |
 
 ## Testcontainers Configuration
 
@@ -254,22 +254,22 @@ Containers.Postgres
 
 ## Key Files
 
-| File                            | Description                                                                                           |
-|---------------------------------|-------------------------------------------------------------------------------------------------------|
-| `AbstractExposedTest.kt`        | Base test class                                                                                       |
-| `TestDB.kt`                     | Supported database definitions and connection info                                                    |
-| `TestDBConfig.kt`               | Test environment settings (`useTestcontainers`, `useFastDB`)                                          |
-| `Containers.kt`                 | Testcontainers container management                                                                   |
-| `WithDB.kt`                     | DB connection utilities                                                                               |
-| `WithTables.kt`                 | Table create/drop utilities                                                                           |
-| `WithSchemas.kt`                | Schema utilities                                                                                      |
-| `WithAutoCommit.kt`             | AutoCommit mode utilities                                                                             |
-| `WithDBSuspending.kt`           | Coroutines DB connection utilities                                                                    |
-| `WithTablesSuspending.kt`       | Coroutines table utilities                                                                            |
-| `WithSchemasSuspending.kt`      | Coroutines schema utilities                                                                           |
-| `WithAutoCommitSuspending.kt`   | Coroutines AutoCommit utilities                                                                       |
-| `Assertions.kt`                 | Test assertion utilities (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
-| `TestSupports.kt`               | Test support utilities (`inProperCase`, `currentDialectTest`, etc.)                                   |
+| File                          | Description                                                                                                                           |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `AbstractExposedTest.kt`      | Base test class                                                                                                                       |
+| `TestDB.kt`                   | Supported database definitions and connection info                                                                                    |
+| `TestDBConfig.kt`             | Test environment settings (`useTestcontainers`, `useFastDB`)                                                                          |
+| `Containers.kt`               | Testcontainers container management                                                                                                   |
+| `WithDB.kt`                   | DB connection utilities                                                                                                               |
+| `WithTables.kt`               | Table create/drop utilities                                                                                                           |
+| `WithSchemas.kt`              | Schema utilities                                                                                                                      |
+| `WithAutoCommit.kt`           | AutoCommit mode utilities                                                                                                             |
+| `WithDBSuspending.kt`         | Coroutines DB connection utilities                                                                                                    |
+| `WithTablesSuspending.kt`     | Coroutines table utilities                                                                                                            |
+| `WithSchemasSuspending.kt`    | Coroutines schema utilities                                                                                                           |
+| `WithAutoCommitSuspending.kt` | Coroutines AutoCommit utilities                                                                                                       |
+| `Assertions.kt`               | Test assertion utilities (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`) |
+| `TestSupports.kt`             | Test support utilities (`inProperCase`, `currentDialectTest`, etc.)                                                                   |
 
 ## Test Run Options
 

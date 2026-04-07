@@ -19,10 +19,10 @@ import java.sql.ResultSet
  *
  * 결과 매핑: SELECT id 컬럼에서 ID를 읽어 EntityClass.findById로 로드합니다.
  */
-class DeclaredExposedQuery<E : Entity<ID>, ID : Any>(
+class DeclaredExposedQuery<E: Entity<ID>, ID: Any>(
     private val queryMethod: ExposedQueryMethod,
     private val entityInformation: ExposedEntityInformation<E, ID>,
-) : RepositoryQuery {
+): RepositoryQuery {
 
     companion object: KLogging()
 
@@ -101,11 +101,11 @@ class DeclaredExposedQuery<E : Entity<ID>, ID : Any>(
             return rawId as ID
         }
         return when (idType) {
-            Long::class.java -> if (rawId is Number) rawId.toLong() as ID else rawId as ID
-            Int::class.java -> if (rawId is Number) rawId.toInt() as ID else rawId as ID
+            Long::class.java  -> if (rawId is Number) rawId.toLong() as ID else rawId as ID
+            Int::class.java   -> if (rawId is Number) rawId.toInt() as ID else rawId as ID
             Short::class.java -> if (rawId is Number) rawId.toShort() as ID else rawId as ID
             String::class.java -> rawId.toString() as ID
-            else -> rawId as ID
+            else              -> rawId as ID
         }
     }
 }

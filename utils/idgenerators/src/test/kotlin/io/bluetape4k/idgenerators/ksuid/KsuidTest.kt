@@ -18,7 +18,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidTest {
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = MAX_SEQUENCE * 4
     }

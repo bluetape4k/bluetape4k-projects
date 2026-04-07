@@ -123,4 +123,4 @@ class TestItem(
     var name: String = "",
 )
 
-interface TestItemRepository : JpaRepository<TestItem, Long>
+interface TestItemRepository: JpaRepository<TestItem, Long>

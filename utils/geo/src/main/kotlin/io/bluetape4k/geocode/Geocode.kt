@@ -49,18 +49,18 @@ data class Geocode(
             )
 
         @JvmStatic
-        /**
-         * 문자열 표현의 위경도를 파싱합니다.
-         *
-         * ## 동작/계약
-         * - [geocode]가 blank면 [IllegalArgumentException]이 발생합니다.
-         * - [delimiter] 기준으로 2개 조각을 분리해 위도/경도로 해석합니다.
-         *
-         * ```kotlin
-         * val geocode = Geocode.parse("37.5665,126.9780")
-         * // geocode.latitude.toDouble() == 37.5665
-         * ```
-         */
+                /**
+                 * 문자열 표현의 위경도를 파싱합니다.
+                 *
+                 * ## 동작/계약
+                 * - [geocode]가 blank면 [IllegalArgumentException]이 발생합니다.
+                 * - [delimiter] 기준으로 2개 조각을 분리해 위도/경도로 해석합니다.
+                 *
+                 * ```kotlin
+                 * val geocode = Geocode.parse("37.5665,126.9780")
+                 * // geocode.latitude.toDouble() == 37.5665
+                 * ```
+                 */
         fun parse(geocode: String, delimiter: String = ","): Geocode {
             geocode.requireNotBlank("geocode")
             val splits = geocode.split(delimiter, ignoreCase = true, limit = 2)

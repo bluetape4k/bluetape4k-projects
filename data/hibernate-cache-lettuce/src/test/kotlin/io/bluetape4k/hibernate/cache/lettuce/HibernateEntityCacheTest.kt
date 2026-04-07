@@ -21,7 +21,7 @@ import java.util.*
  * - evict → reload → DB miss 확인
  * - Hibernate statistics를 통해 캐시 동작 검증
  */
-class HibernateEntityCacheTest : AbstractHibernateNearCacheTest() {
+class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
 
     @BeforeEach
     fun clearCacheAndStats() {

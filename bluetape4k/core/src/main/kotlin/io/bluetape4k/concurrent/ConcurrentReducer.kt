@@ -49,8 +49,8 @@ fun <T> concurrentReducerOf(
 class ConcurrentReducer<T> internal constructor(
     private val maxConcurrency: Int,
     private val maxQueueSize: Int,
-) : Closeable {
-    companion object : KLogging()
+): Closeable {
+    companion object: KLogging()
 
     private val queue: BlockingQueue<Job<T>> = ArrayBlockingQueue(maxQueueSize)
     private val limit: Semaphore = Semaphore(maxConcurrency)
@@ -162,16 +162,16 @@ class ConcurrentReducer<T> internal constructor(
     private data class Job<T>(
         val task: () -> CompletionStage<T>?,
         val promise: CompletableFuture<T>,
-    ) : Serializable {
+    ): Serializable {
         companion object {
             private const val serialVersionUID: Long = 1L
         }
     }
 
-    class CapacityReachedException : BluetapeException {
-        constructor() : super()
-        constructor(message: String) : super(message)
-        constructor(message: String, cause: Throwable) : super(message, cause)
-        constructor(cause: Throwable?) : super(cause = cause)
+    class CapacityReachedException: BluetapeException {
+        constructor(): super()
+        constructor(message: String): super(message)
+        constructor(message: String, cause: Throwable): super(message, cause)
+        constructor(cause: Throwable?): super(cause = cause)
     }
 }

@@ -25,10 +25,12 @@ open class Angle(
 ): Units(suffix, ratio) {
     companion object {
         /** 라디안은 기준 단위입니다. */
-        @JvmField val radians: Angle = Angle("rad")
+        @JvmField
+        val radians: Angle = Angle("rad")
 
         /** 도는 라디안 기준 비율을 사용합니다. */
-        @JvmField val degrees: Angle = object: Angle("°", PI / 180.0) {
+        @JvmField
+        val degrees: Angle = object: Angle("°", PI / 180.0) {
             override val spaceBetweenMagnitude: Boolean = false
         }
 

@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache** demo application.
 
-An example of enabling Hibernate 2nd Level Cache with zero additional code using the auto-configuration from the `bluetape4k-spring-boot4-hibernate-lettuce` module.
+An example of enabling Hibernate 2nd Level Cache with zero additional code using the auto-configuration from the
+`bluetape4k-spring-boot4-hibernate-lettuce` module.
 
 ## UML Diagram
 
@@ -124,13 +125,13 @@ data class Product(
 
 ### Product API (`/api/products`)
 
-| Method   | Path                 | Description           | Cache Behavior         |
-|----------|----------------------|-----------------------|------------------------|
-| `GET`    | `/api/products`      | List all products     | Cache not applied      |
-| `GET`    | `/api/products/{id}` | Get product by ID     | L1/L2 Hit/Miss         |
-| `POST`   | `/api/products`      | Create a product      | Stored in L1 + L2      |
-| `PUT`    | `/api/products/{id}` | Update a product      | L1 + L2 updated        |
-| `DELETE` | `/api/products/{id}` | Delete a product      | Removed from L1 + L2   |
+| Method   | Path                 | Description       | Cache Behavior       |
+|----------|----------------------|-------------------|----------------------|
+| `GET`    | `/api/products`      | List all products | Cache not applied    |
+| `GET`    | `/api/products/{id}` | Get product by ID | L1/L2 Hit/Miss       |
+| `POST`   | `/api/products`      | Create a product  | Stored in L1 + L2    |
+| `PUT`    | `/api/products/{id}` | Update a product  | L1 + L2 updated      |
+| `DELETE` | `/api/products/{id}` | Delete a product  | Removed from L1 + L2 |
 
 #### Example: Get product (cache in action)
 
@@ -201,10 +202,10 @@ curl -X DELETE http://localhost:8080/api/products/1
 
 ### Cache Management API (`/api/cache`)
 
-| Method   | Path                        | Description                         | Action                                 |
-|----------|-----------------------------|-------------------------------------|----------------------------------------|
-| `GET`    | `/api/cache/stats`          | Per-region cache statistics         | Retrieve L1 size, hit/miss counts      |
-| `DELETE` | `/api/cache/evict`          | Evict all region L1 caches          | L1 only (L2 unaffected)               |
+| Method   | Path                        | Description                          | Action                                |
+|----------|-----------------------------|--------------------------------------|---------------------------------------|
+| `GET`    | `/api/cache/stats`          | Per-region cache statistics          | Retrieve L1 size, hit/miss counts     |
+| `DELETE` | `/api/cache/evict`          | Evict all region L1 caches           | L1 only (L2 unaffected)               |
 | `DELETE` | `/api/cache/evict/{region}` | Evict L1 cache for a specific region | That region's L1 only (L2 unaffected) |
 
 #### Example: Retrieve cache statistics

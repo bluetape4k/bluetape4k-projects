@@ -265,10 +265,10 @@ when (result.status) {
 
 - `RateLimiter.consume`, `SuspendRateLimiter.consume`은 모두 `key`와 `numToken`을 먼저 검증합니다.
   `key`는 blank일 수 없고, `numToken`은 `1..MAX_TOKENS_PER_REQUEST` 범위여야 합니다.
-- `DistributedRateLimiter`, `DistributedSuspendRateLimiter`는 `ConsumptionProbe` 한 번으로 소비 여부와 잔여 토큰을 계산합니다.
-  따라서 결과를 만들기 위해 추가 Redis round-trip을 발생시키지 않습니다.
-- `BucketProxyProvider`, `AsyncBucketProxyProvider`는 기본 prefix를 사용해 bucket key를 namespacing 합니다.
-  운영 환경에서 여러 rate limit 정책이 같은 Redis를 공유한다면 prefix를 명시적으로 분리하는 것이 안전합니다.
+- `DistributedRateLimiter`, `DistributedSuspendRateLimiter`는
+  `ConsumptionProbe` 한 번으로 소비 여부와 잔여 토큰을 계산합니다. 따라서 결과를 만들기 위해 추가 Redis round-trip을 발생시키지 않습니다.
+- `BucketProxyProvider`,
+  `AsyncBucketProxyProvider`는 기본 prefix를 사용해 bucket key를 namespacing 합니다. 운영 환경에서 여러 rate limit 정책이 같은 Redis를 공유한다면 prefix를 명시적으로 분리하는 것이 안전합니다.
 - `LocalBucketProvider`, `LocalSuspendBucketProvider`는 같은 key에 대해 동일한 버킷 상태를 재사용합니다.
 - `SuspendLocalBucket.tryConsume(maxWaitTime)`는 대기가 필요하면 코루틴을 `delay`로 일시 중단하고, 취소 시 `CancellationException`을 그대로 전파합니다.
 - `RateLimitResult.error(cause)`는 예외 메시지를 `errorMessage`에 보존해 상위 계층이 로깅/메트릭 태깅에 재사용할 수 있게 합니다.

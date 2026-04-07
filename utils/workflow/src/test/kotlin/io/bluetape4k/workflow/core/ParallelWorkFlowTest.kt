@@ -9,7 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
-class ParallelWorkFlowTest : AbstractWorkflowTest() {
+class ParallelWorkFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `전체 성공 - Success 반환`() {

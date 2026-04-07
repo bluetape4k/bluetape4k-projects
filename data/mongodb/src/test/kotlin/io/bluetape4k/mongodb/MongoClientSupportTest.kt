@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 
-class MongoClientSupportTest : AbstractMongoTest() {
+class MongoClientSupportTest: AbstractMongoTest() {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     @Test
     fun `mongoClient DSL 빌더로 MongoClient 생성`() = runTest(timeout = 30.seconds) {

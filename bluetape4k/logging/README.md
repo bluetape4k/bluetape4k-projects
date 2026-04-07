@@ -330,7 +330,8 @@ suspend fun processOrder(orderId: String) = coroutineScope {
 
 ### 6. KLoggingChannel — Asynchronous Logging (Coroutines Channel)
 
-A channel-based logger for asynchronous log processing in coroutine environments. Uses `MutableSharedFlow` as a buffer to optimize logging throughput.
+A channel-based logger for asynchronous log processing in coroutine environments. Uses
+`MutableSharedFlow` as a buffer to optimize logging throughput.
 
 #### Basic Usage
 

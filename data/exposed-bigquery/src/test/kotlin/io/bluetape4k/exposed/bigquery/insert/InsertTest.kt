@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class InsertTest : AbstractBigQueryTest() {
+class InsertTest: AbstractBigQueryTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private data class EventFixture(
         val eventId: Long,

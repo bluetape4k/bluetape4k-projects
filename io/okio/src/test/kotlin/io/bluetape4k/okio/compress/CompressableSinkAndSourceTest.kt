@@ -15,8 +15,8 @@ import java.io.IOException
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
 
-class CompressableSinkAndSourceTest : AbstractOkioTest() {
-    companion object : KLogging()
+class CompressableSinkAndSourceTest: AbstractOkioTest() {
+    companion object: KLogging()
 
     private fun compressors(): List<Compressor> =
         listOf(
@@ -168,7 +168,7 @@ class CompressableSinkAndSourceTest : AbstractOkioTest() {
     @MethodSource("compressors")
     fun `decompressable source throws when delegate repeatedly makes no progress`(compressor: Compressor) {
         val noProgressSource =
-            object : okio.Source {
+            object: okio.Source {
                 override fun read(
                     sink: Buffer,
                     byteCount: Long,

@@ -18,29 +18,29 @@ import org.junit.jupiter.api.assertThrows
  */
 class AppointmentExampleTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     sealed class AppointmentState(val stateName: String) {
-        data object PENDING : AppointmentState("PENDING")
-        data object REQUESTED : AppointmentState("REQUESTED")
-        data object CONFIRMED : AppointmentState("CONFIRMED")
-        data object CHECKED_IN : AppointmentState("CHECKED_IN")
-        data object IN_PROGRESS : AppointmentState("IN_PROGRESS")
-        data object COMPLETED : AppointmentState("COMPLETED")
-        data object CANCELLED : AppointmentState("CANCELLED")
-        data object NO_SHOW : AppointmentState("NO_SHOW")
+        data object PENDING: AppointmentState("PENDING")
+        data object REQUESTED: AppointmentState("REQUESTED")
+        data object CONFIRMED: AppointmentState("CONFIRMED")
+        data object CHECKED_IN: AppointmentState("CHECKED_IN")
+        data object IN_PROGRESS: AppointmentState("IN_PROGRESS")
+        data object COMPLETED: AppointmentState("COMPLETED")
+        data object CANCELLED: AppointmentState("CANCELLED")
+        data object NO_SHOW: AppointmentState("NO_SHOW")
 
         override fun toString(): String = stateName
     }
 
     sealed class AppointmentEvent {
-        data object Request : AppointmentEvent()
-        data object Confirm : AppointmentEvent()
-        data object CheckIn : AppointmentEvent()
-        data object StartTreatment : AppointmentEvent()
-        data object Complete : AppointmentEvent()
-        data class Cancel(val reason: String = "") : AppointmentEvent()
-        data object MarkNoShow : AppointmentEvent()
+        data object Request: AppointmentEvent()
+        data object Confirm: AppointmentEvent()
+        data object CheckIn: AppointmentEvent()
+        data object StartTreatment: AppointmentEvent()
+        data object Complete: AppointmentEvent()
+        data class Cancel(val reason: String = ""): AppointmentEvent()
+        data object MarkNoShow: AppointmentEvent()
 
         override fun toString(): String = this::class.simpleName ?: "Unknown"
     }

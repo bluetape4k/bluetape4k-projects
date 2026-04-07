@@ -11,63 +11,75 @@ Proj4J 기반 좌표계 변환, GeoTools Shapefile 파싱, JTS 공간 기하학 
 ### 좌표 기본 타입 (coords 패키지)
 
 **GeoLocation** — WGS84 위경도 좌표
+
 - 위도: -90~90, 경도: -180~180
 - Haversine 공식 거리 계산
 - 사전 정의된 지점: `SEOUL`, `NEW_YORK`, `TOKYO` 등
 
 **BoundingBox** — 사각형 경계 영역
+
 - 좌표 포함 여부 판정
 - 교집합/합집합 계산
 - 중심점, 너비, 높이 계산
 
 **DM / DMS** — 도분 / 도분초 표기법
+
 - `37°33'59.4"N` 형식 파싱
 - GeoLocation 상호 변환
 
 **UtmZone** — UTM 좌표계
+
 - 위경도 → 해당 Zone 자동 판정 (`utmZoneOf()`)
 - Easting/Northing 변환
 
 **Vector** — 2D/3D 벡터 연산
 
 **CoordConverters** — 좌표 변환 유틸리티
+
 - 십진도 ↔ DM/DMS 변환
 - 좌표 정규화
 
 ### 좌표 변환 및 투영 (projection 패키지)
 
 **Projections** — Proj4J 기반 변환
+
 - `wgs84ToUtm()` — WGS84 → UTM
 - `utmToWgs84()` — UTM → WGS84
 - `transform()` — EPSG 코드 간 임의의 좌표 변환
 
 **CrsRegistry** — CRS 레지스트리
+
 - EPSG 코드 및 Proj4 문자열 지원
 - 인스턴스 캐싱으로 성능 최적화
 
 ### Shapefile 읽기 (shapefile 패키지)
 
 **ShapefileReader / loadShape()** — 동기 Shapefile 읽기
+
 - `.shp`, `.shx`, `.dbf` 파일 자동 처리
 - 도형(Geometry) + 속성(Attributes) 통합 반환
 - UTF-8 및 커스텀 charset 지원
 
 **loadShapeAsync()** — 비동기 읽기
+
 - Coroutines 기반, `Dispatchers.IO` 사용
 - 대용량 파일 처리에 최적화
 
 **ShapeModels** — 타입 안전 모델
+
 - `Shape`: 파일 메타데이터
 - `ShapeRecord`: 도형 + 속성
 - `ShapeHeader`: 파일 헤더 정보
 - 공개 API에 GeoTools 타입 노출 안 함
 
 **지원 기하학 타입**
+
 - Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
 
 ### 공간 기하학 연산 (geometry 패키지)
 
 **GeometryOperations** — JTS 기반 연산
+
 - 교집합, 합집합, 차집합
 - 버퍼(Buffer) 영역 생성 (지정 거리)
 - 거리 계산
@@ -76,6 +88,7 @@ Proj4J 기반 좌표계 변환, GeoTools Shapefile 파싱, JTS 공간 기하학 
 - 포함 여부 판정
 
 **PolygonExtensions** — 다각형 확장
+
 - 면적 계산
 - 둘레 계산
 
@@ -160,20 +173,24 @@ classDiagram
 ```
 
 **Schema** — Exposed 테이블 정의
+
 - `SpatialLayerTable` / `SpatialFeatureTable` — 공간 데이터 저장
 - `PoiTable` — 관심 지점(Point of Interest)
 - `NetCdfFileTable` / `NetCdfGridValueTable` — NetCDF 메타데이터 (Phase 4)
 
 **Models** — Serializable 데이터 클래스
+
 - `SpatialLayerRecord` / `SpatialFeatureRecord` — 공간 데이터
 - `NetCdfVariableInfo`, `NetCdfDimensionInfo`, `NetCdfFileRecord` — NetCDF (Phase 4)
 
 **Repository** — JDBC 저장소
+
 - `SpatialLayerRepository` — 레이어 관리
 - `SpatialFeatureRepository` — 피처 CRUD 및 공간 검색
 - `NetCdfRepository` — NetCDF 카탈로그 (Phase 4)
 
 **Service** — 비즈니스 로직
+
 - `ShapefileImportService.importShapefile()` — Virtual Thread 기반 배치 임포트
 - `NetCdfCatalogService` — NetCDF 파일 등록 (Phase 4)
 
@@ -341,10 +358,11 @@ dependencies {
 - **컴파일만**: Shapefile 타입 체크 시 필요
 - **런타임 불필요**: 배포 시 GeoTools 포함되지 않음
 - **재배포 시**: GeoTools를 포함하려면 LGPL 준수 필요
-  - 소스 공개 또는
-  - 동적 링킹(Dynamic Linking) 사용
+    - 소스 공개 또는
+    - 동적 링킹(Dynamic Linking) 사용
 
 **권장**:
+
 1. 내부 시스템: 제약 없음
 2. 외부 배포: 클라이언트에서 GeoTools 관리
 3. 포함 배포: LGPL 준수 문서 포함
@@ -778,18 +796,22 @@ class SpatialImportTest {
 ## 성능 최적화
 
 ### 좌표 변환
+
 - **CRS 캐싱**: `CrsRegistry`는 EPSG 코드별 CRS 인스턴스를 캐시하여 반복 변환 시 성능 향상
 
 ### Shapefile 처리
+
 - **비동기 I/O**: `loadShapeAsync()` 사용 시 대용량 파일을 Dispatchers.IO에서 논블로킹 처리
 - **스트림 처리**: 메모리 효율적인 레코드 순회 가능
 
 ### 데이터베이스
+
 - **공간 인덱스**: PostGIS GIST/BRIN 인덱스 자동 생성으로 범위 검색 가속화
 - **배치 적재**: Virtual Thread 기반 배치 처리로 네트워크 지연 최소화
 - **연결 풀링**: Exposed JDBC 기본 풀 사용
 
 ### JTS 도형
+
 - **단순화**: Douglas-Peucker 알고리즘으로 복잡한 도형 경량화
 - **버퍼 정밀도**: 용도별 tolerance 조정으로 계산 비용 제어
 
@@ -798,62 +820,63 @@ class SpatialImportTest {
 현재 `NetCdfRepository`, `NetCdfTables`, `NetCdfCatalogService` 클래스는 존재하나 미구현입니다.
 
 **요구사항**:
+
 - `edu.ucar:netcdfAll` (Unidata Maven 저장소)
 - 시간 차원 분석 및 변수 메타데이터 캐싱
 
 ## 관련 모듈
 
-| 모듈 | 용도 |
-|------|------|
-| `bluetape4k-core` | 기본 유틸리티 (압축, 암호화, 어설션) |
-| `bluetape4k-coroutines` | 코루틴 확장 (DeferredValue, Flow) |
-| `bluetape4k-exposed-postgresql` | PostGIS 컬럼 타입 |
-| `bluetape4k-exposed-jdbc` | Exposed JDBC 저장소 |
-| `bluetape4k-spring-boot3-exposed-jdbc-demo` | Spring MVC + Exposed 데모 |
-| `bluetape4k-spring-boot3-exposed-r2dbc-demo` | Spring WebFlux + R2DBC 데모 |
+| 모듈                                           | 용도                           |
+|----------------------------------------------|------------------------------|
+| `bluetape4k-core`                            | 기본 유틸리티 (압축, 암호화, 어설션)       |
+| `bluetape4k-coroutines`                      | 코루틴 확장 (DeferredValue, Flow) |
+| `bluetape4k-exposed-postgresql`              | PostGIS 컬럼 타입                |
+| `bluetape4k-exposed-jdbc`                    | Exposed JDBC 저장소             |
+| `bluetape4k-spring-boot3-exposed-jdbc-demo`  | Spring MVC + Exposed 데모      |
+| `bluetape4k-spring-boot3-exposed-r2dbc-demo` | Spring WebFlux + R2DBC 데모    |
 
 ## API 요약
 
 ### coords
 
-| 클래스/함수 | 설명 |
-|-----------|------|
-| `GeoLocation(lat, lon)` | WGS84 좌표 |
-| `BoundingBox(minLat, maxLat, minLon, maxLon)` | 사각형 경계 |
-| `DMS.parse(str)` / `DM.parse(str)` | 도분초/도분 파싱 |
-| `UtmZone(zone, hemisphere)` | UTM Zone |
-| `utmZoneOf(lat, lon)` | 좌표 → Zone 판정 |
-| `Vector(x, y, z?)` | 2D/3D 벡터 |
+| 클래스/함수                                        | 설명           |
+|-----------------------------------------------|--------------|
+| `GeoLocation(lat, lon)`                       | WGS84 좌표     |
+| `BoundingBox(minLat, maxLat, minLon, maxLon)` | 사각형 경계       |
+| `DMS.parse(str)` / `DM.parse(str)`            | 도분초/도분 파싱    |
+| `UtmZone(zone, hemisphere)`                   | UTM Zone     |
+| `utmZoneOf(lat, lon)`                         | 좌표 → Zone 판정 |
+| `Vector(x, y, z?)`                            | 2D/3D 벡터     |
 
 ### projection
 
-| 함수 | 설명 |
-|------|------|
-| `wgs84ToUtm(geoLocation)` | WGS84 → UTM |
-| `utmToWgs84(e, n, zone)` | UTM → WGS84 |
-| `transform(x, y, srcEpsg, tgtEpsg)` | EPSG 간 변환 |
+| 함수                                  | 설명          |
+|-------------------------------------|-------------|
+| `wgs84ToUtm(geoLocation)`           | WGS84 → UTM |
+| `utmToWgs84(e, n, zone)`            | UTM → WGS84 |
+| `transform(x, y, srcEpsg, tgtEpsg)` | EPSG 간 변환   |
 
 ### shapefile
 
-| 함수 | 설명 |
-|------|------|
-| `loadShape(file, charset?)` | Shapefile 동기 읽기 |
+| 함수                               | 설명               |
+|----------------------------------|------------------|
+| `loadShape(file, charset?)`      | Shapefile 동기 읽기  |
 | `loadShapeAsync(file, charset?)` | Shapefile 비동기 읽기 |
 
 ### geometry
 
-| 함수 | 설명 |
-|------|------|
-| `GeometryOperations.intersection()` | 교집합 |
-| `GeometryOperations.union()` | 합집합 |
-| `GeometryOperations.buffer()` | 버퍼 생성 |
-| `GeometryOperations.simplify()` | Douglas-Peucker 단순화 |
-| `GeometryOperations.distance()` | 거리 계산 |
+| 함수                                  | 설명                  |
+|-------------------------------------|---------------------|
+| `GeometryOperations.intersection()` | 교집합                 |
+| `GeometryOperations.union()`        | 합집합                 |
+| `GeometryOperations.buffer()`       | 버퍼 생성               |
+| `GeometryOperations.simplify()`     | Douglas-Peucker 단순화 |
+| `GeometryOperations.distance()`     | 거리 계산               |
 
 ### exposed
 
-| 클래스 | 설명 |
-|--------|------|
-| `SpatialFeatureRepository` | 피처 CRUD/검색 |
-| `SpatialLayerRepository` | 레이어 관리 |
-| `ShapefileImportService` | Virtual Thread 배치 임포트 |
+| 클래스                        | 설명                    |
+|----------------------------|-----------------------|
+| `SpatialFeatureRepository` | 피처 CRUD/검색            |
+| `SpatialLayerRepository`   | 레이어 관리                |
+| `ShapefileImportService`   | Virtual Thread 배치 임포트 |

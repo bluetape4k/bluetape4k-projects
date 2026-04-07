@@ -20,11 +20,11 @@ import org.junit.jupiter.params.provider.MethodSource
  * - 캐시 미스 시 DB에서 로드 후 캐시에 적재
  * - 캐시 삭제(invalidate) 시 DB에는 영향 없음 (ReadOnly 모드)
  */
-interface SuspendedReadThroughScenario<ID : Any, E : java.io.Serializable> :
+interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>:
     SuspendedJdbcReadThroughScenario<ID, E>,
     SuspendedCacheTestScenario<ID, E> {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     /** getNonExistentId()에 해당하는 엔티티를 생성해 반환한다 (DB에는 저장하지 않음) */
     suspend fun buildEntityForId(id: ID): E

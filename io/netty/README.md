@@ -6,7 +6,8 @@ Extension functions for working with the Netty framework.
 
 ## Overview
 
-`bluetape4k-netty` provides various extension functions and utilities for using the [Netty](https://netty.io/) framework more conveniently in Kotlin. It is particularly rich in API for `ByteBuf` manipulation.
+`bluetape4k-netty` provides various extension functions and utilities for using the [Netty](https://netty.io/) framework more conveniently in Kotlin. It is particularly rich in API for
+`ByteBuf` manipulation.
 
 ### Key Features
 
@@ -141,11 +142,11 @@ val count = buf.refCnt()
 
 Smart encoding is a variable-length encoding that optimizes byte count based on the magnitude of the value.
 
-| Value Range | Encoded Size |
-|-------------|--------------|
-| Small values | 1 byte |
-| Medium values | 2 bytes |
-| Large values | 4 bytes |
+| Value Range   | Encoded Size |
+|---------------|--------------|
+| Small values  | 1 byte       |
+| Medium values | 2 bytes      |
+| Large values  | 4 bytes      |
 
 ```kotlin
 // Small value: 1 byte
@@ -162,27 +163,27 @@ buf.writeUIntSmart(100000) // 4 bytes
 
 ### Buffer (buffer/)
 
-| File | Description |
-|------|-------------|
-| `ByteBufExtensions.kt` | ByteBuf extension functions (read/write) |
-| `ByteBufUtilSupport.kt` | ByteBufUtil extensions |
-| `BitBuf.kt`, `BitBufImpl.kt` | Bit-level buffer |
-| `Smart.kt`, `USmart.kt` | Smart encoding constants |
-| `Medium.kt`, `UMedium.kt` | 24-bit Medium type |
-| `SmallLong.kt`, `USmallLong.kt` | 48-bit SmallLong type |
+| File                            | Description                              |
+|---------------------------------|------------------------------------------|
+| `ByteBufExtensions.kt`          | ByteBuf extension functions (read/write) |
+| `ByteBufUtilSupport.kt`         | ByteBufUtil extensions                   |
+| `BitBuf.kt`, `BitBufImpl.kt`    | Bit-level buffer                         |
+| `Smart.kt`, `USmart.kt`         | Smart encoding constants                 |
+| `Medium.kt`, `UMedium.kt`       | 24-bit Medium type                       |
+| `SmallLong.kt`, `USmallLong.kt` | 48-bit SmallLong type                    |
 
 ### Util (util/)
 
-| File | Description |
-|------|-------------|
+| File                         | Description                 |
+|------------------------------|-----------------------------|
 | `ReferenceCountedSupport.kt` | ReferenceCounted extensions |
-| `ThrowableUtilSupport.kt` | Throwable utilities |
-| `StringUtilSupport.kt` | String utilities |
+| `ThrowableUtilSupport.kt`    | Throwable utilities         |
+| `StringUtilSupport.kt`       | String utilities            |
 
 ### Transport
 
-| File | Description |
-|------|-------------|
+| File                       | Description             |
+|----------------------------|-------------------------|
 | `NettyTransportSupport.kt` | Netty transport support |
 
 ## Architecture Diagrams

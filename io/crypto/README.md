@@ -104,26 +104,26 @@ val decrypted = decryptCipher.decrypt(encrypted)
 
 ### Digest Algorithms
 
-| Algorithm | Hash Size | Security Level | Recommended Use |
-|-----------|-----------|---------------|-----------------|
-| SHA-256 | 256-bit | High | General-purpose (recommended) |
-| SHA-384 | 384-bit | High | High-security requirements |
-| SHA-512 | 512-bit | High | Maximum security |
-| KECCAK-256 | 256-bit | High | Blockchain, SHA-3 compatible |
-| KECCAK-384 | 384-bit | High | SHA-3 compatible |
-| KECCAK-512 | 512-bit | High | SHA-3 compatible |
-| SHA-1 | 160-bit | Low | Legacy compatibility only |
-| MD5 | 128-bit | Low | Checksums (non-security) |
+| Algorithm  | Hash Size | Security Level | Recommended Use               |
+|------------|-----------|----------------|-------------------------------|
+| SHA-256    | 256-bit   | High           | General-purpose (recommended) |
+| SHA-384    | 384-bit   | High           | High-security requirements    |
+| SHA-512    | 512-bit   | High           | Maximum security              |
+| KECCAK-256 | 256-bit   | High           | Blockchain, SHA-3 compatible  |
+| KECCAK-384 | 384-bit   | High           | SHA-3 compatible              |
+| KECCAK-512 | 512-bit   | High           | SHA-3 compatible              |
+| SHA-1      | 160-bit   | Low            | Legacy compatibility only     |
+| MD5        | 128-bit   | Low            | Checksums (non-security)      |
 
 ### Encryption Algorithms
 
-| Algorithm | PBE Algorithm | Security Level | Recommended Use |
-|-----------|--------------|---------------|-----------------|
-| AES | PBEWITHHMACSHA256ANDAES_256 | High | General-purpose (recommended) |
-| TripleDES | PBEWithMD5AndTripleDES | Moderate | Legacy compatibility |
-| DES | PBEWITHMD5ANDDES | Low | Legacy compatibility only |
-| RC2 | PBEWITHSHA1ANDRC2_128 | Low | Legacy compatibility only |
-| RC4 | PBEWITHSHA1ANDRC4_128 | Low | Legacy compatibility only |
+| Algorithm | PBE Algorithm               | Security Level | Recommended Use               |
+|-----------|-----------------------------|----------------|-------------------------------|
+| AES       | PBEWITHHMACSHA256ANDAES_256 | High           | General-purpose (recommended) |
+| TripleDES | PBEWithMD5AndTripleDES      | Moderate       | Legacy compatibility          |
+| DES       | PBEWITHMD5ANDDES            | Low            | Legacy compatibility only     |
+| RC2       | PBEWITHSHA1ANDRC2_128       | Low            | Legacy compatibility only     |
+| RC4       | PBEWITHSHA1ANDRC4_128       | Low            | Legacy compatibility only     |
 
 ## Thread Safety
 

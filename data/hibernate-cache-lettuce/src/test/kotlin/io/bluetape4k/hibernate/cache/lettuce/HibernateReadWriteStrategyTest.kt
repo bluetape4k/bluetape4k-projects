@@ -14,7 +14,7 @@ import java.util.*
 /**
  * READ_WRITE CacheConcurrencyStrategy 테스트.
  */
-class HibernateReadWriteStrategyTest : AbstractHibernateNearCacheTest() {
+class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
     @BeforeEach
     fun reset() {
         sessionFactory.cache.evictAllRegions()

@@ -22,8 +22,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-class ULIDFactoryTest : AbstractULIDTest() {
-    companion object : KLogging()
+class ULIDFactoryTest: AbstractULIDTest() {
+    companion object: KLogging()
 
     @Nested
     inner class RandomULID {

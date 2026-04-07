@@ -26,7 +26,7 @@ import java.util.*
     ReplaceWith("UuidGenerator(Uuid.V6)"),
     DeprecationLevel.WARNING
 )
-class TimebasedUuidGenerator : IdGenerator<UUID> {
+class TimebasedUuidGenerator: IdGenerator<UUID> {
     private val generator: TimeBasedReorderedGenerator by lazy {
         Generators.timeBasedReorderedGenerator()
     }

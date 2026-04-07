@@ -12,8 +12,8 @@ import org.junit.jupiter.params.provider.ValueSource
 /**
  * [CodecFactorySupport]에 정의된 코덱 팩토리 상수 및 [codecFactoryOf] 함수를 검증합니다.
  */
-class CodecFactorySupportTest : AbstractAvroTest() {
-    companion object : KLogging()
+class CodecFactorySupportTest: AbstractAvroTest() {
+    companion object: KLogging()
 
     @Test
     fun `기본 코덱 팩토리 인스턴스가 정상 생성된다`() {

@@ -19,11 +19,20 @@ open class Volume(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val cubicMillimeters: Volume = Volume("mm^3", 1.0e-9)
-        @JvmField val cubicCentimeters: Volume = Volume("cm^3", 1.0e-6)
-        @JvmField val milliliters: Volume = Volume("mL", 1.0e-6)
-        @JvmField val liters: Volume = Volume("L", 1.0e-3)
-        @JvmField val cubicMeters: Volume = Volume("m^3")
+        @JvmField
+        val cubicMillimeters: Volume = Volume("mm^3", 1.0e-9)
+
+        @JvmField
+        val cubicCentimeters: Volume = Volume("cm^3", 1.0e-6)
+
+        @JvmField
+        val milliliters: Volume = Volume("mL", 1.0e-6)
+
+        @JvmField
+        val liters: Volume = Volume("L", 1.0e-3)
+
+        @JvmField
+        val cubicMeters: Volume = Volume("m^3")
     }
 }
 

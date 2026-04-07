@@ -4,8 +4,7 @@ English | [한국어](./README.ko.md)
 
 ## Overview
 
-A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations.
-It uses the [JavaMoney Moneta](https://javamoney.github.io/ri.html) implementation for currency units, money calculations, and exchange-rate conversion.
+A library built on the Java standard Money API (JSR-354) to simplify financial and currency operations. It uses the [JavaMoney Moneta](https://javamoney.github.io/ri.html) implementation for currency units, money calculations, and exchange-rate conversion.
 
 ## Adding the Dependency
 
@@ -215,24 +214,24 @@ USD.isCurrencyConversionAvailable    // true
 
 ## Main Files
 
-| File | Description |
-|---|---|
-| `CurrencySupport.kt` | create and cache currency units (KRW, USD, EUR, CNY, JPY) |
-| `MoneySupport.kt` | extensions for creating `Money` instances |
-| `FastMoneySupport.kt` | extensions for creating `FastMoney` instances |
-| `MoneyAmountSupport.kt` | arithmetic operators, value extraction, rounding, conversion, and aggregation extensions |
-| `CurrencyConverter.kt` | currency converter using ECB and IMF data |
-| `CurrencyConversionSupport.kt` | extensions for checking whether conversion is available |
+| File                           | Description                                                                              |
+|--------------------------------|------------------------------------------------------------------------------------------|
+| `CurrencySupport.kt`           | create and cache currency units (KRW, USD, EUR, CNY, JPY)                                |
+| `MoneySupport.kt`              | extensions for creating `Money` instances                                                |
+| `FastMoneySupport.kt`          | extensions for creating `FastMoney` instances                                            |
+| `MoneyAmountSupport.kt`        | arithmetic operators, value extraction, rounding, conversion, and aggregation extensions |
+| `CurrencyConverter.kt`         | currency converter using ECB and IMF data                                                |
+| `CurrencyConversionSupport.kt` | extensions for checking whether conversion is available                                  |
 
 ## `Money` vs `FastMoney`
 
-| Feature | Money | FastMoney |
-|---|---|---|
-| Internal type | BigDecimal | Long |
-| Precision | unlimited | up to 5 decimal places |
-| Performance | moderate | very fast |
-| Exchange conversion | accurate | may lose precision |
-| Recommended use | financial calculations, high precision | high-volume operations, performance-sensitive paths |
+| Feature             | Money                                  | FastMoney                                           |
+|---------------------|----------------------------------------|-----------------------------------------------------|
+| Internal type       | BigDecimal                             | Long                                                |
+| Precision           | unlimited                              | up to 5 decimal places                              |
+| Performance         | moderate                               | very fast                                           |
+| Exchange conversion | accurate                               | may lose precision                                  |
+| Recommended use     | financial calculations, high precision | high-volume operations, performance-sensitive paths |
 
 ## Class Diagram
 

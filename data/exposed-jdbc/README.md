@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-Provides the Repository pattern, transaction extensions, and query utilities for the JetBrains Exposed JDBC layer. Built on top of `bluetape4k-exposed-core` and `bluetape4k-exposed-dao`, it delivers JDBC-specific features.
+Provides the Repository pattern, transaction extensions, and query utilities for the JetBrains Exposed JDBC layer. Built on top of
+`bluetape4k-exposed-core` and `bluetape4k-exposed-dao`, it delivers JDBC-specific features.
 
 ## Overview
 
@@ -203,44 +204,44 @@ transaction {
 
 ## JdbcRepository Key Methods
 
-| Method                                  | Description                               |
-|-----------------------------------------|-------------------------------------------|
-| `count()`                               | Total record count                        |
-| `countBy(predicate)`                    | Count matching records                    |
-| `existsById(id)`                        | Check existence by ID                     |
-| `existsBy(predicate)`                   | Check existence by condition              |
-| `findById(id)`                          | Find by ID (throws if not found)          |
-| `findByIdOrNull(id)`                    | Find by ID (returns null if not found)    |
-| `findAll(limit, offset, ...)`           | Find all (supports paging and sorting)    |
-| `findWithFilters(...)`                  | Find with multiple AND conditions         |
-| `findBy(...)`                           | Alias for `findWithFilters`               |
-| `findFirstOrNull(...)`                  | First matching entity                     |
-| `findLastOrNull(...)`                   | Last matching entity                      |
-| `findByField(field, value)`             | Find by a specific column value           |
-| `findAllByIds(ids)`                     | Find multiple entities by IDs             |
-| `findPage(pageNumber, pageSize, ...)`   | Paginated query                           |
-| `deleteById(id)`                        | Delete by ID                              |
-| `deleteByIdIgnore(id)`                  | Delete by ID (ignore exceptions)          |
-| `deleteAll(op)`                         | Delete matching records                   |
-| `deleteAllByIds(ids)`                   | Delete multiple records by IDs            |
-| `updateById(id, ...)`                   | Update by ID                              |
-| `updateAll(predicate, ...)`             | Bulk update matching records              |
-| `batchInsert(entities, ...)`            | Batch insert                              |
-| `batchUpsert(entities, ...)`            | Batch upsert                              |
+| Method                                | Description                            |
+|---------------------------------------|----------------------------------------|
+| `count()`                             | Total record count                     |
+| `countBy(predicate)`                  | Count matching records                 |
+| `existsById(id)`                      | Check existence by ID                  |
+| `existsBy(predicate)`                 | Check existence by condition           |
+| `findById(id)`                        | Find by ID (throws if not found)       |
+| `findByIdOrNull(id)`                  | Find by ID (returns null if not found) |
+| `findAll(limit, offset, ...)`         | Find all (supports paging and sorting) |
+| `findWithFilters(...)`                | Find with multiple AND conditions      |
+| `findBy(...)`                         | Alias for `findWithFilters`            |
+| `findFirstOrNull(...)`                | First matching entity                  |
+| `findLastOrNull(...)`                 | Last matching entity                   |
+| `findByField(field, value)`           | Find by a specific column value        |
+| `findAllByIds(ids)`                   | Find multiple entities by IDs          |
+| `findPage(pageNumber, pageSize, ...)` | Paginated query                        |
+| `deleteById(id)`                      | Delete by ID                           |
+| `deleteByIdIgnore(id)`                | Delete by ID (ignore exceptions)       |
+| `deleteAll(op)`                       | Delete matching records                |
+| `deleteAllByIds(ids)`                 | Delete multiple records by IDs         |
+| `updateById(id, ...)`                 | Update by ID                           |
+| `updateAll(predicate, ...)`           | Bulk update matching records           |
+| `batchInsert(entities, ...)`          | Batch insert                           |
+| `batchUpsert(entities, ...)`          | Batch upsert                           |
 
 ## SoftDeletedJdbcRepository Additional Methods
 
-| Method                                          | Description                                        |
-|-------------------------------------------------|----------------------------------------------------|
-| `softDeleteById(id)`                            | Soft delete by ID (`isDeleted=true`)               |
-| `restoreById(id)`                               | Restore a soft-deleted record by ID                |
-| `countActive(predicate)`                        | Count active records                               |
-| `countDeleted(predicate)`                       | Count deleted records                              |
-| `findActive(limit, offset, ...)`                | Find only active records                           |
-| `findDeleted(limit, offset, ...)`               | Find only deleted records                          |
-| `softDeleteAll(predicate)`                      | Bulk soft delete matching records                  |
-| `restoreAll(predicate)`                         | Bulk restore matching records                      |
-| `findActivePage(pageNumber, pageSize, ...)`     | Paginated query of active records                  |
+| Method                                      | Description                          |
+|---------------------------------------------|--------------------------------------|
+| `softDeleteById(id)`                        | Soft delete by ID (`isDeleted=true`) |
+| `restoreById(id)`                           | Restore a soft-deleted record by ID  |
+| `countActive(predicate)`                    | Count active records                 |
+| `countDeleted(predicate)`                   | Count deleted records                |
+| `findActive(limit, offset, ...)`            | Find only active records             |
+| `findDeleted(limit, offset, ...)`           | Find only deleted records            |
+| `softDeleteAll(predicate)`                  | Bulk soft delete matching records    |
+| `restoreAll(predicate)`                     | Bulk restore matching records        |
+| `findActivePage(pageNumber, pageSize, ...)` | Paginated query of active records    |
 
 ## AuditableJdbcRepository (Audit Tracking Repository)
 
@@ -285,7 +286,8 @@ class ArticleRepository : LongAuditableJdbcRepository<ArticleRecord, ArticleTabl
 
 ### auditedUpdateById — Update by ID
 
-On UPDATE, automatically sets `updatedAt` to DB `CURRENT_TIMESTAMP` (UTC) and `updatedBy` to `UserContext.getCurrentUser()`.
+On UPDATE, automatically sets `updatedAt` to DB `CURRENT_TIMESTAMP` (UTC) and `updatedBy` to
+`UserContext.getCurrentUser()`.
 
 ```kotlin
 import io.bluetape4k.exposed.core.auditable.UserContext
@@ -369,26 +371,26 @@ transaction {
 
 ### Convenience type aliases
 
-| Interface                      | Primary key type   |
-|--------------------------------|--------------------|
-| `IntAuditableJdbcRepository`   | `Int`              |
-| `LongAuditableJdbcRepository`  | `Long`             |
-| `UUIDAuditableJdbcRepository`  | `java.util.UUID`   |
+| Interface                     | Primary key type |
+|-------------------------------|------------------|
+| `IntAuditableJdbcRepository`  | `Int`            |
+| `LongAuditableJdbcRepository` | `Long`           |
+| `UUIDAuditableJdbcRepository` | `java.util.UUID` |
 
 ## Convenience Type Aliases (Standard Repository)
 
-| Interface                           | Primary key type      |
-|-------------------------------------|-----------------------|
-| `IntJdbcRepository`                 | `Int`                 |
-| `LongJdbcRepository`                | `Long`                |
-| `UuidJdbcRepository`                | `kotlin.uuid.Uuid`    |
-| `UUIDJdbcRepository`                | `java.util.UUID`      |
-| `StringJdbcRepository`              | `String`              |
-| `IntSoftDeletedJdbcRepository`      | `Int`                 |
-| `LongSoftDeletedJdbcRepository`     | `Long`                |
-| `UuidSoftDeletedJdbcRepository`     | `kotlin.uuid.Uuid`    |
-| `UUIDSoftDeletedJdbcRepository`     | `java.util.UUID`      |
-| `StringSoftDeletedJdbcRepository`   | `String`              |
+| Interface                         | Primary key type   |
+|-----------------------------------|--------------------|
+| `IntJdbcRepository`               | `Int`              |
+| `LongJdbcRepository`              | `Long`             |
+| `UuidJdbcRepository`              | `kotlin.uuid.Uuid` |
+| `UUIDJdbcRepository`              | `java.util.UUID`   |
+| `StringJdbcRepository`            | `String`           |
+| `IntSoftDeletedJdbcRepository`    | `Int`              |
+| `LongSoftDeletedJdbcRepository`   | `Long`             |
+| `UuidSoftDeletedJdbcRepository`   | `kotlin.uuid.Uuid` |
+| `UUIDSoftDeletedJdbcRepository`   | `java.util.UUID`   |
+| `StringSoftDeletedJdbcRepository` | `String`           |
 
 ## Class Diagrams
 
@@ -593,17 +595,17 @@ sequenceDiagram
 
 ## Key Files and Classes
 
-| File                                                         | Description                                   |
-|--------------------------------------------------------------|-----------------------------------------------|
-| `jdbc/repository/JdbcRepository.kt`                         | JDBC Repository base interface                |
-| `jdbc/repository/SoftDeletedJdbcRepository.kt`              | Soft Delete Repository                        |
-| `repository/ExposedRepository.kt`                           | (Deprecated) Legacy Repository interface      |
-| `core/SuspendedQuery.kt`                                     | Cursor-based batch Flow query                 |
-| `jdbc/transactions/VirtualThreadJdbcTransaction.kt`         | Virtual Thread-based JDBC transaction         |
-| `core/transactions/VirtualThreadTransaction.kt`             | (Deprecated) Legacy Virtual Thread transaction |
-| `core/ImplicitSelectAll.kt`                                  | Implicit `SELECT *` query                     |
-| `core/TableExtensions.kt`                                    | Table metadata extension functions            |
-| `core/SchemaUtilsExtensions.kt`                              | SchemaUtils extension functions               |
+| File                                                | Description                                    |
+|-----------------------------------------------------|------------------------------------------------|
+| `jdbc/repository/JdbcRepository.kt`                 | JDBC Repository base interface                 |
+| `jdbc/repository/SoftDeletedJdbcRepository.kt`      | Soft Delete Repository                         |
+| `repository/ExposedRepository.kt`                   | (Deprecated) Legacy Repository interface       |
+| `core/SuspendedQuery.kt`                            | Cursor-based batch Flow query                  |
+| `jdbc/transactions/VirtualThreadJdbcTransaction.kt` | Virtual Thread-based JDBC transaction          |
+| `core/transactions/VirtualThreadTransaction.kt`     | (Deprecated) Legacy Virtual Thread transaction |
+| `core/ImplicitSelectAll.kt`                         | Implicit `SELECT *` query                      |
+| `core/TableExtensions.kt`                           | Table metadata extension functions             |
+| `core/SchemaUtilsExtensions.kt`                     | SchemaUtils extension functions                |
 
 ## Testing
 

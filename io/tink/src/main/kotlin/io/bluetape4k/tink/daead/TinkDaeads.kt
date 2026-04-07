@@ -20,7 +20,7 @@ import io.bluetape4k.tink.registerTink
  * // pt == "검색 가능한 필드"
  * ```
  */
-object TinkDaeads : KLogging() {
+object TinkDaeads: KLogging() {
 
     init {
         registerTink()

@@ -8,7 +8,7 @@ import io.bluetape4k.junit5.faker.Fakers
  *
  * Redisson [org.redisson.api.RLocalCachedMap] 기반 [NearCacheOperations] 구현체를 검증합니다.
  */
-class RedissonNearCacheTest : AbstractNearCacheOperationsTest<String>() {
+class RedissonNearCacheTest: AbstractNearCacheOperationsTest<String>() {
     private val cacheName get() = "redisson-near-cache-test-${Fakers.randomString(6, 8)}"
 
     override fun createCache(): NearCacheOperations<String> =

@@ -15,10 +15,13 @@ package io.bluetape4k.junit5.tempfolder
 open class TempFolderException: RuntimeException {
     /** 메시지와 원인 없이 예외를 생성합니다. */
     constructor(): super()
+
     /** 메시지만 지정해 예외를 생성합니다. */
     constructor(msg: String): super(msg)
+
     /** 메시지와 원인을 함께 지정해 예외를 생성합니다. */
     constructor(msg: String, cause: Throwable?): super(msg, cause)
+
     /** 원인만 지정해 예외를 생성합니다. */
     constructor(cause: Throwable?): super(cause)
 }

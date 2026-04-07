@@ -11,7 +11,8 @@
 - **JCache 공통 유틸리티**: `JCaching`, `jcacheManager`, `jcacheConfiguration` 등
 - **Coroutines 캐시 추상화**: `SuspendCache`, `SuspendCacheEntry`
 - **NearCache 통일 인터페이스**: `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>`, `NearCacheStatistics`
-- **Resilient Decorator**: `ResilientNearCacheDecorator`, `ResilientSuspendNearCacheDecorator` (retry + failure strategy)
+- **Resilient Decorator**: `ResilientNearCacheDecorator`,
+  `ResilientSuspendNearCacheDecorator` (retry + failure strategy)
   - `NearCacheResilienceConfig.retryMaxAttempts`와 `retryWaitDuration`은 0보다 커야 함
 - **JCache NearCache**: `JCacheNearCache<V>` — JCache 호환 백엔드용 NearCacheOperations 구현
 - **Legacy Near Cache**: `NearCache<K,V>`, `SuspendNearCache<K,V>` (기존 호환)
@@ -351,23 +352,24 @@ suspendNear.close()
 | `HazelcastSuspendJCache<K,V>`  | cache-hazelcast | Hazelcast 기반 SuspendJCache              |
 | `RedissonSuspendJCache<K,V>`   | cache-redisson  | Redisson 기반 SuspendJCache               |
 
-| 클래스 | 모듈 | 설명 |
-|---|---|---|
-| `NearCacheOperations<V>` | cache-core | 공통 blocking 인터페이스 (AutoCloseable) |
-| `SuspendNearCacheOperations<V>` | cache-core | 공통 suspend 인터페이스 |
-| `NearCacheStatistics` | cache-core | 로컬/백엔드 hit/miss 통계 |
-| `NearCacheResilienceConfig` | cache-core | retry + failure strategy 설정 |
-| `ResilientNearCacheDecorator<V>` | cache-core | Decorator: Resilience4j retry + GetFailureStrategy |
-| `ResilientSuspendNearCacheDecorator<V>` | cache-core | Decorator suspend 버전 |
-| `JCacheNearCache<V>` | cache-core | JCache 호환 백엔드용 구현 |
-| `LettuceNearCache<V>` | cache-lettuce | RESP3 CLIENT TRACKING 기반 |
-| `LettuceSuspendNearCache<V>` | cache-lettuce | Lettuce coroutines 버전 |
-| `HazelcastNearCache<V>` | cache-hazelcast | IMap + EntryListener invalidation |
-| `HazelcastSuspendNearCache<V>` | cache-hazelcast | IMap async + await |
-| `RedissonNearCache<V>` | cache-redisson | RLocalCachedMap (내장 invalidation) |
-| `RedissonSuspendNearCache<V>` | cache-redisson | RLocalCachedMap async + await |
+| 클래스                                     | 모듈              | 설명                                                 |
+|-----------------------------------------|-----------------|----------------------------------------------------|
+| `NearCacheOperations<V>`                | cache-core      | 공통 blocking 인터페이스 (AutoCloseable)                  |
+| `SuspendNearCacheOperations<V>`         | cache-core      | 공통 suspend 인터페이스                                   |
+| `NearCacheStatistics`                   | cache-core      | 로컬/백엔드 hit/miss 통계                                 |
+| `NearCacheResilienceConfig`             | cache-core      | retry + failure strategy 설정                        |
+| `ResilientNearCacheDecorator<V>`        | cache-core      | Decorator: Resilience4j retry + GetFailureStrategy |
+| `ResilientSuspendNearCacheDecorator<V>` | cache-core      | Decorator suspend 버전                               |
+| `JCacheNearCache<V>`                    | cache-core      | JCache 호환 백엔드용 구현                                  |
+| `LettuceNearCache<V>`                   | cache-lettuce   | RESP3 CLIENT TRACKING 기반                           |
+| `LettuceSuspendNearCache<V>`            | cache-lettuce   | Lettuce coroutines 버전                              |
+| `HazelcastNearCache<V>`                 | cache-hazelcast | IMap + EntryListener invalidation                  |
+| `HazelcastSuspendNearCache<V>`          | cache-hazelcast | IMap async + await                                 |
+| `RedissonNearCache<V>`                  | cache-redisson  | RLocalCachedMap (내장 invalidation)                  |
+| `RedissonSuspendNearCache<V>`           | cache-redisson  | RLocalCachedMap async + await                      |
 
 **Resilience Decorator 사용:**
+
 ```kotlin
 // 어떤 백엔드든 .withResilience {} 로 래핑 가능
 val cache = lettuceNearCacheOf<String>(redisClient, codec, config)
@@ -379,6 +381,7 @@ val cache = lettuceNearCacheOf<String>(redisClient, codec, config)
 ```
 
 **GetFailureStrategy:**
+
 - `RETURN_FRONT_OR_NULL`: back cache GET 실패 시 null 반환 (graceful degradation)
 - `PROPAGATE_EXCEPTION`: 예외를 호출자에게 전파
 
@@ -471,12 +474,12 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 
 ## 권장 사용 방식
 
-| 사용 목적 | 권장 모듈 |
-|-----------|-----------|
-| 로컬 캐시(Caffeine/Cache2k/Ehcache) | `bluetape4k-cache-core` |
-| Hazelcast 분산 캐시 + Near Cache | `bluetape4k-cache-hazelcast` |
-| Redisson 분산 캐시 + Near Cache | `bluetape4k-cache-redisson` |
-| 전체 Provider 일괄 사용 | `bluetape4k-cache` (umbrella) |
+| 사용 목적                           | 권장 모듈                         |
+|---------------------------------|-------------------------------|
+| 로컬 캐시(Caffeine/Cache2k/Ehcache) | `bluetape4k-cache-core`       |
+| Hazelcast 분산 캐시 + Near Cache    | `bluetape4k-cache-hazelcast`  |
+| Redisson 분산 캐시 + Near Cache     | `bluetape4k-cache-redisson`   |
+| 전체 Provider 일괄 사용               | `bluetape4k-cache` (umbrella) |
 
 ## testFixtures 활용 가이드
 
@@ -484,25 +487,25 @@ val result = factorial[10]  // 캐싱되어 반복 계산 방지
 
 ### 추상 테스트 클래스 목록
 
-| 클래스 | 패키지 | 설명 |
-|--------|--------|------|
-| `AbstractSuspendCacheTest` | `jcache` | `SuspendCache` 기본 CRUD + 동시성 검증 |
-| `AbstractNearCacheOperationsTest<V>` | `nearcache` | `NearCacheOperations` 공통 14개 시나리오 (blocking) |
+| 클래스                                         | 패키지         | 설명                                                 |
+|---------------------------------------------|-------------|----------------------------------------------------|
+| `AbstractSuspendCacheTest`                  | `jcache`    | `SuspendCache` 기본 CRUD + 동시성 검증                    |
+| `AbstractNearCacheOperationsTest<V>`        | `nearcache` | `NearCacheOperations` 공통 14개 시나리오 (blocking)       |
 | `AbstractSuspendNearCacheOperationsTest<V>` | `nearcache` | `SuspendNearCacheOperations` 공통 14개 시나리오 (suspend) |
-| `AbstractNearCacheTest` | `nearcache` | `NearCache` (legacy) write-through/event 전파 검증 |
-| `AbstractSuspendNearCacheTest` | `nearcache` | `SuspendNearCache` (legacy) coroutines 검증 |
-| `AbstractMemorizerTest` | `memorizer` | `Memorizer` 단일 계산 보장 |
-| `AbstractAsyncMemorizerTest` | `memorizer` | `AsyncMemorizer` CompletableFuture 검증 |
-| `AbstractSuspendMemorizerTest` | `memorizer` | `SuspendMemorizer` suspend 검증 |
+| `AbstractNearCacheTest`                     | `nearcache` | `NearCache` (legacy) write-through/event 전파 검증     |
+| `AbstractSuspendNearCacheTest`              | `nearcache` | `SuspendNearCache` (legacy) coroutines 검증          |
+| `AbstractMemorizerTest`                     | `memorizer` | `Memorizer` 단일 계산 보장                               |
+| `AbstractAsyncMemorizerTest`                | `memorizer` | `AsyncMemorizer` CompletableFuture 검증              |
+| `AbstractSuspendMemorizerTest`              | `memorizer` | `SuspendMemorizer` suspend 검증                      |
 
 ### Provider별 호환성 매트릭스
 
-| testFixtures | Hazelcast | Ignite2 | Redisson | Lettuce |
-|---|:---:|:---:|:---:|:---:|
-| `AbstractSuspendCacheTest` | ✅ | ✅ | ✅ | ✅ |
-| `AbstractNearCacheTest` | ✅ | ✅ | ✅ | N/A(아키텍처 상이) |
-| `AbstractSuspendNearCacheTest` | ✅ | ✅ | ✅ | N/A(아키텍처 상이) |
-| `AbstractMemorizerTest` 3종 | N/A | N/A | N/A | N/A |
+| testFixtures                   | Hazelcast | Ignite2 | Redisson |   Lettuce    |
+|--------------------------------|:---------:|:-------:|:--------:|:------------:|
+| `AbstractSuspendCacheTest`     |     ✅     |    ✅    |    ✅     |      ✅       |
+| `AbstractNearCacheTest`        |     ✅     |    ✅    |    ✅     | N/A(아키텍처 상이) |
+| `AbstractSuspendNearCacheTest` |     ✅     |    ✅    |    ✅     | N/A(아키텍처 상이) |
+| `AbstractMemorizerTest` 3종     |    N/A    |   N/A   |   N/A    |     N/A      |
 
 > Memorizer는 로컬 캐시 전용 패턴으로 분산 캐시 모듈에는 해당 없음
 

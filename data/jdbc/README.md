@@ -2,8 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-A Kotlin extension library that eliminates boilerplate when working with JDBC (Java Database Connectivity).
-Leverage Kotlin's expressive power to write type-safe, concise database code.
+A Kotlin extension library that eliminates boilerplate when working with JDBC (Java Database Connectivity). Leverage Kotlin's expressive power to write type-safe, concise database code.
 
 ## Features
 

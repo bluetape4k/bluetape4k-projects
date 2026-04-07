@@ -57,7 +57,8 @@ val flow = flow {
     }
 ```
 
-`withTimer` measures time per collection, so even if the same Flow is collected multiple times or terminates with an exception, only one measurement is recorded per `collect` call.
+`withTimer` measures time per collection, so even if the same Flow is collected multiple times or terminates with an exception, only one measurement is recorded per
+`collect` call.
 
 ### 2. Observation Extensions
 
@@ -102,7 +103,10 @@ withObservationContext("async.operation", registry) {
 }
 ```
 
-The `withObservationContextSuspending` and `observeSuspending` extension functions clean up the Observation scope and call `stop()` when the suspend block ends. Passing an unstarted `Observation` is fine — it is started internally before execution — and the observation is always cleaned up even if an exception is thrown.
+The `withObservationContextSuspending` and
+`observeSuspending` extension functions clean up the Observation scope and call
+`stop()` when the suspend block ends. Passing an unstarted
+`Observation` is fine — it is started internally before execution — and the observation is always cleaned up even if an exception is thrown.
 
 #### Creating ObservationRegistry
 
@@ -150,14 +154,14 @@ val users = apiService.getUsers().execute()
 
 #### Collected Metrics
 
-| Tag           | Description       | Example                             |
-|---------------|-------------------|-------------------------------------|
-| `method`      | HTTP method       | GET, POST, PUT, DELETE              |
-| `uri`         | Request URI       | /users/{id}                         |
-| `base_url`    | Base URL          | https://api.example.com             |
-| `status_code` | HTTP status code  | 200, 404, 500                       |
-| `outcome`     | Outcome category  | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
-| `coroutines`  | Coroutine usage   | true, false                         |
+| Tag           | Description                | Example                             |
+|---------------|----------------------------|-------------------------------------|
+| `method`      | HTTP method                | GET, POST, PUT, DELETE              |
+| `uri`         | Request URI                | /users/{id}                         |
+| `base_url`    | Base URL                   | https://api.example.com             |
+| `status_code` | HTTP status code           | 200, 404, 500                       |
+| `outcome`     | Outcome category           | SUCCESS, CLIENT_ERROR, SERVER_ERROR |
+| `coroutines`  | Coroutine usage            | true, false                         |
 | `exception`   | Transport/decode exception | IOException, SocketTimeoutException |
 
 #### Percentiles
@@ -166,7 +170,8 @@ The following percentiles are automatically collected: 50%, 70%, 90%, 95%, 97%, 
 
 #### Exception and Retry Behavior
 
-- Transport exceptions without an HTTP response are tagged with `outcome=UNKNOWN`, `status_code=IO_ERROR`, and `exception=<exception type>`.
+- Transport exceptions without an HTTP response are tagged with `outcome=UNKNOWN`, `status_code=IO_ERROR`, and
+  `exception=<exception type>`.
 - Retry calls created with `Call.clone()` retain the instrumentation wrapper, so the same metric policy applies.
 
 ### 4. Cache2k Metrics

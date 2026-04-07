@@ -6,11 +6,11 @@ import java.util.*
 /**
  * 지역화 정보를 포함하는 JPA 엔티티를 표현하는 인터페이스입니다.
  */
-interface JpaLocalizedEntity<LV : JpaLocalizedEntity.LocalizedValue> : PersistenceObject {
+interface JpaLocalizedEntity<LV: JpaLocalizedEntity.LocalizedValue>: PersistenceObject {
     /**
      * 지역화된 값을 나타내는 인터페이스입니다.
      */
-    interface LocalizedValue : ValueObject
+    interface LocalizedValue: ValueObject
 
     /**
      * [Locale]을 키로 하는 지역화 값 맵입니다.

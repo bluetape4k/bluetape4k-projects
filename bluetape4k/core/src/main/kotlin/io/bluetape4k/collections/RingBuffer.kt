@@ -22,7 +22,7 @@ import kotlin.concurrent.withLock
  * @param E 요소 타입
  * @param maxSize 버퍼의 최대 크기 (1 이상)
  */
-class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
+class RingBuffer<E>(val maxSize: Int): Iterable<E> {
 
     init {
         require(maxSize > 0) { "maxSize must be positive" }
@@ -258,6 +258,7 @@ class RingBuffer<E>(val maxSize: Int) : Iterable<E> {
             throw NoSuchElementException("RingBuffer is empty")
         }
         val oldRead = read
+
         @Suppress("UNCHECKED_CAST")
         val result = array[oldRead] as E
         array[oldRead] = null

@@ -24,7 +24,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
  * }
  * ```
  */
-class NetCdfFileRepository : LongJdbcRepository<NetCdfFileRecord> {
+class NetCdfFileRepository: LongJdbcRepository<NetCdfFileRecord> {
 
     override val table = NetCdfFileTable
 

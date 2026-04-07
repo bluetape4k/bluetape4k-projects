@@ -16,7 +16,7 @@ class AttributeKeySupportTest {
 
         stringArrayAttributeKeyOf("string.array.key") shouldBeEqualTo AttributeKey.stringArrayKey("string.array.key")
         booleanArrayAttributeKeyOf("boolean.array.key") shouldBeEqualTo
-            AttributeKey.booleanArrayKey("boolean.array.key")
+                AttributeKey.booleanArrayKey("boolean.array.key")
         longArrayAttributeKeyOf("long.array.key") shouldBeEqualTo AttributeKey.longArrayKey("long.array.key")
         doubleArrayAttributeKeyOf("double.array.key") shouldBeEqualTo AttributeKey.doubleArrayKey("double.array.key")
     }

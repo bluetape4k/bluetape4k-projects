@@ -72,10 +72,10 @@ inline fun <reified T: Any> Readable.getJacksonOrNull(
 ): T? {
     val value = get(index) ?: return null
     return when (value) {
-        is T -> value
+        is T      -> value
         is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
-        else -> serializer.deserializeFromString<T>(value.toString())
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 
@@ -101,10 +101,10 @@ inline fun <reified T: Any> Readable.getJacksonOrNull(
 ): T? {
     val value = get(name) ?: return null
     return when (value) {
-        is T -> value
+        is T      -> value
         is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
-        else -> serializer.deserializeFromString<T>(value.toString())
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 
@@ -173,9 +173,9 @@ fun Readable.getJsonNodeOrNull(
     val value = get(index) ?: return null
     return when (value) {
         is JsonNode -> value
-        is String -> serializer.mapper.readTree(value)
+        is String   -> serializer.mapper.readTree(value)
         is ByteArray -> serializer.mapper.readTree(value)
-        else -> serializer.mapper.readTree(value.toString())
+        else        -> serializer.mapper.readTree(value.toString())
     }
 }
 
@@ -202,8 +202,8 @@ fun Readable.getJsonNodeOrNull(
     val value = get(name) ?: return null
     return when (value) {
         is JsonNode -> value
-        is String -> serializer.mapper.readTree(value)
+        is String   -> serializer.mapper.readTree(value)
         is ByteArray -> serializer.mapper.readTree(value)
-        else -> serializer.mapper.readTree(value.toString())
+        else        -> serializer.mapper.readTree(value.toString())
     }
 }

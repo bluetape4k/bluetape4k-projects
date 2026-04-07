@@ -60,7 +60,7 @@ data class DefaultNearCacheStatistics(
     override val localEvictions: Long = 0,
     override val backHits: Long = 0,
     override val backMisses: Long = 0,
-) : NearCacheStatistics {
+): NearCacheStatistics {
     override val hitRate: Double
         get() {
             val total = localHits + backHits + backMisses

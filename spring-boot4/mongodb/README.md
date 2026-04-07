@@ -4,9 +4,11 @@ English | [한국어](./README.ko.md)
 
 An extension library for working with [Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/) using Kotlin Coroutines (Spring Boot 4.x).
 
-Provides extension functions that convert `Flux`/`Mono` return types from `ReactiveMongoOperations` to `Flow`/`suspend`, along with Kotlin infix DSLs for building `Criteria`, `Query`, and `Update` objects.
+Provides extension functions that convert `Flux`/`Mono` return types from `ReactiveMongoOperations` to `Flow`/
+`suspend`, along with Kotlin infix DSLs for building `Criteria`, `Query`, and `Update` objects.
 
-> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-mongodb`), adapted to the Spring Boot 4.x API.
+> Provides the same functionality as the Spring Boot 3 module (
+`bluetape4k-spring-mongodb`), adapted to the Spring Boot 4.x API.
 
 ## Features
 
@@ -81,20 +83,20 @@ val update = ("name" setTo "Alice")
 
 ## Available Extension Functions
 
-| Function                                  | Return Type    | Description                          |
-|-------------------------------------------|----------------|--------------------------------------|
-| `findAsFlow<T>(query)`                    | `Flow<T>`      | Stream documents matching a query    |
-| `findAllAsFlow<T>()`                      | `Flow<T>`      | Stream all documents                 |
-| `findOneOrNullSuspending<T>(query)`       | `T?`           | Find one document (null if absent)   |
-| `countSuspending<T>(query?)`              | `Long`         | Count documents                      |
-| `existsSuspending<T>(query)`              | `Boolean`      | Check existence                      |
-| `insertSuspending(entity)`                | `T`            | Insert a single document             |
-| `insertAllAsFlow(entities)`               | `Flow<T>`      | Insert multiple documents            |
-| `saveSuspending(entity)`                  | `T`            | Save (insert or update)              |
-| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | Update multiple documents            |
-| `removeSuspending<T>(query)`              | `DeleteResult` | Delete documents by query            |
-| `aggregateAsFlow<I, O>(aggregation)`      | `Flow<O>`      | Execute an aggregation pipeline      |
-| `dropCollectionSuspending<T>()`           | `Unit`         | Drop a collection                    |
+| Function                                  | Return Type    | Description                        |
+|-------------------------------------------|----------------|------------------------------------|
+| `findAsFlow<T>(query)`                    | `Flow<T>`      | Stream documents matching a query  |
+| `findAllAsFlow<T>()`                      | `Flow<T>`      | Stream all documents               |
+| `findOneOrNullSuspending<T>(query)`       | `T?`           | Find one document (null if absent) |
+| `countSuspending<T>(query?)`              | `Long`         | Count documents                    |
+| `existsSuspending<T>(query)`              | `Boolean`      | Check existence                    |
+| `insertSuspending(entity)`                | `T`            | Insert a single document           |
+| `insertAllAsFlow(entities)`               | `Flow<T>`      | Insert multiple documents          |
+| `saveSuspending(entity)`                  | `T`            | Save (insert or update)            |
+| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | Update multiple documents          |
+| `removeSuspending<T>(query)`              | `DeleteResult` | Delete documents by query          |
+| `aggregateAsFlow<I, O>(aggregation)`      | `Flow<O>`      | Execute an aggregation pipeline    |
+| `dropCollectionSuspending<T>()`           | `Unit`         | Drop a collection                  |
 
 ## Build and Test
 

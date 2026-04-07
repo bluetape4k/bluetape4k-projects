@@ -8,12 +8,12 @@ English | [한국어](./README.ko.md)
 
 ## Module Composition
 
-| Module | Provided Functionality |
-|---|---|
-| `bluetape4k-cache-core` | JCache abstraction + Caffeine/Cache2k/Ehcache local caches + memorizer |
+| Module                       | Provided Functionality                                                               |
+|------------------------------|--------------------------------------------------------------------------------------|
+| `bluetape4k-cache-core`      | JCache abstraction + Caffeine/Cache2k/Ehcache local caches + memorizer               |
 | `bluetape4k-cache-hazelcast` | Hazelcast distributed cache + near cache (merged from former `cache-hazelcast-near`) |
-| `bluetape4k-cache-redisson` | Redisson distributed cache + near cache (merged from former `cache-redisson-near`) |
-| `bluetape4k-cache-lettuce` | Lettuce (Redis) distributed cache + near cache |
+| `bluetape4k-cache-redisson`  | Redisson distributed cache + near cache (merged from former `cache-redisson-near`)   |
+| `bluetape4k-cache-lettuce`   | Lettuce (Redis) distributed cache + near cache                                       |
 
 ## Installation
 
@@ -200,7 +200,8 @@ flowchart LR
 
 ## Caution About Automatic `CachingProvider` Loading
 
-Multiple modules register `META-INF/services/javax.cache.spi.CachingProvider`. When using the umbrella module, specify the provider explicitly:
+Multiple modules register
+`META-INF/services/javax.cache.spi.CachingProvider`. When using the umbrella module, specify the provider explicitly:
 
 ```kotlin
 import javax.cache.Caching

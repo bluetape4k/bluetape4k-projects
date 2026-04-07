@@ -17,7 +17,7 @@ import java.io.Serializable
  * // leaves == 2
  * ```
  */
-sealed class Filter : Serializable {
+sealed class Filter: Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -54,7 +54,7 @@ sealed class Filter : Serializable {
     data class Group(
         val operator: String = "and",
         val filters: MutableList<Filter> = mutableListOf(),
-    ) : Filter() {
+    ): Filter() {
         override fun countLeaves(): Int {
             fun countLeaves(conditions: Group): Int =
                 conditions.filters.fold(0) { count, filter -> count + filter.countLeaves() }
@@ -84,7 +84,7 @@ sealed class Filter : Serializable {
      */
     data class Where(
         val where: String,
-    ) : Filter() {
+    ): Filter() {
         override fun countLeaves(): Int = 1
 
         override fun toString(): String =

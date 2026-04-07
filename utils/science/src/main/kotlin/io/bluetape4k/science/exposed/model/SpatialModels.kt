@@ -47,8 +47,8 @@ data class SpatialLayerRecord(
     val bboxMaxX: Double? = null,
     val bboxMaxY: Double? = null,
     val recordCount: Int = 0,
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }
@@ -84,8 +84,8 @@ data class SpatialFeatureRecord(
     val geom: Geometry,
     val properties: Map<String, Any?> = emptyMap(),
     val name: String? = null,
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

@@ -53,7 +53,7 @@ sealed interface WorkReport {
      */
     data class Success(
         override val context: WorkContext,
-    ) : WorkReport {
+    ): WorkReport {
         override val status: WorkStatus = WorkStatus.COMPLETED
         override val error: Throwable? = null
     }
@@ -67,7 +67,7 @@ sealed interface WorkReport {
     data class Failure(
         override val context: WorkContext,
         override val error: Throwable? = null,
-    ) : WorkReport {
+    ): WorkReport {
         override val status: WorkStatus = WorkStatus.FAILED
     }
 
@@ -90,7 +90,7 @@ sealed interface WorkReport {
     data class PartialSuccess(
         override val context: WorkContext,
         val failedReports: List<WorkReport>,
-    ) : WorkReport {
+    ): WorkReport {
         override val status: WorkStatus = WorkStatus.PARTIAL
         override val error: Throwable? = failedReports.firstOrNull()?.error
     }
@@ -118,7 +118,7 @@ sealed interface WorkReport {
     data class Aborted(
         override val context: WorkContext,
         val reason: String? = null,
-    ) : WorkReport {
+    ): WorkReport {
         override val status: WorkStatus = WorkStatus.ABORTED
         override val error: Throwable? = null
     }
@@ -139,7 +139,7 @@ sealed interface WorkReport {
     data class Cancelled(
         override val context: WorkContext,
         val reason: String? = null,
-    ) : WorkReport {
+    ): WorkReport {
         override val status: WorkStatus = WorkStatus.CANCELLED
         override val error: Throwable? = null
     }

@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-`bluetape4k-cache-redisson` provides a Redisson-based JCache provider, coroutine-friendly cache implementations, memoizers, and multiple **2-tier Near Cache** implementations.
+`bluetape4k-cache-redisson` provides a Redisson-based JCache provider, coroutine-friendly cache implementations, memoizers, and multiple
+**2-tier Near Cache** implementations.
 
 > The former `bluetape4k-cache-redisson-near` module was merged into this module.
 

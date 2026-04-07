@@ -75,7 +75,7 @@ class SuspendedSocketSink(socket: Socket): SuspendedSink {
                         source.skip(written.toLong())
                     }
                     written == 0 -> channel.await(SelectionKey.OP_WRITE)
-                    else -> throw IOException("channel closed")
+                    else        -> throw IOException("channel closed")
                 }
             }
         }

@@ -14,12 +14,12 @@ class PropertySupportTest {
     private val root: Map<Any, Any?> =
         mapOf(
             "a" to
-                mapOf(
-                    "b" to
-                        mapOf(
-                            "c" to 42
-                        )
-                ),
+                    mapOf(
+                        "b" to
+                                mapOf(
+                                    "c" to 42
+                                )
+                    ),
             "x" to "leaf"
         ) as Map<Any, Any?>
 

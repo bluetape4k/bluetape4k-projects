@@ -65,7 +65,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
         }
 
         yield()
-        
+
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
     }
@@ -140,7 +140,8 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
     @Test
     fun `withObservationContextSuspending - 시작하지 않은 observation 도 자동으로 시작하고 정리한다`() = runSuspendIO {
-        val observation = Observation.createNotStarted("observer.not.started.${Base58.randomString(8)}", observationRegistry)
+        val observation =
+            Observation.createNotStarted("observer.not.started.${Base58.randomString(8)}", observationRegistry)
 
         val result =
             observation.withObservationContextSuspending { context ->

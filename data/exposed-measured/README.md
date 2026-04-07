@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-A custom ColumnType module for storing and retrieving `bluetape4k-measured` types (`Measure<T>`, `Temperature`, `TemperatureDelta`) as `DOUBLE` columns in Exposed.
+A custom ColumnType module for storing and retrieving `bluetape4k-measured` types (`Measure<T>`, `Temperature`,
+`TemperatureDelta`) as `DOUBLE` columns in Exposed.
 
 ## Supported Columns
 

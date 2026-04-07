@@ -11,28 +11,32 @@ A module for encrypting and decrypting Exposed column values using [Google Tink]
 Google Tink is a modern cryptography library developed by Google, designed to be hard to misuse and to prevent incorrect usage by design. This module supports two encryption modes:
 
 - **AEAD** (non-deterministic): Produces a different ciphertext every time → maximum security
-- **Deterministic AEAD** (deterministic): Same plaintext always produces the same ciphertext → supports indexing and searching
+- **Deterministic AEAD
+  ** (deterministic): Same plaintext always produces the same ciphertext → supports indexing and searching
 
 ## Jasypt vs Google Tink Comparison
 
-| Aspect | `exposed-jasypt` | `exposed-tink` (AEAD) | `exposed-tink` (DAEAD) |
-|--------|------------------|-----------------------|------------------------|
-| **Encryption algorithm** | AES/RC4/3DES (legacy) | AES-GCM, ChaCha20-Poly1305 (modern) | AES-256-SIV (modern) |
-| **Deterministic** | ✅ (same ciphertext always) | ❌ (different ciphertext each time) | ✅ (same ciphertext always) |
-| **Authentication (tamper detection)** | ❌ | ✅ AEAD | ✅ AEAD |
-| **WHERE condition search** | ✅ | ❌ | ✅ |
-| **Indexable** | ✅ | ❌ | ✅ |
-| **Pattern analysis risk** | ⚠️ Yes | ✅ No | ⚠️ Yes (deterministic) |
-| **Standard compliance** | ⚠️ Legacy approach | ✅ NIST/IETF standard | ✅ NIST/IETF standard |
-| **Google recommended** | ❌ | ✅ | ✅ |
+| Aspect                                | `exposed-jasypt`           | `exposed-tink` (AEAD)               | `exposed-tink` (DAEAD)     |
+|---------------------------------------|----------------------------|-------------------------------------|----------------------------|
+| **Encryption algorithm**              | AES/RC4/3DES (legacy)      | AES-GCM, ChaCha20-Poly1305 (modern) | AES-256-SIV (modern)       |
+| **Deterministic**                     | ✅ (same ciphertext always) | ❌ (different ciphertext each time)  | ✅ (same ciphertext always) |
+| **Authentication (tamper detection)** | ❌                          | ✅ AEAD                              | ✅ AEAD                     |
+| **WHERE condition search**            | ✅                          | ❌                                   | ✅                          |
+| **Indexable**                         | ✅                          | ❌                                   | ✅                          |
+| **Pattern analysis risk**             | ⚠️ Yes                     | ✅ No                                | ⚠️ Yes (deterministic)     |
+| **Standard compliance**               | ⚠️ Legacy approach         | ✅ NIST/IETF standard                | ✅ NIST/IETF standard       |
+| **Google recommended**                | ❌                          | ✅                                   | ✅                          |
 
 ### Why Choose Google Tink
 
-1. **Built-in authentication**: AEAD guarantees data integrity alongside encryption. If a stored ciphertext is tampered with, it is detected immediately during decryption. Jasypt does not provide this.
+1. **Built-in authentication
+   **: AEAD guarantees data integrity alongside encryption. If a stored ciphertext is tampered with, it is detected immediately during decryption. Jasypt does not provide this.
 
-2. **Modern algorithms**: Uses the latest NIST/IETF-recommended algorithms including AES-256-GCM, ChaCha20-Poly1305, and AES-256-SIV.
+2. **Modern algorithms
+   **: Uses the latest NIST/IETF-recommended algorithms including AES-256-GCM, ChaCha20-Poly1305, and AES-256-SIV.
 
-3. **Misuse-resistant design**: The API is designed to prevent weak algorithm choices, making it safe to use even without deep security expertise.
+3. **Misuse-resistant design
+   **: The API is designed to prevent weak algorithm choices, making it safe to use even without deep security expertise.
 
 4. **Two modes**: Choose between AEAD (security-focused) and DAEAD (searchable) based on your requirements.
 
@@ -139,23 +143,23 @@ import io.bluetape4k.tink.daead.TinkDaeads
 val col5 = tinkDaeadVarChar("col5", 512, TinkDaeads.AES256_SIV)
 ```
 
-| Algorithm | Use Case | Notes |
-|-----------|----------|-------|
-| AES-256-GCM | **Default / general** | Fast, hardware-accelerated, NIST standard |
-| AES-128-GCM | Performance-critical | Faster than AES-256, but shorter key |
-| ChaCha20-Poly1305 | Mobile / embedded | Fast even without HW acceleration |
-| XChaCha20-Poly1305 | High security | Larger nonce reduces collision risk |
-| AES-256-SIV | Searchable encryption | Deterministic, authenticated, indexable |
+| Algorithm          | Use Case              | Notes                                     |
+|--------------------|-----------------------|-------------------------------------------|
+| AES-256-GCM        | **Default / general** | Fast, hardware-accelerated, NIST standard |
+| AES-128-GCM        | Performance-critical  | Faster than AES-256, but shorter key      |
+| ChaCha20-Poly1305  | Mobile / embedded     | Fast even without HW acceleration         |
+| XChaCha20-Poly1305 | High security         | Larger nonce reduces collision risk       |
+| AES-256-SIV        | Searchable encryption | Deterministic, authenticated, indexable   |
 
 ## Column Length Guide
 
 Encrypted values are larger than the original plaintext, so allocate enough length.
 
-| Algorithm | Overhead | Recommended multiplier |
-|-----------|----------|------------------------|
-| AES-GCM | +28 bytes (12 IV + 16 Tag) + Base64 encoding | ~1.5–2x the original |
-| ChaCha20-Poly1305 | +28 bytes + Base64 encoding | ~1.5–2x the original |
-| AES-256-SIV | +16 bytes (Tag) + Base64 encoding | ~1.5–2x the original |
+| Algorithm         | Overhead                                     | Recommended multiplier |
+|-------------------|----------------------------------------------|------------------------|
+| AES-GCM           | +28 bytes (12 IV + 16 Tag) + Base64 encoding | ~1.5–2x the original   |
+| ChaCha20-Poly1305 | +28 bytes + Base64 encoding                  | ~1.5–2x the original   |
+| AES-256-SIV       | +16 bytes (Tag) + Base64 encoding            | ~1.5–2x the original   |
 
 ```kotlin
 // Example: email max 254 chars → Base64(254+28) ≈ 376 chars → 512 recommended
@@ -165,7 +169,9 @@ val email = tinkDaeadVarChar("email", 512).index()
 val ssn = tinkDaeadVarChar("ssn", 128)
 ```
 
-The default length of `255` for `tinkAeadVarChar(...)/tinkDaeadVarChar(...)` is sufficient for short tokens and identifiers, but may be too short for longer strings like emails after Base64 expansion. Explicitly use `512` or more for searchable columns and user-input columns with potentially long values.
+The default length of `255` for
+`tinkAeadVarChar(...)/tinkDaeadVarChar(...)` is sufficient for short tokens and identifiers, but may be too short for longer strings like emails after Base64 expansion. Explicitly use
+`512` or more for searchable columns and user-input columns with potentially long values.
 
 ## Real-World Example
 
@@ -265,25 +271,29 @@ classDiagram
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `TinkAeadVarCharColumnType.kt` | AEAD VARCHAR encrypted column type |
-| `TinkAeadBinaryColumnType.kt` | AEAD VARBINARY encrypted column type |
-| `TinkDaeadVarCharColumnType.kt` | Deterministic AEAD VARCHAR encrypted column type |
-| `TinkDaeadBinaryColumnType.kt` | Deterministic AEAD VARBINARY encrypted column type |
-| `Tables.kt` | Table extension functions (`tinkAeadVarChar`, etc.) |
+| File                            | Description                                         |
+|---------------------------------|-----------------------------------------------------|
+| `TinkAeadVarCharColumnType.kt`  | AEAD VARCHAR encrypted column type                  |
+| `TinkAeadBinaryColumnType.kt`   | AEAD VARBINARY encrypted column type                |
+| `TinkDaeadVarCharColumnType.kt` | Deterministic AEAD VARCHAR encrypted column type    |
+| `TinkDaeadBinaryColumnType.kt`  | Deterministic AEAD VARBINARY encrypted column type  |
+| `Tables.kt`                     | Table extension functions (`tinkAeadVarChar`, etc.) |
 
 ## Notes
 
-1. **AEAD columns are not searchable**: `tinkAeadVarChar`/`tinkAeadBinary` generate a new ciphertext on every encryption, so `WHERE col = value` does not work. Use `tinkDaead*` for searchable columns.
+1. **AEAD columns are not searchable**: `tinkAeadVarChar`/
+   `tinkAeadBinary` generate a new ciphertext on every encryption, so `WHERE col = value` does not work. Use
+   `tinkDaead*` for searchable columns.
 
 2. **Column length**: Data grows after encryption, so set the column length to at least 2x the original maximum length.
 
-3. **Key management**: Lost encryption keys mean lost data. In production, integrate with an external KMS such as Google Cloud KMS or AWS KMS to securely manage keys.
+3. **Key management
+   **: Lost encryption keys mean lost data. In production, integrate with an external KMS such as Google Cloud KMS or AWS KMS to securely manage keys.
 
 4. **Key rotation**: Tink supports key rotation. Regular key rotation strengthens security.
 
-5. **DAEAD pattern exposure**: Deterministic AEAD still maps the same plaintext to the same ciphertext, which can reveal value distribution and patterns. It is suitable for unique values (email, SSN) but use caution with frequently repeated values.
+5. **DAEAD pattern exposure
+   **: Deterministic AEAD still maps the same plaintext to the same ciphertext, which can reveal value distribution and patterns. It is suitable for unique values (email, SSN) but use caution with frequently repeated values.
 
 ## Testing
 

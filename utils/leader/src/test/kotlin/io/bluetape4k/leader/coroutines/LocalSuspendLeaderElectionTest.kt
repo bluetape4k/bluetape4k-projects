@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 class LocalSuspendLeaderElectionTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val election = LocalSuspendLeaderElection()
 

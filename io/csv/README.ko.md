@@ -6,7 +6,8 @@
 
 `bluetape4k-csv`는 [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) 라이브러리를 Kotlin 환경에서 편리하게 사용할 수 있도록 래핑한 모듈입니다.
 
-CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/`SuspendRecordWriter`)도 지원합니다.
+CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/
+`SuspendRecordWriter`)도 지원합니다.
 
 ## 아키텍처
 

@@ -35,11 +35,11 @@ class AsyncVertxHttpClient private constructor(
          *
          * ## 동작/계약
          * - 전달한 [vertxClient]를 그대로 사용합니다.
- *
- * ```kotlin
- * val client = AsyncVertxHttpClient()
- * // client != null
- * ```
+         *
+         * ```kotlin
+         * val client = AsyncVertxHttpClient()
+         * // client != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): AsyncVertxHttpClient {

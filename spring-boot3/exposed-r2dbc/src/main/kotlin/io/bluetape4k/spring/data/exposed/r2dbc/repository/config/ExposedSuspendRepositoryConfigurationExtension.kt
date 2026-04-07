@@ -18,7 +18,7 @@ import org.springframework.data.repository.core.RepositoryMetadata
  * ext.getModuleName()  // "SUSPEND_EXPOSED"
  * ```
  */
-class ExposedSuspendRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
+class ExposedSuspendRepositoryConfigurationExtension: RepositoryConfigurationExtensionSupport() {
 
     override fun getModuleName(): String = "SUSPEND_EXPOSED"
 

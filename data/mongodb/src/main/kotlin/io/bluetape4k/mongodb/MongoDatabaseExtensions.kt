@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.toList
  * @param name 컬렉션 이름
  * @return 지정한 타입의 [MongoCollection]
  */
-inline fun <reified T : Any> MongoDatabase.getCollectionOf(
+inline fun <reified T: Any> MongoDatabase.getCollectionOf(
     name: String,
 ): MongoCollection<T> = getCollection(name, T::class.java)
 

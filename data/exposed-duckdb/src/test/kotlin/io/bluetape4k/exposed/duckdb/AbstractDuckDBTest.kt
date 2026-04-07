@@ -43,7 +43,7 @@ import java.sql.DriverManager
  */
 abstract class AbstractDuckDBTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
         /**
          * 인메모리 DuckDB 루트 연결.

@@ -9,8 +9,8 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
-class ULIDStatefulMonotonicTest : AbstractULIDTest() {
-    companion object : KLogging()
+class ULIDStatefulMonotonicTest: AbstractULIDTest() {
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `first call generates new ulid`() {

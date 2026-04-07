@@ -6,9 +6,12 @@ Java 25 virtual-thread implementation module.
 
 ## Overview
 
-This module implements the interfaces defined by `bluetape4k-virtualthread-api` for Java 25. It is loaded automatically through `ServiceLoader` and becomes active on JDK 25 or newer.
+This module implements the interfaces defined by
+`bluetape4k-virtualthread-api` for Java 25. It is loaded automatically through
+`ServiceLoader` and becomes active on JDK 25 or newer.
 
-Because it has a higher priority than the JDK 21 implementation (`priority = 25`), this implementation is selected automatically in JDK 25 environments.
+Because it has a higher priority than the JDK 21 implementation (
+`priority = 25`), this implementation is selected automatically in JDK 25 environments.
 
 ## UML
 
@@ -280,11 +283,11 @@ class Jdk25VirtualThreadRuntimeTest {
 
 ## JDK Version Compatibility
 
-| JDK Version | Supported | Activation Condition |
-|---|---|---|
-| JDK 17 or lower | ❌ | `isSupported()` returns `false` |
-| JDK 21 | ⚠️ | class-version conflict is possible, not recommended |
-| JDK 25 | ✅ | activated automatically, selected with highest priority |
+| JDK Version     | Supported | Activation Condition                                    |
+|-----------------|-----------|---------------------------------------------------------|
+| JDK 17 or lower | ❌         | `isSupported()` returns `false`                         |
+| JDK 21          | ⚠️        | class-version conflict is possible, not recommended     |
+| JDK 25          | ✅         | activated automatically, selected with highest priority |
 
 ## Priority-Based Selection
 

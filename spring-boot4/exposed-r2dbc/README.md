@@ -560,7 +560,8 @@ override fun toPersistValues(domain: User): Map<Column<*>, Any?> =
 
 ### Transaction Scope
 
-R2DBC-based operations are automatically handled within suspend functions. Use `suspendTransaction` for complex operations:
+R2DBC-based operations are automatically handled within suspend functions. Use
+`suspendTransaction` for complex operations:
 
 ```kotlin
 suspend fun complexOperation() {

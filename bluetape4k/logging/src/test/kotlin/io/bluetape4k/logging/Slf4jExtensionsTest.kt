@@ -8,7 +8,7 @@ import org.slf4j.Marker
 import org.slf4j.MarkerFactory
 
 class Slf4jExtensionsTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val error = RuntimeException("Boom!")
 

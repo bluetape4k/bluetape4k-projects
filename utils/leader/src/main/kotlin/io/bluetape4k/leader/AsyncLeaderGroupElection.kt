@@ -28,7 +28,7 @@ import java.util.concurrent.Executor
  * }.join()
  * ```
  */
-interface AsyncLeaderGroupElection : LeaderGroupElectionState {
+interface AsyncLeaderGroupElection: LeaderGroupElectionState {
 
     /**
      * 슬롯을 획득하여 리더로 선출되면 비동기 [action]을 실행합니다.

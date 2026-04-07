@@ -135,6 +135,7 @@ transaction {
 ```
 
 **지원하는 공간 함수:**
+
 - `ST_Distance(point, point)`: 두 지점 간 거리
 - `ST_DWithin(point, point, distance)`: 거리 이내 확인
 - `ST_Within(point, polygon)`: 지점이 영역 내에 있는지 확인
@@ -207,6 +208,7 @@ transaction {
 ```
 
 **거리 연산자:**
+
 - `cosineDistance(<=>)`: 코사인 거리 (정규화된 벡터에 최적)
 - `l2Distance(<->)`: L2 유클리드 거리
 - `innerProduct(<#>)`: 내적 거리
@@ -235,8 +237,8 @@ data class TimestampRange(
 #### 컬럼 타입
 
 - `TstzRangeColumnType`: TSTZRANGE (PostgreSQL) 또는 VARCHAR(120) (H2 등)으로 저장
-  - PostgreSQL JDBC literal과 ISO-8601 literal 모두 파싱
-  - fractional seconds (`2024-01-01 00:00:00.123456+00`)도 지원
+    - PostgreSQL JDBC literal과 ISO-8601 literal 모두 파싱
+    - fractional seconds (`2024-01-01 00:00:00.123456+00`)도 지원
 
 #### 사용 예제
 
@@ -301,12 +303,14 @@ transaction {
 ```
 
 **범위 연산:**
+
 - `overlaps(&&)`: 두 범위가 겹치는지 확인
 - `contains()`: 범위가 특정 시각을 포함하는지 확인
 - `containsRange()`: 범위가 다른 범위를 완전히 포함하는지 확인
 - `isAdjacentTo()`: 두 범위가 인접한지 확인
 
 **범위 표현:**
+
 - `[start, end)`: 하한 포함, 상한 미포함 (기본값)
 - `[start, end]`: 양쪽 포함
 - `(start, end)`: 양쪽 미포함
@@ -362,9 +366,12 @@ val server = PgvectorServer.Launcher.withExtensions("pg_trgm")
 
 ## 주의사항
 
-- **PostgreSQL 전용**: 모든 기능이 PostgreSQL dialect에서만 동작합니다. H2 등 다른 DB에서는 오류가 발생합니다. TSTZRANGE만 H2에서 VARCHAR fallback으로 작동합니다.
-- **PostGIS 확장**: `PostgisServer` 사용 시 `postgis` 확장이 자동으로 활성화됩니다. 직접 서버에 연결하는 경우 `CREATE EXTENSION IF NOT EXISTS postgis` 실행이 필요합니다.
-- **pgvector 확장**: `PgvectorServer` 사용 시 `vector` 확장이 자동으로 활성화됩니다. 단, JDBC 드라이버 타입 등록(`PGvector.addVectorType()`)은 연결마다 별도로 필요합니다.
+- **PostgreSQL 전용
+  **: 모든 기능이 PostgreSQL dialect에서만 동작합니다. H2 등 다른 DB에서는 오류가 발생합니다. TSTZRANGE만 H2에서 VARCHAR fallback으로 작동합니다.
+- **PostGIS 확장**: `PostgisServer` 사용 시 `postgis` 확장이 자동으로 활성화됩니다. 직접 서버에 연결하는 경우
+  `CREATE EXTENSION IF NOT EXISTS postgis` 실행이 필요합니다.
+- **pgvector 확장**: `PgvectorServer` 사용 시 `vector` 확장이 자동으로 활성화됩니다. 단, JDBC 드라이버 타입 등록(
+  `PGvector.addVectorType()`)은 연결마다 별도로 필요합니다.
 - **차원 검증**: pgvector 저장 시 벡터 차원이 컬럼 정의와 일치하지 않으면 오류가 발생합니다.
 
 ---

@@ -212,15 +212,15 @@ sequenceDiagram
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `JacksonColumnType.kt` | JSON column type (string-based) |
-| `JacksonBColumnType.kt` | JSONB column type (binary format) |
-| `JacksonSerializer.kt` | Jackson serializer configuration |
-| `JsonFunctions.kt` | JSON function extensions |
-| `JsonConditions.kt` | JSON condition expression extensions |
-| `ResultRowExtensions.kt` | ResultRow JSON read extensions |
-| `ReadableExtensions.kt` | Readable JSON read extensions |
+| File                     | Description                          |
+|--------------------------|--------------------------------------|
+| `JacksonColumnType.kt`   | JSON column type (string-based)      |
+| `JacksonBColumnType.kt`  | JSONB column type (binary format)    |
+| `JacksonSerializer.kt`   | Jackson serializer configuration     |
+| `JsonFunctions.kt`       | JSON function extensions             |
+| `JsonConditions.kt`      | JSON condition expression extensions |
+| `ResultRowExtensions.kt` | ResultRow JSON read extensions       |
+| `ReadableExtensions.kt`  | Readable JSON read extensions        |
 
 ## Testing
 

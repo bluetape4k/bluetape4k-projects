@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-A Kotlin DSL-based finite state machine (FSM) library. It supports both synchronous and coroutine-based FSMs, along with guard conditions and `StateFlow`-based state observation.
+A Kotlin DSL-based finite state machine (FSM) library. It supports both synchronous and coroutine-based FSMs, along with guard conditions and
+`StateFlow`-based state observation.
 
 ## Architecture
 
@@ -108,7 +109,9 @@ classDiagram
     SuspendStateMachine ..> StateMachineException : throws
 ```
 
-> `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common `BaseStateMachine`.
+> `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
+`suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common
+`BaseStateMachine`.
 
 ### DSL Builder Structure
 
@@ -342,6 +345,7 @@ sequenceDiagram
 An existing `AppointmentStateMachine` implemented directly with maps can be replaced with the `suspendStateMachine` DSL:
 
 **Before** (direct implementation):
+
 ```kotlin
 class AppointmentStateMachine {
     private val transitions: Map<Pair<State, Class<out Event>>, State> = buildMap { ... }
@@ -350,6 +354,7 @@ class AppointmentStateMachine {
 ```
 
 **After** (bluetape4k-states DSL):
+
 ```kotlin
 val fsm = suspendStateMachine<AppointmentState, AppointmentEvent> {
     initialState = AppointmentState.PENDING
@@ -369,6 +374,7 @@ launch { fsm.stateFlow.collect { state -> updateUI(state) } }
 ```
 
 **Improvements**:
+
 - declarative definition of states and transitions through DSL
 - built-in state observation through `StateFlow`
 - support for guard conditions

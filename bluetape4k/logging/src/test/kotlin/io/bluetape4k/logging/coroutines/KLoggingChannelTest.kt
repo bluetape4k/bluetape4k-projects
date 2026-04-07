@@ -12,7 +12,7 @@ import java.time.Instant
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KLoggingChannelTest {
 
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     private val error get() = RuntimeException("Boom!")
 

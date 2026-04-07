@@ -65,13 +65,13 @@ import java.util.regex.Pattern
  */
 class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private val receiver: KafkaReceiver<K, V>,
-) : CoroutineScope, Closeable, DisposableBean {
+): CoroutineScope, Closeable, DisposableBean {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val closed = AtomicBoolean(false)
 
     override val coroutineContext = scope.coroutineContext
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun <K, V> invoke(receiverOptions: ReceiverOptions<K, V>): SuspendKafkaConsumerTemplate<K, V> =
             SuspendKafkaConsumerTemplate(KafkaReceiver.create(receiverOptions))

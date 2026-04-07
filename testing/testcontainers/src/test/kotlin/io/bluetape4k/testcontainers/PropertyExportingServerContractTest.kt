@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
  */
 class PropertyExportingServerContractTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 테스트용 Mock [PropertyExportingServer] 구현체.
@@ -27,7 +27,7 @@ class PropertyExportingServerContractTest {
         override val propertyNamespace: String,
         private val keys: Set<String>,
         private val props: Map<String, String>,
-    ) : PropertyExportingServer {
+    ): PropertyExportingServer {
         override fun propertyKeys(): Set<String> = keys
         override fun properties(): Map<String, String> = props
     }

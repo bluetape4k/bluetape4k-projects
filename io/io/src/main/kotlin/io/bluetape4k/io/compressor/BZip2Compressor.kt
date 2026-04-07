@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream
  */
 class BZip2Compressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
-) : AbstractCompressor() {
+): AbstractCompressor() {
     init {
         require(bufferSize > 0) { "bufferSize must be greater than 0." }
     }

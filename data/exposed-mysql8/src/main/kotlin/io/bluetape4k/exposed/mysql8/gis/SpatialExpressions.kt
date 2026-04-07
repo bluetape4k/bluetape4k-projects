@@ -21,7 +21,7 @@ import org.locationtech.jts.geom.Geometry
 class StContainsOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Contains(")
         queryBuilder.append(left)
@@ -39,7 +39,7 @@ class StContainsOp(
 class StWithinOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Within(")
         queryBuilder.append(left)
@@ -57,7 +57,7 @@ class StWithinOp(
 class StIntersectsOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Intersects(")
         queryBuilder.append(left)
@@ -75,7 +75,7 @@ class StIntersectsOp(
 class StDisjointOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Disjoint(")
         queryBuilder.append(left)
@@ -94,7 +94,7 @@ class StDisjointOp(
 class StOverlapsOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Overlaps(")
         queryBuilder.append(left)
@@ -112,7 +112,7 @@ class StOverlapsOp(
 class StTouchesOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Touches(")
         queryBuilder.append(left)
@@ -130,7 +130,7 @@ class StTouchesOp(
 class StCrossesOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Crosses(")
         queryBuilder.append(left)
@@ -148,7 +148,7 @@ class StCrossesOp(
 class StEqualsOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Equals(")
         queryBuilder.append(left)
@@ -169,7 +169,7 @@ class StDWithinOp(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
     private val distance: Double,
-) : Op<Boolean>() {
+): Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Distance(")
         queryBuilder.append(left)
@@ -191,7 +191,7 @@ class StDWithinOp(
 class StDistanceExpr(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : ExpressionWithColumnType<Double>() {
+): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Distance(")
@@ -210,7 +210,7 @@ class StDistanceExpr(
 class StDistanceSphereExpr(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : ExpressionWithColumnType<Double>() {
+): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Distance_Sphere(")
@@ -228,7 +228,7 @@ class StDistanceSphereExpr(
  */
 class StLengthExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<Double>() {
+): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Length(")
@@ -244,7 +244,7 @@ class StLengthExpr(
  */
 class StAreaExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<Double>() {
+): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_Area(")
@@ -264,7 +264,7 @@ class StAreaExpr(
  */
 class StAsTextExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(")
@@ -280,7 +280,7 @@ class StAsTextExpr(
  */
 class StSridExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<Int>() {
+): ExpressionWithColumnType<Int>() {
     override val columnType = IntegerColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_SRID(")
@@ -296,7 +296,7 @@ class StSridExpr(
  */
 class StGeometryTypeExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_GeometryType(")
@@ -315,7 +315,7 @@ class StGeometryTypeExpr(
 class StBufferExpr(
     private val expr: Expression<out Geometry>,
     private val distance: Double,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Buffer(")
@@ -332,7 +332,7 @@ class StBufferExpr(
 class StUnionExpr(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Union(")
@@ -351,7 +351,7 @@ class StUnionExpr(
 class StDifferenceExpr(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Difference(")
@@ -370,7 +370,7 @@ class StDifferenceExpr(
 class StIntersectionExpr(
     private val left: Expression<out Geometry>,
     private val right: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Intersection(")
@@ -389,7 +389,7 @@ class StIntersectionExpr(
  */
 class StCentroidExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Centroid(")
@@ -406,7 +406,7 @@ class StCentroidExpr(
  */
 class StEnvelopeExpr(
     private val expr: Expression<out Geometry>,
-) : ExpressionWithColumnType<String>() {
+): ExpressionWithColumnType<String>() {
     override val columnType = TextColumnType()
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_AsText(ST_Envelope(")

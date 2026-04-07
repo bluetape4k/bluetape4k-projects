@@ -93,18 +93,18 @@ classDiagram
 
 ## 제공 서비스
 
-| 서비스 | 주요 기능 |
-|--------|----------|
-| **DynamoDB** | 테이블 CRUD, Enhanced Client, Coroutines 확장 |
-| **S3** | 객체 업로드/다운로드, TransferManager(대용량), Coroutines 확장 |
-| **SES** | 이메일 발송, Coroutines 확장 |
-| **SNS** | 토픽 발행, SMS, 푸시 알림, Coroutines 확장 |
-| **SQS** | 메시지 발송/수신/삭제, Coroutines 확장 |
-| **KMS** | 암호화 키 관리, 데이터 암호화/복호화, Coroutines 확장 |
-| **CloudWatch** | 메트릭 발행/조회, Coroutines 확장 |
-| **CloudWatch Logs** | 로그 그룹/스트림 관리, 이벤트 전송, Coroutines 확장 |
-| **Kinesis** | 스트림 레코드 전송/조회, Coroutines 확장 |
-| **STS** | AssumeRole, CallerIdentity, SessionToken, Coroutines 확장 |
+| 서비스                 | 주요 기능                                                   |
+|---------------------|---------------------------------------------------------|
+| **DynamoDB**        | 테이블 CRUD, Enhanced Client, Coroutines 확장                |
+| **S3**              | 객체 업로드/다운로드, TransferManager(대용량), Coroutines 확장        |
+| **SES**             | 이메일 발송, Coroutines 확장                                   |
+| **SNS**             | 토픽 발행, SMS, 푸시 알림, Coroutines 확장                        |
+| **SQS**             | 메시지 발송/수신/삭제, Coroutines 확장                             |
+| **KMS**             | 암호화 키 관리, 데이터 암호화/복호화, Coroutines 확장                    |
+| **CloudWatch**      | 메트릭 발행/조회, Coroutines 확장                                |
+| **CloudWatch Logs** | 로그 그룹/스트림 관리, 이벤트 전송, Coroutines 확장                     |
+| **Kinesis**         | 스트림 레코드 전송/조회, Coroutines 확장                            |
+| **STS**             | AssumeRole, CallerIdentity, SessionToken, Coroutines 확장 |
 
 ## 3단계 API 패턴
 

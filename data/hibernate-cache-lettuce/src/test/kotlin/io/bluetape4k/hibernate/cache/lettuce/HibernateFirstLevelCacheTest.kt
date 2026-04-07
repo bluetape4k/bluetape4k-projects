@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 /**
  * 1st Level Cache (Session 스코프) 관리 테스트.
  */
-class HibernateFirstLevelCacheTest : AbstractHibernateNearCacheTest() {
+class HibernateFirstLevelCacheTest: AbstractHibernateNearCacheTest() {
     @BeforeEach
     fun reset() {
         sessionFactory.cache.evictAllRegions()

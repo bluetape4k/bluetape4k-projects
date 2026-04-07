@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class TinkAeadExtensionsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val aead = TinkAeads.AES256_GCM
 

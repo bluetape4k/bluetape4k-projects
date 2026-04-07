@@ -18,7 +18,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
  * @param K 키 타입
  * @param V 값 타입
  */
-interface HazelcastLocalCache<K : Any, V : Any> : AutoCloseable {
+interface HazelcastLocalCache<K: Any, V: Any>: AutoCloseable {
 
     /**
      * [key]에 해당하는 값을 반환합니다. 없으면 null을 반환합니다.
@@ -161,9 +161,9 @@ interface HazelcastLocalCache<K : Any, V : Any> : AutoCloseable {
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class CaffeineHazelcastLocalCache<V : Any>(
+class CaffeineHazelcastLocalCache<V: Any>(
     private val config: HazelcastNearCacheConfig,
-) : HazelcastLocalCache<String, V> {
+): HazelcastLocalCache<String, V> {
 
     private val cache: Cache<String, V> = Caffeine.newBuilder()
         .maximumSize(config.maxLocalSize)

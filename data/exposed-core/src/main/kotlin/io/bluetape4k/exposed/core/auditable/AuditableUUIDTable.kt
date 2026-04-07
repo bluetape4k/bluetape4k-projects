@@ -24,7 +24,7 @@ import java.util.*
 abstract class AuditableUUIDTable(
     name: String = "",
     columnName: String = "id",
-) : AuditableIdTable<UUID>(name) {
+): AuditableIdTable<UUID>(name) {
 
     /**
      * `java.util.UUID`를 사용하는 기본 키 컬럼입니다.

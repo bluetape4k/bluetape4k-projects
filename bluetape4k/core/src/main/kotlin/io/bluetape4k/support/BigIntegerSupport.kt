@@ -99,7 +99,7 @@ fun <T: Number> T.toBigInt(): BigInteger = when (this) {
     is BigInteger             -> this
     is Int, is Short, is Byte -> toLong().toBigInteger()
     is Long                   -> toBigInteger()
-    else                      -> toLong().toBigInteger() 
+    else -> toLong().toBigInteger()
 }
 
 /**

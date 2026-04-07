@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.cache.scenarios
 
-import java.io.Serializable
-
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,6 +14,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 
 /**
  * [R2dbcCacheTestScenario] 기반 Read-Through 캐시 suspend 시나리오입니다.

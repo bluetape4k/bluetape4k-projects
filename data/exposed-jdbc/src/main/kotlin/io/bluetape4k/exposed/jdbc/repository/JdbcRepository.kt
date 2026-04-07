@@ -485,7 +485,7 @@ interface JdbcRepository<ID: Any, E: Any> {
      * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
-    fun <D : Any> batchUpsert(
+    fun <D: Any> batchUpsert(
         entities: Iterable<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -519,7 +519,7 @@ interface JdbcRepository<ID: Any, E: Any> {
      * @param shouldReturnGeneratedValues 새로 생성된 값(자동 증가 ID 등) 반환 여부
      * @return Upsert 된 엔티티 목록
      */
-    fun <D : Any> batchUpsert(
+    fun <D: Any> batchUpsert(
         entities: Sequence<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
@@ -599,7 +599,7 @@ interface JdbcRepository<ID: Any, E: Any> {
  *
  * @param E 엔티티 타입
  */
-interface IntJdbcRepository<E : Any> : JdbcRepository<Int, E>
+interface IntJdbcRepository<E: Any>: JdbcRepository<Int, E>
 
 /**
  * [Long] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -622,7 +622,7 @@ interface IntJdbcRepository<E : Any> : JdbcRepository<Int, E>
  * }
  * ```
  */
-interface LongJdbcRepository<E : Any> : JdbcRepository<Long, E>
+interface LongJdbcRepository<E: Any>: JdbcRepository<Long, E>
 
 /**
  * Kotlin [Uuid] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
@@ -630,18 +630,18 @@ interface LongJdbcRepository<E : Any> : JdbcRepository<Long, E>
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidJdbcRepository<E : Any> : JdbcRepository<Uuid, E>
+interface UuidJdbcRepository<E: Any>: JdbcRepository<Uuid, E>
 
 /**
  * [java.util.UUID] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param E 엔티티 타입
  */
-interface UUIDJdbcRepository<E : Any> : JdbcRepository<UUID, E>
+interface UUIDJdbcRepository<E: Any>: JdbcRepository<UUID, E>
 
 /**
  * [String] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param E 엔티티 타입
  */
-interface StringJdbcRepository<E : Any> : JdbcRepository<String, E>
+interface StringJdbcRepository<E: Any>: JdbcRepository<String, E>

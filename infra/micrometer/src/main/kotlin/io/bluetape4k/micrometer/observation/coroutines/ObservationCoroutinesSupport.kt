@@ -169,30 +169,31 @@ suspend fun <T: Any> withObservationContextSuspending(
     Mono
         .deferContextual { contextView ->
             name.requireNotBlank("name")
-            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
-                val observation = observationRegistry.start(name)
-                Mono
-                    .defer {
-                        // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-                        //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-                        //                log.info(
-                        //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-                        //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-                        //                )
-                        mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
-                            try {
-                                observation.openScope().use {
-                                    block()
+            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY)
+                .use { _ ->
+                    val observation = observationRegistry.start(name)
+                    Mono
+                        .defer {
+                            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
+                            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
+                            //                log.info(
+                            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
+                            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
+                            //                )
+                            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
+                                try {
+                                    observation.openScope().use {
+                                        block()
+                                    }
+                                } catch (e: Throwable) {
+                                    observation.error(e)
+                                    throw e
+                                } finally {
+                                    observation.stop()
                                 }
-                            } catch (e: Throwable) {
-                                observation.error(e)
-                                throw e
-                            } finally {
-                                observation.stop()
                             }
                         }
-                    }
-            }
+                }
         }.awaitSingleOrNull()
 
 
@@ -219,29 +220,30 @@ suspend fun <T: Any> Observation.withObservationContextSuspending(
 ): T? =
     Mono
         .deferContextual { contextView ->
-            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
-                val observation = this@withObservationContextSuspending
-                observation.start()
-                Mono
-                    .defer {
-                        // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-                        //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-                        //                log.info(
-                        //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-                        //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-                        //                )
-                        mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
-                            try {
-                                observation.openScope().use {
-                                    block(observation.context)
+            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY)
+                .use { _ ->
+                    val observation = this@withObservationContextSuspending
+                    observation.start()
+                    Mono
+                        .defer {
+                            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
+                            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
+                            //                log.info(
+                            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
+                            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
+                            //                )
+                            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
+                                try {
+                                    observation.openScope().use {
+                                        block(observation.context)
+                                    }
+                                } catch (e: Throwable) {
+                                    observation.error(e)
+                                    throw e
+                                } finally {
+                                    observation.stop()
                                 }
-                            } catch (e: Throwable) {
-                                observation.error(e)
-                                throw e
-                            } finally {
-                                observation.stop()
                             }
                         }
-                    }
-            }
+                }
         }.awaitSingleOrNull()

@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-A Read-through / Write-through / Write-behind cache repository module that combines Exposed JDBC with Lettuce Redis. Provides both a synchronous (`JdbcLettuceRepository`) and a coroutine-native (`SuspendedJdbcLettuceRepository`) implementation.
+A Read-through / Write-through / Write-behind cache repository module that combines Exposed JDBC with Lettuce Redis. Provides both a synchronous (
+`JdbcLettuceRepository`) and a coroutine-native (`SuspendedJdbcLettuceRepository`) implementation.
 
 ## Overview
 
@@ -13,8 +14,8 @@ A Read-through / Write-through / Write-behind cache repository module that combi
 - **Synchronous repository**: `JdbcLettuceRepository` / `AbstractJdbcLettuceRepository`
 - **Coroutine repository**: `SuspendedJdbcLettuceRepository` / `AbstractSuspendedJdbcLettuceRepository`
 - **MapLoader / MapWriter**: Exposed-based implementations for Lettuce `LettuceLoadedMap` integration
-  - `loadAllKeys()` iterates stably in ascending PK order
-  - `chunkSize` (writer) and `batchSize` (loader) must be greater than 0
+    - `loadAllKeys()` iterates stably in ascending PK order
+    - `chunkSize` (writer) and `batchSize` (loader) must be greater than 0
 
 ## Dependency
 
@@ -143,44 +144,44 @@ sequenceDiagram
 
 ## Key Methods of JdbcLettuceRepository
 
-| Method | Description |
-|--------|-------------|
-| `findById(id)` | Cache lookup → DB Read-through on miss |
-| `findAll(ids)` | Batch cache lookup → DB Read-through for missed keys only |
-| `findAll(limit, offset, ...)` | DB query with result loaded into cache |
-| `findByIdFromDb(id)` | Bypasses cache, queries DB directly |
-| `findAllFromDb(ids)` | Bypasses cache, queries DB directly for multiple IDs |
-| `countFromDb()` | Total record count from DB |
-| `save(id, entity)` | Stores in Redis + reflects in DB according to WriteMode |
-| `saveAll(entities)` | Batch save |
-| `delete(id)` | Deletes from both Redis and DB simultaneously |
-| `deleteAll(ids)` | Batch delete |
-| `clearCache()` | Removes all Redis keys (no effect on DB) |
+| Method                        | Description                                               |
+|-------------------------------|-----------------------------------------------------------|
+| `findById(id)`                | Cache lookup → DB Read-through on miss                    |
+| `findAll(ids)`                | Batch cache lookup → DB Read-through for missed keys only |
+| `findAll(limit, offset, ...)` | DB query with result loaded into cache                    |
+| `findByIdFromDb(id)`          | Bypasses cache, queries DB directly                       |
+| `findAllFromDb(ids)`          | Bypasses cache, queries DB directly for multiple IDs      |
+| `countFromDb()`               | Total record count from DB                                |
+| `save(id, entity)`            | Stores in Redis + reflects in DB according to WriteMode   |
+| `saveAll(entities)`           | Batch save                                                |
+| `delete(id)`                  | Deletes from both Redis and DB simultaneously             |
+| `deleteAll(ids)`              | Batch delete                                              |
+| `clearCache()`                | Removes all Redis keys (no effect on DB)                  |
 
 ## LettuceCacheConfig — Write Modes
 
-| WriteMode | Behavior |
-|-----------|----------|
-| `READ_WRITE_THROUGH` | On save, writes to Redis + DB simultaneously (default) |
-| `READ_WRITE_BEHIND` | On save, writes to Redis immediately; DB is updated asynchronously |
-| `READ_ONLY` | Stores in Redis only; no DB writes |
+| WriteMode            | Behavior                                                           |
+|----------------------|--------------------------------------------------------------------|
+| `READ_WRITE_THROUGH` | On save, writes to Redis + DB simultaneously (default)             |
+| `READ_WRITE_BEHIND`  | On save, writes to Redis immediately; DB is updated asynchronously |
+| `READ_ONLY`          | Stores in Redis only; no DB writes                                 |
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `repository/JdbcLettuceRepository.kt` | Synchronous cache repository interface |
-| `repository/SuspendedJdbcLettuceRepository.kt` | Coroutine cache repository interface |
-| `repository/AbstractJdbcLettuceRepository.kt` | Synchronous abstract implementation (LettuceLoadedMap-based) |
+| File                                                   | Description                                                               |
+|--------------------------------------------------------|---------------------------------------------------------------------------|
+| `repository/JdbcLettuceRepository.kt`                  | Synchronous cache repository interface                                    |
+| `repository/SuspendedJdbcLettuceRepository.kt`         | Coroutine cache repository interface                                      |
+| `repository/AbstractJdbcLettuceRepository.kt`          | Synchronous abstract implementation (LettuceLoadedMap-based)              |
 | `repository/AbstractSuspendedJdbcLettuceRepository.kt` | Coroutine abstract implementation (LettuceSuspendedLoadedMap + NearCache) |
-| `map/EntityMapLoader.kt` | Abstract base class for MapLoader |
-| `map/EntityMapWriter.kt` | Abstract base class for MapWriter (with built-in Resilience4j Retry) |
-| `map/ExposedEntityMapLoader.kt` | Exposed DSL-based synchronous MapLoader |
-| `map/ExposedEntityMapWriter.kt` | Exposed DSL-based synchronous MapWriter |
-| `map/SuspendedEntityMapLoader.kt` | MapLoader based on `suspendedTransactionAsync` |
-| `map/SuspendedEntityMapWriter.kt` | MapWriter based on `suspendedTransactionAsync` + Retry |
-| `map/SuspendedExposedEntityMapLoader.kt` | Coroutine MapLoader based on Exposed DSL |
-| `map/SuspendedExposedEntityMapWriter.kt` | Coroutine MapWriter based on Exposed DSL |
+| `map/EntityMapLoader.kt`                               | Abstract base class for MapLoader                                         |
+| `map/EntityMapWriter.kt`                               | Abstract base class for MapWriter (with built-in Resilience4j Retry)      |
+| `map/ExposedEntityMapLoader.kt`                        | Exposed DSL-based synchronous MapLoader                                   |
+| `map/ExposedEntityMapWriter.kt`                        | Exposed DSL-based synchronous MapWriter                                   |
+| `map/SuspendedEntityMapLoader.kt`                      | MapLoader based on `suspendedTransactionAsync`                            |
+| `map/SuspendedEntityMapWriter.kt`                      | MapWriter based on `suspendedTransactionAsync` + Retry                    |
+| `map/SuspendedExposedEntityMapLoader.kt`               | Coroutine MapLoader based on Exposed DSL                                  |
+| `map/SuspendedExposedEntityMapWriter.kt`               | Coroutine MapWriter based on Exposed DSL                                  |
 
 ## Testing
 

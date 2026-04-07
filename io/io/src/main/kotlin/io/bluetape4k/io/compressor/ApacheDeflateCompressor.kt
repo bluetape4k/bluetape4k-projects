@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
  * @see [DeflateCompressorOutputStream]
  * @see [DeflateCompressorInputStream]
  */
-class ApacheDeflateCompressor : AbstractCompressor() {
+class ApacheDeflateCompressor: AbstractCompressor() {
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */

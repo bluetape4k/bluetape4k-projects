@@ -18,8 +18,8 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
-class JSONExtensionsTest : AbstractFastjson2Test() {
-    companion object : KLogging()
+class JSONExtensionsTest: AbstractFastjson2Test() {
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `JSON 문자열을 User 객체로 역직렬화`() {
@@ -82,10 +82,10 @@ class JSONExtensionsTest : AbstractFastjson2Test() {
         // JSONObject
         val parsed = jsonString.parseObject()
         parsed shouldBeEqualTo
-            mapOf(
-                "id" to user.id,
-                "name" to user.name
-            )
+                mapOf(
+                    "id" to user.id,
+                    "name" to user.name
+                )
     }
 
     /**
@@ -202,7 +202,7 @@ class JSONExtensionsTest : AbstractFastjson2Test() {
     data class Meta(
         val id: Int = 1,
         val tag: String = "json",
-    ) : Serializable {
+    ): Serializable {
         companion object {
             private const val serialVersionUID: Long = 1L
         }

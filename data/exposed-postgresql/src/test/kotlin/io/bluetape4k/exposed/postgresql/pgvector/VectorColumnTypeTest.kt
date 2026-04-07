@@ -191,7 +191,11 @@ class VectorColumnTypeTest: AbstractExposedTest() {
         val columnType = VectorColumnType(DIMENSION)
 
         columnType.valueFromDB("[1,2,3]").toList() shouldBeEqualTo listOf(1.0f, 2.0f, 3.0f)
-        columnType.valueFromDB(PGvector(floatArrayOf(4.0f, 5.0f, 6.0f))).toList() shouldBeEqualTo listOf(4.0f, 5.0f, 6.0f)
+        columnType.valueFromDB(PGvector(floatArrayOf(4.0f, 5.0f, 6.0f))).toList() shouldBeEqualTo listOf(
+            4.0f,
+            5.0f,
+            6.0f
+        )
     }
 
     @Test

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 /**
  * Query Cache 고급 테스트.
  */
-class HibernateQueryCacheAdvancedTest : AbstractHibernateNearCacheTest() {
+class HibernateQueryCacheAdvancedTest: AbstractHibernateNearCacheTest() {
     companion object {
         const val PERSON_QUERY_REGION = "io.bluetape4k.person.queries"
     }

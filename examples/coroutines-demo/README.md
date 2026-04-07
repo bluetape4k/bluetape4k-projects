@@ -18,50 +18,50 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 
 ### Flow Examples (flow/)
 
-| Example File               | Description                                          |
-|----------------------------|------------------------------------------------------|
-| `FlowBasicExamples.kt`     | Basic Flow creation and collection                   |
-| `FlowBuilderExamples.kt`   | Builders: flowOf, asFlow, channelFlow, etc.          |
-| `FlowOperatorExamples.kt`  | Operators: map, filter, transform, etc.              |
-| `FlowLifecycleExamples.kt` | Lifecycle hooks: onStart, onCompletion, onEach       |
-| `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow            |
-| `StateFlowExamples.kt`     | State management with StateFlow                      |
-| `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                       |
-| `CallbackFlowExamples.kt`  | Converting callback-based APIs to Flow               |
+| Example File               | Description                                    |
+|----------------------------|------------------------------------------------|
+| `FlowBasicExamples.kt`     | Basic Flow creation and collection             |
+| `FlowBuilderExamples.kt`   | Builders: flowOf, asFlow, channelFlow, etc.    |
+| `FlowOperatorExamples.kt`  | Operators: map, filter, transform, etc.        |
+| `FlowLifecycleExamples.kt` | Lifecycle hooks: onStart, onCompletion, onEach |
+| `SharedFlowExamples.kt`    | Implementing an event bus with SharedFlow      |
+| `StateFlowExamples.kt`     | State management with StateFlow                |
+| `ChannelFlowExamples.kt`   | channelFlow and cold/hot flows                 |
+| `CallbackFlowExamples.kt`  | Converting callback-based APIs to Flow         |
 
 ### Channel Examples (channels/)
 
-| Example File         | Description                          |
-|----------------------|--------------------------------------|
-| `ChannelExamples.kt` | Channel basics: produce, consume     |
+| Example File         | Description                             |
+|----------------------|-----------------------------------------|
+| `ChannelExamples.kt` | Channel basics: produce, consume        |
 | `ActorExamples.kt`   | State management with the Actor pattern |
 
 ### Cancellation (cancellation/)
 
-| Example File              | Description                                   |
-|---------------------------|-----------------------------------------------|
+| Example File              | Description                                     |
+|---------------------------|-------------------------------------------------|
 | `CancellationExamples.kt` | Cooperative cancellation and exception handling |
 
 ### Coroutine Context (context/)
 
-| Example File                      | Description                          |
-|-----------------------------------|--------------------------------------|
+| Example File                      | Description                            |
+|-----------------------------------|----------------------------------------|
 | `CoroutineContextExamples.kt`     | Implementing a custom CoroutineContext |
-| `CounterCoroutineContext.kt`      | Counter context example               |
-| `UuidProviderCoroutineContext.kt` | UUID-providing context                |
+| `CounterCoroutineContext.kt`      | Counter context example                |
+| `UuidProviderCoroutineContext.kt` | UUID-providing context                 |
 
 ### Builders (builders/)
 
-| Example File                         | Description             |
-|--------------------------------------|-------------------------|
+| Example File                         | Description               |
+|--------------------------------------|---------------------------|
 | `CoroutineBuilderExamples.kt`        | Custom coroutine builders |
 | `CoroutineContextBuilderExamples.kt` | Context builder patterns  |
 
 ### Dispatchers (dispatchers/)
 
-| Example File            | Description                                    |
-|-------------------------|------------------------------------------------|
-| `DispatcherExamples.kt` | Default, IO, Unconfined, and Main dispatchers  |
+| Example File            | Description                                   |
+|-------------------------|-----------------------------------------------|
+| `DispatcherExamples.kt` | Default, IO, Unconfined, and Main dispatchers |
 
 ### Exception Handling (exceptions/)
 
@@ -71,15 +71,15 @@ A collection of examples for learning the features and usage patterns of Kotlin 
 
 ### Scope (scope/)
 
-| Example File                | Description                                          |
-|-----------------------------|------------------------------------------------------|
-| `CoroutineScopeExamples.kt` | lifecycleScope, viewModelScope, and custom scopes    |
+| Example File                | Description                                       |
+|-----------------------------|---------------------------------------------------|
+| `CoroutineScopeExamples.kt` | lifecycleScope, viewModelScope, and custom scopes |
 
 ### Testing (tests/)
 
-| Example File         | Description                   |
-|----------------------|-------------------------------|
-| `TurbineExamples.kt` | Testing Flow with Turbine     |
+| Example File         | Description               |
+|----------------------|---------------------------|
+| `TurbineExamples.kt` | Testing Flow with Turbine |
 
 ## How to Run
 

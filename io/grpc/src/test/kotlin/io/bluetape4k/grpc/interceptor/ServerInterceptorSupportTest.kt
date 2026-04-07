@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  * [echoRequestHeadersInterceptor], [echoRequestMetadataInHeaders], [echoRequestMetadataInTrailers] 인터셉터 테스트
  */
 class ServerInterceptorSupportTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val X_ID_KEY: Metadata.Key<String> =
             Metadata.Key.of("x-id", Metadata.ASCII_STRING_MARSHALLER)
         private val X_TOKEN_KEY: Metadata.Key<String> =

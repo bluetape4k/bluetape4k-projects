@@ -315,21 +315,21 @@ val jwtProvider = JwtProviderFactory.default(
 
 ### Supported Signature Algorithms
 
-| Algorithm | Description                      |
-|-----------|----------------------------------|
-| RS256     | RSA with SHA-256 (recommended)   |
-| RS384     | RSA with SHA-384                 |
-| RS512     | RSA with SHA-512                 |
-| PS256     | RSASSA-PSS with SHA-256          |
-| PS384     | RSASSA-PSS with SHA-384          |
-| PS512     | RSASSA-PSS with SHA-512          |
+| Algorithm | Description                    |
+|-----------|--------------------------------|
+| RS256     | RSA with SHA-256 (recommended) |
+| RS384     | RSA with SHA-384               |
+| RS512     | RSA with SHA-512               |
+| PS256     | RSASSA-PSS with SHA-256        |
+| PS384     | RSASSA-PSS with SHA-384        |
+| PS512     | RSASSA-PSS with SHA-512        |
 
 ### Supported Compression Algorithms
 
-| Algorithm           | Description                        |
-|---------------------|------------------------------------|
-| `JwtCodecs.Deflate` | Deflate compression (`Jwts.ZIP.DEF`)  |
-| `JwtCodecs.Gzip`    | GZIP compression (`Jwts.ZIP.GZIP`) |
+| Algorithm           | Description                          |
+|---------------------|--------------------------------------|
+| `JwtCodecs.Deflate` | Deflate compression (`Jwts.ZIP.DEF`) |
+| `JwtCodecs.Gzip`    | GZIP compression (`Jwts.ZIP.GZIP`)   |
 
 ## Security Best Practices
 

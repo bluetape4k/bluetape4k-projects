@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class DuckDBExtensionsTest : AbstractDuckDBTest() {
+class DuckDBExtensionsTest: AbstractDuckDBTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val OCCURRED_AT: Instant = Instant.parse("2024-01-01T00:00:00Z")
 
         private val FIXTURES = listOf(

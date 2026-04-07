@@ -24,8 +24,8 @@ import io.bluetape4k.logging.KLogging
  */
 class KsuidGenerator(
     private val generator: Ksuid.Generator = Ksuid.Seconds,
-) : IdGenerator<String> by generator {
-    companion object : KLogging()
+): IdGenerator<String> by generator {
+    companion object: KLogging()
 
     /**
      * KSUID를 생성합니다. [IdGenerator.nextId]와 동일합니다.

@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 internal class ULIDFactory(
     private val random: Random = Random,
-) : ULID.Factory {
+): ULID.Factory {
     companion object {
         val Default = ULIDFactory()
     }

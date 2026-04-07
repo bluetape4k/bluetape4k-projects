@@ -14,7 +14,7 @@ import kotlin.random.Random
 data class Box(
     val x: Int,
     val y: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -22,7 +22,7 @@ data class Box(
 
 data class Container(
     val boxes: List<Box>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -32,7 +32,7 @@ data class Container(
 data class Point(
     val x: Int,
     val y: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -40,19 +40,19 @@ data class Point(
 
 data class Points(
     val p: List<Point>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 
-    constructor(vararg points: Point) : this(points.toList())
+    constructor(vararg points: Point): this(points.toList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])
 data class Rectangle(
     val topLeft: Point,
     val bottomRight: Point,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -69,7 +69,7 @@ data class FiveMinuteUser(
     var verified: Boolean,
     var gender: Gender,
     var userImage: ByteArray,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -98,7 +98,7 @@ data class FiveMinuteUser(
 data class IdDesc(
     var id: String,
     val desc: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -107,7 +107,7 @@ data class IdDesc(
 data class Outer(
     val name: Name,
     val age: Int,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -116,7 +116,7 @@ data class Outer(
 data class Name(
     val first: String,
     val last: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -124,7 +124,7 @@ data class Name(
 
 data class Database(
     val dataSource: DataSource,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -136,7 +136,7 @@ data class DataSource(
     val username: String,
     val password: String,
     val properties: Set<String>,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -155,14 +155,14 @@ data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: List<String> = emptyList(),
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-interface Person : Serializable {
+interface Person: Serializable {
     val name: String
     val age: Int
 }
@@ -171,38 +171,38 @@ data class Professor(
     override val name: String,
     override val age: Int,
     val spec: String? = null,
-) : Person
+): Person
 
 data class Student(
     override val name: String,
     override val age: Int,
     val degree: String? = null,
-) : Person
+): Person
 
 data class OptionalData(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-) : Person
+): Person
 
 data class OptionalCollection(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
     val options: List<Optional<String>> = emptyList(),
-) : Person
+): Person
 
 internal data class CollectionItem(
     val id: Int,
     val name: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-open class User :
+open class User:
     AbstractValueObject(),
     Comparable<User> {
     lateinit var firstname: String
@@ -235,8 +235,8 @@ open class User :
 
     override fun equalProperties(other: Any): Boolean =
         other is User &&
-            firstname == other.firstname &&
-            lastname == other.lastname
+                firstname == other.firstname &&
+                lastname == other.lastname
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 

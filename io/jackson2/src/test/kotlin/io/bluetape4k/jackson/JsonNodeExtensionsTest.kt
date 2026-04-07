@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
  * [JsonNodeExtensions] 확장 함수에 대한 테스트입니다.
  */
 class JsonNodeExtensionsTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val factory = JsonNodeFactory.instance
 

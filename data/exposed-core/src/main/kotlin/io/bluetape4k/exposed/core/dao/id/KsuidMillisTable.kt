@@ -18,7 +18,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 open class KsuidMillisTable(
     name: String = "",
     columnName: String = "id",
-) : IdTable<String>(name) {
+): IdTable<String>(name) {
     /**
      * KSUID 문자열(27자)로 구성된 기본 키 컬럼입니다.
      * 기본값은 `Ksuid.Millis.nextId()`로 자동 생성됩니다.

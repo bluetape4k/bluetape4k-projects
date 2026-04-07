@@ -2,11 +2,13 @@
 
 English | [한국어](./README.ko.md)
 
-A **backward-compatible umbrella module** that bundles `bluetape4k-exposed-core`, `bluetape4k-exposed-dao`, and `bluetape4k-exposed-jdbc` together.
+A **backward-compatible umbrella module** that bundles `bluetape4k-exposed-core`, `bluetape4k-exposed-dao`, and
+`bluetape4k-exposed-jdbc` together.
 
 ## Overview
 
-Existing code that depends on the single `bluetape4k-exposed` module continues to work **without any changes**. For new projects, we recommend referencing only the specific sub-modules you actually need.
+Existing code that depends on the single `bluetape4k-exposed` module continues to work **without any changes
+**. For new projects, we recommend referencing only the specific sub-modules you actually need.
 
 ```text
 bluetape4k-exposed  (umbrella)
@@ -64,7 +66,8 @@ See the `bluetape4k-exposed-core` module README for details.
 
 - DAO Entity helpers: `idEquals`, `idHashCode`, `entityToStringBuilder`
 - `StringEntity` / `StringEntityClass` (String primary key support)
-- Custom IdTables: `KsuidTable`, `KsuidMillisTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `TimebasedUUIDBase62Table`, `SoftDeletedIdTable`
+- Custom IdTables: `KsuidTable`, `KsuidMillisTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`,
+  `TimebasedUUIDBase62Table`, `SoftDeletedIdTable`
 
 See the `bluetape4k-exposed-dao` module README for details.
 

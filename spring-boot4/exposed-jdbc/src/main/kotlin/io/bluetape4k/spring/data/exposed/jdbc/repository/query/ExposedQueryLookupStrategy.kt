@@ -24,12 +24,12 @@ import java.lang.reflect.Method
  */
 class ExposedQueryLookupStrategy(
     private val key: QueryLookupStrategy.Key,
-) : QueryLookupStrategy {
+): QueryLookupStrategy {
 
     companion object: KLogging() {
         fun create(key: QueryLookupStrategy.Key): ExposedQueryLookupStrategy = ExposedQueryLookupStrategy(key)
     }
-    
+
     override fun resolveQuery(
         method: Method,
         metadata: RepositoryMetadata,
@@ -52,7 +52,7 @@ class ExposedQueryLookupStrategy(
                 DeclaredExposedQuery(queryMethod, entityInformation)
             }
 
-            QueryLookupStrategy.Key.CREATE -> {
+            QueryLookupStrategy.Key.CREATE             -> {
                 PartTreeExposedQuery(queryMethod, entityInformation)
             }
 

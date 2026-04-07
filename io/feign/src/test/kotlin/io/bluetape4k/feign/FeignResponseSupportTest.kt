@@ -12,8 +12,8 @@ import org.junit.jupiter.api.assertThrows
 /**
  * [FeignResponseSupport]의 Content-Type 판별 및 본문 접근 확장 함수를 검증합니다.
  */
-class FeignResponseSupportTest : AbstractFeignTest() {
-    companion object : KLogging()
+class FeignResponseSupportTest: AbstractFeignTest() {
+    companion object: KLogging()
 
     /** 테스트에서 공통으로 사용하는 더미 GET 요청 객체입니다. */
     private val dummyRequest: Request by lazy {

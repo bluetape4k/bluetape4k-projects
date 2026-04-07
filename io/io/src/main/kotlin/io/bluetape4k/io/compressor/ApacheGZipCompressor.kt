@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
  * @see [GzipCompressorOutputStream]
  * @see [GzipCompressorInputStream]
  */
-class ApacheGZipCompressor : AbstractCompressor() {
+class ApacheGZipCompressor: AbstractCompressor() {
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */

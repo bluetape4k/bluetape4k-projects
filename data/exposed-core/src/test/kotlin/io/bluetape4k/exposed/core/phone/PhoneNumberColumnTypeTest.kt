@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-object ContactTable : LongIdTable("phone_contacts") {
+object ContactTable: LongIdTable("phone_contacts") {
     val phone = phoneNumber("phone")
     val phoneStr = phoneNumberString("phone_str")
 }
@@ -25,9 +25,9 @@ object ContactTable : LongIdTable("phone_contacts") {
  *
  * H2 및 PostgreSQL 다이얼렉트에서 E.164 정규화 저장/조회를 검증한다.
  */
-class PhoneNumberColumnTypeTest : AbstractExposedTest() {
+class PhoneNumberColumnTypeTest: AbstractExposedTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

@@ -19,7 +19,7 @@ import java.io.Serializable
 @Table(name = "versioned_items")
 @jakarta.persistence.Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-class VersionedItem : Serializable {
+class VersionedItem: Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -35,7 +35,7 @@ class VersionedItem : Serializable {
 @Table(name = "versioned_categories")
 @jakarta.persistence.Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-class VersionedCategory : Serializable {
+class VersionedCategory: Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -54,7 +54,7 @@ class VersionedCategory : Serializable {
 @Table(name = "versioned_category_items")
 @jakarta.persistence.Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-class VersionedCategoryItem : Serializable {
+class VersionedCategoryItem: Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null

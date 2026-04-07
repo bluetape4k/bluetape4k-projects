@@ -4,8 +4,8 @@
 
 ## 개요
 
-`bluetape4k-okio`는 Square의 [Okio](https://square.github.io/okio/) 라이브러리를 기반으로 한 고성능 I/O 확장 모듈입니다.
-Okio의 `Source`/`Sink` 추상화 위에 압축, 암호화, Base64 인코딩, NIO 채널 통합, Kotlin Coroutines 비동기 I/O 등을 제공합니다.
+`bluetape4k-okio`는 Square의 [Okio](https://square.github.io/okio/) 라이브러리를 기반으로 한 고성능 I/O 확장 모듈입니다. Okio의 `Source`/
+`Sink` 추상화 위에 압축, 암호화, Base64 인코딩, NIO 채널 통합, Kotlin Coroutines 비동기 I/O 등을 제공합니다.
 
 ## 주요 기능
 
@@ -82,6 +82,7 @@ val streamingSource = source.asDecompressSource(Compressors.Streaming.Zstd)
 ```
 
 **주의사항:**
+
 - `CompressableSink`는 `close()` 시점에 압축 결과가 확정됩니다. 반드시 `close()` 또는 `use {}`를 사용하세요.
 - `StreamingCompressSink`도 footer/finalize 기록을 위해 `close()`가 필요합니다.
 

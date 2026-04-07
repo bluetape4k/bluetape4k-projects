@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 An extension library that makes Spring Data R2DBC easier to use with Kotlin Coroutines (Spring Boot 4.x).
 
-> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-r2dbc`), adapted to the Spring Boot 4.x API.
+> Provides the same functionality as the Spring Boot 3 module (
+`bluetape4k-spring-r2dbc`), adapted to the Spring Boot 4.x API.
 
 ## Key Features
 
@@ -89,21 +90,21 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 Coroutine functions follow the `XyzSuspending` naming pattern.
 
-| Function                                | Return Type | Description                         |
-|----------------------------------------|-------------|-------------------------------------|
-| `findOneByIdSuspending<T>(id)`         | `T`         | Find by ID                          |
-| `findOneByIdOrNullSuspending<T>(id)`   | `T?`        | Find by ID (null if not found)      |
-| `selectAllSuspending<T>()`             | `Flow<T>`   | Select all records                  |
-| `selectSuspending<T>(query)`           | `Flow<T>`   | Select by query                     |
-| `selectOneSuspending<T>(query)`        | `T`         | Select single record                |
-| `selectOneOrNullSuspending<T>(query)`  | `T?`        | Select single record (null if none) |
-| `insertSuspending(entity)`             | `T`         | Insert                              |
-| `updateSuspending<T>(query, update)`   | `Int`       | Update                              |
-| `deleteSuspending<T>(query)`           | `Int`       | Delete                              |
-| `deleteAllSuspending<T>()`             | `Int`       | Delete all                          |
-| `countAllSuspending<T>()`              | `Long`      | Total count                         |
-| `countSuspending<T>(query)`            | `Long`      | Conditional count                   |
-| `existsSuspending<T>(query)`           | `Boolean`   | Check existence                     |
+| Function                              | Return Type | Description                         |
+|---------------------------------------|-------------|-------------------------------------|
+| `findOneByIdSuspending<T>(id)`        | `T`         | Find by ID                          |
+| `findOneByIdOrNullSuspending<T>(id)`  | `T?`        | Find by ID (null if not found)      |
+| `selectAllSuspending<T>()`            | `Flow<T>`   | Select all records                  |
+| `selectSuspending<T>(query)`          | `Flow<T>`   | Select by query                     |
+| `selectOneSuspending<T>(query)`       | `T`         | Select single record                |
+| `selectOneOrNullSuspending<T>(query)` | `T?`        | Select single record (null if none) |
+| `insertSuspending(entity)`            | `T`         | Insert                              |
+| `updateSuspending<T>(query, update)`  | `Int`       | Update                              |
+| `deleteSuspending<T>(query)`          | `Int`       | Delete                              |
+| `deleteAllSuspending<T>()`            | `Int`       | Delete all                          |
+| `countAllSuspending<T>()`             | `Long`      | Total count                         |
+| `countSuspending<T>(query)`           | `Long`      | Conditional count                   |
+| `existsSuspending<T>(query)`          | `Boolean`   | Check existence                     |
 
 ## Build and Test
 

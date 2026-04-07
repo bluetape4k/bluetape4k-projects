@@ -9,12 +9,14 @@ A unified module for async and Coroutines-based development with Vert.x.
 ## What's Included
 
 ### Vert.x Core (formerly `vertx/core`)
+
 - Vert.x Kotlin Coroutines extensions
 - Verticle deployment and management utilities
 - EventBus coroutine adapters
 - Suspend support based on `vertx_lang_kotlin_coroutines`
 
 ### Vert.x SQL Client (formerly `vertx/sqlclient`)
+
 - `vertx-sql-client` + `vertx-sql-client-templates` integration
 - MySQL / PostgreSQL drivers included
 - MyBatis Dynamic SQL integration
@@ -22,6 +24,7 @@ A unified module for async and Coroutines-based development with Vert.x.
 - Coroutines-based query execution
 
 ### Resilience4j Integration (formerly `vertx/resilience4j`)
+
 - Vert.x + Resilience4j Circuit Breaker integration
 - Resilience4j Micrometer metrics integration (optional)
 
@@ -49,17 +52,17 @@ dependencies {
 
 ## Dependency Structure
 
-| Category | Scope | Description |
-|----------|-------|-------------|
-| `vertx-core` | `api` | Vert.x core |
-| `vertx-lang-kotlin` | `api` | Kotlin language support |
-| `vertx-lang-kotlin-coroutines` | `api` | Coroutines support |
-| `vertx-sql-client` | `api` | SQL client abstraction |
-| `bluetape4k-resilience4j` | `api` | Resilience4j integration |
-| `vertx-mysql-client` | `implementation` | MySQL driver |
-| `vertx-pg-client` | `implementation` | PostgreSQL driver |
-| `vertx-web` | `compileOnly` | Optional web support |
-| `vertx-jdbc-client` | `compileOnly` | Optional JDBC |
+| Category                       | Scope            | Description              |
+|--------------------------------|------------------|--------------------------|
+| `vertx-core`                   | `api`            | Vert.x core              |
+| `vertx-lang-kotlin`            | `api`            | Kotlin language support  |
+| `vertx-lang-kotlin-coroutines` | `api`            | Coroutines support       |
+| `vertx-sql-client`             | `api`            | SQL client abstraction   |
+| `bluetape4k-resilience4j`      | `api`            | Resilience4j integration |
+| `vertx-mysql-client`           | `implementation` | MySQL driver             |
+| `vertx-pg-client`              | `implementation` | PostgreSQL driver        |
+| `vertx-web`                    | `compileOnly`    | Optional web support     |
+| `vertx-jdbc-client`            | `compileOnly`    | Optional JDBC            |
 
 ## Architecture Diagrams
 

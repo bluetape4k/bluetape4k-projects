@@ -21,7 +21,7 @@ dependencies {
     compileOnly(Libs.ehcache)
     compileOnly(Libs.ehcache_clustered)
     compileOnly(Libs.ehcache_transactions)
-    
+
     // bluetape4k-resilience4j는 cache-redisson에 compileOnly 의존하여 순환 의존성 발생 → 직접 라이브러리 사용
     implementation(Libs.resilience4j_retry)
     implementation(Libs.resilience4j_kotlin)

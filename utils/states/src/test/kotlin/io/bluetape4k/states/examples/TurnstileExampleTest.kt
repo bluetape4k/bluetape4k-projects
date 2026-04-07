@@ -15,13 +15,16 @@ import org.junit.jupiter.api.Test
  */
 class TurnstileExampleTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class TurnstileState { LOCKED, UNLOCKED }
+    enum class TurnstileState {
+        LOCKED,
+        UNLOCKED
+    }
 
     sealed class TurnstileEvent {
-        data object Coin : TurnstileEvent()
-        data object Push : TurnstileEvent()
+        data object Coin: TurnstileEvent()
+        data object Push: TurnstileEvent()
     }
 
     private fun createTurnstile() = stateMachine<TurnstileState, TurnstileEvent> {

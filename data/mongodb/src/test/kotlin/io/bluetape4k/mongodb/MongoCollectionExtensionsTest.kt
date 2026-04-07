@@ -18,9 +18,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 
-class MongoCollectionExtensionsTest : AbstractMongoTest() {
+class MongoCollectionExtensionsTest: AbstractMongoTest() {
 
-    companion object : KLoggingChannel() {
+    companion object: KLoggingChannel() {
         const val COLLECTION_NAME = "ext_test_collection"
     }
 

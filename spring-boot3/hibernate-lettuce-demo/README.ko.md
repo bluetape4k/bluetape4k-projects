@@ -127,13 +127,13 @@ data class Product(
 
 ### 상품 API (`/api/products`)
 
-| 메서드      | 경로                   | 설명                 | 캐시 동작         |
-|----------|----------------------|--------------------|-----------------|
-| `GET`    | `/api/products`      | 전체 상품 조회           | 캐시 적용 안 함    |
-| `GET`    | `/api/products/{id}` | ID로 상품 조회          | L1/L2 Hit/Miss  |
-| `POST`   | `/api/products`      | 상품 생성              | L1 + L2에 저장   |
-| `PUT`    | `/api/products/{id}` | 상품 수정              | L1 + L2 갱신    |
-| `DELETE` | `/api/products/{id}` | 상품 삭제              | L1 + L2 제거    |
+| 메서드      | 경로                   | 설명        | 캐시 동작          |
+|----------|----------------------|-----------|----------------|
+| `GET`    | `/api/products`      | 전체 상품 조회  | 캐시 적용 안 함      |
+| `GET`    | `/api/products/{id}` | ID로 상품 조회 | L1/L2 Hit/Miss |
+| `POST`   | `/api/products`      | 상품 생성     | L1 + L2에 저장    |
+| `PUT`    | `/api/products/{id}` | 상품 수정     | L1 + L2 갱신     |
+| `DELETE` | `/api/products/{id}` | 상품 삭제     | L1 + L2 제거     |
 
 #### 예시: 상품 조회 (캐시 활용)
 
@@ -204,11 +204,11 @@ curl -X DELETE http://localhost:8080/api/products/1
 
 ### 캐시 관리 API (`/api/cache`)
 
-| 메서드      | 경로                          | 설명                            | 동작                            |
-|----------|-----------------------------|-------------------------------|-------------------------------|
-| `GET`    | `/api/cache/stats`          | 리전별 캐시 통계                | L1 크기, hit/miss 수 조회       |
-| `DELETE` | `/api/cache/evict`          | 전체 리전 L1 캐시 비우기         | L1만 제거 (L2는 유지)            |
-| `DELETE` | `/api/cache/evict/{region}` | 특정 리전 L1 캐시 비우기         | 해당 region L1만 제거 (L2는 유지) |
+| 메서드      | 경로                          | 설명              | 동작                        |
+|----------|-----------------------------|-----------------|---------------------------|
+| `GET`    | `/api/cache/stats`          | 리전별 캐시 통계       | L1 크기, hit/miss 수 조회      |
+| `DELETE` | `/api/cache/evict`          | 전체 리전 L1 캐시 비우기 | L1만 제거 (L2는 유지)           |
+| `DELETE` | `/api/cache/evict/{region}` | 특정 리전 L1 캐시 비우기 | 해당 region L1만 제거 (L2는 유지) |
 
 #### 예시: 캐시 통계 조회
 

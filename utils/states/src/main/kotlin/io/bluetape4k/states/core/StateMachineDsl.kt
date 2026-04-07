@@ -25,7 +25,7 @@ annotation class StateMachineDsl
  * @param E 이벤트 타입
  */
 @StateMachineDsl
-class TransitionBuilder<S : Any, E : Any> {
+class TransitionBuilder<S: Any, E: Any> {
     /**
      * Guard 조건 람다를 설정합니다.
      */
@@ -63,7 +63,7 @@ class TransitionBuilder<S : Any, E : Any> {
  * @param E 이벤트 타입
  */
 @StateMachineDsl
-class StateMachineBuilder<S : Any, E : Any> {
+class StateMachineBuilder<S: Any, E: Any> {
     /**
      * 초기 상태를 설정합니다.
      */
@@ -137,7 +137,7 @@ class StateMachineBuilder<S : Any, E : Any> {
  * @param E 이벤트 타입
  */
 @StateMachineDsl
-class SuspendStateMachineBuilder<S : Any, E : Any> {
+class SuspendStateMachineBuilder<S: Any, E: Any> {
     /**
      * 초기 상태를 설정합니다.
      */
@@ -207,7 +207,7 @@ class SuspendStateMachineBuilder<S : Any, E : Any> {
  * @param block DSL 빌더 블록
  * @return 생성된 [StateMachine]
  */
-fun <S : Any, E : Any> stateMachine(
+fun <S: Any, E: Any> stateMachine(
     block: StateMachineBuilder<S, E>.() -> Unit,
 ): StateMachine<S, E> = StateMachineBuilder<S, E>().apply(block).build()
 
@@ -227,7 +227,7 @@ fun <S : Any, E : Any> stateMachine(
  * @param block DSL 빌더 블록
  * @return 생성된 [SuspendStateMachineInterface]
  */
-fun <S : Any, E : Any> suspendStateMachine(
+fun <S: Any, E: Any> suspendStateMachine(
     block: SuspendStateMachineBuilder<S, E>.() -> Unit,
 ): SuspendStateMachineInterface<S, E> = SuspendStateMachineBuilder<S, E>().apply(block).build()
 
@@ -243,4 +243,4 @@ fun <S : Any, E : Any> suspendStateMachine(
  * @param E 이벤트 타입
  * @return 이벤트 클래스 객체
  */
-inline fun <reified E : Any> on(): Class<E> = E::class.java
+inline fun <reified E: Any> on(): Class<E> = E::class.java

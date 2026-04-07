@@ -372,20 +372,20 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 **Result 패턴 API 목록:**
 
-| 함수 | 반환 타입 | 설명 |
-|------|----------|------|
-| `tryCreateDirectory(path)` | `Result<File>` | 디렉토리 생성 |
-| `tryCreateFile(path)` | `Result<File>` | 파일 생성 |
-| `File.tryDeleteRecursively()` | `Result<Boolean>` | 재귀 삭제 |
-| `File.tryDeleteIfExists()` | `Result<Boolean>` | 파일 삭제 |
-| `Path.tryReadAllBytes()` | `Result<ByteArray>` | 바이트 읽기 |
-| `Path.tryWriteBytes(bytes)` | `Result<Long>` | 바이트 쓰기 |
-| `Path.tryReadAllLines()` | `Result<List<String>>` | 라인 읽기 |
-| `Path.tryWriteLines(lines)` | `Result<Long>` | 라인 쓰기 |
-| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>` | 비동기 복사 |
-| `File.tryMoveAsync(target)` | `CompletableFuture<Result<File>>` | 비동기 이동 |
-| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | 비동기 읽기 |
-| `Path.tryWriteAsync(bytes)` | `CompletableFuture<Result<Long>>` | 비동기 쓰기 |
+| 함수                            | 반환 타입                                  | 설명      |
+|-------------------------------|----------------------------------------|---------|
+| `tryCreateDirectory(path)`    | `Result<File>`                         | 디렉토리 생성 |
+| `tryCreateFile(path)`         | `Result<File>`                         | 파일 생성   |
+| `File.tryDeleteRecursively()` | `Result<Boolean>`                      | 재귀 삭제   |
+| `File.tryDeleteIfExists()`    | `Result<Boolean>`                      | 파일 삭제   |
+| `Path.tryReadAllBytes()`      | `Result<ByteArray>`                    | 바이트 읽기  |
+| `Path.tryWriteBytes(bytes)`   | `Result<Long>`                         | 바이트 쓰기  |
+| `Path.tryReadAllLines()`      | `Result<List<String>>`                 | 라인 읽기   |
+| `Path.tryWriteLines(lines)`   | `Result<Long>`                         | 라인 쓰기   |
+| `File.tryCopyToAsync(target)` | `CompletableFuture<Result<File>>`      | 비동기 복사  |
+| `File.tryMoveAsync(target)`   | `CompletableFuture<Result<File>>`      | 비동기 이동  |
+| `Path.tryReadAllBytesAsync()` | `CompletableFuture<Result<ByteArray>>` | 비동기 읽기  |
+| `Path.tryWriteAsync(bytes)`   | `CompletableFuture<Result<Long>>`      | 비동기 쓰기  |
 
 ## 벤치마크 결과
 
@@ -395,20 +395,20 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 **Byte Array 속성이 없는 경우:**
 
-| 라이브러리 | ops/s   | 비고 |
-|---------|---------|------|
-| Fory    | 305,821 | 최고 성능 |
-| Kryo    | 81,823  | 범용 추천 |
+| 라이브러리   | ops/s   | 비고      |
+|---------|---------|---------|
+| Fory    | 305,821 | 최고 성능   |
+| Kryo    | 81,823  | 범용 추천   |
 | Jackson | 39,510  | JSON 기반 |
 | Jdk     | 22,249  | Java 표준 |
 
 **Byte Array (4096 bytes) 포함 시:**
 
-| 라이브러리 | ops/s  | 비고 |
-|---------|--------|------|
-| Fory    | 59,192 | 최고 성능 |
-| Kryo    | 29,329 | 범용 추천 |
-| Jdk     | 8,431  | Java 표준 |
+| 라이브러리   | ops/s  | 비고           |
+|---------|--------|--------------|
+| Fory    | 59,192 | 최고 성능        |
+| Kryo    | 29,329 | 범용 추천        |
+| Jdk     | 8,431  | Java 표준      |
 | Jackson | 4,323  | 바이너리 데이터에 불리 |
 
 > Fory는 Kryo 대비 약 3배 이상 빠릅니다.
@@ -418,13 +418,13 @@ path.tryReadAllBytes().onSuccess { bytes ->
 
 40KB UTF-8 텍스트 파일(`Utf8Samples.txt`) 기준 압축/복원 처리량입니다.
 
-| 알고리즘 | ops/s | 특성 |
-|---------|-------|------|
-| Snappy  | 8,073 | 최고 속도 |
-| LZ4     | 6,769 | 실시간 처리 적합 |
+| 알고리즘    | ops/s | 특성               |
+|---------|-------|------------------|
+| Snappy  | 8,073 | 최고 속도            |
+| LZ4     | 6,769 | 실시간 처리 적합        |
 | Zstd    | 5,103 | 속도 + 압축률 균형 (추천) |
-| GZip    | 1,195 | 호환성 우수 |
-| Deflate | 1,084 | GZip 기반 |
+| GZip    | 1,195 | 호환성 우수           |
+| Deflate | 1,084 | GZip 기반          |
 
 ## 모듈 구조
 

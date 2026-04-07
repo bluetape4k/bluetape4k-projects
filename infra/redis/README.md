@@ -2,7 +2,8 @@
 
 English | [한국어](./README.ko.md)
 
-An **umbrella module** that bundles both the Lettuce and Redisson Redis clients. Existing code depending on `bluetape4k-redis` continues to work without modification.
+An **umbrella module** that bundles both the Lettuce and Redisson Redis clients. Existing code depending on
+`bluetape4k-redis` continues to work without modification.
 
 ## Module Structure
 

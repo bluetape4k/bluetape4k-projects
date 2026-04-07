@@ -34,16 +34,16 @@ import kotlin.coroutines.CoroutineContext
  * - `writeBehindDelay = 300ms`로 설정하여 테스트 시 빠른 flush를 유도한다.
  */
 class SuspendedWriteBehindCacheTest {
-    companion object : KLoggingChannel()
+    companion object: KLoggingChannel()
 
     // -------------------------------------------------------------------------
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncSuspendedWriteBehind :
+    abstract class AutoIncSuspendedWriteBehind:
         AbstractJdbcLettuceTest(),
         SuspendedWriteBehindScenario<Long, UserRecord> {
-        companion object : KLoggingChannel()
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -76,7 +76,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncSuspendedWriteBehindRemoteCache : AutoIncSuspendedWriteBehind() {
+    inner class AutoIncSuspendedWriteBehindRemoteCache: AutoIncSuspendedWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),
@@ -87,7 +87,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncSuspendedWriteBehindNearCache : AutoIncSuspendedWriteBehind() {
+    inner class AutoIncSuspendedWriteBehindNearCache: AutoIncSuspendedWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),
@@ -103,10 +103,10 @@ class SuspendedWriteBehindCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGenIdSuspendedWriteBehind :
+    abstract class ClientGenIdSuspendedWriteBehind:
         AbstractJdbcLettuceTest(),
         SuspendedWriteBehindScenario<UUID, UserCredentialsRecord> {
-        companion object : KLoggingChannel()
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -139,7 +139,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGenIdSuspendedWriteBehindRemoteCache : ClientGenIdSuspendedWriteBehind() {
+    inner class ClientGenIdSuspendedWriteBehindRemoteCache: ClientGenIdSuspendedWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),
@@ -150,7 +150,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGenIdSuspendedWriteBehindNearCache : ClientGenIdSuspendedWriteBehind() {
+    inner class ClientGenIdSuspendedWriteBehindNearCache: ClientGenIdSuspendedWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),

@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
 class TinkEncryptorTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `AEAD 바이트 배열 encrypt decrypt 라운드트립`() {
@@ -139,7 +139,8 @@ class TinkEncryptorTest {
         val encryptor = TinkAeadEncryptor(TinkAead(aeadKeysetHandle()))
         val plaintext = "변조 테스트".toByteArray()
         val ciphertext = encryptor.encrypt(plaintext)
-        val tampered = ciphertext.copyOf().apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+        val tampered = ciphertext.copyOf()
+            .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
         assertThrows<GeneralSecurityException> {
             encryptor.decrypt(tampered)
@@ -163,7 +164,8 @@ class TinkEncryptorTest {
         val encryptor = TinkDaeadEncryptor(TinkDeterministicAead(daeadKeysetHandle()))
         val plaintext = "변조 DAEAD 테스트".toByteArray()
         val ciphertext = encryptor.encrypt(plaintext)
-        val tampered = ciphertext.copyOf().apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+        val tampered = ciphertext.copyOf()
+            .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
         assertThrows<GeneralSecurityException> {
             encryptor.decrypt(tampered)

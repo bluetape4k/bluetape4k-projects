@@ -32,14 +32,14 @@ import java.util.concurrent.atomic.AtomicReference
  * @property transitions 전이 맵
  * @property onTransitionCallback 전이 콜백
  */
-class DefaultStateMachine<S : Any, E : Any>(
+class DefaultStateMachine<S: Any, E: Any>(
     override val initialState: S,
     override val finalStates: Set<S>,
     private val transitions: Map<TransitionKey<S, E>, TransitionTarget<S, E>>,
     private val onTransitionCallback: ((S, E, S) -> Unit)? = null,
-) : StateMachine<S, E> {
+): StateMachine<S, E> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val _currentState = AtomicReference(initialState)
 
@@ -75,7 +75,7 @@ class DefaultStateMachine<S : Any, E : Any>(
         val target = transitions[key]
             ?: throw StateMachineException(
                 "허용되지 않은 전이: $previous + ${event::class.simpleName}. " +
-                    "허용된 이벤트: ${allowedEvents().map { it.simpleName }}"
+                        "허용된 이벤트: ${allowedEvents().map { it.simpleName }}"
             )
 
         // Guard 조건 평가

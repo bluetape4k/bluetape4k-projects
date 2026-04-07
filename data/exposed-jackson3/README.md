@@ -86,23 +86,23 @@ val query2 = Users.selectAll()
 
 ## Jackson 2 vs Jackson 3
 
-| Feature | Jackson 2 | Jackson 3 |
-|---------|-----------|-----------|
-| Package | `com.fasterxml.jackson` | `tools.jackson` |
-| Java version | Java 8+ | Java 17+ |
-| Performance | Good | Improved |
-| Recommendation | Stable / established | New projects |
+| Feature        | Jackson 2               | Jackson 3       |
+|----------------|-------------------------|-----------------|
+| Package        | `com.fasterxml.jackson` | `tools.jackson` |
+| Java version   | Java 8+                 | Java 17+        |
+| Performance    | Good                    | Improved        |
+| Recommendation | Stable / established    | New projects    |
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `JacksonColumnType.kt` | JSON column type (string-based) |
-| `JacksonBColumnType.kt` | JSONB column type (binary format) |
-| `JacksonSerializer.kt` | Jackson 3 serializer configuration |
-| `JsonFunctions.kt` | JSON function extensions |
-| `JsonConditions.kt` | JSON condition expression extensions |
-| `ResultRowExtensions.kt` | ResultRow JSON read extensions |
+| File                     | Description                          |
+|--------------------------|--------------------------------------|
+| `JacksonColumnType.kt`   | JSON column type (string-based)      |
+| `JacksonBColumnType.kt`  | JSONB column type (binary format)    |
+| `JacksonSerializer.kt`   | Jackson 3 serializer configuration   |
+| `JsonFunctions.kt`       | JSON function extensions             |
+| `JsonConditions.kt`      | JSON condition expression extensions |
+| `ResultRowExtensions.kt` | ResultRow JSON read extensions       |
 
 ## Testing
 

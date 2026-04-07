@@ -3,7 +3,6 @@ package io.bluetape4k.workflow.coroutines
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ParallelPolicy
 import io.bluetape4k.workflow.api.SuspendWork
-import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
-class SuspendParallelFlowTest : AbstractWorkflowTest() {
+class SuspendParallelFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `전체 성공 - Success 반환`() = runTest {

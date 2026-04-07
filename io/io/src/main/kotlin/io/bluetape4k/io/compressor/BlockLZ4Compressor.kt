@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
  * @see [BlockLZ4CompressorInputStream]
  * @see [BlockLZ4CompressorOutputStream]
  */
-class BlockLZ4Compressor : AbstractCompressor() {
+class BlockLZ4Compressor: AbstractCompressor() {
     /**
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */

@@ -17,10 +17,10 @@ import java.io.Serializable
  * @property state 현재 상태
  * @property eventType 이벤트 클래스 타입
  */
-data class TransitionKey<S : Any, E : Any>(
+data class TransitionKey<S: Any, E: Any>(
     val state: S,
     val eventType: Class<out E>,
-) : Serializable {
+): Serializable {
 
     companion object {
         private const val serialVersionUID = 1L

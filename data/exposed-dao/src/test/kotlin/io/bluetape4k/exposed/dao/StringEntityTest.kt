@@ -12,8 +12,8 @@ import org.jetbrains.exposed.v1.dao.entityCache
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class StringEntityTest : AbstractExposedTest() {
-    object StringEntityTable : IdTable<String>("string_entity_table") {
+class StringEntityTest: AbstractExposedTest() {
+    object StringEntityTable: IdTable<String>("string_entity_table") {
         override val id = varchar("id", 64).entityId()
         val name = varchar("name", 100)
         override val primaryKey = PrimaryKey(id)
@@ -21,8 +21,8 @@ class StringEntityTest : AbstractExposedTest() {
 
     class StringUser(
         id: EntityID<String>,
-    ) : StringEntity(id) {
-        companion object : StringEntityClass<StringUser>(StringEntityTable)
+    ): StringEntity(id) {
+        companion object: StringEntityClass<StringUser>(StringEntityTable)
 
         var name by StringEntityTable.name
 

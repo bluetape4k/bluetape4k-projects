@@ -100,14 +100,14 @@ fun InputStream.toAttributeValue(): AttributeValue = AttributeValue.builder()
  * Binary Serialization을 통해 ByteArray로 변환한 후 `toAttributeValue()`를 호출해야 합니다.
  */
 fun <T> T.toAttributeValue(): AttributeValue = when (this) {
-    null -> AttributeValue.builder().nul(true).build()
-    is ByteArray -> toAttributeValue()
+    null          -> AttributeValue.builder().nul(true).build()
+    is ByteArray  -> toAttributeValue()
     is ByteBuffer -> toAttributeValue()
-    is String -> toAttributeValue()
-    is Number -> toAttributeValue()
-    is Boolean -> toAttributeValue()
+    is String     -> toAttributeValue()
+    is Number     -> toAttributeValue()
+    is Boolean    -> toAttributeValue()
     is Iterable<*> -> toAttributeValue()
-    is Map<*, *> -> toAttributeValue()
+    is Map<*, *>  -> toAttributeValue()
     is InputStream -> toAttributeValue()
-    else -> attributeValue { s(this@toAttributeValue.toString()) }
+    else          -> attributeValue { s(this@toAttributeValue.toString()) }
 }

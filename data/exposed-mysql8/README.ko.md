@@ -58,26 +58,27 @@ classDiagram
 
 ## 개요
 
-- **Geometry 타입**: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (기본)
+- **Geometry 타입
+  **: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (기본)
 - **좌표계**: WGS84 (SRID 4326) 기본값
 - **공간 함수**: 9개 관계 함수 + 4개 측정 함수 + 3개 속성 함수
 - **MySQL 전용**: `MysqlDialect` 사용 시에만 동작
 - **직렬화 경로**:
-  - PreparedStatement 바인딩은 MySQL Internal Format (`4byte SRID LE + WKB`) 사용
-  - SQL literal 경로는 `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')` 사용
+    - PreparedStatement 바인딩은 MySQL Internal Format (`4byte SRID LE + WKB`) 사용
+    - SQL literal 경로는 `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')` 사용
 
 ## 지원하는 Geometry 타입
 
-| 타입 | JTS 클래스 | 설명 |
-|------|-----------|------|
-| POINT | `Point` | 단일 좌표 |
-| LINESTRING | `LineString` | 선분 |
-| POLYGON | `Polygon` | 폐곡선 영역 |
-| MULTIPOINT | `MultiPoint` | 다중 점 |
-| MULTILINESTRING | `MultiLineString` | 다중 선분 |
-| MULTIPOLYGON | `MultiPolygon` | 다중 폐곡선 영역 |
+| 타입                 | JTS 클래스              | 설명              |
+|--------------------|----------------------|-----------------|
+| POINT              | `Point`              | 단일 좌표           |
+| LINESTRING         | `LineString`         | 선분              |
+| POLYGON            | `Polygon`            | 폐곡선 영역          |
+| MULTIPOINT         | `MultiPoint`         | 다중 점            |
+| MULTILINESTRING    | `MultiLineString`    | 다중 선분           |
+| MULTIPOLYGON       | `MultiPolygon`       | 다중 폐곡선 영역       |
 | GEOMETRYCOLLECTION | `GeometryCollection` | 혼합 geometry 컬렉션 |
-| GEOMETRY | `Geometry` | 범용(모든 타입 허용) |
+| GEOMETRY           | `Geometry`           | 범용(모든 타입 허용)    |
 
 ## Table 확장 함수
 
@@ -343,12 +344,12 @@ transaction(db) {
 
 ## 기술 요건
 
-| 항목 | 버전 |
-|------|------|
-| **MySQL** | 8.0+ (Testcontainers: `mysql:8.0`) |
-| **JTS Core** | 1.20.0 이상 |
-| **Exposed** | v1 (Jetbrains) |
-| **SRID** | 4326 (WGS84, 기본값) |
+| 항목           | 버전                                 |
+|--------------|------------------------------------|
+| **MySQL**    | 8.0+ (Testcontainers: `mysql:8.0`) |
+| **JTS Core** | 1.20.0 이상                          |
+| **Exposed**  | v1 (Jetbrains)                     |
+| **SRID**     | 4326 (WGS84, 기본값)                  |
 
 ## 의존성
 
@@ -357,6 +358,7 @@ testImplementation(project(":bluetape4k-exposed-mysql8"))
 ```
 
 모듈이 제공하는 의존성:
+
 - `org.jetbrains.exposed:exposed-core`
 - `org.jetbrains.exposed:exposed-dao`
 - `org.jetbrains.exposed:exposed-jdbc`
@@ -375,7 +377,8 @@ val point = geoPoint("location")  // IllegalStateException: geoPoint는 MySQL di
 
 ### 미지원 함수
 
-MySQL의 `ST_Centroid()`, `ST_Envelope()` 등 일부 공간 함수는 geographic SRID(4326)에서 `ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` 오류를 발생시킵니다. 이 모듈은 이러한 함수를 제공하지 않습니다.
+MySQL의 `ST_Centroid()`, `ST_Envelope()` 등 일부 공간 함수는 geographic SRID(4326)에서
+`ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` 오류를 발생시킵니다. 이 모듈은 이러한 함수를 제공하지 않습니다.
 
 ### 좌표 순서
 

@@ -16,15 +16,15 @@ import java.io.Serializable
  * // ex.message == "deserialize failed"
  * ```
  */
-open class JsonSerializationException :
+open class JsonSerializationException:
     RuntimeException,
     Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 
-    constructor() : super()
-    constructor(message: String) : super(message)
-    constructor(message: String, cause: Throwable?) : super(message, cause)
-    constructor(cause: Throwable?) : super(cause)
+    constructor(): super()
+    constructor(message: String): super(message)
+    constructor(message: String, cause: Throwable?): super(message, cause)
+    constructor(cause: Throwable?): super(cause)
 }

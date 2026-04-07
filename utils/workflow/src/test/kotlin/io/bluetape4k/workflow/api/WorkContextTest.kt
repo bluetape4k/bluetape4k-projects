@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class WorkContextTest : AbstractWorkflowTest() {
+class WorkContextTest: AbstractWorkflowTest() {
 
     private lateinit var ctx: WorkContext
 

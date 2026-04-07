@@ -32,13 +32,13 @@ import java.util.*
  * - `writeBehindDelay = 300ms`로 설정하여 테스트 시 빠른 flush를 유도한다.
  */
 class WriteBehindCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     // -------------------------------------------------------------------------
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncIdWriteBehind :
+    abstract class AutoIncIdWriteBehind:
         AbstractJdbcLettuceTest(),
         WriteBehindScenario<Long, UserRecord> {
 
@@ -69,7 +69,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdWriteBehindRemoteCache : AutoIncIdWriteBehind() {
+    inner class AutoIncIdWriteBehindRemoteCache: AutoIncIdWriteBehind() {
         override val config = LettuceCacheConfig.WRITE_BEHIND.copy(
             writeBehindDelay = Duration.ofMillis(300),
             writeBehindBatchSize = 50
@@ -78,7 +78,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdWriteBehindNearCache : AutoIncIdWriteBehind() {
+    inner class AutoIncIdWriteBehindNearCache: AutoIncIdWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),
@@ -94,7 +94,7 @@ class WriteBehindCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGeneratedIdWriteBehind :
+    abstract class ClientGeneratedIdWriteBehind:
         AbstractJdbcLettuceTest(),
         WriteBehindScenario<UUID, UserCredentialsRecord> {
 
@@ -125,7 +125,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdWriteBehindRemoteCache : ClientGeneratedIdWriteBehind() {
+    inner class ClientGeneratedIdWriteBehindRemoteCache: ClientGeneratedIdWriteBehind() {
         override val config = LettuceCacheConfig.WRITE_BEHIND.copy(
             writeBehindDelay = Duration.ofMillis(300),
             writeBehindBatchSize = 50
@@ -134,7 +134,7 @@ class WriteBehindCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdWriteBehindNearCache : ClientGeneratedIdWriteBehind() {
+    inner class ClientGeneratedIdWriteBehindNearCache: ClientGeneratedIdWriteBehind() {
         override val config = LettuceCacheConfig(
             writeMode = WriteMode.WRITE_BEHIND,
             writeBehindDelay = Duration.ofMillis(300),

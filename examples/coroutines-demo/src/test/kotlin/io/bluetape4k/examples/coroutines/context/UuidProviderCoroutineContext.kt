@@ -6,8 +6,8 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Unique uuid string 을 제공하는 [CoroutineContext] 구현체입니다.
  */
-abstract class UuidProviderCoroutineContext : CoroutineContext.Element {
-    companion object Key : CoroutineContext.Key<UuidProviderCoroutineContext>
+abstract class UuidProviderCoroutineContext: CoroutineContext.Element {
+    companion object Key: CoroutineContext.Key<UuidProviderCoroutineContext>
 
     override val key: CoroutineContext.Key<*>
         get() = Key
@@ -21,7 +21,7 @@ abstract class UuidProviderCoroutineContext : CoroutineContext.Element {
 /**
  * Timebased uuid 를 제공하는 [UuidProviderCoroutineContext] 구현체입니다.
  */
-class TimebasedUuidProviderCoroutineContext : UuidProviderCoroutineContext() {
+class TimebasedUuidProviderCoroutineContext: UuidProviderCoroutineContext() {
     override fun nextUuid(): String = Uuid.V7.nextId().toString()
 }
 
@@ -32,6 +32,6 @@ class TimebasedUuidProviderCoroutineContext : UuidProviderCoroutineContext() {
  */
 class FakeUuidProviderCoroutineContext(
     private val fakeUuid: String,
-) : UuidProviderCoroutineContext() {
+): UuidProviderCoroutineContext() {
     override fun nextUuid(): String = fakeUuid
 }

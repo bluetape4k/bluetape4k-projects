@@ -8,9 +8,9 @@ A collection of examples for learning database query patterns using JPA and Quer
 
 ### Querydsl Basics (examples/)
 
-| Example File          | Description                        |
-|-----------------------|------------------------------------|
-| `QuerydslExamples.kt` | Basic Querydsl query patterns      |
+| Example File          | Description                   |
+|-----------------------|-------------------------------|
+| `QuerydslExamples.kt` | Basic Querydsl query patterns |
 
 ### Common Query Patterns
 
@@ -103,28 +103,28 @@ val members = queryFactory
 
 ### Entities (domain/model/)
 
-| Entity   | Description                          |
-|----------|--------------------------------------|
-| `Member` | Member entity (name, age, team)      |
-| `Team`   | Team entity (name, members)          |
+| Entity   | Description                     |
+|----------|---------------------------------|
+| `Member` | Member entity (name, age, team) |
+| `Team`   | Team entity (name, members)     |
 
 ### DTOs (domain/dto/)
 
-| DTO                     | Description                 |
-|-------------------------|-----------------------------|
-| `MemberDto`             | Member DTO                  |
-| `TeamDto`               | Team DTO                    |
-| `MemberTeamDto`         | Member + Team join DTO      |
-| `MemberSearchCondition` | Search condition object     |
+| DTO                     | Description             |
+|-------------------------|-------------------------|
+| `MemberDto`             | Member DTO              |
+| `TeamDto`               | Team DTO                |
+| `MemberTeamDto`         | Member + Team join DTO  |
+| `MemberSearchCondition` | Search condition object |
 
 ### Repositories (domain/repository/)
 
-| Repository               | Description                     |
-|--------------------------|---------------------------------|
-| `MemberRepository`       | Member repository               |
-| `TeamRepository`         | Team repository                 |
-| `MemberRepositoryCustom` | Custom query interface          |
-| `MemberRepositoryImpl`   | Querydsl implementation         |
+| Repository               | Description             |
+|--------------------------|-------------------------|
+| `MemberRepository`       | Member repository       |
+| `TeamRepository`         | Team repository         |
+| `MemberRepositoryCustom` | Custom query interface  |
+| `MemberRepositoryImpl`   | Querydsl implementation |
 
 ## How to Run
 

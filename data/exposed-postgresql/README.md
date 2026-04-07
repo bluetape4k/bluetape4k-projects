@@ -135,6 +135,7 @@ transaction {
 ```
 
 **Supported spatial functions:**
+
 - `ST_Distance(point, point)`: Distance between two points
 - `ST_DWithin(point, point, distance)`: Check if within a given distance
 - `ST_Within(point, polygon)`: Check if a point is inside a polygon
@@ -207,6 +208,7 @@ transaction {
 ```
 
 **Distance operators:**
+
 - `cosineDistance(<=>)`: Cosine distance (optimal for normalized vectors)
 - `l2Distance(<->)`: L2 Euclidean distance
 - `innerProduct(<#>)`: Inner product distance
@@ -215,7 +217,8 @@ transaction {
 
 ### 3. TSTZRANGE - Time Ranges
 
-Supports PostgreSQL time range types backed by Kotlin `Instant`. Preserves timezone information and falls back to VARCHAR in H2.
+Supports PostgreSQL time range types backed by Kotlin
+`Instant`. Preserves timezone information and falls back to VARCHAR in H2.
 
 **Package**: `io.bluetape4k.exposed.postgresql.tsrange`
 
@@ -235,8 +238,8 @@ data class TimestampRange(
 #### Column Type
 
 - `TstzRangeColumnType`: Stored as TSTZRANGE (PostgreSQL) or VARCHAR(120) (H2 and others)
-  - Parses both PostgreSQL JDBC literals and ISO-8601 literals
-  - Supports fractional seconds (e.g., `2024-01-01 00:00:00.123456+00`)
+    - Parses both PostgreSQL JDBC literals and ISO-8601 literals
+    - Supports fractional seconds (e.g., `2024-01-01 00:00:00.123456+00`)
 
 #### Usage Example
 
@@ -301,12 +304,14 @@ transaction {
 ```
 
 **Range operations:**
+
 - `overlaps(&&)`: Check if two ranges overlap
 - `contains()`: Check if a range contains a specific instant
 - `containsRange()`: Check if a range fully contains another range
 - `isAdjacentTo()`: Check if two ranges are adjacent
 
 **Range notation:**
+
 - `[start, end)`: Lower inclusive, upper exclusive (default)
 - `[start, end]`: Both bounds inclusive
 - `(start, end)`: Both bounds exclusive
@@ -336,7 +341,8 @@ testImplementation("io.github.bluetape4k:bluetape4k-testcontainers:${version}")
 
 ## Using Test Containers
 
-The `PostgisServer` / `PgvectorServer` from `bluetape4k-testcontainers` automatically activates the required extensions without needing `CREATE EXTENSION`.
+The `PostgisServer` / `PgvectorServer` from
+`bluetape4k-testcontainers` automatically activates the required extensions without needing `CREATE EXTENSION`.
 
 ```kotlin
 // PostGIS — postgis extension activated automatically
@@ -362,10 +368,15 @@ val server = PgvectorServer.Launcher.withExtensions("pg_trgm")
 
 ## Notes
 
-- **PostgreSQL only**: All features work exclusively with the PostgreSQL dialect. Other databases such as H2 will throw errors. Only TSTZRANGE falls back to VARCHAR in H2.
-- **PostGIS extension**: The `postgis` extension is activated automatically when using `PostgisServer`. For direct server connections, run `CREATE EXTENSION IF NOT EXISTS postgis` manually.
-- **pgvector extension**: The `vector` extension is activated automatically when using `PgvectorServer`. However, JDBC driver type registration (`PGvector.addVectorType()`) must still be performed per connection.
-- **Dimension validation**: Storing a vector with a dimension that does not match the column definition will result in an error.
+- **PostgreSQL only
+  **: All features work exclusively with the PostgreSQL dialect. Other databases such as H2 will throw errors. Only TSTZRANGE falls back to VARCHAR in H2.
+- **PostGIS extension**: The `postgis` extension is activated automatically when using
+  `PostgisServer`. For direct server connections, run `CREATE EXTENSION IF NOT EXISTS postgis` manually.
+- **pgvector extension**: The `vector` extension is activated automatically when using
+  `PgvectorServer`. However, JDBC driver type registration (
+  `PGvector.addVectorType()`) must still be performed per connection.
+- **Dimension validation
+  **: Storing a vector with a dimension that does not match the column definition will result in an error.
 
 ---
 

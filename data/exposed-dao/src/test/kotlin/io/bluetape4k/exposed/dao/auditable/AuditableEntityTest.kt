@@ -27,18 +27,18 @@ import org.junit.jupiter.params.provider.MethodSource
  * Java 21+ 환경의 [ScopedValue] API 사용으로 인해 Java 21 이상에서만 실행됩니다.
  */
 @EnabledForJreRange(min = JRE.JAVA_21)
-class AuditableEntityTest : AbstractExposedTest() {
+class AuditableEntityTest: AbstractExposedTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // Articles 테이블 정의
-    object Articles : AuditableLongIdTable("auditable_articles") {
+    object Articles: AuditableLongIdTable("auditable_articles") {
         val title = varchar("title", 200)
     }
 
     // Article 엔티티 정의
-    class Article(id: EntityID<Long>) : AuditableLongEntity(id) {
-        companion object : AuditableLongEntityClass<Article>(Articles)
+    class Article(id: EntityID<Long>): AuditableLongEntity(id) {
+        companion object: AuditableLongEntityClass<Article>(Articles)
 
         var title by Articles.title
         override var createdBy by Articles.createdBy

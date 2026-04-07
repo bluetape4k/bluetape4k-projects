@@ -7,9 +7,9 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
-class SelectTest : AbstractBigQueryTest() {
+class SelectTest: AbstractBigQueryTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun insertFixtures() {
         val fixtures = listOf(

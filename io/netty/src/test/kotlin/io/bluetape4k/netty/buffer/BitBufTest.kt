@@ -12,7 +12,7 @@ import org.junit.jupiter.api.assertThrows
 /**
  * [BitBuf] 및 [BitBufImpl]의 기능을 검증하는 테스트 클래스입니다.
  */
-class BitBufTest : AbstractNettyTest() {
+class BitBufTest: AbstractNettyTest() {
     private fun newBitBuf(bytes: Int = 16): BitBuf = ByteBufAllocator.DEFAULT.buffer(bytes).toBitBuf()
 
     @Test

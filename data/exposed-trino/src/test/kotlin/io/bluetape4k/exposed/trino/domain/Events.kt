@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
  *
  * [TrinoTable]을 상속하여 Trino 비호환 DDL 구문(PRIMARY KEY, 명시적 NULL)을 자동 제거합니다.
  */
-object Events : TrinoTable("events") {
+object Events: TrinoTable("events") {
     val eventId = long("event_id")
     val eventName = varchar("event_name", 255)
     val region = varchar("region", 50)

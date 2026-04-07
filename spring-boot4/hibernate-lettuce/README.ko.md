@@ -4,7 +4,9 @@
 
 Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 Auto-Configuration**.
 
-`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달된다.
+`application.yml`에
+`bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(
+`500ms`)도 Hibernate 설정으로 그대로 전달된다.
 
 ## UML
 
@@ -67,8 +69,8 @@ flowchart TD
 
 Spring Boot 4에서는 패키지명이 변경되었습니다:
 
-| Spring Boot 3 | Spring Boot 4 |
-|---|---|
+| Spring Boot 3                                                                  | Spring Boot 4                                                                    |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | `org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer` | `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer` |
 
 또한 Spring Boot 4 BOM을 명시적으로 사용해야 합니다:
@@ -236,7 +238,7 @@ bluetape4k:
 |----------------------------------------------|----------------------------------------------------------------------|------------------------------------|
 | `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | `HibernatePropertiesCustomizer` 등록 |
 | `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                  | `LettuceNearCacheMetricsBinder` 등록 |
-| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | `/actuator/nearcache` 엔드포인트 등록 |
+| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | `/actuator/nearcache` 엔드포인트 등록     |
 
 ## Actuator 엔드포인트
 
@@ -297,7 +299,7 @@ GET /actuator/nearcache/product
 `metrics.enabled=true` 설정 시 다음 Gauge가 등록된다.
 
 | 메트릭                              | 설명                 |
-|----------------------------------|---------------------|
+|----------------------------------|--------------------|
 | `lettuce.nearcache.region.count` | 활성 Region 수        |
 | `lettuce.nearcache.local.size`   | 전체 L1 캐시 항목 수 (추정) |
 
@@ -359,11 +361,11 @@ bluetape4k:
 
 ## Spring Boot 3과의 차이점
 
-| 항목 | Spring Boot 3 | Spring Boot 4 |
-|---|---|---|
-| `HibernatePropertiesCustomizer` 패키지 | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure` |
-| BOM 설정 | `dependencyManagement { imports }` | `implementation(platform(Libs.spring_boot4_dependencies))` |
-| Hibernate 명시적 추가 | 불필요 | `compileOnly(Libs.springBoot("hibernate"))` |
+| 항목                                  | Spring Boot 3                                    | Spring Boot 4                                              |
+|-------------------------------------|--------------------------------------------------|------------------------------------------------------------|
+| `HibernatePropertiesCustomizer` 패키지 | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure`         |
+| BOM 설정                              | `dependencyManagement { imports }`               | `implementation(platform(Libs.spring_boot4_dependencies))` |
+| Hibernate 명시적 추가                    | 불필요                                              | `compileOnly(Libs.springBoot("hibernate"))`                |
 
 ## 패키지 정보
 

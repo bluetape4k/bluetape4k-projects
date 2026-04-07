@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class TempFolderClassTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `임시 폴더 생성 후 close 시에 임시폴더는 삭제된다`() {

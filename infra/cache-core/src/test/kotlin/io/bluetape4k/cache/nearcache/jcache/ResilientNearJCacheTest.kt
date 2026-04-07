@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.seconds
  * back cache 반영은 비동기이므로 awaitility로 폴링한다.
  */
 class ResilientNearJCacheTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         const val REPEAT_SIZE = 3
 
         private fun randomKey(): String = Uuid.V7.nextIdAsString()

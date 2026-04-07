@@ -377,7 +377,8 @@ sequenceDiagram
 
 ### 4. `sliding(n)` / `bufferedSliding(n)` — One-Step Sliding Window
 
-`sliding` is equivalent to `windowed(size, step=1)`. `bufferedSliding` maintains a buffer and emits a snapshot on every element.
+`sliding` is equivalent to `windowed(size, step=1)`.
+`bufferedSliding` maintains a buffer and emits a snapshot on every element.
 
 ```mermaid
 sequenceDiagram
@@ -608,7 +609,8 @@ sequenceDiagram
 
 ### 13. `AsyncFlow` — Order-Preserving Async Transformation
 
-Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike `mapParallel`, output order is guaranteed.
+Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike
+`mapParallel`, output order is guaranteed.
 
 ```mermaid
 sequenceDiagram

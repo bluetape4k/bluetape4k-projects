@@ -13,7 +13,7 @@ import org.springframework.data.mapping.PersistentProperty
  * }
  * ```
  */
-interface ExposedPersistentProperty : PersistentProperty<ExposedPersistentProperty> {
+interface ExposedPersistentProperty: PersistentProperty<ExposedPersistentProperty> {
 
     /**
      * 이 프로퍼티에 대응하는 Exposed [Column] 인스턴스 (없으면 null)

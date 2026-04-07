@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class TinkMacTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val mac = TinkMac(macKeysetHandle())
 

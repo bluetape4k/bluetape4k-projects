@@ -28,13 +28,13 @@ import java.util.*
  * - Remote Cache 및 Near Cache 두 가지 설정을 모두 테스트한다.
  */
 class ReadThroughCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     // -------------------------------------------------------------------------
     // AutoIncrement Long ID — UserTable
     // -------------------------------------------------------------------------
 
-    abstract class AutoIncIdReadThrough :
+    abstract class AutoIncIdReadThrough:
         AbstractJdbcLettuceTest(),
         ReadThroughScenario<Long, UserRecord> {
 
@@ -62,13 +62,13 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadThroughRemoteCache : AutoIncIdReadThrough() {
+    inner class AutoIncIdReadThroughRemoteCache: AutoIncIdReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY
         override val repository by lazy { UserRepository(redisClient, config) }
     }
 
     @Nested
-    inner class AutoIncIdReadThroughNearCache : AutoIncIdReadThrough() {
+    inner class AutoIncIdReadThroughNearCache: AutoIncIdReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-users-rt-near"
         )
@@ -79,7 +79,7 @@ class ReadThroughCacheTest {
     // Client-generated UUID ID — UserCredentialsTable
     // -------------------------------------------------------------------------
 
-    abstract class ClientGeneratedIdReadThrough :
+    abstract class ClientGeneratedIdReadThrough:
         AbstractJdbcLettuceTest(),
         ReadThroughScenario<UUID, UserCredentialsRecord> {
 
@@ -107,13 +107,13 @@ class ReadThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCache : ClientGeneratedIdReadThrough() {
+    inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY
         override val repository by lazy { UserCredentialRepository(redisClient, config) }
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCache : ClientGeneratedIdReadThrough() {
+    inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadThrough() {
         override val config = LettuceCacheConfig.READ_ONLY_WITH_NEAR_CACHE.copy(
             nearCacheName = "jdbc-lettuce-cred-rt-near"
         )

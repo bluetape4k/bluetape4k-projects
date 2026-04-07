@@ -415,7 +415,8 @@ Integration tests can be run with Testcontainers-backed PostgreSQL / PostGIS env
 
 ## Phase 4: NetCDF Support (Planned)
 
-Planned support includes NetCDF metadata cataloging and grid-value persistence through the same `exposed` package pipeline.
+Planned support includes NetCDF metadata cataloging and grid-value persistence through the same
+`exposed` package pipeline.
 
 ## Related Modules
 

@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 class MeasuredColumnTypesTest {
-    private object MeasureTable : IntIdTable("measured_column_type_test") {
+    private object MeasureTable: IntIdTable("measured_column_type_test") {
         val length = measure("length", Length.meters)
         val area = measure("area", Area.meters2)
         val energy = measure("energy", Energy.joules)
@@ -35,7 +35,7 @@ class MeasuredColumnTypesTest {
     }
 
     @Nested
-    inner class Jdbc : AbstractExposedTest() {
+    inner class Jdbc: AbstractExposedTest() {
         @ParameterizedTest
         @MethodSource(ENABLE_DIALECTS_METHOD)
         fun `Measure, Temperature 컬럼은 모든 DB에서 round-trip 된다`(testDB: TestDB) {

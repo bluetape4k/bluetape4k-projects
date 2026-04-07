@@ -17,7 +17,7 @@ import io.bluetape4k.redis.lettuce.map.WriteMode
  * - 구현 클래스는 withEntityTable(testDB, statement)를 오버라이드하여 테이블 설정을 담당한다.
  */
 interface CacheTestScenario<ID: Any, E: java.io.Serializable>: JdbcCacheTestScenario<ID, E> {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** 테스트 대상 레포지토리 (JdbcLettuceRepository는 JdbcCacheRepository를 구현하므로 공변 오버라이드) */
     override val repository: JdbcLettuceRepository<ID, E>
@@ -28,7 +28,7 @@ interface CacheTestScenario<ID: Any, E: java.io.Serializable>: JdbcCacheTestScen
     /** 캐시 쓰기 전략 — config.writeMode에서 파생 */
     override val cacheWriteMode: CacheWriteMode
         get() = when (config.writeMode) {
-            WriteMode.NONE -> CacheWriteMode.READ_ONLY
+            WriteMode.NONE         -> CacheWriteMode.READ_ONLY
             WriteMode.WRITE_THROUGH -> CacheWriteMode.WRITE_THROUGH
             WriteMode.WRITE_BEHIND -> CacheWriteMode.WRITE_BEHIND
         }

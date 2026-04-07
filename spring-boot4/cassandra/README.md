@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 Provides coroutine extensions, convenience DSLs, and schema utilities for Spring Data Cassandra development (Spring Boot 4.x).
 
-> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-cassandra`), adapted to the Spring Boot 4.x API.
+> Provides the same functionality as the Spring Boot 3 module (
+`bluetape4k-spring-cassandra`), adapted to the Spring Boot 4.x API.
 
 ## Key Features
 

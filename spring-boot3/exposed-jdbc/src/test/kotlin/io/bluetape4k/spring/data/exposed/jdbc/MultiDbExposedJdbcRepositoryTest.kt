@@ -20,9 +20,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
-class MultiDbExposedJdbcRepositoryTest : AbstractExposedTest() {
+class MultiDbExposedJdbcRepositoryTest: AbstractExposedTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         @JvmStatic
         fun enableDialects(): Set<TestDB> = TestDB.enabledDialects()
     }

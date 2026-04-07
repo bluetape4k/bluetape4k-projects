@@ -19,7 +19,7 @@ import java.nio.charset.Charset
  *
  * GeoTools 타입을 공개 API에 노출하지 않으며, 반환 타입은 모두 bluetape4k 도메인 모델을 사용합니다.
  */
-object ShapefileReaderSupport : KLogging()
+object ShapefileReaderSupport: KLogging()
 
 /**
  * 주어진 .shp 파일을 읽어 [Shape] 객체로 반환합니다.

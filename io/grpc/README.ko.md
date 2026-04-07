@@ -6,7 +6,8 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ## 개요
 
-`bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. Protobuf 유틸리티는 [`bluetape4k-protobuf`](../protobuf/README.ko.md) 모듈로 분리되었습니다.
+`bluetape4k-grpc`는 [gRPC](https://grpc.io/) 서버와 클라이언트를 Kotlin 환경에서 쉽게 구현할 수 있도록 추상 클래스와 확장 함수를 제공합니다. Protobuf 유틸리티는 [
+`bluetape4k-protobuf`](../protobuf/README.ko.md) 모듈로 분리되었습니다.
 
 ## 아키텍처
 

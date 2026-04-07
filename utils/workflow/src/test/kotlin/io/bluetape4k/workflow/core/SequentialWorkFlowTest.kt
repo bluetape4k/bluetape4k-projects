@@ -3,7 +3,6 @@ package io.bluetape4k.workflow.core
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ErrorStrategy
 import io.bluetape4k.workflow.api.Work
-import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -11,7 +10,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class SequentialWorkFlowTest : AbstractWorkflowTest() {
+class SequentialWorkFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `전체 성공 - Success 반환`() {

@@ -20,22 +20,22 @@ import org.jetbrains.exposed.v1.core.Table
  * // payload.columnType.sqlType().contains("VARBINARY")
  * ```
  */
-fun <T : Any> Table.binarySerializedBinary(
+fun <T: Any> Table.binarySerializedBinary(
     name: String,
     length: Int,
     serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> = registerColumn(name, BinarySerializedBinaryColumnType(serializer, length))
 
 /** `VARBINARY` + 바이너리 직렬화 변환기를 결합한 컬럼 타입입니다. */
-class BinarySerializedBinaryColumnType<T : Any>(
+class BinarySerializedBinaryColumnType<T: Any>(
     serializer: BinarySerializer,
     length: Int,
-) : ColumnWithTransform<ByteArray, T>(BinaryColumnType(length), BinarySerializedBinaryTransformer(serializer))
+): ColumnWithTransform<ByteArray, T>(BinaryColumnType(length), BinarySerializedBinaryTransformer(serializer))
 
 /** 객체 직렬화/역직렬화 변환기입니다. */
 class BinarySerializedBinaryTransformer<T>(
     private val serializer: BinarySerializer,
-) : ColumnTransformer<ByteArray, T> {
+): ColumnTransformer<ByteArray, T> {
     /** 엔티티 객체를 DB 저장용 바이트 배열로 직렬화합니다. */
     override fun unwrap(value: T): ByteArray = serializer.serialize(value)
 

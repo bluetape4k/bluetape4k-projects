@@ -21,7 +21,7 @@ class LettuceLoadedMapConsistencyTest: AbstractJdbcLettuceTest() {
                         keyPrefix = "write-through-fail-${UUID.randomUUID()}"
                     ),
                 writer =
-                    object : MapWriter<String, String> {
+                    object: MapWriter<String, String> {
                         override fun write(map: Map<String, String>) {
                             error("write failure")
                         }
@@ -47,7 +47,7 @@ class LettuceLoadedMapConsistencyTest: AbstractJdbcLettuceTest() {
             newMap(
                 config = LettuceCacheConfig.READ_WRITE_THROUGH.copy(keyPrefix = keyPrefix),
                 writer =
-                    object : MapWriter<String, String> {
+                    object: MapWriter<String, String> {
                         override fun write(map: Map<String, String>) = Unit
 
                         override fun delete(keys: Collection<String>) {

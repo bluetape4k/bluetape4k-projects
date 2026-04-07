@@ -1,5 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.Time.Companion.milliseconds
+
+
 /**
  * 시간 단위를 나타냅니다.
  *
@@ -17,10 +20,17 @@ open class Time(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val milliseconds: Time = Time("ms")
-        @JvmField val seconds: Time = Time("s", 1_000.0)
-        @JvmField val minutes: Time = Time("min", 60_000.0)
-        @JvmField val hours: Time = Time("hr", 3_600_000.0)
+        @JvmField
+        val milliseconds: Time = Time("ms")
+
+        @JvmField
+        val seconds: Time = Time("s", 1_000.0)
+
+        @JvmField
+        val minutes: Time = Time("min", 60_000.0)
+
+        @JvmField
+        val hours: Time = Time("hr", 3_600_000.0)
     }
 }
 

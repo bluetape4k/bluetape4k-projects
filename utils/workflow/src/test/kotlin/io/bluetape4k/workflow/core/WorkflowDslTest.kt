@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
-class WorkflowDslTest : AbstractWorkflowTest() {
+class WorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `sequentialFlow DSL로 플로우 구성`() {

@@ -14,7 +14,7 @@ import java.io.Serializable
 /**
  * DynamoDB의 Entity를 표현하는 인터페이스입니다.
  */
-interface DynamoDbEntity : Serializable {
+interface DynamoDbEntity: Serializable {
     companion object {
         const val ENTITY_ID_DELIMITER = "#"
         const val ENTITY_NAME_DELIMITER = ":"
@@ -53,7 +53,7 @@ interface DynamoDbEntity : Serializable {
 /**
  * DynamoDB의 Entity를 표현하는 추상 클래스입니다.
  */
-abstract class AbstractDynamoDbEntity :
+abstract class AbstractDynamoDbEntity:
     AbstractValueObject(),
     DynamoDbEntity {
     override val key: Key by lazy {
@@ -66,8 +66,8 @@ abstract class AbstractDynamoDbEntity :
 
     override fun equalProperties(other: Any): Boolean =
         other is DynamoDbEntity &&
-            partitionKey == other.partitionKey &&
-            sortKey == other.sortKey
+                partitionKey == other.partitionKey &&
+                sortKey == other.sortKey
 
     override fun buildStringHelper(): ToStringBuilder =
         super
@@ -97,7 +97,7 @@ abstract class AbstractDynamoDbEntity :
  * @param sortKey 정렬 키 값 (null 또는 blank이면 생략)
  * @return `ClassName[:partitionKey][#sortKey]` 형태의 문자열
  */
-inline fun <reified T : DynamoDbEntity> T.makeKeyString(
+inline fun <reified T: DynamoDbEntity> T.makeKeyString(
     partitionKey: Any? = null,
     sortKey: Any? = null,
 ): String =

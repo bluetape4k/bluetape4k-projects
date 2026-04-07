@@ -38,6 +38,7 @@ object Systemx {
     const val OS_NAME = "os.name"
     const val OS_VERSION = "os.version"
     const val JAVA_VERSION = "java.version"
+
     @Deprecated(
         message = "Use JAVA_CLASS_VERSION",
         replaceWith = ReplaceWith("JAVA_CLASS_VERSION"),

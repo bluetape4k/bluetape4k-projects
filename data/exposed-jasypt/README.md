@@ -73,11 +73,11 @@ val userBySsn = Users.selectAll()
 
 ## Deterministic Encryption Trade-offs
 
-| Advantage | Disadvantage |
-|-----------|-------------|
+| Advantage                   | Disadvantage                                                 |
+|-----------------------------|--------------------------------------------------------------|
 | Searchable via WHERE clause | Same plaintext → same ciphertext (pattern analysis possible) |
-| Supports indexes | May not meet high-security requirements |
-| Supports sorting | |
+| Supports indexes            | May not meet high-security requirements                      |
+| Supports sorting            |                                                              |
 
 ## Architecture Diagram
 
@@ -214,15 +214,16 @@ sequenceDiagram
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
+| File                         | Description                   |
+|------------------------------|-------------------------------|
 | `JasyptVarCharColumnType.kt` | Encrypted VARCHAR column type |
-| `JasyptBinaryColumnType.kt` | Encrypted BINARY column type |
-| `Tables.kt` | Table extension functions |
+| `JasyptBinaryColumnType.kt`  | Encrypted BINARY column type  |
+| `Tables.kt`                  | Table extension functions     |
 
 ## Notes
 
-1. **Security considerations**: Deterministic encryption is advantageous for indexing and searching, but since the same plaintext always maps to the same ciphertext, it may not be appropriate for high-security requirements.
+1. **Security considerations
+   **: Deterministic encryption is advantageous for indexing and searching, but since the same plaintext always maps to the same ciphertext, it may not be appropriate for high-security requirements.
 
 2. **Column length**: Encrypted values are longer than the original plaintext, so allocate sufficient column length.
 

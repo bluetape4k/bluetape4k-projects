@@ -11,8 +11,9 @@ Combines Exposed JDBC with Redisson caching to implement Read-Through/Write-Thro
 ### Key Features
 
 - **MapLoader/MapWriter support**: Integration with Redisson Read-Through/Write-Through caching
-  - `loadAllKeys()` iterates reliably in ascending primary key order
-- **Repository abstraction**: Common cache + DB access patterns (`JdbcRedissonRepository`, `SuspendedJdbcRedissonRepository`)
+    - `loadAllKeys()` iterates reliably in ascending primary key order
+- **Repository abstraction**: Common cache + DB access patterns (`JdbcRedissonRepository`,
+  `SuspendedJdbcRedissonRepository`)
 - **Sync and Coroutines implementations**: Choose the right approach for your environment
 - **Near Cache support**: Two-tier Local Cache + Redis caching
 - **Write-Behind support**: Asynchronous DB persistence pattern
@@ -175,7 +176,8 @@ val deleteFromDbConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
 
 ### 4. Write-Through / Write-Behind Repository implementation
 
-In Write-Through/Write-Behind mode, also implement `UpdateStatement.updateEntity` and `BatchInsertStatement.insertEntity`.
+In Write-Through/Write-Behind mode, also implement `UpdateStatement.updateEntity` and
+`BatchInsertStatement.insertEntity`.
 
 ```kotlin
 class UserWriteThroughRepository(
@@ -546,21 +548,22 @@ sequenceDiagram
 
 ## JdbcRedissonRepository / SuspendedJdbcRedissonRepository Key Methods
 
-`JdbcRedissonRepository` uses synchronous calls; `SuspendedJdbcRedissonRepository` exposes the same API as `suspend` functions.
+`JdbcRedissonRepository` uses synchronous calls; `SuspendedJdbcRedissonRepository` exposes the same API as
+`suspend` functions.
 
-| Method                                    | Description                                                                  |
-|-------------------------------------------|------------------------------------------------------------------------------|
-| `exists(id)`                              | Check whether the ID exists in cache (DB Read-Through on miss)               |
-| `get(id)` / `cache[id]`                  | Retrieve entity from cache (Read-Through)                                    |
-| `getAll(ids, batchSize)`                  | Batch retrieve multiple entities from cache                                  |
-| `findByIdFromDb(id)`                      | Bypass cache and query DB directly                                           |
-| `findAllFromDb(ids)`                      | Bypass cache and batch query DB directly                                     |
-| `findAll(limit, offset, sortBy, where)`   | Load from DB and store results in cache                                      |
-| `put(entity)`                             | Store in cache (also persists to DB in Write-Through/Behind mode)            |
-| `putAll(entities, batchSize)`             | Batch store in cache                                                         |
-| `invalidate(ids)`                         | Remove from cache (also deletes from DB if `deleteFromDBOnInvalidate=true`)  |
-| `invalidateAll()`                         | Clear all cache entries                                                      |
-| `invalidateByPattern(pattern, count)`     | Remove cache entries matching a pattern                                      |
+| Method                                  | Description                                                                 |
+|-----------------------------------------|-----------------------------------------------------------------------------|
+| `exists(id)`                            | Check whether the ID exists in cache (DB Read-Through on miss)              |
+| `get(id)` / `cache[id]`                 | Retrieve entity from cache (Read-Through)                                   |
+| `getAll(ids, batchSize)`                | Batch retrieve multiple entities from cache                                 |
+| `findByIdFromDb(id)`                    | Bypass cache and query DB directly                                          |
+| `findAllFromDb(ids)`                    | Bypass cache and batch query DB directly                                    |
+| `findAll(limit, offset, sortBy, where)` | Load from DB and store results in cache                                     |
+| `put(entity)`                           | Store in cache (also persists to DB in Write-Through/Behind mode)           |
+| `putAll(entities, batchSize)`           | Batch store in cache                                                        |
+| `invalidate(ids)`                       | Remove from cache (also deletes from DB if `deleteFromDBOnInvalidate=true`) |
+| `invalidateAll()`                       | Clear all cache entries                                                     |
+| `invalidateByPattern(pattern, count)`   | Remove cache entries matching a pattern                                     |
 
 > **Note**: `SuspendedJdbcRedissonRepository.invalidateAll()` returns `Boolean`.
 
@@ -568,29 +571,29 @@ sequenceDiagram
 
 ### Repository (repository/)
 
-| File                                                   | Description                                        |
-|--------------------------------------------------------|----------------------------------------------------|
-| `JdbcRedissonRepository.kt`                            | Synchronous cache Repository interface             |
-| `AbstractJdbcRedissonRepository.kt`                    | Synchronous cache Repository abstract class        |
-| `SuspendedJdbcRedissonRepository.kt`                   | Coroutines cache Repository interface              |
-| `AbstractSuspendedJdbcRedissonRepository.kt`           | Coroutines cache Repository abstract class         |
-| `ExposedCacheRepository.kt`                            | (Deprecated) Legacy synchronous Repository         |
-| `AbstractExposedCacheRepository.kt`                    | (Deprecated) Legacy synchronous abstract class     |
-| `SuspendedExposedCacheRepository.kt`                   | (Deprecated) Legacy Coroutines Repository          |
-| `AbstractSuspendedExposedCacheRepository.kt`           | (Deprecated) Legacy Coroutines abstract class      |
+| File                                         | Description                                    |
+|----------------------------------------------|------------------------------------------------|
+| `JdbcRedissonRepository.kt`                  | Synchronous cache Repository interface         |
+| `AbstractJdbcRedissonRepository.kt`          | Synchronous cache Repository abstract class    |
+| `SuspendedJdbcRedissonRepository.kt`         | Coroutines cache Repository interface          |
+| `AbstractSuspendedJdbcRedissonRepository.kt` | Coroutines cache Repository abstract class     |
+| `ExposedCacheRepository.kt`                  | (Deprecated) Legacy synchronous Repository     |
+| `AbstractExposedCacheRepository.kt`          | (Deprecated) Legacy synchronous abstract class |
+| `SuspendedExposedCacheRepository.kt`         | (Deprecated) Legacy Coroutines Repository      |
+| `AbstractSuspendedExposedCacheRepository.kt` | (Deprecated) Legacy Coroutines abstract class  |
 
 ### Map (map/)
 
-| File                                     | Description                              |
-|------------------------------------------|------------------------------------------|
-| `EntityMapLoader.kt`                     | Synchronous MapLoader interface          |
-| `EntityMapWriter.kt`                     | Synchronous MapWriter interface          |
-| `ExposedEntityMapLoader.kt`              | Exposed JDBC-based MapLoader             |
-| `ExposedEntityMapWriter.kt`              | Exposed JDBC-based MapWriter             |
-| `SuspendedEntityMapLoader.kt`            | Coroutines MapLoader interface           |
-| `SuspendedEntityMapWriter.kt`            | Coroutines MapWriter interface           |
-| `SuspendedExposedEntityMapLoader.kt`     | Coroutines MapLoader implementation      |
-| `SuspendedExposedEntityMapWriter.kt`     | Coroutines MapWriter implementation      |
+| File                                 | Description                         |
+|--------------------------------------|-------------------------------------|
+| `EntityMapLoader.kt`                 | Synchronous MapLoader interface     |
+| `EntityMapWriter.kt`                 | Synchronous MapWriter interface     |
+| `ExposedEntityMapLoader.kt`          | Exposed JDBC-based MapLoader        |
+| `ExposedEntityMapWriter.kt`          | Exposed JDBC-based MapWriter        |
+| `SuspendedEntityMapLoader.kt`        | Coroutines MapLoader interface      |
+| `SuspendedEntityMapWriter.kt`        | Coroutines MapWriter interface      |
+| `SuspendedExposedEntityMapLoader.kt` | Coroutines MapLoader implementation |
+| `SuspendedExposedEntityMapWriter.kt` | Coroutines MapWriter implementation |
 
 ## Testing
 

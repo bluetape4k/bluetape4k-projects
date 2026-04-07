@@ -5,8 +5,8 @@ import io.bluetape4k.logging.KLogging
 
 internal class ULIDMonotonic(
     private val factory: ULID.Factory,
-) : ULID.Monotonic {
-    companion object : KLogging() {
+): ULID.Monotonic {
+    companion object: KLogging() {
         val DefaultMonotonic = ULIDMonotonic(ULID)
     }
 

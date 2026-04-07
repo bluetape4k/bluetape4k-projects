@@ -8,12 +8,12 @@
 
 ## 모듈 구성
 
-| 모듈                           | 제공 기능                                                       |
-|------------------------------|-------------------------------------------------------------|
-| `bluetape4k-cache-core`      | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer     |
-| `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합)  |
-| `bluetape4k-cache-redisson`  | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합)    |
-| `bluetape4k-cache-lettuce`   | Lettuce(Redis) 분산 캐시 + Near Cache                           |
+| 모듈                           | 제공 기능                                                      |
+|------------------------------|------------------------------------------------------------|
+| `bluetape4k-cache-core`      | JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 + Memorizer    |
+| `bluetape4k-cache-hazelcast` | Hazelcast 분산 캐시 + Near Cache (구 `cache-hazelcast-near` 통합) |
+| `bluetape4k-cache-redisson`  | Redisson 분산 캐시 + Near Cache (구 `cache-redisson-near` 통합)   |
+| `bluetape4k-cache-lettuce`   | Lettuce(Redis) 분산 캐시 + Near Cache                          |
 
 ## 설치
 

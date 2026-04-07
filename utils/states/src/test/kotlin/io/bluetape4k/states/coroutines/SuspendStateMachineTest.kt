@@ -14,12 +14,17 @@ import org.junit.jupiter.api.assertThrows
 
 class SuspendStateMachineTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class State { IDLE, RUNNING, DONE }
+    enum class State {
+        IDLE,
+        RUNNING,
+        DONE
+    }
+
     sealed class Event {
-        data object Start : Event()
-        data object Finish : Event()
+        data object Start: Event()
+        data object Finish: Event()
     }
 
     private fun createFsm() = suspendStateMachine<State, Event> {

@@ -52,11 +52,11 @@ internal const val EXPOSED_TRANSACTION_MANAGER = "springTransactionManager"
 @Repository
 @Transactional(transactionManager = EXPOSED_TRANSACTION_MANAGER, readOnly = true)
 @Suppress("UNCHECKED_CAST")
-class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
+class SimpleExposedJdbcRepository<E: Entity<ID>, ID: Any>(
     private val entityInformation: ExposedEntityInformation<E, ID>,
-) : ExposedJdbcRepository<E, ID> {
+): ExposedJdbcRepository<E, ID> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val entityClass: EntityClass<ID, E> get() = entityInformation.entityClass
     override val table: IdTable<ID> get() = entityInformation.table
@@ -77,10 +77,10 @@ class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
      * 기존 엔티티의 프로퍼티 변경도 트랜잭션 커밋 시 자동으로 UPDATE 됩니다.
      */
     @Transactional(transactionManager = EXPOSED_TRANSACTION_MANAGER)
-    override fun <S : E> save(entity: S): S = entity
+    override fun <S: E> save(entity: S): S = entity
 
     @Transactional(transactionManager = EXPOSED_TRANSACTION_MANAGER)
-    override fun <S : E> saveAll(entities: Iterable<S>): List<S> = entities.toList()
+    override fun <S: E> saveAll(entities: Iterable<S>): List<S> = entities.toList()
 
     override fun findById(id: ID): Optional<E> = Optional.ofNullable(entityClass.findById(id))
 
@@ -168,27 +168,27 @@ class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
     // QueryByExampleExecutor
     // ============================================================
 
-    override fun <S : E> findOne(example: Example<S>): Optional<S> {
+    override fun <S: E> findOne(example: Example<S>): Optional<S> {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         val result = if (conditions == null) entityClass.all().firstOrNull()
         else entityClass.find { conditions }.firstOrNull()
         return Optional.ofNullable(result as? S)
     }
 
-    override fun <S : E> findAll(example: Example<S>): List<S> {
+    override fun <S: E> findAll(example: Example<S>): List<S> {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         return if (conditions == null) entityClass.all().toList() as List<S>
         else entityClass.find { conditions }.toList() as List<S>
     }
 
-    override fun <S : E> findAll(example: Example<S>, sort: Sort): List<S> {
+    override fun <S: E> findAll(example: Example<S>, sort: Sort): List<S> {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         val query = if (conditions == null) entityClass.all() else entityClass.find { conditions }
         if (sort.isUnsorted) return query.toList() as List<S>
         return query.orderBy(*sort.toExposedOrderBy(table)).toList() as List<S>
     }
 
-    override fun <S : E> findAll(example: Example<S>, pageable: Pageable): Page<S> {
+    override fun <S: E> findAll(example: Example<S>, pageable: Pageable): Page<S> {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         val total = if (conditions == null) entityClass.count()
         else entityClass.find { conditions }.count()
@@ -204,19 +204,19 @@ class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
         return PageImpl(content, pageable, total)
     }
 
-    override fun <S : E> count(example: Example<S>): Long {
+    override fun <S: E> count(example: Example<S>): Long {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         return if (conditions == null) entityClass.count()
         else entityClass.find { conditions }.count()
     }
 
-    override fun <S : E> exists(example: Example<S>): Boolean {
+    override fun <S: E> exists(example: Example<S>): Boolean {
         val conditions = buildExampleConditions(example.probe, example.matcher)
         return if (conditions == null) entityClass.count() > 0L
         else !entityClass.find { conditions }.empty()
     }
 
-    override fun <S : E, R : Any> findBy(
+    override fun <S: E, R: Any> findBy(
         example: Example<S>,
         queryFunction: Function<FluentQuery.FetchableFluentQuery<S>, R>,
     ): R {
@@ -269,8 +269,8 @@ class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
                     when (stringMatcher) {
                         ExampleMatcher.StringMatcher.CONTAINING -> strCol.like("%$value%")
                         ExampleMatcher.StringMatcher.STARTING -> strCol.like("$value%")
-                        ExampleMatcher.StringMatcher.ENDING -> strCol.like("%$value")
-                        else -> strCol.eq(value)  // DEFAULT, EXACT, REGEX → 등호
+                        ExampleMatcher.StringMatcher.ENDING   -> strCol.like("%$value")
+                        else                                  -> strCol.eq(value)  // DEFAULT, EXACT, REGEX → 등호
                     }
                 } else {
                     @Suppress("UNCHECKED_CAST")
@@ -292,7 +292,7 @@ class SimpleExposedJdbcRepository<E : Entity<ID>, ID : Any>(
  */
 private class ExampleSortComparator<E>(
     private val sort: Sort,
-) : Comparator<E> {
+): Comparator<E> {
     @Suppress("UNCHECKED_CAST")
     override fun compare(a: E, b: E): Int {
         val targetClass = (a ?: b)?.javaClass ?: return 0
@@ -316,14 +316,14 @@ private class ExampleSortComparator<E>(
  *
  * **제약**: [project] 는 projection을 지원하지 않으며 모든 프로퍼티가 반환됩니다.
  */
-private class SimpleFluentQuery<E : Any>(
+private class SimpleFluentQuery<E: Any>(
     private val results: List<E>,
-) : FluentQuery.FetchableFluentQuery<E> {
+): FluentQuery.FetchableFluentQuery<E> {
     override fun sortBy(sort: Sort): FluentQuery.FetchableFluentQuery<E> =
         if (sort.isUnsorted) this
         else SimpleFluentQuery(results.sortedWith(ExampleSortComparator(sort)))
 
-    override fun <R : Any> `as`(projectionType: Class<R>): FluentQuery.FetchableFluentQuery<R> =
+    override fun <R: Any> `as`(projectionType: Class<R>): FluentQuery.FetchableFluentQuery<R> =
         SimpleFluentQuery(results.map { projectionType.cast(it) })
 
     /** Projection은 지원되지 않습니다. 모든 프로퍼티가 반환됩니다. */

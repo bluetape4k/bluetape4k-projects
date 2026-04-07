@@ -152,18 +152,18 @@ val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
 
 Available codecs:
 
-| Codec                   | Description                        |
-|-------------------------|------------------------------------|
-| `KafkaCodecs.String`    | UTF-8 string serialization         |
-| `KafkaCodecs.ByteArray` | Raw byte array passthrough         |
-| `KafkaCodecs.Jackson`   | JSON serialization                 |
-| `KafkaCodecs.Jdk`       | Java serialization                 |
-| `KafkaCodecs.Kryo`      | Kryo binary serialization          |
-| `KafkaCodecs.Fory`      | FST binary serialization           |
-| `KafkaCodecs.LZ4Jdk`    | LZ4 compression + Java serialization |
-| `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization |
+| Codec                   | Description                             |
+|-------------------------|-----------------------------------------|
+| `KafkaCodecs.String`    | UTF-8 string serialization              |
+| `KafkaCodecs.ByteArray` | Raw byte array passthrough              |
+| `KafkaCodecs.Jackson`   | JSON serialization                      |
+| `KafkaCodecs.Jdk`       | Java serialization                      |
+| `KafkaCodecs.Kryo`      | Kryo binary serialization               |
+| `KafkaCodecs.Fory`      | FST binary serialization                |
+| `KafkaCodecs.LZ4Jdk`    | LZ4 compression + Java serialization    |
+| `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization    |
 | `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
-| `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization |
+| `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
 
 ### 5. Spring KafkaTemplate with Coroutines
 

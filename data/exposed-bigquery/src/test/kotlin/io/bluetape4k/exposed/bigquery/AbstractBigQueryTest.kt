@@ -52,7 +52,7 @@ import org.junit.jupiter.api.BeforeAll
  */
 abstract class AbstractBigQueryTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
         /** H2(PostgreSQL 모드) SQL 생성 전용 연결. Exposed Statement → SQL 변환에 사용합니다. */
         private val sqlGenDb: Database by lazy {
@@ -115,14 +115,14 @@ abstract class AbstractBigQueryTest {
 
     // ── INSERT ────────────────────────────────────────────────────────────────
 
-    protected fun <T : Table> T.execInsert(body: T.(InsertStatement<Number>) -> Unit): QueryResponse {
+    protected fun <T: Table> T.execInsert(body: T.(InsertStatement<Number>) -> Unit): QueryResponse {
         val t = this
         return with(bqContext) { t.execInsert(body) }
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
 
-    protected fun <T : Table> T.execUpdate(
+    protected fun <T: Table> T.execUpdate(
         where: Op<Boolean>,
         body: T.(UpdateStatement) -> Unit,
     ): QueryResponse {
@@ -132,7 +132,7 @@ abstract class AbstractBigQueryTest {
 
     // ── DELETE ────────────────────────────────────────────────────────────────
 
-    protected fun <T : Table> T.execDelete(where: Op<Boolean>): QueryResponse {
+    protected fun <T: Table> T.execDelete(where: Op<Boolean>): QueryResponse {
         val t = this
         return with(bqContext) { t.execDelete(where) }
     }

@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
  * val client = MongoClientProvider.getOrCreate("mongodb://localhost:27017")
  * ```
  */
-object MongoClientProvider : KLogging() {
+object MongoClientProvider: KLogging() {
 
     /** 기본 MongoDB 연결 문자열입니다. */
     const val DEFAULT_CONNECTION_STRING = "mongodb://localhost:27017"

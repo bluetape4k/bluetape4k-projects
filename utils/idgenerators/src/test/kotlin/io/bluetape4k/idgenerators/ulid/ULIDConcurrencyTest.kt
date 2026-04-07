@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ULIDConcurrencyTest : AbstractULIDTest() {
-    companion object : KLogging() {
+class ULIDConcurrencyTest: AbstractULIDTest() {
+    companion object: KLogging() {
         private const val NUM_WORKERS = 16
         private const val ROUNDS = 100
     }

@@ -158,80 +158,80 @@ fun Column<String>.ulidGenerated(): Column<String> = clientDefault { statefulMon
  */
 fun IColumnType<*>.getLanguageType(): KClass<*>? =
     when (this) {
-        is BooleanColumnType -> {
+        is BooleanColumnType             -> {
             Boolean::class
         }
-        is CharacterColumnType -> {
+        is CharacterColumnType           -> {
             Char::class
         }
-        is ShortColumnType -> {
+        is ShortColumnType               -> {
             Short::class
         }
-        is UShortColumnType -> {
+        is UShortColumnType              -> {
             UShort::class
         }
-        is IntegerColumnType -> {
+        is IntegerColumnType             -> {
             Int::class
         }
-        is UIntegerColumnType -> {
+        is UIntegerColumnType            -> {
             UInt::class
         }
-        is LongColumnType -> {
+        is LongColumnType                -> {
             Long::class
         }
-        is ULongColumnType -> {
+        is ULongColumnType               -> {
             ULong::class
         }
-        is FloatColumnType -> {
+        is FloatColumnType               -> {
             Float::class
         }
-        is DoubleColumnType -> {
+        is DoubleColumnType              -> {
             Double::class
         }
-        is DecimalColumnType -> {
+        is DecimalColumnType             -> {
             BigDecimal::class
         }
-        is StringColumnType -> {
+        is StringColumnType              -> {
             String::class
         }
-        is UUIDColumnType -> {
+        is UUIDColumnType                -> {
             UUID::class
         }
-        is EnumerationColumnType<*> -> {
+        is EnumerationColumnType<*>      -> {
             Enum::class
         }
-        is EnumerationNameColumnType<*> -> {
+        is EnumerationNameColumnType<*>  -> {
             Enum::class
         }
-        is BasicBinaryColumnType -> {
+        is BasicBinaryColumnType         -> {
             ByteArray::class
         }
-        is BlobColumnType -> {
+        is BlobColumnType                -> {
             ExposedBlob::class
         }
-        is ArrayColumnType<*, *> -> {
+        is ArrayColumnType<*, *>         -> {
             Array::class
         }
-        is JavaLocalDateColumnType -> {
+        is JavaLocalDateColumnType       -> {
             java.time.LocalDate::class
         }
-        is JavaLocalTimeColumnType -> {
+        is JavaLocalTimeColumnType       -> {
             java.time.LocalTime::class
         }
-        is JavaLocalDateTimeColumnType -> {
+        is JavaLocalDateTimeColumnType   -> {
             java.time.LocalDateTime::class
         }
-        is JavaOffsetDateTimeColumnType -> {
+        is JavaOffsetDateTimeColumnType  -> {
             java.time.OffsetDateTime::class
         }
-        is JavaDurationColumnType -> {
+        is JavaDurationColumnType        -> {
             java.time.Duration::class
         }
         // exposed-kotlin-datetime 모듈을 추가해야 함
-        is KotlinLocalDateColumnType -> {
+        is KotlinLocalDateColumnType     -> {
             kotlinx.datetime.LocalDate::class
         }
-        is KotlinLocalTimeColumnType -> {
+        is KotlinLocalTimeColumnType     -> {
             kotlinx.datetime.LocalTime::class
         }
         is KotlinLocalDateTimeColumnType -> {
@@ -240,19 +240,19 @@ fun IColumnType<*>.getLanguageType(): KClass<*>? =
         is KotlinOffsetDateTimeColumnType -> {
             java.time.OffsetDateTime::class
         }
-        is KotlinDurationColumnType -> {
+        is KotlinDurationColumnType      -> {
             java.time.Duration::class
         }
         // exposed-json 모듈을 추가해야 함
         // is JsonColumnType<*> -> Any::class
 
-        is EntityIDColumnType<*> -> {
+        is EntityIDColumnType<*>         -> {
             this.idColumn.columnType.getLanguageType()
         }
-        is AutoIncColumnType<*> -> {
+        is AutoIncColumnType<*>          -> {
             this.delegate.getLanguageType()
         }
-        else -> {
+        else                             -> {
             log.warn { "알 수 없는 타입: ${this.javaClass.simpleName}" }
             null
         }
@@ -278,4 +278,4 @@ fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
  * ```
  */
 @JvmName("getEntityColumnLanguageType")
-fun <ID : Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
+fun <ID: Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()

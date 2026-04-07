@@ -57,6 +57,7 @@ class SimpleRegressionTest {
     @Test
     fun `selector 기반 simpleRegression 이 동작한다`() {
         data class Point(val x: Double, val y: Double)
+
         val points = listOf(
             Point(1.0, 3.0), Point(2.0, 5.0), Point(3.0, 7.0),
             Point(4.0, 9.0), Point(5.0, 11.0),

@@ -11,11 +11,16 @@ import org.junit.jupiter.api.assertThrows
 
 class StateMachineDslTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    enum class Light { RED, YELLOW, GREEN }
+    enum class Light {
+        RED,
+        YELLOW,
+        GREEN
+    }
+
     sealed class LightEvent {
-        data object Next : LightEvent()
+        data object Next: LightEvent()
     }
 
     @Test

@@ -70,7 +70,7 @@ class RuleDefinitionValidator {
 
         checkRule(isConditionMethodWellDefined(conditionMethods[0])) {
             "Condition method '${conditionMethods[0].name}' defined in rule '${rule.javaClass.name}' must be public, " +
-            "may have parameters annotated with @Fact (and/or exactly one parameter of type Facts) and return boolean type."
+                    "may have parameters annotated with @Fact (and/or exactly one parameter of type Facts) and return boolean type."
         }
     }
 
@@ -84,7 +84,7 @@ class RuleDefinitionValidator {
         actionMethods.forEach { action ->
             checkRule(isActionMethodWellDefined(action)) {
                 "Action method '${action.name}' defined in rule '${rule.javaClass.name}' must be public, " +
-                "must return void type and may have parameters annotated with @Fact (and/or exactly one parameter of type Facts)."
+                        "must return void type and may have parameters annotated with @Fact (and/or exactly one parameter of type Facts)."
             }
         }
     }
@@ -100,7 +100,7 @@ class RuleDefinitionValidator {
 
         checkRule(isPriorityMethodWellDefined(priorityMethods[0])) {
             "Priority method '${priorityMethods[0].name}' defined in rule '${rule.javaClass.name}' must be public, " +
-            "have no parameters and return integer type."
+                    "have no parameters and return integer type."
         }
     }
 
@@ -110,20 +110,20 @@ class RuleDefinitionValidator {
 
     private fun isConditionMethodWellDefined(method: Method): Boolean {
         return Modifier.isPublic(method.modifiers) &&
-               method.returnType == Boolean::class.java &&
-               isValidParameters(method)
+                method.returnType == Boolean::class.java &&
+                isValidParameters(method)
     }
 
     private fun isActionMethodWellDefined(method: Method): Boolean {
         return Modifier.isPublic(method.modifiers) &&
-               (method.returnType in listOf(Void.TYPE, Unit::class.java)) &&
-               isValidParameters(method)
+                (method.returnType in listOf(Void.TYPE, Unit::class.java)) &&
+                isValidParameters(method)
     }
 
     private fun isPriorityMethodWellDefined(method: Method): Boolean {
         return Modifier.isPublic(method.modifiers) &&
-               (method.returnType in listOf(Integer.TYPE, Int::class.java)) &&
-               method.parameterTypes.isEmpty()
+                (method.returnType in listOf(Integer.TYPE, Int::class.java)) &&
+                method.parameterTypes.isEmpty()
     }
 
     private fun isValidParameters(method: Method): Boolean {

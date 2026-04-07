@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 class LocalAsyncLeaderElectionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val election = LocalAsyncLeaderElection()
 

@@ -59,10 +59,10 @@ object XXHasher {
      */
     private fun Any?.hashToBytes(): ByteArray {
         val hashCode = when (this) {
-            null -> ZERO_HASH
+            null      -> ZERO_HASH
             is Enum<*> -> ordinal.hashCode()
             is String -> this.toUtf8Bytes().contentHashCode()
-            else -> hashCode()
+            else      -> hashCode()
         }
         return ByteBuffer.allocate(4).putInt(hashCode).array()
     }

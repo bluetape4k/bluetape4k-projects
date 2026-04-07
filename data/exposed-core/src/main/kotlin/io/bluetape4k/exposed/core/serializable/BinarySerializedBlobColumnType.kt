@@ -22,20 +22,20 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
  * // payload.columnType.sqlType().contains("BLOB")
  * ```
  */
-fun <T : Any> Table.binarySerializedBlob(
+fun <T: Any> Table.binarySerializedBlob(
     name: String,
     serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> = registerColumn(name, BinarySerializedBlobColumnType(serializer))
 
 /** `BLOB` + 바이너리 직렬화 변환기를 결합한 컬럼 타입입니다. */
-class BinarySerializedBlobColumnType<T : Any>(
+class BinarySerializedBlobColumnType<T: Any>(
     serializer: BinarySerializer,
-) : ColumnWithTransform<ExposedBlob, T>(BlobColumnType(), BinarySerializedBlobTransformer(serializer))
+): ColumnWithTransform<ExposedBlob, T>(BlobColumnType(), BinarySerializedBlobTransformer(serializer))
 
 /** 객체와 [ExposedBlob] 간 직렬화/역직렬화 변환기입니다. */
 class BinarySerializedBlobTransformer<T>(
     private val serializer: BinarySerializer,
-) : ColumnTransformer<ExposedBlob, T> {
+): ColumnTransformer<ExposedBlob, T> {
     /** 엔티티 객체를 직렬화해 blob으로 변환합니다. */
     override fun unwrap(value: T): ExposedBlob = serializer.serialize(value).toExposedBlob()
 

@@ -26,7 +26,7 @@ import io.bluetape4k.leader.LeaderGroupElectionState
  * println(election.state("batch-job"))  // LeaderGroupState(activeCount=2, ...)
  * ```
  */
-interface SuspendLeaderGroupElection : LeaderGroupElectionState {
+interface SuspendLeaderGroupElection: LeaderGroupElectionState {
 
     /**
      * 슬롯을 획득하여 리더로 선출되면 suspend [action]을 실행합니다.

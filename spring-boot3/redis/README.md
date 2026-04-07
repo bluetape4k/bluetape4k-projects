@@ -2,18 +2,18 @@
 
 English | [한국어](./README.ko.md)
 
-A module that replaces the serialization layer of Spring Data Redis with high-performance binary serialization and compression combinations.
-It makes it easy to configure `Serializer` and `RedisSerializationContext` when setting up `RedisTemplate` or `ReactiveRedisTemplate`.
+A module that replaces the serialization layer of Spring Data Redis with high-performance binary serialization and compression combinations. It makes it easy to configure
+`Serializer` and `RedisSerializationContext` when setting up `RedisTemplate` or `ReactiveRedisTemplate`.
 
 ## Key Features
 
-| Class / Function                    | Description                                                        |
-|-------------------------------------|--------------------------------------------------------------------|
-| `RedisBinarySerializer`             | `RedisSerializer<Any>` implementation backed by `BinarySerializer` |
-| `RedisCompressSerializer`           | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor` |
-| `RedisBinarySerializers`            | Singleton factory combining serialization (Jdk/Kryo/Fory) × compression (GZip/LZ4/Snappy/Zstd) |
-| `redisSerializationContext {}`      | DSL-based `RedisSerializationContext` builder                      |
-| `redisSerializationContextOf(...)` | Convenience function for specifying key/value serializers directly  |
+| Class / Function                   | Description                                                                                    |
+|------------------------------------|------------------------------------------------------------------------------------------------|
+| `RedisBinarySerializer`            | `RedisSerializer<Any>` implementation backed by `BinarySerializer`                             |
+| `RedisCompressSerializer`          | Compression-only `RedisSerializer<ByteArray>` backed by `Compressor`                           |
+| `RedisBinarySerializers`           | Singleton factory combining serialization (Jdk/Kryo/Fory) × compression (GZip/LZ4/Snappy/Zstd) |
+| `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                  |
+| `redisSerializationContextOf(...)` | Convenience function for specifying key/value serializers directly                             |
 
 ## Dependencies
 
@@ -91,25 +91,25 @@ val context = redisSerializationContext<String, ByteArray> {
 
 ### Serialization (Object → ByteArray)
 
-| Constant                              | Serialization Engine | Compression |
-|---------------------------------------|----------------------|-------------|
-| `RedisBinarySerializers.Jdk`          | JDK                  | None        |
-| `RedisBinarySerializers.Kryo`         | Kryo                 | None        |
-| `RedisBinarySerializers.Fory`         | Fory                 | None        |
-| `RedisBinarySerializers.LZ4Fory`      | Fory                 | LZ4         |
-| `RedisBinarySerializers.LZ4Kryo`      | Kryo                 | LZ4         |
-| `RedisBinarySerializers.ZstdFory`     | Fory                 | Zstd        |
-| `RedisBinarySerializers.SnappyFory`   | Fory                 | Snappy      |
-| `RedisBinarySerializers.GzipFory`     | Fory                 | GZip        |
+| Constant                            | Serialization Engine | Compression |
+|-------------------------------------|----------------------|-------------|
+| `RedisBinarySerializers.Jdk`        | JDK                  | None        |
+| `RedisBinarySerializers.Kryo`       | Kryo                 | None        |
+| `RedisBinarySerializers.Fory`       | Fory                 | None        |
+| `RedisBinarySerializers.LZ4Fory`    | Fory                 | LZ4         |
+| `RedisBinarySerializers.LZ4Kryo`    | Kryo                 | LZ4         |
+| `RedisBinarySerializers.ZstdFory`   | Fory                 | Zstd        |
+| `RedisBinarySerializers.SnappyFory` | Fory                 | Snappy      |
+| `RedisBinarySerializers.GzipFory`   | Fory                 | GZip        |
 
 ### Compression-Only (ByteArray → ByteArray)
 
-| Constant                          | Algorithm |
-|-----------------------------------|-----------|
-| `RedisBinarySerializers.LZ4`      | LZ4       |
-| `RedisBinarySerializers.Zstd`     | Zstd      |
-| `RedisBinarySerializers.Snappy`   | Snappy    |
-| `RedisBinarySerializers.Gzip`     | GZip      |
+| Constant                        | Algorithm |
+|---------------------------------|-----------|
+| `RedisBinarySerializers.LZ4`    | LZ4       |
+| `RedisBinarySerializers.Zstd`   | Zstd      |
+| `RedisBinarySerializers.Snappy` | Snappy    |
+| `RedisBinarySerializers.Gzip`   | GZip      |
 
 ## Architecture Diagrams
 

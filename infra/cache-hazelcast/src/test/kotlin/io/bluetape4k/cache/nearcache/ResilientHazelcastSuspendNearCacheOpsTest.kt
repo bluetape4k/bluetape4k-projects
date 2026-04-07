@@ -8,7 +8,7 @@ import io.bluetape4k.junit5.faker.Fakers
  *
  * [AbstractResilientSuspendNearCacheOperationsTest]를 상속하여 CRUD + 동시성 + Resilience를 모두 검증합니다.
  */
-class ResilientHazelcastSuspendNearCacheOpsTest : AbstractResilientSuspendNearCacheOperationsTest<String>() {
+class ResilientHazelcastSuspendNearCacheOpsTest: AbstractResilientSuspendNearCacheOperationsTest<String>() {
     private val cacheName get() = "resilient-hazelcast-suspend-test-${Fakers.randomString(6, 8)}"
 
     override fun createBaseCache(): SuspendNearCacheOperations<String> =

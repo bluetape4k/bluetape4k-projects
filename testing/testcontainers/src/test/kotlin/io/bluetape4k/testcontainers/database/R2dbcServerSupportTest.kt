@@ -15,7 +15,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         PostgreSQLServer().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "postgresql", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "postgresql",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 
@@ -24,7 +32,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         PostgisServer().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "postgresql", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "postgresql",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 
@@ -33,7 +49,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         PgvectorServer().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "postgresql", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "postgresql",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 
@@ -42,7 +66,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         MySQL8Server().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "mysql", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "mysql",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 
@@ -51,7 +83,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         MySQL5Server().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "mysql", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "mysql",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 
@@ -60,7 +100,15 @@ class R2dbcServerSupportTest: AbstractJdbcServerTest() {
         MariaDBServer().use { server ->
             server.start()
             val options = server.getConnectionFactoryOptions()
-            assertR2dbcOptions(options, "mariadb", server.host, server.port, server.getUsername(), server.getPassword(), server.getDatabaseName())
+            assertR2dbcOptions(
+                options,
+                "mariadb",
+                server.host,
+                server.port,
+                server.getUsername(),
+                server.getPassword(),
+                server.getDatabaseName()
+            )
         }
     }
 

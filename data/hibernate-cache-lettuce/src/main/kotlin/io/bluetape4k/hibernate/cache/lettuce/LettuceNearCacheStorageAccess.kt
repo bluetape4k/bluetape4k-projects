@@ -22,7 +22,7 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor
 class LettuceNearCacheStorageAccess(
     private val regionName: String,
     private val nearCache: LettuceNearCache<Any>,
-) : DomainDataStorageAccess {
+): DomainDataStorageAccess {
 
     // nearCache가 cacheName(=regionName) prefix를 Redis key에 자동으로 추가하므로
     // 여기서는 key를 stable string으로 정규화만 한다. (이중 prefix 방지)

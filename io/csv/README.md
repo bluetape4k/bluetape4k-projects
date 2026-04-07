@@ -6,7 +6,9 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-csv` is a Kotlin-friendly wrapper around the [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) library.
 
-It provides `RecordReader`/`RecordWriter` interfaces for reading and writing CSV and TSV formats, along with async versions based on Kotlin Coroutines (`SuspendRecordReader`/`SuspendRecordWriter`).
+It provides `RecordReader`/
+`RecordWriter` interfaces for reading and writing CSV and TSV formats, along with async versions based on Kotlin Coroutines (
+`SuspendRecordReader`/`SuspendRecordWriter`).
 
 ## Architecture
 

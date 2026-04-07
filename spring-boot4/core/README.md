@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 A unified module providing common features for Spring Boot 4.x applications.
 
-> Provides the same functionality as the Spring Boot 3 module (`bluetape4k-spring-boot3`), adapted to the Spring Boot 4.x API. Both modules can be used independently.
+> Provides the same functionality as the Spring Boot 3 module (
+`bluetape4k-spring-boot3`), adapted to the Spring Boot 4.x API. Both modules can be used independently.
 
 ## Features
 
@@ -56,7 +57,8 @@ dependencies {
 
 ## BOM Configuration Notes
 
-The Spring Boot 4 BOM must be applied using `implementation(platform(...))`. Using `dependencyManagement { imports { mavenBom() } }` conflicts with the Kotlin Gradle Plugin.
+The Spring Boot 4 BOM must be applied using `implementation(platform(...))`. Using
+`dependencyManagement { imports { mavenBom() } }` conflicts with the Kotlin Gradle Plugin.
 
 ```kotlin
 // ✅ Correct approach
@@ -155,14 +157,14 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ## Key Dependency Structure
 
-| Category                        | Scope         | Description                        |
-|-------------------------------|---------------|------------------------------------|
-| `spring-boot-starter-webflux` | `api`         | Required for WebFlux + Coroutines  |
-| `bluetape4k-retrofit2`        | `api`         | Retrofit2 integration              |
-| `bluetape4k-coroutines`       | `api`         | Coroutines support                 |
-| `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 support                  |
-| `spring-boot-starter-web`     | `compileOnly` | Optional servlet support           |
-| `resilience4j-*`              | `compileOnly` | Optional Resilience4j              |
+| Category                      | Scope         | Description                       |
+|-------------------------------|---------------|-----------------------------------|
+| `spring-boot-starter-webflux` | `api`         | Required for WebFlux + Coroutines |
+| `bluetape4k-retrofit2`        | `api`         | Retrofit2 integration             |
+| `bluetape4k-coroutines`       | `api`         | Coroutines support                |
+| `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 support                 |
+| `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |
+| `resilience4j-*`              | `compileOnly` | Optional Resilience4j             |
 
 ## Architecture Diagrams
 

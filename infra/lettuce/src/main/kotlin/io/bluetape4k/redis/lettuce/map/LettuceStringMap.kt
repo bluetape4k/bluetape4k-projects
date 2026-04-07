@@ -23,6 +23,6 @@ import io.lettuce.core.api.StatefulRedisConnection
 class LettuceStringMap(
     private val connection: StatefulRedisConnection<String, String>,
     mapKey: String,
-) : LettuceMap<String>(connection, mapKey) {
-    companion object : KLogging()
+): LettuceMap<String>(connection, mapKey) {
+    companion object: KLogging()
 }

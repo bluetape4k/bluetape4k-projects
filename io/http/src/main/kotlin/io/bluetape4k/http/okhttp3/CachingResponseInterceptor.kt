@@ -18,10 +18,10 @@ import okhttp3.Response
  */
 class CachingResponseInterceptor private constructor(
     private val cacheControl: CacheControl,
-) : Interceptor {
+): Interceptor {
     private val cacheControlHeader: String = cacheControl.toString()
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         /**
          * [CacheControl] 인스턴스를 받아 [CachingResponseInterceptor]를 생성합니다.
          *

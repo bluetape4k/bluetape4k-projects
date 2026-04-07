@@ -2,28 +2,30 @@
 
 [English](./README.md) | 한국어
 
-`bluetape4k-cache-redisson`은 Redisson 기반 JCache Provider, Coroutines 캐시 구현, Memoizer, 그리고 다양한 **2-Tier Near Cache** 구현을 제공합니다.
+`bluetape4k-cache-redisson`은 Redisson 기반 JCache Provider, Coroutines 캐시 구현, Memoizer, 그리고 다양한 **2-Tier Near Cache
+** 구현을 제공합니다.
 
 > 기존 `bluetape4k-cache-redisson-near` 모듈이 이 모듈에 통합되었습니다.
 
 ## 제공 기능
 
-| 클래스 | 패키지 | 설명 |
-|--------|--------|------|
-| `org.redisson.jcache.JCachingProvider` | — | Redisson JCache Provider |
-| `RedissonNearCachingProvider` | `nearcache` | Redisson Near Cache JCache Provider |
-| `RedissonSuspendCache` | `jcache` | JCache 기반 코루틴 캐시 |
-| `RedissonNearCache` | `nearcache` | Caffeine(front) + Redisson LocalCachedMap(back) 2-Tier Near Cache |
-| `RedissonSuspendNearCache` | `nearcache` | Near Cache 코루틴 래퍼 |
-| `RedissonResp3NearCache<V>` | `nearcache` | Redisson(RBucket) + Lettuce RESP3(invalidation) 하이브리드 NearCache — write-through |
-| `RedissonResp3SuspendNearCache<V>` | `nearcache` | RESP3 하이브리드 NearCache 코루틴 구현 — write-through |
-| `ResilientRedissonResp3NearCache<V>` | `nearcache` | RESP3 하이브리드 + write-behind + Resilience4j retry (동기) |
-| `ResilientRedissonResp3SuspendNearCache<V>` | `nearcache` | RESP3 하이브리드 + write-behind + Resilience4j retry (코루틴) |
-| `RedissonMemoizer<T, R>` | `memoizer` | RMap 기반 동기 메모이저 |
-| `RedissonAsyncMemoizer<T, R>` | `memoizer` | RMap 기반 비동기(CompletableFuture) 메모이저 |
-| `RedissonSuspendMemoizer<T, R>` | `memoizer` | RMap 기반 suspend 메모이저 |
+| 클래스                                         | 패키지         | 설명                                                                              |
+|---------------------------------------------|-------------|---------------------------------------------------------------------------------|
+| `org.redisson.jcache.JCachingProvider`      | —           | Redisson JCache Provider                                                        |
+| `RedissonNearCachingProvider`               | `nearcache` | Redisson Near Cache JCache Provider                                             |
+| `RedissonSuspendCache`                      | `jcache`    | JCache 기반 코루틴 캐시                                                                |
+| `RedissonNearCache`                         | `nearcache` | Caffeine(front) + Redisson LocalCachedMap(back) 2-Tier Near Cache               |
+| `RedissonSuspendNearCache`                  | `nearcache` | Near Cache 코루틴 래퍼                                                               |
+| `RedissonResp3NearCache<V>`                 | `nearcache` | Redisson(RBucket) + Lettuce RESP3(invalidation) 하이브리드 NearCache — write-through |
+| `RedissonResp3SuspendNearCache<V>`          | `nearcache` | RESP3 하이브리드 NearCache 코루틴 구현 — write-through                                    |
+| `ResilientRedissonResp3NearCache<V>`        | `nearcache` | RESP3 하이브리드 + write-behind + Resilience4j retry (동기)                            |
+| `ResilientRedissonResp3SuspendNearCache<V>` | `nearcache` | RESP3 하이브리드 + write-behind + Resilience4j retry (코루틴)                           |
+| `RedissonMemoizer<T, R>`                    | `memoizer`  | RMap 기반 동기 메모이저                                                                 |
+| `RedissonAsyncMemoizer<T, R>`               | `memoizer`  | RMap 기반 비동기(CompletableFuture) 메모이저                                             |
+| `RedissonSuspendMemoizer<T, R>`             | `memoizer`  | RMap 기반 suspend 메모이저                                                            |
 
 `RedissonNearCacheConfig` 제약:
+
 - `cacheName`은 공백일 수 없습니다.
 - `maxLocalSize`는 0보다 커야 합니다.
 - `timeToLive`, `maxIdle`은 지정 시 0보다 커야 합니다.
@@ -276,7 +278,8 @@ class UserService {
 
 ### 7. RESP3 NearCache (Redisson + Lettuce RESP3 하이브리드)
 
-기존 JCache 기반 Near Cache의 bulk 연산 이벤트 미발행 버그를 해결한 하이브리드 구현입니다. 데이터 연산은 Redisson `RBucket`을 사용하고, invalidation은 Lettuce RESP3 CLIENT TRACKING push를 사용합니다.
+기존 JCache 기반 Near Cache의 bulk 연산 이벤트 미발행 버그를 해결한 하이브리드 구현입니다. 데이터 연산은 Redisson
+`RBucket`을 사용하고, invalidation은 Lettuce RESP3 CLIENT TRACKING push를 사용합니다.
 
 > **Redis 6.0+ 필요**: RESP3 프로토콜과 CLIENT TRACKING은 Redis 6.0 이상에서만 지원됩니다.
 
@@ -356,7 +359,8 @@ suspendCache.close()
 
 #### NOLOOP 동작 주의사항
 
-Redisson 데이터 연결과 Lettuce tracking 연결은 서로 다른 연결입니다. 따라서 자신이 Redisson으로 쓴 키도 Lettuce tracking 연결에 invalidation이 전파될 수 있습니다. 이는 `bluetape4k-cache-lettuce`의 단일 연결 방식(NOLOOP 보장)과 다른 동작입니다.
+Redisson 데이터 연결과 Lettuce tracking 연결은 서로 다른 연결입니다. 따라서 자신이 Redisson으로 쓴 키도 Lettuce tracking 연결에 invalidation이 전파될 수 있습니다. 이는
+`bluetape4k-cache-lettuce`의 단일 연결 방식(NOLOOP 보장)과 다른 동작입니다.
 
 ---
 
@@ -432,14 +436,14 @@ cache.close()
 
 #### ResilientRedissonResp3NearCacheConfig 옵션
 
-| 옵션 | 기본값 | 설명 |
-|------|--------|------|
-| `base` | `RedissonResp3NearCacheConfig()` | 기본 RESP3 NearCache 설정 |
-| `writeQueueCapacity` | `1024` | write-behind 큐 최대 용량 |
-| `retryMaxAttempts` | `3` | Redis 쓰기 최대 재시도 횟수 |
-| `retryWaitDuration` | `500ms` | 재시도 대기 시간 |
-| `retryExponentialBackoff` | `true` | 지수 백오프 사용 여부 |
-| `getFailureStrategy` | `RETURN_FRONT_OR_NULL` | Redis GET 실패 시 동작 전략 |
+| 옵션                        | 기본값                              | 설명                    |
+|---------------------------|----------------------------------|-----------------------|
+| `base`                    | `RedissonResp3NearCacheConfig()` | 기본 RESP3 NearCache 설정 |
+| `writeQueueCapacity`      | `1024`                           | write-behind 큐 최대 용량  |
+| `retryMaxAttempts`        | `3`                              | Redis 쓰기 최대 재시도 횟수    |
+| `retryWaitDuration`       | `500ms`                          | 재시도 대기 시간             |
+| `retryExponentialBackoff` | `true`                           | 지수 백오프 사용 여부          |
+| `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`           | Redis GET 실패 시 동작 전략  |
 
 ---
 
@@ -574,7 +578,7 @@ val provider = Caching.getCachingProvider("io.bluetape4k.cache.nearcache.Redisso
 
 ## Redis 버전 요구사항
 
-| 기능 | 최소 Redis 버전 |
-|------|----------------|
-| JCache, Near Cache (LocalCachedMap 기반) | Redis 5.0+ |
-| RESP3 NearCache, Resilient RESP3 NearCache | Redis 6.0+ |
+| 기능                                         | 최소 Redis 버전 |
+|--------------------------------------------|-------------|
+| JCache, Near Cache (LocalCachedMap 기반)     | Redis 5.0+  |
+| RESP3 NearCache, Resilient RESP3 NearCache | Redis 6.0+  |

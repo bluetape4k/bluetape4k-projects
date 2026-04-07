@@ -38,7 +38,7 @@ fun Entity<*>.idEquals(other: Any?): Boolean = when {
     // NOTE: one-to-one 관계의 id.table 값은 다를 수 있습니다. (backReferencedOn 인 경우 - BlogSchema의 Post.detail 와 PostDetail)
     // 양방향 isAssignableFrom 으로 equals 대칭성 계약을 준수합니다.
     other is Entity<*> -> (this.javaClass.isAssignableFrom(other.javaClass)
-        || other.javaClass.isAssignableFrom(this.javaClass)) && idValue == other.idValue
+            || other.javaClass.isAssignableFrom(this.javaClass)) && idValue == other.idValue
     else               -> false
 }
 

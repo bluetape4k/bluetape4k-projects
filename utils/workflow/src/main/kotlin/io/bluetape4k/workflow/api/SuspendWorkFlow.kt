@@ -14,4 +14,4 @@ package io.bluetape4k.workflow.api
  * }
  * ```
  */
-interface SuspendWorkFlow : SuspendWork
+interface SuspendWorkFlow: SuspendWork

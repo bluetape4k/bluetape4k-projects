@@ -31,7 +31,7 @@ class KeyChain private constructor(
     val id: String,
     val createdAt: Long,
     val expiredTtl: Long,
-) : AbstractValueObject() {
+): AbstractValueObject() {
     companion object {
         private const val TRANSFORMATION = "RSA"
 
@@ -94,10 +94,10 @@ class KeyChain private constructor(
 
     override fun equalProperties(other: Any): Boolean =
         other is KeyChain &&
-            id == other.id &&
-            algorithm == other.algorithm &&
-            keyPair.private == other.keyPair.private &&
-            keyPair.public == other.keyPair.public
+                id == other.id &&
+                algorithm == other.algorithm &&
+                keyPair.private == other.keyPair.private &&
+                keyPair.public == other.keyPair.public
 
     override fun buildStringHelper(): ToStringBuilder =
         super

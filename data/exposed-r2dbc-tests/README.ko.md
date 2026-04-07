@@ -199,8 +199,7 @@ object TestDBConfig {
 }
 ```
 
-`useFastDB = true`(기본값)이면 `enabledDialects()`는 H2만 반환합니다.
-풀 테스트가 필요한 경우 `useFastDB = false`로 변경하세요 (Docker 필요).
+`useFastDB = true`(기본값)이면 `enabledDialects()`는 H2만 반환합니다. 풀 테스트가 필요한 경우 `useFastDB = false`로 변경하세요 (Docker 필요).
 
 ## 테스트용 스키마/데이터
 
@@ -242,18 +241,18 @@ Containers.Postgres
 
 ## 주요 기능 상세
 
-| 파일                            | 설명                     |
-|-------------------------------|------------------------|
-| `AbstractExposedR2dbcTest.kt` | R2DBC 테스트 기본 클래스       |
-| `TestDB.kt`                   | R2DBC 지원 DB 정의         |
-| `TestDBConfig.kt`             | 테스트 환경 설정 (useTestcontainers, useFastDB) |
-| `Containers.kt`               | Testcontainers 컨테이너 관리 |
-| `withDb.kt`                   | R2DBC DB 연결 유틸         |
-| `withTables.kt`               | R2DBC 테이블 유틸           |
-| `withAutoCommit.kt`           | AutoCommit 모드 유틸       |
-| `withSchemas.kt`              | Schema 유틸              |
+| 파일                            | 설명                                                                                                                                                   |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AbstractExposedR2dbcTest.kt` | R2DBC 테스트 기본 클래스                                                                                                                                     |
+| `TestDB.kt`                   | R2DBC 지원 DB 정의                                                                                                                                       |
+| `TestDBConfig.kt`             | 테스트 환경 설정 (useTestcontainers, useFastDB)                                                                                                             |
+| `Containers.kt`               | Testcontainers 컨테이너 관리                                                                                                                               |
+| `withDb.kt`                   | R2DBC DB 연결 유틸                                                                                                                                       |
+| `withTables.kt`               | R2DBC 테이블 유틸                                                                                                                                         |
+| `withAutoCommit.kt`           | AutoCommit 모드 유틸                                                                                                                                     |
+| `withSchemas.kt`              | Schema 유틸                                                                                                                                            |
 | `Assertions.kt`               | 테스트 어설션 유틸 (`assertTrue`, `assertFalse`, `assertEquals`, `assertNotEquals`, `assertFailAndRollback`, `expectException`, `expectExceptionSuspending`) |
-| `TestSupports.kt`             | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest`, `insertAndSuspending` 등) |
+| `TestSupports.kt`             | 테스트 보조 유틸 (`inProperCase`, `currentDialectTest`, `insertAndSuspending` 등)                                                                            |
 
 ## R2DBC 연결 문자열 예시
 

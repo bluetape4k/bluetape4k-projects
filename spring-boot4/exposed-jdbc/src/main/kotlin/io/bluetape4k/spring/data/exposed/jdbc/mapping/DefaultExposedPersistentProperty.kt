@@ -26,8 +26,8 @@ class DefaultExposedPersistentProperty(
     property: Property,
     owner: PersistentEntity<*, ExposedPersistentProperty>,
     simpleTypeHolder: SimpleTypeHolder,
-) : AnnotationBasedPersistentProperty<ExposedPersistentProperty>(property, owner, simpleTypeHolder),
-    ExposedPersistentProperty {
+): AnnotationBasedPersistentProperty<ExposedPersistentProperty>(property, owner, simpleTypeHolder),
+   ExposedPersistentProperty {
 
     private val table: Table? = (owner as? ExposedPersistentEntity<*>)?.getTable()
 
@@ -35,7 +35,7 @@ class DefaultExposedPersistentProperty(
         val tbl = table ?: return null
         return tbl.columns.firstOrNull { col ->
             col.name.equals(name, ignoreCase = true) ||
-                col.name.equals(toSnakeCase(name), ignoreCase = true)
+                    col.name.equals(toSnakeCase(name), ignoreCase = true)
         }
     }
 

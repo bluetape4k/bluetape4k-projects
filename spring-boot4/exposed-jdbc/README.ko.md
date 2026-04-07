@@ -4,7 +4,8 @@
 
 **Exposed DAO Entity 기반 Spring Data JDBC Repository (Spring Boot 4.0.x / Spring 7)**
 
-Spring Boot 4와 Spring Data를 활용하여 Exposed DAO 엔티티를 관리하는 고성능 Repository 구현입니다. PartTree 메서드 이름 쿼리와 `@Query` 어노테이션을 통한 Exposed DSL 지원을 제공합니다.
+Spring Boot 4와 Spring Data를 활용하여 Exposed DAO 엔티티를 관리하는 고성능 Repository 구현입니다. PartTree 메서드 이름 쿼리와
+`@Query` 어노테이션을 통한 Exposed DSL 지원을 제공합니다.
 
 ## UML
 
@@ -307,6 +308,7 @@ fun createUser(name: String, email: String): User {
 ### PartTree 쿼리 제약
 
 지원하는 키워드:
+
 - **비교**: `GreaterThan`, `LessThan`, `Between`, `In`, `Contains`
 - **정렬**: `OrderBy`
 - **집계**: `count`, `exists`
@@ -314,6 +316,7 @@ fun createUser(name: String, email: String): User {
 - **페이징**: `Top`, `First`
 
 지원하지 않는 패턴:
+
 - 복잡한 OR/AND 조합 → `@Query` 또는 DSL 메서드 사용
 - 조인 → Exposed DSL 직접 사용
 

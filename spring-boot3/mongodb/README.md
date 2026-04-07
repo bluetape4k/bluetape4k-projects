@@ -4,7 +4,8 @@ English | [한국어](./README.ko.md)
 
 An extension library that makes [Spring Data MongoDB Reactive](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/) more convenient to use with Kotlin Coroutines.
 
-It provides extension functions that convert `Flux`/`Mono` return types from `ReactiveMongoOperations` to `Flow`/`suspend`, along with a Kotlin infix DSL for building `Criteria`, `Query`, and `Update` objects.
+It provides extension functions that convert `Flux`/`Mono` return types from `ReactiveMongoOperations` to `Flow`/
+`suspend`, along with a Kotlin infix DSL for building `Criteria`, `Query`, and `Update` objects.
 
 ## Features
 
@@ -174,31 +175,32 @@ class MyMongoTest : AbstractReactiveMongoCoroutineTest() {
 }
 ```
 
-`AbstractReactiveMongoCoroutineTest` automatically wires the [MongoDBServer](../../testing/testcontainers) Testcontainer via `@DynamicPropertySource`, and implements `CoroutineScope` so coroutine tests can be written directly.
+`AbstractReactiveMongoCoroutineTest` automatically wires the [MongoDBServer](../../testing/testcontainers) Testcontainer via
+`@DynamicPropertySource`, and implements `CoroutineScope` so coroutine tests can be written directly.
 
 ## Available Extension Functions
 
 ### ReactiveMongoOperations Extensions
 
-| Function                                      | Return Type    | Description                              |
-|-----------------------------------------------|----------------|------------------------------------------|
-| `findAsFlow<T>(query)`                        | `Flow<T>`      | Stream of matching documents             |
-| `findAllAsFlow<T>()`                          | `Flow<T>`      | Stream of all documents                  |
-| `findOneOrNullSuspending<T>(query)`           | `T?`           | Find one or null                         |
-| `findByIdOrNullSuspending<T>(id)`             | `T?`           | Find by ID or null                       |
-| `countSuspending<T>(query?)`                  | `Long`         | Count documents                          |
-| `existsSuspending<T>(query)`                  | `Boolean`      | Check existence                          |
-| `insertSuspending(entity)`                    | `T`            | Insert a single document                 |
-| `insertAllAsFlow(entities)`                   | `Flow<T>`      | Insert multiple documents                |
-| `saveSuspending(entity)`                      | `T`            | Save (insert or update)                  |
-| `updateFirstSuspending<T>(query, update)`     | `UpdateResult` | Update first matching document           |
-| `updateMultiSuspending<T>(query, update)`     | `UpdateResult` | Update all matching documents            |
-| `upsertSuspending<T>(query, update)`          | `UpdateResult` | Upsert                                   |
-| `removeSuspending<T>(query)`                  | `DeleteResult` | Delete by condition                      |
-| `findAndModifySuspending<T>(query, update)`   | `T?`           | Modify and return the previous document  |
-| `findAndRemoveSuspending<T>(query)`           | `T?`           | Remove and return the deleted document   |
-| `aggregateAsFlow<I, O>(aggregation)`          | `Flow<O>`      | Run an aggregation pipeline              |
-| `dropCollectionSuspending<T>()`               | `Unit`         | Drop a collection                        |
+| Function                                    | Return Type    | Description                             |
+|---------------------------------------------|----------------|-----------------------------------------|
+| `findAsFlow<T>(query)`                      | `Flow<T>`      | Stream of matching documents            |
+| `findAllAsFlow<T>()`                        | `Flow<T>`      | Stream of all documents                 |
+| `findOneOrNullSuspending<T>(query)`         | `T?`           | Find one or null                        |
+| `findByIdOrNullSuspending<T>(id)`           | `T?`           | Find by ID or null                      |
+| `countSuspending<T>(query?)`                | `Long`         | Count documents                         |
+| `existsSuspending<T>(query)`                | `Boolean`      | Check existence                         |
+| `insertSuspending(entity)`                  | `T`            | Insert a single document                |
+| `insertAllAsFlow(entities)`                 | `Flow<T>`      | Insert multiple documents               |
+| `saveSuspending(entity)`                    | `T`            | Save (insert or update)                 |
+| `updateFirstSuspending<T>(query, update)`   | `UpdateResult` | Update first matching document          |
+| `updateMultiSuspending<T>(query, update)`   | `UpdateResult` | Update all matching documents           |
+| `upsertSuspending<T>(query, update)`        | `UpdateResult` | Upsert                                  |
+| `removeSuspending<T>(query)`                | `DeleteResult` | Delete by condition                     |
+| `findAndModifySuspending<T>(query, update)` | `T?`           | Modify and return the previous document |
+| `findAndRemoveSuspending<T>(query)`         | `T?`           | Remove and return the deleted document  |
+| `aggregateAsFlow<I, O>(aggregation)`        | `Flow<O>`      | Run an aggregation pipeline             |
+| `dropCollectionSuspending<T>()`             | `Unit`         | Drop a collection                       |
 
 ## References
 

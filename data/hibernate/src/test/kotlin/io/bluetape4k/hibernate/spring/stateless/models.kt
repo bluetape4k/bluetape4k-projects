@@ -20,7 +20,7 @@ import org.hibernate.annotations.DynamicUpdate
 @DynamicUpdate
 class StatelessEntity(
     val name: String,
-) : IntJpaEntity() {
+): IntJpaEntity() {
     var firstname: String? = null
     var lastname: String? = null
     var age: Int? = null
@@ -52,7 +52,7 @@ class StatelessEntity(
 @DynamicUpdate
 class StatelessMaster(
     val name: String,
-) : IntJpaEntity() {
+): IntJpaEntity() {
     @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     val details: MutableList<StatelessDetail> = arrayListOf()
 
@@ -75,7 +75,7 @@ class StatelessMaster(
 @DynamicUpdate
 class StatelessDetail(
     val name: String,
-) : IntJpaEntity() {
+): IntJpaEntity() {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "master_id")
     var master: StatelessMaster? = null

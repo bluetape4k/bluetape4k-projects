@@ -38,7 +38,8 @@ All NearCache backends, including Lettuce, Hazelcast, Redisson, and JCache-based
 - `NearCacheStatistics` exposes hit/miss and capacity-oriented counters.
 - Resilience decorators wrap these interfaces to add retry and failure strategies.
 
-The Korean README contains the full sequence diagrams and class diagrams for `get()`, `put()`, and JCache-backed two-tier caches.
+The Korean README contains the full sequence diagrams and class diagrams for `get()`,
+`put()`, and JCache-backed two-tier caches.
 
 ## Basic Usage Examples
 

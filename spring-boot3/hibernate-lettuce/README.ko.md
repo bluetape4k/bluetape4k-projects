@@ -4,7 +4,9 @@
 
 Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 3 Auto-Configuration**.
 
-`application.yml`에 `bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(`500ms`)도 Hibernate 설정으로 그대로 전달된다.
+`application.yml`에
+`bluetape4k.cache.lettuce-near.*` 설정만 추가하면 별도 코드 없이 Hibernate Second Level Cache가 자동으로 활성화된다. 밀리초 단위 duration(
+`500ms`)도 Hibernate 설정으로 그대로 전달된다.
 
 ## UML
 
@@ -203,7 +205,7 @@ bluetape4k:
 |----------------------------------------------|----------------------------------------------------------------------|------------------------------------|
 | `LettuceNearCacheHibernateAutoConfiguration` | `LettuceNearCacheRegionFactory`, `EntityManagerFactory` on classpath | `HibernatePropertiesCustomizer` 등록 |
 | `LettuceNearCacheMetricsAutoConfiguration`   | `MeterRegistry` on classpath + Bean                                  | `LettuceNearCacheMetricsBinder` 등록 |
-| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | `/actuator/nearcache` 엔드포인트 등록 |
+| `LettuceNearCacheActuatorAutoConfiguration`  | `Endpoint` (actuate) on classpath + `EntityManagerFactory` Bean      | `/actuator/nearcache` 엔드포인트 등록     |
 
 ## Actuator 엔드포인트
 
@@ -264,7 +266,7 @@ GET /actuator/nearcache/product
 `metrics.enabled=true` 설정 시 다음 Gauge가 등록된다.
 
 | 메트릭                              | 설명                 |
-|----------------------------------|---------------------|
+|----------------------------------|--------------------|
 | `lettuce.nearcache.region.count` | 활성 Region 수        |
 | `lettuce.nearcache.local.size`   | 전체 L1 캐시 항목 수 (추정) |
 

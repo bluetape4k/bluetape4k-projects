@@ -145,17 +145,17 @@ fun Sequence<Double>.doubleRange() = asIterable().doubleRange()
  */
 fun Iterable<Double>.doubleRange() =
     (
-        minOrNull() ?: error(
-            "doubleRange()에는 최소 하나 이상의 요소가 필요합니다."
-        )
-    )..(maxOrNull() ?: error("doubleRange()에는 최소 하나 이상의 요소가 필요합니다."))
+            minOrNull() ?: error(
+                "doubleRange()에는 최소 하나 이상의 요소가 필요합니다."
+            )
+            )..(maxOrNull() ?: error("doubleRange()에는 최소 하나 이상의 요소가 필요합니다."))
 
-inline fun <T : Any, K : Any> Sequence<T>.rangeBy(
+inline fun <T: Any, K: Any> Sequence<T>.rangeBy(
     keySelector: (T) -> K,
     doubleSelector: (T) -> Double,
 ): Map<K, ClosedRange<Double>> = aggregateBy(keySelector, doubleSelector) { it.range() }
 
-inline fun <T : Any, K : Any> Iterable<T>.rangeBy(
+inline fun <T: Any, K: Any> Iterable<T>.rangeBy(
     keySelector: (T) -> K,
     doubleSelector: (T) -> Double,
 ): Map<K, ClosedRange<Double>> = aggregateBy(keySelector, doubleSelector) { it.range() }

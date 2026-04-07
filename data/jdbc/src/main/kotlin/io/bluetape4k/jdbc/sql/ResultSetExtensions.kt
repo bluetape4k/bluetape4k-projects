@@ -103,7 +103,7 @@ inline fun <T> ResultSet.emptyResultToNull(body: (ResultSet) -> T): T? =
 operator fun ResultSet.iterator(): Iterator<ResultSet> {
     val rs = this
     val cursor = ResultSetCursorState(rs)
-    return object : Iterator<ResultSet> {
+    return object: Iterator<ResultSet> {
         override operator fun hasNext(): Boolean = cursor.hasNext()
 
         override operator fun next(): ResultSet {
@@ -133,7 +133,7 @@ operator fun ResultSet.iterator(): Iterator<ResultSet> {
 inline fun <T> ResultSet.iterator(crossinline mapper: (ResultSet) -> T): Iterator<T> {
     val rs = this
     val cursor = ResultSetCursorState(rs)
-    return object : Iterator<T> {
+    return object: Iterator<T> {
         override fun hasNext(): Boolean = cursor.hasNext()
 
         override fun next(): T {
@@ -211,7 +211,8 @@ inline fun <T> ResultSet.sequence(crossinline mapper: (ResultSet) -> T): Sequenc
  * @param mapper ResultSet을 이용하여 객체를 생성하는 코드
  * @return 객체 리스트
  */
-inline fun <T> ResultSet.map(crossinline mapper: ResultSet.() -> T): List<T> = this@map.iterator(mapper).asSequence().toList()
+inline fun <T> ResultSet.map(crossinline mapper: ResultSet.() -> T): List<T> =
+    this@map.iterator(mapper).asSequence().toList()
 
 /**
  * ResultSet을 mapper를 이용하여 Sequence<T>으로 변환합니다.
@@ -227,7 +228,8 @@ inline fun <T> ResultSet.map(crossinline mapper: ResultSet.() -> T): List<T> = t
  * @param mapper ResultSet을 이용하여 객체를 생성하는 코드
  * @return 객체를 순회하는 Sequence
  */
-inline fun <T> ResultSet.mapAsSequence(crossinline mapper: ResultSet.() -> T): Sequence<T> = this@mapAsSequence.sequence(mapper)
+inline fun <T> ResultSet.mapAsSequence(crossinline mapper: ResultSet.() -> T): Sequence<T> =
+    this@mapAsSequence.sequence(mapper)
 
 /**
  * ResultSet의 컬럼명들을 가져옵니다.
@@ -505,7 +507,8 @@ fun ResultSet.getBigDecimalOrNull(columnIndex: Int): BigDecimal? = retrieveValue
  * @param columnLabel 컬럼 레이블 (이름)
  * @return BigDecimal 값 또는 null
  */
-fun ResultSet.getBigDecimalOrNull(columnLabel: String): BigDecimal? = retrieveValueOrNull(this.getBigDecimal(columnLabel))
+fun ResultSet.getBigDecimalOrNull(columnLabel: String): BigDecimal? =
+    retrieveValueOrNull(this.getBigDecimal(columnLabel))
 
 // ==================== ByteArray 타입 확장 함수 ====================
 
@@ -636,7 +639,8 @@ fun ResultSet.getTimestampOrNull(columnLabel: String): Timestamp? = retrieveValu
  * @param columnIndex 컬럼 인덱스 (1부터 시작)
  * @return InputStream 값 또는 null
  */
-fun ResultSet.getAsciiStreamOrNull(columnIndex: Int): java.io.InputStream? = retrieveValueOrNull(this.getAsciiStream(columnIndex))
+fun ResultSet.getAsciiStreamOrNull(columnIndex: Int): java.io.InputStream? =
+    retrieveValueOrNull(this.getAsciiStream(columnIndex))
 
 /**
  * ResultSet으로부터 ASCII 스트림을 가져옵니다.
@@ -645,7 +649,8 @@ fun ResultSet.getAsciiStreamOrNull(columnIndex: Int): java.io.InputStream? = ret
  * @param columnLabel 컬럼 레이블 (이름)
  * @return InputStream 값 또는 null
  */
-fun ResultSet.getAsciiStreamOrNull(columnLabel: String): java.io.InputStream? = retrieveValueOrNull(this.getAsciiStream(columnLabel))
+fun ResultSet.getAsciiStreamOrNull(columnLabel: String): java.io.InputStream? =
+    retrieveValueOrNull(this.getAsciiStream(columnLabel))
 
 /**
  * ResultSet으로부터 바이너리 스트림을 가져옵니다.
@@ -654,7 +659,8 @@ fun ResultSet.getAsciiStreamOrNull(columnLabel: String): java.io.InputStream? = 
  * @param columnIndex 컬럼 인덱스 (1부터 시작)
  * @return InputStream 값 또는 null
  */
-fun ResultSet.getBinaryStreamOrNull(columnIndex: Int): java.io.InputStream? = retrieveValueOrNull(this.getBinaryStream(columnIndex))
+fun ResultSet.getBinaryStreamOrNull(columnIndex: Int): java.io.InputStream? =
+    retrieveValueOrNull(this.getBinaryStream(columnIndex))
 
 /**
  * ResultSet으로부터 바이너리 스트림을 가져옵니다.
@@ -663,7 +669,8 @@ fun ResultSet.getBinaryStreamOrNull(columnIndex: Int): java.io.InputStream? = re
  * @param columnLabel 컬럼 레이블 (이름)
  * @return InputStream 값 또는 null
  */
-fun ResultSet.getBinaryStreamOrNull(columnLabel: String): java.io.InputStream? = retrieveValueOrNull(this.getBinaryStream(columnLabel))
+fun ResultSet.getBinaryStreamOrNull(columnLabel: String): java.io.InputStream? =
+    retrieveValueOrNull(this.getBinaryStream(columnLabel))
 
 /**
  * ResultSet으로부터 문자 스트림을 가져옵니다.
@@ -672,7 +679,8 @@ fun ResultSet.getBinaryStreamOrNull(columnLabel: String): java.io.InputStream? =
  * @param columnIndex 컬럼 인덱스 (1부터 시작)
  * @return Reader 값 또는 null
  */
-fun ResultSet.getCharacterStreamOrNull(columnIndex: Int): java.io.Reader? = retrieveValueOrNull(this.getCharacterStream(columnIndex))
+fun ResultSet.getCharacterStreamOrNull(columnIndex: Int): java.io.Reader? =
+    retrieveValueOrNull(this.getCharacterStream(columnIndex))
 
 /**
  * ResultSet으로부터 문자 스트림을 가져옵니다.
@@ -681,7 +689,8 @@ fun ResultSet.getCharacterStreamOrNull(columnIndex: Int): java.io.Reader? = retr
  * @param columnLabel 컬럼 레이블 (이름)
  * @return Reader 값 또는 null
  */
-fun ResultSet.getCharacterStreamOrNull(columnLabel: String): java.io.Reader? = retrieveValueOrNull(this.getCharacterStream(columnLabel))
+fun ResultSet.getCharacterStreamOrNull(columnLabel: String): java.io.Reader? =
+    retrieveValueOrNull(this.getCharacterStream(columnLabel))
 
 /**
  * ResultSet으로부터 NCharacter 스트림을 가져옵니다.
@@ -690,7 +699,8 @@ fun ResultSet.getCharacterStreamOrNull(columnLabel: String): java.io.Reader? = r
  * @param columnIndex 컬럼 인덱스 (1부터 시작)
  * @return Reader 값 또는 null
  */
-fun ResultSet.getNCharacterStreamOrNull(columnIndex: Int): java.io.Reader? = retrieveValueOrNull(this.getNCharacterStream(columnIndex))
+fun ResultSet.getNCharacterStreamOrNull(columnIndex: Int): java.io.Reader? =
+    retrieveValueOrNull(this.getNCharacterStream(columnIndex))
 
 /**
  * ResultSet으로부터 NCharacter 스트림을 가져옵니다.
@@ -699,7 +709,8 @@ fun ResultSet.getNCharacterStreamOrNull(columnIndex: Int): java.io.Reader? = ret
  * @param columnLabel 컬럼 레이블 (이름)
  * @return Reader 값 또는 null
  */
-fun ResultSet.getNCharacterStreamOrNull(columnLabel: String): java.io.Reader? = retrieveValueOrNull(this.getNCharacterStream(columnLabel))
+fun ResultSet.getNCharacterStreamOrNull(columnLabel: String): java.io.Reader? =
+    retrieveValueOrNull(this.getNCharacterStream(columnLabel))
 
 // ==================== String 타입 확장 함수 ====================
 

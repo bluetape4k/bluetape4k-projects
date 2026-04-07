@@ -24,7 +24,7 @@ import java.io.Closeable
  *
  * @param T 메시지 Value 의 수형
  */
-interface KafkaCodec<T> :
+interface KafkaCodec<T>:
     Serializer<T>,
     Deserializer<T>,
     Closeable {
@@ -62,8 +62,8 @@ interface KafkaCodec<T> :
  * // deserialized is a Map with key -> value
  * ```
  */
-abstract class AbstractKafkaCodec<T> : KafkaCodec<T> {
-    companion object : KLogging() {
+abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
+    companion object: KLogging() {
         const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"
 
         @JvmStatic

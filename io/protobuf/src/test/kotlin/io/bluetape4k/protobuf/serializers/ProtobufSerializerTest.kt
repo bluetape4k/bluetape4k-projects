@@ -15,7 +15,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class ProtobufSerializerTest {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }
 
@@ -69,7 +69,7 @@ class ProtobufSerializerTest {
         data class SimpleData(
             val id: Int,
             val name: String,
-        ) : java.io.Serializable
+        ): java.io.Serializable
 
         val origin = SimpleData(1, "hello")
         val bytes = serializer.serialize(origin)

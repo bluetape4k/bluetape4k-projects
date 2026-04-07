@@ -25,8 +25,8 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class MovieJdbcRepository : LongJdbcRepository<MovieRecord> {
-    companion object : KLogging()
+class MovieJdbcRepository: LongJdbcRepository<MovieRecord> {
+    companion object: KLogging()
 
     override val table = MovieTable
 
@@ -41,10 +41,10 @@ class MovieJdbcRepository : LongJdbcRepository<MovieRecord> {
 
         params.forEach { (key, value) ->
             when (key) {
-                MovieTable::id.name -> {
+                MovieTable::id.name          -> {
                     value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
                 }
-                MovieTable::name.name -> {
+                MovieTable::name.name        -> {
                     value?.run { query.andWhere { MovieTable.name eq value } }
                 }
                 MovieTable::producerName.name -> {

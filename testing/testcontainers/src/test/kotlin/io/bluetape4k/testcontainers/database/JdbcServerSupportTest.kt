@@ -7,7 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class JdbcServerSupportTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `buildKebabJdbcProperties 는 kebab-case 키로 jdbc 관련 정보를 맵으로 제공한다`() {

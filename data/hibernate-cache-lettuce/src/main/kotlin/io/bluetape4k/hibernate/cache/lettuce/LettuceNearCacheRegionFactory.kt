@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
  * [AccessType.NONSTRICT_READ_WRITE]: Redis 기반 분산 캐시는 soft-lock이 없으므로
  * 업데이트 시 캐시 항목을 제거하고 다음 읽기 시 DB에서 재로드.
  */
-class LettuceNearCacheRegionFactory : RegionFactoryTemplate() {
+class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
     private lateinit var redisClient: RedisClient
     private lateinit var properties: LettuceNearCacheProperties
     private lateinit var codec: LettuceBinaryCodec<Any>

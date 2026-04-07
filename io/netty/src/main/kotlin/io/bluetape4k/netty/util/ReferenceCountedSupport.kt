@@ -19,7 +19,7 @@ import io.netty.util.ReferenceCounted
  * @param decrement 참조 카운트를 내릴 수 (기본값: 1)
  * @param block 실행할 블록
  */
-inline fun <T : ReferenceCounted> T.use(
+inline fun <T: ReferenceCounted> T.use(
     decrement: Int = 1,
     block: (T) -> Unit,
 ) {

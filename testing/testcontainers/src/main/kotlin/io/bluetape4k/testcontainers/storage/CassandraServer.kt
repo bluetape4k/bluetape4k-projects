@@ -105,10 +105,12 @@ class CassandraServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(CQL_PORT)
+
     /** CQL 접속 포트의 매핑 결과입니다. */
     val cqlPort: Int get() = getMappedPort(CQL_PORT)
 
     override val url: String get() = "$host:$port"
+
     /** Cassandra 드라이버 접속에 사용할 contact point입니다. */
     val contactPoint: InetSocketAddress get() = InetSocketAddress(host, port)
 

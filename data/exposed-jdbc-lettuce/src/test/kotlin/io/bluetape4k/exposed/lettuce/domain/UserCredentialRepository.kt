@@ -24,8 +24,8 @@ import java.util.*
 class UserCredentialRepository(
     client: RedisClient,
     config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : AbstractJdbcLettuceRepository<UUID, UserCredentialsRecord>(client, config) {
-    companion object : KLogging()
+): AbstractJdbcLettuceRepository<UUID, UserCredentialsRecord>(client, config) {
+    companion object: KLogging()
 
     override val table: IdTable<UUID> = UserCredentialsTable
 

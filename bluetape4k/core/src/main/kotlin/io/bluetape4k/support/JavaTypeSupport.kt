@@ -24,7 +24,7 @@ fun Type.actualIteratorTypeArgument(): Type {
         (rawType as? Class<*>)?.let { Iterator::class.java.isAssignableFrom(it) } != true ->
             throw IllegalArgumentException("Not an iterator type. rawType=$rawType")
 
-        else ->
+        else                       ->
             actualTypeArguments[0]
     }
 }

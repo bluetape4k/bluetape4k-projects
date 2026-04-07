@@ -95,21 +95,21 @@ val extraData: Map<String, Any>? = resultRow.getFastjsonOrNull(Products.extraDat
 
 ## Key Files / Classes
 
-| File | Description |
-|------|-------------|
-| `FastjsonColumnType.kt` | JSON column type (string-based) |
-| `FastjsonBColumnType.kt` | JSONB column type (binary format) |
-| `JsonFunctions.kt` | JSON function extensions |
-| `JsonConditions.kt` | JSON condition expression extensions |
-| `ResultRowExtensions.kt` | ResultRow JSON read extensions |
+| File                     | Description                          |
+|--------------------------|--------------------------------------|
+| `FastjsonColumnType.kt`  | JSON column type (string-based)      |
+| `FastjsonBColumnType.kt` | JSONB column type (binary format)    |
+| `JsonFunctions.kt`       | JSON function extensions             |
+| `JsonConditions.kt`      | JSON condition expression extensions |
+| `ResultRowExtensions.kt` | ResultRow JSON read extensions       |
 
 ## Jackson vs Fastjson2 Selection Guide
 
-| Feature | Jackson | Fastjson2 |
-|---------|---------|-----------|
-| Performance | Good | Very fast |
-| Stability | High | Moderate |
-| Features | Rich | Basic |
+| Feature         | Jackson     | Fastjson2                  |
+|-----------------|-------------|----------------------------|
+| Performance     | Good        | Very fast                  |
+| Stability       | High        | Moderate                   |
+| Features        | Rich        | Basic                      |
 | Recommended for | General use | High-performance scenarios |
 
 ## Testing

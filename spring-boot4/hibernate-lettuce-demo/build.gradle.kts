@@ -22,7 +22,7 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
                 useVersion("7.0.5")
                 because("Spring Framework 7: SB4 4.0.3 호환 버전 강제")
             }
-            "org.hibernate.orm" -> {
+            "org.hibernate.orm"   -> {
                 useVersion("7.2.4.Final")
                 because("Hibernate 7: SB4 4.0.3 호환 버전 강제")
             }

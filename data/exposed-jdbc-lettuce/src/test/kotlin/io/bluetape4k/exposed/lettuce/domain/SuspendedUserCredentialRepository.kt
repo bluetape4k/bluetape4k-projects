@@ -25,7 +25,7 @@ import java.util.*
 class SuspendedUserCredentialRepository(
     client: RedisClient,
     config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
-) : AbstractSuspendedJdbcLettuceRepository<UUID, UserCredentialsRecord>(client, config) {
+): AbstractSuspendedJdbcLettuceRepository<UUID, UserCredentialsRecord>(client, config) {
     override val table: IdTable<UUID> = UserCredentialsTable
 
     override fun ResultRow.toEntity(): UserCredentialsRecord =

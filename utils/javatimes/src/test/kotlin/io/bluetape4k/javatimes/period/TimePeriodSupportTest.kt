@@ -8,7 +8,7 @@ import org.junit.jupiter.api.assertThrows
 
 class TimePeriodSupportTest {
 
-    private val fiscalCalendar = object : TimeCalendar() {
+    private val fiscalCalendar = object: TimeCalendar() {
         override val baseMonth: Int = 4
     }
 

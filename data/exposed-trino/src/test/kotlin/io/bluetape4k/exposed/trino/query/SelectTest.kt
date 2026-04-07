@@ -15,9 +15,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class SelectTest : AbstractTrinoTest() {
+class SelectTest: AbstractTrinoTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val CREATED_AT: Instant = Instant.parse("2024-01-01T00:00:00Z")
 
         /**

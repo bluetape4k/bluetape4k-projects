@@ -33,8 +33,8 @@ import java.time.ZonedDateTime
  * val result = dateAdd.add(start, Duration.ofDays(3)) // 3 근무일 후 = 1월 11일 (목요일)
  * ```
  */
-open class CalendarDateAdd private constructor() : DateAdd() {
-    companion object : KLogging() {
+open class CalendarDateAdd private constructor(): DateAdd() {
+    companion object: KLogging() {
         @JvmStatic
         operator fun invoke(): CalendarDateAdd = CalendarDateAdd()
     }
@@ -133,7 +133,7 @@ open class CalendarDateAdd private constructor() : DateAdd() {
     ): Pair<ZonedDateTime?, Duration?> {
         log.trace {
             "기준 시각으로부터 offset 만큼 떨어진 시각을 구합니다..." +
-                "start=$start, offset=$offset, seekDir=$seekDir, seekBoundary=$seekBoundary"
+                    "start=$start, offset=$offset, seekDir=$seekDir, seekBoundary=$seekBoundary"
         }
 
         check(offset?.isNotNegative ?: false) { "offset 값은 0 이사이어야 합니다. offset=$offset" }

@@ -16,7 +16,7 @@ import kotlin.concurrent.withLock
 /**
  * [Runtime]이 제공하는 다양한 정보를 조회할 수 있는 유틸리티 클래스
  */
-object Runtimex : KLogging() {
+object Runtimex: KLogging() {
     private val runtime by lazy { Runtime.getRuntime() }
 
     /**
@@ -154,7 +154,7 @@ object Runtimex : KLogging() {
     data class ProcessResult(
         val exitCode: Int,
         val out: String,
-    ) : Serializable {
+    ): Serializable {
         companion object {
             private const val serialVersionUID: Long = 1L
         }
@@ -196,7 +196,7 @@ object Runtimex : KLogging() {
         private val input: InputStream,
         private val output: OutputStream? = null,
         private val prefix: String? = null,
-    ) : Thread() {
+    ): Thread() {
         private val lock = ReentrantLock()
         private val condition = lock.newCondition()
 

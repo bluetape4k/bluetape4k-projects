@@ -1,5 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.Frequency.Companion.hertz
+
+
 /**
  * 주파수 단위를 나타냅니다.
  *
@@ -17,10 +20,17 @@ open class Frequency(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
-        @JvmField val hertz: Frequency = Frequency("Hz")
-        @JvmField val kiloHertz: Frequency = Frequency("kHz", 1.0e3)
-        @JvmField val megaHertz: Frequency = Frequency("MHz", 1.0e6)
-        @JvmField val gigaHertz: Frequency = Frequency("GHz", 1.0e9)
+        @JvmField
+        val hertz: Frequency = Frequency("Hz")
+
+        @JvmField
+        val kiloHertz: Frequency = Frequency("kHz", 1.0e3)
+
+        @JvmField
+        val megaHertz: Frequency = Frequency("MHz", 1.0e6)
+
+        @JvmField
+        val gigaHertz: Frequency = Frequency("GHz", 1.0e9)
     }
 }
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
-class RetryWorkFlowTest : AbstractWorkflowTest() {
+class RetryWorkFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `첫 시도 성공 - Success 반환, 1회만 실행`() {

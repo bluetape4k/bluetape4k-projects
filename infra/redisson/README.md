@@ -6,21 +6,23 @@ A Kotlin extension module for the Redisson Redis client, providing DSL-based cli
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| `RedissonClientSupport` | DSL-based `RedissonClient` / `RedissonReactiveClient` factory, YAML config loading |
-| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL extension functions |
-| `RedissonClientCoroutine` | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions |
-| `RFutureSupport` | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
-| `RedissonCodecs` | Codec combinations: serializers (Fory/Kryo5) × compression (LZ4/Zstd/Snappy/GZip) |
-| `RedissonLeaderElection` | `RLock`-based single-leader election (sync / async) |
-| `RedissonSuspendLeaderElection` | `RLock`-based single-leader election (Coroutines) |
-| `RedissonLeaderGroupElection` | `RSemaphore`-based group election for N concurrent leaders |
-| `RedissonNearCache` | 2-tier Near Cache based on `RLocalCachedMap` |
+| Feature                         | Description                                                                         |
+|---------------------------------|-------------------------------------------------------------------------------------|
+| `RedissonClientSupport`         | DSL-based `RedissonClient` / `RedissonReactiveClient` factory, YAML config loading  |
+| `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL extension functions                        |
+| `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions  |
+| `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
+| `RedissonCodecs`                | Codec combinations: serializers (Fory/Kryo5) × compression (LZ4/Zstd/Snappy/GZip)   |
+| `RedissonLeaderElection`        | `RLock`-based single-leader election (sync / async)                                 |
+| `RedissonSuspendLeaderElection` | `RLock`-based single-leader election (Coroutines)                                   |
+| `RedissonLeaderGroupElection`   | `RSemaphore`-based group election for N concurrent leaders                          |
+| `RedissonNearCache`             | 2-tier Near Cache based on `RLocalCachedMap`                                        |
 
 When using `RedissonCacheConfig` / `RedissonNearCacheConfig`:
+
 - `maxSize`, `nearCacheMaxSize`, and `writeBehindBatchSize` must not be negative; batch size must be greater than 0.
-- `timeToLive`, `maxIdle`, `nearCacheTtl`, and `nearCacheMaxIdleTime` must not be negative when specified; near cache TTL/idle must be greater than 0.
+- `timeToLive`, `maxIdle`, `nearCacheTtl`, and
+  `nearCacheMaxIdleTime` must not be negative when specified; near cache TTL/idle must be greater than 0.
 
 ## Dependency
 
@@ -92,13 +94,13 @@ singleServerConfig:
 
 High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec` package.
 
-| Constant | Serializer | Compression | Description |
-|----------|------------|-------------|-------------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4 | Default. Balances speed and compression |
-| `RedissonCodecs.Fory` | Fory | None | Fory serialization only |
-| `RedissonCodecs.Kryo5` | Kryo5 | None | Kryo5 serialization only |
-| `RedissonCodecs.LZ4` | Default | LZ4 | LZ4 compression wrapper |
-| `RedissonCodecs.Zstd` | Default | Zstd | High compression ratio |
+| Constant                 | Serializer             | Compression | Description                             |
+|--------------------------|------------------------|-------------|-----------------------------------------|
+| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4         | Default. Balances speed and compression |
+| `RedissonCodecs.Fory`    | Fory                   | None        | Fory serialization only                 |
+| `RedissonCodecs.Kryo5`   | Kryo5                  | None        | Kryo5 serialization only                |
+| `RedissonCodecs.LZ4`     | Default                | LZ4         | LZ4 compression wrapper                 |
+| `RedissonCodecs.Zstd`    | Default                | Zstd        | High compression ratio                  |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -242,7 +244,9 @@ val result2 = client.suspendRunIfLeader("batch-job") {
 }
 ```
 
-> **Coroutine Lock ID**: Redisson Lock is thread-ID-based. In a coroutine environment, thread switches can break the lock. `RedissonSuspendLeaderElection` solves this by issuing a unique ID per coroutine session using `RAtomicLong`.
+> **Coroutine Lock ID
+**: Redisson Lock is thread-ID-based. In a coroutine environment, thread switches can break the lock.
+`RedissonSuspendLeaderElection` solves this by issuing a unique ID per coroutine session using `RAtomicLong`.
 
 #### Group Leader Election — Up to N Concurrent Leaders
 
@@ -277,7 +281,8 @@ val future = groupElection.runAsyncIfLeader("parallel-job") {
 
 ### 6. NearCache
 
-A 2-tier Near Cache based on Redisson's `RLocalCachedMap`. Lookups check the local cache first and fall back to Redis on a miss.
+A 2-tier Near Cache based on Redisson's
+`RLocalCachedMap`. Lookups check the local cache first and fall back to Redis on a miss.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.nearcache.RedissonNearCache
@@ -290,7 +295,8 @@ nearCache.put("key", "value")
 val value = nearCache.get("key")   // Checks local cache first
 ```
 
-> For advanced NearCache features (RESP3 hybrid, resilient write-behind, etc.), use the `bluetape4k-cache-redisson` module.
+> For advanced NearCache features (RESP3 hybrid, resilient write-behind, etc.), use the
+`bluetape4k-cache-redisson` module.
 
 ---
 
@@ -435,10 +441,10 @@ flowchart TD
 
 ## Redis Version Requirements
 
-| Feature | Minimum Redis Version |
-|---------|-----------------------|
-| Core features (Client, Batch, Transaction, Leader) | Redis 5.0+ |
-| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+ |
+| Feature                                               | Minimum Redis Version |
+|-------------------------------------------------------|-----------------------|
+| Core features (Client, Batch, Transaction, Leader)    | Redis 5.0+            |
+| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+            |
 
 ## Build and Testing
 

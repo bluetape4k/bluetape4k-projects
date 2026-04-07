@@ -19,15 +19,15 @@ import java.time.Instant
  *
  * PostgreSQL `postgres:16` 이미지 기반 Testcontainers를 사용한다.
  */
-class TstzRangePostgresTest : AbstractExposedTest() {
+class TstzRangePostgresTest: AbstractExposedTest() {
 
-    companion object : KLogging() {
-        object PgEventTable : LongIdTable("pg_tsrange_events") {
+    companion object: KLogging() {
+        object PgEventTable: LongIdTable("pg_tsrange_events") {
             val name = varchar("name", 100)
             val period = tstzRange("period")
         }
 
-        object PgOverlapTestTable : LongIdTable("pg_overlap_test") {
+        object PgOverlapTestTable: LongIdTable("pg_overlap_test") {
             val label = varchar("label", 100)
             val range1 = tstzRange("range1")
             val range2 = tstzRange("range2")

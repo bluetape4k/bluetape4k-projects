@@ -3,56 +3,24 @@ drop table if exists Person;
 
 create table if not exists Address
 (
-    address_id
-    int
-    not
-    null,
-    street_address
-    varchar
-(
-    50
-) not null,
-    city varchar
-(
-    20
-) not null,
-    state varchar
-(
-    2
-) not null,
-    primary key
-(
-    address_id
-)
-    );
+    address_id     int         not null,
+    street_address varchar(50) not null,
+    city           varchar(20) not null,
+    state          varchar(2)  not null,
+    primary key (address_id)
+);
 
 create table if not exists Person
 (
-    id
-    int
-    not
-    null,
-    first_name
-    varchar
-(
-    30
-) not null,
-    last_name varchar
-(
-    30
-) null,
-    birth_date date null,
-    employed BOOL not null,
-    occupation varchar
-(
-    30
-) null,
-    address_id int null,
-    primary key
-(
-    id
-)
-    );
+    id         int         not null,
+    first_name varchar(30) not null,
+    last_name  varchar(30) null,
+    birth_date date        null,
+    employed   BOOL        not null,
+    occupation varchar(30) null,
+    address_id int         null,
+    primary key (id)
+);
 
 insert into Address (address_id, street_address, city, state)
 values (1, '123 Main Street', 'Bedrock', 'IN');

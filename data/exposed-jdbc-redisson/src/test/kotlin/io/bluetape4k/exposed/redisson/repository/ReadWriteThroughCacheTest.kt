@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class ReadWriteThroughCacheTest {
-    companion object : KLogging()
+    companion object: KLogging()
 
-    abstract class AutoIncIdReadWriteThrough :
+    abstract class AutoIncIdReadWriteThrough:
         AbstractRedissonTest(),
         ReadThroughScenario<Long, UserRecord>,
         WriteThroughScenario<Long, UserRecord> {
@@ -67,7 +67,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemoteCache : AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCache: AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
@@ -79,7 +79,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemoteCacheWithDeleteDB : AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
@@ -91,7 +91,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughNearCache : AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughNearCache: AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -103,7 +103,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughNearCacheWithDeleteDB : AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughNearCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
         override val cacheConfig =
             RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
@@ -115,7 +115,7 @@ class ReadWriteThroughCacheTest {
         }
     }
 
-    abstract class ClientGeneratedIdReadWriteThrough :
+    abstract class ClientGeneratedIdReadWriteThrough:
         AbstractRedissonTest(),
         ReadThroughScenario<UUID, UserCredentialsRecord>,
         WriteThroughScenario<UUID, UserCredentialsRecord> {
@@ -156,7 +156,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCache : ClientGeneratedIdReadWriteThrough() {
+    inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH
 
         override val repository by lazy {
@@ -168,7 +168,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughRemoteCacheWithDeleteDB : ClientGeneratedIdReadWriteThrough() {
+    inner class ClientGeneratedIdReadThroughRemoteCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository by lazy {
@@ -180,7 +180,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCache : ClientGeneratedIdReadWriteThrough() {
+    inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig = RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository by lazy {
@@ -192,7 +192,7 @@ class ReadWriteThroughCacheTest {
     }
 
     @Nested
-    inner class ClientGeneratedIdReadThroughNearCacheWithDeleteDB : ClientGeneratedIdReadWriteThrough() {
+    inner class ClientGeneratedIdReadThroughNearCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
         override val cacheConfig =
             RedissonCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 

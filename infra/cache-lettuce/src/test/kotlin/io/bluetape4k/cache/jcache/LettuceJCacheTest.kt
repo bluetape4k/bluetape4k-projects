@@ -197,11 +197,13 @@ class LettuceJCacheTest {
     fun `invoke updates entry through EntryProcessor`() {
         cache.put("key1", "value1")
 
-        val result = cache.invoke("key1", EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
-            val next = entry.value + "-updated"
-            entry.setValue(next)
-            next
-        })
+        val result = cache.invoke(
+            "key1",
+            EntryProcessor<String, String, String> { entry: MutableEntry<String, String>, _: Array<out Any?> ->
+                val next = entry.value + "-updated"
+                entry.setValue(next)
+                next
+            })
 
         result shouldBeEqualTo "value1-updated"
         cache.get("key1") shouldBeEqualTo "value1-updated"

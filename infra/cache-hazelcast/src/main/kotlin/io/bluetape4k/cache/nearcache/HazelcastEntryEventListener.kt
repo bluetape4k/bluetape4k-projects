@@ -23,14 +23,14 @@ import io.bluetape4k.logging.debug
  *
  * @param V 값 타입 (키는 항상 String)
  */
-class HazelcastEntryEventListener<V : Any>(
+class HazelcastEntryEventListener<V: Any>(
     private val localCache: HazelcastLocalCache<String, V>,
-) : EntryAddedListener<String, V>,
-    EntryUpdatedListener<String, V>,
-    EntryRemovedListener<String, V>,
-    EntryExpiredListener<String, V> {
+): EntryAddedListener<String, V>,
+   EntryUpdatedListener<String, V>,
+   EntryRemovedListener<String, V>,
+   EntryExpiredListener<String, V> {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     override fun entryAdded(event: EntryEvent<String, V>) {
         // 다른 노드가 새 항목을 추가한 경우 로컬 캐시를 무효화

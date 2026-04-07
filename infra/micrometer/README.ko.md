@@ -102,7 +102,8 @@ withObservationContext("async.operation", registry) {
 }
 ```
 
-`withObservationContextSuspending` 와 `observeSuspending` 계열 확장 함수는 suspend 블록이 끝날 때 Observation scope 를 정리하고 `stop()` 까지 호출합니다. 시작되지 않은 `Observation` 을 직접 넘겨도 내부에서 `start()` 후 실행하며, 예외가 발생해도 현재 Observation 이 남지 않도록 정리됩니다.
+`withObservationContextSuspending` 와 `observeSuspending` 계열 확장 함수는 suspend 블록이 끝날 때 Observation scope 를 정리하고
+`stop()` 까지 호출합니다. 시작되지 않은 `Observation` 을 직접 넘겨도 내부에서 `start()` 후 실행하며, 예외가 발생해도 현재 Observation 이 남지 않도록 정리됩니다.
 
 #### ObservationRegistry 생성
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.cache
 
+import io.bluetape4k.exposed.cache.R2dbcCacheRepository.Companion.DEFAULT_BATCH_SIZE
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op

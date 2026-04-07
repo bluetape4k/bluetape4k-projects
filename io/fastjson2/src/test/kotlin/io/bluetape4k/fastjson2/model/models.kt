@@ -9,7 +9,7 @@ internal val faker = Fakers.faker
 data class User(
     val id: Int,
     val name: String,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -25,7 +25,7 @@ data class Movie(
     val name: String,
     val studio: String,
     val rating: Float? = 1.0F,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -49,13 +49,13 @@ data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: List<String> = emptyList(),
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 }
 
-interface Person : Serializable {
+interface Person: Serializable {
     val name: String
     val age: Int
 }
@@ -64,7 +64,7 @@ data class Professor(
     override val name: String,
     override val age: Int,
     val spec: String? = null,
-) : Person {
+): Person {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -74,7 +74,7 @@ data class Student(
     override val name: String,
     override val age: Int,
     val degree: String? = null,
-) : Person {
+): Person {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -84,7 +84,7 @@ data class OptionalData(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-) : Person {
+): Person {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -95,7 +95,7 @@ data class OptionalCollection(
     override val age: Int,
     val spec: Optional<String>,
     val options: List<Optional<String>> = emptyList(),
-) : Person {
+): Person {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

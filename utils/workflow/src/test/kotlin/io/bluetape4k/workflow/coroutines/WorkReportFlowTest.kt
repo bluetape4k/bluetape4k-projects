@@ -9,7 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 
-class WorkReportFlowTest : AbstractWorkflowTest() {
+class WorkReportFlowTest: AbstractWorkflowTest() {
 
     @Test
     fun `workReportFlow 순차 수집`() = runTest {

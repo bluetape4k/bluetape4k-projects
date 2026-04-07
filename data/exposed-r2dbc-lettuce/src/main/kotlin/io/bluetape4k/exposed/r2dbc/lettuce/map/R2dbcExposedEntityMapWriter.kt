@@ -54,13 +54,13 @@ class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
     private val chunkSize: Int = DEFAULT_CHUNK_SIZE,
     retryAttempts: Int = 3,
     retryInterval: Duration = Duration.ofMillis(100),
-) : R2dbcEntityMapWriter<ID, E>(
-        RetryConfig
-            .custom<Any>()
-            .maxAttempts(retryAttempts)
-            .waitDuration(retryInterval)
-            .build()
-    ) {
+): R2dbcEntityMapWriter<ID, E>(
+    RetryConfig
+        .custom<Any>()
+        .maxAttempts(retryAttempts)
+        .waitDuration(retryInterval)
+        .build()
+) {
     companion object {
         private const val DEFAULT_CHUNK_SIZE = 1000
     }

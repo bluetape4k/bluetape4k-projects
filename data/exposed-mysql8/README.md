@@ -58,26 +58,27 @@ classDiagram
 
 ## Overview
 
-- **Geometry types**: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (generic)
+- **Geometry types
+  **: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Geometry (generic)
 - **Coordinate system**: WGS84 (SRID 4326) by default
 - **Spatial functions**: 9 relationship functions + 4 measurement functions + 3 property functions
 - **MySQL only**: Works exclusively with `MysqlDialect`
 - **Serialization path**:
-  - PreparedStatement binding uses MySQL Internal Format (`4-byte SRID LE + WKB`)
-  - SQL literal path uses `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')`
+    - PreparedStatement binding uses MySQL Internal Format (`4-byte SRID LE + WKB`)
+    - SQL literal path uses `ST_GeomFromWKB(..., srid, 'axis-order=long-lat')`
 
 ## Supported Geometry Types
 
-| Type | JTS Class | Description |
-|------|-----------|-------------|
-| POINT | `Point` | Single coordinate |
-| LINESTRING | `LineString` | Line segment |
-| POLYGON | `Polygon` | Closed area |
-| MULTIPOINT | `MultiPoint` | Multiple points |
-| MULTILINESTRING | `MultiLineString` | Multiple line segments |
-| MULTIPOLYGON | `MultiPolygon` | Multiple closed areas |
+| Type               | JTS Class            | Description               |
+|--------------------|----------------------|---------------------------|
+| POINT              | `Point`              | Single coordinate         |
+| LINESTRING         | `LineString`         | Line segment              |
+| POLYGON            | `Polygon`            | Closed area               |
+| MULTIPOINT         | `MultiPoint`         | Multiple points           |
+| MULTILINESTRING    | `MultiLineString`    | Multiple line segments    |
+| MULTIPOLYGON       | `MultiPolygon`       | Multiple closed areas     |
 | GEOMETRYCOLLECTION | `GeometryCollection` | Mixed geometry collection |
-| GEOMETRY | `Geometry` | Generic (any type) |
+| GEOMETRY           | `Geometry`           | Generic (any type)        |
 
 ## Table Extension Functions
 
@@ -343,12 +344,12 @@ transaction(db) {
 
 ## Technical Requirements
 
-| Item | Version |
-|------|---------|
-| **MySQL** | 8.0+ (Testcontainers: `mysql:8.0`) |
-| **JTS Core** | 1.20.0 or later |
-| **Exposed** | v1 (JetBrains) |
-| **SRID** | 4326 (WGS84, default) |
+| Item         | Version                            |
+|--------------|------------------------------------|
+| **MySQL**    | 8.0+ (Testcontainers: `mysql:8.0`) |
+| **JTS Core** | 1.20.0 or later                    |
+| **Exposed**  | v1 (JetBrains)                     |
+| **SRID**     | 4326 (WGS84, default)              |
 
 ## Dependency
 
@@ -357,6 +358,7 @@ testImplementation(project(":bluetape4k-exposed-mysql8"))
 ```
 
 Dependencies provided by this module:
+
 - `org.jetbrains.exposed:exposed-core`
 - `org.jetbrains.exposed:exposed-dao`
 - `org.jetbrains.exposed:exposed-jdbc`
@@ -366,7 +368,8 @@ Dependencies provided by this module:
 
 ### MySQL Dialect Only
 
-All extension functions work exclusively with `MysqlDialect`. Calling them with any other DBMS will throw an `IllegalStateException`.
+All extension functions work exclusively with `MysqlDialect`. Calling them with any other DBMS will throw an
+`IllegalStateException`.
 
 ```kotlin
 // Cannot use with PostgreSQL or other databases
@@ -375,7 +378,8 @@ val point = geoPoint("location")  // IllegalStateException: geoPoint is only sup
 
 ### Unsupported Functions
 
-Some MySQL spatial functions such as `ST_Centroid()` and `ST_Envelope()` throw `ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` when used with a geographic SRID (4326). This module does not expose those functions.
+Some MySQL spatial functions such as `ST_Centroid()` and `ST_Envelope()` throw
+`ER_NOT_IMPLEMENTED_FOR_GEOGRAPHIC_SRS` when used with a geographic SRID (4326). This module does not expose those functions.
 
 ### Coordinate Order
 

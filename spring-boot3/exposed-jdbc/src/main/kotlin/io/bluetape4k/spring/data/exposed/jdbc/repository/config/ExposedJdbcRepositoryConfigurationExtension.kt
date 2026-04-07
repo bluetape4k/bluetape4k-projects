@@ -17,7 +17,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
  * ext.getModuleName()  // "EXPOSED"
  * ```
  */
-class ExposedJdbcRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
+class ExposedJdbcRepositoryConfigurationExtension: RepositoryConfigurationExtensionSupport() {
 
     override fun getModuleName(): String = "EXPOSED"
 

@@ -25,7 +25,7 @@ import io.bluetape4k.concurrent.virtualthread.VirtualFuture
  * val result = election.runAsyncIfLeader("batch-job") { processChunk() }.await()
  * ```
  */
-interface VirtualThreadLeaderGroupElection : LeaderGroupElectionState {
+interface VirtualThreadLeaderGroupElection: LeaderGroupElectionState {
 
     /**
      * 슬롯을 획득하여 리더로 선출되면 [action]을 Virtual Thread에서 비동기로 실행합니다.

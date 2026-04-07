@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flow
 /**
  * [WorkReport]를 [Flow]로 변환하는 유틸리티 함수들을 제공합니다.
  */
-object WorkReportFlowSupport : KLogging()
+object WorkReportFlowSupport: KLogging()
 
 /**
  * 여러 [SuspendWork]를 순차적으로 실행하며 각 결과를 [Flow]로 emit합니다.

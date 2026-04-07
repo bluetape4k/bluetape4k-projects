@@ -63,7 +63,7 @@ class MermaidTestExecutionListener(
         get() = when (val source = this.source.getOrNull()) {
             is MethodSource -> source.className
             is ClassSource -> source.className
-            else -> null
+            else           -> null
         }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
@@ -122,16 +122,16 @@ class MermaidTestExecutionListener(
 
     private fun TestExecutionResult.Status?.toMermaidStatus(): String = when (this) {
         TestExecutionResult.Status.SUCCESSFUL -> "active"
-        TestExecutionResult.Status.FAILED -> "crit"
+        TestExecutionResult.Status.FAILED  -> "crit"
         TestExecutionResult.Status.ABORTED -> "done"
-        else -> ""
+        else                               -> ""
     }
 
     private fun TestExecutionResult.Status?.toResult(): String = when (this) {
         TestExecutionResult.Status.SUCCESSFUL -> "✅"
-        TestExecutionResult.Status.FAILED -> "🔥"
+        TestExecutionResult.Status.FAILED  -> "🔥"
         TestExecutionResult.Status.ABORTED -> "🚫"
-        else -> ""
+        else                               -> ""
     }
 
     private fun String.sanitizeMermaidLabel(): String = replace(":", "-")

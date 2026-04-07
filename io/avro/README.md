@@ -59,23 +59,25 @@ val bytes = serializer.serialize(employee)
 val deserialized = serializer.deserialize<Employee>(bytes)
 ```
 
-`DefaultAvroReflectSerializer` uses `ReflectDatumReader` for deserialization. When given a corrupted byte array or an invalid Base64 string, it returns `null` instead of propagating an exception.
+`DefaultAvroReflectSerializer` uses
+`ReflectDatumReader` for deserialization. When given a corrupted byte array or an invalid Base64 string, it returns
+`null` instead of propagating an exception.
 
 ## Compression Codec Support
 
 Pre-defined `CodecFactory` constants for easy codec selection:
 
-| Constant | Algorithm | Characteristics |
-|----------|-----------|----------------|
-| `DEFAULT_CODEC_FACTORY` | Deflate (Avro default level) | Same as Avro default; general-purpose compression |
-| `ZSTD_CODEC_FACTORY` | Zstandard (default level) | Balanced Zstd compression |
-| `FAST_CODEC_FACTORY` | Zstandard (level -1) | LZ4/Snappy-level speed |
-| `ARCHIVE_CODEC_FACTORY` | Zstandard (level 9) | Maximum compression ratio for long-term storage |
-| `NULL_CODEC_FACTORY` | None | Maximum speed, no compression |
-| `DEFLATE_CODEC_FACTORY` | Deflate (level 6) | Standard compression, high compatibility |
-| `SNAPPY_CODEC_FACTORY` | Snappy | Fast compression/decompression, Hadoop/Kafka compatible |
-| `BZIP2_CODEC_FACTORY` | BZip2 | High compression ratio, slower processing |
-| `XZ_CODEC_FACTORY` | XZ (level 6) | Archive-oriented compression |
+| Constant                | Algorithm                    | Characteristics                                         |
+|-------------------------|------------------------------|---------------------------------------------------------|
+| `DEFAULT_CODEC_FACTORY` | Deflate (Avro default level) | Same as Avro default; general-purpose compression       |
+| `ZSTD_CODEC_FACTORY`    | Zstandard (default level)    | Balanced Zstd compression                               |
+| `FAST_CODEC_FACTORY`    | Zstandard (level -1)         | LZ4/Snappy-level speed                                  |
+| `ARCHIVE_CODEC_FACTORY` | Zstandard (level 9)          | Maximum compression ratio for long-term storage         |
+| `NULL_CODEC_FACTORY`    | None                         | Maximum speed, no compression                           |
+| `DEFLATE_CODEC_FACTORY` | Deflate (level 6)            | Standard compression, high compatibility                |
+| `SNAPPY_CODEC_FACTORY`  | Snappy                       | Fast compression/decompression, Hadoop/Kafka compatible |
+| `BZIP2_CODEC_FACTORY`   | BZip2                        | High compression ratio, slower processing               |
+| `XZ_CODEC_FACTORY`      | XZ (level 6)                 | Archive-oriented compression                            |
 
 You can also create a codec from a string:
 
@@ -90,7 +92,8 @@ val serializer = DefaultAvroSpecificRecordSerializer(codec)
 - Avro default compatibility: `DEFAULT_CODEC_FACTORY`
 - Balanced Zstd: `ZSTD_CODEC_FACTORY`
 - Storage optimization: `ARCHIVE_CODEC_FACTORY`, `BZIP2_CODEC_FACTORY`, `XZ_CODEC_FACTORY`
-- Failure policy: The default serializer implementations in this module fail safely, returning `null` or `emptyList()` on deserialization failure.
+- Failure policy: The default serializer implementations in this module fail safely, returning `null` or
+  `emptyList()` on deserialization failure.
 - For high-traffic paths, prefer `SpecificRecord`; use `Reflect` only where flexibility is required.
 
 ## Base64 String Conversion
@@ -104,7 +107,8 @@ val obj = serializer.deserializeFromString<Employee>(text) // Base64 decode
 
 ## Schema Evolution
 
-`SpecificRecordSerializer` and `ReflectSerializer` support Schema Evolution. Even when the writer schema and reader schema differ, deserialization succeeds as long as the schemas are compatible:
+`SpecificRecordSerializer` and
+`ReflectSerializer` support Schema Evolution. Even when the writer schema and reader schema differ, deserialization succeeds as long as the schemas are compatible:
 
 ```kotlin
 // Serialized with V1 -> Deserialized as V2 (new fields use default values)

@@ -26,8 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import kotlin.random.Random
 
-class FoodRepositoryTest : AbstractFoodApplicationTest() {
-    companion object : KLoggingChannel()
+class FoodRepositoryTest: AbstractFoodApplicationTest() {
+    companion object: KLoggingChannel()
 
     @Autowired
     private val repository: FoodRepository = uninitialized()

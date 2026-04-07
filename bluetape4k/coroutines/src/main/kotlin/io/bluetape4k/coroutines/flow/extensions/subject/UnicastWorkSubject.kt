@@ -69,7 +69,7 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
      * ```kotlin
      * val subject = UnicastWorkSubject<Int>()
      * repeat(3) { subject.emit(it) }
- * subject.complete()
+     * subject.complete()
      * val result = subject.toList()
      * // result == [0, 1, 2]
      * ```

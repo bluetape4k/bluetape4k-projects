@@ -20,7 +20,7 @@ package io.bluetape4k.workflow.api
 class NamedSuspendWork(
     val name: String,
     private val delegate: SuspendWork,
-) : SuspendWork {
+): SuspendWork {
     override suspend fun execute(context: WorkContext): WorkReport = delegate.execute(context)
     override fun toString(): String = "NamedSuspendWork($name)"
 }
