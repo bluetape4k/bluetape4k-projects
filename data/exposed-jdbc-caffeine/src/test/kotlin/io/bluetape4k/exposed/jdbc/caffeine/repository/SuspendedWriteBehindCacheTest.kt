@@ -8,60 +8,121 @@ import io.bluetape4k.exposed.jdbc.caffeine.AbstractJdbcCaffeineTest
 import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema
 import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.ActorRecord
 import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.ActorTable
+import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.CredentialRecord
+import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.CredentialTable
 import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.withSuspendedActorTable
+import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSchema.withSuspendedCredentialTable
 import io.bluetape4k.exposed.jdbc.caffeine.domain.ActorSuspendedJdbcCaffeineRepository
+import io.bluetape4k.exposed.jdbc.caffeine.domain.CredentialSuspendedJdbcCaffeineRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.junit.jupiter.api.Nested
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
  * JDBC Caffeine Write-Behind 캐시 suspend 통합 테스트.
  *
- * Auto-increment Long ID 테이블 ([ActorTable])에 대해 검증합니다.
+ * - AutoIncrement Long ID 테이블 ([ActorTable]) 과
+ * - Client-generated UUID ID 테이블 ([CredentialTable]) 에 대해 각각 검증합니다.
  * 캐시에 먼저 저장하고 DB에는 비동기로 반영되는 패턴을 검증합니다.
  */
-@Suppress("DEPRECATION")
-class SuspendedWriteBehindCacheTest:
-    AbstractJdbcCaffeineTest(),
-    SuspendedJdbcWriteBehindScenario<Long, ActorRecord> {
+class SuspendedWriteBehindCacheTest {
 
     companion object: KLogging()
 
-    override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
-    override val cacheMode: CacheMode = CacheMode.LOCAL
+    // -------------------------------------------------------------------------
+    // AutoIncrement Long ID — ActorTable
+    // -------------------------------------------------------------------------
 
-    private val config = LocalCacheConfig(
-        keyPrefix = "jdbc:caffeine:suspended-write-behind:actors",
-        writeMode = CacheWriteMode.WRITE_BEHIND,
-        writeBehindBatchSize = 10,
-        writeBehindQueueCapacity = 1_000,
-    )
+    @Suppress("DEPRECATION")
+    @Nested
+    inner class AutoIncActorSuspendedWriteBehind:
+        AbstractJdbcCaffeineTest(),
+        SuspendedJdbcWriteBehindScenario<Long, ActorRecord> {
 
-    override val repository by lazy {
-        ActorSuspendedJdbcCaffeineRepository(config)
+        override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
+        override val cacheMode: CacheMode = CacheMode.LOCAL
+
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:suspended-write-behind:actors",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+
+        override val repository by lazy {
+            ActorSuspendedJdbcCaffeineRepository(config)
+        }
+
+        override suspend fun withSuspendedEntityTable(
+            testDB: TestDB,
+            context: CoroutineContext,
+            statement: suspend JdbcTransaction.() -> Unit,
+        ) = withSuspendedActorTable(testDB, context, statement)
+
+        override suspend fun getExistingId(): Long =
+            newSuspendedTransaction {
+                ActorTable.select(ActorTable.id).first()[ActorTable.id].value
+            }
+
+        override suspend fun getExistingIds(): List<Long> =
+            newSuspendedTransaction {
+                ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
+            }
+
+        override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
+
+        override suspend fun createNewEntity(): ActorRecord =
+            ActorSchema.newActorRecord()
     }
 
-    override suspend fun withSuspendedEntityTable(
-        testDB: TestDB,
-        context: CoroutineContext,
-        statement: suspend JdbcTransaction.() -> Unit,
-    ) = withSuspendedActorTable(testDB, context, statement)
+    // -------------------------------------------------------------------------
+    // Client-generated UUID ID — CredentialTable
+    // -------------------------------------------------------------------------
 
-    override suspend fun getExistingId(): Long =
-        newSuspendedTransaction {
-            ActorTable.select(ActorTable.id).first()[ActorTable.id].value
+    @Suppress("DEPRECATION")
+    @Nested
+    inner class ClientGenIdCredentialSuspendedWriteBehind:
+        AbstractJdbcCaffeineTest(),
+        SuspendedJdbcWriteBehindScenario<UUID, CredentialRecord> {
+
+        override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
+        override val cacheMode: CacheMode = CacheMode.LOCAL
+
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:suspended-write-behind:credentials",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+
+        override val repository by lazy {
+            CredentialSuspendedJdbcCaffeineRepository(config)
         }
 
-    override suspend fun getExistingIds(): List<Long> =
-        newSuspendedTransaction {
-            ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
-        }
+        override suspend fun withSuspendedEntityTable(
+            testDB: TestDB,
+            context: CoroutineContext,
+            statement: suspend JdbcTransaction.() -> Unit,
+        ) = withSuspendedCredentialTable(testDB, context, statement)
 
-    override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
+        override suspend fun getExistingId(): UUID =
+            newSuspendedTransaction {
+                CredentialTable.select(CredentialTable.id).first()[CredentialTable.id].value
+            }
 
-    override suspend fun createNewEntity(): ActorRecord =
-        ActorSchema.newActorRecord()
+        override suspend fun getExistingIds(): List<UUID> =
+            newSuspendedTransaction {
+                CredentialTable.select(CredentialTable.id).map { it[CredentialTable.id].value }
+            }
+
+        override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
+
+        override suspend fun createNewEntity(): CredentialRecord =
+            ActorSchema.newCredentialRecord()
+    }
 }
