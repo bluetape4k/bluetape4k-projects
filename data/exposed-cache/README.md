@@ -1,17 +1,32 @@
-# Module bluetape4k-exposed-cache
+# bluetape4k-exposed-cache
+
+English | [한국어](./README.ko.md)
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bluetape4k/bluetape4k-exposed-cache)](https://central.sonatype.com/artifact/io.github.bluetape4k/bluetape4k-exposed-cache)
 
 ## Overview
 
-`bluetape4k-exposed-cache` defines the **core interfaces and common configuration** for cache-backed Exposed repositories.
+`bluetape4k-exposed-cache` defines the **core interfaces and shared configuration** for cache-backed Exposed repositories.
 
-It is **cache-backend agnostic** — the same interfaces are implemented by both local cache (Caffeine) and remote cache (Redis via Lettuce/Redisson) modules.
+It is **cache-backend agnostic** — the same interfaces are implemented by both local cache (Caffeine) and distributed cache (Redis via Lettuce/Redisson) modules. All cache-specific modules depend on this hub module and add only their backend-specific implementation.
 
-## Architecture
+## Module Ecosystem
+
+| Module | Cache Backend | Cache Mode | DB Access | Suspend Support |
+|--------|--------------|------------|-----------|-----------------|
+| `exposed-jdbc-caffeine` | Caffeine (local) | `LOCAL` | JDBC | sync + suspend |
+| `exposed-r2dbc-caffeine` | Caffeine (local) | `LOCAL` | R2DBC | suspend only |
+| `exposed-jdbc-lettuce` | Redis (Lettuce) | `REMOTE` / `NEAR_CACHE` | JDBC | sync + suspend |
+| `exposed-r2dbc-lettuce` | Redis (Lettuce) | `REMOTE` | R2DBC | suspend only |
+| `exposed-jdbc-redisson` | Redis (Redisson) | `REMOTE` / `NEAR_CACHE` | JDBC | sync + suspend |
+| `exposed-r2dbc-redisson` | Redis (Redisson) | `REMOTE` | R2DBC | suspend only |
+
+## Interface Hierarchy
 
 ```mermaid
 classDiagram
+    direction TB
+
     class JdbcCacheRepository {
         <<interface>>
         +get(id: ID): E?
@@ -30,66 +45,207 @@ classDiagram
         <<interface>>
         +invalidateByPattern(patterns: String, count: Int): Long
     }
+    class JdbcCaffeineRepository {
+        <<interface>>
+        +config: LocalCacheConfig
+        +cache: Cache~String, E~
+    }
     class SuspendedJdbcCacheRepository {
         <<interface>>
+        +get(id: ID): E?
+        +put(id: ID, entity: E)
+        +invalidate(id: ID)
+        +clear()
+        +findByIdFromDb(id: ID): E?
+        +findAll(...): List~E~
     }
     class SuspendJdbcRedisRepository {
         <<interface>>
         +invalidateByPattern(patterns: String, count: Int): Long
     }
+    class SuspendedJdbcCaffeineRepository {
+        <<interface>>
+        +config: LocalCacheConfig
+        +cache: Cache~String, E~
+    }
     class R2dbcCacheRepository {
         <<interface>>
+        +get(id: ID): E?
+        +put(id: ID, entity: E)
+        +invalidate(id: ID)
+        +clear()
+        +findByIdFromDb(id: ID): E?
+        +findAll(...): List~E~
     }
     class R2dbcRedisRepository {
         <<interface>>
         +invalidateByPattern(patterns: String, count: Int): Long
     }
-    JdbcRedisRepository --|> JdbcCacheRepository
-    SuspendJdbcRedisRepository --|> SuspendedJdbcCacheRepository
-    R2dbcRedisRepository --|> R2dbcCacheRepository
+    class R2dbcCaffeineRepository {
+        <<interface>>
+        +config: LocalCacheConfig
+        +cache: AsyncCache~String, E~
+    }
+
+    JdbcCacheRepository <|-- JdbcRedisRepository
+    JdbcCacheRepository <|-- JdbcCaffeineRepository
+    SuspendedJdbcCacheRepository <|-- SuspendJdbcRedisRepository
+    SuspendedJdbcCacheRepository <|-- SuspendedJdbcCaffeineRepository
+    R2dbcCacheRepository <|-- R2dbcRedisRepository
+    R2dbcCacheRepository <|-- R2dbcCaffeineRepository
 ```
 
-## Features
+Redis-specific sub-interfaces (Lettuce and Redisson) extend the Redis interfaces:
 
-- **Cache-backend agnostic interfaces**: `JdbcCacheRepository`, `SuspendedJdbcCacheRepository`, `R2dbcCacheRepository`
-- **Redis-specific sub-interfaces**: `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository` — adds `invalidateByPattern`
-- **`CacheMode`**: `LOCAL` (Caffeine/Cache2k), `REMOTE` (Redis), `NEAR_CACHE` (L1+L2)
-- **`CacheWriteMode`**: `READ_ONLY`, `WRITE_THROUGH`, `WRITE_BEHIND`
-- **`LocalCacheConfig`**: Common configuration for local cache implementations — extensible via inheritance
-- **`RedisRepositoryResilienceConfig`**: Optional resilience configuration for Redis-backed repositories
-- **testFixtures**: Reusable cache scenario tests for all implementations
+```mermaid
+classDiagram
+    direction LR
+    JdbcRedisRepository <|-- JdbcLettuceRepository
+    JdbcRedisRepository <|-- JdbcRedissonRepository
+    SuspendJdbcRedisRepository <|-- SuspendedJdbcLettuceRepository
+    SuspendJdbcRedisRepository <|-- SuspendedJdbcRedissonRepository
+    R2dbcRedisRepository <|-- R2dbcLettuceRepository
+    R2dbcRedisRepository <|-- R2dbcRedissonRepository
+```
 
-## Modules
+## CacheMode
 
-| Module | Cache Backend | Interface |
-|--------|--------------|-----------|
-| `exposed-jdbc-lettuce` | Lettuce Redis | `JdbcRedisRepository` |
-| `exposed-jdbc-redisson` | Redisson Redis | `JdbcRedisRepository` |
-| `exposed-r2dbc-lettuce` | Lettuce Redis | `R2dbcRedisRepository` |
-| `exposed-r2dbc-redisson` | Redisson Redis | `R2dbcRedisRepository` |
-| `exposed-jdbc-caffeine` | Caffeine (local) | `JdbcCacheRepository` |
-| `exposed-r2dbc-caffeine` | Caffeine (local) | `R2dbcCacheRepository` |
+| Value | Description |
+|-------|-------------|
+| `LOCAL` | In-process cache only (Caffeine). Fastest, but not shared across JVM processes. |
+| `REMOTE` | Remote cache only (Redis). Shared across all instances. |
+| `NEAR_CACHE` | L1 local cache + L2 Redis. Minimizes network round-trips; supported by Lettuce/Redisson modules. |
+
+## CacheWriteMode
+
+| Value | Read | Write |
+|-------|------|-------|
+| `READ_ONLY` | Read-through: cache miss loads from DB and caches | Cache only — no DB writes |
+| `WRITE_THROUGH` | Read-through | Cache + DB written synchronously |
+| `WRITE_BEHIND` | Read-through | Cache written immediately; DB written asynchronously in batches |
+
+## LocalCacheConfig
+
+Configuration for local (in-process) cache implementations. Caffeine modules use this directly; Redis modules use it as the L1 near-cache configuration.
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `keyPrefix` | `"local"` | Cache key prefix |
+| `maximumSize` | `10_000` | Maximum number of cache entries |
+| `expireAfterWrite` | `10 minutes` | TTL from last write |
+| `expireAfterAccess` | `null` (disabled) | TTL from last access |
+| `writeMode` | `READ_ONLY` | Write strategy (`READ_ONLY` / `WRITE_THROUGH` / `WRITE_BEHIND`) |
+| `writeBehindBatchSize` | `100` | Write-Behind flush batch size |
+| `writeBehindQueueCapacity` | `10_000` | Write-Behind queue capacity (must not be unlimited) |
+
+**Predefined constants**:
+
+```kotlin
+LocalCacheConfig.READ_ONLY      // writeMode = READ_ONLY
+LocalCacheConfig.WRITE_THROUGH  // writeMode = WRITE_THROUGH
+LocalCacheConfig.WRITE_BEHIND   // writeMode = WRITE_BEHIND
+```
+
+## RedisRepositoryResilienceConfig
+
+Optional resilience configuration for Redis-backed repositories. Pass `null` (the default) to disable resilience wrapping.
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `retryMaxAttempts` | `3` | Maximum retry attempts on Redis failure |
+| `retryWaitDuration` | `500ms` | Wait time between retries |
+| `retryExponentialBackoff` | `true` | Use exponential backoff for retries |
+| `circuitBreakerEnabled` | `false` | Enable Circuit Breaker |
+| `timeoutDuration` | `2s` | Redis operation timeout |
+
+## Write Strategy Patterns
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Repo as Repository
+    participant Cache as Local/Redis Cache
+    participant DB as Database
+
+    Note over Client,DB: Read-Through (all modes)
+    Client->>Repo: get(id)
+    Repo->>Cache: getIfPresent(key)
+    alt Cache Hit
+        Cache-->>Repo: entity
+    else Cache Miss
+        Repo->>DB: SELECT WHERE id = ?
+        DB-->>Repo: row
+        Repo->>Cache: put(key, entity)
+    end
+    Repo-->>Client: entity?
+
+    Note over Client,DB: Write-Through
+    Client->>Repo: put(id, entity)
+    Repo->>Cache: put(key, entity)
+    Repo->>DB: UPDATE / INSERT
+    Repo-->>Client: done
+
+    Note over Client,DB: Write-Behind
+    Client->>Repo: put(id, entity)
+    Repo->>Cache: put(key, entity)
+    Repo->>Repo: writeBehindQueue.send(entry)
+    Repo-->>Client: done (immediate)
+    Repo->>DB: flushBatch (async)
+```
+
+## testFixtures Scenarios
+
+`exposed-cache` ships testFixtures with reusable scenario classes that all implementing modules inherit for consistency.
+
+| Scenario class | Interface tested | Covered scenarios |
+|----------------|-----------------|-------------------|
+| `JdbcCacheTestScenario` | `JdbcCacheRepository` | Read-through, Write-through, Write-behind, invalidate |
+| `JdbcReadThroughScenario` | `JdbcCacheRepository` | Cache miss → DB load, cache hit, getAll partial miss |
+| `JdbcWriteThroughScenario` | `JdbcCacheRepository` | put / putAll → DB updated immediately |
+| `JdbcWriteBehindScenario` | `JdbcCacheRepository` | put → cache immediate, DB flushed asynchronously |
+| `SuspendedJdbcCacheTestScenario` | `SuspendedJdbcCacheRepository` | Same as above, suspend variants |
+| `SuspendedJdbcReadThroughScenario` | `SuspendedJdbcCacheRepository` | suspend read-through scenarios |
+| `SuspendedJdbcWriteThroughScenario` | `SuspendedJdbcCacheRepository` | suspend write-through scenarios |
+| `SuspendedJdbcWriteBehindScenario` | `SuspendedJdbcCacheRepository` | suspend write-behind scenarios |
+| `R2dbcCacheTestScenario` | `R2dbcCacheRepository` | R2DBC full scenario suite |
+| `R2dbcReadThroughScenario` | `R2dbcCacheRepository` | R2DBC read-through |
+| `R2dbcWriteThroughScenario` | `R2dbcCacheRepository` | R2DBC write-through |
+| `R2dbcWriteBehindScenario` | `R2dbcCacheRepository` | R2DBC write-behind |
+
+**Reuse in tests**:
+
+```kotlin
+// testFixtures dependency in build.gradle.kts
+testImplementation(testFixtures("io.github.bluetape4k:bluetape4k-exposed-cache:$version"))
+
+// Extend the scenario in your module test
+class MyCaffeineReadThroughTest : JdbcReadThroughScenario() {
+    override val repo = ActorCaffeineRepository(LocalCacheConfig.WRITE_THROUGH)
+}
+```
+
+## When to Use Which Module
+
+| Scenario | Recommended Module |
+|----------|--------------------|
+| Single instance, no Redis | `exposed-jdbc-caffeine` / `exposed-r2dbc-caffeine` |
+| Distributed cache, Redis available | `exposed-jdbc-lettuce` / `exposed-r2dbc-lettuce` |
+| L1 local + L2 Redis NearCache | `exposed-jdbc-lettuce` (nearCacheEnabled=true) |
+| R2DBC + Redis | `exposed-r2dbc-lettuce` / `exposed-r2dbc-redisson` |
+| Pattern-based cache invalidation needed | Any Redis module (`invalidateByPattern`) |
+| Redisson features (distributed locks, etc.) | `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` |
+
+## Module Links
+
+- [exposed-jdbc-caffeine](../exposed-jdbc-caffeine/README.md) — JDBC + Caffeine local cache
+- [exposed-r2dbc-caffeine](../exposed-r2dbc-caffeine/README.md) — R2DBC + Caffeine local cache
+- [exposed-jdbc-lettuce](../exposed-jdbc-lettuce/README.md) — JDBC + Lettuce Redis cache
+- [exposed-r2dbc-lettuce](../exposed-r2dbc-lettuce/README.md) — R2DBC + Lettuce Redis cache
 
 ## Dependency
 
 ```kotlin
 dependencies {
     api("io.github.bluetape4k:bluetape4k-exposed-cache:$version")
-}
-```
-
-## Usage
-
-### Implementing a Cache Repository
-
-```kotlin
-class ActorCaffeineRepository(
-    config: LocalCacheConfig = LocalCacheConfig.WRITE_THROUGH,
-) : AbstractJdbcCaffeineRepository<Long, ActorRecord>(config) {
-    override val table = ActorTable
-    override fun ResultRow.toEntity() = ActorRecord(this[ActorTable.id].value, this[ActorTable.name])
-    override fun UpdateStatement.updateEntity(entity: ActorRecord) { this[ActorTable.name] = entity.name }
-    override fun BatchInsertStatement.insertEntity(entity: ActorRecord) { this[ActorTable.name] = entity.name }
-    override fun extractId(entity: ActorRecord) = entity.id
 }
 ```

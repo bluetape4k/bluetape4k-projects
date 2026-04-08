@@ -1,6 +1,10 @@
 # bluetape4k-exposed-r2dbc-caffeine
 
+[English](./README.md) | 한국어
+
 Caffeine 로컬(인프로세스) 캐시를 사용하는 Exposed R2DBC 저장소입니다. JDBC 의존 없이 `exposed-cache` 모듈만 참조합니다.
+
+> **참고**: [exposed-cache — 전체 모듈 생태계 및 인터페이스 계층 구조](../exposed-cache/README.ko.md)
 
 ## 아키텍처
 

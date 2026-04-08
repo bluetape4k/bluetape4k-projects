@@ -1,6 +1,10 @@
 # bluetape4k-exposed-r2dbc-caffeine
 
+English | [한국어](./README.ko.md)
+
 Exposed R2DBC repository with Caffeine local (in-process) cache. No JDBC dependency -- only `exposed-cache` is referenced.
+
+> **See also**: [exposed-cache — Full Module Ecosystem & Interface Hierarchy](../exposed-cache/README.md)
 
 ## Architecture
 
