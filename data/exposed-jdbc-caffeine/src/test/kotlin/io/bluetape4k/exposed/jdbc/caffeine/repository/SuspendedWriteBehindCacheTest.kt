@@ -28,7 +28,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * - AutoIncrement Long ID 테이블 ([ActorTable]) 과
  * - Client-generated UUID ID 테이블 ([CredentialTable]) 에 대해 각각 검증합니다.
- * 캐시에 먼저 저장하고 DB에는 비동기로 반영되는 패턴을 검증합니다.
+ * - 캐시에 먼저 저장하고 DB에는 비동기로 반영되는 패턴을 검증합니다.
  */
 class SuspendedWriteBehindCacheTest {
 
@@ -39,24 +39,12 @@ class SuspendedWriteBehindCacheTest {
     // -------------------------------------------------------------------------
 
     @Suppress("DEPRECATION")
-    @Nested
-    inner class AutoIncActorSuspendedWriteBehind:
+    abstract class AutoIncActorSuspendedWriteBehind:
         AbstractJdbcCaffeineTest(),
         SuspendedJdbcWriteBehindScenario<Long, ActorRecord> {
 
         override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
         override val cacheMode: CacheMode = CacheMode.LOCAL
-
-        private val config = LocalCacheConfig(
-            keyPrefix = "jdbc:caffeine:suspended-write-behind:actors",
-            writeMode = CacheWriteMode.WRITE_BEHIND,
-            writeBehindBatchSize = 10,
-            writeBehindQueueCapacity = 1_000,
-        )
-
-        override val repository by lazy {
-            ActorSuspendedJdbcCaffeineRepository(config)
-        }
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -80,29 +68,28 @@ class SuspendedWriteBehindCacheTest {
             ActorSchema.newActorRecord()
     }
 
+    @Nested
+    inner class AutoIncSuspendedWriteBehind: AutoIncActorSuspendedWriteBehind() {
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:s-wb:actor",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+        override val repository by lazy { ActorSuspendedJdbcCaffeineRepository(config) }
+    }
+
     // -------------------------------------------------------------------------
     // Client-generated UUID ID — CredentialTable
     // -------------------------------------------------------------------------
 
     @Suppress("DEPRECATION")
-    @Nested
-    inner class ClientGenIdCredentialSuspendedWriteBehind:
+    abstract class ClientGenIdCredentialSuspendedWriteBehind:
         AbstractJdbcCaffeineTest(),
         SuspendedJdbcWriteBehindScenario<UUID, CredentialRecord> {
 
         override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
         override val cacheMode: CacheMode = CacheMode.LOCAL
-
-        private val config = LocalCacheConfig(
-            keyPrefix = "jdbc:caffeine:suspended-write-behind:credentials",
-            writeMode = CacheWriteMode.WRITE_BEHIND,
-            writeBehindBatchSize = 10,
-            writeBehindQueueCapacity = 1_000,
-        )
-
-        override val repository by lazy {
-            CredentialSuspendedJdbcCaffeineRepository(config)
-        }
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
@@ -124,5 +111,16 @@ class SuspendedWriteBehindCacheTest {
 
         override suspend fun createNewEntity(): CredentialRecord =
             ActorSchema.newCredentialRecord()
+    }
+
+    @Nested
+    inner class ClientGenIdSuspendedWriteBehind: ClientGenIdCredentialSuspendedWriteBehind() {
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:s-wb:credential",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+        override val repository by lazy { CredentialSuspendedJdbcCaffeineRepository(config) }
     }
 }

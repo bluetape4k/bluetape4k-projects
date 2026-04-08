@@ -27,7 +27,7 @@ import java.util.*
  *
  * - AutoIncrement Long ID 테이블 ([ActorTable]) 과
  * - Client-generated UUID ID 테이블 ([CredentialTable]) 에 대해 각각 검증합니다.
- * 캐시에 먼저 저장하고 DB에는 비동기로 반영되는 패턴을 검증합니다.
+ * - 캐시에 먼저 저장하고 DB에는 비동기로 반영되는 패턴을 검증합니다.
  */
 class WriteBehindCacheTest {
 
@@ -37,33 +37,19 @@ class WriteBehindCacheTest {
     // AutoIncrement Long ID — ActorTable
     // -------------------------------------------------------------------------
 
-    @Nested
-    inner class AutoIncActorWriteBehind:
+    abstract class AutoIncActorWriteBehind:
         AbstractJdbcCaffeineTest(),
         JdbcWriteBehindScenario<Long, ActorRecord> {
 
         override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
         override val cacheMode: CacheMode = CacheMode.LOCAL
 
-        private val config = LocalCacheConfig(
-            keyPrefix = "jdbc:caffeine:write-behind:actors",
-            writeMode = CacheWriteMode.WRITE_BEHIND,
-            writeBehindBatchSize = 10,
-            writeBehindQueueCapacity = 1_000,
-        )
-
-        override val repository by lazy {
-            ActorJdbcCaffeineRepository(config)
-        }
-
-        override fun withEntityTable(
-            testDB: TestDB,
-            statement: JdbcTransaction.() -> Unit,
-        ) = withActorTable(testDB, statement)
+        override fun withEntityTable(testDB: TestDB, statement: JdbcTransaction.() -> Unit) =
+            withActorTable(testDB, statement)
 
         override fun getExistingId(): Long =
             transaction {
-                ActorTable.select(ActorTable.id).first()[ActorTable.id].value
+                ActorTable.select(ActorTable.id).limit(1).first()[ActorTable.id].value
             }
 
         override fun getExistingIds(): List<Long> =
@@ -77,37 +63,34 @@ class WriteBehindCacheTest {
             ActorSchema.newActorRecord()
     }
 
+    @Nested
+    inner class AutoIncWriteBehind: AutoIncActorWriteBehind() {
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:wb:actor",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+        override val repository by lazy { ActorJdbcCaffeineRepository(config) }
+    }
+
     // -------------------------------------------------------------------------
     // Client-generated UUID ID — CredentialTable
     // -------------------------------------------------------------------------
 
-    @Nested
-    inner class ClientGenIdCredentialWriteBehind:
+    abstract class ClientGenIdCredentialWriteBehind:
         AbstractJdbcCaffeineTest(),
         JdbcWriteBehindScenario<UUID, CredentialRecord> {
 
         override val cacheWriteMode: CacheWriteMode = CacheWriteMode.WRITE_BEHIND
         override val cacheMode: CacheMode = CacheMode.LOCAL
 
-        private val config = LocalCacheConfig(
-            keyPrefix = "jdbc:caffeine:write-behind:credentials",
-            writeMode = CacheWriteMode.WRITE_BEHIND,
-            writeBehindBatchSize = 10,
-            writeBehindQueueCapacity = 1_000,
-        )
-
-        override val repository by lazy {
-            CredentialJdbcCaffeineRepository(config)
-        }
-
-        override fun withEntityTable(
-            testDB: TestDB,
-            statement: JdbcTransaction.() -> Unit,
-        ) = withCredentialTable(testDB, statement)
+        override fun withEntityTable(testDB: TestDB, statement: JdbcTransaction.() -> Unit) =
+            withCredentialTable(testDB, statement)
 
         override fun getExistingId(): UUID =
             transaction {
-                CredentialTable.select(CredentialTable.id).first()[CredentialTable.id].value
+                CredentialTable.select(CredentialTable.id).limit(1).first()[CredentialTable.id].value
             }
 
         override fun getExistingIds(): List<UUID> =
@@ -119,5 +102,16 @@ class WriteBehindCacheTest {
 
         override fun createNewEntity(): CredentialRecord =
             ActorSchema.newCredentialRecord()
+    }
+
+    @Nested
+    inner class ClientGenIdWriteBehind: ClientGenIdCredentialWriteBehind() {
+        private val config = LocalCacheConfig(
+            keyPrefix = "jdbc:caffeine:wb:credential",
+            writeMode = CacheWriteMode.WRITE_BEHIND,
+            writeBehindBatchSize = 10,
+            writeBehindQueueCapacity = 1_000,
+        )
+        override val repository by lazy { CredentialJdbcCaffeineRepository(config) }
     }
 }
