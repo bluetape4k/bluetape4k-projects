@@ -341,10 +341,10 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
 
     override fun close() {
         if (config.writeMode == CacheWriteMode.WRITE_BEHIND) {
-            writeBehindQueue.close()
-            runBlocking { writeBehindJob.join() }
+            runCatching { writeBehindQueue.close() }
+            runCatching { runBlocking { writeBehindJob.join() } }
         }
-        cache.synchronous().invalidateAll()
-        scope.cancel()
+        runCatching { cache.synchronous().invalidateAll() }
+        runCatching { scope.cancel() }
     }
 }

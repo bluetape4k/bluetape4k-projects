@@ -334,10 +334,10 @@ abstract class AbstractJdbcCaffeineRepository<ID: Any, E: Serializable>(
 
     override fun close() {
         if (config.writeMode == CacheWriteMode.WRITE_BEHIND) {
-            writeBehindQueue.close()
-            runBlocking { writeBehindJob.join() }
+            runCatching { writeBehindQueue.close() }
+            runCatching { runBlocking { writeBehindJob.join() } }
         }
-        cache.invalidateAll()
-        scope.cancel()
+        runCatching { cache.invalidateAll() }
+        runCatching { scope.cancel() }
     }
 }
