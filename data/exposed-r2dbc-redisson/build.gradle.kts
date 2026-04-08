@@ -12,9 +12,9 @@ dependencies {
     compileOnly(Libs.exposed_kotlin_datetime)
 
     api(project(":bluetape4k-exposed-r2dbc"))
-    api(project(":bluetape4k-exposed-redis-api"))
+    api(project(":bluetape4k-exposed-cache"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
-    testImplementation(testFixtures(project(":bluetape4k-exposed-redis-api")))
+    testImplementation(testFixtures(project(":bluetape4k-exposed-cache")))
 
     // Redisson
     api(project(":bluetape4k-redisson"))

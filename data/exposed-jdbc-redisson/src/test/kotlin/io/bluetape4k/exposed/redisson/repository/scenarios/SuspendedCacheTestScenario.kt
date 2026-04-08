@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.cache.SuspendedJdbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.SuspendJdbcRedisRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
@@ -23,7 +23,7 @@ interface SuspendedCacheTestScenario<ID: Any, E: java.io.Serializable> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: SuspendedJdbcCacheRepository<ID, E>
+    val repository: SuspendJdbcRedisRepository<ID, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

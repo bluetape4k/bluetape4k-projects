@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.lettuce.repository
 
-import io.bluetape4k.exposed.cache.JdbcCacheRepository
+import io.bluetape4k.exposed.cache.redis.JdbcRedisRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
@@ -26,7 +26,7 @@ import java.io.Serializable
  * @param ID PK 타입 ([Comparable] 구현 필요)
  * @param E 엔티티(DTO) 타입. Redis 저장 시 직렬화 문제로 반드시 [java.io.Serializable]을 구현해야 합니다.
  */
-interface JdbcLettuceRepository<ID: Any, E: Serializable>: JdbcCacheRepository<ID, E> {
+interface JdbcLettuceRepository<ID: Any, E: Serializable>: JdbcRedisRepository<ID, E> {
 
     companion object: KLogging() {
         const val DEFAULT_BATCH_SIZE = 500
