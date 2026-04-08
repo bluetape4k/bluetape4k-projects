@@ -50,6 +50,20 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 - [ ] superpowers 작업 완료 시: `docs/superpowers/index/YYYY-MM.md` 항목 추가 → `docs/superpowers/INDEX.md` 건수 갱신
 - [ ] spec/plan 새로 작성 시: `/wiki-update` 실행
 
+## bluetape4k-patterns 필수 검사항목 (코드 작성 즉시)
+
+- [ ] **`close()` 패턴**: 각 리소스를 **독립 `runCatching {}`** 으로 감싸야 함 — 하나라도 누락 시 즉시 수정
+  ```kotlin
+  // ❌ 금지: 체인 실행
+  writeBehindQueue.close(); cache.invalidateAll(); scope.cancel()
+  // ✅ 필수: 독립 runCatching
+  runCatching { writeBehindQueue.close() }
+  runCatching { cache.invalidateAll() }
+  runCatching { scope.cancel() }
+  ```
+- [ ] **`superpowers` Step 6**: `/bluetape4k-design` 작업 완료 시 Step 6 체크리스트 **전부** 실행 (테스트·README·testlog·INDEX 모두)
+- [ ] **`bluetape4k-patterns` 스킬**: 모든 구현 에이전트는 `[apply bluetape4k-patterns]` 지시 포함
+
 ## Token-Efficient Workflow
 
 Prefer `./bin/repo-*` scripts over raw git/gradle output. Summarize first; read raw output only for specific files or tasks.
