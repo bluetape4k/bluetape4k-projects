@@ -1,8 +1,10 @@
 package io.bluetape4k.exposed.r2dbc.caffeine.domain
 
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
@@ -13,13 +15,18 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.io.Serializable
 import java.time.Instant
+import java.util.*
 
 /**
- * exposed-r2dbc-caffeine 통합 테스트용 Actor 도메인 스키마.
+ * exposed-r2dbc-caffeine 통합 테스트용 Actor 및 Credential 도메인 스키마.
+ *
+ * - AutoIncrement Long ID: [ActorTable] / [ActorRecord]
+ * - Client-generated UUID ID: [CredentialTable] / [CredentialRecord]
  */
 object ActorSchema: KLoggingChannel() {
     private val faker = Fakers.faker
@@ -120,4 +127,82 @@ object ActorSchema: KLoggingChannel() {
             .where { ActorTable.id eq id }
             .singleOrNull()
             ?.toActorRecord()
+
+    // -------------------------------------------------------------------------
+    // Client-generated UUID ID — CredentialTable
+    // -------------------------------------------------------------------------
+
+    /**
+     * Client-generated UUID ID를 가진 Credential 테이블.
+     * Write-Behind 캐시 테스트를 위해 [TimebasedUUIDTable]을 사용합니다.
+     */
+    object CredentialTable: TimebasedUUIDTable("r2dbc_caffeine_credentials") {
+        val loginId = varchar("login_id", 255).uniqueIndex()
+        val email = varchar("email", 255)
+        val lastLoginAt = timestamp("last_login_at").nullable()
+        val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    }
+
+    /**
+     * Credential 엔티티 DTO.
+     * 캐시 직렬화를 위해 [Serializable] 구현 필수.
+     */
+    data class CredentialRecord(
+        val id: UUID,
+        val loginId: String,
+        val email: String,
+        val lastLoginAt: Instant? = null,
+        val createdAt: Instant = Instant.now(),
+    ): Serializable {
+        companion object: KLoggingChannel() {
+            private const val serialVersionUID = 1L
+        }
+    }
+
+    /**
+     * [ResultRow]를 [CredentialRecord]로 변환합니다.
+     */
+    fun ResultRow.toCredentialRecord(): CredentialRecord =
+        CredentialRecord(
+            id = this[CredentialTable.id].value,
+            loginId = this[CredentialTable.loginId],
+            email = this[CredentialTable.email],
+            lastLoginAt = this[CredentialTable.lastLoginAt],
+            createdAt = this[CredentialTable.createdAt]
+        )
+
+    /**
+     * 테스트용 새 [CredentialRecord]를 생성합니다. DB에는 저장하지 않습니다.
+     */
+    fun newCredentialRecord(): CredentialRecord =
+        CredentialRecord(
+            id = Uuid.V7.nextId(),
+            loginId = faker.internet().domainWord() + "_" + Base58.randomString(6),
+            email = Base58.randomString(4) + "." + faker.internet().safeEmailAddress(),
+            lastLoginAt = Instant.now().minusSeconds(3600)
+        )
+
+    private suspend fun insertCredential() {
+        CredentialTable.insert {
+            it[loginId] = faker.internet().domainWord() + "_" + Base58.randomString(6)
+            it[email] = Base58.randomString(4) + "." + faker.internet().safeEmailAddress()
+            it[lastLoginAt] = Instant.now().minusSeconds(3600)
+        }
+    }
+
+    /**
+     * [CredentialTable]을 생성하고 초기 데이터를 삽입한 뒤 suspend [statement]를 실행합니다.
+     */
+    suspend fun withCredentialTable(
+        testDB: TestDB,
+        statement: suspend R2dbcTransaction.() -> Unit,
+    ) {
+        withTables(testDB, CredentialTable) {
+            insertCredential()
+            insertCredential()
+            insertCredential()
+            commit()
+            statement()
+        }
+    }
 }
