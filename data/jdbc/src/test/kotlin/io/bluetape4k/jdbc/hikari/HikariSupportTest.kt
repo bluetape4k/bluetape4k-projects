@@ -1,5 +1,6 @@
 package io.bluetape4k.jdbc.hikari
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -9,7 +10,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import javax.sql.DataSource
 
-private fun h2JdbcUrl(dbName: String = "hikari_test_${System.nanoTime()}") =
+private fun h2JdbcUrl(dbName: String = "hikari_test_${Base58.randomString(8)}") =
     "jdbc:h2:mem:$dbName;DB_CLOSE_DELAY=-1"
 
 class HikariSupportTest {
