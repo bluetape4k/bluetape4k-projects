@@ -46,5 +46,5 @@ docs/superpowers/plans/{YYYY-MM-DD}-{기능명}-plan.md     ← Plan
 
 | 월 | 파일 | 항목 수 |
 |----|------|--------|
-| 2026-04 | [index/2026-04.md](index/2026-04.md) | 11 |
+| 2026-04 | [index/2026-04.md](index/2026-04.md) | 12 |
 | 2026-03 | [index/2026-03.md](index/2026-03.md) | 21 |

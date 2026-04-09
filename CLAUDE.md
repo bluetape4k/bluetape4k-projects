@@ -162,6 +162,7 @@ Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` 
 | `exposed-r2dbc-demo` (`bluetape4k-spring-boot3-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux integration demo |
 | `hibernate-lettuce` (`bluetape4k-spring-boot3-hibernate-lettuce`) | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Spring properties binding, Micrometer Metrics, Actuator Endpoint |
 | `hibernate-lettuce-demo` (`bluetape4k-spring-boot3-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC integration demo |
+| `batch-exposed` (`bluetape4k-spring-boot3-batch-exposed`) | Spring Batch + Exposed 통합 — ExposedKeysetItemReader(keyset 페이징), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner(VirtualThread 파티션), ExposedBatchAutoConfiguration |
 
 ### Spring Boot 4 (`spring-boot4/`)
 

@@ -392,6 +392,8 @@ object Libs {
     fun springBoot4Starter(module: String) = "org.springframework.boot:spring-boot-starter-$module:${Versions.spring_boot4}"
     fun springBoot4(module: String) = "org.springframework.boot:spring-boot-$module:${Versions.spring_boot4}"
 
+    const val spring_batch_test = "org.springframework.batch:spring-batch-test"  // Spring Boot BOM 버전 관리
+
     fun springData(module: String) = "org.springframework.data:spring-data-$module"
 
     fun springSecurity(module: String) = "org.springframework.security:spring-security-$module"
