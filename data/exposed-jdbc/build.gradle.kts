@@ -20,6 +20,7 @@ dependencies {
     implementation(Libs.java_uuid_generator)
 
     // JDBC
+    api(project(":bluetape4k-jdbc"))
     compileOnly(Libs.hikaricp)
 
     // Coroutines
