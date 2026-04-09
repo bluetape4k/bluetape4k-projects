@@ -125,7 +125,7 @@ object Versions {
 
     const val mongo_driver = "5.6.3"   // https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
     const val lettuce = "6.8.2.RELEASE" // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
-    const val redisson = "4.3.0"       // https://mvnrepository.com/artifact/org.redisson/redisson
+    const val redisson = "4.3.1"       // https://mvnrepository.com/artifact/org.redisson/redisson
 
     // NOTE: Hibernate 는 jakarta 버전인 경우 orm, validator 등이 group 에 포함됩니다.
     // NOTE: 이 경우 기존 javax 를 사용하는 버전과 충돌이 생길 수 있으니 조심하세요
@@ -188,7 +188,7 @@ object Versions {
     const val springmockk = "5.0.1"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.3.0"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "2.0.3"      // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val testcontainers = "2.0.4"      // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.18.1"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.4.1"            // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.7"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
@@ -200,7 +200,7 @@ object Versions {
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
     const val sentry_logback = "8.33.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
-    const val scrimage = "4.3.8"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
+    const val scrimage = "4.3.10"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
