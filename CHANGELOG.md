@@ -4,6 +4,85 @@
 
 ---
 
+## [1.6.0-SNAPSHOT] - 2026-04-09
+
+### Added
+
+#### data/exposed-cache — 공통 캐시 인터페이스 모듈 추가 (구 `exposed-redis-api`) ([`d969a78e0`](https://github.com/bluetape4k/bluetape4k-projects/commit/d969a78e0))
+
+`exposed-redis-api`를 `exposed-cache`로 리네이밍하고, DB + 캐시 조합의 공통 인터페이스를 정비한 모듈입니다.
+
+**공통 캐시 인터페이스**
+- `JdbcCacheRepository` / `SuspendedJdbcCacheRepository`: JDBC 기반 동기·코루틴 캐시 레포지토리
+- `R2dbcCacheRepository`: R2DBC 기반 리액티브 캐시 레포지토리
+- `JdbcRedisRepository` / `SuspendJdbcRedisRepository` / `R2dbcRedisRepository`: Redis 백엔드 전용 서브인터페이스 (`invalidateByPattern`)
+- `LocalCacheConfig`: Caffeine 로컬 캐시 설정 data class (TTL, 최대 크기)
+- `testFixtures`: Read/Write-Through/Behind 시나리오 공유 테스트 인프라
+
+#### data/exposed-jdbc-caffeine — JDBC + Caffeine 로컬 캐시 모듈 추가 ([`d969a78e0`](https://github.com/bluetape4k/bluetape4k-projects/commit/d969a78e0))
+
+- `JdbcCaffeineRepository`: JDBC + Caffeine 동기 로컬 캐시 (Read-Through / Write-Through / Write-Behind)
+- `SuspendedJdbcCaffeineRepository`: 위와 동일, suspend 코루틴 버전
+- Write-Behind: Channel 기반 비동기 쓰기 큐, `CoroutineScope` 생명주기 관리
+- H2 인메모리 DB 기반 테스트 36개 (2 skipped — AutoInc Write-Behind)
+
+#### data/exposed-r2dbc-caffeine — R2DBC + Caffeine AsyncCache 모듈 추가 ([`d969a78e0`](https://github.com/bluetape4k/bluetape4k-projects/commit/d969a78e0))
+
+- `R2dbcCaffeineRepository`: Caffeine `AsyncCache` 기반 suspend 로컬 캐시 (R2DBC, runBlocking 없음)
+- Read-Through / Write-Through / Write-Behind 전략 지원
+- H2 인메모리 R2DBC 기반 테스트 18개 (1 skipped — AutoInc Write-Behind)
+
+#### data/exposed-r2dbc — R2DBC 커넥션 풀 DSL 추가 ([`db91dd6af`](https://github.com/bluetape4k/bluetape4k-projects/commit/db91dd6af))
+
+`io.bluetape4k.exposed.r2dbc.pool` 패키지에 커넥션 풀 구성을 위한 Kotlin DSL을 제공합니다.
+
+- `R2dbcPoolConfig`: 커넥션 풀 설정 data class (스마트 기본값: CPU×8, 최소 100, TTL·타임아웃 등)
+- `R2dbcConnectionConfig`: 커넥션 옵션 DSL 빌더 — 표준 r2dbc-spi 옵션 타입-안전 프로퍼티 + `option()` 드라이버 확장
+- `connectionPoolOf(options) { }` / `connectionPoolOf(factory) { }` / `ConnectionFactoryOptions.toConnectionPool { }`
+- `connectionFactoryOptionsOf { }` / `connectionFactoryOf { }` — DSL 람다 방식
+- `connectionFactoryOptionsOf(url)` / `connectionFactoryOf(url)` — R2DBC URL 파싱 방식
+- `r2dbcConnectionPool { connection { } pool { } }` — 연결·풀 설정 통합 DSL
+- `r2dbcConnectionPool(url) { }` — URL + 풀 설정 간결 방식
+- `R2dbcPoolConfig.toConnectionPoolConfiguration(factory)` 변환 유틸
+
+### Changed
+
+#### data/exposed-cache — 4개 Redis 캐시 모듈 인터페이스 통일 ([`b7311fccb`](https://github.com/bluetape4k/bluetape4k-projects/commit/b7311fccb), [`1385f8c41`](https://github.com/bluetape4k/bluetape4k-projects/commit/1385f8c41))
+
+- `exposed-jdbc-lettuce` / `exposed-r2dbc-lettuce` / `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` 4개 모듈 인터페이스 및 테스트 구조 표준화
+- Lettuce fat 인터페이스 → `JdbcRedisRepository` / `R2dbcRedisRepository` 슬림 인터페이스로 분리
+- `invalidateByPattern()`: Redis 전용 서브인터페이스로 분리 (공통 캐시 인터페이스에서 제거)
+- `RedissonCacheConfig.name` 프로퍼티 추가
+
+#### bluetape4k-core — `HasIdentifier` Deprecate ([`ac61e2864`](https://github.com/bluetape4k/bluetape4k-projects/commit/ac61e2864))
+
+- `HasIdentifier` 인터페이스 `@Deprecated` 처리 — `java.io.Serializable` 직접 구현 권장
+- 분산 캐시 직렬화는 `Serializable` + `serialVersionUID` 패턴으로 통일
+
+#### bluetape4k-coroutines — `Deferred` 확장 함수 추가 ([`a52702e75`](https://github.com/bluetape4k/bluetape4k-projects/commit/a52702e75))
+
+- `Deferred.zip(other)`: 두 `Deferred` 결과를 `Pair`로 결합
+- `Deferred.zipWith(other, transform)`: 두 결과를 변환 함수로 합성
+
+### Fixed
+
+#### bluetape4k-coroutines — `Flow.log()` / `AsyncFlow.log()` 로그 미출력 버그 수정 ([`f56b00a27`](https://github.com/bluetape4k/bluetape4k-projects/commit/f56b00a27), [`8c9a96681`](https://github.com/bluetape4k/bluetape4k-projects/commit/8c9a96681))
+
+- `Flow.log()` 연산자가 실제 로그를 출력하지 않던 문제 수정
+- `AsyncFlow.log()` 동일 버그 수정
+
+#### data/exposed-cache — R2DBC Write-Behind 타이밍·UNIQUE 제약 위반 수정 ([`86fa30e83`](https://github.com/bluetape4k/bluetape4k-projects/commit/86fa30e83))
+
+- Write-Behind 비동기 큐 플러시 타이밍 경쟁 조건 수정
+- UUID 기반 테스트 테이블 추가로 AutoInc UNIQUE 제약 위반 방지
+
+#### infra/redisson — `RedissonCacheConfig` bluetape4k-patterns 위반 수정 ([`4cffbcc2b`](https://github.com/bluetape4k/bluetape4k-projects/commit/4cffbcc2b), [`5d6da26af`](https://github.com/bluetape4k/bluetape4k-projects/commit/5d6da26af))
+
+- stdlib `require()` → `requirePositiveNumber` / `requireGe` 등 bluetape4k 확장함수로 교체
+- `validateUnsupportedMapSettings` 내부 상태 검증은 `check()` 유지 (패턴 원칙에 맞게 복원)
+
+---
+
 ## [1.5.0] - 2026-04-05
 
 ### Added
