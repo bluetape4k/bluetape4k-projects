@@ -15,8 +15,8 @@ dependencies {
     api(project(":bluetape4k-exposed-dao"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
+    api(project(":bluetape4k-r2dbc"))
     api(Libs.r2dbc_spi)
-    api(Libs.r2dbc_pool)
     testRuntimeOnly(Libs.r2dbc_h2)
     testRuntimeOnly(Libs.r2dbc_mariadb)
     testRuntimeOnly(Libs.r2dbc_mysql)

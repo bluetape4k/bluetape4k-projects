@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.r2dbc.pool
+package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
