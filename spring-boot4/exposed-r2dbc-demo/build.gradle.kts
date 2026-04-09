@@ -15,6 +15,7 @@ dependencies {
     implementation(Libs.exposed_r2dbc)
     implementation(Libs.exposed_java_time)
 
+    implementation(Libs.r2dbc_pool)
     runtimeOnly(Libs.r2dbc_h2)
     runtimeOnly(Libs.h2_v2)   // JDBC DataSource (DataInitializer + SchemaUtils에 필요)
 
