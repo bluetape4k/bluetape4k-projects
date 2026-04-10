@@ -3,6 +3,7 @@ package io.bluetape4k.states.core
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.api.TransitionResult
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -111,5 +112,33 @@ class DefaultStateMachineTest {
         fsm.transition(Event.GoFinal)
 
         fsm.isInFinalState().shouldBeTrue()
+    }
+
+    @Test
+    fun `종료 상태에서는 canTransition이 false를 반환한다`() {
+        val fsm = stateMachine<State, Event> {
+            initialState = State.A
+            finalStates = setOf(State.FINAL)
+            transition(State.A, on<Event.GoFinal>(), to = State.FINAL)
+            transition(State.FINAL, on<Event.GoB>(), to = State.B)
+        }
+
+        fsm.transition(Event.GoFinal)
+
+        fsm.canTransition(Event.GoB).shouldBeFalse()
+    }
+
+    @Test
+    fun `종료 상태에서는 allowedEvents가 비어있다`() {
+        val fsm = stateMachine<State, Event> {
+            initialState = State.A
+            finalStates = setOf(State.FINAL)
+            transition(State.A, on<Event.GoFinal>(), to = State.FINAL)
+            transition(State.FINAL, on<Event.GoB>(), to = State.B)
+        }
+
+        fsm.transition(Event.GoFinal)
+
+        fsm.allowedEvents().shouldBeEmpty()
     }
 }

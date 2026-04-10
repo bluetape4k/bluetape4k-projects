@@ -150,6 +150,7 @@ classDiagram
 - **동기 FSM**: `AtomicReference` CAS 기반 Thread-Safe 상태 전이
 - **코루틴 FSM**: `Mutex` + `StateFlow` 기반 suspend 전이 및 상태 관찰
 - **Guard 조건**: 전이 전 조건 검증 지원
+- **종료 상태 일관성**: 종료 상태에 도달하면 `canTransition()`은 `false`, `allowedEvents()`는 빈 집합을 반환
 - **clinic-appointment 패턴**: Map 기반 전이 + suspend 콜백 패턴 채택
 
 ## 상태 전이 다이어그램 예시

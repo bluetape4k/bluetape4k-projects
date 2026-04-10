@@ -152,6 +152,7 @@ classDiagram
 - **Synchronous FSM**: thread-safe state transitions based on `AtomicReference` CAS
 - **Coroutine FSM**: suspend transitions and state observation based on `Mutex` + `StateFlow`
 - **Guard conditions**: validate conditions before transitions
+- **Final state consistency**: once a final state is reached, `canTransition()` returns `false` and `allowedEvents()` returns an empty set
 - **clinic-appointment pattern**: adopts a map-based transition model plus suspend callback pattern
 
 ## Example State Diagrams

@@ -126,9 +126,12 @@ class SuspendStateMachine<S: Any, E: Any>(
      * @return 전이 가능하면 true, 등록되지 않은 전이이거나 guard 조건 실패 시 false
      */
     override fun canTransition(event: E): Boolean {
-        val key = TransitionKey(currentState, event::class.java)
+        val state = currentState
+        if (state in finalStates) return false
+
+        val key = TransitionKey(state, event::class.java)
         val target = transitions[key] ?: return false
-        return target.guard?.invoke(currentState, event) ?: true
+        return target.guard?.invoke(state, event) ?: true
     }
 
     /**
@@ -148,8 +151,11 @@ class SuspendStateMachine<S: Any, E: Any>(
      * @return 현재 상태에서 허용된 이벤트 클래스 집합
      */
     override fun allowedEvents(): Set<Class<out E>> {
+        val state = currentState
+        if (state in finalStates) return emptySet()
+
         return transitions.keys
-            .filter { it.state == currentState }
+            .filter { it.state == state }
             .map { it.eventType }
             .toSet()
     }

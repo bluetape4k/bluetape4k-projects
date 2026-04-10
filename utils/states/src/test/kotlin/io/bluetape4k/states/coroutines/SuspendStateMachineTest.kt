@@ -7,7 +7,9 @@ import io.bluetape4k.states.core.on
 import io.bluetape4k.states.core.suspendStateMachine
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -98,5 +100,33 @@ class SuspendStateMachineTest {
         assertThrows<StateMachineException> {
             fsm.transition(Event.Start)
         }
+    }
+
+    @Test
+    fun `종료 상태에서는 canTransition이 false를 반환한다`() = runTest {
+        val fsm = suspendStateMachine<State, Event> {
+            initialState = State.IDLE
+            finalStates = setOf(State.DONE)
+            transition(State.IDLE, on<Event.Finish>(), to = State.DONE)
+            transition(State.DONE, on<Event.Start>(), to = State.RUNNING)
+        }
+
+        fsm.transition(Event.Finish)
+
+        fsm.canTransition(Event.Start).shouldBeFalse()
+    }
+
+    @Test
+    fun `종료 상태에서는 allowedEvents가 비어있다`() = runTest {
+        val fsm = suspendStateMachine<State, Event> {
+            initialState = State.IDLE
+            finalStates = setOf(State.DONE)
+            transition(State.IDLE, on<Event.Finish>(), to = State.DONE)
+            transition(State.DONE, on<Event.Start>(), to = State.RUNNING)
+        }
+
+        fsm.transition(Event.Finish)
+
+        fsm.allowedEvents().shouldBeEmpty()
     }
 }
