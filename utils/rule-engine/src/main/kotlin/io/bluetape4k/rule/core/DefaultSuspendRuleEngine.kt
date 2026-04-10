@@ -7,6 +7,7 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleEngineConfig
 import io.bluetape4k.rule.api.SuspendRule
 import io.bluetape4k.rule.api.SuspendRuleEngine
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 코루틴 기반의 기본 SuspendRuleEngine 구현체입니다.
@@ -39,25 +40,27 @@ open class DefaultSuspendRuleEngine(
 
             log.debug { "Evaluate suspend rule. rule=$name, facts=$facts" }
 
-            if (rule.evaluate(facts)) {
-                try {
+            try {
+                if (rule.evaluate(facts)) {
                     rule.execute(facts)
                     log.debug { "Suspend rule '$name' executed successfully." }
 
                     if (config.skipOnFirstAppliedRule) {
-                        log.debug { "나머지 SuspendRule들은 무시됩니다. (skipOnFirstAppliedRule=true)" }
+                        log.debug { "Remaining suspend rules skipped. (skipOnFirstAppliedRule=true)" }
                         return
                     }
-                } catch (e: Exception) {
-                    log.debug { "Suspend rule '$name' failed with exception: ${e.message}" }
-                    if (config.skipOnFirstFailedRule) {
-                        log.debug { "나머지 SuspendRule들은 무시됩니다. (skipOnFirstFailedRule=true)" }
+                } else {
+                    if (config.skipOnFirstNonTriggeredRule) {
+                        log.debug { "Remaining suspend rules skipped. (skipOnFirstNonTriggeredRule=true)" }
                         return
                     }
                 }
-            } else {
-                if (config.skipOnFirstNonTriggeredRule) {
-                    log.debug { "나머지 SuspendRule들은 무시됩니다. (skipOnFirstNonTriggeredRule=true)" }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.debug { "Suspend rule '$name' failed with exception: ${e.message}" }
+                if (config.skipOnFirstFailedRule) {
+                    log.debug { "Remaining suspend rules skipped. (skipOnFirstFailedRule=true)" }
                     return
                 }
             }
@@ -66,10 +69,15 @@ open class DefaultSuspendRuleEngine(
 
     override suspend fun check(rules: Iterable<SuspendRule>, facts: Facts): Map<SuspendRule, Boolean> {
         log.debug { "Checking suspend rules ..." }
-        val result = mutableMapOf<SuspendRule, Boolean>()
-        for (rule in rules) {
-            result[rule] = rule.evaluate(facts)
+        return rules.associateWith { rule ->
+            try {
+                rule.evaluate(facts)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                log.debug { "Suspend rule '${rule.name}' evaluate failed with exception: ${e.message}" }
+                false
+            }
         }
-        return result
     }
 }

@@ -229,6 +229,7 @@ flowchart TD
 - **DSL-based rule definitions**: `rule {}`, `suspendRule {}`, and `ruleEngine {}` DSLs
 - **Annotation-based rules**: convert POJO classes into rules with `@Rule`, `@Condition`, `@Action`, and `@Fact`
 - **Coroutine support**: asynchronous rule execution with `SuspendRule` and `SuspendRuleEngine`
+- **Cancellation-aware suspend engine**: `DefaultSuspendRuleEngine` rethrows `CancellationException` instead of treating cancellation as a normal rule failure
 - **Script engines**: dynamic rule definitions based on MVEL2, SpEL, and Kotlin Script
 - **Rule readers**: load rule definitions from YAML, JSON, and HOCON files
 - **Composite rules**: combine multiple rules with `ActivationRuleGroup`, `ConditionalRuleGroup`, and `UnitRuleGroup`

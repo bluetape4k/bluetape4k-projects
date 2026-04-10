@@ -256,6 +256,7 @@ flowchart TD
 - **DSL 기반 Rule 정의**: `rule {}`, `suspendRule {}`, `ruleEngine {}` DSL
 - **어노테이션 기반 Rule**: `@Rule`, `@Condition`, `@Action`, `@Fact` 어노테이션으로 POJO 클래스를 Rule로 변환
 - **코루틴 지원**: `SuspendRule`, `SuspendRuleEngine`으로 비동기 Rule 실행
+- **Cancellation 인지 suspend 엔진**: `DefaultSuspendRuleEngine`은 `CancellationException`을 일반 Rule 실패로 삼키지 않고 다시 던집니다
 - **스크립트 엔진**: MVEL2, SpEL, Kotlin Script 기반 동적 Rule 정의
 - **Rule Reader**: YAML, JSON, HOCON 포맷으로 외부 파일에서 Rule 정의 로딩
 - **Composite Rule**: `ActivationRuleGroup`, `ConditionalRuleGroup`, `UnitRuleGroup`으로 복합 Rule 조합

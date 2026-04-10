@@ -4,12 +4,15 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleEngineConfig
 import io.bluetape4k.rule.api.suspendRuleSetOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class DefaultSuspendRuleEngineTest {
 
@@ -22,7 +25,7 @@ class DefaultSuspendRuleEngineTest {
             name = "asyncRule"
             condition { true }
             action { facts ->
-                delay(10)
+                delay(10.milliseconds)
                 facts["executed"] = true
             }
         }
@@ -132,5 +135,103 @@ class DefaultSuspendRuleEngineTest {
 
         engine.fire(suspendRuleSetOf(rule1, rule2), Facts.empty())
         executionOrder shouldBeEqualTo listOf("first", "second")
+    }
+
+    @Test
+    fun `SuspendRule 실행 중 CancellationException 은 삼키지 않고 전파한다`() = runTest {
+        val engine = DefaultSuspendRuleEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        val canceledRule = suspendRule {
+            name = "canceledRule"
+            priority = 1
+            condition { true }
+            action { throw CancellationException("cancel") }
+        }
+        val nextRule = suspendRule {
+            name = "nextRule"
+            priority = 2
+            condition { true }
+            action { facts -> facts["nextRule"] = true }
+        }
+
+        assertFailsWith<CancellationException> {
+            engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty())
+        }.message shouldBeEqualTo "cancel"
+    }
+
+    @Test
+    fun `SuspendRule 평가 중 CancellationException 은 삼키지 않고 전파한다`() = runTest {
+        val engine = DefaultSuspendRuleEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        val canceledRule = suspendRule {
+            name = "canceledOnEvaluate"
+            priority = 1
+            condition { throw CancellationException("cancel-on-evaluate") }
+            action { facts -> facts["executed"] = true }
+        }
+        val nextRule = suspendRule {
+            name = "nextRule"
+            priority = 2
+            condition { true }
+            action { facts -> facts["nextRule"] = true }
+        }
+
+        assertFailsWith<CancellationException> {
+            engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty())
+        }.message shouldBeEqualTo "cancel-on-evaluate"
+    }
+
+    @Test
+    fun `SuspendRule 평가 실패는 skipOnFirstFailedRule 에 따라 다음 Rule 을 중단한다`() = runTest {
+        val engine = DefaultSuspendRuleEngine(RuleEngineConfig(skipOnFirstFailedRule = true))
+        val failedOnEvaluateRule = suspendRule {
+            name = "failedOnEvaluate"
+            priority = 1
+            condition { error("evaluate-fail") }
+            action { facts -> facts["executed"] = true }
+        }
+        val nextRule = suspendRule {
+            name = "nextRule"
+            priority = 2
+            condition { true }
+            action { facts -> facts["nextRule"] = true }
+        }
+
+        val facts = Facts.empty()
+        engine.fire(suspendRuleSetOf(failedOnEvaluateRule, nextRule), facts)
+        facts.containsKey("executed").shouldBeFalse()
+        facts.containsKey("nextRule").shouldBeFalse()
+    }
+
+    @Test
+    fun `SuspendRule check 중 CancellationException 은 삼키지 않고 전파한다`() = runTest {
+        val engine = DefaultSuspendRuleEngine()
+        val canceledRule = suspendRule {
+            name = "canceledOnCheck"
+            condition { throw CancellationException("cancel-on-check") }
+            action { }
+        }
+
+        assertFailsWith<CancellationException> {
+            engine.check(suspendRuleSetOf(canceledRule), Facts.empty())
+        }.message shouldBeEqualTo "cancel-on-check"
+    }
+
+    @Test
+    fun `SuspendRule check 중 평가 실패는 false 로 기록한다`() = runTest {
+        val engine = DefaultSuspendRuleEngine()
+        val failedRule = suspendRule {
+            name = "failedOnCheck"
+            condition { error("check-fail") }
+            action { }
+        }
+        val successRule = suspendRule {
+            name = "successRule"
+            priority = 2
+            condition { true }
+            action { }
+        }
+
+        val result = engine.check(suspendRuleSetOf(failedRule, successRule), Facts.empty())
+        result[failedRule] shouldBeEqualTo false
+        result[successRule] shouldBeEqualTo true
     }
 }
