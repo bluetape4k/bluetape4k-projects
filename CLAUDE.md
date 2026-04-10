@@ -171,14 +171,15 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 - `core`: Spring Boot 4 utilities, RestClient Coroutines DSL, Retrofit2, Jackson 2.x ObjectMapper customizer
 - `cassandra` / `redis` / `mongodb` / `r2dbc`
 
-| Module | Description |
-|--------|-------------|
-| `exposed-jdbc` (`bluetape4k-spring-boot4-exposed-jdbc`) | Exposed DAO Entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support |
-| `exposed-r2dbc` (`bluetape4k-spring-boot4-exposed-r2dbc`) | Exposed R2DBC DSL coroutine Spring Data Repository — suspend CRUD, Flow support |
-| `exposed-jdbc-demo` (`bluetape4k-spring-boot4-exposed-jdbc-demo`) | Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM) |
-| `exposed-r2dbc-demo` (`bluetape4k-spring-boot4-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM) |
-| `hibernate-lettuce` (`bluetape4k-spring-boot4-hibernate-lettuce`) | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Spring properties binding, Micrometer Metrics, Actuator Endpoint |
-| `hibernate-lettuce-demo` (`bluetape4k-spring-boot4-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM) |
+| Module                                                                      | Description                                                                                                                                                                                         |
+|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `exposed-jdbc` (`bluetape4k-spring-boot4-exposed-jdbc`)                     | Exposed DAO Entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support                                                                                                     |
+| `exposed-r2dbc` (`bluetape4k-spring-boot4-exposed-r2dbc`)                   | Exposed R2DBC DSL coroutine Spring Data Repository — suspend CRUD, Flow support                                                                                                                     |
+| `exposed-jdbc-demo` (`bluetape4k-spring-boot4-exposed-jdbc-demo`)           | Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM)                                                                                                                    |
+| `exposed-r2dbc-demo` (`bluetape4k-spring-boot4-exposed-r2dbc-demo`)         | Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)                                                                                                            |
+| `hibernate-lettuce` (`bluetape4k-spring-boot4-hibernate-lettuce`)           | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Spring properties binding, Micrometer Metrics, Actuator Endpoint                                                                   |
+| `hibernate-lettuce-demo` (`bluetape4k-spring-boot4-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)                                                                                                                       |
+| `batch-exposed` (`bluetape4k-spring-boot4-batch-exposed`)                   | Spring Batch 6.x + Exposed 통합 — ExposedKeysetItemReader(keyset 페이징), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner(VirtualThread 파티션), ExposedBatchAutoConfiguration |
 
 > **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
