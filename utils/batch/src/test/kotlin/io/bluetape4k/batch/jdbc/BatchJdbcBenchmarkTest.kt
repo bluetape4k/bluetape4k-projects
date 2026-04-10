@@ -1,5 +1,7 @@
 package io.bluetape4k.batch.jdbc
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.bluetape4k.batch.BatchSourceTable
 import io.bluetape4k.batch.BatchTargetTable
 import io.bluetape4k.batch.SourceRecord
@@ -10,12 +12,13 @@ import io.bluetape4k.batch.internal.CheckpointJson
 import io.bluetape4k.batch.jdbc.tables.BatchJobExecutionTable
 import io.bluetape4k.batch.jdbc.tables.BatchStepExecutionTable
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.params.ParameterizedTest
@@ -27,6 +30,8 @@ import kotlin.system.measureTimeMillis
  *
  * DB 종류 (H2 / PostgreSQL / MySQL) × 데이터 사이즈 (소 100 / 중 10,000 / 대 100,000) 조합으로
  * 배치 파이프라인의 읽기·쓰기 처리량을 측정한다.
+ *
+ * **HikariCP 커넥션 풀**을 사용하여 R2DBC (r2dbc-pool) 벤치마크와 공정하게 비교한다.
  *
  * 측정 항목:
  * - 소스 데이터 적재 시간 (batchInsert)
@@ -65,15 +70,15 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
     /**
      * JDBC batchInsert로 소스 데이터를 일괄 적재한다.
      *
-     * @param testDB 대상 데이터베이스
+     * @param database HikariCP 풀이 연결된 Exposed [Database]
      * @param count 삽입할 레코드 수
      * @return 소요 시간(ms)
      */
-    private fun insertSourceData(testDB: TestDB, count: Int): Long = measureTimeMillis {
-        transaction(testDB.db!!) {
-            // 대용량 INSERT는 청크 단위로 나눠 OOM 방지
-            val chunkSize = 1_000
-            (1..count).chunked(chunkSize).forEach { chunk ->
+    private fun insertSourceData(database: Database, count: Int): Long = measureTimeMillis {
+        // 대용량 INSERT는 청크 단위로 나눠 OOM 방지
+        val chunkSize = 1_000
+        (1..count).chunked(chunkSize).forEach { chunk ->
+            transaction(database) {
                 BatchSourceTable.batchInsert(chunk) { i ->
                     this[BatchSourceTable.name] = "item-$i"
                     this[BatchSourceTable.value] = i
@@ -83,13 +88,16 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
     }
 
     /**
-     * 배치 Job을 실행하고 소요 시간을 반환한다.
+     * 배치 Job을 생성한다.
+     *
+     * @param database HikariCP 풀이 연결된 Exposed [Database]
+     * @param chunkSize 청크 크기 (기본값: 500)
      */
-    private fun makeJob(testDB: TestDB, chunkSize: Int = 500) = batchJob("benchmarkJob") {
-        repository(ExposedJdbcBatchJobRepository(testDB.db!!, CheckpointJson.jackson3()))
+    private fun makeJob(database: Database, chunkSize: Int = 500) = batchJob("benchmarkJob") {
+        repository(ExposedJdbcBatchJobRepository(database, CheckpointJson.jackson3()))
         step<SourceRecord, TargetRecord>("readAndWrite") {
             reader(ExposedJdbcBatchReader(
-                database = testDB.db!!,
+                database = database,
                 table = BatchSourceTable,
                 keyColumn = BatchSourceTable.id,
                 pageSize = chunkSize,
@@ -103,7 +111,7 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
                 keyExtractor = { it.id },
             ))
             processor { src -> TargetRecord(src.name.uppercase(), src.value * 2) }
-            writer(ExposedJdbcBatchWriter(testDB.db!!, BatchTargetTable) { record ->
+            writer(ExposedJdbcBatchWriter(database, BatchTargetTable) { record ->
                 this[BatchTargetTable.sourceName] = record.sourceName
                 this[BatchTargetTable.transformedValue] = record.transformedValue
             })
@@ -113,6 +121,8 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
 
     /**
      * JDBC 배치 벤치마크: DB 종류 × 데이터 사이즈 조합별 처리량 측정.
+     *
+     * HikariCP 커넥션 풀을 직접 구성하여 r2dbc-pool 벤치마크와 공정하게 비교한다.
      *
      * @param testDB 대상 DB
      * @param sizeLabel 데이터 사이즈 레이블 (소/중/대)
@@ -125,14 +135,31 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
         sizeLabel: String,
         dataSize: Int,
     ) {
-        withTables(testDB, *allTables) {
-            val insertMs = insertSourceData(testDB, dataSize)
-            // runSuspendIO는 Dispatchers.IO로 전환하므로 ThreadLocal 트랜잭션이 끊긴다.
-            // 삽입 데이터를 커밋해야 새 트랜잭션(T2)에서 읽힌다.
-            commit()
+        // HikariCP 커넥션 풀 구성 — r2dbc-pool 과 동일한 풀 크기로 공정 비교
+        testDB.beforeConnection()
+        val dataSource = HikariDataSource(HikariConfig().apply {
+            jdbcUrl = testDB.connection()
+            driverClassName = testDB.driver
+            if (testDB.user.isNotEmpty()) username = testDB.user
+            if (testDB.pass.isNotEmpty()) password = testDB.pass
+            maximumPoolSize = 10
+            minimumIdle = 2
+            connectionTimeout = 30_000
+            poolName = "bench-jdbc-${testDB.name.lowercase()}"
+        })
+        val database = Database.connect(dataSource)
+
+        try {
+            // 테이블 생성
+            transaction(database) {
+                SchemaUtils.drop(*allTables)
+                SchemaUtils.create(*allTables)
+            }
+
+            val insertMs = insertSourceData(database, dataSize)
             log.info { "[JDBC-$testDB / $sizeLabel (${dataSize}건)] 삽입: ${insertMs}ms" }
 
-            val job = makeJob(testDB)
+            val job = makeJob(database)
             var report: BatchReport? = null
             val jobMs = measureTimeMillis {
                 runSuspendIO { report = job.run() }
@@ -148,6 +175,9 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
                     "read=${stepReport.readCount}, write=${stepReport.writeCount}, " +
                     "처리량=${throughput}건/s"
             }
+        } finally {
+            runCatching { transaction(database) { SchemaUtils.drop(*allTables) } }
+            runCatching { dataSource.close() }
         }
     }
 }

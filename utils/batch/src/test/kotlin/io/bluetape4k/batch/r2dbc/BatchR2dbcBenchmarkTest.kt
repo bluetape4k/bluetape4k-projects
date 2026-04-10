@@ -10,13 +10,18 @@ import io.bluetape4k.batch.internal.CheckpointJson
 import io.bluetape4k.batch.jdbc.tables.BatchJobExecutionTable
 import io.bluetape4k.batch.jdbc.tables.BatchStepExecutionTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.pool.ConnectionPoolConfiguration
+import io.r2dbc.spi.ConnectionFactories
+import io.r2dbc.spi.ConnectionFactoryOptions
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
+import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.junit.jupiter.params.ParameterizedTest
@@ -28,6 +33,8 @@ import kotlin.system.measureTimeMillis
  *
  * DB 종류 (H2 / PostgreSQL / MySQL) × 데이터 사이즈 (소 100 / 중 10,000 / 대 100,000) 조합으로
  * R2DBC 배치 파이프라인의 읽기·쓰기 처리량을 측정한다.
+ *
+ * **r2dbc-pool 커넥션 풀**을 사용하여 JDBC (HikariCP) 벤치마크와 공정하게 비교한다.
  *
  * 측정 항목:
  * - 소스 데이터 적재 시간 (R2DBC batchInsert)
@@ -66,7 +73,7 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
     /**
      * R2DBC batchInsert로 소스 데이터를 일괄 적재한다.
      *
-     * @param database R2DBC 데이터베이스
+     * @param database r2dbc-pool이 연결된 [R2dbcDatabase]
      * @param count 삽입할 레코드 수
      * @return 소요 시간(ms)
      */
@@ -89,6 +96,9 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
 
     /**
      * 배치 Job을 생성한다.
+     *
+     * @param database r2dbc-pool이 연결된 [R2dbcDatabase]
+     * @param chunkSize 청크 크기 (기본값: 500)
      */
     private fun makeJob(database: R2dbcDatabase, chunkSize: Int = 500) = batchJob("benchmarkJob") {
         repository(ExposedR2dbcBatchJobRepository(database, CheckpointJson.jackson3()))
@@ -119,6 +129,8 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
     /**
      * R2DBC 배치 벤치마크: DB 종류 × 데이터 사이즈 조합별 처리량 측정.
      *
+     * r2dbc-pool 커넥션 풀을 직접 구성하여 HikariCP JDBC 벤치마크와 공정하게 비교한다.
+     *
      * @param testDB 대상 DB
      * @param sizeLabel 데이터 사이즈 레이블 (소/중/대)
      * @param dataSize 실제 레코드 수
@@ -131,8 +143,29 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
         dataSize: Int,
     ) {
         runSuspendIO {
-            withTables(testDB, *allTables) { db ->
-                val database = db.db!!
+            // r2dbc-pool 커넥션 풀 구성 — HikariCP 와 동일한 풀 크기로 공정 비교
+            testDB.beforeConnection()
+            val url = testDB.connection()
+            val options = ConnectionFactoryOptions.parse(url)
+            val connectionFactory = ConnectionFactories.get(options)
+            val pool = ConnectionPool(
+                ConnectionPoolConfiguration.builder(connectionFactory)
+                    .maxSize(10)
+                    .initialSize(2)
+                    .build()
+            )
+            val config = R2dbcDatabaseConfig {
+                this.connectionFactoryOptions = options
+                testDB.dbConfig.invoke(this)
+            }
+            val database = R2dbcDatabase.connect(pool, databaseConfig = config)
+
+            try {
+                // 테이블 생성
+                suspendTransaction(db = database) {
+                    SchemaUtils.drop(*allTables)
+                    SchemaUtils.create(*allTables)
+                }
 
                 val insertMs = insertSourceData(database, dataSize)
                 log.info { "[R2DBC-$testDB / $sizeLabel (${dataSize}건)] 삽입: ${insertMs}ms" }
@@ -153,6 +186,9 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
                         "read=${stepReport.readCount}, write=${stepReport.writeCount}, " +
                         "처리량=${throughput}건/s"
                 }
+            } finally {
+                runCatching { suspendTransaction(db = database) { SchemaUtils.drop(*allTables) } }
+                runCatching { pool.close() }
             }
         }
     }
