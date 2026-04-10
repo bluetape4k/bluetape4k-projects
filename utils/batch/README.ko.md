@@ -1,5 +1,7 @@
 # bluetape4k-batch
 
+한국어 | [English](./README.md)
+
 Kotlin 코루틴 네이티브 배치 처리 프레임워크. Spring Batch 없이 경량화된 체크포인트 기반 청크 처리 파이프라인을 구현한다.
 
 ## 아키텍처

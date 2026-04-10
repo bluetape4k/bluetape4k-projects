@@ -1,5 +1,7 @@
 # bluetape4k-batch
 
+[한국어](./README.ko.md) | English
+
 A coroutine-native batch processing framework for Kotlin. Implements a lightweight, checkpointable chunk-oriented pipeline — no Spring Batch required.
 
 ## Architecture
