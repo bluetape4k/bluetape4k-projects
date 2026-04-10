@@ -196,6 +196,7 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `leader` | Leader election |
 | `math` | Math utilities |
 | `measured` | Type-safe units + measurements |
+| `batch` | 코루틴 네이티브 배치 프레임워크 — `BatchJob/Step/Runner`, `BatchReader/Writer/Processor`, `SkipPolicy`, `InMemoryBatchJobRepository`, `ExposedJdbcBatchJobRepository`, `ExposedR2dbcBatchJobRepository`, keyset 페이징 Reader/Writer, checkpoint 재시작, Workflow 통합 |
 | `money` | Money/currency types |
 | `mutiny` | Mutiny reactive extensions |
 | `states` | Kotlin DSL FSM — 동기(AtomicReference CAS) + 코루틴(Mutex+StateFlow), Guard 조건, clinic-appointment 패턴 |
