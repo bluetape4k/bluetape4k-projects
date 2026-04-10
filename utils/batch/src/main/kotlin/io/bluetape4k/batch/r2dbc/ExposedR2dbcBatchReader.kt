@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.greater
+import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.andWhere
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -49,6 +50,8 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
  * @param pageSize 페이지당 조회 크기 (양수)
  * @param rowMapper ResultRow → T 변환 함수
  * @param keyExtractor T → K 키 추출 함수
+ * @param minKey 파티션 시작 키 (exclusive) — null이면 처음부터 읽음. 병렬 처리 시 파티션 하한 설정에 사용.
+ * @param maxKey 파티션 종료 키 (inclusive) — null이면 끝까지 읽음. 병렬 처리 시 파티션 상한 설정에 사용.
  */
 class ExposedR2dbcBatchReader<K : Comparable<K>, T : Any>(
     private val database: R2dbcDatabase,
@@ -57,18 +60,28 @@ class ExposedR2dbcBatchReader<K : Comparable<K>, T : Any>(
     private val pageSize: Int = BatchDefaults.READER_PAGE_SIZE,
     private val rowMapper: suspend (ResultRow) -> T,
     private val keyExtractor: (T) -> K,
+    private val minKey: K? = null,
+    private val maxKey: K? = null,
 ) : BatchReader<T> {
 
     companion object : KLoggingChannel()
 
     private val buffer = ArrayDeque<T>()
-    private var lastFetchedKey: K? = null
+    private var lastFetchedKey: K? = minKey
     private var lastReadKey: K? = null
     private var lastCommittedKey: K? = null
     private var exhausted = false
 
     init {
         pageSize.requirePositiveNumber("pageSize")
+    }
+
+    override suspend fun open() {
+        buffer.clear()
+        lastFetchedKey = minKey
+        lastReadKey = null
+        lastCommittedKey = null
+        exhausted = false
     }
 
     override suspend fun read(): T? {
@@ -105,6 +118,9 @@ class ExposedR2dbcBatchReader<K : Comparable<K>, T : Any>(
             val query = table.selectAll()
             lastFetchedKey?.let { key ->
                 query.andWhere { keyColumn greater key }
+            }
+            maxKey?.let { max ->
+                query.andWhere { keyColumn lessEq max }
             }
             query.orderBy(keyColumn, SortOrder.ASC)
                 .limit(pageSize)

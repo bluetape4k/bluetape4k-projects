@@ -224,8 +224,9 @@ SkipPolicy { e, count -> e is DataException && count < 50 }  // custom
 > **Environment**: Apple M4 Pro · Testcontainers (PostgreSQL 16, MySQL 8) · chunkSize=500 · pageSize=500
 > **Connection pools**: JDBC=HikariCP(max=10) · R2DBC=r2dbc-pool(max=10) — equal pool size for fair comparison
 > **Data sizes**: Small=100 rows, Medium=10,000 rows, Large=100,000 rows
+> **Parallel mode**: 4 coroutine partitions running concurrently (key-range split)
 
-### JDBC vs R2DBC Throughput Comparison (rows/s)
+### Sequential: JDBC vs R2DBC Throughput (rows/s)
 
 #### H2 (in-memory)
 
@@ -233,43 +234,71 @@ SkipPolicy { e, count -> e is DataException && count < 50 }  // custom
 |------|-----:|------:|------:|
 | Small (100) | 1,333 | 3,448 | R2DBC 2.6× |
 | Medium (10,000) | 66,225 | 41,841 | JDBC 1.6× |
-| Large (100,000) | 136,798 | 96,993 | JDBC 1.4× |
+| Large (100,000) | 188,679 | 106,269 | JDBC 1.8× |
 
 #### PostgreSQL 16
 
 | Size | JDBC | R2DBC | Ratio |
 |------|-----:|------:|------:|
 | Small (100) | 5,555 | 740 | JDBC 7.5× |
-| Medium (10,000) | 61,349 | 3,669 | JDBC 16.7× |
-| Large (100,000) | 72,046 | 3,185 | JDBC 22.6× |
+| Medium (10,000) | 65,359 | 3,247 | JDBC 20.1× |
+| Large (100,000) | 78,064 | 3,130 | JDBC 24.9× |
 
 #### MySQL 8
 
 | Size | JDBC | R2DBC | Ratio |
 |------|-----:|------:|------:|
 | Small (100) | 1,754 | 1,388 | JDBC 1.3× |
-| Medium (10,000) | 35,587 | 4,269 | JDBC 8.3× |
-| Large (100,000) | 48,053 | 4,061 | JDBC 11.8× |
+| Medium (10,000) | 34,364 | 3,671 | JDBC 9.4× |
+| Large (100,000) | 54,229 | 3,914 | JDBC 13.9× |
 
-### Elapsed Time (ms)
+### Parallel (4 Partitions): JDBC vs R2DBC Throughput (rows/s)
 
-| DB | Mode | Small (100) | Medium (10,000) | Large (100,000) |
-|----|------|------------:|----------------:|----------------:|
-| H2 | JDBC | 75 | 151 | 731 |
-| H2 | R2DBC | 29 | 239 | 1,031 |
-| PostgreSQL | JDBC | 18 | 163 | 1,388 |
-| PostgreSQL | R2DBC | 135 | 2,725 | 31,394 |
-| MySQL 8 | JDBC | 57 | 281 | 2,081 |
-| MySQL 8 | R2DBC | 72 | 2,342 | 24,624 |
+> Each partition runs as an independent coroutine with its own key-range reader.
+> Parallel pool sizes: JDBC=HikariCP(max=12), R2DBC=r2dbc-pool(max=12).
+
+#### H2 (in-memory)
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Large (100,000) | 173,010 | 202,020 | **R2DBC 1.2×** |
+
+#### PostgreSQL 16
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Medium (10,000) | 113,636 | 10,152 | JDBC 11.2× |
+| Large (100,000) | 123,456 | 11,049 | JDBC 11.2× |
+
+#### MySQL 8
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Medium (10,000) | 75,187 | 9,345 | JDBC 8.0× |
+| Large (100,000) | 131,578 | 11,012 | JDBC 12.0× |
+
+### Sequential vs Parallel Speedup
+
+| DB | Size | JDBC seq | JDBC 4× | Speedup | R2DBC seq | R2DBC 4× | Speedup |
+|----|------|--------:|--------:|--------:|----------:|---------:|--------:|
+| H2 | Large | 188,679 | 173,010 | 0.9× | 106,269 | 202,020 | **1.9×** |
+| PostgreSQL | Medium | 65,359 | 113,636 | **1.7×** | 3,247 | 10,152 | **3.1×** |
+| PostgreSQL | Large | 78,064 | 123,456 | **1.6×** | 3,130 | 11,049 | **3.5×** |
+| MySQL | Medium | 34,364 | 75,187 | **2.2×** | 3,671 | 9,345 | **2.5×** |
+| MySQL | Large | 54,229 | 131,578 | **2.4×** | 3,914 | 11,012 | **2.8×** |
 
 ### Summary
 
-- **Small workloads (100 rows)**: R2DBC wins only on H2 (2.6×); JDBC wins on PostgreSQL and MySQL
-- **Medium/Large workloads (10,000+ rows)**: JDBC (HikariCP + VirtualThread) consistently outperforms R2DBC
-  - PostgreSQL: JDBC is **16–22×** faster than R2DBC
-  - MySQL: JDBC is **8–12×** faster than R2DBC (MySQL R2DBC driver round-trip overhead)
-- **H2 in-memory**: R2DBC is faster for small; JDBC is faster for medium/large (pure processing overhead, no network)
-- **Recommendation**: Use `ExposedJdbcBatchReader/Writer` for network databases (PostgreSQL/MySQL) with high throughput requirements; use `ExposedR2dbcBatchReader/Writer` for fully async WebFlux pipelines where thread blocking is not acceptable
+- **Sequential — network DBs**: JDBC (VirtualThread) outperforms R2DBC by 10–25× for PostgreSQL/MySQL due to driver round-trip overhead
+- **Sequential — H2 in-memory**: JDBC leads for medium/large; R2DBC edges ahead only for tiny (100-row) batches
+- **Parallel (4 coroutines)**: Both JDBC and R2DBC benefit significantly from partitioned parallelism on network DBs
+  - PostgreSQL JDBC: **1.6× speedup** · R2DBC: **3.5× speedup** (gap narrows but JDBC still 11× ahead)
+  - MySQL JDBC: **2.4× speedup** · R2DBC: **2.8× speedup**
+- **H2 + R2DBC parallel**: R2DBC wins (202,020 vs 173,010 rows/s) — async event loop shines without network latency
+- **Recommendation**:
+  - Network DBs (PostgreSQL/MySQL), high throughput → `ExposedJdbcBatchReader/Writer` + parallel partitioning
+  - Fully async WebFlux pipelines where thread blocking is unacceptable → `ExposedR2dbcBatchReader/Writer` + parallel partitioning
+  - H2 (testing/embedded) → both are fine; R2DBC has a slight edge with parallelism
 
 ## Module Dependencies
 
