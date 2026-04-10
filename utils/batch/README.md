@@ -307,11 +307,17 @@ This structure eliminates R2DBC's non-blocking advantage:
 
 In short: R2DBC's strengths (non-blocking I/O, backpressure, reactive streams) only pay off when many concurrent requests overlap. In a sequential chunk loop, JDBC + VirtualThread is a strictly better fit.
 
-### Recommendation by Use Case
+### Recommendation
+
+**The winning formula for high-throughput batch on network DBs is:**
+
+> **JDBC + Virtual Threads + Parallel Partitioning**
+
+This holds regardless of the batch framework — Spring Batch or bluetape4k-batch both benefit from the same combination.
 
 | Use Case | Stack |
 |----------|-------|
-| Network DB (PostgreSQL/MySQL) high-throughput batch | **Spring Batch + Exposed JDBC + VirtualThread** (`ExposedKeysetItemReader`, `ExposedRangePartitioner`) |
+| Network DB (PostgreSQL/MySQL) high-throughput batch | **Exposed JDBC + VirtualThread + parallel partitions** (Spring Batch or bluetape4k-batch) |
 | Fully async WebFlux pipeline (thread blocking not allowed) | `ExposedR2dbcBatchReader/Writer` + parallel partitioning |
 | Lightweight embedding (no Spring, CLI/serverless) | `bluetape4k-batch` with `InMemoryBatchJobRepository` |
 | H2 (testing / embedded DB) | Either; R2DBC has a slight parallel edge |

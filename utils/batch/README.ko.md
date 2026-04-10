@@ -318,11 +318,17 @@ STARTING → RUNNING → COMPLETED
 
 요약하면: R2DBC의 강점(논블로킹 I/O, 백프레셔, 리액티브 스트림)은 다수의 동시 요청이 겹칠 때 효과를 발휘한다. 순차 청크 루프에서는 JDBC + VirtualThread가 구조적으로 더 적합하다.
 
-### 사용 사례별 권장 스택
+### 권장 사항
+
+**네트워크 DB 대용량 배치의 최적 조합:**
+
+> **JDBC + Virtual Threads + 병렬 파티셔닝**
+
+Spring Batch든 bluetape4k-batch든 프레임워크와 무관하게 이 조합이 최고 처리량을 낸다.
 
 | 사용 사례 | 권장 스택 |
 |----------|---------|
-| 네트워크 DB(PostgreSQL/MySQL) 대용량 배치 | **Spring Batch + Exposed JDBC + VirtualThread** (`ExposedKeysetItemReader`, `ExposedRangePartitioner`) |
+| 네트워크 DB(PostgreSQL/MySQL) 대용량 배치 | **Exposed JDBC + VirtualThread + 병렬 파티션** (Spring Batch 또는 bluetape4k-batch) |
 | 완전 비동기 WebFlux 파이프라인 (스레드 블로킹 불가) | `ExposedR2dbcBatchReader/Writer` + 병렬 파티셔닝 |
 | 경량 임베딩 (Spring 없음, CLI/서버리스) | `bluetape4k-batch` + `InMemoryBatchJobRepository` |
 | H2 (테스트/임베디드 DB) | 양쪽 모두 가능; 병렬 시 R2DBC 소폭 우세 |
