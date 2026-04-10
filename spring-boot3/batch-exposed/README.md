@@ -91,7 +91,7 @@ sequenceDiagram
 - **`ExposedKeysetItemReader<T>`** — Keyset pagination reader
   - `WHERE column > lastKey AND column <= maxId ORDER BY column LIMIT pageSize`
   - Persists `lastKey` in `ExecutionContext` for restart support
-  - Thread-safe with `@Synchronized read()`
+  - Thread-safe with `reentrantLock().withLock { ... }` in `read()` (Virtual Thread-friendly)
   - Factory: `forEntityId(table, pageSize, rowMapper, database)`
 
 - **`ExposedItemWriter<T>`** — Batch INSERT via Exposed `batchInsert`

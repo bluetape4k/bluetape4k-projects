@@ -91,7 +91,7 @@ sequenceDiagram
 - **`ExposedKeysetItemReader<T>`** — Keyset 페이지 읽기 Reader
   - `WHERE column > lastKey AND column <= maxId ORDER BY column LIMIT pageSize`
   - 재시작 시 `lastKey`를 `ExecutionContext`에 저장하여 마지막 위치부터 재개
-  - `@Synchronized read()`로 스레드 안전 보장
+  - `read()`에서 `reentrantLock().withLock { ... }`로 스레드 안전 보장 (Virtual Thread 친화적)
   - 팩토리: `forEntityId(table, pageSize, rowMapper, database)`
 
 - **`ExposedItemWriter<T>`** — Exposed `batchInsert` 기반 대량 INSERT

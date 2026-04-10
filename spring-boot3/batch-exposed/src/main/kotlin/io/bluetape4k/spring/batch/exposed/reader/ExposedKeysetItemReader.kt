@@ -4,6 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.support.castToLong
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -26,7 +28,7 @@ import org.springframework.beans.factory.InitializingBean
  * - `WHERE [column] > lastKey AND [column] <= maxId ORDER BY [column] ASC LIMIT [pageSize]`
  * - lastKey를 [ExecutionContext]에 저장하여 restart 시 마지막 위치부터 재개
  * - 파티션별 독립 인스턴스이므로 thread-safety 보장
- * - synchronized `read()` 구현 (Spring Batch 컨벤션 준수)
+ * - `reentrantLock().withLock { ... }` 기반 `read()` 상호배제 구현 (Virtual Thread 친화적)
  *
  * @param T 반환 타입
  * @param database Exposed [Database] (null이면 SpringTransactionManager 현재 트랜잭션 참여)
@@ -82,6 +84,7 @@ open class ExposedKeysetItemReader<T>(
     private val buffer: MutableList<Pair<Long, T>> = mutableListOf()
     private var bufferIndex: Int = 0
     private var exhausted: Boolean = false
+    private val lock = reentrantLock()
 
     override fun afterPropertiesSet() {
         require(pageSize > 0) { "pageSize must be positive" }
@@ -98,21 +101,22 @@ open class ExposedKeysetItemReader<T>(
         }
     }
 
-    @Synchronized
     override fun read(): T? {
-        if (exhausted) return null
+        lock.withLock {
+            if (exhausted) return null
 
-        if (bufferIndex >= buffer.size) {
-            fetchNextPage()
-            if (buffer.isEmpty()) {
-                exhausted = true
-                return null
+            if (bufferIndex >= buffer.size) {
+                fetchNextPage()
+                if (buffer.isEmpty()) {
+                    exhausted = true
+                    return null
+                }
             }
-        }
 
-        val (key, item) = buffer[bufferIndex++]
-        lastKey = key
-        return item
+            val (key, item) = buffer[bufferIndex++]
+            lastKey = key
+            return item
+        }
     }
 
     override fun update(executionContext: ExecutionContext) {
