@@ -295,10 +295,26 @@ SkipPolicy { e, count -> e is DataException && count < 50 }  // custom
   - PostgreSQL JDBC: **1.6× speedup** · R2DBC: **3.5× speedup** (gap narrows but JDBC still 11× ahead)
   - MySQL JDBC: **2.4× speedup** · R2DBC: **2.8× speedup**
 - **H2 + R2DBC parallel**: R2DBC wins (202,020 vs 173,010 rows/s) — async event loop shines without network latency
-- **Recommendation**:
-  - Network DBs (PostgreSQL/MySQL), high throughput → `ExposedJdbcBatchReader/Writer` + parallel partitioning
-  - Fully async WebFlux pipelines where thread blocking is unacceptable → `ExposedR2dbcBatchReader/Writer` + parallel partitioning
-  - H2 (testing/embedded) → both are fine; R2DBC has a slight edge with parallelism
+
+### Why JDBC Wins in Batch Workloads
+
+Chunk-oriented batch pipelines are inherently sequential within each chunk: `read → process → write → checkpoint`.
+This structure eliminates R2DBC's non-blocking advantage:
+
+- **R2DBC driver round-trip cost** (~300 µs/req for PostgreSQL) accumulates across thousands of chunks and becomes the dominant bottleneck
+- **Virtual Threads hide JDBC blocking for free** — each chunk runs in its own virtual thread with no OS thread overhead, giving JDBC the concurrency benefit R2DBC was supposed to provide
+- The chunk loop `await`s each write before moving to the next checkpoint, so async pipelining never kicks in
+
+In short: R2DBC's strengths (non-blocking I/O, backpressure, reactive streams) only pay off when many concurrent requests overlap. In a sequential chunk loop, JDBC + VirtualThread is a strictly better fit.
+
+### Recommendation by Use Case
+
+| Use Case | Stack |
+|----------|-------|
+| Network DB (PostgreSQL/MySQL) high-throughput batch | **Spring Batch + Exposed JDBC + VirtualThread** (`ExposedKeysetItemReader`, `ExposedRangePartitioner`) |
+| Fully async WebFlux pipeline (thread blocking not allowed) | `ExposedR2dbcBatchReader/Writer` + parallel partitioning |
+| Lightweight embedding (no Spring, CLI/serverless) | `bluetape4k-batch` with `InMemoryBatchJobRepository` |
+| H2 (testing / embedded DB) | Either; R2DBC has a slight parallel edge |
 
 ## Module Dependencies
 

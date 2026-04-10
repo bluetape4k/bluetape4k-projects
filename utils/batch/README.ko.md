@@ -306,10 +306,26 @@ STARTING → RUNNING → COMPLETED
   - PostgreSQL JDBC: **1.6×** · R2DBC: **3.5×** (격차 축소, JDBC 여전히 11× 앞섬)
   - MySQL JDBC: **2.4×** · R2DBC: **2.8×**
 - **H2 + R2DBC 병렬**: R2DBC 승리(202,020 vs 173,010건/s) — 네트워크 없이 비동기 이벤트 루프의 강점이 발휘됨
-- **권장**:
-  - 네트워크 DB(PostgreSQL/MySQL) 대용량 처리 → `ExposedJdbcBatchReader/Writer` + 병렬 파티셔닝
-  - 완전 비동기 WebFlux 파이프라인 (스레드 블로킹 불가) → `ExposedR2dbcBatchReader/Writer` + 병렬 파티셔닝
-  - H2 (테스트/임베디드) → 양쪽 모두 무방; 병렬 시 R2DBC 소폭 우세
+
+### 배치에서 JDBC가 유리한 이유
+
+청크 기반 배치 파이프라인은 청크 내부에서 `read → process → write → checkpoint` 가 본질적으로 직렬이다.
+이 구조가 R2DBC의 논블로킹 장점을 무력화한다:
+
+- **R2DBC 드라이버 왕복 비용** (PostgreSQL 기준 ~300 µs/req)이 수천 건의 청크에 걸쳐 누적되어 병목이 된다
+- **Virtual Thread는 JDBC 블로킹을 공짜로 숨겨준다** — 각 청크는 OS 스레드 오버헤드 없이 가상 스레드에서 실행되므로, R2DBC가 제공하려 했던 동시성 이득을 JDBC가 대신 확보한다
+- 청크 루프는 다음 체크포인트로 넘어가기 전에 매 write를 `await`하므로, 비동기 파이프라이닝이 실제로 발동되지 않는다
+
+요약하면: R2DBC의 강점(논블로킹 I/O, 백프레셔, 리액티브 스트림)은 다수의 동시 요청이 겹칠 때 효과를 발휘한다. 순차 청크 루프에서는 JDBC + VirtualThread가 구조적으로 더 적합하다.
+
+### 사용 사례별 권장 스택
+
+| 사용 사례 | 권장 스택 |
+|----------|---------|
+| 네트워크 DB(PostgreSQL/MySQL) 대용량 배치 | **Spring Batch + Exposed JDBC + VirtualThread** (`ExposedKeysetItemReader`, `ExposedRangePartitioner`) |
+| 완전 비동기 WebFlux 파이프라인 (스레드 블로킹 불가) | `ExposedR2dbcBatchReader/Writer` + 병렬 파티셔닝 |
+| 경량 임베딩 (Spring 없음, CLI/서버리스) | `bluetape4k-batch` + `InMemoryBatchJobRepository` |
+| H2 (테스트/임베디드 DB) | 양쪽 모두 가능; 병렬 시 R2DBC 소폭 우세 |
 
 ## 모듈 의존성
 
