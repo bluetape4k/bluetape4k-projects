@@ -76,6 +76,10 @@ flowchart TD
 - **조합 가능**: 워크플로우 내에 워크플로우 중첩으로 임의 복잡도 구성
 - **에러 전략**: `STOP`(즉시 중단) 또는 `CONTINUE`(부분 성공)
 - **재시도 백오프**: 지수 백오프 정책으로 복원력 제공
+- **Cancellation 인지 코루틴 플로우**: suspend 플로우는 `CancellationException`을 `WorkReport.Failure`로 바꾸지 않고 다시 던집니다
+- **실행 모델 비교 benchmark**: 동일한 주문 처리 시나리오로 동기(Virtual Threads)와 코루틴 워크플로 실행 시간을 비교하는 예제 benchmark 테스트를 제공합니다
+  - 최근 측정 예시(2026-04-11): normal scenario sync=43.989ms, suspend=46.153ms, ratio=1.07
+  - 최근 측정 예시(2026-04-11): retry+poll scenario sync=264.568ms, suspend=251.904ms, ratio=0.95
 - **WorkContext**: 작업 간 상태 공유용 Mutable Map
 
 ## WorkStatus & WorkReport
@@ -364,6 +368,16 @@ val report = flow.execute(ctx)
 
 - **`ErrorStrategy.STOP`** (기본값): 첫 번째 실패 시 즉시 중단
 - **`ErrorStrategy.CONTINUE`**: 다음 작업으로 진행하며 실패 누적 (PartialSuccess)
+
+## Virtual Threads vs Coroutines
+
+이 모듈의 최근 benchmark 결과만 보면, 어느 한 실행 모델이 항상 더 빠르다고 보기는 어렵습니다.
+
+- 단순 주문 처리 시나리오에서는 Virtual Threads가 약간 더 빨랐습니다.
+- retry + polling 시나리오에서는 coroutines가 약간 더 빨랐습니다.
+- 실제로는 두 모델의 차이가 크지 않았고, 실행 모델 자체보다 워크플로 모양과 I/O 패턴의 영향이 더 컸습니다.
+
+따라서 이 benchmark는 현재 예제 기준의 상대 비교로 보는 것이 적절하며, 일반적인 성능 우위를 의미하지는 않습니다. 실제 서비스에서는 DB, HTTP, 외부 API를 포함한 환경에서 다시 측정하는 것을 권장합니다.
 
 ## 의존성
 

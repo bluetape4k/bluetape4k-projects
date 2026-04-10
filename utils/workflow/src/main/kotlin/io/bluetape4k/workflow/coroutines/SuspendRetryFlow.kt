@@ -8,6 +8,7 @@ import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -61,6 +62,7 @@ class SuspendRetryFlow(
 
             lastReport = runCatching { work.execute(context) }
                 .getOrElse { e ->
+                    if (e is CancellationException) throw e
                     log.debug { "$flowName: '$workName' 시도 #$attempt 예외 발생 - ${e.message}" }
                     WorkReport.Failure(context, e)
                 }

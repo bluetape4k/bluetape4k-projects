@@ -6,6 +6,7 @@ import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+import kotlinx.coroutines.CancellationException
 
 /**
  * 조건에 따라 분기 실행하는 코루틴 워크플로입니다.
@@ -39,6 +40,7 @@ class SuspendConditionalFlow(
     override suspend fun execute(context: WorkContext): WorkReport {
         val condition = runCatching { predicate(context) }
             .getOrElse { e ->
+                if (e is CancellationException) throw e
                 log.debug { "$flowName: 조건 평가 중 예외 발생 - ${e.message}" }
                 return WorkReport.Failure(context, e)
             }
@@ -49,6 +51,7 @@ class SuspendConditionalFlow(
             log.debug { "$flowName: thenWork 실행" }
             runCatching { thenWork.execute(context) }
                 .getOrElse { e ->
+                    if (e is CancellationException) throw e
                     log.debug { "$flowName: thenWork 예외 발생 - ${e.message}" }
                     WorkReport.Failure(context, e)
                 }
@@ -58,6 +61,7 @@ class SuspendConditionalFlow(
                 log.debug { "$flowName: otherwiseWork 실행" }
                 runCatching { elseWork.execute(context) }
                     .getOrElse { e ->
+                        if (e is CancellationException) throw e
                         log.debug { "$flowName: otherwiseWork 예외 발생 - ${e.message}" }
                         WorkReport.Failure(context, e)
                     }

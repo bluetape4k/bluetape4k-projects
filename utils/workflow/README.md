@@ -74,6 +74,10 @@ flowchart TD
 - **Composable**: nest flows within flows for arbitrary complexity
 - **Error strategies**: `STOP` (fail fast) or `CONTINUE` (partial success)
 - **Retry with backoff**: exponential backoff policy for resilience
+- **Cancellation-aware coroutine flows**: suspend flows rethrow `CancellationException` instead of converting it to `WorkReport.Failure`
+- **Execution model comparison benchmark**: example benchmark tests compare sync(Virtual Threads) and coroutine workflows with the same order-processing scenario
+  - Recent sample measurement (2026-04-11): normal scenario sync=43.989ms, suspend=46.153ms, ratio=1.07
+  - Recent sample measurement (2026-04-11): retry+poll scenario sync=264.568ms, suspend=251.904ms, ratio=0.95
 - **WorkContext**: shared mutable map for inter-task communication
 
 ## WorkStatus & WorkReport
@@ -362,6 +366,16 @@ val report = flow.execute(ctx)
 
 - **`ErrorStrategy.STOP`** (default): Stop execution immediately on first failure
 - **`ErrorStrategy.CONTINUE`**: Continue to next task, accumulate failures in `PartialSuccess`
+
+## Virtual Threads vs Coroutines
+
+Recent benchmark runs in this module show that neither model is uniformly faster.
+
+- In the simple order-processing scenario, Virtual Threads were slightly faster.
+- In the retry + polling scenario, coroutines were slightly faster.
+- In practice, both models were close enough that workflow shape and I/O pattern mattered more than the execution model itself.
+
+Use this benchmark as a relative comparison for the current examples, not as a universal performance claim. For real services, measure again with actual database, HTTP, and production-like I/O.
 
 ## Dependency
 

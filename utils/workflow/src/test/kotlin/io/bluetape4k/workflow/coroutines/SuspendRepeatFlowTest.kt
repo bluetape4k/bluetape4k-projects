@@ -150,4 +150,23 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
         report.isSuccess.shouldBeTrue()
         ctx.get<Int>("count") shouldBeEqualTo 5
     }
+
+    @Test
+    fun `repeatPredicate 는 반복마다 한 번만 평가된다`() = runTest {
+        val predicateCalls = AtomicInteger(0)
+        val flow = SuspendRepeatFlow(
+            work = SuspendWork("count-work") { ctx -> WorkReport.success(ctx) },
+            repeatPredicate = {
+                predicateCalls.incrementAndGet()
+                predicateCalls.get() < 3
+            },
+            maxIterations = 10,
+            repeatDelay = 0.milliseconds,
+        )
+
+        val report = flow.execute(context)
+
+        report.isSuccess.shouldBeTrue()
+        predicateCalls.get() shouldBeEqualTo 3
+    }
 }

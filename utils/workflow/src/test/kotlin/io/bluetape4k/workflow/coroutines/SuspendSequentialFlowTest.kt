@@ -5,12 +5,15 @@ import io.bluetape4k.workflow.api.ErrorStrategy
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
+import kotlin.test.assertFailsWith
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -136,25 +139,21 @@ class SuspendSequentialFlowTest: AbstractWorkflowTest() {
     }
 
     @Test
-    fun `코루틴 취소 전파 - cancel 호출 시 CancellationException 전파`() = runTest {
-        val counter = AtomicInteger(0)
-        val job = launch {
-            val works = (1..5).map { i ->
-                SuspendWork("work-$i") { ctx ->
-                    counter.incrementAndGet()
-                    WorkReport.success(ctx)
-                }
-            }
-            val flow = SuspendSequentialFlow(works)
+    fun `작업 실행 중 CancellationException 은 삼키지 않고 전파한다`() = runTest {
+        val flow = SuspendSequentialFlow(
+            works = listOf(
+                SuspendWork("cancel-work") {
+                    delay(10)
+                    throw CancellationException("cancel")
+                },
+            ),
+        )
+
+        val error = assertFailsWith<CancellationException> {
             flow.execute(WorkContext())
         }
 
-        // 즉시 취소
-        job.cancel("테스트 취소")
-        job.join()
-
-        // 취소 후에는 카운터가 5 미만이거나 0일 수 있음
-        counter.get() < 5 || counter.get() == 0
+        error.message shouldBeEqualTo "cancel"
     }
 
     @Test

@@ -8,6 +8,7 @@ import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
@@ -74,6 +75,7 @@ class SuspendParallelFlow(
                     log.debug { "$flowName: '$workName' 병렬 실행 시작 (ALL)" }
                     val report = runCatching { work.execute(context) }
                         .getOrElse { e ->
+                            if (e is CancellationException) throw e
                             log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
                             WorkReport.Failure(context, e)
                         }
@@ -106,6 +108,7 @@ class SuspendParallelFlow(
                     log.debug { "$flowName: '$workName' 병렬 실행 시작 (ANY)" }
                     val report = runCatching { work.execute(context) }
                         .getOrElse { e ->
+                            if (e is CancellationException) throw e
                             log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
                             WorkReport.Failure(context, e)
                         }
