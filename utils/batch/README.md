@@ -219,6 +219,57 @@ SkipPolicy { e, count -> e is DataException && count < 50 }  // custom
 3. On restart, the checkpoint is restored via `reader.restoreFrom(checkpoint)` before the chunk loop begins
 4. `TypedCheckpoint` envelope (Jackson 3) ensures type-safe round-trip for all serializable types
 
+## Benchmarks
+
+> **Environment**: Apple M4 Pro · Testcontainers (PostgreSQL 16, MySQL 8) · chunkSize=500 · pageSize=500
+> **Data sizes**: Small=100 rows, Medium=10,000 rows, Large=100,000 rows
+
+### JDBC vs R2DBC Throughput Comparison (rows/s)
+
+#### H2 (in-memory)
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Small (100) | 1,250 | 4,000 | R2DBC 3.2× |
+| Medium (10,000) | 62,111 | 35,087 | JDBC 1.8× |
+| Large (100,000) | 126,742 | 90,579 | JDBC 1.4× |
+
+#### PostgreSQL 16
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Small (100) | 877 | 1,010 | R2DBC 1.2× |
+| Medium (10,000) | 17,921 | 3,581 | JDBC 5.0× |
+| Large (100,000) | 23,228 | 3,792 | JDBC 6.1× |
+
+#### MySQL 8
+
+| Size | JDBC | R2DBC | Ratio |
+|------|-----:|------:|------:|
+| Small (100) | 1,538 | 781 | JDBC 2.0× |
+| Medium (10,000) | 22,624 | 1,053 | JDBC 21.5× |
+| Large (100,000) | 32,541 | 1,035 | JDBC 31.5× |
+
+### Elapsed Time (ms)
+
+| DB | Mode | Small (100) | Medium (10,000) | Large (100,000) |
+|----|------|------------:|----------------:|----------------:|
+| H2 | JDBC | 80 | 161 | 789 |
+| H2 | R2DBC | 25 | 285 | 1,104 |
+| PostgreSQL | JDBC | 114 | 558 | 4,305 |
+| PostgreSQL | R2DBC | 99 | 2,792 | 26,367 |
+| MySQL 8 | JDBC | 65 | 442 | 3,073 |
+| MySQL 8 | R2DBC | 128 | 9,492 | 96,547 |
+
+### Summary
+
+- **Small workloads (100 rows)**: R2DBC wins on H2 and PostgreSQL; JDBC wins on MySQL due to driver overhead differences
+- **Medium/Large workloads (10,000+ rows)**: JDBC (VirtualThread) consistently outperforms R2DBC
+  - PostgreSQL: JDBC is **5–6×** faster than R2DBC
+  - MySQL: JDBC is **21–32×** faster than R2DBC (MySQL R2DBC driver round-trip overhead)
+- **H2 in-memory**: R2DBC is faster for small; JDBC is faster for medium/large (pure processing overhead, no network)
+- **Recommendation**: Use `ExposedJdbcBatchReader/Writer` for network databases (PostgreSQL/MySQL) with high throughput requirements; use `ExposedR2dbcBatchReader/Writer` for fully async WebFlux pipelines where thread blocking is not acceptable
+
 ## Module Dependencies
 
 ```kotlin

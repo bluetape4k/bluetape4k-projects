@@ -230,6 +230,57 @@ STARTING → RUNNING → COMPLETED
 
 **중요**: `COMPLETED` / `COMPLETED_WITH_SKIPS` 상태의 StepExecution은 재시작 시 자동으로 skip된다.
 
+## 벤치마크
+
+> **환경**: Apple M4 Pro · Testcontainers (PostgreSQL 16, MySQL 8) · chunkSize=500 · pageSize=500
+> **데이터 크기**: 소=100건, 중=10,000건, 대=100,000건
+
+### JDBC vs R2DBC 처리량 비교 (건/s)
+
+#### H2 (인메모리)
+
+| 크기 | JDBC | R2DBC | 비율 |
+|------|-----:|------:|-----:|
+| 소 (100건) | 1,250 | 4,000 | R2DBC 3.2× |
+| 중 (10,000건) | 62,111 | 35,087 | JDBC 1.8× |
+| 대 (100,000건) | 126,742 | 90,579 | JDBC 1.4× |
+
+#### PostgreSQL 16
+
+| 크기 | JDBC | R2DBC | 비율 |
+|------|-----:|------:|-----:|
+| 소 (100건) | 877 | 1,010 | R2DBC 1.2× |
+| 중 (10,000건) | 17,921 | 3,581 | JDBC 5.0× |
+| 대 (100,000건) | 23,228 | 3,792 | JDBC 6.1× |
+
+#### MySQL 8
+
+| 크기 | JDBC | R2DBC | 비율 |
+|------|-----:|------:|-----:|
+| 소 (100건) | 1,538 | 781 | JDBC 2.0× |
+| 중 (10,000건) | 22,624 | 1,053 | JDBC 21.5× |
+| 대 (100,000건) | 32,541 | 1,035 | JDBC 31.5× |
+
+### 소요 시간 (ms)
+
+| DB | 방식 | 소 (100건) | 중 (10,000건) | 대 (100,000건) |
+|----|------|----------:|-------------:|-------------:|
+| H2 | JDBC | 80 | 161 | 789 |
+| H2 | R2DBC | 25 | 285 | 1,104 |
+| PostgreSQL | JDBC | 114 | 558 | 4,305 |
+| PostgreSQL | R2DBC | 99 | 2,792 | 26,367 |
+| MySQL 8 | JDBC | 65 | 442 | 3,073 |
+| MySQL 8 | R2DBC | 128 | 9,492 | 96,547 |
+
+### 결론
+
+- **소규모 (100건)**: H2·PostgreSQL은 R2DBC가 빠르나 MySQL은 JDBC가 유리 — 드라이버 연결 오버헤드 차이
+- **중·대규모 (10,000건+)**: JDBC(VirtualThread)가 일관되게 빠름
+  - PostgreSQL: JDBC가 R2DBC 대비 **5–6배** 빠름
+  - MySQL: JDBC가 R2DBC 대비 **21–32배** 빠름 (MySQL R2DBC 드라이버 왕복 비용)
+- **H2 인메모리**: 소규모는 R2DBC가 빠르고, 중·대규모는 JDBC가 앞섬 (네트워크 없이 순수 처리 오버헤드 차이)
+- **권장**: 네트워크 DB(PostgreSQL/MySQL) 대용량 처리에는 `ExposedJdbcBatchReader/Writer` 사용; WebFlux 환경의 완전 비동기 파이프라인에는 `ExposedR2dbcBatchReader/Writer` 사용
+
 ## 모듈 의존성
 
 ```kotlin

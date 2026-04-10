@@ -127,6 +127,9 @@ class BatchJdbcBenchmarkTest : AbstractBatchJdbcTest() {
     ) {
         withTables(testDB, *allTables) {
             val insertMs = insertSourceData(testDB, dataSize)
+            // runSuspendIO는 Dispatchers.IO로 전환하므로 ThreadLocal 트랜잭션이 끊긴다.
+            // 삽입 데이터를 커밋해야 새 트랜잭션(T2)에서 읽힌다.
+            commit()
             log.info { "[JDBC-$testDB / $sizeLabel (${dataSize}건)] 삽입: ${insertMs}ms" }
 
             val job = makeJob(testDB)
