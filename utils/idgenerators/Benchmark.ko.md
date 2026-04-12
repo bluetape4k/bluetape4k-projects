@@ -1,31 +1,29 @@
 # ID Generators Benchmark
 
-[English](./Benchmark.md) | [한국어](./Benchmark.ko.md)
+kotlinx-benchmark를 이용한 다양한 ID 생성기의 성능 측정 결과입니다.
 
-Performance measurement results of various ID generators using kotlinx-benchmark.
+## 측정 개요
 
-## Measurement Overview
+- **측정 대상**: Snowflake, UUID(V4/V7), ULID, KSUID(Seconds/Millis), Flake
+- **배치 크기**: 100 IDs, 10,000 IDs
+- **모든 ID는 unique 검증됨** (단일 스레드, 멀티 스레드 모두)
+- **멀티 스레드**: `Runtime.getRuntime().availableProcessors() * 2` 스레드 (16 스레드)
 
-- **Target Generators**: Snowflake, UUID(V4/V7), ULID, KSUID(Seconds/Millis), Flake
-- **Batch Sizes**: 100 IDs, 10,000 IDs
-- **All IDs verified for uniqueness** (both single-thread and multi-thread)
-- **Multi-thread**: `Runtime.getRuntime().availableProcessors() * 2` threads (16 threads)
-
-## How to Run
+## 실행 방법
 
 ```bash
-# Single-thread benchmark
+# 단일 스레드 벤치마크
 ./gradlew :bluetape4k-idgenerators:benchmarkSingleThread
 
-# Multi-thread benchmark (16 threads)
+# 멀티 스레드 벤치마크 (16 스레드)
 ./gradlew :bluetape4k-idgenerators:benchmarkConcurrent
 ```
 
 ---
 
-## Results: Single-Thread
+## 결과: 단일 스레드 (Single-Thread)
 
-### Summary Table
+### 요약 테이블
 
 | Generator | Batch=100 | Batch=10000 |
 |-----------|-----------|------------|
@@ -37,9 +35,9 @@ Performance measurement results of various ID generators using kotlinx-benchmark
 | UUID V4 | 105,645 ops/s | 1,037 ops/s |
 | Snowflake | 40,972 ops/s | 410 ops/s |
 
-### Detailed Results
+### 상세 결과
 
-#### batchSize=100 (Small Batch)
+#### batchSize=100 (소규모 배치)
 
 ```
 SingleThreadIdGeneratorBenchmark.uuidV7                   429,584 ± 17,882 ops/s
@@ -51,7 +49,7 @@ SingleThreadIdGeneratorBenchmark.flake                    52,840 ±    389 ops/s
 SingleThreadIdGeneratorBenchmark.snowflake                40,972 ±     68 ops/s
 ```
 
-#### batchSize=10000 (Large Batch)
+#### batchSize=10000 (대규모 배치)
 
 ```
 SingleThreadIdGeneratorBenchmark.uuidV7                   4,278 ±    34 ops/s
@@ -63,7 +61,7 @@ SingleThreadIdGeneratorBenchmark.flake                      478 ±     3 ops/s
 SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 ```
 
-### Graphs: Single-Thread
+### 그래프: 단일 스레드
 
 #### Performance Chart (Batch=100)
 
@@ -77,10 +75,10 @@ SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 | 🟣 Flake | **52,840** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">██████</span> |
 | 🔴 Snowflake | **40,972** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">█████</span> |
 
-**Single-Thread (Batch=100) Analysis:**
-- **1st Place: UUID V7** (429K ops/s) - absolute leader with lock-free implementation
-- **2nd Place: ULID** (270K ops/s) - excellent single-thread performance but degradation in multi-thread
-- **3rd Place: UUID V4** (105K ops/s) - purely random
+**Single-Thread (Batch=100) 분석:**
+- **1위: UUID V7** (429K ops/s) - 절대 강자, 무잠금 구현
+- **2위: ULID** (270K ops/s) - 단일스레드에서 우수하지만 멀티스레드에서 성능 하락
+- **3위: UUID V4** (105K ops/s) - 무작위 기반
 
 #### Performance Chart (Batch=10,000)
 
@@ -94,27 +92,27 @@ SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 | 🟣 Flake | **478** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">█████</span> |
 | 🔴 Snowflake | **410** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">████</span> |
 
-**Single-Thread (Batch=10,000) Analysis:**
-- All generators experience ~100x performance degradation with increased batch size
-- UUID V7's superiority consistently maintained
+**Single-Thread (Batch=10,000) 분석:**
+- 배치 크기 증가 시 모든 생성기가 ~100배 성능 하락
+- UUID V7의 우위는 일관되게 유지
 
-**Batch=10,000 Performance Comparison:**
+**Batch=10000 성능 비교:**
 
 | Generator | ops/s |
 |-----------|-------|
-| UUID V7   | 4,278 (🔵 blue) |
-| ULID      | 2,553 (🌸 pink) |
-| UUID V4   | 1,037 (🟢 green) |
-| KSUID(Ms) | 582 (🟠 orange) |
-| KSUID(S)  | 521 (🟡 yellow) |
-| Flake     | 478 (🟣 violet) |
-| Snowflake | 410 (🔴 red) |
+| UUID V7   | 4,278 (🔵 파랑) |
+| ULID      | 2,553 (🔵 파랑 → 🔵 하강) |
+| UUID V4   | 1,037 (🟢 초록) |
+| KSUID(Ms) | 582 (🟠 주황) |
+| KSUID(S)  | 521 (🟡 노랑) |
+| Flake     | 478 (🟣 보라) |
+| Snowflake | 410 (🔴 빨강) |
 
 ---
 
-## Results: Multi-Thread (Concurrent - 16 Threads)
+## 결과: 멀티 스레드 (Concurrent - 16 Threads)
 
-### Summary Table
+### 요약 테이블
 
 | Generator | Batch=100 | Batch=10000 |
 |-----------|-----------|------------|
@@ -126,9 +124,9 @@ SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 | Snowflake | 27,016 ops/s | 253 ops/s |
 | ULID | 22,580 ops/s | 223 ops/s |
 
-### Detailed Results
+### 상세 결과
 
-#### batchSize=100 (Small Batch)
+#### batchSize=100 (소규모 배치)
 
 ```
 ConcurrentIdGeneratorBenchmark.uuidV7                  83,431 ± 38,939 ops/s
@@ -140,7 +138,7 @@ ConcurrentIdGeneratorBenchmark.ksuidMillis            25,768 ± 12,645 ops/s
 ConcurrentIdGeneratorBenchmark.ulid                   22,580 ±  4,435 ops/s
 ```
 
-#### batchSize=10000 (Large Batch)
+#### batchSize=10000 (대규모 배치)
 
 ```
 ConcurrentIdGeneratorBenchmark.uuidV7                    795 ±   438 ops/s
@@ -152,7 +150,7 @@ ConcurrentIdGeneratorBenchmark.ksuidMillis              241 ±    88 ops/s
 ConcurrentIdGeneratorBenchmark.ulid                     223 ±    43 ops/s
 ```
 
-### Graphs: Multi-Thread (16 Threads)
+### 그래프: 멀티 스레드 (16 Threads)
 
 #### Performance Chart (Batch=100, 16 Threads)
 
@@ -166,10 +164,10 @@ ConcurrentIdGeneratorBenchmark.ulid                     223 ±    43 ops/s
 | 🟠 KSUID-Ms | **25,768** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
 | 🌸 ULID | **22,580** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
 
-**Concurrent (16 Threads, Batch=100) Analysis:**
-- **1st Place: UUID V7** (83K ops/s) - **overwhelming advantage**, benefits from lock-free implementation
-- **2nd-7th Place (22K~32K)**: competitive tier
-- **ULID Performance Degradation**: 270K single-thread → 22K multi-thread (**70% drop**)
+**Concurrent (16 Threads, Batch=100) 분석:**
+- **1위: UUID V7** (83K ops/s) - **압도적 우위**, 무잠금 구현의 장점
+- **2~7위 (22K~32K)**: 경합대 형성
+- **ULID 성능 하락**: 단일스레드 270K → 멀티스레드 22K (**70% 감소**)
 
 #### Performance Chart (Batch=10,000, 16 Threads)
 
@@ -183,83 +181,83 @@ ConcurrentIdGeneratorBenchmark.ulid                     223 ±    43 ops/s
 | 🟠 KSUID-Ms | **241** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
 | 🌸 ULID | **223** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
 
-**Concurrent (16 Threads, Batch=10,000) Analysis:**
-- UUID V7's advantage **consistently maintained** even with increased batch size
-- ULID remains in 7th position across large batches
+**Concurrent (16 Threads, Batch=10,000) 분석:**
+- UUID V7의 우위는 배치 크기 증가에도 **일관되게 유지**
+- ULID는 대규모 배치에서도 7번째 위치 지속
 
-**Batch=10,000 Performance Comparison (16 Threads):**
+**Batch=10000 성능 비교 (16 Threads):**
 
 | Generator | ops/s | Color |
 |-----------|-------|-------|
-| UUID V7   | 795   | 🔵 blue |
-| Flake     | 317   | 🟣 violet |
-| UUID V4   | 290   | 🟢 green |
-| Snowflake | 253   | 🔴 red |
-| KSUID(S)  | 252   | 🟡 yellow |
-| KSUID(Ms) | 241   | 🟠 orange |
-| ULID      | 223   | 🌸 pink |
+| UUID V7   | 795   | 🔵 파랑 |
+| Flake     | 317   | 🟣 보라 |
+| UUID V4   | 290   | 🟢 초록 |
+| Snowflake | 253   | 🔴 빨강 |
+| KSUID(S)  | 252   | 🟠 주황 |
+| KSUID(Ms) | 241   | 🟡 노랑 |
+| ULID      | 223   | 🔵 파랑 |
 
 ---
 
-## Performance Analysis
+## 성능 분석
 
-### Key Findings
+### 주요 발견사항
 
-#### 1. **UUID V7 Superiority (Absolute Performance)**
-- **Single-thread**: 429K ops/s (Batch=100) → **highest among all generators**
-- **Multi-thread**: 83K ops/s (Batch=100) → advantage of **lock-free implementation**
-- **Scalability**: **stable performance** maintained even with increased batch size
+#### 1. **UUID V7 우수성 (절대 성능)**
+- **단일 스레드**: 429K ops/s (Batch=100) → 모든 생성기 중 **최고 성능**
+- **멀티 스레드**: 83K ops/s (Batch=100) → UUID V7의 **무잠금(lock-free) 구현** 우위
+- **확장성**: 배치 크기가 증가해도 상대적으로 **안정적인 성능** 유지
 
-#### 2. **ULID Limitations**
-- **Single-thread**: 270K ops/s (Batch=100) → 2nd place performance
-- **Multi-thread**: 22K ops/s (Batch=100) → **severe performance degradation** (70% drop)
-  - Root Cause: Stateful Monotonic implementation has **synchronization overhead**
-  - `ULID.statefulMonotonic(factory)` internal synchronization mechanism
+#### 2. **ULID의 문제점**
+- **단일 스레드**: 270K ops/s (Batch=100) → 2위 성능
+- **멀티 스레드**: 22K ops/s (Batch=100) → **심각한 성능 하락** (70% 감소)
+  - 원인: Stateful Monotonic 구현이 **동기화 오버헤드** 존재
+  - `ULID.statefulMonotonic(factory)` 내부 동기 메커니즘
 
-#### 3. **Snowflake Consistency**
-- **Single-thread**: 40K ops/s (Batch=100) → 5th place
-- **Multi-thread**: 27K ops/s (Batch=100) → **relatively stable**
-- Reason: Explicit `ReentrantLock` synchronization provides **predictable performance**
+#### 3. **Snowflake의 일관성**
+- **단일 스레드**: 40K ops/s (Batch=100) → 5위
+- **멀티 스레드**: 27K ops/s (Batch=100) → **상대적으로 안정적**
+- 이유: `ReentrantLock` 기반의 명시적 동기화는 **예측 가능한 성능** 제공
 
-#### 4. **Flake Balance**
-- **Single-thread**: 52K ops/s (Batch=100)
-- **Multi-thread**: 32K ops/s (Batch=100) → **relatively good scalability**
-- 128-bit size overhead present, but lock mechanism is efficient
+#### 4. **Flake의 균형**
+- **단일 스레드**: 52K ops/s (Batch=100)
+- **멀티 스레드**: 32K ops/s (Batch=100) → **상대적으로 양호한 확장**
+- 128비트 크기의 오버헤드는 있으나, lock 메커니즘은 효율적
 
-#### 5. **Impact of Batch Size**
-- Performance degradation from Batch=100 to 10,000:
-  - UUID V7: **~100x** drop (429K → 4.3K)
-  - Snowflake: **~100x** drop (40K → 410)
-  - **Linear performance degradation across all generators** → Uniqueness verification overhead
-
----
-
-## Recommendations
-
-| Scenario | Recommended | Reason |
-|----------|-------------|--------|
-| **High-performance requirements** (tens of thousands/sec) | UUID V7 | Absolute performance + excellent scalability |
-| **Lexicographic sorting required** | ULID or UUID V7 | UUID V7 > ULID (multi-thread) |
-| **Traditional Snowflake compatibility** | Snowflake | Compatibility + predictable performance |
-| **128-bit values needed** | Flake | Decent performance + binary efficiency |
-| **Low-resource environments** | KSUID(Millis) | Millisecond precision + stable performance |
+#### 5. **배치 크기의 영향**
+- Batch=100 → 10,000 시 성능 하락폭 비교:
+  - UUID V7: **~100배** 하락 (429K → 4.3K)
+  - Snowflake: **~100배** 하락 (40K → 410)
+  - **배치 크기 증가 시 모든 생성기가 선형적 성능 저하** → Unique 검증 오버헤드
 
 ---
 
-## Conclusion
+## 권장 사항
 
-**UUID V7 provides superior performance across all scenarios.**
-
-- Single-thread: 429K ops/s (highest)
-- Multi-thread: 83K ops/s (highest) + excellent scalability
-- Stateless implementation → **minimal synchronization overhead**
-- Lexicographic sorting guarantee + standard UUID compatibility
-
-Therefore, **UUID V7 is recommended as the default choice for new projects**.
+| 시나리오 | 추천 | 이유 |
+|--------|-----|------|
+| **고성능 요구** (초당 수만 건) | UUID V7 | 절대 성능 + 우수한 확장성 |
+| **사전순 정렬 필요** | ULID 또는 UUID V7 | UUID V7 > ULID (멀티 스레드) |
+| **트래디셔널 Snowflake** | Snowflake | 호환성 + 예측 가능한 성능 |
+| **128비트 값 필요** | Flake | 적당한 성능 + 바이너리 효율 |
+| **저성능 환경** | KSUID(Millis) | 밀리초 정확도 + 안정적인 성능 |
 
 ---
 
-## Benchmark Environment
+## 결론
+
+**UUID V7이 모든 시나리오에서 우수한 성능을 제공합니다.**
+
+- 단일 스레드: 429K ops/s (최고)
+- 멀티 스레드: 83K ops/s (최고) + 우수한 확장성
+- Stateless 구현으로 **동기화 오버헤드 최소**
+- 사전순 정렬 보장 + 표준 UUID 호환성
+
+따라서 새로운 프로젝트에서는 **UUID V7을 기본 선택**으로 권장합니다.
+
+---
+
+## Benchmark 실행 환경
 
 - **JVM**: Java 21
 - **Kotlin**: 2.3

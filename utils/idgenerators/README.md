@@ -330,6 +330,10 @@ val encoded = uuid.toBase62String()   // 36 chars → 22 chars
 val decoded = encoded.toBase62Uuid()
 ```
 
+## Performance Benchmark
+
+See [Benchmark.md](./Benchmark.md) for detailed performance measurements of all ID generators, including single-thread vs. multi-thread comparisons and recommendations based on your use case.
+
 ## References
 
 - [Twitter Snowflake](https://developer.twitter.com/en/docs/basics/twitter-ids)
