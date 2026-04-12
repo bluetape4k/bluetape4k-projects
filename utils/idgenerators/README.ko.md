@@ -330,6 +330,10 @@ val encoded = uuid.toBase62String()   // 36자리 → 22자리
 val decoded = encoded.toBase62Uuid()
 ```
 
+## 성능 벤치마크
+
+모든 ID 생성기의 상세한 성능 측정 결과는 [Benchmark.ko.md](./Benchmark.ko.md)를 참고하세요. 단일 스레드 vs 멀티 스레드 비교 및 사용 사례별 추천사항이 포함되어 있습니다.
+
 ## 참고 자료
 
 - [Twitter Snowflake](https://developer.twitter.com/en/docs/basics/twitter-ids)
