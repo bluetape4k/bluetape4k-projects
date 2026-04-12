@@ -39,7 +39,7 @@ build/
 
 # AI - 임시 상태/로그 제외, 계획/설정은 추적
 .claude/settings.local.json
-.cluade/worktrees/
+.claude/worktrees
 
 .code-review-graph
 
@@ -106,4 +106,3 @@ out/
 # Apache Ignite embedded mode runtime data
 **/cache-ignite2/ignite/
 .worktrees/
-
