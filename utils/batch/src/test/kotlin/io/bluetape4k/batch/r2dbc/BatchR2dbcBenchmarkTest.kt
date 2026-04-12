@@ -13,14 +13,14 @@ import io.bluetape4k.batch.jdbc.tables.BatchStepExecutionTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import io.bluetape4k.logging.info
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -38,7 +38,7 @@ import kotlin.system.measureTimeMillis
  * DB 종류 (H2 / PostgreSQL / MySQL) × 데이터 사이즈 (소 100 / 중 10,000 / 대 100,000) 조합으로
  * R2DBC 배치 파이프라인의 읽기·쓰기 처리량을 측정합니다.
  * 현재 공식 benchmark는 `src/benchmark`의 `kotlinx-benchmark` 기반 구현과
- * `docs/benchmark/*.md` 문서를 기준으로 관리하며, 이 테스트는 기존 비교 방식의 참고용 시나리오를 유지합니다.
+ * `docs/benchmark/database_name.md` 문서를 기준으로 관리하며, 이 테스트는 기존 비교 방식의 참고용 시나리오를 유지합니다.
  *
  * **r2dbc-pool 커넥션 풀**을 사용하여 JDBC (`HikariCP`) 측정과 동일한 조건을 맞춥니다.
  *

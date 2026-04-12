@@ -62,7 +62,7 @@ class KeycloakServerTest: AbstractContainerTest() {
         val tokenResponse = client.newCall(tokenRequest).execute()
         (tokenResponse.code == 200).shouldBeTrue()
 
-        val tokenBody = tokenResponse.body?.string().shouldNotBeNull()
+        val tokenBody = tokenResponse.body.string().shouldNotBeNull()
         log.debug { "Token response: $tokenBody" }
         tokenBody shouldContain "access_token"
 
@@ -83,7 +83,7 @@ class KeycloakServerTest: AbstractContainerTest() {
         val realmsResponse = client.newCall(realmsRequest).execute()
         (realmsResponse.code == 200).shouldBeTrue()
 
-        val realmsBody = realmsResponse.body?.string().shouldNotBeNull()
+        val realmsBody = realmsResponse.body.string().shouldNotBeNull()
         log.debug { "Realms response: $realmsBody" }
 
         // master realm 존재 확인

@@ -37,7 +37,7 @@ class ExposedItemWriter<T>(
         if (chunk.isEmpty) return
 
         @Suppress("UNCHECKED_CAST")
-        val items = chunk.items as List<T>
+        val items = chunk.items // as List<T>
 
         table.batchInsert(items, shouldReturnGeneratedValues = false) { item ->
             insertBody(item)

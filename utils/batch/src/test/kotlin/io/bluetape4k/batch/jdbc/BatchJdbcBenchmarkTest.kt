@@ -7,11 +7,11 @@ import io.bluetape4k.batch.BatchTargetTable
 import io.bluetape4k.batch.SourceRecord
 import io.bluetape4k.batch.TargetRecord
 import io.bluetape4k.batch.api.BatchReport
+import io.bluetape4k.batch.core.InMemoryBatchJobRepository
 import io.bluetape4k.batch.core.dsl.batchJob
 import io.bluetape4k.batch.internal.CheckpointJson
 import io.bluetape4k.batch.jdbc.tables.BatchJobExecutionTable
 import io.bluetape4k.batch.jdbc.tables.BatchStepExecutionTable
-import io.bluetape4k.batch.core.InMemoryBatchJobRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -35,7 +35,7 @@ import kotlin.system.measureTimeMillis
  * DB 종류 (H2 / PostgreSQL / MySQL) × 데이터 사이즈 (소 100 / 중 10,000 / 대 100,000) 조합으로
  * 배치 파이프라인의 읽기·쓰기 처리량을 측정합니다.
  * 현재 공식 benchmark는 `src/benchmark`의 `kotlinx-benchmark` 기반 구현과
- * `docs/benchmark/*.md` 문서를 기준으로 관리하며, 이 테스트는 기존 비교 방식의 참고용 시나리오를 유지합니다.
+ * `docs/benchmark/database_name.md` 문서를 기준으로 관리하며, 이 테스트는 기존 비교 방식의 참고용 시나리오를 유지합니다.
  *
  * **HikariCP 커넥션 풀**을 사용하여 R2DBC (`r2dbc-pool`) 측정과 동일한 조건을 맞춥니다.
  *
