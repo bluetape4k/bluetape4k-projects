@@ -30,15 +30,17 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.system.measureTimeMillis
 
 /**
- * JDBC 배치 벤치마크 테스트.
+ * JDBC 배치 성능 측정용 레거시 테스트입니다.
  *
  * DB 종류 (H2 / PostgreSQL / MySQL) × 데이터 사이즈 (소 100 / 중 10,000 / 대 100,000) 조합으로
- * 배치 파이프라인의 읽기·쓰기 처리량을 측정한다.
+ * 배치 파이프라인의 읽기·쓰기 처리량을 측정합니다.
+ * 현재 공식 benchmark는 `src/benchmark`의 `kotlinx-benchmark` 기반 구현과
+ * `docs/benchmark/*.md` 문서를 기준으로 관리하며, 이 테스트는 기존 비교 방식의 참고용 시나리오를 유지합니다.
  *
- * **HikariCP 커넥션 풀**을 사용하여 R2DBC (r2dbc-pool) 벤치마크와 공정하게 비교한다.
+ * **HikariCP 커넥션 풀**을 사용하여 R2DBC (`r2dbc-pool`) 측정과 동일한 조건을 맞춥니다.
  *
  * 측정 항목:
- * - 소스 데이터 적재 시간 (batchInsert)
+ * - 소스 데이터 적재 시간 (`batchInsert`)
  * - 배치 Job 전체 실행 시간 (Reader + Processor + Writer)
  * - 처리량 (items/sec)
  */

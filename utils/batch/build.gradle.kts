@@ -1,5 +1,120 @@
+plugins {
+    kotlin("plugin.allopen")
+    id(Plugins.kotlinx_benchmark)
+}
+
+allOpen {
+    // https://github.com/Kotlin/kotlinx-benchmark
+    annotation("org.openjdk.jmh.annotations.State")
+}
+
+sourceSets {
+    create("benchmark")
+}
+
+kotlin {
+    target {
+        compilations.getByName("benchmark").associateWith(compilations.getByName("main"))
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+    named("benchmarkImplementation") {
+        extendsFrom(
+            configurations.getByName("implementation"),
+            configurations.getByName("compileOnly"),
+            configurations.getByName("testImplementation"),
+        )
+    }
+    named("benchmarkRuntimeOnly") {
+        extendsFrom(
+            configurations.getByName("runtimeOnly"),
+            configurations.getByName("testRuntimeOnly"),
+        )
+    }
+}
+
+// https://github.com/Kotlin/kotlinx-benchmark
+benchmark {
+    targets {
+        register("benchmark") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = Versions.jmh
+        }
+    }
+    configurations {
+        register("h2Jdbc") {
+            include("io.bluetape4k.batch.benchmark.jdbc.H2JdbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+        register("h2R2dbc") {
+            include("io.bluetape4k.batch.benchmark.r2dbc.H2R2dbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+        register("postgresJdbc") {
+            include("io.bluetape4k.batch.benchmark.jdbc.PostgreSqlJdbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+        register("postgresR2dbc") {
+            include("io.bluetape4k.batch.benchmark.r2dbc.PostgreSqlR2dbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+        register("mysqlJdbc") {
+            include("io.bluetape4k.batch.benchmark.jdbc.MySqlJdbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+        register("mysqlR2dbc") {
+            include("io.bluetape4k.batch.benchmark.r2dbc.MySqlR2dbcBatchBenchmark")
+            warmups = 2
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+    }
+}
+
+tasks.register<JavaExec>("generateBenchmarkDocs") {
+    dependsOn("benchmarkClasses")
+    classpath = sourceSets["benchmark"].runtimeClasspath
+    mainClass.set("io.bluetape4k.batch.benchmark.support.BenchmarkDocsGeneratorKt")
+    args(
+        projectDir.absolutePath,
+        layout.buildDirectory.dir("reports/benchmarks").get().asFile.absolutePath
+    )
 }
 
 dependencies {
@@ -47,4 +162,9 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
     testImplementation(Libs.mysql_connector_j)
     testImplementation(Libs.r2dbc_mysql)
+
+    // Benchmark
+    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
+    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
+    add("benchmarkImplementation", Libs.jmh_core)
 }

@@ -47,7 +47,7 @@ class ExposedR2dbcBatchWriter<T : Any>(
     override suspend fun write(items: List<T>) {
         if (items.isEmpty()) return
         suspendTransaction(db = database) {
-            table.batchInsert(items) { item -> bind(item) }
+            table.batchInsert(items, shouldReturnGeneratedValues = false) { item -> bind(item) }
         }
     }
 }

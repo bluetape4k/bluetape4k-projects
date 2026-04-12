@@ -73,11 +73,15 @@ open class KLoggingChannel: KLogging() {
 
     init {
         job // lazy 초기화를 트리거합니다.
-        Runtime.getRuntime().addShutdownHook(
-            thread(start = false, isDaemon = true) {
-                job.cancel()
-            }
-        )
+        try {
+            Runtime.getRuntime().addShutdownHook(
+                thread(start = false, isDaemon = true) {
+                    job.cancel()
+                }
+            )
+        } catch (_: IllegalStateException) {
+            job.cancel()
+        }
     }
 
     /**

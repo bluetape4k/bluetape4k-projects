@@ -234,106 +234,32 @@ STARTING → RUNNING → COMPLETED
 
 ## 벤치마크
 
-> **환경**: Apple M4 Pro · Testcontainers (PostgreSQL 16, MySQL 8) · chunkSize=500 · pageSize=500
-> **커넥션 풀**: JDBC=HikariCP(max=10) · R2DBC=r2dbc-pool(max=10) — 동일 풀 크기로 공정 비교
-> **데이터 크기**: 소=100건, 중=10,000건, 대=100,000건
-> **병렬 모드**: 키 범위 분할 기반 코루틴 4개 동시 실행
+benchmark 체계는 `kotlinx-benchmark` 기반으로 재구성되었고, JDBC + Virtual Threads 및 R2DBC를 DB별 profile로 분리해 실행합니다.
 
-### 순차 처리: JDBC vs R2DBC 처리량 (건/s)
+| DB | 요약 | 상세 문서 |
+|----|------|-----------|
+| H2 | `seedBenchmark`, `endToEndBatchJobBenchmark` 기준 JDBC vs R2DBC 비교 | [H2 상세 결과](docs/benchmark/h2.md) |
+| PostgreSQL | Testcontainers 기반으로 같은 시나리오를 JDBC/R2DBC로 비교 | [PostgreSQL 상세 결과](docs/benchmark/postgresql.md) |
+| MySQL | seed 및 전체 batch job 실행을 JDBC/R2DBC로 비교 | [MySQL 상세 결과](docs/benchmark/mysql.md) |
 
-#### H2 (인메모리)
+- [Benchmark 문서 허브](docs/benchmark/README.ko.md)
+- 실행 예시: `./gradlew :bluetape4k-batch:h2JdbcBenchmark`, `./gradlew :bluetape4k-batch:postgresR2dbcBenchmark`, `./gradlew :bluetape4k-batch:generateBenchmarkDocs`
 
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 소 (100건) | 1,333 | 3,448 | R2DBC 2.6× |
-| 중 (10,000건) | 66,225 | 41,841 | JDBC 1.6× |
-| 대 (100,000건) | 188,679 | 106,269 | JDBC 1.8× |
+### 비교 초점
 
-#### PostgreSQL 16
+- 핵심 비교 축: **JDBC vs R2DBC**
+- 시나리오: `seedBenchmark`, `endToEndBatchJobBenchmark`
+- 파라미터: `dataSize = 1000/10000/100000`, `poolSize = 10/30/60`, `parallelism = 1/4/8`
+- 상세 표와 그래프는 `docs/benchmark/*.md` 에서 관리
 
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 소 (100건) | 5,555 | 740 | JDBC 7.5× |
-| 중 (10,000건) | 65,359 | 3,247 | JDBC 20.1× |
-| 대 (100,000건) | 78,064 | 3,130 | JDBC 24.9× |
-
-#### MySQL 8
-
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 소 (100건) | 1,754 | 1,388 | JDBC 1.3× |
-| 중 (10,000건) | 34,364 | 3,671 | JDBC 9.4× |
-| 대 (100,000건) | 54,229 | 3,914 | JDBC 13.9× |
-
-### 병렬 처리 (4 파티션): JDBC vs R2DBC 처리량 (건/s)
-
-> 각 파티션은 독립된 코루틴 + 키 범위 Reader로 동시 실행된다.
-> 병렬 풀 크기: JDBC=HikariCP(max=12), R2DBC=r2dbc-pool(max=12)
-
-#### H2 (인메모리)
-
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 대 (100,000건) | 173,010 | 202,020 | **R2DBC 1.2×** |
-
-#### PostgreSQL 16
-
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 중 (10,000건) | 113,636 | 10,152 | JDBC 11.2× |
-| 대 (100,000건) | 123,456 | 11,049 | JDBC 11.2× |
-
-#### MySQL 8
-
-| 크기 | JDBC | R2DBC | 비율 |
-|------|-----:|------:|-----:|
-| 중 (10,000건) | 75,187 | 9,345 | JDBC 8.0× |
-| 대 (100,000건) | 131,578 | 11,012 | JDBC 12.0× |
-
-### 순차 vs 병렬 처리량 향상 비교
-
-| DB | 크기 | JDBC 순차 | JDBC 4× | 향상 | R2DBC 순차 | R2DBC 4× | 향상 |
-|----|------|--------:|--------:|-----:|----------:|---------:|-----:|
-| H2 | 대 | 188,679 | 173,010 | 0.9× | 106,269 | 202,020 | **1.9×** |
-| PostgreSQL | 중 | 65,359 | 113,636 | **1.7×** | 3,247 | 10,152 | **3.1×** |
-| PostgreSQL | 대 | 78,064 | 123,456 | **1.6×** | 3,130 | 11,049 | **3.5×** |
-| MySQL | 중 | 34,364 | 75,187 | **2.2×** | 3,671 | 9,345 | **2.5×** |
-| MySQL | 대 | 54,229 | 131,578 | **2.4×** | 3,914 | 11,012 | **2.8×** |
-
-### 결론
-
-- **순차 처리 — 네트워크 DB**: JDBC(VirtualThread)가 드라이버 왕복 비용으로 R2DBC 대비 10–25배 앞섬
-- **순차 처리 — H2 인메모리**: 중·대규모는 JDBC 우세; 소규모(100건)만 R2DBC가 빠름
-- **병렬 처리 (4 코루틴)**: 네트워크 DB에서 JDBC·R2DBC 모두 유의미한 향상
-  - PostgreSQL JDBC: **1.6×** · R2DBC: **3.5×** (격차 축소, JDBC 여전히 11× 앞섬)
-  - MySQL JDBC: **2.4×** · R2DBC: **2.8×**
-- **H2 + R2DBC 병렬**: R2DBC 승리(202,020 vs 173,010건/s) — 네트워크 없이 비동기 이벤트 루프의 강점이 발휘됨
-
-### 배치에서 JDBC가 유리한 이유
-
-청크 기반 배치 파이프라인은 청크 내부에서 `read → process → write → checkpoint` 가 본질적으로 직렬이다.
-이 구조가 R2DBC의 논블로킹 장점을 무력화한다:
-
-- **R2DBC 드라이버 왕복 비용** (PostgreSQL 기준 ~300 µs/req)이 수천 건의 청크에 걸쳐 누적되어 병목이 된다
-- **Virtual Thread는 JDBC 블로킹을 공짜로 숨겨준다** — 각 청크는 OS 스레드 오버헤드 없이 가상 스레드에서 실행되므로, R2DBC가 제공하려 했던 동시성 이득을 JDBC가 대신 확보한다
-- 청크 루프는 다음 체크포인트로 넘어가기 전에 매 write를 `await`하므로, 비동기 파이프라이닝이 실제로 발동되지 않는다
-
-요약하면: R2DBC의 강점(논블로킹 I/O, 백프레셔, 리액티브 스트림)은 다수의 동시 요청이 겹칠 때 효과를 발휘한다. 순차 청크 루프에서는 JDBC + VirtualThread가 구조적으로 더 적합하다.
-
-### 권장 사항
-
-**네트워크 DB 대용량 배치의 최적 조합:**
-
-> **JDBC + Virtual Threads + 병렬 파티셔닝**
-
-Spring Batch든 bluetape4k-batch든 프레임워크와 무관하게 이 조합이 최고 처리량을 낸다.
-
-| 사용 사례 | 권장 스택 |
-|----------|---------|
-| 네트워크 DB(PostgreSQL/MySQL) 대용량 배치 | **Exposed JDBC + VirtualThread + 병렬 파티션** (Spring Batch 또는 bluetape4k-batch) |
-| 완전 비동기 WebFlux 파이프라인 (스레드 블로킹 불가) | `ExposedR2dbcBatchReader/Writer` + 병렬 파티셔닝 |
-| 경량 임베딩 (Spring 없음, CLI/서버리스) | `bluetape4k-batch` + `InMemoryBatchJobRepository` |
-| H2 (테스트/임베디드 DB) | 양쪽 모두 가능; 병렬 시 R2DBC 소폭 우세 |
+```mermaid
+xychart-beta
+    title "Benchmark 문서 구조"
+    x-axis [H2, PostgreSQL, MySQL]
+    y-axis "문서화 범위" 0 --> 100
+    bar [100, 100, 100]
+    bar [100, 100, 100]
+```
 
 ## 모듈 의존성
 
