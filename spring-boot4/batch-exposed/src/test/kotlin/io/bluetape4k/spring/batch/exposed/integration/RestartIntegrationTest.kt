@@ -23,12 +23,12 @@ import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.parameters.JobParametersBuilder
 import org.springframework.batch.core.step.Step
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.infrastructure.item.ItemProcessor
-import org.springframework.batch.test.JobLauncherTestUtils
+import org.springframework.batch.test.JobOperatorTestUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.TestConfiguration
@@ -91,7 +91,8 @@ class RestartIntegrationTest : AbstractExposedBatchJobTest() {
 
         @Bean(name = ["restartWorkerStep"])
         fun workerStep(): Step = StepBuilder("restart-migration-worker", jobRepository)
-            .chunk<SourceRecord, TargetRecord>(100, transactionManager)
+            .chunk<SourceRecord, TargetRecord>(100)
+            .transactionManager(transactionManager)
             .reader(keysetReader())
             .processor(ItemProcessor { source ->
                 // shouldFail=true 이고 name이 "item-300"이면 예외 → 청크 롤백 → Job FAILED
@@ -126,20 +127,18 @@ class RestartIntegrationTest : AbstractExposedBatchJobTest() {
             this[TargetTable.transformedValue] = it.transformedValue
         }
 
-        @Bean(name = ["restartJobLauncherTestUtils"])
-        fun jobLauncherTestUtils(
+        @Bean(name = ["restartJobOperatorTestUtils"])
+        fun jobOperatorTestUtils(
             @Qualifier("restartMigrationJob") job: Job,
-            jobLauncher: JobLauncher,
-        ): JobLauncherTestUtils = JobLauncherTestUtils().apply {
+            jobOperator: JobOperator,
+        ): JobOperatorTestUtils = JobOperatorTestUtils(jobOperator, jobRepository).apply {
             this.job = job
-            this.jobRepository = this@JobConfig.jobRepository
-            this.jobLauncher = jobLauncher
         }
     }
 
     @Autowired
-    @Qualifier("restartJobLauncherTestUtils")
-    private lateinit var jobLauncherTestUtils: JobLauncherTestUtils
+    @Qualifier("restartJobOperatorTestUtils")
+    private lateinit var jobOperatorTestUtils: JobOperatorTestUtils
 
     @Test
     fun `중간 실패 후 재시작 시 마지막 위치부터 재개`() {
@@ -152,7 +151,7 @@ class RestartIntegrationTest : AbstractExposedBatchJobTest() {
 
         // 1차 실행: item-300 에서 예외 발생 → FAILED
         shouldFail.set(true)
-        val firstExecution = jobLauncherTestUtils.launchJob(params)
+        val firstExecution = jobOperatorTestUtils.startJob(params)
         firstExecution.status shouldBeEqualTo BatchStatus.FAILED
 
         val countAfterFirst = transaction(database) { TargetTable.selectAll().count() }
@@ -160,7 +159,7 @@ class RestartIntegrationTest : AbstractExposedBatchJobTest() {
 
         // 2차 실행: 동일 params로 재시작, shouldFail=false → lastKey부터 재개 → COMPLETED
         shouldFail.set(false)
-        val restartExecution = jobLauncherTestUtils.launchJob(params)
+        val restartExecution = jobOperatorTestUtils.startJob(params)
         restartExecution.status shouldBeEqualTo BatchStatus.COMPLETED
 
         val countAfterRestart = transaction(database) { TargetTable.selectAll().count() }

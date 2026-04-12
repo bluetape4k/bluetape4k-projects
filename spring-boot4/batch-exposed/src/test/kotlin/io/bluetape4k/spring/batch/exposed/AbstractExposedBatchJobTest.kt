@@ -31,7 +31,7 @@ import javax.sql.DataSource
  *         @Bean fun myJob(): Job = ...
  *     }
  *
- *     @Autowired private lateinit var jobLauncherTestUtils: JobLauncherTestUtils
+ *     @Autowired private lateinit var jobOperatorTestUtils: JobOperatorTestUtils
  *
  *     @Test
  *     fun `job runs to completion`() { ... }

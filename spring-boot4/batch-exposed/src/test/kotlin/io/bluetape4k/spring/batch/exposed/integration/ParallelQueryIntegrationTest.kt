@@ -13,7 +13,6 @@ import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -31,19 +30,17 @@ import org.springframework.batch.test.JobOperatorTestUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
-import org.springframework.core.task.TaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 
 /**
- * [io.bluetape4k.spring.batch.exposed.config.ExposedBatchAutoConfiguration] 기반 통합 검증.
+ * Partitioned Batch Job E2E 통합 테스트.
  *
- * - `@EnableBatchProcessing` 없이 Spring Boot 4.x Auto-Configuration으로 동작 확인
- * - `ExposedBatchAutoConfiguration`이 제공하는 `batchPartitionTaskExecutor` 빈 존재 확인
- * - 사용자 Job 빈과 AutoConfiguration 빈이 올바르게 조합되어 Job 실행 성공
+ * - 10,000건 Source -> Target, 4파티션 VirtualThread 병렬 마이그레이션
+ * - Spring Batch Job 상태 == [BatchStatus.COMPLETED]
+ * - Target 행 수 == Source 행 수 (중복 없음)
  */
-class EndToEndJobTest : AbstractExposedBatchJobTest() {
+class ParallelQueryIntegrationTest : AbstractExposedBatchJobTest() {
 
     companion object : KLogging()
 
@@ -53,33 +50,33 @@ class EndToEndJobTest : AbstractExposedBatchJobTest() {
         private val transactionManager: PlatformTransactionManager,
         private val database: Database,
     ) {
-        @Bean(name = ["e2eMigrationJob"])
-        fun migrationJob(): Job = partitionedBatchJob("e2e-migration-job", jobRepository) {
+        @Bean(name = ["parallelMigrationJob"])
+        fun migrationJob(): Job = partitionedBatchJob("parallel-migration-job", jobRepository) {
             start(partitionedStep())
         }
 
-        @Bean(name = ["e2ePartitionedStep"])
-        fun partitionedStep(): Step = StepBuilder("e2e-migration-manager", jobRepository)
-            .partitioner("e2e-migration-worker", rangePartitioner())
+        @Bean(name = ["parallelPartitionedStep"])
+        fun partitionedStep(): Step = StepBuilder("parallel-migration-manager", jobRepository)
+            .partitioner("parallel-migration-worker", rangePartitioner())
             .partitionHandler(partitionHandler())
             .build()
 
-        @Bean(name = ["e2eRangePartitioner"])
+        @Bean(name = ["parallelRangePartitioner"])
         fun rangePartitioner(): ExposedRangePartitioner = ExposedRangePartitioner.forEntityId(
             table = SourceTable,
             gridSize = 4,
             database = database,
         )
 
-        @Bean(name = ["e2ePartitionHandler"])
+        @Bean(name = ["parallelPartitionHandler"])
         fun partitionHandler(): TaskExecutorPartitionHandler = TaskExecutorPartitionHandler().apply {
             setStep(workerStep())
             setTaskExecutor(virtualThreadPartitionTaskExecutor(concurrencyLimit = 4))
             gridSize = 4
         }
 
-        @Bean(name = ["e2eWorkerStep"])
-        fun workerStep(): Step = StepBuilder("e2e-migration-worker", jobRepository)
+        @Bean(name = ["parallelWorkerStep"])
+        fun workerStep(): Step = StepBuilder("parallel-migration-worker", jobRepository)
             .chunk<SourceRecord, TargetRecord>(500)
             .transactionManager(transactionManager)
             .reader(keysetReader())
@@ -92,7 +89,7 @@ class EndToEndJobTest : AbstractExposedBatchJobTest() {
             .writer(itemWriter())
             .build()
 
-        @Bean(name = ["e2eKeysetReader"])
+        @Bean(name = ["parallelKeysetReader"])
         @org.springframework.batch.core.configuration.annotation.StepScope
         fun keysetReader(): ExposedKeysetItemReader<SourceRecord> = ExposedKeysetItemReader.forEntityId(
             table = SourceTable,
@@ -107,15 +104,15 @@ class EndToEndJobTest : AbstractExposedBatchJobTest() {
             database = database,
         )
 
-        @Bean(name = ["e2eItemWriter"])
+        @Bean(name = ["parallelItemWriter"])
         fun itemWriter(): ExposedItemWriter<TargetRecord> = ExposedItemWriter(table = TargetTable) {
             this[TargetTable.sourceName] = it.sourceName
             this[TargetTable.transformedValue] = it.transformedValue
         }
 
-        @Bean(name = ["e2eJobOperatorTestUtils"])
+        @Bean(name = ["parallelJobOperatorTestUtils"])
         fun jobOperatorTestUtils(
-            @Qualifier("e2eMigrationJob") job: Job,
+            @Qualifier("parallelMigrationJob") job: Job,
             jobOperator: JobOperator,
         ): JobOperatorTestUtils = JobOperatorTestUtils(jobOperator, jobRepository).apply {
             this.job = job
@@ -123,31 +120,22 @@ class EndToEndJobTest : AbstractExposedBatchJobTest() {
     }
 
     @Autowired
-    private lateinit var applicationContext: ApplicationContext
-
-    @Autowired
-    @Qualifier("e2eJobOperatorTestUtils")
+    @Qualifier("parallelJobOperatorTestUtils")
     private lateinit var jobOperatorTestUtils: JobOperatorTestUtils
 
     @Test
-    fun `AutoConfiguration batchPartitionTaskExecutor 빈 존재 확인`() {
-        // ExposedBatchAutoConfiguration 이 등록한 기본 TaskExecutor 빈 검증
-        val taskExecutor = applicationContext.getBean("batchPartitionTaskExecutor", TaskExecutor::class.java)
-        taskExecutor.shouldNotBeNull()
-    }
+    fun `10000건 Source에서 Target으로 4파티션 VirtualThread 병렬 마이그레이션`() {
+        insertTestData(10_000)
 
-    @Test
-    fun `AutoConfiguration으로 Job 실행 성공 검증`() {
-        insertTestData(500)
-
-        val params = JobParametersBuilder()
-            .addLong("run.id", System.currentTimeMillis())
+        val jobParameters = JobParametersBuilder()
+            .addLong("timestamp", System.currentTimeMillis())
             .toJobParameters()
 
-        val execution = jobOperatorTestUtils.startJob(params)
+        val execution = jobOperatorTestUtils.startJob(jobParameters)
+
         execution.status shouldBeEqualTo BatchStatus.COMPLETED
 
         val targetCount = transaction(database) { TargetTable.selectAll().count() }
-        targetCount shouldBeEqualTo 500L
+        targetCount shouldBeEqualTo 10_000L
     }
 }
