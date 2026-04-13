@@ -18,6 +18,13 @@ dependencies {
     // MVEL2
     compileOnly(Libs.mvel2)
 
+    // Janino (runtime Java expression/script compiler)
+    compileOnly(Libs.janino)
+    compileOnly(Libs.janino_commons_compiler)
+
+    // Groovy (runtime script engine)
+    compileOnly(Libs.groovy)
+
     // Kotlin Script (jvm-host)
     compileOnly(Libs.kotlin_scripting_common)
     compileOnly(Libs.kotlin_scripting_jvm)
@@ -30,6 +37,9 @@ dependencies {
 
     // Test
     testImplementation(Libs.mvel2)
+    testImplementation(Libs.janino)
+    testImplementation(Libs.janino_commons_compiler)
+    testImplementation(Libs.groovy)
     testImplementation(Libs.kotlin_scripting_jvm_host)
     testImplementation("org.springframework:spring-context")
     testImplementation(Libs.jackson_dataformat_yaml)

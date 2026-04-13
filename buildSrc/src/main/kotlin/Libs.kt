@@ -875,6 +875,14 @@ object Libs {
     // MVEL
     const val mvel2 = "org.mvel:mvel2:2.5.2.Final"  // https://mvnrepository.com/artifact/org.mvel/mvel2
 
+    // Janino (runtime Java expression/script compiler)
+    const val janino = "org.codehaus.janino:janino:3.1.12"  // https://mvnrepository.com/artifact/org.codehaus.janino/janino
+    const val janino_commons_compiler = "org.codehaus.janino:commons-compiler:3.1.12"
+
+    // Groovy (runtime script engine)
+    const val groovy = "org.apache.groovy:groovy:4.0.27"  // https://mvnrepository.com/artifact/org.apache.groovy/groovy
+    const val groovy_jsr223 = "org.apache.groovy:groovy-jsr223:4.0.27"
+
     // Reactor
     const val reactor_bom = "io.projectreactor:reactor-bom:${Versions.reactor_bom}"
     const val reactor_core = "io.projectreactor:reactor-core"
