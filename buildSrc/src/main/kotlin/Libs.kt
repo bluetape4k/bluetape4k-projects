@@ -1074,7 +1074,8 @@ object Libs {
     const val spring_kafka_test = "org.springframework.kafka:spring-kafka-test:${Versions.spring_kafka}"
 
     // Pulsar (4.0.x 버전만 지원)
-    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.0.9"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
+    const val pulsar_client_api = "org.apache.pulsar:pulsar-client-api:3.3.9"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client-api
+    const val pulsar_client = "org.apache.pulsar:pulsar-client:3.3.9"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
     // Nats
     const val jnats = "io.nats:jnats:2.25.1"     // https://mvnrepository.com/artifact/io.nats/jnats

@@ -90,6 +90,7 @@ dependencies {
 
     // Pulsar
     compileOnly(Libs.testcontainers_pulsar)
+    compileOnly(Libs.pulsar_client_api)
     compileOnly(Libs.pulsar_client)
 
     // Redpanda

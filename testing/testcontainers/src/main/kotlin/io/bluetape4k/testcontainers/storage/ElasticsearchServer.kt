@@ -34,7 +34,7 @@ class ElasticsearchServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "docker.elastic.co/elasticsearch/elasticsearch"
-        const val TAG = "9.3.1"
+        const val TAG = "9.3.3"
 
         const val NAME = "elasticsearch"
         const val DEFAULT_PASSWORD = LibraryName
