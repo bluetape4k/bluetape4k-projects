@@ -7,13 +7,11 @@ import io.bluetape4k.rule.core.DefaultRuleEngine
 import io.bluetape4k.rule.core.ruleEngine
 import io.bluetape4k.rule.support.ActivationRuleGroup
 import io.bluetape4k.rule.support.ConditionalRuleGroup
-import io.bluetape4k.rule.support.UnitRuleGroup
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -70,6 +68,7 @@ class GroovyRuleExampleTest {
             condition.evaluate(Facts.of("age" to 66)).shouldBeFalse()
         }
 
+        @Suppress("DANGEROUS_CHARACTERS")
         @Test
         fun `거듭제곱 연산 - Groovy의 ** 연산자`() {
             val action = GroovyAction("result = base ** exponent")
