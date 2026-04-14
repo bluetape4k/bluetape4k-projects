@@ -4,9 +4,41 @@
 
 ---
 
-## [1.6.0-SNAPSHOT] - 2026-04-09
+## [1.6.0-SNAPSHOT] - 2026-04-14
 
 ### Added
+
+#### spring-boot3/batch-exposed — Spring Batch 5.x + Exposed JDBC Partitioned Step 모듈 추가 ([`853c140bc`](https://github.com/bluetape4k/bluetape4k-projects/commit/853c140bc))
+
+- `Partitioned Step + VirtualThread Parallel Query` 전략의 배치 모듈 추가
+- `ExposedRangePartitioner`: auto-increment PK를 ID 범위로 분할하는 파티셔너
+- `ExposedKeysetItemReader`: keyset 페이징 + 재시작 지원 `ItemStreamReader`
+- `ExposedItemWriter` / `ExposedUpdateItemWriter` / `ExposedUpsertItemWriter` 제공
+- `virtualThreadPartitionTaskExecutor`, `partitionedBatchJob`, `ExposedBatchAutoConfiguration` 포함
+- H2/PostgreSQL/MySQL 기반 테스트 및 파티션 벤치마크 추가
+
+#### spring-boot4/batch-exposed — Spring Boot 4 + Exposed 통합 배치 모듈 추가 ([`a02e9201e`](https://github.com/bluetape4k/bluetape4k-projects/commit/a02e9201e))
+
+- `ExposedKeysetItemReader`, `ExposedRangePartitioner`, `ExposedItemWriter` 계열을 Spring Boot 4 환경에 맞춰 제공
+- `ExposedBatchAutoConfiguration` 및 배치 DSL 포함
+- README/README.ko와 기본 통합 테스트 세트 함께 추가
+
+#### utils/batch — Kotlin Coroutine 네이티브 경량 배치 프레임워크 모듈 추가 ([`0e9ae3096`](https://github.com/bluetape4k/bluetape4k-projects/commit/0e9ae3096))
+
+- `No Spring`, `No runBlocking` 원칙의 코루틴 배치 실행 모델 제공
+- `BatchReader` / `BatchProcessor` / `BatchWriter` chunk 파이프라인과 `BatchJob` / `BatchStep` / `BatchStepRunner` 코어 엔진 제공
+- `BatchJobRepository` 기반 체크포인트 재시작, `SkipPolicy` / `RetryPolicy`, `batchJob {}` / `step {}` DSL 포함
+- `BatchJob`의 `SuspendWork` 구현으로 `utils/workflow`와 직접 통합
+- `ExposedJdbcBatchJobRepository` / `ExposedR2dbcBatchJobRepository` 및 JDBC/R2DBC Reader/Writer 제공
+
+#### utils/rule-engine — Janino/Groovy 스크립트 엔진 추가 ([`833e31a39`](https://github.com/bluetape4k/bluetape4k-projects/commit/833e31a39))
+
+기존 Kotlin Script / MVEL / SpEL 기반 규칙 실행기에 Janino와 Groovy 엔진 선택지를 추가했습니다.
+
+- `io.bluetape4k.rule.engines.janino.*`: `ExpressionEvaluator` / `ScriptEvaluator` 기반 컴파일형 Java 표현식 엔진
+- `io.bluetape4k.rule.engines.groovy.*`: `GroovyShell` + `NullSafeBinding` 기반 동적 스크립트 엔진
+- 엔진별 `Condition` / `Action` / `Rule` / `Support` 타입 추가
+- Janino/Groovy 예제·회귀 테스트 추가 및 README/README.ko 선택 가이드 보강
 
 #### data/exposed-cache — 공통 캐시 인터페이스 모듈 추가 (구 `exposed-redis-api`) ([`d969a78e0`](https://github.com/bluetape4k/bluetape4k-projects/commit/d969a78e0))
 
@@ -47,6 +79,29 @@
 
 ### Changed
 
+#### io/feign — 기본 구현 클래스와 상수 이름 정리 ([`11ec8881a`](https://github.com/bluetape4k/bluetape4k-projects/commit/11ec8881a))
+
+- Feign 기본 구현 인스턴스 생성을 `Encoder.Default()` / `Decoder.Default()` / `Retryer.Default()`에서 `DefaultEncoder()` / `DefaultDecoder()` / `DefaultRetryer()`로 정리
+- 잘못된 상수명 `JAVA_CLASS_VERION` → `JAVA_CLASS_VERSION`, `MILLIS_IN_DAY` → `MillisPerDay` 수정
+- 관련 회귀 테스트와 오타성 테스트 코드 함께 정리
+
+#### testing/testcontainers — Pulsar client API 및 의존성 버전 갱신 ([`75a1f84db`](https://github.com/bluetape4k/bluetape4k-projects/commit/75a1f84db))
+
+- `testing/testcontainers`에 `pulsar-client-api` 의존성 추가
+- Pulsar 3.3.9, Elasticsearch 9.3.3, CockroachDB 25.4.8로 관련 버전 업데이트
+- `PulsarServer`, `ElasticsearchServer`, `CockroachServer` 연관 빌드 설정 동기화
+
+#### spring-boot4/batch-exposed — Spring Batch 6.0 deprecated API 제거 ([`0c0bc8412`](https://github.com/bluetape4k/bluetape4k-projects/commit/0c0bc8412))
+
+- `JobLauncherTestUtils` → `JobOperatorTestUtils`, `launchJob()` → `startJob()`로 테스트 유틸 정리
+- `chunk(n, tm)` 호출을 `chunk(n).transactionManager(tm)` 패턴으로 전환
+- Boot 3 대비 누락되었던 integration/benchmark 테스트 4종 추가
+
+#### utils/idgenerators — kotlinx-benchmark 성능 측정 추가 ([`cb38152b0`](https://github.com/bluetape4k/bluetape4k-projects/commit/cb38152b0))
+
+- `SingleThreadIdGeneratorBenchmark`, `ConcurrentIdGeneratorBenchmark` 추가
+- `Benchmark.md`에 7개 ID 생성기 성능 비교와 컬러 바 차트 문서화
+
 #### data/exposed-cache — 4개 Redis 캐시 모듈 인터페이스 통일 ([`b7311fccb`](https://github.com/bluetape4k/bluetape4k-projects/commit/b7311fccb), [`1385f8c41`](https://github.com/bluetape4k/bluetape4k-projects/commit/1385f8c41))
 
 - `exposed-jdbc-lettuce` / `exposed-r2dbc-lettuce` / `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` 4개 모듈 인터페이스 및 테스트 구조 표준화
@@ -65,6 +120,21 @@
 - `Deferred.zipWith(other, transform)`: 두 결과를 변환 함수로 합성
 
 ### Fixed
+
+#### utils/workflow — suspend 워크플로 취소 전파 보강 ([`514b8c4d8`](https://github.com/bluetape4k/bluetape4k-projects/commit/514b8c4d8))
+
+- `SuspendSequentialFlow`, `SuspendParallelFlow`, `SuspendRepeatFlow`, `SuspendRetryFlow`, `SuspendConditionalFlow`에서 `CancellationException` 전파를 일관되게 보장
+- 실행 모델 비교 benchmark 및 README 설명 보강
+
+#### utils/states — 종료 상태 조회 일관성 수정 ([`6a66dc0e7`](https://github.com/bluetape4k/bluetape4k-projects/commit/6a66dc0e7))
+
+- 종료 상태에서도 `canTransition()` / `allowedEvents()`가 전이 가능해 보이던 불일치 수정
+- 동기/코루틴 상태 머신 회귀 테스트 추가
+
+#### utils/rule-engine — suspend 규칙 엔진 취소 전파 보강 ([`be865e94b`](https://github.com/bluetape4k/bluetape4k-projects/commit/be865e94b))
+
+- `DefaultSuspendRuleEngine`의 `fire()` / `check()` 경로에서 코루틴 취소를 정상 전파하도록 수정
+- 회귀 테스트 및 README 설명 갱신
 
 #### bluetape4k-coroutines — `Flow.log()` / `AsyncFlow.log()` 로그 미출력 버그 수정 ([`f56b00a27`](https://github.com/bluetape4k/bluetape4k-projects/commit/f56b00a27), [`8c9a96681`](https://github.com/bluetape4k/bluetape4k-projects/commit/8c9a96681))
 
