@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.duckdb
 
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Proxy
@@ -17,13 +18,13 @@ class DuckDBConnectionWrapperTest {
         val connection = proxyConnection(lastSql, statement)
         val wrapper = DuckDBConnectionWrapper(connection)
 
-        (statement === wrapper.prepareStatement("select 1", Statement.RETURN_GENERATED_KEYS)) shouldBeEqualTo true
+        wrapper.prepareStatement("select 1", Statement.RETURN_GENERATED_KEYS) shouldBe statement
         lastSql.get() shouldBeEqualTo "select 1"
 
-        (statement === wrapper.prepareStatement("select 2", intArrayOf(1))) shouldBeEqualTo true
+        wrapper.prepareStatement("select 2", intArrayOf(1)) shouldBe statement
         lastSql.get() shouldBeEqualTo "select 2"
 
-        (statement === wrapper.prepareStatement("select 3", arrayOf("id"))) shouldBeEqualTo true
+        wrapper.prepareStatement("select 3", arrayOf("id")) shouldBe statement
         lastSql.get() shouldBeEqualTo "select 3"
     }
 

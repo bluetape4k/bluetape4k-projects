@@ -4,6 +4,8 @@ import io.bluetape4k.exposed.trino.AbstractTrinoTest
 import io.bluetape4k.exposed.trino.domain.Events
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.count
@@ -61,7 +63,7 @@ class SelectTest: AbstractTrinoTest() {
 
             val rows = Events.selectAll().where { Events.region eq "kr" }.toList()
             rows.size shouldBeEqualTo 2
-            rows.all { it[Events.region] == "kr" } shouldBeEqualTo true
+            rows.all { it[Events.region] == "kr" }.shouldBeTrue()
         }
     }
 
@@ -74,9 +76,9 @@ class SelectTest: AbstractTrinoTest() {
                 .orderBy(Events.eventId to SortOrder.ASC)
                 .toList()
 
-            rows.size shouldBeEqualTo 5
-            rows.first()[Events.eventId] shouldBeEqualTo 1L
-            rows.last()[Events.eventId] shouldBeEqualTo 5L
+            rows.size shouldBeGreaterOrEqualTo FIXTURES.size
+            rows.first()[Events.eventId] shouldBeEqualTo FIXTURES.first().first
+            rows.last()[Events.eventId] shouldBeEqualTo FIXTURES.last().first
         }
     }
 

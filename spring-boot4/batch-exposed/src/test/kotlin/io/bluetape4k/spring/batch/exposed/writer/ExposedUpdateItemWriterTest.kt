@@ -7,6 +7,7 @@ import io.bluetape4k.spring.batch.exposed.SourceTable
 import io.bluetape4k.spring.batch.exposed.insertTestData
 import io.bluetape4k.spring.batch.exposed.support.castToLong
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -58,7 +59,7 @@ class ExposedUpdateItemWriterTest : AbstractExposedBatchTest() {
             writer.write(Chunk(emptyList()))
 
             val rows = SourceTable.selectAll().toList()
-            rows.none { it[SourceTable.name].endsWith("-updated") } shouldBeEqualTo true
+            rows.none { it[SourceTable.name].endsWith("-updated") }.shouldBeTrue()
         }
     }
 }

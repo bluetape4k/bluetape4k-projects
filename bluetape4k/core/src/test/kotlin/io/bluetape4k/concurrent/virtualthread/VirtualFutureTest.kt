@@ -6,7 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
@@ -74,7 +74,7 @@ class VirtualFutureTest {
         result shouldBeEqualTo emptyList()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `run many tasks with virtual thread tester`() {
         val taskCount = AtomicInteger(0)

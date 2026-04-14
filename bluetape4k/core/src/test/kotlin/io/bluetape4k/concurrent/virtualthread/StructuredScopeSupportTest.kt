@@ -5,11 +5,11 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import kotlin.test.assertFailsWith
 
-@EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+@EnabledForJreRange(min = JRE.JAVA_21)
 class StructuredScopeSupportTest {
 
     companion object: KLoggingChannel()

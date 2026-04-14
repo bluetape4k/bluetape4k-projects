@@ -3,9 +3,9 @@ package io.bluetape4k.rule.support
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.rule
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class UnitRuleGroupTest {
@@ -33,8 +33,8 @@ class UnitRuleGroupTest {
         val facts = Facts.empty()
         group.evaluate(facts).shouldBeTrue()
         group.execute(facts)
-        facts.get<Boolean>("rule1") shouldBeEqualTo true
-        facts.get<Boolean>("rule2") shouldBeEqualTo true
+        facts.get<Boolean>("rule1").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("rule2").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

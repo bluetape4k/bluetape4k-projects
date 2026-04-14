@@ -8,7 +8,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
@@ -33,7 +33,7 @@ class UlidGeneratorConcurrencyTest {
             }.run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @RepeatedTest(REPEAT_SIZE)
     fun `Virtual Thread 환경에서 중복 없이 ULID를 생성한다`() {
         val idMap = ConcurrentHashMap<String, Int>()

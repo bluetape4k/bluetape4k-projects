@@ -17,7 +17,7 @@ import org.apache.hc.client5.http.fluent.Async
 import org.apache.hc.client5.http.fluent.Content
 import org.apache.hc.core5.concurrent.FutureCallback
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import java.util.concurrent.ExecutionException
@@ -114,7 +114,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         }
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `execute multiple request in virtual threads`() {
         val async = Async.newInstance().use(VirtualThreadExecutor)

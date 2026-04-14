@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -104,7 +104,7 @@ class DigesterTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @ParameterizedTest(name = "digest string by {0}")
     @FieldSource("digesters")
     fun `digest message as string in virtual threads`(digester: Digester) {

@@ -8,6 +8,8 @@ import io.bluetape4k.rule.api.RuleEngineConfig
 import io.bluetape4k.rule.api.ruleSetOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DefaultRuleEngineTest {
@@ -34,7 +36,7 @@ class DefaultRuleEngineTest {
         }
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("executed") shouldBeEqualTo true
+        facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -70,7 +72,7 @@ class DefaultRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule1, rule2), facts)
-        facts.get<Boolean>("rule1") shouldBeEqualTo true
+        facts.get<Boolean>("rule1").shouldNotBeNull().shouldBeTrue()
         facts.containsKey("rule2").shouldBeFalse()
     }
 
@@ -141,7 +143,7 @@ class DefaultRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule1, rule2), facts)
-        facts.get<Boolean>("low") shouldBeEqualTo true
+        facts.get<Boolean>("low").shouldNotBeNull().shouldBeTrue()
         facts.containsKey("high").shouldBeFalse()
     }
 
@@ -161,7 +163,7 @@ class DefaultRuleEngineTest {
 
         val facts = Facts.empty()
         val result = engine.check(ruleSetOf(rule1, rule2), facts)
-        result[rule1] shouldBeEqualTo true
+        result[rule1].shouldNotBeNull().shouldBeTrue()
         result[rule2] shouldBeEqualTo false
     }
 
@@ -201,7 +203,7 @@ class DefaultRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("step1") shouldBeEqualTo true
-        facts.get<Boolean>("step2") shouldBeEqualTo true
+        facts.get<Boolean>("step1").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("step2").shouldNotBeNull().shouldBeTrue()
     }
 }

@@ -13,7 +13,7 @@ import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -126,7 +126,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `run action if leader in virtual threading`() {
         val lockName = randomName()
@@ -204,7 +204,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `run async action if leader in virtual threading`() {
         val lockName = randomName()

@@ -6,6 +6,7 @@ import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.exception.InvalidRuleDefinitionException
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import io.bluetape4k.rule.annotation.Action as ActionAnnotation
@@ -85,7 +86,7 @@ class RuleProxyTest {
         val facts = Facts.of("age" to 20)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("allowed") shouldBeEqualTo true
+        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -95,7 +96,7 @@ class RuleProxyTest {
         val facts = Facts.of("score" to 80)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("passed") shouldBeEqualTo true
+        facts.get<Boolean>("passed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -110,8 +111,8 @@ class RuleProxyTest {
 
         val facts = Facts.empty()
         rule.execute(facts)
-        facts.get<Boolean>("first") shouldBeEqualTo true
-        facts.get<Boolean>("second") shouldBeEqualTo true
+        facts.get<Boolean>("first").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("second").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -139,7 +140,7 @@ class RuleProxyTest {
 
         val facts = Facts.of("age" to 25)
         engine.fire(ruleSetOf(annotatedRule), facts)
-        facts.get<Boolean>("allowed") shouldBeEqualTo true
+        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

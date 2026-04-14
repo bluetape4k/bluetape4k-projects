@@ -3,9 +3,9 @@ package io.bluetape4k.rule.support
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.rule
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class ActivationRuleGroupTest {
@@ -36,7 +36,7 @@ class ActivationRuleGroupTest {
         group.evaluate(facts).shouldBeTrue()
         group.execute(facts)
         facts.containsKey("rule1").shouldBeFalse()
-        facts.get<Boolean>("rule2") shouldBeEqualTo true
+        facts.get<Boolean>("rule2").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

@@ -18,7 +18,7 @@ import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.io.Serializable
 import java.math.BigDecimal
@@ -68,7 +68,7 @@ class JsonMaskerTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `masking field with @JsonMasker in virtual threads`() {
         StructuredTaskScopeTester()

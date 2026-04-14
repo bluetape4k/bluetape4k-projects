@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.testcontainers.utility.Base58
 import java.nio.ByteBuffer
@@ -302,7 +302,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     }
 
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `get - StructuredTaskScopeTester 병렬 조회에서도 값 일관성을 유지한다`() {
         val key = "structured-read-through"

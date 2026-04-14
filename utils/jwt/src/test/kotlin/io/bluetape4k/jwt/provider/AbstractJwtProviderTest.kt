@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -137,7 +137,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         uniqueJwts.size shouldBeEqualTo 1
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @RepeatedTest(REPEAT_SIZE)
     fun `compose jwt in virtual threads`() {
         val customData = randomString(1024)

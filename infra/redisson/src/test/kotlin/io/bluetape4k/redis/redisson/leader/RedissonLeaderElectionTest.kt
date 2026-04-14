@@ -15,7 +15,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.redisson.client.RedisException
 import java.time.Duration
@@ -186,7 +186,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         task2.get() shouldBeGreaterThan 0
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `run action if leader in virtual threads`() {
         val lockName = randomName()
@@ -262,7 +262,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         task2.get() shouldBeGreaterThan 0
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `run async action if leader in virtual threads`() {
         val lockName = randomName()
@@ -341,7 +341,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
      * [StructuredTaskScopeTester]를 사용하여 Virtual Thread 환경에서
      * 동시 리더 선출 경쟁 시 [RedisException] 이 안전하게 처리되는지 검증한다.
      */
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `Virtual Thread 에서 runIfLeader 호출 시 성공하거나 RedisException 을 안전하게 처리한다`() {
         val lockName = randomName()

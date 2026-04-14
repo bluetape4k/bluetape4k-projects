@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class RuleDslTest {
@@ -29,7 +30,7 @@ class RuleDslTest {
         val facts = Facts.of("amount" to 1500)
         discountRule.evaluate(facts).shouldBeTrue()
         discountRule.execute(facts)
-        facts.get<Boolean>("discount") shouldBeEqualTo true
+        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -58,7 +59,7 @@ class RuleDslTest {
         val facts = Facts.of("value" to 10)
         asyncRule.evaluate(facts).shouldBeTrue()
         asyncRule.execute(facts)
-        facts.get<Boolean>("processed") shouldBeEqualTo true
+        facts.get<Boolean>("processed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -105,7 +106,7 @@ class RuleDslTest {
 
         val facts = Facts.empty()
         multiRule.execute(facts)
-        facts.get<Boolean>("step1") shouldBeEqualTo true
-        facts.get<Boolean>("step2") shouldBeEqualTo true
+        facts.get<Boolean>("step1").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("step2").shouldNotBeNull().shouldBeTrue()
     }
 }

@@ -9,6 +9,7 @@ import io.bluetape4k.rule.core.ruleEngine
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DiscountRuleExampleTest {
@@ -29,7 +30,7 @@ class DiscountRuleExampleTest {
         val facts = Facts.of("amount" to 1500)
         engine.fire(ruleSetOf(discountRule), facts)
 
-        facts.get<Boolean>("discount") shouldBeEqualTo true
+        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -80,7 +81,7 @@ class DiscountRuleExampleTest {
         engine.fire(ruleSetOf(discountRule, freeShippingRule, vipRule), facts)
 
         facts.get<Int>("discount") shouldBeEqualTo 15
-        facts.get<Boolean>("freeShipping") shouldBeEqualTo true
+        facts.get<Boolean>("freeShipping").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -100,7 +101,7 @@ class DiscountRuleExampleTest {
         val facts = Facts.of("value" to 50)
         val result = engine.check(ruleSetOf(rule1, rule2), facts)
 
-        result[rule1]!!.shouldBeTrue()
-        result[rule2]!!.shouldBeFalse()
+        result[rule1].shouldNotBeNull().shouldBeTrue()
+        result[rule2].shouldNotBeNull().shouldBeFalse()
     }
 }

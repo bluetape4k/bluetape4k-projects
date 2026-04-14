@@ -12,7 +12,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 
 class LettuceClientsTest: AbstractLettuceTest() {
@@ -55,7 +55,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `connect to redis server in virtual threads`() {
         StructuredTaskScopeTester()

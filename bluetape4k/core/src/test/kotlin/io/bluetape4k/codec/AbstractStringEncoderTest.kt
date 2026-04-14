@@ -15,7 +15,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import kotlin.random.Random
 
@@ -74,7 +74,7 @@ abstract class AbstractStringEncoderTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `Virtual Thread 환경에서 인코딩, 디코딩 하면 원본과 같아야 한다`() {
         val bytes = Random.nextBytes(4096)

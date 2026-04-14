@@ -13,7 +13,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import javax.crypto.Cipher
 
@@ -57,7 +57,7 @@ class CipherBuilderTest: AbstractCipherTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `create AES cipher for encryption in virtual threads`() {
         StructuredTaskScopeTester()

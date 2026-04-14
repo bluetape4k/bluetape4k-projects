@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.postgresql.tsrange
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
@@ -166,7 +165,7 @@ class TimestampRangeTest {
     fun `기본 경계 값 확인`() {
         val range = TimestampRange(start, end)
 
-        range.lowerInclusive shouldBeEqualTo true
-        range.upperInclusive shouldBeEqualTo false
+        range.lowerInclusive.shouldBeTrue()
+        range.upperInclusive.shouldBeFalse()
     }
 }

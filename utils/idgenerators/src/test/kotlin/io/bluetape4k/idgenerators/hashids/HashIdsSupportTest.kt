@@ -16,7 +16,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -111,7 +111,7 @@ class HashIdsSupportTest {
                 .run()
         }
 
-        @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+        @EnabledForJreRange(min = JRE.JAVA_21)
         @Test
         fun `encode flake id in virtual threading`() {
             val map = ConcurrentHashMap<Long, Int>()

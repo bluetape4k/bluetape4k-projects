@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -192,7 +192,7 @@ class SimpleExposedJdbcRepositoryTest: AbstractExposedJdbcRepositoryTest() {
         page.totalElements shouldBeEqualTo 10L
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     fun `findAll with paging - StructuredTaskScopeTester 병렬 조회에서도 totalElements 가 유지된다`() {

@@ -20,7 +20,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.io.Serializable
 
@@ -100,7 +100,7 @@ class JsonTinkEncryptTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `Tink 암호화 - 가상 스레드 환경에서 동작한다`() {
         StructuredTaskScopeTester()

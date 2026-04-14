@@ -58,9 +58,7 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         val redisKeys = redisKeys("$regionName:*")
 
         redisKeys.size shouldBeGreaterThan 0
-        redisKeys.any { key ->
-            key.contains("[ACME, 1001]")
-        } shouldBeEqualTo true
+        redisKeys.any { it.contains("[ACME, 1001]") }.shouldBeTrue()
     }
 
     @Test

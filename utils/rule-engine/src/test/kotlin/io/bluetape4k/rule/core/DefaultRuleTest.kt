@@ -4,9 +4,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Action
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DefaultRuleTest {
@@ -32,7 +32,7 @@ class DefaultRuleTest {
         val facts = Facts.of("value" to 20)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("result") shouldBeEqualTo true
+        facts.get<Boolean>("result").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

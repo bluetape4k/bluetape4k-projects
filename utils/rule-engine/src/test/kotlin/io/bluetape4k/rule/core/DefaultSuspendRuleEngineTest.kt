@@ -11,6 +11,7 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -32,7 +33,7 @@ class DefaultSuspendRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(suspendRuleSetOf(rule), facts)
-        facts.get<Boolean>("executed") shouldBeEqualTo true
+        facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -69,7 +70,7 @@ class DefaultSuspendRuleEngineTest {
 
         val facts = Facts.empty()
         engine.fire(suspendRuleSetOf(rule1, rule2), facts)
-        facts.get<Boolean>("rule1") shouldBeEqualTo true
+        facts.get<Boolean>("rule1").shouldNotBeNull().shouldBeTrue()
         facts.containsKey("rule2").shouldBeFalse()
     }
 
@@ -232,6 +233,6 @@ class DefaultSuspendRuleEngineTest {
 
         val result = engine.check(suspendRuleSetOf(failedRule, successRule), Facts.empty())
         result[failedRule] shouldBeEqualTo false
-        result[successRule] shouldBeEqualTo true
+        result[successRule].shouldNotBeNull().shouldBeTrue()
     }
 }

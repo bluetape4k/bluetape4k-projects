@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
@@ -90,7 +90,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `Virtual threads 에서 Fair Lock 을 제대로 획득합니다`() {
         val lock = redisson.getFairLock(randomName())

@@ -13,7 +13,7 @@ import net.datafaker.Faker
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import kotlin.test.assertFailsWith
@@ -119,7 +119,7 @@ class Base58Test {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `Virtual Threads 환경에서 Base58 인코딩, 디코딩하기`() {
         StructuredTaskScopeTester()

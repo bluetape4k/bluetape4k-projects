@@ -4,11 +4,11 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeUnit
 
-@EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+@EnabledForJreRange(min = JRE.JAVA_21)
 abstract class AbstractVirtualThreadTest {
 
     companion object: KLogging() {

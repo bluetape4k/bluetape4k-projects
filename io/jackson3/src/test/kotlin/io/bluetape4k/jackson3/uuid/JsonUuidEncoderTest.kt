@@ -17,7 +17,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import tools.jackson.databind.json.JsonMapper
 import java.io.Serializable
@@ -95,7 +95,7 @@ class JsonUuidEncodeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `convert uuid to base62 string in virtual threads`() {
         StructuredTaskScopeTester()

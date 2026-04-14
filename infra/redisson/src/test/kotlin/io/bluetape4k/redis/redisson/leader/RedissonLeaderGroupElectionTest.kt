@@ -16,7 +16,7 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.redisson.client.RedisException
 import java.time.Duration
@@ -119,7 +119,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
 
     // ── runIfLeader Virtual Thread ────────────────────────────────────────
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `runIfLeader - Virtual Thread 에서 동시 실행 중인 리더 수가 maxLeaders 를 초과하지 않는다`() {
         val lockName = randomName()
@@ -142,7 +142,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
         peakConcurrent.get() shouldBeLessOrEqualTo options.maxLeaders
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `멀티스레드 스트레스 - runIfLeader Virtual Thread 에서 모든 실행이 완료되고 카운터가 정확하다`() {
         val lockName = randomName()
@@ -376,7 +376,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
 
     // ── runAsyncIfLeader Virtual Thread ──────────────────────────────────
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `runAsyncIfLeader - Virtual Thread 에서 동시 실행 중인 리더 수가 maxLeaders 를 초과하지 않는다`() {
         val lockName = randomName()
@@ -439,7 +439,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
         peakConcurrent.get() shouldBeLessOrEqualTo shortWaitOptions.maxLeaders
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `멀티스레드 스트레스 - runAsyncIfLeader Virtual Thread 에서 모든 실행이 완료되고 카운터가 정확하다`() {
         val lockName = randomName()

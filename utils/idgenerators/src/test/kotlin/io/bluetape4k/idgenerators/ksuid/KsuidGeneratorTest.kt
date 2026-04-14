@@ -9,12 +9,13 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
@@ -61,7 +62,7 @@ class KsuidGeneratorTest {
         val gen = KsuidGenerator()
         val strs = gen.nextIdsAsString(ID_SIZE).toList()
         strs shouldHaveSize ID_SIZE
-        strs.all { it.length == Ksuid.Seconds.MAX_ENCODED_LEN } shouldBeEqualTo true
+        strs.all { it.length == Ksuid.Seconds.MAX_ENCODED_LEN }.shouldBeTrue()
     }
 
     @Nested
@@ -94,7 +95,7 @@ class KsuidGeneratorTest {
                 }.run()
         }
 
-        @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+        @EnabledForJreRange(min = JRE.JAVA_21)
         @RepeatedTest(REPEAT_SIZE)
         fun `Virtual Thread 환경에서 중복 없이 KSUID를 생성한다`() {
             val gen = KsuidGenerator()

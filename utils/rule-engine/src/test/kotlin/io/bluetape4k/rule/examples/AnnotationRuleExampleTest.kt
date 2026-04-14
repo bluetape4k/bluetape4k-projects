@@ -8,6 +8,7 @@ import io.bluetape4k.rule.core.asRule
 import io.bluetape4k.rule.core.ruleEngine
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import io.bluetape4k.rule.annotation.Action as ActionAnnotation
 import io.bluetape4k.rule.annotation.Condition as ConditionAnnotation
@@ -55,7 +56,7 @@ class AnnotationRuleExampleTest {
         val facts = Facts.of("age" to 20)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("allowed") shouldBeEqualTo true
+        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -65,7 +66,7 @@ class AnnotationRuleExampleTest {
 
         val facts = Facts.of("age" to 25)
         engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("allowed") shouldBeEqualTo true
+        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -77,7 +78,7 @@ class AnnotationRuleExampleTest {
         engine.fire(ruleSetOf(rule), facts)
 
         facts.get<Int>("discount") shouldBeEqualTo 20
-        facts.get<Boolean>("discountApplied") shouldBeEqualTo true
+        facts.get<Boolean>("discountApplied").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -95,7 +96,7 @@ class AnnotationRuleExampleTest {
         val facts = Facts.of("age" to 20)
         engine.fire(ruleSetOf(annotatedRule, dslRule), facts)
 
-        facts.get<Boolean>("allowed") shouldBeEqualTo true
+        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
         facts.get<String>("welcome") shouldBeEqualTo "성인 회원입니다"
     }
 }

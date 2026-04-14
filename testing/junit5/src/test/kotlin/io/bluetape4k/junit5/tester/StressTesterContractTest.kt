@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -24,7 +24,7 @@ class StressTesterContractTest {
         counter.get() shouldBeEqualTo 6
     }
 
-    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+    @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
     fun `버추얼스레드 테스터는 StressTester 계약으로 실행된다`() {
         val counter = AtomicInteger(0)

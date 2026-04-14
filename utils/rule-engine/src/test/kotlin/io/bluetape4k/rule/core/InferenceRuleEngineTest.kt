@@ -5,6 +5,7 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class InferenceRuleEngineTest {
@@ -52,7 +53,7 @@ class InferenceRuleEngineTest {
         }
 
         val result = engine.check(ruleSetOf(rule), Facts.empty())
-        result[rule] shouldBeEqualTo true
+        result[rule].shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

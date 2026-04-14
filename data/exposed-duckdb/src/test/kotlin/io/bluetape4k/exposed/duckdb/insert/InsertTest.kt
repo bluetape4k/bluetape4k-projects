@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.duckdb.AbstractDuckDBTest
 import io.bluetape4k.exposed.duckdb.domain.Events
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -76,7 +77,7 @@ class InsertTest: AbstractDuckDBTest() {
             Events.selectAll().where { Events.region eq "kr" }.toList()
         }
         krRows.size shouldBeEqualTo 2
-        krRows.all { it[Events.region] == "kr" } shouldBeEqualTo true
+        krRows.all { it[Events.region] == "kr" }.shouldBeTrue()
 
         val purchaseRows = transaction(db) {
             Events.selectAll().where { Events.eventType eq "PURCHASE" }.toList()

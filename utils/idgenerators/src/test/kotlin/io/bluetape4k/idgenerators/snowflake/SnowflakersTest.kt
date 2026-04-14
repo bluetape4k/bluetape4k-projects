@@ -14,7 +14,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
@@ -112,7 +112,7 @@ class SnowflakersTest {
                 }.run()
         }
 
-        @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+        @EnabledForJreRange(min = JRE.JAVA_21)
         @RepeatedTest(REPEAT_SIZE)
         fun `Virtual Thread 환경에서 중복 없이 Snowflake ID를 생성한다`() {
             val gen = SnowflakeGenerator()

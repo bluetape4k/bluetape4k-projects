@@ -9,12 +9,15 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeBlank
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
@@ -39,8 +42,7 @@ class UuidTest {
         @RepeatedTest(REPEAT_SIZE)
         fun `V1 nextBase62는 Base62 문자열을 반환한다`() {
             val s = Uuid.V1.nextBase62()
-            s.shouldNotBeNull()
-            s.isNotBlank() shouldBeEqualTo true
+            s.shouldNotBeNull().shouldNotBeBlank()
         }
     }
 
@@ -55,7 +57,7 @@ class UuidTest {
         @RepeatedTest(REPEAT_SIZE)
         fun `V4 nextBase62는 Base62 문자열을 반환한다`() {
             val s = Uuid.V4.nextBase62()
-            s.isNotBlank() shouldBeEqualTo true
+            s.shouldNotBeBlank()
         }
     }
 
@@ -79,7 +81,7 @@ class UuidTest {
         @RepeatedTest(REPEAT_SIZE)
         fun `V6 nextBase62는 Base62 문자열을 반환한다`() {
             val s = Uuid.V6.nextBase62()
-            s.isNotBlank() shouldBeEqualTo true
+            s.shouldNotBeBlank()
         }
     }
 
@@ -94,7 +96,7 @@ class UuidTest {
         @RepeatedTest(REPEAT_SIZE)
         fun `V7 nextBase62는 Base62 문자열을 반환한다`() {
             val s = Uuid.V7.nextBase62()
-            s.isNotBlank() shouldBeEqualTo true
+            s.shouldNotBeBlank()
         }
     }
 
@@ -111,7 +113,7 @@ class UuidTest {
         fun `nextBase62s는 요청한 크기만큼 문자열 시퀀스를 반환한다`() {
             val strs = Uuid.V7.nextBase62s(ID_SIZE).toList()
             strs shouldHaveSize ID_SIZE
-            strs.all { it.isNotBlank() } shouldBeEqualTo true
+            strs.all { it.isNotBlank() }.shouldBeTrue()
         }
 
         @Test
@@ -154,7 +156,7 @@ class UuidTest {
         fun `namebased는 다른 name으로 다른 UUID를 반환한다`() {
             val id1 = Uuid.namebased("name-a").nextId()
             val id2 = Uuid.namebased("name-b").nextId()
-            (id1 == id2) shouldBeEqualTo false
+            id2 shouldNotBeEqualTo id1
         }
     }
 
@@ -173,7 +175,8 @@ class UuidTest {
                 }.run()
         }
 
-        @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
+
+        @EnabledForJreRange(min = JRE.JAVA_21)
         @RepeatedTest(REPEAT_SIZE)
         fun `V7 Virtual Thread 환경에서 중복 없이 UUID를 생성한다`() {
             val idMap = ConcurrentHashMap<String, Int>()
