@@ -30,6 +30,16 @@ classDiagram
     GeometryColumnType <|-- GeoMultiPolygonColumnType
     GeometryColumnType <|-- GeoGeometryCollectionColumnType
     GeometryColumnType <|-- GeoGeometryColumnType
+
+    style GeometryColumnType fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style GeoPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoLineStringColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoMultiPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoMultiLineStringColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoMultiPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoGeometryCollectionColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoGeometryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ## Extension Function Diagram
@@ -54,6 +64,9 @@ classDiagram
         +ST_Contains(g1, g2): Expression
     }
 
+    style GeoPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MySQL8GeoExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Overview

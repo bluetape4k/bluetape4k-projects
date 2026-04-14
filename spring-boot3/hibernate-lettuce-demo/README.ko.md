@@ -73,6 +73,12 @@ classDiagram
     ProductRepository --> Product
     Product --> LettuceNearCacheRegionFactory : cached by
     CacheController --> LettuceNearCacheRegionFactory
+
+    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style CacheController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ProductRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style Product fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### 요청 흐름 다이어그램
@@ -92,6 +98,21 @@ flowchart TD
     RegionFactory --> L1
     RegionFactory --> L2
     Repo --> DB
+
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class Client extStyle
+    class Controller extStyle
+    class Repo serviceStyle
+    class Hibernate springStyle
+    class RegionFactory coreStyle
+    class L1 extStyle
+    class L2 extStyle
+    class DB dataStyle
 ```
 
 ## 도메인 모델

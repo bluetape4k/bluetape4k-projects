@@ -22,6 +22,18 @@ flowchart LR
     Pgvector --> Query
     Range --> Query
     Query --> PG
+
+    classDef coreStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef featureStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef queryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+
+    class Core coreStyle
+    class PostGIS featureStyle
+    class Pgvector featureStyle
+    class Range featureStyle
+    class Query queryStyle
+    class PG dbStyle
 ```
 
 ## 컬럼 타입 다이어그램
@@ -56,6 +68,10 @@ classDiagram
     PostGISExtensions --> PgvectorColumnType : creates
     PostGISExtensions --> TstzrangeColumnType : creates
 
+    style GeoGeometryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PgvectorColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TstzrangeColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PostGISExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## 주요 기능

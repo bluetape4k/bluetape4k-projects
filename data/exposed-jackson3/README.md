@@ -138,6 +138,9 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### JSON Column Type Class Structure
@@ -181,6 +184,13 @@ classDiagram
     JacksonColumnType --> JsonFunctions : integrates
     ResultRowExtensions --> JacksonColumnType : uses
     ResultRowExtensions --> JacksonBColumnType : uses
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonSerializer fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JsonFunctions fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style ResultRowExtensions fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Jackson 2 vs Jackson 3 Package Differences
@@ -199,6 +209,14 @@ flowchart LR
     C -->|serialize| Jackson3
     Jackson2 -->|deserialize| C
     Jackson3 -->|deserialize| C
+
+    classDef objectStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef jackson2Style fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef jackson3Style fill:#00897B,stroke:#00695C,color:#FFFFFF
+
+    class C objectStyle
+    class Jackson2 jackson2Style
+    class Jackson3 jackson3Style
 ```
 
 ## References

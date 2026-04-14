@@ -168,16 +168,29 @@ classDiagram
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
 
+    style AvroSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroGenericRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroSpecificRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroReflectSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DefaultAvroGenericRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultAvroSpecificRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultAvroReflectSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Avro 직렬화/역직렬화 흐름
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as 애플리케이션
-    participant S as AvroSerializer
-    participant C as CodecFactory
-    participant A as Avro 런타임
+    box rgb(232, 245, 233) 애플리케이션
+        participant 앱 as 애플리케이션
+    end
+    box rgb(227, 242, 253) bluetape4k-avro
+        participant S as AvroSerializer
+        participant C as CodecFactory
+    end
+    box rgb(237, 231, 246) Avro 런타임
+        participant A as Avro 런타임
+    end
 
     Note over 앱,A: 직렬화 흐름
     앱->>S: serialize(record)
@@ -211,6 +224,16 @@ flowchart TD
     ZSTD --> 직렬화
     ARCHIVE --> 직렬화
     NULL --> 직렬화
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class 시작,직렬화 coreStyle
+    class 용도 serviceStyle
+    class FAST,SNAPPY,NULL utilStyle
+    class DEFAULT,ZSTD,ARCHIVE dataStyle
 ```
 
 ## 의존성

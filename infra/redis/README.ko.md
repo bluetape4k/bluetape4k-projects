@@ -125,9 +125,23 @@ flowchart TD
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
     C --> C5[RedissonMemoizer<br/>함수 결과 메모이제이션]
 
-    style A fill:#F44336
-    style B fill:#2196F3
-    style C fill:#9C27B0
+    classDef umbrellaStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef lettuceStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef redissonStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    style A fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style B fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style C fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style B1 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style B2 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style B3 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style B4 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style B5 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style C1 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style C2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style C3 fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style C4 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style C5 fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## 핵심 클래스 다이어그램
@@ -192,6 +206,14 @@ classDiagram
     RedissonClientSupport --> RedissonCodecs: uses codec
     RedissonClientSupport --> RedissonLeaderElection: creates
     RedissonClientSupport --> RedissonNearCache: creates
+
+    style LettuceClients fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceBinaryCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RedissonClientSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RedissonCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceLoadedMap fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style RedissonLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedissonNearCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
 
 ```
 

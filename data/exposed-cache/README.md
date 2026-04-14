@@ -93,6 +93,16 @@ classDiagram
     SuspendedJdbcCacheRepository <|-- SuspendedJdbcCaffeineRepository
     R2dbcCacheRepository <|-- R2dbcRedisRepository
     R2dbcCacheRepository <|-- R2dbcCaffeineRepository
+
+    style JdbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style JdbcCaffeineRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendedJdbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendJdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style SuspendedJdbcCaffeineRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style R2dbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style R2dbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style R2dbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 Redis-specific sub-interfaces (Lettuce and Redisson) extend the Redis interfaces:
@@ -106,6 +116,16 @@ classDiagram
     SuspendJdbcRedisRepository <|-- SuspendedJdbcRedissonRepository
     R2dbcRedisRepository <|-- R2dbcLettuceRepository
     R2dbcRedisRepository <|-- R2dbcRedissonRepository
+
+    style JdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style SuspendJdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style R2dbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style JdbcLettuceRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JdbcRedissonRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendedJdbcLettuceRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendedJdbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style R2dbcLettuceRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style R2dbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## CacheMode
@@ -162,10 +182,18 @@ Optional resilience configuration for Redis-backed repositories. Pass `null` (th
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Repo as Repository
-    participant Cache as Local/Redis Cache
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant Client
+    end
+    box rgb(232, 245, 233) Repository
+        participant Repo as Repository
+    end
+    box rgb(243, 229, 245) Cache
+        participant Cache as Local/Redis Cache
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     Note over Client,DB: Read-Through (all modes)
     Client->>Repo: get(id)

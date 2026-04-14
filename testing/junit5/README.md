@@ -40,6 +40,25 @@ flowchart TD
     JU5 --> TestData
     JU5 --> Async
     JU5 --> Report
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class JU5 coreStyle
+    class SW testStyle
+    class TF testStyle
+    class OC testStyle
+    class SP testStyle
+    class FV dataStyle
+    class RV dataStyle
+    class FS dataStyle
+    class MT asyncStyle
+    class SJT asyncStyle
+    class STST asyncStyle
+    class AW asyncStyle
+    class MR testStyle
 ```
 
 ### Class Diagram
@@ -97,6 +116,16 @@ classDiagram
     TempFolderExtension --> TempFolder : provides
     MultithreadingTester --> SuspendedJobTester : similar API
     StructuredTaskScopeTester --> SuspendedJobTester : similar API
+
+    style StopwatchExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style TempFolderExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style TempFolder fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style OutputCapturer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style FakeValueExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style Fakers fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MultithreadingTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendedJobTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style StructuredTaskScopeTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## Key Features

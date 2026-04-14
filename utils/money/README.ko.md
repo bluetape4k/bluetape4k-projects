@@ -281,6 +281,11 @@ classDiagram
     note for Money "BigDecimal 기반<br/>무제한 정밀도<br/>금융 계산 권장"
     note for FastMoney "Long 기반<br/>소수점 5자리<br/>고성능 대량 연산"
 
+    style MonetaryAmount fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Money fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FastMoney fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CurrencyUnit fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CurrencyConvertor fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## 통화 연산 흐름
@@ -302,6 +307,17 @@ flowchart LR
     subgraph 집계
         L["listOf(100.inKRW(), 200.inKRW())"] -->|"sum(KRW)"| TOTAL["300 KRW"]
     end
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A,B,C dataStyle
+    class M1,M2,FM coreStyle
+    class R1,R2,R3 serviceStyle
+    class L dataStyle
+    class TOTAL serviceStyle
 ```
 
 > **참고**: 환전 작업은 정확성을 위해 `Money`를 사용하는 것을 권장합니다.

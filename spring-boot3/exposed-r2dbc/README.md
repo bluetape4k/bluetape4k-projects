@@ -54,6 +54,12 @@ classDiagram
     UserService --> UserRepository
     UserRepository --|> ExposedR2dbcRepository
     UserRepository --> User
+
+    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style UserService fill:#00838F,stroke:#006064,color:#FFFFFF
+    style UserRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style ExposedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style User fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Data Flow Diagram
@@ -72,6 +78,19 @@ flowchart LR
     Repo --> DSL
     DSL --> Driver
     Driver --> DB
+
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class WebFlux asyncStyle
+    class Repo coreStyle
+    class Mapper utilStyle
+    class DSL coreStyle
+    class Driver extStyle
+    class DB dataStyle
 ```
 
 ## Installation

@@ -304,6 +304,14 @@ flowchart TD
     A --> H
     A --> I
     A --> J
+
+    classDef testStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    classDef coroutineStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class 테스트_클래스 testStyle
+    class 지원_DB_R2DBC dbStyle
+    class Coroutine_유틸 coroutineStyle
 ```
 
 ### JDBC vs R2DBC 테스트 비교
@@ -319,8 +327,8 @@ flowchart LR
         R3[suspend withTables] -->|Flow 스트리밍| R4[Flow 쿼리]
     end
 
-    style JDBC_Tests fill:#e8f4f8
-    style R2DBC_Tests fill:#f4f8e8
+    style JDBC_Tests fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style R2DBC_Tests fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## 참고 사항

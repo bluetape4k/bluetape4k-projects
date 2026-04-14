@@ -358,16 +358,30 @@ classDiagram
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
 
+    style Codec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ForyCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Kryo5Codec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Lz4Codec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style ZstdCodec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style GzipCodec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style RedissonCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
 ```
 
 ### 분산 리더 선출 시퀀스
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) 프로세스
     participant P1 as 프로세스 1
     participant P2 as 프로세스 2
+    end
+    box rgb(207,216,220) Redis
     participant Redis as Redis (RLock)
+    end
+    box rgb(255,224,178) 작업
     participant Job as 배치 작업
+    end
 
     P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
     P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
@@ -387,10 +401,18 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) 애플리케이션
     participant App as 애플리케이션
+    end
+    box rgb(178,223,219) 로컬 캐시
     participant Local as 로컬 캐시<br/>(RLocalCachedMap)
+    end
+    box rgb(207,216,220) 원격 저장소
     participant Redis as Redis<br/>(원격 저장소)
+    end
+    box rgb(225,190,231) 다른 노드
     participant Other as 다른 노드
+    end
 
     App->>+Local: get("key")
     alt 로컬 캐시 히트
@@ -424,15 +446,23 @@ flowchart TD
     TxOps -->|성공 시 commitAsync| Redis
     TxOps -->|예외 시 rollbackAsync| Redis
 
-    style App fill:#2196F3
-    style App2 fill:#9C27B0
-    style Redis fill:#F44336
-    style Batch fill:#FF9800
-    style Tx fill:#FF9800
-    style Op1 fill:#607D8B
-    style Op2 fill:#607D8B
-    style Op3 fill:#607D8B
-    style TxOps fill:#607D8B
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style App2 fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    style Redis fill:#37474F,stroke:#263238,color:#FFFFFF
+    style Batch fill:#F57F17,stroke:#E65100,color:#000000
+    style Tx fill:#F57F17,stroke:#E65100,color:#000000
+    style Op1 fill:#37474F,stroke:#263238,color:#FFFFFF
+    style Op2 fill:#37474F,stroke:#263238,color:#FFFFFF
+    style Op3 fill:#37474F,stroke:#263238,color:#FFFFFF
+    style TxOps fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ## Redis 버전 요구사항

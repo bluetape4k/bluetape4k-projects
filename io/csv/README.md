@@ -50,6 +50,19 @@ classDiagram
     SuspendRecordReader <|.. SuspendTsvRecordReader
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
+
+    style RecordReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style RecordWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendRecordReader fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendRecordWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style CsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendCsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendTsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendCsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendTsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### CSV/TSV Processing Flow
@@ -91,6 +104,16 @@ flowchart TD
 
     App -->|entities| CW --> OF
     App -->|Flow entities| SCW --> OW
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class App coreStyle
+    class SCR,SCW,FL asyncStyle
+    class CR,CW,SEQ serviceStyle
+    class F,IS,STR,OF,OW dataStyle
 ```
 
 ## Key Features

@@ -305,6 +305,8 @@ classDiagram
         +Publisher~T~.asFlow(): Flow~T~
     }
 
+    style R2dbcExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FlowExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### 주요 API 구조
@@ -348,16 +350,28 @@ classDiagram
     QueryBuilder --> Query : 생성
     R2dbcClient --> DatabaseClientExtensions : 위임
     R2dbcClient --> QueryBuilder : 사용
+
+    style DatabaseClientExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BindSpecExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style QueryBuilder fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Query fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style R2dbcClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### R2DBC 쿼리 실행 흐름
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant R2DBC as DatabaseClient 확장
-    participant Spring as Spring R2DBC
-    participant DB as 데이터베이스
+    box rgb(227, 242, 253) 애플리케이션
+        participant App as 애플리케이션
+    end
+    box rgb(232, 245, 233) R2DBC 레이어
+        participant R2DBC as DatabaseClient 확장
+        participant Spring as Spring R2DBC
+    end
+    box rgb(255, 243, 224) 데이터베이스
+        participant DB as 데이터베이스
+    end
 
     App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
     R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
@@ -386,8 +400,11 @@ flowchart LR
         B4 -->|asFlow| B5["Flow&lt;T&gt; 비동기"]
     end
 
-    style JDBC fill:#f9f0e0
-    style R2DBC fill:#e0f0f9
+    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef r2dbcStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class JDBC jdbcStyle
+    class R2DBC r2dbcStyle
 ```
 
 ## 참고 자료

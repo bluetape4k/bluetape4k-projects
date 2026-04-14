@@ -306,7 +306,7 @@ suspendElection.runIfLeader("my-group-lock") {
 ## Memoizer (함수 결과 Redis 캐싱)
 
 > Memoizer는
-`bluetape4k-cache-lettuce` 모듈에 위치합니다. 자세한 사용법은 [cache-lettuce README](../cache-lettuce/README.md#memoizer)를 참조하세요.
+`bluetape4k-cache-lettuce` 모듈에 위치합니다. 자세한 사용법은 [cache-lettuce README](../cache-lettuce/README.ko.md)를 참조하세요.
 
 ```kotlin
 // build.gradle.kts
@@ -379,17 +379,34 @@ classDiagram
     note for LettuceSuspendSemaphore "suspend 전용"
     note for LettuceSuspendLeaderElection "suspend 전용"
 
+    style LettuceAtomicLong fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendAtomicLong fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceLock fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendLock fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceSemaphore fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendSemaphore fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
 ```
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Client Layer
     participant Client
+    end
+    box rgb(178,223,219) Cache Layer
     participant LettuceLoadedMap
+    end
+    box rgb(207,216,220) Storage Layer
     participant Redis
+    end
+    box rgb(255,224,178) Data Source
     participant MapLoader
     participant MapWriter
+    end
     Note over Client, MapWriter: Read-Through (캐시 미스)
     Client ->> LettuceLoadedMap: get(key)
     LettuceLoadedMap ->> Redis: GET prefix:key
@@ -462,6 +479,13 @@ classDiagram
     RedisCodec <|.. LettuceIntCodec
     RedisCodec <|.. LettuceLongCodec
     LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
+
+    style RedisCodec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ToByteBufEncoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LettuceBinaryCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceBinaryCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceIntCodec fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceLongCodec fill:#E65100,stroke:#BF360C,color:#FFFFFF
 
 ```
 

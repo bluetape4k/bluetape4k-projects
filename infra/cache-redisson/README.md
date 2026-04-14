@@ -46,6 +46,107 @@ The core structure includes:
 
 The Korean README includes the detailed class diagram and invalidation sequence for `RLocalCachedMap`.
 
+## Architecture Diagrams
+
+### RedissonNearCache Class Hierarchy
+
+```mermaid
+classDiagram
+    class NearCacheOperations {
+        <<interface>>
+        +get(key) V?
+        +put(key, value)
+        +remove(key)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+    }
+
+    class SuspendNearCacheOperations {
+        <<interface>>
+        +get(key) V?
+        +put(key, value)
+        +remove(key)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+    }
+
+    class RedissonNearCache {
+        -redisson: RedissonClient
+        -localCachedMap: RLocalCachedMap
+        -config: RedissonNearCacheConfig
+    }
+
+    class RedissonSuspendNearCache {
+        -redisson: RedissonClient
+        -localCachedMap: RLocalCachedMap
+        -config: RedissonNearCacheConfig
+    }
+
+    class RedissonResp3NearCache {
+        -redisson: RedissonClient
+        -lettuceClient: RedisClient
+        -frontCache: Cache
+    }
+
+    class RedissonResp3SuspendNearCache {
+        -redisson: RedissonClient
+        -lettuceClient: RedisClient
+        -frontCache: Cache
+    }
+
+    NearCacheOperations <|.. RedissonNearCache
+    NearCacheOperations <|.. RedissonResp3NearCache
+    SuspendNearCacheOperations <|.. RedissonSuspendNearCache
+    SuspendNearCacheOperations <|.. RedissonResp3SuspendNearCache
+
+    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style RedissonResp3NearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style RedissonResp3SuspendNearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+```
+
+### NearCache Flow (RLocalCachedMap)
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) Application
+    participant App as Application
+    end
+    box rgb(227,242,253) NearCache
+    participant NC as RedissonNearCache
+    participant L1 as Local Cache (Caffeine)
+    end
+    box rgb(243,229,245) Redis
+    participant L2 as Redis Server
+    end
+
+    App->>NC: get("key")
+    NC->>L1: get("key")
+    alt L1 hit
+        L1-->>NC: value
+        NC-->>App: value
+    else L1 miss
+        L1-->>NC: null
+        NC->>L2: GET key
+        alt L2 hit
+            L2-->>NC: value
+            NC->>L1: put("key", value)
+            NC-->>App: value
+        else L2 miss
+            L2-->>NC: null
+            NC-->>App: null
+        end
+    end
+
+    Note over L2,L1: Pub/Sub invalidation
+    L2-)NC: invalidation message
+    NC->>L1: evict("key")
+```
+
 ## JCache-Based NearCache (`nearcache.jcache` package)
 
 In addition to the native near-cache implementations, this module also supports JCache-oriented near-cache setups for applications that need to stay aligned with the standard JCache contract.

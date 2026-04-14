@@ -107,18 +107,57 @@ flowchart TD
     ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce Cache]
     ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson Cache]
 
-    style E fill:#607D8B
-    style EC fill:#9C27B0
-    style ED fill:#FF9800
-    style EJ fill:#2196F3
-    style ER fill:#2196F3
-    style EJK fill:#4CAF50
-    style EP fill:#4CAF50
-    style EM fill:#4CAF50
-    style EJL fill:#F44336
-    style EJR fill:#F44336
-    style ERL fill:#F44336
-    style ERR fill:#F44336
+    classDef umbrellaStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
+    classDef coreStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef daoStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef extStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    class E umbrellaStyle
+    class EC coreStyle
+    class ED daoStyle
+    class EJ jdbcStyle
+    class ER jdbcStyle
+    class EJK extStyle
+    class EP extStyle
+    class EM extStyle
+    class EJL cacheStyle
+    class EJR cacheStyle
+    class ERL cacheStyle
+    class ERR cacheStyle
+```
+
+## Layered Execution Flow
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) Application Layer
+        participant App as Kotlin Application
+    end
+    box rgb(227,242,253) DSL Layer
+        participant DSL as Exposed DSL
+        participant Core as exposed-core
+        participant DAO as exposed-dao
+    end
+    box rgb(243,229,245) Execution Layer
+        participant JDBC as exposed-jdbc
+        participant R2DBC as exposed-r2dbc
+    end
+    box rgb(255,243,224) Database Layer
+        participant DB as Database
+    end
+
+    App->>DSL: Build query / define entity
+    DSL->>Core: Column types, ID generation
+    DSL->>DAO: DAO entity, IdTable strategy
+    DSL->>JDBC: transaction { } / suspendedQuery
+    DSL->>R2DBC: suspendTransaction / queryFlow
+    JDBC->>DB: JDBC SQL execution
+    R2DBC->>DB: Reactive SQL execution
+    DB-->>JDBC: ResultSet
+    DB-->>R2DBC: Publisher<Row>
+    JDBC-->>App: Entity / ResultRow
+    R2DBC-->>App: Flow<ResultRow>
 ```
 
 ## References

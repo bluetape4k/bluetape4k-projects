@@ -55,6 +55,23 @@ classDiagram
     AbstractCompressor <|-- ApacheDeflateCompressor
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
+
+    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style StreamingCompressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractCompressor fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style LZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BlockLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FramedLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FramedSnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BZip2Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheGZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheDeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### BinarySerializer 계층
@@ -100,15 +117,28 @@ classDiagram
     AbstractBinarySerializer <|-- ForyBinarySerializer
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
+
+    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractBinarySerializer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style BinarySerializerDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style CompressableBinarySerializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style JdkBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KryoBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ForyBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### compress/decompress 흐름
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
-    participant AC as AbstractCompressor
-    participant Impl as 구현체(e.g. LZ4Compressor)
+    box rgb(232, 245, 233) 호출자
+        participant C as 호출자
+    end
+    box rgb(227, 242, 253) Core
+        participant AC as AbstractCompressor
+        participant Impl as 구현체(e.g. LZ4Compressor)
+    end
 
     C->>AC: compress(plain: ByteArray?)
     AC->>AC: plain.isNullOrEmpty() 검사
@@ -135,9 +165,13 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
-    participant ABS as AbstractBinarySerializer
-    participant Impl as 구현체(e.g. KryoBinarySerializer)
+    box rgb(232, 245, 233) 호출자
+        participant C as 호출자
+    end
+    box rgb(227, 242, 253) Core
+        participant ABS as AbstractBinarySerializer
+        participant Impl as 구현체(e.g. KryoBinarySerializer)
+    end
 
     C->>ABS: serialize(graph: Any?)
     alt graph == null
@@ -402,6 +436,15 @@ path.tryReadAllBytes().onSuccess { bytes ->
 | Jackson | 39,510  | JSON 기반 |
 | Jdk     | 22,249  | Java 표준 |
 
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#2E7D32'}}}}%%
+xychart-beta horizontal
+    title "직렬화 성능 비교 — Byte Array 없음 (ops/s)"
+    x-axis ["Jdk", "Jackson", "Kryo", "Fory"]
+    y-axis "ops/s" 0 --> 320000
+    bar [22249, 39510, 81823, 305821]
+```
+
 **Byte Array (4096 bytes) 포함 시:**
 
 | 라이브러리   | ops/s  | 비고           |
@@ -410,6 +453,15 @@ path.tryReadAllBytes().onSuccess { bytes ->
 | Kryo    | 29,329 | 범용 추천        |
 | Jdk     | 8,431  | Java 표준      |
 | Jackson | 4,323  | 바이너리 데이터에 불리 |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
+xychart-beta horizontal
+    title "직렬화 성능 비교 — Byte Array 4096B 포함 (ops/s)"
+    x-axis ["Jackson", "Jdk", "Kryo", "Fory"]
+    y-axis "ops/s" 0 --> 65000
+    bar [4323, 8431, 29329, 59192]
+```
 
 > Fory는 Kryo 대비 약 3배 이상 빠릅니다.
 > ByteArray가 포함된 경우, Jackson이 가장 느립니다.
@@ -425,6 +477,15 @@ path.tryReadAllBytes().onSuccess { bytes ->
 | Zstd    | 5,103 | 속도 + 압축률 균형 (추천) |
 | GZip    | 1,195 | 호환성 우수           |
 | Deflate | 1,084 | GZip 기반          |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#E65100'}}}}%%
+xychart-beta horizontal
+    title "압축 성능 비교 — 40KB UTF-8 텍스트 (ops/s)"
+    x-axis ["Deflate", "GZip", "Zstd", "LZ4", "Snappy"]
+    y-axis "ops/s" 0 --> 9000
+    bar [1084, 1195, 5103, 6769, 8073]
+```
 
 ## 모듈 구조
 

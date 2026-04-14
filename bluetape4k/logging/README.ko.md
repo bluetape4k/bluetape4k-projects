@@ -78,6 +78,15 @@ classDiagram
     Logger ..> MDC : "일반 블로킹 컨텍스트"
     Logger ..> CoroutineMDC : "코루틴 컨텍스트"
 
+    style KLogging fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style KLoggingChannel fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LogEvent fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style KotlinLogging fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Logger fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style MDC fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style CoroutineMDC fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style KLoggerFactory fill:#37474F,stroke:#263238,color:#FFFFFF
+
 ```
 
 ---
@@ -105,6 +114,12 @@ flowchart TD
         C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(async 블록에도 전파)"]:::asyncStyle
     end
 
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 ```
 
 ---
@@ -113,11 +128,17 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션 코루틴
-    participant CH as KLoggingChannel
-    participant SF as MutableSharedFlow (버퍼 64)
-    participant BG as 백그라운드 코루틴
-    participant SLF as SLF4J Logger
+    box rgb(232, 245, 233) 애플리케이션
+        participant App as 애플리케이션 코루틴
+    end
+    box rgb(225, 190, 231) 비동기 로거
+        participant CH as KLoggingChannel
+        participant SF as MutableSharedFlow (버퍼 64)
+        participant BG as 백그라운드 코루틴
+    end
+    box rgb(255, 236, 179) SLF4J
+        participant SLF as SLF4J Logger
+    end
 
     App->>CH: log.debug { "Processing event: $id" }
     CH->>CH: isDebugEnabled 확인

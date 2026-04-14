@@ -55,6 +55,23 @@ classDiagram
     AbstractCompressor <|-- ApacheDeflateCompressor
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
+
+    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style StreamingCompressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractCompressor fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style LZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BlockLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FramedLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FramedSnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BZip2Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheGZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheDeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ApacheZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### BinarySerializer Hierarchy
@@ -100,15 +117,28 @@ classDiagram
     AbstractBinarySerializer <|-- ForyBinarySerializer
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
+
+    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractBinarySerializer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style BinarySerializerDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style CompressableBinarySerializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style JdkBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KryoBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ForyBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### compress/decompress Flow
 
 ```mermaid
 sequenceDiagram
-    participant C as Caller
-    participant AC as AbstractCompressor
-    participant Impl as Implementation (e.g. LZ4Compressor)
+    box rgb(232, 245, 233) Caller
+        participant C as Caller
+    end
+    box rgb(227, 242, 253) Core
+        participant AC as AbstractCompressor
+        participant Impl as Implementation (e.g. LZ4Compressor)
+    end
 
     C->>AC: compress(plain: ByteArray?)
     AC->>AC: check plain.isNullOrEmpty()
@@ -135,9 +165,13 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant C as Caller
-    participant ABS as AbstractBinarySerializer
-    participant Impl as Implementation (e.g. KryoBinarySerializer)
+    box rgb(232, 245, 233) Caller
+        participant C as Caller
+    end
+    box rgb(227, 242, 253) Core
+        participant ABS as AbstractBinarySerializer
+        participant Impl as Implementation (e.g. KryoBinarySerializer)
+    end
 
     C->>ABS: serialize(graph: Any?)
     alt graph == null
@@ -403,6 +437,15 @@ Throughput for serializing/deserializing a collection of 20 `SimpleData` objects
 | Jackson | 39,510  | JSON-based                  |
 | Jdk     | 22,249  | Java standard               |
 
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#2E7D32'}}}}%%
+xychart-beta horizontal
+    title "Serialization Performance — No Byte Array (ops/s)"
+    x-axis ["Jdk", "Jackson", "Kryo", "Fory"]
+    y-axis "ops/s" 0 --> 320000
+    bar [22249, 39510, 81823, 305821]
+```
+
 **With byte array fields (4096 bytes):**
 
 | Library | ops/s  | Notes                         |
@@ -411,6 +454,15 @@ Throughput for serializing/deserializing a collection of 20 `SimpleData` objects
 | Kryo    | 29,329 | Recommended for general use   |
 | Jdk     | 8,431  | Java standard                 |
 | Jackson | 4,323  | Disadvantaged for binary data |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
+xychart-beta horizontal
+    title "Serialization Performance — With 4096B Byte Array (ops/s)"
+    x-axis ["Jackson", "Jdk", "Kryo", "Fory"]
+    y-axis "ops/s" 0 --> 65000
+    bar [4323, 8431, 29329, 59192]
+```
 
 > Fory is approximately 3x faster than Kryo.
 > Jackson is the slowest when byte arrays are involved.
@@ -426,6 +478,15 @@ Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.tx
 | Zstd      | 5,103 | Balanced speed and ratio (recommended) |
 | GZip      | 1,195 | Excellent compatibility                |
 | Deflate   | 1,084 | GZip-based                             |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#E65100'}}}}%%
+xychart-beta horizontal
+    title "Compression Performance — 40KB UTF-8 Text (ops/s)"
+    x-axis ["Deflate", "GZip", "Zstd", "LZ4", "Snappy"]
+    y-axis "ops/s" 0 --> 9000
+    bar [1084, 1195, 5103, 6769, 8073]
+```
 
 ## Module Structure
 

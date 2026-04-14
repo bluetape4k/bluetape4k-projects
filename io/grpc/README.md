@@ -50,6 +50,12 @@ classDiagram
     GrpcServer <|.. AbstractGrpcServer
     AbstractGrpcServer <|-- AbstractGrpcInprocessServer
     AbstractGrpcClient <|-- AbstractGrpcInprocessClient
+
+    style GrpcServer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractGrpcServer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style AbstractGrpcClient fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style AbstractGrpcInprocessServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AbstractGrpcInprocessClient fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Component Overview
@@ -86,16 +92,30 @@ flowchart TD
     AGIS --> IPSB
     AGC --> MCB
     AGIC --> IPCB
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+
+    class GS serviceStyle
+    class AGS,AGC serviceStyle
+    class AGIS,AGIC coreStyle
+    class SB,MCB,IPSB,IPCB extStyle
 ```
 
 ### gRPC Server-Client Communication Sequence
 
 ```mermaid
 sequenceDiagram
-    participant C as GrpcClient
-    participant CH as ManagedChannel
-    participant S as GrpcServer
-    participant SVC as ServiceImpl
+    box rgb(232, 245, 233) Client
+        participant C as GrpcClient
+        participant CH as ManagedChannel
+    end
+    box rgb(227, 242, 253) Server
+        participant S as GrpcServer
+        participant SVC as ServiceImpl
+    end
 
     C->>CH: ManagedChannelBuilder.forAddress(host, port)
     CH->>S: Establish TCP connection
@@ -116,10 +136,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant T as Test code
-    participant IS as InprocessServer
-    participant IC as InprocessClient
-    participant SVC as ServiceImpl
+    box rgb(232, 245, 233) Test
+        participant T as Test code
+    end
+    box rgb(227, 242, 253) In-process Server
+        participant IS as InprocessServer
+        participant SVC as ServiceImpl
+    end
+    box rgb(237, 231, 246) In-process Client
+        participant IC as InprocessClient
+    end
 
     T->>IS: InProcessServerBuilder.forName("test-server")
     IS->>SVC: Register and start service

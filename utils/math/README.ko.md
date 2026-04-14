@@ -56,6 +56,21 @@ flowchart TD
     MATH --> 방정식
     MATH --> 랜덤
     MATH --> ML
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class MATH coreStyle
+    class DS,HG,MA,AG serviceStyle
+    class LIN,SPL,LOE,AKI utilStyle
+    class ROM,SIM,TRP,MID utilStyle
+    class BIS,BRN,SEC utilStyle
+    class RF,RD,WC,WD dataStyle
+    class KM,DM asyncStyle
 ```
 
 ### 클래스 다이어그램
@@ -103,6 +118,15 @@ classDiagram
     Descriptives <|.. DoubleStatistics
     Interpolator <|.. LinearInterpolator
     Interpolator <|.. SplineInterpolator
+
+    style Descriptives fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Interpolator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Integrator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DoubleStatistics fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Histogram fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LinearInterpolator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SplineInterpolator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style WeightedDice fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## 주요 기능

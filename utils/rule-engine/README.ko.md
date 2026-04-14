@@ -28,6 +28,15 @@ flowchart LR
     RE -->|" evaluate(facts) per rule "| RS
     RS -->|" true → execute(facts) "| Facts
     RE -.->|" 4. 결과 읽기 "| Facts
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class RE coreStyle
+    class R1,R2,R3 dslStyle
+    class KV dataStyle
 ```
 
 `Rule`은 **condition** (`Facts` 검사 Predicate)과 **action** (`Facts` 수정 함수)으로 구성됩니다.  
@@ -114,6 +123,16 @@ classDiagram
     DefaultRule ..> Action : uses
     SuspendRule <|.. DefaultSuspendRule
     RuleSet o-- Rule : contains
+
+    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style AbstractRule fill:#1976D2,stroke:#0D47A1,color:#FFFFFF
+    style DefaultRule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultSuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style Condition fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Action fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Facts fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RuleSet fill:#00838F,stroke:#006064,color:#FFFFFF
 ```
 
 ### Rule Engine 클래스 다이어그램
@@ -162,6 +181,13 @@ classDiagram
     RuleEngine <|.. InferenceRuleEngine
     DefaultRuleEngine o-- RuleEngineConfig
     DefaultRuleEngine o-- RuleListener : listeners
+
+    style RuleEngine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DefaultRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultSuspendRuleEngine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style InferenceRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RuleEngineConfig fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style RuleListener fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### Composite Rule 다이어그램
@@ -191,17 +217,29 @@ classDiagram
     CompositeRule <|-- ConditionalRuleGroup
     CompositeRule <|-- UnitRuleGroup
     CompositeRule o-- Rule : contains
+
+    style CompositeRule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ActivationRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ConditionalRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UnitRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### Rule 실행 시퀀스
 
 ```mermaid
 sequenceDiagram
+    box "소비자" #E8F5E9
     participant Caller
+    end
+    box "Rule Engine" #E3F2FD
     participant RuleEngine
     participant RuleListener
+    end
+    box "Rules" #FFF3E0
     participant Rule
     participant Facts
+    end
     Caller ->> RuleEngine: fire(ruleSet, facts)
 
     loop rules (우선순위 순)
@@ -233,6 +271,14 @@ flowchart TD
     D --> E[Facts 업데이트]
     E --> B
     C -->|no| F[종료]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A,B coreStyle
+    class D,E serviceStyle
+    class F dataStyle
 ```
 
 ### Rule Engine 선택 가이드
@@ -249,6 +295,18 @@ flowchart TD
     G --> I["어노테이션: @Rule"]
     G --> J["스크립트: MVEL2 / SpEL / Janino / Groovy"]
     G --> K["파일: YAML / JSON / HOCON"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A coreStyle
+    class E,F serviceStyle
+    class C asyncStyle
+    class H,I dslStyle
+    class J,K dataStyle
 ```
 
 ## 핵심 기능
@@ -409,6 +467,14 @@ flowchart TD
     E -->|no| G[MVEL2]
     B -->|"복잡 (컬렉션, 클로저, 분기)"| H[Groovy]
     B -->|"Kotlin 타입 안전 필요"| I[Kotlin Script]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+
+    class A coreStyle
+    class D,F,G serviceStyle
+    class H,I extStyle
 ```
 
 | 시나리오 | 추천 엔진 | 이유 |

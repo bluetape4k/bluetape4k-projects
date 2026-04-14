@@ -350,17 +350,34 @@ classDiagram
     TinkMacs ..> TinkMac : creates
     TinkDigesters ..> TinkDigester : creates
 
+    style TinkEncryptor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TinkAeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDaeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkAead fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDeterministicAead fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkEncryptors fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkAeads fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkMac fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkMacs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkDigester fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDigesters fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### AEAD encrypt/decrypt Flow
 
 ```mermaid
 sequenceDiagram
-    participant Caller
-    participant TinkEncryptors
-    participant TinkAeadEncryptor
-    participant TinkAead
-    participant Aead
+    box rgb(232, 245, 233) Application
+        participant Caller
+    end
+    box rgb(227, 242, 253) Tink Encrypt Layer
+        participant TinkEncryptors
+        participant TinkAeadEncryptor
+        participant TinkAead
+    end
+    box rgb(237, 231, 246) Tink Runtime
+        participant Aead
+    end
 
     Note over Caller,Aead: Encryption (encrypt)
     Caller->>TinkEncryptors: AES256_GCM.encrypt("plaintext")

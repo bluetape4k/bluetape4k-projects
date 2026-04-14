@@ -155,6 +155,12 @@ classDiagram
     UserRepository --> CriteriaDsl
     UserRepository --> QueryBuilderExt
     UserRepository --> UpdateDsl
+
+    style ReactiveMongoOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style QueryBuilderExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style CriteriaDsl fill:#F57F17,stroke:#E65100,color:#000000
+    style UpdateDsl fill:#F57F17,stroke:#E65100,color:#000000
+    style UserRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### ReactiveMongoOperations 코루틴 확장 흐름
@@ -168,6 +174,18 @@ flowchart TD
     Driver --> MongoDB[("MongoDB")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef extStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef reactorStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef driverStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class Ext,ROps extStyle
+    class Reactor reactorStyle
+    class Driver driverStyle
+    class MongoDB dbStyle
 ```
 
 ### Criteria / Query / Update DSL 흐름
@@ -183,16 +201,34 @@ flowchart LR
     Query --> ROps["ReactiveMongoOperations<br/>코루틴 확장"]
     Update --> ROps
     ROps --> MongoDB[("MongoDB")]
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef queryStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef opsStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Code appStyle
+    class CriteriaDSL,QueryBuilder,UpdateDSL dslStyle
+    class Query,Update queryStyle
+    class ROps opsStyle
+    class MongoDB dbStyle
 ```
 
 ### 코루틴 변환 시퀀스
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as 코루틴 확장
-    participant Ops as ReactiveMongoOperations
-    participant DB as MongoDB
+    box rgb(187,222,251) 애플리케이션 계층
+        participant App as 애플리케이션
+    end
+    box rgb(225,190,231) 코루틴 계층
+        participant Ext as 코루틴 확장
+        participant Ops as ReactiveMongoOperations
+    end
+    box rgb(224,224,224) 데이터 계층
+        participant DB as MongoDB
+    end
 
     App->>Ext: findAllAsFlow<User>()
     Ext->>Ops: findAll(User::class) → Flux<User>

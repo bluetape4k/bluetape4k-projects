@@ -197,6 +197,38 @@ classDiagram
     BigQueryContext ..> BigQueryQueryExecutor : creates
     BigQueryQueryExecutor ..> BigQueryResultRow : returns
     BigQueryDialect --|> PostgreSQLDialect
+
+    style BigQueryContext fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style BigQueryQueryExecutor fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style BigQueryResultRow fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style BigQueryDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
+```
+
+### 쿼리 실행 흐름
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) 애플리케이션
+        participant App as Kotlin 코드
+    end
+    box rgb(227,242,253) SQL 생성
+        participant CTX as BigQueryContext
+        participant H2 as H2 (PostgreSQL 모드)
+    end
+    box rgb(243,229,245) 실행
+        participant BQ as BigQuery REST API
+    end
+    box rgb(255,243,224) 결과
+        participant ROW as BigQueryResultRow
+    end
+
+    App->>CTX: Exposed DSL 쿼리
+    CTX->>H2: SQL 문자열 생성
+    H2-->>CTX: SQL 텍스트
+    CTX->>BQ: REST API 실행
+    BQ-->>CTX: QueryResponse (JSON)
+    CTX->>ROW: 타입 안전 행 매핑
+    ROW-->>App: List / Flow<BigQueryResultRow>
 ```
 
 ## 주요 파일/클래스 목록

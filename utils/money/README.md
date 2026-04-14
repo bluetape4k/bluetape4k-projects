@@ -280,6 +280,11 @@ classDiagram
     note for Money "BigDecimal-based<br/>unlimited precision<br/>recommended for finance"
     note for FastMoney "Long-based<br/>5 decimal places<br/>high-volume operations"
 
+    style MonetaryAmount fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Money fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FastMoney fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CurrencyUnit fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CurrencyConvertor fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Currency Operation Flow
@@ -301,6 +306,17 @@ flowchart LR
     subgraph Aggregation
         L["listOf(100.inKRW(), 200.inKRW())"] -->|"sum(KRW)"| TOTAL["300 KRW"]
     end
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A,B,C dataStyle
+    class M1,M2,FM coreStyle
+    class R1,R2,R3 serviceStyle
+    class L dataStyle
+    class TOTAL serviceStyle
 ```
 
 > **Note**: For currency conversion, `Money` is recommended for accuracy.

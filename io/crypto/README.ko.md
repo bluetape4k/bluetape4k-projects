@@ -184,6 +184,20 @@ classDiagram
     AbstractEncryptor <|-- RC2
     AbstractEncryptor <|-- RC4
 
+    style Digester fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Encryptor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractDigester fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style AbstractEncryptor fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style SHA256 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SHA512 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MD5 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Keccak256 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AES fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TripleDES fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DES fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RC2 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RC4 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CipherBuilder fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### 암호화/복호화 데이터 흐름
@@ -216,13 +230,15 @@ flowchart LR
     C -->|decrypt| E1
     C -->|decrypt| E2
 
-    style P fill:#607D8B
-    style D1 fill:#4CAF50
-    style D2 fill:#4CAF50
-    style E1 fill:#F44336
-    style E2 fill:#2196F3
-    style H fill:#FF9800
-    style C fill:#FF9800
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class P coreStyle
+    class D1,D2 serviceStyle
+    class E1,E2 utilStyle
+    class H,C dataStyle
 ```
 
 ## 의존성

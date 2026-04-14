@@ -154,6 +154,11 @@ classDiagram
     PostRepository --> R2dbcEntityOperationsExt
     PostRepository --> Post
     R2dbcConfig --> PostRepository : inject
+
+    style PostRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style R2dbcEntityOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style Post fill:#F57F17,stroke:#E65100,color:#000000
+    style R2dbcConfig fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ### R2DBC + Coroutines 데이터 흐름
@@ -167,6 +172,18 @@ flowchart TD
     Driver --> DB[("관계형 데이터베이스")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef extStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef driverStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class Ext,ROps extStyle
+    class R2DBC springStyle
+    class Driver driverStyle
+    class DB dbStyle
 ```
 
 ### CRUD 연산 계층 구조
@@ -184,16 +201,32 @@ flowchart LR
     Delete --> ROps
     Count --> ROps
     ROps --> DB[("데이터베이스")]
+
+    classDef serviceStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef opStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef opsStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Service serviceStyle
+    class Select,Insert,Update,Delete,Count opStyle
+    class ROps opsStyle
+    class DB dbStyle
 ```
 
 ### 코루틴 변환 시퀀스
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as XyzSuspending 확장
-    participant Ops as R2dbcEntityOperations
-    participant DB as 데이터베이스
+    box rgb(187,222,251) 애플리케이션 계층
+        participant App as 애플리케이션
+    end
+    box rgb(225,190,231) 코루틴 확장 계층
+        participant Ext as XyzSuspending 확장
+        participant Ops as R2dbcEntityOperations
+    end
+    box rgb(224,224,224) 데이터 계층
+        participant DB as 데이터베이스
+    end
 
     App->>Ext: findOneByIdOrNullSuspending<Post>(id)
     Ext->>Ops: selectOne(query, Post::class) → Mono<Post>

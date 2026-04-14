@@ -43,6 +43,18 @@ flowchart LR
     LE -->|" 락 실패 "| S["비리더\n(null 반환)"]
     L --> R["결과 T"]
     S --> N["null (건너뜀)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class I1,I2,I3 utilStyle
+    class LE coreStyle
+    class L asyncStyle
+    class S,N dataStyle
+    class R dataStyle
 ```
 
 ### 개념 개요 — 복수 리더 (Semaphore)
@@ -56,6 +68,17 @@ flowchart LR
     I1 & I2 & I3 & I4 & I5 -->|" runIfLeader(lockName) "| GE["LeaderGroupElection\n(maxLeaders = 3)"]
     GE -->|" 슬롯 획득 (3개 당선) "| L["리더들\n(동시 실행)"]
     GE -->|" 슬롯 없음 (2개 탈락) "| S["비리더\n(null 반환)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class I1,I2,I3,I4,I5 utilStyle
+    class GE coreStyle
+    class L asyncStyle
+    class S dataStyle
 ```
 
 ### 클래스 다이어그램 — 단일 리더
@@ -107,6 +130,15 @@ classDiagram
     AsyncLeaderElection <|.. LocalAsyncLeaderElection
     VirtualThreadLeaderElection <|.. LocalVirtualThreadLeaderElection
     SuspendLeaderElection <|.. LocalSuspendLeaderElection
+
+    style AsyncLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style VirtualThreadLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LocalLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalAsyncLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalVirtualThreadLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalSuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### 클래스 다이어그램 — 복수 리더
@@ -164,17 +196,33 @@ classDiagram
     AsyncLeaderGroupElection <|.. LocalAsyncLeaderGroupElection
     VirtualThreadLeaderGroupElection <|.. LocalVirtualThreadLeaderGroupElection
     SuspendLeaderGroupElection <|.. LocalSuspendLeaderGroupElection
+
+    style LeaderGroupElectionState fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AsyncLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style VirtualThreadLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LocalLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalAsyncLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalVirtualThreadLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalSuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### 실행 시퀀스 — 단일 리더
 
 ```mermaid
 sequenceDiagram
+    box "분산 인스턴스" #E8F5E9
     participant I1 as 인스턴스 1
     participant I2 as 인스턴스 2
+    end
+    box "조정 레이어" #E3F2FD
     participant LE as LeaderElection
     participant Lock as Lock (ReentrantLock / Mutex)
+    end
+    box "실행 레이어" #FFF3E0
     participant Task
+    end
     I1 ->> LE: runIfLeader("job-lock") { task }
     I2 ->> LE: runIfLeader("job-lock") { task }
     LE ->> Lock: tryLock("job-lock")

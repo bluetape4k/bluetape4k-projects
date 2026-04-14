@@ -536,6 +536,8 @@ classDiagram
     }
     HibernateRepository <|-- AbstractHibernateRepository
 
+    style HibernateRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractHibernateRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
 ```
 
 ### JPA Entity Class Hierarchy
@@ -591,6 +593,15 @@ classDiagram
     JpaTreeEntity <|.. IntJpaTreeEntity
     LongJpaEntity <|-- LongJpaTreeEntity
     IntJpaEntity <|-- IntJpaTreeEntity
+
+    style JpaEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractJpaEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style IntJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LongJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UuidJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JpaTreeEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LongJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style IntJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### AttributeConverter Types
@@ -624,6 +635,18 @@ flowchart LR
     E <-->|convert| Encryption_Converters
     E <-->|convert| Compression_Converters
     E <-->|convert| Misc_Converters
+
+    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef encStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef compStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef miscStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class E dbStyle
+    class Serialization_Converters serStyle
+    class Encryption_Converters encStyle
+    class Compression_Converters compStyle
+    class Misc_Converters miscStyle
 ```
 
 ## References

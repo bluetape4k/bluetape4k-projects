@@ -72,6 +72,12 @@ classDiagram
     SchemaGenerator --> ReactiveCassandraOperationsExt : uses
     AbstractReactiveCassandraCoroutineTest --> ReactiveCassandraOperationsExt : tests
     ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
+
+    style ReactiveCassandraOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactiveSessionExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SchemaGenerator fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style AbstractReactiveCassandraCoroutineTest fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Cassandra 데이터 접근 계층
@@ -88,16 +94,38 @@ flowchart TD
     AOps --> Driver
     Driver --> Cassandra[("Apache Cassandra")]
     SchemaGen["SchemaGenerator<br/>스키마 생성 / 트렁케이트"] --> ROps
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App serviceStyle
+    class Ext asyncStyle
+    class ROps asyncStyle
+    class RSession asyncStyle
+    class AOps asyncStyle
+    class DSL dataStyle
+    class Driver extStyle
+    class Cassandra dataStyle
+    class SchemaGen utilStyle
 ```
 
 ### 코루틴 변환 흐름
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Ext as 코루틴 확장
-    participant Ops as ReactiveCassandraOperations
-    participant DB as Apache Cassandra
+    box rgb(224,224,224) 애플리케이션 계층
+        participant App as 애플리케이션
+    end
+    box rgb(225,190,231) 코루틴 확장
+        participant Ext as 코루틴 확장
+        participant Ops as ReactiveCassandraOperations
+    end
+    box rgb(224,224,224) 데이터 계층
+        participant DB as Apache Cassandra
+    end
 
     App->>Ext: executeSuspending(cql, args)
     Ext->>Ops: execute(statement) → Mono/Flux

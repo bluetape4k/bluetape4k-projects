@@ -207,6 +207,12 @@ classDiagram
     UserService --> RestClientDsl
     Retrofit2Config --> UserService : inject
     WebTestClientExt --> UserController : test
+
+    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style RestClientDsl fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style WebTestClientExt fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style Retrofit2Config fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Spring WebFlux + Coroutines 요청 흐름
@@ -223,6 +229,18 @@ flowchart LR
     Handler --> WebFlux
     WebFlux --> Netty
     Netty --> Client
+
+    classDef clientStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serverStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef handlerStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serviceStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef dataStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Client clientStyle
+    class Netty,WebFlux serverStyle
+    class Handler handlerStyle
+    class Service serviceStyle
+    class DB dataStyle
 ```
 
 ### RestClient Coroutines DSL 구조
@@ -236,6 +254,16 @@ flowchart TD
     ExternalAPI --> RestClient
     RestClient --> DSL
     DSL --> App
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dslStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef httpStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef externalStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class DSL dslStyle
+    class RestClient,HTTP httpStyle
+    class ExternalAPI externalStyle
 ```
 
 ### Retrofit2 통합 구조
@@ -250,6 +278,18 @@ flowchart TD
     Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>(suspend 함수 지원)"]
     OkHttp --> ExternalAPI["외부 REST API"]
     HttpClient5 --> ExternalAPI
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef retrofitStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef adapterStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serdeStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef externalStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class RetrofitBean,Retrofit2,OkHttp,HttpClient5 retrofitStyle
+    class CoroutinesAdapter adapterStyle
+    class Jackson serdeStyle
+    class ExternalAPI externalStyle
 ```
 
 ## 빌드 및 테스트

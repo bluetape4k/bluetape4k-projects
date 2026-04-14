@@ -171,16 +171,29 @@ classDiagram
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
 
+    style AvroSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroGenericRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroSpecificRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AvroReflectSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DefaultAvroGenericRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultAvroSpecificRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultAvroReflectSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Avro Serialization/Deserialization Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant S as AvroSerializer
-    participant C as CodecFactory
-    participant A as Avro Runtime
+    box rgb(232, 245, 233) Application
+        participant App as Application
+    end
+    box rgb(227, 242, 253) bluetape4k-avro
+        participant S as AvroSerializer
+        participant C as CodecFactory
+    end
+    box rgb(237, 231, 246) Avro Runtime
+        participant A as Avro Runtime
+    end
 
     Note over App,A: Serialization flow
     App->>S: serialize(record)
@@ -214,6 +227,16 @@ flowchart TD
     ZSTD --> Output
     ARCHIVE --> Output
     NULL --> Output
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class Start,Output coreStyle
+    class Purpose serviceStyle
+    class FAST,SNAPPY,NULL utilStyle
+    class DEFAULT,ZSTD,ARCHIVE dataStyle
 ```
 
 ## Dependencies

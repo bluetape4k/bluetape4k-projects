@@ -43,6 +43,14 @@ classDiagram
     LettuceNearCacheActuatorAutoConfiguration --> LettuceNearCacheEndpoint
     LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory
     LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory
+
+    style LettuceNearCacheHibernateAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LettuceNearCacheMetricsAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LettuceNearCacheActuatorAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style HibernatePropertiesCustomizer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceNearCacheMetricsBinder fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceNearCacheEndpoint fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Auto-Configuration 활성화 흐름
@@ -63,6 +71,18 @@ flowchart TD
     RegionFactory --> L1
     RegionFactory --> L2
     L2 --> DB
+
+    classDef configStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef autoStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef customizerStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    classDef cacheStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Props configStyle
+    class AutoConfig autoStyle
+    class Customizer customizerStyle
+    class RegionFactory,L1,L2 cacheStyle
+    class DB dbStyle
 ```
 
 ## Spring Boot 4 고유 사항

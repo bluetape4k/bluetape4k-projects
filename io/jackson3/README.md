@@ -315,6 +315,11 @@ flowchart LR
     end
 
     JK2 -->|same features, different package| JK3
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    class JK2 serviceStyle
+    class JK3 serviceStyle
 ```
 
 ### Class Structure
@@ -363,16 +368,27 @@ classDiagram
     Jackson --> JsonMaskerModule : registers
     Jackson --> JsonUuidModule : registers
 
+    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JacksonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Jackson fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JsonEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonTinkEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonMaskerModule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonUuidModule fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Jackson 3.x Module Registration Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant J as Jackson
-    participant M as JsonMapper.Builder
-    participant MOD as JacksonModules
+    box rgb(232, 245, 233) Application
+        participant App as Application
+    end
+    box rgb(227, 242, 253) Jackson
+        participant J as Jackson
+        participant M as JsonMapper.Builder
+        participant MOD as JacksonModules
+    end
 
     App->>J: Jackson.createDefaultJsonMapper()
     J->>M: jsonMapper { findAndAddModules() }

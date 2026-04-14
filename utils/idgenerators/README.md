@@ -41,6 +41,19 @@ flowchart LR
 
     H["Hashids\n(encode Long/UUID → short string)\nnot IdGenerator"]
     FL["Flake\n→ ByteArray 128-bit\n(MAC-based node ID)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class IG coreStyle
+    class SG,UG,ULG,KG serviceStyle
+    class SF,GF,UV utilStyle
+    class H,FL extStyle
 ```
 
 ### Class Diagram
@@ -121,6 +134,18 @@ classDiagram
     Snowflakers --> GlobalSnowflake
     SnowflakeGenerator --> Snowflake
     UuidGenerator --> Uuid
+
+    style IdGenerator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LongIdGenerator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Snowflake fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SnowflakeGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UuidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UlidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KsuidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultSnowflake fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GlobalSnowflake fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Snowflakers fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Uuid fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Snowflake Bit Layout
@@ -238,6 +263,11 @@ classDiagram
     Monotonic --> ULID : produces
     StatefulMonotonic --> ULID : produces
     Monotonic <|-- StatefulMonotonic
+
+    style ULID fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Factory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Monotonic fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style StatefulMonotonic fill:#1976D2,stroke:#1565C0,color:#FFFFFF
 ```
 
 ```kotlin
@@ -277,6 +307,15 @@ flowchart TD
     Q1 -->|Yes| Q2
     Q2 -->|Yes| Mono
     Q2 -->|No| State
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class Start coreStyle
+    class Q1,Q2 serviceStyle
+    class Basic,Mono,State utilStyle
 ```
 
 ### KSUID (K-Sortable Unique ID)

@@ -20,6 +20,18 @@ flowchart TD
     Template --> Cassandra
     Reactive --> Repo
     Reactive --> Template
+
+    classDef entityStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef templateStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef reactiveStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Entity entityStyle
+    class Repo repoStyle
+    class Template templateStyle
+    class Reactive reactiveStyle
+    class Cassandra dbStyle
 ```
 
 > Provides the same examples as the Spring Boot 3 demo (

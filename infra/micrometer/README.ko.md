@@ -281,6 +281,13 @@ classDiagram
     Cache2kCacheMetrics --> MeterRegistry: binds to
     ObservationRegistry --> MeterRegistry: delegates
 
+    style TimerExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ObservationExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MicrometerRetrofitMetricsFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Cache2kCacheMetrics fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style MeterRegistry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ObservationRegistry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+
 ```
 
 ### 메트릭 수집 흐름
@@ -303,25 +310,41 @@ flowchart TD
     MR --> Grafana[Grafana / Monitoring]
     MR --> Log[Logging]
 
-    style App fill:#2196F3
-    style MR fill:#FF9800
-    style OR fill:#9C27B0
-    style Grafana fill:#4CAF50
-    style TE fill:#607D8B
-    style OE fill:#607D8B
-    style RM fill:#607D8B
-    style CM fill:#607D8B
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style MR fill:#F57F17,stroke:#E65100,color:#000000
+    style OR fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style Grafana fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style TE fill:#37474F,stroke:#263238,color:#FFFFFF
+    style OE fill:#37474F,stroke:#263238,color:#FFFFFF
+    style RM fill:#37474F,stroke:#263238,color:#FFFFFF
+    style CM fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ### Retrofit2 메트릭 수집 시퀀스
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) 클라이언트
     participant Client as 클라이언트
+    end
+    box rgb(178,223,219) 계측 레이어
     participant Retrofit as Retrofit2
     participant Metrics as MicrometerRetrofitMetricsFactory
+    end
+    box rgb(207,216,220) 외부
     participant API as 외부 API
+    end
+    box rgb(255,236,179) 메트릭
     participant Registry as MeterRegistry
+    end
 
     Client->>+Retrofit: API 호출
     Retrofit->>+Metrics: 계측 래퍼 Call 생성
@@ -336,10 +359,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) 애플리케이션
     participant App as 애플리케이션
+    end
+    box rgb(225,190,231) Observation
     participant Obs as withObservationContext
     participant Registry as ObservationRegistry
+    end
+    box rgb(255,224,178) 비동기 작업
     participant Work as 비동기 작업
+    end
 
     App->>+Obs: withObservationContext("operation", registry)
     Obs->>Registry: Observation.start()

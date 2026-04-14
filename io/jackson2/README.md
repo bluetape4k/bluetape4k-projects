@@ -65,6 +65,16 @@ classDiagram
     JsonSerializer <|.. JacksonSerializer
     JacksonSerializer --> Jackson : uses
     AsyncJsonParser --> SuspendJsonParser
+
+    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JacksonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Jackson fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style AsyncJsonParser fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendJsonParser fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style JsonEncrypt fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style JsonTinkEncrypt fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style JsonMasker fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style JsonUuidEncoder fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Jackson Serialization Pipeline
@@ -100,16 +110,35 @@ flowchart LR
     SER --> SMILE
     SER --> CSV_FMT
     JSON --> DES --> OBJ
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class OBJ coreStyle
+    class ANN dataStyle
+    class SER serviceStyle
+    class DES serviceStyle
+    class MOD utilStyle
+    class JSON,CBOR,YAML,SMILE,CSV_FMT dataStyle
 ```
 
 ### Field Encryption Flow (@JsonTinkEncrypt)
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant M as ObjectMapper
-    participant S as JsonTinkEncryptSerializer
-    participant T as Google Tink AEAD
+    box rgb(232, 245, 233) Application
+        participant App as Application
+    end
+    box rgb(227, 242, 253) Jackson
+        participant M as ObjectMapper
+        participant S as JsonTinkEncryptSerializer
+    end
+    box rgb(255, 243, 224) Tink
+        participant T as Google Tink AEAD
+    end
 
     Note over App,T: Serialization (Encryption)
     App->>M: writeValueAsString(user)

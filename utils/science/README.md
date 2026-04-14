@@ -55,6 +55,19 @@ flowchart TD
     Projection --> Shapefile
     Shapefile --> Exposed
     Geometry --> Exposed
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class Science coreStyle
+    class GeoLocation,BoundingBox,DMS,UtmZone,Vector dataStyle
+    class Projections,CrsRegistry serviceStyle
+    class LoadShape,LoadShapeAsync,ShapeModels utilStyle
+    class GeomOps,PolyExt serviceStyle
+    class Schema,Models,Repos,Service dslStyle
 ```
 
 ---
@@ -79,9 +92,13 @@ flowchart TD
     K --> L
     L --> M[WGS84 GeoLocation]
 
-    style A fill:#4CAF50
-    style G fill:#2196F3
-    style M fill:#4CAF50
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A,M coreStyle
+    class F,L serviceStyle
+    class G,H dataStyle
 ```
 
 ---
@@ -162,6 +179,17 @@ classDiagram
     ShapefileImportService --> SpatialLayerRepository : delegates
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
+
+    style SpatialLayerRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SpatialFeatureRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style NetCdfFileRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SpatialLayerTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style SpatialFeatureTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style NetCdfFileTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style SpatialLayerRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SpatialFeatureRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style NetCdfFileRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ShapefileImportService fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
 ```
 
 ---
@@ -170,12 +198,20 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
+    box "Consumer" #E8F5E9
     participant Caller
+    end
+    box "Service" #E3F2FD
     participant SIS as ShapefileImportService
+    participant VT as VirtualThread
+    end
+    box "Repositories" #FFF3E0
     participant LR as SpatialLayerRepository
     participant FR as SpatialFeatureRepository
-    participant VT as VirtualThread
+    end
+    box "Database" #F3E5F5
     participant DB as PostgreSQL/PostGIS
+    end
 
     Caller->>SIS: importShapefile(file, layerName, batchSize)
     SIS->>SIS: loadShape(file)

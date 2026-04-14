@@ -114,6 +114,12 @@ class NearJCacheConfig~K_V~ {
     NearJCache --> NearJCacheConfig
     SuspendNearJCache --> CaffeineSuspendJCache: frontCache
     SuspendNearJCache --> HazelcastSuspendJCache: backCache
+
+    style NearJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendNearJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style HazelcastSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style CaffeineSuspendJCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 ```
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
@@ -237,18 +243,33 @@ classDiagram
     HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
     HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
 
+    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style HazelcastLocalCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CaffeineHazelcastLocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style HazelcastEntryEventListener fill:#37474F,stroke:#263238,color:#FFFFFF
+    style HazelcastNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
+
 ```
 
 ### IMap EntryListener 기반 Invalidation 흐름
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Instance 1
     participant App1 as Application (인스턴스 1)
     participant NC1 as HazelcastNearCache (인스턴스 1)
     participant Front1 as Caffeine (인스턴스 1)
+    end
+    box rgb(207,216,220) Distributed
     participant IMap as Hazelcast IMap (분산)
+    end
+    box rgb(225,190,231) Instance 2
     participant Listener2 as EntryListener (인스턴스 2)
     participant Front2 as Caffeine (인스턴스 2)
+    end
     Note over NC1, IMap: 초기화 — IMap.addEntryListener 등록
     NC1 ->> IMap: addEntryListener(entryListener, true)
     Listener2 ->> IMap: addEntryListener(entryListener, true)

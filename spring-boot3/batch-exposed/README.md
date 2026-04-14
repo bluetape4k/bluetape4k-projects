@@ -59,16 +59,30 @@ classDiagram
     ExposedUpdateItemWriter ..|> ItemWriter
     ExposedUpsertItemWriter ..|> ItemWriter
     ExposedRangePartitioner ..|> Partitioner
+
+    style ExposedKeysetItemReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ExposedItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ExposedUpdateItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ExposedUpsertItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ExposedRangePartitioner fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ExposedBatchAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style ItemStreamReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ItemWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Partitioner fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ```mermaid
 sequenceDiagram
-    participant Manager as Partition Manager Step
-    participant Partitioner as ExposedRangePartitioner
-    participant Handler as TaskExecutorPartitionHandler
-    participant Worker as Worker Step (×N VirtualThread)
-    participant Reader as ExposedKeysetItemReader
-    participant Writer as ExposedItemWriter
+    box rgb(27,94,32) Batch Management
+        participant Manager as Partition Manager Step
+        participant Partitioner as ExposedRangePartitioner
+        participant Handler as TaskExecutorPartitionHandler
+    end
+    box rgb(178,223,219) Batch Execution
+        participant Worker as Worker Step (×N VirtualThread)
+        participant Reader as ExposedKeysetItemReader
+        participant Writer as ExposedItemWriter
+    end
 
     Manager->>Partitioner: partition(gridSize)
     Partitioner-->>Manager: Map<String, ExecutionContext> (minId/maxId per partition)

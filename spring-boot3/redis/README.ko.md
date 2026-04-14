@@ -148,6 +148,11 @@ classDiagram
     RedisSerializer <|.. RedisCompressSerializer
     RedisBinarySerializers --> RedisBinarySerializer : 생성
     RedisBinarySerializers --> RedisCompressSerializer : 생성
+
+    style RedisSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style RedisBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedisCompressSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedisBinarySerializers fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### ReactiveRedisTemplate 직렬화 흐름
@@ -162,6 +167,21 @@ flowchart LR
     ValSer --> LZ4["LZ4 압축"]
     LZ4 --> Redis[("Redis")]
     KeySer --> Redis
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class App serviceStyle
+    class Template springStyle
+    class Context springStyle
+    class KeySer utilStyle
+    class ValSer utilStyle
+    class Fory extStyle
+    class LZ4 extStyle
+    class Redis dataStyle
 ```
 
 ## 빌드 및 테스트

@@ -74,6 +74,14 @@ classDiagram
     MeasureColumnType ..> Measure : stores as DOUBLE
     MeasureColumnType ..> Units : baseUnit
     TemperatureColumnType ..> Temperature : stores as Kelvin DOUBLE
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style MeasureColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TemperatureColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TemperatureDeltaColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Measure fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Units fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Temperature fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ## Query Execution Flow
@@ -86,21 +94,32 @@ flowchart LR
     D --> E[Stop Timer + record tags]
     E --> F[Return result]
 
-    style A fill:#607D8B
-    style B fill:#9C27B0
-    style C fill:#F44336
-    style D fill:#607D8B
-    style E fill:#F44336
-    style F fill:#4CAF50
+    classDef queryStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef txStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef timerStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef resultStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    class A queryStyle
+    class D queryStyle
+    class B txStyle
+    class C timerStyle
+    class E timerStyle
+    class F resultStyle
 ```
 
 ## Storage / Retrieval Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Col as MeasureColumnType~Length~
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Column
+        participant Col as MeasureColumnType~Length~
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     Note over App,DB: Store — converts to base unit (meters) and saves as DOUBLE
     App->>Col: insert { it[width] = 1500.millimeters() }

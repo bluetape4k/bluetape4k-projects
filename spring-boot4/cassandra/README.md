@@ -110,6 +110,13 @@ classDiagram
     SchemaGenerator --> ReactiveCassandraOperationsExt : uses
     ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
     CoroutineUserRepository --> ReactiveCassandraOperationsExt : delegates
+
+    style ReactiveCassandraOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactiveSessionExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#000000
+    style SchemaGenerator fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style UserRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style CoroutineUserRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Cassandra Data Access Layer
@@ -126,16 +133,36 @@ flowchart TD
     AOps --> Driver
     Driver --> Cassandra[("Apache Cassandra")]
     SchemaGen["SchemaGenerator<br/>Schema Creation / Truncation"] --> ROps
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef extStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef driverStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class Ext,ROps,RSession,AOps extStyle
+    class DSL dslStyle
+    class Driver driverStyle
+    class Cassandra dbStyle
+    class SchemaGen utilStyle
 ```
 
 ### Coroutine Conversion Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as Coroutine Extension
-    participant Ops as ReactiveCassandraOperations
-    participant DB as Apache Cassandra
+    box rgb(224,224,224) Application Layer
+        participant App as Application
+    end
+    box rgb(225,190,231) Coroutine Layer
+        participant Ext as Coroutine Extension
+        participant Ops as ReactiveCassandraOperations
+    end
+    box rgb(224,224,224) Data Layer
+        participant DB as Apache Cassandra
+    end
 
     App->>Ext: executeSuspending(cql, args)
     Ext->>Ops: execute(statement) → Mono/Flux

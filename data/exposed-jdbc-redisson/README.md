@@ -237,6 +237,8 @@ classDiagram
     }
     RedissonJdbcRepository --> RedissonNearCache : RLocalCachedMap
 
+    style RedissonJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style RedissonNearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ## Class Diagrams
@@ -311,7 +313,14 @@ classDiagram
     AbstractJdbcRedissonRepository~ID_E~ --> EntityMapWriter~ID_E~ : mapWriter (nullable)
     EntityMapLoader~ID_E~ <|-- ExposedEntityMapLoader~ID_E~
     EntityMapWriter~ID_E~ <|-- ExposedEntityMapWriter~ID_E~
-```
+
+    style JdbcRedissonRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractJdbcRedissonRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style EntityMapLoader fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style EntityMapWriter fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style ExposedEntityMapLoader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ExposedEntityMapWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+
 
 ### Coroutines (Suspend) Repository Hierarchy
 
@@ -386,7 +395,14 @@ classDiagram
     AbstractSuspendedJdbcRedissonRepository~ID_E~ --> SuspendedEntityMapWriter~ID_E~ : suspendedMapWriter (nullable)
     SuspendedEntityMapLoader~ID_E~ <|-- SuspendedExposedEntityMapLoader~ID_E~
     SuspendedEntityMapWriter~ID_E~ <|-- SuspendedExposedEntityMapWriter~ID_E~
-```
+
+    style SuspendedJdbcRedissonRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractSuspendedJdbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendedEntityMapLoader fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style SuspendedEntityMapWriter fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style SuspendedExposedEntityMapLoader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendedExposedEntityMapWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+
 
 ## Cache Patterns
 
@@ -396,11 +412,17 @@ On a cache miss, `ExposedEntityMapLoader` automatically loads from the DB.
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client
-    participant Repo as JdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Loader as ExposedEntityMapLoader
-    participant DB as Database (JDBC)
+    box rgb(227, 242, 253) Client
+        participant Client as Client
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as JdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Loader as ExposedEntityMapLoader
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC)
+    end
 
     Client->>Repo: get(id) / exists(id)
     Repo->>RMap: RMap.get(id)
@@ -423,11 +445,18 @@ On `put()`, `ExposedEntityMapWriter` immediately and synchronously persists to t
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client
-    participant Repo as JdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Writer as ExposedEntityMapWriter
-    participant DB as Database (JDBC)
+    box rgb(227, 242, 253) Client
+        participant Client as Client
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as JdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Writer as ExposedEntityMapWriter
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC)
+    end
+
     Client ->> Repo: put(entity)
     Repo ->> RMap: RMap.fastPut(id, entity)
     RMap ->> Writer: write(map) [Write-Through]
@@ -451,11 +480,17 @@ On `put()`, immediately returns and then `ExposedEntityMapWriter` asynchronously
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client
-    participant Repo as JdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Writer as ExposedEntityMapWriter
-    participant DB as Database (JDBC)
+    box rgb(227, 242, 253) Client
+        participant Client as Client
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as JdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Writer as ExposedEntityMapWriter
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC)
+    end
 
     Client->>Repo: put(entity)
     Repo->>RMap: RMap.fastPut(id, entity)
@@ -474,11 +509,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client (Coroutine)
-    participant Repo as SuspendedJdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Loader as SuspendedExposedEntityMapLoader
-    participant DB as Database (JDBC/IO)
+    box rgb(227, 242, 253) Client (Coroutine)
+        participant Client as Client (Coroutine)
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as SuspendedJdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Loader as SuspendedExposedEntityMapLoader
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC/IO)
+    end
 
     Client->>Repo: suspend get(id)
     Repo->>RMap: cache.getAsync(id).await()
@@ -500,11 +541,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client (Coroutine)
-    participant Repo as SuspendedJdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Writer as SuspendedExposedEntityMapWriter
-    participant DB as Database (JDBC/IO)
+    box rgb(227, 242, 253) Client (Coroutine)
+        participant Client as Client (Coroutine)
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as SuspendedJdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Writer as SuspendedExposedEntityMapWriter
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC/IO)
+    end
 
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()
@@ -528,11 +575,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client as Client (Coroutine)
-    participant Repo as SuspendedJdbcRedissonRepository
-    participant RMap as Redisson RMap
-    participant Writer as SuspendedExposedEntityMapWriter
-    participant DB as Database (JDBC/IO)
+    box rgb(227, 242, 253) Client (Coroutine)
+        participant Client as Client (Coroutine)
+    end
+    box rgb(243, 229, 245) Repository / Cache
+        participant Repo as SuspendedJdbcRedissonRepository
+        participant RMap as Redisson RMap
+        participant Writer as SuspendedExposedEntityMapWriter
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database (JDBC/IO)
+    end
 
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()

@@ -78,6 +78,15 @@ classDiagram
     Logger ..> MDC : "regular blocking context"
     Logger ..> CoroutineMDC : "coroutine context"
 
+    style KLogging fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style KLoggingChannel fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LogEvent fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style KotlinLogging fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Logger fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style MDC fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style CoroutineMDC fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style KLoggerFactory fill:#37474F,stroke:#263238,color:#FFFFFF
+
 ```
 
 ---
@@ -105,6 +114,12 @@ flowchart TD
         C2["withCoroutineLoggingContext(pairs)"]:::asyncStyle --> CC["CoroutineContext MDC<br/>(propagates to async blocks)"]:::asyncStyle
     end
 
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 ```
 
 ---
@@ -113,11 +128,17 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    participant App as Application Coroutine
-    participant CH as KLoggingChannel
-    participant SF as MutableSharedFlow (buffer 64)
-    participant BG as Background Coroutine
-    participant SLF as SLF4J Logger
+    box rgb(232, 245, 233) Application
+        participant App as Application Coroutine
+    end
+    box rgb(225, 190, 231) Async Logger
+        participant CH as KLoggingChannel
+        participant SF as MutableSharedFlow (buffer 64)
+        participant BG as Background Coroutine
+    end
+    box rgb(255, 236, 179) SLF4J
+        participant SLF as SLF4J Logger
+    end
 
     App->>CH: log.debug { "Processing event: $id" }
     CH->>CH: check isDebugEnabled

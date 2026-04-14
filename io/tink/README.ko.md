@@ -346,17 +346,34 @@ classDiagram
     TinkMacs ..> TinkMac : creates
     TinkDigesters ..> TinkDigester : creates
 
+    style TinkEncryptor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TinkAeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDaeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkAead fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDeterministicAead fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkEncryptors fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkAeads fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkMac fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkMacs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkDigester fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDigesters fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### AEAD encrypt/decrypt 흐름
 
 ```mermaid
 sequenceDiagram
-    participant Caller
-    participant TinkEncryptors
-    participant TinkAeadEncryptor
-    participant TinkAead
-    participant Aead
+    box rgb(232, 245, 233) 애플리케이션
+        participant Caller
+    end
+    box rgb(227, 242, 253) Tink 암호화 레이어
+        participant TinkEncryptors
+        participant TinkAeadEncryptor
+        participant TinkAead
+    end
+    box rgb(237, 231, 246) Tink 런타임
+        participant Aead
+    end
 
     Note over Caller,Aead: 암호화 (encrypt)
     Caller->>TinkEncryptors: AES256_GCM.encrypt("평문")

@@ -252,6 +252,10 @@ classDiagram
     }
     AuditableLongEntityClass --> AuditableLongEntity : manages
 
+    style AuditableLongEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style AuditableLongEntityClass fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Custom IdTable Hierarchy
@@ -295,6 +299,15 @@ IdTable <|-- UlidTable
 IdTable <|-- SnowflakeIdTable
 IdTable <|-- TimebasedUUIDTable
 IdTable <|-- TimebasedUUIDBase62Table
+
+    style IdTable fill:#37474F,stroke:#263238,color:#FFFFFF
+    style SoftDeletedIdTable fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style KsuidMillisTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style UlidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TimebasedUUIDTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TimebasedUUIDBase62Table fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Entity Extension Hierarchy
@@ -346,6 +359,20 @@ EntityClass <|-- TimebasedUUIDEntityClass
 KsuidEntityClass --> KsuidEntity: manages
 SnowflakeIdEntityClass --> SnowflakeIdEntity: manages
 TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
+
+    style Entity fill:#37474F,stroke:#263238,color:#FFFFFF
+    style EntityClass fill:#37474F,stroke:#263238,color:#FFFFFF
+    style StringEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style StringEntityClass fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style KsuidEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KsuidMillisEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UlidEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SnowflakeIdEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimebasedUUIDEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimebasedUUIDBase62Entity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KsuidEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SnowflakeIdEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimebasedUUIDEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ## Key Files and Classes
@@ -391,11 +418,17 @@ Overrides `flush()` to automatically set `createdBy` and `updatedBy`.
 
 ```mermaid
 sequenceDiagram
-    participant Caller
-    participant UserContext
-    participant Article
-    participant AuditableEntity
-    participant DB
+    box rgb(227, 242, 253) Application
+        participant Caller
+        participant UserContext
+    end
+    box rgb(232, 245, 233) Domain
+        participant Article
+        participant AuditableEntity
+    end
+    box rgb(255, 243, 224) Database
+        participant DB
+    end
 
     Caller->>UserContext: withUser("alice") { ... }
     Caller->>Article: new / flush

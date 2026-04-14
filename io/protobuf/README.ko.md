@@ -60,6 +60,14 @@ classDiagram
     }
 
     BinarySerializer <|.. ProtobufSerializer
+
+    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ProtobufSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimestampSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DurationSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DateTimeSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MoneySupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MessageSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Protobuf 타입 변환 흐름
@@ -94,15 +102,27 @@ flowchart LR
     ANY -->|unpackMessage| MSG
     MSG -->|ProtobufSerializer.serialize| BA
     BA -->|ProtobufSerializer.deserialize| MSG
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class INS,DUR,LDT,JM,MSG coreStyle
+    class TS,PD,DT,PM,ANY extStyle
+    class BA dataStyle
 ```
 
 ### 직렬화 시퀀스
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as 애플리케이션
-    participant S as ProtobufSerializer
-    participant P as Protobuf 런타임
+    box rgb(232, 245, 233) Application
+        participant 앱 as 애플리케이션
+    end
+    box rgb(227, 242, 253) Protobuf
+        participant S as ProtobufSerializer
+        participant P as Protobuf 런타임
+    end
 
     Note over 앱,P: 직렬화
     앱->>S: serialize(protoMessage)

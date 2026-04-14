@@ -27,6 +27,18 @@ flowchart LR
     W -->|" assembled into "| Flows
     Flows -->|" execute(ctx) "| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
     WR -->|" reads/writes "| WC["WorkContext\n(shared mutable map)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class SF,PF,CF,RF,RT dslStyle
+    class W serviceStyle
+    class WR dataStyle
+    class WC utilStyle
 ```
 
 A `Work` unit is a named lambda that receives a `WorkContext` and returns a `WorkReport`.  
@@ -64,6 +76,16 @@ flowchart TD
     E --> H[Conditional]
     E --> I[Repeat]
     E --> J[Retry]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class A coreStyle
+    class C asyncStyle
+    class D serviceStyle
+    class F,G,H,I,J dslStyle
 ```
 
 ## Key Features
@@ -150,6 +172,14 @@ flowchart LR
     W1 -. " failure + CONTINUE " .-> W2
     W2 -. " failure + CONTINUE " .-> W3
     W3 -. " any failure " .-> P([PARTIAL])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W1,W2,W3 serviceStyle
+    class S,E coreStyle
+    class F,P dataStyle
 ```
 
 ```kotlin
@@ -187,6 +217,12 @@ Execute tasks concurrently:
 ```mermaid
 flowchart LR
     S([Start]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+
+    class W1,W2,W3 serviceStyle
+    class S,E coreStyle
 ```
 
 ```kotlin
@@ -217,6 +253,12 @@ flowchart LR
     C -->|false| O[otherwise]
     T --> E([Done])
     O --> E
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+
+    class T,O serviceStyle
+    class S,E coreStyle
 ```
 
 ```kotlin
@@ -241,6 +283,14 @@ flowchart LR
     C -->|no| E([COMPLETED])
     W -. ABORTED .-> A([ABORTED])
     W -. FAILED .-> F([FAILED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W serviceStyle
+    class S,E coreStyle
+    class A,F dataStyle
 ```
 
 ```kotlin
@@ -277,6 +327,14 @@ flowchart LR
     R -->|yes| D[backoff delay]
     D --> W
     R -->|no| F([FAILED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W,D serviceStyle
+    class S,E coreStyle
+    class F dataStyle
 ```
 
 ```kotlin

@@ -351,6 +351,11 @@ classDiagram
     PostRepository --> R2dbcEntityOperationsExt : uses
     PostRepository --> Post
     Post --> PostStatus
+
+    style R2dbcEntityOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style PostRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style Post fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style PostStatus fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### R2DBC + Coroutines Data Flow
@@ -364,6 +369,19 @@ flowchart TD
     Driver --> DB[("Relational Database")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class App serviceStyle
+    class Ext asyncStyle
+    class ROps asyncStyle
+    class R2DBC springStyle
+    class Driver extStyle
+    class DB dataStyle
 ```
 
 ### CRUD Operation Layer
@@ -381,16 +399,35 @@ flowchart LR
     Delete --> ROps
     Count --> ROps
     ROps --> DB[("Database")]
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class Service serviceStyle
+    class Select asyncStyle
+    class Insert asyncStyle
+    class Update asyncStyle
+    class Delete asyncStyle
+    class Count asyncStyle
+    class ROps asyncStyle
+    class DB dataStyle
 ```
 
 ### Coroutine Conversion Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as XyzSuspending Extension
-    participant Ops as R2dbcEntityOperations
-    participant DB as Database
+    box rgb(187,222,251) Application Layer
+        participant App as Application
+    end
+    box rgb(225,190,231) Coroutine Extensions
+        participant Ext as XyzSuspending Extension
+        participant Ops as R2dbcEntityOperations
+    end
+    box rgb(224,224,224) Data Layer
+        participant DB as Database
+    end
 
     App->>Ext: findOneByIdOrNullSuspending<Post>(id)
     Ext->>Ops: selectOne(query, Post::class) → Mono<Post>

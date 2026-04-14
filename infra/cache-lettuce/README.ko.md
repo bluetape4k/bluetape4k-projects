@@ -131,6 +131,13 @@ class NearJCacheConfig~K_V~ {
     SuspendNearJCache --> CaffeineSuspendJCache: frontCache
     SuspendNearJCache --> LettuceSuspendJCache: backCache
     NearJCache --> NearJCacheConfig
+
+    style NearJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendNearJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceJCache fill:#37474F,stroke:#263238,color:#FFFFFF
+    style LettuceSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style CaffeineSuspendJCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 ```
 
 #### NearJCacheConfig DSL
@@ -267,18 +274,33 @@ classDiagram
     LettuceSuspendNearCache --> LettuceNearCacheConfig: config
     TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
 
+    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LettuceNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceLocalCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LettuceCaffeineLocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style TrackingInvalidationListener fill:#37474F,stroke:#263238,color:#FFFFFF
+    style LettuceNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
+
 ```
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Instance 1
     participant App1 as Application (인스턴스 1)
     participant NC1 as LettuceNearCache (인스턴스 1)
     participant Front1 as Caffeine (인스턴스 1)
+    end
+    box rgb(207,216,220) Remote
     participant Redis as Redis Server
+    end
+    box rgb(225,190,231) Instance 2
     participant NC2 as LettuceNearCache (인스턴스 2)
     participant Front2 as Caffeine (인스턴스 2)
+    end
     Note over NC1, Redis: 초기화 — RESP3 CLIENT TRACKING 등록
     NC1 ->> Redis: CLIENT TRACKING ON (RESP3)
     NC2 ->> Redis: CLIENT TRACKING ON (RESP3)

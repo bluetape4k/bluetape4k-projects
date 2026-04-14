@@ -492,6 +492,8 @@ classDiagram
         +HikariDataSource(block): DataSource
     }
 
+    style JdbcExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DataSourceExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### 주요 API 구조
@@ -533,17 +535,27 @@ classDiagram
 
     DataSourceExtensions --> ConnectionExtensions : 위임
     ConnectionExtensions --> ResultSetExtensions : ResultSet 전달
+
+    style DataSourceExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ConnectionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ResultSetExtensions fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### JDBC 쿼리 실행 흐름
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant DS as DataSource 확장
-    participant Conn as Connection 확장
-    participant PS as PreparedStatement
-    participant DB as 데이터베이스
+    box rgb(227, 242, 253) 애플리케이션
+        participant App as 애플리케이션
+    end
+    box rgb(232, 245, 233) JDBC 레이어
+        participant DS as DataSource 확장
+        participant Conn as Connection 확장
+        participant PS as PreparedStatement
+    end
+    box rgb(255, 243, 224) 데이터베이스
+        participant DB as 데이터베이스
+    end
 
     App->>DS: withConnect { conn -> ... }
     DS->>Conn: executeQuery(sql, params) { rs -> ... }

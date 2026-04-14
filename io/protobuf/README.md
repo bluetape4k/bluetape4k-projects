@@ -60,6 +60,14 @@ classDiagram
     }
 
     BinarySerializer <|.. ProtobufSerializer
+
+    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ProtobufSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimestampSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DurationSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DateTimeSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MoneySupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MessageSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Protobuf Type Conversion Flow
@@ -94,15 +102,28 @@ flowchart LR
     ANY -->|unpackMessage| MSG
     MSG -->|ProtobufSerializer.serialize| BA
     BA -->|ProtobufSerializer.deserialize| MSG
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class INS,DUR,LDT,JM,MSG coreStyle
+    class TS,PD,DT,PM,ANY extStyle
+    class BA dataStyle
 ```
 
 ### Serialization Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant S as ProtobufSerializer
-    participant P as Protobuf Runtime
+    box rgb(232, 245, 233) Application
+        participant App as Application
+    end
+    box rgb(227, 242, 253) Protobuf
+        participant S as ProtobufSerializer
+        participant P as Protobuf Runtime
+    end
 
     Note over App,P: Serialization
     App->>S: serialize(protoMessage)

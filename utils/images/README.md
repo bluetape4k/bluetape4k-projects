@@ -40,6 +40,18 @@ flowchart LR
     Input --> Processing
     Processing --> Operations
     Operations --> Output
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class BA,IS,FILE dataStyle
+    class II,BI coreStyle
+    class SC,SP,WM,CP,PD utilStyle
+    class JPG,PNG,WEBP,GIF,ANIM asyncStyle
 ```
 
 ### Class Diagram
@@ -81,6 +93,15 @@ classDiagram
     ImmutableImage --> SuspendPngWriter : output
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
+
+    style ImmutableImage fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ImageScaler fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ImageSplitter fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style WatermarkFilter fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style SuspendJpegWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendPngWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendWebpWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendGif2WebpWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## Key Features

@@ -59,6 +59,13 @@ classDiagram
     ProductR2dbcRepository --> ProductDto
     ProductDto --> Products : persisted via
     DataInitializer --> ProductR2dbcRepository
+
+    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ProductR2dbcRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style ExposedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ProductDto fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Products fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DataInitializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Application Flow Diagram
@@ -79,6 +86,20 @@ flowchart TD
     Repo --> Table
     Repo --> R2DBC
     R2DBC --> DB
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class App coreStyle
+    class Init testStyle
+    class Controller extStyle
+    class Repo coreStyle
+    class Table dataStyle
+    class R2DBC asyncStyle
+    class DB dataStyle
 ```
 
 ### Key Characteristics

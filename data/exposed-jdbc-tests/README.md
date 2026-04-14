@@ -327,16 +327,32 @@ flowchart TD
 
     I --> M
     I --> N
+
+    classDef testStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    classDef utilStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef schemaStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class Test_Classes testStyle
+    class Supported_DBs dbStyle
+    class Utility_Functions utilStyle
+    class Shared_Schemas schemaStyle
 ```
 
 ### Test execution flow
 
 ```mermaid
 sequenceDiagram
-    participant Test as Test Class
-    participant Infra as Test Infrastructure
-    participant TC as Testcontainers
-    participant DB as Database
+    box rgb(227, 242, 253) Test
+        participant Test as Test Class
+    end
+    box rgb(232, 245, 233) Infrastructure
+        participant Infra as Test Infrastructure
+        participant TC as Testcontainers
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     Test->>Infra: withTables(testDB, Users, Orders)
     Infra->>TC: Start Docker container (for real DBs)

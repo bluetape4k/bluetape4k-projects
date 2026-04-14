@@ -99,6 +99,8 @@ classDiagram
     }
     TableExtensions --> JasyptEncryptedColumnType : creates
 
+    style JasyptEncryptedColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Class Diagram
@@ -163,6 +165,16 @@ classDiagram
     StringJasyptEncryptionTransformer --> Encryptor
     ByteArrayJasyptEncryptionTransformer --> Encryptor
     JasyptBlobTransformer --> Encryptor
+
+    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JasyptVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JasyptBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JasyptBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style StringJasyptEncryptionTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style ByteArrayJasyptEncryptionTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style JasyptBlobTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style Encryptor fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Encryption / Decryption Sequence Diagrams
@@ -171,11 +183,17 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Col as JasyptVarCharColumnType
-    participant Tx as StringJasyptEncryptionTransformer
-    participant Enc as Encryptor (Jasypt)
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Column / Encryption
+        participant Col as JasyptVarCharColumnType
+        participant Tx as StringJasyptEncryptionTransformer
+        participant Enc as Encryptor (Jasypt)
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     App->>Col: insert { it[ssn] = "123-45-6789" }
     Col->>Tx: unwrap("123-45-6789")
@@ -190,11 +208,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Col as JasyptVarCharColumnType
-    participant Tx as StringJasyptEncryptionTransformer
-    participant Enc as Encryptor (Jasypt)
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Column / Encryption
+        participant Col as JasyptVarCharColumnType
+        participant Tx as StringJasyptEncryptionTransformer
+        participant Enc as Encryptor (Jasypt)
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     Note over App,DB: Conditional search (possible because of deterministic encryption)
     App->>Col: where { ssn eq "123-45-6789" }

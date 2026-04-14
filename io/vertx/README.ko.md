@@ -92,6 +92,16 @@ flowchart TD
     bluetape4k-vertx --> PG
     bluetape4k-vertx -.->|compileOnly| WEB
     bluetape4k-vertx -.->|compileOnly| JDBC
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+
+    class CORE,KOTLIN coreStyle
+    class COROUTINES asyncStyle
+    class SQL,R4J serviceStyle
+    class MYSQL,PG,WEB,JDBC extStyle
 ```
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
@@ -122,15 +132,31 @@ flowchart LR
     COR -->|await| POOL
     POOL --> QUERY --> RS
     RS -->|await| COR
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class EL,EB coreStyle
+    class VER,SC,COR asyncStyle
+    class POOL,QUERY serviceStyle
+    class RS dataStyle
 ```
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
 ```mermaid
 sequenceDiagram
-    participant 앱 as Verticle (Coroutines)
-    participant CB as CircuitBreaker<br/>(Resilience4j)
-    participant SVC as 원격 서비스
+    box rgb(237, 231, 246) 애플리케이션
+        participant 앱 as Verticle (Coroutines)
+    end
+    box rgb(227, 242, 253) Resilience4j
+        participant CB as CircuitBreaker
+    end
+    box rgb(232, 245, 233) 백엔드
+        participant SVC as 원격 서비스
+    end
 
     앱->>CB: cb.executeSuspend { remoteCall() }
     CB->>CB: 상태 확인 (CLOSED/OPEN/HALF_OPEN)
@@ -190,6 +216,11 @@ classDiagram
     Pool --|> SqlClient
     CoroutineVerticle --> CircuitBreaker : 장애 격리
 
+    style CoroutineVerticle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style EventBus fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    style SqlClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Pool fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CircuitBreaker fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ## 사용 예시

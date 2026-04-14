@@ -27,6 +27,17 @@ flowchart LR
     W -->|"조립"| Flows
     Flows -->|"execute(ctx)"| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
     WR -->|"읽기/쓰기"| WC["WorkContext\n(공유 Mutable Map)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class SF,PF,CF,RF,RT dslStyle
+    class W serviceStyle
+    class WR dataStyle
+    class WC utilStyle
 ```
 
 `Work` 단위는 `WorkContext`를 받아 `WorkReport`를 반환하는 이름 있는 람다입니다.  
@@ -67,6 +78,16 @@ flowchart TD
     E --> H[Conditional]
     E --> I[Repeat]
     E --> J[Retry]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class A coreStyle
+    class C asyncStyle
+    class D serviceStyle
+    class F,G,H,I,J dslStyle
 ```
 
 ## 주요 특징
@@ -152,6 +173,14 @@ flowchart LR
     W1 -. "실패 + CONTINUE" .-> W2
     W2 -. "실패 + CONTINUE" .-> W3
     W3 -. "실패 누적" .-> P([PARTIAL])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W1,W2,W3 serviceStyle
+    class S,E coreStyle
+    class F,P dataStyle
 ```
 
 ```kotlin
@@ -189,6 +218,12 @@ val report = flow.execute(WorkContext())
 ```mermaid
 flowchart LR
     S([시작]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+
+    class W1,W2,W3 serviceStyle
+    class S,E coreStyle
 ```
 
 ```kotlin
@@ -219,6 +254,12 @@ flowchart LR
     C -->|false| O[otherwise]
     T --> E([완료])
     O --> E
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+
+    class T,O serviceStyle
+    class S,E coreStyle
 ```
 
 ```kotlin
@@ -243,6 +284,14 @@ flowchart LR
     C -->|no| E([COMPLETED])
     W -. ABORTED .-> A([ABORTED])
     W -. FAILED .-> F([FAILED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W serviceStyle
+    class S,E coreStyle
+    class A,F dataStyle
 ```
 
 ```kotlin
@@ -279,6 +328,14 @@ flowchart LR
     R -->|yes| D[백오프 대기]
     D --> W
     R -->|no| F([FAILED])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class W,D serviceStyle
+    class S,E coreStyle
+    class F dataStyle
 ```
 
 ```kotlin

@@ -28,6 +28,18 @@ flowchart TD
     RUNTIME -->|"JDK 25 환경<br/>priority 25 선택"| JDK25
     RUNTIME -->|"JDK 21 환경<br/>priority 21 선택"| JDK21
     RUNTIME -->|"JDK 17 이하<br/>isSupported() = false"| FALLBACK
+
+    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
+    classDef apiStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef fallbackStyle fill:#616161,stroke:#424242,color:#FFFFFF
+    classDef runtimeStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class APP appStyle
+    class API apiStyle
+    class JDK21,JDK25 implStyle
+    class FALLBACK fallbackStyle
+    class RUNTIME runtimeStyle
 ```
 
 ---
@@ -82,6 +94,12 @@ classDiagram
     VirtualThreadFactory <|.. Jdk25VirtualThreadFactory
     VirtualThreadFactory <|.. PlatformThreadFallback
     VirtualThreads ..> VirtualThreadFactory: ServiceLoader가 최고 우선순위 선택
+
+    style VirtualThreadFactory fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style VirtualThreads fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Jdk21VirtualThreadFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Jdk25VirtualThreadFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PlatformThreadFallback fill:#616161,stroke:#424242,color:#FFFFFF
 ```
 
 ---
@@ -90,11 +108,17 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant VT as VirtualThreads
-    participant SL as ServiceLoader
-    participant F21 as Jdk21VirtualThreadFactory
-    participant F25 as Jdk25VirtualThreadFactory
+    box rgb(207,216,220) 애플리케이션 계층
+        participant App as 애플리케이션
+    end
+    box rgb(178,223,219) API 계층
+        participant VT as VirtualThreads
+        participant SL as ServiceLoader
+    end
+    box rgb(178,223,219) 구현체
+        participant F21 as Jdk21VirtualThreadFactory
+        participant F25 as Jdk25VirtualThreadFactory
+    end
     App ->> VT: VirtualThreads.executorService()
     VT ->> SL: ServiceLoader.load(VirtualThreadFactory)
     SL -->> VT: [Jdk21Factory(21), Jdk25Factory(25), Fallback(MIN)]

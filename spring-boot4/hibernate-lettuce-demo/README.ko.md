@@ -43,6 +43,12 @@ classDiagram
     ProductRepository --> Product
     HibernateSessionFactory --> LettuceNearCacheRegionFactory
     ProductRepository --> HibernateSessionFactory
+
+    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ProductRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style Product fill:#F57F17,stroke:#E65100,color:#000000
+    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HibernateSessionFactory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ## 아키텍처
@@ -89,6 +95,18 @@ flowchart TD
     RegionFactory --> L1
     RegionFactory --> L2
     Repo --> DB
+
+    classDef clientStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef hibernateStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef cacheStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Client,Controller clientStyle
+    class Repo repoStyle
+    class Hibernate hibernateStyle
+    class RegionFactory,L1,L2 cacheStyle
+    class DB dbStyle
 ```
 
 ## 도메인 모델

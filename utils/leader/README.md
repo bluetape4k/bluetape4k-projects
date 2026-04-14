@@ -46,6 +46,18 @@ flowchart LR
 
     L --> R["Result T"]
     S --> N["null (skipped)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class I1,I2,I3 utilStyle
+    class LE coreStyle
+    class L asyncStyle
+    class S,N dataStyle
+    class R dataStyle
 ```
 
 ### Concept Overview — Group Leader (Semaphore)
@@ -60,6 +72,17 @@ flowchart LR
 
     GE -->|"slot acquired (3 win)"| L["Leaders\n(execute concurrently)"]
     GE -->|"slot unavailable (2 lose)"| S["Non-Leaders\n(return null)"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class I1,I2,I3,I4,I5 utilStyle
+    class GE coreStyle
+    class L asyncStyle
+    class S dataStyle
 ```
 
 ### Class Diagram — Single Leader
@@ -111,6 +134,15 @@ classDiagram
     AsyncLeaderElection <|.. LocalAsyncLeaderElection
     VirtualThreadLeaderElection <|.. LocalVirtualThreadLeaderElection
     SuspendLeaderElection <|.. LocalSuspendLeaderElection
+
+    style AsyncLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style VirtualThreadLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LocalLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalAsyncLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalVirtualThreadLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalSuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### Class Diagram — Group Leader
@@ -168,17 +200,33 @@ classDiagram
     AsyncLeaderGroupElection <|.. LocalAsyncLeaderGroupElection
     VirtualThreadLeaderGroupElection <|.. LocalVirtualThreadLeaderGroupElection
     SuspendLeaderGroupElection <|.. LocalSuspendLeaderGroupElection
+
+    style LeaderGroupElectionState fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AsyncLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style VirtualThreadLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LocalLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalAsyncLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalVirtualThreadLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalSuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### Execution Sequence — Single Leader
 
 ```mermaid
 sequenceDiagram
+    box "Distributed Instances" #E8F5E9
     participant I1 as Instance 1
     participant I2 as Instance 2
+    end
+    box "Coordination Layer" #E3F2FD
     participant LE as LeaderElection
     participant Lock as Lock (ReentrantLock / Mutex)
+    end
+    box "Execution Layer" #FFF3E0
     participant Task
+    end
 
     I1->>LE: runIfLeader("job-lock") { task }
     I2->>LE: runIfLeader("job-lock") { task }

@@ -48,6 +48,18 @@ flowchart TD
     OKH --> SERVER
     AHC --> SERVER
     VTX --> SERVER
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+
+    class APP coreStyle
+    class CO asyncStyle
+    class EXT,DSL utilStyle
+    class HC5A,HC5C,HC5CA,OKH,AHC,VTX serviceStyle
+    class SERVER extStyle
 ```
 
 ### HTTP Client Hierarchy (HC5)
@@ -75,6 +87,12 @@ classDiagram
     CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : uses
     CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : uses
     CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : extends
+
+    style CloseableHttpAsyncClient fill:#37474F,stroke:#263238,color:#FFFFFF
+    style HttpAsyncClientCoroutines fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style CachingHttpAsyncClientBuilder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style InMemoryHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
+    style JavaCacheHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
 ```
 
 ### OkHttp3 Client Hierarchy
@@ -107,16 +125,28 @@ classDiagram
     OkHttpClient --> CachingRequestInterceptor : addInterceptor
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
     OkHttpClient <.. OkHttpClientExtensionsCoroutines : extends
+
+    style OkHttpClient fill:#37474F,stroke:#263238,color:#FFFFFF
+    style LoggingInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CachingRequestInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CachingResponseInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style OkHttpClientExtensionsCoroutines fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Async HTTP Request Flow (HC5 Async + Coroutines)
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as executeSuspending()
-    participant HC5 as CloseableHttpAsyncClient
-    participant Server as HTTP Server
+    box rgb(232, 245, 233) Application
+        participant App as Application
+    end
+    box rgb(237, 231, 246) bluetape4k-http
+        participant Ext as executeSuspending()
+        participant HC5 as CloseableHttpAsyncClient
+    end
+    box rgb(227, 242, 253) Backend
+        participant Server as HTTP Server
+    end
 
     App->>Ext: suspend fun executeSuspending(request)
     Ext->>HC5: execute(request, FutureCallback)

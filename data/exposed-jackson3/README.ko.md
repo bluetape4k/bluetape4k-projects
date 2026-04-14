@@ -138,6 +138,9 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### JSON 컬럼 타입 클래스 구조
@@ -181,6 +184,13 @@ classDiagram
     JacksonColumnType --> JsonFunctions : 연동
     ResultRowExtensions --> JacksonColumnType : 사용
     ResultRowExtensions --> JacksonBColumnType : 사용
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonSerializer fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JsonFunctions fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style ResultRowExtensions fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Jackson 2 vs Jackson 3 패키지 차이
@@ -199,6 +209,14 @@ flowchart LR
     C -->|직렬화| Jackson3
     Jackson2 -->|역직렬화| C
     Jackson3 -->|역직렬화| C
+
+    classDef objectStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef jackson2Style fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef jackson3Style fill:#00897B,stroke:#00695C,color:#FFFFFF
+
+    class C objectStyle
+    class Jackson2 jackson2Style
+    class Jackson3 jackson3Style
 ```
 
 ## 참고

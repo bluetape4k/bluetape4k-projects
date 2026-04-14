@@ -174,6 +174,12 @@ classDiagram
     JsonSerializer <|.. FastjsonSerializer
     FastjsonSerializer ..> JSONBExtensions : 내부 사용
 
+    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style FastjsonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JSONExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JSONBExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JSONArrayExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JSONObjectExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### JSON vs JSONB 직렬화 흐름
@@ -199,6 +205,15 @@ flowchart LR
 
     OBJ -->|직렬화| BS --> BARR
     BARR -->|역직렬화| BD --> OBJ
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class OBJ coreStyle
+    class JS,JD serviceStyle
+    class BS,BD serviceStyle
+    class JSTR,BARR dataStyle
 ```
 
 ## 의존성

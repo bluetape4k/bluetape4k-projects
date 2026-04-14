@@ -169,6 +169,16 @@ classDiagram
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
 
+    style SpatialLayerRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SpatialFeatureRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style NetCdfFileRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SpatialLayerTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style SpatialFeatureTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style NetCdfFileTable fill:#00838F,stroke:#006064,color:#FFFFFF
+    style SpatialLayerRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SpatialFeatureRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style NetCdfFileRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ShapefileImportService fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
 
 ```
 
@@ -196,12 +206,20 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
+    box "소비자" #E8F5E9
     participant Caller
+    end
+    box "서비스" #E3F2FD
     participant SIS as ShapefileImportService
+    participant VT as VirtualThread
+    end
+    box "저장소" #FFF3E0
     participant LR as SpatialLayerRepository
     participant FR as SpatialFeatureRepository
-    participant VT as VirtualThread
+    end
+    box "데이터베이스" #F3E5F5
     participant DB as PostgreSQL/PostGIS
+    end
 
     Caller->>SIS: importShapefile(file, layerName, batchSize)
     SIS->>SIS: loadShape(file)

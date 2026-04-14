@@ -33,6 +33,19 @@ flowchart TD
     Coroutines --> AsyncFlow
     Coroutines --> Scopes
     Coroutines --> Reactor
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class Coroutines coreStyle
+    class DeferredValue,DeferredHelpers asyncStyle
+    class FlowExt,AsyncFlow asyncStyle
+    class Scopes serviceStyle
+    class Reactor extStyle
 ```
 
 ---
@@ -122,6 +135,17 @@ classDiagram
     VirtualThreadCoroutineScope ..|> CoroutineScope
     FlowExtensions ..> AsyncFlow : includes
 
+    style DeferredValue fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style deferredValueOf fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DeferredSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DefaultCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style IoCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ThreadPoolCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style VirtualThreadCoroutineScope fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style FlowExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style AsyncFlow fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactorContextHelpers fill:#37474F,stroke:#263238,color:#FFFFFF
+
 ```
 
 ---
@@ -130,9 +154,15 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant C as 호출자
-    participant DV as DeferredValue
-    participant Co as 코루틴 (백그라운드)
+    box rgb(232, 245, 233) 호출자
+        participant C as 호출자
+    end
+    box rgb(225, 190, 231) DeferredValue
+        participant DV as DeferredValue
+    end
+    box rgb(232, 245, 233) 백그라운드
+        participant Co as 코루틴 (백그라운드)
+    end
 
     C->>DV: deferredValueOf(block)
     DV->>Co: 즉시 코루틴 시작 (eager)
@@ -326,6 +356,23 @@ flowchart TD
     Accumulate --> pairwise["pairwise()"]
     Accumulate --> groupBy["groupBy { }"]
     Async --> asyncFlow["Flow.async { }"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class FlowExt coreStyle
+    class Batch,Parallel,Temporal,Gate,Combine,Accumulate,Async serviceStyle
+    class chunked,windowed,sliding,bufferedSliding,bufferingDebounce dataStyle
+    class mapParallel,concatMapEager asyncStyle
+    class throttleLeading,throttleTrailing,throttleBoth utilStyle
+    class takeUntil,skipUntil utilStyle
+    class merge,amb,withLatestFrom,zipWithNext serviceStyle
+    class scanWith,pairwise,groupBy serviceStyle
+    class asyncFlow asyncStyle
 ```
 
 ---
@@ -336,9 +383,15 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant C as chunked(3)
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operator
+        participant C as chunked(3)
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> C: emit(1)
     S ->> C: emit(2)
     S ->> C: emit(3)
@@ -357,9 +410,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant W as windowed(size=3, step=2)
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operator
+        participant W as windowed(size=3, step=2)
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> W: emit(1)
     S ->> W: emit(2)
     S ->> W: emit(3)
@@ -381,9 +440,13 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant SL as sliding(2)
-    participant BS as bufferedSliding(2)
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operators
+        participant SL as sliding(2)
+        participant BS as bufferedSliding(2)
+    end
     S ->> SL: emit(1)
     S ->> SL: emit(2)
     SL -->> SL: 윈도우=[1,2] 가득 참
@@ -408,9 +471,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant MP as mapParallel(parallelism=3)
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(225, 190, 231) 병렬 Operator
+        participant MP as mapParallel(parallelism=3)
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> MP: emit(1)
     S ->> MP: emit(2)
     S ->> MP: emit(3)
@@ -436,9 +505,15 @@ inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant CM as concatMapEager
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(225, 190, 231) Operator
+        participant CM as concatMapEager
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> CM: emit(1) → transform → flowOf(1, 10)
     S ->> CM: emit(2) → transform → flowOf(2, 20)
     Note over CM: inner Flow 2개 동시 수집 시작
@@ -462,9 +537,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant BD as bufferingDebounce(200ms)
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operator
+        participant BD as bufferingDebounce(200ms)
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> BD: emit(A) [t=0ms]
     S ->> BD: emit(B) [t=50ms]
     S ->> BD: emit(C) [t=80ms]
@@ -484,9 +565,13 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Source (매 200ms 방출)
-    participant TL as throttleLeading(500ms)
-    participant TT as throttleTrailing(500ms)
+    box rgb(232, 245, 233) Source
+        participant S as Source (매 200ms 방출)
+    end
+    box rgb(255, 236, 179) 시간 기반 Operators
+        participant TL as throttleLeading(500ms)
+        participant TT as throttleTrailing(500ms)
+    end
     Note over S, TT: 입력: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
     S ->> TL: emit(1) [0ms] — 윈도우 시작
     Note over TL: 2, 3 무시
@@ -509,11 +594,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant N as Notifier Flow
-    participant TU as takeUntil
-    participant SU as skipUntil
-    participant R as Collector
+    box rgb(232, 245, 233) Sources
+        participant S as Flow Source
+        participant N as Notifier Flow
+    end
+    box rgb(207, 226, 255) 게이트 Operators
+        participant TU as takeUntil
+        participant SU as skipUntil
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     Note over S, R: takeUntil: notifier 첫 이벤트 전까지만 방출
     S ->> TU: emit(1)
     TU ->> R: emit(1)
@@ -543,10 +634,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant F1 as Flow A
-    participant F2 as Flow B
-    participant M as merge()
-    participant R as Collector
+    box rgb(232, 245, 233) Sources
+        participant F1 as Flow A
+        participant F2 as Flow B
+    end
+    box rgb(207, 226, 255) Operator
+        participant M as merge()
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
 
     par 동시 수집
         F1 ->> M: emit(1)
@@ -570,9 +667,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant P as pairwise()
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operator
+        participant P as pairwise()
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> P: emit(1)
     Note over P: 버퍼=[1], 쌍 미완성
     S ->> P: emit(2)
@@ -591,9 +694,15 @@ collect 시점에 `initialSupplier`를 호출해 초기값을 생성한 뒤 누�
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant SW as scanWith({ 0 }) { acc, v -> acc + v }
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(207, 226, 255) Operator
+        participant SW as scanWith({ 0 }) { acc, v -> acc + v }
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     Note over SW: collect 시작 → initialSupplier() 호출 → acc=0
     SW ->> R: emit(0)
     S ->> SW: emit(1)
@@ -612,9 +721,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant S as Flow Source
-    participant AF as Flow.async { }
-    participant R as Collector
+    box rgb(232, 245, 233) Source
+        participant S as Flow Source
+    end
+    box rgb(225, 190, 231) 비동기 Operator
+        participant AF as Flow.async { }
+    end
+    box rgb(232, 245, 233) Sink
+        participant R as Collector
+    end
     S ->> AF: emit(1) → LazyDeferred 시작
     S ->> AF: emit(2) → LazyDeferred 시작
     S ->> AF: emit(3) → LazyDeferred 시작

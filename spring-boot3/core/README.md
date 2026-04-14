@@ -106,6 +106,13 @@ classDiagram
     UserService --> UserRepository
     Retrofit2Client --> WebFluxHandler : inject
     WebTestClientExt --> DispatcherHandler : test
+
+    style DispatcherHandler fill:#37474F,stroke:#263238,color:#FFFFFF
+    style WebFluxHandler fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style UserService fill:#00838F,stroke:#006064,color:#FFFFFF
+    style UserRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style Retrofit2Client fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style WebTestClientExt fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Spring WebFlux + Coroutines Request Flow
@@ -122,6 +129,19 @@ flowchart LR
     Handler --> WebFlux
     WebFlux --> Netty
     Netty --> Client
+
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class Client extStyle
+    class Netty extStyle
+    class WebFlux springStyle
+    class Handler asyncStyle
+    class Service serviceStyle
+    class DB dataStyle
 ```
 
 ### Retrofit2 Integration Structure
@@ -136,6 +156,20 @@ flowchart TD
     Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>suspend function support"]
     OkHttp --> ExternalAPI["External REST API"]
     HttpClient5 --> ExternalAPI
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class App serviceStyle
+    class RetrofitBean springStyle
+    class Retrofit2 springStyle
+    class OkHttp extStyle
+    class HttpClient5 extStyle
+    class Jackson extStyle
+    class CoroutinesAdapter asyncStyle
+    class ExternalAPI extStyle
 ```
 
 ### WebTestClient Test Structure
@@ -146,6 +180,17 @@ flowchart LR
     WTC --> Controller["REST Controller<br/>Coroutines"]
     Controller --> Service["Service Layer"]
     TC["Testcontainers<br/>DB / Redis etc."] -.->|"@DynamicPropertySource"| Test
+
+    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+
+    class Test testStyle
+    class TC testStyle
+    class WTC springStyle
+    class Controller asyncStyle
+    class Service serviceStyle
 ```
 
 ### WebFlux Controller (Coroutines)

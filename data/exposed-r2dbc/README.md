@@ -223,6 +223,8 @@ classDiagram
     }
     ExposedR2dbcRepository <|-- AbstractR2dbcRepository
 
+    style ExposedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractR2dbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
 ```
 
 ### R2dbcRepository Hierarchy
@@ -272,6 +274,13 @@ classDiagram
     R2dbcRepository <|-- LongR2dbcRepository
     R2dbcRepository <|-- StringR2dbcRepository
     SoftDeletedR2dbcRepository <|-- LongSoftDeletedR2dbcRepository
+
+    style R2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SoftDeletedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style IntR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LongR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style StringR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LongSoftDeletedR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
 ```
 
 ### suspend Transaction Flow
@@ -280,10 +289,18 @@ How CRUD operations are executed through `R2dbcRepository` inside a `suspendTran
 
 ```mermaid
 sequenceDiagram
-    participant C as Caller
-    participant T as suspendTransaction
-    participant R as R2dbcRepository
-    participant DB as R2DBC Database
+    box rgb(227, 242, 253) Application
+        participant C as Caller
+    end
+    box rgb(243, 229, 245) Coroutines
+        participant T as suspendTransaction
+    end
+    box rgb(232, 245, 233) Repository
+        participant R as R2dbcRepository
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as R2DBC Database
+    end
 
     C->>T: suspendTransaction { ... }
     activate T
@@ -311,10 +328,18 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant C as Caller
-    participant T as suspendTransaction
-    participant R as SoftDeletedR2dbcRepository
-    participant DB as R2DBC Database
+    box rgb(227, 242, 253) Application
+        participant C as Caller
+    end
+    box rgb(243, 229, 245) Coroutines
+        participant T as suspendTransaction
+    end
+    box rgb(232, 245, 233) Repository
+        participant R as SoftDeletedR2dbcRepository
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as R2DBC Database
+    end
 
     C->>T: suspendTransaction { ... }
     activate T

@@ -21,13 +21,19 @@ flowchart LR
     D --> F[원격 캐시 동기화]
     F --> G[DB 쿼리 최소화]
 
-    style A fill:#607D8B
-    style B fill:#9C27B0
-    style C fill:#FF9800
-    style D fill:#F44336
-    style E fill:#4CAF50
-    style F fill:#F44336
-    style G fill:#4CAF50
+    classDef hibernateStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef factoryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef l1Style fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef l2Style fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef resultStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    class A hibernateStyle
+    class B factoryStyle
+    class C l1Style
+    class D l2Style
+    class E resultStyle
+    class F l2Style
+    class G resultStyle
 ```
 
 ### 레이어 구조
@@ -48,6 +54,22 @@ flowchart TD
     Storage --> NearCache
     NearCache --> L1
     NearCache --> L2
+
+    classDef hibernateStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef factoryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef regionStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef storageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef cacheStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef l1Style fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef l2Style fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+
+    class Hibernate hibernateStyle
+    class Factory factoryStyle
+    class Region regionStyle
+    class Storage storageStyle
+    class NearCache cacheStyle
+    class L1 l1Style
+    class L2 l2Style
 ```
 
 - **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
@@ -162,10 +184,14 @@ val products: MutableList<Product> = mutableListOf()
 
 ```mermaid
 sequenceDiagram
-    participant Hibernate
-    participant Storage as LettuceNearCacheStorageAccess
-    participant L1 as Caffeine (L1)
-    participant L2 as Redis (L2)
+    box rgb(227, 242, 253) 애플리케이션
+        participant Hibernate
+    end
+    box rgb(232, 245, 233) 캐시 레이어
+        participant Storage as LettuceNearCacheStorageAccess
+        participant L1 as Caffeine (L1)
+        participant L2 as Redis (L2)
+    end
 
     Note over Hibernate,L2: getFromCache
     Hibernate->>Storage: getFromCache(key)

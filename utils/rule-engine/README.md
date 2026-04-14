@@ -29,6 +29,15 @@ flowchart LR
     RE -->|" evaluate(facts) per rule "| RS
     RS -->|" true → execute(facts) "| Facts
     RE -.->|" 4. read results "| Facts
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class RE coreStyle
+    class R1,R2,R3 dslStyle
+    class KV dataStyle
 ```
 
 A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `Facts`).  
@@ -100,6 +109,15 @@ DefaultSuspendRule ..> Condition : uses
 DefaultSuspendRule ..> Action: uses
 RuleSet o-- Rule: sorted by priority
 DefaultRule ..> Facts: reads/writes
+
+    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style DefaultRule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultSuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style Condition fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Action fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Facts fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RuleSet fill:#00838F,stroke:#006064,color:#FFFFFF
 ```
 
 ### Rule Engine Class Diagram
@@ -137,6 +155,12 @@ classDiagram
     RuleEngine <|.. DefaultRuleEngine
     RuleEngine <|.. InferenceRuleEngine
     DefaultRuleEngine o-- RuleEngineConfig
+
+    style RuleEngine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DefaultRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style InferenceRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DefaultSuspendRuleEngine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style RuleEngineConfig fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### Composite Rules
@@ -164,17 +188,29 @@ classDiagram
     CompositeRule <|-- ConditionalRuleGroup
     CompositeRule <|-- UnitRuleGroup
     CompositeRule o-- Rule: contains
+
+    style CompositeRule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ActivationRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ConditionalRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UnitRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### Rule Execution Sequence
 
 ```mermaid
 sequenceDiagram
+    box "Consumer" #E8F5E9
     participant Caller
+    end
+    box "Rule Engine" #E3F2FD
     participant RuleEngine
     participant RuleListener
+    end
+    box "Rules" #FFF3E0
     participant Rule
     participant Facts
+    end
     Caller ->> RuleEngine: fire(ruleSet, facts)
 
     loop each Rule (priority order)
@@ -206,6 +242,14 @@ flowchart TD
     D --> E[facts updated]
     E --> B
     C -->|no| F[done]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A,B coreStyle
+    class D,E serviceStyle
+    class F dataStyle
 ```
 
 ### Rule Engine Selection Guide
@@ -222,6 +266,18 @@ flowchart TD
     G --> I["Annotation: @Rule"]
     G --> J["Script: MVEL2 / SpEL / Janino / Groovy"]
     G --> K["File: YAML / JSON / HOCON"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class A coreStyle
+    class E,F serviceStyle
+    class C asyncStyle
+    class H,I dslStyle
+    class J,K dataStyle
 ```
 
 ## Core Features
@@ -379,6 +435,14 @@ flowchart TD
     E -->|no| G[MVEL2]
     B -->|"Complex (collections, closures, branching)"| H[Groovy]
     B -->|"Need Kotlin type safety"| I[Kotlin Script]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+
+    class A coreStyle
+    class D,F,G serviceStyle
+    class H,I extStyle
 ```
 
 | Scenario | Recommended | Reason |

@@ -401,17 +401,33 @@ classDiagram
     KafkaCodecs --> BinaryKafkaCodec
     KafkaCodecs --> StringKafkaCodec
 
+    style KafkaCodec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JacksonKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BinaryKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style StringKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KafkaCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style SuspendKafkaProducerTemplate fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendKafkaConsumerTemplate fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
 ```
 
 ### Producer/Consumer 메시지 흐름
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) 애플리케이션
     participant App as 애플리케이션
+    end
+    box rgb(225,190,231) 비동기 템플릿
     participant PT as SuspendKafkaProducerTemplate
-    participant Kafka as Kafka Broker
     participant CT as SuspendKafkaConsumerTemplate
+    end
+    box rgb(207,216,220) Kafka
+    participant Kafka as Kafka Broker
+    end
+    box rgb(255,224,178) 핸들러
     participant Handler as 메시지 핸들러
+    end
 
     App->>+PT: send(topic, key, value)
     Note over PT: Reactor Kafka SenderRecord 래핑
@@ -438,13 +454,21 @@ flowchart LR
     KT -->|toStream| OS[출력 KStream]
     OS -->|producedOf| OT[출력 토픽]
 
-    style IT fill:#2196F3
-    style OT fill:#4CAF50
-    style KT fill:#FF9800
-    style KS fill:#607D8B
-    style KS2 fill:#607D8B
-    style KG fill:#9C27B0
-    style OS fill:#607D8B
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    style IT fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style OT fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style KT fill:#F57F17,stroke:#E65100,color:#000000
+    style KS fill:#37474F,stroke:#263238,color:#FFFFFF
+    style KS2 fill:#37474F,stroke:#263238,color:#FFFFFF
+    style KG fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style OS fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ## 패키지 구조

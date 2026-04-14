@@ -230,6 +230,10 @@ classDiagram
     ByteBuf <-- BitBuf : wraps
     ByteBuf <-- ReferenceCountedSupport : extends
 
+    style ByteBuf fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ByteBufExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style BitBuf fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ReferenceCountedSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Smart Encoding Data Flow
@@ -255,6 +259,12 @@ flowchart LR
     B1 -->|readShortSmart / readUShortSmart| V1
     B2 -->|readShortSmart / readUShortSmart| V2
     B3 -->|readIntSmart / readUIntSmart| V3
+
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class V1,V2,V3 dataStyle
+    class B1,B2,B3 utilStyle
 ```
 
 ### Netty Channel Pipeline Processing Flow
@@ -268,6 +278,17 @@ flowchart TD
     P3 -->|Generate response| W1[ChannelHandler<br/>writeVarInt / writeString]
     W1 -->|Encoding| CH
     CH -->|Outgoing bytes| NET
+
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+
+    class NET extStyle
+    class CH coreStyle
+    class P1,W1 utilStyle
+    class P2 utilStyle
+    class P3 serviceStyle
 ```
 
 ## Testing

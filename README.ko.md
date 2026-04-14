@@ -60,6 +60,91 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
+```mermaid
+flowchart TB
+    subgraph L5["통합 레이어 — Integration"]
+        SB3["spring-boot3/*"]
+        SB4["spring-boot4/*"]
+    end
+
+    subgraph L4["인프라 레이어 — Infrastructure"]
+        LETTUCE["infra/lettuce"]
+        REDISSON["infra/redisson"]
+        KAFKA["infra/kafka"]
+        R4J["infra/resilience4j"]
+        CACHE["infra/cache-*"]
+        OTEL["infra/opentelemetry"]
+        BUCKET["infra/bucket4j"]
+        MICRO["infra/micrometer"]
+    end
+
+    subgraph L3["데이터 접근 레이어 — Data Access"]
+        direction LR
+        EXP["data/exposed-*"]
+        HIB["data/hibernate*"]
+        MONGO["data/mongodb"]
+        CASS["data/cassandra"]
+        JDBC["data/jdbc"]
+        R2DBC["data/r2dbc"]
+    end
+
+    subgraph L2["I/O 및 직렬화 레이어 — I/O & Serialization"]
+        direction LR
+        IO["io/io"]
+        JACKSON["io/jackson2·3"]
+        FEIGN["io/feign"]
+        RETRO["io/retrofit2"]
+        GRPC["io/grpc"]
+        OKIO["io/okio"]
+        TINK["io/tink"]
+        VERTX["io/vertx"]
+    end
+
+    subgraph L1["코어 확장 레이어 — Core Extensions"]
+        COROU["bluetape4k-coroutines"]
+        VT["virtualthread-api"]
+    end
+
+    subgraph L0["기반 레이어 — Foundation"]
+        CORE["bluetape4k-core"]
+        LOG["bluetape4k-logging"]
+        BOM["bluetape4k-bom"]
+    end
+
+    subgraph CROSS["횡단 관심사 — Cross-cutting"]
+        direction LR
+        JUNIT["testing/junit5"]
+        TC["testing/testcontainers"]
+        UTILS["utils/*"]
+        AWS["aws/*"]
+    end
+
+    L5 --> L4
+    L5 --> L3
+    L4 --> L2
+    L3 --> L2
+    L2 --> L1
+    L1 --> L0
+    CROSS -.-> L0
+    CROSS -.-> L1
+
+    classDef foundation fill:#E8F5E9,stroke:#4CAF50,color:#1B5E20
+    classDef coreExt fill:#E3F2FD,stroke:#42A5F5,color:#0D47A1
+    classDef ioLayer fill:#FFF3E0,stroke:#FF9800,color:#E65100
+    classDef dataLayer fill:#F3E5F5,stroke:#AB47BC,color:#4A148C
+    classDef infraLayer fill:#E0F2F1,stroke:#26A69A,color:#004D40
+    classDef intLayer fill:#FCE4EC,stroke:#EC407A,color:#880E4F
+    classDef crossLayer fill:#FFF9C4,stroke:#FDD835,color:#F57F17
+
+    class CORE,LOG,BOM foundation
+    class COROU,VT coreExt
+    class IO,JACKSON,FEIGN,RETRO,GRPC,OKIO,TINK,VERTX ioLayer
+    class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
+    class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
+    class SB3,SB4 intLayer
+    class JUNIT,TC,UTILS,AWS crossLayer
+```
+
 ### Core 모듈 (`bluetape4k/`)
 
 - **[core](./bluetape4k/core/README.ko.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)

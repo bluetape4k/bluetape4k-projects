@@ -60,6 +60,13 @@ classDiagram
     UserRepository --|> ExposedR2dbcRepository
     UserRepository --> UserDto
     UserDto --> UserTable
+
+    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style UserRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style ExposedR2dbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style UserDto fill:#F57F17,stroke:#E65100,color:#000000
+    style UserTable fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### 비동기 처리 흐름
@@ -78,6 +85,18 @@ flowchart LR
     Repo --> DSL
     DSL --> Driver
     Driver --> DB
+
+    classDef webStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef mapperStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef dslStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+
+    class WebFlux webStyle
+    class Repo repoStyle
+    class Mapper mapperStyle
+    class DSL dslStyle
+    class Driver,DB dbStyle
 ```
 
 ## 설치

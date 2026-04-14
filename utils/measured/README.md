@@ -108,7 +108,15 @@ classDiagram
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
 
-
+    style Units fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Measure fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style UnitsProduct fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UnitsRatio fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Length fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Time fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Mass fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Velocity fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Acceleration fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Unit Composition Flow
@@ -124,6 +132,14 @@ flowchart LR
     L -->|"/ seconds"| V
     V -->|"* duration"| R
     D --> R
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class L,D dataStyle
+    class V,R coreStyle
 ```
 
 ## Compatibility Adapter for `units`

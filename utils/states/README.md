@@ -25,6 +25,19 @@ flowchart LR
     SM -->|" transition(event) "| TR["TransitionResult\n(prev, event, current)"]
     SM -.->|" stateFlow (suspend) "| SF["StateFlow\n(observable state)"]
     TR -->|" onTransition callback "| CB["Side-effect Logic"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class S,E,T,G dslStyle
+    class SM coreStyle
+    class TR dataStyle
+    class SF asyncStyle
+    class CB utilStyle
 ```
 
 A `StateMachine` holds a set of typed **transitions** (from-state + event-type → to-state).  
@@ -107,6 +120,16 @@ classDiagram
     SuspendStateMachine ..> TransitionResult : returns
     DefaultStateMachine ..> StateMachineException : throws
     SuspendStateMachine ..> StateMachineException : throws
+
+    style BaseStateMachine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style StateMachine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendStateMachineInterface fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style DefaultStateMachine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendStateMachine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style TransitionResult fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TransitionKey fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TransitionTarget fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style StateMachineException fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
@@ -144,6 +167,12 @@ classDiagram
     SuspendStateMachineBuilder ..> TransitionBuilder : creates
     StateMachineBuilder ..> DefaultStateMachine : builds
     SuspendStateMachineBuilder ..> SuspendStateMachine : builds
+
+    style StateMachineBuilder fill:#00838F,stroke:#006064,color:#FFFFFF
+    style SuspendStateMachineBuilder fill:#00838F,stroke:#006064,color:#FFFFFF
+    style TransitionBuilder fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style DefaultStateMachine fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendStateMachine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## Key Features
@@ -290,11 +319,17 @@ val fsm = stateMachine<State, Event> {
 
 ```mermaid
 sequenceDiagram
+    box "Consumer" #E8F5E9
     participant Caller
+    end
+    box "State Machine" #E3F2FD
     participant DefaultStateMachine
     participant AtomicReference
     participant TransitionMap
+    end
+    box "Callbacks" #FFF3E0
     participant OnTransitionCallback
+    end
 
     Caller->>DefaultStateMachine: transition(event)
     DefaultStateMachine->>AtomicReference: get() → previousState
@@ -322,11 +357,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    box "Consumer" #E8F5E9
     participant Caller
+    end
+    box "Coroutine State Machine" #F3E5F5
     participant SuspendStateMachine
     participant Mutex
     participant MutableStateFlow
+    end
+    box "Callbacks" #FFF3E0
     participant OnTransitionCallback
+    end
 
     Caller->>SuspendStateMachine: transition(event) [suspend]
     SuspendStateMachine->>Mutex: withLock { ... }

@@ -107,11 +107,29 @@ flowchart TD
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
 
-    style A fill:#2196F3
-    style B fill:#4CAF50
-    style C fill:#FF9800
-    style D fill:#9C27B0
-    style E fill:#F44336
+    classDef umbrellaStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef coreStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef suspendStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef interfaceStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+
+    style A fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style B fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style C fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style D fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style E fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style B1 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style B2 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style B3 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style B4 fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style B5 fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style C1 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style C2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style D1 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style D2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style D3 fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style E1 fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style E2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## NearCache 통일 인터페이스 계층
@@ -180,6 +198,16 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. LettuceSuspendNearCache
 
+    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style RedissonResp3NearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style LettuceNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
 ```
 
 ## Near Cache 2-Tier 아키텍처
@@ -193,9 +221,13 @@ flowchart LR
     App -->|put| RemoteCache
     RemoteCache -->|Invalidation 전파| LocalCache
 
-    style LocalCache fill:#4CAF50
-    style RemoteCache fill:#F44336
-    style App fill:#2196F3
+    classDef appStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef localStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef remoteStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+
+    style App fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style RemoteCache fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ## CachingProvider 자동 로딩 주의

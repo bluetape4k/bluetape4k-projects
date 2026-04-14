@@ -50,6 +50,17 @@ flowchart TD
     HC5 --> SERVER
     VTX --> SERVER
     AHC --> SERVER
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+
+    class APP,API coreStyle
+    class RB,RCA,RC serviceStyle
+    class OKH,HC5,VTX,AHC asyncStyle
+    class JCF,SCF utilStyle
+    class RX utilStyle
 ```
 
 ### Retrofit2 + Result 패턴 통합 구조
@@ -99,17 +110,31 @@ classDiagram
     Retrofit --> Hc5CallFactory : callFactory
     Retrofit --> VertxCallFactory : callFactory
     Retrofit --> AhcCallFactory : callFactory
+
+    style Retrofit fill:#37474F,stroke:#263238,color:#FFFFFF
+    style CallAdapter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ResultCallAdapterFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ResultCall fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style Hc5CallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style VertxCallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AhcCallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant API as Retrofit 인터페이스(suspend fun)
-    participant RC as ResultCall
-    participant CF as Call.Factory(e.g. Hc5CallFactory)
-    participant Server as HTTP 서버
+    box rgb(232, 245, 233) Application
+        participant App as 애플리케이션
+    end
+    box rgb(237, 231, 246) Retrofit
+        participant API as Retrofit 인터페이스(suspend fun)
+        participant RC as ResultCall
+        participant CF as Call.Factory(e.g. Hc5CallFactory)
+    end
+    box rgb(227, 242, 253) Server
+        participant Server as HTTP 서버
+    end
 
     App->>API: suspend fun getUser(): Result~User~
     API->>RC: enqueue(callback)

@@ -75,15 +75,31 @@ classDiagram
     BatchStep --> SkipPolicy
     BatchStepRunner --> BatchStep
     BatchStepRunner --> BatchJobRepository
+
+    style BatchJob fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    style BatchStep fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style BatchStepRunner fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BatchJobRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style BatchReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style BatchWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SkipPolicy fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ```mermaid
 sequenceDiagram
+    box "Orchestration" #E8F5E9
     participant Job as BatchJob
+    end
+    box "Execution" #E3F2FD
     participant Runner as BatchStepRunner
+    end
+    box "Persistence" #FFF3E0
     participant Repo as BatchJobRepository
+    end
+    box "I/O" #F3E5F5
     participant Reader as BatchReader
     participant Writer as BatchWriter
+    end
 
     Job->>Repo: findOrCreateJobExecution
     loop for each step

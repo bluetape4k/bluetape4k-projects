@@ -57,6 +57,13 @@ classDiagram
     ProductR2dbcRepository --> ProductDto
     ProductDto --> Products
     DataInitializer --> ProductR2dbcRepository
+
+    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ProductR2dbcRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style ExposedR2dbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style ProductDto fill:#F57F17,stroke:#E65100,color:#000000
+    style Products fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DataInitializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Application Structure Flow
@@ -77,6 +84,22 @@ flowchart TD
     Repo --> Table
     Repo --> R2DBC
     R2DBC --> DB
+
+    classDef appStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef initStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef controllerStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef tableStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef r2dbcStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App appStyle
+    class Init initStyle
+    class Controller controllerStyle
+    class Repo repoStyle
+    class Table tableStyle
+    class R2DBC r2dbcStyle
+    class DB dbStyle
 ```
 
 ### Key Characteristics

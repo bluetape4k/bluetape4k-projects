@@ -199,6 +199,40 @@ classDiagram
     TrinoDialectMetadata --|> PostgreSQLDialectMetadata
     TrinoDatabase ..> TrinoConnectionWrapper : creates
     TrinoConnectionWrapper ..|> Connection
+
+    style TrinoDatabase fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TrinoExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style TrinoConnectionWrapper fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style TrinoDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TrinoDialectMetadata fill:#00897B,stroke:#00695C,color:#FFFFFF
+```
+
+### 분산 쿼리 흐름
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) 애플리케이션
+        participant App as Kotlin 코드
+    end
+    box rgb(227,242,253) Exposed + Trino
+        participant DSL as Exposed DSL
+        participant TD as TrinoDialect
+        participant TC as TrinoConnectionWrapper
+    end
+    box rgb(243,229,245) Trino 클러스터
+        participant COORD as Trino Coordinator
+        participant WORKER as Trino Workers
+    end
+
+    App->>DSL: Table.selectAll().where { ... }
+    DSL->>TD: SQL 생성
+    TD-->>DSL: SQL 문자열 (autocommit)
+    DSL->>TC: JDBC 실행
+    TC->>COORD: 쿼리 제출
+    COORD->>WORKER: 워커 분배
+    WORKER-->>COORD: 부분 결과
+    COORD-->>TC: ResultSet
+    TC-->>App: List<ResultRow> / Flow<T>
 ```
 
 ## 주요 파일/클래스 목록

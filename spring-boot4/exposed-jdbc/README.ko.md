@@ -56,6 +56,13 @@ classDiagram
     UserRepository --|> ExposedJdbcRepository
     UserRepository --> UserEntity
     UserEntity --> UserTable
+
+    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style UserRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style ExposedJdbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style UserEntity fill:#F57F17,stroke:#E65100,color:#000000
+    style UserTable fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### 쿼리 처리 흐름
@@ -76,6 +83,18 @@ flowchart LR
     PartTree --> DSL
     Query --> DB
     DSL --> DB
+
+    classDef controllerStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    classDef parserStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef dslStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class Controller controllerStyle
+    class Repo repoStyle
+    class PartTree,Query parserStyle
+    class DSL dslStyle
+    class DB dbStyle
 ```
 
 ## 설치

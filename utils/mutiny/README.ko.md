@@ -269,6 +269,11 @@ classDiagram
     CoroutineSupport --> UniT : creates
     UniT --> MultiT : toMulti()
 
+    style UniT fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style MultiT fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style UniSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MultiSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style CoroutineSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## Mutiny 처리 흐름
@@ -326,15 +331,33 @@ flowchart TD
     MULTI --> MAP
     MULTI --> FLT
     MULTI --> OE
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class UNI,MULTI coreStyle
+    class UV,US,UN,UF,UCF serviceStyle
+    class UCORO asyncStyle
+    class MV,MR,ML,MS,MSTR utilStyle
+    class MAP,FLT,FM,OE,ERR,RET dataStyle
 ```
 
 ## Coroutine 연동 흐름
 
 ```mermaid
 sequenceDiagram
+    box "코루틴" #F3E5F5
     participant CS as CoroutineScope
+    end
+    box "반응형" #E3F2FD
     participant UNI as "Uni~T~"
+    end
+    box "소비자" #E8F5E9
     participant SUB as Subscriber
+    end
 
     CS->>UNI: asUni { suspend 블록 }
     Note over UNI: 별도 코루틴에서 실행

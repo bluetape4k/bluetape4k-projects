@@ -30,6 +30,16 @@ flowchart TD
     PER -->|" TimeBlock / TimeRange\nDateAdd / DateDiff\nPeriodRelation "| PerOp(["Period 연산"])
     CAL -->|" YearRange → MonthRange\n→ WeekRange → DayRange\n→ HourRange → MinuteRange "| CalOp(["캘린더 쿼리"])
     RNG -->|" start..end\nstep() asFlow()\nwindowedFlowMonths() "| RngOp(["Range + Flow"])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class DSL,EXT coreStyle
+    class INT,PER,CAL,RNG serviceStyle
+    class IntOp,PerOp,CalOp,RngOp dataStyle
 ```
 
 ### 클래스 계층 — Period Framework
@@ -114,6 +124,20 @@ classDiagram
     CalendarTimeRange <|-- HourRange
     CalendarTimeRange <|-- MinuteRange
     DateAdd ..> TimeRange: uses excludePeriods
+
+    style TimePeriod fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TimeBlock fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimeRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CalendarTimeRange fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style YearRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MonthRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style WeekRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DayRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HourRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MinuteRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DateAdd fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DateDiff fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TemporalInterval fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### PeriodRelation — 두 기간의 관계
@@ -130,6 +154,12 @@ flowchart LR
         R6["Covers: A가 B를 완전히 포함"]
         R7["After: B──┤ ├──A"]
     end
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class R1,R2,R3,R4,R5,R6,R7 serviceStyle
 ```
 
 ## 기초 기능 (bluetape4k-core 제공)

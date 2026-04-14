@@ -129,6 +129,40 @@ classDiagram
     DuckDBDialectMetadata --|> PostgreSQLDialectMetadata
     DuckDBDatabase ..> DuckDBConnectionWrapper : creates
     DuckDBConnectionWrapper ..|> Connection
+
+    style DuckDBDatabase fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DuckDBConnectionWrapper fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style DuckDBDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DuckDBDialectMetadata fill:#00897B,stroke:#00695C,color:#FFFFFF
+```
+
+### Query Execution Flow
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) Application
+        participant App as Kotlin Code
+    end
+    box rgb(227,242,253) Exposed
+        participant DSL as Exposed DSL
+        participant DIA as DuckDBDialect
+    end
+    box rgb(243,229,245) DuckDB
+        participant DB as DuckDB Engine
+    end
+
+    App->>DSL: Table.selectAll().where { ... }
+    DSL->>DIA: Generate SQL
+    DIA-->>DSL: SQL string
+    DSL->>DB: JDBC execute
+    DB-->>DSL: ResultSet
+    DSL-->>App: List<ResultRow>
+
+    Note over App,DB: Coroutine variant
+    App->>DSL: suspendTransaction { query }
+    DSL->>DB: Dispatchers.IO → JDBC
+    DB-->>DSL: ResultSet
+    DSL->>App: Flow<T> via queryFlow
 ```
 
 ## Key Files / Classes

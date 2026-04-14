@@ -233,6 +233,10 @@ classDiagram
     }
     AuditableLongIdTable --> UserContext : reads current user
 
+    style AuditableLongIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style UserContext fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style HasIdentifier fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### 커스텀 컬럼 타입 계층
@@ -282,6 +286,15 @@ ColumnWithTransform <|-- EncryptedVarCharColumnType
 ColumnWithTransform <|-- BinarySerializedBinaryColumnType
 ColumnWithTransform <|-- BinarySerializedBlobColumnType
 ColumnWithTransform --> ColumnTransformer
+
+    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CompressedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CompressedBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style EncryptedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style EncryptedVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BinarySerializedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BinarySerializedBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### ID 생성 전략별 IdTable 계층
@@ -331,6 +344,15 @@ IdTable <|-- SnowflakeIdTable
 IdTable <|-- TimebasedUUIDTable
 IdTable <|-- TimebasedUUIDBase62Table
 IdTable <|-- SoftDeletedIdTable
+
+    style IdTable fill:#37474F,stroke:#263238,color:#FFFFFF
+    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style KsuidMillisTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style UlidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TimebasedUUIDTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style TimebasedUUIDBase62Table fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SoftDeletedIdTable fill:#1976D2,stroke:#1565C0,color:#FFFFFF
 ```
 
 ### HasIdentifier 및 ExposedPage
@@ -358,6 +380,10 @@ classDiagram
 
 Serializable <|-- HasIdentifier
 HasIdentifier <.. ExposedPage: content 항목에 적용 가능
+
+    style HasIdentifier fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Serializable fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ## 주요 파일/클래스 목록
@@ -414,11 +440,17 @@ interface Auditable {
 
 ```mermaid
 sequenceDiagram
-    participant Caller
-    participant UserContext
-    participant ScopedValue
-    participant ThreadLocal
-    participant Entity
+    box rgb(227, 242, 253) Application
+        participant Caller
+    end
+    box rgb(232, 245, 233) Context
+        participant UserContext
+        participant ScopedValue
+        participant ThreadLocal
+    end
+    box rgb(243, 229, 245) Domain
+        participant Entity
+    end
 
     Caller->>UserContext: withUser("admin") { ... }
     UserContext->>ThreadLocal: 이전 값 백업 후 admin 설정

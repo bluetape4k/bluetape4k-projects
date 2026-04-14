@@ -304,6 +304,8 @@ classDiagram
         +Publisher~T~.asFlow(): Flow~T~
     }
 
+    style R2dbcExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FlowExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### Core API Structure
@@ -347,16 +349,28 @@ classDiagram
     QueryBuilder --> Query : creates
     R2dbcClient --> DatabaseClientExtensions : delegates
     R2dbcClient --> QueryBuilder : uses
+
+    style DatabaseClientExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BindSpecExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style QueryBuilder fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Query fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style R2dbcClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### R2DBC Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant R2DBC as DatabaseClient Extension
-    participant Spring as Spring R2DBC
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) R2DBC Layer
+        participant R2DBC as DatabaseClient Extension
+        participant Spring as Spring R2DBC
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
     R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
@@ -385,8 +399,11 @@ flowchart LR
         B4 -->|asFlow| B5["Flow&lt;T&gt; Async"]
     end
 
-    style JDBC fill:#f9f0e0
-    style R2DBC fill:#e0f0f9
+    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef r2dbcStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class JDBC jdbcStyle
+    class R2DBC r2dbcStyle
 ```
 
 ## References

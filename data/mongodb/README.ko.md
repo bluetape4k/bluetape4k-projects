@@ -197,6 +197,9 @@ classDiagram
     }
     AggregationDSL --> FlowExtensions : builds pipeline
 
+    style MongoClientExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AggregationDSL fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style FlowExtensions fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
 ```
 
 ### 모듈 API 구조
@@ -242,6 +245,13 @@ classDiagram
     MongoDatabaseExtensions --> MongoCollectionExtensions : Collection 제공
     AggregationSupport --> MongoCollectionExtensions : pipeline 전달
     DocumentExtensions --> MongoCollectionExtensions : BSON 생성
+
+    style MongoClientSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MongoClientProvider fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style MongoDatabaseExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MongoCollectionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DocumentExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AggregationSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### Aggregation Pipeline 데이터 흐름
@@ -266,6 +276,17 @@ flowchart LR
     A --> F
     A --> G
     A --> H
+
+    classDef dslStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef bsonStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    classDef flowStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef stageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+
+    class A dslStyle
+    class B bsonStyle
+    class C flowStyle
+    class D flowStyle
+    class 스테이지_종류 stageStyle
 ```
 
 ## 참고 자료

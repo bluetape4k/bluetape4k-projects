@@ -10,11 +10,19 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ```mermaid
 sequenceDiagram
-    participant TEST as 테스트 클래스
-    participant SERVER as GenericServer (래퍼)
-    participant TC as Testcontainers
-    participant DOCKER as Docker 컨테이너
-    participant SPRING as Spring Boot
+    box rgb(248,187,208) 테스트 계층
+        participant TEST as 테스트 클래스
+    end
+    box rgb(178,223,219) 서버 래퍼
+        participant SERVER as GenericServer (래퍼)
+    end
+    box rgb(207,216,220) 인프라
+        participant TC as Testcontainers
+        participant DOCKER as Docker 컨테이너
+    end
+    box rgb(200,230,201) Spring Boot
+        participant SPRING as Spring Boot
+    end
 
     TEST->>SERVER: start()
     SERVER->>TC: 컨테이너 시작 요청
@@ -79,6 +87,15 @@ classDiagram
     GenericServer <|-- LocalStackServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
+
+    style GenericServer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style PostgreSQLServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PostgisServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PgvectorServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MySQL8Server fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedisServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KafkaServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LocalStackServer fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### 지원 컨테이너 구조
@@ -152,6 +169,26 @@ flowchart TD
     GS --> 분산쿼리
     GS --> HTTPMock
     GS --> AWS
+
+    classDef baseStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF,font-weight:bold
+    classDef dbStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef storageStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef graphStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef mqStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef infraStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef sqlStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef mockStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef awsStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    class GS baseStyle
+    class MY5,MY8,MA,PG,PGS,PGV,CR,CH dbStyle
+    class RD,RDC,MGO,CS,ES,OS,MN,IFL storageStyle
+    class NJ,MG,PA graphStyle
+    class KF,RB,PL,NT,RP mqStyle
+    class CN,VT,PR,ZK,TX,KC infraStyle
+    class TR sqlStyle
+    class WM mockStyle
+    class LS awsStyle
 ```
 
 ## 주요 기능
@@ -292,11 +329,19 @@ println("Organization: ${influxDB.organization}")
 ```mermaid
 sequenceDiagram
     autonumber
-    participant TEST as 테스트 코드
-    participant REDIS as RedisServer
-    participant TOXI as ToxiproxyServer
-    participant API as ToxiproxyClient
-    participant LETTUCE as Lettuce Client
+    box rgb(248,187,208) 테스트 계층
+        participant TEST as 테스트 코드
+    end
+    box rgb(207,216,220) 인프라
+        participant REDIS as RedisServer
+        participant TOXI as ToxiproxyServer
+    end
+    box rgb(178,223,219) 프록시 제어
+        participant API as ToxiproxyClient
+    end
+    box rgb(187,222,251) 애플리케이션
+        participant LETTUCE as Lettuce Client
+    end
 
     TEST->>REDIS: start() withNetwork(network)
     TEST->>TOXI: start() withNetwork(network)

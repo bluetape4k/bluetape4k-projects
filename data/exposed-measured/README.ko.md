@@ -74,6 +74,14 @@ classDiagram
     MeasureColumnType ..> Measure : stores as DOUBLE
     MeasureColumnType ..> Units : baseUnit
     TemperatureColumnType ..> Temperature : stores as Kelvin DOUBLE
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style MeasureColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TemperatureColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TemperatureDeltaColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Measure fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Units fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Temperature fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ## 쿼리 실행 흐름
@@ -86,21 +94,32 @@ flowchart LR
     D --> E[Timer 종료 + 태그 기록]
     E --> F[결과 반환]
 
-    style A fill:#607D8B
-    style B fill:#9C27B0
-    style C fill:#F44336
-    style D fill:#607D8B
-    style E fill:#F44336
-    style F fill:#4CAF50
+    classDef queryStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef txStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef timerStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef resultStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    class A queryStyle
+    class D queryStyle
+    class B txStyle
+    class C timerStyle
+    class E timerStyle
+    class F resultStyle
 ```
 
 ## 저장/조회 시퀀스 다이어그램
 
 ```mermaid
 sequenceDiagram
-    participant App as 애플리케이션
-    participant Col as MeasureColumnType~Length~
-    participant DB as Database
+    box rgb(227, 242, 253) 애플리케이션
+        participant App as 애플리케이션
+    end
+    box rgb(232, 245, 233) 컬럼
+        participant Col as MeasureColumnType~Length~
+    end
+    box rgb(255, 243, 224) 데이터베이스
+        participant DB as Database
+    end
 
     Note over App,DB: 저장 — 기준 단위(meter)로 변환하여 DOUBLE 저장
     App->>Col: insert { it[width] = 1500.millimeters() }

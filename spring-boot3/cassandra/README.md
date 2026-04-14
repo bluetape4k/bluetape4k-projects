@@ -72,6 +72,12 @@ classDiagram
     SchemaGenerator --> ReactiveCassandraOperationsExt : uses
     AbstractReactiveCassandraCoroutineTest --> ReactiveCassandraOperationsExt : tests
     ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
+
+    style ReactiveCassandraOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactiveSessionExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SchemaGenerator fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style AbstractReactiveCassandraCoroutineTest fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### Cassandra Data Access Layer
@@ -88,16 +94,38 @@ flowchart TD
     AOps --> Driver
     Driver --> Cassandra[("Apache Cassandra")]
     SchemaGen["SchemaGenerator<br/>Schema Creation / Truncation"] --> ROps
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+
+    class App serviceStyle
+    class Ext asyncStyle
+    class ROps asyncStyle
+    class RSession asyncStyle
+    class AOps asyncStyle
+    class DSL dataStyle
+    class Driver extStyle
+    class Cassandra dataStyle
+    class SchemaGen utilStyle
 ```
 
 ### Coroutine Conversion Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as Coroutine Extension
-    participant Ops as ReactiveCassandraOperations
-    participant DB as Apache Cassandra
+    box rgb(224,224,224) Application Layer
+        participant App as Application
+    end
+    box rgb(225,190,231) Coroutine Extensions
+        participant Ext as Coroutine Extension
+        participant Ops as ReactiveCassandraOperations
+    end
+    box rgb(224,224,224) Data Layer
+        participant DB as Apache Cassandra
+    end
 
     App->>Ext: executeSuspending(cql, args)
     Ext->>Ops: execute(statement) → Mono/Flux

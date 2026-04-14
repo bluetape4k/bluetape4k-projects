@@ -55,6 +55,13 @@ classDiagram
     ProductJdbcRepository --> ProductEntity
     ProductEntity --> Products : mapped by
     DataInitializer --> ProductJdbcRepository
+
+    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ProductJdbcRepository fill:#00838F,stroke:#006064,color:#FFFFFF
+    style ExposedJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ProductEntity fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style Products fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DataInitializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### 애플리케이션 흐름 다이어그램
@@ -75,6 +82,20 @@ flowchart TD
     Service --> Repo
     Repo --> Entity
     Entity --> DB
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class App coreStyle
+    class Init testStyle
+    class Controller extStyle
+    class Service serviceStyle
+    class Repo coreStyle
+    class Entity dataStyle
+    class DB dataStyle
 ```
 
 ### 주요 특징

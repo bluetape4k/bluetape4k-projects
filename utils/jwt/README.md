@@ -41,6 +41,22 @@ flowchart TD
     ROT --> NEWKC
     NEWKC --> REPO
     OLDKC --> REPO
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class APP utilStyle
+    class COMP dslStyle
+    class KC,NEWKC,OLDKC dataStyle
+    class JWT_STR dataStyle
+    class PARSE,REPO serviceStyle
+    class READER coreStyle
+    class ROT utilStyle
 ```
 
 ### Class Diagram
@@ -97,6 +113,14 @@ classDiagram
     JwtReader --> KeyChain : verifies with
     KeyChainRepository <|-- InMemoryKeyChainRepository
     KeyChainRepository <|-- RedisKeyChainRepository
+
+    style JwtProvider fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JwtComposer fill:#00838F,stroke:#006064,color:#FFFFFF
+    style JwtReader fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style KeyChain fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style KeyChainRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style InMemoryKeyChainRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RedisKeyChainRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### JWT Token Structure

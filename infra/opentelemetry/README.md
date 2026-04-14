@@ -310,6 +310,14 @@ classDiagram
     SdkTracerProvider ..|> Tracer: implements
     SdkMeterProvider ..|> Meter: implements
 
+    style OpenTelemetry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Tracer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SpanBuilder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Span fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Meter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SdkTracerProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SdkMeterProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
+
 ```
 
 ### Component Overview
@@ -338,25 +346,39 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    style App fill:#2196F3
-    style TP fill:#FF9800
-    style MP fill:#9C27B0
-    style OtelCol fill:#4CAF50
-    style SP fill:#607D8B
-    style SE fill:#607D8B
-    style MR fill:#607D8B
-    style ME fill:#607D8B
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style TP fill:#F57F17,stroke:#E65100,color:#000000
+    style MP fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style OtelCol fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style SP fill:#37474F,stroke:#263238,color:#FFFFFF
+    style SE fill:#37474F,stroke:#263238,color:#FFFFFF
+    style MR fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ME fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ### Span Lifecycle in a Coroutine Context
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Application
     participant App as Application
+    end
+    box rgb(197,202,233) Tracing
     participant Builder as SpanBuilder
     participant Span as Span
+    end
+    box rgb(225,190,231) Coroutines
     participant Context as CoroutineContext
     participant Child as Child Work
+    end
 
     App->>+Builder: tracer.spanBuilder("operation")
     App->>Builder: useSpanSuspending { ... }
@@ -385,11 +407,19 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>Distributed tracing backend]
 
-    style ServiceA fill:#2196F3
-    style ServiceB fill:#FF9800
-    style ServiceC fill:#9C27B0
-    style Backend fill:#4CAF50
-    style Collector fill:#607D8B
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+
+    style ServiceA fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style ServiceB fill:#F57F17,stroke:#E65100,color:#000000
+    style ServiceC fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style Backend fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style Collector fill:#37474F,stroke:#263238,color:#FFFFFF
 ```
 
 ## Testing Strategy

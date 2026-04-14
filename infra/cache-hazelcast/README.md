@@ -77,6 +77,121 @@ Typical usage includes:
 - resilient near-cache variants with retry configuration
 - factory-based cache creation through `HazelcastCaches`
 
+## Architecture Diagrams
+
+### HazelcastNearCache Class Hierarchy
+
+```mermaid
+classDiagram
+    class NearCacheOperations {
+        <<interface>>
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+    }
+
+    class SuspendNearCacheOperations {
+        <<interface>>
+        +get(key: String) V?
+        +put(key: String, value: V)
+        +remove(key: String)
+        +clearLocal()
+        +clearAll()
+        +stats() NearCacheStatistics
+    }
+
+    class HazelcastNearCache {
+        -imap: IMap
+        -frontCache: CaffeineHazelcastLocalCache
+        -entryListener: HazelcastEntryEventListener
+        -config: HazelcastNearCacheConfig
+    }
+
+    class HazelcastSuspendNearCache {
+        -imap: IMap
+        -frontCache: CaffeineHazelcastLocalCache
+        -entryListener: HazelcastEntryEventListener
+        -config: HazelcastNearCacheConfig
+    }
+
+    class HazelcastLocalCache {
+        <<interface>>
+        +get(key: K) V?
+        +put(key: K, value: V)
+        +remove(key: K)
+        +clear()
+    }
+
+    class CaffeineHazelcastLocalCache {
+        -cache: Cache
+        +invalidate(key: String)
+    }
+
+    class HazelcastEntryEventListener {
+        -frontCache: HazelcastLocalCache
+        +entryUpdated(event)
+        +entryRemoved(event)
+    }
+
+    NearCacheOperations <|.. HazelcastNearCache
+    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
+    HazelcastLocalCache <|.. CaffeineHazelcastLocalCache
+    HazelcastNearCache --> CaffeineHazelcastLocalCache: frontCache
+    HazelcastNearCache --> HazelcastEntryEventListener: entryListener
+    HazelcastSuspendNearCache --> CaffeineHazelcastLocalCache: frontCache
+    HazelcastSuspendNearCache --> HazelcastEntryEventListener: entryListener
+    HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
+
+    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style HazelcastLocalCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CaffeineHazelcastLocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style HazelcastEntryEventListener fill:#37474F,stroke:#263238,color:#FFFFFF
+```
+
+### 2-Tier NearCache Flow
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) Application
+    participant App as Application
+    end
+    box rgb(227,242,253) NearCache
+    participant NC as HazelcastNearCache
+    participant L1 as Caffeine (L1)
+    end
+    box rgb(243,229,245) Hazelcast Cluster
+    participant L2 as IMap (L2)
+    end
+
+    App->>NC: get("key")
+    NC->>L1: get("key")
+    alt L1 hit
+        L1-->>NC: value
+        NC-->>App: value
+    else L1 miss
+        L1-->>NC: null
+        NC->>L2: get("key")
+        alt L2 hit
+            L2-->>NC: value
+            NC->>L1: put("key", value)
+            NC-->>App: value
+        else L2 miss
+            L2-->>NC: null
+            NC-->>App: null
+        end
+    end
+
+    Note over L2,L1: Invalidation via EntryListener
+    L2-)NC: EntryEvent (updated/removed)
+    NC->>L1: invalidate("key")
+```
+
 ## `HazelcastNearCacheConfig` Options
 
 Important options include:

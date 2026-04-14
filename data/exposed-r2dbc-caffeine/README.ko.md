@@ -42,14 +42,26 @@ classDiagram
 
     R2dbcCacheRepository <|-- R2dbcCaffeineRepository
     R2dbcCaffeineRepository <|.. AbstractR2dbcCaffeineRepository
+
+    style R2dbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style R2dbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style AbstractR2dbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ```mermaid
 sequenceDiagram
-    participant Client as 클라이언트
-    participant Repository as 레포지토리
-    participant Caffeine as Caffeine AsyncCache
-    participant DB as R2DBC 데이터베이스
+    box rgb(227, 242, 253) Application
+        participant Client as 클라이언트
+    end
+    box rgb(232, 245, 233) Repository
+        participant Repository as 레포지토리
+    end
+    box rgb(243, 229, 245) Cache
+        participant Caffeine as Caffeine AsyncCache
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as R2DBC 데이터베이스
+    end
 
     Note over Client,DB: Read-Through
     Client->>Repository: get(id)

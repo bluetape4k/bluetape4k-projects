@@ -44,6 +44,14 @@ classDiagram
     LettuceNearCacheActuatorAutoConfiguration --> LettuceNearCacheEndpoint : registers
     LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory : monitors
     LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory : queries
+
+    style LettuceNearCacheHibernateAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LettuceNearCacheMetricsAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LettuceNearCacheActuatorAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style HibernatePropertiesCustomizer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LettuceNearCacheMetricsBinder fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceNearCacheEndpoint fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### Auto-Configuration Flow Diagram
@@ -64,6 +72,20 @@ flowchart TD
     RegionFactory --> L1
     RegionFactory --> L2
     L2 --> DB
+
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+
+    class Props dataStyle
+    class AutoConfig springStyle
+    class Customizer serviceStyle
+    class RegionFactory coreStyle
+    class L1 extStyle
+    class L2 extStyle
+    class DB dataStyle
 ```
 
 ## Features

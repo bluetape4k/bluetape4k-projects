@@ -426,13 +426,23 @@ classDiagram
     LongJdbcRepository <|-- AbstractJdbcRepository
     AbstractJdbcRepository <|-- AuditableJdbcRepository
 
+    style LongJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractJdbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style AuditableJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style VirtualThreadJdbcTransaction fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ```mermaid
 sequenceDiagram
-    participant Caller
-    participant VT as newVirtualThreadJdbcTransaction
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant Caller
+    end
+    box rgb(243, 229, 245) Virtual Thread
+        participant VT as newVirtualThreadJdbcTransaction
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     Caller->>VT: { query/insert/update }
     VT->>DB: BEGIN (VirtualThread)
@@ -521,6 +531,16 @@ JdbcRepository <|-- StringJdbcRepository
 SoftDeletedJdbcRepository <|-- LongSoftDeletedJdbcRepository
 SoftDeletedJdbcRepository <|-- IntSoftDeletedJdbcRepository
 JdbcRepository ..> ExposedPage: returns
+
+    style JdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SoftDeletedJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style IntJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LongJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style UUIDJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style StringJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LongSoftDeletedJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style IntSoftDeletedJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ## 시퀀스 다이어그램
@@ -529,10 +549,16 @@ JdbcRepository ..> ExposedPage: returns
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Repository as MyRepository<br/>(JdbcRepository)
-    participant Exposed as Exposed DSL
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant Client
+    end
+    box rgb(232, 245, 233) Repository
+        participant Repository as MyRepository<br/>(JdbcRepository)
+        participant Exposed as Exposed DSL
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
     Client ->> Repository: findById(id)
     Repository ->> Exposed: table.selectAll().where { id eq id }.single()
     Exposed ->> DB: SELECT * FROM table WHERE id = ?
@@ -546,10 +572,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Repository as MyRepository<br/>(JdbcRepository)
-    participant Exposed as Exposed DSL
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant Client
+    end
+    box rgb(232, 245, 233) Repository
+        participant Repository as MyRepository<br/>(JdbcRepository)
+        participant Exposed as Exposed DSL
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
     Client ->> Repository: save(entity)
     Repository ->> Exposed: table.insert { ... }
     Exposed ->> DB: INSERT INTO table VALUES (...)
@@ -572,10 +604,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Repository as MyRepository<br/>(SoftDeletedJdbcRepository)
-    participant Exposed as Exposed DSL
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant Client
+    end
+    box rgb(232, 245, 233) Repository
+        participant Repository as MyRepository<br/>(SoftDeletedJdbcRepository)
+        participant Exposed as Exposed DSL
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
     Client ->> Repository: softDeleteById(id)
     Repository ->> Exposed: table.update { isDeleted = true }
     Exposed ->> DB: UPDATE table SET is_deleted = true WHERE id = ?

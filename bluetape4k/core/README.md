@@ -31,6 +31,10 @@ flowchart TD
     Core --> Time
     Core --> ValueObject
 
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
 ```
 
 ---
@@ -128,6 +132,19 @@ classDiagram
     StringEncoder <|.. Base64StringEncoder
     StringEncoder <|.. HexStringEncoder
 
+    style ValueObject fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractValueObject fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style Range fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ClosedClosedRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ClosedOpenRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style OpenClosedRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style OpenOpenRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style StringEncoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style Base64StringEncoder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HexStringEncoder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Base58 fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Base62 fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RequireSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ---
@@ -136,9 +153,15 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant C as Caller
-    participant R as RequireSupport
-    participant V as Valid Value
+    box rgb(232, 245, 233) Caller Side
+        participant C as Caller
+    end
+    box rgb(227, 242, 253) Validation Engine
+        participant R as RequireSupport
+    end
+    box rgb(243, 229, 245) Result
+        participant V as Valid Value
+    end
 
     C->>R: username.requireNotBlank("username")
     alt blank or null

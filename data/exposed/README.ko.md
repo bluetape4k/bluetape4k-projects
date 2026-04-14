@@ -105,18 +105,57 @@ flowchart TD
     ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce 캐시]
     ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson 캐시]
 
-    style E fill:#607D8B
-    style EC fill:#9C27B0
-    style ED fill:#FF9800
-    style EJ fill:#2196F3
-    style ER fill:#2196F3
-    style EJK fill:#4CAF50
-    style EP fill:#4CAF50
-    style EM fill:#4CAF50
-    style EJL fill:#F44336
-    style EJR fill:#F44336
-    style ERL fill:#F44336
-    style ERR fill:#F44336
+    classDef umbrellaStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
+    classDef coreStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef daoStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef extStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    class E umbrellaStyle
+    class EC coreStyle
+    class ED daoStyle
+    class EJ jdbcStyle
+    class ER jdbcStyle
+    class EJK extStyle
+    class EP extStyle
+    class EM extStyle
+    class EJL cacheStyle
+    class EJR cacheStyle
+    class ERL cacheStyle
+    class ERR cacheStyle
+```
+
+## 계층별 실행 흐름
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) 애플리케이션 계층
+        participant App as Kotlin 애플리케이션
+    end
+    box rgb(227,242,253) DSL 계층
+        participant DSL as Exposed DSL
+        participant Core as exposed-core
+        participant DAO as exposed-dao
+    end
+    box rgb(243,229,245) 실행 계층
+        participant JDBC as exposed-jdbc
+        participant R2DBC as exposed-r2dbc
+    end
+    box rgb(255,243,224) 데이터베이스 계층
+        participant DB as 데이터베이스
+    end
+
+    App->>DSL: 쿼리 빌드 / 엔티티 정의
+    DSL->>Core: 컬럼 타입, ID 생성
+    DSL->>DAO: DAO 엔티티, IdTable 전략
+    DSL->>JDBC: transaction { } / suspendedQuery
+    DSL->>R2DBC: suspendTransaction / queryFlow
+    JDBC->>DB: JDBC SQL 실행
+    R2DBC->>DB: 리액티브 SQL 실행
+    DB-->>JDBC: ResultSet
+    DB-->>R2DBC: Publisher<Row>
+    JDBC-->>App: Entity / ResultRow
+    R2DBC-->>App: Flow<ResultRow>
 ```
 
 ## 참고

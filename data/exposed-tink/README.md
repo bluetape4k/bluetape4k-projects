@@ -231,6 +231,8 @@ classDiagram
     }
     TableExtensions --> TinkEncryptedColumnType : creates
 
+    style TinkEncryptedColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Class Diagram
@@ -267,6 +269,13 @@ classDiagram
     ColumnWithTransform <|-- TinkAeadBinaryColumnType
     ColumnWithTransform <|-- TinkDaeadVarCharColumnType
     ColumnWithTransform <|-- TinkDaeadBinaryColumnType
+
+    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TinkAeadVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkAeadBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TinkDaeadVarCharColumnType fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style TinkDaeadBinaryColumnType fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ## Key Files / Classes

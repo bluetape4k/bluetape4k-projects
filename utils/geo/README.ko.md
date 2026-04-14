@@ -29,6 +29,19 @@ flowchart TD
 
     GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
     GI --> IPINFO["IP → 국가/도시/위도경도"]
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+
+    class GC,GH,GI coreStyle
+    class GOOGLE,BING extStyle
+    class FEIGN serviceStyle
+    class COORD,NEIGHBOR,RADIUS,MMDB,IPINFO dataStyle
 ```
 
 ### 클래스 다이어그램
@@ -74,6 +87,14 @@ classDiagram
     GoogleGeocoder --> GeoPoint : returns
     BingGeocoder --> GeoPoint : returns
     GeoIp2Support --> CityResponse : returns
+
+    style GeoHashUtils fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style GeoHashCircleQuery fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoPoint fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style GoogleGeocoder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style BingGeocoder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeoIp2Support fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style CityResponse fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### GeoHash 인코딩/디코딩 흐름
@@ -83,6 +104,16 @@ sequenceDiagram
     participant App as 애플리케이션
     participant GH as GeoHashUtils
     participant Grid as GeoHash 격자
+
+    box "애플리케이션 레이어" #E8F5E9
+    participant App as 애플리케이션
+    end
+    box "유틸리티 레이어" #FFF3E0
+    participant GH as GeoHashUtils
+    end
+    box "데이터 레이어" #E3F2FD
+    participant Grid as GeoHash 격자
+    end
 
     App->>GH: encode(lat=37.5665, lon=126.9780, precision=9)
     GH->>Grid: Base32 셀로 분할

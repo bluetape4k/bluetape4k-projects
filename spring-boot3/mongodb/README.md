@@ -264,6 +264,12 @@ classDiagram
     ReactiveMongoOperationsExt --> QueryBuilderExt : works with
     ReactiveMongoOperationsExt --> UpdateDsl : accepts
     AbstractReactiveMongoCoroutineTest --> ReactiveMongoOperationsExt : tests
+
+    style ReactiveMongoOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style CriteriaDsl fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style QueryBuilderExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style UpdateDsl fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style AbstractReactiveMongoCoroutineTest fill:#AD1457,stroke:#880E4F,color:#FFFFFF
 ```
 
 ### ReactiveMongoOperations Coroutine Extension Flow
@@ -277,6 +283,18 @@ flowchart TD
     Driver --> MongoDB[("MongoDB")]
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+
+    class App serviceStyle
+    class Ext asyncStyle
+    class ROps asyncStyle
+    class Reactor extStyle
+    class Driver extStyle
+    class MongoDB dataStyle
 ```
 
 ### Criteria / Query / Update DSL Flow
@@ -292,16 +310,35 @@ flowchart LR
     Query --> ROps["ReactiveMongoOperations<br/>Coroutine extensions"]
     Update --> ROps
     ROps --> MongoDB[("MongoDB")]
+
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class Code serviceStyle
+    class CriteriaDSL dataStyle
+    class QueryBuilder asyncStyle
+    class UpdateDSL dataStyle
+    class Query dataStyle
+    class Update dataStyle
+    class ROps asyncStyle
+    class MongoDB dataStyle
 ```
 
 ### Coroutine Conversion Sequence
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as Coroutine Extension
-    participant Ops as ReactiveMongoOperations
-    participant DB as MongoDB
+    box rgb(187,222,251) Application Layer
+        participant App as Application
+    end
+    box rgb(225,190,231) Coroutine Extensions
+        participant Ext as Coroutine Extension
+        participant Ops as ReactiveMongoOperations
+    end
+    box rgb(224,224,224) Data Layer
+        participant DB as MongoDB
+    end
 
     App->>Ext: findAllAsFlow<User>()
     Ext->>Ops: findAll(User::class) → Flux<User>

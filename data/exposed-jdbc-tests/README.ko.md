@@ -327,16 +327,32 @@ flowchart TD
 
     I --> M
     I --> N
+
+    classDef testStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    classDef utilStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef schemaStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class 테스트_클래스 testStyle
+    class 지원_DB dbStyle
+    class 유틸_함수 utilStyle
+    class 공유_스키마 schemaStyle
 ```
 
 ### 테스트 실행 흐름
 
 ```mermaid
 sequenceDiagram
-    participant Test as 테스트 클래스
-    participant Infra as 테스트 인프라
-    participant TC as Testcontainers
-    participant DB as 데이터베이스
+    box rgb(227, 242, 253) 테스트
+        participant Test as 테스트 클래스
+    end
+    box rgb(232, 245, 233) 인프라
+        participant Infra as 테스트 인프라
+        participant TC as Testcontainers
+    end
+    box rgb(255, 243, 224) 데이터베이스
+        participant DB as 데이터베이스
+    end
 
     Test->>Infra: withTables(testDB, Users, Orders)
     Infra->>TC: Docker 컨테이너 시작 (실제 DB인 경우)

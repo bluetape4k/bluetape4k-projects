@@ -91,6 +91,7 @@ classDiagram
         +save(entity): E
     }
 
+    style ReactiveHibernateRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
 ```
 
 ### Hibernate Reactive API Structure
@@ -122,6 +123,16 @@ flowchart TD
     G --> L
     H --> L
     K --> N
+
+    classDef jpaStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef mutinyStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef stageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef coroutineStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+
+    class A jpaStyle
+    class Mutiny_API mutinyStyle
+    class Stage_API stageStyle
+    class Coroutines coroutineStyle
 ```
 
 ### Session Type Comparison
@@ -152,6 +163,11 @@ classDiagram
 
     MutinySessionFactory --> MutinySession : creates
     StageSessionFactory --> StageSession : creates
+
+    style MutinySessionFactory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style StageSessionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MutinySession fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style StageSession fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
 ```
 
 ## References

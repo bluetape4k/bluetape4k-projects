@@ -533,6 +533,8 @@ classDiagram
     }
     HibernateRepository <|-- AbstractHibernateRepository
 
+    style HibernateRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractHibernateRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
 ```
 
 ### JPA 엔티티 클래스 계층 구조
@@ -588,6 +590,15 @@ classDiagram
     JpaTreeEntity <|.. IntJpaTreeEntity
     LongJpaEntity <|-- LongJpaTreeEntity
     IntJpaEntity <|-- IntJpaTreeEntity
+
+    style JpaEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style AbstractJpaEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style IntJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style LongJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UuidJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JpaTreeEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LongJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style IntJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### AttributeConverter 종류
@@ -621,6 +632,18 @@ flowchart LR
     E <-->|변환| 암호화_Converter
     E <-->|변환| 압축_Converter
     E <-->|변환| 기타_Converter
+
+    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef encStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef compStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef miscStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+
+    class E dbStyle
+    class 직렬화_Converter serStyle
+    class 암호화_Converter encStyle
+    class 압축_Converter compStyle
+    class 기타_Converter miscStyle
 ```
 
 ## 참고

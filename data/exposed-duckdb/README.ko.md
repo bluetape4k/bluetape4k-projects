@@ -126,6 +126,40 @@ classDiagram
     DuckDBDialectMetadata --|> PostgreSQLDialectMetadata
     DuckDBDatabase ..> DuckDBConnectionWrapper : creates
     DuckDBConnectionWrapper ..|> Connection
+
+    style DuckDBDatabase fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DuckDBConnectionWrapper fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style DuckDBDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DuckDBDialectMetadata fill:#00897B,stroke:#00695C,color:#FFFFFF
+```
+
+### 쿼리 실행 흐름
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) 애플리케이션
+        participant App as Kotlin 코드
+    end
+    box rgb(227,242,253) Exposed
+        participant DSL as Exposed DSL
+        participant DIA as DuckDBDialect
+    end
+    box rgb(243,229,245) DuckDB
+        participant DB as DuckDB 엔진
+    end
+
+    App->>DSL: Table.selectAll().where { ... }
+    DSL->>DIA: SQL 생성
+    DIA-->>DSL: SQL 문자열
+    DSL->>DB: JDBC 실행
+    DB-->>DSL: ResultSet
+    DSL-->>App: List<ResultRow>
+
+    Note over App,DB: 코루틴 변형
+    App->>DSL: suspendTransaction { query }
+    DSL->>DB: Dispatchers.IO → JDBC
+    DB-->>DSL: ResultSet
+    DSL->>App: queryFlow로 Flow<T> emit
 ```
 
 ## 주요 파일/클래스 목록

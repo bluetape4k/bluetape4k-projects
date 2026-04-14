@@ -227,6 +227,14 @@ classDiagram
     VirtualThreadRuntime <|-- PlatformThreadFallback
     VirtualThreads --> VirtualThreadRuntime : "ServiceLoader 선택"
     StructuredTaskScopes --> StructuredTaskScopeProvider : "ServiceLoader 선택"
+
+    style VirtualThreadRuntime fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style VirtualThreads fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style StructuredTaskScopeProvider fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style StructuredTaskScopes fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Jdk21VirtualThreadRuntime fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Jdk25VirtualThreadRuntime fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style PlatformThreadFallback fill:#616161,stroke:#424242,color:#FFFFFF
 ```
 
 ## ServiceLoader 기반 런타임 선택 흐름
@@ -242,6 +250,18 @@ flowchart TD
     JDK25 -->|"Yes"| USE25["Jdk25VirtualThreadRuntime<br/>(priority=25)"]
     JDK25 -->|"No, JDK 21"| USE21["Jdk21VirtualThreadRuntime<br/>(priority=21)"]
     JDK25 -->|"No, JDK 17-"| USEFALL["PlatformThreadFallback<br/>(CachedThreadPool)"]
+
+    classDef entryStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
+    classDef processStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    classDef decisionStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef fallbackStyle fill:#616161,stroke:#424242,color:#FFFFFF
+
+    class START entryStyle
+    class SL,CANDIDATES,FILTER,SORT,SELECT processStyle
+    class JDK25 decisionStyle
+    class USE25,USE21 implStyle
+    class USEFALL fallbackStyle
 ```
 
 ## 참고 자료

@@ -199,6 +199,38 @@ classDiagram
     BigQueryContext ..> BigQueryQueryExecutor : creates
     BigQueryQueryExecutor ..> BigQueryResultRow : returns
     BigQueryDialect --|> PostgreSQLDialect
+
+    style BigQueryContext fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style BigQueryQueryExecutor fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style BigQueryResultRow fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style BigQueryDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
+```
+
+### Query Execution Flow
+
+```mermaid
+sequenceDiagram
+    box rgb(232,245,233) Application
+        participant App as Kotlin Code
+    end
+    box rgb(227,242,253) SQL Generation
+        participant CTX as BigQueryContext
+        participant H2 as H2 (PostgreSQL mode)
+    end
+    box rgb(243,229,245) Execution
+        participant BQ as BigQuery REST API
+    end
+    box rgb(255,243,224) Result
+        participant ROW as BigQueryResultRow
+    end
+
+    App->>CTX: Exposed DSL query
+    CTX->>H2: Generate SQL string
+    H2-->>CTX: SQL text
+    CTX->>BQ: Execute via REST API
+    BQ-->>CTX: QueryResponse (JSON)
+    CTX->>ROW: Map to type-safe rows
+    ROW-->>App: List / Flow<BigQueryResultRow>
 ```
 
 ## Key Files / Classes

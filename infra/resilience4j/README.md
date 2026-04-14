@@ -79,6 +79,12 @@ SuspendDecorators --> DecoratorForSuspendFunction2 : creates
 SuspendCache <|.. SuspendCacheImpl
 DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
 
+    style SuspendDecorators fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DecoratorForSuspendSupplier fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style DecoratorForSuspendFunction1 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style DecoratorForSuspendFunction2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style SuspendCacheImpl fill:#00897B,stroke:#00695C,color:#FFFFFF
 
 ```
 
@@ -90,11 +96,17 @@ CLOSED → failures accumulate → OPEN → Half-Open → Recovery flow:
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Caller
     participant Caller
+    end
+    box rgb(225,190,231) Resilience4j
     participant SuspendDecorators
     participant Retry
     participant CircuitBreaker
+    end
+    box rgb(207,216,220) External
     participant Service
+    end
     Caller ->> SuspendDecorators: ofSupplier { service.call() }<br/>.withCircuitBreaker(cb).withRetry(retry).invoke()
     Note over CircuitBreaker: State: CLOSED
 
@@ -134,10 +146,18 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    box rgb(187,222,251) Caller
     participant Caller
+    end
+    box rgb(225,190,231) Cache
     participant SuspendCacheImpl
+    end
+    box rgb(207,216,220) JCache
     participant JCache
+    end
+    box rgb(255,224,178) Data Source
     participant Loader
+    end
     Caller ->> SuspendCacheImpl: computeIfAbsent("user:1") { loadUser() }
     SuspendCacheImpl ->> JCache: containsKey("user:1")
 

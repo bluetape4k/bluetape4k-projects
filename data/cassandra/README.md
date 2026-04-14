@@ -373,6 +373,7 @@ classDiagram
         +CqlSession.executeAsync~T~(stmt): Deferred~T~
     }
 
+    style CassandraExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Core API Structure
@@ -414,16 +415,29 @@ classDiagram
     CassandraAdmin --> CqlSession : uses
     StatementBuilders --> CqlSession : delivers statements
     QueryBuilderExtensions --> StatementBuilders : uses
+
+    style CqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
+    style AsyncCqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
+    style CqlSessionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CassandraAdmin fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style StatementBuilders fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style QueryBuilderExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### Asynchronous Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Ext as CqlSession Extension
-    participant Session as CqlSession
-    participant DB as Cassandra
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Cassandra Layer
+        participant Ext as CqlSession Extension
+        participant Session as CqlSession
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Cassandra
+    end
 
     App->>Ext: executeSuspending(query)
     Ext->>Session: executeAsync(statement)

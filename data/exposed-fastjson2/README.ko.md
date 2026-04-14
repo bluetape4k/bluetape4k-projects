@@ -141,6 +141,9 @@ classDiagram
     }
     Fastjson2ColumnType <|-- Fastjson2BColumnType
 
+    style Fastjson2ColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Fastjson2BColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ### JSON 컬럼 타입 클래스 구조
@@ -180,6 +183,12 @@ classDiagram
     FastjsonBColumnType --> JsonFunctions : 연동
     ResultRowExtensions --> FastjsonColumnType : 사용
     ResultRowExtensions --> FastjsonBColumnType : 사용
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style FastjsonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style FastjsonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonFunctions fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style ResultRowExtensions fill:#F57F17,stroke:#E65100,color:#FFFFFF
 ```
 
 ### JSON 컬럼 데이터 흐름
@@ -195,6 +204,16 @@ flowchart LR
         F["fastjson~T~ → TEXT"]
         G["fastjsonb~T~ → JSONB/BLOB"]
     end
+
+    classDef objectStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef processStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+
+    class A objectStyle
+    class E objectStyle
+    class B processStyle
+    class D processStyle
+    class C dbStyle
 ```
 
 ## 참고

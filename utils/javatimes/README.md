@@ -31,6 +31,16 @@ flowchart TD
     PER --> |"TimeBlock / TimeRange\nDateAdd / DateDiff\nPeriodRelation"| PerOp(["Period Operations"])
     CAL --> |"YearRange → MonthRange\n→ WeekRange → DayRange\n→ HourRange → MinuteRange"| CalOp(["Calendar Queries"])
     RNG --> |"start..end\nstep()  asFlow()\nwindowedFlowMonths()"| RngOp(["Range + Flow"])
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class DSL,EXT coreStyle
+    class INT,PER,CAL,RNG serviceStyle
+    class IntOp,PerOp,CalOp,RngOp dataStyle
 ```
 
 ### Class Hierarchy — Period Framework
@@ -109,6 +119,20 @@ classDiagram
     CalendarTimeRange <|-- HourRange
     CalendarTimeRange <|-- MinuteRange
     DateAdd ..> TimeRange : uses excludePeriods
+
+    style TimePeriod fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TimeBlock fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimeRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CalendarTimeRange fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style YearRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MonthRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style WeekRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DayRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style HourRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style MinuteRange fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style DateAdd fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style DateDiff fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TemporalInterval fill:#00897B,stroke:#00695C,color:#FFFFFF
 ```
 
 ### PeriodRelation — How Two Periods Relate
@@ -125,6 +149,12 @@ flowchart LR
         R6["Covers:         A covers B entirely"]
         R7["After:          B──┤  ├──A"]
     end
+
+    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
+
+    class R1,R2,R3,R4,R5,R6,R7 serviceStyle
 ```
 
 ## Core Features (from `bluetape4k-core`)

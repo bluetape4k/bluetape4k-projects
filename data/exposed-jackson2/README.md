@@ -131,6 +131,9 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Class Diagram
@@ -172,6 +175,12 @@ classDiagram
     JsonColumnMarker <|.. JacksonColumnType
     JacksonColumnType <|-- JacksonBColumnType
     JacksonColumnType ..> JacksonSerializer : uses
+
+    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
+    style JsonColumnMarker fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JacksonSerializer fill:#E65100,stroke:#BF360C,color:#FFFFFF
 ```
 
 ## Serialization / Deserialization Sequence Diagrams
@@ -180,10 +189,16 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Col as JacksonColumnType~T~
-    participant Ser as JacksonSerializer
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Column
+        participant Col as JacksonColumnType~T~
+        participant Ser as JacksonSerializer
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     App->>Col: insert { it[settings] = UserSettings(theme="dark") }
     Col->>Ser: serializeAsString(UserSettings(...))
@@ -197,10 +212,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Col as JacksonColumnType~T~
-    participant Ser as JacksonSerializer
-    participant DB as Database
+    box rgb(227, 242, 253) Application
+        participant App as Application
+    end
+    box rgb(232, 245, 233) Column
+        participant Col as JacksonColumnType~T~
+        participant Ser as JacksonSerializer
+    end
+    box rgb(255, 243, 224) Database
+        participant DB as Database
+    end
 
     App->>DB: SELECT settings FROM users WHERE id = 1
     DB-->>Col: '{"theme":"dark","notifications":true}'
