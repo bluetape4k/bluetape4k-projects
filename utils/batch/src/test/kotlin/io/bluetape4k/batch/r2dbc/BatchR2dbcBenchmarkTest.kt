@@ -261,7 +261,7 @@ class BatchR2dbcBenchmarkTest : AbstractBatchR2dbcTest() {
             val connectionFactory = ConnectionFactories.get(options)
             val pool = ConnectionPool(
                 ConnectionPoolConfiguration.builder(connectionFactory)
-                    .maxSize(parallelism * 3)  // 파티션당 여유 있는 풀
+                    .maxSize(parallelism * 4)  // 파티션당 여유 있는 풀
                     .initialSize(parallelism)
                     .build()
             )
