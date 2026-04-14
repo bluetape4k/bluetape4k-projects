@@ -136,12 +136,12 @@ classDiagram
     RedissonSuspendNearCache --> RLocalCachedMap: localCachedMap
     RedissonSuspendNearCache --> RedissonNearCacheConfig: config
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style RedissonNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedissonSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style RedissonNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
-    style RLocalCachedMap fill:#37474F,stroke:#263238,color:#FFFFFF
+    style RLocalCachedMap fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
 ```
 
@@ -149,18 +149,12 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Instance 1
     participant App1 as Application (인스턴스 1)
     participant NC1 as RedissonNearCache (인스턴스 1)
     participant LCM1 as RLocalCachedMap (인스턴스 1)
-    end
-    box rgb(207,216,220) Remote
     participant Redis as Redis Server
-    end
-    box rgb(225,190,231) Instance 2
     participant LCM2 as RLocalCachedMap (인스턴스 2)
     participant NC2 as RedissonNearCache (인스턴스 2)
-    end
     Note over LCM1, LCM2: Redisson이 pub/sub 기반 자동 invalidation 관리
     App1 ->> NC1: put("key", newValue)
     NC1 ->> LCM1: put("key", newValue)

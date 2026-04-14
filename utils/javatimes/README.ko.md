@@ -31,10 +31,10 @@ flowchart TD
     CAL -->|" YearRange → MonthRange\n→ WeekRange → DayRange\n→ HourRange → MinuteRange "| CalOp(["캘린더 쿼리"])
     RNG -->|" start..end\nstep() asFlow()\nwindowedFlowMonths() "| RngOp(["Range + Flow"])
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class DSL,EXT coreStyle
@@ -125,19 +125,19 @@ classDiagram
     CalendarTimeRange <|-- MinuteRange
     DateAdd ..> TimeRange: uses excludePeriods
 
-    style TimePeriod fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style TimeBlock fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TimeRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CalendarTimeRange fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style YearRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MonthRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style WeekRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DayRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HourRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MinuteRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DateAdd fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DateDiff fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style TemporalInterval fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TimePeriod fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style TimeBlock fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TimeRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CalendarTimeRange fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style YearRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MonthRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style WeekRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DayRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HourRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MinuteRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DateAdd fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DateDiff fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style TemporalInterval fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### PeriodRelation — 두 기간의 관계
@@ -155,8 +155,8 @@ flowchart LR
         R7["After: B──┤ ├──A"]
     end
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class R1,R2,R3,R4,R5,R6,R7 serviceStyle

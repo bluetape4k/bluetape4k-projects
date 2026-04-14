@@ -74,11 +74,11 @@ classDiagram
     Product --> LettuceNearCacheRegionFactory : cached by
     CacheController --> LettuceNearCacheRegionFactory
 
-    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style CacheController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ProductRepository fill:#00838F,stroke:#006064,color:#FFFFFF
-    style Product fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ProductController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style CacheController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ProductRepository fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style Product fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### 요청 흐름 다이어그램
@@ -99,10 +99,10 @@ flowchart TD
     RegionFactory --> L2
     Repo --> DB
 
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class Client extStyle

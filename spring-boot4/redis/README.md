@@ -142,10 +142,10 @@ classDiagram
     RedisBinarySerializers --> RedisBinarySerializer : creates
     RedisBinarySerializers --> RedisCompressSerializer : creates
 
-    style RedisSerializer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style RedisBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedisCompressSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedisBinarySerializers fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RedisSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style RedisBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedisCompressSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedisBinarySerializers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### ReactiveRedisTemplate Serialization Flow
@@ -161,11 +161,11 @@ flowchart LR
     LZ4 --> Redis[("Redis")]
     KeySer --> Redis
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef templateStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef serdeStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef compressStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef serdeStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef compressStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App appStyle
     class Template,Context templateStyle

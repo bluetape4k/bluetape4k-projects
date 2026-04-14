@@ -51,10 +51,10 @@ flowchart TD
     VTX --> SERVER
     AHC --> SERVER
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class APP,API coreStyle
     class RB,RCA,RC serviceStyle
@@ -111,30 +111,24 @@ classDiagram
     Retrofit --> VertxCallFactory : callFactory
     Retrofit --> AhcCallFactory : callFactory
 
-    style Retrofit fill:#37474F,stroke:#263238,color:#FFFFFF
-    style CallAdapter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ResultCallAdapterFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ResultCall fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style Hc5CallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style VertxCallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style AhcCallFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Retrofit fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style CallAdapter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ResultCallAdapterFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ResultCall fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Hc5CallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style VertxCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style AhcCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant App as 애플리케이션
-    end
-    box rgb(237, 231, 246) Retrofit
         participant API as Retrofit 인터페이스(suspend fun)
         participant RC as ResultCall
         participant CF as Call.Factory(e.g. Hc5CallFactory)
-    end
-    box rgb(227, 242, 253) Server
         participant Server as HTTP 서버
-    end
 
     App->>API: suspend fun getUser(): Result~User~
     API->>RC: enqueue(callback)

@@ -78,30 +78,22 @@ classDiagram
     SuspendedJdbcCacheRepository <|-- SuspendedJdbcCaffeineRepository
     SuspendedJdbcCaffeineRepository <|.. AbstractSuspendedJdbcCaffeineRepository
 
-    style JdbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JdbcCaffeineRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractJdbcCaffeineRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style SuspendedJdbcCacheRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendedJdbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style AbstractSuspendedJdbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style JdbcCacheRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JdbcCaffeineRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractJdbcCaffeineRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendedJdbcCacheRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendedJdbcCaffeineRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style AbstractSuspendedJdbcCaffeineRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 쓰기 전략 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Client as 클라이언트
-    end
-    box rgb(232, 245, 233) Repository
         participant Repo as 레포지토리
-    end
-    box rgb(243, 229, 245) Cache
         participant Caffeine as Caffeine 캐시
-    end
-    box rgb(255, 243, 224) Database
         participant DB as JDBC 데이터베이스
-    end
 
     Note over Client,DB: Read-Through (캐시 미스)
     Client->>Repo: get(id)

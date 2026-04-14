@@ -23,10 +23,10 @@ flowchart LR
     Range --> Query
     Query --> PG
 
-    classDef coreStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef featureStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef queryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef coreStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef featureStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef queryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dbStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class Core coreStyle
     class PostGIS featureStyle
@@ -68,10 +68,10 @@ classDiagram
     PostGISExtensions --> PgvectorColumnType : creates
     PostGISExtensions --> TstzrangeColumnType : creates
 
-    style GeoGeometryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PgvectorColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TstzrangeColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PostGISExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style GeoGeometryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PgvectorColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TstzrangeColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PostGISExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Features

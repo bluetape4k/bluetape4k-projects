@@ -25,11 +25,11 @@ flowchart LR
     SM -.->|"stateFlow (suspend)"| SF["StateFlow\n(관찰 가능한 상태)"]
     TR -->|"onTransition 콜백"| CB["부수 효과 로직"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class S,E,T,G dslStyle
@@ -120,15 +120,15 @@ classDiagram
     DefaultStateMachine ..> StateMachineException : throws
     SuspendStateMachine ..> StateMachineException : throws
 
-    style BaseStateMachine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style StateMachine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendStateMachineInterface fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style DefaultStateMachine fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendStateMachine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style TransitionResult fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TransitionKey fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TransitionTarget fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style StateMachineException fill:#37474F,stroke:#263238,color:#FFFFFF
+    style BaseStateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendStateMachineInterface fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style TransitionResult fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TransitionKey fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TransitionTarget fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style StateMachineException fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
@@ -166,11 +166,11 @@ classDiagram
     StateMachineBuilder ..> DefaultStateMachine : builds
     SuspendStateMachineBuilder ..> SuspendStateMachine : builds
 
-    style StateMachineBuilder fill:#00838F,stroke:#006064,color:#FFFFFF
-    style SuspendStateMachineBuilder fill:#00838F,stroke:#006064,color:#FFFFFF
-    style TransitionBuilder fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style DefaultStateMachine fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendStateMachine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style StateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style SuspendStateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style TransitionBuilder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 주요 특징

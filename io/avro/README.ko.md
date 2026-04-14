@@ -168,29 +168,23 @@ classDiagram
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
 
-    style AvroSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroGenericRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroSpecificRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroReflectSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style DefaultAvroGenericRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultAvroSpecificRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultAvroReflectSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AvroSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroGenericRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroSpecificRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroReflectSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style DefaultAvroGenericRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultAvroSpecificRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultAvroReflectSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Avro 직렬화/역직렬화 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) 애플리케이션
         participant 앱 as 애플리케이션
-    end
-    box rgb(227, 242, 253) bluetape4k-avro
         participant S as AvroSerializer
         participant C as CodecFactory
-    end
-    box rgb(237, 231, 246) Avro 런타임
         participant A as Avro 런타임
-    end
 
     Note over 앱,A: 직렬화 흐름
     앱->>S: serialize(record)
@@ -225,9 +219,9 @@ flowchart TD
     ARCHIVE --> 직렬화
     NULL --> 직렬화
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class 시작,직렬화 coreStyle

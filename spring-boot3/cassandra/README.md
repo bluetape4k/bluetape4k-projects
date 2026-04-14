@@ -73,11 +73,11 @@ classDiagram
     AbstractReactiveCassandraCoroutineTest --> ReactiveCassandraOperationsExt : tests
     ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
 
-    style ReactiveCassandraOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style ReactiveSessionExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SchemaGenerator fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style AbstractReactiveCassandraCoroutineTest fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style ReactiveCassandraOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style ReactiveSessionExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style WriteOptionsDsl fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SchemaGenerator fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style AbstractReactiveCassandraCoroutineTest fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ### Cassandra Data Access Layer
@@ -95,11 +95,11 @@ flowchart TD
     Driver --> Cassandra[("Apache Cassandra")]
     SchemaGen["SchemaGenerator<br/>Schema Creation / Truncation"] --> ROps
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App serviceStyle
     class Ext asyncStyle
@@ -116,16 +116,10 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    box rgb(224,224,224) Application Layer
         participant App as Application
-    end
-    box rgb(225,190,231) Coroutine Extensions
         participant Ext as Coroutine Extension
         participant Ops as ReactiveCassandraOperations
-    end
-    box rgb(224,224,224) Data Layer
         participant DB as Apache Cassandra
-    end
 
     App->>Ext: executeSuspending(cql, args)
     Ext->>Ops: execute(statement) → Mono/Flux

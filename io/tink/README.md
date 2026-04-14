@@ -350,34 +350,28 @@ classDiagram
     TinkMacs ..> TinkMac : creates
     TinkDigesters ..> TinkDigester : creates
 
-    style TinkEncryptor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style TinkAeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkDaeadEncryptor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkAead fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkDeterministicAead fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkEncryptors fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style TinkAeads fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style TinkMac fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkMacs fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style TinkDigester fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkDigesters fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkEncryptor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style TinkAeadEncryptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkDaeadEncryptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkAead fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkDeterministicAead fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkEncryptors fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style TinkAeads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style TinkMac fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkMacs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style TinkDigester fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkDigesters fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### AEAD encrypt/decrypt Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant Caller
-    end
-    box rgb(227, 242, 253) Tink Encrypt Layer
         participant TinkEncryptors
         participant TinkAeadEncryptor
         participant TinkAead
-    end
-    box rgb(237, 231, 246) Tink Runtime
         participant Aead
-    end
 
     Note over Caller,Aead: Encryption (encrypt)
     Caller->>TinkEncryptors: AES256_GCM.encrypt("plaintext")

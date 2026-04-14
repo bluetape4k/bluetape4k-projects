@@ -236,10 +236,10 @@ classDiagram
     }
     AuditableLongIdTable --> UserContext : reads current user
 
-    style AuditableLongIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style UserContext fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style HasIdentifier fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style AuditableLongIdTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style UserContext fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style HasIdentifier fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ExposedPage fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Custom Column Type Hierarchy
@@ -290,14 +290,14 @@ ColumnWithTransform <|-- BinarySerializedBinaryColumnType
 ColumnWithTransform <|-- BinarySerializedBlobColumnType
 ColumnWithTransform --> ColumnTransformer
 
-    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style CompressedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CompressedBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style EncryptedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style EncryptedVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BinarySerializedBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BinarySerializedBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style ColumnWithTransform fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ColumnTransformer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style CompressedBinaryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CompressedBlobColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style EncryptedBinaryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style EncryptedVarCharColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BinarySerializedBinaryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BinarySerializedBlobColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### IdTable Hierarchy by ID Generation Strategy
@@ -348,14 +348,14 @@ IdTable <|-- TimebasedUUIDTable
 IdTable <|-- TimebasedUUIDBase62Table
 IdTable <|-- SoftDeletedIdTable
 
-    style IdTable fill:#37474F,stroke:#263238,color:#FFFFFF
-    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style KsuidMillisTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style UlidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TimebasedUUIDTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TimebasedUUIDBase62Table fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SoftDeletedIdTable fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style IdTable fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style KsuidTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style KsuidMillisTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style UlidTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SnowflakeIdTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TimebasedUUIDTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TimebasedUUIDBase62Table fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SoftDeletedIdTable fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### HasIdentifier and ExposedPage
@@ -384,9 +384,9 @@ classDiagram
 Serializable <|-- HasIdentifier
 HasIdentifier <.. ExposedPage: applicable to content items
 
-    style HasIdentifier fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style Serializable fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style HasIdentifier fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ExposedPage fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style Serializable fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ## Key Files and Classes
@@ -444,17 +444,11 @@ A context object that propagates the current user's name. Supports both Virtual 
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Caller
-    end
-    box rgb(232, 245, 233) Context
         participant UserContext
         participant ScopedValue
         participant ThreadLocal
-    end
-    box rgb(243, 229, 245) Domain
         participant Entity
-    end
 
     Caller->>UserContext: withUser("admin") { ... }
     UserContext->>ThreadLocal: Back up previous value, set admin

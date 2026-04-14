@@ -31,10 +31,10 @@ flowchart TD
     Core --> Time
     Core --> ValueObject
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ---
@@ -132,19 +132,19 @@ classDiagram
     StringEncoder <|.. Base64StringEncoder
     StringEncoder <|.. HexStringEncoder
 
-    style ValueObject fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractValueObject fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style Range fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ClosedClosedRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ClosedOpenRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OpenClosedRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OpenOpenRange fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style StringEncoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Base64StringEncoder fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HexStringEncoder fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Base58 fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Base62 fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style RequireSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ValueObject fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractValueObject fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Range fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ClosedClosedRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ClosedOpenRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OpenClosedRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OpenOpenRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style StringEncoder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Base64StringEncoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HexStringEncoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Base58 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Base62 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style RequireSupport fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ---
@@ -153,15 +153,9 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller Side
         participant C as Caller
-    end
-    box rgb(227, 242, 253) Validation Engine
         participant R as RequireSupport
-    end
-    box rgb(243, 229, 245) Result
         participant V as Valid Value
-    end
 
     C->>R: username.requireNotBlank("username")
     alt blank or null

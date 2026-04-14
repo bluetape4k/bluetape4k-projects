@@ -55,11 +55,11 @@ classDiagram
     UserRepository --|> ExposedR2dbcRepository
     UserRepository --> User
 
-    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style UserService fill:#00838F,stroke:#006064,color:#FFFFFF
-    style UserRepository fill:#00838F,stroke:#006064,color:#FFFFFF
-    style ExposedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style User fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style UserRepository fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style ExposedR2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style User fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### 데이터 흐름 다이어그램
@@ -79,11 +79,11 @@ flowchart LR
     DSL --> Driver
     Driver --> DB
 
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class WebFlux asyncStyle
     class Repo coreStyle

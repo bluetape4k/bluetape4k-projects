@@ -49,11 +49,11 @@ flowchart TD
     AHC --> SERVER
     VTX --> SERVER
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class APP coreStyle
     class CO asyncStyle
@@ -88,9 +88,9 @@ classDiagram
     CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
     CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
 
-    style CloseableHttpAsyncClient fill:#37474F,stroke:#263238,color:#FFFFFF
-    style HttpAsyncClientCoroutines fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style CachingHttpAsyncClientBuilder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CloseableHttpAsyncClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style HttpAsyncClientCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style CachingHttpAsyncClientBuilder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style InMemoryHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
     style JavaCacheHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
 ```
@@ -126,27 +126,21 @@ classDiagram
     OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
     OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
 
-    style OkHttpClient fill:#37474F,stroke:#263238,color:#FFFFFF
-    style LoggingInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CachingRequestInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CachingResponseInterceptor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OkHttpClientExtensionsCoroutines fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style OkHttpClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style LoggingInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CachingRequestInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CachingResponseInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OkHttpClientExtensionsCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) 애플리케이션
         participant App as 애플리케이션
-    end
-    box rgb(237, 231, 246) bluetape4k-http
         participant Ext as executeSuspending()
         participant HC5 as CloseableHttpAsyncClient
-    end
-    box rgb(227, 242, 253) 백엔드
         participant Server as HTTP 서버
-    end
 
     App->>Ext: suspend fun executeSuspending(request)
     Ext->>HC5: execute(request, FutureCallback)

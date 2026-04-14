@@ -120,20 +120,20 @@ classDiagram
     AsyncBucketProxyProvider <-- DistributedSuspendRateLimiter
     RateLimitResult --> RateLimitStatus
 
-    style RateLimiter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendRateLimiter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style RateLimiter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendRateLimiter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style RateLimitResult fill:#F57F17,stroke:#E65100,color:#000000
     style RateLimitStatus fill:#F57F17,stroke:#E65100,color:#000000
-    style LocalRateLimiter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalSuspendRateLimiter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style DistributedRateLimiter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DistributedSuspendRateLimiter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style AbstractLocalBucketProvider fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style LocalBucketProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalSuspendBucketProvider fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendLocalBucket fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style BucketProxyProvider fill:#37474F,stroke:#263238,color:#FFFFFF
-    style AsyncBucketProxyProvider fill:#37474F,stroke:#263238,color:#FFFFFF
+    style LocalRateLimiter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalSuspendRateLimiter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style DistributedRateLimiter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DistributedSuspendRateLimiter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style AbstractLocalBucketProvider fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LocalBucketProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalSuspendBucketProvider fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendLocalBucket fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style BucketProxyProvider fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style AsyncBucketProxyProvider fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
 ```
 
@@ -143,14 +143,10 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Caller
     participant Caller
-    end
-    box rgb(178,223,219) Rate Limiter
     participant LocalRateLimiter
     participant LocalBucketProvider
     participant LocalBucket
-    end
     Caller ->> LocalRateLimiter: consume("user:1", 1)
     LocalRateLimiter ->> LocalRateLimiter: validateRateLimitRequest(key, numToken)
     LocalRateLimiter ->> LocalBucketProvider: resolveBucket("user:1")
@@ -173,17 +169,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Caller
     participant Caller
-    end
-    box rgb(225,190,231) Distributed Rate Limiter
     participant DistributedSuspendRateLimiter
     participant AsyncBucketProxyProvider
     participant AsyncBucketProxy
-    end
-    box rgb(207,216,220) Redis
     participant Redis
-    end
     Caller ->> DistributedSuspendRateLimiter: consume("tenant:a", 1)
     DistributedSuspendRateLimiter ->> AsyncBucketProxyProvider: resolveBucket("tenant:a")
     AsyncBucketProxyProvider -->> DistributedSuspendRateLimiter: AsyncBucketProxy

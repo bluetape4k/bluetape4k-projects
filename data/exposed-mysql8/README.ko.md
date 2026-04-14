@@ -31,15 +31,15 @@ classDiagram
     GeometryColumnType <|-- GeoGeometryCollectionColumnType
     GeometryColumnType <|-- GeoGeometryColumnType
 
-    style GeometryColumnType fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style GeoPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoLineStringColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoMultiPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoMultiLineStringColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoMultiPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoGeometryCollectionColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoGeometryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GeometryColumnType fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style GeoPointColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoLineStringColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoPolygonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoMultiPointColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoMultiLineStringColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoMultiPolygonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoGeometryCollectionColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoGeometryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ## 확장 함수 다이어그램
@@ -64,9 +64,9 @@ classDiagram
         +ST_Contains(g1, g2): Expression
     }
 
-    style GeoPointColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoPolygonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MySQL8GeoExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style GeoPointColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoPolygonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MySQL8GeoExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 개요

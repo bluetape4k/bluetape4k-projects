@@ -373,7 +373,7 @@ classDiagram
         +CqlSession.executeAsync~T~(stmt): Deferred~T~
     }
 
-    style CassandraExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CassandraExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Core API Structure
@@ -416,28 +416,22 @@ classDiagram
     StatementBuilders --> CqlSession : delivers statements
     QueryBuilderExtensions --> StatementBuilders : uses
 
-    style CqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
-    style AsyncCqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
-    style CqlSessionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CassandraAdmin fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style StatementBuilders fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style QueryBuilderExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style AsyncCqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style CqlSessionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CassandraAdmin fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style StatementBuilders fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style QueryBuilderExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Asynchronous Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App as Application
-    end
-    box rgb(232, 245, 233) Cassandra Layer
         participant Ext as CqlSession Extension
         participant Session as CqlSession
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Cassandra
-    end
 
     App->>Ext: executeSuspending(query)
     Ext->>Session: executeAsync(statement)

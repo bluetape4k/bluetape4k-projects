@@ -169,16 +169,16 @@ classDiagram
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
 
-    style SpatialLayerRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SpatialFeatureRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style NetCdfFileRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SpatialLayerTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style SpatialFeatureTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style NetCdfFileTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style SpatialLayerRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SpatialFeatureRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style NetCdfFileRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ShapefileImportService fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    style SpatialLayerRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SpatialFeatureRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style NetCdfFileRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SpatialLayerTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style SpatialFeatureTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style NetCdfFileTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style SpatialLayerRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SpatialFeatureRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style NetCdfFileRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ShapefileImportService fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
 ```
 

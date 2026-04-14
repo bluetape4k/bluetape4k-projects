@@ -228,13 +228,13 @@ classDiagram
     VirtualThreads --> VirtualThreadRuntime : "ServiceLoader 선택"
     StructuredTaskScopes --> StructuredTaskScopeProvider : "ServiceLoader 선택"
 
-    style VirtualThreadRuntime fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style VirtualThreads fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style StructuredTaskScopeProvider fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style StructuredTaskScopes fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Jdk21VirtualThreadRuntime fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Jdk25VirtualThreadRuntime fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PlatformThreadFallback fill:#616161,stroke:#424242,color:#FFFFFF
+    style VirtualThreadRuntime fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style StructuredTaskScopeProvider fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StructuredTaskScopes fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Jdk21VirtualThreadRuntime fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Jdk25VirtualThreadRuntime fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PlatformThreadFallback fill:#F5F5F5,stroke:#BDBDBD,color:#424242
 ```
 
 ## ServiceLoader 기반 런타임 선택 흐름
@@ -251,11 +251,11 @@ flowchart TD
     JDK25 -->|"No, JDK 21"| USE21["Jdk21VirtualThreadRuntime<br/>(priority=21)"]
     JDK25 -->|"No, JDK 17-"| USEFALL["PlatformThreadFallback<br/>(CachedThreadPool)"]
 
-    classDef entryStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
-    classDef processStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    classDef decisionStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef fallbackStyle fill:#616161,stroke:#424242,color:#FFFFFF
+    classDef entryStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F,font-weight:bold
+    classDef processStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef decisionStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef implStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef fallbackStyle fill:#F5F5F5,stroke:#BDBDBD,color:#424242
 
     class START entryStyle
     class SL,CANDIDATES,FILTER,SORT,SELECT processStyle

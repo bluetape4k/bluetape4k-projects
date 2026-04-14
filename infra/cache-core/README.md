@@ -63,16 +63,10 @@ Typical usage patterns:
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(178,223,219) NearCache Layer
     participant NC as NearCache
     participant Front as Front Cache (Caffeine)
-    end
-    box rgb(207,216,220) Remote Storage
     participant Back as Back Cache (Redis/IMap/Redisson)
-    end
     App ->> NC: get("key")
     NC ->> Front: get("key")
     alt front hit
@@ -97,16 +91,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(178,223,219) NearCache Layer
     participant NC as NearCache
     participant Front as Front Cache (Caffeine)
-    end
-    box rgb(207,216,220) Remote Storage
     participant Back as Back Cache (Redis/IMap/Redisson)
-    end
     App ->> NC: put("key", value)
     NC ->> Back: set("key", value)
     Back -->> NC: ok
@@ -170,11 +158,11 @@ classDiagram
     SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
     SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style NearCacheStatistics fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ResilientNearCacheDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style ResilientSuspendNearCacheDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style NearCacheStatistics fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ResilientNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style ResilientSuspendNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ## `testFixtures` Usage Guide

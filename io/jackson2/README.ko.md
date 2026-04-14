@@ -347,15 +347,15 @@ classDiagram
     JacksonSerializer --> Jackson : 사용
     AsyncJsonParser --> SuspendJsonParser
 
-    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Jackson fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style AsyncJsonParser fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendJsonParser fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style JsonEncrypt fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style JsonTinkEncrypt fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style JsonMasker fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style JsonUuidEncoder fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style AsyncJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style JsonEncrypt fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style JsonTinkEncrypt fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style JsonMasker fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style JsonUuidEncoder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Jackson 직렬화 파이프라인
@@ -392,9 +392,9 @@ flowchart LR
     SER --> CSV_FMT
     JSON --> DES --> OBJ
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class OBJ coreStyle
@@ -409,16 +409,10 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant 앱 as 애플리케이션
-    end
-    box rgb(227, 242, 253) Jackson
         participant M as ObjectMapper
         participant S as JsonTinkEncryptSerializer
-    end
-    box rgb(255, 243, 224) Tink
         participant T as Google Tink AEAD
-    end
 
     Note over 앱,T: 직렬화 (암호화)
     앱->>M: writeValueAsString(user)

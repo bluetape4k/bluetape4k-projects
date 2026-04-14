@@ -61,12 +61,12 @@ classDiagram
     UserRepository --> UserDto
     UserDto --> UserTable
 
-    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style UserRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style ExposedR2dbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style UserRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style ExposedR2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style UserDto fill:#F57F17,stroke:#E65100,color:#000000
-    style UserTable fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style UserTable fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### 비동기 처리 흐름
@@ -86,11 +86,11 @@ flowchart LR
     DSL --> Driver
     Driver --> DB
 
-    classDef webStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef mapperStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef dslStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef webStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef mapperStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef dslStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class WebFlux webStyle
     class Repo repoStyle

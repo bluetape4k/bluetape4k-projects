@@ -230,10 +230,10 @@ classDiagram
     ByteBuf <-- BitBuf : wraps
     ByteBuf <-- ReferenceCountedSupport : extends
 
-    style ByteBuf fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ByteBufExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style BitBuf fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ReferenceCountedSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ByteBuf fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ByteBufExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style BitBuf fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ReferenceCountedSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Smart Encoding Data Flow
@@ -261,7 +261,7 @@ flowchart LR
     B3 -->|readIntSmart / readUIntSmart| V3
 
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class V1,V2,V3 dataStyle
     class B1,B2,B3 utilStyle
@@ -279,10 +279,10 @@ flowchart TD
     W1 -->|Encoding| CH
     CH -->|Outgoing bytes| NET
 
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
 
     class NET extStyle
     class CH coreStyle

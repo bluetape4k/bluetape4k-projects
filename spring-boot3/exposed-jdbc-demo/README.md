@@ -57,12 +57,12 @@ classDiagram
     ProductEntity --> Products : mapped by
     DataInitializer --> ProductJdbcRepository
 
-    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ProductJdbcRepository fill:#00838F,stroke:#006064,color:#FFFFFF
-    style ExposedJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ProductEntity fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style Products fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DataInitializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style ProductController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ProductJdbcRepository fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style ExposedJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ProductEntity fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style Products fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DataInitializer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ### Application Flow Diagram
@@ -84,11 +84,11 @@ flowchart TD
     Repo --> Entity
     Entity --> DB
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef testStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 
     class App coreStyle
     class Init testStyle

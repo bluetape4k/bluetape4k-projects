@@ -373,7 +373,7 @@ classDiagram
         +CqlSession.executeAsync~T~(stmt): Deferred~T~
     }
 
-    style CassandraExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CassandraExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### 주요 API 구조
@@ -416,28 +416,22 @@ classDiagram
     StatementBuilders --> CqlSession : 생성된 Statement 전달
     QueryBuilderExtensions --> StatementBuilders : 사용
 
-    style CqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
-    style AsyncCqlSession fill:#37474F,stroke:#263238,color:#FFFFFF
-    style CqlSessionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CassandraAdmin fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style StatementBuilders fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style QueryBuilderExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style AsyncCqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style CqlSessionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CassandraAdmin fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style StatementBuilders fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style QueryBuilderExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### 비동기 쿼리 실행 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 애플리케이션
         participant App as 애플리케이션
-    end
-    box rgb(232, 245, 233) Cassandra 레이어
         participant Ext as CqlSession 확장
         participant Session as CqlSession
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Cassandra
-    end
 
     App->>Ext: executeSuspending(query)
     Ext->>Session: executeAsync(statement)

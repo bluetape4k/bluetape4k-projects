@@ -11,6 +11,7 @@
 ### Resilience4j Coroutines 통합 클래스 다이어그램
 
 ```mermaid
+%%{init: {"theme": "neutral"}}%%
 classDiagram
     direction TB
 
@@ -29,62 +30,62 @@ classDiagram
         +withBulkhead(bh) DecoratorForSuspendSupplier
         +withTimeLimiter(tl) DecoratorForSuspendSupplier
         +withFallback(handler) DecoratorForSuspendSupplier
-        +decorate() suspend() -> T
+        +decorate() suspend() T
         +invoke() T
     }
 
     class DecoratorForSuspendFunction1~T_R~ {
-+withCircuitBreaker(cb) DecoratorForSuspendFunction1
-+withRetry(retry) DecoratorForSuspendFunction1
-+withRateLimit(rl) DecoratorForSuspendFunction1
-+withBulkhead(bh) DecoratorForSuspendFunction1
-+withTimeLimiter(tl) DecoratorForSuspendFunction1
-+withCache(cache) DecoratorForSuspendFunction1
-+withSuspendCache(sc) DecoratorForSuspendFunction1
-+decorate() suspend(T) -> R
-+invoke(input) R
-}
+        +withCircuitBreaker(cb) DecoratorForSuspendFunction1
+        +withRetry(retry) DecoratorForSuspendFunction1
+        +withRateLimit(rl) DecoratorForSuspendFunction1
+        +withBulkhead(bh) DecoratorForSuspendFunction1
+        +withTimeLimiter(tl) DecoratorForSuspendFunction1
+        +withCache(cache) DecoratorForSuspendFunction1
+        +withSuspendCache(sc) DecoratorForSuspendFunction1
+        +decorate() suspend(T) R
+        +invoke(input) R
+    }
 
-class DecoratorForSuspendFunction2~T_U_R~ {
-+withCircuitBreaker(cb) DecoratorForSuspendFunction2
-+withRetry(retry) DecoratorForSuspendFunction2
-+withRateLimit(rl) DecoratorForSuspendFunction2
-+withBulkhead(bh) DecoratorForSuspendFunction2
-+withTimeLimiter(tl) DecoratorForSuspendFunction2
-+decorate() suspend(T, U) -> R
-+invoke(t, u) R
-}
+    class DecoratorForSuspendFunction2~T_U_R~ {
+        +withCircuitBreaker(cb) DecoratorForSuspendFunction2
+        +withRetry(retry) DecoratorForSuspendFunction2
+        +withRateLimit(rl) DecoratorForSuspendFunction2
+        +withBulkhead(bh) DecoratorForSuspendFunction2
+        +withTimeLimiter(tl) DecoratorForSuspendFunction2
+        +decorate() suspend(T, U) R
+        +invoke(t, u) R
+    }
 
-class SuspendCache~K_V~ {
-<<interface>>
-+name: String
-+jcache: Cache
-+metrics: Metrics
-+eventPublisher: EventPublisher
-+computeIfAbsent(cacheKey, loader) V
-+containsKey(cacheKey) Boolean
-+of(jcache) SuspendCache
-}
+    class SuspendCache~K_V~ {
+        <<interface>>
+        +name: String
+        +jcache: Cache
+        +metrics: Metrics
+        +eventPublisher: EventPublisher
+        +computeIfAbsent(cacheKey, loader) V
+        +containsKey(cacheKey) Boolean
+        +of(jcache) SuspendCache
+    }
 
-class SuspendCacheImpl~K_V~ {
--jcache: Cache
-+computeIfAbsent(cacheKey, loader) V
-+containsKey(cacheKey) Boolean
-}
+    class SuspendCacheImpl~K_V~ {
+        -jcache: Cache
+        +computeIfAbsent(cacheKey, loader) V
+        +containsKey(cacheKey) Boolean
+    }
 
-SuspendDecorators --> DecoratorForSuspendSupplier: creates
-SuspendDecorators --> DecoratorForSuspendFunction1: creates
-SuspendDecorators --> DecoratorForSuspendFunction2 : creates
+    SuspendDecorators --> DecoratorForSuspendSupplier: creates
+    SuspendDecorators --> DecoratorForSuspendFunction1: creates
+    SuspendDecorators --> DecoratorForSuspendFunction2: creates
 
-SuspendCache <|.. SuspendCacheImpl
-DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
+    SuspendCache <|.. SuspendCacheImpl
+    DecoratorForSuspendFunction1 --> SuspendCache: withSuspendCache
 
-    style SuspendDecorators fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DecoratorForSuspendSupplier fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style DecoratorForSuspendFunction1 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style DecoratorForSuspendFunction2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendCacheImpl fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendDecorators fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DecoratorForSuspendSupplier fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style DecoratorForSuspendFunction1 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style DecoratorForSuspendFunction2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendCacheImpl fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 ```
 
@@ -96,18 +97,13 @@ CLOSED → 실패 누적 → OPEN → Half-Open → 복구 흐름:
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Caller
     participant Caller
-    end
-    box rgb(225,190,231) Resilience4j
     participant SuspendDecorators
     participant Retry
     participant CircuitBreaker
-    end
-    box rgb(207,216,220) External
     participant Service
-    end
-    Caller ->> SuspendDecorators: ofSupplier { service.call() }<br/>.withCircuitBreaker(cb).withRetry(retry).invoke()
+
+    Caller ->> SuspendDecorators: ofSupplier { service.call() }.withCircuitBreaker(cb).withRetry(retry).invoke()
     Note over CircuitBreaker: 상태: CLOSED
 
     loop Retry (최대 maxAttempts)
@@ -146,18 +142,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Caller
     participant Caller
-    end
-    box rgb(225,190,231) Cache
     participant SuspendCacheImpl
-    end
-    box rgb(207,216,220) JCache
     participant JCache
-    end
-    box rgb(255,224,178) Data Source
     participant Loader
-    end
+
     Caller ->> SuspendCacheImpl: computeIfAbsent("user:1") { loadUser() }
     SuspendCacheImpl ->> JCache: containsKey("user:1")
 

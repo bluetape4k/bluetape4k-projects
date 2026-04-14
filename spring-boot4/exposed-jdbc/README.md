@@ -57,12 +57,12 @@ classDiagram
     UserRepository --> UserEntity
     UserEntity --> UserTable
 
-    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style UserRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style ExposedJdbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style UserRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style ExposedJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style UserEntity fill:#F57F17,stroke:#E65100,color:#000000
-    style UserTable fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style UserTable fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Query Processing Flow
@@ -84,11 +84,11 @@ flowchart LR
     Query --> DB
     DSL --> DB
 
-    classDef controllerStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef parserStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef dslStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef controllerStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef parserStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef dslStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Controller controllerStyle
     class Repo repoStyle

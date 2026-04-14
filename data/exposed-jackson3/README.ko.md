@@ -138,9 +138,9 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
-    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JacksonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonBColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TableExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### JSON 컬럼 타입 클래스 구조
@@ -185,12 +185,12 @@ classDiagram
     ResultRowExtensions --> JacksonColumnType : 사용
     ResultRowExtensions --> JacksonBColumnType : 사용
 
-    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
-    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonSerializer fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style JsonFunctions fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style ResultRowExtensions fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style ColumnType fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style JacksonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonBColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonSerializer fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style JsonFunctions fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style ResultRowExtensions fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Jackson 2 vs Jackson 3 패키지 차이
@@ -210,9 +210,9 @@ flowchart LR
     Jackson2 -->|역직렬화| C
     Jackson3 -->|역직렬화| C
 
-    classDef objectStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef jackson2Style fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef jackson3Style fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef objectStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef jackson2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef jackson3Style fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
     class C objectStyle
     class Jackson2 jackson2Style

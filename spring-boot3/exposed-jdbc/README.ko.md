@@ -60,12 +60,12 @@ classDiagram
     UserRepository --> User
     User --> Users : mapped by
 
-    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style UserService fill:#00838F,stroke:#006064,color:#FFFFFF
-    style UserRepository fill:#00838F,stroke:#006064,color:#FFFFFF
-    style ExposedJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style User fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style Users fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style UserRepository fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style ExposedJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style User fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style Users fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### 데이터 흐름 다이어그램
@@ -87,10 +87,10 @@ flowchart LR
     Query --> DB
     DSL --> DB
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Controller serviceStyle
     class Repo coreStyle

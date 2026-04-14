@@ -285,12 +285,12 @@ classDiagram
     Cache2kCacheMetrics --> MeterRegistry: binds to
     ObservationRegistry --> MeterRegistry: delegates
 
-    style TimerExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style ObservationExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MicrometerRetrofitMetricsFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Cache2kCacheMetrics fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style MeterRegistry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ObservationRegistry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style TimerExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ObservationExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MicrometerRetrofitMetricsFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Cache2kCacheMetrics fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style MeterRegistry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ObservationRegistry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
 ```
 
@@ -314,41 +314,33 @@ flowchart TD
     MR --> Grafana[Grafana / Monitoring]
     MR --> Log[Logging]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style MR fill:#F57F17,stroke:#E65100,color:#000000
-    style OR fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style Grafana fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style TE fill:#37474F,stroke:#263238,color:#FFFFFF
-    style OE fill:#37474F,stroke:#263238,color:#FFFFFF
-    style RM fill:#37474F,stroke:#263238,color:#FFFFFF
-    style CM fill:#37474F,stroke:#263238,color:#FFFFFF
+    style OR fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Grafana fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style TE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style OE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style RM fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style CM fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ### Retrofit2 Metric Collection Sequence
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Client
     participant Client as Client
-    end
-    box rgb(178,223,219) Instrumented Layer
     participant Retrofit as Retrofit2
     participant Metrics as MicrometerRetrofitMetricsFactory
-    end
-    box rgb(207,216,220) External
     participant API as External API
-    end
-    box rgb(255,236,179) Metrics
     participant Registry as MeterRegistry
-    end
 
     Client->>+Retrofit: API call
     Retrofit->>+Metrics: Create instrumented Call wrapper
@@ -363,16 +355,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(225,190,231) Observation
     participant Obs as withObservationContext
     participant Registry as ObservationRegistry
-    end
-    box rgb(255,224,178) Async Work
     participant Work as Async Work
-    end
 
     App->>+Obs: withObservationContext("operation", registry)
     Obs->>Registry: Observation.start()

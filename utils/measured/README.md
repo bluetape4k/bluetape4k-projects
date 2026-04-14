@@ -108,15 +108,15 @@ classDiagram
     Velocity --> UnitsRatio : "Length / Time (m/s)"
     Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
 
-    style Units fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Measure fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style UnitsProduct fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UnitsRatio fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Length fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Time fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Mass fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Velocity fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Acceleration fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Units fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Measure fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style UnitsProduct fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UnitsRatio fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Length fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Time fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Mass fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Velocity fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Acceleration fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Unit Composition Flow
@@ -133,9 +133,9 @@ flowchart LR
     V -->|"* duration"| R
     D --> R
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class L,D dataStyle

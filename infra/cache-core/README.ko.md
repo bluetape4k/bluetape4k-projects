@@ -43,16 +43,10 @@ dependencies {
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(178,223,219) NearCache Layer
     participant NC as NearCache
     participant Front as Front Cache (Caffeine)
-    end
-    box rgb(207,216,220) Remote Storage
     participant Back as Back Cache (Redis/IMap/Redisson)
-    end
     App ->> NC: get("key")
     NC ->> Front: get("key")
     alt front hit
@@ -77,16 +71,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(178,223,219) NearCache Layer
     participant NC as NearCache
     participant Front as Front Cache (Caffeine)
-    end
-    box rgb(207,216,220) Remote Storage
     participant Back as Back Cache (Redis/IMap/Redisson)
-    end
     App ->> NC: put("key", value)
     NC ->> Back: set("key", value)
     Back -->> NC: ok
@@ -153,12 +141,12 @@ classDiagram
     NearCacheOperations --o ResilientNearCacheDecorator : delegate
     NearCacheOperations ..> NearCacheStatistics : stats()
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style NearCacheStatistics fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ResilientNearCacheDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style LettuceNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style NearCacheStatistics fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ResilientNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HazelcastNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedissonNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 ```
 
@@ -203,11 +191,11 @@ classDiagram
     SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
     SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
 
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ResilientSuspendNearCacheDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style LettuceSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ResilientSuspendNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style HazelcastSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RedissonSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
@@ -264,11 +252,11 @@ SuspendJCache <|.. LettuceSuspendJCache
 SuspendJCache <|.. HazelcastSuspendJCache
 SuspendJCache <|.. RedissonSuspendJCache
 
-    style SuspendJCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style CaffeineSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style HazelcastSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RedissonSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style SuspendJCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style CaffeineSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style HazelcastSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RedissonSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ##### NearJCache (동기)
@@ -302,9 +290,9 @@ class NearJCacheConfigBuilder~K_V~ {
     NearJCache --> NearJCacheConfig: config
     NearJCacheConfigBuilder ..> NearJCacheConfig: build()
 
-    style NearJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style NearJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
-    style NearJCacheConfigBuilder fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style NearJCacheConfigBuilder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ##### SuspendNearJCache (코루틴)
@@ -339,10 +327,10 @@ SuspendNearJCache --> CaffeineSuspendJCache: frontCache
 SuspendNearJCache --> LettuceSuspendJCache: backCache (Lettuce)
 SuspendNearJCache --> HazelcastSuspendJCache: backCache (Hazelcast)
 
-    style SuspendNearJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style CaffeineSuspendJCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceSuspendJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HazelcastSuspendJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendNearJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style CaffeineSuspendJCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceSuspendJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HazelcastSuspendJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ##### NearJCacheConfig Builder DSL

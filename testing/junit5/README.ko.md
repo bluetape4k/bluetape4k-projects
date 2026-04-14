@@ -41,9 +41,9 @@ flowchart TD
     JU5 --> 비동기테스트
     JU5 --> 리포트
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef testStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class JU5 coreStyle
@@ -117,15 +117,15 @@ classDiagram
     MultithreadingTester --> SuspendedJobTester : similar API
     StructuredTaskScopeTester --> SuspendedJobTester : similar API
 
-    style StopwatchExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style TempFolderExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style TempFolder fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style OutputCapturer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style FakeValueExtension fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style Fakers fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MultithreadingTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendedJobTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style StructuredTaskScopeTester fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style StopwatchExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style TempFolderExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style TempFolder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style OutputCapturer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style FakeValueExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Fakers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MultithreadingTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendedJobTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style StructuredTaskScopeTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 주요 기능

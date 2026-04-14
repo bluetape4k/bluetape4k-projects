@@ -21,11 +21,11 @@ flowchart LR
     D --> F[원격 캐시 동기화]
     F --> G[DB 쿼리 최소화]
 
-    classDef hibernateStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef factoryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef l1Style fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef l2Style fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef resultStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef resultStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
     class A hibernateStyle
     class B factoryStyle
@@ -55,13 +55,13 @@ flowchart TD
     NearCache --> L1
     NearCache --> L2
 
-    classDef hibernateStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef factoryStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef regionStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef storageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef cacheStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    classDef l1Style fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef l2Style fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef regionStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef storageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef cacheStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
     class Hibernate hibernateStyle
     class Factory factoryStyle
@@ -184,14 +184,10 @@ val products: MutableList<Product> = mutableListOf()
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 애플리케이션
         participant Hibernate
-    end
-    box rgb(232, 245, 233) 캐시 레이어
         participant Storage as LettuceNearCacheStorageAccess
         participant L1 as Caffeine (L1)
         participant L2 as Redis (L2)
-    end
 
     Note over Hibernate,L2: getFromCache
     Hibernate->>Storage: getFromCache(key)

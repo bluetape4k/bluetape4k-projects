@@ -56,22 +56,22 @@ classDiagram
     AbstractCompressor <|-- ApacheZstdCompressor
     AbstractCompressor <|-- ZipCompressor
 
-    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style StreamingCompressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractCompressor fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style LZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BlockLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FramedLZ4Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FramedSnappyCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BZip2Compressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ApacheGZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ApacheDeflateCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ApacheZstdCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ZipCompressor fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Compressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StreamingCompressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractCompressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BlockLZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FramedLZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SnappyCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FramedSnappyCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ZstdCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DeflateCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BZip2Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ApacheGZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ApacheDeflateCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ApacheZstdCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### BinarySerializer 계층
@@ -118,27 +118,23 @@ classDiagram
     BinarySerializerDecorator <|-- CompressableBinarySerializer
     CompressableBinarySerializer --> Compressor
 
-    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractBinarySerializer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style BinarySerializerDecorator fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style CompressableBinarySerializer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style JdkBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KryoBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ForyBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Compressor fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style BinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractBinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style BinarySerializerDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style CompressableBinarySerializer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style JdkBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KryoBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ForyBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Compressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### compress/decompress 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) 호출자
         participant C as 호출자
-    end
-    box rgb(227, 242, 253) Core
         participant AC as AbstractCompressor
         participant Impl as 구현체(e.g. LZ4Compressor)
-    end
 
     C->>AC: compress(plain: ByteArray?)
     AC->>AC: plain.isNullOrEmpty() 검사
@@ -165,13 +161,9 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) 호출자
         participant C as 호출자
-    end
-    box rgb(227, 242, 253) Core
         participant ABS as AbstractBinarySerializer
         participant Impl as 구현체(e.g. KryoBinarySerializer)
-    end
 
     C->>ABS: serialize(graph: Any?)
     alt graph == null

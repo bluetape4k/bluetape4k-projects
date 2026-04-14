@@ -94,15 +94,15 @@ classDiagram
     R2dbcCacheRepository <|-- R2dbcRedisRepository
     R2dbcCacheRepository <|-- R2dbcCaffeineRepository
 
-    style JdbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style JdbcCaffeineRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedJdbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendJdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style SuspendedJdbcCaffeineRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style R2dbcCacheRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style R2dbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style R2dbcCaffeineRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style JdbcCacheRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JdbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style JdbcCaffeineRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedJdbcCacheRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendJdbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style SuspendedJdbcCaffeineRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style R2dbcCacheRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style R2dbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style R2dbcCaffeineRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 Redis-specific sub-interfaces (Lettuce and Redisson) extend the Redis interfaces:
@@ -117,15 +117,15 @@ classDiagram
     R2dbcRedisRepository <|-- R2dbcLettuceRepository
     R2dbcRedisRepository <|-- R2dbcRedissonRepository
 
-    style JdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style SuspendJdbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style R2dbcRedisRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style JdbcLettuceRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JdbcRedissonRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedJdbcLettuceRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendedJdbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style R2dbcLettuceRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style R2dbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style JdbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style SuspendJdbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style R2dbcRedisRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style JdbcLettuceRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JdbcRedissonRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedJdbcLettuceRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendedJdbcRedissonRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style R2dbcLettuceRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style R2dbcRedissonRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## CacheMode
@@ -182,18 +182,10 @@ Optional resilience configuration for Redis-backed repositories. Pass `null` (th
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Client
-    end
-    box rgb(232, 245, 233) Repository
         participant Repo as Repository
-    end
-    box rgb(243, 229, 245) Cache
         participant Cache as Local/Redis Cache
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     Note over Client,DB: Read-Through (all modes)
     Client->>Repo: get(id)

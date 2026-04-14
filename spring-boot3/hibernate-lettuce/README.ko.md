@@ -45,13 +45,13 @@ classDiagram
     LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory : monitors
     LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory : queries
 
-    style LettuceNearCacheHibernateAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceNearCacheMetricsAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceNearCacheActuatorAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style HibernatePropertiesCustomizer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceNearCacheMetricsBinder fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceNearCacheEndpoint fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceNearCacheHibernateAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceNearCacheMetricsAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceNearCacheActuatorAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style HibernatePropertiesCustomizer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceNearCacheMetricsBinder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceNearCacheEndpoint fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Auto-Configuration 흐름 다이어그램
@@ -74,10 +74,10 @@ flowchart TD
     L2 --> DB
 
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class Props dataStyle
     class AutoConfig springStyle

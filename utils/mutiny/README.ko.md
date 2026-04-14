@@ -269,11 +269,11 @@ classDiagram
     CoroutineSupport --> UniT : creates
     UniT --> MultiT : toMulti()
 
-    style UniT fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style MultiT fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style UniSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MultiSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style CoroutineSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style UniT fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style MultiT fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style UniSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MultiSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style CoroutineSupport fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## Mutiny 처리 흐름
@@ -332,10 +332,10 @@ flowchart TD
     MULTI --> FLT
     MULTI --> OE
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class UNI,MULTI coreStyle

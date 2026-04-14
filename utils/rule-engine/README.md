@@ -30,10 +30,10 @@ flowchart LR
     RS -->|" true → execute(facts) "| Facts
     RE -.->|" 4. read results "| Facts
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class RE coreStyle
     class R1,R2,R3 dslStyle
@@ -110,14 +110,14 @@ DefaultSuspendRule ..> Action: uses
 RuleSet o-- Rule: sorted by priority
 DefaultRule ..> Facts: reads/writes
 
-    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style DefaultRule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultSuspendRule fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style Condition fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style Action fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style Facts fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style RuleSet fill:#00838F,stroke:#006064,color:#FFFFFF
+    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style DefaultRule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultSuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Condition fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style Action fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style Facts fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style RuleSet fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 ```
 
 ### Rule Engine Class Diagram
@@ -156,11 +156,11 @@ classDiagram
     RuleEngine <|.. InferenceRuleEngine
     DefaultRuleEngine o-- RuleEngineConfig
 
-    style RuleEngine fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style DefaultRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style InferenceRuleEngine fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultSuspendRuleEngine fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RuleEngineConfig fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style RuleEngine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style DefaultRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style InferenceRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultSuspendRuleEngine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RuleEngineConfig fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Composite Rules
@@ -189,11 +189,11 @@ classDiagram
     CompositeRule <|-- UnitRuleGroup
     CompositeRule o-- Rule: contains
 
-    style CompositeRule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ActivationRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ConditionalRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UnitRuleGroup fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Rule fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style CompositeRule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ActivationRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ConditionalRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UnitRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### Rule Execution Sequence
@@ -243,8 +243,8 @@ flowchart TD
     E --> B
     C -->|no| F[done]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class A,B coreStyle
@@ -267,10 +267,10 @@ flowchart TD
     G --> J["Script: MVEL2 / SpEL / Janino / Groovy"]
     G --> K["File: YAML / JSON / HOCON"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class A coreStyle
@@ -436,9 +436,9 @@ flowchart TD
     B -->|"Complex (collections, closures, branching)"| H[Groovy]
     B -->|"Need Kotlin type safety"| I[Kotlin Script]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class A coreStyle
     class D,F,G serviceStyle

@@ -156,11 +156,11 @@ classDiagram
     UserRepository --> QueryBuilderExt
     UserRepository --> UpdateDsl
 
-    style ReactiveMongoOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style QueryBuilderExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactiveMongoOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style QueryBuilderExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style CriteriaDsl fill:#F57F17,stroke:#E65100,color:#000000
     style UpdateDsl fill:#F57F17,stroke:#E65100,color:#000000
-    style UserRepository fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style UserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ### ReactiveMongoOperations 코루틴 확장 흐름
@@ -175,11 +175,11 @@ flowchart TD
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef extStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef reactorStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef driverStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef reactorStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App appStyle
     class Ext,ROps extStyle
@@ -202,11 +202,11 @@ flowchart LR
     Update --> ROps
     ROps --> MongoDB[("MongoDB")]
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef queryStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef opsStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef queryStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef opsStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Code appStyle
     class CriteriaDSL,QueryBuilder,UpdateDSL dslStyle
@@ -219,16 +219,10 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) 애플리케이션 계층
         participant App as 애플리케이션
-    end
-    box rgb(225,190,231) 코루틴 계층
         participant Ext as 코루틴 확장
         participant Ops as ReactiveMongoOperations
-    end
-    box rgb(224,224,224) 데이터 계층
         participant DB as MongoDB
-    end
 
     App->>Ext: findAllAsFlow<User>()
     Ext->>Ops: findAll(User::class) → Flux<User>

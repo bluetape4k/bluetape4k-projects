@@ -22,10 +22,10 @@ flowchart TD
     Reactive --> Template
 
     classDef entityStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef templateStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef reactiveStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef reactiveStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Entity entityStyle
     class Repo repoStyle

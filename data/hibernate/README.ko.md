@@ -533,8 +533,8 @@ classDiagram
     }
     HibernateRepository <|-- AbstractHibernateRepository
 
-    style HibernateRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractHibernateRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style HibernateRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractHibernateRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ### JPA 엔티티 클래스 계층 구조
@@ -591,14 +591,14 @@ classDiagram
     LongJpaEntity <|-- LongJpaTreeEntity
     IntJpaEntity <|-- IntJpaTreeEntity
 
-    style JpaEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractJpaEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style IntJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LongJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UuidJpaEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JpaTreeEntity fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LongJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style IntJpaTreeEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractJpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style IntJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LongJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UuidJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JpaTreeEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LongJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style IntJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### AttributeConverter 종류
@@ -633,11 +633,11 @@ flowchart LR
     E <-->|변환| 압축_Converter
     E <-->|변환| 기타_Converter
 
-    classDef dbStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef serStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef encStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef compStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef miscStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef dbStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef serStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef encStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef compStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef miscStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 
     class E dbStyle
     class 직렬화_Converter serStyle

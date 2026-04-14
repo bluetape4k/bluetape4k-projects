@@ -30,13 +30,13 @@ flowchart TD
     GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
     GI --> IPINFO["IP → 국가/도시/위도경도"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class GC,GH,GI coreStyle
     class GOOGLE,BING extStyle
@@ -88,13 +88,13 @@ classDiagram
     BingGeocoder --> GeoPoint : returns
     GeoIp2Support --> CityResponse : returns
 
-    style GeoHashUtils fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style GeoHashCircleQuery fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoPoint fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style GoogleGeocoder fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BingGeocoder fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GeoIp2Support fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style CityResponse fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style GeoHashUtils fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style GeoHashCircleQuery fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoPoint fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style GoogleGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BingGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GeoIp2Support fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style CityResponse fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### GeoHash 인코딩/디코딩 흐름

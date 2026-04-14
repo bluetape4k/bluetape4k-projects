@@ -131,9 +131,9 @@ classDiagram
     TableExtensions --> JacksonColumnType : creates
     TableExtensions --> JacksonBColumnType : creates
 
-    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JacksonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonBColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TableExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 클래스 다이어그램
@@ -176,11 +176,11 @@ classDiagram
     JacksonColumnType <|-- JacksonBColumnType
     JacksonColumnType ..> JacksonSerializer : uses
 
-    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
-    style JsonColumnMarker fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonSerializer fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ColumnType fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style JsonColumnMarker fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonBColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonSerializer fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 직렬화/역직렬화 시퀀스 다이어그램
@@ -189,16 +189,10 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 애플리케이션
         participant App as 애플리케이션
-    end
-    box rgb(232, 245, 233) 컬럼
         participant Col as JacksonColumnType~T~
         participant Ser as JacksonSerializer
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database
-    end
 
     App->>Col: insert { it[settings] = UserSettings(theme="dark") }
     Col->>Ser: serializeAsString(UserSettings(...))
@@ -212,16 +206,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 애플리케이션
         participant App as 애플리케이션
-    end
-    box rgb(232, 245, 233) 컬럼
         participant Col as JacksonColumnType~T~
         participant Ser as JacksonSerializer
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database
-    end
 
     App->>DB: SELECT settings FROM users WHERE id = 1
     DB-->>Col: '{"theme":"dark","notifications":true}'

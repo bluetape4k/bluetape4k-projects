@@ -204,29 +204,23 @@ classDiagram
     TrinoDatabase ..> TrinoConnectionWrapper : creates
     TrinoConnectionWrapper ..|> Connection
 
-    style TrinoDatabase fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style TrinoExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style TrinoConnectionWrapper fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style TrinoDialect fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TrinoDialectMetadata fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style TrinoDatabase fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style TrinoExtensions fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style TrinoConnectionWrapper fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style TrinoDialect fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TrinoDialectMetadata fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Distributed Query Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(232,245,233) Application
         participant App as Kotlin Code
-    end
-    box rgb(227,242,253) Exposed + Trino
         participant DSL as Exposed DSL
         participant TD as TrinoDialect
         participant TC as TrinoConnectionWrapper
-    end
-    box rgb(243,229,245) Trino Cluster
         participant COORD as Trino Coordinator
         participant WORKER as Trino Workers
-    end
 
     App->>DSL: Table.selectAll().where { ... }
     DSL->>TD: Generate SQL

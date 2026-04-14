@@ -115,10 +115,10 @@ class NearJCacheConfig~K_V~ {
     SuspendNearJCache --> CaffeineSuspendJCache: frontCache
     SuspendNearJCache --> HazelcastSuspendJCache: backCache
 
-    style NearJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendNearJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style HazelcastSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style CaffeineSuspendJCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style NearJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendNearJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style HazelcastSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style CaffeineSuspendJCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 ```
 
@@ -243,13 +243,13 @@ classDiagram
     HazelcastSuspendNearCache --> HazelcastNearCacheConfig: config
     HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style HazelcastLocalCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style CaffeineHazelcastLocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style HazelcastEntryEventListener fill:#37474F,stroke:#263238,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style HazelcastNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HazelcastSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style HazelcastLocalCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style CaffeineHazelcastLocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style HazelcastEntryEventListener fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style HazelcastNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 
 ```
@@ -258,18 +258,12 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Instance 1
     participant App1 as Application (인스턴스 1)
     participant NC1 as HazelcastNearCache (인스턴스 1)
     participant Front1 as Caffeine (인스턴스 1)
-    end
-    box rgb(207,216,220) Distributed
     participant IMap as Hazelcast IMap (분산)
-    end
-    box rgb(225,190,231) Instance 2
     participant Listener2 as EntryListener (인스턴스 2)
     participant Front2 as Caffeine (인스턴스 2)
-    end
     Note over NC1, IMap: 초기화 — IMap.addEntryListener 등록
     NC1 ->> IMap: addEntryListener(entryListener, true)
     Listener2 ->> IMap: addEntryListener(entryListener, true)

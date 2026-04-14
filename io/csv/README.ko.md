@@ -50,18 +50,18 @@ classDiagram
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
 
-    style RecordReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style RecordWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendRecordReader fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendRecordWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style CsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendCsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendTsvRecordReader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendCsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendTsvRecordWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style RecordReader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style RecordWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendRecordReader fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendRecordWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style CsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendCsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendTsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendCsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendTsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### CSV/TSV 처리 흐름
@@ -104,9 +104,9 @@ flowchart TD
     앱 -->|entities| CW --> OF
     앱 -->|Flow entities| SCW --> OW
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class 앱 coreStyle

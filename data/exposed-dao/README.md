@@ -252,10 +252,10 @@ classDiagram
     }
     AuditableLongEntityClass --> AuditableLongEntity : manages
 
-    style AuditableLongEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style AuditableLongEntityClass fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style AuditableLongEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AuditableLongEntityClass fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style KsuidTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SnowflakeIdTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Custom IdTable Hierarchy
@@ -300,14 +300,14 @@ IdTable <|-- SnowflakeIdTable
 IdTable <|-- TimebasedUUIDTable
 IdTable <|-- TimebasedUUIDBase62Table
 
-    style IdTable fill:#37474F,stroke:#263238,color:#FFFFFF
-    style SoftDeletedIdTable fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style KsuidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style KsuidMillisTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style UlidTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SnowflakeIdTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TimebasedUUIDTable fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style TimebasedUUIDBase62Table fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style IdTable fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style SoftDeletedIdTable fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style KsuidTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style KsuidMillisTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style UlidTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SnowflakeIdTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TimebasedUUIDTable fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style TimebasedUUIDBase62Table fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Entity Extension Hierarchy
@@ -360,19 +360,19 @@ KsuidEntityClass --> KsuidEntity: manages
 SnowflakeIdEntityClass --> SnowflakeIdEntity: manages
 TimebasedUUIDEntityClass --> TimebasedUUIDEntity: manages
 
-    style Entity fill:#37474F,stroke:#263238,color:#FFFFFF
-    style EntityClass fill:#37474F,stroke:#263238,color:#FFFFFF
-    style StringEntity fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style StringEntityClass fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style KsuidEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KsuidMillisEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UlidEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SnowflakeIdEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TimebasedUUIDEntity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TimebasedUUIDBase62Entity fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KsuidEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SnowflakeIdEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TimebasedUUIDEntityClass fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Entity fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style EntityClass fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style StringEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StringEntityClass fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style KsuidEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KsuidMillisEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UlidEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SnowflakeIdEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TimebasedUUIDEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TimebasedUUIDBase62Entity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KsuidEntityClass fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SnowflakeIdEntityClass fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TimebasedUUIDEntityClass fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ## Key Files and Classes
@@ -418,17 +418,11 @@ Overrides `flush()` to automatically set `createdBy` and `updatedBy`.
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Caller
         participant UserContext
-    end
-    box rgb(232, 245, 233) Domain
         participant Article
         participant AuditableEntity
-    end
-    box rgb(255, 243, 224) Database
         participant DB
-    end
 
     Caller->>UserContext: withUser("alice") { ... }
     Caller->>Article: new / flush

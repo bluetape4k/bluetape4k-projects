@@ -28,12 +28,12 @@ flowchart LR
     Flows -->|" execute(ctx) "| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
     WR -->|" reads/writes "| WC["WorkContext\n(shared mutable map)"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class SF,PF,CF,RF,RT dslStyle
     class W serviceStyle
@@ -77,10 +77,10 @@ flowchart TD
     E --> I[Repeat]
     E --> J[Retry]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class A coreStyle
     class C asyncStyle
@@ -173,8 +173,8 @@ flowchart LR
     W2 -. " failure + CONTINUE " .-> W3
     W3 -. " any failure " .-> P([PARTIAL])
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class W1,W2,W3 serviceStyle
@@ -218,8 +218,8 @@ Execute tasks concurrently:
 flowchart LR
     S([Start]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
     class W1,W2,W3 serviceStyle
     class S,E coreStyle
@@ -254,8 +254,8 @@ flowchart LR
     T --> E([Done])
     O --> E
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
     class T,O serviceStyle
     class S,E coreStyle
@@ -284,8 +284,8 @@ flowchart LR
     W -. ABORTED .-> A([ABORTED])
     W -. FAILED .-> F([FAILED])
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class W serviceStyle
@@ -328,8 +328,8 @@ flowchart LR
     D --> W
     R -->|no| F([FAILED])
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class W,D serviceStyle

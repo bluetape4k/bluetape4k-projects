@@ -44,10 +44,10 @@ flowchart LR
     L --> R["결과 T"]
     S --> N["null (건너뜀)"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class I1,I2,I3 utilStyle
@@ -69,10 +69,10 @@ flowchart LR
     GE -->|" 슬롯 획득 (3개 당선) "| L["리더들\n(동시 실행)"]
     GE -->|" 슬롯 없음 (2개 탈락) "| S["비리더\n(null 반환)"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class I1,I2,I3,I4,I5 utilStyle
@@ -131,14 +131,14 @@ classDiagram
     VirtualThreadLeaderElection <|.. LocalVirtualThreadLeaderElection
     SuspendLeaderElection <|.. LocalSuspendLeaderElection
 
-    style AsyncLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style VirtualThreadLeaderElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LocalLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalAsyncLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalVirtualThreadLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalSuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style AsyncLeaderElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LeaderElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style VirtualThreadLeaderElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendLeaderElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LocalLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalAsyncLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalVirtualThreadLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalSuspendLeaderElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### 클래스 다이어그램 — 복수 리더
@@ -197,15 +197,15 @@ classDiagram
     VirtualThreadLeaderGroupElection <|.. LocalVirtualThreadLeaderGroupElection
     SuspendLeaderGroupElection <|.. LocalSuspendLeaderGroupElection
 
-    style LeaderGroupElectionState fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AsyncLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style VirtualThreadLeaderGroupElection fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LocalLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalAsyncLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalVirtualThreadLeaderGroupElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalSuspendLeaderGroupElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LeaderGroupElectionState fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AsyncLeaderGroupElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LeaderGroupElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style VirtualThreadLeaderGroupElection fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendLeaderGroupElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LocalLeaderGroupElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalAsyncLeaderGroupElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalVirtualThreadLeaderGroupElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalSuspendLeaderGroupElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### 실행 시퀀스 — 단일 리더

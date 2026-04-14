@@ -60,15 +60,15 @@ classDiagram
     ExposedUpsertItemWriter ..|> ItemWriter
     ExposedRangePartitioner ..|> Partitioner
 
-    style ExposedKeysetItemReader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ExposedItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ExposedUpdateItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ExposedUpsertItemWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ExposedRangePartitioner fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style ExposedBatchAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style ItemStreamReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ItemWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Partitioner fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style ExposedKeysetItemReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ExposedItemWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ExposedUpdateItemWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ExposedUpsertItemWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ExposedRangePartitioner fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ExposedBatchAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style ItemStreamReader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ItemWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Partitioner fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ```mermaid
@@ -78,11 +78,9 @@ sequenceDiagram
         participant Partitioner as ExposedRangePartitioner
         participant Handler as TaskExecutorPartitionHandler
     end
-    box rgb(178,223,219) Batch Execution
         participant Worker as Worker Step (×N VirtualThread)
         participant Reader as ExposedKeysetItemReader
         participant Writer as ExposedItemWriter
-    end
 
     Manager->>Partitioner: partition(gridSize)
     Partitioner-->>Manager: Map<String, ExecutionContext> (minId/maxId per partition)

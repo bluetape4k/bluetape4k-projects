@@ -353,24 +353,24 @@ classDiagram
     AbstractBase64Source <|-- ApacheBase64Source
     AbstractBase64Source <|-- OkioBase64Source
 
-    style Sink fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Source fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ForwardingSink fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ForwardingSource fill:#37474F,stroke:#263238,color:#FFFFFF
-    style InputStreamSource fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OutputStreamSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CompressableSink fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style StreamingCompressSink fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style DecompressableSource fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style StreamingDecompressSource fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style TinkEncryptSink fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style TinkDecryptSource fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style AbstractBase64Sink fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style AbstractBase64Source fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style ApacheBase64Sink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ApacheBase64Source fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OkioBase64Sink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style OkioBase64Source fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Sink fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Source fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ForwardingSink fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ForwardingSource fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style InputStreamSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OutputStreamSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CompressableSink fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style StreamingCompressSink fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style DecompressableSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style StreamingDecompressSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style TinkEncryptSink fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style TinkDecryptSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style AbstractBase64Sink fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractBase64Source fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ApacheBase64Sink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ApacheBase64Source fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OkioBase64Sink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style OkioBase64Source fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### NIO Channel Adapter Hierarchy
@@ -414,12 +414,12 @@ classDiagram
     Source <|.. FileChannelSource
     Source <|.. ByteChannelSource
 
-    style Sink fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Source fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style FileChannelSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FileChannelSource fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ByteChannelSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ByteChannelSource fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style Sink fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Source fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style FileChannelSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FileChannelSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ByteChannelSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ByteChannelSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Coroutines Async I/O Hierarchy
@@ -516,17 +516,17 @@ classDiagram
     SuspendedPipe --> BufferedSuspendedSink
     SuspendedPipe --> BufferedSuspendedSource
 
-    style SuspendedSink fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendedSource fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style BufferedSuspendedSink fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style BufferedSuspendedSource fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RealBufferedSuspendedSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RealBufferedSuspendedSource fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedFileChannelSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedFileChannelSource fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedSocketChannelSink fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedSocketChannelSource fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedPipe fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style SuspendedSink fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendedSource fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style BufferedSuspendedSink fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style BufferedSuspendedSource fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RealBufferedSuspendedSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RealBufferedSuspendedSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedFileChannelSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedFileChannelSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedSocketChannelSink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedSocketChannelSource fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedPipe fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### Compression Factory (Compressable)
@@ -567,9 +567,9 @@ classDiagram
     Compressable *-- Sinks
     Compressable *-- Sources
 
-    style Compressable fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Sinks fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Sources fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Compressable fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Sinks fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Sources fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Sequence Diagrams
@@ -580,15 +580,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Caller
-    end
-    box rgb(227, 242, 253) Sink Pipeline
         participant CS as CompressableSink
         participant PB as plainBuffer
         participant Comp as Compressor
         participant D as delegate Sink
-    end
 
     C->>CS: write(data, byteCount)
     CS->>PB: write(data, byteCount)
@@ -613,14 +609,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Caller
-    end
-    box rgb(227, 242, 253) Sink Pipeline
         participant SS as StreamingCompressSink
         participant CS as compressingStream
         participant D as delegate Sink
-    end
 
     Note over SS: On init, creates compressor.compressing(delegate.outputStream())
 
@@ -645,15 +637,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Caller
-    end
-    box rgb(227, 242, 253) Source Pipeline
         participant DS as DecompressableSource
         participant DB as decodedBuffer
         participant Comp as Compressor
         participant D as delegate Source
-    end
 
     C->>DS: read(sink, byteCount)
     alt First read (decodedReady == false)
@@ -674,14 +662,10 @@ Compression followed by encryption using chained Sink decorators.
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Caller
-    end
-    box rgb(227, 242, 253) Sink Pipeline
         participant CS as CompressableSink
         participant ES as TinkEncryptSink
         participant D as delegate Sink
-    end
 
     Note over C: sink.asTinkEncryptSink(encryptor).asCompressSink(compressor)
 
@@ -703,17 +687,11 @@ Non-blocking file I/O using `AsynchronousFileChannel`.
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Coroutine
-    end
-    box rgb(237, 231, 246) Coroutines Layer
         participant BS as BufferedSuspendedSink
         participant RS as RealBufferedSuspendedSink
         participant FS as SuspendedFileChannelSink
-    end
-    box rgb(227, 242, 253) NIO
         participant CH as AsynchronousFileChannel
-    end
 
     C->>BS: write(buffer) [suspend]
     BS->>RS: write(buffer) [suspend]

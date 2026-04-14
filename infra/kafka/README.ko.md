@@ -401,13 +401,13 @@ classDiagram
     KafkaCodecs --> BinaryKafkaCodec
     KafkaCodecs --> StringKafkaCodec
 
-    style KafkaCodec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BinaryKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style StringKafkaCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KafkaCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style SuspendKafkaProducerTemplate fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendKafkaConsumerTemplate fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style KafkaCodec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BinaryKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style StringKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KafkaCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style SuspendKafkaProducerTemplate fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendKafkaConsumerTemplate fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
@@ -415,19 +415,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) 애플리케이션
     participant App as 애플리케이션
-    end
-    box rgb(225,190,231) 비동기 템플릿
     participant PT as SuspendKafkaProducerTemplate
     participant CT as SuspendKafkaConsumerTemplate
-    end
-    box rgb(207,216,220) Kafka
     participant Kafka as Kafka Broker
-    end
-    box rgb(255,224,178) 핸들러
     participant Handler as 메시지 핸들러
-    end
 
     App->>+PT: send(topic, key, value)
     Note over PT: Reactor Kafka SenderRecord 래핑
@@ -454,21 +446,21 @@ flowchart LR
     KT -->|toStream| OS[출력 KStream]
     OS -->|producedOf| OT[출력 토픽]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style IT fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    style OT fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style IT fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style OT fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     style KT fill:#F57F17,stroke:#E65100,color:#000000
-    style KS fill:#37474F,stroke:#263238,color:#FFFFFF
-    style KS2 fill:#37474F,stroke:#263238,color:#FFFFFF
-    style KG fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style OS fill:#37474F,stroke:#263238,color:#FFFFFF
+    style KS fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style KS2 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style KG fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style OS fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ## 패키지 구조

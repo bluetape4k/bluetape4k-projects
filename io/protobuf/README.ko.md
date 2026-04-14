@@ -61,13 +61,13 @@ classDiagram
 
     BinarySerializer <|.. ProtobufSerializer
 
-    style BinarySerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ProtobufSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TimestampSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DurationSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DateTimeSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MoneySupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MessageSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style BinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ProtobufSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TimestampSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DurationSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DateTimeSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MoneySupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MessageSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Protobuf 타입 변환 흐름
@@ -103,8 +103,8 @@ flowchart LR
     MSG -->|ProtobufSerializer.serialize| BA
     BA -->|ProtobufSerializer.deserialize| MSG
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class INS,DUR,LDT,JM,MSG coreStyle
@@ -116,13 +116,9 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant 앱 as 애플리케이션
-    end
-    box rgb(227, 242, 253) Protobuf
         participant S as ProtobufSerializer
         participant P as Protobuf 런타임
-    end
 
     Note over 앱,P: 직렬화
     앱->>S: serialize(protoMessage)

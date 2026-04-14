@@ -171,29 +171,23 @@ classDiagram
     AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
     AvroReflectSerializer <|.. DefaultAvroReflectSerializer
 
-    style AvroSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroGenericRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroSpecificRecordSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AvroReflectSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style DefaultAvroGenericRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultAvroSpecificRecordSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultAvroReflectSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style AvroSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroGenericRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroSpecificRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AvroReflectSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style DefaultAvroGenericRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultAvroSpecificRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultAvroReflectSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Avro Serialization/Deserialization Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant App as Application
-    end
-    box rgb(227, 242, 253) bluetape4k-avro
         participant S as AvroSerializer
         participant C as CodecFactory
-    end
-    box rgb(237, 231, 246) Avro Runtime
         participant A as Avro Runtime
-    end
 
     Note over App,A: Serialization flow
     App->>S: serialize(record)
@@ -228,9 +222,9 @@ flowchart TD
     ARCHIVE --> Output
     NULL --> Output
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class Start,Output coreStyle

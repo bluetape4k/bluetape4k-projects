@@ -132,11 +132,11 @@ class NearJCacheConfig~K_V~ {
     SuspendNearJCache --> LettuceSuspendJCache: backCache
     NearJCache --> NearJCacheConfig
 
-    style NearJCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendNearJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceJCache fill:#37474F,stroke:#263238,color:#FFFFFF
-    style LettuceSuspendJCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style CaffeineSuspendJCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style NearJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendNearJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceJCache fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style LettuceSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style CaffeineSuspendJCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 ```
 
@@ -274,13 +274,13 @@ classDiagram
     LettuceSuspendNearCache --> LettuceNearCacheConfig: config
     TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LettuceNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceLocalCache fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LettuceCaffeineLocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style TrackingInvalidationListener fill:#37474F,stroke:#263238,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceLocalCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LettuceCaffeineLocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style TrackingInvalidationListener fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style LettuceNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
 
 ```
@@ -289,18 +289,12 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Instance 1
     participant App1 as Application (인스턴스 1)
     participant NC1 as LettuceNearCache (인스턴스 1)
     participant Front1 as Caffeine (인스턴스 1)
-    end
-    box rgb(207,216,220) Remote
     participant Redis as Redis Server
-    end
-    box rgb(225,190,231) Instance 2
     participant NC2 as LettuceNearCache (인스턴스 2)
     participant Front2 as Caffeine (인스턴스 2)
-    end
     Note over NC1, Redis: 초기화 — RESP3 CLIENT TRACKING 등록
     NC1 ->> Redis: CLIENT TRACKING ON (RESP3)
     NC2 ->> Redis: CLIENT TRACKING ON (RESP3)

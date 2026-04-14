@@ -305,9 +305,9 @@ flowchart TD
     A --> I
     A --> J
 
-    classDef testStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    classDef coroutineStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef testStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef dbStyle fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    classDef coroutineStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class 테스트_클래스 testStyle
     class 지원_DB_R2DBC dbStyle
@@ -327,8 +327,8 @@ flowchart LR
         R3[suspend withTables] -->|Flow 스트리밍| R4[Flow 쿼리]
     end
 
-    style JDBC_Tests fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style R2DBC_Tests fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style JDBC_Tests fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style R2DBC_Tests fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 참고 사항

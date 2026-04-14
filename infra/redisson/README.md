@@ -362,13 +362,13 @@ classDiagram
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
 
-    style Codec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ForyCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Kryo5Codec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Lz4Codec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style ZstdCodec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style GzipCodec fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style RedissonCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Kryo5Codec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
 ```
 
@@ -376,16 +376,10 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Processes
     participant P1 as Process 1
     participant P2 as Process 2
-    end
-    box rgb(207,216,220) Redis
     participant Redis as Redis (RLock)
-    end
-    box rgb(255,224,178) Work
     participant Job as Batch Job
-    end
 
     P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
     P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
@@ -405,18 +399,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(178,223,219) Local Cache
     participant Local as Local Cache<br/>(RLocalCachedMap)
-    end
-    box rgb(207,216,220) Remote Store
     participant Redis as Redis<br/>(Remote Store)
-    end
-    box rgb(225,190,231) Other Nodes
     participant Other as Other Node
-    end
 
     App->>+Local: get("key")
     alt Local cache hit
@@ -450,23 +436,23 @@ flowchart TD
     TxOps -->|on success: commitAsync| Redis
     TxOps -->|on exception: rollbackAsync| Redis
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    style App2 fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    style Redis fill:#37474F,stroke:#263238,color:#FFFFFF
+    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style App2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Redis fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style Batch fill:#F57F17,stroke:#E65100,color:#000000
     style Tx fill:#F57F17,stroke:#E65100,color:#000000
-    style Op1 fill:#37474F,stroke:#263238,color:#FFFFFF
-    style Op2 fill:#37474F,stroke:#263238,color:#FFFFFF
-    style Op3 fill:#37474F,stroke:#263238,color:#FFFFFF
-    style TxOps fill:#37474F,stroke:#263238,color:#FFFFFF
+    style Op1 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style Op2 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style Op3 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ## Redis Version Requirements

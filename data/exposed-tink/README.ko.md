@@ -228,8 +228,8 @@ classDiagram
     }
     TableExtensions --> TinkEncryptedColumnType : creates
 
-    style TinkEncryptedColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style TinkEncryptedColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TableExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 클래스 다이어그램
@@ -267,12 +267,12 @@ classDiagram
     ColumnWithTransform <|-- TinkDaeadVarCharColumnType
     ColumnWithTransform <|-- TinkDaeadBinaryColumnType
 
-    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style TinkAeadVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkAeadBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TinkDaeadVarCharColumnType fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style TinkDaeadBinaryColumnType fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ColumnWithTransform fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ColumnTransformer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style TinkAeadVarCharColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkAeadBinaryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TinkDaeadVarCharColumnType fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style TinkDaeadBinaryColumnType fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 주요 파일/클래스 목록

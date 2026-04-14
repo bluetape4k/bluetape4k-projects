@@ -304,8 +304,8 @@ classDiagram
         +Publisher~T~.asFlow(): Flow~T~
     }
 
-    style R2dbcExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FlowExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style R2dbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FlowExtensions fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### Core API Structure
@@ -350,27 +350,21 @@ classDiagram
     R2dbcClient --> DatabaseClientExtensions : delegates
     R2dbcClient --> QueryBuilder : uses
 
-    style DatabaseClientExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BindSpecExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style QueryBuilder fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Query fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style R2dbcClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DatabaseClientExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BindSpecExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style QueryBuilder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Query fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style R2dbcClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### R2DBC Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App as Application
-    end
-    box rgb(232, 245, 233) R2DBC Layer
         participant R2DBC as DatabaseClient Extension
         participant Spring as Spring R2DBC
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
     R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
@@ -399,8 +393,8 @@ flowchart LR
         B4 -->|asFlow| B5["Flow&lt;T&gt; Async"]
     end
 
-    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef r2dbcStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef jdbcStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef r2dbcStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class JDBC jdbcStyle
     class R2DBC r2dbcStyle

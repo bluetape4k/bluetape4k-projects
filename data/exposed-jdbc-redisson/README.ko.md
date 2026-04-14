@@ -235,8 +235,8 @@ classDiagram
     }
     RedissonJdbcRepository --> RedissonNearCache : RLocalCachedMap
 
-    style RedissonJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style RedissonNearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style RedissonJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style RedissonNearCache fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ## 클래스 다이어그램
@@ -312,12 +312,12 @@ classDiagram
     EntityMapLoader~ID_E~ <|-- ExposedEntityMapLoader~ID_E~
     EntityMapWriter~ID_E~ <|-- ExposedEntityMapWriter~ID_E~
 
-    style JdbcRedissonRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractJdbcRedissonRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style EntityMapLoader fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style EntityMapWriter fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style ExposedEntityMapLoader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ExposedEntityMapWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JdbcRedissonRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractJdbcRedissonRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style EntityMapLoader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style EntityMapWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ExposedEntityMapLoader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ExposedEntityMapWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 
 ### 코루틴(Suspend) Repository 계층 구조
@@ -394,12 +394,12 @@ classDiagram
     SuspendedEntityMapLoader~ID_E~ <|-- SuspendedExposedEntityMapLoader~ID_E~
     SuspendedEntityMapWriter~ID_E~ <|-- SuspendedExposedEntityMapWriter~ID_E~
 
-    style SuspendedJdbcRedissonRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractSuspendedJdbcRedissonRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendedEntityMapLoader fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style SuspendedEntityMapWriter fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style SuspendedExposedEntityMapLoader fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SuspendedExposedEntityMapWriter fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style SuspendedJdbcRedissonRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractSuspendedJdbcRedissonRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendedEntityMapLoader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendedEntityMapWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendedExposedEntityMapLoader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SuspendedExposedEntityMapWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 
 ## 캐시 패턴
@@ -410,17 +410,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트
         participant Client as Client
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as JdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Loader as ExposedEntityMapLoader
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC)
-    end
 
     Client->>Repo: get(id) / exists(id)
     Repo->>RMap: RMap.get(id)
@@ -443,17 +437,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트
         participant Client as Client
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as JdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Writer as ExposedEntityMapWriter
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC)
-    end
 
     Client ->> Repo: put(entity)
     Repo ->> RMap: RMap.fastPut(id, entity)
@@ -478,17 +466,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트
         participant Client as Client
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as JdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Writer as ExposedEntityMapWriter
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC)
-    end
 
     Client->>Repo: put(entity)
     Repo->>RMap: RMap.fastPut(id, entity)
@@ -507,17 +489,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트 (Coroutine)
         participant Client as Client (Coroutine)
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as SuspendedJdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Loader as SuspendedExposedEntityMapLoader
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC/IO)
-    end
 
     Client->>Repo: suspend get(id)
     Repo->>RMap: cache.getAsync(id).await()
@@ -539,17 +515,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트 (Coroutine)
         participant Client as Client (Coroutine)
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as SuspendedJdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Writer as SuspendedExposedEntityMapWriter
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC/IO)
-    end
 
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()
@@ -573,17 +543,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) 클라이언트 (Coroutine)
         participant Client as Client (Coroutine)
-    end
-    box rgb(243, 229, 245) 리포지토리 / 캐시
         participant Repo as SuspendedJdbcRedissonRepository
         participant RMap as Redisson RMap
         participant Writer as SuspendedExposedEntityMapWriter
-    end
-    box rgb(255, 243, 224) 데이터베이스
         participant DB as Database (JDBC/IO)
-    end
 
     Client->>Repo: suspend put(entity)
     Repo->>RMap: cache.fastPutAsync(id, entity).await()

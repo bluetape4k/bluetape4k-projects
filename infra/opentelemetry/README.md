@@ -310,13 +310,13 @@ classDiagram
     SdkTracerProvider ..|> Tracer: implements
     SdkMeterProvider ..|> Meter: implements
 
-    style OpenTelemetry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Tracer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SpanBuilder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Span fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Meter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SdkTracerProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SdkMeterProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style OpenTelemetry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SpanBuilder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Span fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SdkTracerProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SdkMeterProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 ```
 
@@ -346,39 +346,33 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style App fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style TP fill:#F57F17,stroke:#E65100,color:#000000
-    style MP fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style OtelCol fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style SP fill:#37474F,stroke:#263238,color:#FFFFFF
-    style SE fill:#37474F,stroke:#263238,color:#FFFFFF
-    style MR fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ME fill:#37474F,stroke:#263238,color:#FFFFFF
+    style MP fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style OtelCol fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style SP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style SE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style MR fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ME fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ### Span Lifecycle in a Coroutine Context
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as Application
-    end
-    box rgb(197,202,233) Tracing
     participant Builder as SpanBuilder
     participant Span as Span
-    end
-    box rgb(225,190,231) Coroutines
     participant Context as CoroutineContext
     participant Child as Child Work
-    end
 
     App->>+Builder: tracer.spanBuilder("operation")
     App->>Builder: useSpanSuspending { ... }
@@ -407,19 +401,19 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>Distributed tracing backend]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style ServiceA fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    style ServiceA fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ServiceB fill:#F57F17,stroke:#E65100,color:#000000
-    style ServiceC fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style Backend fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style Collector fill:#37474F,stroke:#263238,color:#FFFFFF
+    style ServiceC fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Backend fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style Collector fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ## Testing Strategy

@@ -42,11 +42,11 @@ flowchart LR
     이미지처리 --> 조작
     조작 --> 출력
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class BA,IS,FILE dataStyle
@@ -95,14 +95,14 @@ classDiagram
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
 
-    style ImmutableImage fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ImageScaler fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style ImageSplitter fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style WatermarkFilter fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style SuspendJpegWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendPngWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendWebpWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style SuspendGif2WebpWriter fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ImmutableImage fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ImageScaler fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ImageSplitter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style WatermarkFilter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style SuspendJpegWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendPngWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendWebpWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style SuspendGif2WebpWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## 주요 기능

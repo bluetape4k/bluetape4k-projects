@@ -281,11 +281,11 @@ classDiagram
     note for Money "BigDecimal 기반<br/>무제한 정밀도<br/>금융 계산 권장"
     note for FastMoney "Long 기반<br/>소수점 5자리<br/>고성능 대량 연산"
 
-    style MonetaryAmount fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Money fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FastMoney fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style CurrencyUnit fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style CurrencyConvertor fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style MonetaryAmount fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Money fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FastMoney fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CurrencyUnit fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style CurrencyConvertor fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 통화 연산 흐름
@@ -308,9 +308,9 @@ flowchart LR
         L["listOf(100.inKRW(), 200.inKRW())"] -->|"sum(KRW)"| TOTAL["300 KRW"]
     end
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class A,B,C dataStyle

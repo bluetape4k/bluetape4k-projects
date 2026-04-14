@@ -29,11 +29,11 @@ flowchart TD
     RUNTIME -->|"JDK 21 환경<br/>priority 21 선택"| JDK21
     RUNTIME -->|"JDK 17 이하<br/>isSupported() = false"| FALLBACK
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
-    classDef apiStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef fallbackStyle fill:#616161,stroke:#424242,color:#FFFFFF
-    classDef runtimeStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F,font-weight:bold
+    classDef apiStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef implStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef fallbackStyle fill:#F5F5F5,stroke:#BDBDBD,color:#424242
+    classDef runtimeStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class APP appStyle
     class API apiStyle
@@ -95,11 +95,11 @@ classDiagram
     VirtualThreadFactory <|.. PlatformThreadFallback
     VirtualThreads ..> VirtualThreadFactory: ServiceLoader가 최고 우선순위 선택
 
-    style VirtualThreadFactory fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style VirtualThreads fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Jdk21VirtualThreadFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Jdk25VirtualThreadFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PlatformThreadFallback fill:#616161,stroke:#424242,color:#FFFFFF
+    style VirtualThreadFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Jdk21VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Jdk25VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PlatformThreadFallback fill:#F5F5F5,stroke:#BDBDBD,color:#424242
 ```
 
 ---
@@ -108,17 +108,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(207,216,220) 애플리케이션 계층
         participant App as 애플리케이션
-    end
-    box rgb(178,223,219) API 계층
         participant VT as VirtualThreads
         participant SL as ServiceLoader
-    end
-    box rgb(178,223,219) 구현체
         participant F21 as Jdk21VirtualThreadFactory
         participant F25 as Jdk25VirtualThreadFactory
-    end
     App ->> VT: VirtualThreads.executorService()
     VT ->> SL: ServiceLoader.load(VirtualThreadFactory)
     SL -->> VT: [Jdk21Factory(21), Jdk25Factory(25), Fallback(MIN)]

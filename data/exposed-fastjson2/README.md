@@ -141,9 +141,9 @@ classDiagram
     }
     Fastjson2ColumnType <|-- Fastjson2BColumnType
 
-    style Fastjson2ColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Fastjson2BColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Fastjson2ColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Fastjson2BColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TableExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### JSON Column Type Class Structure
@@ -184,11 +184,11 @@ classDiagram
     ResultRowExtensions --> FastjsonColumnType : uses
     ResultRowExtensions --> FastjsonBColumnType : uses
 
-    style ColumnType fill:#37474F,stroke:#263238,color:#FFFFFF
-    style FastjsonColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FastjsonBColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonFunctions fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style ResultRowExtensions fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style ColumnType fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style FastjsonColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FastjsonBColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonFunctions fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style ResultRowExtensions fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ### JSON Column Data Flow
@@ -205,9 +205,9 @@ flowchart LR
         G["fastjsonb~T~ → JSONB/BLOB"]
     end
 
-    classDef objectStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef processStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    classDef objectStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef processStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 
     class A objectStyle
     class E objectStyle

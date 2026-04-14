@@ -316,8 +316,8 @@ flowchart LR
 
     JK2 -->|same features, different package| JK3
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     class JK2 serviceStyle
     class JK3 serviceStyle
 ```
@@ -368,27 +368,23 @@ classDiagram
     Jackson --> JsonMaskerModule : registers
     Jackson --> JsonUuidModule : registers
 
-    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Jackson fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style JsonEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonTinkEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonMaskerModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonUuidModule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style JsonEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Jackson 3.x Module Registration Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant App as Application
-    end
-    box rgb(227, 242, 253) Jackson
         participant J as Jackson
         participant M as JsonMapper.Builder
         participant MOD as JacksonModules
-    end
 
     App->>J: Jackson.createDefaultJsonMapper()
     J->>M: jsonMapper { findAndAddModules() }

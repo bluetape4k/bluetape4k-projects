@@ -45,11 +45,11 @@ classDiagram
     HibernateSessionFactory --> LettuceNearCacheRegionFactory
     ProductRepository --> HibernateSessionFactory
 
-    style ProductController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ProductRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
+    style ProductController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ProductRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
     style Product fill:#F57F17,stroke:#E65100,color:#000000
-    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HibernateSessionFactory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HibernateSessionFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ## Architecture
@@ -97,12 +97,12 @@ flowchart TD
     RegionFactory --> L2
     Repo --> DB
 
-    classDef clientStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef controllerStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef repoStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef hibernateStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef cacheStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef clientStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef controllerStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef hibernateStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef cacheStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Client,Controller clientStyle
     class Repo repoStyle

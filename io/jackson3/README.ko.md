@@ -311,7 +311,7 @@ flowchart LR
 
     JK2 -->|동일 기능, 다른 패키지| JK3
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     class JK2 serviceStyle
     class JK3 serviceStyle
 ```
@@ -362,27 +362,23 @@ classDiagram
     Jackson --> JsonMaskerModule : 등록
     Jackson --> JsonUuidModule : 등록
 
-    style JsonSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Jackson fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style JsonEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonTinkEncryptModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonMaskerModule fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JsonUuidModule fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style JsonEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Jackson 3.x 모듈 등록 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant 앱 as 애플리케이션
-    end
-    box rgb(227, 242, 253) Jackson
         participant J as Jackson
         participant M as JsonMapper.Builder
         participant MOD as JacksonModule들
-    end
 
     앱->>J: Jackson.createDefaultJsonMapper()
     J->>M: jsonMapper { findAndAddModules() }

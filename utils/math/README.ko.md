@@ -57,11 +57,11 @@ flowchart TD
     MATH --> 랜덤
     MATH --> ML
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class MATH coreStyle
@@ -119,14 +119,14 @@ classDiagram
     Interpolator <|.. LinearInterpolator
     Interpolator <|.. SplineInterpolator
 
-    style Descriptives fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Interpolator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Integrator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style DoubleStatistics fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Histogram fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LinearInterpolator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SplineInterpolator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style WeightedDice fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style Descriptives fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Interpolator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Integrator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style DoubleStatistics fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Histogram fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LinearInterpolator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SplineInterpolator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style WeightedDice fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## 주요 기능

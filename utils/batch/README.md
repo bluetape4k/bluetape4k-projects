@@ -76,13 +76,13 @@ classDiagram
     BatchStepRunner --> BatchStep
     BatchStepRunner --> BatchJobRepository
 
-    style BatchJob fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
-    style BatchStep fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style BatchStepRunner fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style BatchJobRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style BatchReader fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style BatchWriter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SkipPolicy fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style BatchJob fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style BatchStep fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style BatchStepRunner fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BatchJobRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style BatchReader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style BatchWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SkipPolicy fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ```mermaid

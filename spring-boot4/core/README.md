@@ -207,11 +207,11 @@ classDiagram
     Retrofit2Config --> UserService : inject
     WebTestClientExt --> UserController : test
 
-    style UserController fill:#37474F,stroke:#263238,color:#FFFFFF
-    style UserService fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style RestClientDsl fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style WebTestClientExt fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style Retrofit2Config fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style RestClientDsl fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style WebTestClientExt fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Retrofit2Config fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Spring WebFlux + Coroutines Request Flow
@@ -229,11 +229,11 @@ flowchart LR
     WebFlux --> Netty
     Netty --> Client
 
-    classDef clientStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef serverStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef handlerStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef serviceStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef dataStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef clientStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef serverStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef handlerStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef serviceStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef dataStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Client clientStyle
     class Netty,WebFlux serverStyle
@@ -254,10 +254,10 @@ flowchart TD
     RestClient --> DSL
     DSL --> App
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef dslStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef httpStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef externalStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef httpStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App appStyle
     class DSL dslStyle
@@ -278,11 +278,11 @@ flowchart TD
     OkHttp --> ExternalAPI["External REST API"]
     HttpClient5 --> ExternalAPI
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef retrofitStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef adapterStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef retrofitStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef adapterStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef serdeStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef externalStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App appStyle
     class RetrofitBean,Retrofit2,OkHttp,HttpClient5 retrofitStyle

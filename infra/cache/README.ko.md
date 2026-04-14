@@ -107,29 +107,29 @@ flowchart TD
     E --> E1[LettuceNearCache<br/>RESP3 CLIENT TRACKING]
     E --> E2[LettuceSuspendNearCache]
 
-    classDef umbrellaStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef coreStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef implStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef suspendStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef interfaceStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef umbrellaStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef implStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef suspendStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef interfaceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
-    style A fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style B fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style C fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style D fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style E fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style B1 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style B2 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style B3 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style B4 fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style B5 fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style C1 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style C2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style D1 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style D2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style D3 fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style E1 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style E2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style A fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style B fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style C fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style D fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style E fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style B1 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style B2 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style B3 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style B4 fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style B5 fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style C1 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style C2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style D1 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style D2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style D3 fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style E1 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style E2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ## NearCache 통일 인터페이스 계층
@@ -198,15 +198,15 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. LettuceSuspendNearCache
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style HazelcastNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style HazelcastSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RedissonResp3NearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style LettuceNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style HazelcastNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HazelcastSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RedissonNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedissonSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RedissonResp3NearCache fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
@@ -221,13 +221,13 @@ flowchart LR
     App -->|put| RemoteCache
     RemoteCache -->|Invalidation 전파| LocalCache
 
-    classDef appStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef localStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef remoteStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef appStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef localStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef remoteStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
-    style App fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LocalCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style RemoteCache fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style RemoteCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ## CachingProvider 자동 로딩 주의

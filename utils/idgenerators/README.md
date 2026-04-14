@@ -42,13 +42,13 @@ flowchart LR
     H["Hashids\n(encode Long/UUID → short string)\nnot IdGenerator"]
     FL["Flake\n→ ByteArray 128-bit\n(MAC-based node ID)"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class IG coreStyle
     class SG,UG,ULG,KG serviceStyle
@@ -135,17 +135,17 @@ classDiagram
     SnowflakeGenerator --> Snowflake
     UuidGenerator --> Uuid
 
-    style IdGenerator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LongIdGenerator fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Snowflake fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SnowflakeGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UuidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style UlidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KsuidGenerator fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DefaultSnowflake fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style GlobalSnowflake fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style Snowflakers fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style Uuid fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style IdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LongIdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Snowflake fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SnowflakeGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style UlidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KsuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DefaultSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style GlobalSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Snowflakers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style Uuid fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Snowflake Bit Layout
@@ -264,10 +264,10 @@ classDiagram
     StatefulMonotonic --> ULID : produces
     Monotonic <|-- StatefulMonotonic
 
-    style ULID fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Factory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Monotonic fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style StatefulMonotonic fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style ULID fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Factory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Monotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StatefulMonotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ```kotlin
@@ -308,9 +308,9 @@ flowchart TD
     Q2 -->|Yes| Mono
     Q2 -->|No| State
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class Start coreStyle

@@ -105,12 +105,12 @@ flowchart TD
     ER --> ERL[exposed-r2dbc-lettuce\nR2DBC + Lettuce 캐시]
     ER --> ERR[exposed-r2dbc-redisson\nR2DBC + Redisson 캐시]
 
-    classDef umbrellaStyle fill:#37474F,stroke:#263238,color:#FFFFFF,font-weight:bold
-    classDef coreStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef daoStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef jdbcStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef extStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef cacheStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    classDef umbrellaStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F,font-weight:bold
+    classDef coreStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef daoStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef jdbcStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef extStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef cacheStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     class E umbrellaStyle
     class EC coreStyle
     class ED daoStyle
@@ -129,21 +129,13 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    box rgb(232,245,233) 애플리케이션 계층
         participant App as Kotlin 애플리케이션
-    end
-    box rgb(227,242,253) DSL 계층
         participant DSL as Exposed DSL
         participant Core as exposed-core
         participant DAO as exposed-dao
-    end
-    box rgb(243,229,245) 실행 계층
         participant JDBC as exposed-jdbc
         participant R2DBC as exposed-r2dbc
-    end
-    box rgb(255,243,224) 데이터베이스 계층
         participant DB as 데이터베이스
-    end
 
     App->>DSL: 쿼리 빌드 / 엔티티 정의
     DSL->>Core: 컬럼 타입, ID 생성

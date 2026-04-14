@@ -53,11 +53,11 @@ flowchart TD
     HC5 --> SERVER
     VTX --> SERVER
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
     class APP,API coreStyle
     class FB,CFB,PROXY serviceStyle
@@ -122,15 +122,15 @@ classDiagram
     Encoder <|.. FeignFastjsonEncoder
     Decoder <|.. FeignFastjsonDecoder
 
-    style CoroutineFeign fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style CoroutineBuilder fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style AsyncClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Encoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Decoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JacksonEncoder2 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JacksonDecoder2 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FeignFastjsonEncoder fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style FeignFastjsonDecoder fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style CoroutineFeign fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style CoroutineBuilder fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style AsyncClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Encoder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Decoder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JacksonEncoder2 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JacksonDecoder2 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FeignFastjsonEncoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style FeignFastjsonDecoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### HTTP 전송 계층 옵션
@@ -159,29 +159,23 @@ classDiagram
     FeignClient --> VertxHttpClient : Vert.x 동기
     FeignClient --> AsyncVertxHttpClient : Vert.x 비동기
 
-    style FeignClient fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ApacheHttp5Client fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style AsyncApacheHttp5Client fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style VertxHttpClient fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style AsyncVertxHttpClient fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style FeignClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ApacheHttp5Client fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style AsyncApacheHttp5Client fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style VertxHttpClient fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style AsyncVertxHttpClient fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Application
         participant App as 애플리케이션
-    end
-    box rgb(237, 231, 246) Feign Coroutines
         participant API as Feign 인터페이스(suspend fun)
         participant CB as CoroutineFeign.CoroutineBuilder
         participant AC as AsyncClient
         participant Codec as JacksonDecoder2
-    end
-    box rgb(227, 242, 253) Server
         participant Server as HTTP 서버
-    end
 
     App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
     CB-->>App: MyApi 프록시 반환

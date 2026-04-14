@@ -222,8 +222,8 @@ classDiagram
     }
     ExposedR2dbcRepository <|-- AbstractR2dbcRepository
 
-    style ExposedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractR2dbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
+    style ExposedR2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractR2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### R2dbcRepository 계층
@@ -274,12 +274,12 @@ classDiagram
     R2dbcRepository <|-- StringR2dbcRepository
     SoftDeletedR2dbcRepository <|-- LongSoftDeletedR2dbcRepository
 
-    style R2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SoftDeletedR2dbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style IntR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LongR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style StringR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LongSoftDeletedR2dbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style R2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SoftDeletedR2dbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style IntR2dbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LongR2dbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style StringR2dbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LongSoftDeletedR2dbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ### suspend 트랜잭션 흐름
@@ -288,18 +288,10 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant C as 호출자
-    end
-    box rgb(243, 229, 245) Coroutines
         participant T as suspendTransaction
-    end
-    box rgb(232, 245, 233) Repository
         participant R as R2dbcRepository
-    end
-    box rgb(255, 243, 224) Database
         participant DB as R2DBC Database
-    end
 
     C->>T: suspendTransaction { ... }
     activate T
@@ -327,18 +319,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant C as 호출자
-    end
-    box rgb(243, 229, 245) Coroutines
         participant T as suspendTransaction
-    end
-    box rgb(232, 245, 233) Repository
         participant R as SoftDeletedR2dbcRepository
-    end
-    box rgb(255, 243, 224) Database
         participant DB as R2DBC Database
-    end
 
     C->>T: suspendTransaction { ... }
     activate T

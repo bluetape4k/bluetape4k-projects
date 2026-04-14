@@ -44,13 +44,13 @@ classDiagram
     LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory
     LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory
 
-    style LettuceNearCacheHibernateAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceNearCacheMetricsAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceNearCacheActuatorAutoConfiguration fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style HibernatePropertiesCustomizer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style LettuceNearCacheRegionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceNearCacheMetricsBinder fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceNearCacheEndpoint fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style LettuceNearCacheHibernateAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceNearCacheMetricsAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceNearCacheActuatorAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style HibernatePropertiesCustomizer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceNearCacheMetricsBinder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceNearCacheEndpoint fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Auto-Configuration Activation Flow
@@ -72,11 +72,11 @@ flowchart TD
     RegionFactory --> L2
     L2 --> DB
 
-    classDef configStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef autoStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef customizerStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    classDef cacheStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef configStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef autoStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef customizerStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef cacheStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Props configStyle
     class AutoConfig autoStyle

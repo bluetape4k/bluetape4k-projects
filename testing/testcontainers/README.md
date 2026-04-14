@@ -10,19 +10,11 @@ A server wrapper and utility library for building integration tests quickly on t
 
 ```mermaid
 sequenceDiagram
-    box rgb(248,187,208) Test Layer
         participant TEST as Test Class
-    end
-    box rgb(178,223,219) Server Wrappers
         participant SERVER as GenericServer (wrapper)
-    end
-    box rgb(207,216,220) Infrastructure
         participant TC as Testcontainers
         participant DOCKER as Docker Container
-    end
-    box rgb(200,230,201) Spring Boot
         participant SPRING as Spring Boot
-    end
 
     TEST->>SERVER: start()
     SERVER->>TC: Request container start
@@ -88,14 +80,14 @@ classDiagram
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
-    style GenericServer fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style PostgreSQLServer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PostgisServer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style PgvectorServer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MySQL8Server fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedisServer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style KafkaServer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LocalStackServer fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style GenericServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style PostgreSQLServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PostgisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PgvectorServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MySQL8Server fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Supported Container Structure
@@ -170,15 +162,15 @@ flowchart TD
     GS --> HTTPMock
     GS --> AWS
 
-    classDef baseStyle fill:#1976D2,stroke:#1565C0,color:#FFFFFF,font-weight:bold
-    classDef dbStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef storageStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef graphStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef mqStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    classDef infraStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef sqlStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    classDef baseStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0,font-weight:bold
+    classDef dbStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef storageStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef graphStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef mqStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    classDef infraStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef sqlStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef mockStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef awsStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef awsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
     class GS baseStyle
     class MY5,MY8,MA,PG,PGS,PGV,CR,CH dbStyle
@@ -321,19 +313,11 @@ println("Organization: ${influxDB.organization}")
 ```mermaid
 sequenceDiagram
     autonumber
-    box rgb(248,187,208) Test Layer
         participant TEST as Test Code
-    end
-    box rgb(207,216,220) Infrastructure
         participant REDIS as RedisServer
         participant TOXI as ToxiproxyServer
-    end
-    box rgb(178,223,219) Proxy Control
         participant API as ToxiproxyClient
-    end
-    box rgb(187,222,251) Application
         participant LETTUCE as Lettuce Client
-    end
 
     TEST->>REDIS: start() withNetwork(network)
     TEST->>TOXI: start() withNetwork(network)

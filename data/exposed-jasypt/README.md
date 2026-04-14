@@ -99,8 +99,8 @@ classDiagram
     }
     TableExtensions --> JasyptEncryptedColumnType : creates
 
-    style JasyptEncryptedColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style TableExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JasyptEncryptedColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style TableExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Class Diagram
@@ -166,15 +166,15 @@ classDiagram
     ByteArrayJasyptEncryptionTransformer --> Encryptor
     JasyptBlobTransformer --> Encryptor
 
-    style ColumnWithTransform fill:#37474F,stroke:#263238,color:#FFFFFF
-    style ColumnTransformer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style JasyptVarCharColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JasyptBinaryColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style JasyptBlobColumnType fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style StringJasyptEncryptionTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style ByteArrayJasyptEncryptionTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style JasyptBlobTransformer fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style Encryptor fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style ColumnWithTransform fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style ColumnTransformer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style JasyptVarCharColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JasyptBinaryColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style JasyptBlobColumnType fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style StringJasyptEncryptionTransformer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style ByteArrayJasyptEncryptionTransformer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style JasyptBlobTransformer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Encryptor fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Encryption / Decryption Sequence Diagrams
@@ -183,17 +183,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App as Application
-    end
-    box rgb(232, 245, 233) Column / Encryption
         participant Col as JasyptVarCharColumnType
         participant Tx as StringJasyptEncryptionTransformer
         participant Enc as Encryptor (Jasypt)
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     App->>Col: insert { it[ssn] = "123-45-6789" }
     Col->>Tx: unwrap("123-45-6789")
@@ -208,17 +202,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App as Application
-    end
-    box rgb(232, 245, 233) Column / Encryption
         participant Col as JasyptVarCharColumnType
         participant Tx as StringJasyptEncryptionTransformer
         participant Enc as Encryptor (Jasypt)
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     Note over App,DB: Conditional search (possible because of deterministic encryption)
     App->>Col: where { ssn eq "123-45-6789" }

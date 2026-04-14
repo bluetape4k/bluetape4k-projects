@@ -156,10 +156,10 @@ classDiagram
     PostRepository --> Post
     R2dbcConfig --> PostRepository : inject
 
-    style PostRepository fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    style R2dbcEntityOperationsExt fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style PostRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    style R2dbcEntityOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style Post fill:#F57F17,stroke:#E65100,color:#000000
-    style R2dbcConfig fill:#37474F,stroke:#263238,color:#FFFFFF
+    style R2dbcConfig fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
 ### R2DBC + Coroutines Data Flow
@@ -174,11 +174,11 @@ flowchart TD
     Ext -- "Mono → suspend" --> App
     Ext -- "Flux → Flow" --> App
 
-    classDef appStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef extStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef driverStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class App appStyle
     class Ext,ROps extStyle
@@ -203,10 +203,10 @@ flowchart LR
     Count --> ROps
     ROps --> DB[("Database")]
 
-    classDef serviceStyle fill:#00ACC1,stroke:#00838F,color:#FFFFFF
-    classDef opStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef opsStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef dbStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    classDef serviceStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef opStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef opsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
     class Service serviceStyle
     class Select,Insert,Update,Delete,Count opStyle
@@ -218,16 +218,10 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application Layer
         participant App as Application
-    end
-    box rgb(225,190,231) Coroutine Extension Layer
         participant Ext as XyzSuspending Extension
         participant Ops as R2dbcEntityOperations
-    end
-    box rgb(224,224,224) Data Layer
         participant DB as Database
-    end
 
     App->>Ext: findOneByIdOrNullSuspending<Post>(id)
     Ext->>Ops: selectOne(query, Post::class) → Mono<Post>

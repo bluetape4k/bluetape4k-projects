@@ -427,23 +427,17 @@ classDiagram
     LongJdbcRepository <|-- AbstractJdbcRepository
     AbstractJdbcRepository <|-- AuditableJdbcRepository
 
-    style LongJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style AbstractJdbcRepository fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style AuditableJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style VirtualThreadJdbcTransaction fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LongJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AbstractJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AuditableJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style VirtualThreadJdbcTransaction fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Caller
-    end
-    box rgb(243, 229, 245) Virtual Thread
         participant VT as newVirtualThreadJdbcTransaction
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     Caller->>VT: { query/insert/update }
     VT->>DB: BEGIN (VirtualThread)
@@ -533,15 +527,15 @@ SoftDeletedJdbcRepository <|-- LongSoftDeletedJdbcRepository
 SoftDeletedJdbcRepository <|-- IntSoftDeletedJdbcRepository
 JdbcRepository ..> ExposedPage: returns
 
-    style JdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SoftDeletedJdbcRepository fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style IntJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LongJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style UUIDJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style StringJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LongSoftDeletedJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style IntSoftDeletedJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style ExposedPage fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style JdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SoftDeletedJdbcRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style IntJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LongJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style UUIDJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style StringJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LongSoftDeletedJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style IntSoftDeletedJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style ExposedPage fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ## Sequence Diagrams
@@ -550,16 +544,10 @@ JdbcRepository ..> ExposedPage: returns
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Client
-    end
-    box rgb(232, 245, 233) Repository
         participant Repository as MyRepository<br/>(JdbcRepository)
         participant Exposed as Exposed DSL
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
     Client ->> Repository: findById(id)
     Repository ->> Exposed: table.selectAll().where { id eq id }.single()
     Exposed ->> DB: SELECT * FROM table WHERE id = ?
@@ -573,16 +561,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Client
-    end
-    box rgb(232, 245, 233) Repository
         participant Repository as MyRepository<br/>(JdbcRepository)
         participant Exposed as Exposed DSL
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
     Client ->> Repository: save(entity)
     Repository ->> Exposed: table.insert { ... }
     Exposed ->> DB: INSERT INTO table VALUES (...)
@@ -605,16 +587,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant Client
-    end
-    box rgb(232, 245, 233) Repository
         participant Repository as MyRepository<br/>(SoftDeletedJdbcRepository)
         participant Exposed as Exposed DSL
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
     Client ->> Repository: softDeleteById(id)
     Repository ->> Exposed: table.update { isDeleted = true }
     Exposed ->> DB: UPDATE table SET is_deleted = true WHERE id = ?

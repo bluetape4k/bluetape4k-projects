@@ -121,23 +121,17 @@ classDiagram
     LettuceJdbcRepository --> LettuceNearCache : L1/L2 cache
     LettuceJdbcRepository --> ReadWriteThrough : pattern
 
-    style LettuceJdbcRepository fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style LettuceNearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style ReadWriteThrough fill:#F57F17,stroke:#E65100,color:#FFFFFF
+    style LettuceJdbcRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style LettuceNearCache fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style ReadWriteThrough fill:#FFFDE7,stroke:#FFF176,color:#F57F17
 ```
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App
-    end
-    box rgb(243, 229, 245) Repository / Cache
         participant Repo as LettuceJdbcRepository
         participant Cache as LettuceNearCache
-    end
-    box rgb(255, 243, 224) Database
         participant DB as PostgreSQL
-    end
 
     App->>Repo: findByIdOrNull(id)
     Repo->>Cache: get(id)

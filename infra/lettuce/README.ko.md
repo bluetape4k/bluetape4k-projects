@@ -379,14 +379,14 @@ classDiagram
     note for LettuceSuspendSemaphore "suspend 전용"
     note for LettuceSuspendLeaderElection "suspend 전용"
 
-    style LettuceAtomicLong fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendAtomicLong fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceLock fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendLock fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceSemaphore fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendSemaphore fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style LettuceLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceSuspendLeaderElection fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style LettuceAtomicLong fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendAtomicLong fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceLock fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendLock fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceSemaphore fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendSemaphore fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style LettuceLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceSuspendLeaderElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
@@ -394,19 +394,11 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Client Layer
     participant Client
-    end
-    box rgb(178,223,219) Cache Layer
     participant LettuceLoadedMap
-    end
-    box rgb(207,216,220) Storage Layer
     participant Redis
-    end
-    box rgb(255,224,178) Data Source
     participant MapLoader
     participant MapWriter
-    end
     Note over Client, MapWriter: Read-Through (캐시 미스)
     Client ->> LettuceLoadedMap: get(key)
     LettuceLoadedMap ->> Redis: GET prefix:key
@@ -480,12 +472,12 @@ classDiagram
     RedisCodec <|.. LettuceLongCodec
     LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
 
-    style RedisCodec fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ToByteBufEncoder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style LettuceBinaryCodec fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style LettuceBinaryCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceIntCodec fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceLongCodec fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RedisCodec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ToByteBufEncoder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style LettuceBinaryCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LettuceBinaryCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceIntCodec fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceLongCodec fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
 ```
 

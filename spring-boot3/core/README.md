@@ -107,12 +107,12 @@ classDiagram
     Retrofit2Client --> WebFluxHandler : inject
     WebTestClientExt --> DispatcherHandler : test
 
-    style DispatcherHandler fill:#37474F,stroke:#263238,color:#FFFFFF
-    style WebFluxHandler fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style UserService fill:#00838F,stroke:#006064,color:#FFFFFF
-    style UserRepository fill:#00838F,stroke:#006064,color:#FFFFFF
-    style Retrofit2Client fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style WebTestClientExt fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style DispatcherHandler fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style WebFluxHandler fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style UserRepository fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style Retrofit2Client fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style WebTestClientExt fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ### Spring WebFlux + Coroutines Request Flow
@@ -130,10 +130,10 @@ flowchart LR
     WebFlux --> Netty
     Netty --> Client
 
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class Client extStyle
@@ -157,10 +157,10 @@ flowchart TD
     OkHttp --> ExternalAPI["External REST API"]
     HttpClient5 --> ExternalAPI
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class App serviceStyle
     class RetrofitBean springStyle
@@ -181,10 +181,10 @@ flowchart LR
     Controller --> Service["Service Layer"]
     TC["Testcontainers<br/>DB / Redis etc."] -.->|"@DynamicPropertySource"| Test
 
-    classDef testStyle fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef testStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 
     class Test testStyle
     class TC testStyle

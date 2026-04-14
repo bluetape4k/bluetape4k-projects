@@ -491,8 +491,8 @@ classDiagram
         +HikariDataSource(block): DataSource
     }
 
-    style JdbcExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DataSourceExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style JdbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### Core API Structure
@@ -535,26 +535,20 @@ classDiagram
     DataSourceExtensions --> ConnectionExtensions : delegates
     ConnectionExtensions --> ResultSetExtensions : passes ResultSet
 
-    style DataSourceExtensions fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style ConnectionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ResultSetExtensions fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ConnectionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ResultSetExtensions fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### JDBC Query Execution Flow
 
 ```mermaid
 sequenceDiagram
-    box rgb(227, 242, 253) Application
         participant App as Application
-    end
-    box rgb(232, 245, 233) JDBC Layer
         participant DS as DataSource Extension
         participant Conn as Connection Extension
         participant PS as PreparedStatement
-    end
-    box rgb(255, 243, 224) Database
         participant DB as Database
-    end
 
     App->>DS: withConnect { conn -> ... }
     DS->>Conn: executeQuery(sql, params) { rs -> ... }

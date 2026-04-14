@@ -149,10 +149,10 @@ classDiagram
     RedisBinarySerializers --> RedisBinarySerializer : creates
     RedisBinarySerializers --> RedisCompressSerializer : creates
 
-    style RedisSerializer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style RedisBinarySerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedisCompressSerializer fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedisBinarySerializers fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style RedisSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style RedisBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedisCompressSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedisBinarySerializers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ### ReactiveRedisTemplate Serialization Flow
@@ -168,10 +168,10 @@ flowchart LR
     LZ4 --> Redis[("Redis")]
     KeySer --> Redis
 
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef springStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#263238,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
 
     class App serviceStyle

@@ -126,23 +126,23 @@ flowchart TD
     C --> C4[RedissonNearCache<br/>2-tier Near Cache]
     C --> C5[RedissonMemoizer<br/>Function result memoization]
 
-    classDef umbrellaStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef lettuceStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef redissonStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef umbrellaStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef lettuceStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef redissonStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
-    style A fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style B fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style C fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style B1 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style B2 fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style B3 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style B4 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style B5 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style C1 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style C2 fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style C3 fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style C4 fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style C5 fill:#E65100,stroke:#BF360C,color:#FFFFFF
+    style A fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style B fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style C fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style B1 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style B2 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style B3 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style B4 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style B5 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style C1 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style C2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style C3 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style C4 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style C5 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 ```
 
 ## Core Class Diagram
@@ -208,13 +208,13 @@ classDiagram
     RedissonClientSupport --> RedissonLeaderElection: creates
     RedissonClientSupport --> RedissonNearCache: creates
 
-    style LettuceClients fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceBinaryCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style RedissonClientSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style RedissonCodecs fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style LettuceLoadedMap fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style RedissonLeaderElection fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedissonNearCache fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style LettuceClients fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceBinaryCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style RedissonClientSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style LettuceLoadedMap fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style RedissonLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedissonNearCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
 ```
 

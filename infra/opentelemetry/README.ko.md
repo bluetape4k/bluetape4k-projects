@@ -309,13 +309,13 @@ classDiagram
     SdkTracerProvider ..|> Tracer: implements
     SdkMeterProvider ..|> Meter: implements
 
-    style OpenTelemetry fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Tracer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SpanBuilder fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Span fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Meter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SdkTracerProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SdkMeterProvider fill:#00897B,stroke:#00695C,color:#FFFFFF
+    style OpenTelemetry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SpanBuilder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Span fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SdkTracerProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SdkMeterProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
 ```
 
@@ -345,45 +345,39 @@ flowchart TD
     OTLP --> Zipkin[Zipkin]
     OTLP --> OtelCol[OpenTelemetry Collector]
 
-    classDef appStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef providerStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef processorStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef exporterStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef backendStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef appStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef providerStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef processorStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef exporterStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef backendStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style App fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Tracer fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Meter fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style Logger fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style TP fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MP fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SP fill:#37474F,stroke:#263238,color:#FFFFFF
-    style MR fill:#37474F,stroke:#263238,color:#FFFFFF
-    style SE fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style ME fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style OTLP fill:#37474F,stroke:#263238,color:#FFFFFF
-    style LogExp fill:#37474F,stroke:#263238,color:#FFFFFF
+    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Logger fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style TP fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MP fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style MR fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style SE fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style ME fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style OTLP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style LogExp fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style InMem fill:#F57F17,stroke:#E65100,color:#000000
-    style OtelCol fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style Jaeger fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
-    style Zipkin fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style OtelCol fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style Jaeger fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style Zipkin fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ### Span 생명주기 (Coroutines 환경)
 
 ```mermaid
 sequenceDiagram
-    box rgb(187,222,251) Application
     participant App as 애플리케이션
-    end
-    box rgb(178,223,219) Tracing
     participant Builder as SpanBuilder
     participant Span as Span
-    end
-    box rgb(225,190,231) Coroutine Context
     participant Context as CoroutineContext
     participant Child as 하위 작업
-    end
 
     App->>+Builder: tracer.spanBuilder("operation")
     App->>Builder: useSpanSuspending { ... }
@@ -412,15 +406,15 @@ flowchart LR
 
     Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
 
-    classDef serviceStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef collectorStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef backendStyle fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef collectorStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef backendStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 
-    style ServiceA fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style ServiceB fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ServiceC fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style Collector fill:#37474F,stroke:#263238,color:#FFFFFF
-    style Backend fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style ServiceA fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style ServiceB fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ServiceC fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Collector fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    style Backend fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ## 테스트 전략

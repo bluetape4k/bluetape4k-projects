@@ -197,9 +197,9 @@ classDiagram
     }
     AggregationDSL --> FlowExtensions : builds pipeline
 
-    style MongoClientExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style AggregationDSL fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style FlowExtensions fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
+    style MongoClientExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style AggregationDSL fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style FlowExtensions fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
 ```
 
 ### 모듈 API 구조
@@ -246,12 +246,12 @@ classDiagram
     AggregationSupport --> MongoCollectionExtensions : pipeline 전달
     DocumentExtensions --> MongoCollectionExtensions : BSON 생성
 
-    style MongoClientSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style MongoClientProvider fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style MongoDatabaseExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MongoCollectionExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style DocumentExtensions fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style AggregationSupport fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style MongoClientSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style MongoClientProvider fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style MongoDatabaseExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MongoCollectionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style DocumentExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style AggregationSupport fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### Aggregation Pipeline 데이터 흐름
@@ -277,10 +277,10 @@ flowchart LR
     A --> G
     A --> H
 
-    classDef dslStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    classDef bsonStyle fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    classDef flowStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef stageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
+    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef bsonStyle fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    classDef flowStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef stageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 
     class A dslStyle
     class B bsonStyle

@@ -56,11 +56,11 @@ flowchart TD
     Shapefile --> Exposed
     Geometry --> Exposed
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#00838F,stroke:#006064,color:#FFFFFF
+    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
 
     class Science coreStyle
     class GeoLocation,BoundingBox,DMS,UtmZone,Vector dataStyle
@@ -92,8 +92,8 @@ flowchart TD
     K --> L
     L --> M[WGS84 GeoLocation]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class A,M coreStyle
@@ -180,16 +180,16 @@ classDiagram
     ShapefileImportService --> SpatialFeatureRepository : delegates
     SpatialFeatureTable --> SpatialLayerTable : references
 
-    style SpatialLayerRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SpatialFeatureRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style NetCdfFileRecord fill:#F57F17,stroke:#E65100,color:#FFFFFF
-    style SpatialLayerTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style SpatialFeatureTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style NetCdfFileTable fill:#00838F,stroke:#006064,color:#FFFFFF
-    style SpatialLayerRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style SpatialFeatureRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style NetCdfFileRepository fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ShapefileImportService fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF
+    style SpatialLayerRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SpatialFeatureRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style NetCdfFileRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
+    style SpatialLayerTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style SpatialFeatureTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style NetCdfFileTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
+    style SpatialLayerRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style SpatialFeatureRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style NetCdfFileRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ShapefileImportService fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ---

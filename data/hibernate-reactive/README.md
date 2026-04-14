@@ -91,7 +91,7 @@ classDiagram
         +save(entity): E
     }
 
-    style ReactiveHibernateRepository fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    style ReactiveHibernateRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 ```
 
 ### Hibernate Reactive API Structure
@@ -124,10 +124,10 @@ flowchart TD
     H --> L
     K --> N
 
-    classDef jpaStyle fill:#37474F,stroke:#263238,color:#FFFFFF
-    classDef mutinyStyle fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    classDef stageStyle fill:#00897B,stroke:#00695C,color:#FFFFFF
-    classDef coroutineStyle fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
+    classDef jpaStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+    classDef mutinyStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef stageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef coroutineStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class A jpaStyle
     class Mutiny_API mutinyStyle
@@ -164,10 +164,10 @@ classDiagram
     MutinySessionFactory --> MutinySession : creates
     StageSessionFactory --> StageSession : creates
 
-    style MutinySessionFactory fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style StageSessionFactory fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style MutinySession fill:#1976D2,stroke:#1565C0,color:#FFFFFF
-    style StageSession fill:#2E7D32,stroke:#1B5E20,color:#FFFFFF
+    style MutinySessionFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StageSessionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style MutinySession fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style StageSession fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
 ## References

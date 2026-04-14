@@ -101,28 +101,22 @@ classDiagram
     SuspendNearCacheOperations <|.. RedissonSuspendNearCache
     SuspendNearCacheOperations <|.. RedissonResp3SuspendNearCache
 
-    style NearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style SuspendNearCacheOperations fill:#1565C0,stroke:#0D47A1,color:#FFFFFF
-    style RedissonNearCache fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style RedissonSuspendNearCache fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style RedissonResp3NearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
-    style RedissonResp3SuspendNearCache fill:#AD1457,stroke:#880E4F,color:#FFFFFF
+    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style RedissonNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style RedissonSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style RedissonResp3NearCache fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style RedissonResp3SuspendNearCache fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
 ```
 
 ### NearCache Flow (RLocalCachedMap)
 
 ```mermaid
 sequenceDiagram
-    box rgb(232,245,233) Application
     participant App as Application
-    end
-    box rgb(227,242,253) NearCache
     participant NC as RedissonNearCache
     participant L1 as Local Cache (Caffeine)
-    end
-    box rgb(243,229,245) Redis
     participant L2 as Redis Server
-    end
 
     App->>NC: get("key")
     NC->>L1: get("key")

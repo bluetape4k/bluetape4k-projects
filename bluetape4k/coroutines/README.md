@@ -34,11 +34,11 @@ flowchart TD
     Coroutines --> Scopes
     Coroutines --> Reactor
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class Coroutines coreStyle
@@ -135,16 +135,16 @@ classDiagram
     VirtualThreadCoroutineScope ..|> CoroutineScope
     FlowExtensions ..> AsyncFlow : includes
 
-    style DeferredValue fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style deferredValueOf fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DeferredSupport fill:#E65100,stroke:#BF360C,color:#FFFFFF
-    style DefaultCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style IoCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style ThreadPoolCoroutineScope fill:#00897B,stroke:#00695C,color:#FFFFFF
-    style VirtualThreadCoroutineScope fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style FlowExtensions fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style AsyncFlow fill:#6A1B9A,stroke:#4A148C,color:#FFFFFF
-    style ReactorContextHelpers fill:#37474F,stroke:#263238,color:#FFFFFF
+    style DeferredValue fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style deferredValueOf fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DeferredSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style DefaultCoroutineScope fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style IoCoroutineScope fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style ThreadPoolCoroutineScope fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style VirtualThreadCoroutineScope fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style FlowExtensions fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style AsyncFlow fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style ReactorContextHelpers fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 
 ```
 
@@ -154,15 +154,9 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Caller
         participant C as Caller
-    end
-    box rgb(225, 190, 231) DeferredValue
         participant DV as DeferredValue
-    end
-    box rgb(232, 245, 233) Background
         participant Co as Coroutine (background)
-    end
 
     C->>DV: deferredValueOf(block)
     DV->>Co: starts coroutine immediately (eager)
@@ -357,11 +351,11 @@ flowchart TD
     Accumulate --> groupBy["groupBy { }"]
     Async --> asyncFlow["Flow.async { }"]
 
-    classDef coreStyle fill:#1B5E20,stroke:#1B5E20,color:#FFFFFF,font-weight:bold
-    classDef serviceStyle fill:#1565C0,stroke:#1565C0,color:#FFFFFF
-    classDef utilStyle fill:#E65100,stroke:#E65100,color:#FFFFFF
-    classDef asyncStyle fill:#6A1B9A,stroke:#6A1B9A,color:#FFFFFF
-    classDef extStyle fill:#37474F,stroke:#37474F,color:#FFFFFF
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
 
     class FlowExt coreStyle
@@ -383,15 +377,9 @@ Groups input elements into `List`s of size `n`. Emits the final partial chunk as
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operator
         participant C as chunked(3)
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> C: emit(1)
     S ->> C: emit(2)
     S ->> C: emit(3)
@@ -410,15 +398,9 @@ Emits windows of size `size`, advancing by `step` each time.
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operator
         participant W as windowed(size=3, step=2)
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> W: emit(1)
     S ->> W: emit(2)
     S ->> W: emit(3)
@@ -441,13 +423,9 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operators
         participant SL as sliding(2)
         participant BS as bufferedSliding(2)
-    end
     S ->> SL: emit(1)
     S ->> SL: emit(2)
     SL -->> SL: window=[1,2] full
@@ -472,15 +450,9 @@ Runs the transform function on up to `parallelism` elements concurrently. Result
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(225, 190, 231) Parallel Operator
         participant MP as mapParallel(parallelism=3)
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> MP: emit(1)
     S ->> MP: emit(2)
     S ->> MP: emit(3)
@@ -506,15 +478,9 @@ Starts inner Flows eagerly and concurrently, but **emits results in source order
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(225, 190, 231) Operator
         participant CM as concatMapEager
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> CM: emit(1) → transform → flowOf(1, 10)
     S ->> CM: emit(2) → transform → flowOf(2, 20)
     Note over CM: start collecting 2 inner Flows concurrently
@@ -538,15 +504,9 @@ Buffers values arriving within `timeout` and emits them together as a `List`. Re
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operator
         participant BD as bufferingDebounce(200ms)
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> BD: emit(A) [t=0ms]
     S ->> BD: emit(B) [t=50ms]
     S ->> BD: emit(C) [t=80ms]
@@ -566,13 +526,9 @@ Within a fixed window, emits the first element (leading), last element (trailing
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Source (emits every 200ms)
-    end
-    box rgb(255, 236, 179) Time-Based Operators
         participant TL as throttleLeading(500ms)
         participant TT as throttleTrailing(500ms)
-    end
     Note over S, TT: input: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
     S ->> TL: emit(1) [0ms] — window starts
     Note over TL: 2, 3 ignored
@@ -595,17 +551,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Sources
         participant S as Flow Source
         participant N as Notifier Flow
-    end
-    box rgb(207, 226, 255) Gate Operators
         participant TU as takeUntil
         participant SU as skipUntil
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     Note over S, R: takeUntil: emit only until the first notifier event
     S ->> TU: emit(1)
     TU ->> R: emit(1)
@@ -635,16 +585,10 @@ Collects multiple Flows concurrently and emits values in arrival order.
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Sources
         participant F1 as Flow A
         participant F2 as Flow B
-    end
-    box rgb(207, 226, 255) Operator
         participant M as merge()
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
 
     par concurrent collection
         F1 ->> M: emit(1)
@@ -668,15 +612,9 @@ Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operator
         participant P as pairwise()
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> P: emit(1)
     Note over P: buffer=[1], pair incomplete
     S ->> P: emit(2)
@@ -695,15 +633,9 @@ Calls `initialSupplier` at collect time to produce the seed, then emits each acc
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(207, 226, 255) Operator
         participant SW as scanWith({ 0 }) { acc, v -> acc + v }
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     Note over SW: collect starts → initialSupplier() called → acc=0
     SW ->> R: emit(0)
     S ->> SW: emit(1)
@@ -723,15 +655,9 @@ Starts each element as a `Deferred` asynchronously, but **emits results in input
 
 ```mermaid
 sequenceDiagram
-    box rgb(232, 245, 233) Source
         participant S as Flow Source
-    end
-    box rgb(225, 190, 231) Async Operator
         participant AF as Flow.async { }
-    end
-    box rgb(232, 245, 233) Sink
         participant R as Collector
-    end
     S ->> AF: emit(1) → LazyDeferred started
     S ->> AF: emit(2) → LazyDeferred started
     S ->> AF: emit(3) → LazyDeferred started
