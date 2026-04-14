@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import feign.Headers
 import feign.Param
 import feign.RequestLine
-import feign.codec.Decoder
+import feign.codec.DefaultDecoder
 import feign.kotlin.CoroutineFeign
 import io.bluetape4k.feign.codec.FeignFastjsonDecoder
 import io.bluetape4k.feign.codec.FeignFastjsonEncoder
@@ -59,7 +59,7 @@ abstract class AbstractCoroutineClientTest {
         server.enqueueBodyWithDelay(expected, delay, "Content-Type: text/plain; charset=utf-8")
 
         val client = newCoroutineBuilder()
-            .decoder(Decoder.Default()) // 기본 수형을 받기 위해 (JSON 이 아닌 일반 문자열)
+            .decoder(DefaultDecoder()) // 기본 수형을 받기 위해 (JSON 이 아닌 일반 문자열)
             .client<TestInterfaceAsync>(server.baseUrl)
 
         val result = client.findOrderThatReturningBasicType(1)

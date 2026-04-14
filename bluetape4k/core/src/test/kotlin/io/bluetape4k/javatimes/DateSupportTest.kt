@@ -58,7 +58,7 @@ class DateSupportTest {
         val period = Period.ofDays(2)
 
         val result = date + period
-        result.time shouldBeEqualTo 2 * MILLIS_IN_DAY
+        result.time shouldBeEqualTo 2 * MillisPerDay
     }
 
     @Test
@@ -96,11 +96,11 @@ class DateSupportTest {
 
     @Test
     fun `Date minus Period 연산`() {
-        val date = dateOf(5 * MILLIS_IN_DAY)
+        val date = dateOf(5 * MillisPerDay)
         val period = Period.ofDays(2)
 
         val result = date - period
-        result.time shouldBeEqualTo 3 * MILLIS_IN_DAY
+        result.time shouldBeEqualTo 3 * MillisPerDay
     }
 
     @Test
@@ -135,7 +135,7 @@ class DateSupportTest {
         val period = Period.ofDays(2)
 
         val result = ts + period
-        result.time shouldBeEqualTo 2 * MILLIS_IN_DAY
+        result.time shouldBeEqualTo 2 * MillisPerDay
     }
 
     @Test
@@ -173,11 +173,11 @@ class DateSupportTest {
 
     @Test
     fun `Timestamp minus Period 연산`() {
-        val ts = Timestamp(5 * MILLIS_IN_DAY)
+        val ts = Timestamp(5 * MillisPerDay)
         val period = Period.ofDays(2)
 
         val result = ts - period
-        result.time shouldBeEqualTo 3 * MILLIS_IN_DAY
+        result.time shouldBeEqualTo 3 * MillisPerDay
     }
 
     @Test

@@ -4,6 +4,8 @@ import feign.Feign
 import feign.Request
 import feign.Target
 import feign.codec.Decoder
+import feign.codec.DefaultDecoder
+import feign.codec.DefaultEncoder
 import feign.codec.Encoder
 
 /**
@@ -22,8 +24,8 @@ inline fun feignBuilder(
     builder: Feign.Builder.() -> Unit,
 ): Feign.Builder {
     return Feign.Builder()
-        .encoder(Encoder.Default())
-        .decoder(Decoder.Default())
+        .encoder(DefaultEncoder())
+        .decoder(DefaultDecoder())
         .apply(builder)
 }
 
@@ -41,8 +43,8 @@ inline fun feignBuilder(
  */
 inline fun feignBuilderOf(
     client: feign.Client,
-    encoder: Encoder = Encoder.Default(),
-    decoder: Decoder = Decoder.Default(),
+    encoder: Encoder = DefaultEncoder(),
+    decoder: Decoder = DefaultDecoder(),
     options: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
     builder: Feign.Builder.() -> Unit = {},

@@ -33,16 +33,16 @@ class QueueSupportTest {
 
     @Test
     fun `linkedBlocking queues initialize`() {
-        val deque = linkedBlokcingDequeOf<String>(2)
+        val deque = linkedBlockingDequeOf<String>(2)
         deque.remainingCapacity() shouldBeEqualTo 2
 
-        val deque2 = linkedBlokcingDequeOf(listOf("a", "b"))
+        val deque2 = linkedBlockingDequeOf(listOf("a", "b"))
         deque2.size shouldBeEqualTo 2
 
-        val queue = linkedBlokcingQueueOf<Int>(3)
+        val queue = linkedBlockingQueueOf<String>(3)
         queue.remainingCapacity() shouldBeEqualTo 3
 
-        val queue2 = linkedBlokcingQueueOf(listOf(1, 2))
+        val queue2 = linkedBlockingQueueOf(listOf(1, 2))
         queue2.size shouldBeEqualTo 2
     }
 

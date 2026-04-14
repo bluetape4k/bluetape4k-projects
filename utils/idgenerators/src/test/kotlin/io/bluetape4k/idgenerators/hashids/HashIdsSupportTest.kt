@@ -2,7 +2,7 @@ package io.bluetape4k.idgenerators.hashids
 
 import io.bluetape4k.collections.asParallelStream
 import io.bluetape4k.idgenerators.snowflake.GlobalSnowflake
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -32,7 +32,7 @@ class HashIdsSupportTest {
     @Nested
     inner class UuidTest {
 
-        private val uuidGenerator = TimebasedUuid.Reordered
+        private val uuidGenerator = Uuid.V7
 
         @Test
         fun `encode random UUID`() {

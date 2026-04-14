@@ -1,8 +1,8 @@
 package io.bluetape4k.feign
 
+import feign.DefaultRetryer
 import feign.Param
 import feign.RequestLine
-import feign.Retryer
 import feign.hc5.ApacheHttp5Client
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import okhttp3.mockwebserver.MockResponse
@@ -28,7 +28,7 @@ class RetryerRegressionTest {
         server = MockWebServer().apply { start() }
         api = feignBuilder {
             client(ApacheHttp5Client())
-            retryer(Retryer.Default(0, 0, 2))
+            retryer(DefaultRetryer(0, 0, 2))
         }.client(server.baseUrl)
     }
 

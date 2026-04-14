@@ -27,7 +27,7 @@ import java.lang.reflect.Type
 class FeignFastjsonDecoder: feign.codec.Decoder {
 
     companion object: KLogging() {
-        private val fallbackDecoder by lazy { feign.codec.Decoder.Default() }
+        private val fallbackDecoder by lazy { feign.codec.DefaultDecoder() }
 
         val INSTANCE: FeignFastjsonDecoder by lazy { FeignFastjsonDecoder() }
     }

@@ -1,9 +1,12 @@
 package io.bluetape4k.feign.coroutines
 
 import feign.AsyncClient
+import feign.DefaultAsyncClient
 import feign.Request
 import feign.Target
 import feign.codec.Decoder
+import feign.codec.DefaultDecoder
+import feign.codec.DefaultEncoder
 import feign.codec.Encoder
 import feign.hc5.ApacheHttp5Client
 import feign.kotlin.CoroutineFeign
@@ -43,9 +46,9 @@ inline fun <C: Any> coroutineFeignBuilder(
  * ```
  */
 inline fun <C: Any> coroutineFeignBuilderOf(
-    asyncClient: AsyncClient<C> = AsyncClient.Default(ApacheHttp5Client(), VirtualThreadExecutor),
-    encoder: Encoder = Encoder.Default(),
-    decoder: Decoder = Decoder.Default(),
+    asyncClient: AsyncClient<C> = DefaultAsyncClient(ApacheHttp5Client(), VirtualThreadExecutor),
+    encoder: Encoder = DefaultEncoder(),
+    decoder: Decoder = DefaultDecoder(),
     options: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
     builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},

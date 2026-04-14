@@ -96,7 +96,7 @@ object Systemx {
     val javaImplementationVendor: String? by lazy { runtimePackage.implementationVendor }
 
     /** JVM 구현 벤더 URL */
-    val javaClassVersion: String? by lazy { systemProperty(JAVA_CLASS_VERION) }
+    val javaClassVersion: String? by lazy { systemProperty(JAVA_CLASS_VERSION) }
 
     /** JVM 라이브러리 경로 */
     val javaLibraryPath: String? by lazy { systemProperty("java.library.path") }

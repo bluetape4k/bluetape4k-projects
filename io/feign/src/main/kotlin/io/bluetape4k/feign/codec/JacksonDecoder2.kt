@@ -7,6 +7,7 @@ import feign.Response
 import feign.Util
 import feign.codec.DecodeException
 import feign.codec.Decoder
+import feign.codec.DefaultDecoder
 import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.isJsonBody
 import io.bluetape4k.jackson.Jackson
@@ -38,7 +39,7 @@ class JacksonDecoder2 private constructor(
 ): Decoder {
 
     companion object: KLogging() {
-        private val fallbackDecoder by lazy { Decoder.Default() }
+        private val fallbackDecoder by lazy { DefaultDecoder() }
 
         val INSTANCE: JacksonDecoder2 by lazy { invoke() }
 

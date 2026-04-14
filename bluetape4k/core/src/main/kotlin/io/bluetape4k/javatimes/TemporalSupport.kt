@@ -246,15 +246,15 @@ fun <T: TemporalAccessor> T.toInstant(): Instant =
  */
 fun <T: Temporal> T.toEpochMillis(zoneId: ZoneId = ZoneOffset.UTC): Long = when (this) {
     is Instant        -> toEpochMilli()
-    is LocalDate     -> atStartOfDay(zoneId).toInstant().toEpochMilli()
-    is LocalDateTime -> atZone(zoneId).toInstant().toEpochMilli()
+    is LocalDate      -> atStartOfDay(zoneId).toInstant().toEpochMilli()
+    is LocalDateTime  -> atZone(zoneId).toInstant().toEpochMilli()
     is OffsetDateTime -> toInstant().toEpochMilli()
     is ZonedDateTime  -> toInstant().toEpochMilli()
     else              ->
         if (isSupported(ChronoField.EPOCH_DAY) && isSupported(ChronoField.MILLI_OF_DAY)) {
             val days = getLong(ChronoField.EPOCH_DAY)
             val millis = getLong(ChronoField.MILLI_OF_DAY)
-            days * MILLIS_IN_DAY + millis
+            days * MillisPerDay + millis
         } else {
             error("Not supported class [${this.javaClass}]")
         }
@@ -273,7 +273,7 @@ fun <T: Temporal> T.toEpochMillis(zoneId: ZoneId = ZoneOffset.UTC): Long = when 
  */
 fun <T: Temporal> T.toEpochDay(): Long {
     return when (this) {
-        is Instant        -> toEpochMilli() / MILLIS_IN_DAY
+        is Instant -> toEpochMilli() / MillisPerDay
         is LocalDate      -> toEpochDay()
         is LocalDateTime  -> toLocalDate().toEpochDay()
         is OffsetDateTime -> toLocalDate().toEpochDay()
