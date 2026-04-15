@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-r2dbc"))
     testImplementation(project(":bluetape4k-junit5"))
 

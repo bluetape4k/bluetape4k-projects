@@ -8,6 +8,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     // Redisson
     testImplementation(project(":bluetape4k-redisson"))
     testImplementation(Libs.redisson)

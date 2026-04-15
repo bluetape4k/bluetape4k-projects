@@ -8,6 +8,8 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(Libs.spring_cloud_dependencies))
     // Spring Boot Starters
     api(Libs.springBootStarter("webflux"))
     compileOnly(Libs.springBootStarter("web"))

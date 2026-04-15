@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     // Core
     api(Libs.kotlin_reflect)
     api(project(":bluetape4k-exposed-jdbc"))

@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     // 핵심: Hibernate 2nd Level Cache Lettuce 구현체
     api(project(":bluetape4k-hibernate-cache-lettuce"))
 

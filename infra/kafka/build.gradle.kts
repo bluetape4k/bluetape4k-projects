@@ -8,6 +8,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-resilience4j"))

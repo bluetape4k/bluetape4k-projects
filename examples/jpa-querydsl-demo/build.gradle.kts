@@ -34,6 +34,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 

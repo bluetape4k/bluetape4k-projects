@@ -27,6 +27,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-hibernate"))
     api(project(":bluetape4k-mutiny"))
     api(project(":bluetape4k-vertx"))

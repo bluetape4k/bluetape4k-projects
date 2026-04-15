@@ -12,7 +12,7 @@ import io.bluetape4k.retrofit2.retrofit
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.suspendExecute
 import io.bluetape4k.support.classIsPresent
-import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -140,10 +140,10 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
 
 object TestService {
 
-    val httpServer by lazy { HttpbinHttp2Server.Launcher.httpbinHttp2 }
+    val httpServer by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
     const val TEST_COUNT = 30
-    val httpbinBaseUrl by lazy { httpServer.url }
+    val httpbinBaseUrl by lazy { httpServer.httpbinUrl }
 
     interface HttpbinApi {
         @GET("/anything/posts")

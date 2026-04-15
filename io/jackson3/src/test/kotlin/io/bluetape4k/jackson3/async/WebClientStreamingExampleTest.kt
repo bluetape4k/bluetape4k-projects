@@ -3,7 +3,7 @@ package io.bluetape4k.jackson3.async
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import kotlinx.coroutines.reactive.asFlow
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -15,10 +15,10 @@ import org.springframework.web.reactive.function.client.WebClient
 class WebClientStreamingExampleTest {
 
     private val mapper = Jackson.defaultJsonMapper
-    private val httpbinServer by lazy { HttpbinHttp2Server.Launcher.httpbinHttp2 }
+    private val httpbinServer by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
     private val client: WebClient by lazy {
         WebClient.builder()
-            .baseUrl(httpbinServer.url)
+            .baseUrl(httpbinServer.httpbinUrl)
             .build()
     }
 

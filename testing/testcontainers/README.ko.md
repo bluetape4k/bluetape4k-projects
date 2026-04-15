@@ -69,6 +69,12 @@ classDiagram
         +endpointOverride: URI
         +getCredentialsProvider() AwsCredentialsProvider
     }
+    class BluetapeHttpServer {
+        +url: String
+        +httpbinUrl: String
+        +jsonplaceholderUrl: String
+        +webUrl: String
+    }
 
     GenericServer <|-- PostgreSQLServer
     GenericServer <|-- PostgisServer
@@ -77,6 +83,7 @@ classDiagram
     GenericServer <|-- RedisServer
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
+    GenericServer <|-- BluetapeHttpServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
@@ -88,6 +95,7 @@ classDiagram
     style RedisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BluetapeHttpServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
 ```
 
 ### 지원 컨테이너 구조
@@ -147,6 +155,7 @@ flowchart TD
 
     subgraph HTTPMock
         WM["WireMockServer"]
+        BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
     end
 
     subgraph AWS
@@ -179,7 +188,7 @@ flowchart TD
     class KF,RB,PL,NT,RP mqStyle
     class CN,VT,PR,ZK,TX,KC infraStyle
     class TR sqlStyle
-    class WM mockStyle
+    class WM,BHS mockStyle
     class LS awsStyle
 ```
 
@@ -294,6 +303,55 @@ wireMock.stubFor(
 
 // 검증
 verify(getRequestedFor(urlEqualTo("/hello")))
+```
+
+### BluetapeHttpServer (httpbin + jsonplaceholder + web)
+
+`BluetapeHttpServer`는 `bluetape4k/mock-server` Docker 이미지를 실행합니다.
+httpbin, jsonplaceholder, web 컨텐츠 엔드포인트를 하나의 컨테이너에서 제공합니다.
+
+```kotlin
+// 싱글턴 — 모든 테스트에서 공유
+val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
+
+// 미리 구성된 URL 헬퍼
+val baseUrl             = server.url                // http://host:<port>
+val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl              = server.webUrl             // http://host:<port>/web
+```
+
+#### 자동 등록 시스템 프로퍼티
+
+`start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
+
+| 프로퍼티 키 | 예시 값 |
+|------------|--------|
+| `testcontainers.bluetape-http.host` | `localhost` |
+| `testcontainers.bluetape-http.port` | `8888` |
+| `testcontainers.bluetape-http.url` | `http://localhost:8888` |
+| `testcontainers.bluetape-http.httpbinUrl` | `http://localhost:8888/httpbin` |
+| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:8888/jsonplaceholder` |
+| `testcontainers.bluetape-http.webUrl` | `http://localhost:8888/web` |
+
+#### Spring Boot `application-test.yml`
+
+```yaml
+mock:
+  server:
+    url: ${testcontainers.bluetape-http.url}
+    httpbin-url: ${testcontainers.bluetape-http.httpbinUrl}
+    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholderUrl}
+```
+
+#### 수동 인스턴스 (싱글턴 미사용)
+
+```kotlin
+// 동적 포트 (기본값)
+val server = BluetapeHttpServer().apply { start() }
+
+// 포트 8888 고정 바인딩
+val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 ```
 
 ### 인증 서버

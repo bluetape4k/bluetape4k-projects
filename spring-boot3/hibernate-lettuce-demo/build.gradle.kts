@@ -9,6 +9,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     implementation(project(":bluetape4k-spring-boot3-hibernate-lettuce"))
     implementation(Libs.springBootStarter("web"))
     implementation(Libs.springBootStarter("data-jpa"))
