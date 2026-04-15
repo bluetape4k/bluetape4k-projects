@@ -17,8 +17,9 @@ abstract class AbstractDynamicUrlCoroutineTest: AbstractRetrofitTest() {
 
     protected abstract val callFactory: okhttp3.Call.Factory
 
-    private val httpbinUrlGet: String get() = "$testBaseUrl/get"
-    private val httpbinUrlPost: String get() = "$testBaseUrl/post"
+    // 동적 URL은 완전한 URL을 직접 사용하므로 trailing slash 없는 httpbinBaseUrl 사용
+    private val httpbinUrlGet: String get() = "$httpbinBaseUrl/get"
+    private val httpbinUrlPost: String get() = "$httpbinBaseUrl/post"
 
     private val api: DynamicUrlService.DynamicUrlCoroutineApi by lazy {
         // 동적 Url 사용 시에는 baseUrl 값을 overriding 합니다. (baseUrl은 사용되지 않습니다.)

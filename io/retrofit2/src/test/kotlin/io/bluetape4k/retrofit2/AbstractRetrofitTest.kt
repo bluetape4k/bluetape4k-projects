@@ -13,6 +13,7 @@ abstract class AbstractRetrofitTest {
         protected val httpbinBaseUrl: String by lazy { httpbinServer.httpbinUrl }
     }
 
+    // Retrofit2는 baseUrl이 반드시 '/'로 끝나야 한다.
     protected val testBaseUrl: String
-        get() = httpbinBaseUrl
+        get() = httpbinBaseUrl.trimEnd('/') + "/"
 }

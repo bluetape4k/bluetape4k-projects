@@ -19,107 +19,107 @@ object Httpbin: KLogging() {
     const val BASE_URL = "https://nghttp2.org/httpbin"
 
     interface HttpbinApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun posts(): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         fun getPost(@Path("id") postId: Int): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun getUserPosts(@Query("userId") userId: Int): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/post/{id}/comments")
+        @GET("anything/post/{id}/comments")
         fun getPostComments(@Path("id") postId: Int): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/comments")
+        @GET("anything/comments")
         fun getComments(@Query("postId") postId: Int): Call<HttpbinAnythingResponse>
 
-        @POST("/anything/posts")
+        @POST("anything/posts")
         fun newPost(@Body post: Post): Call<HttpbinAnythingResponse>
 
-        @PUT("/anything/posts/{id}")
+        @PUT("anything/posts/{id}")
         fun updatePost(@Path("id") postId: Int, @Body post: Post): Call<HttpbinAnythingResponse>
 
-        @DELETE("/anything/posts/{id}")
+        @DELETE("anything/posts/{id}")
         fun deletePost(@Path("id") postId: Int): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/users")
+        @GET("anything/users")
         fun getUsers(): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         fun getAlbums(): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         fun getAlbumsByUserId(@Query("userId") userId: Int): Call<HttpbinAnythingResponse>
     }
 
     interface HttpbinCoroutineApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         suspend fun posts(): HttpbinAnythingResponse
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         suspend fun getPost(@Path("id") postId: Int): HttpbinAnythingResponse
 
-        @GET("/anything/posts")
+        @GET("anything/posts")
         suspend fun getUserPosts(@Query("userId") userId: Int): HttpbinAnythingResponse
 
-        @GET("/anything/post/{id}/comments")
+        @GET("anything/post/{id}/comments")
         suspend fun getPostComments(@Path("id") postId: Int): HttpbinAnythingResponse
 
-        @GET("/anything/comments")
+        @GET("anything/comments")
         suspend fun getComments(@Query("postId") postId: Int): HttpbinAnythingResponse
 
-        @POST("/anything/posts")
+        @POST("anything/posts")
         suspend fun newPost(@Body post: Post): HttpbinAnythingResponse
 
-        @PUT("/anything/posts/{id}")
+        @PUT("anything/posts/{id}")
         suspend fun updatePost(@Path("id") postId: Int, @Body post: Post): HttpbinAnythingResponse
 
-        @DELETE("/anything/posts/{id}")
+        @DELETE("anything/posts/{id}")
         suspend fun deletePost(@Path("id") postId: Int): HttpbinAnythingResponse
 
-        @GET("/anything/users")
+        @GET("anything/users")
         suspend fun getUsers(): HttpbinAnythingResponse
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         suspend fun getAlbums(): HttpbinAnythingResponse
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         suspend fun getAlbumsByUserId(@Query("userId") userId: Int): HttpbinAnythingResponse
     }
 
     interface HttpbinReactiveApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun posts(): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         fun getPost(@Path("id") postId: Int): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun getUserPosts(@Query("userId") userId: Int): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/post/{id}/comments")
+        @GET("anything/post/{id}/comments")
         fun getPostComments(@Path("id") postId: Int): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/comments")
+        @GET("anything/comments")
         fun getComments(@Query("postId") postId: Int): Maybe<HttpbinAnythingResponse>
 
-        @POST("/anything/posts")
+        @POST("anything/posts")
         fun newPost(@Body post: Post): Maybe<HttpbinAnythingResponse>
 
-        @PUT("/anything/posts/{id}")
+        @PUT("anything/posts/{id}")
         fun updatePost(@Path("id") postId: Int, @Body post: Post): Maybe<HttpbinAnythingResponse>
 
-        @DELETE("/anything/posts/{id}")
+        @DELETE("anything/posts/{id}")
         fun deletePost(@Path("id") postId: Int): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/users")
+        @GET("anything/users")
         fun getUsers(): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         fun getAlbums(): Maybe<HttpbinAnythingResponse>
 
-        @GET("/anything/albums")
+        @GET("anything/albums")
         fun getAlbumsByUserId(@Query("userId") userId: Int): Maybe<HttpbinAnythingResponse>
     }
 
