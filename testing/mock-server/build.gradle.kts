@@ -56,11 +56,9 @@ jib {
         image = "eclipse-temurin:25-jre-alpine"
         platforms {
             if (jibMultiPlatform) {
-                // CI/CD: registry push 시 멀티 플랫폼 (jibDockerBuild/jibBuildTar 비호환)
                 platform { architecture = "amd64"; os = "linux" }
                 platform { architecture = "arm64"; os = "linux" }
             } else {
-                // 로컬 빌드: 호스트 플랫폼으로만 빌드
                 platform { architecture = hostArch; os = "linux" }
             }
         }

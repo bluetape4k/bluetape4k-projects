@@ -30,7 +30,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
     fun `use preemptive basic authentication`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(localHttpbinBaseUrl)
+        val httpHost = httpHostOf(httpbinServer.url)
 
         httpclient.use {
             val localContext = httpClientContext {
@@ -66,7 +66,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
     fun `use preemptive basic authentication in multi threading`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(localHttpbinBaseUrl)
+        val httpHost = httpHostOf(httpbinServer.url)
 
         val localContextStorage = ThreadLocal.withInitial {
             httpClientContext {

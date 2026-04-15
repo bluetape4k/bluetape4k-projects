@@ -31,13 +31,12 @@ class ClientPreemptiveBasicAuthentication: AbstractHc5Test() {
         httpclient.use {
             val context = httpClientContext {
                 preemptiveBasicAuth(
-                    httpHostOf(httpbinBaseUrl),
-                    // HttpHost("http", httpbinServer.host, httpbinServer.port),
+                    httpHostOf(httpbinServer.url),
                     UsernamePasswordCredentials("user", "passwd".toCharArray())
                 )
             }
 
-            val request = HttpGet("$httpbinBaseUrl/hidden-basic-auth/user/passwd")
+            val request = HttpGet("$httpbinBaseUrl/basic-auth/user/passwd")
             log.debug { "Execute request ${request.method} ${request.uri}" }
 
             repeat(3) {

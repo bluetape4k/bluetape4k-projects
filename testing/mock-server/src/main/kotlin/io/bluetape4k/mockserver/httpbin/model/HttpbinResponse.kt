@@ -14,6 +14,7 @@ data class HttpbinResponse(
     val origin: String = "",
     val url: String = "",
     val data: String? = null,
+    val files: Map<String, String> = emptyMap(),
     val form: Map<String, String> = emptyMap(),
     val json: Any? = null,
     val method: String? = null,
