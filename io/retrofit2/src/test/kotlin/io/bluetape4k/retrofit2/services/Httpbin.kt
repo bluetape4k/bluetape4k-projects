@@ -16,8 +16,6 @@ import retrofit2.http.Query
  */
 object Httpbin: KLogging() {
 
-    const val BASE_URL = "https://nghttp2.org/httpbin"
-
     interface HttpbinApi {
         @GET("anything/posts")
         fun posts(): Call<HttpbinAnythingResponse>
