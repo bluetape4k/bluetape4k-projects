@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(Libs.springData("commons"))
 
     api(project(":bluetape4k-spring-boot3-exposed-jdbc"))  // EntityInformation, ExposedMappingContext 재사용

@@ -17,8 +17,8 @@ data class HttpbinGetResponse(
 /** `httpbin.org/post` 와 유사하게 본문/폼/파일 정보를 함께 받는 응답 구조입니다. */
 data class HttpbinPostResponse(
     val args: Map<String, String>,
-    val data: String,
-    val files: Map<String, String>,
+    val data: String?,
+    val files: Map<String, String> = emptyMap(),
     val form: Map<String, String>,
     val headers: Map<String, String>,
     val json: Map<String, Any>?,
@@ -33,8 +33,8 @@ data class HttpbinPostResponse(
 /** `/anything`, `/put`, `/patch` 처럼 메소드와 본문 정보를 포함하는 범용 응답입니다. */
 data class HttpbinAnythingResponse(
     val args: Map<String, String>,
-    val data: String,
-    val files: Map<String, String>,
+    val data: String?,
+    val files: Map<String, String> = emptyMap(),
     val form: Map<String, String>,
     val headers: Map<String, String>,
     val json: Map<String, Any>?,

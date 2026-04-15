@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.micrometer.instrument.retrofit2.MicrometerRetrofitMetricsRecorder
 import io.bluetape4k.support.uninitialized
-import io.bluetape4k.testcontainers.http.HttpbinServer
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -21,7 +21,7 @@ import org.springframework.test.context.DynamicPropertySource
 @SpringBootTest
 class HttpbinApiTest {
     companion object: KLoggingChannel() {
-        private val httpbin by lazy { HttpbinServer.Launcher.httpbin }
+        private val httpbin by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
         @JvmStatic
         @DynamicPropertySource

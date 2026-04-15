@@ -2,7 +2,7 @@ package io.bluetape4k.spring.http
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.http.HttpbinServer
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -19,10 +19,10 @@ import kotlin.test.assertFailsWith
 class RestClientExtensionsTest {
     companion object: KLogging() {
         @JvmStatic
-        private val httpbin by lazy { HttpbinServer.Launcher.httpbin }
+        private val httpbin by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
         @JvmStatic
-        private val baseUrl by lazy { httpbin.url }
+        private val baseUrl by lazy { httpbin.httpbinUrl }
     }
 
     private val client: RestClient = restClientOf(baseUrl)

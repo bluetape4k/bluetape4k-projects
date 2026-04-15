@@ -45,7 +45,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on get`() {
-        val request = HttpGet("/get")
+        val request = HttpGet("/httpbin/get")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }
@@ -60,7 +60,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on get with gzip`() {
-        val request = HttpGet("/gzip")
+        val request = HttpGet("/httpbin/gzip")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }
@@ -75,7 +75,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on head`() {
-        val request = HttpHead("/headers")
+        val request = HttpHead("/httpbin/headers")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }
@@ -88,7 +88,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on options`() {
-        val request = HttpHead("/get")
+        val request = HttpHead("/httpbin/get")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }
@@ -101,7 +101,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on trace`() {
-        val request = HttpHead("/get")
+        val request = HttpHead("/httpbin/get")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }
@@ -114,7 +114,7 @@ abstract class AbstractHttpCacheStorageTest: AbstractHc5Test() {
 
     @Test
     fun `create cache entries on cache`() {
-        val request = HttpHead("/cache/123")
+        val request = HttpHead("/httpbin/cache/123")
         val key = CacheKeyGenerator.INSTANCE.generateKey(host, request)
 
         val response = client.execute(host, request) { it }

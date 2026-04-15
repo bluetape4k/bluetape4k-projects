@@ -30,7 +30,7 @@ class ClientAuthentication: AbstractHc5Test() {
         }
 
         httpclient.use {
-            val httpget = HttpGet("${httpHost.toURI()}/basic-auth/user/passwd")
+            val httpget = HttpGet("${httpHost.toURI()}/httpbin/basic-auth/user/passwd")
             log.debug { "Execute request ${httpget.method} ${httpget.uri}" }
 
             httpclient.execute(httpget) { response ->

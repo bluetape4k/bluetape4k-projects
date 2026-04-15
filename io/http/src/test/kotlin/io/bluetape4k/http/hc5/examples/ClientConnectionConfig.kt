@@ -68,7 +68,7 @@ class ClientConnectionConfig: AbstractHc5Test() {
             listOf(URIScheme.HTTP).forEach { uriScheme ->
                 val request = classicRequest(Method.GET) {
                     setHttpHost(HttpHost(uriScheme.id, httpbinServer.host, httpbinServer.port))
-                    setPath("/headers")
+                    setPath("/httpbin/headers")
                 }
                 log.debug { "Execute request ${request.method} ${request.uri}" }
 

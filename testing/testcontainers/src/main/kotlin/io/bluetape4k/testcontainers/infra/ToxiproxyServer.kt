@@ -26,12 +26,12 @@ import org.testcontainers.utility.DockerImageName
  * ## 사용 예시
  * ```kotlin
  * val network = Network.newNetwork()
- * val upstream = HttpbinServer().apply { withNetwork(network); withNetworkAliases("httpbin"); start() }
+ * val upstream = BluetapeHttpServer().apply { withNetwork(network); withNetworkAliases("bluetape-http"); start() }
  * val toxiproxy = ToxiproxyServer().apply { withNetwork(network); start() }
  *
  * val client = ToxiproxyClient(toxiproxy.host, toxiproxy.port)
- * val proxy = client.createProxy("httpbin", "0.0.0.0:8666", "httpbin:80")
- * // proxy를 통해 httpbin에 접근하여 장애 주입 테스트 수행
+ * val proxy = client.createProxy("bluetape-http", "0.0.0.0:8666", "bluetape-http:8888")
+ * // proxy를 통해 bluetape-http에 접근하여 장애 주입 테스트 수행
  * ```
  *
  * @param imageName Docker 이미지 이름

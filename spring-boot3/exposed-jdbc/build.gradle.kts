@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(Libs.springData("commons"))
 
     api(Libs.kotlin_reflect)

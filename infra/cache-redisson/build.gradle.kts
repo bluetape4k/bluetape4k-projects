@@ -4,6 +4,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-cache-core"))
 
     // Redisson JCache provider

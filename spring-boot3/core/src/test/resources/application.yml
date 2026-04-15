@@ -1,8 +1,8 @@
 bluetape4k:
     retrofit2:
         services:
-            httpbin: ${testcontainers.httpbin.url}
-            jsonPlaceHolder: https://jsonplaceholder.typicode.com
+            httpbin: ${testcontainers.bluetape-http.httpbinUrl}/
+            jsonPlaceHolder: ${testcontainers.bluetape-http.jsonplaceholderUrl}/
 
 spring:
     cloud:

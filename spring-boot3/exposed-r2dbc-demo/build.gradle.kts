@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     implementation(project(":bluetape4k-spring-boot3-exposed-r2dbc"))
 
     implementation(Libs.exposed_r2dbc)

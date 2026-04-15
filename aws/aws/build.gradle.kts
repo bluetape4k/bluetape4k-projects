@@ -7,6 +7,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
     api(project(":bluetape4k-idgenerators"))

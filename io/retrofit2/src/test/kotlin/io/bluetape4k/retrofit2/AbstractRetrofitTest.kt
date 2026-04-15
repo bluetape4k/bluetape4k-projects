@@ -1,18 +1,19 @@
 package io.bluetape4k.retrofit2
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 
 abstract class AbstractRetrofitTest {
 
     companion object: KLogging() {
         @JvmStatic
-        protected val httpbinServer by lazy { HttpbinHttp2Server.Launcher.httpbinHttp2 }
+        protected val httpbinServer by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
         @JvmStatic
-        protected val httpbinBaseUrl: String by lazy { httpbinServer.url }
+        protected val httpbinBaseUrl: String by lazy { httpbinServer.httpbinUrl }
     }
 
+    // Retrofit2는 baseUrl이 반드시 '/'로 끝나야 한다.
     protected val testBaseUrl: String
-        get() = httpbinBaseUrl
+        get() = httpbinBaseUrl.trimEnd('/') + "/"
 }

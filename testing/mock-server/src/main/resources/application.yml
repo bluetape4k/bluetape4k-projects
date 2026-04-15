@@ -1,0 +1,31 @@
+server:
+  port: 8888
+  http2:
+    enabled: true
+  tomcat:
+    threads:
+      max: 200
+
+spring:
+  application:
+    name: bluetape-mock-server
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  mvc:
+    async:
+      request-timeout: 30000
+  threads:
+    virtual:
+      enabled: true
+  cache:
+    type: caffeine
+    cache-names:
+      - html-content
+      - fixture-data
+      - httpbin-image
+
+logging:
+  level:
+    io.bluetape4k.mockserver: INFO

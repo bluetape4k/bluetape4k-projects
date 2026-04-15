@@ -3,6 +3,7 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
     // Exposed
     implementation(platform(Libs.exposed_bom))
     api(project(":bluetape4k-exposed-core"))

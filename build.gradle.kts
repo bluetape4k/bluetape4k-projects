@@ -285,9 +285,12 @@ subprojects {
         setApplyMavenExclusions(false)
 
         imports {
-            mavenBom(Libs.spring_integration_bom)
-            mavenBom(Libs.spring_cloud_dependencies)
-            mavenBom(Libs.spring_boot3_dependencies)
+            // spring_integration_bom, spring_cloud_dependencies, spring_boot3_dependencies 는
+            // 각 모듈에서 implementation(platform(...)) 으로 직접 선언합니다.
+            // (spring-boot4/ 모듈과 mock-server 는 SB4 BOM을 사용)
+
+            // Reactor BOM: SB BOM에서 분리됐으므로 전역 관리 유지
+            mavenBom(Libs.reactor_bom)
 
             mavenBom(Libs.feign_bom)
             mavenBom(Libs.micrometer_bom)

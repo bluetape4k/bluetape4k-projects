@@ -2,7 +2,7 @@ package io.bluetape4k.feign.spring
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.http.HttpbinServer
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
@@ -22,12 +22,12 @@ class HttpbinClientTest(
 
     companion object: KLogging() {
         @JvmStatic
-        private val httpbinServer by lazy { HttpbinServer.Launcher.httpbin }
+        private val httpbinServer by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
         @JvmStatic
         @DynamicPropertySource
         fun registerProperties(registry: DynamicPropertyRegistry) {
-            registry.add("test.feign.httpbin-url") { httpbinServer.url }
+            registry.add("test.feign.httpbin-url") { httpbinServer.httpbinUrl }
         }
     }
 

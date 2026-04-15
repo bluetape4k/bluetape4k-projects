@@ -3,9 +3,12 @@ package io.bluetape4k.spring.retrofit2.services.jsonplaceholder
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNullOrBlank
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 
 abstract class AbstractJsonPlaceHolderApiTest {
     companion object: KLoggingChannel() {
@@ -13,6 +16,13 @@ abstract class AbstractJsonPlaceHolderApiTest {
 
         @JvmStatic
         val faker = Fakers.faker
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun startMockServer(@Suppress("UNUSED_PARAMETER") registry: DynamicPropertyRegistry) {
+            // 서버 기동 → writeToSystemProperties() → testcontainers.bluetape-http.* 시스템 프로퍼티 자동 설정
+            BluetapeHttpServer.Launcher.bluetapeHttpServer.url
+        }
 
         @JvmStatic
         protected fun Post.verify() {

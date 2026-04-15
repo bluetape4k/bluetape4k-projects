@@ -25,8 +25,8 @@ class FluentExecutorExamples: AbstractHc5Test() {
     companion object: KLogging()
 
     private val executor: Executor = Executor.newInstance()
-        .auth(httpHostOf(httpbinBaseUrl), "user", "passwd".toCharArray())
-        .authPreemptive(httpHostOf(httpbinBaseUrl))
+        .auth(httpHostOf(httpbinServer.url), "user", "passwd".toCharArray())
+        .authPreemptive(httpHostOf(httpbinServer.url))
 
     @Test
     fun `get with timeout settings`() {

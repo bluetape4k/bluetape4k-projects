@@ -69,6 +69,12 @@ classDiagram
         +endpointOverride: URI
         +getCredentialsProvider() AwsCredentialsProvider
     }
+    class BluetapeHttpServer {
+        +url: String
+        +httpbinUrl: String
+        +jsonplaceholderUrl: String
+        +webUrl: String
+    }
 
     GenericServer <|-- PostgreSQLServer
     GenericServer <|-- PostgisServer
@@ -77,6 +83,7 @@ classDiagram
     GenericServer <|-- RedisServer
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
+    GenericServer <|-- BluetapeHttpServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
@@ -88,6 +95,7 @@ classDiagram
     style RedisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style BluetapeHttpServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
 ```
 
 ### Supported Container Structure
@@ -147,6 +155,7 @@ flowchart TD
 
     subgraph HTTPMock
         WM["WireMockServer"]
+        BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
     end
 
     subgraph AWS
@@ -179,7 +188,7 @@ flowchart TD
     class KF,RB,PL,NT,RP mqStyle
     class CN,VT,PR,ZK,TX,KC infraStyle
     class TR sqlStyle
-    class WM mockStyle
+    class WM,BHS mockStyle
     class LS awsStyle
 ```
 
@@ -287,6 +296,55 @@ wireMock.stubFor(
 )
 
 verify(getRequestedFor(urlEqualTo("/hello")))
+```
+
+### BluetapeHttpServer (httpbin + jsonplaceholder + web)
+
+`BluetapeHttpServer` runs the `bluetape4k/mock-server` Docker image, which provides
+httpbin, jsonplaceholder, and web-content endpoints in a single container.
+
+```kotlin
+// Singleton — starts once, shared across all tests
+val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
+
+// Pre-built URL helpers
+val baseUrl             = server.url                // http://host:<port>
+val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl              = server.webUrl             // http://host:<port>/web
+```
+
+#### Exported System Properties
+
+After `start()`, the following system properties are registered automatically:
+
+| Property Key | Example Value |
+|--------------|---------------|
+| `testcontainers.bluetape-http.host` | `localhost` |
+| `testcontainers.bluetape-http.port` | `8888` |
+| `testcontainers.bluetape-http.url` | `http://localhost:8888` |
+| `testcontainers.bluetape-http.httpbinUrl` | `http://localhost:8888/httpbin` |
+| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:8888/jsonplaceholder` |
+| `testcontainers.bluetape-http.webUrl` | `http://localhost:8888/web` |
+
+#### Spring Boot `application-test.yml`
+
+```yaml
+mock:
+  server:
+    url: ${testcontainers.bluetape-http.url}
+    httpbin-url: ${testcontainers.bluetape-http.httpbinUrl}
+    jsonplaceholder-url: ${testcontainers.bluetape-http.jsonplaceholderUrl}
+```
+
+#### Manual instance (non-singleton)
+
+```kotlin
+// Dynamic port (default)
+val server = BluetapeHttpServer().apply { start() }
+
+// Fixed port 8888
+val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 ```
 
 ### Keycloak (Auth Server)

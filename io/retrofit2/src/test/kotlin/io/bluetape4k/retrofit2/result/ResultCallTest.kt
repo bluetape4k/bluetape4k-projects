@@ -30,15 +30,15 @@ class ResultCallTest: AbstractRetrofitTest() {
      * 여기서는 API 통신을 Coroutines 를 이용합니다.
      */
     interface HttpbinCoroutineResultApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         suspend fun posts(): Result<HttpbinAnythingResponse>
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         suspend fun getPost(
             @Path("id") postId: Int,
         ): Result<HttpbinAnythingResponse>
 
-        @GET("/status/{statusCode}")
+        @GET("status/{statusCode}")
         suspend fun status(
             @Path("statusCode") statusCode: Int,
         ): Result<HttpbinAnythingResponse>
@@ -95,7 +95,7 @@ class ResultCallTest: AbstractRetrofitTest() {
 
 
     interface RawApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun posts(): retrofit2.Call<HttpbinAnythingResponse>
     }
 
