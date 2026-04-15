@@ -1,16 +1,14 @@
 package io.bluetape4k.mockserver.httpbin
 
 import io.bluetape4k.logging.KLogging
-import tools.jackson.databind.json.JsonMapper
-import io.bluetape4k.logging.warn
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.http.MediaType
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
+import tools.jackson.databind.json.JsonMapper
 import java.io.ByteArrayOutputStream
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.GZIPOutputStream
@@ -18,7 +16,7 @@ import java.util.zip.GZIPOutputStream
 /**
  * httpbin.org 인코딩/스트리밍 엔드포인트 시뮬레이터.
  *
- * gzip/deflate 압축, SSE 스트리밍, 이미지 반환 엔드포인트를 제공한다.
+ * gzip/deflate 압축, NDJSON 스트리밍, 이미지 반환 엔드포인트를 제공한다.
  */
 @RestController
 @RequestMapping("/httpbin")
@@ -71,30 +69,24 @@ class HttpbinStreamController(
     }
 
     /**
-     * n개의 SSE 이벤트를 순차적으로 전송한다.
+     * n개의 JSON 객체를 줄바꿈으로 구분해 스트리밍한다 (NDJSON).
+     *
+     * httpbin.org `/stream/{n}` 동작을 모사하며, 각 줄은 독립된 JSON 객체다.
+     * AsyncJsonParser 등 스트리밍 파서와 함께 사용할 수 있다.
      *
      * @param n 이벤트 수 (1..100)
      */
-    @GetMapping("/stream/{n}", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun stream(@PathVariable n: Int): SseEmitter {
+    @GetMapping("/stream/{n}", produces = ["application/x-ndjson"])
+    fun stream(@PathVariable n: Int, response: HttpServletResponse) {
         require(n in 1..100) { "n must be 1..100, got: $n" }
-        val emitter = SseEmitter(30_000L)
-        Thread.ofVirtual().start {
-            try {
-                repeat(n) { i ->
-                    emitter.send(
-                        SseEmitter.event()
-                            .id(i.toString())
-                            .data(mapOf("id" to i, "url" to "https://httpbin.org/stream/$n"))
-                    )
-                }
-                emitter.complete()
-            } catch (e: Exception) {
-                log.warn(e) { "SSE stream error" }
-                emitter.completeWithError(e)
+        response.contentType = "application/x-ndjson"
+        response.writer.use { writer ->
+            repeat(n) { i ->
+                val line = jsonMapper.writeValueAsString(mapOf("id" to i, "url" to "https://httpbin.org/stream/$n"))
+                writer.println(line)
+                writer.flush()
             }
         }
-        return emitter
     }
 
     /**

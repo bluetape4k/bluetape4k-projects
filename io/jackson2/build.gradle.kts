@@ -1,7 +1,3 @@
-plugins {
-    kotlin("plugin.serialization")
-}
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -40,8 +36,6 @@ dependencies {
 
     // api(Libs.javax_json_api)
     api(Libs.jakarta_json_api)
-
-    compileOnly(Libs.kotlinx_serialization_json_jvm)
 
     // Gson
     compileOnly(Libs.gson)

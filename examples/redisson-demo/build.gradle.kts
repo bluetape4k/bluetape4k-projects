@@ -8,7 +8,8 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(enforcedPlatform(Libs.spring_boot3_dependencies))
+    
     // Redisson
     testImplementation(project(":bluetape4k-redisson"))
     testImplementation(Libs.redisson)
@@ -65,4 +66,5 @@ dependencies {
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
     testImplementation(Libs.exposed_java_time)
     testImplementation(Libs.exposed_spring_boot_starter)
+    testImplementation(Libs.springBoot("autoconfigure"))
 }

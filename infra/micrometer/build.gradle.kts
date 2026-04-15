@@ -8,6 +8,8 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
+
     api(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-http"))
@@ -47,6 +49,11 @@ dependencies {
     implementation(Libs.okhttp3)
 
     implementation(Libs.async_http_client_extras_retrofit2)
+
+    // Jackson 2
+    implementation(project(":bluetape4k-jackson2"))
+    implementation(Libs.jackson_module_kotlin)
+    implementation(Libs.jackson_module_blackbird)
 
     implementation(Libs.vertx_core)
     testImplementation(project(":bluetape4k-vertx"))

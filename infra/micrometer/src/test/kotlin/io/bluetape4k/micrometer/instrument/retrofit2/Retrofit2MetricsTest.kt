@@ -143,43 +143,43 @@ object TestService {
     val httpServer by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
 
     const val TEST_COUNT = 30
-    val httpbinBaseUrl by lazy { httpServer.httpbinUrl }
+    val httpbinBaseUrl by lazy { "${httpServer.httpbinUrl}/" }
 
     interface HttpbinApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun getPosts(): Call<HttpbinAnythingResponse>
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         fun getPost(@Path("id") postId: Int): Call<HttpbinAnythingResponse>
     }
 
     interface HttpbinCoroutineApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         suspend fun getPosts(): HttpbinAnythingResponse
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         suspend fun getPost(@Path("id") postId: Int): HttpbinAnythingResponse
     }
 
     interface HttpbinReactiveApi {
-        @GET("/anything/posts")
+        @GET("anything/posts")
         fun getPosts(): Mono<HttpbinAnythingResponse>
 
-        @GET("/anything/posts/{id}")
+        @GET("anything/posts/{id}")
         fun getPost(@Path("id") postId: Int): Mono<HttpbinAnythingResponse>
 
     }
 
     /** `/anything`, `/put`, `/patch` 처럼 메소드와 본문 정보를 포함하는 범용 응답입니다. */
     data class HttpbinAnythingResponse(
-        val args: Map<String, String>,
-        val data: String,
-        val files: Map<String, String>,
-        val form: Map<String, String>,
-        val headers: Map<String, String>,
-        val json: Map<String, Any>?,
-        val method: String,
-        val origin: String,
-        val url: String,
+        val args: Map<String, String> = emptyMap(),
+        val data: String = "",
+        val files: Map<String, String> = emptyMap(),
+        val form: Map<String, String> = emptyMap(),
+        val headers: Map<String, String> = emptyMap(),
+        val json: Map<String, Any>? = null,
+        val method: String = "",
+        val origin: String = "",
+        val url: String = "",
     ): Serializable
 }

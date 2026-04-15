@@ -23,7 +23,8 @@ import org.springframework.data.cassandra.ReactiveSession
  * // result == resultSet.availableRows()
  * ```
  */
-suspend fun ReactiveSession.executeSuspending(query: String): ReactiveResultSet = execute(query).awaitSingle()
+suspend fun ReactiveSession.executeSuspending(query: String): ReactiveResultSet =
+    executeSuspending(SimpleStatement.newInstance(query))
 
 /**
  * CQL 문자열과 위치 기반 파라미터를 실행하고 결과 [ReactiveResultSet]을 반환합니다.
@@ -40,7 +41,8 @@ suspend fun ReactiveSession.executeSuspending(query: String): ReactiveResultSet 
 suspend fun ReactiveSession.executeSuspending(
     query: String,
     vararg args: Any?,
-): ReactiveResultSet = execute(query, *args).awaitSingle()
+): ReactiveResultSet =
+    executeSuspending(SimpleStatement.newInstance(query, *args))
 
 /**
  * CQL 문자열과 이름 기반 파라미터를 실행하고 결과 [ReactiveResultSet]을 반환합니다.
@@ -60,7 +62,8 @@ suspend fun ReactiveSession.executeSuspending(
 suspend fun ReactiveSession.executeSuspending(
     query: String,
     args: Map<String, Any?>,
-): ReactiveResultSet = execute(query, args).awaitSingle()
+): ReactiveResultSet =
+    executeSuspending(SimpleStatement.newInstance(query, args))
 
 /**
  * [Statement]를 실행하고 결과 [ReactiveResultSet]을 반환합니다.

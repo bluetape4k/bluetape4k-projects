@@ -53,7 +53,7 @@ fun HttpServletRequest.toHttpbinResponse(body: String? = null, method: String? =
         headers = headers,
         origin = remoteAddr ?: "",
         url = requestURL.toString(),
-        data = if (formData.isEmpty() && jsonData == null) body else null,
+        data = if (formData.isEmpty() && jsonData == null) body ?: "" else "",
         form = formData,
         json = jsonData,
         method = method ?: this.method,
