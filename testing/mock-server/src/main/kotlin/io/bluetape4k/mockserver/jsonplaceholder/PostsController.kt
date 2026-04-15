@@ -85,13 +85,16 @@ class PostsController(private val service: JsonplaceholderService) {
         service.posts.update(id, post) ?: throw NoSuchElementException("Post $id not found")
 
     /**
-     * 게시글을 삭제한다.
+     * 게시글을 삭제하고 빈 객체를 반환한다.
+     *
+     * jsonplaceholder.typicode.com 호환 동작: 삭제 시 `{}` 를 반환한다.
      *
      * @param id 삭제할 게시글 ID
+     * @return 빈 맵 (`{}`)
      */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable id: Long) {
+    fun delete(@PathVariable id: Long): Map<String, Any> {
         service.posts.delete(id)
+        return emptyMap()
     }
 }

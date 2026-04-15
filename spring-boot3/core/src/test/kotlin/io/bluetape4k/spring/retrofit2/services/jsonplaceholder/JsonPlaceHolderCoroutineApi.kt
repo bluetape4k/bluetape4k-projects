@@ -20,37 +20,37 @@ import retrofit2.http.Query
 @Retrofit2Client(name = "jsonPlaceHolderCoroutineApi", baseUrl = "\${$LibraryName.retrofit2.services.jsonPlaceHolder}")
 interface JsonPlaceHolderCoroutineApi {
 
-    @GET("/posts")
+    @GET("posts")
     suspend fun posts(): List<Post>
 
-    @GET("/posts/{id}")
+    @GET("posts/{id}")
     suspend fun getPost(@Path("id") postId: Int): Post
 
-    @GET("/posts")
+    @GET("posts")
     suspend fun getUserPosts(@Query("userId") userId: Int): List<Post>
 
-    @GET("/post/{id}/comments")
-    suspend fun getPostComments(@Path("id") postId: Int): List<Comment>
+    @GET("comments")
+    suspend fun getPostComments(@Query("postId") postId: Int): List<Comment>
 
-    @GET("/commonts")
+    @GET("comments")
     suspend fun getComments(@Query("postId") postId: Int): List<Comment>
 
-    @POST("/posts")
+    @POST("posts")
     suspend fun newPost(@Body post: Post): Post
 
-    @PUT("/posts/{id}")
+    @PUT("posts/{id}")
     suspend fun updatePost(@Path("id") postId: Int, @Body post: Post): Post
 
-    @DELETE("/posts/{id}")
+    @DELETE("posts/{id}")
     suspend fun deletePost(@Path("id") postId: Int): Post
 
-    @GET("/users")
+    @GET("users")
     suspend fun getUsers(): List<User>
 
-    @GET("/albums")
+    @GET("albums")
     suspend fun getAlbums(): List<Album>
 
-    @GET("/albums")
+    @GET("albums")
     suspend fun getAlbumsByUserId(@Query("userId") userId: Int): List<Album>
 
 }
