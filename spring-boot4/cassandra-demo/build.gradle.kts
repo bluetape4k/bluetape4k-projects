@@ -32,7 +32,7 @@ dependencies {
     implementation(Libs.cassandra_java_driver_mapper_runtime)
     implementation(Libs.cassandra_java_driver_metrics_micrometer)
 
-    implementation(Libs.springBootStarter("aop"))
+    implementation(Libs.springBootStarter("aspectj"))
     implementation(Libs.springBootStarter("data-cassandra"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

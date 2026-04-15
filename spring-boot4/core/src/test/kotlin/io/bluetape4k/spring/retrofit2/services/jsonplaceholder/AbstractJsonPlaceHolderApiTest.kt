@@ -7,9 +7,11 @@ import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNullOrBlank
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 
+@SpringBootTest
 abstract class AbstractJsonPlaceHolderApiTest {
     companion object: KLoggingChannel() {
         const val REPEAT_SIZE = 3

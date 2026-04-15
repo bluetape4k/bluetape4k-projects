@@ -2,6 +2,8 @@ package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.support.emptyByteArray
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -23,11 +25,11 @@ class RedisCompressSerializerTest: AbstractRedisSerializerTest() {
         )
     }
 
-    @ParameterizedTest(name = "[{1}] null 직렬화 → null 반환")
+    @ParameterizedTest(name = "[{1}] null 직렬화 → emptyByteArray 반환")
     @MethodSource("compressors")
-    fun `null 직렬화는 null을 반환한다`(compressor: Compressor, name: String) {
+    fun `null 직렬화는 emptyByteArray 을 반환한다`(compressor: Compressor, name: String) {
         val serializer = RedisCompressSerializer(compressor)
-        serializer.serialize(null).shouldBeNull()
+        serializer.serialize(null) shouldBeEqualTo emptyByteArray
     }
 
     @ParameterizedTest(name = "[{1}] null 역직렬화 → null 반환")

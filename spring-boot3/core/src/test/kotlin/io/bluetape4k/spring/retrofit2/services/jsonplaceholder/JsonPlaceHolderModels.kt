@@ -22,10 +22,10 @@ data class User(
     val name: String,
     val username: String,
     val email: String,
-    val address: Address,
+    val address: Address? = null,
     val phone: String,
     val website: String,
-    val company: Company,
+    val company: Company? = null,
 ): Serializable
 
 data class Address(

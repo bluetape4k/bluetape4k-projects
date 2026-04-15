@@ -26,7 +26,6 @@ dependencies {
 
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
 
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

@@ -14,19 +14,28 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot4_dependencies))
+
     api(project(":bluetape4k-spring-boot4-core"))
-    api(project(":bluetape4k-coroutines"))
-    testImplementation(project(":bluetape4k-jackson3"))
+
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_mongodb)
+
+    // Mongo Driver
+    implementation(Libs.mongodb_driver_kotlin_sync)
+    implementation(Libs.mongodb_driver_kotlin_coroutine)
+    implementation(Libs.mongodb_driver_kotlin_extensions)
+
+    // Jackson 3
+    testImplementation(project(":bluetape4k-jackson3"))
+    testImplementation(Libs.jackson3_module_kotlin)
+    testImplementation(Libs.jackson3_module_blackbird)
 
     // Spring Data MongoDB Reactive
     api(Libs.springBootStarter("data-mongodb-reactive"))
 
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
 
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
@@ -35,6 +44,7 @@ dependencies {
     }
 
     // Coroutines
+    api(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_core)
     api(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)

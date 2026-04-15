@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
     vararg args: Any,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
+    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T>,
 ): T? =
     query<T>(cql, { extractor(it) }, *args).await()
 
@@ -71,7 +71,7 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
  */
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
-    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
+    crossinline extractor: (AsyncResultSet) -> CompletableFuture<T>,
 ): T? =
     query<T>(statement) { extractor(it) }.await()
 

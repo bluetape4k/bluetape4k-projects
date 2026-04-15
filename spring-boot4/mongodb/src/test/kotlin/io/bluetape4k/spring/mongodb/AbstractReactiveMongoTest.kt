@@ -14,10 +14,11 @@ import org.springframework.test.context.DynamicPropertySource
  * [MongoDBServer] Testcontainer를 통해 Docker 기반 MongoDB를 자동으로 실행하며,
  * [DynamicPropertySource]로 `spring.data.mongodb.uri`를 동적으로 설정합니다.
  *
- * **사용 방법**: 구체 테스트 클래스에 `@DataMongoTest` 어노테이션을 붙이고 이 클래스를 상속합니다.
+ * **사용 방법**: 구체 테스트 클래스에 `@SpringBootTest`를 붙이고 이 클래스를 상속합니다.
+ * (Spring Boot 4의 `spring-boot-test-autoconfigure`에는 `@DataMongoTest` 슬라이스가 아직 없음)
  *
  * ```kotlin
- * @DataMongoTest
+ * @SpringBootTest(classes = [MongoTestApplication::class])
  * class MyMongoTest: AbstractReactiveMongoTest() {
  *     @Test
  *     fun `some test`() = runTest {

@@ -2,6 +2,7 @@ package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.emptyByteArray
 import org.springframework.data.redis.serializer.RedisSerializer
 
 /**
@@ -29,8 +30,8 @@ class RedisBinarySerializer private constructor(
         }
     }
 
-    override fun serialize(t: Any?): ByteArray? {
-        return t?.let { serializer.serialize(it) }
+    override fun serialize(t: Any?): ByteArray {
+        return t?.let { serializer.serialize(it) } ?: emptyByteArray
     }
 
     override fun deserialize(bytes: ByteArray?): Any? {

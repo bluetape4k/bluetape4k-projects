@@ -11,10 +11,11 @@ import kotlinx.coroutines.Dispatchers
  * [AbstractReactiveMongoTest]를 상속하며 [CoroutineScope]를 구현합니다.
  * `Dispatchers.IO`와 지정한 [coroutineName]으로 스코프가 초기화됩니다.
  *
- * **사용 방법**: 구체 테스트 클래스에 `@DataMongoTest` 어노테이션을 붙이고 이 클래스를 상속합니다.
+ * **사용 방법**: 구체 테스트 클래스에 `@SpringBootTest`를 붙이고 이 클래스를 상속합니다.
+ * (Spring Boot 4의 `spring-boot-test-autoconfigure`에는 `@DataMongoTest` 슬라이스가 아직 없음)
  *
  * ```kotlin
- * @DataMongoTest
+ * @SpringBootTest(classes = [MongoTestApplication::class])
  * class MyCoroutineMongoTest: AbstractReactiveMongoCoroutineTest() {
  *     @Test
  *     fun `coroutine test`() = runTest {

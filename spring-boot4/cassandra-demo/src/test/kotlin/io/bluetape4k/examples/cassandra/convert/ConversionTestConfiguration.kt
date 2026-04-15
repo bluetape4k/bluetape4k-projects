@@ -5,7 +5,7 @@ import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfigurati
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.jackson.writeAsString
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.cassandra.core.convert.CassandraCustomConversions
@@ -29,7 +29,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
 
     // @WritingConverter, @ReadingConverter 를 지정하면 따로 등록할 필요가 없습니다.
     // @WritingConverter
-    class ContactWriteConverter: Converter<Contact, String> {
+    class ContactWriteConverter: Converter<Contact, String?> {
         companion object {
             private val mapper = Jackson.defaultJsonMapper
         }
@@ -41,7 +41,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
 
     // @WritingConverter, @ReadingConverter 를 지정하면 따로 등록할 필요가 없습니다.
     // @ReadingConverter
-    class ContactReadConverter: Converter<String, Contact> {
+    class ContactReadConverter: Converter<String, Contact?> {
         companion object {
             private val mapper = Jackson.defaultJsonMapper
         }
@@ -57,7 +57,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
         }
     }
 
-    enum class StringToCurrencyConverter: Converter<String, Currency> {
+    enum class StringToCurrencyConverter: Converter<String, Currency?> {
         INSTANCE {
             override fun convert(source: String): Currency? {
                 return runCatching { Currency.getInstance(source) }.getOrNull()
@@ -65,7 +65,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
         }
     }
 
-    enum class CurrencyToStringConverter: Converter<Currency, String> {
+    enum class CurrencyToStringConverter: Converter<Currency, String?> {
         INSTANCE {
             override fun convert(source: Currency): String? {
                 return source.currencyCode

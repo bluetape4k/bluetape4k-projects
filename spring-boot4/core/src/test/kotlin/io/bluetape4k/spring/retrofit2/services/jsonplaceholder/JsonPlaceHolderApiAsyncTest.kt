@@ -16,10 +16,8 @@ import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import kotlin.math.absoluteValue
 
-@SpringBootTest
 @RandomizedTest
 class JsonPlaceHolderApiAsyncTest: AbstractJsonPlaceHolderApiTest() {
     companion object: KLoggingChannel()
@@ -143,12 +141,11 @@ class JsonPlaceHolderApiAsyncTest: AbstractJsonPlaceHolderApiTest() {
     fun `create new post`(
         @RandomValue post: Post,
     ) = runSuspendIO {
-        val newPost =
-            api
-                .newPost(post)
-                .executeAsync()
-                .await()
-                .body()!!
+        val newPost = api
+            .newPost(post.copy(userId = post.userId.absoluteValue))
+            .executeAsync()
+            .await()
+            .body()!!
         log.debug { "newPost=$newPost" }
 
         newPost.title.shouldNotBeNullOrBlank()

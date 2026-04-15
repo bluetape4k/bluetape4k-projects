@@ -43,7 +43,6 @@ dependencies {
 
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
 
     implementation(Libs.springBootStarter("data-cassandra"))
     testImplementation(Libs.springBootStarter("test")) {

@@ -13,12 +13,17 @@ dependencies {
     implementation(project(":bluetape4k-spring-boot4-exposed-jdbc"))
     implementation(Libs.springBootStarter("web"))
     implementation(Libs.springBootStarter("jdbc"))
-    implementation(Libs.jackson_module_kotlin)
+
     implementation(Libs.exposed_jdbc)
     implementation(Libs.exposed_dao)
     implementation(Libs.exposed_migration_jdbc)
     implementation(Libs.exposed_java_time)
     runtimeOnly(Libs.h2_v2)
+
+    // Jackson 3
+    implementation(project(":bluetape4k-jackson3"))
+    implementation(Libs.jackson3_module_kotlin)
+    implementation(Libs.jackson3_module_blackbird)
 
     testImplementation(Libs.springBootStarter("test"))
 }

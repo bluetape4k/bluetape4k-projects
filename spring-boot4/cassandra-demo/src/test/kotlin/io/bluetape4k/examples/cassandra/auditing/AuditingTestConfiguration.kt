@@ -3,7 +3,7 @@ package io.bluetape4k.examples.cassandra.auditing
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.logging.KLogging
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.data.cassandra.config.EnableReactiveCassandraAuditing
 import org.springframework.data.cassandra.core.convert.CassandraCustomConversions

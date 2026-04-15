@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.redis.serializer
 
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.support.emptyByteArray
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
@@ -9,9 +10,9 @@ import org.junit.jupiter.api.Test
 class RedisBinarySerializerTest: AbstractRedisSerializerTest() {
 
     @Test
-    fun `null 직렬화는 null을 반환한다`() {
+    fun `null 직렬화는 emptyByteArray 를 반환한다`() {
         val serializer = RedisBinarySerializer(BinarySerializers.LZ4Fory)
-        serializer.serialize(null).shouldBeNull()
+        serializer.serialize(null) shouldBeEqualTo emptyByteArray
     }
 
     @Test

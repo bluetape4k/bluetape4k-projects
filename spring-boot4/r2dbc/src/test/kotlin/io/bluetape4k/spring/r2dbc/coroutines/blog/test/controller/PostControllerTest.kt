@@ -17,14 +17,10 @@ import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.returnResult
 
-class PostControllerTest(
-    @param:Autowired private val client: WebTestClient,
-): AbstractR2dbcBlogApplicationTest() {
+class PostControllerTest: AbstractR2dbcBlogApplicationTest() {
     companion object: KLoggingChannel()
 
     @Test

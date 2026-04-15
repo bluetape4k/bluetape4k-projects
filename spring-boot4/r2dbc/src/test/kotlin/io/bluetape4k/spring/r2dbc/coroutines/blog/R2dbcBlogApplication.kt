@@ -5,7 +5,6 @@ import io.bluetape4k.r2dbc.connection.init.connectionFactoryInitializer
 import io.bluetape4k.r2dbc.connection.init.resourceDatabasePopulatorOf
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
-import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -37,7 +36,5 @@ class R2dbcBlogApplication: AbstractR2dbcConfiguration() {
 }
 
 fun main(vararg args: String) {
-    runApplication<R2dbcBlogApplication>(*args) {
-        webApplicationType = WebApplicationType.REACTIVE
-    }
+    runApplication<R2dbcBlogApplication>(*args)
 }

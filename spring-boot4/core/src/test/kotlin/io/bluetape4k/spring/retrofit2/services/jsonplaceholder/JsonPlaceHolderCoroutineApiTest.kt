@@ -18,10 +18,8 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import kotlin.math.absoluteValue
 
-@SpringBootTest
 @RandomizedTest
 class JsonPlaceHolderCoroutineApiTest: AbstractJsonPlaceHolderApiTest() {
     companion object: KLoggingChannel()

@@ -3,7 +3,7 @@ package io.bluetape4k.spring.cassandra.domain
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.AllPossibleTypes
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Configuration
 
 @Configuration(proxyBeanMethods = false)

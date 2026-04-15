@@ -2,19 +2,13 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-dependencyManagement {
-    imports {
-        mavenBom(Libs.jackson_bom)
-        mavenBom(Libs.testcontainers_bom)
-    }
-}
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
 dependencies {
     implementation(platform(Libs.jackson_bom))
+    implementation(platform(Libs.spring_boot3_dependencies))
 
     api(Libs.jackson_core)
     api(Libs.jackson_databind)

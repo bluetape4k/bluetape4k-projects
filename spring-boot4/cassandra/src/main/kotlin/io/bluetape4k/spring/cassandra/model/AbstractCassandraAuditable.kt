@@ -83,7 +83,7 @@ abstract class AbstractCassandraAuditable<U: Any, PK: Any>: AbstractCassandraPer
      * // result == entity.createdBy
      * ```
      */
-    override fun setCreatedBy(createdBy: U) {
+    override fun setCreatedBy(createdBy: U?) {
         _createdBy = createdBy
     }
 
@@ -142,7 +142,7 @@ abstract class AbstractCassandraAuditable<U: Any, PK: Any>: AbstractCassandraPer
      * // result == entity.lastModifiedBy
      * ```
      */
-    override fun setLastModifiedBy(lastModifiedBy: U) {
+    override fun setLastModifiedBy(lastModifiedBy: U?) {
         _lastModifiedBy = lastModifiedBy
     }
 

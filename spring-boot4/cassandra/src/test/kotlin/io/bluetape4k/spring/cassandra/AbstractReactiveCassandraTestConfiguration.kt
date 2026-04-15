@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.core.config.DriverConfigLoader
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.domain.model.AllPossibleTypes
 import io.bluetape4k.testcontainers.storage.CassandraServer
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
 import org.springframework.data.cassandra.config.SchemaAction

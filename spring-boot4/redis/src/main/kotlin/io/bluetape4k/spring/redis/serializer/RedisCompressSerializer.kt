@@ -3,6 +3,7 @@ package io.bluetape4k.spring.redis.serializer
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.emptyByteArray
 import org.springframework.data.redis.serializer.RedisSerializer
 
 /**
@@ -30,8 +31,8 @@ class RedisCompressSerializer private constructor(
         }
     }
 
-    override fun serialize(value: ByteArray?): ByteArray? {
-        return value?.let { compressor.compress(it) }
+    override fun serialize(value: ByteArray?): ByteArray {
+        return value?.let { compressor.compress(it) } ?: emptyByteArray
     }
 
     override fun deserialize(bytes: ByteArray?): ByteArray? {

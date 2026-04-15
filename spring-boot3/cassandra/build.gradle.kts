@@ -23,6 +23,7 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
+
     api(project(":bluetape4k-cassandra"))
     api(project(":bluetape4k-spring-boot3-core"))
     testImplementation(project(":bluetape4k-jackson2"))
@@ -42,7 +43,6 @@ dependencies {
 
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
 
     implementation(Libs.springBootStarter("data-cassandra"))
     testImplementation(Libs.springBootStarter("test")) {

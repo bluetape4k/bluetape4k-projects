@@ -132,7 +132,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     query: Query,
     crossinline consumer: (T) -> Unit,
 ) {
-    select<T>(query, consumer).await()
+    select(query, T::class.java).await().forEach { consumer(it) }
 }
 
 /**

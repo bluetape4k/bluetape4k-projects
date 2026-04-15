@@ -101,8 +101,8 @@ fun ReactiveCqlOperations.executeSuspending(
  */
 suspend fun <T: Any> ReactiveCqlOperations.queryForObjectSuspending(
     cql: String,
-    vararg args: Any?,
-    rowMapper: (Row, Int) -> T?,
+    vararg args: Any,
+    rowMapper: (Row, Int) -> T,
 ): T? = queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
 
 /**
@@ -413,7 +413,7 @@ fun <T: Any> ReactiveCqlOperations.executeForFlow(
  */
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
-    vararg args: Any?,
+    vararg args: Any,
     rse: (ReactiveResultSet) -> Flow<T>,
 ): Flow<T> = query(cql, { rs -> rse(rs).asPublisher() }, *args).asFlow()
 

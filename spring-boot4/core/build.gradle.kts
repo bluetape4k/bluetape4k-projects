@@ -8,14 +8,13 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_cloud_dependencies))
     // Spring Boot 4 BOM: platform()을 사용하면 compileClasspath/runtimeClasspath에만 적용되고
     // kotlinBuildToolsApiClasspath 같은 내부 Gradle 설정에는 영향을 주지 않음
     // (dependencyManagement 플러그인은 ALL configurations에 적용되어 kotlin-stdlib 버전 충돌 유발)
     implementation(platform(Libs.spring_boot4_dependencies))
     // Spring Boot Starters
     api(Libs.springBootStarter("webflux"))
-    compileOnly(Libs.springBootStarter("web"))
+    implementation(Libs.springBootStarter("web"))
     compileOnly(Libs.springBootStarter("test"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
@@ -26,14 +25,13 @@ dependencies {
 
     // Spring core
     compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-jackson2"))
+    compileOnly(project(":bluetape4k-jackson3"))
     compileOnly(Libs.spring("context-support"))
     compileOnly(Libs.spring("messaging"))
     compileOnly(Libs.spring("web"))
     compileOnly(Libs.springData("commons"))
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
     api(Libs.jakarta_annotation_api)
     compileOnly(Libs.findbugs)
     compileOnly(project(":bluetape4k-idgenerators"))
@@ -87,7 +85,6 @@ dependencies {
     testImplementation(Libs.micrometer_core)
     testImplementation(Libs.micrometer_registry_prometheus)
 
-    compileOnly(Libs.spring_cloud_starter_bootstrap)
     compileOnly(Libs.hibernate_validator)
     compileOnly(Libs.jakarta_el_api)
 

@@ -4,7 +4,9 @@ bluetape4k:
             httpbin: ${testcontainers.bluetape-http.httpbinUrl}/
             jsonPlaceHolder: ${testcontainers.bluetape-http.jsonplaceholderUrl}/
 
-spring:
-    cloud:
-        compatibility-verifier:
-            enabled: false
+management:
+    datadog:
+        metrics:
+            export:
+                enabled: false
+

@@ -7,7 +7,7 @@ enum class CurrencyConverter: Converter<Currency, String> {
 
     INSTANCE;
 
-    override fun convert(source: Currency): String? {
+    override fun convert(source: Currency): String {
         return source.getDisplayName(Locale.KOREA)
     }
 }

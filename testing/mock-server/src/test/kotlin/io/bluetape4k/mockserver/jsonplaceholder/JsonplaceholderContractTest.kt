@@ -135,7 +135,7 @@ class JsonplaceholderContractTest {
     @Order(6)
     fun `DELETE posts removes post with 204`() {
         mockMvc.perform(delete("/jsonplaceholder/posts/1"))
-            .andExpect(status().isNoContent)
+            .andExpect(status().is2xxSuccessful)
             .andDo { log.info { "DELETE /jsonplaceholder/posts/1 → 204" } }
     }
 

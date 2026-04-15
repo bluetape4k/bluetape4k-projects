@@ -33,7 +33,10 @@ abstract class AbstractExposedJdbcRepositoryTest {
     @EnableAutoConfiguration(
         excludeName = [
             "org.jetbrains.exposed.v1.spring.boot.autoconfigure.ExposedAutoConfiguration",
-            "org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration",
+            // Spring Boot 4에서 패키지 변경:
+            // Boot 3: org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration
+            // Boot 4: org.springframework.boot.data.jdbc.autoconfigure.DataJdbcRepositoriesAutoConfiguration
+            "org.springframework.boot.data.jdbc.autoconfigure.DataJdbcRepositoriesAutoConfiguration",
         ]
     )
     @EnableExposedJdbcRepositories(basePackages = ["io.bluetape4k.spring.data.exposed.jdbc.repository"])

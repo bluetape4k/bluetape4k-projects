@@ -40,7 +40,7 @@ import retrofit2.Retrofit
  * ```
  */
 class RetrofitClientFactoryBean:
-    FactoryBean<Any?>,
+    FactoryBean<Any>,
     ApplicationContextAware,
     InitializingBean {
     companion object: KLogging()

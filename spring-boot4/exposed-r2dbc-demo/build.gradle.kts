@@ -19,8 +19,12 @@ dependencies {
     runtimeOnly(Libs.r2dbc_h2)
     runtimeOnly(Libs.h2_v2)   // JDBC DataSource (DataInitializer + SchemaUtils에 필요)
 
+    // Jackson 3
+    implementation(project(":bluetape4k-jackson3"))
+    implementation(Libs.jackson3_module_kotlin)
+    implementation(Libs.jackson3_module_blackbird)
+
     implementation(Libs.springBootStarter("webflux"))
-    implementation(Libs.jackson_module_kotlin)
     testImplementation(Libs.springBootStarter("test"))
 
     implementation(project(":bluetape4k-coroutines"))

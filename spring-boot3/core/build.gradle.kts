@@ -9,7 +9,6 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
-    implementation(platform(Libs.spring_cloud_dependencies))
     // Spring Boot Starters
     api(Libs.springBootStarter("webflux"))
     compileOnly(Libs.springBootStarter("web"))
@@ -31,7 +30,6 @@ dependencies {
     compileOnly(Libs.springData("commons"))
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))
-    annotationProcessor(Libs.springBoot("configuration-processor"))
     api(Libs.jakarta_annotation_api)
     compileOnly(Libs.findbugs)
     compileOnly(project(":bluetape4k-idgenerators"))
@@ -78,7 +76,7 @@ dependencies {
     implementation(Libs.jackson_core)
     implementation(Libs.jackson_databind)
     implementation(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    implementation(Libs.jackson_module_blackbird)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
@@ -93,9 +91,6 @@ dependencies {
     compileOnly(Libs.micrometer_core)
     testImplementation(Libs.micrometer_core)
     testImplementation(Libs.micrometer_registry_prometheus)
-
-    // Spring Cloud
-    compileOnly(Libs.spring_cloud_starter_bootstrap)
 
     compileOnly(Libs.hibernate_validator)
     compileOnly(Libs.jakarta_el_api)

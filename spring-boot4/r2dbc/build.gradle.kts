@@ -8,6 +8,7 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot4_dependencies))
+
     api(project(":bluetape4k-r2dbc"))
     testImplementation(project(":bluetape4k-junit5"))
 
@@ -16,8 +17,13 @@ dependencies {
     // R2DBC
     api(Libs.springBootStarter("data-r2dbc"))
     testImplementation(Libs.r2dbc_pool)
-    testRuntimeOnly(Libs.r2dbc_h2)
+    testImplementation(Libs.r2dbc_h2)
     testRuntimeOnly(Libs.h2_v2)
+
+    // Jackson 3
+    testImplementation(project(":bluetape4k-jackson3"))
+    testImplementation(Libs.jackson3_module_kotlin)
+    testImplementation(Libs.jackson3_module_blackbird)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

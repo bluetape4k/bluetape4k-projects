@@ -39,7 +39,7 @@ suspend fun ReactiveSession.executeSuspending(query: String): ReactiveResultSet 
  */
 suspend fun ReactiveSession.executeSuspending(
     query: String,
-    vararg args: Any?,
+    vararg args: Any,
 ): ReactiveResultSet = execute(query, *args).awaitSingle()
 
 /**

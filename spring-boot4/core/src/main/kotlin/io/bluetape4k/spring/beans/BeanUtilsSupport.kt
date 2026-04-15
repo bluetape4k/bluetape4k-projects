@@ -22,7 +22,7 @@ import java.lang.reflect.Method
  * // instance is MyType
  * ```
  */
-fun <T> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
+fun <T: Any> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
 
 /**
  * 생성자와 인자로 인스턴스를 생성합니다.
@@ -63,7 +63,7 @@ fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T =
  * // bean is BaseType
  * ```
  */
-fun <T> Class<*>.instantiateClass(assignableTo: Class<T>): T = BeanUtils.instantiateClass(this, assignableTo)
+fun <T: Any> Class<*>.instantiateClass(assignableTo: Class<T>): T = BeanUtils.instantiateClass(this, assignableTo)
 
 /**
  * 공개 메서드에서 이름과 시그니처가 일치하는 메서드를 찾습니다.

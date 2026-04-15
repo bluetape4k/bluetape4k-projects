@@ -7,7 +7,7 @@ import java.io.Serializable
 
 data class IpAddress(val origin: String): Serializable
 
-@Retrofit2Client(name = "httpbin", baseUrl = "\${$LibraryName.retrofit2.services.httpbin}")
+@Retrofit2Client(name = "httpbin", baseUrl = $$"${$$LibraryName.retrofit2.services.httpbin}")
 interface HttpbinApi {
 
     @GET("ip")

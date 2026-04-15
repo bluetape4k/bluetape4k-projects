@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.cassandra.event
 
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Bean
 
 @EntityScan(basePackageClasses = [User::class])

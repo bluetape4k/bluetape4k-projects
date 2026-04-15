@@ -42,6 +42,15 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 }
 
+// Jib 플러그인은 Gradle Configuration Cache와 호환되지 않음을 선언합니다.
+// 이 선언이 없으면 configuration cache 활성화 시 "this.project is null" 오류가 발생합니다.
+tasks.withType<com.google.cloud.tools.jib.gradle.BuildDockerTask>().configureEach {
+    notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
+}
+tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach {
+    notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
+}
+
 // 멀티 플랫폼 여부: -PjibMultiPlatform=true 로 활성화 (CI/CD registry push 전용)
 val jibMultiPlatform = project.hasProperty("jibMultiPlatform")
 

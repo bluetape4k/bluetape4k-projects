@@ -2,6 +2,12 @@ configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
+// testcontainers 테스트 실행 전 mock-server Docker 이미지를 자동으로 빌드합니다.
+// Jib은 소스 변경이 없으면 up-to-date 체크로 스킵하므로 매번 느리지 않습니다.
+tasks.test {
+    dependsOn(":bluetape4k-mock-server:jibDockerBuild")
+}
+
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
     api(project(":bluetape4k-core"))

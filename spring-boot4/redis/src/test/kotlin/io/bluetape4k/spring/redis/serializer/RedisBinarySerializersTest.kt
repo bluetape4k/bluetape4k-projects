@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.redis.serializer
 
+import io.bluetape4k.support.emptyByteArray
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -52,8 +53,8 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
 
     @ParameterizedTest(name = "[{1}] null 직렬화 → null 반환")
     @MethodSource("binarySerializers")
-    fun `BinarySerializer null 직렬화는 null을 반환한다`(serializer: RedisBinarySerializer, name: String) {
-        serializer.serialize(null) shouldBeEqualTo null
+    fun `BinarySerializer null 직렬화는 emptyByteArray 를 반환한다`(serializer: RedisBinarySerializer, name: String) {
+        serializer.serialize(null) shouldBeEqualTo emptyByteArray
     }
 
     @ParameterizedTest(name = "[{1}] null 역직렬화 → null 반환")
@@ -71,10 +72,10 @@ class RedisBinarySerializersTest: AbstractRedisSerializerTest() {
         assertArrayEquals(bytes, serializer.deserialize(compressed))
     }
 
-    @ParameterizedTest(name = "[{1}] null 직렬화 → null 반환")
+    @ParameterizedTest(name = "[{1}] null 직렬화 → emptyByteArray 반환")
     @MethodSource("compressSerializers")
-    fun `CompressSerializer null 직렬화는 null을 반환한다`(serializer: RedisCompressSerializer, name: String) {
-        serializer.serialize(null) shouldBeEqualTo null
+    fun `CompressSerializer null 직렬화는 emptyByteArray 을 반환한다`(serializer: RedisCompressSerializer, name: String) {
+        serializer.serialize(null) shouldBeEqualTo emptyByteArray
     }
 
     @Test

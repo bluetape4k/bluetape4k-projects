@@ -2,7 +2,7 @@ package io.bluetape4k.examples.cassandra.domain
 
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.examples.cassandra.domain.model.AllPossibleTypes
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Configuration
 
 @Configuration

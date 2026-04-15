@@ -104,7 +104,7 @@ infix fun Criteria.notInValues(values: Collection<*>): Criteria = nin(values)
 /**
  * vararg 방식으로 [Criteria.nin]을 호출합니다.
  */
-infix fun Criteria.notInValues(values: Array<*>): Criteria = nin(*values)
+infix fun Criteria.notInValues(values: Array<out Any>): Criteria = nin(*values)
 
 // ====================================================
 // 문자열 연산자

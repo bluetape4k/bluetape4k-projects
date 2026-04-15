@@ -86,7 +86,7 @@ class JsonPlaceHolderApiAsyncTest: AbstractJsonPlaceHolderApiTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create new post`(@RandomValue post: Post) = runSuspendIO {
-        val newPost = api.newPost(post).executeAsync().await().body()!!
+        val newPost = api.newPost(post.copy(userId = post.userId.absoluteValue)).executeAsync().await().body()!!
         log.debug { "newPost=$newPost" }
 
         newPost.title.shouldNotBeNullOrBlank()

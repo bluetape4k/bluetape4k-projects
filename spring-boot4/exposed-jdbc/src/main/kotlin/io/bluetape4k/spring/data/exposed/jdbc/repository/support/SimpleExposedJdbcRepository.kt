@@ -216,7 +216,7 @@ class SimpleExposedJdbcRepository<E: Entity<ID>, ID: Any>(
         else !entityClass.find { conditions }.empty()
     }
 
-    override fun <S: E, R: Any> findBy(
+    override fun <S: E, R> findBy(
         example: Example<S>,
         queryFunction: Function<FluentQuery.FetchableFluentQuery<S>, R>,
     ): R {

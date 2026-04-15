@@ -49,6 +49,10 @@ dependencies {
     implementation(Libs.micrometer_core)
     runtimeOnly(Libs.h2_v2)
 
+    // Jackson 3
+    implementation(Libs.jackson3_module_kotlin)
+    implementation(Libs.jackson3_module_blackbird)
+
     testImplementation(Libs.springBootStarter("test"))
     testImplementation(project(":bluetape4k-testcontainers"))
 }

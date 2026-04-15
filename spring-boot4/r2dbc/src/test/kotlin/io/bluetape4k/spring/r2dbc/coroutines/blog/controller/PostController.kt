@@ -6,9 +6,6 @@ import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.CommentRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.PostRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.exceptions.PostNotFoundException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class PostController(
     private val postRepository: PostRepository,
     private val commentRepository: CommentRepository,
-): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+) {
 
     companion object: KLoggingChannel()
 

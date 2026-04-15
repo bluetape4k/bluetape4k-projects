@@ -85,7 +85,7 @@ class JsonPlaceHolderApiSuspendTest: AbstractJsonPlaceHolderApiTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create new post`(@RandomValue post: Post) = runSuspendIO {
-        val newPost = api.newPost(post).suspendExecute().body()!!
+        val newPost = api.newPost(post.copy(userId = post.userId.absoluteValue)).suspendExecute().body()!!
         log.debug { "newPost=$newPost" }
 
         newPost.title.shouldNotBeNullOrBlank()

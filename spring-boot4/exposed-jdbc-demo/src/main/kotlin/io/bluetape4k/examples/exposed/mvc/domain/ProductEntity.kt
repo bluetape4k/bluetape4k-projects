@@ -36,7 +36,7 @@ class ProductEntity(id: EntityID<Long>): LongEntity(id) {
 data class ProductRecord(
     val id: Long? = null,
     val name: String,
-    val price: java.math.BigDecimal,
+    val price: java.math.BigDecimal = java.math.BigDecimal.ZERO,
     val stock: Int = 0,
 ): Serializable
 

@@ -24,7 +24,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -32,7 +32,12 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 
-@DataMongoTest
+// Spring Boot 4의 spring-boot-test-autoconfigure에는 @DataMongoTest 슬라이스가 아직 없음
+// → @SpringBootTest(webEnvironment = NONE)으로 MongoDB 레이어만 로드
+@SpringBootTest(
+    classes = [io.bluetape4k.spring.mongodb.MongoTestApplication::class],
+    webEnvironment = SpringBootTest.WebEnvironment.NONE
+)
 class ReactiveMongoOperationsCoroutinesTest: AbstractReactiveMongoCoroutineTest() {
     /** 도시별 사용자 수 집계 결과 모델 */
     data class CityCount(
