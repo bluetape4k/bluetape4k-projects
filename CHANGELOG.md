@@ -8,6 +8,24 @@
 
 ---
 
+## [1.6.2] - 2026-04-16
+
+### Removed
+
+#### spring-boot3/4 core — Retrofit2 통합 전면 제거
+
+Jackson 버전 불일치(`spring-boot4`의 `DefaultRetrofitClientConfiguration`이 Jackson 2 API를 사용하는 버그)를 계기로, 두 모듈에서 Retrofit2 관련 코드를 모두 제거했습니다. Feign 사용이 주류이므로 유지 비용 없는 제거가 적절합니다.
+
+**spring-boot3/core** 제거 항목:
+- `retrofit2/` main 소스 8개 파일 (`DefaultRetrofitClientConfiguration`, `EnableRetrofitClients`, `Retrofit2Client`, `RetrofitAutoConfiguration`, `RetrofitClientContext`, `RetrofitClientFactoryBean`, `RetrofitClientSpecification`, `RetrofitClientsRegistrar`)
+- `retrofit2/` 테스트 전체 (httpbin / jsonplaceholder API 테스트)
+- `build.gradle.kts`: `bluetape4k-retrofit2`, `retrofit2_*`, `vertx_*`, `async_http_client*` 의존성 제거
+- `application.yml`: retrofit2 서비스 설정 제거
+
+**spring-boot4/core** 제거 항목: spring-boot3와 동일 (Jackson 3 기준으로도 `converter-jackson` 미지원)
+
+---
+
 ## [1.6.1] - 2026-04-16
 
 ### Added

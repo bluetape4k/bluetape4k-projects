@@ -2,14 +2,14 @@ package io.bluetape4k.examples.cassandra.convert
 
 import com.datastax.oss.driver.api.core.cql.Row
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.readValueOrNull
-import io.bluetape4k.jackson.writeAsString
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.cassandra.core.convert.CassandraCustomConversions
 import java.util.*
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.jackson3.readValueOrNull
+import io.bluetape4k.jackson3.writeAsString
 
 @EntityScan(basePackageClasses = [Addressbook::class])
 class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() {

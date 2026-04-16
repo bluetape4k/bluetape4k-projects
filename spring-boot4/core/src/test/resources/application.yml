@@ -1,9 +1,3 @@
-bluetape4k:
-    retrofit2:
-        services:
-            httpbin: ${testcontainers.bluetape-http.httpbinUrl}/
-            jsonPlaceHolder: ${testcontainers.bluetape-http.jsonplaceholderUrl}/
-
 management:
     datadog:
         metrics:

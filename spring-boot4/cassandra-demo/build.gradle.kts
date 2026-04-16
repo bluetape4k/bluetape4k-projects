@@ -20,6 +20,7 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot4_dependencies))
+
     implementation(project(":bluetape4k-cassandra"))
     implementation(project(":bluetape4k-spring-boot4-cassandra"))
     testImplementation(project(":bluetape4k-jackson3"))
