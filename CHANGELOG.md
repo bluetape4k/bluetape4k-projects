@@ -4,7 +4,7 @@
 
 ---
 
-## [Unreleased] — 1.7.0-SNAPSHOT
+## [1.6.1] - 2026-04-16
 
 ### Added
 
