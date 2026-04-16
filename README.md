@@ -1,5 +1,7 @@
 # Bluetape4k Projects
 
+[![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
+
 Shared Kotlin/JVM library collection for backend development
 
 English | [한국어](./README.ko.md)
