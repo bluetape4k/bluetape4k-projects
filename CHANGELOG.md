@@ -4,6 +4,55 @@
 
 ---
 
+## [Unreleased] — 1.7.0-SNAPSHOT
+
+### Added
+
+#### testing/mock-server — `bluetape4k-mock-server` 신규 모듈 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
+
+Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서버.
+기존 외부 의존(`httpbin.org`, `jsonplaceholder.typicode.com`)을 컨테이너화된 로컬 서버로 대체합니다.
+
+- **httpbin 시뮬레이터**: `GET /anything`, `POST /anything`, `/status/{code}`, `/delay/{n}`, `/headers`, `/ip`, `/uuid`, `/gzip`, `/stream/{n}`, `/image/{type}` 등 지원
+- **jsonplaceholder 시뮬레이터**: posts / comments / albums / photos / todos / users CRUD API (인메모리 상태)
+- **웹 컨텐츠 시뮬레이터**: naver / google / home / login / article HTML 페이지
+- `/ping` → `"pong"` 반환 (Testcontainers wait strategy 호환)
+- Jib 빌드: `arm64` / `amd64` 호스트 아키텍처 자동 감지
+- Jackson 3 (`tools.jackson.*`) 사용 — Spring Boot 4 호환
+
+#### testing/testcontainers — `BluetapeHttpServer` 추가, `HttpbinServer` 대체 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
+
+- `BluetapeHttpServer`: `bluetape4k/mock-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
+- `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
+- 기존 `HttpbinServer`, `HttpbinHttp2Server` 및 관련 테스트 제거
+
+### Changed
+
+#### testing/mock-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([`22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
+
+io/feign, io/retrofit2, io/http, infra/micrometer, spring-boot3/4 등 외부 httpbin에 의존하던 테스트를 모두 `BluetapeHttpServer`로 전환하였습니다.
+
+#### spring-boot3/4 cassandra — `ReactiveSession.executeSuspending` SimpleStatement 강제 경유 ([`6376544ae`](https://github.com/bluetape4k/bluetape4k-projects/commit/6376544ae))
+
+Kotlin 오버로드 해석 문제(`execute(String, Map)` → `execute(String, Object...)` vararg로 잘못 dispatch)로 인해 Map 전체가 단일 BIGINT 값으로 직렬화되던 버그를 수정했습니다.
+
+- `executeSuspending(query, vararg args)` → `execute(SimpleStatement.newInstance(query, *args)).awaitSingle()`
+- `executeSuspending(query, Map)` → `execute(SimpleStatement.newInstance(query, args)).awaitSingle()`
+- spring-boot3 / spring-boot4 cassandra 모듈 동시 적용
+
+#### 빌드 — SB3 BOM 루트 제거, 각 모듈 명시적 선언으로 전환 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
+
+루트 `build.gradle.kts`에서 Spring Boot 3 / Spring Cloud / Spring Integration BOM을 제거하고 SB3 모듈(29개)에서 `implementation(platform(Libs.spring_boot3_dependencies))`를 직접 선언합니다.
+SB4 모듈이 SB3 BOM에 오염되던 문제를 해소합니다.
+
+### Docs
+
+#### 전체 README — Mermaid UML 다이어그램 스타일 가이드 적용 ([`5e5ae1963`](https://github.com/bluetape4k/bluetape4k-projects/commit/5e5ae1963))
+
+모든 모듈 README의 Mermaid 다이어그램(classDiagram / sequenceDiagram / flowchart)에 색상 테마 및 레이아웃 가이드를 일관되게 적용했습니다.
+
+---
+
 ## [1.6.0] - 2026-04-14
 
 ### Added
