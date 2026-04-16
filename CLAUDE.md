@@ -8,12 +8,12 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 
 ## Development Guidelines
 
-- [ ] **README 다이어그램**: 모든 모듈 README에 Mermaid UML 다이어그램(class/sequence/flowchart) 포함
-- [ ] **KDoc**: 모든 public 클래스·인터페이스·확장 함수에 **한국어** KDoc 필수
-- [ ] **커밋 메시지**: 한국어 + 접두사 (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
-- [ ] **Kotlin**: 2.3+, extension·DSL 최대 활용
-- [ ] **테스트**: JUnit 5 + MockK + Kluent; 예제는 실행 가능한 production 품질
-- [ ] **포맷**: IntelliJ IDEA formatter + `.editorconfig` — **ktlint 사용 금지** (프로젝트 스타일 충돌)
+- [ ] **README Diagrams**: Include Mermaid UML diagrams (class/sequence/flowchart) in every module README
+- [ ] **KDoc**: Required on all public classes, interfaces, and extension functions (Korean KDoc is acceptable)
+- [ ] **Commit Messages**: Korean + prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
+- [ ] **Kotlin**: 2.3+, maximize use of extensions and DSL
+- [ ] **Tests**: JUnit 5 + MockK + Kluent; examples must be runnable, production-quality
+- [ ] **Format**: IntelliJ IDEA formatter + `.editorconfig` — **no ktlint** (conflicts with project style)
 
 ## Build Commands
 
@@ -42,13 +42,13 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=  # RELEASE
 ```
 
-## 코드 변경 후
+## After Code Changes
 
-- [ ] 컴파일 + 테스트 실행
-- [ ] Obsidian `wiki/testlogs/YYYY-MM.md` 현재 달 파일 맨 위에 결과 기록 (doc-only 변경 제외)
-- [ ] 모듈 변경 시: `README.md` **및** `README.ko.md` 동기화 업데이트
-- [ ] superpowers 작업 완료 시: `docs/superpowers/index/YYYY-MM.md` 항목 추가 → `docs/superpowers/INDEX.md` 건수 갱신
-- [ ] spec/plan 새로 작성 시: `/wiki-update` 실행
+- [ ] Run compile + tests
+- [ ] Record result at the top of Obsidian `wiki/testlogs/YYYY-MM.md` for current month (skip for doc-only changes)
+- [ ] When changing a module: sync-update both `README.md` **and** `README.ko.md`
+- [ ] After superpowers work: add entry to `docs/superpowers/index/YYYY-MM.md` → update count in `docs/superpowers/INDEX.md`
+- [ ] When creating a new spec/plan: run `/wiki-update`
 
 ## Token-Efficient Workflow
 
@@ -96,12 +96,12 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | Module | Use When |
 |--------|----------|
 | `exposed` *(umbrella)* | Keep existing code unchanged |
-| `exposed-core` | Column types (compress/encrypt/serialize/inet/phone), `HasIdentifier`, `ExposedPage`, `Auditable` + `UserContext` + `AuditableIdTable` (감사 추적) |
-| `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.), `AuditableEntity` + `AuditableEntityClass` (감사 추적) |
-| `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `AuditableJdbcRepository` (감사 추적) |
+| `exposed-core` | Column types (compress/encrypt/serialize/inet/phone), `HasIdentifier`, `ExposedPage`, `Auditable` + `UserContext` + `AuditableIdTable` (audit tracking) |
+| `exposed-dao` | DAO entities, custom IdTable (`KsuidTable`, `SnowflakeIdTable`, etc.), `AuditableEntity` + `AuditableEntityClass` (audit tracking) |
+| `exposed-jdbc` | `ExposedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `AuditableJdbcRepository` (audit tracking) |
 | `exposed-r2dbc` | Reactive `ExposedR2dbcRepository` |
-| `exposed-cache` | 공통 캐시 인터페이스 (`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`, `R2dbcCacheRepository`, `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository`) + `LocalCacheConfig` + testFixtures 시나리오 |
-| `exposed-jdbc-caffeine` | JDBC + Caffeine 로컬 캐시 (sync + suspend, Read/Write-through/behind, H2 only) |
+| `exposed-cache` | Common cache interfaces (`JdbcCacheRepository`, `SuspendedJdbcCacheRepository`, `R2dbcCacheRepository`, `JdbcRedisRepository`, `SuspendJdbcRedisRepository`, `R2dbcRedisRepository`) + `LocalCacheConfig` + testFixtures scenarios |
+| `exposed-jdbc-caffeine` | JDBC + Caffeine local cache (sync + suspend, Read/Write-through/behind, H2 only) |
 | `exposed-r2dbc-caffeine` | R2DBC + Caffeine AsyncCache (suspend, Read/Write-through/behind, H2 only) |
 | `exposed-jdbc-lettuce` | JDBC + Lettuce Redis cache (sync + suspend, Read/Write-through/behind) |
 | `exposed-r2dbc-lettuce` | R2DBC + Lettuce Redis cache (suspend, no `runBlocking`) |
@@ -112,7 +112,7 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `exposed-postgresql` | PostGIS, pgvector, TSTZRANGE; H2 fallback |
 | `exposed-mysql8` | GIS geometry types (8 kinds), JTS, spatial functions |
 | `exposed-duckdb` | DuckDB dialect, `DuckDBDatabase` factory, `suspendTransaction`, `queryFlow` |
-| `exposed-trino` | Trino JDBC Dialect, TrinoDatabase, suspendTransaction/queryFlow; autocommit 전용 (트랜잭션 미지원) |
+| `exposed-trino` | Trino JDBC Dialect, TrinoDatabase, suspendTransaction/queryFlow; autocommit only (no transaction support) |
 | `exposed-bigquery` | BigQuery REST API via H2 SQL generation; `BigQueryContext`, suspend/Flow API |
 | `exposed-jdbc-tests` / `exposed-r2dbc-tests` | Shared test infrastructure |
 
@@ -162,7 +162,7 @@ Other: `cassandra`, `mongodb` (ReactiveMongoOperations coroutines DSL), `redis` 
 | `exposed-r2dbc-demo` (`bluetape4k-spring-boot3-exposed-r2dbc-demo`) | Exposed R2DBC + suspend Repository + Spring WebFlux integration demo |
 | `hibernate-lettuce` (`bluetape4k-spring-boot3-hibernate-lettuce`) | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Spring properties binding, Micrometer Metrics, Actuator Endpoint |
 | `hibernate-lettuce-demo` (`bluetape4k-spring-boot3-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC integration demo |
-| `batch-exposed` (`bluetape4k-spring-boot3-batch-exposed`) | Spring Batch + Exposed 통합 — ExposedKeysetItemReader(keyset 페이징), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner(VirtualThread 파티션), ExposedBatchAutoConfiguration |
+| `batch-exposed` (`bluetape4k-spring-boot3-batch-exposed`) | Spring Batch + Exposed integration — ExposedKeysetItemReader (keyset paging), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner (VirtualThread partition), ExposedBatchAutoConfiguration |
 
 ### Spring Boot 4 (`spring-boot4/`)
 
@@ -179,7 +179,7 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `exposed-r2dbc-demo` (`bluetape4k-spring-boot4-exposed-r2dbc-demo`)         | Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)                                                                                                            |
 | `hibernate-lettuce` (`bluetape4k-spring-boot4-hibernate-lettuce`)           | Hibernate 2nd Level Cache Lettuce NearCache Auto-Configuration — Spring properties binding, Micrometer Metrics, Actuator Endpoint                                                                   |
 | `hibernate-lettuce-demo` (`bluetape4k-spring-boot4-hibernate-lettuce-demo`) | Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)                                                                                                                       |
-| `batch-exposed` (`bluetape4k-spring-boot4-batch-exposed`)                   | Spring Batch 6.x + Exposed 통합 — ExposedKeysetItemReader(keyset 페이징), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner(VirtualThread 파티션), ExposedBatchAutoConfiguration |
+| `batch-exposed` (`bluetape4k-spring-boot4-batch-exposed`)                   | Spring Batch 6.x + Exposed integration — ExposedKeysetItemReader (keyset paging), ExposedItemWriter/UpdateItemWriter/UpsertItemWriter, ExposedRangePartitioner (VirtualThread partition), ExposedBatchAutoConfiguration |
 
 > **Spring Boot 4 BOM**: Use `implementation(platform(Libs.spring_boot4_dependencies))` — **not** `dependencyManagement { imports }` (pollutes `kotlinBuildToolsApiClasspath`, breaks KGP 2.3.x).
 
@@ -188,7 +188,7 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | Module | Description |
 |--------|-------------|
 | `geo` | Geocode (Google Maps/Bing), GeoHash, GeoIP2 (MaxMind) |
-| `science` | GIS 좌표계 (BoundingBox/UTM/DMS), Shapefile (GeoTools LGPL), PostGIS DB 적재 파이프라인 |
+| `science` | GIS coordinate systems (BoundingBox/UTM/DMS), Shapefile (GeoTools LGPL), PostGIS DB loading pipeline |
 | `idgenerators` | Ksuid, Snowflake, ULID, UUID |
 | `images` | Image processing utilities |
 | `javatimes` | Java Time extensions |
@@ -196,11 +196,11 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 | `leader` | Leader election |
 | `math` | Math utilities |
 | `measured` | Type-safe units + measurements |
-| `batch` | 코루틴 네이티브 배치 프레임워크 — `BatchJob/Step/Runner`, `BatchReader/Writer/Processor`, `SkipPolicy`, `InMemoryBatchJobRepository`, `ExposedJdbcBatchJobRepository`, `ExposedR2dbcBatchJobRepository`, keyset 페이징 Reader/Writer, checkpoint 재시작, Workflow 통합 |
+| `batch` | Coroutine-native batch framework — `BatchJob/Step/Runner`, `BatchReader/Writer/Processor`, `SkipPolicy`, `InMemoryBatchJobRepository`, `ExposedJdbcBatchJobRepository`, `ExposedR2dbcBatchJobRepository`, keyset paging Reader/Writer, checkpoint restart, Workflow integration |
 | `money` | Money/currency types |
 | `mutiny` | Mutiny reactive extensions |
-| `states` | Kotlin DSL FSM — 동기(AtomicReference CAS) + 코루틴(Mutex+StateFlow), Guard 조건, clinic-appointment 패턴 |
-| `workflow` | Kotlin DSL Workflow — Sequential/Parallel/Conditional/Repeat/Retry 플로우, 동기(Virtual Threads) + 코루틴(suspend/Flow), ABORTED(break)/CANCELLED/PartialSuccess 지원 |
+| `states` | Kotlin DSL FSM — sync (AtomicReference CAS) + coroutines (Mutex+StateFlow), guard conditions, clinic-appointment pattern |
+| `workflow` | Kotlin DSL Workflow — Sequential/Parallel/Conditional/Repeat/Retry flows, sync (Virtual Threads) + coroutines (suspend/Flow), ABORTED(break)/CANCELLED/PartialSuccess support |
 
 ### Testing (`testing/`)
 
@@ -236,16 +236,16 @@ Same package namespace (`io.bluetape4k.spring.*`) as Spring Boot 3 for minimal m
 
 ## Kotlin Edit Workflow (MANDATORY)
 
-`.kt` 파일 편집 시 **예외 없이** 아래 순서를 따른다.
+Follow this order **without exception** when editing `.kt` files.
 
-### 클래스 수정 전
-- [ ] `ide_find_references` 또는 `get_impact_radius_tool` 로 영향받는 파일 파악
+### Before Modifying a Class
+- [ ] Use `ide_find_references` or `get_impact_radius_tool` to identify affected files
 
-### 모든 `.kt` 편집 후
-- [ ] `ide_diagnostics` — import 오류·`@Deprecated` 경고 즉시 확인
-- [ ] import 오류 → `ide_optimize_imports` 로 수정
-- [ ] `@Deprecated` 경고 → `lsp_code_actions` Quick Fix 적용 — 절대 deprecated 사용 방치 금지
-- [ ] 위 단계 통과 후에만 빌드/컴파일 실행
+### After Every `.kt` Edit
+- [ ] `ide_diagnostics` — check import errors and `@Deprecated` warnings immediately
+- [ ] Import errors → fix with `ide_optimize_imports`
+- [ ] `@Deprecated` warnings → apply Quick Fix via `lsp_code_actions` — never leave deprecated usage unresolved
+- [ ] Only run build/compile after passing the above steps
 
 ## Key Design Patterns
 
@@ -255,10 +255,10 @@ All async work uses Coroutines. Wrap blocking APIs with `withContext(Dispatchers
 
 ### Record / Model Data Class Pattern
 
-DB Row를 담는 data class (`*Record`, `*Info`, `*Model`)는 반드시 다음 규칙을 따릅니다:
+Data classes holding DB rows (`*Record`, `*Info`, `*Model`) must follow these rules:
 
 ```kotlin
-// ✅ 분산 캐시(Lettuce/Redisson) 저장을 위해 Serializable 필수
+// ✅ Serializable required for distributed cache (Lettuce/Redisson) storage
 data class SpatialLayerRecord(
     val id: Long = 0L,
     val name: String,
@@ -269,9 +269,9 @@ data class SpatialLayerRecord(
 }
 ```
 
-- [ ] `Serializable` 구현 필수 (Lettuce/Redisson 캐시 직렬화)
-- [ ] `companion object : KLogging()` + `private const val serialVersionUID = 1L` 필수
-- [ ] `exposed.model` 패키지에 위치
+- [ ] Must implement `Serializable` (for Lettuce/Redisson cache serialization)
+- [ ] Must have `companion object : KLogging()` + `private const val serialVersionUID = 1L`
+- [ ] Place in `exposed.model` package
 
 ### Repository Generic Pattern
 
@@ -297,16 +297,16 @@ Key interfaces: `NearCacheOperations<V>` (blocking), `SuspendNearCacheOperations
 
 Compression: LZ4/Zstd · Serialization: Kryo/Fory · Custom Redis codecs (faster than official).
 
-### Auditable Pattern (감사 추적)
+### Auditable Pattern (Audit Tracking)
 
-모든 Exposed 테이블의 생성자, 생성 시간, 수정자, 수정 시간을 자동으로 추적합니다.
+Automatically tracks creator, creation time, modifier, and modification time on all Exposed tables.
 
-**3계층 구조**:
-1. **exposed-core**: `Auditable` 인터페이스 + `UserContext` (ScopedValue/ThreadLocal 듀얼 전략) + `AuditableIdTable` (테이블 베이스)
-2. **exposed-dao**: `AuditableEntity` (flush() 오버라이드로 createdBy/updatedBy 자동 설정) + `AuditableEntityClass` (DAO)
-3. **exposed-jdbc**: `AuditableJdbcRepository` (auditedUpdateById/auditedUpdateAll 메서드로 updatedAt/updatedBy DB CURRENT_TIMESTAMP 자동 설정)
+**3-layer structure**:
+1. **exposed-core**: `Auditable` interface + `UserContext` (ScopedValue/ThreadLocal dual strategy) + `AuditableIdTable` (table base)
+2. **exposed-dao**: `AuditableEntity` (overrides flush() to auto-set createdBy/updatedBy) + `AuditableEntityClass` (DAO)
+3. **exposed-jdbc**: `AuditableJdbcRepository` (auditedUpdateById/auditedUpdateAll auto-sets updatedAt/updatedBy via DB CURRENT_TIMESTAMP)
 
-**사용 예시**:
+**Usage example**:
 ```kotlin
 object ArticleTable : AuditableLongIdTable("articles") {
     val title = varchar("title", 255)
@@ -325,15 +325,15 @@ class ArticleRepository : LongAuditableJdbcRepository<ArticleRecord, ArticleTabl
 
 transaction {
     UserContext.withUser("alice") {
-        Article.new { title = "Hello" }  // createdBy="alice", createdAt=DB시각 자동설정
+        Article.new { title = "Hello" }  // createdBy="alice", createdAt=auto-set by DB
     }
     UserContext.withUser("bob") {
-        repo.auditedUpdateById(1L) { it[title] = "Updated" }  // updatedBy="bob", updatedAt=DB시각 자동설정
+        repo.auditedUpdateById(1L) { it[title] = "Updated" }  // updatedBy="bob", updatedAt=auto-set by DB
     }
 }
 ```
 
-**중요**: UPDATE 시에는 반드시 `auditedUpdateById()` 또는 `auditedUpdateAll()`을 사용하세요.
+**Important**: Always use `auditedUpdateById()` or `auditedUpdateAll()` for UPDATE operations.
 
 ## Version Management
 
@@ -347,12 +347,12 @@ snapshotVersion=-SNAPSHOT   # empty for RELEASE
 ## Git Workflow
 
 - [ ] Branch: `develop`
-- [ ] Commits: 한국어 + 접두사 (`feat: ...`, `fix: ...`)
+- [ ] Commits: Korean + prefix (`feat: ...`, `fix: ...`)
 
 ## Important Notes
 
-- [ ] **jar 소스 추출**: `.claude/lib-sources/<라이브러리명>/` 사용 — 프로젝트 소스 트리나 `/tmp/` 추출 금지
-- [ ] **Publishing**: GitHub Packages Maven; `workshop/`·`examples/` 제외
-- [ ] **atomicfu**: 클래스 프로퍼티에서만 사용 — 메서드 로컬 사용 금지
-- [ ] **Detekt**: `exposed-jdbc-tests` 에서 비활성화됨
-- [ ] **virtualthread-api 변경**: `virtualthread/api` 인터페이스 추가·변경 시 `jdk21` + `jdk25` 동시 수정 필수 — 하나만 수정 금지
+- [ ] **jar source extraction**: Use `.claude/lib-sources/<library-name>/` — never extract into project source tree or `/tmp/`
+- [ ] **Publishing**: GitHub Packages Maven; exclude `workshop/` and `examples/`
+- [ ] **atomicfu**: Use only at class property level — never as method-local variables
+- [ ] **Detekt**: Disabled in `exposed-jdbc-tests`
+- [ ] **virtualthread-api changes**: When adding/modifying interfaces in `virtualthread/api`, always update both `jdk21` and `jdk25` — never modify just one
