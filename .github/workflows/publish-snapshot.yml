@@ -4,6 +4,12 @@ on:
   push:
     branches: [develop]
   workflow_dispatch:
+    inputs:
+      diagnoseSigning:
+        description: 'Run signing diagnostics before publishing'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: publish-snapshot
@@ -33,6 +39,7 @@ jobs:
           cache-read-only: true
 
       - name: Diagnose signing inputs
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnoseSigning }}
         shell: bash
         env:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
@@ -149,7 +156,7 @@ jobs:
           PY
 
       - name: Publish SNAPSHOT
-        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache --stacktrace
+        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
