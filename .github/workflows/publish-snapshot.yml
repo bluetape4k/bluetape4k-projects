@@ -32,6 +32,122 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Diagnose signing inputs
+        shell: bash
+        env:
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          python <<'PY'
+          import base64
+          import os
+          import pathlib
+          import subprocess
+          import tempfile
+
+          raw_key = os.environ.get("SIGNING_KEY", "")
+          key_id = os.environ.get("SIGNING_KEY_ID", "")
+          password = os.environ.get("SIGNING_PASSWORD", "")
+
+          print(f"SIGNING_KEY_ID set={bool(key_id)} length={len(key_id)}")
+          print(f"SIGNING_PASSWORD set={bool(password)} length={len(password)}")
+          print(f"SIGNING_KEY set={bool(raw_key)} length={len(raw_key)}")
+
+          if raw_key.lstrip().startswith("-----BEGIN"):
+              normalized_key = raw_key.replace("\\n", "\n")
+              key_source = "armored"
+          elif "\\n" in raw_key:
+              normalized_key = raw_key.replace("\\n", "\n")
+              key_source = "escaped_newlines"
+          else:
+              try:
+                  normalized_key = base64.b64decode(raw_key.strip()).decode("utf-8")
+                  key_source = "base64"
+              except Exception:
+                  normalized_key = raw_key
+                  key_source = "raw"
+
+          print(f"SIGNING_KEY source={key_source} normalized_length={len(normalized_key)}")
+          print(f"SIGNING_KEY armored={'BEGIN PGP PRIVATE KEY BLOCK' in normalized_key}")
+
+          gnupg_home = pathlib.Path("/tmp/signing-diagnose")
+          if gnupg_home.exists():
+              subprocess.run(["rm", "-rf", str(gnupg_home)], check=True)
+          gnupg_home.mkdir(mode=0o700)
+          env = os.environ.copy()
+          env["GNUPGHOME"] = str(gnupg_home)
+
+          subprocess.run(["gpgconf", "--launch", "gpg-agent"], env=env, check=False)
+
+          key_file = gnupg_home / "signing.asc"
+          key_file.write_text(normalized_key)
+
+          import_result = subprocess.run(
+              [
+                  "gpg",
+                  "--batch",
+                  "--yes",
+                  "--pinentry-mode",
+                  "loopback",
+                  "--passphrase",
+                  password,
+                  "--import",
+                  str(key_file),
+              ],
+              env=env,
+              capture_output=True,
+              text=True,
+          )
+          print(f"gpg import exit={import_result.returncode}")
+          if import_result.stdout.strip():
+              print(import_result.stdout.strip())
+          if import_result.stderr.strip():
+              print(import_result.stderr.strip())
+          if import_result.returncode != 0:
+              raise SystemExit(import_result.returncode)
+
+          list_result = subprocess.run(
+              ["gpg", "--batch", "--with-colons", "--list-secret-keys"],
+              env=env,
+              capture_output=True,
+              text=True,
+              check=True,
+          )
+          sec_count = sum(1 for line in list_result.stdout.splitlines() if line.startswith("sec:"))
+          ssb_count = sum(1 for line in list_result.stdout.splitlines() if line.startswith("ssb:"))
+          print(f"gpg secret_keys={sec_count} subkeys={ssb_count}")
+
+          probe_file = pathlib.Path(gnupg_home) / "probe.txt"
+          probe_file.write_text("signing probe")
+          sign_result = subprocess.run(
+              [
+                  "gpg",
+                  "--batch",
+                  "--yes",
+                  "--pinentry-mode",
+                  "loopback",
+                  "--passphrase",
+                  password,
+                  "--armor",
+                  "--detach-sign",
+                  "--output",
+                  str(probe_file.with_suffix(".asc")),
+                  str(probe_file),
+              ],
+              env=env,
+              capture_output=True,
+              text=True,
+          )
+          print(f"gpg sign probe exit={sign_result.returncode}")
+          if sign_result.stdout.strip():
+              print(sign_result.stdout.strip())
+          if sign_result.stderr.strip():
+              print(sign_result.stderr.strip())
+          if sign_result.returncode != 0:
+              raise SystemExit(sign_result.returncode)
+          PY
+
       - name: Publish SNAPSHOT
         run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache --stacktrace
         env:
