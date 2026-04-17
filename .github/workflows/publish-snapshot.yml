@@ -33,7 +33,7 @@ jobs:
           cache-read-only: true
 
       - name: Publish SNAPSHOT
-        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache
+        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache --stacktrace
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
