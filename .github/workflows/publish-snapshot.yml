@@ -12,6 +12,7 @@ concurrency:
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   publish:
@@ -32,7 +33,7 @@ jobs:
           cache-read-only: true
 
       - name: Publish SNAPSHOT
-        run: ./gradlew publishBluetape4kPublicationToCentralSnapshotsRepository --parallel -x test
+        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
