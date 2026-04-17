@@ -367,12 +367,6 @@ fun <T> Array<T>.removeLast(): Array<T> {
 }
 
 /**
- * Array의 마지막 요소를 삭제한 새로운 Array를 반환합니다.
- */
-@Deprecated("use removeLast() instead", ReplaceWith("removeLast()"))
-fun <T> Array<T>.removeLastValue(): Array<T> = this.copyOfRange(0, size - 1)
-
-/**
  * Array의 마지막 요소에 지정한 값을 설정합니다.
  *
  * @param value 설정할 값

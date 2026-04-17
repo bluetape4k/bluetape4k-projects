@@ -156,20 +156,6 @@ fun LongProgression.asStream(): LongStream =
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
  *
- * @param groupSize group size
- * @return 그룹된 [IntProgression]의 [Sequence]
- */
-@Deprecated("Use chunked instead", ReplaceWith("chunked(groupSize)"))
-fun LongProgression.grouped(groupSize: Int): Sequence<LongProgression> =
-    partitioning(
-        partitionCount = calculatePartitionCount(
-            count(),
-            groupSize.also { it.assertPositiveNumber("groupSize") })
-    )
-
-/**
- * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
- *
  * ```
  * val longs = longProgressionOf(1, 10, 1)
  * longs.size() shouldBeEqualTo 10
