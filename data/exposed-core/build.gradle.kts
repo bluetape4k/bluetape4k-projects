@@ -38,10 +38,6 @@ dependencies {
     testRuntimeOnly(Libs.snappy_java)
     testRuntimeOnly(Libs.zstd_jni)
 
-    // Encryption column types
-    compileOnly(project(":bluetape4k-crypto"))
-    testRuntimeOnly(Libs.jasypt)
-
     // Phone number column types (compileOnly -> testImplementation 자동 전이 via extendsFrom)
     compileOnly(Libs.libphonenumber)
 

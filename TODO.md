@@ -145,7 +145,6 @@
 - [ ] `io/crypto/` deprecated 암호화 → `tink` 완전 대체
 - [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
 - [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
-- [ ] `exposed-jasypt` — Jasypt 최신 버전 호환성 확인
 
 ---
 

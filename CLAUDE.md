@@ -80,7 +80,6 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `tink` | Google Tink AEAD/DAEAD/MAC encryption (`TinkEncryptor`) |
 | `vertx` | Vert.x unified module (core + SQL client + Resilience4j) |
 | `netty` / `http` / `avro` / `csv` | Netty, HTTP utils, Avro, CSV |
-| ~~`crypto`~~ | Deprecated → use `tink` |
 
 ### AWS (`aws/`, `aws-kotlin/`)
 
@@ -107,7 +106,7 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `exposed-r2dbc-lettuce` | R2DBC + Lettuce Redis cache (suspend, no `runBlocking`) |
 | `exposed-jdbc-redisson` / `exposed-r2dbc-redisson` | Same pattern with Redisson |
 | `exposed-jackson` / `exposed-jackson3` / `exposed-fastjson2` | JSON column types |
-| `exposed-jasypt` / `exposed-tink` | Encrypted column types |
+| `exposed-tink` | Encrypted column types (AEAD/DAEAD via Google Tink) |
 | `exposed-measured` | Query timing via Micrometer |
 | `exposed-postgresql` | PostGIS, pgvector, TSTZRANGE; H2 fallback |
 | `exposed-mysql8` | GIS geometry types (8 kinds), JTS, spatial functions |

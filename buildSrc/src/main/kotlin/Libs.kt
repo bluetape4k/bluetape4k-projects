@@ -861,7 +861,6 @@ object Libs {
     const val xz = "org.tukaani:xz:1.11"                         // https://mvnrepository.com/artifact/org.tukaani/xz
 
     // Cryptography
-    const val jasypt = "org.jasypt:jasypt:1.9.3"   // https://mvnrepository.com/artifact/org.jasypt/jasypt
     const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
     const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
     const val tink = "com.google.crypto.tink:tink:1.20.0"  // https://mvnrepository.com/artifact/com.google.crypto.tink/tink

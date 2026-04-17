@@ -30,7 +30,7 @@ dependencies {
 
     api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-crypto"))
+    
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
