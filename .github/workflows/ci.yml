@@ -176,7 +176,9 @@ jobs:
             :bluetape4k-junit5:test \
             --parallel
         env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Duser.language=en -Duser.country=US"
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
 
       - name: Upload test results
         if: always()
