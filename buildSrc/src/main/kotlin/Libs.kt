@@ -29,6 +29,7 @@ object Plugins {
 
         const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
+        const val dependency_check = "12.1.1" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -60,6 +61,7 @@ object Plugins {
     const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
     const val nmcp = "com.gradleup.nmcp"  // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
     const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"  // https://mvnrepository.com/artifact/com.gradleup.nmcp.aggregation/com.gradleup.nmcp.aggregation.gradle.plugin
+    const val dependency_check = "org.owasp.dependencycheck" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
 }
 
 object Versions {
