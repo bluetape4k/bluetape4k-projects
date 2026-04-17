@@ -457,13 +457,17 @@ central.password=your-central-portal-password
 
 # 권장: In-memory PGP signing
 signingUseGpgCmd=false
-signingKeyId=YOUR_KEY_ID
+signingKeyId=YOUR_LAST_8_HEX_DIGITS
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
 
 # Maven Central Snapshots 업로드 병렬도 (기본값: 8)
 centralSnapshotsParallelism=8
 ```
+
+- `signingKeyId`에는 signing subkey ID의 **뒤 8자리 hex 값**만 넣어야 합니다. 예: `5C6DF399`
+- `7CF28E155C6DF399` 같은 16자리 long key ID를 넣으면 빌드가 `5C6DF399`로 정규화하고 경고를 출력합니다.
+- GitHub Actions secret `SIGNING_KEY_ID`에는 `signingKeyId=...`가 아니라 값만 넣어야 합니다.
 
 ### 참고
 

@@ -88,7 +88,33 @@ data class PublishingSigningConfig(
     val useGpgCmd: Boolean,
     val gpgExecutable: String,
     val gpgKeyName: String,
+    val keyIdWarning: String?,
 )
+
+data class NormalizedSigningKeyId(
+    val value: String,
+    val warning: String?,
+)
+
+fun normalizeSigningKeyId(raw: String): NormalizedSigningKeyId {
+    val value = raw.trim()
+    if (value.isBlank()) return NormalizedSigningKeyId(value, null)
+
+    val prefix = if (value.startsWith("0x", ignoreCase = true)) "0x" else ""
+    val hex = value.removePrefix("0x").removePrefix("0X")
+
+    return if (hex.length == 16) {
+        val normalized = prefix + hex.takeLast(8)
+        NormalizedSigningKeyId(
+            value = normalized,
+            warning = "signingKeyId should use the trailing 8 hex digits. Received $value, normalized to $normalized.",
+        )
+    } else {
+        NormalizedSigningKeyId(value, null)
+    }
+}
+
+fun resolveSigningKeyId(raw: String): String = normalizeSigningKeyId(raw).value
 
 /**
  * ASCII armor PGP key 또는 base64 인코딩된 PGP key를 파싱합니다.
@@ -109,7 +135,8 @@ fun resolveSigningKey(raw: String): String = when {
  * Publishing signing 설정을 project property / 환경 변수에서 로딩합니다.
  */
 fun Project.resolvePublishingSigningConfig(): PublishingSigningConfig {
-    val keyId = getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID")
+    val normalizedKeyId = normalizeSigningKeyId(getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID"))
+    val keyId = normalizedKeyId.value
     val key = resolveSigningKey(getEnvOrProjectProperty("signingKey", "SIGNING_KEY"))
     val password = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
     val useGpgCmd = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD").toBoolean()
@@ -125,6 +152,7 @@ fun Project.resolvePublishingSigningConfig(): PublishingSigningConfig {
         useGpgCmd = useGpgCmd,
         gpgExecutable = gpgExecutable,
         gpgKeyName = gpgKeyName,
+        keyIdWarning = normalizedKeyId.warning,
     )
 }
 
@@ -140,6 +168,7 @@ fun Project.configurePublishingSigning(
     if (!enabled) return
 
     val config = resolvePublishingSigningConfig()
+    config.keyIdWarning?.let(project.logger::warn)
     extensions.configure<SigningExtension> {
         when {
             config.key.isNotBlank() && config.password.isNotBlank() -> {

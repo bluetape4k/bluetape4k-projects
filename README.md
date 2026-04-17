@@ -458,13 +458,17 @@ central.password=your-central-portal-password
 
 # Recommended: in-memory PGP signing
 signingUseGpgCmd=false
-signingKeyId=YOUR_KEY_ID
+signingKeyId=YOUR_LAST_8_HEX_DIGITS
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
 
 # Maven Central Snapshots upload parallelism (default: 8)
 centralSnapshotsParallelism=8
 ```
+
+- `signingKeyId` must be the trailing 8 hex digits of the signing subkey ID, for example `5C6DF399`.
+- If you accidentally provide a 16-digit long key ID such as `7CF28E155C6DF399`, the build normalizes it to `5C6DF399` and prints a warning.
+- GitHub Actions secret `SIGNING_KEY_ID` should contain only the raw value, not `signingKeyId=...`.
 
 ### Notes
 
