@@ -31,7 +31,7 @@ jobs:
             | tar -xz gitleaks
           sudo mv gitleaks /usr/local/bin/
       - name: Run gitleaks
-        run: gitleaks detect --source . --redact --no-git
+        run: gitleaks detect --source . --redact --no-git --config .gitleaks.toml
 
   # ── 1. Gradle Wrapper 검증 ────────────────────────────────────────────────
   validate-wrapper:

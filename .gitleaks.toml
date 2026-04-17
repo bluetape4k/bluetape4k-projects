@@ -1,0 +1,27 @@
+title = "bluetape4k gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted paths and patterns"
+
+paths = [
+    '''.idea/''',
+    '''build/''',
+    '''.gradle/''',
+    '''gradle/wrapper/''',
+    # 테스트용 keypair - 실제 운영 키 아님
+    '''src/test/resources/keypair/''',
+    # 문서 예시 코드
+    '''docs/''',
+    '''README\.md''',
+    '''README\.ko\.md''',
+]
+
+regexes = [
+    # 테스트 코드에서 흔히 쓰는 예시 패턴
+    '''YOUR_.*_HERE''',
+    '''example[-_]key''',
+    '''test[-_]api[-_]key''',
+]
