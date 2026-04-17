@@ -91,11 +91,26 @@ data class PublishingSigningConfig(
 )
 
 /**
+ * ASCII armor PGP key 또는 base64 인코딩된 PGP key를 파싱합니다.
+ * GitHub Actions env var의 멀티라인 처리 문제를 회피하기 위해 base64 인코딩을 지원합니다.
+ */
+fun resolveSigningKey(raw: String): String = when {
+    raw.isBlank() -> raw
+    raw.trimStart().startsWith("-----BEGIN") -> raw.replace("\\n", "\n")
+    raw.contains("\\n") -> raw.replace("\\n", "\n")
+    else -> try {
+        java.util.Base64.getDecoder().decode(raw.trim()).toString(Charsets.UTF_8)
+    } catch (_: Exception) {
+        raw
+    }
+}
+
+/**
  * Publishing signing 설정을 project property / 환경 변수에서 로딩합니다.
  */
 fun Project.resolvePublishingSigningConfig(): PublishingSigningConfig {
     val keyId = getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID")
-    val key = getEnvOrProjectProperty("signingKey", "SIGNING_KEY").replace("\\n", "\n")
+    val key = resolveSigningKey(getEnvOrProjectProperty("signingKey", "SIGNING_KEY"))
     val password = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
     val useGpgCmd = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD").toBoolean()
     val gpgExecutable = getEnvOrProjectProperty("signing.gnupg.executable", "GPG_EXECUTABLE")
