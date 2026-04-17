@@ -1,6 +1,6 @@
 # bluetape4k TODO
 
-> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 134개
+> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 132개
 > 최종 업데이트: 2026-04-17
 
 ---
@@ -33,16 +33,15 @@
 
 ### 2.1 io 모듈 레거시 정리 🔴
 
-- [ ] `io/crypto/` — `@Deprecated` 암호화 API 제거 → `tink` 모듈로 대체 유도
-  - digest, encrypt 관련 45개 파일 점진적 제거
+- [x] `io/crypto/` — jasypt 기반 암호화 모듈 전체 삭제, `tink` 모듈로 대체 완료 (2026-04-17)
 - [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
   - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
 - [ ] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
 
 ### 2.2 core 모듈 Deprecated 정리 🟡
 
-- [ ] `bluetape4k/core/` — 21개 파일 `@Deprecated` 항목 점검
-  - 대체 API가 있는 경우 마이그레이션 가이드 제공 후 제거
+- [x] `bluetape4k/core/` — `@Deprecated` 항목 전수 제거 완료 (2026-04-17)
+  - Systemx, TimeSpec, DateSupport, StringSupport, NumberSupport, AutoCloseableSupport, EnumSupport, ExecutorSupport, StructuredTaskScopeSupport, ProgressionSupport, IterableSupport, SequenceSupport, QueueSupport, AnySupport, ArraySupport, ApacheConstructorUtils 등 총 26개 항목 제거
 
 ### 2.3 infra 모듈 정리 🟡
 
@@ -136,13 +135,15 @@
 - [ ] **Kotlin 2.3 컴파일러** 최신 기능 활용 검토
   - `-Xcontext-parameters` 전면 도입 검토
 - [ ] **kapt → KSP** 마이그레이션 검토 (kapt 사용 모듈 파악 필요)
-- [ ] GitHub Actions CI 파이프라인 구성 (현재 없음)
+- [x] GitHub Actions CI 파이프라인 구성 완료 (2026-04-17)
+  - `ci.yml`: validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status
+  - `publish-snapshot.yml`: develop 브랜치 push 시 Maven Central Snapshots 자동 배포
 
 ---
 
 ## 9. 보안 🔴
 
-- [ ] `io/crypto/` deprecated 암호화 → `tink` 완전 대체
+- [x] `io/crypto/` deprecated 암호화 → `tink` 완전 대체 완료 (2026-04-17)
 - [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
 - [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
 

@@ -6,6 +6,59 @@
 
 ## [Unreleased] — 1.7.0-SNAPSHOT
 
+### Added
+
+#### core — `virtualFutureOfNullable` 추가 ([`ce48b684b`](https://github.com/bluetape4k/bluetape4k-projects/commit/ce48b684b))
+
+`virtualFutureOf`가 non-null 타입만 지원하던 한계를 해소합니다.
+
+- `virtualFutureOfNullable<V> { }` — Virtual Thread 위에서 nullable 결과를 반환하는 `CompletableFuture<V?>` 생성
+
+#### CI/CD — GitHub Actions 파이프라인 구성 ([`ce48b684b`](https://github.com/bluetape4k/bluetape4k-projects/commit/ce48b684b))
+
+- `ci.yml`: push/PR on `develop`·`main` 트리거, 8개 job (validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status)
+- `publish-snapshot.yml`: `develop` 브랜치 push 시 Maven Central Snapshots 자동 배포 (`CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `SIGNING_KEY*`)
+
+### Removed
+
+#### data/exposed-jasypt — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
+
+jasypt 기반 암호화 컬럼 타입을 `exposed-tink`(Google Tink AEAD/DAEAD)로 완전 대체합니다.
+
+- `JasyptVarCharColumnType`, `JasyptBinaryColumnType`, `JasyptBlobColumnType` 및 테스트 전체 삭제
+- `settings.gradle.kts`에서 `bluetape4k-exposed-jasypt` 모듈 제외
+
+#### io/crypto — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
+
+jasypt(`org.jasypt.*`) 기반 `Encryptor`, `Digester` 등 암호화 유틸리티 모듈을 삭제합니다. 암호화는 `io/tink`(`TinkEncryptor`) 사용을 권장합니다.
+
+- `Libs.jasypt` 상수 제거
+- 5개 모듈(`okio`, `jackson2`, `jackson3`, `io`, `exposed-jdbc-tests`)에서 `bluetape4k-crypto` compileOnly 의존성 제거
+- `data/exposed-core`의 deprecated `EncryptedVarCharColumnType` 등 3개 클래스 삭제
+
+#### core — `@Deprecated` 항목 전수 제거 ([`da4b6dd1f`](https://github.com/bluetape4k/bluetape4k-projects/commit/da4b6dd1f), [`3d8bef82f`](https://github.com/bluetape4k/bluetape4k-projects/commit/3d8bef82f))
+
+`bluetape4k-core` main source에서 `@Deprecated` 항목 26개를 모두 제거했습니다 (-665 lines).
+
+| 파일 | 제거 항목 |
+|------|----------|
+| `Systemx` | `JAVA_CLASS_VERION`(오타), `processCount`, `javaIoTmpDir`, `isJava6`~`isJava10` |
+| `TimeSpec` | `MILLIS_IN_DAY`, `MILLIS_IN_HOUR`, `MILLIS_IN_MINUTE` |
+| `DateSupport` | `Date.plus(Date)`, `Timestamp.plus(Timestamp)` |
+| `StringSupport` | `ifEmpty`(nullable), `asStringList`, `redact` |
+| `NumberSupport` | `coerce` |
+| `AutoCloseableSupport` | `using` infix |
+| `EnumSupport` | `Class<E>`/`KClass<E>` 기반 함수 8개 |
+| `ExecutorSupport` | deprecated `VirtualThreadExecutor` |
+| `StructuredTaskScopeSupport` | `structuredTaskScopeFirst` |
+| `ProgressionSupport` | `IntProgression.grouped()`, `LongProgression.grouped()` |
+| `IterableSupport` / `SequenceSupport` | `tryMap` |
+| `QueueSupport` | `linkedBlokcingDequeOf`·`QueueOf` 오타 함수 4개 |
+| `AnySupport` | `areEquals` |
+| `ArraySupport` | `removeLastValue` |
+| `ApacheConstructorUtils` | `getAccessbleConstructor`(오타) |
+| `images/ImageInputStream·OutputStream` | `using` deprecated |
+
 ---
 
 ## [1.6.2] - 2026-04-16
