@@ -79,12 +79,3 @@ fun <T> structuredTaskScopeAny(
     return StructuredTaskScopes.any(name, factory, block)
 }
 
-/**
- * [structuredTaskScopeAny]의 이전 이름입니다. [structuredTaskScopeAny]를 사용하세요.
- */
-@Deprecated("structuredTaskScopeAny를 사용하세요.", replaceWith = ReplaceWith("structuredTaskScopeAny"))
-fun <T> structuredTaskScopeFirst(
-    name: String? = null,
-    factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
-    block: (scope: StructuredTaskScopeAny<T>) -> T,
-): T = structuredTaskScopeAny(name, factory, block)

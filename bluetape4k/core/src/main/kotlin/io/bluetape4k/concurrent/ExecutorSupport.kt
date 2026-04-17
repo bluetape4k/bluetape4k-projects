@@ -22,19 +22,6 @@ import java.util.concurrent.ForkJoinPool
 object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
 
 /**
- * [Executors.newVirtualThreadPerTaskExecutor]를 사용하는 [ExecutorService]
- */
-/**
- * [Executors.newVirtualThreadPerTaskExecutor]를 사용하는 [ExecutorService].
- * [io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor]로 대체되었습니다.
- */
-@Deprecated(
-    message = "Use io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor instead",
-    replaceWith = ReplaceWith("VirtualThreadExecutor"),
-)
-object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTaskExecutor()
-
-/**
  * 호출 스레드에서 즉시 실행하는 동기 [Executor].
  *
  * ```kotlin

@@ -259,20 +259,6 @@ fun Sequence<*>.asStringArray(fallback: String = ""): Array<String> =
 inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = map { it as? T }.toList().toTypedArray()
 
 /**
- * [mapper] 실행의 [Result] 를 반환합니다.
- *
- * ```
- * val sequence = sequenceOf(0, 1, 2)
- * val result = sequence.tryMap { it / it }  // [Failure(ArithmeticException), Success(1), Success(1)]
- * ```
- *
- * @param mapper 변환 작업
- * @return 변환된 결과를 담은 `Sequence<Result<R>>` 객체
- */
-@Deprecated("Use mapCatching", ReplaceWith("mapCatching(mapper)"))
-inline fun <T, R> Sequence<T>.tryMap(crossinline mapper: (T) -> R): Sequence<Result<R>> = mapCatching(mapper)
-
-/**
  * [mapper] 실행이 성공한 결과만 추출합니다.
  *
  * ```

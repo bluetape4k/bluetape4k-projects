@@ -6,21 +6,6 @@ import java.lang.reflect.Constructor
 /**
  * 파라미터 타입에 일치하는 접근 가능한 생성자를 반환합니다.
  *
- * @param parameterTypes 생성자의 파라미터 타입 목록
- * @return 일치하는 [Constructor]
- * @deprecated [getAccessibleConstructor]를 사용하세요.
- */
-@Deprecated(
-    message = "Use getAccessibleConstructor",
-    replaceWith = ReplaceWith("getAccessibleConstructor(*parameterTypes)")
-)
-fun <T> Class<T>.getAccessbleConstructor(vararg parameterTypes: Class<*>): Constructor<T> {
-    return ConstructorUtils.getAccessibleConstructor(this, *parameterTypes)
-}
-
-/**
- * 파라미터 타입에 일치하는 접근 가능한 생성자를 반환합니다.
- *
  * Apache Commons Lang3 [ConstructorUtils]의 Kotlin 확장 래퍼입니다.
  *
  * ```kotlin

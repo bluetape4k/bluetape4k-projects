@@ -43,66 +43,6 @@ const val NANO_PER_MILLIS: Long = 1_000_000L
 const val NANO_PER_SECOND: Long = 1_000_000_000L
 
 /**
- * 하루의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_DAY
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerDay 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerDay")
-)
-val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
-
-/**
- * 한 시간의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_HOUR
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerHour 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerHour")
-)
-val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
-
-/**
- * 1분의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_MINUTE
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerMinute 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerMinute")
-)
-val MILLIS_IN_MINUTE = Duration.ofMinutes(1).toMillis()
-
-/**
  * 하루의 나노초 수
  *
  * ## 동작/계약

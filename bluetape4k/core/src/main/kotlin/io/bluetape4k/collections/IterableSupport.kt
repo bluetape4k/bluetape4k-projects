@@ -257,28 +257,6 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  *
  * ```
  * val list = listOf(1, 2, 3)
- * val results = list.tryMap { it / 0 }
- * results.forEach { result ->
- *    result.onSuccess { println("Success: $it") }
- *    result.onFailure { println("Failure: $it") }
- *    result.getOrNull() // null
- *    result.getOrElse { 0 } // 0
- *    result.getOrThrow() // throw ArithmeticException
- * }
- * ```
- *
- * @param mapper 변환 작업
- * @return [Result] 리스트
- * @see mapCatching
- */
-@Deprecated("Use mapCatching", ReplaceWith("mapCatching(mapper)"))
-inline fun <T, R> Iterable<T>.tryMap(mapper: (T) -> R): List<Result<R>> = mapCatching(mapper)
-
-/**
- * [mapper] 실행의 [Result] 를 반환합니다.
- *
- * ```
- * val list = listOf(1, 2, 3)
  * val results = list.mapCatching { it / 0 }
  * results.forEach { result ->
  *   result.onSuccess { println("Success: $it") }
