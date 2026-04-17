@@ -74,6 +74,7 @@ jobs:
           ./gradlew \
             :bluetape4k-lettuce:test \
             :bluetape4k-redisson:test \
+            :bluetape4k-jackson2:test \
             --no-daemon --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g"
