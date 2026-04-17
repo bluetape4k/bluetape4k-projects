@@ -46,7 +46,7 @@ virtualFutureOf { delegate.findVertexById(label, id) }  // 컴파일 오류: V: 
 
 ```kotlin
 // CompletableFutureSupport.kt 에 추가
-inline fun <V> virtualNullableFutureOf(
+inline fun <V> virtualFutureOfNullable(
     crossinline block: () -> V?,
 ): CompletableFuture<V?> =
     CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
@@ -55,7 +55,7 @@ inline fun <V> virtualNullableFutureOf(
 사용 예:
 ```kotlin
 override fun findVertexByIdAsync(label: String, id: GraphElementId): CompletableFuture<GraphVertex?> =
-    virtualNullableFutureOf { delegate.findVertexById(label, id) }
+    virtualFutureOfNullable { delegate.findVertexById(label, id) }
 ```
 
 **Option B — `V: Any` 제약 제거 (더 간단하지만 주의 필요)**
