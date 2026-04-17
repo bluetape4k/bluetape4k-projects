@@ -76,6 +76,10 @@ inline fun <V> virtualFutureOf(
 기존 `virtualFuture<T>` 는 `T` 제약이 없어 nullable을 지원하지만 `VirtualFuture<T>` 를 반환한다.
 `CompletableFuture` 를 반환하는 nullable 지원 버전이 별도로 필요하다 (Option A 권장).
 
+> **임시 해결**: `bluetape4k-graph`의 `graph-core` 모듈에
+> `io.bluetape4k.concurrent.virtualthread.CompletableFutureNullableSupport.kt` 로 동일 함수를 임시 정의해 사용 중.
+> `bluetape4k-projects`에 공식 추가되면 해당 파일을 제거하고 import만 교체하면 된다.
+
 ### 영향 범위
 
 | 어댑터 파일 | 영향 메서드 |
