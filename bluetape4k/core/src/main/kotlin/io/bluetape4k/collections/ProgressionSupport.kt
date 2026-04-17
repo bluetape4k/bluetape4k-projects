@@ -54,20 +54,6 @@ fun IntProgression.asStream(): IntStream =
 /**
  * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
  *
- * @param groupSize group size
- * @return 그룹된 [IntProgression]의 [Sequence]
- */
-@Deprecated("Use chunked instead", ReplaceWith("chunked(groupSize)"))
-fun IntProgression.grouped(groupSize: Int): Sequence<IntProgression> =
-    partitioning(
-        partitionCount = calculatePartitionCount(
-            count(),
-            groupSize.also { it.assertPositiveNumber("groupSize") })
-    )
-
-/**
- * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
- *
  * ```
  * val ints = intProgressionOf(1, 10, 1)
  * ints.size() shouldBeEqualTo 10
@@ -166,20 +152,6 @@ fun LongProgression.asStream(): LongStream =
     LongStream.builder()
         .also { builder -> forEach { builder.add(it) } }
         .build()
-
-/**
- * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
- *
- * @param groupSize group size
- * @return 그룹된 [IntProgression]의 [Sequence]
- */
-@Deprecated("Use chunked instead", ReplaceWith("chunked(groupSize)"))
-fun LongProgression.grouped(groupSize: Int): Sequence<LongProgression> =
-    partitioning(
-        partitionCount = calculatePartitionCount(
-            count(),
-            groupSize.also { it.assertPositiveNumber("groupSize") })
-    )
 
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.

@@ -1,85 +1,168 @@
-# TODO — bluetape4k-projects 개선 목록
+# bluetape4k TODO
 
-개선이 필요한 항목을 우선순위 순으로 관리합니다.
-완료된 항목은 ~~취소선~~ 처리 후 CHANGELOG.md로 이동시킵니다.
-
----
-
-## [HIGH] `virtualFutureOf` — nullable 반환 타입 미지원 (사용성 제약)
-
-> **상태**: 🔄 `bluetape4k-graph`에 임시 workaround 적용 중 — `bluetape4k-projects` 공식 추가 대기
-
-**파일**: `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/CompletableFutureSupport.kt`
-
-### 현재 구현
-
-```kotlin
-inline fun <V: Any> virtualFutureOf(
-    crossinline block: () -> V,
-): CompletableFuture<V> =
-    CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
-```
-
-`V: Any` 제약으로 인해 **nullable 반환 타입(`T?`)에 사용 불가**.
-
-### 발견 경위
-
-`bluetape4k-graph`의 `VirtualThread*Adapter` 구현 시 nullable 반환 메서드에서 컴파일 오류 발생:
-
-```kotlin
-// findVertexById → GraphVertex?  /  shortestPath → GraphPath?  /  updateVertex → GraphVertex?
-```
-
-### 확정된 해결 방안 — `virtualFutureOfNullable` 추가
-
-```kotlin
-// CompletableFutureSupport.kt 에 추가
-inline fun <V> virtualFutureOfNullable(
-    crossinline block: () -> V?,
-): CompletableFuture<V?> =
-    CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
-```
-
-> **Note**: `Unit`은 `Any`를 만족하므로 `CompletableFuture<Unit>` 반환에는 기존 `virtualFutureOf`를 그대로 사용한다.
-> `virtualFutureOfNullable`은 `T?` nullable 결과가 실제로 필요한 경우에만 쓴다.
-
-### 현재 임시 workaround 위치
-
-`bluetape4k-graph/graph/graph-core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/CompletableFutureNullableSupport.kt`
-
-공식 추가 후 해당 파일을 삭제하고 import만 교체하면 된다 (어댑터 코드 변경 불필요).
-
-### 영향 범위
-
-| 어댑터 파일 | 영향 메서드 |
-|------------|------------|
-| `VirtualThreadVertexAdapter` | `findVertexByIdAsync`, `updateVertexAsync` |
-| `VirtualThreadTraversalAdapter` | `shortestPathAsync` |
+> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 132개
+> 최종 업데이트: 2026-04-17
 
 ---
 
-## [LOW] Kotlin API에서 `CompletableFuture<Void>` 대신 `CompletableFuture<Unit>` 사용 권고
+## 우선순위 분류
 
-> **상태**: 📝 코딩 컨벤션 추가 권고 — 강제 변경 불필요
-
-Java interop 목적이 없는 순수 Kotlin API에서 void 반환을 `CompletableFuture<Void>` 로 선언하는 것은 부적절하다.
-
-- `Void`는 Java의 `null`-only 타입이므로 `.join()` 결과가 항상 `null`
-- `Unit`은 Kotlin의 unit 타입으로 `.join()` 결과가 `Unit` 인스턴스 → 타입 안전
-
-**권장 패턴**:
-
-```kotlin
-// ❌ Java-ism
-fun createGraphAsync(name: String): CompletableFuture<Void>
-
-// ✅ Kotlin-idiomatic
-fun createGraphAsync(name: String): CompletableFuture<Unit>
-```
-
-`Unit: Any` 이므로 `virtualFutureOf { unitReturningBlock() }` 으로 구현 가능 — `runAsync` 불필요.
-
-**발견 경위**: `bluetape4k-graph`의 `GraphVirtualThreadSession` 인터페이스가 `Void`로 선언되어  
-`CompletableFuture.runAsync`를 억지로 사용했다가 `Unit`으로 교체 후 `virtualFutureOf`로 통일.
+- 🔴 **High** — 릴리스 전 반드시 처리
+- 🟡 **Medium** — 다음 마일스톤 대상
+- 🟢 **Low** — 장기 개선 과제
 
 ---
+
+## 1. 미완성 기능
+
+### 1.1 utils/science — NetCdf 지원 완성 🟡
+
+- [ ] `NetCdfCatalogService.kt` — `TODO("Phase 4 UCAR netcdfAll 완료 후 구현 예정")` 구현
+  - `listLayers()`, `getLayer()`, `createLayer()` 등 미구현 메서드 완성
+- [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
+- [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
+
+### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+
+- [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
+  - `findByName()`, `findByAgeGreaterThan()`, `findByNameContaining()` 완성
+
+---
+
+## 2. Deprecated 코드 정리
+
+### 2.1 io 모듈 레거시 정리 🔴
+
+- [x] `io/crypto/` — jasypt 기반 암호화 모듈 전체 삭제, `tink` 모듈로 대체 완료 (2026-04-17)
+- [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
+  - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
+- [ ] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
+
+### 2.2 core 모듈 Deprecated 정리 🟡
+
+- [x] `bluetape4k/core/` — `@Deprecated` 항목 전수 제거 완료 (2026-04-17)
+  - Systemx, TimeSpec, DateSupport, StringSupport, NumberSupport, AutoCloseableSupport, EnumSupport, ExecutorSupport, StructuredTaskScopeSupport, ProgressionSupport, IterableSupport, SequenceSupport, QueueSupport, AnySupport, ArraySupport, ApacheConstructorUtils 등 총 26개 항목 제거
+
+### 2.3 infra 모듈 정리 🟡
+
+- [ ] `infra/` — 12개 deprecated 파일 검토
+  - 레거시 캐시, 큐 연동 API 정리
+
+---
+
+## 3. testing/testcontainers — HazelcastServer 수정 🔴
+
+- [ ] `HazelcastServer.kt` — deprecated Hazelcast API 4개 수정
+  - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체
+  - Hazelcast 5.x 호환성 확보
+
+---
+
+## 4. x-obsoleted 처리 계획 🟡
+
+14개 레거시 모듈에 대한 명확한 정책 결정 필요:
+
+| 모듈 | 권장 처리 |
+|------|---------|
+| `vertx-coroutines`, `vertx-sqlclient`, `vertx-webclient` | 완전 제거 (Vert.x 통합 → 별도 프로젝트) |
+| `mutiny-examples` | 완전 제거 (Mutiny → utils/mutiny 통합 완료) |
+| `nats` | 재검토 (NATS 수요 있으면 infra로 승격) |
+| `bloomfilter`, `naivebayes` | 재검토 (ML/검색 수요 있으면 utils로 승격) |
+| `tokenizer`, `ahocorasick`, `lingua` | 재검토 (NLP 수요 있으면 승격) |
+| `javers`, `mapstruct`, `captcha` | 완전 제거 |
+| `logback-kafka` | infra/kafka 로 통합 검토 |
+
+- [ ] 각 모듈별 처리 결정 후 `settings.gradle.kts`에서 제외 또는 이동
+- [ ] `x-obsoleted/` 디렉토리 최종 삭제
+
+---
+
+## 5. Spring Boot 3 / 4 동기화 유지 🔴
+
+현재 13개 모듈 완벽 대칭 — 신규 모듈 추가 시 반드시 양쪽에 동시 구현:
+
+- [ ] 신규 모듈 추가 체크리스트 확립 (PR 템플릿에 반영)
+- [ ] Spring Boot 4 BOM 업데이트 추적 (Spring Framework 7.x 대응)
+- [ ] spring-boot4 모듈 독립 테스트 CI 구성 확인
+
+---
+
+## 6. 모듈 신규 추가 검토 🟢
+
+### 6.1 data 계층
+
+- [ ] **exposed-oracle** — Oracle JDBC dialect 지원 (기업 수요)
+- [ ] **exposed-sqlserver** — SQL Server 지원
+- [ ] **exposed-clickhouse** — ClickHouse 분석 DB 지원
+- [ ] **exposed-mariadb** — MariaDB 전용 dialect (MySQL8과 분리)
+
+### 6.2 infra 계층
+
+- [ ] **infra/nats** — NATS JetStream + Kotlin Coroutines 통합 (x-obsoleted 승격)
+- [ ] **infra/elasticsearch** — Elasticsearch Kotlin Coroutines 클라이언트
+- [ ] **infra/pulsar** — Apache Pulsar 통합
+
+### 6.3 utils 계층
+
+- [ ] **utils/ai** — LLM 통합 유틸리티 (Anthropic/OpenAI SDK 래퍼)
+- [ ] **utils/vector** — 벡터 임베딩, 유사도 계산 유틸리티
+- [ ] **utils/tracing** — OpenTelemetry + Coroutines 통합 강화
+
+### 6.4 testing 계층
+
+- [ ] **testing/testcontainers/llm** — Ollama, LocalAI 컨테이너 지원 완성
+- [ ] **testing/testcontainers/vector-db** — Qdrant, Weaviate, Milvus 지원
+
+---
+
+## 7. 문서화 개선 🟡
+
+- [ ] 각 모듈 README.md + README.ko.md Mermaid UML 다이어그램 추가
+  - 미완성 모듈: `data/exposed-*` (일부), `infra/cache-*`, `utils/batch`
+- [ ] KDoc 커버리지 확대
+  - 현재 public API 중 KDoc 미작성 항목 파악 (Dokka 보고서 활용)
+- [ ] CHANGELOG.md 1.7.0 항목 지속 업데이트
+- [ ] `docs/` 디렉토리 아키텍처 문서 갱신
+
+---
+
+## 8. 빌드 / CI 개선 🟡
+
+- [ ] **설정 캐시** `warn` → `on` 으로 전환 (현재 경고 해결 후)
+- [ ] **의존성 검증** `lenient` → `strict` 전환 검토
+- [ ] **Gradle 9.x 호환성** — deprecated API 사용 제거
+  - `settings.gradle.kts` `includeModules` 함수 Gradle 9 호환 확인
+- [ ] **Kotlin 2.3 컴파일러** 최신 기능 활용 검토
+  - `-Xcontext-parameters` 전면 도입 검토
+- [ ] **kapt → KSP** 마이그레이션 검토 (kapt 사용 모듈 파악 필요)
+- [x] GitHub Actions CI 파이프라인 구성 완료 (2026-04-17)
+  - `ci.yml`: validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status
+  - `publish-snapshot.yml`: develop 브랜치 push 시 Maven Central Snapshots 자동 배포
+
+---
+
+## 9. 보안 🔴
+
+- [x] `io/crypto/` deprecated 암호화 → `tink` 완전 대체 완료 (2026-04-17)
+- [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
+- [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
+
+---
+
+## 10. 성능 / 품질 🟢
+
+- [ ] `utils/benchmark` 모듈 결과 문서화 (현재 결과 미공개)
+- [ ] `infra/lettuce` NearCache 성능 벤치마크 공개
+- [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 제거
+- [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토
+
+---
+
+## 완료 기준
+
+각 항목은 다음 조건을 모두 만족해야 완료:
+
+- [ ] 코드 변경 완료
+- [ ] 단위/통합 테스트 통과
+- [ ] README.md + README.ko.md 업데이트
+- [ ] testlog 기록 (`wiki/testlogs/YYYY-MM.md`)

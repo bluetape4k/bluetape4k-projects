@@ -108,40 +108,6 @@ inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String 
     DecimalFormat(pattern).format(this)
 
 /**
- * 숫자의 범위를 [minValue]와 [maxValue] 사이로 제한한다.
- *
- * ```
- * val number = 123
- * number.coerce(0, 100)  // 100
- * number.coerce(200, 300)  // 200
- * number.coerce(0, 200)  // 123
- * ```
- */
-@Deprecated(
-    message = "stdlib의 coerceIn을 사용하세요.",
-    replaceWith = ReplaceWith("this.coerceIn(minValue, maxValue)"),
-)
-        /**
-         * 숫자 값을 [minValue]~[maxValue] 범위로 제한합니다.
-         *
-         * ## 동작/계약
-         * - `this < minValue`면 [minValue], `this > maxValue`면 [maxValue]를 반환합니다.
-         * - 내부적으로 Kotlin 표준 함수 `coerceIn`을 호출합니다.
-         * - 수신 값은 변경되지 않으며 새 값(또는 동일 값)을 반환합니다.
-         * - 범위 경계 비교만 수행하므로 추가 할당 없이 상수 시간에 동작합니다.
-         *
-         * ```kotlin
-         * // 123.coerce(0, 100) == 100
-         * // 50.coerce(0, 100) == 50
-         * ```
-         *
-         * @param minValue 허용 최소값(포함)
-         * @param maxValue 허용 최대값(포함)
-         */
-fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> =
-    this.coerceIn(minValue, maxValue)
-
-/**
  * 문자열이 16진수 숫자를 나타내는 문자열인지 확인한다.
  *
  * ```

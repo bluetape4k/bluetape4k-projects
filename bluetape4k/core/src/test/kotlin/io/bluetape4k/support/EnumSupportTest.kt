@@ -63,42 +63,4 @@ class EnumSupportTest: AbstractCoreTest() {
         }
     }
 
-    @Nested
-    inner class UseReflection {
-
-        @Test
-        fun `get emun map`() {
-            val map = Color::class.enumMap()
-            map shouldBeEqualTo expectedNameMap
-        }
-
-        @Test
-        fun `get enum list`() {
-            val list = Color::class.enumList()
-            list shouldBeEqualTo expectedList
-        }
-
-        @Test
-        fun `get by name or null`() {
-            Color::class.findByNameOrNull("BLUE", ignoreCase = true) shouldBeEqualTo Color.BLUE
-            Color::class.findByNameOrNull("Blue", ignoreCase = true) shouldBeEqualTo Color.BLUE
-            Color::class.findByNameOrNull("blue", ignoreCase = true) shouldBeEqualTo Color.BLUE
-
-            Color::class.findByNameOrNull("BLUE", ignoreCase = false) shouldBeEqualTo Color.BLUE
-            Color::class.findByNameOrNull("Blue", ignoreCase = false).shouldBeNull()
-            Color::class.findByNameOrNull("blue", ignoreCase = false).shouldBeNull()
-        }
-
-        @Test
-        fun `check valid name of enum`() {
-            Color::class.isValidName("BLUE", ignoreCase = true).shouldBeTrue()
-            Color::class.isValidName("Blue", ignoreCase = true).shouldBeTrue()
-            Color::class.isValidName("blue", ignoreCase = true).shouldBeTrue()
-
-            Color::class.isValidName("BLUE", ignoreCase = false).shouldBeTrue()
-            Color::class.isValidName("Blue", ignoreCase = false).shouldBeFalse()
-            Color::class.isValidName("blue", ignoreCase = false).shouldBeFalse()
-        }
-    }
-
 }

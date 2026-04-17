@@ -39,6 +39,8 @@ plugins {
     id(Plugins.kosogor) version Plugins.Versions.kosogor
     id(Plugins.nmcp_aggregation) version Plugins.Versions.nmcp
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
+
+    id(Plugins.dependency_check) version Plugins.Versions.dependency_check
 }
 
 val centralPublishing = resolveCentralPublishingConfig()
@@ -658,6 +660,22 @@ dependencies {
     publishableProjects.forEach { publishableProject ->
         add("nmcpAggregation", project(publishableProject.path))
     }
+}
+
+// ── OWASP Dependency Check ────────────────────────────────────────────────
+dependencyCheck {
+    // NVD API 키 (환경변수 NVD_API_KEY 또는 Gradle 프로퍼티로 전달)
+    nvd.apiKey = providers.environmentVariable("NVD_API_KEY")
+        .orElse(providers.gradleProperty("nvdApiKey"))
+        .orElse("")
+        .get()
+    // 취약점 점수 7.0 이상이면 빌드 실패 (CVSS High/Critical)
+    failBuildOnCVSS = 7.0f
+    // 분석 제외: 테스트, 컴파일 전용 의존성
+    skipConfigurations = listOf("testRuntimeClasspath", "testCompileClasspath")
+    formats = listOf("HTML", "SARIF")
+    outputDirectory = layout.buildDirectory.dir("reports").get().asFile.absolutePath
+    suppressionFile = "config/owasp-suppressions.xml"
 }
 
 tasks.register("testDataExposedModules") {

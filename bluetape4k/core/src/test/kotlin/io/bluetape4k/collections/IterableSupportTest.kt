@@ -18,10 +18,10 @@ class IterableSupportTest {
     fun `try mapping`() {
         val origin = fastList(10) { it + 1 }
 
-        val result = origin.tryMap { it / it }
+        val result = origin.mapCatching { it / it }
         result.all { it.isSuccess }.shouldBeTrue()
 
-        val result2 = origin.tryMap { it / 0 }
+        val result2 = origin.mapCatching { it / 0 }
         result2.all { it.isFailure }.shouldBeTrue()
     }
 

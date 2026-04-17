@@ -259,22 +259,6 @@ fun ByteBuffer.toUtf8String(): String = UTF_8.decode(this).toString()
  * - 문자열의 길이만 검사합니다.
  *
  * ```kotlin
- * val name: String? = null
- * name.ifEmpty { "debop" } // "debop"
- * ```
- */
-@Deprecated("use ifNullOrEmpty instead", replaceWith = ReplaceWith("ifNullOrEmpty"))
-inline fun String?.ifEmpty(fallback: () -> String): String = if (isNullOrEmpty()) fallback() else this
-
-/**
- * 문자열이 null이거나 empty(길이 0)이면 [fallback] 결과를 반환합니다.
- *
- * ## 동작/계약
- * - null 또는 empty("")일 때 fallback 람다를 호출합니다.
- * - 그 외에는 원본 문자열을 반환합니다.
- * - 문자열의 길이만 검사합니다.
- *
- * ```kotlin
  * val name: String? = ""
  * name.ifNullOrEmpty { "debop" } // "debop"
  * ```
@@ -546,22 +530,6 @@ fun CharSequence?.deleteChars(vararg chars: Char): String =
         chars.isEmpty() -> this.toString()
         else -> this.filterNot { chars.contains(it) }.toString()
     }
-
-/**
- * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
- *
- * ## 동작/계약
- * - 각 요소가 null 또는 empty이면 defaultValue 사용
- * - 항상 새로운 리스트를 반환합니다.
- * - 변환 과정에서 예외가 발생하지 않습니다.
- *
- * ```kotlin
- * listOf(1, 2, 3).asStringList() // listOf("1", "2", "3")
- * ```
- */
-@Deprecated("use mapAsString", replaceWith = ReplaceWith("mapAsString(defaultValue)"))
-fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
-    map { it.asString(defaultValue) }
 
 /**
  * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
@@ -882,21 +850,6 @@ fun String.sliding(size: Int): Sequence<String> {
         }
     }
 }
-
-/**
- * 문자열을 지정한 문자로 모두 마스킹하여 반환합니다(비밀번호 등).
- *
- * ## 동작/계약
- * - 빈 문자열이면 빈 문자열을 반환합니다.
- * - 각 문자를 maskChar로 대체합니다.
- * - 새로운 문자열을 반환합니다.
- *
- * ```kotlin
- * "secret".mask() // "******"
- * ```
- */
-@Deprecated("use mask instead", replaceWith = ReplaceWith("mask(maskChar)"))
-fun String.redact(maskChar: Char = '*'): String = mask(maskChar)
 
 /**
  * 문자열을 지정한 문자로 모두 마스킹하여 반환합니다(비밀번호 등).
