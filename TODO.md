@@ -7,6 +7,8 @@
 
 ## [HIGH] `virtualFutureOf` — nullable 반환 타입 미지원 (사용성 제약)
 
+> **상태**: 🔄 `bluetape4k-graph`에 임시 workaround 적용 중 — `bluetape4k-projects` 공식 추가 대기
+
 **파일**: `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/CompletableFutureSupport.kt`
 
 ### 현재 구현
@@ -22,27 +24,13 @@ inline fun <V: Any> virtualFutureOf(
 
 ### 발견 경위
 
-`bluetape4k-graph`의 `VirtualThread*Adapter` 구현 시 다음과 같은 nullable 반환 메서드에서 컴파일 오류 발생:
+`bluetape4k-graph`의 `VirtualThread*Adapter` 구현 시 nullable 반환 메서드에서 컴파일 오류 발생:
 
 ```kotlin
-// findVertexById → GraphVertex? (nullable)
-// shortestPath   → GraphPath?   (nullable)
-// updateVertex   → GraphVertex? (nullable)
+// findVertexById → GraphVertex?  /  shortestPath → GraphPath?  /  updateVertex → GraphVertex?
 ```
 
-`virtualFutureOf` 를 쓸 수 없어 매번 저수준 API를 직접 호출해야 했다:
-
-```kotlin
-// 현재 workaround — 불필요하게 장황함
-CompletableFuture.supplyAsync({ delegate.findVertexById(label, id) }, VirtualThreadExecutor)
-
-// 이상적인 코드
-virtualFutureOf { delegate.findVertexById(label, id) }  // 컴파일 오류: V: Any
-```
-
-### 개선 방안
-
-**Option A — nullable 전용 오버로드 추가 (권장)**
+### 확정된 해결 방안 — `virtualFutureOfNullable` 추가
 
 ```kotlin
 // CompletableFutureSupport.kt 에 추가
@@ -52,33 +40,14 @@ inline fun <V> virtualFutureOfNullable(
     CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
 ```
 
-사용 예:
-```kotlin
-override fun findVertexByIdAsync(label: String, id: GraphElementId): CompletableFuture<GraphVertex?> =
-    virtualFutureOfNullable { delegate.findVertexById(label, id) }
-```
+> **Note**: `Unit`은 `Any`를 만족하므로 `CompletableFuture<Unit>` 반환에는 기존 `virtualFutureOf`를 그대로 사용한다.
+> `virtualFutureOfNullable`은 `T?` nullable 결과가 실제로 필요한 경우에만 쓴다.
 
-**Option B — `V: Any` 제약 제거 (더 간단하지만 주의 필요)**
+### 현재 임시 workaround 위치
 
-```kotlin
-inline fun <V> virtualFutureOf(
-    crossinline block: () -> V,
-): CompletableFuture<V> =
-    CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
-```
+`bluetape4k-graph/graph/graph-core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/CompletableFutureNullableSupport.kt`
 
-> **주의**: Java의 `CompletableFuture.supplyAsync` 는 `null` 결과를 허용하지만,
-> 하위 호환성 관점에서 기존 `V: Any` 호출부에 영향이 없는지 검증 필요.
-> 타입 추론 혼동을 방지하기 위해 Option A가 더 명시적임.
-
-**Option C — `virtualFuture` 와 통합**
-
-기존 `virtualFuture<T>` 는 `T` 제약이 없어 nullable을 지원하지만 `VirtualFuture<T>` 를 반환한다.
-`CompletableFuture` 를 반환하는 nullable 지원 버전이 별도로 필요하다 (Option A 권장).
-
-> **임시 해결**: `bluetape4k-graph`의 `graph-core` 모듈에
-> `io.bluetape4k.concurrent.virtualthread.CompletableFutureNullableSupport.kt` 로 동일 함수를 임시 정의해 사용 중.
-> `bluetape4k-projects`에 공식 추가되면 해당 파일을 제거하고 import만 교체하면 된다.
+공식 추가 후 해당 파일을 삭제하고 import만 교체하면 된다 (어댑터 코드 변경 불필요).
 
 ### 영향 범위
 
@@ -86,5 +55,31 @@ inline fun <V> virtualFutureOf(
 |------------|------------|
 | `VirtualThreadVertexAdapter` | `findVertexByIdAsync`, `updateVertexAsync` |
 | `VirtualThreadTraversalAdapter` | `shortestPathAsync` |
+
+---
+
+## [LOW] Kotlin API에서 `CompletableFuture<Void>` 대신 `CompletableFuture<Unit>` 사용 권고
+
+> **상태**: 📝 코딩 컨벤션 추가 권고 — 강제 변경 불필요
+
+Java interop 목적이 없는 순수 Kotlin API에서 void 반환을 `CompletableFuture<Void>` 로 선언하는 것은 부적절하다.
+
+- `Void`는 Java의 `null`-only 타입이므로 `.join()` 결과가 항상 `null`
+- `Unit`은 Kotlin의 unit 타입으로 `.join()` 결과가 `Unit` 인스턴스 → 타입 안전
+
+**권장 패턴**:
+
+```kotlin
+// ❌ Java-ism
+fun createGraphAsync(name: String): CompletableFuture<Void>
+
+// ✅ Kotlin-idiomatic
+fun createGraphAsync(name: String): CompletableFuture<Unit>
+```
+
+`Unit: Any` 이므로 `virtualFutureOf { unitReturningBlock() }` 으로 구현 가능 — `runAsync` 불필요.
+
+**발견 경위**: `bluetape4k-graph`의 `GraphVirtualThreadSession` 인터페이스가 `Void`로 선언되어  
+`CompletableFuture.runAsync`를 억지로 사용했다가 `Unit`으로 교체 후 `virtualFutureOf`로 통일.
 
 ---

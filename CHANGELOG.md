@@ -6,6 +6,26 @@
 
 ## [Unreleased] — 1.7.0-SNAPSHOT
 
+### Planned
+
+#### core/virtualthread — `virtualFutureOfNullable` 추가 예정
+
+**파일**: `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/CompletableFutureSupport.kt`
+
+`virtualFutureOf<V: Any>` 의 `V: Any` 제약으로 인해 nullable 반환 타입에 사용 불가한 문제를 해소하기 위해
+`virtualFutureOfNullable<V>` 오버로드를 추가할 예정이다.
+
+```kotlin
+inline fun <V> virtualFutureOfNullable(
+    crossinline block: () -> V?,
+): CompletableFuture<V?> =
+    CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
+```
+
+- `bluetape4k-graph/graph-core`에 동일 함수를 임시 정의해 사용 중 (`CompletableFutureNullableSupport.kt`)
+- 공식 추가 후 해당 임시 파일 제거 예정 (어댑터 코드 변경 불필요)
+- 관련 발견: `Unit: Any` 이므로 `CompletableFuture<Unit>` 반환에는 `virtualFutureOf`로 충분 — `runAsync` 불필요
+
 ---
 
 ## [1.6.2] - 2026-04-16
