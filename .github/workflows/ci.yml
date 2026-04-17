@@ -211,7 +211,7 @@ jobs:
           ./gradlew \
             :bluetape4k-exposed-core:test \
             :bluetape4k-exposed-dao:test \
-            :bluetape4k-exposed-jackson:test \
+            :bluetape4k-exposed-jackson2:test \
             :bluetape4k-exposed-jackson3:test \
             :bluetape4k-exposed-fastjson2:test \
             --parallel
