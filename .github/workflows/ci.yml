@@ -133,7 +133,7 @@ jobs:
         run: |
           ./gradlew \
             :bluetape4k-io:test \
-            :bluetape4k-jackson:test \
+            :bluetape4k-jackson2:test \
             :bluetape4k-jackson3:test \
             :bluetape4k-fastjson2:test \
             --parallel
