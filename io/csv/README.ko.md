@@ -287,6 +287,74 @@ writer.writeAll(dataFlow)
 writer.close()
 ```
 
+## V2 API (Flow 기반 DSL)
+
+v1.5.0부터 `io.bluetape4k.csv.v2` 패키지에 상위 수준 V2 API가 제공됩니다.
+
+### V1 vs V2 비교
+
+| 기능           | V1 (Sequence/suspend)         | V2 (Flow DSL)                    |
+|--------------|-------------------------------|----------------------------------|
+| 리더 타입        | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
+| 라이터 타입       | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
+| 레코드 타입       | `Record` (인터페이스)             | `CsvRow` (data class)            |
+| 설정           | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| 취소 협력        | suspend 내 `ensureActive()`    | `channelFlow + ensureActive()`   |
+| quoteAll 지원  | 없음                            | `CsvWriterConfig.quoteAll = true` |
+
+### V2 읽기
+
+```kotlin
+import io.bluetape4k.csv.v2.csvReader
+import io.bluetape4k.csv.v2.tsvReader
+
+// CSV
+val reader = csvReader {
+    trimValues = true
+    emptyValueAsNull = false
+}
+reader.read(inputStream, skipHeaders = true).collect { row ->
+    val name = row.getString("name")
+    val age  = row.getInt("age")
+}
+
+// TSV (delimiter는 항상 '\t'로 강제)
+tsvReader().read(inputStream, skipHeaders = true).collect { row -> ... }
+
+// 대용량 파일 스트리밍
+reader.readFile(Path.of("data.csv"), skipHeaders = true).collect { row -> ... }
+```
+
+### V2 쓰기
+
+```kotlin
+import io.bluetape4k.csv.v2.csvWriter
+import io.bluetape4k.csv.v2.tsvWriter
+
+// 모든 필드 인용 출력
+val writer = csvWriter(outputWriter) { quoteAll = true }
+writer.writeHeaders(listOf("name", "age"))
+writer.writeRow(listOf("Alice", 30))
+writer.writeAll(dataFlow)
+writer.close()
+
+// TSV
+tsvWriter(outputWriter).use { w ->
+    w.writeRow(listOf("a", "b", "c"))
+}
+```
+
+### V1 ↔ V2 변환
+
+```kotlin
+import io.bluetape4k.csv.v2.toCsvRow
+
+// V1 Record → V2 CsvRow (public)
+val csvRow: CsvRow = record.toCsvRow()
+val name = csvRow.getString("name")
+val age  = csvRow.getInt("age", default = 0)
+```
+
 ## 모듈 구조
 
 ```

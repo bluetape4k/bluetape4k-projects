@@ -287,6 +287,74 @@ writer.writeAll(dataFlow)
 writer.close()
 ```
 
+## V2 API (Flow-based DSL)
+
+Since v1.5.0, a higher-level V2 API is available under the `io.bluetape4k.csv.v2` package.
+
+### V1 vs V2 Comparison
+
+| Feature             | V1 (Sequence/suspend)          | V2 (Flow DSL)                    |
+|---------------------|-------------------------------|----------------------------------|
+| Reader type         | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
+| Writer type         | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
+| Record type         | `Record` (interface)          | `CsvRow` (data class)            |
+| Settings            | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| Cancellation        | `ensureActive()` in suspend   | `channelFlow + ensureActive()`   |
+| quoteAll support    | No                            | `CsvWriterConfig.quoteAll = true` |
+
+### Reading with V2
+
+```kotlin
+import io.bluetape4k.csv.v2.csvReader
+import io.bluetape4k.csv.v2.tsvReader
+
+// CSV
+val reader = csvReader {
+    trimValues = true
+    emptyValueAsNull = false
+}
+reader.read(inputStream, skipHeaders = true).collect { row ->
+    val name = row.getString("name")
+    val age  = row.getInt("age")
+}
+
+// TSV (delimiter is always forced to '\t')
+tsvReader().read(inputStream, skipHeaders = true).collect { row -> ... }
+
+// Large file streaming
+reader.readFile(Path.of("data.csv"), skipHeaders = true).collect { row -> ... }
+```
+
+### Writing with V2
+
+```kotlin
+import io.bluetape4k.csv.v2.csvWriter
+import io.bluetape4k.csv.v2.tsvWriter
+
+// CSV with quoteAll
+val writer = csvWriter(outputWriter) { quoteAll = true }
+writer.writeHeaders(listOf("name", "age"))
+writer.writeRow(listOf("Alice", 30))
+writer.writeAll(dataFlow)
+writer.close()
+
+// TSV
+tsvWriter(outputWriter).use { w ->
+    w.writeRow(listOf("a", "b", "c"))
+}
+```
+
+### V1 ↔ V2 Conversion
+
+```kotlin
+import io.bluetape4k.csv.v2.toCsvRow
+
+// V1 Record → V2 CsvRow (public)
+val csvRow: CsvRow = record.toCsvRow()
+val name = csvRow.getString("name")
+val age  = csvRow.getInt("age", default = 0)
+```
+
 ## Module Structure
 
 ```
