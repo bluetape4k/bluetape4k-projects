@@ -16,7 +16,7 @@ import io.bluetape4k.feign.coroutines.client
 import io.bluetape4k.feign.coroutines.coroutineFeignBuilder
 import io.bluetape4k.feign.feignBuilder
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.utils.Resourcex
+import io.bluetape4k.support.requireNotBlank
 
 /**
  * Microsoft Bing Map Service API 를 사용하기 위한 Feign Client 입니다.
@@ -31,7 +31,7 @@ import io.bluetape4k.utils.Resourcex
  * ```
  *
  * ## 동작/계약
- * - API 키는 리소스(`BingGeocodeApi.key`)에서 lazy 로딩합니다.
+ * - API 키는 `BING_GEOCODE_API_KEY` 환경변수에서 lazy 로딩합니다.
  * - Feign/Coroutine 클라이언트 생성 시 Jackson encoder/decoder와 HC5 클라이언트를 사용합니다.
  * - 호출 예외 처리 정책은 각 Feign 클라이언트 호출자에게 위임됩니다.
  */
@@ -39,6 +39,7 @@ object BingMapService: KLogging() {
 
     const val BASE_URL = "https://dev.virtualearth.net"
     const val REST_V1 = "/REST/v1"
+    const val API_KEY_ENV_NAME = "BING_GEOCODE_API_KEY"
 
     /**
      * Bing Maps API Key를 반환합니다.
@@ -49,7 +50,12 @@ object BingMapService: KLogging() {
      * ```
      */
     @JvmStatic
-    val apiKey: String by lazy { Resourcex.getString("BingGeocodeApi.key") }
+    val apiKey: String by lazy {
+        System.getenv(API_KEY_ENV_NAME)
+            ?.trim()
+            .orEmpty()
+            .requireNotBlank(API_KEY_ENV_NAME)
+    }
 
     /**
      * Bing Map Service API 를 사용하기 위한 Feign Client 를 생성합니다.

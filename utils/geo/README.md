@@ -178,6 +178,13 @@ val neighbors = GeoHash.neighbors("wydm9mufd")
 
 ### Geocode (Google Maps)
 
+Provide Google/Bing Geocode API keys through environment variables instead of resource files.
+
+```bash
+export GOOGLE_GEOCODE_API_KEY="YOUR_GOOGLE_API_KEY"
+export BING_GEOCODE_API_KEY="YOUR_BING_API_KEY"
+```
+
 ```kotlin
 import io.bluetape4k.geo.geocode.google.GoogleGeocoder
 
