@@ -18,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.nio.file.Path
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Long 수형의 Counter 를 정의하고 사용하는 방법
@@ -111,7 +112,7 @@ class LongCounterExamples: AbstractOtelTest() {
             ?.forEach { file ->
                 if (file.isDirectory) {
                     counter.add(1, homeDirectoryAttributes)
-                    delay(50L)
+                    delay(50L.milliseconds)
                     findFileSuspending(name, file, counter)
                 } else if (name.equals(file.name, ignoreCase = true)) {
                     println(file.parentFile)

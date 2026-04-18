@@ -55,7 +55,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 if (locked) {
                     lockCounter.incrementAndGet()
                 }
-                delay(timeMillis = 10)
+                delay(10.milliseconds)
                 lock.unlockAsync(lockId).await()
             }
         }

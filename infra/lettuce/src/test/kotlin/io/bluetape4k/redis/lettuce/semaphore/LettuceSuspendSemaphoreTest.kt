@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
@@ -72,7 +73,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
                 val s = LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
                     acquired.incrementAndGet()
-                    delay(50)
+                    delay(50.milliseconds)
                     s.release()
                 }
             }
@@ -99,7 +100,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
                 val s = LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
                     acquired.incrementAndGet()
-                    delay(10)
+                    delay(10.milliseconds)
                     s.release()
                 }
             }
@@ -122,7 +123,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
                 if (s.tryAcquire()) {
                     val current = concurrent.incrementAndGet()
                     maxConcurrent.updateAndGet { max -> maxOf(max, current) }
-                    delay(20)
+                    delay(20.milliseconds)
                     concurrent.decrementAndGet()
                     s.release()
                 }

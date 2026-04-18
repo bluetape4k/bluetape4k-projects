@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class TimerExtensionsTest {
 
@@ -20,7 +21,7 @@ class TimerExtensionsTest {
     fun `recordSuspend should measure suspend block and return value`() = runSuspendIO {
         val timer = registry.timer("infra.micrometer.timer.recordSuspend")
         val result = timer.recordSuspend {
-            delay(1)
+            delay(1.milliseconds)
             "completed"
         }
 
@@ -35,7 +36,7 @@ class TimerExtensionsTest {
 
         assertFailsWith<IllegalStateException> {
             timer.recordSuspend {
-                delay(1)
+                delay(1.milliseconds)
                 throw IllegalStateException("boom")
             }
         }
@@ -58,7 +59,7 @@ class TimerExtensionsTest {
         val measuredFlow =
             flow {
                 emit(1)
-                delay(1)
+                delay(1.milliseconds)
                 emit(2)
             }.withTimer(timer)
 

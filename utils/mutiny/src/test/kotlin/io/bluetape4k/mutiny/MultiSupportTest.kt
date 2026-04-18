@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.stream.IntStream
 import java.util.stream.Stream
+import kotlin.time.Duration.Companion.milliseconds
 
 class MultiSupportTest {
 
@@ -76,7 +77,7 @@ class MultiSupportTest {
             .asFlow()
             .buffer()
             .collect {
-                delay(20)
+                delay(20.milliseconds)
                 log.debug { "collect=$it" }
             }
     }

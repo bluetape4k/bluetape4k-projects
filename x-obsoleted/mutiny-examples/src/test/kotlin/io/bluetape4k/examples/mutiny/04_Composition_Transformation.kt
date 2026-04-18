@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.Collectors
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class CompositionTransformationExamples {
@@ -339,7 +340,7 @@ class CompositionTransformationExamples {
                 multi.onItem()
                     .transform { n -> "🚀 $n" }
                     .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
-                    .onEach { delay(Random.nextLong(100)) }
+                    .onEach { delay(Random.nextLong(100).milliseconds) }
                     .log("#1")
                     .collect()
             }
@@ -347,7 +348,7 @@ class CompositionTransformationExamples {
                 multi.onItem()
                     .transform { n -> "🧪 $n" }
                     .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
-                    .onEach { delay(Random.nextLong(100)) }
+                    .onEach { delay(Random.nextLong(100).milliseconds) }
                     .log("#2")
                     .collect()
             }
@@ -355,7 +356,7 @@ class CompositionTransformationExamples {
                 multi.onItem()
                     .transform { n -> "💡 $n" }
                     .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
-                    .onEach { delay(Random.nextLong(100)) }
+                    .onEach { delay(Random.nextLong(100).milliseconds) }
                     .log("#3")
                     .collect()
             }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class SkipUntilTest: AbstractFlowTest() {
 
@@ -24,14 +25,14 @@ class SkipUntilTest: AbstractFlowTest() {
         // -----------|
         flowOf(1, 2, 3)
             .log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .skipUntil(delayedFlow(150)).log("skipUntil")
             .assertResult(2, 3)
 
         // dropUntil 은 skipUntil 과 같은 기능을 합니다.
         flowOf(1, 2, 3)
             .log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .dropUntil(delayedFlow(150)).log("dropUntil")
             .assertResult(2, 3)
     }
@@ -60,12 +61,12 @@ class SkipUntilTest: AbstractFlowTest() {
             emit(0)
             emit(1)
 
-            delay(timeMillis = 20)
+            delay(20.milliseconds)
             emit(2)
             throw RuntimeException("Boom!")
         }
 
-        val notifier = flowOf(100).onEach { delay(timeMillis = 10) }.log("notifier")
+        val notifier = flowOf(100).onEach { delay(10.milliseconds) }.log("notifier")
 
         source
             .log("source")

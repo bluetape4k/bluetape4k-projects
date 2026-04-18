@@ -19,6 +19,7 @@ import java.net.Socket
 import java.nio.channels.SelectionKey
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendedSocketTest: AbstractOkioTest() {
 
@@ -82,7 +83,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
 
         coroutineScope {
             launch {
-                delay(500)
+                delay(500.milliseconds)
                 server.close()
             }
 
@@ -98,7 +99,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
 
         coroutineScope {
             launch {
-                delay(500)
+                delay(500.milliseconds)
                 server.close()
             }
 
@@ -111,7 +112,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
     }
 
     private fun runSocketTest(block: suspend (client: Socket, server: Socket) -> Unit) = runSuspendTest {
-        withTimeoutOrNull(DEFAULT_TIMEOUT_MS) {
+        withTimeoutOrNull(DEFAULT_TIMEOUT_MS.milliseconds) {
             ServerSocketChannel.open().use { serverSocketChannel ->
                 val serverSocket = serverSocketChannel.socket()
                 serverSocket.reuseAddress = true

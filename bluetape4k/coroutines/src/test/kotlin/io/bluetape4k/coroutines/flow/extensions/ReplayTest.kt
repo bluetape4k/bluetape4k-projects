@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.milliseconds
 
 class ReplayTest: AbstractFlowTest() {
 
@@ -52,7 +53,7 @@ class ReplayTest: AbstractFlowTest() {
         val timeout = 1.minutes
 
         flowRangeOf(1, 5)
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .replay(timeout) { shared ->
                 shared
                     .log("filter")  // 1,2,3,4,5

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.redisson.RedissonMultiLock
 import org.redisson.api.RLock
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 
 /**
@@ -65,7 +66,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
                 }
             }
         }
-        delay(1000)
+        delay(1000.milliseconds)
         job.cancel()
 
         val mlock2 = RedissonMultiLock(lock1, lock2, lock3)
@@ -74,9 +75,9 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         log.debug { "Main Thread예서 MultiLock을 잡습니다." }
         mlock2.lockAsync(mlockId2).await()
 
-        delay(10)
+        delay(10.milliseconds)
         assertIsLockedAsync(lock1, lock2, lock3)
-        delay(10)
+        delay(10.milliseconds)
 
         mlock2.unlockAsync(mlockId2).await()
     }
@@ -114,13 +115,13 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
             // mlock2에 속한 lock4 는 lock 이 걸리지 않았다
             lock4.isLockedAsync.await().shouldBeFalse()
         }
-        delay(10)
+        delay(10.milliseconds)
         job.join()
 
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
         mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).await().shouldBeTrue()
 
-        delay(10)
+        delay(10.milliseconds)
         mlock.unlockAsync(mlockId).await()
     }
 
@@ -191,7 +192,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
         mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).await().shouldBeTrue()
 
-        delay(10)
+        delay(10.milliseconds)
         mlock.unlockAsync(lockId).await()
     }
 

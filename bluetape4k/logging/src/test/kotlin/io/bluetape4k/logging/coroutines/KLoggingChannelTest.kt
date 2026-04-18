@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KLoggingChannelTest {
@@ -68,7 +69,7 @@ class KLoggingChannelTest {
     }
 
     private suspend fun runSuspending(delayMillis: Long = 100): Long {
-        kotlinx.coroutines.delay(delayMillis)
+        kotlinx.coroutines.delay(delayMillis.milliseconds)
         return delayMillis
     }
 }

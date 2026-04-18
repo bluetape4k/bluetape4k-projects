@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendRingBufferTest {
 
@@ -59,7 +60,7 @@ class SuspendRingBufferTest {
             .workers(8)
             .rounds(bufferSize)
             .add {
-                delay(timeMillis = Random.nextLong(10))
+                delay(Random.nextLong(10).milliseconds)
                 buffer.push(counter.incrementAndGet().toDouble())
             }
             .run()

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 @OutputCapture
 class TestServiceTest {
@@ -167,7 +168,7 @@ class TestServiceTest {
 
             emit(request)
             log.debug { "Sent request. ${request.payload.body.size()}" }
-            delay(delayMs)
+            delay(delayMs.milliseconds)
         }
     }
 
@@ -185,7 +186,7 @@ class TestServiceTest {
 
             emit(request)
             log.debug { "Sent request. ${request.payload.body.size()}" }
-            delay(delayMs)
+            delay(delayMs.milliseconds)
         }
     }
 }

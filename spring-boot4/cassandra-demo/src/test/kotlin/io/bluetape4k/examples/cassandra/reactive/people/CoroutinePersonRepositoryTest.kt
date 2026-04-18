@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import kotlin.time.Duration.Companion.milliseconds
 
 @SpringBootTest(classes = [PersonConfiguration::class])
 class CoroutinePersonRepositoryTest(
@@ -64,7 +65,7 @@ class CoroutinePersonRepositoryTest(
     @Test
     fun `find by mono lastname`() = runSuspendIO {
         val simpsons = repository
-            .findByLastname(mono { delay(10); "Simpson" })
+            .findByLastname(mono { delay(10.milliseconds); "Simpson" })
             .toList()
         simpsons.size shouldBeEqualTo 3
     }

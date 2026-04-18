@@ -16,6 +16,7 @@ import org.amshove.kluent.shouldBeTrue
 import kotlin.test.assertFailsWith
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendSequentialFlowTest: AbstractWorkflowTest() {
 
@@ -143,7 +144,7 @@ class SuspendSequentialFlowTest: AbstractWorkflowTest() {
         val flow = SuspendSequentialFlow(
             works = listOf(
                 SuspendWork("cancel-work") {
-                    delay(10)
+                    delay(10.milliseconds)
                     throw CancellationException("cancel")
                 },
             ),

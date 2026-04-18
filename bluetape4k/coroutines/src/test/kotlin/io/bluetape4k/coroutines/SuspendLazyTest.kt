@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendLazyTest {
 
@@ -24,7 +25,7 @@ class SuspendLazyTest {
         val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
-            delay(timeMillis = Random.nextLong(100))
+            delay(Random.nextLong(100).milliseconds)
             log.trace { "Calculate lazy value in non-blocking mode." }
             callCounter.incrementAndGet()
             TEST_NUMBER
@@ -44,7 +45,7 @@ class SuspendLazyTest {
         val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
-            delay(timeMillis = Random.nextLong(100))
+            delay(Random.nextLong(100).milliseconds)
             log.trace { "Calculate lazy value in non-blocking mode." }
             callCounter.incrementAndGet()
             TEST_NUMBER

@@ -41,22 +41,22 @@ class ThrottleTest: AbstractFlowTest() {
         //-----1-----2-----3-----4-----5-----6-----7-----8-----9-----10
         //--------------|--------------|----------------|--------------|
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 200) }.log("source")
+            .onEach { delay(200.milliseconds) }.log("source")
             .debounce(timeoutMillis = 501L).log("debounce")
             .assertResult(10)                       // debounce 는 timeout 안에 emit 되는 값이 있다면 overwrite 한다
 
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 200) }.log("source")
+            .onEach { delay(200.milliseconds) }.log("source")
             .sample(periodMillis = 501L).log("sample")
             .assertResult(2, 5, 7)
 
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 200) }.log("source")
+            .onEach { delay(200.milliseconds) }.log("source")
             .throttleLeading(timeMillis = 501L).log("leading")
             .assertResult(1, 4, 7, 10)
 
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 200) }.log("source")
+            .onEach { delay(200.milliseconds) }.log("source")
             .throttleTrailing(timeMillis = 501L).log("trailing")
             .assertResult(3, 6, 9, 10)
     }
@@ -68,13 +68,13 @@ class ThrottleTest: AbstractFlowTest() {
         fun `debounce flow items`() = runTest {
             flow {
                 emit(1)
-                delay(timeMillis = 90)
+                delay(90.milliseconds)
                 emit(2)
-                delay(timeMillis = 90)
+                delay(90.milliseconds)
                 emit(3)             // emit
-                delay(timeMillis = 1010)
+                delay(1010.milliseconds)
                 emit(4)             // emit
-                delay(timeMillis = 1010)
+                delay(1010.milliseconds)
                 emit(5)             // emit
             }
                 .log("source")
@@ -104,7 +104,7 @@ class ThrottleTest: AbstractFlowTest() {
             flow {
                 repeat(5) {
                     emit(it + 1)
-                    delay(timeMillis = it * 300L)
+                    delay((it * 300L).milliseconds)
                 }
             }
                 .log("source")

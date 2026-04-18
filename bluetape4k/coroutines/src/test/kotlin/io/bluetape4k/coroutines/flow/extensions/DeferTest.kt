@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class DeferTest: AbstractFlowTest() {
 
@@ -18,7 +19,7 @@ class DeferTest: AbstractFlowTest() {
     fun `요소 발행을 지연합니다`() = runTest {
         var count = 0L
         val flow = defer {
-            delay(timeMillis = count)
+            delay(count.milliseconds)
             flowOf(count)
         }.log("defer")
 

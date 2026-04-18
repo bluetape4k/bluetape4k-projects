@@ -14,6 +14,7 @@ import org.awaitility.core.ExceptionIgnorer
 import org.awaitility.pollinterval.FixedPollInterval
 import org.awaitility.pollinterval.PollInterval
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 internal val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
 internal val DEFAULT_TIMEOUT: Duration = Durations.TEN_SECONDS
@@ -87,7 +88,7 @@ suspend infix fun ConditionFactory.untilSuspending(
     if (!initialPollDelay.isZero && !initialPollDelay.isNegative) {
         val initialDelayNanos = minOf(initialPollDelay.toNanosSafely(), timeoutNanos)
         if (initialDelayNanos > 0) {
-            delay(nanosToMillisCeil(initialDelayNanos))
+            delay(nanosToMillisCeil(initialDelayNanos).milliseconds)
         }
     }
 
@@ -103,7 +104,7 @@ suspend infix fun ConditionFactory.untilSuspending(
                 pollDeferred.onAwait { result ->
                     result
                 }
-                onTimeout(nanosToMillisCeil(remainingNanos)) {
+                onTimeout(nanosToMillisCeil(remainingNanos).milliseconds) {
                     pollDeferred.cancel()
                     PollTimedOut
                 }
@@ -136,7 +137,7 @@ suspend infix fun ConditionFactory.untilSuspending(
 
         val sleepNanos = minOf(nextInterval.toNanosSafely(), timeoutNanos - (System.nanoTime() - startNanos))
         if (sleepNanos > 0) {
-            delay(nanosToMillisCeil(sleepNanos))
+            delay(nanosToMillisCeil(sleepNanos).milliseconds)
         }
     }
 }

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 @RandomizedTest
 class DeferredValueTest {
@@ -30,7 +31,7 @@ class DeferredValueTest {
         // given
         val dv = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(timeMillis = Random.nextLong(10, 20))
+            delay(Random.nextLong(10, 20).milliseconds)
             System.currentTimeMillis()
         }
         val createdTime = System.currentTimeMillis()
@@ -52,13 +53,13 @@ class DeferredValueTest {
     fun `map deferred value`() = runTest {
         val dv1 = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(timeMillis = Random.nextLong(10, 20))
+            delay(Random.nextLong(10, 20).milliseconds)
             42
         }
 
         val dv2 = dv1.map {
             log.trace { "Map deferred value ... " }
-            delay(timeMillis = Random.nextLong(10, 20))
+            delay(Random.nextLong(10, 20).milliseconds)
             it * 2
         }
 
@@ -76,7 +77,7 @@ class DeferredValueTest {
     fun `flatmap deferred value`() = runTest {
         val dv1: DeferredValue<DeferredValue<Int>> = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(timeMillis = Random.nextLong(10, 20))
+            delay(Random.nextLong(10, 20).milliseconds)
 
             deferredValueOf { 42 }
         }
@@ -84,7 +85,7 @@ class DeferredValueTest {
         val dv2: DeferredValue<Int> = dv1.flatMap { r ->
             r.map {
                 log.trace { "Map deferred value ... " }
-                delay(timeMillis = Random.nextLong(10, 20))
+                delay(Random.nextLong(10, 20).milliseconds)
                 it * 2
             }
         }

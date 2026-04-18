@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendLockTest: AbstractLettuceTest() {
@@ -65,7 +66,7 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
                 val lock = LettuceSuspendLock(connection, lockKey, Duration.ofSeconds(5))
                 if (lock.tryLock(waitTime = Duration.ofMillis(100))) {
                     acquiredCount.incrementAndGet()
-                    delay(100)
+                    delay(100.milliseconds)
                     lock.unlock()
                 }
             }
@@ -94,7 +95,7 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
                 if (l.tryLock(waitTime = Duration.ofSeconds(5))) {
                     val current = concurrent.incrementAndGet()
                     maxConcurrent.updateAndGet { max -> maxOf(max, current) }
-                    delay(10)
+                    delay(10.milliseconds)
                     concurrent.decrementAndGet()
                     acquired.incrementAndGet()
                     l.unlock()

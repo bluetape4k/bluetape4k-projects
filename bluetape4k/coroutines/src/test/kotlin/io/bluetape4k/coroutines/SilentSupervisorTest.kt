@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class SilentSupervisorTest {
 
@@ -20,7 +21,7 @@ class SilentSupervisorTest {
             throw IllegalStateException("boom")
         }
         val succeeded = scope.launch {
-            delay(timeMillis = 10)
+            delay(10.milliseconds)
             counter.incrementAndGet()
         }
 

@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class RepeatFlowTest: AbstractFlowTest() {
 
@@ -24,7 +25,7 @@ class RepeatFlowTest: AbstractFlowTest() {
     fun `repeatFlow operator`() = runTest {
         var result = 42
         repeatFlow(4) { result++ }
-            .onEach { delay(timeMillis = Random.nextLong(5)) }
+            .onEach { delay(Random.nextLong(5).milliseconds) }
             .log("repeat", log)
             .assertResult(result, result + 1, result + 2, result + 3)
     }

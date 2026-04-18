@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.redisson.api.RBucket
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [RBucket] 예제
@@ -33,7 +34,7 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
 
         // bucket에 object를 설정한다
         bucket.setAsync("000", 60, TimeUnit.SECONDS).await()
-        delay(100)
+        delay(100.milliseconds)
 
         // 기존 TTL을 유지하면서 object 를 set 한다
         bucket.setAndKeepTTLAsync("123").await()
@@ -70,7 +71,7 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
             bucket.compareAndSetAsync("000", "111").await().shouldBeTrue()
         }
 
-        delay(100)
+        delay(100.milliseconds)
         job.join()
 
         bucket.getAndDeleteAsync().await() shouldBeEqualTo "111"

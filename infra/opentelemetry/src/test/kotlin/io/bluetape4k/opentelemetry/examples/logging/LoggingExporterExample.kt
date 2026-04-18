@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class LoggingExporterExample: AbstractOtelTest() {
 
@@ -60,7 +61,7 @@ class LoggingExporterExample: AbstractOtelTest() {
             launch { myWonderfulUseCaseAsync() }
         }
         jobs.joinAll()
-        delay(1000)
+        delay(1000.milliseconds)
     }
 
     private suspend fun myWonderfulUseCaseAsync() {
@@ -77,7 +78,7 @@ class LoggingExporterExample: AbstractOtelTest() {
         // 새로운 span 에서 작업을 수행합니다.
         tracer.spanBuilder("doWorkAsync").useSpanSuspending { span ->
             log.debug { "Start doWorkAsync... $span" }
-            delay(1000)
+            delay(1000.milliseconds)
             log.debug { "Finish doWorkAsync. and increase work count." }
             // LongCounter의 counter 값을 1씩 증가시킵니다.
             counterAsync.add(1)

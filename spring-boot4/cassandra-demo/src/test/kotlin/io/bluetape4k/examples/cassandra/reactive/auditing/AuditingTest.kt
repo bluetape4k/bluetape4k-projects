@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 
 @SpringBootTest(classes = [AuditingTestConfiguration::class])
 class AuditingTest(
@@ -49,7 +50,7 @@ class AuditingTest(
         actual.lastModifiedBy shouldBeEqualTo "the-current-user"
         actual.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
 
-        delay(100)
+        delay(100.milliseconds)
 
         val loaded = repository.findById("4711")!!
         log.debug { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.lastModifiedAt}" }
@@ -82,7 +83,7 @@ class AuditingTest(
             actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
         }
 
-        delay(100)
+        delay(100.milliseconds)
 
         val loaded = customRepo.findById("4242")!!
         log.info { "loaded createdAt=${loaded.createdAt}, lastModifiedAt=${loaded.modifiedAt}" }

@@ -20,6 +20,7 @@ import org.redisson.api.stream.StreamReadGroupArgs
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [RStream] Examples
@@ -141,7 +142,7 @@ class StreamExamples: AbstractRedissonCoroutineTest() {
         // 새로운 메시지 1개를 전송한다 (단 body 자체가 map 형태이다)
         val mId3 = stream.addAsync(streamAddArgsOf("3" to 3, "4" to 4)).await()
         log.debug { "메시지 전송, mId3=$mId3" }
-        delay(10)
+        delay(10.milliseconds)
         consumerJob.join()
 
         stream.deleteAsync().await()

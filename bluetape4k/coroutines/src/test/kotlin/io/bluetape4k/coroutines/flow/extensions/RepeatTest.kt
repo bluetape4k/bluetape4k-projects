@@ -47,7 +47,7 @@ class RepeatTest: AbstractFlowTest() {
 
         @Test
         fun `never stop flow`() = runTest(timeout = 5.seconds) {
-            val flow = flow<Int> { delay(timeMillis = 1) }
+            val flow = flow<Int> { delay(1.milliseconds) }
                 .log("#1")
                 .repeat()
 

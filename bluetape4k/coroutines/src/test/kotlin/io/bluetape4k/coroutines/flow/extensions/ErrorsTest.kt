@@ -10,6 +10,7 @@ import org.amshove.kluent.fail
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class ErrorsTest: AbstractFlowTest() {
 
@@ -130,7 +131,7 @@ class ErrorsTest: AbstractFlowTest() {
             throw testException
         }.catchAndResume { error ->
             error shouldBeInstanceOf RuntimeException::class
-            delay(timeMillis = 100L)
+            delay(100L.milliseconds)
             flowOf(count, count + 1).also { count++ }
         }
 
@@ -159,7 +160,7 @@ class ErrorsTest: AbstractFlowTest() {
         val flow = flowOf(1, 2, 3)
             .catchAndResume { error ->
                 error shouldBeInstanceOf RuntimeException::class
-                delay(timeMillis = 100L)
+                delay(100L.milliseconds)
                 flowOf(count, count + 1).also { count++ }
             }
 

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 참고: [race] 는 [amb] 와 같습니다.
@@ -47,9 +48,9 @@ class RaceTest: AbstractFlowTest() {
     @Test
     fun `race 3 flow with delay`() = runTest {
         race(
-            flowOf(1, 2).onEach { delay(timeMillis = 200L) }.log(1, log),
-            flowOf(3, 4).onEach { delay(timeMillis = 100L) }.log(2, log),
-            flowOf(5, 6).onEach { delay(timeMillis = 50L) }.log(3, log),
+            flowOf(1, 2).onEach { delay(200L.milliseconds) }.log(1, log),
+            flowOf(3, 4).onEach { delay(100L.milliseconds) }.log(2, log),
+            flowOf(5, 6).onEach { delay(50L.milliseconds) }.log(3, log),
         )
             .test {
                 awaitItem() shouldBeEqualTo 5
@@ -61,8 +62,8 @@ class RaceTest: AbstractFlowTest() {
     @Test
     fun `race 2 flow with start delay`() = runTest {
         race(
-            flowOf(1, 2, 3).onStart { delay(timeMillis = 100L) }.log(1, log),
-            flowOf(2, 3, 4).onStart { delay(timeMillis = 200L) }.log(2, log),
+            flowOf(1, 2, 3).onStart { delay(100L.milliseconds) }.log(1, log),
+            flowOf(2, 3, 4).onStart { delay(200L.milliseconds) }.log(2, log),
         )
             .test {
                 awaitItem() shouldBeEqualTo 1
@@ -74,16 +75,16 @@ class RaceTest: AbstractFlowTest() {
 
     @Test
     fun `race with complete`() = runTest {
-        val flow1 = flow<Int> { delay(timeMillis = 100); }.log(1)
-        val flow2 = flow { delay(timeMillis = 200); emit(1) }.log(2)
+        val flow1 = flow<Int> { delay(100.milliseconds); }.log(1)
+        val flow2 = flow { delay(200.milliseconds); emit(1) }.log(2)
 
         race(flow1, flow2).test {
             awaitItem() shouldBeEqualTo 1
             awaitComplete()
         }
 
-        val flow3 = flow { delay(timeMillis = 200); emit(1) }.log(1)
-        val flow4 = flow<Int> { delay(timeMillis = 100) }.log(2)
+        val flow3 = flow { delay(200.milliseconds); emit(1) }.log(1)
+        val flow4 = flow<Int> { delay(100.milliseconds) }.log(2)
         race(flow3, flow4).test {
             awaitItem() shouldBeEqualTo 1
             awaitComplete()
@@ -94,16 +95,16 @@ class RaceTest: AbstractFlowTest() {
     fun `race with failure in upstream`() = runTest {
         race(
             flow {
-                delay(timeMillis = 100)
+                delay(100.milliseconds)
                 emit(1)
-                delay(timeMillis = 500)
+                delay(500.milliseconds)
                 throw RuntimeException("Boom!")
             }.log(1),
 
             flow {
-                delay(timeMillis = 500)
+                delay(500.milliseconds)
                 emit(2)
-                delay(timeMillis = 500)
+                delay(500.milliseconds)
                 emit(4)
             }.log(2)
         )
@@ -115,13 +116,13 @@ class RaceTest: AbstractFlowTest() {
 
         race(
             flow {
-                delay(timeMillis = 1000)
+                delay(1000.milliseconds)
                 emit(1)
-                delay(timeMillis = 500)
+                delay(500.milliseconds)
             }.log(1),
 
             flow<Int> {
-                delay(timeMillis = 500)
+                delay(500.milliseconds)
                 throw RuntimeException("Boom!")
             }.log(2)
         )
@@ -146,8 +147,8 @@ class RaceTest: AbstractFlowTest() {
             flow {
                 emit(1)
                 throw RuntimeException("Boom!")
-            }.onStart { delay(timeMillis = 100) }.log(1),
-            flowOf(2).onStart { delay(timeMillis = 200) }.log(2)
+            }.onStart { delay(100.milliseconds) }.log(1),
+            flowOf(2).onStart { delay(200.milliseconds) }.log(2)
         )
             .take(1)
             .test {
@@ -162,13 +163,13 @@ class RaceTest: AbstractFlowTest() {
 
         race(
             flow {
-                delay(timeMillis = 50)
+                delay(50.milliseconds)
                 emit(1)
                 throw kotlinx.coroutines.CancellationException(message)
             }.log("flow1"),
 
             flow {
-                delay(timeMillis = 100)
+                delay(100.milliseconds)
                 emit(2)
                 emit(3)
             }.log("flow2")

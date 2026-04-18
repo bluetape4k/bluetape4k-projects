@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
@@ -115,7 +116,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
                             .toInt()
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-                delay(timeMillis = DEFAULT_DELAY)
+                delay(DEFAULT_DELAY.milliseconds)
             }
         }
 
@@ -164,7 +165,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
             withSuspendedEntityTable(testDB) {
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(timeMillis = DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 repository.getAll(getExistingIds())

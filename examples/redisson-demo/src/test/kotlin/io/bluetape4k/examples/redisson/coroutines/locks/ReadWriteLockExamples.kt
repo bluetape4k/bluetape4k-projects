@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 
 /**
@@ -41,7 +42,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
         val writeLockId = redisson.getLockId(lockName)
         writeLock.tryLockAsync(1, 60, TimeUnit.SECONDS, writeLockId).await().shouldBeTrue()
 
-        delay(1000)
+        delay(1000.milliseconds)
 
         scope.launch(exceptionHandler) {
             log.debug { "WriteLock이 걸린 상태에서 ReadLock 을 획득 시도합니다... -> 실패해야 합니다. ${Thread.currentThread().threadId()}" }
@@ -66,7 +67,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
 
                 try {
                     log.debug { "Some suspending job" }
-                    delay(it * 500L)
+                    delay((it * 500L).milliseconds)
 
                     log.debug { "ReadLock을 반납합니다... $it:${Thread.currentThread().threadId()}, readLockId=$readLockId" }
                     readLock.isLocked.shouldBeTrue()

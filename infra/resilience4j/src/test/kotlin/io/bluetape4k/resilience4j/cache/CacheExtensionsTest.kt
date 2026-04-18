@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class CacheExtensionsTest {
 
@@ -97,7 +98,7 @@ class CacheExtensionsTest {
         val callCount = AtomicInteger(0)
         val cachedLoader = cache.decorateSuspendFunction { key: String ->
             callCount.incrementAndGet()
-            delay(100)
+            delay(100.milliseconds)
             "Hi $key!"
         }
 

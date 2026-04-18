@@ -17,6 +17,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
@@ -110,7 +111,7 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                             map.putAsync("3", value).await()
                             counter.incrementAndGet()
                         }
-                        delay(10L)
+                        delay(10L.milliseconds)
                         map.getAsync("1").await() shouldBeEqualTo value
                         map.getAsync("2").await() shouldBeEqualTo value
                         map.getAsync("3").await() shouldBeEqualTo value

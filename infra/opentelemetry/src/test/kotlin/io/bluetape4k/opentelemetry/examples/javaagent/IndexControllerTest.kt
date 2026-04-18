@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import kotlin.time.Duration.Companion.milliseconds
 
 @SpringBootTest(
     classes = [OtelSpringBootApp::class],
@@ -37,7 +38,7 @@ class IndexControllerTest(
     fun `ping rest api`() = runSuspendIO {
         repeat(REPEAT_SIZE) {
             remotePing()
-            delay(1000L)
+            delay(1000L.milliseconds)
         }
     }
 
@@ -46,7 +47,7 @@ class IndexControllerTest(
         val jobs = List(5) {
             launch {
                 remotePing()
-                delay(1000L)
+                delay(1000L.milliseconds)
             }
         }
         jobs.joinAll()

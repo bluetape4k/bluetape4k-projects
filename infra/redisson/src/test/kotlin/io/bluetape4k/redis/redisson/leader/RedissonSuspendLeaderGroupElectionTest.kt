@@ -22,6 +22,7 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
 
@@ -85,7 +86,7 @@ class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
                 election.runIfLeader(lockName) {
                     val current = currentConcurrent.incrementAndGet()
                     peakConcurrent.updateAndGet { max(it, current) }
-                    delay(Random.nextLong(5, 15))
+                    delay(Random.nextLong(5, 15).milliseconds)
                     currentConcurrent.decrementAndGet()
                 }
             }
@@ -114,7 +115,7 @@ class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
 
             // 모든 슬롯이 점유될 때까지 대기
             while (startedCount.get() < maxLeaders) {
-                delay(5)
+                delay(5.milliseconds)
             }
 
             election.state(lockName).isFull.shouldBeTrue()
@@ -161,14 +162,14 @@ class RedissonSuspendLeaderGroupElectionTest: AbstractRedissonTest() {
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 1. task1=${task1.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task1.incrementAndGet()
                 }
             }
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 2. task2=${task2.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task2.incrementAndGet()
                 }
             }

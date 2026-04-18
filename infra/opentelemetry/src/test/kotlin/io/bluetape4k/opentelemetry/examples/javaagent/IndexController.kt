@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 @RestController
 class IndexController(@param:Autowired private val openTelemetry: OpenTelemetry) {
@@ -37,7 +38,7 @@ class IndexController(@param:Autowired private val openTelemetry: OpenTelemetry)
     private suspend fun doWork(sleepTime: Int) {
         log.debug { "Start doWork() in doWork span ..." }
         tracer.spanBuilder("doWork").useSpanSuspending { span ->
-            delay(sleepTime.toLong())
+            delay(sleepTime.toLong().milliseconds)
             log.debug { "A sample log message! span=$span" }
         }
     }

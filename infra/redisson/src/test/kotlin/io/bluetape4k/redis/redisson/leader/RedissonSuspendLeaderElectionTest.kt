@@ -20,6 +20,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
 
@@ -142,6 +143,6 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
     }
 
     private suspend fun randomDelay(from: Long = 5L, until: Long = 10L) {
-        delay(Random.nextLong(from, until))
+        delay(Random.nextLong(from, until).milliseconds)
     }
 }

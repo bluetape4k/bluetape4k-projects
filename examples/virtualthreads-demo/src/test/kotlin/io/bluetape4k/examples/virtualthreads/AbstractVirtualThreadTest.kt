@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 @EnabledForJreRange(min = JRE.JAVA_21)
 abstract class AbstractVirtualThreadTest {
@@ -29,7 +30,7 @@ abstract class AbstractVirtualThreadTest {
 
     protected suspend fun <T> sleepAndAwait(millis: Int, value: T): T {
         log.debug { "[SUSPEND] $value started" }
-        delay(millis.toLong())
+        delay(millis.toLong().milliseconds)
         log.debug { "[SUSPEND] $value finished" }
         return value
     }

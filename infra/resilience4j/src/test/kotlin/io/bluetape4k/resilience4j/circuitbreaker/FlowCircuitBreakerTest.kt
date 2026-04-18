@@ -21,6 +21,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Phaser
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowCircuitBreakerTest {
 
@@ -147,7 +148,7 @@ class FlowCircuitBreakerTest {
         val job = launch(start = CoroutineStart.ATOMIC) {
             flow {
                 phaser.arrive()
-                delay(5000L)
+                delay(5000L.milliseconds)
                 emit(1)
                 flowCompleted = true
             }
@@ -182,7 +183,7 @@ class FlowCircuitBreakerTest {
             launch(start = CoroutineStart.ATOMIC) {
                 flow {
                     phaser.arrive()
-                    delay(5000L)
+                    delay(5000L.milliseconds)
                     emit(1)
                     flowCompleted = true
                 }

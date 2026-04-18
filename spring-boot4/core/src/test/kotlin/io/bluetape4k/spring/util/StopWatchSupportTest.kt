@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.util.StopWatch
+import kotlin.time.Duration.Companion.milliseconds
 
 class StopWatchSupportTest: AbstractSpringTest() {
     companion object: KLogging()
@@ -28,7 +29,7 @@ class StopWatchSupportTest: AbstractSpringTest() {
         runSuspendTest {
             val sw =
                 withSuspendStopWatch("coroutines") {
-                    delay(100)
+                    delay(100.milliseconds)
                     print("block")
                 }
 
@@ -66,13 +67,13 @@ class StopWatchSupportTest: AbstractSpringTest() {
 
             val result1 =
                 sw.suspendTask("task1") {
-                    delay(10)
+                    delay(10.milliseconds)
                     42
                 }
 
             val result2 =
                 sw.suspendTask("task2") {
-                    delay(10)
+                    delay(10.milliseconds)
                     45
                 }
 

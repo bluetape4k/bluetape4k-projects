@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Phaser
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class BulkheadFlowTest {
 
@@ -159,7 +160,7 @@ class BulkheadFlowTest {
         val job = launch(start = CoroutineStart.ATOMIC) {
             flow {
                 phaser.arrive()
-                delay(5000L)
+                delay(5000L.milliseconds)
                 emit(1)
                 flowCompleted = true
             }
@@ -197,7 +198,7 @@ class BulkheadFlowTest {
             launch(start = CoroutineStart.ATOMIC) {
                 flow {
                     phaser.arrive()
-                    delay(5000L)
+                    delay(5000L.milliseconds)
                     emit(1)
                     flowCompleted = true
                 }

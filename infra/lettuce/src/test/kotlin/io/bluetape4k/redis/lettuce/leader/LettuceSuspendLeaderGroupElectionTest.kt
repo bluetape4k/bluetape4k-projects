@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
@@ -113,7 +114,7 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
                 el.runIfLeader(lockName) {
                     val current = concurrent.incrementAndGet()
                     maxConcurrent.updateAndGet { max -> maxOf(max, current) }
-                    delay(20)
+                    delay(20.milliseconds)
                     concurrent.decrementAndGet()
                     executed.incrementAndGet()
                 }

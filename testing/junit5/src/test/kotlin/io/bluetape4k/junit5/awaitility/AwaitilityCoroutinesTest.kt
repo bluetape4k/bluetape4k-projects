@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
+import kotlin.time.Duration.Companion.milliseconds
 
 class AwaitilityCoroutinesTest {
 
@@ -27,7 +28,7 @@ class AwaitilityCoroutinesTest {
 
         await awaitSuspending {
             log.debug { "awaiting in suspend function." }
-            delay(100)
+            delay(100.milliseconds)
             log.debug { "finish suspend function." }
         }
         yield()
@@ -42,7 +43,7 @@ class AwaitilityCoroutinesTest {
 
         await untilSuspending {
             log.debug { "await suspendUntil ..." }
-            delay(10)
+            delay(10.milliseconds)
             System.currentTimeMillis() > end
         }
         yield()
@@ -59,7 +60,7 @@ class AwaitilityCoroutinesTest {
             .pollDelay(Duration.ofMillis(100))
             .awaitSuspending {
                 log.debug { "awaiting in suspend function." }
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "finish suspend function." }
             }
         yield()
@@ -76,7 +77,7 @@ class AwaitilityCoroutinesTest {
             .pollDelay(Duration.ofMillis(50))
             .untilSuspending {
                 log.debug { "await suspendUntil ..." }
-                delay(10)
+                delay(10.milliseconds)
                 System.currentTimeMillis() > end
             }
 
@@ -132,7 +133,7 @@ class AwaitilityCoroutinesTest {
                 .atMost(Duration.ofMillis(150))
                 .pollDelay(Duration.ZERO)
                 .untilSuspending {
-                    delay(500)
+                    delay(500.milliseconds)
                     false
                 }
         }
@@ -148,8 +149,8 @@ class AwaitilityCoroutinesTest {
                 .atMost(Duration.ofSeconds(1))
                 .pollDelay(Duration.ZERO)
                 .untilSuspending {
-                    withTimeout(50) {
-                        delay(500)
+                    withTimeout(50.milliseconds) {
+                        delay(500.milliseconds)
                         true
                     }
                 }

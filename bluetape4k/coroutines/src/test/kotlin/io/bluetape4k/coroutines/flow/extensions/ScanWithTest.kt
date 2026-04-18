@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class ScanWithTest: AbstractStepTest() {
 
@@ -27,7 +28,7 @@ class ScanWithTest: AbstractStepTest() {
             .scanWith(
                 initialSupplier = {
                     expect(nextIndex)
-                    delay(timeMillis = 100)
+                    delay(100.milliseconds)
                     initial++
                 }
             ) { acc, item -> acc + item }

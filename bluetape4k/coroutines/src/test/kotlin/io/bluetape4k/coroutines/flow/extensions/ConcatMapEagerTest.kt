@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class ConcatMapEagerTest: AbstractFlowTest() {
 
@@ -18,7 +19,7 @@ class ConcatMapEagerTest: AbstractFlowTest() {
     fun `concat map eagerly`() = runTest {
         flowRangeOf(1, 5).log("source")
             .concatMapEager {
-                flowRangeOf(it * 10, 5).onEach { delay(timeMillis = 100) }.log("inner")
+                flowRangeOf(it * 10, 5).onEach { delay(100.milliseconds) }.log("inner")
             }
             .assertResult(
                 10, 11, 12, 13, 14,
@@ -33,7 +34,7 @@ class ConcatMapEagerTest: AbstractFlowTest() {
     fun `concat map with take`() = runTest {
         flowRangeOf(1, 5).log("source")
             .concatMapEager {
-                flowRangeOf(it * 10, 5).onEach { delay(timeMillis = 100) }.log("inner")
+                flowRangeOf(it * 10, 5).onEach { delay(100.milliseconds) }.log("inner")
             }
             .take(7)                // cancel 
             .assertResult(

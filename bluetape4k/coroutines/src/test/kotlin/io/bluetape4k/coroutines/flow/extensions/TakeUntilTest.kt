@@ -22,7 +22,7 @@ class TakeUntilTest: AbstractFlowTest() {
     @Test
     fun basic() = runTest {
         flowRangeOf(1, 10).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(550.milliseconds).log("takeUntil")
             .assertResult(1, 2, 3, 4, 5)
     }
@@ -30,7 +30,7 @@ class TakeUntilTest: AbstractFlowTest() {
     @Test
     fun `takeUntil has longer timeout`() = runTest {
         flowRangeOf(1, 10).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(1500.milliseconds).log("takeUntil")
             .assertResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     }
@@ -47,7 +47,7 @@ class TakeUntilTest: AbstractFlowTest() {
         //-----1-----2-----3-----4-----5
         //--------------------|
         flowRangeOf(1, 5).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(delayedFlow(350)).log("takeUntil")
             .assertResult(1, 2, 3)
     }
@@ -57,7 +57,7 @@ class TakeUntilTest: AbstractFlowTest() {
         //-----1-----2-----3-----4-----5
         //----------------------------------|
         flowRangeOf(1, 5).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(delayedFlow(6000)).log("takeUntil")
             .assertResult(1, 2, 3, 4, 5)
     }
@@ -67,7 +67,7 @@ class TakeUntilTest: AbstractFlowTest() {
         //-----1-----2-----3-----4-----5
         //--------------------|
         flowRangeOf(1, 5).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(350.milliseconds).log("takeUntil")
             .assertResult(1, 2, 3)
     }
@@ -77,7 +77,7 @@ class TakeUntilTest: AbstractFlowTest() {
         //-----1-----2-----3-----4-----5
         //----------------------------------|
         flowRangeOf(1, 5).log("source")
-            .onEach { delay(timeMillis = 100) }
+            .onEach { delay(100.milliseconds) }
             .takeUntil(600.milliseconds).log("takeUntil")
             .assertResult(1, 2, 3, 4, 5)
     }

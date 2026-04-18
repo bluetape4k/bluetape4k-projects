@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class AbstractJCacheCoroutinesTest {
 
@@ -34,7 +35,7 @@ abstract class AbstractJCacheCoroutinesTest {
 
     private suspend fun greeting(name: String): String {
         log.debug { "Start populate. name=$name" }
-        delay(10)
+        delay(10.milliseconds)
         log.debug { "Finish populate. name=$name" }
         return "Hi $name!"
     }
@@ -121,7 +122,7 @@ abstract class AbstractJCacheCoroutinesTest {
         val loader: suspend (String) -> String = { name: String ->
             called.incrementAndGet()
             log.debug { "Cached item... called=${called.get()}" }
-            delay(1)
+            delay(1.milliseconds)
             greeting(name)
         }
 

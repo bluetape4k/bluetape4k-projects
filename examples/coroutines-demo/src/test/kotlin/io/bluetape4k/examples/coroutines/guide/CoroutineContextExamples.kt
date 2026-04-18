@@ -40,7 +40,7 @@ class CoroutineContextExamples {
             repeat(10) {
                 log.debug { "Launch job $it." }
                 launch {
-                    delay(timeMillis = (it + 1) * 100L)
+                    delay(((it + 1) * 100L).milliseconds)
                     log.debug { "Job $it is done." }
                 }.log("Job $it")
             }

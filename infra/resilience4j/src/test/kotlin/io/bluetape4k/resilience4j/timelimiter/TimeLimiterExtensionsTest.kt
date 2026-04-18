@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.TimeoutException
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class TimeLimiterExtensionsTest {
 
@@ -54,7 +55,7 @@ class TimeLimiterExtensionsTest {
 
         assertFailsWith<TimeoutException> {
             withTimeLimiter(tl) {
-                delay(1000) // 타임아웃보다 오래 실행
+                delay(1000.milliseconds) // 타임아웃보다 오래 실행
                 "should not reach here"
             }
         }
@@ -80,7 +81,7 @@ class TimeLimiterExtensionsTest {
     fun `decorateSuspendFunction1 - 시간 초과 시 TimeoutException이 발생한다`() = runSuspendTest {
         val tl = shortTimeLimiter()
         val decorated = tl.decorateSuspendFunction1 { _: Int ->
-            delay(1000)
+            delay(1000.milliseconds)
             "should not reach"
         }
 

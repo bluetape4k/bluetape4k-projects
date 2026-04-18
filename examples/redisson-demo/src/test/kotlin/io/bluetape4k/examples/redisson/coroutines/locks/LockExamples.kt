@@ -19,6 +19,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class LockExamples: AbstractRedissonCoroutineTest() {
 
@@ -46,7 +47,7 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             lock2.tryLockAsync(lockId2).await().shouldBeFalse()
             lock2.isLockedAsync.await().shouldBeTrue()
 
-            delay(100)
+            delay(100.milliseconds)
 
             // lock1 에서 이미 lock 이 걸렸고, lock2는 소유권이 없으므로 lock2로는 unlock 할 수 없다
             log.debug { "Lock2 unlock: current coroutineId=$lockId2, threadId=${Thread.currentThread().threadId()}" }
@@ -55,9 +56,9 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             }
             lock2.isLockedAsync.await().shouldBeTrue()
         }
-        delay(1000)
+        delay(1000.milliseconds)
         job.join()
-        delay(10)
+        delay(10.milliseconds)
 
         log.debug { "lock1.isLocked=${lock1.isLocked}" }
         lock1.unlockAsync(lockId1).await()
@@ -84,7 +85,7 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             val lockId2 = redisson.getLockId(lockName)
             lock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).await().shouldBeFalse()
         }
-        delay(5)
+        delay(5.milliseconds)
         job.join()
 
         val prevTtl = lock.remainTimeToLiveAsync().await()
@@ -145,7 +146,7 @@ class LockExamples: AbstractRedissonCoroutineTest() {
                 if (locked) {
                     log.debug { "Lock[$index] 획득 성공 ..." }
                     lockCounter.incrementAndGet()
-                    delay(10)
+                    delay(10.milliseconds)
                 }
 
                 log.debug { "Lock[$index] 해제 ..." }

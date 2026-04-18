@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class AsyncFlowTest {
 
@@ -65,7 +66,7 @@ class AsyncFlowTest {
         expectedItems
             .asFlow()
             .async(dispatcher) {
-                delay(timeMillis = Random.nextLong(MIN_DELAY_TIME, MAX_DELAY_TIME))
+                delay(Random.nextLong(MIN_DELAY_TIME, MAX_DELAY_TIME).milliseconds)
                 log.debug { "▶️Started $it" }
                 it
             }

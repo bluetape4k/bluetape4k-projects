@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlatMapFirstTest: AbstractFlowTest() {
 
@@ -22,7 +23,7 @@ class FlatMapFirstTest: AbstractFlowTest() {
         flowOf("one", "two").log("s")
             .flatMapFirst { v ->
                 flow {
-                    delay(timeMillis = 10L)
+                    delay(10L.milliseconds)
                     emit(v)
                 }.log("t")
             }
@@ -33,10 +34,10 @@ class FlatMapFirstTest: AbstractFlowTest() {
     @Test
     fun `flatMapFirst for range`() = runTest {
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 100) }.log("src")
+            .onEach { delay(100.milliseconds) }.log("src")
             .flatMapFirst {
                 log.trace { "source item=$it" }
-                flowRangeOf(it * 100, 5).onEach { delay(timeMillis = 20) }.log("t")
+                flowRangeOf(it * 100, 5).onEach { delay(20.milliseconds) }.log("t")
             }
             .log("fmf")
             .assertResult(
@@ -54,11 +55,11 @@ class FlatMapFirstTest: AbstractFlowTest() {
 
         // flatMapFirst 동작 시 collect 작업 후에 emit 된 것 중 가장 최신 것만 선택한다
         flowRangeOf(1, 10)
-            .onEach { delay(timeMillis = 100) }.log("source")
+            .onEach { delay(100.milliseconds) }.log("source")
             .flatMapFirst {
                 item.set(it)
                 flowRangeOf(it * 100, 5)
-                    .onEach { delay(timeMillis = 30) }.log("iner")
+                    .onEach { delay(30.milliseconds) }.log("iner")
             }
             .take(7).log("take")
             .assertResult(
@@ -72,11 +73,11 @@ class FlatMapFirstTest: AbstractFlowTest() {
     @Test
     fun `flattenFirst for take first item`() = runTest {
         val flow1 = flow {
-            delay(timeMillis = 10L)
+            delay(10L.milliseconds)
             emit("one")
         }
         val flow2 = flow {
-            delay(timeMillis = 20L)
+            delay(20L.milliseconds)
             emit("two")
         }
         flowOf(flow1, flow2)

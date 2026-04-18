@@ -6,6 +6,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowFromSuspendTest: AbstractFlowTest() {
 
@@ -15,7 +16,7 @@ class FlowFromSuspendTest: AbstractFlowTest() {
     fun `flow from suspend emits values`() = runTest {
         var count = 1L
         val flow = flowFromSuspend {
-            delay(timeMillis = count)
+            delay(count.milliseconds)
             count
         }
 

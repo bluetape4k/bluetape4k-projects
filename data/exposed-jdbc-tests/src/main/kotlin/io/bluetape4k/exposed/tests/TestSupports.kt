@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.vendors.SQLServerDialect
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 현재 트랜잭션의 identifier 규칙으로 문자열 식별자 표기를 보정합니다.
@@ -78,5 +79,5 @@ suspend inline fun Table.insertAndSuspending(
     this.insert { body(it) }
     // this.insert(body)
     TransactionManager.current().commit()
-    delay(duration)
+    delay(duration.milliseconds)
 }

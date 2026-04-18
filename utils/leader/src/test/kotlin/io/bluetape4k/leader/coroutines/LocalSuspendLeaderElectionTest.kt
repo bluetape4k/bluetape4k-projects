@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class LocalSuspendLeaderElectionTest {
 
@@ -61,7 +62,7 @@ class LocalSuspendLeaderElectionTest {
     @Test
     fun `runIfLeader - delay 를 포함한 suspend action 이 정상 실행된다`() = runSuspendIO {
         val result = election.runIfLeader(randomLockName()) {
-            delay(10)
+            delay(10.milliseconds)
             "delay 완료"
         }
         result shouldBeEqualTo "delay 완료"
@@ -83,14 +84,14 @@ class LocalSuspendLeaderElectionTest {
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 1 실행. task1=${task1.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task1.incrementAndGet()
                 }
             }
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 2 실행. task2=${task2.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task2.incrementAndGet()
                 }
             }

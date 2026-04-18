@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RBlockingDeque
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Redisson [RBlockingDeque] 예제
@@ -76,12 +77,12 @@ class BlockingDequeExamples: AbstractRedissonCoroutineTest() {
         yield()
 
         deque.putLastAsync(3).await()
-        delay(10)
+        delay(10.milliseconds)
 
         deque2.takeFirstAsync().await() shouldBeEqualTo 3
 
         deque.putLastAsync(4).await()
-        delay(10)
+        delay(10.milliseconds)
 
         deque2.takeFirstAsync().await() shouldBeEqualTo 4
 

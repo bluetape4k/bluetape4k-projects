@@ -20,6 +20,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class TestServiceImpl(
     executor: Executor = Executors.newSingleThreadScheduledExecutor(),
@@ -87,7 +88,7 @@ class TestServiceImpl(
         return flow {
             var offset = 0
             request.responseParametersList.forEach { params ->
-                delay(TimeUnit.MICROSECONDS.toMillis(params.intervalUs.toLong()))
+                delay(TimeUnit.MICROSECONDS.toMillis(params.intervalUs.toLong()).milliseconds)
 
                 val response = Messages.StreamingOutputCallResponse
                     .newBuilder()

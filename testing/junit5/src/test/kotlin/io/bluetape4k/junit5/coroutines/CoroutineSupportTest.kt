@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [runSuspendTest], [runSuspendIO], [runSuspendDefault], [runSuspendVT] 함수 검증 테스트
@@ -70,9 +71,9 @@ class CoroutineSupportTest {
     fun `runSuspendTest - delay 를 포함한 suspend 블록을 실행한다`() {
         var count = 0
         runSuspendTest {
-            delay(10)
+            delay(10.milliseconds)
             count++
-            delay(10)
+            delay(10.milliseconds)
             count++
         }
         count shouldBeEqualTo 2
