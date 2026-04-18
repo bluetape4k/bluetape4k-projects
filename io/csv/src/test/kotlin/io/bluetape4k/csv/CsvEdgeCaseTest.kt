@@ -238,7 +238,7 @@ class CsvEdgeCaseTest {
             val input = ByteArrayInputStream(output.toByteArray(UTF_8))
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
             records shouldHaveSize 2
-            records[0].getValue<String?>(1, null).shouldBeNull()
+            records[0].getString(1).shouldBeNull()
             records[1].getValue(1, "") shouldBeEqualTo "present"
         }
     }
@@ -256,9 +256,9 @@ class CsvEdgeCaseTest {
             val input = ByteArrayInputStream(output.toByteArray(UTF_8))
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
             records shouldHaveSize 1
-            records[0].getValue<String?>(0, null).shouldBeNull()
-            records[0].getValue<String?>(1, null).shouldBeNull()
-            records[0].getValue<String?>(2, null).shouldBeNull()
+            records[0].getString(0).shouldBeNull()
+            records[0].getString(1).shouldBeNull()
+            records[0].getString(2).shouldBeNull()
         }
     }
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.csv.benchmark
 
+import io.bluetape4k.csv.CsvRecordReader
 import io.bluetape4k.csv.CsvSettings
 import io.bluetape4k.csv.internal.CsvLexer
 import io.bluetape4k.logging.KLogging
@@ -21,11 +22,10 @@ import kotlin.text.Charsets.UTF_8
 /**
  * CSV 파서 성능 벤치마크.
  *
- * 자체 [CsvLexer]와 univocity 파서의 처리량을 비교한다.
+ * 자체 엔진([CsvLexer], [CsvRecordReader])과 univocity 파서의 처리량을 비교한다.
  * - 소형: product_type.csv 첫 10KB
  * - 중형: product_type.csv 전체
  *
- * PR 2 완료 후 Task 2.8에서 nativeCsvRead_* 를 CsvRecordReader 호출로 교체 예정.
  * PR 5에서 univocityCsvRead_* 삭제 예정.
  */
 @State(Scope.Benchmark)
@@ -51,10 +51,10 @@ open class CsvParserBenchmark {
         }
     }
 
-    // ── 자체 CsvLexer (PR 1: 내부 엔진 직접 측정)
+    // ── 자체 CsvLexer (내부 엔진 직접 측정)
 
     @Benchmark
-    fun nativeCsvRead_small(): Int {
+    fun nativeLexer_small(): Int {
         var count = 0
         CsvLexer(smallCsvBytes.inputStream().reader(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
             while (lexer.hasNext()) { lexer.next(); count++ }
@@ -63,13 +63,23 @@ open class CsvParserBenchmark {
     }
 
     @Benchmark
-    fun nativeCsvRead_medium(): Int {
+    fun nativeLexer_medium(): Int {
         var count = 0
         CsvLexer(mediumCsvBytes.inputStream().reader(), CsvSettings.DEFAULT, skipHeaders = true).use { lexer ->
             while (lexer.hasNext()) { lexer.next(); count++ }
         }
         return count
     }
+
+    // ── 자체 CsvRecordReader (공개 API 측정)
+
+    @Benchmark
+    fun nativeCsvRead_small(): Int =
+        CsvRecordReader().read(smallCsvBytes.inputStream(), UTF_8, skipHeaders = true).count()
+
+    @Benchmark
+    fun nativeCsvRead_medium(): Int =
+        CsvRecordReader().read(mediumCsvBytes.inputStream(), UTF_8, skipHeaders = true).count()
 
     // ── univocity baseline (PR 5에서 삭제 예정)
 

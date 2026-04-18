@@ -1,6 +1,6 @@
 package io.bluetape4k.csv.coroutines
 
-import com.univocity.parsers.common.record.Record
+import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,7 +16,7 @@ import kotlin.text.Charsets.UTF_8
 
 abstract class AbstractSuspendRecordReaderTest {
 
-    companion object: KLoggingChannel()
+    companion object : KLoggingChannel()
 
     protected abstract val reader: SuspendRecordReader
 
@@ -26,10 +26,10 @@ abstract class AbstractSuspendRecordReaderTest {
     private val transform: (Record) -> ProductType = { record: Record ->
         val tagFamily = record.getValue(0, "").trim()
         val representative = record.getValue(1, "").trim()
-        val synonym = record.getValue<String?>(2, null)?.trim()
-        val tagType = record.getValue<String?>(3, null)?.trim()
-        val priority = record.getValue<Int?>(4, null)
-        val parentRepresentative = record.getValue<String?>(5, null)?.trim()
+        val synonym = record.getString(2)?.trim()
+        val tagType = record.getString(3)?.trim()
+        val priority = record.getIntOrNull(4)
+        val parentRepresentative = record.getString(5)?.trim()
         val level = record.getValue(6, 0)
 
         ProductType(
@@ -76,7 +76,7 @@ abstract class AbstractSuspendRecordReaderTest {
     }
 
     @Test
-    fun `read extra words from csv file `() = runSuspendIO {
+    fun `read extra words from csv file`() = runSuspendIO {
         Resourcex.getInputStream(extraWordsPath)!!.buffered().use { bis ->
             reader
                 .read(bis, UTF_8, true)

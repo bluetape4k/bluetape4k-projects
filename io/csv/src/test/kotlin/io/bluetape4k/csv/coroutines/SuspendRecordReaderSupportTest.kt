@@ -1,6 +1,6 @@
 package io.bluetape4k.csv.coroutines
 
-import com.univocity.parsers.common.record.Record
+import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.csv.readAsTsvRecords
 import io.bluetape4k.csv.writeCsvRecords
@@ -20,7 +20,7 @@ import java.io.File
 
 class SuspendRecordReaderSupportTest {
 
-    companion object: KLoggingChannel()
+    companion object : KLoggingChannel()
 
     @TempDir
     lateinit var tempDir: File
@@ -29,10 +29,10 @@ class SuspendRecordReaderSupportTest {
         ProductType(
             tagFamily = record.getValue(0, "").trim(),
             representative = record.getValue(1, "").trim(),
-            synonym = record.getValue<String?>(2, null)?.trim(),
-            tagType = record.getValue<String?>(3, null)?.trim(),
-            priority = record.getValue<Int?>(4, null),
-            parentRepresentativeValue = record.getValue<String?>(5, null)?.trim(),
+            synonym = record.getString(2)?.trim(),
+            tagType = record.getString(3)?.trim(),
+            priority = record.getIntOrNull(4),
+            parentRepresentativeValue = record.getString(5)?.trim(),
             level = record.getValue(6, 0)
         )
     }
@@ -117,7 +117,6 @@ class SuspendRecordReaderSupportTest {
     fun `File readAsCsvRecords는 Sequence 소비가 끝날때까지 스트림을 유지한다`() = runTest {
         val csvFile = createTempCsvFile()
 
-        // Sequence를 반환한 후 별도로 소비 - 스트림이 조기에 닫히지 않아야 함
         val sequence = csvFile.readAsCsvRecordsSuspending(skipHeader = true)
         val records = sequence.toList()
 
