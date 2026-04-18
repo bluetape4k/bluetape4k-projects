@@ -3,6 +3,8 @@ configurations {
 }
 
 dependencies {
+    implementation(platform(Libs.spring_boot3_dependencies))
+
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-okio"))
     api(project(":bluetape4k-netty"))
@@ -35,10 +37,10 @@ dependencies {
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다
-    implementation(Libs.httpclient5)
-    implementation(Libs.httpclient5_cache)
-    implementation(Libs.httpcore5)
-    implementation(Libs.httpcore5_h2)
+    compileOnly(Libs.httpclient5)
+    compileOnly(Libs.httpclient5_cache)
+    compileOnly(Libs.httpcore5)
+    compileOnly(Libs.httpcore5_h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
@@ -63,9 +65,9 @@ dependencies {
     compileOnly(Libs.fastjson2_kotlin)
 
     // Collections
-    implementation(Libs.commons_collections4)
-    implementation(Libs.eclipse_collections)
-    implementation(Libs.eclipse_collections_forkjoin)
+    compileOnly(Libs.commons_collections4)
+    compileOnly(Libs.eclipse_collections)
+    compileOnly(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
 
     // Resilience4j

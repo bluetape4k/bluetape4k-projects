@@ -6,8 +6,8 @@ dependencies {
     // bluetape4k
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-coroutines"))
-    api(project(":bluetape4k-jackson2"))
-    api(project(":bluetape4k-resilience4j"))
+    compileOnly(project(":bluetape4k-jackson2"))
+    compileOnly(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(project(":bluetape4k-idgenerators"))
@@ -35,19 +35,18 @@ dependencies {
     compileOnly(Libs.aws_kotlin_sts)
 
     // Resilience4j
-    implementation(Libs.resilience4j_retry)
-    implementation(Libs.resilience4j_kotlin)
+    compileOnly(Libs.resilience4j_retry)
+    compileOnly(Libs.resilience4j_kotlin)
 
     // Jackson
-    implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_module_blackbird)
+    compileOnly(Libs.jackson_module_kotlin)
+    compileOnly(Libs.jackson_module_blackbird)
 
     // Coroutines
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_test)
+    compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Testcontainers
-    api(Libs.testcontainers_localstack)
+    testImplementation(Libs.testcontainers_localstack)
     testImplementation(Libs.mockk)
 }

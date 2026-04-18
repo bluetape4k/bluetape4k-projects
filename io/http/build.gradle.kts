@@ -24,15 +24,15 @@ dependencies {
     compileOnly(Libs.okhttp3_mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
-    api(Libs.httpclient5)
-    api(Libs.httpclient5_cache)
-    api(Libs.httpclient5_fluent)
+    compileOnly(Libs.httpclient5)
+    compileOnly(Libs.httpclient5_cache)
+    compileOnly(Libs.httpclient5_fluent)
     testImplementation(Libs.httpclient5_testing)
 
     // Apache HttpComponent Core 5
-    api(Libs.httpcore5)
-    implementation(Libs.httpcore5_h2)
-    implementation(Libs.httpcore5_reactive)
+    compileOnly(Libs.httpcore5)
+    compileOnly(Libs.httpcore5_h2)
+    compileOnly(Libs.httpcore5_reactive)
     testImplementation(Libs.httpcore5_testing)
 
     compileOnly(project(":bluetape4k-cache-core"))

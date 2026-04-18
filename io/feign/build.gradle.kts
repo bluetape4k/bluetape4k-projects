@@ -15,14 +15,15 @@ configurations {
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
     implementation(platform(Libs.spring_cloud_dependencies))
+
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
