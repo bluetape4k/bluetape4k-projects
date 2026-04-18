@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowLifecycleExamples {
 
@@ -39,7 +40,7 @@ class FlowLifecycleExamples {
 
         flowOf(1, 2).log("#2")
             .onEach {
-                advanceTimeBy(1000)
+                advanceTimeBy(1000.milliseconds)
             }
             .collect {
                 log.debug { "received $it" }
@@ -49,7 +50,7 @@ class FlowLifecycleExamples {
     @Test
     fun `onStart - starting flow`() = runTest {
         flowOf(1, 2)
-            .onEach { delay(1000) }
+            .onEach { delay(1000.milliseconds) }
             .onStart { log.debug { "Starting" } }  // 한번만 호출된다
             .collect { log.debug { "Collect" } }
     }
@@ -57,7 +58,7 @@ class FlowLifecycleExamples {
     @Test
     fun `onCompletion - call on complete flow`() = runTest {
         flowOf(1, 2)
-            .onEach { delay(1000) }
+            .onEach { delay(1000.milliseconds) }
             .onStart { log.debug { "Starting" } }  // 한번만 호출된다
             .onCompletion { log.debug { "Completed" } }
             .collect { log.debug { "Collect" } }
@@ -65,12 +66,12 @@ class FlowLifecycleExamples {
 
     @Test
     fun `onEmpty - call on not existing element`() = runTest {
-        flow<List<Int>> { delay(1000) }
+        flow<List<Int>> { delay(1000.milliseconds) }
             .onEmpty { emit(emptyList()) }
             .collect { log.debug { "$it" } }
 
         // Same action
-        flow<List<Int>> { delay(1000) }
+        flow<List<Int>> { delay(1000.milliseconds) }
             .onEmpty { log.debug { "${emptyList<Int>()}" } }
             .collect()
     }

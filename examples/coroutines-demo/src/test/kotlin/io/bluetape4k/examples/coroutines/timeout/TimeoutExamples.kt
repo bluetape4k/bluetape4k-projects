@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 코루틴 타임아웃 처리 예제입니다.
@@ -29,8 +30,8 @@ class TimeoutExamples {
     fun `withTimeout - 시간 이내 완료`() =
         runTest {
             val result =
-                withTimeout(1000) {
-                    delay(500)
+                withTimeout(1000.milliseconds) {
+                    delay(500.milliseconds)
                     "완료"
                 }
             result shouldBeEqualTo "완료"
@@ -43,8 +44,8 @@ class TimeoutExamples {
     fun `withTimeout - 시간 초과 시 예외 발생`() =
         runTest {
             assertFailsWith<TimeoutCancellationException> {
-                withTimeout(100) {
-                    delay(1000)
+                withTimeout(100.milliseconds) {
+                    delay(1000.milliseconds)
                     "이 결과는 반환되지 않음"
                 }
             }
@@ -59,8 +60,8 @@ class TimeoutExamples {
     fun `withTimeoutOrNull - 시간 초과 시 null 반환`() =
         runTest {
             val result =
-                withTimeoutOrNull(100) {
-                    delay(1000)
+                withTimeoutOrNull(100.milliseconds) {
+                    delay(1000.milliseconds)
                     "이 결과는 반환되지 않음"
                 }
             result.shouldBeNull()
@@ -74,8 +75,8 @@ class TimeoutExamples {
     fun `withTimeoutOrNull - 시간 이내 완료`() =
         runTest {
             val result =
-                withTimeoutOrNull(1000) {
-                    delay(100)
+                withTimeoutOrNull(1000.milliseconds) {
+                    delay(100.milliseconds)
                     "성공"
                 }
             result.shouldNotBeNull()
@@ -94,10 +95,10 @@ class TimeoutExamples {
                 retryWithTimeout(maxRetries = 3, timeoutMillis = 200) {
                     attempt++
                     if (attempt < 3) {
-                        delay(500) // 처음 2번은 타임아웃
+                        delay(500.milliseconds) // 처음 2번은 타임아웃
                         "실패"
                     } else {
-                        delay(50) // 3번째는 성공
+                        delay(50.milliseconds) // 3번째는 성공
                         "성공"
                     }
                 }
@@ -117,7 +118,7 @@ class TimeoutExamples {
         block: suspend () -> T,
     ): T? {
         repeat(maxRetries) { attempt ->
-            val result = withTimeoutOrNull(timeoutMillis) { block() }
+            val result = withTimeoutOrNull(timeoutMillis.milliseconds) { block() }
             if (result != null) return result
             log.debug { "시도 ${attempt + 1}/$maxRetries 타임아웃" }
         }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class ChannelExamples {
 
@@ -27,7 +28,7 @@ class ChannelExamples {
 
         launch {
             for (x in 1..5) {
-                delay(Random.nextLong(100))
+                delay(Random.nextLong(100).milliseconds)
                 log.trace { "Send value=${x * x}" }
                 channel.send(x * x)
             }
@@ -52,7 +53,7 @@ class ChannelExamples {
 
         launch {
             for (x in 1..5) {
-                delay(Random.nextLong(100))
+                delay(Random.nextLong(100).milliseconds)
                 log.trace { "Send value=${x * x}" }
                 channel.send(x * x)
             }

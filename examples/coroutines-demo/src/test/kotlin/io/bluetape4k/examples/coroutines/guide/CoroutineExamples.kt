@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ForkJoinPool
+import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineExamples {
 
@@ -26,14 +27,14 @@ class CoroutineExamples {
         coroutineScope {
             List(ITEM_SIZE) {
                 launch(Dispatchers.IO) {
-                    advanceTimeBy(DELAY_TIME)
+                    advanceTimeBy(DELAY_TIME.milliseconds)
                 }
             }
             yield()
 
             List(ITEM_SIZE) {
                 launch(Dispatchers.IO) {
-                    advanceTimeBy(DELAY_TIME)
+                    advanceTimeBy(DELAY_TIME.milliseconds)
                 }
             }
         }

@@ -23,6 +23,8 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.microseconds
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowOperatorExamples {
 
@@ -61,7 +63,7 @@ class FlowOperatorExamples {
 
     @Test
     fun `merge elements of flows with time`() = runTest {
-        val ints = flowOf(1, 2, 3).onEach { delay(100) }.log("int")
+        val ints = flowOf(1, 2, 3).onEach { delay(100.microseconds) }.log("int")
         val doubles = flowOf(0.1, 0.2, 0.3).log("double")
 
         // merge는 복수 개의 flow의 요소들을 합쳐서 하나의 flow로 만든다
@@ -83,11 +85,11 @@ class FlowOperatorExamples {
          * ```
          */
         val flow1 = flowOf("A", "B", "C")
-            .onEach { advanceTimeBy(400) }
+            .onEach { advanceTimeBy(400.microseconds) }
             .log("char")
 
         val flow2 = flowOf(1, 2, 3, 4)
-            .onEach { advanceTimeBy(1000) }
+            .onEach { advanceTimeBy(1000.microseconds) }
             .log("ints")
 
         val ziped = flow1
@@ -109,11 +111,11 @@ class FlowOperatorExamples {
          * ```
          */
         val flow1 = flowOf("A", "B", "C")
-            .onEach { delay(400) }
+            .onEach { delay(400.milliseconds) }
             .log("chars")
 
         val flow2 = flowOf(1, 2, 3, 4)
-            .onEach { delay(1000) }
+            .onEach { delay(1000.milliseconds) }
             .log("ints")
 
         val combined = flow1
@@ -127,7 +129,7 @@ class FlowOperatorExamples {
     @Test
     fun `fold - accumulate all values in flow`() = runTest {
         val list = flowOf(1, 2, 3, 4)
-            .onEach { advanceTimeBy(10) }
+            .onEach { advanceTimeBy(10.microseconds) }
             .log("nums")
 
         val res = list.fold(0) { acc, i ->
@@ -142,7 +144,7 @@ class FlowOperatorExamples {
     fun `scan - sliding fold`() = runTest {
         val list = flowOf(1, 2, 3, 4).log("nums")
         val res = list
-            .onEach { advanceTimeBy(10) }
+            .onEach { advanceTimeBy(10.microseconds) }
             .scan(0) { acc, i ->
                 (acc + i).also {
                     log.debug { "acc=$it" }
@@ -155,7 +157,7 @@ class FlowOperatorExamples {
     @Test
     fun `flatMapConcat - concat two flows`() = runTest {
         fun flowFrom(elem: String) = flowOf(1, 2, 3)
-            .onEach { advanceTimeBy(100) }
+            .onEach { advanceTimeBy(100.microseconds) }
             .log("nums")
             .map { "${it}_${elem}" }
             .log("map")
@@ -172,7 +174,7 @@ class FlowOperatorExamples {
     @Test
     fun `flatMapMerge - merge two flows`() = runTest {
         fun flowFrom(elem: String) = flowOf(1, 2, 3)
-            .onEach { delay(10) }
+            .onEach { delay(10.microseconds) }
             .map { "${it}_${elem}" }
             .log("map")
 
@@ -189,7 +191,7 @@ class FlowOperatorExamples {
         fun flowFrom(elem: String) = flowOf(1, 2, 3)
             .log("nums")
             .onEach {
-                delay(10)
+                delay(10.microseconds)
                 log.debug { "delay 10, $it" }
             }
             .map { "${it}_${elem}" }
@@ -205,7 +207,7 @@ class FlowOperatorExamples {
     @Test
     fun `flatMapLatest - latest element with two flows`() = runTest {
         fun flowFrom(elem: String) = flowOf(1, 2, 3)
-            .onEach { delay(10) }
+            .onEach { delay(10.microseconds) }
             .log("nums")
             .map { "${it}_${elem}" }
             .log("map")
@@ -227,7 +229,7 @@ class FlowOperatorExamples {
     @Test
     fun `flatMapLatest - latest element with two flows with different delay`() = runTest {
         fun flowFrom(elem: String) = flowOf(1, 2, 3)
-            .onEach { delay(1000) }
+            .onEach { delay(1000.microseconds) }
             .log("nums")
             .map { "${it}_${elem}" }
 
@@ -240,7 +242,7 @@ class FlowOperatorExamples {
          * ```
          */
         val result = flowOf("A", "B", "C")
-            .onEach { delay(1200) }.log("chars")
+            .onEach { delay(1200.microseconds) }.log("chars")
             .flatMapLatest { flowFrom(it) }         // 각 flow의 마지막 요소들만 선택
             .log("flatMapLatest")
             .toList()

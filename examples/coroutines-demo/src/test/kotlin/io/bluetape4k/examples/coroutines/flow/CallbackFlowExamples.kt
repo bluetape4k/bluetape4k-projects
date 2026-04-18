@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.microseconds
 
 class CallbackFlowExamples {
 
@@ -32,7 +33,7 @@ class CallbackFlowExamples {
 
     private class FakeProductApi: ProduceApi {
         override suspend fun produce(message: Message, callback: suspend (Result) -> Unit) {
-            delay(100)
+            delay(100.microseconds)
             val result = Result(message.id)
             log.debug { "Create result. message=$message, result=$result" }
             callback(result)

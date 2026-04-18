@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowBasicExamples {
 
@@ -24,7 +25,7 @@ class FlowBasicExamples {
     private var sequence: Long by sequencer
 
     private suspend fun computeNextValue(): Long {
-        delay(10)
+        delay(10.milliseconds)
         return sequencer.incrementAndGet()
     }
 
@@ -45,7 +46,7 @@ class FlowBasicExamples {
                 send(x)
             }
         }
-        advanceTimeBy(100)
+        advanceTimeBy(100.milliseconds)
         for (elem in channel) {
             log.debug { "receive=$elem" }
         }
@@ -63,7 +64,7 @@ class FlowBasicExamples {
                 emit(x)
             }
         }
-        advanceTimeBy(100) // 의미없다
+        advanceTimeBy(100.milliseconds) // 의미없다
         flow.collect { elem ->
             log.debug { "collect=$elem" }
         }
@@ -71,7 +72,7 @@ class FlowBasicExamples {
 
     private fun makeFlow() = flow {
         for (i in 1..3) {
-            delay(1000)
+            delay(1000.milliseconds)
             emit(i)
         }
     }
@@ -89,7 +90,7 @@ class FlowBasicExamples {
             log.debug { "👀#1 collect $value" }
         }
 
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         log.debug { "Collect flow at seconds ..." }
         flow.collect { value ->
             log.debug { "👀#2 collect $value" }

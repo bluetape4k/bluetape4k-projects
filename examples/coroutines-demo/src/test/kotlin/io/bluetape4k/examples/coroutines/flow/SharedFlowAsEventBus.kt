@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class SharedFlowAsEventBus {
 
@@ -97,17 +98,17 @@ class SharedFlowAsEventBus {
 
         val job = launch(Dispatchers.Default) {
             // Send events
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             eventBus.sendEvent(Event.EventA)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             eventBus.sendEvent(Event.EventB)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             eventBus.sendEvent(Event.EventC(42))
         }
 
         job.join()
         // Wait for the listeners to process the events
-        advanceTimeBy(500)
+        advanceTimeBy(500.milliseconds)
 
         eventBus.close()
     }

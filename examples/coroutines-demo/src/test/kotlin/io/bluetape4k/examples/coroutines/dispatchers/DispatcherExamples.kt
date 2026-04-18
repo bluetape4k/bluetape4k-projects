@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(DelicateCoroutinesApi::class)
 class DispatcherExamples {
@@ -80,7 +81,7 @@ class DispatcherExamples {
         val jobs = List(REPEAT_SIZE) {
             // Dispatchers.IO.limitedParallelism(128)
             launch(Dispatchers.IO) {
-                advanceTimeBy(Random.nextLong(100, 200))
+                advanceTimeBy(Random.nextLong(100, 200).milliseconds)
 
                 val threadName = Thread.currentThread().name
                 suspendLogging { "Running on thread $threadName" }
@@ -96,7 +97,7 @@ class DispatcherExamples {
             val parallel = dispatcher.limitedParallelism(2)
             List(REPEAT_SIZE) {
                 launch(parallel) {
-                    advanceTimeBy(Random.nextLong(100, 200))
+                    advanceTimeBy(Random.nextLong(100, 200).milliseconds)
                     val threadName = Thread.currentThread().name
                     suspendLogging { "Running on thread $threadName" }
                 }
@@ -133,7 +134,7 @@ class DispatcherExamples {
             var continuation: Continuation<Unit>? = null
 
             val job2 = launch(newSingleThreadContext("Name2")) {
-                delay(Random.nextLong(100, 200))
+                delay(Random.nextLong(100, 200).milliseconds)
                 continuation?.resume(Unit)
             }.log("job2")
 
@@ -152,7 +153,7 @@ class DispatcherExamples {
                 Thread.currentThread().name shouldContain "Name2"
 
                 // Name2 job 종료
-                delay(100)
+                delay(100.milliseconds)
                 job2.join()
 
                 suspendLogging { "thread=" + Thread.currentThread().name }   // DefaultExecutor

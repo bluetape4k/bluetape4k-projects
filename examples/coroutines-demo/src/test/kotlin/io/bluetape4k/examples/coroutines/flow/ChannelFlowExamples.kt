@@ -19,6 +19,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class ChannelFlowExamples {
 
@@ -36,7 +37,7 @@ class ChannelFlowExamples {
 
         override fun takePage(pageNumber: Int): Flow<User> {
             return users.asFlow()
-                .onEach { delay(10) }
+                .onEach { delay(10.milliseconds) }
                 .drop(pageSize * pageNumber)
                 .take(pageSize)
         }
@@ -61,7 +62,7 @@ class ChannelFlowExamples {
 
         val user = users
             .firstOrNull {
-                delay(100)
+                delay(100.milliseconds)
                 it.name == "User3"
             }
 
@@ -94,7 +95,7 @@ class ChannelFlowExamples {
 
         val user = users
             .firstOrNull {
-                delay(100)
+                delay(100.milliseconds)
                 it.name == "User3"
             }
 

@@ -30,6 +30,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -109,10 +110,10 @@ class SharedFlowExamples {
         yield()
 
         await atMost 5.seconds until { totalConsumed.get() > 0L }
-        delay(10)
+        delay(10.milliseconds)
         producers.forEach { it.cancelAndJoin() }
 
-        delay(100)
+        delay(100.milliseconds)
         consumers.forEach { it.cancelAndJoin() }
 
         log.debug { "produced=${totalProduced.get()}, consumed=${totalConsumed.get()}" }

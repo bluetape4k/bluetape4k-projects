@@ -22,6 +22,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Kotlin Coroutines [Channel]의 다양한 사용 패턴을 보여주는 예제입니다.
@@ -46,7 +47,7 @@ class ChannelExamples {
 
             launch {
                 repeat(5) { index ->
-                    delay(1000)
+                    delay(1000.milliseconds)
                     log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
@@ -71,7 +72,7 @@ class ChannelExamples {
 
             launch {
                 repeat(5) { index ->
-                    delay(1000)
+                    delay(1000.milliseconds)
                     log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
@@ -97,7 +98,7 @@ class ChannelExamples {
 
             launch {
                 repeat(5) { index ->
-                    delay(1000)
+                    delay(1000.milliseconds)
                     log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
@@ -120,7 +121,7 @@ class ChannelExamples {
     fun `produce 함수를 이용하여 channel 구성`() = runTest {
         val channel = produce {
             repeat(5) { index ->
-                delay(1000)
+                delay(1000.milliseconds)
                 log.debug { "[#1] ➡️ Producing next one. $index" }
                 send(index)
             }
@@ -152,13 +153,13 @@ class ChannelExamples {
         val channel = produce(capacity = Channel.UNLIMITED) {
             repeat(5) { index ->
                 send(index * 2)
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
         // send한 요소가 모두 버퍼링 된다
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         for (element in channel) {
             log.debug { "[#2] 👋 Receive $element" }
         }
@@ -169,13 +170,13 @@ class ChannelExamples {
         val channel = produce(capacity = 3) {
             repeat(5) { index ->
                 send(index * 2)
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
         // send한 요소가 모두 버퍼링 된다
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
@@ -189,13 +190,13 @@ class ChannelExamples {
         val channel = produce(capacity = Channel.RENDEZVOUS) {
             repeat(5) { index ->
                 send(index * 2)
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
         // send한 요소가 모두 버퍼링 된다
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
@@ -209,13 +210,13 @@ class ChannelExamples {
         val channel = produce(capacity = Channel.CONFLATED) {
             repeat(5) { index ->
                 send(index * 2)
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
         // Channel.CONFLATED는 send한 요소 중 가장 최신 것만 남기고 버려버립니다.
-        advanceTimeBy(400)
+        advanceTimeBy(400.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
@@ -239,14 +240,14 @@ class ChannelExamples {
         launch {
             repeat(5) { index ->
                 channel.send(index * 2)
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
             channel.close()
         }
 
         // send한 요소가 모두 버퍼링 된다
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
@@ -263,7 +264,7 @@ class ChannelExamples {
 
         private fun CoroutineScope.produceNumbers(): ReceiveChannel<Int> = produce {
             repeat(10) {
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "[#1] ➡️ Send $it" }
                 send(it)
             }
@@ -282,7 +283,7 @@ class ChannelExamples {
             val channel = produceNumbers()
 
             repeat(3) { id ->
-                delay(10)
+                delay(10.milliseconds)
                 launchProcessor(id, channel)
             }
         }
@@ -302,7 +303,7 @@ class ChannelExamples {
             timeMillis: Long = 100,
         ) {
             while (true) {
-                delay(timeMillis)
+                delay(timeMillis.milliseconds)
                 val element = text()
                 log.debug { "[#1] ➡️ Send [$element]" }
                 channel.send(element)

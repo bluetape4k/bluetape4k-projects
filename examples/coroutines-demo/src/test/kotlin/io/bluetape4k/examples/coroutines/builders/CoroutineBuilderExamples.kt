@@ -3,6 +3,7 @@ package io.bluetape4k.examples.coroutines.builders
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -12,6 +13,7 @@ import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 코루틴 빌더(`launch`, `async`)의 기본 사용법을 보여주는 예제입니다.
@@ -26,17 +28,16 @@ class CoroutineBuilderExamples {
 
     @Nested
     inner class LaunchExample {
-
         @Test
         fun `launch coroutines`() = runTest {
             log.debug { "Start" }
 
             launch {
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "World 1" }
             }
             launch {
-                delay(100)
+                delay(100.milliseconds)
                 log.debug { "World 2" }
             }
             log.debug { "Hello, " }
@@ -50,8 +51,8 @@ class CoroutineBuilderExamples {
 
         @Test
         fun `async builder example`() = runTest {
-            val resultDeferred = async {
-                delay(100L)
+            val resultDeferred: Deferred<Int> = async {
+                delay(100L.milliseconds)
                 log.trace { "Return result=42" }
                 42
             }
@@ -66,7 +67,7 @@ class CoroutineBuilderExamples {
         fun `await returns`() = runTest {
             val results = List(10) {
                 async {
-                    delay(Random.nextLong(50, 100))
+                    delay(Random.nextLong(50, 100).milliseconds)
                     log.trace { "Return $it" }
                     "Result $it"
                 }

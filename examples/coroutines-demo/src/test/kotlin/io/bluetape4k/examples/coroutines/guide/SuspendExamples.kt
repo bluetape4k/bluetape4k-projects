@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resumeWithException
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendExamples {
 
@@ -49,6 +51,9 @@ class SuspendExamples {
                     }
             }
         }
+
+        suspend fun executeWithDelay(delay: Duration): Int =
+            executeWithDelay(delay.inWholeMilliseconds)
     }
 
     private val service = Service()
@@ -67,8 +72,8 @@ class SuspendExamples {
     @Test
     fun `execute suspend function with timeout`() = runSuspendTest {
         // 지정된 시간 안에 결과가 없다면 null을 반환합니다.
-        val result = withTimeoutOrNull(10) {
-            service.executeWithDelay(1000)
+        val result = withTimeoutOrNull(10.milliseconds) {
+            service.executeWithDelay(1000.milliseconds)
         }
         result.shouldBeNull()
     }

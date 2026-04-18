@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [select] 표현식을 사용하여 복수의 suspend 연산 중 가장 먼저 완료된 것을 선택하는 예제입니다.
@@ -30,12 +31,12 @@ class SelectExamples {
     @Test
     fun `select onAwait - 가장 빠른 async 결과 선택`() = runTest {
         val slow = async {
-            delay(200)
+            delay(200.milliseconds)
             "느린 응답"
         }
 
         val fast = async {
-            delay(100)
+            delay(100.milliseconds)
             "빠른 응답"
         }
 
@@ -61,11 +62,11 @@ class SelectExamples {
     @Test
     fun `select onReceive - 먼저 도착한 채널에서 수신`() = runTest {
         val channel1 = produce {
-            delay(200)
+            delay(200.milliseconds)
             send("Channel 1 데이터")
         }
         val channel2 = produce {
-            delay(100)
+            delay(100.milliseconds)
             send("Channel 2 데이터")
         }
 
@@ -92,14 +93,14 @@ class SelectExamples {
         val channel1 =
             produce {
                 repeat(3) {
-                    delay(150)
+                    delay(150.milliseconds)
                     send("A$it")
                 }
             }
         val channel2 =
             produce {
                 repeat(3) {
-                    delay(100)
+                    delay(100.milliseconds)
                     send("B$it")
                 }
             }

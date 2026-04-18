@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 코루틴 예외 처리 패턴을 보여주는 예제입니다.
@@ -61,21 +62,21 @@ class ExceptionHandlingExamples {
         coroutineScope {
             launch {
                 launch {
-                    advanceTimeBy(100L)
+                    advanceTimeBy(100L.milliseconds)
                     throw RuntimeException("Boom!")
                 }
                 launch {
-                    advanceTimeBy(200L)
+                    advanceTimeBy(200L.milliseconds)
                     fail("이 코드까지 실행되면 안됩니다.")
                 }
                 launch {
-                    advanceTimeBy(50L)
+                    advanceTimeBy(50L.milliseconds)
                     log.info { "이 코드는 실행되어야 합니다." }
                 }
             }
 
             launch {
-                advanceTimeBy(200L)
+                advanceTimeBy(200L.milliseconds)
                 fail("이 코드까지 실행되면 안됩니다.")
             }
         }
@@ -86,7 +87,7 @@ class ExceptionHandlingExamples {
     fun `외부에 try catch를 적용해도 예외를 잡지 못합니다`() = runTest {
         try {
             launch {
-                advanceTimeBy(100L)
+                advanceTimeBy(100L.milliseconds)
                 throw RuntimeException("Boom!")
             }
         } catch (e: Throwable) {
@@ -94,7 +95,7 @@ class ExceptionHandlingExamples {
         }
 
         launch {
-            delay(200L)
+            delay(200L.milliseconds)
             fail("이 코드는 실행되면 안됩니다")
         }
     }
@@ -106,7 +107,7 @@ class ExceptionHandlingExamples {
         coroutineScope {
             launch(exceptionHandler) {
                 try {
-                    advanceTimeBy(100L)
+                    advanceTimeBy(100L.milliseconds)
                     throw RuntimeException("Boom!")
                 } catch (e: Throwable) {
                     suspendLogging { "예외를 잡았습니다." }
@@ -116,7 +117,7 @@ class ExceptionHandlingExamples {
             }.log("#1")
 
             launch(exceptionHandler) {
-                advanceTimeBy(200L)
+                advanceTimeBy(200L.milliseconds)
             }.log("#2")
         }
 
@@ -133,13 +134,13 @@ class ExceptionHandlingExamples {
         val run2 = AtomicBoolean(false)
 
         scope.launch(exceptionHandler) {
-            advanceTimeBy(100L)
+            advanceTimeBy(100L.milliseconds)
             suspendLogging { "예외가 발생합니다 ..." }
             throw RuntimeException("Boom!")
         }.log("#1")
 
         scope.launch(exceptionHandler) {
-            advanceTimeBy(200L)
+            advanceTimeBy(200L.milliseconds)
             run2.set(true)
             suspendLogging { "이 코드는 실행되어야 합니다" }
         }.log("#2")
@@ -167,15 +168,15 @@ class ExceptionHandlingExamples {
         val job = scope.launch {
             // 예외를 전파시켜 버립니다.
             launch {
-                delay(100)
+                delay(100.milliseconds)
                 throw RuntimeException("Boom!")
             }.log("#1")
 
             launch {
                 // 위의 Job
-                delay(200)
+                delay(200.milliseconds)
                 secondJob.set(true)
-                log.error { "출력되지 않습니다." }
+                log.error { "출력되지 않아야 합니다." }
             }.log("#2")
         }.log("Parent")
 
@@ -192,12 +193,12 @@ class ExceptionHandlingExamples {
         // 예외를 전파시키지 않습니다.
         val scope = CoroutineScope(job + exceptionHandler)
         scope.launch {
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             throw RuntimeException("Boom!")
         }.log("#1")
 
         scope.launch {
-            advanceTimeBy(200)
+            advanceTimeBy(200.milliseconds)
             job2Executed.set(true)
             log.info { "Job2는 실행됩니다." }
         }.log("#2")
@@ -215,12 +216,12 @@ class ExceptionHandlingExamples {
         val job = supervisorScope {
             // 예외가 발생하지만 전파시키지 않습니다.
             launch(exceptionHandler) {
-                advanceTimeBy(100)
+                advanceTimeBy(100.milliseconds)
                 throw RuntimeException("Boom!")
             }.log("#1")
 
             launch(exceptionHandler) {
-                advanceTimeBy(200)
+                advanceTimeBy(200.milliseconds)
                 job2Executed.set(true)
                 log.info { "Job2는 실행됩니다." }
             }.log("#2")
@@ -235,12 +236,12 @@ class ExceptionHandlingExamples {
         // supervisorScope 환경 하에서 children 을 독립적으로 실행할 수 있습니다.
         supervisorScope {
             val str1 = async<String> {
-                advanceTimeBy(100)
+                advanceTimeBy(100.milliseconds)
                 throw RuntimeException("Boom!")
             }.log("#1")
 
             val str2 = async {
-                advanceTimeBy(200)
+                advanceTimeBy(200.milliseconds)
                 "Text2"
             }.log("#2")
 
@@ -268,7 +269,7 @@ class ExceptionHandlingExamples {
         launch {
             // 손자 1
             launch {
-                advanceTimeBy(100)
+                advanceTimeBy(100.milliseconds)
                 fail("취소되었기 때문에 실행되면 안됩니다.")
             }.log("#11")
             throw MyNonPropagatingException()
@@ -278,7 +279,7 @@ class ExceptionHandlingExamples {
 
         // 자식 2 - 자식 1과 상관없이 실행된다.
         launch {
-            advanceTimeBy(200)
+            advanceTimeBy(200.milliseconds)
             job2Executed.set(true)
             log.info { "Child2 는 Child1 과 상관없이 실행됩니다." }
         }.log("#2").join()
@@ -300,12 +301,12 @@ class ExceptionHandlingExamples {
 
         // 예외 발생 시 exception handler 가 처리합니다.
         scope.launch {
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             throw RuntimeException("Boom!")
         }.log("#1")
 
         scope.launch {
-            advanceTimeBy(200)
+            advanceTimeBy(200.milliseconds)
             job2Executed.set(true)
             suspendLogging { "이 코드는 출력되어야 합니다." }
         }.log("#2")

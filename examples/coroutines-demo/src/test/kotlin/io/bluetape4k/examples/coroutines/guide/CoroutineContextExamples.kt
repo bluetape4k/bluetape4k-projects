@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineContextExamples {
 
@@ -39,7 +40,7 @@ class CoroutineContextExamples {
             repeat(10) {
                 log.debug { "Launch job $it." }
                 launch {
-                    delay((it + 1) * 100L)
+                    delay(timeMillis = (it + 1) * 100L)
                     log.debug { "Job $it is done." }
                 }.log("Job $it")
             }
@@ -55,7 +56,7 @@ class CoroutineContextExamples {
 
             suspendLogging { "Launched coroutines ..." }
             activity.doSomething()
-            advanceTimeBy(10)
+            advanceTimeBy(10.milliseconds)
 
             suspendLogging { "Destroying activity..." }
             activity.destroy()      // cancel all child coroutines
@@ -70,14 +71,14 @@ class CoroutineContextExamples {
 
             val v1 = async(CoroutineName("v1")) {
                 suspendLogging { "Starting v1" }
-                delay(Random.nextLong(10))
+                delay(Random.nextLong(10).milliseconds)
                 suspendLogging { "Computing v1" }
                 252
             }.log("coroutines 1")
 
             val v2 = async(CoroutineName("v2")) {
                 suspendLogging { "Starting v2" }
-                delay(Random.nextLong(20))
+                delay(Random.nextLong(20).milliseconds)
                 suspendLogging { "Computing v2" }
                 6
             }.log("coroutines 2")
@@ -96,7 +97,7 @@ class CoroutineContextExamples {
         fun `run many coroutines`() = runTest {
             val jobs = List(jobSize) {
                 launch(Dispatchers.IO) {
-                    advanceTimeBy(1000)
+                    advanceTimeBy(1000.milliseconds)
                     print(".")
                 }
             }
@@ -108,7 +109,7 @@ class CoroutineContextExamples {
             coroutineScope {
                 val jobs = List(jobSize) {
                     launch(Dispatchers.IO) {
-                        advanceTimeBy(1000)
+                        advanceTimeBy(1000.milliseconds)
                         print(".")
                     }
                 }
