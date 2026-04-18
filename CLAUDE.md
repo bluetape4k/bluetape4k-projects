@@ -79,7 +79,8 @@ Multi-module Gradle project. `settings.gradle.kts` auto-registers subdirectories
 | `protobuf` / `grpc` | Protobuf utilities + gRPC server/client abstraction |
 | `tink` | Google Tink AEAD/DAEAD/MAC encryption (`TinkEncryptor`) |
 | `vertx` | Vert.x unified module (core + SQL client + Resilience4j) |
-| `netty` / `http` / `avro` / `csv` | Netty, HTTP utils, Avro, CSV |
+| `netty` / `http` / `avro` | Netty, HTTP utils, Avro |
+| `csv` | RFC 4180 자체 구현 CSV/TSV 파서·라이터 (v1.5.0, univocity 제거). V1: `CsvRecordReader`/`CsvRecordWriter` + `CsvSettings`/`TsvSettings`. V2(`io.bluetape4k.csv.v2`): `FlowCsvReader`/`FlowCsvWriter` DSL + `CsvRow` data class + `csvReader { }` / `tsvReader { }`. `SuspendRecordReader`: `channelFlow + ensureActive`; `SuspendRecordWriter`: `Mutex`. 마이그레이션: `io/csv/MIGRATION.md` |
 
 ### AWS (`aws/`, `aws-kotlin/`)
 

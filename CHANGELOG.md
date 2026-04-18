@@ -8,6 +8,34 @@
 
 ### Added
 
+#### io/csv — univocity-parsers 제거, 자체 RFC 4180 엔진으로 교체 ([`c8ad4f97e`](https://github.com/bluetape4k/bluetape4k-projects/commit/c8ad4f97e))
+
+`bluetape4k-csv` v1.5.0부터 내부 파서/라이터 엔진이 univocity-parsers 에서 자체 구현으로 교체됩니다.
+
+**V1 — 기존 API 유지 (설정 타입만 변경)**
+
+| 변경 전 (univocity) | 변경 후 (자체 엔진) |
+|---------------------|-------------------|
+| `CsvParserSettings` | `CsvSettings` |
+| `TsvParserSettings` | `TsvSettings` |
+| `CsvWriterSettings` | `CsvSettings` |
+| `TsvWriterSettings` | `TsvSettings` |
+
+- `CsvLexer` / `TsvLexer`: RFC 4180 문자 단위 상태 기계 렉서, BOM 감지·제거, CRLF/LF/CR 지원
+- `DelimitedWriter` → `CsvLineWriter` / `TsvLineWriter`: null → 인용 없는 빈 필드, `""` → `""` 인용 출력 (RFC 4180 roundtrip 보장)
+- `SuspendCsvRecordReader` / `SuspendTsvRecordReader`: `channelFlow + ensureActive()` 기반 코루틴 취소 협력
+- `SuspendCsvRecordWriter` / `SuspendTsvRecordWriter`: `Mutex` 기반 동시 쓰기 보호
+- `Record` 공개 인터페이스 (`io.bluetape4k.csv.Record`) — `com.univocity.parsers.common.record.Record` 대체
+
+**V2 — Flow DSL API (신규, `io.bluetape4k.csv.v2`)**
+
+- `CsvRow`: 불변 data class 레코드 (`getString`, `getInt`, `getLong`, `getBoolean`, …)
+- `FlowCsvReader` / `FlowCsvReaderImpl`: `csvReader { } / tsvReader { }` DSL, `read(InputStream)` / `readFile(Path)` → `Flow<CsvRow>`
+- `FlowCsvWriter` / `FlowCsvWriterImpl`: `csvWriter(writer) { quoteAll = true } / tsvWriter(writer) { }` DSL, `writeAll(Flow<Iterable<*>>)`, `Mutex` 동시성 보호
+- `Record.toCsvRow()` (public): V1 Record → V2 CsvRow 변환
+
+**마이그레이션**: [`io/csv/MIGRATION.md`](io/csv/MIGRATION.md) 참조
+
 #### core — `virtualFutureOfNullable` 추가 ([`ce48b684b`](https://github.com/bluetape4k/bluetape4k-projects/commit/ce48b684b))
 
 `virtualFutureOf`가 non-null 타입만 지원하던 한계를 해소합니다.
