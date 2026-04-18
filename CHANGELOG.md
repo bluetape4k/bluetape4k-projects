@@ -19,6 +19,21 @@
 - `ci.yml`: push/PR on `develop`·`main` 트리거, 8개 job (validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status)
 - `publish-snapshot.yml`: `develop` 브랜치 push 시 Maven Central Snapshots 자동 배포 (`CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `SIGNING_KEY*`)
 
+### Fixed
+
+#### testing/testcontainers — graphdb 서버 Docker 이미지 TAG 고정 버전으로 수정 ([`f4a3c700e`](https://github.com/bluetape4k/bluetape4k-projects/commit/f4a3c700e))
+
+`latest` 또는 부동(floating) major 버전 태그를 사용하던 Graph DB 서버를 특정 버전으로 고정합니다.
+
+| 서버 | 이전 TAG | 이후 TAG |
+|------|----------|----------|
+| `Neo4jServer` | `5` (floating major) | `5.26.24` |
+| `MemgraphServer` | `3.2.1` | `3.9.0` |
+| `PostgreSQLAgeServer` | `latest` | `release_PG17_1.6.0` |
+
+- `PostgreSQLAgeServer` KDoc 불일치 수정: 주석의 `PG17_latest` → `release_PG17_1.6.0`
+- `README.md` / `README.ko.md`: Graph DB 서버 Docker 이미지 버전 테이블 추가
+
 ### Removed
 
 #### data/exposed-jasypt — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
