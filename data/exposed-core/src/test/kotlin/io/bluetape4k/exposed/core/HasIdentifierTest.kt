@@ -1,17 +1,23 @@
 package io.bluetape4k.exposed.core
 
+import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 /**
  * [HasIdentifier] 인터페이스 단위 테스트입니다.
  */
+@Disabled("HasIdentifier 는 deprecated 되었습니다")
+@Suppress("DEPRECATION")
 class HasIdentifierTest {
+
+    companion object: KLogging()
 
     private data class LongEntity(override val id: Long?): HasIdentifier<Long>
     private data class StringEntity(override val id: String?): HasIdentifier<String>

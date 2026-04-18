@@ -9,6 +9,7 @@ import net.postgis.jdbc.geometry.Point
 import net.postgis.jdbc.geometry.Polygon
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
@@ -144,8 +145,12 @@ class GeoGeometryColumnTypeTest: AbstractExposedTest() {
             val result = row[Geometries.geom]
             result.shouldNotBeNull()
             result.typeString shouldBeEqualTo "POINT"
-            (result as Point).x shouldBeEqualTo seoul.x
-            (result as Point).y shouldBeEqualTo seoul.y
+
+            result shouldBeInstanceOf Point::class
+            with(result as Point) {
+                x shouldBeEqualTo seoul.x
+                y shouldBeEqualTo seoul.y
+            }
         }
     }
 
