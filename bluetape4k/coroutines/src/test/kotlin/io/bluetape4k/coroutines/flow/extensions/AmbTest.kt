@@ -18,8 +18,8 @@ class AmbTest: AbstractFlowTest() {
 
     @Test
     fun `amb with two flows`() = runTest {
-        val flow1 = flowRangeOf(1, 5).onStart { delay(1000) }.log("#1")
-        val flow2 = flowRangeOf(6, 5).onStart { delay(100) }.log("#2")
+        val flow1 = flowRangeOf(1, 5).onStart { delay(timeMillis = 1000) }.log("#1")
+        val flow2 = flowRangeOf(6, 5).onStart { delay(timeMillis = 100) }.log("#2")
 
         amb(flow1, flow2)
             .assertResult(6, 7, 8, 9, 10)
@@ -27,8 +27,8 @@ class AmbTest: AbstractFlowTest() {
 
     @Test
     fun `amb with two flows 2`() = runTest {
-        val flow1 = flowRangeOf(1, 5).onStart { delay(100) }.log("#1")
-        val flow2 = flowRangeOf(6, 5).onStart { delay(1000) }.log("#2")
+        val flow1 = flowRangeOf(1, 5).onStart { delay(timeMillis = 100) }.log("#1")
+        val flow2 = flowRangeOf(6, 5).onStart { delay(timeMillis = 1000) }.log("#2")
 
         amb(flow1, flow2)
             .assertResult(1, 2, 3, 4, 5)
@@ -38,7 +38,7 @@ class AmbTest: AbstractFlowTest() {
     fun `amb with take`() = runTest {
         var counter = 0
 
-        val flow1 = flowRangeOf(1, 5).onEach { delay(100) }.log("#1")
+        val flow1 = flowRangeOf(1, 5).onEach { delay(timeMillis = 100) }.log("#1")
         val flow2 = flowRangeOf(6, 5)
             .onEach {
                 delay(200)
@@ -55,8 +55,8 @@ class AmbTest: AbstractFlowTest() {
 
     @Test
     fun `amb ignores empty flow and waits for first emitted value`() = runTest {
-        val empty = emptyFlow<Int>().onStart { delay(10) }
-        val delayed = flowRangeOf(1, 3).onStart { delay(50) }
+        val empty = emptyFlow<Int>().onStart { delay(timeMillis = 10) }
+        val delayed = flowRangeOf(1, 3).onStart { delay(timeMillis = 50) }
 
         amb(empty, delayed).assertResult(1, 2, 3)
     }
@@ -64,7 +64,7 @@ class AmbTest: AbstractFlowTest() {
     @Test
     fun `amb returns empty when every source is empty`() = runTest {
         val empty1 = emptyFlow<Int>()
-        val empty2 = emptyFlow<Int>().onStart { delay(10) }
+        val empty2 = emptyFlow<Int>().onStart { delay(timeMillis = 10) }
 
         amb(empty1, empty2).assertEmpty()
     }

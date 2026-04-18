@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.stream.IntStream
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class JavaStreamSupportTest {
 
@@ -17,7 +18,7 @@ class JavaStreamSupportTest {
     fun `int stream with coMap`() = runTest {
         val list = IntStream.range(1, 10)
             .suspendMap {
-                delay(Random.nextLong(10))
+                delay(Random.nextLong(10).milliseconds)
                 it
             }
             .toList()
@@ -31,7 +32,7 @@ class JavaStreamSupportTest {
 
         IntStream.range(1, 10)
             .suspendForEach {
-                delay(Random.nextLong(10))
+                delay(Random.nextLong(10).milliseconds)
                 list.add(it)
             }
 

@@ -14,6 +14,7 @@ import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
@@ -23,7 +24,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         .apply { clear() }
 
     override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
-        delay(100)
+        delay(100.milliseconds)
         x * x
     }
 
@@ -77,7 +78,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val evaluateCount = AtomicInteger(0)
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
-            delay(100)
+            delay(100.milliseconds)
             key * key
         }
 
@@ -98,7 +99,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `SuspendedJobTester - 여러 코루틴에서 동시에 suspendMemoizer 호출 시 일관된 결과 반환`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val memoizer = map.suspendMemoizer { key ->
-            delay(10)
+            delay(10.milliseconds)
             key * key
         }
         try {

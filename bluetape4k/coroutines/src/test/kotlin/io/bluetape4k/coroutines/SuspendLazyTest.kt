@@ -24,7 +24,7 @@ class SuspendLazyTest {
         val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
-            delay(Random.nextLong(100))
+            delay(timeMillis = Random.nextLong(100))
             log.trace { "Calculate lazy value in non-blocking mode." }
             callCounter.incrementAndGet()
             TEST_NUMBER
@@ -44,7 +44,7 @@ class SuspendLazyTest {
         val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
-            delay(Random.nextLong(100))
+            delay(timeMillis = Random.nextLong(100))
             log.trace { "Calculate lazy value in non-blocking mode." }
             callCounter.incrementAndGet()
             TEST_NUMBER

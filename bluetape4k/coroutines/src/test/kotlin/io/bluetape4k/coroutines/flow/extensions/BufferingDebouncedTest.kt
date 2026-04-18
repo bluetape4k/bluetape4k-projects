@@ -22,13 +22,13 @@ class BufferingDebouncedTest: AbstractFlowTest() {
     fun `debounced window 내에 발생한 모든 요소를 버퍼링하고, 디바운스 타이머가 만료되면 List로 발행합니다`() = runSuspendIO {
         val source = flow {
             emit(1)
-            delay(110)
+            delay(timeMillis = 110)
             emit(2)
-            delay(90)
+            delay(timeMillis = 90)
             emit(3)
-            delay(110)
+            delay(timeMillis = 110)
             emit(4)
-            delay(90)
+            delay(timeMillis = 90)
         }
 
         val buffered = source.bufferingDebounce(200.milliseconds)  // [1, 2], [3, 4]
@@ -44,15 +44,15 @@ class BufferingDebouncedTest: AbstractFlowTest() {
         val source =
             flow {
                 emit(1)
-                delay(150)
+                delay(timeMillis = 150)
                 emit(2)
-                delay(150)
+                delay(timeMillis = 150)
                 emit(3)
-                delay(150)
+                delay(timeMillis = 150)
 
                 throw RuntimeException("Boom!")
 
-                delay(90)
+                delay(timeMillis = 90)
                 emit(4)
             }.catch { }
 

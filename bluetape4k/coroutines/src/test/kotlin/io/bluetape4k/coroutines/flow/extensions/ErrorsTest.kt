@@ -130,7 +130,7 @@ class ErrorsTest: AbstractFlowTest() {
             throw testException
         }.catchAndResume { error ->
             error shouldBeInstanceOf RuntimeException::class
-            delay(100L)
+            delay(timeMillis = 100L)
             flowOf(count, count + 1).also { count++ }
         }
 
@@ -159,7 +159,7 @@ class ErrorsTest: AbstractFlowTest() {
         val flow = flowOf(1, 2, 3)
             .catchAndResume { error ->
                 error shouldBeInstanceOf RuntimeException::class
-                delay(100L)
+                delay(timeMillis = 100L)
                 flowOf(count, count + 1).also { count++ }
             }
 

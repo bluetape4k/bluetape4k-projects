@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 private val log = KotlinLogging.logger {}
@@ -169,7 +170,7 @@ suspend fun DynamoDbClient.waitForTableReady(
                 log.debug { "DynamoDb 테이블[$name]이 준비되었습니다." }
                 break
             }
-            delay(10)
+            delay(10.milliseconds)
         }
     }
 }

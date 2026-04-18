@@ -14,18 +14,18 @@ class ResumableTest {
         val resumable = Resumable()
 
         resumable.resume()
-        delay(10)
+        delay(timeMillis = 10)
         resumable.await()
-        delay(10)
+        delay(timeMillis = 10)
 
         resumable.resume()
         resumable.await()
 
-        delay(10)
+        delay(timeMillis = 10)
 
         resumable.resume()
         resumable.resume()
-        delay(10)
+        delay(timeMillis = 10)
         resumable.await()
     }
 }

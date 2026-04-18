@@ -14,10 +14,10 @@ class OnBackpressureDropTest: AbstractFlowTest() {
     @Test
     fun `drop backpressure items`() = runTest {
         flowRangeOf(0, 10)
-            .onEach { delay(100L) }.log("source", log)
+            .onEach { delay(timeMillis = 100L) }.log("source", log)
             .onBackpressureDrop()
             // .buffer(2) // buffering 하면 drop을 하지 않습니다.
-            .onEach { delay(130L) }.log("backpressure", log)
+            .onEach { delay(timeMillis = 130L) }.log("backpressure", log)
             .assertResult(0, 2, 4, 6, 8)
     }
 }

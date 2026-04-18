@@ -22,7 +22,7 @@ class FlatMapFirstTest: AbstractFlowTest() {
         flowOf("one", "two").log("s")
             .flatMapFirst { v ->
                 flow {
-                    delay(10L)
+                    delay(timeMillis = 10L)
                     emit(v)
                 }.log("t")
             }
@@ -33,10 +33,10 @@ class FlatMapFirstTest: AbstractFlowTest() {
     @Test
     fun `flatMapFirst for range`() = runTest {
         flowRangeOf(1, 10)
-            .onEach { delay(100) }.log("src")
+            .onEach { delay(timeMillis = 100) }.log("src")
             .flatMapFirst {
                 log.trace { "source item=$it" }
-                flowRangeOf(it * 100, 5).onEach { delay(20) }.log("t")
+                flowRangeOf(it * 100, 5).onEach { delay(timeMillis = 20) }.log("t")
             }
             .log("fmf")
             .assertResult(
@@ -54,11 +54,11 @@ class FlatMapFirstTest: AbstractFlowTest() {
 
         // flatMapFirst 동작 시 collect 작업 후에 emit 된 것 중 가장 최신 것만 선택한다
         flowRangeOf(1, 10)
-            .onEach { delay(100) }.log("source")
+            .onEach { delay(timeMillis = 100) }.log("source")
             .flatMapFirst {
                 item.set(it)
                 flowRangeOf(it * 100, 5)
-                    .onEach { delay(30) }.log("iner")
+                    .onEach { delay(timeMillis = 30) }.log("iner")
             }
             .take(7).log("take")
             .assertResult(
@@ -72,11 +72,11 @@ class FlatMapFirstTest: AbstractFlowTest() {
     @Test
     fun `flattenFirst for take first item`() = runTest {
         val flow1 = flow {
-            delay(10L)
+            delay(timeMillis = 10L)
             emit("one")
         }
         val flow2 = flow {
-            delay(20L)
+            delay(timeMillis = 20L)
             emit("two")
         }
         flowOf(flow1, flow2)

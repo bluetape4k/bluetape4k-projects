@@ -59,7 +59,7 @@ class SuspendRingBufferTest {
             .workers(8)
             .rounds(bufferSize)
             .add {
-                delay(Random.nextLong(10))
+                delay(timeMillis = Random.nextLong(10))
                 buffer.push(counter.incrementAndGet().toDouble())
             }
             .run()

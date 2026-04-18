@@ -27,7 +27,7 @@ class ScanWithTest: AbstractStepTest() {
             .scanWith(
                 initialSupplier = {
                     expect(nextIndex)
-                    delay(100)
+                    delay(timeMillis = 100)
                     initial++
                 }
             ) { acc, item -> acc + item }

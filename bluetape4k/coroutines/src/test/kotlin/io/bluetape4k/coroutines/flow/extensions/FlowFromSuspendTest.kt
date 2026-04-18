@@ -15,7 +15,7 @@ class FlowFromSuspendTest: AbstractFlowTest() {
     fun `flow from suspend emits values`() = runTest {
         var count = 1L
         val flow = flowFromSuspend {
-            delay(count)
+            delay(timeMillis = count)
             count
         }
 

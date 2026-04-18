@@ -6,6 +6,7 @@ import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 class InMemorySuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
@@ -13,7 +14,7 @@ class InMemorySuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     override val heavyFunc: suspend (Int) -> Int = InMemorySuspendMemoizer { x ->
         log.trace { "heavy($x)" }
-        delay(100L)
+        delay(100L.milliseconds)
         x * x
     }
 

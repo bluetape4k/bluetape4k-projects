@@ -18,6 +18,7 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 class ReplaySubjectSizeBoundTest {
 
@@ -32,7 +33,7 @@ class ReplaySubjectSizeBoundTest {
             val job = launch {
                 replay
                     .log("#1")
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .collect { result.add(it) }
             }.log("job1")
 
@@ -59,7 +60,7 @@ class ReplaySubjectSizeBoundTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect { result.add(it) }
 
@@ -77,7 +78,7 @@ class ReplaySubjectSizeBoundTest {
             val job = launch {
                 try {
                     replay
-                        .onEach { delay(10) }
+                        .onEach { delay(10.milliseconds) }
                         .log("#1")
                         .collect { result.add(it) }
                 } catch (e: Throwable) {
@@ -135,7 +136,7 @@ class ReplaySubjectSizeBoundTest {
 
             val job = launch {
                 replay.take(3)
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result.add(it) }
             }.log("job")
@@ -178,7 +179,7 @@ class ReplaySubjectSizeBoundTest {
 
             val job = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result.add(it) }
             }.log("job")
@@ -218,7 +219,7 @@ class ReplaySubjectSizeBoundTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect { result.add(it) }
 
@@ -250,14 +251,14 @@ class ReplaySubjectSizeBoundTest {
 
             val job1 = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result1.add(it) }
             }.log("job1")
 
             val job2 = launch {
                 replay
-                    .onEach { delay(20) }
+                    .onEach { delay(20.milliseconds) }
                     .log("#2")
                     .collect { result2.add(it) }
             }.log("jbo2")
@@ -285,7 +286,7 @@ class ReplaySubjectSizeBoundTest {
             val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result1.add(it) }
             }.log("job1")
@@ -293,7 +294,7 @@ class ReplaySubjectSizeBoundTest {
             val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay.take(3)
-                    .onEach { delay(20) }
+                    .onEach { delay(20.milliseconds) }
                     .log("#2")
                     .collect { result2.add(it) }
             }.log("job2")
@@ -359,7 +360,7 @@ class ReplaySubjectSizeBoundTest {
 
             val job1 = launch {
                 replay
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#1")
                     .collect {
                         if (counter1.incrementAndGet() == expected) {
@@ -370,7 +371,7 @@ class ReplaySubjectSizeBoundTest {
 
             val job2 = launch {
                 replay
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#2")
                     .collect { counter2.incrementAndGet() }
             }.log("job2")

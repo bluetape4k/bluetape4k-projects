@@ -20,7 +20,7 @@ class SilentSupervisorTest {
             throw IllegalStateException("boom")
         }
         val succeeded = scope.launch {
-            delay(10)
+            delay(timeMillis = 10)
             counter.incrementAndGet()
         }
 
@@ -28,4 +28,3 @@ class SilentSupervisorTest {
         counter.get() shouldBeEqualTo 1
     }
 }
-

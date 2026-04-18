@@ -22,7 +22,7 @@ class JobSupportTest {
         val job = launch {
             val childJobs = List(10) {
                 launch {
-                    delay(100)
+                    delay(100.milliseconds)
                     log.debug { "Child job $it" }
                 }
             }

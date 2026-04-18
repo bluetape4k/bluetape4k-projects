@@ -10,6 +10,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class CaffeineSupportTest {
 
@@ -104,7 +105,7 @@ class CaffeineSupportTest {
 
         val asyncCache = caffeine.suspendLoadingCache { key: String ->
             log.debug { "loading cache value of [$key] by suspend function..." }
-            delay(100)
+            delay(100.milliseconds)
             counter.incrementAndGet()
             "value of $key"
         }
@@ -131,7 +132,7 @@ class CaffeineSupportTest {
 
         val suspendValue = asyncCache.suspendGet("key") { key ->
             log.debug { "run suspend function to evaluate value of $key" }
-            delay(100)
+            delay(100.milliseconds)
             counter.incrementAndGet()
             "suspend value of $key"
         }

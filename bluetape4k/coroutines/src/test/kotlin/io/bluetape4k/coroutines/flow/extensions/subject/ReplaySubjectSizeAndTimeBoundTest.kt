@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * NOTE: 시간에 따라 Buffering 을 수행하므로, [runTest] 를 사용하지 않고, [runSuspendTest] 를 사용해야 합니다.
@@ -38,7 +39,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect {
                         result.add(it)
@@ -69,7 +70,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = ConcurrentLinkedQueue<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -86,7 +87,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect {
                         result.add(it)
@@ -116,7 +117,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = ConcurrentLinkedQueue<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -137,7 +138,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -148,7 +149,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
         // Cold stream 처럼 collect 반복해도 같은 값을 emit 해준다 
         val result2 = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result2.add(it)
@@ -168,7 +169,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
                 // 예외가 emit 되면, collect 가 중단된다
                 try {
                     replay
-                        .onEach { delay(10) }
+                        .onEach { delay(10.milliseconds) }
                         .log("#1")
                         .collect {
                             result.add(it)
@@ -211,7 +212,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
         val result = mutableListOf<Int>()
         try {
             replay
-                .onEach { delay(10) }
+                .onEach { delay(10.milliseconds) }
                 .log("#1")
                 .collect {
                     result.add(it)
@@ -232,7 +233,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job = launch {
                 replay.take(3)
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect {
                         result.add(it)
@@ -262,7 +263,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = mutableListOf<Int>()
         replay.take(3)
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -280,7 +281,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect {
                         result.add(it)
@@ -315,7 +316,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -349,7 +350,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
         }
         replay.complete()
 
-        delay(300)
+        delay(300.milliseconds)
 
         val result = mutableListOf<Int>()
         replay.log("#1").collect { result.add(it) }
@@ -365,7 +366,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             replay.emit(it)
         }
         // timeout 이 지난 후에는 버퍼링된 요소를 제거합니다.
-        delay(300)
+        delay(300.milliseconds)
 
         // 새롭게 emit 된 놈들은 버퍼링된다
         replay.emit(3)
@@ -374,7 +375,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect {
                 result.add(it)
@@ -391,7 +392,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
-                    .onEach { delay(50) }
+                    .onEach { delay(50.milliseconds) }
                     .log("#1")
                     .collect {
                         result1.add(it)
@@ -401,7 +402,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay
-                    .onEach { delay(100) }
+                    .onEach { delay(100.milliseconds) }
                     .log("#2")
                     .collect {
                         result2.add(it)
@@ -432,7 +433,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
-                    .onEach { delay(50) }
+                    .onEach { delay(50.milliseconds) }
                     .log("#1")
                     .collect {
                         result1.add(it)
@@ -443,7 +444,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val job2 = launch {
                 replay
                     .take(3)
-                    .onEach { delay(50) }
+                    .onEach { delay(50.milliseconds) }
                     .log("#2")
                     .collect {
                         result2.add(it)

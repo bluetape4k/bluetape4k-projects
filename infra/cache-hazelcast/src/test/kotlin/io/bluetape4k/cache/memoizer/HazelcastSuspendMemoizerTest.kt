@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
@@ -25,7 +26,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     private val heavyMap: IMap<Int, Int> = newMap("heavy")
 
     override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
-        delay(100)
+        delay(100.milliseconds)
         x * x
     }
 
@@ -77,7 +78,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val evaluateCount = AtomicInteger(0)
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
-            delay(100)
+            delay(100.milliseconds)
             key * key
         }
 

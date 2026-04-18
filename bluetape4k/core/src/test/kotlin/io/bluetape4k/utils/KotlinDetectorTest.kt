@@ -6,6 +6,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class KotlinDetectorTest {
 
@@ -58,7 +59,7 @@ class KotlinDetectorTest {
     private class SampleClass {
         fun normalFunc(): String = "normal"
         suspend fun suspendFunc(): String {
-            delay(1L)
+            delay(1L.milliseconds)
             return "suspendFunc"
         }
     }
@@ -66,7 +67,7 @@ class KotlinDetectorTest {
     private object SampleObject {
         fun normalFunc(): String = "normal"
         suspend fun suspendFunc(): String {
-            delay(1L)
+            delay(1L.milliseconds)
             return "suspendFunc"
         }
     }

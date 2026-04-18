@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class AbstractCoroutineScopeTest {
@@ -30,7 +31,7 @@ abstract class AbstractCoroutineScopeTest {
     val scope: CloseableCoroutineScope by lazy { getCoroutineScope() }
 
     private suspend fun add(x: Int, y: Int): Int {
-        delay(Random.nextLong(10))
+        delay(Random.nextLong(10).milliseconds)
         log.trace { "add($x, $y)" }
         return x + y
     }
@@ -49,15 +50,15 @@ abstract class AbstractCoroutineScopeTest {
     @Order(2)
     fun `CoroutineScope 취소`() = runSuspendIO {
         scope.launch {
-            delay(2000)
+            delay(2000.milliseconds)
             fail("작업1은 중간에 취소되어야 합니다.")
         }
         scope.launch {
-            delay(2000)
+            delay(2000.milliseconds)
             fail("작업2는 중간에 취소되어야 합니다.")
         }
 
-        delay(10)
+        delay(10.milliseconds)
         scope.cancel()
 
         yield()
@@ -73,7 +74,7 @@ abstract class AbstractCoroutineScopeTest {
             val job: Job = scope.launch {
                 try {
                     while (true) {
-                        delay(10)
+                        delay(10.milliseconds)
                     }
                 } catch (e: CancellationException) {
                     caught = e
@@ -81,7 +82,7 @@ abstract class AbstractCoroutineScopeTest {
                 }
             }
 
-            delay(50)  // job이 delay(10) 루프에 진입할 때까지 대기
+            delay(50.milliseconds)  // job이 delay(10) 루프에 진입할 때까지 대기
             scope.clearJobs(CancellationException("stop-by-test"))
 
             job.join()

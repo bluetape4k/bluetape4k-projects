@@ -17,9 +17,9 @@ class FlatMapDropTest: AbstractFlowTest() {
     @Test
     fun `flat map drop`() = runTest {
         flowRangeOf(1, 10)
-            .onEach { delay(100) }.log("src")
+            .onEach { delay(timeMillis = 100) }.log("src")
             .flatMapDrop {
-                flowRangeOf(it * 100, 5).onEach { delay(20) }.log("flatMapDrop")
+                flowRangeOf(it * 100, 5).onEach { delay(timeMillis = 20) }.log("flatMapDrop")
             }
             .assertResult(
                 100, 101, 102, 103, 104,
@@ -35,11 +35,11 @@ class FlatMapDropTest: AbstractFlowTest() {
         val item = AtomicInteger(0)
 
         flowRangeOf(1, 10)
-            .onEach { delay(100) }.log("src")
+            .onEach { delay(timeMillis = 100) }.log("src")
             .flatMapDrop {
                 item.set(it)
                 flowRangeOf(it * 100, 5)
-                    .onEach { delay(30) }.log("flatMapDrop")
+                    .onEach { delay(timeMillis = 30) }.log("flatMapDrop")
             }
             .take(7).log("take")
             .assertResult(

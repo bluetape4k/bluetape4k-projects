@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * source 방출 앞에 초기 지연과 요소 간 지연을 적용합니다.
@@ -62,12 +63,12 @@ fun <T> Flow<T>.interval(
     val delayValue = delayMillis.coerceAtLeast(0L)
 
     if (initialDelayValue > 0L) {
-        delay(initialDelayValue)
+        delay(initialDelayValue.milliseconds)
     }
 
     if (delayValue > 0L) {
         this@interval.collect { value ->
-            delay(delayValue)
+            delay(delayValue.milliseconds)
             emit(value)
         }
     } else {
@@ -119,10 +120,10 @@ fun intervalFlowOf(initialDelayMillis: Long, delayMillis: Long): Flow<Long> = fl
     val initialDelayValue = initialDelayMillis.coerceAtLeast(0L)
     val delayValue = delayMillis.coerceAtLeast(0L)
 
-    delay(initialDelayValue)
+    delay(initialDelayValue.milliseconds)
     var sequencer = 0L
     while (true) {
         emit(sequencer++)
-        delay(delayValue)
+        delay(delayValue.milliseconds)
     }
 }

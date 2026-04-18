@@ -114,7 +114,7 @@ class MulticastTest: AbstractFlowTest() {
         val timeout = 1.minutes
 
         flowRangeOf(1, 5)
-            .onEach { delay(100) }
+            .onEach { delay(timeMillis = 100) }
             .replay(timeout) { shared ->
                 shared
                     .log("filter")  // 1,2,3,4,5

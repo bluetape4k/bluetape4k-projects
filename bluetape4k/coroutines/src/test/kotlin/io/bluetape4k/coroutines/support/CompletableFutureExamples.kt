@@ -17,6 +17,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class CompletableFutureExamples {
 
@@ -25,7 +26,7 @@ class CompletableFutureExamples {
     @Test
     fun `성공하는 suspend 함수를 CompletableFuture로 변환하기`() = runTest {
         val future = future {
-            delay(Random.nextLong(10))
+            delay(Random.nextLong(10).milliseconds)
             42
         }
 
@@ -39,7 +40,7 @@ class CompletableFutureExamples {
             val job = coroutineContext + SupervisorJob()
             withContext(job) {
                 val future = future {
-                    delay(Random.nextLong(10, 20))
+                    delay(Random.nextLong(10, 20).milliseconds)
                     log.debug { "예외를 발생시킵니다." }
                     throw BluetapeException("Boom!")
                 }
@@ -53,7 +54,7 @@ class CompletableFutureExamples {
     @Test
     fun `suspend 함수를 CompletableFuture로 변환하고, 취소하면 CancellationException이 발생한다`() = runTest {
         val future = future {
-            delay(100)
+            delay(100.milliseconds)
             42
         }
         val deferred = async { future.await() }

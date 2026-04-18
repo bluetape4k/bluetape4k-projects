@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class DeferredSupportTest {
 
@@ -45,8 +46,8 @@ class DeferredSupportTest {
 
     @Test
     fun `awaitAny는 먼저 완료되는 deferred 값을 반환한다`() = runTest {
-        val slow = async { delay(100); 2 }
-        val fast = async { delay(10); 1 }
+        val slow = async { delay(100.milliseconds); 2 }
+        val fast = async { delay(10.milliseconds); 1 }
 
         awaitAny(slow, fast) shouldBeEqualTo 1
         listOf(slow, fast).awaitAny() shouldBeEqualTo 1

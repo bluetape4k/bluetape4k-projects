@@ -10,6 +10,7 @@ import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.milliseconds
 
 class CaffeineSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
@@ -21,7 +22,7 @@ class CaffeineSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     private val cache: Cache<Int, Int> = caffeine.cache()
 
     override val heavyFunc: suspend (Int) -> Int = cache.suspendMemoizer {
-        delay(100L)
+        delay(100L.milliseconds)
         it * it
     }
 

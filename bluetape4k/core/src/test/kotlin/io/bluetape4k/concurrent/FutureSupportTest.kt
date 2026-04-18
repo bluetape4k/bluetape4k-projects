@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class FutureSupportTest {
 
@@ -111,7 +112,7 @@ class FutureSupportTest {
             .rounds(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task = async(Dispatchers.Default) {
-                    delay(Random.nextLong(DELAY_TIME))
+                    delay(Random.nextLong(DELAY_TIME).milliseconds)
                     counter.incrementAndGet()
                 }
                 val result = task.await()

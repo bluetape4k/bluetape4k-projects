@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 class BehaviorSubjectTest {
 
@@ -78,7 +79,7 @@ class BehaviorSubjectTest {
 
             val job = launch(executor) {
                 subject
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result.add(it) }
             }
@@ -227,7 +228,7 @@ class BehaviorSubjectTest {
         withSingleThread { executor ->
             val job = launch(executor) {
                 subject
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("collector")
                     .collect { result.add(it) }
             }.log("job")

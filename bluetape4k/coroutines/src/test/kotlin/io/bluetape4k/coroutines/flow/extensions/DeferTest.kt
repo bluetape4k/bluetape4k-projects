@@ -18,7 +18,7 @@ class DeferTest: AbstractFlowTest() {
     fun `요소 발행을 지연합니다`() = runTest {
         var count = 0L
         val flow = defer {
-            delay(count)
+            delay(timeMillis = count)
             flowOf(count)
         }.log("defer")
 

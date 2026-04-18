@@ -24,7 +24,7 @@ class RepeatFlowTest: AbstractFlowTest() {
     fun `repeatFlow operator`() = runTest {
         var result = 42
         repeatFlow(4) { result++ }
-            .onEach { delay(Random.nextLong(5)) }
+            .onEach { delay(timeMillis = Random.nextLong(5)) }
             .log("repeat", log)
             .assertResult(result, result + 1, result + 2, result + 3)
     }

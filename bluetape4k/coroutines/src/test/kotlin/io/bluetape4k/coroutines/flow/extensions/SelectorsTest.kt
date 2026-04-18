@@ -117,7 +117,7 @@ class SelectorsTest: AbstractFlowTest() {
 
         val flow = flowRangeOf(0, 6)
             .flowOnStandardTestDispatcher(this)
-            .onEach { delay(100) }
+            .onEach { delay(timeMillis = 100) }
             .log("source")
             .scanSkipFirst(State.INITIAL, reducer)
             .log("skipFirst")
@@ -160,7 +160,7 @@ class SelectorsTest: AbstractFlowTest() {
 
         val flow = flowRangeOf(0, 8)
             .flowOnStandardTestDispatcher(this)
-            .onEach { delay(100) }
+            .onEach { delay(timeMillis = 100) }
             .log("source")
             .scanSkipFirst(State.INITIAL, reducer)
             .log("skipFirst")
@@ -213,7 +213,7 @@ class SelectorsTest: AbstractFlowTest() {
 
         val flow = flowRangeOf(0, 11)
             .flowOnStandardTestDispatcher(this)
-            .onEach { delay(100) }
+            .onEach { delay(timeMillis = 100) }
             .log("source")
             .scanSkipFirst(State.INITIAL, reducer)
             .log("skipFirst")
@@ -275,7 +275,7 @@ class SelectorsTest: AbstractFlowTest() {
 
         val flow = flowRangeOf(0, 16)
             .flowOnStandardTestDispatcher(this)
-            .onEach { delay(100) }
+            .onEach { delay(timeMillis = 100) }
             .log("source")
             .scanSkipFirst(State.INITIAL, reducer)
             .log("skipFirst")

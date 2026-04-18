@@ -47,9 +47,9 @@ class RaceTest: AbstractFlowTest() {
     @Test
     fun `race 3 flow with delay`() = runTest {
         race(
-            flowOf(1, 2).onEach { delay(200L) }.log(1, log),
-            flowOf(3, 4).onEach { delay(100L) }.log(2, log),
-            flowOf(5, 6).onEach { delay(50L) }.log(3, log),
+            flowOf(1, 2).onEach { delay(timeMillis = 200L) }.log(1, log),
+            flowOf(3, 4).onEach { delay(timeMillis = 100L) }.log(2, log),
+            flowOf(5, 6).onEach { delay(timeMillis = 50L) }.log(3, log),
         )
             .test {
                 awaitItem() shouldBeEqualTo 5
@@ -61,8 +61,8 @@ class RaceTest: AbstractFlowTest() {
     @Test
     fun `race 2 flow with start delay`() = runTest {
         race(
-            flowOf(1, 2, 3).onStart { delay(100L) }.log(1, log),
-            flowOf(2, 3, 4).onStart { delay(200L) }.log(2, log),
+            flowOf(1, 2, 3).onStart { delay(timeMillis = 100L) }.log(1, log),
+            flowOf(2, 3, 4).onStart { delay(timeMillis = 200L) }.log(2, log),
         )
             .test {
                 awaitItem() shouldBeEqualTo 1
@@ -74,16 +74,16 @@ class RaceTest: AbstractFlowTest() {
 
     @Test
     fun `race with complete`() = runTest {
-        val flow1 = flow<Int> { delay(100); }.log(1)
-        val flow2 = flow { delay(200); emit(1) }.log(2)
+        val flow1 = flow<Int> { delay(timeMillis = 100); }.log(1)
+        val flow2 = flow { delay(timeMillis = 200); emit(1) }.log(2)
 
         race(flow1, flow2).test {
             awaitItem() shouldBeEqualTo 1
             awaitComplete()
         }
 
-        val flow3 = flow { delay(200); emit(1) }.log(1)
-        val flow4 = flow<Int> { delay(100) }.log(2)
+        val flow3 = flow { delay(timeMillis = 200); emit(1) }.log(1)
+        val flow4 = flow<Int> { delay(timeMillis = 100) }.log(2)
         race(flow3, flow4).test {
             awaitItem() shouldBeEqualTo 1
             awaitComplete()
@@ -94,16 +94,16 @@ class RaceTest: AbstractFlowTest() {
     fun `race with failure in upstream`() = runTest {
         race(
             flow {
-                delay(100)
+                delay(timeMillis = 100)
                 emit(1)
-                delay(500)
+                delay(timeMillis = 500)
                 throw RuntimeException("Boom!")
             }.log(1),
 
             flow {
-                delay(500)
+                delay(timeMillis = 500)
                 emit(2)
-                delay(500)
+                delay(timeMillis = 500)
                 emit(4)
             }.log(2)
         )
@@ -115,13 +115,13 @@ class RaceTest: AbstractFlowTest() {
 
         race(
             flow {
-                delay(1000)
+                delay(timeMillis = 1000)
                 emit(1)
-                delay(500)
+                delay(timeMillis = 500)
             }.log(1),
 
             flow<Int> {
-                delay(500)
+                delay(timeMillis = 500)
                 throw RuntimeException("Boom!")
             }.log(2)
         )
@@ -146,8 +146,8 @@ class RaceTest: AbstractFlowTest() {
             flow {
                 emit(1)
                 throw RuntimeException("Boom!")
-            }.onStart { delay(100) }.log(1),
-            flowOf(2).onStart { delay(200) }.log(2)
+            }.onStart { delay(timeMillis = 100) }.log(1),
+            flowOf(2).onStart { delay(timeMillis = 200) }.log(2)
         )
             .take(1)
             .test {
@@ -162,13 +162,13 @@ class RaceTest: AbstractFlowTest() {
 
         race(
             flow {
-                delay(50)
+                delay(timeMillis = 50)
                 emit(1)
                 throw kotlinx.coroutines.CancellationException(message)
             }.log("flow1"),
 
             flow {
-                delay(100)
+                delay(timeMillis = 100)
                 emit(2)
                 emit(3)
             }.log("flow2")

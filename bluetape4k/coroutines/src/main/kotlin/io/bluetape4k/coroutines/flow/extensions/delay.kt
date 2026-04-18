@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 지정한 지연 후 `0L` 1건을 방출하는 Flow를 생성합니다.
@@ -100,7 +101,7 @@ fun delayedFlow(delay: Duration): Flow<Long> = delayedFlow(delay.inWholeMillisec
  * @param delayMillis 지연 시간(밀리초)입니다.
  */
 fun delayedFlow(delayMillis: Long): Flow<Long> = flow {
-    delay(delayMillis.coerceAtLeast(0L))
+    delay(delayMillis.coerceAtLeast(0L).milliseconds)
     emit(0L)
 }
 
@@ -171,6 +172,6 @@ fun <T> delayedFlow(value: T, duration: Duration): Flow<T> = delayedFlow(value, 
  * @param delayMillis 지연 시간(밀리초)입니다.
  */
 fun <T> delayedFlow(value: T, delayMillis: Long): Flow<T> = flow {
-    delay(delayMillis.coerceAtLeast(0))
+    delay(delayMillis.coerceAtLeast(0).milliseconds)
     emit(value)
 }
