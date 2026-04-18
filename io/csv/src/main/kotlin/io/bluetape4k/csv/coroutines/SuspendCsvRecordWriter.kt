@@ -4,6 +4,8 @@ import io.bluetape4k.csv.CsvSettings
 import io.bluetape4k.csv.internal.CsvLineWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.Writer
 
 /**
@@ -11,6 +13,7 @@ import java.io.Writer
  *
  * ## 동작/계약
  * - 헤더/행 입력을 [CsvLineWriter]에 전달합니다.
+ * - [Mutex]로 동시 쓰기를 보호합니다.
  * - [Flow] 입력은 collect 순서대로 기록됩니다.
  * - [close]는 내부 writer를 닫습니다 (flush 포함).
  *
@@ -30,11 +33,13 @@ class SuspendCsvRecordWriter(
     companion object : KLoggingChannel()
 
     private val lineWriter = CsvLineWriter(writer, settings)
+    private val mutex = Mutex()
 
     /**
      * 헤더 행을 기록합니다.
      *
      * ## 동작/계약
+     * - [Mutex]로 동시 접근을 직렬화합니다.
      * - [headers]를 CSV 형식으로 한 행 기록합니다.
      *
      * ```kotlin
@@ -43,13 +48,14 @@ class SuspendCsvRecordWriter(
      * ```
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
-        lineWriter.writeRow(headers)
+        mutex.withLock { lineWriter.writeRow(headers) }
     }
 
     /**
      * 데이터 행 1건을 기록합니다.
      *
      * ## 동작/계약
+     * - [Mutex]로 동시 접근을 직렬화합니다.
      * - [row]를 CSV 형식으로 기록합니다.
      *
      * ```kotlin
@@ -58,7 +64,7 @@ class SuspendCsvRecordWriter(
      * ```
      */
     override suspend fun writeRow(row: Iterable<*>) {
-        lineWriter.writeRow(row)
+        mutex.withLock { lineWriter.writeRow(row) }
     }
 
     /**
