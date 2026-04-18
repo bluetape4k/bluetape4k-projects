@@ -6,7 +6,7 @@ import java.io.Serializable
 /**
  * 자체 구현 TSV 파서/라이터 설정 데이터 클래스입니다.
  *
- * univocity-parsers에 의존하지 않고, 내부 [TsvLexer] 및 [DelimitedWriter]에 전달되는 불변 설정입니다.
+ * 내부 [TsvLexer] 및 [DelimitedWriter]에 전달되는 불변 설정입니다.
  *
  * TSV 형식은 탭(`\t`) 문자를 필드 구분자로 사용하며, 인용(quote) 문자 없이
  * 백슬래시 이스케이프 방식을 사용합니다. delimiter는 `\t`로 고정됩니다.
@@ -25,7 +25,6 @@ import java.io.Serializable
  * ```
  *
  * @param lineSeparator 레코드 구분자. Unix 관례에 따라 기본값은 `"\n"`.
- *                      기존 univocity TsvWriter 기본값과 일치합니다.
  * @param trimValues `true`이면 각 필드의 앞뒤 공백을 제거합니다. **reader 전용**; writer에서는 무시됩니다.
  * @param skipEmptyLines `true`이면 빈 줄을 건너뜁니다.
  * @param emptyValueAsNull `true`이면 빈 필드를 `null`로 변환합니다.
@@ -34,7 +33,7 @@ import java.io.Serializable
  * @param bufferSize 내부 읽기 버퍼 크기(바이트). 기본값은 8192.
  */
 data class TsvSettings(
-    /** 레코드 구분자. Unix 관례: `"\n"`. 기존 univocity TsvWriter 기본값과 일치합니다. */
+    /** 레코드 구분자. Unix 관례: `"\n"`. */
     val lineSeparator: String = "\n",
     /**
      * 각 필드의 앞뒤 공백 제거 여부.

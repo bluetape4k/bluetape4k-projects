@@ -238,7 +238,7 @@ class TsvLexerTest {
      * PR 1 gate test — product_type.tsv 파일을 TsvLexer로 파싱하여
      * 첫 레코드 필드 수 >= 4 임을 확인한다.
      *
-     * 이 테스트가 실패하면 TsvLexer 동작이 univocity와 다른 것이므로 PR 1 머지 불가.
+     * 이 테스트가 실패하면 TsvLexer 기본 동작이 깨진 것입니다.
      */
     @Test
     fun `first record fields match existing TsvRecordReader output`() {

@@ -6,7 +6,7 @@ import java.io.Serializable
 /**
  * 자체 구현 CSV 파서/라이터 설정 데이터 클래스입니다.
  *
- * univocity-parsers에 의존하지 않고, 내부 [CsvLexer] 및 [DelimitedWriter]에 전달되는 불변 설정입니다.
+ * 내부 [CsvLexer] 및 [DelimitedWriter]에 전달되는 불변 설정입니다.
  *
  * ## 빈 값(null) 처리 정책
  * - [emptyValueAsNull]`=true`: 인용 없는 빈 필드(`,,`) → `null` 로 변환합니다.

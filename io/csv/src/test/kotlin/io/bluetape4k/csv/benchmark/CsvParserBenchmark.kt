@@ -22,11 +22,9 @@ import kotlin.text.Charsets.UTF_8
 /**
  * CSV 파서 성능 벤치마크.
  *
- * 자체 엔진([CsvLexer], [CsvRecordReader])과 univocity 파서의 처리량을 비교한다.
+ * 자체 엔진([CsvLexer], [CsvRecordReader])의 처리량을 측정한다.
  * - 소형: product_type.csv 첫 10KB
  * - 중형: product_type.csv 전체
- *
- * PR 5에서 univocityCsvRead_* 삭제 예정.
  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
@@ -81,25 +79,4 @@ open class CsvParserBenchmark {
     fun nativeCsvRead_medium(): Int =
         CsvRecordReader().read(mediumCsvBytes.inputStream(), UTF_8, skipHeaders = true).count()
 
-    // ── univocity baseline (PR 5에서 삭제 예정)
-
-    @Benchmark
-    fun univocityCsvRead_small(): Int {
-        var count = 0
-        val parser = com.univocity.parsers.csv.CsvParser(
-            com.univocity.parsers.csv.CsvParserSettings().apply { maxCharsPerColumn = 100_000 }
-        )
-        parser.iterateRecords(smallCsvBytes.inputStream(), UTF_8).forEach { count++ }
-        return count
-    }
-
-    @Benchmark
-    fun univocityCsvRead_medium(): Int {
-        var count = 0
-        val parser = com.univocity.parsers.csv.CsvParser(
-            com.univocity.parsers.csv.CsvParserSettings().apply { maxCharsPerColumn = 100_000 }
-        )
-        parser.iterateRecords(mediumCsvBytes.inputStream(), UTF_8).forEach { count++ }
-        return count
-    }
 }
