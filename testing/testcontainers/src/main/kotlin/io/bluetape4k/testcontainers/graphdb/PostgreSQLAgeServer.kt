@@ -41,8 +41,8 @@ class PostgreSQLAgeServer private constructor(
         /** Docker 이미지 이름 */
         const val IMAGE = "apache/age"
 
-        /** Docker 이미지 태그 */
-        const val TAG = "latest"
+        /** Docker 이미지 태그 — Apache AGE 1.6.0 for PostgreSQL 17 */
+        const val TAG = "release_PG17_1.6.0"
 
         /** 시스템 프로퍼티 등록에 사용할 서버 이름 */
         const val NAME = "postgresql-age"
@@ -73,7 +73,7 @@ class PostgreSQLAgeServer private constructor(
          * [PostgreSQLAgeServer]를 생성합니다.
          *
          * @param image Docker 이미지 (기본: `apache/age`)
-         * @param tag Docker 이미지 태그 (기본: `PG17_latest`)
+         * @param tag Docker 이미지 태그 (기본: `release_PG17_1.6.0`)
          * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
          * @param reuse 재사용 여부 (기본: `true`)
          */

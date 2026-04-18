@@ -276,12 +276,18 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 
 ### Graph DB 서버
 
+| 서버 클래스             | Docker 이미지            | 기본 태그               | 프로토콜   | 기본 포트    |
+|------------------------|--------------------------|------------------------|-----------|-------------|
+| `Neo4jServer`          | `neo4j`                  | `5.26.24`              | Bolt/HTTP | 7687 / 7474 |
+| `MemgraphServer`       | `memgraph/memgraph`      | `3.9.0`                | Bolt      | 7687        |
+| `PostgreSQLAgeServer`  | `apache/age`             | `release_PG17_1.6.0`  | JDBC      | 5432        |
+
 ```kotlin
 // Neo4j 서버
 val neo4j = Neo4jServer.Launcher.neo4j
 val driver = GraphDatabase.driver(neo4j.boltUrl, AuthTokens.basic(neo4j.username, neo4j.password))
 
-// Memgraph 서버
+// Memgraph 서버 (Neo4j Bolt 호환)
 val memgraph = MemgraphServer.Launcher.memgraph
 val driver = GraphDatabase.driver(memgraph.boltUrl, AuthTokens.none())
 
