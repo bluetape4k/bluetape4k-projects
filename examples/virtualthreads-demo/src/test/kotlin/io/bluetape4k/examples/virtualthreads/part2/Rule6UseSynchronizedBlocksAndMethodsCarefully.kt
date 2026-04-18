@@ -4,7 +4,7 @@ import io.bluetape4k.concurrent.virtualthread.awaitAll
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
@@ -19,7 +19,7 @@ import kotlin.concurrent.withLock
  */
 class Rule6UseSynchronizedBlocksAndMethodsCarefully: AbstractVirtualThreadTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TASK_SIZE = 1000
     }
 

@@ -3,7 +3,7 @@ package io.bluetape4k.examples.virtualthreads.part2
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
@@ -21,9 +21,7 @@ import java.util.concurrent.TimeoutException
  */
 class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-    }
+    companion object: KLoggingChannel()
 
     @Nested
     inner class DoNot {

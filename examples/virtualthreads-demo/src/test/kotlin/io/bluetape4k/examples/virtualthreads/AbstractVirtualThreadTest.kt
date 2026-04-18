@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.virtualthreads
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 @EnabledForJreRange(min = JRE.JAVA_21)
 abstract class AbstractVirtualThreadTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val faker = Fakers.faker
     }
