@@ -238,7 +238,7 @@ class CsvEdgeCaseTest {
             val input = ByteArrayInputStream(output.toByteArray(UTF_8))
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
             records shouldHaveSize 2
-            records[0].getValue<String?>(1, null).shouldBeNull()
+            records[0].getString(1).shouldBeNull()
             records[1].getValue(1, "") shouldBeEqualTo "present"
         }
     }
@@ -256,9 +256,9 @@ class CsvEdgeCaseTest {
             val input = ByteArrayInputStream(output.toByteArray(UTF_8))
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
             records shouldHaveSize 1
-            records[0].getValue<String?>(0, null).shouldBeNull()
-            records[0].getValue<String?>(1, null).shouldBeNull()
-            records[0].getValue<String?>(2, null).shouldBeNull()
+            records[0].getString(0).shouldBeNull()
+            records[0].getString(1).shouldBeNull()
+            records[0].getString(2).shouldBeNull()
         }
     }
 
@@ -369,7 +369,7 @@ class CsvEdgeCaseTest {
 
     @Test
     fun `빈 문자열 값을 CSV 로 쓰면 null 로 파싱된다`() {
-        // univocity 파서는 빈 CSV 필드를 null 로 처리합니다.
+        // 빈 문자열("")은 인용 출력(roundtrip 보장), 읽을 때 빈 문자열로 복원됩니다.
         StringWriter().use { sw ->
             CsvRecordWriter(sw).use { writer ->
                 writer.writeHeaders("name", "middle", "surname")
@@ -382,7 +382,7 @@ class CsvEdgeCaseTest {
             val records = CsvRecordReader().read(input, UTF_8, skipHeaders = true).toList()
             records shouldHaveSize 1
             records[0].getValue(0, "") shouldBeEqualTo "Alice"
-            // univocity 파서는 빈 필드를 null 로 반환 — 기본값으로 빈 문자열 지정
+            // 빈 문자열은 "" 인용 출력 → 읽으면 빈 문자열(null 아님)로 복원됨
             records[0].getValue(1, "") shouldBeEqualTo ""
             records[0].getValue(2, "") shouldBeEqualTo "Smith"
         }

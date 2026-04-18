@@ -1,18 +1,16 @@
 package io.bluetape4k.csv
 
-import com.univocity.parsers.common.record.Record
-import com.univocity.parsers.tsv.TsvParser
-import com.univocity.parsers.tsv.TsvParserSettings
+import io.bluetape4k.csv.internal.TsvLexer
 import io.bluetape4k.logging.KLogging
 import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * univocity TSV 파서를 사용하는 [RecordReader] 구현체입니다.
+ * 자체 [TsvLexer]를 사용하는 TSV [RecordReader] 구현체입니다.
  *
  * ## 동작/계약
- * - [settings]로 생성한 [TsvParser]가 입력을 순차 파싱합니다.
- * - [skipHeaders]가 `true`면 첫 레코드를 drop 합니다.
+ * - [settings]로 생성한 [TsvLexer]가 입력을 순차 파싱합니다.
+ * - [skipHeaders]가 `true`면 첫 행을 헤더로 읽어 저장하고 이후 행부터 반환합니다.
  * - 반환 시퀀스는 lazy로 동작합니다.
  *
  * ```kotlin
@@ -23,33 +21,29 @@ import java.nio.charset.Charset
  * ```
  */
 class TsvRecordReader(
-    private val settings: TsvParserSettings = DefaultTsvParserSettings,
-): RecordReader {
+    private val settings: TsvSettings = TsvSettings.DEFAULT,
+) : RecordReader {
 
-    companion object: KLogging()
+    companion object : KLogging()
 
     /**
      * TSV 입력 스트림을 읽어 변환 결과 시퀀스를 반환합니다.
      *
-     * ## 동작/계약
-     * - `iterateRecords(input, encoding)` 결과를 [Sequence]로 노출합니다.
-     * - [skipHeaders]가 `true`면 첫 행이 결과에서 제외됩니다.
-     * - 파싱/변환 실패 예외는 전파됩니다.
-     *
-     * ```kotlin
-     * val ids = TsvRecordReader().read(input, skipHeaders = true) { it.getLong("id") }.toList()
-     * // ids == listOf(1L, 2L)
-     * ```
+     * @param input 읽을 TSV 입력 스트림
+     * @param encoding 텍스트 디코딩에 사용할 문자셋
+     * @param skipHeaders `true`이면 첫 행을 헤더로 처리하여 반환 시퀀스에서 제외
+     * @param transform 레코드를 결과 타입으로 변환하는 함수
      */
     override fun <T> read(
         input: InputStream,
         encoding: Charset,
         skipHeaders: Boolean,
         transform: (Record) -> T,
-    ): Sequence<T> {
-        return TsvParser(settings).iterateRecords(input, encoding)
-            .asSequence()
-            .drop(if (skipHeaders) 1 else 0)
-            .map { record -> transform(record) }
+    ): Sequence<T> = sequence {
+        TsvLexer(input.reader(encoding), settings, skipHeaders).use { lexer ->
+            while (lexer.hasNext()) {
+                yield(transform(lexer.next()))
+            }
+        }
     }
 }

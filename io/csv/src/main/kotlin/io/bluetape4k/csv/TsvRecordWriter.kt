@@ -1,18 +1,16 @@
 package io.bluetape4k.csv
 
-import com.univocity.parsers.tsv.TsvWriter
-import com.univocity.parsers.tsv.TsvWriterSettings
-import io.bluetape4k.csv.TsvRecordWriter.Companion.invoke
+import io.bluetape4k.csv.internal.TsvLineWriter
 import io.bluetape4k.logging.KLogging
 import java.io.Writer
 
 /**
- * univocity [TsvWriter]를 감싼 [RecordWriter] 구현체입니다.
+ * [TsvLineWriter]를 감싼 [RecordWriter] 구현체입니다.
  *
  * ## 동작/계약
- * - 헤더/행 입력을 리스트로 복사해 writer에 전달합니다.
+ * - 헤더/행 입력을 [TsvLineWriter]에 전달합니다.
  * - [writeAll]은 입력 시퀀스를 순서대로 소비합니다.
- * - [close]는 writer 종료 예외를 무시합니다.
+ * - [close]는 내부 writer를 닫습니다 (flush 포함).
  *
  * ```kotlin
  * TsvRecordWriter(output).use { writer ->
@@ -22,52 +20,20 @@ import java.io.Writer
  * // output 첫 데이터 행 == "pen\t1000"
  * ```
  */
-class TsvRecordWriter private constructor(
-    private val writer: TsvWriter,
-): RecordWriter {
+class TsvRecordWriter(
+    writer: Writer,
+    settings: TsvSettings = TsvSettings.DEFAULT,
+) : RecordWriter {
 
-    companion object: KLogging() {
-        /**
-         * 기존 [TsvWriter]를 감싸는 [TsvRecordWriter]를 생성합니다.
-         *
-         * ## 동작/계약
-         * - 전달한 [tsvWriter] 인스턴스를 그대로 사용합니다.
-         *
-         * ```kotlin
-         * val writer = TsvRecordWriter(TsvWriter(output))
-         * // writer != null
-         * ```
-         */
-        @JvmStatic
-        operator fun invoke(tsvWriter: TsvWriter): TsvRecordWriter {
-            return TsvRecordWriter(tsvWriter)
-        }
+    companion object : KLogging()
 
-        /**
-         * [Writer]와 설정으로 [TsvRecordWriter]를 생성합니다.
-         *
-         * ## 동작/계약
-         * - [settings] 기반 새 [TsvWriter]를 만들어 [invoke]에 위임합니다.
-         *
-         * ```kotlin
-         * val writer = TsvRecordWriter(output, DefaultTsvWriterSettings)
-         * // writer != null
-         * ```
-         */
-        @JvmStatic
-        operator fun invoke(
-            writer: Writer,
-            settings: TsvWriterSettings = DefaultTsvWriterSettings,
-        ): TsvRecordWriter {
-            return invoke(TsvWriter(writer, settings))
-        }
-    }
+    private val lineWriter = TsvLineWriter(writer, settings)
 
     /**
      * 헤더 행을 기록합니다.
      *
      * ## 동작/계약
-     * - [headers]를 리스트로 복사해 한 행으로 기록합니다.
+     * - [headers]를 TSV 형식으로 한 행 기록합니다.
      *
      * ```kotlin
      * writer.writeHeaders(listOf("id", "name"))
@@ -75,14 +41,14 @@ class TsvRecordWriter private constructor(
      * ```
      */
     override fun writeHeaders(headers: Iterable<String>) {
-        writer.writeHeaders(headers.toList())
+        lineWriter.writeRow(headers)
     }
 
     /**
      * 데이터 행 1건을 기록합니다.
      *
      * ## 동작/계약
-     * - [rows]를 리스트로 복사해 기록합니다.
+     * - [rows]를 TSV 형식으로 기록합니다.
      *
      * ```kotlin
      * writer.writeRow(listOf("Alice", 20))
@@ -90,7 +56,7 @@ class TsvRecordWriter private constructor(
      * ```
      */
     override fun writeRow(rows: Iterable<*>) {
-        writer.writeRow(rows.toList())
+        lineWriter.writeRow(rows)
     }
 
     /**
@@ -109,7 +75,7 @@ class TsvRecordWriter private constructor(
     }
 
     /**
-     * 내부 [TsvWriter]를 닫습니다.
+     * 내부 [TsvLineWriter]를 닫습니다 (flush 포함).
      *
      * ## 동작/계약
      * - 종료 중 예외는 무시됩니다.
@@ -121,6 +87,6 @@ class TsvRecordWriter private constructor(
      * ```
      */
     override fun close() {
-        runCatching { writer.close() }
+        runCatching { lineWriter.close() }
     }
 }

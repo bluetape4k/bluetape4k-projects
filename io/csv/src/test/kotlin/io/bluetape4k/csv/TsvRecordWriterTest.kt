@@ -25,7 +25,7 @@ class TsvRecordWriterTest {
 
             log.debug { "captured=$captured" }
             captured shouldContain "row1\t1\t2\t3, 3"
-            captured shouldContain "row2\t4\t\t6,6"
+            captured shouldContain "row2  \t4\t\t6,6"
         }
     }
 

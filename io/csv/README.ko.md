@@ -4,10 +4,11 @@
 
 ## 개요
 
-`bluetape4k-csv`는 [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) 라이브러리를 Kotlin 환경에서 편리하게 사용할 수 있도록 래핑한 모듈입니다.
+`bluetape4k-csv`는 RFC 4180을 준수하는 자체 구현 엔진을 사용하는 Kotlin 네이티브 CSV/TSV 파싱 라이브러리입니다.
 
-CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/
-`SuspendRecordWriter`)도 지원합니다.
+CSV와 TSV 포맷의 읽기/쓰기를 위한 `RecordReader`/`RecordWriter` 인터페이스를 제공하며, Kotlin Coroutines 기반의 비동기 버전(`SuspendRecordReader`/`SuspendRecordWriter`)도 지원합니다.
+
+v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기계로 교체되었습니다. 마이그레이션 방법은 [MIGRATION.md](./MIGRATION.md)를 참조하세요.
 
 ## 아키텍처
 
@@ -40,6 +41,19 @@ classDiagram
         +close()
     }
 
+    class CsvSettings {
+        +delimiter: Char
+        +quote: Char
+        +lineSeparator: String
+        +trimValues: Boolean
+        +emptyValueAsNull: Boolean
+    }
+
+    class TsvSettings {
+        +lineSeparator: String
+        +trimValues: Boolean
+        +emptyValueAsNull: Boolean
+    }
 
     RecordReader <|.. CsvRecordReader
     RecordReader <|.. TsvRecordReader
@@ -49,6 +63,11 @@ classDiagram
     SuspendRecordReader <|.. SuspendTsvRecordReader
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
+
+    CsvRecordReader --> CsvSettings
+    CsvRecordWriter --> CsvSettings
+    TsvRecordReader --> TsvSettings
+    TsvRecordWriter --> TsvSettings
 
     style RecordReader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style RecordWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -62,6 +81,8 @@ classDiagram
     style SuspendTsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style SuspendCsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style SuspendTsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CsvSettings fill:#FFF9C4,stroke:#F9A825,color:#5D4037
+    style TsvSettings fill:#FFF9C4,stroke:#F9A825,color:#5D4037
 ```
 
 ### CSV/TSV 처리 흐름
@@ -74,15 +95,20 @@ flowchart TD
         STR[String]
     end
 
+    subgraph 내부 엔진
+        CL[CsvLexer\nTsvLexer]
+        DW[DelimitedWriter]
+    end
+
     subgraph 동기 처리
-        CR[CsvRecordReader<br/>TsvRecordReader]
-        CW[CsvRecordWriter<br/>TsvRecordWriter]
+        CR[CsvRecordReader\nTsvRecordReader]
+        CW[CsvRecordWriter\nTsvRecordWriter]
         SEQ["Sequence&lt;T&gt;"]
     end
 
     subgraph 비동기 처리
-        SCR[SuspendCsvRecordReader<br/>SuspendTsvRecordReader]
-        SCW[SuspendCsvRecordWriter<br/>SuspendTsvRecordWriter]
+        SCR[SuspendCsvRecordReader\nSuspendTsvRecordReader]
+        SCW[SuspendCsvRecordWriter\nSuspendTsvRecordWriter]
         FL["Flow&lt;T&gt;"]
     end
 
@@ -91,28 +117,30 @@ flowchart TD
         OW[OutputWriter]
     end
 
-    F --> CR --> SEQ
+    F --> CR --> CL --> SEQ
     IS --> CR
     STR --> CR
 
-    F --> SCR --> FL
+    F --> SCR --> CL --> FL
     IS --> SCR
 
     SEQ -->|transform| 앱[애플리케이션]
     FL -->|collect| 앱
 
-    앱 -->|entities| CW --> OF
-    앱 -->|Flow entities| SCW --> OW
+    앱 -->|entities| CW --> DW --> OF
+    앱 -->|Flow entities| SCW --> DW --> OW
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef engineStyle fill:#FFF9C4,stroke:#F9A825,color:#5D4037
 
     class 앱 coreStyle
     class SCR,SCW,FL asyncStyle
     class CR,CW,SEQ serviceStyle
     class F,IS,STR,OF,OW dataStyle
+    class CL,DW engineStyle
 ```
 
 ## 주요 기능
@@ -128,12 +156,21 @@ flowchart TD
 | 반환 타입  | `Sequence<T>`     | `Flow<T>`                |
 | 쓰기 함수  | 일반 함수             | `suspend` 함수             |
 
-### 기본 파서 설정
+### 설정 옵션
 
-모든 파서/Writer는 다음 기본 설정을 사용합니다:
+| 설정                | CSV 기본값  | TSV 기본값  | 설명                               |
+|-------------------|---------|---------|----------------------------------|
+| `delimiter`       | `,`     | `\t` 고정 | 필드 구분 문자                         |
+| `quote`           | `"`     | N/A     | 인용 문자 (CSV 전용)                   |
+| `lineSeparator`   | `\r\n`  | `\n`    | 레코드 구분자                          |
+| `trimValues`      | `false` | `false` | 앞뒤 공백 제거 여부 (reader 전용)         |
+| `emptyValueAsNull`| `true`  | `true`  | 인용 없는 빈 필드 → `null`              |
+| `maxCharsPerColumn`| 100,000| 100,000 | 컬럼당 최대 문자 수                      |
 
-- **컬럼당 최대 문자 수**: 100,000자
-- **값 트리밍**: 활성화 (파서만)
+### null vs 빈 문자열
+
+- `null` → 쓰기 시 인용 없는 빈 필드; `emptyValueAsNull=true`이면 읽을 때 `null`로 복원
+- `""` (빈 문자열) → 쓰기 시 `""` 인용 출력; 읽을 때 `""` (빈 문자열)로 복원
 
 ## 사용 예제
 
@@ -144,8 +181,23 @@ import io.bluetape4k.csv.CsvRecordReader
 
 val reader = CsvRecordReader()
 val items: Sequence<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
+```
+
+### 커스텀 설정
+
+```kotlin
+import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.csv.CsvRecordReader
+
+val settings = CsvSettings(
+    delimiter = ';',
+    trimValues = true,
+    emptyValueAsNull = false,
+    maxCharsPerColumn = 500_000,
+)
+val reader = CsvRecordReader(settings)
 ```
 
 ### CSV 쓰기
@@ -191,7 +243,7 @@ val tsvRecords = File("data.tsv").readAsTsvRecords()
 
 // File에서 transform으로 읽기
 val items = File("data.csv").readAsCsvRecords(skipHeader = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
 
 // File에 직접 쓰기
@@ -214,7 +266,7 @@ import io.bluetape4k.csv.coroutines.SuspendCsvRecordReader
 
 val reader = SuspendCsvRecordReader()
 val items: Flow<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
 
 items.collect { item -> println(item) }
@@ -235,21 +287,82 @@ writer.writeAll(dataFlow)
 writer.close()
 ```
 
-### 커스텀 파서 설정
+## V2 API (Flow 기반 DSL)
+
+v1.5.0부터 `io.bluetape4k.csv.v2` 패키지에 상위 수준 V2 API가 제공됩니다.
+
+### V1 vs V2 비교
+
+| 기능           | V1 (Sequence/suspend)         | V2 (Flow DSL)                    |
+|--------------|-------------------------------|----------------------------------|
+| 리더 타입        | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
+| 라이터 타입       | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
+| 레코드 타입       | `Record` (인터페이스)             | `CsvRow` (data class)            |
+| 설정           | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| 취소 협력        | suspend 내 `ensureActive()`    | `channelFlow + ensureActive()`   |
+| quoteAll 지원  | 없음                            | `CsvWriterConfig.quoteAll = true` |
+
+### V2 읽기
 
 ```kotlin
-val customSettings = CsvParserSettings().apply {
-    trimValues(false)
-    maxCharsPerColumn = 500_000
+import io.bluetape4k.csv.v2.csvReader
+import io.bluetape4k.csv.v2.tsvReader
+
+// CSV
+val reader = csvReader {
+    trimValues = true
+    emptyValueAsNull = false
 }
-val reader = CsvRecordReader(customSettings)
+reader.read(inputStream, skipHeaders = true).collect { row ->
+    val name = row.getString("name")
+    val age  = row.getInt("age")
+}
+
+// TSV (delimiter는 항상 '\t'로 강제)
+tsvReader().read(inputStream, skipHeaders = true).collect { row -> ... }
+
+// 대용량 파일 스트리밍
+reader.readFile(Path.of("data.csv"), skipHeaders = true).collect { row -> ... }
+```
+
+### V2 쓰기
+
+```kotlin
+import io.bluetape4k.csv.v2.csvWriter
+import io.bluetape4k.csv.v2.tsvWriter
+
+// 모든 필드 인용 출력
+val writer = csvWriter(outputWriter) { quoteAll = true }
+writer.writeHeaders(listOf("name", "age"))
+writer.writeRow(listOf("Alice", 30))
+writer.writeAll(dataFlow)
+writer.close()
+
+// TSV
+tsvWriter(outputWriter).use { w ->
+    w.writeRow(listOf("a", "b", "c"))
+}
+```
+
+### V1 ↔ V2 변환
+
+```kotlin
+import io.bluetape4k.csv.v2.toCsvRow
+
+// V1 Record → V2 CsvRow (public)
+val csvRow: CsvRow = record.toCsvRow()
+val name = csvRow.getString("name")
+val age  = csvRow.getInt("age", default = 0)
 ```
 
 ## 모듈 구조
 
 ```
 io.bluetape4k.csv
-├── CvsParserDefaults.kt              # CSV/TSV 파서 기본 설정
+├── CsvSettings.kt                    # CSV 파서/라이터 설정
+├── TsvSettings.kt                    # TSV 파서/라이터 설정
+├── CvsParserDefaults.kt              # 공통 상수 (MAX_CHARS_PER_COLUMN)
+├── Record.kt                         # 공개 레코드 인터페이스
 ├── RecordReader.kt                   # 읽기 인터페이스 (Sequence 기반)
 ├── RecordWriter.kt                   # 쓰기 인터페이스
 ├── CsvRecordReader.kt                # CSV 읽기 구현체
@@ -258,13 +371,22 @@ io.bluetape4k.csv
 ├── TsvRecordWriter.kt                # TSV 쓰기 구현체
 ├── RecordReaderSupport.kt            # File/InputStream 읽기 확장 함수
 ├── RecordWriterSupport.kt            # File 쓰기 확장 함수
+├── internal/                         # 내부 엔진 (공개 API 아님)
+│   ├── CsvLexer.kt                   # RFC 4180 CSV 상태 기계 렉서
+│   ├── TsvLexer.kt                   # TSV 상태 기계 렉서 (백슬래시 이스케이프)
+│   ├── DelimitedWriter.kt            # 핵심 구분자 필드 라이터
+│   ├── CsvLineWriter.kt              # CSV 전용 라이터
+│   ├── TsvLineWriter.kt              # TSV 전용 라이터
+│   ├── ArrayRecord.kt                # Record 구현체
+│   └── RecordFactory.kt              # Record 생성 헬퍼
 └── coroutines/                       # Coroutines 비동기 지원
     ├── SuspendRecordReader.kt        # 비동기 읽기 인터페이스 (Flow 기반)
     ├── SuspendRecordWriter.kt        # 비동기 쓰기 인터페이스
-    ├── SuspendCsvRecordReader.kt     # 비동기 CSV 읽기 구현체
-    ├── SuspendCsvRecordWriter.kt     # 비동기 CSV 쓰기 구현체
-    ├── SuspendTsvRecordReader.kt     # 비동기 TSV 읽기 구현체
-    └── SuspendTsvRecordWriter.kt     # 비동기 TSV 쓰기 구현체
+    ├── SuspendCsvRecordReader.kt     # 비동기 CSV 읽기 (channelFlow + ensureActive)
+    ├── SuspendCsvRecordWriter.kt     # 비동기 CSV 쓰기 (Mutex 동시성 보호)
+    ├── SuspendTsvRecordReader.kt     # 비동기 TSV 읽기 (channelFlow + ensureActive)
+    ├── SuspendTsvRecordWriter.kt     # 비동기 TSV 쓰기 (Mutex 동시성 보호)
+    └── SuspendRecordReaderSupport.kt # 비동기 File/InputStream 확장 함수
 ```
 
 ## 의존성
@@ -278,7 +400,10 @@ dependencies {
 }
 ```
 
+## v1.4.x에서 마이그레이션
+
+univocity-parsers 타입을 직접 사용했다면 [MIGRATION.md](./MIGRATION.md)를 참조하세요.
+
 ## 참고
 
-- [Univocity Parsers](https://github.com/uniVocity/univocity-parsers)
 - [CSV (RFC 4180)](https://datatracker.ietf.org/doc/html/rfc4180)

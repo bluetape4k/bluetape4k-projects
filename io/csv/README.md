@@ -4,11 +4,11 @@ English | [한국어](./README.ko.md)
 
 ## Overview
 
-`bluetape4k-csv` is a Kotlin-friendly wrapper around the [Univocity Parsers](https://github.com/uniVocity/univocity-parsers) library.
+`bluetape4k-csv` is a Kotlin-native CSV/TSV parsing library with a self-implemented RFC 4180 compliant engine.
 
-It provides `RecordReader`/
-`RecordWriter` interfaces for reading and writing CSV and TSV formats, along with async versions based on Kotlin Coroutines (
-`SuspendRecordReader`/`SuspendRecordWriter`).
+It provides `RecordReader`/`RecordWriter` interfaces for reading and writing CSV and TSV formats, along with async versions based on Kotlin Coroutines (`SuspendRecordReader`/`SuspendRecordWriter`).
+
+Since v1.5.0 the internal engine has been replaced from univocity-parsers to a self-implemented state machine. See [MIGRATION.md](./MIGRATION.md) for migration details.
 
 ## Architecture
 
@@ -41,6 +41,19 @@ classDiagram
         +close()
     }
 
+    class CsvSettings {
+        +delimiter: Char
+        +quote: Char
+        +lineSeparator: String
+        +trimValues: Boolean
+        +emptyValueAsNull: Boolean
+    }
+
+    class TsvSettings {
+        +lineSeparator: String
+        +trimValues: Boolean
+        +emptyValueAsNull: Boolean
+    }
 
     RecordReader <|.. CsvRecordReader
     RecordReader <|.. TsvRecordReader
@@ -50,6 +63,11 @@ classDiagram
     SuspendRecordReader <|.. SuspendTsvRecordReader
     SuspendRecordWriter <|.. SuspendCsvRecordWriter
     SuspendRecordWriter <|.. SuspendTsvRecordWriter
+
+    CsvRecordReader --> CsvSettings
+    CsvRecordWriter --> CsvSettings
+    TsvRecordReader --> TsvSettings
+    TsvRecordWriter --> TsvSettings
 
     style RecordReader fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style RecordWriter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -63,6 +81,8 @@ classDiagram
     style SuspendTsvRecordReader fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style SuspendCsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style SuspendTsvRecordWriter fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style CsvSettings fill:#FFF9C4,stroke:#F9A825,color:#5D4037
+    style TsvSettings fill:#FFF9C4,stroke:#F9A825,color:#5D4037
 ```
 
 ### CSV/TSV Processing Flow
@@ -75,15 +95,20 @@ flowchart TD
         STR[String]
     end
 
+    subgraph Internal Engine
+        CL[CsvLexer\nTsvLexer]
+        DW[DelimitedWriter]
+    end
+
     subgraph Sync Processing
-        CR[CsvRecordReader<br/>TsvRecordReader]
-        CW[CsvRecordWriter<br/>TsvRecordWriter]
+        CR[CsvRecordReader\nTsvRecordReader]
+        CW[CsvRecordWriter\nTsvRecordWriter]
         SEQ["Sequence&lt;T&gt;"]
     end
 
     subgraph Async Processing
-        SCR[SuspendCsvRecordReader<br/>SuspendTsvRecordReader]
-        SCW[SuspendCsvRecordWriter<br/>SuspendTsvRecordWriter]
+        SCR[SuspendCsvRecordReader\nSuspendTsvRecordReader]
+        SCW[SuspendCsvRecordWriter\nSuspendTsvRecordWriter]
         FL["Flow&lt;T&gt;"]
     end
 
@@ -92,28 +117,30 @@ flowchart TD
         OW[OutputWriter]
     end
 
-    F --> CR --> SEQ
+    F --> CR --> CL --> SEQ
     IS --> CR
     STR --> CR
 
-    F --> SCR --> FL
+    F --> SCR --> CL --> FL
     IS --> SCR
 
     SEQ -->|transform| App[Application]
     FL -->|collect| App
 
-    App -->|entities| CW --> OF
-    App -->|Flow entities| SCW --> OW
+    App -->|entities| CW --> DW --> OF
+    App -->|Flow entities| SCW --> DW --> OW
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef engineStyle fill:#FFF9C4,stroke:#F9A825,color:#5D4037
 
     class App coreStyle
     class SCR,SCW,FL asyncStyle
     class CR,CW,SEQ serviceStyle
     class F,IS,STR,OF,OW dataStyle
+    class CL,DW engineStyle
 ```
 
 ## Key Features
@@ -129,12 +156,21 @@ flowchart TD
 | Return type     | `Sequence<T>`     | `Flow<T>`                |
 | Write functions | Regular functions | `suspend` functions      |
 
-### Default Parser Settings
+### Settings
 
-All parsers and writers use the following defaults:
+| Setting           | CSV default | TSV default | Description                              |
+|-------------------|-------------|-------------|------------------------------------------|
+| `delimiter`       | `,`         | `\t` (fixed)| Field separator                          |
+| `quote`           | `"`         | N/A         | Quote character (CSV only)               |
+| `lineSeparator`   | `\r\n`      | `\n`        | Record separator                         |
+| `trimValues`      | `false`     | `false`     | Trim leading/trailing whitespace (reader)|
+| `emptyValueAsNull`| `true`      | `true`      | Empty unquoted field → `null`            |
+| `maxCharsPerColumn`| 100,000    | 100,000     | Per-column character limit               |
 
-- **Max characters per column**: 100,000
-- **Value trimming**: Enabled (parsers only)
+### null vs Empty String
+
+- `null` → unquoted empty field on write; read back as `null` when `emptyValueAsNull=true`
+- `""` (empty string) → `""` quoted field on write; read back as `""` (empty string)
 
 ## Usage Examples
 
@@ -145,8 +181,23 @@ import io.bluetape4k.csv.CsvRecordReader
 
 val reader = CsvRecordReader()
 val items: Sequence<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
+```
+
+### Custom Settings
+
+```kotlin
+import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.csv.CsvRecordReader
+
+val settings = CsvSettings(
+    delimiter = ';',
+    trimValues = true,
+    emptyValueAsNull = false,
+    maxCharsPerColumn = 500_000,
+)
+val reader = CsvRecordReader(settings)
 ```
 
 ### Writing CSV
@@ -192,7 +243,7 @@ val tsvRecords = File("data.tsv").readAsTsvRecords()
 
 // Read from a File with a transform
 val items = File("data.csv").readAsCsvRecords(skipHeader = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
 
 // Write directly to a File
@@ -215,7 +266,7 @@ import io.bluetape4k.csv.coroutines.SuspendCsvRecordReader
 
 val reader = SuspendCsvRecordReader()
 val items: Flow<Item> = reader.read(inputStream, Charsets.UTF_8, skipHeaders = true) { record ->
-    Item(record.getString("name"), record.getInt("age"))
+    Item(record.getString("name"), record.getIntOrNull("age") ?: 0)
 }
 
 items.collect { item -> println(item) }
@@ -236,21 +287,82 @@ writer.writeAll(dataFlow)
 writer.close()
 ```
 
-### Custom Parser Settings
+## V2 API (Flow-based DSL)
+
+Since v1.5.0, a higher-level V2 API is available under the `io.bluetape4k.csv.v2` package.
+
+### V1 vs V2 Comparison
+
+| Feature             | V1 (Sequence/suspend)          | V2 (Flow DSL)                    |
+|---------------------|-------------------------------|----------------------------------|
+| Reader type         | `CsvRecordReader`             | `FlowCsvReader` (DSL)            |
+| Writer type         | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
+| Record type         | `Record` (interface)          | `CsvRow` (data class)            |
+| Settings            | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
+| Cancellation        | `ensureActive()` in suspend   | `channelFlow + ensureActive()`   |
+| quoteAll support    | No                            | `CsvWriterConfig.quoteAll = true` |
+
+### Reading with V2
 
 ```kotlin
-val customSettings = CsvParserSettings().apply {
-    trimValues(false)
-    maxCharsPerColumn = 500_000
+import io.bluetape4k.csv.v2.csvReader
+import io.bluetape4k.csv.v2.tsvReader
+
+// CSV
+val reader = csvReader {
+    trimValues = true
+    emptyValueAsNull = false
 }
-val reader = CsvRecordReader(customSettings)
+reader.read(inputStream, skipHeaders = true).collect { row ->
+    val name = row.getString("name")
+    val age  = row.getInt("age")
+}
+
+// TSV (delimiter is always forced to '\t')
+tsvReader().read(inputStream, skipHeaders = true).collect { row -> ... }
+
+// Large file streaming
+reader.readFile(Path.of("data.csv"), skipHeaders = true).collect { row -> ... }
+```
+
+### Writing with V2
+
+```kotlin
+import io.bluetape4k.csv.v2.csvWriter
+import io.bluetape4k.csv.v2.tsvWriter
+
+// CSV with quoteAll
+val writer = csvWriter(outputWriter) { quoteAll = true }
+writer.writeHeaders(listOf("name", "age"))
+writer.writeRow(listOf("Alice", 30))
+writer.writeAll(dataFlow)
+writer.close()
+
+// TSV
+tsvWriter(outputWriter).use { w ->
+    w.writeRow(listOf("a", "b", "c"))
+}
+```
+
+### V1 ↔ V2 Conversion
+
+```kotlin
+import io.bluetape4k.csv.v2.toCsvRow
+
+// V1 Record → V2 CsvRow (public)
+val csvRow: CsvRow = record.toCsvRow()
+val name = csvRow.getString("name")
+val age  = csvRow.getInt("age", default = 0)
 ```
 
 ## Module Structure
 
 ```
 io.bluetape4k.csv
-├── CvsParserDefaults.kt              # Default CSV/TSV parser settings
+├── CsvSettings.kt                    # CSV parser/writer settings
+├── TsvSettings.kt                    # TSV parser/writer settings
+├── CvsParserDefaults.kt              # Shared constants (MAX_CHARS_PER_COLUMN)
+├── Record.kt                         # Public record interface
 ├── RecordReader.kt                   # Read interface (Sequence-based)
 ├── RecordWriter.kt                   # Write interface
 ├── CsvRecordReader.kt                # CSV reader implementation
@@ -259,13 +371,22 @@ io.bluetape4k.csv
 ├── TsvRecordWriter.kt                # TSV writer implementation
 ├── RecordReaderSupport.kt            # File/InputStream read extension functions
 ├── RecordWriterSupport.kt            # File write extension functions
+├── internal/                         # Internal engine (not public API)
+│   ├── CsvLexer.kt                   # RFC 4180 CSV state machine lexer
+│   ├── TsvLexer.kt                   # TSV state machine lexer (backslash escape)
+│   ├── DelimitedWriter.kt            # Core delimited field writer
+│   ├── CsvLineWriter.kt              # CSV-specific writer
+│   ├── TsvLineWriter.kt              # TSV-specific writer
+│   ├── ArrayRecord.kt                # Record implementation
+│   └── RecordFactory.kt              # Record construction helpers
 └── coroutines/                       # Coroutines async support
     ├── SuspendRecordReader.kt        # Async read interface (Flow-based)
     ├── SuspendRecordWriter.kt        # Async write interface
-    ├── SuspendCsvRecordReader.kt     # Async CSV reader implementation
-    ├── SuspendCsvRecordWriter.kt     # Async CSV writer implementation
-    ├── SuspendTsvRecordReader.kt     # Async TSV reader implementation
-    └── SuspendTsvRecordWriter.kt     # Async TSV writer implementation
+    ├── SuspendCsvRecordReader.kt     # Async CSV reader (channelFlow + ensureActive)
+    ├── SuspendCsvRecordWriter.kt     # Async CSV writer (Mutex protected)
+    ├── SuspendTsvRecordReader.kt     # Async TSV reader (channelFlow + ensureActive)
+    ├── SuspendTsvRecordWriter.kt     # Async TSV writer (Mutex protected)
+    └── SuspendRecordReaderSupport.kt # Async File/InputStream extension functions
 ```
 
 ## Dependencies
@@ -279,7 +400,10 @@ dependencies {
 }
 ```
 
+## Migration from v1.4.x
+
+If you were using univocity-parsers types directly, see [MIGRATION.md](./MIGRATION.md).
+
 ## References
 
-- [Univocity Parsers](https://github.com/uniVocity/univocity-parsers)
 - [CSV (RFC 4180)](https://datatracker.ietf.org/doc/html/rfc4180)
