@@ -145,37 +145,65 @@ fun doubleSequenceOf(start: Double, endInclusive: Double, step: Double = 1.0): S
 /**
  * Char Sequence 를 [CharArray]로 변환합니다.
  */
-fun Sequence<Char>.toCharArray(): CharArray = toList().toCharArray()
+fun Sequence<Char>.toCharArray(): CharArray {
+    var out = CharArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Byte Sequence 를 [ByteArray]로 변환합니다.
  */
-fun Sequence<Byte>.toByteArray(): ByteArray = toList().toByteArray()
+fun Sequence<Byte>.toByteArray(): ByteArray {
+    var out = ByteArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Short Sequence 를 [ShortArray]로 변환합니다.
  */
-fun Sequence<Short>.toShortArray(): ShortArray = toList().toShortArray()
+fun Sequence<Short>.toShortArray(): ShortArray {
+    var out = ShortArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Int Sequence 를 [IntArray]로 변환합니다.
  */
-fun Sequence<Int>.toIntArray(): IntArray = toList().toIntArray()
+fun Sequence<Int>.toIntArray(): IntArray {
+    var out = IntArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Long Sequence 를 [LongArray]로 변환합니다.
  */
-fun Sequence<Long>.toLongArray(): LongArray = toList().toLongArray()
+fun Sequence<Long>.toLongArray(): LongArray {
+    var out = LongArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Float Sequence 를 [FloatArray]로 변환합니다.
  */
-fun Sequence<Float>.toFloatArray(): FloatArray = toList().toFloatArray()
+fun Sequence<Float>.toFloatArray(): FloatArray {
+    var out = FloatArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Double Sequence 를 [DoubleArray]로 변환합니다.
  */
-fun Sequence<Double>.toDoubleArray(): DoubleArray = toList().toDoubleArray()
+fun Sequence<Double>.toDoubleArray(): DoubleArray {
+    var out = DoubleArray(16); var n = 0
+    for (e in this) { if (n == out.size) out = out.copyOf(n * 2); out[n++] = e }
+    return if (n == out.size) out else out.copyOf(n)
+}
 
 /**
  * Sequence의 요소를 [Char]로 변환하여 [CharArray] 로 반환합니다.
@@ -185,7 +213,7 @@ fun Sequence<Double>.toDoubleArray(): DoubleArray = toList().toDoubleArray()
  * val charArray = sequence.asCharArray()  // ['a', 'b', 'c']
  * ```
  */
-fun Sequence<*>.asCharArray(dv: Char = '\u0000'): CharArray = map { it.asChar(dv) }.toCharArray()
+fun Sequence<*>.asCharArray(fallback: Char = '\u0000'): CharArray = map { it.asChar(fallback) }.toCharArray()
 
 /**
  * Sequence의 요소를 [Byte]로 변환하여 [ByteArray] 로 반환합니다.
@@ -246,7 +274,7 @@ fun Sequence<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray = map { it.as
  * ```
  */
 fun Sequence<*>.asStringArray(fallback: String = ""): Array<String> =
-    map { it.asString(fallback) }.toList().toTypedArray()
+    mapTo(ArrayList()) { it.asString(fallback) }.toTypedArray()
 
 /**
  * Sequence의 요소를 [T]로 변환하여 [Array] 로 반환합니다.
@@ -256,7 +284,7 @@ fun Sequence<*>.asStringArray(fallback: String = ""): Array<String> =
  * val array: Array<Int> = sequence.asArray<Int>()  // [0, 1, 2]
  * ```
  */
-inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = map { it as? T }.toList().toTypedArray()
+inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = mapTo(ArrayList()) { it as? T }.toTypedArray()
 
 /**
  * [mapper] 실행이 성공한 결과만 추출합니다.

@@ -136,24 +136,24 @@ infix fun <T> Iterable<T>.isSameElements(that: Iterable<T>): Boolean {
 
 /**
  * [Iterable] 을 [CharArray]로 변환합니다.
- * 변환할 수 없는 요소는 [dv] 기본값으로 대체됩니다.
+ * 변환할 수 없는 요소는 [fallback] 기본값으로 대체됩니다.
  *
  * ```kotlin
- * listOf('A', 'B', 'C').asCharArray()           // charArrayOf('A', 'B', 'C')
- * listOf("X", null, 'Z').asCharArray(dv = '?')  // charArrayOf('X', '?', 'Z')
+ * listOf('A', 'B', 'C').asCharArray()                   // charArrayOf('A', 'B', 'C')
+ * listOf("X", null, 'Z').asCharArray(fallback = '?')    // charArrayOf('X', '?', 'Z')
  * ```
  *
- * @param dv 변환 실패 시 대체할 기본값 (기본: `'\u0000'`)
+ * @param fallback 변환 실패 시 대체할 기본값 (기본: `'\u0000'`)
  * @return [CharArray] 인스턴스
  */
-fun Iterable<*>.asCharArray(dv: Char = '\u0000'): CharArray {
+fun Iterable<*>.asCharArray(fallback: Char = '\u0000'): CharArray {
     if (this is Collection<*>) {
         val out = CharArray(size); var i = 0
-        for (e in this) out[i++] = e.asChar(dv)
+        for (e in this) out[i++] = e.asChar(fallback)
         return out
     }
     val buf = ArrayList<Char>()
-    for (e in this) buf.add(e.asChar(dv))
+    for (e in this) buf.add(e.asChar(fallback))
     return buf.toCharArray()
 }
 

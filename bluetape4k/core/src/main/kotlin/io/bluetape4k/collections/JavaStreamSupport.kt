@@ -10,6 +10,9 @@ import java.util.stream.StreamSupport
 /**
  * [Stream]을 [Sequence]로 변환합니다.
  *
+ * > **주의**: [Stream]은 한 번만 소비할 수 있습니다. 반환된 [Sequence]를 두 번 이상 순회하면
+ * > 두 번째 순회에서 빈 결과 또는 예외가 발생합니다.
+ *
  * ```
  * val stream = Stream.of(1, 2, 3, 4, 5)
  * val sequence = stream.asSequence()
@@ -22,6 +25,9 @@ fun <T> Stream<T>.asSequence(): Sequence<T> = Sequence { iterator() }
 
 /**
  * [Stream]을 [Iterable]로 변환합니다.
+ *
+ * > **주의**: [Stream]은 한 번만 소비할 수 있습니다. 반환된 [Iterable]을 두 번 이상 순회하면
+ * > 두 번째 순회에서 빈 결과 또는 예외가 발생합니다.
  *
  * ```kotlin
  * val stream = Stream.of("a", "b", "c")
@@ -62,8 +68,11 @@ fun <T> Stream<T>.toSet(): Set<T> = asIterable().toSet()
  * @receiver Stream
  * @return Map<K, V> 인스턴스
  */
-inline fun <T, K, V> Stream<T>.toMap(crossinline mapper: (item: T) -> Pair<K, V>): Map<K, V> =
-    this.map { mapper(it) }.toList().toMap()
+inline fun <T, K, V> Stream<T>.toMap(crossinline mapper: (item: T) -> Pair<K, V>): Map<K, V> {
+    val out = LinkedHashMap<K, V>()
+    forEach { val (k, v) = mapper(it); out[k] = v }
+    return out
+}
 
 /**
  * [Stream]을 [MutableMap] 으로 변환합니다.
