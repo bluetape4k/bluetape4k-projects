@@ -10,15 +10,13 @@ import io.bluetape4k.batch.api.StepReport
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.workflow.api.RetryPolicy
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger
@@ -47,7 +45,7 @@ class BatchStepRunnerTest {
     // ─── Helpers ───────────────────────────────────────────────────────────────
 
     /** 리스트 기반 fake reader. 아이템을 순서대로 반환하고 EOF에서 null 반환. */
-    class ListBatchReader<T : Any>(items: List<T>) : BatchReader<T> {
+    class ListBatchReader<T: Any>(items: List<T>): BatchReader<T> {
         private val queue = ArrayDeque(items)
         private val openCount = AtomicInteger(0)
         private val closeCount = AtomicInteger(0)
@@ -57,28 +55,44 @@ class BatchStepRunnerTest {
         val wasOpened: Boolean get() = openCount.get() > 0
         val wasClosed: Boolean get() = closeCount.get() > 0
 
-        override suspend fun open() { openCount.incrementAndGet() }
-        override suspend fun close() { closeCount.incrementAndGet() }
+        override suspend fun open() {
+            openCount.incrementAndGet()
+        }
+
+        override suspend fun close() {
+            closeCount.incrementAndGet()
+        }
+
         override suspend fun read(): T? = queue.removeFirstOrNull()
         override suspend fun checkpoint(): Any? = if (lastCheckpoint >= 0) lastCheckpoint else null
-        override suspend fun onChunkCommitted() { lastCheckpoint++ }
+        override suspend fun onChunkCommitted() {
+            lastCheckpoint++
+        }
     }
 
     /** 아이템 수집 fake writer. */
-    class CollectingWriter<T : Any> : BatchWriter<T> {
+    class CollectingWriter<T: Any>: BatchWriter<T> {
         val collected = mutableListOf<T>()
         val openCount = AtomicInteger(0)
         val closeCount = AtomicInteger(0)
         val wasOpened: Boolean get() = openCount.get() > 0
         val wasClosed: Boolean get() = closeCount.get() > 0
 
-        override suspend fun open() { openCount.incrementAndGet() }
-        override suspend fun close() { closeCount.incrementAndGet() }
-        override suspend fun write(items: List<T>) { collected.addAll(items) }
+        override suspend fun open() {
+            openCount.incrementAndGet()
+        }
+
+        override suspend fun close() {
+            closeCount.incrementAndGet()
+        }
+
+        override suspend fun write(items: List<T>) {
+            collected.addAll(items)
+        }
     }
 
     /** n번 실패 후 성공하는 writer. */
-    class FailThenSucceedWriter<T : Any>(private val failCount: Int) : BatchWriter<T> {
+    class FailThenSucceedWriter<T: Any>(private val failCount: Int): BatchWriter<T> {
         val collected = mutableListOf<T>()
         private val attempts = AtomicInteger(0)
 
@@ -91,14 +105,14 @@ class BatchStepRunnerTest {
     }
 
     /** 항상 실패하는 writer. */
-    class AlwaysFailWriter<T : Any> : BatchWriter<T> {
+    class AlwaysFailWriter<T: Any>: BatchWriter<T> {
         override suspend fun write(items: List<T>) {
             throw RuntimeException("항상 실패")
         }
     }
 
     /** 지정된 지연 후 write를 완료하는 writer (타임아웃 테스트용). */
-    class SlowWriter<T : Any>(private val writeDelay: Duration) : BatchWriter<T> {
+    class SlowWriter<T: Any>(private val writeDelay: Duration): BatchWriter<T> {
         val collected = mutableListOf<T>()
         override suspend fun write(items: List<T>) {
             delay(writeDelay)
@@ -107,16 +121,24 @@ class BatchStepRunnerTest {
     }
 
     /** open() 시 예외를 던지는 reader (초기화 실패 테스트용). */
-    class FailOnOpenReader<T : Any> : BatchReader<T> {
-        override suspend fun open() { throw RuntimeException("reader.open() 실패") }
+    class FailOnOpenReader<T: Any>: BatchReader<T> {
+        override suspend fun open() {
+            throw RuntimeException("reader.open() 실패")
+        }
+
         override suspend fun read(): T? = null
     }
 
     /** close() 시 예외를 던지는 writer (close 예외 테스트용). */
-    class FailOnCloseWriter<T : Any> : BatchWriter<T> {
+    class FailOnCloseWriter<T: Any>: BatchWriter<T> {
         val collected = mutableListOf<T>()
-        override suspend fun write(items: List<T>) { collected.addAll(items) }
-        override suspend fun close() { throw RuntimeException("writer.close() 실패") }
+        override suspend fun write(items: List<T>) {
+            collected.addAll(items)
+        }
+
+        override suspend fun close() {
+            throw RuntimeException("writer.close() 실패")
+        }
     }
 
     /** 기본 JobExecution 팩토리. */
@@ -128,9 +150,14 @@ class BatchStepRunnerTest {
         startTime = Instant.now(),
     )
 
-    private val repo = InMemoryBatchJobRepository()
+    private lateinit var repo: InMemoryBatchJobRepository
 
-    private suspend fun <I : Any, O : Any> runStep(
+    @BeforeEach
+    fun resetRepo() {
+        repo = InMemoryBatchJobRepository()
+    }
+
+    private suspend fun <I: Any, O: Any> runStep(
         step: BatchStep<I, O>,
         je: JobExecution = makeJobExecution(),
     ): StepReport = BatchStepRunner(step, je, repo).run()
@@ -145,11 +172,20 @@ class BatchStepRunnerTest {
         skipCount: Long = 0L,
     ) {
         val se = repo.findOrCreateStepExecution(je, stepName)
-        repo.completeStepExecution(se, StepReport(stepName = stepName, status = status, readCount = readCount, writeCount = writeCount, skipCount = skipCount))
+        repo.completeStepExecution(
+            se,
+            StepReport(
+                stepName = stepName,
+                status = status,
+                readCount = readCount,
+                writeCount = writeCount,
+                skipCount = skipCount
+            )
+        )
     }
 
     /** 기본 BatchStep 팩토리 (I=String, O=String). */
-    private fun <I : Any, O : Any> makeStep(
+    private fun <I: Any, O: Any> makeStep(
         name: String = "step1",
         chunkSize: Int = 3,
         reader: BatchReader<I>,
@@ -338,7 +374,7 @@ class BatchStepRunnerTest {
 
     @Test
     fun `9 CancellationException - STOPPED 저장 후 재던짐`() = runSuspendIO {
-        val reader = object : BatchReader<String> {
+        val reader = object: BatchReader<String> {
             override suspend fun read(): String? = throw CancellationException("테스트 취소")
         }
         val writer = CollectingWriter<String>()
@@ -474,7 +510,15 @@ class BatchStepRunnerTest {
         val step = makeStep<String, String>(reader = reader, writer = writer)
         val je = makeJobExecution()
 
-        preCompleteStep(repo, je, step.name, status = BatchStatus.COMPLETED_WITH_SKIPS, readCount = 10L, writeCount = 8L, skipCount = 2L)
+        preCompleteStep(
+            repo,
+            je,
+            step.name,
+            status = BatchStatus.COMPLETED_WITH_SKIPS,
+            readCount = 10L,
+            writeCount = 8L,
+            skipCount = 2L
+        )
 
         val runner = BatchStepRunner(step, je, repo)
         val report = runner.run()
