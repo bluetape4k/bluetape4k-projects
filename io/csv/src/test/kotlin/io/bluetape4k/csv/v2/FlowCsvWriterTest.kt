@@ -231,4 +231,34 @@ class FlowCsvWriterTest {
 
         count shouldBeEqualTo 0L
     }
+
+    // ── close() flushes underlying writer (regression: cff1141c7) ──────
+    @Test
+    fun `close flushes buffered OutputStreamWriter to file`() = runTest {
+        val file = tempDir.resolve("buffered.csv")
+        val bufferedWriter = java.io.BufferedWriter(
+            java.io.OutputStreamWriter(
+                java.io.FileOutputStream(file.toFile()),
+                Charsets.UTF_8,
+            ),
+        )
+        val writer = csvWriter(bufferedWriter)
+        writer.writeRow(listOf("Alice", 30))
+        writer.writeRow(listOf("Bob", 25))
+        writer.close()
+
+        // close() must flush+close so data reaches the file even with a BufferedWriter underneath
+        val content = file.toFile().readText(Charsets.UTF_8)
+        content shouldContain "Alice,30"
+        content shouldContain "Bob,25"
+    }
+
+    @Test
+    fun `close is idempotent and swallows exceptions`() = runTest {
+        val (_, writer) = writerOf()
+        writer.writeRow(listOf("x"))
+        writer.close()
+        // second close must not throw (runCatching in FlowCsvWriterImpl.close)
+        writer.close()
+    }
 }

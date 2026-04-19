@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 
 class CsvRowTest {
 
@@ -96,5 +97,59 @@ class CsvRowTest {
         val r = row("123456789.99")
         r.getBigDecimalOrNull(0).shouldNotBeNull()
         r.getBigDecimalOrNull(0)!!.toPlainString() shouldBeEqualTo "123456789.99"
+    }
+
+    @Test
+    fun `getInt with default falls back on null and invalid`() {
+        val r = row(null, "not-a-number", "7", headers = listOf("a", "b", "c"))
+        r.getInt(0, default = -1) shouldBeEqualTo -1
+        r.getInt(1, default = -1) shouldBeEqualTo -1
+        r.getInt(2, default = -1) shouldBeEqualTo 7
+        r.getInt("a", default = 99) shouldBeEqualTo 99
+        r.getInt("c", default = 99) shouldBeEqualTo 7
+    }
+
+    @Test
+    fun `getLong with default falls back on null and invalid`() {
+        val r = row(null, "xx", "1234567890", headers = listOf("a", "b", "c"))
+        r.getLong(0, default = -1L) shouldBeEqualTo -1L
+        r.getLong(1, default = -1L) shouldBeEqualTo -1L
+        r.getLong("c", default = 0L) shouldBeEqualTo 1_234_567_890L
+    }
+
+    @Test
+    fun `getDouble with default falls back on null and invalid`() {
+        val r = row(null, "NaN-ish", "2.5", headers = listOf("a", "b", "c"))
+        r.getDouble(0, default = 1.0) shouldBeEqualTo 1.0
+        r.getDouble(1, default = 1.0) shouldBeEqualTo 1.0
+        r.getDouble("c", default = 0.0) shouldBeEqualTo 2.5
+    }
+
+    @Test
+    fun `getFloat with default falls back on null and invalid`() {
+        val r = row(null, "not-float", "0.5", headers = listOf("a", "b", "c"))
+        r.getFloat(0, default = 1f) shouldBeEqualTo 1f
+        r.getFloat(1, default = 1f) shouldBeEqualTo 1f
+        r.getFloat(2, default = 0f) shouldBeEqualTo 0.5f
+        r.getFloat("c", default = 9f) shouldBeEqualTo 0.5f
+        r.getFloat("a", default = 9f) shouldBeEqualTo 9f
+    }
+
+    @Test
+    fun `getBigDecimal with default falls back on null and invalid`() {
+        val r = row(null, "not-decimal", "100.25", headers = listOf("a", "b", "c"))
+        r.getBigDecimal(0, default = BigDecimal.ONE) shouldBeEqualTo BigDecimal.ONE
+        r.getBigDecimal(1, default = BigDecimal.ONE) shouldBeEqualTo BigDecimal.ONE
+        r.getBigDecimal(2, default = BigDecimal.ZERO).toPlainString() shouldBeEqualTo "100.25"
+        r.getBigDecimal("c", default = BigDecimal.ZERO).toPlainString() shouldBeEqualTo "100.25"
+        r.getBigDecimal("a", default = BigDecimal.TEN) shouldBeEqualTo BigDecimal.TEN
+    }
+
+    @Test
+    fun `getBoolean with default by name`() {
+        val r = row("true", null, "invalid", headers = listOf("a", "b", "c"))
+        r.getBoolean("a", default = false) shouldBeEqualTo true
+        r.getBoolean("b", default = true) shouldBeEqualTo true
+        r.getBoolean("c", default = true) shouldBeEqualTo false
     }
 }

@@ -379,14 +379,23 @@ io.bluetape4k.csv
 │   ├── TsvLineWriter.kt              # TSV 전용 라이터
 │   ├── ArrayRecord.kt                # Record 구현체
 │   └── RecordFactory.kt              # Record 생성 헬퍼
-└── coroutines/                       # Coroutines 비동기 지원
-    ├── SuspendRecordReader.kt        # 비동기 읽기 인터페이스 (Flow 기반)
-    ├── SuspendRecordWriter.kt        # 비동기 쓰기 인터페이스
-    ├── SuspendCsvRecordReader.kt     # 비동기 CSV 읽기 (channelFlow + ensureActive)
-    ├── SuspendCsvRecordWriter.kt     # 비동기 CSV 쓰기 (Mutex 동시성 보호)
-    ├── SuspendTsvRecordReader.kt     # 비동기 TSV 읽기 (channelFlow + ensureActive)
-    ├── SuspendTsvRecordWriter.kt     # 비동기 TSV 쓰기 (Mutex 동시성 보호)
-    └── SuspendRecordReaderSupport.kt # 비동기 File/InputStream 확장 함수
+├── coroutines/                       # Coroutines 비동기 지원
+│   ├── SuspendRecordReader.kt        # 비동기 읽기 인터페이스 (Flow 기반)
+│   ├── SuspendRecordWriter.kt        # 비동기 쓰기 인터페이스
+│   ├── SuspendCsvRecordReader.kt     # 비동기 CSV 읽기 (channelFlow + ensureActive)
+│   ├── SuspendCsvRecordWriter.kt     # 비동기 CSV 쓰기 (Mutex 동시성 보호)
+│   ├── SuspendTsvRecordReader.kt     # 비동기 TSV 읽기 (channelFlow + ensureActive)
+│   ├── SuspendTsvRecordWriter.kt     # 비동기 TSV 쓰기 (Mutex 동시성 보호)
+│   └── SuspendRecordReaderSupport.kt # 비동기 File/InputStream 확장 함수
+└── v2/                               # V2 Flow 기반 DSL API
+    ├── CsvRow.kt                     # 불변 data class 행 (Serializable)
+    ├── CsvReaderConfig.kt            # csvReader/tsvReader 용 mutable builder
+    ├── CsvWriterConfig.kt            # csvWriter/tsvWriter 용 mutable builder
+    ├── FlowCsvReader.kt              # Flow 반환 리더 인터페이스 + 팩토리
+    ├── FlowCsvReaderImpl.kt          # channelFlow + ensureActive + flowOn(IO)
+    ├── FlowCsvWriter.kt              # Closeable 라이터 인터페이스 + 팩토리
+    ├── FlowCsvWriterImpl.kt          # Mutex 동시성 보호 + close() 시 flush
+    └── CsvExtensions.kt              # Record ↔ CsvRow 변환
 ```
 
 ## 의존성
