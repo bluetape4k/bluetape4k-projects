@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.toList
 
 internal val logger by lazy { KotlinLogging.logger(LibraryName) }
 
@@ -20,7 +19,7 @@ internal val logger by lazy { KotlinLogging.logger(LibraryName) }
  *
  * ## 동작/계약
  * - `onStart`, `onEach`, `onEmpty`, `onCompletion` 연산자를 연결한 새 Flow를 반환합니다.
- * - 요소가 `Flow<*>` 타입이면 `toList()`로 풀어서 로그 문자열을 구성하므로 추가 수집/할당이 발생할 수 있습니다.
+ * - 요소가 `Flow<*>` 타입이면 `"<Flow>"`로 표시합니다 (재수집을 피함).
  * - 예외 종료는 `🔥`, 취소는 `🚫`, 정상 완료는 `✅`로 구분해 기록합니다.
  *
  * ```kotlin
@@ -43,7 +42,7 @@ fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger): Flow<T> {
         }
         .onEach {
             val item = when (it) {
-                is Flow<*> -> it.toList()
+                is Flow<*> -> "<Flow>"
                 else       -> it
             }
             log.debug { "[$tag] ➡️emit $item" }

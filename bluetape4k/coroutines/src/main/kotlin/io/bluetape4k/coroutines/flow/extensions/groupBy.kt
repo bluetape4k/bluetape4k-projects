@@ -4,6 +4,7 @@ import io.bluetape4k.collections.tryForEach
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -17,6 +18,7 @@ import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.coroutines.coroutineContext
 
 /**
  * 같은 키로 분류된 하위 Flow를 나타내는 타입입니다.
@@ -298,6 +300,7 @@ private class FlowGroup<K: Any, V>(
         consumerReady.resume()
 
         while (true) {
+            coroutineContext.ensureActive()
 
             if (done.value && !hasValue.value) {
                 error?.let { throw it }

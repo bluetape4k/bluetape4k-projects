@@ -87,7 +87,11 @@ fun flowRangeLong(start: Long, count: Int): Flow<Long> = (start until start + co
  * // out == ['a', 'b', 'c']
  * ```
  */
-fun CharProgression.asFlow(): Flow<Char> = flow { this@asFlow.asSequence().forEach { emit(it) } }
+fun CharProgression.asFlow(): Flow<Char> = flow {
+    for (item in this@asFlow) {
+        emit(item)
+    }
+}
 
 /**
  * [IntProgression]을 순차 방출하는 Flow로 변환합니다.
@@ -102,7 +106,11 @@ fun CharProgression.asFlow(): Flow<Char> = flow { this@asFlow.asSequence().forEa
  * // out == [0, 1, 2]
  * ```
  */
-fun IntProgression.asFlow(): Flow<Int> = flow { this@asFlow.asSequence().forEach { emit(it) } }
+fun IntProgression.asFlow(): Flow<Int> = flow {
+    for (item in this@asFlow) {
+        emit(item)
+    }
+}
 
 /**
  * [LongProgression]을 순차 방출하는 Flow로 변환합니다.
@@ -117,4 +125,8 @@ fun IntProgression.asFlow(): Flow<Int> = flow { this@asFlow.asSequence().forEach
  * // out == [0L, 1L, 2L]
  * ```
  */
-fun LongProgression.asFlow(): Flow<Long> = flow { this@asFlow.asSequence().forEach { emit(it) } }
+fun LongProgression.asFlow(): Flow<Long> = flow {
+    for (item in this@asFlow) {
+        emit(item)
+    }
+}

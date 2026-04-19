@@ -35,9 +35,9 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
         try {
             var bufferedItems = ArrayList<T>(DEFAULT_DEBOUNCE_BUFFER_CAPACITY)
             var deboundedTimeout = timeout
+            var prevTimeMs = System.currentTimeMillis()
 
             whileSelect {
-                var prevTimeMs = System.currentTimeMillis()
                 if (bufferedItems.isNotEmpty()) {
                     onTimeout(deboundedTimeout) {
                         emit(bufferedItems)

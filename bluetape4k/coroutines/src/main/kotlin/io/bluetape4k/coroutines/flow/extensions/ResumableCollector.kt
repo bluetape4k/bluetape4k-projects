@@ -1,12 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.coroutines.flow.exceptions.StopFlowException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.isActive
 
 /**
  * producer와 consumer 사이를 수동 핸드셰이크로 연결하는 단일 슬롯 collector입니다.
@@ -130,7 +129,7 @@ class ResumableCollector<T>: Resumable() {
      * ## 동작/계약
      * - 루프마다 producer 준비 신호를 보낸 뒤 새로운 신호를 기다립니다.
      * - 값이 있으면 emit 후 슬롯을 비웁니다.
-     * - emit 중 예외가 나면 [onComplete]를 호출하고 예외를 전파합니다.
+     * - emit 전 `ensureActive()`로 취소를 확인하고, emit 중 예외가 나면 [onComplete]를 호출해 전파합니다.
      * - done 상태에서 error가 있으면 예외를 던지고, 없으면 정상 종료합니다.
      *
      * ```kotlin
@@ -142,7 +141,8 @@ class ResumableCollector<T>: Resumable() {
      */
     suspend fun drain(collector: FlowCollector<T>, onComplete: ((ResumableCollector<T>) -> Unit)? = null) =
         coroutineScope {
-            while (coroutineContext.isActive) {
+            while (true) {
+                coroutineContext.ensureActive()
                 readyConsumer()
                 awaitSignal()
 
@@ -152,12 +152,8 @@ class ResumableCollector<T>: Resumable() {
                     hasValue.value = false
 
                     try {
-                        if (coroutineContext.isActive) {
-                            collector.emit(v)
-                            // log.trace { "drain value. v=$v" }
-                        } else {
-                            throw StopFlowException("current coroutine is not active")
-                        }
+                        coroutineContext.ensureActive()
+                        collector.emit(v)
                     } catch (ex: Throwable) {
                         onComplete?.invoke(this@ResumableCollector)
                         readyConsumer()             // unblock waiters
