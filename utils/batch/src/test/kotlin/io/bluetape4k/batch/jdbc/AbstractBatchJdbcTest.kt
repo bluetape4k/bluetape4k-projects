@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 
 /**
  * JDBC 기반 배치 통합 테스트 베이스 클래스.
@@ -18,4 +19,10 @@ abstract class AbstractBatchJdbcTest : AbstractExposedTest() {
     fun withBatchTables(testDB: TestDB, statement: JdbcTransaction.(TestDB) -> Unit) {
         withTables(testDB, BatchSourceTable, BatchTargetTable, statement = statement)
     }
+
+    protected fun JdbcTransaction.insertSources(count: Int) =
+        BatchSourceTable.batchInsert((1..count).toList()) { i ->
+            this[BatchSourceTable.name] = "item-$i"
+            this[BatchSourceTable.value] = i
+        }
 }

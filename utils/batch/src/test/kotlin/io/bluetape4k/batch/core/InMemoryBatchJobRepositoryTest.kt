@@ -26,6 +26,11 @@ class InMemoryBatchJobRepositoryTest {
         repo = InMemoryBatchJobRepository()
     }
 
+    private suspend fun newJobAndStep() =
+        repo.findOrCreateJobExecution("job1", emptyMap()).let { je ->
+            je to repo.findOrCreateStepExecution(je, "step1")
+        }
+
     // ─── findOrCreateJobExecution ───
 
     @Test
@@ -90,8 +95,7 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `findOrCreateStepExecution - 신규 생성`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         se.stepName shouldBeEqualTo "step1"
         se.jobExecutionId shouldBeEqualTo je.id
@@ -171,8 +175,7 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `saveCheckpoint and loadCheckpoint - round-trip`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.saveCheckpoint(se.id, 42L)
 
@@ -182,16 +185,14 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `loadCheckpoint - 저장 전에는 null 반환`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.loadCheckpoint(se.id).shouldBeNull()
     }
 
     @Test
     fun `saveCheckpoint - 덮어쓰기 가능`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.saveCheckpoint(se.id, 10L)
         repo.saveCheckpoint(se.id, 20L)
@@ -203,8 +204,7 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `completeStepExecution - 통계 갱신`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         val report = io.bluetape4k.batch.api.StepReport(
             stepName = "step1",

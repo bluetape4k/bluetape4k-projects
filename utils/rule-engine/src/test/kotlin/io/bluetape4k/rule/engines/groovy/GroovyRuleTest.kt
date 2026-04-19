@@ -14,27 +14,24 @@ import org.junit.jupiter.api.Test
 
 class GroovyRuleTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private fun evalCondition(expr: String, vararg pairs: Pair<String, Any?>): Boolean =
+            GroovyCondition(expr).evaluate(Facts.of(*pairs))
+    }
 
     @Test
     fun `GroovyCondition 평가 - 조건 만족`() {
-        val condition = GroovyCondition("amount > 1000")
-        val facts = Facts.of("amount" to 1500)
-        condition.evaluate(facts).shouldBeTrue()
+        evalCondition("amount > 1000", "amount" to 1500).shouldBeTrue()
     }
 
     @Test
     fun `GroovyCondition 평가 - 조건 불만족 시 false 반환`() {
-        val condition = GroovyCondition("amount > 1000")
-        val facts = Facts.of("amount" to 500)
-        condition.evaluate(facts).shouldBeFalse()
+        evalCondition("amount > 1000", "amount" to 500).shouldBeFalse()
     }
 
     @Test
     fun `GroovyCondition 잘못된 표현식은 false 반환`() {
-        val condition = GroovyCondition("nonExistentVar > 0")
-        val facts = Facts.of("amount" to 1500)
-        condition.evaluate(facts).shouldBeFalse()
+        evalCondition("nonExistentVar > 0", "amount" to 1500).shouldBeFalse()
     }
 
     @Test
@@ -87,16 +84,12 @@ class GroovyRuleTest {
 
     @Test
     fun `Groovy 팩토리 함수 사용`() {
-        val condition = groovyConditionOf("x > 10")
-        val facts = Facts.of("x" to 20)
-        condition.evaluate(facts).shouldBeTrue()
+        evalCondition("x > 10", "x" to 20).shouldBeTrue()
     }
 
     @Test
     fun `GroovyRule - 복합 조건식`() {
-        val condition = GroovyCondition("age >= 18 && role == 'admin'")
-        val facts = Facts.of("age" to 25, "role" to "admin")
-        condition.evaluate(facts).shouldBeTrue()
+        evalCondition("age >= 18 && role == 'admin'", "age" to 25, "role" to "admin").shouldBeTrue()
     }
 
     @Test
@@ -115,9 +108,7 @@ class GroovyRuleTest {
 
     @Test
     fun `GroovyRule - 문자열 처리`() {
-        val condition = GroovyCondition("name?.toUpperCase() == 'ALICE'")
-        val facts = Facts.of("name" to "alice")
-        condition.evaluate(facts).shouldBeTrue()
+        evalCondition("name?.toUpperCase() == 'ALICE'", "name" to "alice").shouldBeTrue()
     }
 
     @Test

@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
+import org.jetbrains.exposed.v1.r2dbc.batchInsert
 
 /**
  * R2DBC 기반 배치 통합 테스트 베이스 클래스.
@@ -18,4 +19,10 @@ abstract class AbstractBatchR2dbcTest : AbstractExposedR2dbcTest() {
     suspend fun withBatchTables(testDB: TestDB, statement: suspend R2dbcTransaction.(TestDB) -> Unit) {
         withTables(testDB, BatchSourceTable, BatchTargetTable, statement = statement)
     }
+
+    protected suspend fun R2dbcTransaction.insertSources(count: Int) =
+        BatchSourceTable.batchInsert((1..count).toList()) { i ->
+            this[BatchSourceTable.name] = "item-$i"
+            this[BatchSourceTable.value] = i
+        }
 }
