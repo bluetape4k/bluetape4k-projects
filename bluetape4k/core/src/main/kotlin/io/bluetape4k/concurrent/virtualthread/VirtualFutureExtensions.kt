@@ -1,10 +1,9 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.utils.ShutdownQueue
 import java.time.Duration
-import java.util.concurrent.Callable
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -66,14 +65,15 @@ fun <T> virtualFutureAll(
     executor: ExecutorService = VirtualThreadExecutor,
 ): VirtualFuture<List<T>> {
     if (tasks.isEmpty()) {
-        return VirtualFuture(java.util.concurrent.CompletableFuture.completedFuture(emptyList()))
+        return VirtualFuture(CompletableFuture.completedFuture(emptyList()))
     }
-    val future = executor
-        .invokeAll(tasks.map { Callable { it.invoke() } })
-        .map { it.asCompletableFuture() }
-        .sequence(executor)
+    val futures = tasks.map { task ->
+        CompletableFuture.supplyAsync({ task() }, executor)
+    }
+    val combined = CompletableFuture.allOf(*futures.toTypedArray())
+        .thenApply { futures.map { it.join() } }
 
-    return VirtualFuture(future)
+    return VirtualFuture(combined)
 }
 
 /**
@@ -103,18 +103,21 @@ fun <T> virtualFutureAll(
     timeout: Duration,
 ): VirtualFuture<List<T>> {
     if (tasks.isEmpty()) {
-        return VirtualFuture(java.util.concurrent.CompletableFuture.completedFuture(emptyList()))
+        return VirtualFuture(CompletableFuture.completedFuture(emptyList()))
     }
-    val future = executor
-        .invokeAll(
-            tasks.map { Callable { it.invoke() } },
-            timeout.toMillis(),
-            TimeUnit.MILLISECONDS
-        )
-        .map { it.asCompletableFuture() }
-        .sequence(executor)
+    val futures = tasks.map { task ->
+        CompletableFuture.supplyAsync({ task() }, executor)
+    }
+    val combined = CompletableFuture.allOf(*futures.toTypedArray())
+        .thenApply { futures.map { it.join() } }
+        .orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
+        .whenComplete { _, error ->
+            if (error != null) {
+                futures.forEach { it.cancel(true) }
+            }
+        }
 
-    return VirtualFuture(future)
+    return VirtualFuture(combined)
 }
 
 /**

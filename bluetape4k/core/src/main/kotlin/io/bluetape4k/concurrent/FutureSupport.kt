@@ -1,13 +1,10 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.error
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 
 /**
  * [Future] 인스턴스를 [CompletionStage] 로 변환합니다.
@@ -40,45 +37,22 @@ fun <T> Future<T>.asCompletableFuture(): CompletableFuture<T> = when (this@asCom
     else -> FutureToCompletableFutureWrapper(this)
 }
 
-private class FutureToCompletableFutureWrapper<T> private constructor(
-    private val future: Future<T>,
-): CompletableFuture<T>() {
-
-    companion object: KLogging() {
-        private val scheduler = Executors.newSingleThreadScheduledExecutor(
-            NamedThreadFactory("future-wrapper", true),
-        )
-
-        @JvmStatic
-        operator fun <T> invoke(future: Future<T>): FutureToCompletableFutureWrapper<T> =
-            FutureToCompletableFutureWrapper(future).apply {
-                schedule { tryToComplete() }
+/**
+ * [Future]를 [CompletableFuture]로 변환하는 래퍼.
+ * Virtual thread에서 [Future.get]으로 블로킹 대기하여 폴링 오버헤드를 제거합니다.
+ */
+private class FutureToCompletableFutureWrapper<T>(future: Future<T>): CompletableFuture<T>() {
+    init {
+        Thread.ofVirtual().name("future-wrapper").start {
+            try {
+                complete(future.get())
+            } catch (e: CancellationException) {
+                cancel(true)
+            } catch (e: ExecutionException) {
+                completeExceptionally(e.cause ?: e)
+            } catch (e: InterruptedException) {
+                completeExceptionally(e)
             }
-    }
-
-    private inline fun schedule(crossinline action: () -> Unit) =
-        scheduler.schedule({ action() }, 100, TimeUnit.NANOSECONDS)
-
-    private fun tryToComplete() {
-        try {
-            if (future.isDone) {
-                if (future.isCancelled) {
-                    this.cancel(true)
-                } else {
-                    try {
-                        this.complete(future.get())
-                    } catch (e: InterruptedException) {
-                        this.completeExceptionally(e.cause ?: e)
-                    } catch (e: ExecutionException) {
-                        this.completeExceptionally(e.cause ?: e)
-                    }
-                }
-                return
-            }
-            schedule { tryToComplete() }
-        } catch (e: Throwable) {
-            log.error(e) { "Future 인스턴스가 예외를 발생시켰습니다." }
-            this.completeExceptionally(e.cause ?: e)
         }
     }
 }

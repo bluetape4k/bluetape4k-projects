@@ -25,8 +25,11 @@ import java.util.concurrent.ExecutorService
  * }
  * ```
  */
+private val vtDispatcher: CoroutineDispatcher =
+    VirtualThreadExecutor.asCoroutineDispatcher()
+
 val Dispatchers.VT: CoroutineDispatcher
-    get() = VirtualThreadExecutor.asCoroutineDispatcher()
+    get() = vtDispatcher
 
 /**
  * Kotlin Coroutines에서 Virtual Thread를 사용하기 위한 새 [CoroutineDispatcher]를 생성합니다.

@@ -106,14 +106,11 @@ object FutureUtils {
         futures: Iterable<CompletableFuture<V>>,
         executor: Executor = ForkJoinExecutor,
     ): CompletableFuture<List<V>> {
+        val list = futures.toList()
+        if (list.isEmpty()) return completableFutureOf(emptyList())
 
-        return CompletableFuture.supplyAsync<List<V>>(
-            {
-                CompletableFuture.allOf(*futures.toList().toTypedArray()).join()
-                futures.map { it.get() }
-            },
-            executor
-        )
+        return CompletableFuture.allOf(*list.toTypedArray())
+            .thenApplyAsync({ list.map { it.join() } }, executor)
     }
 
     /**
@@ -157,13 +154,14 @@ object FutureUtils {
         futures: Iterable<CompletableFuture<V>>,
         executor: Executor = ForkJoinExecutor,
     ): CompletableFuture<List<V>> {
-        return CompletableFuture.supplyAsync<List<V>>(
-            {
-                runCatching { CompletableFuture.allOf(*futures.toList().toTypedArray()).join() }
-                futures.filter { it.isSuccess }.map { it.get() }
-            },
-            executor
-        )
+        val list = futures.toList()
+        if (list.isEmpty()) return completableFutureOf(emptyList())
+
+        val safe = list.map { f ->
+            f.thenApply<V?> { it }.exceptionally { null }
+        }
+        return CompletableFuture.allOf(*safe.toTypedArray())
+            .thenApplyAsync({ safe.mapNotNull { it.join() } }, executor)
     }
 
 

@@ -5,9 +5,14 @@ package io.bluetape4k.concurrent
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
+
+@PublishedApi
+internal val virtualThreadExecutor: ExecutorService =
+    Executors.newVirtualThreadPerTaskExecutor()
 
 /**
  * 지정한 block을 비동기로 실행하고, [CompletableFuture]를 반환합니다.
@@ -105,16 +110,10 @@ inline fun <V> futureWithTimeout(timeout: Duration, crossinline block: () -> V):
 inline fun <V> futureWithTimeout(
     timeoutMillis: Long = 1000L,
     crossinline block: () -> V,
-): CompletableFuture<V> {
-    val executor = Executors.newVirtualThreadPerTaskExecutor()
-
-    return CompletableFuture
-        .supplyAsync({ block() }, executor)
+): CompletableFuture<V> =
+    CompletableFuture
+        .supplyAsync({ block() }, virtualThreadExecutor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
-        .whenComplete { _, _ ->
-            executor.shutdown()
-        }
-}
 
 
 /**

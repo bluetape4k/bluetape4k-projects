@@ -21,9 +21,12 @@ import java.util.concurrent.ExecutorService
  *     .let { println(it) } // "result"
  * ```
  */
+private val vtScheduler: Scheduler =
+    Schedulers.fromExecutorService(VirtualThreadExecutor)
+
 @Suppress("UnusedReceiverParameter")
 val Schedulers.virtualThread: Scheduler
-    get() = Schedulers.fromExecutorService(VirtualThreadExecutor)
+    get() = vtScheduler
 
 /**
  * Reactor에서 Virtual Thread를 사용하기 위한 새 [Scheduler]를 생성합니다.

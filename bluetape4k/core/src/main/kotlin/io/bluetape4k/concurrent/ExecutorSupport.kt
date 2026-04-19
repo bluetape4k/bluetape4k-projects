@@ -53,21 +53,7 @@ fun <T> withWorkStealingPool(
     task: () -> T,
 ): CompletableFuture<T> {
     parallelism.assertPositiveNumber("parallelism")
-    val executor = Executors.newWorkStealingPool(parallelism)
-
-    return try {
-        executor
-            .invokeAll(listOf(Callable { task() }))
-            .first()
-            .asCompletableFuture()
-            .whenComplete { result, error ->
-                log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-                runCatching { executor.shutdown() }
-            }
-    } catch (e: Exception) {
-        executor.shutdown()
-        throw e
-    }
+    return CompletableFuture.supplyAsync({ task() }, ForkJoinExecutor)
 }
 
 /**
