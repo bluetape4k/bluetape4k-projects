@@ -125,10 +125,11 @@ class RedissonNearCache<V: Any>(
     }
 
     /**
-     * 여러 [keys]를 일괄 삭제합니다.
+     * 여러 [keys]를 일괄 삭제합니다. 값 반환이 불필요하므로 `fastRemove` 로 단일 라운드트립 처리합니다.
      */
     override fun removeAll(keys: Set<String>) {
-        keys.forEach { localCachedMap.remove(it) }
+        if (keys.isEmpty()) return
+        localCachedMap.fastRemove(*keys.toTypedArray())
     }
 
     /**

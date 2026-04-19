@@ -174,6 +174,36 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     }
 
     /**
+     * `inFlight.remove(key, promise)` 가 같은 promise 만 제거해야 한다는 방어적 보장 회귀 테스트.
+     *
+     * evaluator 완료 → inFlight remove → promise.complete 순서에서,
+     * 동일 키로 연속 호출이 들어와도 평가가 중복되지 않고 캐시된 값을 반환해야 한다.
+     */
+    @Test
+    fun `concurrent invokes with sequential rounds should not leak inFlight entries`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.asyncMemoizer { key ->
+            CompletableFuture.supplyAsync {
+                evaluateCount.incrementAndGet()
+                Thread.sleep(20)
+                key * key
+            }
+        }
+
+        try {
+            repeat(5) {
+                val futures = List(8) { memoizer(11) }
+                futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 121 }
+            }
+            // 실제 평가는 최초 라운드에서만, 이후 라운드는 Redis 캐시에서 반환
+            evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.delete()
+        }
+    }
+
+    /**
      * [StructuredTaskScopeTester]를 사용하여 Virtual Thread 기반으로 memoizer를 동시에 호출할 때
      * 중복 평가 없이 올바른 결과를 반환하는지 검증하는 동시성 테스트입니다.
      */
