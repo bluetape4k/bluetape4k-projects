@@ -12,22 +12,21 @@ import org.junit.jupiter.api.Test
 
 class JaninoRuleTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val AMOUNT_GT_1000 = "((Integer)facts.get(\"amount\")).intValue() > 1000"
+        private const val PUT_DISCOUNT_TRUE_ACTION = "facts.put(\"discount\", Boolean.TRUE);"
+    }
 
     @Test
     fun `JaninoCondition 평가 - 조건 만족`() {
-        val condition = JaninoCondition(
-            "((Integer)facts.get(\"amount\")).intValue() > 1000"
-        )
+        val condition = JaninoCondition(AMOUNT_GT_1000)
         val facts = Facts.of("amount" to 1500)
         condition.evaluate(facts).shouldBeTrue()
     }
 
     @Test
     fun `JaninoCondition 평가 - 조건 불만족 시 false 반환`() {
-        val condition = JaninoCondition(
-            "((Integer)facts.get(\"amount\")).intValue() > 1000"
-        )
+        val condition = JaninoCondition(AMOUNT_GT_1000)
         val facts = Facts.of("amount" to 500)
         condition.evaluate(facts).shouldBeFalse()
     }
@@ -41,7 +40,7 @@ class JaninoRuleTest {
 
     @Test
     fun `JaninoAction 실행 - facts에 값 추가`() {
-        val action = JaninoAction("facts.put(\"discount\", Boolean.TRUE);")
+        val action = JaninoAction(PUT_DISCOUNT_TRUE_ACTION)
         val facts = Facts.of("amount" to 1500)
 
         action.execute(facts)
@@ -52,8 +51,8 @@ class JaninoRuleTest {
     @Test
     fun `JaninoRule 조건과 액션 실행`() {
         val rule = JaninoRule(name = "discount")
-            .whenever("((Integer)facts.get(\"amount\")).intValue() > 1000")
-            .then("facts.put(\"discount\", Boolean.TRUE);")
+            .whenever(AMOUNT_GT_1000)
+            .then(PUT_DISCOUNT_TRUE_ACTION)
 
         val facts = Facts.of("amount" to 1500)
         rule.evaluate(facts).shouldBeTrue()
@@ -66,8 +65,8 @@ class JaninoRuleTest {
     fun `JaninoRule을 엔진에서 실행`() {
         val engine = DefaultRuleEngine()
         val rule = JaninoRule(name = "discount", priority = 1)
-            .whenever("((Integer)facts.get(\"amount\")).intValue() > 1000")
-            .then("facts.put(\"discount\", Boolean.TRUE);")
+            .whenever(AMOUNT_GT_1000)
+            .then(PUT_DISCOUNT_TRUE_ACTION)
 
         val facts = Facts.of("amount" to 2000)
         engine.fire(ruleSetOf(rule), facts)
@@ -97,8 +96,8 @@ class JaninoRuleTest {
     fun `RuleDefinition으로부터 JaninoRule 빌드`() {
         val definition = RuleDefinition(
             name = "discountRule",
-            condition = "((Integer)facts.get(\"amount\")).intValue() > 1000",
-            actions = listOf("facts.put(\"discount\", Boolean.TRUE);")
+            condition = AMOUNT_GT_1000,
+            actions = listOf(PUT_DISCOUNT_TRUE_ACTION)
         )
         val rule = definition.toJaninoRule()
         val facts = Facts.of("amount" to 2000)

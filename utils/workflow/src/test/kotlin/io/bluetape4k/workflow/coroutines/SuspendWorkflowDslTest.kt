@@ -28,9 +28,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-3") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -57,9 +55,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute(successSuspendWork("work-2"))
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     // ──────────────────────────────────────────────────
@@ -74,9 +70,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-2") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -104,9 +98,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             otherwise("otherwise-work") { ctx -> WorkReport.failure(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     @Test
@@ -132,9 +124,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             then("then-work") { ctx -> WorkReport.failure(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     // ──────────────────────────────────────────────────
@@ -151,9 +141,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             repeatDelay(0.milliseconds)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 4
     }
 
@@ -173,9 +161,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             repeatDelay(0.milliseconds)
         }
 
-        val report = flow.execute(ctx)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(ctx).isSuccess.shouldBeTrue()
         ctx.get<Int>("count") shouldBeEqualTo 3
     }
 
@@ -194,9 +180,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 1
     }
 
@@ -211,9 +195,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -248,9 +230,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -264,9 +244,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -279,9 +257,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
     }
 
     @Test
@@ -295,9 +271,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -317,9 +291,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         seqCounter.get() shouldBeEqualTo 2
         parallelCounter.get() shouldBeEqualTo 2
     }
@@ -415,9 +387,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -453,9 +423,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         allCounter.get() shouldBeEqualTo 2
     }
 }

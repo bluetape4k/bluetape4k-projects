@@ -24,9 +24,7 @@ class RetryWorkFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 3, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 1
     }
 
@@ -43,9 +41,7 @@ class RetryWorkFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 

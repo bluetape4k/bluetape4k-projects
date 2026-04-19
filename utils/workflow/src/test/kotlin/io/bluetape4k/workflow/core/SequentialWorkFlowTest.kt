@@ -151,9 +151,7 @@ class SequentialWorkFlowTest: AbstractWorkflowTest() {
             ),
         )
 
-        val report = outerFlow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        outerFlow.execute(context).isSuccess.shouldBeTrue()
         outerCounter.get() shouldBeEqualTo 2
         innerCounter.get() shouldBeEqualTo 2
     }

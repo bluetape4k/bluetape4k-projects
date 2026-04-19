@@ -24,9 +24,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 5
     }
 
@@ -40,9 +38,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 1
     }
 
@@ -114,9 +110,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -136,9 +130,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(ctx)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(ctx).isSuccess.shouldBeTrue()
         ctx.get<Int>("count") shouldBeEqualTo 5
     }
 
@@ -155,9 +147,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         predicateCalls.get() shouldBeEqualTo 3
     }
 }
