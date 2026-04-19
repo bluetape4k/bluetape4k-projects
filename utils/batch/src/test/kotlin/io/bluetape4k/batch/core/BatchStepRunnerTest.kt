@@ -135,6 +135,19 @@ class BatchStepRunnerTest {
         je: JobExecution = makeJobExecution(),
     ): StepReport = BatchStepRunner(step, je, repo).run()
 
+    private suspend fun preCompleteStep(
+        repo: InMemoryBatchJobRepository,
+        je: JobExecution,
+        stepName: String,
+        status: BatchStatus = BatchStatus.COMPLETED,
+        readCount: Long = 0L,
+        writeCount: Long = 0L,
+        skipCount: Long = 0L,
+    ) {
+        val se = repo.findOrCreateStepExecution(je, stepName)
+        repo.completeStepExecution(se, StepReport(stepName = stepName, status = status, readCount = readCount, writeCount = writeCount, skipCount = skipCount))
+    }
+
     /** 기본 BatchStep 팩토리 (I=String, O=String). */
     private fun <I : Any, O : Any> makeStep(
         name: String = "step1",
@@ -363,16 +376,7 @@ class BatchStepRunnerTest {
         val je = makeJobExecution()
 
         // StepExecution을 미리 COMPLETED 상태로 만들기
-        val se = repo.findOrCreateStepExecution(je, step.name)
-        repo.completeStepExecution(
-            se,
-            StepReport(
-                stepName = step.name,
-                status = BatchStatus.COMPLETED,
-                readCount = 50L,
-                writeCount = 50L,
-            ),
-        )
+        preCompleteStep(repo, je, step.name, status = BatchStatus.COMPLETED, readCount = 50L, writeCount = 50L)
 
         val runner = BatchStepRunner(step, je, repo)
         val report = runner.run()
@@ -470,17 +474,7 @@ class BatchStepRunnerTest {
         val step = makeStep<String, String>(reader = reader, writer = writer)
         val je = makeJobExecution()
 
-        val se = repo.findOrCreateStepExecution(je, step.name)
-        repo.completeStepExecution(
-            se,
-            StepReport(
-                stepName = step.name,
-                status = BatchStatus.COMPLETED_WITH_SKIPS,
-                readCount = 10L,
-                writeCount = 8L,
-                skipCount = 2L,
-            ),
-        )
+        preCompleteStep(repo, je, step.name, status = BatchStatus.COMPLETED_WITH_SKIPS, readCount = 10L, writeCount = 8L, skipCount = 2L)
 
         val runner = BatchStepRunner(step, je, repo)
         val report = runner.run()

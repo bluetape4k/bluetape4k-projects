@@ -18,10 +18,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
     fun `첫 시도 성공 - Success 반환하고 재시도 없음`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRetryFlow(
-            work = SuspendWork("success-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("success-work", counter),
             retryPolicy = RetryPolicy(maxAttempts = 3, delay = 0.milliseconds),
         )
 

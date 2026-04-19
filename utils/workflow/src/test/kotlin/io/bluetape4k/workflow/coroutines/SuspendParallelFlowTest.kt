@@ -17,12 +17,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
     @Test
     fun `전체 성공 - Success 반환`() = runTest {
         val counter = AtomicInteger(0)
-        val works = (1..3).map { i ->
-            SuspendWork("work-$i") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            }
-        }
+        val works = (1..3).map { i -> countingSuspendWork("work-$i", counter) }
         val flow = SuspendParallelFlow(works)
 
         val report = flow.execute(context)

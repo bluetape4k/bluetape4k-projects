@@ -1,6 +1,7 @@
 package io.bluetape4k.workflow.api
 
 import io.bluetape4k.logging.KLogging
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 
 abstract class AbstractWorkflowTest {
@@ -8,6 +9,9 @@ abstract class AbstractWorkflowTest {
     companion object: KLogging()
 
     protected val context = WorkContext()
+
+    protected fun countingSuspendWork(name: String, counter: AtomicInteger): SuspendWork =
+        SuspendWork(name) { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
 
     protected fun successWork(name: String = "success-work"): Work =
         Work(name) { ctx -> WorkReport.success(ctx) }
