@@ -6,6 +6,7 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -25,7 +26,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Address>(bytes)!!
+        val actual = serializer.deserialize<Address>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -34,7 +35,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Professor>(bytes)!!
+        val actual = serializer.deserialize<Professor>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -53,7 +54,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Student>(bytes)!!
+        val actual = serializer.deserialize<Student>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -63,7 +64,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<User>(bytes)!!
+        val actual = serializer.deserialize<User>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -76,7 +77,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<List<CollectionItem>>(bytes)!!
+        val actual = serializer.deserialize<List<CollectionItem>>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -90,7 +91,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<OptionalData>(bytes)!!
+        val actual = serializer.deserialize<OptionalData>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 
@@ -105,7 +106,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<OptionalCollection>(bytes)!!
+        val actual = serializer.deserialize<OptionalCollection>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo expected
     }
 }
