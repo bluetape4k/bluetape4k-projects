@@ -434,6 +434,11 @@ const val MicrosPerHour: Long = MicrosPerMinute * MinutesPerHour
 const val MicrosPerDay: Long = MicrosPerHour * HoursPerDay
 
 /**
+ * 마이크로초당 나노초 수
+ */
+const val NanosPerMicro: Long = 1_000L
+
+/**
  * 밀리초당 나노초 수
  *
  * ## 동작/계약
