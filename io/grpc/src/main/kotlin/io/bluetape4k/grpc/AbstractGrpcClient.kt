@@ -2,6 +2,7 @@ package io.bluetape4k.grpc
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -43,7 +44,10 @@ abstract class AbstractGrpcClient(
             log.debug { "Shutdown GrpcClient channel. channel=$channel" }
             runCatching {
                 channel.shutdown()
-                channel.awaitTermination(5, TimeUnit.SECONDS)
+                if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                    log.warn { "Channel did not terminate in time, forcing shutdownNow. channel=$channel" }
+                    channel.shutdownNow()
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package io.bluetape4k.grpc.inprocess
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireNotBlank
 import io.grpc.ManagedChannel
@@ -57,7 +58,10 @@ abstract class AbstractGrpcInprocessClient(
             log.debug { "Close client's grpc channel... channel=$channel" }
             runCatching {
                 channel.shutdown()
-                channel.awaitTermination(5, TimeUnit.SECONDS)
+                if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                    log.warn { "InProcess channel did not terminate in time, forcing shutdownNow. channel=$channel" }
+                    channel.shutdownNow()
+                }
             }
         }
     }
