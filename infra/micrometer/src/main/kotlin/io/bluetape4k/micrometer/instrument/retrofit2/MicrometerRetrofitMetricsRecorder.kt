@@ -13,7 +13,16 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Retrofit HTTP 호출의 실행 시간을 Micrometer Timer로 기록하며,
  * 다양한 퍼센타일(50%, 70%, 90%, 95%, 97%, 99%)을 함께 수집합니다.
- * 동일한 태그 집합에 대해서는 내부 캐시를 통해 [Timer] 인스턴스를 재사용해 hot path 에서의 builder/registry 조회 비용을 줄입니다.
+ *
+ * ### 타이머 캐싱 전략
+ * 동일한 태그 집합에 대해서는 내부 [ConcurrentHashMap] 캐시를 통해 [Timer] 인스턴스를 재사용합니다.
+ * MeterRegistry.timer() 조회는 내부적으로 동기화된 레지스트리 탐색을 수행하므로,
+ * hot path(매 HTTP 요청마다 호출)에서 반복 조회 비용을 제거하기 위해 별도 캐시가 필요합니다.
+ *
+ * ### Iterable → List 복사 최소화
+ * [timerFor]는 전달된 [Iterable]이 이미 [List]인 경우 복사본 생성을 건너뜁니다.
+ * [RetrofitCallMetricsCollector]가 항상 `buildList`로 생성한 리스트를 넘기기 때문에
+ * 실제 운영 경로에서는 추가 할당이 발생하지 않습니다.
  *
  * 수집되는 태그:
  * - method: HTTP 메서드 (GET, POST 등)
@@ -55,7 +64,8 @@ class MicrometerRetrofitMetricsRecorder(
     }
 
     private fun timerFor(tags: Iterable<Tag>): Timer {
-        val tagList = tags.toList()
+        // Iterable이 이미 List인 경우 불필요한 복사본 생성을 방지하기 위해 타입 검사 후 캐스팅
+        val tagList = if (tags is List<Tag>) tags else tags.toList()
         return timerCache.computeIfAbsent(cacheKey(tagList)) {
             Timer
                 .builder(METRICS_KEY)
