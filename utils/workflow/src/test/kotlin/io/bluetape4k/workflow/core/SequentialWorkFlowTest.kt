@@ -40,9 +40,7 @@ class SequentialWorkFlowTest: AbstractWorkflowTest() {
         )
         val flow = SequentialWorkFlow(works, errorStrategy = ErrorStrategy.STOP)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -125,9 +123,7 @@ class SequentialWorkFlowTest: AbstractWorkflowTest() {
         )
         val flow = SequentialWorkFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -151,9 +147,7 @@ class SequentialWorkFlowTest: AbstractWorkflowTest() {
             ),
         )
 
-        val report = outerFlow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        outerFlow.execute(context).isSuccess.shouldBeTrue()
         outerCounter.get() shouldBeEqualTo 2
         innerCounter.get() shouldBeEqualTo 2
     }

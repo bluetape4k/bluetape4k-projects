@@ -91,8 +91,7 @@ class RuleDslTest {
         }
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule1, rule2), facts)
-        facts.get<String>("winner") shouldBeEqualTo "rule1"
+        engine.fire(ruleSetOf(rule1, rule2), facts); facts.get<String>("winner") shouldBeEqualTo "rule1"
     }
 
     @Test

@@ -32,6 +32,9 @@ class JaninoRuleExampleTest {
             JaninoRule(name = name, priority = priority).whenever(cond).then(action)
     }
 
+    private fun jRule(name: String, priority: Int, whenever: String, then: String) =
+        JaninoRule(name = name, priority = priority).whenever(whenever).then(then)
+
     // =========================================================================
     // 1. 산술 연산
     // =========================================================================
@@ -115,9 +118,7 @@ class JaninoRuleExampleTest {
         )
 
         val facts = Facts.of("name" to "Alice", "role" to "Manager")
-        action.execute(facts)
-
-        facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
+        action.execute(facts); facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
     }
 
     @Test
@@ -260,13 +261,11 @@ class JaninoRuleExampleTest {
 
         // 750,000원 → GOLD
         val facts1 = Facts.of("totalPurchase" to 750000)
-        engine.fire(ruleSetOf(group), facts1)
-        facts1.get<String>("tier") shouldBeEqualTo "GOLD"
+        engine.fire(ruleSetOf(group), facts1); facts1.get<String>("tier") shouldBeEqualTo "GOLD"
 
         // 50,000원 → BRONZE
         val facts2 = Facts.of("totalPurchase" to 50000)
-        engine.fire(ruleSetOf(group), facts2)
-        facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
+        engine.fire(ruleSetOf(group), facts2); facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
     }
 
     @Test
@@ -288,8 +287,7 @@ class JaninoRuleExampleTest {
 
         // 나이 미충족 → 아무것도 실행 안 됨
         val facts2 = Facts.of("age" to 15, "region" to "KR")
-        engine.fire(ruleSetOf(group), facts2)
-        facts2.containsKey("ageVerified").shouldBeFalse()
+        engine.fire(ruleSetOf(group), facts2); facts2.containsKey("ageVerified").shouldBeFalse()
     }
 
     @Test
@@ -316,13 +314,11 @@ class JaninoRuleExampleTest {
 
         // 일반 배송: weight=2.5kg, distance=200km
         val facts1 = Facts.of("weight" to 2.5, "distance" to 200, "express" to false)
-        engine.fire(ruleSetOf(shippingRule), facts1)
-        facts1.get<Double>("shippingCost") shouldBeEqualTo 10250.0  // 250 + 10000 + 0
+        engine.fire(ruleSetOf(shippingRule), facts1); facts1.get<Double>("shippingCost") shouldBeEqualTo 10250.0  // 250 + 10000 + 0
 
         // 특급 배송
         val facts2 = Facts.of("weight" to 1.0, "distance" to 100, "express" to true)
-        engine.fire(ruleSetOf(shippingRule), facts2)
-        facts2.get<Double>("shippingCost") shouldBeEqualTo 8100.0  // 100 + 5000 + 3000
+        engine.fire(ruleSetOf(shippingRule), facts2); facts2.get<Double>("shippingCost") shouldBeEqualTo 8100.0  // 100 + 5000 + 3000
     }
 
     @Test
@@ -384,8 +380,6 @@ class JaninoRuleExampleTest {
 
         // 1000만원, 연 5%, 3년 복리
         val facts = Facts.of("principal" to 10000000, "annualRate" to 5, "years" to 3)
-        action.execute(facts)
-
-        facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
+        action.execute(facts); facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
     }
 }

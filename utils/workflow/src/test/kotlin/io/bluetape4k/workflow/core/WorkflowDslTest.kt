@@ -38,9 +38,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             errorStrategy(ErrorStrategy.CONTINUE)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -54,9 +52,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("p-3") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -70,9 +66,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             otherwise(setCtxWork("small-value", "result", "small"))
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         context.get<String>("result") shouldBeEqualTo "big"
     }
 
@@ -86,9 +80,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             maxIterations(10)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -105,9 +97,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -126,9 +116,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 4
     }
 
@@ -143,9 +131,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -194,9 +180,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
         context.get<String>("branch") shouldBeEqualTo "false"
     }
@@ -217,9 +201,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -233,9 +215,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             maxIterations(10)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 5
     }
 
@@ -282,9 +262,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("fail-2") { ctx -> WorkReport.failure(ctx, RuntimeException("실패2")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -298,9 +276,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -336,9 +312,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         allCounter.get() shouldBeEqualTo 2
     }
 }

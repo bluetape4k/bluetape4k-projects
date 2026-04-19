@@ -146,8 +146,7 @@ class ExposedR2dbcBatchJobRepositoryTest : AbstractBatchR2dbcTest() {
                 val je = findOrCreateJobExecution("noCpJob", emptyMap())
                 val se = findOrCreateStepExecution(je, "step1")
 
-                val result = loadCheckpoint(se.id)
-                result shouldBe null
+                loadCheckpoint(se.id) shouldBe null
             }
         }
     }

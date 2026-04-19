@@ -18,10 +18,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
     fun `첫 시도 성공 - Success 반환하고 재시도 없음`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRetryFlow(
-            work = SuspendWork("success-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("success-work", counter),
             retryPolicy = RetryPolicy(maxAttempts = 3, delay = 0.milliseconds),
         )
 
@@ -44,9 +41,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -61,9 +56,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 3, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 3
     }
 
@@ -78,9 +71,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -95,9 +86,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -112,9 +101,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 1, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -135,9 +122,7 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
             ),
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 }

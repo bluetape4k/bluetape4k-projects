@@ -25,8 +25,7 @@ class InferenceRuleEngineTest {
         }
 
         val facts = Facts.of("count" to 3)
-        engine.fire(ruleSetOf(rule), facts)
-        facts.get<Int>("count") shouldBeEqualTo 0
+        engine.fire(ruleSetOf(rule), facts); facts.get<Int>("count") shouldBeEqualTo 0
     }
 
     @Test
@@ -39,8 +38,7 @@ class InferenceRuleEngineTest {
         }
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts)
-        facts.isEmpty().shouldBeTrue()
+        engine.fire(ruleSetOf(rule), facts); facts.isEmpty().shouldBeTrue()
     }
 
     @Test

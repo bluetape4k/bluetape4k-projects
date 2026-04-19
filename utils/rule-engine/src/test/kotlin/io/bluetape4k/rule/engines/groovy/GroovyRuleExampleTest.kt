@@ -33,6 +33,9 @@ class GroovyRuleExampleTest {
             GroovyRule(name = name, priority = priority).whenever(cond).then(action)
     }
 
+    private fun gRule(name: String, priority: Int, whenever: String, then: String) =
+        GroovyRule(name = name, priority = priority).whenever(whenever).then(then)
+
     // =========================================================================
     // 1. 산술 연산
     // =========================================================================
@@ -51,9 +54,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("discountAmount = amount * rate / 100.0")
 
         val facts = Facts.of("amount" to 50000, "rate" to 15)
-        action.execute(facts)
-
-        facts.get<Number>("discountAmount")!!.toDouble() shouldBeEqualTo 7500.0
+        action.execute(facts); facts.get<Number>("discountAmount")!!.toDouble() shouldBeEqualTo 7500.0
     }
 
     @Test
@@ -73,9 +74,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("result = base ** exponent")
 
         val facts = Facts.of("base" to 2, "exponent" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("result")!!.toLong() shouldBeEqualTo 1024L
+        action.execute(facts); facts.get<Number>("result")!!.toLong() shouldBeEqualTo 1024L
     }
 
     // =========================================================================
@@ -90,9 +89,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("name" to "Alice", "role" to "Manager")
-        action.execute(facts)
-
-        facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
+        action.execute(facts); facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
     }
 
     @Test
@@ -133,9 +130,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("stars = '*' * rating")
 
         val facts = Facts.of("rating" to 5)
-        action.execute(facts)
-
-        facts.get<String>("stars") shouldBeEqualTo "*****"
+        action.execute(facts); facts.get<String>("stars") shouldBeEqualTo "*****"
     }
 
     // =========================================================================
@@ -163,9 +158,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("discountRate" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("totalAfterDiscount")!!.toDouble() shouldBeEqualTo 1350.0
+        action.execute(facts); facts.get<Number>("totalAfterDiscount")!!.toDouble() shouldBeEqualTo 1350.0
     }
 
     @Test
@@ -180,9 +173,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.empty()
-        action.execute(facts)
-
-        facts.get<Number>("passCount")!!.toInt() shouldBeEqualTo 5
+        action.execute(facts); facts.get<Number>("passCount")!!.toInt() shouldBeEqualTo 5
     }
 
     @Test
@@ -345,12 +336,10 @@ class GroovyRuleExampleTest {
         val engine = DefaultRuleEngine()
 
         val facts1 = Facts.of("totalPurchase" to 750000)
-        engine.fire(ruleSetOf(group), facts1)
-        facts1.get<String>("tier") shouldBeEqualTo "GOLD"
+        engine.fire(ruleSetOf(group), facts1); facts1.get<String>("tier") shouldBeEqualTo "GOLD"
 
         val facts2 = Facts.of("totalPurchase" to 50000)
-        engine.fire(ruleSetOf(group), facts2)
-        facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
+        engine.fire(ruleSetOf(group), facts2); facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
     }
 
     @Test
@@ -369,12 +358,10 @@ class GroovyRuleExampleTest {
         val engine = DefaultRuleEngine()
 
         val facts1 = Facts.of("weight" to 2.5, "distance" to 200, "express" to false)
-        engine.fire(ruleSetOf(shippingRule), facts1)
-        facts1.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 10250.0
+        engine.fire(ruleSetOf(shippingRule), facts1); facts1.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 10250.0
 
         val facts2 = Facts.of("weight" to 1.0, "distance" to 100, "express" to true)
-        engine.fire(ruleSetOf(shippingRule), facts2)
-        facts2.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 8100.0
+        engine.fire(ruleSetOf(shippingRule), facts2); facts2.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 8100.0
     }
 
     @Test
@@ -417,9 +404,7 @@ class GroovyRuleExampleTest {
 
         // 75000원 → midDiscount만 적용되고 lowDiscount는 스킵
         val facts = Facts.of("amount" to 75000)
-        engine.fire(ruleSetOf(highPriority, midPriority, lowPriority), facts)
-
-        facts.get<Number>("discount")!!.toInt() shouldBeEqualTo 15
+        engine.fire(ruleSetOf(highPriority, midPriority, lowPriority), facts); facts.get<Number>("discount")!!.toInt() shouldBeEqualTo 15
     }
 
     // =========================================================================
@@ -520,9 +505,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("principal" to 10000000, "annualRate" to 5, "years" to 3)
-        action.execute(facts)
-
-        facts.get<Number>("finalAmount")!!.toDouble() shouldBeEqualTo 11576250.0
+        action.execute(facts); facts.get<Number>("finalAmount")!!.toDouble() shouldBeEqualTo 11576250.0
     }
 
     @Test
@@ -534,9 +517,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("n" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("factorial")!!.toLong() shouldBeEqualTo 3628800L
+        action.execute(facts); facts.get<Number>("factorial")!!.toLong() shouldBeEqualTo 3628800L
     }
 
     // =========================================================================
