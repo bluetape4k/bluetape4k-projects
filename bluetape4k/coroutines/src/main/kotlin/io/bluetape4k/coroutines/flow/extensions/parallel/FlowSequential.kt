@@ -6,9 +6,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractFlow<T>() {
 
@@ -34,6 +36,7 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
             }
 
             while (true) {
+                coroutineContext.ensureActive()
                 val d = state.done.value
                 var empty = true
 

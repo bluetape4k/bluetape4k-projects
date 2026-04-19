@@ -102,6 +102,7 @@ internal class SuspendBlockingLazyImpl<out T>(
 
     override suspend fun invoke(): T = with(lazyValue) {
         if (isInitialized()) value
+        else if (dispatcher === EmptyCoroutineContext) value
         else withContext(dispatcher) { value }
     }
 }

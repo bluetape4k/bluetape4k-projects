@@ -2,10 +2,12 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.coroutines.coroutineContext
 
 /**
  * 여러 Flow를 동시에 수집해 도착 순서대로 병합합니다.
@@ -55,6 +57,7 @@ internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = flow {
         }
 
         while (true) {
+            coroutineContext.ensureActive()
             val isDone = state.done.value == 0
             val value = queue.poll()
 

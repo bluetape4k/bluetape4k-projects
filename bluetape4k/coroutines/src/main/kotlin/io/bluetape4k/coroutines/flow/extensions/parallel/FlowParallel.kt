@@ -7,9 +7,11 @@ import io.bluetape4k.support.requireEquals
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 internal class FlowParallel<T>(
     private val source: Flow<T>,
@@ -102,6 +104,7 @@ internal class FlowParallel<T>(
 
         suspend fun drain(collector: FlowCollector<T>) {
             while (true) {
+                coroutineContext.ensureActive()
                 consumerReady.value = true
                 resumeGenerator.resume()
 
