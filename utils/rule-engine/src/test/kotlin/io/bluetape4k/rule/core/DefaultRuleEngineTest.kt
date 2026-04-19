@@ -40,8 +40,7 @@ class DefaultRuleEngineTest {
         val engine = createEngine()
         val rule = buildRule("test", cond = { true }, act = { it["executed"] = true })
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(rule), facts); facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -49,8 +48,7 @@ class DefaultRuleEngineTest {
         val engine = createEngine()
         val rule = buildRule("test", cond = { false }, act = { it["executed"] = true })
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts)
-        facts.containsKey("executed").shouldBeFalse()
+        engine.fire(ruleSetOf(rule), facts); facts.containsKey("executed").shouldBeFalse()
     }
 
     @Test
@@ -76,8 +74,7 @@ class DefaultRuleEngineTest {
         val rule2 = buildRule("rule2", 2, { true }, { it["rule2"] = true })
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule1, rule2), facts)
-        facts.containsKey("rule2").shouldBeFalse()
+        engine.fire(ruleSetOf(rule1, rule2), facts); facts.containsKey("rule2").shouldBeFalse()
     }
 
     @Test
@@ -128,8 +125,7 @@ class DefaultRuleEngineTest {
         val rule1 = buildRule("second", 2, { true }, { executionOrder.add("second") })
         val rule2 = buildRule("first", 1, { true }, { executionOrder.add("first") })
 
-        engine.fire(ruleSetOf(rule1, rule2), Facts.empty())
-        executionOrder shouldBeEqualTo listOf("first", "second")
+        engine.fire(ruleSetOf(rule1, rule2), Facts.empty()); executionOrder shouldBeEqualTo listOf("first", "second")
     }
 
     @Test

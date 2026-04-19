@@ -65,8 +65,7 @@ class AnnotationRuleExampleTest {
         val rule = AgeCheckRule().asRule()
 
         val facts = Facts.of("age" to 25)
-        engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(rule), facts); facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

@@ -34,8 +34,7 @@ class DefaultSuspendRuleEngineTest {
         val rule = buildSuspendRule("asyncRule", cond = { true }, act = { delay(10.milliseconds); it["executed"] = true })
 
         val facts = Facts.empty()
-        engine.fire(suspendRuleSetOf(rule), facts)
-        facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(suspendRuleSetOf(rule), facts); facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -44,8 +43,7 @@ class DefaultSuspendRuleEngineTest {
         val rule = buildSuspendRule("asyncRule", cond = { false }, act = { it["executed"] = true })
 
         val facts = Facts.empty()
-        engine.fire(suspendRuleSetOf(rule), facts)
-        facts.containsKey("executed").shouldBeFalse()
+        engine.fire(suspendRuleSetOf(rule), facts); facts.containsKey("executed").shouldBeFalse()
     }
 
     @Test
@@ -82,8 +80,7 @@ class DefaultSuspendRuleEngineTest {
         val rule2 = buildSuspendRule("rule2", 2, { true }, { it["rule2"] = true })
 
         val facts = Facts.empty()
-        engine.fire(suspendRuleSetOf(rule1, rule2), facts)
-        facts.containsKey("rule2").shouldBeFalse()
+        engine.fire(suspendRuleSetOf(rule1, rule2), facts); facts.containsKey("rule2").shouldBeFalse()
     }
 
     @Test
@@ -94,8 +91,7 @@ class DefaultSuspendRuleEngineTest {
         val rule1 = buildSuspendRule("second", 2, { true }, { executionOrder.add("second") })
         val rule2 = buildSuspendRule("first", 1, { true }, { executionOrder.add("first") })
 
-        engine.fire(suspendRuleSetOf(rule1, rule2), Facts.empty())
-        executionOrder shouldBeEqualTo listOf("first", "second")
+        engine.fire(suspendRuleSetOf(rule1, rule2), Facts.empty()); executionOrder shouldBeEqualTo listOf("first", "second")
     }
 
     @Test
@@ -127,8 +123,7 @@ class DefaultSuspendRuleEngineTest {
         val nextRule = buildSuspendRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
         val facts = Facts.empty()
-        engine.fire(suspendRuleSetOf(failedOnEvaluateRule, nextRule), facts)
-        facts.containsKey("executed").shouldBeFalse()
+        engine.fire(suspendRuleSetOf(failedOnEvaluateRule, nextRule), facts); facts.containsKey("executed").shouldBeFalse()
         facts.containsKey("nextRule").shouldBeFalse()
     }
 

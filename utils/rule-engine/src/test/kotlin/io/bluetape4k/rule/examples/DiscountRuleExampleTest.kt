@@ -29,18 +29,14 @@ class DiscountRuleExampleTest {
 
         val engine = ruleEngine { skipOnFirstAppliedRule = true }
         val facts = Facts.of("amount" to 1500)
-        engine.fire(ruleSetOf(discountRule), facts)
-
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(discountRule), facts); facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
     fun `할인 미적용 예제`() {
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 500)
-        engine.fire(ruleSetOf(discountRule), facts)
-
-        facts.containsKey("discount").shouldBeFalse()
+        engine.fire(ruleSetOf(discountRule), facts); facts.containsKey("discount").shouldBeFalse()
     }
 
     @Test
