@@ -18,10 +18,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `maxIterations 횟수만큼 반복 후 Success 반환`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("count-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("count-work", counter),
             repeatPredicate = { it.isSuccess },
             maxIterations = 5,
             repeatDelay = 0.milliseconds,
@@ -37,10 +34,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `repeatWhile false - 첫 반복 후 중단`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("count-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("count-work", counter),
             repeatPredicate = { false },
             maxIterations = 10,
             repeatDelay = 0.milliseconds,
@@ -114,10 +108,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `repeatDelay 0ms - 실제 지연 없이 반복`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("fast-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("fast-work", counter),
             repeatPredicate = { it.isSuccess },
             maxIterations = 3,
             repeatDelay = 0.milliseconds,
