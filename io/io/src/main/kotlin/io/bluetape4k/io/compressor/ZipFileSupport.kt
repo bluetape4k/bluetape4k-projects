@@ -78,10 +78,14 @@ fun zlib(file: File): File {
     log.debug { "파일을 zlib 압축합니다. 원본=${file.absolutePath}, 압축=$zlibName" }
 
     val deflater = Deflater(Deflater.BEST_COMPRESSION)
-    FileInputStream(file).use { fis ->
-        DeflaterOutputStream(FileOutputStream(zlibName), deflater).use { dos ->
-            fis.copyTo(dos)
+    try {
+        FileInputStream(file).use { fis ->
+            DeflaterOutputStream(FileOutputStream(zlibName), deflater).use { dos ->
+                fis.copyTo(dos)
+            }
         }
+    } finally {
+        deflater.end()
     }
     return File(zlibName)
 }

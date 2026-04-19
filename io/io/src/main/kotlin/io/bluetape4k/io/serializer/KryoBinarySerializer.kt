@@ -5,7 +5,6 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 /**
@@ -119,12 +118,9 @@ class KryoBinarySerializer(
      */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        return ByteArrayInputStream(bytes).use { bis ->
-            Input(bufferSize).use { input ->
-                input.inputStream = bis
-                useKryo {
-                    readClassAndObject(input) as? T
-                }
+        return Input(bytes).use { input ->
+            useKryo {
+                readClassAndObject(input) as? T
             }
         }
     }

@@ -53,12 +53,7 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
      */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = ByteArrayOutputStream(plain.size)
-        ZstdCompressorOutputStream(
-            ZstdCompressorOutputStream.builder()
-                .setOutputStream(output)
-                .setLevel(level)
-                .outputStream
-        ).use { zstd ->
+        ZstdCompressorOutputStream(output, level).use { zstd ->
             zstd.write(plain)
             zstd.flush()
         }

@@ -3,7 +3,6 @@ package io.bluetape4k.io.serializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.isNullOrEmpty
 
 /**
  * [BinarySerializer]의 최상위 추상화 클래스입니다.
@@ -76,10 +75,7 @@ abstract class AbstractBinarySerializer: BinarySerializer {
      * @return 역직렬화한 객체
      */
     override fun <T: Any> deserialize(bytes: ByteArray?): T? {
-        if (bytes.isNullOrEmpty()) {
-            return null
-        }
-        val source = bytes!!
+        val source = bytes?.takeIf { it.isNotEmpty() } ?: return null
 
         return try {
             doDeserialize(source)

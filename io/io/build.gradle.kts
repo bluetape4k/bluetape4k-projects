@@ -34,7 +34,7 @@ dependencies {
     compileOnly(Libs.commons_compress)
 
     // Okio (compressor 내부용)
-    implementation(Libs.okio)
+    api(Libs.okio)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

@@ -71,13 +71,14 @@ fun InputStream.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE)
 
     var readBytes = 0L
     val buffer = ByteArray(bufferSize)
-    do {
-        val readCount = this.read(buffer)
+    var readCount = this.read(buffer)
+    while (readCount != -1) {
         if (readCount > 0) {
             out.write(buffer, 0, readCount)
             readBytes += readCount
         }
-    } while (readCount > 0)
+        readCount = this.read(buffer)
+    }
 
     return readBytes
 }
