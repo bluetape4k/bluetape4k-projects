@@ -4,10 +4,10 @@ import io.bluetape4k.batch.api.BatchProcessor
 import io.bluetape4k.batch.api.BatchReader
 import io.bluetape4k.batch.api.BatchReport
 import io.bluetape4k.batch.api.BatchStatus
-import io.bluetape4k.batch.api.BatchWriter
 import io.bluetape4k.batch.api.SkipPolicy
 import io.bluetape4k.batch.core.BatchStepRunnerTest.CollectingWriter
 import io.bluetape4k.batch.core.BatchStepRunnerTest.ListBatchReader
+import io.bluetape4k.batch.core.dsl.batchJob
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.workflow.api.WorkContext
 import org.amshove.kluent.shouldBe
@@ -49,12 +49,9 @@ class BatchJobTest {
         val writer = CollectingWriter<String>()
         val step = simpleStep("step1", listOf("a", "b", "c"), writer)
 
-        val job = BatchJob(
-            name = "testJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("testJob") {
+            addStep(step)
+        }
 
         val report = job.run()
 
@@ -74,12 +71,10 @@ class BatchJobTest {
         val step1 = simpleStep("step1", listOf("a", "b"), writer1)
         val step2 = simpleStep("step2", listOf("c", "d"), writer2)
 
-        val job = BatchJob(
-            name = "multiStepJob",
-            params = emptyMap(),
-            steps = listOf(step1, step2),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("multiStepJob") {
+            addStep(step1)
+            addStep(step2)
+        }
 
         val report = job.run()
 
@@ -107,12 +102,10 @@ class BatchJobTest {
         )
         val step2 = simpleStep("step2", listOf("x"), writer2)
 
-        val job = BatchJob(
-            name = "failJob",
-            params = emptyMap(),
-            steps = listOf(step1, step2),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("failJob") {
+            addStep(step1)
+            addStep(step2)
+        }
 
         val report = job.run()
 
@@ -140,12 +133,9 @@ class BatchJobTest {
             skipPolicy = SkipPolicy.ALL,
         )
 
-        val job = BatchJob(
-            name = "skipJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("skipJob") {
+            addStep(step)
+        }
 
         val report = job.run()
 
@@ -167,12 +157,9 @@ class BatchJobTest {
             writer = CollectingWriter(),
         )
 
-        val job = BatchJob(
-            name = "cancelJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("cancelJob") {
+            addStep(step)
+        }
 
         var thrown: Throwable? = null
         try {
@@ -196,30 +183,22 @@ class BatchJobTest {
         val failingReader = object : BatchReader<String> {
             override suspend fun read(): String? = throw RuntimeException("step2 강제 실패")
         }
-        val job1 = BatchJob(
-            name = "restartJob",
-            params = emptyMap(),
-            steps = listOf(
-                simpleStep("step1", listOf("a", "b"), writer1),
-                BatchStep(name = "step2", chunkSize = 1, reader = failingReader, writer = CollectingWriter()),
-            ),
-            repository = repo,
-        )
+        val job1 = batchJob("restartJob") {
+            repository(repo)
+            addStep(simpleStep("step1", listOf("a", "b"), writer1))
+            addStep(BatchStep(name = "step2", chunkSize = 1, reader = failingReader, writer = CollectingWriter()))
+        }
         val report1 = job1.run()
         report1 shouldBeInstanceOf BatchReport.Failure::class
         writer1.collected shouldBeEqualTo listOf("a", "b")  // step1은 성공
 
         // 2차 실행: FAILED JobExecution 재사용 → step1 COMPLETED(skip), step2 재실행
         val writer2b = CollectingWriter<String>()
-        val job2 = BatchJob(
-            name = "restartJob",
-            params = emptyMap(),
-            steps = listOf(
-                simpleStep("step1", listOf("x", "y"), writer1),  // step1 skip → writer1에 추가 없음
-                simpleStep("step2", listOf("c", "d"), writer2b),
-            ),
-            repository = repo,
-        )
+        val job2 = batchJob("restartJob") {
+            repository(repo)
+            addStep(simpleStep("step1", listOf("x", "y"), writer1))  // step1 skip → writer1에 추가 없음
+            addStep(simpleStep("step2", listOf("c", "d"), writer2b))
+        }
         val report2 = job2.run()
 
         report2 shouldBeInstanceOf BatchReport.Success::class
@@ -232,12 +211,9 @@ class BatchJobTest {
     @Test
     fun `execute - Success → WorkReport success`() = runSuspendIO {
         val step = simpleStep("step1", listOf("a"))
-        val job = BatchJob(
-            name = "workJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("workJob") {
+            addStep(step)
+        }
 
         val context = WorkContext()
         val workReport = job.execute(context)
@@ -257,12 +233,9 @@ class BatchJobTest {
             writer = CollectingWriter(),
         )
 
-        val job = BatchJob(
-            name = "failWorkJob",
-            params = emptyMap(),
-            steps = listOf(failingStep),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("failWorkJob") {
+            addStep(failingStep)
+        }
 
         val context = WorkContext()
         val workReport = job.execute(context)
@@ -283,12 +256,9 @@ class BatchJobTest {
             skipPolicy = SkipPolicy.ALL,
         )
 
-        val job = BatchJob(
-            name = "partialJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("partialJob") {
+            addStep(step)
+        }
 
         val context = WorkContext()
         val workReport = job.execute(context)
