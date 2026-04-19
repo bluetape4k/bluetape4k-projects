@@ -117,10 +117,11 @@ inline fun <T> Iterable<T>.exists(predicate: (T) -> Boolean): Boolean = any { pr
  */
 infix fun <T> Iterable<T>.isSameElements(that: Iterable<T>): Boolean {
     if (this is List<T> && that is List<T>) {
-        if (this.size == that.size) {
+        if (this.size != that.size) return false
+        // RandomAccess가 아닌 경우(예: LinkedList) indexed access는 O(n²) — iterator 경로로 fallthrough
+        if (this is RandomAccess && that is RandomAccess) {
             return this.indices.all { this[it] == that[it] }
         }
-        return false
     }
 
     val left = this.iterator()
@@ -145,8 +146,16 @@ infix fun <T> Iterable<T>.isSameElements(that: Iterable<T>): Boolean {
  * @param dv 변환 실패 시 대체할 기본값 (기본: `'\u0000'`)
  * @return [CharArray] 인스턴스
  */
-fun Iterable<*>.asCharArray(dv: Char = '\u0000'): CharArray =
-    map { it.asChar(dv) }.toCharArray()
+fun Iterable<*>.asCharArray(dv: Char = '\u0000'): CharArray {
+    if (this is Collection<*>) {
+        val out = CharArray(size); var i = 0
+        for (e in this) out[i++] = e.asChar(dv)
+        return out
+    }
+    val buf = ArrayList<Char>()
+    for (e in this) buf.add(e.asChar(dv))
+    return buf.toCharArray()
+}
 
 /**
  * [Iterable] 을 [ByteArray]로 변환합니다.
@@ -160,8 +169,16 @@ fun Iterable<*>.asCharArray(dv: Char = '\u0000'): CharArray =
  * @param fallback 변환 실패 시 대체할 기본값 (기본: `0`)
  * @return [ByteArray] 인스턴스
  */
-fun Iterable<*>.asByteArray(fallback: Byte = 0): ByteArray =
-    map { it.asByte(fallback) }.toByteArray()
+fun Iterable<*>.asByteArray(fallback: Byte = 0): ByteArray {
+    if (this is Collection<*>) {
+        val out = ByteArray(size); var i = 0
+        for (e in this) out[i++] = e.asByte(fallback)
+        return out
+    }
+    val buf = ArrayList<Byte>()
+    for (e in this) buf.add(e.asByte(fallback))
+    return buf.toByteArray()
+}
 
 /**
  * [Iterable] 을 [IntArray]로 변환합니다.
@@ -175,8 +192,16 @@ fun Iterable<*>.asByteArray(fallback: Byte = 0): ByteArray =
  * @param fallback 변환 실패 시 대체할 기본값 (기본: `0`)
  * @return [IntArray] 인스턴스
  */
-fun Iterable<*>.asIntArray(fallback: Int = 0): IntArray =
-    map { it.asInt(fallback) }.toIntArray()
+fun Iterable<*>.asIntArray(fallback: Int = 0): IntArray {
+    if (this is Collection<*>) {
+        val out = IntArray(size); var i = 0
+        for (e in this) out[i++] = e.asInt(fallback)
+        return out
+    }
+    val buf = ArrayList<Int>()
+    for (e in this) buf.add(e.asInt(fallback))
+    return buf.toIntArray()
+}
 
 /**
  * [Iterable] 을 [LongArray]로 변환합니다.
@@ -190,8 +215,16 @@ fun Iterable<*>.asIntArray(fallback: Int = 0): IntArray =
  * @param fallback 변환 실패 시 대체할 기본값 (기본: `0`)
  * @return [LongArray] 인스턴스
  */
-fun Iterable<*>.asLongArray(fallback: Long = 0): LongArray =
-    map { it.asLong(fallback) }.toLongArray()
+fun Iterable<*>.asLongArray(fallback: Long = 0): LongArray {
+    if (this is Collection<*>) {
+        val out = LongArray(size); var i = 0
+        for (e in this) out[i++] = e.asLong(fallback)
+        return out
+    }
+    val buf = ArrayList<Long>()
+    for (e in this) buf.add(e.asLong(fallback))
+    return buf.toLongArray()
+}
 
 /**
  * [Iterable] 을 [FloatArray]로 변환합니다.
@@ -205,8 +238,16 @@ fun Iterable<*>.asLongArray(fallback: Long = 0): LongArray =
  * @param fallback 변환 실패 시 대체할 기본값 (기본: `0.0F`)
  * @return [FloatArray] 인스턴스
  */
-fun Iterable<*>.asFloatArray(fallback: Float = 0.0F): FloatArray =
-    map { it.asFloat(fallback) }.toFloatArray()
+fun Iterable<*>.asFloatArray(fallback: Float = 0.0F): FloatArray {
+    if (this is Collection<*>) {
+        val out = FloatArray(size); var i = 0
+        for (e in this) out[i++] = e.asFloat(fallback)
+        return out
+    }
+    val buf = ArrayList<Float>()
+    for (e in this) buf.add(e.asFloat(fallback))
+    return buf.toFloatArray()
+}
 
 /**
  * [Iterable] 을 [DoubleArray]로 변환합니다.
@@ -220,8 +261,16 @@ fun Iterable<*>.asFloatArray(fallback: Float = 0.0F): FloatArray =
  * @param fallback 변환 실패 시 대체할 기본값 (기본: `0.0`)
  * @return [DoubleArray] 인스턴스
  */
-fun Iterable<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray =
-    map { it.asDouble(fallback) }.toDoubleArray()
+fun Iterable<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray {
+    if (this is Collection<*>) {
+        val out = DoubleArray(size); var i = 0
+        for (e in this) out[i++] = e.asDouble(fallback)
+        return out
+    }
+    val buf = ArrayList<Double>()
+    for (e in this) buf.add(e.asDouble(fallback))
+    return buf.toDoubleArray()
+}
 
 /**
  * [Iterable] 을 [String] 배열로 변환합니다.
@@ -235,8 +284,17 @@ fun Iterable<*>.asDoubleArray(fallback: Double = 0.0): DoubleArray =
  * @param fallback 변환 실패(null 포함) 시 대체할 기본값 (기본: 빈 문자열)
  * @return [Array]<[String]> 인스턴스
  */
-fun Iterable<*>.asStringArray(fallback: String = EMPTY_STRING): Array<String> =
-    map { it.asString(fallback) }.toTypedArray()
+fun Iterable<*>.asStringArray(fallback: String = EMPTY_STRING): Array<String> {
+    if (this is Collection<*>) {
+        val out = arrayOfNulls<String>(size); var i = 0
+        for (e in this) out[i++] = e.asString(fallback)
+        @Suppress("UNCHECKED_CAST")
+        return out as Array<String>
+    }
+    val buf = ArrayList<String>()
+    for (e in this) buf.add(e.asString(fallback))
+    return buf.toTypedArray()
+}
 
 /**
  * [Iterable] 을 [T] 수형의 배열로 변환합니다.

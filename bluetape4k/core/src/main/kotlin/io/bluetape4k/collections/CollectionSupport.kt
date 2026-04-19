@@ -38,7 +38,7 @@ infix fun <T> T.prependTo(tail: MutableList<T>): MutableList<T> {
  * ```
  */
 fun <T> MutableList<T>.prepend(vararg elements: T): MutableList<T> = apply {
-    addAll(0, listOf(*elements))
+    addAll(0, elements.asList())
 }
 
 /**

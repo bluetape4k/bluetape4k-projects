@@ -46,10 +46,12 @@ fun intProgressionOf(start: Int, endInclusive: Int, step: Int = 1): IntProgressi
  * stream.count() shouldBeEqualTo 3
  * ```
  */
-fun IntProgression.asStream(): IntStream =
-    IntStream.builder()
-        .also { builder -> forEach { builder.add(it) } }
-        .build()
+fun IntProgression.asStream(): IntStream = when {
+    step == 1  -> IntStream.rangeClosed(first, last)
+    step == -1 -> IntStream.iterate(first, { it >= last }, { it - 1 })
+    step > 0   -> IntStream.iterate(first, { it <= last }, { it + step })
+    else       -> IntStream.iterate(first, { it >= last }, { it + step })
+}
 
 /**
  * [IntProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -104,13 +106,8 @@ fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgressio
         if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
             return@sequence
         }
-        var endInclusive = start
-        repeat(partitionSize - 1) {
-            endInclusive += self.step
-        }
-        endInclusive = when {
-            step > 0 -> endInclusive.coerceAtMost(self.last)
-            else     -> endInclusive.coerceAtLeast(self.last)
+        val endInclusive = (start + (partitionSize - 1) * step).let { rawEnd ->
+            if (step > 0) rawEnd.coerceAtMost(self.last) else rawEnd.coerceAtLeast(self.last)
         }
 
         val partition = IntProgression.fromClosedRange(start, endInclusive, step)
@@ -148,10 +145,12 @@ fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongPro
  * // result == [1, 2, 3]
  * ```
  */
-fun LongProgression.asStream(): LongStream =
-    LongStream.builder()
-        .also { builder -> forEach { builder.add(it) } }
-        .build()
+fun LongProgression.asStream(): LongStream = when {
+    step == 1L  -> LongStream.rangeClosed(first, last)
+    step == -1L -> LongStream.iterate(first, { it >= last }, { it - 1L })
+    step > 0L   -> LongStream.iterate(first, { it <= last }, { it + step })
+    else        -> LongStream.iterate(first, { it >= last }, { it + step })
+}
 
 /**
  * [LongProgression]의 요소를 chunked 하여 [Sequence]로 반환합니다.
@@ -206,13 +205,8 @@ fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgress
         if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
             return@sequence
         }
-        var endInclusive = start
-        repeat(partitionSize - 1) {
-            endInclusive += self.step
-        }
-        endInclusive = when {
-            step > 0 -> endInclusive.coerceAtMost(self.last)
-            else     -> endInclusive.coerceAtLeast(self.last)
+        val endInclusive = (start + (partitionSize - 1).toLong() * step).let { rawEnd ->
+            if (step > 0) rawEnd.coerceAtMost(self.last) else rawEnd.coerceAtLeast(self.last)
         }
 
         val partition = LongProgression.fromClosedRange(start, endInclusive, step)
