@@ -7,7 +7,7 @@ import java.util.concurrent.Executors
 
 private val retryScheduler by lazy {
     Executors.newSingleThreadScheduledExecutor { r ->
-        Thread(r).apply { isDaemon = true }
+        Thread.ofVirtual().name("retrofit-retry-scheduler").unstarted(r)
     }
 }
 
@@ -62,7 +62,7 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
  * ## 동작/계약
  * - 기본 실행은 [executeAsync]를 사용합니다.
  * - 재시도마다 현재 [retrofit2.Call]을 `clone()`한 새 인스턴스로 실행합니다.
- * - 재시도는 단일 스레드 스케줄러에서 처리됩니다.
+ * - 재시도는 Virtual Thread 기반 단일 스레드 스케줄러에서 처리됩니다.
  * - [retry] 설정에 따라 실패 future가 재호출될 수 있습니다.
  *
  * ```kotlin
