@@ -27,7 +27,10 @@ import org.junit.jupiter.api.Test
  */
 class JaninoRuleExampleTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private fun jRule(name: String, priority: Int = 0, cond: String, action: String): JaninoRule =
+            JaninoRule(name = name, priority = priority).whenever(cond).then(action)
+    }
 
     // =========================================================================
     // 1. 산술 연산
@@ -229,9 +232,7 @@ class JaninoRuleExampleTest {
             )
 
         // 룰 3: 무료 배송 (50000원 이상)
-        val freeShipping = JaninoRule(name = "freeShipping", priority = 3)
-            .whenever("((Integer)facts.get(\"amount\")).intValue() >= 50000")
-            .then("facts.put(\"freeShipping\", Boolean.TRUE);")
+        val freeShipping = jRule("freeShipping", 3, "((Integer)facts.get(\"amount\")).intValue() >= 50000", "facts.put(\"freeShipping\", Boolean.TRUE);")
 
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 60000, "memberType" to "VIP")
@@ -244,21 +245,10 @@ class JaninoRuleExampleTest {
 
     @Test
     fun `회원 등급 분류 - ActivationRuleGroup으로 첫 매칭만 실행`() {
-        val platinum = JaninoRule(name = "platinum", priority = 1)
-            .whenever("((Integer)facts.get(\"totalPurchase\")).intValue() >= 1000000")
-            .then("facts.put(\"tier\", \"PLATINUM\");")
-
-        val gold = JaninoRule(name = "gold", priority = 2)
-            .whenever("((Integer)facts.get(\"totalPurchase\")).intValue() >= 500000")
-            .then("facts.put(\"tier\", \"GOLD\");")
-
-        val silver = JaninoRule(name = "silver", priority = 3)
-            .whenever("((Integer)facts.get(\"totalPurchase\")).intValue() >= 100000")
-            .then("facts.put(\"tier\", \"SILVER\");")
-
-        val bronze = JaninoRule(name = "bronze", priority = 4)
-            .whenever("((Integer)facts.get(\"totalPurchase\")).intValue() >= 0")
-            .then("facts.put(\"tier\", \"BRONZE\");")
+        val platinum = jRule("platinum", 1, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 1000000", "facts.put(\"tier\", \"PLATINUM\");")
+        val gold = jRule("gold", 2, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 500000", "facts.put(\"tier\", \"GOLD\");")
+        val silver = jRule("silver", 3, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 100000", "facts.put(\"tier\", \"SILVER\");")
+        val bronze = jRule("bronze", 4, "((Integer)facts.get(\"totalPurchase\")).intValue() >= 0", "facts.put(\"tier\", \"BRONZE\");")
 
         val group = ActivationRuleGroup("tierClassification")
         group.addRule(platinum)
@@ -281,13 +271,8 @@ class JaninoRuleExampleTest {
 
     @Test
     fun `나이 및 지역 확인 - UnitRuleGroup으로 모든 조건 충족 시 실행`() {
-        val ageCheck = JaninoRule(name = "ageCheck", priority = 1)
-            .whenever("((Integer)facts.get(\"age\")).intValue() >= 18")
-            .then("facts.put(\"ageVerified\", Boolean.TRUE);")
-
-        val regionCheck = JaninoRule(name = "regionCheck", priority = 2)
-            .whenever("\"KR\".equals(facts.get(\"region\"))")
-            .then("facts.put(\"regionVerified\", Boolean.TRUE);")
+        val ageCheck = jRule("ageCheck", 1, "((Integer)facts.get(\"age\")).intValue() >= 18", "facts.put(\"ageVerified\", Boolean.TRUE);")
+        val regionCheck = jRule("regionCheck", 2, "\"KR\".equals(facts.get(\"region\"))", "facts.put(\"regionVerified\", Boolean.TRUE);")
 
         val group = UnitRuleGroup("verification")
         group.addRule(ageCheck)
