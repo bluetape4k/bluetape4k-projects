@@ -1,10 +1,11 @@
 package io.bluetape4k.states.coroutines
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.api.TransitionResult
 import io.bluetape4k.states.core.on
 import io.bluetape4k.states.core.suspendStateMachine
+import io.bluetape4k.states.testing.assertReaches
+import io.bluetape4k.states.testing.assertRejects
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
@@ -12,121 +13,75 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class SuspendStateMachineTest {
-
     companion object: KLogging()
 
-    enum class State {
-        IDLE,
-        RUNNING,
-        DONE
+    enum class S { IDLE, RUNNING, DONE }
+    sealed class E { data object Start: E(); data object Finish: E() }
+
+    private fun fsm() = suspendStateMachine<S, E> {
+        initialState = S.IDLE
+        finalStates = setOf(S.DONE)
+        transition(S.IDLE, on<E.Start>(), to = S.RUNNING)
+        transition(S.RUNNING, on<E.Finish>(), to = S.DONE)
     }
 
-    sealed class Event {
-        data object Start: Event()
-        data object Finish: Event()
+    @Test fun `suspend 전이가 성공한다`() = runTest {
+        val m = fsm()
+        m.transition(E.Start) shouldBeEqualTo TransitionResult(S.IDLE, E.Start, S.RUNNING)
+        m.currentState shouldBeEqualTo S.RUNNING
     }
 
-    private fun createFsm() = suspendStateMachine<State, Event> {
-        initialState = State.IDLE
-        finalStates = setOf(State.DONE)
-        transition(State.IDLE, on<Event.Start>(), to = State.RUNNING)
-        transition(State.RUNNING, on<Event.Finish>(), to = State.DONE)
+    @Test fun `연속 suspend 전이가 성공한다`() = runTest {
+        val m = fsm()
+        m.assertReaches(S.DONE, E.Start, E.Finish)
+        m.isInFinalState().shouldBeTrue()
     }
 
-    @Test
-    fun `suspend 전이가 성공한다`() = runTest {
-        val fsm = createFsm()
-
-        val result = fsm.transition(Event.Start)
-
-        result shouldBeEqualTo TransitionResult(State.IDLE, Event.Start, State.RUNNING)
-        fsm.currentState shouldBeEqualTo State.RUNNING
+    @Test fun `허용되지 않은 전이에서 예외가 발생한다`() = runTest {
+        fsm().assertRejects(E.Finish)
     }
 
-    @Test
-    fun `연속 suspend 전이가 성공한다`() = runTest {
-        val fsm = createFsm()
-
-        fsm.transition(Event.Start)
-        val result = fsm.transition(Event.Finish)
-
-        result.currentState shouldBeEqualTo State.DONE
-        fsm.isInFinalState().shouldBeTrue()
+    @Test fun `StateFlow로 상태를 관찰할 수 있다`() = runTest {
+        val m = fsm()
+        m.stateFlow.value shouldBeEqualTo S.IDLE
+        m.transition(E.Start); m.stateFlow.value shouldBeEqualTo S.RUNNING
     }
 
-    @Test
-    fun `허용되지 않은 전이에서 예외가 발생한다`() = runTest {
-        val fsm = createFsm()
+    @Test fun `Mutex로 동시 전이가 직렬화된다`() = runTest {
+        val m = fsm()
+        val r = async { m.transition(E.Start) }.await()
+        r.currentState shouldBeEqualTo S.RUNNING
+        m.currentState shouldBeEqualTo S.RUNNING
+    }
 
-        assertThrows<StateMachineException> {
-            fsm.transition(Event.Finish) // IDLE에서 Finish는 허용되지 않음
+    @Test fun `종료 상태에서 전이 시 예외가 발생한다`() = runTest {
+        val m = fsm()
+        m.assertReaches(S.DONE, E.Start, E.Finish)
+        m.isInFinalState().shouldBeTrue()
+        m.assertRejects(E.Start)
+    }
+
+    @Test fun `종료 상태에서는 canTransition이 false를 반환한다`() = runTest {
+        val m = suspendStateMachine<S, E> {
+            initialState = S.IDLE
+            finalStates = setOf(S.DONE)
+            transition(S.IDLE, on<E.Finish>(), to = S.DONE)
+            transition(S.DONE, on<E.Start>(), to = S.RUNNING)
         }
+        m.transition(E.Finish)
+        m.canTransition(E.Start).shouldBeFalse()
     }
 
-    @Test
-    fun `StateFlow로 상태를 관찰할 수 있다`() = runTest {
-        val fsm = createFsm()
-
-        // 초기 상태 확인
-        fsm.stateFlow.value shouldBeEqualTo State.IDLE
-
-        fsm.transition(Event.Start)
-        fsm.stateFlow.value shouldBeEqualTo State.RUNNING
-    }
-
-    @Test
-    fun `Mutex로 동시 전이가 직렬화된다`() = runTest {
-        val fsm = createFsm()
-
-        // 동시에 두 개의 전이를 시도
-        val deferred1 = async { fsm.transition(Event.Start) }
-        val result1 = deferred1.await()
-
-        result1.currentState shouldBeEqualTo State.RUNNING
-        fsm.currentState shouldBeEqualTo State.RUNNING
-    }
-
-    @Test
-    fun `종료 상태에서 전이 시 예외가 발생한다`() = runTest {
-        val fsm = createFsm()
-        fsm.transition(Event.Start)
-        fsm.transition(Event.Finish)
-
-        fsm.isInFinalState().shouldBeTrue()
-
-        assertThrows<StateMachineException> {
-            fsm.transition(Event.Start)
+    @Test fun `종료 상태에서는 allowedEvents가 비어있다`() = runTest {
+        val m = suspendStateMachine<S, E> {
+            initialState = S.IDLE
+            finalStates = setOf(S.DONE)
+            transition(S.IDLE, on<E.Finish>(), to = S.DONE)
+            transition(S.DONE, on<E.Start>(), to = S.RUNNING)
         }
-    }
-
-    @Test
-    fun `종료 상태에서는 canTransition이 false를 반환한다`() = runTest {
-        val fsm = suspendStateMachine<State, Event> {
-            initialState = State.IDLE
-            finalStates = setOf(State.DONE)
-            transition(State.IDLE, on<Event.Finish>(), to = State.DONE)
-            transition(State.DONE, on<Event.Start>(), to = State.RUNNING)
-        }
-
-        fsm.transition(Event.Finish)
-
-        fsm.canTransition(Event.Start).shouldBeFalse()
-    }
-
-    @Test
-    fun `종료 상태에서는 allowedEvents가 비어있다`() = runTest {
-        val fsm = suspendStateMachine<State, Event> {
-            initialState = State.IDLE
-            finalStates = setOf(State.DONE)
-            transition(State.IDLE, on<Event.Finish>(), to = State.DONE)
-            transition(State.DONE, on<Event.Start>(), to = State.RUNNING)
-        }
-
-        fsm.transition(Event.Finish)
-
-        fsm.allowedEvents().shouldBeEmpty()
+        m.transition(E.Finish)
+        m.allowedEvents().shouldBeEmpty()
     }
 }
