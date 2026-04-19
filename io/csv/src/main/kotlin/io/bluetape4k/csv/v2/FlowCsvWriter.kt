@@ -93,4 +93,7 @@ fun csvWriter(writer: Writer, block: CsvWriterConfig.() -> Unit = {}): FlowCsvWr
  * @param block [CsvWriterConfig] 설정 블록 (delimiter 설정은 무시됨)
  */
 fun tsvWriter(writer: Writer, block: CsvWriterConfig.() -> Unit = {}): FlowCsvWriter =
-    FlowCsvWriterImpl(writer, CsvWriterConfig().apply(block).also { it.delimiter = '\t'; it.lineSeparator = "\n" })
+    FlowCsvWriterImpl(writer, CsvWriterConfig().apply(block).also {
+        it.delimiter = '\t'
+        it.lineSeparator = "\n"
+    })

@@ -58,11 +58,13 @@ internal class FlowCsvWriterImpl(
     ): Long {
         var count = 0L
         OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
+            // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
+            val fileWriter = DelimitedWriter(fw, delimiter, quote, settings.quoteEscape, lineSeparator)
             if (!skipHeaders && headers.isNotEmpty()) {
-                writeRowTo(fw, headers)
+                writeRowToDelimited(fileWriter, fw, headers)
             }
             rows.collect { row ->
-                writeRowTo(fw, row)
+                writeRowToDelimited(fileWriter, fw, row)
                 count++
             }
         }
@@ -70,18 +72,26 @@ internal class FlowCsvWriterImpl(
     }
 
     override fun close() {
-        runCatching { delimitedWriter.close() }
+        runCatching {
+            writer.flush()
+            delimitedWriter.close()
+            writer.close()
+        }
     }
 
     private fun writeRowTo(w: Writer, fields: Iterable<*>) {
         if (config.quoteAll) {
             writeAllQuoted(w, fields)
         } else {
-            if (w === writer) {
-                delimitedWriter.writeRow(fields)
-            } else {
-                DelimitedWriter(w, delimiter, quote, quote, lineSeparator).writeRow(fields)
-            }
+            delimitedWriter.writeRow(fields)
+        }
+    }
+
+    private fun writeRowToDelimited(dw: DelimitedWriter, w: Writer, fields: Iterable<*>) {
+        if (config.quoteAll) {
+            writeAllQuoted(w, fields)
+        } else {
+            dw.writeRow(fields)
         }
     }
 

@@ -79,6 +79,15 @@ data class CsvRow(
     fun getDouble(index: Int, default: Double = 0.0): Double = getDoubleOrNull(index) ?: default
     fun getDouble(name: String, default: Double = 0.0): Double = getDoubleOrNull(name) ?: default
 
+    fun getFloat(index: Int, default: Float = 0f): Float = getFloatOrNull(index) ?: default
+    fun getFloat(name: String, default: Float = 0f): Float = getFloatOrNull(name) ?: default
+
+    fun getBigDecimal(index: Int, default: BigDecimal = BigDecimal.ZERO): BigDecimal =
+        getBigDecimalOrNull(index) ?: default
+
+    fun getBigDecimal(name: String, default: BigDecimal = BigDecimal.ZERO): BigDecimal =
+        getBigDecimalOrNull(name) ?: default
+
     fun getBoolean(index: Int, default: Boolean = false): Boolean =
         getString(index)?.trim()?.toBoolean() ?: default
 

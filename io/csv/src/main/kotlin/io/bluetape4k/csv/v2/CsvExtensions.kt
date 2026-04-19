@@ -60,4 +60,7 @@ fun csvReader(block: CsvReaderConfig.() -> Unit = {}): FlowCsvReader =
  * @param block [CsvReaderConfig] 설정 블록 (delimiter 설정은 무시됨)
  */
 fun tsvReader(block: CsvReaderConfig.() -> Unit = {}): FlowCsvReader =
-    FlowCsvReaderImpl(CsvReaderConfig().apply(block).also { it.delimiter = '\t'; it.lineSeparator = "\n" })
+    FlowCsvReaderImpl(CsvReaderConfig().apply(block).also {
+        it.delimiter = '\t'
+        it.lineSeparator = "\n"
+    })

@@ -9,11 +9,16 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayInputStream
+import java.nio.file.Path
 
 class FlowCsvReaderTest {
 
     companion object : KLogging()
+
+    @TempDir
+    lateinit var tempDir: Path
 
     private fun streamOf(csv: String) = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
 
@@ -138,6 +143,57 @@ class FlowCsvReaderTest {
         backToRow.getString("name") shouldBeEqualTo "Alice"
         backToRow.headers.shouldNotBeNull()
         backToRow.headers!! shouldHaveSize 2
+    }
+
+    // ── readFile(Path) ────────────────────────────────────
+
+    @Test
+    fun `readFile reads CSV from file`() = runTest {
+        val file = tempDir.resolve("test.csv")
+        file.toFile().writeText("Alice,30\nBob,25", Charsets.UTF_8)
+
+        val rows = csvReader().readFile(file).toList()
+
+        rows shouldHaveSize 2
+        rows[0].getString(0) shouldBeEqualTo "Alice"
+        rows[0].getString(1) shouldBeEqualTo "30"
+        rows[1].getString(0) shouldBeEqualTo "Bob"
+    }
+
+    @Test
+    fun `readFile reads CSV with headers from file`() = runTest {
+        val file = tempDir.resolve("test_headers.csv")
+        file.toFile().writeText("name,age\nAlice,30\nBob,25", Charsets.UTF_8)
+
+        val rows = csvReader().readFile(file, skipHeaders = true).toList()
+
+        rows shouldHaveSize 2
+        rows[0].getString("name") shouldBeEqualTo "Alice"
+        rows[0].getString("age") shouldBeEqualTo "30"
+        rows[0].headers.shouldNotBeNull()
+        rows[1].getString("name") shouldBeEqualTo "Bob"
+    }
+
+    @Test
+    fun `readFile reads empty file returns empty flow`() = runTest {
+        val file = tempDir.resolve("empty.csv")
+        file.toFile().writeText("", Charsets.UTF_8)
+
+        val rows = csvReader().readFile(file).toList()
+        rows shouldHaveSize 0
+    }
+
+    @Test
+    fun `readFile rowNumber increments correctly`() = runTest {
+        val file = tempDir.resolve("rows.csv")
+        file.toFile().writeText("a\nb\nc", Charsets.UTF_8)
+
+        val rows = csvReader().readFile(file).toList()
+
+        rows shouldHaveSize 3
+        rows[0].rowNumber shouldBeEqualTo 1L
+        rows[1].rowNumber shouldBeEqualTo 2L
+        rows[2].rowNumber shouldBeEqualTo 3L
     }
 
     // ── BOM handling ─────────────────────────────────────
