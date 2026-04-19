@@ -58,17 +58,15 @@ val BigIntMax = Long.MAX_VALUE.toBigInt()
          * // BigDecimal::class in StandardNumberTypes
          * ```
          */
-val StandardNumberTypes: Set<KClass<out Number>> = java.util.Collections.unmodifiableSet(
-    hashSetOf(
-        Byte::class,
-        Short::class,
-        Int::class,
-        Long::class,
-        Float::class,
-        Double::class,
-        BigDecimal::class,
-        BigInteger::class,
-    )
+val StandardNumberTypes: Set<KClass<out Number>> = setOf(
+    Byte::class,
+    Short::class,
+    Int::class,
+    Long::class,
+    Float::class,
+    Double::class,
+    BigDecimal::class,
+    BigInteger::class,
 )
 
 /**
@@ -156,33 +154,19 @@ inline fun Char.isHexDigit(): Boolean =
  * ```
  */
 fun String.decodeBigInt(): BigInteger {
-    if (isBlank()) {
-        return BigInteger.ZERO
+    if (isBlank()) return BigInteger.ZERO
+
+    val negative = startsWith("-")
+    val str = if (negative) substring(1) else this
+
+    val (digits, radix) = when {
+        str.startsWith("0x", ignoreCase = true) -> str.substring(2) to 16
+        str.startsWith("#")                     -> str.substring(1) to 16
+        str.startsWith("0") && str.length > 1   -> str.substring(1) to 8
+        else                                     -> str to 10
     }
 
-    var radix = 10
-    var index = 0
-    var negative = false
-
-    // Handle minus sign, if present.
-    if (this.startsWith("-")) {
-        negative = true
-        index++
-    }
-
-    // Handle radix specifier, if present.
-    if (this.startsWith("0x", index) || this.startsWith("0X", index)) {
-        index += 2
-        radix = 16
-    } else if (this.startsWith("#", index)) {
-        index++
-        radix = 16
-    } else if (this.startsWith("0", index) && this.length > 1 + index) {
-        index++
-        radix = 8
-    }
-
-    val result = BigInteger(this.substring(index), radix)
+    val result = BigInteger(digits, radix)
     return if (negative) result.negate() else result
 }
 

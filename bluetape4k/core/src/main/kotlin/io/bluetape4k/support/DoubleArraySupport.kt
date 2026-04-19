@@ -183,10 +183,9 @@ fun DoubleArray.ensureCapacity(minCapacity: Int, padding: Int): DoubleArray {
 fun concat(vararg arrays: DoubleArray): DoubleArray {
     val totalLength = arrays.sumOf { it.size }
     val result = DoubleArray(totalLength)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }

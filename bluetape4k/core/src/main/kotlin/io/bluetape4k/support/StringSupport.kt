@@ -293,18 +293,11 @@ inline fun String?.ifNullOrBlank(fallback: () -> String): String = if (isNullOrB
  * ```
  */
 fun String.trimWhitespace(): String {
-    if (isEmpty()) {
-        return this
-    }
+    if (isEmpty()) return this
 
-    val sb = StringBuilder(this.trim())
-    while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
-        sb.deleteCharAt(0)
-    }
-    while (sb.isNotEmpty() && JChar.isWhitespace(sb.last())) {
-        sb.deleteCharAt(sb.lastIndex)
-    }
-    return sb.toString()
+    return this.trim()
+        .dropWhile { JChar.isWhitespace(it) }
+        .dropLastWhile { JChar.isWhitespace(it) }
 }
 
 /**
@@ -320,15 +313,10 @@ fun String.trimWhitespace(): String {
  * ```
  */
 fun String.trimStartWhitespace(): String {
-    if (isEmpty()) {
-        return this
-    }
+    if (isEmpty()) return this
 
-    val sb = StringBuilder(this.trimStart())
-    while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
-        sb.deleteCharAt(0)
-    }
-    return sb.toString()
+    return this.trimStart()
+        .dropWhile { JChar.isWhitespace(it) }
 }
 
 /**
@@ -346,11 +334,8 @@ fun String.trimStartWhitespace(): String {
 fun String.trimEndWhitespace(): String {
     if (isEmpty()) return this.trimEnd()
 
-    val sb = StringBuilder(this.trimEnd())
-    while (sb.isNotEmpty() && JChar.isWhitespace(sb.last())) {
-        sb.deleteCharAt(sb.lastIndex)
-    }
-    return sb.toString()
+    return this.trimEnd()
+        .dropLastWhile { JChar.isWhitespace(it) }
 }
 
 /**
@@ -590,19 +575,9 @@ inline fun CharSequence?.replicate(n: Int): String = this?.repeat(n).orEmpty()
 fun CharSequence?.wordCount(word: String): Int {
     if (isNullOrEmpty() || word.isEmpty()) return 0
 
-    var matched = 0
-    var startIndex = 0
-
-    while (true) {
-        val index = indexOf(word, startIndex)
-        if (index < 0) {
-            break
-        }
-        matched++
-        startIndex = index + word.length
-    }
-
-    return matched
+    return generateSequence(indexOf(word).takeIf { it >= 0 }) { prevIndex ->
+        indexOf(word, prevIndex + word.length).takeIf { it >= 0 }
+    }.count()
 }
 
 /**
@@ -812,16 +787,7 @@ fun CharSequence.uniqueChars(): String =
 fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
     size.assertPositiveNumber("size")
     val self = this@sliding
-    return sequence {
-        var start = 0
-        var end = size
-
-        while (end <= self.length) {
-            yield(self.subSequence(start, end))
-            start++
-            end++
-        }
-    }
+    return (0..self.length - size).asSequence().map { i -> self.subSequence(i, i + size) }
 }
 
 /**
@@ -839,16 +805,7 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
 fun String.sliding(size: Int): Sequence<String> {
     size.assertPositiveNumber("size")
     val self = this@sliding
-    return sequence {
-        var start = 0
-        var end = size
-
-        while (end <= self.length) {
-            yield(self.substring(start, end))
-            start++
-            end++
-        }
-    }
+    return (0..self.length - size).asSequence().map { i -> self.substring(i, i + size) }
 }
 
 /**
@@ -1009,14 +966,9 @@ fun commonPrefix(
     if (a == b) return a.toString()
 
     val maxPrefixLength = minOf(a.length, b.length)
-    var p = 0
-    while (p < maxPrefixLength && a[p] == b[p]) {
-        p++
-    }
-    if (a.validSurrogatePairAt(p - 1) || b.validSurrogatePairAt(p - 1)) {
-        p--
-    }
-    return a.substring(0, p)
+    val p = (0 until maxPrefixLength).firstOrNull { a[it] != b[it] } ?: maxPrefixLength
+    val adjusted = if (p > 0 && (a.validSurrogatePairAt(p - 1) || b.validSurrogatePairAt(p - 1))) p - 1 else p
+    return a.substring(0, adjusted)
 }
 
 /**
@@ -1055,14 +1007,9 @@ fun commonSuffix(
     if (a == b) return a.toString()
 
     val maxSuffixLength = minOf(a.length, b.length)
-    var s = 0
-    while (s < maxSuffixLength && a[a.length - s - 1] == b[b.length - s - 1]) {
-        s++
-    }
-    if (a.validSurrogatePairAt(a.length - s - 1) || b.validSurrogatePairAt(b.length - s - 1)) {
-        s--
-    }
-    return a.substring(a.length - s, a.length)
+    val s = (0 until maxSuffixLength).firstOrNull { a[a.length - it - 1] != b[b.length - it - 1] } ?: maxSuffixLength
+    val adjusted = if (s > 0 && (a.validSurrogatePairAt(a.length - s - 1) || b.validSurrogatePairAt(b.length - s - 1))) s - 1 else s
+    return a.substring(a.length - adjusted, a.length)
 }
 
 /**

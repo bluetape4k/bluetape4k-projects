@@ -34,9 +34,10 @@ fun Duration.sleep() {
     if (this == Duration.ZERO) return
 
     val finishInstant = Instant.now().plus(this.toJavaDuration())
-    var remainingDuration = this
-    do {
-        Thread.sleep(remainingDuration.inWholeMilliseconds, remainingDuration.nanosOfMillis)
-        remainingDuration = java.time.Duration.between(Instant.now(), finishInstant).toKotlinDuration()
-    } while (!remainingDuration.isNegative())
+    generateSequence(this) {
+        java.time.Duration.between(Instant.now(), finishInstant).toKotlinDuration()
+            .takeIf { remaining -> !remaining.isNegative() }
+    }.forEach { remaining ->
+        Thread.sleep(remaining.inWholeMilliseconds, remaining.nanosOfMillis)
+    }
 }

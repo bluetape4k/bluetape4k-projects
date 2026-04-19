@@ -198,47 +198,25 @@ operator fun BigInteger.compareTo(other: Number): Int = this.compareTo(other.toB
  * [BigInteger] 컬렉션의 모든 요소의 합을 구합니다.
  */
 @JvmName("sumOfBigIntIterable")
-fun Iterable<BigInteger>.sum(): BigInteger {
-    if (this.none())
-        return BigInteger.ZERO
-
-    var sum = BigInteger.ZERO
-    for (element in this) {
-        sum += element
-    }
-    return sum
-}
+fun Iterable<BigInteger>.sum(): BigInteger =
+    fold(BigInteger.ZERO) { acc, element -> acc + element }
 
 /**
  * [BigInteger] 컬렉션의 모든 요소의 합을 구합니다.
  */
 @JvmName("sumOfBigIntArray")
-fun Array<BigInteger>.sum(): BigInteger {
-    if (this.none())
-        return BigInteger.ZERO
-
-    var sum = BigInteger.ZERO
-    for (element in this) {
-        sum += element
-    }
-    return sum
-}
+fun Array<BigInteger>.sum(): BigInteger =
+    fold(BigInteger.ZERO) { acc, element -> acc + element }
 
 /**
  * [BigInteger] 컬렉션의 평균값을 구합니다.
  */
 @JvmName("averageOfBigIntIterable")
 fun Iterable<BigInteger>.average(): Double {
-    if (this.none())
-        return 0.0
-
-    var sum = BigInteger.ZERO
-    var count = 0
-    for (element in this) {
-        sum += element
-        count++
-    }
-    return sum.toDouble() / count
+    val list = toList()
+    if (list.isEmpty()) return 0.0
+    val sum = list.fold(BigInteger.ZERO) { acc, element -> acc + element }
+    return sum.toDouble() / list.size
 }
 
 /**
@@ -246,14 +224,7 @@ fun Iterable<BigInteger>.average(): Double {
  */
 @JvmName("averageOfBigIntArray")
 fun Array<BigInteger>.average(): Double {
-    if (this.none())
-        return 0.0
-
-    var sum = BigInteger.ZERO
-    var count = 0
-    for (element in this) {
-        sum += element
-        count++
-    }
-    return sum.toDouble() / count
+    if (isEmpty()) return 0.0
+    val sum = fold(BigInteger.ZERO) { acc, element -> acc + element }
+    return sum.toDouble() / size
 }

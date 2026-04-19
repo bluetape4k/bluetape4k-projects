@@ -180,10 +180,9 @@ fun LongArray.ensureCapacity(minCapacity: Int, padding: Int): LongArray {
 fun concat(vararg arrays: LongArray): LongArray {
     val totalLength = arrays.sumOf { it.size }
     val result = LongArray(totalLength)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }

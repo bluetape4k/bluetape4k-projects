@@ -183,10 +183,9 @@ fun FloatArray.ensureCapacity(minCapacity: Int, padding: Int): FloatArray {
 fun concat(vararg arrays: FloatArray): FloatArray {
     val totalLength = arrays.sumOf { it.size }
     val result = FloatArray(totalLength)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }
