@@ -134,5 +134,10 @@ suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values
  * ```
  */
 suspend inline fun <reified E: Throwable> Flow<*>.assertError() {
-    this.catch { it shouldBeInstanceOf E::class }.collect()
+    var caught = false
+    this.catch { e ->
+        e shouldBeInstanceOf E::class
+        caught = true
+    }.collect()
+    caught shouldBeEqualTo true
 }

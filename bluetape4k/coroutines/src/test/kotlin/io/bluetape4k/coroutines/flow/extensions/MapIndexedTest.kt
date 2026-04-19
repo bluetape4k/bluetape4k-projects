@@ -7,7 +7,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -33,10 +32,7 @@ class MapIndexedTest: AbstractFlowTest() {
     fun `when upstream error`() = runTest {
         val ex = RuntimeException("Boom!")
 
-        flowOf(ex)
-            .mapIndexed { index, value -> index to value }
-            .assertError<RuntimeException>()
-
+        // flowOf(ex)는 ex를 값으로 방출할 뿐 예외를 던지지 않으므로 assertError 대상이 아님
         flow<Int> { throw ex }
             .mapIndexed { index, value -> index to value }
             .assertError<RuntimeException>()
