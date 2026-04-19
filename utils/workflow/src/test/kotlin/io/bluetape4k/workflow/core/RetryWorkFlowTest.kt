@@ -57,9 +57,7 @@ class RetryWorkFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = maxAttempts, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo maxAttempts
     }
 
@@ -74,9 +72,7 @@ class RetryWorkFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -91,9 +87,7 @@ class RetryWorkFlowTest: AbstractWorkflowTest() {
             retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 1
     }
 

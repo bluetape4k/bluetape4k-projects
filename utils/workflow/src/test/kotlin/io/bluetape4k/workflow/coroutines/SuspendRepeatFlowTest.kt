@@ -56,9 +56,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -75,9 +73,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -94,9 +90,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 1
     }
 

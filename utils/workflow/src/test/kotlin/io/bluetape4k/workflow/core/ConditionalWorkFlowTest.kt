@@ -30,9 +30,7 @@ class ConditionalWorkFlowTest: AbstractWorkflowTest() {
             otherwiseWork = failWork("otherwise-work", "otherwise 실행됨"),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -57,9 +55,7 @@ class ConditionalWorkFlowTest: AbstractWorkflowTest() {
             otherwiseWork = successWork("otherwise-work"),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
     }
 
     @Test

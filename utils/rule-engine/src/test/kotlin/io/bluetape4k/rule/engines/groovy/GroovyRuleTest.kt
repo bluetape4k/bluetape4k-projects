@@ -39,9 +39,7 @@ class GroovyRuleTest {
         val action = GroovyAction("discount = true")
         val facts = Facts.of("amount" to 1500)
 
-        action.execute(facts)
-
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        action.execute(facts); facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -101,9 +99,7 @@ class GroovyRuleTest {
             """.trimIndent()
         )
         val facts = Facts.of("amount" to 3000)
-        action.execute(facts)
-
-        facts.get<String>("tier") shouldBe "gold"
+        action.execute(facts); facts.get<String>("tier") shouldBe "gold"
     }
 
     @Test

@@ -73,9 +73,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             maxIterations = 100,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -92,9 +90,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             maxIterations = 100,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 3
     }
 }

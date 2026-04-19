@@ -262,9 +262,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("fail-2") { ctx -> WorkReport.failure(ctx, RuntimeException("실패2")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test

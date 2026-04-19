@@ -36,9 +36,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         )
         val flow = SuspendParallelFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -50,9 +48,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         )
         val flow = SuspendParallelFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
     }
 
     @Test
@@ -64,9 +60,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         )
         val flow = SuspendParallelFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
     }
 
     @Test
@@ -92,9 +86,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         val works = listOf(failSuspendWork())
         val flow = SuspendParallelFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     // ──────────────────────────────────────────────────
@@ -125,9 +117,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         )
         val flow = SuspendParallelFlow(works, policy = ParallelPolicy.ANY)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test

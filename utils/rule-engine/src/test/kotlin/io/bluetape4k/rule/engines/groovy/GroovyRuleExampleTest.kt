@@ -54,9 +54,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("discountAmount = amount * rate / 100.0")
 
         val facts = Facts.of("amount" to 50000, "rate" to 15)
-        action.execute(facts)
-
-        facts.get<Number>("discountAmount")!!.toDouble() shouldBeEqualTo 7500.0
+        action.execute(facts); facts.get<Number>("discountAmount")!!.toDouble() shouldBeEqualTo 7500.0
     }
 
     @Test
@@ -76,9 +74,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("result = base ** exponent")
 
         val facts = Facts.of("base" to 2, "exponent" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("result")!!.toLong() shouldBeEqualTo 1024L
+        action.execute(facts); facts.get<Number>("result")!!.toLong() shouldBeEqualTo 1024L
     }
 
     // =========================================================================
@@ -93,9 +89,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("name" to "Alice", "role" to "Manager")
-        action.execute(facts)
-
-        facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
+        action.execute(facts); facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
     }
 
     @Test
@@ -136,9 +130,7 @@ class GroovyRuleExampleTest {
         val action = GroovyAction("stars = '*' * rating")
 
         val facts = Facts.of("rating" to 5)
-        action.execute(facts)
-
-        facts.get<String>("stars") shouldBeEqualTo "*****"
+        action.execute(facts); facts.get<String>("stars") shouldBeEqualTo "*****"
     }
 
     // =========================================================================
@@ -166,9 +158,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("discountRate" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("totalAfterDiscount")!!.toDouble() shouldBeEqualTo 1350.0
+        action.execute(facts); facts.get<Number>("totalAfterDiscount")!!.toDouble() shouldBeEqualTo 1350.0
     }
 
     @Test
@@ -183,9 +173,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.empty()
-        action.execute(facts)
-
-        facts.get<Number>("passCount")!!.toInt() shouldBeEqualTo 5
+        action.execute(facts); facts.get<Number>("passCount")!!.toInt() shouldBeEqualTo 5
     }
 
     @Test
@@ -523,9 +511,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("principal" to 10000000, "annualRate" to 5, "years" to 3)
-        action.execute(facts)
-
-        facts.get<Number>("finalAmount")!!.toDouble() shouldBeEqualTo 11576250.0
+        action.execute(facts); facts.get<Number>("finalAmount")!!.toDouble() shouldBeEqualTo 11576250.0
     }
 
     @Test
@@ -537,9 +523,7 @@ class GroovyRuleExampleTest {
         )
 
         val facts = Facts.of("n" to 10)
-        action.execute(facts)
-
-        facts.get<Number>("factorial")!!.toLong() shouldBeEqualTo 3628800L
+        action.execute(facts); facts.get<Number>("factorial")!!.toLong() shouldBeEqualTo 3628800L
     }
 
     // =========================================================================
