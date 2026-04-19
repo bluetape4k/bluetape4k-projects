@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.whileSelect
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 
 private const val DEFAULT_DEBOUNCE_BUFFER_CAPACITY = 16
 
@@ -35,7 +35,7 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
         try {
             var bufferedItems = ArrayList<T>(DEFAULT_DEBOUNCE_BUFFER_CAPACITY)
             var deboundedTimeout = timeout
-            var prevTimeMs = System.currentTimeMillis()
+            var prevTimeNs = System.nanoTime()
 
             whileSelect {
                 if (bufferedItems.isNotEmpty()) {
@@ -47,9 +47,9 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
                     }
                 }
                 itemChannel.onReceiveCatching { result ->
-                    val receiveTimeMs = System.currentTimeMillis()
-                    deboundedTimeout -= (receiveTimeMs - prevTimeMs).milliseconds
-                    prevTimeMs = receiveTimeMs
+                    val receiveTimeNs = System.nanoTime()
+                    deboundedTimeout -= (receiveTimeNs - prevTimeNs).nanoseconds
+                    prevTimeNs = receiveTimeNs
                     result
                         .onSuccess { item -> bufferedItems.add(item) }
                         .onFailure { if (bufferedItems.isNotEmpty()) emit(bufferedItems) }

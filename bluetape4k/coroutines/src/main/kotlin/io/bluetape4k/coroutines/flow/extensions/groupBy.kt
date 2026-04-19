@@ -246,7 +246,7 @@ internal fun <T, K: Any, V> groupByInternal(
                     } catch (e: CancellationException) {
                         state.mainStopped.value = true
                         if (map.isEmpty()) {
-                            throw CancellationException()
+                            throw e
                         }
                     }
                     group.next(valueSelector(it))

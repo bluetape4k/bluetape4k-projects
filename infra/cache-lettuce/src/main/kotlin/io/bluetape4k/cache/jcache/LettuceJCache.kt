@@ -340,7 +340,8 @@ class LettuceJCache<K: Any, V: Any>(
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
-        runCatching { map.clear() }
+        // JCache 명세: close()는 리소스를 해제하는 것이지 데이터를 삭제하는 것이 아님.
+        // 데이터 삭제가 필요하면 close() 전에 clear()를 명시적으로 호출할 것.
         cacheManager.closeCache(this)
         runCatching { closeResource() }
     }

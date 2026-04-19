@@ -35,6 +35,8 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendBloomFilter`         | Redis BitSet 기반 Bloom Filter (suspend 전용)                                                |
 | `LettuceCuckooFilter`               | 삭제를 지원하는 Redis 기반 Cuckoo Filter (sync). 코루틴 버전: `LettuceSuspendCuckooFilter`             |
 | `LettuceSuspendCuckooFilter`        | 삭제를 지원하는 Redis 기반 Cuckoo Filter (suspend 전용)                                             |
+| `RedisScript`                       | SHA1을 미리 계산해 보관하는 재사용 Lua 스크립트. `EVALSHA` 우선 실행, `NOSCRIPT` 시 `EVAL` 자동 fallback        |
+| `RedisScriptRunner`                 | `RedisScript`를 sync / async / suspend API로 실행하는 헬퍼 객체 (`EVALSHA`→`EVAL` fallback 내장)   |
 
 `LettuceCacheConfig` 제약:
 
