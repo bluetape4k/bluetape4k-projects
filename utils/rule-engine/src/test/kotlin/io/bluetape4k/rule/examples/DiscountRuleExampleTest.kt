@@ -16,15 +16,16 @@ class DiscountRuleExampleTest {
 
     companion object: KLogging()
 
+    private val discountRule = rule {
+        name = "discount"
+        description = "1000원 이상 구매 시 할인 적용"
+        priority = 1
+        condition { facts -> facts.get<Int>("amount")!! > 1000 }
+        action { facts -> facts["discount"] = true }
+    }
+
     @Test
     fun `할인 규칙 적용 예제`() {
-        val discountRule = rule {
-            name = "discount"
-            description = "1000원 이상 구매 시 할인 적용"
-            priority = 1
-            condition { facts -> facts.get<Int>("amount")!! > 1000 }
-            action { facts -> facts["discount"] = true }
-        }
 
         val engine = ruleEngine { skipOnFirstAppliedRule = true }
         val facts = Facts.of("amount" to 1500)
@@ -35,14 +36,6 @@ class DiscountRuleExampleTest {
 
     @Test
     fun `할인 미적용 예제`() {
-        val discountRule = rule {
-            name = "discount"
-            description = "1000원 이상 구매 시 할인 적용"
-            priority = 1
-            condition { facts -> facts.get<Int>("amount")!! > 1000 }
-            action { facts -> facts["discount"] = true }
-        }
-
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 500)
         engine.fire(ruleSetOf(discountRule), facts)
