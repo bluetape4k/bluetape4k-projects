@@ -72,8 +72,6 @@ class ConditionalWorkFlowTest: AbstractWorkflowTest() {
             otherwiseWork = failWork("flag-false-work"),
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 }

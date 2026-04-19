@@ -84,9 +84,7 @@ class SuspendParallelFlowTest: AbstractWorkflowTest() {
         val works = listOf(successSuspendWork())
         val flow = SuspendParallelFlow(works)
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     @Test

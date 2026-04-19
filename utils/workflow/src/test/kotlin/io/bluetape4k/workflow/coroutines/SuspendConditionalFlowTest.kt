@@ -62,9 +62,7 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             otherwiseWork = failSuspendWork("otherwise-work"),
         )
 
-        val report = flow.execute(ctx)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(ctx).isSuccess.shouldBeTrue()
     }
 
     @Test
