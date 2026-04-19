@@ -1,85 +1,50 @@
 package io.bluetape4k.states.core
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.states.api.StateMachineException
+import io.bluetape4k.states.testing.assertRejects
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class GuardedTransitionTest {
-
     companion object: KLogging()
 
-    enum class State {
-        PENDING,
-        APPROVED,
-        REJECTED
+    enum class S { PENDING, APPROVED, REJECTED }
+    sealed class E {
+        data class Approve(val approvedBy: String?): E()
+        data object Reject: E()
     }
 
-    sealed class Event {
-        data class Approve(val approvedBy: String?): Event()
-        data object Reject: Event()
+    private fun guarded() = stateMachine<S, E> {
+        initialState = S.PENDING
+        finalStates = setOf(S.APPROVED, S.REJECTED)
+        transition(S.PENDING, on<E.Approve>(), to = S.APPROVED) {
+            guard { _, ev -> (ev as E.Approve).approvedBy != null }
+        }
+        transition(S.PENDING, on<E.Reject>(), to = S.REJECTED)
     }
 
-    @Test
-    fun `guard 조건이 true이면 전이가 성공한다`() {
-        val fsm = stateMachine<State, Event> {
-            initialState = State.PENDING
-            finalStates = setOf(State.APPROVED, State.REJECTED)
-
-            transition(State.PENDING, on<Event.Approve>(), to = State.APPROVED) {
-                guard { _, event -> (event as Event.Approve).approvedBy != null }
-            }
-            transition(State.PENDING, on<Event.Reject>(), to = State.REJECTED)
-        }
-
-        val result = fsm.transition(Event.Approve(approvedBy = "admin"))
-        result.currentState shouldBeEqualTo State.APPROVED
+    @Test fun `guard 조건이 true이면 전이가 성공한다`() {
+        guarded().transition(E.Approve("admin")).currentState shouldBeEqualTo S.APPROVED
     }
 
-    @Test
-    fun `guard 조건이 false이면 예외가 발생한다`() {
-        val fsm = stateMachine<State, Event> {
-            initialState = State.PENDING
-            finalStates = setOf(State.APPROVED, State.REJECTED)
-
-            transition(State.PENDING, on<Event.Approve>(), to = State.APPROVED) {
-                guard { _, event -> (event as Event.Approve).approvedBy != null }
-            }
-        }
-
-        assertThrows<StateMachineException> {
-            fsm.transition(Event.Approve(approvedBy = null))
-        }
+    @Test fun `guard 조건이 false이면 예외가 발생한다`() {
+        guarded().assertRejects(E.Approve(null))
     }
 
-    @Test
-    fun `canTransition이 guard 조건을 반영한다`() {
-        val fsm = stateMachine<State, Event> {
-            initialState = State.PENDING
-            finalStates = setOf(State.APPROVED)
-
-            transition(State.PENDING, on<Event.Approve>(), to = State.APPROVED) {
-                guard { _, event -> (event as Event.Approve).approvedBy != null }
-            }
-        }
-
-        fsm.canTransition(Event.Approve(approvedBy = "admin")).shouldBeTrue()
-        fsm.canTransition(Event.Approve(approvedBy = null)).shouldBeFalse()
+    @Test fun `canTransition이 guard 조건을 반영한다`() {
+        val m = guarded()
+        m.canTransition(E.Approve("admin")).shouldBeTrue()
+        m.canTransition(E.Approve(null)).shouldBeFalse()
     }
 
-    @Test
-    fun `guard 없는 전이는 항상 통과한다`() {
-        val fsm = stateMachine<State, Event> {
-            initialState = State.PENDING
-            finalStates = setOf(State.REJECTED)
-
-            transition(State.PENDING, on<Event.Reject>(), to = State.REJECTED)
+    @Test fun `guard 없는 전이는 항상 통과한다`() {
+        val m = stateMachine<S, E> {
+            initialState = S.PENDING
+            finalStates = setOf(S.REJECTED)
+            transition(S.PENDING, on<E.Reject>(), to = S.REJECTED)
         }
-
-        val result = fsm.transition(Event.Reject)
-        result.currentState shouldBeEqualTo State.REJECTED
+        m.transition(E.Reject).currentState shouldBeEqualTo S.REJECTED
     }
 }
