@@ -78,7 +78,10 @@ class AsyncHazelcastMemoizer<K: Any, V: Any>(
                 }
             }
             .whenComplete { result, error ->
-                inFlight.remove(key)
+                // remove(key, promise) 로 value-pair 제거: 동일 promise 만 제거해 race를 방지한다.
+                // remove가 complete 보다 먼저 실행되어야 다음 호출이 새 in-flight를 등록할 수 있다.
+                // remove(key) 만 사용하면 동시에 등록된 다른 promise가 지워지는 race가 발생한다.
+                inFlight.remove(key, promise)
                 if (error != null) promise.completeExceptionally(error)
                 else promise.complete(result)
             }

@@ -1,11 +1,13 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.cache.HazelcastServers
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Hazelcast IMap 기반 NearCache Coroutine(Suspend) 구현 테스트.
@@ -182,5 +185,49 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
         c.close()
         c.close()
         c.isClosed.shouldBeTrue()
+    }
+
+    @Test
+    fun `stats - recordStats=true 이면 hit count 반환`() = runTest(timeout = 30.seconds) {
+        // recordStats 활성화 시 Caffeine 통계가 수집되어야 한다.
+        val statsCache = HazelcastSuspendNearCache<String>(
+            hazelcastInstance = hazelcastClient,
+            config = HazelcastNearCacheConfig(
+                cacheName = "test-suspend-stats-" + Base58.randomString(6),
+                recordStats = true,
+            ),
+        )
+        try {
+            statsCache.put("k1", "v1")
+            statsCache.get("k1")    // front hit
+            statsCache.get("k1")    // front hit
+            val stats = statsCache.stats()
+            stats.localHits shouldBeGreaterOrEqualTo 1L
+        } finally {
+            runCatching { statsCache.close() }
+        }
+    }
+
+    @Test
+    fun `removeAll - bulk 삭제 후 IMap에서도 제거됨`() = runTest(timeout = 30.seconds) {
+        // removeAll이 front + back 모두에서 삭제했는지 IMap을 직접 조회해 검증한다.
+        cache.putAll(mapOf("x1" to "v1", "x2" to "v2", "x3" to "v3"))
+        cache.removeAll(setOf("x1", "x2"))
+        cache.backCacheSize() shouldBeEqualTo 1L
+        cache.get("x3") shouldBeEqualTo "v3"
+    }
+
+    @Test
+    fun `getAll - bulk 조회는 N-roundtrip 없이 작동`() = runTest(timeout = 30.seconds) {
+        // getAll()이 IMap.getAll()을 통해 bulk 조회가 올바르게 작동하는지 검증한다.
+        val data = mapOf("g1" to "v1", "g2" to "v2", "g3" to "v3")
+        cache.putAll(data)
+        // front cache를 비워 IMap getAll 경로를 강제로 타도록 한다.
+        cache.clearLocal()
+        val result = cache.getAll(setOf("g1", "g2", "g3", "missing"))
+        result["g1"] shouldBeEqualTo "v1"
+        result["g2"] shouldBeEqualTo "v2"
+        result["g3"] shouldBeEqualTo "v3"
+        result["missing"].shouldBeNull()
     }
 }
