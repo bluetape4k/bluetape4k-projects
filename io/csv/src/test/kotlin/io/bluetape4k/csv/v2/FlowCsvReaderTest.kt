@@ -142,7 +142,7 @@ class FlowCsvReaderTest {
         val backToRow = record.toCsvRow()
         backToRow.getString("name") shouldBeEqualTo "Alice"
         backToRow.headers.shouldNotBeNull()
-        backToRow.headers!! shouldHaveSize 2
+        backToRow.headers shouldHaveSize 2
     }
 
     // ── readFile(Path) ────────────────────────────────────

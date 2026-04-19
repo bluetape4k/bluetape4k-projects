@@ -14,9 +14,9 @@ dependencies {
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Collections
-    implementation(Libs.commons_collections4)
-    implementation(Libs.eclipse_collections)
-    implementation(Libs.eclipse_collections_forkjoin)
+    compileOnly(Libs.commons_collections4)
+    compileOnly(Libs.eclipse_collections)
+    compileOnly(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
 
     // Test Fixture

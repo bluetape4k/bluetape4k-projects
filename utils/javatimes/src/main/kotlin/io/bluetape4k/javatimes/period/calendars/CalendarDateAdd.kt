@@ -48,9 +48,9 @@ open class CalendarDateAdd private constructor(): DateAdd() {
 //        get() = throw UnsupportedOperationException("Does not support IncludePeriods")
 //        protected set
 
-    fun addWorkingWeekdays() = addWeekdays(*Weekdays)
+    fun addWorkingWeekdays() = addWeekdays(*Weekdays.toTypedArray())
 
-    fun addWeekendWeekdays() = addWeekdays(*Weekends)
+    fun addWeekendWeekdays() = addWeekdays(*Weekends.toTypedArray())
 
     fun addWeekdays(vararg dayOfWeeks: DayOfWeek) {
         weekDays.addAll(dayOfWeeks.asList())
