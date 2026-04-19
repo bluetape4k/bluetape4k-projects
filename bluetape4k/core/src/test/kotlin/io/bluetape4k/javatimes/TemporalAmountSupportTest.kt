@@ -6,18 +6,51 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 import java.time.Period
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
+import java.time.temporal.TemporalAmount
 import java.time.temporal.TemporalUnit
+import java.util.stream.Stream
 
 /**
  * [TemporalAmountSupport.kt]에 대한 테스트
  */
 class TemporalAmountSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        @JvmStatic
+        fun intTemporalAmountCases(): Stream<Arguments> = Stream.of(
+            Arguments.of(3, ChronoUnit.YEARS, Period.ofYears(3)),
+            Arguments.of(6, ChronoUnit.MONTHS, Period.ofMonths(6)),
+            Arguments.of(2, ChronoUnit.WEEKS, Period.ofWeeks(2)),
+            Arguments.of(5, ChronoUnit.DAYS, Duration.ofDays(5)),
+            Arguments.of(12, ChronoUnit.HOURS, Duration.ofHours(12)),
+            Arguments.of(30, ChronoUnit.MINUTES, Duration.ofMinutes(30)),
+            Arguments.of(45, ChronoUnit.SECONDS, Duration.ofSeconds(45)),
+            Arguments.of(500, ChronoUnit.MILLIS, Duration.ofMillis(500)),
+            Arguments.of(1000, ChronoUnit.MICROS, Duration.ofNanos(1_000_000)),
+            Arguments.of(123456789, ChronoUnit.NANOS, Duration.ofNanos(123456789)),
+        )
+
+        @JvmStatic
+        fun longTemporalAmountCases(): Stream<Arguments> = Stream.of(
+            Arguments.of(5L, ChronoUnit.YEARS, Period.ofYears(5)),
+            Arguments.of(8L, ChronoUnit.MONTHS, Period.ofMonths(8)),
+            Arguments.of(3L, ChronoUnit.WEEKS, Period.ofWeeks(3)),
+            Arguments.of(10L, ChronoUnit.DAYS, Duration.ofDays(10)),
+            Arguments.of(24L, ChronoUnit.HOURS, Duration.ofHours(24)),
+            Arguments.of(60L, ChronoUnit.MINUTES, Duration.ofMinutes(60)),
+            Arguments.of(120L, ChronoUnit.SECONDS, Duration.ofSeconds(120)),
+            Arguments.of(2000L, ChronoUnit.MILLIS, Duration.ofMillis(2000)),
+            Arguments.of(5000L, ChronoUnit.MICROS, Duration.ofNanos(5_000_000)),
+            Arguments.of(987654321L, ChronoUnit.NANOS, Duration.ofNanos(987654321)),
+        )
+    }
 
     @Test
     fun `Duration의 nanos 속성`() {
@@ -126,124 +159,16 @@ class TemporalAmountSupportTest {
         amount.toDurationOrNull() shouldBeEqualTo null
     }
 
-    @Test
-    fun `Int temporalAmount - YEARS`() {
-        val amount = 3.temporalAmount(ChronoUnit.YEARS)
-        amount shouldBeEqualTo Period.ofYears(3)
+    @ParameterizedTest(name = "Int temporalAmount - {1}")
+    @MethodSource("intTemporalAmountCases")
+    fun `Int temporalAmount - ChronoUnit별 변환`(amount: Int, unit: ChronoUnit, expected: TemporalAmount) {
+        amount.temporalAmount(unit) shouldBeEqualTo expected
     }
 
-    @Test
-    fun `Int temporalAmount - MONTHS`() {
-        val amount = 6.temporalAmount(ChronoUnit.MONTHS)
-        amount shouldBeEqualTo Period.ofMonths(6)
-    }
-
-    @Test
-    fun `Int temporalAmount - WEEKS`() {
-        val amount = 2.temporalAmount(ChronoUnit.WEEKS)
-        amount shouldBeEqualTo Period.ofWeeks(2)
-    }
-
-    @Test
-    fun `Int temporalAmount - DAYS`() {
-        val amount = 5.temporalAmount(ChronoUnit.DAYS)
-        amount shouldBeEqualTo Duration.ofDays(5)
-    }
-
-    @Test
-    fun `Int temporalAmount - HOURS`() {
-        val amount = 12.temporalAmount(ChronoUnit.HOURS)
-        amount shouldBeEqualTo Duration.ofHours(12)
-    }
-
-    @Test
-    fun `Int temporalAmount - MINUTES`() {
-        val amount = 30.temporalAmount(ChronoUnit.MINUTES)
-        amount shouldBeEqualTo Duration.ofMinutes(30)
-    }
-
-    @Test
-    fun `Int temporalAmount - SECONDS`() {
-        val amount = 45.temporalAmount(ChronoUnit.SECONDS)
-        amount shouldBeEqualTo Duration.ofSeconds(45)
-    }
-
-    @Test
-    fun `Int temporalAmount - MILLIS`() {
-        val amount = 500.temporalAmount(ChronoUnit.MILLIS)
-        amount shouldBeEqualTo Duration.ofMillis(500)
-    }
-
-    @Test
-    fun `Int temporalAmount - MICROS`() {
-        val amount = 1000.temporalAmount(ChronoUnit.MICROS)
-        amount shouldBeEqualTo Duration.ofNanos(1_000_000)
-    }
-
-    @Test
-    fun `Int temporalAmount - NANOS`() {
-        val amount = 123456789.temporalAmount(ChronoUnit.NANOS)
-        amount shouldBeEqualTo Duration.ofNanos(123456789)
-    }
-
-    @Test
-    fun `Long temporalAmount - YEARS`() {
-        val amount = 5L.temporalAmount(ChronoUnit.YEARS)
-        amount shouldBeEqualTo Period.ofYears(5)
-    }
-
-    @Test
-    fun `Long temporalAmount - MONTHS`() {
-        val amount = 8L.temporalAmount(ChronoUnit.MONTHS)
-        amount shouldBeEqualTo Period.ofMonths(8)
-    }
-
-    @Test
-    fun `Long temporalAmount - WEEKS`() {
-        val amount = 3L.temporalAmount(ChronoUnit.WEEKS)
-        amount shouldBeEqualTo Period.ofWeeks(3)
-    }
-
-    @Test
-    fun `Long temporalAmount - DAYS`() {
-        val amount = 10L.temporalAmount(ChronoUnit.DAYS)
-        amount shouldBeEqualTo Duration.ofDays(10)
-    }
-
-    @Test
-    fun `Long temporalAmount - HOURS`() {
-        val amount = 24L.temporalAmount(ChronoUnit.HOURS)
-        amount shouldBeEqualTo Duration.ofHours(24)
-    }
-
-    @Test
-    fun `Long temporalAmount - MINUTES`() {
-        val amount = 60L.temporalAmount(ChronoUnit.MINUTES)
-        amount shouldBeEqualTo Duration.ofMinutes(60)
-    }
-
-    @Test
-    fun `Long temporalAmount - SECONDS`() {
-        val amount = 120L.temporalAmount(ChronoUnit.SECONDS)
-        amount shouldBeEqualTo Duration.ofSeconds(120)
-    }
-
-    @Test
-    fun `Long temporalAmount - MILLIS`() {
-        val amount = 2000L.temporalAmount(ChronoUnit.MILLIS)
-        amount shouldBeEqualTo Duration.ofMillis(2000)
-    }
-
-    @Test
-    fun `Long temporalAmount - MICROS`() {
-        val amount = 5000L.temporalAmount(ChronoUnit.MICROS)
-        amount shouldBeEqualTo Duration.ofNanos(5_000_000)
-    }
-
-    @Test
-    fun `Long temporalAmount - NANOS`() {
-        val amount = 987654321L.temporalAmount(ChronoUnit.NANOS)
-        amount shouldBeEqualTo Duration.ofNanos(987654321)
+    @ParameterizedTest(name = "Long temporalAmount - {1}")
+    @MethodSource("longTemporalAmountCases")
+    fun `Long temporalAmount - ChronoUnit별 변환`(amount: Long, unit: ChronoUnit, expected: TemporalAmount) {
+        amount.temporalAmount(unit) shouldBeEqualTo expected
     }
 
     @Test
