@@ -45,7 +45,7 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. It maximizes Kotli
 ## After Code Changes
 
 - [ ] Run compile + tests
-- [ ] Record result at the top of Obsidian `wiki/testlogs/YYYY-MM.md` for current month (skip for doc-only changes)
+- [ ] Record result at the top of `docs/testlogs/YYYY-MM.md` for current month (skip for doc-only changes)
 - [ ] When changing a module: sync-update both `README.md` **and** `README.ko.md`
 - [ ] After superpowers work: add entry to `docs/superpowers/index/YYYY-MM.md` → update count in `docs/superpowers/INDEX.md`
 - [ ] When creating a new spec/plan: run `/wiki-update`
