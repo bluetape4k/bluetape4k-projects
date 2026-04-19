@@ -83,10 +83,11 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
         val mutex = mutexFor(key)
         return try {
             mutex.withLock {
-                // Mutex 획득 후 재확인: fast-path에서 miss를 확인한 뒤 대기하는 동안
-                // 앞선 코루틴이 이미 값을 채웠을 수 있습니다.
-                // 이 경우 rawGet()을 사용해 중복 miss 카운트 없이 체크합니다.
-                rawGet(cacheKey) ?: computeAndPut(cacheKey, loader)
+                // Mutex 획득 후 재확인 (double-check locking):
+                // fast-path에서 miss를 기록한 뒤 대기하는 동안 앞선 코루틴이
+                // 이미 값을 채웠을 수 있습니다. 이 때는 miss를 중복 기록하지 않고
+                // hit만 기록하기 위해 rawGetWithHit()을 사용합니다.
+                rawGetWithHit(cacheKey) ?: computeAndPut(cacheKey, loader)
             }
         } finally {
             releaseMutex(key, mutex)
@@ -94,15 +95,26 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
     }
 
     /**
-     * metrics(hit/miss) 업데이트 없이 JCache에서 값을 직접 조회합니다.
+     * JCache에서 값을 직접 조회하고, 값이 있으면 hit 메트릭을 기록합니다.
      *
-     * [computeIfAbsent]의 Mutex 내부 double-check 전용입니다. fast-path에서 이미
-     * onCacheMiss를 기록했으므로, Mutex 획득 후 재확인 시 onCacheMiss가 중복으로
-     * 기록되지 않도록 분리된 메서드입니다.
+     * [computeIfAbsent]의 Mutex 내부 double-check 전용입니다.
+     *
+     * ## 메트릭 정합성
+     * fast-path에서 이미 onCacheMiss를 기록했으므로, Mutex 획득 후 재확인 시
+     * onCacheMiss가 중복으로 기록되지 않도록 분리된 메서드입니다.
+     * 앞선 코루틴이 이미 값을 로드해 캐시에 넣은 경우에는 hit 메트릭을 기록하여
+     * miss 1건이 hit 1건으로 보정됩니다.
      */
-    private fun rawGet(cacheKey: K): V? {
+    private fun rawGetWithHit(cacheKey: K): V? {
         return try {
-            if (jcache.containsKey(cacheKey)) jcache[cacheKey] else null
+            if (jcache.containsKey(cacheKey)) {
+                // double-check에서 값이 있으면 hit으로 정정합니다.
+                // fast-path의 miss 카운트는 이미 기록되었으므로 별도 보정은 하지 않습니다.
+                onCacheHit(cacheKey)
+                jcache[cacheKey]
+            } else {
+                null
+            }
         } catch (e: Throwable) {
             null
         }
