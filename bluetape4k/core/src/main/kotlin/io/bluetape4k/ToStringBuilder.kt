@@ -21,6 +21,7 @@ class ToStringBuilder private constructor(
 ): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
+        private const val NO_LIMIT = -1
 
         @JvmStatic
         operator fun invoke(className: String): ToStringBuilder {
@@ -84,5 +85,5 @@ class ToStringBuilder private constructor(
      */
     fun toString(limit: Int): String = toStringValue(limit)
 
-    override fun toString(): String = toStringValue(-1)
+    override fun toString(): String = toStringValue(NO_LIMIT)
 }

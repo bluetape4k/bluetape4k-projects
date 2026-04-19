@@ -99,7 +99,6 @@ fun DoubleArray.lastIndexOf(target: Double, start: Int = 0, end: Int = size - 1)
     start.requireInRange(0, end, "start")
     end.requireInOpenRange(start, size, "end")
 
-    this.min()
     for (i in end downTo start) {
         if (this[i] == target) {
             return i

@@ -89,7 +89,7 @@ fun LongArray.indexOf(target: LongArray, start: Int = 0, end: Int = this.size - 
  * @param target 찾을 값
  * @return 찾은 값의 인덱스, 찾지 못한 경우 -1
  */
-fun LongArray.lastIndexOf(target: Long, start: Int = 0, end: Int = this@lastIndexOf.size): Int {
+fun LongArray.lastIndexOf(target: Long, start: Int = 0, end: Int = size - 1): Int {
     if (isEmpty()) {
         return -1
     }
