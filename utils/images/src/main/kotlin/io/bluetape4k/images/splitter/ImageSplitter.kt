@@ -7,7 +7,6 @@ import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.immutableImageOf
 import io.bluetape4k.images.splitter.ImageSplitter.Companion.DEFAULT_MAX_HEIGHT
 import io.bluetape4k.images.splitter.ImageSplitter.Companion.DEFAULT_MIN_HEIGHT
-import io.bluetape4k.io.toByteArray
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requirePositiveNumber
@@ -86,7 +85,9 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
         val srcWidth = source.width
 
         if (srcHeight <= height) {
-            return flowOf(input.toByteArray())
+            val bos = ByteArrayOutputStream()
+            ImageIO.write(source, format.name, bos)
+            return flowOf(bos.toByteArray())
         }
 
         return channelFlow {

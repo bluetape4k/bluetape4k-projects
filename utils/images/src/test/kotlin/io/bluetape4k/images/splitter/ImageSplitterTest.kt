@@ -57,6 +57,23 @@ class ImageSplitterTest: AbstractImageTest() {
         }
     }
 
+    @Test
+    fun `split에서 이미지 높이가 분할 높이보다 작으면 원본을 그대로 반환한다`() = runTest {
+        getImage(CAFE_JPG).use { input ->
+            // CAFE_JPG의 높이보다 큰 splitHeight를 지정하면 분할 없이 1개의 이미지 반환
+            val largeSplitter = ImageSplitter(10000)
+            val items = largeSplitter.split(input, ImageFormat.JPG, 10000).toList()
+
+            items.size shouldBeEqualTo 1
+            items[0].shouldNotBeEmpty()
+
+            // 반환된 바이트를 읽으면 유효한 이미지여야 한다
+            val restored = ImageIO.read(items[0].toInputStream())
+            (restored.width > 0).shouldBeTrue()
+            (restored.height > 0).shouldBeTrue()
+        }
+    }
+
     @ParameterizedTest(name = "split {0}")
     @ValueSource(strings = [AQUA_JPG, EVERLAND_JPG])
     fun `split jpg image with default height`(path: String, tempFolder: TempFolder) = runTest {

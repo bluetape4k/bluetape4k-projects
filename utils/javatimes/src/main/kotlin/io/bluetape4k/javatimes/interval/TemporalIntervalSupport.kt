@@ -252,8 +252,8 @@ fun <T> ReadableTemporalInterval<T>.toPeriod(unit: ChronoUnit): Period where T: 
     return when (unit) {
         ChronoUnit.DAYS  -> Period.ofDays(toPeriod().days)
         ChronoUnit.WEEKS -> Period.ofWeeks(toPeriod().days / 7)
-        ChronoUnit.MONTHS -> Period.ofDays(toPeriod().months)
-        ChronoUnit.YEARS -> Period.ofDays(toPeriod().years)
+        ChronoUnit.MONTHS -> Period.ofMonths(toPeriod().months)
+        ChronoUnit.YEARS -> Period.ofYears(toPeriod().years)
         else             -> toPeriod()
     }
 }

@@ -387,12 +387,12 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
      * ```kotlin
      * val hash = geoHashWithBits(37.5665, 126.9780, 10)
      * val binary = hash.toBinaryString()
-     * // binary.length == 9
+     * // binary.length == 10
      * ```
      */
     fun toBinaryString(): String = buildString {
         var bitsCopy = bits
-        repeat(significantBits - 1) {
+        repeat(significantBits.toInt()) {
             if ((bitsCopy and FIRST_BIT_FLAGGED) == FIRST_BIT_FLAGGED) {
                 append('1')
             } else {

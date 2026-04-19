@@ -152,7 +152,7 @@ fun <T: Any> Iterable<T>.random(sampleSize: Int): List<T> = toList().random(samp
 class WeightedCoin(val trueProbability: Double) {
 
     init {
-        assert(trueProbability in 0.0..1.0) {
+        require(trueProbability in 0.0..1.0) {
             "trueProbability[$trueProbability] must be in 0.0 .. 1.0"
         }
     }
@@ -177,7 +177,7 @@ class WeightedCoin(val trueProbability: Double) {
  * ```
  */
 fun weightedCoinFlip(trueProbability: Double): Boolean {
-    assert(trueProbability in 0.0..1.0) { "trueProbability[$trueProbability] must be in 0.0 .. 1.0" }
+    require(trueProbability in 0.0..1.0) { "trueProbability[$trueProbability] must be in 0.0 .. 1.0" }
     return ThreadLocalRandom.current().nextDouble(0.0, 1.0) <= trueProbability
 }
 
@@ -201,7 +201,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
          * ```
          */
         operator fun <E: Any> invoke(vararg values: Pair<E, Double>): WeightedDice<E> {
-            assert(values.isNotEmpty()) { "values is empty." }
+            require(values.isNotEmpty()) { "values is empty." }
             return WeightedDice(values.toMap())
         }
 
@@ -213,7 +213,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
          * ```
          */
         operator fun <E: Any> invoke(probabilities: Map<E, Double>): WeightedDice<E> {
-            assert(probabilities.isNotEmpty()) { "probabilities is empty." }
+            require(probabilities.isNotEmpty()) { "probabilities is empty." }
             return WeightedDice(probabilities)
         }
     }

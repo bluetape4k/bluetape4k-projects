@@ -81,4 +81,50 @@ class MultiSupportTest {
                 log.debug { "collect=$it" }
             }
     }
+
+    @Test
+    fun `deferUni로 반복 Uni 생성`() {
+        var n = 0
+        val repeat = Multi.createBy().repeating().deferUni { uniOf(++n) }.atMost(3)
+        val result = repeat.collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf(1, 2, 3)
+    }
+
+    @Test
+    fun `deferCompletionStage로 반복 생성`() {
+        var n = 0
+        val repeat = Multi.createBy().repeating()
+            .deferCompletionStage { java.util.concurrent.CompletableFuture.completedFuture(++n) }
+            .atMost(3)
+        val result = repeat.collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf(1, 2, 3)
+    }
+
+    @Test
+    fun `LongArray를 Multi로 변환`() {
+        val result = longArrayOf(10L, 20L, 30L).asMulti()
+            .collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf(10L, 20L, 30L)
+    }
+
+    @Test
+    fun `DoubleArray를 Multi로 변환`() {
+        val result = doubleArrayOf(1.1, 2.2).asMulti()
+            .collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf(1.1, 2.2)
+    }
+
+    @Test
+    fun `CharProgression을 Multi로 변환`() {
+        val result = ('a'..'d').asMulti()
+            .collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf('a', 'b', 'c', 'd')
+    }
+
+    @Test
+    fun `LongProgression을 Multi로 변환`() {
+        val result = (1L..3L).asMulti()
+            .collect().asList().await().indefinitely()
+        result shouldBeEqualTo listOf(1L, 2L, 3L)
+    }
 }

@@ -150,4 +150,31 @@ class WorkContextTest: AbstractWorkflowTest() {
         val finalCount: Int? = ctx["counter"]
         finalCount shouldBeEqualTo threadCount * incrementsPerThread
     }
+
+    @Test
+    fun `workContext 팩토리 함수로 생성`() {
+        val created = workContext("orderId" to 42L, "userId" to "alice")
+
+        val orderId: Long? = created["orderId"]
+        val userId: String? = created["userId"]
+
+        orderId shouldBeEqualTo 42L
+        userId shouldBeEqualTo "alice"
+    }
+
+    @Test
+    fun `workContext 빈 인자로 생성`() {
+        val created = workContext()
+        created.contains("any").shouldBeFalse()
+    }
+
+    @Test
+    fun `toString 형식 확인`() {
+        ctx["a"] = 1
+        ctx["b"] = 2
+        val str = ctx.toString()
+        str.contains("a").shouldBeTrue()
+        str.contains("b").shouldBeTrue()
+    }
+
 }

@@ -18,14 +18,16 @@ class GeoHashTestConvert {
             val binaryString = geohash.toBinaryString()
             val readBack = geoHashOfBinaryString(binaryString)
 
+            // toBinaryString이 significantBits와 동일한 길이를 반환하므로
+            // 정밀도 손실 없이 완전한 라운드트립이 보장됩니다.
+            readBack.significantBits() shouldBeEqualTo geohash.significantBits()
+
             // toBase32는 significantBits가 5의 배수일 때만 변환 가능
-            // 원본과 복원된 모두 5의 배수일 때만 비교
-            if (geohash.significantBits() % 5 == 0 && readBack.significantBits() % 5 == 0) {
+            if (geohash.significantBits() % 5 == 0) {
                 readBack.toBase32() shouldBeEqualTo geohash.toBase32()
             }
 
             // BoundingBox 중심점 비교 (Double 값은 epsilon 적용)
-            // binaryString 변환 과정에서 정밀도 차이가 발생할 수 있으므로 큰 epsilon 사용
             readBack.boundingBoxCenter.latitude.shouldBeNear(
                 geohash.boundingBoxCenter.latitude,
                 DELTA,

@@ -125,4 +125,20 @@ class SuspendRetryFlowTest: AbstractWorkflowTest() {
         flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
+
+    @Test
+    fun `예외를 던지는 work도 Failure로 변환되어 재시도한다`() = runTest {
+        val counter = AtomicInteger(0)
+        val flow = SuspendRetryFlow(
+            work = SuspendWork("throwing-work") { ctx ->
+                val cnt = counter.incrementAndGet()
+                if (cnt < 3) throw IllegalStateException("시도 #$cnt 예외")
+                WorkReport.success(ctx)
+            },
+            retryPolicy = RetryPolicy(maxAttempts = 5, delay = 0.milliseconds),
+        )
+
+        flow.execute(context).isSuccess.shouldBeTrue()
+        counter.get() shouldBeEqualTo 3
+    }
 }

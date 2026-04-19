@@ -84,4 +84,25 @@ class SuspendStateMachineTest {
         m.transition(E.Finish)
         m.allowedEvents().shouldBeEmpty()
     }
+
+    @Test fun `onTransition 콜백이 호출된다`() = runTest {
+        val log = mutableListOf<String>()
+        val m = suspendStateMachine<S, E> {
+            initialState = S.IDLE
+            finalStates = setOf(S.DONE)
+            transition(S.IDLE, on<E.Start>(), to = S.RUNNING)
+            transition(S.RUNNING, on<E.Finish>(), to = S.DONE)
+            onTransition { prev, _, next -> log.add("$prev -> $next") }
+        }
+        m.transition(E.Start)
+        m.transition(E.Finish)
+
+        log shouldBeEqualTo listOf("IDLE -> RUNNING", "RUNNING -> DONE")
+    }
+
+    @Test fun `canTransition이 올바르게 동작한다`() = runTest {
+        val m = fsm()
+        m.canTransition(E.Start).shouldBeTrue()
+        m.canTransition(E.Finish).shouldBeFalse()
+    }
 }

@@ -34,8 +34,8 @@ object JwtConsts {
     /** JWT header의 signature algorithm 키입니다. */
     const val HEADER_ALGORITHM = "alg"
 
-    /** 기본 키 로테이션 TTL(분)입니다. */
-    val DEFAULT_KEY_ROTATION_TTL_MILLIS = Duration.ofDays(365).toMinutes()
+    /** 기본 키 로테이션 TTL(밀리초)입니다. 365일에 해당합니다. */
+    val DEFAULT_KEY_ROTATION_TTL_MILLIS = Duration.ofDays(365).toMillis()
 
     /** 기본 인메모리 키체인 저장소입니다. */
     val DefaultKeyChainRepository by lazy { InMemoryKeyChainRepository() }

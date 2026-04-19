@@ -50,7 +50,9 @@ class Facts private constructor(
         @JvmStatic
         fun of(vararg pairs: Pair<String, Any?>): Facts {
             val map = ConcurrentHashMap<String, Any?>()
-            pairs.forEach { (k, v) -> map[k] = v }
+            pairs.forEach { (k, v) ->
+                if (v != null) map[k] = v
+            }
             return Facts(map)
         }
 
@@ -68,7 +70,9 @@ class Facts private constructor(
          */
         @JvmStatic
         fun from(map: Map<String, Any?>): Facts {
-            return Facts(ConcurrentHashMap(map))
+            val filtered = ConcurrentHashMap<String, Any?>()
+            map.forEach { (k, v) -> if (v != null) filtered[k] = v }
+            return Facts(filtered)
         }
     }
 
@@ -91,37 +95,49 @@ class Facts private constructor(
     }
 
     /**
-     * Fact 값을 설정합니다.
+     * Fact 값을 설정합니다. null 값 설정 시 해당 키를 제거합니다.
      *
      * ```kotlin
      * val facts = Facts.empty()
      * facts["score"] = 100
      * facts.get<Int>("score") // 100
+     * facts["score"] = null
+     * facts.containsKey("score") // false
      * ```
      *
      * @param name Fact 이름
-     * @param value Fact 값
+     * @param value Fact 값 (null이면 해당 키 제거)
      */
     operator fun set(name: String, value: Any?) {
         name.requireNotBlank("name")
-        facts[name] = value
+        if (value == null) {
+            facts.remove(name)
+        } else {
+            facts[name] = value
+        }
     }
 
     /**
-     * Fact를 추가합니다. (Map 호환)
+     * Fact를 추가합니다. null 값 설정 시 해당 키를 제거합니다. (Map 호환)
      *
      * ```kotlin
      * val facts = Facts.empty()
      * facts.put("status", "active")
      * facts.get<String>("status") // "active"
+     * facts.put("status", null)
+     * facts.containsKey("status") // false
      * ```
      *
      * @param name Fact 이름
-     * @param value Fact 값
+     * @param value Fact 값 (null이면 해당 키 제거)
      */
     fun put(name: String, value: Any?) {
         name.requireNotBlank("name")
-        facts[name] = value
+        if (value == null) {
+            facts.remove(name)
+        } else {
+            facts[name] = value
+        }
     }
 
     /**
