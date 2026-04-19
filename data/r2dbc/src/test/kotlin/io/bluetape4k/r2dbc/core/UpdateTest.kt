@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 class UpdateTest: AbstractR2dbcTest() {
 
@@ -68,7 +69,7 @@ class UpdateTest: AbstractR2dbcTest() {
 
         user shouldBeEqualTo User(username = "nick", password = "pass", name = "John Smith", userId = user.userId)
 
-        val now = OffsetDateTime.now()
+        val now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS)
 
         val newUser = user.copy(description = "description", createdAt = now, active = true)
         val rowsUpdated = client.update().table<User>().using(newUser, client).awaitSingle()
