@@ -43,6 +43,7 @@ build/
 
 .code-review-graph
 
+.omc/
 .omc/sessions/
 .omc/state/
 .omc/logs/
