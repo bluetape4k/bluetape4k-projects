@@ -244,19 +244,24 @@ open class LettuceMap<V: Any>(
      * @return 저장 성공 여부
      */
     fun putTtl(field: String, value: V, ttl: Duration?): Boolean {
-        if (ttl != null) {
-            val added = if (supportsHSetEx) {
-                syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), mapOf(field to value))
-                true
-            } else {
-                put(field, value)
+        if (ttl == null) {
+            return put(field, value).also {
+                log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=null" }
             }
-            syncCommands.expire(mapKey, ttl)
-            log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
-            return added
         }
-        val added = put(field, value)
-        log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl" }
+        // 개선:
+        //  - HSETEX 지원 시: 필드 레벨 TTL 로 기록하고 키 전체에 EXPIRE 를 덮어쓰지 않음
+        //    (다른 필드의 TTL/수명을 훼손하지 않도록).
+        //  - 미지원 시에만 HSET + EXPIRE 로 키 전체 만료를 설정.
+        val added = if (supportsHSetEx) {
+            syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), mapOf(field to value))
+            true
+        } else {
+            val ok = put(field, value)
+            syncCommands.expire(mapKey, ttl)
+            ok
+        }
+        log.debug { "LettuceMap putTtl: mapKey=$mapKey, field=$field, ttl=$ttl, hsetex=$supportsHSetEx" }
         return added
     }
 
@@ -272,13 +277,15 @@ open class LettuceMap<V: Any>(
             putAll(entries)
             return
         }
+        // 개선: HSETEX 는 필드-레벨 TTL 이므로 별도 EXPIRE 를 호출하지 않는다.
+        //       미지원 시에만 HSET + EXPIRE 로 키 전체 만료 설정.
         if (supportsHSetEx) {
             syncCommands.hsetex(mapKey, HSetExArgs.Builder.ex(ttl), entries)
         } else {
             syncCommands.hset(mapKey, entries)
+            syncCommands.expire(mapKey, ttl)
         }
-        syncCommands.expire(mapKey, ttl)
-        log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}, ttl=$ttl" }
+        log.debug { "LettuceMap putAllTtl: mapKey=$mapKey, count=${entries.size}, ttl=$ttl, hsetex=$supportsHSetEx" }
     }
 
     // =========================================================================

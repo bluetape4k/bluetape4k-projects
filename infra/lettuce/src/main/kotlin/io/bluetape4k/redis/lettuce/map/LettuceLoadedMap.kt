@@ -217,7 +217,8 @@ class LettuceLoadedMap<K: Any, V: Any>(
     fun deleteAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
         if (config.writeMode != WriteMode.NONE) writer?.delete(keys)
-        commands.del(*keys.map { redisKey(it) }.toTypedArray())
+        // 개선: 대량 삭제는 UNLINK(비동기 해제)로 전환해 Redis 이벤트루프 블로킹을 최소화합니다.
+        commands.unlink(*keys.map { redisKey(it) }.toTypedArray())
     }
 
     /**
@@ -236,7 +237,8 @@ class LettuceLoadedMap<K: Any, V: Any>(
      */
     fun evictAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
-        commands.del(*keys.map { redisKey(it) }.toTypedArray())
+        // 개선: 캐시 대량 만료는 UNLINK(비동기 해제)로 전환.
+        commands.unlink(*keys.map { redisKey(it) }.toTypedArray())
     }
 
     /**
@@ -254,7 +256,8 @@ class LettuceLoadedMap<K: Any, V: Any>(
         do {
             val scanResult = commands.scan(cursor, scanArgs)
             if (scanResult.keys.isNotEmpty()) {
-                deleted += commands.del(*scanResult.keys.toTypedArray())
+                // 개선: SCAN + DEL → SCAN + UNLINK 로 대용량 invalidate 비차단 처리.
+                deleted += commands.unlink(*scanResult.keys.toTypedArray())
             }
             cursor = scanResult
         } while (!cursor.isFinished)
@@ -277,7 +280,8 @@ class LettuceLoadedMap<K: Any, V: Any>(
         do {
             val scanResult = commands.scan(cursor, scanArgs)
             if (scanResult.keys.isNotEmpty()) {
-                commands.del(*scanResult.keys.toTypedArray())
+                // 개선: clear() 도 UNLINK 적용해 대량 키 삭제의 블로킹을 제거.
+                commands.unlink(*scanResult.keys.toTypedArray())
             }
             cursor = scanResult
         } while (!cursor.isFinished)
@@ -305,8 +309,14 @@ class LettuceLoadedMap<K: Any, V: Any>(
                     }
                 } else {
                     runCatching {
+                        // 개선: 기존엔 키만 LPUSH 했기 때문에 실패한 엔트리 복구가 불가능했습니다.
+                        //       이제 키 리스트(순서/모니터링용)와 해시(키→값, 복구용)를 동시에 저장합니다.
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
-                        strCommands.lpush(deadLetterKey, *batch.keys.map { keySerializer(it) }.toTypedArray())
+                        val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+                        val serializedKeys = batch.keys.map { keySerializer(it) }
+                        strCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray())
+                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+                        commands.hset(deadLetterValuesKey, valueMap)
                     }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
                 }
             }

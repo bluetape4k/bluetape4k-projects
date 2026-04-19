@@ -3,6 +3,8 @@ package io.bluetape4k.redis.lettuce.filter
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.awaitSuspending
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
@@ -23,21 +25,28 @@ class LettuceSuspendBloomFilter(
 ): AutoCloseable {
 
     companion object: KLogging() {
-        private const val ADD_SCRIPT = """
+        // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
+        private val ADD_SCRIPT = RedisScript(
+            """
 for i = 1, #ARGV do
     redis.call('setbit', KEYS[1], ARGV[i], 1)
 end
 return 1"""
+        )
 
-        private const val CONTAINS_SCRIPT = """
+        private val CONTAINS_SCRIPT = RedisScript(
+            """
 for i = 1, #ARGV do
     if redis.call('getbit', KEYS[1], ARGV[i]) == 0 then return 0 end
 end
 return 1"""
+        )
     }
 
     private val configKey = "$filterName:config"
-    private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
+
+    // 개선: getter → final field 로 변경 (매 호출 connection.async() 호출 제거).
+    private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
 
     /** 비트 배열 크기입니다. `m = ceil(-n * ln(p) / (ln2)^2)` */
     val m: Long = ceil(-options.expectedInsertions * ln(options.falseProbability) / ln(2.0).pow(2)).toLong()
@@ -90,12 +99,13 @@ return 1"""
      */
     suspend fun add(element: String) {
         val positions = hashPositions(element)
-        asyncCommands.eval<Long>(
+        RedisScriptRunner.runSuspending<Long>(
+            asyncCommands,
             ADD_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(filterName),
             *positions
-        ).awaitSuspending()
+        )
     }
 
     /**
@@ -111,12 +121,13 @@ return 1"""
      */
     suspend fun contains(element: String): Boolean {
         val positions = hashPositions(element)
-        return asyncCommands.eval<Long>(
+        return RedisScriptRunner.runSuspending<Long>(
+            asyncCommands,
             CONTAINS_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(filterName),
             *positions
-        ).awaitSuspending() == 1L
+        ) == 1L
     }
 
     override fun close() = connection.close()

@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.filter
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
@@ -27,17 +29,22 @@ class LettuceBloomFilter(
 ): AutoCloseable {
 
     companion object: KLogging() {
-        private const val ADD_SCRIPT = """
+        // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
+        private val ADD_SCRIPT = RedisScript(
+            """
 for i = 1, #ARGV do
     redis.call('setbit', KEYS[1], ARGV[i], 1)
 end
 return 1"""
+        )
 
-        private const val CONTAINS_SCRIPT = """
+        private val CONTAINS_SCRIPT = RedisScript(
+            """
 for i = 1, #ARGV do
     if redis.call('getbit', KEYS[1], ARGV[i]) == 0 then return 0 end
 end
 return 1"""
+        )
     }
 
     private val configKey = "$filterName:config"
@@ -100,7 +107,7 @@ return 1"""
      */
     fun add(element: String) {
         val positions = hashPositions(element)
-        commands.eval<Long>(ADD_SCRIPT, ScriptOutputType.INTEGER, arrayOf(filterName), *positions)
+        RedisScriptRunner.run<Long>(commands, ADD_SCRIPT, ScriptOutputType.INTEGER, arrayOf(filterName), *positions)
         log.debug { "BloomFilter add: name=$filterName, element=$element" }
     }
 
@@ -119,7 +126,8 @@ return 1"""
      */
     fun contains(element: String): Boolean {
         val positions = hashPositions(element)
-        return commands.eval<Long>(
+        return RedisScriptRunner.run<Long>(
+            commands,
             CONTAINS_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(filterName),

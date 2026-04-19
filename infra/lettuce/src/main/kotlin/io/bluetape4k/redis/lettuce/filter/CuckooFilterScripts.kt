@@ -1,11 +1,20 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.redis.lettuce.script.RedisScript
+
 /**
  * Cuckoo Filter 구현이 공유하는 Lua 스크립트 모음입니다.
  *
  * 삽입 스크립트는 kick-out 재배치 중 실패하면 undo-log를 이용해 기존 버킷 상태를 복구합니다.
+ *
+ * 개선: 각 상수 String → [RedisScript] 로 승격해 SHA1 을 1 회만 계산하고
+ * EVALSHA 호출을 재사용합니다.
  */
 internal object CuckooFilterScripts {
+
+    val INSERT_SCRIPT = RedisScript(INSERT)
+    val CONTAINS_SCRIPT = RedisScript(CONTAINS)
+    val DELETE_SCRIPT = RedisScript(DELETE)
 
     const val INSERT = """
 local fp = ARGV[1]

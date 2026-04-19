@@ -12,6 +12,8 @@ import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.resource.ClientResources
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
 
@@ -26,6 +28,11 @@ object LettuceClients: KLogging() {
 
     private val defaultConnections = ConcurrentHashMap<RedisClient, StatefulRedisConnection<String, String>>()
     private val codecConnections = ConcurrentHashMap<CodecConnectionKey<*>, StatefulRedisConnection<String, *>>()
+
+    // 개선: connect() 시 직렬화된 접근이 필요하지만 monitor lock 은 Virtual Thread 를
+    //       pin 시키므로 ReentrantLock 으로 대체합니다 (프로젝트 규칙: VT 에서 synchronized 금지).
+    private val defaultConnectionLocks = ConcurrentHashMap<RedisClient, ReentrantLock>()
+    private val codecConnectionLocks = ConcurrentHashMap<CodecConnectionKey<*>, ReentrantLock>()
 
     @JvmField
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
@@ -202,9 +209,11 @@ object LettuceClients: KLogging() {
      */
     fun shutdown(client: RedisClient) {
         runCatching { defaultConnections.remove(client)?.close() }
+        defaultConnectionLocks.remove(client)
         codecConnections.entries.removeIf { (key, conn) ->
             if (key.client == client) {
                 runCatching { conn.close() }
+                codecConnectionLocks.remove(key)
                 true
             } else {
                 false
@@ -213,10 +222,23 @@ object LettuceClients: KLogging() {
         client.shutdown()
     }
 
-    private fun defaultConnection(client: RedisClient): StatefulRedisConnection<String, String> =
-        defaultConnections.compute(client) { _, existing ->
-            if (existing == null || !existing.isOpen) client.connect() else existing
-        }!!
+    // 개선: ConcurrentHashMap.compute() 는 bucket lock 을 잡은 채로 lambda 를 실행하므로,
+    //       blocking I/O 인 client.connect() 를 lambda 내부에서 호출하면
+    //       같은 bucket 으로 해시되는 다른 key 의 연결 생성도 함께 블록됩니다.
+    //       → 먼저 lock 없이 빠르게 조회 후 유효한 연결이면 즉시 반환하고,
+    //         필요할 때만 client 단위 ReentrantLock 아래에서 connect() 를 수행합니다.
+
+    private fun defaultConnection(client: RedisClient): StatefulRedisConnection<String, String> {
+        defaultConnections[client]?.takeIf { it.isOpen }?.let { return it }
+        val lock = defaultConnectionLocks.computeIfAbsent(client) { ReentrantLock() }
+        return lock.withLock {
+            defaultConnections[client]?.takeIf { it.isOpen }?.let { return@withLock it }
+            val fresh = client.connect()
+            val prev = defaultConnections.put(client, fresh)
+            if (prev != null && prev !== fresh) runCatching { prev.close() }
+            fresh
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun <V: Any> connection(
@@ -224,9 +246,18 @@ object LettuceClients: KLogging() {
         codec: RedisCodec<String, V>,
     ): StatefulRedisConnection<String, V> {
         val key = CodecConnectionKey(client, codec)
-        return codecConnections.compute(key) { _, existing ->
-            val typed = existing as? StatefulRedisConnection<String, V>
-            if (typed == null || !typed.isOpen) client.connect(codec) else typed
-        } as StatefulRedisConnection<String, V>
+        (codecConnections[key] as? StatefulRedisConnection<String, V>)
+            ?.takeIf { it.isOpen }
+            ?.let { return it }
+        val lock = codecConnectionLocks.computeIfAbsent(key) { ReentrantLock() }
+        return lock.withLock {
+            (codecConnections[key] as? StatefulRedisConnection<String, V>)
+                ?.takeIf { it.isOpen }
+                ?.let { return@withLock it }
+            val fresh = client.connect(codec)
+            val prev = codecConnections.put(key, fresh)
+            if (prev != null && prev !== fresh) runCatching { prev.close() }
+            fresh
+        }
     }
 }
