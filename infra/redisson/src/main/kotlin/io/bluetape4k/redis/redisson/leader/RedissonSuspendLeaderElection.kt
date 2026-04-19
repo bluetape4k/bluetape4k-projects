@@ -139,7 +139,12 @@ class RedissonSuspendLeaderElection private constructor(
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
                         runCatching { lock.unlockAsync(lockId).await() }
-                        log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
+                            .onSuccess {
+                                log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
+                            }
+                            .onFailure { error ->
+                                log.warn(error) { "Fail to release lock. lock=$lockName, lockId=$lockId" }
+                            }
                     }
                 }
             } else {

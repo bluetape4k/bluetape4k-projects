@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.leader
 
+import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.leader.LeaderGroupElection
 import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.leader.LeaderGroupState
@@ -14,6 +15,7 @@ import org.redisson.client.RedisException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 
 /**
  * Redisson 분산 Semaphore를 이용하여 복수 리더 선출을 통한 작업을 수행합니다.
@@ -187,34 +189,61 @@ class RedissonLeaderGroupElection private constructor(
         lockName: String,
         executor: Executor,
         action: () -> CompletableFuture<T>,
-    ): CompletableFuture<T> =
-        CompletableFuture.supplyAsync(
-            {
-                lockName.requireNotBlank("lockName")
-                val semaphore = getSemaphore(lockName)
-                log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
+    ): CompletableFuture<T> {
+        return try {
+            lockName.requireNotBlank("lockName")
+            val semaphore = getSemaphore(lockName)
+            log.debug { "리더 그룹 슬롯 획득을 요청합니다 (비동기). lockName=$lockName, maxLeaders=$maxLeaders" }
 
-                val acquired =
-                    try {
-                        semaphore.tryAcquire(waitTime)
-                    } catch (e: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                        log.error(e) { "슬롯 획득 대기 중 인터럽트가 발생했습니다. lockName=$lockName" }
-                        throw RedisException("Interrupted while acquiring semaphore slot. lockName=$lockName", e)
+            semaphore
+                .tryAcquireAsync(waitTime)
+                .toCompletableFuture()
+                .thenComposeAsync({ acquired ->
+                    if (!acquired) {
+                        failedCompletableFutureOf(
+                            RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
+                        )
+                    } else {
+                        executeGroupActionAsync(semaphore, lockName, action)
                     }
+                }, executor)
+        } catch (e: Throwable) {
+            log.error(e) { "Fail to runAsync as Leader Group. lockName=$lockName" }
+            failedCompletableFutureOf(e)
+        }
+    }
 
-                if (!acquired) {
-                    throw RedisException("Fail to acquire semaphore slot within waitTime. lockName=$lockName")
-                }
+    /**
+     * 세마포어 슬롯을 보유한 상태에서 비동기 [action]을 실행하고, 완료(성공/실패) 후 슬롯을 반납합니다.
+     *
+     * [action] 호출 자체가 동기적으로 예외를 던져도 슬롯은 반드시 반납됩니다.
+     */
+    private inline fun <T> executeGroupActionAsync(
+        semaphore: RSemaphore,
+        lockName: String,
+        action: () -> CompletableFuture<T>,
+    ): CompletableFuture<T> {
+        log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
 
-                log.debug { "리더 그룹 슬롯을 획득하여 비동기 작업을 수행합니다. lockName=$lockName" }
-                try {
-                    action().join()
-                } finally {
-                    semaphore.release()
-                    log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
-                }
-            },
-            executor
-        )
+        val actionFuture = runCatching { action() }
+            .getOrElse { error ->
+                // action() 이 동기적으로 예외를 던진 경우에도 슬롯은 반드시 반납해야 한다
+                releaseSlotAsync(semaphore, lockName)
+                return failedCompletableFutureOf(error)
+            }
+
+        return actionFuture.whenComplete { _, _ ->
+            releaseSlotAsync(semaphore, lockName)
+        }
+    }
+
+    private fun releaseSlotAsync(semaphore: RSemaphore, lockName: String) {
+        semaphore.releaseAsync().whenComplete { _, error ->
+            if (error != null) {
+                log.error(error) { "Fail to release semaphore slot. lockName=$lockName" }
+            } else {
+                log.debug { "비동기 작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+            }
+        }
+    }
 }

@@ -155,21 +155,30 @@ class RedissonLeaderElection private constructor(
         log.debug { "Leader로 승격하여 비동기 작업을 수행합니다. lock=$lockName, threadId=$currentThreadId" }
 
         val actionFuture = runCatching { action() }
-            .getOrElse { return failedCompletableFutureOf(it) }
+            .getOrElse { error ->
+                // action() 이 동기적으로 예외를 던진 경우에도 락을 반드시 해제해야 한다 (락 유출 방지)
+                releaseLockAsync(lock, currentThreadId)
+                return failedCompletableFutureOf(error)
+            }
 
         return actionFuture.whenCompleteAsync({ _, _ ->
-            if (lock.isHeldByThread(currentThreadId)) {
-                lock
-                    .unlockAsync(currentThreadId)
-                    .whenComplete { _, error ->
-                        if (error != null) {
-                            log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
-                        } else {
-                            log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
-                        }
-                    }
-            }
+            releaseLockAsync(lock, currentThreadId)
         }, executor)
+    }
+
+    private fun releaseLockAsync(lock: RLock, currentThreadId: Long) {
+        val lockName = lock.name
+        if (lock.isHeldByThread(currentThreadId)) {
+            lock
+                .unlockAsync(currentThreadId)
+                .whenComplete { _, error ->
+                    if (error != null) {
+                        log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
+                    } else {
+                        log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
+                    }
+                }
+        }
     }
 }
 
