@@ -62,21 +62,19 @@ class OutputStreamSink(
     override fun write(source: Buffer, byteCount: Long) {
         byteCount.requireInRange(0, source.size, "byteCount")
 
-        Buffer.UnsafeCursor().use { cursor ->
-            var remaining = byteCount
-            while (remaining > 0) {
-                timeout.throwIfReached()
+        var remaining = byteCount
+        while (remaining > 0) {
+            timeout.throwIfReached()
 
-                source.readUnsafe(cursor).use { ignored ->
-                    cursor.seek(0)
-                    val safeRemaining = remaining.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-                    val written = minOf(cursor.end - cursor.start, safeRemaining)
-                    out.write(cursor.data, cursor.start, written)
-                    log.debug { "OutputStream의 ${cursor.start} 위치에  $written bytes 를 썼습니다." }
+            source.readUnsafe(Buffer.UnsafeCursor()).use { cursor ->
+                cursor.seek(0)
+                val safeRemaining = remaining.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+                val written = minOf(cursor.end - cursor.start, safeRemaining)
+                out.write(cursor.data, cursor.start, written)
+                log.debug { "OutputStream의 ${cursor.start} 위치에  $written bytes 를 썼습니다." }
 
-                    remaining -= written.toLong()
-                    source.skip(written.toLong())
-                }
+                remaining -= written.toLong()
+                source.skip(written.toLong())
             }
         }
     }

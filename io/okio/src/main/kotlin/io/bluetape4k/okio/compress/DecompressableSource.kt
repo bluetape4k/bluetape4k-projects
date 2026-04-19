@@ -170,7 +170,11 @@ open class StreamingDecompressSource(
             return
         }
         closed = true
-        decompressingStream.close()
+        try {
+            decompressingStream.close()
+        } finally {
+            runCatching { bufferedDelegate.close() }
+        }
     }
 
     private fun ensureOpen() {

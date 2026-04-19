@@ -55,7 +55,7 @@ inline fun <T> Buffer.readAndWriteUnsafeAndClose(
  * // text == "hello"
  * ```
  */
-fun Buffer.asBufferedSource(): BufferedSource = (this as Source).buffered()
+fun Buffer.asBufferedSource(): BufferedSource = this
 
 /**
  * [Buffer]를 [BufferedSink]로 변환합니다.
@@ -69,7 +69,7 @@ fun Buffer.asBufferedSource(): BufferedSource = (this as Source).buffered()
  * // text == "world"
  * ```
  */
-fun Buffer.asBufferedSink(): BufferedSink = (this as Sink).buffered()
+fun Buffer.asBufferedSink(): BufferedSink = this
 
 /**
  * [text]를 담은 [Buffer]를 생성합니다.

@@ -60,24 +60,22 @@ class InputStreamSource(
         byteCount.requireZeroOrPositiveNumber("byteCount")
         if (byteCount == 0L) return 0L
 
-        Buffer.UnsafeCursor().use { cursor ->
-            sink.readAndWriteUnsafe(cursor).use { ignored ->
-                timeout.throwIfReached()
+        sink.readAndWriteUnsafe(Buffer.UnsafeCursor()).use { cursor ->
+            timeout.throwIfReached()
 
-                val originalSize = sink.size
-                val length = byteCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+            val originalSize = sink.size
+            val length = byteCount.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
-                cursor.expandBuffer(length)
-                val read = input.read(cursor.data, cursor.start, length)
-                log.debug { "InputStream의 ${cursor.start} 위치로부터 $read bytes 를 읽었습니다." }
+            cursor.expandBuffer(length)
+            val read = input.read(cursor.data, cursor.start, length)
+            log.debug { "InputStream의 ${cursor.start} 위치로부터 $read bytes 를 읽었습니다." }
 
-                return if (read > 0) {
-                    cursor.resizeBuffer(originalSize + read)
-                    read.toLong()
-                } else {
-                    cursor.resizeBuffer(originalSize)
-                    -1L
-                }
+            return if (read > 0) {
+                cursor.resizeBuffer(originalSize + read)
+                read.toLong()
+            } else {
+                cursor.resizeBuffer(originalSize)
+                -1L
             }
         }
     }
