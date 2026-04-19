@@ -3,6 +3,7 @@ package io.bluetape4k.jackson
 import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -202,5 +203,48 @@ class JsonMapperSupportTest {
         customMapper.shouldNotBeNull()
         val result = customMapper.readValueOrNull<Item>(sampleJson)
         result.shouldNotBeNull() shouldBeEqualTo sampleItem
+    }
+
+    // ─── jacksonTypeRef ──────────────────────────────────────────────────────
+
+    @Test
+    fun `jacksonTypeRef - reified 타입의 TypeReference 생성`() {
+        val typeRef = jacksonTypeRef<List<Item>>()
+        typeRef.shouldNotBeNull()
+        val json = """[{"id":1,"name":"hello"},{"id":2,"name":"world"}]"""
+        val result = mapper.readValue(json, typeRef)
+        result.shouldNotBeNull()
+        result.size.shouldBeEqualTo(2)
+        result[0] shouldBeEqualTo sampleItem
+    }
+
+    // ─── generic collection roundtrip ────────────────────────────────────────
+
+    @Test
+    fun `제네릭 컬렉션 직렬화-역직렬화 왕복`() {
+        val original = mapOf("key1" to listOf(1, 2, 3), "key2" to listOf(4, 5, 6))
+        val json = mapper.writeValueAsString(original)
+        val result: Map<String, List<Int>> = mapper.readValue(json, jacksonTypeRef())
+        result shouldBeEqualTo original
+    }
+
+    // ─── nullable field roundtrip ─────────────────────────────────────────────
+
+    @Test
+    fun `null 필드를 포함한 data class 직렬화-역직렬화 왕복`() {
+        data class NullableData(val name: String?, val value: Int?)
+        val original = NullableData(null, null)
+        val json = mapper.writeValueAsString(original)
+        val result = mapper.readValue(json, NullableData::class.java)
+        result shouldBeEqualTo original
+    }
+
+    // ─── registeredModuleIdList ───────────────────────────────────────────────
+
+    @Test
+    fun `registeredModuleIdList - 등록된 모듈 ID를 List로 반환`() {
+        val ids = mapper.registeredModuleIdList()
+        ids.shouldNotBeNull()
+        ids.size.shouldBeGreaterThan(0)
     }
 }
