@@ -1,8 +1,8 @@
 name: Publish Snapshot
 
 on:
-  push:
-    branches: [develop]
+  schedule:
+    - cron: '0 19 * * *'  # 04:00 KST daily
   workflow_dispatch:
     inputs:
       diagnoseSigning:
@@ -27,6 +27,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for recent commits
+        if: github.event_name == 'schedule'
+        id: check_commits
+        run: |
+          CHANGES=$(git log --since="24 hours ago" --oneline origin/develop | wc -l | tr -d ' ')
+          echo "recent_commits=$CHANGES" >> "$GITHUB_OUTPUT"
+          echo "Commits in last 24h: $CHANGES"
 
       - uses: actions/setup-java@v4
         with:
@@ -156,6 +166,7 @@ jobs:
           PY
 
       - name: Publish SNAPSHOT
+        if: github.event_name != 'schedule' || steps.check_commits.outputs.recent_commits != '0'
         run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
