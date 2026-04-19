@@ -19,9 +19,9 @@ import java.util.concurrent.ExecutorService
  * ```
  */
 inline fun <K, V> Map<K, V>.parForEach(
-    crossinline prcedure: (K, V) -> Unit,
+    crossinline procedure: (K, V) -> Unit,
 ) {
-    ParallelMapIterate.forEachKeyValue(this) { k: K, v: V -> prcedure(k, v) }
+    ParallelMapIterate.forEachKeyValue(this) { k: K, v: V -> procedure(k, v) }
 }
 
 /**

@@ -268,9 +268,12 @@ fun <T, R> Array<T>.fastMap(
  * @param mapper 요소 변환 함수(null 반환 허용)
  */
 fun <T, R: Any> Iterable<T>.fastMapNotNull(
-    destination: FastList<T> = FastList.newList(),
+    destination: FastList<R> = FastList.newList(),
     mapper: (T) -> R?,
-): FastList<R> = toFastList(destination).collectIf<R>({ it != null }) { mapper(it) }
+): FastList<R> {
+    for (e in this) mapper(e)?.let { destination.add(it) }
+    return destination
+}
 
 /**
  * [Sequence]를 null 제외 변환하여 [FastList]로 반환합니다.
@@ -287,7 +290,7 @@ fun <T, R: Any> Iterable<T>.fastMapNotNull(
  * ```
  */
 fun <T, R: Any> Sequence<T>.fastMapNotNull(
-    destination: FastList<T> = FastList.newList(),
+    destination: FastList<R> = FastList.newList(),
     transform: (T) -> R,
 ): FastList<R> = asIterable().fastMapNotNull(destination, transform)
 
@@ -306,7 +309,7 @@ fun <T, R: Any> Sequence<T>.fastMapNotNull(
  * ```
  */
 fun <T, R: Any> Iterator<T>.fastMapNotNull(
-    destination: FastList<T> = FastList.newList(),
+    destination: FastList<R> = FastList.newList(),
     transform: (T) -> R,
 ): FastList<R> = asIterable().fastMapNotNull(destination, transform)
 
@@ -325,7 +328,7 @@ fun <T, R: Any> Iterator<T>.fastMapNotNull(
  * ```
  */
 fun <T, R: Any> Array<T>.fastMapNotNull(
-    destination: FastList<T> = FastList.newList(),
+    destination: FastList<R> = FastList.newList(),
     transform: (T) -> R,
 ): FastList<R> = asIterable().fastMapNotNull(destination, transform)
 

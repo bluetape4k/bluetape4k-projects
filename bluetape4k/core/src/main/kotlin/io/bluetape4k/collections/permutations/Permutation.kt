@@ -546,8 +546,10 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
      * @return 정렬된 순열
      */
     open fun sorted(comparator: Comparator<in E>): Permutation<E> {
-        val sorted = (this as List<E>).toMutableList().apply { sortWith(comparator) }
-        return permutationOf(sorted.iterator())
+        val list = ArrayList<E>()
+        for (e in this) list.add(e)
+        list.sortWith(comparator)
+        return permutationOf(list.iterator())
     }
 
     /**
@@ -582,14 +584,18 @@ abstract class Permutation<E>: AbstractList<E>(), Sequence<E> {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other is Permutation<*>) {
-            return !other.isEmpty() && head == other.head && tail == other.tail
+        if (other !is Permutation<*>) return false
+        val a = iterator(); val b = other.iterator()
+        while (a.hasNext() && b.hasNext()) {
+            if (a.next() != b.next()) return false
         }
-        return false
+        return !a.hasNext() && !b.hasNext()
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(head, tail)
+        var h = 1
+        for (e in this) h = 31 * h + (e?.hashCode() ?: 0)
+        return h
     }
 
     companion object {
