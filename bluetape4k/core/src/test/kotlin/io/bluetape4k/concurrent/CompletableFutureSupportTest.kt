@@ -7,7 +7,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -23,343 +22,139 @@ class CompletableFutureSupportTest {
 
     private val success: CompletableFuture<Int> = completableFutureOf(1)
     private val failed: CompletableFuture<Int> = failedCompletableFutureOf(IllegalArgumentException())
-    private val emptyFutures: List<CompletableFuture<Int>> = emptyList()
 
-    /**
-     * [CompletableFuture.get] 호출 시 [ExecutionException]이 발생하고,
-     * 그 `cause`가 [T] 타입임을 검증하는 테스트용 확장 함수.
-     */
     private inline fun <reified T: Throwable> CompletableFuture<*>.shouldCauseBe() {
         assertFailsWith<ExecutionException> { get() }.cause shouldBeInstanceOf T::class
     }
 
-    @Nested
-    inner class Map {
-        @Test
-        fun `map success future should success`() {
-            success.map { it + 1 }.get() shouldBeEqualTo 2
-        }
-
-        @Test
-        fun `map failed future throw exception`() {
-            assertFails {
-                failed.map { it + 1 }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
-        }
+    @Test
+    fun `map transforms success and propagates failure`() {
+        success.map { it + 1 }.get() shouldBeEqualTo 2
+        assertFails { failed.map { it + 1 }.get() }.cause shouldBeInstanceOf IllegalArgumentException::class
     }
 
-    @Nested
-    inner class FlatMap {
-        @Test
-        fun `flatMap success future should success`() {
-            success.flatMap { r -> immediateFutureOf { r + 1 } }.get() shouldBeEqualTo 2
-        }
-
-        @Test
-        fun `flatMap failed future should throw exception`() {
-            failed.map { r -> immediateFutureOf { r + 1 } }.shouldCauseBe<IllegalArgumentException>()
-        }
+    @Test
+    fun `flatMap transforms success and propagates failure`() {
+        success.flatMap { r -> immediateFutureOf { r + 1 } }.get() shouldBeEqualTo 2
+        failed.map { r -> immediateFutureOf { r + 1 } }.shouldCauseBe<IllegalArgumentException>()
     }
 
-    @Nested
-    inner class Flatten {
-        @Test
-        fun `flatten success future`() {
-            futureOf { success }.flatten().get() shouldBeEqualTo 1
-        }
-
-        @Test
-        fun `flatten failed future`() {
-            futureOf { failed }.flatten().shouldCauseBe<IllegalArgumentException>()
-        }
+    @Test
+    fun `flatten unwraps nested future`() {
+        futureOf { success }.flatten().get() shouldBeEqualTo 1
+        futureOf { failed }.flatten().shouldCauseBe<IllegalArgumentException>()
     }
 
-    @Nested
-    inner class Filter {
-        @Test
-        fun `filter success future with match`() {
-            success.filter { it == 1 }.get() shouldBeEqualTo 1
-        }
-
-        @Test
-        fun `filter success future without match`() {
-            success.filter { it == 2 }.shouldCauseBe<NoSuchElementException>()
-        }
-
-        @Test
-        fun `filter failed future`() {
-            failed.filter { it == 1 }.shouldCauseBe<IllegalArgumentException>()
-        }
+    @Test
+    fun `filter keeps matching value and throws on mismatch or failure`() {
+        success.filter { it == 1 }.get() shouldBeEqualTo 1
+        success.filter { it == 2 }.shouldCauseBe<NoSuchElementException>()
+        failed.filter { it == 1 }.shouldCauseBe<IllegalArgumentException>()
     }
 
-    @Nested
-    inner class Recover {
-        @Test
-        fun `recover success future`() {
-            success.recover { 2 }.get() shouldBeEqualTo 1
-        }
-
-        @Test
-        fun `recover failed future`() {
-            failed.recover { 2 }.get() shouldBeEqualTo 2
-        }
+    @Test
+    fun `recover and recoverWith return fallback on failure`() {
+        success.recover { 2 }.get() shouldBeEqualTo 1
+        failed.recover { 2 }.get() shouldBeEqualTo 2
+        success.recoverWith { immediateFutureOf { 2 } }.get() shouldBeEqualTo 1
+        failed.recoverWith { immediateFutureOf { 2 } }.get() shouldBeEqualTo 2
     }
 
-    @Nested
-    inner class RecoverWith {
-        @Test
-        fun `recoverWith success future`() {
-            success.recoverWith { immediateFutureOf { 2 } }.get() shouldBeEqualTo 1
-        }
-
-        @Test
-        fun `recoverWith failed future`() {
-            failed.recoverWith { immediateFutureOf { 2 } }.get() shouldBeEqualTo 2
-        }
+    @Test
+    fun `fallbackTo returns primary on success and fallback on failure`() {
+        success.fallbackTo { immediateFutureOf { 2 } }.get() shouldBeEqualTo 1
+        failed.fallbackTo { immediateFutureOf { 2 } }.get() shouldBeEqualTo 2
     }
 
-    @Nested
-    inner class FallbackTo {
-        @Test
-        fun `fallbackTo success future`() {
-            success.fallbackTo { immediateFutureOf { 2 } }.get() shouldBeEqualTo 1
-        }
-
-        @Test
-        fun `fallbackTo failed future`() {
-            failed.fallbackTo { immediateFutureOf { 2 } }.get() shouldBeEqualTo 2
-        }
+    @Test
+    fun `mapError transforms matching exception type`() {
+        success.mapError<Int, Exception> { IllegalStateException("mapError") }.get() shouldBeEqualTo 1
+        assertFails {
+            failed.mapError<Int, IllegalArgumentException> { UnsupportedOperationException() }.get()
+        }.cause shouldBeInstanceOf UnsupportedOperationException::class
+        assertFails {
+            failed.mapError<Int, ClassNotFoundException> { UnsupportedOperationException() }.get()
+        }.cause shouldBeInstanceOf IllegalArgumentException::class
+        assertFails {
+            failed.mapError<Int, Exception> { UnsupportedOperationException() }.get()
+        }.cause shouldBeInstanceOf UnsupportedOperationException::class
     }
 
-    @Nested
-    inner class MapError {
-        @Test
-        fun `mapError success future`() {
-            success.mapError<Int, Exception> { IllegalStateException("mapError") }.get() shouldBeEqualTo 1
-        }
+    @Test
+    fun `onFailure callback fires only on failure`() {
+        success.onFailure(DirectExecutor) { e ->
+            Assertions.fail("성공한 future에 대해 onFailure가 호출되면 안됩니다.", e)
+        }.get() shouldBeEqualTo 1
 
-        @Test
-        fun `mapError failed future`() {
-            assertFails {
-                failed.mapError<Int, IllegalArgumentException> { UnsupportedOperationException() }.get()
-            }.cause shouldBeInstanceOf UnsupportedOperationException::class
-        }
-
-        @Test
-        fun `mapError failed future not expected exception`() {
-            assertFails {
-                failed.mapError<Int, ClassNotFoundException> { UnsupportedOperationException() }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
-        }
-
-        @Test
-        fun `mapError handle supertype exception`() {
-            assertFails {
-                failed.mapError<Int, Exception> { UnsupportedOperationException() }.get()
-            }.cause shouldBeInstanceOf UnsupportedOperationException::class
-        }
+        var capturedThrowable: Throwable? = null
+        failed.onFailure(DirectExecutor) { capturedThrowable = it }.recover { 1 }.get() shouldBeEqualTo 1
+        capturedThrowable.shouldNotBeNull().shouldBeInstanceOf(IllegalArgumentException::class)
     }
 
-    @Nested
-    inner class OnFailure {
-        @Test
-        fun `onFailure callback for success future`() {
-            success
-                .onFailure(DirectExecutor) { e ->
-                    Assertions.fail("성공한 future에 대해 onFailure가 호출되면 안됩니다.", e)
-                }
-                .get() shouldBeEqualTo 1
-        }
+    @Test
+    fun `onSuccess callback fires only on success`() {
+        val capturedResult = AtomicInteger(0)
+        success.onSuccess(DirectExecutor) { capturedResult.set(it) }.get()
+        capturedResult.get() shouldBeEqualTo 1
 
-        @Test
-        fun `onFailure callback for failed future`() {
-            var capturedThrowable: Throwable? = null
-
-            failed
-                .onFailure(DirectExecutor) { capturedThrowable = it }
-                .recover { 1 }
-                .get() shouldBeEqualTo 1
-
-            capturedThrowable.shouldNotBeNull().shouldBeInstanceOf(IllegalArgumentException::class)
-        }
+        failed.onSuccess { error("onSuccess must not be called on a failed future") }.recover { 1 }.get() shouldBeEqualTo 1
     }
 
-    @Nested
-    inner class OnSuccess {
-        @Test
-        fun `onSuccess callback with success future`() {
-            val capturedResult = AtomicInteger(0)
-            success.onSuccess(DirectExecutor) { capturedResult.set(it) }.get()
-            capturedResult.get() shouldBeEqualTo 1
-        }
+    @Test
+    fun `onComplete with handlers fires appropriate callback`() {
+        var onSuccessCalled = false; var onFailureCalled = false
+        success.onComplete(DirectExecutor, successHandler = { onSuccessCalled = true }, failureHandler = { onFailureCalled = true })
+            .get() shouldBeEqualTo 1
+        onSuccessCalled.shouldBeTrue(); onFailureCalled.shouldBeFalse()
 
-        @Test
-        fun `onSucess callback with failed future`() {
-            failed
-                .onSuccess { error("onSuccess must not be called on a failed future") }
-                .recover { 1 }
-                .get() shouldBeEqualTo 1
-        }
+        onSuccessCalled = false; onFailureCalled = false
+        failed.onComplete(DirectExecutor, successHandler = { onSuccessCalled = true }, failureHandler = { onFailureCalled = true })
+            .recover { 1 }.get() shouldBeEqualTo 1
+        onSuccessCalled.shouldBeFalse(); onFailureCalled.shouldBeTrue()
     }
 
-    @Nested
-    inner class OnComplete {
-        @Test
-        fun `onComplete callback with success future`() {
-            var onSuccessCalled = false
-            var onFailureCalled = false
+    @Test
+    fun `onComplete with completion callback fires appropriately`() {
+        var onSuccessCalled = false; var onFailureCalled = false
+        success.onComplete(DirectExecutor) { _, error -> if (error == null) onSuccessCalled = true else onFailureCalled = true }
+            .get() shouldBeEqualTo 1
+        onSuccessCalled.shouldBeTrue(); onFailureCalled.shouldBeFalse()
 
-            success.onComplete(
-                DirectExecutor,
-                successHandler = { onSuccessCalled = true },
-                failureHandler = { onFailureCalled = true })
-                .get() shouldBeEqualTo 1
-
-            onSuccessCalled.shouldBeTrue()
-            onFailureCalled.shouldBeFalse()
-        }
-
-        @Test
-        fun `onComplete callback with failed future`() {
-            var onSuccessCalled = false
-            var onFailureCalled = false
-
-            failed.onComplete(
-                DirectExecutor,
-                successHandler = { onSuccessCalled = true },
-                failureHandler = { onFailureCalled = true })
-                .recover { 1 }
-                .get() shouldBeEqualTo 1
-
-            onSuccessCalled.shouldBeFalse()
-            onFailureCalled.shouldBeTrue()
-        }
-
-        @Test
-        fun `onComplete completion callback with success future`() {
-            var onSuccessCalled = false
-            var onFailureCalled = false
-
-            success.onComplete(DirectExecutor) { _, error ->
-                when (error) {
-                    null -> onSuccessCalled = true
-                    else -> onFailureCalled = true
-                }
-            }
-                .get() shouldBeEqualTo 1
-
-            onSuccessCalled.shouldBeTrue()
-            onFailureCalled.shouldBeFalse()
-        }
-
-        @Test
-        fun `onComplete completion callback with failed future`() {
-            var onSuccessCalled = false
-            var onFailureCalled = false
-
-            failed.onComplete(DirectExecutor) { _, error ->
-                when (error) {
-                    null -> onSuccessCalled = true
-                    else -> onFailureCalled = true
-                }
-            }
-                .recover { 1 }
-                .get() shouldBeEqualTo 1
-
-            onSuccessCalled.shouldBeFalse()
-            onFailureCalled.shouldBeTrue()
-        }
+        onSuccessCalled = false; onFailureCalled = false
+        failed.onComplete(DirectExecutor) { _, error -> if (error == null) onSuccessCalled = true else onFailureCalled = true }
+            .recover { 1 }.get() shouldBeEqualTo 1
+        onSuccessCalled.shouldBeFalse(); onFailureCalled.shouldBeTrue()
     }
 
-    @Nested
-    inner class Zip {
-        @Test
-        fun `zip with success futures`() {
-            success.zip(success).get() shouldBeEqualTo (1 to 1)
-            success.zip(immediateFutureOf { "Success" }).get() shouldBeEqualTo (1 to "Success")
-        }
-
-        @Test
-        fun `zip with failed future`() {
-            failed.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
-            success.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
-            failed.zip(success) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
-        }
+    @Test
+    fun `zip combines two futures`() {
+        success.zip(success).get() shouldBeEqualTo (1 to 1)
+        success.zip(immediateFutureOf { "Success" }).get() shouldBeEqualTo (1 to "Success")
+        failed.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
+        success.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
+        failed.zip(success) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
     }
 
-    @Nested
-    inner class IsSuccessAndIsFailed {
-        @Test
-        fun `성공한 CompletableFuture는 isSuccess가 true이다`() {
-            success.isSuccess.shouldBeTrue()
-            success.isFailed.shouldBeFalse()
-        }
-
-        @Test
-        fun `실패한 CompletableFuture는 isFailed가 true이다`() {
-            failed.isFailed.shouldBeTrue()
-            failed.isSuccess.shouldBeFalse()
-        }
-
-        @Test
-        fun `아직 완료되지 않은 CompletableFuture는 isSuccess가 false이다`() {
-            val pending = CompletableFuture<Int>()
-            pending.isSuccess.shouldBeFalse()
-            pending.isFailed.shouldBeFalse()
-        }
-
-        @Test
-        fun `취소된 CompletableFuture는 isSuccess가 false이다`() {
-            val cancelled = CompletableFuture<Int>()
-            cancelled.cancel(true)
-
-            cancelled.isSuccess.shouldBeFalse()
-            cancelled.isFailed.shouldBeTrue()  // isCancelled도 isCompletedExceptionally에 포함
-        }
+    @Test
+    fun `isSuccess and isFailed reflect completion state`() {
+        success.isSuccess.shouldBeTrue(); success.isFailed.shouldBeFalse()
+        failed.isFailed.shouldBeTrue(); failed.isSuccess.shouldBeFalse()
+        val pending = CompletableFuture<Int>()
+        pending.isSuccess.shouldBeFalse(); pending.isFailed.shouldBeFalse()
+        val cancelled = CompletableFuture<Int>().also { it.cancel(true) }
+        cancelled.isSuccess.shouldBeFalse(); cancelled.isFailed.shouldBeTrue()
     }
 
-    @Nested
-    inner class FutureWithTimeoutTest {
-        @Test
-        fun `시간 내에 완료되면 결과를 반환한다`() {
-            val result = futureWithTimeout(500L) {
-                Thread.sleep(50)
-                42
-            }
-            result.get() shouldBeEqualTo 42
-        }
-
-        @Test
-        fun `시간 초과 시 TimeoutException이 발생한다`() {
-            val result = futureWithTimeout(50L) {
-                Thread.sleep(3000)
-                42
-            }
-            result.shouldCauseBe<TimeoutException>()
-        }
-
-        @Test
-        fun `Duration 파라미터로 futureWithTimeout을 사용한다`() {
-            val result = futureWithTimeout(500.milliseconds) {
-                Thread.sleep(50)
-                "hello"
-            }
-            result.get() shouldBeEqualTo "hello"
-        }
+    @Test
+    fun `futureWithTimeout completes within limit or throws TimeoutException`() {
+        futureWithTimeout(500L) { Thread.sleep(50); 42 }.get() shouldBeEqualTo 42
+        futureWithTimeout(50L) { Thread.sleep(3000); 42 }.shouldCauseBe<TimeoutException>()
+        futureWithTimeout(500.milliseconds) { Thread.sleep(50); "hello" }.get() shouldBeEqualTo "hello"
     }
 
-    @Nested
-    inner class Dereference {
-        @Test
-        fun `dereference는 flatten과 동일하게 동작한다`() {
-            val nested = futureOf { completableFutureOf(42) }
-            nested.dereference().get() shouldBeEqualTo 42
-        }
-
-        @Test
-        fun `dereference로 실패한 중첩 future를 처리한다`() {
-            val nested = futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }
-            nested.dereference().shouldCauseBe<RuntimeException>()
-        }
+    @Test
+    fun `dereference unwraps nested completable future`() {
+        futureOf { completableFutureOf(42) }.dereference().get() shouldBeEqualTo 42
+        futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }.dereference().shouldCauseBe<RuntimeException>()
     }
 }

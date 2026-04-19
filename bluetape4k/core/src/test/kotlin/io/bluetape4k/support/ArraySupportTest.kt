@@ -24,73 +24,19 @@ class ArraySupportTest {
     }
 
     @Test
-    fun `set all to array`() {
-        val array = IntArray(10)
-        array.setAll { it }
-        array.indices.all { idx -> array[idx] == idx }.shouldBeTrue()
-    }
-
-    @Test
-    fun `setAll ByteArray`() {
-        val array = ByteArray(3)
-        array.setAll { idx -> idx.toByte() }
-        array shouldBeEqualTo byteArrayOf(0, 1, 2)
-    }
-
-    @Test
-    fun `setAll ShortArray`() {
-        val array = ShortArray(3)
-        array.setAll { idx -> (idx * 2).toShort() }
-        array shouldBeEqualTo shortArrayOf(0, 2, 4)
-    }
-
-    @Test
-    fun `setAll IntArray`() {
-        val array = IntArray(3)
-        array.setAll { idx -> idx * idx }
-        array shouldBeEqualTo intArrayOf(0, 1, 4)
-    }
-
-    @Test
-    fun `setAll LongArray`() {
-        val array = LongArray(3)
-        array.setAll { idx -> idx.toLong() + 10L }
-        array shouldBeEqualTo longArrayOf(10L, 11L, 12L)
-    }
-
-    @Test
-    fun `setAll FloatArray`() {
-        val array = FloatArray(3)
-        array.setAll { idx -> idx.toFloat() / 2f }
-        array shouldBeEqualTo floatArrayOf(0f, 0.5f, 1.0f)
-    }
-
-    @Test
-    fun `setAll DoubleArray`() {
-        val array = DoubleArray(3)
-        array.setAll { idx -> idx.toDouble() * 1.5 }
-        array shouldBeEqualTo doubleArrayOf(0.0, 1.5, 3.0)
-    }
-
-    @Test
-    fun `setAll CharArray`() {
-        val array = charArrayOf('a', 'a', 'a')
-        array.setAll { idx -> ('a'.code + idx).toChar() }
-        array shouldBeEqualTo charArrayOf('a', 'b', 'c')
-    }
-
-    @Test
-    fun `setAll BooleanArray`() {
-        val array = booleanArrayOf(false, false, false, false)
-        array.setAll { idx -> idx % 2 == 0 }
-        array shouldBeEqualTo booleanArrayOf(true, false, true, false)
-    }
-
-    @Test
-    fun `setAll empty array is no-op`() {
-        val intArray = intArrayOf()
-        val result = intArray.setAll { it + 1 }
-        result.size shouldBeEqualTo 0
+    fun `setAll - 기본 타입 배열에서 모든 요소를 변환한다`() {
+        IntArray(10).also { it.setAll { i -> i } }.let { arr ->
+            arr.indices.all { idx -> arr[idx] == idx }.shouldBeTrue()
+        }
+        ByteArray(3).also { it.setAll { idx -> idx.toByte() } } shouldBeEqualTo byteArrayOf(0, 1, 2)
+        ShortArray(3).also { it.setAll { idx -> (idx * 2).toShort() } } shouldBeEqualTo shortArrayOf(0, 2, 4)
+        IntArray(3).also { it.setAll { idx -> idx * idx } } shouldBeEqualTo intArrayOf(0, 1, 4)
+        LongArray(3).also { it.setAll { idx -> idx.toLong() + 10L } } shouldBeEqualTo longArrayOf(10L, 11L, 12L)
+        FloatArray(3).also { it.setAll { idx -> idx.toFloat() / 2f } } shouldBeEqualTo floatArrayOf(0f, 0.5f, 1.0f)
+        DoubleArray(3).also { it.setAll { idx -> idx.toDouble() * 1.5 } } shouldBeEqualTo doubleArrayOf(0.0, 1.5, 3.0)
+        charArrayOf('a', 'a', 'a').also { it.setAll { idx -> ('a'.code + idx).toChar() } } shouldBeEqualTo charArrayOf('a', 'b', 'c')
+        booleanArrayOf(false, false, false, false).also { it.setAll { idx -> idx % 2 == 0 } } shouldBeEqualTo booleanArrayOf(true, false, true, false)
+        intArrayOf().also { it.setAll { it + 1 } }.size shouldBeEqualTo 0
     }
 
     @Test
@@ -116,19 +62,9 @@ class ArraySupportTest {
     }
 
     @Test
-    fun `mapCatching keeps order`() {
-        val source = intArrayOf(5, 4, 3)
-        val result = source.mapCatching { it }
-
-        result.map { it.getOrNull() } shouldBeEqualTo listOf(5, 4, 3)
-    }
-
-    @Test
-    fun `mapCatching empty array`() {
-        val source = intArrayOf()
-        val result = source.mapCatching { it * 2 }
-
-        result.size shouldBeEqualTo 0
+    fun `mapCatching keeps order and handles empty`() {
+        intArrayOf(5, 4, 3).mapCatching { it }.map { it.getOrNull() } shouldBeEqualTo listOf(5, 4, 3)
+        intArrayOf().mapCatching { it * 2 }.size shouldBeEqualTo 0
     }
 
     @Test
@@ -155,98 +91,50 @@ class ArraySupportTest {
     }
 
     @Test
-    fun `forEachCatching keeps order`() {
-        val source = intArrayOf(3, 2, 1)
+    fun `forEachCatching keeps order and handles empty`() {
         val acc = mutableListOf<Int>()
-
-        source.forEachCatching { acc += it }
-
+        intArrayOf(3, 2, 1).forEachCatching { acc += it }
         acc shouldBeEqualTo listOf(3, 2, 1)
+
+        val acc2 = mutableListOf<Int>()
+        val result = intArrayOf().forEachCatching { acc2 += it }
+        acc2.size shouldBeEqualTo 0; result.all { it.isSuccess }.shouldBeTrue()
     }
 
     @Test
-    fun `forEachCatching empty array`() {
-        val source = intArrayOf()
-        val acc = mutableListOf<Int>()
+    fun `배열의 첫 마지막 요소 제거 및 설정`() {
+        assertFailsWith<IllegalStateException> { emptyArray<String>().removeFirst() }
+        arrayOf("one", "two", "three").removeFirst() shouldContainSame arrayOf("two", "three")
 
-        val result = source.forEachCatching { acc += it }
+        assertFailsWith<IllegalStateException> { emptyArray<String>().removeLast() }
+        arrayOf("one", "two", "three").removeLast() shouldBeEqualTo arrayOf("one", "two")
 
-        acc.size shouldBeEqualTo 0
-        result.all { it.isSuccess }.shouldBeTrue()
+        val arr1 = arrayOf("one", "two", "three")
+        arr1.setFirst("1"); arr1 shouldContainSame arrayOf("1", "two", "three")
+        assertFailsWith<IllegalStateException> { emptyArray<Int>().setFirst(1) }
+
+        val arr2 = arrayOf("one", "two", "three")
+        arr2.setLast("3"); arr2 shouldBeEqualTo arrayOf("one", "two", "3")
+        assertFailsWith<IllegalStateException> { emptyArray<Int>().setLast(3) }
     }
 
     @Test
-    fun `remove first element`() {
-        assertFailsWith<IllegalStateException> {
-            emptyArray<String>().removeFirst()
-        }
-
-        val array = arrayOf("one", "two", "three")
-        val array2 = array.removeFirst()
-        array2 shouldContainSame arrayOf("two", "three")
-    }
-
-    @Test
-    fun `remove last element`() {
-        assertFailsWith<IllegalStateException> {
-            emptyArray<String>().removeLast()
-        }
-
-        val array = arrayOf("one", "two", "three")
-        val array2 = array.removeLast()
-        array2 shouldBeEqualTo arrayOf("one", "two")
-    }
-
-    @Test
-    fun `set first element`() {
-        val array = arrayOf("one", "two", "three")
-        array.setFirst("1")
-        array shouldContainSame arrayOf("1", "two", "three")
-
-        assertFailsWith<IllegalStateException> {
-            val emptyArray = emptyArray<Int>()
-            emptyArray.setFirst(1)
-        }
-    }
-
-    @Test
-    fun `set last element`() {
-        val array = arrayOf("one", "two", "three")
-        array.setLast("3")
-        array shouldBeEqualTo arrayOf("one", "two", "3")
-
-        assertFailsWith<IllegalStateException> {
-            val emptyArray = emptyArray<Int>()
-            emptyArray.setLast(3)
-        }
-    }
-
-    @Test
-    fun `leadingZeros ByteArray`() {
+    fun `leadingZeros - 앞 0 개수 계산`() {
         byteArrayOf().leadingZeros() shouldBeEqualTo 0
         byteArrayOf(0, 0, 1, 0).leadingZeros() shouldBeEqualTo 2
         byteArrayOf(1, 0, 0).leadingZeros() shouldBeEqualTo 0
         byteArrayOf(0, 0, 0).leadingZeros() shouldBeEqualTo 3
-    }
 
-    @Test
-    fun `leadingZeros ShortArray`() {
         shortArrayOf().leadingZeros() shouldBeEqualTo 0
         shortArrayOf(0, 0, 1, 0).leadingZeros() shouldBeEqualTo 2
         shortArrayOf(1, 0, 0).leadingZeros() shouldBeEqualTo 0
         shortArrayOf(0, 0, 0).leadingZeros() shouldBeEqualTo 3
-    }
 
-    @Test
-    fun `leadingZeros IntArray`() {
         intArrayOf().leadingZeros() shouldBeEqualTo 0
         intArrayOf(0, 0, 1, 0).leadingZeros() shouldBeEqualTo 2
         intArrayOf(1, 0, 0).leadingZeros() shouldBeEqualTo 0
         intArrayOf(0, 0, 0).leadingZeros() shouldBeEqualTo 3
-    }
 
-    @Test
-    fun `leadingZeros LongArray`() {
         longArrayOf().leadingZeros() shouldBeEqualTo 0
         longArrayOf(0L, 0L, 1L, 0L).leadingZeros() shouldBeEqualTo 2
         longArrayOf(1L, 0L, 0L).leadingZeros() shouldBeEqualTo 0
@@ -254,130 +142,41 @@ class ArraySupportTest {
     }
 
     @Test
-    fun `padTo array`() {
-        val array = arrayOf(1, 2, 3)
-
-        val paddedArray = array.padTo(5, 0)
-        paddedArray shouldBeEqualTo arrayOf(1, 2, 3, 0, 0)
+    fun `padTo - 다양한 배열 타입에 요소를 추가한다`() {
+        arrayOf(1, 2, 3).padTo(5, 0) shouldBeEqualTo arrayOf(1, 2, 3, 0, 0)
+        intArrayOf(1, 2, 3).padTo(5, 0) shouldBeEqualTo intArrayOf(1, 2, 3, 0, 0)
+        byteArrayOf(1, 2, 3).padTo(5, 0) shouldBeEqualTo byteArrayOf(1, 2, 3, 0, 0)
+        longArrayOf(1L, 2L, 3L).padTo(5, 0L) shouldBeEqualTo longArrayOf(1L, 2L, 3L, 0L, 0L)
+        floatArrayOf(1.0f, 2.0f, 3.0f).padTo(5, 0.0f) shouldBeEqualTo floatArrayOf(1.0f, 2.0f, 3.0f, 0.0f, 0.0f)
+        doubleArrayOf(1.0, 2.0, 3.0).padTo(5, 0.0) shouldBeEqualTo doubleArrayOf(1.0, 2.0, 3.0, 0.0, 0.0)
+        charArrayOf('a', 'b', 'c').padTo(5, 'x') shouldBeEqualTo charArrayOf('a', 'b', 'c', 'x', 'x')
+        shortArrayOf(1, 2, 3).padTo(5, 0) shouldBeEqualTo shortArrayOf(1, 2, 3, 0, 0)
     }
 
     @Test
-    fun `padTo does not shrink or drop data`() {
-        val array = arrayOf(1, 2, 3)
+    fun `padTo - 크기가 같거나 작으면 배열을 변경하지 않는다`() {
+        val arr = arrayOf(1, 2, 3)
+        assertTrue { arr.padTo(3, 0) === arr }; assertTrue { arr.padTo(2, 0) === arr }
 
-        assertTrue { array.padTo(3, 0) === array }
-        assertTrue { array.padTo(2, 0) === array }
-    }
+        val ints = intArrayOf(1, 2, 3)
+        assertTrue { ints.padTo(3, 0) === ints }; assertTrue { ints.padTo(2, 0) === ints }
 
-    @Test
-    fun `padTo IntArray`() {
-        val array = intArrayOf(1, 2, 3)
+        val bytes = byteArrayOf(1, 2, 3)
+        assertTrue { bytes.padTo(3, 0) === bytes }; assertTrue { bytes.padTo(2, 0) === bytes }
 
-        val paddedArray = array.padTo(5, 0)
-        paddedArray shouldBeEqualTo intArrayOf(1, 2, 3, 0, 0)
-    }
+        val longs = longArrayOf(1L, 2L, 3L)
+        assertTrue { longs.padTo(3, 0L) === longs }; assertTrue { longs.padTo(2, 0L) === longs }
 
-    @Test
-    fun `padTo IntArray does not shrink or drop data`() {
-        val array = intArrayOf(1, 2, 3)
+        val floats = floatArrayOf(1.0f, 2.0f, 3.0f)
+        assertTrue { floats.padTo(3, 0.0f) === floats }; assertTrue { floats.padTo(2, 0.0f) === floats }
 
-        assertTrue { array.padTo(3, 0) === array }
-        assertTrue { array.padTo(2, 0) === array }
-    }
+        val doubles = doubleArrayOf(1.0, 2.0, 3.0)
+        assertTrue { doubles.padTo(3, 0.0) === doubles }; assertTrue { doubles.padTo(2, 0.0) === doubles }
 
-    @Test
-    fun `padTo ByteArray`() {
-        val array = byteArrayOf(1, 2, 3)
+        val chars = charArrayOf('a', 'b', 'c')
+        assertTrue { chars.padTo(3, 'x') === chars }; assertTrue { chars.padTo(2, 'x') === chars }
 
-        val paddedArray = array.padTo(5, 0)
-        paddedArray shouldBeEqualTo byteArrayOf(1, 2, 3, 0, 0)
-    }
-
-    @Test
-    fun `padTo ByteArray does not shrink or drop data`() {
-        val array = byteArrayOf(1, 2, 3)
-
-        assertTrue { array.padTo(3, 0) === array }
-        assertTrue { array.padTo(2, 0) === array }
-    }
-
-    @Test
-    fun `padTo LongArray`() {
-        val array = longArrayOf(1L, 2L, 3L)
-
-        val paddedArray = array.padTo(5, 0L)
-        paddedArray shouldBeEqualTo longArrayOf(1L, 2L, 3L, 0L, 0L)
-    }
-
-    @Test
-    fun `padTo LongArray does not shrink or drop data`() {
-        val array = longArrayOf(1L, 2L, 3L)
-
-        assertTrue { array.padTo(3, 0L) === array }
-        assertTrue { array.padTo(2, 0L) === array }
-    }
-
-    @Test
-    fun `padTo FloatArray`() {
-        val array = floatArrayOf(1.0f, 2.0f, 3.0f)
-
-        val paddedArray = array.padTo(5, 0.0f)
-        paddedArray shouldBeEqualTo floatArrayOf(1.0f, 2.0f, 3.0f, 0.0f, 0.0f)
-    }
-
-    @Test
-    fun `padTo FloatArray does not shrink or drop data`() {
-        val array = floatArrayOf(1.0f, 2.0f, 3.0f)
-
-        assertTrue { array.padTo(3, 0.0f) === array }
-        assertTrue { array.padTo(2, 0.0f) === array }
-    }
-
-    @Test
-    fun `padTo DoubleArray`() {
-        val array = doubleArrayOf(1.0, 2.0, 3.0)
-
-        val paddedArray = array.padTo(5, 0.0)
-        paddedArray shouldBeEqualTo doubleArrayOf(1.0, 2.0, 3.0, 0.0, 0.0)
-    }
-
-    @Test
-    fun `padTo DoubleArray does not shrink or drop data`() {
-        val array = doubleArrayOf(1.0, 2.0, 3.0)
-
-        assertTrue { array.padTo(3, 0.0) === array }
-        assertTrue { array.padTo(2, 0.0) === array }
-    }
-
-    @Test
-    fun `padTo CharArray`() {
-        val array = charArrayOf('a', 'b', 'c')
-
-        val paddedArray = array.padTo(5, 'x')
-        paddedArray shouldBeEqualTo charArrayOf('a', 'b', 'c', 'x', 'x')
-    }
-
-    @Test
-    fun `padTo CharArray does not shrink or drop data`() {
-        val array = charArrayOf('a', 'b', 'c')
-
-        assertTrue { array.padTo(3, 'x') === array }
-        assertTrue { array.padTo(2, 'x') === array }
-    }
-
-    @Test
-    fun `padTo ShortArray`() {
-        val array = shortArrayOf(1, 2, 3)
-
-        val paddedArray = array.padTo(5, 0)
-        paddedArray shouldBeEqualTo shortArrayOf(1, 2, 3, 0, 0)
-    }
-
-    @Test
-    fun `padTo ShortArray does not shrink or drop data`() {
-        val array = shortArrayOf(1, 2, 3)
-
-        assertTrue { array.padTo(3, 0) === array }
-        assertTrue { array.padTo(2, 0) === array }
+        val shorts = shortArrayOf(1, 2, 3)
+        assertTrue { shorts.padTo(3, 0) === shorts }; assertTrue { shorts.padTo(2, 0) === shorts }
     }
 }
