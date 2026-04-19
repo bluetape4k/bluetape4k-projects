@@ -4,6 +4,7 @@ import feign.Request
 import feign.Request.HttpMethod
 import feign.Request.Options
 import feign.RequestTemplate
+import io.bluetape4k.support.requireNotBlank
 import java.nio.charset.Charset
 
 /**
@@ -41,6 +42,7 @@ inline fun requestOptions(builder: Options.() -> Unit): Options {
  * Feign [Request]를 생성합니다.
  *
  * ## 동작/계약
+ * - [url]은 blank가 아니어야 합니다. blank면 [IllegalArgumentException]이 발생합니다.
  * - 전달한 [url], [httpMethod], [headers], [body], [charset], [requestTemplate]를 그대로 사용합니다.
  * - [body]가 `null`이면 본문 없는 요청이 생성됩니다.
  *
@@ -48,6 +50,8 @@ inline fun requestOptions(builder: Options.() -> Unit): Options {
  * val request = feignRequestOf("https://example.com/health", HttpMethod.GET)
  * // request.httpMethod() == HttpMethod.GET
  * ```
+ *
+ * @param url 요청 대상 URL입니다. blank면 예외가 발생합니다.
  */
 fun feignRequestOf(
     url: String,
@@ -57,5 +61,6 @@ fun feignRequestOf(
     charset: Charset = Charsets.UTF_8,
     requestTemplate: RequestTemplate? = null,
 ): Request {
+    url.requireNotBlank("url")
     return Request.create(httpMethod, url, headers, body, charset, requestTemplate)
 }
