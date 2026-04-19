@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.jackson.uuid.JsonUuidModule
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeNotNull
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -52,7 +51,7 @@ class JacksonTest {
         mapper.shouldNotBeNull()
         // 생성된 매퍼로 간단한 직렬화 확인
         val json = mapper.writeValueAsString(mapOf("key" to "value"))
-        json.shouldBeNotNull()
+        json.shouldNotBeNull()
         (json.contains("key")).shouldBeTrue()
     }
 

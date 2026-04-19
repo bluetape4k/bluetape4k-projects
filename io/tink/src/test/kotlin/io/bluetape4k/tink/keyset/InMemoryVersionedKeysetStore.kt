@@ -21,15 +21,18 @@ internal class InMemoryVersionedKeysetStore(
     private val currentVersion = AtomicLong(0)
 
     override fun current(): VersionedKeysetHandle {
-        return store.getOrPut(1L) {
+        val ver = currentVersion.get()
+        if (ver == 0L) {
             val handle = VersionedKeysetHandle(
                 version = 1L,
                 createdAt = Instant.now(clock),
                 keysetHandle = aeadKeysetHandle(),
             )
+            store[1L] = handle
             currentVersion.set(1L)
-            handle
+            return handle
         }
+        return store[ver]!!
     }
 
     override fun find(version: Long): VersionedKeysetHandle? = store[version]

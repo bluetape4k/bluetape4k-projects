@@ -158,7 +158,7 @@ class DateTimeSupportTest {
     }
 
     @Test
-    fun `경계값 - 자정(00:00:00) 변환이 올바르다`() {
+    fun `경계값 - 자정 변환이 올바르다`() {
         val midnight = LocalDateTime.of(2024, 1, 1, 0, 0, 0, 0)
         val proto = midnight.toProtoDateTime()
         val restored = proto.toLocalDateTime()
