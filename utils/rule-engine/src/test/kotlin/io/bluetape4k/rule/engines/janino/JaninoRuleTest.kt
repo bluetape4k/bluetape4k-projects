@@ -43,9 +43,7 @@ class JaninoRuleTest {
         val action = JaninoAction(PUT_DISCOUNT_TRUE_ACTION)
         val facts = Facts.of("amount" to 1500)
 
-        action.execute(facts)
-
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        action.execute(facts); facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

@@ -32,9 +32,7 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             otherwiseWork = failSuspendWork("otherwise-work"),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -76,9 +74,7 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             otherwiseWork = failSuspendWork("otherwise-work"),
         )
 
-        val report = flow.execute(ctx)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(ctx) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -88,9 +84,7 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             thenWork = successSuspendWork(),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -100,9 +94,7 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             thenWork = abortSuspendWork("then-abort"),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
     }
 
     @Test
@@ -113,8 +105,6 @@ class SuspendConditionalFlowTest: AbstractWorkflowTest() {
             otherwiseWork = abortSuspendWork("otherwise-abort"),
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
     }
 }

@@ -118,9 +118,7 @@ class JaninoRuleExampleTest {
         )
 
         val facts = Facts.of("name" to "Alice", "role" to "Manager")
-        action.execute(facts)
-
-        facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
+        action.execute(facts); facts.get<String>("greeting") shouldBeEqualTo "Hello, Manager Alice!"
     }
 
     @Test
@@ -387,8 +385,6 @@ class JaninoRuleExampleTest {
 
         // 1000만원, 연 5%, 3년 복리
         val facts = Facts.of("principal" to 10000000, "annualRate" to 5, "years" to 3)
-        action.execute(facts)
-
-        facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
+        action.execute(facts); facts.get<Double>("finalAmount") shouldBeEqualTo 11576250.0
     }
 }

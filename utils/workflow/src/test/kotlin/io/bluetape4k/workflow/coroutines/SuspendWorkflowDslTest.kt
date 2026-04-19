@@ -81,9 +81,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-fail") { ctx -> WorkReport.failure(ctx, RuntimeException("병렬 실패")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     // ──────────────────────────────────────────────────
@@ -112,9 +110,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             otherwise("otherwise-work") { c -> WorkReport.failure(c) }
         }
 
-        val report = flow.execute(ctx)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(ctx) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -210,9 +206,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 3
     }
 
@@ -371,9 +365,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("fail-2") { ctx -> WorkReport.failure(ctx, RuntimeException("실패2")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test

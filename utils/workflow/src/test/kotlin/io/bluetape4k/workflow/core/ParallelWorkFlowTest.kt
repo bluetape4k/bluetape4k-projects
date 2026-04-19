@@ -35,9 +35,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         )
         val flow = ParallelWorkFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -50,9 +48,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         )
         val flow = ParallelWorkFlow(works)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
     }
 
     @Test
@@ -69,10 +65,8 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
             timeout = 100.milliseconds,
         )
 
-        val report = flow.execute(context)
-
         // slow-work가 타임아웃되어 Cancelled 반환
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
     }
 
     @Test
@@ -113,9 +107,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         )
         val flow = ParallelWorkFlow(works, policy = ParallelPolicy.ANY)
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
