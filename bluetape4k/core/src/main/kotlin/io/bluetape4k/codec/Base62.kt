@@ -26,7 +26,8 @@ object Base62: KLogging() {
 
     private const val DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     private val BASE = BigInteger.valueOf(62)
-    private val DIGIT_INDEX = IntArray(128) { -1 }.also { index ->
+    private const val ASCII_TABLE_SIZE = 128
+    private val DIGIT_INDEX = IntArray(ASCII_TABLE_SIZE) { -1 }.also { index ->
         DIGITS.forEachIndexed { position, char ->
             index[char.code] = position
         }
@@ -46,16 +47,15 @@ object Base62: KLogging() {
      */
     fun encode(number: BigInteger): String {
         number.requireZeroOrPositiveNumber("number")
-        val result = StringBuilder()
+        if (number == BigInteger.ZERO) return DIGITS.substring(0, 1)
 
-        var current = number
-        while (current > BigInteger.ZERO) {
-            val (quantient, remainder) = current.divideAndRemainder(BASE)
-            current = quantient
-            val digit = remainder.intValueExact()
-            result.insert(0, DIGITS[digit])
-        }
-        return if (result.isEmpty()) DIGITS.substring(0, 1) else result.toString()
+        return buildString {
+            generateSequence(number) { prev ->
+                prev.divide(BASE).takeIf { it > BigInteger.ZERO }
+            }.forEach { current ->
+                append(DIGITS[current.mod(BASE).intValueExact()])
+            }
+        }.reversed()
     }
 
     /**
@@ -74,19 +74,18 @@ object Base62: KLogging() {
     fun decode(text: String, bitLimit: Int = DEFAULT_BIT_LIMIT): BigInteger {
         text.requireNotBlank("text")
 
-        var sum = BigInteger.ZERO
-        text.forEach { char ->
+        return text.fold(BigInteger.ZERO) { sum, char ->
             val code = char.code
             val digit = if (code < DIGIT_INDEX.size) DIGIT_INDEX[code] else -1
             require(digit >= 0) {
                 "Text `$text` contains illegal characters, only [$DIGITS] are allowed."
             }
-            sum = sum.multiply(BASE).add(BigInteger.valueOf(digit.toLong()))
-            if (bitLimit > 0 && sum.bitLength() > bitLimit) {
+            val result = sum.multiply(BASE).add(BigInteger.valueOf(digit.toLong()))
+            if (bitLimit > 0 && result.bitLength() > bitLimit) {
                 throw IllegalArgumentException("Text [$text] contains more than ${bitLimit}bit information")
             }
+            result
         }
-        return sum
     }
 }
 
