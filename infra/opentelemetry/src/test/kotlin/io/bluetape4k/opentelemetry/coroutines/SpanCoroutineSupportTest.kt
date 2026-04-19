@@ -23,6 +23,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -188,6 +189,42 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
 
         fun calledCount(): Int = exportCalls.get()
         fun exportedCount(): Int = exported.size
+    }
+
+    /**
+     * [Span.useSuspending]의 Duration 오버로드가 span을 종료하는지 검증합니다.
+     * waitDuration은 하위 호환용이며, 실제로는 즉시 종료되어 trace duration 왜곡을 방지합니다.
+     */
+    @Test
+    fun `useSuspending with Duration should end span`() = runSuspendIO {
+        spanExporter.reset()
+
+        val result = tracer.spanBuilder("duration-span").startSpan()
+            .useSuspending(Duration.ofMillis(10)) { "done" }
+
+        result shouldBeEqualTo "done"
+        flush()
+
+        spanExporter.finishedSpanItems shouldHaveSize 1
+        spanExporter.finishedSpanItems[0].name shouldBeEqualTo "duration-span"
+    }
+
+    /**
+     * [SpanBuilder.useSpanSuspending]의 Duration 오버로드가 span을 종료하는지 검증합니다.
+     * SpanBuilder에서 직접 Duration을 받아 처리할 때도 즉시 종료 보장이 동일합니다.
+     */
+    @Test
+    fun `useSpanSuspending with Duration should end span`() = runSuspendIO {
+        spanExporter.reset()
+
+        val result = tracer.spanBuilder("builder-duration-span")
+            .useSpanSuspending(Duration.ofMillis(10)) { "done" }
+
+        result shouldBeEqualTo "done"
+        flush()
+
+        spanExporter.finishedSpanItems shouldHaveSize 1
+        spanExporter.finishedSpanItems[0].name shouldBeEqualTo "builder-duration-span"
     }
 
     @Test
