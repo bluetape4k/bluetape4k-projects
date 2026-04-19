@@ -12,9 +12,11 @@ import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -51,5 +53,18 @@ class RedissonRateLimiterTest: AbstractRateLimiterTest() {
         val limiter = DistributedRateLimiter(brokenProvider)
         val result = limiter.consume(randomKey(), 1)
         result.status shouldBeEqualTo RateLimitStatus.ERROR
+    }
+
+    @Test
+    fun `CancellationException 은 ERROR 로 변환되지 않고 그대로 전파되어야 한다`() {
+        // CancellationException 은 Exception 하위 타입이므로 명시적으로 재전파하지 않으면 ERROR 결과로 변환될 수 있다.
+        val brokenProvider = mockk<BucketProxyProvider>()
+        every { brokenProvider.resolveBucket(any()) } throws CancellationException("simulated cancellation")
+
+        val limiter = DistributedRateLimiter(brokenProvider)
+
+        assertFailsWith<CancellationException> {
+            limiter.consume(randomKey(), 1)
+        }
     }
 }
