@@ -76,56 +76,34 @@ class ZonedDateTimeSupportTest {
     }
 
     @Test
-    fun `weekyear 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 1, 1)
-        zdt.weekyear shouldBeEqualTo 2020 // ISO 8601: 2021-01-01은 2020년의 마지막 주
+    fun `week-based 속성 확인`() {
+        zonedDateTimeOf(2021, 1, 1).weekyear shouldBeEqualTo 2020
+
+        val zdtMonday = zonedDateTimeOf(2021, 1, 4)
+        zdtMonday.weekOfWeekyear shouldBeGreaterThan 0
+        log.debug { "weekOfWeekyear: ${zdtMonday.weekOfWeekyear}" }
+
+        val zdtMarch = zonedDateTimeOf(2021, 3, 15)
+        zdtMarch.weekOfMonth shouldBeGreaterThan 0
+        log.debug { "weekOfMonth: ${zdtMarch.weekOfMonth}" }
     }
 
     @Test
-    fun `weekOfWeekyear 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 1, 4) // Monday
-        zdt.weekOfWeekyear shouldBeGreaterThan 0
-        log.debug { "weekOfWeekyear: ${zdt.weekOfWeekyear}" }
+    fun `day 시간 속성 확인`() {
+        zonedDateTimeOf(2021, 1, 1, 12, 30, 45).secondsOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45)
+        zonedDateTimeOf(2021, 1, 1, 12, 30, 45, nanoOfSecond = 123_000_000).millisOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45) * 1000 + 123
+        zonedDateTimeOf(2021, 1, 1, 1, 0, 0).nanoOfDay shouldBeEqualTo 3600_000_000_000L
     }
 
     @Test
-    fun `weekOfMonth 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 15)
-        zdt.weekOfMonth shouldBeGreaterThan 0
-        log.debug { "weekOfMonth: ${zdt.weekOfMonth}" }
-    }
-
-    @Test
-    fun `secondsOfDay 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 1, 1, 12, 30, 45)
-        zdt.secondsOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45)
-    }
-
-    @Test
-    fun `millisOfDay 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 1, 1, 12, 30, 45, nanoOfSecond = 123_000_000)
-        zdt.millisOfDay shouldBeEqualTo (12 * 3600 + 30 * 60 + 45) * 1000 + 123
-    }
-
-    @Test
-    fun `nanoOfDay 속성 확인`() {
-        val zdt = zonedDateTimeOf(2021, 1, 1, 1, 0, 0)
-        zdt.nanoOfDay shouldBeEqualTo 3600_000_000_000L
-    }
-
-    @Test
-    fun `toUtcInstant로 UTC Instant 변환`() {
+    fun `toUtcInstant 변환 확인`() {
         val zdt = zonedDateTimeOf(2021, 1, 1, 0, 0, 0, zoneId = ZoneId.of("Asia/Seoul"))
         val instant = zdt.toUtcInstant()
-
         instant.shouldNotBeNull()
         instant.epochSecond shouldBeEqualTo zdt.toEpochSecond()
-    }
 
-    @Test
-    fun `toUtcInstant는 나노초 정밀도를 보존한다`() {
-        val zdt = zonedDateTimeOf(2021, 1, 1, 0, 0, 0, nanoOfSecond = 123_456_789, zoneId = ZoneId.of("Asia/Seoul"))
-        zdt.toUtcInstant().nano shouldBeEqualTo 123_456_789
+        val zdtNano = zonedDateTimeOf(2021, 1, 1, 0, 0, 0, nanoOfSecond = 123_456_789, zoneId = ZoneId.of("Asia/Seoul"))
+        zdtNano.toUtcInstant().nano shouldBeEqualTo 123_456_789
     }
 
     @Test
@@ -216,53 +194,20 @@ class ZonedDateTimeSupportTest {
     }
 
     @Test
-    fun `startOfHour와 endOfHour 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 15, 14, 30, 45)
-
-        val start = zdt.startOfHour()
-        start.minute shouldBeEqualTo 0
-        start.second shouldBeEqualTo 0
-        start.nano shouldBeEqualTo 0
-
-        val end = zdt.endOfHour()
-        end.minute shouldBeEqualTo 59
-        end.second shouldBeEqualTo 59
-        end.nano shouldBeEqualTo 999_999_999
-    }
-
-    @Test
-    fun `startOfMinute와 endOfMinute 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 15, 14, 30, 45)
-
-        val start = zdt.startOfMinute()
-        start.second shouldBeEqualTo 0
-        start.nano shouldBeEqualTo 0
-
-        val end = zdt.endOfMinute()
-        end.second shouldBeEqualTo 59
-        end.nano shouldBeEqualTo 999_999_999
-    }
-
-    @Test
-    fun `startOfSecond와 endOfSeconds 확인`() {
+    fun `sub-period boundaries - hour, minute, second, millis`() {
         val zdt = zonedDateTimeOf(2021, 3, 15, 14, 30, 45, nanoOfSecond = 123_456_789)
 
-        val start = zdt.startOfSecond()
-        start.nano shouldBeEqualTo 0
+        zdt.startOfHour().run { minute shouldBeEqualTo 0; second shouldBeEqualTo 0; nano shouldBeEqualTo 0 }
+        zdt.endOfHour().run { minute shouldBeEqualTo 59; second shouldBeEqualTo 59; nano shouldBeEqualTo 999_999_999 }
 
-        val end = zdt.endOfSeconds()
-        end.nano shouldBeEqualTo 999_999_999
-    }
+        zdt.startOfMinute().run { second shouldBeEqualTo 0; nano shouldBeEqualTo 0 }
+        zdt.endOfMinute().run { second shouldBeEqualTo 59; nano shouldBeEqualTo 999_999_999 }
 
-    @Test
-    fun `startOfMillis와 endOfMillis 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 15, 14, 30, 45, nanoOfSecond = 123_456_789)
+        zdt.startOfSecond().nano shouldBeEqualTo 0
+        zdt.endOfSeconds().nano shouldBeEqualTo 999_999_999
 
-        val start = zdt.startOfMillis()
-        start.nano shouldBeEqualTo 123_000_000
-
-        val end = zdt.endOfMillis()
-        end.nano shouldBeEqualTo 123_999_999
+        zdt.startOfMillis().nano shouldBeEqualTo 123_000_000
+        zdt.endOfMillis().nano shouldBeEqualTo 123_999_999
     }
 
     @Test
@@ -362,25 +307,17 @@ class ZonedDateTimeSupportTest {
     }
 
     @Test
-    fun `ZonedDateTime min 확장 함수`() {
+    fun `ZonedDateTime min max 확장 함수`() {
         val zdt1 = zonedDateTimeOf(2021, 1, 1)
         val zdt2 = zonedDateTimeOf(2021, 12, 31)
 
         (zdt1 min zdt2) shouldBeEqualTo zdt1
         (zdt2 min zdt1) shouldBeEqualTo zdt1
-
         (null min zdt1) shouldBeEqualTo zdt1
         (zdt1 min null) shouldBeEqualTo zdt1
-    }
-
-    @Test
-    fun `ZonedDateTime max 확장 함수`() {
-        val zdt1 = zonedDateTimeOf(2021, 1, 1)
-        val zdt2 = zonedDateTimeOf(2021, 12, 31)
 
         (zdt1 max zdt2) shouldBeEqualTo zdt2
         (zdt2 max zdt1) shouldBeEqualTo zdt2
-
         (null max zdt1) shouldBeEqualTo zdt1
         (zdt1 max null) shouldBeEqualTo zdt1
     }
