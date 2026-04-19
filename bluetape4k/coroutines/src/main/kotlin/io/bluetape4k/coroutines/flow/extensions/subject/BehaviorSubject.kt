@@ -6,9 +6,11 @@ import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
+import kotlin.coroutines.coroutineContext
 
 /**
  * 가장 최근 값을 유지하고 새 collector에게 즉시 전달하는 Subject입니다.
@@ -262,6 +264,7 @@ class BehaviorSubject<T> private constructor(
                 }
 
                 while (true) {
+                    coroutineContext.ensureActive()
                     inner.consumeReady.resume()
                     inner.await()
 

@@ -4,11 +4,11 @@ import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.isActive
+import kotlin.coroutines.coroutineContext
 import java.util.concurrent.TimeUnit
 
 
@@ -358,6 +358,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             log.debug { "Replay emit ..." }
 
             while (true) {
+                coroutineContext.ensureActive()
                 val d = done.value
                 val empty = consumer.index == size.value
                 if (d && empty) {
@@ -365,16 +366,8 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                     return@coroutineScope
                 }
                 if (!empty) {
-                    try {
-                        if (coroutineContext.isActive) {
-                            consumer.consumer.emit(list[consumer.index.toInt()])
-                            consumer.index++
-                        } else {
-                            throw CancellationException()
-                        }
-                    } catch (e: Throwable) {
-                        throw e
-                    }
+                    consumer.consumer.emit(list[consumer.index.toInt()])
+                    consumer.index++
                     continue
                 }
                 consumer.await()
@@ -425,6 +418,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
+                coroutineContext.ensureActive()
                 val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {
@@ -439,16 +433,8 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                     return@coroutineScope
                 }
                 if (!empty) {
-                    try {
-                        if (coroutineContext.isActive) {
-                            consumer.consumer.emit(next.value!!)
-                            consumer.node = next
-                        } else {
-                            throw CancellationException()
-                        }
-                    } catch (e: Throwable) {
-                        throw e
-                    }
+                    consumer.consumer.emit(next.value!!)
+                    consumer.node = next
                     continue
                 }
                 consumer.await()
@@ -546,6 +532,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
+                coroutineContext.ensureActive()
                 val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {
@@ -560,16 +547,8 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                     return@coroutineScope
                 }
                 if (!empty) {
-                    try {
-                        if (coroutineContext.isActive) {
-                            consumer.consumer.emit(next.value!!)
-                            consumer.node = next
-                        } else {
-                            throw CancellationException()
-                        }
-                    } catch (e: Throwable) {
-                        throw e
-                    }
+                    consumer.consumer.emit(next.value!!)
+                    consumer.node = next
                     continue
                 }
                 consumer.await()
