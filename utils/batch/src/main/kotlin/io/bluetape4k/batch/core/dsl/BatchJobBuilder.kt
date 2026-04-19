@@ -65,12 +65,11 @@ class BatchJobBuilder(private val name: String) {
     }
 
     /**
-     * 내부적으로 Step을 등록합니다. [step] 인라인 함수에서 호출합니다.
+     * Step을 등록합니다. [step] 인라인 함수 또는 직접 호출에서 사용합니다.
      *
      * @param step 등록할 [BatchStep]
      */
-    @PublishedApi
-    internal fun addStep(step: BatchStep<*, *>) {
+    fun addStep(step: BatchStep<*, *>) {
         _steps.add(step)
     }
 
