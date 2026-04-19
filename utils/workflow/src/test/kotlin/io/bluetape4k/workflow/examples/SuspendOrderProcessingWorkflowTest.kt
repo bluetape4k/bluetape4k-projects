@@ -20,6 +20,12 @@ class SuspendOrderProcessingWorkflowTest {
 
     companion object: KLogging()
 
+    private fun orderCtx(id: String, userId: String, amount: Long) = workContext(
+        "order.id" to id,
+        "order.userId" to userId,
+        "order.amount" to amount,
+    )
+
     private fun buildOrderFlow(
         inventoryAvailable: Boolean = true,
         fraudPassed: Boolean = true,
@@ -59,11 +65,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `정상 주문 처리 - 전체 플로우 성공`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-001",
-            "order.userId" to "user-42",
-            "order.amount" to 15_000L,
-        )
+        val ctx = orderCtx("ORD-001", "user-42", 15_000L)
 
         val report = buildOrderFlow(
             paymentSuccessOnAttempt = 1,
@@ -82,11 +84,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `결제 재시도 성공 - 3번째 시도에 결제 완료`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-002",
-            "order.userId" to "user-99",
-            "order.amount" to 30_000L,
-        )
+        val ctx = orderCtx("ORD-002", "user-99", 30_000L)
 
         val report = buildOrderFlow(
             paymentSuccessOnAttempt = 3,
@@ -100,11 +98,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `PG 승인 지연 - 4회 폴링 후 승인 완료`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-003",
-            "order.userId" to "user-77",
-            "order.amount" to 8_000L,
-        )
+        val ctx = orderCtx("ORD-003", "user-77", 8_000L)
 
         val report = buildOrderFlow(
             paymentSuccessOnAttempt = 1,
@@ -118,11 +112,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `재고 부족 - ABORTED 즉시 전파, 결제 단계 미실행`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-004",
-            "order.userId" to "user-7",
-            "order.amount" to 5_000L,
-        )
+        val ctx = orderCtx("ORD-004", "user-7", 5_000L)
 
         val report = buildOrderFlow(inventoryAvailable = false).execute(ctx)
 
@@ -133,11 +123,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `사기 탐지 실패 - ABORTED 반환, 결제 미실행`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-005",
-            "order.userId" to "suspicious-user",
-            "order.amount" to 999_000L,
-        )
+        val ctx = orderCtx("ORD-005", "suspicious-user", 999_000L)
 
         val report = buildOrderFlow(fraudPassed = false).execute(ctx)
 
@@ -147,11 +133,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `PG 승인 타임아웃 - 5회 폴링 후 미승인, 주문 취소`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-006",
-            "order.userId" to "user-slow",
-            "order.amount" to 12_000L,
-        )
+        val ctx = orderCtx("ORD-006", "user-slow", 12_000L)
 
         val report = buildOrderFlow(
             paymentSuccessOnAttempt = 1,
@@ -166,10 +148,7 @@ class SuspendOrderProcessingWorkflowTest {
 
     @Test
     fun `유효하지 않은 주문 - userId 없음 ABORTED`() = runTest(timeout = 30.seconds) {
-        val ctx = workContext(
-            "order.id" to "ORD-007",
-            "order.amount" to 10_000L,
-        )
+        val ctx = workContext("order.id" to "ORD-007", "order.amount" to 10_000L)
 
         val report = suspendSequentialFlow("order-processing") {
             execute(fixSuspendValidateOrder())
