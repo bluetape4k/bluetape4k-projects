@@ -28,7 +28,10 @@ import org.junit.jupiter.api.Test
  */
 class GroovyRuleExampleTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private fun gRule(name: String, priority: Int = 0, cond: String, action: String): GroovyRule =
+            GroovyRule(name = name, priority = priority).whenever(cond).then(action)
+    }
 
     private fun gRule(name: String, priority: Int, whenever: String, then: String) =
         GroovyRule(name = name, priority = priority).whenever(whenever).then(then)

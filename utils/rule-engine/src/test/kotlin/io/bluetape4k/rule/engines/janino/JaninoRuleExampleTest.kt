@@ -27,7 +27,10 @@ import org.junit.jupiter.api.Test
  */
 class JaninoRuleExampleTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private fun jRule(name: String, priority: Int = 0, cond: String, action: String): JaninoRule =
+            JaninoRule(name = name, priority = priority).whenever(cond).then(action)
+    }
 
     private fun jRule(name: String, priority: Int, whenever: String, then: String) =
         JaninoRule(name = name, priority = priority).whenever(whenever).then(then)

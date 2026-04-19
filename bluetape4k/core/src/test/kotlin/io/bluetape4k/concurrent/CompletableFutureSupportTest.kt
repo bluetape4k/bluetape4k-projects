@@ -25,6 +25,14 @@ class CompletableFutureSupportTest {
     private val failed: CompletableFuture<Int> = failedCompletableFutureOf(IllegalArgumentException())
     private val emptyFutures: List<CompletableFuture<Int>> = emptyList()
 
+    /**
+     * [CompletableFuture.get] 호출 시 [ExecutionException]이 발생하고,
+     * 그 `cause`가 [T] 타입임을 검증하는 테스트용 확장 함수.
+     */
+    private inline fun <reified T: Throwable> CompletableFuture<*>.shouldCauseBe() {
+        assertFailsWith<ExecutionException> { get() }.cause shouldBeInstanceOf T::class
+    }
+
     @Nested
     inner class Map {
         @Test
@@ -49,9 +57,7 @@ class CompletableFutureSupportTest {
 
         @Test
         fun `flatMap failed future should throw exception`() {
-            assertFailsWith<ExecutionException> {
-                failed.map { r -> immediateFutureOf { r + 1 } }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
+            failed.map { r -> immediateFutureOf { r + 1 } }.shouldCauseBe<IllegalArgumentException>()
         }
     }
 
@@ -64,9 +70,7 @@ class CompletableFutureSupportTest {
 
         @Test
         fun `flatten failed future`() {
-            assertFailsWith<ExecutionException> {
-                futureOf { failed }.flatten().get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
+            futureOf { failed }.flatten().shouldCauseBe<IllegalArgumentException>()
         }
     }
 
@@ -79,16 +83,12 @@ class CompletableFutureSupportTest {
 
         @Test
         fun `filter success future without match`() {
-            assertFailsWith<ExecutionException> {
-                success.filter { it == 2 }.get()
-            }.cause shouldBeInstanceOf NoSuchElementException::class
+            success.filter { it == 2 }.shouldCauseBe<NoSuchElementException>()
         }
 
         @Test
         fun `filter failed future`() {
-            assertFailsWith<ExecutionException> {
-                failed.filter { it == 1 }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
+            failed.filter { it == 1 }.shouldCauseBe<IllegalArgumentException>()
         }
     }
 
@@ -281,17 +281,9 @@ class CompletableFutureSupportTest {
 
         @Test
         fun `zip with failed future`() {
-            assertFailsWith<ExecutionException> {
-                failed.zip(failed) { a, b -> a + b }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
-
-            assertFailsWith<ExecutionException> {
-                success.zip(failed) { a, b -> a + b }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
-
-            assertFailsWith<ExecutionException> {
-                failed.zip(success) { a, b -> a + b }.get()
-            }.cause shouldBeInstanceOf IllegalArgumentException::class
+            failed.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
+            success.zip(failed) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
+            failed.zip(success) { a, b -> a + b }.shouldCauseBe<IllegalArgumentException>()
         }
     }
 
@@ -343,9 +335,7 @@ class CompletableFutureSupportTest {
                 Thread.sleep(3000)
                 42
             }
-            assertFailsWith<ExecutionException> {
-                result.get()
-            }.cause shouldBeInstanceOf TimeoutException::class
+            result.shouldCauseBe<TimeoutException>()
         }
 
         @Test
@@ -369,9 +359,7 @@ class CompletableFutureSupportTest {
         @Test
         fun `dereference로 실패한 중첩 future를 처리한다`() {
             val nested = futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }
-            assertFailsWith<ExecutionException> {
-                nested.dereference().get()
-            }.cause shouldBeInstanceOf RuntimeException::class
+            nested.dereference().shouldCauseBe<RuntimeException>()
         }
     }
 }
