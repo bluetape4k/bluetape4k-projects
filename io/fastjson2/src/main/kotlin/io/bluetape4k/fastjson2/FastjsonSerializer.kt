@@ -146,7 +146,7 @@ class FastjsonSerializer: JsonSerializer {
      * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: Any> deserializeFromString(jsonText: String?, clazz: Class<T>): T? {
-        if (jsonText == null) {
+        if (jsonText.isNullOrEmpty()) {
             return null
         }
         return try {
@@ -206,7 +206,7 @@ class FastjsonSerializer: JsonSerializer {
      * @param jsonText 역직렬화할 JSON 문자열입니다. `null`이면 `null`을 반환합니다.
      */
     inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
-        jsonText?.let {
+        jsonText?.takeIf { it.isNotEmpty() }?.let {
             try {
                 val clazz = T::class.java
                 if (clazz.typeParameters.isEmpty()) {
