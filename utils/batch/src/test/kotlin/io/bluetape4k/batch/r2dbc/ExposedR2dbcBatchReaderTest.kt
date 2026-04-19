@@ -8,7 +8,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
-import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -47,10 +46,7 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
     fun `전체 읽기 - 모든 레코드를 keyset 페이지네이션으로 읽음`(testDB: TestDB) {
         runSuspendIO {
             withBatchTables(testDB) { db ->
-                BatchSourceTable.batchInsert((1..25).toList()) { i ->
-                    this[BatchSourceTable.name] = "item-$i"
-                    this[BatchSourceTable.value] = i
-                }
+                insertSources(25)
 
                 val reader = makeReader(db.db!!, pageSize = 10)
                 reader.open()
@@ -92,10 +88,7 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
     fun `pageSize 정확히 배수 - 모든 페이지 반환 후 EOF`(testDB: TestDB) {
         runSuspendIO {
             withBatchTables(testDB) { db ->
-                BatchSourceTable.batchInsert((1..20).toList()) { i ->
-                    this[BatchSourceTable.name] = "item-$i"
-                    this[BatchSourceTable.value] = i
-                }
+                insertSources(20)
 
                 val reader = makeReader(db.db!!, pageSize = 10)
                 reader.open()
@@ -115,10 +108,7 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
     fun `체크포인트 재시작 - restoreFrom 후 이후 레코드만 읽음`(testDB: TestDB) {
         runSuspendIO {
             withBatchTables(testDB) { db ->
-                BatchSourceTable.batchInsert((1..30).toList()) { i ->
-                    this[BatchSourceTable.name] = "item-$i"
-                    this[BatchSourceTable.value] = i
-                }
+                insertSources(30)
 
                 val reader = makeReader(db.db!!, pageSize = 10)
                 reader.open()
@@ -157,10 +147,7 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
     fun `onChunkCommitted 전후 checkpoint 값 검증`(testDB: TestDB) {
         runSuspendIO {
             withBatchTables(testDB) { db ->
-                BatchSourceTable.batchInsert((1..5).toList()) { i ->
-                    this[BatchSourceTable.name] = "item-$i"
-                    this[BatchSourceTable.value] = i
-                }
+                insertSources(5)
 
                 val reader = makeReader(db.db!!, pageSize = 5)
                 reader.open()
@@ -189,10 +176,7 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
     fun `pageSize + 1 경계 - 마지막 페이지가 1개일 때 정상 동작`(testDB: TestDB) {
         runSuspendIO {
             withBatchTables(testDB) { db ->
-                BatchSourceTable.batchInsert((1..11).toList()) { i ->
-                    this[BatchSourceTable.name] = "item-$i"
-                    this[BatchSourceTable.value] = i
-                }
+                insertSources(11)
 
                 val reader = makeReader(db.db!!, pageSize = 10)
                 reader.open()
