@@ -336,12 +336,10 @@ class GroovyRuleExampleTest {
         val engine = DefaultRuleEngine()
 
         val facts1 = Facts.of("totalPurchase" to 750000)
-        engine.fire(ruleSetOf(group), facts1)
-        facts1.get<String>("tier") shouldBeEqualTo "GOLD"
+        engine.fire(ruleSetOf(group), facts1); facts1.get<String>("tier") shouldBeEqualTo "GOLD"
 
         val facts2 = Facts.of("totalPurchase" to 50000)
-        engine.fire(ruleSetOf(group), facts2)
-        facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
+        engine.fire(ruleSetOf(group), facts2); facts2.get<String>("tier") shouldBeEqualTo "BRONZE"
     }
 
     @Test
@@ -360,12 +358,10 @@ class GroovyRuleExampleTest {
         val engine = DefaultRuleEngine()
 
         val facts1 = Facts.of("weight" to 2.5, "distance" to 200, "express" to false)
-        engine.fire(ruleSetOf(shippingRule), facts1)
-        facts1.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 10250.0
+        engine.fire(ruleSetOf(shippingRule), facts1); facts1.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 10250.0
 
         val facts2 = Facts.of("weight" to 1.0, "distance" to 100, "express" to true)
-        engine.fire(ruleSetOf(shippingRule), facts2)
-        facts2.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 8100.0
+        engine.fire(ruleSetOf(shippingRule), facts2); facts2.get<Number>("shippingCost")!!.toDouble() shouldBeEqualTo 8100.0
     }
 
     @Test
@@ -408,9 +404,7 @@ class GroovyRuleExampleTest {
 
         // 75000원 → midDiscount만 적용되고 lowDiscount는 스킵
         val facts = Facts.of("amount" to 75000)
-        engine.fire(ruleSetOf(highPriority, midPriority, lowPriority), facts)
-
-        facts.get<Number>("discount")!!.toInt() shouldBeEqualTo 15
+        engine.fire(ruleSetOf(highPriority, midPriority, lowPriority), facts); facts.get<Number>("discount")!!.toInt() shouldBeEqualTo 15
     }
 
     // =========================================================================

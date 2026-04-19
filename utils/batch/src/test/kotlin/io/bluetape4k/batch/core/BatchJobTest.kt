@@ -214,9 +214,7 @@ class BatchJobTest {
         val job = singleStepJob("workJob", step)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
         context.contains("batch.workJob.report") shouldBe true
     }
 
@@ -227,9 +225,7 @@ class BatchJobTest {
         val job = singleStepJob("failWorkJob", failingStep)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.FAILED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.FAILED
     }
 
     @Test
@@ -248,9 +244,7 @@ class BatchJobTest {
         val job = singleStepJob("partialJob", step)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
         context.get<Long>("batch.partialJob.skipCount") shouldBeEqualTo 1L
     }
 }

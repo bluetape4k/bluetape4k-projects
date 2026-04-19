@@ -177,8 +177,7 @@ class InMemoryBatchJobRepositoryTest {
 
         repo.saveCheckpoint(se.id, 42L)
 
-        val loaded = repo.loadCheckpoint(se.id)
-        loaded shouldBeEqualTo 42L
+        repo.loadCheckpoint(se.id) shouldBeEqualTo 42L
     }
 
     @Test
