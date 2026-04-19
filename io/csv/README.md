@@ -379,14 +379,23 @@ io.bluetape4k.csv
 │   ├── TsvLineWriter.kt              # TSV-specific writer
 │   ├── ArrayRecord.kt                # Record implementation
 │   └── RecordFactory.kt              # Record construction helpers
-└── coroutines/                       # Coroutines async support
-    ├── SuspendRecordReader.kt        # Async read interface (Flow-based)
-    ├── SuspendRecordWriter.kt        # Async write interface
-    ├── SuspendCsvRecordReader.kt     # Async CSV reader (channelFlow + ensureActive)
-    ├── SuspendCsvRecordWriter.kt     # Async CSV writer (Mutex protected)
-    ├── SuspendTsvRecordReader.kt     # Async TSV reader (channelFlow + ensureActive)
-    ├── SuspendTsvRecordWriter.kt     # Async TSV writer (Mutex protected)
-    └── SuspendRecordReaderSupport.kt # Async File/InputStream extension functions
+├── coroutines/                       # Coroutines async support
+│   ├── SuspendRecordReader.kt        # Async read interface (Flow-based)
+│   ├── SuspendRecordWriter.kt        # Async write interface
+│   ├── SuspendCsvRecordReader.kt     # Async CSV reader (channelFlow + ensureActive)
+│   ├── SuspendCsvRecordWriter.kt     # Async CSV writer (Mutex protected)
+│   ├── SuspendTsvRecordReader.kt     # Async TSV reader (channelFlow + ensureActive)
+│   ├── SuspendTsvRecordWriter.kt     # Async TSV writer (Mutex protected)
+│   └── SuspendRecordReaderSupport.kt # Async File/InputStream extension functions
+└── v2/                               # V2 Flow-based DSL API
+    ├── CsvRow.kt                     # Immutable data-class row (Serializable)
+    ├── CsvReaderConfig.kt            # Mutable builder for csvReader/tsvReader
+    ├── CsvWriterConfig.kt            # Mutable builder for csvWriter/tsvWriter
+    ├── FlowCsvReader.kt              # Flow-returning reader interface + factories
+    ├── FlowCsvReaderImpl.kt          # channelFlow + ensureActive + flowOn(IO)
+    ├── FlowCsvWriter.kt              # Closeable writer interface + factories
+    ├── FlowCsvWriterImpl.kt          # Mutex-guarded writer with close()-flush
+    └── CsvExtensions.kt              # Record ↔ CsvRow conversion
 ```
 
 ## Dependencies

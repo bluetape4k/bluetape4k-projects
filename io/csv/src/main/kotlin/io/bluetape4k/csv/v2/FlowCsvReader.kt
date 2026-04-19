@@ -49,6 +49,16 @@ interface FlowCsvReader {
      * RFC 4180 멀티라인 인용 필드를 올바르게 처리하기 위해
      * line-based reader 대신 `FileInputStream`으로 직접 읽습니다.
      *
+     * ## 사용 예
+     * ```kotlin
+     * val reader = csvReader { trimValues = true }
+     * reader.readFile(Path.of("data.csv"), skipHeaders = true).collect { row ->
+     *     val name = row.getString("name") ?: return@collect
+     *     val age  = row.getInt("age", default = 0)
+     *     println("$name: $age")
+     * }
+     * ```
+     *
      * @param path 읽을 파일 경로
      * @param encoding 문자 인코딩 (기본값: UTF-8)
      * @param skipHeaders `true`이면 첫 번째 행을 헤더로 저장하고 이후 행부터 반환

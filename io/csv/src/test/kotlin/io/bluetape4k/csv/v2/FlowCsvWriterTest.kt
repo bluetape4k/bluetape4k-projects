@@ -6,11 +6,16 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.StringWriter
+import java.nio.file.Path
 
 class FlowCsvWriterTest {
 
     companion object : KLogging()
+
+    @TempDir
+    lateinit var tempDir: Path
 
     private fun writerOf(block: CsvWriterConfig.() -> Unit = {}): Pair<StringWriter, FlowCsvWriter> {
         val sw = StringWriter()
@@ -151,5 +156,109 @@ class FlowCsvWriterTest {
         writer.close()
 
         sw.toString() shouldBeEqualTo "a;b;c\r\n"
+    }
+
+    // ── writeFile(Path) ──────────────────────────────────
+
+    @Test
+    fun `writeFile writes rows to file and returns count`() = runTest {
+        val file = tempDir.resolve("output.csv")
+        val sw = StringWriter()
+        val writer = csvWriter(sw)
+
+        val count = writer.writeFile(
+            path = file,
+            skipHeaders = true,
+            rows = flowOf(listOf("Alice", 30), listOf("Bob", 25)),
+        )
+
+        count shouldBeEqualTo 2L
+        val lines = file.toFile().readLines()
+        lines[0] shouldBeEqualTo "Alice,30"
+        lines[1] shouldBeEqualTo "Bob,25"
+    }
+
+    @Test
+    fun `writeFile writes headers when skipHeaders=false`() = runTest {
+        val file = tempDir.resolve("with_headers.csv")
+        val sw = StringWriter()
+        val writer = csvWriter(sw)
+
+        val count = writer.writeFile(
+            path = file,
+            skipHeaders = false,
+            headers = listOf("name", "age"),
+            rows = flowOf(listOf("Alice", 30)),
+        )
+
+        count shouldBeEqualTo 1L
+        val lines = file.toFile().readLines()
+        lines[0] shouldBeEqualTo "name,age"
+        lines[1] shouldBeEqualTo "Alice,30"
+    }
+
+    @Test
+    fun `writeFile append mode adds rows to existing file`() = runTest {
+        val file = tempDir.resolve("append.csv")
+        file.toFile().writeText("Alice,30\r\n")
+        val sw = StringWriter()
+        val writer = csvWriter(sw)
+
+        val count = writer.writeFile(
+            path = file,
+            append = true,
+            skipHeaders = true,
+            rows = flowOf(listOf("Bob", 25)),
+        )
+
+        count shouldBeEqualTo 1L
+        val content = file.toFile().readText()
+        content shouldContain "Alice,30"
+        content shouldContain "Bob,25"
+    }
+
+    @Test
+    fun `writeFile returns zero for empty flow`() = runTest {
+        val file = tempDir.resolve("empty.csv")
+        val sw = StringWriter()
+        val writer = csvWriter(sw)
+
+        val count = writer.writeFile(
+            path = file,
+            skipHeaders = true,
+            rows = flowOf(),
+        )
+
+        count shouldBeEqualTo 0L
+    }
+
+    // ── close() flushes underlying writer (regression: cff1141c7) ──────
+    @Test
+    fun `close flushes buffered OutputStreamWriter to file`() = runTest {
+        val file = tempDir.resolve("buffered.csv")
+        val bufferedWriter = java.io.BufferedWriter(
+            java.io.OutputStreamWriter(
+                java.io.FileOutputStream(file.toFile()),
+                Charsets.UTF_8,
+            ),
+        )
+        val writer = csvWriter(bufferedWriter)
+        writer.writeRow(listOf("Alice", 30))
+        writer.writeRow(listOf("Bob", 25))
+        writer.close()
+
+        // close() must flush+close so data reaches the file even with a BufferedWriter underneath
+        val content = file.toFile().readText(Charsets.UTF_8)
+        content shouldContain "Alice,30"
+        content shouldContain "Bob,25"
+    }
+
+    @Test
+    fun `close is idempotent and swallows exceptions`() = runTest {
+        val (_, writer) = writerOf()
+        writer.writeRow(listOf("x"))
+        writer.close()
+        // second close must not throw (runCatching in FlowCsvWriterImpl.close)
+        writer.close()
     }
 }

@@ -24,11 +24,9 @@ object GoogleGeoService: KLogging() {
     internal const val API_KEY_ENV_NAME = "GOOGLE_GEOCODE_API_KEY"
 
     /**
-     * 구글 맵 Geocode API 를 사용하기 위해서는 API Key 를 생성해야 합니다.
-     * 현재 sunghyouk.bae@gmail.com 으로 계정을 만들었습니다.
+     * Google Maps Geocode API Key를 환경변수 [API_KEY_ENV_NAME]에서 로딩합니다.
      *
      * 참고: [API 사용하기](https://developers.google.com/maps/documentation/javascript/get-api-key?hl=ko)
-     * 참고: [Debop의 Google Map Reverse Geocode API Key](https://console.cloud.google.com/apis/credentials/key/2d935790-3118-4d0c-9468-999e0c3aa64f?hl=ko&project=data-rider-388411)
      */
     internal val apiKey: String by lazy {
         System.getenv(API_KEY_ENV_NAME)

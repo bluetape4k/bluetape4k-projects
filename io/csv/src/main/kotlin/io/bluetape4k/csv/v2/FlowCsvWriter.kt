@@ -51,12 +51,39 @@ interface FlowCsvWriter : Closeable {
      * Flow가 lazy이므로 메모리 폭발 없이 스트리밍 처리 가능합니다.
      * 단, 쓰기 중 예외 시 부분 파일이 남을 수 있습니다.
      *
+     * ## 사용 예
+     * ```kotlin
+     * val writer = csvWriter(outputWriter)
+     * writer.writeHeaders(listOf("name", "age"))
+     * val people: Flow<List<Any?>> = flowOf(
+     *     listOf("Alice", 30),
+     *     listOf("Bob", 25),
+     * )
+     * writer.writeAll(people)
+     * writer.close()
+     * ```
+     *
      * @param rows 행 시퀀스를 나타내는 Flow
      */
     suspend fun writeAll(rows: Flow<Iterable<*>>)
 
     /**
      * [path]에 Flow의 내용을 CSV로 저장한다.
+     *
+     * 내부적으로 파일 전용 [DelimitedWriter] 인스턴스 하나를 재사용하며,
+     * 블록 종료 시 자동으로 flush 및 close됩니다.
+     *
+     * ## 사용 예
+     * ```kotlin
+     * val writer = csvWriter(StringWriter())  // 컨테이너 writer는 미사용
+     * val count = writer.writeFile(
+     *     path = Path.of("people.csv"),
+     *     skipHeaders = false,
+     *     headers = listOf("name", "age"),
+     *     rows = flowOf(listOf("Alice", 30), listOf("Bob", 25)),
+     * )
+     * println("wrote $count rows")
+     * ```
      *
      * @param path 출력 파일 경로
      * @param encoding 문자 인코딩 (기본값: UTF-8)
@@ -93,4 +120,7 @@ fun csvWriter(writer: Writer, block: CsvWriterConfig.() -> Unit = {}): FlowCsvWr
  * @param block [CsvWriterConfig] 설정 블록 (delimiter 설정은 무시됨)
  */
 fun tsvWriter(writer: Writer, block: CsvWriterConfig.() -> Unit = {}): FlowCsvWriter =
-    FlowCsvWriterImpl(writer, CsvWriterConfig().apply(block).also { it.delimiter = '\t'; it.lineSeparator = "\n" })
+    FlowCsvWriterImpl(writer, CsvWriterConfig().apply(block).also {
+        it.delimiter = '\t'
+        it.lineSeparator = "\n"
+    })
