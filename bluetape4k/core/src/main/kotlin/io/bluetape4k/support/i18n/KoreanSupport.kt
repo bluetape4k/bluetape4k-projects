@@ -125,12 +125,15 @@ fun String.getChosung(): CharArray {
     return chosungs.toString().toCharArray()
 }
 
-private fun Int.getIndexes(): Triple<Int, Int, Int> {
-    val initIndex = this - 0xAC00
+private const val JONG_SUNG_COUNT = 28
+private const val JUNG_SUNG_COUNT = 21
 
-    val jongIndex = initIndex % 28
-    val jungIndex = ((initIndex - jongIndex) / 28) % 21
-    val choIndex = ((initIndex / 28) - jungIndex) / 21
+private fun Int.getIndexes(): Triple<Int, Int, Int> {
+    val initIndex = this - KOREAN_START
+
+    val jongIndex = initIndex % JONG_SUNG_COUNT
+    val jungIndex = ((initIndex - jongIndex) / JONG_SUNG_COUNT) % JUNG_SUNG_COUNT
+    val choIndex = ((initIndex / JONG_SUNG_COUNT) - jungIndex) / JUNG_SUNG_COUNT
 
     return Triple(choIndex, jungIndex, jongIndex)
 }

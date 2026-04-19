@@ -190,31 +190,15 @@ fun BigDecimal.roundUp(
  * BigDecimal의 모든 요소를 더한다
  */
 @JvmName("sumOfBigDecimalIterable")
-fun Iterable<BigDecimal>.sum(): BigDecimal {
-    if (this.none())
-        return BigDecimal.ZERO
-
-    var sum = BigDecimal.ZERO
-    for (element in this) {
-        sum += element
-    }
-    return sum
-}
+fun Iterable<BigDecimal>.sum(): BigDecimal =
+    fold(BigDecimal.ZERO) { acc, element -> acc + element }
 
 /**
  * BigDecimal의 모든 요소를 더한다
  */
 @JvmName("sumOfBigDecimalArray")
-fun Array<BigDecimal>.sum(): BigDecimal {
-    if (this.none())
-        return BigDecimal.ZERO
-
-    var sum = BigDecimal.ZERO
-    for (element in this) {
-        sum += element
-    }
-    return sum
-}
+fun Array<BigDecimal>.sum(): BigDecimal =
+    fold(BigDecimal.ZERO) { acc, element -> acc + element }
 
 /**
  * BigDecimal 컬렉션의 평균을 구합니다.
@@ -224,17 +208,10 @@ fun Iterable<BigDecimal>.average(
     scale: Int = 2,
     roundingMode: RoundingMode = RoundingMode.HALF_UP,
 ): BigDecimal {
-    if (this.none())
-        return BigDecimal.ZERO
-
-    var sum = BigDecimal.ZERO
-    var count = 0
-    for (element in this) {
-        sum += element
-        count++
-    }
-
-    return sum.divideSafe(count, scale, roundingMode)
+    val list = toList()
+    if (list.isEmpty()) return BigDecimal.ZERO
+    val sum = list.fold(BigDecimal.ZERO) { acc, element -> acc + element }
+    return sum.divideSafe(list.size, scale, roundingMode)
 }
 
 /**
@@ -245,14 +222,7 @@ fun Array<BigDecimal>.average(
     scale: Int = 2,
     roundingMode: RoundingMode = RoundingMode.HALF_UP,
 ): BigDecimal {
-    if (this.none())
-        return BigDecimal.ZERO
-
-    var sum = BigDecimal.ZERO
-    var count = 0
-    for (element in this) {
-        sum += element
-        count++
-    }
-    return sum.divideSafe(count, scale, roundingMode)
+    if (isEmpty()) return BigDecimal.ZERO
+    val sum = fold(BigDecimal.ZERO) { acc, element -> acc + element }
+    return sum.divideSafe(size, scale, roundingMode)
 }

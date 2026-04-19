@@ -94,13 +94,8 @@ fun Locale.getParentOrNull(): Locale? = when {
  * Locale("en").getParentList()              // [en]
  * ```
  */
-fun Locale.getParentList(): List<Locale> = buildList {
-    var current: Locale? = this@getParentList
-    while (current != null) {
-        add(current)
-        current = current.getParentOrNull()
-    }
-}
+fun Locale.getParentList(): List<Locale> =
+    generateSequence(this) { it.getParentOrNull() }.toList()
 
 /**
  * Locale에 따른 리소스 번들 파일명 목록을 생성합니다.
@@ -117,31 +112,21 @@ fun Locale.getParentList(): List<Locale> = buildList {
  */
 fun Locale.calculateFilenames(basename: String): List<String> {
     basename.requireNotBlank("basename")
-    val results = ArrayList<String>(4)
 
     val language = this.language
     val country = this.country
     val variant = this.variant
 
-    val temp = StringBuilder(basename).append("_")
-
-    if (language.isNotEmpty()) {
-        temp.append(language)
-        results.add(temp.toString())
+    return buildList {
+        if (variant.isNotEmpty() && language.isNotEmpty() && country.isNotEmpty()) {
+            add("${basename}_${language}_${country}_$variant")
+        }
+        if (country.isNotEmpty()) {
+            add("${basename}_${language}_$country")
+        }
+        if (language.isNotEmpty()) {
+            add("${basename}_$language")
+        }
+        add(basename)
     }
-    temp.append("_")
-
-    if (country.isNotEmpty()) {
-        temp.append(country)
-        results.add(temp.toString())
-    }
-
-    if (variant.isNotEmpty() && language.isNotEmpty() && country.isNotEmpty()) {
-        temp.append("_").append(variant)
-        results.add(temp.toString())
-    }
-    results.reverse()
-    results.add(basename)
-
-    return results
 }
