@@ -143,8 +143,15 @@ class LettuceJCache<K: Any, V: Any>(
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
-        // 리스너가 있을 때만 저장 전에 존재 여부를 사전 수집하여 CREATED/UPDATED 이벤트를 구분
-        val existingKeys = if (listeners.isNotEmpty()) map.keys.filter { containsKey(it) }.toSet() else emptySet()
+        // 개선: 기존엔 `map.keys.filter { containsKey(it) }` 로 key 당 HEXISTS 한 번씩 호출해
+        //       N-round-trip 이 발생했습니다. 리스너가 있을 때만 단일 HMGET (`this.map.getAll`)
+        //       로 일괄 조회하여 round-trip 을 1회로 줄입니다.
+        val existingKeys: Set<K> = if (listeners.isNotEmpty()) {
+            val fetched = this.map.getAll(encodedMap.keys.toList())
+            map.keys.filter { fetched[encodeKey(it)] != null }.toSet()
+        } else {
+            emptySet()
+        }
         this.map.putAllTtl(encodedMap, ttlDuration)
         if (listeners.isNotEmpty()) {
             map.forEach { (k, v) ->

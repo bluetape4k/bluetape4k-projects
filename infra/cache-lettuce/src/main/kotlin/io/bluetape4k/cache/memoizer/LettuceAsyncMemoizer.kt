@@ -84,7 +84,9 @@ class LettuceAsyncMemoizer<K: Any, V: Any>(
                 }
             }
             .whenComplete { result, error ->
-                inFlight.remove(key)
+                // 개선: key 단독 `remove(key)` 는 재진입으로 교체된 다른 promise 까지 제거할 수 있어
+                //       ConcurrentHashMap.remove(key, value) 로 key+value atomic 제거를 사용한다.
+                inFlight.remove(key, promise)
                 if (error != null) promise.completeExceptionally(error)
                 else promise.complete(result)
             }
