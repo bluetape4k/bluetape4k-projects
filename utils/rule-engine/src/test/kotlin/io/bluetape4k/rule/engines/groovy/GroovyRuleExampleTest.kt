@@ -30,6 +30,9 @@ class GroovyRuleExampleTest {
 
     companion object: KLogging()
 
+    private fun gRule(name: String, priority: Int, whenever: String, then: String) =
+        GroovyRule(name = name, priority = priority).whenever(whenever).then(then)
+
     // =========================================================================
     // 1. 산술 연산
     // =========================================================================
@@ -315,9 +318,7 @@ class GroovyRuleExampleTest {
                 """.trimIndent()
             )
 
-        val freeShipping = GroovyRule(name = "freeShipping", priority = 3)
-            .whenever("amount >= 50000")
-            .then("freeShipping = true")
+        val freeShipping = gRule("freeShipping", 3, "amount >= 50000", "freeShipping = true")
 
         val engine = DefaultRuleEngine()
         val facts = Facts.of("amount" to 60000, "memberType" to "VIP")
@@ -330,21 +331,10 @@ class GroovyRuleExampleTest {
 
     @Test
     fun `회원 등급 분류 - ActivationRuleGroup`() {
-        val platinum = GroovyRule(name = "platinum", priority = 1)
-            .whenever("totalPurchase >= 1000000")
-            .then("tier = 'PLATINUM'")
-
-        val gold = GroovyRule(name = "gold", priority = 2)
-            .whenever("totalPurchase >= 500000")
-            .then("tier = 'GOLD'")
-
-        val silver = GroovyRule(name = "silver", priority = 3)
-            .whenever("totalPurchase >= 100000")
-            .then("tier = 'SILVER'")
-
-        val bronze = GroovyRule(name = "bronze", priority = 4)
-            .whenever("totalPurchase >= 0")
-            .then("tier = 'BRONZE'")
+        val platinum = gRule("platinum", 1, "totalPurchase >= 1000000", "tier = 'PLATINUM'")
+        val gold = gRule("gold", 2, "totalPurchase >= 500000", "tier = 'GOLD'")
+        val silver = gRule("silver", 3, "totalPurchase >= 100000", "tier = 'SILVER'")
+        val bronze = gRule("bronze", 4, "totalPurchase >= 0", "tier = 'BRONZE'")
 
         val group = ActivationRuleGroup("tierClassification")
         group.addRule(platinum)
@@ -390,18 +380,11 @@ class GroovyRuleExampleTest {
     @Test
     fun `ConditionalRuleGroup - 리더 룰이 통과하면 나머지 실행`() {
         // 리더: 주문이 유효한가?
-        val validOrder = GroovyRule(name = "validOrder", priority = 1)
-            .whenever("amount > 0 && items > 0")
-            .then("orderValid = true")
+        val validOrder = gRule("validOrder", 1, "amount > 0 && items > 0", "orderValid = true")
 
         // 나머지: 유효할 때만 실행됨
-        val applyTax = GroovyRule(name = "applyTax", priority = 2)
-            .whenever("amount > 0")
-            .then("taxAmount = amount * 0.1")
-
-        val applyPoints = GroovyRule(name = "applyPoints", priority = 3)
-            .whenever("amount > 0")
-            .then("points = (int)(amount / 1000)")
+        val applyTax = gRule("applyTax", 2, "amount > 0", "taxAmount = amount * 0.1")
+        val applyPoints = gRule("applyPoints", 3, "amount > 0", "points = (int)(amount / 1000)")
 
         val group = ConditionalRuleGroup("orderProcessing")
         group.addRule(validOrder)
@@ -426,17 +409,9 @@ class GroovyRuleExampleTest {
 
     @Test
     fun `skipOnFirstAppliedRule - 첫 매칭 후 중단`() {
-        val highPriority = GroovyRule(name = "highDiscount", priority = 1)
-            .whenever("amount >= 100000")
-            .then("discount = 30")
-
-        val midPriority = GroovyRule(name = "midDiscount", priority = 2)
-            .whenever("amount >= 50000")
-            .then("discount = 15")
-
-        val lowPriority = GroovyRule(name = "lowDiscount", priority = 3)
-            .whenever("amount >= 10000")
-            .then("discount = 5")
+        val highPriority = gRule("highDiscount", 1, "amount >= 100000", "discount = 30")
+        val midPriority = gRule("midDiscount", 2, "amount >= 50000", "discount = 15")
+        val lowPriority = gRule("lowDiscount", 3, "amount >= 10000", "discount = 5")
 
         val engine = ruleEngine { skipOnFirstAppliedRule = true }
 

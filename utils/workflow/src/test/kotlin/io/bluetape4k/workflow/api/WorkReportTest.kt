@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Test
 
 class WorkReportTest: AbstractWorkflowTest() {
 
+    private fun WorkReport.assertFlags(success: Boolean, failure: Boolean, aborted: Boolean, cancelled: Boolean) {
+        isSuccess shouldBeEqualTo success
+        isFailure shouldBeEqualTo failure
+        isAborted shouldBeEqualTo aborted
+        isCancelled shouldBeEqualTo cancelled
+    }
+
     @Test
     fun `Success 생성 및 프로퍼티`() {
         val report = WorkReport.Success(context)
@@ -16,10 +23,7 @@ class WorkReportTest: AbstractWorkflowTest() {
         report.status shouldBeEqualTo WorkStatus.COMPLETED
         report.context shouldBeEqualTo context
         report.error.shouldBeNull()
-        report.isSuccess.shouldBeTrue()
-        report.isFailure.shouldBeFalse()
-        report.isAborted.shouldBeFalse()
-        report.isCancelled.shouldBeFalse()
+        report.assertFlags(success = true, failure = false, aborted = false, cancelled = false)
     }
 
     @Test
@@ -30,10 +34,7 @@ class WorkReportTest: AbstractWorkflowTest() {
         report.status shouldBeEqualTo WorkStatus.FAILED
         report.context shouldBeEqualTo context
         report.error shouldBeEqualTo error
-        report.isFailure.shouldBeTrue()
-        report.isSuccess.shouldBeFalse()
-        report.isAborted.shouldBeFalse()
-        report.isCancelled.shouldBeFalse()
+        report.assertFlags(success = false, failure = true, aborted = false, cancelled = false)
     }
 
     @Test
@@ -59,10 +60,7 @@ class WorkReportTest: AbstractWorkflowTest() {
         report.failedReports shouldBeEqualTo failedReports
         // error는 failedReports.first().error
         report.error shouldBeEqualTo firstError
-        report.isSuccess.shouldBeFalse()
-        report.isFailure.shouldBeFalse()
-        report.isAborted.shouldBeFalse()
-        report.isCancelled.shouldBeFalse()
+        report.assertFlags(success = false, failure = false, aborted = false, cancelled = false)
     }
 
     @Test
@@ -79,10 +77,7 @@ class WorkReportTest: AbstractWorkflowTest() {
         report.context shouldBeEqualTo context
         report.reason shouldBeEqualTo "timeout 초과"
         report.error.shouldBeNull()
-        report.isCancelled.shouldBeTrue()
-        report.isSuccess.shouldBeFalse()
-        report.isFailure.shouldBeFalse()
-        report.isAborted.shouldBeFalse()
+        report.assertFlags(success = false, failure = false, aborted = false, cancelled = true)
     }
 
     @Test
@@ -101,10 +96,7 @@ class WorkReportTest: AbstractWorkflowTest() {
         report.context shouldBeEqualTo context
         report.reason shouldBeEqualTo "abort flag detected"
         report.error.shouldBeNull()
-        report.isAborted.shouldBeTrue()
-        report.isSuccess.shouldBeFalse()
-        report.isFailure.shouldBeFalse()
-        report.isCancelled.shouldBeFalse()
+        report.assertFlags(success = false, failure = false, aborted = true, cancelled = false)
     }
 
     @Test
