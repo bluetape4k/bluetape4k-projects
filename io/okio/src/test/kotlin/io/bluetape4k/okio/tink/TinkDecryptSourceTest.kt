@@ -13,6 +13,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+import kotlin.test.assertFailsWith
 
 class TinkDecryptSourceTest: AbstractTinkEncryptTest() {
 
@@ -97,6 +99,74 @@ class TinkDecryptSourceTest: AbstractTinkEncryptTest() {
 
         kotlin.test.assertFailsWith<IllegalArgumentException> {
             decryptedSource.read(Buffer(), -1L)
+        }
+    }
+
+    @Test
+    fun `decrypt source close is safe to call multiple times`() {
+        val expected = faker.lorem().paragraph()
+        val encryptedSource = bufferOf(TinkEncryptors.AES256_GCM.encrypt(expected.toUtf8Bytes()))
+        val decryptedSource = encryptedSource.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
+
+        // 두 번 닫아도 예외가 발생해선 안 됩니다.
+        decryptedSource.close()
+        decryptedSource.close()
+    }
+
+    @Test
+    fun `decrypt source returns EOF for zero byte data`() {
+        val encryptedSource = bufferOf(TinkEncryptors.AES256_GCM.encrypt(ByteArray(0)))
+        val decryptedSource = encryptedSource.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
+        val sink = Buffer()
+
+        val result = decryptedSource.read(sink, 1L)
+        result shouldBeEqualTo -1L
+        sink.size shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `decrypt source read with zero byteCount returns zero`() {
+        val expected = faker.lorem().paragraph()
+        val encryptedSource = bufferOf(TinkEncryptors.AES256_GCM.encrypt(expected.toUtf8Bytes()))
+        val decryptedSource = encryptedSource.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
+        val sink = Buffer()
+
+        val result = decryptedSource.read(sink, 0L)
+        result shouldBeEqualTo 0L
+        sink.size shouldBeEqualTo 0L
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [1, 100, 1024, 65536])
+    fun `encrypt and decrypt round-trip for various data sizes`(size: Int) {
+        val original = ByteArray(size) { (it % 127).toByte() }
+        val encryptor = TinkEncryptors.AES256_GCM
+
+        // 암호화: TinkEncryptSink
+        val sink = Buffer()
+        val encryptSink = sink.asTinkEncryptSink(encryptor)
+        encryptSink.write(bufferOf(original), original.size.toLong())
+
+        // 복호화: TinkDecryptSource
+        val decryptSource = sink.asTinkDecryptSource(encryptor)
+        val output = Buffer()
+        decryptSource.readAllTo(output)
+
+        output.readByteArray() shouldBeEqualTo original
+    }
+
+    @Test
+    fun `decrypting with wrong encryptor throws exception`() {
+        val original = faker.lorem().paragraph()
+        val encryptedBytes = TinkEncryptors.AES256_GCM.encrypt(original.toUtf8Bytes())
+        val encryptedSource = bufferOf(encryptedBytes)
+
+        // 다른 encryptor(다른 키)로 복호화 시도 → 예외 발생
+        val wrongDecryptSource = encryptedSource.asTinkDecryptSource(TinkEncryptors.AES128_GCM)
+        val output = Buffer()
+
+        assertFailsWith<Exception> {
+            wrongDecryptSource.readAllTo(output)
         }
     }
 
