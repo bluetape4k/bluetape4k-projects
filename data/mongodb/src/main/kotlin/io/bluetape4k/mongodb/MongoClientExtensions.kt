@@ -3,6 +3,7 @@ package io.bluetape4k.mongodb
 import com.mongodb.TransactionOptions
 import com.mongodb.kotlin.client.coroutine.ClientSession
 import com.mongodb.kotlin.client.coroutine.MongoClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.toList
 
 // ====================================================
@@ -88,6 +89,14 @@ suspend fun <T> MongoClient.inTransaction(
         val result = block(session)
         session.commitTransaction()
         result
+    } catch (e: CancellationException) {
+        // 코루틴 취소는 롤백 후 반드시 재전파해야 합니다.
+        try {
+            session.abortTransaction()
+        } catch (_: Exception) {
+            // abort 실패는 무시합니다.
+        }
+        throw e
     } catch (e: Exception) {
         try {
             session.abortTransaction()
