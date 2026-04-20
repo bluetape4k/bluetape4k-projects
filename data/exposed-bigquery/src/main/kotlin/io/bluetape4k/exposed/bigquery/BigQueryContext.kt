@@ -308,6 +308,9 @@ class BigQueryContext(
 
         // 추가 페이지 emit
         while (!jobComplete || pageToken != null) {
+            // 취소 시그널을 다음 HTTP 요청 직전에 확인한다.
+            // withContext(dispatcher) 내부에서만 취소를 감지하면 한 페이지 전체를 내려받은 뒤에야
+            // 취소가 전파되므로, 루프 선두에서 즉시 확인하여 불필요한 네트워크 비용을 막는다.
             currentCoroutineContext().ensureActive()
             checkNotNull(jobId) { "jobReference가 없는 상태에서 추가 페이지를 요청할 수 없습니다." }
             val page = withContext(dispatcher) {
@@ -317,6 +320,8 @@ class BigQueryContext(
                     .execute()
             }
 
+            // 추가 페이지 응답에도 errors 필드가 포함될 수 있다.
+            // RuntimeException 대신 BigQueryQueryException을 던져 호출자가 BigQuery 오류임을 명확히 구분하게 한다.
             page.errors?.takeIf { it.isNotEmpty() }?.let { errors ->
                 val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }
                 throw BigQueryQueryException("BigQuery 쿼리 오류: $msg")
@@ -352,6 +357,8 @@ class BigQueryContext(
                 .setTimeoutMs(DEFAULT_QUERY_TIMEOUT_MS)
                 .execute()
 
+            // collectAllRows(동기 버전)에서도 페이지 단위 오류를 동일하게 처리한다.
+            // RuntimeException 대신 BigQueryQueryException으로 던져 호출자가 일관성 있게 catch할 수 있게 한다.
             page.errors?.takeIf { it.isNotEmpty() }?.let { errors ->
                 val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }
                 throw BigQueryQueryException("BigQuery 쿼리 오류: $msg")
@@ -366,6 +373,9 @@ class BigQueryContext(
         return schema to allRows
     }
 
+    // QueryResponse.errors 는 최초 쿼리 응답(runRawQuery)에서 발생한 오류를 담는다.
+    // SQL을 최대 200자로 잘라 메시지에 포함하는 이유: BigQuery 오류 메시지만으로는 어떤 SQL이 실패했는지
+    // 파악하기 어렵기 때문이다. 200자 제한은 로그 라인 길이를 적정 수준으로 유지한다.
     private fun QueryResponse.checkErrors(sql: String) {
         if (errors?.isNotEmpty() == true) {
             val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }

@@ -5,6 +5,10 @@ package io.bluetape4k.exposed.bigquery
  *
  * [BigQueryContext.runRawQuery] 또는 페이지네이션 과정에서 BigQuery 서버가 오류를 반환할 때 던져집니다.
  *
+ * 기존 [RuntimeException]을 직접 던지면 호출자가 BigQuery 오류인지 다른 런타임 오류인지 구분하기
+ * 어려웠습니다. 전용 예외 타입을 도입하여 `catch (e: BigQueryQueryException)` 으로 BigQuery 오류만
+ * 선택적으로 처리할 수 있도록 개선했습니다.
+ *
  * ```kotlin
  * try {
  *     context.runRawQuery("INVALID SQL")
