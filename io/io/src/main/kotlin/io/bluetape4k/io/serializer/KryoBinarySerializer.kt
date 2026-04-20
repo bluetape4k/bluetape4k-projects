@@ -2,7 +2,6 @@ package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
 
@@ -100,11 +99,15 @@ class KryoBinarySerializer(
      * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
      */
     override fun doSerialize(graph: Any): ByteArray {
-        return Output(bufferSize, -1).use { output ->
+        val output = KryoProvider.obtainOutput()
+        return try {
+            output.reset()
             useKryo {
                 writeClassAndObject(output, graph)
             }
             output.toBytes()
+        } finally {
+            KryoProvider.releaseOutput(output)
         }
     }
 

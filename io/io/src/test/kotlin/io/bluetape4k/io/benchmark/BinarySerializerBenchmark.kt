@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 4)
-@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.NANOSECONDS)
+@Measurement(iterations = 5, time = 3, timeUnit = TimeUnit.SECONDS)
 class BinarySerializerBenchmark {
 
     private val jdk = BinarySerializers.Jdk
