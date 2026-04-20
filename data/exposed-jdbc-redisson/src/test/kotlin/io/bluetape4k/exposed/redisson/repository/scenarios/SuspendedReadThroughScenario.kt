@@ -197,4 +197,33 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
                 repository.invalidateByPattern("not-exists-*") shouldBeEqualTo 0L
             }
         }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `countFromDb - DB에서 전체 레코드 수를 직접 조회한다`(testDB: TestDB) =
+        runSuspendIO {
+            withSuspendedEntityTable(testDB) {
+                val count = repository.countFromDb()
+                count shouldBeEqualTo repository.table.selectAll().count()
+                count shouldBeGreaterThan 0L
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findAll - limit, offset 파라미터로 페이지 조회한다`(testDB: TestDB) =
+        runSuspendIO {
+            withSuspendedEntityTable(testDB) {
+                val all = repository.findAll()
+                all.shouldNotBeEmpty()
+
+                val page = repository.findAll(limit = 1, offset = 0L)
+                page.shouldNotBeEmpty()
+                page.size shouldBeEqualTo 1
+
+                val page2 = repository.findAll(limit = 1, offset = 1L)
+                page2.shouldNotBeEmpty()
+                page2.size shouldBeEqualTo 1
+            }
+        }
 }

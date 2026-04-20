@@ -67,6 +67,9 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
                             .apply {
                                 log.debug { "DB로부터 엔티티를 로딩했습니다. id=$id, entity=$this" }
                             }
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        // CancellationException 은 코루틴 취소 신호이므로 반드시 재전파해야 합니다.
+                        throw e
                     } catch (e: Throwable) {
                         log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
                         throw e
@@ -84,6 +87,7 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
 
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
+            var cause: Throwable? = null
             try {
                 newSuspendedTransaction(scope.coroutineContext) {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT // 30 seconds
@@ -91,11 +95,17 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // CancellationException 은 코루틴 취소 신호이므로 반드시 재전파합니다.
+                cause = e
+                throw e
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 모든 ID 로딩 중 오류 발생" }
+                cause = e
                 throw e
             } finally {
-                channel.close()
+                // 예외 발생 시 cause 를 전달해 채널 소비자가 오류를 감지하도록 합니다.
+                channel.close(cause)
             }
         }
 
