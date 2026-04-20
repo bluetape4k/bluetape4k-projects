@@ -17,6 +17,10 @@ paths = [
     '''docs/''',
     '''README\.md''',
     '''README\.ko\.md''',
+    # Claude Code 설정 파일 — Kotlin 컴파일러 플래그(-Xjsr305=strict 등) false positive
+    '''CLAUDE\.md''',
+    # 빌드 스크립트 — GPR 환경변수 이름(bluetape4kGprPublishKey 등) false positive
+    '''build\.gradle\.kts''',
 ]
 
 regexes = [
@@ -24,4 +28,12 @@ regexes = [
     '''YOUR_.*_HERE''',
     '''example[-_]key''',
     '''test[-_]api[-_]key''',
+]
+
+stopwords = [
+    # Kotlin 컴파일러 플래그 — API 키 아님
+    "Xjsr305",
+    # Gradle GPR 환경변수 이름 — 실제 시크릿 값 아님
+    "bluetape4kGprPublishKey",
+    "bluetape4kGprKey",
 ]
