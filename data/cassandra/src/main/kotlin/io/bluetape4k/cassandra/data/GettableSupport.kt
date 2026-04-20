@@ -213,7 +213,13 @@ fun GettableByIndex.getObject(
         LocalDate::class  -> getLocalDate(index)
         LocalTime::class  -> getLocalTime(index)
         Date::class       -> Date.from(getInstant(index))
-        Timestamp::class  -> Timestamp(getInstant(index)!!.toEpochMilli())
+        Timestamp::class  -> {
+                // getInstant(index)이 null이면 Timestamp 변환 불가 — 명시적으로 오류를 발생시킴
+                val instant = requireNotNull(getInstant(index)) {
+                    "index[$index]의 Instant 값이 null입니다. Timestamp 변환을 위해 NOT NULL 컬럼이어야 합니다."
+                }
+                Timestamp(instant.toEpochMilli())
+            }
         Instant::class    -> getInstant(index)
         ByteBuffer::class -> getByteBuffer(index)
         ByteArray::class  -> getByteBuffer(index)?.getBytes()

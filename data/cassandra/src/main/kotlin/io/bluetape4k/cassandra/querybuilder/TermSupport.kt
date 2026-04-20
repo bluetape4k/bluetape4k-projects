@@ -393,9 +393,20 @@ fun Any?.literal(codecRegistry: CodecRegistry): Term =
 @Suppress("UNCHECKED_CAST")
 fun <T: Any> T.literal(codec: TypeCodec<out T>): Term =
     when (this) {
-        is List<*> -> ListTerm(map { it!!.literal(codec) })
-        is Set<*>  -> SetTerm(map { it!!.literal(codec) })
-        is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k!!.literal(codec) to v!!.literal(codec) })
+        // CQL 컬렉션 요소가 null이면 CQL 리터럴 변환 불가 — requireNotNull로 명시적 오류 발생
+        is List<*> -> ListTerm(map { elem ->
+            requireNotNull(elem) { "List 요소가 null입니다. CQL 리터럴 변환에는 non-null 요소가 필요합니다." }
+                .literal(codec)
+        })
+        is Set<*>  -> SetTerm(map { elem ->
+            requireNotNull(elem) { "Set 요소가 null입니다. CQL 리터럴 변환에는 non-null 요소가 필요합니다." }
+                .literal(codec)
+        })
+        is Map<*, *> -> MapTerm(entries.associate { (k, v) ->
+            val key = requireNotNull(k) { "Map key가 null입니다. CQL 리터럴 변환에는 non-null key가 필요합니다." }
+            val value = requireNotNull(v) { "Map value가 null입니다. CQL 리터럴 변환에는 non-null value가 필요합니다." }
+            key.literal(codec) to value.literal(codec)
+        })
         else       -> QueryBuilder.literal(this, codec as TypeCodec<T>)
     }
 
