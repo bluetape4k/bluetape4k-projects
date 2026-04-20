@@ -1,3 +1,23 @@
+plugins {
+    kotlin("plugin.allopen")
+    id(Plugins.kotlinx_benchmark)
+}
+
+allOpen {
+    // https://github.com/Kotlin/kotlinx-benchmark
+    annotation("org.openjdk.jmh.annotations.State")
+}
+
+// https://github.com/Kotlin/kotlinx-benchmark
+benchmark {
+    targets {
+        register("test") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = Versions.jmh
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -51,4 +71,9 @@ dependencies {
     testRuntimeOnly(Libs.mysql_connector_j)
     testRuntimeOnly(Libs.postgresql_driver)
     testRuntimeOnly(Libs.pgjdbc_ng)
+
+    // Benchmark (JMH for exposed-jdbc CRUD/pool 측정)
+    testImplementation(Libs.kotlinx_benchmark_runtime)
+    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
+    testImplementation(Libs.jmh_core)
 }
