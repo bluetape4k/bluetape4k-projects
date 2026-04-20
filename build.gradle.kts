@@ -41,6 +41,9 @@ plugins {
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
 
     id(Plugins.dependency_check) version Plugins.Versions.dependency_check
+
+    // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
+    id(Plugins.kover) version Plugins.Versions.kover
 }
 
 val centralPublishing = resolveCentralPublishingConfig()
@@ -113,7 +116,11 @@ subprojects {
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
 
-        // plugin("jacoco")
+        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo 는 별도 필터링)
+        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
+            plugin(Plugins.kover)
+        }
+
         plugin("maven-publish")
         plugin("signing")
 
@@ -676,6 +683,20 @@ dependencyCheck {
     formats = listOf("HTML", "SARIF")
     outputDirectory = layout.buildDirectory.dir("reports").get().asFile.absolutePath
     suppressionFile = "config/owasp-suppressions.xml"
+}
+
+// ─── Kover 집계 설정 ────────────────────────────────────────────────────
+// 루트 프로젝트에서 모든 측정 대상 서브모듈을 `kover` 의존성으로 등록하여
+// `./gradlew koverXmlReport` / `koverHtmlReport` 실행 시 집계된 리포트를 생성한다.
+dependencies {
+    subprojects
+        .filter { sub ->
+            sub.name != "bluetape4k-bom" &&
+                    !sub.path.contains("workshop") &&
+                    !sub.path.contains("examples") &&
+                    !sub.path.contains("-demo")
+        }
+        .forEach { sub -> kover(project(sub.path)) }
 }
 
 tasks.register("testDataExposedModules") {

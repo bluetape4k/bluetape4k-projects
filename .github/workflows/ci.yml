@@ -103,12 +103,30 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-core:koverXmlReport \
+            :bluetape4k-coroutines:koverXmlReport \
+            :bluetape4k-logging:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-core
           path: '**/build/test-results/test/*.xml'
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-core
+          path: 'build/*/reports/kover/'
           retention-days: 7
 
   # ── 4. I/O 모듈 테스트 (순수 JVM) ───────────────────────────────────────
@@ -145,12 +163,36 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-io:koverXmlReport \
+            :bluetape4k-okio:koverXmlReport \
+            :bluetape4k-csv:koverXmlReport \
+            :bluetape4k-avro:koverXmlReport \
+            :bluetape4k-json:koverXmlReport \
+            :bluetape4k-fastjson2:koverXmlReport \
+            :bluetape4k-jackson3:koverXmlReport \
+            :bluetape4k-netty:koverXmlReport \
+            :bluetape4k-grpc:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-io
           path: '**/build/test-results/test/*.xml'
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-io
+          path: 'build/*/reports/kover/'
           retention-days: 7
 
   # ── 5. Utils 모듈 테스트 (순수 JVM) ─────────────────────────────────────
@@ -193,12 +235,40 @@ jobs:
           LANG: en_US.UTF-8
           LC_ALL: en_US.UTF-8
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-idgenerators:koverXmlReport \
+            :bluetape4k-javatimes:koverXmlReport \
+            :bluetape4k-math:koverXmlReport \
+            :bluetape4k-money:koverXmlReport \
+            :bluetape4k-measured:koverXmlReport \
+            :bluetape4k-junit5:koverXmlReport \
+            :bluetape4k-states:koverXmlReport \
+            :bluetape4k-workflow:koverXmlReport \
+            :bluetape4k-leader:koverXmlReport \
+            :bluetape4k-mutiny:koverXmlReport \
+            :bluetape4k-rule-engine:koverXmlReport \
+            :bluetape4k-geo:koverXmlReport \
+            :bluetape4k-images:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-utils
           path: '**/build/test-results/test/*.xml'
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-utils
+          path: 'build/*/reports/kover/'
           retention-days: 7
 
   # ── 6. Misc 모듈 테스트 (VirtualThread/Cache-core/Opentelemetry/MockServer/R2DBC) ─
@@ -233,12 +303,34 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-virtualthread-api:koverXmlReport \
+            :bluetape4k-virtualthread-jdk21:koverXmlReport \
+            :bluetape4k-virtualthread-jdk25:koverXmlReport \
+            :bluetape4k-cache-core:koverXmlReport \
+            :bluetape4k-opentelemetry:koverXmlReport \
+            :bluetape4k-mock-server:koverXmlReport \
+            :bluetape4k-r2dbc:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-misc
           path: '**/build/test-results/test/*.xml'
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-misc
+          path: 'build/*/reports/kover/'
           retention-days: 7
 
   # ── 7. Exposed core 테스트 (H2 인메모리, Docker 불필요) ──────────────────
@@ -277,12 +369,37 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-core:koverXmlReport \
+            :bluetape4k-exposed-dao:koverXmlReport \
+            :bluetape4k-exposed-jackson2:koverXmlReport \
+            :bluetape4k-exposed-jackson3:koverXmlReport \
+            :bluetape4k-exposed-fastjson2:koverXmlReport \
+            :bluetape4k-exposed-tink:koverXmlReport \
+            :bluetape4k-exposed-measured:koverXmlReport \
+            :bluetape4k-exposed-cache:koverXmlReport \
+            :bluetape4k-exposed-duckdb:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-caffeine:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-exposed-core
           path: '**/build/test-results/test/*.xml'
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-exposed-core
+          path: 'build/*/reports/kover/'
           retention-days: 7
 
   # ── 8. Spring Boot (H2 only, Docker 불필요) ──────────────────────────────
@@ -313,6 +430,15 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot3-exposed-jdbc:koverXmlReport \
+            :bluetape4k-spring-boot4-exposed-jdbc:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -321,11 +447,48 @@ jobs:
           path: '**/build/test-results/test/*.xml'
           retention-days: 7
 
-  # ── 9. 결과 집계 ──────────────────────────────────────────────────────────
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-spring-h2
+          path: 'build/*/reports/kover/'
+          retention-days: 7
+
+  # ── 9. 커버리지 집계 ─────────────────────────────────────────────────────
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: coverage-artifacts
+          merge-multiple: false
+        continue-on-error: true
+
+      - name: Aggregate Kover coverage summary
+        if: always()
+        run: python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+
+      - name: Upload aggregated coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-all
+          path: coverage-artifacts/
+          retention-days: 14
+
+  # ── 10. 결과 집계 ─────────────────────────────────────────────────────────
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [gitleaks, build, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2]
+    needs: [gitleaks, build, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

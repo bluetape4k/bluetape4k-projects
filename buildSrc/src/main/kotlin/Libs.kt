@@ -12,6 +12,7 @@ object Plugins {
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
         const val jacoco = "0.8.11"
+        const val kover = "0.9.1"  // https://github.com/Kotlin/kotlinx-kover/releases
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"  // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
@@ -42,6 +43,9 @@ object Plugins {
     const val avro = "com.github.davidmc24.gradle.plugin.avro" // https://github.com/davidmc24/gradle-avro-plugin
 
     const val jarTest = "com.github.hauner.jarTest"
+
+    // https://github.com/Kotlin/kotlinx-kover — Kotlin-native test coverage plugin
+    const val kover = "org.jetbrains.kotlinx.kover"
 
     const val testLogger = "com.adarshr.test-logger" // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
     const val shadow = "com.gradleup.shadow" // https://plugins.gradle.org/plugin/com.gradleup.shadow
