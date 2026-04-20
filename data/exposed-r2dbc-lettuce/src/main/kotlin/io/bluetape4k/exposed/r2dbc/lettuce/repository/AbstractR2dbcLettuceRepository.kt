@@ -176,6 +176,16 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Serializable>(
         return result
     }
 
+    /**
+     * WHERE 조건과 정렬/페이징을 적용해 DB에서 엔티티 목록을 조회하고 캐시에 적재한다.
+     *
+     * ### WHY: `runCatching` 안에서 `CancellationException` 명시적 재전파
+     * `runCatching`은 모든 `Throwable`을 삼키기 때문에 `CancellationException`까지
+     * 잡아버리면 코루틴 취소 신호가 무시된다. 이를 막기 위해 `onFailure`에서
+     * `CancellationException`을 감지해 즉시 `throw`함으로써 구조적 동시성(structured
+     * concurrency) 계약을 지킨다. 캐시 쓰기 실패(Redis 장애 등) 자체는 조회 결과
+     * 반환을 막지 않아야 하므로 다른 예외는 그대로 흘려보낸다.
+     */
     override suspend fun findAll(
         limit: Int?,
         offset: Long?,
