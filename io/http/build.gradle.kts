@@ -10,6 +10,16 @@ allOpen {
 
 // https://github.com/Kotlin/kotlinx-benchmark
 benchmark {
+    // Allow selecting a single benchmark class via -PbenchmarkInclude=<regex>
+    // Default: run both HttpClientBenchmark and HttpClientCompressionCacheBenchmark
+    configurations {
+        named("main") {
+            val includeRegex = (project.findProperty("benchmarkInclude") as String?)
+            if (!includeRegex.isNullOrBlank()) {
+                include(includeRegex)
+            }
+        }
+    }
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
