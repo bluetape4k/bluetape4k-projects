@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * `ByteArray`를 압축해 `BLOB`에 저장하는 컬럼을 등록합니다.
@@ -40,6 +41,9 @@ class CompressedBlobTransformer(
     override fun unwrap(value: ByteArray): ExposedBlob =
         try {
             compressor.compress(value).toExposedBlob()
+        } catch (e: CancellationException) {
+            // 코루틴 취소는 반드시 재전파: Exception 핸들러가 취소를 삼키면 코루틴 구조가 깨진다
+            throw e
         } catch (e: Exception) {
             throw IllegalStateException("Failed to compress data to blob (size: ${value.size} bytes)", e)
         }
@@ -48,6 +52,9 @@ class CompressedBlobTransformer(
     override fun wrap(value: ExposedBlob): ByteArray =
         try {
             compressor.decompress(value.bytes)
+        } catch (e: CancellationException) {
+            // 코루틴 취소는 반드시 재전파: Exception 핸들러가 취소를 삼키면 코루틴 구조가 깨진다
+            throw e
         } catch (e: Exception) {
             throw IllegalStateException("Failed to decompress blob data (size: ${value.bytes.size} bytes)", e)
         }

@@ -1,10 +1,22 @@
 package io.bluetape4k.exposed.core.compress
 
+import io.bluetape4k.exposed.core.statements.api.toExposedBlob
+import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
+
+/**
+ * 특정 예외를 던지는 테스트용 Compressor 구현체.
+ * CancellationException 재전파 검증에 사용한다.
+ */
+private class ThrowingCompressor(private val exception: Exception) : Compressor {
+    override fun compress(plain: ByteArray?): ByteArray = throw exception
+    override fun decompress(compressed: ByteArray?): ByteArray = throw exception
+}
 
 class CompressionTransformersTest {
     @Test
@@ -180,5 +192,102 @@ class CompressionTransformersTest {
         val compressed = transformer.unwrap(source)
 
         compressed.size shouldBeLessThan source.size
+    }
+
+    /**
+     * compressor 가 예외를 던질 때 Binary unwrap 이 IllegalStateException 으로 감싸는지 검증.
+     *
+     * catch(e: Exception) 블록이 일반 예외를 IllegalStateException 으로 래핑해야 한다.
+     * CancellationException 은 제외 (재전파)이므로 RuntimeException 으로 검증한다.
+     */
+    @Test
+    fun `Binary unwrap 은 compressor 예외를 IllegalStateException 으로 감싼다`() {
+        val transformer = CompressedBinaryTransformer(ThrowingCompressor(RuntimeException("compress error")))
+
+        assertFailsWith<IllegalStateException> {
+            transformer.unwrap(ByteArray(10))
+        }
+    }
+
+    /**
+     * compressor 가 예외를 던질 때 Binary wrap 이 IllegalStateException 으로 감싸는지 검증.
+     */
+    @Test
+    fun `Binary wrap 은 compressor 예외를 IllegalStateException 으로 감싼다`() {
+        val transformer = CompressedBinaryTransformer(ThrowingCompressor(RuntimeException("decompress error")))
+
+        assertFailsWith<IllegalStateException> {
+            transformer.wrap(ByteArray(10))
+        }
+    }
+
+    /**
+     * compressor 가 예외를 던질 때 Blob unwrap 이 IllegalStateException 으로 감싸는지 검증.
+     */
+    @Test
+    fun `Blob unwrap 은 compressor 예외를 IllegalStateException 으로 감싼다`() {
+        val transformer = CompressedBlobTransformer(ThrowingCompressor(RuntimeException("compress error")))
+
+        assertFailsWith<IllegalStateException> {
+            transformer.unwrap(ByteArray(10))
+        }
+    }
+
+    /**
+     * compressor 가 예외를 던질 때 Blob wrap 이 IllegalStateException 으로 감싸는지 검증.
+     */
+    @Test
+    fun `Blob wrap 은 compressor 예외를 IllegalStateException 으로 감싼다`() {
+        val transformer = CompressedBlobTransformer(ThrowingCompressor(RuntimeException("decompress error")))
+
+        assertFailsWith<IllegalStateException> {
+            transformer.wrap(ByteArray(10).toExposedBlob())
+        }
+    }
+
+    /**
+     * CancellationException 이 catch(e: Exception) 핸들러에서 재전파되는지 검증.
+     *
+     * 코루틴 취소는 Exception 을 상속하므로 잘못된 catch 블록에 삼켜지면
+     * structured concurrency 가 깨진다. CancellationException 재전파가 보장되어야 한다.
+     */
+    @Test
+    fun `CancellationException 은 Binary unwrap 에서 재전파된다`() {
+        val cancellation = kotlin.coroutines.cancellation.CancellationException("test cancel")
+        val transformer = CompressedBinaryTransformer(ThrowingCompressor(cancellation))
+
+        assertFailsWith<kotlin.coroutines.cancellation.CancellationException> {
+            transformer.unwrap(ByteArray(10))
+        }
+    }
+
+    @Test
+    fun `CancellationException 은 Binary wrap 에서 재전파된다`() {
+        val cancellation = kotlin.coroutines.cancellation.CancellationException("test cancel")
+        val transformer = CompressedBinaryTransformer(ThrowingCompressor(cancellation))
+
+        assertFailsWith<kotlin.coroutines.cancellation.CancellationException> {
+            transformer.wrap(ByteArray(10))
+        }
+    }
+
+    @Test
+    fun `CancellationException 은 Blob unwrap 에서 재전파된다`() {
+        val cancellation = kotlin.coroutines.cancellation.CancellationException("test cancel")
+        val transformer = CompressedBlobTransformer(ThrowingCompressor(cancellation))
+
+        assertFailsWith<kotlin.coroutines.cancellation.CancellationException> {
+            transformer.unwrap(ByteArray(10))
+        }
+    }
+
+    @Test
+    fun `CancellationException 은 Blob wrap 에서 재전파된다`() {
+        val cancellation = kotlin.coroutines.cancellation.CancellationException("test cancel")
+        val transformer = CompressedBlobTransformer(ThrowingCompressor(cancellation))
+
+        assertFailsWith<kotlin.coroutines.cancellation.CancellationException> {
+            transformer.wrap(ByteArray(10).toExposedBlob())
+        }
     }
 }
