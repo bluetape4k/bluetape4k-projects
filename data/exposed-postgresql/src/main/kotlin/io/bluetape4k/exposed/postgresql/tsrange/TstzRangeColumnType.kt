@@ -111,6 +111,8 @@ class TstzRangeColumnType: ColumnType<TimestampRange>() {
      * @throws IllegalArgumentException literal이 비어 있거나 유효하지 않은 경우
      */
     private fun parseRangeLiteral(literal: String): TimestampRange {
+        // H2 VARCHAR fallback 환경에서 빈 문자열이 유입될 수 있다.
+        // substring(1, length-1) 호출 전 빈 입력을 차단하여 StringIndexOutOfBoundsException 을 예방한다.
         require(literal.isNotBlank()) {
             "TSTZRANGE literal 이 비어 있거나 공백만 포함되어 있습니다."
         }
@@ -163,10 +165,14 @@ class TstzRangeColumnType: ColumnType<TimestampRange>() {
      * @throws IllegalArgumentException 지원하지 않는 timestamp 포맷인 경우
      */
     private fun parseInstant(s: String): Instant {
+        // 1차 시도: ISO-8601 ("2024-01-01T00:00:00Z")
         try {
             return Instant.parse(s)
         } catch (e1: Exception) {
-            // PostgreSQL JDBC 포맷 시도: "2024-01-01 00:00:00+00" 또는 "2024-01-01 00:00:00.123456+00"
+            // 2차 시도: PostgreSQL JDBC 포맷 ("2024-01-01 00:00:00+00" 또는 "2024-01-01 00:00:00.123456+00")
+            // 이전 코드는 2차 실패를 silently swallow 했으나,
+            // 알 수 없는 포맷이면 원인 예외(e2)를 포함한 IllegalArgumentException 으로 재전파하여
+            // 호출 스택에서 파싱 실패 원인을 추적할 수 있도록 한다.
             try {
                 val temporal = PG_TIMESTAMP_FORMATTER.parse(s)
                 return LocalDateTime.from(temporal).toInstant(ZoneOffset.from(temporal))

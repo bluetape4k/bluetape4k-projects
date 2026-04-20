@@ -56,11 +56,14 @@ class VectorColumnType(val dimension: Int): ColumnType<FloatArray>() {
     override fun valueFromDB(value: Any): FloatArray = when (value) {
         is PGvector -> value.toArray()
         is String   -> {
+            // PGvector(emptyString)은 NPE 없이 잘못된 배열을 반환하므로
+            // 빈 문자열을 사전 차단하여 파싱 오류를 명확하게 전파한다.
             require(value.isNotBlank()) {
                 "VectorColumnType: DB 에서 읽은 벡터 문자열이 비어 있습니다."
             }
             PGvector(value).toArray()
         }
+        // 이전 코드의 "Unsupported value type" → 한국어 + 클래스명 포함으로 디버깅 용이성 개선
         else        -> error("VectorColumnType: 지원하지 않는 값 타입입니다: ${value::class.java}")
     }
 }
