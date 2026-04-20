@@ -44,6 +44,37 @@ class ForyBinarySerializer(
                 )
         }
 
+        // SCHEMA_CONSISTENT: 필드명 대신 위치 기반 ID 직렬화 — COMPATIBLE 대비 페이로드 크기 및 CPU 절감
+        // asyncCompilation=false: 동기 JIT 컴파일로 warmup 내 완전 최적화 보장
+        // refTracking=false: 순환참조 없는 DTO 그래프에서 레퍼런스 테이블 오버헤드 제거
+        @JvmStatic
+        private val FastFory: ThreadSafeFory by lazy {
+            Fory.builder()
+                .withLanguage(Language.JAVA)
+                .withCompatibleMode(CompatibleMode.SCHEMA_CONSISTENT)
+                .withAsyncCompilation(false)
+                .withRefTracking(false)
+                .withRefCopy(false)
+                .withCodegen(true)
+                .withStringCompressed(false)
+                .requireClassRegistration(false)
+                .buildThreadSafeForyPool(
+                    2,
+                    2 * Runtime.getRuntime().availableProcessors(),
+                    30L,
+                    TimeUnit.MINUTES
+                )
+        }
+
+        /**
+         * SCHEMA_CONSISTENT + refTracking 비활성화로 최적화된 [ForyBinarySerializer]를 반환합니다.
+         *
+         * 스키마 변경이 없는 고정 타입 DTO 직렬화에 적합합니다.
+         * COMPATIBLE 모드 대비 필드명 오버헤드와 레퍼런스 추적 비용 모두 제거.
+         */
+        @JvmStatic
+        fun fast(): ForyBinarySerializer = ForyBinarySerializer(FastFory)
+
         /**
          * 클래스 등록이 강제되는 보안 [ThreadSafeFory]를 생성합니다.
          *
