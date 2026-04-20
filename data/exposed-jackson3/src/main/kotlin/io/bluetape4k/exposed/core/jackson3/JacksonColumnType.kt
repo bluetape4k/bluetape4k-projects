@@ -123,7 +123,8 @@ fun <T: Any> Table.jackson(
  *
  * ## 동작/계약
  * - [jacksonSerializer]의 문자열 변환 함수를 감싸 [jackson] 오버로드에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`을 발생시킵니다.
+ *   DB에서 읽은 JSON이 `null`로 역직렬화되는 것은 데이터 정합성 오류를 나타내기 때문입니다.
  * - 반환되는 컬럼 인스턴스는 수신 [Table]에 등록된 컬럼과 동일합니다.
  *
  * ```kotlin
@@ -143,5 +144,9 @@ inline fun <reified T: Any> Table.jackson(
     jackson(
         name,
         serialize = { jacksonSerializer.serializeAsString(it) },
-        deserialize = { jacksonSerializer.deserializeFromString<T>(it)!! }
+        deserialize = {
+            requireNotNull(jacksonSerializer.deserializeFromString<T>(it)) {
+                "JSON 역직렬화 결과가 null입니다. 컬럼='$name', 타입='${T::class.qualifiedName}', 입력='$it'"
+            }
+        }
     )
