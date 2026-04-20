@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core.tink
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.aead.TinkAeads
 import org.jetbrains.exposed.v1.core.BinaryColumnType
@@ -57,6 +58,8 @@ class TinkAeadBinaryColumnType(
 class ByteArrayTinkAeadEncryptionTransformer(
     private val encryptor: TinkAead = TinkAeads.AES256_GCM,
 ): ColumnTransformer<ByteArray, ByteArray> {
+
+    companion object: KLogging()
 
     /**
      * 평문 바이트 배열을 Tink AEAD로 암호화합니다.
