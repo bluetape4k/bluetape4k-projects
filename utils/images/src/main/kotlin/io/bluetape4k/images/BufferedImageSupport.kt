@@ -224,7 +224,7 @@ fun bufferedImageOf(w: Int, h: Int): BufferedImage {
     h.requirePositiveNumber("h")
 
     if (GraphicsEnvironment.isHeadless()) {
-        return BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        return BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
     }
 
     val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
