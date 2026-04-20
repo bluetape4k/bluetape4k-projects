@@ -67,6 +67,9 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         defaultType = FastjsonColumnType(
             { serializer.serializeAsString(it) },
             {
+                // `!!` 대신 requireNotNull을 사용: extract 경로가 존재하지 않거나 타입 불일치로
+                // 역직렬화가 null을 반환하면 쿼리 결과 처리 오류이므로, 입력값을 포함한
+                // IllegalArgumentException을 던져 원인 추적을 쉽게 합니다.
                 requireNotNull(serializer.deserializeFromString<T>(it)) {
                     "JSON 문자열을 ${T::class.simpleName} 타입으로 역직렬화한 결과가 null입니다. 입력: $it"
                 }

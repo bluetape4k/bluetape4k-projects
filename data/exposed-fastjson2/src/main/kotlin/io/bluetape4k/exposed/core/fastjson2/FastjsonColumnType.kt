@@ -142,6 +142,9 @@ inline fun <reified T: Any> Table.fastjson(
         name,
         { fastjsonSerializer.serializeAsString(it) },
         {
+            // `!!` 대신 requireNotNull을 사용: 역직렬화 결과가 null이면 데이터 정합성 오류이므로
+            // NullPointerException(스택 트레이스 불명확) 대신 원인 메시지가 담긴
+            // IllegalArgumentException을 던져 디버깅을 용이하게 합니다.
             requireNotNull(fastjsonSerializer.deserializeFromString<T>(it)) {
                 "JSON 문자열을 ${T::class.simpleName} 타입으로 역직렬화한 결과가 null입니다. 입력: $it"
             }
