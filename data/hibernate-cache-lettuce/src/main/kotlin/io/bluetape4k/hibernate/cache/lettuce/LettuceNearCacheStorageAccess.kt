@@ -1,6 +1,8 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import org.hibernate.cache.internal.BasicCacheKeyImplementation
 import org.hibernate.cache.internal.CacheKeyImplementation
 import org.hibernate.cache.internal.NaturalIdCacheKey
@@ -14,8 +16,10 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor
  * Region 격리는 nearCache의 cacheName(=regionName) prefix가 담당한다.
  * Redis 실제 key: `{regionName}:{entityKey}`
  *
- * - [getFromCache]: Caffeine(L1) → Redis(L2) 순서로 조회
- * - [putIntoCache]: write-through (L1 + L2 동시 저장)
+ * - [getFromCache]: Caffeine(L1) → Redis(L2) 순서로 조회.
+ *   L2(Redis) 장애 시 예외를 로깅하고 null을 반환하여 Hibernate가 DB로 폴백할 수 있도록 한다.
+ * - [putIntoCache]: write-through (L1 + L2 동시 저장).
+ *   L2 장애 시 예외를 로깅하고 무시한다 (Hibernate 트랜잭션에 영향 없음).
  * - [evictData]: region 전체 evict 시 local + Redis 모두 제거
  * - [evictData] with key: 특정 key만 L1+L2 제거
  */
@@ -23,6 +27,8 @@ class LettuceNearCacheStorageAccess(
     private val regionName: String,
     private val nearCache: LettuceNearCache<Any>,
 ): DomainDataStorageAccess {
+
+    companion object: KLogging()
 
     // nearCache가 cacheName(=regionName) prefix를 Redis key에 자동으로 추가하므로
     // 여기서는 key를 stable string으로 정규화만 한다. (이중 prefix 방지)
@@ -65,25 +71,56 @@ class LettuceNearCacheStorageAccess(
         else            -> value.toString()
     }
 
+    /**
+     * 캐시에서 값을 조회한다. Caffeine(L1) miss 시 Redis(L2)를 조회한다.
+     *
+     * Redis 장애 등 L2 예외 발생 시 예외를 로깅하고 null을 반환하여
+     * Hibernate가 DB 폴백을 수행할 수 있도록 한다.
+     */
     override fun getFromCache(key: Any, session: SharedSessionContractImplementor): Any? =
-        nearCache.get(cacheKey(key))
+        runCatching { nearCache.get(cacheKey(key)) }
+            .onFailure { e -> log.warn(e) { "캐시 조회 실패 (region=$regionName, key=$key) → null 반환" } }
+            .getOrNull()
 
+    /**
+     * 캐시에 값을 저장한다 (write-through: L1 + L2 동시 저장).
+     *
+     * Redis 장애 등 L2 예외 발생 시 예외를 로깅하고 무시한다.
+     * Hibernate 트랜잭션에 영향을 주지 않는다.
+     */
     override fun putIntoCache(key: Any, value: Any, session: SharedSessionContractImplementor) {
-        nearCache.put(cacheKey(key), value)
+        runCatching { nearCache.put(cacheKey(key), value) }
+            .onFailure { e -> log.warn(e) { "캐시 저장 실패 (region=$regionName, key=$key) → 무시" } }
     }
 
+    /**
+     * 캐시에 해당 키가 존재하는지 확인한다.
+     *
+     * Redis 장애 등 예외 발생 시 false를 반환한다.
+     */
     override fun contains(key: Any): Boolean =
-        nearCache.containsKey(cacheKey(key))
+        runCatching { nearCache.containsKey(cacheKey(key)) }
+            .onFailure { e -> log.warn(e) { "캐시 containsKey 실패 (region=$regionName, key=$key) → false 반환" } }
+            .getOrDefault(false)
 
+    /**
+     * 특정 키를 캐시(L1+L2)에서 제거한다.
+     *
+     * Redis 장애 등 예외 발생 시 예외를 로깅하고 무시한다.
+     */
     override fun evictData(key: Any) {
-        nearCache.remove(cacheKey(key))
+        runCatching { nearCache.remove(cacheKey(key)) }
+            .onFailure { e -> log.warn(e) { "캐시 evict 실패 (region=$regionName, key=$key) → 무시" } }
     }
 
     /**
      * region 전체 evict: local + Redis 모두 제거한다.
+     *
+     * Redis 장애 등 예외 발생 시 예외를 로깅하고 무시한다.
      */
     override fun evictData() {
-        nearCache.clearAll()
+        runCatching { nearCache.clearAll() }
+            .onFailure { e -> log.warn(e) { "캐시 전체 evict 실패 (region=$regionName) → 무시" } }
     }
 
     /**

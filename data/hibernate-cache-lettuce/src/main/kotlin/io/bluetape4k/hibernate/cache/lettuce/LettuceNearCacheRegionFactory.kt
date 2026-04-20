@@ -1,6 +1,8 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.utils.ShutdownQueue
 import io.lettuce.core.ClientOptions
@@ -39,9 +41,17 @@ import java.util.concurrent.ConcurrentHashMap
  * 업데이트 시 캐시 항목을 제거하고 다음 읽기 시 DB에서 재로드.
  */
 class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
-    private lateinit var redisClient: RedisClient
+
+    companion object: KLogging()
+
     private lateinit var properties: LettuceNearCacheProperties
     private lateinit var codec: LettuceBinaryCodec<Any>
+
+    /**
+     * [releaseFromUse]에서 nullable로 처리하여 prepareForUse 실패 시에도 안전하게 정리한다.
+     * lateinit 대신 nullable var를 사용해 [UninitializedPropertyAccessException]을 방지한다.
+     */
+    private var redisClient: RedisClient? = null
     private val caches = ConcurrentHashMap<String, LettuceNearCache<Any>>()
 
     override fun prepareForUse(
@@ -51,23 +61,29 @@ class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
         properties = LettuceNearCacheProperties.from(configValues)
         codec = properties.createCodec()
 
-        redisClient =
-            RedisClient.create(properties.redisUri).apply {
-                if (properties.useResp3) {
-                    options =
-                        ClientOptions
-                            .builder()
-                            .protocolVersion(ProtocolVersion.RESP3)
-                            .build()
-                }
-                ShutdownQueue.register { runCatching { shutdown() } }
-            }
+        val client = RedisClient.create(properties.redisUri)
+        if (properties.useResp3) {
+            client.options = ClientOptions.builder()
+                .protocolVersion(ProtocolVersion.RESP3)
+                .build()
+        }
+        redisClient = client
+        ShutdownQueue.register { runCatching { client.shutdown() } }
     }
 
     override fun releaseFromUse() {
-        caches.values.forEach { runCatching { it.close() } }
+        caches.values.forEach { cache ->
+            runCatching { cache.close() }.onFailure { e ->
+                log.warn(e) { "캐시 close 중 오류 무시: ${cache.cacheName}" }
+            }
+        }
         caches.clear()
-        runCatching { redisClient.shutdown() }
+        redisClient?.let { client ->
+            runCatching { client.shutdown() }.onFailure { e ->
+                log.warn(e) { "RedisClient shutdown 중 오류 무시" }
+            }
+            redisClient = null
+        }
     }
 
     override fun getDefaultAccessType(): AccessType = AccessType.NONSTRICT_READ_WRITE
@@ -101,9 +117,12 @@ class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
     ): StorageAccess = createStorageAccess(regionName)
 
     private fun createStorageAccess(regionName: String): LettuceNearCacheStorageAccess {
+        val client = checkNotNull(redisClient) {
+            "RedisClient가 초기화되지 않았습니다. prepareForUse()가 완료된 후에 호출해야 합니다."
+        }
         val nearCache =
             caches.computeIfAbsent(regionName) {
-                LettuceNearCache(redisClient, codec, properties.buildNearCacheConfig(regionName))
+                LettuceNearCache(client, codec, properties.buildNearCacheConfig(regionName))
             }
         return LettuceNearCacheStorageAccess(regionName, nearCache)
     }
