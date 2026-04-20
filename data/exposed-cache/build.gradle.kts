@@ -40,4 +40,5 @@ dependencies {
 
     // Testing
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(Libs.kluent)
 }
