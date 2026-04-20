@@ -60,8 +60,28 @@ class KryoBinarySerializer(
         /**
          * [FieldSerializer] 기반 고성능 [KryoBinarySerializer]를 반환합니다.
          *
-         * 스키마가 변경되지 않는 고정 타입 DTO에 적합합니다.
-         * [CompatibleFieldSerializer]의 필드별 청크 헤더 오버헤드를 제거하여 처리량을 향상합니다.
+         * 기본 [KryoBinarySerializer] 대비 처리량이 향상됩니다 ([CompatibleFieldSerializer] 필드별 청크 헤더 제거).
+         *
+         * ## 적합한 사용 사례
+         * - 클래스 구조가 변경되지 않는 **고정 스키마** DTO (필드 추가·제거 없음).
+         * - 휘발성 캐시·메시지큐 등 배포 단위로 데이터가 교체되는 환경.
+         * - **Kotlin nullable 타입이 없는** 순수 non-null 필드 객체.
+         *
+         * ## 사용하면 안 되는 경우
+         * - **`ByteArray?`, `String?` 등 Kotlin nullable 타입** 포함 클래스: [FieldSerializer]가
+         *   nullable 타입을 올바르게 처리하지 못해 역직렬화 오류가 발생합니다.
+         * - **스키마 진화** (필드 추가·제거·순서 변경)가 필요한 경우: [CompatibleFieldSerializer]를 사용하세요.
+         * - 기본 [KryoBinarySerializer]로 직렬화한 데이터를 역직렬화하는 경우: 포맷이 달라 오류가 발생합니다.
+         *
+         * ```kotlin
+         * // ✅ 올바른 사용: non-null 고정 스키마 DTO
+         * data class Item(val id: Long, val name: String, val price: Double)
+         * val serializer = KryoBinarySerializer.fast()
+         * val bytes = serializer.serialize(Item(1L, "book", 9.99))
+         *
+         * // ❌ 잘못된 사용: nullable 필드 포함 클래스
+         * data class Order(val id: Long, val note: String?)  // String? → fast() 사용 불가
+         * ```
          */
         @JvmStatic
         fun fast(): KryoBinarySerializer {

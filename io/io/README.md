@@ -227,8 +227,25 @@ Multiple implementations for serializing and deserializing objects to/from binar
 **Serializer Selection Guide:**
 
 - **Compatibility first**: Jdk (works in all Java environments)
-- **Performance first**: Kryo, Fory (3–10x faster)
+- **Performance first**: `ForyBinarySerializer.fast()` (best), `KryoBinarySerializer.fast()` (non-null DTOs only)
+- **Standard performance**: `BinarySerializers.Kryo`, `BinarySerializers.Fory`
 - **Storage savings**: LZ4Kryo, ZstdFory (with compression)
+
+**fast() API — High-Performance Modes:**
+
+Both `ForyBinarySerializer` and `KryoBinarySerializer` provide a `fast()` factory that enables high-throughput serialization for appropriate use cases.
+
+| Serializer | Mode | Throughput | Use case |
+|---|---|---|---|
+| Serializer | Mode | Throughput | Nullable types? | Use case |
+|---|---|---|---|---|
+| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, no refTracking | ~116K ops/s (+71%) | ✅ Supported | Volatile caches, fixed-schema DTOs, DAG graphs |
+| `KryoBinarySerializer.fast()` | FieldSerializer, no chunk headers | ~68K ops/s (+97%) | ❌ Not supported | Non-null fixed-schema DTOs only |
+| `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ Supported | Schema evolution, persistent storage |
+| `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ Supported | General use, nullable fields |
+
+> Benchmark: 20× `SimpleData` objects each containing a 4096-byte `ByteArray` field.
+> Measurement: JMH throughput, 3-second intervals, JVM warmup 4 iterations.
 
 ### 3. File Utilities (FileSupport)
 
@@ -351,6 +368,45 @@ val forySerializer = BinarySerializers.Fory
 val foryBytes = forySerializer.serialize(user)
 ```
 
+**High-Performance Serialization with `fast()` API:**
+
+```kotlin
+import io.bluetape4k.io.serializer.ForyBinarySerializer
+import io.bluetape4k.io.serializer.KryoBinarySerializer
+
+// ✅ ForyBinarySerializer.fast() — ~71% faster than standard Fory
+// Nullable types ARE supported. Use for volatile caches and fixed-schema DTOs.
+// WARNING: format is incompatible with standard BinarySerializers.Fory — do not mix.
+val foryFast = ForyBinarySerializer.fast()
+val bytes = foryFast.serialize(user)            // serialize
+val restored = foryFast.deserialize<User>(bytes) // deserialize (same serializer only)
+
+// ✅ Suitable: volatile cache, non-circular object graph, fixed schema
+data class CacheEntry(val id: Long, val payload: ByteArray?, val tag: String?)  // nullables OK
+val entry = CacheEntry(1L, byteArrayOf(1, 2, 3), "v1")
+val cached = foryFast.serialize(entry)  // works correctly
+
+// ❌ Not suitable: mixing COMPATIBLE and SCHEMA_CONSISTENT data
+val standard = BinarySerializers.Fory.serialize(user)
+foryFast.deserialize<User>(standard)  // ERROR — format mismatch
+
+// ❌ Not suitable: circular references (refTracking=false)
+// data class Node(val id: Int, var next: Node?)  // circular → infinite loop
+
+// ✅ KryoBinarySerializer.fast() — ~97% faster than standard Kryo
+// WARNING: Kotlin nullable types (ByteArray?, String?) cause deserialization errors.
+// Use only for pure non-null field DTOs.
+data class NonNullItem(val id: Long, val name: String, val price: Double)  // all non-null
+val kryoFast = KryoBinarySerializer.fast()
+val itemBytes = kryoFast.serialize(NonNullItem(1L, "book", 9.99))
+val item = kryoFast.deserialize<NonNullItem>(itemBytes)  // OK
+
+// ❌ Not suitable: nullable fields
+data class Order(val id: Long, val note: String?)  // String? → deserialization error!
+val orderBytes = kryoFast.serialize(Order(1L, null))
+kryoFast.deserialize<Order>(orderBytes)  // may throw or return wrong data
+```
+
 ### File Utilities
 
 ```kotlin
@@ -419,6 +475,30 @@ path.tryReadAllBytes().onSuccess { bytes ->
 ### Serialization Performance Comparison
 
 Throughput for serializing/deserializing a collection of 20 `SimpleData` objects.
+JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
+
+**With byte array fields (4096 bytes) — standard vs fast():**
+
+| Serializer | ops/s | vs standard | Notes |
+|---|---|---|---|
+| `ForyBinarySerializer.fast()` | ~116,000 | +71% | SCHEMA_CONSISTENT + no refTracking |
+| `KryoBinarySerializer.fast()` | ~68,000 | +97% | FieldSerializer + outputPool reuse |
+| `BinarySerializers.Fory` | ~68,000 | baseline | COMPATIBLE mode, nullable ✅ |
+| `BinarySerializers.Kryo` | ~34,000 | baseline | CompatibleFieldSerializer, nullable ✅ |
+| Jdk | ~8,431 | — | Java standard |
+| Jackson | ~4,323 | — | Disadvantaged for binary data |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
+xychart-beta horizontal
+    title "Serialization Throughput — 4096B ByteArray (ops/s)"
+    x-axis ["Jackson", "Jdk", "Kryo (std)", "Fory (std)", "Kryo fast()", "Fory fast()"]
+    y-axis "ops/s" 0 --> 130000
+    bar [4323, 8431, 34000, 68000, 68000, 116000]
+```
+
+> `ForyBinarySerializer.fast()` is ~71% faster than standard Fory and supports nullable types.
+> `KryoBinarySerializer.fast()` is ~97% faster but does **not** support Kotlin nullable fields (`Type?`).
 
 **Without byte array fields:**
 
@@ -437,27 +517,6 @@ xychart-beta horizontal
     y-axis "ops/s" 0 --> 320000
     bar [22249, 39510, 81823, 305821]
 ```
-
-**With byte array fields (4096 bytes):**
-
-| Library | ops/s  | Notes                         |
-|---------|--------|-------------------------------|
-| Fory    | 59,192 | Best performance              |
-| Kryo    | 29,329 | Recommended for general use   |
-| Jdk     | 8,431  | Java standard                 |
-| Jackson | 4,323  | Disadvantaged for binary data |
-
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
-xychart-beta horizontal
-    title "Serialization Performance — With 4096B Byte Array (ops/s)"
-    x-axis ["Jackson", "Jdk", "Kryo", "Fory"]
-    y-axis "ops/s" 0 --> 65000
-    bar [4323, 8431, 29329, 59192]
-```
-
-> Fory is approximately 3x faster than Kryo.
-> Jackson is the slowest when byte arrays are involved.
 
 ### Compression Performance Comparison
 
