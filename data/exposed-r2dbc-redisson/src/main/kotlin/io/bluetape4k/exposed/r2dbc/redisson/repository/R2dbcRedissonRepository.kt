@@ -183,11 +183,14 @@ interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedisRepositor
     /**
      * 여러 ID의 엔티티를 캐시에서 제거합니다.
      *
+     * 단건씩 순차 호출 대신 배열로 한 번에 전달해 네트워크 왕복을 줄입니다.
+     *
      * @param ids 삭제할 엔티티 식별자 목록
      */
     override suspend fun invalidateAll(ids: Collection<ID>) {
         if (ids.isEmpty()) return
-        ids.forEach { id -> cache.fastRemoveAsync(id).await() }
+        @Suppress("UNCHECKED_CAST")
+        cache.fastRemoveAsync(*ids.toTypedArray<Any>() as Array<ID>).await()
     }
 
     /**

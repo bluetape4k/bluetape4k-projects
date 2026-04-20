@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.r2dbc.redisson.map
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,9 @@ open class R2dbcEntityMapWriter<ID: Any, E: Any>(
                 suspendTransaction {
                     try {
                         writeToDb(map)
+                    } catch (e: CancellationException) {
+                        // 코루틴 취소는 반드시 재전파해야 한다 — 삼키면 구조적 동시성이 깨진다
+                        throw e
                     } catch (e: Throwable) {
                         log.error(e) { "R2dbc로 DB에 엔티티 Write 중 오류 발생" }
                         throw e
@@ -62,6 +66,9 @@ open class R2dbcEntityMapWriter<ID: Any, E: Any>(
                     try {
                         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=$ids" }
                         deleteFromDb(ids)
+                    } catch (e: CancellationException) {
+                        // 코루틴 취소는 반드시 재전파해야 한다 — 삼키면 구조적 동시성이 깨진다
+                        throw e
                     } catch (e: Throwable) {
                         log.error(e) { "R2dbc로 엔티티 삭제 중 오류 발생" }
                         throw e
