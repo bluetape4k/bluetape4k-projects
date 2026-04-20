@@ -222,4 +222,24 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
             }
         }
     }
+
+    /**
+     * 이미 종료된(shutdown) executor 를 virtualThreadJdbcTransactionAsync 에 전달하면
+     * IllegalArgumentException 이 발생해야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `종료된 executor 로 트랜잭션 시작 시 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
+        withTables(testDB, VTester) {
+            val executor = Executors.newSingleThreadExecutor()
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+
+            assertFailsWith<IllegalArgumentException> {
+                virtualThreadJdbcTransactionAsync(executor = executor) {
+                    VTester.selectAll().count()
+                }
+            }
+        }
+    }
 }

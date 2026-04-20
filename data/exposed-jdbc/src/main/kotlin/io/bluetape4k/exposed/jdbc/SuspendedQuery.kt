@@ -48,14 +48,22 @@ fun FieldSet.fetchBatchedResultFlow(
  * ## 동작/계약
  * - 현재 Query의 `set`, 기존 `where`, 추가 `where`를 함께 사용해 [SuspendedQuery]를 만들고 배치 조회를 수행합니다.
  * - 추가 `where`가 있으면 기존 조건과 `AND`로 결합됩니다.
- * - 수동 `limit`/`orderBy`가 이미 걸린 Query는 [SuspendedQuery.fetchBatchResultFlow]에서 거부됩니다.
+ * - 수동 `limit`/`orderBy`가 이미 걸린 Query는 즉시 [IllegalArgumentException]을 던집니다.
+ *   [SuspendedQuery] 생성자가 `limit`/`orderByExpressions`를 복사하지 않으므로 여기서 사전 검증합니다.
  */
 fun Query.fetchBatchedResultFlow(
     batch: Int = DEFAULT_BATCH_SIZE,
     sortOrder: SortOrder = SortOrder.ASC,
     where: Op<Boolean>? = null,
-): Flow<List<ResultRow>> =
-    SuspendedQuery(this@fetchBatchedResultFlow, where = where).fetchBatchResultFlow(batch, sortOrder)
+): Flow<List<ResultRow>> {
+    // SuspendedQuery 생성자는 sourceQuery 의 limit/orderBy 를 복사하지 않으므로
+    // 여기서 미리 검증하여 caller 에게 즉시 예외를 전달합니다.
+    require(limit == null) { "A manual `LIMIT` clause should not be set. By default, `batchSize` will be used." }
+    require(orderByExpressions.isEmpty()) {
+        "A manual `ORDER BY` clause should not be set. By default, the auto-incrementing column will be used."
+    }
+    return SuspendedQuery(this@fetchBatchedResultFlow, where = where).fetchBatchResultFlow(batch, sortOrder)
+}
 
 /**
  * Exposed Query를 커서 기반 배치 조회 [Flow]로 노출하는 Query 구현입니다.
@@ -176,7 +184,13 @@ open class SuspendedQuery(
                     }
                     if (results.size < batchSize) break
 
-                    lastOffset = toLong(results.last()[cursorColumn]!!)
+                    // cursorColumn 값이 null이면 커서 기반 페이징을 진행할 수 없으므로 즉시 실패시킵니다.
+                    // 일반적으로 PK 컬럼은 NOT NULL이지만, nullable Column이 cursorColumn으로 사용된 경우 방어합니다.
+                    lastOffset = toLong(
+                        requireNotNull(results.last().getOrNull(cursorColumn)) {
+                            "커서 컬럼(${cursorColumn.name}) 값이 null입니다. NOT NULL 컬럼을 커서로 사용하세요."
+                        }
+                    )
                 }
             } finally {
                 this@SuspendedQuery.limit = originalLimit

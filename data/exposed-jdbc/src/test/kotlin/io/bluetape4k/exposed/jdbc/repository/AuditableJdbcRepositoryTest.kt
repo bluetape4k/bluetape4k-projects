@@ -180,4 +180,59 @@ class AuditableJdbcRepositoryTest: AbstractExposedTest() {
             actor.updatedBy.shouldBeNull()
         }
     }
+
+    /**
+     * UserContext 없이 auditedUpdateById 를 호출하면 updatedBy 에 DEFAULT_USERNAME("system")이 설정됩니다.
+     * UserContext.getCurrentUser() 는 절대 null 을 반환하지 않으므로 안전합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `UserContext 없이 auditedUpdateById 호출 시 updatedBy 에 DEFAULT_USERNAME이 설정된다`(testDB: TestDB) {
+        withTables(testDB, ActorTable) {
+            val id = ActorTable.insertAndGetId {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+            }.value
+
+            // UserContext 없이 auditedUpdateById 호출
+            ActorRepository.auditedUpdateById(id) {
+                it[ActorTable.firstName] = "NoContextUpdate"
+            }
+
+            val actor = findById(id)
+            actor.updatedBy.shouldNotBeNull()
+            actor.updatedBy shouldBeEqualTo UserContext.DEFAULT_USERNAME
+            actor.updatedAt.shouldNotBeNull()
+        }
+    }
+
+    /**
+     * 복수의 auditedUpdateById 연속 호출 후 각 레코드의 updatedBy 가 올바르게 설정됩니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `서로 다른 사용자가 순차 업데이트 시 각 updatedBy 가 마지막 사용자로 설정된다`(testDB: TestDB) {
+        withTables(testDB, ActorTable) {
+            val id = ActorTable.insertAndGetId {
+                it[firstName] = faker.name().firstName()
+                it[lastName] = faker.name().lastName()
+            }.value
+
+            UserContext.withUser("user1") {
+                ActorRepository.auditedUpdateById(id) {
+                    it[ActorTable.firstName] = "First"
+                }
+            }
+            val afterUser1 = findById(id)
+            afterUser1.updatedBy shouldBeEqualTo "user1"
+
+            UserContext.withUser("user2") {
+                ActorRepository.auditedUpdateById(id) {
+                    it[ActorTable.firstName] = "Second"
+                }
+            }
+            val afterUser2 = findById(id)
+            afterUser2.updatedBy shouldBeEqualTo "user2"
+        }
+    }
 }
