@@ -3,6 +3,7 @@ package io.bluetape4k.hibernate.reactive.mutiny
 import io.bluetape4k.vertx.currentVertxDispatcher
 import io.smallrye.mutiny.coroutines.asUni
 import io.smallrye.mutiny.coroutines.awaitSuspending
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.hibernate.reactive.mutiny.Mutiny
@@ -28,7 +29,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withSessionSuspending(
 ): T = coroutineScope {
     withSession { session: Mutiny.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -54,7 +59,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withSessionSuspending(
 ): T = coroutineScope {
     withSession(tenantId) { session: Mutiny.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -79,7 +88,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessSessionSuspending(
 ): T = coroutineScope {
     withStatelessSession { stateless: Mutiny.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -105,7 +118,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessSessionSuspending(
 ): T = coroutineScope {
     withStatelessSession(tenantId) { stateless: Mutiny.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -130,7 +147,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction { session: Mutiny.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -157,7 +178,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction { session: Mutiny.Session, transaction: Mutiny.Transaction ->
         async(currentVertxDispatcher()) {
-            work(session, transaction)
+            try {
+                work(session, transaction)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -184,7 +209,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction(tenantId) { session: Mutiny.Session, transaction: Mutiny.Transaction ->
         async(currentVertxDispatcher()) {
-            work(session, transaction)
+            try {
+                work(session, transaction)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -210,7 +239,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction { stateless: Mutiny.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -237,7 +270,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction { stateless: Mutiny.StatelessSession, transaction: Mutiny.Transaction ->
         async(currentVertxDispatcher()) {
-            work(stateless, transaction)
+            try {
+                work(stateless, transaction)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
@@ -264,7 +301,11 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction(tenantId) { stateless: Mutiny.StatelessSession, transaction: Mutiny.Transaction ->
         async(currentVertxDispatcher()) {
-            work(stateless, transaction)
+            try {
+                work(stateless, transaction)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asUni()
     }.awaitSuspending()
 }
