@@ -160,4 +160,64 @@ object RedissonCodecs: KLogging() {
     /** Map 키: String, 값: JDK 직렬화 + Zstd 압축을 사용하는 복합 Codec */
     val ZstdJdkComposite: Codec by lazy { CompositeCodec(String, ZstdJdk, ZstdJdk) }
 
+    // -------------------------------------------------------------------------
+    // Use-case oriented factory functions (H4 - Iteration 2)
+    //
+    // 이 팩토리 함수들은 기존 val 프로퍼티를 대체하지 않고, 사용 목적(use-case)에
+    // 따라 적절한 Codec 을 쉽게 선택할 수 있도록 제공됩니다.
+    // Java 호출자는 @JvmStatic 덕분에 `RedissonCodecs.forCache()` 형식으로 호출합니다.
+    // -------------------------------------------------------------------------
+
+    /**
+     * 처리량 중심의 값(value) 캐시용 Codec.
+     *
+     * 1KB 이상의 객체를 자주 읽는 RBucket/RList 등 범용 value 캐시에 적합합니다.
+     * LZ4 압축 + Fory 직렬화 조합으로 속도와 크기 균형을 제공합니다.
+     */
+    @JvmStatic
+    fun forCache(): Codec = LZ4Fory
+
+    /**
+     * Map 형태의 캐시용 Codec.
+     *
+     * RMap / RLocalCachedMap 등 Map 컬렉션 캐시에 적합합니다.
+     * 키는 [String], 값은 LZ4 + Fory 로 직렬화되는 [CompositeCodec] 조합입니다.
+     */
+    @JvmStatic
+    fun forCacheMap(): Codec = LZ4ForyComposite
+
+    /**
+     * 범용 기본 Codec.
+     *
+     * 혼합된 읽기/쓰기 워크로드의 기본 선택지. Apache Fory 직렬화를 사용합니다.
+     */
+    @JvmStatic
+    fun forGeneral(): Codec = Fory
+
+    /**
+     * 작은 값(<1KB) 전용 Codec.
+     *
+     * 작은 객체는 압축 오버헤드가 이익을 넘기 쉬우므로 압축을 생략한 Kryo5 를 권장합니다.
+     */
+    @JvmStatic
+    fun forSmallValue(): Codec = Kryo5
+
+    /**
+     * 아카이브/콜드 스토리지용 Codec.
+     *
+     * 큰 객체를 드물게 읽고 쓰는 상황에서 최고의 압축률을 제공합니다.
+     * Zstd 압축 + Fory 직렬화로 저장 공간 효율을 극대화합니다.
+     */
+    @JvmStatic
+    fun forArchival(): Codec = ZstdFory
+
+    /**
+     * 호환성 우선 Codec.
+     *
+     * bluetape4k 를 사용하지 않는 외부 시스템과의 상호 운용이 필요할 때 사용합니다.
+     * JDK 기본 직렬화를 사용하므로 성능은 낮지만 범용성이 높습니다.
+     */
+    @JvmStatic
+    fun forCompatibility(): Codec = Jdk
+
 }
