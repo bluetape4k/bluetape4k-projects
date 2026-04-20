@@ -10,6 +10,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeGreaterThan
+import org.redisson.client.codec.StringCodec
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -30,7 +31,13 @@ class RedissonConcurrencyBenchmark {
         private const val CONCURRENCY = 50
         private const val OPS_PER_COROUTINE = 100
         private const val WARMUP_OPS = 500
+        private const val WARMUP_PASSES = 3
+        private const val MEASUREMENT_PASSES = 3
         private const val KEY_PREFIX = "benchmark:"
+
+        private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+            Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+        }
 
         private val OUTPUT_FILE: File by lazy {
             // user.dir = <repo-root>/infra/redisson — 2단계 상위가 프로젝트 루트
@@ -46,56 +53,106 @@ class RedissonConcurrencyBenchmark {
     @Test
     @Order(1)
     fun `warmup`() {
-        val map = redisson.getMap<String, String>("$KEY_PREFIX:warmup")
-        repeat(WARMUP_OPS) { i ->
-            map.put("key-$i", "value-$i")
+        // Round 7 H12: 단일 put 반복 warmup → 실제 벤치마크와 동일한 concurrent 워크로드 3회 실행
+        repeat(WARMUP_PASSES) { pass ->
+            val map = redisson.getMap<String, String>("$KEY_PREFIX:warmup:$pass:${Base58.randomString(4)}")
+            val warmupOps = AtomicLong(0)
+            runBlocking(Dispatchers.IO) {
+                (1..CONCURRENCY).map { coroutineId ->
+                    async {
+                        try {
+                            val batch = redisson.createBatch()
+                            val batchMap = batch.getMap<String, String>(map.name, StringCodec.INSTANCE)
+                            repeat(OPS_PER_COROUTINE) { opIdx ->
+                                val key = "w$coroutineId-op$opIdx"
+                                batchMap.fastPutAsync(key, "v${System.nanoTime()}")
+                                batchMap.getAsync(key)
+                            }
+                            batch.execute()
+                            warmupOps.addAndGet(OPS_PER_COROUTINE.toLong())
+                        } catch (e: Exception) {
+                            // warmup 단계에서는 오류 무시
+                        }
+                    }
+                }.awaitAll()
+            }
+            runCatching { map.delete() }
+            log.debug { "Warmup pass ${pass + 1}/$WARMUP_PASSES 완료: ${warmupOps.get()} ops" }
         }
-        map.delete()
-        log.debug { "Warmup 완료: $WARMUP_OPS ops" }
+        log.info { "Warmup 완료: ${WARMUP_PASSES}회 concurrent 실행" }
     }
 
     @Test
     @Order(2)
     fun measureConcurrentThroughput() {
-        val map = redisson.getMap<String, String>("$KEY_PREFIX:throughput:${Base58.randomString(6)}")
-        val successOps = AtomicLong(0)
-        val errorOps = AtomicLong(0)
+        val passScores = mutableListOf<Long>()
+        var lastTotalOps = 0L
+        var lastErrorOps = 0L
+        var lastElapsedMs = 0L
 
-        val elapsedMs = measureTimeMillis {
-            runBlocking(Dispatchers.IO) {
-                (1..CONCURRENCY).map { coroutineId ->
-                    async {
-                        repeat(OPS_PER_COROUTINE) { opIdx ->
-                            runCatching {
-                                val key = "c$coroutineId-op$opIdx"
-                                map.put(key, "value-$key-${System.nanoTime()}")
-                                map.get(key)
-                                successOps.incrementAndGet()
-                            }.onFailure {
-                                errorOps.incrementAndGet()
+        repeat(MEASUREMENT_PASSES) { passIdx ->
+            val map = redisson.getMap<String, String>(
+                "$KEY_PREFIX:throughput:$passIdx:${Base58.randomString(6)}"
+            )
+            val successOps = AtomicLong(0)
+            val errorOps = AtomicLong(0)
+
+            val elapsedMs = measureTimeMillis {
+                runBlocking(Dispatchers.IO) {
+                    (1..CONCURRENCY).map { coroutineId ->
+                        async {
+                            try {
+                                val batch = redisson.createBatch()
+                                val batchMap = batch.getMap<String, String>(map.name, StringCodec.INSTANCE)
+                                repeat(OPS_PER_COROUTINE) { opIdx ->
+                                    val key = KEY_POOL[coroutineId][opIdx]
+                                    batchMap.fastPutAsync(key, "v${System.nanoTime()}")
+                                    batchMap.getAsync(key)
+                                }
+                                batch.execute()
+                                successOps.addAndGet(OPS_PER_COROUTINE.toLong())
+                            } catch (e: Exception) {
+                                errorOps.addAndGet(OPS_PER_COROUTINE.toLong())
                             }
                         }
-                    }
-                }.awaitAll()
+                    }.awaitAll()
+                }
             }
+
+            runCatching { map.delete() }
+
+            val totalOps = successOps.get()
+            val opsPerSec = if (elapsedMs > 0) totalOps * 1000L / elapsedMs else 0L
+            passScores += opsPerSec
+            lastTotalOps = totalOps
+            lastErrorOps = errorOps.get()
+            lastElapsedMs = elapsedMs
+
+            log.info { "Pass ${passIdx + 1}/$MEASUREMENT_PASSES: totalOps=$totalOps, errors=${errorOps.get()}, elapsed=${elapsedMs}ms, ops/sec=$opsPerSec" }
         }
 
-        runCatching { map.delete() }
+        // 중앙값(median)을 primary 메트릭으로 사용 — outlier 저항
+        val sorted = passScores.sorted()
+        val median = sorted[sorted.size / 2]
 
-        val totalOps = successOps.get()
-        val opsPerSec = if (elapsedMs > 0) totalOps * 1000L / elapsedMs else 0L
+        // stddev 계산: sqrt(mean of squared deviations)
+        val mean = passScores.average()
+        val variance = passScores.map { (it - mean) * (it - mean) }.average()
+        val stddev = kotlin.math.sqrt(variance)
 
-        log.info { "동시 처리 벤치마크: totalOps=$totalOps, errors=${errorOps.get()}, elapsed=${elapsedMs}ms, ops/sec=$opsPerSec" }
+        log.info { "동시 처리 벤치마크 [median]: passes=$passScores, median=$median, mean=${mean.toLong()}, stddev=${stddev.toLong()}" }
 
-        opsPerSec shouldBeGreaterThan 0L
+        median shouldBeGreaterThan 0L
 
         writeResults(
-            concurrentOpsPerSec = opsPerSec,
-            totalOps = totalOps,
-            errorOps = errorOps.get(),
-            elapsedMs = elapsedMs,
+            concurrentOpsPerSec = median,
+            totalOps = lastTotalOps,
+            errorOps = lastErrorOps,
+            elapsedMs = lastElapsedMs,
             concurrency = CONCURRENCY,
-            opsPerCoroutine = OPS_PER_COROUTINE
+            opsPerCoroutine = OPS_PER_COROUTINE,
+            passScores = passScores,
+            stddevOpsPerSec = stddev
         )
     }
 
@@ -147,9 +204,14 @@ class RedissonConcurrencyBenchmark {
         elapsedMs: Long,
         concurrency: Int,
         opsPerCoroutine: Int,
+        passScores: List<Long>,
+        stddevOpsPerSec: Double,
     ) {
         val outputFile = OUTPUT_FILE.canonicalFile
         outputFile.parentFile.mkdirs()
+
+        val passScoresJson = passScores.joinToString(prefix = "[", postfix = "]") { it.toString() }
+        val stddevRounded = (stddevOpsPerSec * 100).toLong() / 100.0
 
         val json = buildString {
             append("{\n")
@@ -160,6 +222,8 @@ class RedissonConcurrencyBenchmark {
             append("  \"elapsed_ms\": $elapsedMs,\n")
             append("  \"concurrency\": $concurrency,\n")
             append("  \"ops_per_coroutine\": $opsPerCoroutine,\n")
+            append("  \"pass_scores\": $passScoresJson,\n")
+            append("  \"stddev_ops_per_sec\": $stddevRounded,\n")
             append("  \"timestamp\": \"${java.time.Instant.now()}\"\n")
             append("}")
         }

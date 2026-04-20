@@ -4,8 +4,10 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.withPipeline
+import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.awaitAll as coAwaitAll
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -32,6 +34,7 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
     }
 
     private val asyncCommands by lazy { LettuceClients.asyncCommands(client) }
+    private val connection by lazy { LettuceClients.connect(client) }
 
     @Test
     fun measureAsyncThroughput() = runSuspendIO {
@@ -43,15 +46,15 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
 
         val start = System.currentTimeMillis()
 
-        // Async SET — 모두 동시에 발사
-        (0 until OPS_COUNT).map { i ->
-            async { asyncCommands.set("$keyPrefix$i", value).await() }
-        }.awaitAll()
-
-        // Async GET — 모두 동시에 발사
-        (0 until OPS_COUNT).map { i ->
-            async { asyncCommands.get("$keyPrefix$i").await() }
-        }.awaitAll()
+        // MERGED PIPELINE: single flush covers all SET+GET commands
+        val (setFutures, getFutures) = connection.withPipeline { cmd ->
+            val sets = (0 until OPS_COUNT).map { i -> cmd.set("$keyPrefix$i", value) }
+            val gets = (0 until OPS_COUNT).map { i -> cmd.get("$keyPrefix$i") }
+            sets to gets
+        }
+        // Bulk await via CompletableFuture.allOf (single continuation vs 20K coroutine spawns)
+        setFutures.redisAwaitAll()
+        getFutures.redisAwaitAll()
 
         val elapsedMs = System.currentTimeMillis() - start
         val opsPerSec = if (elapsedMs > 0) (OPS_COUNT * 2 * 1000L / elapsedMs) else 0L
@@ -59,7 +62,7 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
         // Cleanup
         (0 until OPS_COUNT).map { i ->
             async { asyncCommands.del("$keyPrefix$i").await() }
-        }.awaitAll()
+        }.coAwaitAll()
         repeat(200) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
 
         val result = mapOf(
