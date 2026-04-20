@@ -5,8 +5,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.withPipeline
+import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.awaitAll as coAwaitAll
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -45,17 +46,15 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
 
         val start = System.currentTimeMillis()
 
-        // Pipelined SET — issue all, flush once, await outside
-        val setFutures = connection.withPipeline { cmd ->
-            (0 until OPS_COUNT).map { i -> cmd.set("$keyPrefix$i", value) }
+        // MERGED PIPELINE: single flush covers all SET+GET commands
+        val (setFutures, getFutures) = connection.withPipeline { cmd ->
+            val sets = (0 until OPS_COUNT).map { i -> cmd.set("$keyPrefix$i", value) }
+            val gets = (0 until OPS_COUNT).map { i -> cmd.get("$keyPrefix$i") }
+            sets to gets
         }
-        setFutures.map { async { it.await() } }.awaitAll()
-
-        // Pipelined GET — issue all, flush once, await outside
-        val getFutures = connection.withPipeline { cmd ->
-            (0 until OPS_COUNT).map { i -> cmd.get("$keyPrefix$i") }
-        }
-        getFutures.map { async { it.await() } }.awaitAll()
+        // Bulk await via CompletableFuture.allOf (single continuation vs 20K coroutine spawns)
+        setFutures.redisAwaitAll()
+        getFutures.redisAwaitAll()
 
         val elapsedMs = System.currentTimeMillis() - start
         val opsPerSec = if (elapsedMs > 0) (OPS_COUNT * 2 * 1000L / elapsedMs) else 0L
@@ -63,7 +62,7 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
         // Cleanup
         (0 until OPS_COUNT).map { i ->
             async { asyncCommands.del("$keyPrefix$i").await() }
-        }.awaitAll()
+        }.coAwaitAll()
         repeat(200) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
 
         val result = mapOf(
