@@ -11,6 +11,7 @@ import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.resource.ClientResources
+import io.lettuce.core.resource.DefaultClientResources
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -28,6 +29,19 @@ object LettuceClients: KLogging() {
 
     private val defaultConnections = ConcurrentHashMap<RedisClient, StatefulRedisConnection<String, String>>()
     private val codecConnections = ConcurrentHashMap<CodecConnectionKey<*>, StatefulRedisConnection<String, *>>()
+
+    private val NCPU: Int = Runtime.getRuntime().availableProcessors()
+
+    /**
+     * NCPU 크기로 튜닝된 공유 [ClientResources] 싱글톤.
+     * 여러 클라이언트 생성 시 이벤트 루프 스레드 풀을 공유합니다.
+     */
+    @JvmField
+    val DEFAULT_CLIENT_RESOURCES: ClientResources =
+        DefaultClientResources.builder()
+            .ioThreadPoolSize(NCPU)
+            .computationThreadPoolSize(NCPU)
+            .build()
 
     // 개선: connect() 시 직렬화된 접근이 필요하지만 monitor lock 은 Virtual Thread 를
     //       pin 시키므로 ReentrantLock 으로 대체합니다 (프로젝트 규칙: VT 에서 synchronized 금지).
@@ -85,7 +99,7 @@ object LettuceClients: KLogging() {
      * @param redisUri Redis Server URI
      * @return [RedisClient] instance
      */
-    fun clientOf(redisUri: RedisURI): RedisClient = RedisClient.create(redisUri)
+    fun clientOf(redisUri: RedisURI): RedisClient = RedisClient.create(DEFAULT_CLIENT_RESOURCES, redisUri)
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.
@@ -220,6 +234,14 @@ object LettuceClients: KLogging() {
             }
         }
         client.shutdown()
+    }
+
+    /**
+     * 공유 [DEFAULT_CLIENT_RESOURCES]를 종료합니다.
+     * 애플리케이션 종료 시 호출하세요.
+     */
+    fun shutdown() {
+        runCatching { DEFAULT_CLIENT_RESOURCES.shutdown().get() }
     }
 
     // 개선: ConcurrentHashMap.compute() 는 bucket lock 을 잡은 채로 lambda 를 실행하므로,
