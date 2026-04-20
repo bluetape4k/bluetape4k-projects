@@ -32,6 +32,9 @@ private val log: Logger by lazy { KotlinLogging.logger { } }
 fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
     batchSize.requirePositiveNumber("batchSize")
 
+    // WHY: jdbcBatchSize getter는 Session이 닫혔거나 연결이 끊어진 상태(disconnected/closed)에서
+    //      예외를 던질 수 있다. runCatching을 사용하면 예외가 무음 처리되므로 명시적 try/catch로
+    //      교체하여 warn 로그를 남기고 안전한 기본값(0)으로 폴백한다.
     val prevBatchSize = try {
         this.jdbcBatchSize
     } catch (e: Throwable) {
@@ -44,6 +47,9 @@ fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
         this.jdbcBatchSize = batchSize
         block(this)
     } finally {
+        // WHY: finally 블록에서도 jdbcBatchSize setter가 실패할 수 있다(예: block()에서 Session이
+        //      플러시/닫힌 경우). 예외를 바깥으로 던지면 block()에서 발생한 원본 예외가 덮이므로
+        //      runCatching 대신 try/catch로 warn 로그를 남기고 원본 흐름을 유지한다.
         try {
             this.jdbcBatchSize = prevBatchSize
         } catch (e: Throwable) {

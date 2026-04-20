@@ -31,6 +31,9 @@ inline fun <T> EntityManagerFactory.withNewEntityManager(block: (EntityManager) 
             return result
         } catch (e: Throwable) {
             if (em.transaction.isActive) {
+                // WHY: runCatching { rollback() }를 사용하면 롤백 실패가 완전히 무음 처리되어
+                //      디버깅 시 원인 파악이 불가능하다. try/catch로 전환하여 warn 로그를 남기되,
+                //      롤백 예외를 suppress하고 원본 예외(e)를 그대로 전파한다.
                 try {
                     em.transaction.rollback()
                 } catch (rollbackEx: Throwable) {
