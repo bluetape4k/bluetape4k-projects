@@ -44,6 +44,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -71,9 +72,12 @@ import kotlin.coroutines.resumeWithException
 @Threads(8)
 open class HttpClientBenchmark {
 
-    private lateinit var mockServer: MockWebServer
-    private lateinit var baseUrl: String
-    private var mockPort: Int = 0
+    private lateinit var mockServers: List<MockWebServer>
+    private lateinit var baseUrls: List<String>
+    private lateinit var mockPorts: IntArray
+
+    private fun pickUrl(): String = baseUrls[ThreadLocalRandom.current().nextInt(baseUrls.size)]
+    private fun pickPort(): Int = mockPorts[ThreadLocalRandom.current().nextInt(mockPorts.size)]
 
     // clients
     private lateinit var okhttpClient: OkHttpClient
@@ -90,15 +94,14 @@ open class HttpClientBenchmark {
 
     @Setup
     fun setup() {
-        mockServer = MockWebServer().apply {
-            dispatcher = object: Dispatcher() {
-                override fun dispatch(request: RecordedRequest): MockResponse =
-                    MockResponse().setResponseCode(200).setBody("pong")
-            }
-            start()
+        val n = Runtime.getRuntime().availableProcessors()
+        val sharedDispatcher = object: Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse =
+                MockResponse().setResponseCode(200).setBody("pong")
         }
-        mockPort = mockServer.port
-        baseUrl = mockServer.url("/ping").toString()
+        mockServers = List(n) { MockWebServer().apply { dispatcher = sharedDispatcher; start() } }
+        baseUrls = mockServers.map { it.url("/ping").toString() }
+        mockPorts = mockServers.map { it.port }.toIntArray()
 
         okhttpClient = OkHttpClient.Builder()
             .connectTimeout(Duration.ofSeconds(5))
@@ -166,12 +169,12 @@ open class HttpClientBenchmark {
         runCatching { okhttpClient.connectionPool.evictAll() }
         runCatching { okhttpVtClient.dispatcher.executorService.shutdown() }
         runCatching { okhttpVtClient.connectionPool.evictAll() }
-        runCatching { mockServer.shutdown() }
+        mockServers.forEach { runCatching { it.shutdown() } }
     }
 
     @Benchmark
     fun okhttp3Sync(): Int {
-        val request = Request.Builder().url(baseUrl).get().build()
+        val request = Request.Builder().url(pickUrl()).get().build()
         okhttpClient.newCall(request).execute().use { response ->
             response.body.bytes()
             return response.code
@@ -180,21 +183,21 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun javaHttpSync(): Int {
-        val request = HttpRequest.newBuilder(URI.create(baseUrl)).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         val response = jdkClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
         return response.statusCode()
     }
 
     @Benchmark
     fun javaHttpVirtualThread(): Int {
-        val request = HttpRequest.newBuilder(URI.create(baseUrl)).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         val response = jdkVirtualClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
         return response.statusCode()
     }
 
     @Benchmark
     fun hc5Classic(): Int {
-        val request = HttpGet(baseUrl)
+        val request = HttpGet(pickUrl())
         return hc5Classic.execute(request) { response ->
             EntityUtils.consume(response.entity)
             response.code
@@ -205,7 +208,7 @@ open class HttpClientBenchmark {
     @Benchmark
     fun hc5ClassicCoroutines(): Int = runBlocking {
         withContext(Dispatchers.IO) {
-            val request = HttpGet(baseUrl)
+            val request = HttpGet(pickUrl())
             hc5Classic.execute(request) { response ->
                 EntityUtils.consume(response.entity)
                 response.code
@@ -215,7 +218,7 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        val request: SimpleHttpRequest = SimpleRequestBuilder.get(baseUrl).build()
+        val request: SimpleHttpRequest = SimpleRequestBuilder.get(pickUrl()).build()
         val response: SimpleHttpResponse = suspendCancellableCoroutine { cont ->
             val future = hc5Async.execute(
                 request,
@@ -233,7 +236,7 @@ open class HttpClientBenchmark {
     @Benchmark
     fun ahcCoroutines(): Int = runBlocking(Dispatchers.Default) {
         suspendCancellableCoroutine { cont ->
-            val future = ahcClient.prepareGet(baseUrl).execute().toCompletableFuture()
+            val future = ahcClient.prepareGet(pickUrl()).execute().toCompletableFuture()
             future.whenComplete { response, error ->
                 if (error != null) cont.resumeWithException(error)
                 else cont.resume(response.statusCode)
@@ -245,14 +248,14 @@ open class HttpClientBenchmark {
     /** AHC + executeSuspending() + native transport + pool tuning */
     @Benchmark
     fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        ahcOptimizedClient.prepareGet(baseUrl).executeSuspending().statusCode
+        ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
     }
 
     /** Vert.x WebClient + Coroutines — 이벤트 루프 기반 비동기 HTTP */
     @Benchmark
     fun vertxWebClientCoroutines(): Int = runBlocking {
         val response = vertxWebClient
-            .get(mockPort, "localhost", "/ping")
+            .get(pickPort(), "localhost", "/ping")
             .send()
             .coAwait()
         response.statusCode()
@@ -260,7 +263,7 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun okhttp3VirtualThread(): Int {
-        val request = Request.Builder().url(baseUrl).get().build()
+        val request = Request.Builder().url(pickUrl()).get().build()
         okhttpVtClient.newCall(request).execute().use { response ->
             response.body.bytes()
             return response.code
@@ -269,7 +272,7 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun hc5ClassicVirtualThread(): Int {
-        val request = HttpGet(baseUrl)
+        val request = HttpGet(pickUrl())
         return hc5ClassicVt.execute(request) { response ->
             EntityUtils.consume(response.entity)
             response.code
