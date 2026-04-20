@@ -1,3 +1,23 @@
+plugins {
+    kotlin("plugin.allopen")
+    id(Plugins.kotlinx_benchmark)
+}
+
+allOpen {
+    // https://github.com/Kotlin/kotlinx-benchmark
+    annotation("org.openjdk.jmh.annotations.State")
+}
+
+// https://github.com/Kotlin/kotlinx-benchmark
+benchmark {
+    targets {
+        register("test") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = Versions.jmh
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -8,6 +28,11 @@ dependencies {
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
+
+    // Benchmark
+    testImplementation(Libs.kotlinx_benchmark_runtime)
+    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
+    testImplementation(Libs.jmh_core)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
@@ -42,6 +67,7 @@ dependencies {
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
     compileOnly(Libs.vertx_core)
+    compileOnly(Libs.vertx_web_client)
     compileOnly(Libs.vertx_lang_kotlin)
     compileOnly(Libs.vertx_lang_kotlin_coroutines)
 
