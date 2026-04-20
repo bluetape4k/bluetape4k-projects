@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.mysql8.gis
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.io.ByteOrderValues
 import org.locationtech.jts.io.WKBReader
@@ -45,7 +46,9 @@ object MySqlWkbUtils: KLogging() {
         }
         val srid = ByteBuffer.wrap(bytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
         val wkb = bytes.copyOfRange(4, bytes.size)
-        val geometry = WKBReader().read(wkb)
+        val geometry = runCatching { WKBReader().read(wkb) }
+            .onFailure { e -> log.warn(e) { "WKB 파싱 실패: srid=$srid, wkbSize=${wkb.size}" } }
+            .getOrThrow()
         geometry.srid = srid
         return geometry
     }

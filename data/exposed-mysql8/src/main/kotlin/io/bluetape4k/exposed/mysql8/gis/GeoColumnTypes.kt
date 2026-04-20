@@ -1,8 +1,9 @@
 package io.bluetape4k.exposed.mysql8.gis
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.jetbrains.exposed.v1.core.ColumnType
 import org.jetbrains.exposed.v1.core.vendors.MysqlDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
@@ -59,7 +60,8 @@ class GeometryColumnType<T: Geometry>(
 
     init {
         geometryType.requireNotBlank("geometryType")
-        srid.requirePositiveNumber("srid")
+        // SRID 0은 Cartesian SRS로 유효하므로 0 이상을 허용한다
+        srid.requireZeroOrPositiveNumber("srid")
     }
 
     override fun sqlType(): String {
@@ -73,8 +75,11 @@ class GeometryColumnType<T: Geometry>(
     override fun valueFromDB(value: Any): T {
         val geometry = when (value) {
             is ByteArray -> MySqlWkbUtils.parseMySqlInternalGeometry(value)
-            is Geometry -> value
-            else        -> error("지원하지 않는 타입: ${value::class.simpleName}")
+            is Geometry  -> value
+            else         -> {
+                log.warn { "지원하지 않는 DB 값 타입: ${value::class.simpleName}. geometryType=$geometryType" }
+                error("지원하지 않는 타입: ${value::class.simpleName}")
+            }
         }
         // "GEOMETRY" 범용 컬럼은 타입 검증 건너뜀
         if (geometryType.uppercase() != "GEOMETRY") {

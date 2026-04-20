@@ -55,6 +55,9 @@ fun wgs84Point(lng: Double, lat: Double): Point =
  * @param points (lng, lat) 좌표 쌍 목록. 자동으로 닫힘 (첫 좌표 = 마지막 좌표).
  */
 fun wgs84Polygon(vararg points: Pair<Double, Double>): Polygon {
+    require(points.size >= 3) {
+        "Polygon을 만들려면 최소 3개의 좌표가 필요합니다. 제공된 좌표 수: ${points.size}"
+    }
     val coords = points.map { (lng, lat) -> Coordinate(lng, lat) }.toMutableList()
     if (coords.first().x != coords.last().x || coords.first().y != coords.last().y) {
         coords.add(coords.first())
@@ -100,6 +103,9 @@ fun wgs84Rectangle(minLng: Double, minLat: Double, maxLng: Double, maxLat: Doubl
  * @param points (lng, lat) 좌표 쌍 목록
  */
 fun wgs84LineString(vararg points: Pair<Double, Double>): LineString {
+    require(points.size >= 2) {
+        "LineString을 만들려면 최소 2개의 좌표가 필요합니다. 제공된 좌표 수: ${points.size}"
+    }
     val coords = points.map { (lng, lat) -> Coordinate(lng, lat) }.toTypedArray()
     return WGS84_FACTORY.createLineString(coords)
 }
