@@ -1,11 +1,11 @@
 package io.bluetape4k.mockserver.httpbin
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.mockserver.httpbin.model.HttpbinResponse
 import jakarta.servlet.http.HttpServletRequest
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.json.JsonMapper
 
-private val objectMapper = ObjectMapper()
+private val jsonMapper = JsonMapper.builder().build()
 private val mapTypeRef = object: TypeReference<Map<String, Any>>() {}
 
 /**
@@ -45,7 +45,7 @@ fun HttpServletRequest.toHttpbinResponse(body: String? = null, method: String? =
     } else emptyMap()
 
     val jsonData: Map<String, Any>? = if (isJson && !body.isNullOrBlank()) {
-        runCatching { objectMapper.readValue(body, mapTypeRef) }.getOrNull()
+        runCatching { jsonMapper.readValue(body, mapTypeRef) }.getOrNull()
     } else null
 
     return HttpbinResponse(

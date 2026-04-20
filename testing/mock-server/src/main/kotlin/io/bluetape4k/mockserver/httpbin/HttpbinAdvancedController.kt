@@ -114,7 +114,8 @@ class HttpbinAdvancedController {
             } else {
                 ResponseEntity.status(401).build()
             }
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
+            // Base64 디코딩 실패 또는 ":" 구분자 없음
             ResponseEntity.status(401).build()
         }
     }

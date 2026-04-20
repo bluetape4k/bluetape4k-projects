@@ -9,6 +9,8 @@ import io.bluetape4k.mockserver.jsonplaceholder.model.PostRecord
 import io.bluetape4k.mockserver.jsonplaceholder.model.TodoRecord
 import io.bluetape4k.mockserver.jsonplaceholder.model.UserRecord
 import org.springframework.stereotype.Service
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * jsonplaceholder 인메모리 데이터 서비스.
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service
 @Service
 class JsonplaceholderService(private val fixtureLoader: FixtureLoader) {
     companion object : KLogging()
+
+    private val reloadLock = ReentrantLock()
 
     /** 게시글 저장소 */
     val posts = InMemoryRepository<PostRecord>({ it.id }, { item, id -> item.copy(id = id) })
@@ -43,8 +47,8 @@ class JsonplaceholderService(private val fixtureLoader: FixtureLoader) {
     /**
      * fixture 파일에서 모든 데이터를 원자적으로 재적재한다.
      *
-     * 모든 fixture를 먼저 로컬에 로드한 후 synchronized 블록 안에서 일괄 교체하여
-     * 부분 업데이트 상태를 방지한다.
+     * 모든 fixture를 먼저 로컬에 로드한 후 [ReentrantLock] 안에서 일괄 교체하여
+     * 부분 업데이트 상태를 방지한다. Virtual Thread 환경에서도 안전하게 동작한다.
      * 로드 단계에서 예외 발생 시 기존 데이터는 변경되지 않는다.
      */
     fun reloadFromFixtures() {
@@ -58,8 +62,8 @@ class JsonplaceholderService(private val fixtureLoader: FixtureLoader) {
         val newTodos = fixtureLoader.load("jsonplaceholder/todos.json", TodoRecord::class.java)
         val newUsers = fixtureLoader.load("jsonplaceholder/users.json", UserRecord::class.java)
 
-        // 2단계: 원자적 교체
-        synchronized(this) {
+        // 2단계: 원자적 교체 (ReentrantLock — Virtual Thread 호환)
+        reloadLock.withLock {
             posts.loadAll(newPosts)
             comments.loadAll(newComments)
             albums.loadAll(newAlbums)

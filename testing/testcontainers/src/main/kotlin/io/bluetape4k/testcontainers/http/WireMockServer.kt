@@ -137,8 +137,12 @@ class WireMockServer private constructor(
      * @param mappingBuilder 등록할 stub 설정 빌더
      * @return 등록된 [StubMapping] 인스턴스
      */
-    fun stubFor(mappingBuilder: MappingBuilder): StubMapping =
-        wireMockClient!!.register(mappingBuilder)
+    fun stubFor(mappingBuilder: MappingBuilder): StubMapping {
+        val client = checkNotNull(wireMockClient) {
+            "WireMockServer가 아직 시작되지 않았습니다. start()를 먼저 호출하세요."
+        }
+        return client.register(mappingBuilder)
+    }
 
     /**
      * 등록된 모든 stub과 요청 기록을 초기화합니다.
@@ -155,14 +159,18 @@ class WireMockServer private constructor(
      * ```
      */
     fun resetAll() {
+        val client = checkNotNull(wireMockClient) {
+            "WireMockServer가 아직 시작되지 않았습니다. start()를 먼저 호출하세요."
+        }
         try {
-            wireMockClient!!.resetMappings()
-            wireMockClient!!.resetRequests()
+            client.resetMappings()
+            client.resetRequests()
         } catch (e: Exception) {
             log.warn(e) { "resetAll() 실패, WireMock 클라이언트 재생성 후 재시도합니다." }
-            wireMockClient = WireMock(host, port)
-            wireMockClient!!.resetMappings()
-            wireMockClient!!.resetRequests()
+            val newClient = WireMock(host, port)
+            wireMockClient = newClient
+            newClient.resetMappings()
+            newClient.resetRequests()
         }
     }
 

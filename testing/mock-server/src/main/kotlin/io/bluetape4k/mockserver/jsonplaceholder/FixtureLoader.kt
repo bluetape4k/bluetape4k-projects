@@ -29,6 +29,8 @@ class FixtureLoader(private val jsonMapper: JsonMapper) {
     fun <T> load(resourcePath: String, elementType: Class<T>): List<T> {
         val resource = ClassPathResource(resourcePath)
         val listType = jsonMapper.typeFactory.constructCollectionType(List::class.java, elementType)
-        return jsonMapper.readValue(resource.inputStream, listType)
+        return resource.inputStream.use { inputStream ->
+            jsonMapper.readValue(inputStream, listType)
+        }
     }
 }
