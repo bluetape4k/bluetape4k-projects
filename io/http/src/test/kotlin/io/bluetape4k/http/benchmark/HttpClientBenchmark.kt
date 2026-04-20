@@ -36,6 +36,7 @@ import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
 import org.apache.hc.client5.http.impl.classic.HttpClients
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.asynchttpclient.DefaultAsyncHttpClient
@@ -147,7 +148,14 @@ open class HttpClientBenchmark {
             .connectTimeout(Duration.ofSeconds(5))
             .build()
 
-        hc5Classic = HttpClients.createDefault()
+        hc5Classic = HttpClients.custom()
+            .setConnectionManager(
+                PoolingHttpClientConnectionManagerBuilder.create()
+                    .setMaxConnTotal(500)
+                    .setMaxConnPerRoute(200)
+                    .build()
+            )
+            .build()
 
         hc5ClassicVt = virtualThreadHttpClientOf()
 
