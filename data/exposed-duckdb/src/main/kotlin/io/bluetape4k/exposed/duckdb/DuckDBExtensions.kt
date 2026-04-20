@@ -1,7 +1,10 @@
 package io.bluetape4k.exposed.duckdb
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -11,6 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 /**
  * DuckDB에서 suspend 트랜잭션을 실행합니다.
+ *
+ * 코루틴 취소([CancellationException])는 항상 상위로 재전파됩니다.
  *
  * ```kotlin
  * val db = DuckDBDatabase.file("/tmp/analytics.db")
@@ -48,6 +53,9 @@ suspend fun <T> suspendTransaction(
  * 중간 규모 결과를 코루틴 파이프라인으로 연결할 때 적합하며,
  * 매우 큰 결과셋은 페이지네이션 또는 전용 배치 전략을 별도로 고려해야 합니다.
  *
+ * 각 emit 전에 [currentCoroutineContext]의 활성 상태를 확인하여 코루틴 취소 시
+ * [CancellationException]을 즉시 전파합니다.
+ *
  * ```kotlin
  * val db = DuckDBDatabase.file("/tmp/analytics.db")
  *
@@ -69,5 +77,8 @@ fun <T> queryFlow(
     block: Transaction.() -> Iterable<T>,
 ): Flow<T> = flow {
     val items = withContext(dispatcher) { transaction(db) { block().toList() } }
-    items.forEach { emit(it) }
+    for (item in items) {
+        currentCoroutineContext().ensureActive()
+        emit(item)
+    }
 }
