@@ -101,7 +101,7 @@ open class HttpClientBenchmark {
         val n = Runtime.getRuntime().availableProcessors()
         val sharedDispatcher = object: Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse =
-                MockResponse().setResponseCode(200).setBody("pong")
+                MockResponse().setResponseCode(200)
         }
         mockServers = List(n) { MockWebServer().apply { dispatcher = sharedDispatcher; start() } }
         baseUrls = mockServers.map { it.url("/ping").toString() }
