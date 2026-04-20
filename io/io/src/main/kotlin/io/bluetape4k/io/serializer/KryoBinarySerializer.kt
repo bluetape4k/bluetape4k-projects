@@ -57,6 +57,20 @@ class KryoBinarySerializer(
          *
          * @param classes 직렬화를 허용할 사용자 정의 클래스 목록
          */
+        /**
+         * [FieldSerializer] 기반 고성능 [KryoBinarySerializer]를 반환합니다.
+         *
+         * 스키마가 변경되지 않는 고정 타입 DTO에 적합합니다.
+         * [CompatibleFieldSerializer]의 필드별 청크 헤더 오버헤드를 제거하여 처리량을 향상합니다.
+         */
+        @JvmStatic
+        fun fast(): KryoBinarySerializer {
+            val pool = object: Pool<Kryo>(true, false, 1024) {
+                override fun create(): Kryo = KryoProvider.createFastKryo()
+            }
+            return KryoBinarySerializer(kryoPool = pool)
+        }
+
         @JvmStatic
         fun secure(vararg classes: Class<*>): KryoBinarySerializer {
             val pool = object: Pool<Kryo>(true, false, 1024) {
