@@ -10,6 +10,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeGreaterThan
+import org.redisson.client.codec.StringCodec
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -34,6 +35,10 @@ class RedissonConcurrencyBenchmark {
         private const val MEASUREMENT_PASSES = 3
         private const val KEY_PREFIX = "benchmark:"
 
+        private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+            Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+        }
+
         private val OUTPUT_FILE: File by lazy {
             // user.dir = <repo-root>/infra/redisson — 2단계 상위가 프로젝트 루트
             val moduleDir = File(System.getProperty("user.dir") ?: ".")
@@ -57,7 +62,7 @@ class RedissonConcurrencyBenchmark {
                     async {
                         try {
                             val batch = redisson.createBatch()
-                            val batchMap = batch.getMap<String, String>(map.name)
+                            val batchMap = batch.getMap<String, String>(map.name, StringCodec.INSTANCE)
                             repeat(OPS_PER_COROUTINE) { opIdx ->
                                 val key = "w$coroutineId-op$opIdx"
                                 batchMap.fastPutAsync(key, "v${System.nanoTime()}")
@@ -98,9 +103,9 @@ class RedissonConcurrencyBenchmark {
                         async {
                             try {
                                 val batch = redisson.createBatch()
-                                val batchMap = batch.getMap<String, String>(map.name)
+                                val batchMap = batch.getMap<String, String>(map.name, StringCodec.INSTANCE)
                                 repeat(OPS_PER_COROUTINE) { opIdx ->
-                                    val key = "c$coroutineId-op$opIdx"
+                                    val key = KEY_POOL[coroutineId][opIdx]
                                     batchMap.fastPutAsync(key, "v${System.nanoTime()}")
                                     batchMap.getAsync(key)
                                 }
