@@ -185,4 +185,44 @@ class AuditableEntityTest: AbstractExposedTest() {
             article.hashCode() shouldBeEqualTo reloaded.hashCode()
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `UserContext 없이 생성 시 createdBy 는 DEFAULT_USERNAME 으로 설정된다`(testDB: TestDB) {
+        // UserContext 가 설정되지 않은 상태에서 엔티티를 생성하면
+        // UserContext.DEFAULT_USERNAME("system")이 fallback 으로 사용되어야 한다
+        withTables(testDB, Articles) {
+            val article = Article.new {
+                title = "기본 사용자 아티클"
+            }
+            flushCache()
+            entityCache.clear()
+
+            val loaded = Article.findById(article.id)!!
+            loaded.createdBy shouldBeEqualTo UserContext.DEFAULT_USERNAME
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `변경 없이 flush 호출 시 updatedBy 는 설정되지 않는다`(testDB: TestDB) {
+        // 엔티티 프로퍼티를 변경하지 않고 flush() 를 호출해도
+        // writeValues 가 비어 있으므로 updatedBy 가 설정되어서는 안 된다
+        withTables(testDB, Articles) {
+            val article = Article.new {
+                title = "수정 없는 아티클"
+            }
+            flushCache()
+            entityCache.clear()
+
+            val loaded = Article.findById(article.id)!!
+            // 프로퍼티 수정 없이 flush 만 호출
+            loaded.flush()
+            entityCache.clear()
+
+            val reloaded = Article.findById(article.id)!!
+            reloaded.updatedBy.shouldBeNull()
+            reloaded.updatedAt.shouldBeNull()
+        }
+    }
 }

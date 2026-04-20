@@ -59,17 +59,35 @@ abstract class AuditableEntity<ID: Any>(id: EntityID<ID>): Entity<ID>(id), Audit
     /**
      * 엔티티를 DB에 플러시합니다.
      *
+     * ## 신규/수정 판별 전략
+     * `createdAt == null`을 새 엔티티 판별에 사용합니다.
+     * [io.bluetape4k.exposed.core.auditable.AuditableIdTable]의 `createdAt`은
+     * `defaultExpression(CurrentTimestamp)`로 선언되어 있어 DB INSERT 이전에는 항상 `null`입니다.
+     * INSERT 완료 후 DB에서 값을 읽어오면 non-null이 되므로, 이 플래그는 안정적으로 신규/기존을 구분합니다.
+     *
+     * ## writeValues 체크 주의사항
+     * `writeValues.isNotEmpty()` 조건으로 변경된 필드가 있을 때만 `updatedBy`를 설정합니다.
+     * `updatedBy = user` 대입 자체도 `writeValues`에 추가되지만, 이는 의도된 동작입니다.
+     * 이 값은 실제 UPDATE SQL에 포함되어 수정자 정보가 DB에 영속됩니다.
+     *
+     * ## UserContext 안전성
+     * [UserContext.getCurrentUser()]는 `ScopedValue` → `ThreadLocal` → `"system"` 순으로 폴백하므로
+     * 항상 non-null 문자열을 반환합니다. null 반환 가능성이 없어 `!!` 없이 안전하게 사용 가능합니다.
+     *
      * - 신규 엔티티(`createdAt == null`): `createdBy`를 [UserContext.getCurrentUser()]로 설정합니다.
      *   `createdAt`은 [io.bluetape4k.exposed.core.auditable.AuditableIdTable]의
      *   `defaultExpression(CurrentTimestamp)`이 DB INSERT 시 자동 설정합니다.
      * - 기존 엔티티 수정(`writeValues.isNotEmpty()`): `updatedBy`를 [UserContext.getCurrentUser()]로 설정합니다.
      *   `updatedAt`은 `AuditableJdbcRepository.auditedUpdateById()` 호출 시에만 설정됩니다.
+     * - 변경 없음(`writeValues.isEmpty()` + 기존 엔티티): `super.flush()`가 false를 반환하고 DB IO 없음.
      *
      * @param batch 배치 업데이트 컨텍스트 (없으면 단건 처리)
      * @return 실제 DB 쓰기가 발생하면 `true`, 변경 없으면 `false`
      */
     override fun flush(batch: EntityBatchUpdate?): Boolean {
+        // createdAt은 DB INSERT 후에만 non-null이 됨 — 신규 엔티티 판별의 안정적 기준
         val isNew = createdAt == null
+        // getCurrentUser()는 ScopedValue > ThreadLocal > "system" 순으로 항상 non-null 반환
         val user = UserContext.getCurrentUser()
 
         if (isNew) {
@@ -77,6 +95,7 @@ abstract class AuditableEntity<ID: Any>(id: EntityID<ID>): Entity<ID>(id), Audit
             createdBy = user
             // createdAt은 AuditableIdTable의 defaultExpression(CurrentTimestamp)이 DB INSERT 시 자동 설정
         } else if (writeValues.isNotEmpty()) {
+            // 변경된 필드가 있을 때만 updatedBy를 설정해 불필요한 UPDATE를 방지
             log.debug { "엔티티 수정: updatedBy=$user 설정" }
             updatedBy = user
             // updatedAt은 AuditableJdbcRepository.auditedUpdateById()에서 CurrentTimestamp로 설정
