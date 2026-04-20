@@ -4,6 +4,8 @@ import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapLoader
 import io.bluetape4k.exposed.lettuce.map.ExposedEntityMapWriter
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
 import io.bluetape4k.redis.lettuce.map.WriteMode
@@ -56,6 +58,7 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
     client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ): JdbcLettuceRepository<ID, E> {
+    companion object: KLogging()
     abstract override val table: IdTable<ID>
 
     abstract override fun ResultRow.toEntity(): E
@@ -149,9 +152,10 @@ abstract class AbstractJdbcLettuceRepository<ID: Any, E: Serializable>(
                         offset?.let { offset(it) }
                     }.map { with(this@AbstractJdbcLettuceRepository) { it.toEntity() } }
             }
-        // 조회 결과를 캐시에 적재
+        // 조회 결과를 캐시에 적재 (Redis 장애 시에도 DB 조회 결과는 반환해야 하므로 예외를 캐치한다)
         entities.forEach { entity ->
             runCatching { cache[extractId(entity)] = entity }
+                .onFailure { e -> log.warn(e) { "캐시 적재 실패: id=${extractId(entity)}" } }
         }
         return entities
     }

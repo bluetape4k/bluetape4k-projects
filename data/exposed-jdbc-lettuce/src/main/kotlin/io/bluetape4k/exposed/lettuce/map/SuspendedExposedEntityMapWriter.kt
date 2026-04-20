@@ -25,7 +25,8 @@ import java.time.Duration
  *     updateEntity = { stmt, e -> stmt[ActorTable.name] = e.name },
  *     insertEntity = { stmt, e -> stmt[ActorTable.name] = e.name }
  * )
- * runBlocking { writer.write(mapOf(1L to ActorRecord(id = 1L, name = "Alice"))) }
+ * // suspend 컨텍스트(예: runTest, coroutineScope)에서 호출한다
+ * writer.write(mapOf(1L to ActorRecord(id = 1L, name = "Alice")))
  * ```
  *
  * @param ID PK 타입
@@ -72,7 +73,9 @@ class SuspendedExposedEntityMapWriter<ID: Any, E: Any>(
                 .toSet()
 
         existingIds.forEach { id ->
-            table.update({ table.id eq id }) { updateEntity(it, map[id]!!) }
+            // id는 map.keys에서 추출되었으므로 반드시 존재한다
+            val entity = requireNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+            table.update({ table.id eq id }) { updateEntity(it, entity) }
         }
 
         // AutoInc 테이블의 경우 DB가 ID를 할당하므로 클라이언트 지정 ID로 삽입하지 않는다
@@ -80,7 +83,11 @@ class SuspendedExposedEntityMapWriter<ID: Any, E: Any>(
         val newIds = map.keys - existingIds
         if (newIds.isNotEmpty() && !isAutoInc) {
             newIds.chunked(chunkSize).forEach { chunk ->
-                table.batchInsert(chunk) { id -> insertEntity(this, map[id]!!) }
+                table.batchInsert(chunk) { id ->
+                    // id는 map.keys에서 추출되었으므로 반드시 존재한다
+                    val entity = requireNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+                    insertEntity(this, entity)
+                }
             }
         }
     }
