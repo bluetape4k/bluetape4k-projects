@@ -59,6 +59,8 @@ class ByteArrayTinkAeadEncryptionTransformer(
     private val encryptor: TinkAead = TinkAeads.AES256_GCM,
 ): ColumnTransformer<ByteArray, ByteArray> {
 
+    // ByteArrayTinkDaeadEncryptionTransformer 등 다른 Transformer 클래스와 동일하게
+    // KLogging companion object를 추가해 암복호화 실패 등 이상 동작을 로그로 추적할 수 있도록 합니다.
     companion object: KLogging()
 
     /**
