@@ -6,6 +6,7 @@ import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
+import kotlinx.coroutines.CancellationException
 
 /**
  * [SuspendNearCacheOperations] Resilience Decorator (Coroutine Suspend).
@@ -55,6 +56,10 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
     override suspend fun get(key: String): V? =
         try {
             retry.executeSuspendFunction { delegate.get(key) }
+        } catch (e: CancellationException) {
+            // CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 한다.
+            // catch(e: Exception)이 이를 삼키면 코루틴이 취소되지 않고 좀비 상태가 된다.
+            throw e
         } catch (e: Exception) {
             when (config.getFailureStrategy) {
                 GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
@@ -70,6 +75,9 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
     override suspend fun getAll(keys: Set<String>): Map<String, V> =
         try {
             retry.executeSuspendFunction { delegate.getAll(keys) }
+        } catch (e: CancellationException) {
+            // CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 한다.
+            throw e
         } catch (e: Exception) {
             when (config.getFailureStrategy) {
                 GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
@@ -85,6 +93,9 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
     override suspend fun containsKey(key: String): Boolean =
         try {
             retry.executeSuspendFunction { delegate.containsKey(key) }
+        } catch (e: CancellationException) {
+            // CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 한다.
+            throw e
         } catch (e: Exception) {
             when (config.getFailureStrategy) {
                 GetFailureStrategy.RETURN_FRONT_OR_NULL -> {
