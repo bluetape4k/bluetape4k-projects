@@ -74,7 +74,12 @@ fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
  * ```
  */
 fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
-    return this.metamodel.entity(entityClass)?.name
+    return try {
+        this.metamodel.entity(entityClass)?.name
+    } catch (_: IllegalArgumentException) {
+        // entityClass가 JPA 엔티티가 아닌 경우 IllegalArgumentException이 발생합니다.
+        null
+    }
 }
 
 /**

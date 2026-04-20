@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
@@ -31,14 +32,23 @@ private val log: Logger by lazy { KotlinLogging.logger { } }
 fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
     batchSize.requirePositiveNumber("batchSize")
 
-    val prevBatchSize = runCatching { this.jdbcBatchSize }.getOrNull() ?: 0
+    val prevBatchSize = try {
+        this.jdbcBatchSize
+    } catch (e: Throwable) {
+        log.warn(e) { "jdbcBatchSize 읽기 실패, 기본값 0을 사용합니다." }
+        0
+    }
 
     return try {
         log.debug { "Batch size[$batchSize]를 적용하여 작업을 수행합니다 ..." }
         this.jdbcBatchSize = batchSize
         block(this)
     } finally {
-        runCatching { this.jdbcBatchSize = prevBatchSize }
+        try {
+            this.jdbcBatchSize = prevBatchSize
+        } catch (e: Throwable) {
+            log.warn(e) { "jdbcBatchSize 복원 실패. prevBatchSize=$prevBatchSize" }
+        }
     }
 }
 
