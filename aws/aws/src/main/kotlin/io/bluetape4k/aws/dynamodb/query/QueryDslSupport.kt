@@ -37,12 +37,13 @@ class QueryRequestBuilderDSL {
         primaryKey.requireNotNull("primaryKey")
 
         val request = QueryRequest.builder().tableName(tableName)
-        val pk = primaryKey!!
+        // WHY: requireNotNull 위에서 이미 null이면 예외를 던지므로 !! 대신 안전한 캐스트 사용
+        val pk = checkNotNull(primaryKey) { "primaryKey must not be null" }
 
         if (sortKey == null) {
             request.keyConditions(mapOf(pk.keyName to pk.equals.toCondition()))
         } else {
-            val sk = sortKey!!
+            val sk = checkNotNull(sortKey) { "sortKey must not be null" }
             request.keyConditions(
                 mapOf(
                     pk.keyName to pk.equals.toCondition(),

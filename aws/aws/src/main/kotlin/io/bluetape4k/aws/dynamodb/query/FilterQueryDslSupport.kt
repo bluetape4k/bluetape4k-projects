@@ -223,7 +223,9 @@ class ConcreteFilterBuilder: FilterQueryBuilder {
     var comparator: DynamoComparator? = null
 
     override fun build(): FilterQuery {
-        return ConcreteFilter(dynamoFunction!!, comparator)
+        // WHY: DSL 빌더에서 dynamoFunction이 설정되지 않으면 명확한 메시지로 실패하도록 함
+        val function = checkNotNull(dynamoFunction) { "dynamoFunction must be set before building filter" }
+        return ConcreteFilter(function, comparator)
     }
 }
 
@@ -298,12 +300,15 @@ class RootFilterBuilder: FilterQueryBuilder {
 
     @Suppress("UNUSED_PARAMETER")
     infix fun and(value: RootFilterBuilder): RootFilterBuilder = apply {
-        filterQueries.add(FilterConnection(this.currentFilter!!, FilterBooleanConnection.AND))
+        // WHY: currentFilter가 null이면 and/or 연결이 불가하므로 명확한 에러 메시지 제공
+        val filter = checkNotNull(currentFilter) { "currentFilter must be set before connecting with AND" }
+        filterQueries.add(FilterConnection(filter, FilterBooleanConnection.AND))
     }
 
     @Suppress("UNUSED_PARAMETER")
     infix fun or(value: RootFilterBuilder): RootFilterBuilder = apply {
-        filterQueries.add(FilterConnection(this.currentFilter!!, FilterBooleanConnection.OR))
+        val filter = checkNotNull(currentFilter) { "currentFilter must be set before connecting with OR" }
+        filterQueries.add(FilterConnection(filter, FilterBooleanConnection.OR))
     }
 }
 

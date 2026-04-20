@@ -77,7 +77,8 @@ class EnhancedQueryBuilderKt<T: Any> {
         log.debug { "Start query ...  primaryKey=$primaryKey, sortKey=$sortKey" }
         primaryKey.requireNotNull("primaryKey")
 
-        val pk = primaryKey!!
+        // WHY: requireNotNull 위에서 이미 null이면 예외를 던지므로 !! 대신 안전한 캐스트 사용
+        val pk = checkNotNull(primaryKey) { "primaryKey must not be null" }
 
         return QueryEnhancedRequest {
             val conditional =

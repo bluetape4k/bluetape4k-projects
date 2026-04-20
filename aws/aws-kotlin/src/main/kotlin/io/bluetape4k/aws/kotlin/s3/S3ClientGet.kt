@@ -354,13 +354,18 @@ suspend inline fun S3Client.tryGetBucketPolicy(
     expectedBucketOwner: String? = null,
     crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
 ): String? {
-    return runCatching {
+    // WHY: runCatching은 CancellationException을 삼키므로 suspend 함수에서 사용하면 안 됨
+    return try {
         getBucketPolicy {
             this.bucket = bucketName
             this.expectedBucketOwner = expectedBucketOwner
             builder()
         }.policy
-    }.getOrNull()
+    } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        null
+    }
 }
 
 @PublishedApi
