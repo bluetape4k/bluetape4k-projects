@@ -133,6 +133,7 @@ classDiagram
 | `filters/CaptionFilterSupport.kt`              | Caption filter                           |
 | `filters/PaddingSupport.kt`                    | Padding filter                           |
 | `filters/WatermarkFilterType.kt`               | Watermark type (COVER/STAMP)             |
+| `similarity/ImageSimilarity.kt`                | Image similarity metrics (pixel Δ/MSE/PSNR/SSIM/pHash) |
 | `fonts/FontSupport.kt`                         | Font utilities                           |
 | `coroutines/SuspendImageWriter.kt`             | Async image writer interface             |
 | `coroutines/SuspendJpegWriter.kt`              | Async JPEG writer                        |
@@ -347,6 +348,42 @@ immutableImage.useGraphics { graphics ->
     graphics.drawRect(10, 10, 100, 100)
 }
 ```
+
+### Image Similarity Comparison
+
+Environment-independent image regression testing, duplicate detection, and compression-quality metrics.
+
+```kotlin
+import io.bluetape4k.images.*
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// Pixel-level comparison
+a.pixelAvgDeltaTo(b)   // Avg per-channel RGB delta (0.0 ~ 255.0, 0 = identical)
+a.pixelMaxDeltaTo(b)   // Max per-channel RGB delta (0 ~ 255)
+
+// Statistical metrics
+a.mseTo(b)             // Mean Squared Error
+a.psnrTo(b)            // Peak SNR dB (≥ 30 good, ≥ 40 near-identical, +∞ if identical)
+a.ssimTo(b)            // Structural Similarity (-1.0 ~ 1.0, ≥ 0.95 visually indistinguishable)
+
+// Perceptual hash (robust to resize / JPEG recompression)
+a.phash()                      // 64-bit Long
+a.phashDistanceTo(b)           // Hamming distance 0 ~ 64 (≤ 5 near-identical, ≤ 10 similar)
+hammingDistance(a.phash(), b.phash())
+```
+
+| Metric               | Use case                                  | Identical |
+|----------------------|-------------------------------------------|-----------|
+| `pixelAvgDeltaTo`    | Byte-level regression testing (tolerance) | 0.0       |
+| `pixelMaxDeltaTo`    | Single-pixel outlier detection            | 0         |
+| `psnrTo`             | JPEG/WebP compression quality             | +∞        |
+| `ssimTo`             | Perceptual similarity (resize/filter-tolerant) | 1.0    |
+| `phashDistanceTo`    | Duplicate / crop / resize detection       | 0         |
+
+> SSIM here is a global (whole-image) luminance-based implementation. Consider a dedicated 11×11 sliding window MSSIM if you need finer spatial sensitivity.
 
 ### Converting Animated GIF to WebP
 

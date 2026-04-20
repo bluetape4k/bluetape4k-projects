@@ -134,6 +134,7 @@ classDiagram
 | `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
 | `filters/PaddingSupport.kt`                          | 패딩 필터                         |
 | `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
+| `similarity/ImageSimilarity.kt`                      | 이미지 유사도 지표 (픽셀 Δ/MSE/PSNR/SSIM/pHash) |
 | `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
 | `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
 | `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
@@ -357,6 +358,42 @@ immutableImage.useGraphics { graphics ->
     graphics.drawRect(10, 10, 100, 100)
 }
 ```
+
+### 이미지 유사도 비교
+
+환경 독립적인 이미지 회귀 테스트, 중복 탐지, 압축 품질 평가용 지표 모음입니다.
+
+```kotlin
+import io.bluetape4k.images.*
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// 픽셀 단위 비교
+a.pixelAvgDeltaTo(b)   // 채널당 평균 RGB 차이 (0.0 ~ 255.0, 0이 동일)
+a.pixelMaxDeltaTo(b)   // 채널당 최대 RGB 차이 (0 ~ 255)
+
+// 통계 기반 지표
+a.mseTo(b)             // Mean Squared Error
+a.psnrTo(b)            // Peak SNR dB (≥ 30 양호, ≥ 40 거의 동일, 동일시 +∞)
+a.ssimTo(b)            // Structural Similarity (-1.0 ~ 1.0, ≥ 0.95 거의 구분 불가)
+
+// 지각 해시 (크기 변화·JPEG 재압축에 견고)
+a.phash()                      // 64bit Long
+a.phashDistanceTo(b)           // Hamming distance 0 ~ 64 (≤ 5 거의 동일, ≤ 10 유사)
+hammingDistance(a.phash(), b.phash())
+```
+
+| 지표                  | 용도                            | 완전 동일 |
+|---------------------|-------------------------------|-------|
+| `pixelAvgDeltaTo`   | 바이트 단위 회귀 테스트 (허용 오차 비교)      | 0.0   |
+| `pixelMaxDeltaTo`   | 단일 픽셀 이상치 탐지                  | 0     |
+| `psnrTo`            | JPEG/WebP 압축 품질 평가            | +∞    |
+| `ssimTo`            | 인지적 유사도 (리사이즈·필터 민감도 낮음)      | 1.0   |
+| `phashDistanceTo`   | 중복 이미지·크롭·리사이즈 탐지             | 0     |
+
+> SSIM은 전역(global) 휘도 기반 구현입니다. 정교한 11×11 sliding window MSSIM이 필요하면 별도 구현을 고려하세요.
 
 ### 애니메이션 GIF → WebP 변환
 
