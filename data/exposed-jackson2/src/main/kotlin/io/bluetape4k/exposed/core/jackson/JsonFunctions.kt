@@ -66,7 +66,10 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         T::class,
         defaultType = JacksonColumnType(
             { serializer.serializeAsString(it) },
-            // null 반환은 잘못된 JSON 또는 타입 불일치를 의미하므로, 명확한 메시지로 즉시 실패시킵니다.
+            // WHY: `!!` 대신 requireNotNull을 사용하는 이유 —
+        //   ① JSON extract 결과의 null은 경로 불일치 또는 타입 변환 실패를 의미하므로,
+        //      NPE보다 IllegalArgumentException으로 호출자에게 명시적 계약 위반을 알립니다.
+        //   ② 어떤 JSON에서 어떤 타입으로 실패했는지 메시지에 포함해 쿼리 디버깅을 돕습니다.
             {
                 requireNotNull(serializer.deserializeFromString<T>(it)) {
                     "JSON extract 역직렬화 결과가 null입니다. 타입 [${T::class.qualifiedName}] 으로 변환할 수 없는 JSON 입니다: $it"
