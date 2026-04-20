@@ -56,11 +56,15 @@ class RedissonConcurrencyBenchmark {
                 (1..CONCURRENCY).map { coroutineId ->
                     async {
                         repeat(OPS_PER_COROUTINE) { opIdx ->
-                            runCatching {
+                            try {
                                 val key = "w$coroutineId-op$opIdx"
-                                map.put(key, "value-$key-${System.nanoTime()}")
-                                map.get(key)
+                                val batch = redisson.createBatch()
+                                batch.getMap<String, String>(map.name).fastPutAsync(key, "v${System.nanoTime()}")
+                                batch.getMap<String, String>(map.name).getAsync(key)
+                                batch.execute()
                                 warmupOps.incrementAndGet()
+                            } catch (e: Exception) {
+                                // warmup 단계에서는 오류 무시
                             }
                         }
                     }
@@ -92,12 +96,14 @@ class RedissonConcurrencyBenchmark {
                     (1..CONCURRENCY).map { coroutineId ->
                         async {
                             repeat(OPS_PER_COROUTINE) { opIdx ->
-                                runCatching {
+                                try {
                                     val key = "c$coroutineId-op$opIdx"
-                                    map.put(key, "value-$key-${System.nanoTime()}")
-                                    map.get(key)
+                                    val batch = redisson.createBatch()
+                                    batch.getMap<String, String>(map.name).fastPutAsync(key, "v${System.nanoTime()}")
+                                    batch.getMap<String, String>(map.name).getAsync(key)
+                                    batch.execute()
                                     successOps.incrementAndGet()
-                                }.onFailure {
+                                } catch (e: Exception) {
                                     errorOps.incrementAndGet()
                                 }
                             }
