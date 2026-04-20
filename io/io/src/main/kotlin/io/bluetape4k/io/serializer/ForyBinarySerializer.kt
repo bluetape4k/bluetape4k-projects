@@ -69,8 +69,29 @@ class ForyBinarySerializer(
         /**
          * SCHEMA_CONSISTENT + refTracking 비활성화로 최적화된 [ForyBinarySerializer]를 반환합니다.
          *
-         * 스키마 변경이 없는 고정 타입 DTO 직렬화에 적합합니다.
-         * COMPATIBLE 모드 대비 필드명 오버헤드와 레퍼런스 추적 비용 모두 제거.
+         * 기본 [ForyBinarySerializer] 대비 처리량이 약 +70% 향상됩니다.
+         *
+         * ## 적합한 사용 사례
+         * - Redis·메시지큐 등 **휘발성** 캐시: 데이터 수명이 배포 단위와 같아 포맷 변경이 무해합니다.
+         * - 클래스 구조가 변경되지 않는 **고정 스키마** DTO.
+         * - 순환 참조 없는 **DAG** 형태의 객체 그래프.
+         *
+         * ## 사용하면 안 되는 경우
+         * - **영속화된 바이너리 데이터** (DB·파일 저장): SCHEMA_CONSISTENT 포맷은 기본 COMPATIBLE 포맷과
+         *   호환되지 않아 기존 데이터를 역직렬화할 수 없습니다.
+         * - **순환 참조** 객체 (`refTracking=false`): 무한 루프 또는 스택 오버플로우가 발생합니다.
+         * - 런타임에 **필드가 추가·제거**되는 스키마 진화가 필요한 경우.
+         *
+         * ```kotlin
+         * // ✅ 올바른 사용: 휘발성 캐시, 고정 스키마 DTO
+         * val serializer = ForyBinarySerializer.fast()
+         * val bytes = serializer.serialize(myDto)
+         *
+         * // ❌ 잘못된 사용: 기본 Fory로 직렬화한 데이터를 fast()로 역직렬화 시도
+         * val legacy = ForyBinarySerializer()   // COMPATIBLE 모드
+         * val legacyBytes = legacy.serialize(myDto)
+         * serializer.deserialize<MyDto>(legacyBytes) // 오류 또는 잘못된 결과
+         * ```
          */
         @JvmStatic
         fun fast(): ForyBinarySerializer = ForyBinarySerializer(FastFory)

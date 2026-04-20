@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer
 import com.esotericsoftware.kryo.serializers.EnumNameSerializer
+import com.esotericsoftware.kryo.serializers.FieldSerializer
 import com.esotericsoftware.kryo.serializers.JavaSerializer
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
 import com.esotericsoftware.kryo.util.Pool
@@ -148,6 +149,41 @@ object KryoProvider: KLogging() {
      * > 신뢰할 수 없는 데이터 소스에서 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
      * > 보안이 중요한 환경에서는 `isRegistrationRequired = true`로 변경하고 허용할 클래스를 명시적으로 등록하세요.
      */
+    /**
+     * 스키마 고정 DTO 전용 고성능 [Kryo] 인스턴스를 생성합니다.
+     *
+     * [FieldSerializer] 사용으로 [CompatibleFieldSerializer]의 필드별 청크 헤더 오버헤드를 제거합니다.
+     * 스키마가 변경되지 않는 환경에서만 사용하세요.
+     */
+    internal fun createFastKryo(classLoader: ClassLoader? = null): Kryo {
+        log.debug { "Create new fast Kryo instance ..." }
+
+        return Kryo().apply {
+            classLoader?.let { setClassLoader(it) }
+
+            isRegistrationRequired = false
+            references = false
+            addDefaultSerializer(Throwable::class.java, JavaSerializer())
+
+            instantiatorStrategy = DefaultInstantiatorStrategy(StdInstantiatorStrategy())
+
+            // FieldSerializer: 청크 헤더 없이 필드 값만 직렬화 — CompatibleFieldSerializer 대비 빠름
+            setDefaultSerializer(FieldSerializer::class.java)
+
+            addDefaultSerializer(Enum::class.java, EnumNameSerializer::class.java)
+
+            register(java.util.Optional::class.java)
+            register(java.time.Instant::class.java)
+            register(java.time.LocalDateTime::class.java)
+            register(java.time.LocalDate::class.java)
+            register(java.time.LocalTime::class.java)
+            register(java.time.OffsetDateTime::class.java)
+            register(java.time.OffsetTime::class.java)
+            register(java.time.ZonedDateTime::class.java)
+            register(java.math.BigDecimal::class.java)
+        }
+    }
+
     internal fun createKryo(classLoader: ClassLoader? = null): Kryo {
         log.debug { "Create new Kryo instance ..." }
 
@@ -179,6 +215,7 @@ object KryoProvider: KLogging() {
             register(java.time.OffsetDateTime::class.java)
             register(java.time.OffsetTime::class.java)
             register(java.time.ZonedDateTime::class.java)
+            register(java.math.BigDecimal::class.java)
         }
     }
 }
