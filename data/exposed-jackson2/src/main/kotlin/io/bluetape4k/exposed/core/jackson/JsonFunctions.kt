@@ -44,7 +44,7 @@ class Extract<T>(
  *
  * ## 동작/계약
  * - 반환 타입 [T]에 맞는 컬럼 타입을 `resolveColumnType`으로 계산하고, 기본 타입으로 [JacksonColumnType]을 사용합니다.
- * - [serializer] 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - [serializer] 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생하며, 타입명과 원본 JSON이 메시지에 포함됩니다.
  * - 반환값은 SQL 함수 표현식이며 실제 계산은 DB 쿼리 실행 시 수행됩니다.
  *
  * ```kotlin
@@ -66,7 +66,12 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         T::class,
         defaultType = JacksonColumnType(
             { serializer.serializeAsString(it) },
-            { serializer.deserializeFromString<T>(it)!! }
+            // null 반환은 잘못된 JSON 또는 타입 불일치를 의미하므로, 명확한 메시지로 즉시 실패시킵니다.
+            {
+                requireNotNull(serializer.deserializeFromString<T>(it)) {
+                    "JSON extract 역직렬화 결과가 null입니다. 타입 [${T::class.qualifiedName}] 으로 변환할 수 없는 JSON 입니다: $it"
+                }
+            }
         )
     )
     return Extract(this, path = path, toScalar, this.columnType, columnType)
