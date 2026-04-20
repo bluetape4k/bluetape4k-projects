@@ -87,7 +87,7 @@ fun <T: Any> Table.fastjsonb(
  *
  * ## 동작/계약
  * - [serializer]의 문자열 직렬화 함수를 감싸 [fastjsonb] 오버로드에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생합니다.
  * - 반환된 [Column]은 수신 [Table]에 등록된 동일 컬럼 인스턴스입니다.
  *
  * ```kotlin
@@ -107,5 +107,9 @@ inline fun <reified T: Any> Table.fastjsonb(
     fastjsonb(
         name,
         serialize = { serializer.serializeAsString(it) },
-        deserialize = { serializer.deserializeFromString<T>(it)!! }
+        deserialize = {
+            requireNotNull(serializer.deserializeFromString<T>(it)) {
+                "JSON 문자열을 ${T::class.simpleName} 타입으로 역직렬화한 결과가 null입니다. 입력: $it"
+            }
+        }
     )

@@ -44,7 +44,7 @@ class Extract<T>(
  *
  * ## 동작/계약
  * - 반환 타입 [T]에 맞는 컬럼 타입을 `resolveColumnType`으로 계산하며, 기본 타입으로 [FastjsonColumnType]을 사용합니다.
- * - [serializer]의 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - [serializer]의 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생합니다.
  * - 반환값은 SQL 함수 표현식이며, 실제 계산은 쿼리 실행 시 수행됩니다.
  *
  * ```kotlin
@@ -66,7 +66,11 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         T::class,
         defaultType = FastjsonColumnType(
             { serializer.serializeAsString(it) },
-            { serializer.deserializeFromString<T>(it)!! }
+            {
+                requireNotNull(serializer.deserializeFromString<T>(it)) {
+                    "JSON 문자열을 ${T::class.simpleName} 타입으로 역직렬화한 결과가 null입니다. 입력: $it"
+                }
+            }
         )
     )
     return Extract(this, path = path, toScalar, this.columnType, columnType)
