@@ -16,6 +16,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -134,6 +135,9 @@ abstract class AbstractSuspendedJdbcCaffeineRepository<ID: Any, E: Serializable>
     /**
      * Write-Behind 배치를 DB에 flush합니다.
      * AutoIncrement 테이블의 경우 신규 엔티티는 DB에 삽입하지 않습니다.
+     *
+     * CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 합니다.
+     * 일반 DB 오류만 잡아서 로깅하고, 코루틴 취소는 상위로 전파합니다.
      */
     @Suppress("DEPRECATION")
     private suspend fun flushBatch(batch: List<Pair<ID, E>>) {
@@ -152,6 +156,9 @@ abstract class AbstractSuspendedJdbcCaffeineRepository<ID: Any, E: Serializable>
                 }
             }.await()
             log.debug { "Write-Behind: ${batch.size}건 DB flush 완료" }
+        } catch (e: CancellationException) {
+            // 코루틴 취소는 삼키지 않고 반드시 재전파한다
+            throw e
         } catch (e: Exception) {
             log.warn(e) { "Write-Behind: ${batch.size}건 DB flush 실패" }
         }
@@ -338,6 +345,15 @@ abstract class AbstractSuspendedJdbcCaffeineRepository<ID: Any, E: Serializable>
         cache.invalidateAll()
     }
 
+    /**
+     * 레포지토리를 닫고 리소스를 해제합니다.
+     *
+     * Write-Behind 모드에서는 채널을 닫아 더 이상 새 항목을 받지 않고,
+     * 이미 큐에 있는 항목이 모두 DB에 flush될 때까지 대기합니다.
+     *
+     * [runBlocking]은 [Closeable] 계약을 이행하기 위해 불가피하게 사용합니다.
+     * 정상 종료 시 호출되는 맥락이므로 Virtual Thread pinning 위험은 허용 범위입니다.
+     */
     override fun close() {
         if (config.writeMode == CacheWriteMode.WRITE_BEHIND) {
             writeBehindQueue.close()
