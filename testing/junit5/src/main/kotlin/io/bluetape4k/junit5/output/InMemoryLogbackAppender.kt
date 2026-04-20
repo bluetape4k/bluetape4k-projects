@@ -76,6 +76,7 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
     }
 
+    // 멀티스레드 환경에서 로깅 이벤트가 동시에 추가되므로 thread-safe 컬렉션 필수
     private val events = CopyOnWriteArrayList<ILoggingEvent>()
 
     /** 수집된 이벤트 개수입니다. */

@@ -24,6 +24,7 @@ import kotlin.concurrent.withLock
 class JsonplaceholderService(private val fixtureLoader: FixtureLoader) {
     companion object : KLogging()
 
+    // synchronized 대신 ReentrantLock 사용: Virtual Thread에서 monitor lock은 carrier thread를 pin함
     private val reloadLock = ReentrantLock()
 
     /** 게시글 저장소 */
