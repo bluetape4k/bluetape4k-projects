@@ -451,6 +451,73 @@ flowchart TD
     style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
+## 고성능 Batch 패턴 — 메가배치
+
+코루틴 환경에서 대량 Redis 쓰기/읽기 처리 시, **코루틴당 1개의 RBatch**를 생성하면 Redis 왕복(RTT)을 100배 이상 줄일 수 있습니다.
+
+### 패턴 비교
+
+| 방식 | RTT 수 (50 코루틴 × 100 ops) | 상대 처리량 |
+|------|------------------------------|-----------|
+| 개별 RMap op | 10,000 | 1× |
+| op당 RBatch | 5,000 | ~2× |
+| **코루틴당 1 RBatch (메가배치)** | **50** | **~8×** |
+
+### 메가배치 구현 예시
+
+```kotlin
+import org.redisson.client.codec.StringCodec
+
+// 키 풀 사전 생성 — per-op 문자열 보간 제거
+private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+    Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+}
+
+suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
+    val jobs = (0 until CONCURRENCY).map { coroutineId ->
+        async(Dispatchers.IO) {
+            // 코루틴당 RBatch 1개 — StringCodec으로 Jackson 오버헤드 제거
+            val batch = redisson.createBatch()
+            val batchMap = batch.getMap<String, String>(mapName, StringCodec.INSTANCE)
+
+            repeat(OPS_PER_COROUTINE) { opIdx ->
+                val key = KEY_POOL[coroutineId][opIdx]   // 사전 계산된 키
+                batchMap.fastPutAsync(key, "value-$coroutineId-$opIdx")
+            }
+
+            batch.execute()  // 100개 명령 → 1 RTT
+        }
+    }
+    jobs.awaitAll()
+}
+```
+
+### 핵심 최적화 포인트
+
+| 최적화 | 효과 | 비고 |
+|--------|------|------|
+| `redisson.createBatch()` 코루틴당 1개 | RTT 100배 감소 | 가장 큰 개선 |
+| `StringCodec.INSTANCE` | Jackson 직렬화 오버헤드 제거 | String 타입 Map에만 적용 |
+| 사전 계산된 KEY_POOL | 문자열 보간 GC 압력 제거 | 반복 키 패턴에 유효 |
+
+---
+
+## 성능 벤치마크
+
+`RedissonConcurrencyBenchmark` 기준 (50 코루틴, 코루틴당 100 ops):
+
+| 최적화 단계 | concurrent_ops/sec | 개선율 |
+|------------|-------------------|--------|
+| 기준선 (개별 op) | ~11,737 | — |
+| Warmup 안정화 | 16,025 | +36.5% |
+| RBatch 파이프라이닝 | 28,571 | +143% |
+| **메가배치 (코루틴당 1 RBatch)** | 78,125 | +566% |
+| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+> 벤치마크 실행: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
+
+---
+
 ## Redis 버전 요구사항
 
 | 기능                                                    | 최소 Redis 버전 |

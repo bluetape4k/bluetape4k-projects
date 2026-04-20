@@ -455,6 +455,73 @@ flowchart TD
     style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
+## High-Performance Batch Pattern — Mega-Batch
+
+In coroutine-based workloads, creating **one RBatch per coroutine** (rather than one per operation) reduces Redis round-trips (RTT) by up to 100×.
+
+### Pattern Comparison
+
+| Approach | RTT count (50 coroutines × 100 ops) | Relative throughput |
+|----------|-------------------------------------|---------------------|
+| Individual RMap op | 10,000 | 1× |
+| RBatch per op | 5,000 | ~2× |
+| **1 RBatch per coroutine (mega-batch)** | **50** | **~8×** |
+
+### Mega-Batch Example
+
+```kotlin
+import org.redisson.client.codec.StringCodec
+
+// Pre-computed key pool — eliminates per-op string interpolation
+private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+    Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+}
+
+suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
+    val jobs = (0 until CONCURRENCY).map { coroutineId ->
+        async(Dispatchers.IO) {
+            // One RBatch per coroutine — StringCodec removes Jackson overhead
+            val batch = redisson.createBatch()
+            val batchMap = batch.getMap<String, String>(mapName, StringCodec.INSTANCE)
+
+            repeat(OPS_PER_COROUTINE) { opIdx ->
+                val key = KEY_POOL[coroutineId][opIdx]   // pre-computed key
+                batchMap.fastPutAsync(key, "value-$coroutineId-$opIdx")
+            }
+
+            batch.execute()  // 100 commands → 1 RTT
+        }
+    }
+    jobs.awaitAll()
+}
+```
+
+### Key Optimization Points
+
+| Optimization | Effect | Notes |
+|--------------|--------|-------|
+| One `createBatch()` per coroutine | 100× RTT reduction | Largest single gain |
+| `StringCodec.INSTANCE` | Eliminates Jackson serialization overhead | Apply only to `Map<String, String>` |
+| Pre-computed KEY_POOL | Removes GC pressure from string interpolation | Effective for repetitive key patterns |
+
+---
+
+## Performance Benchmark
+
+Based on `RedissonConcurrencyBenchmark` (50 coroutines, 100 ops/coroutine):
+
+| Optimization stage | concurrent_ops/sec | Improvement |
+|--------------------|--------------------|-------------|
+| Baseline (individual op) | ~11,737 | — |
+| Warmup stabilization | 16,025 | +36.5% |
+| RBatch pipelining | 28,571 | +143% |
+| **Mega-batch (1 RBatch per coroutine)** | 78,125 | +566% |
+| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+> Run benchmark: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
+
+---
+
 ## Redis Version Requirements
 
 | Feature                                               | Minimum Redis Version |
