@@ -179,6 +179,7 @@ object KryoProvider: KLogging() {
             register(java.time.OffsetDateTime::class.java)
             register(java.time.OffsetTime::class.java)
             register(java.time.ZonedDateTime::class.java)
+            register(java.math.BigDecimal::class.java)
         }
     }
 }
