@@ -1,9 +1,11 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.logging.KLogging
+import io.lettuce.core.ClientOptions
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import io.lettuce.core.SocketOptions
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.coroutines
@@ -12,6 +14,7 @@ import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.resource.ClientResources
 import io.lettuce.core.resource.DefaultClientResources
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -50,6 +53,17 @@ object LettuceClients: KLogging() {
 
     @JvmField
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
+
+    private fun buildTunedClientOptions(): ClientOptions {
+        val socketOptions = SocketOptions.builder()
+            .keepAlive(true)
+            .tcpNoDelay(true)
+            .connectTimeout(Duration.ofSeconds(5))
+            .build()
+        return ClientOptions.builder()
+            .socketOptions(socketOptions)
+            .build()
+    }
 
     /**
      * Redis 연결 정보를 담는 [RedisURI]를 생성합니다.
@@ -99,7 +113,8 @@ object LettuceClients: KLogging() {
      * @param redisUri Redis Server URI
      * @return [RedisClient] instance
      */
-    fun clientOf(redisUri: RedisURI): RedisClient = RedisClient.create(DEFAULT_CLIENT_RESOURCES, redisUri)
+    fun clientOf(redisUri: RedisURI): RedisClient =
+        RedisClient.create(DEFAULT_CLIENT_RESOURCES, redisUri).apply { setOptions(buildTunedClientOptions()) }
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.
@@ -111,7 +126,8 @@ object LettuceClients: KLogging() {
      * @param clientResources [ClientResources] instance
      * @return [RedisClient] instance
      */
-    fun clientOf(clientResources: ClientResources): RedisClient = RedisClient.create(clientResources)
+    fun clientOf(clientResources: ClientResources): RedisClient =
+        RedisClient.create(clientResources).apply { setOptions(buildTunedClientOptions()) }
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.
