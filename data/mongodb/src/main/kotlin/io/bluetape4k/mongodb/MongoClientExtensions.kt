@@ -90,18 +90,25 @@ suspend fun <T> MongoClient.inTransaction(
         session.commitTransaction()
         result
     } catch (e: CancellationException) {
-        // 코루틴 취소는 롤백 후 반드시 재전파해야 합니다.
+        // [WHY] CancellationException을 Exception보다 먼저 잡아야 하는 이유:
+        //   Kotlin Coroutines에서 CancellationException은 Exception의 하위 타입이므로,
+        //   순서가 바뀌면 일반 catch(Exception) 블록이 먼저 처리해 버린다.
+        //   코루틴 취소 신호를 삼키면 해당 코루틴이 종료되지 않고 구조적 동시성(structured
+        //   concurrency)이 깨지기 때문에, 반드시 abort 후 즉시 재전파(rethrow)해야 한다.
         try {
             session.abortTransaction()
         } catch (_: Exception) {
-            // abort 실패는 무시합니다.
+            // abort 실패는 무시합니다 — 이미 취소 중이므로 abort 오류까지 전파할 필요가 없습니다.
         }
         throw e
     } catch (e: Exception) {
+        // [WHY] 비즈니스 예외 발생 시 트랜잭션을 명시적으로 abort해야 하는 이유:
+        //   MongoDB Kotlin Coroutine Driver는 세션이 닫혀도 미완료 트랜잭션을 자동 rollback하지
+        //   않으므로, 예외 경로에서 직접 abortTransaction()을 호출해 서버 측 리소스를 즉시 해제한다.
         try {
             session.abortTransaction()
         } catch (_: Exception) {
-            // abort 실패는 무시합니다.
+            // abort 자체가 실패해도 원래 예외를 감추지 않기 위해 무시합니다.
         }
         throw e
     }
