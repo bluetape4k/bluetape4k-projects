@@ -55,17 +55,18 @@ class RedissonConcurrencyBenchmark {
             runBlocking(Dispatchers.IO) {
                 (1..CONCURRENCY).map { coroutineId ->
                     async {
-                        repeat(OPS_PER_COROUTINE) { opIdx ->
-                            try {
+                        try {
+                            val batch = redisson.createBatch()
+                            val batchMap = batch.getMap<String, String>(map.name)
+                            repeat(OPS_PER_COROUTINE) { opIdx ->
                                 val key = "w$coroutineId-op$opIdx"
-                                val batch = redisson.createBatch()
-                                batch.getMap<String, String>(map.name).fastPutAsync(key, "v${System.nanoTime()}")
-                                batch.getMap<String, String>(map.name).getAsync(key)
-                                batch.execute()
-                                warmupOps.incrementAndGet()
-                            } catch (e: Exception) {
-                                // warmup 단계에서는 오류 무시
+                                batchMap.fastPutAsync(key, "v${System.nanoTime()}")
+                                batchMap.getAsync(key)
                             }
+                            batch.execute()
+                            warmupOps.addAndGet(OPS_PER_COROUTINE.toLong())
+                        } catch (e: Exception) {
+                            // warmup 단계에서는 오류 무시
                         }
                     }
                 }.awaitAll()
@@ -95,17 +96,18 @@ class RedissonConcurrencyBenchmark {
                 runBlocking(Dispatchers.IO) {
                     (1..CONCURRENCY).map { coroutineId ->
                         async {
-                            repeat(OPS_PER_COROUTINE) { opIdx ->
-                                try {
+                            try {
+                                val batch = redisson.createBatch()
+                                val batchMap = batch.getMap<String, String>(map.name)
+                                repeat(OPS_PER_COROUTINE) { opIdx ->
                                     val key = "c$coroutineId-op$opIdx"
-                                    val batch = redisson.createBatch()
-                                    batch.getMap<String, String>(map.name).fastPutAsync(key, "v${System.nanoTime()}")
-                                    batch.getMap<String, String>(map.name).getAsync(key)
-                                    batch.execute()
-                                    successOps.incrementAndGet()
-                                } catch (e: Exception) {
-                                    errorOps.incrementAndGet()
+                                    batchMap.fastPutAsync(key, "v${System.nanoTime()}")
+                                    batchMap.getAsync(key)
                                 }
+                                batch.execute()
+                                successOps.addAndGet(OPS_PER_COROUTINE.toLong())
+                            } catch (e: Exception) {
+                                errorOps.addAndGet(OPS_PER_COROUTINE.toLong())
                             }
                         }
                     }.awaitAll()
