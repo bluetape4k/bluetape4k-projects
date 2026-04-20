@@ -47,6 +47,69 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 > **Memoizer**는
 `bluetape4k-cache-lettuce` 모듈로 이동되었습니다. 자세한 내용은 [cache-lettuce README](../cache-lettuce/README.ko.md)를 참조하세요.
 
+## 성능 최적화
+
+`LettuceClients`는 기본적으로 여러 성능 최적화가 적용되어 있습니다. 이 최적화들은 자동화된 self-improvement 벤치마크 루프(`LettuceThroughputBenchmark`, Testcontainers Redis에서 비동기 SET+GET 1만 회)를 통해 발견·검증되었습니다.
+
+### 벤치마크 결과
+
+| 최적화 기법 | ops/sec | 기준 대비 |
+|---|---|---|
+| 기본값 (튜닝 없음) | ~31,847 | — |
+| + 공유 `DEFAULT_CLIENT_RESOURCES` (NCPU 스레드 풀) | 32,154 | +1% |
+| + 전체 파이프라이닝 (`withPipeline{}` SET+GET) | 40,816 | +28% |
+| + `SocketOptions` (keepAlive + tcpNoDelay) | 46,728 | +47% |
+| **+ 통합 파이프라인 + `awaitAll()`** | **81,967** | **+157%** |
+
+### 핵심 기법
+
+#### 1. 공유 `DEFAULT_CLIENT_RESOURCES` (NCPU 스레드 풀)
+
+`LettuceClients.clientOf(...)`를 통해 생성되는 모든 `RedisClient`는 NCPU 기반으로 튜닝된 단일 `ClientResources` 싱글톤을 공유합니다. 클라이언트마다 스레드를 새로 생성하는 오버헤드를 제거합니다.
+
+#### 2. 튜닝된 `SocketOptions`
+
+모든 클라이언트에 `keepAlive=true`, `tcpNoDelay=true`, `connectTimeout=5s`가 `ClientOptions`를 통해 자동 적용됩니다. 프로토콜 변경 없이 TCP 레벨 레이턴시를 줄입니다.
+
+#### 3. `withPipeline{}` — 일괄 플러시 확장
+
+```kotlin
+import io.bluetape4k.redis.lettuce.withPipeline
+
+// 모든 명령 발행 → 단일 플러시 → 결과는 외부에서 await
+val (setFutures, getFutures) = connection.withPipeline { cmd ->
+    val sets = (0 until count).map { i -> cmd.set("key:$i", value) }
+    val gets = (0 until count).map { i -> cmd.get("key:$i") }
+    sets to gets
+}
+setFutures.awaitAll()   // RedisFutureSupport의 Collection<RedisFuture>.awaitAll()
+getFutures.awaitAll()
+```
+
+- 명령 발행 중 `autoFlushCommands`를 비활성화하고, 전체 배치에 대해 **단일 `flushCommands()`** 를 실행합니다
+- SET과 GET을 **하나의 블록**으로 병합하여 페이즈 간 장벽을 제거합니다 (2번의 TCP 버스트 → 1번으로)
+- `finally`에서 `autoFlushCommands(true)` 복원으로 안전 보장
+
+#### 4. `Collection<RedisFuture>.awaitAll()` — 일괄 대기
+
+```kotlin
+import io.bluetape4k.redis.lettuce.awaitAll
+
+// N×async{} 코루틴 생성 대신 CompletableFuture.allOf 단일 continuation 사용
+val results: List<String?> = futures.awaitAll()
+```
+
+`futures.map { async { it.await() } }.awaitAll()` 대신 `RedisFutureSupport.awaitAll()`을 사용하세요. 전자는 Future마다 코루틴을 생성하는 반면, `awaitAll()`은 단일 `CompletableFuture.allOf` continuation을 사용합니다.
+
+### 벤치마크에서 얻은 교훈
+
+| 피해야 할 것 | 이유 |
+|---|---|
+| `ProtocolVersion.RESP3` + `TimeoutOptions.enabled()` + `REJECT_COMMANDS` | 고연산 localhost 환경에서 −12% — 명령당 오버헤드가 지배적 |
+| 소형 ASCII 값에 `ByteArrayCodec` 사용 | −17% — Lettuce `StringCodec`의 ASCII 빠른 경로 + 버퍼 재사용이 64B에서 우세 |
+| `withPipeline{}` 람다 내부에서 await | `flushCommands()`가 실행되지 않음 — 플러시 전에 코루틴이 suspend됨 |
+| 부분 파이프라이닝 (SET만, GET 제외) | 파이프라이닝되지 않은 구간이 병목이 됨 |
+
 ## 의존성
 
 ```kotlin
