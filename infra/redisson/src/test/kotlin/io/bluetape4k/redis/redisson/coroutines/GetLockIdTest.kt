@@ -10,8 +10,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldThrow
@@ -30,21 +28,20 @@ class GetLockIdTest {
     }
 
     @Test
-    fun `getLockId - 같은 lockName 에서 호출마다 단조 증가한다`() {
+    fun `getLockId - 호출마다 단조 증가하는 고유 ID를 반환한다`() {
         val lockName = randomName()
 
         val id1 = redissonClient.getLockId(lockName)
         val id2 = redissonClient.getLockId(lockName)
         val id3 = redissonClient.getLockId(lockName)
 
+        // Snowflake: 타임스탬프 기반 전역 단조 증가 (정확히 +1 이 아님)
         (id2 > id1).shouldBeTrue()
         (id3 > id2).shouldBeTrue()
-        id2 shouldBeEqualTo id1 + 1
-        id3 shouldBeEqualTo id2 + 1
     }
 
     @Test
-    fun `getLockId - 다른 lockName 은 독립적인 시퀀스를 가진다`() {
+    fun `getLockId - lockName 에 관계없이 전역 고유 ID를 반환한다`() {
         val nameA = randomName()
         val nameB = randomName()
 
@@ -52,18 +49,18 @@ class GetLockIdTest {
         val b1 = redissonClient.getLockId(nameB)
         val a2 = redissonClient.getLockId(nameA)
 
-        a2 shouldBeEqualTo a1 + 1
-        // nameB 시퀀스는 nameA 와 독립적으로 증가
-        (b1 >= 0).shouldBeTrue()
+        // Snowflake: lockName과 무관한 전역 고유 ID — 별도 시퀀스가 없음
+        (a1 > 0).shouldBeTrue()
+        (b1 > 0).shouldBeTrue()
+        (a2 > a1).shouldBeTrue()
     }
 
     @Test
-    fun `getLockId - 초기값은 System currentTimeMillis 이상이다`() {
+    fun `getLockId - 반환값은 양수이다`() {
         val lockName = randomName()
-        val beforeMillis = System.currentTimeMillis()
         val id = redissonClient.getLockId(lockName)
-        // 최초 CAS 로 currentTimeMillis 가 seed 되고 andIncrement 로 seed 값을 반환한다
-        id.shouldBeGreaterOrEqualTo(beforeMillis)
+        // Snowflake ID는 항상 양수
+        (id > 0).shouldBeTrue()
     }
 
     @Test

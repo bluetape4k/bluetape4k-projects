@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.coroutines
 
-import io.bluetape4k.LibraryName
+import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.future.await
 import org.redisson.api.BatchOptions
@@ -70,12 +70,12 @@ suspend inline fun RedissonClient.withSuspendedTransaction(
     }
 }
 
-private const val LOCK_ID_NAME_PREFIX = "$LibraryName:lock-id"
-
 /**
- * Redisson은 Thread 기반의 Lock을 지원합니다.
- * Coroutines 환경에서 Lock을 사용하고자 한다면, Unique 한 Lock Id를 제공해야 합니다.
- * 만약 이때 Lock Id를 제공하지 않으면, 제대로 Unlock을 할 수 없습니다.
+ * Coroutines 환경에서 Redisson Lock 식별자로 사용할 고유 ID를 반환합니다.
+ *
+ * Redisson의 [RLock]은 락 소유자를 스레드 ID로 식별하지만, Coroutine은 여러 스레드를
+ * 오가며 실행되므로 고유 ID가 필요합니다.
+ * [Snowflakers.Default.nextId]를 이용해 Redis 왕복 없이 전역 고유 ID를 생성합니다.
  *
  * ```kotlin
  * val lockId = redisson.getLockId("lock-name")
@@ -91,15 +91,11 @@ private const val LOCK_ID_NAME_PREFIX = "$LibraryName:lock-id"
  * // lockId > 0
  * ```
  *
- * @param lockName Redisson Lock 이름
- * @return Lock 을 구분하기 위한 Identifier
+ * @param lockName Redisson Lock 이름 (API 호환성 유지를 위해 파라미터 유지)
+ * @return Lock 을 구분하기 위한 전역 고유 Identifier
  */
+@Suppress("UnusedReceiverParameter", "UNUSED_PARAMETER")
 fun RedissonClient.getLockId(lockName: String): Long {
     lockName.requireNotBlank("lockName")
-
-    val sequenceName = "$LOCK_ID_NAME_PREFIX:$lockName"
-
-    val atomicLong = getAtomicLong(sequenceName)
-    atomicLong.compareAndSet(0, System.currentTimeMillis())
-    return atomicLong.andIncrement
+    return Snowflakers.Default.nextId()
 }
