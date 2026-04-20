@@ -32,6 +32,9 @@ suspend inline fun <T> Mutiny.SessionFactory.withSessionSuspending(
             try {
                 work(session)
             } catch (e: CancellationException) {
+                // async 블록은 Mutiny Uni 콜백 내부에서 실행되므로, Mutiny가 예외를 가로채 Uni 실패로
+                // 변환하기 전에 CancellationException이 삼켜질 수 있다.
+                // 코루틴 취소 신호를 잃지 않기 위해 명시적으로 재전파한다.
                 throw e
             }
         }.asUni()
@@ -62,6 +65,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withSessionSuspending(
             try {
                 work(session)
             } catch (e: CancellationException) {
+                // tenant 세션 콜백도 동일하다: Mutiny Uni 변환 과정에서 취소 예외가 소실되지 않도록
+                // CancellationException을 그대로 재전파해 코루틴 취소 협력 계약을 유지한다.
                 throw e
             }
         }.asUni()
@@ -91,6 +96,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessSessionSuspending(
             try {
                 work(stateless)
             } catch (e: CancellationException) {
+                // StatelessSession도 동일: Mutiny Uni 변환 경계에서 취소 예외가 소실되므로
+                // CancellationException을 명시적으로 재전파해 구조적 동시성을 유지한다.
                 throw e
             }
         }.asUni()
@@ -121,6 +128,7 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessSessionSuspending(
             try {
                 work(stateless)
             } catch (e: CancellationException) {
+                // tenant stateless 세션도 동일 이유: Mutiny 콜백 경계에서 취소 신호 소실을 방지한다.
                 throw e
             }
         }.asUni()
@@ -150,6 +158,9 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
             try {
                 work(session)
             } catch (e: CancellationException) {
+                // withTransaction 콜백은 Mutiny Uni 파이프라인 안에서 실행된다.
+                // CancellationException을 일반 예외로 변환하지 않고 즉시 재전파해야
+                // coroutineScope 취소 전파 체인이 정상 동작한다.
                 throw e
             }
         }.asUni()
@@ -181,6 +192,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
             try {
                 work(session, transaction)
             } catch (e: CancellationException) {
+                // 트랜잭션 객체를 함께 받는 오버로드에서도 동일: Mutiny 콜백 경계에서
+                // 취소 예외를 삼키면 부모 코루틴이 취소를 인지하지 못하므로 재전파한다.
                 throw e
             }
         }.asUni()
@@ -212,6 +225,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withTransactionSuspending(
             try {
                 work(session, transaction)
             } catch (e: CancellationException) {
+                // tenant 트랜잭션 오버로드: Mutiny 비동기 경계를 넘기 전 CancellationException을
+                // 재전파해 코루틴 취소 협력을 보장한다.
                 throw e
             }
         }.asUni()
@@ -242,6 +257,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
             try {
                 work(stateless)
             } catch (e: CancellationException) {
+                // withStatelessTransaction 콜백도 Mutiny Uni 내부에서 동작한다.
+                // 취소 예외를 재전파하지 않으면 부모 코루틴이 정지 상태로 남을 수 있다.
                 throw e
             }
         }.asUni()
@@ -273,6 +290,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
             try {
                 work(stateless, transaction)
             } catch (e: CancellationException) {
+                // 트랜잭션 객체를 함께 받는 stateless 오버로드에서도 동일:
+                // Mutiny가 예외를 Uni 실패로 감싸기 전에 취소 신호를 보존한다.
                 throw e
             }
         }.asUni()
@@ -304,6 +323,8 @@ suspend inline fun <T> Mutiny.SessionFactory.withStatelessTransactionSuspending(
             try {
                 work(stateless, transaction)
             } catch (e: CancellationException) {
+                // tenant stateless 트랜잭션 오버로드: Mutiny 비동기 파이프라인 진입 전
+                // CancellationException을 재전파해 구조적 동시성 계약을 지킨다.
                 throw e
             }
         }.asUni()
