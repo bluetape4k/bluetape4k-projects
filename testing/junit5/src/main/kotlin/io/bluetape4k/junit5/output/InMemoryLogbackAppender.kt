@@ -5,7 +5,7 @@ import ch.qos.logback.core.AppenderBase
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender.Companion.invoke
 import io.bluetape4k.logging.KLogging
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.reflect.KClass
 
 /**
@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  *
  * ## 동작/계약
  * - 생성 시 즉시 `start()` 후 대상 logger에 attach됩니다.
- * - 이벤트 목록은 `CopyOnWriteArrayList`로 저장되어 읽기/추가 동시 접근에 안전합니다.
+ * - 이벤트 목록은 `ConcurrentLinkedDeque`로 저장되어 lock-free 동시 추가 및 O(1) 마지막 요소 접근에 안전합니다.
  * - [stop] 호출 시 logger에서 detach되고 내부 이벤트를 비웁니다.
  * - SLF4J substitute logger 상태에서는 logger 획득 대기를 반복할 수 있습니다.
  *
@@ -76,14 +76,14 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
     }
 
-    // 멀티스레드 환경에서 로깅 이벤트가 동시에 추가되므로 thread-safe 컬렉션 필수
-    private val events = CopyOnWriteArrayList<ILoggingEvent>()
+    // 멀티스레드 환경에서 add+peekLast 모두 O(1)인 lock-free deque 사용
+    private val events = ConcurrentLinkedDeque<ILoggingEvent>()
 
     /** 수집된 이벤트 개수입니다. */
     val size: Int get() = events.size
 
     /** 마지막 이벤트의 메시지 문자열입니다. */
-    val lastMessage: String? get() = events.lastOrNull()?.message
+    val lastMessage: String? get() = events.peekLast()?.message
 
     /** 수집된 모든 메시지 문자열 목록입니다. */
     val messages: List<String> get() = events.map { it.message }
