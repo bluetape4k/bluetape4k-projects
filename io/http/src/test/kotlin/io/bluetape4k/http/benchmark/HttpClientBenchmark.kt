@@ -86,6 +86,8 @@ open class HttpClientBenchmark {
     private lateinit var okhttpVtClient: OkHttpClient
     private lateinit var jdkClient: HttpClient
     private lateinit var jdkVirtualClient: HttpClient
+    private lateinit var jdkH2Client: HttpClient
+    private lateinit var jdkH2VirtualClient: HttpClient
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
@@ -132,6 +134,17 @@ open class HttpClientBenchmark {
         jdkVirtualClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .executor(Executors.newVirtualThreadPerTaskExecutor())
+            .build()
+
+        jdkH2Client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_2)
+            .connectTimeout(Duration.ofSeconds(5))
+            .build()
+
+        jdkH2VirtualClient = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_2)
+            .executor(Executors.newVirtualThreadPerTaskExecutor())
+            .connectTimeout(Duration.ofSeconds(5))
             .build()
 
         hc5Classic = HttpClients.createDefault()
@@ -203,6 +216,26 @@ open class HttpClientBenchmark {
     fun javaHttpVirtualThread(): Int {
         val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         val response = jdkVirtualClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        return response.statusCode()
+    }
+
+    @Benchmark
+    fun javaHttpH2Sync(): Int {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create(pickUrl()))
+            .GET()
+            .build()
+        val response = jdkH2Client.send(request, HttpResponse.BodyHandlers.ofString())
+        return response.statusCode()
+    }
+
+    @Benchmark
+    fun javaHttpH2VirtualThread(): Int {
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create(pickUrl()))
+            .GET()
+            .build()
+        val response = jdkH2VirtualClient.send(request, HttpResponse.BodyHandlers.ofString())
         return response.statusCode()
     }
 
