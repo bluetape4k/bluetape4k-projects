@@ -64,16 +64,30 @@ open class LocalCacheConfig(
             "writeBehindQueueCapacity[$writeBehindQueueCapacity] must be >= writeBehindBatchSize[$writeBehindBatchSize]."
         }
     }
+
     companion object : KLogging() {
         private const val serialVersionUID = 1L
 
-        /** 읽기 전용 (캐시 읽기만, DB 쓰기 없음) */
+        /**
+         * 읽기 전용 기본 설정.
+         * DB에 쓰기 연산이 전혀 발생하지 않으므로 읽기 부하가 많은 조회 전용 캐시에 적합하다.
+         * 쓰기 연산이 필요한 경우 [WRITE_THROUGH] 또는 [WRITE_BEHIND]를 사용해야 한다.
+         */
         val READ_ONLY = LocalCacheConfig(writeMode = CacheWriteMode.READ_ONLY)
 
-        /** Write-Through (캐시 + DB 동기 쓰기) */
+        /**
+         * Write-Through 기본 설정.
+         * 캐시와 DB를 동기적으로 함께 쓰기 때문에 데이터 일관성이 보장된다.
+         * 쓰기 지연이 허용되지 않는 트랜잭션 데이터에 적합하다.
+         */
         val WRITE_THROUGH = LocalCacheConfig(writeMode = CacheWriteMode.WRITE_THROUGH)
 
-        /** Write-Behind (캐시 쓰기 후 DB 비동기 배치 쓰기) */
+        /**
+         * Write-Behind 기본 설정.
+         * 캐시에 먼저 쓰고 DB에는 배치로 비동기 반영하므로 쓰기 처리량이 높다.
+         * 단, 서버 장애 시 아직 DB에 반영되지 않은 항목이 유실될 수 있다.
+         * 유실 허용 가능한 집계·로그 성격 데이터에 적합하다.
+         */
         val WRITE_BEHIND = LocalCacheConfig(writeMode = CacheWriteMode.WRITE_BEHIND)
     }
 }
