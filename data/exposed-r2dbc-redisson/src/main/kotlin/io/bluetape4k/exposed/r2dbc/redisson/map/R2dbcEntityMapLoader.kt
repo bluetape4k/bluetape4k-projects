@@ -74,6 +74,8 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             }.asCompletableFuture()
 
     override fun loadAllKeys(): AsyncIterator<ID> {
+        // WHY: RENDEZVOUS(버퍼 없음) — 소비자(AsyncIterator)가 준비될 때만 생산자가 진행한다.
+        //      버퍼를 두면 DB에서 읽은 ID가 메모리에 쌓여 OOM 위험이 있으므로 백프레셔를 강제한다.
         val channel =
             Channel<ID>(Channel.RENDEZVOUS).also {
                 it.invokeOnClose { cause ->
@@ -86,6 +88,8 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             try {
                 suspendTransaction {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT // 30 seconds
+                    // WHY: withTimeoutOrNull — 전체 키 로딩이 60초를 초과하면 채널을 닫아
+                    //      소비자가 무한 대기하는 교착 상태를 방지한다.
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }

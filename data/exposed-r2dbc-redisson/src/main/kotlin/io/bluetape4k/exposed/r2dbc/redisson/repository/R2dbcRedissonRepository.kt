@@ -189,6 +189,10 @@ interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedisRepositor
      */
     override suspend fun invalidateAll(ids: Collection<ID>) {
         if (ids.isEmpty()) return
+        // WHY: fastRemoveAsync(vararg keys) 는 단일 Redis DEL 커맨드로 처리되므로
+        //      루프로 ids.forEach { fastRemoveAsync(it) } 보다 네트워크 왕복이 1회로 줄어든다.
+        //      toTypedArray<Any>() 후 강제 캐스팅은 Kotlin reified 제네릭 배열 생성의
+        //      런타임 타입 소거 한계를 우회하기 위한 것으로, 실제 타입은 일치한다.
         @Suppress("UNCHECKED_CAST")
         cache.fastRemoveAsync(*ids.toTypedArray<Any>() as Array<ID>).await()
     }
