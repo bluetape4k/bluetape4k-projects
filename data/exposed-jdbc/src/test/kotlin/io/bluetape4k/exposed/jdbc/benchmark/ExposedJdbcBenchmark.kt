@@ -94,8 +94,8 @@ open class ExposedJdbcBenchmark {
             username = postgres.username
             password = postgres.password
             driverClassName = PostgreSQLServer.DRIVER_CLASS_NAME
-            maximumPoolSize = 10
-            minimumIdle = 2
+            maximumPoolSize = 24
+            minimumIdle = 8
             connectionTimeout = 30_000
             idleTimeout = 600_000
             maxLifetime = 1_800_000
@@ -143,7 +143,7 @@ open class ExposedJdbcBenchmark {
      * 단건 INSERT — `@Threads(8)` 동시성에서 HikariCP pool 경합 측정.
      */
     @Benchmark
-    @Threads(8)
+    @Threads(14)
     open fun singleInsert(): Long {
         val rnd = ThreadLocalRandom.current()
         return transaction(database) {
@@ -160,7 +160,7 @@ open class ExposedJdbcBenchmark {
      * 단건 SELECT by PK — `@Threads(8)` 동시성에서 pool 경합 측정.
      */
     @Benchmark
-    @Threads(8)
+    @Threads(14)
     open fun singleFindById(): Int {
         val pk = (findIdSeq.getAndIncrement() % SEED_USERS) + 1
         return transaction(database) {
@@ -176,7 +176,7 @@ open class ExposedJdbcBenchmark {
      * 단건 UPDATE — `@Threads(8)` 동시성에서 pool + 락 경합 측정.
      */
     @Benchmark
-    @Threads(8)
+    @Threads(14)
     open fun singleUpdate(): Int {
         val pk = (updateIdSeq.getAndIncrement() % SEED_USERS) + 1
         val newAge = 20 + ThreadLocalRandom.current().nextInt(50)
