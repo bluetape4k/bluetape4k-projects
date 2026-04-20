@@ -67,7 +67,7 @@ class BufferedImageSupportTest: AbstractImageTest() {
             g.fillRect(0, 0, 100, 100)
         }
 
-        val file = tempFolder.createFile()
+        val file = tempFolder.createFile("image.jpg")
         image.write(ImageFormat.JPG, file).shouldBeTrue()
 
         val loaded = bufferedImageOf(file)
