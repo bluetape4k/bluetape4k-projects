@@ -22,6 +22,16 @@ import java.util.*
  *
  * Spring Data 의 트랜잭션 인터셉터를 우회하여 suspend 메서드가 Mono 로 래핑되지 않도록
  * [getRepository] 를 직접 오버라이드합니다.
+ *
+ * 내부적으로 Repository 인터페이스에 선언된 `toDomain`, `toPersistValues`, `extractId`, `table`
+ * default 메서드를 MethodHandle 로 바인딩하여 [SimpleExposedR2dbcRepository] 인스턴스를 구성합니다.
+ *
+ * ```kotlin
+ * // Spring이 자동으로 사용합니다. 직접 사용할 경우:
+ * val factory = ExposedR2dbcRepositoryFactory()
+ * val repo = factory.getRepository(UserR2dbcRepository::class.java)
+ * // repo는 SimpleExposedR2dbcRepository 기반의 JDK 프록시 인스턴스
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 class ExposedR2dbcRepositoryFactory: RepositoryFactorySupport() {

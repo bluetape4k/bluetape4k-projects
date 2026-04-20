@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.cassandra
 
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.cassandra.core.ReactiveSelectOperation
 import org.springframework.data.cassandra.core.ReactiveSelectOperation.SelectWithProjection
 import org.springframework.data.cassandra.core.ReactiveSelectOperation.SelectWithQuery
@@ -55,25 +56,25 @@ suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.existsSuspendi
  * - 결과가 없으면 `awaitSingle()` 규칙에 따라 예외가 전파됩니다.
  *
  * ```kotlin
- * val user = terminatingSelect.first()
+ * val user = terminatingSelect.firstSuspending()
  * // result == user.id
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.first(): T = first().awaitSingle()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.firstSuspending(): T = first().awaitSingle()
 
 /**
  * 단건 조회 결과를 반환하고 없으면 `null`을 반환합니다.
  *
  * ## 동작/계약
- * - 내부적으로 `one().awaitSingle()`을 호출합니다.
- * - Spring Data의 `one()`가 빈 결과를 `null`로 발행하면 그대로 `null`을 반환합니다.
+ * - 내부적으로 `one().awaitSingleOrNull()`을 호출합니다.
+ * - Spring Data의 `one()`가 빈 결과를 empty Mono로 발행하면 `null`을 반환합니다.
  *
  * ```kotlin
  * val loaded = terminatingSelect.oneSuspending()
  * // result == loaded
  * ```
  */
-suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? = one().awaitSingle()
+suspend fun <T: Any> ReactiveSelectOperation.TerminatingSelect<T>.oneSuspending(): T? = one().awaitSingleOrNull()
 
 /**
  * 전체 조회 결과를 리스트로 수집해 반환합니다.

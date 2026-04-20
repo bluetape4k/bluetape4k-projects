@@ -127,6 +127,7 @@ open class ExposedKeysetItemReader<T : Any>(
         buffer.clear()
         bufferIndex = 0
         exhausted = false
+        lastKey = 0L
     }
 
     private fun fetchNextPage() {

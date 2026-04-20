@@ -26,7 +26,7 @@ import org.springframework.batch.item.ItemWriter
  * @param table 대상 Exposed [Table]
  * @param insertBody `batchInsert` 람다
  */
-class ExposedItemWriter<T>(
+class ExposedItemWriter<T : Any>(
     private val table: Table,
     private val insertBody: BatchInsertStatement.(T) -> Unit,
 ) : ItemWriter<T> {
@@ -36,8 +36,7 @@ class ExposedItemWriter<T>(
     override fun write(chunk: Chunk<out T>) {
         if (chunk.isEmpty) return
 
-        @Suppress("UNCHECKED_CAST")
-        val items = chunk.items // as List<T>
+        val items = chunk.items
 
         table.batchInsert(items, shouldReturnGeneratedValues = false) { item ->
             insertBody(item)

@@ -16,7 +16,7 @@ data class User(
     val age: Int,
 ): Serializable {
     companion object {
-        const val serialVersionID = 1L
+        private const val serialVersionUID = 1L
     }
 
     fun withId(newId: Long?) = copy(id = newId)

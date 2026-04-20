@@ -18,9 +18,12 @@ import kotlin.reflect.full.declaredMemberProperties
  * ```
  */
 inline fun <reified T: Any> KClass<T>.buildExampleMatcher(vararg searchFields: String): ExampleMatcher {
-    var matcher = ExampleMatcher
-        .matching()
-        .withIgnorePaths(*ignoredProperties(*searchFields))
+    val ignored = ignoredProperties(*searchFields)
+
+    var matcher = ExampleMatcher.matching()
+    if (ignored.isNotEmpty()) {
+        matcher = matcher.withIgnorePaths(*ignored)
+    }
 
     searchFields
         .filterNot { it.isEmpty() }

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("local")
 annotation class LocalProfile(val name: String = "local")
@@ -37,7 +37,7 @@ annotation class LocalProfile(val name: String = "local")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("dev", "develop", "development")
 annotation class DevelopProfile(val name: String = "development")
@@ -57,7 +57,7 @@ annotation class DevelopProfile(val name: String = "development")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("feature")
 annotation class FeatureProfile(val name: String = "feature")
@@ -77,7 +77,7 @@ annotation class FeatureProfile(val name: String = "feature")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("test", "testing")
 annotation class TestProfile(val name: String = "test")
@@ -97,7 +97,7 @@ annotation class TestProfile(val name: String = "test")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("qa")
 annotation class QaProfile(val name: String = "qa")
@@ -117,7 +117,7 @@ annotation class QaProfile(val name: String = "qa")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("stage", "staging")
 annotation class StageProfile(val name: String = "staging")
@@ -137,7 +137,7 @@ annotation class StageProfile(val name: String = "staging")
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("prod", "product", "production")
 annotation class ProductionProfile(val name: String = "production")
