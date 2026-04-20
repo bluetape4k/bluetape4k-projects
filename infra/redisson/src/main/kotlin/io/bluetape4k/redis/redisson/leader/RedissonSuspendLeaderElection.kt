@@ -7,7 +7,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -54,7 +56,7 @@ suspend inline fun <T> RedissonClient.suspendRunIfLeader(
  * 그러나 Coroutine은 여러 스레드를 오가며 실행되므로, 락 획득 시점의 스레드와
  * 락 해제 시점의 스레드가 달라질 수 있습니다.
  * 이를 해결하기 위해 [io.bluetape4k.redis.redisson.coroutines.getLockId]를 사용하여
- * Redis의 `RAtomicLong`으로 Coroutine 세션마다 고유한 ID를 발급하고,
+ * Snowflake 알고리즘으로 Coroutine 세션마다 고유한 ID를 발급하고 (Redis 왕복 없음),
  * 이 ID를 락 획득/해제 양쪽에 동일하게 사용합니다.
  *
  * ```kotlin
@@ -138,13 +140,16 @@ class RedissonSuspendLeaderElection private constructor(
                     return action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        runCatching { lock.unlockAsync(lockId).await() }
-                            .onSuccess {
-                                log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
-                            }
-                            .onFailure { error ->
-                                log.warn(error) { "Fail to release lock. lock=$lockName, lockId=$lockId" }
-                            }
+                        // NonCancellable: 코루틴 취소 시에도 락 해제가 중단되지 않도록 보호
+                        withContext(NonCancellable) {
+                            runCatching { lock.unlockAsync(lockId).await() }
+                                .onSuccess {
+                                    log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
+                                }
+                                .onFailure { error ->
+                                    log.warn(error) { "Fail to release lock. lock=$lockName, lockId=$lockId" }
+                                }
+                        }
                     }
                 }
             } else {

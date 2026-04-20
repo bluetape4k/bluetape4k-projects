@@ -4,6 +4,7 @@ package io.bluetape4k.io.benchmark
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.io.serializer.ForyBinarySerializer
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.BenchmarkMode
@@ -29,7 +30,7 @@ class BinarySerializerBenchmark {
 
     private val jdk = BinarySerializers.Jdk
     private val kryo = BinarySerializers.Kryo
-    private val fory = BinarySerializers.Fory
+    private val fory = ForyBinarySerializer.fast()
     private val jsonMapper = jacksonObjectMapper().findAndRegisterModules()
 
     data class SimpleData(

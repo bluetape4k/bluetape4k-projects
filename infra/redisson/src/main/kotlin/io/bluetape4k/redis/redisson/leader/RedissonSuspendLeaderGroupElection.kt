@@ -8,7 +8,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import org.redisson.api.RSemaphore
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -163,8 +165,16 @@ class RedissonSuspendLeaderGroupElection private constructor(
         try {
             return action()
         } finally {
-            runCatching { semaphore.releaseAsync().await() }
-            log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+            // NonCancellable: 코루틴 취소 시에도 세마포어 슬롯 반납이 중단되지 않도록 보호
+            withContext(NonCancellable) {
+                runCatching { semaphore.releaseAsync().await() }
+                    .onSuccess {
+                        log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
+                    }
+                    .onFailure { error ->
+                        log.warn(error) { "Fail to release semaphore slot. lockName=$lockName" }
+                    }
+            }
         }
     }
 }
