@@ -91,8 +91,14 @@ object TrinoDatabase: KLogging() {
         schema: String = "default",
         user: String = "trino",
     ): Database {
+        // 빈 값으로 JDBC URL을 구성하면 "jdbc:trino://:8080//"처럼 무효한 URL이 만들어져
+        // DriverManager.getConnection() 호출 시점에 불명확한 예외가 발생합니다.
+        // 조기에 명확한 메시지로 실패하여 디버깅 비용을 줄입니다.
         requireNotNull(host.ifBlank { null }) { "host는 공백일 수 없습니다." }
+        // 유효하지 않은 포트 번호는 TCP 연결 시도 단계에서야 실패하므로, 미리 차단합니다.
         require(port in 1..65535) { "port는 1~65535 범위여야 합니다: $port" }
+        // Trino에서 catalog/schema는 JDBC URL의 필수 경로 세그먼트입니다.
+        // 누락 시 Trino 코디네이터가 세션 컨텍스트를 찾지 못해 쿼리 실행에 실패합니다.
         requireNotNull(catalog.ifBlank { null }) { "catalog는 공백일 수 없습니다." }
         requireNotNull(schema.ifBlank { null }) { "schema는 공백일 수 없습니다." }
 
@@ -123,7 +129,10 @@ object TrinoDatabase: KLogging() {
         jdbcUrl: String,
         user: String = "trino",
     ): Database {
+        // 빈 URL은 DriverManager.getConnection()에서 No suitable driver 예외를 발생시킵니다.
         requireNotNull(jdbcUrl.ifBlank { null }) { "jdbcUrl은 공백일 수 없습니다." }
+        // Trino 드라이버는 "jdbc:trino://" 접두사가 있는 URL만 처리합니다.
+        // 다른 DB URL이 실수로 전달될 경우 "No suitable driver" 오류가 발생해 원인 파악이 어렵습니다.
         require(jdbcUrl.startsWith("jdbc:trino://")) { "jdbcUrl은 'jdbc:trino://'로 시작해야 합니다: $jdbcUrl" }
 
         return Database.connect(

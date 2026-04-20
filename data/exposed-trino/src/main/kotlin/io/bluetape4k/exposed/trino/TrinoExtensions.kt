@@ -42,6 +42,8 @@ suspend fun <T> suspendTransaction(
     db: Database,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> T,
+    // Trino JDBC 호출은 블로킹 I/O이므로, 코루틴 기본 디스패처(Main/Default)를 점유하지 않도록
+    // Dispatchers.IO(또는 Virtual Thread 전용 디스패처)로 컨텍스트를 전환합니다.
 ): T = withContext(dispatcher) {
     try {
         transaction(db) { block() }
@@ -85,6 +87,9 @@ fun <T> queryFlow(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> Iterable<T>,
 ): Flow<T> = flow {
+    // Trino JDBC 호출은 블로킹 I/O이므로 Dispatchers.IO로 전환하고,
+    // ResultSet 수명(트랜잭션 경계 내)과 Flow emit 경계가 겹치지 않도록
+    // 트랜잭션 내에서 List로 완전히 materialize한 뒤 방출합니다.
     val items = try {
         withContext(dispatcher) { transaction(db) { block().toList() } }
     } catch (e: CancellationException) {
