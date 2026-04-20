@@ -10,6 +10,7 @@ import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import io.lettuce.core.RedisClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
@@ -194,10 +195,14 @@ abstract class AbstractR2dbcLettuceRepository<ID: Any, E: Serializable>(
                     }.map { with(this@AbstractR2dbcLettuceRepository) { it.toEntity() } }
                     .toList()
             }
-        // 조회 결과를 캐시에 적재
+        // 조회 결과를 캐시에 적재.
+        // CancellationException은 반드시 재전파하여 코루틴 취소가 무시되지 않도록 한다.
         if (entities.isNotEmpty()) {
             entities.forEach { entity ->
                 runCatching { cache.set(extractId(entity), entity) }
+                    .onFailure { e ->
+                        if (e is CancellationException) throw e
+                    }
             }
         }
         return entities

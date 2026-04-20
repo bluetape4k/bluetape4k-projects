@@ -85,15 +85,20 @@ class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
                 .toList()
                 .toSet()
 
+        // existingIds는 map.keys의 부분집합이므로 map[id]는 항상 존재하지만,
+        // !! 대신 checkNotNull로 의도를 명확히 하고 버그 발생 시 명확한 메시지를 제공한다.
         for (id in existingIds) {
-            table.update({ table.id eq id }) { updateEntity(it, map[id]!!) }
+            val entity = checkNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+            table.update({ table.id eq id }) { updateEntity(it, entity) }
         }
 
         val newIds = map.keys - existingIds
         if (newIds.isNotEmpty()) {
             for (chunk in newIds.chunked(chunkSize)) {
                 table.batchInsert(chunk, shouldReturnGeneratedValues = false) { id ->
-                    insertEntity(this, map[id]!!)
+                    // newIds는 map.keys의 부분집합이므로 map[id]는 항상 존재한다.
+                    val entity = checkNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+                    insertEntity(this, entity)
                 }
             }
         }
