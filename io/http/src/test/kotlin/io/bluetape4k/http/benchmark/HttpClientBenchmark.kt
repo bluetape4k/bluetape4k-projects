@@ -1,5 +1,7 @@
 package io.bluetape4k.http.benchmark
 
+import io.bluetape4k.http.ahc.asyncHttpClient
+import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.vertx.core.Vertx
@@ -19,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.openjdk.jmh.annotations.Threads
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.mockwebserver.Dispatcher
@@ -65,6 +68,7 @@ import kotlin.coroutines.resumeWithException
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 1, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
+@Threads(8)
 open class HttpClientBenchmark {
 
     private lateinit var mockServer: MockWebServer
@@ -80,6 +84,7 @@ open class HttpClientBenchmark {
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
     private lateinit var ahcClient: org.asynchttpclient.AsyncHttpClient
+    private lateinit var ahcOptimizedClient: org.asynchttpclient.AsyncHttpClient
     private lateinit var vertx: Vertx
     private lateinit var vertxWebClient: WebClient
 
@@ -128,6 +133,16 @@ open class HttpClientBenchmark {
                 .build()
         )
 
+        // Optimized AHC: native transport + connection pool tuning via asyncHttpClient DSL
+        ahcOptimizedClient = asyncHttpClient {
+            setConnectTimeout(5_000)
+            setRequestTimeout(5_000)
+            setMaxConnectionsPerHost(100)
+            setMaxConnections(200)
+            setKeepAlive(true)
+            setTcpNoDelay(true)
+        }
+
         vertx = Vertx.vertx()
         vertxWebClient = WebClient.create(
             vertx,
@@ -142,6 +157,7 @@ open class HttpClientBenchmark {
     fun teardown() {
         runCatching { vertxWebClient.close() }
         runCatching { runBlocking { vertx.close().coAwait() } }
+        runCatching { ahcOptimizedClient.close() }
         runCatching { ahcClient.close() }
         runCatching { hc5Async.close() }
         runCatching { hc5Classic.close() }
@@ -224,6 +240,12 @@ open class HttpClientBenchmark {
             }
             cont.invokeOnCancellation { future.cancel(true) }
         }
+    }
+
+    /** AHC + executeSuspending() + native transport + pool tuning */
+    @Benchmark
+    fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
+        ahcOptimizedClient.prepareGet(baseUrl).executeSuspending().statusCode
     }
 
     /** Vert.x WebClient + Coroutines — 이벤트 루프 기반 비동기 HTTP */
