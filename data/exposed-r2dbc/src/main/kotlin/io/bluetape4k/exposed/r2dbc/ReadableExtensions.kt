@@ -317,6 +317,9 @@ private suspend fun Any?.toExposedBlobOrNull(): ExposedBlob? =
         is ExposedBlob -> this
         is ByteArray   -> toExposedBlob()
         is ByteBuffer  -> {
+            // WHY: slice()로 독립적인 position/limit을 가진 뷰를 만들어 원본 버퍼의
+            // 읽기 커서를 변경하지 않도록 합니다. 공유 버퍼를 직접 읽으면 다른
+            // 소비자가 잘못된 데이터를 읽을 수 있습니다.
             val view = slice()
             val bytes = ByteArray(view.remaining())
             view.get(bytes)
@@ -324,9 +327,12 @@ private suspend fun Any?.toExposedBlobOrNull(): ExposedBlob? =
         }
         is InputStream -> toExposedBlob()
         is Blob ->
-            // Blob 스트림의 모든 청크를 IO 컨텍스트에서 한 번에 수집합니다.
-            // 각 청크마다 dispatcher 전환을 반복하면 오버헤드가 발생하므로
-            // collect 전체를 IO dispatcher 로 감쌉니다.
+            // WHY: Blob 스트림의 모든 청크를 IO 컨텍스트에서 한 번에 수집합니다.
+            // 각 청크마다 withContext(IO)를 호출하면 dispatcher 전환 오버헤드가
+            // 청크 수만큼 반복되므로, collect 블록 전체를 IO dispatcher로 감쌉니다.
+            // WHY: ByteArrayOutputStream은 Closeable이지만 내부적으로 바이트 배열만
+            // 관리하므로 close()가 실질적으로 아무것도 하지 않습니다. use {} 대신
+            // 직접 선언해 withContext 람다의 마지막 표현식으로 결과를 반환합니다.
             withContext(Dispatchers.IO) {
                 val out = ByteArrayOutputStream()
                 stream().asFlow().collect { buf ->
