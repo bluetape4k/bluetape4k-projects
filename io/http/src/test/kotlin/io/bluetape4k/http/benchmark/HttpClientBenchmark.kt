@@ -1,5 +1,7 @@
 package io.bluetape4k.http.benchmark
 
+import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
@@ -71,9 +73,11 @@ open class HttpClientBenchmark {
 
     // clients
     private lateinit var okhttpClient: OkHttpClient
+    private lateinit var okhttpVtClient: OkHttpClient
     private lateinit var jdkClient: HttpClient
     private lateinit var jdkVirtualClient: HttpClient
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+    private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
     private lateinit var ahcClient: org.asynchttpclient.AsyncHttpClient
     private lateinit var vertx: Vertx
@@ -96,6 +100,12 @@ open class HttpClientBenchmark {
             .readTimeout(Duration.ofSeconds(5))
             .build()
 
+        okhttpVtClient = OkHttpClient.Builder()
+            .dispatcher(okhttp3DispatcherWithVirtualThread())
+            .connectTimeout(Duration.ofSeconds(5))
+            .readTimeout(Duration.ofSeconds(5))
+            .build()
+
         jdkClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build()
@@ -106,6 +116,8 @@ open class HttpClientBenchmark {
             .build()
 
         hc5Classic = HttpClients.createDefault()
+
+        hc5ClassicVt = virtualThreadHttpClientOf()
 
         hc5Async = HttpAsyncClients.createDefault().also { it.start() }
 
@@ -133,8 +145,11 @@ open class HttpClientBenchmark {
         runCatching { ahcClient.close() }
         runCatching { hc5Async.close() }
         runCatching { hc5Classic.close() }
+        runCatching { hc5ClassicVt.close() }
         runCatching { okhttpClient.dispatcher.executorService.shutdown() }
         runCatching { okhttpClient.connectionPool.evictAll() }
+        runCatching { okhttpVtClient.dispatcher.executorService.shutdown() }
+        runCatching { okhttpVtClient.connectionPool.evictAll() }
         runCatching { mockServer.shutdown() }
     }
 
@@ -219,5 +234,23 @@ open class HttpClientBenchmark {
             .send()
             .coAwait()
         response.statusCode()
+    }
+
+    @Benchmark
+    fun okhttp3VirtualThread(): Int {
+        val request = Request.Builder().url(baseUrl).get().build()
+        okhttpVtClient.newCall(request).execute().use { response ->
+            response.body.bytes()
+            return response.code
+        }
+    }
+
+    @Benchmark
+    fun hc5ClassicVirtualThread(): Int {
+        val request = HttpGet(baseUrl)
+        return hc5ClassicVt.execute(request) { response ->
+            EntityUtils.consume(response.entity)
+            response.code
+        }
     }
 }
