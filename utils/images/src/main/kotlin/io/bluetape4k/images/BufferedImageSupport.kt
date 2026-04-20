@@ -30,7 +30,7 @@ import javax.imageio.stream.ImageOutputStream
  * ```
  */
 fun BufferedImage.write(format: ImageFormat, path: String): Boolean {
-    return ImageIO.write(this, format.name, File(path))
+    return ImageIO.write(this, format.ioName, File(path))
 }
 
 /**
@@ -42,7 +42,7 @@ fun BufferedImage.write(format: ImageFormat, path: String): Boolean {
  * ```
  */
 fun BufferedImage.write(format: ImageFormat, file: File): Boolean {
-    return ImageIO.write(this, format.name, file)
+    return ImageIO.write(this, format.ioName, file)
 }
 
 /**
@@ -59,7 +59,7 @@ fun BufferedImage.write(format: ImageFormat, file: File): Boolean {
  * ```
  */
 fun BufferedImage.write(format: ImageFormat, outputStream: OutputStream): Boolean {
-    return ImageIO.write(this, format.name, outputStream)
+    return ImageIO.write(this, format.ioName, outputStream)
 }
 
 /**
@@ -72,7 +72,7 @@ fun BufferedImage.write(format: ImageFormat, outputStream: OutputStream): Boolea
  * ```
  */
 fun BufferedImage.write(format: ImageFormat, outputStream: ImageOutputStream): Boolean {
-    return ImageIO.write(this, format.name, outputStream)
+    return ImageIO.write(this, format.ioName, outputStream)
 }
 
 /**

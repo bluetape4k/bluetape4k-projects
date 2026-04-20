@@ -17,11 +17,11 @@ import io.bluetape4k.images.ImageFormat.Companion.parse
  * // unknown == null
  * ```
  */
-enum class ImageFormat {
-    GIF,
-    JPG,
-    PNG,
-    WEBP;
+enum class ImageFormat(val ioName: String) {
+    GIF("gif"),
+    JPG("jpeg"),
+    PNG("png"),
+    WEBP("webp");
 
     companion object {
         /**
