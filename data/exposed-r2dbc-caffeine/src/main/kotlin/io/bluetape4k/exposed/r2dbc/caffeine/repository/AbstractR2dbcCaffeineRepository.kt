@@ -111,6 +111,14 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
         Channel(capacity = config.writeBehindQueueCapacity)
     }
 
+    /**
+     * Write-Behind 백그라운드 Job.
+     *
+     * 채널에서 항목을 수신하여 배치 크기([LocalCacheConfig.writeBehindBatchSize])만큼
+     * 모아서 [flushBatch]로 DB에 일괄 기록합니다.
+     * 채널이 닫히면 for 루프가 종료되고, finally 블록에서 미처리 항목을 마지막으로 flush합니다.
+     * lazy 초기화이므로 WRITE_BEHIND 모드로 처음 put()이 호출될 때 Job이 시작됩니다.
+     */
     private val writeBehindJob by lazy {
         scope.launch {
             val batch = mutableListOf<Pair<ID, E>>()
@@ -128,7 +136,8 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
                     }
                 }
             } finally {
-                // 채널 닫힌 후 남은 항목 처리
+                // 채널 닫힌 후에도 루프에서 빠져나온 시점의 미처리 항목을 DB에 기록해야
+                // 데이터 유실을 방지할 수 있다.
                 if (batch.isNotEmpty()) {
                     flushBatch(batch)
                 }
@@ -296,7 +305,8 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
         when (config.writeMode) {
             CacheWriteMode.WRITE_THROUGH -> writeToDb(id, entity)
             CacheWriteMode.WRITE_BEHIND -> {
-                // Write-Behind Job 초기화 보장
+                // writeBehindJob은 lazy이므로 첫 send() 전에 명시적으로 접근하여
+                // 백그라운드 소비 루프가 시작되도록 보장한다.
                 writeBehindJob
                 writeBehindQueue.send(id to entity)
             }
@@ -313,7 +323,10 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
 
     /**
      * Write-Through 시 단일 엔티티를 DB에 저장합니다.
-     * AutoIncrement 테이블의 경우 신규 엔티티는 DB에 삽입하지 않습니다.
+     *
+     * UPDATE를 먼저 시도하고 영향 행이 0이면 INSERT로 upsert를 구현합니다.
+     * AutoIncrement 테이블은 DB가 ID를 자동 할당하므로 클라이언트 생성 ID로
+     * INSERT하면 충돌이 발생할 수 있어 신규 엔티티 삽입을 건너뜁니다.
      */
     private suspend fun writeToDb(id: ID, entity: E) {
         suspendTransaction {
