@@ -97,6 +97,8 @@ class LettuceNearCacheStorageAccess(
      * 캐시에 해당 키가 존재하는지 확인한다.
      *
      * Redis 장애 등 예외 발생 시 false를 반환한다.
+     * false를 반환하면 Hibernate는 DB를 통해 엔티티를 로드하므로, 예외를 전파하는 것보다
+     * 안전하게 폴백 동작을 유도할 수 있다.
      */
     override fun contains(key: Any): Boolean =
         runCatching { nearCache.containsKey(cacheKey(key)) }
