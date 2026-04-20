@@ -47,6 +47,10 @@ open class SuspendedEntityMapWriter<ID: Any, E: Any>(
     /**
      * 캐시 변경 사항을 코루틴 트랜잭션으로 DB에 비동기 반영합니다.
      *
+     * - `newSuspendedTransaction`을 사용합니다. 이전에 사용하던 `suspendedTransactionAsync { }.await()` 패턴은
+     *   deprecated이며, 중첩 Deferred 생성 후 await()하는 불필요한 오버헤드가 있었습니다.
+     *   `newSuspendedTransaction`은 직접 suspend로 실행해 불필요한 래핑을 제거합니다.
+     *
      * @param map 캐시에 쓰여진 ID → 엔티티 맵 전체
      * @return DB 반영 완료를 알리는 [CompletionStage]
      */
@@ -69,6 +73,10 @@ open class SuspendedEntityMapWriter<ID: Any, E: Any>(
 
     /**
      * 캐시에서 제거된 키 목록을 코루틴 트랜잭션으로 DB에 비동기 반영합니다.
+     *
+     * - `newSuspendedTransaction`으로 교체된 이유는 [write]와 동일합니다. (`suspendedTransactionAsync` deprecated)
+     * - [CancellationException]을 명시적으로 catch하고 재전파하는 이유: Exposed 트랜잭션 블록 내부에서
+     *   일반 Throwable을 catch하면 CancellationException도 잡혀 코루틴 취소가 무시될 수 있기 때문입니다.
      *
      * @param ids 캐시에서 제거된 ID 컬렉션
      * @return DB 반영 완료를 알리는 [CompletionStage]

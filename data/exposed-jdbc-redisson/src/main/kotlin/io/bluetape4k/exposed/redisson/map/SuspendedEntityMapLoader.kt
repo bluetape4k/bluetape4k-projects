@@ -44,7 +44,9 @@ import java.util.concurrent.CompletionStage
  * @param loadAllIdsFromDB 모든 ID를 [Channel]에 전송하는 suspend 함수
  * @param scope DB 조회 및 채널 처리에 사용할 [CoroutineScope]. 기본값은 `Dispatchers.IO` 기반 스코프입니다.
  */
-@Suppress("DEPRECATION")
+// WHY: @Suppress("DEPRECATION") — loadAllKeys()의 Channel<ID>(Channel.RENDEZVOUS) API가
+//      kotlinx.coroutines 1.8+ 에서 experimental → stable로 이동 중이며, 아직 일부 IDE/컴파일러가
+//      deprecated 경고를 내기 때문에 일시적으로 억제합니다. API 자체는 안정적으로 유지됩니다.
 open class SuspendedEntityMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
@@ -57,6 +59,15 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
         protected val defaultMapLoaderCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Loader")
     }
 
+    /**
+     * 단건 엔티티를 DB에서 비동기적으로 로드합니다.
+     *
+     * - [newSuspendedTransaction]으로 [loadByIdFromDB]를 실행합니다.
+     * - [kotlinx.coroutines.CancellationException]은 반드시 재전파해 코루틴 취소가 정상 동작하도록 합니다.
+     *
+     * @param id 로드할 엔티티의 ID
+     * @return 엔티티를 담은 [CompletionStage]. 존재하지 않으면 null.
+     */
     override fun load(id: ID): CompletionStage<E?> =
         scope
             .async {
@@ -77,6 +88,14 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
                 }
             }.asCompletableFuture()
 
+    /**
+     * DB의 모든 키를 [AsyncIterator]로 스트리밍합니다.
+     *
+     * - RENDEZVOUS Channel을 생산자(DB 조회 coroutine)와 소비자([AsyncIterator]) 사이의 back-pressure 파이프로 사용합니다.
+     * - [kotlinx.coroutines.CancellationException]은 `cause`에 저장 후 재전파하여 `channel.close(cause)`로
+     *   소비자가 정상 종료 대신 오류를 감지하도록 합니다.
+     * - 정상 종료 시에는 `channel.close(null)`이 호출되어 [AsyncIterator.hasNext]가 `false`를 반환합니다.
+     */
     override fun loadAllKeys(): AsyncIterator<ID> {
         val channel =
             Channel<ID>(Channel.RENDEZVOUS).also {
@@ -87,6 +106,8 @@ open class SuspendedEntityMapLoader<ID: Any, E: Any>(
 
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
+            // WHY: cause를 별도 변수로 보존하는 이유 — finally 블록에서 channel.close(cause)를 호출할 때
+            //      예외 인스턴스가 필요하기 때문입니다. 단순 channel.close()는 정상 종료와 구분할 수 없습니다.
             var cause: Throwable? = null
             try {
                 newSuspendedTransaction(scope.coroutineContext) {
