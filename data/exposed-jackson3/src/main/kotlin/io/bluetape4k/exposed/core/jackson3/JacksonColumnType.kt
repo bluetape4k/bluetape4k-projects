@@ -145,6 +145,8 @@ inline fun <reified T: Any> Table.jackson(
         name,
         serialize = { jacksonSerializer.serializeAsString(it) },
         deserialize = {
+            // WHY: `!!` 대신 requireNotNull 사용 — NPE 대신 명확한 IllegalArgumentException을 던져
+            //       컬럼명·타입·입력값을 메시지에 포함시킴으로써 데이터 정합성 오류를 즉시 진단 가능하게 함
             requireNotNull(jacksonSerializer.deserializeFromString<T>(it)) {
                 "JSON 역직렬화 결과가 null입니다. 컬럼='$name', 타입='${T::class.qualifiedName}', 입력='$it'"
             }

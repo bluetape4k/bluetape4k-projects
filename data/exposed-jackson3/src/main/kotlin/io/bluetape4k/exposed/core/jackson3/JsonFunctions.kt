@@ -68,6 +68,8 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         defaultType = JacksonColumnType(
             { serializer.serializeAsString(it) },
             {
+                // WHY: `!!` 대신 requireNotNull 사용 — JSON 경로 불일치나 타입 불일치 시 NPE 대신
+                //       타입명·입력값이 포함된 IllegalArgumentException으로 원인을 즉시 식별 가능하게 함
                 requireNotNull(serializer.deserializeFromString<T>(it)) {
                     "JSON extract 역직렬화 결과가 null입니다. 타입='${T::class.qualifiedName}', 입력='$it'"
                 }
