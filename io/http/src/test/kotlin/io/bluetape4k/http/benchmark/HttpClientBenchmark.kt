@@ -22,6 +22,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.openjdk.jmh.annotations.Threads
+import okhttp3.ConnectionPool
+import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.mockwebserver.Dispatcher
@@ -104,12 +106,21 @@ open class HttpClientBenchmark {
         mockPorts = mockServers.map { it.port }.toIntArray()
 
         okhttpClient = OkHttpClient.Builder()
+            .connectionPool(ConnectionPool(n * 20, 5L, TimeUnit.MINUTES))
+            .dispatcher(OkHttpDispatcher().apply {
+                maxRequests = n * 50
+                maxRequestsPerHost = n * 50
+            })
             .connectTimeout(Duration.ofSeconds(5))
             .readTimeout(Duration.ofSeconds(5))
             .build()
 
         okhttpVtClient = OkHttpClient.Builder()
-            .dispatcher(okhttp3DispatcherWithVirtualThread())
+            .connectionPool(ConnectionPool(n * 20, 5L, TimeUnit.MINUTES))
+            .dispatcher(okhttp3DispatcherWithVirtualThread().apply {
+                maxRequests = n * 50
+                maxRequestsPerHost = n * 50
+            })
             .connectTimeout(Duration.ofSeconds(5))
             .readTimeout(Duration.ofSeconds(5))
             .build()
