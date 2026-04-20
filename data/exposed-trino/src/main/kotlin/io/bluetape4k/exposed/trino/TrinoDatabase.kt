@@ -91,11 +91,19 @@ object TrinoDatabase: KLogging() {
         schema: String = "default",
         user: String = "trino",
     ): Database {
+        requireNotNull(host.ifBlank { null }) { "host는 공백일 수 없습니다." }
+        require(port in 1..65535) { "port는 1~65535 범위여야 합니다: $port" }
+        requireNotNull(catalog.ifBlank { null }) { "catalog는 공백일 수 없습니다." }
+        requireNotNull(schema.ifBlank { null }) { "schema는 공백일 수 없습니다." }
+
         val url = "jdbc:trino://$host:$port/$catalog/$schema"
         return Database.connect(
             getNewConnection = {
                 val props = Properties().apply { setProperty("user", user) }
-                TrinoConnectionWrapper(DriverManager.getConnection(url, props))
+                // 연결 획득 후 래퍼 생성 실패 시 원본 연결을 닫아 leak을 방지합니다.
+                val raw = DriverManager.getConnection(url, props)
+                runCatching { TrinoConnectionWrapper(raw) }
+                    .getOrElse { e -> raw.runCatching { close() }; throw e }
             }
         )
     }
@@ -115,10 +123,16 @@ object TrinoDatabase: KLogging() {
         jdbcUrl: String,
         user: String = "trino",
     ): Database {
+        requireNotNull(jdbcUrl.ifBlank { null }) { "jdbcUrl은 공백일 수 없습니다." }
+        require(jdbcUrl.startsWith("jdbc:trino://")) { "jdbcUrl은 'jdbc:trino://'로 시작해야 합니다: $jdbcUrl" }
+
         return Database.connect(
             getNewConnection = {
                 val props = Properties().apply { setProperty("user", user) }
-                TrinoConnectionWrapper(DriverManager.getConnection(jdbcUrl, props))
+                // 연결 획득 후 래퍼 생성 실패 시 원본 연결을 닫아 leak을 방지합니다.
+                val raw = DriverManager.getConnection(jdbcUrl, props)
+                runCatching { TrinoConnectionWrapper(raw) }
+                    .getOrElse { e -> raw.runCatching { close() }; throw e }
             }
         )
     }

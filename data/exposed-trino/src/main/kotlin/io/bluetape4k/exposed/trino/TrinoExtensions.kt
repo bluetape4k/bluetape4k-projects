@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.trino
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,12 @@ suspend fun <T> suspendTransaction(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> T,
 ): T = withContext(dispatcher) {
-    transaction(db) { block() }
+    try {
+        transaction(db) { block() }
+    } catch (e: CancellationException) {
+        // 코루틴 취소는 반드시 재전파해야 합니다 — 삼키면 구조적 동시성이 깨집니다.
+        throw e
+    }
 }
 
 /**
@@ -79,6 +85,11 @@ fun <T> queryFlow(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> Iterable<T>,
 ): Flow<T> = flow {
-    val items = withContext(dispatcher) { transaction(db) { block().toList() } }
+    val items = try {
+        withContext(dispatcher) { transaction(db) { block().toList() } }
+    } catch (e: CancellationException) {
+        // 코루틴 취소는 반드시 재전파해야 합니다 — 삼키면 구조적 동시성이 깨집니다.
+        throw e
+    }
     items.forEach { emit(it) }
 }
