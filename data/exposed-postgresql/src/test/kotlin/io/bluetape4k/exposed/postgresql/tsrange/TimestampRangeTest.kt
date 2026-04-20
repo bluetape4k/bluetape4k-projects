@@ -168,4 +168,40 @@ class TimestampRangeTest {
         range.lowerInclusive.shouldBeTrue()
         range.upperInclusive.shouldBeFalse()
     }
+
+    // ──────────────────────────────────────────────
+    // zero-duration 범위 (start == end) 경계값 테스트
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `contains - zero-duration 범위 양쪽 포함 경우 start == end 포함`() {
+        val point = Instant.parse("2024-06-01T00:00:00Z")
+        val range = TimestampRange(point, point, lowerInclusive = true, upperInclusive = true) // [p, p]
+
+        range.contains(point).shouldBeTrue()
+        range.contains(point.plusMillis(1)).shouldBeFalse()
+        range.contains(point.minusMillis(1)).shouldBeFalse()
+    }
+
+    @Test
+    fun `contains - zero-duration 범위 기본 경계는 항상 비어 있다`() {
+        val point = Instant.parse("2024-06-01T00:00:00Z")
+        val range = TimestampRange(point, point) // [p, p) — 빈 범위
+
+        // start는 포함되지만 end == start 이고 upperInclusive=false 이므로 empty
+        range.contains(point).shouldBeFalse()  // start == end, upperInclusive=false → contains는 false
+    }
+
+    @Test
+    fun `overlaps - zero-duration 양쪽 포함 범위는 완전 분리 범위와 겹치지 않는다`() {
+        val point = Instant.parse("2024-06-01T00:00:00Z")
+        val zero = TimestampRange(point, point, lowerInclusive = true, upperInclusive = true)
+        val before = TimestampRange(
+            Instant.parse("2024-01-01T00:00:00Z"),
+            Instant.parse("2024-03-01T00:00:00Z"),
+        )
+
+        zero.overlaps(before).shouldBeFalse()
+        before.overlaps(zero).shouldBeFalse()
+    }
 }

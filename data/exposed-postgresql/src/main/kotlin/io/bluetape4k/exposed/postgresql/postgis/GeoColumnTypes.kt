@@ -61,14 +61,32 @@ class GeoPointColumnType: ColumnType<Point>() {
     /**
      * DB에서 읽은 값을 [Point]로 변환한다.
      *
+     * geometry 타입이 [Point]가 아닌 경우 [IllegalStateException]을 던진다.
+     * DB 스키마와 컬럼 타입이 맞지 않을 때 빠르게 문제를 인지할 수 있도록 한다.
+     *
      * @param value DB에서 읽은 값 ([PGgeometry] 또는 문자열)
      * @return 파싱된 [Point] 객체
+     * @throws IllegalStateException geometry 타입이 Point가 아닌 경우
      */
     override fun valueFromDB(value: Any): Point = when (value) {
-        is PGgeometry -> value.geometry as Point
+        is PGgeometry -> {
+            val geom = value.geometry
+            checkNotNull(geom) { "PGgeometry.geometry 가 null 입니다." }
+            check(geom is Point) {
+                "GeoPointColumnType: geometry 타입이 Point 가 아닙니다. 실제 타입: ${geom::class.java.simpleName}"
+            }
+            geom
+        }
         is Point      -> value
-        is String     -> PGgeometry(value).geometry as Point
-        else          -> error("Unsupported value type: ${value::class.java}")
+        is String     -> {
+            val geom = PGgeometry(value).geometry
+            checkNotNull(geom) { "PGgeometry.geometry 가 null 입니다: '$value'" }
+            check(geom is Point) {
+                "GeoPointColumnType: geometry 타입이 Point 가 아닙니다. 실제 타입: ${geom::class.java.simpleName}"
+            }
+            geom
+        }
+        else          -> error("GeoPointColumnType: 지원하지 않는 값 타입입니다: ${value::class.java}")
     }
 }
 
@@ -118,14 +136,32 @@ class GeoPolygonColumnType: ColumnType<Polygon>() {
     /**
      * DB에서 읽은 값을 [Polygon]으로 변환한다.
      *
+     * geometry 타입이 [Polygon]이 아닌 경우 [IllegalStateException]을 던진다.
+     * DB 스키마와 컬럼 타입이 맞지 않을 때 빠르게 문제를 인지할 수 있도록 한다.
+     *
      * @param value DB에서 읽은 값 ([PGgeometry] 또는 문자열)
      * @return 파싱된 [Polygon] 객체
+     * @throws IllegalStateException geometry 타입이 Polygon이 아닌 경우
      */
     override fun valueFromDB(value: Any): Polygon = when (value) {
-        is PGgeometry -> value.geometry as Polygon
+        is PGgeometry -> {
+            val geom = value.geometry
+            checkNotNull(geom) { "PGgeometry.geometry 가 null 입니다." }
+            check(geom is Polygon) {
+                "GeoPolygonColumnType: geometry 타입이 Polygon 이 아닙니다. 실제 타입: ${geom::class.java.simpleName}"
+            }
+            geom
+        }
         is Polygon    -> value
-        is String     -> PGgeometry(value).geometry as Polygon
-        else          -> error("Unsupported value type: ${value::class.java}")
+        is String     -> {
+            val geom = PGgeometry(value).geometry
+            checkNotNull(geom) { "PGgeometry.geometry 가 null 입니다: '$value'" }
+            check(geom is Polygon) {
+                "GeoPolygonColumnType: geometry 타입이 Polygon 이 아닙니다. 실제 타입: ${geom::class.java.simpleName}"
+            }
+            geom
+        }
+        else          -> error("GeoPolygonColumnType: 지원하지 않는 값 타입입니다: ${value::class.java}")
     }
 }
 

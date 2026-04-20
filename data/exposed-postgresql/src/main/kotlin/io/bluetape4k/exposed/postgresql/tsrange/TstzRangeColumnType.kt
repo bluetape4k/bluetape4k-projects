@@ -107,8 +107,13 @@ class TstzRangeColumnType: ColumnType<TimestampRange>() {
      *
      * ISO-8601 포맷(`2024-01-01T00:00:00Z`)과
      * PostgreSQL JDBC 드라이버 포맷(`"2024-01-01 00:00:00+00"`, `"2024-01-01 00:00:00.123456+00"`)을 모두 지원한다.
+     *
+     * @throws IllegalArgumentException literal이 비어 있거나 유효하지 않은 경우
      */
     private fun parseRangeLiteral(literal: String): TimestampRange {
+        require(literal.isNotBlank()) {
+            "TSTZRANGE literal 이 비어 있거나 공백만 포함되어 있습니다."
+        }
         val trimmed = literal.trim()
         val lowerInclusive = trimmed.startsWith("[")
         val upperInclusive = trimmed.endsWith("]")
@@ -153,14 +158,25 @@ class TstzRangeColumnType: ColumnType<TimestampRange>() {
      * timestamp 문자열을 [Instant]로 파싱한다.
      *
      * ISO-8601(`2024-01-01T00:00:00Z`)과 PostgreSQL JDBC(`2024-01-01 00:00:00+00`) 모두 지원.
+     * 두 포맷 모두 실패하면 [IllegalArgumentException]을 던진다.
+     *
+     * @throws IllegalArgumentException 지원하지 않는 timestamp 포맷인 경우
      */
     private fun parseInstant(s: String): Instant {
-        return try {
-            Instant.parse(s)
-        } catch (e: Exception) {
-            // PostgreSQL JDBC 포맷 시도
-            val temporal = PG_TIMESTAMP_FORMATTER.parse(s)
-            LocalDateTime.from(temporal).toInstant(ZoneOffset.from(temporal))
+        try {
+            return Instant.parse(s)
+        } catch (e1: Exception) {
+            // PostgreSQL JDBC 포맷 시도: "2024-01-01 00:00:00+00" 또는 "2024-01-01 00:00:00.123456+00"
+            try {
+                val temporal = PG_TIMESTAMP_FORMATTER.parse(s)
+                return LocalDateTime.from(temporal).toInstant(ZoneOffset.from(temporal))
+            } catch (e2: Exception) {
+                throw IllegalArgumentException(
+                    "timestamp 문자열을 Instant 로 파싱할 수 없습니다: '$s'. " +
+                        "ISO-8601 또는 PostgreSQL JDBC 포맷이어야 합니다.",
+                    e2
+                )
+            }
         }
     }
 }

@@ -194,6 +194,28 @@ class GeoColumnTypeTest: AbstractExposedTest() {
     }
 
     @Test
+    fun `GeoPointColumnType 은 Polygon WKT 입력 시 타입 불일치 오류를 던진다`() {
+        // Polygon WKT를 Point 컬럼 타입으로 읽으면 명확한 오류 메시지가 제공되어야 한다
+        val polygonWkt = "SRID=4326;POLYGON((126 37,127 37,127 38,126 38,126 37))"
+        val pointType = GeoPointColumnType()
+
+        org.junit.jupiter.api.assertThrows<IllegalStateException> {
+            pointType.valueFromDB(polygonWkt)
+        }
+    }
+
+    @Test
+    fun `GeoPolygonColumnType 은 Point WKT 입력 시 타입 불일치 오류를 던진다`() {
+        // Point WKT를 Polygon 컬럼 타입으로 읽으면 명확한 오류 메시지가 제공되어야 한다
+        val pointWkt = "SRID=4326;POINT(126.9780 37.5665)"
+        val polygonType = GeoPolygonColumnType()
+
+        org.junit.jupiter.api.assertThrows<IllegalStateException> {
+            polygonType.valueFromDB(pointWkt)
+        }
+    }
+
+    @Test
     fun `ST_DWithin - 거리 임계값에 따라 포함 여부가 달라진다`() {
         val seoul = point(126.9780, 37.5665)
         val suwon = point(127.0286, 37.2636)

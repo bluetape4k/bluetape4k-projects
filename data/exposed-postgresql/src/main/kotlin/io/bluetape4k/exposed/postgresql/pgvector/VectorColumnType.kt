@@ -42,9 +42,25 @@ class VectorColumnType(val dimension: Int): ColumnType<FloatArray>() {
         return PGvector(value)
     }
 
+    /**
+     * DB에서 읽은 값을 [FloatArray]로 변환한다.
+     *
+     * [PGvector] 또는 문자열(`"[1,2,3]"`) 형태를 지원한다.
+     * 빈 문자열이거나 지원하지 않는 타입인 경우 명확한 오류 메시지로 빠르게 실패한다.
+     *
+     * @param value DB에서 읽은 값
+     * @return 변환된 [FloatArray]
+     * @throws IllegalArgumentException 빈 문자열인 경우
+     * @throws IllegalStateException 지원하지 않는 값 타입인 경우
+     */
     override fun valueFromDB(value: Any): FloatArray = when (value) {
         is PGvector -> value.toArray()
-        is String   -> PGvector(value).toArray()
-        else        -> error("Unsupported value type: ${value::class.java}")
+        is String   -> {
+            require(value.isNotBlank()) {
+                "VectorColumnType: DB 에서 읽은 벡터 문자열이 비어 있습니다."
+            }
+            PGvector(value).toArray()
+        }
+        else        -> error("VectorColumnType: 지원하지 않는 값 타입입니다: ${value::class.java}")
     }
 }
