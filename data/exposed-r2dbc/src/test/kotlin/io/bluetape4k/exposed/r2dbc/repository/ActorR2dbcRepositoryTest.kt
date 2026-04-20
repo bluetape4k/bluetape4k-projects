@@ -430,4 +430,114 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
             updated.all { it.lastName.endsWith(" Updated") }.shouldBeTrue()
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findAllByIds 는 여러 ID 로 엔티티를 일괄 조회한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            // 기존 데이터에서 ID 목록 수집
+            val all = repository.findAll().toList()
+            val ids = all.take(2).map { it.id }
+
+            val found = repository.findAllByIds(ids).toList()
+            found shouldHaveSize 2
+            found.map { it.id }.toSet() shouldBeEqualTo ids.toSet()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `existsById 는 존재하는 ID 에 true 를 반환한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            repository.existsById(1L).shouldBeTrue()
+            repository.existsById(Long.MAX_VALUE).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `existsBy 는 조건에 맞는 레코드가 있으면 true 를 반환한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            repository.existsBy { ActorTable.lastName eq "Depp" }.shouldBeTrue()
+            repository.existsBy { ActorTable.lastName eq "NonExistent" }.shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findByFieldOrNull 은 첫 번째 매칭 엔티티를 반환하거나 null 을 반환한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            val actor = repository.findByFieldOrNull(ActorTable.lastName, "Depp")
+            actor.shouldNotBeNull()
+            actor.lastName shouldBeEqualTo "Depp"
+
+            repository.findByFieldOrNull(ActorTable.lastName, "NonExistent").shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `updateAll 은 조건에 맞는 모든 엔티티를 수정한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            val actor = newActorRecord()
+            val saved = repository.save(actor)
+
+            // 특정 ID 를 제외한 모두 업데이트
+            val updatedCount = repository.updateAll({ ActorTable.id eq saved.id }) {
+                it[ActorTable.firstName] = "BulkUpdated"
+            }
+            updatedCount shouldBeEqualTo 1
+
+            val updated = repository.findById(saved.id)
+            updated.firstName shouldBeEqualTo "BulkUpdated"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `deleteAllByIds 는 여러 ID 를 일괄 삭제한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            val actors = List(3) { repository.save(newActorRecord()) }
+            val ids = actors.map { it.id }
+
+            val deleted = repository.deleteAllByIds(ids)
+            deleted shouldBeEqualTo 3
+
+            ids.forEach { id ->
+                repository.findByIdOrNull(id).shouldBeNull()
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `deleteByIdIgnore 는 존재하지 않는 ID 삭제 시 예외 없이 0 을 반환한다`(testDB: TestDB) = runTest {
+        // deleteIgnoreWhere 는 MySQL/MariaDB 계열에서만 지원됩니다
+        Assumptions.assumeTrue { testDB in TestDB.ALL_MYSQL_MARIADB }
+
+        withMovieAndActors(testDB) {
+            // 존재하지 않는 ID 삭제 — 예외 없이 0 반환해야 함
+            val deleted = repository.deleteByIdIgnore(Long.MAX_VALUE)
+            deleted shouldBeEqualTo 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 는 올바른 페이징 결과를 반환한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            // 기존 데이터 개수 확인 후 추가 삽입
+            val existing = repository.count()
+            repeat(5) { repository.save(newActorRecord()) }
+
+            val total = repository.count()
+            val pageSize = 3
+            val page0 = repository.findPage(pageNumber = 0, pageSize = pageSize)
+
+            page0.totalCount shouldBeEqualTo total
+            page0.content shouldHaveSize pageSize
+            page0.pageNumber shouldBeEqualTo 0
+            page0.pageSize shouldBeEqualTo pageSize
+        }
+    }
 }

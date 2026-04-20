@@ -324,16 +324,16 @@ private suspend fun Any?.toExposedBlobOrNull(): ExposedBlob? =
         }
         is InputStream -> toExposedBlob()
         is Blob ->
-            ByteArrayOutputStream().use { out ->
-                stream().asFlow()
-                    .collect { buf ->
-                        withContext(Dispatchers.IO) {
-                            val bytes = ByteArray(buf.remaining())
-                            buf.get(bytes)
-                            out.write(bytes)
-                        }
-                    }
-
+            // Blob 스트림의 모든 청크를 IO 컨텍스트에서 한 번에 수집합니다.
+            // 각 청크마다 dispatcher 전환을 반복하면 오버헤드가 발생하므로
+            // collect 전체를 IO dispatcher 로 감쌉니다.
+            withContext(Dispatchers.IO) {
+                val out = ByteArrayOutputStream()
+                stream().asFlow().collect { buf ->
+                    val bytes = ByteArray(buf.remaining())
+                    buf.get(bytes)
+                    out.write(bytes)
+                }
                 out.toByteArray().toExposedBlob()
             }
         else           -> null
