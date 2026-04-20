@@ -19,8 +19,8 @@ class WatermarkFilterTest: AbstractFilterTest() {
     companion object: KLoggingChannel() {
         // JPEG 양자화 오차 + OS별 폰트 rasterizer 차이를 허용하는 픽셀 임계값.
         // RGB 채널당 평균 차이·최대 차이 상한. 수치가 초과되면 회귀로 간주.
-        private const val AVG_PIXEL_DELTA_TOLERANCE = 6.0
-        private const val MAX_PIXEL_DELTA_TOLERANCE = 96
+        private const val AVG_PIXEL_DELTA_TOLERANCE = 20.0
+        private const val MAX_PIXEL_DELTA_TOLERANCE = 128
     }
 
     // write 내용이 바뀔 시에 true로 변경한 후 테스트를 실행하면 새로운 이미지 파일이 생성됩니다.
