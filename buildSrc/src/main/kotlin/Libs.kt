@@ -725,6 +725,7 @@ object Libs {
     val okhttp3 = okhttp("okhttp")
     val okhttp3_logging_interceptor = okhttp("logging-interceptor")
     val okhttp3_mockwebserver = okhttp("mockwebserver")
+    val okhttp3_coroutines = okhttp("okhttp-coroutines")
     val okhttp3_sse = okhttp("okhttp-sse")
     val okhttp3_urlconnection = okhttp("okhttp-urlconnection")
     val okhttp3_ws = okhttp("okhttp-ws")

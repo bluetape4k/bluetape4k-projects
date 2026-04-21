@@ -54,6 +54,7 @@ dependencies {
 
     // OkHttp3
     compileOnly(Libs.okhttp3)
+    compileOnly(Libs.okhttp3_coroutines)
     compileOnly(Libs.okhttp3_logging_interceptor)
 
     // OkHttp3 MockWebServer

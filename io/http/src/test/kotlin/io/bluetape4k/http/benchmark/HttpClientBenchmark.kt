@@ -1,6 +1,7 @@
 package io.bluetape4k.http.benchmark
 
 import io.bluetape4k.http.ahc.asyncHttpClient
+import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
@@ -215,18 +216,10 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.Default) {
-        suspendCancellableCoroutine { cont ->
-            val request = Request.Builder().url(pingUrl).get().build()
-            val call = okhttpClient.newCall(request)
-            call.enqueue(object: okhttp3.Callback {
-                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                    response.use { cont.resume(it.code) }
-                }
-                override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                    cont.resumeWithException(e)
-                }
-            })
-            cont.invokeOnCancellation { call.cancel() }
+        val request = Request.Builder().url(pingUrl).get().build()
+        okhttpClient.newCall(request).executeAsync().use { response ->
+            response.body.bytes()
+            response.code
         }
     }
 
