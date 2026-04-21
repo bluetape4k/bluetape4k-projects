@@ -2,11 +2,14 @@
 
 [한국어](./README.ko.md) | English
 
-A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provides HTTP endpoints compatible with [httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented entirely with Kotlin Coroutines (`suspend fun`, `Flow`).
+A standalone Spring Boot 4 + WebFlux mock server for integration testing.
+Provides HTTP endpoints compatible with [httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented entirely with Kotlin Coroutines (`suspend fun`, `Flow`).
+It runs on port **80** (HTTP) / **443** (HTTPS) inside Docker.
 
 ## Architecture
 
-`bluetape4k-mock-webflux-server` is packaged as a self-contained Spring Boot application (module `bluetape4k-mock-webflux-server`, Docker image `bluetape4k/mock-webflux-server`) that listens on port **9999** by default. It is designed to be launched as a `GenericContainer` via Testcontainers in integration test suites that need a real HTTP server without external network access.
+`bluetape4k-mock-webflux-server` is packaged as a self-contained Spring Boot application (module `bluetape4k-mock-webflux-server`, Docker image `bluetape4k/mock-webflux-server`).
+It is designed to be launched as a `GenericContainer` via `BluetapeWebfluxServer` (Testcontainers) in integration test suites that need a real HTTP server without external network access.
 
 ### Comparison with `bluetape4k-mock-web-server`
 
@@ -17,12 +20,16 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 | Streaming | N/A | `Flow`-based SSE / chunked |
 | Coroutines | Optional | First-class |
 | I/O model | Thread-per-request | Event-loop (Netty) |
+| HTTP port | 80 | 80 |
+| HTTPS port | 443 | 443 |
 
 ## UML
 
+### Request Routing Overview
+
 ```mermaid
 flowchart LR
-    C[Client] -->|HTTP 9999| S[Spring WebFlux DispatcherHandler]
+    C[Client] -->|HTTP 80| S[Spring WebFlux DispatcherHandler]
     S --> A[AdminController]
     S --> H[HttpbinController]
     S --> HA[HttpbinAdvancedController]
@@ -33,77 +40,239 @@ flowchart LR
     W --> L[WebContentLoader cacheable]
 ```
 
+### Class Diagram
+
+```mermaid
+classDiagram
+    class MockWebfluxApplication {
+        +main(args)
+    }
+
+    class HttpbinController {
+        +get(request) HttpbinResponse
+        +post(request, body) HttpbinResponse
+        +headers(request) Map
+        +ip(request) Map
+        +status(code) ResponseEntity
+        +bytes(n) ResponseEntity
+    }
+
+    class HttpbinAdvancedController {
+        +delay(seconds) HttpbinResponse
+        +image(format) ResponseEntity
+        +gzip() HttpbinResponse
+    }
+
+    class HttpbinStreamController {
+        +stream(n) Flow~String~
+        +sse(n) Flow~ServerSentEvent~
+    }
+
+    class PostsController {
+        +list() List~PostRecord~
+        +get(id) PostRecord
+        +create(post) PostRecord
+        +update(id, post) PostRecord
+        +delete(id) ResponseEntity
+    }
+
+    class JsonplaceholderService {
+        +reloadFromFixtures()
+    }
+
+    class InMemoryRepository~T~ {
+        <<generic>>
+        +findAll() List~T~
+        +findById(id) T?
+        +save(entity) T
+        +deleteById(id)
+    }
+
+    class WebContentController {
+        +getContent(name) ResponseEntity
+    }
+
+    class WebContentLoader {
+        +load(name) String
+    }
+
+    class AdminController {
+        +reset() ResponseEntity
+    }
+
+    MockWebfluxApplication --> HttpbinController
+    MockWebfluxApplication --> HttpbinAdvancedController
+    MockWebfluxApplication --> HttpbinStreamController
+    MockWebfluxApplication --> PostsController
+    MockWebfluxApplication --> WebContentController
+    MockWebfluxApplication --> AdminController
+
+    PostsController --> JsonplaceholderService
+    AdminController --> JsonplaceholderService
+    JsonplaceholderService --> InMemoryRepository
+
+    WebContentController --> WebContentLoader
+
+    style MockWebfluxApplication fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style HttpbinController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HttpbinAdvancedController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style HttpbinStreamController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style PostsController fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style JsonplaceholderService fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style InMemoryRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style WebContentController fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style WebContentLoader fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style AdminController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
+```
+
+### Sequence Diagram — httpbin GET
+
+```mermaid
+sequenceDiagram
+    participant CLIENT as Test / Client
+    participant SERVER as BluetapeWebfluxServer (Docker)
+    participant CTRL as HttpbinController
+
+    CLIENT->>SERVER: GET http://host:80/httpbin/get
+    SERVER->>CTRL: dispatch /httpbin/get
+    CTRL->>CTRL: build HttpbinResponse (suspend)\n(url, method, headers, origin)
+    CTRL-->>SERVER: HttpbinResponse JSON
+    SERVER-->>CLIENT: 200 OK + JSON body
+```
+
 ## Features
 
-- **Httpbin endpoints** — `/get`, `/post`, `/put`, `/delete`, `/patch`, `/headers`, `/ip`, `/status/{code}`, `/delay/{seconds}`, `/redirect/{n}`, `/cookies`, `/basic-auth/{user}/{passwd}`, `/bearer`, `/anything`
-- **Httpbin Advanced** — `/gzip`, `/deflate`, `/brotli`, `/encoding/utf8`, `/html`, `/xml`, `/json`, `/robots.txt`, `/deny`
-- **Httpbin Streaming** — `/stream/{n}` (Flow-based), `/stream-bytes/{n}`, `/drip`, `/sse`
-- **Jsonplaceholder** — Full CRUD for `posts`, `comments`, `albums`, `photos`, `todos`, `users` backed by an `InMemoryRepository`
-- **WebContent** — Serve arbitrary web content with `@Cacheable` loader
-- **Admin** — `/admin/reset`, `/admin/info`, `/ping`
-- **Global exception handler** — Consistent JSON error responses
-- **Spring Boot 4 + Kotlin Coroutines** — All handlers are `suspend fun` or return `Flow`
+- **Spring Boot 4 + Kotlin Coroutines**: All handlers are `suspend fun` or return `Flow` — fully non-blocking
+- **Port 80 (HTTP) / 443 (HTTPS)**: Standard container ports for deterministic test configuration
+- **httpbin simulation**: Full HTTP inspection API at `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images
+- **jsonplaceholder simulation**: 6 full CRUD resources (posts/comments/albums/photos/todos/users) at `/jsonplaceholder/**`
+- **Web content fixtures**: Cached HTML content at `/web/{name}` via Caffeine
+- **Admin reset**: `POST /admin/reset` reloads all in-memory fixture data from classpath JSON files
+- **Docker image**: `bluetape4k/mock-webflux-server` — built with Jib
+- **Testcontainers integration**: `BluetapeWebfluxServer` provides URL helpers including HTTPS for integration tests
+
+### Configuration
+
+`src/main/resources/application.yml` defaults:
+
+| Key | Value | Notes |
+|-----|-------|-------|
+| `server.port` | `80` | HTTP container port |
+| `bluetape4k.https.port` | `443` | HTTPS container port |
+| `spring.cache.type` | `caffeine` | In-process caching |
+| `spring.cache.cache-names` | `web-content`, `fixture-data`, `httpbin-image` | Caffeine cache names |
 
 ## Examples
 
-### Add as a Testcontainers dependency
+### Run via Docker
 
-```kotlin
-// build.gradle.kts
-testImplementation("io.bluetape4k:bluetape4k-mock-webflux-server")
+```bash
+docker run --rm -p 80:80 -p 443:443 bluetape4k/mock-webflux-server:latest
 ```
 
-### Start the server in a test
+### Build Docker image with Jib
+
+```bash
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+```
+
+### Use via Testcontainers (`BluetapeWebfluxServer`)
 
 ```kotlin
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.utility.DockerImageName
+val server = BluetapeWebfluxServer().apply { start() }
 
-val mockServer = GenericContainer(DockerImageName.parse("bluetape4k/mock-webflux-server:latest"))
-    .withExposedPorts(9999)
+// HTTP URL helpers
+println(server.url)                // http://localhost:<dynamic-port>
+println(server.httpbinUrl)         // http://localhost:<port>/httpbin
+println(server.jsonplaceholderUrl) // http://localhost:<port>/jsonplaceholder
+println(server.webUrl)             // http://localhost:<port>/web
 
-@BeforeAll
-fun startServer() {
-    mockServer.start()
+// HTTPS URL helpers (requires BluetapeSslContext)
+val httpsClient = BluetapeSslContext.configureOkHttp(OkHttpClient.Builder()).build()
+println(server.httpsUrl)           // https://localhost:<https-port>
+```
+
+### Add the Testcontainers dependency
+
+```kotlin
+dependencies {
+    testImplementation("io.github.bluetape4k:bluetape4k-testcontainers:${version}")
 }
-
-@AfterAll
-fun stopServer() {
-    mockServer.stop()
-}
-```
-
-### Call a Jsonplaceholder endpoint
-
-```kotlin
-val client = WebClient.create("http://${mockServer.host}:${mockServer.getMappedPort(9999)}")
-
-val posts: List<PostRecord> = client.get()
-    .uri("/posts")
-    .retrieve()
-    .awaitBody()
-```
-
-### Stream responses with Flow
-
-```kotlin
-val events: Flow<String> = client.get()
-    .uri("/stream/5")
-    .retrieve()
-    .bodyToFlow()
-
-events.collect { line -> println(line) }
 ```
 
 ### Use the application directly (without Docker)
 
 ```bash
 ./gradlew :bluetape4k-mock-webflux-server:bootRun
-# Server starts on http://localhost:9999
+# Server starts on http://localhost:80
 ```
 
-### Rebuild the Docker image
+### Endpoint Reference
 
-```bash
-./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
-```
+#### Core
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/ping` | Health check — returns `pong` |
+| `POST` | `/admin/reset` | Reloads all in-memory fixture data from classpath JSON files |
+| `GET` | `/admin/info` | Returns server info |
+
+#### `/httpbin/**`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/httpbin/get` | Echoes GET request info |
+| `POST` | `/httpbin/post` | Echoes POST request + body |
+| `PUT` | `/httpbin/put` | Echoes PUT request + body |
+| `PATCH` | `/httpbin/patch` | Echoes PATCH request + body |
+| `DELETE` | `/httpbin/delete` | Echoes DELETE request info |
+| `GET` | `/httpbin/headers` | Returns all request headers |
+| `GET` | `/httpbin/ip` | Returns client IP |
+| `GET` | `/httpbin/user-agent` | Returns User-Agent header |
+| `GET` | `/httpbin/uuid` | Returns a random UUID |
+| `ANY` | `/httpbin/anything/**` | Echoes any request |
+| `ANY` | `/httpbin/status/{code}` | Returns the given HTTP status code |
+| `GET` | `/httpbin/bytes/{n}` | Returns `n` random bytes |
+| `GET` | `/httpbin/delay/{seconds}` | Responds after a delay (`0.5` = 500 ms, range 0.0–10.0) |
+| `GET` | `/httpbin/stream/{n}` | Streams `n` JSON lines via `Flow` |
+| `GET` | `/httpbin/stream-bytes/{n}` | Streams `n` random bytes |
+| `GET` | `/httpbin/drip` | Drip-feeds bytes with configurable delay |
+| `GET` | `/httpbin/sse` | Server-Sent Events stream |
+| `GET` | `/httpbin/image/{format}` | Returns a sample image (png/jpeg/svg/webp) |
+| `GET` | `/httpbin/gzip` | Returns gzip-encoded response |
+| `GET` | `/httpbin/deflate` | Returns deflate-encoded response |
+| `GET` | `/httpbin/brotli` | Returns brotli-encoded response |
+| `GET` | `/httpbin/html` | Returns sample HTML |
+| `GET` | `/httpbin/xml` | Returns sample XML |
+| `GET` | `/httpbin/json` | Returns sample JSON |
+| `GET` | `/httpbin/robots.txt` | Returns robots.txt |
+| `GET` | `/httpbin/deny` | Returns 403 Forbidden |
+
+#### `/jsonplaceholder/**`
+
+Mirrors [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com). All resources support full CRUD.
+
+| Resource | Base Path |
+|----------|-----------|
+| Posts | `/jsonplaceholder/posts` |
+| Comments | `/jsonplaceholder/comments` |
+| Albums | `/jsonplaceholder/albums` |
+| Photos | `/jsonplaceholder/photos` |
+| Todos | `/jsonplaceholder/todos` |
+| Users | `/jsonplaceholder/users` |
+
+#### `/web/**`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/web/{name}` | Returns cached HTML content by name |
+| `GET` | `/web/random` | Returns random HTML content |
+| `GET` | `/web/naver` | Returns Naver-like HTML fixture |
+
+## References
+
+- [httpbin.org](https://httpbin.org)
+- [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
+- [Testcontainers](https://www.testcontainers.org/)
+- [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)
+- [Jib — Containerize Java apps](https://github.com/GoogleContainerTools/jib)

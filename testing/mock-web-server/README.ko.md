@@ -7,7 +7,7 @@
 
 ## Architecture
 
-`bluetape4k-mock-web-server`는 포트 **8888**에서 실행되는 Spring Boot 4 MVC 애플리케이션입니다.
+`bluetape4k-mock-web-server`는 포트 **80**(HTTP) / **443**(HTTPS)에서 실행되는 Spring Boot 4 MVC 애플리케이션입니다.
 `spring.threads.virtual.enabled=true` 설정으로 JDK 21+ Virtual Threads를 사용하여 OS 스레드를 블로킹하지 않고 고동시성 요청을 처리합니다.
 모든 Fixture 데이터는 클래스패스 JSON 파일에서 로드되어 인메모리에 저장되며, 제네릭 `InMemoryRepository<T>`를 통해 `JsonplaceholderService`가 관리합니다.
 정적 HTML 컨텐츠는 Caffeine 캐시를 사용하는 `WebContentLoader`를 통해 제공됩니다.
@@ -26,7 +26,7 @@
 
 ```mermaid
 flowchart LR
-    C[Client] -->|HTTP 8888| S[Spring MVC DispatcherServlet]
+    C[Client] -->|HTTP 80| S[Spring MVC DispatcherServlet]
     S --> A[AdminController]
     S --> H[HttpbinController]
     S --> J[Jsonplaceholder 6 Controllers]
@@ -126,7 +126,7 @@ sequenceDiagram
     participant SERVER as BluetapeHttpServer (Docker)
     participant CTRL as HttpbinController
 
-    CLIENT->>SERVER: GET http://host:8888/httpbin/get
+    CLIENT->>SERVER: GET http://host:80/httpbin/get
     SERVER->>CTRL: /httpbin/get 디스패치
     CTRL->>CTRL: HttpbinResponse 생성\n(url, method, headers, origin)
     CTRL-->>SERVER: HttpbinResponse JSON
@@ -136,7 +136,7 @@ sequenceDiagram
 ## Features
 
 - **Spring Boot 4 + Virtual Threads**: JDK 21+ Virtual Threads(`spring.threads.virtual.enabled=true`)로 고동시성 요청 처리
-- **포트 8888**: 결정론적 테스트 구성을 위한 고정 컨테이너 포트
+- **포트 80(HTTP) / 443(HTTPS)**: 결정론적 테스트 구성을 위한 표준 컨테이너 포트
 - **httpbin 시뮬레이션**: `/httpbin/**`에서 HTTP 요청 검사 전체 API 제공 — 요청 에코, 헤더/IP/UUID 반환, 스트리밍, 지연, 이미지
 - **jsonplaceholder 시뮬레이션**: `/jsonplaceholder/**`에서 6개 전체 CRUD 리소스 (posts/comments/albums/photos/todos/users)
 - **웹 컨텐츠 Fixture**: Caffeine 캐시를 통한 `/web/{name}` HTML 컨텐츠
@@ -150,7 +150,8 @@ sequenceDiagram
 
 | 키 | 값 | 설명 |
 |----|-----|------|
-| `server.port` | `8888` | 컨테이너 고정 포트 |
+| `server.port` | `80` | HTTP 컨테이너 포트 |
+| `bluetape4k.https.port` | `443` | HTTPS 컨테이너 포트 |
 | `server.http2.enabled` | `true` | HTTP/2 지원 |
 | `server.tomcat.threads.max` | `16000` | 최대 플랫폼 스레드 수 (고동시성 벤치마크 지원) |
 | `server.tomcat.max-connections` | `16000` | 최대 동시 연결 수 |
@@ -164,7 +165,7 @@ sequenceDiagram
 ### Docker로 실행
 
 ```bash
-docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
+docker run --rm -p 80:80 -p 443:443 bluetape4k/mock-web-server:latest
 ```
 
 ### Jib으로 Docker 이미지 빌드

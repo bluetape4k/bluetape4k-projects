@@ -7,7 +7,7 @@ It simulates **httpbin.org**, **jsonplaceholder.typicode.com**, and a simple web
 
 ## Architecture
 
-`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **8888**.
+`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **80** (HTTP) / **443** (HTTPS).
 It uses Virtual Threads (`spring.threads.virtual.enabled=true`) for high-concurrency handling without blocking OS threads.
 All fixture data is stored in-memory (loaded from classpath JSON files) and managed by `JsonplaceholderService` through a generic `InMemoryRepository<T>`.
 Static HTML content is served via `WebContentLoader` with Caffeine caching.
@@ -26,7 +26,7 @@ Static HTML content is served via `WebContentLoader` with Caffeine caching.
 
 ```mermaid
 flowchart LR
-    C[Client] -->|HTTP 8888| S[Spring MVC DispatcherServlet]
+    C[Client] -->|HTTP 80| S[Spring MVC DispatcherServlet]
     S --> A[AdminController]
     S --> H[HttpbinController]
     S --> J[Jsonplaceholder 6 Controllers]
@@ -126,7 +126,7 @@ sequenceDiagram
     participant SERVER as BluetapeHttpServer (Docker)
     participant CTRL as HttpbinController
 
-    CLIENT->>SERVER: GET http://host:8888/httpbin/get
+    CLIENT->>SERVER: GET http://host:80/httpbin/get
     SERVER->>CTRL: dispatch /httpbin/get
     CTRL->>CTRL: build HttpbinResponse\n(url, method, headers, origin)
     CTRL-->>SERVER: HttpbinResponse JSON
@@ -136,7 +136,7 @@ sequenceDiagram
 ## Features
 
 - **Spring Boot 4 + Virtual Threads**: High-concurrency request handling with JDK 21+ Virtual Threads (`spring.threads.virtual.enabled=true`)
-- **Port 8888**: Fixed container port for deterministic test configuration
+- **Port 80 (HTTP) / 443 (HTTPS)**: Standard container ports for deterministic test configuration
 - **httpbin simulation**: Full HTTP inspection API at `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images
 - **jsonplaceholder simulation**: 6 full CRUD resources (posts/comments/albums/photos/todos/users) at `/jsonplaceholder/**`
 - **Web content fixtures**: Cached HTML content at `/web/{name}` via Caffeine
@@ -150,7 +150,8 @@ sequenceDiagram
 
 | Key | Value | Notes |
 |-----|-------|-------|
-| `server.port` | `8888` | Fixed container port |
+| `server.port` | `80` | HTTP container port |
+| `bluetape4k.https.port` | `443` | HTTPS container port |
 | `server.http2.enabled` | `true` | HTTP/2 support |
 | `server.tomcat.threads.max` | `16000` | Max platform threads (high-concurrency benchmark support) |
 | `server.tomcat.max-connections` | `16000` | Max simultaneous connections |
@@ -164,7 +165,7 @@ sequenceDiagram
 ### Run via Docker
 
 ```bash
-docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
+docker run --rm -p 80:80 -p 443:443 bluetape4k/mock-web-server:latest
 ```
 
 ### Build Docker image with Jib
