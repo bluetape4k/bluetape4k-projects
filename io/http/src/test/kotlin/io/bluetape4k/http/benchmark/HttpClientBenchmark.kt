@@ -4,6 +4,7 @@ import io.bluetape4k.http.ahc.asyncHttpClient
 import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
@@ -21,15 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.openjdk.jmh.annotations.Threads
 import okhttp3.ConnectionPool
 import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
@@ -41,31 +37,31 @@ import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.asynchttpclient.DefaultAsyncHttpClient
 import org.asynchttpclient.DefaultAsyncHttpClientConfig
+import org.openjdk.jmh.annotations.Threads
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
-import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * 다양한 HTTP Client 들의 throughput 을 비교하는 JMH 벤치마크.
+ * 다양한 HTTP Client 의 throughput 을 비교하는 JMH 벤치마크.
  *
- * 로컬 [MockWebServer] 를 하나 띄워서 고정된 200 응답을 반환하도록 하고,
- * 각 클라이언트가 동일 엔드포인트에 GET 요청을 수행합니다.
+ * Docker 기반 [BluetapeHttpServer] 를 외부 프로세스로 사용하므로
+ * 서버 JVM 이 벤치마크 JVM 과 분리되어 클라이언트 단독 성능을 측정합니다.
+ *
+ * 엔드포인트: `GET /ping` → HTTP 200 (경량 응답, 순수 연결 처리량 측정)
  *
  * 비교 대상:
- * - OkHttp3 동기
- * - java.net.http 동기
- * - java.net.http + Virtual Threads
- * - Apache HC5 Classic 동기
- * - Apache HC5 Classic + Coroutines (withContext(IO))
+ * - OkHttp3 동기 / Virtual Thread
+ * - java.net.http 동기 / Virtual Thread / HTTP2
+ * - Apache HC5 Classic 동기 / Coroutines / Virtual Thread
  * - Apache HC5 Async + Coroutines
- * - Apache AsyncHttpClient + Coroutines
+ * - Apache AsyncHttpClient + Coroutines (Default / Unconfined)
  * - Vert.x WebClient + Coroutines
  */
 @State(Scope.Benchmark)
@@ -75,12 +71,12 @@ import kotlin.coroutines.resumeWithException
 @Threads(8)
 open class HttpClientBenchmark {
 
-    private lateinit var mockServers: List<MockWebServer>
-    private lateinit var baseUrls: List<String>
-    private lateinit var mockPorts: IntArray
+    // 별도 Docker 프로세스 — 벤치마크 JVM 과 자원 경쟁 없음
+    private val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
 
-    private fun pickUrl(): String = baseUrls[ThreadLocalRandom.current().nextInt(baseUrls.size)]
-    private fun pickPort(): Int = mockPorts[ThreadLocalRandom.current().nextInt(mockPorts.size)]
+    private lateinit var pingUrl: String
+    private lateinit var serverHost: String
+    private var serverPort: Int = 0
 
     // clients
     private lateinit var okhttpClient: OkHttpClient
@@ -100,13 +96,10 @@ open class HttpClientBenchmark {
     @Setup
     fun setup() {
         val n = Runtime.getRuntime().availableProcessors()
-        val sharedDispatcher = object: Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse =
-                MockResponse().setResponseCode(200)
-        }
-        mockServers = List(n) { MockWebServer().apply { dispatcher = sharedDispatcher; start() } }
-        baseUrls = mockServers.map { it.url("/ping").toString() }
-        mockPorts = mockServers.map { it.port }.toIntArray()
+
+        pingUrl = "${server.url}/ping"
+        serverHost = server.host
+        serverPort = server.port
 
         okhttpClient = OkHttpClient.Builder()
             .connectionPool(ConnectionPool(n * 20, 5L, TimeUnit.MINUTES))
@@ -168,12 +161,11 @@ open class HttpClientBenchmark {
                 .build()
         )
 
-        // Optimized AHC: native transport + connection pool tuning via asyncHttpClient DSL
         ahcOptimizedClient = asyncHttpClient {
             setConnectTimeout(5_000)
             setRequestTimeout(5_000)
-            setMaxConnectionsPerHost(100)
-            setMaxConnections(200)
+            setMaxConnectionsPerHost(200)
+            setMaxConnections(500)
             setKeepAlive(true)
             setTcpNoDelay(true)
         }
@@ -201,12 +193,11 @@ open class HttpClientBenchmark {
         runCatching { okhttpClient.connectionPool.evictAll() }
         runCatching { okhttpVtClient.dispatcher.executorService.shutdown() }
         runCatching { okhttpVtClient.connectionPool.evictAll() }
-        mockServers.forEach { runCatching { it.shutdown() } }
     }
 
     @Benchmark
     fun okhttp3Sync(): Int {
-        val request = Request.Builder().url(pickUrl()).get().build()
+        val request = Request.Builder().url(pingUrl).get().build()
         okhttpClient.newCall(request).execute().use { response ->
             response.body.bytes()
             return response.code
@@ -214,53 +205,55 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
+    fun okhttp3VirtualThread(): Int {
+        val request = Request.Builder().url(pingUrl).get().build()
+        okhttpVtClient.newCall(request).execute().use { response ->
+            response.body.bytes()
+            return response.code
+        }
+    }
+
+    @Benchmark
     fun javaHttpSync(): Int {
-        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pingUrl)).GET().build()
         val response = jdkClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
         return response.statusCode()
     }
 
     @Benchmark
     fun javaHttpVirtualThread(): Int {
-        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pingUrl)).GET().build()
         val response = jdkVirtualClient.send(request, HttpResponse.BodyHandlers.ofByteArray())
         return response.statusCode()
     }
 
     @Benchmark
     fun javaHttpH2Sync(): Int {
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(pickUrl()))
-            .GET()
-            .build()
+        val request = HttpRequest.newBuilder().uri(URI.create(pingUrl)).GET().build()
         val response = jdkH2Client.send(request, HttpResponse.BodyHandlers.ofString())
         return response.statusCode()
     }
 
     @Benchmark
     fun javaHttpH2VirtualThread(): Int {
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(pickUrl()))
-            .GET()
-            .build()
+        val request = HttpRequest.newBuilder().uri(URI.create(pingUrl)).GET().build()
         val response = jdkH2VirtualClient.send(request, HttpResponse.BodyHandlers.ofString())
         return response.statusCode()
     }
 
     @Benchmark
     fun hc5Classic(): Int {
-        val request = HttpGet(pickUrl())
+        val request = HttpGet(pingUrl)
         return hc5Classic.execute(request) { response ->
             EntityUtils.consume(response.entity)
             response.code
         }
     }
 
-    /** HC5 Classic 을 Coroutines IO Dispatcher 에서 실행 — 블로킹 코드의 코루틴 래핑 패턴 */
     @Benchmark
     fun hc5ClassicCoroutines(): Int = runBlocking {
         withContext(Dispatchers.IO) {
-            val request = HttpGet(pickUrl())
+            val request = HttpGet(pingUrl)
             hc5Classic.execute(request) { response ->
                 EntityUtils.consume(response.entity)
                 response.code
@@ -269,8 +262,17 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
+    fun hc5ClassicVirtualThread(): Int {
+        val request = HttpGet(pingUrl)
+        return hc5ClassicVt.execute(request) { response ->
+            EntityUtils.consume(response.entity)
+            response.code
+        }
+    }
+
+    @Benchmark
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        val request: SimpleHttpRequest = SimpleRequestBuilder.get(pickUrl()).build()
+        val request: SimpleHttpRequest = SimpleRequestBuilder.get(pingUrl).build()
         val response: SimpleHttpResponse = suspendCancellableCoroutine { cont ->
             val future = hc5Async.execute(
                 request,
@@ -288,7 +290,7 @@ open class HttpClientBenchmark {
     @Benchmark
     fun ahcCoroutines(): Int = runBlocking(Dispatchers.Default) {
         suspendCancellableCoroutine { cont ->
-            val future = ahcClient.prepareGet(pickUrl()).execute().toCompletableFuture()
+            val future = ahcClient.prepareGet(pingUrl).execute().toCompletableFuture()
             future.whenComplete { response, error ->
                 if (error != null) cont.resumeWithException(error)
                 else cont.resume(response.statusCode)
@@ -297,37 +299,22 @@ open class HttpClientBenchmark {
         }
     }
 
-    /** AHC + executeSuspending() + native transport + pool tuning */
     @Benchmark
     fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
+        ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
     }
 
-    /** Vert.x WebClient + Coroutines — 이벤트 루프 기반 비동기 HTTP */
+    @Benchmark
+    fun ahcOptimizedCoroutinesUnconfined(): Int = runBlocking(Dispatchers.Unconfined) {
+        ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
+    }
+
     @Benchmark
     fun vertxWebClientCoroutines(): Int = runBlocking {
-        val response = vertxWebClient
-            .get(pickPort(), "localhost", "/ping")
+        vertxWebClient
+            .get(serverPort, serverHost, "/ping")
             .send()
             .coAwait()
-        response.statusCode()
-    }
-
-    @Benchmark
-    fun okhttp3VirtualThread(): Int {
-        val request = Request.Builder().url(pickUrl()).get().build()
-        okhttpVtClient.newCall(request).execute().use { response ->
-            response.body.bytes()
-            return response.code
-        }
-    }
-
-    @Benchmark
-    fun hc5ClassicVirtualThread(): Int {
-        val request = HttpGet(pickUrl())
-        return hc5ClassicVt.execute(request) { response ->
-            EntityUtils.consume(response.entity)
-            response.code
-        }
+            .statusCode()
     }
 }
