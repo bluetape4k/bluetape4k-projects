@@ -3,7 +3,12 @@ package io.bluetape4k.mockserver.jsonplaceholder
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.mockserver.MockServerApplication
+import io.bluetape4k.mockserver.jsonplaceholder.model.AlbumRecord
+import io.bluetape4k.mockserver.jsonplaceholder.model.CommentRecord
+import io.bluetape4k.mockserver.jsonplaceholder.model.PhotoRecord
 import io.bluetape4k.mockserver.jsonplaceholder.model.PostRecord
+import io.bluetape4k.mockserver.jsonplaceholder.model.TodoRecord
+import io.bluetape4k.mockserver.jsonplaceholder.model.UserRecord
 import org.hamcrest.Matchers.greaterThan
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
@@ -155,5 +160,186 @@ class JsonplaceholderContractTest {
             .andExpect(jsonPath("$").isArray)
             .andExpect(jsonPath("$.length()").value(greaterThan(0)))
             .andDo { log.info { "GET /jsonplaceholder/posts after reset → 200" } }
+    }
+
+    /**
+     * E29: posts CRUD 왕복 테스트 — POST → GET → DELETE 흐름.
+     */
+    @Test
+    @Order(8)
+    fun `posts_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            PostRecord(id = 0L, userId = 1L, title = "crud-title", body = "crud-body")
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, PostRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/posts/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/posts/$id"))
+            .andExpect(status().is2xxSuccessful)
+    }
+
+    /**
+     * E30: comments CRUD 왕복 테스트.
+     */
+    @Test
+    @Order(9)
+    fun `comments_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            CommentRecord(postId = 1L, id = 0L, name = "crud", email = "a@b.c", body = "hi")
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, CommentRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/comments/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/comments/$id"))
+            .andExpect(status().is2xxSuccessful)
+    }
+
+    /**
+     * E31: albums CRUD 왕복 테스트.
+     */
+    @Test
+    @Order(10)
+    fun `albums_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            AlbumRecord(userId = 1L, id = 0L, title = "crud-album")
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/albums")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, AlbumRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/albums/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/albums/$id"))
+            .andExpect(status().is2xxSuccessful)
+    }
+
+    /**
+     * E32: photos CRUD 왕복 테스트.
+     */
+    @Test
+    @Order(11)
+    fun `photos_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            PhotoRecord(
+                albumId = 1L,
+                id = 0L,
+                title = "crud-photo",
+                url = "http://example.com/u.png",
+                thumbnailUrl = "http://example.com/t.png",
+            )
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/photos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, PhotoRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/photos/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/photos/$id"))
+            .andExpect(status().is2xxSuccessful)
+    }
+
+    /**
+     * E33: todos CRUD 왕복 테스트.
+     */
+    @Test
+    @Order(12)
+    fun `todos_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            TodoRecord(userId = 1L, id = 0L, title = "crud-todo", completed = false)
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/todos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, TodoRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/todos/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/todos/$id"))
+            .andExpect(status().is2xxSuccessful)
+    }
+
+    /**
+     * E34: users CRUD 왕복 테스트.
+     */
+    @Test
+    @Order(13)
+    fun `users_crud_roundtrip`() {
+        val body = jsonMapper.writeValueAsString(
+            UserRecord(
+                id = 0L,
+                name = "crud-user",
+                username = "crud",
+                email = "c@u.io",
+                phone = "010",
+                website = "crud.dev",
+            )
+        )
+        val mvcResult = mockMvc.perform(
+            post("/jsonplaceholder/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isCreated)
+            .andReturn()
+
+        val created = jsonMapper.readValue(mvcResult.response.contentAsString, UserRecord::class.java)
+        val id = created.id
+
+        mockMvc.perform(get("/jsonplaceholder/users/$id"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(id))
+
+        mockMvc.perform(delete("/jsonplaceholder/users/$id"))
+            .andExpect(status().is2xxSuccessful)
     }
 }

@@ -303,4 +303,91 @@ class HttpbinAdvancedContractTest {
         mockMvc.perform(get("/httpbin/status/999"))
             .andExpect(status().isBadRequest)
     }
+
+    /** E19: /httpbin/delay/{sec} → 요청 시간만큼 대기 후 200 */
+    @Test
+    fun `delay_endpoint_waits_requested_seconds`() {
+        val start = System.currentTimeMillis()
+        mockMvc.perform(get("/httpbin/delay/1"))
+            .andExpect(status().isOk)
+        val elapsed = System.currentTimeMillis() - start
+        assert(elapsed >= 1000L) { "Expected delay >= 1000ms, but got ${elapsed}ms" }
+    }
+
+    /** E20: /httpbin/redirect/{n} → 302 리다이렉트 체인 */
+    @Test
+    fun `redirect_endpoint_returns_302_chain`() {
+        mockMvc.perform(get("/httpbin/redirect/3"))
+            .andExpect(status().isFound)
+            .andExpect(header().string("Location", "/httpbin/redirect/2"))
+    }
+
+    /** E21: /httpbin/cookies → 요청 쿠키 리스트 반환 */
+    @Test
+    fun `cookies_endpoint_lists_cookies`() {
+        mockMvc.perform(
+            get("/httpbin/cookies")
+                .cookie(Cookie("session", "abc"))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.cookies.session").value("abc"))
+    }
+
+    /** E22: /httpbin/cookies/set → 쿠키 저장 후 /httpbin/cookies로 리다이렉트 */
+    @Test
+    fun `cookies_set_stores_cookie`() {
+        mockMvc.perform(get("/httpbin/cookies/set").param("token", "xyz"))
+            .andExpect(status().isFound)
+            .andExpect(header().string("Location", "/httpbin/cookies"))
+    }
+
+    /** E23: /httpbin/cookies/delete → 쿠키 제거 후 /httpbin/cookies로 리다이렉트 */
+    @Test
+    fun `cookies_delete_removes_cookie`() {
+        mockMvc.perform(get("/httpbin/cookies/delete").param("token", ""))
+            .andExpect(status().isFound)
+            .andExpect(header().string("Location", "/httpbin/cookies"))
+    }
+
+    /** E24: /httpbin/basic-auth/{u}/{p} → Authorization 미제공 시 401 */
+    @Test
+    fun `basic_auth_returns_401_on_missing_credentials`() {
+        mockMvc.perform(get("/httpbin/basic-auth/user/pass"))
+            .andExpect(status().isUnauthorized)
+    }
+
+    /** E25: /httpbin/bearer → Bearer 토큰 미제공 시 401 */
+    @Test
+    fun `bearer_returns_401_without_bearer`() {
+        mockMvc.perform(get("/httpbin/bearer"))
+            .andExpect(status().isUnauthorized)
+    }
+
+    /** E26: /httpbin/cache → If-Modified-Since 헤더 있으면 304 */
+    @Test
+    fun `cache_returns_304_when_if_modified_since_set`() {
+        mockMvc.perform(
+            get("/httpbin/cache")
+                .header("If-Modified-Since", "Wed, 01 Jan 2025 00:00:00 GMT")
+        )
+            .andExpect(status().isNotModified)
+    }
+
+    /** E27: /httpbin/cache/{seconds} → Cache-Control max-age 설정 */
+    @Test
+    fun `cache_value_sets_cache_control_max_age`() {
+        mockMvc.perform(get("/httpbin/cache/600"))
+            .andExpect(status().isOk)
+            .andExpect(header().string("Cache-Control", "public, max-age=600"))
+    }
+
+    /** E28: /httpbin/etag/{etag} → If-None-Match 일치 시 304 */
+    @Test
+    fun `etag_returns_304_on_if_none_match`() {
+        mockMvc.perform(
+            get("/httpbin/etag/contract-etag")
+                .header("If-None-Match", "\"contract-etag\"")
+        )
+            .andExpect(status().isNotModified)
+    }
 }

@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -139,5 +142,82 @@ class HttpbinContractTest {
     fun `GET httpbin image png returns 200`() {
         mockMvc.perform(get("/httpbin/image/png"))
             .andExpect(status().isOk)
+    }
+
+    /**
+     * E05: PUT /httpbin/put → 200, 요청 body가 그대로 반향됨
+     */
+    @Test
+    fun `put_echoes_body`() {
+        mockMvc.perform(
+            put("/httpbin/put")
+                .contentType(MediaType.TEXT_PLAIN)
+                .content("hello-put")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value("hello-put"))
+            .andDo { log.info { "PUT /httpbin/put → 200" } }
+    }
+
+    /**
+     * E06: PATCH /httpbin/patch → 200, 요청 body가 그대로 반향됨
+     */
+    @Test
+    fun `patch_echoes_body`() {
+        mockMvc.perform(
+            patch("/httpbin/patch")
+                .contentType(MediaType.TEXT_PLAIN)
+                .content("hello-patch")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data").value("hello-patch"))
+            .andDo { log.info { "PATCH /httpbin/patch → 200" } }
+    }
+
+    /**
+     * E07: DELETE /httpbin/delete → 200, 요청 정보가 반향됨
+     */
+    @Test
+    fun `delete_echoes_request`() {
+        mockMvc.perform(delete("/httpbin/delete"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.url").exists())
+            .andDo { log.info { "DELETE /httpbin/delete → 200" } }
+    }
+
+    /**
+     * E10: GET /httpbin/user-agent → 200, 요청 User-Agent 반환
+     */
+    @Test
+    fun `user_agent_endpoint_returns_ua`() {
+        mockMvc.perform(
+            get("/httpbin/user-agent")
+                .header("User-Agent", "ContractTest/1.0")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.user-agent").value("ContractTest/1.0"))
+    }
+
+    /**
+     * E12: GET /httpbin/anything/... → 요청 메서드와 경로가 반향됨
+     */
+    @Test
+    fun `anything_echoes_method_and_path`() {
+        mockMvc.perform(get("/httpbin/anything/foo/bar"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.method").value("GET"))
+            .andExpect(jsonPath("$.url").exists())
+    }
+
+    /**
+     * E14: GET /httpbin/bytes/{n} → n 바이트의 랜덤 바이트 반환
+     */
+    @Test
+    fun `bytes_endpoint_returns_n_random_bytes`() {
+        val result = mockMvc.perform(get("/httpbin/bytes/100"))
+            .andExpect(status().isOk)
+            .andReturn()
+        val body = result.response.contentAsByteArray
+        assert(body.size == 100) { "Expected 100 bytes, got ${body.size}" }
     }
 }
