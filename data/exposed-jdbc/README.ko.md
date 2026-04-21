@@ -620,6 +620,25 @@ sequenceDiagram
 | `core/TableExtensions.kt`                           | 테이블 메타데이터 확장 함수                    |
 | `core/SchemaUtilsExtensions.kt`                     | SchemaUtils 확장 함수                  |
 
+## 성능 벤치마크
+
+`ExposedJdbcBenchmark` JMH 측정 결과 (PostgreSQL via Testcontainers, HikariCP pool).
+전체 최적화 이력은 [2026-04-21-self-improve.md](./2026-04-21-self-improve.md) 참고.
+
+**환경**: Java 21, Kotlin 2.3, PostgreSQL 16, HikariCP max=24, @Threads(14), @Warmup(3×3s) + @Measurement(5×5s)
+
+| 벤치마크 | ops/s |
+|----------|-------|
+| `singleInsert` | ~14,400 |
+| `singleFindById` | ~15,000 |
+| `singleUpdate` | ~14,300 |
+| `joinQuery` (INNER JOIN + WHERE + LIMIT 100) | ~1,510 |
+| `batchInsert` (batchSize=100) | ~217 |
+| **합계** | **~45,431** |
+
+> 8 라운드 자동화 최적화: 초기 baseline 대비 **+78.9% 개선** (25,401 → 45,431 ops/s).
+> 주요 개선 요인: HikariCP pool 튜닝 (+71%), `bench_orders` 복합 인덱스 추가 (+1.5%), JMH 측정 안정화 (+2.9%).
+
 ## 테스트
 
 ```bash
