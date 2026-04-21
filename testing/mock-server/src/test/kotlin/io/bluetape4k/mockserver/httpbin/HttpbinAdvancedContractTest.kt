@@ -274,8 +274,27 @@ class HttpbinAdvancedContractTest {
     }
 
     @Test
+    fun `GET httpbin delay with 0 seconds returns 200`() {
+        mockMvc.perform(get("/httpbin/delay/0"))
+            .andExpect(status().isOk)
+    }
+
+    @Test
+    fun `GET httpbin delay with decimal seconds returns 200`() {
+        // 0.1초(100ms) 지연 — 소수점 지원 확인
+        mockMvc.perform(get("/httpbin/delay/0.1"))
+            .andExpect(status().isOk)
+    }
+
+    @Test
     fun `GET httpbin delay with invalid seconds returns 400`() {
         mockMvc.perform(get("/httpbin/delay/11"))
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `GET httpbin delay with invalid decimal seconds returns 400`() {
+        mockMvc.perform(get("/httpbin/delay/10.1"))
             .andExpect(status().isBadRequest)
     }
 
