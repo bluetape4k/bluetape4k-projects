@@ -4,6 +4,7 @@ plugins {
     // Spring Boot plugin은 buildscript 클래스패스에 이미 Spring Boot 3.x가 있어 버전 충돌 발생.
     // BOM(platform)으로 Spring Boot 4 의존성을 관리하고, Jib으로 직접 컨테이너 이미지 생성.
     id("com.google.cloud.tools.jib") version "3.4.4"
+    id("io.gatling.gradle") version "3.15.0"
 }
 
 // Java 25 툴체인 (mock-server 전용 — Spring Boot 4 + Virtual Threads 최적화)
@@ -85,5 +86,22 @@ jib {
     dockerClient {
         executable = "/opt/homebrew/bin/docker"
         environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
+    }
+}
+
+dependencies {
+    "gatlingImplementation"("io.gatling.highcharts:gatling-charts-highcharts:3.15.0")
+    "gatlingImplementation"("io.gatling:gatling-core-java:3.15.0")
+    "gatlingImplementation"("io.gatling:gatling-http-java:3.15.0")
+}
+
+// Prevent Gatling tasks from running during the standard `check` lifecycle.
+afterEvaluate {
+    tasks.findByName("gatlingClasses")?.let { gatlingTask ->
+        tasks.named("check") {
+            setDependsOn(dependsOn.filter { dep ->
+                dep.toString() != gatlingTask.path && dep.toString() != "gatlingClasses"
+            })
+        }
     }
 }
