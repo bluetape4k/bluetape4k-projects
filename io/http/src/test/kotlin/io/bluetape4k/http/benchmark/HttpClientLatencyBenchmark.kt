@@ -34,6 +34,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder
 import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.asynchttpclient.DefaultAsyncHttpClient
@@ -45,43 +46,40 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * 고지연(40~100 ms) 환경에서 동기 vs 비동기 HTTP 클라이언트 처리량 비교.
+ * 고지연(~50 ms) 환경에서 동기 vs 비동기 HTTP 클라이언트 처리량 비교.
  *
- * WireMock Docker 서버의 `withFixedDelay(ms)` stub을 사용해
- * 서버측 지연을 정밀하게 시뮬레이션합니다.
+ * - WireMock Docker 서버 N개를 사용해 서버 병목을 제거합니다.
+ * - [DELAY_MS] ms fixed delay stub으로 지연을 시뮬레이션합니다.
+ * - @Threads(100) + 다수 서버로 진짜 고동시성 구간을 측정합니다.
  *
- * 핵심 가설: 지연이 커질수록 동기 블로킹 클라이언트는 스레드를 점유해
- * 처리량이 제한되고, 비동기 + 코루틴 클라이언트가 역전을 일으킬 수 있다.
- *
- * 측정 조건:
- * - 서버 응답 지연: [DELAY_MS] ms (WireMock fixed delay)
- * - JMH 스레드: [THREAD_COUNT]
- * - 예상 동기 상한: THREAD_COUNT × (1000 / DELAY_MS) ops/s
+ * 동기 클라이언트 이론 상한: threads × (1000 / DELAY_MS) ops/s
+ * 100 스레드 × 20 req/s = 2,000 ops/s (단일 서버 기준)
+ * N 서버 시: N × 2,000 ops/s 까지 확장
  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 1, time = 3, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 3, time = 5, timeUnit = TimeUnit.SECONDS)
-@Threads(50)
+@Threads(100)
 open class HttpClientLatencyBenchmark {
 
     companion object {
-        /** 서버 응답 지연 (밀리초). 40~100 사이에서 조정 */
         const val DELAY_MS = 50
-        /** JMH 스레드 수. 동기 클라이언트의 이론적 상한 = 50 × (1000/DELAY_MS) = 1000 ops/s */
-        const val THREAD_COUNT = 50
     }
 
-    private val wireMock = WireMockServer.Launcher.wireMock
+    private lateinit var wireMocks: List<WireMockServer>
+    private lateinit var delayUrls: List<String>
+    private lateinit var serverHosts: List<String>
+    private lateinit var serverPorts: IntArray
 
-    private lateinit var delayUrl: String
-    private lateinit var serverHost: String
-    private var serverPort: Int = 0
+    private fun pickUrl(): String = delayUrls[ThreadLocalRandom.current().nextInt(delayUrls.size)]
+    private fun pickIdx(): Int = ThreadLocalRandom.current().nextInt(wireMocks.size)
 
     private lateinit var okhttpClient: OkHttpClient
     private lateinit var okhttpVtClient: OkHttpClient
@@ -96,36 +94,38 @@ open class HttpClientLatencyBenchmark {
 
     @Setup
     fun setup() {
-        val n = Runtime.getRuntime().availableProcessors()
-
-        // 고정 지연 stub 등록: GET /delayed → 200 after DELAY_MS ms
-        wireMock.stubFor(
-            WireMock.get("/delayed")
-                .willReturn(
-                    WireMock.ok("pong")
-                        .withFixedDelay(DELAY_MS)
+        // WireMock 서버 N개 — 서버 병목 제거
+        val n = minOf(Runtime.getRuntime().availableProcessors(), 4)
+        wireMocks = List(n) {
+            WireMockServer().apply {
+                start()
+                stubFor(
+                    WireMock.get("/delayed")
+                        .willReturn(WireMock.ok("pong").withFixedDelay(DELAY_MS))
                 )
-        )
+            }
+        }
+        delayUrls = wireMocks.map { "${it.url}/delayed" }
+        serverHosts = wireMocks.map { it.host }
+        serverPorts = wireMocks.map { it.port }.toIntArray()
 
-        serverHost = wireMock.host
-        serverPort = wireMock.port
-        delayUrl = "${wireMock.url}/delayed"
+        val connPerHost = 200
 
         okhttpClient = OkHttpClient.Builder()
-            .connectionPool(ConnectionPool(THREAD_COUNT * 2, 5L, TimeUnit.MINUTES))
+            .connectionPool(ConnectionPool(n * connPerHost, 5L, TimeUnit.MINUTES))
             .dispatcher(OkHttpDispatcher().apply {
-                maxRequests = THREAD_COUNT * 2
-                maxRequestsPerHost = THREAD_COUNT * 2
+                maxRequests = n * connPerHost
+                maxRequestsPerHost = connPerHost
             })
             .connectTimeout(Duration.ofSeconds(5))
             .readTimeout(Duration.ofSeconds(10))
             .build()
 
         okhttpVtClient = OkHttpClient.Builder()
-            .connectionPool(ConnectionPool(THREAD_COUNT * 2, 5L, TimeUnit.MINUTES))
+            .connectionPool(ConnectionPool(n * connPerHost, 5L, TimeUnit.MINUTES))
             .dispatcher(okhttp3DispatcherWithVirtualThread().apply {
-                maxRequests = THREAD_COUNT * 2
-                maxRequestsPerHost = THREAD_COUNT * 2
+                maxRequests = n * connPerHost
+                maxRequestsPerHost = connPerHost
             })
             .connectTimeout(Duration.ofSeconds(5))
             .readTimeout(Duration.ofSeconds(10))
@@ -143,22 +143,22 @@ open class HttpClientLatencyBenchmark {
         hc5Classic = HttpClients.custom()
             .setConnectionManager(
                 PoolingHttpClientConnectionManagerBuilder.create()
-                    .setMaxConnTotal(THREAD_COUNT * 2)
-                    .setMaxConnPerRoute(THREAD_COUNT * 2)
+                    .setMaxConnTotal(n * connPerHost)
+                    .setMaxConnPerRoute(connPerHost)
                     .build()
             )
             .build()
 
         hc5ClassicVt = virtualThreadHttpClientOf(
-            maxConnTotal = THREAD_COUNT * 2,
-            maxConnPerRoute = THREAD_COUNT * 2,
+            maxConnTotal = n * connPerHost,
+            maxConnPerRoute = connPerHost,
         )
 
         hc5Async = HttpAsyncClients.custom()
             .setConnectionManager(
-                org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder.create()
-                    .setMaxConnTotal(THREAD_COUNT * 2)
-                    .setMaxConnPerRoute(THREAD_COUNT * 2)
+                PoolingAsyncClientConnectionManagerBuilder.create()
+                    .setMaxConnTotal(n * connPerHost)
+                    .setMaxConnPerRoute(connPerHost)
                     .build()
             )
             .build()
@@ -167,8 +167,8 @@ open class HttpClientLatencyBenchmark {
         ahcOptimizedClient = asyncHttpClient {
             setConnectTimeout(5_000)
             setRequestTimeout(10_000)
-            setMaxConnectionsPerHost(THREAD_COUNT * 2)
-            setMaxConnections(THREAD_COUNT * 4)
+            setMaxConnectionsPerHost(connPerHost)
+            setMaxConnections(n * connPerHost)
             setKeepAlive(true)
             setTcpNoDelay(true)
         }
@@ -177,6 +177,7 @@ open class HttpClientLatencyBenchmark {
         vertxWebClient = WebClient.create(
             vertx,
             WebClientOptions()
+                .setMaxPoolSize(connPerHost)   // 기본값 5 → 200으로 확장
                 .setKeepAlive(true)
                 .setConnectTimeout(5_000)
                 .setIdleTimeout(10)
@@ -195,12 +196,13 @@ open class HttpClientLatencyBenchmark {
         runCatching { okhttpClient.connectionPool.evictAll() }
         runCatching { okhttpVtClient.dispatcher.executorService.shutdown() }
         runCatching { okhttpVtClient.connectionPool.evictAll() }
-        wireMock.resetAll()
+        wireMocks.forEach { runCatching { it.resetAll() } }
+        wireMocks.forEach { runCatching { it.stop() } }
     }
 
     @Benchmark
     fun okhttp3Sync(): Int {
-        val request = Request.Builder().url(delayUrl).get().build()
+        val request = Request.Builder().url(pickUrl()).get().build()
         okhttpClient.newCall(request).execute().use { response ->
             response.body.bytes()
             return response.code
@@ -209,7 +211,7 @@ open class HttpClientLatencyBenchmark {
 
     @Benchmark
     fun okhttp3VirtualThread(): Int {
-        val request = Request.Builder().url(delayUrl).get().build()
+        val request = Request.Builder().url(pickUrl()).get().build()
         okhttpVtClient.newCall(request).execute().use { response ->
             response.body.bytes()
             return response.code
@@ -217,20 +219,37 @@ open class HttpClientLatencyBenchmark {
     }
 
     @Benchmark
+    fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.Default) {
+        suspendCancellableCoroutine { cont ->
+            val request = Request.Builder().url(pickUrl()).get().build()
+            val call = okhttpClient.newCall(request)
+            call.enqueue(object: okhttp3.Callback {
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    response.use { cont.resume(it.code) }
+                }
+                override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                    cont.resumeWithException(e)
+                }
+            })
+            cont.invokeOnCancellation { call.cancel() }
+        }
+    }
+
+    @Benchmark
     fun javaHttpSync(): Int {
-        val request = HttpRequest.newBuilder(URI.create(delayUrl)).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         return jdkClient.send(request, HttpResponse.BodyHandlers.ofByteArray()).statusCode()
     }
 
     @Benchmark
     fun javaHttpVirtualThread(): Int {
-        val request = HttpRequest.newBuilder(URI.create(delayUrl)).GET().build()
+        val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         return jdkVirtualClient.send(request, HttpResponse.BodyHandlers.ofByteArray()).statusCode()
     }
 
     @Benchmark
     fun hc5Classic(): Int {
-        val request = HttpGet(delayUrl)
+        val request = HttpGet(pickUrl())
         return hc5Classic.execute(request) { response ->
             EntityUtils.consume(response.entity)
             response.code
@@ -240,7 +259,7 @@ open class HttpClientLatencyBenchmark {
     @Benchmark
     fun hc5ClassicCoroutines(): Int = runBlocking {
         withContext(Dispatchers.IO) {
-            val request = HttpGet(delayUrl)
+            val request = HttpGet(pickUrl())
             hc5Classic.execute(request) { response ->
                 EntityUtils.consume(response.entity)
                 response.code
@@ -250,7 +269,7 @@ open class HttpClientLatencyBenchmark {
 
     @Benchmark
     fun hc5ClassicVirtualThread(): Int {
-        val request = HttpGet(delayUrl)
+        val request = HttpGet(pickUrl())
         return hc5ClassicVt.execute(request) { response ->
             EntityUtils.consume(response.entity)
             response.code
@@ -259,7 +278,7 @@ open class HttpClientLatencyBenchmark {
 
     @Benchmark
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        val request: SimpleHttpRequest = SimpleRequestBuilder.get(delayUrl).build()
+        val request: SimpleHttpRequest = SimpleRequestBuilder.get(pickUrl()).build()
         val response: SimpleHttpResponse = suspendCancellableCoroutine { cont ->
             val future = hc5Async.execute(
                 request,
@@ -276,18 +295,20 @@ open class HttpClientLatencyBenchmark {
 
     @Benchmark
     fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        ahcOptimizedClient.prepareGet(delayUrl).executeSuspending().statusCode
+        ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
     }
 
     @Benchmark
     fun ahcOptimizedCoroutinesUnconfined(): Int = runBlocking(Dispatchers.Unconfined) {
-        ahcOptimizedClient.prepareGet(delayUrl).executeSuspending().statusCode
+        ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
     }
 
+    /** Vert.x WebClient — getAbs()로 다중 서버 라운드로빈 */
     @Benchmark
     fun vertxWebClientCoroutines(): Int = runBlocking {
+        val idx = pickIdx()
         vertxWebClient
-            .get(serverPort, serverHost, "/delayed")
+            .get(serverPorts[idx], serverHosts[idx], "/delayed")
             .send()
             .coAwait()
             .statusCode()
