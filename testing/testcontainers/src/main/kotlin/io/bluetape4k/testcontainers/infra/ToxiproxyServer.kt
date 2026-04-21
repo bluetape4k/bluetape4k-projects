@@ -30,7 +30,7 @@ import org.testcontainers.utility.DockerImageName
  * val toxiproxy = ToxiproxyServer().apply { withNetwork(network); start() }
  *
  * val client = ToxiproxyClient(toxiproxy.host, toxiproxy.port)
- * val proxy = client.createProxy("bluetape-http", "0.0.0.0:8666", "bluetape-http:8888")
+ * val proxy = client.createProxy("bluetape-http", "0.0.0.0:8666", "bluetape-http:80")
  * // proxy를 통해 bluetape-http에 접근하여 장애 주입 테스트 수행
  * ```
  *

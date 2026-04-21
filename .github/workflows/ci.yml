@@ -297,7 +297,7 @@ jobs:
             :bluetape4k-virtualthread-jdk25:test \
             :bluetape4k-cache-core:test \
             :bluetape4k-opentelemetry:test \
-            :bluetape4k-mock-server:test \
+            :bluetape4k-mock-web-server:test \
             :bluetape4k-r2dbc:test \
             --parallel
         env:
@@ -312,7 +312,7 @@ jobs:
             :bluetape4k-virtualthread-jdk25:koverXmlReport \
             :bluetape4k-cache-core:koverXmlReport \
             :bluetape4k-opentelemetry:koverXmlReport \
-            :bluetape4k-mock-server:koverXmlReport \
+            :bluetape4k-mock-web-server:koverXmlReport \
             :bluetape4k-r2dbc:koverXmlReport \
             --parallel
         continue-on-error: true
