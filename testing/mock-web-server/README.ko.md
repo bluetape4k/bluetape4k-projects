@@ -1,69 +1,39 @@
-# Module bluetape4k-mock-web-server
+# bluetape4k-mock-web-server
 
-[English](./README.md) | 한국어
+한국어 | [English](./README.md)
 
-외부 HTTP 의존성을 통합 테스트에서 대체하기 위한 독립형 Spring Boot HTTP Mock 서버입니다.
+외부 HTTP 의존성을 통합 테스트에서 대체하기 위한 독립형 Spring Boot 4 + Virtual Threads HTTP Mock 서버입니다.
 **httpbin.org**, **jsonplaceholder.typicode.com**, 그리고 간단한 웹 컨텐츠 엔드포인트를 하나의 Docker 이미지(`bluetape4k/mock-web-server`)로 제공합니다.
 
-## 개요
+## Architecture
 
-| 대체 대상 | Prefix |
-|----------|--------|
-| [httpbin.org](https://httpbin.org) — HTTP 요청 검사 API | `/httpbin/**` |
-| [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com) — REST Fixture API | `/jsonplaceholder/**` |
-| HTML / 웹 컨텐츠 목업 | `/web/**` |
-| 헬스 체크 | `/ping` |
-| 관리 / 데이터 초기화 | `/admin/reset` |
+`bluetape4k-mock-web-server`는 포트 **8888**에서 실행되는 Spring Boot 4 MVC 애플리케이션입니다.
+`spring.threads.virtual.enabled=true` 설정으로 JDK 21+ Virtual Threads를 사용하여 OS 스레드를 블로킹하지 않고 고동시성 요청을 처리합니다.
+모든 Fixture 데이터는 클래스패스 JSON 파일에서 로드되어 인메모리에 저장되며, 제네릭 `InMemoryRepository<T>`를 통해 `JsonplaceholderService`가 관리합니다.
+정적 HTML 컨텐츠는 Caffeine 캐시를 사용하는 `WebContentLoader`를 통해 제공됩니다.
 
-## 엔드포인트
+| 엔드포인트 그룹 | Prefix | 설명 |
+|----------------|--------|------|
+| 헬스 체크 | `/ping` | `pong` 반환 |
+| 관리 | `/admin/**` | 인메모리 Fixture 데이터 초기화 |
+| httpbin | `/httpbin/**` | httpbin.org HTTP 요청 검사 API 모방 |
+| jsonplaceholder | `/jsonplaceholder/**` | jsonplaceholder.typicode.com REST Fixture API 모방 |
+| web | `/web/**` | 캐시된 HTML/웹 컨텐츠 Fixture |
 
-### 기본
+## UML
 
-| Method | Path | 설명 |
-|--------|------|------|
-| `GET` | `/ping` | 헬스 체크 — `pong` 반환 |
-| `POST` | `/admin/reset` | 인메모리 Fixture 데이터를 클래스패스 JSON에서 재적재 |
+### 요청 라우팅 개요
 
-### `/httpbin/**`
-
-| Method | Path | 설명 |
-|--------|------|------|
-| `GET` | `/httpbin/get` | GET 요청 정보 반환 |
-| `POST` | `/httpbin/post` | POST 요청 + body 반환 |
-| `PUT` | `/httpbin/put` | PUT 요청 + body 반환 |
-| `PATCH` | `/httpbin/patch` | PATCH 요청 + body 반환 |
-| `DELETE` | `/httpbin/delete` | DELETE 요청 정보 반환 |
-| `GET` | `/httpbin/headers` | 모든 요청 헤더 반환 |
-| `GET` | `/httpbin/ip` | 클라이언트 IP 반환 |
-| `GET` | `/httpbin/user-agent` | User-Agent 헤더 반환 |
-| `GET` | `/httpbin/uuid` | 랜덤 UUID 반환 |
-| `ANY` | `/httpbin/anything/**` | 임의 요청 에코 |
-| `ANY` | `/httpbin/status/{code}` | 지정된 HTTP 상태 코드 반환 |
-| `GET` | `/httpbin/bytes/{n}` | `n` 바이트의 랜덤 바이너리 반환 |
-| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답; `{seconds}`는 소수점 허용 (예: `0.5` = 500ms, 범위 0.0–10.0) |
-| `GET` | `/httpbin/stream/{n}` | JSON 라인 `n`개 스트리밍 |
-| `GET` | `/httpbin/image/{format}` | 샘플 이미지 반환 (png/jpeg/svg/webp) |
-
-### `/jsonplaceholder/**`
-
-[jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)을 그대로 모방합니다. 모든 리소스는 전체 CRUD를 지원합니다.
-
-| 리소스 | 기본 경로 |
-|--------|----------|
-| Posts | `/jsonplaceholder/posts` |
-| Comments | `/jsonplaceholder/comments` |
-| Albums | `/jsonplaceholder/albums` |
-| Photos | `/jsonplaceholder/photos` |
-| Todos | `/jsonplaceholder/todos` |
-| Users | `/jsonplaceholder/users` |
-
-### `/web/**`
-
-| Method | Path | 설명 |
-|--------|------|------|
-| `GET` | `/web/{name}` | 이름으로 캐시된 HTML 컨텐츠 반환 |
-
-## 아키텍처
+```mermaid
+flowchart LR
+    C[Client] -->|HTTP 8888| S[Spring MVC DispatcherServlet]
+    S --> A[AdminController]
+    S --> H[HttpbinController]
+    S --> J[Jsonplaceholder 6 Controllers]
+    S --> W[WebContentController]
+    J --> Svc[JsonplaceholderService] --> Repo[InMemoryRepository]
+    W --> L[WebContentLoader cacheable]
+```
 
 ### 클래스 다이어그램
 
@@ -148,35 +118,6 @@ classDiagram
     style AdminController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
-### 요청 라우팅 흐름도
-
-```mermaid
-flowchart TD
-    REQ["HTTP 요청"]
-
-    REQ --> ROUTE{Path prefix?}
-
-    ROUTE -->|/httpbin/**| HB["HttpbinController\nHttpbinAdvancedController\nHttpbinStreamController"]
-    ROUTE -->|/jsonplaceholder/**| JP["Posts / Comments / Albums\nPhotos / Todos / Users\n컨트롤러"]
-    ROUTE -->|/web/**| WEB["WebContentController\n(Caffeine 캐시 HTML)"]
-    ROUTE -->|/ping| PING["200 pong"]
-    ROUTE -->|/admin/reset| ADMIN["AdminController\nfixture 재적재"]
-
-    HB --> RESP["HTTP 응답"]
-    JP --> RESP
-    WEB --> RESP
-    PING --> RESP
-    ADMIN --> RESP
-
-    classDef routeStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef handlerStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef respStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    class REQ,ROUTE routeStyle
-    class HB,JP,WEB,PING,ADMIN handlerStyle
-    class RESP respStyle
-```
-
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
 ```mermaid
@@ -192,7 +133,18 @@ sequenceDiagram
     SERVER-->>CLIENT: 200 OK + JSON body
 ```
 
-## 설정
+## Features
+
+- **Spring Boot 4 + Virtual Threads**: JDK 21+ Virtual Threads(`spring.threads.virtual.enabled=true`)로 고동시성 요청 처리
+- **포트 8888**: 결정론적 테스트 구성을 위한 고정 컨테이너 포트
+- **httpbin 시뮬레이션**: `/httpbin/**`에서 HTTP 요청 검사 전체 API 제공 — 요청 에코, 헤더/IP/UUID 반환, 스트리밍, 지연, 이미지
+- **jsonplaceholder 시뮬레이션**: `/jsonplaceholder/**`에서 6개 전체 CRUD 리소스 (posts/comments/albums/photos/todos/users)
+- **웹 컨텐츠 Fixture**: Caffeine 캐시를 통한 `/web/{name}` HTML 컨텐츠
+- **관리 초기화**: `POST /admin/reset`으로 클래스패스 JSON 파일에서 전체 인메모리 Fixture 데이터 재적재
+- **Docker 이미지**: `bluetape4k/mock-web-server` — Jib으로 빌드, Dockerfile 불필요
+- **Testcontainers 통합**: `BluetapeHttpServer` 컴패니언 오브젝트가 통합 테스트용 URL 헬퍼 제공
+
+### 설정
 
 `src/main/resources/application.yml` 기본값:
 
@@ -200,41 +152,25 @@ sequenceDiagram
 |----|-----|------|
 | `server.port` | `8888` | 컨테이너 고정 포트 |
 | `server.http2.enabled` | `true` | HTTP/2 지원 |
-| `server.tomcat.threads.max` | `16000` | 최대 플랫폼 스레드 수 (Virtual Thread와 함께 고동시성 지원) |
+| `server.tomcat.threads.max` | `16000` | 최대 플랫폼 스레드 수 (고동시성 벤치마크 지원) |
 | `server.tomcat.max-connections` | `16000` | 최대 동시 연결 수 |
 | `server.tomcat.accept-count` | `16000` | 연결 대기 큐 크기 |
 | `spring.threads.virtual.enabled` | `true` | Virtual Threads (JDK 21+) |
 | `spring.cache.type` | `caffeine` | 인프로세스 캐시 |
 | `spring.cache.cache-names` | `html-content`, `fixture-data`, `httpbin-image` | Caffeine 캐시 이름 |
 
-> **스레드 설정 배경**: `@Threads(100)` JMH 벤치마크에서 각 스레드가 50ms 요청을 보낼 때
-> 서버 측 동시성이 병목이 되지 않도록 기본 Tomcat 스레드(200)를 16,000으로 확장했습니다.
-> Virtual Threads가 활성화되어 있어 실제 OS 스레드 소비는 훨씬 적습니다.
+## Examples
 
-### TODO: Spring WebFlux 마이그레이션
+### Docker로 실행
 
-현재 Spring MVC(서블릿 + 플랫폼 스레드) 기반입니다. 향후 Spring WebFlux + Netty로 전환하면
-이벤트 루프 기반으로 수십 개의 스레드만으로 수만 동시 연결을 처리할 수 있습니다.
-고동시성 벤치마크 서버로서 더 적합한 아키텍처입니다.
-
-## 빌드 & 실행
+```bash
+docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
+```
 
 ### Jib으로 Docker 이미지 빌드
 
 ```bash
-./gradlew :bluetape4k-mock-web-server:jibBuildTar
-```
-
-`build/jib-image.tar`가 생성됩니다. Docker에 로드:
-
-```bash
-docker load < testing/mock-server/build/jib-image.tar
-```
-
-### 직접 실행
-
-```bash
-docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
 ```
 
 ### Testcontainers로 사용 (`BluetapeHttpServer`)
@@ -249,10 +185,7 @@ println(server.jsonplaceholderUrl) // http://localhost:<port>/jsonplaceholder
 println(server.webUrl)             // http://localhost:<port>/web
 ```
 
-## 의존성 추가
-
-mock-server 모듈은 라이브러리가 아닌 Docker 이미지입니다.
-테스트에서 실행하려면 testcontainers 모듈을 추가하세요:
+### Testcontainers 의존성 추가
 
 ```kotlin
 dependencies {
@@ -260,17 +193,57 @@ dependencies {
 }
 ```
 
+### 엔드포인트 참조
+
+#### 기본
+
+| Method | Path | 설명 |
+|--------|------|------|
+| `GET` | `/ping` | 헬스 체크 — `pong` 반환 |
+| `POST` | `/admin/reset` | 인메모리 Fixture 데이터를 클래스패스 JSON에서 재적재 |
+
+#### `/httpbin/**`
+
+| Method | Path | 설명 |
+|--------|------|------|
+| `GET` | `/httpbin/get` | GET 요청 정보 반환 |
+| `POST` | `/httpbin/post` | POST 요청 + body 반환 |
+| `PUT` | `/httpbin/put` | PUT 요청 + body 반환 |
+| `PATCH` | `/httpbin/patch` | PATCH 요청 + body 반환 |
+| `DELETE` | `/httpbin/delete` | DELETE 요청 정보 반환 |
+| `GET` | `/httpbin/headers` | 모든 요청 헤더 반환 |
+| `GET` | `/httpbin/ip` | 클라이언트 IP 반환 |
+| `GET` | `/httpbin/user-agent` | User-Agent 헤더 반환 |
+| `GET` | `/httpbin/uuid` | 랜덤 UUID 반환 |
+| `ANY` | `/httpbin/anything/**` | 임의 요청 에코 |
+| `ANY` | `/httpbin/status/{code}` | 지정된 HTTP 상태 코드 반환 |
+| `GET` | `/httpbin/bytes/{n}` | `n` 바이트의 랜덤 바이너리 반환 |
+| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답 (`0.5` = 500ms, 범위 0.0–10.0) |
+| `GET` | `/httpbin/stream/{n}` | JSON 라인 `n`개 스트리밍 |
+| `GET` | `/httpbin/image/{format}` | 샘플 이미지 반환 (png/jpeg/svg/webp) |
+
+#### `/jsonplaceholder/**`
+
+[jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)을 그대로 모방합니다. 모든 리소스는 전체 CRUD를 지원합니다.
+
+| 리소스 | 기본 경로 |
+|--------|----------|
+| Posts | `/jsonplaceholder/posts` |
+| Comments | `/jsonplaceholder/comments` |
+| Albums | `/jsonplaceholder/albums` |
+| Photos | `/jsonplaceholder/photos` |
+| Todos | `/jsonplaceholder/todos` |
+| Users | `/jsonplaceholder/users` |
+
+#### `/web/**`
+
+| Method | Path | 설명 |
+|--------|------|------|
+| `GET` | `/web/{name}` | 이름으로 캐시된 HTML 컨텐츠 반환 |
+
 ## 참고
 
 - [httpbin.org](https://httpbin.org)
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Java 앱 컨테이너화](https://github.com/GoogleContainerTools/jib)
-
-## TODO
-
-- [ ] **Spring WebFlux 마이그레이션**: 현재 Spring MVC + Virtual Threads 구조를 WebFlux + Netty로 전환
-  - **이유**: 50ms 지연 × 100+ 동시 요청 시나리오에서 MVC는 Tomcat 스레드 풀에 의존하지만,
-    WebFlux는 소수의 이벤트 루프 스레드로 수천 커넥션을 논블로킹으로 처리 가능
-  - `/httpbin/delay/{seconds}` 엔드포인트는 `Thread.sleep()` → `Mono.delay()` 로 교체하면 완전 논블로킹
-  - 참고: 16000 스레드까지 늘려야 100 클라이언트 × 50ms = ~2,000 ops/s 이론값에 근접하는 문제 발생
