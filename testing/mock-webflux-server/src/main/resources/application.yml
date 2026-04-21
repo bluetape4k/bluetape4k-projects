@@ -11,6 +11,13 @@ spring:
       - web-content
       - fixture-data
       - httpbin-image
+bluetape4k:
+  https:
+    port: 9443
+    key-store: classpath:certs/localhost.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+
 management:
   endpoints:
     web:
