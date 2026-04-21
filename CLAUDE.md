@@ -94,7 +94,23 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 - [ ] **Detekt**: Disabled in `exposed-jdbc-tests`
 - [ ] **virtualthread-api**: Changes to `virtualthread/api` → always update both `jdk21` and `jdk25`
 
+## Before Creating a PR (MANDATORY)
+
+Verify every item before running `gh pr create`:
+
+- [ ] All tests pass for changed modules
+- [ ] `docs/testlogs/YYYY-MM.md` entry recorded (skip for doc-only changes)
+- [ ] `README.md` **and** `README.ko.md` updated for every changed module
+- [ ] KDoc added/updated for all new or modified public APIs
+- [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
+- [ ] `testing/mock-server` changed → rebuild Docker image: `./gradlew :bluetape4k-mock-server:jibDockerBuild --no-configuration-cache`
+- [ ] superpowers work → `docs/superpowers/index/YYYY-MM.md` updated
+- [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
+- [ ] Run CodeRabbit review via `/coderabbit:review` skill before merging
+
 ## Git Workflow
 
 - Branch: `develop`
 - Commits: Korean + prefix (`feat: ...`, `fix: ...`)
+- All feature work in a worktree: `git worktree add .worktrees/<branch> -b <branch>`
+- After merging PR: run `./bin/clean-branches` to delete gone local branches
