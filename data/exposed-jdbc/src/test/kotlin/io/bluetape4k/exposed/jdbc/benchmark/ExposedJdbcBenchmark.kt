@@ -69,6 +69,10 @@ open class ExposedJdbcBenchmark {
         val amount = integer("amount")
         val status = varchar("status", 32)
         override val primaryKey = PrimaryKey(id)
+
+        // Round 3-A: joinQuery 최적화를 위한 인덱스 추가
+        val userIdIdx = index("idx_orders_user_id", false, userId)
+        val statusAmountIdx = index("idx_orders_status_amount", false, status, amount)
     }
 
     @Param("100")
