@@ -22,7 +22,83 @@ dependencies {
 
 ## Core Features
 
-### 1. Executing SQL with DatabaseClient
+### 1. R2DBC Connection Pool Tuning
+
+`R2dbcPoolConfig` provides a high-throughput preset and first-class access to the r2dbc-pool options that usually matter under load: pool size, warmup size, pending acquire queue, acquisition timeout, creation timeout, validation timeout, validation depth, optional validation query, pool name, and JMX registration.
+
+```kotlin
+import io.bluetape4k.r2dbc.pool.R2dbcPoolConfig
+import io.bluetape4k.r2dbc.pool.r2dbcConnectionPool
+import java.time.Duration
+
+val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/app") {
+    val preset = R2dbcPoolConfig.highThroughput(
+        maxSize = 128,
+        poolName = "app-r2dbc",
+    )
+
+    maxSize = preset.maxSize
+    initialSize = preset.initialSize
+    minIdle = preset.minIdle
+    acquireRetry = preset.acquireRetry
+    maxPendingAcquire = preset.maxPendingAcquire
+    maxAcquireTime = Duration.ofSeconds(3)
+    maxCreateConnectionTime = preset.maxCreateConnectionTime
+    maxValidationTime = preset.maxValidationTime
+    validationDepth = preset.validationDepth
+    validationQuery = null // avoid an extra SQL round trip on every acquire
+    poolName = preset.poolName
+}
+```
+
+Use `maxSize` with the database server's connection limit and total application instance count in mind. For latency-sensitive services, prefer a bounded `maxAcquireTime` and `maxPendingAcquire` so overload fails quickly instead of building an unbounded queue.
+
+Run the pool benchmarks with:
+
+```bash
+./gradlew :bluetape4k-r2dbc:benchmarkPoolConfig
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire
+./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire
+./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire
+./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention
+```
+
+Recent local acquire benchmark (`8` JMH threads, `3` measurement iterations, `validationQuery = "SELECT 1"`) showed that pure acquire/close throughput varies by driver, while realistic connection hold time makes default and high-throughput profiles converge:
+
+| Database | Hold time | Default | High-throughput |
+|----------|-----------|---------|-----------------|
+| H2 | 0 ms | 161,741 ops/s | 173,026 ops/s |
+| H2 | 1 ms | 6,788 ops/s | 6,803 ops/s |
+| H2 | 5 ms | 1,423 ops/s | 1,423 ops/s |
+| PostgreSQL 18 Testcontainer | 0 ms | 18,008 ops/s | 18,724 ops/s |
+| PostgreSQL 18 Testcontainer | 1 ms | 4,775 ops/s | 4,637 ops/s |
+| PostgreSQL 18 Testcontainer | 5 ms | 1,289 ops/s | 1,282 ops/s |
+| MySQL 8.4 Testcontainer | 0 ms | 8,570 ops/s | 8,147 ops/s |
+| MySQL 8.4 Testcontainer | 1 ms | 4,305 ops/s | 4,339 ops/s |
+| MySQL 8.4 Testcontainer | 5 ms | 1,183 ops/s | 1,177 ops/s |
+
+The contention benchmark uses `64` JMH threads with `maxSize` below concurrency. It shows when pool size matters:
+
+| Hold time | maxSize=4 | maxSize=8 | maxSize=16 |
+|-----------|-----------|-----------|------------|
+| 10 ms | 365 ops/s | 733 ops/s | 1,470 ops/s |
+| 50 ms | 78 ops/s | 156 ops/s | 311 ops/s |
+
+#### Tuning guide from the measurement
+
+- For pure acquire/close paths (`0 ms` hold), compare with your actual driver. H2/PostgreSQL slightly favored the high-throughput preset in this run, while MySQL 8 favored the default profile. This path is mostly a driver/pool overhead microbenchmark and should not drive server defaults by itself.
+- Use `R2dbcPoolConfig.highThroughput()` for server workloads where each request holds a connection while running SQL or a transaction. At `1 ms` and `5 ms` hold time, throughput was dominated by the hold time and the two profiles were effectively equivalent across H2, PostgreSQL, and MySQL 8, so the high-throughput preset's bounded queue and warmup behavior become the more important operational property.
+- Increase `maxSize` only when concurrent requests exceed the pool size and the database can handle the additional sessions. Under `64` contending threads, throughput scaled almost linearly with `maxSize` because the benchmark was connection-slot limited.
+- Long-running queries and transactions reduce the useful throughput ceiling to roughly `maxSize / connection hold time`. In the contention benchmark, moving from `10 ms` to `50 ms` hold time reduced throughput by about `5x` for the same `maxSize`.
+- Size `maxSize` from the database side first: `floor((db max_connections - reserved admin/replication connections) / application instance count)`, then lower it if p95/p99 database latency rises under load.
+- Keep `initialSize` and `minIdle` below or equal to `maxSize`. The high-throughput preset warms up `min(maxSize, max(availableProcessors * 2, 16))` connections so cold starts do not pay the full allocation cost on the first traffic spike.
+- Keep `maxPendingAcquire` bounded for user-facing services. The preset uses `maxSize * 4`, which keeps short bursts queued without allowing an unbounded backlog that hides overload and increases tail latency.
+- If `maxPendingAcquire` is too low, r2dbc-pool rejects extra acquire attempts once the pool and pending queue are full. This is useful for fail-fast overload control, but it should be paired with application metrics for acquire failures/timeouts.
+- Keep `maxAcquireTime` finite. `2-3s` is a reasonable starting point for API services; batch jobs can use a longer timeout if waiting is preferable to failing.
+- Prefer `ValidationDepth.LOCAL` and no `validationQuery` in production drivers that support local validation. The benchmark used `SELECT 1` to keep H2/PostgreSQL/MySQL validation behavior consistent; a SQL validation query adds one database round trip to every connection acquisition.
+- Treat benchmark numbers as local baselines, not universal limits. Re-run the DB-specific pool acquire benchmark against your driver/database shape when query latency, transaction duration, instance count, or DB connection limits change.
+
+### 2. Executing SQL with DatabaseClient
 
 ```kotlin
 import io.bluetape4k.r2dbc.support.*
@@ -62,7 +138,7 @@ val userMap = databaseClient
     .awaitSingleAsMap()
 ```
 
-### 2. Parameter Binding
+### 3. Parameter Binding
 
 ```kotlin
 // Bind parameters from a Map
@@ -90,7 +166,7 @@ val users = databaseClient
     .flow { row, _ -> /* mapping */ }
 ```
 
-### 3. CRUD Operations
+### 4. CRUD Operations
 
 ```kotlin
 // INSERT and return generated key
@@ -117,7 +193,7 @@ val deletedRows = databaseClient
     .awaitRowsUpdated()
 ```
 
-### 4. Flow and Coroutine Support
+### 5. Flow and Coroutine Support
 
 ```kotlin
 import kotlinx.coroutines.flow.*
@@ -146,7 +222,7 @@ val users = databaseClient
     .awaitList { row, _ -> /* mapping */ }
 ```
 
-### 5. Transaction Management
+### 6. Transaction Management
 
 ```kotlin
 import io.bluetape4k.r2dbc.support.withTransactionSuspend
@@ -170,7 +246,7 @@ databaseClient.withTransactionSuspend { tx ->
 }
 ```
 
-### 6. Query Builder
+### 7. Query Builder
 
 ```kotlin
 import io.bluetape4k.r2dbc.query.QueryBuilder
@@ -195,7 +271,7 @@ val users = databaseClient
     .flow { row, _ -> /* mapping */ }
 ```
 
-### 7. Using R2dbcClient
+### 8. Using R2dbcClient
 
 ```kotlin
 import io.bluetape4k.r2dbc.R2dbcClient
@@ -215,7 +291,7 @@ val query = QueryBuilder().build { /* ... */ }
 val results = r2dbcClient.execute<User>(query).fetch()
 ```
 
-### 8. Count and Existence Check
+### 9. Count and Existence Check
 
 ```kotlin
 // Count
@@ -233,7 +309,7 @@ val exists = databaseClient
     .awaitExists()
 ```
 
-### 9. Spring Boot Auto Configuration
+### 10. Spring Boot Auto Configuration
 
 ```yaml
 # application.yml
