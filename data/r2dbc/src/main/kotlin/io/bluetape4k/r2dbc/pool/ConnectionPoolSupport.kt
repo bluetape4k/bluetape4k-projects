@@ -240,14 +240,28 @@ inline fun ConnectionFactoryOptions.toConnectionPool(
 fun R2dbcPoolConfig.toConnectionPoolConfiguration(
     connectionFactory: ConnectionFactory,
 ): ConnectionPoolConfiguration =
-    ConnectionPoolConfiguration.builder(connectionFactory)
-        .maxIdleTime(maxIdleTime)
-        .maxLifeTime(maxLifeTime)
-        .maxCreateConnectionTime(maxCreateConnectionTime)
-        .maxSize(maxSize)
-        .initialSize(initialSize)
-        .minIdle(minIdle)
-        .acquireRetry(acquireRetry)
-        .backgroundEvictionInterval(backgroundEvictionInterval)
-        .maxAcquireTime(maxAcquireTime)
-        .build()
+    validate().let { config ->
+        ConnectionPoolConfiguration.builder(connectionFactory)
+            .maxIdleTime(config.maxIdleTime)
+            .maxLifeTime(config.maxLifeTime)
+            .maxCreateConnectionTime(config.maxCreateConnectionTime)
+            .maxSize(config.maxSize)
+            .initialSize(config.initialSize)
+            .minIdle(config.minIdle)
+            .acquireRetry(config.acquireRetry)
+            .backgroundEvictionInterval(config.backgroundEvictionInterval)
+            .maxAcquireTime(config.maxAcquireTime)
+            .maxValidationTime(config.maxValidationTime)
+            .validationDepth(config.validationDepth)
+            .registerJmx(config.registerJmx)
+            .customizer { poolBuilder ->
+                if (config.maxPendingAcquire < 0) {
+                    poolBuilder.maxPendingAcquireUnbounded()
+                } else {
+                    poolBuilder.maxPendingAcquire(config.maxPendingAcquire)
+                }
+            }
+            .apply { config.poolName?.let { name(it) } }
+            .apply { config.validationQuery?.let { validationQuery(it) } }
+            .build()
+    }
