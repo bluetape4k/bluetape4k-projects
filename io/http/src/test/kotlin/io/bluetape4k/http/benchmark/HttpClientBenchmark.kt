@@ -2,6 +2,7 @@ package io.bluetape4k.http.benchmark
 
 import io.bluetape4k.http.ahc.asyncHttpClient
 import io.bluetape4k.http.ahc.executeSuspending
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.jdk.sendAwait
 import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
@@ -29,13 +30,11 @@ import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
-import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.asynchttpclient.DefaultAsyncHttpClient
 import org.asynchttpclient.DefaultAsyncHttpClientConfig
@@ -298,24 +297,13 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
-    fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        val request: SimpleHttpRequest = SimpleRequestBuilder.get(pingUrl).build()
-        val response: SimpleHttpResponse = suspendCancellableCoroutine { cont ->
-            val future = hc5Async.execute(
-                request,
-                object: FutureCallback<SimpleHttpResponse> {
-                    override fun completed(result: SimpleHttpResponse) = cont.resume(result)
-                    override fun failed(ex: Exception) = cont.resumeWithException(ex)
-                    override fun cancelled() { cont.cancel() }
-                }
-            )
-            cont.invokeOnCancellation { future.cancel(true) }
-        }
-        response.code
+    fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.IO) {
+        val request = SimpleRequestBuilder.get(pingUrl).build()
+        hc5Async.executeSuspending(request).code
     }
 
     @Benchmark
-    fun ahcCoroutines(): Int = runBlocking(Dispatchers.Default) {
+    fun ahcCoroutines(): Int = runBlocking(Dispatchers.IO) {
         suspendCancellableCoroutine { cont ->
             val future = ahcClient.prepareGet(pingUrl).execute().toCompletableFuture()
             future.whenComplete { response, error ->
@@ -327,7 +315,7 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
-    fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
+    fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.IO) {
         ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
     }
 
