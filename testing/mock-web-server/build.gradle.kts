@@ -73,7 +73,7 @@ jib {
         }
     }
     to {
-        image = "bluetape4k/mock-server"
+        image = "bluetape4k/mock-web-server"
         tags = setOf("latest", project.version.toString())
     }
     container {
