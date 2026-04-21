@@ -2,6 +2,9 @@ package io.bluetape4k.http.benchmark
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.bluetape4k.http.hc5.cache.memoryCachingHttpClientOf
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.testcontainers.http.WireMockServer
 import kotlinx.benchmark.Benchmark
@@ -72,6 +75,10 @@ open class HttpClientCompressionCacheBenchmark {
         val jsonBody = """{"data":"${"x".repeat(980)}"}"""
         val gzipBytes = gzip(jsonBody)
 
+        val now = ZonedDateTime.now(ZoneId.of("UTC"))
+        val httpDate = now.format(DateTimeFormatter.RFC_1123_DATE_TIME)
+        val lastModified = now.minusDays(1).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+
         wireMock = WireMockServer().apply {
             start()
             stubFor(
@@ -81,6 +88,9 @@ open class HttpClientCompressionCacheBenchmark {
                             .withHeader("Content-Type", "application/json")
                             .withHeader("Content-Encoding", "gzip")
                             .withHeader("Cache-Control", "public, max-age=3600")
+                            .withHeader("Date", httpDate)
+                            .withHeader("Last-Modified", lastModified)
+                            .withHeader("Vary", "Accept-Encoding")
                             .withFixedDelay(DELAY_MS)
                             .withBody(gzipBytes)
                     )
