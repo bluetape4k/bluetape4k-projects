@@ -40,7 +40,7 @@
 | `ANY` | `/httpbin/anything/**` | 임의 요청 에코 |
 | `ANY` | `/httpbin/status/{code}` | 지정된 HTTP 상태 코드 반환 |
 | `GET` | `/httpbin/bytes/{n}` | `n` 바이트의 랜덤 바이너리 반환 |
-| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답 |
+| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답; `{seconds}`는 소수점 허용 (예: `0.5` = 500ms, 범위 0.0–10.0) |
 | `GET` | `/httpbin/stream/{n}` | JSON 라인 `n`개 스트리밍 |
 | `GET` | `/httpbin/image/{format}` | 샘플 이미지 반환 (png/jpeg/svg/webp) |
 
@@ -199,10 +199,23 @@ sequenceDiagram
 | 키 | 값 | 설명 |
 |----|-----|------|
 | `server.port` | `8888` | 컨테이너 고정 포트 |
+| `server.http2.enabled` | `true` | HTTP/2 지원 |
+| `server.tomcat.threads.max` | `16000` | 최대 플랫폼 스레드 수 (Virtual Thread와 함께 고동시성 지원) |
+| `server.tomcat.max-connections` | `16000` | 최대 동시 연결 수 |
+| `server.tomcat.accept-count` | `16000` | 연결 대기 큐 크기 |
 | `spring.threads.virtual.enabled` | `true` | Virtual Threads (JDK 21+) |
 | `spring.cache.type` | `caffeine` | 인프로세스 캐시 |
 | `spring.cache.cache-names` | `html-content`, `fixture-data`, `httpbin-image` | Caffeine 캐시 이름 |
-| `server.http2.enabled` | `true` | HTTP/2 지원 |
+
+> **스레드 설정 배경**: `@Threads(100)` JMH 벤치마크에서 각 스레드가 50ms 요청을 보낼 때
+> 서버 측 동시성이 병목이 되지 않도록 기본 Tomcat 스레드(200)를 16,000으로 확장했습니다.
+> Virtual Threads가 활성화되어 있어 실제 OS 스레드 소비는 훨씬 적습니다.
+
+### TODO: Spring WebFlux 마이그레이션
+
+현재 Spring MVC(서블릿 + 플랫폼 스레드) 기반입니다. 향후 Spring WebFlux + Netty로 전환하면
+이벤트 루프 기반으로 수십 개의 스레드만으로 수만 동시 연결을 처리할 수 있습니다.
+고동시성 벤치마크 서버로서 더 적합한 아키텍처입니다.
 
 ## 빌드 & 실행
 
@@ -253,3 +266,11 @@ dependencies {
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Java 앱 컨테이너화](https://github.com/GoogleContainerTools/jib)
+
+## TODO
+
+- [ ] **Spring WebFlux 마이그레이션**: 현재 Spring MVC + Virtual Threads 구조를 WebFlux + Netty로 전환
+  - **이유**: 50ms 지연 × 100+ 동시 요청 시나리오에서 MVC는 Tomcat 스레드 풀에 의존하지만,
+    WebFlux는 소수의 이벤트 루프 스레드로 수천 커넥션을 논블로킹으로 처리 가능
+  - `/httpbin/delay/{seconds}` 엔드포인트는 `Thread.sleep()` → `Mono.delay()` 로 교체하면 완전 논블로킹
+  - 참고: 16000 스레드까지 늘려야 100 클라이언트 × 50ms = ~2,000 ops/s 이론값에 근접하는 문제 발생

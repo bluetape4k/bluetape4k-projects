@@ -28,14 +28,17 @@ class HttpbinAdvancedController {
     companion object : KLogging()
 
     /**
-     * 지정된 초만큼 응답을 지연한다. Virtual Threads 환경에서 Thread.sleep 사용 가능.
+     * 지정된 시간만큼 응답을 지연한다. 소수점을 사용하면 밀리초 단위 지연이 가능하다.
+     * Virtual Threads 환경에서 Thread.sleep 사용 가능.
      *
-     * @param seconds 지연 시간 (0..10)
+     * 예: `1` → 1초, `0.5` → 500ms, `1.5` → 1500ms
+     *
+     * @param seconds 지연 시간 (0.0..10.0, 소수점 허용)
      */
     @GetMapping("/delay/{seconds}")
-    fun delay(@PathVariable seconds: Int, request: HttpServletRequest): HttpbinResponse {
-        require(seconds in 0..10) { "delay must be 0..10, got: $seconds" }
-        Thread.sleep(seconds.toLong() * 1000L)
+    fun delay(@PathVariable seconds: Double, request: HttpServletRequest): HttpbinResponse {
+        require(seconds in 0.0..10.0) { "delay must be 0.0..10.0, got: $seconds" }
+        Thread.sleep((seconds * 1000.0).toLong())
         return request.toHttpbinResponse(method = "GET")
     }
 
