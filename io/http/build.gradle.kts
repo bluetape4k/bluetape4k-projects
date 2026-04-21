@@ -38,6 +38,7 @@ dependencies {
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(Libs.wiremock)
 
     // Benchmark
     testImplementation(Libs.kotlinx_benchmark_runtime)
