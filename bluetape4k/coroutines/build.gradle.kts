@@ -1,3 +1,36 @@
+plugins {
+    kotlin("plugin.allopen")
+    id(Plugins.kotlinx_benchmark)
+}
+
+allOpen {
+    // https://github.com/Kotlin/kotlinx-benchmark
+    annotation("org.openjdk.jmh.annotations.State")
+}
+
+// https://github.com/Kotlin/kotlinx-benchmark
+benchmark {
+    targets {
+        register("test") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = Versions.jmh
+        }
+    }
+    configurations {
+        // self-improve 루프용: 빠른 측정 (warmup 2 + measurement 3 x 1s)
+        register("coroutinesFlow") {
+            include("io.bluetape4k.coroutines.benchmark.CoroutinesFlowBenchmark")
+            warmups = 2
+            iterations = 3
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -28,4 +61,9 @@ dependencies {
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
     testImplementation(Libs.turbine)
+
+    // Benchmark
+    testImplementation(Libs.kotlinx_benchmark_runtime)
+    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
+    testImplementation(Libs.jmh_core)
 }
