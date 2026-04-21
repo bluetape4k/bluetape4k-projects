@@ -222,14 +222,30 @@ Square's OkHttp3 client made convenient with a Kotlin DSL.
 - MockWebServer utilities
 - Coroutines extensions
 
+**DSL Builder Functions (`OkHttp3Support.kt`):**
+
+| Function | Description |
+|----------|-------------|
+| `okhttp3Client(connectionPool, dispatcher, block)` | Create an `OkHttpClient` with optional pool/dispatcher |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | Create a `ConnectionPool` |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` backed by Virtual Threads |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` with a custom `ExecutorService` |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | Get a pre-configured `OkHttpClient.Builder` |
+| `okhttp3RequestOf(url, block)` | Create an `okhttp3.Request` |
+| `okhttp3CacheControl(block)` | Create a `CacheControl` via DSL |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | Create a `CacheControl` with duration parameters |
+
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
-import io.bluetape4k.logging.KotlinLogging
 
-private val log = KotlinLogging.logger {}
+// Connection pool + Virtual Thread Dispatcher
+val pool = okHttp3ConnectionPool(maxIdleConnections = 50)
+val dispatcher = okhttp3DispatcherWithVirtualThread(maxRequests = 200)
 
-// Create a Virtual Thread-based OkHttpClient
-val client = okhttp3Client {
+val client = okhttp3Client(
+    connectionPool = pool,
+    dispatcher = dispatcher,
+) {
     addInterceptor(LoggingInterceptor(log))
     addNetworkInterceptor(CachingResponseInterceptor())
 }
@@ -240,7 +256,12 @@ val request = okhttp3RequestOf("https://httpbin.org/get") {
     header("Accept", "application/json")
 }
 
-// Async request in a Coroutines context
+// Sync call
+client.newCall(request).execute().use { response ->
+    println(response.body.string())
+}
+
+// Async call in a Coroutines context
 val response = client.executeSuspending(request)
 ```
 
@@ -289,6 +310,31 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 | OkHttp3           | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client  |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem integration |
 | AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty-based, high-performance       | High-volume async requests   |
+
+## Performance Benchmark
+
+Measured with `HttpClientBenchmarkTest` — 200 requests, 20 warmup iterations, against a local MockWebServer.
+
+> **Note**: These are wall-clock measurements (`measureTimeMillis`), not JMH benchmarks.
+> MockWebServer runs in the same JVM, so there is no real network latency.
+> Under real network conditions HC5 Async + Coroutines and HC5 Classic + Virtual Thread
+> tend to outperform OkHttp3 due to lower coroutine scheduling overhead.
+
+| Client                              | Mode       | ops/s      |
+|-------------------------------------|------------|------------|
+| HC5 Classic + Platform Thread       | sequential | ~3,389     |
+| HC5 Classic + Virtual Thread        | parallel   | ~6,666     |
+| HC5 Classic + InMemory Cache (MISS) | sequential | ~2,083     |
+| HC5 Classic + InMemory Cache (HIT)  | sequential | ~2,941     |
+| HC5 Async + Coroutines              | parallel   | ~7,407     |
+| HC5 Async + InMemory Cache + Coroutines | parallel | ~6,666   |
+| OkHttp3 + Virtual Thread Dispatcher | parallel   | ~2,531     |
+| OkHttp3 + Coroutines                | parallel   | ~10,526    |
+
+```kotlin
+// Run benchmark
+./gradlew :bluetape4k-http:test --tests "*.HttpClientBenchmarkTest" --info
+```
 
 ## Coroutines Support
 
