@@ -30,6 +30,9 @@ class BluetapeHttpServerTest {
 
     private val httpClient = OkHttpClient()
 
+    /** mkcert CA cert를 신뢰하는 HTTPS 전용 클라이언트 */
+    private val httpsClient: OkHttpClient = BluetapeSslContext.configureOkHttp(OkHttpClient.Builder()).build()
+
     @BeforeAll
     fun checkDocker() {
         assumeTrue(
@@ -53,7 +56,7 @@ class BluetapeHttpServerTest {
         httpClient.newCall(request).execute().use { response ->
             response.code shouldBeEqualTo 200
             response.body.shouldNotBeNull()
-            response.body!!.string() shouldBeEqualTo "pong"
+            response.body?.string() shouldBeEqualTo "pong"
         }
     }
 
@@ -152,6 +155,73 @@ class BluetapeHttpServerTest {
 
         httpClient.newCall(request).execute().use { response ->
             response.code shouldBeEqualTo 200
+        }
+    }
+
+    /**
+     * HTTPS `/ping` 엔드포인트가 HTTP 200과 body "pong"을 반환하는지 확인합니다.
+     */
+    @Test
+    fun `https ping endpoint returns 200 and pong`() {
+        val request = Request.Builder()
+            .url("${server.httpsUrl}/ping")
+            .get()
+            .build()
+
+        httpsClient.newCall(request).execute().use { response ->
+            response.code shouldBeEqualTo 200
+            response.body?.string() shouldBeEqualTo "pong"
+        }
+    }
+
+    /**
+     * HTTPS httpbin `/get` 엔드포인트가 HTTP 200과 `url` 필드를 포함하는 JSON을 반환하는지 확인합니다.
+     */
+    @Test
+    fun `https httpbin get endpoint returns 200 with url field`() {
+        val request = Request.Builder()
+            .url("${server.httpsHttpbinUrl}/get")
+            .get()
+            .build()
+
+        httpsClient.newCall(request).execute().use { response ->
+            response.code shouldBeEqualTo 200
+            val body = response.body.shouldNotBeNull()
+            body.string() shouldContain "url"
+        }
+    }
+
+    /**
+     * HTTPS jsonplaceholder `/posts` 엔드포인트가 HTTP 200과 비어있지 않은 JSON 배열을 반환하는지 확인합니다.
+     */
+    @Test
+    fun `https jsonplaceholder posts returns 200 with non-empty array`() {
+        val request = Request.Builder()
+            .url("${server.httpsJsonplaceholderUrl}/posts")
+            .get()
+            .build()
+
+        httpsClient.newCall(request).execute().use { response ->
+            response.code shouldBeEqualTo 200
+            val body = response.body.shouldNotBeNull()
+            body.string().shouldNotBeEmpty()
+        }
+    }
+
+    /**
+     * HTTPS web `/random` 엔드포인트가 HTTP 200과 `text/html` Content-Type을 반환하는지 확인합니다.
+     */
+    @Test
+    fun `https web random returns 200 with html content type`() {
+        val request = Request.Builder()
+            .url("${server.httpsWebUrl}/random")
+            .get()
+            .build()
+
+        httpsClient.newCall(request).execute().use { response ->
+            response.code shouldBeEqualTo 200
+            val contentType = response.header("Content-Type").shouldNotBeNull()
+            contentType shouldContain "text/html"
         }
     }
 }
