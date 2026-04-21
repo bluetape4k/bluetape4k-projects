@@ -1,8 +1,9 @@
 package io.bluetape4k.http.benchmark
 
 import io.bluetape4k.http.ahc.asyncHttpClient
-import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.ahc.executeSuspending
+import io.bluetape4k.http.jdk.sendAwait
+import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
@@ -215,7 +216,7 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
-    fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.Default) {
+    fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = Request.Builder().url(pingUrl).get().build()
         okhttpClient.newCall(request).executeAsync().use { response ->
             response.body.bytes()
@@ -249,6 +250,22 @@ open class HttpClientBenchmark {
         val request = HttpRequest.newBuilder().uri(URI.create(pingUrl)).GET().build()
         val response = jdkH2VirtualClient.send(request, HttpResponse.BodyHandlers.ofString())
         return response.statusCode()
+    }
+
+    @Benchmark
+    fun javaHttpCoroutines(): Int = runBlocking(Dispatchers.IO) {
+        jdkClient.sendAwait(
+            HttpRequest.newBuilder(URI.create(pingUrl)).GET().build(),
+            HttpResponse.BodyHandlers.ofByteArray()
+        ).statusCode()
+    }
+
+    @Benchmark
+    fun javaHttpH2Coroutines(): Int = runBlocking(Dispatchers.IO) {
+        jdkH2Client.sendAwait(
+            HttpRequest.newBuilder(URI.create(pingUrl)).GET().build(),
+            HttpResponse.BodyHandlers.ofByteArray()
+        ).statusCode()
     }
 
     @Benchmark
@@ -311,11 +328,6 @@ open class HttpClientBenchmark {
 
     @Benchmark
     fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
-    }
-
-    @Benchmark
-    fun ahcOptimizedCoroutinesUnconfined(): Int = runBlocking(Dispatchers.Unconfined) {
         ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
     }
 

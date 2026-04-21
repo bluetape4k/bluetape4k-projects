@@ -2,9 +2,10 @@ package io.bluetape4k.http.benchmark
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.bluetape4k.http.ahc.asyncHttpClient
-import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+import io.bluetape4k.http.jdk.sendAwait
+import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.WireMockServer
 import io.vertx.core.Vertx
@@ -220,7 +221,7 @@ open class HttpClientLatencyBenchmark {
     }
 
     @Benchmark
-    fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.Default) {
+    fun okhttp3Coroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = Request.Builder().url(pickUrl()).get().build()
         okhttpClient.newCall(request).executeAsync().use { response ->
             response.body.bytes()
@@ -238,6 +239,14 @@ open class HttpClientLatencyBenchmark {
     fun javaHttpVirtualThread(): Int {
         val request = HttpRequest.newBuilder(URI.create(pickUrl())).GET().build()
         return jdkVirtualClient.send(request, HttpResponse.BodyHandlers.ofByteArray()).statusCode()
+    }
+
+    @Benchmark
+    fun javaHttpCoroutines(): Int = runBlocking(Dispatchers.IO) {
+        jdkClient.sendAwait(
+            HttpRequest.newBuilder(URI.create(pickUrl())).GET().build(),
+            HttpResponse.BodyHandlers.ofByteArray()
+        ).statusCode()
     }
 
     @Benchmark
@@ -288,11 +297,6 @@ open class HttpClientLatencyBenchmark {
 
     @Benchmark
     fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.Default) {
-        ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
-    }
-
-    @Benchmark
-    fun ahcOptimizedCoroutinesUnconfined(): Int = runBlocking(Dispatchers.Unconfined) {
         ahcOptimizedClient.prepareGet(pickUrl()).executeSuspending().statusCode
     }
 
