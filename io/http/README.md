@@ -313,28 +313,80 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 
 ## Performance Benchmark
 
-Measured with `HttpClientBenchmarkTest` — 200 requests, 20 warmup iterations, against a local MockWebServer.
+Three JMH (Java Microbenchmark Harness) benchmarks compare client throughput.
+All benchmarks target a separate Docker container server, isolating the server JVM from the client JVM.
 
-> **Note**: These are wall-clock measurements (`measureTimeMillis`), not JMH benchmarks.
-> MockWebServer runs in the same JVM, so there is no real network latency.
-> Under real network conditions HC5 Async + Coroutines and HC5 Classic + Virtual Thread
-> tend to outperform OkHttp3 due to lower coroutine scheduling overhead.
+```bash
+# Run all benchmarks
+./gradlew :bluetape4k-http:testBenchmark
 
-| Client                              | Mode       | ops/s      |
-|-------------------------------------|------------|------------|
-| HC5 Classic + Platform Thread       | sequential | ~3,389     |
-| HC5 Classic + Virtual Thread        | parallel   | ~6,666     |
-| HC5 Classic + InMemory Cache (MISS) | sequential | ~2,083     |
-| HC5 Classic + InMemory Cache (HIT)  | sequential | ~2,941     |
-| HC5 Async + Coroutines              | parallel   | ~7,407     |
-| HC5 Async + InMemory Cache + Coroutines | parallel | ~6,666   |
-| OkHttp3 + Virtual Thread Dispatcher | parallel   | ~2,531     |
-| OkHttp3 + Coroutines                | parallel   | ~10,526    |
-
-```kotlin
-// Run benchmark
-./gradlew :bluetape4k-http:test --tests "*.HttpClientBenchmarkTest" --info
+# Run a specific benchmark
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientLatencyBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientCompressionCacheBenchmark"
 ```
+
+### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
+
+**Setup**: `BluetapeHttpServer` (Docker) · `@Threads(8)` · warmup 1×2s · measurement 3×3s
+
+Lightweight `/ping` responses to measure pure connection throughput.
+
+| Client | Mode | Notes |
+|--------|------|-------|
+| OkHttp3 Sync | sync | Platform thread |
+| OkHttp3 VirtualThread | sync | Virtual Thread Dispatcher |
+| OkHttp3 Coroutines | async | `Call.executeAsync()` (official okhttp-coroutines) |
+| Java HttpClient Sync | sync | JDK built-in |
+| Java HttpClient VirtualThread | sync | Virtual Thread executor |
+| Java HttpClient H2 Sync | sync | HTTP/2 |
+| HC5 Classic | sync | Apache HttpComponents 5 |
+| HC5 Classic VirtualThread | sync | VT-based connection manager |
+| HC5 Classic Coroutines | coroutine | `Dispatchers.IO` |
+| HC5 Async Coroutines | async | `executeSuspending()` |
+| AsyncHttpClient Coroutines | async | Netty-based |
+| Vert.x WebClient Coroutines | async | Event loop |
+
+> **Note**: With no simulated latency all modes produce similar throughput.
+> Differences arise mainly from connection pool configuration and thread model.
+
+### 2. HttpClientLatencyBenchmark — High-Latency Throughput (`GET /httpbin/delay/0.05`)
+
+**Setup**: `BluetapeHttpServer` (Docker, 50 ms delay) · `@Threads(100)` · warmup 1×3s · measurement 3×5s
+
+**Theoretical sync ceiling**: 100 threads × (1000 ms / 50 ms) = **2,000 ops/s**
+Async / coroutine modes can exceed this ceiling without blocking threads.
+
+### 3. HttpClientCompressionCacheBenchmark — Cache + gzip Effect
+
+**Setup**: `WireMockServer` (Docker, 10 ms fixed delay) · gzip 1 KB response · `Cache-Control: public, max-age=3600` · `@Threads(8)` · warmup 2×3s · measurement 3×5s
+
+**Theoretical baseline (no cache)**: 8 threads × (1000 ms / 10 ms) = **800 ops/s**
+
+| Client | Cache | ops/s | vs baseline |
+|--------|-------|------:|-------------|
+| HC5 Classic + InMemoryCache | In-memory (Heap) | **813,906** | ×1,233 |
+| OkHttp3 + DiskLruCache | Disk (OS page cache) | **35,359** | ×53 |
+| HC5 Classic (no cache) | — | 682 | ×1 |
+| HC5 Classic VirtualThread (no cache) | — | 668 | — |
+| OkHttp3 (no cache) | — | 661 | — |
+
+**Key Insights**:
+- **Cache effect**: Eliminating a 10 ms network RTT alone achieves 35K–813K ops/s
+- **HC5 MemCache vs OkHttp DiskCache (23× gap)**:
+  - HC5: `ConcurrentHashMap` direct lookup → ~1–10 μs/op
+  - OkHttp: `DiskLruCache` `synchronized` + journal write + per-hit gzip decompression → ~200–230 μs/op
+  - The 1 KB cache file fits in a single 4 KB OS page, so after warmup reads are purely from page cache (RAM), not real disk I/O — but the filesystem call overhead remains
+- **OkHttp DiskCache at 35K ops/s is correct**: test-verified with `networkResponse == null` and `cacheResponse != null` on every cache hit
+
+**Recommended client by use case**:
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Repeated GET + maximum cache throughput | HC5 CachingHttpClient (MemCache) |
+| Cache persistence across restarts | OkHttp3 + DiskLruCache |
+| General high-throughput (no caching needed) | HC5 Classic VirtualThread or OkHttp3 |
+| High-latency async bulk requests | HC5 Async Coroutines or AsyncHttpClient |
 
 ## Coroutines Support
 

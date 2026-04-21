@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
  * @return [ConnectionPool] 인스턴스
  */
 fun okHttp3ConnectionPool(
-    maxIdleConnections: Int = Runtimex.availableProcessors,
+    maxIdleConnections: Int = 50,
     keepAliveDurations: Duration = Duration.ofMinutes(5),
 ): ConnectionPool =
     ConnectionPool(maxIdleConnections, keepAliveDurations.toSeconds(), TimeUnit.SECONDS)
@@ -81,13 +81,18 @@ inline fun okhttp3ClientBuilderOf(
  */
 fun okhttp3DispatcherWithVirtualThread(
     threadName: String = "okhttp3-virtual-thread-",
+    maxRequests: Int = 200,
+    maxRequestsPerHost: Int = 100,
 ): okhttp3.Dispatcher {
     val factory = virtualThreadFactory {
         name(threadName, 0)
         inheritInheritableThreadLocals(true)
     }
     val executor = Executors.newThreadPerTaskExecutor(factory)
-    return okhttp3DispatcherOf(executor)
+    return okhttp3DispatcherOf(executor).apply {
+        this.maxRequests = maxRequests
+        this.maxRequestsPerHost = maxRequestsPerHost
+    }
 }
 
 /**
