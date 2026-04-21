@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
-import java.util.concurrent.Executors
 
 /**
  * Virtual Threads 기반 HC5 Classic HTTP 클라이언트를 생성합니다.
@@ -16,7 +15,6 @@ fun virtualThreadHttpClientOf(
     maxConnTotal: Int = 200,
     maxConnPerRoute: Int = 100,
 ): CloseableHttpClient {
-    val vtExecutor = Executors.newVirtualThreadPerTaskExecutor()
     val connManager = PoolingHttpClientConnectionManagerBuilder.create()
         .setMaxConnTotal(maxConnTotal)
         .setMaxConnPerRoute(maxConnPerRoute)
