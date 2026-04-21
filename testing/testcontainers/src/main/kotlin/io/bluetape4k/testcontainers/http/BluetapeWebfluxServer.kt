@@ -53,6 +53,9 @@ class BluetapeWebfluxServer private constructor(
         /** 컨테이너 내부 포트 */
         const val PORT = 9999
 
+        /** 컨테이너 내부 HTTPS 포트 */
+        const val HTTPS_PORT = 9443
+
         /**
          * [DockerImageName]으로 [BluetapeWebfluxServer] 인스턴스를 생성합니다.
          *
@@ -127,6 +130,21 @@ class BluetapeWebfluxServer private constructor(
     /** 목업 웹 컨텐츠 기본 URL (`http://host:port/web`) */
     val webUrl: String get() = "$url/web"
 
+    /** HTTPS로 매핑된 실제 포트 번호 */
+    val httpsPort: Int get() = getMappedPort(HTTPS_PORT)
+
+    /** 서버 HTTPS 기본 URL (`https://host:httpsPort`) */
+    val httpsUrl: String get() = "https://$host:$httpsPort"
+
+    /** httpbin 시뮬레이터 HTTPS 기본 URL */
+    val httpsHttpbinUrl: String get() = "$httpsUrl/httpbin"
+
+    /** jsonplaceholder 시뮬레이터 HTTPS 기본 URL */
+    val httpsJsonplaceholderUrl: String get() = "$httpsUrl/jsonplaceholder"
+
+    /** 목업 웹 컨텐츠 HTTPS 기본 URL */
+    val httpsWebUrl: String get() = "$httpsUrl/web"
+
     /** 시스템 프로퍼티 내보내기에 사용할 네임스페이스 */
     override val propertyNamespace: String = NAME
 
@@ -139,7 +157,10 @@ class BluetapeWebfluxServer private constructor(
      * ```
      */
     override fun propertyKeys(): Set<String> =
-        setOf("host", "port", "url", "httpbin-url", "jsonplaceholder-url", "web-url")
+        setOf(
+            "host", "port", "url", "httpbin-url", "jsonplaceholder-url", "web-url",
+            "https-port", "https-url", "https-httpbin-url", "https-jsonplaceholder-url", "https-web-url",
+        )
 
     /**
      * 현재 서버 접속 정보를 프로퍼티 맵으로 반환합니다.
@@ -156,10 +177,15 @@ class BluetapeWebfluxServer private constructor(
         "httpbin-url" to httpbinUrl,
         "jsonplaceholder-url" to jsonplaceholderUrl,
         "web-url" to webUrl,
+        "https-port" to httpsPort.toString(),
+        "https-url" to httpsUrl,
+        "https-httpbin-url" to httpsHttpbinUrl,
+        "https-jsonplaceholder-url" to httpsJsonplaceholderUrl,
+        "https-web-url" to httpsWebUrl,
     )
 
     init {
-        withExposedPorts(PORT)
+        withExposedPorts(PORT, HTTPS_PORT)
         withReuse(reuse)
         waitingFor(
             Wait.forHttp("/ping")
