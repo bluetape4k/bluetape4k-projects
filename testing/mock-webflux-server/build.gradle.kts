@@ -41,6 +41,8 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
+    // Spring Boot 4: WebTestClient 자동구성이 별도 아티팩트(spring-boot-webtestclient)로 분리됨
+    testImplementation("org.springframework.boot:spring-boot-webtestclient")
     testImplementation(Libs.kluent)
     testImplementation(Libs.kotlinx_coroutines_test)
     testImplementation(project(":bluetape4k-junit5"))
