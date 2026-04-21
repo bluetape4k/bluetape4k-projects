@@ -222,14 +222,30 @@ Square의 OkHttp3 클라이언트를 Kotlin DSL로 간편하게 생성하고 사
 - MockWebServer 유틸리티
 - Coroutines 확장
 
+**DSL 빌더 함수 (`OkHttp3Support.kt`):**
+
+| 함수 | 설명 |
+|-----|------|
+| `okhttp3Client(connectionPool, dispatcher, block)` | `OkHttpClient` 생성 (pool/dispatcher 선택 설정) |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | `ConnectionPool` 생성 |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Virtual Thread 기반 `Dispatcher` 생성 |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | 커스텀 `ExecutorService` 기반 `Dispatcher` 생성 |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | 사전 구성된 `OkHttpClient.Builder` 반환 |
+| `okhttp3RequestOf(url, block)` | `okhttp3.Request` DSL 생성 |
+| `okhttp3CacheControl(block)` | `CacheControl` DSL 생성 |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | 기간 파라미터 기반 `CacheControl` 생성 |
+
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
-import io.bluetape4k.logging.KotlinLogging
 
-private val log = KotlinLogging.logger {}
+// Connection Pool + Virtual Thread Dispatcher
+val pool = okHttp3ConnectionPool(maxIdleConnections = 50)
+val dispatcher = okhttp3DispatcherWithVirtualThread(maxRequests = 200)
 
-// Virtual Thread 기반 OkHttpClient 생성
-val client = okhttp3Client {
+val client = okhttp3Client(
+    connectionPool = pool,
+    dispatcher = dispatcher,
+) {
     addInterceptor(LoggingInterceptor(log))
     addNetworkInterceptor(CachingResponseInterceptor())
 }
@@ -238,6 +254,11 @@ val client = okhttp3Client {
 val request = okhttp3RequestOf("https://httpbin.org/get") {
     get()
     header("Accept", "application/json")
+}
+
+// 동기 호출
+client.newCall(request).execute().use { response ->
+    println(response.body.string())
 }
 
 // Coroutines 환경에서 비동기 요청
@@ -289,6 +310,31 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 | OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
 | AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty 기반, 고성능         | 대량 비동기 요청     |
+
+## 성능 벤치마크
+
+`HttpClientBenchmarkTest`로 측정 — 200 요청 / warmup 20회 / 로컬 MockWebServer 대상.
+
+> **참고**: `measureTimeMillis` 기반 벽시계 측정 (JMH 아님).
+> MockWebServer가 동일 JVM에서 구동되므로 실제 네트워크 지연이 없습니다.
+> 실제 네트워크 환경에서는 HC5 Async + Coroutines / HC5 Classic + Virtual Thread가
+> 코루틴 스케줄링 오버헤드가 상쇄되면서 더 유리합니다.
+
+| 클라이언트                                   | 모드        | ops/s      |
+|------------------------------------------|-----------|------------|
+| HC5 Classic + Platform Thread            | sequential | ~3,389    |
+| HC5 Classic + Virtual Thread             | parallel   | ~6,666    |
+| HC5 Classic + InMemory Cache (캐시 미스)  | sequential | ~2,083    |
+| HC5 Classic + InMemory Cache (캐시 히트)  | sequential | ~2,941    |
+| HC5 Async + Coroutines                   | parallel   | ~7,407    |
+| HC5 Async + InMemory Cache + Coroutines  | parallel   | ~6,666    |
+| OkHttp3 + Virtual Thread Dispatcher      | parallel   | ~2,531    |
+| OkHttp3 + Coroutines                     | parallel   | ~10,526   |
+
+```bash
+# 벤치마크 실행
+./gradlew :bluetape4k-http:test --tests "*.HttpClientBenchmarkTest" --info
+```
 
 ## Coroutines 지원
 
