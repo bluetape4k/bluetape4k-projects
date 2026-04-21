@@ -22,5 +22,7 @@
 - [ ] 변경된 모듈의 `README.md` + `README.ko.md` 업데이트
 - [ ] 공개 API에 KDoc 추가
 - [ ] `worktree`에서 작업 후 PR 생성
+- [ ] `testing/mock-server` 변경 시 Docker 이미지 재빌드: `./gradlew :bluetape4k-mock-server:jibDockerBuild --no-configuration-cache`
 - [ ] superpowers 작업인 경우 `docs/superpowers/index/YYYY-MM.md` 업데이트
 - [ ] `virtualthread/api` 변경 시 `jdk21` + `jdk25` 동시 반영
+- [ ] CodeRabbit 리뷰 확인 후 머지
