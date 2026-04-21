@@ -34,6 +34,50 @@ dependencies {
 }
 ```
 
+## 고처리량 풀 설정
+
+`bluetape4k-exposed-r2dbc`는 `bluetape4k-r2dbc`를 노출하므로 Exposed R2DBC 애플리케이션에서도 `R2dbcPoolConfig.highThroughput()`을 재사용하고 생성된 `ConnectionPool`을 `R2dbcDatabase`에 전달할 수 있습니다.
+
+```kotlin
+import io.bluetape4k.r2dbc.pool.R2dbcPoolConfig
+import io.bluetape4k.r2dbc.pool.r2dbcConnectionPool
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
+
+val url = "r2dbc:postgresql://user:secret@localhost:5432/app"
+val pool = r2dbcConnectionPool(url) {
+    val preset = R2dbcPoolConfig.highThroughput(
+        maxSize = 128,
+        poolName = "exposed-r2dbc",
+    )
+
+    maxSize = preset.maxSize
+    initialSize = preset.initialSize
+    minIdle = preset.minIdle
+    acquireRetry = preset.acquireRetry
+    maxPendingAcquire = preset.maxPendingAcquire
+    maxAcquireTime = preset.maxAcquireTime
+    maxCreateConnectionTime = preset.maxCreateConnectionTime
+    maxValidationTime = preset.maxValidationTime
+    validationDepth = preset.validationDepth
+    validationQuery = null
+    poolName = preset.poolName
+}
+
+val database = R2dbcDatabase.connect(
+    connectionFactory = pool,
+    databaseConfig = R2dbcDatabaseConfig {
+        setUrl(url)
+    },
+)
+```
+
+고처리량 서비스에서는 드라이버가 로컬 검증을 지원하지 않는 경우가 아니라면 `validationQuery`를 비워두는 것을 권장합니다. SQL 검증 쿼리는 커넥션 획득 경로마다 데이터베이스 왕복을 추가합니다.
+
+풀 benchmark는 `bluetape4k-r2dbc`에 있습니다. `./gradlew :bluetape4k-r2dbc:benchmarkPoolConfig`, `./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire`, `./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire`, `./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire`, `./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention`으로 실행합니다.
+
+로컬 H2/PostgreSQL/MySQL8 실측에서는 순수 acquire/close 처리량은 드라이버마다 달랐지만, 요청이 커넥션을 `1-5 ms` 점유하면 처리량은 점유 시간에 지배되고 기본/고처리량 profile이 수렴했습니다. 별도 `64` threads contention benchmark에서는 동시 요청 수가 풀 크기를 넘을 때 `maxSize` 영향이 뚜렷했습니다. Exposed repository 서비스에서는 부하 상황에서 bounded pending acquire, warmup, 유한한 acquisition timeout이 필요하면 high-throughput 프리셋을 우선하고, 과부하 보호보다 짧은 내부 작업의 순수 처리량이 중요한 경우에만 기본 profile을 우선하세요.
+
 ## 기본 사용법
 
 ### 1. R2dbcRepository 구현
