@@ -1,69 +1,39 @@
-# Module bluetape4k-mock-server
+# bluetape4k-mock-web-server
 
-English | [한국어](./README.ko.md)
+[한국어](./README.ko.md) | English
 
-A self-contained Spring Boot HTTP mock server that replaces external HTTP dependencies in integration tests.
-It simulates **httpbin.org**, **jsonplaceholder.typicode.com**, and a simple web-content endpoint, all in one Docker image (`bluetape4k/mock-server`).
-
-## Overview
-
-| Replaces | Prefix |
-|----------|--------|
-| [httpbin.org](https://httpbin.org) — HTTP inspection API | `/httpbin/**` |
-| [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com) — REST fixture API | `/jsonplaceholder/**` |
-| Generic HTML / web content fixtures | `/web/**` |
-| Health check | `/ping` |
-| Admin / data reset | `/admin/reset` |
-
-## Endpoints
-
-### Core
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/ping` | Health check — returns `pong` |
-| `POST` | `/admin/reset` | Reloads all in-memory fixture data from classpath JSON files |
-
-### `/httpbin/**`
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/httpbin/get` | Echoes GET request info |
-| `POST` | `/httpbin/post` | Echoes POST request + body |
-| `PUT` | `/httpbin/put` | Echoes PUT request + body |
-| `PATCH` | `/httpbin/patch` | Echoes PATCH request + body |
-| `DELETE` | `/httpbin/delete` | Echoes DELETE request info |
-| `GET` | `/httpbin/headers` | Returns all request headers |
-| `GET` | `/httpbin/ip` | Returns client IP |
-| `GET` | `/httpbin/user-agent` | Returns User-Agent header |
-| `GET` | `/httpbin/uuid` | Returns a random UUID |
-| `ANY` | `/httpbin/anything/**` | Echoes any request |
-| `ANY` | `/httpbin/status/{code}` | Returns the given HTTP status code |
-| `GET` | `/httpbin/bytes/{n}` | Returns `n` random bytes |
-| `GET` | `/httpbin/delay/{seconds}` | Responds after a delay; `{seconds}` accepts decimals (e.g. `0.5` = 500 ms, range 0.0–10.0) |
-| `GET` | `/httpbin/stream/{n}` | Streams `n` JSON lines |
-| `GET` | `/httpbin/image/{format}` | Returns a sample image (png/jpeg/svg/webp) |
-
-### `/jsonplaceholder/**`
-
-Mirrors [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com). All resources support full CRUD.
-
-| Resource | Base Path |
-|----------|-----------|
-| Posts | `/jsonplaceholder/posts` |
-| Comments | `/jsonplaceholder/comments` |
-| Albums | `/jsonplaceholder/albums` |
-| Photos | `/jsonplaceholder/photos` |
-| Todos | `/jsonplaceholder/todos` |
-| Users | `/jsonplaceholder/users` |
-
-### `/web/**`
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/web/{name}` | Returns cached HTML content by name |
+A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces external HTTP dependencies in integration tests.
+It simulates **httpbin.org**, **jsonplaceholder.typicode.com**, and a simple web-content endpoint, all in one Docker image (`bluetape4k/mock-web-server`).
 
 ## Architecture
+
+`bluetape4k-mock-web-server` is a Spring Boot 4 MVC application that runs on port **8888**.
+It uses Virtual Threads (`spring.threads.virtual.enabled=true`) for high-concurrency handling without blocking OS threads.
+All fixture data is stored in-memory (loaded from classpath JSON files) and managed by `JsonplaceholderService` through a generic `InMemoryRepository<T>`.
+Static HTML content is served via `WebContentLoader` with Caffeine caching.
+
+| Endpoint Group | Prefix | Description |
+|----------------|--------|-------------|
+| Health check | `/ping` | Returns `pong` |
+| Admin | `/admin/**` | Reset in-memory fixture data |
+| httpbin | `/httpbin/**` | Mirrors httpbin.org HTTP inspection API |
+| jsonplaceholder | `/jsonplaceholder/**` | Mirrors jsonplaceholder.typicode.com REST fixture API |
+| web | `/web/**` | Cached HTML/web content fixtures |
+
+## UML
+
+### Request Routing Overview
+
+```mermaid
+flowchart LR
+    C[Client] -->|HTTP 8888| S[Spring MVC DispatcherServlet]
+    S --> A[AdminController]
+    S --> H[HttpbinController]
+    S --> J[Jsonplaceholder 6 Controllers]
+    S --> W[WebContentController]
+    J --> Svc[JsonplaceholderService] --> Repo[InMemoryRepository]
+    W --> L[WebContentLoader cacheable]
+```
 
 ### Class Diagram
 
@@ -148,35 +118,6 @@ classDiagram
     style AdminController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
 
-### Request Routing Flowchart
-
-```mermaid
-flowchart TD
-    REQ["Incoming HTTP Request"]
-
-    REQ --> ROUTE{Path prefix?}
-
-    ROUTE -->|/httpbin/**| HB["HttpbinController\nHttpbinAdvancedController\nHttpbinStreamController"]
-    ROUTE -->|/jsonplaceholder/**| JP["Posts / Comments / Albums\nPhotos / Todos / Users\nControllers"]
-    ROUTE -->|/web/**| WEB["WebContentController\n(Caffeine cached HTML)"]
-    ROUTE -->|/ping| PING["200 pong"]
-    ROUTE -->|/admin/reset| ADMIN["AdminController\nreload fixtures"]
-
-    HB --> RESP["HTTP Response"]
-    JP --> RESP
-    WEB --> RESP
-    PING --> RESP
-    ADMIN --> RESP
-
-    classDef routeStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef handlerStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef respStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    class REQ,ROUTE routeStyle
-    class HB,JP,WEB,PING,ADMIN handlerStyle
-    class RESP respStyle
-```
-
 ### Sequence Diagram — httpbin GET
 
 ```mermaid
@@ -192,7 +133,18 @@ sequenceDiagram
     SERVER-->>CLIENT: 200 OK + JSON body
 ```
 
-## Configuration
+## Features
+
+- **Spring Boot 4 + Virtual Threads**: High-concurrency request handling with JDK 21+ Virtual Threads (`spring.threads.virtual.enabled=true`)
+- **Port 8888**: Fixed container port for deterministic test configuration
+- **httpbin simulation**: Full HTTP inspection API at `/httpbin/**` — echoes requests, returns headers/IP/UUID, streams, delays, and images
+- **jsonplaceholder simulation**: 6 full CRUD resources (posts/comments/albums/photos/todos/users) at `/jsonplaceholder/**`
+- **Web content fixtures**: Cached HTML content at `/web/{name}` via Caffeine
+- **Admin reset**: `POST /admin/reset` reloads all in-memory fixture data from classpath JSON files
+- **Docker image**: `bluetape4k/mock-web-server` — built with Jib, no Dockerfile required
+- **Testcontainers integration**: `BluetapeHttpServer` companion provides URL helpers for integration tests
+
+### Configuration
 
 `src/main/resources/application.yml` defaults:
 
@@ -200,42 +152,25 @@ sequenceDiagram
 |-----|-------|-------|
 | `server.port` | `8888` | Fixed container port |
 | `server.http2.enabled` | `true` | HTTP/2 support |
-| `server.tomcat.threads.max` | `16000` | Max platform threads (supports high-concurrency benchmarks with Virtual Threads) |
+| `server.tomcat.threads.max` | `16000` | Max platform threads (high-concurrency benchmark support) |
 | `server.tomcat.max-connections` | `16000` | Max simultaneous connections |
 | `server.tomcat.accept-count` | `16000` | Connection backlog queue size |
 | `spring.threads.virtual.enabled` | `true` | Virtual Threads (JDK 21+) |
 | `spring.cache.type` | `caffeine` | In-process caching |
 | `spring.cache.cache-names` | `html-content`, `fixture-data`, `httpbin-image` | Caffeine cache names |
 
-> **Thread count rationale**: With `@Threads(100)` JMH benchmarks sending 50 ms requests,
-> the default Tomcat thread pool (200) became the bottleneck. Raising it to 16,000 ensures
-> the server is never the limiting factor. Virtual Threads are enabled so actual OS thread
-> consumption is far lower.
+## Examples
 
-### TODO: Migrate to Spring WebFlux
+### Run via Docker
 
-Currently built on Spring MVC (servlet + platform threads). Migrating to Spring WebFlux + Netty
-would allow tens of thousands of concurrent connections with only a handful of event-loop threads —
-a better fit as a high-concurrency benchmark server.
-
-## Build & Run
+```bash
+docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
+```
 
 ### Build Docker image with Jib
 
 ```bash
-./gradlew :bluetape4k-mock-server:jibBuildTar
-```
-
-This produces `build/jib-image.tar`. Load it into Docker:
-
-```bash
-docker load < testing/mock-server/build/jib-image.tar
-```
-
-### Run directly
-
-```bash
-docker run --rm -p 8888:8888 bluetape4k/mock-server:latest
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
 ```
 
 ### Use via Testcontainers (`BluetapeHttpServer`)
@@ -250,10 +185,7 @@ println(server.jsonplaceholderUrl) // http://localhost:<port>/jsonplaceholder
 println(server.webUrl)             // http://localhost:<port>/web
 ```
 
-## Adding the Dependency
-
-The mock-server module is a Docker image, not a library dependency.
-To run it in tests, add the testcontainers module:
+### Add the Testcontainers dependency
 
 ```kotlin
 dependencies {
@@ -261,17 +193,57 @@ dependencies {
 }
 ```
 
+### Endpoint Reference
+
+#### Core
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/ping` | Health check — returns `pong` |
+| `POST` | `/admin/reset` | Reloads all in-memory fixture data from classpath JSON files |
+
+#### `/httpbin/**`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/httpbin/get` | Echoes GET request info |
+| `POST` | `/httpbin/post` | Echoes POST request + body |
+| `PUT` | `/httpbin/put` | Echoes PUT request + body |
+| `PATCH` | `/httpbin/patch` | Echoes PATCH request + body |
+| `DELETE` | `/httpbin/delete` | Echoes DELETE request info |
+| `GET` | `/httpbin/headers` | Returns all request headers |
+| `GET` | `/httpbin/ip` | Returns client IP |
+| `GET` | `/httpbin/user-agent` | Returns User-Agent header |
+| `GET` | `/httpbin/uuid` | Returns a random UUID |
+| `ANY` | `/httpbin/anything/**` | Echoes any request |
+| `ANY` | `/httpbin/status/{code}` | Returns the given HTTP status code |
+| `GET` | `/httpbin/bytes/{n}` | Returns `n` random bytes |
+| `GET` | `/httpbin/delay/{seconds}` | Responds after a delay (`0.5` = 500 ms, range 0.0–10.0) |
+| `GET` | `/httpbin/stream/{n}` | Streams `n` JSON lines |
+| `GET` | `/httpbin/image/{format}` | Returns a sample image (png/jpeg/svg/webp) |
+
+#### `/jsonplaceholder/**`
+
+Mirrors [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com). All resources support full CRUD.
+
+| Resource | Base Path |
+|----------|-----------|
+| Posts | `/jsonplaceholder/posts` |
+| Comments | `/jsonplaceholder/comments` |
+| Albums | `/jsonplaceholder/albums` |
+| Photos | `/jsonplaceholder/photos` |
+| Todos | `/jsonplaceholder/todos` |
+| Users | `/jsonplaceholder/users` |
+
+#### `/web/**`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/web/{name}` | Returns cached HTML content by name |
+
 ## References
 
 - [httpbin.org](https://httpbin.org)
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Containerize Java apps](https://github.com/GoogleContainerTools/jib)
-
-## TODO
-
-- [ ] **Migrate to Spring WebFlux**: Replace Spring MVC + Virtual Threads with WebFlux + Netty
-  - **Reason**: Under 100+ concurrent requests with 50ms delay, MVC depends on Tomcat thread pool
-    (required 16,000 threads to reach theoretical ~2,000 ops/s). WebFlux handles thousands of
-    connections with a handful of event-loop threads — no thread pool tuning needed.
-  - Replace `Thread.sleep()` in `/httpbin/delay/{seconds}` with `Mono.delay()` for truly non-blocking delay.

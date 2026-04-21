@@ -1,9 +1,9 @@
-# Module bluetape4k-mock-server
+# Module bluetape4k-mock-web-server
 
 [English](./README.md) | 한국어
 
 외부 HTTP 의존성을 통합 테스트에서 대체하기 위한 독립형 Spring Boot HTTP Mock 서버입니다.
-**httpbin.org**, **jsonplaceholder.typicode.com**, 그리고 간단한 웹 컨텐츠 엔드포인트를 하나의 Docker 이미지(`bluetape4k/mock-server`)로 제공합니다.
+**httpbin.org**, **jsonplaceholder.typicode.com**, 그리고 간단한 웹 컨텐츠 엔드포인트를 하나의 Docker 이미지(`bluetape4k/mock-web-server`)로 제공합니다.
 
 ## 개요
 
@@ -222,7 +222,7 @@ sequenceDiagram
 ### Jib으로 Docker 이미지 빌드
 
 ```bash
-./gradlew :bluetape4k-mock-server:jibBuildTar
+./gradlew :bluetape4k-mock-web-server:jibBuildTar
 ```
 
 `build/jib-image.tar`가 생성됩니다. Docker에 로드:
@@ -234,7 +234,7 @@ docker load < testing/mock-server/build/jib-image.tar
 ### 직접 실행
 
 ```bash
-docker run --rm -p 8888:8888 bluetape4k/mock-server:latest
+docker run --rm -p 8888:8888 bluetape4k/mock-web-server:latest
 ```
 
 ### Testcontainers로 사용 (`BluetapeHttpServer`)

@@ -13,7 +13,7 @@ import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 
 /**
- * `bluetape4k/mock-server` Docker 이미지를 로컬 컨테이너로 실행하는 테스트 HTTP 서버입니다.
+ * `bluetape4k/mock-web-server` Docker 이미지를 로컬 컨테이너로 실행하는 테스트 HTTP 서버입니다.
  *
  * ## 동작/계약
  * - `/ping` 엔드포인트가 HTTP 200을 반환할 때까지(최대 60초) 시작을 기다립니다.
@@ -29,7 +29,7 @@ import java.time.Duration
  * // pingUrl == "http://${server.host}:${server.port}/ping"
  * ```
  *
- * Docker 이미지: `bluetape4k/mock-server`
+ * Docker 이미지: `bluetape4k/mock-web-server`
  */
 class BluetapeHttpServer private constructor(
     imageName: DockerImageName,
@@ -39,7 +39,7 @@ class BluetapeHttpServer private constructor(
 
     companion object: KLogging() {
         /** Docker 이미지 이름 */
-        const val IMAGE = "bluetape4k/mock-server"
+        const val IMAGE = "bluetape4k/mock-web-server"
 
         /** Docker 이미지 태그 */
         const val TAG = "latest"
@@ -59,7 +59,7 @@ class BluetapeHttpServer private constructor(
          * - `useDefaultPort`에 따라 포트 고정 바인딩 여부가 초기화 시점에 결정됩니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("bluetape4k/mock-server").withTag("latest")
+         * val image = DockerImageName.parse("bluetape4k/mock-web-server").withTag("latest")
          * val server = BluetapeHttpServer(image, useDefaultPort = false)
          * // server.isRunning == false
          * ```
@@ -86,7 +86,7 @@ class BluetapeHttpServer private constructor(
          * - 이 함수는 컨테이너를 시작하지 않습니다.
          *
          * ```kotlin
-         * val server = BluetapeHttpServer(image = "bluetape4k/mock-server", tag = "latest")
+         * val server = BluetapeHttpServer(image = "bluetape4k/mock-web-server", tag = "latest")
          * // server.url.startsWith("http://") == true
          * ```
          *
@@ -175,12 +175,12 @@ class BluetapeHttpServer private constructor(
      *
      * ## 동작/계약
      * - `super.start()`로 컨테이너를 시작한 뒤, [writeToSystemProperties]를 호출해
-     *   `bluetape4k-mock-server.host`, `bluetape4k-mock-server.port`, `bluetape4k-mock-server.url`
+     *   `bluetape4k-mock-web-server.host`, `bluetape4k-mock-web-server.port`, `bluetape4k-mock-web-server.url`
      *   프로퍼티를 시스템에 등록합니다.
      *
      * ```kotlin
      * server.start()
-     * // System.getProperty("bluetape4k-mock-server.url") != null
+     * // System.getProperty("bluetape4k-mock-web-server.url") != null
      * ```
      */
     override fun start() {

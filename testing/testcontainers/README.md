@@ -306,7 +306,7 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 
 ### BluetapeHttpServer (httpbin + jsonplaceholder + web)
 
-`BluetapeHttpServer` runs the `bluetape4k/mock-server` Docker image, which provides
+`BluetapeHttpServer` runs the `bluetape4k/mock-web-server` Docker image, which provides
 httpbin, jsonplaceholder, and web-content endpoints in a single container.
 
 ```kotlin

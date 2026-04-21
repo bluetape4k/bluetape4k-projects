@@ -103,7 +103,7 @@ Verify every item before running `gh pr create`:
 - [ ] `README.md` **and** `README.ko.md` updated for every changed module
 - [ ] KDoc added/updated for all new or modified public APIs
 - [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
-- [ ] `testing/mock-server` changed → rebuild Docker image: `./gradlew :bluetape4k-mock-server:jibDockerBuild --no-configuration-cache`
+- [ ] `testing/mock-web-server` changed → rebuild Docker image: `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
 - [ ] superpowers work → `docs/superpowers/index/YYYY-MM.md` updated
 - [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
 - [ ] Run CodeRabbit review via `/coderabbit:review` skill before merging
