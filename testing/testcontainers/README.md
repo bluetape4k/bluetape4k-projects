@@ -306,7 +306,7 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 
 ### BluetapeHttpServer (httpbin + jsonplaceholder + web)
 
-`BluetapeHttpServer` runs the `bluetape4k/mock-server` Docker image, which provides
+`BluetapeHttpServer` runs the `bluetape4k/mock-web-server` Docker image, which provides
 httpbin, jsonplaceholder, and web-content endpoints in a single container.
 
 ```kotlin
@@ -324,14 +324,14 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 After `start()`, the following system properties are registered automatically:
 
-| Property Key | Example Value |
-|--------------|---------------|
-| `testcontainers.bluetape-http.host` | `localhost` |
-| `testcontainers.bluetape-http.port` | `8888` |
-| `testcontainers.bluetape-http.url` | `http://localhost:8888` |
-| `testcontainers.bluetape-http.httpbinUrl` | `http://localhost:8888/httpbin` |
-| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:8888/jsonplaceholder` |
-| `testcontainers.bluetape-http.webUrl` | `http://localhost:8888/web` |
+| Property Key                                      | Example Value                                |
+|---------------------------------------------------|----------------------------------------------|
+| `testcontainers.bluetape-http.host`               | `localhost`                                  |
+| `testcontainers.bluetape-http.port`               | `<dynamic>`                                  |
+| `testcontainers.bluetape-http.url`                | `http://localhost:<dynamic>`                 |
+| `testcontainers.bluetape-http.httpbinUrl`         | `http://localhost:<dynamic>/httpbin`         |
+| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:<dynamic>/jsonplaceholder` |
+| `testcontainers.bluetape-http.webUrl`             | `http://localhost:<dynamic>/web`             |
 
 #### Spring Boot `application-test.yml`
 
@@ -349,7 +349,7 @@ mock:
 // Dynamic port (default)
 val server = BluetapeHttpServer().apply { start() }
 
-// Fixed port 8888
+// Fixed port 80 (container's internal port)
 val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 ```
 

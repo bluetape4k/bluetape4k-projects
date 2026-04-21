@@ -126,7 +126,8 @@ Jackson 버전 불일치(`spring-boot4`의 `DefaultRetrofitClientConfiguration`�
 
 ### Added
 
-#### testing/mock-server — `bluetape4k-mock-server` 신규 모듈 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
+#### testing/mock-web-server — `bluetape4k-mock-web-server` 신규 모듈 ([
+`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
 
 Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서버.
 기존 외부 의존(`httpbin.org`, `jsonplaceholder.typicode.com`)을 컨테이너화된 로컬 서버로 대체합니다.
@@ -140,13 +141,14 @@ Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서�
 
 #### testing/testcontainers — `BluetapeHttpServer` 추가, `HttpbinServer` 대체 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
 
-- `BluetapeHttpServer`: `bluetape4k/mock-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
+- `BluetapeHttpServer`: `bluetape4k/mock-web-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
 - `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
 - 기존 `HttpbinServer`, `HttpbinHttp2Server` 및 관련 테스트 제거
 
 ### Changed
 
-#### testing/mock-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([`22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
+#### testing/mock-web-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([
+`22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
 
 io/feign, io/retrofit2, io/http, infra/micrometer, spring-boot3/4 등 외부 httpbin에 의존하던 테스트를 모두 `BluetapeHttpServer`로 전환하였습니다.
 

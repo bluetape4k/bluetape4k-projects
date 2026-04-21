@@ -1,0 +1,40 @@
+server:
+    port: 80
+  http2:
+    enabled: true
+  tomcat:
+    threads:
+      max: 16000
+    max-connections: 16000
+    accept-count: 16000
+
+bluetape4k:
+    https:
+        port: 443
+        key-store: classpath:certs/localhost.p12
+        key-store-password: changeit
+        key-store-type: PKCS12
+
+spring:
+  application:
+    name: bluetape-mock-server
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  mvc:
+    async:
+      request-timeout: 30000
+  threads:
+    virtual:
+      enabled: true
+  cache:
+    type: caffeine
+    cache-names:
+      - html-content
+      - fixture-data
+      - httpbin-image
+
+logging:
+  level:
+    io.bluetape4k.mockserver: INFO

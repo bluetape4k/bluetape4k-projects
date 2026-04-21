@@ -34,6 +34,57 @@ dependencies {
 }
 ```
 
+## High-throughput Pool Setup
+
+`bluetape4k-exposed-r2dbc` exposes `bluetape4k-r2dbc`, so Exposed R2DBC applications can reuse
+`R2dbcPoolConfig.highThroughput()` and pass the resulting `ConnectionPool` to `R2dbcDatabase`.
+
+```kotlin
+import io.bluetape4k.r2dbc.pool.R2dbcPoolConfig
+import io.bluetape4k.r2dbc.pool.r2dbcConnectionPool
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
+
+val url = "r2dbc:postgresql://user:secret@localhost:5432/app"
+val pool = r2dbcConnectionPool(url) {
+    val preset = R2dbcPoolConfig.highThroughput(
+        maxSize = 128,
+        poolName = "exposed-r2dbc",
+    )
+
+    maxSize = preset.maxSize
+    initialSize = preset.initialSize
+    minIdle = preset.minIdle
+    acquireRetry = preset.acquireRetry
+    maxPendingAcquire = preset.maxPendingAcquire
+    maxAcquireTime = preset.maxAcquireTime
+    maxCreateConnectionTime = preset.maxCreateConnectionTime
+    maxValidationTime = preset.maxValidationTime
+    validationDepth = preset.validationDepth
+    validationQuery = null
+    poolName = preset.poolName
+}
+
+val database = R2dbcDatabase.connect(
+    connectionFactory = pool,
+    databaseConfig = R2dbcDatabaseConfig {
+        setUrl(url)
+    },
+)
+```
+
+For high-throughput services, keep
+`validationQuery` unset unless the driver cannot validate locally. A SQL validation query adds a database round trip to the connection acquisition path.
+
+Pool benchmarks live in `bluetape4k-r2dbc`: run `./gradlew :bluetape4k-r2dbc:benchmarkPoolConfig`,
+`./gradlew :bluetape4k-r2dbc:benchmarkH2PoolAcquire`, `./gradlew :bluetape4k-r2dbc:benchmarkPostgresPoolAcquire`,
+`./gradlew :bluetape4k-r2dbc:benchmarkMysql8PoolAcquire`, and `./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention`.
+
+Measured local H2/PostgreSQL/MySQL8 benchmarks showed that pure acquire/close throughput is driver-specific, but once a request holds a connection for
+`1-5 ms`, throughput is dominated by hold time and the default/high-throughput profiles converge. A separate contention benchmark with
+`64` threads showed that
+`maxSize` matters when concurrent requests exceed pool size. For Exposed repositories, prefer the high-throughput preset when the service needs bounded pending acquire, warmup, and finite acquisition timeout under load; prefer the default profile only for very short-lived internal jobs where overload protection is less important.
+
 ## Basic Usage
 
 ### 1. Implementing R2dbcRepository

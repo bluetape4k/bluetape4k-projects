@@ -313,7 +313,7 @@ verify(getRequestedFor(urlEqualTo("/hello")))
 
 ### BluetapeHttpServer (httpbin + jsonplaceholder + web)
 
-`BluetapeHttpServer`는 `bluetape4k/mock-server` Docker 이미지를 실행합니다.
+`BluetapeHttpServer`는 `bluetape4k/mock-web-server` Docker 이미지를 실행합니다.
 httpbin, jsonplaceholder, web 컨텐츠 엔드포인트를 하나의 컨테이너에서 제공합니다.
 
 ```kotlin
@@ -331,14 +331,14 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 `start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
 
-| 프로퍼티 키 | 예시 값 |
-|------------|--------|
-| `testcontainers.bluetape-http.host` | `localhost` |
-| `testcontainers.bluetape-http.port` | `8888` |
-| `testcontainers.bluetape-http.url` | `http://localhost:8888` |
-| `testcontainers.bluetape-http.httpbinUrl` | `http://localhost:8888/httpbin` |
-| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:8888/jsonplaceholder` |
-| `testcontainers.bluetape-http.webUrl` | `http://localhost:8888/web` |
+| 프로퍼티 키                                            | 예시 값                                    |
+|---------------------------------------------------|-----------------------------------------|
+| `testcontainers.bluetape-http.host`               | `localhost`                             |
+| `testcontainers.bluetape-http.port`               | `<동적>`                                  |
+| `testcontainers.bluetape-http.url`                | `http://localhost:<동적>`                 |
+| `testcontainers.bluetape-http.httpbinUrl`         | `http://localhost:<동적>/httpbin`         |
+| `testcontainers.bluetape-http.jsonplaceholderUrl` | `http://localhost:<동적>/jsonplaceholder` |
+| `testcontainers.bluetape-http.webUrl`             | `http://localhost:<동적>/web`             |
 
 #### Spring Boot `application-test.yml`
 
@@ -356,7 +356,7 @@ mock:
 // 동적 포트 (기본값)
 val server = BluetapeHttpServer().apply { start() }
 
-// 포트 8888 고정 바인딩
+// 포트 80 고정 바인딩 (컨테이너 내부 포트)
 val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
 ```
 
