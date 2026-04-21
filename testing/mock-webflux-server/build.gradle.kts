@@ -2,6 +2,7 @@ plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
     id("com.google.cloud.tools.jib") version "3.4.4"
+    id("io.gatling.gradle") version "3.15.0"
 }
 
 // Java 25 toolchain — WebFlux uses Netty+Coroutines (not Virtual Threads), but same JVM target as mock-web-server
@@ -43,6 +44,22 @@ dependencies {
     testImplementation(Libs.kluent)
     testImplementation(Libs.kotlinx_coroutines_test)
     testImplementation(project(":bluetape4k-junit5"))
+}
+
+dependencies {
+    "gatlingImplementation"("io.gatling.highcharts:gatling-charts-highcharts:3.15.0")
+    "gatlingImplementation"("io.gatling:gatling-core-java:3.15.0")
+    "gatlingImplementation"("io.gatling:gatling-http-java:3.15.0")
+}
+
+afterEvaluate {
+    tasks.findByName("gatlingClasses")?.let { gatlingTask ->
+        tasks.named("check") {
+            setDependsOn(dependsOn.filter { dep ->
+                dep.toString() != gatlingTask.path && dep.toString() != "gatlingClasses"
+            })
+        }
+    }
 }
 
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildDockerTask>().configureEach {
