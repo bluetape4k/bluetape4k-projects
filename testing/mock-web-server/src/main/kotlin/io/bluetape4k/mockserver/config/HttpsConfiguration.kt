@@ -16,8 +16,8 @@ import java.io.File
 /**
  * Tomcat에 HTTPS 추가 커넥터를 등록하는 설정.
  *
- * 기존 HTTP 포트(8888)는 그대로 유지하고,
- * [httpsPort](기본값 8443)에 SSL이 활성화된 별도 커넥터를 추가한다.
+ * 기존 HTTP 포트(80)는 그대로 유지하고,
+ * [httpsPort](기본값 443)에 SSL이 활성화된 별도 커넥터를 추가한다.
  * 인증서는 `src/main/resources/certs/localhost.p12`에 번들되어 있다.
  */
 @Configuration
@@ -28,12 +28,12 @@ class HttpsConfiguration {
     /**
      * Tomcat에 HTTPS 커넥터를 추가하는 [WebServerFactoryCustomizer] 빈.
      *
-     * @param httpsPort HTTPS 포트 번호 (기본값 8443)
+     * @param httpsPort HTTPS 포트 번호 (기본값 443)
      * @param keyStorePassword PKCS12 keystore 비밀번호
      */
     @Bean
     fun httpsConnectorCustomizer(
-        @Value("\${bluetape4k.https.port:8443}") httpsPort: Int,
+        @Value("\${bluetape4k.https.port:443}") httpsPort: Int,
         @Value("\${bluetape4k.https.key-store-password:changeit}") keyStorePassword: String,
     ): WebServerFactoryCustomizer<TomcatServletWebServerFactory> = WebServerFactoryCustomizer { factory ->
         log.info { "HTTPS 커넥터 추가: port=$httpsPort" }

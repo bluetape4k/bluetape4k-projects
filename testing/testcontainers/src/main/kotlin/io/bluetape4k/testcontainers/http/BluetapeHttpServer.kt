@@ -17,7 +17,7 @@ import java.time.Duration
  *
  * ## 동작/계약
  * - `/ping` 엔드포인트가 HTTP 200을 반환할 때까지(최대 60초) 시작을 기다립니다.
- * - `useDefaultPort=true`이면 [PORT](8888) 포트를 호스트에 고정 바인딩하려고 시도하고,
+ * - `useDefaultPort=true`이면 [PORT](80) 포트를 호스트에 고정 바인딩하려고 시도하고,
  *   그렇지 않으면 동적 포트를 사용합니다.
  * - `reuse=true`일 때 Testcontainers 재사용 옵션을 켭니다.
  * - 인스턴스 생성만으로는 컨테이너가 시작되지 않으며, `start()` 호출이 필요합니다.
@@ -47,11 +47,11 @@ class BluetapeHttpServer private constructor(
         /** 서버 이름 (시스템 프로퍼티 네임스페이스로 사용됨) */
         const val NAME = "bluetape-http"
 
-        /** 컨테이너 내부 포트 */
-        const val PORT = 8888
+        /** 컨테이너 내부 HTTP 포트 */
+        const val PORT = 80
 
         /** 컨테이너 내부 HTTPS 포트 */
-        const val HTTPS_PORT = 8443
+        const val HTTPS_PORT = 443
 
         /**
          * [DockerImageName]으로 [BluetapeHttpServer] 인스턴스를 생성합니다.
@@ -68,7 +68,7 @@ class BluetapeHttpServer private constructor(
          * ```
          *
          * @param imageName Docker 이미지 이름
-         * @param useDefaultPort `true`면 8888 포트를 고정 바인딩합니다.
+         * @param useDefaultPort `true`면 80 포트를 고정 바인딩합니다.
          * @param reuse 컨테이너 재사용 여부입니다.
          */
         @JvmStatic
@@ -95,7 +95,7 @@ class BluetapeHttpServer private constructor(
          *
          * @param image Docker 이미지 이름, blank이면 [IllegalArgumentException]이 발생합니다.
          * @param tag Docker 이미지 태그, blank이면 [IllegalArgumentException]이 발생합니다.
-         * @param useDefaultPort `true`면 8888 포트를 고정 바인딩합니다.
+         * @param useDefaultPort `true`면 80 포트를 고정 바인딩합니다.
          * @param reuse 컨테이너 재사용 여부입니다.
          */
         @JvmStatic
@@ -164,7 +164,7 @@ class BluetapeHttpServer private constructor(
      *
      * ```kotlin
      * val props = server.properties()
-     * // props["httpbinUrl"] == "http://localhost:8888/httpbin"
+     * // props["httpbinUrl"] == "http://localhost:80/httpbin"
      * ```
      */
     override fun properties(): Map<String, String> = mapOf(

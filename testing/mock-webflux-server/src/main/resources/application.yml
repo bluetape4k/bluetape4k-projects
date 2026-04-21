@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 80
 spring:
   application:
     name: mock-webflux-server
@@ -13,7 +13,7 @@ spring:
       - httpbin-image
 bluetape4k:
   https:
-    port: 9443
+    port: 443
     key-store: classpath:certs/localhost.p12
     key-store-password: changeit
     key-store-type: PKCS12

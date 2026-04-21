@@ -15,11 +15,11 @@ import java.time.Duration
  * mock-web-server 스트레스 테스트 시뮬레이션.
  *
  * 5가지 시나리오: Health, Httpbin echo, Streaming, Delay, CRUD
- * 실행 전 서버가 포트 8888 에서 실행 중이어야 한다.
+ * 실행 전 서버가 포트 80 에서 실행 중이어야 한다.
  */
 class MockWebServerSimulation : Simulation() {
 
-    private val baseUrl = System.getProperty("mock.web.server.baseUrl", "http://localhost:8888")
+    private val baseUrl = System.getProperty("mock.web.server.baseUrl", "http://localhost:80")
 
     private val httpProtocol = http.baseUrl(baseUrl).acceptHeader("application/json")
 

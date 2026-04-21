@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 80
   http2:
     enabled: true
   tomcat:
@@ -10,7 +10,7 @@ server:
 
 bluetape4k:
   https:
-    port: 8443
+    port: 443
     key-store: classpath:certs/localhost.p12
     key-store-password: changeit
     key-store-type: PKCS12

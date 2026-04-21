@@ -16,14 +16,14 @@ import javax.net.ssl.KeyManagerFactory
 /**
  * Reactor Netty를 사용해 HTTPS 보조 서버를 [SmartLifecycle]로 구동하는 컴포넌트.
  *
- * 기존 HTTP 포트(9999)는 그대로 유지하고,
- * [httpsPort](기본값 9443)에 SSL이 활성화된 별도 Netty 서버를 추가한다.
+ * 기존 HTTP 포트(80)는 그대로 유지하고,
+ * [httpsPort](기본값 443)에 SSL이 활성화된 별도 Netty 서버를 추가한다.
  * 인증서는 `src/main/resources/certs/localhost.p12`에 번들되어 있다.
  */
 @Component
 class HttpsServerLifecycle(
     private val httpHandler: HttpHandler,
-    @Value("\${bluetape4k.https.port:9443}") private val httpsPort: Int,
+    @Value("\${bluetape4k.https.port:443}") private val httpsPort: Int,
     @Value("\${bluetape4k.https.key-store-password:changeit}") private val keyStorePassword: String,
 ) : SmartLifecycle {
 
