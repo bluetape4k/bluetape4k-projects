@@ -448,6 +448,8 @@ sequenceDiagram
 
 Runs the transform function on up to `parallelism` elements concurrently. Result order is not guaranteed.
 
+> **Performance (2026-04-21)**: `FlowParallel` and `FlowSequential` were redesigned with per-rail `Channel` buffers and a `select`-based fan-in. Benchmark results show a **+32.7% geomean** throughput gain across all parallel operators, with `mapParallel` showing up to **+506%** improvement. `AsyncFlow` also benefits from removing the `LazyDeferred` atomic wrapper.
+
 ```mermaid
 sequenceDiagram
         participant S as Flow Source

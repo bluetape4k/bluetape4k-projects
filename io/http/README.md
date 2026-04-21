@@ -195,6 +195,20 @@ val client = httpClient {
 val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
 ```
 
+**Virtual Thread Classic HttpClient:**
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+
+// HC5 Classic client backed by a Virtual Thread connection pool
+val client = virtualThreadHttpClientOf(maxConnTotal = 200, maxConnPerRoute = 100)
+
+client.use {
+    val response = it.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
+    println(response.code)
+}
+```
+
 **Caching HttpClient:**
 
 ```kotlin
