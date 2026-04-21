@@ -199,10 +199,24 @@ sequenceDiagram
 | Key | Value | Notes |
 |-----|-------|-------|
 | `server.port` | `8888` | Fixed container port |
+| `server.http2.enabled` | `true` | HTTP/2 support |
+| `server.tomcat.threads.max` | `16000` | Max platform threads (supports high-concurrency benchmarks with Virtual Threads) |
+| `server.tomcat.max-connections` | `16000` | Max simultaneous connections |
+| `server.tomcat.accept-count` | `16000` | Connection backlog queue size |
 | `spring.threads.virtual.enabled` | `true` | Virtual Threads (JDK 21+) |
 | `spring.cache.type` | `caffeine` | In-process caching |
 | `spring.cache.cache-names` | `html-content`, `fixture-data`, `httpbin-image` | Caffeine cache names |
-| `server.http2.enabled` | `true` | HTTP/2 support |
+
+> **Thread count rationale**: With `@Threads(100)` JMH benchmarks sending 50 ms requests,
+> the default Tomcat thread pool (200) became the bottleneck. Raising it to 16,000 ensures
+> the server is never the limiting factor. Virtual Threads are enabled so actual OS thread
+> consumption is far lower.
+
+### TODO: Migrate to Spring WebFlux
+
+Currently built on Spring MVC (servlet + platform threads). Migrating to Spring WebFlux + Netty
+would allow tens of thousands of concurrent connections with only a handful of event-loop threads —
+a better fit as a high-concurrency benchmark server.
 
 ## Build & Run
 

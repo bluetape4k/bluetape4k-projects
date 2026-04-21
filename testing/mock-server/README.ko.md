@@ -199,10 +199,23 @@ sequenceDiagram
 | 키 | 값 | 설명 |
 |----|-----|------|
 | `server.port` | `8888` | 컨테이너 고정 포트 |
+| `server.http2.enabled` | `true` | HTTP/2 지원 |
+| `server.tomcat.threads.max` | `16000` | 최대 플랫폼 스레드 수 (Virtual Thread와 함께 고동시성 지원) |
+| `server.tomcat.max-connections` | `16000` | 최대 동시 연결 수 |
+| `server.tomcat.accept-count` | `16000` | 연결 대기 큐 크기 |
 | `spring.threads.virtual.enabled` | `true` | Virtual Threads (JDK 21+) |
 | `spring.cache.type` | `caffeine` | 인프로세스 캐시 |
 | `spring.cache.cache-names` | `html-content`, `fixture-data`, `httpbin-image` | Caffeine 캐시 이름 |
-| `server.http2.enabled` | `true` | HTTP/2 지원 |
+
+> **스레드 설정 배경**: `@Threads(100)` JMH 벤치마크에서 각 스레드가 50ms 요청을 보낼 때
+> 서버 측 동시성이 병목이 되지 않도록 기본 Tomcat 스레드(200)를 16,000으로 확장했습니다.
+> Virtual Threads가 활성화되어 있어 실제 OS 스레드 소비는 훨씬 적습니다.
+
+### TODO: Spring WebFlux 마이그레이션
+
+현재 Spring MVC(서블릿 + 플랫폼 스레드) 기반입니다. 향후 Spring WebFlux + Netty로 전환하면
+이벤트 루프 기반으로 수십 개의 스레드만으로 수만 동시 연결을 처리할 수 있습니다.
+고동시성 벤치마크 서버로서 더 적합한 아키텍처입니다.
 
 ## 빌드 & 실행
 
