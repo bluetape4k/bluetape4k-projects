@@ -4,9 +4,9 @@ server:
     enabled: true
   tomcat:
     threads:
-      max: 8000
-    max-connections: 8000
-    accept-count: 8000
+      max: 16000
+    max-connections: 16000
+    accept-count: 16000
 
 spring:
   application:

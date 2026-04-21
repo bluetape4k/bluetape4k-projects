@@ -253,3 +253,11 @@ dependencies {
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Java 앱 컨테이너화](https://github.com/GoogleContainerTools/jib)
+
+## TODO
+
+- [ ] **Spring WebFlux 마이그레이션**: 현재 Spring MVC + Virtual Threads 구조를 WebFlux + Netty로 전환
+  - **이유**: 50ms 지연 × 100+ 동시 요청 시나리오에서 MVC는 Tomcat 스레드 풀에 의존하지만,
+    WebFlux는 소수의 이벤트 루프 스레드로 수천 커넥션을 논블로킹으로 처리 가능
+  - `/httpbin/delay/{seconds}` 엔드포인트는 `Thread.sleep()` → `Mono.delay()` 로 교체하면 완전 논블로킹
+  - 참고: 16000 스레드까지 늘려야 100 클라이언트 × 50ms = ~2,000 ops/s 이론값에 근접하는 문제 발생

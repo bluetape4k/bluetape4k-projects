@@ -253,3 +253,11 @@ dependencies {
 - [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com)
 - [Testcontainers](https://www.testcontainers.org/)
 - [Jib — Containerize Java apps](https://github.com/GoogleContainerTools/jib)
+
+## TODO
+
+- [ ] **Migrate to Spring WebFlux**: Replace Spring MVC + Virtual Threads with WebFlux + Netty
+  - **Reason**: Under 100+ concurrent requests with 50ms delay, MVC depends on Tomcat thread pool
+    (required 16,000 threads to reach theoretical ~2,000 ops/s). WebFlux handles thousands of
+    connections with a handful of event-loop threads — no thread pool tuning needed.
+  - Replace `Thread.sleep()` in `/httpbin/delay/{seconds}` with `Mono.delay()` for truly non-blocking delay.
