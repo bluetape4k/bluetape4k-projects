@@ -40,7 +40,7 @@
 | `ANY` | `/httpbin/anything/**` | 임의 요청 에코 |
 | `ANY` | `/httpbin/status/{code}` | 지정된 HTTP 상태 코드 반환 |
 | `GET` | `/httpbin/bytes/{n}` | `n` 바이트의 랜덤 바이너리 반환 |
-| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답 |
+| `GET` | `/httpbin/delay/{seconds}` | 지연 후 응답; `{seconds}`는 소수점 허용 (예: `0.5` = 500ms, 범위 0.0–10.0) |
 | `GET` | `/httpbin/stream/{n}` | JSON 라인 `n`개 스트리밍 |
 | `GET` | `/httpbin/image/{format}` | 샘플 이미지 반환 (png/jpeg/svg/webp) |
 

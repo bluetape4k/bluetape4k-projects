@@ -40,7 +40,7 @@ It simulates **httpbin.org**, **jsonplaceholder.typicode.com**, and a simple web
 | `ANY` | `/httpbin/anything/**` | Echoes any request |
 | `ANY` | `/httpbin/status/{code}` | Returns the given HTTP status code |
 | `GET` | `/httpbin/bytes/{n}` | Returns `n` random bytes |
-| `GET` | `/httpbin/delay/{seconds}` | Responds after a delay |
+| `GET` | `/httpbin/delay/{seconds}` | Responds after a delay; `{seconds}` accepts decimals (e.g. `0.5` = 500 ms, range 0.0–10.0) |
 | `GET` | `/httpbin/stream/{n}` | Streams `n` JSON lines |
 | `GET` | `/httpbin/image/{format}` | Returns a sample image (png/jpeg/svg/webp) |
 
