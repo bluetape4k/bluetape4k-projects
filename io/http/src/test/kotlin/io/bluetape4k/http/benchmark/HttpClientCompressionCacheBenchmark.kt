@@ -145,6 +145,17 @@ open class HttpClientCompressionCacheBenchmark {
 
     @TearDown
     fun teardown() {
+        okhttpCachedClient.cache?.let { cache ->
+            println(
+                """
+                |=== OkHttp DiskLruCache Stats ===
+                | requestCount : ${cache.requestCount()}
+                | hitCount     : ${cache.hitCount()}
+                | networkCount : ${cache.networkCount()}
+                | hitRate      : ${"%.1f".format(cache.hitCount() * 100.0 / cache.requestCount().coerceAtLeast(1))}%
+                """.trimMargin()
+            )
+        }
         runCatching { okhttpClient.dispatcher.executorService.shutdown() }
         runCatching { okhttpClient.connectionPool.evictAll() }
         runCatching { okhttpCachedClient.dispatcher.executorService.shutdown() }
