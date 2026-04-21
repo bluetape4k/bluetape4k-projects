@@ -175,8 +175,51 @@ Docker 이미지 재빌드(`./gradlew :bluetape4k-mock-server:jibDockerBuild`)�
 
 ---
 
-## TODO
+## 이번 세션 프로덕션 코드 수정
 
-- [ ] `testing/mock-server` → Spring WebFlux + Netty 마이그레이션 (이벤트 루프 기반으로 Tomcat threads 설정 불필요)
-- [ ] CPU 점유율 / GC 압력 측정 추가 (JMH `@BenchmarkMode(Mode.All)` 또는 async-profiler 연동)
-- [ ] OkHttp3를 제거하고 HC5 중심으로 통합할지 검토 (캐시, VT, Async, Coroutines 모두 HC5로 커버 가능)
+- [x] `VirtualThreadHttpClient.kt`: 미사용 `vtExecutor` dead code 제거
+- [x] `OkHttp3Support.kt`: `maxIdleConnections` CPU코어수 → 50, `okhttp3DispatcherWithVirtualThread()` maxRequests/maxRequestsPerHost 파라미터 추가 (기본 200/100)
+- [x] `CachingHttpClientBuilder.kt`: `memoryCachingHttpClientOf()` → `CachingHttpClients.createMemoryBound()` (synchronized LinkedHashMap) → `InMemoryHttpCacheStorage` (ConcurrentHashMap) 교체
+
+---
+
+## 다음 세션 TODO
+
+### HTTP 설정 최적화 (프로덕션 코드 적용)
+
+- [ ] **Connection Timeout / Socket Timeout 기본값 명시**
+  - HC5: `RequestConfig.custom().setConnectionRequestTimeout()` / `setResponseTimeout()` 기본값 설정
+  - OkHttp3: `connectTimeout`, `readTimeout`, `writeTimeout` 기본값 통일 (현재 10s/10s/30s)
+
+- [ ] **Keep-Alive 설정 최적화**
+  - HC5: `setConnectionKeepAlive(ConnectionKeepAliveStrategy)` — 서버 `Keep-Alive` 헤더 없을 때 기본 TTL 설정
+  - OkHttp3: `ConnectionPool` keepAliveDuration (현재 5분, 서버별 최적값 검토)
+
+- [ ] **Connection Eviction / Stale Check**
+  - HC5: `evictExpiredConnections()`, `evictIdleConnections(timeout)` 백그라운드 스레드 활성화
+  - OkHttp3: 자동 처리되나, pool 크기와 TTL 조율
+
+- [ ] **Retry / Redirect 정책 기본값 노출**
+  - HC5: `setRetryStrategy()` — 기본 재시도 횟수/조건 DSL로 노출
+  - OkHttp3: `retryOnConnectionFailure` 옵션 기본값 확인
+
+### 캐시 통합 (프로덕션 코드 적용)
+
+- [ ] **`memoryCachingHttpClientOf(maxEntries, maxObjectSize)` 파라미터 추가**
+  - `CacheConfig`로 최대 엔트리 수, 객체 크기 제한 설정 가능하도록
+
+- [ ] **`fileCachingHttpClientOf(cacheDir, maxCacheMb)` 개선**
+  - HC5 파일 캐시 + `CacheConfig` 설정 파라미터 노출
+
+- [ ] **OkHttp3 디스크 캐시 DSL 추가**
+  - `okhttp3Client(cacheDir, maxCacheMb) { ... }` 형태로 쉽게 캐시 활성화
+
+- [ ] **캐시 적중률 모니터링 확장 포인트**
+  - HC5 `HttpCacheContext`에서 캐시 히트/미스 메트릭 추출 유틸리티
+  - OkHttp3 `Cache.hitCount()` / `networkCount()` 로깅 인터셉터
+
+### 기타
+
+- [ ] `testing/mock-server` → Spring WebFlux + Netty 마이그레이션
+- [ ] CPU 점유율 / GC 압력 벤치마크 추가 (async-profiler 연동)
+- [ ] HC5 단일화 검토 (캐시, VT, Async, Coroutines 모두 HC5로 커버 가능한지)
