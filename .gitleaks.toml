@@ -13,6 +13,9 @@ paths = [
     '''gradle/wrapper/''',
     # 테스트용 keypair - 실제 운영 키 아님
     '''src/test/resources/keypair/''',
+    # 테스트용 localhost HTTPS 인증서 - 실제 운영 인증서 아님
+    '''testing/mock-web-server/src/main/resources/certs/''',
+    '''testing/mock-webflux-server/src/main/resources/certs/''',
     # 문서 예시 코드
     '''docs/''',
     '''README\.md''',

@@ -99,7 +99,12 @@ jib {
         mainClass = "io.bluetape4k.mockwebflux.MockWebfluxServerApplicationKt"
     }
     dockerClient {
-        executable = "/opt/homebrew/bin/docker"
-        environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
+        val dockerHostEnv = System.getenv("DOCKER_HOST")
+        if (dockerHostEnv != null) {
+            environment = mapOf("DOCKER_HOST" to dockerHostEnv)
+        } else {
+            executable = "/opt/homebrew/bin/docker"
+            environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
+        }
     }
 }

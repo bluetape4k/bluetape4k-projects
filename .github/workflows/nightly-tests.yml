@@ -53,12 +53,39 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-jdbc:koverXmlReport \
+            :bluetape4k-exposed-r2dbc:koverXmlReport \
+            :bluetape4k-exposed-postgresql:koverXmlReport \
+            :bluetape4k-exposed-jdbc-tests:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-tests:koverXmlReport \
+            :bluetape4k-exposed-jdbc-caffeine:koverXmlReport \
+            :bluetape4k-exposed-jdbc-lettuce:koverXmlReport \
+            :bluetape4k-exposed-jdbc-redisson:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-lettuce:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-redisson:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-exposed-db
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-exposed-db
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── Infra (Lettuce / Redisson) ────────────────────────────────────────────
@@ -97,12 +124,39 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-lettuce:koverXmlReport \
+            :bluetape4k-redisson:koverXmlReport \
+            :bluetape4k-jackson2:koverXmlReport \
+            :bluetape4k-bucket4j:koverXmlReport \
+            :bluetape4k-cache-hazelcast:koverXmlReport \
+            :bluetape4k-cache-lettuce:koverXmlReport \
+            :bluetape4k-cache-redisson:koverXmlReport \
+            :bluetape4k-kafka:koverXmlReport \
+            :bluetape4k-micrometer:koverXmlReport \
+            :bluetape4k-resilience4j:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-infra
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-infra
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── Data (Cassandra / MongoDB / Hibernate / JDBC / R2DBC) ────────────────
@@ -137,12 +191,35 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-cassandra:koverXmlReport \
+            :bluetape4k-mongodb:koverXmlReport \
+            :bluetape4k-hibernate:koverXmlReport \
+            :bluetape4k-hibernate-reactive:koverXmlReport \
+            :bluetape4k-hibernate-cache-lettuce:koverXmlReport \
+            :bluetape4k-jdbc:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-data
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-data
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── I/O heavy (WireMock / MockWebServer / Testcontainers) ────────────────
@@ -177,12 +254,35 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-feign:koverXmlReport \
+            :bluetape4k-retrofit2:koverXmlReport \
+            :bluetape4k-http:koverXmlReport \
+            :bluetape4k-protobuf:koverXmlReport \
+            :bluetape4k-tink:koverXmlReport \
+            :bluetape4k-vertx:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-io-heavy
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-io-heavy
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── AWS (LocalStack) ─────────────────────────────────────────────────────
@@ -213,12 +313,31 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-aws:koverXmlReport \
+            :bluetape4k-aws-kotlin:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-aws
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-aws
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── Spring Boot 3 (Cassandra / MongoDB / R2DBC / Redis / Hibernate) ──────
@@ -255,12 +374,37 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot3-core:koverXmlReport \
+            :bluetape4k-spring-boot3-cassandra:koverXmlReport \
+            :bluetape4k-spring-boot3-mongodb:koverXmlReport \
+            :bluetape4k-spring-boot3-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot3-redis:koverXmlReport \
+            :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport \
+            :bluetape4k-spring-boot3-batch-exposed:koverXmlReport \
+            :bluetape4k-spring-boot3-exposed-r2dbc:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-spring-boot3
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-spring-boot3
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── Spring Boot 4 (Cassandra / MongoDB / R2DBC / Redis / Hibernate) ──────
@@ -297,12 +441,37 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot4-core:koverXmlReport \
+            :bluetape4k-spring-boot4-cassandra:koverXmlReport \
+            :bluetape4k-spring-boot4-mongodb:koverXmlReport \
+            :bluetape4k-spring-boot4-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot4-redis:koverXmlReport \
+            :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport \
+            :bluetape4k-spring-boot4-batch-exposed:koverXmlReport \
+            :bluetape4k-spring-boot4-exposed-r2dbc:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nightly-test-results-spring-boot4
           path: '**/build/test-results/test/*.xml'
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-spring-boot4
+          path: 'build/*/reports/kover/'
           retention-days: 14
 
   # ── Misc heavy (Batch / Science / JWT / Testcontainers / Timefold) ───────
@@ -337,6 +506,19 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-batch:koverXmlReport \
+            :bluetape4k-science:koverXmlReport \
+            :bluetape4k-jwt:koverXmlReport \
+            :bluetape4k-testcontainers:koverXmlReport \
+            --no-daemon --no-configuration-cache
+        continue-on-error: true
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -345,11 +527,48 @@ jobs:
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-misc-heavy
+          path: 'build/*/reports/kover/'
+          retention-days: 14
+
+  # ── 커버리지 집계 ─────────────────────────────────────────────────────────
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test-exposed-db, test-infra, test-data, test-io-heavy, test-aws, test-spring-boot3, test-spring-boot4, test-misc-heavy]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nightly-coverage-*
+          path: coverage-artifacts
+          merge-multiple: false
+        continue-on-error: true
+
+      - name: Aggregate Kover coverage summary
+        if: always()
+        run: python3 .github/scripts/aggregate-kover-coverage.py coverage-artifacts
+
+      - name: Upload aggregated coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-all
+          path: coverage-artifacts/
+          retention-days: 14
+
   # ── 결과 집계 ─────────────────────────────────────────────────────────────
   nightly-status:
     name: Nightly Status
     runs-on: ubuntu-latest
-    needs: [test-exposed-db, test-infra, test-data, test-io-heavy, test-aws, test-spring-boot3, test-spring-boot4, test-misc-heavy]
+    needs: [test-exposed-db, test-infra, test-data, test-io-heavy, test-aws, test-spring-boot3, test-spring-boot4, test-misc-heavy, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

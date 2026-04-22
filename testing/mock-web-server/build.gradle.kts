@@ -82,10 +82,14 @@ jib {
         jvmFlags = listOf("-XX:+UseG1GC", "-Xmx512m")
         mainClass = "io.bluetape4k.mockserver.MockServerApplicationKt"
     }
-    // Docker 실행 파일 경로 (Colima 환경)
     dockerClient {
-        executable = "/opt/homebrew/bin/docker"
-        environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
+        val dockerHostEnv = System.getenv("DOCKER_HOST")
+        if (dockerHostEnv != null) {
+            environment = mapOf("DOCKER_HOST" to dockerHostEnv)
+        } else {
+            executable = "/opt/homebrew/bin/docker"
+            environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
+        }
     }
 }
 
