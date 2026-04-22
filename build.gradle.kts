@@ -36,7 +36,6 @@ plugins {
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
-    id(Plugins.kosogor) version Plugins.Versions.kosogor
     id(Plugins.nmcp_aggregation) version Plugins.Versions.nmcp
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
 
@@ -63,6 +62,9 @@ allprojects {
     group = projectGroup
     version = baseVersion + snapshotVersion
 
+    // kosogor 대체: 모든 프로젝트 build 출력을 루트 build/<project.name>/ 으로 중앙화
+    layout.buildDirectory.set(rootProject.projectDir.resolve("build/${project.name}"))
+
     repositories {
         mavenCentral()
         google()
@@ -71,8 +73,6 @@ allprojects {
         // UCAR/Unidata — NetCDF/CDM 라이브러리
         maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
     }
-
-
 }
 
 subprojects {
@@ -128,7 +128,6 @@ subprojects {
 
         plugin(Plugins.dokka)
         plugin(Plugins.testLogger)
-        plugin(Plugins.kosogor)
     }
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
