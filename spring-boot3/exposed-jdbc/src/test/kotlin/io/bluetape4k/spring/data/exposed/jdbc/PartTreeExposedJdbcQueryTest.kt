@@ -268,6 +268,7 @@ class PartTreeExposedJdbcQueryTest: AbstractExposedJdbcRepositoryTest() {
         createUsers()
         val results = userJdbcRepository.findByNameEndingWith("e")
         results.all { it.name.endsWith("e") }.shouldBeTrue()
+        results shouldHaveSize 2
     }
 
     @Test
