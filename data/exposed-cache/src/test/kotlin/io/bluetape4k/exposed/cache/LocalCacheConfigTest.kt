@@ -191,4 +191,31 @@ class LocalCacheConfigTest {
         val config = LocalCacheConfig(writeBehindBatchSize = 50, writeBehindQueueCapacity = 50)
         config.writeBehindQueueCapacity shouldBeEqualTo 50
     }
+
+    // ----------------------------------------------------------------
+    // Serializable 직렬화 라운드트립
+    // ----------------------------------------------------------------
+
+    @Test
+    fun `Java 직렬화 라운드트립을 통해 원본과 동일한 설정이 복원된다`() {
+        val original = LocalCacheConfig(
+            keyPrefix = "actor",
+            maximumSize = 5_000L,
+            expireAfterWrite = Duration.ofMinutes(30),
+            writeMode = CacheWriteMode.WRITE_THROUGH,
+        )
+
+        val bytes = java.io.ByteArrayOutputStream().use { baos ->
+            java.io.ObjectOutputStream(baos).use { oos -> oos.writeObject(original) }
+            baos.toByteArray()
+        }
+        val restored = java.io.ByteArrayInputStream(bytes).use { bais ->
+            java.io.ObjectInputStream(bais).use { ois -> ois.readObject() as LocalCacheConfig }
+        }
+
+        restored.keyPrefix shouldBeEqualTo original.keyPrefix
+        restored.maximumSize shouldBeEqualTo original.maximumSize
+        restored.expireAfterWrite shouldBeEqualTo original.expireAfterWrite
+        restored.writeMode shouldBeEqualTo original.writeMode
+    }
 }

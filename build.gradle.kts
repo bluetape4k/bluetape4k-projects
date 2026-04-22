@@ -681,7 +681,7 @@ dependencyCheck {
     // 분석 제외: 테스트, 컴파일 전용 의존성
     skipConfigurations = listOf("testRuntimeClasspath", "testCompileClasspath")
     formats = listOf("HTML", "SARIF")
-    outputDirectory = layout.buildDirectory.dir("reports").get().asFile.absolutePath
+    outputDirectory = layout.buildDirectory.dir("reports").get().asFile
     suppressionFile = "config/owasp-suppressions.xml"
 }
 

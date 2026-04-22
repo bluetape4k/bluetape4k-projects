@@ -2,6 +2,18 @@ plugins {
     `java-test-fixtures`
 }
 
+// testFixtures 시나리오 패키지는 다른 모듈의 통합 테스트 지원용 코드이므로
+// 이 모듈의 커버리지 측정에서 제외한다.
+kover {
+    reports {
+        filters {
+            excludes {
+                packages("io.bluetape4k.exposed.cache.scenarios")
+            }
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }

@@ -11,8 +11,8 @@ object Plugins {
         const val protobuf = "0.9.6"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
-        const val jacoco = "0.8.11"
-        const val kover = "0.9.1"  // https://github.com/Kotlin/kotlinx-kover/releases
+        const val jacoco = "0.8.14"   // https://www.eclemma.org/jacoco/
+        const val kover = "0.9.1"     // https://github.com/Kotlin/kotlinx-kover/releases
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"  // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
@@ -24,13 +24,13 @@ object Plugins {
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.15.0"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.15.0.1"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
         const val graalvm_native = "1.0.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
         const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
-        const val dependency_check = "12.1.1" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
+        const val dependency_check = "12.1.9" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -72,7 +72,7 @@ object Versions {
 
     const val kotlin = "2.3.20"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    const val kotlinx_serialization = "1.10.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
+    const val kotlinx_serialization = "1.11.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
     const val kotlinx_atomicfu = "0.32.1"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
@@ -95,14 +95,14 @@ object Versions {
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
-    const val bucket4j = "8.17.0"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
+    const val bucket4j = "8.18.0"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
     const val resilience4j = "2.4.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.2.12.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
-    const val aws2 = "2.42.28"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.44.0"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.6.51"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.6.9" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.42.37"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.45.1"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.6.59"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.6.11" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
