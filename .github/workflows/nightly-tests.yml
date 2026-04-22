@@ -239,6 +239,13 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Build mock-web-server Docker image
+        run: |
+          ./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+            --no-daemon --no-configuration-cache
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Test io-heavy modules
         run: |
           ./gradlew \
@@ -357,6 +364,13 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Build mock-web-server Docker image
+        run: |
+          ./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+            --no-daemon --no-configuration-cache
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Test spring-boot3 modules
         run: |
           ./gradlew \
@@ -423,6 +437,13 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: |
+          ./gradlew :bluetape4k-mock-web-server:jibDockerBuild \
+            --no-daemon --no-configuration-cache
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
 
       - name: Test spring-boot4 modules
         run: |
