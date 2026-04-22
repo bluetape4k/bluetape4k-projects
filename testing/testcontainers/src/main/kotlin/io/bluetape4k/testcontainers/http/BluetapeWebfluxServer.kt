@@ -10,6 +10,7 @@ import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer.Launcher.bluetape
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 
@@ -189,9 +190,13 @@ class BluetapeWebfluxServer private constructor(
         withExposedPorts(PORT, HTTPS_PORT)
         withReuse(reuse)
         waitingFor(
-            Wait.forHttp("/ping")
-                .forPort(PORT)
-                .forStatusCode(200)
+            WaitAllStrategy()
+                .withStrategy(
+                    Wait.forHttp("/ping")
+                        .forPort(PORT)
+                        .forStatusCode(200)
+                )
+                .withStrategy(Wait.forListeningPort())
                 .withStartupTimeout(Duration.ofSeconds(60))
         )
 
