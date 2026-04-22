@@ -1,5 +1,6 @@
 # Bluetape4k Projects
 
+[![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
 [![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
 
 JVM 환경에서 Kotlin 언어로 개발할 때 사용하는 공용 라이브러리
