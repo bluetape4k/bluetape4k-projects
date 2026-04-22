@@ -39,6 +39,10 @@ class HttpbinSupportTest {
         val headers = request.toHeaderMap()
 
         headers.shouldNotBeNull()
+<<<<<<< feat/coverage-improvement
+        headers.shouldBeEmpty()
+=======
+>>>>>>> develop
     }
 
     @Test

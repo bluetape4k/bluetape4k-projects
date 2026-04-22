@@ -7,9 +7,31 @@ interface UserJdbcRepository: ExposedJdbcRepository<UserEntity, Long> {
 
     fun findByName(name: String): List<UserEntity>
 
+    fun findByNameNot(name: String): List<UserEntity>
+
     fun findByAgeGreaterThan(age: Int): List<UserEntity>
 
+    fun findByAgeGreaterThanEqual(age: Int): List<UserEntity>
+
+    fun findByAgeLessThan(age: Int): List<UserEntity>
+
+    fun findByAgeLessThanEqual(age: Int): List<UserEntity>
+
     fun findByEmailContaining(keyword: String): List<UserEntity>
+
+    fun findByNameStartingWith(prefix: String): List<UserEntity>
+
+    fun findByNameEndingWith(suffix: String): List<UserEntity>
+
+    fun findByNameNotContaining(keyword: String): List<UserEntity>
+
+    fun findByNameLike(pattern: String): List<UserEntity>
+
+    fun findByNameNotLike(pattern: String): List<UserEntity>
+
+    fun findByAgeIn(ages: Collection<Int>): List<UserEntity>
+
+    fun findByAgeNotIn(ages: Collection<Int>): List<UserEntity>
 
     fun findByNameAndAge(name: String, age: Int): UserEntity?
 

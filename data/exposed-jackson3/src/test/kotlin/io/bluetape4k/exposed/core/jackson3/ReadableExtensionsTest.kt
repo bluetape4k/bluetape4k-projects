@@ -2,12 +2,20 @@ package io.bluetape4k.exposed.core.jackson3
 
 import io.bluetape4k.jackson3.JacksonSerializer
 import io.r2dbc.spi.Readable
+<<<<<<< feat/coverage-improvement
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
+=======
+>>>>>>> develop
 import tools.jackson.databind.JsonNode
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+<<<<<<< feat/coverage-improvement
+=======
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+>>>>>>> develop
 
 class ReadableExtensionsTest {
 
@@ -43,8 +51,64 @@ class ReadableExtensionsTest {
             valuesByName = mapOf("payload" to jsonText),
         )
 
-        assertEquals(Payload("blue", 20), readable.getJackson<Payload>(0))
-        assertEquals(Payload("blue", 20), readable.getJackson<Payload>("payload"))
+        readable.getJackson<Payload>(0) shouldBeEqualTo Payload("blue", 20)
+        readable.getJackson<Payload>("payload") shouldBeEqualTo Payload("blue", 20)
+    }
+
+    @Test
+    fun `Readable jackson3 getter supports ByteArray value by index`() {
+        val jsonText = """{"name":"bytes","age":5}"""
+        val byteArrayValue = jsonText.toByteArray()
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to byteArrayValue))
+
+        readable.getJackson<Payload>(0) shouldBeEqualTo Payload("bytes", 5)
+    }
+
+    @Test
+    fun `Readable jackson3 getter supports ByteArray value by name`() {
+        val jsonText = """{"name":"bytes","age":5}"""
+        val byteArrayValue = jsonText.toByteArray()
+        val readable = FakeReadable(valuesByName = mapOf("payload" to byteArrayValue))
+
+        readable.getJackson<Payload>("payload") shouldBeEqualTo Payload("bytes", 5)
+    }
+
+    @Test
+    fun `Readable jackson3 getter returns T directly when value is already T by index`() {
+        val payload = Payload("direct", 99)
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to payload))
+
+        readable.getJackson<Payload>(0) shouldBeEqualTo payload
+    }
+
+    @Test
+    fun `Readable jackson3 getter returns T directly when value is already T by name`() {
+        val payload = Payload("direct", 99)
+        val readable = FakeReadable(valuesByName = mapOf("payload" to payload))
+
+        readable.getJackson<Payload>("payload") shouldBeEqualTo payload
+    }
+
+    @Test
+    fun `Readable jackson3 getter handles else branch via toString by index`() {
+        val jsonText = """{"name":"tostring","age":7}"""
+        val customObj = object {
+            override fun toString() = jsonText
+        }
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to customObj))
+
+        readable.getJackson<Payload>(0) shouldBeEqualTo Payload("tostring", 7)
+    }
+
+    @Test
+    fun `Readable jackson3 getter handles else branch via toString by name`() {
+        val jsonText = """{"name":"tostring","age":7}"""
+        val customObj = object {
+            override fun toString() = jsonText
+        }
+        val readable = FakeReadable(valuesByName = mapOf("payload" to customObj))
+
+        readable.getJackson<Payload>("payload") shouldBeEqualTo Payload("tostring", 7)
     }
 
     @Test
@@ -108,10 +172,20 @@ class ReadableExtensionsTest {
         val jsonText = """{"user":{"name":"tester"}}"""
         val readable = FakeReadable(valuesByIndex = mapOf(1 to jsonText))
 
-        assertEquals("\"tester\"", readable.getJsonNode(1).path("user").path("name").toString())
+        readable.getJsonNode(1).path("user").path("name").toString() shouldBeEqualTo "\"tester\""
     }
 
     @Test
+    fun `Readable jackson3 json node getter supports ByteArray by index`() {
+        val jsonText = """{"user":{"name":"bytes"}}"""
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to jsonText.toByteArray()))
+
+        readable.getJsonNode(0).path("user").path("name").asText() shouldBeEqualTo "bytes"
+    }
+
+    @Test
+<<<<<<< feat/coverage-improvement
+=======
     fun `Readable jackson3 json node getter supports ByteArray by index`() {
         val jsonText = """{"user":{"name":"bytes"}}"""
         val readable = FakeReadable(valuesByIndex = mapOf(0 to jsonText.toByteArray()))
@@ -120,11 +194,16 @@ class ReadableExtensionsTest {
     }
 
     @Test
+>>>>>>> develop
     fun `Readable jackson3 json node getter supports ByteArray by name`() {
         val jsonText = """{"user":{"name":"bytes"}}"""
         val readable = FakeReadable(valuesByName = mapOf("node" to jsonText.toByteArray()))
 
+<<<<<<< feat/coverage-improvement
+        readable.getJsonNode("node").path("user").path("name").asText() shouldBeEqualTo "bytes"
+=======
         assertNotNull(readable.getJsonNode("node").path("user").path("name"))
+>>>>>>> develop
     }
 
     @Test
@@ -132,7 +211,11 @@ class ReadableExtensionsTest {
         val jsonNode: JsonNode = DefaultJacksonSerializer.mapper.readTree("""{"x":1}""")
         val readable = FakeReadable(valuesByIndex = mapOf(0 to jsonNode))
 
+<<<<<<< feat/coverage-improvement
+        readable.getJsonNode(0) shouldBeEqualTo jsonNode
+=======
         assertEquals(jsonNode, readable.getJsonNode(0))
+>>>>>>> develop
     }
 
     @Test
@@ -140,7 +223,11 @@ class ReadableExtensionsTest {
         val jsonNode: JsonNode = DefaultJacksonSerializer.mapper.readTree("""{"x":2}""")
         val readable = FakeReadable(valuesByName = mapOf("node" to jsonNode))
 
+<<<<<<< feat/coverage-improvement
+        readable.getJsonNode("node") shouldBeEqualTo jsonNode
+=======
         assertEquals(jsonNode, readable.getJsonNode("node"))
+>>>>>>> develop
     }
 
     @Test
@@ -151,7 +238,11 @@ class ReadableExtensionsTest {
         }
         val readable = FakeReadable(valuesByIndex = mapOf(0 to customObj))
 
+<<<<<<< feat/coverage-improvement
+        readable.getJsonNode(0).path("y").asInt() shouldBeEqualTo 42
+=======
         assertNotNull(readable.getJsonNode(0).path("y"))
+>>>>>>> develop
     }
 
     @Test
@@ -162,14 +253,34 @@ class ReadableExtensionsTest {
         }
         val readable = FakeReadable(valuesByName = mapOf("node" to customObj))
 
+<<<<<<< feat/coverage-improvement
+        readable.getJsonNode("node").path("y").asInt() shouldBeEqualTo 42
+=======
         assertNotNull(readable.getJsonNode("node").path("y"))
+>>>>>>> develop
     }
 
     @Test
     fun `Readable jackson3 nullable getter returns null when value is null by index`() {
         val readable = FakeReadable(valuesByIndex = mapOf(3 to null))
-        assertNull(readable.getJacksonOrNull<Payload>(3))
-        assertNull(readable.getJsonNodeOrNull(3))
+        readable.getJacksonOrNull<Payload>(3).shouldBeNull()
+        readable.getJsonNodeOrNull(3).shouldBeNull()
+    }
+
+    @Test
+    fun `Readable jackson3 nullable getter returns null when key absent by name`() {
+        val readable = FakeReadable()
+        readable.getJacksonOrNull<Payload>("missing").shouldBeNull()
+        readable.getJsonNodeOrNull("missing").shouldBeNull()
+    }
+
+    @Test
+    fun `Readable jackson3 nullable getter returns result when value exists by name`() {
+        val jsonText = """{"name":"present","age":1}"""
+        val readable = FakeReadable(valuesByName = mapOf("payload" to jsonText))
+
+        readable.getJacksonOrNull<Payload>("payload").shouldNotBeNull()
+        readable.getJsonNodeOrNull("payload").shouldNotBeNull()
     }
 
     @Test
@@ -195,7 +306,27 @@ class ReadableExtensionsTest {
         val ex = assertFailsWith<IllegalStateException> {
             readable.getJsonNode("payload")
         }
-        assertEquals("Column[payload] is null or not convertible to JsonNode.", ex.message)
+        ex.message shouldBeEqualTo "Column[payload] is null or not convertible to JsonNode."
+    }
+
+    @Test
+    fun `Readable jackson3 non null getter throws descriptive error when index value is null`() {
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to null))
+
+        val ex = assertFailsWith<IllegalStateException> {
+            readable.getJackson<Payload>(0)
+        }
+        ex.message shouldBeEqualTo "Column[0] is null or not convertible to Payload."
+    }
+
+    @Test
+    fun `Readable jackson3 non null getter throws descriptive error for missing name`() {
+        val readable = FakeReadable()
+
+        val ex = assertFailsWith<IllegalStateException> {
+            readable.getJackson<Payload>("absent")
+        }
+        ex.message shouldBeEqualTo "Column[absent] is null or not convertible to Payload."
     }
 
     @Test

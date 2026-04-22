@@ -2,6 +2,10 @@ package io.bluetape4k.mockserver.jsonplaceholder
 
 import io.bluetape4k.mockserver.jsonplaceholder.model.PhotoRecord
 import org.amshove.kluent.shouldBeEqualTo
+<<<<<<< feat/coverage-improvement
+import org.amshove.kluent.shouldNotBeEmpty
+=======
+>>>>>>> develop
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -93,6 +97,10 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
             .andReturn()
 
         val photos = jsonMapper.readValue(result.response.contentAsString, Array<PhotoRecord>::class.java)
+<<<<<<< feat/coverage-improvement
+        photos.shouldNotBeEmpty()
+=======
+>>>>>>> develop
         photos.all { it.albumId == 888L } shouldBeEqualTo true
     }
 }
