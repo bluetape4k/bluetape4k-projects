@@ -1,5 +1,7 @@
 # Bluetape4k Projects
 
+[![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/bluetape4k/bluetape4k-projects/graph/badge.svg)](https://codecov.io/gh/bluetape4k/bluetape4k-projects)
 [![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
 
 Shared Kotlin/JVM library collection for backend development
