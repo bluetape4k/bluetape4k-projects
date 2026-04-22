@@ -220,4 +220,93 @@ class PartTreeExposedJdbcQueryTest: AbstractExposedJdbcRepositoryTest() {
         found shouldHaveSize 1
         found.first().name shouldBeEqualTo "Alice"
     }
+
+    // ── 추가 쿼리 타입 커버리지 테스트 ────────────────────────────────────────
+
+    @Test
+    fun `findByNameNot - 특정 이름이 아닌 엔티티 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameNot("Alice")
+        results.none { it.name == "Alice" }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByAgeGreaterThanEqual - 같거나 큰 나이 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByAgeGreaterThanEqual(30)
+        results.all { it.age >= 30 }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByAgeLessThan - 작은 나이 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByAgeLessThan(30)
+        results.all { it.age < 30 }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByAgeLessThanEqual - 같거나 작은 나이 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByAgeLessThanEqual(30)
+        results.all { it.age <= 30 }.shouldBeTrue()
+        results shouldHaveSize 3
+    }
+
+    @Test
+    fun `findByNameStartingWith - 접두사로 시작하는 이름 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameStartingWith("Al")
+        results.all { it.name.startsWith("Al") }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByNameEndingWith - 접미사로 끝나는 이름 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameEndingWith("e")
+        results.all { it.name.endsWith("e") }.shouldBeTrue()
+    }
+
+    @Test
+    fun `findByNameNotContaining - 특정 문자열을 포함하지 않는 이름 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameNotContaining("Ali")
+        results.none { it.name.contains("Ali") }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByNameLike - LIKE 패턴으로 이름 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameLike("A%")
+        results.all { it.name.startsWith("A") }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByNameNotLike - NOT LIKE 패턴으로 이름 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByNameNotLike("A%")
+        results.none { it.name.startsWith("A") }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByAgeIn - 특정 나이 목록에 포함된 엔티티 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByAgeIn(listOf(25, 35))
+        results.all { it.age in listOf(25, 35) }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
+
+    @Test
+    fun `findByAgeNotIn - 특정 나이 목록에 포함되지 않은 엔티티 조회`() {
+        createUsers()
+        val results = userJdbcRepository.findByAgeNotIn(listOf(25, 35))
+        results.none { it.age in listOf(25, 35) }.shouldBeTrue()
+        results shouldHaveSize 2
+    }
 }

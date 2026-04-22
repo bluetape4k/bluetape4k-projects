@@ -525,6 +525,7 @@ jobs:
             :bluetape4k-batch:test \
             :bluetape4k-science:test \
             :bluetape4k-jwt:test \
+            :bluetape4k-lingua:test \
             :bluetape4k-exposed-bigquery:test \
             :bluetape4k-timefold-solver-persistence-exposed:test \
             --no-daemon --no-configuration-cache
@@ -540,6 +541,7 @@ jobs:
             :bluetape4k-batch:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
             :bluetape4k-jwt:koverXmlReport \
+            :bluetape4k-lingua:koverXmlReport \
             --no-daemon --no-configuration-cache
         continue-on-error: true
         env:
