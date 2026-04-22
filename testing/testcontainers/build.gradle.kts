@@ -6,6 +6,7 @@ configurations {
 // Jib은 소스 변경이 없으면 up-to-date 체크로 스킵하므로 매번 느리지 않습니다.
 tasks.test {
     dependsOn(":bluetape4k-mock-web-server:jibDockerBuild")
+    dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")
 }
 
 dependencies {
