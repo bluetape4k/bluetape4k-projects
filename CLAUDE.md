@@ -41,6 +41,19 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 ## Module Groups
 
+| Group | Key modules |
+|-------|-------------|
+| `bluetape4k/` | `core`, `coroutines`, `logging`, `bom` |
+| `io/` | `io`, `okio`, `jackson`/`jackson3`, `feign`, `retrofit2`, `protobuf`, `grpc`, `tink`, `csv`, `vertx` |
+| `aws/` | Java SDK v2, 3-tier API (sync→async→coroutines) |
+| `aws-kotlin/` | Kotlin SDK, native suspend |
+| `data/` | `exposed-*` (core/dao/jdbc/r2dbc/cache/db-specific), `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra` |
+| `infra/` | `lettuce`, `redisson`, `kafka`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*` |
+| `spring-boot3/` | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch |
+| `spring-boot4/` | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`) |
+| `utils/` | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money` |
+| `testing/` | `junit5`, `testcontainers` |
+| `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together |
 | Group            | Key modules                                                                                                                 |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | `bluetape4k/`    | `core`, `coroutines`, `logging`, `bom`                                                                                      |

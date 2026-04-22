@@ -210,6 +210,9 @@ object Versions {
 
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
+
+    // NLP / Language Detection
+    const val lingua = "1.2.2"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
 }
 
 object Libs {
@@ -1518,6 +1521,9 @@ object Libs {
     val scrimage_core = scrimage("core")
     val scrimage_filters = scrimage("filters")
     val scrimage_webp = scrimage("webp")
+
+    // NLP / Language Detection
+    const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
 }
 
 // @formatter:on
