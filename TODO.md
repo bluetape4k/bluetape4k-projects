@@ -378,6 +378,29 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
+## 12. Redis Codec — ForyFast 지원 추가 🟡
+
+> `2026-04-23-redis-json-codec-design.md` 스펙에서 범위 분리. JSON Codec(Jackson3/Fastjson2) 완료 후 후속 PR로 진행.
+
+ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한 고성능 Redis Codec.
+
+### 구현 대상
+
+- [ ] `io/io` `BinarySerializers.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast`, `SnappyForyFast` lazy 프로퍼티 추가
+- [ ] `infra/redisson` `ForyFastCodec.kt` — Redisson BaseCodec 구현, fallbackCodec = Kryo5
+- [ ] `infra/redisson` `RedissonCodecs.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast` val 추가
+- [ ] `infra/lettuce` `LettuceBinaryCodecs.kt` — `foryFast()`, `lz4ForyFast()`, `zstdForyFast()` factory 추가
+- [ ] 각 Codec 테스트 (roundtrip + ForyCodec 비호환 검증)
+- [ ] 기존 JSON/Binary Codec 벤치마크에 ForyFast 비교군 추가
+
+### 제약사항 (반드시 숙지)
+
+- ForyFast(SCHEMA_CONSISTENT)와 Fory(COMPATIBLE) 포맷 상호 비호환 → fallback = Kryo5
+- 순환 참조 객체 불가, 스키마 진화 불가
+- **휘발성 캐시 전용** — DB/파일 영속 데이터에 사용 금지
+
+---
+
 ## 완료 기준
 
 각 항목은 다음 조건을 모두 만족해야 완료:
