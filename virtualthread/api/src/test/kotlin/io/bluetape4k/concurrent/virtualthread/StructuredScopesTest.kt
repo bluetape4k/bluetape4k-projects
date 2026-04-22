@@ -125,7 +125,7 @@ class StructuredScopesTest {
             }
             scope.join().result { IllegalStateException(it) }
         }
-        result.shouldNotBeBlank()
+        result shouldBeEqualTo "fast"
     }
 
     @Test

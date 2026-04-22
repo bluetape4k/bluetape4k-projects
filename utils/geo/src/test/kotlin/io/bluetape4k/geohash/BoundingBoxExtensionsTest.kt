@@ -177,7 +177,7 @@ class BoundingBoxExtensionsTest {
     fun `WGS84Point moveInDirection moves point`() {
         val start = wgs84PointOf(37.5665, 126.9780)
         val moved = start.moveInDirection(90.0, 1000.0)
-        moved.longitude > start.longitude
+        (moved.longitude > start.longitude).shouldBeTrue()
     }
 
     @Test
@@ -185,7 +185,7 @@ class BoundingBoxExtensionsTest {
         val a = wgs84PointOf(37.5665, 126.9780)
         val b = wgs84PointOf(37.5665, 126.9880)
         val dist = a.distanceInMeters(b)
-        dist > 0.0
+        (dist > 0.0).shouldBeTrue()
     }
 }
 

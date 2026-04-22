@@ -2,6 +2,7 @@ package io.bluetape4k.mockserver.jsonplaceholder
 
 import io.bluetape4k.mockserver.jsonplaceholder.model.AlbumRecord
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -99,6 +100,7 @@ class AlbumsExtendedContractTest: AbstractJsonplaceholderContractTest() {
             .andReturn()
 
         val albums = jsonMapper.readValue(result.response.contentAsString, Array<AlbumRecord>::class.java)
+        albums.shouldNotBeEmpty()
         albums.all { it.userId == 99L } shouldBeEqualTo true
     }
 }

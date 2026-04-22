@@ -2,6 +2,7 @@ package io.bluetape4k.mockserver.jsonplaceholder
 
 import io.bluetape4k.mockserver.jsonplaceholder.model.CommentRecord
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -93,6 +94,7 @@ class CommentsExtendedContractTest: AbstractJsonplaceholderContractTest() {
             .andReturn()
 
         val comments = jsonMapper.readValue(result.response.contentAsString, Array<CommentRecord>::class.java)
+        comments.shouldNotBeEmpty()
         comments.all { it.postId == 999L } shouldBeEqualTo true
     }
 }

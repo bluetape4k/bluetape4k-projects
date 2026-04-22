@@ -39,6 +39,7 @@ class HttpbinSupportTest {
         val headers = request.toHeaderMap()
 
         headers.shouldNotBeNull()
+        headers.shouldBeEmpty()
     }
 
     @Test

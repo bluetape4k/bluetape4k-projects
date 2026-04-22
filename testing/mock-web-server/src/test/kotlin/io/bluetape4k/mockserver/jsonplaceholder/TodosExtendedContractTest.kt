@@ -2,6 +2,7 @@ package io.bluetape4k.mockserver.jsonplaceholder
 
 import io.bluetape4k.mockserver.jsonplaceholder.model.TodoRecord
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -94,6 +95,7 @@ class TodosExtendedContractTest: AbstractJsonplaceholderContractTest() {
             .andReturn()
 
         val todos = jsonMapper.readValue(result.response.contentAsString, Array<TodoRecord>::class.java)
+        todos.shouldNotBeEmpty()
         todos.all { it.userId == 777L } shouldBeEqualTo true
     }
 }
