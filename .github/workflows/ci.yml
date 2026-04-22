@@ -475,6 +475,11 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
       - name: Test infra modules (Testcontainers)
         run: |
           ./gradlew \
@@ -675,6 +680,11 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test spring-boot modules (Docker)
         run: |

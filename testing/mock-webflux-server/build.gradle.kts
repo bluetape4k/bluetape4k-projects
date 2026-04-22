@@ -102,9 +102,10 @@ jib {
         val dockerHostEnv = System.getenv("DOCKER_HOST")
         if (dockerHostEnv != null) {
             environment = mapOf("DOCKER_HOST" to dockerHostEnv)
-        } else {
+        } else if (System.getProperty("os.name").lowercase().contains("mac")) {
             executable = "/opt/homebrew/bin/docker"
             environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
         }
+        // Linux (CI): default docker + /var/run/docker.sock
     }
 }
