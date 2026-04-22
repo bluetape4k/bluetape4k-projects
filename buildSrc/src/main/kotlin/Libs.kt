@@ -28,7 +28,6 @@ object Plugins {
 
         const val graalvm_native = "1.0.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
-        const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
         const val dependency_check = "12.1.9" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
     }
@@ -62,7 +61,6 @@ object Plugins {
     // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
     const val graalvm_native = "org.graalvm.buildtools.native"
 
-    const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
     const val nmcp = "com.gradleup.nmcp"  // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
     const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"  // https://mvnrepository.com/artifact/com.gradleup.nmcp.aggregation/com.gradleup.nmcp.aggregation.gradle.plugin
     const val dependency_check = "org.owasp.dependencycheck" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle

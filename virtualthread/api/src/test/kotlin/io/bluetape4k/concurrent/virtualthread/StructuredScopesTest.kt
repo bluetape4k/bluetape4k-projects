@@ -125,7 +125,11 @@ class StructuredScopesTest {
             }
             scope.join().result { IllegalStateException(it) }
         }
+<<<<<<< feat/coverage-improvement
         result shouldBeEqualTo "fast"
+=======
+        result.shouldNotBeBlank()
+>>>>>>> develop
     }
 
     @Test
