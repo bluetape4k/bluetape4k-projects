@@ -130,8 +130,8 @@ class FilterTest {
     fun `Group - toString 에 operator 와 filters 정보가 포함된다`() {
         val group = Filter.Group("and", mutableListOf(Filter.Where("x = :x")))
         val str = group.toString()
-        str.shouldNotBeNull()
         str.contains("and").shouldBeTrue()
+        str.contains("x = :x").shouldBeTrue()
     }
 
     @Test
