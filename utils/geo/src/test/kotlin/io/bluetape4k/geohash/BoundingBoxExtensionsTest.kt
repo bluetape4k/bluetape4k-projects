@@ -177,11 +177,7 @@ class BoundingBoxExtensionsTest {
     fun `WGS84Point moveInDirection moves point`() {
         val start = wgs84PointOf(37.5665, 126.9780)
         val moved = start.moveInDirection(90.0, 1000.0)
-<<<<<<< feat/coverage-improvement
         (moved.longitude > start.longitude).shouldBeTrue()
-=======
-        moved.longitude > start.longitude
->>>>>>> develop
     }
 
     @Test
@@ -189,11 +185,7 @@ class BoundingBoxExtensionsTest {
         val a = wgs84PointOf(37.5665, 126.9780)
         val b = wgs84PointOf(37.5665, 126.9880)
         val dist = a.distanceInMeters(b)
-<<<<<<< feat/coverage-improvement
         (dist > 0.0).shouldBeTrue()
-=======
-        dist > 0.0
->>>>>>> develop
     }
 }
 

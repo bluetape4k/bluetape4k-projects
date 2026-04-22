@@ -65,10 +65,7 @@ class InputStreamSourceTest: AbstractOkioTest() {
     fun `close는 예외 없이 InputStream을 닫는다`() {
         val source = "test".toByteArray().inputStream().asSource()
         source.close()
-<<<<<<< feat/coverage-improvement
         source.close()
-=======
->>>>>>> develop
         // close 후에 다시 close 해도 예외가 없어야 함
     }
 
