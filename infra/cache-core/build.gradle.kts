@@ -1,5 +1,17 @@
 plugins {
     `java-test-fixtures`
+    id(Plugins.kover)
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                // management MXBean 클래스는 향후 전면 재정비 예정 — 커버리지 측정 제외
+                packages("io.bluetape4k.cache.nearcache.jcache.management")
+            }
+        }
+    }
 }
 
 configurations {
