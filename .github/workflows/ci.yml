@@ -484,14 +484,14 @@ jobs:
           path: coverage-artifacts/
           retention-days: 14
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage to Coveralls
         if: always()
-        uses: codecov/codecov-action@v5
+        uses: coverallsapp/github-action@v2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           files: coverage-artifacts/**/reports/kover/report.xml
-          fail_ci_if_error: false
-          verbose: false
+          format: jacoco
+          fail-on-error: false
 
   # ── 10. 결과 집계 ─────────────────────────────────────────────────────────
   ci-status:
