@@ -112,6 +112,7 @@ class ElasticsearchServer private constructor(
         addExposedPorts(PORT, TCP_PORT)
         withReuse(reuse)
         withPassword(password)
+        withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT, TCP_PORT)

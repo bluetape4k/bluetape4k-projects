@@ -195,6 +195,20 @@ val client = httpClient {
 val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
 ```
 
+**Virtual Thread Classic HttpClient:**
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+
+// Virtual Thread 기반 커넥션 풀을 사용하는 HC5 Classic 클라이언트
+val client = virtualThreadHttpClientOf(maxConnTotal = 200, maxConnPerRoute = 100)
+
+client.use {
+    val response = it.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
+    println(response.code)
+}
+```
+
 **캐싱 HttpClient:**
 
 ```kotlin

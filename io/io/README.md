@@ -235,8 +235,6 @@ Multiple implementations for serializing and deserializing objects to/from binar
 
 Both `ForyBinarySerializer` and `KryoBinarySerializer` provide a `fast()` factory that enables high-throughput serialization for appropriate use cases.
 
-| Serializer | Mode | Throughput | Use case |
-|---|---|---|---|
 | Serializer | Mode | Throughput | Nullable types? | Use case |
 |---|---|---|---|---|
 | `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, no refTracking | ~116K ops/s (+71%) | ✅ Supported | Volatile caches, fixed-schema DTOs, DAG graphs |

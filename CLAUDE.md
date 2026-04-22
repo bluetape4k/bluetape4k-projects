@@ -54,6 +54,19 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 | `utils/` | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money` |
 | `testing/` | `junit5`, `testcontainers` |
 | `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together |
+| Group            | Key modules                                                                                                                 |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `bluetape4k/`    | `core`, `coroutines`, `logging`, `bom`                                                                                      |
+| `io/`            | `io`, `okio`, `jackson`/`jackson3`, `feign`, `retrofit2`, `protobuf`, `grpc`, `tink`, `csv`, `vertx`                        |
+| `aws/`           | Java SDK v2, 3-tier API (sync→async→coroutines)                                                                             |
+| `aws-kotlin/`    | Kotlin SDK, native suspend                                                                                                  |
+| `data/`          | `exposed-*` (core/dao/jdbc/r2dbc/cache/db-specific), `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`                   |
+| `infra/`         | `lettuce`, `redisson`, `kafka`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`                        |
+| `spring-boot3/`  | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch                                         |
+| `spring-boot4/`  | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`)                 |
+| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `states`, `workflow`, `measured`, `money`                               |
+| `testing/`       | `junit5`, `testcontainers`, `mock-web-server` (Spring Boot 3 MVC), `mock-webflux-server` (Spring Boot 4 WebFlux, port 9999) |
+| `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together                                                       |
 
 ## Kotlin Edit Workflow (MANDATORY)
 
@@ -103,7 +116,10 @@ Verify every item before running `gh pr create`:
 - [ ] `README.md` **and** `README.ko.md` updated for every changed module
 - [ ] KDoc added/updated for all new or modified public APIs
 - [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
-- [ ] `testing/mock-server` changed → rebuild Docker image: `./gradlew :bluetape4k-mock-server:jibDockerBuild --no-configuration-cache`
+- [ ] `testing/mock-web-server` changed → rebuild Docker image:
+  `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
+- [ ] `testing/mock-webflux-server` changed → rebuild Docker image:
+  `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
 - [ ] superpowers work → `docs/superpowers/index/YYYY-MM.md` updated
 - [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
 - [ ] Run CodeRabbit review via `/coderabbit:review` skill before merging

@@ -2,8 +2,12 @@ package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.utils.Runtimex
+import io.r2dbc.pool.ConnectionPoolConfiguration
+import io.r2dbc.spi.ValidationDepth
 import java.time.Duration
 
 /**
@@ -23,6 +27,7 @@ import java.time.Duration
  *     initialSize = 5
  *     minIdle = 5
  *     maxIdleTime = Duration.ofMinutes(5)
+ *     maxValidationTime = Duration.ofSeconds(2)
  * }
  * ```
  *
@@ -30,11 +35,17 @@ import java.time.Duration
  * @property maxLifeTime 커넥션의 최대 생명 주기 (기본값: 30분)
  * @property maxCreateConnectionTime 커넥션 생성 최대 대기 시간 (기본값: 10초)
  * @property maxSize 풀의 최대 커넥션 수 (기본값: CPU 코어 수 × 8, 최소 100)
- * @property initialSize 초기 커넥션 수 (기본값: 8)
+ * @property initialSize 초기 커넥션 수 (기본값: 8, 0이면 지연 생성)
  * @property minIdle 최소 유휴 커넥션 수 (기본값: 8)
  * @property acquireRetry 커넥션 획득 재시도 횟수 (기본값: 3)
  * @property backgroundEvictionInterval 백그라운드 만료 검사 주기 (기본값: 1분)
  * @property maxAcquireTime 커넥션 획득 최대 대기 시간 (기본값: 3초)
+ * @property maxPendingAcquire 풀 한도 도달 시 대기 큐에 둘 커넥션 획득 요청 수 (기본값: -1, 무제한)
+ * @property maxValidationTime 커넥션 검증 최대 대기 시간 (기본값: 2초)
+ * @property validationDepth 커넥션 검증 깊이 (기본값: [ValidationDepth.LOCAL])
+ * @property validationQuery 커넥션 검증 쿼리. 지정하면 검증마다 DB 왕복이 발생하므로 고처리량 경로에서는 기본값(null)을 권장합니다.
+ * @property poolName 풀 이름. JMX 등록 또는 메트릭 식별자가 필요할 때 지정합니다.
+ * @property registerJmx JMX 등록 여부. true이면 [poolName]이 필요합니다.
  */
 data class R2dbcPoolConfig(
     var maxIdleTime: Duration = DEFAULT_MAX_IDLE_TIME,
@@ -46,12 +57,36 @@ data class R2dbcPoolConfig(
     var acquireRetry: Int = DEFAULT_ACQUIRE_RETRY,
     var backgroundEvictionInterval: Duration = DEFAULT_BACKGROUND_EVICTION_INTERVAL,
     var maxAcquireTime: Duration = DEFAULT_MAX_ACQUIRE_TIME,
+    var maxPendingAcquire: Int = DEFAULT_MAX_PENDING_ACQUIRE,
+    var maxValidationTime: Duration = DEFAULT_MAX_VALIDATION_TIME,
+    var validationDepth: ValidationDepth = DEFAULT_VALIDATION_DEPTH,
+    var validationQuery: String? = null,
+    var poolName: String? = null,
+    var registerJmx: Boolean = false,
 ) {
     init {
+        validate()
+    }
+
+    /**
+     * 현재 설정값의 제약을 검증합니다.
+     *
+     * DSL 람다로 생성 후 프로퍼티를 변경하는 경우에도 [ConnectionPoolConfiguration] 변환 직전에
+     * 동일한 제약을 다시 확인할 수 있도록 공개합니다.
+     */
+    fun validate(): R2dbcPoolConfig = apply {
         maxSize.requirePositiveNumber("maxSize")
-        initialSize.requirePositiveNumber("initialSize")
+        initialSize.requireGe(0, "initialSize")
+        initialSize.requireLe(maxSize, "initialSize")
         minIdle.requireGe(0, "minIdle")
+        minIdle.requireLe(maxSize, "minIdle")
         acquireRetry.requireGe(0, "acquireRetry")
+        maxPendingAcquire.requireGe(-1, "maxPendingAcquire")
+        validationQuery?.requireNotBlank("validationQuery")
+        poolName?.requireNotBlank("poolName")
+        if (registerJmx) {
+            poolName.requireNotBlank("poolName")
+        }
     }
 
     companion object : KLogging() {
@@ -81,5 +116,69 @@ data class R2dbcPoolConfig(
 
         /** 커넥션 획득 최대 대기 시간 기본값 */
         val DEFAULT_MAX_ACQUIRE_TIME: Duration = Duration.ofSeconds(3)
+
+        /** 풀 한도 도달 시 커넥션 획득 대기 큐 크기 기본값 (-1: 무제한) */
+        const val DEFAULT_MAX_PENDING_ACQUIRE: Int = -1
+
+        /** 커넥션 검증 최대 대기 시간 기본값 */
+        val DEFAULT_MAX_VALIDATION_TIME: Duration = Duration.ofSeconds(2)
+
+        /** 커넥션 검증 깊이 기본값 */
+        val DEFAULT_VALIDATION_DEPTH: ValidationDepth = ValidationDepth.LOCAL
+
+        /** 고처리량 프리셋의 초기 워밍업 커넥션 수 */
+        val HIGH_THROUGHPUT_WARMUP_SIZE: Int = maxOf(Runtimex.availableProcessors * 2, 16)
+
+        /** 고처리량 프리셋의 유휴 커넥션 유지 시간 */
+        val HIGH_THROUGHPUT_MAX_IDLE_TIME: Duration = Duration.ofMinutes(5)
+
+        /** 고처리량 프리셋의 백그라운드 만료 검사 주기 */
+        val HIGH_THROUGHPUT_BACKGROUND_EVICTION_INTERVAL: Duration = Duration.ofSeconds(30)
+
+        /** 고처리량 프리셋의 커넥션 생성 최대 대기 시간 */
+        val HIGH_THROUGHPUT_MAX_CREATE_CONNECTION_TIME: Duration = Duration.ofSeconds(5)
+
+        /** 고처리량 프리셋의 커넥션 획득 재시도 횟수 */
+        const val HIGH_THROUGHPUT_ACQUIRE_RETRY: Int = 1
+
+        /**
+         * 고처리량 서비스에 맞춘 풀 설정을 생성합니다.
+         *
+         * DB 서버의 실제 `max_connections`, 서비스 인스턴스 수, 쿼리 지연 시간을 기준으로 [maxSize]를
+         * 조정해야 합니다. 기본 프리셋은 워밍업 커넥션을 확보하고, SQL 검증 쿼리는 비활성화해
+         * 커넥션 획득 경로의 추가 DB 왕복을 피합니다.
+         *
+         * @param maxSize 풀의 최대 커넥션 수
+         * @param warmupSize 시작 시 확보할 커넥션 수와 최소 유휴 커넥션 수
+         * @param poolName 풀 이름
+         * @return 고처리량 기본값이 적용된 [R2dbcPoolConfig]
+         */
+        fun highThroughput(
+            maxSize: Int = DEFAULT_MAX_SIZE,
+            warmupSize: Int = minOf(maxSize, HIGH_THROUGHPUT_WARMUP_SIZE),
+            poolName: String? = null,
+        ): R2dbcPoolConfig {
+            val normalizedWarmupSize = warmupSize.coerceAtMost(maxSize)
+            return R2dbcPoolConfig(
+                maxIdleTime = HIGH_THROUGHPUT_MAX_IDLE_TIME,
+                maxLifeTime = DEFAULT_MAX_LIFE_TIME,
+                maxCreateConnectionTime = HIGH_THROUGHPUT_MAX_CREATE_CONNECTION_TIME,
+                maxSize = maxSize,
+                initialSize = normalizedWarmupSize,
+                minIdle = normalizedWarmupSize,
+                acquireRetry = HIGH_THROUGHPUT_ACQUIRE_RETRY,
+                backgroundEvictionInterval = HIGH_THROUGHPUT_BACKGROUND_EVICTION_INTERVAL,
+                maxAcquireTime = DEFAULT_MAX_ACQUIRE_TIME,
+                maxPendingAcquire = pendingAcquireLimit(maxSize),
+                maxValidationTime = DEFAULT_MAX_VALIDATION_TIME,
+                validationDepth = DEFAULT_VALIDATION_DEPTH,
+                validationQuery = null,
+                poolName = poolName,
+                registerJmx = false,
+            )
+        }
+
+        private fun pendingAcquireLimit(maxSize: Int): Int =
+            minOf(Int.MAX_VALUE.toLong(), maxSize.toLong() * 4L).toInt()
     }
 }

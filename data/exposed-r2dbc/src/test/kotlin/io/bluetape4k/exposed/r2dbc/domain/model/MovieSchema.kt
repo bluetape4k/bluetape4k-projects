@@ -15,7 +15,6 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
-import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.select
 import java.time.LocalDate
@@ -105,18 +104,23 @@ object MovieSchema: KLogging() {
             )
         )
 
-        ActorTable.batchInsert(actors) {
-            this[ActorTable.firstName] = it.firstName
-            this[ActorTable.lastName] = it.lastName
-            it.birthday?.let { birthDay ->
-                this[ActorTable.birthday] = LocalDate.parse(birthDay)
+        // PostgreSQL R2DBC batchInsert has autoinc count mismatch bug — use individual inserts
+        actors.forEach { actor ->
+            ActorTable.insert {
+                it[firstName] = actor.firstName
+                it[lastName] = actor.lastName
+                actor.birthday?.let { birthDay ->
+                    it[birthday] = LocalDate.parse(birthDay)
+                }
             }
         }
 
-        MovieTable.batchInsert(movies) {
-            this[MovieTable.name] = it.name
-            this[MovieTable.producerName] = it.producerName
-            this[MovieTable.releaseDate] = LocalDate.parse(it.releaseDate)
+        movies.forEach { movie ->
+            MovieTable.insert {
+                it[name] = movie.name
+                it[producerName] = movie.producerName
+                it[releaseDate] = LocalDate.parse(movie.releaseDate)
+            }
         }
 
         movies.forEach { movie ->

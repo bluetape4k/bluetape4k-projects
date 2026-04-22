@@ -428,11 +428,10 @@ class LettuceSuspendNearCache<V: Any>(
         }
     }
 
-    private fun registerTrackingKey(key: String) {
-        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
-        // write 경로 지연을 줄이기 위해 fire-and-forget으로 등록한다.
-        // 개선: 사전 획득한 `asyncCommands` 를 재사용해 getter 호출 비용을 제거.
-        asyncCommands.get(config.redisKey(key))
+    private suspend fun registerTrackingKey(key: String) {
+        // CLIENT TRACKING 활성화: await을 사용해 GET이 Redis에 처리된 후 반환한다.
+        // fire-and-forget 방식은 외부 SET이 tracking GET보다 먼저 Redis에 도착하는 경쟁 조건을 유발한다.
+        asyncCommands.get(config.redisKey(key)).await()
     }
 
     private suspend fun setRedisBulk(map: Map<String, V>) {
@@ -450,9 +449,8 @@ class LettuceSuspendNearCache<V: Any>(
         }
     }
 
-    private fun registerTrackingKeys(keys: Collection<String>) {
+    private suspend fun registerTrackingKeys(keys: Collection<String>) {
         if (keys.isEmpty()) return
-        // 개선: 사전 획득한 `asyncCommands` 재사용.
-        asyncCommands.mget(*keys.map(config::redisKey).toTypedArray())
+        asyncCommands.mget(*keys.map(config::redisKey).toTypedArray()).await()
     }
 }

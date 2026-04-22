@@ -447,6 +447,8 @@ sequenceDiagram
 
 `parallelism` 수만큼 동시에 변환 함수를 실행합니다. 결과 순서는 보장되지 않습니다.
 
+> **성능 개선 (2026-04-21)**: `FlowParallel`과 `FlowSequential`을 레일별 `Channel` 버퍼와 `select` 기반 fan-in으로 재설계했습니다. 벤치마크 결과 전체 병렬 연산자 처리량이 **geomean +32.7%** 향상되었으며, `mapParallel`은 최대 **+506%** 성능이 개선되었습니다. `AsyncFlow`도 `LazyDeferred` 원자 래퍼 제거로 성능이 향상되었습니다.
+
 ```mermaid
 sequenceDiagram
         participant S as Flow Source

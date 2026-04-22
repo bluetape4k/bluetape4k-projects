@@ -434,13 +434,13 @@ class LettuceNearCache<V: Any>(
     }
 
     private fun registerTrackingKey(key: String) {
-        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
-        // 개선: 사전 획득한 `asyncCommands` 필드를 사용해 getter 호출 비용을 제거한다.
-        asyncCommands.get(config.redisKey(key))
+        // CLIENT TRACKING 활성화: sync commands를 사용해 GET이 Redis에 처리된 후 반환한다.
+        // fire-and-forget 방식은 외부 SET이 tracking GET보다 먼저 Redis에 도착하는 경쟁 조건을 유발한다.
+        commands.get(config.redisKey(key))
     }
 
     private fun registerTrackingKeys(keys: Collection<String>) {
         if (keys.isEmpty()) return
-        asyncCommands.mget(*keys.map(config::redisKey).toTypedArray())
+        commands.mget(*keys.map(config::redisKey).toTypedArray())
     }
 }

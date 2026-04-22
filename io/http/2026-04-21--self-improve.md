@@ -110,8 +110,8 @@ server:
 ```
 
 **변경 이유**: `@Threads(100)` JMH 벤치마크에서 각 스레드가 50ms 요청을 보낼 때,
-기본 Tomcat 스레드 200개가 서버 측 병목이 되어 클라이언트 성능 측정이 왜곡됨.
-Docker 이미지 재빌드(`./gradlew :bluetape4k-mock-server:jibDockerBuild`)로 적용.
+기본 Tomcat 스레드 200개가 서버 측 병목이 되어 클라이언트 성능 측정이 왜곡됨. Docker 이미지 재빌드(
+`./gradlew :bluetape4k-mock-web-server:jibDockerBuild`)로 적용.
 
 ---
 
