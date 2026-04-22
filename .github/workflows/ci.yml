@@ -484,6 +484,15 @@ jobs:
           path: coverage-artifacts/
           retention-days: 14
 
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-artifacts/**/reports/kover/report.xml
+          fail_ci_if_error: false
+          verbose: false
+
   # ── 10. 결과 집계 ─────────────────────────────────────────────────────────
   ci-status:
     name: CI Status
