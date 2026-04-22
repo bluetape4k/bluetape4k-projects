@@ -78,7 +78,7 @@
   - 이미 구현 성숙도 높음 (client/stream/consumer/kv/objectstore)
   - TODO 6.2 infra/nats 항목과 통합 검토
 
-- [ ] **lingua → utils/lingua** (3 kt 파일, 높은 ROI)
+- [x] **lingua → utils/lingua** (3 kt 파일, 높은 ROI)
   - 75+ 언어 자동 감지 — 콘텐츠 분류, 다국어 라우팅, 검색 인덱싱 필수
   - 코드는 작지만 가치 높음 (Lingua 라이브러리 얇은 래퍼)
   - `utils/ai` 신설 시 전처리 도구로 자연스럽게 포함 가능

@@ -366,7 +366,7 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
 - ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
 - ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
-- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
+- **[lingua](./utils/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼와 혼합 언어 `Set<Language>` 검출 지원
 - ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
 - ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
 

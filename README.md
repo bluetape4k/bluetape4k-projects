@@ -369,7 +369,7 @@ No longer maintained. Excluded from the build and scheduled for removal.
 - ~~**javers**~~: JaVers audit log — dropped, low usage
 - ~~**tokenizer**~~: Korean/Japanese morphological analyzer — dropped, low usage
 - ~~**ahocorasick**~~: Aho-Corasick string search — dropped, low usage
-- ~~**lingua**~~: Language detection — dropped, low usage
+- **[lingua](./utils/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua with mixed-language `Set<Language>` detection
 - ~~**naivebayes**~~: Naive Bayes classifier — dropped, low usage
 - ~~**mutiny-examples**~~: Mutiny usage examples — dropped
 
