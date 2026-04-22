@@ -11,6 +11,8 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceClients`                    | `RedisClient` / `StatefulRedisConnection` 팩토리 및 커넥션 풀 관리                                 |
 | `LettuceBinaryCodec<V>`             | `BinarySerializer` 기반 고성능 값 직렬화 Codec (Generic)                                          |
 | `LettuceBinaryCodecs`               | 직렬화(Jdk/Kryo/Fory) × 압축(GZip/Deflate/LZ4/Snappy/Zstd) 조합 팩토리                             |
+| `LettuceJsonCodec<V>`               | JSON 기반 값 직렬화 Codec (Jackson 3.x 또는 Fastjson2) — 사람이 읽을 수 있는 JSON 텍스트로 저장               |
+| `LettuceJsonCodecs`                 | `jackson3<V>()` / `fastjson2<V>()` 팩토리 메서드 제공                                            |
 | `LettuceIntCodec`                   | Int 값을 4바이트 big-endian으로 직렬화하는 Codec (Redisson `IntegerCodec`과 호환)                       |
 | `LettuceLongCodec`                  | Long 값을 8바이트 big-endian으로 직렬화하는 Codec (Redisson `LongCodec`과 호환)                         |
 | `LettuceProtobufCodecs`             | Protobuf 기반 Codec 팩토리 (`bluetape4k-protobuf` 필요)                                         |
@@ -212,6 +214,8 @@ val results = listOf(
 
 ## Codec 조합표
 
+### 바이너리 Codec (`LettuceBinaryCodecs`)
+
 | 팩토리 메서드             | 직렬화  | 압축     |
 |---------------------|------|--------|
 | `jdk()`             | JDK  | 없음     |
@@ -222,6 +226,33 @@ val results = listOf(
 | `zstdFory()`        | Fory | Zstd   |
 | `snappyFory()`      | Fory | Snappy |
 | `gzipFory()`        | Fory | GZip   |
+
+### JSON Codec (`LettuceJsonCodecs`)
+
+사람이 읽을 수 있는 JSON 텍스트 저장. 디버깅이나 타 시스템과의 상호 운용성에 유용합니다.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.codec.LettuceJsonCodecs
+
+data class User(val id: Long, val name: String)
+
+// Jackson 3.x JSON Codec
+val jacksonCodec = LettuceJsonCodecs.jackson3<User>()
+val jacksonConnection = redisClient.connect(jacksonCodec)
+val cmds = jacksonConnection.sync()
+
+cmds.set("user:1", User(1L, "Alice"))
+val user = cmds.get("user:1")   // User(id=1, name="Alice")
+
+// Fastjson2 JSON Codec
+val fastjsonCodec = LettuceJsonCodecs.fastjson2<User>()
+val fastjsonConnection = redisClient.connect(fastjsonCodec)
+```
+
+| 팩토리 메서드           | 직렬화       | 포맷  | 설명                        |
+|-------------------|-----------|-----|---------------------------|
+| `jackson3<V>()`   | Jackson 3 | JSON | Jackson ObjectMapper 기반  |
+| `fastjson2<V>()`  | Fastjson2 | JSON | Fastjson2 JSON 기반         |
 
 ### Primitive Codec
 

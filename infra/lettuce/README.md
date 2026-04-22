@@ -12,6 +12,8 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceClients`                    | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`                                                         |
 | `LettuceBinaryCodec<V>`             | High-performance generic value serialization codec based on `BinarySerializer`                                                               |
 | `LettuceBinaryCodecs`               | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)                                                |
+| `LettuceJsonCodec<V>`               | JSON-based value codec using Jackson 3.x or Fastjson2 — stores values as human-readable JSON text                                            |
+| `LettuceJsonCodecs`                 | Factory object providing `jackson3<V>()` and `fastjson2<V>()` factory methods                                                                |
 | `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                                       |
 | `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                                         |
 | `LettuceProtobufCodecs`             | Protobuf-based codec factory (requires `bluetape4k-protobuf`)                                                                                |
@@ -215,6 +217,8 @@ val results = listOf(
 
 ## Codec Combinations
 
+### Binary Codecs (`LettuceBinaryCodecs`)
+
 | Factory Method          | Serializer | Compression |
 |-------------------------|------------|-------------|
 | `jdk()`                 | JDK        | None        |
@@ -225,6 +229,33 @@ val results = listOf(
 | `zstdFory()`            | Fory       | Zstd        |
 | `snappyFory()`          | Fory       | Snappy      |
 | `gzipFory()`            | Fory       | GZip        |
+
+### JSON Codecs (`LettuceJsonCodecs`)
+
+Human-readable JSON text storage. Useful for debugging or interoperability with other systems.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.codec.LettuceJsonCodecs
+
+data class User(val id: Long, val name: String)
+
+// Jackson 3.x JSON codec
+val jacksonCodec = LettuceJsonCodecs.jackson3<User>()
+val jacksonConnection = redisClient.connect(jacksonCodec)
+val cmds = jacksonConnection.sync()
+
+cmds.set("user:1", User(1L, "Alice"))
+val user = cmds.get("user:1")   // User(id=1, name="Alice")
+
+// Fastjson2 JSON codec
+val fastjsonCodec = LettuceJsonCodecs.fastjson2<User>()
+val fastjsonConnection = redisClient.connect(fastjsonCodec)
+```
+
+| Factory Method      | Serializer | Format | Description                |
+|---------------------|------------|--------|----------------------------|
+| `jackson3<V>()`     | Jackson 3  | JSON   | Jackson ObjectMapper-based |
+| `fastjson2<V>()`    | Fastjson2  | JSON   | Fastjson2 JSON-based       |
 
 ### Primitive Codecs
 
