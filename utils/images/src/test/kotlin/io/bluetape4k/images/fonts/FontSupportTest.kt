@@ -2,6 +2,7 @@ package io.bluetape4k.images.fonts
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.awt.Font
@@ -43,5 +44,49 @@ class FontSupportTest {
         DEFAULT_FONT.family shouldBeEqualTo Font.SANS_SERIF
         DEFAULT_FONT.style shouldBeEqualTo Font.PLAIN
         DEFAULT_FONT.size shouldBeEqualTo DEFAULT_FONT_SIZE
+    }
+
+    @Test
+    fun `TrueType 폰트를 리소스에서 로드한다`() {
+        val font = createTrueTypeFont("Roboto-Regular.ttf", size = 18)
+
+        font.shouldNotBeNull()
+        font.size shouldBeEqualTo 18
+    }
+
+    @Test
+    fun `TrueType 폰트를 기본 크기로 로드한다`() {
+        val font = createTrueTypeFont()
+
+        font.shouldNotBeNull()
+        font.size shouldBeEqualTo DEFAULT_FONT_SIZE
+    }
+
+    @Test
+    fun `IIORegistryUtils - getImageReaderSpis 목록을 반환한다`() {
+        val spis = io.bluetape4k.images.IIORegistryUtils.getImageReaderSpis()
+        spis.shouldNotBeNull()
+        spis.isNotEmpty().shouldBeTrue()
+    }
+
+    @Test
+    fun `IIORegistryUtils - getImageWriterSpis 목록을 반환한다`() {
+        val spis = io.bluetape4k.images.IIORegistryUtils.getImageWriterSpis()
+        spis.shouldNotBeNull()
+        spis.isNotEmpty().shouldBeTrue()
+    }
+
+    @Test
+    fun `IIORegistryUtils - getReadImageFormatNames 를 직접 호출한다`() {
+        val names = io.bluetape4k.images.IIORegistryUtils.getReadImageFormatNames()
+        names.shouldNotBeNull()
+        names.isNotEmpty().shouldBeTrue()
+    }
+
+    @Test
+    fun `IIORegistryUtils - getWriteImageFormatNames 를 직접 호출한다`() {
+        val names = io.bluetape4k.images.IIORegistryUtils.getWriteImageFormatNames()
+        names.shouldNotBeNull()
+        names.isNotEmpty().shouldBeTrue()
     }
 }

@@ -118,6 +118,50 @@ class SpecialFunctionsTest {
         2.0.logBeta(3.0).shouldBeNear(3.0.logBeta(2.0), 1e-10)
     }
 
+    // ----- erf(x2) 구간 오차 함수 -----
+
+    @Test
+    fun `erf 구간 함수가 erf 차와 같다`() {
+        // erf(x1, x2) = erf(x2) - erf(x1)
+        val x1 = 0.5
+        val x2 = 1.5
+        x1.erf(x2).shouldBeNear(x2.erf() - x1.erf(), 1e-10)
+    }
+
+    @Test
+    fun `erf 구간 함수 x1=0 이면 erf(x2) 와 같다`() {
+        val x2 = 1.0
+        0.0.erf(x2).shouldBeNear(x2.erf(), 1e-10)
+    }
+
+    // ----- erfcInv -----
+
+    @Test
+    fun `erfcInv 가 erfc 의 역함수이다`() {
+        val x = 0.5
+        x.erfc().erfcInv().shouldBeNear(x, 1e-10)
+    }
+
+    @Test
+    fun `erfcInv 1 에서 0 을 반환한다`() {
+        1.0.erfcInv().shouldBeNear(0.0, 1e-10)
+    }
+
+    // ----- logGamma1p -----
+
+    @Test
+    fun `logGamma1p 가 logGamma(1 + x) 와 같다`() {
+        // logGamma1p(x) accepts x in range [-0.5, 1.5]
+        val x = 1.0
+        x.logGamma1p().shouldBeNear((1.0 + x).logGamma(), 1e-10)
+    }
+
+    @Test
+    fun `logGamma1p 0 에서 0 을 반환한다`() {
+        // logGamma1p(0) = logGamma(1) = 0
+        0.0.logGamma1p().shouldBeNear(0.0, 1e-10)
+    }
+
     // ----- besselj -----
 
     @Test
@@ -128,5 +172,12 @@ class SpecialFunctionsTest {
     @Test
     fun `besselj order 1 에서 x=0 이면 0 이다`() {
         0.0.besselj(1.0).shouldBeNear(0.0, 1e-10)
+    }
+
+    @Test
+    fun `besselj order 0 에서 알려진 값과 일치한다`() {
+        // J_0(0) = 1, J_0(2) ≈ 0.22389 (양수)
+        0.0.besselj(0.0).shouldBeNear(1.0, 1e-10)
+        2.0.besselj(0.0).shouldBeNear(0.22389, 1e-4)
     }
 }

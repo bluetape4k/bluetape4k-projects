@@ -3,6 +3,7 @@ package io.bluetape4k.math.special
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNear
+import org.apache.commons.math3.special.Gamma as ApacheGamma
 import org.junit.jupiter.api.Test
 import kotlin.math.ln
 
@@ -106,5 +107,39 @@ class GammaFunctionsTest {
         result[0].shouldBeNear(1.0, 1e-10)
         result[1].shouldBeNear(1.0, 1e-10)
         result[2].shouldBeNear(2.0, 1e-10)
+    }
+
+    // ----- gammaLowerIncomplete -----
+
+    @Test
+    fun `gammaLowerIncomplete a=1 이면 1-exp(-x) 와 같다`() {
+        // gamma(1, x) = 1 - exp(-x) (정규화 전)
+        val a = 1.0
+        val x = 1.0
+        // gammaLowerIncomplete(a, x) = gammaLowerRegularized(a, x) * gamma(a)
+        // gamma(1) = 1이므로 gammaLowerRegularized(1, x) = gammaLowerIncomplete(1, x)
+        gammaLowerIncomplete(a, x).shouldBeNear(1.0 - Math.exp(-x), 1e-10)
+    }
+
+    @Test
+    fun `gammaLowerIncomplete 와 gammaUpperIncomplete 의 합이 gamma(a) 이다`() {
+        val a = 2.0
+        val x = 1.5
+        val lower = gammaLowerIncomplete(a, x)
+        val upper = gammaUpperIncomplete(a, x)
+        (lower + upper).shouldBeNear(ApacheGamma.gamma(a), 1e-10)
+    }
+
+    // ----- gammaUpperIncomplete -----
+
+    @Test
+    fun `gammaUpperIncomplete x=0 이면 gamma(a) 이다`() {
+        val a = 3.0
+        gammaUpperIncomplete(a, 0.0).shouldBeNear(ApacheGamma.gamma(a), 1e-10)
+    }
+
+    @Test
+    fun `gammaUpperIncomplete 큰 x 에서 0 에 수렴한다`() {
+        gammaUpperIncomplete(1.0, 100.0).shouldBeNear(0.0, 1e-10)
     }
 }
