@@ -113,6 +113,7 @@ class PulsarServer private constructor(
     init {
         withReuse(reuse)
         addExposedPorts(PORT, HTTP_PORT)
+        withEnv("PULSAR_MEM", "-Xms256m -Xmx256m")
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT, HTTP_PORT)
