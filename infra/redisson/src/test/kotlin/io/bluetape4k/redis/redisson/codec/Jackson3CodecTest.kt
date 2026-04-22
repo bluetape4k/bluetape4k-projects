@@ -153,4 +153,12 @@ class Jackson3CodecTest {
         codec.mapKeyEncoder.shouldNotBeNull()
         codec.mapKeyDecoder.shouldNotBeNull()
     }
+
+    @Test
+    fun `Jackson3Codec toString 에는 fallback 과 allowedPrefixes 정보가 포함된다`() {
+        val codec = Jackson3Codec(allowedPackagePrefixes = setOf("io.bluetape4k."))
+        val str = codec.toString()
+        str.contains("Jackson3Codec") shouldBeEqualTo true
+        str.contains("allowedPrefixes") shouldBeEqualTo true
+    }
 }

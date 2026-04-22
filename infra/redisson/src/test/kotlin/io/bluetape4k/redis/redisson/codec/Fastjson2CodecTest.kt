@@ -193,4 +193,12 @@ class Fastjson2CodecTest {
         codec.mapKeyEncoder.shouldNotBeNull()
         codec.mapKeyDecoder.shouldNotBeNull()
     }
+
+    @Test
+    fun `Fastjson2Codec toString 에는 fallback 과 allowedPrefixes 정보가 포함된다`() {
+        val codec = Fastjson2Codec(allowedPackagePrefixes = setOf("io.bluetape4k."))
+        val str = codec.toString()
+        str.contains("Fastjson2Codec") shouldBeEqualTo true
+        str.contains("allowedPrefixes") shouldBeEqualTo true
+    }
 }

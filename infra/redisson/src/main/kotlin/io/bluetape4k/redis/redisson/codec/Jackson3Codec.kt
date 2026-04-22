@@ -102,7 +102,7 @@ class Jackson3Codec(
             if (typeNode != null && typeNode.isTextual) {
                 val className = typeNode.asText()
                 validateClassName(className)
-                val cl = classLoader ?: Thread.currentThread().contextClassLoader
+                val cl = classLoader ?: Thread.currentThread().contextClassLoader ?: javaClass.classLoader
                 val clazz = Class.forName(className, false, cl)
                 mapper.treeToValue(tree.get(DATA_FIELD), clazz)
             } else {
@@ -123,4 +123,7 @@ class Jackson3Codec(
 
     override fun getValueEncoder(): Encoder = encoder
     override fun getValueDecoder(): Decoder<Any> = decoder
+
+    override fun toString(): String =
+        "Jackson3Codec(fallback=${fallbackCodec.javaClass.simpleName}, allowedPrefixes=$allowedPackagePrefixes)"
 }

@@ -127,4 +127,7 @@ class Fastjson2Codec(
 
     override fun getValueEncoder(): Encoder = encoder
     override fun getValueDecoder(): Decoder<Any> = decoder
+
+    override fun toString(): String =
+        "Fastjson2Codec(fallback=${fallbackCodec.javaClass.simpleName}, allowedPrefixes=$allowedPackagePrefixes)"
 }
