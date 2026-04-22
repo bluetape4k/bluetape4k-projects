@@ -34,7 +34,6 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 ## After Code Changes
 
 - [ ] Run compile + tests
-- [ ] Record result at top of `docs/testlogs/YYYY-MM.md` (skip for doc-only changes)
 - [ ] When changing a module: sync-update both `README.md` **and** `README.ko.md`
 - [ ] After superpowers work: add entry to `docs/superpowers/index/YYYY-MM.md` → update count in `docs/superpowers/INDEX.md`
 - [ ] When creating a new spec/plan: run `/wiki-update`
@@ -98,8 +97,8 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 Verify every item before running `gh pr create`:
 
-- [ ] All tests pass for changed modules
-- [ ] `docs/testlogs/YYYY-MM.md` entry recorded (skip for doc-only changes)
+- [ ] All tests pass for changed modules (CI가 자동 검증)
+- [ ] PR description에 테스트 결과·수정 근거·검증 명령 상세 기록
 - [ ] `README.md` **and** `README.ko.md` updated for every changed module
 - [ ] KDoc added/updated for all new or modified public APIs
 - [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
