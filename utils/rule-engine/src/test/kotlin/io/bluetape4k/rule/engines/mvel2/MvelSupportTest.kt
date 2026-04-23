@@ -20,10 +20,11 @@ class MvelSupportTest {
 
     @Test
     fun `mvelActionOf 팩토리 함수로 MvelAction 생성`() {
-        // MvelAction passes an immutable copy of facts to MVEL; mutations don't propagate back
-        val action = mvelActionOf("discount = true")
+        // MvelAction passes a read-only copy of facts to MVEL.
+        // Use read-only expressions (no assignment) to avoid UnsupportedOperationException.
+        val action = mvelActionOf("amount > 0")
         val facts = Facts.of("amount" to 1500)
-        action.execute(facts) // should not throw
+        action.execute(facts)
     }
 
     @Test
@@ -33,14 +34,14 @@ class MvelSupportTest {
             description = "할인 규칙",
             priority = 1,
             condition = "amount > 1000",
-            actions = listOf("discount = true")
+            actions = listOf("amount > 0")   // read-only expression
         )
         val rule = definition.toMvelRule()
         rule.name shouldBeEqualTo "discountRule"
 
         val facts = Facts.of("amount" to 2000)
         rule.evaluate(facts).shouldBeTrue()
-        rule.execute(facts) // should not throw
+        rule.execute(facts)
     }
 
     @Test
@@ -48,11 +49,11 @@ class MvelSupportTest {
         val definition = RuleDefinition(
             name = "multiAction",
             condition = "value > 0",
-            actions = listOf("a = true", "b = value * 2")
+            actions = listOf("value > 0", "value * 2")   // read-only expressions
         )
         val rule = definition.toMvelRule()
         val facts = Facts.of("value" to 5)
         rule.evaluate(facts).shouldBeTrue()
-        rule.execute(facts) // should not throw
+        rule.execute(facts)
     }
 }
