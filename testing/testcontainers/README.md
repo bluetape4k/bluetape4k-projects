@@ -75,6 +75,12 @@ classDiagram
         +jsonplaceholderUrl: String
         +webUrl: String
     }
+    class BluetapeWebfluxServer {
+        +url: String
+        +httpbinUrl: String
+        +jsonplaceholderUrl: String
+        +webUrl: String
+    }
 
     GenericServer <|-- PostgreSQLServer
     GenericServer <|-- PostgisServer
@@ -84,6 +90,7 @@ classDiagram
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
     GenericServer <|-- BluetapeHttpServer
+    GenericServer <|-- BluetapeWebfluxServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
@@ -96,6 +103,7 @@ classDiagram
     style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style BluetapeHttpServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
+    style BluetapeWebfluxServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
 ```
 
 ### Supported Container Structure
@@ -156,6 +164,7 @@ flowchart TD
     subgraph HTTPMock
         WM["WireMockServer"]
         BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
+        BWS["BluetapeWebfluxServer\n(WebFlux+Coroutines)"]
     end
 
     subgraph AWS
@@ -188,7 +197,7 @@ flowchart TD
     class KF,RB,PL,NT,RP mqStyle
     class CN,VT,PR,ZK,TX,KC infraStyle
     class TR sqlStyle
-    class WM,BHS mockStyle
+    class WM,BHS,BWS mockStyle
     class LS awsStyle
 ```
 
@@ -237,6 +246,8 @@ Every server implements
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| BluetapeHttpServer  | `bluetape-http` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`              |
+| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`          |
 
 ## Usage Examples
 
@@ -351,6 +362,55 @@ val server = BluetapeHttpServer().apply { start() }
 
 // Fixed port 80 (container's internal port)
 val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
+```
+
+### BluetapeWebfluxServer (Spring WebFlux + Coroutines)
+
+`BluetapeWebfluxServer` runs the `bluetape4k/mock-webflux-server` Docker image — a Spring Boot 4
+WebFlux + Coroutines variant with the same httpbin/jsonplaceholder/web endpoints.
+
+```kotlin
+// Singleton — starts once, shared across all tests
+val server = BluetapeWebfluxServer.Launcher.bluetapeWebfluxServer
+
+// Pre-built URL helpers
+val baseUrl             = server.url                // http://host:<port>
+val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl              = server.webUrl             // http://host:<port>/web
+```
+
+#### Exported System Properties
+
+After `start()`, the following system properties are registered automatically:
+
+| Property Key                                         | Example Value                                |
+|------------------------------------------------------|----------------------------------------------|
+| `testcontainers.bluetape-webflux.host`               | `localhost`                                  |
+| `testcontainers.bluetape-webflux.port`               | `<dynamic>`                                  |
+| `testcontainers.bluetape-webflux.url`                | `http://localhost:<dynamic>`                 |
+| `testcontainers.bluetape-webflux.httpbinUrl`         | `http://localhost:<dynamic>/httpbin`         |
+| `testcontainers.bluetape-webflux.jsonplaceholderUrl` | `http://localhost:<dynamic>/jsonplaceholder` |
+| `testcontainers.bluetape-webflux.webUrl`             | `http://localhost:<dynamic>/web`             |
+
+#### Spring Boot `application-test.yml`
+
+```yaml
+mock:
+  webflux:
+    url: ${testcontainers.bluetape-webflux.url}
+    httpbin-url: ${testcontainers.bluetape-webflux.httpbinUrl}
+    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholderUrl}
+```
+
+#### Manual instance (non-singleton)
+
+```kotlin
+// Dynamic port (default)
+val server = BluetapeWebfluxServer().apply { start() }
+
+// Fixed port 80
+val server = BluetapeWebfluxServer(useDefaultPort = true).apply { start() }
 ```
 
 ### Keycloak (Auth Server)
