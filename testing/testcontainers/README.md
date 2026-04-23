@@ -246,8 +246,8 @@ Every server implements
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
-| BluetapeHttpServer  | `bluetape-http` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`              |
-| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`          |
+| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## Usage Examples
 
@@ -384,14 +384,16 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 After `start()`, the following system properties are registered automatically:
 
-| Property Key                                         | Example Value                                |
-|------------------------------------------------------|----------------------------------------------|
-| `testcontainers.bluetape-webflux.host`               | `localhost`                                  |
-| `testcontainers.bluetape-webflux.port`               | `<dynamic>`                                  |
-| `testcontainers.bluetape-webflux.url`                | `http://localhost:<dynamic>`                 |
-| `testcontainers.bluetape-webflux.httpbinUrl`         | `http://localhost:<dynamic>/httpbin`         |
-| `testcontainers.bluetape-webflux.jsonplaceholderUrl` | `http://localhost:<dynamic>/jsonplaceholder` |
-| `testcontainers.bluetape-webflux.webUrl`             | `http://localhost:<dynamic>/web`             |
+| Property Key                                             | Example Value                                |
+|----------------------------------------------------------|----------------------------------------------|
+| `testcontainers.bluetape-webflux.host`                   | `localhost`                                  |
+| `testcontainers.bluetape-webflux.port`                   | `<dynamic>`                                  |
+| `testcontainers.bluetape-webflux.url`                    | `http://localhost:<dynamic>`                 |
+| `testcontainers.bluetape-webflux.httpbin-url`            | `http://localhost:<dynamic>/httpbin`         |
+| `testcontainers.bluetape-webflux.jsonplaceholder-url`    | `http://localhost:<dynamic>/jsonplaceholder` |
+| `testcontainers.bluetape-webflux.web-url`                | `http://localhost:<dynamic>/web`             |
+| `testcontainers.bluetape-webflux.https-port`             | `<dynamic>`                                  |
+| `testcontainers.bluetape-webflux.https-url`              | `https://localhost:<dynamic>`                |
 
 #### Spring Boot `application-test.yml`
 

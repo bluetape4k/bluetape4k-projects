@@ -251,8 +251,8 @@ flowchart TD
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
-| BluetapeHttpServer  | `bluetape-http` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`              |
-| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`          |
+| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## 사용 예
 
@@ -391,14 +391,16 @@ val webUrl              = server.webUrl             // http://host:<port>/web
 
 `start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
 
-| 프로퍼티 키                                               | 예시 값                                    |
-|------------------------------------------------------|-----------------------------------------|
-| `testcontainers.bluetape-webflux.host`               | `localhost`                             |
-| `testcontainers.bluetape-webflux.port`               | `<동적>`                                  |
-| `testcontainers.bluetape-webflux.url`                | `http://localhost:<동적>`                 |
-| `testcontainers.bluetape-webflux.httpbinUrl`         | `http://localhost:<동적>/httpbin`         |
-| `testcontainers.bluetape-webflux.jsonplaceholderUrl` | `http://localhost:<동적>/jsonplaceholder` |
-| `testcontainers.bluetape-webflux.webUrl`             | `http://localhost:<동적>/web`             |
+| 프로퍼티 키                                                  | 예시 값                                    |
+|----------------------------------------------------------|-----------------------------------------|
+| `testcontainers.bluetape-webflux.host`                   | `localhost`                             |
+| `testcontainers.bluetape-webflux.port`                   | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.url`                    | `http://localhost:<동적>`                 |
+| `testcontainers.bluetape-webflux.httpbin-url`            | `http://localhost:<동적>/httpbin`         |
+| `testcontainers.bluetape-webflux.jsonplaceholder-url`    | `http://localhost:<동적>/jsonplaceholder` |
+| `testcontainers.bluetape-webflux.web-url`                | `http://localhost:<동적>/web`             |
+| `testcontainers.bluetape-webflux.https-port`             | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.https-url`              | `https://localhost:<동적>`                |
 
 #### Spring Boot `application-test.yml`
 
